@@ -1,18 +1,13 @@
-import type { LoginStore } from '@/modules/login/repository/store/LoginStore.ts';
-import type { ScyllaResult } from '@/modules/core/domain/ScyllaResult.ts';
-import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
+import type { LoginRemoteStore } from '@/modules/login/repository/store/LoginRemoteStore.ts';
+import type { ScyllaResult } from '@core/utils/ScyllaResult.ts';
 import { AuthServiceClient } from '@/generated/auth.client.ts';
+import type { CoreGrpcTransport } from '@core/data/grpc/CoreGrpcTransport.ts';
 
-export class LoginStoreImpl implements LoginStore {
+export class LoginRemoteStoreImpl implements LoginRemoteStore {
   private readonly _authClient: AuthServiceClient;
 
-  constructor() {
-    const apiUrl = import.meta.env.VITE_API_URL ?? '';
-    const transport = new GrpcWebFetchTransport({
-      baseUrl: apiUrl,
-      format: 'binary',
-    });
-    this._authClient = new AuthServiceClient(transport);
+  constructor(transport: CoreGrpcTransport) {
+    this._authClient = new AuthServiceClient(transport.getTransport());
   }
 
   //TODO: add a logger (console error for developer, only if a debug env var is set) ??
