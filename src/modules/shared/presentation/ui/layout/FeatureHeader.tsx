@@ -3,9 +3,8 @@ import { useState } from 'react';
 import { Trans } from '@lingui/react/macro';
 import { Button } from '@shadcn';
 import { Trash } from 'lucide-react';
-import { ConfirmOperationAlertDialog } from '@shared/presentation/ui/ConfirmOperationAlertDialog.tsx';
+import { ConfirmOperationAlertDialog } from '@shared/presentation/ui/feedback/ConfirmOperationAlertDialog.tsx';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shadcn/tooltip.tsx';
-import { BackButton } from '@shared/presentation/ui/BackButton.tsx';
 import { toast } from 'sonner';
 
 interface FeatureHeaderProps {
@@ -14,12 +13,14 @@ interface FeatureHeaderProps {
   underLabel?: ReactNode;
   pluralLabel?: ReactNode;
   selectedCount?: number;
+  /** True when every selectable row is already selected — hides the "Select all" button. */
+  allSelected?: boolean;
+  onSelectAll?: () => void;
   onClearSelection?: () => void;
   onDeleteSelection?: () => Promise<void> | void;
   onNew?: () => void;
   newLabel?: ReactNode;
   extraActions?: ReactNode;
-  onBack?: () => void;
 }
 
 export const FeatureHeader = ({
@@ -27,12 +28,13 @@ export const FeatureHeader = ({
   label,
   pluralLabel,
   selectedCount = 0,
+  allSelected = false,
+  onSelectAll,
   onClearSelection,
   onDeleteSelection,
   onNew,
   newLabel,
   extraActions,
-  onBack,
   underLabel,
 }: FeatureHeaderProps) => {
   const displayLabel = count && count > 1 ? (pluralLabel ?? label) : label;
@@ -46,6 +48,7 @@ export const FeatureHeader = ({
       toast.success(`${selectedCount} ${itemLabel}s deleted`);
     } catch {
       // Toast shown by the global MutationCache onError handler.
+      setDeleteDialogOpen(false);
     }
   };
 
@@ -53,7 +56,6 @@ export const FeatureHeader = ({
     <div className={'flex flex-row items-end justify-between w-full'}>
       <div className={'flex flex-col gap-2'}>
         <div className={'flex flex-row gap-4'}>
-          {onBack && <BackButton iconOnly onClick={onBack} />}
           <div className='flex items-baseline gap-2'>
             <h1 className='text-3xl font-bold tracking-tight'>
               {count !== undefined && <span className='text-primary mr-2 '>{count}</span>}
@@ -70,6 +72,11 @@ export const FeatureHeader = ({
       </div>
 
       <div className={'flex items-center justify-end gap-2'}>
+        {onSelectAll && !allSelected && !!count && (
+          <Button variant={'outline'} onClick={onSelectAll}>
+            <Trans>Select all</Trans>
+          </Button>
+        )}
         {selectedCount > 0 && onClearSelection && (
           <Button variant={'outline'} onClick={onClearSelection}>
             <Trans>Clear</Trans>
