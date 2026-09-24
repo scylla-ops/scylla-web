@@ -1,6 +1,6 @@
-# Scylla Frontend
+# Scylla Web
 
-Welcome to the Scylla frontend repository.
+Welcome to the Scylla web client repository.
 
 ## Getting Started
 
