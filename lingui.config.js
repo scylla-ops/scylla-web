@@ -29,6 +29,10 @@ export default defineConfig({
       include: ['extensions/scylla-base/src/features/marketplace/'],
     },
     {
+      path: '<rootDir>/extensions/scylla-base/src/features/extensions/locales/{locale}/messages',
+      include: ['extensions/scylla-base/src/features/extensions/'],
+    },
+    {
       path: '<rootDir>/extensions/scylla-base/src/features/organization/locales/{locale}/messages',
       include: ['extensions/scylla-base/src/features/organization/'],
     },
