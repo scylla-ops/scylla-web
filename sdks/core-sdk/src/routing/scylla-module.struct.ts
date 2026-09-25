@@ -7,6 +7,7 @@ import type {
   QueryErrorHandler,
   ShellContributions,
 } from '../extension/contributions.struct.ts';
+import type { QueryRetryPolicy } from '../extension/contributions.struct.ts';
 import type { RoutePermission } from '../extension/register.struct.ts';
 import type { BreadcrumbFn } from './crumb.struct.ts';
 import type { MountDefinition } from './mount.struct.ts';
@@ -65,6 +66,7 @@ export interface ScyllaModule<TDomain extends object = object> {
   readonly access?: AccessPolicy;
   readonly shell?: ShellContributions;
   readonly onQueryError?: QueryErrorHandler;
+  readonly onQueryRetry?: QueryRetryPolicy;
   /** The page when no route matches. Exactly one module in the app. */
   readonly fallback?: Component;
 }

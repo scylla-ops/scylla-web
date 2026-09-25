@@ -19,7 +19,7 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 |---|---|
 | Extension | `Extension` (the class decorator), `extensionOf`, `ExtensionManifest`, `ExtensionClass`, `installedExtensions`, `setInstalledExtensions` |
 | Module | `ScyllaModule`, `ModuleRoute`, `ModuleRoutes`, `NavLink`, `PageLoader`, `PageComponent`, `RouteMount`, `RouteParams`, `RouteSource` |
-| Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `QueryErrorHandler`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
+| Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `QueryErrorHandler`, `QueryRetryPolicy`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
 | Crumbs | `BreadcrumbFn`, `BreadcrumbParams`, `Crumb`, `TrailCrumb` |
 | Permission type | `Register` (augmented by one extension), `RoutePermission` |
 | Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect` |
@@ -33,7 +33,7 @@ src/
   index.ts
   extension/  extension.decorator.ts   @Extension, extensionOf, ExtensionManifest
               installed-extensions.ts  the manifests the core loaded, for a page that lists them
-              contributions.struct.ts  AccessPolicy, NavSectionDefinition, ShellContributions, QueryErrorHandler
+              contributions.struct.ts  AccessPolicy, NavSectionDefinition, ShellContributions, QueryErrorHandler, QueryRetryPolicy
               register.struct.ts       Register, RoutePermission
   routing/    scylla-module.struct.ts  ScyllaModule, ModuleRoute, NavLink
               mount.struct.ts, route.struct.ts, crumb.struct.ts, Redirect.svelte
@@ -62,7 +62,7 @@ export class ScyllaCloudExtension {}
   `esbuild.target` so that the dev server lowers it, and the Lingui Babel pass parses it.
 - Everything else is **in the modules**. A feature module declares `domain` and `routes`, with
   its sidebar links in `nav`. The module that builds the frame (scylla-base: `ShellModule`)
-  declares `mounts`, `navSections`, `access`, `shell`, `onQueryError` and `fallback`.
+  declares `mounts`, `navSections`, `access`, `shell`, `onQueryError`, `onQueryRetry` and `fallback`.
 
 ## `Register` — the type of a route's `permission`
 
