@@ -51,8 +51,9 @@ src/
 ## Start-up — `startCore`
 
 1. `loadExtensions` reads the `@Extension` of each class and checks it (below).
-2. The catalogs are registered (the core's, then each extension's), the DI registry, the query
-   client and the shell config are installed.
+2. The catalogs are registered (the core's, then each extension's), the DI registry, the
+   installed extensions (`setInstalledExtensions`), the query client and the shell config are
+   installed.
 3. `initializeAppLocale()` — before the first render, so no frame shows untranslated text.
 4. `setAppNavigator(createAppRouter(app.router))`, then `mount(App)`.
 

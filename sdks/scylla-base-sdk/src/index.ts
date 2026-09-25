@@ -9,6 +9,7 @@ export * from '@scylla/base/scylla-result';
 export * from '@scylla/base/features/agents';
 export * from '@scylla/base/features/apps';
 export * from '@scylla/base/features/dashboard';
+export * from '@scylla/base/features/extensions';
 export * from '@scylla/base/features/jobs';
 export * from '@scylla/base/features/login';
 export * from '@scylla/base/features/marketplace';

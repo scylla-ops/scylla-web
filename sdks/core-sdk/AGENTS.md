@@ -17,7 +17,7 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 
 | Group | Exports |
 |---|---|
-| Extension | `Extension` (the class decorator), `extensionOf`, `ExtensionManifest`, `ExtensionClass` |
+| Extension | `Extension` (the class decorator), `extensionOf`, `ExtensionManifest`, `ExtensionClass`, `installedExtensions`, `setInstalledExtensions` |
 | Module | `ScyllaModule`, `ModuleRoute`, `ModuleRoutes`, `NavLink`, `PageLoader`, `PageComponent`, `RouteMount`, `RouteParams`, `RouteSource` |
 | Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `QueryErrorHandler`, `QueryRetryPolicy`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
 | Crumbs | `BreadcrumbFn`, `BreadcrumbParams`, `Crumb`, `TrailCrumb` |
@@ -32,6 +32,7 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 src/
   index.ts
   extension/  extension.decorator.ts   @Extension, extensionOf, ExtensionManifest
+              installed-extensions.ts  the manifests the core loaded, for a page that lists them
               contributions.struct.ts  AccessPolicy, NavSectionDefinition, ShellContributions, QueryErrorHandler, QueryRetryPolicy
               register.struct.ts       Register, RoutePermission
   routing/    scylla-module.struct.ts  ScyllaModule, ModuleRoute, NavLink
@@ -79,8 +80,9 @@ two augmentations with different types do not compile.
 
 ## Runtime API — installed by the core
 
-`setAppNavigator`, `setDependencyRegistry` and `setQueryClient` are called by `startCore`, once.
-Extensions only read: `navigateTo`, `routeParams`, `getModuleDomain`, `createQuery`.
+`setAppNavigator`, `setDependencyRegistry`, `setQueryClient` and `setInstalledExtensions` are
+called by `startCore`, once. Extensions only read: `navigateTo`, `routeParams`,
+`getModuleDomain`, `createQuery`, `installedExtensions`.
 
 - **`DomainRegistry` is untyped per module — on purpose.** If it named each module's domain,
   every feature would depend on every other one. A feature pins the type on its side:
@@ -94,6 +96,8 @@ Extensions only read: `navigateTo`, `routeParams`, `getModuleDomain`, `createQue
   cache silently.
 - `getQueryClient()` falls back to a plain client until the core installs the app's. A test
   installs its own with `withQueryClient()` (`test/render.svelte.ts`, `retry: false`).
+- `installedExtensions()` is empty until the core starts. Read it per call, never at import
+  time: the modules load before `startCore` installs it.
 - `routeParams()` and `routeTrail()` are empty until a router is installed; `currentPathname()`
   falls back to `window.location`.
 

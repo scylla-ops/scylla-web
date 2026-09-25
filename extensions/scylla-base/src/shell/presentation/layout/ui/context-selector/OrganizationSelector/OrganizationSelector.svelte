@@ -50,7 +50,7 @@
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        class="w-(--bits-dropdown-menu-anchor-width) min-w-56 rounded-xl border-border shadow-lg"
+        class="min-w-56 rounded-xl border-border shadow-lg"
         align="start"
         side={sidebar.isMobile ? 'bottom' : 'right'}
         sideOffset={4}
