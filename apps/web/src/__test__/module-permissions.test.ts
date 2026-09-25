@@ -29,6 +29,10 @@ const UNGATED_PAGES: Readonly<Record<string, string>> = {
     'TRIAGE: the page reads a hardcoded catalog — DefaultMarketplaceRepository calls no backend, ' +
     'so there is nothing to deny yet, and the enum has no marketplace permission to declare. ' +
     'Gate it when the real data layer lands.',
+  '/:organizationSlug/extensions':
+    'TRIAGE: the page lists the extensions the app itself runs, read from the core — no backend ' +
+    'call, no data a user could be denied. Gate it when installing or disabling an extension ' +
+    'lands, with the permission the backend enforces for that.',
 };
 
 describe('module permission declarations', () => {

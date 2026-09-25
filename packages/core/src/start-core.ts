@@ -2,6 +2,7 @@ import { mount } from 'svelte';
 import {
   setAppNavigator,
   setDependencyRegistry,
+  setInstalledExtensions,
   setQueryClient,
   type ExtensionClass,
 } from '@scylla/core-sdk';
@@ -25,6 +26,7 @@ export const startCore = async ({ extensions, target }: StartOptions): Promise<v
   registerCatalogs(import.meta.glob<CatalogModule>('./locales/*/messages.ts'));
   app.catalogs.forEach(registerCatalogs);
   setDependencyRegistry(app.dependencies);
+  setInstalledExtensions(app.extensions);
   setQueryClient(createAppQueryClient(app.queryErrorHandlers));
   setShellConfig(app.shell);
 

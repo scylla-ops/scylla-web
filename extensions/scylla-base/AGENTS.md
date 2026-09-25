@@ -1,6 +1,6 @@
 # `scylla-base` — agent guide
 
-The base extension: the Scylla product — its 14 features, its access control, its context,
+The base extension: the Scylla product — its 15 features, its access control, its context,
 its gRPC transport, and the shell parts that fill the core's frame.
 
 **Package** `extensions/scylla-base` (`@scylla/base`) · aliases `@base/*`, `@platform/*`,
@@ -22,7 +22,7 @@ its gRPC transport, and the shell parts that fill the core's frame.
 src/
   index.ts                       ScyllaBaseExtension — the only export of @scylla/base's root
   scylla-base.extension.ts       @Extension({ id, name, version, modules, catalogs })
-  features/<14>/                 the business modules, each with its AGENTS.md
+  features/<15>/                 the business modules, each with its AGENTS.md
   platform/authz, context, grpc  cross-cutting capabilities, below the features
   shared/                        shared code with a business meaning
   shell/                         modules.ts, ShellModule, the Scylla shell parts
