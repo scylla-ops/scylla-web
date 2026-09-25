@@ -1,4 +1,5 @@
 /// <reference types="vitest/config" />
+import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
 import { transformAsync } from '@babel/core';
 import linguiMacroPlugin from '@lingui/babel-plugin-lingui-macro';
@@ -58,7 +59,7 @@ const linguiMacros = (): Plugin => ({
       babelrc: false,
       configFile: false,
       sourceMaps: true,
-      parserOpts: { plugins: ['typescript'] },
+      parserOpts: { plugins: ['typescript', 'decorators'] },
       plugins: [linguiMacroPlugin],
     });
 
@@ -78,7 +79,13 @@ const matches = (packageName: string, entry: string): boolean =>
   packageName.startsWith(`${entry}/`) ||
   (entry.endsWith('-') && packageName.startsWith(entry));
 
+const workspaceRoot = fileURLToPath(new URL('.', import.meta.url));
+
 export default defineConfig({
+  // The product is `apps/web`. Vitest keeps the workspace root, so that it finds
+  // the tests of every package.
+  root: process.env.VITEST ? workspaceRoot : `${workspaceRoot}apps/web`,
+  envDir: workspaceRoot,
   // Svelte ships a server build and a client one, and picks by export condition.
   // Under Vitest the default resolution lands on the server build, where `mount`
   // throws `lifecycle_function_unavailable`. Scoped to the test run on purpose:
@@ -93,8 +100,12 @@ export default defineConfig({
     // `loose` is what makes `@platform/…` resolve from a `.svelte` file: by
     // default the plugin only rewrites imports coming from a JS/TS importer, so
     // every alias inside a component silently failed to resolve.
-    tsconfigPaths({ loose: true }),
+    tsconfigPaths({ root: workspaceRoot, loose: true }),
   ],
+  // `@Extension` is a standard decorator, which no browser runs yet. The build
+  // lowers it through its target; the dev server needs the same, or it serves
+  // the syntax as it is.
+  esbuild: { target: 'es2022' },
   optimizeDeps: {
     exclude: [
       '@lucide/svelte',
@@ -106,6 +117,8 @@ export default defineConfig({
     ],
   },
   build: {
+    outDir: `${workspaceRoot}dist`,
+    emptyOutDir: true,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -134,17 +147,17 @@ export default defineConfig({
     // function was ~40% of the suite's wall time.
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./src/test/setup.ts'],
+    setupFiles: ['./test/setup.ts'],
     css: false,
     coverage: {
       provider: 'v8',
       // `include` is what makes untested files count: everything matching is
       // reported at 0% rather than being absent, which is the difference
       // between a real number and one that flatters itself.
-      include: ['src/modules/**/*.{ts,svelte}'],
+      include: ['{apps,packages,sdks,extensions}/*/src/**/*.{ts,svelte}'],
       exclude: [
         // Machine output: generated proto clients and compiled Lingui catalogs.
-        'src/generated/**',
+        '**/src/generated/**',
         '**/locales/**',
         '**/*.test.ts',
         // Test scaffolding too: a `*.fixture.svelte` exists to pin a generic or

@@ -1,0 +1,13 @@
+import { type FormItem, FormItemType } from '@scylla/ui';
+import { t } from '@lingui/core/macro';
+
+export const createAppItems = (): readonly FormItem<'name'>[] => [
+  {
+    id: 'name',
+    label: t`Name`,
+    placeholder: t`my-build-runner`,
+    type: FormItemType.Input,
+    inputType: 'text',
+    pattern: '^[a-z0-9][a-z0-9-]{0,63}$',
+  },
+];

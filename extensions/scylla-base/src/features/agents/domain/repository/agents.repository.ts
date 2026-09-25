@@ -1,0 +1,14 @@
+import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
+import type {
+  CreatedAgent,
+  AgentStats,
+} from '@base/features/agents/domain/structs/agent.struct.ts';
+import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
+
+export interface AgentsRepository {
+  listAgents(organizationId: string): Promise<ScyllaResult<AgentEntity[]>>;
+  getAgent(agentId: string): Promise<ScyllaResult<AgentEntity>>;
+  getAgentStats(agentId: string): Promise<ScyllaResult<AgentStats>>;
+  createAgent(organizationId: string, name: string): Promise<ScyllaResult<CreatedAgent>>;
+  deleteAgent(agentId: string): Promise<ScyllaResult<void>>;
+}
