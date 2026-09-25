@@ -9,25 +9,24 @@
     }
   ],
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@/*": [
-        "src/*"
+        "./src/*"
       ],
       "@core/*": [
-        "src/modules/core/*"
+        "./src/modules/core/*"
       ],
       "@platform/*": [
-        "src/modules/platform/*"
+        "./src/modules/platform/*"
       ],
       "@shared/*": [
-        "src/modules/shared/*"
+        "./src/modules/shared/*"
       ],
       "@shadcn/*": [
-        "src/modules/shared/presentation/ui/shadcn/*"
+        "./src/modules/shared/presentation/ui/shadcn/*"
       ],
       "@shadcn": [
-        "src/modules/shared/presentation/ui/shadcn"
+        "./src/modules/shared/presentation/ui/shadcn"
       ]
     }
   }
