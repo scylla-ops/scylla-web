@@ -109,14 +109,16 @@ describe('loadExtensions', () => {
 
   it('collects the shell parts and error handlers of the modules, and the catalogs', () => {
     const onQueryError = () => {};
+    const onQueryRetry = () => undefined;
     const catalogs = {};
     const app = loadExtensions([
       Base,
-      addOn([billing({ shell: { overlays: [] }, onQueryError })], { catalogs }),
+      addOn([billing({ shell: { overlays: [] }, onQueryError, onQueryRetry })], { catalogs }),
     ]);
 
     expect(app.shell.contributions).toEqual([{ overlays: [] }]);
     expect(app.queryErrorHandlers).toEqual([onQueryError]);
+    expect(app.queryRetryPolicies).toEqual([onQueryRetry]);
     expect(app.catalogs).toEqual([catalogs]);
   });
 

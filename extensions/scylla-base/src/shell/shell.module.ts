@@ -7,6 +7,7 @@ import NewBadge from './presentation/layout/ui/NewBadge.svelte';
 import WhatsNewDialog from './presentation/layout/ui/WhatsNewDialog/WhatsNewDialog.svelte';
 import { markNavSeen } from './presentation/layout/whats-new.svelte.ts';
 import { reportQueryError } from './presentation/report-query-error.ts';
+import { retryQueryError } from './presentation/retry-query-error.ts';
 import AppLayout from './presentation/router/AppLayout.svelte';
 import ContextCleanerWrapper from './presentation/router/ContextCleaner.wrapper.svelte';
 import LoginRedirect from './presentation/router/LoginRedirect.svelte';
@@ -51,5 +52,6 @@ export const ShellModule = {
     linkParams,
   },
   onQueryError: reportQueryError,
+  onQueryRetry: retryQueryError,
   fallback: LoginRedirect,
 } satisfies ScyllaModule;
