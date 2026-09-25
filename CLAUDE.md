@@ -19,7 +19,7 @@ packages/ui/AGENTS.md                                    design system: shadcn, 
 sdks/core-sdk/AGENTS.md                                  the extension contract: @Extension, ScyllaModule, DI, query
 sdks/scylla-base-sdk/AGENTS.md                           the public API of scylla-base for other extensions
 extensions/scylla-base/AGENTS.md                         the Scylla extension
-extensions/scylla-base/src/features/<feature>/AGENTS.md  the 14 business modules
+extensions/scylla-base/src/features/<feature>/AGENTS.md  the 15 business modules
 extensions/scylla-base/src/platform/<capability>/AGENTS.md   authz, context, grpc
 extensions/scylla-base/src/shell/AGENTS.md               module list, ShellModule, Scylla shell parts
 extensions/scylla-base/src/shared/AGENTS.md              shared code with a business meaning
@@ -243,7 +243,7 @@ injected, still substitutable in a test. Only the redundant indirection is gone.
   sections, auth gate, context wrappers, access policy, error policy, shell parts).
 - scylla-base `platform/` — `authz` (Permission, `can`, `Can`, `RequirePermission`), `context`
   (current org/project/pipeline + navigation), `grpc`.
-- scylla-base `features/` — `agents`, `apps`, `dashboard`, `jobs`, `login`, `marketplace`,
+- scylla-base `features/` — `agents`, `apps`, `dashboard`, `extensions`, `jobs`, `login`, `marketplace`,
   `membership`, `organization`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`.
 - scylla-base `shared/` — shared code with a business meaning. **No feature imports.**
 
