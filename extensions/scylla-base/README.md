@@ -18,7 +18,7 @@ gate, the organization selector, the user menu, the access policy and the error 
 src/
   scylla-base.extension.ts   the @Extension declaration
   shell/                     the list of modules, and ShellModule: the frame around the pages
-  features/                  the 14 business modules
+  features/                  the 15 business modules
   platform/                  authz, context, grpc: capabilities that the features use
   shared/                    code that two features share and that has a Scylla meaning
   generated/                 gRPC clients made from the .proto files (never edit)
@@ -27,7 +27,7 @@ src/
 | Layer | Contents |
 |-------|----------|
 | [`shell/`](src/shell/README.md) | The feature list and `ShellModule`: mounts, sidebar sections, access policy, error policy, shell parts. |
-| [`features/`](../../README.md#scylla-base--features) | `agents`, `apps`, `dashboard`, `jobs`, `login`, `marketplace`, `membership`, `organization`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`. |
+| [`features/`](../../README.md#scylla-base--features) | `agents`, `apps`, `dashboard`, `extensions`, `jobs`, `login`, `marketplace`, `membership`, `organization`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`. |
 | [`platform/authz`](src/platform/authz/README.md) | `Permission`, `can`, `Can`, `RequirePermission`: the read side of access control. |
 | [`platform/context`](src/platform/context/README.md) | The active organization, project and pipeline, and navigation from them. |
 | [`platform/grpc`](src/platform/grpc/README.md) | The gRPC-Web transport, with authentication. |
