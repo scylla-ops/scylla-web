@@ -25,7 +25,7 @@ export const startCore = async ({ extensions, target }: StartOptions): Promise<v
   registerCatalogs(import.meta.glob<CatalogModule>('./locales/*/messages.ts'));
   app.catalogs.forEach(registerCatalogs);
   setDependencyRegistry(app.dependencies);
-  setQueryClient(createAppQueryClient(app.queryErrorHandlers));
+  setQueryClient(createAppQueryClient(app.queryErrorHandlers, app.queryRetryPolicies));
   setShellConfig(app.shell);
 
   // Before the first render, so no frame shows untranslated text.

@@ -9,6 +9,7 @@ export type {
   AccessPolicy,
   NavSectionDefinition,
   QueryErrorHandler,
+  QueryRetryPolicy,
   ShellContributions,
 } from './extension/contributions.struct.ts';
 
