@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 const protoDir = resolve(root, 'protos');
-const outDir = resolve(root, 'src', 'generated');
+const outDir = resolve(root, 'extensions', 'scylla-base', 'src', 'generated');
 
 // Use the project-local @protobuf-ts protoc wrapper (which auto-wires the
 // protoc-gen-ts plugin and emits the *.client.ts layout the source imports).

@@ -16,14 +16,15 @@
  * script can be deleted.
  *
  * Usage:
- *   depcruise src --output-type json | node scripts/check-module-cycles.mjs [--report-only]
+ *   depcruise apps packages sdks extensions --output-type json | node scripts/check-module-cycles.mjs [--report-only]
  */
 
 const reportOnly = process.argv.includes('--report-only');
 
-const MODULE_ID = /^src\/modules\/(features\/[^/]+|[^/]+)/;
+/** A package, or a top-level folder (or feature) inside an extension. */
+const MODULE_ID = /^((?:apps|packages|sdks)\/[^/]+|extensions\/[^/]+\/src\/(?:features\/[^/]+|[^/]+))/;
 
-/** `src/modules/features/jobs/presentation/x.ts` -> `features/jobs`. */
+/** `extensions/scylla-base/src/features/jobs/presentation/x.ts` -> `extensions/scylla-base/src/features/jobs`. */
 const moduleOf = filePath => MODULE_ID.exec(filePath)?.[1] ?? null;
 
 const readStdin = async () => {
