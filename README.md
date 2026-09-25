@@ -24,6 +24,8 @@ cp .env.example .env
 
 ### Install & Run
 
+The `.proto` files come from the [`scylla-protos`](https://github.com/scylla-ops/scylla-protos) submodule in `protos/`. Clone with `--recurse-submodules`, or run `git submodule update --init` after a clone.
+
 ```bash
 # Install dependencies
 pnpm install
