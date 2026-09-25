@@ -30,7 +30,7 @@ type AppRouterConfig, CompiledRoute, RouteTable, LoadedApp, StartOptions
 src/
   index.ts  start-core.ts  App.svelte          ThemeToggle + RouterView + Toaster
   loader/load-extensions.ts                    checks and merges the extensions
-  query/query-client.ts                        createAppQueryClient(handlers)
+  query/query-client.ts                        createAppQueryClient(handlers, retryPolicies)
   routing/
     compilation/                               declarations -> data, pure functions (node tests)
       route-path.ts                            split, join, key, prefix, specificity, fillPath
@@ -59,7 +59,7 @@ src/
 ## `loadExtensions` — what it merges, what it refuses
 
 It merges, from all the modules of all the extensions: the mounts, the nav sections, the
-routes, the shell contributions, the query error handlers, the DI registry (by module id).
+routes, the shell contributions, the query error handlers, the query retry policies, the DI registry (by module id).
 It **throws**, at start-up and in `apps/web`'s conformance test, on:
 
 - two extensions, modules, mounts or nav sections with the same id;

@@ -7,6 +7,7 @@ import {
   type ExtensionManifest,
   type MountDefinition,
   type QueryErrorHandler,
+  type QueryRetryPolicy,
   type RouteMount,
   type ScyllaModule,
 } from '@scylla/core-sdk';
@@ -25,6 +26,7 @@ export interface LoadedApp {
   dependencies: DomainRegistry;
   catalogs: readonly CatalogLoaders[];
   queryErrorHandlers: readonly QueryErrorHandler[];
+  queryRetryPolicies: readonly QueryRetryPolicy[];
 }
 
 const uniqueBy = <T>(items: readonly T[], keyOf: (item: T) => string, what: string): void => {
@@ -125,5 +127,6 @@ export const loadExtensions = (classes: readonly ExtensionClass[]): LoadedApp =>
     dependencies: Object.fromEntries(modules.map(module => [module.id, module.domain])),
     catalogs: extensions.flatMap(extension => (extension.catalogs ? [extension.catalogs] : [])),
     queryErrorHandlers: modules.flatMap(module => module.onQueryError ?? []),
+    queryRetryPolicies: modules.flatMap(module => module.onQueryRetry ?? []),
   };
 };

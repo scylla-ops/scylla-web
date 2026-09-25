@@ -45,3 +45,42 @@ describe('createAppQueryClient', () => {
     log.mockRestore();
   });
 });
+
+describe('createAppQueryClient retry', () => {
+  it('retries up to 3 times by default', async () => {
+    let attempts = 0;
+    const client = createAppQueryClient([], []);
+
+    await client
+      .fetchQuery({
+        queryKey: ['flaky'],
+        queryFn: () => {
+          attempts += 1;
+          return Promise.reject(new Error('down'));
+        },
+        retryDelay: 0,
+      })
+      .catch(() => {});
+
+    expect(attempts).toBe(4); // the original call plus 3 retries
+  });
+
+  it('never retries once any policy vetoes the error', async () => {
+    let attempts = 0;
+    const veto = () => false;
+    const client = createAppQueryClient([], [veto]);
+
+    await client
+      .fetchQuery({
+        queryKey: ['vetoed'],
+        queryFn: () => {
+          attempts += 1;
+          return Promise.reject(new Error('nope'));
+        },
+        retryDelay: 0,
+      })
+      .catch(() => {});
+
+    expect(attempts).toBe(1);
+  });
+});

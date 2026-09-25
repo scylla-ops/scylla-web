@@ -20,7 +20,7 @@ the core renders. The generic frame (sidebar, top bar, breadcrumbs, theme, langu
 ```
 modules.ts                              THE list of feature modules, in sidebar order
 shell.module.ts                         ShellModule: mounts, routes of the shell, nav sections,
-                                        access, shell parts, onQueryError, fallback
+                                        access, shell parts, onQueryError, onQueryRetry, fallback
 whats-new.ts                            THE release announcement
 __test__/feature-permissions.test.ts    conformance: features gate, shared queries check
 presentation/
@@ -68,6 +68,7 @@ access           can / authorizationReady / RequirePermission, from @platform/au
 shell            sidebarFooter NavUser · overlays WhatsNewDialog · navBadge NewBadge ·
                  onNavOpen markNavSeen · breadcrumbParams · linkParams
 onQueryError     reportQueryError
+onQueryRetry     retryQueryError
 fallback         LoginRedirect
 ```
 
