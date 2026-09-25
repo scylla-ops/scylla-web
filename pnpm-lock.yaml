@@ -96,6 +96,18 @@ importers:
       '@protobuf-ts/protoc':
         specifier: ^2.11.1
         version: 2.11.1
+      '@scylla/base':
+        specifier: workspace:*
+        version: link:extensions/scylla-base
+      '@scylla/core':
+        specifier: workspace:*
+        version: link:packages/core
+      '@scylla/core-sdk':
+        specifier: workspace:*
+        version: link:sdks/core-sdk
+      '@scylla/ui':
+        specifier: workspace:*
+        version: link:packages/ui
       '@sveltejs/vite-plugin-svelte':
         specifier: ^7.3.0
         version: 7.3.0(svelte@5.57.0(@typescript-eslint/types@8.59.3))(vite@7.1.11(@types/node@24.12.4)(jiti@2.7.0)(lightningcss@1.32.0))
@@ -165,6 +177,130 @@ importers:
       vitest:
         specifier: ^5.0.0
         version: 5.0.0(@types/node@24.12.4)(@vitest/coverage-v8@5.0.0)(jsdom@30.0.1)(vite@7.1.11(@types/node@24.12.4)(jiti@2.7.0)(lightningcss@1.32.0))
+
+  apps/web:
+    dependencies:
+      '@scylla/base':
+        specifier: workspace:*
+        version: link:../../extensions/scylla-base
+      '@scylla/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@scylla/core-sdk':
+        specifier: workspace:*
+        version: link:../../sdks/core-sdk
+      '@scylla/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+    devDependencies:
+      '@scylla/base-sdk':
+        specifier: workspace:*
+        version: link:../../sdks/scylla-base-sdk
+
+  extensions/scylla-base:
+    dependencies:
+      '@scylla/core-sdk':
+        specifier: workspace:*
+        version: link:../../sdks/core-sdk
+      '@scylla/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+
+  packages/core:
+    dependencies:
+      '@lingui/core':
+        specifier: ^5.4.1
+        version: 5.9.5(@lingui/babel-plugin-lingui-macro@5.9.5(@typescript/typescript6@6.0.2))
+      '@lucide/svelte':
+        specifier: ^1.46.0
+        version: 1.46.0(svelte@5.57.0(@typescript-eslint/types@8.59.3))
+      '@scylla/core-sdk':
+        specifier: workspace:*
+        version: link:../../sdks/core-sdk
+      '@scylla/ui':
+        specifier: workspace:*
+        version: link:../ui
+      '@tanstack/query-core':
+        specifier: 5.103.1
+        version: 5.103.1
+      svelte:
+        specifier: ^5.57.0
+        version: 5.57.0(@typescript-eslint/types@8.59.3)
+
+  packages/ui:
+    dependencies:
+      '@codemirror/language':
+        specifier: ^6.12.3
+        version: 6.12.3
+      '@codemirror/state':
+        specifier: ^6.6.0
+        version: 6.6.0
+      '@codemirror/theme-one-dark':
+        specifier: ^6.1.3
+        version: 6.1.3
+      '@codemirror/view':
+        specifier: ^6.43.0
+        version: 6.43.0
+      '@lingui/core':
+        specifier: ^5.4.1
+        version: 5.9.5(@lingui/babel-plugin-lingui-macro@5.9.5(@typescript/typescript6@6.0.2))
+      '@lucide/svelte':
+        specifier: ^1.46.0
+        version: 1.46.0(svelte@5.57.0(@typescript-eslint/types@8.59.3))
+      '@tanstack/svelte-table':
+        specifier: ^9.2.4
+        version: 9.2.4(svelte@5.57.0(@typescript-eslint/types@8.59.3))
+      '@tanstack/table-core':
+        specifier: 9.2.4
+        version: 9.2.4
+      bits-ui:
+        specifier: ^2.19.2
+        version: 2.19.2(@internationalized/date@3.12.4)(svelte@5.57.0(@typescript-eslint/types@8.59.3))
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      svelte:
+        specifier: ^5.57.0
+        version: 5.57.0(@typescript-eslint/types@8.59.3)
+      svelte-sonner:
+        specifier: ^1.2.1
+        version: 1.2.1(svelte@5.57.0(@typescript-eslint/types@8.59.3))
+      tailwind-merge:
+        specifier: ^3.3.1
+        version: 3.6.0
+      tailwindcss:
+        specifier: ^4.0.0
+        version: 4.3.0
+      tw-animate-css:
+        specifier: ^1.3.7
+        version: 1.4.0
+
+  sdks/core-sdk:
+    dependencies:
+      '@lingui/core':
+        specifier: ^5.4.1
+        version: 5.9.5(@lingui/babel-plugin-lingui-macro@5.9.5(@typescript/typescript6@6.0.2))
+      '@scylla/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@tanstack/query-core':
+        specifier: 5.103.1
+        version: 5.103.1
+      '@tanstack/svelte-query':
+        specifier: ^6.2.1
+        version: 6.2.1(svelte@5.57.0(@typescript-eslint/types@8.59.3))
+      svelte:
+        specifier: ^5.57.0
+        version: 5.57.0(@typescript-eslint/types@8.59.3)
+
+  sdks/scylla-base-sdk:
+    dependencies:
+      '@scylla/base':
+        specifier: workspace:*
+        version: link:../../extensions/scylla-base
 
 packages:
 

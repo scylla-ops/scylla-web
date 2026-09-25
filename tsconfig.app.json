@@ -26,5 +26,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["apps/web/src", "packages/*/src", "sdks/*/src", "extensions/*/src", "test"]
 }

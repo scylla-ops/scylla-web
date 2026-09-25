@@ -1,0 +1,16 @@
+{
+  "name": "@scylla/base",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./features/*": "./src/features/*/index.ts",
+    "./platform/*": "./src/platform/*/index.ts",
+    "./scylla-result": "./src/shared/utils/scylla-result.ts"
+  },
+  "dependencies": {
+    "@scylla/core-sdk": "workspace:*",
+    "@scylla/ui": "workspace:*"
+  }
+}

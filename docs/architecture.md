@@ -1,8 +1,9 @@
 # Architecture
 
-> **Out of date.** This document describes the frontend before the migration to Svelte
-> (`refacto_svelte.md`). `CLAUDE.md` and the `AGENTS.md` of each module are the current contract.
-> Where this document disagrees with them, they are correct.
+> **Partly out of date.** §2 and §6 describe the current layout (a core that loads extensions).
+> The other sections describe the frontend before the migration to Svelte (`refacto_svelte.md`).
+> `CLAUDE.md` and the `AGENTS.md` of each package and module are the current contract. Where this
+> document disagrees with them, they are correct.
 
 This document describes the structure and architectural decisions of the Scylla frontend, a React application built on **Clean Architecture** principles with **TanStack Query** for async data management.
 
@@ -42,83 +43,53 @@ const data = result.unwrap();
 
 ---
 
-## 2. Module Structure
+## 2. Packages and modules
 
-The application is organized into **independent modules** in `src/modules/`:
+The frontend is a pnpm workspace. A **core** that knows no business loads **extensions**; the
+extensions talk to the core, and to each other, through **SDKs**:
 
 ```
-src/modules/
-├── core/           → Infrastructure, DI wiring, routing, auth guard
-├── features/       → Feature modules (business functionality)
-│   ├── agents/
-│   ├── apps/
-│   ├── jobs/
-│   ├── login/
-│   ├── marketplace/
-│   ├── organization/
-│   ├── permission/   (exposed in DI as `authz`)
-│   ├── pipeline/
-│   ├── project/
-│   ├── secret/
-│   └── user/
-├── layout/         → App shell (sidebar, topbar, breadcrumbs, context selector)
-└── shared/         → Reusable components, hooks, stores, utilities
+apps/web/                  @scylla/web       the build: startCore({ extensions: [ScyllaBaseExtension] })
+packages/core/             @scylla/core      extension loader, route compilation, router, shell frame
+packages/ui/               @scylla/ui        design system: shadcn, composites, rune helpers, stores, i18n
+sdks/core-sdk/             @scylla/core-sdk  the contract: @Extension, ScyllaModule, navigation, DI, query
+sdks/scylla-base-sdk/      @scylla/base-sdk  the public API of scylla-base, for other extensions
+extensions/scylla-base/    @scylla/base      the Scylla product
+  src/
+    scylla-base.extension.ts                 @Extension({ id, name, version, modules, catalogs })
+    shell/                                   modules.ts (the feature list), ShellModule (the frame)
+    features/                                agents, apps, dashboard, jobs, login, marketplace, membership,
+                                             organization, pipeline, project, roles, secret, triggers, user
+    platform/                                authz, context, grpc
+    shared/                                  ScyllaResult, status presentation
 ```
 
-### 2.1 Core Module
+Dependencies point one way, and dependency-cruiser checks it: `ui` imports nobody; `core-sdk`
+imports `ui`; the core imports `core-sdk` and `ui` and **never an extension**; an extension
+imports `core-sdk`, `ui` and the SDKs of other extensions, **never another extension** and
+never the core; only `apps/web` imports the core.
 
-Global infrastructure and app-level concerns:
+### 2.1 An extension
 
-| Folder | Content |
-|--------|---------|
-| `di/` | `CoreModule` (gRPC transport), `Dependencies` (aggregates all feature modules) |
-| `infrastructure/grpc/` | `CoreGrpcTransport` — shared gRPC-Web transport |
-| `presentation/ui/router/` | `CoreRouter` (route definitions), `AuthGuard`, `ContextCleanerWrapper` |
-| `presentation/providers/` | `DependenciesProvider` (React context for DI) |
-| `presentation/structs/` | `ScyllaForm` shape types |
+An extension is a class with `@Extension`. Its manifest names its modules; the modules carry
+everything else:
 
-### 2.2 Feature Modules
+- a **feature module** declares `domain` (the DI surface) and `routes`, with the sidebar links
+  on the routes they open (`nav`);
+- the module that builds the frame — scylla-base's `ShellModule` — declares the `mounts` where
+  routes graft, the `navSections`, the `access` policy (`can`, `ready`, `guard`), the `shell`
+  parts (header, footer, overlays, badges, breadcrumb and link parameters), `onQueryError` and
+  the `fallback` page.
 
-Each feature follows an identical layered structure (see §3).
+`loadExtensions` (core) orders the extensions by their `dependencies`, checks that ids, mounts
+and sections are unique and that each link names a declared section, and merges everything into
+one router config, one shell config and one DI registry.
 
-| Module | DI key | Description |
-|--------|--------|-------------|
-| `login` | `login` | Authentication (login flow) |
-| `organization` | `organization` | Organization CRUD |
-| `project` | `project` | Project CRUD |
-| `pipeline` | `pipeline` | Pipeline dashboard, creation/editing, charts |
-| `jobs` | `jobs` | Job list per pipeline (+ logs, tail) |
-| `user` | `user` | User admin (CRUD), user settings |
-| `permission` | `authz` | Roles, grants, effective permissions, authz vocabulary |
-| `secret` | `secret` | Project-scoped secrets (metadata; value is write-only) |
-| `apps` | `apps` | Machine principals / API credentials |
-| `agents` | `agents` | Agents (workers that pick up jobs) |
-| `marketplace` | `marketplace` | Component marketplace |
+### 2.2 Inside scylla-base
 
-> The DI key is how the module is reached in hooks (`useDependencies().<key>`). It usually matches the folder name — the exception is `permission`, exposed as `authz`.
-
-### 2.3 Layout Module
-
-App shell rendered inside authenticated routes:
-
-- `Layout.tsx` — Sidebar + TopBar + animated outlet
-- `AppSidebar.tsx` — Navigation with context selector
-- `ScyllaBreadcrumbs.tsx` — Dynamic breadcrumbs from route handles
-- `context-selector/` — Organization/Project selector components
-
-### 2.4 Shared Module
-
-Reusable across all features — **no business logic**.
-
-| Folder | Content |
-|--------|---------|
-| `domain/structs/` | `PaginationInfo`, `PaginationParams` |
-| `presentation/ui/` | `FeatureHeader`, `FormDialog`, `ScyllaForm`, `DataTable`, `Pagination`, `ErrorState`, `ConfirmOperationAlertDialog`, `ListCard` |
-| `presentation/ui/shadcn/` | shadcn/ui primitives |
-| `presentation/hooks/` | `useSelection`, `usePagination`, `usePipelineJobs`, `useScyllaNavigate` |
-| `presentation/stores/` | `useContextStore` (org/project context), `useSelectionStore` (generic selection) |
-| `presentation/structs/` | `ScyllaForm` shapes (`FormItem`, `FormValues`, `FormItemType`) |
-| `utils/` | `ScyllaResult`, `dateUtils`, `jobStatusMapper` |
+The Clean Architecture of §3 is unchanged, in four layers: `shell/` → `features/` →
+`platform/` → `shared/`. Features reach each other through their `index.ts`; `@scylla/base-sdk`
+re-exports those barrels for the other extensions.
 
 ---
 
@@ -384,28 +355,21 @@ Maintains local page/pageSize state, merges with server-returned `totalCount`/`t
 
 ## 6. Routing
 
-Centralized in `Core.router.tsx` using React Router v7. Authenticated routes are nested under an **organization slug** segment; `OrganizationRedirectWrapper` sends `/` to the active org and `OrganizationSyncWrapper` keeps the context store in sync with `:organizationSlug`.
+Written in the project, in `@scylla/core` (no router library). Each module declares its routes
+under a **mount**; `compileRoutes` flattens the declarations of every module of every extension
+into one table of full paths, sorted by specificity. The mounts of scylla-base:
 
-| Route | Page | Auth |
-|-------|------|------|
-| `/login` | Login | Public |
-| `/` | Redirect to active org slug (`OrganizationRedirectWrapper`) | Protected |
-| `/:organizationSlug/projects` | Project list | Protected |
-| `/:organizationSlug/projects/:projectId` | Pipeline dashboard | Protected |
-| `/:organizationSlug/projects/:projectId/secrets` | Secrets | Protected |
-| `/:organizationSlug/projects/:projectId/create` | Pipeline creation | Protected |
-| `/:organizationSlug/projects/:projectId/edit/:pipelineId` | Pipeline editing | Protected |
-| `/:organizationSlug/projects/:projectId/pipelines/:pipelineId/jobs` | Jobs list | Protected |
-| `/:organizationSlug/marketplace` | Marketplace | Protected |
-| `/:organizationSlug/agents` | Agents list | Protected |
-| `/:organizationSlug/agents/:agentId` | Agent details | Protected |
-| `/:organizationSlug/users-admin` | User admin | Protected |
-| `/:organizationSlug/users` | User admin | Protected |
-| `/:organizationSlug/users/:userId` | User settings | Protected |
-| `/:organizationSlug/users/me` | User settings | Protected |
-| `*` | Redirect to `/login` | — |
+| Mount | Path | What it adds |
+|-------|------|--------------|
+| `public` | `/` | nothing — e.g. `/login` |
+| `app` | `/` | `AppLayout` (auth gate + organization gate) and the core's shell frame |
+| `organization` | `/:organizationSlug` | `OrganizationSyncWrapper` |
+| `project` | `/:organizationSlug/projects/:projectId` | `ContextCleanerWrapper`, the "Project" crumb |
 
-All protected routes are wrapped by `AuthGuard` and `Layout`. The `:projectId` subtree is additionally wrapped by `ContextCleanerWrapper` (clears stale project/pipeline context). Breadcrumbs come from each route's `handle.breadcrumb`.
+A page with a `permission` renders inside the `guard` of the access policy (scylla-base:
+`RequirePermission`). A URL that no route matches renders the `fallback` page (scylla-base:
+redirect to `/login`). The breadcrumbs come from each route's `breadcrumb`, the sidebar links
+from each route's `nav`.
 
 ---
 
