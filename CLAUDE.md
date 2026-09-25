@@ -64,6 +64,12 @@ Package manager is **pnpm** (`pnpm@11.1.2`). Run all commands from `apps/fronten
 > collapses the graph to module granularity and runs Tarjan, which is what catches those. Verified:
 > `no-circular` misses that case, the script reports it. Keep both.
 
+**Two TypeScript versions are installed.** `@typescript/native` is TypeScript 7 and gives the
+`tsc` command. `typescript` is an alias of `@typescript/typescript6`. TypeScript 7 has no stable
+JS API before 7.1, so `svelte-check`, `typescript-eslint` and `dependency-cruiser` use the
+TypeScript 6 API. Do not replace the alias with `typescript@7`: these tools stop working. Remove
+the alias when TypeScript 7.1 and these tools support the new API.
+
 `prebuild` = `gen-proto` + `extract` + `compile`, and runs before `dev` and `build`. **Do not hand-edit generated proto code or compiled locale `messages.ts` files** — regenerate them.
 
 Before considering work done: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm depcruise`,
@@ -526,7 +532,7 @@ turn a red run green. Generated proto code, compiled catalogs, vendored `shadcn/
 - Lint rules worth knowing (see `eslint.config.js`): `no-floating-promises` and `no-misused-promises` are errors — never fire-and-forget a promise; unused bindings must be prefixed `_` to be tolerated. The `no-unsafe-*` rules are off only because of the generated proto layer — that is not a licence to spread `any`. `no-restricted-imports` forbids `@tanstack/svelte-query` (use `@platform/query`).
 
 ### Stack
-Svelte 5 (runes) · TypeScript 5.8 · TanStack Query 5 (`@tanstack/svelte-query`) · TanStack Table 9 · Lingui 5 · gRPC-Web (protobuf-ts) · shadcn-svelte + bits-ui · lucide (`@lucide/svelte`) · svelte-sonner · `@xyflow/svelte` · CodeMirror 6 · Tailwind CSS 4 · Vite 7 · Vitest + Testing Library.
+Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@tanstack/svelte-query`) · TanStack Table 9 · Lingui 5 · gRPC-Web (protobuf-ts) · shadcn-svelte + bits-ui · lucide (`@lucide/svelte`) · svelte-sonner · `@xyflow/svelte` · CodeMirror 6 · Tailwind CSS 4 · Vite 7 · Vitest + Testing Library.
 
 ---
 

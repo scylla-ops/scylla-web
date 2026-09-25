@@ -425,7 +425,7 @@ All other state is managed by TanStack Query (server state) or local `useState` 
 | Technology | Purpose |
 |------------|---------|
 | React 18 | UI rendering |
-| TypeScript 5.8 | Type safety |
+| TypeScript 7 (`tsc`) + 6 (tool API) | Type safety |
 | TanStack Query 5 | Server state, caching, mutations |
 | Zustand 5 | Client state management |
 | React Router 7 | Routing |

@@ -1,5 +1,13 @@
 import { execSync } from 'node:child_process';
-import { rmSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
+import {
+  existsSync,
+  rmSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+  statSync,
+} from 'node:fs';
 import { resolve, dirname, delimiter, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -7,9 +15,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 const protoDir = resolve(root, 'protos');
 const outDir = resolve(root, 'src', 'generated');
-
-rmSync(outDir, { recursive: true, force: true });
-mkdirSync(outDir, { recursive: true });
 
 // Use the project-local @protobuf-ts protoc wrapper (which auto-wires the
 // protoc-gen-ts plugin and emits the *.client.ts layout the source imports).
@@ -30,9 +35,18 @@ function collectProtos(dir) {
   });
 }
 
-const protoFiles = collectProtos(protoDir)
-  .map((f) => `"${f}"`)
-  .join(' ');
+const protos = existsSync(protoDir) ? collectProtos(protoDir) : [];
+if (protos.length === 0) {
+  console.error(
+    `No .proto file in ${protoDir}. The scylla-protos submodule is not checked out.\n` +
+      'Run: git submodule update --init',
+  );
+  process.exit(1);
+}
+const protoFiles = protos.map((f) => `"${f}"`).join(' ');
+
+rmSync(outDir, { recursive: true, force: true });
+mkdirSync(outDir, { recursive: true });
 
 const cmd = `"${protoc}" -I="${protoDir}" --ts_out="${outDir}" ${protoFiles}`;
 
