@@ -1,0 +1,7 @@
+packages:
+  - 'packages/*'
+  - 'sdks/*'
+  - 'extensions/*'
+  - 'apps/*'
+allowBuilds:
+  esbuild: false
