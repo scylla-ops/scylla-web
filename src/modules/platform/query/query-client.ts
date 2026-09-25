@@ -48,9 +48,7 @@ export const queryClient = new QueryClient({
   }),
   defaultOptions: {
     queries: {
-      // `onError` above only runs once a query settles into its final error
-      // state, after retries: an expired token cannot become valid between
-      // attempts, so retrying it only delays the sign-out.
+      // An expired token cannot become valid between retries.
       retry: (failureCount, error) =>
         error instanceof ScyllaError && error.getCode() === 'UNAUTHENTICATED' ? false : failureCount < 3,
     },
