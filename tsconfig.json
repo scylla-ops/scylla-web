@@ -10,23 +10,17 @@
   ],
   "compilerOptions": {
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@core/*": [
-        "./src/modules/core/*"
+      "@base/*": [
+        "./extensions/scylla-base/src/*"
       ],
       "@platform/*": [
-        "./src/modules/platform/*"
+        "./extensions/scylla-base/src/platform/*"
       ],
       "@shared/*": [
-        "./src/modules/shared/*"
+        "./extensions/scylla-base/src/shared/*"
       ],
-      "@shadcn/*": [
-        "./src/modules/shared/presentation/ui/shadcn/*"
-      ],
-      "@shadcn": [
-        "./src/modules/shared/presentation/ui/shadcn"
+      "@test/*": [
+        "./test/*"
       ]
     }
   }

@@ -26,9 +26,8 @@ bun.lockb
 *.sw?
 .zed
 
-src/modules/**/messages.ts
-src/generated/**/messages.ts
-src/generated
+**/locales/*/messages.ts
+extensions/scylla-base/src/generated
 coverage
 
 .env
