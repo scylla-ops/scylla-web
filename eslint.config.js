@@ -10,11 +10,13 @@ export default tseslint.config([
   globalIgnores([
     'dist',
     // Auto-generated protobuf files: contain intentional `any` and @ts-nocheck
-    'src/generated/**',
+    'extensions/*/src/generated/**',
     // Lingui compiled message catalogs
-    'src/**/locales/**',
+    '**/locales/**',
     // v8 coverage output — the HTML reporter ships its own vendored scripts
     'coverage/**',
+    // The first prototype of the extension layout, kept for reference. Not part of the workspace.
+    'extension-poc/**',
   ]),
 
   {
@@ -91,13 +93,13 @@ export default tseslint.config([
     },
   },
 
-  // ── The Svelte query bindings come from @platform/query ───────────────────────
+  // ── The Svelte query bindings come from @scylla/core-sdk ──────────────────────
   // `createQuery` from `@tanstack/svelte-query` reads its client from Svelte
-  // context. The re-export in `@platform/query` binds the app's client; the two
+  // context. The re-export in `@scylla/core-sdk` binds the app's client; the two
   // are indistinguishable at the call site, so the wrong import fails at runtime.
   {
-    files: ['src/modules/**/*.{ts,svelte}'],
-    ignores: ['src/modules/platform/query/**'],
+    files: ['{apps,packages,sdks,extensions}/*/src/**/*.{ts,svelte}'],
+    ignores: ['sdks/core-sdk/src/query/**'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -106,7 +108,7 @@ export default tseslint.config([
             {
               name: '@tanstack/svelte-query',
               message:
-                'Import createQuery / createMutation from @platform/query — they carry the ' +
+                'Import createQuery / createMutation from @scylla/core-sdk — they carry the ' +
                 "app's QueryClient.",
             },
           ],

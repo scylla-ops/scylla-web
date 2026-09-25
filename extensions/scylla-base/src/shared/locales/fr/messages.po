@@ -1,0 +1,222 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-09-25 11:35+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: fr\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:12
+msgid "(crate scylla-agent). The agent runs in the foreground and Ctrl-C stops it."
+msgstr "(crate scylla-agent). L'agent tourne au premier plan et Ctrl-C l'arrête."
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:33
+msgid "Agent id copied"
+msgstr "ID d'agent copié"
+
+#: extensions/scylla-base/src/shared/utils/scylla-result.ts:64
+msgid "An unexpected error occurred"
+msgstr "Une erreur inattendue s'est produite"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:37
+msgid "App id copied"
+msgstr "ID d'application copié"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:84
+msgid "Cancelled"
+msgstr "Annulé"
+
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:8
+msgid "Command copied"
+msgstr "Commande copiée"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:34
+msgid "Could not copy — select the id manually"
+msgstr "Impossible de copier — sélectionnez l'ID manuellement"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:57
+msgid "Failed"
+msgstr "Échoué"
+
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:5
+msgid "From source"
+msgstr "Depuis la source"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:28
+msgid "Job queued — no agent connected"
+msgstr "Travail mis en file d'attente — aucun agent connecté"
+
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/status-bar.messages.ts:4
+msgid "No data"
+msgstr "Aucune donnée"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:13
+msgid "Organization created"
+msgstr "Organisation créée"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:14
+msgid "Organization deleted"
+msgstr "Organisation supprimée"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:15
+msgid "Organization updated"
+msgstr "Organisation mise à jour"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:75
+msgid "Orphaned"
+msgstr "Orphelin"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:39
+msgid "Pending"
+msgstr "En attente"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:24
+msgid "Pipeline created"
+msgstr "Pipeline créé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:25
+msgid "Pipeline deleted"
+msgstr "Pipeline supprimé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:30
+msgid "Pipeline duplicated successfully"
+msgstr "Pipeline dupliquée avec succès"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:26
+msgid "Pipeline edited"
+msgstr "Pipeline modifié"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:27
+msgid "Pipeline ran"
+msgstr "Pipeline exécuté"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:29
+msgid "Pipeline ran — check that your agents are connected"
+msgstr "Pipeline exécutée — vérifiez que vos agents sont bien connectés"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:18
+msgid "Project created"
+msgstr "Projet créé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:19
+msgid "Project deleted"
+msgstr "Projet supprimé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:21
+msgid "Project name is required and you must select an organization."
+msgstr "Le nom du projet est requis et vous devez sélectionner une organisation."
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:20
+msgid "Project updated"
+msgstr "Projet mis à jour"
+
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:16
+msgid "Replace APP_SECRET with the secret revealed when this agent was created — it cannot be shown again. Lost it? Delete this agent and create a new one."
+msgstr "Remplacez APP_SECRET par le secret révélé lorsque cet agent a été créé — il ne peut pas être affiché à nouveau. Vous l'avez perdu ? Supprimez cet agent et créez-en un nouveau."
+
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:10
+msgid "Requires the Rust toolchain, from a clone of"
+msgstr "Nécessite la chaîne d'outils Rust, depuis un clone de"
+
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:6
+msgid "Run from a repo checkout"
+msgstr "Exécuter depuis un clone du dépôt"
+
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:7
+msgid "Run with Docker"
+msgstr "Exécuter avec Docker"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:29
+msgid "Running"
+msgstr "En cours"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:40
+msgid "Secret created"
+msgstr "Secret créé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:41
+msgid "Secret deleted"
+msgstr "Secret supprimé"
+
+#: extensions/scylla-base/src/shared/utils/scylla-result.ts:52
+msgid "Server unreachable"
+msgstr "Serveur injoignable"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:66
+msgid "Skipped"
+msgstr "Ignoré"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:48
+msgid "Success"
+msgstr "Réussi"
+
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:14
+msgid "The agent starts in the foreground: its logs show up right in the terminal and Ctrl-C stops it."
+msgstr "L'agent démarre au premier plan : ses journaux s'affichent directement dans le terminal et Ctrl-C l'arrête."
+
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:11
+msgid "the scylla repo"
+msgstr "le dépôt scylla"
+
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:15
+msgid "The URL above is prefilled with this page's own address. Replace it if your agent reaches the control plane another way — for example http://host.docker.internal:8080 from inside Docker, or a private-network address."
+msgstr "L'URL ci-dessus est préremplie avec l'adresse de cette page. Remplacez-la si votre agent atteint le plan de contrôle autrement — par exemple http://host.docker.internal:8080 depuis l'intérieur de Docker, ou une adresse de réseau privé."
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:44
+msgid "Trigger created"
+msgstr "Déclencheur créé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:46
+msgid "Trigger deleted"
+msgstr "Déclencheur supprimé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:48
+msgid "Trigger disabled"
+msgstr "Déclencheur désactivé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:47
+msgid "Trigger enabled"
+msgstr "Déclencheur activé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:49
+msgid "Trigger fired — run started"
+msgstr "Déclencheur déclenché — exécution démarrée"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:45
+msgid "Trigger updated"
+msgstr "Déclencheur mis à jour"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:94
+msgid "Unknown"
+msgstr "Inconnu"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:6
+msgid "User created"
+msgstr "Utilisateur créé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:7
+msgid "User deleted"
+msgstr "Utilisateur supprimé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:8
+msgid "User information updated"
+msgstr "Informations utilisateur mises à jour"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:10
+msgid "Username and password are required."
+msgstr "Le nom d'utilisateur et le mot de passe sont requis."
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:9
+msgid "You cannot delete your own account."
+msgstr "Vous ne pouvez pas supprimer votre propre compte."
+
+#: extensions/scylla-base/src/shared/utils/scylla-result.ts:62
+msgid "You don't have permission to perform this action"
+msgstr "Vous n'avez pas la permission d'effectuer cette action"
