@@ -1,0 +1,218 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-27 10:37+0900\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: fr\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:40
+msgid "{count} {status} nodes"
+msgstr "{count} nœuds {status}"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:42
+msgid "{count} / {total} nodes ({percent}%)"
+msgstr "{count} / {total} nœuds ({percent} %)"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:22
+msgid "Actions"
+msgstr "Actions"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:25
+msgid "agent disconnected mid-run"
+msgstr "agent déconnecté en cours d'exécution"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:32
+msgid "Are you sure you want to delete job {jobId}? This action cannot be undone."
+msgstr "Voulez-vous vraiment supprimer le job {jobId} ? Cette action ne peut pas être annulée."
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:58
+msgid "Close the logs for {label}"
+msgstr "Fermer les journaux de {label}"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:59
+msgid "Collapse the logs for {label}"
+msgstr "Réduire les journaux de {label}"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:23
+msgid "Copy ID"
+msgstr "Copier l'ID"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:47
+msgid "Copy job id"
+msgstr "Copier l'id du job"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:21
+msgid "Created"
+msgstr "Créé"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:51
+msgctxt "date-prefix"
+msgid "Created"
+msgstr "Créé le"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:27
+msgid "Delete"
+msgstr "Supprimer"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:30
+msgid "Delete Job"
+msgstr "Supprimer le job"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:20
+msgid "Duration"
+msgstr "Durée"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:39
+msgid "Duration: {duration}"
+msgstr "Durée : {duration}"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:63
+msgid "Error loading logs..."
+msgstr "Erreur lors du chargement des journaux…"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:60
+msgid "Expand the logs for {label}"
+msgstr "Développer les journaux de {label}"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:50
+msgctxt "date-prefix"
+msgid "Finished"
+msgstr "Terminé le"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:38
+msgid "Finished: {time}"
+msgstr "Terminé : {time}"
+
+#: extensions/scylla-base/src/features/jobs/jobs.module.ts:23
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:9
+msgid "Job"
+msgstr "Job"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:28
+msgid "Job actions"
+msgstr "Actions du job"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:18
+msgid "Job ID"
+msgstr "ID du job"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:44
+msgid "Job ID is missing"
+msgstr "L'identifiant de job est manquant"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:45
+msgid "Job not found"
+msgstr "Job introuvable"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:10
+msgid "Jobs"
+msgstr "Jobs"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:62
+msgid "Loading..."
+msgstr "Chargement…"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:54
+msgid "Logs"
+msgstr "Journaux"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:6
+msgid "No jobs found"
+msgstr "Aucun job trouvé"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:34
+msgid "No nodes"
+msgstr "Aucun nœud"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:35
+msgid "Node {nodeId}"
+msgstr "Nœud {nodeId}"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:56
+msgid "Node executions"
+msgstr "Exécutions de nœuds"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:4
+msgid "Pipeline ID is missing"
+msgstr "L'identifiant de pipeline est manquant"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:14
+msgid "Pipeline ID:"
+msgstr "ID de pipeline :"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:24
+msgid "queued — waiting for an agent"
+msgstr "en file — en attente d'un agent"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:15
+msgid "Refresh"
+msgstr "Actualiser"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:11
+msgid "Run"
+msgstr "Exécuter"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:7
+msgid "Run your pipeline to create the first job"
+msgstr "Exécutez votre pipeline pour créer le premier job"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:49
+msgctxt "date-prefix"
+msgid "Started"
+msgstr "Démarré le"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:37
+msgid "Started: {time}"
+msgstr "Démarré : {time}"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:36
+msgid "State: {state}"
+msgstr "État : {state}"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:17
+msgid "Status"
+msgstr "Statut"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:55
+msgid "Streaming live output"
+msgstr "Flux de sortie en direct"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:19
+msgid "Timeline"
+msgstr "Chronologie"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:5
+msgid "Unable to load jobs"
+msgstr "Impossible de charger les jobs"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:46
+msgid "Unable to load this job"
+msgstr "Impossible de charger ce job"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:26
+msgid "View"
+msgstr "Voir"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:57
+msgid "Whole job"
+msgstr "Job entier"
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:13
+msgid "You don't have permission to delete jobs."
+msgstr "Vous n'avez pas la permission de supprimer des jobs."
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:12
+msgid "You don't have permission to run this pipeline."
+msgstr "Vous n'avez pas la permission d'exécuter cette pipeline."
+
+#: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:53
+msgid "You don't have permission to view this job's logs"
+msgstr "Vous n'avez pas la permission de voir les journaux de ce job"

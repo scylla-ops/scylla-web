@@ -1,0 +1,209 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-09-03 18:41+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:27
+msgid "{username} removed — {revoked} grant(s) revoked"
+msgstr "{username} removed — {revoked} grant(s) revoked"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:22
+msgid "{value, plural, =0 {No role} one {# role} other {# roles}}"
+msgstr "{value, plural, =0 {No role} one {# role} other {# roles}}"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:15
+msgid "+ role"
+msgstr "+ role"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:9
+msgid "Add"
+msgstr "Add"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:7
+msgid "Add a member"
+msgstr "Add a member"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:38
+msgid "Add a member to “{name}”"
+msgstr "Add a member to “{name}”"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:54
+msgid "Add a member to this project"
+msgstr "Add a member to this project"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:32
+msgid "Belonging to “{name}” means holding a role in it. Granting someone their first role admits them; revoking every role they hold here, and on its projects, removes them."
+msgstr "Belonging to “{name}” means holding a role in it. Granting someone their first role admits them; revoking every role they hold here, and on its projects, removes them."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:8
+msgid "Cancel"
+msgstr "Cancel"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:56
+msgid "Every member of the organization is already here"
+msgstr "Every member of the organization is already here"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:45
+msgid "Every role they hold on this organization and on its projects will be revoked. They will lose access immediately."
+msgstr "Every role they hold on this organization and on its projects will be revoked. They will lose access immediately."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:60
+msgid "Every role they hold on this project will be revoked. Roles inherited from the organization are untouched — they are managed at the organization level."
+msgstr "Every role they hold on this project will be revoked. Roles inherited from the organization are untouched — they are managed at the organization level."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:40
+msgid "Everyone is already a member"
+msgstr "Everyone is already a member"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:47
+msgid "Everyone with access to this project, whether granted here or through a role on the organization. Only project roles can be changed from this page."
+msgstr "Everyone with access to this project, whether granted here or through a role on the organization. Only project roles can be changed from this page."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:14
+msgid "Held"
+msgstr "Held"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:12
+msgid "Loading…"
+msgstr "Loading…"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:18
+msgid "Managed at the organization level."
+msgstr "Managed at the organization level."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:50
+msgid "Managed by a project administrator"
+msgstr "Managed by a project administrator"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:36
+msgid "Managed by an organization administrator"
+msgstr "Managed by an organization administrator"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:5
+msgid "Member"
+msgstr "Member"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:28
+msgid "Member added with {count} role(s)"
+msgstr "Member added with {count} role(s)"
+
+#: extensions/scylla-base/src/features/membership/membership.module.ts:14
+#: extensions/scylla-base/src/features/membership/membership.module.ts:16
+#: extensions/scylla-base/src/features/membership/membership.module.ts:23
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:6
+msgid "Members"
+msgstr "Members"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:11
+msgid "No role"
+msgstr "No role"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:13
+msgid "No role can be granted here."
+msgstr "No role can be granted here."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:34
+msgid "Nobody belongs to this organization yet."
+msgstr "Nobody belongs to this organization yet."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:49
+msgid "Nobody has access to this project yet."
+msgstr "Nobody has access to this project yet."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:17
+msgid "Nobody is listed here yet."
+msgstr "Nobody is listed here yet."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:55
+msgid "Only members of the organization can be added — a project role granted to anyone else is refused."
+msgstr "Only members of the organization can be added — a project role granted to anyone else is refused."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:53
+msgid "Organization administrators also reach this project. Their roles are managed at the organization level and are not listed here."
+msgstr "Organization administrators also reach this project. Their roles are managed at the organization level and are not listed here."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:39
+msgid "Pick someone and the roles they should hold in this organization."
+msgstr "Pick someone and the roles they should hold in this organization."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:58
+msgid "Project roles to grant"
+msgstr "Project roles to grant"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:35
+msgid "Reached via a project"
+msgstr "Reached via a project"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:44
+msgid "Remove {username} from “{organization}”?"
+msgstr "Remove {username} from “{organization}”?"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:59
+msgid "Remove {username} from this project?"
+msgstr "Remove {username} from this project?"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:37
+msgid "Remove from the organization"
+msgstr "Remove from the organization"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:51
+msgid "Remove from the project"
+msgstr "Remove from the project"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:19
+msgid "Revoke {name}"
+msgstr "Revoke {name}"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:24
+msgid "Role granted"
+msgstr "Role granted"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:25
+msgid "Role revoked"
+msgstr "Role revoked"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:52
+msgid "Roles badged “Organization” are inherited from the organization and are managed there."
+msgstr "Roles badged “Organization” are inherited from the organization and are managed there."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:42
+msgid "Roles to grant"
+msgstr "Roles to grant"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:16
+msgid "Select a user"
+msgstr "Select a user"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:30
+msgid "Select an organization to see its members."
+msgstr "Select an organization to see its members."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:10
+msgid "You"
+msgstr "You"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:57
+msgid "You can't browse the organization's members"
+msgstr "You can't browse the organization's members"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:41
+msgid "You can't browse the user directory"
+msgstr "You can't browse the user directory"
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:48
+msgid "You don't have permission to add members to this project."
+msgstr "You don't have permission to add members to this project."
+
+#: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:33
+msgid "You don't have permission to admit members here."
+msgstr "You don't have permission to admit members here."

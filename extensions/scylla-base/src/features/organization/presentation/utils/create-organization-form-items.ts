@@ -1,0 +1,19 @@
+import { type FormItem, FormItemType } from '@scylla/ui';
+import { t } from '@lingui/core/macro';
+
+export const createOrganizationItems = (): readonly FormItem<'name' | 'description'>[] => [
+  {
+    id: 'name',
+    label: t`Organization name`,
+    placeholder: t`e.g., My Organization`,
+    type: FormItemType.Input,
+    inputType: 'text',
+  },
+  {
+    id: 'description',
+    label: t`Description`,
+    placeholder: t`e.g., Our company's main organization`,
+    type: FormItemType.Input,
+    inputType: 'text',
+  },
+];
