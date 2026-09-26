@@ -1,93 +1,141 @@
 # Naming Conventions
 
-> **Out of date.** This document describes the frontend before the migration to Svelte
-> (`refacto_svelte.md`). `CLAUDE.md` and the `AGENTS.md` of each module are the current contract.
-> Where this document disagrees with them, they are correct.
+This document gives the naming rules of the Scylla frontend: a Svelte 5 + TypeScript application
+where a core loads extensions (see `architecture.md`).
 
-This document defines the naming rules applied across the Scylla frontend codebase.
+`CLAUDE.md` is the contract, and the `AGENTS.md` of each package and module make it concrete.
+If this document and one of them do not agree, they are correct: update this document.
 
 ---
 
-## 1. Files & Folders
+## 1. Files and folders
 
-### 1.1 General Rule
+### 1.1 General rule
 
-All files and folders use **kebab-case**:
+Files and folders use **kebab-case**. Svelte component files use **PascalCase** (§1.3).
 
 ```
-use-create-user.ts
 user-remote.data-source.ts
 pagination.struct.ts
+features/pipeline/
+infrastructure/repository/data-sources/
 ```
 
-### 1.2 File Suffixes
+### 1.2 File suffixes
 
-Files are suffixed by their role to make intent clear at a glance:
+The suffix of a file tells its role.
 
-| Layer | Suffix | Example |
-|-------|--------|---------|
-| **Page component** | `.page.tsx` | `UserAdmin.page.tsx` |
-| **Use case** | `.use-case.ts` | `create-user.use-case.ts` |
-| **Repository interface** | `.repository.ts` | `user.repository.ts` |
-| **Repository implementation** | `.repository.ts` (in `infrastructure/`) | `user.repository.ts` |
-| **Data source interface** | `.data-source.ts` | `user-remote.data-source.ts` |
-| **Data source implementation** | `.data-source.impl.ts` | `user-remote.data-source.impl.ts` |
-| **Mapper** | `.mapper.ts` | `grpc-user.mapper.ts` |
-| **Domain entity** | `.entity.ts` | `secret.entity.ts`, `role.entity.ts`, `user.entity.ts` |
-| **Domain struct (value object / enum / DTO / wrapper)** | `.struct.ts` | `permission.struct.ts`, `pagination.struct.ts` |
-| **Presentation struct** | `.struct.ts` | `scylla-form.struct.ts`, `crumb.struct.ts` |
-| **Hook** | `use-{name}.ts` | `use-create-user.ts`, `use-selection.ts` |
-| **Zustand store** | `use-{name}.store.ts` | `use-context.store.ts`, `use-selection.store.ts` |
-| **DI module** | `.module.ts` | `user.module.ts`, `pipeline.module.ts` |
-| **Guard / Wrapper** | `.guard.tsx` / `.wrapper.tsx` | `Auth.guard.tsx`, `ContextCleaner.wrapper.tsx` |
-| **Router** | `.router.tsx` | `Core.router.tsx` |
+#### Packages and extensions
 
-### 1.3 React Component Files
+| Role | Pattern | Example |
+|------|---------|---------|
+| **Extension declaration** (at the extension root) | `*.extension.ts` → an `@Extension` class `{Name}Extension` | `scylla-base.extension.ts` / `ScyllaBaseExtension` |
+| **Module declaration** (at the module root) | `*.module.ts` → `{Feature}Module` | `user.module.ts` / `UserModule` |
+| **Module public API** | `index.ts` | `features/membership/index.ts` |
+
+#### Domain
+
+| Role | Pattern | Example |
+|------|---------|---------|
+| **Repository interface** | `*.repository.ts` → `{Entity}Repository` | `user.repository.ts` / `UserRepository` |
+| **Domain entity** | `*.entity.ts` → `{Name}Entity` | `secret.entity.ts` / `SecretEntity` |
+| **Struct** (value object / enum / DTO / wrapper) | `*.struct.ts`, plain name | `permission.struct.ts` / `PermissionScope` |
+| **Use case** (only when it orchestrates) | `*.use-case.ts` → `{Verb}{Entity}UseCase` | `update-role.use-case.ts` / `UpdateRoleUseCase` |
+
+#### Infrastructure
+
+| Role | Pattern | Example |
+|------|---------|---------|
+| **Repository implementation** | `default-*.repository.ts` → `Default{Entity}Repository` | `default-user.repository.ts` / `DefaultUserRepository` |
+| **Data source interface** | `*.data-source.ts` | `user-remote.data-source.ts` / `UserRemoteDataSource` |
+| **Data source implementation** | `*.data-source.impl.ts` | `user-remote.data-source.impl.ts` / `UserRemoteDataSourceImpl` |
+| **Mapper** | `grpc-*.mapper.ts` → `Grpc{Entity}Mapper` | `grpc-user.mapper.ts` / `GrpcUserMapper` |
+
+#### Presentation
+
+| Role | Pattern | Example |
+|------|---------|---------|
+| **Query / mutation options** | `<feature>.queries.ts` → `{feature}Queries`, `{feature}Mutations` | `user.queries.ts` / `userQueries` |
+| **Query-key factories** (when they have their own file) | `<feature>.query-keys.ts` | `jobs.query-keys.ts` |
+| **ViewModel** (runes) | `<view>.state.svelte.ts` | `roles-page.state.svelte.ts` |
+| **Rune helper** (no view) | `*.svelte.ts` | `organization-sync.svelte.ts` |
+| **Svelte action** | `*.actions.ts`, named by a verb | `code-mirror.actions.ts` / `renderCodeMirror` |
+| **Pure algorithm** | `*.calculator.ts` | `outcomes-chart.calculator.ts` |
+| **Messages** (i18n) | `*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
+| **Store** (framework-free, `createStore`) | `*.store.ts` → `{name}Store` | `context.store.ts` / `contextStore` |
+| **Page component** | `*.page.svelte` | `UserAdmin.page.svelte` |
+| **Guard / wrapper** | `*.guard.svelte` / `*.wrapper.svelte` | `Auth.guard.svelte`, `ContextCleaner.wrapper.svelte` |
+
+#### Tests
+
+| Role | Pattern | Example |
+|------|---------|---------|
+| **Test** | `*.test.ts` | `grpc-user.mapper.test.ts` |
+| **French rendering test** | `*.fr.test.ts` | `MemberCard.fr.test.ts` |
+| **Test fixture** (a component that a test renders) | `*.fixture.svelte` | `DataTable.fixture.svelte` |
+
+There are **no** `*.model.ts` files, **no** `use-*.ts` hooks and **no** `*.router.tsx` files.
+
+### 1.3 Svelte component files
 
 Component files use **PascalCase**:
 
 ```
-FeatureHeader.tsx
-FormDialog.tsx
-ScyllaForm.tsx
-DataTable.tsx
+FeatureHeader.svelte
+FormDialog.svelte
+ScyllaForm.svelte
+DataTable.svelte
 ```
 
-### 1.4 Folder Names
+A component with a test has its own folder, with the same name: `LoginForm/LoginForm.svelte`,
+`LoginForm/LoginForm.test.ts`, `LoginForm/LoginForm.fixture.svelte`. A page drops `.page` from
+the folder name: `Login/Login.page.svelte`.
 
-Always **kebab-case**, matching the module or concept name:
+A test that does not test one component goes in the `__test__/` folder of the directory that it
+covers: `presentation/grant-creator.state.svelte.ts` →
+`presentation/__test__/grant-creator.state.svelte.test.ts`.
 
-```
-features/pipeline/
-presentation/hooks/
-infrastructure/data-sources/
-```
+### 1.4 Packages
+
+| Folder | Package name |
+|--------|--------------|
+| `packages/<name>` | `@scylla/<name>` (`@scylla/core`, `@scylla/ui`) |
+| `sdks/core-sdk` | `@scylla/core-sdk` |
+| `sdks/<name>-sdk` | the SDK of an extension (`sdks/scylla-base-sdk` → `@scylla/base-sdk`) |
+| `extensions/<name>` | `@scylla/<name>` (`extensions/scylla-base` → `@scylla/base`) |
 
 ---
 
-## 2. TypeScript Naming
+## 2. TypeScript naming
 
-### 2.1 Interfaces & Types
+### 2.1 Interfaces and types
 
-**PascalCase**, no `I` prefix:
+**PascalCase**, no `I` prefix.
+
+- Use **`interface`** for object shapes that are extended or implemented: component props,
+  repository contracts, data source contracts.
+- Use **`type`** for what an interface cannot express: unions, literal unions, mapped and utility
+  types, function types, aliases.
+- Type-only imports use `import type`.
 
 ```typescript
 interface UserRepository { ... }
 interface PaginationInfo { ... }
-type FormItem = FormItemBase & (FormInput | FormSelect);
-type PipelineTableProps = { ... };
+type OutcomeRange = '7d' | '14d' | '30d';
+type FormValues<TId extends string> = Record<TId, string>;
 ```
 
-### 2.2 Domain Entities & Structs
+### 2.2 Domain entities and structs
 
-The domain layer distinguishes **entities** (identity-bearing business objects, in `domain/entities/*.entity.ts`) from **structs** (plain data shapes with no identity — value objects, enums, DTOs, and list/result wrappers — in `domain/structs/*.struct.ts`). See `architecture.md` §3.1 for the rationale.
+The domain layer has two kinds of types (see `architecture.md` §5.1): **entities** are the
+identity-bearing objects that a feature owns; **structs** are data shapes with no identity.
 
 | Kind | File | Type name | Example |
 |------|------|-----------|---------|
-| Entity | `{name}.entity.ts` | `{Name}Entity` | `secret.entity.ts` → `SecretEntity`; `user.entity.ts` → `UserEntity` |
-| Entity input/creation shape | (same entity file) | `Create{Name}Input` / `{Name}CreationData` | `CreateSecretInput`, `RoleCreationData` |
-| Entity behavior (pure fn) | (same entity file) | `camelCase` verb | `updateRole(role, changes)` |
-| Struct (value object / enum / DTO / wrapper) | `{name}.struct.ts` | plain PascalCase, no suffix | `Permission`, `PermissionScope`, `ProjectList`, `CreatedApp` |
+| Entity | `{name}.entity.ts` | `{Name}Entity` | `SecretEntity`, `UserEntity` |
+| Entity input shape | the same entity file | `Create{Name}Input` / `{Name}CreationData` | `CreateSecretInput`, `RoleCreationData` |
+| Entity behavior (pure function) | the same entity file | camelCase verb | `updateRole(role, changes)` |
+| Struct | `{name}.struct.ts` | plain PascalCase, no suffix | `Permission`, `PermissionScope`, `ProjectList`, `CreatedApp` |
 
 ```typescript
 // secret.entity.ts
@@ -98,26 +146,27 @@ export interface CreateSecretInput { projectId: string; name: string; value: str
 export enum PermissionScope { UNSPECIFIED = 0, SYSTEM = 1, ORGANIZATION = 2, PROJECT = 3 }
 ```
 
-The `Entity` suffix is the identity signal — use it for the thing the feature *owns*; keep value objects, enums, and DTOs suffix-free in `structs/`. The suffix also keeps domain types distinct from the proto-generated type of the same bare name (e.g. domain `UserEntity` vs proto `User`, aliased in mappers).
-
-> There are **no `*.model.ts` files** anywhere in the codebase — every domain or presentation type is an entity (`*.entity.ts`) or a struct (`*.struct.ts`).
+The `Entity` suffix also makes the domain type different from the proto type with the same
+bare name (e.g. domain `UserEntity`, proto `User`). A mapper can alias the proto type when the
+two names clash.
 
 ### 2.3 Classes
 
-**PascalCase**, suffixed by role:
+**PascalCase**, with a suffix for the role:
 
 | Role | Pattern | Example |
 |------|---------|---------|
-| Use case | `{Verb}{Entity}UseCase` | `GetUsersUseCase`, `CreateUserUseCase`, `DeleteUserUseCase` |
-| Repository impl | `{Entity}RepositoryImpl` | `UserRepositoryImpl` |
-| Data source impl | `{Entity}RemoteDataSourceImpl` | `UserRemoteDataSourceImpl` |
+| Extension | `{Name}Extension` | `ScyllaBaseExtension` |
+| Use case | `{Verb}{Entity}UseCase` | `UpdateRoleUseCase` |
+| Repository implementation | `Default{Entity}Repository` | `DefaultUserRepository` |
+| Data source implementation | `{Entity}RemoteDataSourceImpl` | `UserRemoteDataSourceImpl` |
 | Mapper | `Grpc{Entity}Mapper` | `GrpcUserMapper` |
-| Error | `ScyllaError` | — |
-| Result | `ScyllaResult<T>` | — |
+| ViewModel class | `{View}State` | `LoginState` |
+| Error / result | `ScyllaError`, `ScyllaResult<T>` | — |
 
 ### 2.4 Enums
 
-**PascalCase** for names, **UPPER_SNAKE_CASE** or **PascalCase** for values:
+**PascalCase** for the name. **UPPER_SNAKE_CASE** or **PascalCase** for the values:
 
 ```typescript
 enum FormItemType {
@@ -125,147 +174,158 @@ enum FormItemType {
   Select = 'select',
 }
 
-enum Act {
-  CREATE = 0,
-  READ = 1,
+enum PermissionScope {
+  UNSPECIFIED = 0,
+  SYSTEM = 1,
 }
 ```
 
-### 2.5 Constants
+### 2.5 Constants and query keys
 
-**UPPER_SNAKE_CASE** for true constants, **camelCase** for derived/computed values:
+**UPPER_SNAKE_CASE** for true constants and for query-key factories. **camelCase** for derived
+values:
 
 ```typescript
 const DEFAULT_PAGE_SIZE = 10;
 const MAX_JOBS_PER_PIPELINE = 10;
-const EMPTY_ARRAY: string[] = [];
 
-const JOBS_QUERY_KEY = (pipelineId: string) => ['jobs', 'pipeline', pipelineId] as const;
+export const USERS_QUERY_KEY = () => ['users'] as const;
+export const JOBS_QUERY_KEY = (pipelineId: string) => ['jobs', 'pipeline', pipelineId] as const;
+```
+
+Always use a factory, so the queries and the invalidations stay in sync:
+
+```typescript
+getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId), exact: true });
 ```
 
 ---
 
-## 3. React Naming
+## 3. Svelte naming
 
 ### 3.1 Components
 
-**PascalCase**, named by what they render:
-
-```typescript
-export const FeatureHeader = ({ ... }: FeatureHeaderProps) => { ... };
-export const PipelineTable = ({ ... }: PipelineTableProps) => { ... };
-export function FormDialog({ ... }: FormDialogProps) { ... }
-```
+**PascalCase**, named by what they render: `FeatureHeader`, `PipelineTable`, `FormDialog`.
 
 ### 3.2 Props
 
-**PascalCase** type name = `{ComponentName}Props`:
+The props type is named `Props`, inside the component:
 
-```typescript
-interface FeatureHeaderProps {
-  count: number;
-  label: string;
-  onNew?: () => void;
-}
+```svelte
+<script lang="ts">
+  interface Props {
+    count: number;
+    label: string;
+    onNew?: () => void;
+  }
+
+  let { count, label, onNew }: Props = $props();
+</script>
 ```
 
-### 3.3 Hooks
+A callback prop starts with `on` (`onNew`, `onSubmit`, `onClearSelection`).
 
-**camelCase** starting with `use`:
+### 3.3 Rune state factories and ViewModels
 
-| Type | Pattern | Example |
+There are **no `use*` hooks**. A factory of rune state is **camelCase `create*`**:
+
+| Kind | Pattern | Example |
 |------|---------|---------|
-| Data fetching | `use{Entity}s` / `use{Entity}` | `useUsers()`, `useUser(id)` |
-| Mutation | `use{Verb}{Entity}` | `useCreateUser()`, `useDeleteUser()` |
-| Shared behavior | `use{Concept}` | `useSelection(key)`, `usePagination()` |
-| Navigation | `useScyllaNavigate` | `useScyllaNavigate()` |
-| Form state | `useFormState` | `useFormState(items)` |
+| ViewModel of a view | `create{View}` in `<view>.state.svelte.ts`, or a `{View}State` class | `createRolesPage()`, `createPipelineDashboard(projectId)`, `LoginState` |
+| Shared rune helper | `create{Concept}` | `createSelection(key)`, `createPagination(options)`, `createFormState(() => items)` |
+| TanStack Query | `createQuery`, `createMutation`, `createQueries` (from `@scylla/core-sdk`) | `createQuery(() => userQueries.byId(id))` |
 
-### 3.4 Stores (Zustand)
+A ViewModel is named after the view that it controls, never after a global concept.
 
-Hook-style naming with `Store` suffix for the raw store, plain `use{Name}` for the consumer hook:
+### 3.4 Stores
 
-```typescript
-// Store definition
-export const useSelectionStore = create<SelectionState>(...);
+A store is framework-free, made with `createStore`, and named **`{name}Store`**:
+`contextStore`, `selectionStore`, `permissionsStore`. Rune code reads it with
+`toRune(store)`.
 
-// Consumer hook (wraps the store)
-export const useSelection = (key: string) => { ... };
-```
+### 3.5 Svelte actions
+
+A Svelte action is named by a **verb**: `renderCodeMirror`. It lives in `*.actions.ts`.
 
 ---
 
-## 4. DI Module Naming
+## 4. Module naming
 
-Each feature exposes a module object with a `domain` property:
+### 4.1 Module declaration
+
+Each module exports `{Feature}Module` from `<feature>.module.ts`, with a kebab-case `id` and a
+`domain` object. The keys of `domain` are the camelCase names of the repositories:
 
 ```typescript
 export const UserModule = {
-  domain: {
-    getUsers: getUsersUseCase,
-    createUser: createUserUseCase,
-    deleteUser: deleteUserUseCase,
-  },
-};
+  id: 'user',
+  domain: { userRepository: repository },
+  routes: { organization: [ /* ... */ ] },
+} satisfies ScyllaModule;
 ```
 
-The `Dependencies` object maps features to their domain API:
+A `*.queries.ts` reads it with the same id:
 
 ```typescript
-export const dependencies = {
-  user: UserModule.domain,
-  pipeline: PipelineModule.domain,
-  // ...
-};
+const repository = () => getModuleDomain<typeof UserModule.domain>('user').userRepository;
 ```
 
-Access in hooks: `useDependencies().user.createUser.execute(...)`.
+Module ids are unique across all the extensions.
 
----
+### 4.2 Query and mutation options
 
-## 5. Query Keys
-
-Use **factory functions** to ensure consistency between queries and invalidations:
+`<feature>.queries.ts` exports `{feature}Queries` and `{feature}Mutations`. Each entry is a
+factory, named by what it reads or does:
 
 ```typescript
-// Definition (in the hook file)
-export const JOBS_QUERY_KEY = (pipelineId: string) =>
-  ['jobs', 'pipeline', pipelineId, MAX_JOBS_PER_PIPELINE] as const;
+userQueries.list();
+userQueries.byId(userId);
+jobQueries.byPipeline(pipelineId, pagination);
+userMutations.create();
+userMutations.update();
+userMutations.remove();
+```
 
-// Usage in query
-queryKey: [...JOBS_QUERY_KEY(pipelineId)],
+### 4.3 Loaders
 
-// Usage in invalidation
-queryClient.invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId), exact: true });
+A barrel never exports a Svelte component. It exports a loader, named `load{Component}`:
+
+```typescript
+export const loadJobsPage = () => import('./presentation/ui/Jobs.page.svelte');
 ```
 
 ---
 
-## 6. i18n
+## 5. i18n
 
-- Translation files live in `locales/{lang}/messages.po` (per feature or global)
-- Use `<Trans>` for JSX, `` t`...` `` for strings
-- Labels in `FormItem[]` accept `ReactNode` to support `<Trans>` components
+- Catalogs live in `locales/{en,fr}/messages.po`, per module.
+- Declare each message with `` msg`…` `` in a `*.messages.ts` beside its component, in an object
+  named `{name}Messages`. Render it with `t()` from `@scylla/ui/i18n`.
+- A message with a placeholder is a function: `` newEntity: (label: string) => msg`New ${label}` ``.
+- Keep the placeholder names when you move a message: they are part of the msgid.
 
 ---
 
-## 7. Summary Table
+## 6. Summary
 
 | Concept | Casing | Example |
 |---------|--------|---------|
-| File (non-component) | kebab-case | `use-create-user.ts` |
-| File (component) | PascalCase | `FeatureHeader.tsx` |
+| File (not a component) | kebab-case | `default-user.repository.ts` |
+| File (Svelte component) | PascalCase | `FeatureHeader.svelte` |
 | Folder | kebab-case | `data-sources/` |
-| Interface / Type | PascalCase | `UserRepository` |
-| Domain entity | PascalCase + `Entity` (`*.entity.ts`) | `SecretEntity`, `RoleEntity` |
-| Struct (value object / enum / DTO) | PascalCase, no suffix (`*.struct.ts`) | `Permission`, `PermissionScope`, `ProjectList` |
-| Class | PascalCase + suffix | `GetUsersUseCase` |
-| Hook | camelCase `use*` | `useCreateUser` |
-| Store | camelCase `use*Store` | `useSelectionStore` |
+| Interface / type | PascalCase | `UserRepository` |
+| Component props | `Props`, inside the component | `interface Props` |
+| Domain entity | PascalCase + `Entity` (`*.entity.ts`) | `SecretEntity` |
+| Struct | PascalCase, no suffix (`*.struct.ts`) | `PermissionScope` |
+| Class | PascalCase + role suffix | `DefaultUserRepository` |
+| Extension | PascalCase + `Extension` | `ScyllaBaseExtension` |
+| Module declaration | PascalCase + `Module` | `UserModule` |
+| Rune state factory | camelCase `create*` | `createPagination` |
+| Store | camelCase + `Store` | `contextStore` |
+| Queries / mutations | camelCase + `Queries` / `Mutations` | `userQueries` |
+| Messages | camelCase + `Messages` | `secretMessages` |
+| Svelte action | camelCase verb | `renderCodeMirror` |
+| Loader | camelCase `load*` | `loadJobsPage` |
 | Constant | UPPER_SNAKE_CASE | `DEFAULT_PAGE_SIZE` |
+| Query-key factory | UPPER_SNAKE_CASE | `JOBS_QUERY_KEY` |
 | Enum | PascalCase | `FormItemType` |
-| Component | PascalCase | `FeatureHeader` |
-| Props type | PascalCase + `Props` | `FeatureHeaderProps` |
-| DI module | PascalCase + `Module` | `UserModule` |
-| Query key factory | UPPER_SNAKE_CASE | `JOBS_QUERY_KEY` |
-
