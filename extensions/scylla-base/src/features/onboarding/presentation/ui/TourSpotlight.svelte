@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { fade } from 'svelte/transition';
+  import { motionDuration } from '@scylla/ui';
   import { dimPath, ringPath, type TourRect, type TourSize } from '../tour-placement.calculator.ts';
   import { holdPointer } from '../tour-tracking.actions.ts';
 
@@ -6,12 +8,18 @@
     viewport: TourSize;
     holes: readonly TourRect[];
     connectors: readonly string[];
+    blocking: boolean;
+    allowed: TourRect | null;
   }
 
-  let { viewport, holes, connectors }: Props = $props();
+  let { viewport, holes, connectors, blocking, allowed }: Props = $props();
 </script>
 
-<svg class="pointer-events-none fixed inset-0 z-40 size-full" aria-hidden="true">
+<svg
+  class="pointer-events-none fixed inset-0 z-40 size-full"
+  aria-hidden="true"
+  transition:fade={{ duration: motionDuration(200) }}
+>
   <path
     use:holdPointer
     d={dimPath(viewport, holes)}
@@ -20,7 +28,23 @@
   />
 </svg>
 
-<svg class="pointer-events-none fixed inset-0 z-[60] size-full" aria-hidden="true">
+{#if blocking}
+  <svg class="pointer-events-none fixed inset-0 z-[55] size-full" aria-hidden="true">
+    <path
+      use:holdPointer
+      d={dimPath(viewport, allowed ? [allowed] : [])}
+      fill-rule="evenodd"
+      data-tour-blocker
+      class="pointer-events-auto fill-transparent"
+    />
+  </svg>
+{/if}
+
+<svg
+  class="pointer-events-none fixed inset-0 z-[60] size-full"
+  aria-hidden="true"
+  transition:fade={{ duration: motionDuration(200) }}
+>
   {#each holes as hole, index (index)}
     <path d={ringPath(hole)} class="fill-none stroke-primary" stroke-width="3" />
   {/each}
