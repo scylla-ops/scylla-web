@@ -10,12 +10,14 @@ import type { PipelineMetadata, PipelineStep } from '../domain/structs/pipeline.
 import type { PipelineModule } from '../pipeline.module.ts';
 import { pipelineMessages } from './pipeline.messages.ts';
 import {
+  CREATE_PIPELINE_MUTATION_KEY,
   ORGANIZATION_PIPELINES_QUERY_KEY,
   PIPELINES_LOOKUP_PAGE,
   PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_ROOT,
   PIPELINE_QUERY_KEY,
   PROJECT_PIPELINES_QUERY_ROOT,
+  RUN_PIPELINE_MUTATION_KEY,
 } from './pipelines.query-keys.ts';
 
 // Resolved per call: tests swap the registry.
@@ -87,6 +89,7 @@ const returnToProject = () => {
 export const pipelineMutations = {
   create: () =>
     mutationOptions({
+      mutationKey: CREATE_PIPELINE_MUTATION_KEY,
       mutationFn: async (pipeline: Omit<PipelineEntity, 'id'>) =>
         (await repository().create(pipeline)).unwrap(),
       onSuccess: () => {
@@ -148,6 +151,7 @@ export const pipelineMutations = {
   /** No toast here: `run-pipeline.svelte.ts` decides it from the agents. */
   run: () =>
     mutationOptions({
+      mutationKey: RUN_PIPELINE_MUTATION_KEY,
       mutationFn: async (pipelineId: string) => (await repository().run(pipelineId)).unwrap(),
       onSuccess: (_data, pipelineId) => {
         void getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId) });

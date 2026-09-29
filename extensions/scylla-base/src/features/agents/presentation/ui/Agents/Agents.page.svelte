@@ -91,7 +91,7 @@
 {#if agentsQuery.isError}
   <ErrorState message={t(agentsMessages.loadError)} />
 {:else}
-  <div class="flex flex-col gap-4 w-full h-full">
+  <div data-tour="agents" class="flex flex-col gap-4 w-full h-full">
     <FeatureHeader
       count={agents.length}
       label={t(agentsMessages.agent)}

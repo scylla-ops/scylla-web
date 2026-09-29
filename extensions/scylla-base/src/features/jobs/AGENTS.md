@@ -154,6 +154,8 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
   one with CSS instead.
 - **New strings go in `ui/jobs.messages.ts`, never inside a `.svelte`.** Extraction does not read
   components, so a message declared there vanishes from the catalogs without failing a gate.
+- **`data-tour` attributes are anchors of the onboarding tour** (`job-details` on the job page). Keep them on the same
+  element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
 
 ## Before done
 

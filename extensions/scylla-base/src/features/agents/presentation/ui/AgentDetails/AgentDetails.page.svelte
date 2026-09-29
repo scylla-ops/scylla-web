@@ -66,9 +66,9 @@
 {:else if agentQuery.isError || !agent}
   <ErrorState message={t(agentsMessages.detailsLoadError)} />
 {:else}
-  <div class="w-full min-h-full flex flex-col gap-6 pb-8">
+  <div data-tour="agent-details" class="w-full min-h-full flex flex-col gap-6 pb-8">
     <div class="flex items-center justify-between w-full gap-4">
-      <div class="flex items-center gap-3">
+      <div data-tour="agent-status" data-online={online} class="flex items-center gap-3">
         <span
           class={cn(
             'relative flex h-14 w-14 items-center justify-center rounded-lg bg-success/10',
@@ -170,7 +170,7 @@
       </div>
     {/if}
 
-    <div class="w-full">
+    <div data-tour="agent-run" class="w-full">
       <div class="mb-2 flex items-baseline gap-2">
         <h2 class="text-lg font-semibold text-foreground">{t(agentsMessages.runThisAgent)}</h2>
         <span class="font-mono text-xs text-muted-foreground">{t(agentsMessages.connectsAs)}</span>

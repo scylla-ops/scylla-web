@@ -16,6 +16,7 @@ Pipelines: their definition, their editor, and the metadata the overviews read.
 type PipelineEntity
 type PipelineMetadata, PipelineStep, PipelineIdentity
 PIPELINES_QUERY_KEY, ORGANIZATION_PIPELINES_QUERY_KEY, PIPELINES_QUERY_ROOT
+CREATE_PIPELINE_MUTATION_KEY, RUN_PIPELINE_MUTATION_KEY   // onboarding follows these writes
 pipelineQueries                // Query options factory (replaces useOrganizationPipelines)
 asPipelineFeed
 ```
@@ -112,6 +113,10 @@ the page.
   full test coverage.
 - Largest module in the codebase — respect the ~150-line component rule. New editor UI goes in 
   `ui/editor/blueprint/`, new list UI in `ui/dashboard/pipeline-table/`.
+- **`data-tour` attributes are anchors of the onboarding tour** (`pipelines`, `pipeline-editor`, `pipeline-submit`, and on each row
+  `pipeline-history` / `pipeline-actions` / `pipeline-run` with `data-pipeline-id`,
+  `data-pipeline-name`, `data-last-status`). Keep them on the same
+  element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
 
 ## Before done
 

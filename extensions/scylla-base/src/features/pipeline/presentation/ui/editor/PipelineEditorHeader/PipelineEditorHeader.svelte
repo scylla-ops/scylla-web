@@ -89,6 +89,7 @@
         : t(pipelineMessages.editDenied)}
       onclick={onSubmit}
       disabled={submitDisabled || isSaving}
+      data-tour="pipeline-submit"
     >
       {#if isSaving}<Loader2Icon class="mr-2 size-4 animate-spin" />{/if}
       {submitLabel}

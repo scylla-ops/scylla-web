@@ -29,7 +29,7 @@
 {:else if projectsQuery.isError || !projects}
   <ErrorState message={t(projectMessages.loadError)} />
 {:else}
-  <div class="flex min-h-full w-full flex-col gap-4">
+  <div data-tour="projects" class="flex min-h-full w-full flex-col gap-4">
     <ProjectHeader
       numberOfProjects={paginationInfo?.totalCount ?? projects.length}
       projectIds={projects.map(project => project.id)}
