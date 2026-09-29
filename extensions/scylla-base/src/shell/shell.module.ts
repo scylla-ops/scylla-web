@@ -1,10 +1,10 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { RequirePermission, authorizationReady, can } from '@platform/authz';
 import OrganizationSelector from './presentation/layout/ui/context-selector/OrganizationSelector/OrganizationSelector.svelte';
+import LaunchOverlays from './presentation/layout/ui/LaunchOverlays/LaunchOverlays.svelte';
 import { layoutMessages } from './presentation/layout/ui/layout.messages.ts';
 import NavUser from './presentation/layout/ui/NavUser/NavUser.svelte';
 import NewBadge from './presentation/layout/ui/NewBadge.svelte';
-import WhatsNewDialog from './presentation/layout/ui/WhatsNewDialog/WhatsNewDialog.svelte';
 import { markNavSeen } from './presentation/layout/whats-new.svelte.ts';
 import { reportQueryError } from './presentation/report-query-error.ts';
 import { retryQueryError } from './presentation/retry-query-error.ts';
@@ -45,7 +45,7 @@ export const ShellModule = {
   access: { can: permission => can(permission), ready: authorizationReady, guard: RequirePermission },
   shell: {
     sidebarFooter: [NavUser],
-    overlays: [WhatsNewDialog],
+    overlays: [LaunchOverlays],
     navBadge: NewBadge,
     onNavOpen: markNavSeen,
     breadcrumbParams,
