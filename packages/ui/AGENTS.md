@@ -174,6 +174,11 @@ chunk.
 - `shadcn/` is ported shadcn-svelte. Prefer composing over editing; if you must edit, keep the
   upstream API.
 - Adding to `@scylla/ui` needs a second real usage. One usage stays inline.
+- `data-part` marks the inner parts of a composite that code outside may point at:
+  `feature-header-new` (`FeatureHeader`), `code-snippet-copy` (`CodeSnippet`),
+  `secret-reveal-secret` / `-next-step` / `-confirm` (`SecretRevealChecklist`). The onboarding
+  tour of scylla-base uses them. Keep them; do not use `data-slot` for this, a shadcn primitive
+  sets its own.
 
 ## Before done
 

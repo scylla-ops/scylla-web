@@ -72,14 +72,16 @@
           · {t(secretRevealMessages.shownOnce)}
         </span>
       </p>
-      <CodeSnippet
-        multiline
-        value={secret}
-        blurred={!revealed}
-        copyToast={copyToast ?? t(secretRevealMessages.secretCopied)}
-        label={secretLabelSnippet}
-        overlay={revealOverlay}
-      />
+      <div data-part="secret-reveal-secret" data-state={revealed ? 'revealed' : 'hidden'}>
+        <CodeSnippet
+          multiline
+          value={secret}
+          blurred={!revealed}
+          copyToast={copyToast ?? t(secretRevealMessages.secretCopied)}
+          label={secretLabelSnippet}
+          overlay={revealOverlay}
+        />
+      </div>
     </div>
   </div>
 
@@ -88,7 +90,10 @@
       <div class="flex flex-col items-center">
         {@render stepBullet(2, revealed)}
       </div>
-      <div class={cn('min-w-0 flex-1 transition-opacity', revealed ? 'opacity-100' : 'opacity-40')}>
+      <div
+        data-part="secret-reveal-next-step"
+        class={cn('min-w-0 flex-1 transition-opacity', revealed ? 'opacity-100' : 'opacity-40')}
+      >
         <p class="mb-2 mt-0.5 text-[13px] font-medium">{secondStep.title}</p>
         {#if revealed}{@render secondStep.content()}{/if}
       </div>
@@ -107,6 +112,7 @@
     disabled={!revealed}
     title={revealed ? undefined : t(secretRevealMessages.revealFirst)}
     onclick={onClose}
+    data-part="secret-reveal-confirm"
   >
     <CheckIcon class="mr-1.5 h-4 w-4" />
     {t(secretRevealMessages.done)}
