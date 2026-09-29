@@ -53,15 +53,23 @@
 {/snippet}
 
 {#snippet historyCell(pipeline: PipelineMetadata)}
-  <PipelineChart
-    jobs={jobsOf(pipeline.id)}
-    isLoading={isJobsLoading}
-    isError={isJobsError}
-    isForbidden={canListJobs === false}
-    maxJobs={10}
-    onSelectJob={jobId =>
-      scyllaNavigate.goToJobDetails(pipeline.id, jobId, { pipelineName: pipeline.name })}
-  />
+  <div
+    data-tour="pipeline-history"
+    data-pipeline-id={pipeline.id}
+    data-pipeline-name={pipeline.name}
+    data-last-status={jobsOf(pipeline.id)[0]?.status}
+    class="w-full"
+  >
+    <PipelineChart
+      jobs={jobsOf(pipeline.id)}
+      isLoading={isJobsLoading}
+      isError={isJobsError}
+      isForbidden={canListJobs === false}
+      maxJobs={10}
+      onSelectJob={jobId =>
+        scyllaNavigate.goToJobDetails(pipeline.id, jobId, { pipelineName: pipeline.name })}
+    />
+  </div>
 {/snippet}
 
 {#snippet lastRunCell(pipeline: PipelineMetadata)}
@@ -73,31 +81,38 @@
 {/snippet}
 
 {#snippet actionsCell(pipeline: PipelineMetadata)}
-  <PipelineActions
-    onRun={event => {
-      // The row is a selection target: an action is not a selection.
-      event.stopPropagation();
-      void runPipeline.run(pipeline.id);
-    }}
-    onEdit={event => {
-      event.stopPropagation();
-      scyllaNavigate.goToEditPipeline(pipeline.id, pipeline.name);
-    }}
-    onDuplicate={event => {
-      event.stopPropagation();
-      duplicatePipeline.mutate(pipeline.id);
-    }}
-    onViewJobs={event => {
-      event.stopPropagation();
-      scyllaNavigate.goToJobs(pipeline.id, pipeline.name);
-    }}
-    onViewTriggers={event => {
-      event.stopPropagation();
-      scyllaNavigate.goToTriggers(pipeline.id, pipeline.name);
-    }}
-    isRunning={runPipeline.isRunning(pipeline.id)}
-    isDuplicating={duplicatePipeline.isPending && duplicatePipeline.variables === pipeline.id}
-  />
+  <div
+    data-tour="pipeline-actions"
+    data-pipeline-id={pipeline.id}
+    data-pipeline-name={pipeline.name}
+    class="w-full"
+  >
+    <PipelineActions
+      onRun={event => {
+        // The row is a selection target: an action is not a selection.
+        event.stopPropagation();
+        void runPipeline.run(pipeline.id);
+      }}
+      onEdit={event => {
+        event.stopPropagation();
+        scyllaNavigate.goToEditPipeline(pipeline.id, pipeline.name);
+      }}
+      onDuplicate={event => {
+        event.stopPropagation();
+        duplicatePipeline.mutate(pipeline.id);
+      }}
+      onViewJobs={event => {
+        event.stopPropagation();
+        scyllaNavigate.goToJobs(pipeline.id, pipeline.name);
+      }}
+      onViewTriggers={event => {
+        event.stopPropagation();
+        scyllaNavigate.goToTriggers(pipeline.id, pipeline.name);
+      }}
+      isRunning={runPipeline.isRunning(pipeline.id)}
+      isDuplicating={duplicatePipeline.isPending && duplicatePipeline.variables === pipeline.id}
+    />
+  </div>
 {/snippet}
 
 <DataTable

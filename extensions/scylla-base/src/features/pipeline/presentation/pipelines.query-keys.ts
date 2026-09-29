@@ -18,3 +18,6 @@ export const PIPELINE_QUERY_KEY = (pipelineId: string) => ['pipeline', pipelineI
 
 /** One request for a project's whole list, on the overview pages. */
 export const PIPELINES_LOOKUP_PAGE: PaginationParams = { page: 1, pageSize: 100 };
+
+export const CREATE_PIPELINE_MUTATION_KEY = ['pipeline', 'create'] as const;
+export const RUN_PIPELINE_MUTATION_KEY = ['pipeline', 'run'] as const;
