@@ -36,7 +36,7 @@ describe('TOUR_STEPS', () => {
   it('opens with the welcome and ends with the final screen', () => {
     expect(TOUR_STEPS[0].kind).toBe('welcome');
     expect(TOUR_STEPS.at(-1)?.kind).toBe('finish');
-    expect(TOUR_STEPS.filter(step => step.kind === 'spot')).toHaveLength(20);
+    expect(TOUR_STEPS.filter(step => step.kind === 'spot')).toHaveLength(21);
   });
 
   it('gives each step a unique id and falls back only to a known step', () => {
@@ -110,6 +110,50 @@ describe('the anchors of the pipeline steps', () => {
     const [lastRun] = spot('open-job').targets;
 
     expect(lastRun(document, { pipelineId: 'p' })?.getAttribute('data-item-id')).toBe('job-2');
+  });
+});
+
+describe('the anchors of the project steps', () => {
+  const projects = () => {
+    document.body.innerHTML = `
+      <div data-tour="project-card" data-project-id="old" id="card-old"></div>
+      <div data-tour="project-card" data-project-id="new" id="card-new"></div>`;
+  };
+
+  it('point at the card of the project the user just created', () => {
+    projects();
+
+    const [card] = spot('open-project').targets;
+
+    expect(card(document, { projectId: 'new' })?.id).toBe('card-new');
+  });
+
+  it('move on only once the page of that project is open', () => {
+    const opened = conditionOf(spot('open-project'));
+
+    document.body.innerHTML = '<div data-tour="pipelines" data-project-id="old"></div>';
+    expect(opened(document, { projectId: 'new' })).toBeNull();
+
+    document.body.innerHTML = '<div data-tour="pipelines" data-project-id="new"></div>';
+    expect(opened(document, { projectId: 'new' })).not.toBeNull();
+  });
+
+  it('remember the project the mutation created, without opening it', () => {
+    const step = spot('create-project');
+    if (step.advance.on !== 'mutation') throw new Error('create-project waits for a mutation');
+
+    expect(step.advance.onSuccess?.({ id: 'new', name: 'web' }, {})).toEqual({ projectId: 'new' });
+  });
+});
+
+describe('the documentation links', () => {
+  it('all lead to the Scylla documentation', () => {
+    const links = TOUR_STEPS.flatMap(step =>
+      step.kind === 'spot' ? [step.link, step.note?.link].filter(link => !!link) : [],
+    );
+
+    expect(links.length).toBeGreaterThan(0);
+    expect(links.every(link => link?.href === 'https://prelude.scylla-ops.com')).toBe(true);
   });
 });
 

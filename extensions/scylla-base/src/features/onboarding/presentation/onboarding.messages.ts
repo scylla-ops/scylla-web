@@ -40,6 +40,8 @@ export const onboardingMessages = {
   newProjectBody: msg`A project groups your pipelines and members. Click “New project”.`,
   createProjectTitle: msg`Name and create your project`,
   createProjectBody: msg`Give it a name and a quick description, then click “Create Project”.`,
+  openProjectTitle: msg`Open your project`,
+  openProjectBody: msg`Your project is ready. Click on it in the list to open it.`,
   newPipelineTitle: msg`Create your pipeline`,
   newPipelineBody: msg`A pipeline describes the steps to run. Let's create your first by clicking “New pipeline”.`,
   pipelineEditorTitle: msg`The pipeline creation tools`,

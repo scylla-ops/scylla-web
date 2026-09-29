@@ -30,7 +30,7 @@ Never add: `onboarding.module.ts`, a component.
 | `saveStatus(userId, status)` | `void` |
 
 `OnboardingStatus` (`domain/structs/`): `not-started` · `in-progress` (`step` id, optional
-`subject`: the pipeline the tour created) · `completed` · `skipped`.
+`subject`: the project and the pipeline the tour created) · `completed` · `skipped`.
 
 The only implementation today is local: `DefaultOnboardingRepository` over
 `BrowserOnboardingLocalDataSource` (`localStorage`, key `onboarding:<userId>`, the id that
@@ -85,7 +85,7 @@ fallback, the card waits in a corner and the page stays usable: the tour never b
 Anchors are attributes on the real elements, never CSS classes:
 
 - `data-tour="…"` in the features: `agents`, `agent-details`, `agent-status` (+ `data-online`),
-  `agent-run`, `projects`, `pipelines`, `pipeline-editor`, `pipeline-submit`,
+  `agent-run`, `projects`, `project-card` (+ `data-project-id`), `pipelines` (+ `data-project-id`), `pipeline-editor`, `pipeline-submit`,
   `pipeline-history` / `pipeline-actions` (+ `data-pipeline-id`, `data-pipeline-name`,
   `data-last-status`), `pipeline-run`, `job-details`.
 - `data-part="…"` in `@scylla/ui` (generic parts): `feature-header-new`, `code-snippet-copy`,
@@ -100,6 +100,9 @@ The mutation keys come from the barrels: `CREATE_PROJECT_MUTATION_KEY` (`project
 `CREATE_PIPELINE_MUTATION_KEY` and `RUN_PIPELINE_MUTATION_KEY` (`pipeline`).
 
 ## Rules that bite here
+
+- The tour never navigates by itself: after "Create Project" it points at the new project's card
+  and waits for its page. Every link goes to `SCYLLA_DOCS_URL`.
 
 - The dim is at `z-40`, under the page's dialogs (`z-50`); rings, connectors and cards are at
   `z-[60]`. A target inside a dialog stays usable, and the card stays on top.

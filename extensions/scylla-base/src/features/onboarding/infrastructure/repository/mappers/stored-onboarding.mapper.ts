@@ -10,6 +10,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const toSubject = (value: unknown): OnboardingSubject | undefined => {
   if (!isRecord(value)) return undefined;
   const subject: OnboardingSubject = {};
+  if (typeof value.projectId === 'string') subject.projectId = value.projectId;
   if (typeof value.pipelineName === 'string') subject.pipelineName = value.pipelineName;
   if (typeof value.pipelineId === 'string') subject.pipelineId = value.pipelineId;
   return subject;
