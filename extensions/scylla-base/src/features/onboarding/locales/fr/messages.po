@@ -103,8 +103,8 @@ msgid "If you lose that secret, you will need to create a brand new agent as it 
 msgstr "Si vous perdez ce secret, il faudra créer un nouvel agent, car il n'est affiché qu'une seule fois : copiez-le maintenant avec le bouton de copie et gardez-le en lieu sûr. L'étape suivante se débloque juste après."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/onboarding.messages.ts:34
-msgid "If you ran the command in the previous modal and properly set up the control plane URL, your agent should connect to Scylla: the next step unlocks by itself."
-msgstr "Si vous avez lancé la commande de la fenêtre précédente avec la bonne URL du control plane, votre agent devrait se connecter à Scylla : l'étape suivante se débloque toute seule."
+msgid "If you ran the command in the previous modal and properly set up the control plane URL, your agent should connect to Scylla: the Next button unlocks once it's connected."
+msgstr "Si vous avez lancé la commande de la fenêtre précédente avec la bonne URL du control plane, votre agent devrait se connecter à Scylla : le bouton Suivant se débloque une fois qu'il est connecté."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/onboarding.messages.ts:55
 msgid "If your job is not running, make sure you didn't disconnect the agent you created earlier."
