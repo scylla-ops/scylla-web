@@ -3,7 +3,7 @@
   import type { OnboardingTourState } from '../onboarding-tour.state.svelte.ts';
   import {
     VIEWPORT_MARGIN,
-    padRect,
+    spotlightRect,
     placeCard,
     type TourRect,
   } from '../tour-placement.calculator.ts';
@@ -29,15 +29,15 @@
   let viewportHeight = $state(0);
 
   const viewport = $derived({ width: viewportWidth, height: viewportHeight });
-  const holes = $derived(rects.filter(rect => rect !== null).map(rect => padRect(rect)));
-  const target = $derived(rects[0] ? padRect(rects[0]) : null);
+  const holes = $derived(rects.filter(rect => rect !== null).map(rect => spotlightRect(rect, viewport)));
+  const target = $derived(rects[0] ? spotlightRect(rects[0], viewport) : null);
   const card = $derived(
     target ? placeCard(target, { width: cardWidth, height: cardHeight }, viewport) : null,
   );
   const noteTarget = $derived(step.note && rects[step.note.target]);
   const note = $derived(
     noteTarget
-      ? placeCard(padRect(noteTarget), { width: noteWidth, height: noteHeight }, viewport)
+      ? placeCard(spotlightRect(noteTarget, viewport), { width: noteWidth, height: noteHeight }, viewport)
       : null,
   );
   const connectors = $derived(

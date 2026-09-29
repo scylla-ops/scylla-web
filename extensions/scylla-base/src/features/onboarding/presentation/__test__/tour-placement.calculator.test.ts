@@ -6,6 +6,7 @@ import {
   dimPath,
   padRect,
   placeCard,
+  spotlightRect,
   unionRect,
 } from '../tour-placement.calculator.ts';
 
@@ -84,5 +85,25 @@ describe('dimPath', () => {
     ]);
 
     expect(path.match(/Z/g)).toHaveLength(3);
+  });
+});
+
+describe('spotlightRect', () => {
+  it('leaves room around a small target', () => {
+    expect(spotlightRect({ x: 100, y: 100, width: 200, height: 36 }, viewport)).toEqual({
+      x: 92,
+      y: 92,
+      width: 216,
+      height: 52,
+    });
+  });
+
+  it('keeps the ring of a target that touches the viewport edges inside the screen', () => {
+    expect(spotlightRect({ x: 0, y: 0, width: 1440, height: 900 }, viewport)).toEqual({
+      x: 2,
+      y: 2,
+      width: 1436,
+      height: 896,
+    });
   });
 });
