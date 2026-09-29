@@ -78,6 +78,19 @@ describe('trackTourStep', () => {
     destroy();
   });
 
+  it('unlocks Next when the awaited element appears, without moving on', () => {
+    const { tracking, destroy } = track({ nextWhen: { on: 'appear', anchor: byId('online') } });
+
+    frames(100);
+    expect(tracking.onUnlock).not.toHaveBeenCalled();
+
+    document.body.innerHTML = '<div id="online"></div>';
+    frames(100);
+    expect(tracking.onUnlock).toHaveBeenCalledTimes(1);
+    expect(tracking.onAdvance).not.toHaveBeenCalled();
+    destroy();
+  });
+
   it('reports the step as lost when its target never shows, instead of waiting forever', () => {
     const { tracking, destroy } = track({});
 

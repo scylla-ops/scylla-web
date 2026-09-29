@@ -225,7 +225,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
     waiting: m.connectAgentWaiting,
     targets: [agentStatus, select('[data-tour="agent-run"]')],
     note: { target: 1, body: m.connectAgentNote, link: docs(m.connectDocs) },
-    advance: { on: 'appear', anchor: select('[data-tour="agent-status"][data-online="true"]') },
+    advance: { on: 'next' },
     nextWhen: { on: 'appear', anchor: select('[data-tour="agent-status"][data-online="true"]') },
     wide: true,
   },
