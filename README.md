@@ -104,6 +104,7 @@ packages/ui                the design system — imports no other package
 | [login](extensions/scylla-base/src/features/login/README.md) | Sign-in and the session token |
 | [marketplace](extensions/scylla-base/src/features/marketplace/README.md) | Ready-made pipeline templates |
 | [membership](extensions/scylla-base/src/features/membership/README.md) | Who belongs to an organization or project, and with which roles |
+| [onboarding](extensions/scylla-base/src/features/onboarding/README.md) | The first-pipeline tour, and where its progress is kept |
 | [organization](extensions/scylla-base/src/features/organization/README.md) | The top-level tenant and the switcher in the shell |
 | [pipeline](extensions/scylla-base/src/features/pipeline/README.md) | Pipeline definitions, the visual + script editor, and running them |
 | [project](extensions/scylla-base/src/features/project/README.md) | The unit that owns pipelines, secrets and members |

@@ -17,6 +17,10 @@ export default defineConfig({
       include: ['extensions/scylla-base/src/features/user/'],
     },
     {
+      path: '<rootDir>/extensions/scylla-base/src/features/onboarding/locales/{locale}/messages',
+      include: ['extensions/scylla-base/src/features/onboarding/'],
+    },
+    {
       path: '<rootDir>/extensions/scylla-base/src/features/project/locales/{locale}/messages',
       include: ['extensions/scylla-base/src/features/project/'],
     },
