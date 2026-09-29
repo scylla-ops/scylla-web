@@ -20,7 +20,7 @@
 {#if !projectId}
   <p>{t(pipelineMessages.selectProjectFirst)}</p>
 {:else}
-  <div class="flex h-full flex-col gap-4">
+  <div data-tour="pipeline-editor" class="flex h-full flex-col gap-4">
     <PipelineEditor
       mode="create"
       submitLabel={t(pipelineMessages.create)}

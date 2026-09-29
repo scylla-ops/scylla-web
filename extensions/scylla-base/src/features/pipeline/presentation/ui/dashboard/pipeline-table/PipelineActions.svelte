@@ -104,13 +104,15 @@
     </DropdownMenu>
   {:else}
     {#if canRun}
-      <IconButton
-        icon={isRunning ? Loader2Icon : PlayIcon}
-        tooltip={t(pipelineMessages.run)}
-        onclick={onRun}
-        busy={isRunning}
-        iconClass={isRunning ? 'animate-spin' : 'fill-current'}
-      />
+      <span data-tour="pipeline-run" class="contents">
+        <IconButton
+          icon={isRunning ? Loader2Icon : PlayIcon}
+          tooltip={t(pipelineMessages.run)}
+          onclick={onRun}
+          busy={isRunning}
+          iconClass={isRunning ? 'animate-spin' : 'fill-current'}
+        />
+      </span>
     {/if}
 
     {#if canEdit}
