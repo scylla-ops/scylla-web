@@ -60,6 +60,11 @@ export const onboardingMessages = {
   jobDetailsTitle: msg`Follow your job`,
   jobDetailsBody: msg`Step timeline and live logs: this is where you see whether your pipeline passes, and if not, what went wrong.`,
 
+  lostNotice: msg`This step is on another page.`,
+  goBack: msg`Go back to it`,
+  agentOffline: msg`Your agent is offline, so the job cannot run. Start it again with the command on its page: the tour goes on as soon as it is back.`,
+  openAgent: msg`Open your agent`,
+
   finishTitle: msg`You've got the basics of Scylla 🎉`,
   finishBody: msg`You now know how an agent, a project and a pipeline work together, and how to follow a job end to end. To go further (triggers, secrets, roles, agents…), the Scylla documentation has you covered. See you soon!`,
   openDocumentation: msg`Open the documentation`,

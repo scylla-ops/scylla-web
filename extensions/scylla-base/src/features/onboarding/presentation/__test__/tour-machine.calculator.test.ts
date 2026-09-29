@@ -3,7 +3,9 @@ import { describe, it, expect } from 'vitest';
 import {
   advanceTour,
   currentStepId,
+  isAgentOffline,
   isTourVisible,
+  rememberSubject,
   rewindTour,
   sameMutationKey,
   stepCount,
@@ -117,5 +119,45 @@ describe('sameMutationKey', () => {
     expect(sameMutationKey(['project', 'create'], ['project', 'create'])).toBe(true);
     expect(sameMutationKey(['project', 'update'], ['project', 'create'])).toBe(false);
     expect(sameMutationKey(undefined, ['project', 'create'])).toBe(false);
+  });
+});
+
+describe('rememberSubject', () => {
+  it('keeps what the tour found without moving it', () => {
+    const status = {
+      kind: 'in-progress',
+      step: 'reveal-secret',
+      subject: { projectId: 'p' },
+    } as const;
+
+    expect(rememberSubject(status, { agentId: 'a-1' })).toEqual({
+      kind: 'in-progress',
+      step: 'reveal-secret',
+      subject: { projectId: 'p', agentId: 'a-1' },
+    });
+    expect(rememberSubject({ kind: 'skipped' }, { agentId: 'a-1' })).toBeNull();
+  });
+});
+
+describe('isAgentOffline', () => {
+  const agents = [
+    { id: 'mine', connected: false },
+    { id: 'other', connected: true },
+  ];
+
+  it('watches the agent the user created in the tour', () => {
+    expect(isAgentOffline(agents, 'mine')).toBe(true);
+    expect(isAgentOffline(agents, 'other')).toBe(false);
+  });
+
+  it('is happy with any connected agent when the tour did not create one', () => {
+    expect(isAgentOffline(agents, undefined)).toBe(false);
+    expect(isAgentOffline([{ id: 'x', connected: false }], undefined)).toBe(true);
+  });
+
+  it('says nothing while the agents are unknown or gone', () => {
+    expect(isAgentOffline(undefined, 'mine')).toBe(false);
+    expect(isAgentOffline([], 'mine')).toBe(false);
+    expect(isAgentOffline(agents, 'deleted')).toBe(false);
   });
 });

@@ -163,3 +163,24 @@ export const unionRect = (rects: readonly TourRect[]): TourRect | null => {
   const bottom = Math.max(...boxes.map(rect => rect.y + rect.height));
   return { x: left, y: top, width: right - left, height: bottom - top };
 };
+
+const easeOutCubic = (progress: number) => 1 - (1 - progress) ** 3;
+
+export const easeRects = (
+  from: readonly (TourRect | null)[],
+  to: readonly (TourRect | null)[],
+  progress: number,
+): (TourRect | null)[] => {
+  const eased = easeOutCubic(Math.min(Math.max(progress, 0), 1));
+  const between = (a: number, b: number) => a + (b - a) * eased;
+  return to.map((target, index) => {
+    const start = from[index] ?? from[0];
+    if (!target || !start) return target;
+    return {
+      x: between(start.x, target.x),
+      y: between(start.y, target.y),
+      width: between(start.width, target.width),
+      height: between(start.height, target.height),
+    };
+  });
+};

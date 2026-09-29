@@ -4,6 +4,7 @@ import {
   CARD_GAP,
   VIEWPORT_MARGIN,
   dimPath,
+  easeRects,
   padRect,
   placeCard,
   spotlightRect,
@@ -105,5 +106,28 @@ describe('spotlightRect', () => {
       width: 1436,
       height: 896,
     });
+  });
+});
+
+describe('easeRects', () => {
+  const from = { x: 0, y: 0, width: 100, height: 40 };
+  const to = { x: 200, y: 100, width: 50, height: 20 };
+
+  it('starts at the previous box and ends exactly on the new one', () => {
+    expect(easeRects([from], [to], 0)).toEqual([from]);
+    expect(easeRects([from], [to], 1)).toEqual([to]);
+  });
+
+  it('moves fast first, then slows down', () => {
+    const [half] = easeRects([from], [to], 0.5);
+
+    expect(half!.x).toBeGreaterThan(100);
+    expect(half!.x).toBeLessThan(200);
+  });
+
+  it('lets a new second target grow from the first one', () => {
+    const [, second] = easeRects([from], [to, to], 0);
+
+    expect(second).toEqual(from);
   });
 });

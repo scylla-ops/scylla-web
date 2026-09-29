@@ -98,16 +98,43 @@ Anchors are attributes on the real elements, never CSS classes:
 Removing or renaming one of these breaks a step without a type error. `tour-steps.test.ts` pins
 the anchors that carry logic.
 
-The mutation keys come from the barrels: `CREATE_PROJECT_MUTATION_KEY` (`project`),
+The mutation keys come from the barrels: `CREATE_AGENT_MUTATION_KEY` (`agents`),
+`CREATE_PROJECT_MUTATION_KEY` (`project`),
 `CREATE_PIPELINE_MUTATION_KEY` and `RUN_PIPELINE_MUTATION_KEY` (`pipeline`).
+
+## Behaviour on the page
+
+- **Blocking.** On a step with a Next button, the page takes no input: `blockPage` makes every
+  other child of `<body>` inert (no click, focus or key) and a transparent layer above the
+  dialogs stops the pointer. Only the card works, and the element that `nextWhen` waits a click
+  on (the copy button). A step that the user finishes with a click keeps its targets usable
+  and dims the rest, as before. The tour renders at the end of `<body>` (`portalToBody`).
+- **Steady spotlight.** `measure` takes the layout box (`offsetWidth`/`offsetHeight` around the
+  box centre), so a hover or press `scale` does not move the ring, the connector or the card.
+- **Motion.** Between two steps the spotlight glides from the old box to the new one
+  (`MOVE_MS`, ease-out), and keeps the old box up to `HOLD_MS` while the next page loads. The
+  card flies in and fades out. Scroll and resize follow at once. `motionDuration` makes all of
+  it instant under `prefers-reduced-motion`.
+- **Lost.** When the first target stays absent for `LOST_AFTER_MS`, a step with a `fallback`
+  goes back to it (a dialog the user closed). Otherwise the card waits in a corner, without dim
+  nor blocking and without Next, and says "This step is on another page" with a "Go back to it"
+  button that opens `step.page(subject)`. The tour never jumps forward on its own: a step
+  skipped by hand would lose what the next ones need (the agent, the project, the pipeline).
+- **Agent offline.** `needsAgent` steps (run the pipeline, wait for the job) watch
+  `agentQueries.byOrganization`: the agent that the tour created (`subject.agentId`, from the
+  create-agent mutation) or else any agent. While it is offline the card says so and offers to
+  open it; the notice goes away by itself when the agent is back.
+- **Hint.** `step.hint` shows only when `when` still holds `afterMs` after the step began, and
+  hides again when it stops holding (the wait step: the job is still pending after 5 s).
 
 ## Rules that bite here
 
 - The tour never navigates by itself: after "Create Project" it points at the new project's card
   and waits for its page. Every link goes to `SCYLLA_DOCS_URL`.
 
-- The dim is at `z-40`, under the page's dialogs (`z-50`); rings, connectors and cards are at
-  `z-[60]`. A target inside a dialog stays usable, and the card stays on top.
+- The dim is at `z-40`, under the page's dialogs (`z-50`); the blocking layer is at `z-[55]`;
+  rings, connectors and cards are at `z-[60]`. A target inside a dialog stays usable, and the
+  card stays on top.
 - `holdPointer` stops `pointerdown` on the dim and the cards: without it, a click on the card
   closes the dialog the step points at (bits-ui sees a click outside).
 - The automatic start needs `CREATE_AGENT` and `CREATE_PROJECT`. A tour in progress keeps

@@ -39,6 +39,9 @@ export interface TourSpotStep {
   advance: TourAdvance;
   nextWhen?: TourCondition;
   fallback?: string;
+  page?: (subject: OnboardingSubject) => string;
+  needsAgent?: boolean;
+  hint?: { body: readonly MessageDescriptor[]; link?: TourLink; when: TourAnchor; afterMs: number };
   wide?: boolean;
 }
 
@@ -48,6 +51,14 @@ export interface TourDialogStep {
 }
 
 export type TourStep = TourSpotStep | TourDialogStep;
+
+export const JOB_HINT_AFTER_MS = 5000;
+
+const agentPage = ({ agentId }: OnboardingSubject) => (agentId ? `/agents/${agentId}` : '/agents');
+const projectPage = ({ projectId }: OnboardingSubject) =>
+  projectId ? `/projects/${projectId}` : '/projects';
+const pipelineEditorPage = ({ projectId }: OnboardingSubject) =>
+  projectId ? `/projects/${projectId}/create` : '/projects';
 
 const select =
   (selector: string): TourAnchor =>
@@ -112,6 +123,12 @@ const finishedRun: TourAnchor = (root, subject) => {
   return status && !isActiveStatus(status) ? history : null;
 };
 
+const jobNotStarted: TourAnchor = (root, subject) => {
+  const history = pipelineHistory(root, subject);
+  const status = history instanceof HTMLElement ? history.dataset.lastStatus : undefined;
+  return history && (!status || status === 'pending') ? history : null;
+};
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
@@ -132,6 +149,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'dashboard',
+    page: () => '/dashboard',
     title: m.dashboardTitle,
     body: [m.dashboardBody],
     targets: [select('[data-slot="sidebar-inset"]')],
@@ -140,6 +158,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'navbar',
+    page: () => '/dashboard',
     title: m.navbarTitle,
     body: [m.navbarBody],
     targets: [select('[data-slot="sidebar-container"]')],
@@ -156,6 +175,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'new-agent',
+    page: () => '/agents',
     title: m.newAgentTitle,
     body: [m.newAgentBody],
     targets: [newButtonOf('agents')],
@@ -165,6 +185,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'create-agent',
+    page: () => '/agents',
     title: m.createAgentTitle,
     body: [m.createAgentBody],
     targets: [formDialog],
@@ -174,6 +195,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'reveal-secret',
+    page: () => '/agents',
     title: m.revealSecretTitle,
     body: [m.revealSecretBody],
     link: docs(m.secretDocs),
@@ -187,6 +209,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'copy-secret',
+    page: () => '/agents',
     title: m.copySecretTitle,
     body: [m.copySecretBody],
     link: docs(m.secretDocs),
@@ -198,6 +221,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'run-command',
+    page: () => '/agents',
     title: m.runAgentTitle,
     body: [m.runCommandBody, m.runCommandUrl, m.runCommandHelp, m.runCommandDone],
     link: docs(m.connectDocs),
@@ -212,6 +236,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'agent-page',
+    page: agentPage,
     title: m.agentPageTitle,
     body: [m.agentPageBody],
     targets: [select('[data-tour="agent-details"]')],
@@ -220,6 +245,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'connect-agent',
+    page: agentPage,
     title: m.runAgentTitle,
     body: [m.connectAgentBody],
     waiting: m.connectAgentWaiting,
@@ -240,6 +266,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'new-project',
+    page: () => '/projects',
     title: m.newProjectTitle,
     body: [m.newProjectBody],
     targets: [newButtonOf('projects')],
@@ -249,6 +276,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'create-project',
+    page: () => '/projects',
     title: m.createProjectTitle,
     body: [m.createProjectBody],
     targets: [formDialog],
@@ -263,6 +291,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'open-project',
+    page: () => '/projects',
     title: m.openProjectTitle,
     body: [m.openProjectBody],
     targets: [createdProject],
@@ -271,6 +300,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'new-pipeline',
+    page: projectPage,
     title: m.newPipelineTitle,
     body: [m.newPipelineBody],
     targets: [newButtonOf('pipelines')],
@@ -279,6 +309,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'pipeline-editor',
+    page: pipelineEditorPage,
     title: m.pipelineEditorTitle,
     body: [m.pipelineEditorBody],
     targets: [select('[data-tour="pipeline-editor"]')],
@@ -288,6 +319,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'create-pipeline',
+    page: pipelineEditorPage,
     title: m.createPipelineTitle,
     body: [m.createPipelineBody],
     targets: [select('[data-tour="pipeline-submit"]')],
@@ -304,6 +336,8 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'run-pipeline',
+    needsAgent: true,
+    page: projectPage,
     title: m.runPipelineTitle,
     body: [m.runPipelineBody],
     targets: [runButton],
@@ -317,9 +351,16 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'wait-job',
+    page: projectPage,
     title: m.waitJobTitle,
-    body: [m.waitJobBody, m.waitJobAgentHint],
-    link: docs(m.waitJobDocs),
+    body: [m.waitJobBody],
+    hint: {
+      body: [m.waitJobAgentHint],
+      link: docs(m.waitJobDocs),
+      when: jobNotStarted,
+      afterMs: JOB_HINT_AFTER_MS,
+    },
+    needsAgent: true,
     targets: [pipelineRow],
     advance: { on: 'next' },
     nextWhen: { on: 'appear', anchor: finishedRun },
@@ -327,6 +368,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'open-job',
+    page: projectPage,
     title: m.openJobTitle,
     body: [m.openJobBody, m.openJobTip],
     targets: [lastRun],
@@ -335,10 +377,12 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'job-details',
+    page: projectPage,
     title: m.jobDetailsTitle,
     body: [m.jobDetailsBody],
     targets: [select('[data-tour="job-details"]')],
     advance: { on: 'next' },
+    fallback: 'open-job',
   },
   { kind: 'finish', id: 'finish' },
 ];

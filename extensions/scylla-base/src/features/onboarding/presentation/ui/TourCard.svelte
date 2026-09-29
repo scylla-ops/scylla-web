@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { fade, fly, slide } from 'svelte/transition';
+  import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
+  import { motionDuration } from '@scylla/ui';
   import { Button } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
@@ -11,6 +14,8 @@
     body: readonly string[];
     link?: TourLink;
     waiting?: string;
+    hint?: { body: readonly string[]; link?: TourLink };
+    notice?: { text: string; action?: { label: string; onClick: () => void } };
     count?: { step: number; total: number } | null;
     controls?: { showNext: boolean; canGoNext: boolean; onNext: () => void; onSkip: () => void };
     wide?: boolean;
@@ -25,6 +30,8 @@
     body,
     link,
     waiting,
+    hint,
+    notice,
     count,
     controls,
     wide = false,
@@ -35,14 +42,29 @@
   }: Props = $props();
 </script>
 
+{#snippet docsLink(target: TourLink)}
+  <a
+    href={target.href}
+    target="_blank"
+    rel="noreferrer"
+    class="text-[13px] font-semibold text-primary hover:underline"
+  >
+    {t(target.label)}
+  </a>
+{/snippet}
+
 <div
   use:holdPointer
   bind:offsetWidth={width}
   bind:offsetHeight={height}
+  in:fly={{ y: 8, duration: motionDuration(250) }}
+  out:fade={{ duration: motionDuration(150) }}
   role="dialog"
   aria-label={title ?? body[0]}
+  tabindex="-1"
+  data-tour-focus
   class={cn(
-    'pointer-events-auto fixed z-[60] flex flex-col gap-3 rounded-[14px] border border-border bg-background px-[22px] pt-4 pb-3.5 text-foreground shadow-xl transition-[left,top] duration-200 ease-out',
+    'pointer-events-auto fixed z-[60] flex flex-col gap-3 rounded-[14px] border border-border bg-background px-[22px] pt-4 pb-3.5 text-foreground shadow-xl outline-none transition-[width] duration-300 ease-out motion-reduce:transition-none',
     wide ? 'w-[400px]' : 'w-[360px]',
     'max-w-[calc(100vw-2rem)]',
   )}
@@ -65,15 +87,31 @@
       {waiting}
     </p>
   {/if}
-  {#if link}
-    <a
-      href={link.href}
-      target="_blank"
-      rel="noreferrer"
-      class="text-[13px] font-semibold text-primary hover:underline"
+  {#if link}{@render docsLink(link)}{/if}
+  {#if hint}
+    <div class="flex flex-col gap-3" transition:slide={{ duration: motionDuration(200) }}>
+      {#each hint.body as paragraph, index (index)}
+        <p class="text-[13px] leading-snug text-muted-foreground">{paragraph}</p>
+      {/each}
+      {#if hint.link}{@render docsLink(hint.link)}{/if}
+    </div>
+  {/if}
+  {#if notice}
+    <div
+      role="status"
+      class="flex flex-col gap-2 rounded-lg border border-warning/40 bg-warning/10 p-2.5"
+      transition:slide={{ duration: motionDuration(200) }}
     >
-      {t(link.label)}
-    </a>
+      <p class="flex gap-2 text-[13px] leading-snug text-foreground">
+        <TriangleAlertIcon class="mt-0.5 size-4 shrink-0 text-warning" />
+        {notice.text}
+      </p>
+      {#if notice.action}
+        <Button variant="outline" size="sm" class="self-start" onclick={notice.action.onClick}>
+          {notice.action.label}
+        </Button>
+      {/if}
+    </div>
   {/if}
   {#if controls}
     <div class="flex items-center gap-2">

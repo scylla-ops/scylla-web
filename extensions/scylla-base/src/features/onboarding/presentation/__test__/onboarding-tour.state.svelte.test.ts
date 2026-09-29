@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
+import { CREATE_AGENT_MUTATION_KEY } from '@base/features/agents';
 import { CREATE_PROJECT_MUTATION_KEY } from '@base/features/project';
 import { installTestNavigator } from '@test/navigator.ts';
 import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
@@ -13,6 +15,9 @@ import {
 
 let teardown: Array<() => void> = [];
 
+let agents: { id: string; connected: boolean }[] = [];
+const listAgents = vi.fn(() => Promise.resolve(ScyllaResult.success(agents)));
+
 const setUp = (stored: OnboardingStatus = { kind: 'not-started' }, canStart = true) => {
   let current = stored;
   const repository = {
@@ -24,7 +29,10 @@ const setUp = (stored: OnboardingStatus = { kind: 'not-started' }, canStart = tr
   };
   const cache = withQueryClient();
   const navigator = installTestNavigator({ pathname: '/acme/agents' });
-  const restoreRegistry = withRegistry({ onboarding: { onboardingRepository: repository } });
+  const restoreRegistry = withRegistry({
+    onboarding: { onboardingRepository: repository },
+    agents: { agentsRepository: { listAgents } },
+  });
 
   let tour!: OnboardingTourState;
   const cleanup = $effect.root(() => {
@@ -49,7 +57,23 @@ beforeEach(() => {
 afterEach(() => {
   teardown.forEach(restore => restore());
   teardown = [];
+  agents = [];
+  listAgents.mockClear();
+  permissionsStore.setState({ permissions: null });
 });
+
+const grantListAgents = () =>
+  permissionsStore.setState({
+    permissions: {
+      scopes: [
+        {
+          scope: PermissionScope.SYSTEM,
+          scopeId: '',
+          access: { kind: 'restricted', permissions: [Permission.LIST_AGENTS] },
+        },
+      ],
+    },
+  });
 
 describe('createOnboardingTourState', () => {
   it('welcomes a user who never saw the tour', async () => {
@@ -258,5 +282,77 @@ describe('createOnboardingTourState', () => {
     await vi.waitFor(() =>
       expect(repository.saveStatus).toHaveBeenLastCalledWith('ada', { kind: 'completed' }),
     );
+  });
+
+  it('remembers the agent the user creates, to watch it later', async () => {
+    const { tour, queryClient } = setUp({ kind: 'in-progress', step: 'create-agent' });
+    await onStep(tour, 'create-agent');
+
+    await queryClient
+      .getMutationCache()
+      .build(queryClient, {
+        mutationKey: CREATE_AGENT_MUTATION_KEY,
+        mutationFn: () => Promise.resolve({ agent: { id: 'agent-7' }, secret: 's' }),
+      })
+      .execute('runner');
+
+    await vi.waitFor(() => expect(tour.subject).toEqual({ agentId: 'agent-7' }));
+    expect(tour.step?.id).toBe('create-agent');
+  });
+
+  it('says so when the agent of the tour is offline at a step that needs it, and recovers', async () => {
+    grantListAgents();
+    agents = [{ id: 'agent-7', connected: false }];
+    const { tour, queryClient } = setUp({
+      kind: 'in-progress',
+      step: 'wait-job',
+      subject: { agentId: 'agent-7' },
+    });
+    await onStep(tour, 'wait-job');
+
+    await vi.waitFor(() => expect(tour.agentOffline).toBe(true));
+
+    agents = [{ id: 'agent-7', connected: true }];
+    await queryClient.invalidateQueries({ queryKey: ['agents'] });
+
+    await vi.waitFor(() => expect(tour.agentOffline).toBe(false));
+  });
+
+  it('does not watch the agents at a step that does not need one', async () => {
+    grantListAgents();
+    agents = [{ id: 'agent-7', connected: false }];
+    const { tour } = setUp({ kind: 'in-progress', step: 'new-project' });
+    await onStep(tour, 'new-project');
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(tour.agentOffline).toBe(false);
+    expect(listAgents).not.toHaveBeenCalled();
+  });
+
+  it('opens the page of a lost step when the user asks to go back', async () => {
+    const { tour, navigator } = setUp({
+      kind: 'in-progress',
+      step: 'pipeline-editor',
+      subject: { projectId: 'p-1' },
+    });
+    await onStep(tour, 'pipeline-editor');
+
+    expect(tour.canGoBack).toBe(true);
+    tour.goBack();
+
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme/projects/p-1/create', undefined);
+  });
+
+  it('opens the agent of the tour from the offline notice', async () => {
+    const { tour, navigator } = setUp({
+      kind: 'in-progress',
+      step: 'run-pipeline',
+      subject: { agentId: 'agent-7' },
+    });
+    await onStep(tour, 'run-pipeline');
+
+    tour.openAgent();
+
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme/agents/agent-7', undefined);
   });
 });

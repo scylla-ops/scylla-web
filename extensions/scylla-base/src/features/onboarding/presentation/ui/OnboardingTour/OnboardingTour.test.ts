@@ -48,6 +48,19 @@ beforeEach(() => {
   grant(Permission.CREATE_AGENT, Permission.CREATE_PROJECT);
 });
 
+const pageElement = (html: string, selector: string) => {
+  const page = document.createElement('main');
+  page.innerHTML = html;
+  document.body.appendChild(page);
+  const target = page.querySelector<HTMLElement>(selector);
+  if (!target) throw new Error(`no ${selector}`);
+  vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(new DOMRect(260, 10, 700, 600));
+  Object.defineProperty(target, 'offsetWidth', { configurable: true, value: 700 });
+  Object.defineProperty(target, 'offsetHeight', { configurable: true, value: 600 });
+  teardown.push(() => page.remove());
+  return page;
+};
+
 afterEach(() => {
   teardown.forEach(restore => restore());
   permissionsStore.setState({ permissions: null });
@@ -104,5 +117,29 @@ describe('OnboardingTour', () => {
     await waitFor(() =>
       expect(saveStatus).toHaveBeenCalledWith('anonymous', { kind: 'completed' }),
     );
+  });
+
+  it('blocks the whole page, target included, on a step with Next', async () => {
+    setUp({ kind: 'in-progress', step: 'dashboard' });
+    const page = pageElement(
+      '<div data-slot="sidebar-inset"><button>open</button></div>',
+      '[data-slot="sidebar-inset"]',
+    );
+
+    expect(await screen.findByText(/The dashboard/)).toBeInTheDocument();
+    await waitFor(() => expect(page).toHaveAttribute('inert'));
+    expect(document.querySelector('[data-tour-blocker]')).not.toBeNull();
+  });
+
+  it('leaves the target usable on a step that the user finishes with a click', async () => {
+    setUp({ kind: 'in-progress', step: 'open-agents' });
+    const page = pageElement(
+      '<button data-nav-url="agents">Agents</button>',
+      '[data-nav-url="agents"]',
+    );
+
+    expect(await screen.findByText(/Open the Agents tab/)).toBeInTheDocument();
+    expect(page).not.toHaveAttribute('inert');
+    expect(document.querySelector('[data-tour-blocker]')).toBeNull();
   });
 });

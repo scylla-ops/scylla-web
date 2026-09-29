@@ -1,4 +1,5 @@
 export interface OnboardingSubject {
+  agentId?: string;
   projectId?: string;
   pipelineName?: string;
   pipelineId?: string;
