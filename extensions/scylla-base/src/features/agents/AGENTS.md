@@ -17,6 +17,7 @@ type AgentEntity
 type AgentStats, CreatedAgent, DailyOutcome
 agentQueries, agentMutations
 AGENTS_QUERY_KEY, AGENT_QUERY_KEY, AGENT_STATS_QUERY_KEY
+CREATE_AGENT_MUTATION_KEY   // the key of agentMutations.create; onboarding follows it
 NoAgentsBanner          // a .svelte component
 ```
 

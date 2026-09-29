@@ -7,6 +7,7 @@ export {
   AGENTS_QUERY_KEY,
   AGENT_QUERY_KEY,
   AGENT_STATS_QUERY_KEY,
+  CREATE_AGENT_MUTATION_KEY,
 } from './presentation/agents.queries.ts';
 /** A loader: a barrel must not re-export a component. */
 export const loadNoAgentsBanner = () =>
