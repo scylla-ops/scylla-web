@@ -123,6 +123,22 @@ describe('createOnboardingTourState', () => {
     await onStep(tour, 'run-command');
   });
 
+  it('waits for a click on Next once the agent is online', async () => {
+    const { tour } = setUp({ kind: 'in-progress', step: 'connect-agent' });
+    await onStep(tour, 'connect-agent');
+    expect(tour.canGoNext).toBe(false);
+
+    tour.unlock('connect-agent');
+    flushSync();
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(tour.canGoNext).toBe(true);
+    expect(tour.step?.id).toBe('connect-agent');
+
+    tour.next();
+    await onStep(tour, 'open-projects');
+  });
+
   it('moves once when the same event arrives twice', async () => {
     const { tour } = setUp({ kind: 'in-progress', step: 'open-agents' });
     await onStep(tour, 'open-agents');

@@ -74,7 +74,7 @@
     title={t(step.title)}
     body={step.body.map(paragraph => t(paragraph))}
     link={step.link}
-    waiting={step.waiting && t(step.waiting)}
+    waiting={step.waiting && !tour.canGoNext ? t(step.waiting) : undefined}
     count={tour.count}
     {controls}
     wide={step.wide}

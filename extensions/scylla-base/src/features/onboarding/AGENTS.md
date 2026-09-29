@@ -76,7 +76,9 @@ one) and its `advance`:
 | `appear` | the anchor resolves to an element (checked on each frame) |
 | `mutation` | a mutation with that key succeeds in the query client's mutation cache |
 
-`nextWhen` shows a disabled Next until its condition is met. `fallback` names the step to go back
+`nextWhen` shows a disabled Next until its condition is met; the user still clicks Next (the
+agent step does not move on by itself when the agent comes online). The step's `waiting` line
+shows only while Next is disabled. `fallback` names the step to go back
 to when the first target stays absent for `LOST_AFTER_MS` (a dialog the user closed). Without a
 fallback, the card waits in a corner and the page stays usable: the tour never blocks.
 

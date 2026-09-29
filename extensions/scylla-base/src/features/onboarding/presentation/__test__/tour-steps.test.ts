@@ -113,6 +113,20 @@ describe('the anchors of the pipeline steps', () => {
   });
 });
 
+describe('the step that waits for the agent', () => {
+  it('enables Next once the agent is online, and never moves on by itself', () => {
+    const step = spot('connect-agent');
+    const online = conditionOf(step);
+
+    expect(step.advance.on).toBe('next');
+    document.body.innerHTML = '<div data-tour="agent-status" data-online="false"></div>';
+    expect(online(document, {})).toBeNull();
+
+    document.body.innerHTML = '<div data-tour="agent-status" data-online="true"></div>';
+    expect(online(document, {})).not.toBeNull();
+  });
+});
+
 describe('the anchors of the project steps', () => {
   const projects = () => {
     document.body.innerHTML = `
