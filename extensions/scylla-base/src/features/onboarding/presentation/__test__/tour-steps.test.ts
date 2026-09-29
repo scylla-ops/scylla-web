@@ -160,10 +160,60 @@ describe('the anchors of the project steps', () => {
   });
 });
 
+describe('the way back from another page', () => {
+  it('knows the page of every step that the user reaches from somewhere else', () => {
+    const withoutPage = TOUR_STEPS.filter(step => step.kind === 'spot' && !step.page).map(
+      step => step.id,
+    );
+
+    expect(withoutPage).toEqual(['open-agents', 'open-projects']);
+  });
+
+  it('leads back to the agent and the project the tour created', () => {
+    const subject = { agentId: 'a-1', projectId: 'p-1' };
+
+    expect(spot('connect-agent').page?.(subject)).toBe('/agents/a-1');
+    expect(spot('pipeline-editor').page?.(subject)).toBe('/projects/p-1/create');
+    expect(spot('wait-job').page?.(subject)).toBe('/projects/p-1');
+    expect(spot('wait-job').page?.({})).toBe('/projects');
+  });
+
+  it('sends a job page that is gone back to the step that opens it', () => {
+    expect(spot('job-details').fallback).toBe('open-job');
+  });
+});
+
+describe('the steps that depend on the agent', () => {
+  it('are the run and the wait for the job', () => {
+    expect(
+      TOUR_STEPS.filter(step => step.kind === 'spot' && step.needsAgent).map(step => step.id),
+    ).toEqual(['run-pipeline', 'wait-job']);
+  });
+});
+
+describe('the hint of the wait step', () => {
+  it('shows after 5 s while the last job has not started, and never once it runs', () => {
+    const hint = spot('wait-job').hint;
+    if (!hint) throw new Error('wait-job has no hint');
+    expect(hint.afterMs).toBe(5000);
+
+    pipelineRows([{ id: 'p', name: 'ci' }]);
+    expect(hint.when(document, { pipelineId: 'p' })).not.toBeNull();
+
+    pipelineRows([{ id: 'p', name: 'ci', status: 'pending' }]);
+    expect(hint.when(document, { pipelineId: 'p' })).not.toBeNull();
+
+    pipelineRows([{ id: 'p', name: 'ci', status: 'running' }]);
+    expect(hint.when(document, { pipelineId: 'p' })).toBeNull();
+  });
+});
+
 describe('the documentation links', () => {
   it('all lead to the Scylla documentation', () => {
     const links = TOUR_STEPS.flatMap(step =>
-      step.kind === 'spot' ? [step.link, step.note?.link].filter(link => !!link) : [],
+      step.kind === 'spot'
+        ? [step.link, step.note?.link, step.hint?.link].filter(link => !!link)
+        : [],
     );
 
     expect(links.length).toBeGreaterThan(0);

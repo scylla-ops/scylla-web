@@ -21,9 +21,7 @@
   {:else if tour.step.kind === 'finish'}
     <FinishTourDialog onFinish={() => tour.finish()} />
   {:else if tour.step.kind === 'spot' && !tour.confirmingSkip}
-    {#key tour.step.id}
-      <TourSpot {tour} step={tour.step} />
-    {/key}
+    <TourSpot {tour} step={tour.step} />
   {/if}
   <SkipTourDialog
     open={tour.confirmingSkip}

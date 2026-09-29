@@ -1,35 +1,53 @@
 import type { Action } from 'svelte/action';
+import { motionDuration } from '@scylla/ui';
 import type { OnboardingSubject } from '../domain/structs/onboarding-status.struct.ts';
-import { unionRect, type TourRect } from './tour-placement.calculator.ts';
+import { easeRects, unionRect, type TourRect } from './tour-placement.calculator.ts';
 import type { TourAnchor, TourCondition, TourSpotStep } from './tour-steps.ts';
 
-export const LOST_AFTER_MS = 4000;
+export const LOST_AFTER_MS = 2000;
+export const MOVE_MS = 300;
+export const HOLD_MS = 700;
+
+export interface TourLayout {
+  targets: readonly (TourRect | null)[];
+  allowed: TourRect | null;
+}
 
 export interface TourTracking {
   step: TourSpotStep;
   subject: OnboardingSubject;
-  onLayout: (rects: readonly (TourRect | null)[]) => void;
+  onLayout: (layout: TourLayout) => void;
   onAdvance: () => void;
   onUnlock: () => void;
   onLost: () => void;
+  onHint: (shown: boolean) => void;
 }
 
-const measure = (element: Element): TourRect | null => {
+/** The layout box: a hover or press `scale` on the element or an ancestor must not move the spotlight. */
+export const measure = (element: Element): TourRect | null => {
   const box = element.getBoundingClientRect();
-  if (box.width > 0 || box.height > 0) {
+  if (box.width === 0 && box.height === 0) {
+    return unionRect(
+      [...element.children].map(child => measure(child) ?? { x: 0, y: 0, width: 0, height: 0 }),
+    );
+  }
+  if (!(element instanceof HTMLElement)) {
     return { x: box.x, y: box.y, width: box.width, height: box.height };
   }
-  return unionRect([...element.children].map(child => child.getBoundingClientRect()));
+  const width = element.offsetWidth;
+  const height = element.offsetHeight;
+  return {
+    x: box.x + (box.width - width) / 2,
+    y: box.y + (box.height - height) / 2,
+    width,
+    height,
+  };
 };
 
-const layoutKey = (rects: readonly (TourRect | null)[]) =>
-  rects
-    .map(rect =>
-      rect
-        ? `${Math.round(rect.x)},${Math.round(rect.y)},${Math.round(rect.width)},${Math.round(rect.height)}`
-        : '-',
-    )
-    .join(';');
+const rectKey = (rect: TourRect | null) =>
+  rect
+    ? `${Math.round(rect.x)},${Math.round(rect.y)},${Math.round(rect.width)},${Math.round(rect.height)}`
+    : '-';
 
 const isOnScreen = (rect: TourRect) =>
   rect.y >= 0 &&
@@ -37,26 +55,38 @@ const isOnScreen = (rect: TourRect) =>
   rect.y + rect.height <= window.innerHeight &&
   rect.x + rect.width <= window.innerWidth;
 
+export const allowedAnchor = (step: TourSpotStep): TourAnchor | null =>
+  step.nextWhen?.on === 'click' ? step.nextWhen.anchor : null;
+
 export const trackTourStep: Action<HTMLElement, TourTracking> = (node, initial) => {
   const document = node.ownerDocument;
   let tracking = initial;
   let frame = 0;
   let lastLayout = '';
+  let startedAt: number | null = null;
   let missingSince: number | null = null;
   let lost = false;
   let scrolled = false;
   let advanced = false;
   let unlocked = false;
+  let hintShown = false;
+  let shown: readonly (TourRect | null)[] = [];
+  let moveFrom: readonly (TourRect | null)[] = [];
+  let moveStart: number | null = null;
 
   const resolve = (anchor: TourAnchor) => anchor(document, tracking.subject);
 
   const reset = () => {
     lastLayout = '';
+    startedAt = null;
     missingSince = null;
     lost = false;
     scrolled = false;
     advanced = false;
     unlocked = false;
+    hintShown = false;
+    moveFrom = shown;
+    moveStart = null;
   };
 
   const advance = () => {
@@ -74,18 +104,40 @@ export const trackTourStep: Action<HTMLElement, TourTracking> = (node, initial) 
   const appeared = (condition: TourCondition | undefined) =>
     condition?.on === 'appear' && resolve(condition.anchor) !== null;
 
-  const tick = (now: number) => {
-    const elements = tracking.step.targets.map(resolve);
-    const rects = elements.map(element => (element ? measure(element) : null));
+  const ease = (targets: readonly (TourRect | null)[], now: number) => {
+    if (!moveFrom.some(Boolean) || !targets[0]) return targets;
+    moveStart ??= now;
+    const duration = motionDuration(MOVE_MS);
+    const progress = duration === 0 ? 1 : Math.min((now - moveStart) / duration, 1);
+    if (progress >= 1) {
+      moveFrom = [];
+      lastLayout = '';
+    }
+    return easeRects(moveFrom, targets, progress);
+  };
 
-    const layout = layoutKey(rects);
-    if (layout !== lastLayout) {
+  const tick = (now: number) => {
+    startedAt ??= now;
+    const { step } = tracking;
+    const elements = step.targets.map(resolve);
+    const targets = ease(
+      elements.map(element => (element ? measure(element) : null)),
+      now,
+    );
+    const allowedElement = allowedAnchor(step);
+    const allowedTarget = allowedElement ? resolve(allowedElement) : null;
+    const allowed = allowedTarget ? measure(allowedTarget) : null;
+
+    const holding = !targets[0] && moveFrom.some(Boolean) && now - startedAt < HOLD_MS;
+    const layout = [...targets, allowed].map(rectKey).join(';');
+    if (!holding && layout !== lastLayout) {
       lastLayout = layout;
-      tracking.onLayout(rects);
+      shown = targets;
+      tracking.onLayout({ targets, allowed });
     }
 
     const [first] = elements;
-    const [firstRect] = rects;
+    const [firstRect] = targets;
     if (first && firstRect) {
       missingSince = null;
       lost = false;
@@ -101,9 +153,16 @@ export const trackTourStep: Action<HTMLElement, TourTracking> = (node, initial) 
       }
     }
 
-    const { advance: next, nextWhen } = tracking.step;
-    if (next.on === 'appear' && appeared(next)) advance();
-    if (appeared(nextWhen)) unlock();
+    if (step.hint) {
+      const hint = now - startedAt >= step.hint.afterMs && resolve(step.hint.when) !== null;
+      if (hint !== hintShown) {
+        hintShown = hint;
+        tracking.onHint(hint);
+      }
+    }
+
+    if (step.advance.on === 'appear' && appeared(step.advance)) advance();
+    if (appeared(step.nextWhen)) unlock();
 
     frame = requestAnimationFrame(tick);
   };
@@ -143,6 +202,72 @@ export const holdPointer: Action<Element> = node => {
     destroy() {
       node.removeEventListener('pointerdown', stop);
       node.removeEventListener('mousedown', keepFocus);
+    },
+  };
+};
+
+export const portalToBody: Action<HTMLElement> = node => {
+  node.ownerDocument.body.appendChild(node);
+  return {
+    destroy() {
+      node.remove();
+    },
+  };
+};
+
+export interface TourBlocking {
+  active: boolean;
+  allowed: () => Element | null;
+}
+
+/** Makes the rest of `<body>` inert: no click, focus or key reaches the page. */
+export const blockPage: Action<HTMLElement, TourBlocking> = (node, initial) => {
+  const body = node.ownerDocument.body;
+  let blocking = initial;
+  const made = new Set<Element>();
+
+  const release = (child: Element) => {
+    child.removeAttribute('inert');
+    made.delete(child);
+  };
+
+  const apply = () => {
+    const allowed = blocking.active ? blocking.allowed() : null;
+    for (const child of [...body.children]) {
+      const keep =
+        !blocking.active ||
+        child === node ||
+        child.tagName === 'SCRIPT' ||
+        (!!allowed && child.contains(allowed));
+      if (keep) {
+        if (made.has(child)) release(child);
+      } else if (!child.hasAttribute('inert')) {
+        child.setAttribute('inert', '');
+        made.add(child);
+      }
+    }
+  };
+
+  const focusTour = () => {
+    if (blocking.active && !node.contains(node.ownerDocument.activeElement)) {
+      node.querySelector<HTMLElement>('[data-tour-focus]')?.focus({ preventScroll: true });
+    }
+  };
+
+  const observer = new MutationObserver(apply);
+  observer.observe(body, { childList: true });
+  apply();
+  focusTour();
+
+  return {
+    update(next) {
+      blocking = next;
+      apply();
+      focusTour();
+    },
+    destroy() {
+      observer.disconnect();
+      [...made].forEach(release);
     },
   };
 };
