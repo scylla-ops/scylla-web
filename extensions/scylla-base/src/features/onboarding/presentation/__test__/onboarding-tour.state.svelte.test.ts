@@ -61,12 +61,13 @@ describe('createOnboardingTourState', () => {
     expect(repository.getStatus).toHaveBeenCalledWith('ada');
   });
 
-  it('does not start on its own for a user who cannot create an agent and a project', async () => {
-    const { tour } = setUp({ kind: 'not-started' }, false);
+  it('stays hidden and saves nothing for a user who cannot create an agent and a project', async () => {
+    const { tour, repository } = setUp({ kind: 'not-started' }, false);
 
     await onStep(tour, 'welcome');
 
     expect(tour.visible).toBe(false);
+    expect(repository.saveStatus).not.toHaveBeenCalled();
   });
 
   it('never shows again once completed or skipped', async () => {
@@ -88,7 +89,7 @@ describe('createOnboardingTourState', () => {
     tour.start();
 
     await onStep(tour, 'dashboard');
-    expect(tour.count).toEqual({ step: 1, total: 20 });
+    expect(tour.count).toEqual({ step: 1, total: 21 });
     expect(navigator.navigate).toHaveBeenCalledWith('/acme/dashboard', undefined);
     await vi.waitFor(() =>
       expect(repository.saveStatus).toHaveBeenCalledWith('ada', {
@@ -175,7 +176,7 @@ describe('createOnboardingTourState', () => {
     expect(tour.step?.id).toBe('agent-page');
   });
 
-  it('opens the project the user just created, and points at its New pipeline button', async () => {
+  it('points at the project the user just created instead of opening it', async () => {
     const { tour, navigator, queryClient } = setUp({ kind: 'in-progress', step: 'create-project' });
     await onStep(tour, 'create-project');
 
@@ -187,8 +188,9 @@ describe('createOnboardingTourState', () => {
       })
       .execute({});
 
-    await onStep(tour, 'new-pipeline');
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme/projects/project-9', undefined);
+    await onStep(tour, 'open-project');
+    expect(tour.subject).toEqual({ projectId: 'project-9' });
+    expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
   it('ignores the writes that are not the one the step waits for', async () => {

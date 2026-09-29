@@ -2,11 +2,10 @@ import type { MessageDescriptor } from '@lingui/core';
 import { isActiveStatus } from '@base/features/jobs';
 import { CREATE_PIPELINE_MUTATION_KEY, RUN_PIPELINE_MUTATION_KEY } from '@base/features/pipeline';
 import { CREATE_PROJECT_MUTATION_KEY } from '@base/features/project';
-import { scyllaNavigate } from '@platform/context';
 import type { OnboardingSubject } from '../domain/structs/onboarding-status.struct.ts';
 import { onboardingMessages as m } from './onboarding.messages.ts';
 
-export const SCYLLA_DOCS_URL = 'https://github.com/scylla-ops/scylla';
+export const SCYLLA_DOCS_URL = 'https://prelude.scylla-ops.com';
 
 export type TourAnchor = (root: ParentNode, subject: OnboardingSubject) => Element | null;
 
@@ -116,12 +115,15 @@ const finishedRun: TourAnchor = (root, subject) => {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
-const openCreatedProject = (data: unknown) => {
-  if (isRecord(data) && typeof data.id === 'string' && typeof data.name === 'string') {
-    scyllaNavigate.goToProject(data.id, data.name);
-  }
-  return undefined;
-};
+const createdProject: TourAnchor = (root, subject) =>
+  subject.projectId
+    ? root.querySelector(`[data-tour="project-card"][data-project-id="${subject.projectId}"]`)
+    : root.querySelector('[data-tour="project-card"]');
+
+const createdProjectPage: TourAnchor = (root, subject) =>
+  subject.projectId
+    ? root.querySelector(`[data-tour="pipelines"][data-project-id="${subject.projectId}"]`)
+    : root.querySelector('[data-tour="pipelines"]');
 
 const docs = (label: MessageDescriptor): TourLink => ({ label, href: SCYLLA_DOCS_URL });
 
@@ -250,8 +252,21 @@ export const TOUR_STEPS: readonly TourStep[] = [
     title: m.createProjectTitle,
     body: [m.createProjectBody],
     targets: [formDialog],
-    advance: { on: 'mutation', key: CREATE_PROJECT_MUTATION_KEY, onSuccess: openCreatedProject },
+    advance: {
+      on: 'mutation',
+      key: CREATE_PROJECT_MUTATION_KEY,
+      onSuccess: data =>
+        isRecord(data) && typeof data.id === 'string' ? { projectId: data.id } : undefined,
+    },
     fallback: 'new-project',
+  },
+  {
+    kind: 'spot',
+    id: 'open-project',
+    title: m.openProjectTitle,
+    body: [m.openProjectBody],
+    targets: [createdProject],
+    advance: { on: 'appear', anchor: createdProjectPage },
   },
   {
     kind: 'spot',

@@ -96,10 +96,9 @@ describe('OnboardingTour', () => {
     const { saveStatus } = setUp({ kind: 'in-progress', step: 'finish' });
 
     expect(await screen.findByText("You've got the basics of Scylla 🎉")).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Open the documentation' })).toHaveAttribute(
-      'target',
-      '_blank',
-    );
+    const docs = screen.getByRole('link', { name: 'Open the documentation' });
+    expect(docs).toHaveAttribute('href', 'https://prelude.scylla-ops.com');
+    expect(docs).toHaveAttribute('target', '_blank');
     await userEvent.click(screen.getByRole('button', { name: 'Finish' }));
 
     await waitFor(() =>

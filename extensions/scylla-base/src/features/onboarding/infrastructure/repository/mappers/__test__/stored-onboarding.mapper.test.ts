@@ -11,7 +11,11 @@ describe('StoredOnboardingMapper', () => {
     const statuses = [
       { kind: 'not-started' },
       { kind: 'in-progress', step: 'new-agent' },
-      { kind: 'in-progress', step: 'wait-job', subject: { pipelineId: 'p-1', pipelineName: 'ci' } },
+      {
+        kind: 'in-progress',
+        step: 'wait-job',
+        subject: { projectId: 'pr-1', pipelineId: 'p-1', pipelineName: 'ci' },
+      },
       { kind: 'completed' },
       { kind: 'skipped' },
     ] as const;

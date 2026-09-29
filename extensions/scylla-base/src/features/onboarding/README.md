@@ -9,7 +9,7 @@ agent, start it, create a project and a pipeline, run it, open the job. The desi
 
 ## The shape of the tour
 
-A welcome dialog, 20 steps that point at the page, and a final dialog. A card with a spotlight
+A welcome dialog, 21 steps that point at the page, and a final dialog. A card with a spotlight
 points at one element; a thin dotted line joins them. The user does the real action (a click, a
 form) and the tour follows: there is no fake data and no shortcut. Steps that only explain
 something have a Next button. "Skip tour" asks for a confirmation, because a skipped step breaks
@@ -18,7 +18,7 @@ the ones after it.
 ## Why anchors and not selectors
 
 The tour reads the page through `data-tour` / `data-part` attributes on the real elements, and
-through the mutation cache for the writes whose result it needs (the new project to open, the
+through the mutation cache for the writes whose result it needs (the new project to point at, the
 pipeline it runs). A CSS class changes with the design; an attribute says "the tour depends on
 this".
 
