@@ -18,7 +18,8 @@ export interface TourPlacement {
 
 export const CARD_GAP = 56;
 export const VIEWPORT_MARGIN = 16;
-export const SPOTLIGHT_PADDING = 4;
+export const SPOTLIGHT_PADDING = 8;
+export const SPOTLIGHT_EDGE = 2;
 export const SPOTLIGHT_RADIUS = 10;
 
 const clamp = (value: number, min: number, max: number) =>
@@ -124,6 +125,16 @@ export const padRect = (rect: TourRect, padding = SPOTLIGHT_PADDING): TourRect =
   width: rect.width + padding * 2,
   height: rect.height + padding * 2,
 });
+
+/** The padded target, kept inside the viewport so that its ring is never cut. */
+export const spotlightRect = (rect: TourRect, viewport: TourSize): TourRect => {
+  const padded = padRect(rect);
+  const left = Math.max(padded.x, SPOTLIGHT_EDGE);
+  const top = Math.max(padded.y, SPOTLIGHT_EDGE);
+  const right = Math.min(padded.x + padded.width, viewport.width - SPOTLIGHT_EDGE);
+  const bottom = Math.min(padded.y + padded.height, viewport.height - SPOTLIGHT_EDGE);
+  return { x: left, y: top, width: Math.max(right - left, 0), height: Math.max(bottom - top, 0) };
+};
 
 const roundedRect = ({ x, y, width, height }: TourRect, radius: number): string => {
   const r = Math.min(radius, width / 2, height / 2);

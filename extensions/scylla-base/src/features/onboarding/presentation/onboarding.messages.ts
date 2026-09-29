@@ -31,7 +31,7 @@ export const onboardingMessages = {
   connectDocs: msg`Get help on how to connect your agent to Scylla on our documentation ›`,
   agentPageTitle: msg`The agent dashboard`,
   agentPageBody: msg`This is your agent's dashboard; it displays the agent's status and information about its previous jobs. At the bottom of the page, you'll find the command to launch your agent, but without the secret, since it was only displayed when the agent was created.`,
-  connectAgentBody: msg`If you ran the command in the previous modal and properly set up the control plane URL, your agent should connect to Scylla: the next step unlocks by itself.`,
+  connectAgentBody: msg`If you ran the command in the previous modal and properly set up the control plane URL, your agent should connect to Scylla: the Next button unlocks once it's connected.`,
   connectAgentWaiting: msg`Waiting for the agent to connect…`,
   connectAgentNote: msg`If you didn't copy and ran the previous instructions, you can run the command below either “From source” or “Docker” (with the server URL and the secret you saved earlier), then wait for it to connect.`,
   openProjectsTitle: msg`Go to Projects`,
