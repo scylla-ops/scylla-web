@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/svelte';
+import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
@@ -141,5 +141,17 @@ describe('OnboardingTour', () => {
     expect(await screen.findByText(/Open the Agents tab/)).toBeInTheDocument();
     expect(page).not.toHaveAttribute('inert');
     expect(document.querySelector('[data-tour-blocker]')).toBeNull();
+  });
+
+  it('offers only Go back and Skip when the step is on another page, never Next', async () => {
+    setUp({ kind: 'in-progress', step: 'agent-page', subject: { agentId: 'a-1' } });
+
+    const goBack = await screen.findByText('Go back to it', {}, { timeout: 4000 });
+    const card = goBack.closest('[data-onboarding-tour]');
+
+    expect(goBack.closest('button')).not.toBeNull();
+    expect(screen.getByText('This step is on another page.')).toBeInTheDocument();
+    expect(within(card as HTMLElement).getByText('Skip tour')).toBeInTheDocument();
+    expect(within(card as HTMLElement).queryByText('Next')).not.toBeInTheDocument();
   });
 });
