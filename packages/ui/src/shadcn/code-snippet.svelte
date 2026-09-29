@@ -91,6 +91,7 @@
     <button
       type="button"
       aria-label={t(codeSnippetMessages.copy)}
+      data-part="code-snippet-copy"
       onclick={() => void copy()}
       disabled={blurred}
       class={cn(

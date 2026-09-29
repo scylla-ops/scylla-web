@@ -112,7 +112,12 @@
     {#if extraActions}{@render extraActions()}{/if}
 
     {#if onNew}
-      <GatedButton allowed={canNew} deniedReason={newDeniedReason} onclick={onNew}>
+      <GatedButton
+        allowed={canNew}
+        deniedReason={newDeniedReason}
+        onclick={onNew}
+        data-part="feature-header-new"
+      >
         {newButtonLabel}
       </GatedButton>
     {/if}

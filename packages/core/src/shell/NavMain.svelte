@@ -46,6 +46,7 @@
             tooltip={item.title}
             isActive={pathname.startsWith(item.href)}
             onclick={() => open(item)}
+            data-nav-url={item.url}
           >
             {#if item.icon}
               <item.icon />
