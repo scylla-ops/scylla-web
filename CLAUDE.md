@@ -452,6 +452,8 @@ The package and layer structure is mandatory; everything else must earn its plac
 | Mapper | `grpc-*.mapper.ts` → `Grpc{Entity}Mapper` | `grpc-user.mapper.ts` |
 | Domain entity | `*.entity.ts` → `{Name}Entity` | `secret.entity.ts` / `SecretEntity` |
 | Struct (value object / enum / DTO / wrapper) | `*.struct.ts` (plain name, no suffix) | `permission.struct.ts` / `Permission`, `pagination.struct.ts` / `PaginationInfo` |
+| Widget points | `<feature>.points.ts` → `{feature}Points` | `login.points.ts` / `loginPoints` |
+| Widget injection | `*.widget-injection.ts` → `{Intention}WidgetInjection` | `email-login.widget-injection.ts` / `EmailLoginWidgetInjection` |
 | Store (framework-free, `createStore`) | `*.store.ts` → `{name}Store` | `context.store.ts` / `contextStore` |
 | Extension declaration (at extension root) | `*.extension.ts` → an `@Extension` class `{Name}Extension` | `scylla-base.extension.ts` / `ScyllaBaseExtension` |
 | Module declaration (at module root) | `*.module.ts` → `{Feature}Module` | `user.module.ts` / `UserModule` |
@@ -665,16 +667,31 @@ Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@t
 2. Its modules, each a `*.module.ts` like a feature's: `domain`, `routes`, `nav` on the routes.
    Graft pages on the mounts of another extension (`organization`, `project` of scylla-base),
    or declare new `mounts` / `navSections` in one module of your own.
-3. `src/<name>.extension.ts`: an `@Extension({ id, name, version, dependencies, modules, catalogs })`
-   class, and `src/index.ts` that exports it — and nothing else.
+3. `src/<name>.extension.ts`: an
+   `@Extension({ id, name, version, dependencies, modules, widgetInjections?, catalogs })` class,
+   and `src/index.ts` that exports it — and nothing else.
 4. Use scylla-base through `@scylla/base-sdk` only: `Permission`, `can`, `contextStore`,
    `grpcTransport`, `ScyllaResult`, the feature queries. Need more? Export it from the owning
    feature's `index.ts`.
-5. Add the class to `apps/web/src/extensions.ts` and the package to `apps/web/package.json`.
-6. Catalogs: a `lingui.config.js` entry per module with messages. Tailwind already scans
-   `extensions/` (`@source` in `@scylla/ui/styles.css`).
-7. Other extensions will use part of it? Give it an SDK in `sdks/<name>-sdk`, a facade that
+5. Changing another extension's UI (a text, a zone, a value it exposes) instead of adding your
+   own page? That is a **widget injection**, not a module: a `*.widget-injection.ts`, listed in
+   `widgetInjections` on `@Extension`, never in `modules`. Full mechanism in `widgets_plan.md`
+   at the repo root. One injection per intention (what the user sees change), grouping
+   components, texts and patches that must exist or not exist together. It lives beside the
+   feature it serves (`features/<feature>/widget-injections/`) when it serves one, else in a
+   top-level `widget-injections/`. Declare the owner extension in `dependencies` — the loader
+   rejects a change to a point whose owner is not a loaded dependency.
+6. Add the class to `apps/web/src/extensions.ts` and the package to `apps/web/package.json`.
+7. Catalogs: a `lingui.config.js` entry per module with messages (a feature with widget
+   injections of its own needs only one entry — its `include` already covers
+   `widget-injections/` under it). Tailwind already scans `extensions/` (`@source` in
+   `@scylla/ui/styles.css`).
+8. Calls the backend directly? Add a target to `scripts/gen-proto.mjs`'s `targets` array, naming
+   only the proto packages this extension uses — never deep-import another extension's
+   `src/generated/`. A proto package two extensions both need (e.g. `common`) is generated once
+   per extension on purpose: each copy stays private to its own extension.
+9. Other extensions will use part of it? Give it an SDK in `sdks/<name>-sdk`, a facade that
    re-exports its barrels, and add the pair of rules to `.dependency-cruiser.cjs`
    (`sdk-is-the-door` names scylla-base today).
-8. `AGENTS.md` + `README.md` at its root, a row in the root `README.md`.
-9. All six gates clean.
+10. `AGENTS.md` + `README.md` at its root, a row in the root `README.md`.
+11. All six gates clean.

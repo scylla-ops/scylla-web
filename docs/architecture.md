@@ -186,6 +186,62 @@ the barrels of scylla-base (`platform/authz`, `platform/context`, `platform/grpc
 If an extension needs something that the SDK does not export, export it from the `index.ts` of
 the owner module.
 
+### 3.5 Widget injections — changing another extension's UI
+
+Full design: `widgets_plan.md` at the repo root. The gist, for the architecture picture: a
+**widget** (a component) opens **points** — a **zone** (receives components), a **text scope**
+(overridable messages), a **value** (patchable data) — as a typed object it exports from its own
+barrel:
+
+```typescript
+// a feature's presentation/<feature>.points.ts
+export const loginPoints = definePoints('login', {
+  footer: point.zone<{ isPending: boolean }>(),
+  texts: point.texts(loginMessages),
+  fields: point.value<readonly FormItem<'identifier' | 'password'>[]>(),
+});
+```
+
+`scope` (`'login'`) is the owning module's id — it is how the loader finds a point's owner.
+There is deliberately no `declare module` augmentation here: a point is a value, reached by an
+ordinary import through the owner's SDK, so the dependency is real and `dependency-cruiser`
+sees it, and it works the same inside this monorepo or in a community extension's own
+repository (`widgets_plan.md` §13 has the full comparison against the augmentation it replaced).
+
+Another extension changes those points with a **widget injection** — one object per *intention*
+(a change the user sees), never per owner, grouping the components, texts and patches that must
+exist together:
+
+```typescript
+export const EmailLoginWidgetInjection = {
+  id: 'cloud-email-login',
+  changes: [
+    loginPoints.texts.override({ identifier: msg`Email`, /* … */ }),
+    loginPoints.fields.patch(fields => /* turn the identifier field into an email input */),
+  ],
+} satisfies WidgetInjection;
+
+@Extension({
+  id: 'scylla-cloud',
+  dependencies: ['scylla-base'],
+  modules: [CloudAuthModule],
+  widgetInjections: [EmailLoginWidgetInjection, SignUpLinkWidgetInjection],
+})
+export class ScyllaCloudExtension {}
+```
+
+`widgetInjections` is a field of `@Extension`, not of a module: what it declares — a change to
+*another* extension's UI — belongs to no module of its own. The loader (`mergeWidgetInjections`,
+alongside `loadExtensions`) rejects, at start-up and in tests: a change to a point whose owner is
+not a loaded module; a change to another extension's point when that extension is not listed in
+`dependencies`; two injections that `replace` the same zone; two that override the same text.
+
+The owner renders a zone with one Svelte action, `use:widgetZone`, which owns the whole mount,
+update and cleanup lifecycle of whatever is injected into it — the owner writes no lifecycle
+code of its own. `scylla-cloud`'s sign-up link into `scylla-base`'s login page
+(`extensions/scylla-cloud/src/features/auth/widget-injections/`) is the reference example this
+mechanism was built against.
+
 ---
 
 ## 4. Inside scylla-base

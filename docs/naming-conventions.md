@@ -294,6 +294,35 @@ A barrel never exports a Svelte component. It exports a loader, named `load{Comp
 export const loadJobsPage = () => import('./presentation/ui/Jobs.page.svelte');
 ```
 
+### 4.4 Widget points and widget injections
+
+Full mechanism: `widgets_plan.md` at the repo root.
+
+A feature's points are `{feature}Points`, from `presentation/<feature>.points.ts`, exported
+from the feature's barrel:
+
+```typescript
+// login.points.ts
+export const loginPoints = definePoints('login', {
+  footer: point.zone<LoginZoneContext>(),
+  texts: point.texts(loginMessages),
+});
+```
+
+An injection is `{Intention}WidgetInjection`, from `<intention>.widget-injection.ts`, named
+after what it changes (the intention), never after the point it targets:
+
+```typescript
+// email-login.widget-injection.ts
+export const EmailLoginWidgetInjection = {
+  id: 'cloud-email-login',          // unique across all extensions; prefix with your extension
+  changes: [ /* ... */ ],
+} satisfies WidgetInjection;
+```
+
+It is listed in `widgetInjections` on `@Extension`, never in `modules` — and like a
+`*.module.ts`, a `*.widget-injection.ts` is private: only the extension class imports it.
+
 ---
 
 ## 5. i18n
@@ -320,6 +349,8 @@ export const loadJobsPage = () => import('./presentation/ui/Jobs.page.svelte');
 | Class | PascalCase + role suffix | `DefaultUserRepository` |
 | Extension | PascalCase + `Extension` | `ScyllaBaseExtension` |
 | Module declaration | PascalCase + `Module` | `UserModule` |
+| Widget points | camelCase + `Points` | `loginPoints` |
+| Widget injection | PascalCase + `WidgetInjection` | `EmailLoginWidgetInjection` |
 | Rune state factory | camelCase `create*` | `createPagination` |
 | Store | camelCase + `Store` | `contextStore` |
 | Queries / mutations | camelCase + `Queries` / `Mutations` | `userQueries` |
