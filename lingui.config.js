@@ -86,6 +86,10 @@ export default defineConfig({
       path: '<rootDir>/extensions/scylla-base/src/platform/authz/locales/{locale}/messages',
       include: ['extensions/scylla-base/src/platform/authz/'],
     },
+    {
+      path: '<rootDir>/extensions/scylla-cloud/src/features/auth/locales/{locale}/messages',
+      include: ['extensions/scylla-cloud/src/features/auth/'],
+    },
   ],
   compileNamespace: 'default',
 });

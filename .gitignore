@@ -28,6 +28,7 @@ bun.lockb
 
 **/locales/*/messages.ts
 extensions/scylla-base/src/generated
+extensions/scylla-cloud/src/generated
 coverage
 
 .env
