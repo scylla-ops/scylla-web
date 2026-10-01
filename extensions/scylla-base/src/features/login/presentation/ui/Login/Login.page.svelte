@@ -5,7 +5,7 @@
   import { ScyllaLoadingScreen } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { widgetZone } from '@scylla/core-sdk';
-  import { LoginState } from '../../login.state.svelte.ts';
+  import { LoginState } from '@base/features/login';
   import { loginPoints } from '../../login.points.ts';
   import LoginForm from '../LoginForm/LoginForm.svelte';
 
