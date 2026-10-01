@@ -2,7 +2,7 @@
   import { Button } from '@scylla/ui/shadcn';
   import { ScyllaForm, FormItemType, type FormItem } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { loginMessages } from '../login.messages.ts';
+  import { loginPoints } from '../../login.points.ts';
 
   interface Props {
     handleSubmit: (login: string, password: string) => void;
@@ -11,33 +11,35 @@
 
   let { handleSubmit, isPending = false }: Props = $props();
 
-  const items: readonly FormItem<'username' | 'password'>[] = $derived([
-    {
-      id: 'username',
-      label: t(loginMessages.username),
-      placeholder: t(loginMessages.usernamePlaceholder),
-      type: FormItemType.Input,
-      inputType: 'text',
-    },
-    {
-      id: 'password',
-      label: t(loginMessages.password),
-      placeholder: t(loginMessages.passwordPlaceholder),
-      type: FormItemType.Input,
-      inputType: 'password',
-    },
-  ]);
+  const items = $derived(
+    loginPoints.fields.resolve([
+      {
+        id: 'identifier',
+        label: t(loginPoints.texts.messages.identifier),
+        placeholder: t(loginPoints.texts.messages.identifierPlaceholder),
+        type: FormItemType.Input,
+        inputType: 'text',
+      },
+      {
+        id: 'password',
+        label: t(loginPoints.texts.messages.password),
+        placeholder: t(loginPoints.texts.messages.passwordPlaceholder),
+        type: FormItemType.Input,
+        inputType: 'password',
+      },
+    ] satisfies readonly FormItem<'identifier' | 'password'>[]),
+  );
 </script>
 
 <ScyllaForm
   {items}
   class="gap-4"
-  onSubmit={values => handleSubmit(values.username, values.password)}
+  onSubmit={values => handleSubmit(values.identifier, values.password)}
   {isPending}
 >
   {#snippet footer({ isValid, isPending: pending })}
     <Button type="submit" class="mt-2 w-full" disabled={!isValid || pending}>
-      {t(loginMessages.submit)}
+      {t(loginPoints.texts.messages.submit)}
     </Button>
   {/snippet}
 </ScyllaForm>
