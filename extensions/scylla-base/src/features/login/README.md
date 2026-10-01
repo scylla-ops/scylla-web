@@ -13,8 +13,8 @@ Signing in touches three modules, and it helps to see the whole path at once:
 
 1. `LoginForm` collects a username and password and calls `LoginState.submit`.
 2. `LoginState` runs the mutation against `LoginRepository.login()`.
-3. The gRPC data source calls the backend and, on success, writes `token` and `userId` into
-   `localStorage`.
+3. The gRPC data source calls the backend and, on success, calls `openSession(token, userId)`,
+   which writes them into `localStorage`.
 4. Every later request picks the token up: the transport in
    [platform/grpc](../../platform/grpc/README.md) reads `localStorage.token` and attaches
    `Authorization: Bearer …` to each call.
@@ -30,6 +30,20 @@ changing all three together.
 Permissions are **not** loaded here. A freshly signed-in user has an empty permission store
 until [roles](../roles/README.md)'s `syncMyPermissions` fills it — that call needs a repository
 and a session, so it happens inside the authenticated shell rather than at sign-in.
+
+## Letting another extension change this page
+
+A SaaS build (`scylla-cloud`) wants its own flavour of this page: "Email" instead of "Username",
+a link to its own `/register`. Forking the page would mean every later fix to `Login.page.svelte`
+has to land twice. Instead, `presentation/login.points.ts` opens a handful of **extension
+points** — a zone below the card, the page's texts, the credentials form's fields — as plain
+typed values, exported from this feature's barrel like everything else public here. Another
+extension imports them from `@scylla/base-sdk` and changes them with a **widget injection**,
+declared on its own `@Extension`, not on a module of its own (what it changes belongs to no
+module it owns). `openSession` exists for the same reason, one level down: a sign-up flow needs
+to open a session exactly the way sign-in does, without a second place that knows the
+`localStorage` keys. See `widgets_plan.md` at the repo root for the full mechanism, and
+`AGENTS.md`'s "Extension points" for the exact points this page opens.
 
 ## Why it is a module at all
 

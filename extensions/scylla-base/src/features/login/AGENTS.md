@@ -17,11 +17,12 @@ unchanged — they never had a framework in them.
 
 ```typescript
 LoginState, type Credentials
+loginPoints, type LoginZoneContext   // extension points — see below
+openSession                          // the only writer of the session; scylla-cloud's sign-up uses it too
 ```
 
-That is the whole surface, and it should stay that way. Never add: `login.module.ts`,
-`LoginPage`. There is no `use-login-domain.ts` any more: a view model calls
-`getModuleDomain('login')` directly.
+Never add: `login.module.ts`, `LoginPage`. There is no `use-login-domain.ts` any more: a view
+model calls `getModuleDomain('login')` directly.
 
 ## Data contract
 
@@ -32,9 +33,8 @@ That is the whole surface, and it should stay that way. Never add: `login.module
 | `login(username, password)` | `ScyllaResult<void>` |
 
 **`void` is not an oversight.** The session token never travels back through the domain: the
-gRPC data source writes `token` and `userId` into `localStorage` as a side effect of a
-successful call. Do not "improve" this by returning the token — see the rule below before
-changing anything here.
+gRPC data source calls `openSession` as a side effect of a successful call. Do not "improve"
+this by returning the token — see the rule below before changing anything here.
 
 ## Layout
 
@@ -44,15 +44,35 @@ index.ts                             public API — useLogin only
 domain/repository/login.repository.ts
 infrastructure/
   repository/data-sources/login-remote.data-source.ts   interface
-  data/remote/grpc-login-remote.data-source.ts          impl — writes localStorage
+  data/remote/grpc-login-remote.data-source.ts          impl — calls openSession
   repository/default-login.repository.ts
+  session/open-session.ts                               the one writer of token + userId
 presentation/
+  login.points.ts                    the extension points — see below
   login.state.svelte.ts              the view model: the mutation + the redirect
   ui/Login.page.svelte, LoginForm.svelte
   ui/login.messages.ts               the screen's strings (extraction cannot read `.svelte`)
 ```
 
 No entities, no structs, no mappers — there is nothing to model.
+
+## Extension points
+
+Full mechanism: `widgets_plan.md` at the repo root; the owner guide is its §6. Defined in
+`presentation/login.points.ts`, exported from this barrel and from `@scylla/base-sdk`.
+
+| Point | Kind | Context / type | Notes |
+|---|---|---|---|
+| `login.footer` | zone | `LoginZoneContext` (`{ isPending }`) | Below the card. No default content: a zone that only ever receives `after` components. **No `permission`** — the user has none yet on this page; see the rule below. |
+| `login.texts` | text scope | `typeof loginMessages` | `title`, `description`, `identifier`, `identifierPlaceholder`, `password`, `passwordPlaceholder`, `submit`. Every key the page renders goes through `loginPoints.texts.messages`, never `loginMessages` directly — otherwise an override would silently not show. |
+| `login.fields` | value | `readonly FormItem<'identifier' \| 'password'>[]` | The `ScyllaForm` fields of `LoginForm.svelte`. Keep the ids: `submit` reads `values.identifier` and `values.password`. |
+
+- **The field id is `identifier`, not `username`.** The backend's `LoginRequest.identifier`
+  accepts a username or an email already; `scylla-cloud` turns it into an email field with a
+  patch on `login.fields`, not a new field.
+- **No `login.form` zone yet.** It would wrap the whole credentials form (for a `replace`, e.g.
+  a different sign-in method entirely) — add it, with `hasReplacement`, when a real consumer
+  needs it, not before.
 
 ## Routes & nav
 
@@ -67,15 +87,20 @@ No nav entry — the sidebar only renders inside the authenticated shell.
 
 ## Rules that bite here
 
-- **Session storage is `localStorage`, keys `token` and `userId`.** Three places touch it and
-  they must agree: this data source writes them, `platform/grpc`'s transport reads `token` for
-  the `Authorization: Bearer` header, and `shell/.../Auth.guard.svelte` reads it to decide whether
-  to redirect. Changing the key or the mechanism means changing all three in the same commit.
+- **Session storage is `localStorage`, keys `token` and `userId`, written only by
+  `infrastructure/session/open-session.ts`.** Three places must agree: `openSession` writes
+  them, `platform/grpc`'s transport reads `token` for the `Authorization: Bearer` header, and
+  `shell/.../Auth.guard.svelte` reads it to decide whether to redirect. Changing the key or the
+  mechanism means changing all three in the same commit. **A sign-up flow (`scylla-cloud`) opens
+  a session the same way — through `openSession`, never a direct `localStorage.setItem`.**
 - **`LoginState` must be constructed during a component's initialisation.** The mutation inside
   it installs an `$effect.pre`; built from an event handler, Svelte throws `effect_orphan`. True
   of every view model holding a query or a mutation.
 - No permission gate anywhere in this module — the user has none yet. Permissions are loaded
   *after* sign-in by `syncMyPermissions` in [`roles`](../roles/AGENTS.md), which the shell calls.
+  **The same reason bars `permission` on a `login.footer` injection** (`can` has nothing to
+  check pre-sign-in; see "Extension points" above) — a contributor that sets one gets a
+  component that silently never renders, not an error.
 - After a successful login the app must land somewhere the user can actually reach; that
   redirect is the shell's job, not this module's.
 - Never log, toast or store the password. Errors surface as a generic failure — do not leak
