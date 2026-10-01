@@ -17,7 +17,8 @@ business: no organization, no permission enum, no backend.
 
 ```typescript
 startCore({ extensions, target })    loads the extensions, installs the app-wide state, mounts the app
-loadExtensions(classes)              @Extension classes -> LoadedApp (router config, shell config, DI, catalogs)
+loadExtensions(classes)              @Extension classes -> LoadedApp (router config, shell config, DI, catalogs, widget injections)
+mergeWidgetInjections(extensions, can)  the widget-injection half of loadExtensions, exposed for test/render.svelte.ts
 compileRoutes(config)                AppRouterConfig -> the flat RouteTable
 createAppRouter(config)              compiles the routes, returns the AppNavigator
 setShellConfig, ShellBreadcrumbs     for the app-level tests
@@ -30,6 +31,7 @@ type AppRouterConfig, CompiledRoute, RouteTable, LoadedApp, StartOptions
 src/
   index.ts  start-core.ts  App.svelte          ThemeToggle + RouterView + Toaster
   loader/load-extensions.ts                    checks and merges the extensions
+  loader/merge-widget-injections.ts            widget injections: owners, dependencies, conflicts, order (pure)
   query/query-client.ts                        createAppQueryClient(handlers, retryPolicies)
   routing/
     compilation/                               declarations -> data, pure functions (node tests)
@@ -52,8 +54,8 @@ src/
 
 1. `loadExtensions` reads the `@Extension` of each class and checks it (below).
 2. The catalogs are registered (the core's, then each extension's), the DI registry, the
-   installed extensions (`setInstalledExtensions`), the query client and the shell config are
-   installed.
+   widget injection registry (`setWidgetInjectionRegistry`), the installed extensions
+   (`setInstalledExtensions`), the query client and the shell config are installed.
 3. `initializeAppLocale()` — before the first render, so no frame shows untranslated text.
 4. `setAppNavigator(createAppRouter(app.router))`, then `mount(App)`.
 
@@ -71,6 +73,19 @@ It **throws**, at start-up and in `apps/web`'s conformance test, on:
 
 Load order: an extension comes after its `dependencies`, else in list order. Registration
 order decides sidebar and route order within a section (after `NavLink.order`).
+
+**`mergeWidgetInjections` does the same job for `widgetInjections`**, called from inside
+`loadExtensions` after the module ids are known (it needs them, to find each point's owner). It
+**throws** on: two injections with the same id; a change whose point names a scope no loaded
+module has; a change on an extension's point that the contributor does not list in
+`dependencies` (a change on the contributor's own point needs none); two injections that
+`replace` the same zone; two that override the same text key. Every message names the
+injections and their extensions, e.g. `cloud-sign-up-link (scylla-cloud)`. It is exported from
+`@scylla/core`'s barrel so `packages/core/src/loader/__test__/merge-widget-injections.test.ts`
+can reach it through the package's public API, like everything else `test/` and `apps/web`
+import from here. **`test/render.svelte.ts`'s `withWidgetInjections` does not call it** — it
+wraps `installWidgetInjectionsForTest` (`@scylla/core-sdk`) instead, with no owner/dependency
+check; see `widgets_plan.md` §4.2 for why.
 
 ## The compilation
 

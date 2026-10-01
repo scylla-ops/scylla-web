@@ -10,12 +10,14 @@ import {
   type QueryRetryPolicy,
   type RouteMount,
   type ScyllaModule,
+  type WidgetInjectionRegistry,
 } from '@scylla/core-sdk';
 import type { CatalogLoaders } from '@scylla/ui/i18n';
 import { mountPath, type AppRouterConfig } from '../routing/compilation/compile-routes.ts';
 import { navEntriesFor } from '../routing/compilation/nav-entries.ts';
 import type { ShellConfig } from '../shell/shell-config.ts';
 import ShellFrame from '../shell/ShellFrame/ShellFrame.svelte';
+import { mergeWidgetInjections } from './merge-widget-injections.ts';
 
 /** The application that the extensions make together. */
 export interface LoadedApp {
@@ -24,6 +26,7 @@ export interface LoadedApp {
   router: AppRouterConfig;
   shell: ShellConfig;
   dependencies: DomainRegistry;
+  widgetInjections: WidgetInjectionRegistry;
   catalogs: readonly CatalogLoaders[];
   queryErrorHandlers: readonly QueryErrorHandler[];
   queryRetryPolicies: readonly QueryRetryPolicy[];
@@ -115,6 +118,8 @@ export const loadExtensions = (classes: readonly ExtensionClass[]): LoadedApp =>
     );
   }
 
+  const widgetInjections = mergeWidgetInjections(extensions, access?.can);
+
   return {
     extensions,
     router: { mounts, modules, fallback, shell: ShellFrame, guard: access?.guard },
@@ -125,6 +130,7 @@ export const loadExtensions = (classes: readonly ExtensionClass[]): LoadedApp =>
       contributions: modules.flatMap(module => module.shell ?? []),
     },
     dependencies: Object.fromEntries(modules.map(module => [module.id, module.domain])),
+    widgetInjections,
     catalogs: extensions.flatMap(extension => (extension.catalogs ? [extension.catalogs] : [])),
     queryErrorHandlers: modules.flatMap(module => module.onQueryError ?? []),
     queryRetryPolicies: modules.flatMap(module => module.onQueryRetry ?? []),

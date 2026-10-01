@@ -25,6 +25,7 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 | Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect` |
 | DI | `getModuleDomain`, `setDependencyRegistry`, `DomainRegistry` |
 | Query | `createQuery`, `createMutation`, `createQueries`, `queryOptions`, `mutationOptions`, `getQueryClient`, `setQueryClient` |
+| Widgets | `definePoints`, `point`, `ZonePoint`, `TextsPoint`, `ValuePoint`, `ZoneBinding`, `ZoneComponentOptions`, `ZonePosition`, `WidgetChange`, `widgetZone`, `WidgetInjection`, `WidgetInjectionRegistry`, `RegisteredComponent`, `RegisteredPatch`, `setWidgetInjectionRegistry`, `resolveZone`, `installWidgetInjectionsForTest` |
 
 ## Layout
 
@@ -40,6 +41,16 @@ src/
   navigation/ navigator.ts             the AppNavigator the core installs, and its readers
   di/         dependencies.registry.ts
   query/      active-query-client.ts, svelte-query.ts
+  widgets/    widget-points.struct.ts        ZonePoint, TextsPoint, ValuePoint, ZoneBinding, WidgetChange
+              define-points.ts               definePoints, point
+              widget-injection.struct.ts     WidgetInjection
+              widget-injection-registry.ts   WidgetInjectionRegistry, setWidgetInjectionRegistry
+              widget-zone.calculator.ts      resolveZone (pure)
+              widget-zone.actions.svelte.ts  widgetZone (the action)
+              WidgetInjectionHost.svelte     internal — mounts one injected component
+              load-injected-component.ts     one cached promise per RegisteredComponent
+              report-widget-injection-error.ts
+              install-widget-injections-for-test.ts  installWidgetInjectionsForTest
 ```
 
 ## `@Extension` — the only thing an extension must write
@@ -60,9 +71,68 @@ export class ScyllaCloudExtension {}
   them with `extensionOf`. Nothing registers itself as a side effect of an import.
 - It is a **standard** decorator (no `experimentalDecorators`). `vite.config.ts` sets
   `esbuild.target` so that the dev server lowers it, and the Lingui Babel pass parses it.
-- Everything else is **in the modules**. A feature module declares `domain` and `routes`, with
-  its sidebar links in `nav`. The module that builds the frame (scylla-base: `ShellModule`)
-  declares `mounts`, `navSections`, `access`, `shell`, `onQueryError`, `onQueryRetry` and `fallback`.
+- Everything else is **in the modules**, with one exception: `widgetInjections` (below) is a
+  field of `@Extension` itself, not of a module — it changes another extension's UI, which is
+  not what any one module owns. A feature module declares `domain` and `routes`, with its
+  sidebar links in `nav`. The module that builds the frame (scylla-base: `ShellModule`) declares
+  `mounts`, `navSections`, `access`, `shell`, `onQueryError`, `onQueryRetry` and `fallback`.
+
+## Widgets — letting one extension change another's UI
+
+Full design: `widgets_plan.md` at the repo root. This is the practical summary.
+
+A **widget** is a component that opens **points**: a **zone** (receives components), a **text
+scope** (messages that can be overridden) or a **value** (data that can be patched). The owner
+defines its points once, as a value — never a `declare module`:
+
+```typescript
+// a feature's presentation/<feature>.points.ts
+export const loginPoints = definePoints('login', {
+  footer: point.zone<{ isPending: boolean }>(),
+  texts: point.texts(loginMessages),
+  fields: point.value<readonly FormItem<'identifier' | 'password'>[]>(),
+});
+```
+
+`scope` is the module id — the loader uses it to find the point's owner. The feature's barrel
+exports `loginPoints`; the SDK re-exports it through the feature's barrel like everything else.
+The owner renders them:
+
+```svelte
+<div use:widgetZone={loginPoints.footer.with({ isPending: state.isPending })}></div>
+{t(loginPoints.texts.messages.title)}
+```
+```typescript
+const items = $derived(loginPoints.fields.resolve([/* … */]));
+```
+
+A **widget injection** is what another extension declares to change those points — components,
+texts, patches, grouped by intention, never by owner. It is listed on `@Extension`, **not** on a
+module:
+
+```typescript
+@Extension({
+  id: 'scylla-cloud',
+  modules: [CloudAuthModule],
+  widgetInjections: [EmailLoginWidgetInjection, SignUpLinkWidgetInjection],
+})
+export class ScyllaCloudExtension {}
+```
+```typescript
+export const SignUpLinkWidgetInjection = {
+  id: 'cloud-sign-up-link',
+  changes: [loginPoints.footer.inject({ component: () => import('./SignUpLink.svelte') })],
+} satisfies WidgetInjection;
+```
+
+- **Declare the owner extension in `dependencies`.** `loadExtensions` rejects a change to a
+  point whose owner is not a loaded dependency (or the contributor's own extension).
+- **One `replace` per zone, one override per message, across the whole app.** A second one
+  fails at start-up, naming both injections and their extensions.
+- **Testing your own injection** (in this repo or outside it): `installWidgetInjectionsForTest`
+  installs it with no owner/dependency check — render your component, read the overridden
+  texts, resolve the patched value. The stricter path (the one `loadExtensions` actually runs)
+  is `test/render.svelte.ts`'s `withWidgetInjections`, for this repo's own tests.
 
 ## `Register` — the type of a route's `permission`
 
@@ -109,6 +179,11 @@ called by `startCore`, once. Extensions only read: `navigateTo`, `routeParams`,
 | `No dependency registry set` | a test did not install a registry (`withRegistry`) |
 | `No module registered under id "x"` | the module is in no extension, or the id is misspelt |
 | `X has no @Extension decorator` | a class in `apps/web/src/extensions.ts` is not decorated |
+| `Two modules define points with the scope "x"` | two features called `definePoints` with the same module id |
+| `Two widget injections have the id "x"` | two injections (in this or another extension) share an id — prefix it with your extension's name |
+| `The injection "x" (ext) changes "y", but no loaded module has the id "…"` | the point name is wrong, or its owner module is not loaded |
+| `… add "owner" to the dependencies of ext` | an injection changes a point of an extension not listed in its own `dependencies` |
+| `Only one injection may replace the zone "x": …` / `Two injections override the text "x": …` | two injections conflict — thrown by `mergeWidgetInjections` (`@scylla/core`) at start-up and in tests |
 
 ## Before done
 
