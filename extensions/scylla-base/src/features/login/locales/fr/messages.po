@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:9
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:12
 msgid "••••••••"
 msgstr "••••••••"
 
@@ -21,11 +21,11 @@ msgstr "••••••••"
 msgid "Enter your username below to login to your account"
 msgstr "Entrez votre nom d'utilisateur ci-dessous pour vous connecter à votre compte"
 
-#: extensions/scylla-base/src/features/login/infrastructure/data/remote/grpc-login-remote.data-source.ts:14
+#: extensions/scylla-base/src/features/login/infrastructure/data/remote/grpc-login-remote.data-source.ts:15
 msgid "Incorrect username or password"
 msgstr "Nom d'utilisateur ou mot de passe incorrect"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:10
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:13
 msgid "Login"
 msgstr "Connexion"
 
@@ -33,14 +33,14 @@ msgstr "Connexion"
 msgid "Login to your account"
 msgstr "Connectez-vous à votre compte"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:8
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:11
 msgid "Password"
 msgstr "Mot de passe"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:7
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:10
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:6
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:9
 msgid "Username"
 msgstr "Nom d'utilisateur"

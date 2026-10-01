@@ -3,6 +3,7 @@ import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { AuthServiceClient } from '@base/generated/scylla/auth/v1/auth.client.ts';
 import type { ScyllaGrpcTransport } from '@platform/grpc';
 import { idValue } from '@shared/infrastructure/grpc/wrappers.ts';
+import { openSession } from '@base/features/login/infrastructure/session/open-session.ts';
 import { t } from '@lingui/core/macro';
 
 /**
@@ -26,9 +27,7 @@ export class GrpcLoginRemoteDataSource implements LoginRemoteDataSource {
     const result = await ScyllaResult.tryAsync<void>(async () => {
       const { response } = await this._authClient.login({ identifier, password });
 
-      // TODO: HTTP cookies instead.
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('userId', idValue(response.userId));
+      openSession(response.token, idValue(response.userId));
     }, 'Failed to login.');
 
     return result.mapError(error =>

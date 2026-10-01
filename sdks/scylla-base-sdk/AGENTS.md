@@ -22,3 +22,18 @@ feature barrels (query factories, entity types, page loaders).
 - A query factory exported here runs **outside the owner's route guard**, on the permission
   of the consumer. It must check `can(...)` itself (`jobsByPipelinesQueries` is the model).
 - A new feature of scylla-base is one more `export *` line here.
+
+## Widget points exported here
+
+Full mechanism: `widgets_plan.md` at the repo root. Every points object a feature exports (its
+`index.ts` export of a `definePoints(...)` result) reaches a contributor through this barrel —
+unchanged, since it is already covered by `export * from '@scylla/base/features/*'`. This table
+exists so a contributor finds every point without opening each feature's own `AGENTS.md`, and a
+test (`sdks/scylla-base-sdk/src/__test__/points-documented.test.ts`) checks nothing exported here
+is missing from it.
+
+| Points object | Scope | Points | Owning feature |
+|---|---|---|---|
+| `loginPoints` | `login` | `login.footer` (zone), `login.texts` (text scope), `login.fields` (value) | [`login`](../../extensions/scylla-base/src/features/login/AGENTS.md) |
+
+Add a row here in the same change that adds a `definePoints(...)` export to a feature's barrel.
