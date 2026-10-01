@@ -1,0 +1,84 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-10-01 02:33+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: fr\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:11
+msgid "••••••••"
+msgstr "••••••••"
+
+#: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:13
+msgid "Acme Inc."
+msgstr "Acme Inc."
+
+#: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:15
+msgid "Already have an account? Sign in"
+msgstr "Vous avez déjà un compte ? Se connecter"
+
+#: extensions/scylla-cloud/src/features/auth/infrastructure/data/remote/grpc-registration-remote.data-source.ts:17
+msgid "Check the fields."
+msgstr "Vérifiez les champs."
+
+#: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:4
+msgid "Create your account"
+msgstr "Créez votre compte"
+
+#: extensions/scylla-cloud/src/features/auth/widget-injections/sign-up-link/sign-up-link.messages.ts:4
+msgid "Don't have an account? Sign up"
+msgstr "Vous n'avez pas de compte ? S'inscrire"
+
+#: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:8
+#: extensions/scylla-cloud/src/features/auth/widget-injections/email-login/email-login.messages.ts:4
+msgid "Email"
+msgstr "Email"
+
+#: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:5
+msgid "Enter your details below to create your account"
+msgstr "Entrez vos informations ci-dessous pour créer votre compte"
+
+#: extensions/scylla-cloud/src/features/auth/widget-injections/email-login/email-login.messages.ts:6
+msgid "Enter your email below to login to your account"
+msgstr "Entrez votre email ci-dessous pour vous connecter à votre compte"
+
+#: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:12
+msgid "Organization name"
+msgstr "Nom de l'organisation"
+
+#: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:10
+msgid "Password"
+msgstr "Mot de passe"
+
+#: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:14
+msgid "Sign up"
+msgstr "S'inscrire"
+
+#: extensions/scylla-cloud/src/features/auth/infrastructure/data/remote/grpc-registration-remote.data-source.ts:19
+msgid "Sign-up is not available on this server."
+msgstr "L'inscription n'est pas disponible sur ce serveur."
+
+#: extensions/scylla-cloud/src/features/auth/infrastructure/data/remote/grpc-registration-remote.data-source.ts:15
+msgid "This username or email is already used."
+msgstr "Ce nom d'utilisateur ou cet email est déjà utilisé."
+
+#: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:7
+msgid "username"
+msgstr "nom d'utilisateur"
+
+#: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:6
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+#: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:9
+#: extensions/scylla-cloud/src/features/auth/widget-injections/email-login/email-login.messages.ts:5
+msgid "you@example.com"
+msgstr "vous@exemple.com"
