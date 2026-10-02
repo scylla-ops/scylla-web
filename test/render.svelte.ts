@@ -27,8 +27,10 @@ export const withRegistry = (registry: DomainRegistry): (() => void) => {
  * `packages/core/src/loader/__test__/merge-widget-injections.test.ts` and by the app-level test
  * that loads the real extensions together. Restore it after the test.
  */
-export const withWidgetInjections = (...injections: readonly WidgetInjection[]): (() => void) => {
-  installWidgetInjectionsForTest(...injections);
+export const withWidgetInjections = (
+  injections: Readonly<Record<string, WidgetInjection>>,
+): (() => void) => {
+  installWidgetInjectionsForTest(injections);
   return () => setWidgetInjectionRegistry(null);
 };
 

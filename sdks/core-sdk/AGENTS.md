@@ -25,7 +25,8 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 | Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect` |
 | DI | `getModuleDomain`, `setDependencyRegistry`, `DomainRegistry` |
 | Query | `createQuery`, `createMutation`, `createQueries`, `queryOptions`, `mutationOptions`, `getQueryClient`, `setQueryClient` |
-| Widgets | `definePoints`, `point`, `ZonePoint`, `TextsPoint`, `ValuePoint`, `ZoneBinding`, `ZoneComponentOptions`, `ZonePosition`, `WidgetChange`, `widgetZone`, `WidgetInjection`, `WidgetInjectionRegistry`, `RegisteredComponent`, `RegisteredPatch`, `setWidgetInjectionRegistry`, `resolveZone`, `installWidgetInjectionsForTest` |
+| Widgets | `point`, `WidgetPoint`, `ZonePoint`, `TextsPoint`, `ValuePoint`, `ZoneComponentOptions`, `ZonePosition`, `WidgetInjection`, `installWidgetInjectionsForTest` |
+| Widgets (core wiring) | `buildWidgetInjectionRegistry`, `setWidgetInjectionRegistry`, `WidgetInjectionRegistry` |
 
 ## Layout
 
@@ -41,12 +42,13 @@ src/
   navigation/ navigator.ts             the AppNavigator the core installs, and its readers
   di/         dependencies.registry.ts
   query/      active-query-client.ts, svelte-query.ts
-  widgets/    widget-points.struct.ts        ZonePoint, TextsPoint, ValuePoint, ZoneBinding, WidgetChange
-              define-points.ts               definePoints, point
+  widgets/    widget-points.struct.ts        WidgetPoint, ZonePoint, TextsPoint, ValuePoint, WidgetInjectionItem (internal)
+              point.ts                       point.zone / point.texts / point.value
               widget-injection.struct.ts     WidgetInjection
-              widget-injection-registry.ts   WidgetInjectionRegistry, setWidgetInjectionRegistry
-              widget-zone.calculator.ts      resolveZone (pure)
-              widget-zone.actions.svelte.ts  widgetZone (the action)
+              widget-injection-registry.ts   WidgetInjectionRegistry (keyed by point object), setWidgetInjectionRegistry
+              build-widget-injection-registry.ts  buildWidgetInjectionRegistry — load order + conflict checks, for the loader and the tests
+              widget-zone.calculator.ts      resolveZone (pure, internal)
+              widget-zone.actions.svelte.ts  mountZone — what a zone point does as an action
               WidgetInjectionHost.svelte     internal — mounts one injected component
               load-injected-component.ts     one cached promise per RegisteredComponent
               report-widget-injection-error.ts
@@ -83,54 +85,69 @@ Full design: `widgets_plan.md` at the repo root. This is the practical summary.
 
 A **widget** is a component that opens **points**: a **zone** (receives components), a **text
 scope** (messages that can be overridden) or a **value** (data that can be patched). The owner
-defines its points once, as a value — never a `declare module`:
+defines its points once, as values — never a `declare module` — and its module lists them:
 
 ```typescript
 // a feature's presentation/<feature>.points.ts
-export const loginPoints = definePoints('login', {
+export const loginPoints = {
   footer: point.zone<{ isPending: boolean }>(),
   texts: point.texts(loginMessages),
   fields: point.value<readonly FormItem<'identifier' | 'password'>[]>(),
-});
+};
+
+// login.module.ts — the module lists them: the loader names them `login.<key>`
+export const LoginModule = { id: 'login', domain, routes, points: loginPoints } satisfies ScyllaModule;
 ```
 
-`scope` is the module id — the loader uses it to find the point's owner. The feature's barrel
-exports `loginPoints`; the SDK re-exports it through the feature's barrel like everything else.
-The owner renders them:
+A point is identified by its object, never by a string: the registry is keyed by it, so two
+points cannot collide. `points` on the module is how the loader finds a point's owner (for the
+`dependencies` check) and names it `<module id>.<key>` in the errors. A point that no module
+lists cannot be changed: an injection on it fails at start-up. The feature's barrel exports
+`loginPoints`; the SDK re-exports it through the feature's barrel like everything else.
+The owner renders them with almost the code it writes with no points:
 
 ```svelte
-<div use:widgetZone={loginPoints.footer.with({ isPending: state.isPending })}></div>
-{t(loginPoints.texts.messages.title)}
+<div use:loginPoints.footer={{ isPending: state.isPending }}></div>  <!-- a zone point is an action -->
+{t(loginMessages.title)}                                             <!-- `t` applies the overrides -->
 ```
 ```typescript
 const items = $derived(loginPoints.fields.resolve([/* … */]));
 ```
 
+- **A texts point opens `msg` descriptors only.** `t()` finds an override by the descriptor
+  *object*, not by its id: the id is a hash of the source string, so another "Password" elsewhere
+  in the app is not changed. A message with a placeholder is a function and stays closed — open a
+  subset object if a messages file has some (`point.texts({ title: m.title })`).
+- **A zone point is a Svelte action.** `use:loginPoints.footer={context}`, nothing to import.
+
 A **widget injection** is what another extension declares to change those points — components,
-texts, patches, grouped by intention, never by owner. It is listed on `@Extension`, **not** on a
-module:
+texts, patches, grouped by intention, never by owner. It is an array of changes, listed on
+`@Extension` with the **shorthand property**, **not** on a module. The key is the constant's
+name, and the loader names the injection `<extension id>/<key>`: unique by construction, and
+safe from minification (an object key is a string in the bundle).
 
 ```typescript
 @Extension({
   id: 'scylla-cloud',
   modules: [CloudAuthModule],
-  widgetInjections: [EmailLoginWidgetInjection, SignUpLinkWidgetInjection],
+  widgetInjections: { EmailLoginWidgetInjection, SignUpLinkWidgetInjection },
 })
 export class ScyllaCloudExtension {}
 ```
 ```typescript
-export const SignUpLinkWidgetInjection = {
-  id: 'cloud-sign-up-link',
-  changes: [loginPoints.footer.inject({ component: () => import('./SignUpLink.svelte') })],
-} satisfies WidgetInjection;
+export const EmailLoginWidgetInjection = [
+  loginPoints.texts.override({ identifier: msg`Email` }),   // `msg` inline: an injection is a `.ts`
+  loginPoints.fields.patch(fields => /* … */ fields),
+];
 ```
 
 - **Declare the owner extension in `dependencies`.** `loadExtensions` rejects a change to a
   point whose owner is not a loaded dependency (or the contributor's own extension).
 - **One `replace` per zone, one override per message, across the whole app.** A second one
   fails at start-up, naming both injections and their extensions.
-- **Testing your own injection** (in this repo or outside it): `installWidgetInjectionsForTest`
-  installs it with no owner/dependency check — render your component, read the overridden
+- **Testing your own injection** (in this repo or outside it):
+  `installWidgetInjectionsForTest({ EmailLoginWidgetInjection })` installs it with
+  no owner/dependency check — render your component, read the overridden
   texts, resolve the patched value. The stricter path (the one `loadExtensions` actually runs)
   is `test/render.svelte.ts`'s `withWidgetInjections`, for this repo's own tests.
 
@@ -179,9 +196,8 @@ called by `startCore`, once. Extensions only read: `navigateTo`, `routeParams`,
 | `No dependency registry set` | a test did not install a registry (`withRegistry`) |
 | `No module registered under id "x"` | the module is in no extension, or the id is misspelt |
 | `X has no @Extension decorator` | a class in `apps/web/src/extensions.ts` is not decorated |
-| `Two modules define points with the scope "x"` | two features called `definePoints` with the same module id |
-| `Two widget injections have the id "x"` | two injections (in this or another extension) share an id — prefix it with your extension's name |
-| `The injection "x" (ext) changes "y", but no loaded module has the id "…"` | the point name is wrong, or its owner module is not loaded |
+| `The point "x" is also listed as "y"` | one point object is in the `points` of two modules (or twice in one) |
+| `The injection "ext/key" changes a point that no loaded module lists in its \`points\`` | the owner module forgot `points`, or it is not loaded |
 | `… add "owner" to the dependencies of ext` | an injection changes a point of an extension not listed in its own `dependencies` |
 | `Only one injection may replace the zone "x": …` / `Two injections override the text "x": …` | two injections conflict — thrown by `mergeWidgetInjections` (`@scylla/core`) at start-up and in tests |
 

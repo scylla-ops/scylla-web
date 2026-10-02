@@ -675,8 +675,10 @@ Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@t
    feature's `index.ts`.
 5. Changing another extension's UI (a text, a zone, a value it exposes) instead of adding your
    own page? That is a **widget injection**, not a module: a `*.widget-injection.ts`, listed in
-   `widgetInjections` on `@Extension`, never in `modules`. Full mechanism in `widgets_plan.md`
-   at the repo root. One injection per intention (what the user sees change), grouping
+   `widgetInjections` on `@Extension` with the shorthand property
+   (`{ EmailLoginWidgetInjection }`: an array of changes, named `<extension id>/<key>`, the key
+   being the constant's name), never in `modules`. Full mechanism in
+   `widgets_plan.md` at the repo root. One injection per intention (what the user sees change), grouping
    components, texts and patches that must exist or not exist together. It lives beside the
    feature it serves (`features/<feature>/widget-injections/`) when it serves one, else in a
    top-level `widget-injections/`. Declare the owner extension in `dependencies` — the loader

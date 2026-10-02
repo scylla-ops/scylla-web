@@ -1,11 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect, afterEach } from 'vitest';
-import { definePoints, point } from '../define-points.ts';
+import { t } from '@scylla/ui/i18n';
+import { point } from '../point.ts';
 import { installWidgetInjectionsForTest } from '../install-widget-injections-for-test.ts';
 import { componentsOf, setWidgetInjectionRegistry } from '../widget-injection-registry.ts';
-import type { WidgetInjection } from '../widget-injection.struct.ts';
 
-const uniqueScope = (name: string): string => `${name}-${Math.random().toString(36).slice(2)}`;
 const component = () => Promise.resolve({ default: {} as never });
 
 afterEach(() => {
@@ -13,48 +12,68 @@ afterEach(() => {
 });
 
 describe('installWidgetInjectionsForTest', () => {
-  it('installs a zone component so the point sees it, with no owner or conflict check', () => {
-    const scope = uniqueScope('zone');
-    const points = definePoints(scope, { form: point.zone() });
-    const injection: WidgetInjection = { id: 'fake', changes: [points.form.inject({ component })] };
+  it('installs zone components in the order of the injections, keyed by the injection name', () => {
+    const form = point.zone();
 
-    installWidgetInjectionsForTest(injection);
+    installWidgetInjectionsForTest({
+      First: [form.inject({ component })],
+      Second: [form.inject({ component })],
+    });
 
-    expect(points.form.hasReplacement(undefined)).toBe(false);
+    expect(componentsOf(form).map(c => c.key)).toEqual(['First#0', 'Second#0']);
   });
 
-  it('installs an overridden text', () => {
-    const scope = uniqueScope('texts');
-    const points = definePoints(scope, { texts: point.texts({ title: 'Login' }) });
-    const injection: WidgetInjection = { id: 'fake', changes: [points.texts.override({ title: 'Sign in' })] };
+  it('installs an overridden text, which `t` renders in place of the original', () => {
+    const messages = { title: { id: 'title', message: 'Login' } };
+    const texts = point.texts(messages);
 
-    installWidgetInjectionsForTest(injection);
+    installWidgetInjectionsForTest({
+      Fake: [texts.override({ title: { id: 'sign-in', message: 'Sign in' } })],
+    });
 
-    expect(points.texts.messages).toEqual({ title: 'Sign in' });
+    expect(t(messages.title)).toBe('Sign in');
+  });
+
+  it('overrides the opened descriptor only, not another message with the same id', () => {
+    const messages = { password: { id: 'password', message: 'Password' } };
+    const elsewhere = { id: 'password', message: 'Password' };
+    const texts = point.texts(messages);
+
+    installWidgetInjectionsForTest({
+      Fake: [texts.override({ password: { id: 'passphrase', message: 'Passphrase' } })],
+    });
+
+    expect(t(elsewhere)).toBe('Password');
+  });
+
+  it('stops overriding a text once the registry is removed', () => {
+    const messages = { title: { id: 'title', message: 'Login' } };
+    const texts = point.texts(messages);
+    installWidgetInjectionsForTest({
+      Fake: [texts.override({ title: { id: 'sign-in', message: 'Sign in' } })],
+    });
+
+    setWidgetInjectionRegistry(null);
+
+    expect(t(messages.title)).toBe('Login');
   });
 
   it('installs a value patch', () => {
-    const scope = uniqueScope('value');
-    const points = definePoints(scope, { fields: point.value<readonly string[]>() });
-    const injection: WidgetInjection = {
-      id: 'fake',
-      changes: [points.fields.patch(fields => [...fields, 'new'])],
-    };
+    const fields = point.value<readonly string[]>();
 
-    installWidgetInjectionsForTest(injection);
+    installWidgetInjectionsForTest({ Fake: [fields.patch(f => [...f, 'new'])] });
 
-    expect(points.fields.resolve(['a'])).toEqual(['a', 'new']);
+    expect(fields.resolve(['a'])).toEqual(['a', 'new']);
   });
 
-  it('sorts zone components by order across several injections', () => {
-    const scope = uniqueScope('order');
-    const points = definePoints(scope, { form: point.zone() });
-    const first: WidgetInjection = { id: 'first', changes: [points.form.inject({ order: 2, component })] };
-    const second: WidgetInjection = { id: 'second', changes: [points.form.inject({ order: 1, component })] };
+  it('runs the same conflict checks as the app', () => {
+    const form = point.zone();
 
-    installWidgetInjectionsForTest(first, second);
-
-    // The point's own API does not expose raw order: read the registry directly.
-    expect(componentsOf(points.form.name).map(c => c.key)).toEqual(['second#0', 'first#0']);
+    expect(() =>
+      installWidgetInjectionsForTest({
+        One: [form.inject({ position: 'replace', component })],
+        Two: [form.inject({ position: 'replace', component })],
+      }),
+    ).toThrow(/Only one injection may replace the zone/);
   });
 });

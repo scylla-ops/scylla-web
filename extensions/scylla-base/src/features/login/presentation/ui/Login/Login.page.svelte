@@ -4,10 +4,10 @@
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/shadcn';
   import { ScyllaLoadingScreen } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { widgetZone } from '@scylla/core-sdk';
   import { LoginState } from '@base/features/login';
   import { loginPoints } from '../../login.points.ts';
   import LoginForm from '../LoginForm/LoginForm.svelte';
+  import { loginMessages } from '../login.messages.ts';
 
   // Built during initialisation: its mutation needs an owner.
   const state = new LoginState();
@@ -23,8 +23,8 @@
 
     <Card class="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>{t(loginPoints.texts.messages.title)}</CardTitle>
-        <CardDescription>{t(loginPoints.texts.messages.description)}</CardDescription>
+        <CardTitle>{t(loginMessages.title)}</CardTitle>
+        <CardDescription>{t(loginMessages.description)}</CardDescription>
       </CardHeader>
       <CardContent>
         <LoginForm handleSubmit={state.submit} isPending={state.isPending} />
@@ -32,6 +32,6 @@
     </Card>
 
     <!-- No default content: a zone that only ever receives `after` components (e.g. a sign-up link). -->
-    <div use:widgetZone={loginPoints.footer.with({ isPending: state.isPending })}></div>
+    <div use:loginPoints.footer={{ isPending: state.isPending }}></div>
   </div>
 {/if}

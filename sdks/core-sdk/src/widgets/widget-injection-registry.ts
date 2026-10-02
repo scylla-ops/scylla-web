@@ -1,9 +1,11 @@
+import type { MessageDescriptor } from '@lingui/core';
+import { setMessageOverrides } from '@scylla/ui/i18n';
 import type { RoutePermission } from '../extension/register.struct.ts';
-import type { ZoneComponentOptions } from './widget-points.struct.ts';
+import type { WidgetPoint, ZoneComponentOptions } from './widget-points.struct.ts';
 
 /** One zone component, resolved and keyed. Internal: a point never exposes it. */
 export interface RegisteredComponent<C = unknown> extends ZoneComponentOptions<C> {
-  /** `<injectionId>#<index>`. Used by `widgetZone`'s Svelte keys and by the error messages. */
+  /** `<injectionId>#<index>`. Used by the zone action's keys and by the error messages. */
   readonly key: string;
 }
 
@@ -13,13 +15,16 @@ export interface RegisteredPatch<T = unknown> {
   readonly patch: (value: T) => T;
 }
 
+/** Keyed by the point object: two points never collide, whatever their names. */
 export interface WidgetInjectionRegistry {
-  /** Point name → its components, sorted by `order`, then by load order. */
-  readonly zones: Readonly<Record<string, readonly RegisteredComponent[]>>;
-  /** Text scope → overridden keys → their message (a descriptor, or a function). */
-  readonly texts: Readonly<Record<string, Readonly<Record<string, unknown>>>>;
-  /** Point name → its patches, in load order: a patch receives the result of the patch before it. */
-  readonly values: Readonly<Record<string, readonly RegisteredPatch[]>>;
+  /** Zone point → its components, in load order. */
+  readonly zones: ReadonlyMap<WidgetPoint, readonly RegisteredComponent[]>;
+  /** Original message descriptor → its override. `t()` reads it. */
+  readonly texts: ReadonlyMap<MessageDescriptor, MessageDescriptor>;
+  /** Value point → its patches, in load order: a patch receives the result of the patch before it. */
+  readonly values: ReadonlyMap<WidgetPoint, readonly RegisteredPatch[]>;
+  /** Point → `<module id>.<key>`, from `ScyllaModule.points`. For the errors and `data-widget-zone`. */
+  readonly names: ReadonlyMap<WidgetPoint, string>;
   /** The `can` of the access policy, for `permission`. */
   readonly can?: (permission: RoutePermission) => boolean;
 }
@@ -29,18 +34,19 @@ let registry: WidgetInjectionRegistry | null = null;
 /** The composition root installs it at start-up, next to `setDependencyRegistry`. */
 export const setWidgetInjectionRegistry = (next: WidgetInjectionRegistry | null): void => {
   registry = next;
+  setMessageOverrides(next?.texts ?? null);
 };
 
-/** Read by `ZonePoint` and `widgetZone` only. Returns `[]` with no registry installed. */
-export const componentsOf = (zone: string): readonly RegisteredComponent[] =>
-  registry?.zones[zone] ?? [];
-
-/** Read by `TextsPoint` only. Returns `{}` with no registry installed. */
-export const textOverridesOf = (scope: string): Readonly<Record<string, unknown>> =>
-  registry?.texts[scope] ?? {};
+/** Read by the zone action only. Returns `[]` with no registry installed. */
+export const componentsOf = (zone: WidgetPoint): readonly RegisteredComponent[] =>
+  registry?.zones.get(zone) ?? [];
 
 /** Read by `ValuePoint` only. Returns `[]` with no registry installed. */
-export const patchesOf = (value: string): readonly RegisteredPatch[] => registry?.values[value] ?? [];
+export const patchesOf = (value: WidgetPoint): readonly RegisteredPatch[] =>
+  registry?.values.get(value) ?? [];
+
+/** `<module id>.<key>`, or `undefined` for a point that no loaded module declares. */
+export const nameOf = (point: WidgetPoint): string | undefined => registry?.names.get(point);
 
 /** Read by `ZoneComponentOptions.permission` checks only. `undefined` with no registry installed. */
 export const canForWidgets = (): ((permission: RoutePermission) => boolean) | undefined => registry?.can;

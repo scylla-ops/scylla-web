@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import type { WidgetInjection } from '@scylla/core-sdk';
 import { render, withRegistry, withQueryClient, withWidgetInjections } from '@test/render.svelte.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
@@ -33,23 +32,23 @@ const setUp = () => {
 describe('Login.page with widget injections', () => {
   it('shows the overridden label and placeholder, and patches the field', async () => {
     setUp();
-    const injection: WidgetInjection = {
-      id: 'test-email-login',
-      changes: [
-        loginPoints.texts.override({
-          identifier: { id: 'cloud.email', message: 'Email' },
-          identifierPlaceholder: { id: 'cloud.email-placeholder', message: 'you@example.com' },
-        }),
-        loginPoints.fields.patch(fields =>
-          fields.map(field =>
-            field.id === 'identifier' && field.type === 'input'
-              ? { ...field, inputType: 'email' as const }
-              : field,
+    teardown.push(
+      withWidgetInjections({
+        'email-login': [
+          loginPoints.texts.override({
+            identifier: { id: 'cloud.email', message: 'Email' },
+            identifierPlaceholder: { id: 'cloud.email-placeholder', message: 'you@example.com' },
+          }),
+          loginPoints.fields.patch(fields =>
+            fields.map(field =>
+              field.id === 'identifier' && field.type === 'input'
+                ? { ...field, inputType: 'email' as const }
+                : field,
+            ),
           ),
-        ),
-      ],
-    };
-    teardown.push(withWidgetInjections(injection));
+        ],
+      }),
+    );
 
     render(LoginPage);
 
@@ -60,11 +59,13 @@ describe('Login.page with widget injections', () => {
 
   it('renders a component injected into the footer zone, below the card', async () => {
     setUp();
-    const injection: WidgetInjection = {
-      id: 'test-sign-up-link',
-      changes: [loginPoints.footer.inject({ component: () => import('./SignUpLinkProbe.fixture.svelte') })],
-    };
-    teardown.push(withWidgetInjections(injection));
+    teardown.push(
+      withWidgetInjections({
+        'sign-up-link': [
+          loginPoints.footer.inject({ component: () => import('./SignUpLinkProbe.fixture.svelte') }),
+        ],
+      }),
+    );
 
     render(LoginPage);
 

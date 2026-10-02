@@ -1,4 +1,4 @@
-import { definePoints, point } from '@scylla/core-sdk';
+import { point } from '@scylla/core-sdk';
 import type { FormItem } from '@scylla/ui';
 import { loginMessages } from './ui/login.messages.ts';
 
@@ -7,7 +7,8 @@ export interface LoginZoneContext {
   isPending: boolean;
 }
 
-export const loginPoints = definePoints('login', {
+/** Listed in `LoginModule.points`: the loader names them `login.<key>`. */
+export const loginPoints = {
   /**
    * Below the card. Receives components; there is no default content.
    * No `permission`: the user has none yet on this page (`widgets_plan.md` §14, question 3).
@@ -20,4 +21,4 @@ export const loginPoints = definePoints('login', {
    * Keep the ids: the submit reads `identifier` and `password`.
    */
   fields: point.value<readonly FormItem<'identifier' | 'password'>[]>(),
-});
+};

@@ -10,8 +10,8 @@ export interface ResolvedZone<C> {
 
 /**
  * Pure: which of `components` are active for `context` (their `when` and `permission` pass),
- * split by position. `components` is already sorted by `order`, then by load order — the split
- * below keeps that order within each group.
+ * split by position. `components` is in load order — the split below keeps that order within
+ * each group.
  */
 export const resolveZone = <C>(
   components: readonly RegisteredComponent<C>[],

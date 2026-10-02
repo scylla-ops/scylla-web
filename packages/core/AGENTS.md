@@ -75,17 +75,20 @@ Load order: an extension comes after its `dependencies`, else in list order. Reg
 order decides sidebar and route order within a section (after `NavLink.order`).
 
 **`mergeWidgetInjections` does the same job for `widgetInjections`**, called from inside
-`loadExtensions` after the module ids are known (it needs them, to find each point's owner). It
-**throws** on: two injections with the same id; a change whose point names a scope no loaded
-module has; a change on an extension's point that the contributor does not list in
-`dependencies` (a change on the contributor's own point needs none); two injections that
-`replace` the same zone; two that override the same text key. Every message names the
-injections and their extensions, e.g. `cloud-sign-up-link (scylla-cloud)`. It is exported from
-`@scylla/core`'s barrel so `packages/core/src/loader/__test__/merge-widget-injections.test.ts`
-can reach it through the package's public API, like everything else `test/` and `apps/web`
-import from here. **`test/render.svelte.ts`'s `withWidgetInjections` does not call it** — it
-wraps `installWidgetInjectionsForTest` (`@scylla/core-sdk`) instead, with no owner/dependency
-check; see `widgets_plan.md` §4.2 for why.
+`loadExtensions`. It reads the `points` of every module: a point's owner is the module that
+lists it, and its name is `<module id>.<key>`. It names each injection `<extension id>/<key>`
+(unique by construction) and **throws** on: a point that two modules list; a change on a point
+that no loaded module lists; a change on an extension's point that the contributor does not
+list in `dependencies` (a change on the contributor's own point needs none). Then it calls
+`buildWidgetInjectionRegistry` (`@scylla/core-sdk`), which keeps the order and **throws** on two
+injections that `replace` the same zone, or two that override the same message (found by its
+descriptor). Every message names the injections, e.g. `scylla-cloud/SignUpLinkWidgetInjection`.
+The text overrides go to `t()` through `setWidgetInjectionRegistry`, which installs them with
+`setMessageOverrides` (`@scylla/ui/i18n`). It is exported from `@scylla/core`'s barrel so
+`packages/core/src/loader/__test__/merge-widget-injections.test.ts` can reach it through the
+package's public API. **`test/render.svelte.ts`'s `withWidgetInjections` does not call it** — it
+wraps `installWidgetInjectionsForTest` (`@scylla/core-sdk`): the same registry builder and
+conflict checks, with no owner/dependency check; see `widgets_plan.md` §4.2 for why.
 
 ## The compilation
 
