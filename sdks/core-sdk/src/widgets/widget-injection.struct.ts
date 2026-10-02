@@ -1,8 +1,8 @@
-import type { WidgetChange } from './widget-points.struct.ts';
+import type { WidgetInjectionItem } from './widget-points.struct.ts';
 
-/** Declared in `<intention>.widget-injection.ts`, listed in `@Extension({ widgetInjections })`. */
-export interface WidgetInjection {
-  /** Unique across all extensions. It names the injection in the errors. */
-  readonly id: string;
-  readonly changes: readonly WidgetChange[];
-}
+/**
+ * The items of one intention, in `<intention>.widget-injection.ts`. Listed with the shorthand
+ * property — `@Extension({ widgetInjections: { EmailLoginWidgetInjection } })` — so the key is
+ * the constant's name: the loader names it `<extension id>/<key>` in the errors.
+ */
+export type WidgetInjection = readonly WidgetInjectionItem[];

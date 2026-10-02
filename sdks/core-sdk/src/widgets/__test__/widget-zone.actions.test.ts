@@ -1,17 +1,14 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
-import { definePoints, point } from '../define-points.ts';
+import { point } from '../point.ts';
 import { installWidgetInjectionsForTest } from '../install-widget-injections-for-test.ts';
 import { setWidgetInjectionRegistry } from '../widget-injection-registry.ts';
-import type { WidgetInjection } from '../widget-injection.struct.ts';
 import WidgetZone from './WidgetZone.fixture.svelte';
 import { counts, resetCounts } from './counting-injected.counts.ts';
 
 interface Ctx {
   show: boolean;
 }
-
-const uniqueScope = (name: string): string => `${name}-${Math.random().toString(36).slice(2)}`;
 
 beforeEach(() => {
   resetCounts();
@@ -21,20 +18,17 @@ afterEach(() => {
   setWidgetInjectionRegistry(null);
 });
 
-describe('widgetZone', () => {
+describe('a zone point used as an action', () => {
   it('mounts a "before" component before the default content, and an "after" one after it', async () => {
-    const scope = uniqueScope('positions');
-    const points = definePoints(scope, { zone: point.zone<Ctx>() });
-    const injection: WidgetInjection = {
-      id: 'positions',
-      changes: [
+    const points = { zone: point.zone<Ctx>() };
+    installWidgetInjectionsForTest({
+      'positions': [
         points.zone.inject({ position: 'before', component: () => import('./InjectedA.fixture.svelte') }),
         points.zone.inject({ position: 'after', component: () => import('./InjectedB.fixture.svelte') }),
       ],
-    };
-    installWidgetInjectionsForTest(injection);
+    });
 
-    render(WidgetZone, { props: { binding: points.zone.with({ show: true }) } });
+    render(WidgetZone, { props: { point: points.zone, context: { show: true } } });
 
     const before = await screen.findByTestId('injected-a');
     const after = await screen.findByTestId('injected-b');
@@ -46,78 +40,66 @@ describe('widgetZone', () => {
   });
 
   it('marks the zone as replaced as soon as a "replace" component is active, before its import resolves', () => {
-    const scope = uniqueScope('replace');
-    const points = definePoints(scope, { zone: point.zone<Ctx>() });
-    const injection: WidgetInjection = {
-      id: 'replace',
-      changes: [
+    const points = { zone: point.zone<Ctx>() };
+    installWidgetInjectionsForTest({
+      'replace': [
         points.zone.inject({
           position: 'replace',
           component: () => new Promise(() => {}), // never resolves in this test
         }),
       ],
-    };
-    installWidgetInjectionsForTest(injection);
+    });
 
-    render(WidgetZone, { props: { binding: points.zone.with({ show: true }) } });
+    render(WidgetZone, { props: { point: points.zone, context: { show: true } } });
 
     expect(screen.getByTestId('zone')).toHaveAttribute('data-widget-replaced');
   });
 
   it("updates an already-mounted component's context without remounting it", async () => {
-    const scope = uniqueScope('update');
-    const points = definePoints(scope, { zone: point.zone<Ctx>() });
-    const injection: WidgetInjection = {
-      id: 'counting',
-      changes: [points.zone.inject({ component: () => import('./CountingInjected.fixture.svelte') })],
-    };
-    installWidgetInjectionsForTest(injection);
+    const points = { zone: point.zone<Ctx>() };
+    installWidgetInjectionsForTest({
+      'counting': [points.zone.inject({ component: () => import('./CountingInjected.fixture.svelte') })],
+    });
 
-    const { rerender } = render(WidgetZone, { props: { binding: points.zone.with({ show: true }) } });
+    const { rerender } = render(WidgetZone, { props: { point: points.zone, context: { show: true } } });
     await screen.findByTestId('counting');
     expect(counts.mounts).toBe(1);
 
-    await rerender({ binding: points.zone.with({ show: true }) });
+    await rerender({ point: points.zone, context: { show: true } });
 
     expect(counts.mounts).toBe(1);
     expect(counts.cleanups).toBe(0);
   });
 
   it('mounts and unmounts a component as its `when` crosses the context', async () => {
-    const scope = uniqueScope('when');
-    const points = definePoints(scope, { zone: point.zone<Ctx>() });
-    const injection: WidgetInjection = {
-      id: 'conditional',
-      changes: [
+    const points = { zone: point.zone<Ctx>() };
+    installWidgetInjectionsForTest({
+      'conditional': [
         points.zone.inject({
           when: (ctx: Ctx) => ctx.show,
           component: () => import('./InjectedA.fixture.svelte'),
         }),
       ],
-    };
-    installWidgetInjectionsForTest(injection);
+    });
 
-    const { rerender } = render(WidgetZone, { props: { binding: points.zone.with({ show: false }) } });
+    const { rerender } = render(WidgetZone, { props: { point: points.zone, context: { show: false } } });
     await waitFor(() => expect(screen.queryByTestId('injected-a')).not.toBeInTheDocument());
 
-    await rerender({ binding: points.zone.with({ show: true }) });
+    await rerender({ point: points.zone, context: { show: true } });
     await screen.findByTestId('injected-a');
 
-    await rerender({ binding: points.zone.with({ show: false }) });
+    await rerender({ point: points.zone, context: { show: false } });
     await waitFor(() => expect(screen.queryByTestId('injected-a')).not.toBeInTheDocument());
   });
 
   it('logs and renders nothing for a component whose import rejects', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const scope = uniqueScope('import-fails');
-    const points = definePoints(scope, { zone: point.zone<Ctx>() });
-    const injection: WidgetInjection = {
-      id: 'broken-import',
-      changes: [points.zone.inject({ component: () => Promise.reject(new Error('boom')) })],
-    };
-    installWidgetInjectionsForTest(injection);
+    const points = { zone: point.zone<Ctx>() };
+    installWidgetInjectionsForTest({
+      'broken-import': [points.zone.inject({ component: () => Promise.reject(new Error('boom')) })],
+    });
 
-    render(WidgetZone, { props: { binding: points.zone.with({ show: true }) } });
+    render(WidgetZone, { props: { point: points.zone, context: { show: true } } });
 
     await waitFor(() =>
       expect(spy).toHaveBeenCalledWith('[widget-injections] broken-import#0 failed:', expect.any(Error)),
@@ -128,15 +110,12 @@ describe('widgetZone', () => {
 
   it('logs and renders nothing for a component that throws while rendering', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const scope = uniqueScope('render-fails');
-    const points = definePoints(scope, { zone: point.zone<Ctx>() });
-    const injection: WidgetInjection = {
-      id: 'broken-render',
-      changes: [points.zone.inject({ component: () => import('./ThrowingInjected.fixture.svelte') })],
-    };
-    installWidgetInjectionsForTest(injection);
+    const points = { zone: point.zone<Ctx>() };
+    installWidgetInjectionsForTest({
+      'broken-render': [points.zone.inject({ component: () => import('./ThrowingInjected.fixture.svelte') })],
+    });
 
-    render(WidgetZone, { props: { binding: points.zone.with({ show: true }) } });
+    render(WidgetZone, { props: { point: points.zone, context: { show: true } } });
 
     await waitFor(() =>
       expect(spy).toHaveBeenCalledWith('[widget-injections] broken-render#0 failed:', expect.any(Error)),
@@ -146,15 +125,12 @@ describe('widgetZone', () => {
   });
 
   it('leaves no host element and runs every mounted component\'s own cleanup on destroy', async () => {
-    const scope = uniqueScope('destroy');
-    const points = definePoints(scope, { zone: point.zone<Ctx>() });
-    const injection: WidgetInjection = {
-      id: 'counting',
-      changes: [points.zone.inject({ component: () => import('./CountingInjected.fixture.svelte') })],
-    };
-    installWidgetInjectionsForTest(injection);
+    const points = { zone: point.zone<Ctx>() };
+    installWidgetInjectionsForTest({
+      'counting': [points.zone.inject({ component: () => import('./CountingInjected.fixture.svelte') })],
+    });
 
-    const { unmount } = render(WidgetZone, { props: { binding: points.zone.with({ show: true }) } });
+    const { unmount } = render(WidgetZone, { props: { point: points.zone, context: { show: true } } });
     const zone = screen.getByTestId('zone');
     await screen.findByTestId('counting');
     expect(counts.mounts).toBe(1);
@@ -168,10 +144,9 @@ describe('widgetZone', () => {
   });
 
   it('sets no host element for a zone that no injection changes', () => {
-    const scope = uniqueScope('empty');
-    const points = definePoints(scope, { zone: point.zone<Ctx>() });
+    const points = { zone: point.zone<Ctx>() };
 
-    render(WidgetZone, { props: { binding: points.zone.with({ show: true }) } });
+    render(WidgetZone, { props: { point: points.zone, context: { show: true } } });
 
     const zone = screen.getByTestId('zone');
     expect(zone.querySelector('[data-widget-host]')).toBeNull();

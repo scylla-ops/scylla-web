@@ -29,9 +29,9 @@ describe('resolveZone', () => {
     expect(resolved.replace).toBeUndefined();
   });
 
-  it('keeps the given order within a group (the caller already sorted it)', () => {
-    const first = part({ key: 'first', order: 1 });
-    const second = part({ key: 'second', order: 2 });
+  it('keeps the given order within a group', () => {
+    const first = part({ key: 'first' });
+    const second = part({ key: 'second' });
 
     const resolved = resolveZone([first, second], undefined);
 
@@ -72,7 +72,13 @@ describe('resolveZone', () => {
   });
 
   it('allows a component with a `permission` when `can` grants it', () => {
-    setWidgetInjectionRegistry({ zones: {}, texts: {}, values: {}, can: () => true });
+    setWidgetInjectionRegistry({
+      zones: new Map(),
+      texts: new Map(),
+      values: new Map(),
+      names: new Map(),
+      can: () => true,
+    });
     const gated = part({ key: 'gated', permission: 'some-permission' as never });
 
     const resolved = resolveZone([gated], undefined);

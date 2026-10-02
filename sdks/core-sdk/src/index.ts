@@ -65,20 +65,16 @@ export {
 export type {
   TextsPoint,
   ValuePoint,
-  WidgetChange,
-  ZoneBinding,
+  WidgetPoint,
   ZoneComponentOptions,
   ZonePoint,
   ZonePosition,
 } from './widgets/widget-points.struct.ts';
-export { definePoints, point, type PointOf } from './widgets/define-points.ts';
+export { point } from './widgets/point.ts';
 export type { WidgetInjection } from './widgets/widget-injection.struct.ts';
 export {
   setWidgetInjectionRegistry,
-  type RegisteredComponent,
-  type RegisteredPatch,
   type WidgetInjectionRegistry,
 } from './widgets/widget-injection-registry.ts';
-export { resolveZone, type ResolvedZone } from './widgets/widget-zone.calculator.ts';
-export { widgetZone } from './widgets/widget-zone.actions.svelte.ts';
+export { buildWidgetInjectionRegistry } from './widgets/build-widget-injection-registry.ts';
 export { installWidgetInjectionsForTest } from './widgets/install-widget-injections-for-test.ts';

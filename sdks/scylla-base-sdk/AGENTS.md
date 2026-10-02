@@ -25,15 +25,16 @@ feature barrels (query factories, entity types, page loaders).
 
 ## Widget points exported here
 
-Full mechanism: `widgets_plan.md` at the repo root. Every points object a feature exports (its
-`index.ts` export of a `definePoints(...)` result) reaches a contributor through this barrel —
-unchanged, since it is already covered by `export * from '@scylla/base/features/*'`. This table
-exists so a contributor finds every point without opening each feature's own `AGENTS.md`, and a
-test (`sdks/scylla-base-sdk/src/__test__/points-documented.test.ts`) checks nothing exported here
-is missing from it.
+Full mechanism: `widgets_plan.md` at the repo root. Every points object a feature exports from
+its `index.ts` reaches a contributor through this barrel, with no extra line: it is covered by
+`export * from '@scylla/base/features/*'`. A point is named `<module id>.<key>` by the loader,
+from the `points` of its module. This table exists so a contributor finds every point without
+opening each feature's own `AGENTS.md`, and a test
+(`extensions/scylla-base/src/shell/__test__/points-documented.test.ts`) checks that every point a
+module lists is in it.
 
-| Points object | Scope | Points | Owning feature |
+| Points object | Listed by | Points | Owning feature |
 |---|---|---|---|
-| `loginPoints` | `login` | `login.footer` (zone), `login.texts` (text scope), `login.fields` (value) | [`login`](../../extensions/scylla-base/src/features/login/AGENTS.md) |
+| `loginPoints` | `LoginModule` | `login.footer` (zone), `login.texts` (text scope), `login.fields` (value) | [`login`](../../extensions/scylla-base/src/features/login/AGENTS.md) |
 
-Add a row here in the same change that adds a `definePoints(...)` export to a feature's barrel.
+Add a row here in the same change that adds `points` to a feature's module.

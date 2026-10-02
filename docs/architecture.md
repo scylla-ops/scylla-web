@@ -195,37 +195,39 @@ barrel:
 
 ```typescript
 // a feature's presentation/<feature>.points.ts
-export const loginPoints = definePoints('login', {
+export const loginPoints = {
   footer: point.zone<{ isPending: boolean }>(),
   texts: point.texts(loginMessages),
   fields: point.value<readonly FormItem<'identifier' | 'password'>[]>(),
-});
+};
+
+// login.module.ts
+export const LoginModule = { id: 'login', domain, routes, points: loginPoints } satisfies ScyllaModule;
 ```
 
-`scope` (`'login'`) is the owning module's id — it is how the loader finds a point's owner.
+A point is identified by its object. The module's `points` is how the loader finds a point's
+owner, and names it `<module id>.<key>` (`login.footer`) in the errors.
 There is deliberately no `declare module` augmentation here: a point is a value, reached by an
 ordinary import through the owner's SDK, so the dependency is real and `dependency-cruiser`
 sees it, and it works the same inside this monorepo or in a community extension's own
 repository (`widgets_plan.md` §13 has the full comparison against the augmentation it replaced).
 
-Another extension changes those points with a **widget injection** — one object per *intention*
-(a change the user sees), never per owner, grouping the components, texts and patches that must
-exist together:
+Another extension changes those points with a **widget injection** — an array of changes per
+*intention* (a change the user sees), never per owner, grouping the components, texts and patches
+that must exist together. It is listed with the shorthand property, so the key is the
+constant's name; the loader names it `<extension id>/<key>`:
 
 ```typescript
-export const EmailLoginWidgetInjection = {
-  id: 'cloud-email-login',
-  changes: [
-    loginPoints.texts.override({ identifier: msg`Email`, /* … */ }),
-    loginPoints.fields.patch(fields => /* turn the identifier field into an email input */),
-  ],
-} satisfies WidgetInjection;
+export const EmailLoginWidgetInjection = [
+  loginPoints.texts.override({ identifier: msg`Email`, /* … */ }),
+  loginPoints.fields.patch(fields => /* turn the identifier field into an email input */),
+];
 
 @Extension({
   id: 'scylla-cloud',
   dependencies: ['scylla-base'],
   modules: [CloudAuthModule],
-  widgetInjections: [EmailLoginWidgetInjection, SignUpLinkWidgetInjection],
+  widgetInjections: { EmailLoginWidgetInjection, SignUpLinkWidgetInjection },
 })
 export class ScyllaCloudExtension {}
 ```
@@ -236,9 +238,11 @@ alongside `loadExtensions`) rejects, at start-up and in tests: a change to a poi
 not a loaded module; a change to another extension's point when that extension is not listed in
 `dependencies`; two injections that `replace` the same zone; two that override the same text.
 
-The owner renders a zone with one Svelte action, `use:widgetZone`, which owns the whole mount,
-update and cleanup lifecycle of whatever is injected into it — the owner writes no lifecycle
-code of its own. `scylla-cloud`'s sign-up link into `scylla-base`'s login page
+The owner writes almost the code it writes with no points. A zone point is itself a Svelte
+action — `<div use:loginPoints.footer={{ isPending }}>` — which owns the whole mount, update and
+cleanup lifecycle of whatever is injected into it. Texts keep `t(loginMessages.title)`: `t` finds
+an override by the descriptor object (never by its id, which two modules with the same source
+string share). Only a value point shows in the owner's code, as `resolve(value)`. `scylla-cloud`'s sign-up link into `scylla-base`'s login page
 (`extensions/scylla-cloud/src/features/auth/widget-injections/`) is the reference example this
 mechanism was built against.
 

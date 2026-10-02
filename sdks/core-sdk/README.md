@@ -108,25 +108,44 @@ part of its public API:
 
 ```typescript
 // a feature's presentation/<feature>.points.ts
-export const loginPoints = definePoints('login', {
+export const loginPoints = {
   footer: point.zone<{ isPending: boolean }>(),
   texts: point.texts(loginMessages),
-});
+};
+
+// login.module.ts — listing them is what names them (`login.footer`) and finds their owner
+export const LoginModule = { id: 'login', domain, routes, points: loginPoints } satisfies ScyllaModule;
 ```
 
-Another extension changes them with a **widget injection** — one object per intention, listed on
-`@Extension` next to `modules`, never on a module (it changes someone else's UI, which belongs
-to no module of its own):
+A point is identified by its object, not by a string: no name to keep in sync with the module
+id, and no collision between two points.
+
+The owner writes almost the same code as with no points: `t(loginMessages.title)` does not
+change (`t` applies the overrides), and a zone point is itself the Svelte action that opens the
+zone — `<div use:loginPoints.footer={{ isPending }}>`. With no extension loaded, the only new file
+is `<feature>.points.ts`.
+
+Another extension changes them with a **widget injection** — an array of changes per intention,
+listed on `@Extension` next to `modules` with the shorthand property, never on a module (it
+changes someone else's UI, which belongs to no module of its own). The key — the constant's name
+— names the injection in the errors:
 
 ```typescript
-export const SignUpLinkWidgetInjection = {
-  id: 'cloud-sign-up-link',
-  changes: [loginPoints.footer.inject({ component: () => import('./SignUpLink.svelte') })],
-} satisfies WidgetInjection;
+export const SignUpLinkWidgetInjection = [
+  loginPoints.footer.inject({ component: () => import('./SignUpLink.svelte') }),
+];
 
-@Extension({ id: 'scylla-cloud', dependencies: ['scylla-base'], widgetInjections: [SignUpLinkWidgetInjection], modules: [] })
+@Extension({
+  id: 'scylla-cloud',
+  dependencies: ['scylla-base'],
+  widgetInjections: { SignUpLinkWidgetInjection },
+  modules: [],
+})
 export class ScyllaCloudExtension {}
 ```
+
+Injections are data, not classes: an array composes, is shared, and is tested in one line, and
+the types of a patch's parameters are inferred from the point.
 
 The loader rejects a change that targets an unlisted dependency, two injections that replace the
 same zone, or two that override the same text — by name, at start-up and in tests, never
@@ -208,7 +227,7 @@ comparison.
 | Navigation | `navigateTo`, `navigateBack`, `routeParams`, `routeTrail`, `currentPathname`, `Redirect` |
 | DI | `getModuleDomain` |
 | Query | `createQuery`, `createMutation`, `createQueries`, `queryOptions`, `mutationOptions`, `getQueryClient` |
-| Widgets | `definePoints`, `point`, `ZonePoint`, `TextsPoint`, `ValuePoint`, `widgetZone`, `WidgetInjection`, `installWidgetInjectionsForTest` |
+| Widgets | `point`, `ZonePoint`, `TextsPoint`, `ValuePoint`, `WidgetInjection`, `installWidgetInjectionsForTest` |
 
 The `set*` functions (`setAppNavigator`, `setDependencyRegistry`, `setQueryClient`) are for the
 core and for tests. The [agent guide](./AGENTS.md) has the complete list.
