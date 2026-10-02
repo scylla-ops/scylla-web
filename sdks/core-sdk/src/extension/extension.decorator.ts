@@ -12,8 +12,12 @@ export interface ExtensionManifest {
   readonly dependencies?: readonly string[];
   /** Everything the extension adds: pages, sidebar links, mounts, shell parts. */
   readonly modules: readonly ScyllaModule[];
-  /** What this extension changes in the widgets of other extensions (or its own). */
-  readonly widgetInjections?: readonly WidgetInjection[];
+  /**
+   * What this extension changes in the widgets of other extensions (or its own), one key per
+   * intention, with the shorthand property (`{ EmailLoginWidgetInjection }`). The key names the
+   * injection: `<extension id>/<key>`.
+   */
+  readonly widgetInjections?: Readonly<Record<string, WidgetInjection>>;
   /** `import.meta.glob('./**\/locales/*\/messages.ts')`. */
   readonly catalogs?: CatalogLoaders;
 }

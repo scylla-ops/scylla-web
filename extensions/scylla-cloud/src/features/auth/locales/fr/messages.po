@@ -38,7 +38,7 @@ msgid "Don't have an account? Sign up"
 msgstr "Vous n'avez pas de compte ? S'inscrire"
 
 #: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:8
-#: extensions/scylla-cloud/src/features/auth/widget-injections/email-login/email-login.messages.ts:4
+#: extensions/scylla-cloud/src/features/auth/widget-injections/email-login/email-login.widget-injection.ts:8
 msgid "Email"
 msgstr "Email"
 
@@ -46,7 +46,7 @@ msgstr "Email"
 msgid "Enter your details below to create your account"
 msgstr "Entrez vos informations ci-dessous pour créer votre compte"
 
-#: extensions/scylla-cloud/src/features/auth/widget-injections/email-login/email-login.messages.ts:6
+#: extensions/scylla-cloud/src/features/auth/widget-injections/email-login/email-login.widget-injection.ts:10
 msgid "Enter your email below to login to your account"
 msgstr "Entrez votre email ci-dessous pour vous connecter à votre compte"
 
@@ -79,6 +79,6 @@ msgid "Username"
 msgstr "Nom d'utilisateur"
 
 #: extensions/scylla-cloud/src/features/auth/presentation/ui/register.messages.ts:9
-#: extensions/scylla-cloud/src/features/auth/widget-injections/email-login/email-login.messages.ts:5
+#: extensions/scylla-cloud/src/features/auth/widget-injections/email-login/email-login.widget-injection.ts:9
 msgid "you@example.com"
 msgstr "vous@exemple.com"

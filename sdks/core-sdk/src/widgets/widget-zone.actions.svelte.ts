@@ -1,9 +1,9 @@
 import { mount, unmount } from 'svelte';
-import type { Action } from 'svelte/action';
+import type { ActionReturn } from 'svelte/action';
 import WidgetInjectionHost from './WidgetInjectionHost.svelte';
-import { componentsOf, type RegisteredComponent } from './widget-injection-registry.ts';
+import { componentsOf, nameOf, type RegisteredComponent } from './widget-injection-registry.ts';
+import type { WidgetPoint } from './widget-points.struct.ts';
 import { resolveZone } from './widget-zone.calculator.ts';
-import type { ZoneBinding } from './widget-points.struct.ts';
 
 interface MountedComponent {
   readonly instance: object;
@@ -19,13 +19,17 @@ const createContainer = (): HTMLElement => {
 };
 
 /**
- * Opens a zone on the element it is put on: mounts the components of `binding.zone` that apply
- * to `binding.context`, before and after the element's own children, and keeps them in sync as
- * the context changes. See `widgets_plan.md` §8.2 for the design.
+ * What a zone point does as a Svelte action: on the element it is put on, it mounts the
+ * components of `zone` that apply to the context, before and after the element's own children,
+ * and keeps them in sync as the context changes. See `widgets_plan.md` §8.2 for the design.
  */
-export const widgetZone: Action<HTMLElement, ZoneBinding> = (node, binding) => {
-  const parts = componentsOf(binding.zone);
-  node.dataset.widgetZone = binding.zone;
+export const mountZone = (
+  node: HTMLElement,
+  zone: WidgetPoint,
+  context: unknown,
+): ActionReturn<unknown> => {
+  const parts = componentsOf(zone);
+  node.dataset.widgetZone = nameOf(zone) ?? '';
 
   if (parts.length === 0) {
     // No contributor: no host, no cost.
@@ -38,7 +42,7 @@ export const widgetZone: Action<HTMLElement, ZoneBinding> = (node, binding) => {
 
   // One reactive object shared by every mounted component: writing `props.context` re-renders
   // all of them, with no remount.
-  const props = $state({ context: binding.context });
+  const props = $state({ context });
 
   const before = createContainer();
   const replaced = createContainer();
@@ -99,10 +103,7 @@ export const widgetZone: Action<HTMLElement, ZoneBinding> = (node, binding) => {
 
   return {
     update(next) {
-      if (next.zone !== binding.zone) {
-        throw new Error('A widget zone cannot change its point. Wrap it in {#key} to remount it.');
-      }
-      props.context = next.context;
+      props.context = next;
     },
     destroy() {
       for (const entry of mounted.values()) void unmount(entry.instance);

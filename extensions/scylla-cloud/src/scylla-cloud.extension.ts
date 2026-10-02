@@ -10,10 +10,7 @@ import { SignUpLinkWidgetInjection } from './features/auth/widget-injections/sig
   version: '0.1.0',
   dependencies: ['scylla-base'],
   modules: [CloudAuthModule],
-  widgetInjections: [
-    EmailLoginWidgetInjection, // texts + patch: sign in with an email
-    SignUpLinkWidgetInjection, // a link in `login.footer`
-  ],
+  widgetInjections: { EmailLoginWidgetInjection, SignUpLinkWidgetInjection },
   catalogs: import.meta.glob<CatalogModule>('./**/locales/*/messages.ts'),
 })
 export class ScyllaCloudExtension {}

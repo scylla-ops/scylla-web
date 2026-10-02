@@ -39,7 +39,7 @@ registry — and this extension changes them with two **widget injections**, dec
   id: 'scylla-cloud',
   dependencies: ['scylla-base'],
   modules: [CloudAuthModule],
-  widgetInjections: [EmailLoginWidgetInjection, SignUpLinkWidgetInjection],
+  widgetInjections: { EmailLoginWidgetInjection, SignUpLinkWidgetInjection },
 })
 export class ScyllaCloudExtension {}
 ```

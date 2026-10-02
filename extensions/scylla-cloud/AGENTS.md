@@ -38,7 +38,7 @@ multi-subpath `exports`.
   version: '0.1.0',
   dependencies: ['scylla-base'],
   modules: [CloudAuthModule],
-  widgetInjections: [EmailLoginWidgetInjection, SignUpLinkWidgetInjection],
+  widgetInjections: { EmailLoginWidgetInjection, SignUpLinkWidgetInjection },
   catalogs: import.meta.glob<CatalogModule>('./**/locales/*/messages.ts'),
 })
 export class ScyllaCloudExtension {}
@@ -46,7 +46,9 @@ export class ScyllaCloudExtension {}
 
 - **Modules** add pages and data (`CloudAuthModule`: the `/register` route, `registrationRepository`).
 - **`widgetInjections`** change `scylla-base`'s widgets — components, texts, patches, grouped by
-  intention. They are a field of `@Extension`, never of a module: full mechanism and vocabulary
+  intention. Each is an array of changes, listed with the shorthand property: the loader names
+  it `scylla-cloud/<constant name>` in its errors. They are a field of `@Extension`, never of a
+  module: full mechanism and vocabulary
   in `widgets_plan.md` at the repo root.
 - `dependencies: ['scylla-base']` is load-bearing, not decorative: the loader rejects any
   `widgetInjections` entry that changes a `scylla-base` point unless this is declared

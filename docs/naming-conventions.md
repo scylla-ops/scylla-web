@@ -299,14 +299,15 @@ export const loadJobsPage = () => import('./presentation/ui/Jobs.page.svelte');
 Full mechanism: `widgets_plan.md` at the repo root.
 
 A feature's points are `{feature}Points`, from `presentation/<feature>.points.ts`, exported
-from the feature's barrel:
+from the feature's barrel and listed in the module's `points`. The loader names each point
+`<module id>.<key>`; the key is camelCase, named after the place (`footer`, `fields`):
 
 ```typescript
 // login.points.ts
-export const loginPoints = definePoints('login', {
+export const loginPoints = {
   footer: point.zone<LoginZoneContext>(),
   texts: point.texts(loginMessages),
-});
+};
 ```
 
 An injection is `{Intention}WidgetInjection`, from `<intention>.widget-injection.ts`, named
@@ -314,13 +315,16 @@ after what it changes (the intention), never after the point it targets:
 
 ```typescript
 // email-login.widget-injection.ts
-export const EmailLoginWidgetInjection = {
-  id: 'cloud-email-login',          // unique across all extensions; prefix with your extension
-  changes: [ /* ... */ ],
-} satisfies WidgetInjection;
+export const EmailLoginWidgetInjection = [
+  loginPoints.texts.override({ identifier: msg`Email` }),   // `msg` inline: no *.messages.ts
+  /* ... */
+];
 ```
 
-It is listed in `widgetInjections` on `@Extension`, never in `modules` — and like a
+It is listed in `widgetInjections` on `@Extension` with the shorthand property —
+`{ EmailLoginWidgetInjection }`, so the key is the constant's name and the loader names the
+injection `scylla-cloud/EmailLoginWidgetInjection` — never in `modules`. Write no string key:
+the constant already carries the name. Like a
 `*.module.ts`, a `*.widget-injection.ts` is private: only the extension class imports it.
 
 ---

@@ -59,19 +59,20 @@ No entities, no structs, no mappers — there is nothing to model.
 ## Extension points
 
 Full mechanism: `widgets_plan.md` at the repo root; the owner guide is its §6. Defined in
-`presentation/login.points.ts`, exported from this barrel and from `@scylla/base-sdk`.
+`presentation/login.points.ts`, listed in `LoginModule.points` (that names them `login.*`),
+exported from this barrel and from `@scylla/base-sdk`.
 
 | Point | Kind | Context / type | Notes |
 |---|---|---|---|
-| `login.footer` | zone | `LoginZoneContext` (`{ isPending }`) | Below the card. No default content: a zone that only ever receives `after` components. **No `permission`** — the user has none yet on this page; see the rule below. |
-| `login.texts` | text scope | `typeof loginMessages` | `title`, `description`, `identifier`, `identifierPlaceholder`, `password`, `passwordPlaceholder`, `submit`. Every key the page renders goes through `loginPoints.texts.messages`, never `loginMessages` directly — otherwise an override would silently not show. |
+| `login.footer` | zone | `LoginZoneContext` (`{ isPending }`) | Below the card, opened with `use:loginPoints.footer={{ isPending }}`. No default content: a zone that only ever receives `after` components. **No `permission`** — the user has none yet on this page; see the rule below. |
+| `login.texts` | text scope | `typeof loginMessages` | `title`, `description`, `identifier`, `identifierPlaceholder`, `password`, `passwordPlaceholder`, `submit`. The page renders them with `t(loginMessages.x)`, as usual: `t` applies the overrides. Render the descriptor of `loginMessages` itself — a copy (`{ ...loginMessages.title }`) is a different object, and an override would not reach it. |
 | `login.fields` | value | `readonly FormItem<'identifier' \| 'password'>[]` | The `ScyllaForm` fields of `LoginForm.svelte`. Keep the ids: `submit` reads `values.identifier` and `values.password`. |
 
 - **The field id is `identifier`, not `username`.** The backend's `LoginRequest.identifier`
   accepts a username or an email already; `scylla-cloud` turns it into an email field with a
   patch on `login.fields`, not a new field.
 - **No `login.form` zone yet.** It would wrap the whole credentials form (for a `replace`, e.g.
-  a different sign-in method entirely) — add it, with `hasReplacement`, when a real consumer
+  a different sign-in method entirely) — add it when a real consumer
   needs it, not before.
 
 ## Routes & nav

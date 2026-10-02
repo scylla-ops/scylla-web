@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { widgetZone } from '../widget-zone.actions.svelte.ts';
-  import type { ZoneBinding } from '../widget-points.struct.ts';
+  import type { ZonePoint } from '../widget-points.struct.ts';
 
   interface Props {
-    binding: ZoneBinding;
+    point: ZonePoint<{ show: boolean }>;
+    context: { show: boolean };
   }
 
-  let { binding }: Props = $props();
+  let { point, context }: Props = $props();
 </script>
 
-<div data-testid="zone" use:widgetZone={binding}>
+<div data-testid="zone" use:point={context}>
   <span data-testid="default-content">default content</span>
 </div>

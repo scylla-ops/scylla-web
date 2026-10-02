@@ -76,12 +76,15 @@ top-level `widget-injections/`, because they only make sense as part of how this
 
 | Injection | Changes | Why it is its own injection |
 |---|---|---|
-| `EmailLoginWidgetInjection` (id `cloud-email-login`) | `login.texts` (override `identifier`, `identifierPlaceholder`, `description`), `login.fields` (patch the identifier field to `inputType: 'email'`) | The words and the field type must change together — an "Email" label on a `text` field, or an `email` field still labelled "Username", is wrong either way. |
-| `SignUpLinkWidgetInjection` (id `cloud-sign-up-link`) | `login.footer` (a component) | Independent of the email change: removing one must not affect the other. |
+| `EmailLoginWidgetInjection` | `login.texts` (override `identifier`, `identifierPlaceholder`, `description`), `login.fields` (patch the identifier field to `inputType: 'email'`) | The words and the field type must change together — an "Email" label on a `text` field, or an `email` field still labelled "Username", is wrong either way. |
+| `SignUpLinkWidgetInjection` | `login.footer` (a component) | Independent of the email change: removing one must not affect the other. |
 
 - **Words go through `login.texts`, structure goes through `login.fields`.** A patch never
-  calls `t()` or sets a label — the owner (`scylla-base`'s `LoginForm`) builds its fields from
-  `loginPoints.texts.messages`, so the text override already reaches the rendered label.
+  calls `t()` or sets a label — the owner (`scylla-base`'s `LoginForm`) builds its fields with
+  `t(loginMessages.x)`, and `t` applies the text override, so it already reaches the label.
+- **The override's `msg` are written in the injection file.** It is a `.ts`, so `lingui extract`
+  reads it: no `*.messages.ts` for an injection. Only an injected `.svelte` component
+  (`SignUpLink`) keeps one.
 - **Neither injection declares a `permission`.** The user has none on the login page — see
   `scylla-base`'s login `AGENTS.md`, "Extension points".
 - **`loginPoints` comes from `@scylla/base-sdk`, never a string.** `import { loginPoints } from '@scylla/base-sdk'`, then `loginPoints.footer.inject({...})` — there is no point name to type by
