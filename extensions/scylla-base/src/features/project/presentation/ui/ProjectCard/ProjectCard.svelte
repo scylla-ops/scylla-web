@@ -34,6 +34,8 @@
 </script>
 
 <Card
+  data-tour="project-card"
+  data-project-id={project.id}
   onclick={() => scyllaNavigate.goToProject(project.id, project.name)}
   class={cn(
     'group flex h-full cursor-pointer flex-col transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]',

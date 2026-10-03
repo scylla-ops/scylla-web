@@ -14,6 +14,7 @@ export * from '@scylla/base/features/jobs';
 export * from '@scylla/base/features/login';
 export * from '@scylla/base/features/marketplace';
 export * from '@scylla/base/features/membership';
+export * from '@scylla/base/features/onboarding';
 export * from '@scylla/base/features/organization';
 export * from '@scylla/base/features/pipeline';
 export * from '@scylla/base/features/project';

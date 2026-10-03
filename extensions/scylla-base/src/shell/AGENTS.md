@@ -42,7 +42,8 @@ presentation/
     ui/context-selector/                OrganizationSelector (the header of the organization section)
     ui/NavUser/                         current user + sign-out (sidebar footer)
     ui/NewBadge.svelte                  "New" pill of a sidebar link (navBadge)
-    ui/WhatsNewDialog/                  first-launch release announcement (overlay)
+    ui/WhatsNewDialog/                  first-launch release announcement
+    ui/LaunchOverlays/                  THE overlay: the announcement first, then the onboarding tour
     ui/layout.messages.ts               every message of the shell
 locales/                                the shell's own catalog
 ```
@@ -65,7 +66,7 @@ mounts
 routes           app: / -> OrganizationRedirectWrapper · organization: (its root) -> 'dashboard'
 navSections      organization (header: OrganizationSelector), system
 access           can / authorizationReady / RequirePermission, from @platform/authz
-shell            sidebarFooter NavUser · overlays WhatsNewDialog · navBadge NewBadge ·
+shell            sidebarFooter NavUser · overlays LaunchOverlays · navBadge NewBadge ·
                  onNavOpen markNavSeen · breadcrumbParams · linkParams
 onQueryError     reportQueryError
 onQueryRetry     retryQueryError
@@ -119,6 +120,8 @@ page-level rule (every page in the shell declares a `permission`) is in
 
 - `localStorage.token` is a three-way contract: `features/login` writes it, `platform/grpc`
   reads it for the auth header, `AuthGuard` reads it to redirect. Change all three at once.
+- `LaunchOverlays` shows one window at a time: the release announcement while it is unseen,
+  then the onboarding tour (`loadOnboardingTour`). Do not mount a first-launch window beside it.
 - **Announcing a new feature is editing `whats-new.ts`, nothing else.** Add a highlight (`id`,
   `title`, `description`, `icon`, and `navUrl` when it is a page); the dialog and the sidebar
   badge follow. Bump `WHATS_NEW.version` at each release: the seen flags are keyed by it.

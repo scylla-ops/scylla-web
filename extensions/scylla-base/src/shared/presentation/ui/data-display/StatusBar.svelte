@@ -38,6 +38,7 @@
     <button
       type="button"
       aria-label={item.label}
+      data-item-id={item.id}
       {...trigger}
       onclick={event => {
         // Call the trigger's handler too: it closes the tooltip on click.
@@ -48,7 +49,7 @@
       class={segmentClass(item)}
     ></button>
   {:else}
-    <div {...trigger} class={segmentClass(item)}></div>
+    <div {...trigger} data-item-id={item.id} class={segmentClass(item)}></div>
   {/if}
 {/snippet}
 

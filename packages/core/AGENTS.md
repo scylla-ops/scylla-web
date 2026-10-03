@@ -132,6 +132,8 @@ module gives an access policy.
 - **The shell renders, it does not decide.** Every link comes from the `nav` of a route, every
   section from `navSections`, every part of the frame from a module's `shell`. No business
   word appears in `shell/`.
+- A sidebar link carries `data-nav-url` (its path in the mount): code outside the core can point
+  at a link without knowing its title.
 
 ## Tests
 

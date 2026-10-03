@@ -24,6 +24,7 @@ projectLookupQueries  the batched fan-out: { queries, combine } for useQueries/c
 projectMutations      create · update · remove
 canListProjects, invalidateProjectMembers
 PROJECTS_QUERY_KEY, PROJECTS_QUERY_ROOT, PROJECTS_LOOKUP_PAGE, PROJECT_MEMBERS_QUERY_KEY
+CREATE_PROJECT_MUTATION_KEY   // the key of projectMutations.create; onboarding follows it
 ```
 
 `shell`, `roles`, `membership` and `dashboard` all run these with `createQuery` /
@@ -100,6 +101,9 @@ project routes (the `project` mount) are declared by the modules that own them
   Lingui message ownership and needs `node scripts/restore-translations.mjs`. New files use
   `use-{name}.ts`.
 - Lists use `DataTable` + `usePagination()`; row keys are project ids.
+- **`data-tour` attributes are anchors of the onboarding tour** (`projects` on the list, `project-card` with
+  `data-project-id` on each card). Keep them on the same
+  element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
 
 ## Before done
 
