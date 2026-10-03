@@ -40,7 +40,7 @@
 {:else if jobQuery.isError || !job}
   <ErrorState message={t(jobsMessages.jobLoadError)} />
 {:else}
-  <div class="flex h-full min-h-0 w-full flex-col gap-6">
+  <div data-tour="job-details" class="flex h-full min-h-0 w-full flex-col gap-6">
     <JobSummary {job} onSelectNode={panels.selectNode} />
     <JobNodeLogs
       {job}

@@ -9,6 +9,7 @@ const repository = () => getModuleDomain<typeof AgentsModule.domain>('agents').a
 
 export const AGENTS_QUERY_KEY = (organizationId: string) => ['agents', organizationId] as const;
 export const AGENT_QUERY_KEY = (agentId: string) => ['agents', 'detail', agentId] as const;
+export const CREATE_AGENT_MUTATION_KEY = ['agents', 'create'] as const;
 export const AGENT_STATS_QUERY_KEY = (agentId: string) => ['agents', 'stats', agentId] as const;
 
 const LIVE = { refetchInterval: 10_000, refetchIntervalInBackground: false } as const;
@@ -50,6 +51,7 @@ export const agentMutations = {
   /** The secret passes through once and is never stored. */
   create: (organizationId: string) =>
     mutationOptions({
+      mutationKey: CREATE_AGENT_MUTATION_KEY,
       mutationFn: async (name: string): Promise<CreatedAgent> =>
         (await repository().createAgent(organizationId, name)).unwrap(),
       onSuccess: () => void invalidateList(organizationId),

@@ -18,6 +18,8 @@ export const PROJECTS_QUERY_KEY = (
 
 export const PROJECTS_QUERY_ROOT = ['projects'] as const;
 
+export const CREATE_PROJECT_MUTATION_KEY = ['project', 'create'] as const;
+
 /** One request for an organization's whole list, for the lookups by name. */
 export const PROJECTS_LOOKUP_PAGE: PaginationParams = { page: 1, pageSize: 100 };
 
@@ -107,6 +109,7 @@ const invalidateProjects = () =>
 export const projectMutations = {
   create: () =>
     mutationOptions({
+      mutationKey: CREATE_PROJECT_MUTATION_KEY,
       mutationFn: async ({
         name,
         organizationId,

@@ -14,6 +14,7 @@ import { TriggersModule } from '@base/features/triggers/triggers.module.ts';
 import { DashboardModule } from '@base/features/dashboard/dashboard.module.ts';
 import { MembershipModule } from '@base/features/membership/membership.module.ts';
 import { ExtensionsModule } from '@base/features/extensions/extensions.module.ts';
+import { OnboardingModule } from '@base/features/onboarding/onboarding.module.ts';
 
 /**
  * Every feature module, in the order of the sidebar. Import the `<name>.module.ts`,
@@ -35,4 +36,5 @@ export const modules = [
   AppsModule,
   MarketplaceModule,
   ExtensionsModule,
+  OnboardingModule,
 ] as const satisfies readonly ScyllaModule[];
