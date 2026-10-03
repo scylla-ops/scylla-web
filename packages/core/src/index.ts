@@ -1,5 +1,6 @@
 export { startCore, type StartOptions } from './start-core.ts';
 export { loadExtensions, type LoadedApp } from './loader/load-extensions.ts';
+export { mergeWidgetInjections } from './loader/merge-widget-injections.ts';
 export {
   compileRoutes,
   type AppRouterConfig,

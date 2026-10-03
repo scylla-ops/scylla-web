@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@scylla/base": "workspace:*",
+    "@scylla/cloud": "workspace:*",
     "@scylla/core": "workspace:*",
     "@scylla/core-sdk": "workspace:*",
     "@scylla/ui": "workspace:*"

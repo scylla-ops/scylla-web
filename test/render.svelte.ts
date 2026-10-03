@@ -1,7 +1,14 @@
 import { render, screen } from '@testing-library/svelte';
 import { createRawSnippet, type Snippet } from 'svelte';
 import { QueryClient } from '@tanstack/query-core';
-import { setDependencyRegistry, type DomainRegistry, setQueryClient } from '@scylla/core-sdk';
+import {
+  installWidgetInjectionsForTest,
+  setDependencyRegistry,
+  setWidgetInjectionRegistry,
+  type DomainRegistry,
+  setQueryClient,
+  type WidgetInjection,
+} from '@scylla/core-sdk';
 
 /** No provider is needed: these helpers install the per-test state. The empty `en` catalog renders the English source. */
 
@@ -11,6 +18,20 @@ export { render };
 export const withRegistry = (registry: DomainRegistry): (() => void) => {
   setDependencyRegistry(registry);
   return () => setDependencyRegistry(null);
+};
+
+/**
+ * Installs these widget injections, so a component under test can render with fake
+ * contributions. It does not re-run the owner/dependency checks of `loadExtensions` (a single
+ * component has no extension list to check them against) — that full validation is exercised by
+ * `packages/core/src/loader/__test__/merge-widget-injections.test.ts` and by the app-level test
+ * that loads the real extensions together. Restore it after the test.
+ */
+export const withWidgetInjections = (
+  injections: Readonly<Record<string, WidgetInjection>>,
+): (() => void) => {
+  installWidgetInjectionsForTest(injections);
+  return () => setWidgetInjectionRegistry(null);
 };
 
 /** A fresh cache with `retry: false`, or a failing query retries until the test times out. Restore it after the test. */

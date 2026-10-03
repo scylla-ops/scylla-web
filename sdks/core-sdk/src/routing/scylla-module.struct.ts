@@ -9,6 +9,7 @@ import type {
 } from '../extension/contributions.struct.ts';
 import type { QueryRetryPolicy } from '../extension/contributions.struct.ts';
 import type { RoutePermission } from '../extension/register.struct.ts';
+import type { WidgetPoint } from '../widgets/widget-points.struct.ts';
 import type { BreadcrumbFn } from './crumb.struct.ts';
 import type { MountDefinition } from './mount.struct.ts';
 import type { RouteMount, RouteParams } from './route.struct.ts';
@@ -58,6 +59,11 @@ export interface ScyllaModule<TDomain extends object = object> {
   readonly id: string;
   readonly domain: TDomain;
   readonly routes?: ModuleRoutes;
+  /**
+   * The widget points this module opens (`<feature>.points.ts`). The loader names each one
+   * `<module id>.<key>`, and finds its owner here: a point no module lists cannot be changed.
+   */
+  readonly points?: Readonly<Record<string, WidgetPoint>>;
   /** The mounts that routes graft on. Each mount is declared once in the app. */
   readonly mounts?: Readonly<Record<RouteMount, MountDefinition>>;
   /** The sections that sidebar links name in `nav.section`. */

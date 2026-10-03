@@ -4,7 +4,8 @@
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/shadcn';
   import { ScyllaLoadingScreen } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { LoginState } from '../../login.state.svelte.ts';
+  import { LoginState } from '@base/features/login';
+  import { loginPoints } from '../../login.points.ts';
   import LoginForm from '../LoginForm/LoginForm.svelte';
   import { loginMessages } from '../login.messages.ts';
 
@@ -29,5 +30,8 @@
         <LoginForm handleSubmit={state.submit} isPending={state.isPending} />
       </CardContent>
     </Card>
+
+    <!-- No default content: a zone that only ever receives `after` components (e.g. a sign-up link). -->
+    <div use:loginPoints.footer={{ isPending: state.isPending }}></div>
   </div>
 {/if}

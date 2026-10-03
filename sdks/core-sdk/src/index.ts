@@ -61,3 +61,20 @@ export {
   type CreateMutationResult,
   type CreateQueryResult,
 } from './query/svelte-query.ts';
+
+export type {
+  TextsPoint,
+  ValuePoint,
+  WidgetPoint,
+  ZoneComponentOptions,
+  ZonePoint,
+  ZonePosition,
+} from './widgets/widget-points.struct.ts';
+export { point } from './widgets/point.ts';
+export type { WidgetInjection } from './widgets/widget-injection.struct.ts';
+export {
+  setWidgetInjectionRegistry,
+  type WidgetInjectionRegistry,
+} from './widgets/widget-injection-registry.ts';
+export { buildWidgetInjectionRegistry } from './widgets/build-widget-injection-registry.ts';
+export { installWidgetInjectionsForTest } from './widgets/install-widget-injections-for-test.ts';

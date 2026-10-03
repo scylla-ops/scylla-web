@@ -178,13 +178,26 @@ module.exports = {
       comment:
         '`<feature>.module.ts` instantiates the module\'s infrastructure at import time, so ' +
         'importing it eagerly pulls that feature\'s gRPC client into your chunk. Only the ' +
-        'module list (`shell/modules.ts`) and the feature itself may.',
+        'module list (`shell/modules.ts` in scylla-base; `<name>.extension.ts` elsewhere) and ' +
+        'the feature itself may. One rule for every extension, not scylla-base only.',
       severity: 'error',
-      from: { path: '^extensions/scylla-base/src/features/([^/]+)/' },
+      from: { path: '^extensions/([^/]+)/src/features/([^/]+)/' },
       to: {
-        path: '^extensions/scylla-base/src/features/[^/]+/[^/]+[.]module[.]ts$',
-        pathNot: '^extensions/scylla-base/src/features/$1/',
+        path: '^extensions/$1/src/features/[^/]+/[^/]+[.]module[.]ts$',
+        pathNot: '^extensions/$1/src/features/$2/',
       },
+    },
+
+    {
+      name: 'widget-injection-declaration-is-private',
+      comment:
+        '`*.widget-injection.ts` points to components and lists changes to another widget: ' +
+        'importing it anywhere but the extension class would pull those components into the ' +
+        "importer's chunk. Only `<name>.extension.ts` may, the same door as `widgetInjections` " +
+        'on `@Extension` (see `widgets_plan.md` §4.1).',
+      severity: 'error',
+      from: { path: '^extensions/([^/]+)/src/', pathNot: '[.]extension[.]ts$' },
+      to: { path: '^extensions/$1/src/.+[.]widget-injection[.]ts$' },
     },
 
     {
@@ -226,17 +239,22 @@ module.exports = {
       name: 'domain-is-pure',
       comment:
         'domain/ is pure business logic: no UI framework, no gRPC, no generated proto, no ' +
-        'query/state library. Framework types belong in infrastructure or presentation.',
+        'query/state library. Framework types belong in infrastructure or presentation. A ' +
+        'type-only import is exempt — it leaves no runtime trace — which is what lets a ' +
+        "domain repository outside scylla-base return `ScyllaResult<T>` from `@scylla/base-sdk` " +
+        "(CLAUDE.md: \"other extensions get it from @scylla/base-sdk\") without pulling that " +
+        "SDK's gRPC- and query-coupled exports into the domain layer.",
       severity: 'error',
       from: { path: '/domain/' },
       to: {
         path: [
-          '^extensions/scylla-base/src/generated/',
+          '^extensions/[^/]+/src/generated/',
           '^node_modules/(svelte|bits-ui|@tanstack|@lingui|@protobuf-ts|@lucide)',
           // Of the other packages, only the plain data shapes of @scylla/ui.
           '^(packages|sdks)/',
         ],
         pathNot: '^packages/ui/src/structs/',
+        dependencyTypesNot: ['type-only'],
       },
     },
 
@@ -288,12 +306,19 @@ module.exports = {
           '(^|/)tsconfig[.]json$',
           '(^|/)(vite|eslint|lingui|postcss)[.]config[.][^/]+$',
           '^apps/web/src/main[.]ts$',
-          '^extensions/scylla-base/src/generated/',
+          '^extensions/[^/]+/src/generated/',
           '^packages/ui/src/styles[.]css$',
           // Vitest loads setup.ts by path from the config, and the render
           // helpers are only imported by test files, which are themselves
           // orphans — neither is reachable from the module graph.
           '^test/',
+          // CLAUDE.md: "Every feature has one [index.ts], even when nothing
+          // consumes it yet." In scylla-base this never shows as an orphan —
+          // `@scylla/base-sdk`'s blanket `export *` references every feature
+          // barrel regardless of whether anything else uses it. An extension
+          // with no SDK of its own has no such catch-all, so its features'
+          // barrels are exempted here instead, on purpose, not by accident.
+          '^extensions/[^/]+/src/features/[^/]+/index[.]ts$',
         ],
       },
       to: {},
@@ -305,7 +330,7 @@ module.exports = {
 
     // Generated proto clients and compiled Lingui catalogs are machine output —
     // they have their own shape and are not ours to police.
-    exclude: { path: ['^extensions/scylla-base/src/generated/', '/locales/'] },
+    exclude: { path: ['^extensions/[^/]+/src/generated/', '/locales/'] },
 
     // Resolves the @base/ @platform/ @shared/ @test/ aliases the codebase imports by.
     tsConfig: { fileName: 'tsconfig.app.json' },
