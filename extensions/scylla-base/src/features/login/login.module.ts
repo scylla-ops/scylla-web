@@ -4,6 +4,7 @@ import { GrpcLoginRemoteDataSource } from '@base/features/login/infrastructure/d
 import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
 import { DefaultLoginRepository } from '@base/features/login/infrastructure/repository/default-login.repository.ts';
 import { grpcTransport } from '@platform/grpc';
+import { loginPoints } from './presentation/login.points.ts';
 
 const loginRemoteDataSource: LoginRemoteDataSource = new GrpcLoginRemoteDataSource(grpcTransport);
 const loginRepository: LoginRepository = new DefaultLoginRepository(loginRemoteDataSource);
@@ -16,4 +17,5 @@ export const LoginModule = {
   routes: {
     public: [{ path: 'login', page: () => import('./presentation/ui/Login/Login.page.svelte') }],
   },
+  points: loginPoints,
 } satisfies ScyllaModule;

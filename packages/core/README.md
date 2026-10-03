@@ -48,7 +48,10 @@ if one of these occurs:
 - a dependency is missing, or two extensions depend on each other;
 - two modules set the same field on the same path;
 - a route uses a mount that does not exist, or a sidebar section that does not exist;
-- a route has a `permission`, but no module supplies an access policy.
+- a route has a `permission`, but no module supplies an access policy;
+- an extension's `widgetInjections` changes a widget of an extension it does not depend on, an
+  unknown point, or conflicts with another injection (two replacements of one zone, two
+  overrides of one text) — see [`widgets_plan.md`](../../widgets_plan.md).
 
 `apps/web` runs the same loader in its tests. Thus CI finds a broken declaration before a user
 does.

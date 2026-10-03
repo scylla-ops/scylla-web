@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen } from '@testing-library/svelte';
+import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
@@ -158,12 +158,14 @@ describe('AgentOutcomesChart', () => {
   });
 
   it('labels the y axis in whole runs, from zero to above the peak', async () => {
-    render(AgentOutcomesChart);
+    const { container } = render(AgentOutcomesChart);
 
     await screen.findByRole('img', { name: 'Agent Outcomes' });
+    // Only the y axis: the x axis shows the day of the month, which can also be "1".
+    const axis = within(container.querySelector<HTMLElement>('[data-slot="y-axis"]')!);
     // Whole runs only: the axis never shows "1.5 runs".
     for (const tick of ['0', '1', '2', '3']) {
-      expect(screen.getByText(tick)).toBeInTheDocument();
+      expect(axis.getByText(tick)).toBeInTheDocument();
     }
   });
 });

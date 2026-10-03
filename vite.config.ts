@@ -168,9 +168,11 @@ export default defineConfig({
         '**/shadcn/**',
         // Barrels and module declarations are re-exports and wiring: covering
         // them measures nothing, and `*.module.ts` pulls a feature's gRPC
-        // client in just by being imported.
+        // client in just by being imported. `*.widget-injection.ts` is the
+        // same kind of declaration, one layer up (see `widgets_plan.md`).
         '**/index.ts',
         '**/*.module.ts',
+        '**/*.widget-injection.ts',
       ],
       reporter: ['text-summary', 'html'],
       // A ratchet, not a target: these are the levels reached today, so the

@@ -99,6 +99,58 @@ A route (`ModuleRoute`) has `path`, `page` (a dynamic import), `redirect`, `perm
 `breadcrumb`, `nav` and `children`. A `permission` guards its page only. A child route declares
 its own.
 
+## Letting another extension change your widgets, and changing theirs
+
+Full design: [`widgets_plan.md`](../../widgets_plan.md) at the repo root. The gist: a feature
+opens **points** on its own widgets — places that another extension can add a component to,
+texts it can override, or data it can patch — and exports them from its barrel, like any other
+part of its public API:
+
+```typescript
+// a feature's presentation/<feature>.points.ts
+export const loginPoints = {
+  footer: point.zone<{ isPending: boolean }>(),
+  texts: point.texts(loginMessages),
+};
+
+// login.module.ts — listing them is what names them (`login.footer`) and finds their owner
+export const LoginModule = { id: 'login', domain, routes, points: loginPoints } satisfies ScyllaModule;
+```
+
+A point is identified by its object, not by a string: no name to keep in sync with the module
+id, and no collision between two points.
+
+The owner writes almost the same code as with no points: `t(loginMessages.title)` does not
+change (`t` applies the overrides), and a zone point is itself the Svelte action that opens the
+zone — `<div use:loginPoints.footer={{ isPending }}>`. With no extension loaded, the only new file
+is `<feature>.points.ts`.
+
+Another extension changes them with a **widget injection** — an array of changes per intention,
+listed on `@Extension` next to `modules` with the shorthand property, never on a module (it
+changes someone else's UI, which belongs to no module of its own). The key — the constant's name
+— names the injection in the errors:
+
+```typescript
+export const SignUpLinkWidgetInjection = [
+  loginPoints.footer.inject({ component: () => import('./SignUpLink.svelte') }),
+];
+
+@Extension({
+  id: 'scylla-cloud',
+  dependencies: ['scylla-base'],
+  widgetInjections: { SignUpLinkWidgetInjection },
+  modules: [],
+})
+export class ScyllaCloudExtension {}
+```
+
+Injections are data, not classes: an array composes, is shared, and is tested in one line, and
+the types of a patch's parameters are inferred from the point.
+
+The loader rejects a change that targets an unlisted dependency, two injections that replace the
+same zone, or two that override the same text — by name, at start-up and in tests, never
+silently on the page.
+
 ## Runtime API
 
 The core installs these functions at start-up. An extension only calls them.
@@ -144,12 +196,24 @@ changes. This is the same rule as the `index.ts` of a feature, at the package le
 **A decorator and a small manifest.** `@Extension` on a class is short and easy to read. The
 app lists the classes in one typed file, so the set of extensions and their order are clear. No
 extension registers itself as a side effect of an import. The manifest has only `id`, `name`,
-`version`, `dependencies`, `modules` and `catalogs`. The modules declare all the rest, next to
-the code that uses it.
+`version`, `dependencies`, `modules`, `widgetInjections` and `catalogs`. The modules declare all
+the rest, next to the code that uses it — `widgetInjections` is the one field that is not a
+module field, because what it declares (a change to *another* extension's widgets) belongs to no
+module of the extension that declares it.
 
 **An untyped DI registry.** If the registry had a type for the domain of each module, each
 feature would depend on all the other features. A module gives the type on its side instead:
 `getModuleDomain<typeof XModule.domain>('x')`.
+
+**Widget points are values, not a `declare module`.** The first design had an owner augment an
+empty interface (`WidgetSlots`, …), the way `Register` works for permissions. It does not scale
+past this one monorepo: the augmentation is invisible to dependency-cruiser (nothing is
+*imported*), it works today only because the whole repo compiles as one TypeScript program, and
+the owner cannot read it back without a cycle (it would have to import its own SDK). A point as
+a value, exported through the owner's barrel and re-exported by its SDK, fixes all three: a
+contributor's import is real and checked, it works the same inside or outside this monorepo, and
+autocompletion on `loginPoints.` *is* the documentation. `widgets_plan.md` §13 has the full
+comparison.
 
 ## Public API
 
@@ -163,6 +227,7 @@ feature would depend on all the other features. A module gives the type on its s
 | Navigation | `navigateTo`, `navigateBack`, `routeParams`, `routeTrail`, `currentPathname`, `Redirect` |
 | DI | `getModuleDomain` |
 | Query | `createQuery`, `createMutation`, `createQueries`, `queryOptions`, `mutationOptions`, `getQueryClient` |
+| Widgets | `point`, `ZonePoint`, `TextsPoint`, `ValuePoint`, `WidgetInjection`, `installWidgetInjectionsForTest` |
 
 The `set*` functions (`setAppNavigator`, `setDependencyRegistry`, `setQueryClient`) are for the
 core and for tests. The [agent guide](./AGENTS.md) has the complete list.

@@ -1,5 +1,6 @@
 import type { CatalogLoaders } from '@scylla/ui/i18n';
 import type { ScyllaModule } from '../routing/scylla-module.struct.ts';
+import type { WidgetInjection } from '../widgets/widget-injection.struct.ts';
 
 /** What `@Extension` declares. */
 export interface ExtensionManifest {
@@ -11,6 +12,12 @@ export interface ExtensionManifest {
   readonly dependencies?: readonly string[];
   /** Everything the extension adds: pages, sidebar links, mounts, shell parts. */
   readonly modules: readonly ScyllaModule[];
+  /**
+   * What this extension changes in the widgets of other extensions (or its own), one key per
+   * intention, with the shorthand property (`{ EmailLoginWidgetInjection }`). The key names the
+   * injection: `<extension id>/<key>`.
+   */
+  readonly widgetInjections?: Readonly<Record<string, WidgetInjection>>;
   /** `import.meta.glob('./**\/locales/*\/messages.ts')`. */
   readonly catalogs?: CatalogLoaders;
 }

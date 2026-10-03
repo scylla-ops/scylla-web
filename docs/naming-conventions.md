@@ -294,6 +294,39 @@ A barrel never exports a Svelte component. It exports a loader, named `load{Comp
 export const loadJobsPage = () => import('./presentation/ui/Jobs.page.svelte');
 ```
 
+### 4.4 Widget points and widget injections
+
+Full mechanism: `widgets_plan.md` at the repo root.
+
+A feature's points are `{feature}Points`, from `presentation/<feature>.points.ts`, exported
+from the feature's barrel and listed in the module's `points`. The loader names each point
+`<module id>.<key>`; the key is camelCase, named after the place (`footer`, `fields`):
+
+```typescript
+// login.points.ts
+export const loginPoints = {
+  footer: point.zone<LoginZoneContext>(),
+  texts: point.texts(loginMessages),
+};
+```
+
+An injection is `{Intention}WidgetInjection`, from `<intention>.widget-injection.ts`, named
+after what it changes (the intention), never after the point it targets:
+
+```typescript
+// email-login.widget-injection.ts
+export const EmailLoginWidgetInjection = [
+  loginPoints.texts.override({ identifier: msg`Email` }),   // `msg` inline: no *.messages.ts
+  /* ... */
+];
+```
+
+It is listed in `widgetInjections` on `@Extension` with the shorthand property —
+`{ EmailLoginWidgetInjection }`, so the key is the constant's name and the loader names the
+injection `scylla-cloud/EmailLoginWidgetInjection` — never in `modules`. Write no string key:
+the constant already carries the name. Like a
+`*.module.ts`, a `*.widget-injection.ts` is private: only the extension class imports it.
+
 ---
 
 ## 5. i18n
@@ -320,6 +353,8 @@ export const loadJobsPage = () => import('./presentation/ui/Jobs.page.svelte');
 | Class | PascalCase + role suffix | `DefaultUserRepository` |
 | Extension | PascalCase + `Extension` | `ScyllaBaseExtension` |
 | Module declaration | PascalCase + `Module` | `UserModule` |
+| Widget points | camelCase + `Points` | `loginPoints` |
+| Widget injection | PascalCase + `WidgetInjection` | `EmailLoginWidgetInjection` |
 | Rune state factory | camelCase `create*` | `createPagination` |
 | Store | camelCase + `Store` | `contextStore` |
 | Queries / mutations | camelCase + `Queries` / `Mutations` | `userQueries` |
