@@ -186,6 +186,7 @@
         {:else}
           <div class="relative pl-7">
             <div
+              data-slot="y-axis"
               class="pointer-events-none absolute left-0 top-0 flex h-[160px] w-6 flex-col justify-between text-right font-mono text-[10px] text-muted-foreground"
             >
               {#each [...ticks].reverse() as tick (tick)}
