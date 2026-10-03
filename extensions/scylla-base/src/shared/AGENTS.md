@@ -56,6 +56,7 @@ const data = result.unwrap();          // throws — do this inside queryFn/muta
   (colour, icon, label), not business rules. Keep it that way; job semantics belong in
   `features/jobs`.
 - Adding to `shared/` needs a second real usage. One usage stays inline.
+- `StatusBar` puts `data-item-id` on each segment: the onboarding tour points at the last one.
 
 ## Before done
 

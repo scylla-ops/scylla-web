@@ -17,6 +17,7 @@ type AgentEntity
 type AgentStats, CreatedAgent, DailyOutcome
 agentQueries, agentMutations
 AGENTS_QUERY_KEY, AGENT_QUERY_KEY, AGENT_STATS_QUERY_KEY
+CREATE_AGENT_MUTATION_KEY   // the key of agentMutations.create; onboarding follows it
 NoAgentsBanner          // a .svelte component
 ```
 
@@ -107,6 +108,9 @@ Sidebar: section `organization`, order `40`, icon `HardDriveIcon`, same permissi
   component this barrel exports; that is safe only because the shell imports
   `agents.module.ts` directly and never this file. **If the shell ever imports this barrel,
   export a loader instead** (see `organization`, Phase 2).
+- **`data-tour` attributes are anchors of the onboarding tour** (`agents`, `agent-details`, `agent-status` with `data-online`,
+  `agent-run`). Keep them on the same
+  element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
 
 ## Before done
 
