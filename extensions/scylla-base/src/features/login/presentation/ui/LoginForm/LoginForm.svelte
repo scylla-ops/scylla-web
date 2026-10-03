@@ -1,7 +1,8 @@
 <script lang="ts">
   import { Button } from '@scylla/ui/shadcn';
-  import { ScyllaForm, FormItemType, type FormItem } from '@scylla/ui';
+  import { ScyllaForm, FormItemType } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { loginPoints } from '../../login.points.ts';
   import { loginMessages } from '../login.messages.ts';
 
   interface Props {
@@ -11,28 +12,30 @@
 
   let { handleSubmit, isPending = false }: Props = $props();
 
-  const items: readonly FormItem<'username' | 'password'>[] = $derived([
-    {
-      id: 'username',
-      label: t(loginMessages.username),
-      placeholder: t(loginMessages.usernamePlaceholder),
-      type: FormItemType.Input,
-      inputType: 'text',
-    },
-    {
-      id: 'password',
-      label: t(loginMessages.password),
-      placeholder: t(loginMessages.passwordPlaceholder),
-      type: FormItemType.Input,
-      inputType: 'password',
-    },
-  ]);
+  const items = $derived(
+    loginPoints.fields.resolve([
+      {
+        id: 'identifier',
+        label: t(loginMessages.identifier),
+        placeholder: t(loginMessages.identifierPlaceholder),
+        type: FormItemType.Input,
+        inputType: 'text',
+      },
+      {
+        id: 'password',
+        label: t(loginMessages.password),
+        placeholder: t(loginMessages.passwordPlaceholder),
+        type: FormItemType.Input,
+        inputType: 'password',
+      },
+    ]),
+  );
 </script>
 
 <ScyllaForm
   {items}
   class="gap-4"
-  onSubmit={values => handleSubmit(values.username, values.password)}
+  onSubmit={values => handleSubmit(values.identifier, values.password)}
   {isPending}
 >
   {#snippet footer({ isValid, isPending: pending })}

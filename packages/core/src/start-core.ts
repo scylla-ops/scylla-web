@@ -4,6 +4,7 @@ import {
   setDependencyRegistry,
   setInstalledExtensions,
   setQueryClient,
+  setWidgetInjectionRegistry,
   type ExtensionClass,
 } from '@scylla/core-sdk';
 import { initializeAppLocale, registerCatalogs, type CatalogModule } from '@scylla/ui/i18n';
@@ -26,6 +27,7 @@ export const startCore = async ({ extensions, target }: StartOptions): Promise<v
   registerCatalogs(import.meta.glob<CatalogModule>('./locales/*/messages.ts'));
   app.catalogs.forEach(registerCatalogs);
   setDependencyRegistry(app.dependencies);
+  setWidgetInjectionRegistry(app.widgetInjections);
   setInstalledExtensions(app.extensions);
   setQueryClient(createAppQueryClient(app.queryErrorHandlers, app.queryRetryPolicies));
   setShellConfig(app.shell);
