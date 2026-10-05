@@ -244,7 +244,8 @@ cleanup lifecycle of whatever is injected into it. Texts keep `t(loginMessages.t
 an override by the descriptor object (never by its id, which two modules with the same source
 string share). Only a value point shows in the owner's code, as `resolve(value)`. A sign-up link that another
 extension adds to `scylla-base`'s login page is the reference example this mechanism was built
-against.
+against; `apps/web/src/__test__/login-widget-injections.test.ts` pins it with an example
+extension declared in the test.
 
 ---
 
