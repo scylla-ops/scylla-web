@@ -16,6 +16,14 @@
  *
  * @type {import('dependency-cruiser').IConfiguration}
  */
+const path = require('node:path');
+
+// A host repo may mount scylla-web as a submodule and run this config from its own root: the
+// paths of scylla-web then start with that folder (`scylla/packages/ui/…`), while the host's own
+// extensions and app stay at the root. Every rule accepts both.
+const mountedAt = path.relative(process.cwd(), __dirname).split(path.sep).join('/');
+const R = mountedAt ? `^(?:${mountedAt}/)?` : '^';
+
 module.exports = {
   forbidden: [
     // ── Packages ────────────────────────────────────────────────────────────────
@@ -26,8 +34,8 @@ module.exports = {
         '@scylla/ui is the design system: it could ship in another product unchanged. ' +
         'It depends on no other package of the workspace.',
       severity: 'error',
-      from: { path: '^packages/ui/' },
-      to: { path: '^(apps|packages/core|sdks|extensions)/' },
+      from: { path: R + 'packages/ui/' },
+      to: { path: R + '(apps|packages/core|sdks|extensions)/' },
     },
 
     {
@@ -36,8 +44,8 @@ module.exports = {
         '@scylla/core-sdk is what an extension compiles against. It may not depend on the ' +
         'core that implements it, nor on any extension.',
       severity: 'error',
-      from: { path: '^sdks/core-sdk/' },
-      to: { path: '^(apps|packages/core|extensions|sdks/(?!core-sdk/))' },
+      from: { path: R + 'sdks/core-sdk/' },
+      to: { path: R + '(apps|packages/core|extensions|sdks/(?!core-sdk/))' },
     },
 
     {
@@ -46,8 +54,8 @@ module.exports = {
         'The core loads extensions it has never heard of. The moment it imports one, that ' +
         'extension stops being optional.',
       severity: 'error',
-      from: { path: '^packages/core/' },
-      to: { path: '^(apps|extensions|sdks/(?!core-sdk/))' },
+      from: { path: R + 'packages/core/' },
+      to: { path: R + '(apps|extensions|sdks/(?!core-sdk/))' },
     },
 
     {
@@ -56,8 +64,8 @@ module.exports = {
         'An extension reaches another extension only through that extension\'s SDK, and ' +
         'the core only through @scylla/core-sdk. The app (`apps/web`) composes them.',
       severity: 'error',
-      from: { path: '^extensions/([^/]+)/' },
-      to: { path: ['^extensions/', '^packages/core/', '^apps/'], pathNot: '^extensions/$1/' },
+      from: { path: R + 'extensions/([^/]+)/' },
+      to: { path: [R + 'extensions/', R + 'packages/core/', R + 'apps/'], pathNot: R + 'extensions/$1/' },
     },
 
     {
@@ -66,8 +74,8 @@ module.exports = {
         'The internals of an extension are private. Its SDK re-exports what other ' +
         'extensions may use; only that SDK reaches the barrels behind it.',
       severity: 'error',
-      from: { path: '^(apps|packages|sdks|extensions|test)/', pathNot: ['^extensions/scylla-base/', '^sdks/scylla-base-sdk/'] },
-      to: { path: '^extensions/scylla-base/src/', pathNot: '^extensions/scylla-base/src/index[.]ts$' },
+      from: { path: R + '(apps|packages|sdks|extensions|test)/', pathNot: [R + 'extensions/scylla-base/', R + 'sdks/scylla-base-sdk/'] },
+      to: { path: R + 'extensions/scylla-base/src/', pathNot: R + 'extensions/scylla-base/src/index[.]ts$' },
     },
 
     {
@@ -76,16 +84,16 @@ module.exports = {
         'A package is reached through the entry points of its `package.json` exports, ' +
         'never through a deep path: its other files stay free to move.',
       severity: 'error',
-      from: { path: '^(apps|packages|sdks|extensions)/([^/]+)/|^test/' },
+      from: { path: R + '(apps|packages|sdks|extensions)/([^/]+)/|' + R + 'test/' },
       to: {
-        path: '^(packages|sdks)/[^/]+/src/',
+        path: R + '(packages|sdks)/[^/]+/src/',
         pathNot: [
-          '^$1/$2/',
-          '^packages/(core|ui)/src/index[.]ts$',
-          '^sdks/[^/]+/src/index[.]ts$',
-          '^packages/ui/src/(shadcn|state|stores|i18n|utils|structs)/index[.]ts$',
-          '^packages/ui/src/styles[.]css$',
-          '^packages/ui/src/assets/',
+          R + '$1/$2/',
+          R + 'packages/(core|ui)/src/index[.]ts$',
+          R + 'sdks/[^/]+/src/index[.]ts$',
+          R + 'packages/ui/src/(shadcn|state|stores|i18n|utils|structs)/index[.]ts$',
+          R + 'packages/ui/src/styles[.]css$',
+          R + 'packages/ui/src/assets/',
         ],
       },
     },
@@ -118,14 +126,14 @@ module.exports = {
         'it public, so no internal can be moved without breaking someone else — and it ' +
         'is how the module graph became a single strongly connected component before.',
       severity: 'error',
-      from: { path: '^extensions/scylla-base/src/features/([^/]+)/' },
+      from: { path: R + 'extensions/scylla-base/src/features/([^/]+)/' },
       to: {
-        path: '^extensions/scylla-base/src/features/[^/]+/.+',
+        path: R + 'extensions/scylla-base/src/features/[^/]+/.+',
         pathNot: [
           // its own internals
-          '^extensions/scylla-base/src/features/$1/',
+          R + 'extensions/scylla-base/src/features/$1/',
           // another feature's public API
-          '^extensions/scylla-base/src/features/[^/]+/index[.]ts$',
+          R + 'extensions/scylla-base/src/features/[^/]+/index[.]ts$',
         ],
       },
     },
@@ -137,12 +145,12 @@ module.exports = {
         'API everyone else uses. The one extra door is `<feature>.module.ts`, which the ' +
         'registry imports on purpose (see `module-declaration-is-private`).',
       severity: 'error',
-      from: { path: '^extensions/scylla-base/src/shell/' },
+      from: { path: R + 'extensions/scylla-base/src/shell/' },
       to: {
-        path: '^extensions/scylla-base/src/features/[^/]+/.+',
+        path: R + 'extensions/scylla-base/src/features/[^/]+/.+',
         pathNot: [
-          '^extensions/scylla-base/src/features/[^/]+/index[.]ts$',
-          '^extensions/scylla-base/src/features/[^/]+/[^/]+[.]module[.]ts$',
+          R + 'extensions/scylla-base/src/features/[^/]+/index[.]ts$',
+          R + 'extensions/scylla-base/src/features/[^/]+/[^/]+[.]module[.]ts$',
         ],
       },
     },
@@ -153,10 +161,10 @@ module.exports = {
         'Same contract as features, for the capabilities below them: import `@platform/authz`, ' +
         'not `@platform/authz/presentation/stores/…`.',
       severity: 'error',
-      from: { path: '^extensions/scylla-base/src/(features|shell)/' },
+      from: { path: R + 'extensions/scylla-base/src/(features|shell)/' },
       to: {
-        path: '^extensions/scylla-base/src/platform/[^/]+/.+',
-        pathNot: '^extensions/scylla-base/src/platform/[^/]+/index[.]ts$',
+        path: R + 'extensions/scylla-base/src/platform/[^/]+/.+',
+        pathNot: R + 'extensions/scylla-base/src/platform/[^/]+/index[.]ts$',
       },
     },
 
@@ -166,10 +174,10 @@ module.exports = {
         'Platform capabilities are modules too: `routing` reaches `authz` through its ' +
         'public API, not through its internals.',
       severity: 'error',
-      from: { path: '^extensions/scylla-base/src/platform/([^/]+)/' },
+      from: { path: R + 'extensions/scylla-base/src/platform/([^/]+)/' },
       to: {
-        path: '^extensions/scylla-base/src/platform/[^/]+/.+',
-        pathNot: ['^extensions/scylla-base/src/platform/$1/', '^extensions/scylla-base/src/platform/[^/]+/index[.]ts$'],
+        path: R + 'extensions/scylla-base/src/platform/[^/]+/.+',
+        pathNot: [R + 'extensions/scylla-base/src/platform/$1/', R + 'extensions/scylla-base/src/platform/[^/]+/index[.]ts$'],
       },
     },
 
@@ -181,10 +189,10 @@ module.exports = {
         'module list (`shell/modules.ts` in scylla-base; `<name>.extension.ts` elsewhere) and ' +
         'the feature itself may. One rule for every extension, not scylla-base only.',
       severity: 'error',
-      from: { path: '^extensions/([^/]+)/src/features/([^/]+)/' },
+      from: { path: R + 'extensions/([^/]+)/src/features/([^/]+)/' },
       to: {
-        path: '^extensions/$1/src/features/[^/]+/[^/]+[.]module[.]ts$',
-        pathNot: '^extensions/$1/src/features/$2/',
+        path: R + 'extensions/$1/src/features/[^/]+/[^/]+[.]module[.]ts$',
+        pathNot: R + 'extensions/$1/src/features/$2/',
       },
     },
 
@@ -196,8 +204,8 @@ module.exports = {
         "importer's chunk. Only `<name>.extension.ts` may, the same door as `widgetInjections` " +
         'on `@Extension` (see `widgets_plan.md` §4.1).',
       severity: 'error',
-      from: { path: '^extensions/([^/]+)/src/', pathNot: '[.]extension[.]ts$' },
-      to: { path: '^extensions/$1/src/.+[.]widget-injection[.]ts$' },
+      from: { path: R + 'extensions/([^/]+)/src/', pathNot: '[.]extension[.]ts$' },
+      to: { path: R + 'extensions/$1/src/.+[.]widget-injection[.]ts$' },
     },
 
     {
@@ -208,10 +216,10 @@ module.exports = {
         'bypassing its hooks and forking the query cache into two keys for one resource. ' +
         'Consume the feature\'s hooks through its `index.ts` instead.',
       severity: 'error',
-      from: { path: '^extensions/scylla-base/src/features/([^/]+)/' },
+      from: { path: R + 'extensions/scylla-base/src/features/([^/]+)/' },
       to: {
-        path: '^extensions/scylla-base/src/features/[^/]+/presentation/hooks/use-[^/]+-domain[.]ts$',
-        pathNot: '^extensions/scylla-base/src/features/$1/',
+        path: R + 'extensions/scylla-base/src/features/[^/]+/presentation/hooks/use-[^/]+-domain[.]ts$',
+        pathNot: R + 'extensions/scylla-base/src/features/$1/',
       },
     },
 
@@ -221,8 +229,8 @@ module.exports = {
         'shared/ holds reusable UI and utils with no business meaning. The moment it ' +
         'knows about a feature it stops being reusable and becomes a cycle.',
       severity: 'error',
-      from: { path: '^extensions/scylla-base/src/shared/' },
-      to: { path: '^extensions/scylla-base/src/(features|shell|platform)/' },
+      from: { path: R + 'extensions/scylla-base/src/shared/' },
+      to: { path: R + 'extensions/scylla-base/src/(features|shell|platform)/' },
     },
 
     {
@@ -231,8 +239,8 @@ module.exports = {
         'platform/ sits below features so every feature can depend on it. It may never ' +
         'depend back on one.',
       severity: 'error',
-      from: { path: '^extensions/scylla-base/src/platform/' },
-      to: { path: '^extensions/scylla-base/src/(features|shell)/' },
+      from: { path: R + 'extensions/scylla-base/src/platform/' },
+      to: { path: R + 'extensions/scylla-base/src/(features|shell)/' },
     },
 
     {
@@ -248,12 +256,12 @@ module.exports = {
       from: { path: '/domain/' },
       to: {
         path: [
-          '^extensions/[^/]+/src/generated/',
-          '^node_modules/(svelte|bits-ui|@tanstack|@lingui|@protobuf-ts|@lucide)',
+          R + 'extensions/[^/]+/src/generated/',
+          R + 'node_modules/(svelte|bits-ui|@tanstack|@lingui|@protobuf-ts|@lucide)',
           // Of the other packages, only the plain data shapes of @scylla/ui.
-          '^(packages|sdks)/',
+          R + '(packages|sdks)/',
         ],
-        pathNot: '^packages/ui/src/structs/',
+        pathNot: R + 'packages/ui/src/structs/',
         dependencyTypesNot: ['type-only'],
       },
     },
@@ -274,8 +282,8 @@ module.exports = {
         'The shell (`shell/`) composes features. A feature reaching ' +
         'back into it inverts the composition root.',
       severity: 'error',
-      from: { path: '^extensions/scylla-base/src/features/' },
-      to: { path: '^extensions/scylla-base/src/shell/' },
+      from: { path: R + 'extensions/scylla-base/src/features/' },
+      to: { path: R + 'extensions/scylla-base/src/shell/' },
     },
 
     {
@@ -286,8 +294,8 @@ module.exports = {
       // vite/client, which is types-only and never reaches the bundle. So are
       // the tests and `test/`, the suite's own harness, which never ship.
       from: {
-        path: '^(apps|packages|sdks|extensions)/',
-        pathNot: ['[.](spec|test)[.]ts$', '[.]fixture[.](ts|svelte)$', '/__test__/', '[.]d[.]ts$', '^test/'],
+        path: R + '(apps|packages|sdks|extensions)/',
+        pathNot: ['[.](spec|test)[.]ts$', '[.]fixture[.](ts|svelte)$', '/__test__/', '[.]d[.]ts$', R + 'test/'],
       },
       to: { dependencyTypes: ['npm-dev'], dependencyTypesNot: ['type-only'] },
     },
@@ -305,20 +313,20 @@ module.exports = {
           '[.]d[.]ts$',
           '(^|/)tsconfig[.]json$',
           '(^|/)(vite|eslint|lingui|postcss)[.]config[.][^/]+$',
-          '^apps/web/src/main[.]ts$',
-          '^extensions/[^/]+/src/generated/',
-          '^packages/ui/src/styles[.]css$',
+          R + 'apps/[^/]+/src/main[.]ts$',
+          R + 'extensions/[^/]+/src/generated/',
+          R + 'packages/ui/src/styles[.]css$',
           // Vitest loads setup.ts by path from the config, and the render
           // helpers are only imported by test files, which are themselves
           // orphans — neither is reachable from the module graph.
-          '^test/',
+          R + 'test/',
           // CLAUDE.md: "Every feature has one [index.ts], even when nothing
           // consumes it yet." In scylla-base this never shows as an orphan —
           // `@scylla/base-sdk`'s blanket `export *` references every feature
           // barrel regardless of whether anything else uses it. An extension
           // with no SDK of its own has no such catch-all, so its features'
           // barrels are exempted here instead, on purpose, not by accident.
-          '^extensions/[^/]+/src/features/[^/]+/index[.]ts$',
+          R + 'extensions/[^/]+/src/features/[^/]+/index[.]ts$',
         ],
       },
       to: {},
@@ -330,7 +338,7 @@ module.exports = {
 
     // Generated proto clients and compiled Lingui catalogs are machine output —
     // they have their own shape and are not ours to police.
-    exclude: { path: ['^extensions/[^/]+/src/generated/', '/locales/'] },
+    exclude: { path: [R + 'extensions/[^/]+/src/generated/', '/locales/'] },
 
     // Resolves the @base/ @platform/ @shared/ @test/ aliases the codebase imports by.
     tsConfig: { fileName: 'tsconfig.app.json' },
@@ -347,8 +355,8 @@ module.exports = {
     },
 
     reporterOptions: {
-      dot: { collapsePattern: '^(extensions/[^/]+/src/(features/[^/]+|[^/]+)|(apps|packages|sdks)/[^/]+)' },
-      archi: { collapsePattern: '^(extensions/[^/]+/src/(features/[^/]+|[^/]+)|(apps|packages|sdks)/[^/]+)' },
+      dot: { collapsePattern: R + '(extensions/[^/]+/src/(features/[^/]+|[^/]+)|(apps|packages|sdks)/[^/]+)' },
+      archi: { collapsePattern: R + '(extensions/[^/]+/src/(features/[^/]+|[^/]+)|(apps|packages|sdks)/[^/]+)' },
       text: { highlightFocused: true },
     },
   },

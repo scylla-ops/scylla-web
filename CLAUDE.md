@@ -572,8 +572,9 @@ turn a red run green. Generated proto code, compiled catalogs, vendored `shadcn/
 - A message with a placeholder is a function: `` newEntity: (label: string) => msg`New ${label}` ``.
   **When you port a message, keep its placeholder names**: they are part of the msgid.
 - The `msg`, `t` and `plural` macros of `@lingui/core/macro` compile in `.ts` files only, through
-  Babel (`linguiMacros` in `vite.config.ts`).
-- Catalogs live in `locales/{en,fr}/messages.po` per module, listed in `lingui.config.js`. Run `pnpm extract` after adding strings, `pnpm compile` to build catalogs. Don't edit `messages.ts` by hand.
+  Babel (`linguiMacros` in `tooling/vite.ts`).
+- Catalogs live in `locales/{en,fr}/messages.po` per module. `lingui.config.js` finds them: each
+  `locales/` folder under a package's `src/` is one catalog (`tooling/lingui.js`). Run `pnpm extract` after adding strings, `pnpm compile` to build catalogs. Don't edit `messages.ts` by hand.
 - At runtime, each package registers its catalogs with `registerCatalogs` (`@scylla/ui/i18n`):
   `@scylla/ui` its own, the core its own, and each extension through
   `@Extension({ catalogs: import.meta.glob(...) })`.
@@ -624,6 +625,27 @@ Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@t
 
 ---
 
+## Host repos: an extension outside this repo
+
+A private extension (e.g. the SaaS build) lives in its own repo, which mounts this one as a git
+submodule at `scylla/` and is the root of the pnpm workspace: `scylla/packages/*`,
+`scylla/sdks/*` and `scylla/extensions/*` are members, `scylla/apps/web` is not — the host has
+its own app. The host never writes inside `scylla/`.
+
+Because of that, the tooling of this repo must work from another root. Keep it so:
+
+- The configs are factories in `tooling/` (`defineScyllaConfig`, `scyllaEslintConfig`,
+  `scyllaCatalogs`) and `tsconfig.base.json`. The root configs here only call them. A host calls
+  the same ones.
+- Nothing lists the extensions or the catalogs by hand: `gen-proto` reads `scylla.protos` from
+  each extension's `package.json`, `lingui.config.js` finds the `locales/` folders.
+- A script or a config that matches paths accepts the mount prefix. `.dependency-cruiser.cjs`
+  and `scripts/*.mjs` compute it from their own location (`scylla/` in a host, empty here).
+- `scripts/check-host-deps.mjs` is for the host: it compares its versions and its lockfile with
+  this repo's.
+
+---
+
 ## Adding a feature (checklist)
 
 1. Create `extensions/scylla-base/src/features/<feature>/` with `domain/ infrastructure/ locales/ presentation/`.
@@ -642,7 +664,7 @@ Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@t
    UI from `@scylla/ui` and primitives from `@scylla/ui/shadcn`. Read
    `packages/ui/AGENTS.md` first.
 7. Every message in a `*.messages.ts` beside its component (`msg`), rendered with `t()`. Add
-   `locales/{en,fr}/` and register the catalog in `lingui.config.js`.
+   `locales/{en,fr}/`: `lingui.config.js` finds the new catalog itself.
 8. `index.ts`: export only what other modules may use — never the `*.module.ts`, never a
    component (export a loader), and a page only when another module composes it behind its own
    route. Every feature has one, even when nothing consumes it yet.
@@ -684,14 +706,16 @@ Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@t
    top-level `widget-injections/`. Declare the owner extension in `dependencies` — the loader
    rejects a change to a point whose owner is not a loaded dependency.
 6. Add the class to `apps/web/src/extensions.ts` and the package to `apps/web/package.json`.
-7. Catalogs: a `lingui.config.js` entry per module with messages (a feature with widget
-   injections of its own needs only one entry — its `include` already covers
+7. Catalogs: nothing to declare. `lingui.config.js` finds each `locales/` folder (a feature with
+   widget injections of its own has one catalog — its folder already covers
    `widget-injections/` under it). Tailwind already scans `extensions/` (`@source` in
    `@scylla/ui/styles.css`).
-8. Calls the backend directly? Add a target to `scripts/gen-proto.mjs`'s `targets` array, naming
-   only the proto packages this extension uses — never deep-import another extension's
-   `src/generated/`. A proto package two extensions both need (e.g. `common`) is generated once
-   per extension on purpose: each copy stays private to its own extension.
+8. Calls the backend directly? Declare the proto packages this extension uses in its
+   `package.json`: `"scylla": { "protos": ["scylla/registration/v1"] }` (and `protoRoot`,
+   relative to the extension, when the protos are not in the `protos/` submodule).
+   `scripts/gen-proto.mjs` finds it. Never deep-import another extension's `src/generated/`. A
+   proto package two extensions both need (e.g. `common`) is generated once per extension on
+   purpose: each copy stays private to its own extension.
 9. Other extensions will use part of it? Give it an SDK in `sdks/<name>-sdk`, a facade that
    re-exports its barrels, and add the pair of rules to `.dependency-cruiser.cjs`
    (`sdk-is-the-door` names scylla-base today).

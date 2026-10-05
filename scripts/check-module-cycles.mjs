@@ -19,10 +19,22 @@
  *   depcruise apps packages sdks extensions --output-type json | node scripts/check-module-cycles.mjs [--report-only]
  */
 
+import { dirname, relative, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 const reportOnly = process.argv.includes('--report-only');
 
+// A host repo may mount scylla-web as a submodule (`scylla/packages/ui/…`) and run this from its
+// own root: a module path then starts with that folder.
+const mountedAt = relative(process.cwd(), resolve(dirname(fileURLToPath(import.meta.url)), '..'))
+  .split(sep)
+  .join('/');
+const prefix = mountedAt ? `(?:${mountedAt}/)?` : '';
+
 /** A package, or a top-level folder (or feature) inside an extension. */
-const MODULE_ID = /^((?:apps|packages|sdks)\/[^/]+|extensions\/[^/]+\/src\/(?:features\/[^/]+|[^/]+))/;
+const MODULE_ID = new RegExp(
+  `^(${prefix}(?:apps|packages|sdks)/[^/]+|${prefix}extensions/[^/]+/src/(?:features/[^/]+|[^/]+))`,
+);
 
 /** `extensions/scylla-base/src/features/jobs/presentation/x.ts` -> `extensions/scylla-base/src/features/jobs`. */
 const moduleOf = filePath => MODULE_ID.exec(filePath)?.[1] ?? null;

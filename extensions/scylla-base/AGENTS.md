@@ -47,8 +47,8 @@ export class ScyllaBaseExtension {}
 
 - **A new feature** = its folder + its `*.module.ts` in `shell/modules.ts`. Nothing here.
 - **A new mount, sidebar section or shell part** = `shell/shell.module.ts`.
-- The `catalogs` glob finds every catalog of the extension: a new feature's catalog needs only
-  its entry in `lingui.config.js`.
+- The `catalogs` glob finds every catalog of the extension, and `lingui.config.js` finds it for
+  the extraction: a new feature's catalog needs no declaration.
 
 ## Rules that bite here
 

@@ -59,14 +59,14 @@ src/
 
 ```typescript
 @Extension({
-  id: 'scylla-cloud',
-  name: 'Scylla Cloud',
+  id: 'acme-auth',
+  name: 'Acme Auth',
   version: '1.0.0',
   dependencies: ['scylla-base'],
   modules: [BillingModule],
   catalogs: import.meta.glob<CatalogModule>('./**/locales/*/messages.ts'),
 })
-export class ScyllaCloudExtension {}
+export class AcmeAuthExtension {}
 ```
 
 - The decorator puts the manifest on the class. `apps/web` lists the classes; the core reads
@@ -128,11 +128,11 @@ safe from minification (an object key is a string in the bundle).
 
 ```typescript
 @Extension({
-  id: 'scylla-cloud',
-  modules: [CloudAuthModule],
+  id: 'acme-auth',
+  modules: [SignUpModule],
   widgetInjections: { EmailLoginWidgetInjection, SignUpLinkWidgetInjection },
 })
-export class ScyllaCloudExtension {}
+export class AcmeAuthExtension {}
 ```
 ```typescript
 export const EmailLoginWidgetInjection = [

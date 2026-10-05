@@ -12,5 +12,10 @@
   "dependencies": {
     "@scylla/core-sdk": "workspace:*",
     "@scylla/ui": "workspace:*"
+  },
+  "scylla": {
+    "protos": [
+      "scylla"
+    ]
   }
 }
