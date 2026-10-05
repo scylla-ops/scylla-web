@@ -30,10 +30,10 @@ const MANIFEST = Symbol('scylla.extension');
 /**
  * Declares an extension on a class:
  *
- *   @Extension({ id: 'scylla-cloud', name: 'Scylla Cloud', version: '1.0.0', modules: [BillingModule] })
- *   export class ScyllaCloudExtension {}
+ *   @Extension({ id: 'acme-billing', name: 'Acme Billing', version: '1.0.0', modules: [BillingModule] })
+ *   export class AcmeBillingExtension {}
  *
- * The app then lists the class: `startCore({ extensions: [ScyllaCloudExtension] })`.
+ * The app then lists the class: `startCore({ extensions: [AcmeBillingExtension] })`.
  */
 export const Extension =
   (manifest: ExtensionManifest) =>

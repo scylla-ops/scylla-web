@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:12
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:11
 msgid "••••••••"
 msgstr "••••••••"
 
@@ -25,7 +25,7 @@ msgstr "Entrez votre nom d'utilisateur ci-dessous pour vous connecter à votre c
 msgid "Incorrect username or password"
 msgstr "Nom d'utilisateur ou mot de passe incorrect"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:13
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:12
 msgid "Login"
 msgstr "Connexion"
 
@@ -33,14 +33,14 @@ msgstr "Connexion"
 msgid "Login to your account"
 msgstr "Connectez-vous à votre compte"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:11
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:10
 msgid "Password"
 msgstr "Mot de passe"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:10
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:9
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:9
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:8
 msgid "Username"
 msgstr "Nom d'utilisateur"
