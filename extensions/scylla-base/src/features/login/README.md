@@ -33,7 +33,7 @@ and a session, so it happens inside the authenticated shell rather than at sign-
 
 ## Letting another extension change this page
 
-A SaaS build (`scylla-cloud`) wants its own flavour of this page: "Email" instead of "Username",
+A SaaS build wants its own flavour of this page: "Email" instead of "Username",
 a link to its own `/register`. Forking the page would mean every later fix to `Login.page.svelte`
 has to land twice. Instead, `presentation/login.points.ts` opens a handful of **extension
 points** — a zone below the card, the page's texts, the credentials form's fields — as plain

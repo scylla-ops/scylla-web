@@ -22,12 +22,27 @@
  *   node scripts/check-catalog-collisions.mjs [--report-only]
  */
 
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { dirname, relative, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const reportOnly = process.argv.includes('--report-only');
 
-/** The workspace folders that hold packages. */
-const ROOTS = ['apps', 'packages', 'sdks', 'extensions'];
+const mountedAt = relative(process.cwd(), resolve(dirname(fileURLToPath(import.meta.url)), '..'))
+  .split(sep)
+  .join('/');
+
+/**
+ * The workspace folders that hold packages. A host repo that mounts scylla-web as a submodule
+ * loads the catalogs of both at runtime, so both are checked; `apps/` of scylla-web is not built.
+ */
+const ROOTS = [
+  'apps',
+  'packages',
+  'sdks',
+  'extensions',
+  ...(mountedAt ? ['packages', 'sdks', 'extensions'].map(root => `${mountedAt}/${root}`) : []),
+].filter(root => existsSync(root));
 
 /** `extensions/scylla-base/src/features/jobs/locales/fr/messages.po` -> `extensions/scylla-base/src/features/jobs`. */
 const moduleOf = relPath => relPath.split('/locales/')[0];

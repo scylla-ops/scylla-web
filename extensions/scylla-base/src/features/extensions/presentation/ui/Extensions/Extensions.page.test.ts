@@ -35,13 +35,13 @@ describe('ExtensionsPage', () => {
     getInstalledExtensions.mockResolvedValue(
       ScyllaResult.success([
         extension(),
-        extension({ id: 'scylla-cloud', name: 'Scylla Cloud', dependencies: ['scylla-base'] }),
+        extension({ id: 'acme-billing', name: 'Acme Billing', dependencies: ['scylla-base'] }),
       ]),
     );
 
     render(ExtensionsPage);
 
-    expect(await screen.findByText('Scylla Cloud')).toBeInTheDocument();
+    expect(await screen.findByText('Acme Billing')).toBeInTheDocument();
     expect(screen.getByText('Scylla')).toBeInTheDocument();
     expect(screen.getAllByText('v0.4.0')).toHaveLength(2);
     expect(screen.getAllByText(/1 module ·/)).toHaveLength(2);

@@ -323,7 +323,7 @@ export const EmailLoginWidgetInjection = [
 
 It is listed in `widgetInjections` on `@Extension` with the shorthand property —
 `{ EmailLoginWidgetInjection }`, so the key is the constant's name and the loader names the
-injection `scylla-cloud/EmailLoginWidgetInjection` — never in `modules`. Write no string key:
+injection `acme-auth/EmailLoginWidgetInjection` — never in `modules`. Write no string key:
 the constant already carries the name. Like a
 `*.module.ts`, a `*.widget-injection.ts` is private: only the extension class imports it.
 

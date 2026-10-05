@@ -136,12 +136,12 @@ export const SignUpLinkWidgetInjection = [
 ];
 
 @Extension({
-  id: 'scylla-cloud',
+  id: 'acme-auth',
   dependencies: ['scylla-base'],
   widgetInjections: { SignUpLinkWidgetInjection },
   modules: [],
 })
-export class ScyllaCloudExtension {}
+export class AcmeAuthExtension {}
 ```
 
 Injections are data, not classes: an array composes, is shared, and is tested in one line, and

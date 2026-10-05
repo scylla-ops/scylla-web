@@ -183,9 +183,6 @@ importers:
       '@scylla/base':
         specifier: workspace:*
         version: link:../../extensions/scylla-base
-      '@scylla/cloud':
-        specifier: workspace:*
-        version: link:../../extensions/scylla-cloud
       '@scylla/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -202,18 +199,6 @@ importers:
 
   extensions/scylla-base:
     dependencies:
-      '@scylla/core-sdk':
-        specifier: workspace:*
-        version: link:../../sdks/core-sdk
-      '@scylla/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
-
-  extensions/scylla-cloud:
-    dependencies:
-      '@scylla/base-sdk':
-        specifier: workspace:*
-        version: link:../../sdks/scylla-base-sdk
       '@scylla/core-sdk':
         specifier: workspace:*
         version: link:../../sdks/core-sdk
