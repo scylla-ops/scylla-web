@@ -18,7 +18,7 @@ unchanged — they never had a framework in them.
 ```typescript
 LoginState, type Credentials
 loginPoints, type LoginZoneContext   // extension points — see below
-openSession                          // the only writer of the session; scylla-cloud's sign-up uses it too
+openSession                          // the only writer of the session; a sign-up flow in another extension uses it too
 ```
 
 Never add: `login.module.ts`, `LoginPage`. There is no `use-login-domain.ts` any more: a view
@@ -69,7 +69,7 @@ exported from this barrel and from `@scylla/base-sdk`.
 | `login.fields` | value | `readonly FormItem<'identifier' \| 'password'>[]` | The `ScyllaForm` fields of `LoginForm.svelte`. Keep the ids: `submit` reads `values.identifier` and `values.password`. |
 
 - **The field id is `identifier`, not `username`.** The backend's `LoginRequest.identifier`
-  accepts a username or an email already; `scylla-cloud` turns it into an email field with a
+  accepts a username or an email already; an extension that wants an email field does it with a
   patch on `login.fields`, not a new field.
 - **No `login.form` zone yet.** It would wrap the whole credentials form (for a `replace`, e.g.
   a different sign-in method entirely) — add it when a real consumer
@@ -92,8 +92,8 @@ No nav entry — the sidebar only renders inside the authenticated shell.
   `infrastructure/session/open-session.ts`.** Three places must agree: `openSession` writes
   them, `platform/grpc`'s transport reads `token` for the `Authorization: Bearer` header, and
   `shell/.../Auth.guard.svelte` reads it to decide whether to redirect. Changing the key or the
-  mechanism means changing all three in the same commit. **A sign-up flow (`scylla-cloud`) opens
-  a session the same way — through `openSession`, never a direct `localStorage.setItem`.**
+  mechanism means changing all three in the same commit. **A sign-up flow (in another extension)
+  opens a session the same way — through `openSession`, never a direct `localStorage.setItem`.**
 - **`LoginState` must be constructed during a component's initialisation.** The mutation inside
   it installs an `$effect.pre`; built from an event handler, Svelte throws `effect_orphan`. True
   of every view model holding a query or a mutation.

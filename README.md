@@ -68,7 +68,6 @@ apps/web                   the product build: the list of extensions, main.ts
    ↓
 packages/core              loads the extensions, router, shell frame — knows no business
 extensions/scylla-base     the Scylla product: features, platform, shell parts
-extensions/scylla-cloud    the SaaS build: sign-up, and widget injections into scylla-base
    ↓                       (an extension reaches another only through its SDK)
 sdks/scylla-base-sdk       the public API of scylla-base, for other extensions
 sdks/core-sdk              the extension contract: @Extension, ScyllaModule, navigation, DI, query, widgets
@@ -86,7 +85,6 @@ packages/ui                the design system — imports no other package
 | [@scylla/ui](packages/ui/README.md) | shadcn primitives, generic composites, rune helpers, stores, i18n runtime, theme |
 | [@scylla/base-sdk](sdks/scylla-base-sdk/README.md) | What other extensions may use of scylla-base |
 | [scylla-base](extensions/scylla-base/README.md) | The Scylla product — the modules below |
-| [scylla-cloud](extensions/scylla-cloud/README.md) | The SaaS build: self-service sign-up, and the widget injections that fit it into scylla-base's login |
 
 ### scylla-base — the shell
 
@@ -128,9 +126,3 @@ packages/ui                the design system — imports no other package
 | Module | What it owns |
 |--------|--------------|
 | [shared](extensions/scylla-base/src/shared/README.md) | `ScyllaResult`, status presentation, the shared code with a business meaning |
-
-### scylla-cloud — `features/`
-
-| Module | What it owns |
-|--------|--------------|
-| [auth](extensions/scylla-cloud/src/features/auth/README.md) | Self-service sign-up (`/register`), and the widget injections that fit a cloud account into scylla-base's login page |

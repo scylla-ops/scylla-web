@@ -82,7 +82,7 @@ that no loaded module lists; a change on an extension's point that the contribut
 list in `dependencies` (a change on the contributor's own point needs none). Then it calls
 `buildWidgetInjectionRegistry` (`@scylla/core-sdk`), which keeps the order and **throws** on two
 injections that `replace` the same zone, or two that override the same message (found by its
-descriptor). Every message names the injections, e.g. `scylla-cloud/SignUpLinkWidgetInjection`.
+descriptor). Every message names the injections, e.g. `acme-auth/SignUpLinkWidgetInjection`.
 The text overrides go to `t()` through `setWidgetInjectionRegistry`, which installs them with
 `setMessageOverrides` (`@scylla/ui/i18n`). It is exported from `@scylla/core`'s barrel so
 `packages/core/src/loader/__test__/merge-widget-injections.test.ts` can reach it through the

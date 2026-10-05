@@ -224,12 +224,12 @@ export const EmailLoginWidgetInjection = [
 ];
 
 @Extension({
-  id: 'scylla-cloud',
+  id: 'acme-auth',
   dependencies: ['scylla-base'],
-  modules: [CloudAuthModule],
+  modules: [SignUpModule],
   widgetInjections: { EmailLoginWidgetInjection, SignUpLinkWidgetInjection },
 })
-export class ScyllaCloudExtension {}
+export class AcmeAuthExtension {}
 ```
 
 `widgetInjections` is a field of `@Extension`, not of a module: what it declares — a change to
@@ -242,9 +242,9 @@ The owner writes almost the code it writes with no points. A zone point is itsel
 action — `<div use:loginPoints.footer={{ isPending }}>` — which owns the whole mount, update and
 cleanup lifecycle of whatever is injected into it. Texts keep `t(loginMessages.title)`: `t` finds
 an override by the descriptor object (never by its id, which two modules with the same source
-string share). Only a value point shows in the owner's code, as `resolve(value)`. `scylla-cloud`'s sign-up link into `scylla-base`'s login page
-(`extensions/scylla-cloud/src/features/auth/widget-injections/`) is the reference example this
-mechanism was built against.
+string share). Only a value point shows in the owner's code, as `resolve(value)`. A sign-up link that another
+extension adds to `scylla-base`'s login page is the reference example this mechanism was built
+against.
 
 ---
 

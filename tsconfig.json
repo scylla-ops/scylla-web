@@ -7,21 +7,5 @@
     {
       "path": "./tsconfig.node.json"
     }
-  ],
-  "compilerOptions": {
-    "paths": {
-      "@base/*": [
-        "./extensions/scylla-base/src/*"
-      ],
-      "@platform/*": [
-        "./extensions/scylla-base/src/platform/*"
-      ],
-      "@shared/*": [
-        "./extensions/scylla-base/src/shared/*"
-      ],
-      "@test/*": [
-        "./test/*"
-      ]
-    }
-  }
+  ]
 }
