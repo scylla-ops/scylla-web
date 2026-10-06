@@ -18,7 +18,7 @@ Authorization primitives: may this user do this?
 ```typescript
 Permission, PermissionScope, PrincipalKind, RoleKind
 type AccessEntity, AccessSpec, PrincipalEntity
-canAccess
+canAccess, permissionLevel
 type EffectivePermissionsEntity, EffectiveScopeEntity, PermissionTarget
 can, authorizationReady                            // reactive in a Svelte component
 permissionsStore
@@ -46,6 +46,13 @@ depending on the feature that administers roles.
 
 **Never add a repository, a data source or a query to this module.** The moment authz fetches,
 it needs a transport and a feature's contract, and the layer inverts.
+
+**A grant reaches a permission at its own scope or below it.** `permissionLevel` gives the
+scope of the resource a permission targets, as the backend's `Permission::resource()` does (a
+user counts as SYSTEM, an app as ORGANIZATION). Full control on an organization therefore does
+not answer `MANAGE_ROLES` or `LIST_USERS`, and full control on a project does not answer an
+organization permission. A new permission of the SYSTEM or ORGANIZATION level goes in the sets
+of `effective-permissions.entity.ts`; the roles catalog test fails until it does.
 
 `permissionsStore` has exactly **one writer**: `syncMyPermissions`, called by the shell state in
 `shell/`. If you find yourself writing to it from anywhere else, the fix is upstream.

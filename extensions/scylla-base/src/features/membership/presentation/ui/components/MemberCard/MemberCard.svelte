@@ -15,6 +15,7 @@
     isCurrentUser: boolean;
     canRemove: boolean;
     addableRoles: AssignableRole[];
+    organizationName: string;
     onAddRole: (roleId: string) => void;
     labelFor: (roleId: string) => string;
     canManage: boolean;
@@ -31,6 +32,7 @@
     isCurrentUser,
     canRemove,
     addableRoles,
+    organizationName,
     onAddRole,
     labelFor,
     canManage,
@@ -78,7 +80,7 @@
     <div
       class="flex min-h-11 items-center border-t border-border/70 bg-muted/30 px-4 py-2"
     >
-      <AddRoleSelect {disabled} roles={addableRoles} onSelect={onAddRole} />
+      <AddRoleSelect {disabled} roles={addableRoles} {organizationName} onSelect={onAddRole} />
     </div>
   {/if}
 </Card>

@@ -38,6 +38,7 @@
       defaultValue: project.description,
       type: FormItemType.Input,
       inputType: 'text',
+      optional: true,
     },
   ]);
 

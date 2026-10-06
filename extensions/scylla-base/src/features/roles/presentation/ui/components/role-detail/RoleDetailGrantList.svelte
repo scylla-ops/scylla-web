@@ -5,23 +5,29 @@
   import GlobeIcon from '@lucide/svelte/icons/globe';
   import UserIcon from '@lucide/svelte/icons/user';
   import XIcon from '@lucide/svelte/icons/x';
-  import { can, Permission, PermissionScope, PrincipalKind } from '@platform/authz';
+  import { PermissionScope, PrincipalKind } from '@platform/authz';
   import { Badge } from '@scylla/ui/shadcn';
   import { IconButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { RoleEntity } from '../../../../domain/entities/role.entity.ts';
   import { createGrantTargetLabels } from '../../../grant-target-labels.svelte.ts';
   import { createRoleAssignees } from '../../../role-assignees.state.svelte.ts';
+  import type { RolesPage } from '../../../roles-page.state.svelte.ts';
   import { rolesMessages } from '../../roles.messages.ts';
   import GrantCreator from './GrantCreator.svelte';
 
   interface Props {
     role: RoleEntity;
+    page: RolesPage;
   }
 
-  let { role }: Props = $props();
+  let { role, page }: Props = $props();
 
-  const assignees = createRoleAssignees(() => role);
+  const assignees = createRoleAssignees(
+    () => role,
+    () => page.grants,
+    grant => page.principalLabel(grant),
+  );
   const targets = createGrantTargetLabels(() => role.scope);
 
   const SCOPE_ICON = {
@@ -30,8 +36,6 @@
     [PermissionScope.PROJECT]: FolderGit2Icon,
     [PermissionScope.UNSPECIFIED]: GlobeIcon,
   };
-
-  const canRevoke = $derived(can(Permission.MANAGE_SYSTEM_GRANTS));
 </script>
 
 <section class="flex min-h-0 flex-col gap-2">
@@ -40,7 +44,7 @@
       {t(rolesMessages.grants)} ({assignees.assignees.length})
     </h3>
 
-    <GrantCreator {role} />
+    <GrantCreator {role} scope={page.scope} grants={page.grants} />
   </div>
 
   {#if assignees.assignees.length === 0}
@@ -55,6 +59,7 @@
           {@const isUser = grant.principal.kind === PrincipalKind.USER}
           {@const target = targets.labelFor(grant.scopeId)}
           {@const ScopeIcon = SCOPE_ICON[role.scope] ?? GlobeIcon}
+          {@const canRevoke = page.canRevoke(grant)}
           <li class="flex items-center gap-3 rounded-lg border px-3 py-2">
             <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
               {#if isUser}

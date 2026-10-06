@@ -47,6 +47,72 @@ const accessConfers = (access: AccessEntity, permission: Permission): boolean =>
   }
 };
 
+const SYSTEM_LEVEL = new Set<Permission>([
+  Permission.CREATE_USER,
+  Permission.READ_USER,
+  Permission.UPDATE_USER,
+  Permission.DELETE_USER,
+  Permission.LIST_USERS,
+  Permission.LIST_USER_ORGANIZATIONS,
+  Permission.LIST_USER_PROJECTS,
+  Permission.CREATE_ORGANIZATION,
+  Permission.LIST_ORGANIZATIONS,
+  Permission.LIST_PROJECTS,
+  Permission.LIST_PIPELINES,
+  Permission.CREATE_JOB,
+  Permission.LIST_JOBS,
+  Permission.MANAGE_SYSTEM_GRANTS,
+  Permission.MANAGE_ROLES,
+]);
+
+const ORGANIZATION_LEVEL = new Set<Permission>([
+  Permission.READ_ORGANIZATION,
+  Permission.UPDATE_ORGANIZATION,
+  Permission.DELETE_ORGANIZATION,
+  Permission.LIST_ORGANIZATION_MEMBERS,
+  Permission.ADD_ORGANIZATION_MEMBER,
+  Permission.REMOVE_ORGANIZATION_MEMBER,
+  Permission.MANAGE_INVITATIONS,
+  Permission.CREATE_PROJECT,
+  Permission.LIST_PROJECTS_BY_ORGANIZATION,
+  Permission.LIST_PIPELINES_BY_ORGANIZATION,
+  Permission.LIST_JOBS_BY_ORGANIZATION,
+  Permission.CREATE_APP,
+  Permission.READ_APP,
+  Permission.READ_APP_STATS,
+  Permission.DELETE_APP,
+  Permission.LIST_APPS_BY_ORGANIZATION,
+  Permission.CREATE_AGENT,
+  Permission.LIST_AGENTS,
+  Permission.MANAGE_ORG_GRANTS,
+  Permission.MANAGE_ORG_ROLES,
+]);
+
+/**
+ * The scope of the resource a permission targets, as the backend's `Permission::resource()`:
+ * a user counts as SYSTEM, an app as ORGANIZATION. A grant reaches a permission at its own
+ * scope or below it, never above.
+ */
+export const permissionLevel = (permission: Permission): PermissionScope => {
+  if (SYSTEM_LEVEL.has(permission)) return PermissionScope.SYSTEM;
+  if (ORGANIZATION_LEVEL.has(permission)) return PermissionScope.ORGANIZATION;
+  return PermissionScope.PROJECT;
+};
+
+const reaches = (grantScope: PermissionScope, permission: Permission): boolean => {
+  const level = permissionLevel(permission);
+  switch (grantScope) {
+    case PermissionScope.SYSTEM:
+      return true;
+    case PermissionScope.ORGANIZATION:
+      return level !== PermissionScope.SYSTEM;
+    case PermissionScope.PROJECT:
+      return level === PermissionScope.PROJECT;
+    default:
+      return false;
+  }
+};
+
 /** Client-side UX only: the backend enforces. */
 export const canAccess = (
   effective: EffectivePermissionsEntity,
@@ -54,7 +120,7 @@ export const canAccess = (
   target: PermissionTarget = {},
 ): boolean =>
   effective.scopes.some(entry => {
-    if (!accessConfers(entry.access, permission)) return false;
+    if (!accessConfers(entry.access, permission) || !reaches(entry.scope, permission)) return false;
     switch (entry.scope) {
       case PermissionScope.SYSTEM:
         return true;

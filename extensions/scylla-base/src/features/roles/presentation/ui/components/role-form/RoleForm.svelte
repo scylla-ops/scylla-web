@@ -10,26 +10,40 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
+    ToggleGroup,
+    ToggleGroupItem,
   } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
   import type { RoleEntity } from '../../../../domain/entities/role.entity.ts';
   import { createRoleForm, type AccessKind } from '../../../role-form.state.svelte.ts';
-  import { ALL_SCOPES, scopeLabelOf } from '../../../utils/permission-mapping.ts';
+  import { organizationIdOf, type RolesScope } from '../../../roles-page.state.svelte.ts';
+  import { scopeLabelOf } from '../../../utils/permission-mapping.ts';
   import { rolesMessages } from '../../roles.messages.ts';
   import RoleDialogPermissions from './RoleDialogPermissions/RoleDialogPermissions.svelte';
+  import RoleHolderField from './RoleHolderField.svelte';
 
   interface Props {
     /** `null` when creating. */
     role: RoleEntity | null;
+    scope: RolesScope;
     onDone: () => void;
   }
 
-  let { role, onDone }: Props = $props();
+  let { role, scope, onDone }: Props = $props();
 
   // Seeded once, deliberately: `RoleFormDialog` renders this under `{#key open}`,
   // so a new opening builds a new component rather than re-reading the prop.
   // svelte-ignore state_referenced_locally
-  const form = createRoleForm(role);
+  const form = createRoleForm(role, organizationIdOf(scope));
+
+  const organizationName = $derived(
+    scope.kind === 'organization' ? scope.organizationName : null,
+  );
+  const lockedLabel = $derived(
+    organizationName === null
+      ? t(rolesMessages.notHeldAtSystem)
+      : t(rolesMessages.notHeldIn(organizationName)),
+  );
 
   const submit = async () => {
     if (!form.isValid) return;
@@ -59,25 +73,33 @@
     />
   </div>
 
+  <RoleHolderField
+    kind={form.kind}
+    fixed={form.isEdit}
+    disabled={form.isPending}
+    {organizationName}
+    onKindChange={next => (form.kind = next)}
+  />
+
   <div class="flex flex-col gap-1.5">
-    <Label for="role-scope">{t(rolesMessages.scope)}</Label>
-    <Select
+    <Label id="role-scope-label">{t(rolesMessages.scope)}</Label>
+    <ToggleGroup
       type="single"
+      variant="outline"
+      class="w-full"
+      aria-labelledby="role-scope-label"
       value={String(form.scope)}
       disabled={form.isEdit || form.isPending}
-      onValueChange={value => form.changeScope(Number(value) as PermissionScope)}
+      onValueChange={value => {
+        if (value) form.changeScope(Number(value) as PermissionScope);
+      }}
     >
-      <SelectTrigger id="role-scope" class="w-full">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {#each ALL_SCOPES as scope (scope)}
-          <SelectItem value={String(scope)} label={scopeLabelOf(scope)}>
-            {scopeLabelOf(scope)}
-          </SelectItem>
-        {/each}
-      </SelectContent>
-    </Select>
+      {#each form.scopes as option (option)}
+        <ToggleGroupItem value={String(option)} class="flex-1">
+          {scopeLabelOf(option)}
+        </ToggleGroupItem>
+      {/each}
+    </ToggleGroup>
     {#if form.isEdit}
       <p class="text-xs text-muted-foreground">{t(rolesMessages.scopeIsFixed)}</p>
     {/if}
@@ -85,8 +107,13 @@
 
   <div class="flex flex-col gap-1.5">
     <Label for="role-access">{t(rolesMessages.access)}</Label>
+    <!-- `items` names the closed value: without it the trigger shows the raw key. -->
     <Select
       type="single"
+      items={[
+        { value: 'fullControl', label: t(rolesMessages.fullControl) },
+        { value: 'restricted', label: t(rolesMessages.restricted) },
+      ]}
       value={form.accessKind}
       disabled={form.isPending}
       onValueChange={value => (form.accessKind = value as AccessKind)}
@@ -95,7 +122,11 @@
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="fullControl" label={t(rolesMessages.fullControl)}>
+        <SelectItem
+          value="fullControl"
+          label={t(rolesMessages.fullControl)}
+          disabled={!form.canGiveFullControl}
+        >
           {t(rolesMessages.fullControl)}
         </SelectItem>
         <SelectItem value="restricted" label={t(rolesMessages.restricted)}>
@@ -103,6 +134,9 @@
         </SelectItem>
       </SelectContent>
     </Select>
+    {#if !form.canGiveFullControl}
+      <p class="text-xs text-muted-foreground">{t(rolesMessages.fullControlNotHeld)}</p>
+    {/if}
   </div>
 
   {#if form.accessKind === 'restricted'}
@@ -112,6 +146,8 @@
       preservedCount={form.preservedCount}
       conferredCount={form.conferredCount}
       isPending={form.isPending}
+      lockedIds={form.lockedPermissions}
+      {lockedLabel}
       onPermissionsChange={next => (form.permissions = next)}
     />
   {/if}

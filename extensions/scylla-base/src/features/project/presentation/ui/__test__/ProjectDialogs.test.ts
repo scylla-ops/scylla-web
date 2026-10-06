@@ -54,7 +54,6 @@ describe('AddProjectDialog', () => {
     render(AddProjectDialog, { open: true, setOpen: vi.fn() });
     await focusSettled();
 
-    // Both fields are required: the organization check runs only on a valid form.
     await userEvent.type(screen.getByLabelText('Project name'), 'web');
     await userEvent.type(screen.getByLabelText('Description'), 'the web app');
     await userEvent.click(screen.getByRole('button', { name: 'Create Project' }));
@@ -79,15 +78,29 @@ describe('AddProjectDialog', () => {
     await waitFor(() => expect(setOpen).toHaveBeenCalledWith(false));
   });
 
-  it("a whitespace-only description fails the form's own validity check, so Create never enables", async () => {
+  it('creates a project from a name alone: the description is optional', async () => {
+    install();
+    render(AddProjectDialog, { open: true, setOpen: vi.fn() });
+    await focusSettled();
+
+    await userEvent.type(screen.getByLabelText('Project name'), 'web');
+    const submit = screen.getByRole('button', { name: 'Create Project' });
+    expect(submit).toBeEnabled();
+    await userEvent.click(submit);
+
+    await waitFor(() => expect(create).toHaveBeenCalledWith('web', 'org-1', undefined));
+  });
+
+  it('sends a whitespace-only description as no description', async () => {
     install();
     render(AddProjectDialog, { open: true, setOpen: vi.fn() });
     await focusSettled();
 
     await userEvent.type(screen.getByLabelText('Project name'), 'web');
     await userEvent.type(screen.getByLabelText('Description'), '   ');
+    await userEvent.click(screen.getByRole('button', { name: 'Create Project' }));
 
-    expect(screen.getByRole('button', { name: 'Create Project' })).toBeDisabled();
+    await waitFor(() => expect(create).toHaveBeenCalledWith('web', 'org-1', undefined));
   });
 });
 
@@ -116,6 +129,18 @@ describe('EditProjectDialog', () => {
       'placeholder',
       'Add a description...',
     );
+  });
+
+  it('saves a project that has no description', async () => {
+    install();
+    render(EditProjectDialog, {
+      open: true,
+      setOpen: vi.fn(),
+      project: project({ description: '' }),
+    });
+    await focusSettled();
+
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 
   it('submits the trimmed changes for this project id and closes on success', async () => {

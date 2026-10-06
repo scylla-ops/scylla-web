@@ -10,9 +10,20 @@
     checkedIds?: Permission[];
     onCheckedChange?: (checkedIds: Permission[]) => void;
     allDisabled?: boolean;
+    /** Shown but not toggled: the author does not hold them. */
+    lockedIds?: ReadonlySet<Permission>;
+    /** Why a locked row is locked. */
+    lockedLabel?: string;
   }
 
-  let { nodes, checkedIds = [], onCheckedChange, allDisabled = false }: Props = $props();
+  let {
+    nodes,
+    checkedIds = [],
+    onCheckedChange,
+    allDisabled = false,
+    lockedIds = new Set(),
+    lockedLabel = '',
+  }: Props = $props();
 
   // Seeded once, then owned here: the dialog rebuilds it for another role.
   // svelte-ignore state_referenced_locally
@@ -30,4 +41,4 @@
   };
 </script>
 
-<CheckboxTreeNode {nodes} {checked} disabled={allDisabled} {toggle} />
+<CheckboxTreeNode {nodes} {checked} disabled={allDisabled} {lockedIds} {lockedLabel} {toggle} />

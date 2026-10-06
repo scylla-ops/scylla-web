@@ -13,6 +13,8 @@ export const membershipMessages = {
   noRoleGrantable: msg`No role can be granted here.`,
   held: msg`Held`,
   addRolePlaceholder: msg`+ role`,
+  organizationRoles: (organization: string) => msg`${organization} roles`,
+  platformRoles: msg`Platform roles`,
   selectAUser: msg`Select a user`,
   nobodyListed: msg`Nobody is listed here yet.`,
   managedAtOrganization: msg`Managed at the organization level.`,

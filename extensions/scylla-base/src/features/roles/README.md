@@ -4,8 +4,13 @@
 > [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
 
 Access-control administration: the catalog of roles, the grants that bind principals to them,
-and the permission vocabulary underneath. The page lives at `/:org/roles`, in the sidebar's
-**System** section, behind `MANAGE_ROLES`.
+and the permission vocabulary underneath. Two pages show it:
+
+- `/:org/roles`, in the **organization** section, behind `MANAGE_ORG_ROLES`: the roles that
+  organization owns, which its administrators create, edit and delete, above the platform roles
+  it can grant but not edit.
+- `/:org/platform-roles`, in the **System** section, behind `MANAGE_ROLES`: the platform roles,
+  for the system administrators.
 
 ## The vocabulary
 
@@ -15,7 +20,14 @@ Three words that are easy to conflate and mean different things:
 - **Role** — a named bundle of permissions (`RoleEntity`). "Project Admin" is a role.
 - **Grant** — a binding: *this principal* holds *this role* at *this scope* (`GrantEntity`).
 
-Roles are defined once for the installation; grants are handed out per organization or project.
+A role belongs to the platform (the builtins, and the roles of the system administrators) or to
+one organization, which alone sees and grants it. Grants are handed out per organization or
+project.
+
+The editor locks a permission its author does not hold: the backend refuses to let anyone put
+in a role more than they hold (no privilege escalation), so offering it would only produce an
+error. Showing it locked, rather than hiding it, tells the author it exists and why it is out of
+reach.
 Deleting a role affects everyone holding it; revoking a grant affects one principal. The UI
 keeps them apart deliberately.
 

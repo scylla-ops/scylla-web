@@ -19,7 +19,14 @@ import type { RolesModule } from '../roles.module.ts';
 // Resolved per call: tests swap the registry.
 const domain = () => getModuleDomain<typeof RolesModule.domain>('roles');
 
-export const ROLES_QUERY_KEY = ['permission-roles'] as const;
+const ROLES_QUERY_ROOT = 'permission-roles';
+
+/** Every role of the installation. Also the prefix of every role list: one invalidation reaches them all. */
+export const ROLES_QUERY_KEY = [ROLES_QUERY_ROOT] as const;
+
+/** The platform roles and the roles of one organization. */
+export const ORGANIZATION_ROLES_QUERY_KEY = (organizationId: string) =>
+  [ROLES_QUERY_ROOT, 'organization', organizationId] as const;
 
 /** One prefix for every grant list, so one mutation invalidates them all. */
 const GRANTS_QUERY_ROOT = 'permission-grants';
@@ -28,13 +35,16 @@ const GRANTS_QUERY_ROOT = 'permission-grants';
 export const GRANTS_QUERY_KEY = (scope?: PermissionScope, scopeId?: string) =>
   [GRANTS_QUERY_ROOT, scope ?? 'all', scopeId ?? ''] as const;
 
-export const GRANTABLE_ROLES_QUERY_KEY = (scope?: PermissionScope) =>
-  ['permission-grantable-roles', scope ?? 'all'] as const;
+const GRANTABLE_ROLES_QUERY_ROOT = 'permission-grantable-roles';
+
+/** No organization: the platform roles. With one: its roles too. Different permissions, so different keys. */
+export const GRANTABLE_ROLES_QUERY_KEY = (scope?: PermissionScope, organizationId?: string | null) =>
+  [GRANTABLE_ROLES_QUERY_ROOT, scope ?? 'all', organizationId ?? ''] as const;
 
 export const PERMISSION_VOCABULARY_QUERY_KEY = ['permission-vocabulary'] as const;
 
 export const roleQueries = {
-  /** Needs `MANAGE_ROLES`: without it, pass `enabled: false` and use `grantable`. */
+  /** Every role. Needs `MANAGE_ROLES`: without it, pass `enabled: false` and use `grantable`. */
   catalog: (options: { enabled?: boolean } = {}) =>
     queryOptions<RoleEntity[]>({
       queryKey: ROLES_QUERY_KEY,
@@ -42,18 +52,41 @@ export const roleQueries = {
       queryFn: async () => (await domain().permissionRepository.listRoles()).unwrap(),
     }),
 
-  /** Needs no permission. Builtin roles only: merge with the catalog when it is readable. */
-  grantable: (scope?: PermissionScope) =>
-    queryOptions<GrantableRoleEntity[]>({
-      queryKey: GRANTABLE_ROLES_QUERY_KEY(scope),
+  /** The platform roles and this organization's. Needs `MANAGE_ORG_ROLES` there: pass it as `enabled`. Idle while `organizationId` is `null`. */
+  organizationCatalog: (organizationId: string | null, options: { enabled?: boolean } = {}) =>
+    queryOptions<RoleEntity[]>({
+      queryKey: ORGANIZATION_ROLES_QUERY_KEY(organizationId ?? ''),
+      enabled: (options.enabled ?? true) && !!organizationId,
       queryFn: async () =>
-        (await domain().permissionRepository.listGrantableRoles(scope)).unwrap(),
+        (await domain().permissionRepository.listRoles(organizationId ?? '')).unwrap(),
+    }),
+
+  /**
+   * The roles a grant may give at `scope`. Without an organization: the platform roles, no
+   * permission. With one: its roles too, which needs `READ_ORGANIZATION` there: pass it as `enabled`.
+   */
+  grantable: (
+    scope?: PermissionScope,
+    organizationId?: string | null,
+    options: { enabled?: boolean } = {},
+  ) =>
+    queryOptions<GrantableRoleEntity[]>({
+      queryKey: GRANTABLE_ROLES_QUERY_KEY(scope, organizationId),
+      enabled: options.enabled ?? true,
+      queryFn: async () =>
+        (
+          await domain().permissionRepository.listGrantableRoles(
+            scope,
+            organizationId ?? undefined,
+          )
+        ).unwrap(),
     }),
 
   /** System admins only. */
-  allGrants: () =>
+  allGrants: (options: { enabled?: boolean } = {}) =>
     queryOptions<GrantEntity[]>({
       queryKey: GRANTS_QUERY_KEY(),
+      enabled: options.enabled ?? true,
       queryFn: async () => (await domain().permissionRepository.listGrants()).unwrap(),
     }),
 
@@ -117,8 +150,13 @@ export const resetPermissionSync = (): void => {
   lastSyncedKey = null;
 };
 
-const invalidateRoles = () =>
+/** A role change also changes what may be granted. */
+/** A role I hold that changes changes what I may do, so the caller's permissions reload too. */
+const invalidateRoles = () => {
   void getQueryClient().invalidateQueries({ queryKey: ROLES_QUERY_KEY });
+  void getQueryClient().invalidateQueries({ queryKey: [GRANTABLE_ROLES_QUERY_ROOT] });
+  void refreshMyPermissions();
+};
 
 /** `update` goes through `UpdateRoleUseCase`: read, apply `updateRole`, save. */
 export const roleMutations = {

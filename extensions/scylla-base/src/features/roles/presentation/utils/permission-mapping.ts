@@ -1,5 +1,6 @@
 import { msg } from '@lingui/core/macro';
-import { i18n, type MessageDescriptor } from '@lingui/core';
+import type { MessageDescriptor } from '@lingui/core';
+import { t } from '@scylla/ui/i18n';
 import { Permission, PermissionScope, } from '@platform/authz';
 
 /**
@@ -129,6 +130,13 @@ export const PERMISSION_CATALOG: PermissionDefinition[] = [
     broadLabel: msg`Grant and revoke roles in every organization`,
     scope: ORGANIZATION,
     dependsOn: Permission.LIST_ORGANIZATION_MEMBERS,
+  },
+  {
+    id: Permission.MANAGE_ORG_ROLES,
+    label: msg`Create, edit and delete the roles of the organization`,
+    broadLabel: msg`Create, edit and delete the roles of every organization`,
+    scope: ORGANIZATION,
+    dependsOn: Permission.READ_ORGANIZATION,
   },
 
   {
@@ -272,7 +280,8 @@ export const SCOPE_LABELS: Record<PermissionScope, MessageDescriptor> = {
   [PermissionScope.UNSPECIFIED]: msg({ context: 'feminine', message: 'Unknown' }),
 };
 
-export const scopeLabelOf = (scope: PermissionScope): string => i18n._(SCOPE_LABELS[scope]);
+/** Through `t`: a label rendered in a template follows a locale switch. */
+export const scopeLabelOf = (scope: PermissionScope): string => t(SCOPE_LABELS[scope]);
 
 /**
  * Outside the catalog, falls back to the humanized enum key. `roleScope` is the
@@ -283,7 +292,7 @@ export const permissionLabelOf = (permission: Permission, roleScope?: Permission
   if (!definition) return humanizePermission(permission);
 
   const broadened = roleScope !== undefined && roleScope !== definition.scope;
-  return i18n._(broadened ? (definition.broadLabel ?? definition.label) : definition.label);
+  return t(broadened ? (definition.broadLabel ?? definition.label) : definition.label);
 };
 
 /** A role may confer the permissions of its scope and of every broader one. */
@@ -351,6 +360,14 @@ export const withImplicitPermissions = (
   }
   return [...conferred];
 };
+
+/** What ticking `permission` writes at `scope`: itself, and the hidden permissions it stands in for. */
+export const carriedBy = (scope: PermissionScope, permission: Permission): Permission[] => [
+  permission,
+  ...getImplicitAtScope(scope)
+    .filter(entry => entry.standsIn === permission)
+    .map(entry => entry.id),
+];
 
 /** What the editor renders. A child of a hidden entry hangs under its stand-in, or becomes a root. */
 export const getEditablePermissionDefinitionsForScope = (

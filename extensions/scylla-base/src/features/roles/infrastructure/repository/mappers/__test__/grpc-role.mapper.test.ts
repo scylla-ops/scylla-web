@@ -3,7 +3,8 @@ import { describe, it, expect } from 'vitest';
 import { GrpcRoleMapper } from '../grpc-role.mapper';
 import { ScopeKind } from '@base/generated/scylla/authz/v1/permission.ts';
 import type { Role } from '@base/generated/scylla/authz/v1/role.ts';
-import { PermissionScope } from '@platform/authz';
+import { RoleKind as GrpcRoleKind } from '@base/generated/scylla/authz/v1/grant.ts';
+import { PermissionScope, RoleKind } from '@platform/authz';
 import type { RoleEntity, RoleCreationData } from '@base/features/roles/domain/entities/role.entity.ts';
 
 const baseRole = (overrides: Partial<Role> = {}): Role => ({
@@ -13,6 +14,7 @@ const baseRole = (overrides: Partial<Role> = {}): Role => ({
   scopeKind: ScopeKind.PROJECT,
   access: { access: { oneofKind: 'fullControl', fullControl: {} } },
   origin: { oneofKind: 'custom', custom: {} },
+  kind: GrpcRoleKind.MEMBER,
   ...overrides,
 });
 
@@ -24,6 +26,13 @@ describe('GrpcRoleMapper.toDomain', () => {
     expect(domain.description).toBe('runs pipelines');
     expect(domain.scope).toBe(PermissionScope.PROJECT);
     expect(domain.access).toEqual({ kind: 'fullControl' });
+    expect(domain.kind).toBe(RoleKind.MEMBER);
+  });
+
+  it('maps an agent role to the agent kind', () => {
+    expect(GrpcRoleMapper.toDomain(baseRole({ kind: GrpcRoleKind.AGENT })).kind).toBe(
+      RoleKind.AGENT,
+    );
   });
 
   it('defaults to an empty id when the wrapper is absent', () => {
@@ -60,19 +69,42 @@ describe('GrpcRoleMapper.toDomain', () => {
 });
 
 describe('GrpcRoleMapper.toGrpcCreateRequest', () => {
-  it('builds the wire create request from RoleCreationData', () => {
-    const data: RoleCreationData = {
-      name: 'CI runner',
-      description: 'runs pipelines',
-      scope: PermissionScope.PROJECT,
-      access: { kind: 'fullControl' },
-    };
-    expect(GrpcRoleMapper.toGrpcCreateRequest(data)).toEqual({
+  const data = (overrides: Partial<RoleCreationData> = {}): RoleCreationData => ({
+    name: 'CI runner',
+    description: 'runs pipelines',
+    scope: PermissionScope.PROJECT,
+    kind: RoleKind.AGENT,
+    access: { kind: 'fullControl' },
+    ...overrides,
+  });
+
+  it('builds the wire create request of a platform role from RoleCreationData', () => {
+    expect(GrpcRoleMapper.toGrpcCreateRequest(data())).toEqual({
       name: 'CI runner',
       description: 'runs pipelines',
       scopeKind: ScopeKind.PROJECT,
       access: { access: { oneofKind: 'fullControl', fullControl: {} } },
+      kind: GrpcRoleKind.AGENT,
+      organizationId: undefined,
     });
+  });
+
+  it('names the owning organization of an organization role', () => {
+    expect(
+      GrpcRoleMapper.toGrpcCreateRequest(data({ organizationId: 'org-1' })).organizationId,
+    ).toEqual({ value: 'org-1' });
+  });
+
+  it('sends an unspecified kind as a member role', () => {
+    expect(GrpcRoleMapper.toGrpcCreateRequest(data({ kind: RoleKind.UNSPECIFIED })).kind).toBe(
+      GrpcRoleKind.MEMBER,
+    );
+  });
+
+  it('refuses the admin kind: it belongs to the builtin owner roles', () => {
+    expect(() => GrpcRoleMapper.toGrpcCreateRequest(data({ kind: RoleKind.ADMIN }))).toThrow(
+      /reserved for the builtin roles/,
+    );
   });
 });
 
@@ -83,6 +115,7 @@ describe('GrpcRoleMapper.toGrpcUpdateRequest', () => {
     description: 'runs pipelines',
     scope: PermissionScope.PROJECT,
     origin: { kind: 'custom' },
+    kind: RoleKind.MEMBER,
     access: { kind: 'fullControl' },
     ...overrides,
   });

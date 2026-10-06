@@ -22,6 +22,8 @@
     onRevokeRole: (role: MemberRole) => void;
     /** At the view's own scope. */
     addableRolesFor: (member: ScopeMember) => AssignableRole[];
+    /** Names the group of the organization's own roles in the pickers. */
+    organizationName: string;
     onAddRole: (userId: string, roleId: string) => void;
     emptyRoles?: string;
     canRemove: (member: ScopeMember) => boolean;
@@ -40,6 +42,7 @@
     disabled,
     onRevokeRole,
     addableRolesFor,
+    organizationName,
     onAddRole,
     emptyRoles,
     canRemove,
@@ -77,6 +80,7 @@
           isCurrentUser={member.userId === currentUserId}
           canRemove={canRemove(member)}
           addableRoles={addableRolesFor(member)}
+          {organizationName}
           onAddRole={roleId => onAddRole(member.userId, roleId)}
           onRemove={() => onRemove(member)}
           {labelFor}

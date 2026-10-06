@@ -71,8 +71,16 @@ describe('feature permission conformance', () => {
       expect(mutating.length).toBeGreaterThan(5);
     });
 
+    /** The components, and the ViewModels where their gate logic belongs. */
+    const uiSources = (feature: (typeof featureDirs)[number]) => [
+      ...sourcesIn(feature.ui),
+      ...sourcesIn(join(feature.dir, 'presentation')).filter(file =>
+        file.endsWith('.state.svelte.ts'),
+      ),
+    ];
+
     it.each(mutating.map(feature => [feature.id, feature] as const))('%s', (id, feature) => {
-      const gates = sourcesIn(feature.ui).some(file =>
+      const gates = uiSources(feature).some(file =>
         /Permission\.[A-Z_]+|PermissionButton|useCan|useAuthorization|\bcan\(/.test(code(file)),
       );
 
@@ -86,8 +94,8 @@ describe('feature permission conformance', () => {
 
       expect(
         gates,
-        `feature "${id}" performs mutations but no component under its presentation/ui/ ever ` +
-          'mentions a Permission. Every write it offers is available to anyone who can reach ' +
+        `feature "${id}" performs mutations but no component under its presentation/ui/ and no ` +
+          'ViewModel ever mentions a Permission. Every write it offers is available to anyone who can reach ' +
           'the page. Gate the actions, or add the feature to UNGATED_FEATURES with the reason.',
       ).toBe(true);
     });
@@ -204,11 +212,12 @@ describe('feature permission conformance', () => {
       'roles.roleQueries':
         'The entry `useGrantableRoles` left behind, and a decision rather than debt: every read ' +
         "this factory exposes across the barrel takes the caller's gate as `enabled`, which is " +
-        'the only place the answer is known. `grantable` needs no permission at all — the ' +
-        'backend serves a compile-time constant — while `catalog` and `scopedGrants` are asked ' +
-        'for only when the consumer already holds MANAGE_ROLES or MANAGE_*_GRANTS, which is ' +
-        'what membership passes (see assignable-roles.state.svelte.ts). Gating inside the ' +
-        'factory would mean naming one permission for three reads that need three.',
+        'the only place the answer is known. `grantable` needs no permission without an ' +
+        'organization and READ_ORGANIZATION with one; `catalog`, `organizationCatalog` and ' +
+        '`scopedGrants` are asked for only when the consumer already holds MANAGE_ROLES, ' +
+        'MANAGE_ORG_ROLES or MANAGE_*_GRANTS, which is what membership passes (see ' +
+        'assignable-roles.state.svelte.ts). Gating inside the factory would mean naming one ' +
+        'permission for reads that each need their own.',
     };
 
     it('finds the shared hooks it is supposed to check', () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/svelte';
+import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
@@ -44,7 +44,11 @@ beforeEach(() => {
         { id: 'org-2', name: 'Globex Inc' },
       ]),
     );
-  teardown = [cache.restore, withRegistry({ organization: { organizationRepository: { getMine } } })];
+  const create = (name: string) => Promise.resolve(ScyllaResult.success({ id: 'org-3', name }));
+  teardown = [
+    cache.restore,
+    withRegistry({ organization: { organizationRepository: { getMine, create } } }),
+  ];
   contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp' } });
   permissionsStore.setState({ permissions: null });
 });
@@ -86,7 +90,7 @@ describe('OrganizationSelector', () => {
     await user.click(screen.getByRole('button', { name: /Acme Corp/ }));
     await findMenuItem('Globex Inc');
 
-    expect(screen.queryByText(/Create new organization/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Create an organization')).not.toBeInTheDocument();
   });
 
   it('opens the create dialog from the menu', async () => {
@@ -95,10 +99,27 @@ describe('OrganizationSelector', () => {
     const user = userEvent.setup();
 
     await user.click(screen.getByRole('button', { name: /Acme Corp/ }));
-    await user.click(await findMenuItem('Create new organization'));
+    await user.click(await findMenuItem('Create an organization'));
 
     expect(
       await screen.findByRole('dialog', { name: 'Create a new organization' }),
     ).toBeInTheDocument();
+  });
+
+  it('creates an organization from the menu, makes it active and opens its dashboard', async () => {
+    grant(Permission.CREATE_ORGANIZATION);
+    render(InSidebar, { component: OrganizationSelector });
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: /Acme Corp/ }));
+    await user.click(await findMenuItem('Create an organization'));
+    const dialog = await screen.findByRole('dialog', { name: 'Create a new organization' });
+    await user.type(within(dialog).getByLabelText('Organization name'), 'Initech');
+    await user.click(within(dialog).getByRole('button', { name: 'Create Organization' }));
+
+    await waitFor(() =>
+      expect(navigator.navigate).toHaveBeenCalledWith('/initech/dashboard', undefined),
+    );
+    expect(contextStore.getState().organization).toEqual({ id: 'org-3', name: 'Initech' });
   });
 });

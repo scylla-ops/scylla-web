@@ -5,6 +5,7 @@ import {
   PermissionScope,
   PrincipalKind,
   permissionsStore,
+  RoleKind,
 } from '@platform/authz';
 import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
@@ -18,6 +19,7 @@ const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
   description: '',
   scope: PermissionScope.ORGANIZATION,
   origin: { kind: 'custom' },
+  kind: RoleKind.MEMBER,
   access: { kind: 'restricted', permissions: [Permission.LIST_SECRETS] },
   ...overrides,
 });
@@ -126,6 +128,7 @@ describe('createGrantCreator — what the role scope asks for', () => {
       await waitFor(() => expect(creator.users).toHaveLength(2));
 
       expect(creator.needsTargets).toBe(false);
+      expect(creator.mayGrant).toBe(true);
       creator.userId = 'user-1';
       expect(creator.isValid).toBe(true);
     });
@@ -326,6 +329,121 @@ describe('createGrantCreator — submitting', () => {
       expect(creator.userId).toBe('');
       expect(creator.selectedCount).toBe(0);
       expect(creator.browseOrgId).toBeNull();
+    });
+  });
+});
+
+describe('createGrantCreator — from an organization', () => {
+  const ACME = { kind: 'organization' as const, organizationId: 'org-1', organizationName: 'Acme' };
+  let listMembers: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    listMembers = vi
+      .fn()
+      .mockResolvedValue(ScyllaResult.success([{ userId: 'user-1', username: 'dave' }]));
+    restoreRegistry();
+    restoreRegistry = withRegistry({
+      roles: {
+        permissionRepository: {
+          listRoles,
+          listGrants,
+          createGrant,
+          getMyPermissions: vi.fn().mockResolvedValue(ScyllaResult.success({ scopes: [] })),
+        },
+        updateRole: { execute: vi.fn() },
+      },
+      user: { userRepository: { getAll: getAllUsers } },
+      organization: { organizationRepository: { getMine, listMembers } },
+      project: { projectRepository: { getByOrganizationId: getProjects } },
+    });
+  });
+
+  const withOrganizationCreator = async (
+    forRole: RoleEntity,
+    body: (creator: ReturnType<typeof createGrantCreator>) => Promise<void> | void,
+  ) => {
+    let creator!: ReturnType<typeof createGrantCreator>;
+    const cleanup = $effect.root(() => {
+      creator = createGrantCreator(
+        () => forRole,
+        () => ACME,
+        () => [grant()],
+      );
+    });
+
+    try {
+      await body(creator);
+    } finally {
+      cleanup();
+    }
+  };
+
+  it('offers the members of the organization, not the user directory', async () => {
+    await withOrganizationCreator(role(), async creator => {
+      await waitFor(() => expect(creator.users).toEqual([{ id: 'user-1', name: 'dave' }]));
+      expect(getAllUsers).not.toHaveBeenCalled();
+      expect(listMembers).toHaveBeenCalledWith('org-1');
+    });
+  });
+
+  it('binds to this organization only, with no organization to pick', async () => {
+    await withOrganizationCreator(role({ scope: PermissionScope.PROJECT }), creator => {
+      expect(creator.isOrganizationFixed).toBe(true);
+      expect(creator.organizations).toEqual([{ id: 'org-1', name: 'Acme' }]);
+      expect(creator.browseOrgId).toBe('org-1');
+      expect(getMine).not.toHaveBeenCalled();
+
+      creator.reset();
+      expect(creator.browseOrgId).toBe('org-1');
+    });
+  });
+
+  it('reads eligibility from the grants the page passes, not the system-wide list', async () => {
+    await withOrganizationCreator(role({ scope: PermissionScope.PROJECT }), async creator => {
+      await waitFor(() => expect(creator.users).toHaveLength(1));
+      expect(creator.users[0].ineligible).toBeUndefined();
+      expect(listGrants).not.toHaveBeenCalled();
+    });
+  });
+
+  it('refuses a role for apps: this dialog grants to people', async () => {
+    await withOrganizationCreator(role({ kind: RoleKind.AGENT }), creator => {
+      expect(creator.isAppsOnly).toBe(true);
+    });
+  });
+
+  const holdingOnAcme = (...permissions: Permission[]) =>
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.ORGANIZATION,
+            scopeId: 'org-1',
+            access: { kind: 'restricted', permissions },
+          },
+        ],
+      },
+    });
+
+  it('never asks for the members or the catalog without their permissions', async () => {
+    holdingOnAcme(Permission.MANAGE_ORG_GRANTS);
+
+    await withOrganizationCreator(role(), async creator => {
+      await waitFor(() => expect(creator.mayGrant).toBe(true));
+      expect(listMembers).not.toHaveBeenCalled();
+      expect(listRoles).not.toHaveBeenCalled();
+      expect(creator.users).toEqual([]);
+    });
+  });
+
+  it('asks the grant permission of the role scope: the project one for a project role', async () => {
+    holdingOnAcme(Permission.MANAGE_PROJECT_GRANTS);
+
+    await withOrganizationCreator(role({ scope: PermissionScope.PROJECT }), creator => {
+      expect(creator.mayGrant).toBe(true);
+    });
+    await withOrganizationCreator(role({ scope: PermissionScope.ORGANIZATION }), creator => {
+      expect(creator.mayGrant).toBe(false);
     });
   });
 });

@@ -18,7 +18,8 @@ import type {
 } from '@base/generated/scylla/authz/v1/role.ts';
 
 export interface PermissionDataSource {
-  listRoles(): Promise<ScyllaResult<Role[]>>;
+  /** Set: the platform roles and the roles of that organization. Unset: every role. */
+  listRoles(organizationId?: string): Promise<ScyllaResult<Role[]>>;
   getRoleById(id: string): Promise<ScyllaResult<Role>>;
   createRole(request: CreateRoleRequest): Promise<ScyllaResult<Role>>;
   updateRole(request: UpdateRoleRequest): Promise<ScyllaResult<Role>>;
@@ -32,7 +33,11 @@ export interface PermissionDataSource {
   revokeGrant(id: string): Promise<ScyllaResult<void>>;
   /** At `scope` and beneath it. */
   revokeAllAccess(principal: PrincipalRef, scope: ScopeRef): Promise<ScyllaResult<number>>;
-  listGrantableRoles(scopeKind?: ScopeKind): Promise<ScyllaResult<GrantableRole[]>>;
+  /** Set `organizationId`: the roles of that organization too. */
+  listGrantableRoles(
+    scopeKind?: ScopeKind,
+    organizationId?: string,
+  ): Promise<ScyllaResult<GrantableRole[]>>;
 
   listPermissionVocabulary(): Promise<ScyllaResult<AuthzAction[]>>;
 }

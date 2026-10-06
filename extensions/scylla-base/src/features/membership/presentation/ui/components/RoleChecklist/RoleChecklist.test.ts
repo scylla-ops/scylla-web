@@ -9,12 +9,14 @@ const assignable = (overrides: Partial<AssignableRole> = {}): AssignableRole => 
   roleId: 'project-viewer',
   name: 'Project viewer',
   description: 'Read-only access',
+  ownedByOrganization: false,
   ...overrides,
 });
 
 const props = (overrides: Record<string, unknown> = {}) => ({
   label: 'Roles',
   roles: [assignable()],
+  organizationName: 'Acme',
   selected: new Set<string>(),
   onToggle: vi.fn(),
   ...overrides,
@@ -94,4 +96,23 @@ describe('RoleChecklist', () => {
 
     expect(screen.getByRole('checkbox')).toBeDisabled();
   });
+
+  it("groups the organization's own roles first, under their names", () => {
+    render(
+      RoleChecklist,
+      props({
+        roles: [
+          assignable({ roleId: 'organization-viewer', name: 'Organization viewer' }),
+          assignable({ roleId: 'auditor', name: 'Auditor', ownedByOrganization: true }),
+        ],
+      }),
+    );
+
+    const [acme, platform] = screen.getAllByRole('group');
+    expect(acme).toHaveAccessibleName('Acme roles');
+    expect(acme).toHaveTextContent('Auditor');
+    expect(platform).toHaveAccessibleName('Platform roles');
+    expect(platform).toHaveTextContent('Organization viewer');
+  });
 });
+

@@ -20,8 +20,10 @@ import { GrpcPermissionMapper } from '@base/features/roles/infrastructure/reposi
 export class DefaultPermissionRepository implements PermissionRepository {
   constructor(private readonly _dataSource: GrpcPermissionRemoteDataSource) {}
 
-  public async listRoles(): Promise<ScyllaResult<RoleEntity[]>> {
-    return (await this._dataSource.listRoles()).map(roles => roles.map(GrpcRoleMapper.toDomain));
+  public async listRoles(organizationId?: string): Promise<ScyllaResult<RoleEntity[]>> {
+    return (await this._dataSource.listRoles(organizationId)).map(roles =>
+      roles.map(GrpcRoleMapper.toDomain),
+    );
   }
 
   public async getRole(id: string): Promise<ScyllaResult<RoleEntity>> {
@@ -29,9 +31,12 @@ export class DefaultPermissionRepository implements PermissionRepository {
   }
 
   public async createRole(role: RoleCreationData): Promise<ScyllaResult<RoleEntity>> {
-    return (await this._dataSource.createRole(GrpcRoleMapper.toGrpcCreateRequest(role))).map(
-      GrpcRoleMapper.toDomain,
-    );
+    return (
+      await ScyllaResult.try(
+        () => GrpcRoleMapper.toGrpcCreateRequest(role),
+        'Failed to map role to gRPC request',
+      ).flatMapAsync(grpcRequest => this._dataSource.createRole(grpcRequest))
+    ).map(GrpcRoleMapper.toDomain);
   }
 
   public async updateRole(role: RoleEntity): Promise<ScyllaResult<RoleEntity>> {
@@ -107,10 +112,12 @@ export class DefaultPermissionRepository implements PermissionRepository {
 
   public async listGrantableRoles(
     scope?: PermissionScope,
+    organizationId?: string,
   ): Promise<ScyllaResult<GrantableRoleEntity[]>> {
     return (
       await this._dataSource.listGrantableRoles(
         scope != null ? GrpcPermissionMapper.scopeToGrpc(scope) : undefined,
+        organizationId,
       )
     ).map(roles => roles.map(GrpcGrantableRoleMapper.toDomain));
   }
