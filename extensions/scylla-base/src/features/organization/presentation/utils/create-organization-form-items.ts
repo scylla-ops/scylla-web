@@ -15,5 +15,6 @@ export const createOrganizationItems = (): readonly FormItem<'name' | 'descripti
     placeholder: t`e.g., Our company's main organization`,
     type: FormItemType.Input,
     inputType: 'text',
+    optional: true,
   },
 ];
