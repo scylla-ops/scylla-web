@@ -19,6 +19,9 @@
     /** What will be written, implicit permissions included. */
     conferredCount: number;
     isPending: boolean;
+    /** The author does not hold them: shown, never ticked. */
+    lockedIds?: ReadonlySet<Permission>;
+    lockedLabel?: string;
     onPermissionsChange: (permissions: Permission[]) => void;
   }
 
@@ -28,6 +31,8 @@
     preservedCount,
     conferredCount,
     isPending,
+    lockedIds = new Set(),
+    lockedLabel = '',
     onPermissionsChange,
   }: Props = $props();
 
@@ -68,6 +73,8 @@
           {nodes}
           checkedIds={permissions}
           allDisabled={isPending}
+          {lockedIds}
+          {lockedLabel}
           onCheckedChange={onPermissionsChange}
         />
       {/key}

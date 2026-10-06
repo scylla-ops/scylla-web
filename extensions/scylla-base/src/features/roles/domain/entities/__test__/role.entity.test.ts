@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { Permission, PermissionScope } from '@platform/authz';
+import { Permission, PermissionScope, RoleKind } from '@platform/authz';
 import { roleConfers, updateRole, type RoleEntity } from '../role.entity';
 
 const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
@@ -9,6 +9,7 @@ const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
   description: 'runs pipelines',
   scope: PermissionScope.PROJECT,
   origin: { kind: 'custom' },
+  kind: RoleKind.MEMBER,
   access: { kind: 'restricted', permissions: [Permission.RUN_PIPELINE] },
   ...overrides,
 });

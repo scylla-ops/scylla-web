@@ -26,6 +26,7 @@ const baseProps = {
   onAddRole: vi.fn(),
   canRemove: () => true,
   removeTooltip: 'Remove',
+  organizationName: 'Acme',
   onRemove: vi.fn(),
   nameFor: (id: string) => names[id] ?? id,
   currentUserId: 'user-1',
@@ -82,7 +83,7 @@ describe('MembersList', () => {
       currentUserId: 'none',
       members: [member({ userId: 'user-2' })],
       canManage: true,
-      addableRolesFor: () => [{ roleId: 'r1', name: 'Developer', description: '' }],
+      addableRolesFor: () => [{ roleId: 'r1', name: 'Developer', description: '', ownedByOrganization: false }],
       onAddRole,
     });
 

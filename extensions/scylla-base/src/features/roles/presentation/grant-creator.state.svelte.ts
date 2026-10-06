@@ -1,11 +1,13 @@
 import { SvelteMap } from 'svelte/reactivity';
-import { PermissionScope, PrincipalKind } from '@platform/authz';
+import { can, Permission, PermissionScope, PrincipalKind, RoleKind } from '@platform/authz';
 import { createMutation, createQuery } from '@scylla/core-sdk';
 import { organizationQueries } from '@base/features/organization';
 import { projectQueries } from '@base/features/project';
 import { userQueries } from '@base/features/user';
+import type { GrantEntity } from '../domain/entities/grant.entity.ts';
 import type { RoleEntity } from '../domain/entities/role.entity.ts';
 import { buildGrantEligibility, type GrantEligibility } from './grant-eligibility.calculator.ts';
+import { organizationIdOf, type RolesScope } from './roles-page.state.svelte.ts';
 import { grantMutations, roleQueries } from './roles.queries.ts';
 
 export interface TargetOption {
@@ -20,39 +22,83 @@ export interface UserOption {
   ineligible?: Exclude<GrantEligibility, 'eligible'>;
 }
 
+const PLATFORM: RolesScope = { kind: 'platform' };
+
 /**
  * Grants one role to one user, one grant per selected target. A project grant
  * needs the user admitted to the organization first: the users who are not
  * carry the reason (a value; the component words it).
+ *
+ * From an organization, only its members and its projects are offered, and
+ * `knownGrants` (the page's) stands in for the system-wide grant list.
  */
-export const createGrantCreator = (role: () => RoleEntity) => {
+export const createGrantCreator = (
+  role: () => RoleEntity,
+  rolesScope: () => RolesScope = () => PLATFORM,
+  knownGrants: () => GrantEntity[] | null = () => null,
+) => {
   const scope = $derived(role().scope);
   const isProjectScope = $derived(scope === PermissionScope.PROJECT);
   const needsTargets = $derived(scope !== PermissionScope.SYSTEM);
+  const fixedOrganizationId = $derived(organizationIdOf(rolesScope()));
+  const isOrganization = $derived(rolesScope().kind === 'organization');
+  const target = $derived({ organizationId: fixedOrganizationId ?? undefined });
 
   let userId = $state('');
   /** Id → name. Accumulates across organizations. */
   const selected = new SvelteMap<string, string>();
-  let browseOrgId = $state<string | null>(null);
+  let browseOrgId = $state<string | null>(fixedOrganizationId);
 
-  const usersQuery = createQuery(() => userQueries.list());
-  const organizationsQuery = createQuery(() => organizationQueries.mine());
+  const usersQuery = createQuery(() => userQueries.list({ enabled: !isOrganization }));
+  const membersQuery = createQuery(() =>
+    organizationQueries.members(fixedOrganizationId, {
+      enabled: isOrganization && can(Permission.LIST_ORGANIZATION_MEMBERS, target),
+    }),
+  );
+  const organizationsQuery = createQuery(() => ({
+    ...organizationQueries.mine(),
+    enabled: !isOrganization,
+  }));
   const projectsQuery = createQuery(() => projectQueries.byOrganization(browseOrgId));
-  const grantsQuery = createQuery(() => roleQueries.allGrants());
-  const rolesQuery = createQuery(() => roleQueries.catalog());
+  const grantsQuery = createQuery(() =>
+    roleQueries.allGrants({
+      enabled: knownGrants() === null && can(Permission.MANAGE_SYSTEM_GRANTS),
+    }),
+  );
+  const rolesQuery = createQuery(() =>
+    roleQueries.catalog({ enabled: !isOrganization && can(Permission.MANAGE_ROLES) }),
+  );
+  const organizationRolesQuery = createQuery(() =>
+    roleQueries.organizationCatalog(fixedOrganizationId, {
+      enabled: isOrganization && can(Permission.MANAGE_ORG_ROLES, target),
+    }),
+  );
 
   const createGrant = createMutation(() => grantMutations.create());
 
-  const eligibilityFor = $derived(
-    buildGrantEligibility(grantsQuery.data ?? [], rolesQuery.data ?? [], browseOrgId),
+  const grants = $derived(knownGrants() ?? grantsQuery.data ?? []);
+  const roles = $derived(
+    (isOrganization ? organizationRolesQuery.data : rolesQuery.data) ?? [],
   );
+
+  const eligibilityFor = $derived(buildGrantEligibility(grants, roles, browseOrgId));
+
+  /** Each scope asks for its own grant permission; holding it at the organization covers its projects. */
+  const mayGrant = $derived.by(() => {
+    if (!isOrganization) return can(Permission.MANAGE_SYSTEM_GRANTS);
+    return scope === PermissionScope.PROJECT
+      ? can(Permission.MANAGE_PROJECT_GRANTS, target)
+      : can(Permission.MANAGE_ORG_GRANTS, target);
+  });
 
   /** Everyone stays listed; who cannot receive the grant carries the reason. */
   const users = $derived.by((): UserOption[] => {
-    const all = (usersQuery.data?.items ?? []).map(user => ({
-      id: user.userId,
-      name: user.username,
-    }));
+    const all = isOrganization
+      ? (membersQuery.data ?? []).map(member => ({ id: member.userId, name: member.username }))
+      : (usersQuery.data?.items ?? []).map(user => ({
+          id: user.userId,
+          name: user.username,
+        }));
     if (!isProjectScope || !browseOrgId) return all;
 
     return all.map(user => {
@@ -70,7 +116,7 @@ export const createGrantCreator = (role: () => RoleEntity) => {
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const ids = new Set<string>();
     if (!userId) return ids;
-    for (const grant of grantsQuery.data ?? []) {
+    for (const grant of grants) {
       if (
         grant.roleId === role().id &&
         grant.principal.kind === PrincipalKind.USER &&
@@ -82,9 +128,13 @@ export const createGrantCreator = (role: () => RoleEntity) => {
     return ids;
   });
 
-  const organizations = $derived(
-    (organizationsQuery.data ?? []).map(org => ({ id: org.id, name: org.name })),
-  );
+  const organizations = $derived.by((): TargetOption[] => {
+    const current = rolesScope();
+    if (current.kind === 'organization') {
+      return [{ id: current.organizationId ?? '', name: current.organizationName }];
+    }
+    return (organizationsQuery.data ?? []).map(org => ({ id: org.id, name: org.name }));
+  });
 
   const projects = $derived(
     (projectsQuery.data?.projects ?? []).map(project => ({
@@ -96,7 +146,7 @@ export const createGrantCreator = (role: () => RoleEntity) => {
   const reset = () => {
     userId = '';
     selected.clear();
-    browseOrgId = null;
+    browseOrgId = fixedOrganizationId;
   };
 
   return {
@@ -105,6 +155,17 @@ export const createGrantCreator = (role: () => RoleEntity) => {
     },
     get isProjectScope() {
       return isProjectScope;
+    },
+    /** From an organization: no organization to pick, it is this one. */
+    get isOrganizationFixed() {
+      return isOrganization;
+    },
+    get mayGrant() {
+      return mayGrant;
+    },
+    /** This dialog grants to a person: a role for apps cannot be given here. */
+    get isAppsOnly() {
+      return role().kind === RoleKind.AGENT;
     },
     get needsTargets() {
       return needsTargets;
@@ -128,7 +189,7 @@ export const createGrantCreator = (role: () => RoleEntity) => {
       return organizations;
     },
     get organizationsLoading() {
-      return organizationsQuery.isLoading;
+      return !isOrganization && organizationsQuery.isLoading;
     },
     get projects() {
       return projects;

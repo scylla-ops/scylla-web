@@ -51,7 +51,7 @@ describe('RoleDialogPermissions', () => {
 
     expect(
       screen.getByText(
-        'This role also holds 2 permission(s) not managed here. They are kept unchanged.',
+        'This role also holds 2 permissions not managed here. They are kept unchanged.',
       ),
     ).toBeInTheDocument();
   });

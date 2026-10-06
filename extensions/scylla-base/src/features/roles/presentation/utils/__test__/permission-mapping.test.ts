@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { Permission, PermissionScope } from '@platform/authz';
+import { Permission, PermissionScope, permissionLevel } from '@platform/authz';
 import {
   PERMISSION_CATALOG,
   getPermissionDefinition,
@@ -182,5 +182,13 @@ describe('humanizePermission', () => {
 
   it('falls back to a numeric label for a value with no enum key (e.g. a future/unknown wire value)', () => {
     expect(humanizePermission(9999 as Permission)).toBe('Permission #9999');
+  });
+});
+
+describe('the catalog and the levels of @platform/authz', () => {
+  it('give each permission the same scope', () => {
+    for (const definition of PERMISSION_CATALOG) {
+      expect([definition.id, permissionLevel(definition.id)]).toEqual([definition.id, definition.scope]);
+    }
   });
 });

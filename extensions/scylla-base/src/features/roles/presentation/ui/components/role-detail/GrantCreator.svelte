@@ -2,7 +2,7 @@
   import GlobeIcon from '@lucide/svelte/icons/globe';
   import InfoIcon from '@lucide/svelte/icons/info';
   import PlusIcon from '@lucide/svelte/icons/plus';
-  import { can, Permission, PermissionScope } from '@platform/authz';
+  import { PermissionScope } from '@platform/authz';
   import {
     Badge,
     Button,
@@ -17,20 +17,29 @@
   import { GatedButton, ScyllaDialog } from '@scylla/ui';
   import { toast } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
+  import type { GrantEntity } from '../../../../domain/entities/grant.entity.ts';
   import type { RoleEntity } from '../../../../domain/entities/role.entity.ts';
   import { createGrantCreator } from '../../../grant-creator.state.svelte.ts';
+  import type { RolesScope } from '../../../roles-page.state.svelte.ts';
   import { rolesMessages } from '../../roles.messages.ts';
   import TargetChecklist from './TargetChecklist.svelte';
 
   interface Props {
     role: RoleEntity;
+    scope: RolesScope;
+    /** The grants the page already read. */
+    grants: GrantEntity[];
   }
 
-  let { role }: Props = $props();
+  let { role, scope, grants }: Props = $props();
 
   let open = $state(false);
 
-  const creator = createGrantCreator(() => role);
+  const creator = createGrantCreator(
+    () => role,
+    () => scope,
+    () => (scope.kind === 'organization' ? grants : null),
+  );
 
   const userPlaceholder = $derived(
     creator.isProjectScope && !creator.browseOrgId
@@ -90,8 +99,8 @@
 {/snippet}
 
 <GatedButton
-  allowed={can(Permission.MANAGE_SYSTEM_GRANTS)}
-  deniedReason={t(rolesMessages.grantDenied)}
+  allowed={creator.mayGrant && !creator.isAppsOnly}
+  deniedReason={creator.isAppsOnly ? t(rolesMessages.appsOnlyGrant) : t(rolesMessages.grantDenied)}
   size="sm"
   onclick={openDialog}
 >
@@ -106,7 +115,6 @@
   title={t(rolesMessages.grantTitle(role.name))}
   description={t(rolesMessages.grantSubtitle)}
 >
-
   <div class="flex flex-col gap-4 overflow-y-auto pr-1">
     {#if creator.scope === PermissionScope.SYSTEM}
       {@render userPicker()}
@@ -130,26 +138,28 @@
       />
     {:else}
       <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-1.5">
-          <Label for="grant-org">{t(rolesMessages.organization)}</Label>
-          <Select
-            type="single"
-            value={creator.browseOrgId ?? ''}
-            disabled={creator.isPending || creator.organizationsLoading}
-            onValueChange={value => creator.browseOrganization(value)}
-          >
-            <SelectTrigger id="grant-org" class="w-full">
-              <SelectValue placeholder={t(rolesMessages.pickAnOrganization)} />
-            </SelectTrigger>
-            <SelectContent>
-              {#each creator.organizations as organization (organization.id)}
-                <SelectItem value={organization.id} label={organization.name}>
-                  {organization.name}
-                </SelectItem>
-              {/each}
-            </SelectContent>
-          </Select>
-        </div>
+        {#if !creator.isOrganizationFixed}
+          <div class="flex flex-col gap-1.5">
+            <Label for="grant-org">{t(rolesMessages.organization)}</Label>
+            <Select
+              type="single"
+              value={creator.browseOrgId ?? ''}
+              disabled={creator.isPending || creator.organizationsLoading}
+              onValueChange={value => creator.browseOrganization(value)}
+            >
+              <SelectTrigger id="grant-org" class="w-full">
+                <SelectValue placeholder={t(rolesMessages.pickAnOrganization)} />
+              </SelectTrigger>
+              <SelectContent>
+                {#each creator.organizations as organization (organization.id)}
+                  <SelectItem value={organization.id} label={organization.name}>
+                    {organization.name}
+                  </SelectItem>
+                {/each}
+              </SelectContent>
+            </Select>
+          </div>
+        {/if}
 
         {@render userPicker()}
 

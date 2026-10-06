@@ -5,6 +5,7 @@ import {
   PermissionScope,
   PrincipalKind,
   permissionsStore,
+  RoleKind,
 } from '@platform/authz';
 import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
@@ -19,6 +20,7 @@ const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
   description: '',
   scope: PermissionScope.ORGANIZATION,
   origin: { kind: 'custom' },
+  kind: RoleKind.MEMBER,
   access: { kind: 'restricted', permissions: [Permission.LIST_SECRETS] },
   ...overrides,
 });
@@ -96,59 +98,33 @@ const inRoot = async <T>(build: () => T, body: (value: T) => Promise<void> | voi
 };
 
 describe('createRoleAssignees', () => {
+  const labelOf = (entry: GrantEntity) => `label of ${entry.principal.id}`;
+
   it('keeps only the grants of the role it was built for', async () => {
-    listGrants.mockResolvedValue(
-      ScyllaResult.success([grant(), grant({ id: 'grant-2', roleId: 'role-other' })]),
-    );
+    const grants = [grant(), grant({ id: 'grant-2', roleId: 'role-other' })];
 
     await inRoot(
-      () => createRoleAssignees(() => role()),
-      async assignees => {
-        await waitFor(() => expect(assignees.assignees).toHaveLength(1));
+      () => createRoleAssignees(() => role(), () => grants, labelOf),
+      assignees => {
+        expect(assignees.assignees).toHaveLength(1);
         expect(assignees.assignees[0].grant.id).toBe('grant-1');
       },
     );
   });
 
-  it('resolves a user principal to their username', async () => {
+  it("labels each holder with the page's labeller, so one directory serves list and detail", async () => {
     await inRoot(
-      () => createRoleAssignees(() => role()),
-      async assignees => {
-        await waitFor(() => expect(assignees.assignees[0]?.label).toBe('ada'));
-      },
-    );
-  });
-
-  it('falls back to the principal id for a user the directory does not carry', async () => {
-    getAllUsers.mockResolvedValue(ScyllaResult.success({ items: [] }));
-
-    await inRoot(
-      () => createRoleAssignees(() => role()),
-      async assignees => {
-        await waitFor(() => expect(assignees.assignees[0]?.label).toBe('user-1'));
-      },
-    );
-  });
-
-  it('shows an app principal by its id — the directory only holds users', async () => {
-    listGrants.mockResolvedValue(
-      ScyllaResult.success([grant({ principal: { kind: PrincipalKind.APP, id: 'app-7' } })]),
-    );
-
-    await inRoot(
-      () => createRoleAssignees(() => role()),
-      async assignees => {
-        await waitFor(() => expect(assignees.assignees[0]?.label).toBe('app-7'));
+      () => createRoleAssignees(() => role(), () => [grant()], labelOf),
+      assignees => {
+        expect(assignees.assignees[0].label).toBe('label of user-1');
       },
     );
   });
 
   it('revokes one grant by id', async () => {
     await inRoot(
-      () => createRoleAssignees(() => role()),
+      () => createRoleAssignees(() => role(), () => [grant()], labelOf),
       async assignees => {
-        await waitFor(() => expect(assignees.assignees).toHaveLength(1));
-
         assignees.remove('grant-1');
 
         await waitFor(() => expect(revokeGrant).toHaveBeenCalledWith('grant-1'));

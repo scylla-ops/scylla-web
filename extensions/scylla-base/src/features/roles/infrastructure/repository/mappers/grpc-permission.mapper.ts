@@ -5,7 +5,8 @@ import type {
   ScopeKind,
   ScopeRef,
 } from '@base/generated/scylla/authz/v1/permission.ts';
-import { type AccessEntity, type AccessSpec, type Permission as PermissionDomain, PermissionScope, type PrincipalEntity, PrincipalKind, } from '@platform/authz';
+import { RoleKind as GrpcRoleKind } from '@base/generated/scylla/authz/v1/grant.ts';
+import { type AccessEntity, type AccessSpec, type Permission as PermissionDomain, PermissionScope, type PrincipalEntity, PrincipalKind, RoleKind, } from '@platform/authz';
 
 export interface ScopeBinding {
   scope: PermissionScope;
@@ -20,6 +21,33 @@ export class GrpcPermissionMapper {
 
   public static toGrpc(permission: PermissionDomain): Permission {
     return permission;
+  }
+
+  /** A `switch`, so a divergence of the two enums fails to compile. */
+  public static roleKindToDomain(kind: GrpcRoleKind): RoleKind {
+    switch (kind) {
+      case GrpcRoleKind.ADMIN:
+        return RoleKind.ADMIN;
+      case GrpcRoleKind.AGENT:
+        return RoleKind.AGENT;
+      case GrpcRoleKind.MEMBER:
+        return RoleKind.MEMBER;
+      case GrpcRoleKind.UNSPECIFIED:
+        return RoleKind.UNSPECIFIED;
+    }
+  }
+
+  public static roleKindToGrpc(kind: RoleKind): GrpcRoleKind {
+    switch (kind) {
+      case RoleKind.ADMIN:
+        return GrpcRoleKind.ADMIN;
+      case RoleKind.AGENT:
+        return GrpcRoleKind.AGENT;
+      case RoleKind.MEMBER:
+        return GrpcRoleKind.MEMBER;
+      case RoleKind.UNSPECIFIED:
+        return GrpcRoleKind.UNSPECIFIED;
+    }
   }
 
   public static scopeToDomain(scope: ScopeKind): PermissionScope {

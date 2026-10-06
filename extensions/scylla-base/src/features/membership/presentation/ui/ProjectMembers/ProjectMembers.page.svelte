@@ -61,7 +61,7 @@
   const organizationMembers = $derived(organizationMembersQuery.data ?? []);
   const organizationGrants = $derived(organizationGrantsQuery.data ?? []);
 
-  const roles = createAssignableRoles(PermissionScope.PROJECT);
+  const roles = createAssignableRoles(PermissionScope.PROJECT, () => organizationId);
 
   const membership = createScopeMembership({
     scope: PermissionScope.PROJECT,
@@ -156,6 +156,7 @@
       isLoading={projectMembersQuery.isLoading || membership.isLoading}
       emptyMessage={t(membershipMessages.projectEmpty)}
       {nameFor}
+      organizationName={context().organization.name ?? ''}
       labelFor={roles.labelFor}
       {currentUserId}
       {canManage}
@@ -190,6 +191,7 @@
         ? t(membershipMessages.everyOrgMemberHere)
         : t(membershipMessages.cannotBrowseOrgMembers)}
       roles={roles.assignableRoles}
+      organizationName={context().organization.name ?? ''}
       rolesLabel={t(membershipMessages.projectRolesToGrant)}
       rolesLoading={roles.isLoading}
       isPending={membership.isPending}

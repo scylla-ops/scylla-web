@@ -8,6 +8,7 @@ import type {
   RoleEntity,
   RoleOrigin,
 } from '@base/features/roles/domain/entities/role.entity.ts';
+import { RoleKind } from '@platform/authz';
 import { GrpcPermissionMapper } from '@base/features/roles/infrastructure/repository/mappers/grpc-permission.mapper.ts';
 
 export class GrpcRoleMapper {
@@ -33,16 +34,26 @@ export class GrpcRoleMapper {
       description: grpcRole.description,
       scope: GrpcPermissionMapper.scopeToDomain(grpcRole.scopeKind),
       origin: GrpcRoleMapper.originToDomain(grpcRole),
+      kind: GrpcPermissionMapper.roleKindToDomain(grpcRole.kind),
       access: GrpcPermissionMapper.accessToDomain(grpcRole.access),
     };
   }
 
+  /** `UNSPECIFIED` is sent as `MEMBER`. Throws on `ADMIN`: the builtin owner roles only. */
   public static toGrpcCreateRequest(data: RoleCreationData): CreateRoleRequest {
+    if (data.kind === RoleKind.ADMIN) {
+      throw new Error('The admin kind is reserved for the builtin roles.');
+    }
+
     return {
       name: data.name,
       description: data.description,
       scopeKind: GrpcPermissionMapper.scopeToGrpc(data.scope),
       access: GrpcPermissionMapper.accessToGrpc(data.access),
+      kind: GrpcPermissionMapper.roleKindToGrpc(
+        data.kind === RoleKind.UNSPECIFIED ? RoleKind.MEMBER : data.kind,
+      ),
+      organizationId: data.organizationId ? { value: data.organizationId } : undefined,
     };
   }
 

@@ -12,6 +12,8 @@
     candidates: MemberCandidate[];
     emptyCandidatesLabel: string;
     roles: AssignableRole[];
+    /** Names the group of the organization's own roles. */
+    organizationName: string;
     rolesLabel: string;
     rolesLoading?: boolean;
     isPending: boolean;
