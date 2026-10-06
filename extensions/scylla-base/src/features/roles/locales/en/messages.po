@@ -82,7 +82,7 @@ msgstr "Cancel"
 msgid "Choose who receives this role and where it applies."
 msgstr "Choose who receives this role and where it applies."
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:81
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:82
 msgid "Create agents"
 msgstr "Create agents"
 
@@ -90,15 +90,15 @@ msgstr "Create agents"
 msgid "Create grant"
 msgstr "Create grant"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:38
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:39
 msgid "Create organizations"
 msgstr "Create organizations"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:194
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:195
 msgid "Create pipelines"
 msgstr "Create pipelines"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:114
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:115
 msgid "Create projects"
 msgstr "Create projects"
 
@@ -106,19 +106,19 @@ msgstr "Create projects"
 msgid "Create role"
 msgstr "Create role"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:251
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:252
 msgid "Create secrets"
 msgstr "Create secrets"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:28
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:29
 msgid "Create users"
 msgstr "Create users"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:136
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:137
 msgid "Create, edit and delete the roles of every organization"
 msgstr "Create, edit and delete the roles of every organization"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:135
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:136
 msgid "Create, edit and delete the roles of the organization"
 msgstr "Create, edit and delete the roles of the organization"
 
@@ -130,39 +130,39 @@ msgstr "Created by the administrators of {organization}. Only {organization} see
 msgid "Custom"
 msgstr "Custom"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:99
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:100
 msgid "Delete agents"
 msgstr "Delete agents"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:69
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:70
 msgid "Delete every organization"
 msgstr "Delete every organization"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:158
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:159
 msgid "Delete every project"
 msgstr "Delete every project"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:237
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:238
 msgid "Delete jobs"
 msgstr "Delete jobs"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:206
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:207
 msgid "Delete pipelines"
 msgstr "Delete pipelines"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:257
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:258
 msgid "Delete secrets"
 msgstr "Delete secrets"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:68
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:69
 msgid "Delete the organization"
 msgstr "Delete the organization"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:157
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:158
 msgid "Delete the project"
 msgstr "Delete the project"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:34
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:35
 msgid "Delete users"
 msgstr "Delete users"
 
@@ -178,15 +178,15 @@ msgstr "e.g., project-viewer"
 msgid "Edit"
 msgstr "Edit"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:62
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:63
 msgid "Edit every organization"
 msgstr "Edit every organization"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:151
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:152
 msgid "Edit every project"
 msgstr "Edit every project"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:200
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:201
 msgid "Edit pipelines"
 msgstr "Edit pipelines"
 
@@ -194,11 +194,11 @@ msgstr "Edit pipelines"
 msgid "Edit role"
 msgstr "Edit role"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:61
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:62
 msgid "Edit the organization"
 msgstr "Edit the organization"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:150
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:151
 msgid "Edit the project"
 msgstr "Edit the project"
 
@@ -223,23 +223,23 @@ msgstr "Full control"
 msgid "Grant “{0}”"
 msgstr "Grant “{0}”"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:48
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:49
 msgid "Grant and revoke roles anywhere"
 msgstr "Grant and revoke roles anywhere"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:129
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:130
 msgid "Grant and revoke roles in every organization"
 msgstr "Grant and revoke roles in every organization"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:128
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:129
 msgid "Grant and revoke roles in the organization"
 msgstr "Grant and revoke roles in the organization"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:173
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:174
 msgid "Grant and revoke roles on every project"
 msgstr "Grant and revoke roles on every project"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:172
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:173
 msgid "Grant and revoke roles on the project"
 msgstr "Grant and revoke roles on the project"
 
@@ -271,19 +271,19 @@ msgstr "Holding a role in an organization is what belonging to it means, so ever
 msgid "Loading…"
 msgstr "Loading…"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:42
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:43
 msgid "Manage roles, and grant them anywhere"
 msgstr "Manage roles, and grant them anywhere"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:218
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:219
 msgid "Manage triggers"
 msgstr "Manage triggers"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:55
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:56
 msgid "Member of the organization"
 msgstr "Member of the organization"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:144
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:145
 msgid "Member of the project"
 msgstr "Member of the project"
 
@@ -339,24 +339,24 @@ msgstr "Not held in {organization}"
 msgid "Only {organization} sees this role. You put in it only the permissions you hold in {organization}."
 msgstr "Only {organization} sees this role. You put in it only the permissions you hold in {organization}."
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:187
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:188
 msgid "Open a pipeline"
 msgstr "Open a pipeline"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:87
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:88
 msgid "Open an agent"
 msgstr "Open an agent"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:188
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:189
 msgid "Open any pipeline"
 msgstr "Open any pipeline"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:145
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:146
 msgid "Open any project"
 msgstr "Open any project"
 
 #: extensions/scylla-base/src/features/roles/presentation/ui/roles.messages.ts:56
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:277
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:278
 msgid "Organization"
 msgstr "Organization"
 
@@ -394,7 +394,7 @@ msgstr "Platform"
 msgid "Platform roles"
 msgstr "Platform roles"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:278
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:279
 msgid "Project"
 msgstr "Project"
 
@@ -402,7 +402,7 @@ msgstr "Project"
 msgid "Projects"
 msgstr "Projects"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:231
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:232
 msgid "Read job logs"
 msgstr "Read job logs"
 
@@ -428,7 +428,7 @@ msgstr "Role"
 msgid "Roles"
 msgstr "Roles"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:212
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:213
 msgid "Run pipelines"
 msgstr "Run pipelines"
 
@@ -444,31 +444,31 @@ msgstr "Scope"
 msgid "Scope cannot be changed after creation."
 msgstr "Scope cannot be changed after creation."
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:106
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:107
 msgid "See and open every project in the organization"
 msgstr "See and open every project in the organization"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:56
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:57
 msgid "See every organization on the instance"
 msgstr "See every organization on the instance"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:108
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:109
 msgid "See every project of every organization"
 msgstr "See every project of every organization"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:121
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:122
 msgid "See who belongs to any organization"
 msgstr "See who belongs to any organization"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:120
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:121
 msgid "See who belongs to the organization"
 msgstr "See who belongs to the organization"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:165
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:166
 msgid "See who works on any project"
 msgstr "See who works on any project"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:164
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:165
 msgid "See who works on the project"
 msgstr "See who works on the project"
 
@@ -493,7 +493,7 @@ msgstr "Shipped with Scylla or made by a system administrator. You can grant the
 msgid "Show {label} sub-permissions"
 msgstr "Show {label} sub-permissions"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:276
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:277
 msgid "System"
 msgstr "System"
 
@@ -506,7 +506,7 @@ msgid "This role is for apps. People cannot hold it."
 msgstr "This role is for apps. People cannot hold it."
 
 #: extensions/scylla-base/src/features/roles/presentation/ui/roles.messages.ts:30
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:279
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:280
 msgctxt "feminine"
 msgid "Unknown"
 msgstr "Unknown"
@@ -519,35 +519,35 @@ msgstr "Unknown access."
 msgid "User"
 msgstr "User"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:93
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:94
 msgid "View agent statistics"
 msgstr "View agent statistics"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:75
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:76
 msgid "View agents"
 msgstr "View agents"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:225
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:226
 msgid "View pipeline jobs"
 msgstr "View pipeline jobs"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:244
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:245
 msgid "View project secrets"
 msgstr "View project secrets"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:180
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:181
 msgid "View the pipeline list"
 msgstr "View the pipeline list"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:181
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:182
 msgid "View the pipelines of every project"
 msgstr "View the pipelines of every project"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:245
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:246
 msgid "View the secrets of every project"
 msgstr "View the secrets of every project"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:25
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:26
 msgid "View users"
 msgstr "View users"
 

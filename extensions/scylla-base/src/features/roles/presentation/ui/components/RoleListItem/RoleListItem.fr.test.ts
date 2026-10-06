@@ -46,4 +46,10 @@ describe('RoleListItem member count in French', () => {
 
     expect(screen.queryByText(/membre/)).toBeNull();
   });
+
+  it('names the scope in French', () => {
+    render(RoleListItem, props(1));
+
+    expect(screen.getByText('Organisation')).toBeInTheDocument();
+  });
 });
