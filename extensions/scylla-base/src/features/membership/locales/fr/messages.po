@@ -15,7 +15,7 @@ msgstr ""
 
 #: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:16
 msgid "{organization} roles"
-msgstr "Rôles de {organization}"
+msgstr "Rôles de l'organisation {organization}"
 
 #: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:29
 msgid "{username} removed — {revoked} grant(s) revoked"
