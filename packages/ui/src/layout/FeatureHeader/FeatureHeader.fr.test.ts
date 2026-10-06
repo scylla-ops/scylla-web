@@ -19,6 +19,12 @@ beforeEach(() => toastSuccess.mockClear());
 const deleteButton = () => screen.getByRole('button', { name: 'Supprimer' });
 
 describe('FeatureHeader in French', () => {
+  it('keeps the singular label for zero, as French does', () => {
+    render(FeatureHeader, { count: 0, label: 'Rôle', pluralLabel: 'Rôles' });
+
+    expect(screen.getByRole('heading')).toHaveTextContent('0 Rôle');
+  });
+
   it('interpolates the label into the New button', () => {
     render(FeatureHeader, { label: 'pipeline', onNew: vi.fn() });
 
