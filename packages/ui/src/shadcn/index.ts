@@ -79,6 +79,8 @@ export { fieldVariants, type FieldOrientation } from './field-variants.ts';
 
 export const Select = SelectPrimitive.Root;
 export { default as SelectContent } from './select-content.svelte';
+export const SelectGroup = SelectPrimitive.Group;
+export { default as SelectGroupHeading } from './select-group-heading.svelte';
 export { default as SelectItem } from './select-item.svelte';
 export { default as SelectTrigger } from './select-trigger.svelte';
 export { default as SelectValue } from './select-value.svelte';

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, vi } from 'vitest';
-import { PermissionScope } from '@platform/authz';
+import { PermissionScope, RoleKind } from '@platform/authz';
 import { ScyllaResult, ScyllaError } from '@shared/utils/scylla-result.ts';
 import { UpdateRoleUseCase } from '../update-role.use-case';
 import type { PermissionRepository } from '@base/features/roles/domain/repository/permission.repository.ts';
@@ -12,6 +12,7 @@ const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
   description: 'runs pipelines',
   scope: PermissionScope.PROJECT,
   origin: { kind: 'custom' },
+  kind: RoleKind.MEMBER,
   access: { kind: 'fullControl' },
   ...overrides,
 });

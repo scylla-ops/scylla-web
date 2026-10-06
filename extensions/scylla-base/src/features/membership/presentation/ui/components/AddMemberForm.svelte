@@ -25,6 +25,7 @@
     candidates: MemberCandidate[];
     emptyCandidatesLabel: string;
     roles: AssignableRole[];
+    organizationName: string;
     rolesLabel: string;
     rolesLoading: boolean;
     isPending: boolean;
@@ -39,6 +40,7 @@
     candidates,
     emptyCandidatesLabel,
     roles,
+    organizationName,
     rolesLabel,
     rolesLoading,
     isPending,
@@ -102,6 +104,7 @@
   <RoleChecklist
     label={rolesLabel}
     {roles}
+    {organizationName}
     isLoading={rolesLoading}
     disabled={isPending}
     selected={selectedRoles}

@@ -101,4 +101,5 @@ export enum Permission {
   LIST_SECRETS = 60,
   DELETE_SECRET = 61,
   MANAGE_TRIGGERS = 62,
+  MANAGE_ORG_ROLES = 63,
 }

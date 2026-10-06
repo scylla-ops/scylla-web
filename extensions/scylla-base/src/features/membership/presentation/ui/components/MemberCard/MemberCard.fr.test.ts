@@ -32,6 +32,7 @@ const baseProps = {
   disabled: false,
   onRevokeRole: vi.fn(),
   removeTooltip: 'Retirer',
+  organizationName: 'Acme',
   onRemove: vi.fn(),
   roles: [] as MemberRole[],
 };

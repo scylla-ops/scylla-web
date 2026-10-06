@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { Permission, PermissionScope, PrincipalKind } from '@platform/authz';
+import { Permission, PermissionScope, PrincipalKind, RoleKind } from '@platform/authz';
 import type { RoleEntity } from '../../domain/entities/role.entity.ts';
 import type { GrantEntity } from '../../domain/entities/grant.entity.ts';
 import { buildGrantEligibility } from '../grant-eligibility.calculator.ts';
@@ -13,6 +13,7 @@ const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
   description: '',
   scope: PermissionScope.ORGANIZATION,
   origin: { kind: 'builtin', key: 'organization-member' },
+  kind: RoleKind.MEMBER,
   access: { kind: 'restricted', permissions: [Permission.READ_ORGANIZATION] },
   ...overrides,
 });

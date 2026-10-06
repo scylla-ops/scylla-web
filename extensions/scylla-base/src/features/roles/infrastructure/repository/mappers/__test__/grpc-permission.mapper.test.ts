@@ -3,12 +3,34 @@ import { describe, it, expect } from 'vitest';
 import { GrpcPermissionMapper } from '../grpc-permission.mapper';
 import { Permission as ProtoPermission } from '@base/generated/scylla/authz/v1/permission.ts';
 import type { ScopeRef, PrincipalRef, Access } from '@base/generated/scylla/authz/v1/permission.ts';
-import { Permission, PermissionScope, PrincipalKind } from '@platform/authz';
+import { RoleKind as ProtoRoleKind } from '@base/generated/scylla/authz/v1/grant.ts';
+import { Permission, PermissionScope, PrincipalKind, RoleKind } from '@platform/authz';
 
 describe('GrpcPermissionMapper.toDomain / toGrpc (Permission)', () => {
   it('is a value-identical pass-through in both directions', () => {
     expect(GrpcPermissionMapper.toDomain(ProtoPermission.READ_PROJECT)).toBe(Permission.READ_PROJECT);
     expect(GrpcPermissionMapper.toGrpc(Permission.READ_PROJECT)).toBe(ProtoPermission.READ_PROJECT);
+  });
+
+  it('carries MANAGE_ORG_ROLES both ways', () => {
+    expect(GrpcPermissionMapper.toDomain(ProtoPermission.MANAGE_ORG_ROLES)).toBe(
+      Permission.MANAGE_ORG_ROLES,
+    );
+    expect(GrpcPermissionMapper.toGrpc(Permission.MANAGE_ORG_ROLES)).toBe(
+      ProtoPermission.MANAGE_ORG_ROLES,
+    );
+  });
+});
+
+describe('GrpcPermissionMapper.roleKindToDomain / roleKindToGrpc', () => {
+  it.each([
+    [ProtoRoleKind.ADMIN, RoleKind.ADMIN],
+    [ProtoRoleKind.AGENT, RoleKind.AGENT],
+    [ProtoRoleKind.MEMBER, RoleKind.MEMBER],
+    [ProtoRoleKind.UNSPECIFIED, RoleKind.UNSPECIFIED],
+  ])('maps wire RoleKind %i to domain RoleKind %i and back', (wire, domain) => {
+    expect(GrpcPermissionMapper.roleKindToDomain(wire)).toBe(domain);
+    expect(GrpcPermissionMapper.roleKindToGrpc(domain)).toBe(wire);
   });
 });
 

@@ -19,7 +19,7 @@ roleConfers
 humanizeRoleId, scopeLabelOf
 roleQueries, roleMutations, grantMutations
 refreshMyPermissions, syncMyPermissions, resetPermissionSync
-ROLES_QUERY_KEY, GRANTS_QUERY_KEY, GRANTABLE_ROLES_QUERY_KEY
+ROLES_QUERY_KEY, ORGANIZATION_ROLES_QUERY_KEY, GRANTS_QUERY_KEY, GRANTABLE_ROLES_QUERY_KEY
 ```
 
 Every export is **framework-free** — options factories, pure functions, types. That is load
@@ -59,12 +59,30 @@ never from a feature, and never write the authz store from anywhere else.
 
 | Group | Methods |
 |---|---|
-| Roles | `listRoles`, `getRole`, `createRole`, `updateRole`, `deleteRole` |
+| Roles | `listRoles(organizationId?)`, `getRole`, `createRole`, `updateRole`, `deleteRole` |
 | Effective permissions | `getEffectivePermissions(...)`, `getMyPermissions()` |
 | Grants | `listGrants(scope?, scopeId?)`, `createGrant(CreateGrantInput)`, `revokeGrant(id)`, `revokeAllAccess(RevokeAllAccessInput)` |
-| Vocabulary | `listGrantableRoles(scope?)`, `listPermissionVocabulary()` |
+| Vocabulary | `listGrantableRoles(scope?, organizationId?)`, `listPermissionVocabulary()` |
 
 Input types (`CreateGrantInput`, `RevokeAllAccessInput`) live beside the interface, in domain.
+
+A role with no owner is a **platform role** (the builtins and the custom roles of the system
+administrators). A role with an owner belongs to that **organization**: `RoleCreationData.organizationId`
+creates one, `RoleOrigin.custom.ownerOrganizationId` and `GrantableRoleEntity.ownerOrganizationId`
+name the owner. `RoleEntity.kind` and `RoleCreationData.kind` are a `RoleKind`: `AGENT` roles go to
+apps only, `ADMIN` is for the builtin owner roles and the mapper refuses to send it, and
+`UNSPECIFIED` is sent as `MEMBER`.
+
+| Read | Query | Permission (pass it as `enabled`) |
+|---|---|---|
+| `listRoles()` | `roleQueries.catalog` (`ROLES_QUERY_KEY`) | `MANAGE_ROLES` |
+| `listRoles(organizationId)` | `roleQueries.organizationCatalog` (`ORGANIZATION_ROLES_QUERY_KEY`) | `MANAGE_ORG_ROLES` on that organization |
+| `listGrantableRoles(scope)` | `roleQueries.grantable(scope)` | none |
+| `listGrantableRoles(scope, organizationId)` | `roleQueries.grantable(scope, organizationId)` | `READ_ORGANIZATION` on that organization |
+
+`ROLES_QUERY_KEY` is also the prefix of `ORGANIZATION_ROLES_QUERY_KEY`. A role mutation
+invalidates every role list and every grantable list: an organization role changes what may be
+granted there.
 Reach it with `getModuleDomain<typeof RolesModule.domain>('roles')` — **inside `roles.queries.ts`
 only**, and resolved per call, never at module load, so a test can swap the registry.
 
@@ -84,7 +102,7 @@ roles.module.ts                      route + nav + DI wiring (private; registry 
 index.ts                             public API
 domain/
   entities/role.entity.ts            RoleEntity, RoleCreationData, RoleOrigin,
-                                     roleConfers + updateRole (pure)
+                                     roleConfers, roleOwnerOf, updateRole (pure)
   entities/grant.entity.ts           GrantEntity
   entities/grantable-role.entity.ts  GrantableRoleEntity
   entities/permission-vocabulary.entity.ts  PermissionVocabularyEntity, PermissionActionEntity
@@ -99,19 +117,24 @@ infrastructure/
   repository/default-permission.repository.ts
 presentation/
   roles.queries.ts                   every read and write, as plain options objects
-  roles-page.state.svelte.ts         the master–detail ViewModel
+  roles-page.state.svelte.ts         the master–detail ViewModel, and RolesScope
   role-form.state.svelte.ts          creating/editing one role
   grant-creator.state.svelte.ts      granting one role to one user
-  role-assignees.state.svelte.ts     who holds a role, and the revoke
+  role-assignees.state.svelte.ts     who holds a role (from the page's grants), and the revoke
   grant-target-labels.svelte.ts      scope id → human name (fans out for projects)
   grant-eligibility.calculator.ts    pure: who may receive a project grant, and why not
-  ui/Roles.page.svelte               the page
+  role-authoring.calculator.ts       pure: the escalation rule, what an author may put in a role
+  role-list.calculator.ts            pure: roles split by owner and sorted by name, holders per role
+  ui/Roles/Roles.page.svelte         the roles of the current organization
+  ui/PlatformRoles/PlatformRoles.page.svelte   the platform roles (System)
   ui/roles.messages.ts               every string the screens show
-  ui/components/RoleListItem.svelte, RoleDetailPanel.svelte
+  ui/components/RolesView.svelte     the body both pages render, on a RolesScope
+  ui/components/RoleList.svelte, RoleListItem/RoleListItem.svelte, RoleDetailPanel.svelte
   ui/components/role-detail/         RoleDetailHeader, RoleDetailPermissions,
                                      RoleDetailGrantList, GrantCreator, TargetChecklist
-  ui/components/role-form/           RoleFormDialog, RoleForm, RoleDialogPermissions,
-                                     CheckboxTree, CheckboxTreeNode, checkbox-tree.ts
+  ui/components/role-form/           RoleFormDialog, RoleForm, RoleHolderField,
+                                     RoleDialogPermissions, CheckboxTree, CheckboxTreeNode,
+                                     checkbox-tree.ts
   utils/permission-mapping.ts, permission-tree.ts, role-label.ts
 ```
 
@@ -120,21 +143,26 @@ hooks became `roles.queries.ts` plus the four ViewModels above.
 
 ## Routes & nav
 
-| Mount | Path | Permission | Component |
-|---|---|---|---|
-| `organization` | `roles` | `MANAGE_ROLES` | `Roles.page.svelte` |
+| Mount | Path | Permission | Component | Sidebar |
+|---|---|---|---|---|
+| `organization` | `roles` | `MANAGE_ORG_ROLES` | `Roles.page.svelte` | section `organization`, order `35`, `ShieldIcon` |
+| `organization` | `platform-roles` | `MANAGE_ROLES` | `PlatformRoles.page.svelte` | section `system`, order `20`, `ShieldCheckIcon` |
 
-Sidebar: section **`system`** (not `organization`), order `20`, icon `ShieldIcon`.
+Both pages render `RolesView` on a `RolesScope`: `{ kind: 'organization', organizationId,
+organizationName }` from the context, or `{ kind: 'platform' }`. Never fork a component per page:
+give it the scope.
 
 ## Rules that bite here
 
 - **Role ≠ grant.** A `RoleEntity` is a named bundle of permissions; a `GrantEntity` binds a
   principal to a role at a scope. Deleting a role and revoking a grant are different operations
   with different blast radii — keep them visually and textually distinct.
-- **Every grant mutation already refreshes the caller's own permissions.** `afterGrantChange` in
-  `roles.queries.ts` invalidates the whole grant prefix *and* calls `refreshMyPermissions()`.
-  Don't do it again at the call site, and don't skip it in a new grant mutation: `can()` would
-  keep answering from a stale store and the UI would lie about what the user may do.
+- **Every grant and role mutation already refreshes the caller's own permissions.**
+  `afterGrantChange` in `roles.queries.ts` invalidates the whole grant prefix *and* calls
+  `refreshMyPermissions()`; `invalidateRoles` does the same for the role lists, because an edit
+  of a role the caller holds changes what the caller may do. Don't do it again at the call site,
+  and don't skip it in a new grant or role mutation: `can()` would keep answering from a stale
+  store and the UI would lie about what the user may do.
 - **One grant mutation invalidates every grant list.** A grant created from the project view
   changes the organization's list too, and neither view knows the other exists — hence the shared
   `permission-grants` prefix rather than an exact key.
@@ -158,8 +186,27 @@ Sidebar: section **`system`** (not `organization`), order `20`, icon `ShieldIcon
 - `humanizeRoleId` and `permissionLabelOf` are the only sanctioned way to render a role or
   permission id to a human. Never interpolate a raw id.
 - `roleQueries.grantable` is scope-aware: what you may grant on a project differs from an
-  organization. It needs no permission — it is a compile-time constant on the backend — which
-  makes it the only role list a tenant administrator can read.
+  organization. The backend reads it from the roles table. Without an organization it returns
+  the platform roles and needs no permission. With one, it adds the roles of that organization
+  and needs `READ_ORGANIZATION` there. It is the role list that every member manager can read.
+- **An organization page owns only its roles.** It lists `organizationCatalog`, split by
+  `groupRolesByOwner`: the roles of the organization (editable, deletable) above the platform roles
+  (read only, a lock, no edit button), each group sorted by name. A SYSTEM-scope platform role is
+  left out: no grant in an organization binds it (it stays on System > Platform roles). Its counts
+  and its grant list come from the organization's grants plus those of its projects
+  (`scopedGrants`, one query per project); without `MANAGE_ORG_GRANTS` the counts are hidden
+  (`memberCountOf` is `null`), never shown as zero. A count is of holders, not grants
+  (`countHoldersByRole`): a user with the role on two projects counts once. Holders are named from
+  the organization's members (with `LIST_ORGANIZATION_MEMBERS`), not from the user directory.
+- **The editor locks what the author does not hold.** The backend refuses a role with a
+  permission its author does not hold at System or at the owner organization
+  (`ensure_no_escalation`). `role-authoring.calculator.ts` is that rule, and `lockedPermissions`
+  feeds the tree: a locked row is shown, disabled, with "Not held in <org>". A stand-in also
+  needs what it carries (`carriedBy`). Full control is offered only to who holds it. A locked
+  permission already in an edited role stays; it is never stripped.
+- **Who holds a role is fixed at creation.** `RoleHolderField` sets `RoleKind.MEMBER` (people) or
+  `AGENT` (apps); an edit shows it read only. A role of an organization is organization or
+  project scoped, never System. The grant dialog grants to people, so it refuses an `AGENT` role.
 - **A project grant follows the backend's tenant boundary.** `grant-eligibility.calculator.ts`
   answers *why* a user cannot receive one (`not-admitted` / `cannot-see-projects`) as a value;
   which sentence explains it is the component's business.

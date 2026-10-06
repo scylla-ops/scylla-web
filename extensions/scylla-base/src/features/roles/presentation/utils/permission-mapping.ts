@@ -130,6 +130,13 @@ export const PERMISSION_CATALOG: PermissionDefinition[] = [
     scope: ORGANIZATION,
     dependsOn: Permission.LIST_ORGANIZATION_MEMBERS,
   },
+  {
+    id: Permission.MANAGE_ORG_ROLES,
+    label: msg`Create, edit and delete the roles of the organization`,
+    broadLabel: msg`Create, edit and delete the roles of every organization`,
+    scope: ORGANIZATION,
+    dependsOn: Permission.READ_ORGANIZATION,
+  },
 
   {
     // Belonging to the project: puts it in the holder's list.
@@ -351,6 +358,14 @@ export const withImplicitPermissions = (
   }
   return [...conferred];
 };
+
+/** What ticking `permission` writes at `scope`: itself, and the hidden permissions it stands in for. */
+export const carriedBy = (scope: PermissionScope, permission: Permission): Permission[] => [
+  permission,
+  ...getImplicitAtScope(scope)
+    .filter(entry => entry.standsIn === permission)
+    .map(entry => entry.id),
+];
 
 /** What the editor renders. A child of a hidden entry hangs under its stand-in, or becomes a root. */
 export const getEditablePermissionDefinitionsForScope = (

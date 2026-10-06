@@ -1,4 +1,4 @@
-import type { AccessEntity, AccessSpec, Permission, PermissionScope, } from '@platform/authz';
+import type { AccessEntity, AccessSpec, Permission, PermissionScope, RoleKind } from '@platform/authz';
 
 /** `unknown`: an origin arm newer than this build. Never read it as "custom". */
 export type RoleOrigin =
@@ -16,6 +16,9 @@ export interface RoleEntity {
 
   origin: RoleOrigin;
 
+  /** `AGENT`: for apps only. `ADMIN`: the builtin owner roles only. */
+  kind: RoleKind;
+
   access: AccessEntity;
 }
 
@@ -23,8 +26,15 @@ export interface RoleCreationData {
   name: string;
   description: string;
   scope: PermissionScope;
+  kind: RoleKind;
+  /** Set: a role of this organization. Absent: a platform role. */
+  organizationId?: string;
   access: AccessSpec;
 }
+
+/** The organization that owns the role; `null` for a platform role (builtin, or made by a system administrator). */
+export const roleOwnerOf = (role: RoleEntity): string | null =>
+  role.origin.kind === 'custom' ? (role.origin.ownerOrganizationId ?? null) : null;
 
 /**
  * An unknown access arm, or a role missing from the catalog, counts as conferring,

@@ -28,6 +28,9 @@ const required = <T>(value: T | undefined, what: string): T => {
   return value;
 };
 
+const organizationRef = (organizationId?: string) =>
+  organizationId ? { value: organizationId } : undefined;
+
 export class GrpcPermissionRemoteDataSource implements PermissionDataSource {
   private readonly _roles: RoleServiceClient;
   private readonly _grants: GrantServiceClient;
@@ -37,9 +40,11 @@ export class GrpcPermissionRemoteDataSource implements PermissionDataSource {
     this._grants = new GrantServiceClient(transport.getTransport());
   }
 
-  public listRoles(): Promise<ScyllaResult<Role[]>> {
+  public listRoles(organizationId?: string): Promise<ScyllaResult<Role[]>> {
     return ScyllaResult.tryAsync(
-      async () => (await this._roles.listRoles({})).response.roles,
+      async () =>
+        (await this._roles.listRoles({ organizationId: organizationRef(organizationId) })).response
+          .roles,
       'Failed to list roles.',
     );
   }
@@ -114,9 +119,18 @@ export class GrpcPermissionRemoteDataSource implements PermissionDataSource {
     }, 'Failed to revoke access.');
   }
 
-  public listGrantableRoles(scopeKind?: ScopeKind): Promise<ScyllaResult<GrantableRole[]>> {
+  public listGrantableRoles(
+    scopeKind?: ScopeKind,
+    organizationId?: string,
+  ): Promise<ScyllaResult<GrantableRole[]>> {
     return ScyllaResult.tryAsync(
-      async () => (await this._grants.listGrantableRoles({ scopeKind })).response.roles,
+      async () =>
+        (
+          await this._grants.listGrantableRoles({
+            scopeKind,
+            organizationId: organizationRef(organizationId),
+          })
+        ).response.roles,
       'Failed to list grantable roles.',
     );
   }
