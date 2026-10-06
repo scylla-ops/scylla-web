@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { canAccess } from '../effective-permissions.entity';
+import { canAccess, permissionLevel } from '../effective-permissions.entity';
 import type { EffectivePermissionsEntity } from '../effective-permissions.entity';
 import { Permission, PermissionScope } from '@platform/authz/domain/structs/permission.struct.ts';
 
@@ -123,5 +123,32 @@ describe('canAccess', () => {
       { scope: PermissionScope.PROJECT, scopeId: 'project-1', access: { kind: 'fullControl' } },
     );
     expect(canAccess(perms, Permission.READ_PROJECT, { projectId: 'project-1' })).toBe(true);
+  });
+
+  describe('a grant reaches a permission at its own scope or below it', () => {
+    const full = { kind: 'fullControl' } as const;
+
+    it('an organization grant does not reach a system permission', () => {
+      const perms = effective({ scope: PermissionScope.ORGANIZATION, scopeId: 'org-1', access: full });
+      const target = { organizationId: 'org-1' };
+      expect(canAccess(perms, Permission.MANAGE_ROLES, target)).toBe(false);
+      expect(canAccess(perms, Permission.LIST_USERS, target)).toBe(false);
+      expect(canAccess(perms, Permission.MANAGE_ORG_ROLES, target)).toBe(true);
+      expect(canAccess(perms, Permission.RUN_PIPELINE, target)).toBe(true);
+    });
+
+    it('a project grant does not reach an organization permission', () => {
+      const perms = effective({ scope: PermissionScope.PROJECT, scopeId: 'p-1', access: full });
+      const target = { organizationId: 'org-1', projectId: 'p-1' };
+      expect(canAccess(perms, Permission.UPDATE_ORGANIZATION, target)).toBe(false);
+      expect(canAccess(perms, Permission.READ_APP, target)).toBe(false);
+      expect(canAccess(perms, Permission.UPDATE_PROJECT, target)).toBe(true);
+    });
+
+    it('reads the level of a permission from the resource it targets', () => {
+      expect(permissionLevel(Permission.READ_USER)).toBe(PermissionScope.SYSTEM);
+      expect(permissionLevel(Permission.CREATE_PROJECT)).toBe(PermissionScope.ORGANIZATION);
+      expect(permissionLevel(Permission.MANAGE_PROJECT_GRANTS)).toBe(PermissionScope.PROJECT);
+    });
   });
 });
