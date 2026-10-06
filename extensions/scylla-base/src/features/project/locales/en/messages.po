@@ -91,6 +91,10 @@ msgstr "Select"
 msgid "Select an organization from the sidebar to view its projects"
 msgstr "Select an organization from the sidebar to view its projects"
 
+#: extensions/scylla-base/src/features/project/infrastructure/data/grpc-project-remote.data-source.ts:24
+msgid "This organization has reached its project limit."
+msgstr "This organization has reached its project limit."
+
 #: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:6
 msgid "Unable to load projects"
 msgstr "Unable to load projects"

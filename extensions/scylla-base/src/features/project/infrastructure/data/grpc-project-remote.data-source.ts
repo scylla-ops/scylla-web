@@ -1,6 +1,7 @@
 import { type ScyllaGrpcTransport } from '@platform/grpc';
 import { ProjectServiceClient } from '@base/generated/scylla/project/v1/project.client.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { t } from '@lingui/core/macro';
 import type {
   ListOrganizationProjectsResponse,
   Project,
@@ -13,6 +14,17 @@ import {
 } from '@scylla/ui/structs';
 import type { ProjectRemoteDataSource } from '@base/features/project/infrastructure/repository/data-sources/project-remote.data-source.ts';
 import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+
+/**
+ * A cap on projects comes from an extension, with a server message in English that names the
+ * organization by id: show our own sentence instead, and keep the code.
+ */
+export const toCreateProjectError = (error: ScyllaError): ScyllaError =>
+  error.getCode() === 'RESOURCE_EXHAUSTED'
+    ? new ScyllaError(t`This organization has reached its project limit.`, {
+        cause: { code: 'RESOURCE_EXHAUSTED' },
+      })
+    : error;
 
 /** The wrapped entity is optional on the wire: fail here rather than pass `undefined` on. */
 function requireProject(project: Project | undefined): Project {
@@ -50,12 +62,12 @@ export class GrpcProjectRemoteDataSource implements ProjectRemoteDataSource {
     }, 'Failed to fetch project members.');
   }
 
-  public create(
+  public async create(
     name: string,
     organizationId: string,
     description?: string,
   ): Promise<ScyllaResult<Project>> {
-    return ScyllaResult.tryAsync(async () => {
+    const result = await ScyllaResult.tryAsync(async () => {
       const { response } = await this._projectClient.createProject({
         name,
         organizationId: wrapId(organizationId),
@@ -63,6 +75,7 @@ export class GrpcProjectRemoteDataSource implements ProjectRemoteDataSource {
       });
       return requireProject(response.project);
     }, 'Failed to create project.');
+    return result.mapError(toCreateProjectError);
   }
 
   public update(
