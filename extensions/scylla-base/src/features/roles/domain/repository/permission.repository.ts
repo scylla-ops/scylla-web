@@ -25,7 +25,11 @@ export interface RevokeAllAccessInput {
 }
 
 export interface PermissionRepository {
-  listRoles(): Promise<ScyllaResult<RoleEntity[]>>;
+  /**
+   * Set: the platform roles and the roles of that organization (`MANAGE_ORG_ROLES` there).
+   * Unset: every role (`MANAGE_ROLES`).
+   */
+  listRoles(organizationId?: string): Promise<ScyllaResult<RoleEntity[]>>;
   getRole(id: string): Promise<ScyllaResult<RoleEntity>>;
   createRole(role: RoleCreationData): Promise<ScyllaResult<RoleEntity>>;
   updateRole(role: RoleEntity): Promise<ScyllaResult<RoleEntity>>;
@@ -45,7 +49,11 @@ export interface PermissionRepository {
    * Membership is derived from grants: the project grants must go too.
    */
   revokeAllAccess(input: RevokeAllAccessInput): Promise<ScyllaResult<number>>;
-  listGrantableRoles(scope?: PermissionScope): Promise<ScyllaResult<GrantableRoleEntity[]>>;
+  /** Unset `organizationId`: the platform roles, no permission. Set: its roles too (`READ_ORGANIZATION`). */
+  listGrantableRoles(
+    scope?: PermissionScope,
+    organizationId?: string,
+  ): Promise<ScyllaResult<GrantableRoleEntity[]>>;
 
   listPermissionVocabulary(): Promise<ScyllaResult<PermissionVocabularyEntity>>;
 }

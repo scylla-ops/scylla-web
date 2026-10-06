@@ -1,9 +1,7 @@
-import { PrincipalKind } from '@platform/authz';
-import { createMutation, createQuery } from '@scylla/core-sdk';
-import { userQueries } from '@base/features/user';
+import { createMutation } from '@scylla/core-sdk';
 import type { GrantEntity } from '../domain/entities/grant.entity.ts';
 import type { RoleEntity } from '../domain/entities/role.entity.ts';
-import { grantMutations, roleQueries } from './roles.queries.ts';
+import { grantMutations } from './roles.queries.ts';
 
 export interface RoleAssignee {
   grant: GrantEntity;
@@ -11,27 +9,21 @@ export interface RoleAssignee {
   label: string;
 }
 
-/** Who holds a role, and revoking it. Creating grants is the grant dialog's job. */
-export const createRoleAssignees = (role: () => RoleEntity) => {
-  const grantsQuery = createQuery(() => roleQueries.allGrants());
-  const usersQuery = createQuery(() => userQueries.list());
+/**
+ * Who holds a role among the grants the page already read, and revoking it. Creating grants is
+ * the grant dialog's job.
+ */
+export const createRoleAssignees = (
+  role: () => RoleEntity,
+  grants: () => GrantEntity[],
+  labelOf: (grant: GrantEntity) => string,
+) => {
   const revokeGrant = createMutation(() => grantMutations.revoke());
 
-  const usernameById = $derived(
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    new Map((usersQuery.data?.items ?? []).map(user => [user.userId, user.username])),
-  );
-
-  const assignees = $derived.by((): RoleAssignee[] =>
-    (grantsQuery.data ?? [])
+  const assignees = $derived(
+    grants()
       .filter(grant => grant.roleId === role().id)
-      .map(grant => ({
-        grant,
-        label:
-          grant.principal.kind === PrincipalKind.USER
-            ? (usernameById.get(grant.principal.id) ?? grant.principal.id)
-            : grant.principal.id,
-      })),
+      .map((grant): RoleAssignee => ({ grant, label: labelOf(grant) })),
   );
 
   return {

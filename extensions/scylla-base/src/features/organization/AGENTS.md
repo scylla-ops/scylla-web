@@ -93,6 +93,9 @@ two by path: this page shows the "Users" crumb of `user`, and neither module imp
   module reads. Never hand-write the key.
 - The shell depends on `OrganizationList` / `AddOrganizationDialog`. Changing their props is a
   breaking change for `shell/` — update `OrganizationSelector` in the same commit.
+- `AddOrganizationDialog` does not set the context: `organizationMutations.create` makes the new
+  organization active, then the dialog lands on its dashboard. The description is optional
+  (`optional: true` in `createOrganizationItems`), on the first-organization screen too.
 
 ## Before done
 

@@ -544,7 +544,7 @@ scylla-base's `shell/__test__/feature-permissions.test.ts` applies the same idea
 the gating of a *button* is declared nowhere a type can see it:
 
 2. a feature that declares a mutation must mention a `Permission` somewhere under its
-   `presentation/ui/`;
+   `presentation/ui/` or in one of its ViewModels (`presentation/*.state.svelte.ts`);
 3. a query another feature imports through the barrel must check for itself — crossing a
    barrel means running outside the owner's route guard, on the *consumer's* permission.
    `jobsByPipelinesQueries` is the model: `enabled: ready && can(...)`.

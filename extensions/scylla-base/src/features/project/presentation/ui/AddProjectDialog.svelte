@@ -41,6 +41,7 @@
       placeholder: t(projectMessages.descriptionPlaceholder),
       type: FormItemType.Input,
       inputType: 'text',
+      optional: true,
     },
   ]);
 

@@ -27,6 +27,12 @@ describe('FeatureHeader', () => {
     expect(screen.getByRole('heading')).toHaveTextContent('4 Secrets');
   });
 
+  it('uses the plural label for zero in English', () => {
+    render(FeatureHeader, { count: 0, label: 'Secret', pluralLabel: 'Secrets' });
+
+    expect(screen.getByRole('heading')).toHaveTextContent('0 Secrets');
+  });
+
   it('falls back to the singular label when no plural was given, even with count > 1', () => {
     render(FeatureHeader, { count: 4, label: 'Secret' });
 
@@ -123,6 +129,19 @@ describe('FeatureHeader', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Continue' }));
 
     await waitFor(() => expect(toastSuccess).toHaveBeenCalledWith('1 item deleted'));
+  });
+
+  it('counts what was selected, even when the delete clears the selection first', async () => {
+    const props = { label: 'Secret', selectedCount: 2, onDeleteSelection: vi.fn() };
+    const { rerender } = render(FeatureHeader, props);
+    props.onDeleteSelection.mockImplementation(async () => {
+      await rerender({ ...props, selectedCount: 0 });
+    });
+
+    await userEvent.click(deleteButton());
+    await userEvent.click(await screen.findByRole('button', { name: 'Continue' }));
+
+    await waitFor(() => expect(toastSuccess).toHaveBeenCalledWith('2 items deleted'));
   });
 
   it('does not toast when the delete call fails, and closes the dialog anyway', async () => {

@@ -1,15 +1,34 @@
 <script lang="ts">
-  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@scylla/ui/shadcn';
+  import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectGroupHeading,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
+  import {
+    groupAssignableRoles,
+    type AssignableRole,
+  } from '../../../assignable-roles.calculator.ts';
   import { membershipMessages } from '../../membership.messages.ts';
 
   interface Props {
-    roles: { roleId: string; name: string }[];
+    roles: AssignableRole[];
+    /** Names the group of the organization's own roles. */
+    organizationName: string;
     disabled: boolean;
     onSelect: (roleId: string) => void;
   }
 
-  let { roles, disabled, onSelect }: Props = $props();
+  let { roles, organizationName, disabled, onSelect }: Props = $props();
+
+  const groups = $derived(groupAssignableRoles(roles));
+
+  /** Back to the placeholder after each pick: the chosen role leaves the list, its id must not stay. */
+  let value = $state('');
 </script>
 
 <!--
@@ -19,10 +38,12 @@
 {#if roles.length > 0}
   <Select
     type="single"
-    value=""
+    bind:value
     {disabled}
-    onValueChange={value => {
-      if (value) onSelect(value);
+    onValueChange={next => {
+      if (!next) return;
+      value = '';
+      onSelect(next);
     }}
   >
     <SelectTrigger
@@ -32,8 +53,17 @@
       <SelectValue placeholder={t(membershipMessages.addRolePlaceholder)} />
     </SelectTrigger>
     <SelectContent>
-      {#each roles as role (role.roleId)}
-        <SelectItem value={role.roleId} label={role.name}>{role.name}</SelectItem>
+      {#each groups as group (group.owner)}
+        <SelectGroup>
+          <SelectGroupHeading>
+            {group.owner === 'organization'
+              ? t(membershipMessages.organizationRoles(organizationName))
+              : t(membershipMessages.platformRoles)}
+          </SelectGroupHeading>
+          {#each group.roles as role (role.roleId)}
+            <SelectItem value={role.roleId} label={role.name}>{role.name}</SelectItem>
+          {/each}
+        </SelectGroup>
       {/each}
     </SelectContent>
   </Select>

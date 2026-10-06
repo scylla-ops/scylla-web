@@ -33,7 +33,7 @@
         // The mutation already made it active; where to land is the caller's choice.
         onSuccess: () => {
           setOpen(false);
-          navigateTo(`/${slugifyOrgName(name)}/projects`);
+          navigateTo(`/${slugifyOrgName(name)}/dashboard`);
         },
       },
     );

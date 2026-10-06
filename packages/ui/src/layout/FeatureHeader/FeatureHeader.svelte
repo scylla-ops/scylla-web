@@ -3,7 +3,7 @@
   import TrashIcon from '@lucide/svelte/icons/trash';
   import { Button } from '../../shadcn/index.ts';
   import { toast } from '../../utils/toast.ts';
-  import { t } from '../../i18n/i18n-svelte.svelte.ts';
+  import { activeLocale, t } from '../../i18n/i18n-svelte.svelte.ts';
   // Not the group barrels: they would import this file back.
   import GatedButton from '../../controls/GatedButton/GatedButton.svelte';
   import ConfirmOperationAlertDialog from '../../feedback/ConfirmOperationAlertDialog.svelte';
@@ -52,14 +52,21 @@
 
   let deleteDialogOpen = $state(false);
 
-  const displayLabel = $derived(count && count > 1 ? (pluralLabel ?? label) : label);
+  /** The plural rule of the locale: English says "0 roles", French "0 rôle". */
+  const displayLabel = $derived(
+    count !== undefined && new Intl.PluralRules(activeLocale()).select(count) !== 'one'
+      ? (pluralLabel ?? label)
+      : label,
+  );
   const newButtonLabel = $derived(newLabel ?? t(featureHeaderMessages.newEntity(label)));
 
   const handleDelete = async () => {
+    // The delete clears the selection, so `selectedCount` reads 0 once it resolves.
+    const deleted = selectedCount;
     try {
       deleteDialogOpen = false;
       await onDeleteSelection?.();
-      toast.success(t(featureHeaderMessages.itemsDeleted(selectedCount)));
+      toast.success(t(featureHeaderMessages.itemsDeleted(deleted)));
     } catch {
       // The error toast comes from the global mutation handler.
       deleteDialogOpen = false;

@@ -1,8 +1,18 @@
-import { PermissionScope, type AccessSpec, type Permission } from '@platform/authz';
+import {
+  permissionsStore,
+  PermissionScope,
+  RoleKind,
+  type AccessSpec,
+  type Permission,
+} from '@platform/authz';
 import { createMutation } from '@scylla/core-sdk';
+import { toRune } from '@scylla/ui/stores';
 import type { RoleEntity } from '../domain/entities/role.entity.ts';
+import { holdsFullControl, lockedPermissionsOf } from './role-authoring.calculator.ts';
 import { roleMutations } from './roles.queries.ts';
 import {
+  ALL_SCOPES,
+  getEditablePermissionDefinitionsForScope,
   getPermissionsForScope,
   isEditablePermission,
   isHiddenAtScope,
@@ -11,14 +21,28 @@ import {
 
 export type AccessKind = 'fullControl' | 'restricted';
 
-/** Creates or edits a role. Seeded once: the dialog rebuilds it at each opening. */
-export const createRoleForm = (role: RoleEntity | null) => {
+/** A role of an organization is never system scoped. */
+const ORGANIZATION_ROLE_SCOPES: PermissionScope[] = [
+  PermissionScope.ORGANIZATION,
+  PermissionScope.PROJECT,
+];
+
+const readPermissions = toRune(permissionsStore);
+
+/**
+ * Creates or edits a role of `organizationId`, or a platform role when it is `null`. Seeded once:
+ * the dialog rebuilds it at each opening. What the author does not hold is locked, as the
+ * backend refuses it; a locked permission already in an edited role stays.
+ */
+export const createRoleForm = (role: RoleEntity | null, organizationId: string | null = null) => {
   const isEdit = role !== null;
   const initialScope = role?.scope ?? PermissionScope.ORGANIZATION;
+  const scopes = organizationId === null ? ALL_SCOPES : ORGANIZATION_ROLE_SCOPES;
 
   let name = $state(role?.name ?? '');
   let description = $state(role?.description ?? '');
   let scope = $state<PermissionScope>(initialScope);
+  let kind = $state<RoleKind>(role?.kind ?? RoleKind.MEMBER);
   let accessKind = $state<AccessKind>(
     role?.access.kind === 'fullControl' ? 'fullControl' : 'restricted',
   );
@@ -44,6 +68,18 @@ export const createRoleForm = (role: RoleEntity | null) => {
 
   /** The ticked boxes plus the implicit ones. */
   const conferred = $derived(withImplicitPermissions(scope, permissions));
+
+  const lockedPermissions = $derived(
+    lockedPermissionsOf(
+      getEditablePermissionDefinitionsForScope(scope).map(definition => definition.id),
+      scope,
+      readPermissions().permissions,
+      organizationId,
+    ),
+  );
+  const canGiveFullControl = $derived(
+    holdsFullControl(readPermissions().permissions, organizationId),
+  );
 
   const buildAccess = (): AccessSpec =>
     accessKind === 'fullControl'
@@ -75,6 +111,26 @@ export const createRoleForm = (role: RoleEntity | null) => {
     },
     get scope() {
       return scope;
+    },
+    /** The scopes a role of this owner may have. */
+    get scopes() {
+      return scopes;
+    },
+    get isOrganizationRole() {
+      return organizationId !== null;
+    },
+    get kind() {
+      return kind;
+    },
+    /** Fixed once created: a role never changes between people and apps. */
+    set kind(next: RoleKind) {
+      if (!isEdit) kind = next;
+    },
+    get lockedPermissions() {
+      return lockedPermissions;
+    },
+    get canGiveFullControl() {
+      return canGiveFullControl;
     },
     get accessKind() {
       return accessKind;
@@ -130,6 +186,8 @@ export const createRoleForm = (role: RoleEntity | null) => {
             name: name.trim(),
             description: description.trim(),
             scope,
+            kind,
+            ...(organizationId === null ? {} : { organizationId }),
             access: buildAccess(),
           });
         }

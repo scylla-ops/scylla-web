@@ -6,6 +6,7 @@ import {
   PermissionScope,
   PrincipalKind,
   permissionsStore,
+  RoleKind,
 } from '@platform/authz';
 import { runMutationFn, runQueryFn } from '@test/queries.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
@@ -14,6 +15,7 @@ import type { GrantEntity } from '../../domain/entities/grant.entity.ts';
 import {
   GRANTABLE_ROLES_QUERY_KEY,
   GRANTS_QUERY_KEY,
+  ORGANIZATION_ROLES_QUERY_KEY,
   ROLES_QUERY_KEY,
   grantMutations,
   refreshMyPermissions,
@@ -29,6 +31,7 @@ const role: RoleEntity = {
   description: '',
   scope: PermissionScope.ORGANIZATION,
   origin: { kind: 'custom' },
+  kind: RoleKind.MEMBER,
   access: { kind: 'restricted', permissions: [Permission.READ_ORGANIZATION] },
 };
 
@@ -135,7 +138,38 @@ describe('roleQueries', () => {
     );
 
     await runQueryFn(roleQueries.grantable(PermissionScope.PROJECT));
-    expect(listGrantableRoles).toHaveBeenCalledWith(PermissionScope.PROJECT);
+    expect(listGrantableRoles).toHaveBeenCalledWith(PermissionScope.PROJECT, undefined);
+  });
+
+  it('keys grantable roles per organization — its own roles join the platform ones', async () => {
+    expect(GRANTABLE_ROLES_QUERY_KEY(PermissionScope.PROJECT, 'org-1')).not.toEqual(
+      GRANTABLE_ROLES_QUERY_KEY(PermissionScope.PROJECT),
+    );
+
+    await runQueryFn(roleQueries.grantable(PermissionScope.PROJECT, 'org-1'));
+    expect(listGrantableRoles).toHaveBeenCalledWith(PermissionScope.PROJECT, 'org-1');
+  });
+
+  it("honours the caller's gate on the grantable roles", () => {
+    expect(roleQueries.grantable(PermissionScope.PROJECT).enabled).toBe(true);
+    expect(
+      roleQueries.grantable(PermissionScope.PROJECT, 'org-1', { enabled: false }).enabled,
+    ).toBe(false);
+  });
+
+  it("reads an organization's roles under a key of their own", async () => {
+    const options = roleQueries.organizationCatalog('org-1');
+
+    expect(options.queryKey).toEqual(ORGANIZATION_ROLES_QUERY_KEY('org-1'));
+    expect(options.queryKey).not.toEqual(ROLES_QUERY_KEY);
+    await expect(runQueryFn(options)).resolves.toEqual([role]);
+    expect(listRoles).toHaveBeenCalledWith('org-1');
+  });
+
+  it('keeps the organization catalog idle without an organization or without the gate', () => {
+    expect(roleQueries.organizationCatalog(null).enabled).toBe(false);
+    expect(roleQueries.organizationCatalog('org-1', { enabled: false }).enabled).toBe(false);
+    expect(roleQueries.organizationCatalog('org-1').enabled).toBe(true);
   });
 
   it('separates the system-wide grant list from a scoped one', () => {
@@ -182,6 +216,7 @@ describe('roleMutations', () => {
       name: 'viewer',
       description: '',
       scope: PermissionScope.ORGANIZATION,
+      kind: RoleKind.MEMBER,
       access: { kind: 'fullControl' },
     });
     expect(createRole).toHaveBeenCalled();
@@ -189,6 +224,48 @@ describe('roleMutations', () => {
     options.onSuccess?.(role, {} as never, undefined, undefined as never);
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ROLES_QUERY_KEY });
   });
+
+  it.each(['create', 'update', 'remove'] as const)(
+    'a role %s reaches every role list and every grantable list',
+    async mutation => {
+      queryClient.setQueryData(ROLES_QUERY_KEY, [role]);
+      queryClient.setQueryData(ORGANIZATION_ROLES_QUERY_KEY('org-1'), [role]);
+      queryClient.setQueryData(GRANTABLE_ROLES_QUERY_KEY(PermissionScope.PROJECT, 'org-1'), []);
+      queryClient.setQueryData(GRANTABLE_ROLES_QUERY_KEY(), []);
+
+      roleMutations[mutation]().onSuccess?.(
+        role as never,
+        {} as never,
+        undefined,
+        undefined as never,
+      );
+
+      await vi.waitFor(() => {
+        for (const key of [
+          ROLES_QUERY_KEY,
+          ORGANIZATION_ROLES_QUERY_KEY('org-1'),
+          GRANTABLE_ROLES_QUERY_KEY(PermissionScope.PROJECT, 'org-1'),
+          GRANTABLE_ROLES_QUERY_KEY(),
+        ]) {
+          expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true);
+        }
+      });
+    },
+  );
+
+  it.each(['create', 'update', 'remove'] as const)(
+    "a role %s reloads the caller's own permissions: the role may be one the caller holds",
+    mutation => {
+      roleMutations[mutation]().onSuccess?.(
+        role as never,
+        {} as never,
+        undefined,
+        undefined as never,
+      );
+
+      expect(getMyPermissions).toHaveBeenCalled();
+    },
+  );
 
   it('routes an update through the use case, not straight to the repository', async () => {
     await runMutationFn(roleMutations.update(), {

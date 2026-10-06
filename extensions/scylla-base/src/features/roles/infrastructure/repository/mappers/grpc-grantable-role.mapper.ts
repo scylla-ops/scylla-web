@@ -1,29 +1,16 @@
-import { type GrantableRole, RoleKind as GrpcRoleKind } from '@base/generated/scylla/authz/v1/grant.ts';
+import type { GrantableRole } from '@base/generated/scylla/authz/v1/grant.ts';
 import type { GrantableRoleEntity } from '@base/features/roles/domain/entities/grantable-role.entity.ts';
-import { RoleKind } from '@platform/authz';
 import { GrpcPermissionMapper } from '@base/features/roles/infrastructure/repository/mappers/grpc-permission.mapper.ts';
-
-/** A `switch`, so a divergence of the two enums fails to compile. */
-function roleKindToDomain(kind: GrpcRoleKind): RoleKind {
-  switch (kind) {
-    case GrpcRoleKind.ADMIN:
-      return RoleKind.ADMIN;
-    case GrpcRoleKind.AGENT:
-      return RoleKind.AGENT;
-    case GrpcRoleKind.MEMBER:
-      return RoleKind.MEMBER;
-    case GrpcRoleKind.UNSPECIFIED:
-      return RoleKind.UNSPECIFIED;
-  }
-}
 
 export class GrpcGrantableRoleMapper {
   public static toDomain(grpcRole: GrantableRole): GrantableRoleEntity {
     return {
       roleId: grpcRole.roleId?.value ?? '',
+      name: grpcRole.name,
       scope: GrpcPermissionMapper.scopeToDomain(grpcRole.scopeKind),
-      kind: roleKindToDomain(grpcRole.kind),
+      kind: GrpcPermissionMapper.roleKindToDomain(grpcRole.kind),
       description: grpcRole.description,
+      ownerOrganizationId: grpcRole.ownerOrganizationId?.value,
     };
   }
 }

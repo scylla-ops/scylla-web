@@ -1,4 +1,5 @@
 <script lang="ts">
+  import LockIcon from '@lucide/svelte/icons/lock';
   import type { Permission } from '@platform/authz';
   import { Checkbox, Label } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
@@ -12,10 +13,20 @@
     disabled: boolean;
     /** The root level is always true. */
     parentChecked?: boolean;
+    lockedIds: ReadonlySet<Permission>;
+    lockedLabel: string;
     toggle: (id: Permission, checked: boolean) => void;
   }
 
-  let { nodes, checked, disabled, parentChecked = true, toggle }: Props = $props();
+  let {
+    nodes,
+    checked,
+    disabled,
+    parentChecked = true,
+    lockedIds,
+    lockedLabel,
+    toggle,
+  }: Props = $props();
 
   let collapsed = $state<Record<Permission, boolean>>({} as Record<Permission, boolean>);
 </script>
@@ -27,6 +38,7 @@
       {@const hasChildren = (node.children?.length ?? 0) > 0}
       {@const isChecked = chainChecked && checked.has(node.id)}
       {@const isOpen = !collapsed[node.id]}
+      {@const isLocked = lockedIds.has(node.id)}
       <div>
         <div
           class="flex items-center gap-1.5 rounded-md px-1.5 py-1 transition-colors hover:bg-muted/60"
@@ -53,15 +65,24 @@
               id={String(node.id)}
               aria-label={node.label}
               checked={isChecked}
-              disabled={disabled || !chainChecked}
+              disabled={disabled || !chainChecked || isLocked}
               onCheckedChange={value => toggle(node.id, value === true)}
             />
             <Label
               for={String(node.id)}
-              class="cursor-pointer text-sm leading-none font-medium select-none"
+              class={[
+                'text-sm leading-none font-medium select-none',
+                isLocked ? 'text-muted-foreground' : 'cursor-pointer',
+              ]}
             >
               {node.label}
             </Label>
+            {#if isLocked}
+              <span class="ml-auto flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+                <LockIcon class="size-3" aria-hidden="true" />
+                {lockedLabel}
+              </span>
+            {/if}
           </div>
         </div>
 

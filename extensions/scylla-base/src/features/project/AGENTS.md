@@ -104,6 +104,10 @@ project routes (the `project` mount) are declared by the modules that own them
 - **`data-tour` attributes are anchors of the onboarding tour** (`projects` on the list, `project-card` with
   `data-project-id` on each card). Keep them on the same
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
+- **A project cap comes from an extension.** `CreateProject` can fail with `RESOURCE_EXHAUSTED`
+  and an English server text that names the organization by id. The data source maps it to
+  its own sentence (`toCreateProjectError`) and keeps the code; the global toast shows it.
+- The description is optional in both dialogs (`optional: true`).
 
 ## Before done
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
-import { PermissionScope, permissionsStore } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore, RoleKind } from '@platform/authz';
 import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { RoleEntity } from '@base/features/roles';
@@ -8,9 +8,11 @@ import { createAssignableRoles } from '../assignable-roles.state.svelte.ts';
 
 interface GrantableRole {
   roleId: string;
+  name: string;
   scope: PermissionScope;
   kind: number;
   description: string;
+  ownerOrganizationId?: string;
 }
 
 const role = (overrides: Partial<RoleEntity> = {}): RoleEntity =>
@@ -20,12 +22,14 @@ const role = (overrides: Partial<RoleEntity> = {}): RoleEntity =>
     description: 'Custom description',
     scope: PermissionScope.PROJECT,
     origin: { kind: 'custom' },
+    kind: RoleKind.MEMBER,
     access: { kind: 'fullControl' },
     ...overrides,
   });
 
 const grantable = (overrides: Partial<GrantableRole> = {}): GrantableRole => ({
   roleId: 'project-viewer',
+  name: '',
   scope: PermissionScope.PROJECT,
   kind: 0,
   description: 'Read-only access',
@@ -45,6 +49,19 @@ const grantCatalogAccess = () =>
   });
 
 const denyCatalogAccess = () => permissionsStore.setState({ permissions: { scopes: [] } });
+
+const grantOnOrganization = (...permissions: Permission[]) =>
+  permissionsStore.setState({
+    permissions: {
+      scopes: [
+        {
+          scope: PermissionScope.ORGANIZATION,
+          scopeId: 'org-1',
+          access: { kind: 'restricted', permissions },
+        },
+      ],
+    },
+  });
 
 beforeEach(() => {
   listRoles = vi.fn().mockResolvedValue(ScyllaResult.success([]));
@@ -71,7 +88,7 @@ const withAssignableRoles = async (
 ) => {
   let state!: ReturnType<typeof createAssignableRoles>;
   const cleanup = $effect.root(() => {
-    state = createAssignableRoles(scope);
+    state = createAssignableRoles(scope, () => 'org-1');
   });
 
   try {
@@ -112,6 +129,7 @@ describe('createAssignableRoles', () => {
           roleId: 'project-viewer',
           name: 'Project viewer',
           description: 'Read-only access',
+          ownedByOrganization: false,
           role: undefined,
         },
       ]);
@@ -137,23 +155,64 @@ describe('createAssignableRoles', () => {
           roleId: 'role-1',
           name: 'Catalog name',
           description: 'Catalog description',
+          ownedByOrganization: false,
           role: catalogRole,
         });
       });
     });
   });
 
-  it('adds a custom role bound to this scope that the grantable list never carries', async () => {
-    grantCatalogAccess();
-    listRoles.mockResolvedValue(
-      ScyllaResult.success([role({ id: 'custom-1', scope: PermissionScope.PROJECT })]),
+  it('asks for the roles of the organization once the caller may read it', async () => {
+    grantOnOrganization(Permission.READ_ORGANIZATION);
+
+    await withAssignableRoles(PermissionScope.PROJECT, () => {
+      expect(listGrantableRoles).toHaveBeenCalledWith(undefined, 'org-1');
+    });
+  });
+
+  it('asks for the platform roles only when the organization is out of reach', async () => {
+    await withAssignableRoles(PermissionScope.PROJECT, () => {
+      expect(listGrantableRoles).toHaveBeenCalledWith(undefined, undefined);
+    });
+  });
+
+  it('names a role of the organization by the name the grantable list carries', async () => {
+    grantOnOrganization(Permission.READ_ORGANIZATION);
+    listGrantableRoles.mockResolvedValue(
+      ScyllaResult.success([
+        grantable({ roleId: 'f3c1', name: 'Deployer', ownerOrganizationId: 'org-1' }),
+      ]),
     );
 
     await withAssignableRoles(PermissionScope.PROJECT, async state => {
       await vi.waitFor(() => {
         flushSync();
-        expect(state.assignableRoles.map(entry => entry.roleId)).toEqual(['custom-1']);
+        expect(state.assignableRoles.map(entry => entry.name)).toEqual(['Deployer']);
       });
+    });
+  });
+
+  it('reads the catalog of the organization with MANAGE_ORG_ROLES, never the whole one', async () => {
+    grantOnOrganization(Permission.READ_ORGANIZATION, Permission.MANAGE_ORG_ROLES);
+
+    await withAssignableRoles(PermissionScope.PROJECT, async () => {
+      await vi.waitFor(() => expect(listRoles).toHaveBeenCalledWith('org-1'));
+      expect(listRoles).not.toHaveBeenCalledWith();
+    });
+  });
+
+  it('never offers a role of another organization that the whole catalog carries', async () => {
+    grantCatalogAccess();
+    listRoles.mockResolvedValue(
+      ScyllaResult.success([
+        role({ id: 'other-org-role', origin: { kind: 'custom', ownerOrganizationId: 'org-2' } }),
+      ]),
+    );
+
+    await withAssignableRoles(PermissionScope.PROJECT, async state => {
+      await vi.waitFor(() => expect(listRoles).toHaveBeenCalled());
+      flushSync();
+      expect(state.assignableRoles).toEqual([]);
     });
   });
 
@@ -196,6 +255,28 @@ describe('createAssignableRoles', () => {
         flushSync();
         expect(state.labelFor('org-role')).toBe('Org-only role');
       });
+    });
+  });
+
+  it('names an organization role inherited on a project, without offering it there', async () => {
+    grantOnOrganization(Permission.READ_ORGANIZATION);
+    listGrantableRoles.mockResolvedValue(
+      ScyllaResult.success([
+        grantable({
+          roleId: '01m48tpcv54rh6nc689fh7trnq',
+          name: 'Auditor',
+          scope: PermissionScope.ORGANIZATION,
+          ownerOrganizationId: 'org-1',
+        }),
+      ]),
+    );
+
+    await withAssignableRoles(PermissionScope.PROJECT, async state => {
+      await vi.waitFor(() => {
+        flushSync();
+        expect(state.labelFor('01m48tpcv54rh6nc689fh7trnq')).toBe('Auditor');
+      });
+      expect(state.assignableRoles).toEqual([]);
     });
   });
 

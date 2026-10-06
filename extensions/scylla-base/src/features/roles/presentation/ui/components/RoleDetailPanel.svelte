@@ -1,18 +1,19 @@
 <script lang="ts">
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
   import { t } from '@scylla/ui/i18n';
-  import type { RoleEntity } from '../../../domain/entities/role.entity.ts';
+  import type { RolesPage } from '../../roles-page.state.svelte.ts';
   import { rolesMessages } from '../roles.messages.ts';
   import RoleDetailGrantList from './role-detail/RoleDetailGrantList.svelte';
   import RoleDetailHeader from './role-detail/RoleDetailHeader.svelte';
   import RoleDetailPermissions from './role-detail/RoleDetailPermissions.svelte';
 
   interface Props {
-    role: RoleEntity | null;
-    onEdit: (role: RoleEntity) => void;
+    page: RolesPage;
   }
 
-  let { role, onEdit }: Props = $props();
+  let { page }: Props = $props();
+
+  const role = $derived(page.activeRole);
 </script>
 
 {#if !role}
@@ -28,9 +29,9 @@
   <!-- Keyed on the role: its ViewModels are built from it. -->
   {#key role.id}
     <div class="flex h-full flex-col gap-6 overflow-y-auto p-4">
-      <RoleDetailHeader {role} {onEdit} />
+      <RoleDetailHeader {role} {page} />
       <RoleDetailPermissions {role} />
-      <RoleDetailGrantList {role} />
+      <RoleDetailGrantList {role} {page} />
     </div>
   {/key}
 {/if}

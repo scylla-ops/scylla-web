@@ -52,8 +52,10 @@ produce a revoke button that silently does nothing.
 ## You can only grant what you may grant
 
 `createAssignableRoles` answers a narrower question than "which roles exist": which roles is the
-*current user* permitted to hand out, at this scope. It combines the role catalog, the grantable
-list from the backend, and the user's own permissions. The add-member dialog is built from that,
+*current user* permitted to hand out, at this scope. The grantable list from the backend is the
+answer: the platform roles, and the roles of the organization when the user may read it. The
+role catalog the user may read (all of it with `MANAGE_ROLES`, the organization's with
+`MANAGE_ORG_ROLES`) only adds the full role, for its permissions. The add-member dialog is built from that,
 so a user is never offered a role the server would refuse.
 
 ## Structure at a glance

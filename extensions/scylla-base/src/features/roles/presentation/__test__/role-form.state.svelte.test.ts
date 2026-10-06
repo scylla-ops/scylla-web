@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Permission, PermissionScope } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore, RoleKind } from '@platform/authz';
 import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { PermissionRepository } from '../../domain/repository/permission.repository.ts';
@@ -12,6 +12,7 @@ const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
   description: 'read only',
   scope: PermissionScope.ORGANIZATION,
   origin: { kind: 'custom' },
+  kind: RoleKind.MEMBER,
   access: { kind: 'restricted', permissions: [Permission.LIST_SECRETS] },
   ...overrides,
 });
@@ -37,15 +38,17 @@ beforeEach(() => {
 afterEach(() => {
   cache.restore();
   restoreRegistry();
+  permissionsStore.setState({ permissions: null });
 });
 
 const withForm = async (
   editing: RoleEntity | null,
   body: (form: ReturnType<typeof createRoleForm>) => Promise<void> | void,
+  organizationId: string | null = null,
 ) => {
   let form!: ReturnType<typeof createRoleForm>;
   const cleanup = $effect.root(() => {
-    form = createRoleForm(editing);
+    form = createRoleForm(editing, organizationId);
   });
 
   try {
@@ -255,5 +258,120 @@ describe('createRoleForm — editing', () => {
       expect(form.permissions).toEqual([]);
       expect(form.preservedCount).toBe(0);
     });
+  });
+});
+
+describe('createRoleForm — the owner and who holds the role', () => {
+  const holdingInAcme = (access: 'full' | Permission[]) =>
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.ORGANIZATION,
+            scopeId: 'org-1',
+            access:
+              access === 'full'
+                ? { kind: 'fullControl' }
+                : { kind: 'restricted', permissions: access },
+          },
+        ],
+      },
+    });
+
+  it('creates a role of the organization, held by people unless told otherwise', async () => {
+    holdingInAcme('full');
+
+    await withForm(
+      null,
+      async form => {
+        form.name = 'Auditor';
+        await form.submit();
+
+        expect(createRoleCall).toHaveBeenCalledWith(
+          expect.objectContaining({ organizationId: 'org-1', kind: RoleKind.MEMBER }),
+        );
+      },
+      'org-1',
+    );
+  });
+
+  it('creates a role for apps when Apps is picked', async () => {
+    holdingInAcme('full');
+
+    await withForm(
+      null,
+      async form => {
+        form.name = 'Deploy bot';
+        form.kind = RoleKind.AGENT;
+        await form.submit();
+
+        expect(createRoleCall).toHaveBeenCalledWith(
+          expect.objectContaining({ kind: RoleKind.AGENT }),
+        );
+      },
+      'org-1',
+    );
+  });
+
+  it('sends no owner for a platform role', async () => {
+    await withForm(null, async form => {
+      form.name = 'Support';
+      form.accessKind = 'fullControl';
+      await form.submit();
+
+      expect(createRoleCall.mock.calls[0][0]).not.toHaveProperty('organizationId');
+    });
+  });
+
+  it('offers no System scope to a role of an organization', async () => {
+    await withForm(
+      null,
+      form => {
+        expect(form.scopes).toEqual([PermissionScope.ORGANIZATION, PermissionScope.PROJECT]);
+      },
+      'org-1',
+    );
+    await withForm(null, form => {
+      expect(form.scopes).toContain(PermissionScope.SYSTEM);
+    });
+  });
+
+  it('never changes who holds an edited role', async () => {
+    await withForm(role({ kind: RoleKind.AGENT }), form => {
+      form.kind = RoleKind.MEMBER;
+      expect(form.kind).toBe(RoleKind.AGENT);
+    });
+  });
+
+  it('locks what the author does not hold in the organization', async () => {
+    holdingInAcme([Permission.RUN_PIPELINE, Permission.READ_ORGANIZATION]);
+
+    await withForm(
+      null,
+      form => {
+        form.changeScope(PermissionScope.PROJECT);
+
+        expect(form.lockedPermissions.has(Permission.RUN_PIPELINE)).toBe(false);
+        expect(form.lockedPermissions.has(Permission.DELETE_PIPELINE)).toBe(true);
+        expect(form.canGiveFullControl).toBe(false);
+      },
+      'org-1',
+    );
+  });
+
+  it("keeps a locked permission an edited role already holds, rather than stripping it", async () => {
+    holdingInAcme([Permission.READ_ORGANIZATION]);
+
+    await withForm(
+      role({
+        origin: { kind: 'custom', ownerOrganizationId: 'org-1' },
+        access: { kind: 'restricted', permissions: [Permission.LIST_SECRETS] },
+      }),
+      form => {
+        expect(form.lockedPermissions.has(Permission.LIST_SECRETS)).toBe(true);
+        expect(form.permissions).toContain(Permission.LIST_SECRETS);
+      },
+      'org-1',
+    );
   });
 });

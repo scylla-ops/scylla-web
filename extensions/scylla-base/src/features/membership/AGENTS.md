@@ -35,7 +35,7 @@ It composes, through public APIs only:
 
 | From | Used for |
 |---|---|
-| `features/roles` | `roleQueries`, `grantMutations`, `roleConfers`, `humanizeRoleId`, `scopeLabelOf`, `RoleEntity` |
+| `features/roles` | `roleQueries` (`grantable`, `catalog`, `organizationCatalog`, `scopedGrants`), `grantMutations`, `roleConfers`, `humanizeRoleId`, `scopeLabelOf`, `RoleEntity` |
 | `features/organization` | organization member list |
 | `features/project` | project member list |
 | `features/user` | user identities |
@@ -54,6 +54,8 @@ domain/structs/scope-member.struct.ts   ScopeMember, MemberRole, MemberRoleOrigi
 presentation/
   scope-membership.state.svelte.ts   grants → members, plus grant/revoke (a ViewModel)
   assignable-roles.state.svelte.ts   which roles *this* user may hand out
+  assignable-roles.calculator.ts     pure: grantable → AssignableRole (no apps roles), and the
+                                     grouping by owner the pickers render
   ui/OrganizationMembers.page.svelte, ProjectMembers.page.svelte
   ui/membership.messages.ts          every string — `lingui extract` cannot read `.svelte`
   ui/components/                     AddMemberDialog (+ AddMemberForm), AddRoleSelect,
@@ -91,8 +93,20 @@ Sidebar: one entry only — section `organization`, order `30`, icon `UsersRound
   `INHERITED` = granted at the organization and visible on the project. Only `DIRECT` roles are
   revocable here — revoking an inherited role means going to the organization. Never render the
   two identically.
-- `useAssignableRoles` exists because you may only grant roles you are allowed to grant. Do not
-  bypass it and list every role from `useRoles`.
+- `createAssignableRoles(scope, organizationId)` exists because you may only grant roles you are
+  allowed to grant. Its list is `roleQueries.grantable(undefined, organizationId)`, filtered on
+  `scope`: the platform roles and the roles of this organization. It asks for every scope so that
+  `labelFor` names a role inherited from the organization on a project page, never by its id. Do
+  not bypass it and list every role from `roleQueries.catalog`: that list holds the roles of
+  other organizations too.
+- **A member is a person: a role for apps (`RoleKind.AGENT`) is never offered.**
+  `assignableForPeople` drops them; the backend would refuse the grant anyway.
+- **The pickers group by owner.** `AddRoleSelect` and `RoleChecklist` render
+  `groupAssignableRoles`: "<organization> roles" first, then "Platform roles", an empty group left
+  out. They take `organizationName` for the first header; `MembersList`, `MemberCard` and
+  `AddMemberDialog` pass it through.
+- `AddRoleSelect` resets its own value after each pick: the chosen role leaves the list, and a
+  value without an item would show its raw id in the trigger.
 - Two pages, one shape: keep the shared components scope-agnostic and pass the scope in. Do not
   fork `MembersList` per scope.
 - **New strings go in `ui/membership.messages.ts`, never inside a `.svelte`.** Extraction does

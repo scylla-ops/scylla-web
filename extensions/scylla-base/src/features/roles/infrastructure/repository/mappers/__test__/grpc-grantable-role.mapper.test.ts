@@ -11,17 +11,27 @@ const grantable = (overrides: Partial<GrantableRole> = {}): GrantableRole => ({
   scopeKind: ScopeKind.ORGANIZATION,
   kind: GrpcRoleKind.ADMIN,
   description: 'Full control of the organization',
+  name: 'Organization admin',
   ...overrides,
 });
 
 describe('GrpcGrantableRoleMapper.toDomain', () => {
-  it('unwraps the id, maps scope and kind, carries the description', () => {
+  it('unwraps the id, maps scope and kind, carries the name and the description', () => {
     expect(GrpcGrantableRoleMapper.toDomain(grantable())).toEqual({
       roleId: 'organization-admin',
+      name: 'Organization admin',
       scope: PermissionScope.ORGANIZATION,
       kind: RoleKind.ADMIN,
       description: 'Full control of the organization',
+      ownerOrganizationId: undefined,
     });
+  });
+
+  it('carries the owning organization of an organization role', () => {
+    expect(
+      GrpcGrantableRoleMapper.toDomain(grantable({ ownerOrganizationId: { value: 'org-1' } }))
+        .ownerOrganizationId,
+    ).toBe('org-1');
   });
 
   it('defaults to an empty roleId when the wrapper is absent', () => {
