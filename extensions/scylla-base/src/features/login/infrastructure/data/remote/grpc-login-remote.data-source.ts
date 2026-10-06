@@ -12,7 +12,7 @@ import { t } from '@lingui/core/macro';
  * is dropped: it could tell whether the account exists.
  */
 const invalidCredentials = () =>
-  new ScyllaError(t`Incorrect username or password`, {
+  new ScyllaError(t`Incorrect credentials`, {
     cause: { code: 'INVALID_CREDENTIALS' },
   });
 
