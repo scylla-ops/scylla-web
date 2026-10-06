@@ -79,7 +79,7 @@
               />
             </div>
             <div class="font-medium text-foreground group-hover:text-primary">
-              Create new {label.toLowerCase()}
+              {t(layoutMessages.createOrganization)}
             </div>
           </DropdownMenuItem>
         {/if}

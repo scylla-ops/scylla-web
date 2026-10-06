@@ -5,6 +5,7 @@ export const layoutMessages = {
   project: msg`Project`,
   system: msg`System`,
   selectOrganization: msg`Select Organization`,
+  createOrganization: msg`Create an organization`,
   welcome: msg`Welcome to Scylla!`,
   getStarted: msg`To get started, please create your first organization.`,
   create: msg`Create`,

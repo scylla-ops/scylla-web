@@ -40,7 +40,7 @@ beforeEach(() => {
 afterEach(() => teardown.forEach(restore => restore()));
 
 describe('AddOrganizationDialog', () => {
-  it('the Create button stays disabled until both name and description are entered', async () => {
+  it('enables Create once a name is entered: the description is optional', async () => {
     const user = userEvent.setup();
     setUp();
     await focusSettled();
@@ -49,10 +49,18 @@ describe('AddOrganizationDialog', () => {
     expect(button).toBeDisabled();
 
     await user.type(screen.getByLabelText('Organization name'), 'Acme Corp');
-    expect(button).toBeDisabled();
-
-    await user.type(screen.getByLabelText('Description'), 'a real one');
     expect(button).toBeEnabled();
+  });
+
+  it('creates an organization without a description', async () => {
+    const user = userEvent.setup();
+    setUp();
+    await focusSettled();
+
+    await user.type(screen.getByLabelText('Organization name'), 'Acme Corp');
+    await user.click(screen.getByRole('button', { name: 'Create Organization' }));
+
+    await waitFor(() => expect(create).toHaveBeenCalledWith('Acme Corp', undefined));
   });
 
   it('submits the raw (untrimmed) name, then closes and navigates on success', async () => {
@@ -69,7 +77,7 @@ describe('AddOrganizationDialog', () => {
     await waitFor(() => expect(create).toHaveBeenCalledWith('  Acme Corp  ', 'a real one'));
     await waitFor(() => expect(setOpen).toHaveBeenCalledWith(false));
     expect(contextStore.getState().organization).toEqual({ id: 'org-1', name: 'Acme Corp' });
-    expect(testNavigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', undefined);
+    expect(testNavigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', undefined);
   });
 
   it('sends a trimmed, non-empty description', async () => {
