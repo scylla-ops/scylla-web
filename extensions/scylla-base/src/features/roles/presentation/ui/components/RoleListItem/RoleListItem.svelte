@@ -83,19 +83,17 @@
       {/if}
     </div>
     <div class="flex min-w-0 flex-1 flex-col items-start">
-      <p class="flex w-full min-w-0 items-center gap-2">
-        <span class="truncate font-semibold text-foreground">{role.name}</span>
+      <p class="w-full truncate font-semibold text-foreground">{role.name}</p>
+      <p class="flex w-full min-w-0 items-center gap-2 text-xs text-muted-foreground">
         {#if appsOnly}
           <Badge variant="outline" class="shrink-0">{t(rolesMessages.appsOnly)}</Badge>
         {/if}
-      </p>
-      <p class="w-full truncate text-xs text-muted-foreground">
-        {role.description || t(rolesMessages.noDescription)}
+        <span class="truncate">{role.description || t(rolesMessages.noDescription)}</span>
       </p>
     </div>
   </div>
 
-  <div class="flex items-center gap-1.5">
+  <div class="flex shrink-0 items-center gap-1.5">
     <Badge variant="secondary">{scopeLabelOf(role.scope)}</Badge>
     {#if memberCount !== null}
       <Badge variant="outline">{t(rolesMessages.memberCount(memberCount))}</Badge>
