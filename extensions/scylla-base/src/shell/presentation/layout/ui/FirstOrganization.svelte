@@ -1,6 +1,6 @@
 <script lang="ts">
-  import scyllaLogo from '@scylla/ui/assets/logo_scylla.png';
-  import scyllaLogoDark from '@scylla/ui/assets/logo_scylla_dark.png';
+  import scyllaLogo from '@scylla/ui/assets/logo_scylla.svg';
+  import scyllaLogoDark from '@scylla/ui/assets/logo_scylla_dark.svg';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/shadcn';
   import { ScyllaForm, type FormValues } from '@scylla/ui';
   import { activeLocale, t } from '@scylla/ui/i18n';
@@ -19,9 +19,9 @@
 </script>
 
 <main in:welcomeIn class="flex h-full w-full flex-col p-2">
-  <div class="flex h-full min-h-screen w-full flex-col items-center bg-background">
-    <img src={scyllaLogo} alt="Scylla" class="h-2/6 w-2/6 dark:hidden" />
-    <img src={scyllaLogoDark} alt="Scylla" class="hidden h-2/6 w-2/6 dark:block" />
+  <div class="flex h-full min-h-screen w-full flex-col items-center justify-center bg-background">
+    <img src={scyllaLogo} alt="Scylla" class="mb-8 w-56 dark:hidden" />
+    <img src={scyllaLogoDark} alt="Scylla" class="mb-8 hidden w-56 dark:block" />
     <Card class="w-full max-w-md">
       <CardHeader class="text-center">
         <CardTitle class="text-2xl">{t(layoutMessages.welcome)}</CardTitle>

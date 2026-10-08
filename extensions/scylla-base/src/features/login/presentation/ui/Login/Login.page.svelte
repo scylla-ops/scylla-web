@@ -1,6 +1,6 @@
 <script lang="ts">
-  import LogoScylla from '@scylla/ui/assets/logo_scylla.png';
-  import LogoScyllaDark from '@scylla/ui/assets/logo_scylla_dark.png';
+  import LogoScylla from '@scylla/ui/assets/logo_scylla.svg';
+  import LogoScyllaDark from '@scylla/ui/assets/logo_scylla_dark.svg';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/shadcn';
   import { ScyllaLoadingScreen } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
@@ -16,10 +16,10 @@
 {#if state.isSuccess}
   <ScyllaLoadingScreen />
 {:else}
-  <div class="flex flex-col items-center">
+  <div class="flex min-h-svh flex-col items-center justify-center p-6">
     <!-- A dark variant swapped by CSS: `.dark` is set before the first paint, so no flash. -->
-    <img src={LogoScylla} alt="Scylla" class="h-2/6 w-2/6 dark:hidden" />
-    <img src={LogoScyllaDark} alt="Scylla" class="hidden h-2/6 w-2/6 dark:block" />
+    <img src={LogoScylla} alt="Scylla" class="mb-8 w-56 dark:hidden" />
+    <img src={LogoScyllaDark} alt="Scylla" class="mb-8 hidden w-56 dark:block" />
 
     <Card class="w-full max-w-sm">
       <CardHeader>
