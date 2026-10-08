@@ -21,6 +21,8 @@ cp .env.example .env
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `VITE_API_URL` | URL of the Scylla gRPC-Web backend. Only needed here: a deployed instance serves this bundle from the control plane itself, leaves the variable unset, and the client uses relative URLs. | `http://localhost:8080` |
+| `VITE_UMAMI_SRC` | URL of the self-hosted Umami tracker script. Tracking only runs in a production build, so this stays unset for local dev. | _unset_ |
+| `VITE_UMAMI_WEBSITE_ID` | The website id Umami tracks this frontend under. Same as above. | _unset_ |
 
 ### Install & Run
 
@@ -100,6 +102,7 @@ shared/                generic UI + utils, no business meaning — imports nobod
 
 | Module | What it owns |
 |--------|--------------|
+| [analytics](src/modules/platform/analytics/README.md) | Umami tracking: production-only pageviews and `trackEvent` for business events |
 | [authz](src/modules/platform/authz/README.md) | `Permission`, `can`, `Can`, `RequirePermission` — the read side of authorization |
 | [context](src/modules/platform/context/README.md) | The active organization / project / pipeline, and navigation derived from it |
 | [di](src/modules/platform/di/README.md) | Dependency injection mechanism (the wiring lives in `core`) |
