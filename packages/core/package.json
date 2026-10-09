@@ -1,0 +1,19 @@
+{
+  "name": "@scylla/core",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@scylla/core-sdk": "workspace:*",
+    "@scylla/ui": "workspace:*"
+  },
+  "peerDependencies": {
+    "@lingui/core": "^5.4.1",
+    "@lucide/svelte": "^1.46.0",
+    "@tanstack/query-core": "5.103.1",
+    "svelte": "^5.57.0"
+  }
+}

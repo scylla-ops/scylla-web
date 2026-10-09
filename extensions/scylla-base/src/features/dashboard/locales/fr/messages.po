@@ -1,0 +1,155 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-08-28 10:58+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: fr\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:24
+msgid "{inFlight} in progress"
+msgstr "{inFlight} en cours"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:35
+msgid "Agent Outcomes"
+msgstr "Résultats des agents"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:36
+msgid "all"
+msgstr "tous"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:15
+msgid "All Pipelines"
+msgstr "Tous les pipelines"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:39
+msgid "cancelled"
+msgstr "annulés"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:28
+msgid "Cancelled"
+msgstr "Annulé"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:37
+msgid "completed"
+msgstr "terminés"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:26
+msgid "Completed"
+msgstr "Terminé"
+
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:15
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:17
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:21
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:38
+msgid "failed"
+msgstr "échoués"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:27
+msgid "Failed"
+msgstr "Échoué"
+
+#. placeholder {0}: String(relative)
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:30
+msgid "Last run {0}"
+msgstr "Dernière exécution {0}"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:17
+msgid "Name"
+msgstr "Nom"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:41
+msgid "No agents found. Connect an agent to see execution history."
+msgstr "Aucun agent trouvé. Connectez un agent pour voir l'historique des exécutions."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:13
+msgid "No description"
+msgstr "Aucune description"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:40
+msgid "No finished jobs in this window."
+msgstr "Aucun job terminé sur cette période."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:25
+msgid "No pipeline has run yet."
+msgstr "Aucun pipeline n'a encore été exécuté."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:16
+msgid "No pipelines yet."
+msgstr "Aucun pipeline pour le moment."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:12
+msgid "No projects yet."
+msgstr "Aucun projet pour le moment."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:19
+msgid "Nodes"
+msgstr "Nœuds"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:29
+msgid "Orphaned"
+msgstr "Orphelin"
+
+#. placeholder {0}: Number(total)
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:33
+msgid "over all {0} runs"
+msgstr "sur l'ensemble des {0} exécutions"
+
+#. placeholder {0}: Number(windowTotal)
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:32
+msgid "over the last {0} of {totalRuns} runs"
+msgstr "sur les {0} dernières exécutions parmi {totalRuns}"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:7
+msgid "Pipelines"
+msgstr "Pipelines"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:18
+msgid "Project"
+msgstr "Projet"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:6
+msgid "Projects"
+msgstr "Projets"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:23
+msgid "Run activity"
+msgstr "Activité d'exécution"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:8
+msgid "Runs"
+msgstr "Exécutions"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:11
+msgid "See all"
+msgstr "Voir tout"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:9
+msgid "Success rate"
+msgstr "Taux de réussite"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:10
+msgid "Success rate (recent)"
+msgstr "Taux de réussite (récent)"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:5
+msgid "Unable to load dashboard"
+msgstr "Impossible de charger le tableau de bord"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:20
+msgid "Updated"
+msgstr "Mis à jour"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/ui/dashboard.messages.ts:14
+msgid "You don't have access to this project's pipelines"
+msgstr "Vous n'avez pas accès aux pipelines de ce projet"

@@ -1,0 +1,145 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-06-20 14:19+0900\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: packages/ui/src/layout/feature-header.messages.ts:13
+msgid "{selectedCount, plural, one {# item deleted} other {# items deleted}}"
+msgstr "{selectedCount, plural, one {# item deleted} other {# items deleted}}"
+
+#: packages/ui/src/feedback/error-state.messages.ts:5
+msgid "An error occurred"
+msgstr "An error occurred"
+
+#: packages/ui/src/feedback/confirm-operation.messages.ts:4
+msgid "Are you absolutely sure?"
+msgstr "Are you absolutely sure?"
+
+#: packages/ui/src/feedback/confirm-operation.messages.ts:6
+#: packages/ui/src/forms/form-dialog.messages.ts:4
+msgid "Cancel"
+msgstr "Cancel"
+
+#: packages/ui/src/layout/feature-header.messages.ts:7
+msgid "Clear"
+msgstr "Clear"
+
+#: packages/ui/src/feedback/confirm-operation.messages.ts:7
+msgid "Continue"
+msgstr "Continue"
+
+#: packages/ui/src/shadcn/code-snippet.messages.ts:6
+msgid "Copied"
+msgstr "Copied"
+
+#: packages/ui/src/data-display/copyable-text.messages.ts:5
+msgid "Copied!"
+msgstr "Copied!"
+
+#: packages/ui/src/data-display/copyable-text.messages.ts:4
+#: packages/ui/src/shadcn/code-snippet.messages.ts:5
+msgid "Copy"
+msgstr "Copy"
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:4
+msgid "Copy your secret"
+msgstr "Copy your secret"
+
+#: packages/ui/src/forms/form-dialog.messages.ts:5
+msgid "Create"
+msgstr "Create"
+
+#: packages/ui/src/forms/form-dialog.messages.ts:6
+msgid "Creating..."
+msgstr "Creating..."
+
+#: packages/ui/src/layout/feature-header.messages.ts:8
+msgid "Delete"
+msgstr "Delete"
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:10
+msgid "Done"
+msgstr "Done"
+
+#: packages/ui/src/feedback/error-state.messages.ts:4
+msgid "Error"
+msgstr "Error"
+
+#: packages/ui/src/shadcn/pagination.messages.ts:14
+msgid "Go to next page"
+msgstr "Go to next page"
+
+#: packages/ui/src/shadcn/pagination.messages.ts:13
+msgid "Go to previous page"
+msgstr "Go to previous page"
+
+#: packages/ui/src/layout/feature-header.messages.ts:5
+msgid "in total"
+msgstr "in total"
+
+#: packages/ui/src/shadcn/pagination.messages.ts:15
+msgid "More pages"
+msgstr "More pages"
+
+#: packages/ui/src/layout/feature-header.messages.ts:10
+msgid "New {label}"
+msgstr "New {label}"
+
+#: packages/ui/src/shadcn/pagination.messages.ts:12
+msgid "Next"
+msgstr "Next"
+
+#: packages/ui/src/data-display/data-table.messages.ts:4
+msgid "No results."
+msgstr "No results."
+
+#: packages/ui/src/shadcn/pagination.messages.ts:11
+msgid "Previous"
+msgstr "Previous"
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:7
+msgid "Reveal"
+msgstr "Reveal"
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:8
+msgid "Reveal the secret first"
+msgstr "Reveal the secret first"
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:6
+msgid "Secret copied"
+msgstr "Secret copied"
+
+#: packages/ui/src/layout/feature-header.messages.ts:6
+msgid "Select all"
+msgstr "Select all"
+
+#: packages/ui/src/data-display/pagination.messages.ts:6
+msgid "Showing {start}-{end} of {totalCount}"
+msgstr "Showing {start}-{end} of {totalCount}"
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:5
+msgid "shown once"
+msgstr "shown once"
+
+#: packages/ui/src/feedback/confirm-operation.messages.ts:5
+msgid "This action cannot be undone."
+msgstr "This action cannot be undone."
+
+#: packages/ui/src/controls/gated-button.messages.ts:4
+#: packages/ui/src/layout/feature-header.messages.ts:9
+msgid "You don't have permission to do this."
+msgstr "You don't have permission to do this."
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:9
+msgid "You won't see this secret again."
+msgstr "You won't see this secret again."

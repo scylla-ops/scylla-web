@@ -1,0 +1,43 @@
+import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
+import type {
+  AuthzAction,
+  PrincipalRef,
+  ScopeKind,
+  ScopeRef,
+} from '@base/generated/scylla/authz/v1/permission.ts';
+import type {
+  CreateGrantRequest,
+  Grant,
+  GrantableRole,
+} from '@base/generated/scylla/authz/v1/grant.ts';
+import type {
+  CreateRoleRequest,
+  EffectiveScope,
+  Role,
+  UpdateRoleRequest,
+} from '@base/generated/scylla/authz/v1/role.ts';
+
+export interface PermissionDataSource {
+  /** Set: the platform roles and the roles of that organization. Unset: every role. */
+  listRoles(organizationId?: string): Promise<ScyllaResult<Role[]>>;
+  getRoleById(id: string): Promise<ScyllaResult<Role>>;
+  createRole(request: CreateRoleRequest): Promise<ScyllaResult<Role>>;
+  updateRole(request: UpdateRoleRequest): Promise<ScyllaResult<Role>>;
+  deleteRole(id: string): Promise<ScyllaResult<void>>;
+
+  getEffectivePermissions(principal: PrincipalRef): Promise<ScyllaResult<EffectiveScope[]>>;
+  getMyPermissions(): Promise<ScyllaResult<EffectiveScope[]>>;
+
+  listGrants(scope?: ScopeRef): Promise<ScyllaResult<Grant[]>>;
+  createGrant(request: CreateGrantRequest): Promise<ScyllaResult<Grant>>;
+  revokeGrant(id: string): Promise<ScyllaResult<void>>;
+  /** At `scope` and beneath it. */
+  revokeAllAccess(principal: PrincipalRef, scope: ScopeRef): Promise<ScyllaResult<number>>;
+  /** Set `organizationId`: the roles of that organization too. */
+  listGrantableRoles(
+    scopeKind?: ScopeKind,
+    organizationId?: string,
+  ): Promise<ScyllaResult<GrantableRole[]>>;
+
+  listPermissionVocabulary(): Promise<ScyllaResult<AuthzAction[]>>;
+}

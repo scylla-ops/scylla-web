@@ -1,0 +1,145 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-06-20 14:19+0900\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: fr\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: packages/ui/src/layout/feature-header.messages.ts:13
+msgid "{selectedCount, plural, one {# item deleted} other {# items deleted}}"
+msgstr "{selectedCount, plural, one {# élément supprimé} other {# éléments supprimés}}"
+
+#: packages/ui/src/feedback/error-state.messages.ts:5
+msgid "An error occurred"
+msgstr "Une erreur s'est produite"
+
+#: packages/ui/src/feedback/confirm-operation.messages.ts:4
+msgid "Are you absolutely sure?"
+msgstr "Êtes-vous absolument sûr ?"
+
+#: packages/ui/src/feedback/confirm-operation.messages.ts:6
+#: packages/ui/src/forms/form-dialog.messages.ts:4
+msgid "Cancel"
+msgstr "Annuler"
+
+#: packages/ui/src/layout/feature-header.messages.ts:7
+msgid "Clear"
+msgstr "Effacer"
+
+#: packages/ui/src/feedback/confirm-operation.messages.ts:7
+msgid "Continue"
+msgstr "Continuer"
+
+#: packages/ui/src/shadcn/code-snippet.messages.ts:6
+msgid "Copied"
+msgstr "Copié"
+
+#: packages/ui/src/data-display/copyable-text.messages.ts:5
+msgid "Copied!"
+msgstr "Copié !"
+
+#: packages/ui/src/data-display/copyable-text.messages.ts:4
+#: packages/ui/src/shadcn/code-snippet.messages.ts:5
+msgid "Copy"
+msgstr "Copier"
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:4
+msgid "Copy your secret"
+msgstr "Copiez votre secret"
+
+#: packages/ui/src/forms/form-dialog.messages.ts:5
+msgid "Create"
+msgstr "Créer"
+
+#: packages/ui/src/forms/form-dialog.messages.ts:6
+msgid "Creating..."
+msgstr "Création..."
+
+#: packages/ui/src/layout/feature-header.messages.ts:8
+msgid "Delete"
+msgstr "Supprimer"
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:10
+msgid "Done"
+msgstr "Terminé"
+
+#: packages/ui/src/feedback/error-state.messages.ts:4
+msgid "Error"
+msgstr "Erreur"
+
+#: packages/ui/src/shadcn/pagination.messages.ts:14
+msgid "Go to next page"
+msgstr "Aller à la page suivante"
+
+#: packages/ui/src/shadcn/pagination.messages.ts:13
+msgid "Go to previous page"
+msgstr "Aller à la page précédente"
+
+#: packages/ui/src/layout/feature-header.messages.ts:5
+msgid "in total"
+msgstr "au total"
+
+#: packages/ui/src/shadcn/pagination.messages.ts:15
+msgid "More pages"
+msgstr "Plus de pages"
+
+#: packages/ui/src/layout/feature-header.messages.ts:10
+msgid "New {label}"
+msgstr "Nouveau {label}"
+
+#: packages/ui/src/shadcn/pagination.messages.ts:12
+msgid "Next"
+msgstr "Suivant"
+
+#: packages/ui/src/data-display/data-table.messages.ts:4
+msgid "No results."
+msgstr "Aucun résultat."
+
+#: packages/ui/src/shadcn/pagination.messages.ts:11
+msgid "Previous"
+msgstr "Précédent"
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:7
+msgid "Reveal"
+msgstr "Révéler"
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:8
+msgid "Reveal the secret first"
+msgstr "Révélez d'abord le secret"
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:6
+msgid "Secret copied"
+msgstr "Secret copié"
+
+#: packages/ui/src/layout/feature-header.messages.ts:6
+msgid "Select all"
+msgstr "Tout sélectionner"
+
+#: packages/ui/src/data-display/pagination.messages.ts:6
+msgid "Showing {start}-{end} of {totalCount}"
+msgstr "Affichage de {start}-{end} sur {totalCount}"
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:5
+msgid "shown once"
+msgstr "montré une seule fois"
+
+#: packages/ui/src/feedback/confirm-operation.messages.ts:5
+msgid "This action cannot be undone."
+msgstr "Cette action ne peut pas être annulée."
+
+#: packages/ui/src/controls/gated-button.messages.ts:4
+#: packages/ui/src/layout/feature-header.messages.ts:9
+msgid "You don't have permission to do this."
+msgstr "Vous n'avez pas la permission de faire cela."
+
+#: packages/ui/src/feedback/secret-reveal.messages.ts:9
+msgid "You won't see this secret again."
+msgstr "Vous ne verrez plus ce secret."

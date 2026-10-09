@@ -22,15 +22,30 @@
  *   node scripts/check-catalog-collisions.mjs [--report-only]
  */
 
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { dirname, relative, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const reportOnly = process.argv.includes('--report-only');
 
-const ROOT = 'src/modules';
-const MODULE_ID = /^(features\/[^/]+|platform\/[^/]+|[^/]+)/;
+const mountedAt = relative(process.cwd(), resolve(dirname(fileURLToPath(import.meta.url)), '..'))
+  .split(sep)
+  .join('/');
 
-/** `features/jobs/locales/fr/messages.po` -> `features/jobs`. */
-const moduleOf = relPath => MODULE_ID.exec(relPath)?.[1] ?? relPath;
+/**
+ * The workspace folders that hold packages. A host repo that mounts scylla-web as a submodule
+ * loads the catalogs of both at runtime, so both are checked; `apps/` of scylla-web is not built.
+ */
+const ROOTS = [
+  'apps',
+  'packages',
+  'sdks',
+  'extensions',
+  ...(mountedAt ? ['packages', 'sdks', 'extensions'].map(root => `${mountedAt}/${root}`) : []),
+].filter(root => existsSync(root));
+
+/** `extensions/scylla-base/src/features/jobs/locales/fr/messages.po` -> `extensions/scylla-base/src/features/jobs`. */
+const moduleOf = relPath => relPath.split('/locales/')[0];
 
 /** `features/jobs/locales/fr/messages.po` -> `fr`. */
 const localeOf = relPath => /\/locales\/([^/]+)\/messages\.po$/.exec(relPath)?.[1] ?? null;
@@ -87,8 +102,11 @@ const parsePo = source => {
 };
 
 // Sorted, because that is the order the runtime merges them in: later wins.
-const catalogPaths = readdirSync(ROOT, { recursive: true, encoding: 'utf8' })
+const catalogPaths = ROOTS.flatMap(root =>
+  readdirSync(root, { recursive: true, encoding: 'utf8' }).map(p => `${root}/${p}`),
+)
   .map(p => p.split('\\').join('/'))
+  .filter(p => !p.includes('/node_modules/'))
   .filter(p => /\/locales\/[^/]+\/messages\.po$/.test(p))
   .sort();
 
@@ -101,7 +119,7 @@ for (const relPath of catalogPaths) {
   if (!byLocale.has(locale)) byLocale.set(locale, new Map());
   const index = byLocale.get(locale);
 
-  for (const { ctx, id, str } of parsePo(readFileSync(`${ROOT}/${relPath}`, 'utf8'))) {
+  for (const { ctx, id, str } of parsePo(readFileSync(relPath, 'utf8'))) {
     const key = `${ctx}\u001F${id}`;
     if (!index.has(key)) index.set(key, []);
     index.get(key).push({ module: moduleOf(relPath), str });

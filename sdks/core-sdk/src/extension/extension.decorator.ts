@@ -1,0 +1,48 @@
+import type { CatalogLoaders } from '@scylla/ui/i18n';
+import type { ScyllaModule } from '../routing/scylla-module.struct.ts';
+import type { WidgetInjection } from '../widgets/widget-injection.struct.ts';
+
+/** What `@Extension` declares. */
+export interface ExtensionManifest {
+  /** Unique across the extensions. */
+  readonly id: string;
+  readonly name: string;
+  readonly version: string;
+  /** The ids of the extensions that must load before this one. */
+  readonly dependencies?: readonly string[];
+  /** Everything the extension adds: pages, sidebar links, mounts, shell parts. */
+  readonly modules: readonly ScyllaModule[];
+  /**
+   * What this extension changes in the widgets of other extensions (or its own), one key per
+   * intention, with the shorthand property (`{ EmailLoginWidgetInjection }`). The key names the
+   * injection: `<extension id>/<key>`.
+   */
+  readonly widgetInjections?: Readonly<Record<string, WidgetInjection>>;
+  /** `import.meta.glob('./**\/locales/*\/messages.ts')`. */
+  readonly catalogs?: CatalogLoaders;
+}
+
+/** A class that carries `@Extension`. */
+export type ExtensionClass = abstract new (...args: never[]) => unknown;
+
+const MANIFEST = Symbol('scylla.extension');
+
+/**
+ * Declares an extension on a class:
+ *
+ *   @Extension({ id: 'acme-billing', name: 'Acme Billing', version: '1.0.0', modules: [BillingModule] })
+ *   export class AcmeBillingExtension {}
+ *
+ * The app then lists the class: `startCore({ extensions: [AcmeBillingExtension] })`.
+ */
+export const Extension =
+  (manifest: ExtensionManifest) =>
+  <TClass extends ExtensionClass>(target: TClass, _context: ClassDecoratorContext<TClass>): void => {
+    Object.defineProperty(target, MANIFEST, { value: manifest });
+  };
+
+export const extensionOf = (target: ExtensionClass): ExtensionManifest => {
+  const manifest = (target as { [MANIFEST]?: ExtensionManifest })[MANIFEST];
+  if (!manifest) throw new Error(`${target.name} has no @Extension decorator.`);
+  return manifest;
+};
