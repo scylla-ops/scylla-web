@@ -43,7 +43,7 @@ export const WHATS_NEW = {
     {
       id: 'members',
       title: msg`Members`,
-      description: msg`Invite people to your organization and your projects, and manage what each of them can do.`,
+      description: msg`Add people to your organization and your projects, and manage what each of them can do.`,
       icon: UsersRound,
       navUrl: 'members',
     },
