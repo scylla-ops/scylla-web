@@ -5,6 +5,7 @@ import type {
   UpdateUserInput,
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
+import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import type { UserAccess } from '@base/features/user/domain/structs/user-access.struct.ts';
 import type { UserList } from '@base/features/user/domain/structs/user.struct.ts';
 
@@ -26,4 +27,8 @@ export interface UserRepository {
   /** Of the session's account, with its password. */
   deleteAccount(password: string): Promise<ScyllaResult<void>>;
   listAccess(userId: string): Promise<ScyllaResult<UserAccess[]>>;
+  /** The sessions that have not expired, the most recently active first. */
+  listSessions(userId: string): Promise<ScyllaResult<UserSessionEntity[]>>;
+  /** The current session can be revoked too: its caller is then signed out. */
+  revokeSession(userId: string, sessionId: string): Promise<ScyllaResult<void>>;
 }

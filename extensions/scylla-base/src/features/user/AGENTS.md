@@ -18,17 +18,19 @@ account page of the signed-in user.
 ## Public API — `index.ts`
 
 ```typescript
-type UserEntity, UserSummary, CreateUserInput, UpdateUserInput, UserAccess
-userQueries        list · byId · me · access
+type UserEntity, UserSummary, CreateUserInput, UpdateUserInput, UserAccess, UserSessionEntity
+userQueries        list · byId · me · access · sessions
 userMutations      create · update · remove · setActive · changePassword · sendPasswordReset ·
-                   revokeSessions · deleteAccount
-canListUsers, USERS_QUERY_KEY, USER_QUERY_KEY, ME_QUERY_KEY, USER_ACCESS_QUERY_KEY
+                   revokeSessions · revokeSession · deleteAccount
+canListUsers, USERS_QUERY_KEY, USER_QUERY_KEY, ME_QUERY_KEY, USER_ACCESS_QUERY_KEY,
+USER_SESSIONS_QUERY_KEY
 ```
 
 `roles`, `membership`, `organization`, `project` and `shell` use this barrel. The shell runs
 `userQueries.me` in its user menu, on the same cache entry as the account page.
-`userQueries.byId` and `userQueries.access` check for themselves (the SDK gives them to other
-extensions): the own id of the session needs no grant, any other id needs `READ_USER`.
+`userQueries.byId`, `userQueries.access` and `userQueries.sessions` check for themselves (the
+SDK gives them to other extensions): the own id of the session needs no grant, any other id
+needs `READ_USER`.
 
 **`UserSummary` is the one type for a person** (`userId`, `username`, `email?`,
 `displayName?`): a `Pick` of `UserEntity`. The member lists of `organization` and `project`
@@ -54,6 +56,8 @@ one).
 | `changePassword(current, next)` | `ChangePassword` | `void` |
 | `sendPasswordReset(userId)` | `SendPasswordReset` | `PasswordResetDelivery` (from `login`) |
 | `revokeSessions(userId)` | `RevokeUserSessions` | `number` (sessions revoked) |
+| `listSessions(userId)` | `ListUserSessions` | `UserSessionEntity[]`, the most recently active first |
+| `revokeSession(userId, sessionId)` | `RevokeUserSession` | `void` |
 | `deleteAccount(password)` | `DeleteAccount` | `void` |
 | `listAccess(userId)` | `ListUserAccess` | `UserAccess[]` |
 
@@ -69,18 +73,20 @@ user.module.ts                       routes + nav + DI wiring (private; registry
 index.ts                             public API
 domain/
   entities/user.entity.ts            UserEntity, UserSummary, the inputs, profileChanges (pure)
+  entities/user-session.entity.ts    UserSessionEntity: no token, only what the list shows
   structs/user.struct.ts             UserList = PaginatedList<UserEntity>
   structs/user-access.struct.ts      UserAccess, groupUserAccess (pure)
   repository/user.repository.ts
 infrastructure/
   repository/data-sources/user-remote.data-source.ts     interface
   data/remote/user-remote.data-source.impl.ts            impl (the `.impl.ts` convention)
-  repository/mappers/grpc-user.mapper.ts                 user, requests, access, delivery
+  repository/mappers/grpc-user.mapper.ts                 user, requests, access, session, delivery
   repository/default-user.repository.ts
 presentation/
   user.queries.ts                    the reads, the writes, `canListUsers`
   account-page.state.svelte.ts       createAccountPage: the account of the session
   user-detail.state.svelte.ts        createUserDetail: the page of another user
+  user-agent.calculator.ts           parseUserAgent: browser, system and kind of a session (pure)
   ui/user.messages.ts                every string the screens show
   ui/admin/UserAdmin.page.svelte     the directory
   ui/admin/AddUserDialog/            "New user"
@@ -89,9 +95,11 @@ presentation/
   ui/account/PersonalAccount/         the account page with no organization: + the sign-out at the end
   ui/account/ChangePasswordForm.svelte, DeleteAccountDialog/
   ui/user-detail/UserDetail/         the page of another user
-  ui/user-detail/UserDetailHeader.svelte, UserSecurity.svelte
+  ui/user-detail/UserDetailHeader.svelte   the identity card with status, date and id
+  ui/user-detail/UserSecurity.svelte
   ui/components/                     SettingsSection, UserStatusBadge, UserProfileForm/,
-                                     UserAccessList/ (both pages)
+                                     UserAccessList/, UserIdentityCard, SessionList,
+                                     SessionRow/ (both pages)
 ```
 
 ## Routes & nav
@@ -132,7 +140,8 @@ user who has no organization.
   value. The page of a user reads `page.isLoading` in its first condition, before any branch
   that can hide it.
 - **Gate each action of `users/:userId` with the permission of its RPC, and hide what the viewer
-  cannot do.** Save, reset link, sign out everywhere, deactivate and reactivate: `UPDATE_USER`.
+  cannot do.** Save, reset link, sign out one session, sign out everywhere, deactivate and
+  reactivate: `UPDATE_USER`. The Sessions section shows with `READ_USER` (the page needs it).
   The email is editable only with `CREATE_USER` too (the proto rule). Delete: `DELETE_USER`.
   The own account page never sends an email.
 - **A FAILED_PRECONDITION that a page shows beside a field is data, not an error.**
@@ -147,6 +156,22 @@ user who has no organization.
   password, username with no '@' and 255 bytes at most, display name 100 characters at most. Every form with a
   new password has a confirmation field. Every field has its `autocomplete` value.
 - Passwords are write-only: no read returns one. Never log, store or display one.
+- **Sessions.** Both pages show the list in the Sessions section, then "Sign out everywhere
+  else" (own page) or "Sign out everywhere" (another user). The current session has the badge
+  "This session" and no sign-out button. `revokeSession` takes `{ userId, sessionId }`. It
+  finds the session in the cache of `sessions`: when it is the current session, it signs out
+  in its own `onSuccess` (the page can be gone), else it refreshes the list. `revokeSessions`
+  and `setActive` refresh the list too (a deactivation signs the user out). `remove` drops it.
+- **`parseUserAgent` is the only place that reads a user agent.** Keep it pure and tested. The
+  order of its rules is important: Edge, Opera and Samsung Internet also send `Chrome/`; iOS
+  sends `Mac OS X`; Android and ChromeOS send `Linux`. A user agent with no known browser is an
+  API client (`kind: 'api'`), named from its product token. Only a phone is `mobile`: a tablet
+  is `desktop`. An empty user agent is `unknown` and has no name: the row shows "Unknown device"
+  with a neutral icon (`circle-help`) and no "API client" prefix. The texts of a
+  row are in `SessionRow/session-row.ts`. The title is "<browser> on <system>", or the name of
+  an API client alone. The detail line of a named API client starts with "API client". "Active
+  now" shows for less than five minutes, because the server moves the last activity at most
+  once every five minutes.
 - `getAll()` is paginated (`UserList`). Use `createPagination()` + `DataTable`; do not render
   an unpaginated directory.
 - Users are principals in the authz model: deleting one removes their grants. Confirm through

@@ -7,6 +7,7 @@ import type {
   UpdateUserRequest,
   User,
   UserAccess,
+  UserSession,
 } from '@base/generated/scylla/user/v1/user.ts';
 import { UserServiceClient } from '@base/generated/scylla/user/v1/user.client.ts';
 import type { UserRemoteDataSource } from '@base/features/user/infrastructure/repository/data-sources/user-remote.data-source.ts';
@@ -115,5 +116,22 @@ export class UserRemoteDataSourceImpl implements UserRemoteDataSource {
         (await this._userClient.listUserAccess({ userId: wrapId(userId) }).response).access,
       'Failed to fetch the organizations and roles of the user.',
     );
+  }
+
+  public async listSessions(userId: string): Promise<ScyllaResult<UserSession[]>> {
+    return ScyllaResult.tryAsync<UserSession[]>(
+      async () =>
+        (await this._userClient.listUserSessions({ userId: wrapId(userId) }).response).sessions,
+      'Failed to fetch the sessions of the user.',
+    );
+  }
+
+  public async revokeSession(userId: string, sessionId: string): Promise<ScyllaResult<void>> {
+    return ScyllaResult.tryAsync<void>(async () => {
+      await this._userClient.revokeUserSession({
+        userId: wrapId(userId),
+        sessionId: wrapId(sessionId),
+      }).response;
+    }, 'Failed to sign out the session.');
   }
 }

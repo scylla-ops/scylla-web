@@ -4,6 +4,7 @@ import type {
   UpdateUserRequest,
   User,
   UserAccess as GrpcUserAccess,
+  UserSession as GrpcUserSession,
 } from '@base/generated/scylla/user/v1/user.ts';
 import { PasswordResetDelivery as GrpcPasswordResetDelivery } from '@base/generated/scylla/auth/v1/auth.ts';
 import type { PaginationInfo, PaginatedList } from '@scylla/ui/structs';
@@ -13,6 +14,7 @@ import type {
   UpdateUserInput,
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
+import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import type {
   UserAccess,
   UserAccessScope,
@@ -81,6 +83,18 @@ export class GrpcUserMapper {
       projectName: access.projectName,
       roleId: idValue(access.roleId),
       roleName: access.roleName,
+    };
+  }
+
+  static sessionToDomain(session: GrpcUserSession): UserSessionEntity {
+    return {
+      sessionId: idValue(session.sessionId),
+      createdAt: timestampToIso(session.createdAt),
+      lastActiveAt: timestampToIso(session.lastActiveAt),
+      expiresAt: timestampToIso(session.expiresAt),
+      userAgent: session.userAgent,
+      ipAddress: session.ipAddress,
+      current: session.current,
     };
   }
 

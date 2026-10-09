@@ -28,6 +28,7 @@ beforeEach(() => {
       }),
     ),
     listAccess: vi.fn().mockResolvedValue(ScyllaResult.success([])),
+    listSessions: vi.fn().mockResolvedValue(ScyllaResult.success([])),
   };
   teardown = [cache.restore, withRegistry({ user: { userRepository } })];
 });

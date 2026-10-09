@@ -26,6 +26,9 @@ export const createUserDetail = (userId: () => string | undefined) => {
   const accessQuery = createQuery(() =>
     userQueries.access(userId(), { enabled: !isSelf && canRead }),
   );
+  const sessionsQuery = createQuery(() =>
+    userQueries.sessions(userId(), { enabled: !isSelf && canRead }),
+  );
 
   const resourceError = createResourceError({
     error: () => userQuery.error,
@@ -36,6 +39,7 @@ export const createUserDetail = (userId: () => string | undefined) => {
   const profileUpdate = createMutation(() => userMutations.update());
   const resetLink = createMutation(() => userMutations.sendPasswordReset());
   const sessionRevocation = createMutation(() => userMutations.revokeSessions());
+  const oneSessionRevocation = createMutation(() => userMutations.revokeSession());
   const statusChange = createMutation(() => userMutations.setActive());
   const removal = createMutation(() => userMutations.remove());
 
@@ -83,6 +87,15 @@ export const createUserDetail = (userId: () => string | undefined) => {
     get accessError() {
       return accessQuery.isError;
     },
+    get sessions() {
+      return sessionsQuery.data;
+    },
+    get sessionsLoading() {
+      return sessionsQuery.isLoading;
+    },
+    get sessionsError() {
+      return sessionsQuery.isError;
+    },
 
     get canUpdate() {
       return canUpdate;
@@ -95,7 +108,7 @@ export const createUserDetail = (userId: () => string | undefined) => {
     },
     /** True while one of the security actions runs. */
     get isBusy() {
-      return resetLink.isPending || sessionRevocation.isPending || statusChange.isPending;
+      return resetLink.isPending || statusChange.isPending;
     },
 
     get isSavingProfile() {
@@ -111,6 +124,15 @@ export const createUserDetail = (userId: () => string | undefined) => {
       resetLink.mutate(user.userId, {
         onSuccess: delivery => toast.success(resetLinkToast(delivery)),
       });
+    },
+    get isRevokingSession() {
+      return oneSessionRevocation.isPending;
+    },
+    revokeSession: (sessionId: string) => {
+      if (user) oneSessionRevocation.mutate({ userId: user.userId, sessionId });
+    },
+    get isRevokingSessions() {
+      return sessionRevocation.isPending;
     },
     signOutEverywhere: () => {
       if (!user) return;

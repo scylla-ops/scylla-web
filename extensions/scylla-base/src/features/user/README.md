@@ -33,12 +33,13 @@ it needs, and the member lists of other modules return that type.
 the status of the account, a "New user" dialog and a deletion of the selection.
 
 **The page of a user** (`/:org/users/:userId`, behind `READ_USER`) is the administrator's view
-of one account: its profile, its organizations and roles, the security actions (a reset link, a
-sign-out of every session, the deactivation) and the deletion. Each action shows only to a viewer
-with the permission of its RPC, because a button that the server would refuse is noise.
+of one account: an identity card (status, creation date, id), its profile, its organizations and
+roles, its sessions, the security actions (a reset link, the deactivation) and the deletion. Each
+action shows only to a viewer with the permission of its RPC, because a button that the server
+would refuse is noise.
 
-**The account page** (`/:org/account`) is the signed-in user's own page: profile, password,
-sessions, organizations and roles, and the deletion of the account. The backend lets a user act
+**The account page** (`/:org/account`) is the signed-in user's own page: an identity card,
+profile, password, sessions, organizations and roles, and the deletion of the account. The backend lets a user act
 on the own account with no grant, so this page carries no permission. It exists at two
 addresses: `/:org/account` inside the frame of an organization, and `/account` with a plain
 layout, for a user who has no organization yet (an account that an administrator made, a new
@@ -46,6 +47,15 @@ sign-up) and must still change the password or delete the account. The two pages
 but are separate on purpose: the own account changes the password with the current one, cannot
 change its email or deactivate itself, and deletes itself with its password. The page of a user
 sends the own id to the account page.
+
+## Sessions
+
+A session is one sign-in: a browser, a phone or an API client. The list shows what the server
+recorded when the session opened (the user agent and the IP address) and the last activity. It
+shows no token, and a session id cannot authenticate a call. The app reads the user agent itself
+(`parseUserAgent`): there is no location lookup. A user can sign out each other session, or all
+of them at once. The current session cannot be signed out from the list: "Sign out" in the menu
+does that.
 
 ## Answers that are not errors
 

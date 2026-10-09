@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { Button, Skeleton } from '@scylla/ui/shadcn';
+  import { Badge, Button, Skeleton } from '@scylla/ui/shadcn';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { UserIdentity } from '@shared/presentation/ui';
   import { createAccountPage } from '../../../account-page.state.svelte.ts';
+  import SessionList from '../../components/SessionList.svelte';
   import SettingsSection from '../../components/SettingsSection.svelte';
   import UserAccessList from '../../components/UserAccessList/UserAccessList.svelte';
+  import UserIdentityCard from '../../components/UserIdentityCard.svelte';
   import UserProfileForm from '../../components/UserProfileForm/UserProfileForm.svelte';
   import ChangePasswordForm from '../ChangePasswordForm.svelte';
   import DeleteAccountDialog from '../DeleteAccountDialog/DeleteAccountDialog.svelte';
@@ -23,7 +24,13 @@
   <div class="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8">
     <header class="flex flex-col gap-3">
       <h1 class="text-2xl font-semibold">{t(userMessages.account)}</h1>
-      <UserIdentity user={me} />
+      <UserIdentityCard user={me}>
+        {#snippet badges()}
+          {#if page.systemRole}
+            <Badge variant="secondary">{page.systemRole}</Badge>
+          {/if}
+        {/snippet}
+      </UserIdentityCard>
     </header>
 
     <SettingsSection title={t(userMessages.profile)} description={t(userMessages.profileDescription)}>
@@ -46,13 +53,25 @@
     </SettingsSection>
 
     <SettingsSection title={t(userMessages.sessions)} description={t(userMessages.sessionsDescription)}>
-      <Button
-        variant="outline"
-        disabled={page.isRevokingSessions}
-        onclick={page.signOutOtherSessions}
-      >
-        {t(userMessages.signOutOthers)}
-      </Button>
+      <div class="flex flex-col gap-4">
+        <SessionList
+          sessions={page.sessions}
+          isLoading={page.sessionsLoading}
+          isError={page.sessionsError}
+          canRevoke
+          isRevoking={page.isRevokingSession}
+          onRevoke={page.revokeSession}
+        />
+        <div>
+          <Button
+            variant="outline"
+            disabled={page.isRevokingSessions}
+            onclick={page.signOutOtherSessions}
+          >
+            {t(userMessages.signOutOthers)}
+          </Button>
+        </div>
+      </div>
     </SettingsSection>
 
     <SettingsSection title={t(userMessages.organizationsAndRoles)}>

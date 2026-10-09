@@ -2,6 +2,7 @@ import { i18n } from '@lingui/core';
 import { createMutation, createQuery } from '@scylla/core-sdk';
 import { toast } from '@scylla/ui/utils';
 import { profileChanges, type ProfileValues } from '../domain/entities/user.entity.ts';
+import { groupUserAccess } from '../domain/structs/user-access.struct.ts';
 import { userMessages } from './ui/user.messages.ts';
 import { userMutations, userQueries } from './user.queries.ts';
 
@@ -13,10 +14,13 @@ export const createAccountPage = () => {
   const meQuery = createQuery(() => userQueries.me());
   const me = $derived(meQuery.data);
   const accessQuery = createQuery(() => userQueries.access(me?.userId));
+  const sessionsQuery = createQuery(() => userQueries.sessions(me?.userId));
+  const systemRole = $derived(groupUserAccess(accessQuery.data ?? []).system[0]?.roleName);
 
   const profileUpdate = createMutation(() => userMutations.update());
   const passwordChange = createMutation(() => userMutations.changePassword());
   const sessionRevocation = createMutation(() => userMutations.revokeSessions());
+  const oneSessionRevocation = createMutation(() => userMutations.revokeSession());
   const accountDeletion = createMutation(() => userMutations.deleteAccount());
 
   /** Bumped after a change of password, to empty the form. */
@@ -41,6 +45,10 @@ export const createAccountPage = () => {
     },
     get accessError() {
       return accessQuery.isError;
+    },
+    /** The role of the first system grant, for the identity card. */
+    get systemRole() {
+      return systemRole;
     },
 
     get isSavingProfile() {
@@ -74,6 +82,21 @@ export const createAccountPage = () => {
         },
       ),
 
+    get sessions() {
+      return sessionsQuery.data;
+    },
+    get sessionsLoading() {
+      return sessionsQuery.isLoading;
+    },
+    get sessionsError() {
+      return sessionsQuery.isError;
+    },
+    get isRevokingSession() {
+      return oneSessionRevocation.isPending;
+    },
+    revokeSession: (sessionId: string) => {
+      if (me) oneSessionRevocation.mutate({ userId: me.userId, sessionId });
+    },
     get isRevokingSessions() {
       return sessionRevocation.isPending;
     },

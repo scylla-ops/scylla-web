@@ -6,6 +6,7 @@ import { signOut } from '@base/features/login';
 import { refusalOf } from '@shared/utils/scylla-result.ts';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import type { CreateUserInput, UpdateUserInput } from '../domain/entities/user.entity.ts';
+import type { UserSessionEntity } from '../domain/entities/user-session.entity.ts';
 import type { UserModule } from '../user.module.ts';
 
 const repository = () => getModuleDomain<typeof UserModule.domain>('user').userRepository;
@@ -14,6 +15,7 @@ export const USERS_QUERY_KEY = () => ['users'] as const;
 export const USER_QUERY_KEY = (userId?: string) => ['user', userId] as const;
 export const ME_QUERY_KEY = () => ['me'] as const;
 export const USER_ACCESS_QUERY_KEY = (userId?: string) => ['user-access', userId] as const;
+export const USER_SESSIONS_QUERY_KEY = (userId?: string) => ['user-sessions', userId] as const;
 
 export const userQueries = {
   /** Checks `LIST_USERS` itself (used outside this module's route guard). An empty list can mean "not allowed": see `canListUsers`. */
@@ -55,6 +57,17 @@ export const userQueries = {
       },
       enabled: !!userId && (options.enabled ?? true) && canReadUser(userId),
     }),
+
+  /** The sessions of a user. Checks for itself, as `access` does. */
+  sessions: (userId?: string, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: USER_SESSIONS_QUERY_KEY(userId),
+      queryFn: async () => {
+        if (!userId) throw new Error('User ID is required');
+        return (await repository().listSessions(userId)).unwrap();
+      },
+      enabled: !!userId && (options.enabled ?? true) && canReadUser(userId),
+    }),
 };
 
 export const canListUsers = (): boolean => authorizationReady() && can(Permission.LIST_USERS);
@@ -75,6 +88,9 @@ const invalidateUser = (userId: string) => {
     ),
   );
 };
+
+const invalidateSessions = (userId: string) =>
+  getQueryClient().invalidateQueries({ queryKey: USER_SESSIONS_QUERY_KEY(userId) });
 
 export const userMutations = {
   create: () =>
@@ -105,6 +121,7 @@ export const userMutations = {
         // Gone, not stale: a refetch would only answer NOT_FOUND.
         client.removeQueries({ queryKey: USER_QUERY_KEY(userId), exact: true });
         client.removeQueries({ queryKey: USER_ACCESS_QUERY_KEY(userId), exact: true });
+        client.removeQueries({ queryKey: USER_SESSIONS_QUERY_KEY(userId), exact: true });
         return client.invalidateQueries({ queryKey: USERS_QUERY_KEY() });
       },
     }),
@@ -113,7 +130,9 @@ export const userMutations = {
     mutationOptions({
       mutationFn: async ({ userId, isActive }: { userId: string; isActive: boolean }) =>
         (await repository().setActive(userId, isActive)).unwrap(),
-      onSuccess: user => invalidateUser(user.userId),
+      // A deactivation signs the user out everywhere.
+      onSuccess: user =>
+        Promise.all([invalidateUser(user.userId), invalidateSessions(user.userId)]),
     }),
 
   /** The refusal of a wrong current password: the page shows it under the field, as data. */
@@ -136,6 +155,24 @@ export const userMutations = {
   revokeSessions: () =>
     mutationOptions({
       mutationFn: async (userId: string) => (await repository().revokeSessions(userId)).unwrap(),
+      onSuccess: (_count, userId) => invalidateSessions(userId),
+    }),
+
+  /** The revocation of the current session signs out here: the page can be gone by then. */
+  revokeSession: () =>
+    mutationOptions({
+      mutationFn: async ({ userId, sessionId }: { userId: string; sessionId: string }) =>
+        (await repository().revokeSession(userId, sessionId)).unwrap(),
+      onSuccess: async (_result, { userId, sessionId }) => {
+        const sessions = getQueryClient().getQueryData<UserSessionEntity[]>(
+          USER_SESSIONS_QUERY_KEY(userId),
+        );
+        if (sessions?.some(session => session.sessionId === sessionId && session.current)) {
+          signOut();
+        } else {
+          await invalidateSessions(userId);
+        }
+      },
     }),
 
   /**
