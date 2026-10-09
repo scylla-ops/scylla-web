@@ -6,6 +6,7 @@ import type {
   UpdateUserRequest,
   User,
   UserAccess,
+  UserSession,
 } from '@base/generated/scylla/user/v1/user.ts';
 
 export interface UserRemoteDataSource {
@@ -21,4 +22,6 @@ export interface UserRemoteDataSource {
   revokeSessions(userId: string): Promise<ScyllaResult<number>>;
   deleteAccount(password: string): Promise<ScyllaResult<void>>;
   listAccess(userId: string): Promise<ScyllaResult<UserAccess[]>>;
+  listSessions(userId: string): Promise<ScyllaResult<UserSession[]>>;
+  revokeSession(userId: string, sessionId: string): Promise<ScyllaResult<void>>;
 }

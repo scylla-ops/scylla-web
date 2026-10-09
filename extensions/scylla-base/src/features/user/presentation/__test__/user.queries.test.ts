@@ -9,6 +9,7 @@ import {
   USERS_QUERY_KEY,
   USER_ACCESS_QUERY_KEY,
   USER_QUERY_KEY,
+  USER_SESSIONS_QUERY_KEY,
   userMutations,
   userQueries,
 } from '../user.queries.ts';
@@ -40,6 +41,8 @@ beforeEach(() => {
     update: vi.fn().mockResolvedValue(ScyllaResult.success(me)),
     changePassword: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
     deleteAccount: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
+    listSessions: vi.fn().mockResolvedValue(ScyllaResult.success([])),
+    revokeSession: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
   };
   cache = withQueryClient();
   restoreRegistry = withRegistry({ user: { userRepository: repository } });
@@ -71,6 +74,7 @@ describe('userQueries.me', () => {
 describe.each([
   ['access', userQueries.access],
   ['byId', userQueries.byId],
+  ['sessions', userQueries.sessions],
 ] as const)('userQueries.%s checks for itself', (_name, factory) => {
   it('waits for an id and for the gate of the caller', () => {
     holding([Permission.READ_USER]);
@@ -103,6 +107,98 @@ describe('userQueries.access', () => {
     await runQueryFn(userQueries.access('user-2'));
 
     expect(repository.listAccess).toHaveBeenCalledWith('user-2');
+  });
+});
+
+describe('userQueries.sessions', () => {
+  it('lists the sessions of the user', async () => {
+    await runQueryFn(userQueries.sessions('user-2'));
+
+    expect(repository.listSessions).toHaveBeenCalledWith('user-2');
+  });
+});
+
+const session = (sessionId: string, current: boolean) => ({
+  sessionId,
+  createdAt: '',
+  lastActiveAt: '',
+  expiresAt: '',
+  userAgent: '',
+  ipAddress: '',
+  current,
+});
+
+describe('userMutations.revokeSession', () => {
+  it('revokes the session of the user', async () => {
+    await runMutationFn(userMutations.revokeSession(), {
+      userId: 'user-1',
+      sessionId: 'session-2',
+    });
+
+    expect(repository.revokeSession).toHaveBeenCalledWith('user-1', 'session-2');
+  });
+
+  it('refreshes the sessions after another session is revoked, and stays signed in', async () => {
+    cache.queryClient.setQueryData(USER_SESSIONS_QUERY_KEY('user-1'), [
+      session('session-1', true),
+      session('session-2', false),
+    ]);
+    const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
+
+    runOnSuccess(userMutations.revokeSession(), undefined, {
+      userId: 'user-1',
+      sessionId: 'session-2',
+    });
+
+    await vi.waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: USER_SESSIONS_QUERY_KEY('user-1') }),
+    );
+    expect(signOut).not.toHaveBeenCalled();
+  });
+
+  it('signs out when the revoked session is the current one', () => {
+    cache.queryClient.setQueryData(USER_SESSIONS_QUERY_KEY('user-1'), [session('session-1', true)]);
+    const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
+
+    runOnSuccess(userMutations.revokeSession(), undefined, {
+      userId: 'user-1',
+      sessionId: 'session-1',
+    });
+
+    expect(signOut).toHaveBeenCalledOnce();
+    expect(invalidate).not.toHaveBeenCalled();
+  });
+});
+
+describe('userMutations.revokeSessions', () => {
+  it('refreshes the sessions of the user', async () => {
+    const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
+
+    runOnSuccess(userMutations.revokeSessions(), 2, 'user-2');
+
+    await vi.waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: USER_SESSIONS_QUERY_KEY('user-2') }),
+    );
+  });
+});
+
+describe('userMutations.setActive', () => {
+  it('refreshes the sessions too, since a deactivation signs the user out', async () => {
+    const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
+
+    runOnSuccess(
+      userMutations.setActive(),
+      { ...me, userId: 'user-2', isActive: false },
+      {
+        userId: 'user-2',
+        isActive: false,
+      },
+    );
+
+    await vi.waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: USER_SESSIONS_QUERY_KEY('user-2') }),
+    );
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: USER_QUERY_KEY('user-2') });
   });
 });
 
@@ -168,9 +264,10 @@ describe('userMutations.deleteAccount', () => {
 });
 
 describe('userMutations.remove', () => {
-  it('drops the page and the grants of the deleted user, and refreshes the directory', async () => {
+  it('drops the page, the grants and the sessions of the deleted user, and refreshes the directory', async () => {
     cache.queryClient.setQueryData(USER_QUERY_KEY('user-2'), { userId: 'user-2' });
     cache.queryClient.setQueryData(USER_ACCESS_QUERY_KEY('user-2'), []);
+    cache.queryClient.setQueryData(USER_SESSIONS_QUERY_KEY('user-2'), []);
     cache.queryClient.setQueryData(USER_QUERY_KEY('user-3'), { userId: 'user-3' });
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
 
@@ -178,6 +275,7 @@ describe('userMutations.remove', () => {
 
     expect(cache.queryClient.getQueryData(USER_QUERY_KEY('user-2'))).toBeUndefined();
     expect(cache.queryClient.getQueryData(USER_ACCESS_QUERY_KEY('user-2'))).toBeUndefined();
+    expect(cache.queryClient.getQueryData(USER_SESSIONS_QUERY_KEY('user-2'))).toBeUndefined();
     expect(cache.queryClient.getQueryData(USER_QUERY_KEY('user-3'))).toEqual({ userId: 'user-3' });
     await vi.waitFor(() =>
       expect(invalidate).toHaveBeenCalledWith({ queryKey: USERS_QUERY_KEY() }),

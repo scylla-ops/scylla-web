@@ -37,6 +37,17 @@ const dataSource = (): UserRemoteDataSource => ({
       },
     ]),
   ),
+  listSessions: vi.fn().mockResolvedValue(
+    ScyllaResult.success([
+      {
+        sessionId: { value: 'session-1' },
+        userAgent: 'curl/8.7.1',
+        ipAddress: '203.0.113.7',
+        current: true,
+      },
+    ]),
+  ),
+  revokeSession: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
 });
 
 describe('DefaultUserRepository', () => {
@@ -107,5 +118,21 @@ describe('DefaultUserRepository', () => {
     expect(result.unwrap()).toEqual([
       expect.objectContaining({ grantId: 'grant-1', scope: 'system', roleName: 'System admin' }),
     ]);
+  });
+
+  it('maps every session of the user', async () => {
+    const result = await new DefaultUserRepository(dataSource()).listSessions('user-1');
+
+    expect(result.unwrap()).toEqual([
+      expect.objectContaining({ sessionId: 'session-1', ipAddress: '203.0.113.7', current: true }),
+    ]);
+  });
+
+  it('revokes one session of the user', async () => {
+    const source = dataSource();
+
+    await new DefaultUserRepository(source).revokeSession('user-1', 'session-1');
+
+    expect(source.revokeSession).toHaveBeenCalledWith('user-1', 'session-1');
   });
 });

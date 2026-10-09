@@ -7,6 +7,7 @@ import type {
   UpdateUserInput,
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
+import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import type { UserAccess } from '@base/features/user/domain/structs/user-access.struct.ts';
 import { GrpcUserMapper } from '@base/features/user/infrastructure/repository/mappers/grpc-user.mapper.ts';
 import type { PaginatedList } from '@scylla/ui/structs';
@@ -71,5 +72,15 @@ export class DefaultUserRepository implements UserRepository {
     return (await this._remoteDataSource.listAccess(userId)).map(access =>
       access.map(GrpcUserMapper.accessToDomain),
     );
+  }
+
+  public async listSessions(userId: string): Promise<ScyllaResult<UserSessionEntity[]>> {
+    return (await this._remoteDataSource.listSessions(userId)).map(sessions =>
+      sessions.map(GrpcUserMapper.sessionToDomain),
+    );
+  }
+
+  public async revokeSession(userId: string, sessionId: string): Promise<ScyllaResult<void>> {
+    return this._remoteDataSource.revokeSession(userId, sessionId);
   }
 }

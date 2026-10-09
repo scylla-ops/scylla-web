@@ -6,6 +6,7 @@ import { toast } from 'svelte-sonner';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { UserAccess } from '../../../../domain/structs/user-access.struct.ts';
+import type { UserSessionEntity } from '../../../../domain/entities/user-session.entity.ts';
 import AccountPage from './Account.page.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
@@ -56,6 +57,30 @@ const access: UserAccess[] = [
   },
 ];
 
+const recently = () => new Date(Date.now() - 60_000).toISOString();
+
+const sessions: UserSessionEntity[] = [
+  {
+    sessionId: 'session-1',
+    createdAt: recently(),
+    lastActiveAt: recently(),
+    expiresAt: '',
+    userAgent:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
+    ipAddress: '203.0.113.7',
+    current: true,
+  },
+  {
+    sessionId: 'session-2',
+    createdAt: recently(),
+    lastActiveAt: recently(),
+    expiresAt: '',
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0',
+    ipAddress: '198.51.100.4',
+    current: false,
+  },
+];
+
 const refused = (message: string) =>
   ScyllaResult.error<void>(
     new ScyllaError('Failed.', {
@@ -73,6 +98,8 @@ const setUp = (overrides: Record<string, ReturnType<typeof vi.fn>> = {}) => {
     update: vi.fn().mockResolvedValue(ScyllaResult.success(me)),
     changePassword: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
     revokeSessions: vi.fn().mockResolvedValue(ScyllaResult.success(2)),
+    listSessions: vi.fn().mockResolvedValue(ScyllaResult.success(sessions)),
+    revokeSession: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
     deleteAccount: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
     ...overrides,
   };
@@ -100,6 +127,25 @@ describe('AccountPage', () => {
     expect(await screen.findByRole('heading', { name: 'Account' })).toBeInTheDocument();
     expect(screen.getAllByText('Ada Lovelace').length).toBeGreaterThan(0);
     expect(repository.getMe).toHaveBeenCalled();
+  });
+
+  it('shows the identity card with the handle and the role of the first system grant', async () => {
+    setUp();
+
+    const handle = await screen.findByText('@ada');
+    const card = handle.closest<HTMLElement>('[data-slot="card"]')!;
+    expect(within(card).getByText('Ada Lovelace')).toBeInTheDocument();
+    expect(within(card).getByText('ada@example.com')).toBeInTheDocument();
+    expect(await within(card).findByText('System admin')).toHaveAttribute('data-slot', 'badge');
+  });
+
+  it('shows no role badge for a user with no system grant', async () => {
+    setUp({ listAccess: vi.fn().mockResolvedValue(ScyllaResult.success(access.slice(1))) });
+
+    const card = (await screen.findByText('@ada')).closest<HTMLElement>('[data-slot="card"]')!;
+    await screen.findByText('Organization admin');
+    expect(within(card).queryByText('Organization admin')).not.toBeInTheDocument();
+    expect(card.querySelectorAll('[data-slot="badge"]')).toHaveLength(1);
   });
 
   it('shows an error when the account cannot be read', async () => {
@@ -208,14 +254,61 @@ describe('AccountPage', () => {
     });
   });
 
-  it('signs out the other sessions and tells how many', async () => {
-    setUp();
-    const user = userEvent.setup();
+  describe('sessions', () => {
+    it('lists the sessions, marks the current one and gives it no sign-out button', async () => {
+      setUp();
 
-    await user.click(await screen.findByRole('button', { name: 'Sign out everywhere else' }));
+      const list = await screen.findByRole('region', { name: 'Sessions' });
+      expect(await within(list).findByText('Chrome on macOS')).toBeInTheDocument();
+      expect(within(list).getByText('This session')).toBeInTheDocument();
+      expect(within(list).getByText('Firefox on Windows')).toBeInTheDocument();
+      expect(within(list).getByText('198.51.100.4 · Active now')).toBeInTheDocument();
+      expect(
+        within(list).queryByRole('button', { name: 'Sign out Chrome on macOS' }),
+      ).not.toBeInTheDocument();
+      expect(
+        within(list).getByRole('button', { name: 'Sign out Firefox on Windows' }),
+      ).toBeInTheDocument();
+      expect(repository.listSessions).toHaveBeenCalledWith('user-1');
+    });
 
-    await waitFor(() => expect(repository.revokeSessions).toHaveBeenCalledWith('user-1'));
-    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('2 sessions signed out.'));
+    it('signs out one other session, then reads the list again', async () => {
+      setUp();
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByRole('button', { name: 'Sign out Firefox on Windows' }));
+
+      await waitFor(() =>
+        expect(repository.revokeSession).toHaveBeenCalledWith('user-1', 'session-2'),
+      );
+      await waitFor(() => expect(repository.listSessions).toHaveBeenCalledTimes(2));
+      expect(signOut).not.toHaveBeenCalled();
+    });
+
+    it('signs out the other sessions, tells how many, and reads the list again', async () => {
+      setUp();
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByRole('button', { name: 'Sign out everywhere else' }));
+
+      await waitFor(() => expect(repository.revokeSessions).toHaveBeenCalledWith('user-1'));
+      await waitFor(() => expect(toast.success).toHaveBeenCalledWith('2 sessions signed out.'));
+      await waitFor(() => expect(repository.listSessions).toHaveBeenCalledTimes(2));
+    });
+
+    it('says when no session is active', async () => {
+      setUp({ listSessions: vi.fn().mockResolvedValue(ScyllaResult.success([])) });
+
+      const list = await screen.findByRole('region', { name: 'Sessions' });
+      expect(await within(list).findByText('No active session.')).toBeInTheDocument();
+    });
+
+    it('shows an error when the sessions cannot be read', async () => {
+      setUp({ listSessions: vi.fn().mockResolvedValue(refused('down')) });
+
+      const list = await screen.findByRole('region', { name: 'Sessions' });
+      expect(await within(list).findByText('Error loading the sessions')).toBeInTheDocument();
+    });
   });
 
   it('lists the roles by organization, the system grants apart', async () => {

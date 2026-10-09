@@ -43,8 +43,18 @@ export const userMessages = {
   passwordChanged: msg`Password changed. Your other sessions are signed out.`,
 
   sessions: msg`Sessions`,
-  sessionsDescription: msg`Sign out every session of your account, except this one.`,
+  sessionsDescription: msg`The devices and apps where your account is signed in.`,
+  userSessionsDescription: msg`The devices and apps where this user is signed in.`,
   signOutOthers: msg`Sign out everywhere else`,
+  noSessions: msg`No active session.`,
+  sessionsLoadError: msg`Error loading the sessions`,
+  thisSession: msg`This session`,
+  sessionDevice: (browser: string, system: string) => msg`${browser} on ${system}`,
+  apiClient: msg`API client`,
+  unknownDevice: msg`Unknown device`,
+  activeNow: msg`Active now`,
+  lastActive: (time: string) => msg`Last active ${time}`,
+  signOutSession: (device: string) => msg`Sign out ${device}`,
   sessionsRevoked: (count: number) =>
     msg`${plural(count, { 0: 'No session to sign out.', one: '# session signed out.', other: '# sessions signed out.' })}`,
 

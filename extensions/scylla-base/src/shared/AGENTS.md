@@ -26,7 +26,8 @@ utils/
 infrastructure/grpc/wrappers.ts      proto helpers
 presentation/ui/index.ts             `@shared/presentation/ui`
   data-display/                      StatusBar, STATUS_ICONS / getStatusIcon, AgentRunInstructions,
-                                     UserIdentity, userName, userSecondaryLine, UserIdentityProfile
+                                     UserIdentity, UserAvatar, userName, userSecondaryLine,
+                                     UserIdentityProfile
 locales/                             the catalog of these files
 ```
 
@@ -62,7 +63,9 @@ then the email when it is known, else `@username`. `user={undefined}` is a user 
 knows any more: it shows "Deleted user", never an id. `missing="unknown"` shows "Unknown user"
 instead, for a list that cannot name the user (a grant never outlives its user, so a holder that
 the page cannot look up is not deleted). `userName(user)` gives the same first line
-as a string, for a sentence or a select. Its prop type, `UserIdentityProfile`, is structural:
+as a string, for a sentence or a select. `UserAvatar` is the avatar of `UserIdentity` alone
+(`sm`, `default`, `lg` = 72 px), for a layout that puts the name under it (the identity card of
+`features/user`). The prop type of both, `UserIdentityProfile`, is structural:
 `shared/` cannot import `features/user`, and a `UserSummary` or a `UserEntity` of that module fits
 it.
 

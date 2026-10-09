@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import { GrpcUserMapper } from '../grpc-user.mapper';
-import type { User, UserAccess } from '@base/generated/scylla/user/v1/user.ts';
+import type { User, UserAccess, UserSession } from '@base/generated/scylla/user/v1/user.ts';
 import { PasswordResetDelivery } from '@base/generated/scylla/auth/v1/auth.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
@@ -175,5 +175,54 @@ describe('GrpcUserMapper.deliveryToDomain', () => {
     [PasswordResetDelivery.UNSPECIFIED, 'unknown'],
   ] as const)('maps %s to %s', (delivery, expected) => {
     expect(GrpcUserMapper.deliveryToDomain(delivery)).toBe(expected);
+  });
+});
+
+describe('GrpcUserMapper.sessionToDomain', () => {
+  const session = (overrides: Partial<UserSession> = {}): UserSession => ({
+    sessionId: { value: 'session-1' },
+    createdAt: TS,
+    lastActiveAt: LATER,
+    expiresAt: LATER,
+    userAgent: 'curl/8.7.1',
+    ipAddress: '203.0.113.7',
+    current: true,
+    ...overrides,
+  });
+
+  it('unwraps the id, formats the times and carries the rest through', () => {
+    expect(GrpcUserMapper.sessionToDomain(session())).toEqual({
+      sessionId: 'session-1',
+      createdAt: ISO,
+      lastActiveAt: LATER_ISO,
+      expiresAt: LATER_ISO,
+      userAgent: 'curl/8.7.1',
+      ipAddress: '203.0.113.7',
+      current: true,
+    });
+  });
+
+  it('gives empty strings for an absent id and absent times', () => {
+    expect(
+      GrpcUserMapper.sessionToDomain(
+        session({
+          sessionId: undefined,
+          createdAt: undefined,
+          lastActiveAt: undefined,
+          expiresAt: undefined,
+          userAgent: '',
+          ipAddress: '',
+          current: false,
+        }),
+      ),
+    ).toEqual({
+      sessionId: '',
+      createdAt: '',
+      lastActiveAt: '',
+      expiresAt: '',
+      userAgent: '',
+      ipAddress: '',
+      current: false,
+    });
   });
 });

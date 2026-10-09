@@ -11,9 +11,6 @@
   <Button variant="outline" disabled={page.isBusy} onclick={page.sendResetLink}>
     {t(userMessages.sendResetLink)}
   </Button>
-  <Button variant="outline" disabled={page.isBusy} onclick={page.signOutEverywhere}>
-    {t(userMessages.signOutEverywhere)}
-  </Button>
   <Button
     variant={page.user?.isActive ? 'destructive' : 'default'}
     disabled={page.isBusy}
