@@ -28,9 +28,18 @@ is the only deep import into a feature, and dependency-cruiser enforces that no 
 ```
 public         /                                  ← /login, outside the shell
 app            /  AppLayout, in the core's shell   ← token or redirect; an organization or the welcome screen
+personal       /  PersonalLayout, no shell         ← token or redirect; no organization needed (/account)
 organization   /:organizationSlug                 → sync the org into context
 project        /:organizationSlug/projects/:id    → clean stale context, "Project" crumb
 ```
+
+The `personal` mount exists for a user who has no organization: an account that an
+administrator made with no grant, or a new sign-up. The `app` mount would show this user only
+the welcome screen, so the account page (password, sessions, deletion) is also in `personal`,
+and the welcome screen links to it, beside "Sign out", in one line under its card. Neither
+screen has a bar: the account page without an organization has the frame of the sign-in pages.
+The welcome screen offers the create form only to a user who may create an organization; the
+others read that an administrator must add them.
 
 It owns two pages of its own: `/` sends you to your organization, and `/:organizationSlug`
 redirects to its dashboard. Everything else is a feature's page. Adding a page means editing

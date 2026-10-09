@@ -13,8 +13,13 @@ import { FormItemType } from '@scylla/ui';
  * changes this page the same way.
  */
 
+/** The label and the description name the identifier: override them together. */
 const EmailLoginWidgetInjection = [
-  loginPoints.texts.override({ identifier: msg`Email` }),
+  loginPoints.texts.override({
+    identifier: msg`Email`,
+    identifierPlaceholder: msg`you@example.com`,
+    description: msg`Enter your email and your password.`,
+  }),
   loginPoints.fields.patch(fields =>
     fields.map(field =>
       field.id === 'identifier' && field.type === FormItemType.Input
@@ -65,6 +70,8 @@ describe('widget injections of another extension', () => {
 
     const field = await screen.findByLabelText('Email');
     expect(field).toHaveAttribute('type', 'email');
+    expect(field).toHaveAttribute('placeholder', 'you@example.com');
+    expect(screen.getByText('Enter your email and your password.')).toBeInTheDocument();
   });
 
   it('add a component below the card', async () => {

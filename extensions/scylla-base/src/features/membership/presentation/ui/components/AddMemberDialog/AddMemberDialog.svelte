@@ -2,14 +2,14 @@
   import { ScyllaDialog } from '@scylla/ui';
   import type { AssignableRole } from '../../../assignable-roles.state.svelte.ts';
   import AddMemberForm from '../AddMemberForm.svelte';
-  import type { MemberCandidate } from '../member-candidate.ts';
+  import type { UserSummary } from '@base/features/user';
 
   interface Props {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     title: string;
     description: string;
-    candidates: MemberCandidate[];
+    candidates: UserSummary[];
     emptyCandidatesLabel: string;
     roles: AssignableRole[];
     /** Names the group of the organization's own roles. */

@@ -136,7 +136,8 @@ export class AcmeAuthExtension {}
 ```
 ```typescript
 export const EmailLoginWidgetInjection = [
-  loginPoints.texts.override({ identifier: msg`Email` }),   // `msg` inline: an injection is a `.ts`
+  // `msg` inline: an injection is a `.ts`. The description names the identifier too: override both.
+  loginPoints.texts.override({ identifier: msg`Email`, description: msg`Enter your email.` }),
   loginPoints.fields.patch(fields => /* … */ fields),
 ];
 ```

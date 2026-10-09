@@ -25,10 +25,11 @@ whats-new.ts                            THE release announcement
 __test__/feature-permissions.test.ts    conformance: features gate, shared queries check
 presentation/
   shell-params.ts                       breadcrumbParams, linkParams (from the context store)
-  report-query-error.ts                 the one error toast, sign-out on UNAUTHENTICATED
+  report-query-error.ts                 the one error toast, `closeSession` (login) on UNAUTHENTICATED
   router/
     AppLayout.svelte                    layout of the `app` mount: AuthGuard + OrganizationGate
-    AuthGuard/                          token present? → the pages, else /login
+    AuthGuard/                          token present (hasSession)? → the pages, else /login
+    PersonalLayout/                     layout of the `personal` mount: AuthGuard + a centered column, no gate
     OrganizationSync.wrapper.svelte     URL slug → context store (organization-sync.svelte.ts)
     OrganizationRedirect.wrapper.svelte `/` → the user's organization (organization-redirect.svelte.ts)
     ContextCleaner.wrapper.svelte       drops stale project/pipeline context (context-cleaner.svelte.ts)
@@ -36,11 +37,11 @@ presentation/
   layout/
     shell.state.svelte.ts               organizations query, permission sync, first organization
     whats-new.svelte.ts                 seen flags (reactive), markNavSeen
-    sign-out.ts
     ui/OrganizationGate/                loading screen / first organization / the pages
     ui/FirstOrganization.svelte         welcome screen when the user has no organization
     ui/context-selector/                OrganizationSelector (the header of the organization section)
-    ui/NavUser/                         current user + sign-out (sidebar footer)
+    ui/NavUser/                         who is signed in (userQueries.me), Account, Sign out (sidebar footer)
+    ui/SessionLine/                     "Signed in as … · Account · Sign out", one centered line, outside the sidebar
     ui/NewBadge.svelte                  "New" pill of a sidebar link (navBadge)
     ui/WhatsNewDialog/                  first-launch release announcement
     ui/LaunchOverlays/                  THE overlay: the announcement first, then the onboarding tour
@@ -61,6 +62,7 @@ entry chunk. `module-declaration-is-private` enforces that no other module does 
 mounts
   public         /                                        no layout, no guard
   app            /                                        layout AppLayout, shell: true
+  personal       /                                        layout PersonalLayout (no shell, no organization)
   organization   /:organizationSlug                       wrapper OrganizationSyncWrapper
   project        /:organizationSlug/projects/:projectId   wrapper ContextCleanerWrapper, crumb "Project"
 routes           app: / -> OrganizationRedirectWrapper · organization: (its root) -> 'dashboard'
@@ -120,6 +122,23 @@ page-level rule (every page in the shell declares a `permission`) is in
 
 - `localStorage.token` is a three-way contract: `features/login` writes it, `platform/grpc`
   reads it for the auth header, `AuthGuard` reads it to redirect. Change all three at once.
+  The shell never writes the session: the menu calls `signOut` and the error report calls
+  `closeSession`, both from `features/login`.
+- `NavUser` shows the person with `UserIdentity`, imported **by path**
+  (`@shared/presentation/ui/data-display/UserIdentity/UserIdentity.svelte`): the barrel of
+  `@shared/presentation/ui` re-exports the other shared components, and this file is in the entry
+  chunk. "Who am I" is `userQueries.me`, never `localStorage.userId`.
+- After the first organization, the shell opens its dashboard (`organizationUrl(name)`).
+- **A user with no organization is not stuck.** Under its card, the first-organization screen
+  shows `SessionLine` ("Signed in as <name>", "Account" to `/account`, "Sign out"). It shows the
+  create form only with `CREATE_ORGANIZATION`; without it, it asks the user to wait for an
+  administrator. The `personal` mount (`PersonalLayout`: `AuthGuard`, the logo and a centered
+  column like the sign-in pages, a "Back" link to `/` above the page; no `OrganizationGate`, no
+  sidebar) holds the pages that need no organization: `/account`. The page itself puts the
+  sign-out after its last section: the router places a page out of the flow of its layout
+  (`PageTransition`), so nothing can follow `children` in a layout.
+- **No screen has a top bar.** The core's dark-mode toggle is fixed in the top-right corner of
+  every screen: keep that corner empty.
 - `LaunchOverlays` shows one window at a time: the release announcement while it is unseen,
   then the onboarding tour (`loadOnboardingTour`). Do not mount a first-launch window beside it.
 - **Announcing a new feature is editing `whats-new.ts`, nothing else.** Add a highlight (`id`,

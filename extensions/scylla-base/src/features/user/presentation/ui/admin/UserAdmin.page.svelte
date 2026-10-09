@@ -11,11 +11,13 @@
   import { t } from '@scylla/ui/i18n';
   import { userMutations, userQueries } from '../../user.queries.ts';
   import { userMessages } from '../user.messages.ts';
-  import AddUserDialog from './AddUserDialog.svelte';
+  import AddUserDialog from './AddUserDialog/AddUserDialog.svelte';
   import UserTable from './user-table/UserTable.svelte';
 
   const usersQuery = createQuery(() => userQueries.list());
   const users = $derived(usersQuery.data?.items ?? []);
+  const meQuery = createQuery(() => userQueries.me());
+  const currentUserId = $derived(meQuery.data?.userId);
 
   const deleteUser = createMutation(() => userMutations.remove());
 
@@ -29,7 +31,6 @@
 
   /** Deleting your own account is refused before any call. Throwing stops `FeatureHeader` from reporting a success. */
   const handleDelete = async () => {
-    const currentUserId = localStorage.getItem('userId');
     if (currentUserId && selection.selectedIds.includes(currentUserId)) {
       const errorMessage = i18n._(ToastMessages.USER_DELETE_OWN_ACCOUNT_ERROR);
       toast.error(errorMessage);
@@ -60,7 +61,11 @@
       {canDelete}
       deleteDeniedReason={t(userMessages.deleteDenied)}
     />
-    <UserTable data={users} onView={scyllaNavigate.goToUserSettings} />
+    <UserTable
+      data={users}
+      onView={userId =>
+        userId === currentUserId ? scyllaNavigate.goToAccount() : scyllaNavigate.goToUser(userId)}
+    />
     <AddUserDialog open={openDialog} setOpen={open => (openDialog = open)} />
   </div>
 {/if}

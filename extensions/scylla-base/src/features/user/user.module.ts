@@ -22,6 +22,30 @@ export const UserModule = {
         breadcrumb: () => ({ label: msg`Users` }),
         page: () => import('./presentation/ui/admin/UserAdmin.page.svelte'),
         nav: { section: 'system', title: msg`Users`, icon: UsersIcon, order: 10 },
+        children: [
+          // The old address of the own settings: the account page replaces it.
+          { path: 'me', redirect: '../../account' },
+          {
+            // No `permission`: the page sends the own id to `account` before it checks READ_USER,
+            // so an old link to the own settings works without that permission.
+            path: ':userId',
+            breadcrumb: () => ({ label: msg`User`, detail: msg`Detail` }),
+            page: () => import('./presentation/ui/user-detail/UserDetail/UserDetail.page.svelte'),
+          },
+        ],
+      },
+      {
+        // The account of the session, in the frame of the organization: its calls need no grant.
+        path: 'account',
+        breadcrumb: () => ({ label: msg`Account` }),
+        page: () => import('./presentation/ui/account/Account/Account.page.svelte'),
+      },
+    ],
+    // The same page with no organization: for a user who has none yet.
+    personal: [
+      {
+        path: 'account',
+        page: () => import('./presentation/ui/account/PersonalAccount/PersonalAccount.page.svelte'),
       },
     ],
   },

@@ -1,0 +1,20 @@
+/**
+ * The only writers of the session. `platform/grpc`'s transport reads `token` for the
+ * `Authorization` header, and `shell/.../Auth.guard.svelte` reads it to decide whether to
+ * redirect — the three must agree on the keys. A sign-up in another extension opens a
+ * session the same way: it never writes to `localStorage` itself.
+ *
+ * TODO: HTTP cookies instead.
+ */
+export const openSession = (token: string, userId: string): void => {
+  localStorage.setItem('token', token);
+  localStorage.setItem('userId', userId);
+};
+
+/** Whether a session token is stored. The server still decides whether it is valid. */
+export const hasSession = (): boolean => !!localStorage.getItem('token');
+
+export const closeSession = (): void => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('userId');
+};

@@ -6,6 +6,7 @@ export * from '@scylla/base/platform/authz';
 export * from '@scylla/base/platform/context';
 export * from '@scylla/base/platform/grpc';
 export * from '@scylla/base/scylla-result';
+export * from '@scylla/base/account-validation';
 export * from '@scylla/base/features/agents';
 export * from '@scylla/base/features/apps';
 export * from '@scylla/base/features/dashboard';

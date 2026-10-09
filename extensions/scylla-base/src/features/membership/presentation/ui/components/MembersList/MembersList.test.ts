@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { findFloating, render } from '@test/render.svelte.ts';
+import type { UserSummary } from '@base/features/user';
 import type { ScopeMember } from '../../../../domain/structs/scope-member.struct.ts';
 import MembersList from './MembersList.svelte';
 
@@ -11,10 +12,10 @@ const member = (overrides: Partial<ScopeMember> = {}): ScopeMember => ({
   ...overrides,
 });
 
-const names: Record<string, string> = {
-  'user-1': 'Charlie',
-  'user-2': 'Alice',
-  'user-3': 'Bob',
+const users: Record<string, UserSummary> = {
+  'user-1': { userId: 'user-1', username: 'charlie', displayName: 'Charlie', email: 'c@example.com' },
+  'user-2': { userId: 'user-2', username: 'alice', displayName: 'Alice', email: 'a@example.com' },
+  'user-3': { userId: 'user-3', username: 'bob', displayName: 'Bob', email: 'b@example.com' },
 };
 
 const baseProps = {
@@ -28,7 +29,7 @@ const baseProps = {
   removeTooltip: 'Remove',
   organizationName: 'Acme',
   onRemove: vi.fn(),
-  nameFor: (id: string) => names[id] ?? id,
+  userFor: (id: string): UserSummary | undefined => users[id],
   currentUserId: 'user-1',
   members: [] as ScopeMember[],
 };
@@ -102,5 +103,16 @@ describe('MembersList', () => {
     });
 
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('shows a member that the lists do not know as a deleted user, never by its id', () => {
+    render(MembersList, {
+      ...baseProps,
+      currentUserId: 'none',
+      members: [member({ userId: 'user-9' })],
+    });
+
+    expect(screen.getByText('Deleted user')).toBeInTheDocument();
+    expect(screen.queryByText('user-9')).not.toBeInTheDocument();
   });
 });

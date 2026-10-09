@@ -6,7 +6,7 @@
   import { loginMessages } from '../login.messages.ts';
 
   interface Props {
-    handleSubmit: (login: string, password: string) => void;
+    handleSubmit: (identifier: string, password: string) => void;
     isPending?: boolean;
   }
 
@@ -20,6 +20,7 @@
         placeholder: t(loginMessages.identifierPlaceholder),
         type: FormItemType.Input,
         inputType: 'text',
+        autocomplete: 'username',
       },
       {
         id: 'password',
@@ -27,6 +28,7 @@
         placeholder: t(loginMessages.passwordPlaceholder),
         type: FormItemType.Input,
         inputType: 'password',
+        autocomplete: 'current-password',
       },
     ]),
   );
@@ -39,6 +41,15 @@
   {isPending}
 >
   {#snippet footer({ isValid, isPending: pending })}
+    <!-- Right under the password field. -->
+    <div class="-mt-2 flex justify-end">
+      <a
+        href="/forgot-password"
+        class="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+      >
+        {t(loginMessages.forgotPassword)}
+      </a>
+    </div>
     <Button type="submit" class="mt-2 w-full" disabled={!isValid || pending}>
       {t(loginMessages.submit)}
     </Button>

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type * as Login from '@base/features/login';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { contextStore } from '@platform/context';
@@ -9,20 +10,33 @@ import InSidebar from '../__test__/InSidebar.fixture.svelte';
 import NavUser from './NavUser.svelte';
 
 const signOut = vi.fn();
-vi.mock('../../sign-out.ts', () => ({ signOut: () => signOut() }));
+vi.mock('@base/features/login', async importOriginal => ({
+  ...(await importOriginal<typeof Login>()),
+  signOut: () => signOut(),
+}));
+
+const me = {
+  userId: 'user-1',
+  username: 'ravenne',
+  displayName: 'Ravenne Lee',
+  email: 'ravenne@example.com',
+  isActive: true,
+  updatedAt: '2025-01-01T00:00:00.000Z',
+};
 
 let teardown: Array<() => void> = [];
 let navigator: ReturnType<typeof installTestNavigator>;
+let getMe: ReturnType<typeof vi.fn>;
 
-const setUp = (getById: () => Promise<unknown>) => {
+const setUp = (answer: () => Promise<unknown>) => {
+  getMe = vi.fn(answer);
   const cache = withQueryClient();
-  teardown = [cache.restore, withRegistry({ user: { userRepository: { getById } } })];
+  teardown = [cache.restore, withRegistry({ user: { userRepository: { getMe } } })];
   return render(InSidebar, { component: NavUser });
 };
 
 beforeEach(() => {
   vi.clearAllMocks();
-  localStorage.setItem('userId', 'user-1');
   navigator = installTestNavigator();
   contextStore.setState({ organization: { id: 'org-1', name: 'Acme' } });
 });
@@ -30,39 +44,40 @@ beforeEach(() => {
 afterEach(() => {
   teardown.forEach(restore => restore());
   navigator.restore();
-  localStorage.clear();
 });
 
 describe('NavUser', () => {
-  it('shows a loading label until the user arrives', () => {
+  it('shows a loading label until the account arrives', () => {
     setUp(() => new Promise(() => {}));
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
-  it('shows the name and the initial of the user', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success({ userId: 'user-1', username: 'ravenne' })));
+  it('shows who is signed in, from the account of the session', async () => {
+    setUp(() => Promise.resolve(ScyllaResult.success(me)));
 
-    expect(await screen.findByText('ravenne')).toBeInTheDocument();
-    expect(screen.getByText('R')).toBeInTheDocument();
+    expect(await screen.findByText('Ravenne Lee')).toBeInTheDocument();
+    expect(screen.getByText('ravenne@example.com')).toBeInTheDocument();
+    expect(screen.getByText('RL')).toBeInTheDocument();
+    expect(getMe).toHaveBeenCalled();
   });
 
-  it('opens the settings of the user from the menu', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success({ userId: 'user-1', username: 'ravenne' })));
+  it('opens the account page from the menu', async () => {
+    setUp(() => Promise.resolve(ScyllaResult.success(me)));
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: /ravenne/ }));
-    await user.click(await findFloating('menuitem', 'Settings'));
+    await user.click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
+    await user.click(await findFloating('menuitem', 'Account'));
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme/users/user-1', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme/account', undefined);
   });
 
   it('signs the user out from the menu', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success({ userId: 'user-1', username: 'ravenne' })));
+    setUp(() => Promise.resolve(ScyllaResult.success(me)));
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: /ravenne/ }));
-    await user.click(await findFloating('menuitem', 'Log out'));
+    await user.click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
+    await user.click(await findFloating('menuitem', 'Sign out'));
 
     expect(signOut).toHaveBeenCalled();
   });

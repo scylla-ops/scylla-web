@@ -1,9 +1,10 @@
 import type { LoginRemoteDataSource } from '@base/features/login/infrastructure/repository/data-sources/login-remote.data-source.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import type { PasswordResetDelivery } from '@base/generated/scylla/auth/v1/auth.ts';
 import { AuthServiceClient } from '@base/generated/scylla/auth/v1/auth.client.ts';
 import type { ScyllaGrpcTransport } from '@platform/grpc';
 import { idValue } from '@shared/infrastructure/grpc/wrappers.ts';
-import { openSession } from '@base/features/login/infrastructure/session/open-session.ts';
+import { openSession } from '@base/features/login/infrastructure/session/session.ts';
 import { t } from '@lingui/core/macro';
 
 /**
@@ -33,5 +34,20 @@ export class GrpcLoginRemoteDataSource implements LoginRemoteDataSource {
     return result.mapError(error =>
       error.getCode() === 'UNAUTHENTICATED' ? invalidCredentials() : error,
     );
+  }
+
+  public async requestPasswordReset(email: string): Promise<ScyllaResult<PasswordResetDelivery>> {
+    return ScyllaResult.tryAsync(
+      async () =>
+        (await this._authClient.requestPasswordReset({ email: { value: email } }).response)
+          .delivery,
+      'Failed to request a password reset.',
+    );
+  }
+
+  public async resetPassword(token: string, newPassword: string): Promise<ScyllaResult<void>> {
+    return ScyllaResult.tryAsync(async () => {
+      await this._authClient.resetPassword({ token, newPassword }).response;
+    }, 'Failed to reset the password.');
   }
 }

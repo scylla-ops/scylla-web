@@ -3,12 +3,12 @@
   import Building2Icon from '@lucide/svelte/icons/building-2';
   import FolderGit2Icon from '@lucide/svelte/icons/folder-git-2';
   import GlobeIcon from '@lucide/svelte/icons/globe';
-  import UserIcon from '@lucide/svelte/icons/user';
   import XIcon from '@lucide/svelte/icons/x';
   import { PermissionScope, PrincipalKind } from '@platform/authz';
-  import { Badge } from '@scylla/ui/shadcn';
+  import { Badge, Skeleton } from '@scylla/ui/shadcn';
   import { IconButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { UserIdentity } from '@shared/presentation/ui';
   import type { RoleEntity } from '../../../../domain/entities/role.entity.ts';
   import { createGrantTargetLabels } from '../../../grant-target-labels.svelte.ts';
   import { createRoleAssignees } from '../../../role-assignees.state.svelte.ts';
@@ -61,15 +61,25 @@
           {@const ScopeIcon = SCOPE_ICON[role.scope] ?? GlobeIcon}
           {@const canRevoke = page.canRevoke(grant)}
           <li class="flex items-center gap-3 rounded-lg border px-3 py-2">
-            <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-              {#if isUser}
-                <UserIcon class="size-4 text-primary" />
+            <div class="flex min-w-0 flex-1 flex-col items-start gap-1.5">
+              {#if isUser && page.holdersLoading}
+                <!-- No name yet, and no fallback: it would flash before the real name. -->
+                <span class="flex items-center gap-3" aria-hidden="true">
+                  <Skeleton class="size-9 rounded-full" />
+                  <Skeleton class="h-4 w-32" />
+                </span>
+              {:else if isUser}
+                <UserIdentity user={page.principalUser(grant)} missing="unknown" />
               {:else}
-                <AppWindowIcon class="size-4 text-primary" />
+                <span class="flex min-w-0 items-center gap-3">
+                  <span
+                    class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10"
+                  >
+                    <AppWindowIcon class="size-4 text-primary" />
+                  </span>
+                  <span class="truncate text-sm font-semibold text-foreground">{label}</span>
+                </span>
               {/if}
-            </div>
-            <div class="flex min-w-0 flex-col items-start gap-1">
-              <p class="max-w-full truncate font-medium text-foreground">{label}</p>
               <Badge variant="secondary" class="max-w-full gap-1 font-normal">
                 <ScopeIcon class="size-3 shrink-0" />
                 <span class="truncate">
@@ -81,7 +91,7 @@
               icon={XIcon}
               tooltip={canRevoke ? t(rolesMessages.remove) : t(rolesMessages.revokeDenied)}
               disabled={!canRevoke}
-              class="ml-auto hover:text-destructive"
+              class="shrink-0 hover:text-destructive"
               onclick={() => assignees.remove(grant.id)}
             />
           </li>

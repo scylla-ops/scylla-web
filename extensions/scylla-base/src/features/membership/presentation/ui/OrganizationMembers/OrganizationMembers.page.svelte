@@ -4,7 +4,8 @@
   import { contextStore } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
   import { invalidateOrganizationMembers, organizationQueries } from '@base/features/organization';
-  import { userQueries } from '@base/features/user';
+  import { userQueries, type UserSummary } from '@base/features/user';
+  import { userName } from '@shared/presentation/ui';
   import { ConfirmOperationAlertDialog, FeatureHeader } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { toast } from '@scylla/ui/utils';
@@ -44,19 +45,26 @@
   });
 
   let addOpen = $state(false);
-  let pendingRemoval = $state<{ userId: string; username: string } | null>(null);
+  let pendingRemoval = $state<{ userId: string; name: string } | null>(null);
 
-  const usernameById = $derived(new Map(members.map(member => [member.userId, member.username])));
+  /** The members, with the display name and the email of the directory when it is readable. */
+  const userById = $derived.by(() => {
+    // Rebuilt whole by the `$derived` and never mutated after it is read.
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+    const users = new Map<string, UserSummary>(members.map(member => [member.userId, member]));
+    for (const user of usersQuery.data?.items ?? []) {
+      if (users.has(user.userId)) users.set(user.userId, user);
+    }
+    return users;
+  });
 
-  const nameFor = (memberId: string) => usernameById.get(memberId) ?? memberId;
+  const userFor = (memberId: string) => userById.get(memberId);
 
   /** Seeded with the backend's list: someone reached only through a project is listed too. */
-  const scopeMembers = $derived(
-    buildOrganizationMembers(membership.grants, [...usernameById.keys()]),
-  );
+  const scopeMembers = $derived(buildOrganizationMembers(membership.grants, [...userById.keys()]));
 
   const candidates = $derived(
-    (usersQuery.data?.items ?? []).filter(user => !usernameById.has(user.userId)),
+    (usersQuery.data?.items ?? []).filter(user => !userById.has(user.userId)),
   );
 
   const defaultRoleId = $derived(
@@ -73,7 +81,7 @@
 
   const handleRemove = async () => {
     if (!pendingRemoval) return;
-    await membership.removeMember(pendingRemoval.userId, pendingRemoval.username);
+    await membership.removeMember(pendingRemoval.userId, pendingRemoval.name);
     pendingRemoval = null;
   };
 </script>
@@ -106,7 +114,7 @@
       members={scopeMembers}
       isLoading={membersQuery.isLoading || membership.isLoading}
       emptyMessage={t(membershipMessages.organizationEmpty)}
-      {nameFor}
+      {userFor}
       organizationName={organization.name ?? ''}
       labelFor={roles.labelFor}
       {currentUserId}
@@ -124,7 +132,7 @@
       canRemove={() => canManage}
       removeTooltip={t(membershipMessages.removeFromOrganization)}
       onRemove={member =>
-        (pendingRemoval = { userId: member.userId, username: nameFor(member.userId) })}
+        (pendingRemoval = { userId: member.userId, name: userName(userFor(member.userId)) })}
     />
 
     <AddMemberDialog
@@ -153,7 +161,7 @@
       isLoading={membership.isRemoving}
       title={t(
         membershipMessages.confirmRemoveFromOrganization(
-          pendingRemoval?.username ?? '',
+          pendingRemoval?.name ?? '',
           organization.name ?? '',
         ),
       )}

@@ -167,8 +167,8 @@ What a barrel must **not** export:
   module that imports the barrel would pull the component and its UI library into its chunk.
   Export a **loader** instead: `export const loadJobsPage = () => import('./…/Jobs.page.svelte')`.
   The consumer writes `{#await loadJobsPage() then { default: JobsPage }}`.
-- **Pages**, as a rule. Two exceptions exist, as loaders (`loadJobsPage`,
-  `loadUserSettingsPage`): another module composes them behind its own route.
+- **Pages**, as a rule. One exception exists, as a loader (`loadJobsPage`): another module
+  composes it behind its own route.
 
 Need something from another feature that its `index.ts` does not export? Add the export **to
 that feature**, or ask it for a query that does the job. Do not reach past the barrel — a
@@ -530,8 +530,8 @@ shared test code of the workspace:
 the compiled routes of every extension (`compileRoutes(loadExtensions(extensions).router)`)
 rather than from a hand-written list:
 
-1. every page inside the shell declares its own `permission` — there is no inheritance from a
-   parent route.
+1. every page behind the sign-in (in the shell, or in a mount with a layout) declares its own
+   `permission`: there is no inheritance from a parent route.
 
 A sidebar entry needs no rule: `nav` is part of its route and takes the route's permission.
 

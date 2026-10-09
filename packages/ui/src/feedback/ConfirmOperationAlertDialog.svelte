@@ -18,10 +18,20 @@
     onContinue: () => void;
     title?: string;
     description?: string;
+    /** Says what the action does, e.g. "Deactivate". Default: "Continue". */
+    continueLabel?: string;
     isLoading?: boolean;
   }
 
-  let { open, onOpenChange, onContinue, title, description, isLoading = false }: Props = $props();
+  let {
+    open,
+    onOpenChange,
+    onContinue,
+    title,
+    description,
+    continueLabel,
+    isLoading = false,
+  }: Props = $props();
 </script>
 
 <!-- The parent owns `open`: it keeps the dialog open and disabled until the mutation settles. -->
@@ -38,7 +48,7 @@
         {t(confirmOperationMessages.cancel)}
       </AlertDialogCancel>
       <AlertDialogAction onclick={onContinue} disabled={isLoading}>
-        {t(confirmOperationMessages.continue)}
+        {continueLabel ?? t(confirmOperationMessages.continue)}
       </AlertDialogAction>
     </AlertDialogFooter>
   </AlertDialogContent>

@@ -1,6 +1,5 @@
 /** The list, the overview and the lookup share one cache entry through `projectQueries`. */
 export type { ProjectEntity } from './domain/entities/project.entity.ts';
-export type { ProjectMember } from './domain/structs/project-member.struct.ts';
 export {
   CREATE_PROJECT_MUTATION_KEY,
   canListProjects,

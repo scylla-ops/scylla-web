@@ -6,6 +6,8 @@
   import { organizationQueries } from '@base/features/organization';
   import { invalidateProjectMembers, projectQueries } from '@base/features/project';
   import { roleConfers, roleQueries } from '@base/features/roles';
+  import type { UserSummary } from '@base/features/user';
+  import { userName } from '@shared/presentation/ui';
   import { ConfirmOperationAlertDialog, FeatureHeader } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { toast } from '@scylla/ui/utils';
@@ -72,19 +74,19 @@
   });
 
   let addOpen = $state(false);
-  let pendingRemoval = $state<{ userId: string; username: string } | null>(null);
+  let pendingRemoval = $state<{ userId: string; name: string } | null>(null);
 
-  const usernameById = $derived.by(() => {
+  const userById = $derived.by(() => {
     // Rebuilt whole by the `$derived` and never mutated after it is read, so a
     // reactive collection would only make a throwaway object track dependencies.
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const names = new Map<string, string>();
-    for (const member of organizationMembers) names.set(member.userId, member.username);
-    for (const member of projectMembers) names.set(member.userId, member.username);
-    return names;
+    const users = new Map<string, UserSummary>();
+    for (const member of organizationMembers) users.set(member.userId, member);
+    for (const member of projectMembers) users.set(member.userId, member);
+    return users;
   });
 
-  const nameFor = (memberId: string) => usernameById.get(memberId) ?? memberId;
+  const userFor = (memberId: string) => userById.get(memberId);
 
   /** An organization role reaches the project when it confers reading one. `organization-member` does not. */
   const reachesProjects = $derived((roleId: string) =>
@@ -124,7 +126,7 @@
 
   const handleRemove = async () => {
     if (!pendingRemoval) return;
-    await membership.removeMember(pendingRemoval.userId, pendingRemoval.username);
+    await membership.removeMember(pendingRemoval.userId, pendingRemoval.name);
     pendingRemoval = null;
   };
 </script>
@@ -153,9 +155,13 @@
 
     <MembersList
       {members}
-      isLoading={projectMembersQuery.isLoading || membership.isLoading}
+      isLoading={projectMembersQuery.isLoading ||
+        organizationMembersQuery.isLoading ||
+        organizationGrantsQuery.isLoading ||
+        membership.isLoading}
       emptyMessage={t(membershipMessages.projectEmpty)}
-      {nameFor}
+      {userFor}
+      missing={canListOrganizationMembers ? 'deleted' : 'unknown'}
       organizationName={context().organization.name ?? ''}
       labelFor={roles.labelFor}
       {currentUserId}
@@ -172,7 +178,10 @@
       canRemove={member => canManage && directRoleIds(member).size > 0}
       removeTooltip={t(membershipMessages.removeFromProject)}
       onRemove={member =>
-        (pendingRemoval = { userId: member.userId, username: nameFor(member.userId) })}
+        (pendingRemoval = {
+          userId: member.userId,
+          name: userName(userFor(member.userId), canListOrganizationMembers ? 'deleted' : 'unknown'),
+        })}
     />
 
     <MembersHint>
@@ -204,7 +213,7 @@
         if (!open) pendingRemoval = null;
       }}
       isLoading={membership.isRemoving}
-      title={t(membershipMessages.confirmRemoveFromProject(pendingRemoval?.username ?? ''))}
+      title={t(membershipMessages.confirmRemoveFromProject(pendingRemoval?.name ?? ''))}
       description={t(membershipMessages.confirmRemoveFromProjectBody)}
       onContinue={() => void handleRemove()}
     />

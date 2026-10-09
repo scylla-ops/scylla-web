@@ -34,10 +34,6 @@ msgstr "Supprimer"
 msgid "Description"
 msgstr "Description"
 
-#: extensions/scylla-base/src/features/organization/organization.module.ts:21
-msgid "Detail"
-msgstr "Détail"
-
 #: extensions/scylla-base/src/features/organization/presentation/utils/create-organization-form-items.ts:8
 msgid "e.g., My Organization"
 msgstr "ex. Mon organisation"
@@ -78,7 +74,3 @@ msgstr "Enregistrement..."
 #: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:13
 msgid "Update the organization name and description."
 msgstr "Mettez à jour le nom et la description de l'organisation."
-
-#: extensions/scylla-base/src/features/organization/organization.module.ts:21
-msgid "User"
-msgstr "Utilisateur"

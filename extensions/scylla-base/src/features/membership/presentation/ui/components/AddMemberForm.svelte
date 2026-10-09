@@ -14,15 +14,16 @@
     SelectValue,
   } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
+  import type { UserSummary } from '@base/features/user';
+  import { userName } from '@shared/presentation/ui';
   import type { AssignableRole } from '../../assignable-roles.state.svelte.ts';
   import RoleChecklist from './RoleChecklist/RoleChecklist.svelte';
-  import type { MemberCandidate } from './member-candidate.ts';
   import { membershipMessages } from '../membership.messages.ts';
 
   interface Props {
     title: string;
     description: string;
-    candidates: MemberCandidate[];
+    candidates: UserSummary[];
     emptyCandidatesLabel: string;
     roles: AssignableRole[];
     organizationName: string;
@@ -93,8 +94,8 @@
       </SelectTrigger>
       <SelectContent>
         {#each candidates as candidate (candidate.userId)}
-          <SelectItem value={candidate.userId} label={candidate.username}>
-            {candidate.username}
+          <SelectItem value={candidate.userId} label={userName(candidate)}>
+            {userName(candidate)}
           </SelectItem>
         {/each}
       </SelectContent>
