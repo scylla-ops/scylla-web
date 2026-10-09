@@ -2,8 +2,8 @@
   import type { Snippet } from 'svelte';
   import { Card, CardContent, CardHeader, CardTitle } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
-  import { userMessages } from '../user.messages.ts';
-  import UserInformation from './UserInformation.svelte';
+  import { userMessages } from '../../user.messages.ts';
+  import UserInformation from '../UserInformation.svelte';
 
   interface Props {
     userId?: string;
@@ -13,8 +13,10 @@
 
   let { userId, organizations }: Props = $props();
 
-  // No id in the route: your own settings.
-  const shownUserId = $derived(userId ?? localStorage.getItem('userId') ?? undefined);
+  // `me`, or no id in the route: your own settings.
+  const shownUserId = $derived(
+    userId && userId !== 'me' ? userId : (localStorage.getItem('userId') ?? undefined),
+  );
 </script>
 
 <!-- TODO: list only the organizations the user is in. -->

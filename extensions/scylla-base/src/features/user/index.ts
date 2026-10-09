@@ -8,4 +8,4 @@ export {
   USER_QUERY_KEY,
 } from './presentation/user.queries.ts';
 export const loadUserSettingsPage = () =>
-  import('./presentation/ui/settings/UserSettings.page.svelte');
+  import('./presentation/ui/settings/UserSettings/UserSettings.page.svelte');
