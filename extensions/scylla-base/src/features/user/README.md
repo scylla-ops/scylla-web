@@ -28,6 +28,8 @@ belong to. It is not routed by this module. Instead it is exported from the publ
 mounted by [organization](../organization/README.md) at `users/:userId`, because the
 organizations panel is organization data. It is one of only two pages in the codebase exported
 from a feature barrel, and the export is safe because its single consumer is lazily loaded.
+The id `me` in the URL opens the settings of the logged-in user: the page replaces it with the
+id of the session, because the backend accepts only a real user id.
 
 That means the `users/` paths are declared by two modules — `users` here, `users/:userId` there.
 The router joins them by path, and the crumb "Users" declared here shows on both pages. Each
