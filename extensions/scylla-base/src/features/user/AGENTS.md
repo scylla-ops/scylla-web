@@ -67,7 +67,8 @@ presentation/
   ui/user.messages.ts                every string the screens show
   ui/admin/UserAdmin.page.svelte, AddUserDialog.svelte
   ui/admin/user-table/UserTable.svelte, user-columns.ts
-  ui/settings/UserSettings.page.svelte, UserInformation.svelte
+  ui/settings/UserSettings/UserSettings.page.svelte, UserSettings.test.ts
+  ui/settings/UserInformation.svelte
 ```
 
 ## Routes & nav
@@ -91,6 +92,10 @@ the same field on one path.
   organization; "who is in this org" is [`membership`](../membership/AGENTS.md)'s question.
 - **`UserSettingsPage` is a slot filled by another module.** Changing its props breaks
   `organization`'s `UserSettingsRoute`; update both in the same commit.
+- **`me` in `users/:userId` is the logged-in user.** The shell opens `/<org>/users/me` after it
+  creates the first organization. `UserSettingsPage` replaces `me`, or a missing id, with the
+  `userId` of the session. The backend has no `me` alias: never send `me` to `getById` or
+  `update`.
 - Passwords are write-only: `create` takes one, `update` does not, and nothing reads one back.
   Never log, store or display one.
 - `getAll()` is paginated (`UserList`). Use `usePagination()` + `DataTable`; do not render an
