@@ -1,0 +1,94 @@
+<script lang="ts">
+  import { Checkbox, Label } from '@scylla/ui/shadcn';
+  import { t } from '@scylla/ui/i18n';
+  import {
+    groupAssignableRoles,
+    type AssignableRole,
+  } from '../../../assignable-roles.calculator.ts';
+  import { membershipMessages } from '../../membership.messages.ts';
+
+  interface Props {
+    label: string;
+    roles: AssignableRole[];
+    /** Names the group of the organization's own roles. */
+    organizationName: string;
+    isLoading?: boolean;
+    disabled?: boolean;
+    selected: Set<string>;
+    /** Ticked, locked, labelled. */
+    alreadyHeld?: Set<string>;
+    onToggle: (roleId: string) => void;
+  }
+
+  let {
+    label,
+    roles,
+    organizationName,
+    isLoading = false,
+    disabled = false,
+    selected,
+    alreadyHeld,
+    onToggle,
+  }: Props = $props();
+
+  const uid = $props.id();
+  const groups = $derived(groupAssignableRoles(roles));
+</script>
+
+<!-- Not `ScrollArea`: its root does not clip under a `max-h`. -->
+<div class="flex min-w-0 flex-col gap-1.5">
+  <Label>{label}</Label>
+  {#if isLoading}
+    <p class="py-4 text-center text-sm text-muted-foreground">
+      {t(membershipMessages.loading)}
+    </p>
+  {:else if roles.length === 0}
+    <p
+      class="rounded-lg border border-dashed border-border py-4 text-center text-sm text-muted-foreground"
+    >
+      {t(membershipMessages.noRoleGrantable)}
+    </p>
+  {:else}
+    <div class="max-h-48 overflow-y-auto rounded-lg border border-border p-1">
+      {#each groups as group (group.owner)}
+        <div class="flex flex-col" role="group" aria-labelledby="{uid}-{group.owner}">
+          <p
+            id="{uid}-{group.owner}"
+            class="px-2 pt-2 pb-1 text-xs font-medium text-muted-foreground"
+          >
+            {group.owner === 'organization'
+              ? t(membershipMessages.organizationRoles(organizationName))
+              : t(membershipMessages.platformRoles)}
+          </p>
+          {#each group.roles as role (role.roleId)}
+            {@const held = alreadyHeld?.has(role.roleId) ?? false}
+            <label
+              class="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 hover:bg-accent/50 aria-disabled:cursor-not-allowed aria-disabled:opacity-60"
+              aria-disabled={held || disabled}
+            >
+              <Checkbox
+                class="mt-0.5 shrink-0"
+                checked={held || selected.has(role.roleId)}
+                disabled={held || disabled}
+                onCheckedChange={() => onToggle(role.roleId)}
+              />
+              <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span class="truncate text-sm leading-tight">{role.name}</span>
+                {#if role.description}
+                  <span class="text-xs leading-snug text-muted-foreground">{role.description}</span>
+                {/if}
+              </span>
+              {#if held}
+                <span
+                  class="shrink-0 self-center text-[10px] uppercase tracking-wide text-muted-foreground"
+                >
+                  {t(membershipMessages.held)}
+                </span>
+              {/if}
+            </label>
+          {/each}
+        </div>
+      {/each}
+    </div>
+  {/if}
+</div>
