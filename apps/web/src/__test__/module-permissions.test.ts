@@ -5,13 +5,14 @@ import { extensions } from '../extensions.ts';
 /**
  * Every page of the app, enumerated from the routes that all the extensions
  * compile to: a new page with no `permission` fails this suite. A sidebar link
- * takes its route's permission.
+ * takes its route's permission. A page is checked when it is behind the sign-in:
+ * in the shell, or in a mount with a layout (the public pages have neither).
  */
 
 const app = loadExtensions(extensions);
 
 const guardedPages = compileRoutes(app.router).routes.flatMap(route =>
-  route.shell && route.page
+  (route.shell || route.layout) && route.page
     ? [{ id: `/${route.path.join('/')}`, permission: route.permission }]
     : [],
 );
@@ -22,9 +23,15 @@ const UNGATED_PAGES: Readonly<Record<string, string>> = {
     'The landing of the shell: it only sends the user on to the dashboard of an organization, ' +
     'which declares its own permission.',
   '/:organizationSlug/users/:userId':
-    'Doubles as "my own profile": the layout sends every user to /users/me. Gating it on ' +
-    'LIST_USERS would lock a user out of their own settings, so the page needs to tell self ' +
-    'from other before it can carry a permission.',
+    'The page checks READ_USER itself, after it sends the own id to the account page: an old ' +
+    'link to /users/<own id> must not end on a denial for a user without READ_USER.',
+  '/:organizationSlug/account':
+    'The account of the signed-in user. Every call of the page is on the own id, which the ' +
+    'backend allows with no grant (GetMe, UpdateUser, ChangePassword, DeleteAccount, ...): no ' +
+    'permission exists to declare.',
+  '/account':
+    'The same account page outside any organization, for a user who has none yet (a user that ' +
+    'an administrator made, a new sign-up). The same reason: every call is on the own id.',
   '/:organizationSlug/marketplace':
     'TRIAGE: the page reads a hardcoded catalog — DefaultMarketplaceRepository calls no backend, ' +
     'so there is nothing to deny yet, and the enum has no marketplace permission to declare. ' +
@@ -42,7 +49,7 @@ describe('module permission declarations', () => {
     expect(app.shell.entries.length).toBeGreaterThan(0);
   });
 
-  describe('every page inside the shell declares a permission', () => {
+  describe('every page behind the sign-in declares a permission', () => {
     it.each(guardedPages.map(page => [page.id, page] as const))('%s', (id, page) => {
       if (id in UNGATED_PAGES) {
         expect(

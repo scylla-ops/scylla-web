@@ -198,4 +198,37 @@ describe('ProjectMembersPage', () => {
       }),
     );
   });
+
+  it('waits for the members of the organization before it names an inherited holder', async () => {
+    let answer: (value: unknown) => void = () => {};
+    listOrganizationMembers.mockReturnValue(new Promise(resolve => (answer = resolve)));
+    render(ProjectMembersPage, { projectId: 'project-1' });
+
+    await screen.findByRole('status');
+    expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();
+    expect(screen.queryByText('Unknown user')).not.toBeInTheDocument();
+
+    answer(
+      ScyllaResult.success([
+        { userId: 'user-1', username: 'alice' },
+        { userId: 'user-2', username: 'bob' },
+      ]),
+    );
+
+    expect(await screen.findByText('bob')).toBeInTheDocument();
+    expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();
+  });
+
+  it('names an inherited holder "Unknown user" when the organization members are out of reach', async () => {
+    grant([
+      Permission.LIST_PROJECT_MEMBERS,
+      Permission.MANAGE_PROJECT_GRANTS,
+      Permission.MANAGE_ORG_GRANTS,
+    ]);
+    render(ProjectMembersPage, { projectId: 'project-1' });
+
+    expect(await screen.findByText('Unknown user')).toBeInTheDocument();
+    expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();
+    expect(listOrganizationMembers).not.toHaveBeenCalled();
+  });
 });

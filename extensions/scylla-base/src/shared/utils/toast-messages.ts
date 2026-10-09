@@ -7,7 +7,6 @@ export const ToastMessages = {
   USER_DELETE: msg`User deleted`,
   USER_UPDATE: msg`User information updated`,
   USER_DELETE_OWN_ACCOUNT_ERROR: msg`You cannot delete your own account.`,
-  USER_CREDENTIALS_REQUIRED_ERROR: msg`Username and password are required.`,
 
   // Organizations
   ORGANIZATION_CREATE: msg`Organization created`,

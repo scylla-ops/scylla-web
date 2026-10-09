@@ -104,6 +104,100 @@ describe('createFormState', () => {
   });
 });
 
+describe('the validate messages', () => {
+  const tooShort = { id: 'too-short', message: 'Too short' };
+  const mismatch = { id: 'mismatch', message: 'Mismatch' };
+
+  type PasswordIds = 'password' | 'confirm' | 'nickname';
+
+  const passwordItems: readonly FormItem<PasswordIds>[] = [
+    {
+      id: 'password',
+      type: FormItemType.Input,
+      inputType: 'password',
+      label: 'Password',
+      validate: value => (value.length < 8 ? tooShort : undefined),
+    },
+    {
+      id: 'confirm',
+      type: FormItemType.Input,
+      inputType: 'password',
+      label: 'Confirm',
+      validate: (value, values) => (value === values.password ? undefined : mismatch),
+    },
+    {
+      id: 'nickname',
+      type: FormItemType.Input,
+      inputType: 'text',
+      label: 'Nickname',
+      optional: true,
+      validate: () => tooShort,
+    },
+  ];
+
+  it('hides the message of a field the user has not left yet', () => {
+    const form = createFormState(() => passwordItems);
+
+    form.handleChange('password', 'short');
+
+    expect(form.errorOf('password')).toBeUndefined();
+  });
+
+  it('shows the message once the field lost the focus, and follows the value', () => {
+    const form = createFormState(() => passwordItems);
+    form.handleChange('password', 'short');
+
+    form.touch('password');
+    expect(form.errorOf('password')).toBe(tooShort);
+
+    form.handleChange('password', 'long enough');
+    expect(form.errorOf('password')).toBeUndefined();
+  });
+
+  it('gives a validator the other values, for a confirmation', () => {
+    const form = createFormState(() => passwordItems);
+    form.handleChange('password', 'long enough');
+    form.handleChange('confirm', 'different');
+    form.touch('confirm');
+
+    expect(form.errorOf('confirm')).toBe(mismatch);
+  });
+
+  it('shows every message after a submit try, and refuses it', () => {
+    const form = createFormState(() => passwordItems);
+    form.handleChange('password', 'short');
+
+    expect(form.validate()).toBe(false);
+    expect(form.errorOf('password')).toBe(tooShort);
+    expect(form.errorOf('confirm')).toBe(mismatch);
+  });
+
+  it('accepts a submit when no validator objects', () => {
+    const form = createFormState(() => passwordItems);
+    form.handleChange('password', 'long enough');
+    form.handleChange('confirm', 'long enough');
+
+    expect(form.validate()).toBe(true);
+  });
+
+  it('never validates an empty optional field', () => {
+    const form = createFormState(() => passwordItems);
+
+    form.validate();
+
+    expect(form.errorOf('nickname')).toBeUndefined();
+  });
+
+  it('hides the messages again on reset', () => {
+    const form = createFormState(() => passwordItems);
+    form.validate();
+
+    form.reset();
+
+    expect(form.errorOf('password')).toBeUndefined();
+  });
+});
+
 /** Widening `TId` to `string` would pass every test above: pin the generic. */
 describe('the id generic', () => {
   it('turns literal item ids into a typed values record', () => {

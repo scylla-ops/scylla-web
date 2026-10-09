@@ -38,7 +38,8 @@ It composes, through public APIs only:
 | `features/roles` | `roleQueries` (`grantable`, `catalog`, `organizationCatalog`, `scopedGrants`), `grantMutations`, `roleConfers`, `humanizeRoleId`, `scopeLabelOf`, `RoleEntity` |
 | `features/organization` | organization member list |
 | `features/project` | project member list |
-| `features/user` | user identities |
+| `features/user` | `UserSummary` (the person type) and the directory, for display names and emails |
+| `@shared/presentation/ui` | `UserIdentity`, `userName`: how a person shows |
 | `@platform/authz` | `PrincipalKind`, `PermissionScope`, `Permission`, `can` |
 
 **This module reads the grants through `roleQueries.scopedGrants`**, the same factory that
@@ -59,8 +60,8 @@ presentation/
   ui/OrganizationMembers.page.svelte, ProjectMembers.page.svelte
   ui/membership.messages.ts          every string — `lingui extract` cannot read `.svelte`
   ui/components/                     AddMemberDialog (+ AddMemberForm), AddRoleSelect,
-                                     MemberCard, MemberIdentity, MemberRoleBadges,
-                                     MemberRowAction, MembersHint, MembersList, RoleChecklist
+                                     MemberCard, MemberRoleBadges, MemberRowAction,
+                                     MembersHint, MembersList, RoleChecklist
   ui/components/index.ts             local barrel — internal, not the module's public API
 ```
 
@@ -89,6 +90,14 @@ Sidebar: one entry only — section `organization`, order `30`, icon `UsersRound
 - **A member is a derived view of grants, not a stored list.** `buildOrganizationMembers` and
   `buildProjectMembers` fold grants + identities into `ScopeMember[]`. They are pure functions
   in `domain/` — put membership logic there, not in a component or a `useMemo`.
+- **A member shows with `UserIdentity`** (`@shared/presentation/ui`), never with a local avatar
+  and name. The pages build one `userId → UserSummary` map: the members lists, and on the
+  organization page the user directory over them when `LIST_USERS` allows it (display name and
+  email). A member that no list knows shows as "Deleted user", never by its id; on the project
+  page, without `LIST_ORGANIZATION_MEMBERS`, as "Unknown user" (`missing="unknown"`): a holder
+  through the organization is then simply not named. The project page waits for the
+  organization members and grants before it lists anyone, so no name flashes. A name in a
+  sentence (a confirmation, a toast, a select) is `userName(user)`.
 - **`MemberRoleOrigin` is the load-bearing distinction.** `DIRECT` = granted at this scope;
   `INHERITED` = granted at the organization and visible on the project. Only `DIRECT` roles are
   revocable here — revoking an inherited role means going to the organization. Never render the

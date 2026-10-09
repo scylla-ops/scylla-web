@@ -3,7 +3,7 @@ import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { OrganizationRemoteDataSource } from '@base/features/organization/infrastructure/repository/data-sources/organization-remote.data-source.ts';
 import { GrpcOrganizationMemberMapper } from '@base/features/organization/infrastructure/repository/mappers/grpc-organization-member.mapper.ts';
 import { GrpcOrganizationMapper } from '@base/features/organization/infrastructure/repository/mappers/grpc-organization.mapper.ts';
-import type { UserEntity } from '@base/features/user';
+import type { UserSummary } from '@base/features/user';
 import type { OrganizationEntity } from '@base/features/organization/domain/entities/organization.entity.ts';
 
 export default class DefaultOrganizationRepository implements OrganizationRepository {
@@ -21,7 +21,7 @@ export default class DefaultOrganizationRepository implements OrganizationReposi
     );
   }
 
-  public async listMembers(organizationId: string): Promise<ScyllaResult<UserEntity[]>> {
+  public async listMembers(organizationId: string): Promise<ScyllaResult<UserSummary[]>> {
     return (await this.remoteDataSource.listMembers(organizationId)).map(members =>
       members.map(GrpcOrganizationMemberMapper.toDomain),
     );

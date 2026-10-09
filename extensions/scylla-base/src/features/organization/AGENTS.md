@@ -15,10 +15,10 @@ unchanged. There is no `use-<feature>-domain.ts` and no hooks: reads and writes 
 options objects in `presentation/organization.queries.ts`, which a component or another
 feature runs with `createQuery`.
 
-**`OrganizationList` is the one list of organizations, for two places.** The user settings panel
-shows it with plain rows (`OrganizationRow.svelte`). The organization selector of the shell shows
-it inside a dropdown menu, and gives it `DropdownMenuItem` as the `row` prop, so each row gets
-the keyboard focus of the menu. A row component takes `class`, `onSelect` and `children`.
+**`OrganizationList` is the one list of organizations.** The organization selector of the shell
+shows it inside a dropdown menu, and gives it `DropdownMenuItem` as the `row` prop, so each row
+gets the keyboard focus of the menu. Without a `row`, it shows plain rows
+(`OrganizationRow.svelte`). A row component takes `class`, `onSelect` and `children`.
 
 ## Public API — `index.ts`
 
@@ -35,7 +35,7 @@ loadAddOrganizationDialog    () => import(AddOrganizationDialog.svelte)  ← the
 
 The shell imports this barrel eagerly for the queries, so the components are exported as
 **loaders**: a re-exported component would put its UI library in the entry chunk. Never add:
-`organization.module.ts`, `UserSettingsRoute`, a component.
+`organization.module.ts`, a component.
 
 ## Data contract
 
@@ -45,7 +45,7 @@ The shell imports this barrel eagerly for the queries, so the components are exp
 |---|---|
 | `getAll()` | `OrganizationEntity[]` — every org (admin view) |
 | `getMine()` | `OrganizationEntity[]` — the current user's orgs |
-| `listMembers(organizationId)` | `UserEntity[]` |
+| `listMembers(organizationId)` | `UserSummary[]` (from `user`: the RPC carries an id and a username) |
 
 `getAll` vs `getMine` is a real distinction — the switcher must use `getMine`. Reach the
 repository with `getModuleDomain` **inside `organization.queries.ts` only**.
@@ -53,7 +53,7 @@ repository with `getModuleDomain` **inside `organization.queries.ts` only**.
 ## Layout
 
 ```
-organization.module.ts               route + DI wiring (private; registry only)
+organization.module.ts               DI wiring, no route (private; registry only)
 index.ts                             public API
 domain/
   entities/organization.entity.ts    OrganizationEntity
@@ -66,29 +66,19 @@ infrastructure/
   repository/default-organization.repository.ts
 presentation/
   organization.queries.ts            every read and write, plus the key factories
-  ui/OrganizationList.svelte         plain rows, for the settings panel
+  ui/OrganizationList/               the list; the shell's selector gives it its rows
   ui/AddOrganizationDialog.svelte, EditOrganizationDialog.svelte
-  ui/UserSettingsRoute.svelte        composes user's UserSettingsPage
   ui/organization.messages.ts
   utils/create-organization-form-items.ts
 ```
 
 ## Routes & nav
 
-| Mount | Path | Permission | Component |
-|---|---|---|---|
-| `organization` | `users/:userId` | none declared | `UserSettingsRoute` |
-
-**No nav entry**, and the route looks misplaced on purpose. The user directory belongs to
-[`user`](../user/AGENTS.md), which owns the `users` page and crumb; this module declares
-`users/:userId` because the settings page renders an organizations panel. The router joins the
-two by path: this page shows the "Users" crumb of `user`, and neither module imports the other.
+None. The organizations and roles of a user show on the pages of [`user`](../user/AGENTS.md),
+from `ListUserAccess`; that module does not import this one for them.
 
 ## Rules that bite here
 
-- **`UserSettingsRoute` is a composition seam.** It renders `UserSettingsPage`, imported from
-  `features/user`'s public API — one of the two sanctioned page exports in the codebase. Keep
-  the wrapper thin; do not copy user logic into it.
 - `ORGANIZATION_MEMBERS_QUERY_KEY` is exported so `membership` invalidates the same entry this
   module reads. Never hand-write the key.
 - The shell depends on `OrganizationList` / `AddOrganizationDialog`. Changing their props is a

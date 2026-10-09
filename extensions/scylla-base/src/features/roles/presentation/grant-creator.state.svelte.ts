@@ -4,6 +4,7 @@ import { createMutation, createQuery } from '@scylla/core-sdk';
 import { organizationQueries } from '@base/features/organization';
 import { projectQueries } from '@base/features/project';
 import { userQueries } from '@base/features/user';
+import { userName } from '@shared/presentation/ui';
 import type { GrantEntity } from '../domain/entities/grant.entity.ts';
 import type { RoleEntity } from '../domain/entities/role.entity.ts';
 import { buildGrantEligibility, type GrantEligibility } from './grant-eligibility.calculator.ts';
@@ -94,11 +95,8 @@ export const createGrantCreator = (
   /** Everyone stays listed; who cannot receive the grant carries the reason. */
   const users = $derived.by((): UserOption[] => {
     const all = isOrganization
-      ? (membersQuery.data ?? []).map(member => ({ id: member.userId, name: member.username }))
-      : (usersQuery.data?.items ?? []).map(user => ({
-          id: user.userId,
-          name: user.username,
-        }));
+      ? (membersQuery.data ?? []).map(member => ({ id: member.userId, name: userName(member) }))
+      : (usersQuery.data?.items ?? []).map(user => ({ id: user.userId, name: userName(user) }));
     if (!isProjectScope || !browseOrgId) return all;
 
     return all.map(user => {

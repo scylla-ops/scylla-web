@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, vi } from 'vitest';
-import { ScyllaError, ScyllaResult } from '../scylla-result';
+import { ScyllaError, ScyllaResult, refusalOf } from '../scylla-result';
 
 describe('ScyllaError', () => {
   it('defaults to UNKNOWN_ERROR when the cause carries no code', () => {
@@ -199,5 +199,26 @@ describe('ScyllaResult', () => {
       const out = result.fold({ onSuccess: () => 'no-error', onError: e => e.message });
       expect(out).toBe('wrapped async message');
     });
+  });
+});
+
+describe('refusalOf', () => {
+  const failure = (code: string, message: string) =>
+    ScyllaResult.error(
+      new ScyllaError('Failed.', { cause: Object.assign(new Error(message), { code }) }),
+    );
+
+  it('is null on success', () => {
+    expect(refusalOf(ScyllaResult.success(undefined))).toBeNull();
+  });
+
+  it('gives the server message of a FAILED_PRECONDITION, without throwing', () => {
+    expect(refusalOf(failure('FAILED_PRECONDITION', 'Hand over acme first'))).toBe(
+      'Hand over acme first',
+    );
+  });
+
+  it('throws any other error, for the global handler', () => {
+    expect(() => refusalOf(failure('UNAVAILABLE', 'down'))).toThrow(ScyllaError);
   });
 });

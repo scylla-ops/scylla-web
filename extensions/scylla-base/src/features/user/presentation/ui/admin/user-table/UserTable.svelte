@@ -1,11 +1,12 @@
 <script lang="ts">
   import EyeIcon from '@lucide/svelte/icons/eye';
-  import { Avatar, AvatarFallback, AvatarImage } from '@scylla/ui/shadcn';
-  import { DataTable, IconButton, TruncatedText } from '@scylla/ui';
+  import { DataTable, IconButton } from '@scylla/ui';
   import { createSelection } from '@scylla/ui/state';
+  import { UserIdentity } from '@shared/presentation/ui';
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { t } from '@scylla/ui/i18n';
   import type { UserEntity } from '../../../../domain/entities/user.entity.ts';
+  import UserStatusBadge from '../../components/UserStatusBadge.svelte';
   import { userMessages } from '../../user.messages.ts';
   import { userColumns } from './user-columns.ts';
 
@@ -19,18 +20,21 @@
   const selection = createSelection('users');
 
   const columns = $derived(
-    userColumns({ username: usernameCell, creationDate: createdCell, actions: actionsCell }),
+    userColumns({
+      identity: identityCell,
+      status: statusCell,
+      creationDate: createdCell,
+      actions: actionsCell,
+    }),
   );
 </script>
 
-{#snippet usernameCell(user: UserEntity)}
-  <div class="flex w-full min-w-0 flex-row items-center gap-2">
-    <Avatar class="h-8 w-8 shrink-0 rounded-lg">
-      <AvatarImage />
-      <AvatarFallback class="rounded-lg">{user.username.at(0)?.toUpperCase()}</AvatarFallback>
-    </Avatar>
-    <TruncatedText tooltip={user.username} class="text-xs">{user.username}</TruncatedText>
-  </div>
+{#snippet identityCell(user: UserEntity)}
+  <UserIdentity {user} size="sm" class="w-full" />
+{/snippet}
+
+{#snippet statusCell(user: UserEntity)}
+  <UserStatusBadge isActive={user.isActive} />
 {/snippet}
 
 {#snippet createdCell(user: UserEntity)}

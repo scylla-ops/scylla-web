@@ -1,16 +1,19 @@
 <script lang="ts">
   import { Card } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
+  import type { UserSummary } from '@base/features/user';
+  import { UserIdentity, type MissingUser } from '@shared/presentation/ui';
   import type { MemberRole } from '../../../../domain/structs/scope-member.struct.ts';
   import type { AssignableRole } from '../../../assignable-roles.state.svelte.ts';
   import AddRoleSelect from '../AddRoleSelect/AddRoleSelect.svelte';
-  import MemberIdentity from '../MemberIdentity/MemberIdentity.svelte';
   import MemberRoleBadges from '../MemberRoleBadges/MemberRoleBadges.svelte';
   import MemberRowAction from '../MemberRowAction/MemberRowAction.svelte';
   import { membershipMessages } from '../../membership.messages.ts';
 
   interface Props {
-    name: string;
+    /** `undefined`: a missing user, named after `missing`. */
+    user: UserSummary | undefined;
+    missing?: MissingUser;
     roles: MemberRole[];
     isCurrentUser: boolean;
     canRemove: boolean;
@@ -27,7 +30,8 @@
   }
 
   let {
-    name,
+    user,
+    missing = 'deleted',
     roles,
     isCurrentUser,
     canRemove,
@@ -45,15 +49,14 @@
 </script>
 
 <!-- The roles band has a fixed height and scrolls, so every card has the same height. -->
-{#snippet roleCount()}
-  {t(membershipMessages.roleCount(roles.length))}
-{/snippet}
-
 <Card class="gap-0 overflow-hidden py-0">
   <div class="flex items-center gap-3 px-4 py-3.5">
+    <UserIdentity {user} {missing} class="flex-1" />
     <!-- The count tells when there are more roles than the band shows. -->
-    <MemberIdentity {name} subtitle={roleCount} />
-    <span class="ml-auto shrink-0">
+    <span class="shrink-0 text-xs text-muted-foreground">
+      {t(membershipMessages.roleCount(roles.length))}
+    </span>
+    <span class="shrink-0">
       <MemberRowAction
         {isCurrentUser}
         {canRemove}

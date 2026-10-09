@@ -164,3 +164,17 @@ export class ScyllaResult<T> {
     return new ScyllaResult<T>(error);
   }
 }
+
+/**
+ * For a call whose FAILED_PRECONDITION the page shows itself, beside a field: gives the server
+ * message instead of throwing it to the global error toast, which would show it a second time.
+ * `null` on success; any other error throws, inside a `mutationFn`.
+ */
+export const refusalOf = (result: ScyllaResult<unknown>): string | null =>
+  result.fold({
+    onSuccess: () => null,
+    onError: error => {
+      if (error.getCode() === 'FAILED_PRECONDITION') return error.userMessage();
+      throw error;
+    },
+  });

@@ -316,7 +316,8 @@ after what it changes (the intention), never after the point it targets:
 ```typescript
 // email-login.widget-injection.ts
 export const EmailLoginWidgetInjection = [
-  loginPoints.texts.override({ identifier: msg`Email` }),   // `msg` inline: no *.messages.ts
+  // `msg` inline: no *.messages.ts. The description names the identifier too: override both.
+  loginPoints.texts.override({ identifier: msg`Email`, description: msg`Enter your email.` }),
   /* ... */
 ];
 ```

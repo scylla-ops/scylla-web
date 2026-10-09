@@ -6,19 +6,28 @@ import type { UserEntity } from '../../../../domain/entities/user.entity.ts';
 import { userMessages } from '../../user.messages.ts';
 
 export interface UserCells {
-  username: Snippet<[UserEntity]>;
+  identity: Snippet<[UserEntity]>;
+  status: Snippet<[UserEntity]>;
   creationDate: Snippet<[UserEntity]>;
   actions: Snippet<[UserEntity]>;
 }
 
 export const userColumns = (cells: UserCells): DataTableColumn<UserEntity>[] => [
   {
-    id: 'username',
+    id: 'identity',
     header: t(userMessages.user),
-    cell: ({ row }) => renderSnippet(cells.username, row.original),
-    size: 200,
-    minSize: 200,
+    cell: ({ row }) => renderSnippet(cells.identity, row.original),
+    size: 280,
+    minSize: 220,
     meta: { align: 'left' },
+  },
+  {
+    id: 'status',
+    header: t(userMessages.status),
+    cell: ({ row }) => renderSnippet(cells.status, row.original),
+    size: 140,
+    minSize: 110,
+    meta: { align: 'center' },
   },
   {
     id: 'creationDate',

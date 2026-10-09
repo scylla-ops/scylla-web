@@ -38,6 +38,9 @@ and behave alike:
   Both are generic over the item ids, so a form declared with literal ids submits a typed
   `FormValues` record (`{ name: string; description: string }`) instead of a bag of pairs the
   caller has to search through.
+  The form is `novalidate`: an item's `validate` gives a translated message, shown under the
+  field when the user leaves it or tries to submit. The browser tooltip is in the language of the
+  browser and does not say the rule, so it never shows.
 - **`ScyllaDialog`** for every modal: it closes the same way everywhere and resets its content
   at each opening. **`ConfirmOperationAlertDialog`** for destructive actions, **`SecretRevealDialog`** for values
   shown exactly once.

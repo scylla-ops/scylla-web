@@ -13,8 +13,9 @@ module owns the entity behind that segment.
   administrative views. Keeping them separate matters — the switcher must never offer an
   organization the user cannot enter.
 - **Creating, renaming and deleting** an organization.
-- **Its members**, as raw user identities. The rich member view — roles, direct vs inherited,
-  granting and revoking — belongs to [membership](../membership/README.md).
+- **Its members**, as `UserSummary` values of [user](../user/README.md) (the RPC carries an id
+  and a username only). The rich member view (roles, direct vs inherited,
+  granting and revoking) belongs to [membership](../membership/README.md).
 - **The switcher in the app shell.**
 
 ## Two pieces the shell depends on
@@ -31,22 +32,12 @@ feature may not import the shell. The switcher's *state* (which organization is 
 [platform/context](../../platform/context/README.md), below both, which is what lets any module
 ask "which org am I in?" without depending on this one.
 
-## The odd route
+## No route of its own
 
-`OrganizationModule` declares exactly one route, and it looks like it is in the wrong file:
-
-```
-organization → users/:userId → UserSettingsRoute
-```
-
-The user directory belongs to [user](../user/README.md), which owns `users` and its index page.
-But a user's settings screen renders an **organizations panel**, so the leaf that displays it is
-declared here, where the organization data lives. `UserSettingsRoute` is a thin wrapper that
-renders `UserSettingsPage`, imported from `user`'s public API — one of only two pages in the
-codebase exported from a feature barrel.
-
-The two halves do not collide: each declares a different path, and the router joins them by
-path. The page of `users/:userId` shows the "Users" crumb that `user` declares on `users`.
+`OrganizationModule` declares no route. Its data shows in the pages of other modules: the
+switcher of the shell, the members pages of [membership](../membership/README.md), the
+organizations and roles of a user in [user](../user/README.md). A user's page reads those from
+`ListUserAccess` of the user service, so it does not need this module.
 
 ## Structure
 
@@ -64,6 +55,6 @@ here use `use-{name}.ts`.
 
 - [membership](../membership/README.md) — members with their roles, at org and project scope.
 - [project](../project/README.md) — what an organization contains.
-- [user](../user/README.md) — supplies `UserSettingsPage`.
+- [user](../user/README.md): the `UserSummary` type of the members.
 - [shell](../../shell/README.md) — renders the switcher.
 - [platform/context](../../platform/context/README.md) — holds the active organization.

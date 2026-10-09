@@ -219,7 +219,12 @@ constant's name; the loader names it `<extension id>/<key>`:
 
 ```typescript
 export const EmailLoginWidgetInjection = [
-  loginPoints.texts.override({ identifier: msg`Email`, /* … */ }),
+  // The label, its placeholder and the description of the card all name the identifier.
+  loginPoints.texts.override({
+    identifier: msg`Email`,
+    identifierPlaceholder: msg`you@example.com`,
+    description: msg`Enter your email and your password.`,
+  }),
   loginPoints.fields.patch(fields => /* turn the identifier field into an email input */),
 ];
 
@@ -425,8 +430,7 @@ export const USERS_QUERY_KEY = () => ['users'] as const;
 export const userMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: async ({ username, password }: { username: string; password: string }) =>
-        (await repository().create(username, password)).unwrap(),
+      mutationFn: async (input: CreateUserInput) => (await repository().create(input)).unwrap(),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.USER_CREATE));
         return getQueryClient().invalidateQueries({ queryKey: USERS_QUERY_KEY() });

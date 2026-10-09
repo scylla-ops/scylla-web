@@ -9,7 +9,12 @@ import LoginPage from './Login.page.svelte';
 
 const makeFakeRepository = (overrides: Partial<LoginRepository> = {}) => {
   const login = overrides.login ?? vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
-  return { repository: { login } satisfies LoginRepository, login };
+  const repository: LoginRepository = {
+    login,
+    requestPasswordReset: vi.fn(),
+    resetPassword: vi.fn(),
+  };
+  return { repository, login };
 };
 
 let teardown: Array<() => void> = [];
@@ -28,11 +33,11 @@ beforeEach(() => {
 
 afterEach(() => teardown.forEach(restore => restore()));
 
-const signIn = async (username = 'ravenne', password = 'hunter2') => {
+const signIn = async (identifier = 'ravenne', password = 'hunter2') => {
   const user = userEvent.setup();
-  await user.type(screen.getByLabelText('Username'), username);
+  await user.type(screen.getByLabelText('Email or username'), identifier);
   await user.type(screen.getByLabelText('Password'), password);
-  await user.click(screen.getByRole('button', { name: 'Login' }));
+  await user.click(screen.getByRole('button', { name: 'Sign in' }));
 };
 
 describe('LoginPage', () => {
@@ -59,9 +64,9 @@ describe('LoginPage', () => {
 
     await signIn('ravenne', 'wrong');
 
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Login' })).toBeEnabled());
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Sign in' })).toBeEnabled());
     expect(testNavigator.navigate).not.toHaveBeenCalled();
-    expect(screen.getByLabelText('Username')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email or username')).toBeInTheDocument();
   });
 
   it('replaces the form with the loading screen once sign-in succeeds', async () => {
@@ -72,7 +77,25 @@ describe('LoginPage', () => {
     await signIn();
 
     await waitFor(() =>
-      expect(screen.queryByRole('button', { name: 'Login' })).not.toBeInTheDocument(),
+      expect(screen.queryByRole('button', { name: 'Sign in' })).not.toBeInTheDocument(),
     );
+  });
+
+  it('is titled "Sign in"', () => {
+    const { repository } = makeFakeRepository();
+    setUp(repository);
+    render(LoginPage);
+
+    expect(screen.getByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+  });
+
+  it('signs in with an email as the identifier', async () => {
+    const { repository, login } = makeFakeRepository();
+    setUp(repository);
+    render(LoginPage);
+
+    await signIn('ada@example.com', 'hunter22');
+
+    await waitFor(() => expect(login).toHaveBeenCalledWith('ada@example.com', 'hunter22'));
   });
 });

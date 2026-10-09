@@ -1,10 +1,18 @@
+import type { MessageDescriptor } from '@lingui/core';
 import { FormItemType, type FormItem, type FormValues } from './scylla-form.struct.ts';
 
 export interface FormState<TId extends string> {
   readonly values: FormValues<TId>;
+  /** The required fields are filled and match their pattern. */
   readonly isValid: boolean;
   handleChange: (id: TId, value: string) => void;
   reset: () => void;
+  /** The field lost the focus: its `validate` message shows from now on. */
+  touch: (id: TId) => void;
+  /** The `validate` message of a touched field, or of any field after `validate()`. */
+  errorOf: (id: TId) => MessageDescriptor | undefined;
+  /** Shows every `validate` message. True when there is none. */
+  validate: () => boolean;
 }
 
 const initialValues = <TId extends string>(items: readonly FormItem<TId>[]): FormValues<TId> =>
@@ -19,6 +27,8 @@ export const createFormState = <TId extends string>(
   items: () => readonly FormItem<TId>[],
 ): FormState<TId> => {
   let values = $state<FormValues<TId>>(initialValues(items()));
+  let touched = $state<readonly TId[]>([]);
+  let submitted = $state(false);
 
   const isValid = $derived(
     items().every(item => {
@@ -30,6 +40,13 @@ export const createFormState = <TId extends string>(
       return new RegExp(item.pattern).test(value);
     }),
   );
+
+  /** An empty optional field is never wrong. */
+  const messageOf = (item: FormItem<TId>): MessageDescriptor | undefined => {
+    const value = values[item.id] ?? '';
+    if (item.optional && value.length === 0) return undefined;
+    return item.validate?.(value, values);
+  };
 
   return {
     get values() {
@@ -43,6 +60,20 @@ export const createFormState = <TId extends string>(
     },
     reset: () => {
       values = initialValues(items());
+      touched = [];
+      submitted = false;
+    },
+    touch: (id: TId) => {
+      if (!touched.includes(id)) touched = [...touched, id];
+    },
+    errorOf: (id: TId) => {
+      if (!submitted && !touched.includes(id)) return undefined;
+      const item = items().find(candidate => candidate.id === id);
+      return item ? messageOf(item) : undefined;
+    },
+    validate: () => {
+      submitted = true;
+      return items().every(item => messageOf(item) === undefined);
     },
   };
 };

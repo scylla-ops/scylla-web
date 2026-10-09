@@ -57,9 +57,18 @@ const goToTriggers = (id: string, name: string) => {
   contextStore.getState().setPipeline(id, name);
 };
 
-const goToUserSettings = (userId: string) => {
-  navigateTo(`${getOrgPrefix()}/users/${userId}`, { replace: true });
+const goToUser = (userId: string) => {
+  navigateTo(`${getOrgPrefix()}/users/${userId}`);
 };
+
+/** The account of the session. */
+const goToAccount = () => {
+  navigateTo(`${getOrgPrefix()}/account`);
+};
+
+/** The URL of a page of any organization, the active one or not. */
+export const organizationUrl = (organizationName: string, path = 'dashboard'): string =>
+  `/${slugifyOrgName(organizationName)}/${path}`;
 
 const goToAgentDetails = (agentId: string) => {
   navigateTo(`${getOrgPrefix()}/agents/${agentId}`);
@@ -72,7 +81,8 @@ const goToOrgRoute = (path: string) => {
 export const scyllaNavigate = {
   navigate: navigateTo,
   goToEditPipeline,
-  goToUserSettings,
+  goToUser,
+  goToAccount,
   goToSubRoute,
   goToCreatePipeline,
   goToJobs,

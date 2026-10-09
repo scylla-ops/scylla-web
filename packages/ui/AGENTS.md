@@ -67,7 +67,7 @@ catalogs of this package register themselves.
 | A table | `DataTable` (+ `createPagination`) — row keys are business ids, never indices |
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
-| Confirm a destructive action | `ConfirmOperationAlertDialog` |
+| Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue" |
 | Show a one-time secret | `SecretRevealDialog` |
 | Error state | `ErrorState` |
 | Class names | `cn()` |
@@ -76,6 +76,22 @@ catalogs of this package register themselves.
 | A store | `createStore` from `@scylla/ui/stores`; rune code reads it with `toRune(store)` |
 | Translating | `t()` from `@scylla/ui/i18n`, over a `*.messages.ts` |
 | A page transition | `PageTransition` — the core's router already wraps every page in it |
+
+## Forms: the app checks the values, not the browser
+
+`ScyllaForm` renders `<form novalidate>`: the browser shows no validation tooltip, in no
+language. The checks are the app's, with translated messages:
+
+- `required` is implicit: a field that is not `optional` keeps the submit disabled while empty.
+- `validate(value, values)` on an item gives the message descriptor of a wrong value, or
+  `undefined`. The form shows it under the field (`aria-invalid`, `aria-describedby`) when the
+  field loses the focus or when a submit is tried, and does not call `onSubmit` while there is
+  one. `values` lets a confirmation compare itself with the new password.
+- `errors` (a prop) shows a message from the server under its field, e.g. a wrong current
+  password.
+- An input item takes `autocomplete` (always set it: `username`, `email`, `current-password`,
+  `new-password`, `name`, …), `readonly`, and `description` (a hint under the field).
+- `autofocus={false}` on a page with several forms: by default the first field takes the focus.
 
 ## Rune helpers: `state/`
 

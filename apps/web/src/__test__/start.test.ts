@@ -20,7 +20,7 @@ describe('startCore with the extensions of this build', () => {
 
     await startCore({ extensions, target });
 
-    expect(await screen.findByText('Login to your account')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
   });
 
   it('sends a signed-out user from a page of the shell to /login', async () => {
@@ -32,6 +32,18 @@ describe('startCore with the extensions of this build', () => {
     await startCore({ extensions, target });
 
     await expect.poll(() => window.location.pathname).toBe('/login');
-    expect(await screen.findByText('Login to your account')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+  });
+
+  it('opens the public password reset pages without a session', async () => {
+    localStorage.removeItem('token');
+    history.replaceState(null, '', '/forgot-password');
+    const target = document.createElement('div');
+    document.body.append(target);
+
+    await startCore({ extensions, target });
+
+    expect(await screen.findByRole('heading', { name: 'Forgot password' })).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/forgot-password');
   });
 });

@@ -18,7 +18,7 @@ const role = (overrides: Partial<MemberRole> = {}): MemberRole => ({
 });
 
 const baseProps = {
-  name: 'ravenne',
+  user: { userId: 'user-1', username: 'ravenne' },
   isCurrentUser: false,
   canRemove: true,
   addableRoles: [],
@@ -86,5 +86,12 @@ describe('MemberCard', () => {
     await userEvent.click(await findFloating('option', 'Developer'));
 
     expect(onAddRole).toHaveBeenCalledWith('r1');
+  });
+
+  it('shows the person with the shared identity: name and handle', () => {
+    render(MemberCard, { ...baseProps });
+
+    expect(screen.getByText('ravenne')).toBeInTheDocument();
+    expect(screen.getByText('@ravenne')).toBeInTheDocument();
   });
 });

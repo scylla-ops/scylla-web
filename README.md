@@ -101,7 +101,7 @@ packages/ui                the design system — imports no other package
 | [dashboard](extensions/scylla-base/src/features/dashboard/README.md) | The organization landing page — a composite view owning no data |
 | [extensions](extensions/scylla-base/src/features/extensions/README.md) | The page that lists the extensions the app runs |
 | [jobs](extensions/scylla-base/src/features/jobs/README.md) | Pipeline runs: status, logs, and the live tail of both |
-| [login](extensions/scylla-base/src/features/login/README.md) | Sign-in and the session token |
+| [login](extensions/scylla-base/src/features/login/README.md) | Sign-in, sign-out, the password reset and the session token |
 | [marketplace](extensions/scylla-base/src/features/marketplace/README.md) | Ready-made pipeline templates |
 | [membership](extensions/scylla-base/src/features/membership/README.md) | Who belongs to an organization or project, and with which roles |
 | [onboarding](extensions/scylla-base/src/features/onboarding/README.md) | The first-pipeline tour, and where its progress is kept |
@@ -111,7 +111,7 @@ packages/ui                the design system — imports no other package
 | [roles](extensions/scylla-base/src/features/roles/README.md) | Role catalog, grants, and the permission vocabulary |
 | [secret](extensions/scylla-base/src/features/secret/README.md) | Project-scoped secrets injected into runs |
 | [triggers](extensions/scylla-base/src/features/triggers/README.md) | What starts a pipeline without a human: schedules and webhooks |
-| [user](extensions/scylla-base/src/features/user/README.md) | User accounts: the directory and per-user settings |
+| [user](extensions/scylla-base/src/features/user/README.md) | User accounts: the directory, the page of a user and the own account |
 
 ### scylla-base — `platform/`
 

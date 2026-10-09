@@ -17,7 +17,11 @@ msgstr ""
 msgid "(crate scylla-agent). The agent runs in the foreground and Ctrl-C stops it."
 msgstr "(crate scylla-agent). The agent runs in the foreground and Ctrl-C stops it."
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:33
+#: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:8
+msgid "A username cannot contain \"@\"."
+msgstr "A username cannot contain \"@\"."
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:32
 msgid "Agent id copied"
 msgstr "Agent id copied"
 
@@ -25,7 +29,7 @@ msgstr "Agent id copied"
 msgid "An unexpected error occurred"
 msgstr "An unexpected error occurred"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:37
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:36
 msgid "App id copied"
 msgstr "App id copied"
 
@@ -37,9 +41,17 @@ msgstr "Cancelled"
 msgid "Command copied"
 msgstr "Command copied"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:34
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:33
 msgid "Could not copy — select the id manually"
 msgstr "Could not copy — select the id manually"
+
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/user-identity.messages.ts:4
+msgid "Deleted user"
+msgstr "Deleted user"
+
+#: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:4
+msgid "Enter a valid email address."
+msgstr "Enter a valid email address."
 
 #: extensions/scylla-base/src/shared/utils/status-config.ts:57
 msgid "Failed"
@@ -49,7 +61,7 @@ msgstr "Failed"
 msgid "From source"
 msgstr "From source"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:28
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:27
 msgid "Job queued — no agent connected"
 msgstr "Job queued — no agent connected"
 
@@ -57,15 +69,15 @@ msgstr "Job queued — no agent connected"
 msgid "No data"
 msgstr "No data"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:13
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:12
 msgid "Organization created"
 msgstr "Organization created"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:14
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:13
 msgid "Organization deleted"
 msgstr "Organization deleted"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:15
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:14
 msgid "Organization updated"
 msgstr "Organization updated"
 
@@ -77,43 +89,43 @@ msgstr "Orphaned"
 msgid "Pending"
 msgstr "Pending"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:24
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:23
 msgid "Pipeline created"
 msgstr "Pipeline created"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:25
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:24
 msgid "Pipeline deleted"
 msgstr "Pipeline deleted"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:30
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:29
 msgid "Pipeline duplicated successfully"
 msgstr "Pipeline duplicated successfully"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:26
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:25
 msgid "Pipeline edited"
 msgstr "Pipeline edited"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:27
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:26
 msgid "Pipeline ran"
 msgstr "Pipeline ran"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:29
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:28
 msgid "Pipeline ran — check that your agents are connected"
 msgstr "Pipeline ran — check that your agents are connected"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:18
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:17
 msgid "Project created"
 msgstr "Project created"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:19
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:18
 msgid "Project deleted"
 msgstr "Project deleted"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:21
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:20
 msgid "Project name is required and you must select an organization."
 msgstr "Project name is required and you must select an organization."
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:20
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:19
 msgid "Project updated"
 msgstr "Project updated"
 
@@ -137,11 +149,11 @@ msgstr "Run with Docker"
 msgid "Running"
 msgstr "Running"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:40
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:39
 msgid "Secret created"
 msgstr "Secret created"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:41
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:40
 msgid "Secret deleted"
 msgstr "Secret deleted"
 
@@ -161,41 +173,65 @@ msgstr "Success"
 msgid "The agent starts in the foreground: its logs show up right in the terminal and Ctrl-C stops it."
 msgstr "The agent starts in the foreground: its logs show up right in the terminal and Ctrl-C stops it."
 
+#: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:10
+msgid "The display name must have 100 characters at most."
+msgstr "The display name must have 100 characters at most."
+
+#: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:6
+msgid "The password cannot be only spaces."
+msgstr "The password cannot be only spaces."
+
+#: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:5
+msgid "The password must have 8 to 255 characters."
+msgstr "The password must have 8 to 255 characters."
+
 #: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:11
 msgid "the scylla repo"
 msgstr "the scylla repo"
+
+#: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:7
+msgid "The two passwords are not the same."
+msgstr "The two passwords are not the same."
 
 #: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:15
 msgid "The URL above is prefilled with this page's own address. Replace it if your agent reaches the control plane another way — for example http://host.docker.internal:8080 from inside Docker, or a private-network address."
 msgstr "The URL above is prefilled with this page's own address. Replace it if your agent reaches the control plane another way — for example http://host.docker.internal:8080 from inside Docker, or a private-network address."
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:44
+#: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:9
+msgid "The username is too long: 255 bytes at most."
+msgstr "The username is too long: 255 bytes at most."
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:43
 msgid "Trigger created"
 msgstr "Trigger created"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:46
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:45
 msgid "Trigger deleted"
 msgstr "Trigger deleted"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:48
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:47
 msgid "Trigger disabled"
 msgstr "Trigger disabled"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:47
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:46
 msgid "Trigger enabled"
 msgstr "Trigger enabled"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:49
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:48
 msgid "Trigger fired — run started"
 msgstr "Trigger fired — run started"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:45
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:44
 msgid "Trigger updated"
 msgstr "Trigger updated"
 
 #: extensions/scylla-base/src/shared/utils/status-config.ts:94
 msgid "Unknown"
 msgstr "Unknown"
+
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/user-identity.messages.ts:5
+msgid "Unknown user"
+msgstr "Unknown user"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:6
 msgid "User created"
@@ -208,10 +244,6 @@ msgstr "User deleted"
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:8
 msgid "User information updated"
 msgstr "User information updated"
-
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:10
-msgid "Username and password are required."
-msgstr "Username and password are required."
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:9
 msgid "You cannot delete your own account."

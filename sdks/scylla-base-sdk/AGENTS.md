@@ -10,8 +10,10 @@ feature barrels (query factories, entity types, page loaders).
 
 - **The only door into scylla-base** (`sdk-is-the-door`, error). An extension imports
   `@scylla/base-sdk`, never `@scylla/base`.
-- It is a facade: `src/index.ts` re-exports `@scylla/base/features/*`, `@scylla/base/platform/*`
-  and `@scylla/base/scylla-result`. It holds no code of its own, so there is one instance of
+- It is a facade: `src/index.ts` re-exports `@scylla/base/features/*`, `@scylla/base/platform/*`,
+  `@scylla/base/scylla-result` and `@scylla/base/account-validation` (the account checks of a
+  form: `checkEmail`, `checkNewPassword`, `checkPasswordConfirmation`, `checkUsername`,
+  `checkDisplayName`). It holds no code of its own, so there is one instance of
   every store.
 - **scylla-base never imports its SDK** — that would be a cycle.
 

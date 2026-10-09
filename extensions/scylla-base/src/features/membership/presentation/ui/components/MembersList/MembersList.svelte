@@ -1,6 +1,8 @@
 <script lang="ts">
   import Loader2Icon from '@lucide/svelte/icons/loader-2';
   import { t } from '@scylla/ui/i18n';
+  import type { UserSummary } from '@base/features/user';
+  import { userName, type MissingUser } from '@shared/presentation/ui';
   import type {
     MemberRole,
     ScopeMember,
@@ -11,7 +13,10 @@
 
   interface Props {
     members: ScopeMember[];
-    nameFor: (userId: string) => string;
+    /** `undefined`: a member that the lists do not name. */
+    userFor: (userId: string) => UserSummary | undefined;
+    /** How such a member shows: `unknown` when the viewer cannot read the list that names it. */
+    missing?: MissingUser;
     currentUserId: string;
     isLoading?: boolean;
     emptyMessage?: string;
@@ -33,7 +38,8 @@
 
   let {
     members,
-    nameFor,
+    userFor,
+    missing = 'deleted',
     currentUserId,
     isLoading = false,
     emptyMessage,
@@ -55,7 +61,11 @@
 
   /** Sorted here: the backend order is grant insertion. */
   const sorted = $derived(
-    [...members].sort((left, right) => nameFor(left.userId).localeCompare(nameFor(right.userId))),
+    [...members].sort((left, right) =>
+      userName(userFor(left.userId), missing).localeCompare(
+        userName(userFor(right.userId), missing),
+      ),
+    ),
   );
 </script>
 
@@ -75,7 +85,8 @@
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
       {#each sorted as member (member.userId)}
         <MemberCard
-          name={nameFor(member.userId)}
+          user={userFor(member.userId)}
+          {missing}
           roles={member.roles}
           isCurrentUser={member.userId === currentUserId}
           canRemove={canRemove(member)}

@@ -13,6 +13,7 @@ beforeEach(() => {
   vi.spyOn(console, 'warn').mockImplementation(() => {});
   vi.spyOn(console, 'error').mockImplementation(() => {});
   localStorage.setItem('token', 'a-token');
+  localStorage.setItem('userId', 'user-1');
   location = window.location;
   Object.defineProperty(window, 'location', { value: { href: '/acme' }, configurable: true });
 });
@@ -27,6 +28,7 @@ describe('reportQueryError', () => {
     reportQueryError(errorWith('UNAUTHENTICATED'), 'mutation');
 
     expect(localStorage.getItem('token')).toBeNull();
+    expect(localStorage.getItem('userId')).toBeNull();
     expect(window.location.href).toBe('/login');
     expect(toastError).not.toHaveBeenCalled();
   });

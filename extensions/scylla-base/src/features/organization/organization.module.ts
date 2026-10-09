@@ -1,5 +1,4 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
-import { msg } from '@lingui/core/macro';
 import DefaultOrganizationRepository from '@base/features/organization/infrastructure/repository/default-organization.repository.ts';
 import GrpcOrganizationRemoteDataSource from '@base/features/organization/infrastructure/data/grpc-organization-remote.data-source.ts';
 import { grpcTransport } from '@platform/grpc';
@@ -8,19 +7,10 @@ const organizationRemoteDataSource = new GrpcOrganizationRemoteDataSource(grpcTr
 
 const organizationRepository = new DefaultOrganizationRepository(organizationRemoteDataSource);
 
+/** No page: the organization switcher of the shell and the other features read its queries. */
 export const OrganizationModule = {
   id: 'organization',
   domain: {
     organizationRepository: organizationRepository,
-  },
-  routes: {
-    organization: [
-      {
-        // Under the directory of `user`: here because the page shows the organizations panel.
-        path: 'users/:userId',
-        breadcrumb: ({ userId }) => ({ label: msg`User`, highlight: userId, detail: msg`Detail` }),
-        page: () => import('./presentation/ui/UserSettingsRoute.svelte'),
-      },
-    ],
   },
 } satisfies ScyllaModule;

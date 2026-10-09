@@ -3,7 +3,8 @@ import { createMutation, createQueries, createQuery } from '@scylla/core-sdk';
 import { createFeatureSelection } from '@scylla/ui/state';
 import { organizationQueries } from '@base/features/organization';
 import { projectLookupQueries } from '@base/features/project';
-import { userQueries } from '@base/features/user';
+import { userQueries, type UserSummary } from '@base/features/user';
+import { userName } from '@shared/presentation/ui';
 import { roleOwnerOf, type RoleEntity } from '../domain/entities/role.entity.ts';
 import type { GrantEntity } from '../domain/entities/grant.entity.ts';
 import { countHoldersByRole, groupRolesByOwner, sortRolesByName } from './role-list.calculator.ts';
@@ -101,15 +102,22 @@ export const createRolesPage = (scope: () => RolesScope) => {
   );
   const grantsReadable = $derived(!isOrganization || canReadOrganizationGrants);
 
-  const usernameById = $derived(
+  const userById = $derived(
     // Rebuilt whole by the `$derived` and never mutated after it is read.
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    new Map<string, string>(
-      isOrganization
-        ? (membersQuery.data ?? []).map(member => [member.userId, member.username])
-        : (usersQuery.data?.items ?? []).map(user => [user.userId, user.username]),
+    new Map<string, UserSummary>(
+      (isOrganization ? (membersQuery.data ?? []) : (usersQuery.data?.items ?? [])).map(user => [
+        user.userId,
+        user,
+      ]),
     ),
   );
+
+  const principalUser = (grant: GrantEntity): UserSummary | undefined =>
+    grant.principal.kind === PrincipalKind.USER ? userById.get(grant.principal.id) : undefined;
+
+  /** The names of the holders are on their way: a missing one is not known yet. */
+  const holdersLoading = $derived(isOrganization ? membersQuery.isLoading : usersQuery.isLoading);
 
   const isOwned = (role: RoleEntity) => !isOrganization || roleOwnerOf(role) === organizationId;
   const isSelectable = (role: RoleEntity) =>
@@ -169,10 +177,18 @@ export const createRolesPage = (scope: () => RolesScope) => {
     isSelectable,
     /** A platform role seen from an organization: granted there, edited by the platform only. */
     isReadOnly: (role: RoleEntity) => !isOwned(role),
-    /** The username, or the principal id for an app or an unknown user. */
+    /** The person behind a user grant; `undefined` for an app or a user that is not known. */
+    principalUser,
+    get holdersLoading() {
+      return holdersLoading;
+    },
+    /**
+     * The name of a user (never its id), or the id of an app. A grant never outlives its user:
+     * a holder missing from the list is one the page cannot read, not a deleted one.
+     */
     principalLabel: (grant: GrantEntity): string =>
       grant.principal.kind === PrincipalKind.USER
-        ? (usernameById.get(grant.principal.id) ?? grant.principal.id)
+        ? userName(principalUser(grant), 'unknown')
         : grant.principal.id,
     canRevoke: (grant: GrantEntity): boolean => {
       if (!isOrganization) return can(Permission.MANAGE_SYSTEM_GRANTS);

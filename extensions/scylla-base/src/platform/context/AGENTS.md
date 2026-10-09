@@ -15,7 +15,8 @@ from it.
 
 ```typescript
 contextStore
-scyllaNavigate, type ScyllaNavigate       context-aware navigation
+scyllaNavigate, type ScyllaNavigate       context-aware navigation (goToUser, goToAccount, …)
+organizationUrl(name, path = 'dashboard') the URL of a page of any organization, for a link
 navigateTo, navigateBack                  plain navigation
 currentPathname, currentSearch            the current URL
 setAppNavigator, type AppNavigator, type NavigateOptions
