@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/shell/whats-new.ts:46
+msgid "Add people to your organization and your projects, and manage what each of them can do."
+msgstr "Ajoutez des personnes à votre organisation et à vos projets, et gérez ce que chacune peut faire."
+
 #: extensions/scylla-base/src/shell/whats-new.ts:39
 msgid "Build your own roles and grant them fine-grained permissions on an organization or a project."
 msgstr "Créez vos propres rôles et accordez-leur des permissions fines sur une organisation ou un projet."
@@ -40,10 +44,6 @@ msgstr "C'est noté"
 #: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:17
 msgid "Here is what landed in this version."
 msgstr "Voici ce qui arrive dans cette version."
-
-#: extensions/scylla-base/src/shell/whats-new.ts:46
-msgid "Invite people to your organization and your projects, and manage what each of them can do."
-msgstr "Invitez des personnes dans votre organisation et vos projets, et gérez ce que chacune peut faire."
 
 #: extensions/scylla-base/src/shell/whats-new.ts:32
 msgid "Live metrics for your agents, pipelines and recent runs, all in one place."

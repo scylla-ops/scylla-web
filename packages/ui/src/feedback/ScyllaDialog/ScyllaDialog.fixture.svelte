@@ -7,7 +7,7 @@
 </script>
 
 <button onclick={() => (open = true)}>Open</button>
-<ScyllaDialog {open} onOpenChange={next => (open = next)} {dismissible} title="Invite">
+<ScyllaDialog {open} onOpenChange={next => (open = next)} {dismissible} title="Add member">
   <input aria-label="Email" />
   <button onclick={() => (open = false)}>Done</button>
 </ScyllaDialog>
