@@ -1,10 +1,12 @@
 <script lang="ts">
   import { ScyllaDialog } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import type { PipelineStep } from '../../../../domain/structs/pipeline.struct.ts';
-  import type { NodeFormValue } from '../../../utils/blueprint-converter.ts';
+  import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import type {
+    NodeFormValue,
+  } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
   import StepNodeForm from './StepNodeForm/StepNodeForm.svelte';
-  import { pipelineMessages } from '../../../pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
     open: boolean;

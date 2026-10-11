@@ -1,7 +1,10 @@
 <script lang="ts">
   import { FeatureHeader } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { createRolesPage, type RolesScope } from '../../roles-page.state.svelte.ts';
+  import {
+    createRolesPage,
+    type RolesScope,
+  } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
   import { rolesMessages } from '../roles.messages.ts';
   import RoleDetailPanel from './RoleDetailPanel.svelte';
   import RoleList from './RoleList.svelte';

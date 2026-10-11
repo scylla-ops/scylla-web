@@ -11,9 +11,12 @@
   import { cn } from '@scylla/ui/utils';
   import { formatDate, getRelativeTime } from '@shared/utils/date-utils.ts';
   import { t } from '@scylla/ui/i18n';
-  import { agentMutations, agentQueries } from '../../agents.queries.ts';
+  import {
+    agentMutations,
+    agentQueries,
+  } from '@base/features/agents/presentation/agents.queries.ts';
   import AgentIdLink from '../components/AgentIdLink/AgentIdLink.svelte';
-  import OutcomesChart from '../components/OutcomesChart.svelte';
+  import OutcomesChart from '../components/OutcomesChart/OutcomesChart.svelte';
   import { agentsMessages } from '../agents.messages.ts';
 
   interface Props {

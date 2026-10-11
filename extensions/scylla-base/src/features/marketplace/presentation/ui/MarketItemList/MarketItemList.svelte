@@ -1,7 +1,9 @@
 <script lang="ts">
-  import type { MarketItem } from '../../../domain/structs/market-item.struct.ts';
-  import { matchesFilter } from '../../marketplace-filter.state.svelte.ts';
-  import MarketItemCard from '../MarketItemCard.svelte';
+  import type { MarketItem } from '@base/features/marketplace/domain/structs/market-item.struct.ts';
+  import {
+    matchesFilter,
+  } from '@base/features/marketplace/presentation/marketplace-filter.state.svelte.ts';
+  import MarketItemCard from './MarketItemCard.svelte';
 
   interface Props {
     items: MarketItem[] | undefined;

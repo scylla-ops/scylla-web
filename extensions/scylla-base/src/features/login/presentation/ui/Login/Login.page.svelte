@@ -2,7 +2,7 @@
   import { ScyllaLoadingScreen } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { LoginState } from '@base/features/login';
-  import { loginPoints } from '../../login.points.ts';
+  import { loginPoints } from '@base/features/login/presentation/login.points.ts';
   import AuthLayout from '../AuthLayout.svelte';
   import LoginForm from '../LoginForm/LoginForm.svelte';
   import { loginMessages } from '../login.messages.ts';

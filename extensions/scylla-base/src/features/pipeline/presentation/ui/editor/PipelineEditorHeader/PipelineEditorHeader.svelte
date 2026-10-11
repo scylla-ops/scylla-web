@@ -6,7 +6,7 @@
   import { GatedButton } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import { pipelineMessages } from '../../../pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
     onSubmit: () => void;

@@ -3,7 +3,10 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { PermissionScope } from '@platform/authz';
 import { findTooltip, render } from '@test/render.svelte.ts';
-import { MemberRoleOrigin, type MemberRole } from '../../../../domain/structs/scope-member.struct.ts';
+import {
+  MemberRoleOrigin,
+  type MemberRole,
+} from '@base/features/membership/domain/structs/scope-member.struct.ts';
 import MemberRoleBadges from './MemberRoleBadges.svelte';
 
 const role = (overrides: Partial<MemberRole> = {}): MemberRole =>

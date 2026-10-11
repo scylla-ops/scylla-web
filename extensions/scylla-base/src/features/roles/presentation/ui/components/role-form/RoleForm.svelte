@@ -14,11 +14,17 @@
     ToggleGroupItem,
   } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
-  import type { RoleEntity } from '../../../../domain/entities/role.entity.ts';
-  import { createRoleForm, type AccessKind } from '../../../role-form.state.svelte.ts';
-  import { organizationIdOf, type RolesScope } from '../../../roles-page.state.svelte.ts';
-  import { scopeLabelOf } from '../../../utils/permission-mapping.ts';
-  import { rolesMessages } from '../../roles.messages.ts';
+  import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
+  import {
+    createRoleForm,
+    type AccessKind,
+  } from '@base/features/roles/presentation/role-form.state.svelte.ts';
+  import {
+    organizationIdOf,
+    type RolesScope,
+  } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
+  import { scopeLabelOf } from '@base/features/roles/presentation/utils/permission-mapping.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
   import RoleDialogPermissions from './RoleDialogPermissions/RoleDialogPermissions.svelte';
   import RoleHolderField from './RoleHolderField.svelte';
 

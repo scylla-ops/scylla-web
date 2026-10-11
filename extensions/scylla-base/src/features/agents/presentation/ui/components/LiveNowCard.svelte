@@ -4,7 +4,7 @@
   import { Card, CardContent } from '@scylla/ui/shadcn';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import type { AgentLiveJobs } from '../../utils/agent-mock-data.ts';
+  import type { AgentLiveJobs } from '@base/features/agents/presentation/utils/agent-mock-data.ts';
   import { agentsMessages } from '../agents.messages.ts';
 
   interface Props {

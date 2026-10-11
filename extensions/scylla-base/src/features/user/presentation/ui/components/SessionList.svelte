@@ -2,7 +2,9 @@
   import { Separator, Skeleton } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
   import { createNow } from '@scylla/ui/state';
-  import type { UserSessionEntity } from '../../../domain/entities/user-session.entity.ts';
+  import type {
+    UserSessionEntity,
+  } from '@base/features/user/domain/entities/user-session.entity.ts';
   import SessionRow from './SessionRow/SessionRow.svelte';
   import { userMessages } from '../user.messages.ts';
 

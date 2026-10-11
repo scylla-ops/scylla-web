@@ -2,8 +2,10 @@ import type {
   EnvEntry,
   PipelineStep,
   Shell,
-} from '../../../../domain/structs/pipeline.struct.ts';
-import type { NodeFormValue } from '../../../utils/blueprint-converter.ts';
+} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type {
+  NodeFormValue,
+} from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
 
 /** Keeps both a literal and a secret reference, so switching the kind loses nothing typed. */
 export interface EnvRow {

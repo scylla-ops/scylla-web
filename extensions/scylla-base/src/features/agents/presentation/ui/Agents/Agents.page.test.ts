@@ -5,7 +5,9 @@ import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { AgentsRepository } from '../../../domain/repository/agents.repository.ts';
+import type {
+  AgentsRepository,
+} from '@base/features/agents/domain/repository/agents.repository.ts';
 import AgentsPage from './Agents.page.svelte';
 
 const agent = (overrides: Record<string, unknown> = {}) => ({

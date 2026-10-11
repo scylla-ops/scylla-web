@@ -64,7 +64,7 @@ presentation/
   ui/agents.messages.ts              every string — `lingui extract` cannot read `.svelte`
   ui/components/                     AgentCard, AgentIdLink, AgentLogs, LiveNowCard,
                                      NoAgentsBanner, OutcomesChart  (all `.svelte`)
-  ui/components/outcomes-chart.calculator.ts   the chart's arithmetic, testable without a DOM
+  ui/components/OutcomesChart/outcomes-chart.calculator.ts   the chart's arithmetic, testable without a DOM
   utils/agent-mock-data.ts           ⚠ placeholder data, see below
   utils/create-agent-form-items.ts   FormItem[] for the create dialog
 ```

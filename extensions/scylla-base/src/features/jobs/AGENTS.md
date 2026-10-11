@@ -82,13 +82,12 @@ presentation/
   open-log-panels.svelte.ts          which node panels are open, mirrored in the URL
   tail-job-logs.svelte.ts            the live stream subscription (opens and closes it)
   ui/Jobs.page.svelte, JobsHeader.svelte
-  ui/JobDetails.page.svelte          one job: info + per-node logs
+  ui/JobDetails/                     one job: info + per-node logs (JobSummary, JobNodeLogs)
   ui/jobs.messages.ts                every string — `lingui extract` cannot read `.svelte`
-  ui/job-details/                    JobSummary, JobNodeLogs
   ui/jobs-table/                     JobsTable + job-columns.ts + cells
   ui/jobs-table/job-timeline.calculator.ts   segment geometry, pure and tested in node
-  ui/jobs-log/JobLogDisplay.svelte   the streamed viewer, shared by both pages
-  ui/jobs-log/streamed-log-view.svelte.ts    owns the editor document + tail-follow
+  ui/jobs-log/JobLogDisplay/         the streamed viewer, shared by both pages
+    streamed-log-view.svelte.ts      owns the editor document + tail-follow
 ```
 
 ## Routes & nav

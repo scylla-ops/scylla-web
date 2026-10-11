@@ -4,8 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { selectionStore } from '@scylla/ui/stores';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { SecretEntity } from '../../../../domain/entities/secret.entity.ts';
-import type { SecretRepository } from '../../../../domain/repository/secret.repository.ts';
+import type { SecretEntity } from '@base/features/secret/domain/entities/secret.entity.ts';
+import type {
+  SecretRepository,
+} from '@base/features/secret/domain/repository/secret.repository.ts';
 import SecretList from './SecretList.svelte';
 
 const toastSuccess = vi.fn();

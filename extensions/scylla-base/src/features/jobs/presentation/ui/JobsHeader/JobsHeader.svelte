@@ -6,7 +6,7 @@
   import { CopyableText, FeatureHeader } from '@scylla/ui';
   import { createFeatureSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
-  import { jobMutations } from '../../jobs.queries.ts';
+  import { jobMutations } from '@base/features/jobs/presentation/jobs.queries.ts';
   import { jobsMessages } from '../jobs.messages.ts';
 
   interface Props {

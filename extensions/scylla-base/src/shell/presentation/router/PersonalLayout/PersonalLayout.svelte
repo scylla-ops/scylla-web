@@ -4,7 +4,7 @@
   import LogoScylla from '@scylla/ui/assets/logo_scylla.svg';
   import LogoScyllaDark from '@scylla/ui/assets/logo_scylla_dark.svg';
   import { t } from '@scylla/ui/i18n';
-  import { layoutMessages } from '../../layout/ui/layout.messages.ts';
+  import { layoutMessages } from '@base/shell/presentation/layout/ui/layout.messages.ts';
   import AuthGuard from '../AuthGuard/Auth.guard.svelte';
 
   let { children }: { children: Snippet } = $props();

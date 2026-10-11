@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { render } from '@test/render.svelte.ts';
-import type { UserSessionEntity } from '../../../../domain/entities/user-session.entity.ts';
+import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import SessionRow from './SessionRow.svelte';
 
 const CHROME_MAC =

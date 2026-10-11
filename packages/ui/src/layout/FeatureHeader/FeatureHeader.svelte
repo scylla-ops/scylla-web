@@ -6,8 +6,8 @@
   import { activeLocale, t } from '../../i18n/i18n-svelte.svelte.ts';
   // Not the group barrels: they would import this file back.
   import GatedButton from '../../controls/GatedButton/GatedButton.svelte';
-  import ConfirmOperationAlertDialog from '../../feedback/ConfirmOperationAlertDialog.svelte';
-  import { featureHeaderMessages } from '../feature-header.messages.ts';
+  import ConfirmOperationAlertDialog from '../../feedback/ConfirmOperationAlertDialog/ConfirmOperationAlertDialog.svelte';
+  import { featureHeaderMessages } from './feature-header.messages.ts';
 
   interface Props {
     count?: number;

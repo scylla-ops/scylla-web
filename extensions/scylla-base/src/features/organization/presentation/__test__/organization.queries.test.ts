@@ -5,8 +5,12 @@ import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { contextStore } from '@platform/context';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { ScyllaResult, ScyllaError } from '@shared/utils/scylla-result.ts';
-import type { OrganizationEntity } from '../../domain/entities/organization.entity.ts';
-import type { OrganizationRepository } from '../../domain/repository/organization.repository.ts';
+import type {
+  OrganizationEntity,
+} from '@base/features/organization/domain/entities/organization.entity.ts';
+import type {
+  OrganizationRepository,
+} from '@base/features/organization/domain/repository/organization.repository.ts';
 import {
   invalidateOrganizationMembers,
   organizationMutations,

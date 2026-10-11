@@ -62,7 +62,8 @@ presentation/
   apps.queries.ts                    every read and write, as query/mutation options
   ui/Apps.page.svelte, AppDetails.page.svelte
   ui/apps.messages.ts                every string — `lingui extract` cannot read `.svelte`
-  ui/components/AppCard.svelte, AppSecretsCard.svelte
+  ui/components/AppCard/             one app in the grid
+  ui/AppDetails/                     the details page + AppSecretsCard
   utils/create-app-form-items.ts, create-app-secret-form-items.ts
 ```
 

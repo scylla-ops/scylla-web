@@ -4,9 +4,14 @@ import { QueryClient } from '@tanstack/query-core';
 import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { runMutationFn, runQueryFn } from '@test/queries.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { TriggersRepository } from '../../domain/repository/triggers.repository.ts';
-import type { TriggerDraft, TriggerEntity } from '../../domain/entities/trigger.entity.ts';
-import { TriggerKind } from '../../domain/structs/trigger-source.struct.ts';
+import type {
+  TriggersRepository,
+} from '@base/features/triggers/domain/repository/triggers.repository.ts';
+import type {
+  TriggerDraft,
+  TriggerEntity,
+} from '@base/features/triggers/domain/entities/trigger.entity.ts';
+import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
 import { TRIGGERS_QUERY_KEY, triggerMutations, triggerQueries } from '../triggers.queries.ts';
 
 const PIPELINE_ID = 'pipeline-1';

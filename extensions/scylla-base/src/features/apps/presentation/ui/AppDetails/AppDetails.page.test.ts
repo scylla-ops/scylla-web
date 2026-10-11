@@ -6,7 +6,7 @@ import { contextStore } from '@platform/context';
 import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { AppsRepository } from '../../../domain/repository/apps.repository.ts';
+import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
 import AppDetailsPage from './AppDetails.page.svelte';
 
 const app = (overrides: Record<string, unknown> = {}) => ({

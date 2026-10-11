@@ -9,8 +9,8 @@
     checkPasswordConfirmation,
     checkUsername,
   } from '@shared/utils/account-validation.ts';
-  import { userMutations } from '../../../user.queries.ts';
-  import { userMessages } from '../../user.messages.ts';
+  import { userMutations } from '@base/features/user/presentation/user.queries.ts';
+  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
 
   interface Props {
     open: boolean;

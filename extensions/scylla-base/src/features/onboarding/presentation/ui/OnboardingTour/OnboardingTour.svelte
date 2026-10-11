@@ -1,10 +1,12 @@
 <script lang="ts">
   import { Permission, authorizationReady, can } from '@platform/authz';
-  import { createOnboardingTourState } from '../../onboarding-tour.state.svelte.ts';
-  import FinishTourDialog from '../FinishTourDialog.svelte';
-  import SkipTourDialog from '../SkipTourDialog.svelte';
-  import TourSpot from '../TourSpot.svelte';
-  import WelcomeDialog from '../WelcomeDialog.svelte';
+  import {
+    createOnboardingTourState,
+  } from '@base/features/onboarding/presentation/onboarding-tour.state.svelte.ts';
+  import FinishTourDialog from './FinishTourDialog.svelte';
+  import SkipTourDialog from './SkipTourDialog.svelte';
+  import TourSpot from './TourSpot.svelte';
+  import WelcomeDialog from './WelcomeDialog.svelte';
 
   const tour = createOnboardingTourState(
     () => authorizationReady() && can(Permission.CREATE_AGENT) && can(Permission.CREATE_PROJECT),

@@ -7,7 +7,9 @@
     type FormValues,
   } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { organizationMutations } from '../../organization.queries.ts';
+  import {
+    organizationMutations,
+  } from '@base/features/organization/presentation/organization.queries.ts';
   import { organizationMessages } from '../organization.messages.ts';
 
   interface Props {

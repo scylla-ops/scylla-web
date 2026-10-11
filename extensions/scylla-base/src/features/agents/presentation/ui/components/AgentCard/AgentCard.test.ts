@@ -5,7 +5,7 @@ import { findFloating, render } from '@test/render.svelte.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '@platform/context';
 import { PermissionScope, permissionsStore } from '@platform/authz';
-import type { AgentEntity } from '../../../../domain/entities/agent.entity.ts';
+import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
 import AgentCard from './AgentCard.svelte';
 
 const toastSuccess = vi.fn();

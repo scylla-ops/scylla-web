@@ -10,8 +10,8 @@ import {
 } from '@platform/authz';
 import { runMutationFn, runQueryFn } from '@test/queries.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { RoleEntity } from '../../domain/entities/role.entity.ts';
-import type { GrantEntity } from '../../domain/entities/grant.entity.ts';
+import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
+import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import {
   GRANTABLE_ROLES_QUERY_KEY,
   GRANTS_QUERY_KEY,

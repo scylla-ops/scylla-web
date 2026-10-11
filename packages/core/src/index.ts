@@ -9,4 +9,4 @@ export {
 } from './routing/compilation/compile-routes.ts';
 export { createAppRouter } from './routing/runtime/app-router.ts';
 export { setShellConfig } from './shell/shell-config.ts';
-export { default as ShellBreadcrumbs } from './shell/ShellBreadcrumbs.svelte';
+export { default as ShellBreadcrumbs } from './shell/TopBar/ShellBreadcrumbs.svelte';

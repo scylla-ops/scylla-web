@@ -50,8 +50,8 @@ presentation/
   org-overview.svelte.test.ts
   ui/Dashboard.page.svelte              the page
   ui/RunActivityCard.svelte             recent run activity
-  ui/AgentOutcomesChart.svelte          run outcomes over time, in plain SVG
-  ui/outcomes-chart.calculator.ts       the chart's geometry — pure, node-tested
+  ui/AgentOutcomesChart/                run outcomes over time, in plain SVG
+    outcomes-chart.calculator.ts        the chart's geometry — pure, node-tested
   ui/dashboard.messages.ts              every string on the page
 ```
 

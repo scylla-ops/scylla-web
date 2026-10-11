@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { render } from '@test/render.svelte.ts';
 import { withLocale } from '@test/i18n.ts';
-import { messages } from '../../../../locales/fr/messages.ts';
-import type { UserSessionEntity } from '../../../../domain/entities/user-session.entity.ts';
+import { messages } from '@base/features/user/locales/fr/messages.ts';
+import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import SessionRow from './SessionRow.svelte';
 
 /** Two placeholders in the title, and a relative time in the active locale. */

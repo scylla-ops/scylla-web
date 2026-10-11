@@ -42,7 +42,7 @@ src/
   motion/                  page transitions, reduced motion
   editor/                  renderCodeMirror (a Svelte action), the CodeMirror theme
   icon.ts                  LucideIcon (the prop type of an icon)
-  shadcn/                  shadcn-svelte primitives on bits-ui
+  shadcn/                  shadcn-svelte primitives on bits-ui, one folder per primitive
   state/  stores/  i18n/  utils/  structs/     the entry points above
   assets/  styles.css
   locales/                 the catalog of these components
