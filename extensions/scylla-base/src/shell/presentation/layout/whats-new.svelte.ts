@@ -1,4 +1,4 @@
-import { WHATS_NEW, type Release } from '../../whats-new.ts';
+import { WHATS_NEW, type Release } from '@base/shell/whats-new.ts';
 
 const RELEASE_ID = 'release';
 

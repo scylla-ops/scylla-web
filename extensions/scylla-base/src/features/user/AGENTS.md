@@ -91,12 +91,12 @@ presentation/
   ui/admin/UserAdmin.page.svelte     the directory
   ui/admin/AddUserDialog/            "New user"
   ui/admin/user-table/               UserTable, user-columns.ts
-  ui/account/Account/                the account page
+  ui/account/Account/                the account page (+ ChangePasswordForm)
   ui/account/PersonalAccount/         the account page with no organization: + the sign-out at the end
-  ui/account/ChangePasswordForm.svelte, DeleteAccountDialog/
-  ui/user-detail/UserDetail/         the page of another user
-  ui/user-detail/UserDetailHeader.svelte   the identity card with status, date and id
-  ui/user-detail/UserSecurity.svelte
+  ui/account/DeleteAccountDialog/
+  ui/user-detail/UserDetail/         the page of another user, and its parts:
+    UserDetailContent.svelte, UserDetailHeader.svelte (the identity card with status, date and id),
+    UserSecurity.svelte
   ui/components/                     SettingsSection, UserStatusBadge, UserProfileForm/,
                                      UserAccessList/, UserIdentityCard, SessionList,
                                      SessionRow/ (both pages)

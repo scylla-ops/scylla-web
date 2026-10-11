@@ -6,7 +6,9 @@
     checkNewPassword,
     checkPasswordConfirmation,
   } from '@shared/utils/account-validation.ts';
-  import { ResetPasswordState } from '../../reset-password.state.svelte.ts';
+  import {
+    ResetPasswordState,
+  } from '@base/features/login/presentation/reset-password.state.svelte.ts';
   import AuthLayout from '../AuthLayout.svelte';
   import { passwordResetMessages } from '../password-reset.messages.ts';
 

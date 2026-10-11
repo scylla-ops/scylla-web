@@ -8,9 +8,15 @@
     type NodeTypes,
   } from '@xyflow/svelte';
   import '@xyflow/svelte/dist/style.css';
-  import type { PipelineStep } from '../../../../domain/structs/pipeline.struct.ts';
-  import { DEFAULT_EDGE_STYLE, START_NODE_ID, stepOf } from '../../../utils/blueprint-converter.ts';
-  import type { BlueprintState } from '../../../blueprint.state.svelte.ts';
+  import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import {
+    DEFAULT_EDGE_STYLE,
+    START_NODE_ID,
+    stepOf,
+  } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import type {
+    BlueprintState,
+  } from '@base/features/pipeline/presentation/blueprint.state.svelte.ts';
   import DeletableEdge from './DeletableEdge.svelte';
   import PipelineStepNode from './PipelineStepNode.svelte';
   import StartNode from './StartNode.svelte';

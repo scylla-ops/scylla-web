@@ -1,7 +1,7 @@
 <script lang="ts">
   import { FormDialog, FormItemType, type FormItem, type FormValues } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { pipelineMessages } from '../../../pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
     open: boolean;

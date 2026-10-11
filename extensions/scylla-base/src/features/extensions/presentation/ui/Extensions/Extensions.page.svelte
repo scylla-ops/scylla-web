@@ -3,8 +3,8 @@
   import { ErrorState, FeatureHeader } from '@scylla/ui';
   import { Skeleton } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
-  import { extensionQueries } from '../../extensions.queries.ts';
-  import ExtensionCard from '../ExtensionCard.svelte';
+  import { extensionQueries } from '@base/features/extensions/presentation/extensions.queries.ts';
+  import ExtensionCard from './ExtensionCard.svelte';
   import { extensionsMessages } from '../extensions.messages.ts';
 
   const extensionsQuery = createQuery(() => extensionQueries.installed());

@@ -1,7 +1,7 @@
 <script lang="ts">
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
   import { t } from '@scylla/ui/i18n';
-  import type { RolesPage } from '../../roles-page.state.svelte.ts';
+  import type { RolesPage } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
   import { rolesMessages } from '../roles.messages.ts';
   import RoleDetailGrantList from './role-detail/RoleDetailGrantList.svelte';
   import RoleDetailHeader from './role-detail/RoleDetailHeader.svelte';

@@ -64,7 +64,7 @@ presentation/
   marketplace.queries.ts                    the catalog read
   marketplace-filter.state.svelte.ts        search box state + `matchesFilter`
   ui/Marketplace.page.svelte, MarketplaceTopBar.svelte,
-  ui/MarketItemList.svelte, MarketItemCard.svelte
+  ui/MarketItemList/                        the list + MarketItemCard
   ui/marketplace.messages.ts
 ```
 

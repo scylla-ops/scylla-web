@@ -7,7 +7,7 @@ import { render } from '@test/render.svelte.ts';
 // The fixture pins the generic row type.
 import DataTable from './DataTable.fixture.svelte';
 import { columns, data, type Datum } from './data-table.fixture.ts';
-import type { DataTableColumn, DataTableFeatures } from '../data-table.ts';
+import type { DataTableColumn, DataTableFeatures } from './data-table.ts';
 
 const gridTemplateOf = (row: HTMLElement) => row.style.gridTemplateColumns;
 

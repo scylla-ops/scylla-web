@@ -5,8 +5,13 @@
   import { scopeLabelOf } from '@base/features/roles';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import { MemberRoleOrigin, type MemberRole } from '../../../../domain/structs/scope-member.struct.ts';
-  import { membershipMessages } from '../../membership.messages.ts';
+  import {
+    MemberRoleOrigin,
+    type MemberRole,
+  } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  import {
+    membershipMessages,
+  } from '@base/features/membership/presentation/ui/membership.messages.ts';
 
   interface Props {
     roles: MemberRole[];

@@ -2,15 +2,15 @@
   import { Badge, Button, Skeleton } from '@scylla/ui/shadcn';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { createAccountPage } from '../../../account-page.state.svelte.ts';
-  import SessionList from '../../components/SessionList.svelte';
-  import SettingsSection from '../../components/SettingsSection.svelte';
-  import UserAccessList from '../../components/UserAccessList/UserAccessList.svelte';
-  import UserIdentityCard from '../../components/UserIdentityCard.svelte';
-  import UserProfileForm from '../../components/UserProfileForm/UserProfileForm.svelte';
-  import ChangePasswordForm from '../ChangePasswordForm.svelte';
+  import { createAccountPage } from '@base/features/user/presentation/account-page.state.svelte.ts';
+  import SessionList from '@base/features/user/presentation/ui/components/SessionList.svelte';
+  import SettingsSection from '@base/features/user/presentation/ui/components/SettingsSection.svelte';
+  import UserAccessList from '@base/features/user/presentation/ui/components/UserAccessList/UserAccessList.svelte';
+  import UserIdentityCard from '@base/features/user/presentation/ui/components/UserIdentityCard.svelte';
+  import UserProfileForm from '@base/features/user/presentation/ui/components/UserProfileForm/UserProfileForm.svelte';
+  import ChangePasswordForm from './ChangePasswordForm.svelte';
   import DeleteAccountDialog from '../DeleteAccountDialog/DeleteAccountDialog.svelte';
-  import { userMessages } from '../../user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
 
   const page = createAccountPage();
 </script>

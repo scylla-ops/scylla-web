@@ -1,10 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import { render, withRegistry, withQueryClient, withWidgetInjections } from '@test/render.svelte.ts';
+import {
+  render,
+  withRegistry,
+  withQueryClient,
+  withWidgetInjections,
+} from '@test/render.svelte.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
-import { loginPoints } from '../../login.points.ts';
+import { loginPoints } from '@base/features/login/presentation/login.points.ts';
 import LoginPage from './Login.page.svelte';
 
 /**

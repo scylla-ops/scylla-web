@@ -6,7 +6,9 @@ import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { OrganizationRepository } from '../../../domain/repository/organization.repository.ts';
+import type {
+  OrganizationRepository,
+} from '@base/features/organization/domain/repository/organization.repository.ts';
 import OrganizationList from './OrganizationList.svelte';
 import OrganizationListFixture from './OrganizationList.fixture.svelte';
 

@@ -70,8 +70,7 @@ presentation/
   stores/permissions.store.ts        the store (single writer: features/roles)
   ui/Can.svelte                      conditional render (`children`, optional `fallback` snippet)
   ui/RequirePermission.svelte        route/section gate — the `guard` of the access policy (`ShellModule.access`)
-  ui/PermissionDenied.svelte         the denial state
-  ui/permission-denied.messages.ts
+  ui/PermissionDenied/               the denial state + its messages
 locales/                             this capability has its own catalog
 ```
 

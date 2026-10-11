@@ -3,7 +3,9 @@ import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { OrganizationRepository } from '../../../domain/repository/organization.repository.ts';
+import type {
+  OrganizationRepository,
+} from '@base/features/organization/domain/repository/organization.repository.ts';
 import EditOrganizationDialog from './EditOrganizationDialog.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn() } }));

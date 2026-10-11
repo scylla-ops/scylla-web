@@ -6,7 +6,9 @@ import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { AgentsRepository } from '../../domain/repository/agents.repository.ts';
+import type {
+  AgentsRepository,
+} from '@base/features/agents/domain/repository/agents.repository.ts';
 import {
   AGENTS_QUERY_KEY,
   AGENT_QUERY_KEY,

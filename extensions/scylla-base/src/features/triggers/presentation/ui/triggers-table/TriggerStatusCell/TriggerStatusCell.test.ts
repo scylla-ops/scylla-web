@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { render } from '@test/render.svelte.ts';
-import { TriggerKind } from '../../../../domain/structs/trigger-source.struct.ts';
-import type { TriggerEntity } from '../../../../domain/entities/trigger.entity.ts';
+import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import TriggerStatusCell from './TriggerStatusCell.svelte';
 
 const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({

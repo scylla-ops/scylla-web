@@ -2,8 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Permission, PermissionScope, permissionsStore, RoleKind } from '@platform/authz';
 import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { PermissionRepository } from '../../domain/repository/permission.repository.ts';
-import type { RoleEntity } from '../../domain/entities/role.entity.ts';
+import type {
+  PermissionRepository,
+} from '@base/features/roles/domain/repository/permission.repository.ts';
+import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import { createRoleForm } from '../role-form.state.svelte.ts';
 
 const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({

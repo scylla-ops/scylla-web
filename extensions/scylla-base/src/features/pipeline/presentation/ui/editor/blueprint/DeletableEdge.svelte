@@ -8,8 +8,8 @@
     type EdgeProps,
   } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
-  import { EDGE_COLOR } from '../../../utils/blueprint-converter.ts';
-  import { pipelineMessages } from '../../../pipeline.messages.ts';
+  import { EDGE_COLOR } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   const SELECTED_COLOR = 'oklch(70% 0.3 30)';
 

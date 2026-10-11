@@ -10,9 +10,15 @@
   import { toRune } from '@scylla/ui/stores';
   import { toast } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import { buildOrganizationMembers } from '../../../domain/structs/scope-member.struct.ts';
-  import { createAssignableRoles } from '../../assignable-roles.state.svelte.ts';
-  import { createScopeMembership } from '../../scope-membership.state.svelte.ts';
+  import {
+    buildOrganizationMembers,
+  } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  import {
+    createAssignableRoles,
+  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+  import {
+    createScopeMembership,
+  } from '@base/features/membership/presentation/scope-membership.state.svelte.ts';
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';
   import { membershipMessages } from '../membership.messages.ts';

@@ -16,10 +16,13 @@
   import { toRune } from '@scylla/ui/stores';
   import { slugifyOrgName } from '@shared/utils/slug.ts';
   import { t } from '@scylla/ui/i18n';
-  import { organizationMutations, organizationQueries } from '../../organization.queries.ts';
+  import {
+    organizationMutations,
+    organizationQueries,
+  } from '@base/features/organization/presentation/organization.queries.ts';
   import { organizationMessages } from '../organization.messages.ts';
   import EditOrganizationDialog from '../EditOrganizationDialog/EditOrganizationDialog.svelte';
-  import OrganizationRow from '../OrganizationRow.svelte';
+  import OrganizationRow from './OrganizationRow.svelte';
 
   type RowProps = {
     class?: string;

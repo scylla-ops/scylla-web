@@ -1,10 +1,17 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLButtonAttributes } from 'svelte/elements';
-  import { Button, Tooltip, TooltipContent, TooltipTrigger, type ButtonSize, type ButtonVariant } from '../../shadcn/index.ts';
+  import {
+    Button,
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+    type ButtonSize,
+    type ButtonVariant,
+  } from '../../shadcn/index.ts';
   import { cn } from '../../utils/index.ts';
   import { t } from '../../i18n/i18n-svelte.svelte.ts';
-  import { gatedButtonMessages } from '../gated-button.messages.ts';
+  import { gatedButtonMessages } from './gated-button.messages.ts';
 
   type Props = HTMLButtonAttributes & {
     /** False disables the button and shows `deniedReason` on hover. */

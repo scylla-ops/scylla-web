@@ -7,8 +7,8 @@
   import {
     groupUserAccess,
     type UserAccess,
-  } from '../../../../domain/structs/user-access.struct.ts';
-  import { userMessages } from '../../user.messages.ts';
+  } from '@base/features/user/domain/structs/user-access.struct.ts';
+  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
 
   interface Props {
     access: UserAccess[] | undefined;

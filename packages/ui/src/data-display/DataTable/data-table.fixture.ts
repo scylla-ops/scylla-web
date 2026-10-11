@@ -1,4 +1,4 @@
-import type { DataTableColumn } from '../data-table.ts';
+import type { DataTableColumn } from './data-table.ts';
 
 export interface Datum extends Record<string, unknown> {
   id: string;

@@ -21,9 +21,9 @@
   import { formatDate, getRelativeTime } from '@shared/utils/date-utils.ts';
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
   import { t } from '@scylla/ui/i18n';
-  import type { AgentEntity } from '../../../../domain/entities/agent.entity.ts';
+  import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
   import AgentIdLink from '../AgentIdLink/AgentIdLink.svelte';
-  import { agentsMessages } from '../../agents.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/ui/agents.messages.ts';
 
   interface Props {
     agent: AgentEntity;

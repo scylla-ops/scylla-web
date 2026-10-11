@@ -5,7 +5,7 @@
   import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../shadcn/index.ts';
   import { cn } from '../../utils/index.ts';
   import { t } from '../../i18n/i18n-svelte.svelte.ts';
-  import { dataTableMessages } from '../data-table.messages.ts';
+  import { dataTableMessages } from './data-table.messages.ts';
   import {
     DATA_TABLE_FEATURES,
     alignClass,
@@ -16,7 +16,7 @@
     type ColumnAlign,
     type DataTableColumn,
     type DataTableFeatures,
-  } from '../data-table.ts';
+  } from './data-table.ts';
 
   type TableRowOf = Row<DataTableFeatures, TData>;
 

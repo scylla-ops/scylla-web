@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import ScyllaDialog from '../ScyllaDialog/ScyllaDialog.svelte';
-  import SecretRevealChecklist from '../SecretRevealChecklist.svelte';
+  import SecretRevealChecklist from './SecretRevealChecklist.svelte';
 
   interface Props {
     open: boolean;

@@ -3,7 +3,7 @@
   import ScyllaDialog from '../../feedback/ScyllaDialog/ScyllaDialog.svelte';
   import { t } from '../../i18n/i18n-svelte.svelte.ts';
   import ScyllaForm from '../ScyllaForm/ScyllaForm.svelte';
-  import { formDialogMessages } from '../form-dialog.messages.ts';
+  import { formDialogMessages } from './form-dialog.messages.ts';
   import type { FormItem, FormValues } from '../scylla-form.struct.ts';
 
   interface Props {

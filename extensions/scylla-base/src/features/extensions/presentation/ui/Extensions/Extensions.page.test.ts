@@ -2,7 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { InstalledExtension } from '../../../domain/structs/installed-extension.struct.ts';
+import type {
+  InstalledExtension,
+} from '@base/features/extensions/domain/structs/installed-extension.struct.ts';
 import ExtensionsPage from './Extensions.page.svelte';
 
 const extension = (overrides: Partial<InstalledExtension> = {}): InstalledExtension => ({

@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import { flushSync } from 'svelte';
-import type { ExecPipelineStep, PipelineStep } from '../../domain/structs/pipeline.struct.ts';
+import type {
+  ExecPipelineStep,
+  PipelineStep,
+} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
 import { createBlueprintState } from '../blueprint.state.svelte.ts';
 import { START_NODE_ID, flowToSteps } from '../utils/blueprint-converter.ts';
 

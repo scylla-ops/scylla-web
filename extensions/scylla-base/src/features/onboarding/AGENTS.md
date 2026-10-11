@@ -58,10 +58,10 @@ presentation/
   tour-placement.calculator.ts       card placement, dim path, connector path
   tour-tracking.actions.ts           trackTourStep (rAF + click listener), holdPointer
   onboarding-tour.state.svelte.ts    ViewModel: status, current step, skip, mutation events
-  ui/OnboardingTour/                 root (loaded by the shell) + its test
-  ui/TourSpot.svelte                 one spot step: tracking, spotlight, card(s)
-  ui/TourSpotlight.svelte, TourCard.svelte
-  ui/WelcomeDialog.svelte, SkipTourDialog.svelte, FinishTourDialog.svelte
+  ui/OnboardingTour/                 root (loaded by the shell) + its test, and its parts:
+    TourSpot.svelte                  one spot step: tracking, spotlight, card(s)
+    TourSpotlight.svelte, TourCard.svelte
+    WelcomeDialog.svelte, SkipTourDialog.svelte, FinishTourDialog.svelte
 ```
 
 ## How a step moves on

@@ -9,8 +9,8 @@
     formatTime,
   } from '@shared/utils/date-utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
-  import type { JobNodeExecution } from '../../../../domain/structs/job.struct.ts';
-  import { jobsMessages } from '../../jobs.messages.ts';
+  import type { JobNodeExecution } from '@base/features/jobs/domain/structs/job.struct.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/ui/jobs.messages.ts';
   import { groupByStatus, nodeIdOf, shouldCollapse } from '../job-timeline.calculator.ts';
 
   interface Props {

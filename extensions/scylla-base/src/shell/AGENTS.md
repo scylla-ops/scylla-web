@@ -38,8 +38,8 @@ presentation/
     shell.state.svelte.ts               organizations query, permission sync, first organization
     whats-new.svelte.ts                 seen flags (reactive), markNavSeen
     ui/OrganizationGate/                loading screen / first organization / the pages
-    ui/FirstOrganization.svelte         welcome screen when the user has no organization
-    ui/context-selector/                OrganizationSelector (the header of the organization section)
+      FirstOrganization.svelte          welcome screen when the user has no organization
+    ui/context-selector/                OrganizationSelector (+ CurrentContextDisplay): the header of the organization section
     ui/NavUser/                         who is signed in (userQueries.me), Account, Sign out (sidebar footer)
     ui/SessionLine/                     "Signed in as … · Account · Sign out", one centered line, outside the sidebar
     ui/NewBadge.svelte                  "New" pill of a sidebar link (navBadge)
