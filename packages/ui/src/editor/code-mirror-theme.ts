@@ -1,13 +1,17 @@
 import { EditorView } from '@codemirror/view';
 import { oneDarkHighlightStyle } from '@codemirror/theme-one-dark';
 import type { Extension } from '@codemirror/state';
-import { defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
+import { defaultHighlightStyle, HighlightStyle, syntaxHighlighting } from '@codemirror/language';
+import { tags } from '@lezer/highlight';
 
 export interface CodeMirrorThemeOptions {
   isDark: boolean;
   /** Turns the accent (border, focus bar) destructive. */
   hasError?: boolean;
 }
+
+// `defaultHighlightStyle` colours only property definitions (`#00c`): object keys would stay plain.
+const lightPropertyStyle = HighlightStyle.define([{ tag: tags.propertyName, color: '#00c' }]);
 
 /** The editor theme, from the app's CSS variables, so it follows light/dark. */
 export const buildCodeMirrorTheme = ({
@@ -63,6 +67,7 @@ export const buildCodeMirrorTheme = ({
         color: 'var(--popover-foreground)',
         border: '1px solid var(--border)',
       },
+      '.cm-diagnostic-error': { borderLeftColor: 'var(--destructive)' },
       '.cm-tooltip-autocomplete ul li[aria-selected]': {
         backgroundColor: 'var(--accent)',
         color: 'var(--accent-foreground)',
@@ -76,5 +81,7 @@ export const buildCodeMirrorTheme = ({
     { dark: isDark },
   );
 
-  return [theme, syntaxHighlighting(isDark ? oneDarkHighlightStyle : defaultHighlightStyle)];
+  return isDark
+    ? [theme, syntaxHighlighting(oneDarkHighlightStyle)]
+    : [theme, syntaxHighlighting(defaultHighlightStyle), syntaxHighlighting(lightPropertyStyle)];
 };
