@@ -1,5 +1,5 @@
 <script lang="ts" generics="TId extends string">
-  import { Button, DialogFooter } from '../../shadcn/index.ts';
+  import { Button, DialogFooter } from '../../primitives/index.ts';
   import ScyllaDialog from '../../feedback/ScyllaDialog/ScyllaDialog.svelte';
   import { t } from '../../i18n/i18n-svelte.svelte.ts';
   import ScyllaForm from '../ScyllaForm/ScyllaForm.svelte';

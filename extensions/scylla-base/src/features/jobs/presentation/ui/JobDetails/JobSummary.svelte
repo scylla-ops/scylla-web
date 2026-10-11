@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Badge } from '@scylla/ui/shadcn';
+  import { Badge } from '@scylla/ui/primitives';
   import { CopyableText } from '@scylla/ui';
   import { createNow } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';

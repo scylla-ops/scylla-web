@@ -4,7 +4,7 @@
   import PencilIcon from '@lucide/svelte/icons/pencil';
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
   import { RoleKind } from '@platform/authz';
-  import { Badge } from '@scylla/ui/shadcn';
+  import { Badge } from '@scylla/ui/primitives';
   import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';

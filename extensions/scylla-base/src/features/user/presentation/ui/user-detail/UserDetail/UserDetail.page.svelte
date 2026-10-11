@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Permission, RequirePermission } from '@platform/authz';
   import { Redirect } from '@scylla/core-sdk';
-  import { Skeleton } from '@scylla/ui/shadcn';
+  import { Skeleton } from '@scylla/ui/primitives';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { createUserDetail } from '@base/features/user/presentation/user-detail.state.svelte.ts';

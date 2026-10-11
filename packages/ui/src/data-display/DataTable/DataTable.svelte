@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import { createTable, FlexRender } from '@tanstack/svelte-table';
   import type { Row, RowData } from '@tanstack/table-core';
-  import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../shadcn/index.ts';
+  import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
   import { t } from '../../i18n/i18n-svelte.svelte.ts';
   import { dataTableMessages } from './data-table.messages.ts';

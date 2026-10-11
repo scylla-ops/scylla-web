@@ -3,7 +3,7 @@
   import MonitorIcon from '@lucide/svelte/icons/monitor';
   import SmartphoneIcon from '@lucide/svelte/icons/smartphone';
   import TerminalIcon from '@lucide/svelte/icons/terminal';
-  import { Badge, Button } from '@scylla/ui/shadcn';
+  import { Badge, Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type {
     UserSessionEntity,

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Badge, Button, Skeleton } from '@scylla/ui/shadcn';
+  import { Badge, Button, Skeleton } from '@scylla/ui/primitives';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { createAccountPage } from '@base/features/user/presentation/account-page.state.svelte.ts';

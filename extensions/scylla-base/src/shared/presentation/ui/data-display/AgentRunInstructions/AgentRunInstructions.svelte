@@ -1,7 +1,7 @@
 <script lang="ts">
   import ContainerIcon from '@lucide/svelte/icons/container';
   import TerminalIcon from '@lucide/svelte/icons/terminal';
-  import { CodeSnippet, Tabs, TabsContent, TabsList, TabsTrigger } from '@scylla/ui/shadcn';
+  import { CodeSnippet, Tabs, TabsContent, TabsList, TabsTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { agentRunInstructionsMessages as messages } from './agent-run-instructions.messages.ts';
 

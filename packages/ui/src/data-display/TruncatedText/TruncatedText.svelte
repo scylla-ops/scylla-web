@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { Tooltip, TooltipContent, TooltipTrigger } from '../../shadcn/index.ts';
+  import { Tooltip, TooltipContent, TooltipTrigger } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
 
   interface Props {

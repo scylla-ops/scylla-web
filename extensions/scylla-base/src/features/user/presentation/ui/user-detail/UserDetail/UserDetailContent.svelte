@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { ConfirmOperationAlertDialog } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';

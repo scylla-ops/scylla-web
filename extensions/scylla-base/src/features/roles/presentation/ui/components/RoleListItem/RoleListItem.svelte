@@ -3,7 +3,7 @@
   import LockIcon from '@lucide/svelte/icons/lock';
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
   import { RoleKind } from '@platform/authz';
-  import { Badge, Checkbox } from '@scylla/ui/shadcn';
+  import { Badge, Checkbox } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';

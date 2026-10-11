@@ -12,7 +12,7 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { UserSummary } from '@base/features/user';
   import { userName } from '@shared/presentation/ui';

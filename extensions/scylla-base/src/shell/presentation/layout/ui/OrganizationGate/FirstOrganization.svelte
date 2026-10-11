@@ -3,7 +3,7 @@
   import scyllaLogo from '@scylla/ui/assets/logo_scylla.svg';
   import scyllaLogoDark from '@scylla/ui/assets/logo_scylla_dark.svg';
   import { authorizationReady, can, Permission } from '@platform/authz';
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/shadcn';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/primitives';
   import { ScyllaForm, type FormValues } from '@scylla/ui';
   import { activeLocale, t } from '@scylla/ui/i18n';
   import { createOrganizationItems } from '@base/features/organization';

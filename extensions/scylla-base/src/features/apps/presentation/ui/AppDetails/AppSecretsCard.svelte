@@ -3,7 +3,7 @@
   import PlusIcon from '@lucide/svelte/icons/plus';
   import TrashIcon from '@lucide/svelte/icons/trash';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { Badge, Button, Card, CardContent, Skeleton, Switch } from '@scylla/ui/shadcn';
+  import { Badge, Button, Card, CardContent, Skeleton, Switch } from '@scylla/ui/primitives';
   import {
     ConfirmOperationAlertDialog,
     FormDialog,

@@ -14,7 +14,7 @@
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import { loadAddOrganizationDialog, loadOrganizationList } from '@base/features/organization';

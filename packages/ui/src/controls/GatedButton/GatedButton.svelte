@@ -8,7 +8,7 @@
     TooltipTrigger,
     type ButtonSize,
     type ButtonVariant,
-  } from '../../shadcn/index.ts';
+  } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
   import { t } from '../../i18n/i18n-svelte.svelte.ts';
   import { gatedButtonMessages } from './gated-button.messages.ts';

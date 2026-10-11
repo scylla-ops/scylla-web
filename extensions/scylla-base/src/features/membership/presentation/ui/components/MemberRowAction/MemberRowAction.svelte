@@ -1,6 +1,6 @@
 <script lang="ts">
   import TrashIcon from '@lucide/svelte/icons/trash';
-  import { Badge } from '@scylla/ui/shadcn';
+  import { Badge } from '@scylla/ui/primitives';
   import { IconButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {

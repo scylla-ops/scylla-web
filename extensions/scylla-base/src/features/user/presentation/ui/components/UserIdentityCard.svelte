@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { Badge, Card, CardContent, Separator } from '@scylla/ui/shadcn';
+  import { Badge, Card, CardContent, Separator } from '@scylla/ui/primitives';
   import { UserAvatar, userName } from '@shared/presentation/ui';
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
 

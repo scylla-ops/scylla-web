@@ -2,7 +2,7 @@
   import Building2Icon from '@lucide/svelte/icons/building-2';
   import GlobeIcon from '@lucide/svelte/icons/globe';
   import { organizationUrl } from '@platform/context';
-  import { Badge, Skeleton } from '@scylla/ui/shadcn';
+  import { Badge, Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import {
     groupUserAccess,

@@ -82,7 +82,7 @@ packages/ui                the design system — imports no other package
 | [apps/web](apps/web/README.md) | The build: `startCore` with the extensions of this build, the app-level conformance tests |
 | [@scylla/core](packages/core/README.md) | Extension loader, route compilation and router (no router library), the shell frame |
 | [@scylla/core-sdk](sdks/core-sdk/README.md) | `@Extension`, `ScyllaModule`, the navigation, DI and query API the core installs |
-| [@scylla/ui](packages/ui/README.md) | shadcn primitives, generic composites, rune helpers, stores, i18n runtime, theme |
+| [@scylla/ui](packages/ui/README.md) | primitives (adapted from shadcn/ui), generic composites, rune helpers, stores, i18n runtime, theme |
 | [@scylla/base-sdk](sdks/scylla-base-sdk/README.md) | What other extensions may use of scylla-base |
 | [scylla-base](extensions/scylla-base/README.md) | The Scylla product — the modules below |
 

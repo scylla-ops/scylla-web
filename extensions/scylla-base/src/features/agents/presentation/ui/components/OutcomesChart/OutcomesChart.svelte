@@ -1,6 +1,6 @@
 <script lang="ts">
   import { i18n } from '@lingui/core';
-  import { Card, CardContent } from '@scylla/ui/shadcn';
+  import { Card, CardContent } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import type { DailyOutcome } from '@base/features/agents/domain/structs/agent.struct.ts';

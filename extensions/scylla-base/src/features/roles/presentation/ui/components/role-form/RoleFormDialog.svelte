@@ -1,6 +1,6 @@
 <script lang="ts">
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
-  import { DialogDescription, DialogHeader, DialogTitle } from '@scylla/ui/shadcn';
+  import { DialogDescription, DialogHeader, DialogTitle } from '@scylla/ui/primitives';
   import { ScyllaDialog } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';

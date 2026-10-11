@@ -5,7 +5,7 @@
   import GlobeIcon from '@lucide/svelte/icons/globe';
   import XIcon from '@lucide/svelte/icons/x';
   import { PermissionScope, PrincipalKind } from '@platform/authz';
-  import { Badge, Skeleton } from '@scylla/ui/shadcn';
+  import { Badge, Skeleton } from '@scylla/ui/primitives';
   import { IconButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { UserIdentity } from '@shared/presentation/ui';

@@ -13,7 +13,7 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { GatedButton, ScyllaDialog } from '@scylla/ui';
   import { toast } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';

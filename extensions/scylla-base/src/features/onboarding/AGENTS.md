@@ -93,7 +93,7 @@ Anchors are attributes on the real elements, never CSS classes:
 - `data-part="…"` in `@scylla/ui` (generic parts): `feature-header-new`, `code-snippet-copy`,
   `secret-reveal-secret` (+ `data-state`), `secret-reveal-next-step`, `secret-reveal-confirm`.
 - `data-nav-url` on the core's sidebar links, `data-item-id` on `StatusBar` segments, and the
-  shadcn `data-slot` of the sidebar, the inset and the dialogs.
+  `data-slot` of the primitives: the sidebar, the inset and the dialogs.
 
 Removing or renaming one of these breaks a step without a type error. `tour-steps.test.ts` pins
 the anchors that carry logic.

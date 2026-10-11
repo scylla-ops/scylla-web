@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { JobEntity } from '@base/features/jobs';
-  import { Skeleton } from '@scylla/ui/shadcn';
+  import { Skeleton } from '@scylla/ui/primitives';
   import { StatusBar, type StatusBarItem } from '@shared/presentation/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';

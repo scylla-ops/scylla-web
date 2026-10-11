@@ -11,7 +11,7 @@
     SidebarMenuButton,
     SidebarMenuItem,
     SIDEBAR_FADE,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { activeLocale, setAppLocale, t, type SupportedLocale } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { NAV_ROW_INSET_CLASS } from '../AppSidebar/nav-classes.ts';

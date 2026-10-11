@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, DialogFooter } from '@scylla/ui/shadcn';
+  import { Button, DialogFooter } from '@scylla/ui/primitives';
   import { ScyllaDialog } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {

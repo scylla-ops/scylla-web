@@ -15,7 +15,7 @@
     SidebarMenuButton,
     SidebarMenuItem,
     SIDEBAR_FADE,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { signOut } from '@base/features/login';

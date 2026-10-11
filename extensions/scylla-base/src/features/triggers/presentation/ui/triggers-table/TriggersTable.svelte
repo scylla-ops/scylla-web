@@ -5,7 +5,7 @@
   import WebhookIcon from '@lucide/svelte/icons/webhook';
   import { scyllaNavigate } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
-  import { Switch } from '@scylla/ui/shadcn';
+  import { Switch } from '@scylla/ui/primitives';
   import {
     ConfirmOperationAlertDialog,
     CopyableText,

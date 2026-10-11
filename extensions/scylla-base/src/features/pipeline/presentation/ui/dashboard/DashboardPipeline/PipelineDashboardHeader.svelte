@@ -4,7 +4,7 @@
   import { Permission, can } from '@platform/authz';
   import { scyllaNavigate } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { FeatureHeader } from '@scylla/ui';
   import { createFeatureSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';

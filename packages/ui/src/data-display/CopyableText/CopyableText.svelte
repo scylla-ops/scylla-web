@@ -1,7 +1,7 @@
 <script lang="ts">
   import CheckIcon from '@lucide/svelte/icons/check';
   import CopyIcon from '@lucide/svelte/icons/copy';
-  import { Tooltip, TooltipContent, TooltipTrigger } from '../../shadcn/index.ts';
+  import { Tooltip, TooltipContent, TooltipTrigger } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
   import { t } from '../../i18n/i18n-svelte.svelte.ts';
   // Not the group barrel: it would import this file back.
