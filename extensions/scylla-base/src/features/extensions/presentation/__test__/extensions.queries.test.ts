@@ -11,7 +11,7 @@ import { EXTENSIONS_QUERY_KEY, extensionQueries } from '../extensions.queries.ts
 const extension: InstalledExtension = {
   id: 'scylla-base',
   name: 'Scylla',
-  version: '0.4.0',
+  version: '0.5.0',
   dependencies: [],
   moduleCount: 15,
   pageCount: 20,

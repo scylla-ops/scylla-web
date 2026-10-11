@@ -295,7 +295,7 @@ The extension itself stays short:
 @Extension({
   id: 'scylla-base',
   name: 'Scylla',
-  version: '0.4.0',
+  version: '0.5.0',
   modules: [ShellModule, ...modules],
   catalogs: import.meta.glob<CatalogModule>('./**/locales/*/messages.ts'),
 })
