@@ -4,7 +4,7 @@ This document describes the structure of the Scylla frontend and the reasons for
 frontend is a Svelte 5 + TypeScript single-page application. A **core** loads **extensions**.
 Each extension is built on **Clean Architecture**, with **TanStack Query** for async data.
 
-`CLAUDE.md` is the contract, and the `AGENTS.md` of each package and module make it concrete.
+The root `AGENTS.md` is the contract, and the `AGENTS.md` of each package and module make it concrete.
 If this document and one of them do not agree, they are correct: update this document.
 
 ---

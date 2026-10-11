@@ -84,7 +84,7 @@ presentation  →  domain  ←  infrastructure
 
 The layers of the extension also go in one direction: `shell → features → platform → shared`.
 dependency-cruiser checks these rules in CI, and `pnpm depcruise:cycles` makes sure that there
-are no cycles between modules. [`CLAUDE.md`](../../CLAUDE.md) has the full rules and the
+are no cycles between modules. The root [`AGENTS.md`](../../AGENTS.md) has the full rules and the
 checklist to add a feature.
 
 ## Public API

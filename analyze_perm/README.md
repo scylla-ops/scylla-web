@@ -42,7 +42,7 @@ inutilisable pour tout utilisateur qui n'est pas system-admin** :
 | [03-semantique-autorisation.md](03-semantique-autorisation.md) | `canAccess` : faux positifs / faux négatifs, fraîcheur, scopes |
 | [04-couverture-ui.md](04-couverture-ui.md) | Où le gating est appliqué, où il manque, feature par feature |
 | [05-fonctionnalites-manquantes.md](05-fonctionnalites-manquantes.md) | Code mort, RPC non câblés, écrans absents |
-| [06-conventions-architecture.md](06-conventions-architecture.md) | Écarts vs. CLAUDE.md (nommage, structs/entities, query keys) |
+| [06-conventions-architecture.md](06-conventions-architecture.md) | Écarts vs. AGENTS.md (nommage, structs/entities, query keys) |
 | [07-i18n.md](07-i18n.md) | Le module entier échappe à Lingui |
 | [08-qualite-bugs-mineurs.md](08-qualite-bugs-mineurs.md) | Bugs UI, états de chargement, robustesse |
 | [09-plan-action.md](09-plan-action.md) | Ordre de traitement recommandé |
@@ -65,4 +65,4 @@ inutilisable pour tout utilisateur qui n'est pas system-admin** :
 | 10 | `RoleFormDialog` : `updateRole.reset()` après une création → dialog gelé | 🟡 Moyen | [08](08-qualite-bugs-mineurs.md) |
 | 11 | Révocation d'un grant non gardée par permission, sans confirmation | 🟡 Moyen | [08](08-qualite-bugs-mineurs.md) |
 | 12 | `Roles.page` ignore `isLoading` / `isError` | 🟡 Moyen | [08](08-qualite-bugs-mineurs.md) |
-| 13 | Écarts de conventions vs. CLAUDE.md (structs/entities, query keys) | 🔵 Mineur | [06](06-conventions-architecture.md) |
+| 13 | Écarts de conventions vs. AGENTS.md (structs/entities, query keys) | 🔵 Mineur | [06](06-conventions-architecture.md) |

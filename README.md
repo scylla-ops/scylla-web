@@ -54,7 +54,8 @@ The app will be available at `http://localhost:5173`. All commands run from the 
 
 - [Architecture](docs/architecture.md) — Module structure, data flow, shared patterns, tech stack
 - [Naming Conventions](docs/naming-conventions.md) — File, folder, TypeScript & Svelte naming rules
-- [CLAUDE.md](CLAUDE.md) — The working contract for this codebase (rules, checklists, conventions)
+- [CONTRIBUTING.md](CONTRIBUTING.md) — How to contribute: workflow, commits, pull requests, checks
+- [AGENTS.md](AGENTS.md) — The working contract for this codebase (rules, checklists, conventions), for humans and AI coding agents
 
 ## Module documentation
 
