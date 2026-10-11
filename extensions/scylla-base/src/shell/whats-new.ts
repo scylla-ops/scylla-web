@@ -24,7 +24,7 @@ export interface Release {
 
 /** The release announcement: the first-launch dialog and the sidebar badges come from it. */
 export const WHATS_NEW = {
-  version: '0.4.0',
+  version: '0.5.0',
   highlights: [
     {
       id: 'dashboard',
