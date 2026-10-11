@@ -36,8 +36,9 @@ each `ExtensionManifest` to an `InstalledExtension` (module count, page count).
 The core cannot own the page: it has no mount, and it does not know the `Permission` type.
 So the data comes from the core and the page stays here.
 
-When install / enable / disable arrive, the backend holds that state. Add a data source and a
-mapper in `infrastructure/`, and a mutation in `extensions.queries.ts`. The core reads the
+When install / enable / disable arrive, the backend holds that state. The repository then has
+two sources (the core and the backend): add a data source per source and a mapper in
+`infrastructure/`, and a mutation in `extensions.queries.ts`. The core reads the
 enabled list before `loadExtensions`; this page only writes it.
 
 ## Layout
@@ -48,7 +49,7 @@ index.ts                                 public API
 domain/
   structs/installed-extension.struct.ts  InstalledExtension
   repository/extension.repository.ts     ExtensionRepository
-infrastructure/repository/default-extension.repository.ts   reads the core, counts the pages
+infrastructure/default-extension.repository.ts   reads the core, counts the pages
 presentation/
   extensions.queries.ts                  the list read (`staleTime: Infinity`)
   ui/Extensions/Extensions.page.svelte   the grid of cards (+ its test)

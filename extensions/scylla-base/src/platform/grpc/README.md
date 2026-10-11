@@ -13,22 +13,23 @@ Two exports, imported as `@platform/grpc`: the `ScyllaGrpcTransport` class, and 
 ## One transport, created once
 
 `grpcTransport` is instantiated at import time in `index.ts`, and it is the only instance in the
-application. Every feature's data source receives it in that feature's `<feature>.module.ts`:
+application. Each feature builds its generated client on it in that feature's
+`<feature>.module.ts`:
 
 ```typescript
-const dataSource = new GrpcSecretRemoteDataSource(grpcTransport);
-const secretRepository = new DefaultSecretRepository(dataSource);
+const secretRepository = new DefaultSecretRepository(
+  new SecretServiceClient(grpcTransport.getTransport()),
+);
 ```
 
-That is the *only* place it is referenced. Hooks, components, repositories and domain files
-never see it. Data sources declare it as a type, so importing this module for the type alone
-costs nothing at runtime.
+That is the *only* place it is referenced. Queries, components, repositories and domain files
+never see it: a repository receives the client, and depends on its generated interface only.
 
 ## Why it is in `platform/` and not in the shell
 
 The composition root would be the textbook home for a shared client. Putting it there was in
 fact the original design, and it caused a real problem: a feature that wanted to build its own
-data source had to import the shell, while the shell imported every feature to register it. Every
+gRPC client had to import the shell, while the shell imported every feature to register it. Every
 feature and the shell were mutually dependent, and the module graph had a cycle through the
 middle of it.
 
@@ -52,7 +53,7 @@ whether a protected route renders. Changing the key means changing all three tog
 
 ## Errors stop here, results travel
 
-The transport does not catch or translate failures. Instead, every data source wraps its call in
+The transport does not catch or translate failures. Instead, every repository wraps its call in
 `ScyllaResult.tryAsync`, so an RPC failure becomes a `ScyllaError` carrying the extracted gRPC
 status code, and travels up as a value rather than an exception. Query and mutation hooks call
 `.unwrap()` inside `queryFn` / `mutationFn`, which is where TanStack Query takes over. See

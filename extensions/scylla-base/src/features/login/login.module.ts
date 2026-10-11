@@ -1,18 +1,18 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
-import type { LoginRemoteDataSource } from '@base/features/login/infrastructure/repository/data-sources/login-remote.data-source.ts';
-import { GrpcLoginRemoteDataSource } from '@base/features/login/infrastructure/data/remote/grpc-login-remote.data-source.ts';
-import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
-import { DefaultLoginRepository } from '@base/features/login/infrastructure/repository/default-login.repository.ts';
 import { grpcTransport } from '@platform/grpc';
+import { AuthServiceClient } from '@base/generated/scylla/auth/v1/auth.client.ts';
+import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
+import { DefaultLoginRepository } from './infrastructure/default-login.repository.ts';
 import { loginPoints } from './presentation/login.points.ts';
 
-const loginRemoteDataSource: LoginRemoteDataSource = new GrpcLoginRemoteDataSource(grpcTransport);
-const loginRepository: LoginRepository = new DefaultLoginRepository(loginRemoteDataSource);
+const loginRepository: LoginRepository = new DefaultLoginRepository(
+  new AuthServiceClient(grpcTransport.getTransport()),
+);
 
 export const LoginModule = {
   id: 'login',
   domain: {
-    loginRepository: loginRepository,
+    loginRepository,
   },
   routes: {
     public: [

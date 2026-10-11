@@ -57,11 +57,9 @@ domain/
   structs/project.struct.ts          ProjectList
   repository/project.repository.ts
 infrastructure/
-  data/grpc-project-remote.data-source.ts                 impl
-  repository/data-sources/project-remote.data-source.ts   interface
-  repository/mappers/grpc-project.mapper.ts
-  repository/mappers/grpc-project-member.mapper.ts
-  repository/default-project.repository.ts
+  default-project.repository.ts      ProjectServiceClient → ProjectEntity; toCreateProjectError
+  grpc-project.mapper.ts
+  grpc-project-member.mapper.ts
 presentation/
   project.queries.ts                 every read and write, plus the key factories
   ui/Project.page.svelte             picks the organization, or says there is none
@@ -104,7 +102,7 @@ project routes (the `project` mount) are declared by the modules that own them
   `data-project-id` on each card). Keep them on the same
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
 - **A project cap comes from an extension.** `CreateProject` can fail with `RESOURCE_EXHAUSTED`
-  and an English server text that names the organization by id. The data source maps it to
+  and an English server text that names the organization by id. The repository maps it to
   its own sentence (`toCreateProjectError`) and keeps the code; the global toast shows it.
 - The description is optional in both dialogs (`optional: true`).
 

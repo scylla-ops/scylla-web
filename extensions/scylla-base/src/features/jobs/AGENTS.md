@@ -71,10 +71,8 @@ domain/
                                      isActiveStatus, isFinishedStatus (pure)
   repository/jobs.repository.ts
 infrastructure/
-  repository/data-sources/jobs-remote.data-source.ts    interface
-  data/remote/grpc-jobs-remote.data-source.ts           impl
-  repository/mappers/grpc-job.mapper.ts
-  repository/default-jobs.repository.ts
+  default-jobs.repository.ts       JobServiceClient → JobEntity; tailLogs maps the stream
+  grpc-job.mapper.ts
 presentation/
   jobs.query-keys.ts                 key factories — import these, never inline a key
   jobs.queries.ts                    every read and write, as query/mutation options

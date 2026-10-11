@@ -75,9 +75,8 @@ domain/
   structs/agents-summary.struct.ts     sumOutcomes, successRateOf, summarizeAgents (pure)
   repository/agents.repository.ts      the contract
 infrastructure/
-  data/agents-remote.data-source.ts    interface + Impl, in one file
-  data/grpc-agent.mapper.ts            GrpcAgentMapper (agents, stats, jobs)
-  repository/default-agents.repository.ts
+  default-agents.repository.ts         AgentAdmin, Job, Pipeline clients → domain types
+  grpc-agent.mapper.ts                 GrpcAgentMapper (agents, stats, jobs)
 presentation/
   agents.queries.ts                    the reads and writes of this module
   agents-page.state.svelte.ts          ViewModel of the list: rows, filter, search, summary
@@ -226,8 +225,6 @@ icon `HardDriveIcon`, same permission.
   checks the plural forms.
 - A bits-ui menu is in a floating layer that jsdom hides: get its items with `findFloating`
   from `test/render.svelte.ts`, not with `getByRole`.
-- The data source **puts the interface and its impl in one file** (`AgentsRemoteDataSource` is
-  a type alias of `AgentsRepository`). Keep it so.
 - `NoAgentsBanner` goes out as a loader, because a barrel must not export a component.
 - **`data-tour` attributes are anchors of the onboarding tour**: `agents` on the list page,
   `agent-details` on the detail page, `agent-status` with `data-online` on the header, and

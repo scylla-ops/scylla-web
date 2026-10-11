@@ -55,7 +55,7 @@ msgstr "Cancel"
 msgid "Command"
 msgstr "Command"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:28
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:27
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:41
 msgid "Create"
 msgstr "Create"
@@ -112,7 +112,7 @@ msgstr "e.g., cargo build && cargo test"
 msgid "e.g., my-pipeline"
 msgstr "e.g., my-pipeline"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:37
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:36
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:24
 msgid "Edit"
 msgstr "Edit"
@@ -149,7 +149,7 @@ msgstr "History"
 msgid "Invalid JSON"
 msgstr "Invalid JSON"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:48
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:47
 msgid "Jobs"
 msgstr "Jobs"
 
@@ -197,8 +197,8 @@ msgstr "Node ID"
 msgid "Open the last run"
 msgstr "Open the last run"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:35
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:46
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:34
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:45
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:9
 msgid "Pipeline"
 msgstr "Pipeline"

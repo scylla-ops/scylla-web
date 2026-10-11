@@ -255,7 +255,7 @@ msgstr "Optional values injected into the run as environment variables."
 msgid "Pick at least one day"
 msgstr "Pick at least one day"
 
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:25
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:23
 msgid "Pipeline"
 msgstr "Pipeline"
 
@@ -312,7 +312,7 @@ msgid "Trigger actions"
 msgstr "Trigger actions"
 
 #: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:14
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:27
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:25
 msgid "Triggers"
 msgstr "Triggers"
 

@@ -34,8 +34,8 @@ belonging to it) — plus the `CreatedApp` / `CreatedAppSecret` structs. Those t
 from the entities on purpose: they are the *creation response*, and they hold the plaintext
 secret the backend returns exactly once.
 
-**Infrastructure** implements `AppsRepository` over gRPC-Web, with the data source interface and
-its implementation colocated in a single file and `GrpcAppMapper` doing proto → domain.
+**Infrastructure** implements `AppsRepository` over gRPC-Web: `DefaultAppsRepository` calls the
+generated client and `GrpcAppMapper` does proto → domain.
 
 **Presentation** is Svelte, as of Phase 3 of the migration. `apps.queries.ts` declares every
 read and write as `queryOptions` / `mutationOptions` — plain data with no framework in it, which

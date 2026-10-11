@@ -67,10 +67,8 @@ show them a second time.
 
 ## Structure
 
-Standard three layers, with the data source implementation using the `.impl.ts` file suffix
-(`user-remote.data-source.impl.ts`) rather than the `data/remote/grpc-*` naming used by newer
-modules. Both spellings exist in the codebase; match whichever file you are editing rather than
-converting one to the other.
+Standard three layers. `DefaultUserRepository` calls the generated `UserServiceClient` and maps
+with `GrpcUserMapper`; there is no data source between them.
 
 The two pages each have a view model (`account-page.state.svelte.ts`,
 `user-detail.state.svelte.ts`) and share their sections: the profile form, the list of

@@ -77,7 +77,7 @@ msgstr "If an account uses this email, the server wrote a reset link in its log.
 msgid "If an account uses this email, we sent it a link to reset the password. The link expires in one hour."
 msgstr "If an account uses this email, we sent it a link to reset the password. The link expires in one hour."
 
-#: extensions/scylla-base/src/features/login/infrastructure/data/remote/grpc-login-remote.data-source.ts:16
+#: extensions/scylla-base/src/features/login/infrastructure/default-login.repository.ts:16
 msgid "Incorrect credentials"
 msgstr "Incorrect credentials"
 

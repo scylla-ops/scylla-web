@@ -37,6 +37,8 @@ the summary. A component shows a state; it does not calculate one.
 **Infrastructure** implements `AgentsRepository` over `AgentAdminService`. It also asks
 `JobService` for the recent jobs of an agent and `PipelineService` for their names. These calls
 are here because `jobs` and `pipeline` import this module: an import back would make a cycle.
+`DefaultAgentsRepository` calls the three generated clients directly, and `GrpcAgentMapper`
+converts the proto messages. There is one transport, so there is no data source between them.
 
 **An agent is an app.** The secrets, the grants and the enable flag are `AppService` calls, and
 the `apps` module owns them. This module uses them through the `apps` barrel, so each resource

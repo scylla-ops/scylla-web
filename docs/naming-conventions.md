@@ -15,10 +15,10 @@ If this document and one of them do not agree, they are correct: update this doc
 Files and folders use **kebab-case**. Svelte component files use **PascalCase** (§1.3).
 
 ```
-user-remote.data-source.ts
+default-user.repository.ts
 pagination.struct.ts
 features/pipeline/
-infrastructure/repository/data-sources/
+presentation/jobs-table/
 ```
 
 ### 1.2 File suffixes
@@ -47,8 +47,7 @@ The suffix of a file tells its role.
 | Role | Pattern | Example |
 |------|---------|---------|
 | **Repository implementation** | `default-*.repository.ts` → `Default{Entity}Repository` | `default-user.repository.ts` / `DefaultUserRepository` |
-| **Data source interface** | `*.data-source.ts` | `user-remote.data-source.ts` / `UserRemoteDataSource` |
-| **Data source implementation** | `*.data-source.impl.ts` | `user-remote.data-source.impl.ts` / `UserRemoteDataSourceImpl` |
+| **Data source** (only with two sources or more) | `*.data-source.ts` → `{Source}{Entity}DataSource` | `local-job.data-source.ts` / `LocalJobDataSource` |
 | **Mapper** | `grpc-*.mapper.ts` → `Grpc{Entity}Mapper` | `grpc-user.mapper.ts` / `GrpcUserMapper` |
 
 #### Presentation
@@ -113,7 +112,7 @@ covers: `presentation/grant-creator.state.svelte.ts` →
 **PascalCase**, no `I` prefix.
 
 - Use **`interface`** for object shapes that are extended or implemented: component props,
-  repository contracts, data source contracts.
+  repository contracts.
 - Use **`type`** for what an interface cannot express: unions, literal unions, mapped and utility
   types, function types, aliases.
 - Type-only imports use `import type`.
@@ -159,7 +158,6 @@ two names clash.
 | Extension | `{Name}Extension` | `ScyllaBaseExtension` |
 | Use case | `{Verb}{Entity}UseCase` | `UpdateRoleUseCase` |
 | Repository implementation | `Default{Entity}Repository` | `DefaultUserRepository` |
-| Data source implementation | `{Entity}RemoteDataSourceImpl` | `UserRemoteDataSourceImpl` |
 | Mapper | `Grpc{Entity}Mapper` | `GrpcUserMapper` |
 | ViewModel class | `{View}State` | `LoginState` |
 | Error / result | `ScyllaError`, `ScyllaResult<T>` | — |
@@ -346,7 +344,7 @@ the constant already carries the name. Like a
 |---------|--------|---------|
 | File (not a component) | kebab-case | `default-user.repository.ts` |
 | File (Svelte component) | PascalCase | `FeatureHeader.svelte` |
-| Folder | kebab-case | `data-sources/` |
+| Folder | kebab-case | `jobs-table/` |
 | Interface / type | PascalCase | `UserRepository` |
 | Component props | `Props`, inside the component | `interface Props` |
 | Domain entity | PascalCase + `Entity` (`*.entity.ts`) | `SecretEntity` |

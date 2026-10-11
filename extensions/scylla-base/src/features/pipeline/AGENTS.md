@@ -53,10 +53,8 @@ domain/
   structs/pipeline.struct.ts                 PipelineMetadata, PipelineStep, PipelineIdentity
   repository/pipeline.repository.ts
 infrastructure/
-  repository/data-sources/pipeline-remote.data-source.ts    interface
-  data/remote/grpc-pipeline-remote.data-source.ts           impl
-  repository/mappers/grpc-pipeline.mapper.ts
-  repository/default-pipeline.repository.ts
+  default-pipeline.repository.ts       PipelineServiceClient → PipelineEntity
+  grpc-pipeline.mapper.ts
 presentation/
   blueprint.state.svelte.ts                  ViewModel (nodes/edges state) — Runes-based
   pipeline-dashboard.state.svelte.ts        Dashboard ViewModel

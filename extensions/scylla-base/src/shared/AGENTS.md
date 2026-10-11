@@ -41,7 +41,7 @@ result.fold({ onSuccess: data => …, onError: err => … });
 const data = result.unwrap();          // throws — do this inside queryFn/mutationFn
 ```
 
-- Data sources wrap with `tryAsync`; `ScyllaError` extracts the gRPC code.
+- Repositories wrap their gRPC calls with `tryAsync`; `ScyllaError` extracts the gRPC code.
 - `getCode()` returns `ScyllaErrorCode`, not `string`: the gRPC-Web status names (derived from
   `GrpcStatusCode`, imported as a type only — nothing lands in the bundle) plus the codes we
   mint. A code compared anywhere must exist in that union, so add yours there first.

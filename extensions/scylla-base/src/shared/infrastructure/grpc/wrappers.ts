@@ -1,5 +1,5 @@
 // The protos wrap ids (`{ value }`) and times (`Timestamp`); the domain uses plain
-// strings. Use these helpers only in mappers and data sources.
+// strings. Use these helpers only in mappers and repositories.
 
 export function idValue(wrapper?: { value: string }): string {
   return wrapper?.value ?? '';

@@ -142,8 +142,7 @@ A declaration that cannot work fails at start-up and in the tests, not on the pa
 Each module declares itself in `<feature>.module.ts`:
 
 ```typescript
-const dataSource = new UserRemoteDataSourceImpl(grpcTransport);
-const repository = new DefaultUserRepository(dataSource);
+const repository = new DefaultUserRepository(new UserServiceClient(grpcTransport.getTransport()));
 
 export const UserModule = {
   id: 'user',
@@ -286,7 +285,7 @@ Generic UI without a business meaning goes to `@scylla/ui`, not to `shared/`. Th
 Other modules import a module only through its `index.ts`. The rest of the module is private.
 A barrel must not export:
 
-- the `<feature>.module.ts`. It creates the data sources at import time, so a re-export pulls the
+- the `<feature>.module.ts`. It creates the repository at import time, so a re-export pulls the
   gRPC client into the chunk of each consumer. Only `shell/modules.ts` imports it, by path.
 - a Svelte component. Rollup cannot remove a component that a barrel re-exports. Export a loader
   (`export const loadJobsPage = () => import('./…/Jobs.page.svelte')`).
@@ -323,12 +322,10 @@ feature/
 │   ├── entities/        → {Name}Entity — identity-bearing objects (*.entity.ts)
 │   ├── structs/         → value objects, enums, DTOs, wrappers (*.struct.ts)
 │   └── use-cases/       → optional — only when a use case orchestrates (§5.1)
-├── infrastructure/
-│   ├── repository/
-│   │   ├── default-feature.repository.ts   → repository implementation
-│   │   ├── data-sources/                    → data source interface
-│   │   └── mappers/                         → proto ↔ domain (Grpc{Entity}Mapper)
-│   └── data/remote/                         → gRPC calls (*.data-source.impl.ts)
+├── infrastructure/      → flat
+│   ├── default-feature.repository.ts   → repository implementation: gRPC call + mapping
+│   ├── grpc-feature.mapper.ts          → proto ↔ domain (Grpc{Entity}Mapper)
+│   └── __test__/
 ├── locales/             → i18n catalogs (en/, fr/)
 └── presentation/
     ├── <feature>.queries.ts        → query-key factories, queryOptions / mutationOptions
@@ -396,17 +393,23 @@ from the proto type with the same bare name (aliased in mappers, e.g. `User as P
 
 ### 5.2 Infrastructure layer
 
-- **Data sources**: an interface + an implementation (`*.impl.ts`) for each transport.
-- **Repository implementation** (`Default{Entity}Repository`): coordinates the data sources and
-  maps infrastructure types to domain types.
-- **Mappers** (`Grpc{Entity}Mapper`): proto ↔ domain.
+- **Repository implementation** (`Default{Entity}Repository`): calls the gRPC client and maps
+  the response to domain types. Its constructor takes the generated client interface
+  (`I{Service}ServiceClient`), which a test replaces with a fake.
+- **Mappers** (`Grpc{Entity}Mapper`): proto ↔ domain. Pure functions, tested alone.
+- **Data sources**: only when a feature has two sources or more (a cache, a local store, a
+  second transport). One data source per source, behind the same repository. With one source,
+  a data source interface would only repeat the repository contract.
 
 ```typescript
 export class DefaultUserRepository implements UserRepository {
-  constructor(private readonly _remoteDataSource: UserRemoteDataSource) {}
+  constructor(private readonly client: IUserServiceClient) {}
 
-  public async getAll(): Promise<ScyllaResult<PaginatedList<UserEntity>>> {
-    return (await this._remoteDataSource.getAll()).map(list => GrpcUserMapper.toDomainList(list));
+  public getAll(): Promise<ScyllaResult<PaginatedList<UserEntity>>> {
+    return ScyllaResult.tryAsync(async () => {
+      const response = await this.client.listUsers({}).response;
+      return GrpcUserMapper.toDomainList(response);
+    }, 'Failed to fetch users.');
   }
 }
 ```
@@ -462,8 +465,8 @@ Where the logic goes:
 
 ### 5.4 Dependency injection
 
-There is no IoC container. The `<feature>.module.ts` creates the data sources and the
-repository, and exposes them in `domain`. `loadExtensions` builds the registry (module id →
+There is no IoC container. The `<feature>.module.ts` creates the gRPC client and the
+repository, and exposes the repository in `domain`. `loadExtensions` builds the registry (module id →
 `domain`) from all the modules of all the extensions, and `startCore` installs it with
 `setDependencyRegistry`. The `*.queries.ts` of the feature reads it:
 
@@ -481,7 +484,7 @@ The repository is read at each call, so a test can replace the registry (`withRe
 
 ```
 Component / ViewModel → createQuery(() => xQueries.y()) → queryFn
-    → Repository (interface) → Default{Entity}Repository → RemoteDataSourceImpl → gRPC client
+    → Repository (interface) → Default{Entity}Repository → gRPC client
     → ScyllaResult<T> ← mapper ← proto response
     → .unwrap() → TanStack Query cache
 ```
@@ -490,7 +493,7 @@ Component / ViewModel → createQuery(() => xQueries.y()) → queryFn
 
 ```
 Component → createMutation(() => xMutations.y()) → mutationFn → Repository
-    → RemoteDataSourceImpl → gRPC client
+    → Default{Entity}Repository → gRPC client
     → onSuccess: getQueryClient().invalidateQueries({ queryKey: X_QUERY_KEY(...) }) → refetch
 ```
 

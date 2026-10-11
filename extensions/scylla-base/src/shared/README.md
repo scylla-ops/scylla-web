@@ -13,7 +13,7 @@ package, *"could this live in another product, unchanged?"*, but is still used b
 
 ## `ScyllaResult<T>` — errors as values
 
-Async operations in Scylla do not throw. They return `ScyllaResult<T>`: data sources wrap their
+Async operations in Scylla do not throw. They return `ScyllaResult<T>`: repositories wrap their
 calls in `tryAsync`, so a gRPC failure becomes a `ScyllaError` with the status code and a
 user-facing message. At the presentation boundary, query and mutation options call `.unwrap()`
 inside `queryFn` / `mutationFn`, so that TanStack Query owns the error state. The `onQueryError`

@@ -41,7 +41,7 @@ Never add: `login.module.ts`, a page. There is no `use-login-domain.ts`: a view 
 | `resetPassword(token, newPassword)` | `ScyllaResult<void>` |
 
 **`void` on `login` is not an oversight.** The session token never travels back through the
-domain: the gRPC data source calls `openSession` as a side effect of a successful call. Do not
+domain: `DefaultLoginRepository` calls `openSession` as a side effect of a successful call. Do not
 "improve" this by returning the token: read the rule below before changing anything here.
 
 `identifier` is the name of the value at every layer, from the form field to the request: an
@@ -56,11 +56,9 @@ domain/
   repository/login.repository.ts
   structs/password-reset.struct.ts   PasswordResetDelivery
 infrastructure/
-  repository/data-sources/login-remote.data-source.ts   interface
-  data/remote/grpc-login-remote.data-source.ts          impl — calls openSession
-  repository/default-login.repository.ts
-  repository/mappers/grpc-password-reset.mapper.ts      proto enum → PasswordResetDelivery
-  session/session.ts                                    openSession, closeSession (the writers of token + userId), hasSession
+  default-login.repository.ts           AuthServiceClient; calls openSession
+  grpc-password-reset.mapper.ts         proto enum → PasswordResetDelivery
+  session.ts                            openSession, closeSession (the writers of token + userId), hasSession
 presentation/
   login.points.ts                    the extension points — see below
   login.state.svelte.ts              sign-in: the mutation + the redirect
@@ -154,7 +152,7 @@ sign-in, the login page goes to `returnTo` with `replace`, else to `/`.
 ## Rules that bite here
 
 - **Session storage is `localStorage`, keys `token` and `userId`, written only by
-  `infrastructure/session/session.ts`.** Three places must agree: `openSession` writes them,
+  `infrastructure/session.ts`.** Three places must agree: `openSession` writes them,
   `platform/grpc`'s transport reads `token` for the `Authorization: Bearer` header, and
   `shell/.../Auth.guard.svelte` reads it (through `hasSession`) to decide whether to redirect. Changing the key or the
   mechanism means changing all three in the same commit. **A sign-up flow (in another extension)
@@ -172,7 +170,7 @@ sign-in, the login page goes to `returnTo` with `replace`, else to `/`.
   redirect is the shell's job, not this module's.
 - Never log, toast or store a password. Errors surface as a generic failure: do not leak
   whether the account exists.
-- **The data source re-codes `UNAUTHENTICATED` to `INVALID_CREDENTIALS`** (via `mapError`). On
+- **The repository re-codes `UNAUTHENTICATED` to `INVALID_CREDENTIALS`** (via `mapError`). On
   every other call that code means "session expired", and the shell's `reportQueryError`
   handler reacts to it by clearing the session and hard-loading `/login`. From the login page
   that is a silent reload that eats the error. Remove the translation and a wrong password

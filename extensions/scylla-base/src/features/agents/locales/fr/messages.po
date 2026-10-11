@@ -178,7 +178,7 @@ msgstr "agent {version}"
 msgid "Agent actions"
 msgstr "Actions de l'agent"
 
-#: extensions/scylla-base/src/features/agents/agents.module.ts:29
+#: extensions/scylla-base/src/features/agents/agents.module.ts:34
 msgid "Agent details"
 msgstr "Détails de l'agent"
 
@@ -210,8 +210,8 @@ msgstr "Agent en train d'exécuter un job"
 msgid "Agent version"
 msgstr "Version de l'agent"
 
-#: extensions/scylla-base/src/features/agents/agents.module.ts:22
-#: extensions/scylla-base/src/features/agents/agents.module.ts:24
+#: extensions/scylla-base/src/features/agents/agents.module.ts:27
+#: extensions/scylla-base/src/features/agents/agents.module.ts:29
 #: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:5
 msgid "Agents"
 msgstr "Agents"

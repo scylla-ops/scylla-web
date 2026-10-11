@@ -255,7 +255,7 @@ msgstr "Valeurs facultatives injectées dans l'exécution en tant que variables 
 msgid "Pick at least one day"
 msgstr "Choisissez au moins un jour"
 
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:25
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:23
 msgid "Pipeline"
 msgstr "Pipeline"
 
@@ -312,7 +312,7 @@ msgid "Trigger actions"
 msgstr "Actions du déclencheur"
 
 #: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:14
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:27
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:25
 msgid "Triggers"
 msgstr "Déclencheurs"
 

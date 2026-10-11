@@ -46,9 +46,8 @@ runs into counts, `isActiveStatus` and `isFinishedStatus` classify a status. Bec
 plain functions in the domain, the same rules apply on the jobs table, in the pipeline dashboard
 and on the org overview, and there is no second opinion about what "running" means.
 
-**Infrastructure** uses the fuller layout — a `data-sources/` interface, a `data/remote/` gRPC
-implementation, mappers under `repository/mappers/` — because streaming makes the transport
-non-trivial. `tailLogs` is the odd one out in the whole codebase: it returns
+**Infrastructure** is the repository and its mapper, like every module with one source.
+`tailLogs` is the odd one out in the whole codebase: it returns
 `ScyllaResult<JobLogStream>` **synchronously**, since it opens a server stream rather than
 awaiting a response. The presentation layer subscribes to it in `tail-job-logs.svelte.ts` and
 closes it on teardown — a stream is a system outside the framework, and that is what actions and

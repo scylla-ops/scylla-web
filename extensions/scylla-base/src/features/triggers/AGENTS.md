@@ -69,10 +69,8 @@ domain/
   structs/trigger-source.struct.ts   the union above, TriggerInput
   repository/triggers.repository.ts
 infrastructure/
-  repository/data-sources/triggers-remote.data-source.ts   interface
-  data/remote/grpc-triggers-remote.data-source.ts          impl
-  repository/mappers/grpc-trigger.mapper.ts
-  repository/default-triggers.repository.ts
+  default-triggers.repository.ts      TriggerServiceClient → TriggerEntity
+  grpc-trigger.mapper.ts
 presentation/
   triggers.queries.ts                every read and write, as query/mutation options
   ui/Triggers.page.svelte

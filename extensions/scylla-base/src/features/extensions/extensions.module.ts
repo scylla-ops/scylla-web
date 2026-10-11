@@ -1,7 +1,7 @@
 import { installedExtensions, type ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
 import PuzzleIcon from '@lucide/svelte/icons/puzzle';
-import { DefaultExtensionRepository } from '@base/features/extensions/infrastructure/repository/default-extension.repository.ts';
+import { DefaultExtensionRepository } from '@base/features/extensions/infrastructure/default-extension.repository.ts';
 import { Permission } from '@platform/authz';
 
 const extensionRepository = new DefaultExtensionRepository(installedExtensions);
