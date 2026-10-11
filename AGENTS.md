@@ -1,4 +1,6 @@
-# Scylla Frontend — CLAUDE.md
+# Scylla Frontend — AGENTS.md
+
+> The root agent guide. Humans: start with [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Svelte 5 + TypeScript frontend for Scylla: a **core** that loads **extensions**, each built on **Clean Architecture** with **TanStack Query** for async data. This file is the contract for working in this codebase — follow it. Full references: `docs/architecture.md` and `docs/naming-conventions.md`.
 
@@ -30,9 +32,9 @@ extensions/scylla-base/src/shared/AGENTS.md              shared code with a busi
 - Consuming another module's query or type → read *its* `AGENTS.md` to find what the barrel
   actually exports, instead of guessing or deep-importing.
 
-This file stays authoritative for anything that spans the whole codebase — layering, naming,
+This file (the root `AGENTS.md`) stays authoritative for anything that spans the whole codebase — layering, naming,
 Svelte rules, the commands below. A module's `AGENTS.md` never contradicts it; it makes it
-concrete. **If you find a contradiction, this file wins and the `AGENTS.md` is stale — fix it.**
+concrete. **If you find a contradiction, this file wins and the module's `AGENTS.md` is stale — fix it.**
 
 Each module also has a **`README.md`**, written for humans: what the module is for, and the
 reasoning behind how it is built. Read it when you need the *why*; `AGENTS.md` gives you the
@@ -65,6 +67,7 @@ Lingui) covers every package. `vite.config.ts` builds `apps/web` into `dist/`.
 | `pnpm depcruise` | Architecture rules: layer direction **and** public-API surface — **must be clean** |
 | `pnpm depcruise:cycles` | Module dependency cycles — **must be zero** |
 | `pnpm i18n:collisions` | Same msgid translated differently in two catalogs — **must be zero** |
+| `pnpm check:authors <range>` | No AI agent as author, committer or co-author of a commit in the range — **must be clean** |
 
 > `depcruise:cycles` is **not** redundant with `depcruise`'s `no-circular`. That rule works on the
 > *file* graph; a cycle can exist between two folders with no file in a loop (`a/x.ts → b/index.ts`,
@@ -82,7 +85,8 @@ the alias when TypeScript 7.1 and these tools support the new API.
 
 Before considering work done: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm depcruise`,
 `pnpm depcruise:cycles` and `pnpm i18n:collisions` must all pass clean (zero warnings, zero
-failures, zero violations, zero cycles, zero collisions). CI runs all six.
+failures, zero violations, zero cycles, zero collisions). CI runs all six, and also checks that
+no commit of the branch names an AI agent as author or co-author (`pnpm check:authors`).
 
 **After moving any component between modules**, run `node scripts/restore-translations.mjs` —
 Lingui catalogs are per-module and keyed by source string, so `extract` silently drops the
@@ -645,10 +649,11 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
     used to be. Git keeps the history.
   - A reason that needs more room goes in the module's `AGENTS.md`, not inline.
   - Team-visible text (PR bodies, issues, `AGENTS.md`, comments) is written in ASD-STE100.
-- Commits and PRs show only the person who made them, so that the GitHub contributors list is
-  correct. Do not add a `Co-Authored-By: Claude` trailer to a commit, and do not add a
-  "Generated with Claude Code" line to a PR body. This rule overrides the default attribution
-  of the agent.
+- Commits and PRs show only the human who made them, so that the GitHub contributors list
+  shows the people who contribute. An AI agent never adds itself: no `Co-Authored-By` trailer
+  that names an agent, no "Generated with …" line in a PR body. This rule overrides the default
+  attribution of the agent. The CI enforces it (`scripts/check-commit-authors.mjs`). See
+  [CONTRIBUTING.md](CONTRIBUTING.md#ai-tools).
 - Lint rules worth knowing (see `eslint.config.js`): `no-floating-promises` and `no-misused-promises` are errors — never fire-and-forget a promise; unused bindings must be prefixed `_` to be tolerated. The `no-unsafe-*` rules are off only because of the generated proto layer — that is not a licence to spread `any`. `no-restricted-imports` forbids `@tanstack/svelte-query` (use `@scylla/core-sdk`).
 
 ### Stack
