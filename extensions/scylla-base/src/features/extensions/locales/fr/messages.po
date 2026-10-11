@@ -34,8 +34,8 @@ msgstr "Dépend de"
 msgid "Extension"
 msgstr "Extension"
 
-#: extensions/scylla-base/src/features/extensions/extensions.module.ts:15
 #: extensions/scylla-base/src/features/extensions/extensions.module.ts:17
+#: extensions/scylla-base/src/features/extensions/extensions.module.ts:19
 #: extensions/scylla-base/src/features/extensions/presentation/ui/extensions.messages.ts:6
 msgid "Extensions"
 msgstr "Extensions"

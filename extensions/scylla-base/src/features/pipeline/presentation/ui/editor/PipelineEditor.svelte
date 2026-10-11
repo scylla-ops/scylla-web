@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { StreamLanguage } from '@codemirror/language';
-  import { json } from '@codemirror/legacy-modes/mode/javascript';
+  import { json, jsonParseLinter } from '@codemirror/lang-json';
+  import { linter } from '@codemirror/lint';
   import { Card, Tabs, TabsContent } from '@scylla/ui/shadcn';
   import { renderCodeMirror } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
@@ -36,10 +36,16 @@
     initialScript: () => initialScript,
   });
 
+  const parseLinter = jsonParseLinter();
+
   const editor = createScriptEditor({
     value: () => doc.script,
     onChange: next => doc.setScript(next),
-    extensions: () => [StreamLanguage.define(json)],
+    // An empty editor is not an error: `parseScript` says so too.
+    extensions: () => [
+      json(),
+      linter(view => (view.state.doc.toString().trim() ? parseLinter(view) : [])),
+    ],
   });
 
   const handleSubmit = () => {
