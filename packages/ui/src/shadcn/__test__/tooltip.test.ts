@@ -44,6 +44,18 @@ describe('Tooltip', () => {
     );
   });
 
+  it('rotates a square inside the arrow wrapper, not the wrapper that bits-ui positions', async () => {
+    render(TooltipFixture);
+
+    await userEvent.hover(screen.getByRole('button', { name: 'Delete' }));
+
+    const tooltip = await findTooltip();
+    const square = tooltip.querySelector<HTMLElement>('.rotate-45');
+    expect(square).not.toBeNull();
+    expect((square as HTMLElement).style.transform).toBe('');
+    expect((square as HTMLElement).parentElement?.style.position).toBe('absolute');
+  });
+
   it('shows the content on keyboard focus, which is the accessible path', async () => {
     render(TooltipFixture);
 

@@ -38,7 +38,7 @@
           <SidebarMenuButton
             {...props}
             size="lg"
-            class="rounded-lg px-2 transition-colors duration-200 hover:bg-accent focus:outline-none focus:ring-0 focus-visible:ring-0 data-[state=open]:bg-accent"
+            class="rounded-lg px-0 transition-colors duration-200 hover:bg-accent focus:outline-none focus:ring-0 focus-visible:ring-0 data-[state=open]:bg-accent"
           >
             <CurrentContextDisplay
               name={organizationName || t(layoutMessages.selectOrganization)}

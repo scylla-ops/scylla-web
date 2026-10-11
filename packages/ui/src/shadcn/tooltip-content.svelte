@@ -30,15 +30,11 @@
     {...rest}
   >
     {@render children?.()}
-    <!--
-      The arrow is the wrapper element alone — a rotated, rounded square — which
-      is how the React original got its soft point too, and it inherits the
-      tooltip background rather than being a second shape to keep in sync.
-      `[&>svg]:hidden` drops bits-ui's default triangle, which would otherwise
-      draw on top of it.
-    -->
-    <TooltipPrimitive.Arrow
-      class="bg-foreground fill-foreground z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] [&>svg]:hidden"
-    />
+    <!-- bits-ui places the wrapper with an inline transform: the rotated square goes inside it, as in Radix. -->
+    <TooltipPrimitive.Arrow class="z-50">
+      <span
+        class="bg-foreground block size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]"
+      ></span>
+    </TooltipPrimitive.Arrow>
   </TooltipPrimitive.Content>
 </TooltipPrimitive.Portal>

@@ -6,6 +6,7 @@
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SIDEBAR_FADE,
   } from '@scylla/ui/shadcn';
   import { NAV_SECTION_CARD_CLASS, NAV_SECTION_DIVIDER_CLASS } from './nav-classes.ts';
   import type { NavItem, NavSection } from './structs/nav-section.struct.ts';
@@ -33,14 +34,14 @@
       <Header />
       <div class={NAV_SECTION_DIVIDER_CLASS}></div>
     {:else}
-      <SidebarGroupLabel class="group-data-[collapsible=icon]:hidden">
+      <SidebarGroupLabel class="group-data-[collapsible=icon]:-mt-9">
         {section.title}
       </SidebarGroupLabel>
     {/if}
     <SidebarMenu>
       {#each section.items as item (item.href)}
         <SidebarMenuItem
-          class="transition-all duration-200 hover:scale-105 group-data-[collapsible=icon]:hover:scale-100"
+          class="transition-transform duration-200 hover:scale-105 group-data-[collapsible=icon]:hover:scale-100"
         >
           <SidebarMenuButton
             tooltip={item.title}
@@ -51,7 +52,7 @@
             {#if item.icon}
               <item.icon />
             {/if}
-            <span>{item.title}</span>
+            <span class={SIDEBAR_FADE}>{item.title}</span>
             {#each badges as Badge, index (index)}
               <Badge url={item.url} />
             {/each}

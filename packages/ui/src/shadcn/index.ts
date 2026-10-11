@@ -129,6 +129,7 @@ export { default as SidebarMenuItem } from './sidebar-menu-item.svelte';
 export { default as SidebarProvider } from './sidebar-provider.svelte';
 export { default as SidebarRail } from './sidebar-rail.svelte';
 export { getSidebar, type SidebarState } from './sidebar-state.svelte.ts';
+export { SIDEBAR_FADE } from './sidebar-variants.ts';
 
 export { default as Pagination } from './pagination.svelte';
 export { default as PaginationContent } from './pagination-content.svelte';

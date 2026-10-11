@@ -14,9 +14,16 @@
     missing?: MissingUser;
     size?: 'sm' | 'default';
     class?: string;
+    textClass?: string;
   }
 
-  let { user, missing = 'deleted', size = 'default', class: className }: Props = $props();
+  let {
+    user,
+    missing = 'deleted',
+    size = 'default',
+    class: className,
+    textClass,
+  }: Props = $props();
 
   const name = $derived(userName(user, missing));
   const secondary = $derived(user ? userSecondaryLine(user) : undefined);
@@ -24,7 +31,7 @@
 
 <span class={cn('flex min-w-0 items-center gap-3', className)}>
   <UserAvatar {user} {size} />
-  <span class="flex min-w-0 flex-col gap-0.5 text-left">
+  <span class={cn('flex min-w-0 flex-col gap-0.5 text-left', textClass)}>
     <span
       class={cn(
         'truncate text-sm leading-tight',

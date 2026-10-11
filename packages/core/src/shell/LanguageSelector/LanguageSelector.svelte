@@ -10,8 +10,11 @@
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SIDEBAR_FADE,
   } from '@scylla/ui/shadcn';
   import { activeLocale, setAppLocale, t, type SupportedLocale } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
+  import { NAV_ROW_INSET_CLASS } from '../nav-classes.ts';
   import { shellMessages } from '../shell.messages.ts';
 
   const LOCALE_OPTIONS: { locale: SupportedLocale; label: string; short: string }[] = [
@@ -26,7 +29,7 @@
   );
 </script>
 
-<SidebarMenu>
+<SidebarMenu class={NAV_ROW_INSET_CLASS}>
   <SidebarMenuItem>
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -37,8 +40,8 @@
             class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
             <LanguagesIcon />
-            <span class="flex-1 truncate">{t(shellMessages.language)}</span>
-            <span class="text-xs text-muted-foreground">{current.short}</span>
+            <span class={cn('flex-1 truncate', SIDEBAR_FADE)}>{t(shellMessages.language)}</span>
+            <span class={cn('text-xs text-muted-foreground', SIDEBAR_FADE)}>{current.short}</span>
           </SidebarMenuButton>
         {/snippet}
       </DropdownMenuTrigger>
