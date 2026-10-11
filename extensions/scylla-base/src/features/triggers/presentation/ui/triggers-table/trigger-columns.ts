@@ -2,7 +2,7 @@ import type { Snippet } from 'svelte';
 import { renderSnippet } from '@tanstack/svelte-table';
 import type { DataTableColumn } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
-import type { TriggerEntity } from '../../../domain/entities/trigger.entity.ts';
+import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import { triggersMessages } from '../triggers.messages.ts';
 
 export interface TriggerCells {

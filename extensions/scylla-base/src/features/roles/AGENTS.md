@@ -133,7 +133,7 @@ presentation/
   ui/components/role-detail/         RoleDetailHeader, RoleDetailPermissions,
                                      RoleDetailGrantList, GrantCreator, TargetChecklist
   ui/components/role-form/           RoleFormDialog, RoleForm, RoleHolderField,
-                                     RoleDialogPermissions, CheckboxTree, CheckboxTreeNode,
+                                     RoleDialogPermissions, CheckboxTree/ (+ CheckboxTreeNode),
                                      checkbox-tree.ts
   utils/permission-mapping.ts, permission-tree.ts, role-label.ts
 ```

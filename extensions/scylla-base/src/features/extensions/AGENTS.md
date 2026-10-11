@@ -52,7 +52,7 @@ infrastructure/repository/default-extension.repository.ts   reads the core, coun
 presentation/
   extensions.queries.ts                  the list read (`staleTime: Infinity`)
   ui/Extensions/Extensions.page.svelte   the grid of cards (+ its test)
-  ui/ExtensionCard.svelte                one extension
+  ui/Extensions/ExtensionCard.svelte     one extension
   ui/extensions.messages.ts
 ```
 

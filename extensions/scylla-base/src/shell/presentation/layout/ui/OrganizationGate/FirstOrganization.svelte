@@ -5,7 +5,7 @@
   import { ScyllaForm, type FormValues } from '@scylla/ui';
   import { activeLocale, t } from '@scylla/ui/i18n';
   import { createOrganizationItems } from '@base/features/organization';
-  import { layoutMessages } from './layout.messages.ts';
+  import { layoutMessages } from '../layout.messages.ts';
   import { welcomeIn } from './welcome-transition.ts';
 
   interface Props {

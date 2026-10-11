@@ -17,7 +17,7 @@
     projectPoints,
     type ChartGeometry,
     type OutcomeSeries,
-  } from '../outcomes-chart.calculator.ts';
+  } from './outcomes-chart.calculator.ts';
   import { dashboardMessages } from '../dashboard.messages.ts';
 
   type Range = '7d' | '14d' | '30d';

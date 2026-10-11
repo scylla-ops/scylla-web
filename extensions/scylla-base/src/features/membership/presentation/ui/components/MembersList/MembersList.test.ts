@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { findFloating, render } from '@test/render.svelte.ts';
-import type { ScopeMember } from '../../../../domain/structs/scope-member.struct.ts';
+import type { ScopeMember } from '@base/features/membership/domain/structs/scope-member.struct.ts';
 import MembersList from './MembersList.svelte';
 
 const member = (overrides: Partial<ScopeMember> = {}): ScopeMember => ({

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { generatePageNumbers } from '../pagination.ts';
+import { generatePageNumbers } from './pagination.ts';
 
 describe('generatePageNumbers', () => {
   it('lists every page while there are seven or fewer', () => {

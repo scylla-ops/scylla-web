@@ -4,10 +4,14 @@
   import type {
     MemberRole,
     ScopeMember,
-  } from '../../../../domain/structs/scope-member.struct.ts';
-  import type { AssignableRole } from '../../../assignable-roles.state.svelte.ts';
+  } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  import type {
+    AssignableRole,
+  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
   import MemberCard from '../MemberCard/MemberCard.svelte';
-  import { membershipMessages } from '../../membership.messages.ts';
+  import {
+    membershipMessages,
+  } from '@base/features/membership/presentation/ui/membership.messages.ts';
 
   interface Props {
     members: ScopeMember[];

@@ -67,8 +67,7 @@ presentation/
   ui/user.messages.ts                every string the screens show
   ui/admin/UserAdmin.page.svelte, AddUserDialog.svelte
   ui/admin/user-table/UserTable.svelte, user-columns.ts
-  ui/settings/UserSettings/UserSettings.page.svelte, UserSettings.test.ts
-  ui/settings/UserInformation.svelte
+  ui/settings/UserSettings/UserSettings.page.svelte, UserSettings.test.ts, UserInformation.svelte
 ```
 
 ## Routes & nav

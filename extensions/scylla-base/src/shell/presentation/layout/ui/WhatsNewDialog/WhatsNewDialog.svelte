@@ -2,7 +2,10 @@
   import { Button, DialogFooter } from '@scylla/ui/shadcn';
   import { ScyllaDialog } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { dismissRelease, unseenRelease } from '../../whats-new.svelte.ts';
+  import {
+    dismissRelease,
+    unseenRelease,
+  } from '@base/shell/presentation/layout/whats-new.svelte.ts';
   import { layoutMessages } from '../layout.messages.ts';
 
   const release = $derived(unseenRelease());

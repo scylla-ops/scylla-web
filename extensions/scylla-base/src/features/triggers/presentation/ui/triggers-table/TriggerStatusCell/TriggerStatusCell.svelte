@@ -6,9 +6,9 @@
   import { Badge } from '@scylla/ui/shadcn';
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { t } from '@scylla/ui/i18n';
-  import type { TriggerEntity } from '../../../../domain/entities/trigger.entity.ts';
-  import { TriggerKind } from '../../../../domain/structs/trigger-source.struct.ts';
-  import { triggersMessages } from '../../triggers.messages.ts';
+  import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
+  import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/ui/triggers.messages.ts';
 
   interface Props {
     trigger: TriggerEntity;

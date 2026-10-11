@@ -60,8 +60,8 @@ presentation/
   secret.queries.ts                  the read and both writes, as options objects
   ui/Secret.page.svelte, CreateSecretDialog.svelte
   ui/secret.messages.ts              every string the screen shows
-  ui/components/                     SecretHeader, SecretList, SecretHealthOverview,
-                                     SecretPagination, secret-columns.ts
+  ui/components/                     SecretHeader, SecretList (+ secret-columns.ts),
+                                     SecretHealthOverview, SecretPagination
   ui/components/index.ts             local barrel — internal, not the module's public API
   utils/createSecretItems.ts         ⚠ camelCase filename
 ```

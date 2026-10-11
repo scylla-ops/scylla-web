@@ -1,16 +1,24 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
-  import { onboardingMessages } from '../onboarding.messages.ts';
-  import type { OnboardingTourState } from '../onboarding-tour.state.svelte.ts';
-  import { VIEWPORT_MARGIN, placeCard, spotlightRect } from '../tour-placement.calculator.ts';
-  import type { TourSpotStep } from '../tour-steps.ts';
+  import {
+    onboardingMessages,
+  } from '@base/features/onboarding/presentation/onboarding.messages.ts';
+  import type {
+    OnboardingTourState,
+  } from '@base/features/onboarding/presentation/onboarding-tour.state.svelte.ts';
+  import {
+    VIEWPORT_MARGIN,
+    placeCard,
+    spotlightRect,
+  } from '@base/features/onboarding/presentation/tour-placement.calculator.ts';
+  import type { TourSpotStep } from '@base/features/onboarding/presentation/tour-steps.ts';
   import {
     allowedAnchor,
     blockPage,
     portalToBody,
     trackTourStep,
     type TourLayout,
-  } from '../tour-tracking.actions.ts';
+  } from '@base/features/onboarding/presentation/tour-tracking.actions.ts';
   import TourCard from './TourCard.svelte';
   import TourSpotlight from './TourSpotlight.svelte';
 

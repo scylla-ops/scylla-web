@@ -2,8 +2,10 @@
   import { ScyllaDialog } from '@scylla/ui';
   import { Button, DialogFooter } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
-  import { onboardingMessages } from '../onboarding.messages.ts';
-  import { SCYLLA_DOCS_URL } from '../tour-steps.ts';
+  import {
+    onboardingMessages,
+  } from '@base/features/onboarding/presentation/onboarding.messages.ts';
+  import { SCYLLA_DOCS_URL } from '@base/features/onboarding/presentation/tour-steps.ts';
 
   interface Props {
     open: boolean;

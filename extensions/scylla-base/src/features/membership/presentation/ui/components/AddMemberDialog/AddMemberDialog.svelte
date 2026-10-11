@@ -1,8 +1,10 @@
 <script lang="ts">
   import { ScyllaDialog } from '@scylla/ui';
-  import type { AssignableRole } from '../../../assignable-roles.state.svelte.ts';
-  import AddMemberForm from '../AddMemberForm.svelte';
-  import type { MemberCandidate } from '../member-candidate.ts';
+  import type {
+    AssignableRole,
+  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+  import AddMemberForm from './AddMemberForm.svelte';
+  import type { MemberCandidate } from './member-candidate.ts';
 
   interface Props {
     open: boolean;

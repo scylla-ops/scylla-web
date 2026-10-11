@@ -6,7 +6,7 @@ import type { NavSectionDefinition, RoutePermission } from '@scylla/core-sdk';
 import { testPermission } from '../../routing/__test__/test-permission.fixture.ts';
 import type { NavEntry } from '../../routing/compilation/nav-entries.ts';
 import { fillPath } from '../../routing/compilation/route-path.ts';
-import { navSectionsFor, type NavSectionsInput } from '../nav-sections.ts';
+import { navSectionsFor, type NavSectionsInput } from './nav-sections.ts';
 
 const LIST_SECRETS = testPermission('LIST_SECRETS');
 const LIST_PIPELINES = testPermission('LIST_PIPELINES');

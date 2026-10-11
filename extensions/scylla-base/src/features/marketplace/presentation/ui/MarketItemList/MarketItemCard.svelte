@@ -12,7 +12,7 @@
   } from '@scylla/ui/shadcn';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import { marketplaceMessages } from './marketplace.messages.ts';
+  import { marketplaceMessages } from '../marketplace.messages.ts';
 
   interface Props {
     provider: string;

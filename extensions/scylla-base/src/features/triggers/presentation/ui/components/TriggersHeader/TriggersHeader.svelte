@@ -4,8 +4,8 @@
   import { CopyableText, FeatureHeader } from '@scylla/ui';
   import { createFeatureSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
-  import { triggerMutations } from '../../../triggers.queries.ts';
-  import { triggersMessages } from '../../triggers.messages.ts';
+  import { triggerMutations } from '@base/features/triggers/presentation/triggers.queries.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/ui/triggers.messages.ts';
 
   interface Props {
     count: number;

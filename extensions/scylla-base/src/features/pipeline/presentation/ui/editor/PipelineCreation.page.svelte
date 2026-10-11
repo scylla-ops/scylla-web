@@ -1,10 +1,12 @@
 <script lang="ts">
   import { createMutation } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
-  import { pipelineMutations } from '../../pipeline.queries.ts';
-  import { createDefaultScript } from '../../utils/create-default-script.ts';
+  import { pipelineMutations } from '@base/features/pipeline/presentation/pipeline.queries.ts';
+  import {
+    createDefaultScript,
+  } from '@base/features/pipeline/presentation/utils/create-default-script.ts';
   import PipelineEditor from './PipelineEditor.svelte';
-  import { pipelineMessages } from '../../pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
     projectId?: string;

@@ -9,9 +9,9 @@
     DialogFooter,
     DialogHeader,
     DialogTitle,
-  } from '../shadcn/index.ts';
-  import { cn } from '../utils/index.ts';
-  import { t } from '../i18n/i18n-svelte.svelte.ts';
+  } from '../../shadcn/index.ts';
+  import { cn } from '../../utils/index.ts';
+  import { t } from '../../i18n/i18n-svelte.svelte.ts';
   import { secretRevealMessages } from './secret-reveal.messages.ts';
 
   interface Props {

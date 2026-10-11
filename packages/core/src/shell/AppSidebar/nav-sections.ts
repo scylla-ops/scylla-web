@@ -1,7 +1,7 @@
 import type { MessageDescriptor } from '@lingui/core';
 import type { NavSectionDefinition, RoutePermission } from '@scylla/core-sdk';
-import type { NavEntry } from '../routing/compilation/nav-entries.ts';
-import type { NavSection } from './structs/nav-section.struct.ts';
+import type { NavEntry } from '../../routing/compilation/nav-entries.ts';
+import type { NavSection } from '../structs/nav-section.struct.ts';
 
 export interface NavSectionsInput {
   entries: readonly NavEntry[];

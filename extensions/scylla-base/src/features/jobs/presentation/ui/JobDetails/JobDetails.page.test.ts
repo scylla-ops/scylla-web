@@ -6,13 +6,13 @@ import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { JobEntity } from '../../../domain/entities/job.entity.ts';
-import type { JobsRepository } from '../../../domain/repository/jobs.repository.ts';
+import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
 import JobDetailsPage from './JobDetails.page.svelte';
 
 /** The viewer (CodeMirror, live stream) reduced to what this page decides: which panels, and how tall. */
 vi.mock('../jobs-log/JobLogDisplay/JobLogDisplay.svelte', async () => ({
-  default: (await import('../jobs-log/JobLogDisplay.stub.svelte')).default,
+  default: (await import('./JobLogDisplay.stub.svelte')).default,
 }));
 
 /** jsdom lays nothing out: an observer a test can report a height through. */

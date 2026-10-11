@@ -9,7 +9,7 @@ import InSidebar from '../__test__/InSidebar.fixture.svelte';
 import NavUser from './NavUser.svelte';
 
 const signOut = vi.fn();
-vi.mock('../../sign-out.ts', () => ({ signOut: () => signOut() }));
+vi.mock('@base/shell/presentation/layout/sign-out.ts', () => ({ signOut: () => signOut() }));
 
 let teardown: Array<() => void> = [];
 let navigator: ReturnType<typeof installTestNavigator>;

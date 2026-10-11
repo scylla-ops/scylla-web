@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { ScyllaLoadingScreen } from '@scylla/ui';
-  import { createShellState } from '../../shell.state.svelte.ts';
-  import FirstOrganization from '../FirstOrganization.svelte';
+  import { createShellState } from '@base/shell/presentation/layout/shell.state.svelte.ts';
+  import FirstOrganization from './FirstOrganization.svelte';
 
   let { children }: { children: Snippet } = $props();
 

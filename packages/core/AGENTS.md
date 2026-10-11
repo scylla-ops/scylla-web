@@ -40,12 +40,14 @@ src/
       compile-routes.ts                        compileRoutes, AppRouterConfig, mountPath
       nav-entries.ts                           navEntriesFor
     runtime/                                   location, matchRoute, route state, createAppRouter
-    view/                                      RouterView, RoutePage, RouteEntry
+    view/RouterView/                           RouterView, RoutePage, RouteEntry
   shell/
     ShellFrame/                                sidebar + top bar around the pages of a `shell` mount
-    AppSidebar/  NavMain  nav-sections.ts      the sidebar, built from the nav entries
-    TopBar  ShellBreadcrumbs  breadcrumbs.ts   the crumbs of the route trail
-    SidebarTrigger  LanguageSelector/  ThemeToggle
+    AppSidebar/                                the sidebar, built from the nav entries
+                                               (NavMain, nav-sections.ts, nav-classes.ts)
+    TopBar/                                    SidebarTrigger + the crumbs of the route trail
+                                               (ShellBreadcrumbs, breadcrumbs.ts)
+    LanguageSelector/  ThemeToggle
     shell-config.ts                            ShellConfig, set once by startCore
   locales/                                     the catalog of the shell (tests excluded)
 ```

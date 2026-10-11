@@ -2,7 +2,9 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { runMutationFn, runQueryFn } from '@test/queries.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { OnboardingRepository } from '../../domain/repository/onboarding.repository.ts';
+import type {
+  OnboardingRepository,
+} from '@base/features/onboarding/domain/repository/onboarding.repository.ts';
 import {
   ONBOARDING_QUERY_KEY,
   onboardingMutations,

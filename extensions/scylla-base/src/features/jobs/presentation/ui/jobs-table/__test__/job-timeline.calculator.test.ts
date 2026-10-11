@@ -1,7 +1,12 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { JobNodeExecution } from '../../../../domain/structs/job.struct.ts';
-import { COLLAPSE_THRESHOLD, groupByStatus, nodeIdOf, shouldCollapse } from '../job-timeline.calculator.ts';
+import type { JobNodeExecution } from '@base/features/jobs/domain/structs/job.struct.ts';
+import {
+  COLLAPSE_THRESHOLD,
+  groupByStatus,
+  nodeIdOf,
+  shouldCollapse,
+} from '../job-timeline.calculator.ts';
 
 const node = (id: string, state: string): JobNodeExecution => ({ id, state });
 

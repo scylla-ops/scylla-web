@@ -16,22 +16,25 @@
   } from '@scylla/ui/shadcn';
   import { createMutation } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
-  import type { CreatedTrigger, TriggerEntity } from '../../../domain/entities/trigger.entity.ts';
+  import type {
+    CreatedTrigger,
+    TriggerEntity,
+  } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import {
     TriggerKind,
     type TriggerDraftKind,
-  } from '../../../domain/structs/trigger-source.struct.ts';
-  import { triggerMutations } from '../../triggers.queries.ts';
+  } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+  import { triggerMutations } from '@base/features/triggers/presentation/triggers.queries.ts';
   import {
     buildTriggerDraft,
     convertCronToLocal,
     isCronExpressionValid,
     triggerToDraftInputs,
     type DraftInput,
-  } from '../../utils/trigger-form.utils.ts';
-  import CronScheduleBuilder from './CronScheduleBuilder/CronScheduleBuilder.svelte';
-  import TriggerInputsEditor from './TriggerInputsEditor/TriggerInputsEditor.svelte';
-  import { triggersMessages } from '../triggers.messages.ts';
+  } from '@base/features/triggers/presentation/utils/trigger-form.utils.ts';
+  import CronScheduleBuilder from '../CronScheduleBuilder/CronScheduleBuilder.svelte';
+  import TriggerInputsEditor from '../TriggerInputsEditor/TriggerInputsEditor.svelte';
+  import { triggersMessages } from '@base/features/triggers/presentation/ui/triggers.messages.ts';
 
   interface Props {
     pipelineId: string;

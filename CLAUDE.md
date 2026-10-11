@@ -418,6 +418,29 @@ subscription, a CodeMirror or `@xyflow` instance). For everything else there is 
 - `tsc` sees only the default export of a `.svelte` file. Anything a `.ts` file imports — a
   `cva` config, a type — lives in a `.ts` file beside the component.
 
+### Component folders
+
+A component gets a PascalCase folder named after it (`OnboardingTour/OnboardingTour.svelte`)
+as soon as it has more than its `.svelte` file:
+
+- a test or a fixture (see "Testing");
+- a file that only it uses: its own `*.messages.ts`, a `.ts` of types, variants or columns
+  (`DataTable/data-table.ts`, `SecretList/secret-columns.ts`), a calculator
+  (`AgentOutcomesChart/outcomes-chart.calculator.ts`);
+- a **private sub-component**: a component that only it renders (`OnboardingTour/TourSpot.svelte`,
+  `AddMemberDialog/AddMemberForm.svelte`). A sub-component stays a plain file inside the folder;
+  it gets a folder of its own only when it has a test.
+
+A lone `.svelte` file with nothing beside it stays a plain file. A file that two components use
+stays in the directory above them (`role-form/checkbox-tree.ts`). A group of related components
+that is not one component's internals stays a kebab-case group folder (`jobs-table/`,
+`role-detail/`). ViewModels (`*.state.svelte.ts`) do not move into a component folder: they
+stay in `presentation/` (the permission conformance test reads them there).
+
+`packages/ui/src/shadcn/` follows the shadcn-svelte layout instead: one kebab-case folder per
+primitive (`card/card.svelte`, `card/card-title.svelte`, …), with its variants and its messages,
+behind the one `shadcn/index.ts`.
+
 ### Minimalism (applies inside the layers, not against them)
 
 The package and layer structure is mandatory; everything else must earn its place. Before adding a file, an abstraction, a store, or a dependency, ask: **what breaks if I don't?** If the answer is "nothing yet", don't.
@@ -480,13 +503,14 @@ Where a test goes:
 - **A tested Svelte component has its own folder**, with its test and its fixtures:
   `LoginForm/LoginForm.svelte`, `LoginForm/LoginForm.test.ts`, `LoginForm/LoginForm.fixture.svelte`.
   A page drops `.page` from the folder name: `Login/Login.page.svelte`. This keeps a component
-  and what describes it in one place (Storybook stories will go there too).
+  and what describes it in one place (Storybook stories will go there too). See "Component
+  folders" for the other reasons a component gets a folder.
+- **The test of a file in a component folder goes in that folder too**, without `__test__/`:
+  `DataTable/data-table.ts` → `DataTable/data-table.test.ts`.
 - **Every other test goes in the `__test__/` folder of the directory it covers**:
   `presentation/grant-creator.state.svelte.ts` → `presentation/__test__/grant-creator.state.svelte.test.ts`.
   Fixtures used by several components' tests go there too.
-- A component without a test stays a plain file. When you add its first test, move it into
-  its folder and update its importers.
-- `shadcn/` is vendored: its tests go in `shadcn/__test__/`, its components stay flat.
+- `shadcn/` is vendored: one kebab-case folder per primitive, and its tests go in that folder.
 
 The harness is five files in `test/` at the repository root (alias `@test/*`), and it is the only
 shared test code of the workspace:
@@ -602,6 +626,9 @@ turn a red run green. Generated proto code, compiled catalogs, vendored `shadcn/
   Inside scylla-base: `@base/*` → `extensions/scylla-base/src/*`, `@platform/*`, `@shared/*`.
   The test harness: `@test/*`. Inside `@scylla/ui`, `@scylla/core` and the SDKs: relative
   imports.
+- Inside scylla-base, a relative import goes up one level at most (`./x`, `../x`). Above that,
+  use the alias: `@platform/` for `platform/`, `@shared/` for `shared/`, `@base/` for the rest
+  (`@base/features/agents/domain/structs/agent.struct.ts`, not `../../../../domain/…`).
 - Prettier: semicolons, single quotes (incl. JSX), 2-space tabs, trailing commas (all), printWidth 100, `arrowParens: avoid`. Match this style; don't reformat unrelated code.
 - Routing: written in the project, in `@scylla/core` (no router library); the declaration
   types are in `@scylla/core-sdk`. The mounts of scylla-base are in `ShellModule`

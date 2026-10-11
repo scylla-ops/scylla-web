@@ -78,8 +78,8 @@ presentation/
   ui/Triggers.page.svelte
   ui/triggers.messages.ts            every string — `lingui extract` cannot read `.svelte`
   ui/components/TriggersHeader.svelte, TriggersOverview.svelte, index.ts (local barrel)
-  ui/dialogs/TriggerFormDialog.svelte   the shell: `{#key open}` is the form's reset
-  ui/dialogs/TriggerForm.svelte         the fields, so recreating it re-seeds them
+  ui/dialogs/TriggerFormDialog/         the shell: `{#key open}` is the form's reset
+    TriggerForm.svelte                  the fields, so recreating it re-seeds them
   ui/dialogs/CronScheduleBuilder.svelte, TriggerInputsEditor.svelte
   ui/triggers-table/                 TriggersTable + trigger-columns.ts + cells
   utils/cron.utils.ts, trigger-form.utils.ts

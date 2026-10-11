@@ -4,10 +4,10 @@
   import { Skeleton } from '@scylla/ui/shadcn';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { jobQueries } from '../../jobs.queries.ts';
-  import { createOpenLogPanels } from '../../open-log-panels.svelte.ts';
-  import JobNodeLogs from '../job-details/JobNodeLogs.svelte';
-  import JobSummary from '../job-details/JobSummary.svelte';
+  import { jobQueries } from '@base/features/jobs/presentation/jobs.queries.ts';
+  import { createOpenLogPanels } from '@base/features/jobs/presentation/open-log-panels.svelte.ts';
+  import JobNodeLogs from './JobNodeLogs.svelte';
+  import JobSummary from './JobSummary.svelte';
   import { nodeIdOf } from '../jobs-table/job-timeline.calculator.ts';
   import { jobsMessages } from '../jobs.messages.ts';
 

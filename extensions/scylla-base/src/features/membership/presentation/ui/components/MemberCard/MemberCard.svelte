@@ -1,13 +1,17 @@
 <script lang="ts">
   import { Card } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
-  import type { MemberRole } from '../../../../domain/structs/scope-member.struct.ts';
-  import type { AssignableRole } from '../../../assignable-roles.state.svelte.ts';
+  import type { MemberRole } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  import type {
+    AssignableRole,
+  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
   import AddRoleSelect from '../AddRoleSelect/AddRoleSelect.svelte';
   import MemberIdentity from '../MemberIdentity/MemberIdentity.svelte';
   import MemberRoleBadges from '../MemberRoleBadges/MemberRoleBadges.svelte';
   import MemberRowAction from '../MemberRowAction/MemberRowAction.svelte';
-  import { membershipMessages } from '../../membership.messages.ts';
+  import {
+    membershipMessages,
+  } from '@base/features/membership/presentation/ui/membership.messages.ts';
 
   interface Props {
     name: string;

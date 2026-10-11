@@ -12,10 +12,12 @@
   } from '@scylla/ui';
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { activeLocale, t } from '@scylla/ui/i18n';
-  import type { AppEntity } from '../../../domain/entities/app.entity.ts';
-  import type { CreatedAppSecret } from '../../../domain/structs/app.struct.ts';
-  import { appMutations, appQueries } from '../../apps.queries.ts';
-  import { createAppSecretItems } from '../../utils/create-app-secret-form-items.ts';
+  import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
+  import type { CreatedAppSecret } from '@base/features/apps/domain/structs/app.struct.ts';
+  import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
+  import {
+    createAppSecretItems,
+  } from '@base/features/apps/presentation/utils/create-app-secret-form-items.ts';
   import { appsMessages } from '../apps.messages.ts';
 
   interface Props {

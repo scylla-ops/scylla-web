@@ -12,7 +12,7 @@ import {
   projectPoints,
   type ChartGeometry,
   type Point,
-} from '../outcomes-chart.calculator.ts';
+} from './outcomes-chart.calculator.ts';
 
 const GEOMETRY: ChartGeometry = {
   width: 100,

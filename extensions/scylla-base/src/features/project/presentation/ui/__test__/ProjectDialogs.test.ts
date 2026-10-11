@@ -4,8 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { contextStore } from '@platform/context';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { ProjectEntity } from '../../../domain/entities/project.entity.ts';
-import type { ProjectRepository } from '../../../domain/repository/project.repository.ts';
+import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
+import type {
+  ProjectRepository,
+} from '@base/features/project/domain/repository/project.repository.ts';
 import AddProjectDialog from '../AddProjectDialog.svelte';
 import EditProjectDialog from '../EditProjectDialog.svelte';
 

@@ -8,8 +8,8 @@
     formatDate,
     formatDuration,
   } from '@shared/utils/date-utils.ts';
-  import type { JobEntity } from '../../../domain/entities/job.entity.ts';
-  import { isActiveStatus } from '../../../domain/structs/jobs-summary.struct.ts';
+  import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
+  import { isActiveStatus } from '@base/features/jobs/domain/structs/jobs-summary.struct.ts';
   import JobStatus from '../jobs-table/JobStatus/JobStatus.svelte';
   import JobTimeline from '../jobs-table/JobTimeline/JobTimeline.svelte';
   import { jobsMessages } from '../jobs.messages.ts';

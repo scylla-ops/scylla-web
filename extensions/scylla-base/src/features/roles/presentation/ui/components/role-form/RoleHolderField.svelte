@@ -4,7 +4,7 @@
   import { RoleKind } from '@platform/authz';
   import { Label, ToggleGroup, ToggleGroupItem } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
-  import { rolesMessages } from '../../roles.messages.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
 
   interface Props {
     kind: RoleKind;

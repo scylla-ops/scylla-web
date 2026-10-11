@@ -8,7 +8,7 @@
     SidebarMenuItem,
   } from '@scylla/ui/shadcn';
   import { NAV_SECTION_CARD_CLASS, NAV_SECTION_DIVIDER_CLASS } from './nav-classes.ts';
-  import type { NavItem, NavSection } from './structs/nav-section.struct.ts';
+  import type { NavItem, NavSection } from '../structs/nav-section.struct.ts';
 
   interface Props {
     sections: NavSection[];

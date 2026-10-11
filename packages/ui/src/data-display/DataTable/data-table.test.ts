@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { buildGridTemplate, minTableWidthOf } from '../data-table.ts';
+import { buildGridTemplate, minTableWidthOf } from './data-table.ts';
 
 describe('buildGridTemplate', () => {
   it('lets a column with no size absorb the leftover space, floored at its minSize', () => {

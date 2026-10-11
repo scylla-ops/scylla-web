@@ -8,8 +8,8 @@
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-  } from '../shadcn/index.ts';
-  import { t } from '../i18n/i18n-svelte.svelte.ts';
+  } from '../../shadcn/index.ts';
+  import { t } from '../../i18n/i18n-svelte.svelte.ts';
   import { confirmOperationMessages } from './confirm-operation.messages.ts';
 
   interface Props {

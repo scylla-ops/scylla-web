@@ -3,7 +3,7 @@
   import { routeParams, routeTrail, type ShellContributions } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import { breadcrumbsFor, type BreadcrumbItem } from './breadcrumbs.ts';
-  import { mergeParams } from './shell-config.ts';
+  import { mergeParams } from '../shell-config.ts';
 
   let { contributions }: { contributions: readonly ShellContributions[] } = $props();
 

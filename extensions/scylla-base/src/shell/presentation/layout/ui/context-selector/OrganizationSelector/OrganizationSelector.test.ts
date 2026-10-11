@@ -17,7 +17,7 @@ const findMenuItem = async (text: string) => {
   return item as HTMLElement;
 };
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import InSidebar from '../../__test__/InSidebar.fixture.svelte';
+import InSidebar from '@base/shell/presentation/layout/ui/__test__/InSidebar.fixture.svelte';
 import OrganizationSelector from './OrganizationSelector.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));

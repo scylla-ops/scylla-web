@@ -10,7 +10,7 @@
   import { toast } from '@scylla/ui/utils';
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
   import { t } from '@scylla/ui/i18n';
-  import { userMutations } from '../../user.queries.ts';
+  import { userMutations } from '@base/features/user/presentation/user.queries.ts';
   import { userMessages } from '../user.messages.ts';
 
   interface Props {

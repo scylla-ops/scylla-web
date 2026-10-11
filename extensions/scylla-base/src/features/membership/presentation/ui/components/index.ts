@@ -7,4 +7,4 @@ export { default as MemberRowAction } from './MemberRowAction/MemberRowAction.sv
 export { default as MembersHint } from './MembersHint/MembersHint.svelte';
 export { default as MembersList } from './MembersList/MembersList.svelte';
 export { default as RoleChecklist } from './RoleChecklist/RoleChecklist.svelte';
-export type { MemberCandidate } from './member-candidate.ts';
+export type { MemberCandidate } from './AddMemberDialog/member-candidate.ts';

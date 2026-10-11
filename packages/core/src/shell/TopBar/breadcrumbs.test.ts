@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import type { TrailCrumb } from '@scylla/core-sdk';
-import { breadcrumbsFor } from '../breadcrumbs.ts';
+import { breadcrumbsFor } from './breadcrumbs.ts';
 
 const translate = (message: { id: string; message?: string }) =>
   `t:${message.message ?? message.id}`;

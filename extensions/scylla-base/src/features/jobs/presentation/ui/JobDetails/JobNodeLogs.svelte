@@ -13,7 +13,7 @@
   import { t } from '@scylla/ui/i18n';
   import { calculateExecutionDuration, formatDuration } from '@shared/utils/date-utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
-  import type { JobEntity } from '../../../domain/entities/job.entity.ts';
+  import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
   import { nodeIdOf } from '../jobs-table/job-timeline.calculator.ts';
   import JobLogDisplay from '../jobs-log/JobLogDisplay/JobLogDisplay.svelte';
   import { jobsMessages } from '../jobs.messages.ts';

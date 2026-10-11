@@ -2,8 +2,10 @@
   import PuzzleIcon from '@lucide/svelte/icons/puzzle';
   import { Badge, Card, CardContent } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
-  import type { InstalledExtension } from '../../domain/structs/installed-extension.struct.ts';
-  import { extensionsMessages } from './extensions.messages.ts';
+  import type {
+    InstalledExtension,
+  } from '@base/features/extensions/domain/structs/installed-extension.struct.ts';
+  import { extensionsMessages } from '../extensions.messages.ts';
 
   interface Props {
     extension: InstalledExtension;

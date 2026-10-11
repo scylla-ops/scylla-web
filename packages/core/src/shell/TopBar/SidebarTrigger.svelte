@@ -3,7 +3,7 @@
   import { Button, getSidebar } from '@scylla/ui/shadcn';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import { shellMessages } from './shell.messages.ts';
+  import { shellMessages } from '../shell.messages.ts';
 
   const sidebar = getSidebar();
 </script>

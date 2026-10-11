@@ -19,7 +19,7 @@
   } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
   import { userQueries } from '@base/features/user';
-  import { signOut } from '../../sign-out.ts';
+  import { signOut } from '@base/shell/presentation/layout/sign-out.ts';
   import { layoutMessages } from '../layout.messages.ts';
 
   const sidebar = getSidebar();

@@ -2,8 +2,8 @@
   import type { Snippet } from 'svelte';
   import { Card, CardContent, CardHeader, CardTitle } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
-  import { userMessages } from '../../user.messages.ts';
-  import UserInformation from '../UserInformation.svelte';
+  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+  import UserInformation from './UserInformation.svelte';
 
   interface Props {
     userId?: string;

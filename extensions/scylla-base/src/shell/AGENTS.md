@@ -38,8 +38,8 @@ presentation/
     whats-new.svelte.ts                 seen flags (reactive), markNavSeen
     sign-out.ts
     ui/OrganizationGate/                loading screen / first organization / the pages
-    ui/FirstOrganization.svelte         welcome screen when the user has no organization
-    ui/context-selector/                OrganizationSelector (the header of the organization section)
+      FirstOrganization.svelte          welcome screen when the user has no organization
+    ui/context-selector/                OrganizationSelector (+ CurrentContextDisplay): the header of the organization section
     ui/NavUser/                         current user + sign-out (sidebar footer)
     ui/NewBadge.svelte                  "New" pill of a sidebar link (navBadge)
     ui/WhatsNewDialog/                  first-launch release announcement

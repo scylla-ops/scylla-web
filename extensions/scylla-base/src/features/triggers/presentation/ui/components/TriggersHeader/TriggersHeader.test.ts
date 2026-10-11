@@ -5,7 +5,9 @@ import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { selectionStore } from '@scylla/ui/stores';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { TriggersRepository } from '../../../../domain/repository/triggers.repository.ts';
+import type {
+  TriggersRepository,
+} from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import TriggersHeader from './TriggersHeader.svelte';
 
 const deleteById = vi.fn();

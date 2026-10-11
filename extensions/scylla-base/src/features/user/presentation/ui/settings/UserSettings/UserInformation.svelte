@@ -16,8 +16,8 @@
     type FormValues,
   } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { userMutations, userQueries } from '../../user.queries.ts';
-  import { userMessages } from '../user.messages.ts';
+  import { userMutations, userQueries } from '@base/features/user/presentation/user.queries.ts';
+  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
 
   interface Props {
     userId?: string;

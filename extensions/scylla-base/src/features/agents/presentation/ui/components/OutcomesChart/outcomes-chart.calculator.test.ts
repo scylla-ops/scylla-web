@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
-import type { DailyOutcome } from '../../../../domain/structs/agent.struct.ts';
-import { bucketTotal, bucketsMax, fillBuckets } from '../outcomes-chart.calculator.ts';
+import type { DailyOutcome } from '@base/features/agents/domain/structs/agent.struct.ts';
+import { bucketTotal, bucketsMax, fillBuckets } from './outcomes-chart.calculator.ts';
 
 const outcome = (day: string, overrides: Partial<DailyOutcome> = {}): DailyOutcome => ({
   day,

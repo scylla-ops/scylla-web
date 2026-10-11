@@ -1,4 +1,4 @@
-import type { DailyOutcome } from '../../../domain/structs/agent.struct.ts';
+import type { DailyOutcome } from '@base/features/agents/domain/structs/agent.struct.ts';
 
 export type OutcomeRange = '7d' | '14d' | '30d';
 

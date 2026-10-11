@@ -2,8 +2,8 @@ import type { Snippet } from 'svelte';
 import { renderSnippet } from '@tanstack/svelte-table';
 import type { DataTableColumn } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
-import type { SecretEntity } from '../../../domain/entities/secret.entity.ts';
-import { secretMessages } from '../secret.messages.ts';
+import type { SecretEntity } from '@base/features/secret/domain/entities/secret.entity.ts';
+import { secretMessages } from '@base/features/secret/presentation/ui/secret.messages.ts';
 
 export interface SecretCells {
   name: Snippet<[SecretEntity]>;

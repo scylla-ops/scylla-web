@@ -14,10 +14,14 @@
     SelectValue,
   } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
-  import type { AssignableRole } from '../../assignable-roles.state.svelte.ts';
-  import RoleChecklist from './RoleChecklist/RoleChecklist.svelte';
+  import type {
+    AssignableRole,
+  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+  import RoleChecklist from '../RoleChecklist/RoleChecklist.svelte';
   import type { MemberCandidate } from './member-candidate.ts';
-  import { membershipMessages } from '../membership.messages.ts';
+  import {
+    membershipMessages,
+  } from '@base/features/membership/presentation/ui/membership.messages.ts';
 
   interface Props {
     title: string;

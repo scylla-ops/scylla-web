@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PaginationInfo } from '../structs/pagination.struct.ts';
+  import type { PaginationInfo } from '../../structs/pagination.struct.ts';
   import Pagination from './Pagination.svelte';
 
   interface Props {

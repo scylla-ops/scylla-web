@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:12
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/AgentRunInstructions/agent-run-instructions.messages.ts:12
 msgid "(crate scylla-agent). The agent runs in the foreground and Ctrl-C stops it."
 msgstr "(crate scylla-agent). The agent runs in the foreground and Ctrl-C stops it."
 
@@ -33,7 +33,7 @@ msgstr "App id copied"
 msgid "Cancelled"
 msgstr "Cancelled"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:8
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/AgentRunInstructions/agent-run-instructions.messages.ts:8
 msgid "Command copied"
 msgstr "Command copied"
 
@@ -45,7 +45,7 @@ msgstr "Could not copy — select the id manually"
 msgid "Failed"
 msgstr "Failed"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:5
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/AgentRunInstructions/agent-run-instructions.messages.ts:5
 msgid "From source"
 msgstr "From source"
 
@@ -53,7 +53,7 @@ msgstr "From source"
 msgid "Job queued — no agent connected"
 msgstr "Job queued — no agent connected"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/status-bar.messages.ts:4
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/StatusBar/status-bar.messages.ts:4
 msgid "No data"
 msgstr "No data"
 
@@ -117,19 +117,19 @@ msgstr "Project name is required and you must select an organization."
 msgid "Project updated"
 msgstr "Project updated"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:16
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/AgentRunInstructions/agent-run-instructions.messages.ts:16
 msgid "Replace APP_SECRET with the secret revealed when this agent was created — it cannot be shown again. Lost it? Delete this agent and create a new one."
 msgstr "Replace APP_SECRET with the secret revealed when this agent was created — it cannot be shown again. Lost it? Delete this agent and create a new one."
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:10
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/AgentRunInstructions/agent-run-instructions.messages.ts:10
 msgid "Requires the Rust toolchain, from a clone of"
 msgstr "Requires the Rust toolchain, from a clone of"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:6
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/AgentRunInstructions/agent-run-instructions.messages.ts:6
 msgid "Run from a repo checkout"
 msgstr "Run from a repo checkout"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:7
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/AgentRunInstructions/agent-run-instructions.messages.ts:7
 msgid "Run with Docker"
 msgstr "Run with Docker"
 
@@ -157,15 +157,15 @@ msgstr "Skipped"
 msgid "Success"
 msgstr "Success"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:14
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/AgentRunInstructions/agent-run-instructions.messages.ts:14
 msgid "The agent starts in the foreground: its logs show up right in the terminal and Ctrl-C stops it."
 msgstr "The agent starts in the foreground: its logs show up right in the terminal and Ctrl-C stops it."
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:11
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/AgentRunInstructions/agent-run-instructions.messages.ts:11
 msgid "the scylla repo"
 msgstr "the scylla repo"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/agent-run-instructions.messages.ts:15
+#: extensions/scylla-base/src/shared/presentation/ui/data-display/AgentRunInstructions/agent-run-instructions.messages.ts:15
 msgid "The URL above is prefilled with this page's own address. Replace it if your agent reaches the control plane another way — for example http://host.docker.internal:8080 from inside Docker, or a private-network address."
 msgstr "The URL above is prefilled with this page's own address. Replace it if your agent reaches the control plane another way — for example http://host.docker.internal:8080 from inside Docker, or a private-network address."
 

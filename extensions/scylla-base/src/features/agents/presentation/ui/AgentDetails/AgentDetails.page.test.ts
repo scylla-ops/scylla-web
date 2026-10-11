@@ -6,7 +6,9 @@ import { contextStore } from '@platform/context';
 import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { AgentsRepository } from '../../../domain/repository/agents.repository.ts';
+import type {
+  AgentsRepository,
+} from '@base/features/agents/domain/repository/agents.repository.ts';
 import AgentDetailsPage from './AgentDetails.page.svelte';
 
 const agent = (overrides: Record<string, unknown> = {}) => ({

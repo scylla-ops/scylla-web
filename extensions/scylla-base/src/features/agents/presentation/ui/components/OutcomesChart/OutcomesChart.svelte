@@ -3,7 +3,7 @@
   import { Card, CardContent } from '@scylla/ui/shadcn';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import type { DailyOutcome } from '../../../domain/structs/agent.struct.ts';
+  import type { DailyOutcome } from '@base/features/agents/domain/structs/agent.struct.ts';
   import {
     bucketTotal,
     bucketsMax,
@@ -12,7 +12,7 @@
     type Bucket,
     type OutcomeRange,
   } from './outcomes-chart.calculator.ts';
-  import { agentsMessages } from '../agents.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/ui/agents.messages.ts';
 
   interface Props {
     daily: DailyOutcome[];

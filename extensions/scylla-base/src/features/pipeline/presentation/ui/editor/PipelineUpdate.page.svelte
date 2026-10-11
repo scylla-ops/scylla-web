@@ -2,9 +2,12 @@
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { pipelineMutations, pipelineQueries } from '../../pipeline.queries.ts';
+  import {
+    pipelineMutations,
+    pipelineQueries,
+  } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import PipelineEditor from './PipelineEditor.svelte';
-  import { pipelineMessages } from '../../pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
     pipelineId?: string;

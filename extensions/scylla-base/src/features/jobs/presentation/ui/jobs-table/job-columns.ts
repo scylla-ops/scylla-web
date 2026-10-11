@@ -2,7 +2,7 @@ import type { Snippet } from 'svelte';
 import { renderSnippet } from '@tanstack/svelte-table';
 import type { DataTableColumn } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
-import type { JobEntity } from '../../../domain/entities/job.entity.ts';
+import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
 import { jobsMessages } from '../jobs.messages.ts';
 
 export interface JobCells {

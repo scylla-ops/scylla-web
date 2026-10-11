@@ -1,8 +1,13 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
   import { motionDuration } from '@scylla/ui';
-  import { dimPath, ringPath, type TourRect, type TourSize } from '../tour-placement.calculator.ts';
-  import { holdPointer } from '../tour-tracking.actions.ts';
+  import {
+    dimPath,
+    ringPath,
+    type TourRect,
+    type TourSize,
+  } from '@base/features/onboarding/presentation/tour-placement.calculator.ts';
+  import { holdPointer } from '@base/features/onboarding/presentation/tour-tracking.actions.ts';
 
   interface Props {
     viewport: TourSize;

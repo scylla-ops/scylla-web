@@ -1,6 +1,6 @@
 <script lang="ts">
   import { PageTransition } from '@scylla/ui';
-  import { location } from '../runtime/location.svelte.ts';
+  import { location } from '../../runtime/location.svelte.ts';
   import RouteEntry from './RouteEntry.svelte';
 
   let { animate = false }: { animate?: boolean } = $props();

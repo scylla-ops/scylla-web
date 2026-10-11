@@ -6,7 +6,7 @@
   import { t } from '../../i18n/i18n-svelte.svelte.ts';
   // Not the group barrel: it would import this file back.
   import IconButton from '../../controls/IconButton/IconButton.svelte';
-  import { copyableTextMessages } from '../copyable-text.messages.ts';
+  import { copyableTextMessages } from './copyable-text.messages.ts';
 
   interface Props {
     value: string;
