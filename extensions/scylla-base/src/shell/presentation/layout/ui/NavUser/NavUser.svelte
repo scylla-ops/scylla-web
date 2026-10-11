@@ -14,8 +14,10 @@
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SIDEBAR_FADE,
   } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import { signOut } from '@base/features/login';
   import { userQueries } from '@base/features/user';
   // By path, not the barrel: this file is in the entry chunk, the other components are not.
@@ -31,7 +33,7 @@
 {:else}
   <SidebarMenu>
     <SidebarMenuItem
-      class="rounded-lg border border-border bg-background shadow-sm transition-all duration-200 hover:scale-105 hover:border-primary/40 hover:bg-accent hover:shadow-md focus:outline-none focus:ring-0 focus-visible:ring-0 data-[state=open]:scale-105 data-[state=open]:border-primary data-[state=open]:bg-accent"
+      class="rounded-lg border border-border bg-background shadow-sm transition-[scale,box-shadow,background-color,border-color] duration-200 hover:scale-105 hover:border-primary/40 hover:bg-accent hover:shadow-md focus:outline-none focus:ring-0 focus-visible:ring-0 data-[state=open]:scale-105 data-[state=open]:border-primary data-[state=open]:bg-accent"
     >
       <DropdownMenu>
         <DropdownMenuTrigger>
@@ -43,11 +45,11 @@
             >
               <!-- A failed read shows the menu all the same: signing out must stay possible. -->
               {#if meQuery.data}
-                <UserIdentity user={meQuery.data} size="sm" class="flex-1" />
+                <UserIdentity user={meQuery.data} size="sm" class="min-w-8 flex-1" textClass={SIDEBAR_FADE} />
               {:else}
                 <span class="flex-1"></span>
               {/if}
-              <ChevronsUpDownIcon class="ml-auto size-4" />
+              <ChevronsUpDownIcon class={cn('ml-auto size-4', SIDEBAR_FADE)} />
             </SidebarMenuButton>
           {/snippet}
         </DropdownMenuTrigger>

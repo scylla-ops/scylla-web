@@ -5,11 +5,29 @@
 
   type Props = DropdownMenuPrimitive.ContentProps & { children?: Snippet };
 
-  let { class: className, sideOffset = 4, children, ...rest }: Props = $props();
+  let {
+    class: className,
+    sideOffset = 4,
+    children,
+    onOpenAutoFocus,
+    ref = $bindable(null),
+    ...rest
+  }: Props = $props();
+
+  // As Radix: focus the menu, not its first tabbable control, which would open that control's tooltip.
+  const focusMenu = (event: Event) => {
+    onOpenAutoFocus?.(event);
+    if (event.defaultPrevented) return;
+
+    event.preventDefault();
+    ref?.focus({ preventScroll: true });
+  };
 </script>
 
 <DropdownMenuPrimitive.Portal>
   <DropdownMenuPrimitive.Content
+    bind:ref
+    onOpenAutoFocus={focusMenu}
     data-slot="dropdown-menu-content"
     {sideOffset}
     class={cn(
