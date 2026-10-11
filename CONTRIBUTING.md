@@ -78,7 +78,8 @@ other change:
   pull request. You answer the questions of the review.
 - **Only humans are authors and co-authors.** Do not add a `Co-Authored-By` trailer that names
   an AI agent, and do not add a "Generated with …" line to a pull request. Configure your agent
-  to not add them.
+  to not add them. The CI checks it: `pnpm check:authors origin/v0.5.0..HEAD` runs the same
+  check on your branch.
 - Agents read [`AGENTS.md`](AGENTS.md) and the `AGENTS.md` of each module. When you change a
   rule or a public API, update these files in the same pull request.
 
@@ -109,6 +110,7 @@ pass with zero warnings, zero failures, zero violations, zero cycles and zero co
 | `pnpm depcruise` | The architecture: layer direction and public APIs |
 | `pnpm depcruise:cycles` | No dependency cycle between modules |
 | `pnpm i18n:collisions` | No message translated in two different ways |
+| `pnpm check:authors <range>` | No AI agent as author, committer or co-author of a commit |
 
 ## Code conventions, in short
 

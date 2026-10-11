@@ -67,6 +67,7 @@ Lingui) covers every package. `vite.config.ts` builds `apps/web` into `dist/`.
 | `pnpm depcruise` | Architecture rules: layer direction **and** public-API surface — **must be clean** |
 | `pnpm depcruise:cycles` | Module dependency cycles — **must be zero** |
 | `pnpm i18n:collisions` | Same msgid translated differently in two catalogs — **must be zero** |
+| `pnpm check:authors <range>` | No AI agent as author, committer or co-author of a commit in the range — **must be clean** |
 
 > `depcruise:cycles` is **not** redundant with `depcruise`'s `no-circular`. That rule works on the
 > *file* graph; a cycle can exist between two folders with no file in a loop (`a/x.ts → b/index.ts`,
@@ -84,7 +85,8 @@ the alias when TypeScript 7.1 and these tools support the new API.
 
 Before considering work done: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm depcruise`,
 `pnpm depcruise:cycles` and `pnpm i18n:collisions` must all pass clean (zero warnings, zero
-failures, zero violations, zero cycles, zero collisions). CI runs all six.
+failures, zero violations, zero cycles, zero collisions). CI runs all six, and also checks that
+no commit of the branch names an AI agent as author or co-author (`pnpm check:authors`).
 
 **After moving any component between modules**, run `node scripts/restore-translations.mjs` —
 Lingui catalogs are per-module and keyed by source string, so `extract` silently drops the
@@ -650,7 +652,8 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
 - Commits and PRs show only the human who made them, so that the GitHub contributors list
   shows the people who contribute. An AI agent never adds itself: no `Co-Authored-By` trailer
   that names an agent, no "Generated with …" line in a PR body. This rule overrides the default
-  attribution of the agent. See [CONTRIBUTING.md](CONTRIBUTING.md#ai-tools).
+  attribution of the agent. The CI enforces it (`scripts/check-commit-authors.mjs`). See
+  [CONTRIBUTING.md](CONTRIBUTING.md#ai-tools).
 - Lint rules worth knowing (see `eslint.config.js`): `no-floating-promises` and `no-misused-promises` are errors — never fire-and-forget a promise; unused bindings must be prefixed `_` to be tolerated. The `no-unsafe-*` rules are off only because of the generated proto layer — that is not a licence to spread `any`. `no-restricted-imports` forbids `@tanstack/svelte-query` (use `@scylla/core-sdk`).
 
 ### Stack

@@ -23,6 +23,7 @@
     "depcruise": "depcruise apps packages sdks extensions test --config .dependency-cruiser.cjs",
     "depcruise:cycles": "depcruise apps packages sdks extensions test --config .dependency-cruiser.cjs --output-type json | node scripts/check-module-cycles.mjs",
     "i18n:collisions": "node scripts/check-catalog-collisions.mjs",
+    "check:authors": "node scripts/check-commit-authors.mjs",
     "depcruise:graph": "depcruise apps packages sdks extensions --config .dependency-cruiser.cjs --output-type archi | dot -T svg > dependency-graph.svg",
     "preview": "vite preview"
   },

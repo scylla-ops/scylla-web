@@ -16,6 +16,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Only humans author commits (CONTRIBUTING.md, "AI tools"): no agent as author,
+  # committer or co-author. GitHub counts co-authors as contributors.
+  authors:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: No AI agent in the commit authors
+        env:
+          RANGE: ${{ github.event_name == 'pull_request' && format('origin/{0}..{1}', github.base_ref, github.event.pull_request.head.sha) || format('{0}..{1}', github.event.before, github.sha) }}
+        run: node scripts/check-commit-authors.mjs "$RANGE"
+
   check:
     runs-on: ubuntu-latest
     steps:
