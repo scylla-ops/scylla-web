@@ -60,17 +60,17 @@ presentation/
 
 | Mount | Path | Permission | Component |
 |---|---|---|---|
-| `organization` | `extensions` | none (in `UNGATED_PAGES`) | `ExtensionsPage` |
+| `organization` | `extensions` | `MANAGE_ROLES` | `ExtensionsPage` |
 
-Sidebar: section `system`, order `30`, icon `PuzzleIcon`.
+Sidebar: section `system`, order `30`, icon `PuzzleIcon`. The link takes the route's permission:
+a user without `MANAGE_ROLES` does not see it.
 
 ## Rules that bite here
 
 - **Read `installedExtensions` per call.** The module file loads before `startCore` installs
   the list. The repository receives the function, not its result.
-- **The page has no permission yet.** It is listed in `UNGATED_PAGES`
-  (`apps/web/src/__test__/module-permissions.test.ts`). Declare one, and remove the entry, when a
-  mutation arrives.
+- **`MANAGE_ROLES` is a temporary permission.** No extension permission exists yet. Replace it
+  with the permission the backend enforces when installing or disabling an extension arrives.
 - `Active` has the `feminine` context: "une extension active", not "Actif" as for the agents.
 
 ## Before done
