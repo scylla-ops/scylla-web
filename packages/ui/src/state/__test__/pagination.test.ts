@@ -26,7 +26,7 @@ beforeEach(() => {
 const attach = (measure: ReturnType<typeof createPagination>['measure'], height = 0) => {
   const node = document.createElement('div');
   vi.spyOn(node, 'clientHeight', 'get').mockReturnValue(height);
-  return measure(node) as (() => void) | void;
+  return measure(node);
 };
 
 describe('createPagination', () => {

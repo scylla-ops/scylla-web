@@ -24,7 +24,7 @@ beforeEach(() => {
 
 const attach = (container: ReturnType<typeof createCompactContainer>) => {
   const node = document.createElement('div');
-  return container.measure(node) as (() => void) | void;
+  return container.measure(node);
 };
 
 describe('createCompactContainer', () => {

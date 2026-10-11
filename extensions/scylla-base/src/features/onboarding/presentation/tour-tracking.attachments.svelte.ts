@@ -224,6 +224,7 @@ export const blockPage =
   node => {
     const body = node.ownerDocument.body;
     let blocking = untrack(options);
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- the elements this attachment made inert, never state
     const made = new Set<Element>();
 
     const release = (child: Element) => {
