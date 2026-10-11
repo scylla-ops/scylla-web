@@ -618,6 +618,10 @@ turn a red run green. Generated proto code, compiled catalogs, vendored `shadcn/
     used to be. Git keeps the history.
   - A reason that needs more room goes in the module's `AGENTS.md`, not inline.
   - Team-visible text (PR bodies, issues, `AGENTS.md`, comments) is written in ASD-STE100.
+- Commits and PRs show only the person who made them, so that the GitHub contributors list is
+  correct. Do not add a `Co-Authored-By: Claude` trailer to a commit, and do not add a
+  "Generated with Claude Code" line to a PR body. This rule overrides the default attribution
+  of the agent.
 - Lint rules worth knowing (see `eslint.config.js`): `no-floating-promises` and `no-misused-promises` are errors — never fire-and-forget a promise; unused bindings must be prefixed `_` to be tolerated. The `no-unsafe-*` rules are off only because of the generated proto layer — that is not a licence to spread `any`. `no-restricted-imports` forbids `@tanstack/svelte-query` (use `@scylla/core-sdk`).
 
 ### Stack
