@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { Badge, Checkbox, Label } from '@scylla/ui/shadcn';
+  import { Badge, Checkbox, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { Permission, PermissionScope } from '@platform/authz';
   import {
     getAlwaysGrantedPermissionsForScope,
     getEditablePermissionDefinitionsForScope,
     permissionLabelOf,
-  } from '../../../../utils/permission-mapping.ts';
-  import { buildPermissionTree } from '../../../../utils/permission-tree.ts';
-  import { rolesMessages } from '../../../roles.messages.ts';
-  import CheckboxTree from '../CheckboxTree.svelte';
+  } from '@base/features/roles/presentation/utils/permission-mapping.ts';
+  import { buildPermissionTree } from '@base/features/roles/presentation/utils/permission-tree.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
+  import CheckboxTree from '../CheckboxTree/CheckboxTree.svelte';
 
   interface Props {
     scope: PermissionScope;

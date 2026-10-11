@@ -4,7 +4,7 @@
   import { can, Permission } from '@platform/authz';
   import { scyllaNavigate, contextStore } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { Button, Card, Skeleton } from '@scylla/ui/shadcn';
+  import { Button, Card, Skeleton } from '@scylla/ui/primitives';
   import {
     ConfirmOperationAlertDialog,
     ErrorState,
@@ -16,9 +16,14 @@
   import { AgentRunInstructions } from '@shared/presentation/ui';
   import { toRune } from '@scylla/ui/stores';
   import { activeLocale, t } from '@scylla/ui/i18n';
-  import type { CreatedAgent } from '../../../domain/structs/agent.struct.ts';
-  import { agentMutations, agentQueries } from '../../agents.queries.ts';
-  import { createAgentItems } from '../../utils/create-agent-form-items.ts';
+  import type { CreatedAgent } from '@base/features/agents/domain/structs/agent.struct.ts';
+  import {
+    agentMutations,
+    agentQueries,
+  } from '@base/features/agents/presentation/agents.queries.ts';
+  import {
+    createAgentItems,
+  } from '@base/features/agents/presentation/utils/create-agent-form-items.ts';
   import AgentCard from '../components/AgentCard/AgentCard.svelte';
   import { agentsMessages } from '../agents.messages.ts';
 

@@ -9,7 +9,7 @@
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
   import { ScyllaError } from '@shared/utils/scylla-result.ts';
   import { t } from '@scylla/ui/i18n';
-  import { userMutations, userQueries } from '../../user.queries.ts';
+  import { userMutations, userQueries } from '@base/features/user/presentation/user.queries.ts';
   import { userMessages } from '../user.messages.ts';
   import AddUserDialog from './AddUserDialog/AddUserDialog.svelte';
   import UserTable from './user-table/UserTable.svelte';

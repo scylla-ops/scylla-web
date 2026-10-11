@@ -13,15 +13,17 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { GatedButton, ScyllaDialog } from '@scylla/ui';
   import { toast } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import type { GrantEntity } from '../../../../domain/entities/grant.entity.ts';
-  import type { RoleEntity } from '../../../../domain/entities/role.entity.ts';
-  import { createGrantCreator } from '../../../grant-creator.state.svelte.ts';
-  import type { RolesScope } from '../../../roles-page.state.svelte.ts';
-  import { rolesMessages } from '../../roles.messages.ts';
+  import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
+  import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
+  import {
+    createGrantCreator,
+  } from '@base/features/roles/presentation/grant-creator.state.svelte.ts';
+  import type { RolesScope } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
   import TargetChecklist from './TargetChecklist.svelte';
 
   interface Props {

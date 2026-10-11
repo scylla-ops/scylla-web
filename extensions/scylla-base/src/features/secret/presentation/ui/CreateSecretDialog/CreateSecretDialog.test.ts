@@ -3,7 +3,9 @@ import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { SecretRepository } from '../../../domain/repository/secret.repository.ts';
+import type {
+  SecretRepository,
+} from '@base/features/secret/domain/repository/secret.repository.ts';
 import CreateSecretDialog from './CreateSecretDialog.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn() } }));

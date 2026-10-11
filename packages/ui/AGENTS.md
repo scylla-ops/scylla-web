@@ -1,6 +1,6 @@
 # `@scylla/ui` — agent guide
 
-The design system: the shadcn-svelte primitives, the generic composites, the rune helpers,
+The design system: the primitives (adapted from shadcn/ui), the generic composites, the rune helpers,
 the stores, i18n rendering and the theme tokens. **No business meaning.**
 
 **Package** `packages/ui` · the bottom of the workspace
@@ -19,7 +19,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 | Import | What |
 |---|---|
 | `@scylla/ui` | the composites (`DataTable`, `ScyllaDialog`, `FeatureHeader`, `ScyllaForm`, …) and `LucideIcon` |
-| `@scylla/ui/shadcn` | the shadcn-svelte primitives on bits-ui |
+| `@scylla/ui/primitives` | the primitives on bits-ui, adapted from shadcn/ui |
 | `@scylla/ui/state` | rune helpers: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
 | `@scylla/ui/i18n` | `t`, `activeLocale`, `setAppLocale`, `registerCatalogs` |
@@ -42,7 +42,7 @@ src/
   motion/                  page transitions, reduced motion
   editor/                  renderCodeMirror (a Svelte action), the CodeMirror theme
   icon.ts                  LucideIcon (the prop type of an icon)
-  shadcn/                  shadcn-svelte primitives on bits-ui
+  primitives/              the primitives on bits-ui, one folder per primitive
   state/  stores/  i18n/  utils/  structs/     the entry points above
   assets/  styles.css
   locales/                 the catalog of these components
@@ -115,10 +115,11 @@ DOM measurement is a **Svelte action**, never an effect: `createMeasuredHeight()
 Svelte transition writes inline styles from JavaScript and that query never sees it — every
 transition here asks and collapses its duration to zero.
 
-### `shadcn/` — the primitives
+### `primitives/` — the primitives
 
-The shadcn-svelte primitives, on **`bits-ui`**, with the Tailwind class strings of the old
-shadcn/ui components copied verbatim. Import them from `@scylla/ui/shadcn`. A primitive is ported when its
+The primitives, on **`bits-ui`**. They are adapted from the React components of shadcn/ui (MIT,
+see `primitives/README.md`): the Tailwind class strings were copied, then changed where the design
+needed it. They are our code now, not vendored code: no CLI and no upstream update manage them. Import them from `@scylla/ui/primitives`. A primitive is ported when its
 first consumer needs it — there is no primitive here without a consumer.
 
 The sidebar (`Sidebar*`, `setSidebar` / `getSidebar`) keeps its open state in a Svelte context
@@ -187,13 +188,13 @@ chunk.
 - **Never put server state in a shared store.**
 - A component used by ≥ 2 features moves here and gets exported from its group barrel — when
   it passes the test above. A component used by one stays in that feature.
-- `shadcn/` is ported shadcn-svelte. Prefer composing over editing; if you must edit, keep the
-  upstream API.
+- `primitives/` keeps the shadcn/ui API (part names, `data-slot`, variants), so that a reader
+  who knows shadcn knows them. Prefer composing over editing; if you must edit, keep that API.
 - Adding to `@scylla/ui` needs a second real usage. One usage stays inline.
 - `data-part` marks the inner parts of a composite that code outside may point at:
   `feature-header-new` (`FeatureHeader`), `code-snippet-copy` (`CodeSnippet`),
   `secret-reveal-secret` / `-next-step` / `-confirm` (`SecretRevealChecklist`). The onboarding
-  tour of scylla-base uses them. Keep them; do not use `data-slot` for this, a shadcn primitive
+  tour of scylla-base uses them. Keep them; do not use `data-slot` for this, a primitive
   sets its own.
 
 ## Before done

@@ -5,7 +5,7 @@ import { type Permission, PermissionScope, permissionsStore } from '@platform/au
 import { contextStore } from '@platform/context';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { AppsRepository } from '../../../domain/repository/apps.repository.ts';
+import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
 import AppsPage from './Apps.page.svelte';
 
 const app = (overrides: Record<string, unknown> = {}) => ({

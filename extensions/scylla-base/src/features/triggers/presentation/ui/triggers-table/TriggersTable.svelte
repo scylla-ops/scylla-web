@@ -5,7 +5,7 @@
   import WebhookIcon from '@lucide/svelte/icons/webhook';
   import { scyllaNavigate } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
-  import { Switch } from '@scylla/ui/shadcn';
+  import { Switch } from '@scylla/ui/primitives';
   import {
     ConfirmOperationAlertDialog,
     CopyableText,
@@ -13,9 +13,9 @@
   } from '@scylla/ui';
   import { createSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
-  import type { TriggerEntity } from '../../../domain/entities/trigger.entity.ts';
-  import { TriggerKind } from '../../../domain/structs/trigger-source.struct.ts';
-  import { triggerMutations } from '../../triggers.queries.ts';
+  import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
+  import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+  import { triggerMutations } from '@base/features/triggers/presentation/triggers.queries.ts';
   import TriggerActions from './TriggerActions/TriggerActions.svelte';
   import TriggerSourceCell from './TriggerSourceCell/TriggerSourceCell.svelte';
   import TriggerStatusCell from './TriggerStatusCell/TriggerStatusCell.svelte';

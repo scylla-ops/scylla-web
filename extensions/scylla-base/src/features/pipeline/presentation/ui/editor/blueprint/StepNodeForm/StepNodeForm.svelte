@@ -15,15 +15,22 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { renderCodeMirror } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import type { PipelineStep, Shell } from '../../../../../domain/structs/pipeline.struct.ts';
-  import type { NodeFormValue } from '../../../../utils/blueprint-converter.ts';
-  import { createScriptEditor } from '../../script-editor.svelte.ts';
+  import type {
+    PipelineStep,
+    Shell,
+  } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import type {
+    NodeFormValue,
+  } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import {
+    createScriptEditor,
+  } from '@base/features/pipeline/presentation/ui/editor/script-editor.svelte.ts';
   import { createStepNodeForm, type EnvRow } from '../step-node-form.state.svelte.ts';
-  import { pipelineMessages } from '../../../../pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
     editingStep?: PipelineStep;

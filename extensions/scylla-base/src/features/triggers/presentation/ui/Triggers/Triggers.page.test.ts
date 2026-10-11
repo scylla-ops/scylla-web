@@ -6,9 +6,11 @@ import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { TriggersRepository } from '../../../domain/repository/triggers.repository.ts';
-import type { TriggerEntity } from '../../../domain/entities/trigger.entity.ts';
-import { TriggerKind } from '../../../domain/structs/trigger-source.struct.ts';
+import type {
+  TriggersRepository,
+} from '@base/features/triggers/domain/repository/triggers.repository.ts';
+import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
+import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
 import TriggersPage from './Triggers.page.svelte';
 
 const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({

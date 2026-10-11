@@ -5,8 +5,8 @@ import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { runQueryFn } from '@test/queries.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { JobEntity } from '../../domain/entities/job.entity.ts';
-import type { JobsRepository } from '../../domain/repository/jobs.repository.ts';
+import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
 import { jobsByPipelinesQueries } from '../jobs-by-pipelines.queries.ts';
 
 const job = (id: string): JobEntity => ({

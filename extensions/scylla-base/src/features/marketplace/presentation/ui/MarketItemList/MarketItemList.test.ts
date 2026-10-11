@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { render } from '@test/render.svelte.ts';
-import type { MarketItem } from '../../../domain/structs/market-item.struct.ts';
+import type { MarketItem } from '@base/features/marketplace/domain/structs/market-item.struct.ts';
 import MarketItemList from './MarketItemList.svelte';
 
 const item = (overrides: Partial<MarketItem> = {}): MarketItem => ({

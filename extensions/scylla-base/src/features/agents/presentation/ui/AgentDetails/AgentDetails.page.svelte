@@ -4,16 +4,19 @@
   import { can, Permission } from '@platform/authz';
   import { createResourceError, scyllaNavigate, contextStore } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { Badge, Button, Skeleton } from '@scylla/ui/shadcn';
+  import { Badge, Button, Skeleton } from '@scylla/ui/primitives';
   import { ConfirmOperationAlertDialog, ErrorState } from '@scylla/ui';
   import { AgentRunInstructions } from '@shared/presentation/ui';
   import { toRune } from '@scylla/ui/stores';
   import { cn } from '@scylla/ui/utils';
   import { formatDate, getRelativeTime } from '@shared/utils/date-utils.ts';
   import { t } from '@scylla/ui/i18n';
-  import { agentMutations, agentQueries } from '../../agents.queries.ts';
+  import {
+    agentMutations,
+    agentQueries,
+  } from '@base/features/agents/presentation/agents.queries.ts';
   import AgentIdLink from '../components/AgentIdLink/AgentIdLink.svelte';
-  import OutcomesChart from '../components/OutcomesChart.svelte';
+  import OutcomesChart from '../components/OutcomesChart/OutcomesChart.svelte';
   import { agentsMessages } from '../agents.messages.ts';
 
   interface Props {

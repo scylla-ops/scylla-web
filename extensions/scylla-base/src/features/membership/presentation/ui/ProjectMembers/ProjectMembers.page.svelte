@@ -16,9 +16,13 @@
     buildProjectMembers,
     MemberRoleOrigin,
     type ScopeMember,
-  } from '../../../domain/structs/scope-member.struct.ts';
-  import { createAssignableRoles } from '../../assignable-roles.state.svelte.ts';
-  import { createScopeMembership } from '../../scope-membership.state.svelte.ts';
+  } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  import {
+    createAssignableRoles,
+  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+  import {
+    createScopeMembership,
+  } from '@base/features/membership/presentation/scope-membership.state.svelte.ts';
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
   import MembersHint from '../components/MembersHint/MembersHint.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';

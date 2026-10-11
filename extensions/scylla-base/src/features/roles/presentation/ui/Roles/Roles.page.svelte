@@ -1,7 +1,7 @@
 <script lang="ts">
   import { contextStore } from '@platform/context';
   import { toRune } from '@scylla/ui/stores';
-  import type { RolesScope } from '../../roles-page.state.svelte.ts';
+  import type { RolesScope } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
   import RolesView from '../components/RolesView.svelte';
 
   const context = toRune(contextStore);

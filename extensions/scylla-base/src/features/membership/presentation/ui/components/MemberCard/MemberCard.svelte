@@ -1,14 +1,18 @@
 <script lang="ts">
-  import { Card } from '@scylla/ui/shadcn';
+  import { Card } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { UserSummary } from '@base/features/user';
   import { UserIdentity, type MissingUser } from '@shared/presentation/ui';
-  import type { MemberRole } from '../../../../domain/structs/scope-member.struct.ts';
-  import type { AssignableRole } from '../../../assignable-roles.state.svelte.ts';
+  import type { MemberRole } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  import type {
+    AssignableRole,
+  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
   import AddRoleSelect from '../AddRoleSelect/AddRoleSelect.svelte';
   import MemberRoleBadges from '../MemberRoleBadges/MemberRoleBadges.svelte';
   import MemberRowAction from '../MemberRowAction/MemberRowAction.svelte';
-  import { membershipMessages } from '../../membership.messages.ts';
+  import {
+    membershipMessages,
+  } from '@base/features/membership/presentation/ui/membership.messages.ts';
 
   interface Props {
     /** `undefined`: a missing user, named after `missing`. */

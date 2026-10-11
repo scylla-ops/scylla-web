@@ -3,17 +3,17 @@
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
   import { i18n } from '@lingui/core';
   import { createMutation } from '@scylla/core-sdk';
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { ConfirmOperationAlertDialog, CopyableText, DataTable } from '@scylla/ui';
   import { createSelection } from '@scylla/ui/state';
   import { formatDay } from '@shared/utils/date-utils.ts';
   import { toast } from '@scylla/ui/utils';
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
   import { t } from '@scylla/ui/i18n';
-  import type { SecretEntity } from '../../../../domain/entities/secret.entity.ts';
-  import { secretMutations } from '../../../secret.queries.ts';
-  import { secretMessages } from '../../secret.messages.ts';
-  import { secretColumns } from '../secret-columns.ts';
+  import type { SecretEntity } from '@base/features/secret/domain/entities/secret.entity.ts';
+  import { secretMutations } from '@base/features/secret/presentation/secret.queries.ts';
+  import { secretMessages } from '@base/features/secret/presentation/ui/secret.messages.ts';
+  import { secretColumns } from './secret-columns.ts';
 
   interface Props {
     secrets: SecretEntity[];

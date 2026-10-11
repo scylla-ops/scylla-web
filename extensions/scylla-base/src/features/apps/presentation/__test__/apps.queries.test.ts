@@ -4,7 +4,7 @@ import { QueryClient } from '@tanstack/query-core';
 import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { AppsRepository } from '../../domain/repository/apps.repository.ts';
+import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
 import {
   APPS_QUERY_KEY,
   APP_QUERY_KEY,

@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { BrowserOnboardingLocalDataSource } from '../../data/browser-onboarding-local.data-source.ts';
+import {
+  BrowserOnboardingLocalDataSource,
+} from '@base/features/onboarding/infrastructure/data/browser-onboarding-local.data-source.ts';
 import type { OnboardingLocalDataSource } from '../data-sources/onboarding-local.data-source.ts';
 import { DefaultOnboardingRepository } from '../default-onboarding.repository.ts';
 

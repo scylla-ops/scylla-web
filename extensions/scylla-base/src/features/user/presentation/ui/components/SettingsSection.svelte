@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/shadcn';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
 
   interface Props {

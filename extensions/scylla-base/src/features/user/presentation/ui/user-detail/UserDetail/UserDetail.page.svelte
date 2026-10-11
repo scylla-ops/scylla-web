@@ -1,12 +1,12 @@
 <script lang="ts">
   import { Permission, RequirePermission } from '@platform/authz';
   import { Redirect } from '@scylla/core-sdk';
-  import { Skeleton } from '@scylla/ui/shadcn';
+  import { Skeleton } from '@scylla/ui/primitives';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { createUserDetail } from '../../../user-detail.state.svelte.ts';
-  import UserDetailContent from '../UserDetailContent.svelte';
-  import { userMessages } from '../../user.messages.ts';
+  import { createUserDetail } from '@base/features/user/presentation/user-detail.state.svelte.ts';
+  import UserDetailContent from './UserDetailContent.svelte';
+  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
 
   interface Props {
     userId?: string;

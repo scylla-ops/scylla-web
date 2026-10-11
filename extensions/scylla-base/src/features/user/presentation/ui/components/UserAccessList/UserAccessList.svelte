@@ -2,13 +2,13 @@
   import Building2Icon from '@lucide/svelte/icons/building-2';
   import GlobeIcon from '@lucide/svelte/icons/globe';
   import { organizationUrl } from '@platform/context';
-  import { Badge, Skeleton } from '@scylla/ui/shadcn';
+  import { Badge, Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import {
     groupUserAccess,
     type UserAccess,
-  } from '../../../../domain/structs/user-access.struct.ts';
-  import { userMessages } from '../../user.messages.ts';
+  } from '@base/features/user/domain/structs/user-access.struct.ts';
+  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
 
   interface Props {
     access: UserAccess[] | undefined;

@@ -15,13 +15,13 @@
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { cn, toast } from '@scylla/ui/utils';
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
   import { t } from '@scylla/ui/i18n';
-  import type { AppEntity } from '../../../../domain/entities/app.entity.ts';
-  import { appsMessages } from '../../apps.messages.ts';
+  import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
+  import { appsMessages } from '@base/features/apps/presentation/ui/apps.messages.ts';
 
   interface Props {
     app: AppEntity;

@@ -2,8 +2,8 @@ import type { Snippet } from 'svelte';
 import { renderSnippet } from '@tanstack/svelte-table';
 import type { DataTableColumn } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
-import type { PipelineMetadata } from '../../../../domain/structs/pipeline.struct.ts';
-import { pipelineMessages } from '../../../pipeline.messages.ts';
+import type { PipelineMetadata } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
 export interface PipelineCells {
   status: Snippet<[PipelineMetadata]>;

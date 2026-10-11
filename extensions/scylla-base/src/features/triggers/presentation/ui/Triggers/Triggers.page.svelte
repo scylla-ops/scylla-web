@@ -5,8 +5,8 @@
   import { toRune } from '@scylla/ui/stores';
   import { ScyllaError } from '@shared/utils/scylla-result.ts';
   import { t } from '@scylla/ui/i18n';
-  import type { CreatedTrigger } from '../../../domain/entities/trigger.entity.ts';
-  import { triggerQueries } from '../../triggers.queries.ts';
+  import type { CreatedTrigger } from '@base/features/triggers/domain/entities/trigger.entity.ts';
+  import { triggerQueries } from '@base/features/triggers/presentation/triggers.queries.ts';
   import TriggersHeader from '../components/TriggersHeader/TriggersHeader.svelte';
   import TriggersOverview from '../components/TriggersOverview/TriggersOverview.svelte';
   import TriggerFormDialog from '../dialogs/TriggerFormDialog/TriggerFormDialog.svelte';

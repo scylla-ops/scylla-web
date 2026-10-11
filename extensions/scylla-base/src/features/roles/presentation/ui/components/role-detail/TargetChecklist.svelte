@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { Badge, Checkbox, Label } from '@scylla/ui/shadcn';
+  import { Badge, Checkbox, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type { TargetOption } from '../../../grant-creator.state.svelte.ts';
-  import { rolesMessages } from '../../roles.messages.ts';
+  import type {
+    TargetOption,
+  } from '@base/features/roles/presentation/grant-creator.state.svelte.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
 
   interface Props {
     label: string;

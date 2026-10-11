@@ -9,10 +9,12 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type { DraftInput } from '../../../utils/trigger-form.utils.ts';
-  import { triggersMessages } from '../../triggers.messages.ts';
+  import type {
+    DraftInput,
+  } from '@base/features/triggers/presentation/utils/trigger-form.utils.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/ui/triggers.messages.ts';
 
   interface Props {
     inputs: DraftInput[];

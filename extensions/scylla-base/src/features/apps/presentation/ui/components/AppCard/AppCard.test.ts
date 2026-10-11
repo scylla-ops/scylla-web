@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { findFloating, render } from '@test/render.svelte.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '@platform/context';
-import type { AppEntity } from '../../../../domain/entities/app.entity.ts';
+import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
 import AppCard from './AppCard.svelte';
 
 const toastSuccess = vi.fn();

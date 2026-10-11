@@ -1,15 +1,17 @@
 <script lang="ts">
   import { json, jsonParseLinter } from '@codemirror/lang-json';
   import { linter } from '@codemirror/lint';
-  import { Card, Tabs, TabsContent } from '@scylla/ui/shadcn';
+  import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
   import { renderCodeMirror } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import type { PipelineStep } from '../../../domain/structs/pipeline.struct.ts';
-  import { createPipelineScript } from '../../pipeline-script.state.svelte.ts';
+  import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import {
+    createPipelineScript,
+  } from '@base/features/pipeline/presentation/pipeline-script.state.svelte.ts';
   import PipelineBlueprint from './blueprint/PipelineBlueprint.svelte';
   import PipelineEditorHeader from './PipelineEditorHeader/PipelineEditorHeader.svelte';
   import { createScriptEditor } from './script-editor.svelte.ts';
-  import { pipelineMessages } from '../../pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
     /** `edit` tracks the unsaved changes; `create` does not. */

@@ -5,7 +5,7 @@
   import { createQuery } from '@scylla/core-sdk';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
-  import { agentQueries } from '../../agents.queries.ts';
+  import { agentQueries } from '@base/features/agents/presentation/agents.queries.ts';
   import { agentsMessages } from '../agents.messages.ts';
 
   interface Props {

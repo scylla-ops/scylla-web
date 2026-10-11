@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { ScyllaForm, FormItemType } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { loginPoints } from '../../login.points.ts';
+  import { loginPoints } from '@base/features/login/presentation/login.points.ts';
   import { loginMessages } from '../login.messages.ts';
 
   interface Props {

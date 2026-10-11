@@ -7,13 +7,13 @@
     SidebarGroup,
     SidebarRail,
     Skeleton,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { fillPath } from '../../routing/compilation/route-path.ts';
   import LanguageSelector from '../LanguageSelector/LanguageSelector.svelte';
-  import { NAV_SECTION_CARD_CLASS, NAV_SECTION_DIVIDER_CLASS } from '../nav-classes.ts';
-  import { navSectionsFor } from '../nav-sections.ts';
-  import NavMain from '../NavMain.svelte';
+  import { NAV_SECTION_CARD_CLASS, NAV_SECTION_DIVIDER_CLASS } from './nav-classes.ts';
+  import { navSectionsFor } from './nav-sections.ts';
+  import NavMain from './NavMain.svelte';
   import { mergeParams, type ShellConfig } from '../shell-config.ts';
   import { shellMessages } from '../shell.messages.ts';
 

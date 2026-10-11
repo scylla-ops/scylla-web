@@ -3,9 +3,9 @@ import { flushSync } from 'svelte';
 import { screen } from '@testing-library/svelte';
 import { i18n } from '@lingui/core';
 import { Permission, PermissionScope, RoleKind } from '@platform/authz';
-import { messages } from '../../../../locales/fr/messages.ts';
+import { messages } from '@base/features/roles/locales/fr/messages.ts';
 import { render } from '@test/render.svelte.ts';
-import type { RoleEntity } from '../../../../domain/entities/role.entity.ts';
+import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import RoleListItem from './RoleListItem.svelte';
 
 const role: RoleEntity = {

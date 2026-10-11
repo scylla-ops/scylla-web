@@ -1,11 +1,11 @@
 <script lang="ts">
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
-  import { DialogDescription, DialogHeader, DialogTitle } from '@scylla/ui/shadcn';
+  import { DialogDescription, DialogHeader, DialogTitle } from '@scylla/ui/primitives';
   import { ScyllaDialog } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import type { RoleEntity } from '../../../../domain/entities/role.entity.ts';
-  import type { RolesScope } from '../../../roles-page.state.svelte.ts';
-  import { rolesMessages } from '../../roles.messages.ts';
+  import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
+  import type { RolesScope } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
   import RoleForm from './RoleForm.svelte';
 
   interface Props {

@@ -1,13 +1,15 @@
 <script lang="ts">
   import PlusIcon from '@lucide/svelte/icons/plus';
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type { PipelineStep } from '../../../../domain/structs/pipeline.struct.ts';
-  import { createBlueprintState } from '../../../blueprint.state.svelte.ts';
+  import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import {
+    createBlueprintState,
+  } from '@base/features/pipeline/presentation/blueprint.state.svelte.ts';
   import BlueprintCanvas from './BlueprintCanvas.svelte';
   import StartNodeFormDialog from './StartNodeFormDialog.svelte';
   import StepNodeFormDialog from './StepNodeFormDialog.svelte';
-  import { pipelineMessages } from '../../../pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
     steps: PipelineStep[];

@@ -7,8 +7,10 @@ import { contextStore } from '@platform/context';
 import { permissionsStore, PermissionScope } from '@platform/authz';
 import { selectionStore } from '@scylla/ui/stores';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { ProjectEntity } from '../../../domain/entities/project.entity.ts';
-import type { ProjectRepository } from '../../../domain/repository/project.repository.ts';
+import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
+import type {
+  ProjectRepository,
+} from '@base/features/project/domain/repository/project.repository.ts';
 import ProjectCard from './ProjectCard.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn() } }));

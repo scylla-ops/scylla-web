@@ -11,12 +11,12 @@
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { IconButton } from '@scylla/ui';
   import { createCompactContainer } from '@scylla/ui/state';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import { triggersMessages } from '../../triggers.messages.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/ui/triggers.messages.ts';
 
   interface Props {
     onFire: (event: Event) => void;

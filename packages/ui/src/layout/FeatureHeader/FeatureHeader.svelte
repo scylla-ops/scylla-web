@@ -1,13 +1,13 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import TrashIcon from '@lucide/svelte/icons/trash';
-  import { Button } from '../../shadcn/index.ts';
+  import { Button } from '../../primitives/index.ts';
   import { toast } from '../../utils/toast.ts';
   import { activeLocale, t } from '../../i18n/i18n-svelte.svelte.ts';
   // Not the group barrels: they would import this file back.
   import GatedButton from '../../controls/GatedButton/GatedButton.svelte';
-  import ConfirmOperationAlertDialog from '../../feedback/ConfirmOperationAlertDialog.svelte';
-  import { featureHeaderMessages } from '../feature-header.messages.ts';
+  import ConfirmOperationAlertDialog from '../../feedback/ConfirmOperationAlertDialog/ConfirmOperationAlertDialog.svelte';
+  import { featureHeaderMessages } from './feature-header.messages.ts';
 
   interface Props {
     count?: number;

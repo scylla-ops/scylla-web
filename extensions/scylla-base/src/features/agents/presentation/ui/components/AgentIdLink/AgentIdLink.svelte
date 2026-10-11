@@ -4,7 +4,7 @@
   import { cn, toast } from '@scylla/ui/utils';
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
   import { t } from '@scylla/ui/i18n';
-  import { agentsMessages } from '../../agents.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/ui/agents.messages.ts';
 
   interface Props {
     id: string;

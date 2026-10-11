@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { FormItemType, ScyllaForm, type FormItem } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
@@ -7,8 +7,11 @@
     checkEmail,
     checkUsername,
   } from '@shared/utils/account-validation.ts';
-  import type { ProfileValues, UserEntity } from '../../../../domain/entities/user.entity.ts';
-  import { userMessages } from '../../user.messages.ts';
+  import type {
+    ProfileValues,
+    UserEntity,
+  } from '@base/features/user/domain/entities/user.entity.ts';
+  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
 
   interface Props {
     user: UserEntity;

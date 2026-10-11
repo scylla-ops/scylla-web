@@ -5,9 +5,9 @@
   import { UserIdentity } from '@shared/presentation/ui';
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { t } from '@scylla/ui/i18n';
-  import type { UserEntity } from '../../../../domain/entities/user.entity.ts';
-  import UserStatusBadge from '../../components/UserStatusBadge.svelte';
-  import { userMessages } from '../../user.messages.ts';
+  import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
+  import UserStatusBadge from '@base/features/user/presentation/ui/components/UserStatusBadge.svelte';
+  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
   import { userColumns } from './user-columns.ts';
 
   interface Props {

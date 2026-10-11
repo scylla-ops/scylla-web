@@ -14,12 +14,12 @@
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import { loadAddOrganizationDialog, loadOrganizationList } from '@base/features/organization';
-  import { layoutMessages } from '../../layout.messages.ts';
-  import CurrentContextDisplay from '../CurrentContextDisplay.svelte';
+  import { layoutMessages } from '@base/shell/presentation/layout/ui/layout.messages.ts';
+  import CurrentContextDisplay from './CurrentContextDisplay.svelte';
 
   const sidebar = getSidebar();
   const context = toRune(contextStore);

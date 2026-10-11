@@ -2,8 +2,8 @@ import type { Snippet } from 'svelte';
 import { renderSnippet } from '@tanstack/svelte-table';
 import type { DataTableColumn } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
-import type { UserEntity } from '../../../../domain/entities/user.entity.ts';
-import { userMessages } from '../../user.messages.ts';
+import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
+import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
 
 export interface UserCells {
   identity: Snippet<[UserEntity]>;

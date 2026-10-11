@@ -58,10 +58,10 @@ presentation/
   tour-placement.calculator.ts       card placement, dim path, connector path
   tour-tracking.actions.ts           trackTourStep (rAF + click listener), holdPointer
   onboarding-tour.state.svelte.ts    ViewModel: status, current step, skip, mutation events
-  ui/OnboardingTour/                 root (loaded by the shell) + its test
-  ui/TourSpot.svelte                 one spot step: tracking, spotlight, card(s)
-  ui/TourSpotlight.svelte, TourCard.svelte
-  ui/WelcomeDialog.svelte, SkipTourDialog.svelte, FinishTourDialog.svelte
+  ui/OnboardingTour/                 root (loaded by the shell) + its test, and its parts:
+    TourSpot.svelte                  one spot step: tracking, spotlight, card(s)
+    TourSpotlight.svelte, TourCard.svelte
+    WelcomeDialog.svelte, SkipTourDialog.svelte, FinishTourDialog.svelte
 ```
 
 ## How a step moves on
@@ -93,7 +93,7 @@ Anchors are attributes on the real elements, never CSS classes:
 - `data-part="…"` in `@scylla/ui` (generic parts): `feature-header-new`, `code-snippet-copy`,
   `secret-reveal-secret` (+ `data-state`), `secret-reveal-next-step`, `secret-reveal-confirm`.
 - `data-nav-url` on the core's sidebar links, `data-item-id` on `StatusBar` segments, and the
-  shadcn `data-slot` of the sidebar, the inset and the dialogs.
+  `data-slot` of the primitives: the sidebar, the inset and the dialogs.
 
 Removing or renaming one of these breaks a step without a type error. `tour-steps.test.ts` pins
 the anchors that carry logic.

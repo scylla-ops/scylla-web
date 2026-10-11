@@ -3,8 +3,12 @@
   import type { JobEntity } from '@base/features/jobs';
   import { createNow } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
-  import { calculateExecutionDuration, formatDuration, getRelativeTime } from '@shared/utils/date-utils.ts';
-  import { pipelineMessages } from '../../../pipeline.messages.ts';
+  import {
+    calculateExecutionDuration,
+    formatDuration,
+    getRelativeTime,
+  } from '@shared/utils/date-utils.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
     jobs: JobEntity[];

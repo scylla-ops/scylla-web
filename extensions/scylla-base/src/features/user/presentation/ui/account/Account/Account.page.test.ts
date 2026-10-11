@@ -5,8 +5,8 @@ import userEvent from '@testing-library/user-event';
 import { toast } from 'svelte-sonner';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { UserAccess } from '../../../../domain/structs/user-access.struct.ts';
-import type { UserSessionEntity } from '../../../../domain/entities/user-session.entity.ts';
+import type { UserAccess } from '@base/features/user/domain/structs/user-access.struct.ts';
+import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import AccountPage from './Account.page.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));

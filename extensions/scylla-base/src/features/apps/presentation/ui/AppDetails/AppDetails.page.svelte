@@ -4,14 +4,22 @@
   import { i18n } from '@lingui/core';
   import { createResourceError, scyllaNavigate, contextStore } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { Badge, Button, Card, CardContent, CodeSnippet, Skeleton, Switch } from '@scylla/ui/shadcn';
+  import {
+    Badge,
+    Button,
+    Card,
+    CardContent,
+    CodeSnippet,
+    Skeleton,
+    Switch,
+  } from '@scylla/ui/primitives';
   import { ConfirmOperationAlertDialog, ErrorState } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
   import { t } from '@scylla/ui/i18n';
-  import { appMutations, appQueries } from '../../apps.queries.ts';
-  import AppSecretsCard from '../components/AppSecretsCard.svelte';
+  import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
+  import AppSecretsCard from './AppSecretsCard.svelte';
   import { appsMessages } from '../apps.messages.ts';
 
   interface Props {

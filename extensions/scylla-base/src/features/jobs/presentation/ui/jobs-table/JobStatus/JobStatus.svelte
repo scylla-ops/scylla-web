@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { Badge } from '@scylla/ui/shadcn';
+  import { Badge } from '@scylla/ui/primitives';
   import { TruncatedText } from '@scylla/ui';
   import { getStatusIcon } from '@shared/presentation/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
-  import type { JobEntity } from '../../../../domain/entities/job.entity.ts';
-  import { jobsMessages } from '../../jobs.messages.ts';
+  import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/ui/jobs.messages.ts';
 
   interface Props {
     job: JobEntity;

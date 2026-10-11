@@ -15,7 +15,7 @@ export type StatusKey =
 export interface StatusConfig {
   /** A descriptor: this table is built at import time. */
   label: MessageDescriptor;
-  /** Classes for a `<Badge variant='outline'>`: the shadcn variants cannot tell the statuses apart. */
+  /** Classes for a `<Badge variant='outline'>`: the Badge variants cannot tell the statuses apart. */
   badgeClassName: string;
   iconClassName: string;
   barClassName: string;

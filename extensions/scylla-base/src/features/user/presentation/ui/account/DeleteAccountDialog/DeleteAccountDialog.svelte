@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Button, DialogFooter } from '@scylla/ui/shadcn';
+  import { Button, DialogFooter } from '@scylla/ui/primitives';
   import { FormItemType, ScyllaDialog, ScyllaForm, type FormItem } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { userMessages } from '../../user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
 
   interface Props {
     open: boolean;

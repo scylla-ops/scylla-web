@@ -7,9 +7,9 @@ export {
   type ColumnAlign,
   type DataTableColumn,
   type DataTableFeatures,
-} from './data-table.ts';
-export { default as Pagination } from './Pagination.svelte';
-export { default as PaginationSlot } from './PaginationSlot.svelte';
-export { generatePageNumbers, type PageItem } from './pagination.ts';
-export { default as StatusIndicator } from './StatusIndicator.svelte';
-export type { StatusIndicatorSize, StatusState } from './status-indicator.ts';
+} from './DataTable/data-table.ts';
+export { default as Pagination } from './Pagination/Pagination.svelte';
+export { default as PaginationSlot } from './Pagination/PaginationSlot.svelte';
+export { generatePageNumbers, type PageItem } from './Pagination/pagination.ts';
+export { default as StatusIndicator } from './StatusIndicator/StatusIndicator.svelte';
+export type { StatusIndicatorSize, StatusState } from './StatusIndicator/status-indicator.ts';

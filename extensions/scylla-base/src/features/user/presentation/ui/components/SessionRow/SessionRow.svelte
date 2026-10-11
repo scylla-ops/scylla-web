@@ -3,11 +3,13 @@
   import MonitorIcon from '@lucide/svelte/icons/monitor';
   import SmartphoneIcon from '@lucide/svelte/icons/smartphone';
   import TerminalIcon from '@lucide/svelte/icons/terminal';
-  import { Badge, Button } from '@scylla/ui/shadcn';
+  import { Badge, Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type { UserSessionEntity } from '../../../../domain/entities/user-session.entity.ts';
-  import { parseUserAgent } from '../../../user-agent.calculator.ts';
-  import { userMessages } from '../../user.messages.ts';
+  import type {
+    UserSessionEntity,
+  } from '@base/features/user/domain/entities/user-session.entity.ts';
+  import { parseUserAgent } from '@base/features/user/presentation/user-agent.calculator.ts';
+  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
   import { sessionActivity, sessionTitle } from './session-row.ts';
 
   interface Props {

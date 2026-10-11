@@ -1,10 +1,14 @@
 <script lang="ts">
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { FormItemType, ScyllaForm, type FormItem } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { checkEmail } from '@shared/utils/account-validation.ts';
-  import type { PasswordResetDelivery } from '../../../domain/structs/password-reset.struct.ts';
-  import { ForgotPasswordState } from '../../forgot-password.state.svelte.ts';
+  import type {
+    PasswordResetDelivery,
+  } from '@base/features/login/domain/structs/password-reset.struct.ts';
+  import {
+    ForgotPasswordState,
+  } from '@base/features/login/presentation/forgot-password.state.svelte.ts';
   import AuthLayout from '../AuthLayout.svelte';
   import { passwordResetMessages } from '../password-reset.messages.ts';
 

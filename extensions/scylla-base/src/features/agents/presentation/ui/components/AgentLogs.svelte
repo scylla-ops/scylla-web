@@ -1,8 +1,11 @@
 <script lang="ts">
   import ExternalLinkIcon from '@lucide/svelte/icons/external-link';
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { mockInitialLogs, type LogLevel } from '../../utils/agent-mock-data.ts';
+  import {
+    mockInitialLogs,
+    type LogLevel,
+  } from '@base/features/agents/presentation/utils/agent-mock-data.ts';
   import { agentsMessages } from '../agents.messages.ts';
 
   interface Props {
