@@ -6,7 +6,7 @@
     DialogDescription,
     DialogHeader,
     DialogTitle,
-  } from '../../shadcn/index.ts';
+  } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
 
   interface Props {

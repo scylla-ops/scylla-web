@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/shadcn';
+  import { Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
   import { StatusBar, type StatusBarItem } from '@shared/presentation/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';

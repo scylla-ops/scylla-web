@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import LogoScylla from '@scylla/ui/assets/logo_scylla.svg';
   import LogoScyllaDark from '@scylla/ui/assets/logo_scylla_dark.svg';
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/shadcn';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/primitives';
 
   interface Props {
     title: string;

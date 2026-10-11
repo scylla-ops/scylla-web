@@ -1,6 +1,6 @@
 <script lang="ts">
   import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
-  import { SIDEBAR_FADE } from '@scylla/ui/shadcn';
+  import { SIDEBAR_FADE } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import type { LucideIcon } from '@scylla/ui';
 

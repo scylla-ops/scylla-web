@@ -91,7 +91,7 @@ module.exports = {
           R + '$1/$2/',
           R + 'packages/(core|ui)/src/index[.]ts$',
           R + 'sdks/[^/]+/src/index[.]ts$',
-          R + 'packages/ui/src/(shadcn|state|stores|i18n|utils|structs)/index[.]ts$',
+          R + 'packages/ui/src/(primitives|state|stores|i18n|utils|structs)/index[.]ts$',
           R + 'packages/ui/src/styles[.]css$',
           R + 'packages/ui/src/assets/',
         ],

@@ -1,6 +1,6 @@
 <script lang="ts">
   import PlusIcon from '@lucide/svelte/icons/plus';
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import {

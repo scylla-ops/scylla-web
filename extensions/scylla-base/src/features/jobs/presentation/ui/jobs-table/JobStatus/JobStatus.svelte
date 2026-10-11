@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Badge } from '@scylla/ui/shadcn';
+  import { Badge } from '@scylla/ui/primitives';
   import { TruncatedText } from '@scylla/ui';
   import { getStatusIcon } from '@shared/presentation/ui';
   import { cn } from '@scylla/ui/utils';

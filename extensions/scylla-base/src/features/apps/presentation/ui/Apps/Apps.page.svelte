@@ -4,7 +4,7 @@
   import { can, Permission } from '@platform/authz';
   import { scyllaNavigate, contextStore } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { Card, Skeleton } from '@scylla/ui/shadcn';
+  import { Card, Skeleton } from '@scylla/ui/primitives';
   import {
     ConfirmOperationAlertDialog,
     ErrorState,

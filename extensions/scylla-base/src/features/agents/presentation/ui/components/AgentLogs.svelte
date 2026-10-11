@@ -1,6 +1,6 @@
 <script lang="ts">
   import ExternalLinkIcon from '@lucide/svelte/icons/external-link';
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import {
     mockInitialLogs,

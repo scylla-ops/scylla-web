@@ -1,6 +1,6 @@
 <script lang="ts" generics="TItem extends StatusBarItem">
   import type { Snippet } from 'svelte';
-  import { Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/shadcn';
+  import { Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { getStatusConfig } from '@shared/utils/status-config.ts';

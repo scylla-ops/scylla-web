@@ -12,7 +12,7 @@
     Tooltip,
     TooltipContent,
     TooltipTrigger,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { IconButton } from '@scylla/ui';
   import { createSelection } from '@scylla/ui/state';
   import { cn } from '@scylla/ui/utils';

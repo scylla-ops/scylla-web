@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Badge } from '@scylla/ui/shadcn';
+  import { Badge } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { userMessages } from '../user.messages.ts';
 

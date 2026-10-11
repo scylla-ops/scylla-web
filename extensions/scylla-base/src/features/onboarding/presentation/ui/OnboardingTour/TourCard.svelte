@@ -2,7 +2,7 @@
   import { fade, fly, slide } from 'svelte/transition';
   import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
   import { motionDuration } from '@scylla/ui';
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import {

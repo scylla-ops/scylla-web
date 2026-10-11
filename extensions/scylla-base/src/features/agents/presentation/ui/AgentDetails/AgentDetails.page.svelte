@@ -4,7 +4,7 @@
   import { can, Permission } from '@platform/authz';
   import { createResourceError, scyllaNavigate, contextStore } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { Badge, Button, Skeleton } from '@scylla/ui/shadcn';
+  import { Badge, Button, Skeleton } from '@scylla/ui/primitives';
   import { ConfirmOperationAlertDialog, ErrorState } from '@scylla/ui';
   import { AgentRunInstructions } from '@shared/presentation/ui';
   import { toRune } from '@scylla/ui/stores';

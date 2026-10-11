@@ -15,7 +15,7 @@
     CardTitle,
     Separator,
     Skeleton,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { ErrorState, FeatureHeader } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';

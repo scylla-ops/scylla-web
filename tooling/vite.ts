@@ -186,8 +186,9 @@ export const defineScyllaConfig = ({ workspaceRoot, app, thresholds }: ScyllaCon
           // to compose parts a raw snippet cannot build, and it is rendered only
           // by the test beside it.
           '**/*.fixture.{ts,svelte}',
-          // Vendored shadcn primitives — upstream code we don't own.
-          '**/shadcn/**',
+          // The primitives are styling wrappers on bits-ui, with almost no logic of
+          // their own: the composites that use them are what the tests measure.
+          '**/primitives/**',
           // Barrels and module declarations are re-exports and wiring: covering
           // them measures nothing, and `*.module.ts` pulls a feature's gRPC
           // client in just by being imported. `*.widget-injection.ts` is the

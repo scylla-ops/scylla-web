@@ -1,7 +1,7 @@
 <script lang="ts">
   import { json, jsonParseLinter } from '@codemirror/lang-json';
   import { linter } from '@codemirror/lint';
-  import { Card, Tabs, TabsContent } from '@scylla/ui/shadcn';
+  import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
   import { renderCodeMirror } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';

@@ -13,7 +13,7 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { createMutation } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import type {

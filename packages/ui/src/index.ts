@@ -1,4 +1,4 @@
-/** The composites. The shadcn-svelte primitives are in `@scylla/ui/shadcn`. */
+/** The composites. The primitives are in `@scylla/ui/primitives`. */
 export * from './controls';
 export * from './data-display';
 export * from './editor/code-mirror.actions.ts';

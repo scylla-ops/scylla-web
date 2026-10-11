@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Separator, Skeleton } from '@scylla/ui/shadcn';
+  import { Separator, Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { createNow } from '@scylla/ui/state';
   import type {

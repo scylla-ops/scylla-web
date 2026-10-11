@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Card } from '@scylla/ui/shadcn';
+  import { Card } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { UserSummary } from '@base/features/user';
   import { UserIdentity, type MissingUser } from '@shared/presentation/ui';

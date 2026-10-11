@@ -2,7 +2,7 @@
   import ActivityIcon from '@lucide/svelte/icons/activity';
   import ClipboardListIcon from '@lucide/svelte/icons/clipboard-list';
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
-  import { Button, Card, CardContent, CardHeader, CardTitle } from '@scylla/ui/shadcn';
+  import { Button, Card, CardContent, CardHeader, CardTitle } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { secretMessages } from '../secret.messages.ts';
 

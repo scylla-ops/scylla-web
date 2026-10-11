@@ -2,7 +2,7 @@
   import ClockIcon from '@lucide/svelte/icons/clock';
   import PowerIcon from '@lucide/svelte/icons/power';
   import WebhookIcon from '@lucide/svelte/icons/webhook';
-  import { Card, CardContent } from '@scylla/ui/shadcn';
+  import { Card, CardContent } from '@scylla/ui/primitives';
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { t } from '@scylla/ui/i18n';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';

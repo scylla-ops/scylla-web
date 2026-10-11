@@ -12,7 +12,7 @@
     SelectValue,
     ToggleGroup,
     ToggleGroupItem,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
   import {

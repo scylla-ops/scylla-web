@@ -9,7 +9,7 @@
     DialogFooter,
     DialogHeader,
     DialogTitle,
-  } from '../../shadcn/index.ts';
+  } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
   import { t } from '../../i18n/i18n-svelte.svelte.ts';
   import { secretRevealMessages } from './secret-reveal.messages.ts';

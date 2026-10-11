@@ -2,7 +2,7 @@
   import BotIcon from '@lucide/svelte/icons/bot';
   import UserIcon from '@lucide/svelte/icons/user';
   import { RoleKind } from '@platform/authz';
-  import { Label, ToggleGroup, ToggleGroupItem } from '@scylla/ui/shadcn';
+  import { Label, ToggleGroup, ToggleGroupItem } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
 

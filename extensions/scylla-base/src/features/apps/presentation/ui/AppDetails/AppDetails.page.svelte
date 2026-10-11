@@ -12,7 +12,7 @@
     CodeSnippet,
     Skeleton,
     Switch,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { ConfirmOperationAlertDialog, ErrorState } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { formatDate } from '@shared/utils/date-utils.ts';
