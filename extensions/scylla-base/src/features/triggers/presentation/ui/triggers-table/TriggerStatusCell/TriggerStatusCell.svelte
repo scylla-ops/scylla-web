@@ -3,7 +3,7 @@
   import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
   import MinusCircleIcon from '@lucide/svelte/icons/minus-circle';
   import XCircleIcon from '@lucide/svelte/icons/x-circle';
-  import { Badge } from '@scylla/ui/shadcn';
+  import { Badge } from '@scylla/ui/primitives';
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { t } from '@scylla/ui/i18n';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';

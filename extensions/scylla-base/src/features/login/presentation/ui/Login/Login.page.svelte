@@ -1,7 +1,7 @@
 <script lang="ts">
   import LogoScylla from '@scylla/ui/assets/logo_scylla.svg';
   import LogoScyllaDark from '@scylla/ui/assets/logo_scylla_dark.svg';
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/shadcn';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/primitives';
   import { ScyllaLoadingScreen } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { LoginState } from '@base/features/login';

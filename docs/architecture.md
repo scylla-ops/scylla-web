@@ -53,7 +53,7 @@ The frontend is a pnpm workspace:
 ```
 apps/web/                  @scylla/web       the build: the list of extensions, main.ts
 packages/core/             @scylla/core      extension loader, route compilation, router, shell frame
-packages/ui/               @scylla/ui        design system: shadcn, composites, rune helpers, stores, i18n
+packages/ui/               @scylla/ui        design system: primitives, composites, rune helpers, stores, i18n
 sdks/core-sdk/             @scylla/core-sdk  the contract: @Extension, ScyllaModule, navigation, DI, query
 sdks/scylla-base-sdk/      @scylla/base-sdk  the public API of scylla-base, for the other extensions
 extensions/scylla-base/    @scylla/base      the Scylla product
@@ -538,7 +538,7 @@ Another extension uses `navigateTo` from `@scylla/core-sdk`. Never import the ro
 
 ## 8. Shared patterns
 
-These are in `@scylla/ui` (entry points `@scylla/ui`, `@scylla/ui/shadcn`, `@scylla/ui/state`,
+These are in `@scylla/ui` (entry points `@scylla/ui`, `@scylla/ui/primitives`, `@scylla/ui/state`,
 `@scylla/ui/stores`, `@scylla/ui/i18n`, `@scylla/ui/utils`, `@scylla/ui/structs`).
 
 ### 8.1 Selection — `createSelection(key)`
@@ -623,7 +623,7 @@ runtime merges them into one map, so `pnpm i18n:collisions` must stay at zero.
 | Router written in `@scylla/core` | Routing |
 | Lingui 5 | Internationalization (en, fr) |
 | gRPC-Web (protobuf-ts) | Backend communication |
-| shadcn-svelte + bits-ui | UI component primitives |
+| bits-ui | UI component primitives (adapted from shadcn/ui) |
 | lucide (`@lucide/svelte`) | Icons |
 | svelte-sonner | Toasts |
 | `@xyflow/svelte` | Graphs |

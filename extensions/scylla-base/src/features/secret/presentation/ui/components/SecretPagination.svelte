@@ -1,7 +1,7 @@
 <script lang="ts">
   import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { secretMessages } from '../secret.messages.ts';
 

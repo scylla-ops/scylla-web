@@ -2,7 +2,7 @@
   import type { MessageDescriptor } from '@lingui/core';
   import Loader2Icon from '@lucide/svelte/icons/loader-2';
   import { Permission, can } from '@platform/authz';
-  import { TabsList, TabsTrigger } from '@scylla/ui/shadcn';
+  import { TabsList, TabsTrigger } from '@scylla/ui/primitives';
   import { GatedButton } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';

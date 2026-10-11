@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { SidebarInset, SidebarProvider } from '@scylla/ui/shadcn';
+  import { SidebarInset, SidebarProvider } from '@scylla/ui/primitives';
   import AppSidebar from '../AppSidebar/AppSidebar.svelte';
   import { shellConfig } from '../shell-config.ts';
   import TopBar from '../TopBar/TopBar.svelte';

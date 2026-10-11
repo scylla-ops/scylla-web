@@ -1,6 +1,6 @@
 <script lang="ts">
   import EyeIcon from '@lucide/svelte/icons/eye';
-  import { Avatar, AvatarFallback, AvatarImage } from '@scylla/ui/shadcn';
+  import { Avatar, AvatarFallback, AvatarImage } from '@scylla/ui/primitives';
   import { DataTable, IconButton, TruncatedText } from '@scylla/ui';
   import { createSelection } from '@scylla/ui/state';
   import { formatDate } from '@shared/utils/date-utils.ts';

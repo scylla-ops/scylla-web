@@ -15,7 +15,7 @@ specific mistakes that module invites.
 ```
 apps/web/AGENTS.md                                       the build: the list of extensions
 packages/core/AGENTS.md                                  loader, router, shell frame
-packages/ui/AGENTS.md                                    design system: shadcn, composites, stores, i18n
+packages/ui/AGENTS.md                                    design system: primitives, composites, stores, i18n
 sdks/core-sdk/AGENTS.md                                  the extension contract: @Extension, ScyllaModule, DI, query
 sdks/scylla-base-sdk/AGENTS.md                           the public API of scylla-base for other extensions
 extensions/scylla-base/AGENTS.md                         the Scylla extension
@@ -238,7 +238,7 @@ injected, still substitutable in a test. Only the redundant indirection is gone.
   language), `App.svelte`.
 - `sdks/core-sdk` — `@Extension`, `ScyllaModule`, the navigation (`navigateTo`, `routeParams`),
   DI (`getModuleDomain`) and query (`createQuery`) API that the core installs.
-- `packages/ui` — shadcn primitives, generic composites, rune helpers, stores, i18n runtime, theme.
+- `packages/ui` — primitives (adapted from shadcn/ui), generic composites, rune helpers, stores, i18n runtime, theme.
 - scylla-base `shell/` — `modules.ts` (the feature list), `ShellModule` (mounts, sidebar
   sections, auth gate, context wrappers, access policy, error policy, shell parts).
 - scylla-base `platform/` — `authz` (Permission, `can`, `Can`, `RequirePermission`), `context`
@@ -318,7 +318,7 @@ In query and mutation options, call `.unwrap()` inside `mutationFn`/`queryFn` so
 ## Shared Patterns (reuse these — don't reinvent)
 
 The components and helpers below are in `@scylla/ui` (entry points `@scylla/ui`,
-`@scylla/ui/shadcn`, `@scylla/ui/state`, `@scylla/ui/stores`, `@scylla/ui/i18n`,
+`@scylla/ui/primitives`, `@scylla/ui/state`, `@scylla/ui/stores`, `@scylla/ui/i18n`,
 `@scylla/ui/utils`, `@scylla/ui/structs`).
 
 - **Selection**: `createSelection(key)` over the single `selectionStore`, keyed by feature. Used by
@@ -437,9 +437,9 @@ that is not one component's internals stays a kebab-case group folder (`jobs-tab
 `role-detail/`). ViewModels (`*.state.svelte.ts`) do not move into a component folder: they
 stay in `presentation/` (the permission conformance test reads them there).
 
-`packages/ui/src/shadcn/` follows the shadcn-svelte layout instead: one kebab-case folder per
+`packages/ui/src/primitives/` follows the shadcn layout instead: one kebab-case folder per
 primitive (`card/card.svelte`, `card/card-title.svelte`, …), with its variants and its messages,
-behind the one `shadcn/index.ts`.
+behind the one `primitives/index.ts`.
 
 ### Minimalism (applies inside the layers, not against them)
 
@@ -510,7 +510,7 @@ Where a test goes:
 - **Every other test goes in the `__test__/` folder of the directory it covers**:
   `presentation/grant-creator.state.svelte.ts` → `presentation/__test__/grant-creator.state.svelte.test.ts`.
   Fixtures used by several components' tests go there too.
-- `shadcn/` is vendored: one kebab-case folder per primitive, and its tests go in that folder.
+- `primitives/`: one kebab-case folder per primitive, and its tests go in that folder.
 
 The harness is five files in `test/` at the repository root (alias `@test/*`), and it is the only
 shared test code of the workspace:
@@ -582,7 +582,7 @@ entries are open questions, not decisions.
 
 `pnpm coverage` enforces the thresholds in `vite.config.ts`, and CI runs it in place of
 `pnpm test`. They are a **ratchet**: raise them when a batch of tests lands, never lower them to
-turn a red run green. Generated proto code, compiled catalogs, vendored `shadcn/`, barrels and
+turn a red run green. Generated proto code, compiled catalogs, `primitives/` (styling wrappers on bits-ui), barrels and
 `*.module.ts` are excluded — covering a re-export measures nothing.
 
 ---
@@ -648,7 +648,7 @@ turn a red run green. Generated proto code, compiled catalogs, vendored `shadcn/
 - Lint rules worth knowing (see `eslint.config.js`): `no-floating-promises` and `no-misused-promises` are errors — never fire-and-forget a promise; unused bindings must be prefixed `_` to be tolerated. The `no-unsafe-*` rules are off only because of the generated proto layer — that is not a licence to spread `any`. `no-restricted-imports` forbids `@tanstack/svelte-query` (use `@scylla/core-sdk`).
 
 ### Stack
-Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@tanstack/svelte-query`) · TanStack Table 9 · Lingui 5 · gRPC-Web (protobuf-ts) · shadcn-svelte + bits-ui · lucide (`@lucide/svelte`) · svelte-sonner · `@xyflow/svelte` · CodeMirror 6 · Tailwind CSS 4 · Vite 7 · Vitest + Testing Library.
+Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@tanstack/svelte-query`) · TanStack Table 9 · Lingui 5 · gRPC-Web (protobuf-ts) · bits-ui (primitives adapted from shadcn/ui) · lucide (`@lucide/svelte`) · svelte-sonner · `@xyflow/svelte` · CodeMirror 6 · Tailwind CSS 4 · Vite 7 · Vitest + Testing Library.
 
 ---
 
@@ -688,7 +688,7 @@ Because of that, the tooling of this repo must work from another root. Keep it s
    `getModuleDomain<typeof XModule.domain>('<id>')` — in this file only.
 6. Presentation: follow "Where the logic goes" — a `*.state.svelte.ts` ViewModel for a page that
    orchestrates, actions for DOM work, calculators for pure algorithms. Components import shared
-   UI from `@scylla/ui` and primitives from `@scylla/ui/shadcn`. Read
+   UI from `@scylla/ui` and primitives from `@scylla/ui/primitives`. Read
    `packages/ui/AGENTS.md` first.
 7. Every message in a `*.messages.ts` beside its component (`msg`), rendered with `t()`. Add
    `locales/{en,fr}/`: `lingui.config.js` finds the new catalog itself.

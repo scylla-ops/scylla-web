@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ComponentProps } from 'svelte';
-  import { Tabs } from '@scylla/ui/shadcn';
+  import { Tabs } from '@scylla/ui/primitives';
   import PipelineEditorHeader from './PipelineEditorHeader.svelte';
 
   let props: ComponentProps<typeof PipelineEditorHeader> = $props();

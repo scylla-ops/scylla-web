@@ -10,7 +10,7 @@
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { activeLocale, setAppLocale, t, type SupportedLocale } from '@scylla/ui/i18n';
   import { shellMessages } from '../shell.messages.ts';
 

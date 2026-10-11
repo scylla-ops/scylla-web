@@ -8,7 +8,7 @@
     CardDescription,
     CardHeader,
     CardTitle,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import {
     FormItemType,
     ScyllaForm,

@@ -7,7 +7,7 @@
   import { can, Permission } from '@platform/authz';
   import { navigateTo, contextStore } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { Skeleton } from '@scylla/ui/shadcn';
+  import { Skeleton } from '@scylla/ui/primitives';
   import {
     ConfirmOperationAlertDialog,
     ContextItem,

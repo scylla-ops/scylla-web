@@ -6,7 +6,7 @@
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { NAV_SECTION_CARD_CLASS, NAV_SECTION_DIVIDER_CLASS } from './nav-classes.ts';
   import type { NavItem, NavSection } from '../structs/nav-section.struct.ts';
 

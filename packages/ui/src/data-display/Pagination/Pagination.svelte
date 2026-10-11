@@ -7,7 +7,7 @@
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-  } from '../../shadcn/index.ts';
+  } from '../../primitives/index.ts';
   import type { PaginationInfo } from '../../structs/pagination.struct.ts';
   import { cn } from '../../utils/index.ts';
   import { t } from '../../i18n/i18n-svelte.svelte.ts';

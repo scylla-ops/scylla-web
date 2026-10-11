@@ -15,7 +15,7 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { renderCodeMirror } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';

@@ -6,7 +6,7 @@
   import TerminalIcon from '@lucide/svelte/icons/terminal';
   import XIcon from '@lucide/svelte/icons/x';
   import { Permission, can } from '@platform/authz';
-  import { Badge, Button } from '@scylla/ui/shadcn';
+  import { Badge, Button } from '@scylla/ui/primitives';
   import { getStatusIcon } from '@shared/presentation/ui';
   import { createMeasuredHeight } from '@scylla/ui/state';
   import { cn } from '@scylla/ui/utils';

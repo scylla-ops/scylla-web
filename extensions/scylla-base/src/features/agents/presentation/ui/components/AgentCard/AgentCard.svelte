@@ -16,7 +16,7 @@
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { cn, toast } from '@scylla/ui/utils';
   import { formatDate, getRelativeTime } from '@shared/utils/date-utils.ts';
   import { ToastMessages } from '@shared/utils/toast-messages.ts';

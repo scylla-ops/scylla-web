@@ -5,7 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./shadcn": "./src/shadcn/index.ts",
+    "./primitives": "./src/primitives/index.ts",
     "./state": "./src/state/index.ts",
     "./stores": "./src/stores/index.ts",
     "./i18n": "./src/i18n/index.ts",

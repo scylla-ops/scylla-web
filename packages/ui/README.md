@@ -4,7 +4,7 @@
 > [agent guide](./AGENTS.md) · [architecture](../../docs/architecture.md)
 
 The design system: generic components, state helpers and utilities with **no business meaning**.
-Tables, forms, dialogs, pagination, the shadcn-svelte primitives, the theme tokens and the i18n
+Tables, forms, dialogs, pagination, the primitives (adapted from shadcn/ui), the theme tokens and the i18n
 runtime.
 
 Every package may import `@scylla/ui`. It imports no other package of the workspace, and
@@ -55,11 +55,11 @@ never holds fetched data.
 
 ## Layout
 
-One folder per entry point of `package.json` (`shadcn/`, `state/`, `stores/`, `i18n/`, `utils/`,
+One folder per entry point of `package.json` (`primitives/`, `state/`, `stores/`, `i18n/`, `utils/`,
 `structs/`), and the component groups that `@scylla/ui` re-exports (`data-display`, `feedback`,
 `forms`, `controls`, `layout`, `motion`, `editor`). `styles.css` holds Tailwind and the theme
-tokens; `apps/web` imports it once. `shadcn/` is ported vendor code — compose around it rather
-than editing it.
+tokens; `apps/web` imports it once. `primitives/` is adapted from shadcn/ui and keeps
+its API — compose around it rather than editing it.
 
 ## Related packages
 

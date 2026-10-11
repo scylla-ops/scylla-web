@@ -6,7 +6,7 @@
   import UserIcon from '@lucide/svelte/icons/user';
   import XIcon from '@lucide/svelte/icons/x';
   import { PermissionScope, PrincipalKind } from '@platform/authz';
-  import { Badge } from '@scylla/ui/shadcn';
+  import { Badge } from '@scylla/ui/primitives';
   import { IconButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';

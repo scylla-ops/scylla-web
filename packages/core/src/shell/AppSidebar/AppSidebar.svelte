@@ -7,7 +7,7 @@
     SidebarGroup,
     SidebarRail,
     Skeleton,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { fillPath } from '../../routing/compilation/route-path.ts';
   import LanguageSelector from '../LanguageSelector/LanguageSelector.svelte';

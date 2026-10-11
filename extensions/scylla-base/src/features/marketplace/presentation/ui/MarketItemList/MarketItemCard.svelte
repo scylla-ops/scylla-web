@@ -9,7 +9,7 @@
     CardFooter,
     CardHeader,
     CardTitle,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { marketplaceMessages } from '../marketplace.messages.ts';

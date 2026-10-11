@@ -13,7 +13,7 @@
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { IconButton } from '@scylla/ui';
   import { createCompactContainer } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';

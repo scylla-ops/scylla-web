@@ -11,7 +11,7 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
-  } from '../../shadcn/index.ts';
+  } from '../../primitives/index.ts';
   import { createFormState } from '../form-state.svelte.ts';
   import { FormItemType, type FormItem, type FormValues } from '../scylla-form.struct.ts';
 

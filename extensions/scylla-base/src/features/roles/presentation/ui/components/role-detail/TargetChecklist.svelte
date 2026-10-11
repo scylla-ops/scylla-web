@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Badge, Checkbox, Label } from '@scylla/ui/shadcn';
+  import { Badge, Checkbox, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type {
     TargetOption,

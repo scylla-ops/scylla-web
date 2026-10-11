@@ -1,7 +1,7 @@
 <script lang="ts">
   import MoonIcon from '@lucide/svelte/icons/moon';
   import SunIcon from '@lucide/svelte/icons/sun';
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { getTheme, setTheme } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import { shellMessages } from './shell.messages.ts';

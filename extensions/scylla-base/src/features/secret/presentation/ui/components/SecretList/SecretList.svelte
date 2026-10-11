@@ -3,7 +3,7 @@
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
   import { i18n } from '@lingui/core';
   import { createMutation } from '@scylla/core-sdk';
-  import { Button } from '@scylla/ui/shadcn';
+  import { Button } from '@scylla/ui/primitives';
   import { ConfirmOperationAlertDialog, CopyableText, DataTable } from '@scylla/ui';
   import { createSelection } from '@scylla/ui/state';
   import { formatDay } from '@shared/utils/date-utils.ts';

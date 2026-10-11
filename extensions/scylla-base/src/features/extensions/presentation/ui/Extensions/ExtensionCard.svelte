@@ -1,6 +1,6 @@
 <script lang="ts">
   import PuzzleIcon from '@lucide/svelte/icons/puzzle';
-  import { Badge, Card, CardContent } from '@scylla/ui/shadcn';
+  import { Badge, Card, CardContent } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type {
     InstalledExtension,

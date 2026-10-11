@@ -1,5 +1,5 @@
 /**
- * The shadcn primitives, ported to Svelte on bits-ui.
+ * The primitives, adapted from shadcn/ui and ported to Svelte on bits-ui (see README.md).
  *
  * Ported on demand: a primitive lands here when its first consumer needs it.
  * Class strings are copied verbatim from shadcn/ui, which is why the design

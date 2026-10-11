@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createResourceError } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
-  import { Skeleton } from '@scylla/ui/shadcn';
+  import { Skeleton } from '@scylla/ui/primitives';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { jobQueries } from '@base/features/jobs/presentation/jobs.queries.ts';

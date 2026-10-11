@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { Card, CardContent, CardHeader, CardTitle } from '@scylla/ui/shadcn';
+  import { Card, CardContent, CardHeader, CardTitle } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
   import UserInformation from './UserInformation.svelte';

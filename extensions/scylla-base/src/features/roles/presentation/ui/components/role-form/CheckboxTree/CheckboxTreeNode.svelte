@@ -1,7 +1,7 @@
 <script lang="ts">
   import LockIcon from '@lucide/svelte/icons/lock';
   import type { Permission } from '@platform/authz';
-  import { Checkbox, Label } from '@scylla/ui/shadcn';
+  import { Checkbox, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
   import type { CheckboxNode } from '../checkbox-tree.ts';

@@ -16,7 +16,7 @@
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { userQueries } from '@base/features/user';
   import { signOut } from '@base/shell/presentation/layout/sign-out.ts';
