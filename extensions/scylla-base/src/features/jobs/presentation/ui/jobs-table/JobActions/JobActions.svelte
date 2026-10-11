@@ -29,7 +29,7 @@
 </script>
 
 <!-- Falls back to a menu when the column is too narrow. -->
-<div use:container.measure class="flex w-full items-center justify-center gap-2 shrink-0">
+<div {@attach container.measure} class="flex w-full items-center justify-center gap-2 shrink-0">
   {#if container.isCompact}
     <DropdownMenu>
       <DropdownMenuTrigger

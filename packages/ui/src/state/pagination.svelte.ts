@@ -1,4 +1,4 @@
-import type { Action } from 'svelte/action';
+import type { Attachment } from 'svelte/attachments';
 import {
   DEFAULT_PAGE_SIZE,
   type PaginationInfo,
@@ -26,7 +26,7 @@ export interface Pagination {
   setPage: (page: number) => void;
   setPageSize: (size: number) => void;
   updatePaginationInfo: (info: PaginationInfo | undefined) => void;
-  measure: Action<HTMLElement>;
+  measure: Attachment<HTMLElement>;
 }
 
 /**

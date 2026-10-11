@@ -117,12 +117,12 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
 - **Log tailing is a subscription to something outside the framework**, so it is a Svelte
   action / `*.svelte.ts` owner — `tail-job-logs.svelte.ts` — and never reactivity. It opens the
   stream and **closes it on teardown**; the same holds for `streamed-log-view.svelte.ts`, which
-  drives a CodeMirror instance through `@shared/presentation/ui/editor/code-mirror.actions.ts`.
+  drives a CodeMirror instance through `renderCodeMirror` (`@scylla/ui`).
 - **Never re-seed the editor with the whole live log string.** Replacing the document
   (`changes: { from: 0, to: doc.length }`) resets the scroll offset and collapses the selection;
   at one flush per 150 ms the log appears to jump back to the top and nothing can be selected.
   `streamed-log-view.svelte.ts` appends the delta instead — that is the entire reason it exists.
-  This is also why the CodeMirror mount is an action: the editor is an outside system, and a
+  This is also why the CodeMirror mount is an attachment: the editor is an outside system, and a
   `value` prop would invite exactly the replacement above.
 - **Never scroll that viewer to the bottom on every log change** either — same flush rate, and it
   steals the viewport from a user who scrolled up or is dragging a selection. The same file owns

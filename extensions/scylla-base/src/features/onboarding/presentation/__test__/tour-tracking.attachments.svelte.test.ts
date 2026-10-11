@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { flushSync, untrack } from 'svelte';
+import type { Attachment } from 'svelte/attachments';
 import type { TourAnchor, TourSpotStep } from '../tour-steps.ts';
 import {
   HOLD_MS,
@@ -8,7 +10,7 @@ import {
   measure,
   trackTourStep,
   type TourTracking,
-} from '../tour-tracking.actions.ts';
+} from '../tour-tracking.attachments.svelte.ts';
 
 const byId =
   (id: string): TourAnchor =>
@@ -25,6 +27,26 @@ const step = (overrides: Partial<TourSpotStep>): TourSpotStep => ({
   ...overrides,
 });
 
+/** Runs an attachment the way a template does: in an effect, with its options as state. */
+const attach = <T>(
+  make: (options: () => T) => Attachment<HTMLElement>,
+  node: HTMLElement,
+  initial: T,
+) => {
+  let options = $state.raw(initial);
+  const stop = $effect.root(() => {
+    $effect(() => untrack(() => make(() => options)(node)));
+  });
+  flushSync();
+  return {
+    update: (next: T) => {
+      options = next;
+      flushSync();
+    },
+    destroy: stop,
+  };
+};
+
 const track = (overrides: Partial<TourSpotStep>) => {
   const tracking: TourTracking = {
     step: step(overrides),
@@ -35,12 +57,12 @@ const track = (overrides: Partial<TourSpotStep>) => {
     onLost: vi.fn(),
     onHint: vi.fn(),
   };
-  const handle = trackTourStep(document.createElement('div'), tracking);
+  const handle = attach(trackTourStep, document.createElement('div'), tracking);
   return {
     tracking,
     moveTo: (overrides: Partial<TourSpotStep>) =>
-      handle?.update?.({ ...tracking, step: step(overrides) }),
-    destroy: () => handle?.destroy?.(),
+      handle.update({ ...tracking, step: step(overrides) }),
+    destroy: handle.destroy,
   };
 };
 
@@ -258,49 +280,49 @@ describe('blockPage', () => {
   it('makes the rest of the page inert and moves the focus to the tour', () => {
     const tour = setUpPage();
 
-    const handle = blockPage(tour, { active: true, allowed: () => null });
+    const handle = attach(blockPage, tour, { active: true, allowed: () => null });
 
     expect(document.getElementById('page')).toHaveAttribute('inert');
     expect(document.getElementById('dialog')).toHaveAttribute('inert');
     expect(tour).not.toHaveAttribute('inert');
     expect(document.activeElement).toBe(tour.querySelector('[data-tour-focus]'));
-    handle?.destroy?.();
+    handle.destroy();
   });
 
   it('keeps usable the part of the page that holds the allowed element', () => {
     const tour = setUpPage();
 
-    const handle = blockPage(tour, {
+    const handle = attach(blockPage, tour, {
       active: true,
       allowed: () => document.getElementById('copy'),
     });
 
     expect(document.getElementById('page')).toHaveAttribute('inert');
     expect(document.getElementById('dialog')).not.toHaveAttribute('inert');
-    handle?.destroy?.();
+    handle.destroy();
   });
 
   it('gives the page back when the step stops blocking, and when the tour goes away', () => {
     const tour = setUpPage();
-    const handle = blockPage(tour, { active: true, allowed: () => null });
+    const handle = attach(blockPage, tour, { active: true, allowed: () => null });
 
-    handle?.update?.({ active: false, allowed: () => null });
+    handle.update({ active: false, allowed: () => null });
     expect(document.getElementById('page')).not.toHaveAttribute('inert');
 
-    handle?.update?.({ active: true, allowed: () => null });
-    handle?.destroy?.();
+    handle.update({ active: true, allowed: () => null });
+    handle.destroy();
     expect(document.getElementById('page')).not.toHaveAttribute('inert');
   });
 
   it('blocks a dialog that opens while the step blocks the page', async () => {
     const tour = setUpPage();
-    const handle = blockPage(tour, { active: true, allowed: () => null });
+    const handle = attach(blockPage, tour, { active: true, allowed: () => null });
 
     const late = document.createElement('div');
     document.body.appendChild(late);
     await Promise.resolve();
 
     expect(late).toHaveAttribute('inert');
-    handle?.destroy?.();
+    handle.destroy();
   });
 });

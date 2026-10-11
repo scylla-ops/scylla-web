@@ -48,7 +48,7 @@ src/
               widget-injection-registry.ts   WidgetInjectionRegistry (keyed by point object), setWidgetInjectionRegistry
               build-widget-injection-registry.ts  buildWidgetInjectionRegistry — load order + conflict checks, for the loader and the tests
               widget-zone.calculator.ts      resolveZone (pure, internal)
-              widget-zone.actions.svelte.ts  mountZone — what a zone point does as an action
+              widget-zone.attachments.svelte.ts  mountZone — what a zone point does as an attachment
               WidgetInjectionHost.svelte     internal — mounts one injected component
               load-injected-component.ts     one cached promise per RegisteredComponent
               report-widget-injection-error.ts
@@ -107,7 +107,7 @@ lists cannot be changed: an injection on it fails at start-up. The feature's bar
 The owner renders them with almost the code it writes with no points:
 
 ```svelte
-<div use:loginPoints.footer={{ isPending: state.isPending }}></div>  <!-- a zone point is an action -->
+<div {@attach loginPoints.footer(() => ({ isPending: state.isPending }))}></div>  <!-- a zone point makes an attachment -->
 {t(loginMessages.title)}                                             <!-- `t` applies the overrides -->
 ```
 ```typescript
@@ -118,7 +118,10 @@ const items = $derived(loginPoints.fields.resolve([/* … */]));
   *object*, not by its id: the id is a hash of the source string, so another "Password" elsewhere
   in the app is not changed. A message with a placeholder is a function and stays closed — open a
   subset object if a messages file has some (`point.texts({ title: m.title })`).
-- **A zone point is a Svelte action.** `use:loginPoints.footer={context}`, nothing to import.
+- **A zone point makes an attachment.** `{@attach loginPoints.footer(() => context)}`, nothing to
+  import. The context is a getter: the injected components follow it without a remount. Read the
+  point from its constant: a point read from changing state gives a new attachment, and Svelte
+  remounts the zone.
 
 A **widget injection** is what another extension declares to change those points — components,
 texts, patches, grouped by intention, never by owner. It is an array of changes, listed on

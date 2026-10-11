@@ -112,11 +112,11 @@
           <div
             id="node-script"
             class="max-h-64 w-full"
-            use:renderCodeMirror={{
+            {@attach renderCodeMirror(() => ({
               doc: form.script,
               extensions: editor.extensions,
               onView: editor.attach,
-            }}
+            }))}
           ></div>
         </div>
       </div>

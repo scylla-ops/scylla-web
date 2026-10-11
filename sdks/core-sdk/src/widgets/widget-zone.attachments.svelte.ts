@@ -1,5 +1,4 @@
 import { mount, unmount } from 'svelte';
-import type { ActionReturn } from 'svelte/action';
 import WidgetInjectionHost from './WidgetInjectionHost.svelte';
 import { componentsOf, nameOf, type RegisteredComponent } from './widget-injection-registry.ts';
 import type { WidgetPoint } from './widget-points.struct.ts';
@@ -19,30 +18,33 @@ const createContainer = (): HTMLElement => {
 };
 
 /**
- * What a zone point does as a Svelte action: on the element it is put on, it mounts the
- * components of `zone` that apply to the context, before and after the element's own children,
- * and keeps them in sync as the context changes. See `widgets_plan.md` §8.2 for the design.
+ * What a zone point does as an attachment: on the element it is put on, it mounts the components
+ * of `zone` that apply to the context, before and after the element's own children, and keeps
+ * them in sync as the context changes. Runs inside the attachment's effect: read `context` only
+ * in the nested `$effect` and in the components, or every change would remount the zone.
  */
 export const mountZone = (
   node: HTMLElement,
   zone: WidgetPoint,
-  context: unknown,
-): ActionReturn<unknown> => {
+  context: () => unknown,
+): (() => void) => {
   const parts = componentsOf(zone);
   node.dataset.widgetZone = nameOf(zone) ?? '';
 
   if (parts.length === 0) {
     // No contributor: no host, no cost.
-    return {
-      destroy: () => {
-        delete node.dataset.widgetZone;
-      },
+    return () => {
+      delete node.dataset.widgetZone;
     };
   }
 
-  // One reactive object shared by every mounted component: writing `props.context` re-renders
-  // all of them, with no remount.
-  const props = $state({ context });
+  // One object shared by every mounted component: its getter reads the owner's state, so a change
+  // re-renders all of them, with no remount.
+  const props = {
+    get context() {
+      return context();
+    },
+  };
 
   const before = createContainer();
   const replaced = createContainer();
@@ -63,9 +65,8 @@ export const mountZone = (
     return { instance, wrapper };
   };
 
-  // A real `$effect`, not a plain function called by hand: `when` and the access policy's `can`
-  // are themselves reactive, so a permission that loads after mount, or a `when` that flips,
-  // must re-run this without anyone calling `update()`.
+  // `when` and the access policy's `can` are reactive too: a permission that loads after mount,
+  // or a `when` that flips, re-runs this.
   $effect(() => {
     const resolved = resolveZone(parts, props.context);
     const groups: readonly (readonly [HTMLElement, readonly RegisteredComponent[]])[] = [
@@ -101,18 +102,13 @@ export const mountZone = (
     node.toggleAttribute('data-widget-replaced', resolved.replace !== undefined);
   });
 
-  return {
-    update(next) {
-      props.context = next;
-    },
-    destroy() {
-      for (const entry of mounted.values()) void unmount(entry.instance);
-      mounted.clear();
-      before.remove();
-      replaced.remove();
-      after.remove();
-      node.removeAttribute('data-widget-replaced');
-      delete node.dataset.widgetZone;
-    },
+  return () => {
+    for (const entry of mounted.values()) void unmount(entry.instance);
+    mounted.clear();
+    before.remove();
+    replaced.remove();
+    after.remove();
+    node.removeAttribute('data-widget-replaced');
+    delete node.dataset.widgetZone;
   };
 };

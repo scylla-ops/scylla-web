@@ -49,7 +49,7 @@
 
 <!-- Falls back to a menu when the column is too narrow. -->
 <div
-  use:compact.measure
+  {@attach compact.measure}
   class="flex w-full shrink-0 items-center justify-center gap-2"
 >
   {#if compact.isCompact}

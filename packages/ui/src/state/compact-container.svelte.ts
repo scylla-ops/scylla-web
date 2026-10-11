@@ -1,10 +1,10 @@
-import type { Action } from 'svelte/action';
+import type { Attachment } from 'svelte/attachments';
 
 const COMPACT_WIDTH_PX = 70;
 
 export interface CompactContainer {
   readonly isCompact: boolean;
-  measure: Action<HTMLElement>;
+  measure: Attachment<HTMLElement>;
 }
 
 /**
@@ -14,7 +14,7 @@ export interface CompactContainer {
 export const createCompactContainer = (threshold: number = COMPACT_WIDTH_PX): CompactContainer => {
   let isCompact = $state(false);
 
-  const measure: Action<HTMLElement> = node => {
+  const measure: Attachment<HTMLElement> = node => {
     const observer = new ResizeObserver(entries => {
       for (const entry of entries) {
         isCompact = entry.contentRect.width < threshold;
@@ -22,11 +22,7 @@ export const createCompactContainer = (threshold: number = COMPACT_WIDTH_PX): Co
     });
     observer.observe(node);
 
-    return {
-      destroy() {
-        observer.disconnect();
-      },
-    };
+    return () => observer.disconnect();
   };
 
   return {

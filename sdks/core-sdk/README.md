@@ -121,8 +121,8 @@ A point is identified by its object, not by a string: no name to keep in sync wi
 id, and no collision between two points.
 
 The owner writes almost the same code as with no points: `t(loginMessages.title)` does not
-change (`t` applies the overrides), and a zone point is itself the Svelte action that opens the
-zone — `<div use:loginPoints.footer={{ isPending }}>`. With no extension loaded, the only new file
+change (`t` applies the overrides), and a zone point makes the attachment that opens the
+zone — `<div {@attach loginPoints.footer(() => ({ isPending }))}>`. With no extension loaded, the only new file
 is `<feature>.points.ts`.
 
 Another extension changes them with a **widget injection** — an array of changes per intention,

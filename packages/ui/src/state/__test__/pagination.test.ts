@@ -26,7 +26,7 @@ beforeEach(() => {
 const attach = (measure: ReturnType<typeof createPagination>['measure'], height = 0) => {
   const node = document.createElement('div');
   vi.spyOn(node, 'clientHeight', 'get').mockReturnValue(height);
-  return measure(node);
+  return measure(node) as (() => void) | void;
 };
 
 describe('createPagination', () => {
@@ -179,7 +179,7 @@ describe('createPagination', () => {
     const pagination = createPagination({ responsive: true });
     const handle = attach(pagination.measure, 640);
 
-    handle?.destroy?.();
+    handle?.();
 
     expect(ResizeObserverMock.instances[0].disconnect).toHaveBeenCalled();
     expect(pagination.isPageSizeReady).toBe(false);

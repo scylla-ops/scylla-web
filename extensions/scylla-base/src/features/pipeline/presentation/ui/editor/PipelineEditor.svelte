@@ -78,12 +78,12 @@
       <div class="relative min-h-0 flex-1 overflow-auto p-2">
         <div
           class="h-full"
-          use:renderCodeMirror={{
+          {@attach renderCodeMirror(() => ({
             doc: doc.script,
             extensions: editor.extensions,
             hasError: !!doc.parseError,
             onView: editor.attach,
-          }}
+          }))}
         ></div>
       </div>
       {#if doc.parseError}
