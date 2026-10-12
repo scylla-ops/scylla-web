@@ -28,7 +28,7 @@
 {:else}
   <!-- Keyed on the role: its ViewModels are built from it. -->
   {#key role.id}
-    <div class="flex h-full flex-col gap-6 overflow-y-auto p-4">
+    <div class="relative flex h-full flex-col gap-6 overflow-y-auto p-4">
       <RoleDetailHeader {role} {page} />
       <RoleDetailPermissions {role} />
       <RoleDetailGrantList {role} {page} />

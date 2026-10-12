@@ -39,7 +39,7 @@
         {t(extensionsMessages.noExtensions)}
       </p>
     {:else}
-      <div class="grid gap-3 overflow-y-auto p-2 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="relative grid gap-3 overflow-y-auto p-2 sm:grid-cols-2 lg:grid-cols-3">
         {#each extensions as extension (extension.id)}
           <ExtensionCard {extension} />
         {/each}

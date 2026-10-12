@@ -57,7 +57,7 @@
   };
 </script>
 
-<div class="flex flex-col gap-4 overflow-y-auto pr-1">
+<div class="relative -m-1 flex flex-col gap-4 overflow-y-auto p-1 pr-2">
   <div class="flex flex-col gap-1.5">
     <Label for="role-name">{t(rolesMessages.name)}</Label>
     <Input

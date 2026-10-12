@@ -25,7 +25,7 @@
 </script>
 
 <Card class="gap-0 overflow-hidden py-0">
-  <div class="overflow-x-auto">
+  <div class="relative overflow-x-auto">
     <table class="w-full caption-bottom text-sm">
       <TableHeader class="bg-muted/40">
         <TableRow class="hover:bg-transparent">

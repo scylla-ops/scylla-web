@@ -90,7 +90,7 @@
     <div class="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
       <nav
         aria-label={t(jobsMessages.nodeExecutions)}
-        class="flex shrink-0 gap-1.5 overflow-x-auto lg:w-60 lg:flex-col lg:overflow-x-visible lg:overflow-y-auto"
+        class="relative -m-1 flex shrink-0 gap-1.5 overflow-x-auto p-1 lg:w-62 lg:flex-col lg:overflow-x-visible lg:overflow-y-auto"
       >
         <button
           type="button"
@@ -125,7 +125,7 @@
 
       <div
         use:column.measure
-        class="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-y-auto"
+        class="relative flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-y-auto"
       >
         {#if isWholeJobOpen}
           <section
@@ -161,7 +161,7 @@
                   aria-label={collapsed
                     ? t(jobsMessages.expandLogsFor(id))
                     : t(jobsMessages.collapseLogsFor(id))}
-                  class="h-auto min-w-0 flex-1 justify-start gap-3 rounded-none p-3 hover:scale-100"
+                  class="h-auto min-w-0 flex-1 justify-start gap-3 rounded-none p-3 hover:scale-100 focus-visible:ring-inset"
                 >
                   {#if collapsed}
                     <ChevronRightIcon class="size-4 text-muted-foreground" />

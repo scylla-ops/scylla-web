@@ -117,7 +117,7 @@
         </Card>
       </div>
     {:else}
-      <div class="grid gap-3 p-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
+      <div class="relative grid gap-3 p-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
         {#each apps as app (app.id)}
           <AppCard {app} onRequestDelete={id => (pendingDeletion = id)} {canDelete} />
         {/each}

@@ -79,7 +79,7 @@
       inset,
       layout === 'wrap'
         ? 'break-all whitespace-pre-wrap'
-        : 'overflow-x-auto whitespace-pre contain-inline-size',
+        : 'relative overflow-x-auto whitespace-pre contain-inline-size',
     )}>{#each parts as part, index (index)}{#if index > 0}{@render masked()}{/if}{part}{/each}</pre>
   <div class="absolute top-2 right-2 flex gap-0.5">
     <button

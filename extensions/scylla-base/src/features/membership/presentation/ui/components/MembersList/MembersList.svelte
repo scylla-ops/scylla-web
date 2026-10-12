@@ -84,7 +84,7 @@
     </p>
   </div>
 {:else}
-  <div class="min-h-0 flex-1 overflow-y-auto pr-1">
+  <div class="relative min-h-0 flex-1 overflow-y-auto pr-1">
     <!-- Two columns until the screen is wide: a card's width decides how many roles fit per row. -->
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
       {#each sorted as member (member.userId)}

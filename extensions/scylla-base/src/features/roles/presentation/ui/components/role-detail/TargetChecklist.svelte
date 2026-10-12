@@ -33,7 +33,7 @@
     </p>
   {:else}
     <!-- Not `ScrollArea`: its root does not clip under a `max-h`. -->
-    <div class="max-h-48 overflow-y-auto rounded-lg border p-2">
+    <div class="relative max-h-48 overflow-y-auto rounded-lg border p-2">
       <div class="flex flex-col gap-0.5">
         {#each options as option (option.id)}
           {@const granted = isGranted(option.id)}

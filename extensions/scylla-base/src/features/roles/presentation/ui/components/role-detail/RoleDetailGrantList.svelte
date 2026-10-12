@@ -57,7 +57,7 @@
     </p>
   {:else}
     <!-- Not `ScrollArea`: its root does not clip under a `max-h`. -->
-    <div class="max-h-72 overflow-y-auto">
+    <div class="relative max-h-72 overflow-y-auto">
       <ul class="flex flex-col gap-2 pr-2">
         {#each assignees.assignees as { grant, label } (grant.id)}
           {@const isUser = grant.principal.kind === PrincipalKind.USER}

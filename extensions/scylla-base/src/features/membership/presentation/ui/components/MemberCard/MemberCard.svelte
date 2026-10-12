@@ -71,7 +71,7 @@
     </span>
   </div>
 
-  <div class="h-28 overflow-y-auto border-t border-border/70 px-4 py-3">
+  <div class="relative h-28 overflow-y-auto border-t border-border/70 px-4 py-3">
     <MemberRoleBadges
       {roles}
       {labelFor}

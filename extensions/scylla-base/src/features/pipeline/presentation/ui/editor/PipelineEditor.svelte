@@ -75,7 +75,7 @@
 
   <TabsContent value="scripting" class="h-full overflow-hidden">
     <div class="flex h-full flex-col gap-2">
-      <div class="min-h-0 flex-1 overflow-auto p-2">
+      <div class="relative min-h-0 flex-1 overflow-auto p-2">
         <div
           class="h-full"
           use:renderCodeMirror={{

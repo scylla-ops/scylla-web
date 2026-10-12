@@ -110,7 +110,7 @@
     <pre
       class={cn(
         'px-3 py-2.5 font-mono text-xs',
-        multiline ? 'whitespace-pre-wrap break-all' : 'overflow-x-auto',
+        multiline ? 'whitespace-pre-wrap break-all' : 'relative overflow-x-auto',
         styles.body,
         blurred && 'secret-blur',
       )}>{value}</pre>

@@ -108,7 +108,7 @@
     <div class="space-y-4">
       <div class="space-y-2">
         <Label for="node-script">{t(pipelineMessages.script)}</Label>
-        <div class="h-full w-full overflow-auto p-2">
+        <div class="relative h-full w-full overflow-auto p-2">
           <div
             id="node-script"
             class="max-h-64 w-full"

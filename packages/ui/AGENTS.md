@@ -192,6 +192,32 @@ chunk.
   click, Enter or Space does nothing, and it is `type="button"`, thus it submits no form. It is
   the same element when `allowed` changes. In a test, check `aria-disabled="true"`:
   `toBeDisabled()` reads only the `disabled` attribute.
+- **An element that scrolls is `relative`.** This applies to each class string with
+  `overflow-auto`, `overflow-x-auto`, `overflow-y-auto` or a `*-scroll` value. An `absolute`
+  element (an `sr-only` text, a hidden input of bits-ui, a badge) gets its position from the
+  nearest positioned ancestor. If the scroller is not positioned, this ancestor is outside the
+  scroller, for example the `main` of `PageTransition`. Then the scroller does not clip the
+  element, and the element does not move when the scroller scrolls. The element stays at its
+  position in the full list, below the visible part. Thus it makes the scroll area of the page
+  larger, and the page shows an empty zone below its end. Put `relative` in the same class
+  string as the `overflow-*` class. `layout/__test__/scroll-container.test.ts` fails when a
+  class string has a scroll class and no `relative`, `absolute`, `fixed` or `sticky`. An
+  element that gets its position from a different class string goes in `POSITIONED_ELSEWHERE`
+  of that test, with the reason. `dialog-content.svelte` is the only one: it is `fixed` through
+  `CENTERED_DIALOG_CLASS`. Do not add `relative` to it: `cn()` keeps the last position class,
+  thus `relative` replaces `fixed`.
+- **Between a `sticky` element and its scroller, use `overflow-clip`, not `overflow-hidden`.**
+  `overflow-hidden` makes a scroll container. The `sticky` element then sticks in that box,
+  which does not scroll, and it moves away with the content. `overflow-clip` clips the same
+  way, also on the rounded corners, but it does not make a scroll container. The table of
+  pipelines of the dashboard uses it.
+- **A scroller gives room to the focus ring of its content.** A scroller clips all that is
+  outside its padding box: also the focus ring (`ring-[3px]` is a `box-shadow` outside the
+  border) and the outline of a focused control. `overflow-y-auto` also makes `overflow-x`
+  `auto`, thus the scroller clips on the left and on the right too. When a control touches an
+  edge of the scroller, add `-m-1 p-1`: the ring gets 4 px and the content does not move. Put
+  the `pr-*` for the scroll bar after `p-1` (`-m-1 p-1 pr-2` replaces `pr-1`). For a control
+  that fills a box with `overflow-hidden`, use `focus-visible:ring-inset`.
 - **`selectionStore` is keyed by feature.** `createSelection('jobs')` and
   `createSelection('users')` are independent. Never add a second selection store.
 - It and `contextStore` (scylla-base, `@platform/context`) are the app's **only** two global UI

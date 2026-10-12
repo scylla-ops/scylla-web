@@ -29,7 +29,7 @@
       pipelineIds={dashboard.pipelineIds}
     />
 
-    <div use:dashboard.pagination.measure class="min-h-0 flex-1 overflow-auto">
+    <div use:dashboard.pagination.measure class="relative min-h-0 flex-1 overflow-auto">
       <div class="relative">
         {#if dashboard.pipelines && dashboard.pipelines.length > 0}
           <PipelineTable

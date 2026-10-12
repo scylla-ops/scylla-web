@@ -67,7 +67,7 @@
 </script>
 
 <div
-  class="h-full w-full overflow-auto rounded-2xl border border-border/70 bg-card shadow-[0_1px_2px_oklch(0_0_0/0.04),0_12px_32px_-16px_oklch(0_0_0/0.18)]"
+  class="relative h-full w-full overflow-auto rounded-2xl border border-border/70 bg-card shadow-[0_1px_2px_oklch(0_0_0/0.04),0_12px_32px_-16px_oklch(0_0_0/0.18)]"
 >
   <!-- Rows are CSS grids (see `buildGridTemplate`); table, thead and tbody stay blocks so
     the header can stick. They lose their implicit ARIA roles: restate them. -->

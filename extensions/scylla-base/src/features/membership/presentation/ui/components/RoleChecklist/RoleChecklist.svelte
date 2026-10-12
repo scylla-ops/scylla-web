@@ -51,7 +51,7 @@
       {t(membershipMessages.noRoleGrantable)}
     </p>
   {:else}
-    <div class="max-h-48 overflow-y-auto rounded-lg border border-border p-1">
+    <div class="relative max-h-48 overflow-y-auto rounded-lg border border-border p-1">
       {#each groups as group (group.owner)}
         <div class="flex flex-col" role="group" aria-labelledby="{uid}-{group.owner}">
           <p
