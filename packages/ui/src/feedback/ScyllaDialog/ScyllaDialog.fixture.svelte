@@ -1,7 +1,7 @@
 <script lang="ts">
   import ScyllaDialog from './ScyllaDialog.svelte';
 
-  let { dismissible = true }: { dismissible?: boolean } = $props();
+  let { dismissible = true }: { dismissible?: boolean | 'button' } = $props();
 
   let open = $state(true);
 </script>

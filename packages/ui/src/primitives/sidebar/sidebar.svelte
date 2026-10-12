@@ -3,8 +3,10 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { Dialog as SheetPrimitive } from 'bits-ui';
   import { cn } from '../../utils/index.ts';
+  import { t } from '../../i18n/i18n-svelte.svelte.ts';
   import SheetContent from '../sheet/sheet-content.svelte';
   import { getSidebar } from './sidebar-state.svelte.ts';
+  import { sidebarMessages } from './sidebar.messages.ts';
   import { SIDEBAR_MOTION } from './sidebar-variants.ts';
 
   type Props = HTMLAttributes<HTMLDivElement> & {
@@ -47,8 +49,10 @@
       style="--sidebar-width: 18rem;"
       {side}
     >
-      <SheetPrimitive.Title class="sr-only">Sidebar</SheetPrimitive.Title>
-      <SheetPrimitive.Description class="sr-only">Displays the mobile sidebar.</SheetPrimitive.Description>
+      <SheetPrimitive.Title class="sr-only">{t(sidebarMessages.title)}</SheetPrimitive.Title>
+      <SheetPrimitive.Description class="sr-only">
+        {t(sidebarMessages.description)}
+      </SheetPrimitive.Description>
       <div class="flex h-full w-full flex-col">
         {@render children?.()}
       </div>

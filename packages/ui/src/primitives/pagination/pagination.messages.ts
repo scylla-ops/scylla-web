@@ -8,6 +8,7 @@ import { msg } from '@lingui/core/macro';
  * carries, so the French translations follow.
  */
 export const paginationMessages = {
+  pagination: msg`Pagination`,
   previous: msg`Previous`,
   next: msg`Next`,
   goToPrevious: msg`Go to previous page`,

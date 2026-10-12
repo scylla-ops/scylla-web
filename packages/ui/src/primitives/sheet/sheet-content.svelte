@@ -3,6 +3,8 @@
   import { Dialog as SheetPrimitive } from 'bits-ui';
   import XIcon from '@lucide/svelte/icons/x';
   import { cn } from '../../utils/index.ts';
+  import { t } from '../../i18n/i18n-svelte.svelte.ts';
+  import { dialogMessages } from '../dialog/dialog.messages.ts';
 
   type Props = SheetPrimitive.ContentProps & {
     side?: 'top' | 'right' | 'bottom' | 'left';
@@ -38,7 +40,7 @@
       class="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
     >
       <XIcon class="size-4" />
-      <span class="sr-only">Close</span>
+      <span class="sr-only">{t(dialogMessages.close)}</span>
     </SheetPrimitive.Close>
   </SheetPrimitive.Content>
 </SheetPrimitive.Portal>

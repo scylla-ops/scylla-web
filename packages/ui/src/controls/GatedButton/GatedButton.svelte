@@ -14,7 +14,7 @@
   import { gatedButtonMessages } from './gated-button.messages.ts';
 
   type Props = HTMLButtonAttributes & {
-    /** False disables the button and shows `deniedReason` on hover. */
+    /** False makes the button inert and gives `deniedReason` on hover, on focus and to a screen reader. */
     allowed?: boolean;
     deniedReason?: string;
     /** Hover text while the button is usable, for an icon-only button. */
@@ -28,35 +28,59 @@
     allowed = true,
     deniedReason,
     tooltip,
+    disabled,
+    onclick,
     class: className,
     children,
     ...rest
   }: Props = $props();
+
+  const reasonId = $props.id();
+  const reason = $derived(deniedReason ?? t(gatedButtonMessages.notPermitted));
+  const hint = $derived(allowed ? tooltip : reason);
+
+  type ClickEvent = Parameters<NonNullable<HTMLButtonAttributes['onclick']>>[0];
+
+  const guard = (triggerClick: unknown) => (event: ClickEvent) => {
+    if (typeof triggerClick === 'function') triggerClick(event);
+    if (!allowed) {
+      event.preventDefault();
+      return;
+    }
+    onclick?.(event);
+  };
 </script>
 
 <!--
-  A disabled button that says why. The span around the button carries the tooltip:
-  a disabled button fires no pointer events.
+  A denied button stays focusable (`aria-disabled`, not `disabled`): the keyboard reaches it, the
+  tooltip opens on focus, and `aria-describedby` reads the reason. One element in both states, so
+  a dialog that it opened can give the focus back to it.
 -->
-{#if allowed && !tooltip}
-  <Button class={className} {...rest}>{@render children?.()}</Button>
-{:else}
-  <Tooltip>
-    <TooltipTrigger>
-      {#snippet child({ props })}
-        <span {...props} class="inline-flex">
-          <Button
-            {...rest}
-            disabled={!allowed || rest.disabled}
-            class={cn(className, !allowed && 'pointer-events-none')}
-          >
-            {@render children?.()}
-          </Button>
-        </span>
-      {/snippet}
-    </TooltipTrigger>
+<Tooltip>
+  <TooltipTrigger>
+    {#snippet child({ props })}
+      <Button
+        {...rest}
+        {...props}
+        {...allowed
+          ? { disabled }
+          : { type: 'button', 'aria-disabled': 'true', 'aria-describedby': reasonId }}
+        class={cn(
+          className,
+          'aria-disabled:cursor-not-allowed aria-disabled:opacity-50 aria-disabled:hover:scale-100',
+        )}
+        onclick={guard(props.onclick)}
+      >
+        {@render children?.()}
+      </Button>
+    {/snippet}
+  </TooltipTrigger>
+  {#if hint}
     <TooltipContent>
-      <p>{allowed ? tooltip : (deniedReason ?? t(gatedButtonMessages.notPermitted))}</p>
+      <p>{hint}</p>
     </TooltipContent>
-  </Tooltip>
+  {/if}
+</Tooltip>
+{#if !allowed}
+  <span id={reasonId} class="sr-only">{reason}</span>
 {/if}

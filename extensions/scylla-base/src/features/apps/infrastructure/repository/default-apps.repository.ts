@@ -6,6 +6,7 @@ import type {
   AppSecretEntity,
 } from '@base/features/apps/domain/entities/app.entity.ts';
 import type {
+  AppAccess,
   CreatedApp,
   CreatedAppSecret,
 } from '@base/features/apps/domain/structs/app.struct.ts';
@@ -47,5 +48,13 @@ export class DefaultAppsRepository implements AppsRepository {
 
   setAppSecretEnabled(secretId: string, enabled: boolean): Promise<ScyllaResult<AppSecretEntity>> {
     return this.remoteDataSource.setAppSecretEnabled(secretId, enabled);
+  }
+
+  setAppSecretLabel(secretId: string, label: string): Promise<ScyllaResult<AppSecretEntity>> {
+    return this.remoteDataSource.setAppSecretLabel(secretId, label);
+  }
+
+  listAppAccess(appId: string): Promise<ScyllaResult<AppAccess[]>> {
+    return this.remoteDataSource.listAppAccess(appId);
   }
 }

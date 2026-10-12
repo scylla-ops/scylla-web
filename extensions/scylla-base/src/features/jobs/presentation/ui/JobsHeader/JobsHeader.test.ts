@@ -76,7 +76,7 @@ describe('JobsHeader', () => {
     render(JobsHeader, props({ onRun }));
 
     const run = screen.getByRole('button', { name: 'Run' });
-    expect(run).toBeDisabled();
+    expect(run).toHaveAttribute('aria-disabled', 'true');
 
     await userEvent.click(run);
     expect(onRun).not.toHaveBeenCalled();
@@ -108,6 +108,9 @@ describe('JobsHeader', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /select all/i }));
 
-    expect(screen.getByRole('button', { name: /delete/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /delete/i })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 });

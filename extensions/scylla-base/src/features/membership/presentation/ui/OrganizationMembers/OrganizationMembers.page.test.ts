@@ -147,7 +147,12 @@ describe('OrganizationMembersPage', () => {
     grant([Permission.LIST_USERS]);
     render(OrganizationMembersPage);
 
-    await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Add a member' })).toBeDisabled());
+    await vi.waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Add a member' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      ),
+    );
   });
 
   it('confirms before removing a member, and revokes all their access on continue', async () => {

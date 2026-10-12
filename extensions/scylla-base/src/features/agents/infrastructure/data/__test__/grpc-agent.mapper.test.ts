@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { GrpcAgentMapper } from '../grpc-agent.mapper';
 import type { Agent, AgentHost, AgentStats } from '@base/generated/scylla/agent/v1/agent_admin.ts';
+import { JobOutcome, type Job } from '@base/generated/scylla/job/v1/job.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
 const ISO = '2025-01-01T00:00:00.000Z';
@@ -140,5 +141,58 @@ describe('GrpcAgentMapper.statsToDomain', () => {
       { day: ISO, completed: 3, failed: 1, cancelled: 0, orphaned: 0, medianDurationMs: 800 },
       { day: ISO, completed: 0, failed: 0, cancelled: 0, orphaned: 0, medianDurationMs: null },
     ]);
+  });
+});
+
+describe('GrpcAgentMapper.jobToDomain', () => {
+  const job = (state: Job['state']): Job => ({
+    jobId: { value: 'job-1' },
+    pipelineId: { value: 'pipeline-1' },
+    nodeExecutions: [],
+    createdAt: TS,
+    updatedAt: TS,
+    state,
+    origin: { oneofKind: undefined },
+  });
+
+  it('gives a finished job its outcome and its start and end times', () => {
+    const domain = GrpcAgentMapper.jobToDomain(
+      job({
+        oneofKind: 'terminal',
+        terminal: { outcome: JobOutcome.FAILED, startedAt: TS, finishedAt: TS },
+      }),
+    );
+
+    expect(domain).toEqual({
+      id: 'job-1',
+      pipelineId: 'pipeline-1',
+      status: 'failed',
+      createdAt: ISO,
+      startedAt: ISO,
+      finishedAt: ISO,
+    });
+  });
+
+  it('names the states the way the jobs pages do', () => {
+    expect(GrpcAgentMapper.jobToDomain(job({ oneofKind: 'pending', pending: {} })).status).toBe(
+      'pending',
+    );
+    expect(
+      GrpcAgentMapper.jobToDomain(job({ oneofKind: 'running', running: { startedAt: TS } })).status,
+    ).toBe('running');
+    expect(
+      GrpcAgentMapper.jobToDomain(
+        job({ oneofKind: 'terminal', terminal: { outcome: JobOutcome.ORPHANED } }),
+      ).status,
+    ).toBe('orphaned');
+  });
+
+  it('never reads a newer outcome as a success', () => {
+    expect(
+      GrpcAgentMapper.jobToDomain(
+        job({ oneofKind: 'terminal', terminal: { outcome: JobOutcome.UNSPECIFIED } }),
+      ).status,
+    ).toBe('unknown');
+    expect(GrpcAgentMapper.jobToDomain(job({ oneofKind: undefined })).status).toBe('unknown');
   });
 });

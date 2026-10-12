@@ -148,6 +148,11 @@ What a port has to get right, all of it invisible to the compiler:
 - **CSS variable names change**: `--radix-*-content-transform-origin` becomes
   `--bits-floating-transform-origin`, and the select's available-height/anchor-width variables
   likewise. Nothing fails loudly if you miss one.
+- **A centered modal does not slide.** Tailwind 4 centers it with the CSS `translate` property.
+  tw-animate-css moves it with `transform`. The browser applies the two, thus the shadcn classes
+  `slide-in-from-left-1/2` and `slide-in-from-top-[48%]` move the modal in from the left. Use
+  `CENTERED_DIALOG_CLASS` (`dialog/dialog-variants.ts`): fade and zoom only.
+  `dialog/centered-dialog.test.ts` fails when a source file has a centering translate and a slide.
 - **Radix's `Indicator` parts become an `{#if}` in a children snippet** (checkbox, select item),
   because bits-ui hands the state to the snippet instead of mounting a separate node.
 - **Highlight styles need `data-highlighted:`, not just `focus:`.** bits-ui never moves DOM focus
@@ -180,6 +185,13 @@ chunk.
 
 ## Rules that bite here
 
+- **A denied `GatedButton` is `aria-disabled`, not `disabled`.** A `disabled` button cannot
+  take the focus. Then a keyboard or screen reader user cannot get the reason, and a dialog
+  cannot give the focus back to the button. The denied button stays focusable,
+  `aria-describedby` points to the reason, and the tooltip opens on hover and on focus. A
+  click, Enter or Space does nothing, and it is `type="button"`, thus it submits no form. It is
+  the same element when `allowed` changes. In a test, check `aria-disabled="true"`:
+  `toBeDisabled()` reads only the `disabled` attribute.
 - **`selectionStore` is keyed by feature.** `createSelection('jobs')` and
   `createSelection('users')` are independent. Never add a second selection store.
 - It and `contextStore` (scylla-base, `@platform/context`) are the app's **only** two global UI
@@ -194,7 +206,7 @@ chunk.
 - `data-part` marks the inner parts of a composite that code outside may point at:
   `feature-header-new` (`FeatureHeader`), `code-snippet-copy` (`CodeSnippet`),
   `secret-reveal-secret` / `-next-step` / `-confirm` (`SecretRevealChecklist`). The onboarding
-  tour of scylla-base uses them. Keep them; do not use `data-slot` for this, a primitive
+  tour of scylla-base uses only `feature-header-new`. Keep them; do not use `data-slot` for this, a primitive
   sets its own.
 
 ## Before done

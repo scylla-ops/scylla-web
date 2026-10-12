@@ -3,6 +3,9 @@ import type {
   OnboardingSubject,
 } from '../domain/structs/onboarding-status.struct.ts';
 
+/** A removed step that a saved tour can still hold, and the step that took its place. */
+const REPLACED_STEPS: ReadonlyMap<string, string> = new Map([['reveal-secret', 'copy-secret']]);
+
 export const currentStepId = (
   status: OnboardingStatus,
   stepIds: readonly string[],
@@ -10,8 +13,10 @@ export const currentStepId = (
   switch (status.kind) {
     case 'not-started':
       return stepIds[0] ?? null;
-    case 'in-progress':
-      return stepIds.includes(status.step) ? status.step : (stepIds[0] ?? null);
+    case 'in-progress': {
+      const step = REPLACED_STEPS.get(status.step) ?? status.step;
+      return stepIds.includes(step) ? step : (stepIds[0] ?? null);
+    }
     default:
       return null;
   }

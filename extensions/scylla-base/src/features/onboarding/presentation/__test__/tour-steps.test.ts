@@ -36,7 +36,7 @@ describe('TOUR_STEPS', () => {
   it('opens with the welcome and ends with the final screen', () => {
     expect(TOUR_STEPS[0].kind).toBe('welcome');
     expect(TOUR_STEPS.at(-1)?.kind).toBe('finish');
-    expect(TOUR_STEPS.filter(step => step.kind === 'spot')).toHaveLength(21);
+    expect(TOUR_STEPS.filter(step => step.kind === 'spot')).toHaveLength(20);
   });
 
   it('gives each step a unique id and falls back only to a known step', () => {
@@ -232,13 +232,25 @@ describe('the anchors of the dialog steps', () => {
     expect(dialog(document, {})?.id).toBe('create');
   });
 
-  it('move on once the secret is revealed', () => {
-    const revealed = conditionOf(spot('reveal-secret'));
+  it('move on once step 2 of the new agent shows its secret', () => {
+    const shown = conditionOf(spot('create-agent'));
 
-    document.body.innerHTML = '<div data-part="secret-reveal-secret" data-state="hidden"></div>';
-    expect(revealed(document, {})).toBeNull();
+    document.body.innerHTML = '<div data-slot="dialog-content"><form></form></div>';
+    expect(shown(document, {})).toBeNull();
 
-    document.body.innerHTML = '<div data-part="secret-reveal-secret" data-state="revealed"></div>';
-    expect(revealed(document, {})).not.toBeNull();
+    document.body.innerHTML = '<div data-tour="agent-secret"><button>Copy</button></div>';
+    expect(shown(document, {})).not.toBeNull();
+  });
+
+  it('point at the run command and move on with an action of the dialog footer', () => {
+    document.body.innerHTML = `
+      <div data-tour="agent-run-command" id="run"></div>
+      <div data-tour="agent-dialog-actions" id="actions"><button>Close</button></div>`;
+
+    const [run, actions] = spot('run-command').targets;
+
+    expect(run(document, {})?.id).toBe('run');
+    expect(actions(document, {})?.id).toBe('actions');
+    expect(conditionOf(spot('run-command'))(document, {})?.id).toBe('actions');
   });
 });

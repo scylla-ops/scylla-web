@@ -13,27 +13,168 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:55
-msgid "{day}: {completed} completed, {failed} failed, {cancelled} cancelled"
-msgstr "{day} : {completed} terminés, {failed} échoués, {cancelled} annulés"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:67
+msgid "{agent} can take the jobs of {project}."
+msgstr "{agent} peut prendre les jobs de {project}."
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:17
-msgid "{name} is ready"
-msgstr "{name} est prêt"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:69
+msgid "{agent} can take the jobs of every project of {organization}."
+msgstr "{agent} peut prendre les jobs de tous les projets de {organization}."
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:40
-msgid "active"
-msgstr "actif"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:71
+msgid "{agent} can take the jobs of every project of {organization}. Scylla could not remove the access to {projects}: remove it in the Access card."
+msgstr "{agent} peut prendre les jobs de tous les projets de {organization}. Scylla n'a pas pu retirer l'accès à {projects} : retirez-le dans la carte Accès."
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:39
-msgid "Active"
-msgstr "Actif"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:74
+msgid "{agent} no longer takes the jobs of {project}."
+msgstr "{agent} ne prend plus les jobs de {project}."
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:4
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:76
+msgid "{agent} no longer takes the jobs of every project of {organization}."
+msgstr "{agent} ne prend plus les jobs de tous les projets de {organization}."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:56
+msgid "{agent} stops taking the jobs of {project}, and stops reading its secrets."
+msgstr "{agent} ne prendra plus les jobs de {project} et ne lira plus ses secrets."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:58
+msgid "{agent} stops taking the jobs of every project of {organization}, and stops reading their secrets."
+msgstr "{agent} ne prendra plus les jobs des projets de {organization} et ne lira plus leurs secrets."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:20
+msgid "{amount} GB"
+msgstr "{amount} Go"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:21
+msgid "{amount} MB"
+msgstr "{amount} Mo"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:17
+msgid "{completed} of {total} completed"
+msgstr "{completed} sur {total} terminés"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:16
+msgid "{count, plural, =0 {No agent is running a job} one {# is running a job} other {# are running a job}}"
+msgstr "{count, plural, =0 {Aucun agent n'exécute de job} one {# exécute un job} other {# exécutent un job}}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:22
+msgid "{count, plural, one {# job} other {# jobs}}"
+msgstr "{count, plural, one {# job} other {# jobs}}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:46
+msgid "{count, plural, one {cancelled} other {cancelled}}"
+msgstr "{count, plural, one {annulé} other {annulés}}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:43
+msgid "{count, plural, one {completed} other {completed}}"
+msgstr "{count, plural, one {terminé} other {terminés}}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:44
+msgid "{count, plural, one {failed} other {failed}}"
+msgstr "{count, plural, one {échoué} other {échoués}}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:41
+msgid "{count, plural, one {job} other {jobs}}"
+msgstr "{count, plural, one {job} other {jobs}}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:47
+msgid "{count, plural, one {orphaned} other {orphaned}}"
+msgstr "{count, plural, one {orphelin} other {orphelins}}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:30
+msgid "{count, plural, one {Partial: # agent not counted} other {Partial: # agents not counted}}"
+msgstr "{count, plural, one {Partiel : # agent non compté} other {Partiel : # agents non comptés}}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:10
+msgid "{count, plural, one {Running # job} other {Running # jobs}}"
+msgstr "{count, plural, one {# job en cours} other {# jobs en cours}}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:19
+msgid "{count} CPU"
+msgstr "{count} CPU"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:37
+msgid "{day}: {completed} completed, {failed} failed, {cancelled} cancelled, {orphaned} orphaned"
+msgstr "{day} : {completed} terminés, {failed} échoués, {cancelled} annulés, {orphaned} orphelins"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:45
+msgid "{host}. It waits for jobs."
+msgstr "{host}. Il attend des jobs."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:27
+msgid "{offline} offline, {never} never connected"
+msgstr "{offline} hors ligne, {never} sans connexion"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:14
+msgid "{online} of {total}"
+msgstr "{online} sur {total}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:34
+msgid "{percent} succeeded"
+msgstr "{percent} réussis"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:54
+msgid "{pipeline}, {status}, {time}"
+msgstr "{pipeline}, {status}, {time}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:56
+msgid "{project} / {pipeline}, {status}, {time}"
+msgstr "{project} / {pipeline}, {status}, {time}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:56
+msgid "{total} jobs in the last 30 days"
+msgstr "{total} jobs sur les 30 derniers jours"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:55
+msgid "+{count}"
+msgstr "+{count}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:22
+msgid "95% end sooner"
+msgstr "95 % finissent plus tôt"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/DisableAgentDialog/disable-agent.messages.ts:7
+msgid "A job that runs now can end as orphaned."
+msgstr "Un job en cours peut finir orphelin."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:4
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:45
+msgid "Access"
+msgstr "Accès"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:65
+msgid "Access given"
+msgstr "Accès donné"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:72
+msgid "Access removed"
+msgstr "Accès retiré"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:48
+msgid "Actions"
+msgstr "Actions"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:71
+msgid "Actions of the secret {label}"
+msgstr "Actions du secret {label}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:47
+msgid "Activity"
+msgstr "Activité"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:6
+msgid "Add access"
+msgstr "Ajouter un accès"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:43
 msgid "Agent"
 msgstr "Agent"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:31
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:43
+msgid "agent {version}"
+msgstr "agent {version}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:26
 msgid "Agent actions"
 msgstr "Actions de l'agent"
 
@@ -41,13 +182,33 @@ msgstr "Actions de l'agent"
 msgid "Agent details"
 msgstr "Détails de l'agent"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:38
-msgid "Agent ID"
-msgstr "ID de l'agent"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/AgentBot/agent-bot.messages.ts:8
+msgid "Agent disabled"
+msgstr "Agent désactivé"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:37
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/AgentBot/agent-bot.messages.ts:4
+msgid "Agent idle"
+msgstr "Agent disponible"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/AgentBot/agent-bot.messages.ts:7
+msgid "Agent never connected"
+msgstr "Agent jamais connecté"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:5
 msgid "Agent not found"
 msgstr "Agent introuvable"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/AgentBot/agent-bot.messages.ts:6
+msgid "Agent offline"
+msgstr "Agent hors ligne"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/AgentBot/agent-bot.messages.ts:5
+msgid "Agent running a job"
+msgstr "Agent en train d'exécuter un job"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:63
+msgid "Agent version"
+msgstr "Version de l'agent"
 
 #: extensions/scylla-base/src/features/agents/agents.module.ts:22
 #: extensions/scylla-base/src/features/agents/agents.module.ts:24
@@ -55,244 +216,859 @@ msgstr "Agent introuvable"
 msgid "Agents"
 msgstr "Agents"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:12
-msgid "An agent runs jobs. Create one to get credentials, then start the agent — it'll pull jobs and report back."
-msgstr "Un agent exécute des jobs. Créez-en un pour obtenir des identifiants, puis démarrez l'agent — il récupérera les jobs et fera ses retours."
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:39
+msgid "All"
+msgstr "Tous"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:62
-msgid "cancelled"
-msgstr "annulés"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:13
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:53
+msgid "All organizations"
+msgstr "Toutes les organisations"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:59
-msgid "cancelled {cancelled}"
-msgstr "annulés {cancelled}"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:11
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:51
+msgid "All projects"
+msgstr "Tous les projets"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:73
-msgid "Coming soon"
-msgstr "Bientôt disponible"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:12
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:52
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:25
+msgid "All projects of {organization}"
+msgstr "Tous les projets de {organization}"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:60
-msgid "completed"
-msgstr "terminés"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:40
+msgid "All time"
+msgstr "Depuis le début"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:57
-msgid "completed {completed}"
-msgstr "terminés {completed}"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:5
+msgid "An agent is a machine that takes the jobs of this organization and runs them."
+msgstr "Un agent est une machine qui prend les jobs de cette organisation et les exécute."
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:48
-msgid "connects as this agent's app id"
-msgstr "se connecte avec l'app id de cet agent"
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:10
+msgid "An agent takes the jobs of this organization and runs them. Create one to get its secret, then start it on a machine."
+msgstr "Un agent prend les jobs de cette organisation et les exécute. Créez-en un pour obtenir son secret, puis démarrez-le sur une machine."
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:34
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/SecretLabelField/secret-label-field.messages.ts:7
+msgid "Another secret of this agent has this name."
+msgstr "Un autre secret de cet agent porte déjà ce nom."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:14
+msgid "build-runner-02"
+msgstr "build-runner-02"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:48
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:28
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/DisableAgentDialog/disable-agent.messages.ts:9
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/RenameSecretDialog/rename-secret.messages.ts:9
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:13
+msgid "Cancel"
+msgstr "Annuler"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:28
+msgid "Cancelled"
+msgstr "Annulé"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:23
+msgid "Close"
+msgstr "Fermer"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/AgentRunCommand/agent-run-command.messages.ts:10
+msgid "Command copied"
+msgstr "Commande copiée"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:26
+msgid "Completed"
+msgstr "Terminé"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:15
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:41
+msgid "Connected"
+msgstr "Connecté"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:42
+msgid "Connected from {hostname}"
+msgstr "Connecté depuis {hostname}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CopyBox/copy-box.messages.ts:4
+msgid "Copy"
+msgstr "Copier"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:36
 msgid "Copy agent id"
 msgstr "Copier l'identifiant de l'agent"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:26
-msgid "Copy id"
-msgstr "Copier l'id"
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:28
+msgid "Copy ID"
+msgstr "Copier l'ID"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:15
-msgid "Create & reveal secret →"
-msgstr "Créer & révéler le secret →"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:16
+msgid "Copy it now. Scylla keeps only a hash, so it cannot show it again."
+msgstr "Copiez-le maintenant. Scylla n'en garde qu'une empreinte et ne peut plus l'afficher."
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:13
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:64
+msgid "CPUs"
+msgstr "Processeurs"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:29
+msgid "Create agent"
+msgstr "Créer l'agent"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:11
 msgid "Create your first agent"
 msgstr "Créez votre premier agent"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:27
-msgid "created"
-msgstr "créé le"
-
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:42
-msgctxt "date-prefix"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:31
 msgid "Created"
-msgstr "Créé le"
+msgstr "Créé"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:24
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:17
+msgid "Created {date}"
+msgstr "Créé le {date}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:30
+msgid "Creating…"
+msgstr "Création…"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:32
 msgid "Delete"
 msgstr "Supprimer"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:32
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:34
+msgid "Delete {name}?"
+msgstr "Supprimer {name} ?"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:33
 msgid "Delete agent"
 msgstr "Supprimer l'agent"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:22
-msgid "Delete agent?"
-msgstr "Supprimer l'agent ?"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:81
+msgid "Delete this agent"
+msgstr "Supprimer cet agent"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:29
-msgid "down"
-msgstr "hors ligne"
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:30
+msgid "Disable"
+msgstr "Désactiver"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:36
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/DisableAgentDialog/disable-agent.messages.ts:4
+msgid "Disable {name}?"
+msgstr "Désactiver {name} ?"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/DisableAgentDialog/disable-agent.messages.ts:10
+msgid "Disable agent"
+msgstr "Désactiver l'agent"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:13
+msgid "Disabled"
+msgstr "Désactivé"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:7
+msgid "Disabled {date}"
+msgstr "Désactivé le {date}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:25
+msgid "Done"
+msgstr "Terminé"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:31
+msgid "Enable"
+msgstr "Activer"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:70
+msgid "Enabled"
+msgstr "Activé"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/SecretLabelField/secret-label-field.messages.ts:4
+msgid "Enter a name for the secret."
+msgstr "Saisissez un nom pour le secret."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:4
 msgid "Error loading agent"
 msgstr "Erreur lors du chargement de l'agent"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:8
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:7
 msgid "Error loading agents"
 msgstr "Erreur lors du chargement des agents"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:61
-msgid "failed"
-msgstr "échoués"
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:23
+msgid "Every agent waits"
+msgstr "Tous les agents attendent"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:58
-msgid "failed {failed}"
-msgstr "échoués {failed}"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:27
+msgid "Failed"
+msgstr "Échoué"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:74
-msgid "filter"
-msgstr "filtre"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/AgentRunCommand/agent-run-command.messages.ts:6
+msgid "Filled in from this page. From a Docker container on this machine, use http://host.docker.internal:{port}."
+msgstr "Repris de cette page. Depuis un conteneur Docker sur cette machine, utilisez http://host.docker.internal:{port}."
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:63
-msgid "finished"
-msgstr "terminés"
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:38
+msgid "Filter by state"
+msgstr "Filtrer par état"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:14
-msgid "Get credentials to connect an agent."
-msgstr "Obtenez des identifiants pour connecter un agent."
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:28
+msgid "Finished jobs, last 30 days"
+msgstr "Jobs finis, 30 derniers jours"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:79
-msgid "idle — no jobs"
-msgstr "inactif — aucun job"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/AgentRunCommand/agent-run-command.messages.ts:8
+msgid "From source"
+msgstr "Depuis la source"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:41
-msgid "inactive"
-msgstr "inactif"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:59
+msgid "From the last hello, {relative}"
+msgstr "Reçu au dernier hello, {relative}"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:44
-msgid "Job stats"
-msgstr "Stats des jobs"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:49
+msgid "Give access"
+msgstr "Donner l'accès"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:65
-msgid "Jobs are queued — check that your agents are connected."
-msgstr "Des jobs sont en file d'attente — vérifiez que vos agents sont bien connectés."
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:29
+msgid "Give access to {agent}"
+msgstr "Donner un accès à {agent}"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:46
-msgid "last run"
-msgstr "dernière exécution"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:50
+msgid "Giving access…"
+msgstr "Attribution de l'accès…"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:76
-msgid "lines"
-msgstr "lignes"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CopyBox/copy-box.messages.ts:7
+msgid "Hidden secret"
+msgstr "Secret masqué"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:70
-msgid "Logs"
-msgstr "Journaux"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:58
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:44
+msgid "Host"
+msgstr "Hôte"
 
-#: extensions/scylla-base/src/features/agents/presentation/utils/create-agent-form-items.ts:8
-msgid "my-build-runner"
-msgstr "my-build-runner"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:61
+msgid "Hostname"
+msgstr "Nom d'hôte"
 
-#: extensions/scylla-base/src/features/agents/presentation/utils/create-agent-form-items.ts:7
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/AgentRunCommand/agent-run-command.messages.ts:7
+msgid "How to run the agent"
+msgstr "Comment lancer l'agent"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:8
+msgid "Idle"
+msgstr "Disponible"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:7
+msgid "It already takes the jobs of every project."
+msgstr "Il prend déjà les jobs de tous les projets."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:36
+msgid "It can take the jobs of every project"
+msgstr "Il peut prendre les jobs de tous les projets"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:10
+msgid "It cannot sign in, and the server closed its connection on {date}. Enable it to make its secrets and tokens work again."
+msgstr "Il ne peut plus se connecter, et le serveur a fermé sa connexion le {date}. Activez-le pour que ses secrets et ses jetons fonctionnent de nouveau."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/DisableAgentDialog/disable-agent.messages.ts:5
+msgid "It disconnects at once and cannot sign in until you enable it again."
+msgstr "Il se déconnecte tout de suite et ne peut plus se connecter tant que vous ne l'avez pas réactivé."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:79
+msgid "It never connected. Run it on a machine: replace <APP_SECRET> with its secret, or reset the secret to get a new one."
+msgstr "Il ne s'est jamais connecté. Lancez-le sur une machine : remplacez <APP_SECRET> par son secret, ou réinitialisez le secret pour en obtenir un nouveau."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:16
+msgid "It takes the jobs of {project} only, and reads only the secrets of {project}."
+msgstr "Il ne prend que les jobs de {project} et ne lit que les secrets de {project}."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:22
+msgid "It takes the jobs of every organization."
+msgstr "Il prend les jobs de toutes les organisations."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:21
+msgid "It takes the jobs of every project of {organizations}."
+msgstr "Il prend les jobs de tous les projets de {organizations}."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:19
+msgid "It takes the jobs of every project of this organization."
+msgstr "Il prend les jobs de tous les projets de cette organisation."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:41
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:26
+msgid "It takes the jobs of every project, and reads the secrets of every project."
+msgstr "Il prend les jobs de tous les projets et lit les secrets de tous les projets."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:20
+msgid "It takes the jobs of one project only, and reads only the secrets of that project."
+msgstr "Il ne prend que les jobs d'un seul projet et ne lit que les secrets de ce projet."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:18
+msgid "It takes the jobs of these {count} projects only, and reads only their secrets."
+msgstr "Il ne prend que les jobs de ces {count} projets et ne lit que leurs secrets."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:33
+msgid "It takes the jobs of this project only."
+msgstr "Il ne prend que les jobs de ce projet."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:62
+msgid "It then takes no job."
+msgstr "Il ne prendra alors plus aucun job."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:44
+msgid "It waits for jobs."
+msgstr "Il attend des jobs."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/DisableAgentDialog/disable-agent.messages.ts:8
+msgid "Its secrets and grants stay. Enable it to restore them."
+msgstr "Ses secrets et ses attributions restent. Réactivez-le pour les rétablir."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:82
+msgid "Its secrets, tokens and grants go. The jobs it ran stay."
+msgstr "Ses secrets, ses jetons et ses attributions disparaissent. Les jobs qu'il a exécutés restent."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:35
+msgid "Its secrets, tokens and grants go. The jobs it ran stay. You cannot undo this."
+msgstr "Ses secrets, ses jetons et ses attributions disparaissent. Les jobs qu'il a exécutés restent. Cette action est irréversible."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:38
+msgid "Jobs are queued: check that your agents are connected."
+msgstr "Des jobs attendent : vérifiez que vos agents sont connectés."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:24
+msgid "Jobs per day"
+msgstr "Jobs par jour"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:38
+msgid "Jobs per day over the last 30 days"
+msgstr "Jobs par jour sur les 30 derniers jours"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/DisableAgentDialog/disable-agent.messages.ts:6
+msgid "Jobs placed on it that have not started go back to the queue."
+msgstr "Les jobs qui lui sont attribués et n'ont pas démarré retournent dans la file d'attente."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:13
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:46
+msgid "Jobs, 30 days"
+msgstr "Jobs, 30 jours"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:40
+msgid "Keep this window open: the agent shows here when it connects."
+msgstr "Gardez cette fenêtre ouverte : l'agent s'affiche ici quand il se connecte."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:61
+msgid "Keeps"
+msgstr "Garde"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:12
+msgid "Key numbers"
+msgstr "Chiffres clés"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:25
+msgid "Last 30 days, by creation day"
+msgstr "30 derniers jours, par jour de création"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:14
+msgid "Last run {relative}"
+msgstr "Dernier job {relative}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:16
+msgid "Last seen {relative}"
+msgstr "Vu pour la dernière fois {relative}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:34
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:22
+msgid "Loading the projects…"
+msgstr "Chargement des projets…"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:60
+msgid "Loses"
+msgstr "Perd"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:19
+msgid "Median duration"
+msgstr "Durée médiane"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:65
+msgid "Memory"
+msgstr "Mémoire"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:13
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/RenameSecretDialog/rename-secret.messages.ts:7
 msgid "Name"
 msgstr "Nom"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:30
-msgid "never connected"
-msgstr "jamais connecté"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:10
+msgid "Name and access"
+msgstr "Nom et accès"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:6
-msgid "New Agent"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:6
+msgid "Name of the new secret"
+msgstr "Nom du nouveau secret"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:25
+msgid "Needs attention"
+msgstr "À surveiller"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:12
+msgid "Never connected"
+msgstr "Jamais connecté"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:5
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:4
+msgid "New agent"
 msgstr "Nouvel agent"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:66
-msgid "No agent connected — queued jobs are waiting for one."
-msgstr "Aucun agent connecté — les travaux en file d'attente attendent un agent."
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:15
+msgid "New secret for {name}"
+msgstr "Nouveau secret pour {name}"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:26
+msgid "No access"
+msgstr "Aucun accès"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:39
+msgid "No agent connected: queued jobs are waiting for one."
+msgstr "Aucun agent connecté : les jobs en file attendent un agent."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:41
+msgid "No agent matches this filter."
+msgstr "Aucun agent ne correspond à ce filtre."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:24
+msgid "No agent online"
+msgstr "Aucun agent en ligne"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:9
+msgid "No agent yet"
+msgstr "Aucun agent pour l'instant"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:54
+msgid "No grant"
+msgstr "Aucune attribution"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:39
+msgid "No job in the last 30 days."
+msgstr "Aucun job sur les 30 derniers jours."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:53
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:35
+msgid "No job yet"
+msgstr "Aucun job pour l'instant"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:15
+msgid "No run yet"
+msgstr "Aucun job exécuté"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:75
+msgid "No secret: the agent cannot sign in. Reset the secret to make one."
+msgstr "Aucun secret : l'agent ne peut pas se connecter. Réinitialisez le secret pour en créer un."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:18
+msgid "Not reported yet"
+msgstr "Pas encore transmis"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:18
+msgid "Nothing finished yet"
+msgstr "Rien de terminé pour l'instant"
 
 #: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:11
-msgid "No agents connected"
-msgstr "Aucun agent connecté"
+msgid "Offline"
+msgstr "Hors ligne"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:51
-msgid "No finished jobs in this window."
-msgstr "Aucun job terminé sur cette période."
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:32
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:18
+msgid "One project"
+msgstr "Un seul projet"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:10
-msgid "offline"
-msgstr "hors ligne"
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:13
+msgid "Online"
+msgstr "En ligne"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:9
-msgid "online"
-msgstr "en ligne"
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:7
+msgid "Online, idle"
+msgstr "En ligne, disponible"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:75
-msgid "open full logs"
-msgstr "ouvrir les logs complets"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/RenameSecretDialog/rename-secret.messages.ts:6
+msgid "Only the name changes. The secret, its tokens and the connection of the agent stay."
+msgstr "Seul le nom change. Le secret, ses jetons et la connexion de l'agent restent."
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:50
-msgid "outcomes · last"
-msgstr "résultats · derniers"
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:27
+msgid "Open"
+msgstr "Ouvrir"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:78
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:46
+msgid "Open agent"
+msgstr "Ouvrir l'agent"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:9
+msgid "Organization"
+msgstr "Organisation"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:29
+msgid "Orphaned"
+msgstr "Orphelin"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:21
+msgid "p95 duration"
+msgstr "Durée p95"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:49
 msgid "pending"
 msgstr "en attente"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:71
-msgid "preview · agent log stream not wired yet"
-msgstr "aperçu · flux de logs agent pas encore branché"
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:8
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:21
+msgid "Project"
+msgstr "Projet"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:80
-msgid "queue empty"
-msgstr "file vide"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:19
+msgid "Put it in SCYLLA_APP_SECRET (or --app-secret) on the agent machine, then restart the agent."
+msgstr "Mettez-le dans SCYLLA_APP_SECRET (ou --app-secret) sur la machine de l'agent, puis redémarrez l'agent."
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:52
-msgid "Run a pipeline on this agent and the chart fills up."
-msgstr "Lancez une pipeline sur cet agent et le graphe se remplira."
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:51
+msgid "Recent jobs"
+msgstr "Jobs récents"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:47
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:19
+msgid "Recommended"
+msgstr "Recommandé"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:63
+msgid "Remove access"
+msgstr "Retirer l'accès"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:14
+msgid "Remove access to {name} ({role})"
+msgstr "Retirer l'accès à {name} ({role})"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:52
+msgid "Remove access to {name}?"
+msgstr "Retirer l'accès à {name} ?"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:54
+msgid "Remove access to all projects of {organization}?"
+msgstr "Retirer l'accès à tous les projets de {organization} ?"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/SecretLabelField/secret-label-field.messages.ts:6
+msgid "Remove the invisible control characters (for example a tab or a line break)."
+msgstr "Retirez les caractères de contrôle invisibles (par exemple une tabulation ou un saut de ligne)."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/RenameSecretDialog/rename-secret.messages.ts:4
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/RenameSecretDialog/rename-secret.messages.ts:10
+msgid "Rename"
+msgstr "Renommer"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/RenameSecretDialog/rename-secret.messages.ts:5
+msgid "Rename “{label}”"
+msgstr "Renommer « {label} »"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:76
+msgid "Reset makes a new secret and can revoke the others."
+msgstr "La réinitialisation crée un nouveau secret et peut révoquer les autres."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:29
+msgid "Reset secret"
+msgstr "Réinitialiser le secret"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:4
+msgid "Reset the secret of {name}?"
+msgstr "Réinitialiser le secret de {name} ?"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:25
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:24
+msgid "Retry"
+msgstr "Réessayer"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:72
+msgid "Revoke"
+msgstr "Révoquer"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:73
+msgid "Revoke “{label}”?"
+msgstr "Révoquer « {label} » ?"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:8
+msgid "Revoke the old secrets now"
+msgstr "Révoquer les anciens secrets maintenant"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:47
+msgid "Role: Organization agent. It can take the jobs of every project and report their status, nothing more."
+msgstr "Rôle : agent d'organisation. Il peut prendre les jobs de tous les projets et rapporter leur statut, rien de plus."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:46
+msgid "Role: Project agent. It can take jobs and report their status, nothing more."
+msgstr "Rôle : agent de projet. Il peut prendre des jobs et rapporter leur statut, rien de plus."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/AgentRunCommand/agent-run-command.messages.ts:9
+msgid "Run on the agent machine"
+msgstr "À lancer sur la machine de l'agent"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:7
+msgid "Run the agent on the machine. It connects to Scylla, then waits for jobs."
+msgstr "Lancez l'agent sur la machine. Il se connecte à Scylla, puis attend des jobs."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:78
 msgid "Run this agent"
 msgstr "Lancer cet agent"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:77
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:48
 msgid "running"
 msgstr "en cours"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:56
-msgid "runs"
-msgstr "exécutions"
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:21
+msgid "Running now"
+msgstr "En ce moment"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:72
-msgid "sample"
-msgstr "exemple"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/AgentRunCommand/agent-run-command.messages.ts:4
+msgid "Scylla address"
+msgstr "Adresse de Scylla"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:19
-msgid "Secret for the agent"
-msgstr "Secret pour l'agent"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CopyBox/copy-box.messages.ts:5
+msgid "Scylla could not copy it. Select the text instead."
+msgstr "Scylla n'a pas pu copier. Sélectionnez plutôt le texte."
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:28
-msgid "seen"
-msgstr "vu"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:37
+msgid "Scylla could not limit it to one project. Fix its access in the Access card of the agent page."
+msgstr "Scylla n'a pas pu le limiter à un seul projet. Corrigez son accès dans la carte Accès de la page de l'agent."
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:67
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:23
+msgid "Scylla could not load the access of this agent."
+msgstr "Scylla n'a pas pu charger les accès de cet agent."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:35
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:23
+msgid "Scylla could not load the projects."
+msgstr "Scylla n'a pas pu charger les projets."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:24
+msgid "Scylla could not revoke all the old secrets. Revoke them in Secrets."
+msgstr "Scylla n'a pas pu révoquer tous les anciens secrets. Révoquez-les dans Secrets."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:35
+msgid "Scylla keeps only a hash. If you lose it, reset the secret on the agent page."
+msgstr "Scylla n'en garde qu'une empreinte. Si vous le perdez, réinitialisez le secret sur la page de l'agent."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:5
+msgid "Scylla makes a new secret and shows it one time."
+msgstr "Scylla crée un nouveau secret et ne l'affiche qu'une fois."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:40
+msgid "Search by name or host"
+msgstr "Rechercher par nom ou hôte"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:33
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:17
+msgid "Secret"
+msgstr "Secret"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:34
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:18
+msgid "Secret copied"
+msgstr "Secret copié"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:68
+msgid "Secrets"
+msgstr "Secrets"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:50
+msgid "Sent at the first connection"
+msgstr "Transmis à la première connexion"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:40
 msgid "Set up an agent"
 msgstr "Configurer un agent"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:45
-msgid "since"
-msgstr "depuis"
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:59
+msgid "Show the run command"
+msgstr "Afficher la commande de lancement"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:20
-msgid "Start your agent"
-msgstr "Démarrez votre agent"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CopyBox/copy-box.messages.ts:6
+msgid "Show the secret"
+msgstr "Afficher le secret"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:23
-msgid "This revokes the agent's grants and disconnects it. Cannot be undone."
-msgstr "Cela révoque les autorisations de l'agent et le déconnecte. Irréversible."
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:24
+msgid "Shown one time"
+msgstr "Affiché une seule fois"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:18
-msgid "Two steps and it picks up jobs."
-msgstr "Deux étapes et il récupère les travaux."
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:58
+msgid "Since {date}"
+msgstr "Depuis le {date}"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:43
-msgctxt "date-prefix"
-msgid "Updated"
-msgstr "Mis à jour le"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:6
+msgid "Start {name}"
+msgstr "Démarrer {name}"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:81
-msgid "waiting"
-msgstr "en attente"
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:11
+msgid "Start the agent"
+msgstr "Démarrer l'agent"
 
-#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:7
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:20
+msgid "Started to finished"
+msgstr "Du démarrage à la fin"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:9
+msgid "Steps"
+msgstr "Étapes"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:16
+msgid "Success rate"
+msgstr "Taux de réussite"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:10
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:62
+msgid "System"
+msgstr "Système"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:21
+msgid "The {count} old secrets are revoked."
+msgstr "Les {count} anciens secrets sont révoqués."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:43
+msgid "The access to {projects} stays: you cannot remove it."
+msgstr "L'accès à {projects} reste : vous ne pouvez pas le retirer."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:74
+msgid "The agent cannot sign in with this secret any more, and its open connection closes. You cannot undo this."
+msgstr "L'agent ne peut plus se connecter avec ce secret, et sa connexion ouverte se ferme. Cette action est irréversible."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:44
+msgid "The agent reconnects in a few seconds, and a job that it runs now continues."
+msgstr "L'agent se reconnecte en quelques secondes, et un job qu'il exécute maintenant continue."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:45
+msgid "The agent reconnects in a few seconds, and a job that it runs now under this access cannot report its result."
+msgstr "L'agent se reconnecte en quelques secondes, et un job qu'il exécute maintenant avec cet accès ne peut pas rapporter son résultat."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:60
+msgid "The agent sends these details when it connects."
+msgstr "L'agent transmet ces informations quand il se connecte."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:69
+msgid "The agent signs in with one of them"
+msgstr "L'agent se connecte avec l'un d'eux"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:30
+msgid "The agent takes the jobs of the scope you choose, and reads its secrets."
+msgstr "L'agent prend les jobs de la portée choisie et lit ses secrets."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:52
+msgid "The last jobs this agent ran"
+msgstr "Les derniers jobs exécutés par cet agent"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:39
+msgid "The list shows the first {count} projects only."
+msgstr "La liste ne montre que les {count} premiers projets."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:4
+msgid "The machines that take and run the jobs of this organization."
+msgstr "Les machines qui prennent et exécutent les jobs de cette organisation."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/SecretLabelField/secret-label-field.messages.ts:5
+msgid "The name is too long: 64 bytes at most. An accented letter counts as 2, some characters count as 3 or 4."
+msgstr "Le nom est trop long : 64 octets au plus. Une lettre accentuée compte pour 2, certains caractères comptent pour 3 ou 4."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:20
+msgid "The old secret “{label}” is revoked."
+msgstr "L'ancien secret « {label} » est révoqué."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:22
+msgid "The old secret “{label}” stays enabled."
+msgstr "L'ancien secret « {label} » reste activé."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:12
+msgid "The old secrets keep working until you revoke them."
+msgstr "Les anciens secrets restent valides jusqu'à ce que vous les révoquiez."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:23
+msgid "The old secrets stay enabled."
+msgstr "Les anciens secrets restent activés."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:9
+msgid "The old secrets stop working, so the agent disconnects until it uses the new secret."
+msgstr "Les anciens secrets cessent de fonctionner : l'agent se déconnecte jusqu'à ce qu'il utilise le nouveau secret."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:37
+msgid "There is no project without access."
+msgstr "Aucun projet sans accès."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:42
+msgid "This access replaces the access to {projects}."
+msgstr "Cet accès remplace l'accès à {projects}."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:8
+msgid "This agent is disabled"
+msgstr "Cet agent est désactivé"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:27
+msgid "This agent takes no job. Give it one project or all the projects."
+msgstr "Cet agent ne prend aucun job. Donnez-lui un projet ou tous les projets."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:10
+msgid "Uncheck to keep “{label}” until then."
+msgstr "Décochez pour garder « {label} » d'ici là."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:11
+msgid "Uncheck to keep the old secrets until then."
+msgstr "Décochez pour garder les anciens secrets d'ici là."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/ResetSecretDialog/reset-secret.messages.ts:7
+msgid "Unique for this agent. By default, the name of its machine."
+msgstr "Unique pour cet agent. Par défaut, le nom de sa machine."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/RenameSecretDialog/rename-secret.messages.ts:8
+msgid "Unique for this agent. Use the machine name, so you know where the secret is."
+msgstr "Unique pour cet agent. Utilisez le nom de la machine pour savoir où se trouve le secret."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:15
+msgid "Unique in this organization. Use the machine name, so you find it in the list."
+msgstr "Unique dans cette organisation. Utilisez le nom de la machine pour la retrouver dans la liste."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/agent-details.messages.ts:66
+msgid "Unknown"
+msgstr "Inconnu"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:16
+msgid "Use letters, digits and dashes, 64 at most, and start with a letter or a digit."
+msgstr "Utilisez des lettres, des chiffres et des tirets, 64 au plus, et commencez par une lettre ou un chiffre."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:60
+msgid "Waiting for its first connection"
+msgstr "En attente de sa première connexion"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:39
+msgid "Waiting for the first connection…"
+msgstr "En attente de la première connexion…"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:59
+msgid "What changes"
+msgstr "Ce qui change"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:31
+#: extensions/scylla-base/src/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.messages.ts:17
+msgid "Where it takes jobs"
+msgstr "Où il prend des jobs"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:5
+msgid "Where this agent takes jobs"
+msgstr "Où cet agent prend des jobs"
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:40
+msgid "You cannot give access to all the projects."
+msgstr "Vous ne pouvez pas donner accès à tous les projets."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:38
+msgid "You cannot give access to the other projects."
+msgstr "Vous ne pouvez pas donner accès aux autres projets."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:24
+msgid "You cannot see the access of this agent."
+msgstr "Vous ne pouvez pas voir les accès de cet agent."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/AgentDetails/AccessCard/access-card.messages.ts:36
+msgid "You cannot see the projects of this organization."
+msgstr "Vous ne pouvez pas voir les projets de cette organisation."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:36
+msgid "You cannot see the stats."
+msgstr "Vous ne pouvez pas voir les statistiques."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/Agents/agents-page.messages.ts:6
 msgid "You don't have permission to create agents."
 msgstr "Vous n'avez pas la permission de créer des agents."
+
+#: extensions/scylla-base/src/features/agents/presentation/ui/agents.messages.ts:25
+msgid "You will not see this secret again."
+msgstr "Vous ne reverrez plus ce secret."

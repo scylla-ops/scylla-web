@@ -16,8 +16,11 @@
     description?: string;
     /** Replaces the title and the description, for a header with more than text. */
     header?: Snippet;
-    /** When false: no close button, and Escape or a click outside does nothing. */
-    dismissible?: boolean;
+    /**
+     * `false`: no close button, and Escape or a click outside does nothing. `'button'`: only the
+     * close button closes it, for a dialog that a stray Escape or click must not lose.
+     */
+    dismissible?: boolean | 'button';
     class?: string;
     /** Built again at each opening, so a form in it starts empty. */
     children: Snippet;
@@ -38,13 +41,13 @@
   const opening = $derived(open ? ++openings : openings);
 
   const keepOpen = (event: Event) => {
-    if (!dismissible) event.preventDefault();
+    if (dismissible !== true) event.preventDefault();
   };
 </script>
 
 <Dialog {open} {onOpenChange}>
   <DialogContent
-    class={cn(!dismissible && '[&>button]:hidden', className)}
+    class={cn(dismissible === false && '[&>button]:hidden', className)}
     onEscapeKeydown={keepOpen}
     onInteractOutside={keepOpen}
   >

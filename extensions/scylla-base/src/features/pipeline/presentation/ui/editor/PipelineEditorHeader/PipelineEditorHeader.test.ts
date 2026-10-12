@@ -60,7 +60,7 @@ describe('PipelineEditorHeader', () => {
     grantOnly();
     renderHeader({ isDirty: true });
 
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('disables the blueprint tab when the script is invalid', () => {

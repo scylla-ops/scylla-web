@@ -2,6 +2,7 @@
   import type { Snippet } from 'svelte';
   import TrashIcon from '@lucide/svelte/icons/trash';
   import { Button } from '../../primitives/index.ts';
+  import type { LucideIcon } from '../../icon.ts';
   import { toast } from '../../utils/toast.ts';
   import { activeLocale, t } from '../../i18n/i18n-svelte.svelte.ts';
   // Not the group barrels: they would import this file back.
@@ -22,6 +23,8 @@
     onDeleteSelection?: () => Promise<void> | void;
     onNew?: () => void;
     newLabel?: string;
+    /** Before the label of "New". */
+    newIcon?: LucideIcon;
     /** False disables "New" and shows `newDeniedReason`. */
     canNew?: boolean;
     newDeniedReason?: string;
@@ -43,6 +46,7 @@
     onDeleteSelection,
     onNew,
     newLabel,
+    newIcon: NewIcon,
     canNew = true,
     newDeniedReason,
     canDelete = true,
@@ -125,6 +129,7 @@
         onclick={onNew}
         data-part="feature-header-new"
       >
+        {#if NewIcon}<NewIcon />{/if}
         {newButtonLabel}
       </GatedButton>
     {/if}

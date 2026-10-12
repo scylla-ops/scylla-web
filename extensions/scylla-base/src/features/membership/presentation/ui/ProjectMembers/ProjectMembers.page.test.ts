@@ -175,7 +175,10 @@ describe('ProjectMembersPage', () => {
     render(ProjectMembersPage, { projectId: 'project-1' });
 
     await vi.waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Add a member' })).toBeDisabled(),
+      expect(screen.getByRole('button', { name: 'Add a member' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      ),
     );
   });
 

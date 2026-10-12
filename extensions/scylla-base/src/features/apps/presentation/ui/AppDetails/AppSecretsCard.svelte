@@ -14,6 +14,7 @@
   import { activeLocale, t } from '@scylla/ui/i18n';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
   import type { CreatedAppSecret } from '@base/features/apps/domain/structs/app.struct.ts';
+  import { trimSecretLabel } from '@base/features/apps/domain/structs/secret-label.struct.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import {
     createAppSecretItems,
@@ -41,9 +42,10 @@
   const items = $derived((activeLocale(), createAppSecretItems()));
 
   const handleCreate = ({ label }: FormValues<'label'>) => {
-    if (!label.trim()) return;
+    const trimmed = trimSecretLabel(label);
+    if (!trimmed) return;
 
-    createSecret.mutate(label.trim(), {
+    createSecret.mutate(trimmed, {
       onSuccess: data => {
         createOpen = false;
         created = data;

@@ -26,6 +26,17 @@ describe('currentStepId', () => {
     expect(currentStepId({ kind: 'in-progress', step: 'removed' }, STEPS)).toBe('welcome');
   });
 
+  it('resumes a tour saved at the removed reveal-secret step at copy-secret, which replaced it', () => {
+    const steps = ['welcome', 'create-agent', 'copy-secret', 'run-command', 'finish'];
+    const saved = { kind: 'in-progress', step: 'reveal-secret' } as const;
+
+    expect(currentStepId(saved, steps)).toBe('copy-secret');
+    expect(advanceTour(saved, steps, 'copy-secret')).toEqual({
+      kind: 'in-progress',
+      step: 'run-command',
+    });
+  });
+
   it('has no step once the tour is completed or skipped', () => {
     expect(currentStepId({ kind: 'completed' }, STEPS)).toBeNull();
     expect(currentStepId({ kind: 'skipped' }, STEPS)).toBeNull();

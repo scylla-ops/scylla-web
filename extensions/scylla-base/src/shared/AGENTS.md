@@ -25,7 +25,7 @@ utils/
   date-utils.ts, slug.ts, status-config.ts, job-status.utils.ts, toast-messages.ts
 infrastructure/grpc/wrappers.ts      proto helpers
 presentation/ui/index.ts             `@shared/presentation/ui`
-  data-display/                      StatusBar, STATUS_ICONS / getStatusIcon, AgentRunInstructions,
+  data-display/                      StatusBar, STATUS_ICONS / getStatusIcon,
                                      UserIdentity, UserAvatar, userName, userSecondaryLine,
                                      UserIdentityProfile
 locales/                             the catalog of these files

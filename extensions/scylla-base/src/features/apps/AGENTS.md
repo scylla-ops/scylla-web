@@ -14,13 +14,16 @@ Machine identities ("apps") and the secrets they authenticate with.
 
 ```typescript
 type AppEntity, AppSecretEntity
-type CreatedApp, CreatedAppSecret
+type CreatedApp, CreatedAppSecret, AppAccess, AppAccessScope, ResetAppSecret
+type SecretLabelProblem
+SECRET_LABEL_MAX_BYTES, normalizeSecretLabel, secretLabelProblem, suggestSecretLabel, trimSecretLabel
 appQueries, appMutations
-APPS_QUERY_KEY, APP_QUERY_KEY, APP_SECRETS_QUERY_KEY
+APPS_QUERY_KEY, APP_QUERY_KEY, APP_SECRETS_QUERY_KEY, APP_ACCESS_QUERY_KEY
 ```
 
-Nothing consumes this barrel yet — the types are exposed because they are the stable part and
-cost nothing at runtime. Never add: `apps.module.ts`, pages.
+`agents` uses this barrel: an agent is an app. `appQueries.secretsOf` and `appQueries.accessOf`
+run on the agent page, outside the pages of this module, thus they check `READ_APP` themselves
+(`enabled`). Never add: `apps.module.ts`, pages.
 
 **This module is Svelte** (Phase 3). There is no `use-apps-domain.ts` and no hooks: the
 factories in `presentation/apps.queries.ts` resolve the repository through
@@ -42,8 +45,38 @@ factories in `presentation/apps.queries.ts` resolve the repository through
 | `createAppSecret(appId, label)` | `CreatedAppSecret` (one-time value) |
 | `revokeAppSecret(secretId)` | `void` |
 | `setAppSecretEnabled(secretId, enabled)` | `AppSecretEntity` |
+| `setAppSecretLabel(secretId, label)` | `AppSecretEntity`: `SetAppSecretLabel` |
+| `listAppAccess(appId)` | `AppAccess[]`: each grant with its scope, names and role |
 
 All wrapped in `ScyllaResult`. Reach it from `apps.queries.ts` only — never from a component.
+
+`ResetAppSecretUseCase` (`domain/use-cases/`, DI key `resetAppSecret`) lists the secrets,
+creates a secret with the `label` of the user, then revokes the secrets that existed before it
+when `revokeOthers` is true. A failed revoke does not fail the reset: the new secret exists and
+shows only in the result (`failed` lists the secrets that stay). `appMutations.resetSecret(appId)`
+runs it, with `gcTime: 0`.
+
+## Secret labels
+
+`domain/structs/secret-label.struct.ts` holds the label rules. They are the rules of
+`AppSecretLabel` in CE: trimmed, 1 to 64 UTF-8 bytes, no control character, unique in the app.
+Dots and upper case are valid.
+
+- `secretLabelProblem(label, taken)` gives the broken rule (`empty`, `tooLong`, `control`,
+  `taken`), or `null`.
+- `normalizeSecretLabel(raw)` removes the control characters, trims, and cuts to 64 bytes.
+- `trimSecretLabel(value)` is the trim of CE (Rust `str::trim`, the Unicode White_Space
+  property). JS `trim()` is different: it removes U+FEFF and keeps U+0085. Use
+  `trimSecretLabel` for a label that goes to CE.
+- `suggestSecretLabel({ preferred, fallback, taken })` is the only place of the default name.
+  It normalizes `preferred` (a hostname), else `fallback` (the agent name). While a secret of
+  `taken` has the label, it adds `-2`, `-3`, and cuts the base so that the label stays in 64
+  bytes.
+- `createApp` sends no `secret_label`: CE names the first secret with the app name, cut to 64
+  bytes. The proto keeps the field.
+- `appMutations.setSecretLabel(appId)` and `appMutations.resetSecret(appId)` give `null` when CE
+  says `ALREADY_EXISTS`: the dialog shows the error under the field, and the global toast does
+  not show it. They throw all other errors. Both refresh the secrets of the app.
 
 ## Layout
 
@@ -52,8 +85,10 @@ apps.module.ts                       DI wiring only — no routes, no nav (see b
 index.ts                             public API
 domain/
   entities/app.entity.ts             AppEntity, AppSecretEntity
-  structs/app.struct.ts              CreatedApp, CreatedAppSecret
+  structs/app.struct.ts              CreatedApp, CreatedAppSecret, AppAccess, ResetAppSecret
+  structs/secret-label.struct.ts     the label rules and suggestSecretLabel (pure)
   repository/apps.repository.ts      the contract
+  use-cases/reset-app-secret.use-case.ts   ResetAppSecretUseCase
 infrastructure/
   data/apps-remote.data-source.ts    interface + Impl, colocated
   data/grpc-app.mapper.ts            GrpcAppMapper
@@ -85,6 +120,9 @@ an apps permission such as `LIST_APPS_BY_ORGANIZATION`, `page`-import the pages 
   in a store, and never log it.
 - Enable/disable is `setAppActive` / `setAppSecretEnabled`, distinct from delete/revoke. Keep
   them distinct in the UI too — disabling is reversible, revoking is not.
+- **When an app goes, take it out of the cached list and remove its own entries before the
+  refetch** (`appMutations.remove`): the app, secrets and access keys. Else a card asks CE about
+  an app that no longer exists.
 - Invalidate the secrets query after any secret mutation; the app query and the secrets query
   are separate cache entries. `appMutations` already does it — do not re-invalidate at the call
   site.

@@ -34,6 +34,10 @@ msgstr "Cancel"
 msgid "Clear"
 msgstr "Clear"
 
+#: packages/ui/src/primitives/dialog/dialog.messages.ts:4
+msgid "Close"
+msgstr "Close"
+
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:7
 msgid "Continue"
 msgstr "Continue"
@@ -67,6 +71,10 @@ msgstr "Creating..."
 msgid "Delete"
 msgstr "Delete"
 
+#: packages/ui/src/primitives/sidebar/sidebar.messages.ts:5
+msgid "Displays the mobile sidebar."
+msgstr "Displays the mobile sidebar."
+
 #: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:10
 msgid "Done"
 msgstr "Done"
@@ -75,11 +83,11 @@ msgstr "Done"
 msgid "Error"
 msgstr "Error"
 
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:14
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:15
 msgid "Go to next page"
 msgstr "Go to next page"
 
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:13
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:14
 msgid "Go to previous page"
 msgstr "Go to previous page"
 
@@ -87,7 +95,7 @@ msgstr "Go to previous page"
 msgid "in total"
 msgstr "in total"
 
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:15
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:16
 msgid "More pages"
 msgstr "More pages"
 
@@ -95,7 +103,7 @@ msgstr "More pages"
 msgid "New {label}"
 msgstr "New {label}"
 
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:12
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:13
 msgid "Next"
 msgstr "Next"
 
@@ -104,6 +112,10 @@ msgid "No results."
 msgstr "No results."
 
 #: packages/ui/src/primitives/pagination/pagination.messages.ts:11
+msgid "Pagination"
+msgstr "Pagination"
+
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:12
 msgid "Previous"
 msgstr "Previous"
 
@@ -130,6 +142,10 @@ msgstr "Showing {start}-{end} of {totalCount}"
 #: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:5
 msgid "shown once"
 msgstr "shown once"
+
+#: packages/ui/src/primitives/sidebar/sidebar.messages.ts:4
+msgid "Sidebar"
+msgstr "Sidebar"
 
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:5
 msgid "This action cannot be undone."

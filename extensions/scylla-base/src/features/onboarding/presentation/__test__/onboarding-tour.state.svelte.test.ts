@@ -115,7 +115,7 @@ describe('createOnboardingTourState', () => {
     tour.start();
 
     await onStep(tour, 'dashboard');
-    expect(tour.count).toEqual({ step: 1, total: 21 });
+    expect(tour.count).toEqual({ step: 1, total: 20 });
     expect(navigator.navigate).toHaveBeenCalledWith('/acme/dashboard', undefined);
     await vi.waitFor(() =>
       expect(repository.saveStatus).toHaveBeenCalledWith('ada', {

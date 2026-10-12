@@ -3,67 +3,62 @@
 > [Scylla frontend](../../../../../README.md) › `features/` › **agents** ·
 > [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
 
-Build agents are the machines that connect to Scylla, pick up jobs and run pipeline steps.
-This module is where an organization sees which agents exist, whether they are alive, and how
-their recent runs went.
+Build agents are the machines that connect to Scylla, take the jobs of an organization and run
+the pipeline steps. This module shows which agents exist, what they do now, how their jobs went,
+where they take jobs, and with which secrets they sign in.
 
 ## What it covers
 
-- **The agent list** (`/:org/agents`) — one card per agent with its status and a run summary.
-- **Agent details** (`/:org/agents/:agentId`) — statistics for a single agent: daily outcomes
-  chart, live activity, logs.
-- **Enrolling an agent** — creating one returns a token the operator pastes into the agent's
-  configuration. That token is shown once.
-- **The empty state** — `NoAgentsBanner` is the "you have no agents yet, here is how to add
-  one" prompt. It is exported because the dashboard shows the same banner.
+- **The agent list** (`/:org/agents`). A summary (online, running now, needs attention, jobs of
+  the last 30 days), a filter by state, a search by name or host, and one row for each agent:
+  its host, its access, a 30-day sparkline and its activity.
+- **The agent page** (`/:org/agents/:agentId`). The state, the key numbers, the jobs per day,
+  the recent jobs, the host, the access, the secrets, and the delete action.
+- **The actions.** Create an agent in a dialog of two steps (a name and where it takes jobs,
+  then the secret, the command to start it and a live status until it connects), reset its
+  secret with a new name, rename a secret, disable or enable it, delete it. The new agent dialog
+  does not show the name of the first secret: CE gives it the agent name. The reset is the only
+  way to get a secret again. The suggested name of a new secret is the machine name.
+  On the agent page, a user who manages the grants of the organization gives the agent one
+  project or all the projects, and removes an access.
+- **The empty state.** `NoAgentsBanner` tells the `jobs` page that queued jobs wait for an
+  agent.
 
-Everything is gated by `LIST_AGENTS`, declared once on the module and read by both the route
-guard and the sidebar link.
+The list needs `LIST_AGENTS` and the agent page needs `READ_APP`. Each action checks its own
+permission.
 
 ## How it is built
 
-The module follows the standard three-layer split.
+**Domain** holds `AgentEntity` and the structs around it (`AgentStats`, `DailyOutcome`,
+`CreatedAgent`). Two pure files hold the rules: `agentStateOf` gives the one state of an agent
+(idle, running, offline, never connected, disabled), and `summarizeAgents` gives the numbers of
+the summary. A component shows a state; it does not calculate one.
 
-**Domain** holds `AgentEntity` (the agent itself: id, name, status, last seen) and the structs
-around it — `AgentStats` for the details page, `DailyOutcome` for the chart, `CreatedAgent` for
-the one-time token returned at creation. `AgentsRepository` is the contract: list, get, stats,
-create, delete. Nothing here knows gRPC exists.
+**Infrastructure** implements `AgentsRepository` over `AgentAdminService`. It also asks
+`JobService` for the recent jobs of an agent and `PipelineService` for their names. These calls
+are here because `jobs` and `pipeline` import this module: an import back would make a cycle.
 
-**Infrastructure** implements that contract over gRPC-Web. Unlike the older modules, the data
-source interface and its implementation live in one file — `AgentsRemoteDataSource` is simply an
-alias of the repository interface, because there is exactly one transport and no coordination to
-do. `GrpcAgentMapper` converts proto messages into the domain types.
+**An agent is an app.** The secrets, the grants and the enable flag are `AppService` calls, and
+the `apps` module owns them. This module uses them through the `apps` barrel, so each resource
+has one query key. The reset is a use case of `apps` (`ResetAppSecretUseCase`): it creates the
+new secret, then revokes the old ones when the user asks for it. The project names of the recent
+jobs come from `project`. A new agent limited to one project gets a `project-agent` grant through
+`roles`, then loses the `organization-agent` grant that `CreateAgent` gave it. The "Access"
+card uses the same grant calls. "All projects" creates the organization grant before it revokes
+the project grants: if a revoke fails, the agent keeps more access, never less.
 
-**Presentation** is Svelte, as of Phase 3 of the migration. The three query hooks became
-`agents.queries.ts`: `queryOptions` and `mutationOptions` objects, which is plain data with no
-framework in it. `pipeline` and `dashboard` read agents through this module's barrel with the
-same objects, and share one cache entry with the pages here.
+**Presentation** has one ViewModel for each page, one for the actions that both pages share,
+and one for the reset dialog. The new secret stays in the state of that dialog only, and goes
+away when the dialog closes.
 
-The agents query decides its own `enabled` from `can(…)`. A caller builds the options inside
-the `createQuery` callback, so the query starts when the permissions arrive.
-
-The UI is split into small cards — `AgentCard`, `LiveNowCard`, `OutcomesChart`, `AgentLogs` — so
-the pages stay layout-only, and the outcomes chart's bucket arithmetic sits in
-`outcomes-chart.calculator.ts` where it can be tested without a DOM.
-
-## Known gap: mocked panels
-
-Part of this module is **not** wired to the backend yet. `agent-mock-data.ts` supplies the
-live-jobs panel (`LiveNowCard`) and the log stream (`AgentLogs`), because no endpoint exists for
-them today. The agent list, agent lookup and statistics are real.
-
-Neither of those two components is mounted anywhere. The Phase 3 port carried them across as they
-were rather than deleting them — deciding a component's fate is not a migration's call — so the
-question is still open and now costs a rewrite to keep open.
-
-If you are adding to this module, treat the mock as scaffolding to remove rather than an
-abstraction to extend: the moment the backend exposes live jobs or agent logs, those components
-should switch to real query factories and the file should disappear.
+**The bot** (`AgentBot`) shows the state with a small animation in CSS: it breathes when idle,
+hops when it runs a job, sleeps when offline, looks for a signal when it never connected, and
+stays low when disabled. With reduced motion, it keeps a static pose.
 
 ## Related modules
 
-- [jobs](../jobs/README.md) — what agents actually execute.
-- [dashboard](../dashboard/README.md) — reuses `NoAgentsBanner` and the outcomes chart shape.
-- [apps](../apps/README.md) — the other machine identity in Scylla, for API clients rather than
-  runners.
-- [platform/authz](../../platform/authz/README.md) — the `LIST_AGENTS` gate.
+- [apps](../apps/README.md): the app behind each agent, its secrets and its grants.
+- [jobs](../jobs/README.md): what agents run. Its page shows `NoAgentsBanner`.
+- [dashboard](../dashboard/README.md): an outcomes chart for one agent at a time.
+- [onboarding](../onboarding/README.md): the tour creates the first agent and points at its page.
+- [platform/authz](../../platform/authz/README.md): the permission checks.
