@@ -74,7 +74,7 @@ describe('TriggerStatusCell', () => {
 
   it('a disabled webhook trigger explains the URL returns 404', () => {
     render(TriggerStatusCell, { trigger: trigger({ enabled: false, source: webhook }) });
-    expect(screen.getByText('disabled — URL returns 404')).toBeInTheDocument();
+    expect(screen.getByText('disabled: URL returns 404')).toBeInTheDocument();
   });
 
   it('a disabled cron trigger just says "disabled"', () => {

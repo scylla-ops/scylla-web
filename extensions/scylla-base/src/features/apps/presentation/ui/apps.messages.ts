@@ -17,7 +17,7 @@ export const appsMessages = {
   createAndReveal: msg`Create & reveal secret →`,
 
   credentialsOf: (name: string) => msg`${name} credentials`,
-  copySecretOnce: msg`Copy the secret below — it is shown only once.`,
+  copySecretOnce: msg`Copy the secret below. It is shown only once.`,
   useTheseCredentials: msg`Use these credentials (id + secret) to authenticate an automation against the Scylla API.`,
 
   deleteAppTitle: msg`Delete app?`,
@@ -41,7 +41,7 @@ export const appsMessages = {
   status: msg`Status`,
   createdOn: msg({ context: 'date-prefix', message: 'Created' }),
   updatedOn: msg({ context: 'date-prefix', message: 'Updated' }),
-  notProcesses: msg`Apps are credentials, not processes. There's nothing to monitor here — no online/offline, no runs. If you need observability, create an Agent instead.`,
+  notProcesses: msg`Apps are credentials, not processes. There's nothing to monitor here: no online/offline, no runs. If you need observability, create an Agent instead.`,
 
   secrets: msg`Secrets`,
   secretsBody: msg`Credentials to authenticate this app. Disable cuts active sessions instantly; revoke deletes the secret.`,

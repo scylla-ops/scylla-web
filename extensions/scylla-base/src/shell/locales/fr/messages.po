@@ -82,8 +82,8 @@ msgid "Roles"
 msgstr "Rôles"
 
 #: extensions/scylla-base/src/shell/whats-new.ts:53
-msgid "Scylla now comes in light and dark — switch with the button in the top-right corner."
-msgstr "Scylla existe désormais en clair et en sombre — basculez avec le bouton en haut à droite."
+msgid "Scylla now comes in light and dark. Switch with the button in the top-right corner."
+msgstr "Scylla existe désormais en clair et en sombre. Basculez avec le bouton en haut à droite."
 
 #: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:7
 msgid "Select Organization"

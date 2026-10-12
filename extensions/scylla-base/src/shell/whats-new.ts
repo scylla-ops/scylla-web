@@ -50,7 +50,7 @@ export const WHATS_NEW = {
     {
       id: 'dark-mode',
       title: msg`Dark mode`,
-      description: msg`Scylla now comes in light and dark — switch with the button in the top-right corner.`,
+      description: msg`Scylla now comes in light and dark. Switch with the button in the top-right corner.`,
       icon: Moon,
     },
   ],

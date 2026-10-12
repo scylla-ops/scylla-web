@@ -34,8 +34,8 @@ msgid "Cancelled"
 msgstr "Annulé"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:33
-msgid "Could not copy — select the id manually"
-msgstr "Impossible de copier — sélectionnez l'ID manuellement"
+msgid "Could not copy: select the id manually"
+msgstr "Impossible de copier : sélectionnez l'ID manuellement"
 
 #: extensions/scylla-base/src/shared/presentation/ui/data-display/user-identity.messages.ts:4
 msgid "Deleted user"
@@ -50,8 +50,8 @@ msgid "Failed"
 msgstr "Échoué"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:27
-msgid "Job queued — no agent connected"
-msgstr "Travail mis en file d'attente — aucun agent connecté"
+msgid "Job queued: no agent connected"
+msgstr "Travail mis en file d'attente : aucun agent connecté"
 
 #: extensions/scylla-base/src/shared/presentation/ui/data-display/StatusBar/status-bar.messages.ts:4
 msgid "No data"
@@ -98,8 +98,8 @@ msgid "Pipeline ran"
 msgstr "Pipeline exécuté"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:28
-msgid "Pipeline ran — check that your agents are connected"
-msgstr "Pipeline exécutée — vérifiez que vos agents sont bien connectés"
+msgid "Pipeline ran: check that your agents are connected"
+msgstr "Pipeline exécutée : vérifiez que vos agents sont bien connectés"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:17
 msgid "Project created"
@@ -178,8 +178,8 @@ msgid "Trigger enabled"
 msgstr "Déclencheur activé"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:48
-msgid "Trigger fired — run started"
-msgstr "Déclencheur déclenché — exécution démarrée"
+msgid "Trigger fired: run started"
+msgstr "Déclencheur déclenché : exécution démarrée"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:44
 msgid "Trigger updated"

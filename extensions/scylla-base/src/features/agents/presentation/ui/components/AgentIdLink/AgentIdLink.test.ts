@@ -53,7 +53,7 @@ describe('AgentIdLink', () => {
     await fireEvent.click(screen.getByRole('button'));
 
     await vi.waitFor(() =>
-      expect(toastError).toHaveBeenCalledWith('Could not copy — select the id manually'),
+      expect(toastError).toHaveBeenCalledWith('Could not copy: select the id manually'),
     );
     expect(toastSuccess).not.toHaveBeenCalled();
   });

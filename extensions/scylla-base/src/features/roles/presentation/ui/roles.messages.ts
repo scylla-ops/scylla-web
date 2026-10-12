@@ -59,7 +59,7 @@ export const rolesMessages = {
   noOrganizations: msg`No organizations available.`,
   projects: msg`Projects`,
   noProjects: msg`No projects in this organization.`,
-  nobodyEligible: msg`Nobody can receive a project grant here yet. Admit someone to the organization first — from the organization switcher, under “Members” — and they will show up here.`,
+  nobodyEligible: msg`Nobody can receive a project grant here yet. Admit someone to the organization first (from the organization switcher, under “Members”), and they will show up here.`,
   loading: msg`Loading…`,
   granted: msg`Granted`,
   selectedCount: (count: number) => msg`Selected (${Number(count)})`,

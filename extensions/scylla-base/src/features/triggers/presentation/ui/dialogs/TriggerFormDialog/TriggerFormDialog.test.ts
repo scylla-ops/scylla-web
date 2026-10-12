@@ -152,7 +152,7 @@ describe('TriggerFormDialog — edit mode', () => {
 
     expect(screen.getByText('Edit trigger')).toBeInTheDocument();
     expect(screen.getByLabelText('Name')).toHaveValue('nightly');
-    expect(screen.getByText("Type can't be changed — delete and recreate to switch.")).toBeInTheDocument();
+    expect(screen.getByText("Type can't be changed. Delete and recreate to switch.")).toBeInTheDocument();
   });
 
   it('updates by trigger id rather than creating a second one', async () => {

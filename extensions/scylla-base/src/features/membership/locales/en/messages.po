@@ -18,8 +18,8 @@ msgid "{organization} roles"
 msgstr "{organization} roles"
 
 #: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:29
-msgid "{username} removed — {revoked} grant(s) revoked"
-msgstr "{username} removed — {revoked} grant(s) revoked"
+msgid "{username} removed: {revoked} grant(s) revoked"
+msgstr "{username} removed: {revoked} grant(s) revoked"
 
 #: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:24
 msgid "{value, plural, =0 {No role} one {# role} other {# roles}}"
@@ -62,8 +62,8 @@ msgid "Every role they hold on this organization and on its projects will be rev
 msgstr "Every role they hold on this organization and on its projects will be revoked. They will lose access immediately."
 
 #: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:62
-msgid "Every role they hold on this project will be revoked. Roles inherited from the organization are untouched — they are managed at the organization level."
-msgstr "Every role they hold on this project will be revoked. Roles inherited from the organization are untouched — they are managed at the organization level."
+msgid "Every role they hold on this project will be revoked. Roles inherited from the organization are untouched: they are managed at the organization level."
+msgstr "Every role they hold on this project will be revoked. Roles inherited from the organization are untouched: they are managed at the organization level."
 
 #: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:43
 msgid "Everyone is already a member"
@@ -133,8 +133,8 @@ msgid "Only a system admin can browse the users."
 msgstr "Only a system admin can browse the users."
 
 #: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:57
-msgid "Only members of the organization can be added — a project role granted to anyone else is refused."
-msgstr "Only members of the organization can be added — a project role granted to anyone else is refused."
+msgid "Only members of the organization can be added: a project role granted to anyone else is refused."
+msgstr "Only members of the organization can be added: a project role granted to anyone else is refused."
 
 #: extensions/scylla-base/src/features/membership/presentation/ui/membership.messages.ts:55
 msgid "Organization administrators also reach this project. Their roles are managed at the organization level and are not listed here."

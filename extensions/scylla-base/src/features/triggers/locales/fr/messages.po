@@ -58,8 +58,8 @@ msgid "Cancel"
 msgstr "Annuler"
 
 #: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:10
-msgid "Copy the secret below — it is shown only once."
-msgstr "Copiez le secret ci-dessous — il est affiché une seule fois."
+msgid "Copy the secret below. It is shown only once."
+msgstr "Copiez le secret ci-dessous. Il est affiché une seule fois."
 
 #: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:28
 msgid "Copy url"
@@ -103,8 +103,8 @@ msgid "disabled"
 msgstr "désactivé"
 
 #: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:36
-msgid "disabled — URL returns 404"
-msgstr "désactivé — l'URL renvoie 404"
+msgid "disabled: URL returns 404"
+msgstr "désactivé : l'URL renvoie 404"
 
 #: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:42
 msgid "Edit"
@@ -325,8 +325,8 @@ msgid "Type"
 msgstr "Type"
 
 #: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:48
-msgid "Type can't be changed — delete and recreate to switch."
-msgstr "Le type ne peut pas être modifié — supprimez et recréez pour changer."
+msgid "Type can't be changed. Delete and recreate to switch."
+msgstr "Le type ne peut pas être modifié. Supprimez et recréez pour changer."
 
 #: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:6
 msgid "Unable to load triggers"

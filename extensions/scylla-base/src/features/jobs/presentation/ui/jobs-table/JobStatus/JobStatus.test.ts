@@ -21,7 +21,7 @@ describe('JobStatus', () => {
 
   it('adds a "queued" hint only for a pending job', () => {
     render(JobStatus, { job: job('pending') });
-    expect(screen.getByText('queued — waiting for an agent')).toBeInTheDocument();
+    expect(screen.getByText('queued: waiting for an agent')).toBeInTheDocument();
   });
 
   it('adds a "disconnected" hint only for an orphaned job', () => {
@@ -33,7 +33,7 @@ describe('JobStatus', () => {
     for (const status of ['running', 'completed', 'failed']) {
       const { unmount } = render(JobStatus, { job: job(status) });
 
-      expect(screen.queryByText('queued — waiting for an agent')).not.toBeInTheDocument();
+      expect(screen.queryByText('queued: waiting for an agent')).not.toBeInTheDocument();
       expect(screen.queryByText('agent disconnected mid-run')).not.toBeInTheDocument();
 
       unmount();
@@ -45,6 +45,6 @@ describe('JobStatus', () => {
     render(JobStatus, { job: job('teleported') });
 
     expect(screen.getByText('Pending')).toBeInTheDocument();
-    expect(screen.queryByText('queued — waiting for an agent')).not.toBeInTheDocument();
+    expect(screen.queryByText('queued: waiting for an agent')).not.toBeInTheDocument();
   });
 });

@@ -32,7 +32,7 @@ describe('PipelineEditorHeader', () => {
     grantOnly(Permission.CREATE_PIPELINE);
     renderHeader({ mode: 'create', submitLabel: 'Create' });
 
-    expect(screen.getByText('Draft — not created yet')).toBeInTheDocument();
+    expect(screen.getByText('Draft: not created yet')).toBeInTheDocument();
   });
 
   it('shows unsaved changes, then saving, then saved', async () => {

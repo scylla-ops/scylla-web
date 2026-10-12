@@ -24,13 +24,13 @@ export const ToastMessages = {
   PIPELINE_DELETE: msg`Pipeline deleted`,
   PIPELINE_UPDATE: msg`Pipeline edited`,
   PIPELINE_RUN: msg`Pipeline ran`,
-  PIPELINE_JOB_QUEUED_WARNING: msg`Job queued — no agent connected`,
-  PIPELINE_RUN_CHECK_AGENTS: msg`Pipeline ran — check that your agents are connected`,
+  PIPELINE_JOB_QUEUED_WARNING: msg`Job queued: no agent connected`,
+  PIPELINE_RUN_CHECK_AGENTS: msg`Pipeline ran: check that your agents are connected`,
   PIPELINE_DUPLICATE: msg`Pipeline duplicated successfully`,
 
   // Agents
   AGENT_ID_COPIED: msg`Agent id copied`,
-  AGENT_ID_COPY_ERROR: msg`Could not copy — select the id manually`,
+  AGENT_ID_COPY_ERROR: msg`Could not copy: select the id manually`,
 
   // Apps
   APP_ID_COPIED: msg`App id copied`,
@@ -45,5 +45,5 @@ export const ToastMessages = {
   TRIGGER_DELETE: msg`Trigger deleted`,
   TRIGGER_ENABLED: msg`Trigger enabled`,
   TRIGGER_DISABLED: msg`Trigger disabled`,
-  TRIGGER_FIRED: msg`Trigger fired — run started`,
+  TRIGGER_FIRED: msg`Trigger fired: run started`,
 } as const satisfies Record<string, MessageDescriptor>;
