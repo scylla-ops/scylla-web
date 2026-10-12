@@ -16,6 +16,8 @@ Who belongs to an organization or a project, and with which roles.
 type ScopeMember, MemberRole
 MemberRoleOrigin                      (enum — a value, not a type)
 buildOrganizationMembers, buildProjectMembers
+membershipPoints                      the extension points (see below)
+type OrganizationMembersContext, ProjectMembersContext, AddMemberAction
 ```
 
 **This module is Svelte** (Phase 3). The two hooks that used to be exported are gone: they
@@ -53,7 +55,8 @@ index.ts                             public API
 domain/structs/scope-member.struct.ts   ScopeMember, MemberRole, MemberRoleOrigin +
                                         buildOrganizationMembers / buildProjectMembers (pure)
 presentation/
-  scope-membership.state.svelte.ts   grants → members, plus grant/revoke (a ViewModel)
+  membership.points.ts               the extension points (see below)
+  scope-membership.state.svelte.ts   grants → members, plus grant/revoke/refresh (a ViewModel)
   assignable-roles.state.svelte.ts   which roles *this* user may hand out
   assignable-roles.calculator.ts     pure: grantable → AssignableRole (no apps roles), and the
                                      grouping by owner the pickers render
@@ -71,6 +74,40 @@ Capturing either once freezes the view on the first, usually empty, render. The 
 re-ran on every render and got this for free.
 
 No `infrastructure/` — correct, do not add one.
+
+## Extension points
+
+Full mechanism: `widgets_plan.md` at the repo root. Defined in `presentation/membership.points.ts`,
+listed in `MembershipModule.points` (that names them `membership.*`), exported from this barrel
+and from `@scylla/base-sdk`.
+
+| Point | Kind | Context / type | Notes |
+|---|---|---|---|
+| `membership.organizationActions` | zone | `OrganizationMembersContext` | The header actions of the organization page. Its own child is the "Add a member" button: inject with `before`, `after` (the default) or `replace`. |
+| `membership.organizationSection` | zone | `OrganizationMembersContext` | Under the members list. No default content. |
+| `membership.organizationAddMember` | value | `AddMemberAction` | How the "Add a member" button shows. Default `{ withoutDirectory: 'deny', variant: 'default' }`. |
+| `membership.projectActions` | zone | `ProjectMembersContext` | The header actions of the project page. Its own child is the "Add a member" button. |
+| `membership.projectSection` | zone | `ProjectMembersContext` | Under the members list and the hint. No default content. |
+
+`OrganizationMembersContext` is `{ organizationId, organizationName, canManage, memberCount,
+refreshMembers }`. `ProjectMembersContext` is `{ organizationId, projectId, canManage,
+memberCount, refreshMembers }`. `canManage` is `MANAGE_ORG_GRANTS` on the organization or
+`MANAGE_PROJECT_GRANTS` on the project. `memberCount` is the number of people that the page
+lists. `refreshMembers()` reloads the member list and the grants of the scope: call it after a
+change that the page did not make.
+
+- **The "Add a member" button picks a person in the user directory**, thus it needs `LIST_USERS`
+  and `MANAGE_ORG_GRANTS`. Without one of them, the button is denied (`aria-disabled`) and its
+  dialog does not open. The reason without `MANAGE_ORG_GRANTS`: "You don't have permission to
+  admit members here". The reason without `LIST_USERS`: "Only a system admin can browse the
+  users".
+- **An extension with its own way to add a member** (for example an invitation by email)
+  patches `membership.organizationAddMember` to `{ withoutDirectory: 'hide', variant: 'outline' }`
+  and injects its own button in `membership.organizationActions`. Then a user without
+  `LIST_USERS` sees only the button of the extension, and a system admin sees both.
+- **A zone component checks its own permission.** The route guard of the page is
+  `LIST_ORGANIZATION_MEMBERS` (or `LIST_PROJECT_MEMBERS`), not the permission of a write. Use
+  `permission` on `inject`, or `when: context => context.canManage`.
 
 ## Routes & nav
 

@@ -155,6 +155,30 @@ describe('OrganizationMembersPage', () => {
     );
   });
 
+  it('denies "Add a member" without LIST_USERS, and says who can browse the users', async () => {
+    grant([Permission.MANAGE_ORG_GRANTS]);
+    render(OrganizationMembersPage);
+    await screen.findByText('alice');
+
+    const add = screen.getByRole('button', { name: 'Add a member' });
+    expect(add).toHaveAttribute('aria-disabled', 'true');
+    expect(add).toHaveAccessibleDescription('Only a system admin can browse the users.');
+
+    await userEvent.click(add);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('opens the directory dialog with LIST_USERS', async () => {
+    render(OrganizationMembersPage);
+    await screen.findByText('alice');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add a member' }));
+
+    expect(
+      await screen.findByRole('dialog', { name: 'Add a member to “Acme”' }),
+    ).toBeInTheDocument();
+  });
+
   it('confirms before removing a member, and revokes all their access on continue', async () => {
     render(OrganizationMembersPage);
     await screen.findByText('alice');

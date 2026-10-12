@@ -6,7 +6,7 @@
   import { invalidateOrganizationMembers, organizationQueries } from '@base/features/organization';
   import { userQueries, type UserSummary } from '@base/features/user';
   import { userName } from '@shared/presentation/ui';
-  import { ConfirmOperationAlertDialog, FeatureHeader } from '@scylla/ui';
+  import { ConfirmOperationAlertDialog, FeatureHeader, GatedButton } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { toast } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
@@ -19,6 +19,10 @@
   import {
     createScopeMembership,
   } from '@base/features/membership/presentation/scope-membership.state.svelte.ts';
+  import {
+    membershipPoints,
+    type OrganizationMembersContext,
+  } from '@base/features/membership/presentation/membership.points.ts';
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';
   import { membershipMessages } from '../membership.messages.ts';
@@ -50,6 +54,17 @@
     onMembershipChanged: () => void invalidateOrganizationMembers(organizationId),
   });
 
+  const addAction = membershipPoints.organizationAddMember.resolve({
+    withoutDirectory: 'deny',
+    variant: 'default',
+  });
+  const showAdd = $derived(canListUsers || addAction.withoutDirectory === 'deny');
+  const addDeniedReason = $derived(
+    canManage
+      ? t(membershipMessages.onlySystemAdminCanBrowseUsers)
+      : t(membershipMessages.organizationNewDenied),
+  );
+
   let addOpen = $state(false);
   let pendingRemoval = $state<{ userId: string; name: string } | null>(null);
 
@@ -77,6 +92,14 @@
     roles.assignableRoles.find(role => role.roleId === ORGANIZATION_MEMBER_ROLE_ID)?.roleId,
   );
 
+  const zoneContext: OrganizationMembersContext = $derived({
+    organizationId: organizationId ?? '',
+    organizationName: organization.name ?? '',
+    canManage,
+    memberCount: scopeMembers.length,
+    refreshMembers: membership.refresh,
+  });
+
   const currentUserId = localStorage.getItem('userId') ?? '';
 
   const handleAdd = async (userId: string, roleIds: string[]) => {
@@ -93,6 +116,21 @@
 </script>
 
 <!-- Writes need `MANAGE_ORG_GRANTS` on this organization. -->
+{#snippet actions()}
+  <div class="contents" use:membershipPoints.organizationActions={zoneContext}>
+    {#if showAdd}
+      <GatedButton
+        allowed={canManage && canListUsers}
+        deniedReason={addDeniedReason}
+        variant={addAction.variant}
+        onclick={() => (addOpen = true)}
+      >
+        {t(membershipMessages.addAMember)}
+      </GatedButton>
+    {/if}
+  </div>
+{/snippet}
+
 {#snippet blurb()}
   <p class="max-w-3xl text-sm text-muted-foreground">
     {t(membershipMessages.organizationBlurb(organization.name ?? ''))}
@@ -110,10 +148,7 @@
       label={t(membershipMessages.member)}
       pluralLabel={t(membershipMessages.members)}
       underLabel={blurb}
-      onNew={() => (addOpen = true)}
-      newLabel={t(membershipMessages.addAMember)}
-      canNew={canManage}
-      newDeniedReason={t(membershipMessages.organizationNewDenied)}
+      extraActions={actions}
     />
 
     <MembersList
@@ -141,15 +176,15 @@
         (pendingRemoval = { userId: member.userId, name: userName(userFor(member.userId)) })}
     />
 
+    <div class="contents" use:membershipPoints.organizationSection={zoneContext}></div>
+
     <AddMemberDialog
       open={addOpen}
       onOpenChange={open => (addOpen = open)}
       title={t(membershipMessages.addToOrganization(organization.name ?? ''))}
       description={t(membershipMessages.addToOrganizationBody)}
       {candidates}
-      emptyCandidatesLabel={canListUsers
-        ? t(membershipMessages.everyoneIsMember)
-        : t(membershipMessages.cannotBrowseDirectory)}
+      emptyCandidatesLabel={t(membershipMessages.everyoneIsMember)}
       roles={roles.assignableRoles}
       organizationName={organization.name ?? ''}
       rolesLabel={t(membershipMessages.rolesToGrant)}

@@ -49,6 +49,14 @@ the server in a request, and the page removes it from the address bar as soon as
 A link that is unknown, used or expired gives one message, with a way to ask for a new link: the
 server does not say which case it is, and the page does not guess.
 
+## Back to the page after the sign-in
+
+A page that needs a session can send a signed-out user to `loginPath(returnTo)`. After the
+sign-in, the login page goes back to that path. The path goes in the fragment of the login URL,
+because it can hold a token (an invitation link, for example): a fragment never goes to the
+server or into a `Referer`. The login page accepts only a path of this app, so a crafted link
+cannot send the user to another site after the sign-in.
+
 ## Letting another extension change this page
 
 A SaaS build wants its own flavour of the sign-in page: "Email" instead of "Email or username",

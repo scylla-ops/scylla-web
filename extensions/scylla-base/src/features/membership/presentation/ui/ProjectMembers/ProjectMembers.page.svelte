@@ -8,7 +8,7 @@
   import { roleConfers, roleQueries } from '@base/features/roles';
   import type { UserSummary } from '@base/features/user';
   import { userName } from '@shared/presentation/ui';
-  import { ConfirmOperationAlertDialog, FeatureHeader } from '@scylla/ui';
+  import { ConfirmOperationAlertDialog, FeatureHeader, GatedButton } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { toast } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
@@ -23,6 +23,10 @@
   import {
     createScopeMembership,
   } from '@base/features/membership/presentation/scope-membership.state.svelte.ts';
+  import {
+    membershipPoints,
+    type ProjectMembersContext,
+  } from '@base/features/membership/presentation/membership.points.ts';
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
   import MembersHint from '../components/MembersHint/MembersHint.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';
@@ -112,6 +116,14 @@
     organizationMembers.filter(member => !memberIds.has(member.userId)),
   );
 
+  const zoneContext: ProjectMembersContext = $derived({
+    organizationId: organizationId ?? '',
+    projectId: projectId ?? '',
+    canManage,
+    memberCount: members.length,
+    refreshMembers: membership.refresh,
+  });
+
   const currentUserId = localStorage.getItem('userId') ?? '';
 
   /** The project's own roles: the editable ones. */
@@ -140,6 +152,18 @@
   with its scope. Inherited roles are locked: revoking them changes every project.
   Candidates are the organization's members (a project grant needs one).
 -->
+{#snippet actions()}
+  <div class="contents" use:membershipPoints.projectActions={zoneContext}>
+    <GatedButton
+      allowed={canManage}
+      deniedReason={t(membershipMessages.projectNewDenied)}
+      onclick={() => (addOpen = true)}
+    >
+      {t(membershipMessages.addAMember)}
+    </GatedButton>
+  </div>
+{/snippet}
+
 {#snippet blurb()}
   <p class="max-w-3xl text-sm text-muted-foreground">{t(membershipMessages.projectBlurb)}</p>
 {/snippet}
@@ -151,10 +175,7 @@
       label={t(membershipMessages.member)}
       pluralLabel={t(membershipMessages.members)}
       underLabel={blurb}
-      onNew={() => (addOpen = true)}
-      newLabel={t(membershipMessages.addAMember)}
-      canNew={canManage}
-      newDeniedReason={t(membershipMessages.projectNewDenied)}
+      extraActions={actions}
     />
 
     <MembersList
@@ -193,6 +214,8 @@
         ? t(membershipMessages.inheritedHintVisible)
         : t(membershipMessages.inheritedHintHidden)}
     </MembersHint>
+
+    <div class="contents" use:membershipPoints.projectSection={zoneContext}></div>
 
     <AddMemberDialog
       open={addOpen}

@@ -22,6 +22,8 @@ loginPoints, type LoginZoneContext   // extension points — see below
 openSession, closeSession            // the only writers of the session; a sign-up flow in another extension uses openSession too
 hasSession                           // is a token stored? the auth guard and other extensions read it, never localStorage
 signOut                              // closeSession + context reset + a full load of /login
+loginPath(returnTo)                  // '/login#next=...': the sign-in page, then back to returnTo
+loginPathBackTo(location)            // loginPath of the current page; '/login' on /login itself
 type PasswordResetDelivery           // 'mail' | 'server-log' | 'unknown'; `user` uses it too
 ```
 
@@ -65,6 +67,7 @@ presentation/
   forgot-password.state.svelte.ts    the request of a reset link
   reset-password.state.svelte.ts     the token of the link, the new password
   sign-out.ts                        signOut
+  return-path.ts                     loginPath, loginPathBackTo, safeReturnPath, returnPathOf
   ui/AuthLayout.svelte               the frame of the public pages: logo, card, a `below` snippet
   ui/Login/Login.page.svelte, ui/LoginForm/LoginForm.svelte
   ui/ForgotPassword/ForgotPassword.page.svelte
@@ -111,6 +114,26 @@ anywhere else makes signing in, or resetting a password, require being signed in
 (`AuthService.RequestPasswordReset`). Do not rename it.
 
 No nav entry — the sidebar only renders inside the authenticated shell.
+
+## The return path
+
+A page that needs a session sends a signed-out user to `loginPath(returnTo)`, for example the
+invitation page of an extension: `navigateTo(loginPath('/invite#token=...'))`. After the
+sign-in, the login page goes to `returnTo` with `replace`, else to `/`.
+
+- **The return path is in the fragment of the login URL** (`/login#next=<encoded path>`), not in
+  the query. It can hold a token, and a fragment never goes to the server, to an access log or
+  into a `Referer`. The fragment of the return path itself is kept.
+- **Only a path of this app is accepted** (`safeReturnPath`): it starts with one `/`, it has no
+  backslash and no control character, and it resolves on the same origin. `//host`, `/\host`,
+  `https:`, `javascript:` and `data:` give `null`, and the page then goes to `/`. Do not read
+  `next` without this check: that is an open redirect.
+- The login page reads the fragment when the sign-in succeeds, and it does not remove it: a reload
+  of the page keeps the return path.
+- `loginPathBackTo({ pathname, search, hash })` is `loginPath` of the current page. On `/login`
+  itself it gives `/login`, so a sign-out on the login page does not loop. For a path that
+  `safeReturnPath` refuses, it also gives `/login`. The shell's `reportQueryError` uses it on
+  `UNAUTHENTICATED`.
 
 ## The password reset
 

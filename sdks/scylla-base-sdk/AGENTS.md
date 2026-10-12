@@ -38,5 +38,6 @@ module lists is in it.
 | Points object | Listed by | Points | Owning feature |
 |---|---|---|---|
 | `loginPoints` | `LoginModule` | `login.footer` (zone), `login.texts` (text scope), `login.fields` (value) | [`login`](../../extensions/scylla-base/src/features/login/AGENTS.md) |
+| `membershipPoints` | `MembershipModule` | `membership.organizationActions` (zone), `membership.organizationSection` (zone), `membership.organizationAddMember` (value), `membership.projectActions` (zone), `membership.projectSection` (zone) | [`membership`](../../extensions/scylla-base/src/features/membership/AGENTS.md) |
 
 Add a row here in the same change that adds `points` to a feature's module.

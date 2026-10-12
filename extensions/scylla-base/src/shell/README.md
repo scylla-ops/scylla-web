@@ -70,7 +70,8 @@ makes a pasted link work, and why no wrapper syncs the other way.
 - The **user menu**, the **"New" badge** and the **release dialog** of `whats-new.ts`.
 - The **error policy**: every query and mutation error goes to `reportQueryError`. An
   `UNAUTHENTICATED` response, or a query that cannot reach the control plane, clears the token
-  and sends the user to `/login`; anything else is a toast. **Do not add your own `onError`
+  and sends the user to `/login`; anything else is a toast. After an `UNAUTHENTICATED`, the
+  sign-in brings the user back to the page where the session stopped. **Do not add your own `onError`
   toast to a mutation.**
 
 ## Related modules

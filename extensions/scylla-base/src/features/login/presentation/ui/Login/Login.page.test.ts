@@ -5,6 +5,7 @@ import { render, withRegistry, withQueryClient } from '@test/render.svelte.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaResult, ScyllaError } from '@shared/utils/scylla-result.ts';
 import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
+import { loginPath } from '@base/features/login/presentation/return-path.ts';
 import LoginPage from './Login.page.svelte';
 
 const makeFakeRepository = (overrides: Partial<LoginRepository> = {}) => {
@@ -31,7 +32,10 @@ beforeEach(() => {
   teardown = [];
 });
 
-afterEach(() => teardown.forEach(restore => restore()));
+afterEach(() => {
+  teardown.forEach(restore => restore());
+  history.replaceState(null, '', '/');
+});
 
 const signIn = async (identifier = 'ravenne', password = 'hunter2') => {
   const user = userEvent.setup();
@@ -78,6 +82,36 @@ describe('LoginPage', () => {
 
     await waitFor(() =>
       expect(screen.queryByRole('button', { name: 'Sign in' })).not.toBeInTheDocument(),
+    );
+  });
+
+  it('goes back to the return path after the sign-in, with its fragment', async () => {
+    history.replaceState(null, '', loginPath('/invite#token=abc'));
+    const { repository } = makeFakeRepository();
+    setUp(repository);
+    render(LoginPage);
+
+    await signIn();
+
+    await waitFor(() =>
+      expect(testNavigator.navigate).toHaveBeenCalledWith('/invite#token=abc', { replace: true }),
+    );
+  });
+
+  it.each([
+    ['another host', '//evil.example/invite'],
+    ['an absolute URL', 'https://evil.example'],
+    ['a javascript: URL', 'javascript:alert(1)'],
+  ])('goes to the root, not to a return path to %s', async (_case, next) => {
+    history.replaceState(null, '', loginPath(next));
+    const { repository } = makeFakeRepository();
+    setUp(repository);
+    render(LoginPage);
+
+    await signIn();
+
+    await waitFor(() =>
+      expect(testNavigator.navigate).toHaveBeenCalledWith('/', { replace: true }),
     );
   });
 

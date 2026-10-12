@@ -58,6 +58,16 @@ role catalog the user may read (all of it with `MANAGE_ROLES`, the organization'
 `MANAGE_ORG_ROLES`) only adds the full role, for its permissions. The add-member dialog is built from that,
 so a user is never offered a role the server would refuse.
 
+## Other ways to add a member
+
+The "Add a member" dialog picks a person in the user directory. Only a system admin can read
+the directory (`LIST_USERS`), so for an organization admin the button is denied, with the
+reason. Another extension can add its own way, for example an invitation by email, through the
+widget points of the two pages: a zone for the header actions, a zone under the members list,
+and a value that hides the directory button without `LIST_USERS` and makes it a secondary
+button. The pages give the zones the scope, the right to manage it, the member count and a
+function that reloads the members. The details are in [`AGENTS.md`](./AGENTS.md).
+
 ## Structure at a glance
 
 - `domain/structs/scope-member.struct.ts` — the whole domain: types and the two builders.

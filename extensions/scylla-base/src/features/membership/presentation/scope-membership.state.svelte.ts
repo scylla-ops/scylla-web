@@ -1,7 +1,7 @@
 import { i18n } from '@lingui/core';
 import { PrincipalKind, type PermissionScope } from '@platform/authz';
-import { createMutation, createQuery } from '@scylla/core-sdk';
-import { grantMutations, roleQueries } from '@base/features/roles';
+import { createMutation, createQuery, getQueryClient } from '@scylla/core-sdk';
+import { GRANTS_QUERY_KEY, grantMutations, roleQueries } from '@base/features/roles';
 import { toast } from '@scylla/ui/utils';
 import type { MemberRole } from '../domain/structs/scope-member.struct.ts';
 import { membershipMessages } from './ui/membership.messages.ts';
@@ -89,6 +89,17 @@ export const createScopeMembership = ({
     }
   };
 
+  /** After a change that this view model did not make. */
+  const refresh = () => {
+    onMembershipChanged?.();
+    const currentScopeId = scopeId();
+    if (!currentScopeId) return;
+    void getQueryClient().invalidateQueries({
+      queryKey: GRANTS_QUERY_KEY(scope, currentScopeId),
+      exact: true,
+    });
+  };
+
   return {
     get grants() {
       return grantsQuery.data ?? [];
@@ -106,6 +117,7 @@ export const createScopeMembership = ({
     addRole,
     revokeRole,
     removeMember,
+    refresh,
   };
 };
 

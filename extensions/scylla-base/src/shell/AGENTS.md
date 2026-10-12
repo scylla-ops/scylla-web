@@ -25,7 +25,7 @@ whats-new.ts                            THE release announcement
 __test__/feature-permissions.test.ts    conformance: features gate, shared queries check
 presentation/
   shell-params.ts                       breadcrumbParams, linkParams (from the context store)
-  report-query-error.ts                 the one error toast, `closeSession` (login) on UNAUTHENTICATED
+  report-query-error.ts                 the one error toast; on UNAUTHENTICATED `closeSession`, `loginPathBackTo` (login)
   router/
     AppLayout.svelte                    layout of the `app` mount: AuthGuard + OrganizationGate
     AuthGuard/                          token present (hasSession)? → the pages, else /login
@@ -104,6 +104,12 @@ changes only for a new mount, a new section or a new part of the shell.
   own `onError` toast.** A *query* that fails on the network signs out (the UI is served by the
   control plane, so "unreachable" and "no longer authenticated" look the same); a *mutation*
   only toasts.
+- On `UNAUTHENTICATED`, `reportQueryError` signs out and loads `loginPathBackTo(window.location)`
+  (`features/login`): after the sign-in, the user comes back to the page, with its query and its
+  fragment. The return path is in the fragment of `/login`, thus a token of the page (the
+  `/invite#token=...` page of an extension) never goes into a query. On `/login` itself, and for
+  a path that `safeReturnPath` refuses, it loads the plain `/login`. A network failure loads the
+  plain `/login`.
 
 ## `__test__/feature-permissions.test.ts`
 

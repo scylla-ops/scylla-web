@@ -6,3 +6,9 @@ export {
   buildOrganizationMembers,
   buildProjectMembers,
 } from './domain/structs/scope-member.struct.ts';
+export {
+  membershipPoints,
+  type AddMemberAction,
+  type OrganizationMembersContext,
+  type ProjectMembersContext,
+} from './presentation/membership.points.ts';

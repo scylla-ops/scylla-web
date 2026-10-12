@@ -3,8 +3,14 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import {
+  render,
+  withQueryClient,
+  withRegistry,
+  withWidgetInjections,
+} from '@test/render.svelte.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { membershipPoints } from '@base/features/membership/presentation/membership.points.ts';
 import ProjectMembersPage from './ProjectMembers.page.svelte';
 
 const projectGrant = (overrides: Record<string, unknown> = {}) => ({
@@ -180,6 +186,31 @@ describe('ProjectMembersPage', () => {
         'true',
       ),
     );
+  });
+
+  it('gives the project, the right to manage and the member count to its zones', async () => {
+    const restoreInjections = withWidgetInjections({
+      'ee-members': [
+        membershipPoints.projectActions.inject({
+          component: () => import('./ProjectMembersProbe.fixture.svelte'),
+        }),
+        membershipPoints.projectSection.inject({
+          component: () => import('./ProjectMembersProbe.fixture.svelte'),
+        }),
+      ],
+    });
+    try {
+      render(ProjectMembersPage, { projectId: 'project-1' });
+      await screen.findByText('bob');
+
+      await vi.waitFor(() =>
+        expect(
+          screen.getAllByTestId('project-members-probe').map(probe => probe.textContent?.trim()),
+        ).toEqual(['org-1|project-1|2|true', 'org-1|project-1|2|true']),
+      );
+    } finally {
+      restoreInjections();
+    }
   });
 
   it('removes only someone who holds a project-scoped grant', async () => {
