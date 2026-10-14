@@ -12,7 +12,7 @@
   import {
     createAgentAccess,
   } from '@base/features/agents/presentation/agent-access.state.svelte.ts';
-  import { takeFocus } from '@base/features/agents/presentation/take-focus.actions.ts';
+  import { takeFocus } from '@base/features/agents/presentation/take-focus.attachments.svelte.ts';
   import GiveAccessDialog from './GiveAccessDialog.svelte';
   import RemoveAccessDialog from './RemoveAccessDialog.svelte';
   import { accessCardMessages as messages } from './access-card.messages.ts';
@@ -65,7 +65,7 @@
       <h2
         tabindex="-1"
         class="text-sm font-semibold outline-none"
-        use:takeFocus={manager.focusRequest}
+        {@attach takeFocus(() => manager.focusRequest)}
       >
         {t(messages.access)}
       </h2>

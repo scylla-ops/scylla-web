@@ -88,9 +88,9 @@ presentation/
   secret-label-input.state.svelte.ts   a secret name field: suggestion, edit, CE rules, refusal
   create-agent.state.svelte.ts         the two steps of a new agent: create, grants, live status
   agent-access.state.svelte.ts         the access card of the agent page: give, replace, remove
-  take-focus.actions.ts                focuses a node on request (the card heading, after a remove)
+  take-focus.attachments.svelte.ts     focuses a node on request (the card heading, after a remove)
   run-command.calculator.ts            the Docker, Docker Compose and source commands; AGENT_IMAGE
-  track-height.actions.ts              reports the height of a node (the dialog body animates on it)
+  track-height.attachments.ts          reports the height of a node (the dialog body animates on it)
   daily-outcomes.calculator.ts         30 days, zero-filled; axis top (pure)
   access.calculator.ts                 grant order, project labels, where the agent takes jobs,
                                        the projects without a grant, the grants that "All projects" replaces,

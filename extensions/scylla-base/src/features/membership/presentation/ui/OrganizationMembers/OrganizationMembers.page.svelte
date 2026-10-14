@@ -117,7 +117,7 @@
 
 <!-- Writes need `MANAGE_ORG_GRANTS` on this organization. -->
 {#snippet actions()}
-  <div class="contents" use:membershipPoints.organizationActions={zoneContext}>
+  <div class="contents" {@attach membershipPoints.organizationActions(() => zoneContext)}>
     {#if showAdd}
       <GatedButton
         allowed={canManage && canListUsers}
@@ -176,7 +176,7 @@
         (pendingRemoval = { userId: member.userId, name: userName(userFor(member.userId)) })}
     />
 
-    <div class="contents" use:membershipPoints.organizationSection={zoneContext}></div>
+    <div class="contents" {@attach membershipPoints.organizationSection(() => zoneContext)}></div>
 
     <AddMemberDialog
       open={addOpen}

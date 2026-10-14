@@ -10,7 +10,7 @@
   import {
     createAgentCreation,
   } from '@base/features/agents/presentation/create-agent.state.svelte.ts';
-  import { trackHeight } from '@base/features/agents/presentation/track-height.actions.ts';
+  import { trackHeight } from '@base/features/agents/presentation/track-height.attachments.ts';
   import { agentsMessages } from '../../agents.messages.ts';
   import DialogFooterBand from '../DialogFooterBand.svelte';
   import CreateAgentForm from './CreateAgentForm.svelte';
@@ -85,7 +85,7 @@
       <div
         data-step="1"
         class="col-start-1 row-start-1 min-w-0 px-6 py-5"
-        use:trackHeight={heightOf(1)}
+        {@attach trackHeight(heightOf(1))}
         in:enterStep
         out:leaveStep
       >
@@ -95,7 +95,7 @@
       <div
         data-step="2"
         class="col-start-1 row-start-1 min-w-0 px-6 py-5"
-        use:trackHeight={heightOf(2)}
+        {@attach trackHeight(heightOf(2))}
         in:enterStep
         out:leaveStep
       >
