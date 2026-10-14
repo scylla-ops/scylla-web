@@ -1,15 +1,13 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
 import { Permission } from '@platform/authz';
-import type { PipelineRemoteDataSource } from '@base/features/pipeline/infrastructure/repository/data-sources/pipeline-remote.data-source.ts';
-import { GrpcPipelineRemoteDataSource } from '@base/features/pipeline/infrastructure/data/remote/grpc-pipeline-remote.data-source.ts';
-import { DefaultPipelineRepository } from '@base/features/pipeline/infrastructure/repository/default-pipeline.repository.ts';
 import { grpcTransport } from '@platform/grpc';
+import { PipelineServiceClient } from '@base/generated/scylla/pipeline/v1/pipeline.client.ts';
+import { DefaultPipelineRepository } from './infrastructure/default-pipeline.repository.ts';
 
-const pipelineRemoteDataSource: PipelineRemoteDataSource = new GrpcPipelineRemoteDataSource(
-  grpcTransport,
+const pipelineRepository = new DefaultPipelineRepository(
+  new PipelineServiceClient(grpcTransport.getTransport()),
 );
-const pipelineRepository = new DefaultPipelineRepository(pipelineRemoteDataSource);
 
 export const PipelineModule = {
   id: 'pipeline',
@@ -20,7 +18,8 @@ export const PipelineModule = {
     project: [
       {
         permission: Permission.LIST_PIPELINES_BY_PROJECT,
-        page: () => import('./presentation/ui/dashboard/DashboardPipeline/DashboardPipeline.page.svelte'),
+        page: () =>
+          import('./presentation/ui/dashboard/DashboardPipeline/DashboardPipeline.page.svelte'),
       },
       {
         path: 'create',

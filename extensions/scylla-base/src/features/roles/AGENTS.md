@@ -109,12 +109,9 @@ domain/
   repository/permission.repository.ts       + CreateGrantInput, RevokeAllAccessInput
   use-cases/update-role.use-case.ts
 infrastructure/
-  data/grpc-permission-remote.data-source.ts             impl
-  repository/data-sources/permission.data-source.ts      interface
-  repository/mappers/                grpc-role, grpc-grant, grpc-grantable-role,
-                                     grpc-permission, grpc-permission-vocabulary,
-                                     grpc-effective-permissions
-  repository/default-permission.repository.ts
+  default-permission.repository.ts   RoleServiceClient + GrantServiceClient
+  grpc-role, grpc-grant, grpc-grantable-role, grpc-permission,
+  grpc-permission-vocabulary, grpc-effective-permissions   (*.mapper.ts)
 presentation/
   roles.queries.ts                   every read and write, as plain options objects
   roles-page.state.svelte.ts         the master–detail ViewModel, and RolesScope

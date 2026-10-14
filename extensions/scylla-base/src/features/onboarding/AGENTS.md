@@ -32,10 +32,10 @@ Never add: `onboarding.module.ts`, a component.
 `OnboardingStatus` (`domain/structs/`): `not-started` · `in-progress` (`step` id, optional
 `subject`: the project and the pipeline the tour created) · `completed` · `skipped`.
 
-The only implementation today is local: `DefaultOnboardingRepository` over
-`BrowserOnboardingLocalDataSource` (`localStorage`, key `onboarding:<userId>`, the id that
-`features/login` stores). The backend has no storage for it yet. When it has, add a remote data
-source and change `onboarding.module.ts`. Presentation does not change.
+The only implementation today is local: `DefaultOnboardingRepository` reads and writes
+`localStorage` (key `onboarding:<userId>`, the id that `features/login` stores). The backend has
+no storage for it yet. When it has, and if the local copy must stay, the repository has two
+sources: split it into a local and a remote data source then. Presentation does not change.
 
 ## Layout
 
@@ -46,10 +46,8 @@ domain/
   structs/onboarding-status.struct.ts
   repository/onboarding.repository.ts
 infrastructure/
-  data/browser-onboarding-local.data-source.ts           localStorage impl
-  repository/data-sources/onboarding-local.data-source.ts interface
-  repository/mappers/stored-onboarding.mapper.ts         JSON ↔ status, tolerant
-  repository/default-onboarding.repository.ts
+  default-onboarding.repository.ts       reads localStorage (any `Storage` in a test)
+  stored-onboarding.mapper.ts            JSON ↔ status, tolerant
 presentation/
   onboarding.queries.ts              status query + save mutation (optimistic)
   onboarding.messages.ts             every string (tour-steps.ts uses them)

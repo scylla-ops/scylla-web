@@ -1,20 +1,18 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
 import { Permission } from '@platform/authz';
-import type { SecretRemoteDataSource } from '@base/features/secret/infrastructure/repository/data-sources/secret-remote.data-source.ts';
-import { DefaultSecretRepository } from '@base/features/secret/infrastructure/repository/default-secret.repository.ts';
 import { grpcTransport } from '@platform/grpc';
-import { GrpcSecretRemoteDataSource } from '@base/features/secret/infrastructure/data/grpc-credential-remote.data-source.ts';
+import { SecretServiceClient } from '@base/generated/scylla/secret/v1/secret.client.ts';
+import { DefaultSecretRepository } from './infrastructure/default-secret.repository.ts';
 
-const secretRemoteDataSource: SecretRemoteDataSource = new GrpcSecretRemoteDataSource(
-  grpcTransport,
+const secretRepository = new DefaultSecretRepository(
+  new SecretServiceClient(grpcTransport.getTransport()),
 );
-const secretRepository = new DefaultSecretRepository(secretRemoteDataSource);
 
 export const SecretModule = {
   id: 'secret',
   domain: {
-    secretRepository: secretRepository,
+    secretRepository,
   },
   routes: {
     project: [

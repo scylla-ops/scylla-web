@@ -2,14 +2,12 @@ import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
-import type { TriggersRemoteDataSource } from '@base/features/triggers/infrastructure/repository/data-sources/triggers-remote.data-source.ts';
-import { GrpcTriggersRemoteDataSource } from '@base/features/triggers/infrastructure/data/remote/grpc-triggers-remote.data-source.ts';
-import { DefaultTriggersRepository } from '@base/features/triggers/infrastructure/repository/default-triggers.repository.ts';
+import { TriggerServiceClient } from '@base/generated/scylla/trigger/v1/trigger.client.ts';
+import { DefaultTriggersRepository } from './infrastructure/default-triggers.repository.ts';
 
-const triggersRemoteDataSource: TriggersRemoteDataSource = new GrpcTriggersRemoteDataSource(
-  grpcTransport,
+const triggersRepository = new DefaultTriggersRepository(
+  new TriggerServiceClient(grpcTransport.getTransport()),
 );
-const triggersRepository = new DefaultTriggersRepository(triggersRemoteDataSource);
 
 export const TriggersModule = {
   id: 'triggers',

@@ -389,8 +389,8 @@ msgid "Platform"
 msgstr "Plateforme"
 
 #: extensions/scylla-base/src/features/roles/presentation/ui/roles.messages.ts:16
-#: extensions/scylla-base/src/features/roles/roles.module.ts:32
-#: extensions/scylla-base/src/features/roles/roles.module.ts:36
+#: extensions/scylla-base/src/features/roles/roles.module.ts:35
+#: extensions/scylla-base/src/features/roles/roles.module.ts:39
 msgid "Platform roles"
 msgstr "Rôles de la plateforme"
 
@@ -423,8 +423,8 @@ msgid "Role"
 msgstr "Rôle"
 
 #: extensions/scylla-base/src/features/roles/presentation/ui/roles.messages.ts:9
-#: extensions/scylla-base/src/features/roles/roles.module.ts:25
-#: extensions/scylla-base/src/features/roles/roles.module.ts:27
+#: extensions/scylla-base/src/features/roles/roles.module.ts:28
+#: extensions/scylla-base/src/features/roles/roles.module.ts:30
 msgid "Roles"
 msgstr "Rôles"
 

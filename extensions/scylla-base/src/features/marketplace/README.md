@@ -13,15 +13,14 @@ Reachable at `/:org/marketplace`, with a sidebar entry under the organization se
 The UI works. The data does not come from anywhere yet.
 
 `DefaultMarketplaceRepository` returns a hardcoded list of items with a `TODO` on it. It is the
-only repository in the codebase built without a data source, and `marketplace.module.ts` is the
+only repository in the codebase built without a gRPC client, and `marketplace.module.ts` is the
 only module declaration that does not take `grpcTransport` — because there is nothing to
 transport.
 
 This is a reasonable state to be in, and it illustrates why the layering pays off. The page,
 the hook and the domain contract are all written against `MarketplaceRepository.getMarketplace()`.
-When the backend endpoint appears, the work is confined to `infrastructure/`: add a data source
-interface and its gRPC implementation, add a mapper, inject the data source into the repository,
-pass the transport in the module file. `MarketItem`, `useMarketplace` and every component stay
+When the backend endpoint appears, the work is confined to `infrastructure/`: add a mapper, give
+the repository the generated client, build that client in the module file. `MarketItem`, `useMarketplace` and every component stay
 exactly as they are.
 
 ## How it is built

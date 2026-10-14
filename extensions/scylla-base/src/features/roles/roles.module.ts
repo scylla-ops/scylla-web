@@ -4,12 +4,15 @@ import ShieldIcon from '@lucide/svelte/icons/shield';
 import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
-import { GrpcPermissionRemoteDataSource } from '@base/features/roles/infrastructure/data/grpc-permission-remote.data-source.ts';
-import { DefaultPermissionRepository } from '@base/features/roles/infrastructure/repository/default-permission.repository.ts';
+import { GrantServiceClient } from '@base/generated/scylla/authz/v1/grant.client.ts';
+import { RoleServiceClient } from '@base/generated/scylla/authz/v1/role.client.ts';
+import { DefaultPermissionRepository } from './infrastructure/default-permission.repository.ts';
 import { UpdateRoleUseCase } from '@base/features/roles/domain/use-cases/update-role.use-case.ts';
 
-const dataSource = new GrpcPermissionRemoteDataSource(grpcTransport);
-const repository = new DefaultPermissionRepository(dataSource);
+const repository = new DefaultPermissionRepository(
+  new RoleServiceClient(grpcTransport.getTransport()),
+  new GrantServiceClient(grpcTransport.getTransport()),
+);
 
 export const RolesModule = {
   id: 'roles',

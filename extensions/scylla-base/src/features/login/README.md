@@ -14,7 +14,7 @@ Signing in touches three modules, and it helps to see the whole path at once:
 1. `LoginForm` collects an identifier (an email or a username) and a password, and calls
    `LoginState.submit`.
 2. `LoginState` runs the mutation against `LoginRepository.login()`.
-3. The gRPC data source calls the backend and, on success, calls `openSession(token, userId)`,
+3. `DefaultLoginRepository` calls the backend and, on success, calls `openSession(token, userId)`,
    which writes them into `localStorage`.
 4. Every later request picks the token up: the transport in
    [platform/grpc](../../platform/grpc/README.md) reads `localStorage.token` and attaches
@@ -23,7 +23,7 @@ Signing in touches three modules, and it helps to see the whole path at once:
    route renders or redirects back to `/login`.
 
 Notice that the repository returns `ScyllaResult<void>`. The token deliberately never travels
-back up through the domain — the data source persists it as a side effect, and everything
+back up through the domain — the repository persists it as a side effect, and everything
 downstream reads it from one place. The upside is that no component ever holds a credential; the
 cost is that the `localStorage` key is a contract shared by three modules, so changing it means
 changing all three together.

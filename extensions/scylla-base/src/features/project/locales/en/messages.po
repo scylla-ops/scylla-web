@@ -70,8 +70,8 @@ msgid "Project name"
 msgstr "Project name"
 
 #: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:9
-#: extensions/scylla-base/src/features/project/project.module.ts:23
-#: extensions/scylla-base/src/features/project/project.module.ts:25
+#: extensions/scylla-base/src/features/project/project.module.ts:24
+#: extensions/scylla-base/src/features/project/project.module.ts:26
 msgid "Projects"
 msgstr "Projects"
 
@@ -91,7 +91,7 @@ msgstr "Select"
 msgid "Select an organization from the sidebar to view its projects"
 msgstr "Select an organization from the sidebar to view its projects"
 
-#: extensions/scylla-base/src/features/project/infrastructure/data/grpc-project-remote.data-source.ts:24
+#: extensions/scylla-base/src/features/project/infrastructure/default-project.repository.ts:20
 msgid "This organization has reached its project limit."
 msgstr "This organization has reached its project limit."
 

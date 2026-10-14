@@ -90,9 +90,8 @@ domain/
   repository/apps.repository.ts      the contract
   use-cases/reset-app-secret.use-case.ts   ResetAppSecretUseCase
 infrastructure/
-  data/apps-remote.data-source.ts    interface + Impl, colocated
-  data/grpc-app.mapper.ts            GrpcAppMapper
-  repository/default-apps.repository.ts
+  default-apps.repository.ts         AppServiceClient → AppEntity
+  grpc-app.mapper.ts                 GrpcAppMapper
 presentation/
   apps.queries.ts                    every read and write, as query/mutation options
   ui/Apps.page.svelte, AppDetails.page.svelte

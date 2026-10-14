@@ -2,12 +2,11 @@ import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
 import UsersIcon from '@lucide/svelte/icons/users';
 import { Permission } from '@platform/authz';
-import { UserRemoteDataSourceImpl } from '@base/features/user/infrastructure/data/remote/user-remote.data-source.impl.ts';
 import { grpcTransport } from '@platform/grpc';
-import { DefaultUserRepository } from '@base/features/user/infrastructure/repository/default-user.repository.ts';
+import { UserServiceClient } from '@base/generated/scylla/user/v1/user.client.ts';
+import { DefaultUserRepository } from './infrastructure/default-user.repository.ts';
 
-const dataSource = new UserRemoteDataSourceImpl(grpcTransport);
-const repository = new DefaultUserRepository(dataSource);
+const repository = new DefaultUserRepository(new UserServiceClient(grpcTransport.getTransport()));
 
 export const UserModule = {
   id: 'user',

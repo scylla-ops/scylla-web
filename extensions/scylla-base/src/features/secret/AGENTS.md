@@ -52,10 +52,8 @@ domain/
   entities/secret.entity.ts          SecretEntity, CreateSecretInput
   repository/secret.repository.ts
 infrastructure/
-  data/grpc-credential-remote.data-source.ts             impl (⚠ "credential", not "secret")
-  repository/data-sources/secret-remote.data-source.ts   interface
-  repository/mappers/grpc-secret.mapper.ts
-  repository/default-secret.repository.ts
+  default-secret.repository.ts       SecretServiceClient → SecretEntity
+  grpc-secret.mapper.ts
 presentation/
   secret.queries.ts                  the read and both writes, as options objects
   ui/Secret.page.svelte, CreateSecretDialog.svelte
@@ -81,9 +79,6 @@ presentation/
   check the mapper before displaying it.
 - The plaintext exists exactly once: in the create form, on its way out. Do not put it in a
   store, a query cache, a toast, a log or an error message.
-- The data source file is named `grpc-credential-remote.data-source.ts` because the proto
-  service is `Credential`. Domain-side the concept is **Secret** everywhere. Keep the proto name
-  inside infrastructure; never let "credential" leak into domain or presentation.
 - `createSecretItems.ts` is camelCase, predating the kebab-case convention. Do not rename
   opportunistically — that moves Lingui message ownership and needs
   `node scripts/restore-translations.mjs`. New files use kebab-case.

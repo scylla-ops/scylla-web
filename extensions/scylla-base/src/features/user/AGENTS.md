@@ -78,10 +78,8 @@ domain/
   structs/user-access.struct.ts      UserAccess, groupUserAccess (pure)
   repository/user.repository.ts
 infrastructure/
-  repository/data-sources/user-remote.data-source.ts     interface
-  data/remote/user-remote.data-source.impl.ts            impl (the `.impl.ts` convention)
-  repository/mappers/grpc-user.mapper.ts                 user, requests, access, session, delivery
-  repository/default-user.repository.ts
+  default-user.repository.ts         UserServiceClient → UserEntity
+  grpc-user.mapper.ts                user, requests, access, session, delivery
 presentation/
   user.queries.ts                    the reads, the writes, `canListUsers`
   account-page.state.svelte.ts       createAccountPage: the account of the session

@@ -164,7 +164,7 @@ Enforced by six rules in `.dependency-cruiser.cjs`, all `error`: `feature-api-on
 `module-declaration-is-private`, `domain-accessor-is-private`.
 
 What a barrel must **not** export:
-- **`<feature>.module.ts`** — it instantiates the feature's data sources at import time, so
+- **`<feature>.module.ts`** — it instantiates the feature's repository at import time, so
   re-exporting it pulls that feature's gRPC client into the chunk of anyone who imports the
   barrel. The module list (`shell/modules.ts`) imports it directly by path; that is the only door.
 - **A Svelte component.** Rollup cannot drop a component that a barrel re-exports, so every
@@ -190,12 +190,10 @@ feature/
 │   ├── entities/        → {Name}Entity — identity-bearing business objects (*.entity.ts)
 │   ├── structs/         → value objects, enums, DTOs, wrappers (*.struct.ts)
 │   └── use-cases/       → OPTIONAL — only when one earns its place (see below)
-├── infrastructure/      → concrete implementations of domain abstractions
-│   ├── repository/
-│   │   ├── default-feature.repository.ts   → repository impl
-│   │   ├── data-sources/                    → data source interface
-│   │   └── mappers/                         → proto ↔ domain mapping
-│   └── data/remote/                         → gRPC call impl
+├── infrastructure/      → concrete implementations of domain abstractions, flat
+│   ├── default-feature.repository.ts   → repository impl: calls the gRPC client, maps the result
+│   ├── grpc-feature.mapper.ts          → proto ↔ domain mapping (pure, tested)
+│   └── __test__/
 ├── locales/             → i18n (en/, fr/)
 └── presentation/        → UI layer
     ├── <feature>.queries.ts        → TanStack Query options factories (plain TS) + key factories
@@ -210,7 +208,11 @@ feature/
   directly. Repository interfaces know nothing about gRPC/HTTP, and their input types live beside
   them (e.g. `CreateGrantInput` in `permission.repository.ts`). No framework imports here, ever.
   Split domain types into two buckets, both proto-independent: **entities** (`entities/*.entity.ts` → `{Name}Entity`) are the identity-bearing things the feature owns (e.g. `SecretEntity`, `RoleEntity`, `UserEntity`); they may hold related input shapes (`CreateSecretInput`) and pure behavior (`updateRole`). **Structs** (`structs/*.struct.ts`) are plain data shapes with no identity — value objects, enums, DTOs, and list/result wrappers (e.g. `Permission`, `PermissionScope`, `ProjectList`, `CreatedApp`) — named with plain PascalCase (no suffix). The `Entity` suffix is what distinguishes the two at every use site, including against the proto types (which keep the bare name, aliased in mappers). There are **no `*.model.ts` files** — every domain type is an entity or a struct.
-- **Infrastructure** — Data sources (interface + `*.impl`) per transport; repository impl coordinates data sources and maps infra types → domain types via mappers (`Grpc{Entity}Mapper`).
+- **Infrastructure** — `Default{Entity}Repository` implements the domain interface. It calls the
+  gRPC client and maps proto ↔ domain with a `Grpc{Entity}Mapper`. Its constructor takes the
+  **generated client interface** (`I{Service}ServiceClient`), so a test gives it a fake client
+  (`unaryCall` from `@test/grpc.ts`) and nothing else needs a hand-written interface. See "Data
+  sources are optional" below.
 - **Presentation** — `*.queries.ts` wraps the repository (or a use case) in `queryOptions` /
   `mutationOptions`. A component or a ViewModel runs them with `createQuery` / `createMutation`
   from `@scylla/core-sdk`. Components are dumb-ish: they render state. **Server state lives in
@@ -220,6 +222,20 @@ feature/
   `getModuleDomain<typeof XModule.domain>('<id>').xRepository`. The core builds the map from the
   `domain` of every module of every extension (module ids are unique across the app) and
   installs it with `setDependencyRegistry`.
+
+### Data sources are optional — a repository talks to its transport
+
+A feature with **one** source has no data source layer: the repository calls the generated
+client directly. A data source interface between them would be a second copy of the repository
+contract, with every method forwarding — the same indirection as a forwarding use case.
+
+The point of substitution stays where it matters. Presentation, the other features and the tests
+see only the repository *interface* in `domain/`. When a feature gets a **second** source (a cache,
+a local store, another transport), split it then, inside that feature: add a data source per
+source behind the same repository. Nothing outside `infrastructure/` changes.
+
+A source that is not gRPC follows the same rule: `onboarding` injects the browser's own `Storage`
+type, not an interface of its own.
 
 ### Use cases are optional — most operations don't need one
 
@@ -474,8 +490,7 @@ The package and layer structure is mandatory; everything else must earn its plac
 | Use case (only when it orchestrates) | `*.use-case.ts` → `{Verb}{Entity}UseCase` | `update-role.use-case.ts` / `UpdateRoleUseCase` |
 | Repository interface | `*.repository.ts` (domain) → `{Entity}Repository` | `user.repository.ts` / `UserRepository` |
 | Repository impl | `default-*.repository.ts` (infra) → `Default{Entity}Repository` | `default-user.repository.ts` / `DefaultUserRepository` |
-| Data source iface | `*.data-source.ts` | `user-remote.data-source.ts` |
-| Data source impl | `*.data-source.impl.ts` | `user-remote.data-source.impl.ts` |
+| Data source (only with ≥ 2 sources) | `*.data-source.ts` → `{Source}{Entity}DataSource` | `local-job.data-source.ts` / `LocalJobDataSource` |
 | Mapper | `grpc-*.mapper.ts` → `Grpc{Entity}Mapper` | `grpc-user.mapper.ts` |
 | Domain entity | `*.entity.ts` → `{Name}Entity` | `secret.entity.ts` / `SecretEntity` |
 | Struct (value object / enum / DTO / wrapper) | `*.struct.ts` (plain name, no suffix) | `permission.struct.ts` / `Permission`, `pagination.struct.ts` / `PaginationInfo` |
@@ -491,7 +506,7 @@ Code identifiers: Interfaces/Types/Classes/Components/Enums **PascalCase** (no `
 
 ### `interface` vs `type`
 
-- **`interface`** for object shapes that are extended or implemented: component props (`interface Props`), repository contracts, data source contracts. This is the codebase majority — follow it.
+- **`interface`** for object shapes that are extended or implemented: component props (`interface Props`), repository contracts. This is the codebase majority — follow it.
 - **`type`** for everything a shape can't express: unions, literal unions, mapped/utility types, function types, aliases (`type PermissionScope = 'org' | 'project'`).
 - Type-only imports must use `import type` (`@typescript-eslint/consistent-type-imports` is an error, and `verbatimModuleSyntax` requires it).
 - Colocate a type with the file that uses it; a dedicated file is only justified for shared or bulky types — and in `domain/` it must land in `entities/` or `structs/` per the rules above.
@@ -516,7 +531,7 @@ Where a test goes:
   Fixtures used by several components' tests go there too.
 - `primitives/`: one kebab-case folder per primitive, and its tests go in that folder.
 
-The harness is five files in `test/` at the repository root (alias `@test/*`), and it is the only
+The harness is six files in `test/` at the repository root (alias `@test/*`), and it is the only
 shared test code of the workspace:
 
 | | |
@@ -526,6 +541,7 @@ shared test code of the workspace:
 | `test/navigator.ts` | `installTestNavigator` — a fake navigator, for a test that navigates. |
 | `test/queries.ts` | `runQueryFn`, `runMutationFn`, `runOnSuccess`, `stubQuery`. |
 | `test/i18n.ts` | `withLocale(locale, messages)` — for the handful of tests that assert on a real translation. |
+| `test/grpc.ts` | `unaryCall`, `failedCall` — the calls a fake `I…ServiceClient` returns, to test a repository. |
 
 ### The rules that bite here
 
@@ -687,9 +703,13 @@ Because of that, the tooling of this repo must work from another root. Keep it s
 1. Create `extensions/scylla-base/src/features/<feature>/` with `domain/ infrastructure/ locales/ presentation/`.
 2. Domain: repository interface (+ its input types), `entities/*.entity.ts` and `structs/*.struct.ts`.
    **Add a use case only if it orchestrates** — see "Use cases are optional".
-3. Infrastructure: data source (iface + `.impl`), `default-<feature>.repository.ts`, `grpc-<feature>.mapper.ts`.
+3. Infrastructure, flat: `default-<feature>.repository.ts` (takes the generated
+   `I{Service}ServiceClient`) and `grpc-<feature>.mapper.ts`. **No data source** while there is
+   one source — see "Data sources are optional".
 4. `<feature>.module.ts` at the module root: `{ id, domain, routes? } satisfies ScyllaModule`,
-   using `grpcTransport` from `@platform/grpc`. Each route loads its page with
+   which builds the repository on the generated client:
+   `new DefaultXRepository(new XServiceClient(grpcTransport.getTransport()))` (`grpcTransport`
+   from `@platform/grpc`). Each route loads its page with
    `page: () => import('./presentation/ui/X.page.svelte')`. Register the module in
    `shell/modules.ts`.
 5. `presentation/<feature>.queries.ts`: query-key factories, `queryOptions` / `mutationOptions`

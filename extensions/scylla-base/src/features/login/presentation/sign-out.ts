@@ -1,5 +1,5 @@
 import { contextStore } from '@platform/context';
-import { closeSession } from '../infrastructure/session/session.ts';
+import { closeSession } from '../infrastructure/session.ts';
 
 /** A full page load: no query, store or permission of the old session survives it. */
 export const signOut = (): void => {

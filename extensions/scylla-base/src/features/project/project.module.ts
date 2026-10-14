@@ -2,12 +2,13 @@ import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
 import WorkflowIcon from '@lucide/svelte/icons/workflow';
 import { Permission } from '@platform/authz';
-import { GrpcProjectRemoteDataSource } from '@base/features/project/infrastructure/data/grpc-project-remote.data-source.ts';
-import { DefaultProjectRepository } from '@base/features/project/infrastructure/repository/default-project.repository.ts';
 import { grpcTransport } from '@platform/grpc';
+import { ProjectServiceClient } from '@base/generated/scylla/project/v1/project.client.ts';
+import { DefaultProjectRepository } from './infrastructure/default-project.repository.ts';
 
-const projectRemoteDataSource = new GrpcProjectRemoteDataSource(grpcTransport);
-const projectRepository = new DefaultProjectRepository(projectRemoteDataSource);
+const projectRepository = new DefaultProjectRepository(
+  new ProjectServiceClient(grpcTransport.getTransport()),
+);
 
 export const ProjectModule = {
   id: 'project',

@@ -38,7 +38,7 @@ msgid "A reset link was sent to {email}."
 msgstr "Un lien de réinitialisation a été envoyé à {email}."
 
 #: extensions/scylla-base/src/features/user/presentation/ui/user.messages.ts:32
-#: extensions/scylla-base/src/features/user/user.module.ts:40
+#: extensions/scylla-base/src/features/user/user.module.ts:39
 msgid "Account"
 msgstr "Compte"
 
@@ -134,7 +134,7 @@ msgstr "Supprimer cet utilisateur ?"
 msgid "Delete user"
 msgstr "Supprimer l'utilisateur"
 
-#: extensions/scylla-base/src/features/user/user.module.ts:32
+#: extensions/scylla-base/src/features/user/user.module.ts:31
 msgid "Detail"
 msgstr "Détail"
 
@@ -339,7 +339,7 @@ msgid "Unknown device"
 msgstr "Appareil inconnu"
 
 #: extensions/scylla-base/src/features/user/presentation/ui/user.messages.ts:4
-#: extensions/scylla-base/src/features/user/user.module.ts:32
+#: extensions/scylla-base/src/features/user/user.module.ts:31
 msgid "User"
 msgstr "Utilisateur"
 
@@ -352,8 +352,8 @@ msgid "Username"
 msgstr "Nom d'utilisateur"
 
 #: extensions/scylla-base/src/features/user/presentation/ui/user.messages.ts:5
-#: extensions/scylla-base/src/features/user/user.module.ts:22
-#: extensions/scylla-base/src/features/user/user.module.ts:24
+#: extensions/scylla-base/src/features/user/user.module.ts:21
+#: extensions/scylla-base/src/features/user/user.module.ts:23
 msgid "Users"
 msgstr "Utilisateurs"
 
