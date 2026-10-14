@@ -19,6 +19,7 @@ export const pipelineColumns = (cells: PipelineCells): DataTableColumn<PipelineM
     cell: ({ row }) => renderSnippet(cells.status, row.original),
     size: 280,
     minSize: 250,
+    meta: { card: 'title' },
   },
   {
     id: 'history',
@@ -26,6 +27,7 @@ export const pipelineColumns = (cells: PipelineCells): DataTableColumn<PipelineM
     cell: ({ row }) => renderSnippet(cells.history, row.original),
     // No size: takes the space left, down to 180px.
     minSize: 180,
+    meta: { card: 'body' },
   },
   {
     id: 'metadata',
@@ -33,6 +35,7 @@ export const pipelineColumns = (cells: PipelineCells): DataTableColumn<PipelineM
     cell: ({ row }) => renderSnippet(cells.lastRun, row.original),
     size: 200,
     minSize: 180,
+    meta: { card: 'meta' },
   },
   {
     id: 'actions',
@@ -40,5 +43,6 @@ export const pipelineColumns = (cells: PipelineCells): DataTableColumn<PipelineM
     cell: ({ row }) => renderSnippet(cells.actions, row.original),
     size: 200,
     minSize: 80,
+    meta: { card: 'actions' },
   },
 ];

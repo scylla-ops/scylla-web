@@ -19,7 +19,7 @@
 </script>
 
 <div class="w-full flex items-center gap-2">
-  <Icon class={cn('w-5 h-5', config.iconClassName)} />
+  <Icon class={cn('w-5 h-5 shrink-0', config.iconClassName)} />
   <div class="flex min-w-0 flex-col">
     <Badge variant="outline" class={cn('w-fit', config.badgeClassName)}>
       {t(config.label)}

@@ -18,7 +18,7 @@ export const userColumns = (cells: UserCells): DataTableColumn<UserEntity>[] => 
     cell: ({ row }) => renderSnippet(cells.username, row.original),
     size: 200,
     minSize: 200,
-    meta: { align: 'left' },
+    meta: { align: 'left', card: 'title' },
   },
   {
     id: 'creationDate',
@@ -26,7 +26,7 @@ export const userColumns = (cells: UserCells): DataTableColumn<UserEntity>[] => 
     cell: ({ row }) => renderSnippet(cells.creationDate, row.original),
     size: 250,
     minSize: 150,
-    meta: { align: 'center' },
+    meta: { align: 'center', card: 'meta' },
   },
   {
     id: 'actions',
@@ -34,6 +34,6 @@ export const userColumns = (cells: UserCells): DataTableColumn<UserEntity>[] => 
     cell: ({ row }) => renderSnippet(cells.actions, row.original),
     // No minSize: the first column to shrink on a narrow screen.
     size: 100,
-    meta: { align: 'center' },
+    meta: { align: 'center', card: 'actions' },
   },
 ];

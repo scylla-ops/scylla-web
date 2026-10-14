@@ -19,7 +19,7 @@ export const secretColumns = (cells: SecretCells): DataTableColumn<SecretEntity>
     cell: ({ row }) => renderSnippet(cells.name, row.original),
     size: 240,
     minSize: 240,
-    meta: { align: 'left' },
+    meta: { align: 'left', card: 'title' },
   },
   {
     accessorKey: 'description',
@@ -27,7 +27,7 @@ export const secretColumns = (cells: SecretCells): DataTableColumn<SecretEntity>
     cell: ({ row }) => renderSnippet(cells.description, row.original),
     size: 300,
     minSize: 180,
-    meta: { align: 'center' },
+    meta: { align: 'center', card: 'body' },
   },
   {
     accessorKey: 'createdAt',
@@ -35,7 +35,7 @@ export const secretColumns = (cells: SecretCells): DataTableColumn<SecretEntity>
     cell: ({ row }) => renderSnippet(cells.createdAt, row.original),
     size: 180,
     minSize: 160,
-    meta: { align: 'center' },
+    meta: { align: 'center', card: 'meta' },
   },
   {
     id: 'actions',
@@ -43,6 +43,6 @@ export const secretColumns = (cells: SecretCells): DataTableColumn<SecretEntity>
     cell: ({ row }) => renderSnippet(cells.actions, row.original),
     size: 100,
     minSize: 100,
-    meta: { align: 'center' },
+    meta: { align: 'center', card: 'actions' },
   },
 ];

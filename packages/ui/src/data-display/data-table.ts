@@ -18,6 +18,13 @@ export type DataTableColumn<TData extends RowData, TValue extends CellData = Cel
 
 export type ColumnAlign = 'left' | 'center' | 'right';
 
+/**
+ * Where a column goes when the table is a list of cards. `title`: the top line, beside
+ * the `actions`. `body`: full width under it. `meta`: the bottom line, after the column
+ * header. `hidden`: not shown. A column without one is `meta`.
+ */
+export type CardSlot = 'title' | 'body' | 'meta' | 'actions' | 'hidden';
+
 declare module '@tanstack/table-core' {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   interface ColumnMeta<
@@ -26,6 +33,7 @@ declare module '@tanstack/table-core' {
     TValue extends CellData = CellData,
   > {
     align?: ColumnAlign;
+    card?: CardSlot;
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */
 }
@@ -70,3 +78,25 @@ export const buildGridTemplate = (columns: { size?: number; minSize?: number }[]
 /** Below this width the table scrolls. */
 export const minTableWidthOf = (columns: { minSize?: number }[]): number =>
   columns.reduce((total, column) => total + (column.minSize ?? 0), 0);
+
+/** Below this container width the table is a list of cards. */
+export const CARD_LAYOUT_WIDTH_PX = 640;
+
+/** The cells of a row, by card slot, in column order. */
+export const groupByCardSlot = <
+  TCell extends { column: { columnDef: { meta?: { card?: CardSlot } } } },
+>(
+  cells: TCell[],
+): Record<Exclude<CardSlot, 'hidden'>, TCell[]> => {
+  const slots: Record<Exclude<CardSlot, 'hidden'>, TCell[]> = {
+    title: [],
+    body: [],
+    meta: [],
+    actions: [],
+  };
+  for (const cell of cells) {
+    const slot = cell.column.columnDef.meta?.card ?? 'meta';
+    if (slot !== 'hidden') slots[slot].push(cell);
+  }
+  return slots;
+};

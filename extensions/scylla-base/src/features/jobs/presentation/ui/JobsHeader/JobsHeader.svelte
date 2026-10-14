@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PlayIcon from '@lucide/svelte/icons/play';
   import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
   import { Permission, can } from '@platform/authz';
   import { createMutation } from '@scylla/core-sdk';
@@ -71,6 +72,7 @@
     label={t(jobsMessages.job)}
     pluralLabel={t(jobsMessages.jobs)}
     newLabel={t(jobsMessages.run)}
+    newIcon={PlayIcon}
     onNew={onRun ? () => void onRun() : undefined}
     canNew={canRun}
     newDeniedReason={t(jobsMessages.runDenied)}

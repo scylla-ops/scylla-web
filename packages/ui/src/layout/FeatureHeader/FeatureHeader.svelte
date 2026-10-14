@@ -1,6 +1,9 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import TrashIcon from '@lucide/svelte/icons/trash';
+  import { MediaQuery } from 'svelte/reactivity';
+  import type { LucideIcon } from '../../icon.ts';
   import { Button } from '../../shadcn/index.ts';
   import { toast } from '../../utils/toast.ts';
   import { activeLocale, t } from '../../i18n/i18n-svelte.svelte.ts';
@@ -22,6 +25,8 @@
     onDeleteSelection?: () => Promise<void> | void;
     onNew?: () => void;
     newLabel?: string;
+    /** Stands for "New" on a phone, where the button has no room for its label. */
+    newIcon?: LucideIcon;
     /** False disables "New" and shows `newDeniedReason`. */
     canNew?: boolean;
     newDeniedReason?: string;
@@ -43,6 +48,7 @@
     onDeleteSelection,
     onNew,
     newLabel,
+    newIcon: NewIcon = PlusIcon,
     canNew = true,
     newDeniedReason,
     canDelete = true,
@@ -51,6 +57,12 @@
   }: Props = $props();
 
   let deleteDialogOpen = $state(false);
+
+  // A phone: "New" becomes an icon, the selection actions a bar at the bottom of the screen.
+  const phone = new MediaQuery('(max-width: 639px)');
+  const showSelectionBar = $derived(
+    phone.current && selectedCount > 0 && (!!onClearSelection || !!onDeleteSelection),
+  );
 
   /** The plural rule of the locale: English says "0 roles", French "0 rôle". */
   const displayLabel = $derived(
@@ -74,6 +86,37 @@
   };
 </script>
 
+{#snippet selectionActions(variant: 'outline' | 'ghost')}
+  {@const onBar = variant === 'ghost'}
+  {@const barButton = 'h-11 text-background hover:bg-background/10 hover:text-background'}
+  {#if onSelectAll && !allSelected && !!count}
+    <Button {variant} class={onBar ? barButton : undefined} onclick={onSelectAll}>
+      {t(featureHeaderMessages.selectAll)}
+    </Button>
+  {/if}
+
+  {#if selectedCount > 0 && onClearSelection}
+    <Button {variant} class={onBar ? barButton : undefined} onclick={onClearSelection}>
+      {t(featureHeaderMessages.clear)}
+    </Button>
+  {/if}
+
+  {#if selectedCount > 0 && onDeleteSelection}
+    <GatedButton
+      allowed={canDelete}
+      deniedReason={deleteDeniedReason}
+      tooltip={t(featureHeaderMessages.delete)}
+      size="icon"
+      variant="destructive"
+      onclick={() => (deleteDialogOpen = true)}
+      class={onBar ? 'size-11' : 'h-9 w-9 cursor-pointer transition-all hover:scale-110'}
+    >
+      <TrashIcon class="size-4" />
+      <span class="sr-only">{t(featureHeaderMessages.delete)}</span>
+    </GatedButton>
+  {/if}
+{/snippet}
+
 <div class="flex w-full flex-row flex-wrap items-end justify-between gap-x-4 gap-y-3">
   <div class="flex min-w-0 flex-col gap-2">
     <div class="flex flex-row flex-wrap gap-4">
@@ -93,27 +136,8 @@
   </div>
 
   <div class="ml-auto flex flex-wrap items-center justify-end gap-2">
-    {#if onSelectAll && !allSelected && !!count}
-      <Button variant="outline" onclick={onSelectAll}>{t(featureHeaderMessages.selectAll)}</Button>
-    {/if}
-
-    {#if selectedCount > 0 && onClearSelection}
-      <Button variant="outline" onclick={onClearSelection}>{t(featureHeaderMessages.clear)}</Button>
-    {/if}
-
-    {#if selectedCount > 0 && onDeleteSelection}
-      <GatedButton
-        allowed={canDelete}
-        deniedReason={deleteDeniedReason}
-        tooltip={t(featureHeaderMessages.delete)}
-        size="icon"
-        variant="destructive"
-        onclick={() => (deleteDialogOpen = true)}
-        class="h-9 w-9 cursor-pointer transition-all hover:scale-110"
-      >
-        <TrashIcon class="size-4" />
-        <span class="sr-only">{t(featureHeaderMessages.delete)}</span>
-      </GatedButton>
+    {#if !phone.current}
+      {@render selectionActions('outline')}
     {/if}
 
     {#if extraActions}{@render extraActions()}{/if}
@@ -123,12 +147,31 @@
         allowed={canNew}
         deniedReason={newDeniedReason}
         onclick={onNew}
+        size={phone.current ? 'icon' : 'default'}
+        class={phone.current ? 'size-11' : undefined}
         data-part="feature-header-new"
       >
-        {newButtonLabel}
+        {#if phone.current}
+          <NewIcon class="size-5" />
+          <span class="sr-only">{newButtonLabel}</span>
+        {:else}
+          {newButtonLabel}
+        {/if}
       </GatedButton>
     {/if}
   </div>
+
+  {#if showSelectionBar}
+    <div
+      data-part="feature-header-selection-bar"
+      class="fixed inset-x-3 bottom-4 z-40 flex items-center gap-1 rounded-2xl bg-foreground py-1.5 pr-1.5 pl-4 text-background shadow-[0_12px_32px_-8px_oklch(0_0_0/0.35)]"
+    >
+      <span class="flex-1 text-sm font-semibold">
+        {t(featureHeaderMessages.selected(selectedCount))}
+      </span>
+      {@render selectionActions('ghost')}
+    </div>
+  {/if}
 
   {#if onDeleteSelection}
     <ConfirmOperationAlertDialog

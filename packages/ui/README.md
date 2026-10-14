@@ -33,6 +33,11 @@ and behave alike:
   `createSelection('jobs')` and `createSelection('users')` are independent — which is why there is
   no per-feature selection store anywhere in the codebase.
 - **`FeatureHeader`** — the list header: item count, clear/delete selection, new-item button.
+- **On a phone, a table becomes cards.** A wide table made the user scroll sideways to see the
+  date or the actions. `DataTable` now shows one card per row when its own box is narrow, and
+  each column tells where it goes in the card (`meta.card`). It is one component, not a mobile
+  copy of each table: a new column appears in both layouts. `FeatureHeader` follows: an icon
+  for "New", and a bar at the bottom of the screen for the selection.
 - **`ScyllaForm`** — forms are declared as `FormItem[]` rather than assembled by hand.
   `FormDialog` wraps one in a dialog, `createFormState` owns values, dirty-checking and validation.
   Both are generic over the item ids, so a form declared with literal ids submits a typed

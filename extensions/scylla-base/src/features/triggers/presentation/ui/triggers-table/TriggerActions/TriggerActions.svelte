@@ -12,7 +12,7 @@
     DropdownMenuItem,
     DropdownMenuTrigger,
   } from '@scylla/ui/shadcn';
-  import { IconButton } from '@scylla/ui';
+  import { IconButton, getDataTableLayout } from '@scylla/ui';
   import { createCompactContainer } from '@scylla/ui/state';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
@@ -30,6 +30,8 @@
   const canManage = $derived(can(Permission.MANAGE_TRIGGERS));
 
   const container = createCompactContainer();
+  const layout = getDataTableLayout();
+  const asMenu = $derived(container.isCompact || layout.isCard);
 </script>
 
 <!-- Every action writes: all hidden without `MANAGE_TRIGGERS`. A menu when the column is narrow. -->
@@ -38,7 +40,7 @@
     use:container.measure
     class="flex w-full shrink-0 items-center justify-center gap-1"
   >
-    {#if container.isCompact}
+    {#if asMenu}
       <DropdownMenu>
         <DropdownMenuTrigger
           class={cn(
