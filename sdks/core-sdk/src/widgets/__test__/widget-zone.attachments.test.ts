@@ -18,7 +18,7 @@ afterEach(() => {
   setWidgetInjectionRegistry(null);
 });
 
-describe('a zone point used as an action', () => {
+describe('a zone point used as an attachment', () => {
   it('mounts a "before" component before the default content, and an "after" one after it', async () => {
     const points = { zone: point.zone<Ctx>() };
     installWidgetInjectionsForTest({

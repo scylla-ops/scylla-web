@@ -18,7 +18,7 @@
     portalToBody,
     trackTourStep,
     type TourLayout,
-  } from '@base/features/onboarding/presentation/tour-tracking.actions.ts';
+  } from '@base/features/onboarding/presentation/tour-tracking.attachments.svelte.ts';
   import TourCard from './TourCard.svelte';
   import TourSpotlight from './TourSpotlight.svelte';
 
@@ -139,9 +139,9 @@
 {/snippet}
 
 <div
-  use:portalToBody
-  use:blockPage={blockingOptions}
-  use:trackTourStep={tracking}
+  {@attach portalToBody}
+  {@attach blockPage(() => blockingOptions)}
+  {@attach trackTourStep(() => tracking)}
   data-onboarding-tour
   class="contents"
 >

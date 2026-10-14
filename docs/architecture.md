@@ -242,8 +242,8 @@ alongside `loadExtensions`) rejects, at start-up and in tests: a change to a poi
 not a loaded module; a change to another extension's point when that extension is not listed in
 `dependencies`; two injections that `replace` the same zone; two that override the same text.
 
-The owner writes almost the code it writes with no points. A zone point is itself a Svelte
-action — `<div use:loginPoints.footer={{ isPending }}>` — which owns the whole mount, update and
+The owner writes almost the code it writes with no points. A zone point makes the attachment
+that opens it — `<div {@attach loginPoints.footer(() => ({ isPending }))}>` — which owns the whole mount, update and
 cleanup lifecycle of whatever is injected into it. Texts keep `t(loginMessages.title)`: `t` finds
 an override by the descriptor object (never by its id, which two modules with the same source
 string share). Only a value point shows in the owner's code, as `resolve(value)`. A sign-up link that another
@@ -330,7 +330,7 @@ feature/
 └── presentation/
     ├── <feature>.queries.ts        → query-key factories, queryOptions / mutationOptions
     ├── <view>.state.svelte.ts      → ViewModels (runes), when a view needs one
-    ├── *.actions.ts / *.calculator.ts → Svelte actions / pure algorithms
+    ├── *.attachments.ts / *.calculator.ts → attachments / pure algorithms
     └── ui/                         → Svelte components + *.messages.ts
 ```
 
@@ -459,7 +459,7 @@ Where the logic goes:
 | Page orchestration (queries + filters + pagination) | a ViewModel | `presentation/<view>.state.svelte.ts` |
 | Complex UI logic without network | a UI-only ViewModel | `presentation/<view>.state.svelte.ts` |
 | A pure algorithm | a pure function | `presentation/*.calculator.ts` |
-| DOM measurement, native events, a third-party widget | a Svelte action | `presentation/*.actions.ts` |
+| DOM measurement, native events, a third-party widget | an attachment (`{@attach}`) | `presentation/*.attachments.ts` |
 
 `$effect` is a last resort: use it only to synchronize with a system outside Svelte.
 

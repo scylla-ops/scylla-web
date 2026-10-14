@@ -60,7 +60,7 @@
       <banner.default hasPendingJobs={jobs?.some(job => job.status === 'pending') ?? false} />
     {/await}
 
-    <div use:pagination.measure class="relative flex-1 min-h-0 overflow-auto">
+    <div {@attach pagination.measure} class="relative flex-1 min-h-0 overflow-auto">
       <div class="relative">
         {#if jobs && jobs.length > 0}
           <JobsTable {jobs} {pipelineId} />

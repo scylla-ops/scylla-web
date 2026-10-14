@@ -35,7 +35,7 @@
 <!-- Every action writes: all hidden without `MANAGE_TRIGGERS`. A menu when the column is narrow. -->
 {#if canManage}
   <div
-    use:container.measure
+    {@attach container.measure}
     class="flex w-full shrink-0 items-center justify-center gap-1"
   >
     {#if container.isCompact}

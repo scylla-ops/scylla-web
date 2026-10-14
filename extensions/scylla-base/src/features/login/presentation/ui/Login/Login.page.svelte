@@ -19,7 +19,7 @@
 
     {#snippet below()}
       <!-- No default content: a zone that only ever receives `after` components (e.g. a sign-up link). -->
-      <div use:loginPoints.footer={{ isPending: state.isPending }}></div>
+      <div {@attach loginPoints.footer(() => ({ isPending: state.isPending }))}></div>
     {/snippet}
   </AuthLayout>
 {/if}

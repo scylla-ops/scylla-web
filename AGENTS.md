@@ -198,7 +198,7 @@ feature/
 └── presentation/        → UI layer
     ├── <feature>.queries.ts        → TanStack Query options factories (plain TS) + key factories
     ├── <view>.state.svelte.ts      → ViewModels of the views that need one (runes)
-    ├── *.actions.ts / *.calculator.ts → Svelte actions / pure algorithms, when needed
+    ├── *.attachments.ts / *.calculator.ts → attachments / pure algorithms, when needed
     └── ui/              → Svelte components (pages, dialogs, tables) + *.messages.ts
 ```
 
@@ -385,7 +385,7 @@ static SPA that the Rust binary serves. See `refacto_svelte.md` for the reasons.
 | Page orchestration (queries + filters + pagination) | a ViewModel | `presentation/<view>.state.svelte.ts` |
 | Complex UI logic without network (a wizard, a matrix) | a UI-only ViewModel | `presentation/<view>.state.svelte.ts` |
 | A pure algorithm (a chart scale, a graph layout) | a pure function | `presentation/*.calculator.ts` |
-| DOM measurement, native events, a third-party widget | a Svelte action | `presentation/*.actions.ts` |
+| DOM measurement, native events, a third-party widget | an attachment (`{@attach}`) | `presentation/*.attachments.ts` |
 
 **Never put non-trivial logic in a `.svelte` file.** A ViewModel is named after the view it
 controls (`user-list.state.svelte.ts`), never after a global concept. A ViewModel is testable in
@@ -403,7 +403,7 @@ subscription, a CodeMirror or `@xyflow` instance). For everything else there is 
 | Respond to a user action | effect watching state | The event handler |
 | Reset a form when a dialog opens | effect on `open` | `ScyllaDialog`: it rebuilds its content at each opening |
 | Refetch after a mutation | effect | `invalidateQueries` in `onSuccess` |
-| Touch the DOM | `bind:this` + effect | a Svelte action (`use:action`) — the only sanctioned way |
+| Touch the DOM | `bind:this` + effect | an attachment (`{@attach fn}`) — the only sanctioned way |
 
 - **No mirror state.** What TanStack Query already holds (`data`, `isPending`, `error`) is never
   copied into `$state` or a store. Same for form state owned by `createFormState`, and for the
@@ -414,6 +414,21 @@ subscription, a CodeMirror or `@xyflow` instance). For everything else there is 
 - **Read a store from rune code with `toRune(store)`** (`@scylla/ui/stores`). It
   subscribes only while something reads it.
 - When an effect must read state that must not re-run it, read that state with `untrack`.
+
+### Attachments, not actions
+
+Code that touches an element is an **attachment** (`{@attach fn}`, Svelte ≥ 5.29), never a
+`use:` action. An attachment is reactive, can sit on a component (the component spreads it onto
+its element), and can be conditional (`{@attach enabled && fn}`).
+
+- **Options that change are a getter**: `{@attach renderCodeMirror(() => ({ doc, extensions }))}`.
+  Svelte re-runs an attachment when its expression gives a new function, so the expression must
+  read nothing that changes. The attachment reads the getter with `untrack` to build itself, and
+  in a nested `$effect` to follow the changes — never with an `update()`.
+- An attachment with no option is the function itself: `{@attach pagination.measure}`.
+- It returns its cleanup function.
+- Test it in `$effect.root`: call it inside an `$effect`, drive its options with `$state`, and
+  `flushSync()` (`onboarding/presentation/__test__/tour-tracking.attachments.svelte.test.ts`).
 
 ### Data access
 
@@ -429,7 +444,7 @@ subscription, a CodeMirror or `@xyflow` instance). For everything else there is 
 
 - **One component = one responsibility.** Past ~150 lines, or as soon as you have to scroll to
   follow the markup, split it.
-- Logic moves into a ViewModel, an action or a calculator; the component keeps rendering only.
+- Logic moves into a ViewModel, an attachment or a calculator; the component keeps rendering only.
 - Self-contained or repeated markup becomes a named component, or a `{#snippet}` when it is
   local to one file. A snippet can call itself — use that for recursion, not a component that
   imports itself (`no-circular`).
@@ -484,7 +499,7 @@ The package and layer structure is mandatory; everything else must earn its plac
 | Rune helper (no view) | `*.svelte.ts` | `organization-sync.svelte.ts` |
 | Query / mutation options | `<feature>.queries.ts` → `{feature}Queries`, `{feature}Mutations` | `user.queries.ts` / `userQueries` |
 | Messages (i18n) | `*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
-| Svelte action | `*.actions.ts`, named by a verb | `code-mirror.actions.ts` / `renderCodeMirror` |
+| Attachment | `*.attachments.ts` (`.svelte.ts` when it uses runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
 | Pure algorithm | `*.calculator.ts` | `outcomes-chart.calculator.ts` |
 | Test fixture (a component a test renders) | `*.fixture.svelte` | `DataTable.fixture.svelte` |
 | Use case (only when it orchestrates) | `*.use-case.ts` → `{Verb}{Entity}UseCase` | `update-role.use-case.ts` / `UpdateRoleUseCase` |

@@ -63,7 +63,7 @@ The log viewer behaves like an IDE console, and `streamed-log-view.svelte.ts` is
 lives. A live log is a stream, but a document you re-seed is a snapshot, and the gap between the
 two is the whole problem: replacing the editor's content on every flush — seven times a second —
 resets the scroll offset and destroys any selection the reader had made. So it appends the delta
-itself and never re-seeds. Mounting the editor is a Svelte action for the same reason: CodeMirror
+itself and never re-seeds. Mounting the editor is an attachment for the same reason: CodeMirror
 is an outside system, and a `value` prop would invite exactly that replacement.
 
 On top of that it keeps one piece of state — are we still following the tail? — because "always

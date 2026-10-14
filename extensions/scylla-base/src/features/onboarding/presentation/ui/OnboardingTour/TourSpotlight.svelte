@@ -7,7 +7,7 @@
     type TourRect,
     type TourSize,
   } from '@base/features/onboarding/presentation/tour-placement.calculator.ts';
-  import { holdPointer } from '@base/features/onboarding/presentation/tour-tracking.actions.ts';
+  import { holdPointer } from '@base/features/onboarding/presentation/tour-tracking.attachments.svelte.ts';
 
   interface Props {
     viewport: TourSize;
@@ -26,7 +26,7 @@
   transition:fade={{ duration: motionDuration(200) }}
 >
   <path
-    use:holdPointer
+    {@attach holdPointer}
     d={dimPath(viewport, holes)}
     fill-rule="evenodd"
     class="pointer-events-auto fill-black/55"
@@ -36,7 +36,7 @@
 {#if blocking}
   <svg class="pointer-events-none fixed inset-0 z-[55] size-full" aria-hidden="true">
     <path
-      use:holdPointer
+      {@attach holdPointer}
       d={dimPath(viewport, allowed ? [allowed] : [])}
       fill-rule="evenodd"
       data-tour-blocker

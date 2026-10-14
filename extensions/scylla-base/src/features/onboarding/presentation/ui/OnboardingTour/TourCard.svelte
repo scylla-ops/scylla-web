@@ -9,7 +9,7 @@
     onboardingMessages,
   } from '@base/features/onboarding/presentation/onboarding.messages.ts';
   import type { TourLink } from '@base/features/onboarding/presentation/tour-steps.ts';
-  import { holdPointer } from '@base/features/onboarding/presentation/tour-tracking.actions.ts';
+  import { holdPointer } from '@base/features/onboarding/presentation/tour-tracking.attachments.svelte.ts';
 
   interface Props {
     title?: string;
@@ -56,7 +56,7 @@
 {/snippet}
 
 <div
-  use:holdPointer
+  {@attach holdPointer}
   bind:offsetWidth={width}
   bind:offsetHeight={height}
   in:fly={{ y: 8, duration: motionDuration(250) }}

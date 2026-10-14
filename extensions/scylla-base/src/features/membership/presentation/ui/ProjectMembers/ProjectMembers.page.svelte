@@ -153,7 +153,7 @@
   Candidates are the organization's members (a project grant needs one).
 -->
 {#snippet actions()}
-  <div class="contents" use:membershipPoints.projectActions={zoneContext}>
+  <div class="contents" {@attach membershipPoints.projectActions(() => zoneContext)}>
     <GatedButton
       allowed={canManage}
       deniedReason={t(membershipMessages.projectNewDenied)}
@@ -215,7 +215,7 @@
         : t(membershipMessages.inheritedHintHidden)}
     </MembersHint>
 
-    <div class="contents" use:membershipPoints.projectSection={zoneContext}></div>
+    <div class="contents" {@attach membershipPoints.projectSection(() => zoneContext)}></div>
 
     <AddMemberDialog
       open={addOpen}

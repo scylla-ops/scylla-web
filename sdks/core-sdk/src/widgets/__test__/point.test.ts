@@ -20,8 +20,8 @@ describe('point', () => {
       expect(change.payload).toEqual({ position: 'after', component });
     });
 
-    it('is itself the Svelte action that opens the zone', () => {
-      expect(typeof point.zone()).toBe('function');
+    it('makes the attachment that opens the zone', () => {
+      expect(typeof point.zone()(() => ({}))).toBe('function');
     });
   });
 

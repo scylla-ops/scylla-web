@@ -69,7 +69,6 @@ presentation/
     dashboard/                                Dashboard, chart, table, pipeline table columns
   utils/
     blueprint-converter.ts                   Graph ↔ PipelineStep[] (pure, TS only, tested)
-    code-mirror.actions.ts                   Svelte action for CodeMirror integration
     create-default-script.ts
     pipeline-script.ts
 ```

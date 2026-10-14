@@ -43,8 +43,7 @@ the nodes and edges, keeping them in sync with the document. `blueprint-converte
 single place that translates between the graph and the domain's `PipelineStep[]` — both directions,
 so the round-trip can't drift. It's written in pure TypeScript and thoroughly tested.
 
-The script side is CodeMirror 6, accessed via a Svelte `action` (see `code-mirror.actions.ts` in
-`shared/`). `pipeline-script.state.svelte.ts` holds `script` and `initialScript`: the draft text
+The script side is CodeMirror 6, mounted with the `renderCodeMirror` attachment of `@scylla/ui`. `pipeline-script.state.svelte.ts` holds `script` and `initialScript`: the draft text
 and the baseline for the dirty check. That is UI state hosted in a ViewModel, and it stays there
 — the *saved* pipeline stays in TanStack Query.
 

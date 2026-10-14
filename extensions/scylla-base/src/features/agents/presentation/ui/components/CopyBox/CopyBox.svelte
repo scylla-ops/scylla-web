@@ -62,8 +62,8 @@
     }
   };
 
-  const focusWithoutScroll = (node: HTMLElement, enabled: boolean) => {
-    if (enabled) node.focus({ preventScroll: true });
+  const focusWithoutScroll = (node: HTMLElement) => {
+    node.focus({ preventScroll: true });
   };
 </script>
 
@@ -86,7 +86,7 @@
       type="button"
       onclick={() => void copy()}
       aria-label={t(messages.copy)}
-      use:focusWithoutScroll={focusOnMount}
+      {@attach focusOnMount && focusWithoutScroll}
       class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
     >
       {#if copied}

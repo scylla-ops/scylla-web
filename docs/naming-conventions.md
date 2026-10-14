@@ -58,7 +58,7 @@ The suffix of a file tells its role.
 | **Query-key factories** (when they have their own file) | `<feature>.query-keys.ts` | `jobs.query-keys.ts` |
 | **ViewModel** (runes) | `<view>.state.svelte.ts` | `roles-page.state.svelte.ts` |
 | **Rune helper** (no view) | `*.svelte.ts` | `organization-sync.svelte.ts` |
-| **Svelte action** | `*.actions.ts`, named by a verb | `code-mirror.actions.ts` / `renderCodeMirror` |
+| **Attachment** | `*.attachments.ts` (`.svelte.ts` with runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
 | **Pure algorithm** | `*.calculator.ts` | `outcomes-chart.calculator.ts` |
 | **Messages** (i18n) | `*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
 | **Store** (framework-free, `createStore`) | `*.store.ts` → `{name}Store` | `context.store.ts` / `contextStore` |
@@ -241,9 +241,10 @@ A store is framework-free, made with `createStore`, and named **`{name}Store`**:
 `contextStore`, `selectionStore`, `permissionsStore`. Rune code reads it with
 `toRune(store)`.
 
-### 3.5 Svelte actions
+### 3.5 Attachments
 
-A Svelte action is named by a **verb**: `renderCodeMirror`. It lives in `*.actions.ts`.
+An attachment (`{@attach}`) is named by a **verb**: `renderCodeMirror`. It lives in
+`*.attachments.ts`, or `*.attachments.svelte.ts` when it uses runes. There are no `use:` actions.
 
 ---
 
@@ -358,7 +359,7 @@ the constant already carries the name. Like a
 | Store | camelCase + `Store` | `contextStore` |
 | Queries / mutations | camelCase + `Queries` / `Mutations` | `userQueries` |
 | Messages | camelCase + `Messages` | `secretMessages` |
-| Svelte action | camelCase verb | `renderCodeMirror` |
+| Attachment | camelCase verb | `renderCodeMirror` |
 | Loader | camelCase `load*` | `loadJobsPage` |
 | Constant | UPPER_SNAKE_CASE | `DEFAULT_PAGE_SIZE` |
 | Query-key factory | UPPER_SNAKE_CASE | `JOBS_QUERY_KEY` |

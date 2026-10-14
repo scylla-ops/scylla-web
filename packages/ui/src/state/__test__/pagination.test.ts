@@ -179,7 +179,7 @@ describe('createPagination', () => {
     const pagination = createPagination({ responsive: true });
     const handle = attach(pagination.measure, 640);
 
-    handle?.destroy?.();
+    handle?.();
 
     expect(ResizeObserverMock.instances[0].disconnect).toHaveBeenCalled();
     expect(pagination.isPageSizeReady).toBe(false);

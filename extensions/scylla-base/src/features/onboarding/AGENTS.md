@@ -54,7 +54,7 @@ presentation/
   tour-steps.ts                      THE step list: text, anchors, what moves each step on
   tour-machine.calculator.ts         pure transitions: advance, rewind, visibility, count
   tour-placement.calculator.ts       card placement, dim path, connector path
-  tour-tracking.actions.ts           trackTourStep (rAF + click listener), holdPointer
+  tour-tracking.attachments.svelte.ts  trackTourStep (rAF + click listener), blockPage, portalToBody, holdPointer
   onboarding-tour.state.svelte.ts    ViewModel: status, current step, skip, mutation events
   ui/OnboardingTour/                 root (loaded by the shell) + its test, and its parts:
     TourSpot.svelte                  one spot step: tracking, spotlight, card(s)

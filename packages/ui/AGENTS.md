@@ -40,7 +40,7 @@ src/
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
   layout/                  FeatureHeader, ContextItem, PageTransition, ScyllaLoadingScreen
   motion/                  page transitions, reduced motion
-  editor/                  renderCodeMirror (a Svelte action), the CodeMirror theme
+  editor/                  renderCodeMirror (an attachment), the CodeMirror theme
   icon.ts                  LucideIcon (the prop type of an icon)
   primitives/              the primitives on bits-ui, one folder per primitive
   state/  stores/  i18n/  utils/  structs/     the entry points above
@@ -63,7 +63,7 @@ catalogs of this package register themselves.
 | List header (count, clear, delete, new) | `FeatureHeader` |
 | A form | `FormItem[]` → `ScyllaForm`; `FormDialog` wraps it; `createFormState(() => items)` owns values/validation. Declare the ids in the item type (`readonly FormItem<'name' \| 'description'>[]`) and `onSubmit` receives a typed `FormValues` record — never re-index the values by hand |
 | Pagination | `createPagination(options)` — local page merged with server `totalCount`/`totalPages`; `responsive: true` sizes the page to the container |
-| How much room the layout left a component | `createMeasuredHeight()` → `{ height, measure }`, and `use:measure` on a container sized by the layout, never by its content |
+| How much room the layout left a component | `createMeasuredHeight()` → `{ height, measure }`, and `{@attach measure}` on a container sized by the layout, never by its content |
 | A table | `DataTable` (+ `createPagination`) — row keys are business ids, never indices |
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
@@ -107,8 +107,8 @@ There are no hooks. Three rules carry over from the migration and still bite:
   height, so there is no effect and no frame where the two disagree. Only "the user picked a
   size" is remembered, because nothing else records it.
 
-DOM measurement is a **Svelte action**, never an effect: `createMeasuredHeight()` returns
-`{ height, measure }` and the caller writes `use:measure`.
+DOM measurement is an **attachment**, never an effect: `createMeasuredHeight()` returns
+`{ height, measure }` and the caller writes `{@attach measure}`.
 
 `motion/` holds the transitions. `prefersReducedMotion()` is not optional decoration: the
 `@media (prefers-reduced-motion: reduce)` block in `styles.css` neutralises CSS animations, but a

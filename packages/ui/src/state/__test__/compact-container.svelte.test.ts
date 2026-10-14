@@ -24,7 +24,7 @@ beforeEach(() => {
 
 const attach = (container: ReturnType<typeof createCompactContainer>) => {
   const node = document.createElement('div');
-  return container.measure(node) as { destroy?: () => void } | undefined;
+  return container.measure(node);
 };
 
 describe('createCompactContainer', () => {
@@ -69,7 +69,7 @@ describe('createCompactContainer', () => {
   it('disconnects the observer when its element is destroyed', () => {
     const cleanup = $effect.root(() => {
       const container = createCompactContainer();
-      attach(container)?.destroy?.();
+      attach(container)?.();
     });
     cleanup();
 

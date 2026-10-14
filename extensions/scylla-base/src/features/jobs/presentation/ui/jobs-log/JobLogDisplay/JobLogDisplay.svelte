@@ -39,6 +39,6 @@
   <div>{t(jobsMessages.logsError)}</div>
 {:else}
   <div class="min-w-0 w-full overflow-hidden">
-    <div use:renderCodeMirror={{ extensions, onView: stream.attach }}></div>
+    <div {@attach renderCodeMirror(() => ({ extensions, onView: stream.attach }))}></div>
   </div>
 {/if}
