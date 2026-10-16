@@ -1,8 +1,7 @@
 import type { Edge, Node } from '@xyflow/svelte';
 import type {
-  ExecPipelineStep,
   PipelineStep,
-  ScriptPipelineStep,
+  StepDefinition,
 } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
 
 /** A node's `data` must be a `Record`: a step travels wrapped, as `{ step }`. */
@@ -10,31 +9,32 @@ import type {
 export type StepNodeData = { step: PipelineStep };
 export type StartNodeData = { name: string };
 
-/** A step without its identity and wiring, which the canvas owns. */
-export type NodeFormValue =
-  | Omit<ExecPipelineStep, 'id' | 'deps'>
-  | Omit<ScriptPipelineStep, 'id' | 'deps'>;
-
 export type BlueprintStepNode = Node<StepNodeData, 'pipelineStep'>;
 export type BlueprintStartNode = Node<StartNodeData, 'startNode'>;
 export type BlueprintNode = BlueprintStepNode | BlueprintStartNode;
 export type BlueprintEdge = Edge;
 
 export const START_NODE_ID = '__start__';
-export const EDGE_COLOR = 'var(--primary)';
+export const EDGE_COLOR = 'var(--input)';
 
-const NODE_WIDTH = 260;
-const NODE_HEIGHT = 120;
-const HORIZONTAL_GAP = 100;
-const VERTICAL_GAP = 60;
+/** The layout cell: wide enough for the widest node appearance. */
+export const NODE_WIDTH = 220;
+const NODE_HEIGHT = 112;
+const HORIZONTAL_GAP = 72;
+const VERTICAL_GAP = 40;
 const START_NODE_OFFSET = NODE_WIDTH + HORIZONTAL_GAP;
 
 export const DEFAULT_EDGE_STYLE = {
-  animated: true,
   type: 'deletable',
-  markerEnd: { type: 'arrowclosed', color: EDGE_COLOR },
-  style: `stroke: ${EDGE_COLOR}; stroke-width: 2;`,
+  markerEnd: { type: 'arrowclosed', color: EDGE_COLOR, width: 16, height: 16 },
 } satisfies Partial<BlueprintEdge>;
+
+export const edgeBetween = (source: string, target: string): BlueprintEdge => ({
+  id: `${source}->${target}`,
+  source,
+  target,
+  ...DEFAULT_EDGE_STYLE,
+});
 
 /** The column of each node, by BFS from the roots. */
 function computeDepths(steps: PipelineStep[]): Map<string, number> {
@@ -118,7 +118,7 @@ export function stepsToFlow(
   const startNode: BlueprintStartNode = {
     id: START_NODE_ID,
     type: 'startNode',
-    position: { x: 0, y: totalHeight / 2 - 30 },
+    position: { x: 0, y: totalHeight / 2 - NODE_HEIGHT / 2 },
     data: { name: pipelineName },
     deletable: false,
   };
@@ -139,22 +139,10 @@ export function stepsToFlow(
     };
   });
 
-  const stepEdges: BlueprintEdge[] = steps.flatMap(step =>
-    step.deps.map(dep => ({
-      id: `${dep}->${step.id}`,
-      source: dep,
-      target: step.id,
-      ...DEFAULT_EDGE_STYLE,
-    })),
-  );
+  const stepEdges = steps.flatMap(step => step.deps.map(dep => edgeBetween(dep, step.id)));
 
   const roots = steps.filter(s => s.deps.length === 0);
-  const startEdges: BlueprintEdge[] = roots.map(root => ({
-    id: `${START_NODE_ID}->${root.id}`,
-    source: START_NODE_ID,
-    target: root.id,
-    ...DEFAULT_EDGE_STYLE,
-  }));
+  const startEdges = roots.map(root => edgeBetween(START_NODE_ID, root.id));
 
   return {
     nodes: [startNode, ...stepNodes],
@@ -166,22 +154,26 @@ export function stepsToFlow(
 export const stepOf = (node: BlueprintNode): PipelineStep | undefined =>
   node.type === 'pipelineStep' ? node.data.step : undefined;
 
+/** The step without its id and dependencies, which the canvas owns. */
+export const definitionOf = (step: PipelineStep): StepDefinition => {
+  const base = { workingDir: step.workingDir, env: step.env };
+  return step.kind === 'script'
+    ? { ...base, kind: 'script', script: step.script, shell: step.shell }
+    : { ...base, kind: 'exec', command: step.command, args: step.args };
+};
+
+/** The ids of the steps a node waits for: the start node is not a step. */
+export const depsOf = (edges: BlueprintEdge[], id: string): string[] =>
+  edges
+    .filter(edge => edge.target === id && edge.source !== START_NODE_ID)
+    .map(edge => edge.source);
+
 export function flowToSteps(nodes: BlueprintNode[], edges: BlueprintEdge[]): PipelineStep[] {
   return nodes.flatMap(node => {
     const step = stepOf(node);
     if (!step) return [];
 
-    const deps = edges
-      .filter(edge => edge.target === node.id && edge.source !== START_NODE_ID)
-      .map(edge => edge.source);
-
-    const base = { id: step.id, deps, workingDir: step.workingDir, env: step.env };
-
-    return [
-      step.kind === 'script'
-        ? { ...base, kind: 'script' as const, script: step.script, shell: step.shell }
-        : { ...base, kind: 'exec' as const, command: step.command, args: step.args },
-    ];
+    return [{ id: step.id, deps: depsOf(edges, node.id), ...definitionOf(step) }];
   });
 }
 

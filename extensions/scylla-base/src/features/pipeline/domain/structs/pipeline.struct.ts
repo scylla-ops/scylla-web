@@ -37,3 +37,8 @@ export interface ScriptPipelineStep extends PipelineStepBase {
 }
 
 export type PipelineStep = ExecPipelineStep | ScriptPipelineStep;
+
+/** A step without its place in the graph: the canvas owns `id` and `deps`. */
+export type StepDefinition =
+  | Omit<ExecPipelineStep, 'id' | 'deps'>
+  | Omit<ScriptPipelineStep, 'id' | 'deps'>;

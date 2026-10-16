@@ -4,6 +4,7 @@ import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
 import { PipelineServiceClient } from '@base/generated/scylla/pipeline/v1/pipeline.client.ts';
 import { DefaultPipelineRepository } from './infrastructure/default-pipeline.repository.ts';
+import { DefaultStepTemplateRepository } from './infrastructure/default-step-template.repository.ts';
 
 const pipelineRepository = new DefaultPipelineRepository(
   new PipelineServiceClient(grpcTransport.getTransport()),
@@ -13,6 +14,7 @@ export const PipelineModule = {
   id: 'pipeline',
   domain: {
     pipelineRepository: pipelineRepository,
+    stepTemplateRepository: new DefaultStepTemplateRepository(),
   },
   routes: {
     project: [

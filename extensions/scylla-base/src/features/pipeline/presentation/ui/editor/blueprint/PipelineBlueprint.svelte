@@ -1,15 +1,15 @@
 <script lang="ts">
-  import PlusIcon from '@lucide/svelte/icons/plus';
-  import { Button } from '@scylla/ui/primitives';
-  import { t } from '@scylla/ui/i18n';
+  import { SvelteFlowProvider } from '@xyflow/svelte';
+  import { createQuery } from '@scylla/core-sdk';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-  import {
-    createBlueprintState,
-  } from '@base/features/pipeline/presentation/blueprint.state.svelte.ts';
+  import { createBlueprintState } from '@base/features/pipeline/presentation/blueprint.state.svelte.ts';
+  import { createNodeAppearance } from '@base/features/pipeline/presentation/node-appearance.svelte.ts';
+  import { stepTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
+  import { createQuickAdd } from '@base/features/pipeline/presentation/quick-add.state.svelte.ts';
   import BlueprintCanvas from './BlueprintCanvas.svelte';
-  import StartNodeFormDialog from './StartNodeFormDialog.svelte';
-  import StepNodeFormDialog from './StepNodeFormDialog.svelte';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { catalogEntries, catalogText } from './catalog.ts';
+  import { nodePositionAt } from './nodes/node-appearances.ts';
+  import BlueprintSidePanel from './side-panel/BlueprintSidePanel.svelte';
 
   interface Props {
     steps: PipelineStep[];
@@ -28,49 +28,33 @@
     onStepsChange: next => onStepsChange(next),
   });
 
-  let editingStep = $state<PipelineStep | undefined>(undefined);
-  let stepDialogOpen = $state(false);
-  let nameDialogOpen = $state(false);
+  const appearance = createNodeAppearance();
+
+  const templatesQuery = createQuery(() => stepTemplateQueries.list());
+  const entries = $derived(catalogEntries(templatesQuery.data ?? []));
+
+  const quickAdd = createQuickAdd({
+    entries: () => entries,
+    resolve: catalogText,
+    onPick: (entry, request) =>
+      blueprint.addNode(entry.nodeId, entry.definition, {
+        ...request.link,
+        position: nodePositionAt(appearance.current, request.flow),
+      }),
+  });
 </script>
 
-<div class="relative h-full w-full">
-  <div class="absolute top-3 right-3 z-10 flex gap-2">
-    <Button
-      size="sm"
-      variant="outline"
-      onclick={() => {
-        editingStep = undefined;
-        stepDialogOpen = true;
-      }}
-    >
-      <PlusIcon class="mr-1 h-4 w-4" />
-      {t(pipelineMessages.addNode)}
-    </Button>
+<!-- The provider lets the canvas convert screen points to the graph's. -->
+<SvelteFlowProvider>
+  <div class="flex h-full w-full overflow-hidden">
+    <BlueprintCanvas {blueprint} {appearance} {quickAdd} {entries} />
+    <BlueprintSidePanel
+      {blueprint}
+      {entries}
+      {pipelineName}
+      {projectId}
+      onAdd={entry => blueprint.addNode(entry.nodeId, entry.definition)}
+      {onNameChange}
+    />
   </div>
-
-  <BlueprintCanvas
-    {blueprint}
-    onStartNodeDoubleClick={() => (nameDialogOpen = true)}
-    onStepNodeDoubleClick={step => {
-      editingStep = step;
-      stepDialogOpen = true;
-    }}
-  />
-
-  <!-- One dialog for adding and editing: `editingStep` tells them apart. -->
-  <StepNodeFormDialog
-    open={stepDialogOpen}
-    onOpenChange={open => (stepDialogOpen = open)}
-    {editingStep}
-    {projectId}
-    onAdd={(nodeId, value) => blueprint.addNode(nodeId, value)}
-    onEdit={(originalId, nodeId, value) => blueprint.editNode(originalId, nodeId, value)}
-  />
-
-  <StartNodeFormDialog
-    open={nameDialogOpen}
-    onOpenChange={open => (nameDialogOpen = open)}
-    currentName={pipelineName}
-    onSave={onNameChange}
-  />
-</div>
+</SvelteFlowProvider>
