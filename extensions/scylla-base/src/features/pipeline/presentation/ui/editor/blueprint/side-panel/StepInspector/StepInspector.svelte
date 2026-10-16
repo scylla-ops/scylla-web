@@ -20,6 +20,7 @@
   } from '@base/features/pipeline/presentation/ui/editor/blueprint/step-kinds.ts';
   import StepCodeTab from './StepCodeTab.svelte';
   import StepEnvTab from './StepEnvTab.svelte';
+  import StepIdField from './StepIdField.svelte';
 
   interface Props {
     /** Read once: the panel rebuilds the inspector for each step. */
@@ -52,21 +53,13 @@
 
 <div class="flex h-full flex-col">
   <div class="flex flex-col gap-2.5 px-4 pt-3.5">
-    <div class="flex items-center gap-2.5">
+    <div class="flex items-start gap-2.5">
       <span
         class={cn('flex size-8 shrink-0 items-center justify-center rounded-lg', tone.tile, tone.text)}
       >
         <Icon class="size-4" />
       </span>
-      <label class="flex min-w-0 flex-1 flex-col">
-        <span class="text-[11px] text-muted-foreground">{t(blueprintMessages.stepId)}</span>
-        <input
-          class="-ml-1 rounded-md border border-transparent bg-transparent px-1 text-base font-semibold outline-none hover:border-border focus:border-primary"
-          bind:value={inspector.id}
-          onblur={() => inspector.rename()}
-          onkeydown={event => event.key === 'Enter' && event.currentTarget.blur()}
-        />
-      </label>
+      <StepIdField {inspector} />
       <Button
         variant="ghost"
         size="icon-sm"

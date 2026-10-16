@@ -151,6 +151,11 @@ the page.
   its selection, and only a new one is laid out. The document must also read back what it
   writes (`stepsOf(withSteps(steps))` equals `steps`, with an empty `workingDir` read as none):
   else each edit is taken for an outside change.
+- **A step id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
+  protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`utils/step-summary.ts`)
+  is that rule; keep both the same. A refused id is shown on the node, in the inspector while it
+  is typed (with `toNodeId`, the nearest valid id, as a suggestion), and stops the save before
+  the server is called (`invalidStepIds`). It is applied like any edit, never held back.
 - **A detached step is shown, not fixed.** A step with no edge into it is linked to the start
   node on save (it has no `deps`). `blueprint.isDetached(id)` puts a warning on the node and in
   the inspector; the canvas does not add the edge itself.

@@ -113,4 +113,23 @@ describe('StepInspector', () => {
     expect(handlers.onDelete).toHaveBeenCalled();
     expect(handlers.onClose).toHaveBeenCalled();
   });
+
+  it('says at once which characters the id cannot hold, and applies the suggested id', async () => {
+    const user = userEvent.setup();
+    renderInspector();
+
+    const id = screen.getByRole('textbox', { name: 'Step ID' });
+    await user.clear(id);
+    await user.type(id, 'Run Tests');
+
+    expect(id).toHaveAttribute('aria-invalid', 'true');
+    expect(id).toHaveAccessibleDescription(
+      'The step ID cannot contain "R", "␣", "T". Use only lowercase letters (a-z), digits, - and _.',
+    );
+    expect(handlers.onRename).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Use run-tests' }));
+
+    expect(handlers.onRename).toHaveBeenLastCalledWith('run-tests');
+  });
 });
