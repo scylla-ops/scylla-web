@@ -80,4 +80,28 @@ describe('createDropPreview', () => {
       expect(preview.elements).toBeNull();
     });
   });
+
+  it('keeps the size xyflow measured: a node without one stays hidden', () => {
+    withPreview(preview => {
+      preview.start(bash);
+      preview.moveTo({ x: 0, y: 0 });
+      flushSync();
+
+      const drawn = preview.nodesWith(graph.nodes);
+      preview.nodesWithout(
+        drawn.map(node =>
+          node.id === DROP_PREVIEW_ID ? { ...node, measured: { width: 220, height: 96 } } : node,
+        ),
+      );
+      preview.moveTo({ x: 40, y: 40 });
+      flushSync();
+
+      expect(preview.elements?.node.measured).toEqual({ width: 220, height: 96 });
+
+      preview.start(bash);
+      preview.moveTo({ x: 0, y: 0 });
+      flushSync();
+      expect(preview.elements?.node.measured).toBeUndefined();
+    });
+  });
 });

@@ -11,6 +11,8 @@ import type { CatalogEntry } from '@base/features/pipeline/presentation/utils/no
 export const DROP_PREVIEW_ID = '__drop-preview__';
 const DROP_PREVIEW_EDGE_ID = `${DROP_PREVIEW_ID}-edge`;
 
+type Measured = BlueprintNode['measured'];
+
 /**
  * The node and the link that a drop creates (a dropped step hangs off the start node), drawn
  * by the canvas itself: same style, same zoom, at the place of the drop. Inert: no pointer, no
@@ -20,11 +22,13 @@ export const previewElements = (
   entry: CatalogEntry,
   position: XYPosition,
   stepId: string,
+  measured?: Measured,
 ): { node: BlueprintStepNode; edge: BlueprintEdge } => ({
   node: {
     id: DROP_PREVIEW_ID,
     type: 'pipelineStep',
     position,
+    measured,
     data: { step: { id: stepId, deps: [], ...entry.definition }, preview: true },
     class: 'pointer-events-none opacity-60',
     selectable: false,
@@ -54,9 +58,14 @@ export const createDropPreview = ({ stepIdFor }: DropPreviewParams) => {
   let entry = $state.raw<CatalogEntry | null>(null);
   // `null` while the entry is outside the canvas.
   let position = $state.raw<XYPosition | null>(null);
+  // xyflow hides a node until it has measured it, and measures it once: a preview rebuilt
+  // without these sizes at each move would stay hidden.
+  let measured = $state.raw<Measured>(undefined);
 
   const elements = $derived(
-    entry && position ? previewElements(entry, position, stepIdFor(entry.nodeId)) : null,
+    entry && position
+      ? previewElements(entry, position, stepIdFor(entry.nodeId), measured)
+      : null,
   );
 
   return {
@@ -70,6 +79,7 @@ export const createDropPreview = ({ stepIdFor }: DropPreviewParams) => {
     start(next: CatalogEntry) {
       entry = next;
       position = null;
+      measured = undefined;
     },
     moveTo(next: XYPosition) {
       if (entry) position = next;
@@ -87,8 +97,12 @@ export const createDropPreview = ({ stepIdFor }: DropPreviewParams) => {
       elements ? [...nodes, elements.node] : nodes,
     edgesWith: (edges: BlueprintEdge[]): BlueprintEdge[] =>
       elements ? [...edges, elements.edge] : edges,
-    /** What the canvas writes back: the graph, never the preview. */
-    nodesWithout: (nodes: BlueprintNode[]) => nodes.filter(node => node.id !== DROP_PREVIEW_ID),
+    /** What the canvas writes back: the graph, never the preview. Keeps the preview's size. */
+    nodesWithout(nodes: BlueprintNode[]) {
+      const preview = nodes.find(node => node.id === DROP_PREVIEW_ID);
+      if (preview?.measured && preview.measured !== measured) measured = preview.measured;
+      return nodes.filter(node => node.id !== DROP_PREVIEW_ID);
+    },
     edgesWithout: (edges: BlueprintEdge[]) =>
       edges.filter(edge => edge.id !== DROP_PREVIEW_EDGE_ID),
   };
