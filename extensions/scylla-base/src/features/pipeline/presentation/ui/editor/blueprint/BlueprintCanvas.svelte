@@ -43,6 +43,7 @@
 
   setBlueprintCanvas({
     appearance: () => appearance.current,
+    isDetached: stepId => blueprint.isDetached(stepId),
     insertOnEdge: (edgeId, at) => quickAdd.open({ ...at, link: { replacing: edgeId } }),
   });
 
@@ -82,7 +83,10 @@
   }}
   ondrop={onDrop}
 >
-  <!-- `nodes` and `edges` are bound: the library drags, selects and deletes; the callbacks report the changes. -->
+  <!--
+    `nodes` and `edges` are bound: the library drags, selects and deletes; the callbacks report the
+    changes. Only a click opens the side panel: a drag neither selects nor opens.
+  -->
   <SvelteFlow
     bind:nodes={blueprint.nodes}
     bind:edges={blueprint.edges}
@@ -91,12 +95,15 @@
     fitView
     fitViewOptions={{ padding: 0.25, maxZoom: 1 }}
     deleteKey={['Backspace', 'Delete']}
+    selectNodesOnDrag={false}
     edgesFocusable
     defaultEdgeOptions={DEFAULT_EDGE_STYLE}
     onbeforeconnect={connection => (blueprint.canConnect(connection) ? connection : false)}
     onconnect={() => blueprint.sync()}
     onconnectend={onConnectEnd}
     ondelete={() => blueprint.sync()}
+    onnodeclick={({ node }) => blueprint.inspect(node.id)}
+    onpaneclick={() => blueprint.inspect(null)}
   >
     <Background variant={BackgroundVariant.Dots} gap={16} size={1} class="bg-background!" />
     <Controls

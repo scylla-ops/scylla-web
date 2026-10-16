@@ -75,4 +75,17 @@ describe('createPipelineScript', () => {
       expect(addEventListener).toHaveBeenCalledWith('beforeunload', expect.any(Function));
     });
   });
+
+  it('lists the steps whose id the server would refuse', () => {
+    const invalid = JSON.stringify({
+      name: 'nightly',
+      nodes: [
+        { id: 'build', deps: [], kind: 'exec', command: 'make', args: [] },
+        { id: 'Run Tests', deps: [], kind: 'exec', command: 'make', args: ['test'] },
+      ],
+    });
+    withScript(invalid, script => {
+      expect(script.invalidStepIds).toEqual(['Run Tests']);
+    });
+  });
 });

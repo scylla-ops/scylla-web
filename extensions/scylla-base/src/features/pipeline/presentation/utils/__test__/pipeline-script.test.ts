@@ -118,15 +118,12 @@ describe('withSteps', () => {
     expect(parsed.name).toBe('my-ci');
   });
 
-  it('round-trips a step back through stepsOf, with an explicit empty workingDir', () => {
+  it('round-trips a step unchanged: the empty workingDir it writes reads back as none', () => {
     const steps: PipelineStep[] = [
       { id: 's', deps: [], env: [], kind: 'script', script: 'echo hi', shell: 'bash' },
     ];
 
-    // Serializing always writes a workingDir.
-    expect(stepsOf(parseScript(withSteps(null, steps, 'p')).document)).toEqual([
-      { id: 's', deps: [], workingDir: '', env: [], kind: 'script', script: 'echo hi', shell: 'bash' },
-    ]);
+    expect(stepsOf(parseScript(withSteps(null, steps, 'p')).document)).toEqual(steps);
   });
 });
 

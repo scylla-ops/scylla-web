@@ -16,10 +16,9 @@
     pipelineName: string;
     projectId?: string;
     onStepsChange: (steps: PipelineStep[]) => void;
-    onNameChange: (name: string) => void;
   }
 
-  let { steps, pipelineName, projectId, onStepsChange, onNameChange }: Props = $props();
+  let { steps, pipelineName, projectId, onStepsChange }: Props = $props();
 
   const blueprint = createBlueprintState({
     steps: () => steps,
@@ -37,10 +36,12 @@
     entries: () => entries,
     resolve: catalogText,
     onPick: (entry, request) =>
-      blueprint.addNode(entry.nodeId, entry.definition, {
-        ...request.link,
-        position: nodePositionAt(appearance.current, request.flow),
-      }),
+      blueprint.inspect(
+        blueprint.addNode(entry.nodeId, entry.definition, {
+          ...request.link,
+          position: nodePositionAt(appearance.current, request.flow),
+        }),
+      ),
   });
 </script>
 
@@ -51,10 +52,8 @@
     <BlueprintSidePanel
       {blueprint}
       {entries}
-      {pipelineName}
       {projectId}
-      onAdd={entry => blueprint.addNode(entry.nodeId, entry.definition)}
-      {onNameChange}
+      onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
     />
   </div>
 </SvelteFlowProvider>

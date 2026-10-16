@@ -5,12 +5,13 @@
   import { NODE_APPEARANCE_VIEWS } from './node-appearances.ts';
   import { summarize } from './node-view.ts';
 
-  let { data, selected }: NodeProps<BlueprintStepNode> = $props();
+  let { id, data, selected }: NodeProps<BlueprintStepNode> = $props();
 
   const canvas = getBlueprintCanvas();
   const View = $derived(NODE_APPEARANCE_VIEWS[canvas.appearance()].step);
   const summary = $derived(summarize(data.step));
+  const detached = $derived(canvas.isDetached(id));
 </script>
 
 <!-- A step, in the style the viewer picked. -->
-<View step={data.step} selected={selected ?? false} {summary} />
+<View step={data.step} selected={selected ?? false} {summary} {detached} />

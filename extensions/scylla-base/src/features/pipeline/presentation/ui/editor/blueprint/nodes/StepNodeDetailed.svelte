@@ -2,14 +2,15 @@
   import CircleAlertIcon from '@lucide/svelte/icons/circle-alert';
   import FolderIcon from '@lucide/svelte/icons/folder';
   import LockIcon from '@lucide/svelte/icons/lock';
+  import UnplugIcon from '@lucide/svelte/icons/unplug';
   import { Handle, Position } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { blueprintMessages } from '../blueprint.messages.ts';
   import { DETAILED_NODE } from './node-geometry.ts';
-  import { ISSUE_MESSAGES, handleClass, type StepNodeViewProps } from './node-view.ts';
+  import { handleClass, type StepNodeViewProps } from './node-view.ts';
 
-  let { step, selected, summary }: StepNodeViewProps = $props();
+  let { step, selected, summary, detached }: StepNodeViewProps = $props();
 
   const handle = $derived(handleClass(summary, selected));
 </script>
@@ -18,9 +19,9 @@
 <div
   class={cn(
     'rounded-[10px] border bg-card p-3 shadow-xs transition-[border-color,box-shadow] duration-150',
-    summary.issue && 'border-destructive',
-    !summary.issue && selected && cn(summary.tone.border, 'ring-[3px]', summary.tone.ring),
-    !summary.issue && !selected && 'hover:border-input',
+    summary.problem && 'border-destructive',
+    !summary.problem && selected && cn(summary.tone.border, 'ring-[3px]', summary.tone.ring),
+    !summary.problem && !selected && 'hover:border-input',
   )}
   style="width: {DETAILED_NODE.width}px;"
 >
@@ -42,16 +43,31 @@
     </div>
   </div>
 
-  {#if summary.issue}
+  {#if summary.problem}
     <p
       class="mt-2 flex items-center gap-1.5 rounded-md bg-destructive-subtle px-2 py-1 text-[11.5px] text-destructive"
+      title={summary.problem.detail}
     >
       <CircleAlertIcon class="size-3.5 shrink-0" />
-      {t(ISSUE_MESSAGES[summary.issue])}
+      {summary.problem.label}
+      {#if summary.problem.detail !== summary.problem.label}
+        <span class="sr-only">{summary.problem.detail}</span>
+      {/if}
     </p>
   {:else}
     <p class="mt-2 truncate rounded-md bg-muted px-2 py-1 font-mono text-[11.5px]">
       {summary.preview}
+    </p>
+  {/if}
+
+  {#if detached}
+    <p
+      class="mt-2 flex items-center gap-1.5 rounded-md border border-warning/40 bg-warning/10 px-2 py-1 text-[11.5px]"
+      title={t(blueprintMessages.detachedHint)}
+    >
+      <UnplugIcon class="size-3.5 shrink-0 text-warning" />
+      {t(blueprintMessages.detached)}
+      <span class="sr-only">{t(blueprintMessages.detachedHint)}</span>
     </p>
   {/if}
 

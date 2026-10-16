@@ -7,6 +7,7 @@
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import PipelineNameField from './PipelineNameField.svelte';
 
   interface Props {
     onSubmit: () => void;
@@ -18,6 +19,8 @@
     blueprintDisabled?: boolean;
     isDirty: boolean;
     isSaving?: boolean;
+    pipelineName: string;
+    onNameChange: (name: string) => void;
   }
 
   let {
@@ -28,6 +31,8 @@
     blueprintDisabled = false,
     isDirty,
     isSaving = false,
+    pipelineName,
+    onNameChange,
   }: Props = $props();
 
   type SaveStatus = 'draft' | 'saving' | 'dirty' | 'saved';
@@ -56,7 +61,12 @@
     </TabsTrigger>
   </TabsList>
 
-  <div class="flex items-center gap-3">
+  <div class="flex min-w-0 items-center gap-3">
+    <!-- An invalid script has no name to edit: `blueprintDisabled` says so. -->
+    {#key pipelineName}
+      <PipelineNameField name={pipelineName} {onNameChange} disabled={blueprintDisabled} />
+    {/key}
+
     <div class="flex items-center gap-2 text-sm text-foreground/80">
       <span class="relative flex size-2">
         {#if status === 'dirty'}

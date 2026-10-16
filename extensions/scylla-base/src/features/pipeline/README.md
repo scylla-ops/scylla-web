@@ -46,10 +46,22 @@ TypeScript and thoroughly tested.
 ### One panel instead of dialogs
 
 Editing used to happen in a modal, which hid the graph while you wrote a script. The blueprint
-now has a single panel on the right, and what it shows follows the selection: the **palette**
-when nothing is selected, the **inspector** of the selected step otherwise. You don't add and
-edit at the same time, so one panel is enough, and the left side stays free for the app's own
-sidebar.
+now has a single panel on the right: the **palette**, or the **inspector** of the step you
+clicked. You don't add and edit at the same time, so one panel is enough, and the left side
+stays free for the app's own sidebar.
+
+The panel opens on a click only. Moving a node, dropping a step or drawing a selection box
+leaves it as it is: an inspector that opens while you arrange the graph gets in the way. Its
+state is the clicked step, kept apart from the canvas selection, so a refresh of the graph from
+the document does not close it. You can widen the panel; the palette and the inspector each
+keep their own width.
+
+The pipeline's name is not a step: it is the title of the document, so it is edited in the
+header, next to Save, where it is always visible.
+
+A step with no link into it has no dependency, so saving links it to the start of the
+pipeline. The canvas shows a warning on that step instead of drawing the link itself: you see
+what will happen, and you can still connect it to the step you meant.
 
 - The palette offers blank steps (bash, sh, command) and **templates**. Click to add, or drag
   onto the canvas to place. Templates come from `StepTemplateRepository`: built in today, served

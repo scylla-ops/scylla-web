@@ -123,6 +123,10 @@ msgstr "Pagination"
 msgid "Previous"
 msgstr "Précédent"
 
+#: packages/ui/src/layout/ResizablePanel/resizable-panel.messages.ts:4
+msgid "Resize panel"
+msgstr "Redimensionner le panneau"
+
 #: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:7
 msgid "Reveal"
 msgstr "Révéler"

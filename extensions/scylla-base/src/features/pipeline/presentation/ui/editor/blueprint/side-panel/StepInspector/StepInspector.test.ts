@@ -30,10 +30,11 @@ beforeEach(() => {
 
 afterEach(() => restore());
 
-const renderInspector = (overrides: Partial<PipelineStep> = {}) =>
+const renderInspector = (overrides: Partial<PipelineStep> = {}, detached = false) =>
   render(StepInspector, {
     step: { ...step, ...overrides } as PipelineStep,
     dependencies: ['build'],
+    detached,
     ...handlers,
   });
 
@@ -42,6 +43,15 @@ describe('StepInspector', () => {
     renderInspector();
     expect(screen.getByText('After')).toBeInTheDocument();
     expect(screen.getByText('build')).toBeInTheDocument();
+  });
+
+  it('warns that a step with no input link is linked to the start on save', () => {
+    renderInspector({}, true);
+    expect(
+      screen.getByText(
+        'This step has no input link. On save, it is linked to the start of the pipeline.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('applies each edit at once, and says why a step cannot run yet', async () => {
@@ -102,5 +112,24 @@ describe('StepInspector', () => {
 
     expect(handlers.onDelete).toHaveBeenCalled();
     expect(handlers.onClose).toHaveBeenCalled();
+  });
+
+  it('says at once which characters the id cannot hold, and applies the suggested id', async () => {
+    const user = userEvent.setup();
+    renderInspector();
+
+    const id = screen.getByRole('textbox', { name: 'Step ID' });
+    await user.clear(id);
+    await user.type(id, 'Run Tests');
+
+    expect(id).toHaveAttribute('aria-invalid', 'true');
+    expect(id).toHaveAccessibleDescription(
+      'The step ID cannot contain "R", "␣", "T". Use only lowercase letters (a-z), digits, - and _.',
+    );
+    expect(handlers.onRename).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Use run-tests' }));
+
+    expect(handlers.onRename).toHaveBeenLastCalledWith('run-tests');
   });
 });
