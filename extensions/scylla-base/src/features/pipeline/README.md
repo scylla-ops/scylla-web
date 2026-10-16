@@ -53,8 +53,8 @@ stays free for the app's own sidebar.
 While you drag an entry from the palette over the canvas, or pull a link from a step onto empty
 canvas, a dashed outline shows the place the new step will take, in the size of your node style
 and at the zoom of the canvas. During a palette drag the pointer is hidden and the icon of the
-entry takes its place: over the canvas, it sits where the icon of the new node lands, inside the
-outline.
+entry takes its place: over the canvas, it is in the middle of the outline, where the middle of
+the new node lands.
 
 This drag is the app's, not the browser's drag and drop. The browser draws the pointer of its
 own drag (with a "+" or a globe on macOS), cannot change the dragged picture on the way, and

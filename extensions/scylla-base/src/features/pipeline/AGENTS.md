@@ -163,7 +163,8 @@ the page.
   `PaletteDragGhost` draws the entry's icon (`CatalogIcon`) centred on it, in a `Portal`, at
   each pointer move. `createPaletteDrag` holds the entry, the pointer and the `spot`; the canvas
   registers itself with `acceptPaletteDrop` and gives the position of a drop (`nodePositionAt`:
-  the node's icon lands under the dragged icon). A new drag source uses the same state.
+  the middle of the node lands under the pointer, so the dragged icon is in the middle of the
+  outline). A new drag source uses the same state.
 - **The canvas outlines where a new step lands**: for a palette drag (`drag.spot`) and for a
   link pulled from an output onto empty canvas (`linkDropPoint`, on xyflow's `useConnection`).
   `DropSpot` draws the `footprint` of the current node style (`nodes/node-geometry.ts`) in the
@@ -196,7 +197,7 @@ the page.
   The label of a node is part of the node element, so that xyflow measures it.
 - **Sizes of the nodes live in `nodes/node-geometry.ts`**: the views set their width from it,
   the handles of a minimal node and the `anchor` (`nodePositionAt`: a dropped step lands on its
-  icon, not its corner) are computed from it. Do not write these sizes as Tailwind classes.
+  middle, not its corner) are computed from it. Do not write these sizes as Tailwind classes.
 - **`presentation/utils/` stays pure**: no `t()`, no import from `ui/`. What translates a
   catalog entry (`catalogText`, `BLANK_STEPS`) is in `blueprint/catalog.ts`; the search takes a
   `resolve` function.

@@ -81,7 +81,7 @@
   class="relative h-full min-w-0 flex-1"
   {@attach acceptPaletteDrop(() => ({
     drag,
-    // The dragged icon is centred on the pointer: the node's icon lands there.
+    // The middle of the node lands on the pointer: the dragged icon is in the middle of the outline.
     positionAt: client => nodePositionAt(appearance.current, screenToFlowPosition(client)),
     drop: (entry, position) => blueprint.addNode(entry.nodeId, entry.definition, { position }),
   }))}

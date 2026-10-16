@@ -12,7 +12,7 @@
 
 <!--
   The pointer of a palette drag: the pointer itself is hidden, and the icon is centred on its
-  point. Over the canvas, it sits where the icon of the dropped node lands, inside the outline.
+  point. Over the canvas, it is in the middle of the outline of the dropped node.
 -->
 {#if drag.entry && drag.pointer}
   <Portal>

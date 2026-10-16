@@ -30,4 +30,14 @@ describe('nodePositionAt', () => {
       expect(anchor.y).toBeLessThanOrEqual(footprint.y + footprint.height);
     }
   });
+
+  it('centres the box of a dropped node on the drop point, so the dragged icon is in its middle', () => {
+    for (const appearance of NODE_APPEARANCES) {
+      const { anchor, footprint } = NODE_APPEARANCE_VIEWS[appearance];
+      expect(anchor).toEqual({
+        x: footprint.x + footprint.width / 2,
+        y: footprint.y + footprint.height / 2,
+      });
+    }
+  });
 });
