@@ -58,7 +58,8 @@ infrastructure/
   repository/mappers/grpc-pipeline.mapper.ts
   repository/default-pipeline.repository.ts
 presentation/
-  blueprint.state.svelte.ts                  ViewModel (nodes/edges state) — Runes-based
+  blueprint.state.svelte.ts                  ViewModel (nodes/edges, selection, step edits) — Runes-based
+  blueprint-canvas.actions.ts                Svelte actions of the canvas: palette drop, keep the selection in view
   pipeline-dashboard.state.svelte.ts        Dashboard ViewModel
   pipeline-script.state.svelte.ts            Script editor state
   pipeline.messages.ts                       i18n message descriptors
@@ -66,8 +67,8 @@ presentation/
   pipelines.query-keys.ts                    Query key factories (exported publicly)
   ui/
     *.page.svelte                            Pages (dashboard, creation, update, jobs route)
-    editor/                                  PipelineEditor + header, forms, blueprint/
-    blueprint/                                Canvas components (BlueprintCanvas, nodes, edges)
+    editor/                                  PipelineEditor + header, blueprint/
+    editor/blueprint/                         Palette, canvas (nodes, edges), side panels (StepPanel/, PipelinePanel)
     dashboard/                                Dashboard, chart, table, pipeline table columns
   utils/
     blueprint-converter.ts                   Graph ↔ PipelineStep[] (pure, TS only, tested)
@@ -104,7 +105,20 @@ the page.
   of the module, which uses Runes.
 - **`blueprint.state.svelte.ts` is the graph ViewModel** — it uses Svelte Runes (`$state`, 
   `$effect`) to keep nodes and edges in sync with the document. The canvas takes it as a prop and 
-  binds directly to its reactive state.
+  binds directly to its reactive state. It also owns the selection (`selectedId`, `select`) and
+  every edit of the blueprint: `addStep`, `updateStep`, `removeStep`, `addDependency`,
+  `removeDependency`. A dependency is an edge: `deps` are read from the edges, never stored.
+- **The blueprint has no modal.** A click on a node opens its panel on the right (`StepPanel`,
+  or `PipelinePanel` for the start node). Each edit goes to the draft at once
+  (`createStepNodeForm(step, { onChange })`); only the step id waits for Enter or blur, or a
+  rename would go through every prefix of the new name. The pipeline is saved by the header's
+  button only.
+- **The echo of an edit must not rebuild the graph.** The script writes an empty `workingDir`
+  where the graph holds none: the effect compares the steps with `stepsKey` (their serialised
+  form), not `JSON.stringify`. A rebuild resets the layout and the open panel (`revision`).
+- **The palette adds a step two ways**: a drag onto the canvas (`acceptStepDrop`; dropped on a
+  step, it runs after it) and a click (after the selected step). The click is the keyboard path:
+  keep it.
 - **`pipeline-script.state.svelte.ts` holds `script` + `initialScript` only** — draft editor text 
   and the baseline for the dirty check. It is UI state, not server state. Never put the fetched 
   `PipelineEntity` in it.

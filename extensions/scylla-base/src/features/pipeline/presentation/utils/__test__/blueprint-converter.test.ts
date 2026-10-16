@@ -1,6 +1,8 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import {
+  dependentsOf,
+  edgeBetween,
   sanitizeSteps,
   stepsToFlow,
   flowToSteps,
@@ -8,7 +10,10 @@ import {
   stepOf,
   START_NODE_ID,
 } from '../blueprint-converter';
-import type { PipelineStep, ExecPipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type {
+  PipelineStep,
+  ExecPipelineStep,
+} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
 
 const execStep = (id: string, deps: string[] = []): ExecPipelineStep => ({
   id,
@@ -33,7 +38,11 @@ describe('sanitizeSteps', () => {
 
   it('remaps a dependency on a duplicated id to the LAST occurrence, not the first', () => {
     // The rename map is keyed by the original id: the last duplicate wins for a downstream dep.
-    const steps: PipelineStep[] = [execStep('build'), execStep('build'), execStep('test', ['build'])];
+    const steps: PipelineStep[] = [
+      execStep('build'),
+      execStep('build'),
+      execStep('test', ['build']),
+    ];
     const result = sanitizeSteps(steps);
     const ids = result.map(s => s.id);
     expect(ids).toEqual(['build', 'build_1', 'test']);
@@ -164,12 +173,23 @@ describe('generateUniqueNodeId', () => {
   });
 
   it('keeps incrementing the suffix past existing collisions', () => {
-    expect(generateUniqueNodeId('build', new Set(['build', 'build_1', 'build_2']))).toBe(
-      'build_3',
-    );
+    expect(generateUniqueNodeId('build', new Set(['build', 'build_1', 'build_2']))).toBe('build_3');
   });
 
   it('excludes the node being renamed, so renaming to its own current id is a no-op', () => {
     expect(generateUniqueNodeId('build', new Set(['build']), 'build')).toBe('build');
+  });
+});
+
+describe('dependentsOf', () => {
+  it('finds every step that runs after one, directly or not', () => {
+    const edges = [edgeBetween('a', 'b'), edgeBetween('b', 'c'), edgeBetween('x', 'y')];
+    expect([...dependentsOf('a', edges)].sort()).toEqual(['b', 'c']);
+    expect(dependentsOf('c', edges).size).toBe(0);
+  });
+
+  it('stops on a cycle the script already holds', () => {
+    const edges = [edgeBetween('a', 'b'), edgeBetween('b', 'a')];
+    expect([...dependentsOf('a', edges)].sort()).toEqual(['a', 'b']);
   });
 });

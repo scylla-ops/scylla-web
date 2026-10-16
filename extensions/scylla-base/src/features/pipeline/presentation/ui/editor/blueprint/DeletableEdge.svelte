@@ -3,7 +3,7 @@
   import {
     BaseEdge,
     EdgeLabel,
-    getSmoothStepPath,
+    getBezierPath,
     useSvelteFlow,
     type EdgeProps,
   } from '@xyflow/svelte';
@@ -11,7 +11,7 @@
   import { EDGE_COLOR } from '../../../utils/blueprint-converter.ts';
   import { pipelineMessages } from '../../../pipeline.messages.ts';
 
-  const SELECTED_COLOR = 'oklch(70% 0.3 30)';
+  const SELECTED_COLOR = 'var(--destructive)';
 
   let {
     id,
@@ -28,7 +28,7 @@
   const { deleteElements } = useSvelteFlow();
 
   const path = $derived(
-    getSmoothStepPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition }),
+    getBezierPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition }),
   );
   const color = $derived(selected ? SELECTED_COLOR : EDGE_COLOR);
 </script>
@@ -38,9 +38,7 @@
   {id}
   path={path[0]}
   {markerEnd}
-  style="stroke: {color}; stroke-width: {selected ? 3 : 2};{selected
-    ? ` filter: drop-shadow(0 0 4px ${SELECTED_COLOR});`
-    : ''}"
+  style="stroke: {color}; stroke-width: {selected ? 2.5 : 1.5};"
 />
 
 {#if selected}
@@ -48,7 +46,7 @@
     <button
       type="button"
       aria-label={t(pipelineMessages.deleteEdge)}
-      class="flex h-full w-full cursor-pointer items-center justify-center rounded-full border-2 border-background bg-destructive p-1 text-white shadow-lg transition-transform hover:scale-125"
+      class="flex size-7 cursor-pointer items-center justify-center rounded-full border-2 border-background bg-destructive text-white shadow-md transition-transform hover:scale-110"
       onclick={event => {
         event.stopPropagation();
         event.preventDefault();
@@ -56,7 +54,7 @@
       }}
       onmousedown={event => event.stopPropagation()}
     >
-      <Trash2Icon class="h-6.5 w-6.5" />
+      <Trash2Icon class="size-3.5" />
     </button>
   </EdgeLabel>
 {/if}

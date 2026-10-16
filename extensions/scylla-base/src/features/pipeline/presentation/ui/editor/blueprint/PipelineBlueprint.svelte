@@ -1,13 +1,12 @@
 <script lang="ts">
-  import PlusIcon from '@lucide/svelte/icons/plus';
-  import { Button } from '@scylla/ui/shadcn';
-  import { t } from '@scylla/ui/i18n';
+  import { SvelteFlowProvider } from '@xyflow/svelte';
   import type { PipelineStep } from '../../../../domain/structs/pipeline.struct.ts';
   import { createBlueprintState } from '../../../blueprint.state.svelte.ts';
+  import { START_NODE_ID } from '../../../utils/blueprint-converter.ts';
   import BlueprintCanvas from './BlueprintCanvas.svelte';
-  import StartNodeFormDialog from './StartNodeFormDialog.svelte';
-  import StepNodeFormDialog from './StepNodeFormDialog.svelte';
-  import { pipelineMessages } from '../../../pipeline.messages.ts';
+  import BlueprintPalette from './BlueprintPalette.svelte';
+  import PipelinePanel from './PipelinePanel.svelte';
+  import StepPanel from './StepPanel/StepPanel.svelte';
 
   interface Props {
     steps: PipelineStep[];
@@ -26,49 +25,26 @@
     onStepsChange: next => onStepsChange(next),
   });
 
-  let editingStep = $state<PipelineStep | undefined>(undefined);
-  let stepDialogOpen = $state(false);
-  let nameDialogOpen = $state(false);
+  const selectedStep = $derived(blueprint.selectedStep);
 </script>
 
-<div class="relative h-full w-full">
-  <div class="absolute top-3 right-3 z-10 flex gap-2">
-    <Button
-      size="sm"
-      variant="outline"
-      onclick={() => {
-        editingStep = undefined;
-        stepDialogOpen = true;
-      }}
-    >
-      <PlusIcon class="mr-1 h-4 w-4" />
-      {t(pipelineMessages.addNode)}
-    </Button>
+<!-- Palette, canvas, then the panel of what is selected: a click on a node opens it. -->
+<SvelteFlowProvider>
+  <div class="flex h-full w-full overflow-hidden">
+    <BlueprintPalette {blueprint} />
+    <BlueprintCanvas {blueprint} />
+
+    {#if selectedStep}
+      <!-- A new step, a rename or an edit of the script rebuilds the panel from the step. -->
+      {#key `${selectedStep.id}:${blueprint.revision}`}
+        <StepPanel {blueprint} step={selectedStep} {projectId} />
+      {/key}
+    {:else if blueprint.selectedId === START_NODE_ID}
+      <PipelinePanel
+        name={pipelineName}
+        {onNameChange}
+        onClose={() => blueprint.select(null)}
+      />
+    {/if}
   </div>
-
-  <BlueprintCanvas
-    {blueprint}
-    onStartNodeDoubleClick={() => (nameDialogOpen = true)}
-    onStepNodeDoubleClick={step => {
-      editingStep = step;
-      stepDialogOpen = true;
-    }}
-  />
-
-  <!-- One dialog for adding and editing: `editingStep` tells them apart. -->
-  <StepNodeFormDialog
-    open={stepDialogOpen}
-    onOpenChange={open => (stepDialogOpen = open)}
-    {editingStep}
-    {projectId}
-    onAdd={(nodeId, value) => blueprint.addNode(nodeId, value)}
-    onEdit={(originalId, nodeId, value) => blueprint.editNode(originalId, nodeId, value)}
-  />
-
-  <StartNodeFormDialog
-    open={nameDialogOpen}
-    onOpenChange={open => (nameDialogOpen = open)}
-    currentName={pipelineName}
-    onSave={onNameChange}
-  />
-</div>
+</SvelteFlowProvider>

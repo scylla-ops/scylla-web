@@ -37,8 +37,10 @@ wire and none. If you are adding a column to a list, add it to the metadata; rea
 stay in sync.
 
 The graph is [@xyflow/svelte](https://xyflow.dev): `BlueprintCanvas` with custom nodes
-(`StartNode`, `PipelineStepNode`), custom edges (`DeletableEdge`), and dialogs for editing a
-node's configuration. `blueprint.state.svelte.ts` is the ViewModel (Svelte Runes-based) that owns
+(`StartNode`, `PipelineStepNode`) and custom edges (`DeletableEdge`). A palette on the left adds
+steps by drag and drop, and a panel on the right edits the selected node. The panel replaced the
+dialogs: the graph stays visible while a step is edited, and each change shows on the canvas at
+once. `blueprint.state.svelte.ts` is the ViewModel (Svelte Runes-based) that owns
 the nodes and edges, keeping them in sync with the document. `blueprint-converter.ts` is the
 single place that translates between the graph and the domain's `PipelineStep[]` — both directions,
 so the round-trip can't drift. It's written in pure TypeScript and thoroughly tested.

@@ -51,25 +51,14 @@ export const pipelineMessages = {
   statusSaved: msg`All changes saved`,
   editDenied: msg`You don't have permission to edit this pipeline.`,
 
-  addNode: msg`Add Node`,
-  deleteNode: msg`Delete node`,
   deleteEdge: msg`Delete edge`,
   unnamedPipeline: msg`Unnamed`,
 
   pipelineName: msg`Pipeline name`,
-  pipelineNameDescription: msg`Set the name of the pipeline.`,
-  name: msg`Name`,
   namePlaceholder: msg`e.g., my-pipeline`,
 
-  addNodeTitle: msg`Add a new node`,
-  addNodeDescription: msg`Define a new pipeline step with a unique ID and clear inputs for the command or script it should run.`,
-  editNodeTitle: msg`Edit node`,
-  editNodeDescription: msg`Update the step details and dependencies.`,
-  nodeId: msg`Node ID`,
-  nodeIdPlaceholder: msg`e.g., build-step`,
   script: msg`Script`,
   command: msg`Command`,
-  commandPlaceholder: msg`e.g., cargo build && cargo test`,
   shell: msg`Shell`,
   argumentsLabel: msg`Arguments`,
   argumentPlaceholder: msg`e.g., --release`,
@@ -87,7 +76,6 @@ export const pipelineMessages = {
   addVariable: msg`Add variable`,
   removeArgument: msg`Remove argument`,
   removeVariable: msg`Remove variable`,
-  cancel: msg`Cancel`,
 
   copyOf: (name: string) => msg`${name} (copy)`,
 };

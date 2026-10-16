@@ -21,20 +21,27 @@ export type BlueprintNode = BlueprintStepNode | BlueprintStartNode;
 export type BlueprintEdge = Edge;
 
 export const START_NODE_ID = '__start__';
-export const EDGE_COLOR = 'var(--primary)';
+export const EDGE_COLOR = 'var(--muted-foreground)';
 
-const NODE_WIDTH = 260;
-const NODE_HEIGHT = 120;
-const HORIZONTAL_GAP = 100;
-const VERTICAL_GAP = 60;
+export const NODE_WIDTH = 220;
+const NODE_HEIGHT = 96;
+export const HORIZONTAL_GAP = 80;
+const VERTICAL_GAP = 48;
 const START_NODE_OFFSET = NODE_WIDTH + HORIZONTAL_GAP;
 
 export const DEFAULT_EDGE_STYLE = {
-  animated: true,
   type: 'deletable',
   markerEnd: { type: 'arrowclosed', color: EDGE_COLOR },
-  style: `stroke: ${EDGE_COLOR}; stroke-width: 2;`,
+  style: `stroke: ${EDGE_COLOR}; stroke-width: 1.5;`,
 } satisfies Partial<BlueprintEdge>;
+
+/** A dependency on the canvas: `source` runs before `target`. */
+export const edgeBetween = (source: string, target: string): BlueprintEdge => ({
+  id: `${source}->${target}`,
+  source,
+  target,
+  ...DEFAULT_EDGE_STYLE,
+});
 
 /** The column of each node, by BFS from the roots. */
 function computeDepths(steps: PipelineStep[]): Map<string, number> {
@@ -140,21 +147,11 @@ export function stepsToFlow(
   });
 
   const stepEdges: BlueprintEdge[] = steps.flatMap(step =>
-    step.deps.map(dep => ({
-      id: `${dep}->${step.id}`,
-      source: dep,
-      target: step.id,
-      ...DEFAULT_EDGE_STYLE,
-    })),
+    step.deps.map(dep => edgeBetween(dep, step.id)),
   );
 
   const roots = steps.filter(s => s.deps.length === 0);
-  const startEdges: BlueprintEdge[] = roots.map(root => ({
-    id: `${START_NODE_ID}->${root.id}`,
-    source: START_NODE_ID,
-    target: root.id,
-    ...DEFAULT_EDGE_STYLE,
-  }));
+  const startEdges: BlueprintEdge[] = roots.map(root => edgeBetween(START_NODE_ID, root.id));
 
   return {
     nodes: [startNode, ...stepNodes],
@@ -197,4 +194,21 @@ export function generateUniqueNodeId(
   let i = 1;
   while (ids.has(`${desired}_${i}`)) i++;
   return `${desired}_${i}`;
+}
+
+/** Every step that runs after `stepId`, directly or not. A dependency on one of them is a cycle. */
+export function dependentsOf(stepId: string, edges: BlueprintEdge[]): Set<string> {
+  const found = new Set<string>();
+  const queue = [stepId];
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const edge of edges) {
+      if (edge.source !== current || found.has(edge.target)) continue;
+      found.add(edge.target);
+      queue.push(edge.target);
+    }
+  }
+
+  return found;
 }

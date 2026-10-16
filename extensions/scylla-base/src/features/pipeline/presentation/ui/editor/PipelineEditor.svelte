@@ -87,7 +87,7 @@
   </TabsContent>
 
   <TabsContent value="blueprint" class="h-full">
-    <Card class="h-full bg-card p-0">
+    <Card class="h-full gap-0 overflow-hidden bg-card p-0">
       <PipelineBlueprint
         steps={doc.steps}
         pipelineName={doc.pipelineName}

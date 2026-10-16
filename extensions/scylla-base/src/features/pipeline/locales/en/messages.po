@@ -11,7 +11,11 @@ msgstr ""
 "Language: \n"
 "Language-Team: \n"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:92
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:23
+msgid "{count, plural, one {# variable} other {# variables}}"
+msgstr "{count, plural, one {# variable} other {# variables}}"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:80
 msgid "{name} (copy)"
 msgstr "{name} (copy)"
 
@@ -19,27 +23,39 @@ msgstr "{name} (copy)"
 msgid "Actions"
 msgstr "Actions"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:64
-msgid "Add a new node"
-msgstr "Add a new node"
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:19
+msgid "Add a bash script"
+msgstr "Add a bash script"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:76
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:36
+msgid "Add a dependency"
+msgstr "Add a dependency"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:4
+msgid "Add a step"
+msgstr "Add a step"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:65
 msgid "Add argument"
 msgstr "Add argument"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:54
-msgid "Add Node"
-msgstr "Add Node"
-
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:87
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:76
 msgid "Add variable"
 msgstr "Add variable"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:15
+msgid "after {deps}"
+msgstr "after {deps}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:51
 msgid "All changes saved"
 msgstr "All changes saved"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:74
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:33
+msgid "Argument {position}"
+msgstr "Argument {position}"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:63
 msgid "Arguments"
 msgstr "Arguments"
 
@@ -47,11 +63,20 @@ msgstr "Arguments"
 msgid "Blueprint"
 msgstr "Blueprint"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:90
-msgid "Cancel"
-msgstr "Cancel"
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:38
+msgid "Changes go to the draft. Save the pipeline to keep them."
+msgstr "Changes go to the draft. Save the pipeline to keep them."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:71
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:20
+msgid "Click a step to edit it · Drag from a dot to link two steps"
+msgstr "Click a step to edit it · Drag from a dot to link two steps"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:29
+msgid "Close panel"
+msgstr "Close panel"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:61
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:9
 msgid "Command"
 msgstr "Command"
 
@@ -68,21 +93,25 @@ msgstr "Create your first pipeline to get started"
 msgid "Creation:"
 msgstr "Creation:"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:65
-msgid "Define a new pipeline step with a unique ID and clear inputs for the command or script it should run."
-msgstr "Define a new pipeline step with a unique ID and clear inputs for the command or script it should run."
-
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:56
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:54
 msgid "Delete edge"
 msgstr "Delete edge"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:55
-msgid "Delete node"
-msgstr "Delete node"
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:28
+msgid "Delete step"
+msgstr "Delete step"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:48
 msgid "Draft — not created yet"
 msgstr "Draft — not created yet"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:17
+msgid "Drag a block here"
+msgstr "Drag a block here"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:11
+msgid "Drag a block onto the canvas. Drop it on a step to run it after that step."
+msgstr "Drag a block onto the canvas. Drop it on a step to run it after that step."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:26
 msgid "Duplicate"
@@ -92,23 +121,19 @@ msgstr "Duplicate"
 msgid "Duration: {duration}"
 msgstr "Duration: {duration}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:75
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:64
 msgid "e.g., --release"
 msgstr "e.g., --release"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:78
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:67
 msgid "e.g., ./services/api or /workspace"
 msgstr "e.g., ./services/api or /workspace"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:69
-msgid "e.g., build-step"
-msgstr "e.g., build-step"
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:32
+msgid "e.g., cargo"
+msgstr "e.g., cargo"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:72
-msgid "e.g., cargo build && cargo test"
-msgstr "e.g., cargo build && cargo test"
-
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:62
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:58
 msgid "e.g., my-pipeline"
 msgstr "e.g., my-pipeline"
 
@@ -117,15 +142,15 @@ msgstr "e.g., my-pipeline"
 msgid "Edit"
 msgstr "Edit"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:66
-msgid "Edit node"
-msgstr "Edit node"
-
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:25
 msgid "Edit pipeline"
 msgstr "Edit pipeline"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:79
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:24
+msgid "Empty script"
+msgstr "Empty script"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:68
 msgid "Environment variables"
 msgstr "Environment variables"
 
@@ -141,6 +166,10 @@ msgstr "Failed to load pipeline"
 msgid "Finished {time}"
 msgstr "Finished {time}"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:14
+msgid "first"
+msgstr "first"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:18
 msgid "History"
 msgstr "History"
@@ -149,11 +178,15 @@ msgstr "History"
 msgid "Invalid JSON"
 msgstr "Invalid JSON"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:18
+msgid "It becomes the first step. It starts as soon as the pipeline runs."
+msgstr "It becomes the first step. It starts as soon as the pipeline runs."
+
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:48
 msgid "Jobs"
 msgstr "Jobs"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:80
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:69
 msgid "KEY"
 msgstr "KEY"
 
@@ -161,7 +194,7 @@ msgstr "KEY"
 msgid "Last Run"
 msgstr "Last Run"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:82
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:71
 msgid "Literal"
 msgstr "Literal"
 
@@ -172,10 +205,6 @@ msgstr "Loading..."
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:14
 msgid "Members"
 msgstr "Members"
-
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:61
-msgid "Name"
-msgstr "Name"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:11
 msgid "New pipeline"
@@ -189,9 +218,21 @@ msgstr "No jobs yet"
 msgid "No pipeline found"
 msgstr "No pipeline found"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:68
-msgid "Node ID"
-msgstr "Node ID"
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:25
+msgid "No program"
+msgstr "No program"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:39
+msgid "No spaces: the name is part of URLs."
+msgstr "No spaces: the name is part of URLs."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:13
+msgid "No steps yet."
+msgstr "No steps yet."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:10
+msgid "One program and its arguments"
+msgstr "One program and its arguments"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:34
 msgid "Open the last run"
@@ -207,7 +248,7 @@ msgstr "Pipeline"
 msgid "Pipeline actions"
 msgstr "Pipeline actions"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:59
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:57
 msgid "Pipeline name"
 msgstr "Pipeline name"
 
@@ -215,15 +256,23 @@ msgstr "Pipeline name"
 msgid "Pipelines"
 msgstr "Pipelines"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:85
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:31
+msgid "Program"
+msgstr "Program"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:74
 msgid "Reference a secret"
 msgstr "Reference a secret"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:88
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:77
 msgid "Remove argument"
 msgstr "Remove argument"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:89
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:37
+msgid "Remove the dependency on {id}"
+msgstr "Remove the dependency on {id}"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:78
 msgid "Remove variable"
 msgstr "Remove variable"
 
@@ -235,6 +284,14 @@ msgstr "Run"
 msgid "Run #{runNumber}"
 msgstr "Run #{runNumber}"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:34
+msgid "Runs after"
+msgstr "Runs after"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:35
+msgid "Runs first, as soon as the pipeline starts."
+msgstr "Runs first, as soon as the pipeline starts."
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:42
 msgid "Save"
 msgstr "Save"
@@ -243,19 +300,27 @@ msgstr "Save"
 msgid "Saving…"
 msgstr "Saving…"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:70
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:60
 msgid "Script"
 msgstr "Script"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:5
+msgid "Script · bash"
+msgstr "Script · bash"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:7
+msgid "Script · sh"
+msgstr "Script · sh"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:46
 msgid "Scripting"
 msgstr "Scripting"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:83
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:72
 msgid "Secret"
 msgstr "Secret"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:86
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:75
 msgid "secret name"
 msgstr "secret name"
 
@@ -267,13 +332,17 @@ msgstr "Secrets"
 msgid "Select a project first"
 msgstr "Select a project first"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:60
-msgid "Set the name of the pipeline."
-msgstr "Set the name of the pipeline."
-
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:73
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:62
 msgid "Shell"
 msgstr "Shell"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:6
+msgid "Shell lines run with bash"
+msgstr "Shell lines run with bash"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:8
+msgid "Shell lines run with sh"
+msgstr "Shell lines run with sh"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:36
 msgid "Started {time}"
@@ -283,6 +352,18 @@ msgstr "Started {time}"
 msgid "Status"
 msgstr "Status"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:27
+msgid "Step id"
+msgstr "Step id"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:30
+msgid "Step type"
+msgstr "Step type"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:12
+msgid "Steps"
+msgstr "Steps"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:28
 msgid "Triggers"
 msgstr "Triggers"
@@ -291,7 +372,7 @@ msgstr "Triggers"
 msgid "Unable to load pipelines"
 msgstr "Unable to load pipelines"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:57
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:55
 msgid "Unnamed"
 msgstr "Unnamed"
 
@@ -299,15 +380,11 @@ msgstr "Unnamed"
 msgid "Unsaved changes"
 msgstr "Unsaved changes"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:67
-msgid "Update the step details and dependencies."
-msgstr "Update the step details and dependencies."
-
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:81
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:70
 msgid "value"
 msgstr "value"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:84
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:73
 msgid "Value kind"
 msgstr "Value kind"
 
@@ -315,7 +392,7 @@ msgstr "Value kind"
 msgid "View Jobs"
 msgstr "View Jobs"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:77
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:66
 msgid "Working directory"
 msgstr "Working directory"
 

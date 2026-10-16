@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import type { PipelineStep } from '../../../../../domain/structs/pipeline.struct.ts';
 import { createStepNodeForm } from '../step-node-form.state.svelte.ts';
 
 const inRoot = (run: () => void) => {
@@ -65,11 +66,19 @@ describe('createStepNodeForm', () => {
     });
   });
 
-  it('refuses a script step with an empty script', () => {
+  it('keeps a script step with an empty script: the canvas marks it, it does not drop it', () => {
     inRoot(() => {
       const form = createStepNodeForm();
       form.nodeId = 'build';
       form.script = '   ';
+      expect(form.toValue()?.value).toMatchObject({ kind: 'script', script: '   ' });
+    });
+  });
+
+  it('gives nothing without an id', () => {
+    inRoot(() => {
+      const form = createStepNodeForm();
+      form.script = 'make';
       expect(form.toValue()).toBeNull();
     });
   });
@@ -103,12 +112,12 @@ describe('createStepNodeForm', () => {
     });
   });
 
-  it('refuses an exec step without a command', () => {
+  it('keeps an exec step without a program yet', () => {
     inRoot(() => {
       const form = createStepNodeForm();
       form.nodeId = 'build';
       form.mode = 'exec';
-      expect(form.toValue()).toBeNull();
+      expect(form.toValue()?.value).toMatchObject({ kind: 'exec', command: '' });
     });
   });
 
@@ -120,6 +129,80 @@ describe('createStepNodeForm', () => {
       form.setEnv(1, { key: 'KEEP' });
       form.removeEnv(0);
       expect(form.envRows.map(row => row.key)).toEqual(['KEEP']);
+    });
+  });
+
+  describe('with onChange, as the step panel uses it', () => {
+    const script = (id: string, body: string): PipelineStep => ({
+      id,
+      deps: [],
+      kind: 'script',
+      script: body,
+      shell: 'sh',
+      env: [],
+    });
+
+    it('sends each edit at once, under the id the step has', () => {
+      inRoot(() => {
+        const onChange = vi.fn();
+        const form = createStepNodeForm(script('build', 'make'), { onChange });
+
+        form.script = 'make all';
+        form.shell = 'bash';
+
+        expect(onChange).toHaveBeenLastCalledWith({
+          nodeId: 'build',
+          value: {
+            kind: 'script',
+            script: 'make all',
+            shell: 'bash',
+            workingDir: undefined,
+            env: [],
+          },
+        });
+      });
+    });
+
+    it('sends a new id only once it is committed, never each prefix typed', () => {
+      inRoot(() => {
+        const onChange = vi.fn();
+        const form = createStepNodeForm(script('build', 'make'), { onChange });
+
+        form.nodeId = 'com';
+        form.nodeId = 'compile';
+        expect(onChange).not.toHaveBeenCalled();
+
+        form.commitId();
+        expect(onChange).toHaveBeenCalledOnce();
+        expect(onChange.mock.lastCall?.[0].nodeId).toBe('compile');
+      });
+    });
+
+    it('ignores a blank id: the step keeps its name', () => {
+      inRoot(() => {
+        const onChange = vi.fn();
+        const form = createStepNodeForm(script('build', 'make'), { onChange });
+
+        form.nodeId = '   ';
+        form.commitId();
+        form.script = 'make all';
+
+        expect(onChange).toHaveBeenCalledOnce();
+        expect(onChange.mock.lastCall?.[0].nodeId).toBe('build');
+      });
+    });
+
+    it('does not send the same step twice', () => {
+      inRoot(() => {
+        const onChange = vi.fn();
+        const form = createStepNodeForm(script('build', 'make'), { onChange });
+
+        form.script = 'make all';
+        form.workingDir = '  ';
+        form.addEnv();
+
+        expect(onChange).toHaveBeenCalledOnce();
+      });
     });
   });
 });

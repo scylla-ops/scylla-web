@@ -101,6 +101,9 @@ const serializeNode = (step: PipelineStep): Record<string, unknown> => {
   return { ...base, kind: 'exec', command: step.command, args: step.args };
 };
 
+/** Equal for two lists that write the same script: `workingDir` absent or empty reads the same. */
+export const stepsKey = (steps: PipelineStep[]): string => JSON.stringify(steps.map(serializeNode));
+
 export const stepsOf = (document: Record<string, unknown> | null): PipelineStep[] =>
   ((document?.nodes ?? []) as Record<string, unknown>[]).map(parseNode);
 
@@ -117,7 +120,5 @@ export const withSteps = (
   return JSON.stringify({ ...base, nodes: steps.map(serializeNode) }, null, 2);
 };
 
-export const withName = (
-  document: Record<string, unknown> | null,
-  name: string,
-): string | null => (document ? JSON.stringify({ ...document, name }, null, 2) : null);
+export const withName = (document: Record<string, unknown> | null, name: string): string | null =>
+  document ? JSON.stringify({ ...document, name }, null, 2) : null;

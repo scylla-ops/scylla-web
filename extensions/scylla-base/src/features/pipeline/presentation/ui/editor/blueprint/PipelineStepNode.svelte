@@ -1,82 +1,68 @@
 <script lang="ts">
+  import FileCodeIcon from '@lucide/svelte/icons/file-code-2';
   import TerminalIcon from '@lucide/svelte/icons/terminal';
-  import XIcon from '@lucide/svelte/icons/x';
-  import { Handle, Position, useSvelteFlow, type NodeProps } from '@xyflow/svelte';
-  import { Card } from '@scylla/ui/shadcn';
+  import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
+  import { Handle, Position, type NodeProps } from '@xyflow/svelte';
+  import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import type { BlueprintStepNode } from '../../../utils/blueprint-converter.ts';
-  import { pipelineMessages } from '../../../pipeline.messages.ts';
+  import { blueprintMessages } from './blueprint.messages.ts';
+  import { summarizeStep } from './step-summary.ts';
 
-  let { id, data, selected }: NodeProps<BlueprintStepNode> = $props();
-
-  const { deleteElements } = useSvelteFlow();
+  let { data, selected }: NodeProps<BlueprintStepNode> = $props();
 
   const step = $derived(data.step);
-  const scriptPreview = $derived(
-    step.kind === 'script' ? (step.script.split('\n').find(line => line.trim() !== '') ?? '') : '',
+  const summary = $derived(summarizeStep(step));
+  const details = $derived(
+    [
+      step.env.length > 0 ? t(blueprintMessages.variableCount(step.env.length)) : '',
+      step.workingDir ?? '',
+    ].filter(Boolean),
   );
+
+  const handleClass = 'size-2.5! border-2! border-primary! bg-card!';
 </script>
 
-<Card
-  class="w-[260px] cursor-pointer overflow-hidden p-0 transition-all duration-200 hover:scale-105 hover:border-primary hover:shadow-lg {selected
-    ? 'scale-105 shadow-lg ring-2 ring-primary'
-    : 'shadow-sm'}"
+<!-- A step. The panel edits it; the outer `.is-drop-target` is set while a block is dragged over. -->
+<div
+  class={cn(
+    'flex w-[220px] cursor-pointer flex-col gap-1.5 rounded-xl border bg-card px-3 py-2.5 text-left shadow-[0_2px_6px_-3px_oklch(0_0_0/0.18)] transition-[box-shadow,border-color] duration-150',
+    'hover:border-primary/60 [.is-drop-target_&]:border-primary [.is-drop-target_&]:ring-4 [.is-drop-target_&]:ring-primary/15',
+    selected ? 'border-primary ring-4 ring-primary/20' : 'border-border',
+  )}
 >
-  <Handle
-    type="target"
-    position={Position.Left}
-    class="h-3! w-3! border-2! border-background! bg-primary!"
-  />
+  <Handle type="target" position={Position.Left} class={handleClass} />
 
-  <div class="flex items-center justify-between border-b bg-primary/10 px-3 py-2">
-    <div class="flex items-center gap-2">
-      <TerminalIcon class="h-4 w-4 text-primary" />
-      <span class="truncate text-sm font-semibold">{step.id}</span>
-    </div>
-    <button
-      type="button"
-      aria-label={t(pipelineMessages.deleteNode)}
-      onclick={event => {
-        event.stopPropagation();
-        void deleteElements({ nodes: [{ id }] });
-      }}
-      class="rounded p-0.5 text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
-    >
-      <XIcon class="h-3.5 w-3.5" />
-    </button>
-  </div>
-
-  <div class="space-y-1 px-3 py-2">
-    {#if step.kind === 'exec'}
-      <div class="flex items-center gap-1.5">
-        <span class="text-xs text-muted-foreground">cmd:</span>
-        <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{step.command}</code>
-      </div>
-      {#if step.args.length > 0}
-        <div class="flex items-center gap-1.5">
-          <span class="text-xs text-muted-foreground">args:</span>
-          <code class="max-w-[180px] truncate rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-            {step.args.join(' ')}
-          </code>
-        </div>
+  <div class="flex min-w-0 items-center gap-2">
+    <span class="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/12 text-primary">
+      {#if step.kind === 'script'}
+        <FileCodeIcon class="size-3.5" />
+      {:else}
+        <TerminalIcon class="size-3.5" />
       {/if}
-    {:else}
-      <div class="flex items-center gap-1.5">
-        <span
-          class="rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-primary uppercase"
-        >
-          {step.shell}
-        </span>
-        <code class="max-w-[180px] truncate rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-          {scriptPreview}
-        </code>
-      </div>
-    {/if}
+    </span>
+    <span class="min-w-0 flex-1 truncate font-mono text-[13px] font-semibold">{step.id}</span>
+    <span
+      class="shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase"
+    >
+      {summary.tag}
+    </span>
   </div>
 
-  <Handle
-    type="source"
-    position={Position.Right}
-    class="h-3! w-3! border-2! border-background! bg-primary!"
-  />
-</Card>
+  {#if summary.isEmpty}
+    <span class="flex items-center gap-1.5 rounded-md bg-warning/15 px-1.5 py-1 text-[11.5px] font-medium">
+      <TriangleAlertIcon class="size-3.5 shrink-0 text-warning" />
+      {step.kind === 'script' ? t(blueprintMessages.emptyScript) : t(blueprintMessages.noProgram)}
+    </span>
+  {:else}
+    <code class="truncate rounded-md bg-muted/70 px-1.5 py-1 font-mono text-[11.5px] text-foreground/80">
+      {summary.preview}
+    </code>
+  {/if}
+
+  {#if details.length > 0}
+    <span class="truncate text-[11px] text-muted-foreground">{details.join(' · ')}</span>
+  {/if}
+
+  <Handle type="source" position={Position.Right} class={handleClass} />
+</div>
