@@ -9,8 +9,8 @@
   import { t } from '@scylla/ui/i18n';
   import {
     createAgentCreation,
-  } from '@base/features/agents/presentation/create-agent.state.svelte.ts';
-  import { trackHeight } from '@base/features/agents/presentation/track-height.attachments.ts';
+  } from './create-agent.state.svelte.ts';
+  import { trackHeight } from './track-height.attachments.ts';
   import { agentsMessages } from '../../agents.messages.ts';
   import DialogFooterBand from '../DialogFooterBand.svelte';
   import CreateAgentForm from './CreateAgentForm.svelte';

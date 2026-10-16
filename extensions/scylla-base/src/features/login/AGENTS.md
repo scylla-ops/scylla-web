@@ -62,14 +62,14 @@ infrastructure/
 presentation/
   login.points.ts                    the extension points — see below
   login.state.svelte.ts              sign-in: the mutation + the redirect
-  forgot-password.state.svelte.ts    the request of a reset link
-  reset-password.state.svelte.ts     the token of the link, the new password
   sign-out.ts                        signOut
   return-path.ts                     loginPath, loginPathBackTo, safeReturnPath, returnPathOf
   ui/AuthLayout.svelte               the frame of the public pages: logo, card, a `below` snippet
   ui/Login/Login.page.svelte, ui/LoginForm/LoginForm.svelte
   ui/ForgotPassword/ForgotPassword.page.svelte
+    forgot-password.state.svelte.ts  the request of a reset link
   ui/ResetPassword/ResetPassword.page.svelte
+    reset-password.state.svelte.ts   the token of the link, the new password
   ui/login.messages.ts               the sign-in strings (the `login.texts` point)
   ui/password-reset.messages.ts      the strings of the two reset pages
 ```

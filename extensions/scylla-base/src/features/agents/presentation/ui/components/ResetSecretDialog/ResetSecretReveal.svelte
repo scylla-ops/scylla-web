@@ -8,7 +8,7 @@
   import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
   import type {
     ResetOutcome,
-  } from '@base/features/agents/presentation/reset-secret.state.svelte.ts';
+  } from './reset-secret.state.svelte.ts';
   import { agentsMessages } from '../../agents.messages.ts';
   import CopyBox from '../CopyBox/CopyBox.svelte';
   import DialogFooterBand from '../DialogFooterBand.svelte';

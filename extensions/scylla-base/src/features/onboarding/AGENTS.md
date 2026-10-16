@@ -51,12 +51,12 @@ infrastructure/
 presentation/
   onboarding.queries.ts              status query + save mutation (optimistic)
   onboarding.messages.ts             every string (tour-steps.ts uses them)
-  tour-steps.ts                      THE step list: text, anchors, what moves each step on
-  tour-machine.calculator.ts         pure transitions: advance, rewind, visibility, count
-  tour-placement.calculator.ts       card placement, dim path, connector path
-  tour-tracking.attachments.svelte.ts  trackTourStep (rAF + click listener), blockPage, portalToBody, holdPointer
-  onboarding-tour.state.svelte.ts    ViewModel: status, current step, skip, mutation events
   ui/OnboardingTour/                 root (loaded by the shell) + its test, and its parts:
+    tour-steps.ts                    THE step list: text, anchors, what moves each step on
+    tour-machine.calculator.ts       pure transitions: advance, rewind, visibility, count
+    tour-placement.calculator.ts     card placement, dim path, connector path
+    tour-tracking.attachments.svelte.ts  trackTourStep (rAF + click listener), blockPage, portalToBody, holdPointer
+    onboarding-tour.state.svelte.ts  ViewModel: status, current step, skip, mutation events
     TourSpot.svelte                  one spot step: tracking, spotlight, card(s)
     TourSpotlight.svelte, TourCard.svelte
     WelcomeDialog.svelte, SkipTourDialog.svelte, FinishTourDialog.svelte

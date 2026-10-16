@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import {
   createQuickAdd,
   type QuickAdd,
-} from '@base/features/pipeline/presentation/quick-add.state.svelte.ts';
+} from './quick-add.state.svelte.ts';
 import { BLANK_STEPS, catalogText } from '../catalog.ts';
 import QuickAddMenu from './QuickAddMenu.svelte';
 

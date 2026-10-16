@@ -12,9 +12,9 @@
   } from '@xyflow/svelte';
   import '@xyflow/svelte/dist/style.css';
   import { t } from '@scylla/ui/i18n';
-  import type { BlueprintState } from '@base/features/pipeline/presentation/blueprint.state.svelte.ts';
-  import type { NodeAppearancePreference } from '@base/features/pipeline/presentation/node-appearance.svelte.ts';
-  import type { QuickAdd } from '@base/features/pipeline/presentation/quick-add.state.svelte.ts';
+  import type { BlueprintState } from './blueprint.state.svelte.ts';
+  import type { NodeAppearancePreference } from './node-appearance.svelte.ts';
+  import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/QuickAddMenu/quick-add.state.svelte.ts';
   import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
   import type { CatalogEntry } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';

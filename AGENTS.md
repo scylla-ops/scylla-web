@@ -197,10 +197,22 @@ feature/
 ├── locales/             → i18n (en/, fr/)
 └── presentation/        → UI layer
     ├── <feature>.queries.ts        → TanStack Query options factories (plain TS) + key factories
-    ├── <view>.state.svelte.ts      → ViewModels of the views that need one (runes)
-    ├── *.attachments.ts / *.calculator.ts → attachments / pure algorithms, when needed
-    └── ui/              → Svelte components (pages, dialogs, tables) + *.messages.ts
+    ├── <feature>.messages.ts / <feature>.points.ts → what all the views share, when needed
+    └── ui/              → Svelte components (pages, dialogs, tables) + *.messages.ts, and
+                           beside each one its ViewModel, attachments and calculators
 ```
+
+**The root of `presentation/` holds what the module shares**: with other modules (what
+`index.ts` exports) or with all its views (queries, query keys, module-wide messages, widget
+points). The rest serves a view, so it goes **beside the component that uses it**, in `ui/`:
+
+- one component uses it → in that component's folder (`StepInspector/step-inspector.state.svelte.ts`);
+- several components use it → in the folder of the component that owns the concept
+  (`AccessCard/access.calculator.ts`, used by `AccessCard` and `AccessBadges`), else in the
+  nearest folder above all of them (`ui/components/roles-page.state.svelte.ts`).
+
+A view and its logic move, change and get deleted together; you do not search the module for the
+ViewModel of a page.
 
 ### Layer responsibilities
 
@@ -382,10 +394,10 @@ static SPA that the Rust binary serves. See `refacto_svelte.md` for the reasons.
 | Need | Solution | Where |
 |------|----------|-------|
 | Simple UI state (a toggle, a dialog, tabs) | `$state` | the `<script>` of the `.svelte` file |
-| Page orchestration (queries + filters + pagination) | a ViewModel | `presentation/<view>.state.svelte.ts` |
-| Complex UI logic without network (a wizard, a matrix) | a UI-only ViewModel | `presentation/<view>.state.svelte.ts` |
-| A pure algorithm (a chart scale, a graph layout) | a pure function | `presentation/*.calculator.ts` |
-| DOM measurement, native events, a third-party widget | an attachment (`{@attach}`) | `presentation/*.attachments.ts` |
+| Page orchestration (queries + filters + pagination) | a ViewModel | `<view>.state.svelte.ts`, beside the view |
+| Complex UI logic without network (a wizard, a matrix) | a UI-only ViewModel | `<view>.state.svelte.ts`, beside the view |
+| A pure algorithm (a chart scale, a graph layout) | a pure function | `*.calculator.ts`, beside its user |
+| DOM measurement, native events, a third-party widget | an attachment (`{@attach}`) | `*.attachments.ts`, beside its user |
 
 **Never put non-trivial logic in a `.svelte` file.** A ViewModel is named after the view it
 controls (`user-list.state.svelte.ts`), never after a global concept. A ViewModel is testable in
@@ -428,7 +440,7 @@ its element), and can be conditional (`{@attach enabled && fn}`).
 - An attachment with no option is the function itself: `{@attach pagination.measure}`.
 - It returns its cleanup function.
 - Test it in `$effect.root`: call it inside an `$effect`, drive its options with `$state`, and
-  `flushSync()` (`onboarding/presentation/__test__/tour-tracking.attachments.svelte.test.ts`).
+  `flushSync()` (`onboarding/presentation/ui/OnboardingTour/tour-tracking.attachments.svelte.test.ts`).
 
 ### Data access
 
@@ -469,8 +481,11 @@ as soon as it has more than its `.svelte` file:
 A lone `.svelte` file with nothing beside it stays a plain file. A file that two components use
 stays in the directory above them (`role-form/checkbox-tree.ts`). A group of related components
 that is not one component's internals stays a kebab-case group folder (`jobs-table/`,
-`role-detail/`). ViewModels (`*.state.svelte.ts`) do not move into a component folder: they
-stay in `presentation/` (the permission conformance test reads them there).
+`role-detail/`). A ViewModel, an attachment or a calculator that a component uses is one of
+these files: it goes in the component's folder, and gives the component a folder. Shared by
+several components, it goes where the root of a feature's tree says (see the feature layout).
+The permission conformance test reads every `*.state.svelte.ts` under `presentation/`, wherever
+it is.
 
 `packages/ui/src/primitives/` follows the shadcn layout instead: one kebab-case folder per
 primitive (`card/card.svelte`, `card/card-title.svelte`, …), with its variants and its messages,
@@ -542,7 +557,7 @@ Where a test goes:
 - **The test of a file in a component folder goes in that folder too**, without `__test__/`:
   `DataTable/data-table.ts` → `DataTable/data-table.test.ts`.
 - **Every other test goes in the `__test__/` folder of the directory it covers**:
-  `presentation/grant-creator.state.svelte.ts` → `presentation/__test__/grant-creator.state.svelte.test.ts`.
+  `presentation/ui/components/role-detail/grant-creator.state.svelte.ts` → `presentation/ui/components/role-detail/__test__/grant-creator.state.svelte.test.ts`.
   Fixtures used by several components' tests go there too.
 - `primitives/`: one kebab-case folder per primitive, and its tests go in that folder.
 
@@ -603,7 +618,7 @@ scylla-base's `shell/__test__/feature-permissions.test.ts` applies the same idea
 the gating of a *button* is declared nowhere a type can see it:
 
 2. a feature that declares a mutation must mention a `Permission` somewhere under its
-   `presentation/ui/` or in one of its ViewModels (`presentation/*.state.svelte.ts`);
+   `presentation/ui/` or in one of its ViewModels (`*.state.svelte.ts` under `presentation/`);
 3. a query another feature imports through the barrel must check for itself — crossing a
    barrel means running outside the owner's route guard, on the *consumer's* permission.
    `jobsByPipelinesQueries` is the model: `enabled: ready && can(...)`.
@@ -731,7 +746,8 @@ Because of that, the tooling of this repo must work from another root. Keep it s
    factories. The repository comes from
    `getModuleDomain<typeof XModule.domain>('<id>')` — in this file only.
 6. Presentation: follow "Where the logic goes" — a `*.state.svelte.ts` ViewModel for a page that
-   orchestrates, actions for DOM work, calculators for pure algorithms. Components import shared
+   orchestrates, attachments for DOM work, calculators for pure algorithms, each beside the
+   component that uses it. Components import shared
    UI from `@scylla/ui` and primitives from `@scylla/ui/primitives`. Read
    `packages/ui/AGENTS.md` first.
 7. Every message in a `*.messages.ts` beside its component (`msg`), rendered with `t()`. Add

@@ -4,7 +4,7 @@
   import {
     groupAssignableRoles,
     type AssignableRole,
-  } from '@base/features/membership/presentation/assignable-roles.calculator.ts';
+  } from '@base/features/membership/presentation/ui/components/assignable-roles.calculator.ts';
   import {
     membershipMessages,
   } from '@base/features/membership/presentation/ui/membership.messages.ts';

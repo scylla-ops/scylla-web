@@ -3,7 +3,7 @@
   import { EditorView, lineNumbers } from '@codemirror/view';
   import { renderCodeMirror } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { createTailJobLogs } from '@base/features/jobs/presentation/tail-job-logs.svelte.ts';
+  import { createTailJobLogs } from './tail-job-logs.svelte.ts';
   import { createStreamedLogView } from './streamed-log-view.svelte.ts';
   import { jobsMessages } from '@base/features/jobs/presentation/ui/jobs.messages.ts';
 

@@ -5,20 +5,20 @@
   } from '@base/features/onboarding/presentation/onboarding.messages.ts';
   import type {
     OnboardingTourState,
-  } from '@base/features/onboarding/presentation/onboarding-tour.state.svelte.ts';
+  } from './onboarding-tour.state.svelte.ts';
   import {
     VIEWPORT_MARGIN,
     placeCard,
     spotlightRect,
-  } from '@base/features/onboarding/presentation/tour-placement.calculator.ts';
-  import type { TourSpotStep } from '@base/features/onboarding/presentation/tour-steps.ts';
+  } from './tour-placement.calculator.ts';
+  import type { TourSpotStep } from './tour-steps.ts';
   import {
     allowedAnchor,
     blockPage,
     portalToBody,
     trackTourStep,
     type TourLayout,
-  } from '@base/features/onboarding/presentation/tour-tracking.attachments.svelte.ts';
+  } from './tour-tracking.attachments.svelte.ts';
   import TourCard from './TourCard.svelte';
   import TourSpotlight from './TourSpotlight.svelte';
 

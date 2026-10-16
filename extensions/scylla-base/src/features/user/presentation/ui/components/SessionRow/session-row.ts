@@ -1,7 +1,7 @@
 import { t } from '@scylla/ui/i18n';
 import { getRelativeTime } from '@shared/utils/date-utils.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
-import type { SessionDevice } from '@base/features/user/presentation/user-agent.calculator.ts';
+import type { SessionDevice } from './user-agent.calculator.ts';
 import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
 
 /** The server moves the last activity at most once every five minutes. */

@@ -2,7 +2,7 @@
   import { Permission, authorizationReady, can } from '@platform/authz';
   import {
     createOnboardingTourState,
-  } from '@base/features/onboarding/presentation/onboarding-tour.state.svelte.ts';
+  } from './onboarding-tour.state.svelte.ts';
   import FinishTourDialog from './FinishTourDialog.svelte';
   import SkipTourDialog from './SkipTourDialog.svelte';
   import TourSpot from './TourSpot.svelte';

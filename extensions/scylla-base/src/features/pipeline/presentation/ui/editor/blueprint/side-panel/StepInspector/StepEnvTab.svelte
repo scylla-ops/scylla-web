@@ -16,7 +16,7 @@
   import type {
     EnvRow,
     StepInspector,
-  } from '@base/features/pipeline/presentation/step-inspector.state.svelte.ts';
+  } from './step-inspector.state.svelte.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {

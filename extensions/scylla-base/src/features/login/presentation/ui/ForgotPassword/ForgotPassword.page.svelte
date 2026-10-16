@@ -8,7 +8,7 @@
   } from '@base/features/login/domain/structs/password-reset.struct.ts';
   import {
     ForgotPasswordState,
-  } from '@base/features/login/presentation/forgot-password.state.svelte.ts';
+  } from './forgot-password.state.svelte.ts';
   import AuthLayout from '../AuthLayout.svelte';
   import { passwordResetMessages } from '../password-reset.messages.ts';
 

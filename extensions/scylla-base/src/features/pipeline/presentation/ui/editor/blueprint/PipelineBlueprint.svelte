@@ -2,10 +2,10 @@
   import { SvelteFlowProvider } from '@xyflow/svelte';
   import { createQuery } from '@scylla/core-sdk';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-  import { createBlueprintState } from '@base/features/pipeline/presentation/blueprint.state.svelte.ts';
-  import { createNodeAppearance } from '@base/features/pipeline/presentation/node-appearance.svelte.ts';
+  import { createBlueprintState } from './blueprint.state.svelte.ts';
+  import { createNodeAppearance } from './node-appearance.svelte.ts';
   import { stepTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
-  import { createQuickAdd } from '@base/features/pipeline/presentation/quick-add.state.svelte.ts';
+  import { createQuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/QuickAddMenu/quick-add.state.svelte.ts';
   import BlueprintCanvas from './BlueprintCanvas.svelte';
   import { catalogEntries, catalogText } from './catalog.ts';
   import { nodePositionAt } from './nodes/node-appearances.ts';

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { findFloating, render } from '@test/render.svelte.ts';
 import type {
   AssignableRole,
-} from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+} from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
 import AddMemberDialog from './AddMemberDialog.svelte';
 
 const assignable = (overrides: Partial<AssignableRole> = {}): AssignableRole => ({

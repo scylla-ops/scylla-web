@@ -7,7 +7,7 @@
   import { Button, Input, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { Shell } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-  import type { StepInspector } from '@base/features/pipeline/presentation/step-inspector.state.svelte.ts';
+  import type { StepInspector } from './step-inspector.state.svelte.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
   import { createScriptEditor } from '@base/features/pipeline/presentation/ui/editor/script-editor.svelte.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';

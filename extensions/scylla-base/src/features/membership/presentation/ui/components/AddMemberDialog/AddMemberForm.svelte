@@ -18,7 +18,7 @@
   import { userName } from '@shared/presentation/ui';
   import type {
     AssignableRole,
-  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
   import RoleChecklist from '../RoleChecklist/RoleChecklist.svelte';
   import {
     membershipMessages,

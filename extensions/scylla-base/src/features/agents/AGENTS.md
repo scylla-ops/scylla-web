@@ -79,34 +79,34 @@ infrastructure/
   grpc-agent.mapper.ts                 GrpcAgentMapper (agents, stats, jobs)
 presentation/
   agents.queries.ts                    the reads and writes of this module
-  agents-page.state.svelte.ts          ViewModel of the list: rows, filter, search, summary
-  agent-details.state.svelte.ts        ViewModel of the detail page
-  agent-actions.state.svelte.ts        the actions on one agent and their dialogs, for both pages
-  reset-secret.state.svelte.ts         the two steps of a reset, resetOutcomeOf
-  rename-secret.state.svelte.ts        the rename of one secret
-  secret-label-input.state.svelte.ts   a secret name field: suggestion, edit, CE rules, refusal
-  create-agent.state.svelte.ts         the two steps of a new agent: create, grants, live status
-  agent-access.state.svelte.ts         the access card of the agent page: give, replace, remove
-  take-focus.attachments.svelte.ts     focuses a node on request (the card heading, after a remove)
-  run-command.calculator.ts            the Docker, Docker Compose and source commands; AGENT_IMAGE
-  track-height.attachments.ts          reports the height of a node (the dialog body animates on it)
-  daily-outcomes.calculator.ts         30 days, zero-filled; axis top (pure)
-  access.calculator.ts                 grant order, project labels, where the agent takes jobs,
-                                       the projects without a grant, the grants that "All projects" replaces,
-                                       keepsCover (pure)
   utils/agent-format.ts                short id, durations, memory, percent, dates
   ui/agents.messages.ts                the strings that both pages show
   ui/Agents/                           the list page and its private parts
+    agents-page.state.svelte.ts        ViewModel of the list: rows, filter, search, summary
   ui/AgentDetails/                     the detail page and its private cards
+    agent-details.state.svelte.ts      ViewModel of the detail page
   ui/AgentDetails/AccessCard/          the access card, its give and remove dialogs
+    agent-access.state.svelte.ts       the access card of the agent page: give, replace, remove
+    access.calculator.ts               grant order, project labels, where the agent takes jobs,
+                                       the projects without a grant, the grants that "All projects"
+                                       replaces, keepsCover (pure)
+    take-focus.attachments.svelte.ts   focuses a node on request (the card heading, after a remove)
   ui/components/AgentBot/              the animated bot tile
   ui/components/CreateAgentDialog/     the new agent dialog: name and access, then start the agent
+    create-agent.state.svelte.ts       the two steps of a new agent: create, grants, live status
+    track-height.attachments.ts        reports the height of a node (the dialog body animates on it)
   ui/components/AgentRunCommand/       address, way to run, and the command (dialog step 2, agent page)
+    run-command.calculator.ts          the Docker, Docker Compose and source commands; AGENT_IMAGE
   ui/components/CopyBox/               a value with a copy button
   ui/components/ResetSecretDialog/     name and confirm, then show the new secret one time
+    reset-secret.state.svelte.ts       the two steps of a reset, resetOutcomeOf
   ui/components/RenameSecretDialog/    rename one secret (the "Rename" item of the Secrets card)
+    rename-secret.state.svelte.ts      the rename of one secret
   ui/components/SecretLabelField/      the secret name field and its errors (reset, rename)
+    secret-label-input.state.svelte.ts a secret name field: suggestion, edit, CE rules, refusal
   ui/components/DisableAgentDialog/    confirm a disable
+  ui/components/agent-actions.state.svelte.ts   the actions on one agent and their dialogs, for both pages
+  ui/components/daily-outcomes.calculator.ts    30 days, zero-filled; axis top (pure)
   ui/components/AgentActionsMenu.svelte, AgentActionDialogs.svelte, AgentStateDot.svelte
   ui/components/DialogFooterBand.svelte, AlertDialogCloseButton.svelte   the parts of the dialog layout
   ui/components/AgentIdLink/           the id with a copy button

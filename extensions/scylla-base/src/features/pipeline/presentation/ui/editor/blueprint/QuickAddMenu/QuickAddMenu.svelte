@@ -6,7 +6,7 @@
     MENU_SIZE,
     menuPosition,
     type QuickAdd,
-  } from '@base/features/pipeline/presentation/quick-add.state.svelte.ts';
+  } from './quick-add.state.svelte.ts';
   import { START_NODE_ID } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
   import { blueprintMessages } from '../blueprint.messages.ts';
   import { CATALOG_GROUP_TITLES } from '../catalog.ts';

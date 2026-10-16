@@ -5,7 +5,7 @@
   import {
     onboardingMessages,
   } from '@base/features/onboarding/presentation/onboarding.messages.ts';
-  import { SCYLLA_DOCS_URL } from '@base/features/onboarding/presentation/tour-steps.ts';
+  import { SCYLLA_DOCS_URL } from './tour-steps.ts';
 
   interface Props {
     onFinish: () => void;

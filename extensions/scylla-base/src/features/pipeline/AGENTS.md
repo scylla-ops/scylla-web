@@ -73,28 +73,29 @@ infrastructure/
   default-step-template.repository.ts        BUILT_IN_STEP_TEMPLATES
   grpc-pipeline.mapper.ts
 presentation/
-  blueprint.state.svelte.ts                  graph ViewModel: nodes, edges, inspected step, add/insert/rename
-  side-panel-width.svelte.ts                 the width of the side panel per mode, remembered in localStorage
-  step-inspector.state.svelte.ts             draft of the selected step, applied at each edit
-  quick-add.state.svelte.ts                  the menu of a link dropped on empty canvas, its position
-  node-appearance.svelte.ts                  the viewer's node style, remembered in localStorage
-  pipeline-dashboard.state.svelte.ts         Dashboard ViewModel
-  pipeline-script.state.svelte.ts            Script editor state
   pipeline.messages.ts                       i18n message descriptors
   pipeline.queries.ts                        TanStack Query options factories
   pipelines.query-keys.ts                    Query key factories (exported publicly)
   ui/
     *.page.svelte                            Pages (dashboard, creation, update, jobs route)
+    run-pipeline.svelte.ts                   the Run action, shared by the dashboard and the jobs route
     editor/                                  PipelineEditor + header (with the name field), script editor
+      pipeline-script.state.svelte.ts        the editor's document: script text, baseline, dirty check
       blueprint/                             the canvas, its nodes, its edge, the side panel
+        blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected step, add/insert/rename
+        node-appearance.svelte.ts            the viewer's node style, remembered in localStorage
         catalog.ts                           blank steps, template entries, catalogText (translates)
         step-kinds.ts                        icon and colours of each kind of step
         Segmented.svelte, SearchField.svelte the segmented control and the search box of the panel
         nodes/                               one step view and one start view per node style,
                                              node-appearances.ts (registry), node-geometry.ts
         side-panel/                          palette (nothing inspected) / inspector of the inspected step
-        QuickAddMenu/                        the step picker of a dropped link
+          side-panel-width.svelte.ts         the width of the panel per mode, remembered in localStorage
+          StepInspector/                     the inspector, step-inspector.state.svelte.ts (the draft
+                                             of the step, applied at each edit)
+        QuickAddMenu/                        the step picker of a dropped link, quick-add.state.svelte.ts
     dashboard/                               Dashboard, chart, table, pipeline table columns
+      DashboardPipeline/                     the page, pipeline-dashboard.state.svelte.ts (its ViewModel)
   utils/
     blueprint-converter.ts                   Graph ↔ PipelineStep[] (pure, TS only, tested)
     node-catalog.ts                          catalog entry type, search, grouping (pure)
@@ -126,7 +127,7 @@ the page.
 - **Query options come from `pipeline.queries.ts`**, not from individual `use-` hooks, and are 
   exported publicly so other modules invalidate what this one reads. After `run()`, also invalidate 
   `JOBS_QUERY_ROOT` / `JOBS_QUERY_KEY(pipelineId)` from `features/jobs` — a run creates a job.
-- **CodeMirror is a legitimate use of `$effect`** in `script-editor.svelte.ts` — it's a system 
+- **CodeMirror is a legitimate use of `$effect`** in `ui/editor/script-editor.svelte.ts` — it's a system 
   outside Svelte that must be synchronized imperatively. That licence does not extend to the rest 
   of the module, which uses Runes.
 - **`blueprint.state.svelte.ts` is the graph ViewModel** — it uses Svelte Runes (`$state`, 

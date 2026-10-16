@@ -3,10 +3,10 @@
   import { t } from '@scylla/ui/i18n';
   import type {
     AgentActions,
-  } from '@base/features/agents/presentation/agent-actions.state.svelte.ts';
+  } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
   import type {
     AgentRow as AgentRowData,
-  } from '@base/features/agents/presentation/agents-page.state.svelte.ts';
+  } from './agents-page.state.svelte.ts';
   import AgentRow from './AgentRow.svelte';
   import { agentsPageMessages as messages } from './agents-page.messages.ts';
 
