@@ -3,7 +3,7 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
-  import { START_ICON } from '../step-kinds.ts';
+  import { START_ICON } from '@base/features/pipeline/presentation/ui/editor/blueprint/step-kinds.ts';
   import { DETAILED_NODE } from './node-geometry.ts';
   import type { StartNodeViewProps } from './node-view.ts';
 

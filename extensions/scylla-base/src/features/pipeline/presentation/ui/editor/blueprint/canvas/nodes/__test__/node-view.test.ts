@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import { stepIcon } from '../../step-kinds.ts';
+import { stepIcon } from '@base/features/pipeline/presentation/ui/editor/blueprint/step-kinds.ts';
 import { summarize } from '../node-view.ts';
 
 const step = (id: string, script: string): PipelineStep => ({

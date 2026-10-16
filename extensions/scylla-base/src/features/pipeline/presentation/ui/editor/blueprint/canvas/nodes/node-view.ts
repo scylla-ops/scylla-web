@@ -11,8 +11,8 @@ import {
   type NodeIdIssue,
   type StepIssue,
 } from '@base/features/pipeline/presentation/utils/step-summary.ts';
-import { blueprintMessages } from '../blueprint.messages.ts';
-import { KIND_TONES, stepIcon } from '../step-kinds.ts';
+import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
+import { KIND_TONES, stepIcon } from '@base/features/pipeline/presentation/ui/editor/blueprint/step-kinds.ts';
 
 /** What every node appearance renders: computed once, so the views only lay it out. */
 export interface StepSummary {

@@ -11,7 +11,7 @@
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
   import { createScriptEditor } from '@base/features/pipeline/presentation/ui/editor/script-editor.svelte.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
-  import Segmented from '@base/features/pipeline/presentation/ui/editor/blueprint/Segmented.svelte';
+  import Segmented from '@base/features/pipeline/presentation/ui/editor/blueprint/controls/Segmented.svelte';
 
   interface Props {
     inspector: StepInspector;
