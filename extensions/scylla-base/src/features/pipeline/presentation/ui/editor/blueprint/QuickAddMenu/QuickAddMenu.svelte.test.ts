@@ -6,7 +6,7 @@ import {
   createQuickAdd,
   type QuickAdd,
 } from '@base/features/pipeline/presentation/quick-add.state.svelte.ts';
-import { BLANK_STEPS, catalogText } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
+import { BLANK_STEPS, catalogText } from '../catalog.ts';
 import QuickAddMenu from './QuickAddMenu.svelte';
 
 let cleanup: (() => void) | undefined;
@@ -31,19 +31,25 @@ describe('QuickAddMenu', () => {
 
   it('names the step the new one follows, and focuses the search', () => {
     const { quickAdd } = setup();
-    quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 }, after: 'build' });
+    quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 }, link: { after: 'build' } });
     flushSync();
 
     expect(screen.getByRole('dialog', { name: 'Add a step after build' })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'Search a node' })).toHaveFocus();
+    expect(screen.getByRole('combobox', { name: 'Search a node' })).toHaveFocus();
   });
 
   it('picks with the keyboard', async () => {
     const { quickAdd, onPick } = setup();
-    quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 } });
+    quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 }, link: {} });
     flushSync();
 
-    await userEvent.keyboard('{ArrowDown}{Enter}');
+    await userEvent.keyboard('{ArrowDown}');
+    const search = screen.getByRole('combobox', { name: 'Search a node' });
+    const active = screen.getByRole('option', { selected: true });
+    expect(search).toHaveAttribute('aria-activedescendant', active.id);
+    expect(active).toHaveAccessibleName(/sh script/);
+
+    await userEvent.keyboard('{Enter}');
 
     expect(onPick).toHaveBeenCalledWith(BLANK_STEPS[1], expect.anything());
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -51,27 +57,40 @@ describe('QuickAddMenu', () => {
 
   it('picks with the mouse', async () => {
     const { quickAdd, onPick } = setup();
-    quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 }, replacing: 'a->b' });
+    quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 }, link: { replacing: 'a->b' } });
     flushSync();
 
     expect(screen.getByRole('dialog', { name: 'Insert a step here' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: /Command/ }));
+    await userEvent.click(screen.getByRole('option', { name: /Command/ }));
 
-    expect(onPick).toHaveBeenCalledWith(BLANK_STEPS[2], expect.objectContaining({ replacing: 'a->b' }));
+    expect(onPick).toHaveBeenCalledWith(
+      BLANK_STEPS[2],
+      expect.objectContaining({ link: { replacing: 'a->b' } }),
+    );
   });
 
   it('closes on Escape and on a click outside, without adding anything', async () => {
     const { quickAdd, onPick } = setup();
-    quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 } });
+    quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 }, link: {} });
     flushSync();
     await userEvent.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
-    quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 } });
+    quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 }, link: {} });
     flushSync();
     await userEvent.click(screen.getByRole('button', { name: 'Close the menu' }));
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(onPick).not.toHaveBeenCalled();
+  });
+
+  it('closes when Tab moves the focus out of the menu', async () => {
+    const { quickAdd } = setup();
+    quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 }, link: {} });
+    flushSync();
+
+    await userEvent.keyboard('{Tab}');
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

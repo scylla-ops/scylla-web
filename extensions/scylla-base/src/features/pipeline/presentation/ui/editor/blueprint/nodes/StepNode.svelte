@@ -1,8 +1,6 @@
 <script lang="ts">
   import type { NodeProps } from '@xyflow/svelte';
-  import type {
-    BlueprintStepNode,
-  } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import type { BlueprintStepNode } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
   import { getBlueprintCanvas } from '../blueprint-canvas.context.ts';
   import { NODE_APPEARANCE_VIEWS } from './node-appearances.ts';
   import { summarize } from './node-view.ts';
@@ -10,7 +8,7 @@
   let { data, selected }: NodeProps<BlueprintStepNode> = $props();
 
   const canvas = getBlueprintCanvas();
-  const View = $derived(NODE_APPEARANCE_VIEWS[canvas.appearance()].view);
+  const View = $derived(NODE_APPEARANCE_VIEWS[canvas.appearance()].step);
   const summary = $derived(summarize(data.step));
 </script>
 

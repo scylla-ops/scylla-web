@@ -6,11 +6,12 @@
   import { renderCodeMirror } from '@scylla/ui';
   import { Button, Input, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { cn } from '@scylla/ui/utils';
   import type { Shell } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import type { StepInspector } from '@base/features/pipeline/presentation/step-inspector.state.svelte.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
   import { createScriptEditor } from '@base/features/pipeline/presentation/ui/editor/script-editor.svelte.ts';
+  import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
+  import Segmented from '@base/features/pipeline/presentation/ui/editor/blueprint/Segmented.svelte';
 
   interface Props {
     inspector: StepInspector;
@@ -24,47 +25,34 @@
     extensions: () => [StreamLanguage.define(shellLanguage)],
   });
 
-  const MODES = [
-    { value: 'script', label: pipelineMessages.script },
-    { value: 'exec', label: pipelineMessages.command },
-  ] as const;
-  const SHELLS: Shell[] = ['bash', 'sh'];
+  const uid = $props.id();
 
-  const segment = (active: boolean) =>
-    cn(
-      'rounded-[5px] px-2.5 py-1 text-xs transition-colors',
-      active ? 'bg-card font-medium text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
-    );
+  const modes = $derived([
+    { value: 'script', label: t(pipelineMessages.script) },
+    { value: 'exec', label: t(pipelineMessages.command) },
+  ] as const);
+  // `bash` and `sh` are names: not translated.
+  const SHELLS = (['bash', 'sh'] satisfies Shell[]).map(shell => ({ value: shell, label: shell }));
 </script>
 
 <div class="flex min-h-0 flex-1 flex-col gap-3 p-4">
   <div class="flex items-center gap-2">
     <!-- A script or a command, not both. -->
-    <div class="flex gap-0.5 rounded-md bg-muted p-0.5">
-      {#each MODES as mode (mode.value)}
-        <button
-          type="button"
-          aria-pressed={inspector.mode === mode.value}
-          class={segment(inspector.mode === mode.value)}
-          onclick={() => (inspector.mode = mode.value)}
-        >
-          {t(mode.label)}
-        </button>
-      {/each}
-    </div>
+    <Segmented
+      value={inspector.mode}
+      options={modes}
+      label={t(blueprintMessages.stepKind)}
+      onChange={mode => (inspector.mode = mode)}
+    />
     {#if inspector.mode === 'script'}
-      <div class="ml-auto flex gap-0.5 rounded-md bg-muted p-0.5" aria-label={t(pipelineMessages.shell)} role="group">
-        {#each SHELLS as shell (shell)}
-          <button
-            type="button"
-            aria-pressed={inspector.shell === shell}
-            class={cn(segment(inspector.shell === shell), 'font-mono')}
-            onclick={() => (inspector.shell = shell)}
-          >
-            {shell}
-          </button>
-        {/each}
-      </div>
+      <Segmented
+        value={inspector.shell}
+        options={SHELLS}
+        label={t(pipelineMessages.shell)}
+        onChange={shell => (inspector.shell = shell)}
+        class="ml-auto"
+        itemClass="font-mono"
+      />
     {/if}
   </div>
 
@@ -81,9 +69,9 @@
     ></div>
   {:else}
     <div class="flex flex-col gap-2">
-      <Label for="step-command">{t(pipelineMessages.command)}</Label>
+      <Label for="{uid}-command">{t(pipelineMessages.command)}</Label>
       <Input
-        id="step-command"
+        id="{uid}-command"
         class="font-mono"
         value={inspector.command}
         oninput={event => (inspector.command = event.currentTarget.value)}
@@ -118,9 +106,9 @@
   {/if}
 
   <div class="flex flex-col gap-2">
-    <Label for="step-working-dir">{t(pipelineMessages.workingDirectory)}</Label>
+    <Label for="{uid}-working-dir">{t(pipelineMessages.workingDirectory)}</Label>
     <Input
-      id="step-working-dir"
+      id="{uid}-working-dir"
       class="font-mono"
       value={inspector.workingDir}
       oninput={event => (inspector.workingDir = event.currentTarget.value)}

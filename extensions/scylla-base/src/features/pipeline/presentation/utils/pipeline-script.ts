@@ -121,3 +121,10 @@ export const withName = (
   document: Record<string, unknown> | null,
   name: string,
 ): string | null => (document ? JSON.stringify({ ...document, name }, null, 2) : null);
+
+/** The name goes into the breadcrumb and the URLs: it is a single word. */
+export const pipelineNameIssue = (name: string): 'empty' | 'spaces' | null => {
+  const trimmed = name.trim();
+  if (!trimmed) return 'empty';
+  return /\s/.test(trimmed) ? 'spaces' : null;
+};

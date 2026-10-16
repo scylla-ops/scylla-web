@@ -1,9 +1,19 @@
 import { describe, it, expect, vi } from 'vitest';
 import { flushSync } from 'svelte';
-import { createQuickAdd, type QuickAdd, type QuickAddRequest } from '../quick-add.state.svelte.ts';
-import { BLANK_STEPS, catalogText } from '../utils/node-catalog.ts';
+import {
+  createQuickAdd,
+  menuPosition,
+  MENU_SIZE,
+  type QuickAdd,
+  type QuickAddRequest,
+} from '../quick-add.state.svelte.ts';
+import { BLANK_STEPS, catalogText } from '../ui/editor/blueprint/catalog.ts';
 
-const request: QuickAddRequest = { client: { x: 10, y: 20 }, flow: { x: 1, y: 2 }, after: 'build' };
+const request: QuickAddRequest = {
+  client: { x: 10, y: 20 },
+  flow: { x: 1, y: 2 },
+  link: { after: 'build' },
+};
 
 const withQuickAdd = (run: (quickAdd: QuickAdd, onPick: ReturnType<typeof vi.fn>) => void) => {
   const onPick = vi.fn();
@@ -78,5 +88,38 @@ describe('createQuickAdd', () => {
 
       expect(quickAdd.query).toBe('');
     });
+  });
+
+  it('moves through the results in the order of their groups', () => {
+    const template = { ...BLANK_STEPS[0], id: 'template:x', group: 'templates' as const };
+    const onPick = vi.fn();
+    const cleanup = $effect.root(() => {
+      const quickAdd = createQuickAdd({
+        entries: () => [template, ...BLANK_STEPS],
+        resolve: catalogText,
+        onPick,
+      });
+      flushSync();
+
+      expect(quickAdd.results.at(-1)).toBe(template);
+      expect(quickAdd.groups.map(({ group }) => group)).toEqual(['steps', 'templates']);
+    });
+    cleanup();
+  });
+});
+
+describe('menuPosition', () => {
+  const viewport = { width: 1000, height: 800 };
+
+  it('opens the menu next to the point', () => {
+    expect(menuPosition({ x: 100, y: 100 }, viewport)).toEqual({ x: 108, y: 76 });
+  });
+
+  it('keeps the menu inside the window', () => {
+    expect(menuPosition({ x: 990, y: 790 }, viewport)).toEqual({
+      x: viewport.width - MENU_SIZE.width - 8,
+      y: viewport.height - MENU_SIZE.height - 8,
+    });
+    expect(menuPosition({ x: -50, y: 0 }, viewport)).toEqual({ x: 8, y: 8 });
   });
 });

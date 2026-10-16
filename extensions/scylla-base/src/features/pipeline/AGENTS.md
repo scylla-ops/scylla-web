@@ -46,13 +46,16 @@ not through the barrel.
 
 `DefaultStepTemplateRepository` serves `BUILT_IN_STEP_TEMPLATES` today. When the backend
 serves templates, a gRPC implementation replaces it in `pipeline.module.ts`; the palette and
-`stepTemplateQueries.list()` do not change. A template's `name` is shown as is (a tool name
-such as `npm ci`), and its `icon` is a hint: an unknown hint falls back to the kind's icon.
+`stepTemplateQueries.list()` do not change. Its key, `STEP_TEMPLATES_QUERY_KEY`, is a root of
+its own: an invalidation of a pipeline key never refetches it. A template's `name` is shown as
+is (a tool name such as `npm ci`), and its `icon` is a hint: an unknown hint falls back to the
+kind's icon.
 
 **`PipelineMetadata` vs `PipelineEntity` is the split that matters**: lists fetch metadata (no
 steps), the editor fetches the entity. Do not make a list page call `getById`.
 
-Reach the repository with `usePipelineDomain()` **inside a hook only**.
+Reach a repository with `getModuleDomain<typeof PipelineModule.domain>('pipeline')`, in
+`pipeline.queries.ts` only.
 
 ## Layout
 
@@ -71,8 +74,8 @@ infrastructure/
   grpc-pipeline.mapper.ts
 presentation/
   blueprint.state.svelte.ts                  graph ViewModel: nodes, edges, selection, add/insert/rename
-  step-inspector.state.svelte.ts             draft of the selected step, applied live while runnable
-  quick-add.state.svelte.ts                  the menu of a link dropped on empty canvas
+  step-inspector.state.svelte.ts             draft of the selected step, applied at each edit
+  quick-add.state.svelte.ts                  the menu of a link dropped on empty canvas, its position
   node-appearance.svelte.ts                  the viewer's node style, remembered in localStorage
   pipeline-dashboard.state.svelte.ts         Dashboard ViewModel
   pipeline-script.state.svelte.ts            Script editor state
@@ -83,16 +86,20 @@ presentation/
     *.page.svelte                            Pages (dashboard, creation, update, jobs route)
     editor/                                  PipelineEditor + header, script editor
       blueprint/                             the canvas, its nodes, its edge, the side panel
-        nodes/                               one view per node style + node-appearances.ts
+        catalog.ts                           blank steps, template entries, catalogText (translates)
+        step-kinds.ts                        icon and colours of each kind of step
+        Segmented.svelte, SearchField.svelte the segmented control and the search box of the panel
+        nodes/                               one step view and one start view per node style,
+                                             node-appearances.ts (registry), node-geometry.ts
         side-panel/                          palette (nothing selected) / inspector (selection)
         QuickAddMenu/                        the step picker of a dropped link
     dashboard/                               Dashboard, chart, table, pipeline table columns
   utils/
     blueprint-converter.ts                   Graph ↔ PipelineStep[] (pure, TS only, tested)
-    node-catalog.ts                          blank steps + templates → palette entries, search
+    node-catalog.ts                          catalog entry type, search, grouping (pure)
     step-summary.ts                          one-line preview and the issue of a step
     create-default-script.ts
-    pipeline-script.ts
+    pipeline-script.ts                       the script document, pipelineNameIssue
 ```
 
 ## Routes & nav
@@ -130,18 +137,29 @@ the page.
 - **The blueprint has one side panel, on the right.** Nothing selected: the palette (blank steps
   and templates, click to add, drag to place). One step selected: its inspector. The start node:
   the pipeline name. The panel derives its mode from `blueprint.selected`; never store it.
-- **The inspector applies each edit at once** (`blueprint.updateStep`), as long as the step can
-  still run. While it cannot (`stepIssue`: no command, empty script), it shows why and the node
-  keeps its last runnable form. A rename is applied on blur or Enter (`renameStep`), never per
-  keystroke: the panel is keyed by the step id and rebuilds on a rename.
-- **A link dropped on empty canvas opens `QuickAddMenu`** (`onconnectend`); the selected edge's
-  `+` opens it too, to insert a step (`placement.replacing`). Both go through
-  `blueprint.addNode(nodeId, definition, placement)`.
+- **The inspector applies each edit at once** (`blueprint.updateStep`), also when the step
+  cannot run yet: the inspector, the node and the document always show the same step, and
+  `stepIssue` (no command, empty script) is shown on the node and in the inspector. Never hold
+  an edit back: a held edit is lost when the panel closes. A rename is applied on blur or Enter
+  (`inspector.rename()` → `renameStep`), never per keystroke: the panel is keyed by the step id
+  and rebuilds on a rename. The inspector keeps the id that `renameStep` returns, so a refused
+  id does not stay typed.
+- **A link dropped on empty canvas opens `QuickAddMenu`** (`onconnectend`, `link: { after }`);
+  the selected edge's `+` opens it too, to insert a step (`link: { replacing }`). Both go
+  through `blueprint.addNode(nodeId, definition, placement)`. The menu is a combobox: the focus
+  stays in the search, `aria-activedescendant` names the active option, Tab closes the menu.
 - **Node styles are a registry.** `NODE_APPEARANCES` (`node-appearance.svelte.ts`) names them,
-  `nodes/node-appearances.ts` maps each to its view, label and icon. A new style is one name and
-  one view component taking `StepNodeViewProps`. The nodes read the style from the canvas context
-  (`blueprint-canvas.context.ts`), since xyflow gives a node only its own props. The label of a
-  node is part of the node element, so that xyflow measures it.
+  `nodes/node-appearances.ts` maps each to a step view (`StepNodeViewProps`), a start view
+  (`StartNodeViewProps`), an `anchor`, a label and an icon. A new style is one name, two views
+  and one entry: `StepNode` and `StartNode` only dispatch. The nodes read the style from the
+  canvas context (`blueprint-canvas.context.ts`), since xyflow gives a node only its own props.
+  The label of a node is part of the node element, so that xyflow measures it.
+- **Sizes of the nodes live in `nodes/node-geometry.ts`**: the views set their width from it,
+  the handles of a minimal node and the `anchor` (`nodePositionAt`: a dropped step lands on its
+  icon, not its corner) are computed from it. Do not write these sizes as Tailwind classes.
+- **`presentation/utils/` stays pure**: no `t()`, no import from `ui/`. What translates a
+  catalog entry (`catalogText`, `BLANK_STEPS`) is in `blueprint/catalog.ts`; the search takes a
+  `resolve` function.
 - `blueprint-converter.ts` is the single translation between the flow graph and `PipelineStep[]`. 
   Both directions live there; do not inline conversion in a component. It's pure TypeScript with 
   full test coverage.

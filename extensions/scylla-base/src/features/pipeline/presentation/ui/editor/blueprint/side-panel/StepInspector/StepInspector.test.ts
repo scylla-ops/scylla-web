@@ -17,7 +17,8 @@ const step: PipelineStep = {
 let restore: () => void;
 const handlers = {
   onChange: vi.fn(),
-  onRename: vi.fn(),
+  // The blueprint keeps the id when the new one is empty.
+  onRename: vi.fn((id: string) => id.trim() || step.id),
   onDelete: vi.fn(),
   onClose: vi.fn(),
 };
@@ -43,13 +44,15 @@ describe('StepInspector', () => {
     expect(screen.getByText('build')).toBeInTheDocument();
   });
 
-  it('applies a command at once, and says why an empty one is not applied', async () => {
+  it('applies each edit at once, and says why a step cannot run yet', async () => {
     const user = userEvent.setup();
     renderInspector();
 
-    await user.click(screen.getByRole('button', { name: 'Command' }));
+    await user.click(screen.getByRole('radio', { name: 'Command' }));
     expect(screen.getByRole('alert')).toHaveTextContent('A command is required.');
-    expect(handlers.onChange).not.toHaveBeenCalled();
+    expect(handlers.onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ kind: 'exec', command: '' }),
+    );
 
     await user.type(screen.getByLabelText('Command'), 'make');
 
@@ -63,7 +66,7 @@ describe('StepInspector', () => {
     const user = userEvent.setup();
     renderInspector();
 
-    await user.click(screen.getByRole('button', { name: 'sh' }));
+    await user.click(screen.getByRole('radio', { name: 'sh' }));
 
     expect(handlers.onChange).toHaveBeenLastCalledWith(expect.objectContaining({ shell: 'sh' }));
   });
@@ -79,14 +82,15 @@ describe('StepInspector', () => {
     expect(handlers.onRename).toHaveBeenCalledWith('unit-tests');
   });
 
-  it('does not rename to an empty id', async () => {
+  it('shows the kept id again after a refused rename', async () => {
     const user = userEvent.setup();
     renderInspector();
 
-    await user.clear(screen.getByLabelText('Step ID'));
+    const id = screen.getByLabelText('Step ID');
+    await user.clear(id);
     await user.tab();
 
-    expect(handlers.onRename).not.toHaveBeenCalled();
+    expect(id).toHaveValue('test');
   });
 
   it('deletes the step and closes the panel', async () => {

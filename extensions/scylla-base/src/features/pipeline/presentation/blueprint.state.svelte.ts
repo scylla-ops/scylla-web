@@ -4,6 +4,7 @@ import {
   NODE_WIDTH,
   START_NODE_ID,
   definitionOf,
+  depsOf,
   edgeBetween,
   flowToSteps,
   generateUniqueNodeId,
@@ -21,12 +22,10 @@ export interface BlueprintStateParams {
   onStepsChange: (steps: PipelineStep[]) => void;
 }
 
-/** Where a new step goes. `after` links it from a node; `replacing` splits an edge around it. */
-export interface StepPlacement {
-  position?: XYPosition;
-  after?: string;
-  replacing?: string;
-}
+/** How a new step joins the graph: after a node (by default the start node), or inside an edge. */
+export type StepLink = { after?: string } | { replacing: string };
+
+export type StepPlacement = StepLink & { position?: XYPosition };
 
 const COLUMN_GAP = 72;
 
@@ -159,21 +158,20 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
     sync: emit,
 
     /** The ids of the steps this one waits for: the inspector lists them. */
-    dependenciesOf: (id: string) =>
-      edges
-        .filter(edge => edge.target === id && edge.source !== START_NODE_ID)
-        .map(edge => edge.source),
+    dependenciesOf: (id: string) => depsOf(edges, id),
 
     /** Adds the step, selected so that the inspector opens on it. Returns its final id. */
     addNode(nodeId: string, value: StepDefinition, placement: StepPlacement = {}): string {
       const id = generateUniqueNodeId(nodeId.trim() || 'step', idsOf());
-      const replaced = edges.find(edge => edge.id === placement.replacing);
-      const source = replaced?.source ?? placement.after ?? START_NODE_ID;
+      const replaced =
+        'replacing' in placement ? edges.find(edge => edge.id === placement.replacing) : undefined;
+      const after = 'after' in placement ? placement.after : undefined;
+      const source = replaced?.source ?? after ?? START_NODE_ID;
 
       const node: BlueprintStepNode = {
         id,
         type: 'pipelineStep',
-        position: placement.position ?? positionAfter(replaced?.source ?? placement.after),
+        position: placement.position ?? positionAfter(replaced?.source ?? after),
         selected: true,
         data: { step: { id, deps: [], ...value } },
       };

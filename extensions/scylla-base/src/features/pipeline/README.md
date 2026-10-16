@@ -57,16 +57,17 @@ sidebar.
 - Dropping a link on empty canvas opens a small menu to pick the next step right there; the `+`
   of a selected edge inserts a step in it.
 - The inspector applies every edit to the draft at once — there is no Save in the panel; the
-  header's Save still saves the pipeline. A step that cannot run (no command, empty script) is
-  not applied: the inspector and the node both say why.
+  header's Save still saves the pipeline. A step that cannot run yet (no command, empty script)
+  is applied too, and the inspector and the node both say why: holding the edit back would show
+  one step in the panel and another on the canvas, and lose the edit when the panel closes.
 
 ### Node styles
 
 The viewer picks how steps look: **detailed** (a card: icon, id, what it runs, folder,
 variables) or **simplified** (a flat square with the kind's icon, the id under it). The choice is
 a per-browser convenience, kept in `localStorage`. Styles are a registry
-(`nodes/node-appearances.ts`), so a new one is a view component and one entry — the canvas, the
-switch and the layout do not change.
+(`nodes/node-appearances.ts`), so a new one is a view of a step, a view of the start node and
+one entry — the canvas, the switch and the layout do not change.
 
 The script side is CodeMirror 6, mounted with the `renderCodeMirror` attachment of `@scylla/ui`. `pipeline-script.state.svelte.ts` holds `script` and `initialScript`: the draft text
 and the baseline for the dirty check. That is UI state hosted in a ViewModel, and it stays there

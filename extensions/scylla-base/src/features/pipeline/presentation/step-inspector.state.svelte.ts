@@ -27,16 +27,19 @@ const entryFrom = (row: EnvRow): EnvEntry =>
 export interface StepInspectorParams {
   /** Read once: the inspector is rebuilt for each step it opens on. */
   step: PipelineStep;
-  /** Called after each edit that leaves a step able to run. */
+  /** Called after each edit. */
   onChange: (value: StepDefinition) => void;
+  /** Returns the id the step really got: a taken id gets a suffix, an empty one is refused. */
+  onRename: (id: string) => string;
 }
 
 /**
- * The draft of the selected step. Every edit is applied to the pipeline at once, as long
- * as the step can still run; while it cannot, `issue` says why and the node keeps its last
- * runnable form.
+ * The draft of the selected step. Every edit is applied to the pipeline at once, so the
+ * inspector, the node and the document always show the same step; `issue` says why it
+ * cannot run yet. The id is applied on `rename()` only: a new id rebuilds the inspector.
  */
-export const createStepInspector = ({ step, onChange }: StepInspectorParams) => {
+export const createStepInspector = ({ step, onChange, onRename }: StepInspectorParams) => {
+  let id = $state(step.id);
   let mode = $state<PipelineStep['kind']>(step.kind);
   let script = $state(step.kind === 'script' ? step.script : '');
   let shell = $state<Shell>(step.kind === 'script' ? step.shell : 'bash');
@@ -60,9 +63,7 @@ export const createStepInspector = ({ step, onChange }: StepInspectorParams) => 
 
   const issue = $derived(stepIssue(value));
 
-  const commit = () => {
-    if (!issue) onChange(value);
-  };
+  const commit = () => onChange(value);
 
   return {
     get value() {
@@ -70,6 +71,16 @@ export const createStepInspector = ({ step, onChange }: StepInspectorParams) => 
     },
     get issue() {
       return issue;
+    },
+
+    get id() {
+      return id;
+    },
+    set id(next: string) {
+      id = next;
+    },
+    rename() {
+      id = onRename(id);
     },
 
     get mode() {

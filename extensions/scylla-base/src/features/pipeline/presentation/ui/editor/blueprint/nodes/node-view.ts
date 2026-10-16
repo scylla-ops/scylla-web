@@ -1,6 +1,8 @@
 import type { MessageDescriptor } from '@lingui/core';
+import type { LucideIcon } from '@scylla/ui';
+import { t } from '@scylla/ui/i18n';
+import { cn } from '@scylla/ui/utils';
 import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import { definitionOf } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
 import {
   envCounts,
   stepIssue,
@@ -8,9 +10,14 @@ import {
   type StepIssue,
 } from '@base/features/pipeline/presentation/utils/step-summary.ts';
 import { blueprintMessages } from '../blueprint.messages.ts';
+import { KIND_TONES, stepIcon } from '../step-kinds.ts';
 
 /** What every node appearance renders: computed once, so the views only lay it out. */
 export interface StepSummary {
+  icon: LucideIcon;
+  tone: (typeof KIND_TONES)[PipelineStep['kind']];
+  /** `bash` and `sh` are names, not words: only `command` is translated. */
+  kind: string;
   preview: string;
   issue: StepIssue | null;
   variables: number;
@@ -24,42 +31,26 @@ export interface StepNodeViewProps {
   summary: StepSummary;
 }
 
-export const summarize = (step: PipelineStep): StepSummary => {
-  const definition = definitionOf(step);
-  return {
-    preview: stepPreview(definition),
-    issue: stepIssue(definition),
-    ...envCounts(definition),
-    workingDir: step.workingDir,
-  };
-};
+export interface StartNodeViewProps {
+  name: string;
+  selected: boolean;
+}
 
-/** The kind is told by colour and icon together, never by colour alone. */
-export const KIND_TONES: Record<
-  PipelineStep['kind'],
-  { text: string; tile: string; border: string; ring: string; handle: string }
-> = {
-  script: {
-    text: 'text-primary',
-    tile: 'bg-primary/12',
-    border: 'border-primary',
-    ring: 'ring-primary/20',
-    handle: 'border-primary!',
-  },
-  exec: {
-    text: 'text-chart-2',
-    tile: 'bg-chart-2/12',
-    border: 'border-chart-2',
-    ring: 'ring-chart-2/25',
-    handle: 'border-chart-2!',
-  },
-};
+/** Reads `t()`: called in a `$derived`, it follows a locale switch. */
+export const summarize = (step: PipelineStep): StepSummary => ({
+  icon: stepIcon(step.kind),
+  tone: KIND_TONES[step.kind],
+  kind: step.kind === 'script' ? step.shell : t(blueprintMessages.kindCommand),
+  preview: stepPreview(step),
+  issue: stepIssue(step),
+  ...envCounts(step),
+  workingDir: step.workingDir,
+});
+
+export const handleClass = (summary: StepSummary, selected: boolean) =>
+  cn('size-2.5! border-[1.5px]! bg-card!', selected ? summary.tone.handle : 'border-input!');
 
 export const ISSUE_MESSAGES: Record<StepIssue, MessageDescriptor> = {
   'missing-command': blueprintMessages.missingCommand,
   'empty-script': blueprintMessages.emptyScript,
 };
-
-/** `bash` and `sh` are names, not words: only `command` is translated. */
-export const kindLabel = (step: PipelineStep): string | MessageDescriptor =>
-  step.kind === 'script' ? step.shell : blueprintMessages.kindCommand;

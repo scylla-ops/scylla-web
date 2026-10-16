@@ -6,39 +6,39 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { blueprintMessages } from '../blueprint.messages.ts';
-  import { stepIcon } from '../step-icons.ts';
-  import { ISSUE_MESSAGES, KIND_TONES, kindLabel, type StepNodeViewProps } from './node-view.ts';
+  import { DETAILED_NODE } from './node-geometry.ts';
+  import { ISSUE_MESSAGES, handleClass, type StepNodeViewProps } from './node-view.ts';
 
   let { step, selected, summary }: StepNodeViewProps = $props();
 
-  const Icon = $derived(stepIcon(step.kind));
-  const tone = $derived(KIND_TONES[step.kind]);
-  const kind = $derived(kindLabel(step));
-  const handleClass = $derived(
-    cn('size-2.5! border-[1.5px]! bg-card!', selected ? tone.handle : 'border-input!'),
-  );
+  const handle = $derived(handleClass(summary, selected));
 </script>
 
 <!-- A card: the icon of the kind on the left, the id on the right, what it runs below. -->
 <div
   class={cn(
-    'w-55 rounded-[10px] border bg-card p-3 shadow-xs transition-[border-color,box-shadow] duration-150',
+    'rounded-[10px] border bg-card p-3 shadow-xs transition-[border-color,box-shadow] duration-150',
     summary.issue && 'border-destructive',
-    !summary.issue && selected && cn(tone.border, 'ring-[3px]', tone.ring),
+    !summary.issue && selected && cn(summary.tone.border, 'ring-[3px]', summary.tone.ring),
     !summary.issue && !selected && 'hover:border-input',
   )}
+  style="width: {DETAILED_NODE.width}px;"
 >
-  <Handle type="target" position={Position.Left} class={handleClass} />
+  <Handle type="target" position={Position.Left} class={handle} />
 
   <div class="flex items-center gap-2.5">
     <span
-      class={cn('flex size-7 shrink-0 items-center justify-center rounded-lg', tone.tile, tone.text)}
+      class={cn(
+        'flex size-7 shrink-0 items-center justify-center rounded-lg',
+        summary.tone.tile,
+        summary.tone.text,
+      )}
     >
-      <Icon class="size-4" />
+      <summary.icon class="size-4" />
     </span>
     <div class="min-w-0 flex-1">
       <p class="truncate text-[13px] leading-tight font-semibold">{step.id}</p>
-      <p class="text-[11px] text-muted-foreground">{typeof kind === 'string' ? kind : t(kind)}</p>
+      <p class="text-[11px] text-muted-foreground">{summary.kind}</p>
     </div>
   </div>
 
@@ -73,5 +73,5 @@
     </div>
   {/if}
 
-  <Handle type="source" position={Position.Right} class={handleClass} />
+  <Handle type="source" position={Position.Right} class={handle} />
 </div>

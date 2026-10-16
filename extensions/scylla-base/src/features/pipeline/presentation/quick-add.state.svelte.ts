@@ -1,5 +1,11 @@
 import type { XYPosition } from '@xyflow/svelte';
-import { searchCatalog, type CatalogEntry, type CatalogText } from './utils/node-catalog.ts';
+import type { StepLink } from './blueprint.state.svelte.ts';
+import {
+  groupCatalog,
+  searchCatalog,
+  type CatalogEntry,
+  type CatalogText,
+} from './utils/node-catalog.ts';
 
 /** Where the menu opened, and where the step it picks goes. */
 export interface QuickAddRequest {
@@ -7,10 +13,7 @@ export interface QuickAddRequest {
   client: XYPosition;
   /** On the canvas: places the new step. */
   flow: XYPosition;
-  /** The node the dropped link came from. */
-  after?: string;
-  /** The edge the step is inserted into. */
-  replacing?: string;
+  link: StepLink;
 }
 
 export interface QuickAddParams {
@@ -19,13 +22,29 @@ export interface QuickAddParams {
   onPick: (entry: CatalogEntry, request: QuickAddRequest) => void;
 }
 
+export const MENU_SIZE = { width: 300, height: 400 } as const;
+const MARGIN = 8;
+/** The menu opens a little above the point, so that the search sits next to it. */
+const LIFT = 24;
+
+/** The corner of the menu: next to the point, but kept inside the window. */
+export const menuPosition = (
+  client: XYPosition,
+  viewport: { width: number; height: number },
+): XYPosition => ({
+  x: Math.max(MARGIN, Math.min(client.x + MARGIN, viewport.width - MENU_SIZE.width - MARGIN)),
+  y: Math.max(MARGIN, Math.min(client.y - LIFT, viewport.height - MENU_SIZE.height - MARGIN)),
+});
+
 /** The menu that picks a step where a link was dropped, driven from the keyboard or the mouse. */
 export const createQuickAdd = (params: QuickAddParams) => {
   let request = $state<QuickAddRequest | null>(null);
   let query = $state('');
   let active = $state(0);
 
-  const results = $derived(searchCatalog(params.entries(), query, params.resolve));
+  const groups = $derived(groupCatalog(searchCatalog(params.entries(), query, params.resolve)));
+  // In the order the groups show them, so that the arrows follow the screen.
+  const results = $derived(groups.flatMap(group => group.items));
 
   return {
     get request() {
@@ -37,6 +56,9 @@ export const createQuickAdd = (params: QuickAddParams) => {
     set query(next: string) {
       query = next;
       active = 0;
+    },
+    get groups() {
+      return groups;
     },
     get results() {
       return results;

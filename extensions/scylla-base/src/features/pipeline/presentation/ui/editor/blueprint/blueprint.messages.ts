@@ -15,6 +15,7 @@ export const blueprintMessages = {
   command: msg`Command`,
   commandDetail: msg`One program and its arguments`,
   kindCommand: msg`command`,
+  stepKind: msg`Step kind`,
 
   addStep: msg`Add a step`,
   addAfter: (id: string) => msg`Add a step after ${id}`,

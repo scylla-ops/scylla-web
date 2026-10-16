@@ -1,11 +1,8 @@
 <script lang="ts">
   import { cn } from '@scylla/ui/utils';
-  import {
-    catalogText,
-    type CatalogEntry,
-  } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
-  import { KIND_TONES } from './nodes/node-view.ts';
-  import { stepIcon } from './step-icons.ts';
+  import type { CatalogEntry } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
+  import { catalogText } from './catalog.ts';
+  import { KIND_TONES, stepIcon } from './step-kinds.ts';
 
   interface Props {
     entry: CatalogEntry;

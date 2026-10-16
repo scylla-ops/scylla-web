@@ -1,51 +1,59 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
-import { BLANK_STEPS, catalogEntries, catalogText, searchCatalog } from '../node-catalog.ts';
+import {
+  groupCatalog,
+  searchCatalog,
+  type CatalogEntry,
+  type CatalogText,
+} from '../node-catalog.ts';
 
-const template: StepTemplate = {
-  id: 'npm-ci',
-  name: 'npm ci',
-  nodeId: 'install-deps',
-  icon: 'package',
-  definition: { kind: 'script', shell: 'bash', script: '#!/bin/bash\nnpm ci', env: [] },
-};
-
-describe('catalogEntries', () => {
-  it('lists the blank steps first, then the templates', () => {
-    const entries = catalogEntries([template]);
-
-    expect(entries.slice(0, BLANK_STEPS.length)).toEqual(BLANK_STEPS);
-    expect(entries.at(-1)).toMatchObject({
-      id: 'template:npm-ci',
-      group: 'templates',
-      name: 'npm ci',
-      detail: 'npm ci',
-      icon: 'package',
-      nodeId: 'install-deps',
-    });
-  });
+const entry = (
+  id: string,
+  group: CatalogEntry['group'],
+  name: string,
+  detail = '',
+): CatalogEntry => ({
+  id,
+  group,
+  name,
+  detail,
+  nodeId: id,
+  definition: { kind: 'exec', command: 'x', args: [], env: [] },
 });
 
+const entries = [
+  entry('npm-ci', 'templates', 'npm ci', 'npm ci'),
+  entry('bash', 'steps', 'Bash script'),
+  entry('docker', 'templates', 'docker build', 'docker build -t app .'),
+];
+const resolve = (text: CatalogText) => (typeof text === 'string' ? text : (text.message ?? ''));
+
 describe('searchCatalog', () => {
-  const entries = catalogEntries([template]);
-
   it('keeps every entry for an empty search', () => {
-    expect(searchCatalog(entries, '  ', catalogText)).toHaveLength(entries.length);
+    expect(searchCatalog(entries, '  ', resolve)).toHaveLength(entries.length);
   });
 
-  it('matches the translated name, whatever the case', () => {
-    expect(searchCatalog(entries, 'BASH', catalogText).map(entry => entry.id)).toEqual([
-      'kind:bash',
-    ]);
-  });
-
-  it('matches what a template runs', () => {
-    expect(searchCatalog(entries, 'npm', catalogText).map(entry => entry.id)).toEqual([
-      'template:npm-ci',
-    ]);
+  it('matches the name or the detail, whatever the case', () => {
+    expect(searchCatalog(entries, 'BASH', resolve).map(item => item.id)).toEqual(['bash']);
+    expect(searchCatalog(entries, '-t app', resolve).map(item => item.id)).toEqual(['docker']);
   });
 
   it('finds nothing for an unknown word', () => {
-    expect(searchCatalog(entries, 'kubectl', catalogText)).toEqual([]);
+    expect(searchCatalog(entries, 'kubectl', resolve)).toEqual([]);
+  });
+});
+
+describe('groupCatalog', () => {
+  it('puts the blank steps before the templates, whatever the order of the entries', () => {
+    expect(
+      groupCatalog(entries).map(({ group, items }) => [group, items.map(item => item.id)]),
+    ).toEqual([
+      ['steps', ['bash']],
+      ['templates', ['npm-ci', 'docker']],
+    ]);
+  });
+
+  it('leaves out an empty group', () => {
+    expect(groupCatalog([entries[0]]).map(({ group }) => group)).toEqual(['templates']);
   });
 });

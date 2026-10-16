@@ -5,7 +5,7 @@ import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-t
 import {
   CATALOG_DRAG_TYPE,
   catalogEntries,
-} from '@base/features/pipeline/presentation/utils/node-catalog.ts';
+} from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog.ts';
 import NodePalette from './NodePalette.svelte';
 
 const template: StepTemplate = {

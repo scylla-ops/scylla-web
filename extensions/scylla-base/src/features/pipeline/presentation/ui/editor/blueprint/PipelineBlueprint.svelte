@@ -6,12 +6,9 @@
   import { createNodeAppearance } from '@base/features/pipeline/presentation/node-appearance.svelte.ts';
   import { stepTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import { createQuickAdd } from '@base/features/pipeline/presentation/quick-add.state.svelte.ts';
-  import { nodePositionAt } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
-  import {
-    catalogEntries,
-    catalogText,
-  } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
   import BlueprintCanvas from './BlueprintCanvas.svelte';
+  import { catalogEntries, catalogText } from './catalog.ts';
+  import { nodePositionAt } from './nodes/node-appearances.ts';
   import BlueprintSidePanel from './side-panel/BlueprintSidePanel.svelte';
 
   interface Props {
@@ -41,9 +38,8 @@
     resolve: catalogText,
     onPick: (entry, request) =>
       blueprint.addNode(entry.nodeId, entry.definition, {
-        position: nodePositionAt(request.flow),
-        after: request.after,
-        replacing: request.replacing,
+        ...request.link,
+        position: nodePositionAt(appearance.current, request.flow),
       }),
   });
 </script>

@@ -15,18 +15,14 @@
   import type { BlueprintState } from '@base/features/pipeline/presentation/blueprint.state.svelte.ts';
   import type { NodeAppearancePreference } from '@base/features/pipeline/presentation/node-appearance.svelte.ts';
   import type { QuickAdd } from '@base/features/pipeline/presentation/quick-add.state.svelte.ts';
-  import {
-    DEFAULT_EDGE_STYLE,
-    nodePositionAt,
-  } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
-  import {
-    CATALOG_DRAG_TYPE,
-    type CatalogEntry,
-  } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
+  import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import type { CatalogEntry } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
   import { setBlueprintCanvas } from './blueprint-canvas.context.ts';
   import CanvasToolbar from './CanvasToolbar.svelte';
+  import { CATALOG_DRAG_TYPE } from './catalog.ts';
   import DeletableEdge from './DeletableEdge.svelte';
+  import { nodePositionAt } from './nodes/node-appearances.ts';
   import StartNode from './nodes/StartNode.svelte';
   import StepNode from './nodes/StepNode.svelte';
   import QuickAddMenu from './QuickAddMenu/QuickAddMenu.svelte';
@@ -47,7 +43,7 @@
 
   setBlueprintCanvas({
     appearance: () => appearance.current,
-    insertOnEdge: (edgeId, at) => quickAdd.open({ ...at, replacing: edgeId }),
+    insertOnEdge: (edgeId, at) => quickAdd.open({ ...at, link: { replacing: edgeId } }),
   });
 
   const clientPoint = (event: MouseEvent | TouchEvent): XYPosition => {
@@ -58,11 +54,11 @@
   /** A link dropped on empty canvas asks which step to create there. */
   const onConnectEnd: OnConnectEnd = (event, connection) => {
     const from = connection.fromNode;
-    if (!from || connection.isValid || connection.toNode || connection.fromHandle?.type !== 'source') {
-      return;
-    }
+    const droppedOnEmpty = !connection.isValid && !connection.toNode;
+    if (!from || !droppedOnEmpty || connection.fromHandle?.type !== 'source') return;
+
     const client = clientPoint(event);
-    quickAdd.open({ client, flow: screenToFlowPosition(client), after: from.id });
+    quickAdd.open({ client, flow: screenToFlowPosition(client), link: { after: from.id } });
   };
 
   const onDrop = (event: DragEvent) => {
@@ -70,7 +66,7 @@
     if (!entry) return;
     event.preventDefault();
     blueprint.addNode(entry.nodeId, entry.definition, {
-      position: nodePositionAt(screenToFlowPosition(clientPoint(event))),
+      position: nodePositionAt(appearance.current, screenToFlowPosition(clientPoint(event))),
     });
   };
 </script>
@@ -103,7 +99,10 @@
     ondelete={() => blueprint.sync()}
   >
     <Background variant={BackgroundVariant.Dots} gap={16} size={1} class="bg-background!" />
-    <Controls showLock={false} class="overflow-hidden rounded-[10px]! border! border-border! shadow-xs!" />
+    <Controls
+      showLock={false}
+      class="overflow-hidden rounded-[10px]! border! border-border! shadow-xs!"
+    />
     <CanvasToolbar
       appearance={appearance.current}
       onAppearanceChange={next => appearance.set(next)}

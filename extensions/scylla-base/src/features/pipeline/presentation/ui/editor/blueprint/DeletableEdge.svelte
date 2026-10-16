@@ -10,6 +10,7 @@
   } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { EDGE_COLOR } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
   import { getBlueprintCanvas } from './blueprint-canvas.context.ts';
   import { blueprintMessages } from './blueprint.messages.ts';
 
@@ -47,7 +48,7 @@
   path={path[0]}
   {markerEnd}
   interactionWidth={24}
-  style="stroke: {selected ? 'var(--primary)' : 'var(--input)'}; stroke-width: {selected
+  style="stroke: {selected ? 'var(--primary)' : EDGE_COLOR}; stroke-width: {selected
     ? 2
     : 1.5}; stroke-linecap: round;"
 />

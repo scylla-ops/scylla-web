@@ -1,4 +1,4 @@
-import type { Edge, Node, XYPosition } from '@xyflow/svelte';
+import type { Edge, Node } from '@xyflow/svelte';
 import type {
   PipelineStep,
   StepDefinition,
@@ -19,13 +19,10 @@ export const EDGE_COLOR = 'var(--input)';
 
 /** The layout cell: wide enough for the widest node appearance. */
 export const NODE_WIDTH = 220;
-export const NODE_HEIGHT = 112;
+const NODE_HEIGHT = 112;
 const HORIZONTAL_GAP = 72;
 const VERTICAL_GAP = 40;
 const START_NODE_OFFSET = NODE_WIDTH + HORIZONTAL_GAP;
-
-/** A dropped or picked step lands centred on the point, not by its corner. */
-export const nodePositionAt = ({ x, y }: XYPosition): XYPosition => ({ x: x - 70, y: y - 32 });
 
 export const DEFAULT_EDGE_STYLE = {
   type: 'deletable',
@@ -165,16 +162,18 @@ export const definitionOf = (step: PipelineStep): StepDefinition => {
     : { ...base, kind: 'exec', command: step.command, args: step.args };
 };
 
+/** The ids of the steps a node waits for: the start node is not a step. */
+export const depsOf = (edges: BlueprintEdge[], id: string): string[] =>
+  edges
+    .filter(edge => edge.target === id && edge.source !== START_NODE_ID)
+    .map(edge => edge.source);
+
 export function flowToSteps(nodes: BlueprintNode[], edges: BlueprintEdge[]): PipelineStep[] {
   return nodes.flatMap(node => {
     const step = stepOf(node);
     if (!step) return [];
 
-    const deps = edges
-      .filter(edge => edge.target === node.id && edge.source !== START_NODE_ID)
-      .map(edge => edge.source);
-
-    return [{ id: step.id, deps, ...definitionOf(step) }];
+    return [{ id: step.id, deps: depsOf(edges, node.id), ...definitionOf(step) }];
   });
 }
 

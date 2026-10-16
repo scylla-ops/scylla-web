@@ -15,10 +15,11 @@ const scriptStep: PipelineStep = {
 const withInspector = (
   step: PipelineStep,
   run: (inspector: StepInspector, onChange: ReturnType<typeof vi.fn>) => void,
+  onRename: (id: string) => string = id => id,
 ) => {
   const onChange = vi.fn();
   const cleanup = $effect.root(() => {
-    const inspector = createStepInspector({ step, onChange });
+    const inspector = createStepInspector({ step, onChange, onRename });
     flushSync();
     run(inspector, onChange);
   });
@@ -39,7 +40,7 @@ describe('createStepInspector', () => {
     });
   });
 
-  it('applies each edit that leaves the step runnable', () => {
+  it('applies each edit at once', () => {
     withInspector(scriptStep, (inspector, onChange) => {
       inspector.script = 'npm test -- --coverage';
       inspector.workingDir = '  ./web ';
@@ -50,12 +51,14 @@ describe('createStepInspector', () => {
     });
   });
 
-  it('holds back an edit that leaves the step unable to run, and says why', () => {
+  it('applies an edit that leaves the step unable to run too, and says why', () => {
     withInspector(scriptStep, (inspector, onChange) => {
       inspector.mode = 'exec';
 
       expect(inspector.issue).toBe('missing-command');
-      expect(onChange).not.toHaveBeenCalled();
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({ kind: 'exec', command: '' }),
+      );
 
       inspector.command = ' cargo ';
       expect(inspector.issue).toBeNull();
@@ -115,6 +118,23 @@ describe('createStepInspector', () => {
           expect.objectContaining({ args: ['b'], env: [] }),
         );
       },
+    );
+  });
+
+  it('keeps the id the pipeline gave on a rename, so a refused id does not stay typed', () => {
+    const onRename = vi.fn((id: string) => (id.trim() ? `${id.trim()}_1` : 'test'));
+    withInspector(
+      scriptStep,
+      inspector => {
+        inspector.id = ' lint ';
+        inspector.rename();
+        expect(inspector.id).toBe('lint_1');
+
+        inspector.id = '  ';
+        inspector.rename();
+        expect(inspector.id).toBe('test');
+      },
+      onRename,
     );
   });
 });
