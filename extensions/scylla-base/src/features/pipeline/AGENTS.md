@@ -84,6 +84,7 @@ presentation/
       blueprint/                             the canvas, its nodes, its edge, the side panel
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected step, add/insert/rename
         node-appearance.svelte.ts            the viewer's node style, remembered in localStorage
+        drop-spot.state.svelte.ts, DropSpot.svelte   the outline of where a dragged palette entry lands
         catalog.ts                           blank steps, template entries, catalogText (translates)
         step-kinds.ts                        icon and colours of each kind of step
         Segmented.svelte, SearchField.svelte the segmented control and the search box of the panel
@@ -151,6 +152,11 @@ the page.
   its selection, and only a new one is laid out. The document must also read back what it
   writes (`stepsOf(withSteps(steps))` equals `steps`, with an empty `workingDir` read as none):
   else each edit is taken for an outside change.
+- **A palette entry dragged over the canvas outlines where it lands.** The drag is the browser's
+  (`CATALOG_DRAG_TYPE`); `createDropSpot` follows it over the canvas (a count of `dragenter` /
+  `dragleave`, which also fire on each child), and `DropSpot` draws the `footprint` of the
+  current node style (`nodes/node-geometry.ts`) in a `ViewportPortal`, so it follows the zoom.
+  The outline is at the position that the drop gives the node (`nodePositionAt`).
 - **A step id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
   protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`utils/step-summary.ts`)
   is that rule; keep both the same. A refused id is shown on the node, in the inspector while it

@@ -22,7 +22,9 @@
   import CanvasToolbar from './CanvasToolbar.svelte';
   import { CATALOG_DRAG_TYPE } from './catalog.ts';
   import DeletableEdge from './DeletableEdge.svelte';
-  import { nodePositionAt } from './nodes/node-appearances.ts';
+  import { createDropSpot } from './drop-spot.state.svelte.ts';
+  import DropSpot from './DropSpot.svelte';
+  import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.ts';
   import StartNode from './nodes/StartNode.svelte';
   import StepNode from './nodes/StepNode.svelte';
   import QuickAddMenu from './QuickAddMenu/QuickAddMenu.svelte';
@@ -62,13 +64,28 @@
     quickAdd.open({ client, flow: screenToFlowPosition(client), link: { after: from.id } });
   };
 
+  const dropSpot = createDropSpot();
+
+  /** Where a step dropped at this point of the screen lands in the graph. */
+  const dropPositionOf = (event: DragEvent) =>
+    nodePositionAt(appearance.current, screenToFlowPosition(clientPoint(event)));
+
+  const isCatalogDrag = (event: DragEvent) =>
+    event.dataTransfer?.types.includes(CATALOG_DRAG_TYPE) ?? false;
+
+  const onDragOver = (event: DragEvent) => {
+    if (!event.dataTransfer || !isCatalogDrag(event)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    dropSpot.move(dropPositionOf(event));
+  };
+
   const onDrop = (event: DragEvent) => {
+    dropSpot.clear();
     const entry = entries.find(item => item.id === event.dataTransfer?.getData(CATALOG_DRAG_TYPE));
     if (!entry) return;
     event.preventDefault();
-    blueprint.addNode(entry.nodeId, entry.definition, {
-      position: nodePositionAt(appearance.current, screenToFlowPosition(clientPoint(event))),
-    });
+    blueprint.addNode(entry.nodeId, entry.definition, { position: dropPositionOf(event) });
   };
 </script>
 
@@ -76,11 +93,9 @@
   role="application"
   aria-label={t(pipelineMessages.blueprint)}
   class="relative h-full min-w-0 flex-1"
-  ondragover={event => {
-    if (!event.dataTransfer?.types.includes(CATALOG_DRAG_TYPE)) return;
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'copy';
-  }}
+  ondragenter={event => isCatalogDrag(event) && dropSpot.enter()}
+  ondragover={onDragOver}
+  ondragleave={event => isCatalogDrag(event) && dropSpot.leave()}
   ondrop={onDrop}
 >
   <!--
@@ -115,6 +130,12 @@
       onAppearanceChange={next => appearance.set(next)}
       onArrange={() => blueprint.arrange()}
     />
+    {#if dropSpot.position}
+      <DropSpot
+        position={dropSpot.position}
+        footprint={NODE_APPEARANCE_VIEWS[appearance.current].footprint}
+      />
+    {/if}
   </SvelteFlow>
 
   <QuickAddMenu {quickAdd} />
