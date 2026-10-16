@@ -4,6 +4,7 @@
   import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
   import { renderCodeMirror } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { toast } from '@scylla/ui/utils';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import {
     createPipelineScript,
@@ -52,6 +53,11 @@
 
   const handleSubmit = () => {
     if (!doc.isValid) return;
+    // Said here, before the server answers with a generic refusal.
+    if (doc.invalidStepIds.length) {
+      toast.error(t(pipelineMessages.invalidStepIds(doc.invalidStepIds.join(', '))));
+      return;
+    }
     onSubmit({ name: doc.pipelineName, steps: doc.steps });
   };
 </script>

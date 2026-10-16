@@ -1,5 +1,6 @@
 import type { PipelineStep } from '../domain/structs/pipeline.struct.ts';
 import { nameOf, parseScript, stepsOf, withName, withSteps } from './utils/pipeline-script.ts';
+import { nodeIdIssue } from './utils/step-summary.ts';
 
 export interface PipelineScriptParams {
   projectId: () => string;
@@ -27,6 +28,8 @@ export const createPipelineScript = (params: PipelineScriptParams) => {
   const pipelineName = $derived(nameOf(parsed.document));
   const isValid = $derived(parsed.document !== null && parsed.error === null);
   const isDirty = $derived(script !== baseline);
+  /** The server refuses the whole pipeline for one of these. */
+  const invalidStepIds = $derived(steps.filter(step => nodeIdIssue(step.id)).map(step => step.id));
 
   // The browser's "leave site?" prompt, for a reload or a closed tab.
   $effect(() => {
@@ -60,6 +63,9 @@ export const createPipelineScript = (params: PipelineScriptParams) => {
     },
     get isDirty() {
       return isDirty;
+    },
+    get invalidStepIds() {
+      return invalidStepIds;
     },
 
     setScript(next: string) {

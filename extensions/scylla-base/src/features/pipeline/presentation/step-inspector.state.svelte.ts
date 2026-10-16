@@ -4,7 +4,7 @@ import type {
   Shell,
   StepDefinition,
 } from '../domain/structs/pipeline.struct.ts';
-import { stepIssue } from './utils/step-summary.ts';
+import { nodeIdIssue, stepIssue, toNodeId } from './utils/step-summary.ts';
 
 /** Keeps both a literal and a secret reference, so switching the kind loses nothing typed. */
 export interface EnvRow {
@@ -62,6 +62,8 @@ export const createStepInspector = ({ step, onChange, onRename }: StepInspectorP
   });
 
   const issue = $derived(stepIssue(value));
+  // Checked as typed, before the rename applies it: the field says it at once.
+  const idIssue = $derived(nodeIdIssue(id));
 
   const commit = () => onChange(value);
 
@@ -78,6 +80,13 @@ export const createStepInspector = ({ step, onChange, onRename }: StepInspectorP
     },
     set id(next: string) {
       id = next;
+    },
+    get idIssue() {
+      return idIssue;
+    },
+    /** The nearest id the server accepts, while the typed one has an issue. */
+    get suggestedId() {
+      return idIssue ? toNodeId(id) : null;
     },
     rename() {
       id = onRename(id);

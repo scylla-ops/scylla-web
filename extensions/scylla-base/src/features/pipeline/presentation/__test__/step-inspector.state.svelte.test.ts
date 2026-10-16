@@ -137,4 +137,17 @@ describe('createStepInspector', () => {
       onRename,
     );
   });
+
+  it('checks the id as it is typed, and suggests the nearest valid one', () => {
+    withInspector(scriptStep, inspector => {
+      expect(inspector.idIssue).toBeNull();
+      expect(inspector.suggestedId).toBeNull();
+
+      inspector.id = 'Run Tests';
+      flushSync();
+
+      expect(inspector.idIssue).toEqual({ kind: 'invalid-characters', characters: ['R', ' ', 'T'] });
+      expect(inspector.suggestedId).toBe('run-tests');
+    });
+  });
 });
