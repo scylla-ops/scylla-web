@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
   import {
     BaseEdge,
@@ -8,10 +9,10 @@
     type EdgeProps,
   } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
-  import { EDGE_COLOR } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
-
-  const SELECTED_COLOR = 'oklch(70% 0.3 30)';
+  import { EDGE_COLOR } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import { getBlueprintCanvas } from './blueprint-canvas.context.ts';
+  import { blueprintMessages } from './blueprint.messages.ts';
 
   let {
     id,
@@ -26,37 +27,60 @@
   }: EdgeProps = $props();
 
   const { deleteElements } = useSvelteFlow();
+  const canvas = getBlueprintCanvas();
 
   const path = $derived(
-    getSmoothStepPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition }),
+    getSmoothStepPath({
+      sourceX,
+      sourceY,
+      targetX,
+      targetY,
+      sourcePosition,
+      targetPosition,
+      borderRadius: 14,
+    }),
   );
-  const color = $derived(selected ? SELECTED_COLOR : EDGE_COLOR);
 </script>
 
-<!-- A dependency, with a delete button once selected. -->
+<!-- A dependency. Once selected, it offers to insert a step in its middle, or to go. -->
 <BaseEdge
   {id}
   path={path[0]}
   {markerEnd}
-  style="stroke: {color}; stroke-width: {selected ? 3 : 2};{selected
-    ? ` filter: drop-shadow(0 0 4px ${SELECTED_COLOR});`
-    : ''}"
+  interactionWidth={24}
+  style="stroke: {selected ? 'var(--primary)' : EDGE_COLOR}; stroke-width: {selected
+    ? 2
+    : 1.5}; stroke-linecap: round;"
 />
 
 {#if selected}
-  <EdgeLabel x={path[1]} y={path[2]} transparent class="nodrag nopan" style="pointer-events: all; z-index: 1000;">
-    <button
-      type="button"
-      aria-label={t(pipelineMessages.deleteEdge)}
-      class="flex h-full w-full cursor-pointer items-center justify-center rounded-full border-2 border-background bg-destructive p-1 text-white shadow-lg transition-transform hover:scale-125"
-      onclick={event => {
-        event.stopPropagation();
-        event.preventDefault();
-        void deleteElements({ edges: [{ id }] });
-      }}
-      onmousedown={event => event.stopPropagation()}
-    >
-      <Trash2Icon class="h-6.5 w-6.5" />
-    </button>
+  <EdgeLabel x={path[1]} y={path[2]} transparent class="nodrag nopan" style="pointer-events: all;">
+    <div class="flex gap-0.5 rounded-full border bg-card p-0.5 shadow-sm">
+      <button
+        type="button"
+        aria-label={t(blueprintMessages.insertStep)}
+        class="flex size-6 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary-subtle"
+        onclick={event => {
+          event.stopPropagation();
+          canvas.insertOnEdge(id, {
+            flow: { x: path[1], y: path[2] },
+            client: { x: event.clientX, y: event.clientY },
+          });
+        }}
+      >
+        <PlusIcon class="size-3.5" />
+      </button>
+      <button
+        type="button"
+        aria-label={t(pipelineMessages.deleteEdge)}
+        class="flex size-6 items-center justify-center rounded-full text-destructive transition-colors hover:bg-destructive-subtle"
+        onclick={event => {
+          event.stopPropagation();
+          void deleteElements({ edges: [{ id }] });
+        }}
+      >
+        <Trash2Icon class="size-3.5" />
+      </button>
+    </div>
   </EdgeLabel>
 {/if}

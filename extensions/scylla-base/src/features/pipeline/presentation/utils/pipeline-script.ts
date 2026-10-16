@@ -55,7 +55,8 @@ const parseNode = (node: Record<string, unknown>): PipelineStep => {
   const base = {
     id: (node.id as string) ?? '',
     deps: (node.deps as string[]) ?? [],
-    workingDir: typeof node.workingDir === 'string' ? node.workingDir : undefined,
+    // Serializing writes `''` for no directory: it reads back as none, so a step round-trips.
+    workingDir: typeof node.workingDir === 'string' && node.workingDir ? node.workingDir : undefined,
     env: parseEnv(node.env),
   };
 
@@ -121,3 +122,10 @@ export const withName = (
   document: Record<string, unknown> | null,
   name: string,
 ): string | null => (document ? JSON.stringify({ ...document, name }, null, 2) : null);
+
+/** The name goes into the breadcrumb and the URLs: it is a single word. */
+export const pipelineNameIssue = (name: string): 'empty' | 'spaces' | null => {
+  const trimmed = name.trim();
+  if (!trimmed) return 'empty';
+  return /\s/.test(trimmed) ? 'spaces' : null;
+};

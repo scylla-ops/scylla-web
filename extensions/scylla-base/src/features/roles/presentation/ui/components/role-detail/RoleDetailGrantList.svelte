@@ -12,11 +12,11 @@
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
   import {
     createGrantTargetLabels,
-  } from '@base/features/roles/presentation/grant-target-labels.svelte.ts';
+  } from './grant-target-labels.svelte.ts';
   import {
     createRoleAssignees,
-  } from '@base/features/roles/presentation/role-assignees.state.svelte.ts';
-  import type { RolesPage } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
+  } from './role-assignees.state.svelte.ts';
+  import type { RolesPage } from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
   import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
   import GrantCreator from './GrantCreator.svelte';
 

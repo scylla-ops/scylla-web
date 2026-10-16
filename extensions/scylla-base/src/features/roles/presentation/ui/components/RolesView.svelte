@@ -4,7 +4,7 @@
   import {
     createRolesPage,
     type RolesScope,
-  } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
+  } from './roles-page.state.svelte.ts';
   import { rolesMessages } from '../roles.messages.ts';
   import RoleDetailPanel from './RoleDetailPanel.svelte';
   import RoleList from './RoleList.svelte';

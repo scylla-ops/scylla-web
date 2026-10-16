@@ -4,7 +4,7 @@
   import { Skeleton } from '@scylla/ui/primitives';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { createUserDetail } from '@base/features/user/presentation/user-detail.state.svelte.ts';
+  import { createUserDetail } from './user-detail.state.svelte.ts';
   import UserDetailContent from './UserDetailContent.svelte';
   import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
 

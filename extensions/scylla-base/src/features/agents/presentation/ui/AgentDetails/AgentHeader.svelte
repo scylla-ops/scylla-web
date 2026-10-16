@@ -12,7 +12,7 @@
   } from '@base/features/agents/domain/structs/agent-state.struct.ts';
   import type {
     AgentActions,
-  } from '@base/features/agents/presentation/agent-actions.state.svelte.ts';
+  } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
   import { formatDayTime } from '@base/features/agents/presentation/utils/agent-format.ts';
   import AgentActionsMenu from '../components/AgentActionsMenu.svelte';
   import AgentBot from '../components/AgentBot/AgentBot.svelte';

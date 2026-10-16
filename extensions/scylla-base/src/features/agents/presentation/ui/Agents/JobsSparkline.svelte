@@ -5,7 +5,7 @@
     successRateOf,
     sumOutcomes,
   } from '@base/features/agents/domain/structs/agents-summary.struct.ts';
-  import { fillDays } from '@base/features/agents/presentation/daily-outcomes.calculator.ts';
+  import { fillDays } from '@base/features/agents/presentation/ui/components/daily-outcomes.calculator.ts';
   import { formatPercent } from '@base/features/agents/presentation/utils/agent-format.ts';
   import { agentsPageMessages as messages } from './agents-page.messages.ts';
 

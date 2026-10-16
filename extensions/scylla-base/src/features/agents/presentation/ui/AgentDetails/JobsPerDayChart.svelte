@@ -9,7 +9,7 @@
     dateOfDay,
     fillDays,
     type DayBucket,
-  } from '@base/features/agents/presentation/daily-outcomes.calculator.ts';
+  } from '@base/features/agents/presentation/ui/components/daily-outcomes.calculator.ts';
   import { agentDetailsMessages as messages } from './agent-details.messages.ts';
 
   interface Props {

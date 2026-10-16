@@ -60,8 +60,8 @@ domain/
 infrastructure/default-marketplace.repository.ts   ← stubbed
 presentation/
   marketplace.queries.ts                    the catalog read
-  marketplace-filter.state.svelte.ts        search box state + `matchesFilter`
   ui/Marketplace.page.svelte, MarketplaceTopBar.svelte,
+  ui/marketplace-filter.state.svelte.ts     search box state + `matchesFilter`
   ui/MarketItemList/                        the list + MarketItemCard
   ui/marketplace.messages.ts
 ```

@@ -7,10 +7,10 @@
   import { activeLocale, t } from '@scylla/ui/i18n';
   import {
     createAgentActions,
-  } from '@base/features/agents/presentation/agent-actions.state.svelte.ts';
+  } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
   import {
     createAgentDetails,
-  } from '@base/features/agents/presentation/agent-details.state.svelte.ts';
+  } from './agent-details.state.svelte.ts';
   import { formatDayTime } from '@base/features/agents/presentation/utils/agent-format.ts';
   import AgentActionDialogs from '../components/AgentActionDialogs.svelte';
   import AgentRunCommand from '../components/AgentRunCommand/AgentRunCommand.svelte';

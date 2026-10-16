@@ -91,8 +91,8 @@ A component with a test has its own folder, with the same name: `LoginForm/Login
 the folder name: `Login/Login.page.svelte`.
 
 A test that does not test one component goes in the `__test__/` folder of the directory that it
-covers: `presentation/grant-creator.state.svelte.ts` →
-`presentation/__test__/grant-creator.state.svelte.test.ts`.
+covers: `presentation/ui/components/role-detail/grant-creator.state.svelte.ts` →
+`presentation/ui/components/role-detail/__test__/grant-creator.state.svelte.test.ts`.
 
 ### 1.4 Packages
 

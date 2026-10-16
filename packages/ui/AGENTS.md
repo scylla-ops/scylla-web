@@ -38,7 +38,8 @@ src/
                            CopyableText, TruncatedText
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
-  layout/                  FeatureHeader, ContextItem, PageTransition, ScyllaLoadingScreen
+  layout/                  FeatureHeader, ContextItem, PageTransition, ResizablePanel,
+                           ScyllaLoadingScreen
   motion/                  page transitions, reduced motion
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme
   icon.ts                  LucideIcon (the prop type of an icon)
@@ -76,6 +77,7 @@ catalogs of this package register themselves.
 | A store | `createStore` from `@scylla/ui/stores`; rune code reads it with `toRune(store)` |
 | Translating | `t()` from `@scylla/ui/i18n`, over a `*.messages.ts` |
 | A page transition | `PageTransition` — the core's router already wraps every page in it |
+| A side panel the user can widen | `ResizablePanel` (`bind:width`, `min`, `max`, `edge`) — a handle with the window splitter role: drag it, or focus it and use the arrow keys, Home and End |
 
 ## Forms: the app checks the values, not the browser
 

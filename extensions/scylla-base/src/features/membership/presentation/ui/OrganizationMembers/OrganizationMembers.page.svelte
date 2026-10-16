@@ -15,10 +15,10 @@
   } from '@base/features/membership/domain/structs/scope-member.struct.ts';
   import {
     createAssignableRoles,
-  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
   import {
     createScopeMembership,
-  } from '@base/features/membership/presentation/scope-membership.state.svelte.ts';
+  } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
   import {
     membershipPoints,
     type OrganizationMembersContext,

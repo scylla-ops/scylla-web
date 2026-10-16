@@ -330,10 +330,16 @@ feature/
 ├── locales/             → i18n catalogs (en/, fr/)
 └── presentation/
     ├── <feature>.queries.ts        → query-key factories, queryOptions / mutationOptions
-    ├── <view>.state.svelte.ts      → ViewModels (runes), when a view needs one
-    ├── *.attachments.ts / *.calculator.ts → attachments / pure algorithms
-    └── ui/                         → Svelte components + *.messages.ts
+    ├── <feature>.messages.ts / <feature>.points.ts → shared by all the views, when needed
+    └── ui/                         → Svelte components + *.messages.ts, and beside each
+                                      component its ViewModel, attachments, calculators
 ```
+
+The root of `presentation/` holds only what the module shares: with other modules (what
+`index.ts` exports) or with all its views. A ViewModel, an attachment or a calculator serves a
+view: it is in the folder of the component that uses it, or of the component that owns the
+concept when several use it. This is the colocation that Svelte recommends for `.svelte.ts`
+modules: a view and its logic are found, changed and deleted together.
 
 ### 5.1 Domain layer
 
@@ -457,10 +463,10 @@ Where the logic goes:
 | Need | Solution | Where |
 |------|----------|-------|
 | Simple UI state (a toggle, a dialog, tabs) | `$state` | the `<script>` of the `.svelte` file |
-| Page orchestration (queries + filters + pagination) | a ViewModel | `presentation/<view>.state.svelte.ts` |
-| Complex UI logic without network | a UI-only ViewModel | `presentation/<view>.state.svelte.ts` |
-| A pure algorithm | a pure function | `presentation/*.calculator.ts` |
-| DOM measurement, native events, a third-party widget | an attachment (`{@attach}`) | `presentation/*.attachments.ts` |
+| Page orchestration (queries + filters + pagination) | a ViewModel | `<view>.state.svelte.ts`, beside the view |
+| Complex UI logic without network | a UI-only ViewModel | `<view>.state.svelte.ts`, beside the view |
+| A pure algorithm | a pure function | `*.calculator.ts`, beside its user |
+| DOM measurement, native events, a third-party widget | an attachment (`{@attach}`) | `*.attachments.ts`, beside its user |
 
 `$effect` is a last resort: use it only to synchronize with a system outside Svelte.
 

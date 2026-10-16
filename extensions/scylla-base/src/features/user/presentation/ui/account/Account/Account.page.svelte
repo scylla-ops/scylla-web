@@ -2,7 +2,7 @@
   import { Badge, Button, Skeleton } from '@scylla/ui/primitives';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { createAccountPage } from '@base/features/user/presentation/account-page.state.svelte.ts';
+  import { createAccountPage } from './account-page.state.svelte.ts';
   import SessionList from '@base/features/user/presentation/ui/components/SessionList.svelte';
   import SettingsSection from '@base/features/user/presentation/ui/components/SettingsSection.svelte';
   import UserAccessList from '@base/features/user/presentation/ui/components/UserAccessList/UserAccessList.svelte';

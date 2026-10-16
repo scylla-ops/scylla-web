@@ -7,7 +7,7 @@
   import { toStatusState } from '@shared/utils/job-status.utils.ts';
   import type { PipelineMetadata } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import { pipelineMutations } from '@base/features/pipeline/presentation/pipeline.queries.ts';
-  import type { RunPipeline } from '@base/features/pipeline/presentation/run-pipeline.svelte.ts';
+  import type { RunPipeline } from '@base/features/pipeline/presentation/ui/run-pipeline.svelte.ts';
   import PipelineChart from './PipelineChart.svelte';
   import PipelineActions from './PipelineActions.svelte';
   import PipelineLastJob from './PipelineLastJob.svelte';

@@ -4,7 +4,7 @@
   import { ScyllaDialog } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
-  import type { RolesScope } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
+  import type { RolesScope } from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
   import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
   import RoleForm from './RoleForm.svelte';
 

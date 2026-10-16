@@ -114,24 +114,24 @@ infrastructure/
   grpc-permission-vocabulary, grpc-effective-permissions   (*.mapper.ts)
 presentation/
   roles.queries.ts                   every read and write, as plain options objects
-  roles-page.state.svelte.ts         the master–detail ViewModel, and RolesScope
-  role-form.state.svelte.ts          creating/editing one role
-  grant-creator.state.svelte.ts      granting one role to one user
-  role-assignees.state.svelte.ts     who holds a role (from the page's grants), and the revoke
-  grant-target-labels.svelte.ts      scope id → human name (fans out for projects)
-  grant-eligibility.calculator.ts    pure: who may receive a project grant, and why not
-  role-authoring.calculator.ts       pure: the escalation rule, what an author may put in a role
-  role-list.calculator.ts            pure: roles split by owner and sorted by name, holders per role
   ui/Roles/Roles.page.svelte         the roles of the current organization
   ui/PlatformRoles/PlatformRoles.page.svelte   the platform roles (System)
   ui/roles.messages.ts               every string the screens show
   ui/components/RolesView.svelte     the body both pages render, on a RolesScope
+  ui/components/roles-page.state.svelte.ts   the master–detail ViewModel of RolesView, and RolesScope
+  ui/components/role-list.calculator.ts      pure: roles split by owner and sorted by name, holders per role
   ui/components/RoleList.svelte, RoleListItem/RoleListItem.svelte, RoleDetailPanel.svelte
   ui/components/role-detail/         RoleDetailHeader, RoleDetailPermissions,
                                      RoleDetailGrantList, GrantCreator, TargetChecklist
+    grant-creator.state.svelte.ts    granting one role to one user
+    grant-eligibility.calculator.ts  pure: who may receive a project grant, and why not
+    role-assignees.state.svelte.ts   who holds a role (from the page's grants), and the revoke
+    grant-target-labels.svelte.ts    scope id → human name (fans out for projects)
   ui/components/role-form/           RoleFormDialog, RoleForm, RoleHolderField,
                                      RoleDialogPermissions, CheckboxTree/ (+ CheckboxTreeNode),
                                      checkbox-tree.ts
+    role-form.state.svelte.ts        creating/editing one role
+    role-authoring.calculator.ts     pure: the escalation rule, what an author may put in a role
   utils/permission-mapping.ts, permission-tree.ts, role-label.ts
 ```
 

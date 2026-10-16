@@ -56,16 +56,17 @@ domain/structs/scope-member.struct.ts   ScopeMember, MemberRole, MemberRoleOrigi
                                         buildOrganizationMembers / buildProjectMembers (pure)
 presentation/
   membership.points.ts               the extension points (see below)
-  scope-membership.state.svelte.ts   grants → members, plus grant/revoke/refresh (a ViewModel)
-  assignable-roles.state.svelte.ts   which roles *this* user may hand out
-  assignable-roles.calculator.ts     pure: grantable → AssignableRole (no apps roles), and the
-                                     grouping by owner the pickers render
   ui/OrganizationMembers.page.svelte, ProjectMembers.page.svelte
+  ui/scope-membership.state.svelte.ts   grants → members, plus grant/revoke/refresh (a ViewModel
+                                        of both pages)
   ui/membership.messages.ts          every string — `lingui extract` cannot read `.svelte`
   ui/components/                     AddMemberDialog (+ AddMemberForm), AddRoleSelect,
                                      MemberCard, MemberRoleBadges, MemberRowAction,
                                      MembersHint, MembersList, RoleChecklist
   ui/components/index.ts             local barrel — internal, not the module's public API
+  ui/components/assignable-roles.state.svelte.ts   which roles *this* user may hand out
+  ui/components/assignable-roles.calculator.ts     pure: grantable → AssignableRole (no apps
+                                     roles), and the grouping by owner the pickers render
 ```
 
 Both ViewModels take **getters**, not values, for anything that arrives late — the scope id

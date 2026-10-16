@@ -4,10 +4,11 @@
   import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
   import { renderCodeMirror } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { toast } from '@scylla/ui/utils';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import {
     createPipelineScript,
-  } from '@base/features/pipeline/presentation/pipeline-script.state.svelte.ts';
+  } from './pipeline-script.state.svelte.ts';
   import PipelineBlueprint from './blueprint/PipelineBlueprint.svelte';
   import PipelineEditorHeader from './PipelineEditorHeader/PipelineEditorHeader.svelte';
   import { createScriptEditor } from './script-editor.svelte.ts';
@@ -52,6 +53,11 @@
 
   const handleSubmit = () => {
     if (!doc.isValid) return;
+    // Said here, before the server answers with a generic refusal.
+    if (doc.invalidStepIds.length) {
+      toast.error(t(pipelineMessages.invalidStepIds(doc.invalidStepIds.join(', '))));
+      return;
+    }
     onSubmit({ name: doc.pipelineName, steps: doc.steps });
   };
 </script>
@@ -70,10 +76,12 @@
       blueprintDisabled={!doc.isValid}
       isDirty={doc.isDirty}
       isSaving={isSubmitPending}
+      pipelineName={doc.pipelineName}
+      onNameChange={name => doc.setName(name)}
     />
   </div>
 
-  <TabsContent value="scripting" class="h-full overflow-hidden">
+  <TabsContent value="scripting" class="min-h-0 flex-1 overflow-hidden">
     <div class="flex h-full flex-col gap-2">
       <div class="relative min-h-0 flex-1 overflow-auto p-2">
         <div
@@ -94,14 +102,13 @@
     </div>
   </TabsContent>
 
-  <TabsContent value="blueprint" class="h-full">
+  <TabsContent value="blueprint" class="min-h-0 flex-1">
     <Card class="h-full bg-card p-0">
       <PipelineBlueprint
         steps={doc.steps}
         pipelineName={doc.pipelineName}
         {projectId}
         onStepsChange={steps => doc.setSteps(steps)}
-        onNameChange={name => doc.setName(name)}
       />
     </Card>
   </TabsContent>

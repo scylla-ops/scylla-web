@@ -5,7 +5,7 @@
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { jobQueries } from '@base/features/jobs/presentation/jobs.queries.ts';
-  import { createOpenLogPanels } from '@base/features/jobs/presentation/open-log-panels.svelte.ts';
+  import { createOpenLogPanels } from './open-log-panels.svelte.ts';
   import JobNodeLogs from './JobNodeLogs.svelte';
   import JobSummary from './JobSummary.svelte';
   import { nodeIdOf } from '../jobs-table/job-timeline.calculator.ts';

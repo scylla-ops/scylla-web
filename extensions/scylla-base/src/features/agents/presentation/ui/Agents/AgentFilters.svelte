@@ -6,7 +6,7 @@
   import {
     AGENT_FILTERS,
     type AgentFilter,
-  } from '@base/features/agents/presentation/agents-page.state.svelte.ts';
+  } from './agents-page.state.svelte.ts';
   import { agentsMessages } from '../agents.messages.ts';
   import { agentsPageMessages as messages } from './agents-page.messages.ts';
 

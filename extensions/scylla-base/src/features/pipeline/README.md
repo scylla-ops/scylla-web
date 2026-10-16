@@ -37,11 +37,49 @@ wire and none. If you are adding a column to a list, add it to the metadata; rea
 stay in sync.
 
 The graph is [@xyflow/svelte](https://xyflow.dev): `BlueprintCanvas` with custom nodes
-(`StartNode`, `PipelineStepNode`), custom edges (`DeletableEdge`), and dialogs for editing a
-node's configuration. `blueprint.state.svelte.ts` is the ViewModel (Svelte Runes-based) that owns
-the nodes and edges, keeping them in sync with the document. `blueprint-converter.ts` is the
-single place that translates between the graph and the domain's `PipelineStep[]` — both directions,
-so the round-trip can't drift. It's written in pure TypeScript and thoroughly tested.
+(`StartNode`, `StepNode`) and a custom edge (`DeletableEdge`). `blueprint.state.svelte.ts` is the
+ViewModel (Svelte Runes-based) that owns the nodes and edges, keeping them in sync with the
+document. `blueprint-converter.ts` is the single place that translates between the graph and the
+domain's `PipelineStep[]` — both directions, so the round-trip can't drift. It's written in pure
+TypeScript and thoroughly tested.
+
+### One panel instead of dialogs
+
+Editing used to happen in a modal, which hid the graph while you wrote a script. The blueprint
+now has a single panel on the right: the **palette**, or the **inspector** of the step you
+clicked. You don't add and edit at the same time, so one panel is enough, and the left side
+stays free for the app's own sidebar.
+
+The panel opens on a click only. Moving a node, dropping a step or drawing a selection box
+leaves it as it is: an inspector that opens while you arrange the graph gets in the way. Its
+state is the clicked step, kept apart from the canvas selection, so a refresh of the graph from
+the document does not close it. You can widen the panel; the palette and the inspector each
+keep their own width.
+
+The pipeline's name is not a step: it is the title of the document, so it is edited in the
+header, next to Save, where it is always visible.
+
+A step with no link into it has no dependency, so saving links it to the start of the
+pipeline. The canvas shows a warning on that step instead of drawing the link itself: you see
+what will happen, and you can still connect it to the step you meant.
+
+- The palette offers blank steps (bash, sh, command) and **templates**. Click to add, or drag
+  onto the canvas to place. Templates come from `StepTemplateRepository`: built in today, served
+  by the backend later, without the palette changing.
+- Dropping a link on empty canvas opens a small menu to pick the next step right there; the `+`
+  of a selected edge inserts a step in it.
+- The inspector applies every edit to the draft at once — there is no Save in the panel; the
+  header's Save still saves the pipeline. A step that cannot run yet (no command, empty script)
+  is applied too, and the inspector and the node both say why: holding the edit back would show
+  one step in the panel and another on the canvas, and lose the edit when the panel closes.
+
+### Node styles
+
+The viewer picks how steps look: **detailed** (a card: icon, id, what it runs, folder,
+variables) or **simplified** (a flat square with the kind's icon, the id under it). The choice is
+a per-browser convenience, kept in `localStorage`. Styles are a registry
+(`nodes/node-appearances.ts`), so a new one is a view of a step, a view of the start node and
+one entry — the canvas, the switch and the layout do not change.
 
 The script side is CodeMirror 6, mounted with the `renderCodeMirror` attachment of `@scylla/ui`. `pipeline-script.state.svelte.ts` holds `script` and `initialScript`: the draft text
 and the baseline for the dirty check. That is UI state hosted in a ViewModel, and it stays there

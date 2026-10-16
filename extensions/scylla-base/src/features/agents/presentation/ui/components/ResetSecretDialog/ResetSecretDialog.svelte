@@ -13,7 +13,7 @@
   import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
   import {
     createResetSecret,
-  } from '@base/features/agents/presentation/reset-secret.state.svelte.ts';
+  } from './reset-secret.state.svelte.ts';
   import { agentsMessages } from '../../agents.messages.ts';
   import AlertDialogCloseButton from '../AlertDialogCloseButton.svelte';
   import DialogFooterBand from '../DialogFooterBand.svelte';

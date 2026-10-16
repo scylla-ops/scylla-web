@@ -1,6 +1,13 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { nameOf, parseScript, stepsOf, withName, withSteps } from '../pipeline-script';
+import {
+  nameOf,
+  parseScript,
+  pipelineNameIssue,
+  stepsOf,
+  withName,
+  withSteps,
+} from '../pipeline-script';
 import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
 
 const documentOf = (value: unknown) => parseScript(JSON.stringify(value)).document;
@@ -111,15 +118,12 @@ describe('withSteps', () => {
     expect(parsed.name).toBe('my-ci');
   });
 
-  it('round-trips a step back through stepsOf, with an explicit empty workingDir', () => {
+  it('round-trips a step unchanged: the empty workingDir it writes reads back as none', () => {
     const steps: PipelineStep[] = [
       { id: 's', deps: [], env: [], kind: 'script', script: 'echo hi', shell: 'bash' },
     ];
 
-    // Serializing always writes a workingDir.
-    expect(stepsOf(parseScript(withSteps(null, steps, 'p')).document)).toEqual([
-      { id: 's', deps: [], workingDir: '', env: [], kind: 'script', script: 'echo hi', shell: 'bash' },
-    ]);
+    expect(stepsOf(parseScript(withSteps(null, steps, 'p')).document)).toEqual(steps);
   });
 });
 
@@ -134,5 +138,16 @@ describe('withName', () => {
       projectId: string;
     };
     expect(renamed).toEqual({ name: 'new-name', projectId: 'p' });
+  });
+});
+
+describe('pipelineNameIssue', () => {
+  it('accepts one word, around which spaces are trimmed', () => {
+    expect(pipelineNameIssue('  deploy-api ')).toBeNull();
+  });
+
+  it('refuses an empty name and a name with spaces inside', () => {
+    expect(pipelineNameIssue('   ')).toBe('empty');
+    expect(pipelineNameIssue('deploy api')).toBe('spaces');
   });
 });
