@@ -34,7 +34,7 @@ root.
 ## Branches
 
 - `main` holds the released versions.
-- A **version branch** (`v0.5.0`, …) collects the work of the next version. It merges into
+- A **version branch** (`v0.6.0`, …) collects the work of the next version. It merges into
   `main` when the version is released.
 - Start your work from the current version branch, on a branch named after the type of the
   change:
@@ -78,7 +78,7 @@ other change:
   pull request. You answer the questions of the review.
 - **Only humans are authors and co-authors.** Do not add a `Co-Authored-By` trailer that names
   an AI agent, and do not add a "Generated with …" line to a pull request. Configure your agent
-  to not add them. The CI checks it: `pnpm check:authors origin/v0.5.0..HEAD` runs the same
+  to not add them. The CI checks it: `pnpm check:authors origin/v0.6.0..HEAD` runs the same
   check on your branch.
 - Agents read [`AGENTS.md`](AGENTS.md) and the `AGENTS.md` of each module. When you change a
   rule or a public API, update these files in the same pull request.
