@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import {
     groupCatalog,
     searchCatalog,
@@ -7,20 +8,23 @@
   } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
   import {
-    CATALOG_DRAG_TYPE,
     CATALOG_GROUP_TITLES,
     catalogText,
   } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog.ts';
   import CatalogItem from '@base/features/pipeline/presentation/ui/editor/blueprint/CatalogItem.svelte';
   import SearchField from '@base/features/pipeline/presentation/ui/editor/blueprint/SearchField.svelte';
+  import { dragToCanvas } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag.attachments.ts';
+  import type { PaletteDrag } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag.state.svelte.ts';
 
   interface Props {
     entries: readonly CatalogEntry[];
     /** A click adds the entry right of the graph; a drag places it where it is dropped. */
     onAdd: (entry: CatalogEntry) => void;
+    /** Lets a row be dragged onto the canvas. */
+    drag?: PaletteDrag;
   }
 
-  let { entries, onAdd }: Props = $props();
+  let { entries, onAdd, drag }: Props = $props();
 
   let query = $state('');
 
@@ -41,14 +45,14 @@
         {t(CATALOG_GROUP_TITLES[group])}
       </h3>
       {#each items as entry (entry.id)}
+        <!-- A click adds the entry; a drag takes it to the canvas, and the row stays, dimmed. -->
         <button
           type="button"
-          draggable="true"
-          class="flex w-full cursor-grab items-center gap-2.5 rounded-lg p-2 transition-colors hover:bg-accent active:cursor-grabbing"
-          ondragstart={event => {
-            event.dataTransfer?.setData(CATALOG_DRAG_TYPE, entry.id);
-            if (event.dataTransfer) event.dataTransfer.effectAllowed = 'copy';
-          }}
+          class={cn(
+            'flex w-full cursor-grab items-center gap-2.5 rounded-lg p-2 transition-[background-color,opacity] select-none hover:bg-accent active:cursor-grabbing',
+            drag?.entry?.id === entry.id && 'opacity-40',
+          )}
+          {@attach drag && dragToCanvas(() => ({ entry, drag }))}
           onclick={() => onAdd(entry)}
         >
           <CatalogItem {entry} />

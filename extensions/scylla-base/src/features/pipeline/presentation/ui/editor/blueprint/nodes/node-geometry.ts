@@ -11,11 +11,13 @@ export const MINIMAL_NODE = { width: 140, tile: 64 } as const;
 export const minimalHandleStyle = (side: 'left' | 'right') =>
   `${side}: ${(MINIMAL_NODE.width - MINIMAL_NODE.tile) / 2}px; top: ${MINIMAL_NODE.tile / 2}px;`;
 
-/** The point of a node that lands on a drop point: the middle of its icon. */
+/**
+ * The point of a node that lands on a drop point: the middle of the node, so the outline of a
+ * drop is centred on the pointer and on the icon that the drag draws there.
+ */
 export const DETAILED_ANCHOR: XYPosition = {
   x: DETAILED_NODE.width / 2,
-  // The card's `p-3` plus half of its `size-7` icon.
-  y: 12 + 28 / 2,
+  y: DETAILED_NODE.height / 2,
 };
 export const MINIMAL_ANCHOR: XYPosition = { x: MINIMAL_NODE.width / 2, y: MINIMAL_NODE.tile / 2 };
 

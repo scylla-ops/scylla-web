@@ -137,7 +137,8 @@ What a port has to get right, all of it invisible to the compiler:
   land *on* the caller's element: `<TooltipTrigger>{#snippet child({ props })}<Button {...props}/>`.
   The merged `data-slot` wins over the Button's own — `data-variant` is what still identifies it.
 - **Parts that carry no styling are aliased from bits-ui in `index.ts`**, not wrapped.
-  `Dialog`, `DialogTrigger`, `DialogClose`, `DialogPortal`, `AlertDialog`, `AlertDialogTrigger`.
+  `Dialog`, `DialogTrigger`, `DialogClose`, `DialogPortal`, `AlertDialog`, `AlertDialogTrigger`,
+  and `Portal` (renders its children at the end of `<body>`, above everything).
 - **`AlertDialogAction` / `AlertDialogCancel` are plain `Button`s**, not bits-ui's own, which close
   the dialog on click. Every confirmation here keeps the dialog open and disabled while its
   mutation runs; the parent owns `open`. Do not "fix" this.

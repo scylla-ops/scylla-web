@@ -84,7 +84,10 @@ presentation/
       blueprint/                             the canvas, its nodes, its edge, the side panel
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected step, add/insert/rename
         node-appearance.svelte.ts            the viewer's node style, remembered in localStorage
-        drop-spot.state.svelte.ts, DropSpot.svelte   the outline of where a dragged palette entry lands
+        palette-drag.state.svelte.ts         a palette entry dragged with the pointer: entry, pointer, spot
+        palette-drag.attachments.ts          dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
+        PaletteDragGhost.svelte              the dragged icon, in place of the pointer
+        drop-spot.calculator.ts, DropSpot.svelte   the outline of where a new step lands
         catalog.ts                           blank steps, template entries, catalogText (translates)
         step-kinds.ts                        icon and colours of each kind of step
         Segmented.svelte, SearchField.svelte the segmented control and the search box of the panel
@@ -152,11 +155,21 @@ the page.
   its selection, and only a new one is laid out. The document must also read back what it
   writes (`stepsOf(withSteps(steps))` equals `steps`, with an empty `workingDir` read as none):
   else each edit is taken for an outside change.
-- **A palette entry dragged over the canvas outlines where it lands.** The drag is the browser's
-  (`CATALOG_DRAG_TYPE`); `createDropSpot` follows it over the canvas (a count of `dragenter` /
-  `dragleave`, which also fire on each child), and `DropSpot` draws the `footprint` of the
-  current node style (`nodes/node-geometry.ts`) in a `ViewportPortal`, so it follows the zoom.
-  The outline is at the position that the drop gives the node (`nodePositionAt`).
+- **A palette entry is dragged with the pointer, not with HTML drag and drop.** The browser
+  draws the pointer of an HTML drag (with a "+" or a globe on macOS) and cannot hide it or
+  change the dragged picture on the way. `dragToCanvas` (`palette-drag.attachments.ts`)
+  captures the pointer of a row: past 4 px a press is a drag, and the click that ends it, or an
+  Escape, adds nothing. During a drag `<html>` hides the pointer (`cursor-none`), and
+  `PaletteDragGhost` draws the entry's icon (`CatalogIcon`) centred on it, in a `Portal`, at
+  each pointer move. `createPaletteDrag` holds the entry, the pointer and the `spot`; the canvas
+  registers itself with `acceptPaletteDrop` and gives the position of a drop (`nodePositionAt`:
+  the middle of the node lands under the pointer, so the dragged icon is in the middle of the
+  outline). A new drag source uses the same state.
+- **The canvas outlines where a new step lands**: for a palette drag (`drag.spot`) and for a
+  link pulled from an output onto empty canvas (`linkDropPoint`, on xyflow's `useConnection`).
+  `DropSpot` draws the `footprint` of the current node style (`nodes/node-geometry.ts`) in the
+  front `ViewportPortal`, so it follows the zoom and no node hides it. No move transition: it
+  must stay under the pointer.
 - **A step id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
   protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`utils/step-summary.ts`)
   is that rule; keep both the same. A refused id is shown on the node, in the inspector while it
@@ -184,7 +197,7 @@ the page.
   The label of a node is part of the node element, so that xyflow measures it.
 - **Sizes of the nodes live in `nodes/node-geometry.ts`**: the views set their width from it,
   the handles of a minimal node and the `anchor` (`nodePositionAt`: a dropped step lands on its
-  icon, not its corner) are computed from it. Do not write these sizes as Tailwind classes.
+  middle, not its corner) are computed from it. Do not write these sizes as Tailwind classes.
 - **`presentation/utils/` stays pure**: no `t()`, no import from `ui/`. What translates a
   catalog entry (`catalogText`, `BLANK_STEPS`) is in `blueprint/catalog.ts`; the search takes a
   `resolve` function.
