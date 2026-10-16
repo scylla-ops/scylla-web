@@ -70,10 +70,12 @@
       blueprintDisabled={!doc.isValid}
       isDirty={doc.isDirty}
       isSaving={isSubmitPending}
+      pipelineName={doc.pipelineName}
+      onNameChange={name => doc.setName(name)}
     />
   </div>
 
-  <TabsContent value="scripting" class="h-full overflow-hidden">
+  <TabsContent value="scripting" class="min-h-0 flex-1 overflow-hidden">
     <div class="flex h-full flex-col gap-2">
       <div class="relative min-h-0 flex-1 overflow-auto p-2">
         <div
@@ -94,14 +96,13 @@
     </div>
   </TabsContent>
 
-  <TabsContent value="blueprint" class="h-full">
+  <TabsContent value="blueprint" class="min-h-0 flex-1">
     <Card class="h-full bg-card p-0">
       <PipelineBlueprint
         steps={doc.steps}
         pipelineName={doc.pipelineName}
         {projectId}
         onStepsChange={steps => doc.setSteps(steps)}
-        onNameChange={name => doc.setName(name)}
       />
     </Card>
   </TabsContent>

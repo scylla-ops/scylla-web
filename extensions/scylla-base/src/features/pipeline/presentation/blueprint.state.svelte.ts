@@ -1,3 +1,4 @@
+import { untrack } from 'svelte';
 import type { Connection, XYPosition } from '@xyflow/svelte';
 import type { PipelineStep, StepDefinition } from '../domain/structs/pipeline.struct.ts';
 import {
@@ -34,11 +35,15 @@ const COLUMN_GAP = 72;
  * canvas owns the positions, so the graph cannot be derived from the steps.
  * `lastEmitted` recognises the echo of our own edits, or one edit would loop.
  * `@xyflow/svelte` writes added and deleted elements itself: `sync` publishes them.
+ *
+ * The side panel shows `inspected`, which a click opens and nothing else: the selection of the
+ * canvas (a drag, a box, the delete key) never opens or closes it.
  */
 export const createBlueprintState = (params: BlueprintStateParams) => {
   // `$state.raw`: replaced whole, never mutated.
   let nodes = $state.raw<BlueprintNode[]>([]);
   let edges = $state.raw<BlueprintEdge[]>([]);
+  let inspectedId = $state<string | null>(null);
 
   let lastEmitted = '';
 
@@ -60,7 +65,13 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
     if (keyOf(steps, name) === lastEmitted) return;
 
     const flow = stepsToFlow(steps, name);
-    nodes = flow.nodes;
+    // A node that is still there keeps its place and its selection: only a new one is laid out.
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to this run, never state
+    const previous = new Map(untrack(() => nodes).map(node => [node.id, node]));
+    nodes = flow.nodes.map(node => {
+      const kept = previous.get(node.id);
+      return kept ? { ...node, position: kept.position, selected: kept.selected } : node;
+    });
     edges = flow.edges;
 
     lastEmitted = keyOf(flow.sanitizedSteps, name);
@@ -70,11 +81,9 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
     }
   });
 
-  /** The inspector edits one node: several selected nodes show the palette instead. */
-  const selected = $derived.by(() => {
-    const picked = nodes.filter(node => node.selected);
-    return picked.length === 1 ? picked[0] : undefined;
-  });
+  const inspected = $derived(
+    nodes.find((node): node is BlueprintStepNode => node.id === inspectedId && !!stepOf(node)),
+  );
 
   // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to a call, never state
   const idsOf = () => new Set(nodes.map(node => node.id));
@@ -117,6 +126,7 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
     });
 
     if (originalId !== id) {
+      if (inspectedId === originalId) inspectedId = id;
       edges = edges.map(edge => {
         if (edge.source !== originalId && edge.target !== originalId) return edge;
 
@@ -148,19 +158,24 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
     set edges(next: BlueprintEdge[]) {
       edges = next;
     },
-    get selected() {
-      return selected;
+    /** The node the side panel shows. */
+    get inspected() {
+      return inspected;
     },
 
     /** Nothing may depend on the start node: it is the pipeline itself. */
     canConnect: (connection: Connection) => connection.target !== START_NODE_ID,
 
-    sync: emit,
+    sync() {
+      emit();
+      // The canvas may have deleted the inspected node.
+      if (!inspected) inspectedId = null;
+    },
 
     /** The ids of the steps this one waits for: the inspector lists them. */
     dependenciesOf: (id: string) => depsOf(edges, id),
 
-    /** Adds the step, selected so that the inspector opens on it. Returns its final id. */
+    /** Adds the step; the caller opens it with `inspect` when a click asked for it. Returns its final id. */
     addNode(nodeId: string, value: StepDefinition, placement: StepPlacement = {}): string {
       const id = generateUniqueNodeId(nodeId.trim() || 'step', idsOf());
       const replaced =
@@ -172,14 +187,10 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
         id,
         type: 'pipelineStep',
         position: placement.position ?? positionAfter(replaced?.source ?? after),
-        selected: true,
         data: { step: { id, deps: [], ...value } },
       };
 
-      nodes = [
-        ...nodes.map(other => (other.selected ? { ...other, selected: false } : other)),
-        node,
-      ];
+      nodes = [...nodes, node];
       edges = [
         ...edges.filter(edge => edge !== replaced),
         edgeBetween(source, id),
@@ -204,14 +215,21 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
 
     removeStep(id: string) {
       if (id === START_NODE_ID) return;
+      if (inspectedId === id) inspectedId = null;
       nodes = nodes.filter(node => node.id !== id);
       edges = edges.filter(edge => edge.source !== id && edge.target !== id);
       emit();
     },
 
-    select(id: string | null) {
+    /**
+     * Opens the side panel on a step, selected on the canvas; `null` closes it. The start node
+     * is the pipeline: its name is edited in the header, so it closes the panel too.
+     */
+    inspect(id: string | null) {
+      const next = id === START_NODE_ID ? null : id;
+      inspectedId = next;
       nodes = nodes.map(node =>
-        Boolean(node.selected) === (node.id === id) ? node : { ...node, selected: node.id === id },
+        Boolean(node.selected) === (node.id === next) ? node : { ...node, selected: node.id === next },
       );
     },
 

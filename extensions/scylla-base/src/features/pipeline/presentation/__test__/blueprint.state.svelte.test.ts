@@ -114,13 +114,13 @@ describe('createBlueprintState', () => {
     });
   });
 
-  it('links a step added after a node, and selects only the new step', () => {
+  it('links a step added after a node, and leaves the side panel as it was', () => {
     withState([execStep('build')], (state, onStepsChange) => {
-      state.select('build');
-      const id = state.addNode('test', definition, { after: 'build' });
+      state.inspect('build');
+      state.addNode('test', definition, { after: 'build' });
 
-      expect(state.selected?.id).toBe(id);
-      expect(state.nodes.filter(node => node.selected)).toHaveLength(1);
+      expect(state.inspected?.id).toBe('build');
+      expect(state.nodes.filter(node => node.selected).map(node => node.id)).toEqual(['build']);
       const published = onStepsChange.mock.lastCall?.[0] as PipelineStep[];
       expect(published.find(step => step.id === 'test')?.deps).toEqual(['build']);
     });
@@ -169,16 +169,42 @@ describe('createBlueprintState', () => {
     });
   });
 
-  it('opens the inspector on one selected node only', () => {
+  it('opens the side panel on the inspected node, selected on the canvas', () => {
     withState([execStep('build'), execStep('test')], state => {
-      state.select('build');
-      expect(state.selected?.id).toBe('build');
+      state.inspect('build');
+      expect(state.inspected?.id).toBe('build');
+      expect(state.nodes.filter(node => node.selected).map(node => node.id)).toEqual(['build']);
 
-      state.nodes = state.nodes.map(node => ({ ...node, selected: true }));
-      expect(state.selected).toBeUndefined();
-
-      state.select(null);
+      state.inspect(null);
+      expect(state.inspected).toBeUndefined();
       expect(state.nodes.some(node => node.selected)).toBe(false);
+    });
+  });
+
+  it('never opens the side panel on the start node: the header edits the name', () => {
+    withState([execStep('build')], state => {
+      state.inspect('build');
+      state.inspect(START_NODE_ID);
+      expect(state.inspected).toBeUndefined();
+    });
+  });
+
+  it('never opens the side panel for a selection made on the canvas', () => {
+    withState([execStep('build'), execStep('test')], state => {
+      state.nodes = state.nodes.map(node => ({ ...node, selected: true }));
+      expect(state.inspected).toBeUndefined();
+    });
+  });
+
+  it('follows the inspected step through a rename, and closes when it is deleted', () => {
+    withState([execStep('build'), execStep('test')], state => {
+      state.inspect('build');
+      state.renameStep('build', 'compile');
+      expect(state.inspected?.id).toBe('compile');
+
+      state.nodes = state.nodes.filter(node => node.id !== 'compile');
+      state.sync();
+      expect(state.inspected).toBeUndefined();
     });
   });
 

@@ -54,9 +54,9 @@ export const pipelineMessages = {
   deleteEdge: msg`Delete edge`,
   unnamedPipeline: msg`Unnamed`,
 
-  pipelineNameDescription: msg`Set the name of the pipeline.`,
-  name: msg`Name`,
+  pipelineName: msg`Pipeline name`,
   namePlaceholder: msg`e.g., my-pipeline`,
+  noSpaces: msg`The name cannot contain spaces.`,
 
   script: msg`Script`,
   command: msg`Command`,

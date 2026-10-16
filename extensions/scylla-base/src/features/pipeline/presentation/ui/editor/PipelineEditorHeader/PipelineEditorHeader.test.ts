@@ -6,6 +6,7 @@ import { render } from '@test/render.svelte.ts';
 import PipelineEditorHeaderFixture from './PipelineEditorHeader.fixture.svelte';
 
 const onSubmit = vi.fn();
+const onNameChange = vi.fn();
 
 const grantOnly = (...permissions: Permission[]) =>
   permissionsStore.setState({
@@ -22,6 +23,8 @@ const renderHeader = (props: Record<string, unknown> = {}) =>
     submitLabel: 'Save',
     mode: 'edit',
     isDirty: false,
+    pipelineName: 'nightly',
+    onNameChange,
     ...props,
   });
 
@@ -68,5 +71,40 @@ describe('PipelineEditorHeader', () => {
     renderHeader({ blueprintDisabled: true });
 
     expect(screen.getByRole('tab', { name: 'Blueprint' })).toBeDisabled();
+  });
+
+  it('renames the pipeline in place, on Enter', async () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader();
+
+    const name = screen.getByRole('textbox', { name: 'Pipeline name' });
+    await userEvent.clear(name);
+    await userEvent.type(name, 'release{Enter}');
+
+    expect(onNameChange).toHaveBeenCalledExactlyOnceWith('release');
+  });
+
+  it('says why a name with spaces is refused, and gives the saved one back on blur', async () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader();
+
+    const name = screen.getByRole('textbox', { name: 'Pipeline name' });
+    await userEvent.type(name, ' run');
+
+    expect(name).toHaveAccessibleDescription('The name cannot contain spaces.');
+    await userEvent.tab();
+    expect(onNameChange).not.toHaveBeenCalled();
+    expect(name).toHaveValue('nightly');
+  });
+
+  it('gives the saved name back on Escape', async () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader();
+
+    const name = screen.getByRole('textbox', { name: 'Pipeline name' });
+    await userEvent.type(name, '-v2{Escape}');
+
+    expect(onNameChange).not.toHaveBeenCalled();
+    expect(name).toHaveValue('nightly');
   });
 });

@@ -169,7 +169,7 @@ msgstr "e.g., ./services/api or /workspace"
 msgid "e.g., cargo build && cargo test"
 msgstr "e.g., cargo build && cargo test"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:59
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:58
 msgid "e.g., my-pipeline"
 msgstr "e.g., my-pipeline"
 
@@ -234,10 +234,6 @@ msgstr "Loading..."
 msgid "Members"
 msgstr "Members"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:58
-msgid "Name"
-msgstr "Name"
-
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:23
 msgid "navigate"
 msgstr "navigate"
@@ -283,6 +279,10 @@ msgstr "Pipeline"
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:29
 msgid "Pipeline actions"
 msgstr "Pipeline actions"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:57
+msgid "Pipeline name"
+msgstr "Pipeline name"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:10
 msgid "Pipelines"
@@ -348,10 +348,6 @@ msgstr "Secrets"
 msgid "Select a project first"
 msgstr "Select a project first"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:57
-msgid "Set the name of the pipeline."
-msgstr "Set the name of the pipeline."
-
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:13
 msgid "sh script"
 msgstr "sh script"
@@ -388,7 +384,7 @@ msgstr "Steps"
 msgid "Templates"
 msgstr "Templates"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:46
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:59
 msgid "The name cannot contain spaces."
 msgstr "The name cannot contain spaces."
 

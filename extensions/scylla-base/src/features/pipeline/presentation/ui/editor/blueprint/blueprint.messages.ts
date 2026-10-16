@@ -43,5 +43,4 @@ export const blueprintMessages = {
   emptyScript: msg`The script is empty.`,
   variables: (count: number) => msg`${plural(count, { one: '# variable', other: '# variables' })}`,
   secrets: (count: number) => msg`${plural(count, { one: '# secret', other: '# secrets' })}`,
-  noSpaces: msg`The name cannot contain spaces.`,
 };
