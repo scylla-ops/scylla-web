@@ -17,4 +17,17 @@ describe('nodePositionAt', () => {
       expect([view.step, view.start, view.anchor]).not.toContain(undefined);
     }
   });
+
+  it('gives every style the box a dropped node takes, around the point it lands on', () => {
+    for (const appearance of NODE_APPEARANCES) {
+      const { anchor, footprint } = NODE_APPEARANCE_VIEWS[appearance];
+      expect(footprint.width).toBeGreaterThan(0);
+      expect(footprint.height).toBeGreaterThan(0);
+      // The drop point (the anchor) is inside the outlined box.
+      expect(anchor.x).toBeGreaterThanOrEqual(footprint.x);
+      expect(anchor.x).toBeLessThanOrEqual(footprint.x + footprint.width);
+      expect(anchor.y).toBeGreaterThanOrEqual(footprint.y);
+      expect(anchor.y).toBeLessThanOrEqual(footprint.y + footprint.height);
+    }
+  });
 });

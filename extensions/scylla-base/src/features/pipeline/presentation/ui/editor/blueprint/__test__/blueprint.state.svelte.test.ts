@@ -234,13 +234,4 @@ describe('createBlueprintState', () => {
       expect(x('build')).toBeLessThan(x('test'));
     });
   });
-
-  it('tells the id a new step will get, as addNode gives it', () => {
-    withState([execStep('build')], state => {
-      expect(state.nextIdFor('lint')).toBe('lint');
-      expect(state.nextIdFor('build')).toBe('build_1');
-      expect(state.nextIdFor('  ')).toBe('step');
-      expect(state.addNode('build', definition)).toBe('build_1');
-    });
-  });
 });

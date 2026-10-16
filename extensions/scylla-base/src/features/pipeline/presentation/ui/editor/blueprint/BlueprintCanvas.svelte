@@ -16,13 +16,15 @@
   import type { NodeAppearancePreference } from './node-appearance.svelte.ts';
   import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/QuickAddMenu/quick-add.state.svelte.ts';
   import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import type { CatalogEntry } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
   import { setBlueprintCanvas } from './blueprint-canvas.context.ts';
-  import { acceptPaletteDrop } from './palette-drag.attachments.ts';
-  import type { PaletteDrag } from './palette-drag.state.svelte.ts';
   import CanvasToolbar from './CanvasToolbar.svelte';
+  import { CATALOG_DRAG_TYPE } from './catalog.ts';
   import DeletableEdge from './DeletableEdge.svelte';
-  import { nodePositionAt } from './nodes/node-appearances.ts';
+  import { createDropSpot } from './drop-spot.state.svelte.ts';
+  import DropSpot from './DropSpot.svelte';
+  import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.ts';
   import StartNode from './nodes/StartNode.svelte';
   import StepNode from './nodes/StepNode.svelte';
   import QuickAddMenu from './QuickAddMenu/QuickAddMenu.svelte';
@@ -31,10 +33,10 @@
     blueprint: BlueprintState;
     appearance: NodeAppearancePreference;
     quickAdd: QuickAdd;
-    drag: PaletteDrag;
+    entries: readonly CatalogEntry[];
   }
 
-  let { blueprint, appearance, quickAdd, drag }: Props = $props();
+  let { blueprint, appearance, quickAdd, entries }: Props = $props();
 
   const nodeTypes: NodeTypes = { pipelineStep: StepNode, startNode: StartNode };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
@@ -62,32 +64,47 @@
     quickAdd.open({ client, flow: screenToFlowPosition(client), link: { after: from.id } });
   };
 
+  const dropSpot = createDropSpot();
+
+  /** Where a step dropped at this point of the screen lands in the graph. */
+  const dropPositionOf = (event: DragEvent) =>
+    nodePositionAt(appearance.current, screenToFlowPosition(clientPoint(event)));
+
+  const isCatalogDrag = (event: DragEvent) =>
+    event.dataTransfer?.types.includes(CATALOG_DRAG_TYPE) ?? false;
+
+  const onDragOver = (event: DragEvent) => {
+    if (!event.dataTransfer || !isCatalogDrag(event)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    dropSpot.move(dropPositionOf(event));
+  };
+
+  const onDrop = (event: DragEvent) => {
+    dropSpot.clear();
+    const entry = entries.find(item => item.id === event.dataTransfer?.getData(CATALOG_DRAG_TYPE));
+    if (!entry) return;
+    event.preventDefault();
+    blueprint.addNode(entry.nodeId, entry.definition, { position: dropPositionOf(event) });
+  };
 </script>
 
 <div
   role="application"
   aria-label={t(pipelineMessages.blueprint)}
   class="relative h-full min-w-0 flex-1"
-  {@attach acceptPaletteDrop(() => ({
-    drag,
-    positionAt: client => nodePositionAt(appearance.current, screenToFlowPosition(client)),
-    drop: (entry, position) => blueprint.addNode(entry.nodeId, entry.definition, { position }),
-  }))}
+  ondragenter={event => isCatalogDrag(event) && dropSpot.enter()}
+  ondragover={onDragOver}
+  ondragleave={event => isCatalogDrag(event) && dropSpot.leave()}
+  ondrop={onDrop}
 >
   <!--
     `nodes` and `edges` are bound: the library drags, selects and deletes; the callbacks report the
-    changes. Only a click opens the side panel: a drag neither selects nor opens. The preview of a
-    palette drag is drawn with the graph and never written back to it.
+    changes. Only a click opens the side panel: a drag neither selects nor opens.
   -->
   <SvelteFlow
-    bind:nodes={
-      () => drag.nodesWith(blueprint.nodes),
-      next => (blueprint.nodes = drag.nodesWithout(next))
-    }
-    bind:edges={
-      () => drag.edgesWith(blueprint.edges),
-      next => (blueprint.edges = drag.edgesWithout(next))
-    }
+    bind:nodes={blueprint.nodes}
+    bind:edges={blueprint.edges}
     {nodeTypes}
     {edgeTypes}
     fitView
@@ -113,6 +130,12 @@
       onAppearanceChange={next => appearance.set(next)}
       onArrange={() => blueprint.arrange()}
     />
+    {#if dropSpot.position}
+      <DropSpot
+        position={dropSpot.position}
+        footprint={NODE_APPEARANCE_VIEWS[appearance.current].footprint}
+      />
+    {/if}
   </SvelteFlow>
 
   <QuickAddMenu {quickAdd} />

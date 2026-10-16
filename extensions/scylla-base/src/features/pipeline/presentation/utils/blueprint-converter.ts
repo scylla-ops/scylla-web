@@ -6,8 +6,7 @@ import type {
 
 /** A node's `data` must be a `Record`: a step travels wrapped, as `{ step }`. */
 
-/** `preview`: the inert node the canvas draws while a palette entry is dragged over it. */
-export type StepNodeData = { step: PipelineStep; preview?: boolean };
+export type StepNodeData = { step: PipelineStep };
 export type StartNodeData = { name: string };
 
 export type BlueprintStepNode = Node<StepNodeData, 'pipelineStep'>;

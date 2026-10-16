@@ -10,8 +10,7 @@
   const canvas = getBlueprintCanvas();
   const View = $derived(NODE_APPEARANCE_VIEWS[canvas.appearance()].step);
   const summary = $derived(summarize(data.step));
-  // The preview is linked to the start node, as the drop will link the step.
-  const detached = $derived(!data.preview && canvas.isDetached(id));
+  const detached = $derived(canvas.isDetached(id));
 </script>
 
 <!-- A step, in the style the viewer picked. -->

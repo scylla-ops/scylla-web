@@ -6,7 +6,13 @@ import SquareIcon from '@lucide/svelte/icons/square';
 import type { LucideIcon } from '@scylla/ui';
 import type { NodeAppearance } from '@base/features/pipeline/presentation/ui/editor/blueprint/node-appearance.svelte.ts';
 import { blueprintMessages } from '../blueprint.messages.ts';
-import { DETAILED_ANCHOR, MINIMAL_ANCHOR } from './node-geometry.ts';
+import {
+  DETAILED_ANCHOR,
+  DETAILED_FOOTPRINT,
+  MINIMAL_ANCHOR,
+  MINIMAL_FOOTPRINT,
+  type NodeFootprint,
+} from './node-geometry.ts';
 import type { StartNodeViewProps, StepNodeViewProps } from './node-view.ts';
 import StartNodeDetailed from './StartNodeDetailed.svelte';
 import StartNodeMinimal from './StartNodeMinimal.svelte';
@@ -18,6 +24,7 @@ interface NodeAppearanceView {
   start: Component<StartNodeViewProps>;
   /** The point of a new node that lands where it is dropped or picked. */
   anchor: XYPosition;
+  footprint: NodeFootprint;
   label: MessageDescriptor;
   icon: LucideIcon;
 }
@@ -28,6 +35,7 @@ export const NODE_APPEARANCE_VIEWS: Record<NodeAppearance, NodeAppearanceView> =
     step: StepNodeDetailed,
     start: StartNodeDetailed,
     anchor: DETAILED_ANCHOR,
+    footprint: DETAILED_FOOTPRINT,
     label: blueprintMessages.styleDetailed,
     icon: LayoutListIcon,
   },
@@ -35,6 +43,7 @@ export const NODE_APPEARANCE_VIEWS: Record<NodeAppearance, NodeAppearanceView> =
     step: StepNodeMinimal,
     start: StartNodeMinimal,
     anchor: MINIMAL_ANCHOR,
+    footprint: MINIMAL_FOOTPRINT,
     label: blueprintMessages.styleMinimal,
     icon: SquareIcon,
   },

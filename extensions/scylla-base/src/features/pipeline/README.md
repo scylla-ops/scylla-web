@@ -50,10 +50,8 @@ now has a single panel on the right: the **palette**, or the **inspector** of th
 clicked. You don't add and edit at the same time, so one panel is enough, and the left side
 stays free for the app's own sidebar.
 
-Dragging an entry from the palette shows a card under the pointer, then, over the canvas, the
-step it creates: in the node style you chose, at the zoom of the canvas, where it will land,
-with the link from the start that the drop adds. This is a pointer drag, not the browser's drag
-and drop: the browser's picture of a drag cannot change on the way, and cannot follow the zoom.
+While you drag an entry from the palette over the canvas, a dashed outline shows the place the
+new node will take, in the size of your node style and at the zoom of the canvas.
 
 The panel opens on a click only. Moving a node, dropping a step or drawing a selection box
 leaves it as it is: an inspector that opens while you arrange the graph gets in the way. Its
