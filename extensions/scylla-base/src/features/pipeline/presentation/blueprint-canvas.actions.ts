@@ -1,6 +1,8 @@
 import type { Action } from 'svelte/action';
 import { START_NODE_ID } from './utils/blueprint-converter.ts';
-import { STEP_BLOCK_MIME } from './ui/editor/blueprint/step-blocks.ts';
+
+/** The data type a dragged palette block carries: its key. */
+export const STEP_BLOCK_MIME = 'application/x-scylla-step-block';
 
 export interface StepDrop {
   blockKey: string;

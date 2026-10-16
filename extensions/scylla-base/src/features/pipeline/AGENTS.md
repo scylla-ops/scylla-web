@@ -60,6 +60,7 @@ infrastructure/
 presentation/
   blueprint.state.svelte.ts                  ViewModel (nodes/edges, selection, step edits) — Runes-based
   blueprint-canvas.actions.ts                Svelte actions of the canvas: palette drop, keep the selection in view
+  step-panel.state.svelte.ts                 ViewModel of the step panel: its fields, sent at each edit
   pipeline-dashboard.state.svelte.ts        Dashboard ViewModel
   pipeline-script.state.svelte.ts            Script editor state
   pipeline.messages.ts                       i18n message descriptors
@@ -110,8 +111,9 @@ the page.
   `removeDependency`. A dependency is an edge: `deps` are read from the edges, never stored.
 - **The blueprint has no modal.** A click on a node opens its panel on the right (`StepPanel`,
   or `PipelinePanel` for the start node). Each edit goes to the draft at once
-  (`createStepNodeForm(step, { onChange })`); only the step id waits for Enter or blur, or a
-  rename would go through every prefix of the new name. The pipeline is saved by the header's
+  (`createStepPanelState(step, onChange)`); only the step id waits for Enter or blur, or a
+  rename would go through every prefix of the new name. A step's dependencies are read with
+  `dependenciesOf(id)`: do not filter the edges again in a component. The pipeline is saved by the header's
   button only.
 - **The echo of an edit must not rebuild the graph.** The script writes an empty `workingDir`
   where the graph holds none: the effect compares the steps with `stepsKey` (their serialised

@@ -5,6 +5,7 @@
   import { t } from '@scylla/ui/i18n';
   import { blueprintMessages } from './blueprint.messages.ts';
   import { pipelineMessages } from '../../../pipeline.messages.ts';
+  import { SECTION_TITLE } from './section-title.ts';
 
   interface Props {
     name: string;
@@ -32,7 +33,7 @@
     </Button>
   </header>
   <section class="flex flex-col gap-2 px-5 py-4">
-    <Label for="pipeline-name" class="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
+    <Label for="pipeline-name" class={SECTION_TITLE}>
       {t(pipelineMessages.pipelineName)}
     </Label>
     <Input

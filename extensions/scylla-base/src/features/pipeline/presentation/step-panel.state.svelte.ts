@@ -1,5 +1,5 @@
-import type { EnvEntry, PipelineStep, Shell } from '../../../../domain/structs/pipeline.struct.ts';
-import type { NodeFormValue } from '../../../utils/blueprint-converter.ts';
+import type { EnvEntry, PipelineStep, Shell } from '../domain/structs/pipeline.struct.ts';
+import type { NodeFormValue } from './utils/blueprint-converter.ts';
 
 /** Keeps both a literal and a secret reference, so switching the kind loses nothing typed. */
 export interface EnvRow {
@@ -19,68 +19,50 @@ const entryFrom = (row: EnvRow): EnvEntry =>
     ? { key: row.key, kind: 'secret', secretRef: row.secretRef }
     : { key: row.key, kind: 'literal', value: row.value };
 
-export interface StepNodeFormOptions {
-  /**
-   * Called after each edit, with the step as it now reads. The id is only
-   * sent by `commitId`: renaming at each keystroke would rename the step
-   * through every prefix of the new name.
-   */
-  onChange?: (change: { nodeId: string; value: NodeFormValue }) => void;
+/** What the panel sends after each edit: the step as it now reads, under its committed id. */
+export interface StepChange {
+  nodeId: string;
+  value: NodeFormValue;
 }
 
-/** Seeded once: the panel rebuilds it for each step. */
-export const createStepNodeForm = (
-  editingStep?: PipelineStep,
-  { onChange }: StepNodeFormOptions = {},
+/**
+ * The fields of the step panel, seeded once from the step: the panel is rebuilt
+ * for another step. Each edit calls `onChange` at once. The id is only sent by
+ * `commitId`, or a rename would go through every prefix of the new name.
+ */
+export const createStepPanelState = (
+  step: PipelineStep,
+  onChange: (change: StepChange) => void,
 ) => {
-  let nodeId = $state(editingStep?.id ?? '');
-  let mode = $state<'script' | 'exec'>(editingStep?.kind === 'exec' ? 'exec' : 'script');
-  let script = $state(editingStep?.kind === 'script' ? editingStep.script : '');
-  let shell = $state<Shell>(editingStep?.kind === 'script' ? editingStep.shell : 'sh');
-  let command = $state(editingStep?.kind === 'exec' ? editingStep.command : '');
-  let args = $state<string[]>(editingStep?.kind === 'exec' ? [...editingStep.args] : []);
-  let workingDir = $state(editingStep?.workingDir ?? '');
-  let envRows = $state<EnvRow[]>(editingStep ? editingStep.env.map(rowFrom) : []);
-  let committedId = editingStep?.id ?? '';
-  let lastSent = '';
+  let nodeId = $state(step.id);
+  let mode = $state<'script' | 'exec'>(step.kind);
+  let script = $state(step.kind === 'script' ? step.script : '');
+  let shell = $state<Shell>(step.kind === 'script' ? step.shell : 'sh');
+  let command = $state(step.kind === 'exec' ? step.command : '');
+  let args = $state<string[]>(step.kind === 'exec' ? [...step.args] : []);
+  let workingDir = $state(step.workingDir ?? '');
+  let envRows = $state<EnvRow[]>(step.env.map(rowFrom));
+  let committedId = step.id;
 
-  const toValue = (id: string): { nodeId: string; value: NodeFormValue } | null => {
-    const trimmedId = id.trim();
-    if (!trimmedId) return null;
-
+  const valueOf = (): NodeFormValue => {
     // A row with no key is an empty line.
     const env = envRows
       .filter(row => row.key.trim())
       .map(row => entryFrom({ ...row, key: row.key.trim() }));
-    const directory = workingDir.trim() ? workingDir.trim() : undefined;
+    const directory = workingDir.trim() || undefined;
 
-    if (mode === 'script') {
-      return {
-        nodeId: trimmedId,
-        value: { kind: 'script', script, shell, workingDir: directory, env },
-      };
-    }
+    if (mode === 'script') return { kind: 'script', script, shell, workingDir: directory, env };
     return {
-      nodeId: trimmedId,
-      value: {
-        kind: 'exec',
-        command: command.trim(),
-        // Blank rows are unfilled lines, not empty arguments.
-        args: args.filter(arg => arg !== ''),
-        workingDir: directory,
-        env,
-      },
+      kind: 'exec',
+      command: command.trim(),
+      // Blank rows are unfilled lines, not empty arguments.
+      args: args.filter(arg => arg !== ''),
+      workingDir: directory,
+      env,
     };
   };
 
-  const notify = () => {
-    const next = toValue(committedId);
-    if (!next) return;
-    const key = JSON.stringify(next);
-    if (key === lastSent) return;
-    lastSent = key;
-    onChange?.(next);
-  };
+  const notify = () => onChange({ nodeId: committedId, value: valueOf() });
 
   return {
     get nodeId() {
@@ -162,10 +144,7 @@ export const createStepNodeForm = (
       committedId = nodeId.trim();
       notify();
     },
-
-    /** The step as it reads, with the typed id; `null` without an id. */
-    toValue: () => toValue(nodeId),
   };
 };
 
-export type StepNodeForm = ReturnType<typeof createStepNodeForm>;
+export type StepPanelState = ReturnType<typeof createStepPanelState>;

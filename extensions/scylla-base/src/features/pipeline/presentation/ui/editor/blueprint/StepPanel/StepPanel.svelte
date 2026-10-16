@@ -8,13 +8,14 @@
   import { t } from '@scylla/ui/i18n';
   import type { PipelineStep } from '../../../../../domain/structs/pipeline.struct.ts';
   import type { BlueprintState } from '../../../../blueprint.state.svelte.ts';
-  import { createStepNodeForm } from '../step-node-form.state.svelte.ts';
+  import { createStepPanelState } from '../../../../step-panel.state.svelte.ts';
   import { blueprintMessages } from '../blueprint.messages.ts';
   import { pipelineMessages } from '../../../../pipeline.messages.ts';
   import StepCommandFields from './StepCommandFields.svelte';
   import StepDependencies from './StepDependencies.svelte';
   import StepEnvironment from './StepEnvironment.svelte';
   import StepScriptFields from './StepScriptFields.svelte';
+  import { SECTION_TITLE } from '../section-title.ts';
 
   interface Props {
     blueprint: BlueprintState;
@@ -29,11 +30,11 @@
   // step id, so another step, or a rename, builds a new panel.
   // svelte-ignore state_referenced_locally
   const originalId = step.id;
+  // Each edit goes to the draft at once: there is no "save" in the panel.
   // svelte-ignore state_referenced_locally
-  const form = createStepNodeForm(step, {
-    // Each edit goes to the draft at once: there is no "save" in the panel.
-    onChange: ({ nodeId, value }) => blueprint.updateStep(originalId, nodeId, value),
-  });
+  const form = createStepPanelState(step, ({ nodeId, value }) =>
+    blueprint.updateStep(originalId, nodeId, value),
+  );
 
   const kinds = [
     { mode: 'script', label: pipelineMessages.script },
@@ -88,7 +89,7 @@
     <section class="flex flex-col gap-2 border-b px-5 py-4">
       <h3
         id="step-type"
-        class="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase"
+        class={SECTION_TITLE}
       >
         {t(blueprintMessages.stepType)}
       </h3>
@@ -117,12 +118,12 @@
       <StepCommandFields {form} />
     {/if}
 
-    <StepDependencies {blueprint} stepId={originalId} deps={step.deps} />
+    <StepDependencies {blueprint} stepId={originalId} />
 
     <section class="flex flex-col gap-2 border-b px-5 py-4">
       <Label
         for="step-working-dir"
-        class="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase"
+        class={SECTION_TITLE}
       >
         {t(pipelineMessages.workingDirectory)}
       </Label>

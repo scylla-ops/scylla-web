@@ -131,10 +131,9 @@ describe('createBlueprintState', () => {
 
   it('adds a step with a unique id, publishes it and selects it', () => {
     withState([execStep('build')], (state, onStepsChange) => {
-      const id = state.addStep('build', { kind: 'exec', command: 'make', args: [], env: [] });
+      state.addStep('build', { kind: 'exec', command: 'make', args: [], env: [] });
 
       const published = onStepsChange.mock.lastCall?.[0] as PipelineStep[];
-      expect(id).toBe('build_1');
       expect(published.map(step => step.id)).toEqual(['build', 'build_1']);
       expect(state.selectedId).toBe('build_1');
       expect(state.nodes.find(node => node.id === 'build_1')?.selected).toBe(true);
@@ -218,6 +217,14 @@ describe('createBlueprintState', () => {
     });
   });
 
+  it('selects one node on the canvas at a time', () => {
+    withState([execStep('build'), execStep('test')], state => {
+      state.select('build');
+      state.select('test');
+      expect(state.nodes.filter(node => node.selected).map(node => node.id)).toEqual(['test']);
+    });
+  });
+
   it('gives the selected step with the dependencies drawn on the canvas', () => {
     withState([execStep('build'), execStep('test', ['build'])], state => {
       state.select('test');
@@ -232,14 +239,13 @@ describe('createBlueprintState', () => {
   it('renames a step everywhere its id is written, and keeps it selected', () => {
     withState([execStep('build'), execStep('test', ['build'])], (state, onStepsChange) => {
       state.select('build');
-      const id = state.updateStep('build', 'compile', {
+      state.updateStep('build', 'compile', {
         kind: 'exec',
         command: 'make',
         args: [],
         env: [],
       });
 
-      expect(id).toBe('compile');
       expect(state.selectedId).toBe('compile');
 
       const published = onStepsChange.mock.lastCall?.[0] as PipelineStep[];

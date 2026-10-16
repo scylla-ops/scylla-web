@@ -40,6 +40,3 @@ export const STEP_BLOCKS: readonly StepBlock[] = [
 
 export const stepBlockOf = (key: string): StepBlock | undefined =>
   STEP_BLOCKS.find(block => block.key === key);
-
-/** The data type a dragged block carries. */
-export const STEP_BLOCK_MIME = 'application/x-scylla-step-block';

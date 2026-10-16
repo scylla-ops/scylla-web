@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { acceptStepDrop, dropTargetOf, keepInView } from '../blueprint-canvas.actions.ts';
+import {
+  STEP_BLOCK_MIME,
+  acceptStepDrop,
+  dropTargetOf,
+  keepInView,
+} from '../blueprint-canvas.actions.ts';
 import { START_NODE_ID } from '../utils/blueprint-converter.ts';
-import { STEP_BLOCK_MIME } from '../ui/editor/blueprint/step-blocks.ts';
 
 /** A canvas with a step node and the start node, as `@xyflow/svelte` marks them. */
 const canvas = () => {

@@ -4,10 +4,12 @@
   import TerminalIcon from '@lucide/svelte/icons/terminal';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import type { BlueprintState } from '../../../blueprint.state.svelte.ts';
-  import { START_NODE_ID } from '../../../utils/blueprint-converter.ts';
-  import { blueprintMessages } from './blueprint.messages.ts';
-  import { STEP_BLOCKS, STEP_BLOCK_MIME, type StepBlock } from './step-blocks.ts';
+  import { STEP_BLOCK_MIME } from '../../../../blueprint-canvas.actions.ts';
+  import type { BlueprintState } from '../../../../blueprint.state.svelte.ts';
+  import { START_NODE_ID } from '../../../../utils/blueprint-converter.ts';
+  import { blueprintMessages } from '../blueprint.messages.ts';
+  import { STEP_BLOCKS, type StepBlock } from '../step-blocks.ts';
+  import { SECTION_TITLE } from '../section-title.ts';
 
   interface Props {
     blueprint: BlueprintState;
@@ -19,21 +21,14 @@
     blueprint.nodes.filter(node => node.id !== START_NODE_ID).map(node => node.id),
   );
 
-  const depsOf = (id: string) =>
-    blueprint.edges
-      .filter(edge => edge.target === id && edge.source !== START_NODE_ID)
-      .map(edge => edge.source);
-
   // A click adds the step after the selected one: the keyboard path to the palette.
-  const add = (block: StepBlock) => {
-    const after = blueprint.selectedStep?.id;
-    blueprint.addStep(block.idPrefix, block.value(), { after });
-  };
+  const add = (block: StepBlock) =>
+    blueprint.addStep(block.idPrefix, block.value(), { after: blueprint.selectedId ?? undefined });
 </script>
 
 <aside class="flex w-62 shrink-0 flex-col overflow-y-auto border-r bg-sidebar">
   <div class="flex flex-col gap-2.5 p-4">
-    <h2 class="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
+    <h2 class={SECTION_TITLE}>
       {t(blueprintMessages.addStep)}
     </h2>
     {#each STEP_BLOCKS as block (block.key)}
@@ -63,11 +58,11 @@
   <div class="mx-4 h-px bg-border"></div>
 
   <nav class="flex flex-col gap-1 p-4" aria-labelledby="blueprint-steps">
-    <h2 id="blueprint-steps" class="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
+    <h2 id="blueprint-steps" class={SECTION_TITLE}>
       {t(blueprintMessages.steps)} · {steps.length}
     </h2>
     {#each steps as id (id)}
-      {@const deps = depsOf(id)}
+      {@const deps = blueprint.dependenciesOf(id)}
       <button
         type="button"
         onclick={() => blueprint.select(id)}

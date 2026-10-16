@@ -4,7 +4,7 @@
   import { createBlueprintState } from '../../../blueprint.state.svelte.ts';
   import { START_NODE_ID } from '../../../utils/blueprint-converter.ts';
   import BlueprintCanvas from './BlueprintCanvas.svelte';
-  import BlueprintPalette from './BlueprintPalette.svelte';
+  import BlueprintPalette from './BlueprintPalette/BlueprintPalette.svelte';
   import PipelinePanel from './PipelinePanel.svelte';
   import StepPanel from './StepPanel/StepPanel.svelte';
 

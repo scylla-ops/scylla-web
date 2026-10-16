@@ -2,8 +2,8 @@
 <script lang="ts">
   import type { PipelineStep } from '../../../../../domain/structs/pipeline.struct.ts';
   import { createBlueprintState } from '../../../../blueprint.state.svelte.ts';
-  import BlueprintPalette from '../BlueprintPalette.svelte';
-  import StepPanel from './StepPanel.svelte';
+  import BlueprintPalette from '../BlueprintPalette/BlueprintPalette.svelte';
+  import StepPanel from '../StepPanel/StepPanel.svelte';
 
   interface Props {
     steps: PipelineStep[];

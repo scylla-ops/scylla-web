@@ -6,11 +6,12 @@
   import { t } from '@scylla/ui/i18n';
   import type { Shell } from '../../../../../domain/structs/pipeline.struct.ts';
   import { createScriptEditor } from '../../script-editor.svelte.ts';
-  import type { StepNodeForm } from '../step-node-form.state.svelte.ts';
+  import type { StepPanelState } from '../../../../step-panel.state.svelte.ts';
   import { pipelineMessages } from '../../../../pipeline.messages.ts';
+  import { SECTION_TITLE } from '../section-title.ts';
 
   interface Props {
-    form: StepNodeForm;
+    form: StepPanelState;
   }
 
   let { form }: Props = $props();
@@ -24,7 +25,7 @@
 
 <section class="flex flex-col gap-2 border-b px-5 py-4">
   <div class="flex items-center justify-between">
-    <h3 class="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
+    <h3 class={SECTION_TITLE}>
       {t(pipelineMessages.script)}
     </h3>
     <Select type="single" value={form.shell} onValueChange={value => (form.shell = value as Shell)}>
@@ -38,6 +39,7 @@
     </Select>
   </div>
   <div
+    role="group"
     aria-label={t(pipelineMessages.script)}
     class="max-h-80 min-h-32 overflow-auto text-[12.5px]"
     use:renderCodeMirror={{ doc: form.script, extensions: editor.extensions, onView: editor.attach }}

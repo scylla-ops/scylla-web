@@ -13,11 +13,12 @@
     SelectValue,
   } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
-  import type { EnvRow, StepNodeForm } from '../step-node-form.state.svelte.ts';
+  import type { EnvRow, StepPanelState } from '../../../../step-panel.state.svelte.ts';
   import { pipelineMessages } from '../../../../pipeline.messages.ts';
+  import { SECTION_TITLE } from '../section-title.ts';
 
   interface Props {
-    form: StepNodeForm;
+    form: StepPanelState;
     /** Scopes the secret picker. */
     projectId?: string;
   }
@@ -30,7 +31,7 @@
 </script>
 
 <section class="flex flex-col gap-2 px-5 py-4">
-  <h3 class="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
+  <h3 class={SECTION_TITLE}>
     {t(pipelineMessages.environmentVariables)}
   </h3>
   {#each form.envRows as row, index (index)}

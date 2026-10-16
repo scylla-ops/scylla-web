@@ -3,12 +3,14 @@
   import XIcon from '@lucide/svelte/icons/x';
   import { Button, Input, Label } from '@scylla/ui/shadcn';
   import { t } from '@scylla/ui/i18n';
-  import type { StepNodeForm } from '../step-node-form.state.svelte.ts';
+  import type { StepPanelState } from '../../../../step-panel.state.svelte.ts';
   import { blueprintMessages } from '../blueprint.messages.ts';
   import { pipelineMessages } from '../../../../pipeline.messages.ts';
+  import { cn } from '@scylla/ui/utils';
+  import { SECTION_TITLE } from '../section-title.ts';
 
   interface Props {
-    form: StepNodeForm;
+    form: StepPanelState;
   }
 
   let { form }: Props = $props();
@@ -17,7 +19,7 @@
 </script>
 
 <section class="flex flex-col gap-2 border-b px-5 py-4">
-  <Label for="step-program" class="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
+  <Label for="step-program" class={SECTION_TITLE}>
     {t(blueprintMessages.program)}
   </Label>
   <Input
@@ -28,7 +30,7 @@
     class="font-mono text-[13px]"
   />
 
-  <h3 class="mt-2 text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
+  <h3 class={cn('mt-2', SECTION_TITLE)}>
     {t(pipelineMessages.argumentsLabel)}
   </h3>
   <!-- An argument is its position: indexed, like the form keeps it. -->

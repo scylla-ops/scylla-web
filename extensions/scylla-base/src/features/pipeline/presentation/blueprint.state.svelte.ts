@@ -3,8 +3,10 @@ import type { Connection, XYPosition } from '@xyflow/svelte';
 import type { PipelineStep } from '../domain/structs/pipeline.struct.ts';
 import {
   HORIZONTAL_GAP,
+  NODE_HEIGHT,
   NODE_WIDTH,
   START_NODE_ID,
+  VERTICAL_GAP,
   dependentsOf,
   edgeBetween,
   flowToSteps,
@@ -31,8 +33,6 @@ export interface StepPlacement {
   /** The step it runs after. Without one, it runs first. */
   after?: string;
 }
-
-const ROW_HEIGHT = 140;
 
 /**
  * The canvas graph, in step with the script. The script owns the steps, the
@@ -106,8 +106,8 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
     return [...kept, ...missing];
   };
 
-  const freePosition = (placement: StepPlacement): XYPosition => {
-    const anchor = nodes.find(node => node.id === placement.after);
+  const freePosition = (after: string | undefined): XYPosition => {
+    const anchor = nodes.find(node => node.id === after);
     const steps = nodes.filter(node => node.type === 'pipelineStep');
     const x = anchor
       ? anchor.position.x + NODE_WIDTH + HORIZONTAL_GAP
@@ -118,19 +118,33 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
     while (
       steps.some(node => Math.abs(node.position.x - x) < 40 && Math.abs(node.position.y - y) < 40)
     ) {
-      y += ROW_HEIGHT;
+      y += NODE_HEIGHT + VERTICAL_GAP;
     }
     return { x, y };
   };
 
+  /** The steps `stepId` runs after: its incoming edges, the start node aside. */
+  const dependenciesOf = (stepId: string): string[] =>
+    edges
+      .filter(edge => edge.target === stepId && edge.source !== START_NODE_ID)
+      .map(edge => edge.source);
+
   /** The steps `stepId` may run after: not itself, not one that already runs after it. */
   const dependencyCandidates = (stepId: string): string[] => {
     const after = dependentsOf(stepId, edges);
-    const current = edges.filter(edge => edge.target === stepId).map(edge => edge.source);
+    const current = dependenciesOf(stepId);
     return nodes
       .filter(node => node.type === 'pipelineStep')
       .map(node => node.id)
       .filter(id => id !== stepId && !after.has(id) && !current.includes(id));
+  };
+
+  /** The panel's selection, also marked on the canvas so the two agree. */
+  const selectNode = (id: string | null) => {
+    selectedId = id;
+    nodes = nodes.map(node =>
+      node.selected === (node.id === id) ? node : { ...node, selected: node.id === id },
+    );
   };
 
   const isStep = (id: string) => nodes.some(node => node.id === id && node.type === 'pipelineStep');
@@ -156,23 +170,12 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
     get selectedId() {
       return selectedId !== null && nodes.some(node => node.id === selectedId) ? selectedId : null;
     },
-    /** Also marks the node on the canvas, so the panel and the canvas agree. */
-    select(id: string | null) {
-      selectedId = id;
-      nodes = nodes.map(node =>
-        node.selected === (node.id === id) ? node : { ...node, selected: node.id === id },
-      );
-    },
+    select: selectNode,
     get selectedStep(): PipelineStep | undefined {
       const node = nodes.find(candidate => candidate.id === selectedId);
-      if (!node) return undefined;
-      const step = stepOf(node);
-      if (!step) return undefined;
+      const step = node && stepOf(node);
       // `deps` live on the edges.
-      const deps = edges
-        .filter(edge => edge.target === node.id && edge.source !== START_NODE_ID)
-        .map(edge => edge.source);
-      return { ...step, deps };
+      return step && { ...step, deps: dependenciesOf(step.id) };
     },
 
     /** Nothing may depend on the start node, and no step may run after itself. */
@@ -181,6 +184,7 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
       connection.source !== connection.target &&
       !dependentsOf(connection.target, edges).has(connection.source),
 
+    dependenciesOf,
     dependencyCandidates,
 
     sync() {
@@ -188,36 +192,29 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
       emit();
     },
 
-    /** Adds a step, selects it and returns its id. */
-    addStep(preferredId: string, value: NodeFormValue, placement: StepPlacement = {}): string {
+    /** Adds a step and selects it, so its panel opens. */
+    addStep(preferredId: string, value: NodeFormValue, placement: StepPlacement = {}) {
       const id = generateUniqueNodeId(preferredId, takenIds());
       const after = placement.after && isStep(placement.after) ? placement.after : undefined;
 
       const node: BlueprintStepNode = {
         id,
         type: 'pipelineStep',
-        position: placement.position ?? freePosition({ after }),
+        position: placement.position ?? freePosition(after),
         data: { step: { id, deps: [], ...value } },
       };
 
-      nodes = [
-        ...nodes.map(other => (other.selected ? { ...other, selected: false } : other)),
-        {
-          ...node,
-          selected: true,
-        },
-      ];
+      nodes = [...nodes, node];
       edges = withStartEdges([...edges, ...(after ? [edgeBetween(after, id)] : [])]);
-      selectedId = id;
+      selectNode(id);
       emit();
-      return id;
     },
 
     /**
      * Replaces a step's content. A rename is followed in the edges, so the other
-     * steps keep depending on it. Returns the id it ends up with.
+     * steps keep depending on it.
      */
-    updateStep(originalId: string, newNodeId: string, value: NodeFormValue): string {
+    updateStep(originalId: string, newNodeId: string, value: NodeFormValue) {
       const id = generateUniqueNodeId(newNodeId, takenIds(), originalId);
 
       nodes = nodes.map((node): BlueprintNode => {
@@ -237,7 +234,6 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
       }
 
       emit();
-      return id;
     },
 
     removeStep(id: string) {

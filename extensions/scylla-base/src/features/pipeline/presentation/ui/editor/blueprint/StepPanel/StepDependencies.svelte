@@ -5,21 +5,22 @@
   import { t } from '@scylla/ui/i18n';
   import type { BlueprintState } from '../../../../blueprint.state.svelte.ts';
   import { blueprintMessages } from '../blueprint.messages.ts';
+  import { SECTION_TITLE } from '../section-title.ts';
 
   interface Props {
     blueprint: BlueprintState;
     stepId: string;
-    deps: string[];
   }
 
-  let { blueprint, stepId, deps }: Props = $props();
+  let { blueprint, stepId }: Props = $props();
 
+  const deps = $derived(blueprint.dependenciesOf(stepId));
   const candidates = $derived(blueprint.dependencyCandidates(stepId));
 </script>
 
 <!-- The same dependencies as the links drawn on the canvas, editable without dragging. -->
 <section class="flex flex-col gap-2 border-b px-5 py-4">
-  <h3 class="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
+  <h3 class={SECTION_TITLE}>
     {t(blueprintMessages.runsAfter)}
   </h3>
   {#if deps.length === 0}

@@ -19,7 +19,12 @@
     type KeepInViewParams,
     type StepDrop,
   } from '../../../blueprint-canvas.actions.ts';
-  import { DEFAULT_EDGE_STYLE, NODE_WIDTH, START_NODE_ID } from '../../../utils/blueprint-converter.ts';
+  import {
+    DEFAULT_EDGE_STYLE,
+    NODE_HEIGHT,
+    NODE_WIDTH,
+    START_NODE_ID,
+  } from '../../../utils/blueprint-converter.ts';
   import DeletableEdge from './DeletableEdge.svelte';
   import PipelineStepNode from './PipelineStepNode.svelte';
   import StartNode from './StartNode.svelte';
@@ -49,7 +54,7 @@
     }
     const point = screenToFlowPosition({ x: clientX, y: clientY });
     // The pointer holds the middle of the new node, not its corner.
-    const position = { x: point.x - NODE_WIDTH / 2, y: point.y - 40 };
+    const position = { x: point.x - NODE_WIDTH / 2, y: point.y - NODE_HEIGHT / 2 };
     blueprint.addStep(block.idPrefix, block.value(), { position });
   };
 
@@ -61,7 +66,7 @@
             id: node.id,
             ...node.position,
             width: node.measured?.width ?? NODE_WIDTH,
-            height: node.measured?.height ?? 96,
+            height: node.measured?.height ?? NODE_HEIGHT,
           }
         : null,
       flowToScreen: flowToScreenPosition,
@@ -69,7 +74,8 @@
     };
   });
 
-  const [firstBlock] = STEP_BLOCKS;
+  // The shortcut of the empty canvas: the most common first step.
+  const [bashBlock] = STEP_BLOCKS;
 </script>
 
 <div
@@ -114,7 +120,7 @@
         <Button
           variant="outline"
           size="sm"
-          onclick={() => blueprint.addStep(firstBlock.idPrefix, firstBlock.value())}
+          onclick={() => blueprint.addStep(bashBlock.idPrefix, bashBlock.value())}
         >
           {t(blueprintMessages.addBashScript)}
         </Button>

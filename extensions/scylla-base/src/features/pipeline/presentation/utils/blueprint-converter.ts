@@ -24,9 +24,9 @@ export const START_NODE_ID = '__start__';
 export const EDGE_COLOR = 'var(--muted-foreground)';
 
 export const NODE_WIDTH = 220;
-const NODE_HEIGHT = 96;
+export const NODE_HEIGHT = 96;
 export const HORIZONTAL_GAP = 80;
-const VERTICAL_GAP = 48;
+export const VERTICAL_GAP = 48;
 const START_NODE_OFFSET = NODE_WIDTH + HORIZONTAL_GAP;
 
 export const DEFAULT_EDGE_STYLE = {
