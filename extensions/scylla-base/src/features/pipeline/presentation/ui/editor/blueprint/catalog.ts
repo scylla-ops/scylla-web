@@ -7,15 +7,6 @@ import type {
 import { stepPreview } from '@base/features/pipeline/presentation/utils/step-summary.ts';
 import { blueprintMessages } from './blueprint.messages.ts';
 
-/** The `DataTransfer` type of an entry dragged from the palette: its value is the entry id. */
-export const CATALOG_DRAG_TYPE = 'application/x-scylla-step';
-
-/**
- * How far above the pointer the icon of a dragged entry rides, in screen pixels, so the pointer
- * does not hide it. The dropped node lands with its icon there too: the icon stays in the outline.
- */
-export const DRAG_LIFT = 24;
-
 export const BLANK_STEPS: readonly CatalogEntry[] = [
   {
     id: 'kind:bash',

@@ -84,7 +84,10 @@ presentation/
       blueprint/                             the canvas, its nodes, its edge, the side panel
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected step, add/insert/rename
         node-appearance.svelte.ts            the viewer's node style, remembered in localStorage
-        drop-spot.state.svelte.ts, DropSpot.svelte   the outline of where a dragged palette entry lands
+        palette-drag.state.svelte.ts         a palette entry dragged with the pointer: entry, pointer, spot
+        palette-drag.attachments.ts          dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
+        PaletteDragGhost.svelte              the dragged icon, in place of the pointer
+        drop-spot.calculator.ts, DropSpot.svelte   the outline of where a new step lands
         catalog.ts                           blank steps, template entries, catalogText (translates)
         step-kinds.ts                        icon and colours of each kind of step
         Segmented.svelte, SearchField.svelte the segmented control and the search box of the panel
@@ -152,17 +155,20 @@ the page.
   its selection, and only a new one is laid out. The document must also read back what it
   writes (`stepsOf(withSteps(steps))` equals `steps`, with an empty `workingDir` read as none):
   else each edit is taken for an outside change.
-- **The canvas outlines where a new step lands**, for a palette entry dragged over it and for a
+- **A palette entry is dragged with the pointer, not with HTML drag and drop.** The browser
+  draws the pointer of an HTML drag (with a "+" or a globe on macOS) and cannot hide it or
+  change the dragged picture on the way. `dragToCanvas` (`palette-drag.attachments.ts`)
+  captures the pointer of a row: past 4 px a press is a drag, and the click that ends it, or an
+  Escape, adds nothing. During a drag `<html>` hides the pointer (`cursor-none`), and
+  `PaletteDragGhost` draws the entry's icon (`CatalogIcon`) centred on it, in a `Portal`, at
+  each pointer move. `createPaletteDrag` holds the entry, the pointer and the `spot`; the canvas
+  registers itself with `acceptPaletteDrop` and gives the position of a drop (`nodePositionAt`:
+  the node's icon lands under the dragged icon). A new drag source uses the same state.
+- **The canvas outlines where a new step lands**: for a palette drag (`drag.spot`) and for a
   link pulled from an output onto empty canvas (`linkDropPoint`, on xyflow's `useConnection`).
-  The palette drag is the browser's (`CATALOG_DRAG_TYPE`); `createDropSpot` follows it (a count
-  of `dragenter` / `dragleave`, which also fire on each child). `DropSpot` draws the `footprint`
-  of the current node style (`nodes/node-geometry.ts`) in the front `ViewportPortal`, so it
-  follows the zoom and no node hides it, at the position the drop gives (`nodePositionAt`).
-  It has no move transition: the browser reports a drag about every 50 ms. The drag image is
-  the row's icon (`data-drag-image`), `DRAG_LIFT` px above the pointer so the pointer does not
-  hide it; a dropped node lands with its icon there too (`dropPositionOf`), so the icon sits
-  inside the outline. The drag is a `move`, not a `copy`:
-  macOS puts a "+" badge on the pointer of a copy.
+  `DropSpot` draws the `footprint` of the current node style (`nodes/node-geometry.ts`) in the
+  front `ViewportPortal`, so it follows the zoom and no node hides it. No move transition: it
+  must stay under the pointer.
 - **A step id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
   protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`utils/step-summary.ts`)
   is that rule; keep both the same. A refused id is shown on the node, in the inspector while it

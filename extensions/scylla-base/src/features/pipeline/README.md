@@ -52,9 +52,14 @@ stays free for the app's own sidebar.
 
 While you drag an entry from the palette over the canvas, or pull a link from a step onto empty
 canvas, a dashed outline shows the place the new step will take, in the size of your node style
-and at the zoom of the canvas. Only the icon of the dragged entry follows the pointer, just
-above it so the pointer does not hide it, and the new node lands with its icon there: the icon
-sits inside the outline.
+and at the zoom of the canvas. During a palette drag the pointer is hidden and the icon of the
+entry takes its place: over the canvas, it sits where the icon of the new node lands, inside the
+outline.
+
+This drag is the app's, not the browser's drag and drop. The browser draws the pointer of its
+own drag (with a "+" or a globe on macOS), cannot change the dragged picture on the way, and
+reports the pointer only about every 50 ms. Drawing the drag in the app removes these limits,
+and leaves room to make it richer later.
 
 The panel opens on a click only. Moving a node, dropping a step or drawing a selection box
 leaves it as it is: an inspector that opens while you arrange the graph gets in the way. Its

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import {
     groupCatalog,
     searchCatalog,
@@ -7,21 +8,23 @@
   } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
   import {
-    CATALOG_DRAG_TYPE,
     CATALOG_GROUP_TITLES,
-    DRAG_LIFT,
     catalogText,
   } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog.ts';
   import CatalogItem from '@base/features/pipeline/presentation/ui/editor/blueprint/CatalogItem.svelte';
   import SearchField from '@base/features/pipeline/presentation/ui/editor/blueprint/SearchField.svelte';
+  import { dragToCanvas } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag.attachments.ts';
+  import type { PaletteDrag } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag.state.svelte.ts';
 
   interface Props {
     entries: readonly CatalogEntry[];
     /** A click adds the entry right of the graph; a drag places it where it is dropped. */
     onAdd: (entry: CatalogEntry) => void;
+    /** Lets a row be dragged onto the canvas. */
+    drag?: PaletteDrag;
   }
 
-  let { entries, onAdd }: Props = $props();
+  let { entries, onAdd, drag }: Props = $props();
 
   let query = $state('');
 
@@ -42,26 +45,14 @@
         {t(CATALOG_GROUP_TITLES[group])}
       </h3>
       {#each items as entry (entry.id)}
+        <!-- A click adds the entry; a drag takes it to the canvas, and the row stays, dimmed. -->
         <button
           type="button"
-          draggable="true"
-          class="flex w-full cursor-grab items-center gap-2.5 rounded-lg p-2 transition-colors hover:bg-accent active:cursor-grabbing"
-          ondragstart={event => {
-            if (!event.dataTransfer) return;
-            event.dataTransfer.setData(CATALOG_DRAG_TYPE, entry.id);
-            // `move`, not `copy`: macOS adds a "+" badge to the pointer of a copy.
-            event.dataTransfer.effectAllowed = 'move';
-            // Only the icon, above the pointer: where the icon of the dropped node lands, so over
-            // the canvas it sits inside the outline, and the pointer does not hide it.
-            const icon = event.currentTarget.querySelector<HTMLElement>('[data-drag-image]');
-            if (icon) {
-              event.dataTransfer.setDragImage(
-                icon,
-                icon.offsetWidth / 2,
-                icon.offsetHeight / 2 + DRAG_LIFT,
-              );
-            }
-          }}
+          class={cn(
+            'flex w-full cursor-grab items-center gap-2.5 rounded-lg p-2 transition-[background-color,opacity] select-none hover:bg-accent active:cursor-grabbing',
+            drag?.entry?.id === entry.id && 'opacity-40',
+          )}
+          {@attach drag && dragToCanvas(() => ({ entry, drag }))}
           onclick={() => onAdd(entry)}
         >
           <CatalogItem {entry} />
