@@ -7,6 +7,7 @@ import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import type { PipelineEntity } from '../domain/entities/pipeline.entity.ts';
 import type { PipelineMetadata, PipelineStep } from '../domain/structs/pipeline.struct.ts';
+import type { StepTemplate } from '../domain/structs/step-template.struct.ts';
 import type { PipelineModule } from '../pipeline.module.ts';
 import { pipelineMessages } from './pipeline.messages.ts';
 import {
@@ -18,11 +19,15 @@ import {
   PIPELINE_QUERY_KEY,
   PROJECT_PIPELINES_QUERY_ROOT,
   RUN_PIPELINE_MUTATION_KEY,
+  STEP_TEMPLATES_QUERY_KEY,
 } from './pipelines.query-keys.ts';
 
 // Resolved per call: tests swap the registry.
 const repository = () =>
   getModuleDomain<typeof PipelineModule.domain>('pipeline').pipelineRepository;
+
+const templateRepository = () =>
+  getModuleDomain<typeof PipelineModule.domain>('pipeline').stepTemplateRepository;
 
 const currentProject = () => contextStore.getState().project;
 
@@ -59,6 +64,16 @@ export const pipelineQueries = {
       enabled: !!pipelineId,
       queryFn: async () => (await repository().getById(pipelineId)).unwrap(),
       staleTime: 30_000,
+    }),
+};
+
+/** Read by the editor only, behind its own route guard: nothing to gate here. */
+export const stepTemplateQueries = {
+  list: () =>
+    queryOptions<StepTemplate[]>({
+      queryKey: STEP_TEMPLATES_QUERY_KEY(),
+      queryFn: async () => (await templateRepository().list()).unwrap(),
+      staleTime: Infinity,
     }),
 };
 

@@ -9,7 +9,13 @@ import type { PipelineMetadata } from '@base/features/pipeline/domain/structs/pi
 import type {
   PipelineRepository,
 } from '@base/features/pipeline/domain/repository/pipeline.repository.ts';
-import { pipelineMutations, pipelineQueries, asPipelineFeed } from '../pipeline.queries.ts';
+import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
+import {
+  pipelineMutations,
+  pipelineQueries,
+  asPipelineFeed,
+  stepTemplateQueries,
+} from '../pipeline.queries.ts';
 
 const toastSuccess = vi.fn();
 vi.mock('svelte-sonner', () => ({
@@ -49,6 +55,15 @@ const paginated = <T,>(items: T[], totalCount = items.length) => ({
   },
 });
 
+const templates: StepTemplate[] = [
+  {
+    id: 'make',
+    name: 'make',
+    nodeId: 'build',
+    definition: { kind: 'exec', command: 'make', args: [], env: [] },
+  },
+];
+
 let repository: Record<keyof PipelineRepository, ReturnType<typeof vi.fn>>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
@@ -70,7 +85,10 @@ beforeEach(() => {
   toastSuccess.mockClear();
   cache = withQueryClient();
   restoreRegistry = withRegistry({
-    pipeline: { pipelineRepository: repository as unknown as PipelineRepository },
+    pipeline: {
+      pipelineRepository: repository as unknown as PipelineRepository,
+      stepTemplateRepository: { list: () => Promise.resolve(ScyllaResult.success(templates)) },
+    },
   });
   navigator = installTestNavigator({ pathname: '/acme/projects/project-1' });
 
@@ -265,5 +283,14 @@ describe('pipelineMutations.run', () => {
   it('says nothing on its own', () => {
     runOnSuccess(pipelineMutations.run(), undefined, 'pipeline-1');
     expect(toastSuccess).not.toHaveBeenCalled();
+  });
+});
+
+describe('stepTemplateQueries', () => {
+  it('reads the templates from the module repository, once for the whole app', async () => {
+    const options = stepTemplateQueries.list();
+
+    expect(options.staleTime).toBe(Infinity);
+    expect(await runQueryFn(options)).toEqual(templates);
   });
 });
