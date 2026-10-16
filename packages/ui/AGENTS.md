@@ -64,7 +64,7 @@ catalogs of this package register themselves.
 | A form | `FormItem[]` → `ScyllaForm`; `FormDialog` wraps it; `createFormState(() => items)` owns values/validation. Declare the ids in the item type (`readonly FormItem<'name' \| 'description'>[]`) and `onSubmit` receives a typed `FormValues` record — never re-index the values by hand |
 | Pagination | `createPagination(options)` — local page merged with server `totalCount`/`totalPages`; `responsive: true` sizes the page to the container |
 | How much room the layout left a component | `createMeasuredHeight()` → `{ height, measure }`, and `{@attach measure}` on a container sized by the layout, never by its content |
-| A table | `DataTable` (+ `createPagination`) — row keys are business ids, never indices |
+| A table | `DataTable` (+ `createPagination`) — row keys are business ids, never indices. Give each column `meta.card` (see "`DataTable` on a phone") |
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
 | Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue" |
@@ -183,6 +183,33 @@ In `vite.config.ts`, `vendor-ui` holds bits-ui and everything it pulls (`@floati
 `vendor-svelte`, because the Svelte runtime imports it too: in `vendor-ui` it made a circular
 chunk.
 
+## `DataTable` on a phone
+
+Below `CARD_LAYOUT_WIDTH_PX` (640 px) of its **own** width, `DataTable` renders one card per row
+instead of a table. It measures its box, not the viewport: the sidebar takes part of the screen.
+The same cell snippets render in both layouts. Each column says where it goes in the card with
+`meta.card`:
+
+| `meta.card` | Place in the card |
+|---|---|
+| `title` | the top line. Several title columns sit side by side; the last one takes the free width |
+| `actions` | the right end of the top line |
+| `body` | full width, under the top line |
+| `meta` (default) | the bottom line, after the column header as a label |
+| `hidden` | not shown |
+
+- **A click on a card is a click on the row** (`onRowClick`): on a phone a tap selects, like a
+  click on the web. A selected card has `data-state="selected"`.
+- **A cell that must render differently in a card** reads `getDataTableLayout().isCard` while it
+  initialises (a Svelte context). `PipelineActions` and `TriggerActions` use it to show a menu.
+- Body and meta cells are aligned left in a card, even when the cell centres itself for the
+  table (`*:justify-start`).
+
+`FeatureHeader` has its own phone layout, from the viewport (`max-width: 639px`): "New" is an
+icon (`newIcon`, `Plus` by default) with its label for screen readers only, and when something is
+selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of the screen
+(`data-part="feature-header-selection-bar"`). Without a selection there is no bar.
+
 ## Rules that bite here
 
 - **A denied `GatedButton` is `aria-disabled`, not `disabled`.** A `disabled` button cannot
@@ -230,7 +257,7 @@ chunk.
   who knows shadcn knows them. Prefer composing over editing; if you must edit, keep that API.
 - Adding to `@scylla/ui` needs a second real usage. One usage stays inline.
 - `data-part` marks the inner parts of a composite that code outside may point at:
-  `feature-header-new` (`FeatureHeader`), `code-snippet-copy` (`CodeSnippet`),
+  `feature-header-new` and `feature-header-selection-bar` (`FeatureHeader`), `code-snippet-copy` (`CodeSnippet`),
   `secret-reveal-secret` / `-next-step` / `-confirm` (`SecretRevealChecklist`). The onboarding
   tour of scylla-base uses only `feature-header-new`. Keep them; do not use `data-slot` for this, a primitive
   sets its own.

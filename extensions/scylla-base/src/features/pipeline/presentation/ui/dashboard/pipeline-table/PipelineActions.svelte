@@ -14,7 +14,7 @@
     DropdownMenuItem,
     DropdownMenuTrigger,
   } from '@scylla/ui/primitives';
-  import { IconButton } from '@scylla/ui';
+  import { IconButton, getDataTableLayout } from '@scylla/ui';
   import { createCompactContainer } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
@@ -45,19 +45,44 @@
   const canEdit = $derived(can(Permission.UPDATE_PIPELINE));
   const canDuplicate = $derived(can(Permission.CREATE_PIPELINE));
   const showTriggers = $derived(!!onViewTriggers && can(Permission.MANAGE_TRIGGERS));
+
+  // A card has no room for five buttons. Run stays out of the menu: it is the main action.
+  const layout = getDataTableLayout();
+  const asMenu = $derived(compact.isCompact || layout.isCard);
+  const runBesideMenu = $derived(layout.isCard && canRun);
 </script>
+
+{#snippet runButton()}
+  <span data-tour="pipeline-run" class="contents">
+    <IconButton
+      icon={isRunning ? Loader2Icon : PlayIcon}
+      tooltip={t(pipelineMessages.run)}
+      onclick={onRun}
+      busy={isRunning}
+      iconClass={isRunning ? 'animate-spin' : 'fill-current'}
+    />
+  </span>
+{/snippet}
 
 <!-- Falls back to a menu when the column is too narrow. -->
 <div
   {@attach compact.measure}
   class="flex w-full shrink-0 items-center justify-center gap-2"
 >
-  {#if compact.isCompact}
+  {#if asMenu}
+    {#if runBesideMenu}
+      {@render runButton()}
+    {/if}
     <DropdownMenu>
       <DropdownMenuTrigger>
         {#snippet child({ props })}
           <Button
             {...props}
+            onclick={(event: MouseEvent) => {
+              // Opening the menu must not select the row.
+              event.stopPropagation();
+              (props.onclick as ((e: MouseEvent) => void) | undefined)?.(event);
+            }}
             type="button"
             size="icon"
             variant="ghost"
@@ -70,7 +95,7 @@
         {/snippet}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" class="w-40">
-        {#if canRun}
+        {#if canRun && !runBesideMenu}
           <DropdownMenuItem onclick={onRun}>
             <PlayIcon class="mr-2 h-4 w-4" />
             {t(pipelineMessages.run)}
@@ -104,15 +129,7 @@
     </DropdownMenu>
   {:else}
     {#if canRun}
-      <span data-tour="pipeline-run" class="contents">
-        <IconButton
-          icon={isRunning ? Loader2Icon : PlayIcon}
-          tooltip={t(pipelineMessages.run)}
-          onclick={onRun}
-          busy={isRunning}
-          iconClass={isRunning ? 'animate-spin' : 'fill-current'}
-        />
-      </span>
+      {@render runButton()}
     {/if}
 
     {#if canEdit}
