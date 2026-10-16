@@ -54,19 +54,22 @@
 </script>
 
 <div class="flex w-full items-center justify-between gap-3">
-  <TabsList>
-    <TabsTrigger value="scripting">{t(pipelineMessages.scripting)}</TabsTrigger>
-    <TabsTrigger value="blueprint" disabled={blueprintDisabled}>
-      {t(pipelineMessages.blueprint)}
-    </TabsTrigger>
-  </TabsList>
+  <!-- The name follows the tabs: a long name grows to the right, the actions stay in place. -->
+  <div class="flex min-w-0 flex-1 items-center gap-3">
+    <TabsList class="shrink-0">
+      <TabsTrigger value="scripting">{t(pipelineMessages.scripting)}</TabsTrigger>
+      <TabsTrigger value="blueprint" disabled={blueprintDisabled}>
+        {t(pipelineMessages.blueprint)}
+      </TabsTrigger>
+    </TabsList>
 
-  <div class="flex min-w-0 items-center gap-3">
     <!-- An invalid script has no name to edit: `blueprintDisabled` says so. -->
     {#key pipelineName}
       <PipelineNameField name={pipelineName} {onNameChange} disabled={blueprintDisabled} />
     {/key}
+  </div>
 
+  <div class="flex shrink-0 items-center gap-3">
     <div class="flex items-center gap-2 text-sm text-foreground/80">
       <span class="relative flex size-2">
         {#if status === 'dirty'}
