@@ -82,22 +82,22 @@ infrastructure/
   grpc-user.mapper.ts                user, requests, access, session, delivery
 presentation/
   user.queries.ts                    the reads, the writes, `canListUsers`
-  account-page.state.svelte.ts       createAccountPage: the account of the session
-  user-detail.state.svelte.ts        createUserDetail: the page of another user
-  user-agent.calculator.ts           parseUserAgent: browser, system and kind of a session (pure)
   ui/user.messages.ts                every string the screens show
   ui/admin/UserAdmin.page.svelte     the directory
   ui/admin/AddUserDialog/            "New user"
   ui/admin/user-table/               UserTable, user-columns.ts
   ui/account/Account/                the account page (+ ChangePasswordForm)
+    account-page.state.svelte.ts     createAccountPage: the account of the session
   ui/account/PersonalAccount/         the account page with no organization: + the sign-out at the end
   ui/account/DeleteAccountDialog/
   ui/user-detail/UserDetail/         the page of another user, and its parts:
+    user-detail.state.svelte.ts      createUserDetail: the page of another user
     UserDetailContent.svelte, UserDetailHeader.svelte (the identity card with status, date and id),
     UserSecurity.svelte
   ui/components/                     SettingsSection, UserStatusBadge, UserProfileForm/,
                                      UserAccessList/, UserIdentityCard, SessionList,
-                                     SessionRow/ (both pages)
+                                     SessionRow/ (both pages; user-agent.calculator.ts:
+                                     parseUserAgent, browser, system and kind of a session)
 ```
 
 ## Routes & nav

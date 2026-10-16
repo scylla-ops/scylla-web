@@ -1,10 +1,10 @@
 <script lang="ts">
   import { ResizablePanel } from '@scylla/ui';
-  import type { BlueprintState } from '@base/features/pipeline/presentation/blueprint.state.svelte.ts';
+  import type { BlueprintState } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.state.svelte.ts';
   import {
     SIDE_PANEL_WIDTHS,
     createSidePanelWidth,
-  } from '@base/features/pipeline/presentation/side-panel-width.svelte.ts';
+  } from './side-panel-width.svelte.ts';
   import { stepOf } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
   import type { CatalogEntry } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
   import NodePalette from './NodePalette/NodePalette.svelte';

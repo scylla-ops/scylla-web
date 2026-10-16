@@ -7,7 +7,7 @@
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type {
     RecentJobRow,
-  } from '@base/features/agents/presentation/agent-details.state.svelte.ts';
+  } from './agent-details.state.svelte.ts';
   import {
     formatDurationMs,
     shortId,

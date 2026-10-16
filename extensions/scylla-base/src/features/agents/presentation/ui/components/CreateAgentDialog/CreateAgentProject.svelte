@@ -9,7 +9,7 @@
     SelectValue,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type { AgentCreation } from '@base/features/agents/presentation/create-agent.state.svelte.ts';
+  import type { AgentCreation } from './create-agent.state.svelte.ts';
   import { createAgentMessages as messages } from './create-agent.messages.ts';
 
   interface Props {

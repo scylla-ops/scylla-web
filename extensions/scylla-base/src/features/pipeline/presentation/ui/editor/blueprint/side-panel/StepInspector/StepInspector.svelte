@@ -11,7 +11,7 @@
     PipelineStep,
     StepDefinition,
   } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-  import { createStepInspector } from '@base/features/pipeline/presentation/step-inspector.state.svelte.ts';
+  import { createStepInspector } from './step-inspector.state.svelte.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
   import { ISSUE_MESSAGES } from '@base/features/pipeline/presentation/ui/editor/blueprint/nodes/node-view.ts';
   import {

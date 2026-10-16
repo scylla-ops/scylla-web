@@ -9,7 +9,7 @@
   } from '@base/features/membership/domain/structs/scope-member.struct.ts';
   import type {
     AssignableRole,
-  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
   import MemberCard from '../MemberCard/MemberCard.svelte';
   import {
     membershipMessages,

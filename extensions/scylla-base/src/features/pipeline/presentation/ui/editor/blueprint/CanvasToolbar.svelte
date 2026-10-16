@@ -6,7 +6,7 @@
   import {
     NODE_APPEARANCES,
     type NodeAppearance,
-  } from '@base/features/pipeline/presentation/node-appearance.svelte.ts';
+  } from './node-appearance.svelte.ts';
   import { blueprintMessages } from './blueprint.messages.ts';
   import { NODE_APPEARANCE_VIEWS } from './nodes/node-appearances.ts';
   import Segmented from './Segmented.svelte';

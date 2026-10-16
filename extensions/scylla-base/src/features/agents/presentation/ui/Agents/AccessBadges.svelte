@@ -9,7 +9,7 @@
     isOtherOrganization,
     orderGrants,
     projectLabel,
-  } from '@base/features/agents/presentation/access.calculator.ts';
+  } from '@base/features/agents/presentation/ui/AgentDetails/AccessCard/access.calculator.ts';
   import { agentsPageMessages as messages } from './agents-page.messages.ts';
 
   interface Props {

@@ -8,8 +8,8 @@
   import {
     onboardingMessages,
   } from '@base/features/onboarding/presentation/onboarding.messages.ts';
-  import type { TourLink } from '@base/features/onboarding/presentation/tour-steps.ts';
-  import { holdPointer } from '@base/features/onboarding/presentation/tour-tracking.attachments.svelte.ts';
+  import type { TourLink } from './tour-steps.ts';
+  import { holdPointer } from './tour-tracking.attachments.svelte.ts';
 
   interface Props {
     title?: string;

@@ -3,7 +3,7 @@
   import { t } from '@scylla/ui/i18n';
   import type {
     AgentActions,
-  } from '@base/features/agents/presentation/agent-actions.state.svelte.ts';
+  } from './agent-actions.state.svelte.ts';
   import { agentsMessages } from '../agents.messages.ts';
   import DisableAgentDialog from './DisableAgentDialog/DisableAgentDialog.svelte';
   import ResetSecretDialog from './ResetSecretDialog/ResetSecretDialog.svelte';

@@ -6,8 +6,8 @@
   import { t } from '@scylla/ui/i18n';
   import type {
     AgentActions,
-  } from '@base/features/agents/presentation/agent-actions.state.svelte.ts';
-  import type { AgentRow } from '@base/features/agents/presentation/agents-page.state.svelte.ts';
+  } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
+  import type { AgentRow } from './agents-page.state.svelte.ts';
   import {
     memoryAmount,
     shortId,

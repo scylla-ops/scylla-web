@@ -77,15 +77,15 @@ presentation/
   jobs.query-keys.ts                 key factories — import these, never inline a key
   jobs.queries.ts                    every read and write, as query/mutation options
   jobs-by-pipelines.queries.ts       the fan-out across pipelines, avoids N+1
-  open-log-panels.svelte.ts          which node panels are open, mirrored in the URL
-  tail-job-logs.svelte.ts            the live stream subscription (opens and closes it)
   ui/Jobs.page.svelte, JobsHeader.svelte
   ui/JobDetails/                     one job: info + per-node logs (JobSummary, JobNodeLogs)
+    open-log-panels.svelte.ts        which node panels are open, mirrored in the URL
   ui/jobs.messages.ts                every string — `lingui extract` cannot read `.svelte`
   ui/jobs-table/                     JobsTable + job-columns.ts + cells
   ui/jobs-table/job-timeline.calculator.ts   segment geometry, pure and tested in node
   ui/jobs-log/JobLogDisplay/         the streamed viewer, shared by both pages
     streamed-log-view.svelte.ts      owns the editor document + tail-follow
+    tail-job-logs.svelte.ts          the live stream subscription (opens and closes it)
 ```
 
 ## Routes & nav

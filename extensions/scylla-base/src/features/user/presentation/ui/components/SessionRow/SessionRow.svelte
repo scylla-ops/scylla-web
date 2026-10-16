@@ -8,7 +8,7 @@
   import type {
     UserSessionEntity,
   } from '@base/features/user/domain/entities/user-session.entity.ts';
-  import { parseUserAgent } from '@base/features/user/presentation/user-agent.calculator.ts';
+  import { parseUserAgent } from './user-agent.calculator.ts';
   import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
   import { sessionActivity, sessionTitle } from './session-row.ts';
 

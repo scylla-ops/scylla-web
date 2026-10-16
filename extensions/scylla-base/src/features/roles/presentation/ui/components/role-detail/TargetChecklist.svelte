@@ -3,7 +3,7 @@
   import { t } from '@scylla/ui/i18n';
   import type {
     TargetOption,
-  } from '@base/features/roles/presentation/grant-creator.state.svelte.ts';
+  } from './grant-creator.state.svelte.ts';
   import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
 
   interface Props {

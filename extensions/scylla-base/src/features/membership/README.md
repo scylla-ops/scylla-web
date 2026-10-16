@@ -71,9 +71,9 @@ function that reloads the members. The details are in [`AGENTS.md`](./AGENTS.md)
 ## Structure at a glance
 
 - `domain/structs/scope-member.struct.ts` — the whole domain: types and the two builders.
-- `presentation/scope-membership.state.svelte.ts` — grants for a scope, plus grant and revoke
+- `presentation/ui/scope-membership.state.svelte.ts` — grants for a scope, plus grant and revoke
   mutations, with toasts.
-- `presentation/assignable-roles.state.svelte.ts` — the assignable-role calculation.
+- `presentation/ui/components/assignable-roles.state.svelte.ts` — the assignable-role calculation.
 - `presentation/ui/` — two pages over one set of scope-agnostic components.
 
 Neither page is exported from `index.ts`. They are lazily loaded by the module declaration, and

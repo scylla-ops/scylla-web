@@ -8,7 +8,7 @@
   import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
-  import type { RolesPage } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
+  import type { RolesPage } from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
   import { scopeLabelOf } from '@base/features/roles/presentation/utils/permission-mapping.ts';
   import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
 
