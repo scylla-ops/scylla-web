@@ -13,9 +13,9 @@
   } from '@xyflow/svelte';
   import '@xyflow/svelte/dist/style.css';
   import { t } from '@scylla/ui/i18n';
-  import type { BlueprintState } from './blueprint.state.svelte.ts';
+  import type { BlueprintState } from '../blueprint.state.svelte.ts';
   import type { NodeAppearancePreference } from './node-appearance.svelte.ts';
-  import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/QuickAddMenu/quick-add.state.svelte.ts';
+  import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
   import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
   import {
     templateFor,
@@ -27,12 +27,12 @@
   import DeletableEdge from './DeletableEdge.svelte';
   import { linkDropPoint } from './drop-spot.calculator.ts';
   import DropSpot from './DropSpot.svelte';
-  import { acceptPaletteDrop } from './palette-drag.attachments.ts';
-  import type { PaletteDrag } from './palette-drag.state.svelte.ts';
+  import { acceptPaletteDrop } from '../palette-drag/palette-drag.attachments.ts';
+  import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';
   import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.ts';
   import StartNode from './nodes/StartNode.svelte';
   import StepNode from './nodes/StepNode.svelte';
-  import QuickAddMenu from './QuickAddMenu/QuickAddMenu.svelte';
+  import QuickAddMenu from '../catalog/QuickAddMenu/QuickAddMenu.svelte';
 
   interface Props {
     blueprint: BlueprintState;

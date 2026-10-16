@@ -10,7 +10,7 @@
     templateFor,
     type CatalogEntry,
   } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
-  import type { PaletteDrag } from '../palette-drag.state.svelte.ts';
+  import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';
   import NodePalette from './NodePalette/NodePalette.svelte';
   import StepInspector from './StepInspector/StepInspector.svelte';
 

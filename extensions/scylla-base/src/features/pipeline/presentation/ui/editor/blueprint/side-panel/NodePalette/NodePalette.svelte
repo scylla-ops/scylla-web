@@ -10,11 +10,11 @@
   import {
     CATALOG_GROUP_TITLES,
     catalogText,
-  } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog.ts';
-  import CatalogItem from '@base/features/pipeline/presentation/ui/editor/blueprint/CatalogItem.svelte';
-  import SearchField from '@base/features/pipeline/presentation/ui/editor/blueprint/SearchField.svelte';
-  import { dragToCanvas } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag.attachments.ts';
-  import type { PaletteDrag } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag.state.svelte.ts';
+  } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/catalog.ts';
+  import CatalogItem from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/CatalogItem.svelte';
+  import SearchField from '@base/features/pipeline/presentation/ui/editor/blueprint/controls/SearchField.svelte';
+  import { dragToCanvas } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag/palette-drag.attachments.ts';
+  import type { PaletteDrag } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag/palette-drag.state.svelte.ts';
 
   interface Props {
     entries: readonly CatalogEntry[];

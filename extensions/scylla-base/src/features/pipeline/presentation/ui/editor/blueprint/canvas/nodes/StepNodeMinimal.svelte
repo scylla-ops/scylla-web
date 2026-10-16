@@ -3,7 +3,7 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import UnplugIcon from '@lucide/svelte/icons/unplug';
-  import { blueprintMessages } from '../blueprint.messages.ts';
+  import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
   import { MINIMAL_NODE, minimalHandleStyle } from './node-geometry.ts';
   import { handleClass, type StepNodeViewProps } from './node-view.ts';
 

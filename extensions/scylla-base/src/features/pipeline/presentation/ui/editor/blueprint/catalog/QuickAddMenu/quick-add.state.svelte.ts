@@ -1,5 +1,5 @@
 import type { XYPosition } from '@xyflow/svelte';
-import type { StepLink } from '../blueprint.state.svelte.ts';
+import type { StepLink } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.state.svelte.ts';
 import {
   groupCatalog,
   searchCatalog,

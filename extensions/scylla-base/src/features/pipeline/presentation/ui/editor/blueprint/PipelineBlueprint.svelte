@@ -3,14 +3,14 @@
   import { createQuery } from '@scylla/core-sdk';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import { createBlueprintState } from './blueprint.state.svelte.ts';
-  import { createNodeAppearance } from './node-appearance.svelte.ts';
+  import { createNodeAppearance } from './canvas/node-appearance.svelte.ts';
   import { stepTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
-  import { createQuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/QuickAddMenu/quick-add.state.svelte.ts';
-  import BlueprintCanvas from './BlueprintCanvas.svelte';
-  import { catalogEntries, catalogText } from './catalog.ts';
-  import PaletteDragGhost from './PaletteDragGhost.svelte';
-  import { createPaletteDrag } from './palette-drag.state.svelte.ts';
-  import { nodePositionAt } from './nodes/node-appearances.ts';
+  import { createQuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
+  import BlueprintCanvas from './canvas/BlueprintCanvas.svelte';
+  import { catalogEntries, catalogText } from './catalog/catalog.ts';
+  import PaletteDragGhost from './palette-drag/PaletteDragGhost.svelte';
+  import { createPaletteDrag } from './palette-drag/palette-drag.state.svelte.ts';
+  import { nodePositionAt } from './canvas/nodes/node-appearances.ts';
   import BlueprintSidePanel from './side-panel/BlueprintSidePanel.svelte';
 
   interface Props {

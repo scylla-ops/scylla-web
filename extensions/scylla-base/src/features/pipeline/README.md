@@ -89,7 +89,7 @@ what will happen, and you can still connect it to the step you meant.
 The viewer picks how steps look: **detailed** (a card: icon, id, what it runs, folder,
 variables) or **simplified** (a flat square with the kind's icon, the id under it). The choice is
 a per-browser convenience, kept in `localStorage`. Styles are a registry
-(`nodes/node-appearances.ts`), so a new one is a view of a step, a view of the start node and
+(`canvas/nodes/node-appearances.ts`), so a new one is a view of a step, a view of the start node and
 one entry — the canvas, the switch and the layout do not change.
 
 The script side is CodeMirror 6, mounted with the `renderCodeMirror` attachment of `@scylla/ui`. `pipeline-script.state.svelte.ts` holds `script` and `initialScript`: the draft text

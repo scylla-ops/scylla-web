@@ -83,23 +83,31 @@ presentation/
     run-pipeline.svelte.ts                   the Run action, shared by the dashboard and the jobs route
     editor/                                  PipelineEditor + header (with the name field), script editor
       pipeline-script.state.svelte.ts        the editor's document: script text, baseline, dirty check
-      blueprint/                             the canvas, its nodes, its edge, the side panel
+      blueprint/                             the visual editor, one folder per responsibility
+        PipelineBlueprint.svelte             wires the graph, the canvas, the side panel, the drag
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected step, add/insert/rename
-        node-appearance.svelte.ts            the viewer's node style, remembered in localStorage
-        palette-drag.state.svelte.ts         a palette entry dragged with the pointer: entry, pointer, spot
-        palette-drag.attachments.ts          dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
-        PaletteDragGhost.svelte              the dragged icon, in place of the pointer
-        drop-spot.calculator.ts, DropSpot.svelte   the outline of where a new step lands
-        catalog.ts                           blank steps, template entries, catalogText (translates)
-        step-kinds.ts                        icon and colours of each kind of step
-        Segmented.svelte, SearchField.svelte the segmented control and the search box of the panel
-        nodes/                               one step view and one start view per node style,
+        blueprint.messages.ts                the strings of the whole blueprint
+        step-kinds.ts                        icon and colours of each kind of step (canvas, catalog, panel)
+        canvas/                              the canvas and what it draws
+          BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte
+          blueprint-canvas.context.ts        what the nodes and edges read from the canvas
+          node-appearance.svelte.ts          the viewer's node style, remembered in localStorage
+          nodes/                             one step view and one start view per node style,
                                              node-appearances.ts (registry), node-geometry.ts
+          drop-spot.calculator.ts, DropSpot.svelte   the outline of where a new step lands
+        catalog/                             what can be added
+          catalog.ts                         blank steps, template entries, catalogText (translates)
+          CatalogIcon.svelte, CatalogItem.svelte   the tile and the row of an entry
+          QuickAddMenu/                      the step picker of a dropped link, quick-add.state.svelte.ts
+        palette-drag/                        a palette entry dragged to the canvas with the pointer
+          palette-drag.state.svelte.ts       entry, pointer, spot, the canvas as a drop target
+          palette-drag.attachments.ts        dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
+          PaletteDragGhost.svelte            the dragged icon, in place of the pointer
+        controls/                            Segmented.svelte, SearchField.svelte: the blueprint's controls
         side-panel/                          palette (nothing inspected) / inspector of the inspected step
           side-panel-width.svelte.ts         the width of the panel per mode, remembered in localStorage
           StepInspector/                     the inspector, step-inspector.state.svelte.ts (the draft
                                              of the step, applied at each edit)
-        QuickAddMenu/                        the step picker of a dropped link, quick-add.state.svelte.ts
     dashboard/                               Dashboard, chart, table, pipeline table columns
       DashboardPipeline/                     the page, pipeline-dashboard.state.svelte.ts (its ViewModel)
   utils/
@@ -169,7 +177,7 @@ the page.
   outline). A new drag source uses the same state.
 - **The canvas outlines where a new step lands**: for a palette drag (`drag.spot`) and for a
   link pulled from an output onto empty canvas (`linkDropPoint`, on xyflow's `useConnection`).
-  `DropSpot` draws the `footprint` of the current node style (`nodes/node-geometry.ts`) in the
+  `DropSpot` draws the `footprint` of the current node style (`canvas/nodes/node-geometry.ts`) in the
   front `ViewportPortal`, so it follows the zoom and no node hides it. No move transition: it
   must stay under the pointer.
 - **A step id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
@@ -191,23 +199,25 @@ the page.
   the selected edge's `+` opens it too, to insert a step (`link: { replacing }`). Both go
   through `blueprint.addNode(nodeId, definition, placement)`. The menu is a combobox: the focus
   stays in the search, `aria-activedescendant` names the active option, Tab closes the menu.
-- **Node styles are a registry.** `NODE_APPEARANCES` (`node-appearance.svelte.ts`) names them,
-  `nodes/node-appearances.ts` maps each to a step view (`StepNodeViewProps`), a start view
+- **Node styles are a registry.** `NODE_APPEARANCES` (`canvas/node-appearance.svelte.ts`) names them,
+  `canvas/nodes/node-appearances.ts` maps each to a step view (`StepNodeViewProps`), a start view
   (`StartNodeViewProps`), an `anchor`, a label and an icon. A new style is one name, two views
   and one entry: `StepNode` and `StartNode` only dispatch. The nodes read the style from the
   canvas context (`blueprint-canvas.context.ts`), since xyflow gives a node only its own props.
   The label of a node is part of the node element, so that xyflow measures it.
-- **Sizes of the nodes live in `nodes/node-geometry.ts`**: the views set their width from it,
+- **Sizes of the nodes live in `canvas/nodes/node-geometry.ts`**: the views set their width from it,
   the handles of a minimal node and the `anchor` (`nodePositionAt`: a dropped step lands on its
   middle, not its corner) are computed from it. Do not write these sizes as Tailwind classes.
 - **`presentation/utils/` stays pure**: no `t()`, no import from `ui/`. What translates a
-  catalog entry (`catalogText`, `BLANK_STEPS`) is in `blueprint/catalog.ts`; the search takes a
+  catalog entry (`catalogText`, `BLANK_STEPS`) is in `blueprint/catalog/catalog.ts`; the search takes a
   `resolve` function.
 - `blueprint-converter.ts` is the single translation between the flow graph and `PipelineStep[]`. 
   Both directions live there; do not inline conversion in a component. It's pure TypeScript with 
   full test coverage.
-- Largest module in the codebase — respect the ~150-line component rule. New editor UI goes in 
-  `ui/editor/blueprint/`, new list UI in `ui/dashboard/pipeline-table/`.
+- Largest module in the codebase — respect the ~150-line component rule. New editor UI goes in
+  the folder of `ui/editor/blueprint/` that has its responsibility (`canvas/`, `catalog/`,
+  `palette-drag/`, `side-panel/`, `controls/`), new list UI in `ui/dashboard/pipeline-table/`.
+  The root of `blueprint/` keeps only what the whole blueprint shares.
 - **`data-tour` attributes are anchors of the onboarding tour** (`pipelines` with `data-project-id`, `pipeline-editor`, `pipeline-submit`, and on each row
   `pipeline-history` / `pipeline-actions` / `pipeline-run` with `data-pipeline-id`,
   `data-pipeline-name`, `data-last-status`). Keep them on the same

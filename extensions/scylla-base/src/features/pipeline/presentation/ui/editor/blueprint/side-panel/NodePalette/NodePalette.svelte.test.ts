@@ -3,11 +3,11 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
 import { flushSync } from 'svelte';
-import { catalogEntries } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog.ts';
+import { catalogEntries } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/catalog.ts';
 import {
   createPaletteDrag,
   type PaletteDrag,
-} from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag.state.svelte.ts';
+} from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag/palette-drag.state.svelte.ts';
 import NodePalette from './NodePalette.svelte';
 
 const template: StepTemplate = {

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { flushSync } from 'svelte';
 import type { XYPosition } from '@xyflow/svelte';
-import { catalogEntries } from '../catalog.ts';
+import { catalogEntries } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/catalog.ts';
 import {
   createPaletteDrag,
   type DropTarget,

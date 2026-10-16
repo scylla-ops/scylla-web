@@ -12,7 +12,7 @@
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
   import { EDGE_COLOR } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
   import { getBlueprintCanvas } from './blueprint-canvas.context.ts';
-  import { blueprintMessages } from './blueprint.messages.ts';
+  import { blueprintMessages } from '../blueprint.messages.ts';
 
   let {
     id,

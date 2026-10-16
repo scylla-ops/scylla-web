@@ -6,7 +6,7 @@
   import { Handle, Position } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import { blueprintMessages } from '../blueprint.messages.ts';
+  import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
   import { DETAILED_NODE } from './node-geometry.ts';
   import { handleClass, type StepNodeViewProps } from './node-view.ts';
 

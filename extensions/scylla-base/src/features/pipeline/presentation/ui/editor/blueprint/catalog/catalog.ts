@@ -5,7 +5,7 @@ import type {
   CatalogText,
 } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
 import { stepPreview } from '@base/features/pipeline/presentation/utils/step-summary.ts';
-import { blueprintMessages } from './blueprint.messages.ts';
+import { blueprintMessages } from '../blueprint.messages.ts';
 
 export const BLANK_STEPS: readonly CatalogEntry[] = [
   {
