@@ -16,6 +16,11 @@ const execStep = (id: string, deps: string[] = []): ExecPipelineStep => ({
   env: [],
 });
 
+const definition = { kind: 'exec', command: 'make', args: [], env: [] } as const satisfies Omit<
+  ExecPipelineStep,
+  'id' | 'deps'
+>;
+
 const withState = (
   initial: PipelineStep[],
   run: (state: ReturnType<typeof createBlueprintState>, onStepsChange: ReturnType<typeof vi.fn>) => void,
@@ -71,7 +76,8 @@ describe('createBlueprintState', () => {
 
   it('renames a step everywhere its id is written', () => {
     withState([execStep('build'), execStep('test', ['build'])], (state, onStepsChange) => {
-      state.editNode('build', 'compile', { kind: 'exec', command: 'make', args: [], env: [] });
+      state.updateStep('build', { kind: 'exec', command: 'make', args: [], env: [] });
+      expect(state.renameStep('build', 'compile')).toBe('compile');
 
       const published = onStepsChange.mock.lastCall?.[0] as PipelineStep[];
       expect(published.find(step => step.id === 'compile')).toMatchObject({ command: 'make' });
@@ -99,6 +105,97 @@ describe('createBlueprintState', () => {
       state.sync();
 
       expect(onStepsChange.mock.calls.length).toBe(calls);
+    });
+  });
+  it('keeps the id when the new one is empty, and suffixes a taken one', () => {
+    withState([execStep('build'), execStep('test')], state => {
+      expect(state.renameStep('build', '  ')).toBe('build');
+      expect(state.renameStep('build', 'test')).toBe('test_1');
+    });
+  });
+
+  it('links a step added after a node, and selects only the new step', () => {
+    withState([execStep('build')], (state, onStepsChange) => {
+      state.select('build');
+      const id = state.addNode('test', definition, { after: 'build' });
+
+      expect(state.selected?.id).toBe(id);
+      expect(state.nodes.filter(node => node.selected)).toHaveLength(1);
+      const published = onStepsChange.mock.lastCall?.[0] as PipelineStep[];
+      expect(published.find(step => step.id === 'test')?.deps).toEqual(['build']);
+    });
+  });
+
+  it('hangs a step added with no link off the start node, right of the graph', () => {
+    withState([execStep('build')], state => {
+      const build = state.nodes.find(node => node.id === 'build')!;
+      state.addNode('lint', definition);
+
+      const lint = state.nodes.find(node => node.id === 'lint')!;
+      expect(lint.position.x).toBeGreaterThan(build.position.x);
+      expect(
+        state.edges.some(edge => edge.source === START_NODE_ID && edge.target === 'lint'),
+      ).toBe(true);
+    });
+  });
+
+  it('places a dropped step where it was dropped', () => {
+    withState([], state => {
+      state.addNode('lint', definition, { position: { x: 12, y: 34 } });
+      expect(state.nodes.find(node => node.id === 'lint')?.position).toEqual({ x: 12, y: 34 });
+    });
+  });
+
+  it('splits an edge around an inserted step', () => {
+    withState([execStep('build'), execStep('test', ['build'])], (state, onStepsChange) => {
+      state.addNode('lint', definition, { replacing: 'build->test' });
+
+      expect(state.edges.some(edge => edge.id === 'build->test')).toBe(false);
+      const published = onStepsChange.mock.lastCall?.[0] as PipelineStep[];
+      expect(published.find(step => step.id === 'lint')?.deps).toEqual(['build']);
+      expect(published.find(step => step.id === 'test')?.deps).toEqual(['lint']);
+    });
+  });
+
+  it('removes a step with its edges, but never the start node', () => {
+    withState([execStep('build'), execStep('test', ['build'])], (state, onStepsChange) => {
+      state.removeStep(START_NODE_ID);
+      expect(state.nodes.some(node => node.id === START_NODE_ID)).toBe(true);
+
+      state.removeStep('build');
+      expect(state.edges.some(edge => edge.source === 'build')).toBe(false);
+      const published = onStepsChange.mock.lastCall?.[0] as PipelineStep[];
+      expect(published.map(step => step.id)).toEqual(['test']);
+    });
+  });
+
+  it('opens the inspector on one selected node only', () => {
+    withState([execStep('build'), execStep('test')], state => {
+      state.select('build');
+      expect(state.selected?.id).toBe('build');
+
+      state.nodes = state.nodes.map(node => ({ ...node, selected: true }));
+      expect(state.selected).toBeUndefined();
+
+      state.select(null);
+      expect(state.nodes.some(node => node.selected)).toBe(false);
+    });
+  });
+
+  it('lists the dependencies of a step, without the start node', () => {
+    withState([execStep('build'), execStep('test', ['build'])], state => {
+      expect(state.dependenciesOf('test')).toEqual(['build']);
+      expect(state.dependenciesOf('build')).toEqual([]);
+    });
+  });
+
+  it('lays the graph out again by depth', () => {
+    withState([execStep('build'), execStep('test', ['build'])], state => {
+      state.nodes = state.nodes.map(node => ({ ...node, position: { x: 0, y: 0 } }));
+      state.arrange();
+
+      const x = (id: string) => state.nodes.find(node => node.id === id)!.position.x;
+      expect(x('build')).toBeLessThan(x('test'));
     });
   });
 });

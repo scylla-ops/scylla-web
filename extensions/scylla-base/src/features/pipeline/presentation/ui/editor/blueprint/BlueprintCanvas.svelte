@@ -4,71 +4,130 @@
     BackgroundVariant,
     Controls,
     SvelteFlow,
+    useSvelteFlow,
     type EdgeTypes,
     type NodeTypes,
+    type OnConnectEnd,
+    type XYPosition,
   } from '@xyflow/svelte';
   import '@xyflow/svelte/dist/style.css';
-  import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import { t } from '@scylla/ui/i18n';
+  import type { BlueprintState } from '@base/features/pipeline/presentation/blueprint.state.svelte.ts';
+  import type { NodeAppearancePreference } from '@base/features/pipeline/presentation/node-appearance.svelte.ts';
+  import type { QuickAdd } from '@base/features/pipeline/presentation/quick-add.state.svelte.ts';
   import {
     DEFAULT_EDGE_STYLE,
-    START_NODE_ID,
-    stepOf,
+    nodePositionAt,
   } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
-  import type {
-    BlueprintState,
-  } from '@base/features/pipeline/presentation/blueprint.state.svelte.ts';
+  import {
+    CATALOG_DRAG_TYPE,
+    type CatalogEntry,
+  } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { setBlueprintCanvas } from './blueprint-canvas.context.ts';
+  import CanvasToolbar from './CanvasToolbar.svelte';
   import DeletableEdge from './DeletableEdge.svelte';
-  import PipelineStepNode from './PipelineStepNode.svelte';
-  import StartNode from './StartNode.svelte';
+  import StartNode from './nodes/StartNode.svelte';
+  import StepNode from './nodes/StepNode.svelte';
+  import QuickAddMenu from './QuickAddMenu/QuickAddMenu.svelte';
 
   interface Props {
     blueprint: BlueprintState;
-    onStartNodeDoubleClick: () => void;
-    onStepNodeDoubleClick: (step: PipelineStep) => void;
+    appearance: NodeAppearancePreference;
+    quickAdd: QuickAdd;
+    entries: readonly CatalogEntry[];
   }
 
-  let { blueprint, onStartNodeDoubleClick, onStepNodeDoubleClick }: Props = $props();
+  let { blueprint, appearance, quickAdd, entries }: Props = $props();
 
-  const nodeTypes: NodeTypes = { pipelineStep: PipelineStepNode, startNode: StartNode };
+  const nodeTypes: NodeTypes = { pipelineStep: StepNode, startNode: StartNode };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
-</script>
 
-<!-- `nodes` and `edges` are bound: the library drags, selects and deletes; the callbacks report the changes. -->
-<SvelteFlow
-  bind:nodes={blueprint.nodes}
-  bind:edges={blueprint.edges}
-  {nodeTypes}
-  {edgeTypes}
-  fitView
-  fitViewOptions={{ padding: 0.2 }}
-  deleteKey={['Backspace', 'Delete']}
-  edgesFocusable
-  defaultEdgeOptions={DEFAULT_EDGE_STYLE}
-  class="rounded-lg"
-  onbeforeconnect={connection => (blueprint.canConnect(connection) ? connection : false)}
-  onconnect={() => blueprint.sync()}
-  ondelete={() => blueprint.sync()}
-  onnodeclick={({ node, event }) => {
-    // No double-click event: the click's `detail` counts.
-    if ((event as MouseEvent).detail < 2) return;
-    if (node.id === START_NODE_ID) {
-      onStartNodeDoubleClick();
+  const { screenToFlowPosition } = useSvelteFlow();
+
+  setBlueprintCanvas({
+    appearance: () => appearance.current,
+    insertOnEdge: (edgeId, at) => quickAdd.open({ ...at, replacing: edgeId }),
+  });
+
+  const clientPoint = (event: MouseEvent | TouchEvent): XYPosition => {
+    const point = 'changedTouches' in event ? event.changedTouches[0] : event;
+    return { x: point.clientX, y: point.clientY };
+  };
+
+  /** A link dropped on empty canvas asks which step to create there. */
+  const onConnectEnd: OnConnectEnd = (event, connection) => {
+    const from = connection.fromNode;
+    if (!from || connection.isValid || connection.toNode || connection.fromHandle?.type !== 'source') {
       return;
     }
-    const step = stepOf(node);
-    if (step) onStepNodeDoubleClick(step);
+    const client = clientPoint(event);
+    quickAdd.open({ client, flow: screenToFlowPosition(client), after: from.id });
+  };
+
+  const onDrop = (event: DragEvent) => {
+    const entry = entries.find(item => item.id === event.dataTransfer?.getData(CATALOG_DRAG_TYPE));
+    if (!entry) return;
+    event.preventDefault();
+    blueprint.addNode(entry.nodeId, entry.definition, {
+      position: nodePositionAt(screenToFlowPosition(clientPoint(event))),
+    });
+  };
+</script>
+
+<div
+  role="application"
+  aria-label={t(pipelineMessages.blueprint)}
+  class="relative h-full min-w-0 flex-1"
+  ondragover={event => {
+    if (!event.dataTransfer?.types.includes(CATALOG_DRAG_TYPE)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
   }}
+  ondrop={onDrop}
 >
-  <Background variant={BackgroundVariant.Dots} gap={16} size={1} class="bg-background!" />
-  <Controls class="border-border! bg-background! shadow-sm!" />
-</SvelteFlow>
+  <!-- `nodes` and `edges` are bound: the library drags, selects and deletes; the callbacks report the changes. -->
+  <SvelteFlow
+    bind:nodes={blueprint.nodes}
+    bind:edges={blueprint.edges}
+    {nodeTypes}
+    {edgeTypes}
+    fitView
+    fitViewOptions={{ padding: 0.25, maxZoom: 1 }}
+    deleteKey={['Backspace', 'Delete']}
+    edgesFocusable
+    defaultEdgeOptions={DEFAULT_EDGE_STYLE}
+    onbeforeconnect={connection => (blueprint.canConnect(connection) ? connection : false)}
+    onconnect={() => blueprint.sync()}
+    onconnectend={onConnectEnd}
+    ondelete={() => blueprint.sync()}
+  >
+    <Background variant={BackgroundVariant.Dots} gap={16} size={1} class="bg-background!" />
+    <Controls showLock={false} class="overflow-hidden rounded-[10px]! border! border-border! shadow-xs!" />
+    <CanvasToolbar
+      appearance={appearance.current}
+      onAppearanceChange={next => appearance.set(next)}
+      onArrange={() => blueprint.arrange()}
+    />
+  </SvelteFlow>
+
+  <QuickAddMenu {quickAdd} />
+</div>
 
 <style>
   :global(.svelte-flow__controls-button) {
-    --xy-controls-button-background-color: var(--background);
+    --xy-controls-button-background-color: var(--card);
     --xy-controls-button-background-color-hover: var(--muted);
     --xy-controls-button-color: var(--foreground);
     --xy-controls-button-color-hover: var(--foreground);
     --xy-controls-button-border-color: var(--border);
+  }
+
+  :global(.svelte-flow__attribution) {
+    background: transparent;
+  }
+
+  :global(.svelte-flow__edge:not(.selected):hover .svelte-flow__edge-path) {
+    stroke: var(--muted-foreground) !important;
   }
 </style>

@@ -2,7 +2,7 @@
 
 Pipelines: their definition, their editor, and the metadata the overviews read.
 
-**Layer** `features/` · **id** `pipeline` · **DI key** `pipelineRepository`
+**Layer** `features/` · **id** `pipeline` · **DI keys** `pipelineRepository`, `stepTemplateRepository`
 
 ## Import rules
 
@@ -38,6 +38,17 @@ not through the barrel.
 | `deleteById(id)` | `void` |
 | `run(id)` | `void` |
 
+`StepTemplateRepository` — `domain/repository/step-template.repository.ts`:
+
+| Method | Returns |
+|---|---|
+| `list()` | `StepTemplate[]` — the ready-made steps of the editor's palette |
+
+`DefaultStepTemplateRepository` serves `BUILT_IN_STEP_TEMPLATES` today. When the backend
+serves templates, a gRPC implementation replaces it in `pipeline.module.ts`; the palette and
+`stepTemplateQueries.list()` do not change. A template's `name` is shown as is (a tool name
+such as `npm ci`), and its `icon` is a hint: an unknown hint falls back to the kind's icon.
+
 **`PipelineMetadata` vs `PipelineEntity` is the split that matters**: lists fetch metadata (no
 steps), the editor fetches the entity. Do not make a list page call `getById`.
 
@@ -50,25 +61,36 @@ pipeline.module.ts                           4 routes + DI wiring (private; regi
 index.ts                                     public API
 domain/
   entities/pipeline.entity.ts                PipelineEntity
-  structs/pipeline.struct.ts                 PipelineMetadata, PipelineStep, PipelineIdentity
+  structs/pipeline.struct.ts                 PipelineMetadata, PipelineStep, StepDefinition, …
+  structs/step-template.struct.ts            StepTemplate
   repository/pipeline.repository.ts
+  repository/step-template.repository.ts
 infrastructure/
-  default-pipeline.repository.ts       PipelineServiceClient → PipelineEntity
+  default-pipeline.repository.ts             PipelineServiceClient → PipelineEntity
+  default-step-template.repository.ts        BUILT_IN_STEP_TEMPLATES
   grpc-pipeline.mapper.ts
 presentation/
-  blueprint.state.svelte.ts                  ViewModel (nodes/edges state) — Runes-based
-  pipeline-dashboard.state.svelte.ts        Dashboard ViewModel
+  blueprint.state.svelte.ts                  graph ViewModel: nodes, edges, selection, add/insert/rename
+  step-inspector.state.svelte.ts             draft of the selected step, applied live while runnable
+  quick-add.state.svelte.ts                  the menu of a link dropped on empty canvas
+  node-appearance.svelte.ts                  the viewer's node style, remembered in localStorage
+  pipeline-dashboard.state.svelte.ts         Dashboard ViewModel
   pipeline-script.state.svelte.ts            Script editor state
   pipeline.messages.ts                       i18n message descriptors
   pipeline.queries.ts                        TanStack Query options factories
   pipelines.query-keys.ts                    Query key factories (exported publicly)
   ui/
     *.page.svelte                            Pages (dashboard, creation, update, jobs route)
-    editor/                                  PipelineEditor + header, forms, blueprint/
-    blueprint/                                Canvas components (BlueprintCanvas, nodes, edges)
-    dashboard/                                Dashboard, chart, table, pipeline table columns
+    editor/                                  PipelineEditor + header, script editor
+      blueprint/                             the canvas, its nodes, its edge, the side panel
+        nodes/                               one view per node style + node-appearances.ts
+        side-panel/                          palette (nothing selected) / inspector (selection)
+        QuickAddMenu/                        the step picker of a dropped link
+    dashboard/                               Dashboard, chart, table, pipeline table columns
   utils/
     blueprint-converter.ts                   Graph ↔ PipelineStep[] (pure, TS only, tested)
+    node-catalog.ts                          blank steps + templates → palette entries, search
+    step-summary.ts                          one-line preview and the issue of a step
     create-default-script.ts
     pipeline-script.ts
 ```
@@ -105,6 +127,21 @@ the page.
 - **`pipeline-script.state.svelte.ts` holds `script` + `initialScript` only** — draft editor text 
   and the baseline for the dirty check. It is UI state, not server state. Never put the fetched 
   `PipelineEntity` in it.
+- **The blueprint has one side panel, on the right.** Nothing selected: the palette (blank steps
+  and templates, click to add, drag to place). One step selected: its inspector. The start node:
+  the pipeline name. The panel derives its mode from `blueprint.selected`; never store it.
+- **The inspector applies each edit at once** (`blueprint.updateStep`), as long as the step can
+  still run. While it cannot (`stepIssue`: no command, empty script), it shows why and the node
+  keeps its last runnable form. A rename is applied on blur or Enter (`renameStep`), never per
+  keystroke: the panel is keyed by the step id and rebuilds on a rename.
+- **A link dropped on empty canvas opens `QuickAddMenu`** (`onconnectend`); the selected edge's
+  `+` opens it too, to insert a step (`placement.replacing`). Both go through
+  `blueprint.addNode(nodeId, definition, placement)`.
+- **Node styles are a registry.** `NODE_APPEARANCES` (`node-appearance.svelte.ts`) names them,
+  `nodes/node-appearances.ts` maps each to its view, label and icon. A new style is one name and
+  one view component taking `StepNodeViewProps`. The nodes read the style from the canvas context
+  (`blueprint-canvas.context.ts`), since xyflow gives a node only its own props. The label of a
+  node is part of the node element, so that xyflow measures it.
 - `blueprint-converter.ts` is the single translation between the flow graph and `PipelineStep[]`. 
   Both directions live there; do not inline conversion in a component. It's pure TypeScript with 
   full test coverage.
