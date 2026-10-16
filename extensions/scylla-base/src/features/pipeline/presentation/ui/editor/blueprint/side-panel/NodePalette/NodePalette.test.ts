@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
 import {
   CATALOG_DRAG_TYPE,
+  DRAG_IMAGE_OFFSET,
   catalogEntries,
 } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog.ts';
 import NodePalette from './NodePalette.svelte';
@@ -57,9 +58,23 @@ describe('NodePalette', () => {
     const setData = vi.fn();
 
     await fireEvent.dragStart(screen.getByRole('button', { name: /Bash script/ }), {
-      dataTransfer: { setData, effectAllowed: 'none' },
+      dataTransfer: { setData, setDragImage: vi.fn(), effectAllowed: 'none' },
     });
 
     expect(setData).toHaveBeenCalledWith(CATALOG_DRAG_TYPE, 'kind:bash');
+  });
+
+  it('drags only the icon of the row, beside the pointer, so the outline under it shows', async () => {
+    render(NodePalette, { entries, onAdd: vi.fn() });
+    const setDragImage = vi.fn();
+    const row = screen.getByRole('button', { name: /Bash script/ });
+
+    await fireEvent.dragStart(row, {
+      dataTransfer: { setData: vi.fn(), setDragImage, effectAllowed: 'none' },
+    });
+
+    const icon = row.querySelector('[data-drag-image]');
+    expect(icon).not.toBeNull();
+    expect(setDragImage).toHaveBeenCalledWith(icon, DRAG_IMAGE_OFFSET, DRAG_IMAGE_OFFSET);
   });
 });

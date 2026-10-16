@@ -4,6 +4,7 @@
     BackgroundVariant,
     Controls,
     SvelteFlow,
+    useConnection,
     useSvelteFlow,
     type EdgeTypes,
     type NodeTypes,
@@ -22,7 +23,7 @@
   import CanvasToolbar from './CanvasToolbar.svelte';
   import { CATALOG_DRAG_TYPE } from './catalog.ts';
   import DeletableEdge from './DeletableEdge.svelte';
-  import { createDropSpot } from './drop-spot.state.svelte.ts';
+  import { createDropSpot, linkDropPoint } from './drop-spot.state.svelte.ts';
   import DropSpot from './DropSpot.svelte';
   import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.ts';
   import StartNode from './nodes/StartNode.svelte';
@@ -65,6 +66,14 @@
   };
 
   const dropSpot = createDropSpot();
+  const connection = useConnection();
+
+  /** The place of the step that a drop creates: a palette entry, or a link pulled onto empty canvas. */
+  const spot = $derived.by(() => {
+    if (dropSpot.position) return dropSpot.position;
+    const point = linkDropPoint(connection.current);
+    return point && nodePositionAt(appearance.current, point);
+  });
 
   /** Where a step dropped at this point of the screen lands in the graph. */
   const dropPositionOf = (event: DragEvent) =>
@@ -130,9 +139,9 @@
       onAppearanceChange={next => appearance.set(next)}
       onArrange={() => blueprint.arrange()}
     />
-    {#if dropSpot.position}
+    {#if spot}
       <DropSpot
-        position={dropSpot.position}
+        position={spot}
         footprint={NODE_APPEARANCE_VIEWS[appearance.current].footprint}
       />
     {/if}

@@ -16,7 +16,9 @@
 </script>
 
 <!-- The content of a palette or menu row: the kind's icon, the name, what it runs. -->
+<!-- `data-drag-image`: the icon is the picture of a dragged row. -->
 <span
+  data-drag-image
   class={cn(
     'flex shrink-0 items-center justify-center rounded-lg border border-foreground/10 bg-card',
     compact ? 'size-6' : 'size-8',

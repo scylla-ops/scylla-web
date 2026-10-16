@@ -50,8 +50,10 @@ now has a single panel on the right: the **palette**, or the **inspector** of th
 clicked. You don't add and edit at the same time, so one panel is enough, and the left side
 stays free for the app's own sidebar.
 
-While you drag an entry from the palette over the canvas, a dashed outline shows the place the
-new node will take, in the size of your node style and at the zoom of the canvas.
+While you drag an entry from the palette over the canvas, or pull a link from a step onto empty
+canvas, a dashed outline shows the place the new step will take, in the size of your node style
+and at the zoom of the canvas. Only the icon of the dragged entry follows the pointer, beside it,
+so that it does not hide the outline.
 
 The panel opens on a click only. Moving a node, dropping a step or drawing a selection box
 leaves it as it is: an inspector that opens while you arrange the graph gets in the way. Its

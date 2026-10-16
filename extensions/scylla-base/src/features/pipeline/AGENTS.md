@@ -152,11 +152,14 @@ the page.
   its selection, and only a new one is laid out. The document must also read back what it
   writes (`stepsOf(withSteps(steps))` equals `steps`, with an empty `workingDir` read as none):
   else each edit is taken for an outside change.
-- **A palette entry dragged over the canvas outlines where it lands.** The drag is the browser's
-  (`CATALOG_DRAG_TYPE`); `createDropSpot` follows it over the canvas (a count of `dragenter` /
-  `dragleave`, which also fire on each child), and `DropSpot` draws the `footprint` of the
-  current node style (`nodes/node-geometry.ts`) in a `ViewportPortal`, so it follows the zoom.
-  The outline is at the position that the drop gives the node (`nodePositionAt`).
+- **The canvas outlines where a new step lands**, for a palette entry dragged over it and for a
+  link pulled from an output onto empty canvas (`linkDropPoint`, on xyflow's `useConnection`).
+  The palette drag is the browser's (`CATALOG_DRAG_TYPE`); `createDropSpot` follows it (a count
+  of `dragenter` / `dragleave`, which also fire on each child). `DropSpot` draws the `footprint`
+  of the current node style (`nodes/node-geometry.ts`) in the front `ViewportPortal`, so it
+  follows the zoom and no node hides it, at the position the drop gives (`nodePositionAt`).
+  It has no move transition: the browser reports a drag about every 50 ms. The drag image is
+  the row's icon (`data-drag-image`), beside the pointer (`DRAG_IMAGE_OFFSET`), not the row.
 - **A step id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
   protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`utils/step-summary.ts`)
   is that rule; keep both the same. A refused id is shown on the node, in the inspector while it

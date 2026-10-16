@@ -9,6 +9,7 @@
   import {
     CATALOG_DRAG_TYPE,
     CATALOG_GROUP_TITLES,
+    DRAG_IMAGE_OFFSET,
     catalogText,
   } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog.ts';
   import CatalogItem from '@base/features/pipeline/presentation/ui/editor/blueprint/CatalogItem.svelte';
@@ -46,8 +47,13 @@
           draggable="true"
           class="flex w-full cursor-grab items-center gap-2.5 rounded-lg p-2 transition-colors hover:bg-accent active:cursor-grabbing"
           ondragstart={event => {
-            event.dataTransfer?.setData(CATALOG_DRAG_TYPE, entry.id);
-            if (event.dataTransfer) event.dataTransfer.effectAllowed = 'copy';
+            if (!event.dataTransfer) return;
+            event.dataTransfer.setData(CATALOG_DRAG_TYPE, entry.id);
+            event.dataTransfer.effectAllowed = 'copy';
+            // Only the icon, below and right of the pointer: the whole row would hide the place
+            // that the canvas outlines under the pointer.
+            const icon = event.currentTarget.querySelector<HTMLElement>('[data-drag-image]');
+            if (icon) event.dataTransfer.setDragImage(icon, DRAG_IMAGE_OFFSET, DRAG_IMAGE_OFFSET);
           }}
           onclick={() => onAdd(entry)}
         >

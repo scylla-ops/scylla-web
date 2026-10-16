@@ -10,6 +10,9 @@ import { blueprintMessages } from './blueprint.messages.ts';
 /** The `DataTransfer` type of an entry dragged from the palette: its value is the entry id. */
 export const CATALOG_DRAG_TYPE = 'application/x-scylla-step';
 
+/** Where the pointer is in the drag image: outside its top left, so the icon is beside it. */
+export const DRAG_IMAGE_OFFSET = -14;
+
 export const BLANK_STEPS: readonly CatalogEntry[] = [
   {
     id: 'kind:bash',
