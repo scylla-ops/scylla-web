@@ -13,8 +13,8 @@ import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { RoleEntity } from '../../../domain/entities/role.entity.ts';
-import type { GrantEntity } from '../../../domain/entities/grant.entity.ts';
+import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
+import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import RolesPage from './Roles.page.svelte';
 
 const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({

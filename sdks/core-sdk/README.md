@@ -75,7 +75,7 @@ export const extensions: readonly ExtensionClass[] = [ScyllaBaseExtension, Billi
 ```
 
 That is all. The core puts the extension after its dependencies, adds its routes to the router
-and its links to the sidebar. The root [`CLAUDE.md`](../../CLAUDE.md) has the full checklist
+and its links to the sidebar. The root [`AGENTS.md`](../../AGENTS.md) has the full checklist
 (`package.json`, Lingui catalogs, SDK, documentation).
 
 ## What a module declares

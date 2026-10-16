@@ -3,8 +3,14 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import {
+  render,
+  withQueryClient,
+  withRegistry,
+  withWidgetInjections,
+} from '@test/render.svelte.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { membershipPoints } from '@base/features/membership/presentation/membership.points.ts';
 import ProjectMembersPage from './ProjectMembers.page.svelte';
 
 const projectGrant = (overrides: Record<string, unknown> = {}) => ({
@@ -175,8 +181,36 @@ describe('ProjectMembersPage', () => {
     render(ProjectMembersPage, { projectId: 'project-1' });
 
     await vi.waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Add a member' })).toBeDisabled(),
+      expect(screen.getByRole('button', { name: 'Add a member' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      ),
     );
+  });
+
+  it('gives the project, the right to manage and the member count to its zones', async () => {
+    const restoreInjections = withWidgetInjections({
+      'ee-members': [
+        membershipPoints.projectActions.inject({
+          component: () => import('./ProjectMembersProbe.fixture.svelte'),
+        }),
+        membershipPoints.projectSection.inject({
+          component: () => import('./ProjectMembersProbe.fixture.svelte'),
+        }),
+      ],
+    });
+    try {
+      render(ProjectMembersPage, { projectId: 'project-1' });
+      await screen.findByText('bob');
+
+      await vi.waitFor(() =>
+        expect(
+          screen.getAllByTestId('project-members-probe').map(probe => probe.textContent?.trim()),
+        ).toEqual(['org-1|project-1|2|true', 'org-1|project-1|2|true']),
+      );
+    } finally {
+      restoreInjections();
+    }
   });
 
   it('removes only someone who holds a project-scoped grant', async () => {
@@ -197,5 +231,38 @@ describe('ProjectMembersPage', () => {
         scopeId: 'project-1',
       }),
     );
+  });
+
+  it('waits for the members of the organization before it names an inherited holder', async () => {
+    let answer: (value: unknown) => void = () => {};
+    listOrganizationMembers.mockReturnValue(new Promise(resolve => (answer = resolve)));
+    render(ProjectMembersPage, { projectId: 'project-1' });
+
+    await screen.findByRole('status');
+    expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();
+    expect(screen.queryByText('Unknown user')).not.toBeInTheDocument();
+
+    answer(
+      ScyllaResult.success([
+        { userId: 'user-1', username: 'alice' },
+        { userId: 'user-2', username: 'bob' },
+      ]),
+    );
+
+    expect(await screen.findByText('bob')).toBeInTheDocument();
+    expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();
+  });
+
+  it('names an inherited holder "Unknown user" when the organization members are out of reach', async () => {
+    grant([
+      Permission.LIST_PROJECT_MEMBERS,
+      Permission.MANAGE_PROJECT_GRANTS,
+      Permission.MANAGE_ORG_GRANTS,
+    ]);
+    render(ProjectMembersPage, { projectId: 'project-1' });
+
+    expect(await screen.findByText('Unknown user')).toBeInTheDocument();
+    expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();
+    expect(listOrganizationMembers).not.toHaveBeenCalled();
   });
 });

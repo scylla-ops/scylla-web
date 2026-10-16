@@ -1,7 +1,7 @@
 {
   "name": "scylla",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.5.0",
   "type": "module",
   "packageManager": "pnpm@11.1.2",
   "config": {
@@ -23,15 +23,19 @@
     "depcruise": "depcruise apps packages sdks extensions test --config .dependency-cruiser.cjs",
     "depcruise:cycles": "depcruise apps packages sdks extensions test --config .dependency-cruiser.cjs --output-type json | node scripts/check-module-cycles.mjs",
     "i18n:collisions": "node scripts/check-catalog-collisions.mjs",
+    "check:authors": "node scripts/check-commit-authors.mjs",
     "depcruise:graph": "depcruise apps packages sdks extensions --config .dependency-cruiser.cjs --output-type archi | dot -T svg > dependency-graph.svg",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@codemirror/lang-json": "^6.0.2",
     "@codemirror/language": "^6.12.3",
     "@codemirror/legacy-modes": "^6.5.3",
+    "@codemirror/lint": "^6.9.7",
     "@codemirror/state": "^6.6.0",
     "@codemirror/theme-one-dark": "^6.1.3",
     "@codemirror/view": "^6.43.0",
+    "@lezer/highlight": "^1.2.5",
     "@lingui/core": "^5.4.1",
     "@lucide/svelte": "^1.46.0",
     "@protobuf-ts/grpcweb-transport": "^2.11.1",

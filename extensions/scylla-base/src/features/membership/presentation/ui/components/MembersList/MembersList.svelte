@@ -1,17 +1,26 @@
 <script lang="ts">
   import Loader2Icon from '@lucide/svelte/icons/loader-2';
   import { t } from '@scylla/ui/i18n';
+  import type { UserSummary } from '@base/features/user';
+  import { userName, type MissingUser } from '@shared/presentation/ui';
   import type {
     MemberRole,
     ScopeMember,
-  } from '../../../../domain/structs/scope-member.struct.ts';
-  import type { AssignableRole } from '../../../assignable-roles.state.svelte.ts';
+  } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  import type {
+    AssignableRole,
+  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
   import MemberCard from '../MemberCard/MemberCard.svelte';
-  import { membershipMessages } from '../../membership.messages.ts';
+  import {
+    membershipMessages,
+  } from '@base/features/membership/presentation/ui/membership.messages.ts';
 
   interface Props {
     members: ScopeMember[];
-    nameFor: (userId: string) => string;
+    /** `undefined`: a member that the lists do not name. */
+    userFor: (userId: string) => UserSummary | undefined;
+    /** How such a member shows: `unknown` when the viewer cannot read the list that names it. */
+    missing?: MissingUser;
     currentUserId: string;
     isLoading?: boolean;
     emptyMessage?: string;
@@ -33,7 +42,8 @@
 
   let {
     members,
-    nameFor,
+    userFor,
+    missing = 'deleted',
     currentUserId,
     isLoading = false,
     emptyMessage,
@@ -55,7 +65,11 @@
 
   /** Sorted here: the backend order is grant insertion. */
   const sorted = $derived(
-    [...members].sort((left, right) => nameFor(left.userId).localeCompare(nameFor(right.userId))),
+    [...members].sort((left, right) =>
+      userName(userFor(left.userId), missing).localeCompare(
+        userName(userFor(right.userId), missing),
+      ),
+    ),
   );
 </script>
 
@@ -70,12 +84,13 @@
     </p>
   </div>
 {:else}
-  <div class="min-h-0 flex-1 overflow-y-auto pr-1">
+  <div class="relative min-h-0 flex-1 overflow-y-auto pr-1">
     <!-- Two columns until the screen is wide: a card's width decides how many roles fit per row. -->
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
       {#each sorted as member (member.userId)}
         <MemberCard
-          name={nameFor(member.userId)}
+          user={userFor(member.userId)}
+          {missing}
           roles={member.roles}
           isCurrentUser={member.userId === currentUserId}
           canRemove={canRemove(member)}

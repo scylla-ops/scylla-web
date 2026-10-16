@@ -5,8 +5,8 @@ import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { PaginatedList } from '@scylla/ui/structs';
-import type { JobEntity } from '../../domain/entities/job.entity.ts';
-import type { JobsRepository } from '../../domain/repository/jobs.repository.ts';
+import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
 import { JOBS_QUERY_KEY, JOBS_QUERY_ROOT, JOB_QUERY_KEY } from '../jobs.query-keys.ts';
 import { asJobFeed, jobMutations, jobQueries } from '../jobs.queries.ts';
 

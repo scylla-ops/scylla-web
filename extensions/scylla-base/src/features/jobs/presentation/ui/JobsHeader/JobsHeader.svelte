@@ -2,11 +2,11 @@
   import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
   import { Permission, can } from '@platform/authz';
   import { createMutation } from '@scylla/core-sdk';
-  import { Button, Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/shadcn';
+  import { Button, Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
   import { CopyableText, FeatureHeader } from '@scylla/ui';
   import { createFeatureSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
-  import { jobMutations } from '../../jobs.queries.ts';
+  import { jobMutations } from '@base/features/jobs/presentation/jobs.queries.ts';
   import { jobsMessages } from '../jobs.messages.ts';
 
   interface Props {

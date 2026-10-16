@@ -7,7 +7,9 @@ import { CREATE_PROJECT_MUTATION_KEY } from '@base/features/project';
 import { installTestNavigator } from '@test/navigator.ts';
 import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { OnboardingStatus } from '../../domain/structs/onboarding-status.struct.ts';
+import type {
+  OnboardingStatus,
+} from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
 import {
   createOnboardingTourState,
   type OnboardingTourState,
@@ -113,7 +115,7 @@ describe('createOnboardingTourState', () => {
     tour.start();
 
     await onStep(tour, 'dashboard');
-    expect(tour.count).toEqual({ step: 1, total: 21 });
+    expect(tour.count).toEqual({ step: 1, total: 20 });
     expect(navigator.navigate).toHaveBeenCalledWith('/acme/dashboard', undefined);
     await vi.waitFor(() =>
       expect(repository.saveStatus).toHaveBeenCalledWith('ada', {

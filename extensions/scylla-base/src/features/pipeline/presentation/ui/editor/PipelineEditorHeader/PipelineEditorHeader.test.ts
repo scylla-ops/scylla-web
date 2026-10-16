@@ -32,7 +32,7 @@ describe('PipelineEditorHeader', () => {
     grantOnly(Permission.CREATE_PIPELINE);
     renderHeader({ mode: 'create', submitLabel: 'Create' });
 
-    expect(screen.getByText('Draft — not created yet')).toBeInTheDocument();
+    expect(screen.getByText('Draft: not created yet')).toBeInTheDocument();
   });
 
   it('shows unsaved changes, then saving, then saved', async () => {
@@ -60,7 +60,7 @@ describe('PipelineEditorHeader', () => {
     grantOnly();
     renderHeader({ isDirty: true });
 
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('disables the blueprint tab when the script is invalid', () => {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Permission } from '../../../domain/structs/permission.struct.ts';
+  import type { Permission } from '@platform/authz/domain/structs/permission.struct.ts';
   import Can from './Can.svelte';
 
   let { permission, withFallback = false }: { permission: Permission; withFallback?: boolean } =

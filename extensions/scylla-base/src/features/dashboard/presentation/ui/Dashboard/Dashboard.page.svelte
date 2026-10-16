@@ -15,12 +15,14 @@
     CardTitle,
     Separator,
     Skeleton,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { ErrorState, FeatureHeader } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
-  import { createOrgOverview } from '../../org-overview.state.svelte.ts';
+  import {
+    createOrgOverview,
+  } from '@base/features/dashboard/presentation/org-overview.state.svelte.ts';
   import AgentOutcomesChart from '../AgentOutcomesChart/AgentOutcomesChart.svelte';
   import RunActivityCard from '../RunActivityCard/RunActivityCard.svelte';
   import { dashboardMessages } from '../dashboard.messages.ts';
@@ -136,7 +138,7 @@
         </button>
       </div>
 
-      <div class="min-h-[8rem] flex-1 overflow-y-auto pr-2">
+      <div class="relative min-h-[8rem] flex-1 overflow-y-auto pr-2">
         {#if overview.projectsLoading}
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {#each { length: 4 } as _, index (index)}
@@ -192,7 +194,7 @@
     <section class="flex flex-1 flex-col gap-3">
       <h2 class="shrink-0 text-base font-semibold">{t(dashboardMessages.allPipelines)}</h2>
 
-      <div class="min-h-[10rem] flex-1 overflow-y-auto pr-2">
+      <div class="relative min-h-[10rem] flex-1 overflow-y-auto pr-2">
         {#if overview.projectsLoading || overview.pipelinesLoading}
           <div class="flex flex-col gap-2">
             {#each { length: 5 } as _, index (index)}
@@ -202,7 +204,7 @@
         {:else if sortedPipelines.length === 0}
           <p class="text-sm text-muted-foreground">{t(dashboardMessages.noPipelines)}</p>
         {:else}
-          <div class="rounded-xl border overflow-hidden">
+          <div class="rounded-xl border overflow-clip">
             <table class="w-full text-sm">
               <!-- Sticky: needs an opaque background. -->
               <thead class="sticky top-0 z-10 border-b bg-muted">

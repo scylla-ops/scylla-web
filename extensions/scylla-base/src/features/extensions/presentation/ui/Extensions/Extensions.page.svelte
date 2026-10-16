@@ -1,10 +1,10 @@
 <script lang="ts">
   import { createQuery } from '@scylla/core-sdk';
   import { ErrorState, FeatureHeader } from '@scylla/ui';
-  import { Skeleton } from '@scylla/ui/shadcn';
+  import { Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { extensionQueries } from '../../extensions.queries.ts';
-  import ExtensionCard from '../ExtensionCard.svelte';
+  import { extensionQueries } from '@base/features/extensions/presentation/extensions.queries.ts';
+  import ExtensionCard from './ExtensionCard.svelte';
   import { extensionsMessages } from '../extensions.messages.ts';
 
   const extensionsQuery = createQuery(() => extensionQueries.installed());
@@ -39,7 +39,7 @@
         {t(extensionsMessages.noExtensions)}
       </p>
     {:else}
-      <div class="grid gap-3 overflow-y-auto p-2 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="relative grid gap-3 overflow-y-auto p-2 sm:grid-cols-2 lg:grid-cols-3">
         {#each extensions as extension (extension.id)}
           <ExtensionCard {extension} />
         {/each}

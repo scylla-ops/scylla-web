@@ -18,7 +18,7 @@ options objects in `presentation/*.queries.ts`, which a component or another fea
 ## Public API — `index.ts`
 
 ```typescript
-type ProjectEntity, ProjectMember, ProjectLookupEntry
+type ProjectEntity, ProjectLookupEntry
 projectQueries        byOrganization (paginated) · lookup (org-wide) · members
 projectLookupQueries  the batched fan-out: { queries, combine } for useQueries/createQueries
 projectMutations      create · update · remove
@@ -40,7 +40,7 @@ Never add: `project.module.ts`, pages.
 | Method | Returns |
 |---|---|
 | `getByOrganizationId(organizationId, pagination?)` | `ProjectList` |
-| `listMembers(projectId)` | `ProjectMember[]` — holders of a project-scoped grant |
+| `listMembers(projectId)` | `UserSummary[]` (from `user`): the holders of a project-scoped grant |
 | `create(name, organizationId, description?)` | `ProjectEntity` |
 | `update(projectId, name?, description?)` | `ProjectEntity` |
 | `delete(projectId)` | `void` |
@@ -55,7 +55,6 @@ index.ts                             public API
 domain/
   entities/project.entity.ts         ProjectEntity
   structs/project.struct.ts          ProjectList
-  structs/project-member.struct.ts   ProjectMember
   repository/project.repository.ts
 infrastructure/
   data/grpc-project-remote.data-source.ts                 impl
@@ -93,8 +92,8 @@ project routes (the `project` mount) are declared by the modules that own them
   lookup) are all exported from this module precisely so no other module rebuilds a project
   query against `projectRepository`. Add the fourth here too.
 - `useProjectsByOrganizations` uses `useQueries` to batch — never loop `useQuery`.
-- `ProjectMember` is a **struct**, and it means *holders of a project-scoped grant*, not a
-  stored roster. The member UI belongs to [`membership`](../membership/AGENTS.md); this module
+- `listMembers` gives `UserSummary` values of [`user`](../user/AGENTS.md), and the list means
+  *holders of a project-scoped grant*, not a stored roster. The member UI belongs to [`membership`](../membership/AGENTS.md); this module
   supplies the raw list only.
 - **The camelCase hook filenames (`useProjects.ts`, `useCreateProject.ts`) violate the
   kebab-case convention.** They predate it. Do not rename them opportunistically — that moves

@@ -149,8 +149,8 @@ msgid "Pipeline ID:"
 msgstr "Pipeline ID:"
 
 #: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:24
-msgid "queued — waiting for an agent"
-msgstr "queued — waiting for an agent"
+msgid "queued: waiting for an agent"
+msgstr "queued: waiting for an agent"
 
 #: extensions/scylla-base/src/features/jobs/presentation/ui/jobs.messages.ts:15
 msgid "Refresh"

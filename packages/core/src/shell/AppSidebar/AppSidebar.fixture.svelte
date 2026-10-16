@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { SidebarProvider } from '@scylla/ui/shadcn';
+  import { SidebarProvider } from '@scylla/ui/primitives';
   import type { ShellConfig } from '../shell-config.ts';
   import AppSidebar from './AppSidebar.svelte';
 

@@ -4,14 +4,25 @@
   import { contextStore } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
   import { invalidateOrganizationMembers, organizationQueries } from '@base/features/organization';
-  import { userQueries } from '@base/features/user';
-  import { ConfirmOperationAlertDialog, FeatureHeader } from '@scylla/ui';
+  import { userQueries, type UserSummary } from '@base/features/user';
+  import { userName } from '@shared/presentation/ui';
+  import { ConfirmOperationAlertDialog, FeatureHeader, GatedButton } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { toast } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import { buildOrganizationMembers } from '../../../domain/structs/scope-member.struct.ts';
-  import { createAssignableRoles } from '../../assignable-roles.state.svelte.ts';
-  import { createScopeMembership } from '../../scope-membership.state.svelte.ts';
+  import {
+    buildOrganizationMembers,
+  } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  import {
+    createAssignableRoles,
+  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+  import {
+    createScopeMembership,
+  } from '@base/features/membership/presentation/scope-membership.state.svelte.ts';
+  import {
+    membershipPoints,
+    type OrganizationMembersContext,
+  } from '@base/features/membership/presentation/membership.points.ts';
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';
   import { membershipMessages } from '../membership.messages.ts';
@@ -43,25 +54,51 @@
     onMembershipChanged: () => void invalidateOrganizationMembers(organizationId),
   });
 
-  let addOpen = $state(false);
-  let pendingRemoval = $state<{ userId: string; username: string } | null>(null);
-
-  const usernameById = $derived(new Map(members.map(member => [member.userId, member.username])));
-
-  const nameFor = (memberId: string) => usernameById.get(memberId) ?? memberId;
-
-  /** Seeded with the backend's list: someone reached only through a project is listed too. */
-  const scopeMembers = $derived(
-    buildOrganizationMembers(membership.grants, [...usernameById.keys()]),
+  const addAction = membershipPoints.organizationAddMember.resolve({
+    withoutDirectory: 'deny',
+    variant: 'default',
+  });
+  const showAdd = $derived(canListUsers || addAction.withoutDirectory === 'deny');
+  const addDeniedReason = $derived(
+    canManage
+      ? t(membershipMessages.onlySystemAdminCanBrowseUsers)
+      : t(membershipMessages.organizationNewDenied),
   );
 
+  let addOpen = $state(false);
+  let pendingRemoval = $state<{ userId: string; name: string } | null>(null);
+
+  /** The members, with the display name and the email of the directory when it is readable. */
+  const userById = $derived.by(() => {
+    // Rebuilt whole by the `$derived` and never mutated after it is read.
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+    const users = new Map<string, UserSummary>(members.map(member => [member.userId, member]));
+    for (const user of usersQuery.data?.items ?? []) {
+      if (users.has(user.userId)) users.set(user.userId, user);
+    }
+    return users;
+  });
+
+  const userFor = (memberId: string) => userById.get(memberId);
+
+  /** Seeded with the backend's list: someone reached only through a project is listed too. */
+  const scopeMembers = $derived(buildOrganizationMembers(membership.grants, [...userById.keys()]));
+
   const candidates = $derived(
-    (usersQuery.data?.items ?? []).filter(user => !usernameById.has(user.userId)),
+    (usersQuery.data?.items ?? []).filter(user => !userById.has(user.userId)),
   );
 
   const defaultRoleId = $derived(
     roles.assignableRoles.find(role => role.roleId === ORGANIZATION_MEMBER_ROLE_ID)?.roleId,
   );
+
+  const zoneContext: OrganizationMembersContext = $derived({
+    organizationId: organizationId ?? '',
+    organizationName: organization.name ?? '',
+    canManage,
+    memberCount: scopeMembers.length,
+    refreshMembers: membership.refresh,
+  });
 
   const currentUserId = localStorage.getItem('userId') ?? '';
 
@@ -73,12 +110,27 @@
 
   const handleRemove = async () => {
     if (!pendingRemoval) return;
-    await membership.removeMember(pendingRemoval.userId, pendingRemoval.username);
+    await membership.removeMember(pendingRemoval.userId, pendingRemoval.name);
     pendingRemoval = null;
   };
 </script>
 
 <!-- Writes need `MANAGE_ORG_GRANTS` on this organization. -->
+{#snippet actions()}
+  <div class="contents" use:membershipPoints.organizationActions={zoneContext}>
+    {#if showAdd}
+      <GatedButton
+        allowed={canManage && canListUsers}
+        deniedReason={addDeniedReason}
+        variant={addAction.variant}
+        onclick={() => (addOpen = true)}
+      >
+        {t(membershipMessages.addAMember)}
+      </GatedButton>
+    {/if}
+  </div>
+{/snippet}
+
 {#snippet blurb()}
   <p class="max-w-3xl text-sm text-muted-foreground">
     {t(membershipMessages.organizationBlurb(organization.name ?? ''))}
@@ -96,17 +148,14 @@
       label={t(membershipMessages.member)}
       pluralLabel={t(membershipMessages.members)}
       underLabel={blurb}
-      onNew={() => (addOpen = true)}
-      newLabel={t(membershipMessages.addAMember)}
-      canNew={canManage}
-      newDeniedReason={t(membershipMessages.organizationNewDenied)}
+      extraActions={actions}
     />
 
     <MembersList
       members={scopeMembers}
       isLoading={membersQuery.isLoading || membership.isLoading}
       emptyMessage={t(membershipMessages.organizationEmpty)}
-      {nameFor}
+      {userFor}
       organizationName={organization.name ?? ''}
       labelFor={roles.labelFor}
       {currentUserId}
@@ -124,8 +173,10 @@
       canRemove={() => canManage}
       removeTooltip={t(membershipMessages.removeFromOrganization)}
       onRemove={member =>
-        (pendingRemoval = { userId: member.userId, username: nameFor(member.userId) })}
+        (pendingRemoval = { userId: member.userId, name: userName(userFor(member.userId)) })}
     />
+
+    <div class="contents" use:membershipPoints.organizationSection={zoneContext}></div>
 
     <AddMemberDialog
       open={addOpen}
@@ -133,9 +184,7 @@
       title={t(membershipMessages.addToOrganization(organization.name ?? ''))}
       description={t(membershipMessages.addToOrganizationBody)}
       {candidates}
-      emptyCandidatesLabel={canListUsers
-        ? t(membershipMessages.everyoneIsMember)
-        : t(membershipMessages.cannotBrowseDirectory)}
+      emptyCandidatesLabel={t(membershipMessages.everyoneIsMember)}
       roles={roles.assignableRoles}
       organizationName={organization.name ?? ''}
       rolesLabel={t(membershipMessages.rolesToGrant)}
@@ -153,7 +202,7 @@
       isLoading={membership.isRemoving}
       title={t(
         membershipMessages.confirmRemoveFromOrganization(
-          pendingRemoval?.username ?? '',
+          pendingRemoval?.name ?? '',
           organization.name ?? '',
         ),
       )}

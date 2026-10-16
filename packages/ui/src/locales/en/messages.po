@@ -13,133 +13,149 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: packages/ui/src/layout/feature-header.messages.ts:13
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:13
 msgid "{selectedCount, plural, one {# item deleted} other {# items deleted}}"
 msgstr "{selectedCount, plural, one {# item deleted} other {# items deleted}}"
 
-#: packages/ui/src/feedback/error-state.messages.ts:5
+#: packages/ui/src/feedback/ErrorState/error-state.messages.ts:5
 msgid "An error occurred"
 msgstr "An error occurred"
 
-#: packages/ui/src/feedback/confirm-operation.messages.ts:4
+#: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:4
 msgid "Are you absolutely sure?"
 msgstr "Are you absolutely sure?"
 
-#: packages/ui/src/feedback/confirm-operation.messages.ts:6
-#: packages/ui/src/forms/form-dialog.messages.ts:4
+#: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:6
+#: packages/ui/src/forms/FormDialog/form-dialog.messages.ts:4
 msgid "Cancel"
 msgstr "Cancel"
 
-#: packages/ui/src/layout/feature-header.messages.ts:7
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:7
 msgid "Clear"
 msgstr "Clear"
 
-#: packages/ui/src/feedback/confirm-operation.messages.ts:7
+#: packages/ui/src/primitives/dialog/dialog.messages.ts:4
+msgid "Close"
+msgstr "Close"
+
+#: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:7
 msgid "Continue"
 msgstr "Continue"
 
-#: packages/ui/src/shadcn/code-snippet.messages.ts:6
+#: packages/ui/src/primitives/code-snippet/code-snippet.messages.ts:6
 msgid "Copied"
 msgstr "Copied"
 
-#: packages/ui/src/data-display/copyable-text.messages.ts:5
+#: packages/ui/src/data-display/CopyableText/copyable-text.messages.ts:5
 msgid "Copied!"
 msgstr "Copied!"
 
-#: packages/ui/src/data-display/copyable-text.messages.ts:4
-#: packages/ui/src/shadcn/code-snippet.messages.ts:5
+#: packages/ui/src/data-display/CopyableText/copyable-text.messages.ts:4
+#: packages/ui/src/primitives/code-snippet/code-snippet.messages.ts:5
 msgid "Copy"
 msgstr "Copy"
 
-#: packages/ui/src/feedback/secret-reveal.messages.ts:4
+#: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:4
 msgid "Copy your secret"
 msgstr "Copy your secret"
 
-#: packages/ui/src/forms/form-dialog.messages.ts:5
+#: packages/ui/src/forms/FormDialog/form-dialog.messages.ts:5
 msgid "Create"
 msgstr "Create"
 
-#: packages/ui/src/forms/form-dialog.messages.ts:6
+#: packages/ui/src/forms/FormDialog/form-dialog.messages.ts:6
 msgid "Creating..."
 msgstr "Creating..."
 
-#: packages/ui/src/layout/feature-header.messages.ts:8
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:8
 msgid "Delete"
 msgstr "Delete"
 
-#: packages/ui/src/feedback/secret-reveal.messages.ts:10
+#: packages/ui/src/primitives/sidebar/sidebar.messages.ts:5
+msgid "Displays the mobile sidebar."
+msgstr "Displays the mobile sidebar."
+
+#: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:10
 msgid "Done"
 msgstr "Done"
 
-#: packages/ui/src/feedback/error-state.messages.ts:4
+#: packages/ui/src/feedback/ErrorState/error-state.messages.ts:4
 msgid "Error"
 msgstr "Error"
 
-#: packages/ui/src/shadcn/pagination.messages.ts:14
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:15
 msgid "Go to next page"
 msgstr "Go to next page"
 
-#: packages/ui/src/shadcn/pagination.messages.ts:13
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:14
 msgid "Go to previous page"
 msgstr "Go to previous page"
 
-#: packages/ui/src/layout/feature-header.messages.ts:5
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:5
 msgid "in total"
 msgstr "in total"
 
-#: packages/ui/src/shadcn/pagination.messages.ts:15
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:16
 msgid "More pages"
 msgstr "More pages"
 
-#: packages/ui/src/layout/feature-header.messages.ts:10
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:10
 msgid "New {label}"
 msgstr "New {label}"
 
-#: packages/ui/src/shadcn/pagination.messages.ts:12
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:13
 msgid "Next"
 msgstr "Next"
 
-#: packages/ui/src/data-display/data-table.messages.ts:4
+#: packages/ui/src/data-display/DataTable/data-table.messages.ts:4
 msgid "No results."
 msgstr "No results."
 
-#: packages/ui/src/shadcn/pagination.messages.ts:11
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:11
+msgid "Pagination"
+msgstr "Pagination"
+
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:12
 msgid "Previous"
 msgstr "Previous"
 
-#: packages/ui/src/feedback/secret-reveal.messages.ts:7
+#: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:7
 msgid "Reveal"
 msgstr "Reveal"
 
-#: packages/ui/src/feedback/secret-reveal.messages.ts:8
+#: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:8
 msgid "Reveal the secret first"
 msgstr "Reveal the secret first"
 
-#: packages/ui/src/feedback/secret-reveal.messages.ts:6
+#: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:6
 msgid "Secret copied"
 msgstr "Secret copied"
 
-#: packages/ui/src/layout/feature-header.messages.ts:6
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:6
 msgid "Select all"
 msgstr "Select all"
 
-#: packages/ui/src/data-display/pagination.messages.ts:6
+#: packages/ui/src/data-display/Pagination/pagination.messages.ts:6
 msgid "Showing {start}-{end} of {totalCount}"
 msgstr "Showing {start}-{end} of {totalCount}"
 
-#: packages/ui/src/feedback/secret-reveal.messages.ts:5
+#: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:5
 msgid "shown once"
 msgstr "shown once"
 
-#: packages/ui/src/feedback/confirm-operation.messages.ts:5
+#: packages/ui/src/primitives/sidebar/sidebar.messages.ts:4
+msgid "Sidebar"
+msgstr "Sidebar"
+
+#: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:5
 msgid "This action cannot be undone."
 msgstr "This action cannot be undone."
 
-#: packages/ui/src/controls/gated-button.messages.ts:4
-#: packages/ui/src/layout/feature-header.messages.ts:9
+#: packages/ui/src/controls/GatedButton/gated-button.messages.ts:4
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:9
 msgid "You don't have permission to do this."
 msgstr "You don't have permission to do this."
 
-#: packages/ui/src/feedback/secret-reveal.messages.ts:9
+#: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:9
 msgid "You won't see this secret again."
 msgstr "You won't see this secret again."

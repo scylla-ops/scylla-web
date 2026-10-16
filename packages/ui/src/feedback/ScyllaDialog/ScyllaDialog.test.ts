@@ -52,4 +52,15 @@ describe('ScyllaDialog', () => {
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
+
+  it('closes only on its close button when only the button may dismiss it', async () => {
+    render(ScyllaDialog, { dismissible: 'button' });
+
+    await userEvent.keyboard('{Escape}');
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+    await closed();
+  });
 });

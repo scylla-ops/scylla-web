@@ -4,7 +4,7 @@
   import { can, Permission } from '@platform/authz';
   import { scyllaNavigate, contextStore } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { Card, Skeleton } from '@scylla/ui/shadcn';
+  import { Card, Skeleton } from '@scylla/ui/primitives';
   import {
     ConfirmOperationAlertDialog,
     ErrorState,
@@ -16,9 +16,9 @@
   } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { activeLocale, t } from '@scylla/ui/i18n';
-  import type { CreatedApp } from '../../../domain/structs/app.struct.ts';
-  import { appMutations, appQueries } from '../../apps.queries.ts';
-  import { createAppItems } from '../../utils/create-app-form-items.ts';
+  import type { CreatedApp } from '@base/features/apps/domain/structs/app.struct.ts';
+  import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
+  import { createAppItems } from '@base/features/apps/presentation/utils/create-app-form-items.ts';
   import AppCard from '../components/AppCard/AppCard.svelte';
   import { appsMessages } from '../apps.messages.ts';
 
@@ -45,7 +45,7 @@
   const handleCreate = ({ name }: FormValues<'name'>) => {
     if (!name.trim()) return;
 
-    createApp.mutate(name.trim(), {
+    createApp.mutate({ name: name.trim() }, {
       onSuccess: data => {
         createOpen = false;
         created = data;
@@ -117,7 +117,7 @@
         </Card>
       </div>
     {:else}
-      <div class="grid gap-3 p-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
+      <div class="relative grid gap-3 p-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
         {#each apps as app (app.id)}
           <AppCard {app} onRequestDelete={id => (pendingDeletion = id)} {canDelete} />
         {/each}

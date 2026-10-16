@@ -4,7 +4,7 @@
   import { FeatureHeader } from '@scylla/ui';
   import { createFeatureSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
-  import { secretMutations } from '../../secret.queries.ts';
+  import { secretMutations } from '@base/features/secret/presentation/secret.queries.ts';
   import { secretMessages } from '../secret.messages.ts';
 
   interface Props {

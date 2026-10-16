@@ -1,7 +1,7 @@
 import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
 import type { ProjectList } from '@base/features/project/domain/structs/project.struct.ts';
-import type { ProjectMember } from '@base/features/project/domain/structs/project-member.struct.ts';
+import type { UserSummary } from '@base/features/user';
 import type { PaginationParams } from '@scylla/ui/structs';
 
 export interface ProjectRepository {
@@ -9,7 +9,7 @@ export interface ProjectRepository {
     organizationId: string,
     pagination?: PaginationParams,
   ) => Promise<ScyllaResult<ProjectList>>;
-  listMembers: (projectId: string) => Promise<ScyllaResult<ProjectMember[]>>;
+  listMembers: (projectId: string) => Promise<ScyllaResult<UserSummary[]>>;
   create: (
     name: string,
     organizationId: string,

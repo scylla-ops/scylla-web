@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { Badge, Checkbox, Label } from '@scylla/ui/shadcn';
+  import { Badge, Checkbox, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type { TargetOption } from '../../../grant-creator.state.svelte.ts';
-  import { rolesMessages } from '../../roles.messages.ts';
+  import type {
+    TargetOption,
+  } from '@base/features/roles/presentation/grant-creator.state.svelte.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
 
   interface Props {
     label: string;
@@ -31,7 +33,7 @@
     </p>
   {:else}
     <!-- Not `ScrollArea`: its root does not clip under a `max-h`. -->
-    <div class="max-h-48 overflow-y-auto rounded-lg border p-2">
+    <div class="relative max-h-48 overflow-y-auto rounded-lg border p-2">
       <div class="flex flex-col gap-0.5">
         {#each options as option (option.id)}
           {@const granted = isGranted(option.id)}

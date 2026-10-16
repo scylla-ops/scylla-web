@@ -1,15 +1,17 @@
 <script lang="ts">
-  import { StreamLanguage } from '@codemirror/language';
-  import { json } from '@codemirror/legacy-modes/mode/javascript';
-  import { Card, Tabs, TabsContent } from '@scylla/ui/shadcn';
+  import { json, jsonParseLinter } from '@codemirror/lang-json';
+  import { linter } from '@codemirror/lint';
+  import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
   import { renderCodeMirror } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import type { PipelineStep } from '../../../domain/structs/pipeline.struct.ts';
-  import { createPipelineScript } from '../../pipeline-script.state.svelte.ts';
+  import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import {
+    createPipelineScript,
+  } from '@base/features/pipeline/presentation/pipeline-script.state.svelte.ts';
   import PipelineBlueprint from './blueprint/PipelineBlueprint.svelte';
   import PipelineEditorHeader from './PipelineEditorHeader/PipelineEditorHeader.svelte';
   import { createScriptEditor } from './script-editor.svelte.ts';
-  import { pipelineMessages } from '../../pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
     /** `edit` tracks the unsaved changes; `create` does not. */
@@ -36,10 +38,16 @@
     initialScript: () => initialScript,
   });
 
+  const parseLinter = jsonParseLinter();
+
   const editor = createScriptEditor({
     value: () => doc.script,
     onChange: next => doc.setScript(next),
-    extensions: () => [StreamLanguage.define(json)],
+    // An empty editor is not an error: `parseScript` says so too.
+    extensions: () => [
+      json(),
+      linter(view => (view.state.doc.toString().trim() ? parseLinter(view) : [])),
+    ],
   });
 
   const handleSubmit = () => {
@@ -67,7 +75,7 @@
 
   <TabsContent value="scripting" class="h-full overflow-hidden">
     <div class="flex h-full flex-col gap-2">
-      <div class="min-h-0 flex-1 overflow-auto p-2">
+      <div class="relative min-h-0 flex-1 overflow-auto p-2">
         <div
           class="h-full"
           use:renderCodeMirror={{

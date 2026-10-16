@@ -2,6 +2,7 @@ import { msg } from '@lingui/core/macro';
 import UsersRound from '@lucide/svelte/icons/users-round';
 import { Permission } from '@platform/authz';
 import type { ScyllaModule } from '@scylla/core-sdk';
+import { membershipPoints } from './presentation/membership.points.ts';
 
 export const MembershipModule = {
   id: 'membership',
@@ -25,4 +26,5 @@ export const MembershipModule = {
       },
     ],
   },
+  points: membershipPoints,
 } satisfies ScyllaModule;

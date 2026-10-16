@@ -1,5 +1,6 @@
 import type { QueryErrorHandler } from '@scylla/core-sdk';
 import { toast } from '@scylla/ui/utils';
+import { closeSession, loginPathBackTo } from '@base/features/login';
 import { ScyllaError } from '@shared/utils/scylla-result.ts';
 
 /**
@@ -7,8 +8,14 @@ import { ScyllaError } from '@shared/utils/scylla-result.ts';
  * "unreachable" and "no longer authenticated" look the same from here.
  */
 const signOut = (): void => {
-  localStorage.removeItem('token');
+  closeSession();
   window.location.href = '/login';
+};
+
+/** The session is gone: after the sign-in, the user comes back to this page. */
+const signOutAndReturn = (): void => {
+  closeSession();
+  window.location.href = loginPathBackTo(window.location);
 };
 
 /**
@@ -23,7 +30,7 @@ export const reportQueryError: QueryErrorHandler = (error, source) => {
   }
 
   if (error.getCode() === 'UNAUTHENTICATED') {
-    signOut();
+    signOutAndReturn();
     return;
   }
 

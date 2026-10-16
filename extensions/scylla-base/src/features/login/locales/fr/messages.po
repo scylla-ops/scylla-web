@@ -17,30 +17,100 @@ msgstr ""
 msgid "••••••••"
 msgstr "••••••••"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:5
-msgid "Enter your username below to login to your account"
-msgstr "Entrez votre nom d'utilisateur ci-dessous pour vous connecter à votre compte"
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:12
+msgid "Back to sign in"
+msgstr "Retour à la connexion"
 
-#: extensions/scylla-base/src/features/login/infrastructure/data/remote/grpc-login-remote.data-source.ts:15
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:18
+msgid "Change the password"
+msgstr "Changer le mot de passe"
+
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:14
+msgid "Choose a new password"
+msgstr "Choisissez un nouveau mot de passe"
+
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:17
+msgid "Confirm password"
+msgstr "Confirmer le mot de passe"
+
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:6
+msgid "Email"
+msgstr "Adresse e-mail"
+
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:8
+msgid "Email or username"
+msgstr "E-mail ou nom d'utilisateur"
+
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:5
+msgid "Enter the email of your account to get a link that resets the password."
+msgstr "Saisissez l'adresse e-mail de votre compte pour recevoir un lien qui réinitialise le mot de passe."
+
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:15
+msgid "Enter the new password of your account."
+msgstr "Saisissez le nouveau mot de passe de votre compte."
+
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:5
+msgid "Enter your email or username, and your password."
+msgstr "Saisissez votre e-mail ou votre nom d'utilisateur, et votre mot de passe."
+
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:4
+msgid "Forgot password"
+msgstr "Mot de passe oublié"
+
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:13
+msgid "Forgot password?"
+msgstr "Mot de passe oublié ?"
+
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:22
+msgid "Get a new link"
+msgstr "Obtenir un nouveau lien"
+
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:11
+msgid "If an account uses this email, the server made a link to reset the password. The link expires in one hour."
+msgstr "Si un compte utilise cette adresse e-mail, le serveur a créé un lien pour réinitialiser le mot de passe. Le lien expire dans une heure."
+
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:10
+msgid "If an account uses this email, the server wrote a reset link in its log. Ask your administrator for it."
+msgstr "Si un compte utilise cette adresse e-mail, le serveur a écrit un lien de réinitialisation dans son journal. Demandez-le à votre administrateur."
+
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:9
+msgid "If an account uses this email, we sent it a link to reset the password. The link expires in one hour."
+msgstr "Si un compte utilise cette adresse e-mail, nous lui avons envoyé un lien pour réinitialiser le mot de passe. Le lien expire dans une heure."
+
+#: extensions/scylla-base/src/features/login/infrastructure/data/remote/grpc-login-remote.data-source.ts:16
 msgid "Incorrect credentials"
 msgstr "Identifiants incorrects"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:12
-msgid "Login"
-msgstr "Connexion"
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:7
+msgid "name@example.com"
+msgstr "nom@exemple.com"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:4
-msgid "Login to your account"
-msgstr "Connectez-vous à votre compte"
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:9
+msgid "name@example.com or username"
+msgstr "nom@exemple.com ou nom d'utilisateur"
+
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:16
+msgid "New password"
+msgstr "Nouveau mot de passe"
 
 #: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:10
 msgid "Password"
 msgstr "Mot de passe"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:9
-msgid "username"
-msgstr "nom d'utilisateur"
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:8
+msgid "Send the link"
+msgstr "Envoyer le lien"
 
-#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:8
-msgid "Username"
-msgstr "Nom d'utilisateur"
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:4
+#: extensions/scylla-base/src/features/login/presentation/ui/login.messages.ts:12
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:20
+msgid "Sign in"
+msgstr "Se connecter"
+
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:21
+msgid "This link is not valid or has expired."
+msgstr "Ce lien n'est pas valide ou a expiré."
+
+#: extensions/scylla-base/src/features/login/presentation/ui/password-reset.messages.ts:19
+msgid "Your password is changed."
+msgstr "Votre mot de passe est changé."

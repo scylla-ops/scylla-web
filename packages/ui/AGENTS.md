@@ -1,6 +1,6 @@
 # `@scylla/ui` — agent guide
 
-The design system: the shadcn-svelte primitives, the generic composites, the rune helpers,
+The design system: the primitives (adapted from shadcn/ui), the generic composites, the rune helpers,
 the stores, i18n rendering and the theme tokens. **No business meaning.**
 
 **Package** `packages/ui` · the bottom of the workspace
@@ -19,7 +19,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 | Import | What |
 |---|---|
 | `@scylla/ui` | the composites (`DataTable`, `ScyllaDialog`, `FeatureHeader`, `ScyllaForm`, …) and `LucideIcon` |
-| `@scylla/ui/shadcn` | the shadcn-svelte primitives on bits-ui |
+| `@scylla/ui/primitives` | the primitives on bits-ui, adapted from shadcn/ui |
 | `@scylla/ui/state` | rune helpers: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
 | `@scylla/ui/i18n` | `t`, `activeLocale`, `setAppLocale`, `registerCatalogs` |
@@ -42,7 +42,7 @@ src/
   motion/                  page transitions, reduced motion
   editor/                  renderCodeMirror (a Svelte action), the CodeMirror theme
   icon.ts                  LucideIcon (the prop type of an icon)
-  shadcn/                  shadcn-svelte primitives on bits-ui
+  primitives/              the primitives on bits-ui, one folder per primitive
   state/  stores/  i18n/  utils/  structs/     the entry points above
   assets/  styles.css
   locales/                 the catalog of these components
@@ -67,7 +67,7 @@ catalogs of this package register themselves.
 | A table | `DataTable` (+ `createPagination`) — row keys are business ids, never indices |
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
-| Confirm a destructive action | `ConfirmOperationAlertDialog` |
+| Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue" |
 | Show a one-time secret | `SecretRevealDialog` |
 | Error state | `ErrorState` |
 | Class names | `cn()` |
@@ -76,6 +76,22 @@ catalogs of this package register themselves.
 | A store | `createStore` from `@scylla/ui/stores`; rune code reads it with `toRune(store)` |
 | Translating | `t()` from `@scylla/ui/i18n`, over a `*.messages.ts` |
 | A page transition | `PageTransition` — the core's router already wraps every page in it |
+
+## Forms: the app checks the values, not the browser
+
+`ScyllaForm` renders `<form novalidate>`: the browser shows no validation tooltip, in no
+language. The checks are the app's, with translated messages:
+
+- `required` is implicit: a field that is not `optional` keeps the submit disabled while empty.
+- `validate(value, values)` on an item gives the message descriptor of a wrong value, or
+  `undefined`. The form shows it under the field (`aria-invalid`, `aria-describedby`) when the
+  field loses the focus or when a submit is tried, and does not call `onSubmit` while there is
+  one. `values` lets a confirmation compare itself with the new password.
+- `errors` (a prop) shows a message from the server under its field, e.g. a wrong current
+  password.
+- An input item takes `autocomplete` (always set it: `username`, `email`, `current-password`,
+  `new-password`, `name`, …), `readonly`, and `description` (a hint under the field).
+- `autofocus={false}` on a page with several forms: by default the first field takes the focus.
 
 ## Rune helpers: `state/`
 
@@ -99,10 +115,11 @@ DOM measurement is a **Svelte action**, never an effect: `createMeasuredHeight()
 Svelte transition writes inline styles from JavaScript and that query never sees it — every
 transition here asks and collapses its duration to zero.
 
-### `shadcn/` — the primitives
+### `primitives/` — the primitives
 
-The shadcn-svelte primitives, on **`bits-ui`**, with the Tailwind class strings of the old
-shadcn/ui components copied verbatim. Import them from `@scylla/ui/shadcn`. A primitive is ported when its
+The primitives, on **`bits-ui`**. They are adapted from the React components of shadcn/ui (MIT,
+see `primitives/README.md`): the Tailwind class strings were copied, then changed where the design
+needed it. They are our code now, not vendored code: no CLI and no upstream update manage them. Import them from `@scylla/ui/primitives`. A primitive is ported when its
 first consumer needs it — there is no primitive here without a consumer.
 
 The sidebar (`Sidebar*`, `setSidebar` / `getSidebar`) keeps its open state in a Svelte context
@@ -131,6 +148,11 @@ What a port has to get right, all of it invisible to the compiler:
 - **CSS variable names change**: `--radix-*-content-transform-origin` becomes
   `--bits-floating-transform-origin`, and the select's available-height/anchor-width variables
   likewise. Nothing fails loudly if you miss one.
+- **A centered modal does not slide.** Tailwind 4 centers it with the CSS `translate` property.
+  tw-animate-css moves it with `transform`. The browser applies the two, thus the shadcn classes
+  `slide-in-from-left-1/2` and `slide-in-from-top-[48%]` move the modal in from the left. Use
+  `CENTERED_DIALOG_CLASS` (`dialog/dialog-variants.ts`): fade and zoom only.
+  `dialog/centered-dialog.test.ts` fails when a source file has a centering translate and a slide.
 - **Radix's `Indicator` parts become an `{#if}` in a children snippet** (checkbox, select item),
   because bits-ui hands the state to the snippet instead of mounting a separate node.
 - **Highlight styles need `data-highlighted:`, not just `focus:`.** bits-ui never moves DOM focus
@@ -163,6 +185,39 @@ chunk.
 
 ## Rules that bite here
 
+- **A denied `GatedButton` is `aria-disabled`, not `disabled`.** A `disabled` button cannot
+  take the focus. Then a keyboard or screen reader user cannot get the reason, and a dialog
+  cannot give the focus back to the button. The denied button stays focusable,
+  `aria-describedby` points to the reason, and the tooltip opens on hover and on focus. A
+  click, Enter or Space does nothing, and it is `type="button"`, thus it submits no form. It is
+  the same element when `allowed` changes. In a test, check `aria-disabled="true"`:
+  `toBeDisabled()` reads only the `disabled` attribute.
+- **An element that scrolls is `relative`.** This applies to each class string with
+  `overflow-auto`, `overflow-x-auto`, `overflow-y-auto` or a `*-scroll` value. An `absolute`
+  element (an `sr-only` text, a hidden input of bits-ui, a badge) gets its position from the
+  nearest positioned ancestor. If the scroller is not positioned, this ancestor is outside the
+  scroller, for example the `main` of `PageTransition`. Then the scroller does not clip the
+  element, and the element does not move when the scroller scrolls. The element stays at its
+  position in the full list, below the visible part. Thus it makes the scroll area of the page
+  larger, and the page shows an empty zone below its end. Put `relative` in the same class
+  string as the `overflow-*` class. `layout/__test__/scroll-container.test.ts` fails when a
+  class string has a scroll class and no `relative`, `absolute`, `fixed` or `sticky`. An
+  element that gets its position from a different class string goes in `POSITIONED_ELSEWHERE`
+  of that test, with the reason. `dialog-content.svelte` is the only one: it is `fixed` through
+  `CENTERED_DIALOG_CLASS`. Do not add `relative` to it: `cn()` keeps the last position class,
+  thus `relative` replaces `fixed`.
+- **Between a `sticky` element and its scroller, use `overflow-clip`, not `overflow-hidden`.**
+  `overflow-hidden` makes a scroll container. The `sticky` element then sticks in that box,
+  which does not scroll, and it moves away with the content. `overflow-clip` clips the same
+  way, also on the rounded corners, but it does not make a scroll container. The table of
+  pipelines of the dashboard uses it.
+- **A scroller gives room to the focus ring of its content.** A scroller clips all that is
+  outside its padding box: also the focus ring (`ring-[3px]` is a `box-shadow` outside the
+  border) and the outline of a focused control. `overflow-y-auto` also makes `overflow-x`
+  `auto`, thus the scroller clips on the left and on the right too. When a control touches an
+  edge of the scroller, add `-m-1 p-1`: the ring gets 4 px and the content does not move. Put
+  the `pr-*` for the scroll bar after `p-1` (`-m-1 p-1 pr-2` replaces `pr-1`). For a control
+  that fills a box with `overflow-hidden`, use `focus-visible:ring-inset`.
 - **`selectionStore` is keyed by feature.** `createSelection('jobs')` and
   `createSelection('users')` are independent. Never add a second selection store.
 - It and `contextStore` (scylla-base, `@platform/context`) are the app's **only** two global UI
@@ -171,13 +226,13 @@ chunk.
 - **Never put server state in a shared store.**
 - A component used by ≥ 2 features moves here and gets exported from its group barrel — when
   it passes the test above. A component used by one stays in that feature.
-- `shadcn/` is ported shadcn-svelte. Prefer composing over editing; if you must edit, keep the
-  upstream API.
+- `primitives/` keeps the shadcn/ui API (part names, `data-slot`, variants), so that a reader
+  who knows shadcn knows them. Prefer composing over editing; if you must edit, keep that API.
 - Adding to `@scylla/ui` needs a second real usage. One usage stays inline.
 - `data-part` marks the inner parts of a composite that code outside may point at:
   `feature-header-new` (`FeatureHeader`), `code-snippet-copy` (`CodeSnippet`),
   `secret-reveal-secret` / `-next-step` / `-confirm` (`SecretRevealChecklist`). The onboarding
-  tour of scylla-base uses them. Keep them; do not use `data-slot` for this, a shadcn primitive
+  tour of scylla-base uses only `feature-header-new`. Keep them; do not use `data-slot` for this, a primitive
   sets its own.
 
 ## Before done

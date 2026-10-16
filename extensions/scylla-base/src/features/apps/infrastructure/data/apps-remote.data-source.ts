@@ -5,6 +5,7 @@ import type {
   AppSecretEntity,
 } from '@base/features/apps/domain/entities/app.entity.ts';
 import type {
+  AppAccess,
   CreatedApp,
   CreatedAppSecret,
 } from '@base/features/apps/domain/structs/app.struct.ts';
@@ -38,8 +39,9 @@ export class AppsRemoteDataSourceImpl implements AppsRemoteDataSource {
   createApp(organizationId: string, name: string): Promise<ScyllaResult<CreatedApp>> {
     return ScyllaResult.tryAsync(async () => {
       const client = new AppServiceClient(this.grpcTransport.getTransport());
-      const response = await client.createApp({ organizationId: wrapId(organizationId), name })
-        .response;
+      const response = await client.createApp(
+        GrpcAppMapper.toCreateAppRequest(organizationId, name),
+      ).response;
       if (!response.app) throw new Error('CreateApp returned no app');
       return { app: GrpcAppMapper.toDomain(response.app), secret: response.secret };
     }, 'Failed to create app');
@@ -99,5 +101,24 @@ export class AppsRemoteDataSourceImpl implements AppsRemoteDataSource {
       if (!response.appSecret) throw new Error('SetAppSecretEnabled returned no secret metadata');
       return GrpcAppMapper.secretToDomain(response.appSecret);
     }, 'Failed to update app secret');
+  }
+
+  setAppSecretLabel(secretId: string, label: string): Promise<ScyllaResult<AppSecretEntity>> {
+    return ScyllaResult.tryAsync(async () => {
+      const client = new AppServiceClient(this.grpcTransport.getTransport());
+      const response = await client.setAppSecretLabel(
+        GrpcAppMapper.toSetSecretLabelRequest(secretId, label),
+      ).response;
+      if (!response.appSecret) throw new Error('SetAppSecretLabel returned no secret metadata');
+      return GrpcAppMapper.secretToDomain(response.appSecret);
+    }, 'Failed to rename app secret');
+  }
+
+  listAppAccess(appId: string): Promise<ScyllaResult<AppAccess[]>> {
+    return ScyllaResult.tryAsync(async () => {
+      const client = new AppServiceClient(this.grpcTransport.getTransport());
+      const response = await client.listAppAccess({ appId: wrapId(appId) }).response;
+      return response.access.flatMap(access => GrpcAppMapper.accessToDomain(access) ?? []);
+    }, 'Failed to list app access');
   }
 }

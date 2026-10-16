@@ -4,7 +4,7 @@ This document describes the structure of the Scylla frontend and the reasons for
 frontend is a Svelte 5 + TypeScript single-page application. A **core** loads **extensions**.
 Each extension is built on **Clean Architecture**, with **TanStack Query** for async data.
 
-`CLAUDE.md` is the contract, and the `AGENTS.md` of each package and module make it concrete.
+The root `AGENTS.md` is the contract, and the `AGENTS.md` of each package and module make it concrete.
 If this document and one of them do not agree, they are correct: update this document.
 
 ---
@@ -53,7 +53,7 @@ The frontend is a pnpm workspace:
 ```
 apps/web/                  @scylla/web       the build: the list of extensions, main.ts
 packages/core/             @scylla/core      extension loader, route compilation, router, shell frame
-packages/ui/               @scylla/ui        design system: shadcn, composites, rune helpers, stores, i18n
+packages/ui/               @scylla/ui        design system: primitives, composites, rune helpers, stores, i18n
 sdks/core-sdk/             @scylla/core-sdk  the contract: @Extension, ScyllaModule, navigation, DI, query
 sdks/scylla-base-sdk/      @scylla/base-sdk  the public API of scylla-base, for the other extensions
 extensions/scylla-base/    @scylla/base      the Scylla product
@@ -111,7 +111,7 @@ without an import of the core.
 @Extension({
   id: 'scylla-base',
   name: 'Scylla',
-  version: '0.4.0',
+  version: '0.5.0',
   modules: [ShellModule, ...modules],
   catalogs: import.meta.glob<CatalogModule>('./**/locales/*/messages.ts'),
 })
@@ -219,7 +219,12 @@ constant's name; the loader names it `<extension id>/<key>`:
 
 ```typescript
 export const EmailLoginWidgetInjection = [
-  loginPoints.texts.override({ identifier: msg`Email`, /* … */ }),
+  // The label, its placeholder and the description of the card all name the identifier.
+  loginPoints.texts.override({
+    identifier: msg`Email`,
+    identifierPlaceholder: msg`you@example.com`,
+    description: msg`Enter your email and your password.`,
+  }),
   loginPoints.fields.patch(fields => /* turn the identifier field into an email input */),
 ];
 
@@ -425,8 +430,7 @@ export const USERS_QUERY_KEY = () => ['users'] as const;
 export const userMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: async ({ username, password }: { username: string; password: string }) =>
-        (await repository().create(username, password)).unwrap(),
+      mutationFn: async (input: CreateUserInput) => (await repository().create(input)).unwrap(),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.USER_CREATE));
         return getQueryClient().invalidateQueries({ queryKey: USERS_QUERY_KEY() });
@@ -538,7 +542,7 @@ Another extension uses `navigateTo` from `@scylla/core-sdk`. Never import the ro
 
 ## 8. Shared patterns
 
-These are in `@scylla/ui` (entry points `@scylla/ui`, `@scylla/ui/shadcn`, `@scylla/ui/state`,
+These are in `@scylla/ui` (entry points `@scylla/ui`, `@scylla/ui/primitives`, `@scylla/ui/state`,
 `@scylla/ui/stores`, `@scylla/ui/i18n`, `@scylla/ui/utils`, `@scylla/ui/structs`).
 
 ### 8.1 Selection — `createSelection(key)`
@@ -623,7 +627,7 @@ runtime merges them into one map, so `pnpm i18n:collisions` must stay at zero.
 | Router written in `@scylla/core` | Routing |
 | Lingui 5 | Internationalization (en, fr) |
 | gRPC-Web (protobuf-ts) | Backend communication |
-| shadcn-svelte + bits-ui | UI component primitives |
+| bits-ui | UI component primitives (adapted from shadcn/ui) |
 | lucide (`@lucide/svelte`) | Icons |
 | svelte-sonner | Toasts |
 | `@xyflow/svelte` | Graphs |

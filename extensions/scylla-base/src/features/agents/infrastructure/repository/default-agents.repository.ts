@@ -6,6 +6,10 @@ import type {
   AgentStats,
 } from '@base/features/agents/domain/structs/agent.struct.ts';
 import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
+import type {
+  AgentJob,
+  PipelineName,
+} from '@base/features/agents/domain/structs/agent-job.struct.ts';
 
 export class DefaultAgentsRepository implements AgentsRepository {
   constructor(private remoteDataSource: AgentsRemoteDataSource) {}
@@ -28,5 +32,17 @@ export class DefaultAgentsRepository implements AgentsRepository {
 
   deleteAgent(agentId: string): Promise<ScyllaResult<void>> {
     return this.remoteDataSource.deleteAgent(agentId);
+  }
+
+  listJobs(
+    organizationId: string,
+    agentId: string,
+    limit: number,
+  ): Promise<ScyllaResult<AgentJob[]>> {
+    return this.remoteDataSource.listJobs(organizationId, agentId, limit);
+  }
+
+  listPipelineNames(organizationId: string): Promise<ScyllaResult<PipelineName[]>> {
+    return this.remoteDataSource.listPipelineNames(organizationId);
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Architecture rules of the workspace, as a machine check of the contract in
- * CLAUDE.md. Every rule below is a hard gate in CI; none of them is aspirational.
+ * the root AGENTS.md. Every rule below is a hard gate in CI; none of them is aspirational.
  *
  * Two levels:
  *  - *packages*  — `ui` is the bottom, `core-sdk` above it, then `core` and the
@@ -91,7 +91,7 @@ module.exports = {
           R + '$1/$2/',
           R + 'packages/(core|ui)/src/index[.]ts$',
           R + 'sdks/[^/]+/src/index[.]ts$',
-          R + 'packages/ui/src/(shadcn|state|stores|i18n|utils|structs)/index[.]ts$',
+          R + 'packages/ui/src/(primitives|state|stores|i18n|utils|structs)/index[.]ts$',
           R + 'packages/ui/src/styles[.]css$',
           R + 'packages/ui/src/assets/',
         ],
@@ -250,7 +250,7 @@ module.exports = {
         'query/state library. Framework types belong in infrastructure or presentation. A ' +
         'type-only import is exempt — it leaves no runtime trace — which is what lets a ' +
         "domain repository outside scylla-base return `ScyllaResult<T>` from `@scylla/base-sdk` " +
-        "(CLAUDE.md: \"other extensions get it from @scylla/base-sdk\") without pulling that " +
+        "(root AGENTS.md: \"other extensions get it from @scylla/base-sdk\") without pulling that " +
         "SDK's gRPC- and query-coupled exports into the domain layer.",
       severity: 'error',
       from: { path: '/domain/' },
@@ -320,7 +320,7 @@ module.exports = {
           // helpers are only imported by test files, which are themselves
           // orphans — neither is reachable from the module graph.
           R + 'test/',
-          // CLAUDE.md: "Every feature has one [index.ts], even when nothing
+          // root AGENTS.md: "Every feature has one [index.ts], even when nothing
           // consumes it yet." In scylla-base this never shows as an orphan —
           // `@scylla/base-sdk`'s blanket `export *` references every feature
           // barrel regardless of whether anything else uses it. An extension

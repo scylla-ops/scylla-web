@@ -82,9 +82,9 @@ describe('FeatureHeader', () => {
     render(FeatureHeader, { label: 'Secret', onNew: vi.fn(), canNew: false });
 
     const button = screen.getByRole('button', { name: 'New Secret' });
-    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
 
-    await userEvent.hover(button.parentElement as HTMLElement);
+    await userEvent.hover(button);
 
     expect(await findTooltip()).toHaveTextContent("You don't have permission to do this.");
   });
@@ -97,9 +97,7 @@ describe('FeatureHeader', () => {
       newDeniedReason: 'Ask an org admin for CREATE_SECRETS.',
     });
 
-    await userEvent.hover(
-      screen.getByRole('button', { name: 'New Secret' }).parentElement as HTMLElement,
-    );
+    await userEvent.hover(screen.getByRole('button', { name: 'New Secret' }));
 
     expect(await findTooltip()).toHaveTextContent('Ask an org admin for CREATE_SECRETS.');
   });
@@ -167,9 +165,9 @@ describe('FeatureHeader', () => {
       deleteDeniedReason: 'Deleting secrets needs DELETE_SECRETS.',
     });
 
-    expect(deleteButton()).toBeDisabled();
+    expect(deleteButton()).toHaveAttribute('aria-disabled', 'true');
 
-    await userEvent.hover(deleteButton().parentElement as HTMLElement);
+    await userEvent.hover(deleteButton());
 
     expect(await findTooltip()).toHaveTextContent('Deleting secrets needs DELETE_SECRETS.');
   });

@@ -81,8 +81,8 @@ msgid "Delete node"
 msgstr "Supprimer le nœud"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:48
-msgid "Draft — not created yet"
-msgstr "Brouillon — non créé pour le moment"
+msgid "Draft: not created yet"
+msgstr "Brouillon : non créé pour le moment"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:26
 msgid "Duplicate"

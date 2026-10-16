@@ -56,7 +56,7 @@ closes it on teardown — a stream is a system outside the framework, and that i
 
 **Presentation** is the largest layer: a query-key factory module, the `*.queries.ts` factories
 that replaced the hooks, the `jobs-table/` folder holding the table, its columns and its cells
-(`JobStatus`, `JobTimeline`, `JobActions`), and `job-details/` holding the two halves of the
+(`JobStatus`, `JobTimeline`, `JobActions`), and the `JobDetails/` page folder holding the two halves of the
 details page — `JobSummary` (what the run did) and `JobNodeLogs` (what it printed, per node).
 The streamed viewer itself, `jobs-log/JobLogDisplay`, is shared by both pages.
 

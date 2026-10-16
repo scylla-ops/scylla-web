@@ -1,7 +1,7 @@
 <script lang="ts">
   import { contextStore } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
-  import { Card, CardContent, CardHeader, CardTitle, Skeleton } from '@scylla/ui/shadcn';
+  import { Card, CardContent, CardHeader, CardTitle, Skeleton } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
@@ -17,7 +17,7 @@
     projectPoints,
     type ChartGeometry,
     type OutcomeSeries,
-  } from '../outcomes-chart.calculator.ts';
+  } from './outcomes-chart.calculator.ts';
   import { dashboardMessages } from '../dashboard.messages.ts';
 
   type Range = '7d' | '14d' | '30d';

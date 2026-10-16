@@ -13,9 +13,9 @@
     formatDuration,
     getRelativeTime,
   } from '@shared/utils/date-utils.ts';
-  import type { JobEntity } from '../../../domain/entities/job.entity.ts';
-  import { isActiveStatus } from '../../../domain/structs/jobs-summary.struct.ts';
-  import { jobMutations } from '../../jobs.queries.ts';
+  import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
+  import { isActiveStatus } from '@base/features/jobs/domain/structs/jobs-summary.struct.ts';
+  import { jobMutations } from '@base/features/jobs/presentation/jobs.queries.ts';
   import JobActions from './JobActions/JobActions.svelte';
   import JobStatus from './JobStatus/JobStatus.svelte';
   import JobTimeline from './JobTimeline/JobTimeline.svelte';

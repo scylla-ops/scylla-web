@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
@@ -22,9 +23,17 @@ let create: ReturnType<typeof vi.fn>;
 const setUp = (getMine: () => Promise<ScyllaResult<{ id: string; name: string }[]>>) => {
   create = vi.fn((name: string) => Promise.resolve(ScyllaResult.success({ id: 'org-9', name })));
   const cache = withQueryClient();
+  const getMe = vi
+    .fn()
+    .mockResolvedValue(
+      ScyllaResult.success({ userId: 'user-1', username: 'ada', isActive: true, updatedAt: '' }),
+    );
   teardown = [
     cache.restore,
-    withRegistry({ organization: { organizationRepository: { getMine, create } } }),
+    withRegistry({
+      organization: { organizationRepository: { getMine, create } },
+      user: { userRepository: { getMe } },
+    }),
   ];
   return render(OrganizationGateFixture);
 };
@@ -42,7 +51,17 @@ beforeEach(() => {
 afterEach(() => {
   teardown.forEach(restore => restore());
   navigator.restore();
+  permissionsStore.setState({ permissions: null });
 });
+
+const holding = (permissions: Permission[]) =>
+  permissionsStore.setState({
+    permissions: {
+      scopes: [
+        { scope: PermissionScope.SYSTEM, scopeId: '', access: { kind: 'restricted', permissions } },
+      ],
+    },
+  });
 
 describe('OrganizationGate', () => {
   it('shows neither the page nor the welcome screen while the organizations load', () => {
@@ -81,7 +100,8 @@ describe('OrganizationGate', () => {
     expect(screen.queryByText('page content')).not.toBeInTheDocument();
   });
 
-  it('creates the first organization and opens the settings of the user in it', async () => {
+  it('creates the first organization and opens its dashboard', async () => {
+    holding([Permission.CREATE_ORGANIZATION]);
     setUp(() => Promise.resolve(ScyllaResult.success([])));
     await screen.findByText('Welcome to Scylla!');
     await focusSettled();
@@ -93,7 +113,35 @@ describe('OrganizationGate', () => {
 
     await waitFor(() => expect(create).toHaveBeenCalledWith('My Org', 'Our team'));
     await waitFor(() =>
-      expect(navigator.navigate).toHaveBeenCalledWith('/my-org/users/me', undefined),
+      expect(navigator.navigate).toHaveBeenCalledWith('/my-org/dashboard', undefined),
     );
   });
+
+  it('tells a user who may not create an organization to ask an administrator, with no form', async () => {
+    holding([]);
+    setUp(() => Promise.resolve(ScyllaResult.success([])));
+
+    expect(
+      await screen.findByText(
+        'You are not a member of an organization yet. Ask an administrator to add you.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText('Organization name')).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['who may create an organization', [Permission.CREATE_ORGANIZATION]],
+    ['who may not', []],
+  ])(
+    'offers the account page and the sign-out under the card to a user %s',
+    async (_who, permissions) => {
+      holding(permissions);
+      setUp(() => Promise.resolve(ScyllaResult.success([])));
+
+      expect(await screen.findByText('Signed in as ada')).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Account' })).toHaveAttribute('href', '/account');
+      expect(screen.getByRole('button', { name: 'Sign out' })).toBeInTheDocument();
+      expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+    },
+  );
 });

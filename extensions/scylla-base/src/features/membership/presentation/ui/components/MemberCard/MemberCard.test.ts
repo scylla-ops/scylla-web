@@ -6,7 +6,7 @@ import { PermissionScope } from '@platform/authz';
 import {
   MemberRoleOrigin,
   type MemberRole,
-} from '../../../../domain/structs/scope-member.struct.ts';
+} from '@base/features/membership/domain/structs/scope-member.struct.ts';
 import MemberCard from './MemberCard.svelte';
 
 const role = (overrides: Partial<MemberRole> = {}): MemberRole => ({
@@ -18,7 +18,7 @@ const role = (overrides: Partial<MemberRole> = {}): MemberRole => ({
 });
 
 const baseProps = {
-  name: 'ravenne',
+  user: { userId: 'user-1', username: 'ravenne' },
   isCurrentUser: false,
   canRemove: true,
   addableRoles: [],
@@ -86,5 +86,12 @@ describe('MemberCard', () => {
     await userEvent.click(await findFloating('option', 'Developer'));
 
     expect(onAddRole).toHaveBeenCalledWith('r1');
+  });
+
+  it('shows the person with the shared identity: name and handle', () => {
+    render(MemberCard, { ...baseProps });
+
+    expect(screen.getByText('ravenne')).toBeInTheDocument();
+    expect(screen.getByText('@ravenne')).toBeInTheDocument();
   });
 });

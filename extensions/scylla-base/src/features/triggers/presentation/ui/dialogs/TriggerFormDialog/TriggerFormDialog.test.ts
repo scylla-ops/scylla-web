@@ -1,11 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findFloating, focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import {
+  findFloating,
+  focusSettled,
+  render,
+  withQueryClient,
+  withRegistry,
+} from '@test/render.svelte.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { TriggersRepository } from '../../../../domain/repository/triggers.repository.ts';
-import type { TriggerEntity } from '../../../../domain/entities/trigger.entity.ts';
-import { TriggerKind } from '../../../../domain/structs/trigger-source.struct.ts';
+import type {
+  TriggersRepository,
+} from '@base/features/triggers/domain/repository/triggers.repository.ts';
+import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
+import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
 import TriggerFormDialog from './TriggerFormDialog.svelte';
 
 const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
@@ -144,7 +152,7 @@ describe('TriggerFormDialog — edit mode', () => {
 
     expect(screen.getByText('Edit trigger')).toBeInTheDocument();
     expect(screen.getByLabelText('Name')).toHaveValue('nightly');
-    expect(screen.getByText("Type can't be changed — delete and recreate to switch.")).toBeInTheDocument();
+    expect(screen.getByText("Type can't be changed. Delete and recreate to switch.")).toBeInTheDocument();
   });
 
   it('updates by trigger id rather than creating a second one', async () => {

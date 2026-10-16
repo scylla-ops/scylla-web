@@ -1,7 +1,7 @@
 <script lang="ts">
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
   import { t } from '@scylla/ui/i18n';
-  import type { RolesPage } from '../../roles-page.state.svelte.ts';
+  import type { RolesPage } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
   import { rolesMessages } from '../roles.messages.ts';
   import RoleDetailGrantList from './role-detail/RoleDetailGrantList.svelte';
   import RoleDetailHeader from './role-detail/RoleDetailHeader.svelte';
@@ -28,7 +28,7 @@
 {:else}
   <!-- Keyed on the role: its ViewModels are built from it. -->
   {#key role.id}
-    <div class="flex h-full flex-col gap-6 overflow-y-auto p-4">
+    <div class="relative flex h-full flex-col gap-6 overflow-y-auto p-4">
       <RoleDetailHeader {role} {page} />
       <RoleDetailPermissions {role} />
       <RoleDetailGrantList {role} {page} />

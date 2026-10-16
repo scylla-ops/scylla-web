@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { Checkbox, Label } from '@scylla/ui/shadcn';
+  import { Checkbox, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import {
     groupAssignableRoles,
     type AssignableRole,
-  } from '../../../assignable-roles.calculator.ts';
-  import { membershipMessages } from '../../membership.messages.ts';
+  } from '@base/features/membership/presentation/assignable-roles.calculator.ts';
+  import {
+    membershipMessages,
+  } from '@base/features/membership/presentation/ui/membership.messages.ts';
 
   interface Props {
     label: string;
@@ -49,7 +51,7 @@
       {t(membershipMessages.noRoleGrantable)}
     </p>
   {:else}
-    <div class="max-h-48 overflow-y-auto rounded-lg border border-border p-1">
+    <div class="relative max-h-48 overflow-y-auto rounded-lg border border-border p-1">
       {#each groups as group (group.owner)}
         <div class="flex flex-col" role="group" aria-labelledby="{uid}-{group.owner}">
           <p

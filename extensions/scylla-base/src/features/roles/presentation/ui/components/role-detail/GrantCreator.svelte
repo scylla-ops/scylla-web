@@ -13,15 +13,17 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { GatedButton, ScyllaDialog } from '@scylla/ui';
   import { toast } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import type { GrantEntity } from '../../../../domain/entities/grant.entity.ts';
-  import type { RoleEntity } from '../../../../domain/entities/role.entity.ts';
-  import { createGrantCreator } from '../../../grant-creator.state.svelte.ts';
-  import type { RolesScope } from '../../../roles-page.state.svelte.ts';
-  import { rolesMessages } from '../../roles.messages.ts';
+  import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
+  import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
+  import {
+    createGrantCreator,
+  } from '@base/features/roles/presentation/grant-creator.state.svelte.ts';
+  import type { RolesScope } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
   import TargetChecklist from './TargetChecklist.svelte';
 
   interface Props {
@@ -115,7 +117,7 @@
   title={t(rolesMessages.grantTitle(role.name))}
   description={t(rolesMessages.grantSubtitle)}
 >
-  <div class="flex flex-col gap-4 overflow-y-auto pr-1">
+  <div class="relative -m-1 flex flex-col gap-4 overflow-y-auto p-1 pr-2">
     {#if creator.scope === PermissionScope.SYSTEM}
       {@render userPicker()}
       <div

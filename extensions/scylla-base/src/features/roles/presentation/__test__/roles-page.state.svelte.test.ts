@@ -11,9 +11,11 @@ import {
 import { selectionStore } from '@scylla/ui/stores';
 import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { PermissionRepository } from '../../domain/repository/permission.repository.ts';
-import type { RoleEntity } from '../../domain/entities/role.entity.ts';
-import type { GrantEntity } from '../../domain/entities/grant.entity.ts';
+import type {
+  PermissionRepository,
+} from '@base/features/roles/domain/repository/permission.repository.ts';
+import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
+import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import { createRolesPage, type RolesScope } from '../roles-page.state.svelte.ts';
 
 const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
@@ -347,13 +349,31 @@ describe('createRolesPage — an organization', () => {
       await waitFor(() => expect(page.roles).toHaveLength(2));
 
       expect(listMembers).not.toHaveBeenCalled();
-      expect(page.principalLabel(grant())).toBe('user-1');
+      // Never the raw id, and never "Deleted user": a grant never outlives its user.
+      expect(page.principalLabel(grant())).toBe('Unknown user');
+      expect(page.principalUser(grant())).toBeUndefined();
+      expect(page.holdersLoading).toBe(false);
+    });
+  });
+
+  it('says the names of the holders are loading until the members arrive', async () => {
+    let answer: (value: unknown) => void = () => {};
+    listMembers.mockReturnValue(new Promise(resolve => (answer = resolve)));
+
+    await withPage(ACME, async page => {
+      await waitFor(() => expect(page.holdersLoading).toBe(true));
+
+      answer(ScyllaResult.success([{ userId: 'user-1', username: 'ada' }]));
+
+      await waitFor(() => expect(page.holdersLoading).toBe(false));
+      expect(page.principalLabel(grant())).toBe('ada');
     });
   });
 
   it('names a holder from the members of the organization, not the user directory', async () => {
     await withPage(ACME, async page => {
       await waitFor(() => expect(page.principalLabel(grant())).toBe('ada'));
+      expect(page.principalUser(grant())).toEqual({ userId: 'user-1', username: 'ada' });
       expect(listMembers).toHaveBeenCalledWith('org-1');
     });
   });

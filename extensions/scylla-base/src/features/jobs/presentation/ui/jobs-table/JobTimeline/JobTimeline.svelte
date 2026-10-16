@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/shadcn';
+  import { Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
   import { StatusBar, type StatusBarItem } from '@shared/presentation/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
@@ -9,8 +9,8 @@
     formatTime,
   } from '@shared/utils/date-utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
-  import type { JobNodeExecution } from '../../../../domain/structs/job.struct.ts';
-  import { jobsMessages } from '../../jobs.messages.ts';
+  import type { JobNodeExecution } from '@base/features/jobs/domain/structs/job.struct.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/ui/jobs.messages.ts';
   import { groupByStatus, nodeIdOf, shouldCollapse } from '../job-timeline.calculator.ts';
 
   interface Props {

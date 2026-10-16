@@ -50,8 +50,8 @@ msgid "Apps"
 msgstr "Apps"
 
 #: extensions/scylla-base/src/features/apps/presentation/ui/apps.messages.ts:44
-msgid "Apps are credentials, not processes. There's nothing to monitor here — no online/offline, no runs. If you need observability, create an Agent instead."
-msgstr "Apps are credentials, not processes. There's nothing to monitor here — no online/offline, no runs. If you need observability, create an Agent instead."
+msgid "Apps are credentials, not processes. There's nothing to monitor here: no online/offline, no runs. If you need observability, create an Agent instead."
+msgstr "Apps are credentials, not processes. There's nothing to monitor here: no online/offline, no runs. If you need observability, create an Agent instead."
 
 #: extensions/scylla-base/src/features/apps/presentation/ui/apps.messages.ts:14
 msgid "Apps are machine credentials. Create one to let an automation authenticate against the Scylla API."
@@ -74,8 +74,8 @@ msgid "Copy id"
 msgstr "Copy id"
 
 #: extensions/scylla-base/src/features/apps/presentation/ui/apps.messages.ts:20
-msgid "Copy the secret below — it is shown only once."
-msgstr "Copy the secret below — it is shown only once."
+msgid "Copy the secret below. It is shown only once."
+msgstr "Copy the secret below. It is shown only once."
 
 #: extensions/scylla-base/src/features/apps/presentation/ui/apps.messages.ts:17
 msgid "Create & reveal secret →"

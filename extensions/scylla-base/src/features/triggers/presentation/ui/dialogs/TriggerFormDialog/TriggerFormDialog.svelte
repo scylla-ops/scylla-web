@@ -1,7 +1,10 @@
 <script lang="ts">
   import { ScyllaDialog } from '@scylla/ui';
-  import type { CreatedTrigger, TriggerEntity } from '../../../../domain/entities/trigger.entity.ts';
-  import TriggerForm from '../TriggerForm.svelte';
+  import type {
+    CreatedTrigger,
+    TriggerEntity,
+  } from '@base/features/triggers/domain/entities/trigger.entity.ts';
+  import TriggerForm from './TriggerForm.svelte';
 
   interface Props {
     open: boolean;

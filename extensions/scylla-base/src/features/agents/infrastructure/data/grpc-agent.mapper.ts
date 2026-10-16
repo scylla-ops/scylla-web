@@ -8,7 +8,34 @@ import type {
   AgentHost,
 } from '@base/features/agents/domain/entities/agent.entity.ts';
 import type { AgentStats } from '@base/features/agents/domain/structs/agent.struct.ts';
-import { idValue, timestampToIso } from '@shared/infrastructure/grpc/wrappers.ts';
+import type { AgentJob } from '@base/features/agents/domain/structs/agent-job.struct.ts';
+import { JobOutcome, type Job as ProtoJob } from '@base/generated/scylla/job/v1/job.ts';
+import {
+  idValue,
+  timestampToIso,
+  timestampToIsoOpt,
+} from '@shared/infrastructure/grpc/wrappers.ts';
+
+const OUTCOMES: Partial<Record<JobOutcome, string>> = {
+  [JobOutcome.COMPLETED]: 'completed',
+  [JobOutcome.FAILED]: 'failed',
+  [JobOutcome.CANCELLED]: 'cancelled',
+  [JobOutcome.ORPHANED]: 'orphaned',
+};
+
+/** The status names of `features/jobs`. An arm or an outcome newer than this build is `unknown`. */
+const jobStatusOf = (state: ProtoJob['state']): string => {
+  switch (state.oneofKind) {
+    case 'pending':
+      return 'pending';
+    case 'running':
+      return 'running';
+    case 'terminal':
+      return OUTCOMES[state.terminal.outcome] ?? 'unknown';
+    default:
+      return 'unknown';
+  }
+};
 
 export class GrpcAgentMapper {
   static toDomain(w: ProtoAgent): AgentEntity {
@@ -35,6 +62,27 @@ export class GrpcAgentMapper {
       cpuCount: h.cpuCount > 0 ? h.cpuCount : null,
       totalMemoryMb: h.totalMemoryMb > 0n ? Number(h.totalMemoryMb) : null,
       reportedAt: timestampToIso(h.reportedAt),
+    };
+  }
+
+  static jobToDomain(job: ProtoJob): AgentJob {
+    const { state } = job;
+    const startedAt =
+      state.oneofKind === 'running'
+        ? state.running.startedAt
+        : state.oneofKind === 'terminal'
+          ? state.terminal.startedAt
+          : undefined;
+
+    return {
+      id: idValue(job.jobId),
+      pipelineId: idValue(job.pipelineId),
+      status: jobStatusOf(state),
+      createdAt: timestampToIso(job.createdAt),
+      startedAt: timestampToIsoOpt(startedAt),
+      finishedAt: timestampToIsoOpt(
+        state.oneofKind === 'terminal' ? state.terminal.finishedAt : undefined,
+      ),
     };
   }
 

@@ -5,7 +5,9 @@ import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { selectionStore } from '@scylla/ui/stores';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { TriggersRepository } from '../../../../domain/repository/triggers.repository.ts';
+import type {
+  TriggersRepository,
+} from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import TriggersHeader from './TriggersHeader.svelte';
 
 const deleteById = vi.fn();
@@ -74,7 +76,7 @@ describe('TriggersHeader', () => {
     render(TriggersHeader, props({ onNew }));
 
     const button = screen.getByRole('button', { name: 'New trigger' });
-    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
 
     await userEvent.click(button);
     expect(onNew).not.toHaveBeenCalled();
@@ -97,7 +99,10 @@ describe('TriggersHeader', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /select all/i }));
 
-    expect(screen.getByRole('button', { name: /delete/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /delete/i })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 
   it('selects the ids that arrived late, not the empty list of the first render', async () => {

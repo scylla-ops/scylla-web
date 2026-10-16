@@ -2,10 +2,12 @@
   import TerminalIcon from '@lucide/svelte/icons/terminal';
   import XIcon from '@lucide/svelte/icons/x';
   import { Handle, Position, useSvelteFlow, type NodeProps } from '@xyflow/svelte';
-  import { Card } from '@scylla/ui/shadcn';
+  import { Card } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type { BlueprintStepNode } from '../../../utils/blueprint-converter.ts';
-  import { pipelineMessages } from '../../../pipeline.messages.ts';
+  import type {
+    BlueprintStepNode,
+  } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   let { id, data, selected }: NodeProps<BlueprintStepNode> = $props();
 

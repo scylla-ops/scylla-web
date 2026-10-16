@@ -133,7 +133,7 @@ presentation/
   ui/components/role-detail/         RoleDetailHeader, RoleDetailPermissions,
                                      RoleDetailGrantList, GrantCreator, TargetChecklist
   ui/components/role-form/           RoleFormDialog, RoleForm, RoleHolderField,
-                                     RoleDialogPermissions, CheckboxTree, CheckboxTreeNode,
+                                     RoleDialogPermissions, CheckboxTree/ (+ CheckboxTreeNode),
                                      checkbox-tree.ts
   utils/permission-mapping.ts, permission-tree.ts, role-label.ts
 ```
@@ -198,6 +198,11 @@ give it the scope.
   (`memberCountOf` is `null`), never shown as zero. A count is of holders, not grants
   (`countHoldersByRole`): a user with the role on two projects counts once. Holders are named from
   the organization's members (with `LIST_ORGANIZATION_MEMBERS`), not from the user directory.
+  A user holder shows with `UserIdentity` (`@shared/presentation/ui`), from
+  `page.principalUser(grant)`. A holder that the list does not know shows as "Unknown user"
+  (`missing="unknown"`), never by its id, and never as "Deleted user": deleting a user removes
+  its grants. While the list loads (`page.holdersLoading`), the row shows a skeleton, not a
+  fallback name. An app shows by its id.
 - **The editor locks what the author does not hold.** The backend refuses a role with a
   permission its author does not hold at System or at the owner organization
   (`ensure_no_escalation`). `role-authoring.calculator.ts` is that rule, and `lockedPermissions`

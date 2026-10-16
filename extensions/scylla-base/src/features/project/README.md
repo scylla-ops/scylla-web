@@ -56,12 +56,13 @@ They do it by declaring their routes under the `project` mount, and the shell gr
 which is why this module does not need to know they exist, and why adding a project-scoped
 screen never means editing a router file.
 
-## A note on `ProjectMember`
+## A note on the members
 
-`ProjectMember` is a struct, not an entity, and it is worth reading its meaning carefully: it
-describes **who holds a grant scoped to this project**, not a stored membership row. Scylla has
-no separate member table — membership is derived from grants. This module returns the raw list;
-`membership` turns it into direct-vs-inherited roles with actions.
+`listMembers` returns `UserSummary` values, the person type of [user](../user/README.md), and it
+is worth reading its meaning carefully: the list says **who holds a grant scoped to this
+project**, not a stored membership row. Scylla has no separate member table: membership is
+derived from grants. This module returns the raw list; `membership` turns it into
+direct-vs-inherited roles with actions.
 
 ## Structure
 

@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { SidebarInset, SidebarProvider } from '@scylla/ui/shadcn';
+  import { SidebarInset, SidebarProvider } from '@scylla/ui/primitives';
   import AppSidebar from '../AppSidebar/AppSidebar.svelte';
   import { shellConfig } from '../shell-config.ts';
-  import TopBar from '../TopBar.svelte';
+  import TopBar from '../TopBar/TopBar.svelte';
 
   let { children }: { children: Snippet } = $props();
 
@@ -15,7 +15,7 @@
   <AppSidebar {config} />
   <SidebarInset class="flex min-w-0 flex-1 flex-col border border-sidebar-border bg-background p-2">
     <TopBar contributions={config.contributions} />
-    <div class="min-h-0 flex-1 overflow-y-auto p-2">
+    <div class="relative min-h-0 flex-1 overflow-y-auto p-2">
       {@render children()}
     </div>
   </SidebarInset>

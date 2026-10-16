@@ -41,7 +41,7 @@ The extension is short. It is a list of modules:
 @Extension({
   id: 'scylla-base',
   name: 'Scylla',
-  version: '0.4.0',
+  version: '0.5.0',
   modules: [ShellModule, ...modules],
   catalogs: import.meta.glob<CatalogModule>('./**/locales/*/messages.ts'),
 })
@@ -84,7 +84,7 @@ presentation  →  domain  ←  infrastructure
 
 The layers of the extension also go in one direction: `shell → features → platform → shared`.
 dependency-cruiser checks these rules in CI, and `pnpm depcruise:cycles` makes sure that there
-are no cycles between modules. [`CLAUDE.md`](../../CLAUDE.md) has the full rules and the
+are no cycles between modules. The root [`AGENTS.md`](../../AGENTS.md) has the full rules and the
 checklist to add a feature.
 
 ## Public API

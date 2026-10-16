@@ -8,7 +8,7 @@ const page = () => Promise.resolve({ default: (() => undefined) as never });
 const manifest = (overrides: Partial<ExtensionManifest> = {}): ExtensionManifest => ({
   id: 'scylla-base',
   name: 'Scylla',
-  version: '0.4.0',
+  version: '0.5.0',
   modules: [],
   ...overrides,
 });

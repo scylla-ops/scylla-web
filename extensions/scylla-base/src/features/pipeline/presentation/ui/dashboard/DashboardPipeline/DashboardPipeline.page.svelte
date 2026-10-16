@@ -1,10 +1,12 @@
 <script lang="ts">
   import { ErrorState, PaginationSlot } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { createPipelineDashboard } from '../../../pipeline-dashboard.state.svelte.ts';
-  import { createRunPipeline } from '../../../run-pipeline.svelte.ts';
-  import { pipelineMessages } from '../../../pipeline.messages.ts';
-  import PipelineDashboardHeader from '../PipelineDashboardHeader.svelte';
+  import {
+    createPipelineDashboard,
+  } from '@base/features/pipeline/presentation/pipeline-dashboard.state.svelte.ts';
+  import { createRunPipeline } from '@base/features/pipeline/presentation/run-pipeline.svelte.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import PipelineDashboardHeader from './PipelineDashboardHeader.svelte';
   import PipelineTable from '../pipeline-table/PipelineTable.svelte';
 
   interface Props {
@@ -27,7 +29,7 @@
       pipelineIds={dashboard.pipelineIds}
     />
 
-    <div use:dashboard.pagination.measure class="min-h-0 flex-1 overflow-auto">
+    <div use:dashboard.pagination.measure class="relative min-h-0 flex-1 overflow-auto">
       <div class="relative">
         {#if dashboard.pipelines && dashboard.pipelines.length > 0}
           <PipelineTable

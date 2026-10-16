@@ -21,7 +21,7 @@ export const jobsMessages = {
   created: msg`Created`,
   actions: msg`Actions`,
   copyId: msg`Copy ID`,
-  queuedHint: msg`queued — waiting for an agent`,
+  queuedHint: msg`queued: waiting for an agent`,
   orphanedHint: msg`agent disconnected mid-run`,
   view: msg`View`,
   delete: msg`Delete`,

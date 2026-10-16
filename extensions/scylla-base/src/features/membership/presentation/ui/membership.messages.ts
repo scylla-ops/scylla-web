@@ -26,13 +26,14 @@ export const membershipMessages = {
   roleGranted: msg`Role granted`,
   roleRevoked: msg`Role revoked`,
   memberRemoved: (username: string, revoked: number) =>
-    msg`${username} removed — ${revoked} grant(s) revoked`,
+    msg`${username} removed: ${revoked} grant(s) revoked`,
   memberAdded: (count: number) => msg`Member added with ${count} role(s)`,
 
   selectAnOrganization: msg`Select an organization to see its members.`,
   organizationBlurb: (name: string) =>
     msg`Belonging to “${name}” means holding a role in it. Granting someone their first role admits them; revoking every role they hold here, and on its projects, removes them.`,
   organizationNewDenied: msg`You don't have permission to admit members here.`,
+  onlySystemAdminCanBrowseUsers: msg`Only a system admin can browse the users.`,
   organizationEmpty: msg`Nobody belongs to this organization yet.`,
   reachedViaProject: msg`Reached via a project`,
   managedByOrgAdmin: msg`Managed by an organization administrator`,
@@ -40,7 +41,6 @@ export const membershipMessages = {
   addToOrganization: (name: string) => msg`Add a member to “${name}”`,
   addToOrganizationBody: msg`Pick someone and the roles they should hold in this organization.`,
   everyoneIsMember: msg`Everyone is already a member`,
-  cannotBrowseDirectory: msg`You can't browse the user directory`,
   rolesToGrant: msg`Roles to grant`,
   confirmRemoveFromOrganization: (username: string, organization: string) =>
     msg`Remove ${username} from “${organization}”?`,
@@ -54,10 +54,10 @@ export const membershipMessages = {
   inheritedHintVisible: msg`Roles badged “Organization” are inherited from the organization and are managed there.`,
   inheritedHintHidden: msg`Organization administrators also reach this project. Their roles are managed at the organization level and are not listed here.`,
   addToProject: msg`Add a member to this project`,
-  addToProjectBody: msg`Only members of the organization can be added — a project role granted to anyone else is refused.`,
+  addToProjectBody: msg`Only members of the organization can be added: a project role granted to anyone else is refused.`,
   everyOrgMemberHere: msg`Every member of the organization is already here`,
   cannotBrowseOrgMembers: msg`You can't browse the organization's members`,
   projectRolesToGrant: msg`Project roles to grant`,
   confirmRemoveFromProject: (username: string) => msg`Remove ${username} from this project?`,
-  confirmRemoveFromProjectBody: msg`Every role they hold on this project will be revoked. Roles inherited from the organization are untouched — they are managed at the organization level.`,
+  confirmRemoveFromProjectBody: msg`Every role they hold on this project will be revoked. Roles inherited from the organization are untouched: they are managed at the organization level.`,
 };

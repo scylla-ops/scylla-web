@@ -1,10 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import { render, withRegistry, withQueryClient, withWidgetInjections } from '@test/render.svelte.ts';
+import {
+  render,
+  withRegistry,
+  withQueryClient,
+  withWidgetInjections,
+} from '@test/render.svelte.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
-import { loginPoints } from '../../login.points.ts';
+import { loginPoints } from '@base/features/login/presentation/login.points.ts';
 import LoginPage from './Login.page.svelte';
 
 /**
@@ -24,7 +29,12 @@ afterEach(() => teardown.forEach(restore => restore()));
 const setUp = () => {
   const cache = withQueryClient();
   const login = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
-  const restoreRegistry = withRegistry({ login: { loginRepository: { login } satisfies LoginRepository } });
+  const loginRepository: LoginRepository = {
+    login,
+    requestPasswordReset: vi.fn(),
+    resetPassword: vi.fn(),
+  };
+  const restoreRegistry = withRegistry({ login: { loginRepository } });
   const testNavigator = installTestNavigator();
   teardown.push(cache.restore, restoreRegistry, testNavigator.restore);
 };
@@ -38,6 +48,7 @@ describe('Login.page with widget injections', () => {
           loginPoints.texts.override({
             identifier: { id: 'cloud.email', message: 'Email' },
             identifierPlaceholder: { id: 'cloud.email-placeholder', message: 'you@example.com' },
+            description: { id: 'cloud.description', message: 'Enter your email and your password.' },
           }),
           loginPoints.fields.patch(fields =>
             fields.map(field =>
@@ -55,6 +66,7 @@ describe('Login.page with widget injections', () => {
     const field = await screen.findByLabelText('Email');
     expect(field).toHaveAttribute('type', 'email');
     expect(field).toHaveAttribute('placeholder', 'you@example.com');
+    expect(screen.getByText('Enter your email and your password.')).toBeInTheDocument();
   });
 
   it('renders a component injected into the footer zone, below the card', async () => {
@@ -77,7 +89,7 @@ describe('Login.page with widget injections', () => {
 
     render(LoginPage);
 
-    expect(screen.getByLabelText('Username')).toHaveAttribute('type', 'text');
+    expect(screen.getByLabelText('Email or username')).toHaveAttribute('type', 'text');
     expect(screen.queryByTestId('sign-up-link-probe')).not.toBeInTheDocument();
   });
 });

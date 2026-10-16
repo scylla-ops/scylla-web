@@ -58,10 +58,10 @@ presentation/
   tour-placement.calculator.ts       card placement, dim path, connector path
   tour-tracking.actions.ts           trackTourStep (rAF + click listener), holdPointer
   onboarding-tour.state.svelte.ts    ViewModel: status, current step, skip, mutation events
-  ui/OnboardingTour/                 root (loaded by the shell) + its test
-  ui/TourSpot.svelte                 one spot step: tracking, spotlight, card(s)
-  ui/TourSpotlight.svelte, TourCard.svelte
-  ui/WelcomeDialog.svelte, SkipTourDialog.svelte, FinishTourDialog.svelte
+  ui/OnboardingTour/                 root (loaded by the shell) + its test, and its parts:
+    TourSpot.svelte                  one spot step: tracking, spotlight, card(s)
+    TourSpotlight.svelte, TourCard.svelte
+    WelcomeDialog.svelte, SkipTourDialog.svelte, FinishTourDialog.svelte
 ```
 
 ## How a step moves on
@@ -87,16 +87,20 @@ fallback, the card waits in a corner and the page stays usable: the tour never b
 Anchors are attributes on the real elements, never CSS classes:
 
 - `data-tour="…"` in the features: `agents`, `agent-details`, `agent-status` (+ `data-online`),
-  `agent-run`, `projects`, `project-card` (+ `data-project-id`), `pipelines` (+ `data-project-id`), `pipeline-editor`, `pipeline-submit`,
+  `agent-run`, `agent-secret`, `agent-run-command`, `agent-dialog-actions` (step 2 of the new
+  agent dialog), `projects`, `project-card` (+ `data-project-id`), `pipelines` (+ `data-project-id`), `pipeline-editor`, `pipeline-submit`,
   `pipeline-history` / `pipeline-actions` (+ `data-pipeline-id`, `data-pipeline-name`,
   `data-last-status`), `pipeline-run`, `job-details`.
-- `data-part="…"` in `@scylla/ui` (generic parts): `feature-header-new`, `code-snippet-copy`,
-  `secret-reveal-secret` (+ `data-state`), `secret-reveal-next-step`, `secret-reveal-confirm`.
+- `data-part="…"` in `@scylla/ui` (generic parts): `feature-header-new`.
 - `data-nav-url` on the core's sidebar links, `data-item-id` on `StatusBar` segments, and the
-  shadcn `data-slot` of the sidebar, the inset and the dialogs.
+  `data-slot` of the primitives: the sidebar, the inset and the dialogs.
 
 Removing or renaming one of these breaks a step without a type error. `tour-steps.test.ts` pins
 the anchors that carry logic.
+
+A saved tour can hold the id of a removed step. `REPLACED_STEPS` in `tour-machine.calculator.ts`
+gives the step that took its place (`reveal-secret` to `copy-secret`). When you remove or rename
+a step, add its id there.
 
 The mutation keys come from the barrels: `CREATE_AGENT_MUTATION_KEY` (`agents`),
 `CREATE_PROJECT_MUTATION_KEY` (`project`),

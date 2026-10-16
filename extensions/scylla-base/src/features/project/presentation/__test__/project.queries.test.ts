@@ -5,8 +5,10 @@ import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { ProjectEntity } from '../../domain/entities/project.entity.ts';
-import type { ProjectRepository } from '../../domain/repository/project.repository.ts';
+import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
+import type {
+  ProjectRepository,
+} from '@base/features/project/domain/repository/project.repository.ts';
 import {
   canListProjects,
   invalidateProjectMembers,

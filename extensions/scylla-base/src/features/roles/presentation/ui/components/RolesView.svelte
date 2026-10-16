@@ -1,7 +1,10 @@
 <script lang="ts">
   import { FeatureHeader } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { createRolesPage, type RolesScope } from '../../roles-page.state.svelte.ts';
+  import {
+    createRolesPage,
+    type RolesScope,
+  } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
   import { rolesMessages } from '../roles.messages.ts';
   import RoleDetailPanel from './RoleDetailPanel.svelte';
   import RoleList from './RoleList.svelte';
@@ -30,7 +33,7 @@
   <div
     class="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]"
   >
-    <div class="flex min-h-0 flex-col gap-2 overflow-y-auto pr-1">
+    <div class="relative -m-1 flex min-h-0 flex-col gap-2 overflow-y-auto p-1 pr-2">
       <RoleList {page} />
     </div>
 

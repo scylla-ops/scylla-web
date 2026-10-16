@@ -80,7 +80,7 @@ const formDialog: TourAnchor = root =>
     dialog.querySelector('form'),
   ) ?? null;
 
-const secret = select('[data-part="secret-reveal-secret"]');
+const secret = select('[data-tour="agent-secret"]');
 
 const agentStatus = select('[data-tour="agent-status"]');
 
@@ -194,20 +194,6 @@ export const TOUR_STEPS: readonly TourStep[] = [
   },
   {
     kind: 'spot',
-    id: 'reveal-secret',
-    page: () => '/agents',
-    title: m.revealSecretTitle,
-    body: [m.revealSecretBody],
-    link: docs(m.secretDocs),
-    targets: [secret],
-    advance: {
-      on: 'appear',
-      anchor: select('[data-part="secret-reveal-secret"][data-state="revealed"]'),
-    },
-    fallback: 'new-agent',
-  },
-  {
-    kind: 'spot',
     id: 'copy-secret',
     page: () => '/agents',
     title: m.copySecretTitle,
@@ -215,7 +201,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
     link: docs(m.secretDocs),
     targets: [secret],
     advance: { on: 'next' },
-    nextWhen: { on: 'click', anchor: within(secret, '[data-part="code-snippet-copy"]') },
+    nextWhen: { on: 'click', anchor: within(secret, 'button') },
     fallback: 'new-agent',
   },
   {
@@ -226,10 +212,10 @@ export const TOUR_STEPS: readonly TourStep[] = [
     body: [m.runCommandBody, m.runCommandUrl, m.runCommandHelp, m.runCommandDone],
     link: docs(m.connectDocs),
     targets: [
-      select('[data-part="secret-reveal-next-step"]'),
-      select('[data-part="secret-reveal-confirm"]'),
+      select('[data-tour="agent-run-command"]'),
+      select('[data-tour="agent-dialog-actions"]'),
     ],
-    advance: { on: 'click', anchor: select('[data-part="secret-reveal-confirm"]') },
+    advance: { on: 'click', anchor: select('[data-tour="agent-dialog-actions"]') },
     fallback: 'new-agent',
     wide: true,
   },

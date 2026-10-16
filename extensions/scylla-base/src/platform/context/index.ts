@@ -14,4 +14,4 @@ export {
   type ResourceErrorOptions,
 } from './resource-error.svelte.ts';
 export { contextStore } from './context.store.ts';
-export { scyllaNavigate, type ScyllaNavigate } from './scylla-navigate.ts';
+export { organizationUrl, scyllaNavigate, type ScyllaNavigate } from './scylla-navigate.ts';

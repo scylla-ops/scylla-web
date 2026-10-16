@@ -7,8 +7,12 @@
     t,
   } from '@scylla/ui/i18n';
   import { slugifyOrgName } from '@shared/utils/slug.ts';
-  import { organizationMutations } from '../../organization.queries.ts';
-  import { createOrganizationItems } from '../../utils/create-organization-form-items.ts';
+  import {
+    organizationMutations,
+  } from '@base/features/organization/presentation/organization.queries.ts';
+  import {
+    createOrganizationItems,
+  } from '@base/features/organization/presentation/utils/create-organization-form-items.ts';
   import { organizationMessages } from '../organization.messages.ts';
 
   interface Props {

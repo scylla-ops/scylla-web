@@ -320,8 +320,8 @@ msgid "No roles yet. Create one to get started."
 msgstr "Aucun rôle pour l'instant. Créez-en un pour commencer."
 
 #: extensions/scylla-base/src/features/roles/presentation/ui/roles.messages.ts:62
-msgid "Nobody can receive a project grant here yet. Admit someone to the organization first — from the organization switcher, under “Members” — and they will show up here."
-msgstr "Personne ne peut encore recevoir une attribution sur un projet ici. Admettez d'abord quelqu'un dans l'organisation — depuis le sélecteur d'organisation, via « Membres » — et il apparaîtra ici."
+msgid "Nobody can receive a project grant here yet. Admit someone to the organization first (from the organization switcher, under “Members”), and they will show up here."
+msgstr "Personne ne peut encore recevoir une attribution sur un projet ici. Admettez d'abord quelqu'un dans l'organisation (depuis le sélecteur d'organisation, via « Membres »), et il apparaîtra ici."
 
 #: extensions/scylla-base/src/features/roles/presentation/ui/roles.messages.ts:54
 msgid "not a member of this organization"

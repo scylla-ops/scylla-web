@@ -13,7 +13,7 @@ its gRPC transport, and the shell parts that fill the core's frame.
 - Other extensions reach it through [`@scylla/base-sdk`](../../sdks/scylla-base-sdk/AGENTS.md),
   never `@scylla/base` (`sdk-is-the-door`, error). `apps/web` imports only its root:
   `ScyllaBaseExtension`.
-- Inside, the module rules of `CLAUDE.md` hold: features through their `index.ts`, platform
+- Inside, the module rules of the root `AGENTS.md` hold: features through their `index.ts`, platform
   through its `index.ts`, `shared/` knows nobody, `domain/` is pure.
 
 ## Layout
@@ -38,7 +38,7 @@ and `./scylla-result`. Only `@scylla/base-sdk` imports the subpaths.
 @Extension({
   id: 'scylla-base',
   name: 'Scylla',
-  version: '0.4.0',
+  version: '0.5.0',
   modules: [ShellModule, ...modules],
   catalogs: import.meta.glob<CatalogModule>('./**/locales/*/messages.ts'),
 })

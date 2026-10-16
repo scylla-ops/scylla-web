@@ -1,10 +1,12 @@
 <script lang="ts">
   import PlayIcon from '@lucide/svelte/icons/play';
   import { Handle, Position, type NodeProps } from '@xyflow/svelte';
-  import { Card } from '@scylla/ui/shadcn';
+  import { Card } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type { BlueprintStartNode } from '../../../utils/blueprint-converter.ts';
-  import { pipelineMessages } from '../../../pipeline.messages.ts';
+  import type {
+    BlueprintStartNode,
+  } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   let { data }: NodeProps<BlueprintStartNode> = $props();
 </script>

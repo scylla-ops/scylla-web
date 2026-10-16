@@ -2,13 +2,15 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { InstalledExtension } from '../../../domain/structs/installed-extension.struct.ts';
+import type {
+  InstalledExtension,
+} from '@base/features/extensions/domain/structs/installed-extension.struct.ts';
 import ExtensionsPage from './Extensions.page.svelte';
 
 const extension = (overrides: Partial<InstalledExtension> = {}): InstalledExtension => ({
   id: 'scylla-base',
   name: 'Scylla',
-  version: '0.4.0',
+  version: '0.5.0',
   dependencies: [],
   moduleCount: 1,
   pageCount: 12,
@@ -43,7 +45,7 @@ describe('ExtensionsPage', () => {
 
     expect(await screen.findByText('Acme Billing')).toBeInTheDocument();
     expect(screen.getByText('Scylla')).toBeInTheDocument();
-    expect(screen.getAllByText('v0.4.0')).toHaveLength(2);
+    expect(screen.getAllByText('v0.5.0')).toHaveLength(2);
     expect(screen.getAllByText(/1 module ·/)).toHaveLength(2);
   });
 

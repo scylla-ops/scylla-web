@@ -15,7 +15,18 @@ export const LoginModule = {
     loginRepository: loginRepository,
   },
   routes: {
-    public: [{ path: 'login', page: () => import('./presentation/ui/Login/Login.page.svelte') }],
+    public: [
+      { path: 'login', page: () => import('./presentation/ui/Login/Login.page.svelte') },
+      {
+        path: 'forgot-password',
+        page: () => import('./presentation/ui/ForgotPassword/ForgotPassword.page.svelte'),
+      },
+      {
+        // The path of the link that the server makes: keep it.
+        path: 'reset-password',
+        page: () => import('./presentation/ui/ResetPassword/ResetPassword.page.svelte'),
+      },
+    ],
   },
   points: loginPoints,
 } satisfies ScyllaModule;

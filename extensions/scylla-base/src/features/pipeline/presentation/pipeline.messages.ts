@@ -45,7 +45,7 @@ export const pipelineMessages = {
   invalidJson: msg`Invalid JSON`,
   scripting: msg`Scripting`,
   blueprint: msg`Blueprint`,
-  statusDraft: msg`Draft — not created yet`,
+  statusDraft: msg`Draft: not created yet`,
   statusSaving: msg`Saving…`,
   statusDirty: msg`Unsaved changes`,
   statusSaved: msg`All changes saved`,

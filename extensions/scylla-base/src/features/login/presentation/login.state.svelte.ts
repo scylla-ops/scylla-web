@@ -2,9 +2,11 @@ import { createMutation, getModuleDomain } from '@scylla/core-sdk';
 import { navigateTo } from '@platform/context';
 import type { ScyllaError } from '@shared/utils/scylla-result.ts';
 import type { LoginModule } from '../login.module.ts';
+import { returnPathOf } from './return-path.ts';
 
 export interface Credentials {
-  login: string;
+  /** An email or a username. */
+  identifier: string;
   password: string;
 }
 
@@ -14,10 +16,11 @@ export class LoginState {
     .loginRepository;
 
   private readonly mutation = createMutation<void, ScyllaError, Credentials>(() => ({
-    mutationFn: async ({ login, password }: Credentials) =>
-      (await this.repository.login(login, password)).unwrap(),
-    // `/` redirects to an organization; `replace` keeps this page out of the history.
-    onSuccess: () => navigateTo('/', { replace: true }),
+    mutationFn: async ({ identifier, password }: Credentials) =>
+      (await this.repository.login(identifier, password)).unwrap(),
+    // The return path of `loginPath`, else `/`, which redirects to an organization.
+    // `replace` keeps this page out of the history.
+    onSuccess: () => navigateTo(returnPathOf(window.location.hash) ?? '/', { replace: true }),
     // No `onError`: the global handler toasts.
   }));
 
@@ -30,7 +33,7 @@ export class LoginState {
     return this.mutation.isSuccess;
   }
 
-  submit = (login: string, password: string): void => {
-    this.mutation.mutate({ login, password });
+  submit = (identifier: string, password: string): void => {
+    this.mutation.mutate({ identifier, password });
   };
 }

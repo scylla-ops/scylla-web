@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Card } from '@scylla/ui/shadcn';
+  import { Card } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { marketplaceMessages } from './marketplace.messages.ts';
 

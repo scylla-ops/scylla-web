@@ -81,8 +81,8 @@ msgid "Delete node"
 msgstr "Delete node"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:48
-msgid "Draft — not created yet"
-msgstr "Draft — not created yet"
+msgid "Draft: not created yet"
+msgstr "Draft: not created yet"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:26
 msgid "Duplicate"

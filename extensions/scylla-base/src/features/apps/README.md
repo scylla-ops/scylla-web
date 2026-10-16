@@ -47,6 +47,14 @@ Every string the screens show is declared in `ui/apps.messages.ts` rather than i
 component: `lingui extract` does not read `.svelte`, so a message written in one would disappear
 from the catalogs with no gate noticing. See `refacto_svelte.md` §4.5.
 
+## Used by agents
+
+An agent is an app. The pages of [agents](../agents/README.md) use this module for the secrets,
+the enable flag and the grants of an agent (`ListAppAccess`, with the names of each scope and
+role). The reset of a secret is `ResetAppSecretUseCase`: it creates a new secret with the name
+that the user chose, then revokes the old ones when the user asks for it. It is a use case because it does three calls in order,
+and because a failed revoke must not hide the new secret.
+
 ## The one-time secret rule
 
 When you create an app or issue a secret, the response contains a plaintext value that will

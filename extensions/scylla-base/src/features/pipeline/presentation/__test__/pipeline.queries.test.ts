@@ -4,9 +4,11 @@ import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { PipelineEntity } from '../../domain/entities/pipeline.entity.ts';
-import type { PipelineMetadata } from '../../domain/structs/pipeline.struct.ts';
-import type { PipelineRepository } from '../../domain/repository/pipeline.repository.ts';
+import type { PipelineEntity } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import type { PipelineMetadata } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type {
+  PipelineRepository,
+} from '@base/features/pipeline/domain/repository/pipeline.repository.ts';
 import { pipelineMutations, pipelineQueries, asPipelineFeed } from '../pipeline.queries.ts';
 
 const toastSuccess = vi.fn();

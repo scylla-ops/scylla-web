@@ -6,7 +6,9 @@
   import { organizationQueries } from '@base/features/organization';
   import { invalidateProjectMembers, projectQueries } from '@base/features/project';
   import { roleConfers, roleQueries } from '@base/features/roles';
-  import { ConfirmOperationAlertDialog, FeatureHeader } from '@scylla/ui';
+  import type { UserSummary } from '@base/features/user';
+  import { userName } from '@shared/presentation/ui';
+  import { ConfirmOperationAlertDialog, FeatureHeader, GatedButton } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { toast } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
@@ -14,9 +16,17 @@
     buildProjectMembers,
     MemberRoleOrigin,
     type ScopeMember,
-  } from '../../../domain/structs/scope-member.struct.ts';
-  import { createAssignableRoles } from '../../assignable-roles.state.svelte.ts';
-  import { createScopeMembership } from '../../scope-membership.state.svelte.ts';
+  } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  import {
+    createAssignableRoles,
+  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+  import {
+    createScopeMembership,
+  } from '@base/features/membership/presentation/scope-membership.state.svelte.ts';
+  import {
+    membershipPoints,
+    type ProjectMembersContext,
+  } from '@base/features/membership/presentation/membership.points.ts';
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
   import MembersHint from '../components/MembersHint/MembersHint.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';
@@ -72,19 +82,19 @@
   });
 
   let addOpen = $state(false);
-  let pendingRemoval = $state<{ userId: string; username: string } | null>(null);
+  let pendingRemoval = $state<{ userId: string; name: string } | null>(null);
 
-  const usernameById = $derived.by(() => {
+  const userById = $derived.by(() => {
     // Rebuilt whole by the `$derived` and never mutated after it is read, so a
     // reactive collection would only make a throwaway object track dependencies.
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const names = new Map<string, string>();
-    for (const member of organizationMembers) names.set(member.userId, member.username);
-    for (const member of projectMembers) names.set(member.userId, member.username);
-    return names;
+    const users = new Map<string, UserSummary>();
+    for (const member of organizationMembers) users.set(member.userId, member);
+    for (const member of projectMembers) users.set(member.userId, member);
+    return users;
   });
 
-  const nameFor = (memberId: string) => usernameById.get(memberId) ?? memberId;
+  const userFor = (memberId: string) => userById.get(memberId);
 
   /** An organization role reaches the project when it confers reading one. `organization-member` does not. */
   const reachesProjects = $derived((roleId: string) =>
@@ -106,6 +116,14 @@
     organizationMembers.filter(member => !memberIds.has(member.userId)),
   );
 
+  const zoneContext: ProjectMembersContext = $derived({
+    organizationId: organizationId ?? '',
+    projectId: projectId ?? '',
+    canManage,
+    memberCount: members.length,
+    refreshMembers: membership.refresh,
+  });
+
   const currentUserId = localStorage.getItem('userId') ?? '';
 
   /** The project's own roles: the editable ones. */
@@ -124,7 +142,7 @@
 
   const handleRemove = async () => {
     if (!pendingRemoval) return;
-    await membership.removeMember(pendingRemoval.userId, pendingRemoval.username);
+    await membership.removeMember(pendingRemoval.userId, pendingRemoval.name);
     pendingRemoval = null;
   };
 </script>
@@ -134,6 +152,18 @@
   with its scope. Inherited roles are locked: revoking them changes every project.
   Candidates are the organization's members (a project grant needs one).
 -->
+{#snippet actions()}
+  <div class="contents" use:membershipPoints.projectActions={zoneContext}>
+    <GatedButton
+      allowed={canManage}
+      deniedReason={t(membershipMessages.projectNewDenied)}
+      onclick={() => (addOpen = true)}
+    >
+      {t(membershipMessages.addAMember)}
+    </GatedButton>
+  </div>
+{/snippet}
+
 {#snippet blurb()}
   <p class="max-w-3xl text-sm text-muted-foreground">{t(membershipMessages.projectBlurb)}</p>
 {/snippet}
@@ -145,17 +175,18 @@
       label={t(membershipMessages.member)}
       pluralLabel={t(membershipMessages.members)}
       underLabel={blurb}
-      onNew={() => (addOpen = true)}
-      newLabel={t(membershipMessages.addAMember)}
-      canNew={canManage}
-      newDeniedReason={t(membershipMessages.projectNewDenied)}
+      extraActions={actions}
     />
 
     <MembersList
       {members}
-      isLoading={projectMembersQuery.isLoading || membership.isLoading}
+      isLoading={projectMembersQuery.isLoading ||
+        organizationMembersQuery.isLoading ||
+        organizationGrantsQuery.isLoading ||
+        membership.isLoading}
       emptyMessage={t(membershipMessages.projectEmpty)}
-      {nameFor}
+      {userFor}
+      missing={canListOrganizationMembers ? 'deleted' : 'unknown'}
       organizationName={context().organization.name ?? ''}
       labelFor={roles.labelFor}
       {currentUserId}
@@ -172,7 +203,10 @@
       canRemove={member => canManage && directRoleIds(member).size > 0}
       removeTooltip={t(membershipMessages.removeFromProject)}
       onRemove={member =>
-        (pendingRemoval = { userId: member.userId, username: nameFor(member.userId) })}
+        (pendingRemoval = {
+          userId: member.userId,
+          name: userName(userFor(member.userId), canListOrganizationMembers ? 'deleted' : 'unknown'),
+        })}
     />
 
     <MembersHint>
@@ -180,6 +214,8 @@
         ? t(membershipMessages.inheritedHintVisible)
         : t(membershipMessages.inheritedHintHidden)}
     </MembersHint>
+
+    <div class="contents" use:membershipPoints.projectSection={zoneContext}></div>
 
     <AddMemberDialog
       open={addOpen}
@@ -204,7 +240,7 @@
         if (!open) pendingRemoval = null;
       }}
       isLoading={membership.isRemoving}
-      title={t(membershipMessages.confirmRemoveFromProject(pendingRemoval?.username ?? ''))}
+      title={t(membershipMessages.confirmRemoveFromProject(pendingRemoval?.name ?? ''))}
       description={t(membershipMessages.confirmRemoveFromProjectBody)}
       onContinue={() => void handleRemove()}
     />

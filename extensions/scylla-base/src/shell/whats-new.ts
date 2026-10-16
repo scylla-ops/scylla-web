@@ -24,7 +24,7 @@ export interface Release {
 
 /** The release announcement: the first-launch dialog and the sidebar badges come from it. */
 export const WHATS_NEW = {
-  version: '0.4.0',
+  version: '0.5.0',
   highlights: [
     {
       id: 'dashboard',
@@ -43,14 +43,14 @@ export const WHATS_NEW = {
     {
       id: 'members',
       title: msg`Members`,
-      description: msg`Invite people to your organization and your projects, and manage what each of them can do.`,
+      description: msg`Add people to your organization and your projects, and manage what each of them can do.`,
       icon: UsersRound,
       navUrl: 'members',
     },
     {
       id: 'dark-mode',
       title: msg`Dark mode`,
-      description: msg`Scylla now comes in light and dark — switch with the button in the top-right corner.`,
+      description: msg`Scylla now comes in light and dark. Switch with the button in the top-right corner.`,
       icon: Moon,
     },
   ],

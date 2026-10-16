@@ -3,7 +3,7 @@
 This document gives the naming rules of the Scylla frontend: a Svelte 5 + TypeScript application
 where a core loads extensions (see `architecture.md`).
 
-`CLAUDE.md` is the contract, and the `AGENTS.md` of each package and module make it concrete.
+The root `AGENTS.md` is the contract, and the `AGENTS.md` of each package and module make it concrete.
 If this document and one of them do not agree, they are correct: update this document.
 
 ---
@@ -316,7 +316,8 @@ after what it changes (the intention), never after the point it targets:
 ```typescript
 // email-login.widget-injection.ts
 export const EmailLoginWidgetInjection = [
-  loginPoints.texts.override({ identifier: msg`Email` }),   // `msg` inline: no *.messages.ts
+  // `msg` inline: no *.messages.ts. The description names the identifier too: override both.
+  loginPoints.texts.override({ identifier: msg`Email`, description: msg`Enter your email.` }),
   /* ... */
 ];
 ```

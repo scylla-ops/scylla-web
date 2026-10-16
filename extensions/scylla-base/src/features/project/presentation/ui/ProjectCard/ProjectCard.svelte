@@ -12,12 +12,12 @@
     Tooltip,
     TooltipContent,
     TooltipTrigger,
-  } from '@scylla/ui/shadcn';
+  } from '@scylla/ui/primitives';
   import { IconButton } from '@scylla/ui';
   import { createSelection } from '@scylla/ui/state';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import type { ProjectEntity } from '../../../domain/entities/project.entity.ts';
+  import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
   import EditProjectDialog from '../EditProjectDialog.svelte';
   import { projectMessages } from '../project.messages.ts';
 

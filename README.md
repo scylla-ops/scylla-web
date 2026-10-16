@@ -54,7 +54,8 @@ The app will be available at `http://localhost:5173`. All commands run from the 
 
 - [Architecture](docs/architecture.md) — Module structure, data flow, shared patterns, tech stack
 - [Naming Conventions](docs/naming-conventions.md) — File, folder, TypeScript & Svelte naming rules
-- [CLAUDE.md](CLAUDE.md) — The working contract for this codebase (rules, checklists, conventions)
+- [CONTRIBUTING.md](CONTRIBUTING.md) — How to contribute: workflow, commits, pull requests, checks
+- [AGENTS.md](AGENTS.md) — The working contract for this codebase (rules, checklists, conventions), for humans and AI coding agents
 
 ## Module documentation
 
@@ -82,7 +83,7 @@ packages/ui                the design system — imports no other package
 | [apps/web](apps/web/README.md) | The build: `startCore` with the extensions of this build, the app-level conformance tests |
 | [@scylla/core](packages/core/README.md) | Extension loader, route compilation and router (no router library), the shell frame |
 | [@scylla/core-sdk](sdks/core-sdk/README.md) | `@Extension`, `ScyllaModule`, the navigation, DI and query API the core installs |
-| [@scylla/ui](packages/ui/README.md) | shadcn primitives, generic composites, rune helpers, stores, i18n runtime, theme |
+| [@scylla/ui](packages/ui/README.md) | primitives (adapted from shadcn/ui), generic composites, rune helpers, stores, i18n runtime, theme |
 | [@scylla/base-sdk](sdks/scylla-base-sdk/README.md) | What other extensions may use of scylla-base |
 | [scylla-base](extensions/scylla-base/README.md) | The Scylla product — the modules below |
 
@@ -101,7 +102,7 @@ packages/ui                the design system — imports no other package
 | [dashboard](extensions/scylla-base/src/features/dashboard/README.md) | The organization landing page — a composite view owning no data |
 | [extensions](extensions/scylla-base/src/features/extensions/README.md) | The page that lists the extensions the app runs |
 | [jobs](extensions/scylla-base/src/features/jobs/README.md) | Pipeline runs: status, logs, and the live tail of both |
-| [login](extensions/scylla-base/src/features/login/README.md) | Sign-in and the session token |
+| [login](extensions/scylla-base/src/features/login/README.md) | Sign-in, sign-out, the password reset and the session token |
 | [marketplace](extensions/scylla-base/src/features/marketplace/README.md) | Ready-made pipeline templates |
 | [membership](extensions/scylla-base/src/features/membership/README.md) | Who belongs to an organization or project, and with which roles |
 | [onboarding](extensions/scylla-base/src/features/onboarding/README.md) | The first-pipeline tour, and where its progress is kept |
@@ -111,7 +112,7 @@ packages/ui                the design system — imports no other package
 | [roles](extensions/scylla-base/src/features/roles/README.md) | Role catalog, grants, and the permission vocabulary |
 | [secret](extensions/scylla-base/src/features/secret/README.md) | Project-scoped secrets injected into runs |
 | [triggers](extensions/scylla-base/src/features/triggers/README.md) | What starts a pipeline without a human: schedules and webhooks |
-| [user](extensions/scylla-base/src/features/user/README.md) | User accounts: the directory and per-user settings |
+| [user](extensions/scylla-base/src/features/user/README.md) | User accounts: the directory, the page of a user and the own account |
 
 ### scylla-base — `platform/`
 

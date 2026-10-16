@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { Badge, Checkbox, Label } from '@scylla/ui/shadcn';
+  import { Badge, Checkbox, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { Permission, PermissionScope } from '@platform/authz';
   import {
     getAlwaysGrantedPermissionsForScope,
     getEditablePermissionDefinitionsForScope,
     permissionLabelOf,
-  } from '../../../../utils/permission-mapping.ts';
-  import { buildPermissionTree } from '../../../../utils/permission-tree.ts';
-  import { rolesMessages } from '../../../roles.messages.ts';
-  import CheckboxTree from '../CheckboxTree.svelte';
+  } from '@base/features/roles/presentation/utils/permission-mapping.ts';
+  import { buildPermissionTree } from '@base/features/roles/presentation/utils/permission-tree.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
+  import CheckboxTree from '../CheckboxTree/CheckboxTree.svelte';
 
   interface Props {
     scope: PermissionScope;
@@ -54,7 +54,7 @@
   </div>
 
   <!-- Not `ScrollArea`: its root does not clip under a fixed height. -->
-  <div class="h-56 overflow-y-auto rounded-lg border p-2">
+  <div class="relative h-56 overflow-y-auto rounded-lg border p-2">
     <div class="flex flex-col gap-0.5">
       {#each alwaysGranted as permission (permission)}
         <label

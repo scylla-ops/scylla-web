@@ -5,7 +5,7 @@ import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { selectionStore } from '@scylla/ui/stores';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { JobsRepository } from '../../../domain/repository/jobs.repository.ts';
+import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
 import JobsHeader from './JobsHeader.svelte';
 
 const deleteById = vi.fn();
@@ -76,7 +76,7 @@ describe('JobsHeader', () => {
     render(JobsHeader, props({ onRun }));
 
     const run = screen.getByRole('button', { name: 'Run' });
-    expect(run).toBeDisabled();
+    expect(run).toHaveAttribute('aria-disabled', 'true');
 
     await userEvent.click(run);
     expect(onRun).not.toHaveBeenCalled();
@@ -108,6 +108,9 @@ describe('JobsHeader', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /select all/i }));
 
-    expect(screen.getByRole('button', { name: /delete/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /delete/i })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 });

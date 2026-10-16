@@ -1,8 +1,7 @@
-import { navigateTo, contextStore } from '@platform/context';
+import { navigateTo, contextStore, organizationUrl } from '@platform/context';
 import { createMutation, createQuery } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
 import type { FormValues } from '@scylla/ui';
-import { slugifyOrgName } from '@shared/utils/slug.ts';
 import { organizationMutations, organizationQueries } from '@base/features/organization';
 import { syncMyPermissions } from '@base/features/roles';
 
@@ -32,7 +31,7 @@ export const createShellState = () => {
 
       createOrganization.mutate(
         { name, description: description.trim() || undefined },
-        { onSuccess: () => navigateTo(`/${slugifyOrgName(name)}/users/me`) },
+        { onSuccess: () => navigateTo(organizationUrl(name)) },
       );
     },
   };

@@ -4,13 +4,13 @@
   import PencilIcon from '@lucide/svelte/icons/pencil';
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
   import { RoleKind } from '@platform/authz';
-  import { Badge } from '@scylla/ui/shadcn';
+  import { Badge } from '@scylla/ui/primitives';
   import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import type { RoleEntity } from '../../../../domain/entities/role.entity.ts';
-  import type { RolesPage } from '../../../roles-page.state.svelte.ts';
-  import { scopeLabelOf } from '../../../utils/permission-mapping.ts';
-  import { rolesMessages } from '../../roles.messages.ts';
+  import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
+  import type { RolesPage } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
+  import { scopeLabelOf } from '@base/features/roles/presentation/utils/permission-mapping.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
 
   interface Props {
     role: RoleEntity;
