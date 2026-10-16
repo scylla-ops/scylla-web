@@ -3,8 +3,8 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { StepInspector } from '@base/features/pipeline/presentation/step-inspector.state.svelte.ts';
-  import { blueprintMessages } from '../../blueprint.messages.ts';
-  import { nodeIdIssueText } from '../../nodes/node-view.ts';
+  import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
+  import { nodeIdIssueText } from '@base/features/pipeline/presentation/ui/editor/blueprint/nodes/node-view.ts';
 
   interface Props {
     inspector: StepInspector;
