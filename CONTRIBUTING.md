@@ -112,6 +112,29 @@ pass with zero warnings, zero failures, zero violations, zero cycles and zero co
 | `pnpm i18n:collisions` | No message translated in two different ways |
 | `pnpm check:authors <range>` | No AI agent as author, committer or co-author of a commit |
 
+## Changelog and releases
+
+[`CHANGELOG.md`](CHANGELOG.md) follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+and the versions follow [Semantic Versioning](https://semver.org/). Before 1.0.0, each release is
+a minor version (0.6.0, 0.7.0). A patch version (0.6.1) only fixes a bug of a released version.
+
+- **A pull request adds its entry** under `## [Unreleased]`, when a user or a host repo sees the
+  change: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed` or `Security`. Write
+  `**Breaking:**` before an entry that changes what an extension imports.
+- **To release a version** (a maintainer does it):
+  1. On the version branch, rename `## [Unreleased]` to `## [0.6.0] - YYYY-MM-DD` in
+     `CHANGELOG.md`. Add an empty `## [Unreleased]` above it, and update the links at the end
+     of the file.
+  2. Create the next version branch (`v0.7.0`) from the version branch. Its first pull request
+     sets the new version in all the `package.json` files.
+  3. Open a pull request from the version branch to `main`, and merge it with a merge commit.
+  4. Delete the version branch. A branch and a tag with the same name make `git` refs
+     ambiguous.
+  5. Tag the merge commit on `main`: `git tag -a v0.6.0 -m "Scylla Web v0.6.0"`. Tags start
+     with a lowercase `v`. Never move or delete a tag.
+  6. Create the GitHub Release from the tag. Its text is the section of the version in
+     `CHANGELOG.md`.
+
 ## Code conventions, in short
 
 The full rules are in [`AGENTS.md`](AGENTS.md). The ones that a review asks for most often:
