@@ -2,6 +2,7 @@
   import CircleAlertIcon from '@lucide/svelte/icons/circle-alert';
   import FolderIcon from '@lucide/svelte/icons/folder';
   import LockIcon from '@lucide/svelte/icons/lock';
+  import UnplugIcon from '@lucide/svelte/icons/unplug';
   import { Handle, Position } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
@@ -9,7 +10,7 @@
   import { DETAILED_NODE } from './node-geometry.ts';
   import { ISSUE_MESSAGES, handleClass, type StepNodeViewProps } from './node-view.ts';
 
-  let { step, selected, summary }: StepNodeViewProps = $props();
+  let { step, selected, summary, detached }: StepNodeViewProps = $props();
 
   const handle = $derived(handleClass(summary, selected));
 </script>
@@ -52,6 +53,17 @@
   {:else}
     <p class="mt-2 truncate rounded-md bg-muted px-2 py-1 font-mono text-[11.5px]">
       {summary.preview}
+    </p>
+  {/if}
+
+  {#if detached}
+    <p
+      class="mt-2 flex items-center gap-1.5 rounded-md border border-warning/40 bg-warning/10 px-2 py-1 text-[11.5px]"
+      title={t(blueprintMessages.detachedHint)}
+    >
+      <UnplugIcon class="size-3.5 shrink-0 text-warning" />
+      {t(blueprintMessages.detached)}
+      <span class="sr-only">{t(blueprintMessages.detachedHint)}</span>
     </p>
   {/if}
 

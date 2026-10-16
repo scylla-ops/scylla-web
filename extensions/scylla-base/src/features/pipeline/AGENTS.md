@@ -73,7 +73,8 @@ infrastructure/
   default-step-template.repository.ts        BUILT_IN_STEP_TEMPLATES
   grpc-pipeline.mapper.ts
 presentation/
-  blueprint.state.svelte.ts                  graph ViewModel: nodes, edges, selection, add/insert/rename
+  blueprint.state.svelte.ts                  graph ViewModel: nodes, edges, inspected step, add/insert/rename
+  side-panel-width.svelte.ts                 the width of the side panel per mode, remembered in localStorage
   step-inspector.state.svelte.ts             draft of the selected step, applied at each edit
   quick-add.state.svelte.ts                  the menu of a link dropped on empty canvas, its position
   node-appearance.svelte.ts                  the viewer's node style, remembered in localStorage
@@ -84,14 +85,14 @@ presentation/
   pipelines.query-keys.ts                    Query key factories (exported publicly)
   ui/
     *.page.svelte                            Pages (dashboard, creation, update, jobs route)
-    editor/                                  PipelineEditor + header, script editor
+    editor/                                  PipelineEditor + header (with the name field), script editor
       blueprint/                             the canvas, its nodes, its edge, the side panel
         catalog.ts                           blank steps, template entries, catalogText (translates)
         step-kinds.ts                        icon and colours of each kind of step
         Segmented.svelte, SearchField.svelte the segmented control and the search box of the panel
         nodes/                               one step view and one start view per node style,
                                              node-appearances.ts (registry), node-geometry.ts
-        side-panel/                          palette (nothing selected) / inspector (selection)
+        side-panel/                          palette (nothing inspected) / inspector of the inspected step
         QuickAddMenu/                        the step picker of a dropped link
     dashboard/                               Dashboard, chart, table, pipeline table columns
   utils/
@@ -134,9 +135,24 @@ the page.
 - **`pipeline-script.state.svelte.ts` holds `script` + `initialScript` only** — draft editor text 
   and the baseline for the dirty check. It is UI state, not server state. Never put the fetched 
   `PipelineEntity` in it.
-- **The blueprint has one side panel, on the right.** Nothing selected: the palette (blank steps
-  and templates, click to add, drag to place). One step selected: its inspector. The start node:
-  the pipeline name. The panel derives its mode from `blueprint.selected`; never store it.
+- **The blueprint has one side panel, on the right.** It shows `blueprint.inspected`, which only
+  a click sets (`blueprint.inspect(id)`): a click on a step, a click on a palette entry, a pick in
+  `QuickAddMenu`. A drag, a drop and a box selection never open it (`selectNodesOnDrag={false}`);
+  a click on the empty canvas closes it. Nothing inspected: the palette. A step: its inspector.
+  The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
+  xyflow's and is not the panel's state.
+- **The pipeline name is edited in the header** (`PipelineNameField`), never in the panel: it is
+  the name of the whole document. The start node opens nothing.
+- **The side panel is a `ResizablePanel`** (`@scylla/ui`). The palette and the inspector each
+  keep their own width (`side-panel-width.svelte.ts`).
+- **A rebuild from the document keeps the canvas state.** When the document changes from outside
+  (the script tab), the graph is built again: a node that is still there keeps its position and
+  its selection, and only a new one is laid out. The document must also read back what it
+  writes (`stepsOf(withSteps(steps))` equals `steps`, with an empty `workingDir` read as none):
+  else each edit is taken for an outside change.
+- **A detached step is shown, not fixed.** A step with no edge into it is linked to the start
+  node on save (it has no `deps`). `blueprint.isDetached(id)` puts a warning on the node and in
+  the inspector; the canvas does not add the edge itself.
 - **The inspector applies each edit at once** (`blueprint.updateStep`), also when the step
   cannot run yet: the inspector, the node and the document always show the same step, and
   `stepIssue` (no command, empty script) is shown on the node and in the inspector. Never hold

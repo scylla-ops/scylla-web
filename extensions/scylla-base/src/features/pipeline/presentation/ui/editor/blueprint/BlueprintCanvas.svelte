@@ -43,6 +43,7 @@
 
   setBlueprintCanvas({
     appearance: () => appearance.current,
+    isDetached: stepId => blueprint.isDetached(stepId),
     insertOnEdge: (edgeId, at) => quickAdd.open({ ...at, link: { replacing: edgeId } }),
   });
 

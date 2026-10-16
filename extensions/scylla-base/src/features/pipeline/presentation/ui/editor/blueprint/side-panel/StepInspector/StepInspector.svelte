@@ -2,6 +2,7 @@
   import CheckIcon from '@lucide/svelte/icons/check';
   import CircleAlertIcon from '@lucide/svelte/icons/circle-alert';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
+  import UnplugIcon from '@lucide/svelte/icons/unplug';
   import XIcon from '@lucide/svelte/icons/x';
   import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
@@ -24,6 +25,8 @@
     /** Read once: the panel rebuilds the inspector for each step. */
     step: PipelineStep;
     dependencies: string[];
+    /** No edge goes into the step: saving links it to the start node. */
+    detached: boolean;
     /** Scopes the secret picker. */
     projectId?: string;
     onChange: (value: StepDefinition) => void;
@@ -33,7 +36,7 @@
     onClose: () => void;
   }
 
-  let { step, dependencies, projectId, onChange, onRename, onDelete, onClose }: Props = $props();
+  let { step, dependencies, detached, projectId, onChange, onRename, onDelete, onClose }: Props = $props();
 
   // svelte-ignore state_referenced_locally
   const inspector = createStepInspector({
@@ -75,7 +78,14 @@
     </div>
 
     <div class="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-      {#if dependencies.length === 0}
+      {#if detached}
+        <span
+          class="flex items-start gap-1.5 rounded-md border border-warning/40 bg-warning/10 px-2 py-1 text-foreground"
+        >
+          <UnplugIcon class="mt-px size-3.5 shrink-0 text-warning" />
+          {t(blueprintMessages.detachedHint)}
+        </span>
+      {:else if dependencies.length === 0}
         <span>{t(blueprintMessages.runsFirst)}</span>
       {:else}
         <span>{t(blueprintMessages.after)}</span>

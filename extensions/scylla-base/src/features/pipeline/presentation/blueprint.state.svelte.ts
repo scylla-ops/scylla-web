@@ -172,6 +172,9 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
       if (!inspected) inspectedId = null;
     },
 
+    /** A step no edge goes into: saving links it to the start node, so the canvas warns. */
+    isDetached: (id: string) => !edges.some(edge => edge.target === id),
+
     /** The ids of the steps this one waits for: the inspector lists them. */
     dependenciesOf: (id: string) => depsOf(edges, id),
 

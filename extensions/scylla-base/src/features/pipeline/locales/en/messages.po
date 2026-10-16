@@ -11,11 +11,11 @@ msgstr ""
 "Language: \n"
 "Language-Team: \n"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:45
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:47
 msgid "{count, plural, one {# secret} other {# secrets}}"
 msgstr "{count, plural, one {# secret} other {# secrets}}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:44
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:46
 msgid "{count, plural, one {# variable} other {# variables}}"
 msgstr "{count, plural, one {# variable} other {# variables}}"
 
@@ -242,6 +242,10 @@ msgstr "navigate"
 msgid "New pipeline"
 msgstr "New pipeline"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:44
+msgid "No input link"
+msgstr "No input link"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:33
 msgid "No jobs yet"
 msgstr "No jobs yet"
@@ -391,6 +395,10 @@ msgstr "The name cannot contain spaces."
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:43
 msgid "The script is empty."
 msgstr "The script is empty."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:45
+msgid "This step has no input link. On save, it is linked to the start of the pipeline."
+msgstr "This step has no input link. On save, it is linked to the start of the pipeline."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:28
 msgid "Triggers"

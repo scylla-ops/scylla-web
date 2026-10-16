@@ -2,10 +2,12 @@
   import { Handle, Position } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
+  import UnplugIcon from '@lucide/svelte/icons/unplug';
+  import { blueprintMessages } from '../blueprint.messages.ts';
   import { MINIMAL_NODE, minimalHandleStyle } from './node-geometry.ts';
   import { ISSUE_MESSAGES, handleClass, type StepNodeViewProps } from './node-view.ts';
 
-  let { step, selected, summary }: StepNodeViewProps = $props();
+  let { step, selected, summary, detached }: StepNodeViewProps = $props();
 
   const handle = $derived(handleClass(summary, selected));
 </script>
@@ -31,6 +33,15 @@
         aria-hidden="true">!</span
       >
       <span class="sr-only">{t(ISSUE_MESSAGES[summary.issue])}</span>
+    {/if}
+    {#if detached}
+      <span
+        class="absolute -top-1.5 -left-1.5 flex size-4.5 items-center justify-center rounded-full border border-warning/40 bg-card"
+        title={t(blueprintMessages.detachedHint)}
+      >
+        <UnplugIcon class="size-2.5 text-warning" />
+      </span>
+      <span class="sr-only">{t(blueprintMessages.detachedHint)}</span>
     {/if}
   </div>
   <div class="w-full text-center">

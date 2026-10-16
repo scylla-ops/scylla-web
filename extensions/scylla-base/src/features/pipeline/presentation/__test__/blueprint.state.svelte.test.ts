@@ -208,6 +208,16 @@ describe('createBlueprintState', () => {
     });
   });
 
+  it('calls a step detached when no edge goes into it, not even from the start node', () => {
+    withState([execStep('build'), execStep('test', ['build'])], state => {
+      expect(state.isDetached('build')).toBe(false);
+
+      state.edges = state.edges.filter(edge => edge.source !== START_NODE_ID);
+      expect(state.isDetached('build')).toBe(true);
+      expect(state.isDetached('test')).toBe(false);
+    });
+  });
+
   it('lists the dependencies of a step, without the start node', () => {
     withState([execStep('build'), execStep('test', ['build'])], state => {
       expect(state.dependenciesOf('test')).toEqual(['build']);

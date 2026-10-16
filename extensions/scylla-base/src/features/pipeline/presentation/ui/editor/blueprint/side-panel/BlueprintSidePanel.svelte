@@ -38,6 +38,7 @@
         <StepInspector
           {step}
           dependencies={blueprint.dependenciesOf(step.id)}
+          detached={blueprint.isDetached(step.id)}
           {projectId}
           onChange={value => blueprint.updateStep(step.id, value)}
           onRename={id => blueprint.renameStep(step.id, id)}

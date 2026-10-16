@@ -41,6 +41,8 @@ export const blueprintMessages = {
   stepId: msg`Step ID`,
   missingCommand: msg`A command is required.`,
   emptyScript: msg`The script is empty.`,
+  detached: msg`No input link`,
+  detachedHint: msg`This step has no input link. On save, it is linked to the start of the pipeline.`,
   variables: (count: number) => msg`${plural(count, { one: '# variable', other: '# variables' })}`,
   secrets: (count: number) => msg`${plural(count, { one: '# secret', other: '# secrets' })}`,
 };

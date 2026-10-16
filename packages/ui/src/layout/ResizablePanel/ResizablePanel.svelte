@@ -47,7 +47,8 @@
 >
   {@render children()}
 
-  <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -- a focusable separator is the ARIA window splitter, an interactive widget -->
+  <!-- A focusable separator is the ARIA window splitter: an interactive widget. -->
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
   <div
     role="separator"
     tabindex="0"

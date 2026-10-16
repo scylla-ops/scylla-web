@@ -29,6 +29,8 @@ export interface StepNodeViewProps {
   step: PipelineStep;
   selected: boolean;
   summary: StepSummary;
+  /** No edge goes into the step: saving links it to the start node. */
+  detached: boolean;
 }
 
 export interface StartNodeViewProps {

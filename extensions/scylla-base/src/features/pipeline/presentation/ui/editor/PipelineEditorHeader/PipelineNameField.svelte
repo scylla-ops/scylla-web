@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { Input } from '@scylla/ui/primitives';
+  import WorkflowIcon from '@lucide/svelte/icons/workflow';
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
   import { pipelineNameIssue } from '@base/features/pipeline/presentation/utils/pipeline-script.ts';
 
@@ -27,25 +28,40 @@
   };
 </script>
 
-<!-- The title of the document, edited in place, with the look of the app's inputs. -->
+<!-- The title of the document, edited in place: an input with its label as a prefix. -->
 <div class="relative">
-  <Input
-    class="h-8 w-56 font-mono text-sm"
-    aria-label={t(pipelineMessages.pipelineName)}
-    bind:value={draft}
-    {disabled}
-    placeholder={t(pipelineMessages.namePlaceholder)}
-    aria-invalid={issue === 'spaces'}
-    aria-describedby={issue === 'spaces' ? `${uid}-issue` : undefined}
-    onblur={apply}
-    onkeydown={event => {
-      if (event.key === 'Enter') event.currentTarget.blur();
-      if (event.key === 'Escape') {
-        draft = name;
-        event.currentTarget.blur();
-      }
-    }}
-  />
+  <label
+    class={cn(
+      'flex h-8 items-center overflow-hidden rounded-md border border-input bg-transparent shadow-xs transition-[color,box-shadow] dark:bg-input/30',
+      'focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50',
+      issue === 'spaces' &&
+        'border-destructive ring-destructive/20 focus-within:border-destructive focus-within:ring-destructive/20 dark:ring-destructive/40',
+      disabled && 'pointer-events-none opacity-50',
+    )}
+  >
+    <span
+      class="flex h-full items-center gap-1.5 border-r border-input bg-muted/50 px-2.5 text-xs whitespace-nowrap text-muted-foreground"
+    >
+      <WorkflowIcon class="size-3.5" />
+      {t(pipelineMessages.pipelineName)}
+    </span>
+    <input
+      class="field-sizing-content h-full max-w-64 min-w-32 bg-transparent px-2.5 font-mono text-sm outline-none placeholder:text-muted-foreground"
+      bind:value={draft}
+      {disabled}
+      placeholder={t(pipelineMessages.namePlaceholder)}
+      aria-invalid={issue === 'spaces'}
+      aria-describedby={issue === 'spaces' ? `${uid}-issue` : undefined}
+      onblur={apply}
+      onkeydown={event => {
+        if (event.key === 'Enter') event.currentTarget.blur();
+        if (event.key === 'Escape') {
+          draft = name;
+          event.currentTarget.blur();
+        }
+      }}
+    />
+  </label>
   {#if issue === 'spaces'}
     <p
       id="{uid}-issue"
