@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { configDefaults } from 'vitest/config';
@@ -68,6 +69,21 @@ const linguiMacros = (): Plugin => ({
   },
 });
 
+/**
+ * Writes the version of the app into its `index.html`: `%SCYLLA_VERSION%` becomes the
+ * `major.minor` of the app's `package.json`, so the tab title follows each release. An
+ * `index.html` without the token is left as it is.
+ */
+const appVersion = (appDir: string): Plugin => ({
+  name: 'scylla:app-version',
+  transformIndexHtml(html) {
+    const { version } = JSON.parse(readFileSync(resolve(appDir, 'package.json'), 'utf8')) as {
+      version: string;
+    };
+    return html.replaceAll('%SCYLLA_VERSION%', version.split('.').slice(0, 2).join('.'));
+  },
+});
+
 /** `…/node_modules/@scope/name/dist/x.js` -> `@scope/name`. */
 const packageNameOf = (id: string): string => {
   const withinModules = id.split('node_modules/').pop() ?? '';
@@ -113,6 +129,7 @@ export const defineScyllaConfig = ({ workspaceRoot, app, thresholds }: ScyllaCon
     // resolves, not just Svelte.
     resolve: process.env.VITEST ? { conditions: ['browser'] } : {},
     plugins: [
+      appVersion(resolve(root, app)),
       lingui(),
       linguiMacros(),
       svelte(),
