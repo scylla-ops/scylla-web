@@ -508,7 +508,13 @@ describe('AgentsPage', () => {
   it('creates an agent from the new agent dialog, and shows its secret in step 2', async () => {
     vi.mocked(window.matchMedia).mockImplementation(
       (query: string) =>
-        ({ matches: query.includes('prefers-reduced-motion'), media: query }) as MediaQueryList,
+        ({
+          matches: query.includes('prefers-reduced-motion'),
+          media: query,
+          // The page header follows a media query.
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+        }) as unknown as MediaQueryList,
     );
     render(AgentsPage);
     await screen.findByRole('button', { name: 'prelude-deployer' });

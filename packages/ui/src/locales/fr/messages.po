@@ -17,6 +17,10 @@ msgstr ""
 msgid "{selectedCount, plural, one {# item deleted} other {# items deleted}}"
 msgstr "{selectedCount, plural, one {# élément supprimé} other {# éléments supprimés}}"
 
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:15
+msgid "{selectedCount, plural, one {# selected} other {# selected}}"
+msgstr "{selectedCount, plural, one {# sélectionné} other {# sélectionnés}}"
+
 #: packages/ui/src/feedback/ErrorState/error-state.messages.ts:5
 msgid "An error occurred"
 msgstr "Une erreur s'est produite"

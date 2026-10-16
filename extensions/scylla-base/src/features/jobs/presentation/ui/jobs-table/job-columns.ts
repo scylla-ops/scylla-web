@@ -21,6 +21,7 @@ export const jobColumns = (cells: JobCells): DataTableColumn<JobEntity>[] => [
     cell: ({ row }) => renderSnippet(cells.status, row.original),
     size: 200,
     minSize: 150,
+    meta: { card: 'title' },
   },
   {
     accessorKey: 'id',
@@ -28,6 +29,7 @@ export const jobColumns = (cells: JobCells): DataTableColumn<JobEntity>[] => [
     cell: ({ row }) => renderSnippet(cells.id, row.original),
     size: 200,
     minSize: 180,
+    meta: { card: 'title' },
   },
   {
     id: 'timeline',
@@ -35,6 +37,7 @@ export const jobColumns = (cells: JobCells): DataTableColumn<JobEntity>[] => [
     cell: ({ row }) => renderSnippet(cells.timeline, row.original),
     // No size: takes the space left, down to 200px.
     minSize: 200,
+    meta: { card: 'body' },
   },
   {
     id: 'duration',
@@ -42,6 +45,7 @@ export const jobColumns = (cells: JobCells): DataTableColumn<JobEntity>[] => [
     cell: ({ row }) => renderSnippet(cells.duration, row.original),
     size: 100,
     minSize: 80,
+    meta: { card: 'meta' },
   },
   {
     accessorKey: 'createdAt',
@@ -49,6 +53,7 @@ export const jobColumns = (cells: JobCells): DataTableColumn<JobEntity>[] => [
     cell: ({ row }) => renderSnippet(cells.created, row.original),
     size: 100,
     minSize: 80,
+    meta: { card: 'meta' },
   },
   {
     id: 'actions',
@@ -56,5 +61,6 @@ export const jobColumns = (cells: JobCells): DataTableColumn<JobEntity>[] => [
     cell: ({ row }) => renderSnippet(cells.actions, row.original),
     minSize: 100,
     size: 130,
+    meta: { card: 'actions' },
   },
 ];

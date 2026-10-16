@@ -21,6 +21,7 @@ export const triggerColumns = (cells: TriggerCells): DataTableColumn<TriggerEnti
     // Sized, so it does not absorb the free width: the source is what is worth reading.
     size: 220,
     minSize: 220,
+    meta: { card: 'title' },
   },
   {
     id: 'source',
@@ -28,6 +29,7 @@ export const triggerColumns = (cells: TriggerCells): DataTableColumn<TriggerEnti
     cell: ({ row }) => renderSnippet(cells.source, row.original),
     size: 380,
     minSize: 200,
+    meta: { card: 'body' },
   },
   {
     id: 'status',
@@ -35,6 +37,7 @@ export const triggerColumns = (cells: TriggerCells): DataTableColumn<TriggerEnti
     cell: ({ row }) => renderSnippet(cells.status, row.original),
     size: 140,
     minSize: 120,
+    meta: { card: 'meta' },
   },
   {
     id: 'enabled',
@@ -42,6 +45,7 @@ export const triggerColumns = (cells: TriggerCells): DataTableColumn<TriggerEnti
     cell: ({ row }) => renderSnippet(cells.enabled, row.original),
     size: 70,
     minSize: 60,
+    meta: { card: 'actions' },
   },
   {
     id: 'actions',
@@ -50,5 +54,6 @@ export const triggerColumns = (cells: TriggerCells): DataTableColumn<TriggerEnti
     // Keeps the compact menu reachable.
     size: 100,
     minSize: 80,
+    meta: { card: 'actions' },
   },
 ];
