@@ -42,8 +42,9 @@ export interface StartNodeViewProps {
 }
 
 /** Reads `t()`: called in a `$derived`, it follows a locale switch. */
-export const summarize = (step: PipelineStep): StepSummary => ({
-  icon: stepIcon(step.kind),
+/** `iconHint`: the icon of the template whose code the step runs. */
+export const summarize = (step: PipelineStep, iconHint?: string): StepSummary => ({
+  icon: stepIcon(step.kind, iconHint),
   tone: KIND_TONES[step.kind],
   kind: step.kind === 'script' ? step.shell : t(blueprintMessages.kindCommand),
   preview: stepPreview(step),

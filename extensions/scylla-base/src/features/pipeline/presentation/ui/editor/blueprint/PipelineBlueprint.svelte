@@ -52,7 +52,7 @@
 <!-- The provider lets the canvas convert screen points to the graph's. -->
 <SvelteFlowProvider>
   <div class="flex h-full w-full overflow-hidden">
-    <BlueprintCanvas {blueprint} {appearance} {quickAdd} {drag} />
+    <BlueprintCanvas {blueprint} {appearance} {quickAdd} {drag} {entries} />
     <BlueprintSidePanel
       {blueprint}
       {entries}

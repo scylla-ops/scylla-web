@@ -17,6 +17,10 @@
   import type { NodeAppearancePreference } from './node-appearance.svelte.ts';
   import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/QuickAddMenu/quick-add.state.svelte.ts';
   import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import {
+    templateFor,
+    type CatalogEntry,
+  } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
   import { setBlueprintCanvas } from './blueprint-canvas.context.ts';
   import CanvasToolbar from './CanvasToolbar.svelte';
@@ -35,9 +39,10 @@
     appearance: NodeAppearancePreference;
     quickAdd: QuickAdd;
     drag: PaletteDrag;
+    entries: readonly CatalogEntry[];
   }
 
-  let { blueprint, appearance, quickAdd, drag }: Props = $props();
+  let { blueprint, appearance, quickAdd, drag, entries }: Props = $props();
 
   const nodeTypes: NodeTypes = { pipelineStep: StepNode, startNode: StartNode };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
@@ -47,6 +52,7 @@
   setBlueprintCanvas({
     appearance: () => appearance.current,
     isDetached: stepId => blueprint.isDetached(stepId),
+    iconHintOf: definition => templateFor(entries, definition)?.icon,
     insertOnEdge: (edgeId, at) => quickAdd.open({ ...at, link: { replacing: edgeId } }),
   });
 

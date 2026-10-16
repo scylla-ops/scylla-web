@@ -28,6 +28,8 @@
     dependencies: string[];
     /** No edge goes into the step: saving links it to the start node. */
     detached: boolean;
+    /** The icon hint of the template whose code the step runs, if any. */
+    iconHintOf?: (definition: StepDefinition) => string | undefined;
     /** Scopes the secret picker. */
     projectId?: string;
     onChange: (value: StepDefinition) => void;
@@ -37,7 +39,17 @@
     onClose: () => void;
   }
 
-  let { step, dependencies, detached, projectId, onChange, onRename, onDelete, onClose }: Props = $props();
+  let {
+    step,
+    dependencies,
+    detached,
+    iconHintOf,
+    projectId,
+    onChange,
+    onRename,
+    onDelete,
+    onClose,
+  }: Props = $props();
 
   // svelte-ignore state_referenced_locally
   const inspector = createStepInspector({
@@ -46,7 +58,7 @@
     onRename: id => onRename(id),
   });
 
-  const Icon = $derived(stepIcon(inspector.mode));
+  const Icon = $derived(stepIcon(inspector.mode, iconHintOf?.(inspector.value)));
   const tone = $derived(KIND_TONES[inspector.mode]);
   const envCount = $derived(inspector.envRows.filter(row => row.key.trim()).length);
 </script>

@@ -40,3 +40,18 @@ export const groupCatalog = (entries: readonly CatalogEntry[]) =>
     group,
     items: entries.filter(entry => entry.group === group),
   })).filter(({ items }) => items.length > 0);
+
+/** What a step runs: its script, or its command and arguments. Its env and folder do not count. */
+const codeOf = (definition: StepDefinition): string =>
+  definition.kind === 'script'
+    ? `script\u0000${definition.script.trim()}`
+    : `exec\u0000${[definition.command.trim(), ...definition.args].join('\u0000')}`;
+
+/** The template whose code a step runs exactly: the step is shown with its icon. */
+export const templateFor = (
+  entries: readonly CatalogEntry[],
+  definition: StepDefinition,
+): CatalogEntry | undefined => {
+  const code = codeOf(definition);
+  return entries.find(entry => entry.group === 'templates' && codeOf(entry.definition) === code);
+};

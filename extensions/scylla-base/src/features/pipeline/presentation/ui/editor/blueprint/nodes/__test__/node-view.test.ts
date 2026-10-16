@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import { stepIcon } from '../../step-kinds.ts';
 import { summarize } from '../node-view.ts';
 
 const step = (id: string, script: string): PipelineStep => ({
@@ -29,5 +30,10 @@ describe('summarize', () => {
 
   it('shows no problem for a step that can be saved and run', () => {
     expect(summarize(step('build', 'make')).problem).toBeNull();
+  });
+
+  it('shows the icon of the template whose code the step runs', () => {
+    expect(summarize(step('checkout', 'git clone x .'), 'git').icon).toBe(stepIcon('script', 'git'));
+    expect(summarize(step('checkout', 'git clone x .')).icon).toBe(stepIcon('script'));
   });
 });
