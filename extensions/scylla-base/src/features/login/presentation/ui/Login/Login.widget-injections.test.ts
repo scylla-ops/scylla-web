@@ -13,7 +13,7 @@ import { loginPoints } from '@base/features/login/presentation/login.points.ts';
 import LoginPage from './Login.page.svelte';
 
 /**
- * The reference case of `widgets_plan.md`: a cloud-like extension turns the identifier field
+ * The reference case of the widget mechanism: a cloud-like extension turns the identifier field
  * into an email field and adds a sign-up link below the card, through the login page's own
  * widget points — with no change to `Login.page.svelte` or `LoginForm.svelte` for this test.
  */

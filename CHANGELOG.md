@@ -15,6 +15,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - **Breaking:** Code that touches an element is an attachment (`{@attach}`), not a Svelte
   action. `renderCodeMirror` from `@scylla/ui` takes its options as a getter:
   `{@attach renderCodeMirror(() => ({ doc, extensions }))}`.
+- **Breaking:** A widget zone opens with the `WidgetZone` component of `@scylla/core-sdk`, not an
+  attachment: `<WidgetZone point={loginPoints.footer} context={{ isPending }} />`. The injected
+  components render in the owner's tree, so they read its Svelte context. A `replace` does not
+  mount the owner's content. A widget injection does not change.
 - A repository calls its gRPC client directly. The data source layer between them is removed.
 
 ## [0.5.0] - 2026-10-12

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { counts } from './counting-injected.counts.ts';
+  import { counts } from './widget-zone.fixtures.ts';
 
   let { context: _context }: { context?: unknown } = $props();
 

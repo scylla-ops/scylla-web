@@ -51,7 +51,7 @@ if one of these occurs:
 - a route has a `permission`, but no module supplies an access policy;
 - an extension's `widgetInjections` changes a widget of an extension it does not depend on, an
   unknown point, or conflicts with another injection (two replacements of one zone, two
-  overrides of one text) — see [`widgets_plan.md`](../../widgets_plan.md).
+  overrides of one text) — see [`@scylla/core-sdk`](../../sdks/core-sdk/README.md).
 
 `apps/web` runs the same loader in its tests. Thus CI finds a broken declaration before a user
 does.

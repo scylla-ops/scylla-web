@@ -90,7 +90,8 @@ The text overrides go to `t()` through `setWidgetInjectionRegistry`, which insta
 `packages/core/src/loader/__test__/merge-widget-injections.test.ts` can reach it through the
 package's public API. **`test/render.svelte.ts`'s `withWidgetInjections` does not call it** — it
 wraps `installWidgetInjectionsForTest` (`@scylla/core-sdk`): the same registry builder and
-conflict checks, with no owner/dependency check; see `widgets_plan.md` §4.2 for why.
+conflict checks, with no owner/dependency check: a test installs only the injections it
+checks, without the extensions that own their points.
 
 ## The compilation
 

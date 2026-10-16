@@ -27,7 +27,7 @@ feature barrels (query factories, entity types, page loaders).
 
 ## Widget points exported here
 
-Full mechanism: `widgets_plan.md` at the repo root. Every points object a feature exports from
+Full mechanism: `sdks/core-sdk/AGENTS.md`, "Widgets". Every points object a feature exports from
 its `index.ts` reaches a contributor through this barrel, with no extra line: it is covered by
 `export * from '@scylla/base/features/*'`. A point is named `<module id>.<key>` by the loader,
 from the `points` of its module. This table exists so a contributor finds every point without

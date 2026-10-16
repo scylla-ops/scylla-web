@@ -71,6 +71,7 @@ export type {
   ZonePosition,
 } from './widgets/widget-points.struct.ts';
 export { point } from './widgets/point.ts';
+export { default as WidgetZone } from './widgets/WidgetZone/WidgetZone.svelte';
 export type { WidgetInjection } from './widgets/widget-injection.struct.ts';
 export {
   setWidgetInjectionRegistry,

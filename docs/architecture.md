@@ -187,7 +187,7 @@ the owner module.
 
 ### 3.5 Widget injections — changing another extension's UI
 
-Full design: `widgets_plan.md` at the repo root. The gist, for the architecture picture: a
+Full mechanism: `sdks/core-sdk/AGENTS.md`. The gist, for the architecture picture: a
 **widget** (a component) opens **points** — a **zone** (receives components), a **text scope**
 (overridable messages), a **value** (patchable data) — as a typed object it exports from its own
 barrel:
@@ -209,7 +209,7 @@ owner, and names it `<module id>.<key>` (`login.footer`) in the errors.
 There is deliberately no `declare module` augmentation here: a point is a value, reached by an
 ordinary import through the owner's SDK, so the dependency is real and `dependency-cruiser`
 sees it, and it works the same inside this monorepo or in a community extension's own
-repository (`widgets_plan.md` §13 has the full comparison against the augmentation it replaced).
+repository.
 
 Another extension changes those points with a **widget injection** — an array of changes per
 *intention* (a change the user sees), never per owner, grouping the components, texts and patches
@@ -242,9 +242,10 @@ alongside `loadExtensions`) rejects, at start-up and in tests: a change to a poi
 not a loaded module; a change to another extension's point when that extension is not listed in
 `dependencies`; two injections that `replace` the same zone; two that override the same text.
 
-The owner writes almost the code it writes with no points. A zone point makes the attachment
-that opens it — `<div {@attach loginPoints.footer(() => ({ isPending }))}>` — which owns the whole mount, update and
-cleanup lifecycle of whatever is injected into it. Texts keep `t(loginMessages.title)`: `t` finds
+The owner writes almost the code it writes with no points. A zone opens with one component —
+`<WidgetZone point={loginPoints.footer} context={{ isPending }} />` — which renders whatever is
+injected into it in the owner's own tree: an injected component reads the owner's Svelte context,
+and one that throws is stopped by its own `<svelte:boundary>`. Texts keep `t(loginMessages.title)`: `t` finds
 an override by the descriptor object (never by its id, which two modules with the same source
 string share). Only a value point shows in the owner's code, as `resolve(value)`. A sign-up link that another
 extension adds to `scylla-base`'s login page is the reference example this mechanism was built

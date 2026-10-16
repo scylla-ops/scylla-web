@@ -2,7 +2,7 @@
   import { i18n } from '@lingui/core';
   import { can, Permission, PermissionScope } from '@platform/authz';
   import { contextStore } from '@platform/context';
-  import { createQuery } from '@scylla/core-sdk';
+  import { createQuery, WidgetZone } from '@scylla/core-sdk';
   import { organizationQueries } from '@base/features/organization';
   import { invalidateProjectMembers, projectQueries } from '@base/features/project';
   import { roleConfers, roleQueries } from '@base/features/roles';
@@ -153,7 +153,7 @@
   Candidates are the organization's members (a project grant needs one).
 -->
 {#snippet actions()}
-  <div class="contents" {@attach membershipPoints.projectActions(() => zoneContext)}>
+  <WidgetZone point={membershipPoints.projectActions} context={zoneContext}>
     <GatedButton
       allowed={canManage}
       deniedReason={t(membershipMessages.projectNewDenied)}
@@ -161,7 +161,7 @@
     >
       {t(membershipMessages.addAMember)}
     </GatedButton>
-  </div>
+  </WidgetZone>
 {/snippet}
 
 {#snippet blurb()}
@@ -215,7 +215,7 @@
         : t(membershipMessages.inheritedHintHidden)}
     </MembersHint>
 
-    <div class="contents" {@attach membershipPoints.projectSection(() => zoneContext)}></div>
+    <WidgetZone point={membershipPoints.projectSection} context={zoneContext} />
 
     <AddMemberDialog
       open={addOpen}

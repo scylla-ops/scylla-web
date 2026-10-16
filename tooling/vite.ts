@@ -192,7 +192,7 @@ export const defineScyllaConfig = ({ workspaceRoot, app, thresholds }: ScyllaCon
           // Barrels and module declarations are re-exports and wiring: covering
           // them measures nothing, and `*.module.ts` pulls a feature's gRPC
           // client in just by being imported. `*.widget-injection.ts` is the
-          // same kind of declaration, one layer up (see `widgets_plan.md`).
+          // same kind of declaration, one layer up.
           '**/index.ts',
           '**/*.module.ts',
           '**/*.widget-injection.ts',

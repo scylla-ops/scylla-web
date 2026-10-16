@@ -295,7 +295,7 @@ export const loadJobsPage = () => import('./presentation/ui/Jobs.page.svelte');
 
 ### 4.4 Widget points and widget injections
 
-Full mechanism: `widgets_plan.md` at the repo root.
+Full mechanism: `sdks/core-sdk/AGENTS.md`.
 
 A feature's points are `{feature}Points`, from `presentation/<feature>.points.ts`, exported
 from the feature's barrel and listed in the module's `points`. The loader names each point

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { WidgetZone } from '@scylla/core-sdk';
   import { ScyllaLoadingScreen } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { LoginState } from '@base/features/login';
@@ -19,7 +20,7 @@
 
     {#snippet below()}
       <!-- No default content: a zone that only ever receives `after` components (e.g. a sign-up link). -->
-      <div {@attach loginPoints.footer(() => ({ isPending: state.isPending }))}></div>
+      <WidgetZone point={loginPoints.footer} context={{ isPending: state.isPending }} />
     {/snippet}
   </AuthLayout>
 {/if}

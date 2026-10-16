@@ -25,7 +25,7 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 | Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect` |
 | DI | `getModuleDomain`, `setDependencyRegistry`, `DomainRegistry` |
 | Query | `createQuery`, `createMutation`, `createQueries`, `queryOptions`, `mutationOptions`, `getQueryClient`, `setQueryClient` |
-| Widgets | `point`, `WidgetPoint`, `ZonePoint`, `TextsPoint`, `ValuePoint`, `ZoneComponentOptions`, `ZonePosition`, `WidgetInjection`, `installWidgetInjectionsForTest` |
+| Widgets | `point`, `WidgetZone`, `WidgetPoint`, `ZonePoint`, `TextsPoint`, `ValuePoint`, `ZoneComponentOptions`, `ZonePosition`, `WidgetInjection`, `installWidgetInjectionsForTest` |
 | Widgets (core wiring) | `buildWidgetInjectionRegistry`, `setWidgetInjectionRegistry`, `WidgetInjectionRegistry` |
 
 ## Layout
@@ -48,8 +48,7 @@ src/
               widget-injection-registry.ts   WidgetInjectionRegistry (keyed by point object), setWidgetInjectionRegistry
               build-widget-injection-registry.ts  buildWidgetInjectionRegistry — load order + conflict checks, for the loader and the tests
               widget-zone.calculator.ts      resolveZone (pure, internal)
-              widget-zone.attachments.svelte.ts  mountZone — what a zone point does as an attachment
-              WidgetInjectionHost.svelte     internal — mounts one injected component
+              WidgetZone/WidgetZone.svelte   WidgetZone — opens a zone in the owner's markup
               load-injected-component.ts     one cached promise per RegisteredComponent
               report-widget-injection-error.ts
               install-widget-injections-for-test.ts  installWidgetInjectionsForTest
@@ -81,8 +80,6 @@ export class AcmeAuthExtension {}
 
 ## Widgets — letting one extension change another's UI
 
-Full design: `widgets_plan.md` at the repo root. This is the practical summary.
-
 A **widget** is a component that opens **points**: a **zone** (receives components), a **text
 scope** (messages that can be overridden) or a **value** (data that can be patched). The owner
 defines its points once, as values — never a `declare module` — and its module lists them:
@@ -107,7 +104,7 @@ lists cannot be changed: an injection on it fails at start-up. The feature's bar
 The owner renders them with almost the code it writes with no points:
 
 ```svelte
-<div {@attach loginPoints.footer(() => ({ isPending: state.isPending }))}></div>  <!-- a zone point makes an attachment -->
+<WidgetZone point={loginPoints.footer} context={{ isPending: state.isPending }} />  <!-- opens the zone -->
 {t(loginMessages.title)}                                             <!-- `t` applies the overrides -->
 ```
 ```typescript
@@ -118,10 +115,13 @@ const items = $derived(loginPoints.fields.resolve([/* … */]));
   *object*, not by its id: the id is a hash of the source string, so another "Password" elsewhere
   in the app is not changed. A message with a placeholder is a function and stays closed — open a
   subset object if a messages file has some (`point.texts({ title: m.title })`).
-- **A zone point makes an attachment.** `{@attach loginPoints.footer(() => context)}`, nothing to
-  import. The context is a getter: the injected components follow it without a remount. Read the
-  point from its constant: a point read from changing state gives a new attachment, and Svelte
-  remounts the zone.
+- **A zone opens with `<WidgetZone point={…} context={…}>`** (`@scylla/core-sdk`). Its children
+  are the owner's own content, which a `replace` takes the place of (it is then not mounted). The
+  injected components get `context` as a prop and follow it without a remount. They render in the
+  owner's tree, so they read its Svelte context (`useSidebar()`, a `DataTable` layout): never
+  mount them with `mount()`, which starts a tree with no parent. Each one is in its own
+  `<svelte:boundary>`: one that throws is logged and renders nothing. The zone is a
+  `display: contents` element with `data-widget-zone="<module id>.<key>"`.
 
 A **widget injection** is what another extension declares to change those points — components,
 texts, patches, grouped by intention, never by owner. It is an array of changes, listed on

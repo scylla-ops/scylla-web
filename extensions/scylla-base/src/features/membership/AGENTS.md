@@ -77,7 +77,7 @@ No `infrastructure/` — correct, do not add one.
 
 ## Extension points
 
-Full mechanism: `widgets_plan.md` at the repo root. Defined in `presentation/membership.points.ts`,
+Full mechanism: `sdks/core-sdk/AGENTS.md`, "Widgets". Defined in `presentation/membership.points.ts`,
 listed in `MembershipModule.points` (that names them `membership.*`), exported from this barrel
 and from `@scylla/base-sdk`.
 

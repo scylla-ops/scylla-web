@@ -103,11 +103,8 @@ describe('OrganizationMembers.page with widget injections', () => {
     setUp([
       membershipPoints.organizationActions.inject({ component: probe, position: 'replace' }),
     ]);
-    const injected = await screen.findByTestId('organization-members-probe');
-
-    const zone = injected.closest('[data-widget-zone]');
-    expect(zone).toHaveAttribute('data-widget-replaced');
-    expect(zone).toContainElement(screen.getByRole('button', { name: 'Add a member' }));
+    expect(await screen.findByTestId('organization-members-probe')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Add a member' })).not.toBeInTheDocument();
   });
 
   it('renders a section under the members list', async () => {
