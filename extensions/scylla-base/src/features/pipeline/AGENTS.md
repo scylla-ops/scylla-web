@@ -49,7 +49,9 @@ serves templates, a gRPC implementation replaces it in `pipeline.module.ts`; the
 `stepTemplateQueries.list()` do not change. Its key, `STEP_TEMPLATES_QUERY_KEY`, is a root of
 its own: an invalidation of a pipeline key never refetches it. A template's `name` is shown as
 is (a tool name such as `npm ci`), and its `icon` is a hint: an unknown hint falls back to the
-kind's icon.
+kind's icon. A step that runs exactly the code of a template (the same script, or the same
+command and arguments; its env, folder and shell do not count) shows the template's icon on its
+node and in the inspector (`templateFor`, `utils/node-catalog.ts`).
 
 **`PipelineMetadata` vs `PipelineEntity` is the split that matters**: lists fetch metadata (no
 steps), the editor fetches the entity. Do not make a list page call `getById`.

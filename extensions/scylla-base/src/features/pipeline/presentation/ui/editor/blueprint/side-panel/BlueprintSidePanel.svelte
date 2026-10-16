@@ -6,7 +6,10 @@
     createSidePanelWidth,
   } from './side-panel-width.svelte.ts';
   import { stepOf } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
-  import type { CatalogEntry } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
+  import {
+    templateFor,
+    type CatalogEntry,
+  } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
   import type { PaletteDrag } from '../palette-drag.state.svelte.ts';
   import NodePalette from './NodePalette/NodePalette.svelte';
   import StepInspector from './StepInspector/StepInspector.svelte';
@@ -41,6 +44,7 @@
           {step}
           dependencies={blueprint.dependenciesOf(step.id)}
           detached={blueprint.isDetached(step.id)}
+          iconHintOf={definition => templateFor(entries, definition)?.icon}
           {projectId}
           onChange={value => blueprint.updateStep(step.id, value)}
           onRename={id => blueprint.renameStep(step.id, id)}
