@@ -101,9 +101,8 @@ its own.
 
 ## Letting another extension change your widgets, and changing theirs
 
-Full design: [`widgets_plan.md`](../../widgets_plan.md) at the repo root. The gist: a feature
-opens **points** on its own widgets — places that another extension can add a component to,
-texts it can override, or data it can patch — and exports them from its barrel, like any other
+A feature opens **points** on its own widgets — places that another extension can add a component
+to, texts it can override, or data it can patch — and exports them from its barrel, like any other
 part of its public API:
 
 ```typescript
@@ -121,9 +120,15 @@ A point is identified by its object, not by a string: no name to keep in sync wi
 id, and no collision between two points.
 
 The owner writes almost the same code as with no points: `t(loginMessages.title)` does not
-change (`t` applies the overrides), and a zone point makes the attachment that opens the
-zone — `<div {@attach loginPoints.footer(() => ({ isPending }))}>`. With no extension loaded, the only new file
-is `<feature>.points.ts`.
+change (`t` applies the overrides), and a zone opens with one component —
+`<WidgetZone point={loginPoints.footer} context={{ isPending }} />`. With no extension loaded, the
+only new file is `<feature>.points.ts`.
+
+`WidgetZone` renders the injected components in the owner's own tree, not with `mount()` in a
+separate one. So an injected component reads the owner's Svelte context (`useSidebar()`, the
+layout of a `DataTable`), shows in the Svelte devtools, and a `replace` does not mount the
+owner's content at all. Each injected component is in its own `<svelte:boundary>`: one that
+throws is logged and renders nothing, and the page stays.
 
 Another extension changes them with a **widget injection** — an array of changes per intention,
 listed on `@Extension` next to `modules` with the shorthand property, never on a module (it
@@ -212,8 +217,7 @@ past this one monorepo: the augmentation is invisible to dependency-cruiser (not
 the owner cannot read it back without a cycle (it would have to import its own SDK). A point as
 a value, exported through the owner's barrel and re-exported by its SDK, fixes all three: a
 contributor's import is real and checked, it works the same inside or outside this monorepo, and
-autocompletion on `loginPoints.` *is* the documentation. `widgets_plan.md` §13 has the full
-comparison.
+autocompletion on `loginPoints.` *is* the documentation.
 
 ## Public API
 

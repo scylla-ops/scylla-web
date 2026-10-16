@@ -70,7 +70,7 @@ module it owns). An extension that changes the label of the identifier also chan
 placeholder and the description of the card: all three name what the field takes.
 `openSession` exists for the same reason, one level down: a sign-up flow needs
 to open a session exactly the way sign-in does, without a second place that knows the
-`localStorage` keys. See `widgets_plan.md` at the repo root for the full mechanism, and
+`localStorage` keys. See [`@scylla/core-sdk`](../../../../../sdks/core-sdk/README.md) for the full mechanism, and
 `AGENTS.md`'s "Extension points" for the exact points this page opens.
 
 ## Why it is a module at all

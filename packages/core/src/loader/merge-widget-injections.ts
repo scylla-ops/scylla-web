@@ -13,8 +13,8 @@ interface PointOwner {
 }
 
 /**
- * Merges the `widgetInjections` of every extension into one registry, in the order
- * `widgets_plan.md` §8.1 fixes: extension load order, then the extension's own key order, then
+ * Merges the `widgetInjections` of every extension into one registry, in this order:
+ * extension load order, then the extension's own key order, then
  * the order of each injection's changes. An injection is named `<extension id>/<key>`: unique by
  * construction, since extension ids are. A point's owner is the module that lists it in
  * `points`. Throws on the first thing that cannot work — a point no loaded module lists, a

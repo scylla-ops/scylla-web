@@ -5,7 +5,7 @@ import type { WidgetPoint, ZoneComponentOptions } from './widget-points.struct.t
 
 /** One zone component, resolved and keyed. Internal: a point never exposes it. */
 export interface RegisteredComponent<C = unknown> extends ZoneComponentOptions<C> {
-  /** `<injectionId>#<index>`. Used by the zone action's keys and by the error messages. */
+  /** `<injectionId>#<index>`. The key of its `{#each}` in `WidgetZone`, and the name in the error messages. */
   readonly key: string;
 }
 
@@ -37,7 +37,7 @@ export const setWidgetInjectionRegistry = (next: WidgetInjectionRegistry | null)
   setMessageOverrides(next?.texts ?? null);
 };
 
-/** Read by the zone action only. Returns `[]` with no registry installed. */
+/** Read by `WidgetZone` only. Returns `[]` with no registry installed. */
 export const componentsOf = (zone: WidgetPoint): readonly RegisteredComponent[] =>
   registry?.zones.get(zone) ?? [];
 

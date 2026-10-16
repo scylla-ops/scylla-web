@@ -787,7 +787,7 @@ Because of that, the tooling of this repo must work from another root. Keep it s
    `widgetInjections` on `@Extension` with the shorthand property
    (`{ EmailLoginWidgetInjection }`: an array of changes, named `<extension id>/<key>`, the key
    being the constant's name), never in `modules`. Full mechanism in
-   `widgets_plan.md` at the repo root. One injection per intention (what the user sees change), grouping
+   `sdks/core-sdk/AGENTS.md`. One injection per intention (what the user sees change), grouping
    components, texts and patches that must exist or not exist together. It lives beside the
    feature it serves (`features/<feature>/widget-injections/`) when it serves one, else in a
    top-level `widget-injections/`. Declare the owner extension in `dependencies` — the loader

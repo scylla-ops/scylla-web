@@ -1,8 +1,6 @@
 import type { MessageDescriptor } from '@lingui/core';
-import type { Attachment } from 'svelte/attachments';
 import { patchesOf } from './widget-injection-registry.ts';
 import { reportWidgetInjectionError } from './report-widget-injection-error.ts';
-import { mountZone } from './widget-zone.attachments.svelte.ts';
 import type {
   TextOverrides,
   TextsPoint,
@@ -14,16 +12,10 @@ import type {
 type Messages = Readonly<Record<string, MessageDescriptor>>;
 
 const zone = <C>(): ZonePoint<C> => {
-  // The point makes the attachment itself: `{@attach loginPoints.footer(() => context)}`.
-  const point: ZonePoint<C> = Object.assign(
-    (context: () => C): Attachment<HTMLElement> =>
-      node =>
-        mountZone(node, point, context),
-    {
-      kind: 'zone' as const,
-      inject: (options: ZoneComponentOptions<C>) => ({ point, payload: options }),
-    },
-  );
+  const point: ZonePoint<C> = {
+    kind: 'zone',
+    inject: (options: ZoneComponentOptions<C>) => ({ point, payload: options }),
+  };
   return point;
 };
 

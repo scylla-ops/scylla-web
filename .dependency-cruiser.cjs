@@ -202,7 +202,7 @@ module.exports = {
         '`*.widget-injection.ts` points to components and lists changes to another widget: ' +
         'importing it anywhere but the extension class would pull those components into the ' +
         "importer's chunk. Only `<name>.extension.ts` may, the same door as `widgetInjections` " +
-        'on `@Extension` (see `widgets_plan.md` §4.1).',
+        'on `@Extension`.',
       severity: 'error',
       from: { path: R + 'extensions/([^/]+)/src/', pathNot: '[.]extension[.]ts$' },
       to: { path: R + 'extensions/$1/src/.+[.]widget-injection[.]ts$' },

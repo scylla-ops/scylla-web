@@ -11,7 +11,7 @@ import { setWidgetInjectionRegistry } from './widget-injection-registry.ts';
  * `setWidgetInjectionRegistry(null)`.
  *
  * A community extension outside this monorepo has no access to `test/render.svelte.ts`
- * (`@test/*`, internal to this workspace — see `widgets_plan.md` §4.2): this is what it tests
+ * (`@test/*`, internal to this workspace): this is what it tests
  * against instead.
  */
 export const installWidgetInjectionsForTest = (

@@ -2,7 +2,7 @@
   import { i18n } from '@lingui/core';
   import { can, Permission, PermissionScope } from '@platform/authz';
   import { contextStore } from '@platform/context';
-  import { createQuery } from '@scylla/core-sdk';
+  import { createQuery, WidgetZone } from '@scylla/core-sdk';
   import { invalidateOrganizationMembers, organizationQueries } from '@base/features/organization';
   import { userQueries, type UserSummary } from '@base/features/user';
   import { userName } from '@shared/presentation/ui';
@@ -117,7 +117,7 @@
 
 <!-- Writes need `MANAGE_ORG_GRANTS` on this organization. -->
 {#snippet actions()}
-  <div class="contents" {@attach membershipPoints.organizationActions(() => zoneContext)}>
+  <WidgetZone point={membershipPoints.organizationActions} context={zoneContext}>
     {#if showAdd}
       <GatedButton
         allowed={canManage && canListUsers}
@@ -128,7 +128,7 @@
         {t(membershipMessages.addAMember)}
       </GatedButton>
     {/if}
-  </div>
+  </WidgetZone>
 {/snippet}
 
 {#snippet blurb()}
@@ -176,7 +176,7 @@
         (pendingRemoval = { userId: member.userId, name: userName(userFor(member.userId)) })}
     />
 
-    <div class="contents" {@attach membershipPoints.organizationSection(() => zoneContext)}></div>
+    <WidgetZone point={membershipPoints.organizationSection} context={zoneContext} />
 
     <AddMemberDialog
       open={addOpen}

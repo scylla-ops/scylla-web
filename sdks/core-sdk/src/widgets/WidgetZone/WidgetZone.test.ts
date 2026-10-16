@@ -4,7 +4,7 @@ import { point } from '../point.ts';
 import { installWidgetInjectionsForTest } from '../install-widget-injections-for-test.ts';
 import { setWidgetInjectionRegistry } from '../widget-injection-registry.ts';
 import WidgetZone from './WidgetZone.fixture.svelte';
-import { counts, resetCounts } from './counting-injected.counts.ts';
+import { counts, resetCounts } from './widget-zone.fixtures.ts';
 
 interface Ctx {
   show: boolean;
@@ -18,8 +18,8 @@ afterEach(() => {
   setWidgetInjectionRegistry(null);
 });
 
-describe('a zone point used as an attachment', () => {
-  it('mounts a "before" component before the default content, and an "after" one after it', async () => {
+describe('WidgetZone', () => {
+  it('renders a "before" component before the default content, and an "after" one after it', async () => {
     const points = { zone: point.zone<Ctx>() };
     installWidgetInjectionsForTest({
       'positions': [
@@ -39,7 +39,7 @@ describe('a zone point used as an attachment', () => {
     expect(defaultContent.compareDocumentPosition(after) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it('marks the zone as replaced as soon as a "replace" component is active, before its import resolves', () => {
+  it('does not render the default content as soon as a "replace" component is active, before its import resolves', () => {
     const points = { zone: point.zone<Ctx>() };
     installWidgetInjectionsForTest({
       'replace': [
@@ -52,7 +52,18 @@ describe('a zone point used as an attachment', () => {
 
     render(WidgetZone, { props: { point: points.zone, context: { show: true } } });
 
-    expect(screen.getByTestId('zone')).toHaveAttribute('data-widget-replaced');
+    expect(screen.queryByTestId('default-content')).not.toBeInTheDocument();
+  });
+
+  it('gives an injected component the Svelte context of the owner', async () => {
+    const points = { zone: point.zone<Ctx>() };
+    installWidgetInjectionsForTest({
+      'reader': [points.zone.inject({ component: () => import('./ContextReader.fixture.svelte') })],
+    });
+
+    render(WidgetZone, { props: { point: points.zone, context: { show: true } } });
+
+    expect(await screen.findByTestId('context-reader')).toHaveTextContent('from the owner');
   });
 
   it("updates an already-mounted component's context without remounting it", async () => {
@@ -108,11 +119,12 @@ describe('a zone point used as an attachment', () => {
     spy.mockRestore();
   });
 
-  it('logs and renders nothing for a component that throws while rendering', async () => {
+  it('logs and renders nothing for a component that throws while rendering, and keeps the others', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const points = { zone: point.zone<Ctx>() };
     installWidgetInjectionsForTest({
       'broken-render': [points.zone.inject({ component: () => import('./ThrowingInjected.fixture.svelte') })],
+      'working': [points.zone.inject({ component: () => import('./InjectedA.fixture.svelte') })],
     });
 
     render(WidgetZone, { props: { point: points.zone, context: { show: true } } });
@@ -120,35 +132,31 @@ describe('a zone point used as an attachment', () => {
     await waitFor(() =>
       expect(spy).toHaveBeenCalledWith('[widget-injections] broken-render#0 failed:', expect.any(Error)),
     );
+    expect(await screen.findByTestId('injected-a')).toBeInTheDocument();
     expect(screen.getByTestId('default-content')).toBeInTheDocument();
     spy.mockRestore();
   });
 
-  it('leaves no host element and runs every mounted component\'s own cleanup on destroy', async () => {
+  it("runs every mounted component's own cleanup on destroy", async () => {
     const points = { zone: point.zone<Ctx>() };
     installWidgetInjectionsForTest({
       'counting': [points.zone.inject({ component: () => import('./CountingInjected.fixture.svelte') })],
     });
 
     const { unmount } = render(WidgetZone, { props: { point: points.zone, context: { show: true } } });
-    const zone = screen.getByTestId('zone');
     await screen.findByTestId('counting');
     expect(counts.mounts).toBe(1);
 
     unmount();
 
-    expect(zone).not.toHaveAttribute('data-widget-zone');
-    expect(zone).not.toHaveAttribute('data-widget-replaced');
-    expect(zone.querySelector('[data-widget-host]')).toBeNull();
     expect(counts.cleanups).toBe(1);
   });
 
-  it('sets no host element for a zone that no injection changes', () => {
+  it('renders only the default content for a zone that no injection changes', () => {
     const points = { zone: point.zone<Ctx>() };
 
     render(WidgetZone, { props: { point: points.zone, context: { show: true } } });
 
-    const zone = screen.getByTestId('zone');
-    expect(zone.querySelector('[data-widget-host]')).toBeNull();
+    expect(screen.getByTestId('zone')).toHaveTextContent(/^default content$/);
   });
 });
