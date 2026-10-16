@@ -48,25 +48,51 @@ export const previewElements = (
   },
 });
 
-export interface DropPreviewParams {
+/** The canvas, as the palette drag sees it. Points are screen points. */
+export interface DropTarget {
+  contains: (client: XYPosition) => boolean;
+  /** Where a step dropped at this point lands in the graph. */
+  positionAt: (client: XYPosition) => XYPosition;
+  drop: (entry: CatalogEntry, position: XYPosition) => void;
+}
+
+export interface PaletteDragParams {
   /** The id the step will get: a taken one gets a suffix. */
   stepIdFor: (nodeId: string) => string;
 }
 
-/** A palette entry dragged over the canvas, and where it would land. */
-export const createDropPreview = ({ stepIdFor }: DropPreviewParams) => {
+/**
+ * A palette entry dragged with the pointer. Outside the canvas, a card follows the pointer
+ * (`ghost`); over it, the canvas draws the step where the drop puts it (`elements`).
+ */
+export const createPaletteDrag = ({ stepIdFor }: PaletteDragParams) => {
   let entry = $state.raw<CatalogEntry | null>(null);
-  // `null` while the entry is outside the canvas.
+  let client = $state.raw<XYPosition | null>(null);
+  // `null` while the pointer is outside the canvas.
   let position = $state.raw<XYPosition | null>(null);
   // xyflow hides a node until it has measured it, and measures it once: a preview rebuilt
   // without these sizes at each move would stay hidden.
   let measured = $state.raw<Measured>(undefined);
+  let target: DropTarget | null = null;
 
   const elements = $derived(
     entry && position
       ? previewElements(entry, position, stepIdFor(entry.nodeId), measured)
       : null,
   );
+  const ghost = $derived(entry && client && !position ? { entry, client } : null);
+
+  const move = (at: XYPosition) => {
+    if (!entry) return;
+    client = at;
+    position = target?.contains(at) ? target.positionAt(at) : null;
+  };
+
+  const end = () => {
+    entry = null;
+    client = null;
+    position = null;
+  };
 
   return {
     get entry() {
@@ -75,22 +101,31 @@ export const createDropPreview = ({ stepIdFor }: DropPreviewParams) => {
     get elements() {
       return elements;
     },
+    /** The card that follows the pointer outside the canvas. */
+    get ghost() {
+      return ghost;
+    },
 
-    start(next: CatalogEntry) {
+    /** The canvas registers itself; the returned function unregisters it. */
+    setTarget(next: DropTarget) {
+      target = next;
+      return () => {
+        if (target === next) target = null;
+      };
+    },
+
+    start(next: CatalogEntry, at: XYPosition) {
       entry = next;
-      position = null;
       measured = undefined;
+      move(at);
     },
-    moveTo(next: XYPosition) {
-      if (entry) position = next;
+    move,
+    /** Drops on the canvas; released anywhere else, the drag adds nothing. */
+    finish() {
+      if (entry && position) target?.drop(entry, position);
+      end();
     },
-    leave() {
-      position = null;
-    },
-    end() {
-      entry = null;
-      position = null;
-    },
+    cancel: end,
 
     /** What the canvas draws: the graph, and the preview on top. */
     nodesWith: (nodes: BlueprintNode[]): BlueprintNode[] =>
@@ -108,4 +143,4 @@ export const createDropPreview = ({ stepIdFor }: DropPreviewParams) => {
   };
 };
 
-export type DropPreview = ReturnType<typeof createDropPreview>;
+export type PaletteDrag = ReturnType<typeof createPaletteDrag>;

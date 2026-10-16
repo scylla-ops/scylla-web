@@ -7,7 +7,7 @@
   } from './side-panel-width.svelte.ts';
   import { stepOf } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
   import type { CatalogEntry } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
-  import type { DropPreview } from '../drop-preview.state.svelte.ts';
+  import type { PaletteDrag } from '../palette-drag.state.svelte.ts';
   import NodePalette from './NodePalette/NodePalette.svelte';
   import StepInspector from './StepInspector/StepInspector.svelte';
 
@@ -15,11 +15,11 @@
     blueprint: BlueprintState;
     entries: readonly CatalogEntry[];
     projectId?: string;
-    dropPreview: DropPreview;
+    drag: PaletteDrag;
     onAdd: (entry: CatalogEntry) => void;
   }
 
-  let { blueprint, entries, projectId, dropPreview, onAdd }: Props = $props();
+  let { blueprint, entries, projectId, drag, onAdd }: Props = $props();
 
   const step = $derived(blueprint.inspected ? stepOf(blueprint.inspected) : undefined);
   const mode = $derived(step ? 'inspector' : 'palette');
@@ -49,13 +49,7 @@
         />
       {/key}
     {:else}
-      <NodePalette
-        {entries}
-        {onAdd}
-        draggingId={dropPreview.entry?.id}
-        onDragStart={entry => dropPreview.start(entry)}
-        onDragEnd={() => dropPreview.end()}
-      />
+      <NodePalette {entries} {onAdd} {drag} />
     {/if}
   </aside>
 </ResizablePanel>

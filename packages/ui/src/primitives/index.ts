@@ -36,6 +36,8 @@ export { default as TooltipTrigger } from './tooltip/tooltip-trigger.svelte';
 // wrapped — `shadcn/dialog.tsx` does exactly the same with Radix. A wrapper
 // whose whole body is `<Primitive {...rest} />` is a file to keep in sync for
 // nothing.
+export { Portal } from 'bits-ui';
+
 export const Dialog = DialogPrimitive.Root;
 export const DialogClose = DialogPrimitive.Close;
 export const DialogPortal = DialogPrimitive.Portal;

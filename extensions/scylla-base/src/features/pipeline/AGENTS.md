@@ -84,8 +84,10 @@ presentation/
       blueprint/                             the canvas, its nodes, its edge, the side panel
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected step, add/insert/rename
         node-appearance.svelte.ts            the viewer's node style, remembered in localStorage
-        drop-preview.state.svelte.ts         a palette entry dragged over the canvas: the node and
-                                             the link a drop creates, drawn as a preview
+        palette-drag.state.svelte.ts         a palette entry dragged with the pointer: the card under
+                                             the pointer, the preview on the canvas, the drop
+        palette-drag.attachments.ts          dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
+        PaletteDragGhost.svelte              the card under the pointer, outside the canvas
         catalog.ts                           blank steps, template entries, catalogText (translates)
         step-kinds.ts                        icon and colours of each kind of step
         Segmented.svelte, SearchField.svelte the segmented control and the search box of the panel
@@ -153,12 +155,16 @@ the page.
   its selection, and only a new one is laid out. The document must also read back what it
   writes (`stepsOf(withSteps(steps))` equals `steps`, with an empty `workingDir` read as none):
   else each edit is taken for an outside change.
-- **A palette drag is previewed by the canvas, not by the browser.** The row sets an empty drag
-  image; over the canvas, `createDropPreview` gives a node (`DROP_PREVIEW_ID`, `preview: true`,
-  inert) and a link from the start node, which the canvas draws with the graph through function
-  bindings (`nodesWith` / `nodesWithout`). The setter removes them, so the preview never reaches
-  `blueprint.nodes`, `blueprint.edges` or the document. The preview shows the id the step gets
-  (`blueprint.nextIdFor`) and lands where the drop puts it (`nodePositionAt`).
+- **A palette drag is a pointer drag, not an HTML drag.** The browser cannot change the picture
+  of an HTML drag while it runs, and shows a placeholder (a globe on macOS) for an empty one.
+  `dragToCanvas` captures the pointer; past 4 px a press is a drag, and the click that ends it
+  (or an Escape) adds nothing. Outside the canvas, `PaletteDragGhost` shows a card under the
+  pointer. Over it (`acceptPaletteDrop` registers the canvas box), `createPaletteDrag` gives a
+  node (`DROP_PREVIEW_ID`, `preview: true`, inert) and a link from the start node, which the
+  canvas draws with the graph through function bindings (`nodesWith` / `nodesWithout`). The
+  setter removes them, so the preview never reaches `blueprint.nodes`, `blueprint.edges` or the
+  document; it keeps the size xyflow measured, else xyflow hides it. The preview shows the id
+  the step gets (`blueprint.nextIdFor`) and lands where the drop puts it (`nodePositionAt`).
 - **A step id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
   protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`utils/step-summary.ts`)
   is that rule; keep both the same. A refused id is shown on the node, in the inspector while it

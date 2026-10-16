@@ -16,12 +16,11 @@
   import type { NodeAppearancePreference } from './node-appearance.svelte.ts';
   import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/QuickAddMenu/quick-add.state.svelte.ts';
   import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
-  import type { CatalogEntry } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
   import { setBlueprintCanvas } from './blueprint-canvas.context.ts';
-  import type { DropPreview } from './drop-preview.state.svelte.ts';
+  import { acceptPaletteDrop } from './palette-drag.attachments.ts';
+  import type { PaletteDrag } from './palette-drag.state.svelte.ts';
   import CanvasToolbar from './CanvasToolbar.svelte';
-  import { CATALOG_DRAG_TYPE } from './catalog.ts';
   import DeletableEdge from './DeletableEdge.svelte';
   import { nodePositionAt } from './nodes/node-appearances.ts';
   import StartNode from './nodes/StartNode.svelte';
@@ -32,11 +31,10 @@
     blueprint: BlueprintState;
     appearance: NodeAppearancePreference;
     quickAdd: QuickAdd;
-    entries: readonly CatalogEntry[];
-    dropPreview: DropPreview;
+    drag: PaletteDrag;
   }
 
-  let { blueprint, appearance, quickAdd, entries, dropPreview }: Props = $props();
+  let { blueprint, appearance, quickAdd, drag }: Props = $props();
 
   const nodeTypes: NodeTypes = { pipelineStep: StepNode, startNode: StartNode };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
@@ -64,39 +62,17 @@
     quickAdd.open({ client, flow: screenToFlowPosition(client), link: { after: from.id } });
   };
 
-  /** Where a step dropped at this point of the screen lands in the graph. */
-  const dropPositionOf = (event: DragEvent) =>
-    nodePositionAt(appearance.current, screenToFlowPosition(clientPoint(event)));
-
-  const onDragOver = (event: DragEvent) => {
-    if (!event.dataTransfer?.types.includes(CATALOG_DRAG_TYPE)) return;
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'copy';
-    dropPreview.moveTo(dropPositionOf(event));
-  };
-
-  const onDragLeave = (event: DragEvent & { currentTarget: HTMLElement }) => {
-    // Also fired when the pointer moves onto a child: only leaving the canvas counts.
-    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) dropPreview.leave();
-  };
-
-  const onDrop = (event: DragEvent) => {
-    const id = event.dataTransfer?.getData(CATALOG_DRAG_TYPE);
-    const entry = dropPreview.entry ?? entries.find(item => item.id === id);
-    dropPreview.end();
-    if (!entry) return;
-    event.preventDefault();
-    blueprint.addNode(entry.nodeId, entry.definition, { position: dropPositionOf(event) });
-  };
 </script>
 
 <div
   role="application"
   aria-label={t(pipelineMessages.blueprint)}
   class="relative h-full min-w-0 flex-1"
-  ondragover={onDragOver}
-  ondragleave={onDragLeave}
-  ondrop={onDrop}
+  {@attach acceptPaletteDrop(() => ({
+    drag,
+    positionAt: client => nodePositionAt(appearance.current, screenToFlowPosition(client)),
+    drop: (entry, position) => blueprint.addNode(entry.nodeId, entry.definition, { position }),
+  }))}
 >
   <!--
     `nodes` and `edges` are bound: the library drags, selects and deletes; the callbacks report the
@@ -105,12 +81,12 @@
   -->
   <SvelteFlow
     bind:nodes={
-      () => dropPreview.nodesWith(blueprint.nodes),
-      next => (blueprint.nodes = dropPreview.nodesWithout(next))
+      () => drag.nodesWith(blueprint.nodes),
+      next => (blueprint.nodes = drag.nodesWithout(next))
     }
     bind:edges={
-      () => dropPreview.edgesWith(blueprint.edges),
-      next => (blueprint.edges = dropPreview.edgesWithout(next))
+      () => drag.edgesWith(blueprint.edges),
+      next => (blueprint.edges = drag.edgesWithout(next))
     }
     {nodeTypes}
     {edgeTypes}

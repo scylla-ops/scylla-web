@@ -8,24 +8,23 @@
   } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
   import {
-    CATALOG_DRAG_TYPE,
     CATALOG_GROUP_TITLES,
     catalogText,
   } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog.ts';
   import CatalogItem from '@base/features/pipeline/presentation/ui/editor/blueprint/CatalogItem.svelte';
   import SearchField from '@base/features/pipeline/presentation/ui/editor/blueprint/SearchField.svelte';
+  import { dragToCanvas } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag.attachments.ts';
+  import type { PaletteDrag } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag.state.svelte.ts';
 
   interface Props {
     entries: readonly CatalogEntry[];
     /** A click adds the entry right of the graph; a drag places it where it is dropped. */
     onAdd: (entry: CatalogEntry) => void;
-    /** The entry being dragged: it stays in place, dimmed, while the canvas shows it. */
-    draggingId?: string;
-    onDragStart?: (entry: CatalogEntry) => void;
-    onDragEnd?: () => void;
+    /** Lets a row be dragged onto the canvas. */
+    drag?: PaletteDrag;
   }
 
-  let { entries, onAdd, draggingId, onDragStart, onDragEnd }: Props = $props();
+  let { entries, onAdd, drag }: Props = $props();
 
   let query = $state('');
 
@@ -46,23 +45,14 @@
         {t(CATALOG_GROUP_TITLES[group])}
       </h3>
       {#each items as entry (entry.id)}
+        <!-- The dragged row stays in place, dimmed, while the drag shows the step. -->
         <button
           type="button"
-          draggable="true"
           class={cn(
-            'flex w-full cursor-grab items-center gap-2.5 rounded-lg p-2 transition-[background-color,opacity] hover:bg-accent active:cursor-grabbing',
-            draggingId === entry.id && 'opacity-40',
+            'flex w-full cursor-grab items-center gap-2.5 rounded-lg p-2 transition-[background-color,opacity] select-none hover:bg-accent active:cursor-grabbing',
+            drag?.entry?.id === entry.id && 'opacity-40',
           )}
-          ondragstart={event => {
-            if (event.dataTransfer) {
-              event.dataTransfer.setData(CATALOG_DRAG_TYPE, entry.id);
-              event.dataTransfer.effectAllowed = 'copy';
-              // No picture of the row under the pointer: the canvas draws the node itself.
-              event.dataTransfer.setDragImage(new Image(), 0, 0);
-            }
-            onDragStart?.(entry);
-          }}
-          ondragend={() => onDragEnd?.()}
+          {@attach drag && dragToCanvas(() => ({ entry, drag }))}
           onclick={() => onAdd(entry)}
         >
           <CatalogItem {entry} />

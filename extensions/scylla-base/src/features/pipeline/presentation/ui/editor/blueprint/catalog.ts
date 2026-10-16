@@ -7,9 +7,6 @@ import type {
 import { stepPreview } from '@base/features/pipeline/presentation/utils/step-summary.ts';
 import { blueprintMessages } from './blueprint.messages.ts';
 
-/** The `DataTransfer` type of an entry dragged from the palette: its value is the entry id. */
-export const CATALOG_DRAG_TYPE = 'application/x-scylla-step';
-
 export const BLANK_STEPS: readonly CatalogEntry[] = [
   {
     id: 'kind:bash',
