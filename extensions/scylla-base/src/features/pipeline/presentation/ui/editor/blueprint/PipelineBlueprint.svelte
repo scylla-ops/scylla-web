@@ -8,6 +8,7 @@
   import { createQuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/QuickAddMenu/quick-add.state.svelte.ts';
   import BlueprintCanvas from './BlueprintCanvas.svelte';
   import { catalogEntries, catalogText } from './catalog.ts';
+  import { createDropPreview } from './drop-preview.state.svelte.ts';
   import { nodePositionAt } from './nodes/node-appearances.ts';
   import BlueprintSidePanel from './side-panel/BlueprintSidePanel.svelte';
 
@@ -32,6 +33,8 @@
   const templatesQuery = createQuery(() => stepTemplateQueries.list());
   const entries = $derived(catalogEntries(templatesQuery.data ?? []));
 
+  const dropPreview = createDropPreview({ stepIdFor: nodeId => blueprint.nextIdFor(nodeId) });
+
   const quickAdd = createQuickAdd({
     entries: () => entries,
     resolve: catalogText,
@@ -48,11 +51,12 @@
 <!-- The provider lets the canvas convert screen points to the graph's. -->
 <SvelteFlowProvider>
   <div class="flex h-full w-full overflow-hidden">
-    <BlueprintCanvas {blueprint} {appearance} {quickAdd} {entries} />
+    <BlueprintCanvas {blueprint} {appearance} {quickAdd} {entries} {dropPreview} />
     <BlueprintSidePanel
       {blueprint}
       {entries}
       {projectId}
+      {dropPreview}
       onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
     />
   </div>

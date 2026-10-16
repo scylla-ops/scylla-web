@@ -57,9 +57,38 @@ describe('NodePalette', () => {
     const setData = vi.fn();
 
     await fireEvent.dragStart(screen.getByRole('button', { name: /Bash script/ }), {
-      dataTransfer: { setData, effectAllowed: 'none' },
+      dataTransfer: { setData, setDragImage: vi.fn(), effectAllowed: 'none' },
     });
 
     expect(setData).toHaveBeenCalledWith(CATALOG_DRAG_TYPE, 'kind:bash');
+  });
+
+  it('shows no picture of the row under the pointer: the canvas draws the node', async () => {
+    render(NodePalette, { entries, onAdd: vi.fn() });
+    const setDragImage = vi.fn();
+
+    await fireEvent.dragStart(screen.getByRole('button', { name: /Bash script/ }), {
+      dataTransfer: { setData: vi.fn(), setDragImage, effectAllowed: 'none' },
+    });
+
+    expect(setDragImage).toHaveBeenCalledWith(expect.any(HTMLImageElement), 0, 0);
+  });
+
+  it('says when a drag starts and ends, and dims the dragged entry', async () => {
+    const onDragStart = vi.fn();
+    const onDragEnd = vi.fn();
+    const { rerender } = render(NodePalette, { entries, onAdd: vi.fn(), onDragStart, onDragEnd });
+    const row = screen.getByRole('button', { name: /Bash script/ });
+
+    await fireEvent.dragStart(row, {
+      dataTransfer: { setData: vi.fn(), setDragImage: vi.fn(), effectAllowed: 'none' },
+    });
+    expect(onDragStart).toHaveBeenCalledWith(expect.objectContaining({ id: 'kind:bash' }));
+
+    await rerender({ entries, onAdd: vi.fn(), onDragStart, onDragEnd, draggingId: 'kind:bash' });
+    expect(row).toHaveClass('opacity-40');
+
+    await fireEvent.dragEnd(row);
+    expect(onDragEnd).toHaveBeenCalled();
   });
 });

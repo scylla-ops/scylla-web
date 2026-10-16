@@ -140,6 +140,9 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
     return id;
   };
 
+  /** The id `addNode` gives a step that asks for `nodeId`: a taken one gets a suffix. */
+  const nextIdFor = (nodeId: string) => generateUniqueNodeId(nodeId.trim() || 'step', idsOf());
+
   const stepById = (id: string) => {
     const node = nodes.find(candidate => candidate.id === id);
     return node ? stepOf(node) : undefined;
@@ -163,6 +166,8 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
       return inspected;
     },
 
+    nextIdFor,
+
     /** Nothing may depend on the start node: it is the pipeline itself. */
     canConnect: (connection: Connection) => connection.target !== START_NODE_ID,
 
@@ -180,7 +185,7 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
 
     /** Adds the step; the caller opens it with `inspect` when a click asked for it. Returns its final id. */
     addNode(nodeId: string, value: StepDefinition, placement: StepPlacement = {}): string {
-      const id = generateUniqueNodeId(nodeId.trim() || 'step', idsOf());
+      const id = nextIdFor(nodeId);
       const replaced =
         'replacing' in placement ? edges.find(edge => edge.id === placement.replacing) : undefined;
       const after = 'after' in placement ? placement.after : undefined;

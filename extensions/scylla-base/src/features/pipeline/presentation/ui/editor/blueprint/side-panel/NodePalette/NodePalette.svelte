@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import {
     groupCatalog,
     searchCatalog,
@@ -18,9 +19,13 @@
     entries: readonly CatalogEntry[];
     /** A click adds the entry right of the graph; a drag places it where it is dropped. */
     onAdd: (entry: CatalogEntry) => void;
+    /** The entry being dragged: it stays in place, dimmed, while the canvas shows it. */
+    draggingId?: string;
+    onDragStart?: (entry: CatalogEntry) => void;
+    onDragEnd?: () => void;
   }
 
-  let { entries, onAdd }: Props = $props();
+  let { entries, onAdd, draggingId, onDragStart, onDragEnd }: Props = $props();
 
   let query = $state('');
 
@@ -44,11 +49,20 @@
         <button
           type="button"
           draggable="true"
-          class="flex w-full cursor-grab items-center gap-2.5 rounded-lg p-2 transition-colors hover:bg-accent active:cursor-grabbing"
+          class={cn(
+            'flex w-full cursor-grab items-center gap-2.5 rounded-lg p-2 transition-[background-color,opacity] hover:bg-accent active:cursor-grabbing',
+            draggingId === entry.id && 'opacity-40',
+          )}
           ondragstart={event => {
-            event.dataTransfer?.setData(CATALOG_DRAG_TYPE, entry.id);
-            if (event.dataTransfer) event.dataTransfer.effectAllowed = 'copy';
+            if (event.dataTransfer) {
+              event.dataTransfer.setData(CATALOG_DRAG_TYPE, entry.id);
+              event.dataTransfer.effectAllowed = 'copy';
+              // No picture of the row under the pointer: the canvas draws the node itself.
+              event.dataTransfer.setDragImage(new Image(), 0, 0);
+            }
+            onDragStart?.(entry);
           }}
+          ondragend={() => onDragEnd?.()}
           onclick={() => onAdd(entry)}
         >
           <CatalogItem {entry} />
