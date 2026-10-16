@@ -159,7 +159,10 @@ the page.
   of the current node style (`nodes/node-geometry.ts`) in the front `ViewportPortal`, so it
   follows the zoom and no node hides it, at the position the drop gives (`nodePositionAt`).
   It has no move transition: the browser reports a drag about every 50 ms. The drag image is
-  the row's icon (`data-drag-image`), beside the pointer (`DRAG_IMAGE_OFFSET`), not the row.
+  the row's icon (`data-drag-image`), `DRAG_LIFT` px above the pointer so the pointer does not
+  hide it; a dropped node lands with its icon there too (`dropPositionOf`), so the icon sits
+  inside the outline. The drag is a `move`, not a `copy`:
+  macOS puts a "+" badge on the pointer of a copy.
 - **A step id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
   protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`utils/step-summary.ts`)
   is that rule; keep both the same. A refused id is shown on the node, in the inspector while it

@@ -52,8 +52,9 @@ stays free for the app's own sidebar.
 
 While you drag an entry from the palette over the canvas, or pull a link from a step onto empty
 canvas, a dashed outline shows the place the new step will take, in the size of your node style
-and at the zoom of the canvas. Only the icon of the dragged entry follows the pointer, beside it,
-so that it does not hide the outline.
+and at the zoom of the canvas. Only the icon of the dragged entry follows the pointer, just
+above it so the pointer does not hide it, and the new node lands with its icon there: the icon
+sits inside the outline.
 
 The panel opens on a click only. Moving a node, dropping a step or drawing a selection box
 leaves it as it is: an inspector that opens while you arrange the graph gets in the way. Its

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
 import {
   CATALOG_DRAG_TYPE,
-  DRAG_IMAGE_OFFSET,
+  DRAG_LIFT,
   catalogEntries,
 } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog.ts';
 import NodePalette from './NodePalette.svelte';
@@ -64,7 +64,7 @@ describe('NodePalette', () => {
     expect(setData).toHaveBeenCalledWith(CATALOG_DRAG_TYPE, 'kind:bash');
   });
 
-  it('drags only the icon of the row, beside the pointer, so the outline under it shows', async () => {
+  it('drags only the icon of the row, above the pointer, where the icon of the node lands', async () => {
     render(NodePalette, { entries, onAdd: vi.fn() });
     const setDragImage = vi.fn();
     const row = screen.getByRole('button', { name: /Bash script/ });
@@ -73,8 +73,23 @@ describe('NodePalette', () => {
       dataTransfer: { setData: vi.fn(), setDragImage, effectAllowed: 'none' },
     });
 
-    const icon = row.querySelector('[data-drag-image]');
+    const icon = row.querySelector<HTMLElement>('[data-drag-image]');
     expect(icon).not.toBeNull();
-    expect(setDragImage).toHaveBeenCalledWith(icon, DRAG_IMAGE_OFFSET, DRAG_IMAGE_OFFSET);
+    expect(setDragImage).toHaveBeenCalledWith(
+      icon,
+      icon!.offsetWidth / 2,
+      icon!.offsetHeight / 2 + DRAG_LIFT,
+    );
+  });
+
+  it('moves the entry rather than copying it, so the pointer has no "+" badge', async () => {
+    render(NodePalette, { entries, onAdd: vi.fn() });
+    const dataTransfer = { setData: vi.fn(), setDragImage: vi.fn(), effectAllowed: 'none' };
+
+    await fireEvent.dragStart(screen.getByRole('button', { name: /Bash script/ }), {
+      dataTransfer,
+    });
+
+    expect(dataTransfer.effectAllowed).toBe('move');
   });
 });

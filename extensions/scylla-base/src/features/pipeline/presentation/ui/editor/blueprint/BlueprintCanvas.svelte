@@ -21,7 +21,7 @@
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
   import { setBlueprintCanvas } from './blueprint-canvas.context.ts';
   import CanvasToolbar from './CanvasToolbar.svelte';
-  import { CATALOG_DRAG_TYPE } from './catalog.ts';
+  import { CATALOG_DRAG_TYPE, DRAG_LIFT } from './catalog.ts';
   import DeletableEdge from './DeletableEdge.svelte';
   import { createDropSpot, linkDropPoint } from './drop-spot.state.svelte.ts';
   import DropSpot from './DropSpot.svelte';
@@ -75,9 +75,11 @@
     return point && nodePositionAt(appearance.current, point);
   });
 
-  /** Where a step dropped at this point of the screen lands in the graph. */
-  const dropPositionOf = (event: DragEvent) =>
-    nodePositionAt(appearance.current, screenToFlowPosition(clientPoint(event)));
+  /** Where a dragged step lands in the graph: its icon under the dragged icon, above the pointer. */
+  const dropPositionOf = (event: DragEvent) => {
+    const { x, y } = clientPoint(event);
+    return nodePositionAt(appearance.current, screenToFlowPosition({ x, y: y - DRAG_LIFT }));
+  };
 
   const isCatalogDrag = (event: DragEvent) =>
     event.dataTransfer?.types.includes(CATALOG_DRAG_TYPE) ?? false;
@@ -85,7 +87,7 @@
   const onDragOver = (event: DragEvent) => {
     if (!event.dataTransfer || !isCatalogDrag(event)) return;
     event.preventDefault();
-    event.dataTransfer.dropEffect = 'copy';
+    event.dataTransfer.dropEffect = 'move';
     dropSpot.move(dropPositionOf(event));
   };
 

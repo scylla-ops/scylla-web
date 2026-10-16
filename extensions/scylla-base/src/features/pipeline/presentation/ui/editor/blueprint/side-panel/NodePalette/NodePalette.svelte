@@ -9,7 +9,7 @@
   import {
     CATALOG_DRAG_TYPE,
     CATALOG_GROUP_TITLES,
-    DRAG_IMAGE_OFFSET,
+    DRAG_LIFT,
     catalogText,
   } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog.ts';
   import CatalogItem from '@base/features/pipeline/presentation/ui/editor/blueprint/CatalogItem.svelte';
@@ -49,11 +49,18 @@
           ondragstart={event => {
             if (!event.dataTransfer) return;
             event.dataTransfer.setData(CATALOG_DRAG_TYPE, entry.id);
-            event.dataTransfer.effectAllowed = 'copy';
-            // Only the icon, below and right of the pointer: the whole row would hide the place
-            // that the canvas outlines under the pointer.
+            // `move`, not `copy`: macOS adds a "+" badge to the pointer of a copy.
+            event.dataTransfer.effectAllowed = 'move';
+            // Only the icon, above the pointer: where the icon of the dropped node lands, so over
+            // the canvas it sits inside the outline, and the pointer does not hide it.
             const icon = event.currentTarget.querySelector<HTMLElement>('[data-drag-image]');
-            if (icon) event.dataTransfer.setDragImage(icon, DRAG_IMAGE_OFFSET, DRAG_IMAGE_OFFSET);
+            if (icon) {
+              event.dataTransfer.setDragImage(
+                icon,
+                icon.offsetWidth / 2,
+                icon.offsetHeight / 2 + DRAG_LIFT,
+              );
+            }
           }}
           onclick={() => onAdd(entry)}
         >
