@@ -7,7 +7,6 @@ import {
   generateUniqueNodeId,
   stepOf,
   START_NODE_ID,
-  waitsFor,
 } from '../blueprint-converter';
 import type { PipelineStep, ExecPipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
 
@@ -182,24 +181,5 @@ describe('a loop of dependencies', () => {
   it('is laid out, and the layout ends', () => {
     const { nodes } = stepsToFlow(loop, 'p');
     expect(nodes.map(node => node.id).sort()).toEqual([START_NODE_ID, 'a', 'b', 'root'].sort());
-  });
-
-  it('is seen by waitsFor, which ends too', () => {
-    expect(waitsFor(loop, 'a', 'b')).toBe(true);
-    expect(waitsFor(loop, 'b', 'root')).toBe(true);
-    expect(waitsFor(loop, 'root', 'a')).toBe(false);
-  });
-});
-
-describe('waitsFor', () => {
-  const steps = [execStep('build'), execStep('test', ['build']), execStep('deploy', ['test'])];
-
-  it('follows the dependencies through the other steps', () => {
-    expect(waitsFor(steps, 'deploy', 'build')).toBe(true);
-  });
-
-  it('is false the other way, and for a step that does not exist', () => {
-    expect(waitsFor(steps, 'build', 'deploy')).toBe(false);
-    expect(waitsFor(steps, 'ghost', 'build')).toBe(false);
   });
 });

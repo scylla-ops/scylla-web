@@ -116,6 +116,7 @@ presentation/
       DashboardPipeline/                     the page, pipeline-dashboard.state.svelte.ts (its ViewModel)
   utils/
     blueprint-converter.ts                   Graph ↔ PipelineStep[] (pure, TS only, tested)
+    pipeline-steps.ts                        operations on PipelineStep[]: depths, waitsFor (pure, tested)
     node-catalog.ts                          catalog entry type, search, grouping (pure)
     step-summary.ts                          one-line preview and the issue of a step
     create-default-script.ts
@@ -190,8 +191,8 @@ the page.
   is typed (with `toNodeId`, the nearest valid id, as a suggestion), and stops the save before
   the server is called (`invalidStepIds`). It is applied like any edit, never held back.
 - **No loop of dependencies.** `blueprint.canConnect` refuses a link whose source already waits
-  for its target (`waitsFor`, `utils/blueprint-converter.ts`). A document typed by hand can
-  still hold a loop: every walk of the dependencies must end on one (`computeDepths` cuts the
+  for its target (`waitsFor`, `utils/pipeline-steps.ts`). A document typed by hand can
+  still hold a loop: every walk of the dependencies must end on one (`stepDepths` cuts the
   loop where it closes).
 - **A detached step is shown, not fixed.** A step with no edge into it is linked to the start
   node on save (it has no `deps`). `blueprint.isDetached(id)` puts a warning on the node and in

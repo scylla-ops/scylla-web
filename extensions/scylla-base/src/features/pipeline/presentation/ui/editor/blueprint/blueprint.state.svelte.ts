@@ -11,11 +11,11 @@ import {
   generateUniqueNodeId,
   stepOf,
   stepsToFlow,
-  waitsFor,
   type BlueprintEdge,
   type BlueprintNode,
   type BlueprintStepNode,
 } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+import { waitsFor } from '@base/features/pipeline/presentation/utils/pipeline-steps.ts';
 
 export interface BlueprintStateParams {
   /** Getters: the editor's document changes. */
