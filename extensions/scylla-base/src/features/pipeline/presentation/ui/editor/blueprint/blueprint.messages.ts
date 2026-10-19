@@ -14,7 +14,6 @@ export const blueprintMessages = {
   shScriptDetail: msg`A POSIX shell script`,
   command: msg`Command`,
   commandDetail: msg`One program and its arguments`,
-  kindCommand: msg`command`,
 
   addStep: msg`Add a step`,
   addAfter: (id: string) => msg`Add a step after ${id}`,
@@ -30,9 +29,7 @@ export const blueprintMessages = {
   styleMinimal: msg`Simplified`,
 
   code: msg`Code`,
-  environment: msg`Environment`,
   after: msg`After`,
-  runsFirst: msg`Runs first`,
   closePanel: msg`Close the panel`,
   close: msg`Close`,
   deleteStep: msg`Delete the step`,

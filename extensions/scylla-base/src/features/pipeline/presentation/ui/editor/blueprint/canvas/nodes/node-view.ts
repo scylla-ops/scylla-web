@@ -8,7 +8,6 @@ import {
   stepIssue,
   stepPreview,
 } from '@base/features/pipeline/presentation/utils/step-summary.ts';
-import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
 import { KIND_TONES, stepIcon } from '@base/features/pipeline/presentation/ui/editor/step/step-kinds.ts';
 import {
   ISSUE_MESSAGES,
@@ -48,7 +47,7 @@ export interface StartNodeViewProps {
 export const summarize = (step: PipelineStep, iconHint?: string): StepSummary => ({
   icon: stepIcon(step.kind, iconHint),
   tone: KIND_TONES[step.kind],
-  kind: step.kind === 'script' ? step.shell : t(blueprintMessages.kindCommand),
+  kind: step.kind === 'script' ? step.shell : t(stepMessages.kindCommand),
   preview: stepPreview(step),
   problem: problemOf(step),
   ...envCounts(step),

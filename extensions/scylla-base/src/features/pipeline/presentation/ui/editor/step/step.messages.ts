@@ -3,6 +3,9 @@ import { msg } from '@lingui/core/macro';
 /** The strings of a step's fields: the blueprint's inspector and the scripting view share them. */
 export const stepMessages = {
   stepKind: msg`Step kind`,
+  kindCommand: msg`command`,
+  runsFirst: msg`Runs first`,
+  environment: msg`Environment`,
   stepId: msg`Step ID`,
   missingCommand: msg`A command is required.`,
   emptyScript: msg`The script is empty.`,

@@ -7,7 +7,7 @@
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import type { ScriptingState } from '../scripting.state.svelte.ts';
   import { scriptingMessages } from '../scripting.messages.ts';
-  import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
+  import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
   import { ISSUE_MESSAGES } from '@base/features/pipeline/presentation/ui/editor/step/step-issue-text.ts';
   import {
     KIND_TONES,
@@ -55,7 +55,7 @@
     />
 
     <div class="-mx-4 flex flex-col">
-      <span class="px-4 text-sm font-medium">{t(blueprintMessages.environment)}</span>
+      <span class="px-4 text-sm font-medium">{t(stepMessages.environment)}</span>
       <StepEnvFields {draft} {projectId} />
     </div>
   </div>

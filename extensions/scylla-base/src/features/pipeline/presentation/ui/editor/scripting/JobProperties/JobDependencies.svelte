@@ -9,7 +9,7 @@
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { scriptingMessages } from '../scripting.messages.ts';
-  import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
+  import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
 
   interface Props {
     deps: string[];
@@ -30,7 +30,7 @@
   <span class="text-sm font-medium">{t(scriptingMessages.dependencies)}</span>
   <div class="flex flex-wrap items-center gap-1.5 font-mono text-xs">
     {#if deps.length === 0}
-      <span class="font-sans text-muted-foreground">{t(blueprintMessages.runsFirst)}</span>
+      <span class="font-sans text-muted-foreground">{t(stepMessages.runsFirst)}</span>
     {/if}
     {#each deps as dep (dep)}
       <span class="flex items-center gap-1 rounded-full bg-primary-subtle py-0.5 pr-0.5 pl-2.5">

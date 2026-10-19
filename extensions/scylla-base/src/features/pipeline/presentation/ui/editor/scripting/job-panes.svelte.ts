@@ -5,13 +5,13 @@ export interface JobPane {
 }
 
 /** Two jobs side by side, as in an IDE: one pane, or two. */
-export const MAX_PANES = 2;
+const MAX_PANES = 2;
 
 const emptyPane = (): JobPane => ({ tabs: [], active: null });
 
 /**
- * The open jobs of the scripting view. A job removed from the document leaves its tabs: the
- * panes are derived from the ids that exist. Until a job is opened, the first one is shown.
+ * The open jobs of the scripting view. The panes are derived from the ids of the document, so
+ * the tabs of a removed job go away with it. Until a job is opened, the first one is shown.
  */
 export const createJobPanes = (ids: () => string[]) => {
   let panes = $state<JobPane[]>([emptyPane()]);
@@ -41,10 +41,10 @@ export const createJobPanes = (ids: () => string[]) => {
     opened = true;
   };
 
-  const copy = () => visible.map(pane => ({ tabs: [...pane.tabs], active: pane.active }));
+  const snapshot = () => visible.map(pane => ({ tabs: [...pane.tabs], active: pane.active }));
 
   const open = (id: string, index = focusedIndex) => {
-    const next = copy();
+    const next = snapshot();
     const pane = next[index] ?? emptyPane();
     if (!pane.tabs.includes(id)) pane.tabs.push(id);
     pane.active = id;
@@ -72,7 +72,7 @@ export const createJobPanes = (ids: () => string[]) => {
     /** Opens the job in the other pane, which is created when there is one pane only. */
     openToSide(id: string) {
       if (visible.length < MAX_PANES) {
-        write([...copy(), { tabs: [id], active: id }], visible.length);
+        write([...snapshot(), { tabs: [id], active: id }], visible.length);
       } else {
         open(id, focusedIndex === 0 ? 1 : 0);
       }
@@ -81,12 +81,12 @@ export const createJobPanes = (ids: () => string[]) => {
     /** Shows the job of the focused pane in a new pane too. */
     split() {
       const active = visible[focusedIndex]?.active;
-      if (active && visible.length < MAX_PANES) write([...copy(), { tabs: [active], active }], 1);
+      if (active && visible.length < MAX_PANES) write([...snapshot(), { tabs: [active], active }], 1);
     },
 
     /** Closes a tab. A second pane with no tab left closes too. */
     close(id: string, index: number) {
-      const next = copy();
+      const next = snapshot();
       const pane = next[index];
       if (!pane) return;
 
@@ -101,7 +101,7 @@ export const createJobPanes = (ids: () => string[]) => {
     closePane(index: number) {
       if (visible.length > 1)
         write(
-          copy().filter((_, i) => i !== index),
+          snapshot().filter((_, i) => i !== index),
           0,
         );
     },
@@ -113,7 +113,7 @@ export const createJobPanes = (ids: () => string[]) => {
     /** Follows a rename. Called before the document changes: the old id is still known. */
     rename(from: string, to: string) {
       write(
-        copy().map(pane => ({
+        snapshot().map(pane => ({
           tabs: pane.tabs.map(id => (id === from ? to : id)),
           active: pane.active === from ? to : pane.active,
         })),

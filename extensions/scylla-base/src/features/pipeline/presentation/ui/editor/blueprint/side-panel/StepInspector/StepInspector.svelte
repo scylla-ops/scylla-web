@@ -13,6 +13,7 @@
   } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import { createStepDraft } from '@base/features/pipeline/presentation/ui/editor/step/step-draft.svelte.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
+  import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
   import { ISSUE_MESSAGES } from '@base/features/pipeline/presentation/ui/editor/step/step-issue-text.ts';
   import {
     KIND_TONES,
@@ -91,7 +92,7 @@
           {t(blueprintMessages.detachedHint)}
         </span>
       {:else if dependencies.length === 0}
-        <span>{t(blueprintMessages.runsFirst)}</span>
+        <span>{t(stepMessages.runsFirst)}</span>
       {:else}
         <span>{t(blueprintMessages.after)}</span>
         {#each dependencies as dependency (dependency)}
@@ -109,7 +110,7 @@
     <TabsList class="mx-4 self-start">
       <TabsTrigger value="code">{t(blueprintMessages.code)}</TabsTrigger>
       <TabsTrigger value="environment">
-        {t(blueprintMessages.environment)}
+        {t(stepMessages.environment)}
         {#if envCount}
           <span class="ml-1 rounded-full bg-muted px-1.5 text-[11px]">{envCount}</span>
         {/if}

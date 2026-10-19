@@ -15,7 +15,7 @@
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import { jobRows } from './job-list.calculator.ts';
   import { scriptingMessages } from '../scripting.messages.ts';
-  import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
+  import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
   import {
     KIND_TONES,
     stepIcon,
@@ -69,7 +69,7 @@
             <span class="sr-only">{t(scriptingMessages.jobIssue)}</span>
           {/if}
           <span class="shrink-0 text-[11px] text-muted-foreground">
-            {row.step.kind === 'script' ? row.step.shell : t(blueprintMessages.kindCommand)}
+            {row.step.kind === 'script' ? row.step.shell : t(stepMessages.kindCommand)}
           </span>
         </button>
         <DropdownMenu>

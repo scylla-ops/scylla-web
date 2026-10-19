@@ -16,7 +16,8 @@
   let { scripting, pane, index }: Props = $props();
 
   const step = $derived(scripting.stepOf(pane.active));
-  const focused = $derived(scripting.panes.panes.length > 1 && scripting.panes.focused === index);
+  /** With two panes, the focused one is marked: the properties panel shows its job. */
+  const marksFocus = $derived(scripting.panes.panes.length > 1 && scripting.panes.focused === index);
 </script>
 
 <!-- A pane takes the focus of what is inside it: the properties panel follows that pane. -->
@@ -24,7 +25,7 @@
   aria-label={pane.active ?? t(scriptingMessages.noJobOpen)}
   class={cn(
     'flex min-w-0 flex-1 flex-col border-l first:border-l-0',
-    focused && 'shadow-[inset_0_2px_0_var(--primary)]',
+    marksFocus && 'shadow-[inset_0_2px_0_var(--primary)]',
   )}
   onfocusin={() => scripting.panes.focus(index)}
 >
