@@ -11,19 +11,19 @@
     PipelineStep,
     StepDefinition,
   } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-  import { createStepInspector } from './step-inspector.state.svelte.ts';
+  import { createStepDraft } from '@base/features/pipeline/presentation/ui/editor/step/step-draft.svelte.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
-  import { ISSUE_MESSAGES } from '@base/features/pipeline/presentation/ui/editor/blueprint/canvas/nodes/node-view.ts';
+  import { ISSUE_MESSAGES } from '@base/features/pipeline/presentation/ui/editor/step/step-issue-text.ts';
   import {
     KIND_TONES,
     stepIcon,
-  } from '@base/features/pipeline/presentation/ui/editor/blueprint/step-kinds.ts';
+  } from '@base/features/pipeline/presentation/ui/editor/step/step-kinds.ts';
   import StepCodeTab from './StepCodeTab.svelte';
-  import StepEnvTab from './StepEnvTab.svelte';
-  import StepIdField from './StepIdField.svelte';
+  import StepEnvFields from '@base/features/pipeline/presentation/ui/editor/step/StepEnvFields.svelte';
+  import StepIdField from '@base/features/pipeline/presentation/ui/editor/step/StepIdField.svelte';
 
   interface Props {
-    /** Read once: the panel rebuilds the inspector for each step. */
+    /** Read once: the panel rebuilds the draft for each step. */
     step: PipelineStep;
     dependencies: string[];
     /** No edge goes into the step: saving links it to the start node. */
@@ -52,15 +52,15 @@
   }: Props = $props();
 
   // svelte-ignore state_referenced_locally
-  const inspector = createStepInspector({
+  const draft = createStepDraft({
     step,
     onChange: value => onChange(value),
     onRename: id => onRename(id),
   });
 
-  const Icon = $derived(stepIcon(inspector.mode, iconHintOf?.(inspector.value)));
-  const tone = $derived(KIND_TONES[inspector.mode]);
-  const envCount = $derived(inspector.envRows.filter(row => row.key.trim()).length);
+  const Icon = $derived(stepIcon(draft.mode, iconHintOf?.(draft.value)));
+  const tone = $derived(KIND_TONES[draft.mode]);
+  const envCount = $derived(draft.envRows.filter(row => row.key.trim()).length);
 </script>
 
 <div class="flex h-full flex-col">
@@ -71,7 +71,7 @@
       >
         <Icon class="size-4" />
       </span>
-      <StepIdField {inspector} />
+      <StepIdField {draft} />
       <Button
         variant="ghost"
         size="icon-sm"
@@ -116,20 +116,20 @@
       </TabsTrigger>
     </TabsList>
     <TabsContent value="code" class="flex min-h-0 flex-1 flex-col">
-      <StepCodeTab {inspector} />
+      <StepCodeTab {draft} />
     </TabsContent>
     <TabsContent value="environment" class="relative min-h-0 flex-1 overflow-y-auto">
-      <StepEnvTab {inspector} {projectId} />
+      <StepEnvFields {draft} {projectId} />
     </TabsContent>
   </Tabs>
 
-  {#if inspector.issue}
+  {#if draft.issue}
     <p
       role="alert"
       class="mx-4 mb-2 flex items-center gap-2 rounded-md bg-destructive-subtle px-3 py-2 text-sm text-destructive"
     >
       <CircleAlertIcon class="size-4 shrink-0" />
-      {t(ISSUE_MESSAGES[inspector.issue])}
+      {t(ISSUE_MESSAGES[draft.issue])}
     </p>
   {/if}
 

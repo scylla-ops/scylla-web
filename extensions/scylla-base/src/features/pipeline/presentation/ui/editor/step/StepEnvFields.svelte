@@ -15,17 +15,17 @@
   import { t } from '@scylla/ui/i18n';
   import type {
     EnvRow,
-    StepInspector,
-  } from './step-inspector.state.svelte.ts';
+    StepDraft,
+  } from './step-draft.svelte.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
-    inspector: StepInspector;
+    draft: StepDraft;
     /** Scopes the secret picker. */
     projectId?: string;
   }
 
-  let { inspector, projectId }: Props = $props();
+  let { draft, projectId }: Props = $props();
 
   // Same options object as the `secret` module: one cache entry.
   const secretsQuery = createQuery(() => secretQueries.byProject(projectId ?? ''));
@@ -33,11 +33,11 @@
 </script>
 
 <div class="flex flex-col gap-2 p-4">
-  {#each inspector.envRows as row, index (index)}
+  {#each draft.envRows as row, index (index)}
     <div class="flex items-center gap-2">
       <Input
         value={row.key}
-        oninput={event => inspector.setEnv(index, { key: event.currentTarget.value })}
+        oninput={event => draft.setEnv(index, { key: event.currentTarget.value })}
         placeholder={t(pipelineMessages.envKeyPlaceholder)}
         aria-label={t(pipelineMessages.envKeyPlaceholder)}
         class="flex-1 font-mono"
@@ -45,7 +45,7 @@
       <Select
         type="single"
         value={row.kind}
-        onValueChange={value => inspector.setEnv(index, { kind: value as EnvRow['kind'] })}
+        onValueChange={value => draft.setEnv(index, { kind: value as EnvRow['kind'] })}
       >
         <SelectTrigger aria-label={t(pipelineMessages.envKindLabel)} class="w-26 shrink-0">
           <SelectValue />
@@ -66,7 +66,7 @@
           <Select
             type="single"
             value={row.secretRef}
-            onValueChange={value => inspector.setEnv(index, { secretRef: value })}
+            onValueChange={value => draft.setEnv(index, { secretRef: value })}
           >
             <SelectTrigger aria-label={t(pipelineMessages.referenceASecret)} class="flex-1">
               <SelectValue placeholder={t(pipelineMessages.referenceASecret)} />
@@ -83,7 +83,7 @@
         {:else}
           <Input
             value={row.secretRef}
-            oninput={event => inspector.setEnv(index, { secretRef: event.currentTarget.value })}
+            oninput={event => draft.setEnv(index, { secretRef: event.currentTarget.value })}
             placeholder={t(pipelineMessages.secretNamePlaceholder)}
             aria-label={t(pipelineMessages.referenceASecret)}
             class="flex-1"
@@ -92,7 +92,7 @@
       {:else}
         <Input
           value={row.value}
-          oninput={event => inspector.setEnv(index, { value: event.currentTarget.value })}
+          oninput={event => draft.setEnv(index, { value: event.currentTarget.value })}
           placeholder={t(pipelineMessages.envValuePlaceholder)}
           aria-label={t(pipelineMessages.envValuePlaceholder)}
           class="flex-1 font-mono"
@@ -103,13 +103,13 @@
         variant="ghost"
         size="icon-sm"
         aria-label={t(pipelineMessages.removeVariable)}
-        onclick={() => inspector.removeEnv(index)}
+        onclick={() => draft.removeEnv(index)}
       >
         <Trash2Icon class="size-4" />
       </Button>
     </div>
   {/each}
-  <Button variant="outline" size="sm" class="self-start" onclick={() => inspector.addEnv()}>
+  <Button variant="outline" size="sm" class="self-start" onclick={() => draft.addEnv()}>
     <PlusIcon class="size-4" />
     {t(pipelineMessages.addVariable)}
   </Button>

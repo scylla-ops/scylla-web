@@ -1,4 +1,3 @@
-import type { MessageDescriptor } from '@lingui/core';
 import type { LucideIcon } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
 import { cn } from '@scylla/ui/utils';
@@ -8,11 +7,14 @@ import {
   nodeIdIssue,
   stepIssue,
   stepPreview,
-  type NodeIdIssue,
-  type StepIssue,
 } from '@base/features/pipeline/presentation/utils/step-summary.ts';
 import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
-import { KIND_TONES, stepIcon } from '@base/features/pipeline/presentation/ui/editor/blueprint/step-kinds.ts';
+import { KIND_TONES, stepIcon } from '@base/features/pipeline/presentation/ui/editor/step/step-kinds.ts';
+import {
+  ISSUE_MESSAGES,
+  nodeIdIssueText,
+} from '@base/features/pipeline/presentation/ui/editor/step/step-issue-text.ts';
+import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
 
 /** What every node appearance renders: computed once, so the views only lay it out. */
 export interface StepSummary {
@@ -53,24 +55,9 @@ export const summarize = (step: PipelineStep, iconHint?: string): StepSummary =>
   workingDir: step.workingDir,
 });
 
-/** A space is invisible between quotes: it is shown as `␣`. */
-const quoted = (character: string) => `"${character === ' ' ? '␣' : character}"`;
-
-/** Says what is wrong in the id, and what the server accepts. */
-export const nodeIdIssueText = (issue: NodeIdIssue): string => {
-  switch (issue.kind) {
-    case 'empty':
-      return t(blueprintMessages.idEmpty);
-    case 'invalid-characters':
-      return t(blueprintMessages.idInvalidCharacters(issue.characters.map(quoted).join(', ')));
-    case 'too-long':
-      return t(blueprintMessages.idTooLong(issue.length));
-  }
-};
-
 const problemOf = (step: PipelineStep): StepSummary['problem'] => {
   const idIssue = nodeIdIssue(step.id);
-  if (idIssue) return { label: t(blueprintMessages.invalidId), detail: nodeIdIssueText(idIssue) };
+  if (idIssue) return { label: t(stepMessages.invalidId), detail: nodeIdIssueText(idIssue) };
 
   const issue = stepIssue(step);
   if (!issue) return null;
@@ -80,8 +67,3 @@ const problemOf = (step: PipelineStep): StepSummary['problem'] => {
 
 export const handleClass = (summary: StepSummary, selected: boolean) =>
   cn('size-2.5! border-[1.5px]! bg-card!', selected ? summary.tone.handle : 'border-input!');
-
-export const ISSUE_MESSAGES: Record<StepIssue, MessageDescriptor> = {
-  'missing-command': blueprintMessages.missingCommand,
-  'empty-script': blueprintMessages.emptyScript,
-};

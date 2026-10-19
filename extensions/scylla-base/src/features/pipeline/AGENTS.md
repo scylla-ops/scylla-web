@@ -83,11 +83,17 @@ presentation/
     run-pipeline.svelte.ts                   the Run action, shared by the dashboard and the jobs route
     editor/                                  PipelineEditor + header (with the name field), script editor
       pipeline-script.state.svelte.ts        the editor's document: script text, baseline, dirty check
+      controls/                              Segmented.svelte, SearchField.svelte: the editor's controls
+      step/                                  the fields of one step, for every view that edits a step
+        step-draft.svelte.ts                 createStepDraft: the draft of a step, applied at each edit
+        step-kinds.ts                        icon and colours of each kind of step
+        step.messages.ts, step-issue-text.ts the strings of the fields and of the issues of a step
+        StepIdField, StepKindPicker, StepScriptField, StepCommandFields, StepWorkingDirField,
+        StepEnvFields                        one field (or one group of fields) each, on a StepDraft
       blueprint/                             the visual editor, one folder per responsibility
         PipelineBlueprint.svelte             wires the graph, the canvas, the side panel, the drag
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected step, add/insert/rename
         blueprint.messages.ts                the strings of the whole blueprint
-        step-kinds.ts                        icon and colours of each kind of step (canvas, catalog, panel)
         canvas/                              the canvas and what it draws
           BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte
           blueprint-canvas.context.ts        what the nodes and edges read from the canvas
@@ -103,11 +109,9 @@ presentation/
           palette-drag.state.svelte.ts       entry, pointer, spot, the canvas as a drop target
           palette-drag.attachments.ts        dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
           PaletteDragGhost.svelte            the dragged icon, in place of the pointer
-        controls/                            Segmented.svelte, SearchField.svelte: the blueprint's controls
         side-panel/                          palette (nothing inspected) / inspector of the inspected step
           side-panel-width.svelte.ts         the width of the panel per mode, remembered in localStorage
-          StepInspector/                     the inspector, step-inspector.state.svelte.ts (the draft
-                                             of the step, applied at each edit)
+          StepInspector/                     the inspector: the fields of step/, in two tabs
     dashboard/                               Dashboard, chart, table, pipeline table columns
       DashboardPipeline/                     the page, pipeline-dashboard.state.svelte.ts (its ViewModel)
   utils/
@@ -196,7 +200,7 @@ the page.
   cannot run yet: the inspector, the node and the document always show the same step, and
   `stepIssue` (no command, empty script) is shown on the node and in the inspector. Never hold
   an edit back: a held edit is lost when the panel closes. A rename is applied on blur or Enter
-  (`inspector.rename()` → `renameStep`), never per keystroke: the panel is keyed by the step id
+  (`draft.rename()` → `renameStep`), never per keystroke: the panel is keyed by the step id
   and rebuilds on a rename. The inspector keeps the id that `renameStep` returns, so a refused
   id does not stay typed.
 - **A link dropped on empty canvas opens `QuickAddMenu`** (`onconnectend`, `link: { after }`);
@@ -220,7 +224,8 @@ the page.
   full test coverage.
 - Largest module in the codebase — respect the ~150-line component rule. New editor UI goes in
   the folder of `ui/editor/blueprint/` that has its responsibility (`canvas/`, `catalog/`,
-  `palette-drag/`, `side-panel/`, `controls/`), new list UI in `ui/dashboard/pipeline-table/`.
+  `palette-drag/`, `side-panel/`), new list UI in `ui/dashboard/pipeline-table/`. A field of a
+  step goes in `ui/editor/step/`, a control of the editor in `ui/editor/controls/`.
   The root of `blueprint/` keeps only what the whole blueprint shares.
 - **`data-tour` attributes are anchors of the onboarding tour** (`pipelines` with `data-project-id`, `pipeline-editor`, `pipeline-submit`, and on each row
   `pipeline-history` / `pipeline-actions` / `pipeline-run` with `data-pipeline-id`,

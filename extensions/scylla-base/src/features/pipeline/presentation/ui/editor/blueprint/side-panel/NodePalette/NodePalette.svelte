@@ -12,7 +12,7 @@
     catalogText,
   } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/catalog.ts';
   import CatalogItem from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/CatalogItem.svelte';
-  import SearchField from '@base/features/pipeline/presentation/ui/editor/blueprint/controls/SearchField.svelte';
+  import SearchField from '@base/features/pipeline/presentation/ui/editor/controls/SearchField.svelte';
   import { dragToCanvas } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag/palette-drag.attachments.ts';
   import type { PaletteDrag } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag/palette-drag.state.svelte.ts';
 

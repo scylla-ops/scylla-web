@@ -28,8 +28,8 @@ const entryFrom = (row: EnvRow): EnvEntry =>
     ? { key: row.key, kind: 'secret', secretRef: row.secretRef }
     : { key: row.key, kind: 'literal', value: row.value };
 
-export interface StepInspectorParams {
-  /** Read once: the inspector is rebuilt for each step it opens on. */
+export interface StepDraftParams {
+  /** Read once: a draft is built again for another step. */
   step: PipelineStep;
   /** Called after each edit. */
   onChange: (value: StepDefinition) => void;
@@ -38,11 +38,11 @@ export interface StepInspectorParams {
 }
 
 /**
- * The draft of the selected step. Every edit is applied to the pipeline at once, so the
- * inspector, the node and the document always show the same step; `issue` says why it
- * cannot run yet. The id is applied on `rename()` only: a new id rebuilds the inspector.
+ * The draft of one step, edited by the blueprint's inspector and by the scripting view. Every
+ * edit is applied to the pipeline at once, so all the views and the document show the same
+ * step; `issue` says why it cannot run yet. The id is applied on `rename()` only.
  */
-export const createStepInspector = ({ step, onChange, onRename }: StepInspectorParams) => {
+export const createStepDraft = ({ step, onChange, onRename }: StepDraftParams) => {
   let id = $state(step.id);
   let mode = $state<PipelineStep['kind']>(step.kind);
   let script = $state(step.kind === 'script' ? step.script : '');
@@ -165,4 +165,4 @@ export const createStepInspector = ({ step, onChange, onRename }: StepInspectorP
   };
 };
 
-export type StepInspector = ReturnType<typeof createStepInspector>;
+export type StepDraft = ReturnType<typeof createStepDraft>;
