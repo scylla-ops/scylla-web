@@ -11,6 +11,7 @@ import {
   generateUniqueNodeId,
   stepOf,
   stepsToFlow,
+  waitsFor,
   type BlueprintEdge,
   type BlueprintNode,
   type BlueprintStepNode,
@@ -163,8 +164,14 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
       return inspected;
     },
 
-    /** Nothing may depend on the start node: it is the pipeline itself. */
-    canConnect: (connection: Connection) => connection.target !== START_NODE_ID,
+    /**
+     * Nothing may depend on the start node, which is the pipeline itself, and no link may close a
+     * loop: the source must not wait for the target already.
+     */
+    canConnect: ({ source, target }: Connection) =>
+      target !== START_NODE_ID &&
+      source !== target &&
+      !waitsFor(flowToSteps(nodes, edges), source, target),
 
     sync() {
       emit();
