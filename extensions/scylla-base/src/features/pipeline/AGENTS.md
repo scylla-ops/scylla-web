@@ -185,6 +185,10 @@ the page.
   is that rule; keep both the same. A refused id is shown on the node, in the inspector while it
   is typed (with `toNodeId`, the nearest valid id, as a suggestion), and stops the save before
   the server is called (`invalidStepIds`). It is applied like any edit, never held back.
+- **No loop of dependencies.** `blueprint.canConnect` refuses a link whose source already waits
+  for its target (`waitsFor`, `utils/blueprint-converter.ts`). A document typed by hand can
+  still hold a loop: every walk of the dependencies must end on one (`computeDepths` cuts the
+  loop where it closes).
 - **A detached step is shown, not fixed.** A step with no edge into it is linked to the start
   node on save (it has no `deps`). `blueprint.isDetached(id)` puts a warning on the node and in
   the inspector; the canvas does not add the edge itself.

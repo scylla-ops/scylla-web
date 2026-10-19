@@ -36,41 +36,51 @@ export const edgeBetween = (source: string, target: string): BlueprintEdge => ({
   ...DEFAULT_EDGE_STYLE,
 });
 
-/** The column of each node, by BFS from the roots. */
+/**
+ * The column of each node: how many steps run before it, on the longest path. A missing step
+ * adds no column. A loop, which only a document typed by hand can hold, is cut where it closes,
+ * so the walk ends.
+ */
 function computeDepths(steps: PipelineStep[]): Map<string, number> {
-  const depthMap = new Map<string, number>();
-  const childrenOf = new Map<string, string[]>();
+  const byId = new Map(steps.map(step => [step.id, step]));
+  const depths = new Map<string, number>();
+  const onPath = new Set<string>();
 
-  for (const step of steps) {
-    childrenOf.set(step.id, []);
-  }
-  for (const step of steps) {
+  const depthOf = (step: PipelineStep): number => {
+    const known = depths.get(step.id);
+    if (known !== undefined) return known;
+
+    onPath.add(step.id);
+    let depth = 0;
     for (const dep of step.deps) {
-      childrenOf.get(dep)?.push(step.id);
+      const parent = byId.get(dep);
+      if (parent && !onPath.has(dep)) depth = Math.max(depth, depthOf(parent) + 1);
     }
-  }
+    onPath.delete(step.id);
 
-  const roots = steps.filter(s => s.deps.length === 0);
-  const queue: { id: string; depth: number }[] = roots.map(r => ({ id: r.id, depth: 0 }));
+    depths.set(step.id, depth);
+    return depth;
+  };
 
-  while (queue.length > 0) {
-    const { id, depth } = queue.shift()!;
-    const current = depthMap.get(id);
-    if (current !== undefined && current >= depth) continue;
-    depthMap.set(id, depth);
-    for (const child of childrenOf.get(id) ?? []) {
-      queue.push({ id: child, depth: depth + 1 });
-    }
-  }
-
-  for (const step of steps) {
-    if (!depthMap.has(step.id)) {
-      depthMap.set(step.id, 0);
-    }
-  }
-
-  return depthMap;
+  for (const step of steps) depthOf(step);
+  return depths;
 }
+
+/** True when `id` waits for `other`, directly or through other steps. */
+export const waitsFor = (steps: PipelineStep[], id: string, other: string): boolean => {
+  const depsOf = new Map(steps.map(step => [step.id, step.deps]));
+  const seen = new Set<string>();
+  const pending = [...(depsOf.get(id) ?? [])];
+
+  while (pending.length) {
+    const next = pending.pop()!;
+    if (next === other) return true;
+    if (seen.has(next)) continue;
+    seen.add(next);
+    pending.push(...(depsOf.get(next) ?? []));
+  }
+  return false;
+};
 
 /** Deduplicates ids, removes self-deps and deps to missing nodes. */
 export function sanitizeSteps(steps: PipelineStep[]): PipelineStep[] {

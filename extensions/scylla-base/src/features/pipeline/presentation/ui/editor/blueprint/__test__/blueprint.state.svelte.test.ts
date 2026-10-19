@@ -65,6 +65,14 @@ describe('createBlueprintState', () => {
     });
   });
 
+  it('refuses an edge that closes a loop', () => {
+    withState([execStep('build'), execStep('test', ['build'])], state => {
+      expect(state.canConnect({ source: 'test', target: 'build' } as never)).toBe(false);
+      expect(state.canConnect({ source: 'build', target: 'build' } as never)).toBe(false);
+      expect(state.canConnect({ source: 'build', target: 'test' } as never)).toBe(true);
+    });
+  });
+
   it('adds a step with a unique id and publishes it', () => {
     withState([execStep('build')], (state, onStepsChange) => {
       state.addNode('build', { kind: 'exec', command: 'make', args: [], env: [] });

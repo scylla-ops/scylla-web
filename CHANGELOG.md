@@ -21,6 +21,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   mount the owner's content. A widget injection does not change.
 - A repository calls its gRPC client directly. The data source layer between them is removed.
 
+### Fixed
+
+- The pipeline editor no longer freezes on a loop of dependencies. The blueprint refuses a link
+  that closes a loop.
+
 ## [0.5.0] - 2026-10-12
 
 ### Added
