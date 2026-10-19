@@ -81,7 +81,8 @@ presentation/
   ui/
     *.page.svelte                            Pages (dashboard, creation, update, jobs route)
     run-pipeline.svelte.ts                   the Run action, shared by the dashboard and the jobs route
-    editor/                                  PipelineEditor + header (with the name field), script editor
+    editor/                                  PipelineEditor + header (with the name field), the
+                                             CodeMirror binding (script-editor.svelte.ts)
       pipeline-script.state.svelte.ts        the editor's document: script text, baseline, dirty check
       controls/                              Segmented.svelte, SearchField.svelte: the editor's controls
       step/                                  the fields of one step, for every view that edits a step
@@ -90,6 +91,17 @@ presentation/
         step.messages.ts, step-issue-text.ts the strings of the fields and of the issues of a step
         StepIdField, StepKindPicker, StepScriptField, StepCommandFields, StepWorkingDirField,
         StepEnvFields                        one field (or one group of fields) each, on a StepDraft
+      scripting/                             the scripting tab: the jobs one by one, or the full document
+        PipelineScripting/                   the two views as tabs (and its test, its fixture)
+        scripting.state.svelte.ts            ViewModel: mode, add/remove/rename, deps, the panes, the drafts
+        job-panes.svelte.ts                  the open jobs: one or two panes, their tabs, the focus
+        job-drafts.svelte.ts                 one StepDraft per job, shared by its panes and its properties
+        JobsView.svelte                      the list, the panes, the properties of the focused job
+        JobList/                             the jobs in the order they run (job-list.calculator.ts)
+        JobPane/                             the tabs of a pane and the editor of its job
+        JobProperties/                       id, kind, folder, dependencies, environment of a job
+        DocumentView.svelte                  the JSON text, with Copy all
+        scripting.messages.ts, copy-to-clipboard.ts
       blueprint/                             the visual editor, one folder per responsibility
         PipelineBlueprint.svelte             wires the graph, the canvas, the side panel, the drag
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected step, add/insert/rename
@@ -162,6 +174,23 @@ the page.
   a click on the empty canvas closes it. Nothing inspected: the palette. A step: its inspector.
   The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
   xyflow's and is not the panel's state.
+- **The scripting tab edits the document, never a copy.** `createScriptingState` reads
+  `doc.steps` and writes `doc.setSteps(...)` with the operations of `utils/pipeline-steps.ts`,
+  as the blueprint does. The jobs are views of the document, not files. A document that does
+  not parse shows the full document only: the "By job" tab is disabled.
+- **One draft per job** (`job-drafts.svelte.ts`). The panes that show a job and its properties
+  panel share it, or each would write its own copy and undo the other's edits. A job that the
+  document changed from elsewhere (the full document, the blueprint) gets a new draft: its
+  signature (`definitionOf`) no longer matches what the draft wrote. Each draft is built in its
+  own `$effect.root`: its deriveds must outlive the component that asked for it first, which a
+  rename or a new tab mounts again.
+- **Two panes at most** (`job-panes.svelte.ts`). A job can be open in both. The properties panel
+  shows the job of the focused pane. The tabs of a job that leaves the document are dropped
+  (derived, no effect); a rename follows in the tabs (`panes.rename`, called before the
+  document changes). Each pane mounts one editor per job (`{#key step.id}`), so two jobs do
+  not share an undo history.
+- **The dependency picker offers `dependencyCandidates` only**: the rule of `canConnect` (see
+  "No loop of dependencies"), so a pick cannot make a loop.
 - **The pipeline name is edited in the header** (`PipelineNameField`), never in the panel: it is
   the name of the whole document. The start node opens nothing.
 - **The side panel is a `ResizablePanel`** (`@scylla/ui`). The palette and the inspector each

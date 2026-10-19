@@ -92,6 +92,25 @@ a per-browser convenience, kept in `localStorage`. Styles are a registry
 (`canvas/nodes/node-appearances.ts`), so a new one is a view of a step, a view of the start node and
 one entry — the canvas, the switch and the layout do not change.
 
+### The scripting tab: one job at a time
+
+The script used to be one large JSON text: a shell script was a JSON string, with `\n` and
+`\"` in it, and a pipeline of ten jobs was hundreds of lines to scroll. The scripting tab now
+has two views of the same document:
+
+- **By job** (the default): the list of the jobs in the order they run, an editor for the open
+  job, and its properties. A script is edited as shell code; a command, which runs with no
+  shell, as a form. Two jobs can be open side by side, as in an IDE.
+- **Full document**: the JSON text, as it is saved, to copy a whole pipeline or paste one.
+
+The jobs are views, not files: every edit goes back to the one document, as the blueprint does,
+and the document stays what is saved. A document that does not parse has no jobs to show, so
+the tab shows its text until it is fixed.
+
+A job has one draft (`job-drafts.svelte.ts`), shared by the panes that show it and by its
+properties: two drafts of one job would each write their own copy and undo the other's edits.
+The draft is built again only when the document changes the job from elsewhere.
+
 The script side is CodeMirror 6, mounted with the `renderCodeMirror` attachment of `@scylla/ui`. `pipeline-script.state.svelte.ts` holds `script` and `initialScript`: the draft text
 and the baseline for the dirty check. That is UI state hosted in a ViewModel, and it stays there
 — the *saved* pipeline stays in TanStack Query.
