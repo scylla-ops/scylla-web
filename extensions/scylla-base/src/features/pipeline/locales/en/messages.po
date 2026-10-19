@@ -39,9 +39,17 @@ msgstr "A POSIX shell script"
 msgid "Actions"
 msgstr "Actions"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:12
+msgid "Actions of {id}"
+msgstr "Actions of {id}"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:23
 msgid "add"
 msgstr "add"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:28
+msgid "Add a dependency"
+msgstr "Add a dependency"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:19
 msgid "Add a step"
@@ -87,6 +95,10 @@ msgstr "Bash script"
 msgid "Blueprint"
 msgstr "Blueprint"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:5
+msgid "By job"
+msgstr "By job"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:24
 msgid "cancel"
 msgstr "cancel"
@@ -95,9 +107,17 @@ msgstr "cancel"
 msgid "Close"
 msgstr "Close"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:16
+msgid "Close {id}"
+msgstr "Close {id}"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:25
 msgid "Close the menu"
 msgstr "Close the menu"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:18
+msgid "Close the pane"
+msgstr "Close the pane"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:36
 msgid "Close the panel"
@@ -116,6 +136,18 @@ msgstr "command"
 msgid "Command"
 msgstr "Command"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:23
+msgid "Copied to the clipboard."
+msgstr "Copied to the clipboard."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:22
+msgid "Copy all"
+msgstr "Copy all"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:20
+msgid "Copy the job"
+msgstr "Copy the job"
+
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:29
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:41
 msgid "Create"
@@ -133,9 +165,17 @@ msgstr "Creation:"
 msgid "Delete edge"
 msgstr "Delete edge"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:14
+msgid "Delete the job"
+msgstr "Delete the job"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:38
 msgid "Delete the step"
 msgstr "Delete the step"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:27
+msgid "Dependencies"
+msgstr "Dependencies"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:29
 msgid "Detailed"
@@ -202,6 +242,10 @@ msgstr "Finished {time}"
 msgid "Fix the ID of these steps before you save: {ids}"
 msgstr "Fix the ID of these steps before you save: {ids}"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:6
+msgid "Full document"
+msgstr "Full document"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:18
 msgid "History"
 msgstr "History"
@@ -218,7 +262,12 @@ msgstr "Invalid JSON"
 msgid "Invalid step ID"
 msgstr "Invalid step ID"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:26
+msgid "Job properties"
+msgstr "Job properties"
+
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:49
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:8
 msgid "Jobs"
 msgstr "Jobs"
 
@@ -245,6 +294,10 @@ msgstr "Members"
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:22
 msgid "navigate"
 msgstr "navigate"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:9
+msgid "New job"
+msgstr "New job"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:11
 msgid "New pipeline"
@@ -278,9 +331,17 @@ msgstr "Nodes"
 msgid "One program and its arguments"
 msgstr "One program and its arguments"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:19
+msgid "Open a job from the list."
+msgstr "Open a job from the list."
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:34
 msgid "Open the last run"
 msgstr "Open the last run"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:13
+msgid "Open to the side"
+msgstr "Open to the side"
 
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:36
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:47
@@ -308,9 +369,17 @@ msgstr "Reference a secret"
 msgid "Remove argument"
 msgstr "Remove argument"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:29
+msgid "Remove the dependency on {id}"
+msgstr "Remove the dependency on {id}"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:80
 msgid "Remove variable"
 msgstr "Remove variable"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:30
+msgid "Required by"
+msgstr "Required by"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:23
 msgid "Run"
@@ -335,6 +404,10 @@ msgstr "Saving…"
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:62
 msgid "Script"
 msgstr "Script"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:4
+msgid "Script view"
+msgstr "Script view"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:46
 msgid "Scripting"
@@ -372,6 +445,10 @@ msgstr "Shell"
 msgid "Simplified"
 msgstr "Simplified"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:17
+msgid "Split the editor"
+msgstr "Split the editor"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:36
 msgid "Started {time}"
 msgstr "Started {time}"
@@ -400,6 +477,14 @@ msgstr "Suggested ID"
 msgid "Templates"
 msgstr "Templates"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:24
+msgid "The browser did not let the page write to the clipboard."
+msgstr "The browser did not let the page write to the clipboard."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:21
+msgid "The line that runs"
+msgstr "The line that runs"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:59
 msgid "The name cannot contain spaces."
 msgstr "The name cannot contain spaces."
@@ -419,6 +504,14 @@ msgstr "The step ID cannot contain {characters}. Use only lowercase letters (a-z
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/step/step.messages.ts:13
 msgid "The step ID has {length} characters. The maximum is 128."
 msgstr "The step ID has {length} characters. The maximum is 128."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:11
+msgid "This job cannot run as it is."
+msgstr "This job cannot run as it is."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:10
+msgid "This pipeline has no job yet."
+msgstr "This pipeline has no job yet."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:41
 msgid "This step has no input link. On save, it is linked to the start of the pipeline."
