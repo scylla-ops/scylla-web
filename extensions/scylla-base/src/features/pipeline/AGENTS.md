@@ -116,7 +116,8 @@ presentation/
       DashboardPipeline/                     the page, pipeline-dashboard.state.svelte.ts (its ViewModel)
   utils/
     blueprint-converter.ts                   Graph ↔ PipelineStep[] (pure, TS only, tested)
-    pipeline-steps.ts                        operations on PipelineStep[]: depths, waitsFor (pure, tested)
+    pipeline-steps.ts                        operations on PipelineStep[]: depths, waitsFor, add,
+                                             rename, remove, deps (pure, tested)
     node-catalog.ts                          catalog entry type, search, grouping (pure)
     step-summary.ts                          one-line preview and the issue of a step
     create-default-script.ts

@@ -1,13 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import type { StepDefinition } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import {
-  envCounts,
-  nodeIdIssue,
-  stepIssue,
-  stepPreview,
-  toNodeId,
-} from '../step-summary.ts';
+import { envCounts, nodeIdIssue, stepIssue, stepPreview, toNodeId } from '../step-summary.ts';
 
 const script = (body: string): StepDefinition => ({
   kind: 'script',
@@ -104,6 +98,7 @@ describe('toNodeId', () => {
   });
 
   it('gives an id that has no issue', () => {
-    for (const raw of ['Ça va', '__x__', 'A/B\\C', '  ']) expect(nodeIdIssue(toNodeId(raw))).toBeNull();
+    for (const raw of ['Ça va', '__x__', 'A/B\\C', '  '])
+      expect(nodeIdIssue(toNodeId(raw))).toBeNull();
   });
 });

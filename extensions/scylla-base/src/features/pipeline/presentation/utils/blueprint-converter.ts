@@ -141,17 +141,3 @@ export function flowToSteps(nodes: BlueprintNode[], edges: BlueprintEdge[]): Pip
     return [{ id: step.id, deps: depsOf(edges, node.id), ...definitionOf(step) }];
   });
 }
-
-/** `exclude` is the node's own id when renaming it. */
-export function generateUniqueNodeId(
-  desired: string,
-  existingIds: Set<string>,
-  excludeId?: string,
-): string {
-  const ids = new Set(existingIds);
-  if (excludeId) ids.delete(excludeId);
-  if (!ids.has(desired)) return desired;
-  let i = 1;
-  while (ids.has(`${desired}_${i}`)) i++;
-  return `${desired}_${i}`;
-}
