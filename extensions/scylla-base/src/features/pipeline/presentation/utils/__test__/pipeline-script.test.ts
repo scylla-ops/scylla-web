@@ -42,21 +42,11 @@ describe('nameOf', () => {
 describe('stepsOf', () => {
   it('reads a fully specified step', () => {
     const steps = stepsOf(
-      documentOf({
-        nodes: [{ id: 'build', deps: [], kind: 'exec', command: 'make', args: ['build'] }],
-      }),
+      documentOf({ nodes: [{ id: 'build', deps: [], kind: 'exec', command: 'make', args: ['build'] }] }),
     );
 
     expect(steps).toEqual([
-      {
-        id: 'build',
-        deps: [],
-        workingDir: undefined,
-        env: [],
-        kind: 'exec',
-        command: 'make',
-        args: ['build'],
-      },
+      { id: 'build', deps: [], workingDir: undefined, env: [], kind: 'exec', command: 'make', args: ['build'] },
     ]);
   });
 
@@ -106,9 +96,7 @@ describe('stepsOf', () => {
 
   describe('env parsing', () => {
     it('tolerates a literal entry missing its value', () => {
-      const [step] = stepsOf(
-        documentOf({ nodes: [{ id: 'a', command: 'x', env: [{ key: 'K' }] }] }),
-      );
+      const [step] = stepsOf(documentOf({ nodes: [{ id: 'a', command: 'x', env: [{ key: 'K' }] }] }));
       expect(step.env).toEqual([{ key: 'K', kind: 'literal', value: '' }]);
     });
 
