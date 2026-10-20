@@ -10,8 +10,9 @@ const MAX_PANES = 2;
 const emptyPane = (): JobPane => ({ tabs: [], active: null });
 
 /**
- * The open jobs of the scripting view. The panes are derived from the ids of the document, so
- * the tabs of a removed job go away with it. Until a job is opened, the first one is shown.
+ * The open jobs of the scripting view. The panes are derived from the job ids, in the order the
+ * list shows them, so the tabs of a removed job go away with it. Until a job is opened, the first
+ * one of the list is shown.
  */
 export const createJobPanes = (ids: () => string[]) => {
   let panes = $state<JobPane[]>([emptyPane()]);
@@ -68,6 +69,11 @@ export const createJobPanes = (ids: () => string[]) => {
     },
 
     open,
+
+    /** Keeps the jobs shown now: a later change of the list order does not move them. */
+    pin() {
+      write(snapshot(), focusedIndex);
+    },
 
     /** Opens the job in the other pane, which is created when there is one pane only. */
     openToSide(id: string) {

@@ -188,8 +188,9 @@ the page.
   rename or a new tab mounts again. Because
   the roots have no component owner, `draftOf` prunes the drafts of the jobs that left the
   document, and `PipelineScripting` calls `dispose()` when it unmounts.
-- **Two panes at most** (`job-panes.svelte.ts`). A job can be open in both. The properties panel
-  shows the job of the focused pane. The tabs of a job that leaves the document are dropped
+- **Two panes at most** (`job-panes.svelte.ts`). A job can be open in both. It takes the ids in
+  the order of the list (`jobRows`, run order), so the first job opened is the first of the list.
+  The properties panel shows the job of the focused pane. The tabs of a job that leaves the document are dropped
   (derived, no effect); a rename follows in the tabs (`panes.rename`, called before the
   document changes). Each pane mounts one editor per job (`{#key step.id}`), so two jobs do
   not share an undo history.

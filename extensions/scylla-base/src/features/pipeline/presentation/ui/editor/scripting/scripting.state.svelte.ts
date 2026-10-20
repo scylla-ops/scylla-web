@@ -14,6 +14,7 @@ import {
 } from '@base/features/pipeline/presentation/utils/pipeline-steps.ts';
 import { createJobDrafts } from './job-drafts.svelte.ts';
 import { createJobPanes } from './job-panes.svelte.ts';
+import { jobRows } from './JobList/job-list.calculator.ts';
 
 export interface ScriptingStateParams {
   /** Getters: the editor's document changes. */
@@ -40,7 +41,7 @@ export const createScriptingState = (params: ScriptingStateParams) => {
   const canShowJobs = $derived(params.isValid() && !hasRepeats(params.steps()));
   const mode = $derived<ScriptingMode>(canShowJobs ? chosenMode : 'document');
 
-  const panes = createJobPanes(() => params.steps().map(step => step.id));
+  const panes = createJobPanes(() => jobRows(params.steps()).map(({ step }) => step.id));
 
   const stepOf = (id: string | null) => params.steps().find(step => step.id === id);
 
@@ -100,6 +101,7 @@ export const createScriptingState = (params: ScriptingStateParams) => {
     },
 
     setDependencies(id: string, deps: string[]) {
+      panes.pin();
       params.onStepsChange(setDependencies(params.steps(), id, deps));
     },
 

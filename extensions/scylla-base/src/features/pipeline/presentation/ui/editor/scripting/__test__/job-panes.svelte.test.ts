@@ -26,6 +26,21 @@ describe('createJobPanes', () => {
     });
   });
 
+  it('shows the first job of the ids it is given, so the list order decides', () => {
+    withPanes(['build', 'test'], (panes, setIds) => {
+      setIds(['test', 'build']);
+      expect(panes.focusedJob).toBe('test');
+    });
+  });
+
+  it('keeps the shown job when the order of the ids changes after a pin', () => {
+    withPanes(['a', 'b'], (panes, setIds) => {
+      panes.pin();
+      setIds(['b', 'a']);
+      expect(panes.panes).toEqual([{ tabs: ['a'], active: 'a' }]);
+    });
+  });
+
   it('adds a tab to the focused pane and keeps the first job open', () => {
     withPanes(['build', 'test'], panes => {
       panes.open('test');

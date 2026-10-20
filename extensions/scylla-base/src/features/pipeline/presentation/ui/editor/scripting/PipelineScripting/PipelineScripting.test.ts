@@ -45,6 +45,21 @@ describe('PipelineScripting', () => {
     expect(screen.getByRole('complementary', { name: 'Job properties' })).toBeInTheDocument();
   });
 
+  it('opens the first job of the list, not the first of the document', () => {
+    renderScripting(
+      JSON.stringify({
+        name: 'web',
+        nodes: [
+          { id: 'test', deps: ['build'], kind: 'script', shell: 'bash', script: '', env: [] },
+          { id: 'build', deps: [], kind: 'script', shell: 'bash', script: '', env: [] },
+        ],
+      }),
+    );
+
+    expect(screen.getByRole('tab', { name: 'build', selected: true })).toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'test' })).not.toBeInTheDocument();
+  });
+
   it('shows the full document, and no jobs, while the JSON does not parse', () => {
     renderScripting('{ "nodes": [');
 
