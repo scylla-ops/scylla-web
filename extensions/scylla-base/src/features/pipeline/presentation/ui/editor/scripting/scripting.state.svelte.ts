@@ -6,6 +6,7 @@ import {
   addStep,
   dependencyCandidates,
   dependentsOf,
+  hasRepeats,
   removeStep,
   renameStep,
   setDependencies,
@@ -31,11 +32,13 @@ const NEW_JOB: StepDefinition = { kind: 'script', shell: 'bash', script: '', env
 /**
  * The scripting tab. The document stays the single source of truth: every edit of a job goes
  * back to it as steps, as the blueprint does. A document that does not parse has no jobs to
- * show: the tab shows the text, so that it can be fixed.
+ * show: the tab shows the text, so that it can be fixed. So does a document with a repeated job id
+ * or dependency: the views key the jobs by id.
  */
 export const createScriptingState = (params: ScriptingStateParams) => {
   let chosenMode = $state<ScriptingMode>('jobs');
-  const mode = $derived<ScriptingMode>(params.isValid() ? chosenMode : 'document');
+  const canShowJobs = $derived(params.isValid() && !hasRepeats(params.steps()));
+  const mode = $derived<ScriptingMode>(canShowJobs ? chosenMode : 'document');
 
   const panes = createJobPanes(() => params.steps().map(step => step.id));
 
@@ -65,7 +68,7 @@ export const createScriptingState = (params: ScriptingStateParams) => {
       chosenMode = next;
     },
     get canShowJobs() {
-      return params.isValid();
+      return canShowJobs;
     },
     get steps() {
       return params.steps();

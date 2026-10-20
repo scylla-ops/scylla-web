@@ -52,6 +52,29 @@ describe('PipelineScripting', () => {
     expect(screen.getByRole('tab', { name: 'Full document', selected: true })).toBeInTheDocument();
   });
 
+  it.each([
+    ['two jobs share an id', [{ id: 'a' }, { id: 'a' }]],
+    ['a job lists a dependency twice', [{ id: 'a' }, { id: 'b', deps: ['a', 'a'] }]],
+  ])('shows the full document, and renders no job, when %s', (_, nodes) => {
+    renderScripting(JSON.stringify({ name: 'web', nodes }));
+
+    expect(screen.getByRole('tab', { name: 'By job' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'Full document', selected: true })).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Jobs' })).not.toBeInTheDocument();
+  });
+
+  it('falls back to the full document when an edit of the text repeats a job id', async () => {
+    const doc = renderScripting();
+    expect(screen.getByRole('navigation', { name: 'Jobs' })).toBeInTheDocument();
+
+    doc().setScript(JSON.stringify({ name: 'web', nodes: [{ id: 'build' }, { id: 'build' }] }));
+
+    expect(
+      await screen.findByRole('tab', { name: 'Full document', selected: true }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Jobs' })).not.toBeInTheDocument();
+  });
+
   it('opens a command job as a form, with the line that runs', async () => {
     const user = userEvent.setup();
     renderScripting();

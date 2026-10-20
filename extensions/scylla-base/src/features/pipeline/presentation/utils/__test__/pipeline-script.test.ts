@@ -84,6 +84,26 @@ describe('stepsOf', () => {
     });
   });
 
+  describe('ids and dependencies that are not strings', () => {
+    it('reads a non-string id as empty, so that the step is refused instead of crashing', () => {
+      expect(stepsOf(documentOf({ nodes: [{ id: 7, deps: [] }] }))[0].id).toBe('');
+    });
+
+    it('keeps only the string dependencies, and none for a non-array', () => {
+      const [step, other] = stepsOf(
+        documentOf({
+          nodes: [
+            { id: 'a', deps: ['x', 1, null] },
+            { id: 'b', deps: 'x' },
+          ],
+        }),
+      );
+
+      expect(step.deps).toEqual(['x']);
+      expect(other.deps).toEqual([]);
+    });
+  });
+
   describe('env parsing', () => {
     it('tolerates a literal entry missing its value', () => {
       const [step] = stepsOf(

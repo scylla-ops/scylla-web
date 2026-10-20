@@ -25,6 +25,11 @@ export function generateUniqueNodeId(
 
 const idsOf = (steps: PipelineStep[]) => new Set(steps.map(step => step.id));
 
+/** A repeated id or a repeated dependency: the steps cannot be keyed by id. */
+export const hasRepeats = (steps: PipelineStep[]): boolean =>
+  idsOf(steps).size < steps.length ||
+  steps.some(step => new Set(step.deps).size < step.deps.length);
+
 /** Adds a step at the end. A taken id gets a suffix; `after` is the step it waits for. */
 export const addStep = (
   steps: PipelineStep[],

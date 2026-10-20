@@ -14,11 +14,14 @@ const document = JSON.stringify({
   ],
 });
 
-const withScripting = (run: (scripting: ScriptingState, doc: PipelineScript) => void) => {
+const withScripting = (
+  run: (scripting: ScriptingState, doc: PipelineScript) => void,
+  initialScript = document,
+) => {
   const cleanup = $effect.root(() => {
     const doc = createPipelineScript({
       projectId: () => 'project-1',
-      initialScript: () => document,
+      initialScript: () => initialScript,
     });
     const scripting = createScriptingState({
       steps: () => doc.steps,
@@ -49,6 +52,19 @@ describe('createScriptingState', () => {
       expect(scripting.canShowJobs).toBe(false);
       expect(scripting.mode).toBe('document');
     });
+  });
+
+  it.each([
+    ['two jobs share an id', [{ id: 'a' }, { id: 'a' }]],
+    ['a job lists a dependency twice', [{ id: 'a' }, { id: 'b', deps: ['a', 'a'] }]],
+  ])('shows the full document, not the jobs, when %s', (_, nodes) => {
+    withScripting(
+      scripting => {
+        expect(scripting.canShowJobs).toBe(false);
+        expect(scripting.mode).toBe('document');
+      },
+      JSON.stringify({ name: 'web', nodes }),
+    );
   });
 
   it('writes an edit of a job to the document', () => {

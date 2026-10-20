@@ -10,6 +10,7 @@ import {
   dependencyCandidates,
   dependentsOf,
   generateUniqueNodeId,
+  hasRepeats,
   removeStep,
   renameStep,
   setDependencies,
@@ -164,5 +165,28 @@ describe('generateUniqueNodeId', () => {
 
   it('excludes the node being renamed, so renaming to its own current id is a no-op', () => {
     expect(generateUniqueNodeId('build', new Set(['build']), 'build')).toBe('build');
+  });
+});
+
+describe('hasRepeats', () => {
+  const step = (id: string, deps: string[] = []): PipelineStep => ({
+    id,
+    deps,
+    kind: 'script',
+    shell: 'sh',
+    script: '',
+    env: [],
+  });
+
+  it('is false for steps with distinct ids and distinct dependencies', () => {
+    expect(hasRepeats([step('a'), step('b', ['a'])])).toBe(false);
+  });
+
+  it('is true when two steps share an id', () => {
+    expect(hasRepeats([step('a'), step('a')])).toBe(true);
+  });
+
+  it('is true when a step lists a dependency twice', () => {
+    expect(hasRepeats([step('a'), step('b', ['a', 'a'])])).toBe(true);
   });
 });

@@ -35,7 +35,9 @@
   </TabsList>
 
   <TabsContent value="jobs" class="min-h-0 flex-1">
-    <JobsView {scripting} {projectId} />
+    {#if scripting.canShowJobs}
+      <JobsView {scripting} {projectId} />
+    {/if}
   </TabsContent>
   <TabsContent value="document" class="min-h-0 flex-1">
     <DocumentView {doc} />
