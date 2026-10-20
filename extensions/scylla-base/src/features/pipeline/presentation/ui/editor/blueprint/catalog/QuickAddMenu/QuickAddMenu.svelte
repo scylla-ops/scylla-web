@@ -11,7 +11,7 @@
   import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
   import { CATALOG_GROUP_TITLES } from '../catalog.ts';
   import CatalogItem from '../CatalogItem.svelte';
-  import SearchField from '@base/features/pipeline/presentation/ui/editor/blueprint/controls/SearchField.svelte';
+  import SearchField from '@base/features/pipeline/presentation/ui/editor/controls/SearchField.svelte';
 
   interface Props {
     quickAdd: QuickAdd;

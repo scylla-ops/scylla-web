@@ -10,6 +10,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+### Added
+
+- The scripting tab of the pipeline editor shows the jobs one by one: a list of the jobs, the
+  script of a job as shell code (with no JSON escapes), and its properties. Two jobs can be open
+  side by side. The full JSON document stays available, to copy and paste.
+
 ### Changed
 
 - **Breaking:** Code that touches an element is an attachment (`{@attach}`), not a Svelte

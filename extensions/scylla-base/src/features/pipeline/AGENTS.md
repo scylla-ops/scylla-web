@@ -81,13 +81,31 @@ presentation/
   ui/
     *.page.svelte                            Pages (dashboard, creation, update, jobs route)
     run-pipeline.svelte.ts                   the Run action, shared by the dashboard and the jobs route
-    editor/                                  PipelineEditor + header (with the name field), script editor
+    editor/                                  PipelineEditor + header (with the name field), the
+                                             CodeMirror binding (script-editor.svelte.ts)
       pipeline-script.state.svelte.ts        the editor's document: script text, baseline, dirty check
+      controls/                              Segmented.svelte, SearchField.svelte: the editor's controls
+      step/                                  the fields of one step, for every view that edits a step
+        step-draft.svelte.ts                 createStepDraft: the draft of a step, applied at each edit
+        step-kinds.ts                        icon and colours of each kind of step
+        step.messages.ts, step-issue-text.ts the strings of the fields and of the issues of a step
+        StepIdField, StepKindPicker, StepScriptField, StepCommandFields, StepWorkingDirField,
+        StepEnvFields                        one field (or one group of fields) each, on a StepDraft
+      scripting/                             the scripting tab: the jobs one by one, or the full document
+        PipelineScripting/                   the two views as tabs (and its test, its fixture)
+        pipeline-scripting.state.svelte.ts ViewModel: mode, add/remove/rename, deps, the panes, the drafts
+        job-panes.svelte.ts                  the open jobs: one or two panes, their tabs, the focus
+        job-drafts.svelte.ts                 one StepDraft per job, shared by its panes and its properties
+        JobsView.svelte                      the list, the panes, the properties of the focused job
+        JobList/                             the jobs in the order they run (job-list.calculator.ts)
+        JobPane/                             the tabs of a pane and the editor of its job
+        JobProperties/                       id, kind, folder, dependencies, environment of a job
+        DocumentView.svelte                  the JSON text, with Copy all
+        scripting.messages.ts, copy-to-clipboard.ts
       blueprint/                             the visual editor, one folder per responsibility
         PipelineBlueprint.svelte             wires the graph, the canvas, the side panel, the drag
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected step, add/insert/rename
         blueprint.messages.ts                the strings of the whole blueprint
-        step-kinds.ts                        icon and colours of each kind of step (canvas, catalog, panel)
         canvas/                              the canvas and what it draws
           BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte
           blueprint-canvas.context.ts        what the nodes and edges read from the canvas
@@ -103,15 +121,15 @@ presentation/
           palette-drag.state.svelte.ts       entry, pointer, spot, the canvas as a drop target
           palette-drag.attachments.ts        dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
           PaletteDragGhost.svelte            the dragged icon, in place of the pointer
-        controls/                            Segmented.svelte, SearchField.svelte: the blueprint's controls
         side-panel/                          palette (nothing inspected) / inspector of the inspected step
           side-panel-width.svelte.ts         the width of the panel per mode, remembered in localStorage
-          StepInspector/                     the inspector, step-inspector.state.svelte.ts (the draft
-                                             of the step, applied at each edit)
+          StepInspector/                     the inspector: the fields of step/, in two tabs
     dashboard/                               Dashboard, chart, table, pipeline table columns
       DashboardPipeline/                     the page, pipeline-dashboard.state.svelte.ts (its ViewModel)
   utils/
     blueprint-converter.ts                   Graph ↔ PipelineStep[] (pure, TS only, tested)
+    pipeline-steps.ts                        operations on PipelineStep[]: depths, waitsFor, add,
+                                             rename, remove, deps (pure, tested)
     node-catalog.ts                          catalog entry type, search, grouping (pure)
     step-summary.ts                          one-line preview and the issue of a step
     create-default-script.ts
@@ -156,6 +174,28 @@ the page.
   a click on the empty canvas closes it. Nothing inspected: the palette. A step: its inspector.
   The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
   xyflow's and is not the panel's state.
+- **The scripting tab edits the document, never a copy.** `createPipelineScriptingState` reads
+  `doc.steps` and writes `doc.setSteps(...)` with the operations of `utils/pipeline-steps.ts`,
+  as the blueprint does. The jobs are views of the document, not files. A document that does
+  not parse, or that repeats a job id or a dependency (`hasRepeats`), shows the full document
+  only: the "By job" tab is disabled and `JobsView` is not rendered, since its lists are keyed by
+  id. The text is never rewritten to remove the repeat.
+- **One draft per job** (`job-drafts.svelte.ts`). The panes that show a job and its properties
+  panel share it, or each would write its own copy and undo the other's edits. A job that the
+  document changed from elsewhere (the full document, the blueprint) gets a new draft: its
+  signature (`definitionOf`) no longer matches what the draft wrote. Each draft is built in its
+  own `$effect.root`: its deriveds must outlive the component that asked for it first, which a
+  rename or a new tab mounts again. Because
+  the roots have no component owner, `draftOf` prunes the drafts of the jobs that left the
+  document, and `PipelineScripting` calls `dispose()` when it unmounts.
+- **Two panes at most** (`job-panes.svelte.ts`). A job can be open in both. It takes the ids in
+  the order of the list (`jobRows`, run order), so the first job opened is the first of the list.
+  The properties panel shows the job of the focused pane. The tabs of a job that leaves the document are dropped
+  (derived, no effect); a rename follows in the tabs (`panes.rename`, called before the
+  document changes). Each pane mounts one editor per job (`{#key step.id}`), so two jobs do
+  not share an undo history.
+- **The dependency picker offers `dependencyCandidates` only**: the rule of `canConnect` (see
+  "No loop of dependencies"), so a pick cannot make a loop.
 - **The pipeline name is edited in the header** (`PipelineNameField`), never in the panel: it is
   the name of the whole document. The start node opens nothing.
 - **The side panel is a `ResizablePanel`** (`@scylla/ui`). The palette and the inspector each
@@ -186,8 +226,8 @@ the page.
   is typed (with `toNodeId`, the nearest valid id, as a suggestion), and stops the save before
   the server is called (`invalidStepIds`). It is applied like any edit, never held back.
 - **No loop of dependencies.** `blueprint.canConnect` refuses a link whose source already waits
-  for its target (`waitsFor`, `utils/blueprint-converter.ts`). A document typed by hand can
-  still hold a loop: every walk of the dependencies must end on one (`computeDepths` cuts the
+  for its target (`waitsFor`, `utils/pipeline-steps.ts`). A document typed by hand can
+  still hold a loop: every walk of the dependencies must end on one (`stepDepths` cuts the
   loop where it closes).
 - **A detached step is shown, not fixed.** A step with no edge into it is linked to the start
   node on save (it has no `deps`). `blueprint.isDetached(id)` puts a warning on the node and in
@@ -196,7 +236,7 @@ the page.
   cannot run yet: the inspector, the node and the document always show the same step, and
   `stepIssue` (no command, empty script) is shown on the node and in the inspector. Never hold
   an edit back: a held edit is lost when the panel closes. A rename is applied on blur or Enter
-  (`inspector.rename()` → `renameStep`), never per keystroke: the panel is keyed by the step id
+  (`draft.rename()` → `renameStep`), never per keystroke: the panel is keyed by the step id
   and rebuilds on a rename. The inspector keeps the id that `renameStep` returns, so a refused
   id does not stay typed.
 - **A link dropped on empty canvas opens `QuickAddMenu`** (`onconnectend`, `link: { after }`);
@@ -220,7 +260,8 @@ the page.
   full test coverage.
 - Largest module in the codebase — respect the ~150-line component rule. New editor UI goes in
   the folder of `ui/editor/blueprint/` that has its responsibility (`canvas/`, `catalog/`,
-  `palette-drag/`, `side-panel/`, `controls/`), new list UI in `ui/dashboard/pipeline-table/`.
+  `palette-drag/`, `side-panel/`), new list UI in `ui/dashboard/pipeline-table/`. A field of a
+  step goes in `ui/editor/step/`, a control of the editor in `ui/editor/controls/`.
   The root of `blueprint/` keeps only what the whole blueprint shares.
 - **`data-tour` attributes are anchors of the onboarding tour** (`pipelines` with `data-project-id`, `pipeline-editor`, `pipeline-submit`, and on each row
   `pipeline-history` / `pipeline-actions` / `pipeline-run` with `data-pipeline-id`,

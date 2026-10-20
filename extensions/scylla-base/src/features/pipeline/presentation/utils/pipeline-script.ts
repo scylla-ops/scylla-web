@@ -53,8 +53,8 @@ const serializeEnv = (env: EnvEntry[]): Record<string, unknown>[] =>
 
 const parseNode = (node: Record<string, unknown>): PipelineStep => {
   const base = {
-    id: (node.id as string) ?? '',
-    deps: (node.deps as string[]) ?? [],
+    id: typeof node.id === 'string' ? node.id : '',
+    deps: Array.isArray(node.deps) ? node.deps.filter(dep => typeof dep === 'string') : [],
     // Serializing writes `''` for no directory: it reads back as none, so a step round-trips.
     workingDir: typeof node.workingDir === 'string' && node.workingDir ? node.workingDir : undefined,
     env: parseEnv(node.env),

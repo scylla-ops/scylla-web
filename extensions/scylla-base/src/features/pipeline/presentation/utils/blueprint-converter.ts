@@ -3,6 +3,7 @@ import type {
   PipelineStep,
   StepDefinition,
 } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import { stepDepths } from './pipeline-steps.ts';
 
 /** A node's `data` must be a `Record`: a step travels wrapped, as `{ step }`. */
 
@@ -36,52 +37,6 @@ export const edgeBetween = (source: string, target: string): BlueprintEdge => ({
   ...DEFAULT_EDGE_STYLE,
 });
 
-/**
- * The column of each node: how many steps run before it, on the longest path. A missing step
- * adds no column. A loop, which only a document typed by hand can hold, is cut where it closes,
- * so the walk ends.
- */
-function computeDepths(steps: PipelineStep[]): Map<string, number> {
-  const byId = new Map(steps.map(step => [step.id, step]));
-  const depths = new Map<string, number>();
-  const onPath = new Set<string>();
-
-  const depthOf = (step: PipelineStep): number => {
-    const known = depths.get(step.id);
-    if (known !== undefined) return known;
-
-    onPath.add(step.id);
-    let depth = 0;
-    for (const dep of step.deps) {
-      const parent = byId.get(dep);
-      if (parent && !onPath.has(dep)) depth = Math.max(depth, depthOf(parent) + 1);
-    }
-    onPath.delete(step.id);
-
-    depths.set(step.id, depth);
-    return depth;
-  };
-
-  for (const step of steps) depthOf(step);
-  return depths;
-}
-
-/** True when `id` waits for `other`, directly or through other steps. */
-export const waitsFor = (steps: PipelineStep[], id: string, other: string): boolean => {
-  const depsOf = new Map(steps.map(step => [step.id, step.deps]));
-  const seen = new Set<string>();
-  const pending = [...(depsOf.get(id) ?? [])];
-
-  while (pending.length) {
-    const next = pending.pop()!;
-    if (next === other) return true;
-    if (seen.has(next)) continue;
-    seen.add(next);
-    pending.push(...(depsOf.get(next) ?? []));
-  }
-  return false;
-};
-
 /** Deduplicates ids, removes self-deps and deps to missing nodes. */
 export function sanitizeSteps(steps: PipelineStep[]): PipelineStep[] {
   const seen = new Set<string>();
@@ -113,7 +68,7 @@ export function stepsToFlow(
   pipelineName: string,
 ): { nodes: BlueprintNode[]; edges: BlueprintEdge[]; sanitizedSteps: PipelineStep[] } {
   const steps = sanitizeSteps(rawSteps);
-  const depthMap = computeDepths(steps);
+  const depthMap = stepDepths(steps);
 
   const depthGroups = new Map<number, PipelineStep[]>();
   for (const step of steps) {
@@ -185,18 +140,4 @@ export function flowToSteps(nodes: BlueprintNode[], edges: BlueprintEdge[]): Pip
 
     return [{ id: step.id, deps: depsOf(edges, node.id), ...definitionOf(step) }];
   });
-}
-
-/** `exclude` is the node's own id when renaming it. */
-export function generateUniqueNodeId(
-  desired: string,
-  existingIds: Set<string>,
-  excludeId?: string,
-): string {
-  const ids = new Set(existingIds);
-  if (excludeId) ids.delete(excludeId);
-  if (!ids.has(desired)) return desired;
-  let i = 1;
-  while (ids.has(`${desired}_${i}`)) i++;
-  return `${desired}_${i}`;
 }
