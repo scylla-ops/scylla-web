@@ -117,4 +117,49 @@ describe('PipelineScripting', () => {
     expect(screen.getByRole('tab', { name: 'compile', selected: true })).toBeInTheDocument();
     expect(doc().steps.find(step => step.id === 'test')?.deps).toEqual(['compile']);
   });
+
+  describe('the dependency picker', () => {
+    const jobs = JSON.stringify({
+      name: 'web',
+      nodes: ['a', 'b', 'c'].map(id => ({
+        id,
+        deps: [],
+        kind: 'script',
+        shell: 'bash',
+        script: id,
+        env: [],
+      })),
+    });
+    const pick = async (user: ReturnType<typeof userEvent.setup>, id: string) => {
+      await user.click(screen.getByRole('combobox', { name: 'Add a dependency' }));
+      await user.click(await findFloating('option', id));
+    };
+    const depsOf = (doc: () => PipelineScript, id: string) =>
+      doc().steps.find(step => step.id === id)?.deps;
+
+    it('offers a dependency again once its chip is removed', async () => {
+      const user = userEvent.setup();
+      const doc = renderScripting(jobs);
+
+      await pick(user, 'b');
+      expect(depsOf(doc, 'a')).toEqual(['b']);
+      await user.click(screen.getByRole('button', { name: 'Remove the dependency on b' }));
+      expect(depsOf(doc, 'a')).toEqual([]);
+      await pick(user, 'b');
+
+      expect(depsOf(doc, 'a')).toEqual(['b']);
+    });
+
+    it('adds the dependency that was just picked on another job', async () => {
+      const user = userEvent.setup();
+      const doc = renderScripting(jobs);
+
+      await pick(user, 'b');
+      const list = screen.getByRole('navigation', { name: 'Jobs' });
+      await user.click(within(list).getByRole('button', { name: /^c/ }));
+      await pick(user, 'b');
+
+      expect(depsOf(doc, 'c')).toEqual(['b']);
+    });
+  });
 });

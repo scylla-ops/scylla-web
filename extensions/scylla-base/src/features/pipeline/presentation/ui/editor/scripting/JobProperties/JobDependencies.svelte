@@ -24,6 +24,13 @@
   let { deps, candidates, dependents, onChange, onOpen }: Props = $props();
 
   const addable = $derived(candidates.filter(id => !deps.includes(id)));
+
+  let picked = $state('');
+
+  const add = (id: string) => {
+    if (id) onChange([...deps, id]);
+    picked = '';
+  };
 </script>
 
 <div class="flex flex-col gap-2">
@@ -49,7 +56,7 @@
 
   {#if addable.length > 0}
     <!-- Reset after each pick: the select adds, it does not hold a value. -->
-    <Select type="single" value="" onValueChange={id => id && onChange([...deps, id])}>
+    <Select type="single" bind:value={picked} onValueChange={add}>
       <SelectTrigger aria-label={t(scriptingMessages.addDependency)} class="w-full">
         <SelectValue placeholder={t(scriptingMessages.addDependency)} />
       </SelectTrigger>
