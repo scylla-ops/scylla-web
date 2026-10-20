@@ -47,7 +47,7 @@ msgstr "Actions of {id}"
 msgid "add"
 msgstr "add"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:28
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:29
 msgid "Add a dependency"
 msgstr "Add a dependency"
 
@@ -107,7 +107,7 @@ msgstr "cancel"
 msgid "Close"
 msgstr "Close"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:16
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:17
 msgid "Close {id}"
 msgstr "Close {id}"
 
@@ -115,7 +115,7 @@ msgstr "Close {id}"
 msgid "Close the menu"
 msgstr "Close the menu"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:18
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:19
 msgid "Close the pane"
 msgstr "Close the pane"
 
@@ -136,15 +136,15 @@ msgstr "command"
 msgid "Command"
 msgstr "Command"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:23
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:24
 msgid "Copied to the clipboard."
 msgstr "Copied to the clipboard."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:22
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:23
 msgid "Copy all"
 msgstr "Copy all"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:20
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:21
 msgid "Copy the job"
 msgstr "Copy the job"
 
@@ -173,7 +173,7 @@ msgstr "Delete the job"
 msgid "Delete the step"
 msgstr "Delete the step"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:27
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:28
 msgid "Dependencies"
 msgstr "Dependencies"
 
@@ -262,7 +262,7 @@ msgstr "Invalid JSON"
 msgid "Invalid step ID"
 msgstr "Invalid step ID"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:26
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:27
 msgid "Job properties"
 msgstr "Job properties"
 
@@ -331,9 +331,13 @@ msgstr "Nodes"
 msgid "One program and its arguments"
 msgstr "One program and its arguments"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:19
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:20
 msgid "Open a job from the list."
 msgstr "Open a job from the list."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:16
+msgid "Open jobs"
+msgstr "Open jobs"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:34
 msgid "Open the last run"
@@ -369,7 +373,7 @@ msgstr "Reference a secret"
 msgid "Remove argument"
 msgstr "Remove argument"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:29
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:30
 msgid "Remove the dependency on {id}"
 msgstr "Remove the dependency on {id}"
 
@@ -377,7 +381,7 @@ msgstr "Remove the dependency on {id}"
 msgid "Remove variable"
 msgstr "Remove variable"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:30
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:31
 msgid "Required by"
 msgstr "Required by"
 
@@ -445,7 +449,7 @@ msgstr "Shell"
 msgid "Simplified"
 msgstr "Simplified"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:17
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:18
 msgid "Split the editor"
 msgstr "Split the editor"
 
@@ -477,11 +481,11 @@ msgstr "Suggested ID"
 msgid "Templates"
 msgstr "Templates"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:24
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:25
 msgid "The browser did not let the page write to the clipboard."
 msgstr "The browser did not let the page write to the clipboard."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:21
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:22
 msgid "The line that runs"
 msgstr "The line that runs"
 

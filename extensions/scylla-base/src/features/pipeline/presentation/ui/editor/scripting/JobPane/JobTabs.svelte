@@ -28,7 +28,11 @@
 </script>
 
 <div class="flex h-10 shrink-0 items-stretch border-b bg-muted/40">
-  <div role="tablist" class="relative flex min-w-0 flex-1 items-stretch overflow-x-auto">
+  <div
+    role="group"
+    aria-label={t(scriptingMessages.openJobs)}
+    class="relative flex min-w-0 flex-1 items-stretch overflow-x-auto"
+  >
     {#each pane.tabs as tab (tab)}
       {@const active = tab === pane.active}
       <div
@@ -39,8 +43,7 @@
       >
         <button
           type="button"
-          role="tab"
-          aria-selected={active}
+          aria-current={active ? 'true' : undefined}
           class="h-full pl-3 outline-none focus-visible:ring-2 focus-visible:ring-ring"
           onclick={() => scripting.panes.open(tab, index)}
         >

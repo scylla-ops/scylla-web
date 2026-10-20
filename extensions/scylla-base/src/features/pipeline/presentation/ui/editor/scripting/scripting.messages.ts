@@ -13,6 +13,7 @@ export const scriptingMessages = {
   openToSide: msg`Open to the side`,
   deleteJob: msg`Delete the job`,
 
+  openJobs: msg`Open jobs`,
   closeTab: (id: string) => msg`Close ${id}`,
   splitEditor: msg`Split the editor`,
   closePane: msg`Close the pane`,

@@ -29,7 +29,7 @@ const renderScripting = (initialScript = document) => {
 const shownJobs = () =>
   screen
     .getAllByRole('region')
-    .map(pane => within(pane).getByRole('tab', { selected: true }).textContent?.trim());
+    .map(pane => within(pane).getByRole('button', { current: true }).textContent?.trim());
 
 describe('PipelineScripting', () => {
   it('lists the jobs in the order they run, and opens the first one', () => {
@@ -41,7 +41,7 @@ describe('PipelineScripting', () => {
       .map(row => row.textContent);
     expect(rows[0]).toContain('build');
     expect(rows[1]).toContain('test');
-    expect(screen.getByRole('tab', { name: 'build', selected: true })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'build', current: true })).toBeInTheDocument();
     expect(screen.getByRole('complementary', { name: 'Job properties' })).toBeInTheDocument();
   });
 
@@ -56,8 +56,12 @@ describe('PipelineScripting', () => {
       }),
     );
 
-    expect(screen.getByRole('tab', { name: 'build', selected: true })).toBeInTheDocument();
-    expect(screen.queryByRole('tab', { name: 'test' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'build', current: true })).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('group', { name: 'Open jobs' })).queryByRole('button', {
+        name: 'test',
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows the full document, and no jobs, while the JSON does not parse', () => {
@@ -97,8 +101,25 @@ describe('PipelineScripting', () => {
     const list = screen.getByRole('navigation', { name: 'Jobs' });
     await user.click(within(list).getByRole('button', { name: /^test/ }));
 
-    expect(screen.getByRole('tab', { name: 'test', selected: true })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'test', current: true })).toBeInTheDocument();
     expect(screen.getByText('make test', { selector: 'code' })).toBeInTheDocument();
+  });
+
+  it('marks only the shown job as current among the open ones, each with a close button', async () => {
+    const user = userEvent.setup();
+    renderScripting();
+    await user.click(
+      within(screen.getByRole('navigation', { name: 'Jobs' })).getByRole('button', {
+        name: /^test/,
+      }),
+    );
+
+    const open = screen.getByRole('group', { name: 'Open jobs' });
+    expect(within(open).getByRole('button', { name: 'test', current: true })).toBeInTheDocument();
+    expect(within(open).getByRole('button', { name: 'build', current: false })).toBeInTheDocument();
+    expect(within(open).getByRole('button', { name: 'Close build' })).toBeInTheDocument();
+    expect(within(open).getByRole('button', { name: 'Close test' })).toBeInTheDocument();
+    expect(within(open).queryByRole('tab')).not.toBeInTheDocument();
   });
 
   it('opens a job to the side, in a second pane', async () => {
@@ -117,7 +138,7 @@ describe('PipelineScripting', () => {
 
     await user.click(screen.getAllByRole('button', { name: 'New job' })[0]);
 
-    expect(screen.getByRole('tab', { name: 'job', selected: true })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'job', current: true })).toBeInTheDocument();
     expect(doc().steps.find(step => step.id === 'job')?.deps).toEqual(['build']);
   });
 
@@ -129,7 +150,7 @@ describe('PipelineScripting', () => {
     await user.clear(id);
     await user.type(id, 'compile{Enter}');
 
-    expect(screen.getByRole('tab', { name: 'compile', selected: true })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'compile', current: true })).toBeInTheDocument();
     expect(doc().steps.find(step => step.id === 'test')?.deps).toEqual(['compile']);
   });
 
