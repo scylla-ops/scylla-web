@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { Tabs, TabsContent, TabsList, TabsTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { PipelineScript } from '@base/features/pipeline/presentation/ui/editor/pipeline-script.state.svelte.ts';
@@ -19,6 +20,8 @@
     isValid: () => doc.isValid,
     onStepsChange: steps => doc.setSteps(steps),
   });
+
+  onDestroy(scripting.dispose);
 </script>
 
 <!-- Both views stay mounted, so CodeMirror keeps its scroll and the open jobs stay open. -->

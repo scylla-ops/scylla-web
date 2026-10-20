@@ -1,7 +1,22 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { flushSync } from 'svelte';
 import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type * as StepDraftModule from '@base/features/pipeline/presentation/ui/editor/step/step-draft.svelte.ts';
 import { createJobDrafts } from '../job-drafts.svelte.ts';
+
+const released = vi.hoisted(() => ({ ids: [] as string[] }));
+
+// A draft owns no effect: this one runs its cleanup when the draft's root is disposed.
+vi.mock('@base/features/pipeline/presentation/ui/editor/step/step-draft.svelte.ts', async load => {
+  const actual = await load<typeof StepDraftModule>();
+  return {
+    ...actual,
+    createStepDraft: (params: Parameters<typeof actual.createStepDraft>[0]) => {
+      $effect(() => () => void released.ids.push(params.step.id));
+      return actual.createStepDraft(params);
+    },
+  };
+});
 
 const build: PipelineStep = {
   id: 'build',
@@ -25,6 +40,10 @@ const withDrafts = (
 };
 
 describe('createJobDrafts', () => {
+  beforeEach(() => {
+    released.ids.length = 0;
+  });
+
   it('gives every view of a job the same draft', () => {
     withDrafts(drafts => {
       expect(drafts.of(build)).toBe(drafts.of({ ...build }));
@@ -85,6 +104,30 @@ describe('createJobDrafts', () => {
         'build',
         expect.objectContaining({ script: 'make all' }),
       );
+    });
+  });
+
+  it('drops and disposes the draft of a job that left the document', () => {
+    withDrafts(drafts => {
+      const draft = drafts.of(build);
+      drafts.of({ ...build, id: 'test' });
+      flushSync();
+
+      drafts.prune(['test']);
+      expect(released.ids).toEqual(['build']);
+
+      expect(drafts.of(build)).not.toBe(draft);
+    });
+  });
+
+  it('releases every draft on dispose', () => {
+    withDrafts(drafts => {
+      drafts.of(build);
+      drafts.of({ ...build, id: 'test' });
+      flushSync();
+
+      drafts.dispose();
+      expect([...released.ids].sort()).toEqual(['build', 'test']);
     });
   });
 });

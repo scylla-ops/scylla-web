@@ -81,7 +81,12 @@ export const createScriptingState = (params: ScriptingStateParams) => {
 
     stepOf,
     /** The draft of a job, shared by all the views of the job. */
-    draftOf: (step: PipelineStep) => drafts.of(step),
+    draftOf(step: PipelineStep) {
+      drafts.prune(params.steps().map(({ id }) => id));
+      return drafts.of(step);
+    },
+    /** Releases the drafts: the view calls it when it goes away. */
+    dispose: () => drafts.dispose(),
 
     /** Adds a job after the focused one, and opens it. */
     add() {

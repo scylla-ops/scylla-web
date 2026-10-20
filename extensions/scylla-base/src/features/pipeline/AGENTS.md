@@ -185,7 +185,9 @@ the page.
   document changed from elsewhere (the full document, the blueprint) gets a new draft: its
   signature (`definitionOf`) no longer matches what the draft wrote. Each draft is built in its
   own `$effect.root`: its deriveds must outlive the component that asked for it first, which a
-  rename or a new tab mounts again.
+  rename or a new tab mounts again. Because
+  the roots have no component owner, `draftOf` prunes the drafts of the jobs that left the
+  document, and `PipelineScripting` calls `dispose()` when it unmounts.
 - **Two panes at most** (`job-panes.svelte.ts`). A job can be open in both. The properties panel
   shows the job of the focused pane. The tabs of a job that leaves the document are dropped
   (derived, no effect); a rename follows in the tabs (`panes.rename`, called before the

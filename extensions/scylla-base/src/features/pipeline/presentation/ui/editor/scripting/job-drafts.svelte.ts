@@ -62,6 +62,20 @@ export const createJobDrafts = ({ onChange, onRename }: JobDraftsParams) => {
   };
 
   return {
+    /** Drops the drafts of the jobs that left the document. */
+    prune(ids: string[]) {
+      for (const [id, entry] of entries) {
+        if (ids.includes(id)) continue;
+        entry.dispose();
+        entries.delete(id);
+      }
+    },
+
+    dispose() {
+      for (const entry of entries.values()) entry.dispose();
+      entries.clear();
+    },
+
     of(step: PipelineStep): StepDraft {
       const kept = entries.get(step.id);
       if (kept?.signature === signatureOf(step)) return kept.draft;
