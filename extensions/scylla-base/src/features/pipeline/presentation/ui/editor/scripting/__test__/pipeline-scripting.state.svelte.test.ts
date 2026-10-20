@@ -4,7 +4,10 @@ import {
   createPipelineScript,
   type PipelineScript,
 } from '@base/features/pipeline/presentation/ui/editor/pipeline-script.state.svelte.ts';
-import { createScriptingState, type ScriptingState } from '../scripting.state.svelte.ts';
+import {
+  createPipelineScriptingState,
+  type PipelineScriptingState,
+} from '../pipeline-scripting.state.svelte.ts';
 
 const document = JSON.stringify({
   name: 'web',
@@ -15,7 +18,7 @@ const document = JSON.stringify({
 });
 
 const withScripting = (
-  run: (scripting: ScriptingState, doc: PipelineScript) => void,
+  run: (scripting: PipelineScriptingState, doc: PipelineScript) => void,
   initialScript = document,
 ) => {
   const cleanup = $effect.root(() => {
@@ -23,7 +26,7 @@ const withScripting = (
       projectId: () => 'project-1',
       initialScript: () => initialScript,
     });
-    const scripting = createScriptingState({
+    const scripting = createPipelineScriptingState({
       steps: () => doc.steps,
       isValid: () => doc.isValid,
       onStepsChange: steps => doc.setSteps(steps),
@@ -36,7 +39,7 @@ const withScripting = (
 
 const stepIn = (doc: PipelineScript, id: string) => doc.steps.find(step => step.id === id);
 
-describe('createScriptingState', () => {
+describe('createPipelineScriptingState', () => {
   it('shows the jobs one by one by default', () => {
     withScripting(scripting => {
       expect(scripting.mode).toBe('jobs');

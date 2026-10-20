@@ -1,12 +1,12 @@
 <script lang="ts">
   import { ResizablePanel } from '@scylla/ui';
-  import type { ScriptingState } from './scripting.state.svelte.ts';
+  import type { PipelineScriptingState } from './pipeline-scripting.state.svelte.ts';
   import JobList from './JobList/JobList.svelte';
   import JobPane from './JobPane/JobPane.svelte';
   import JobProperties from './JobProperties/JobProperties.svelte';
 
   interface Props {
-    scripting: ScriptingState;
+    scripting: PipelineScriptingState;
     projectId?: string;
   }
 

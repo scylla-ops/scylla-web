@@ -5,7 +5,7 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-  import type { ScriptingState } from '../scripting.state.svelte.ts';
+  import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '../scripting.messages.ts';
   import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
   import { ISSUE_MESSAGES } from '@base/features/pipeline/presentation/ui/editor/step/step-issue-text.ts';
@@ -20,7 +20,7 @@
   import JobDependencies from './JobDependencies.svelte';
 
   interface Props {
-    scripting: ScriptingState;
+    scripting: PipelineScriptingState;
     step: PipelineStep;
     /** Scopes the secret picker. */
     projectId?: string;

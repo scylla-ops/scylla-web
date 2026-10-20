@@ -9,11 +9,11 @@
   import { stepPreview } from '@base/features/pipeline/presentation/utils/step-summary.ts';
   import { copyToClipboard } from '../copy-to-clipboard.ts';
   import type { JobPane } from '../job-panes.svelte.ts';
-  import type { ScriptingState } from '../scripting.state.svelte.ts';
+  import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '../scripting.messages.ts';
 
   interface Props {
-    scripting: ScriptingState;
+    scripting: PipelineScriptingState;
     pane: JobPane;
     index: number;
     /** The job the pane shows. */

@@ -93,7 +93,7 @@ presentation/
         StepEnvFields                        one field (or one group of fields) each, on a StepDraft
       scripting/                             the scripting tab: the jobs one by one, or the full document
         PipelineScripting/                   the two views as tabs (and its test, its fixture)
-        scripting.state.svelte.ts            ViewModel: mode, add/remove/rename, deps, the panes, the drafts
+        pipeline-scripting.state.svelte.ts ViewModel: mode, add/remove/rename, deps, the panes, the drafts
         job-panes.svelte.ts                  the open jobs: one or two panes, their tabs, the focus
         job-drafts.svelte.ts                 one StepDraft per job, shared by its panes and its properties
         JobsView.svelte                      the list, the panes, the properties of the focused job
@@ -174,7 +174,7 @@ the page.
   a click on the empty canvas closes it. Nothing inspected: the palette. A step: its inspector.
   The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
   xyflow's and is not the panel's state.
-- **The scripting tab edits the document, never a copy.** `createScriptingState` reads
+- **The scripting tab edits the document, never a copy.** `createPipelineScriptingState` reads
   `doc.steps` and writes `doc.setSteps(...)` with the operations of `utils/pipeline-steps.ts`,
   as the blueprint does. The jobs are views of the document, not files. A document that does
   not parse, or that repeats a job id or a dependency (`hasRepeats`), shows the full document

@@ -3,7 +3,10 @@
   import { Tabs, TabsContent, TabsList, TabsTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { PipelineScript } from '@base/features/pipeline/presentation/ui/editor/pipeline-script.state.svelte.ts';
-  import { createScriptingState, type ScriptingMode } from '../scripting.state.svelte.ts';
+  import {
+    createPipelineScriptingState,
+    type ScriptingMode,
+  } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '../scripting.messages.ts';
   import DocumentView from '../DocumentView.svelte';
   import JobsView from '../JobsView.svelte';
@@ -15,7 +18,7 @@
 
   let { doc, projectId }: Props = $props();
 
-  const scripting = createScriptingState({
+  const scripting = createPipelineScriptingState({
     steps: () => doc.steps,
     isValid: () => doc.isValid,
     onStepsChange: steps => doc.setSteps(steps),

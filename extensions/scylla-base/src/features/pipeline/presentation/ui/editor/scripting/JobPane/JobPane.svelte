@@ -2,13 +2,13 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { JobPane } from '../job-panes.svelte.ts';
-  import type { ScriptingState } from '../scripting.state.svelte.ts';
+  import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '../scripting.messages.ts';
   import JobEditor from './JobEditor.svelte';
   import JobTabs from './JobTabs.svelte';
 
   interface Props {
-    scripting: ScriptingState;
+    scripting: PipelineScriptingState;
     pane: JobPane;
     index: number;
   }

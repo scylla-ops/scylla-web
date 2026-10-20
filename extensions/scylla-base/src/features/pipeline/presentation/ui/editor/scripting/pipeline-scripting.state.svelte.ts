@@ -16,7 +16,7 @@ import { createJobDrafts } from './job-drafts.svelte.ts';
 import { createJobPanes } from './job-panes.svelte.ts';
 import { jobRows } from './JobList/job-list.calculator.ts';
 
-export interface ScriptingStateParams {
+export interface PipelineScriptingStateParams {
   /** Getters: the editor's document changes. */
   steps: () => PipelineStep[];
   /** The document parses: its jobs can be shown one by one. */
@@ -36,7 +36,7 @@ const NEW_JOB: StepDefinition = { kind: 'script', shell: 'bash', script: '', env
  * show: the tab shows the text, so that it can be fixed. So does a document with a repeated job id
  * or dependency: the views key the jobs by id.
  */
-export const createScriptingState = (params: ScriptingStateParams) => {
+export const createPipelineScriptingState = (params: PipelineScriptingStateParams) => {
   let chosenMode = $state<ScriptingMode>('jobs');
   const canShowJobs = $derived(params.isValid() && !hasRepeats(params.steps()));
   const mode = $derived<ScriptingMode>(canShowJobs ? chosenMode : 'document');
@@ -110,4 +110,4 @@ export const createScriptingState = (params: ScriptingStateParams) => {
   };
 };
 
-export type ScriptingState = ReturnType<typeof createScriptingState>;
+export type PipelineScriptingState = ReturnType<typeof createPipelineScriptingState>;
