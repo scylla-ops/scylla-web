@@ -22,7 +22,7 @@
     <img src={LogoScylla} alt="Scylla" class="mb-8 w-56 dark:hidden" />
     <img src={LogoScyllaDark} alt="Scylla" class="mb-8 hidden w-56 dark:block" />
 
-    <div class="flex w-full max-w-3xl flex-col gap-4">
+    <div class="flex w-full max-w-3xl flex-col gap-4 xl:max-w-7xl">
       <!-- `/` opens the organization of the user, or the first-organization screen. -->
       <a
         href="/"
