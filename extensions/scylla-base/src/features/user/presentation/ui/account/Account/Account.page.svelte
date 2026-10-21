@@ -21,76 +21,106 @@
   <ErrorState message={t(userMessages.accountLoadError)} />
 {:else}
   {@const me = page.me}
-  <div class="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8">
-    <header class="flex flex-col gap-3">
-      <h1 class="text-2xl font-semibold">{t(userMessages.account)}</h1>
-      <UserIdentityCard user={me}>
-        {#snippet badges()}
-          {#if page.systemRole}
-            <Badge variant="secondary">{page.systemRole}</Badge>
-          {/if}
-        {/snippet}
-      </UserIdentityCard>
-    </header>
+  <div class="@container mx-auto w-full max-w-7xl pb-8">
+    <div class="mx-auto flex w-full max-w-3xl flex-col gap-6 @5xl:max-w-none">
+      <header>
+        <h1 class="text-2xl font-semibold">{t(userMessages.account)}</h1>
+      </header>
 
-    <SettingsSection title={t(userMessages.profile)} description={t(userMessages.profileDescription)}>
-      <UserProfileForm
-        user={me}
-        emailEditable={false}
-        isPending={page.isSavingProfile}
-        onSave={page.saveProfile}
-      />
-    </SettingsSection>
-
-    <SettingsSection title={t(userMessages.password)} description={t(userMessages.passwordDescription)}>
-      {#key page.passwordForm}
-        <ChangePasswordForm
-          isPending={page.isChangingPassword}
-          refusal={page.passwordRefusal}
-          onSubmit={page.changePassword}
-        />
-      {/key}
-    </SettingsSection>
-
-    <SettingsSection title={t(userMessages.sessions)} description={t(userMessages.sessionsDescription)}>
-      <div class="flex flex-col gap-4">
-        <SessionList
-          sessions={page.sessions}
-          isLoading={page.sessionsLoading}
-          isError={page.sessionsError}
-          canRevoke
-          isRevoking={page.isRevokingSession}
-          onRevoke={page.revokeSession}
-        />
-        <div>
-          <Button
-            variant="outline"
-            disabled={page.isRevokingSessions}
-            onclick={page.signOutOtherSessions}
-          >
-            {t(userMessages.signOutOthers)}
-          </Button>
+      <div
+        class="grid grid-cols-1 gap-6 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.3fr)] @5xl:grid-rows-[auto_1fr_auto]"
+      >
+        <div class="@5xl:col-start-1 @5xl:row-start-1">
+          <UserIdentityCard user={me}>
+            {#snippet badges()}
+              {#if page.systemRole}
+                <Badge variant="secondary">{page.systemRole}</Badge>
+              {/if}
+            {/snippet}
+          </UserIdentityCard>
         </div>
+
+        <SettingsSection
+          title={t(userMessages.profile)}
+          description={t(userMessages.profileDescription)}
+          class="@5xl:col-start-1 @5xl:row-span-2 @5xl:row-start-2"
+        >
+          <UserProfileForm
+            user={me}
+            emailEditable={false}
+            isPending={page.isSavingProfile}
+            onSave={page.saveProfile}
+          />
+        </SettingsSection>
+
+        <SettingsSection
+          title={t(userMessages.password)}
+          description={t(userMessages.passwordDescription)}
+          class="@5xl:col-start-2 @5xl:row-span-2 @5xl:row-start-1"
+        >
+          {#key page.passwordForm}
+            <ChangePasswordForm
+              isPending={page.isChangingPassword}
+              refusal={page.passwordRefusal}
+              onSubmit={page.changePassword}
+            />
+          {/key}
+        </SettingsSection>
+
+        <SettingsSection
+          title={t(userMessages.sessions)}
+          description={t(userMessages.sessionsDescription)}
+          fill
+          class="@5xl:col-start-3 @5xl:row-span-2 @5xl:row-start-1"
+        >
+          <div class="flex min-h-0 flex-1 flex-col gap-4">
+            <div class="relative @5xl:min-h-40 @5xl:flex-1">
+              <div class="relative max-h-96 overflow-y-auto @5xl:absolute @5xl:inset-0 @5xl:max-h-none">
+                <SessionList
+                  sessions={page.sessions}
+                  isLoading={page.sessionsLoading}
+                  isError={page.sessionsError}
+                  canRevoke
+                  isRevoking={page.isRevokingSession}
+                  onRevoke={page.revokeSession}
+                />
+              </div>
+            </div>
+            <div>
+              <Button
+                variant="outline"
+                disabled={page.isRevokingSessions}
+                onclick={page.signOutOtherSessions}
+              >
+                {t(userMessages.signOutOthers)}
+              </Button>
+            </div>
+          </div>
+        </SettingsSection>
+
+        <SettingsSection
+          title={t(userMessages.organizationsAndRoles)}
+          class="@5xl:col-start-2 @5xl:row-start-3"
+        >
+          <UserAccessList
+            access={page.access}
+            isLoading={page.accessLoading}
+            isError={page.accessError}
+          />
+        </SettingsSection>
+
+        <SettingsSection
+          title={t(userMessages.dangerZone)}
+          description={t(userMessages.deleteMyAccountDescription)}
+          tone="danger"
+          class="@5xl:col-start-3 @5xl:row-start-3"
+        >
+          <Button variant="destructive" onclick={page.openDelete}>
+            {t(userMessages.deleteMyAccount)}
+          </Button>
+        </SettingsSection>
       </div>
-    </SettingsSection>
-
-    <SettingsSection title={t(userMessages.organizationsAndRoles)}>
-      <UserAccessList
-        access={page.access}
-        isLoading={page.accessLoading}
-        isError={page.accessError}
-      />
-    </SettingsSection>
-
-    <SettingsSection
-      title={t(userMessages.dangerZone)}
-      description={t(userMessages.deleteMyAccountDescription)}
-      tone="danger"
-    >
-      <Button variant="destructive" onclick={page.openDelete}>
-        {t(userMessages.deleteMyAccount)}
-      </Button>
-    </SettingsSection>
+    </div>
 
     <DeleteAccountDialog
       open={page.deleteOpen}

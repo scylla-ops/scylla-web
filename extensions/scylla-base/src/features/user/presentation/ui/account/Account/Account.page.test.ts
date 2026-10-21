@@ -148,6 +148,15 @@ describe('AccountPage', () => {
     expect(card.querySelectorAll('[data-slot="badge"]')).toHaveLength(1);
   });
 
+  it('keeps the sections in the order of the one-column layout', async () => {
+    setUp();
+
+    await screen.findByRole('region', { name: 'Profile' });
+    expect(
+      screen.getAllByRole('heading', { level: 2 }).map(heading => heading.textContent?.trim()),
+    ).toEqual(['Profile', 'Password', 'Sessions', 'Organizations and roles', 'Danger zone']);
+  });
+
   it('shows an error when the account cannot be read', async () => {
     setUp({ getMe: vi.fn().mockResolvedValue(refused('down')) });
 

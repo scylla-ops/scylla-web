@@ -170,6 +170,11 @@ user who has no organization.
   an API client alone. The detail line of a named API client starts with "API client". "Active
   now" shows for less than five minutes, because the server moves the last activity at most
   once every five minutes.
+- **The account page is one column, then three columns from 64rem of width.** The breakpoint is
+  a container query on the page (`@5xl`), so the sidebar and the `personal` layout count. The
+  grid places each section, and the order of the source is the order of the one column: keep
+  it. The list of sessions scrolls inside its card (`SettingsSection` with `fill`), so a long
+  list never makes the page longer.
 - `getAll()` is paginated (`UserList`). Use `createPagination()` + `DataTable`; do not render
   an unpaginated directory.
 - Users are principals in the authz model: deleting one removes their grants. Confirm through
