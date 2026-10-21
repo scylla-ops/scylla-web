@@ -20,6 +20,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   components render in the owner's tree, so they read its Svelte context. A `replace` does not
   mount the owner's content. A widget injection does not change.
 - A repository calls its gRPC client directly. The data source layer between them is removed.
+- The account page uses the width of the screen: three columns on a wide screen, one on a
+  phone. The list of sessions scrolls inside its card, so the page does not get longer.
 
 ### Fixed
 
