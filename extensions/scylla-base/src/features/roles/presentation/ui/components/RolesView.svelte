@@ -8,7 +8,6 @@
   import { rolesMessages } from '../roles.messages.ts';
   import RoleDetailPanel from './RoleDetailPanel.svelte';
   import RoleList from './RoleList.svelte';
-  import RoleFormDialog from './role-form/RoleFormDialog.svelte';
 
   interface Props {
     scope: RolesScope;
@@ -41,6 +40,4 @@
       <RoleDetailPanel {page} />
     </div>
   </div>
-
-  <RoleFormDialog open={page.formOpen} role={page.editingRole} {scope} onClose={page.closeForm} />
 </div>

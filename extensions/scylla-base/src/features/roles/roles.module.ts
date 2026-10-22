@@ -28,6 +28,20 @@ export const RolesModule = {
         breadcrumb: () => ({ label: msg`Roles` }),
         page: () => import('./presentation/ui/Roles/Roles.page.svelte'),
         nav: { section: 'organization', title: msg`Roles`, icon: ShieldIcon, order: 35 },
+        children: [
+          {
+            path: 'new',
+            permission: Permission.MANAGE_ORG_ROLES,
+            breadcrumb: () => ({ label: msg`New role` }),
+            page: () => import('./presentation/ui/RoleEditor/RoleEditor.page.svelte'),
+          },
+          {
+            path: ':roleId/edit',
+            permission: Permission.MANAGE_ORG_ROLES,
+            breadcrumb: () => ({ label: msg`Edit role` }),
+            page: () => import('./presentation/ui/RoleEditor/RoleEditor.page.svelte'),
+          },
+        ],
       },
       {
         path: 'platform-roles',
@@ -40,6 +54,20 @@ export const RolesModule = {
           icon: ShieldCheckIcon,
           order: 20,
         },
+        children: [
+          {
+            path: 'new',
+            permission: Permission.MANAGE_ROLES,
+            breadcrumb: () => ({ label: msg`New role` }),
+            page: () => import('./presentation/ui/PlatformRoleEditor/PlatformRoleEditor.page.svelte'),
+          },
+          {
+            path: ':roleId/edit',
+            permission: Permission.MANAGE_ROLES,
+            breadcrumb: () => ({ label: msg`Edit role` }),
+            page: () => import('./presentation/ui/PlatformRoleEditor/PlatformRoleEditor.page.svelte'),
+          },
+        ],
       },
     ],
   },
