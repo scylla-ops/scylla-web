@@ -1,15 +1,14 @@
 <script lang="ts">
   import { contextStore } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
-  import { ErrorState, SecretRevealDialog } from '@scylla/ui';
+  import { ErrorState } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { ScyllaError } from '@shared/utils/scylla-result.ts';
   import { t } from '@scylla/ui/i18n';
-  import type { CreatedTrigger } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggerQueries } from '@base/features/triggers/presentation/triggers.queries.ts';
+  import { triggersNavigation } from '@base/features/triggers/presentation/utils/triggers-navigation.ts';
   import TriggersHeader from '../components/TriggersHeader/TriggersHeader.svelte';
   import TriggersOverview from '../components/TriggersOverview/TriggersOverview.svelte';
-  import TriggerFormDialog from '../dialogs/TriggerFormDialog/TriggerFormDialog.svelte';
   import TriggersTable from '../triggers-table/TriggersTable.svelte';
   import { triggersMessages } from '../triggers.messages.ts';
 
@@ -26,26 +25,11 @@
   const triggersQuery = createQuery(() => triggerQueries.byPipeline(pipelineId ?? ''));
   const triggers = $derived(triggersQuery.data ?? []);
 
-  let isCreateOpen = $state(false);
-  /** Held only while the dialog shows it. */
-  let revealed = $state<{ id: string; name: string; secret: string } | null>(null);
-
   const errorMessage = $derived(
     triggersQuery.error instanceof ScyllaError
       ? triggersQuery.error.userMessage()
       : t(triggersMessages.loadError),
   );
-
-  const handleCreated = (created: CreatedTrigger) => {
-    // Returned only once: reveal it now.
-    if (!created.webhookSecret) return;
-
-    revealed = {
-      id: created.trigger.id,
-      name: created.trigger.name,
-      secret: created.webhookSecret,
-    };
-  };
 </script>
 
 {#if !pipelineId || !projectId}
@@ -60,7 +44,7 @@
       count={triggers.length}
       triggerIds={triggers.map(trigger => trigger.id)}
       {pipelineId}
-      onNew={() => (isCreateOpen = true)}
+      onNew={() => triggersNavigation(pipelineId).toCreate()}
     />
 
     {#if triggers.length > 0}
@@ -79,24 +63,5 @@
         </div>
       {/if}
     </div>
-
-    <TriggerFormDialog
-      open={isCreateOpen}
-      onOpenChange={open => (isCreateOpen = open)}
-      {pipelineId}
-      onCreated={handleCreated}
-    />
-
-    {#if revealed}
-      <SecretRevealDialog
-        open
-        title={t(triggersMessages.webhookSecretOf(revealed.name))}
-        description={t(triggersMessages.copySecretOnce)}
-        secret={revealed.secret}
-        secretLabel="Secret"
-        revealedNote={t(triggersMessages.addSigningSecret)}
-        onClose={() => (revealed = null)}
-      />
-    {/if}
   </div>
 {/if}

@@ -3,7 +3,7 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope } from '@platform/authz';
 import { render } from '@test/render.svelte.ts';
-import RoleDialogPermissions from './RoleDialogPermissions.svelte';
+import RolePermissions from './RolePermissions.svelte';
 
 interface PickerProps {
   scope: PermissionScope;
@@ -15,7 +15,7 @@ interface PickerProps {
 
 const mount = (props: Partial<PickerProps> = {}) => {
   const onPermissionsChange = vi.fn();
-  render(RoleDialogPermissions, {
+  render(RolePermissions, {
     scope: PermissionScope.ORGANIZATION,
     permissions: [],
     preservedCount: 0,
@@ -30,7 +30,7 @@ const mount = (props: Partial<PickerProps> = {}) => {
 const emitted = (onPermissionsChange: ReturnType<typeof vi.fn>): Permission[] =>
   onPermissionsChange.mock.calls.at(-1)?.[0] as Permission[];
 
-describe('RoleDialogPermissions', () => {
+describe('RolePermissions', () => {
   it('shows what the scope confers by construction, ticked and locked', () => {
     mount();
 

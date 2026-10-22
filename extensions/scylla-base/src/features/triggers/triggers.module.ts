@@ -25,6 +25,20 @@ export const TriggersModule = {
           detail: msg`Triggers`,
         }),
         page: () => import('./presentation/ui/Triggers/Triggers.page.svelte'),
+        children: [
+          {
+            path: 'new',
+            permission: Permission.MANAGE_TRIGGERS,
+            breadcrumb: () => ({ label: msg`New trigger` }),
+            page: () => import('./presentation/ui/TriggerEditor/TriggerEditor.page.svelte'),
+          },
+          {
+            path: ':triggerId/edit',
+            permission: Permission.MANAGE_TRIGGERS,
+            breadcrumb: () => ({ label: msg`Edit trigger` }),
+            page: () => import('./presentation/ui/TriggerEditor/TriggerEditor.page.svelte'),
+          },
+        ],
       },
     ],
   },

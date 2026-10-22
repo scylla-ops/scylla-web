@@ -4,13 +4,13 @@ import { PermissionScope } from '@platform/authz';
 import { messages } from '@base/features/roles/locales/fr/messages.ts';
 import { render } from '@test/render.svelte.ts';
 import { withLocale } from '@test/i18n.ts';
-import RoleDialogPermissions from './RoleDialogPermissions.svelte';
+import RolePermissions from './RolePermissions.svelte';
 
 /** The counts agree in French, with no "(s)": the plural arms carry the agreement. */
 withLocale('fr', messages);
 
 const mount = (conferredCount: number, preservedCount = 0) =>
-  render(RoleDialogPermissions, {
+  render(RolePermissions, {
     scope: PermissionScope.ORGANIZATION,
     permissions: [],
     preservedCount,
@@ -19,7 +19,7 @@ const mount = (conferredCount: number, preservedCount = 0) =>
     onPermissionsChange: vi.fn(),
   });
 
-describe('RoleDialogPermissions counts in French', () => {
+describe('RolePermissions counts in French', () => {
   it('agrees the conferred count with the number', () => {
     mount(1);
     expect(screen.getByText('1 sélectionnée')).toBeInTheDocument();
