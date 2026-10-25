@@ -2,16 +2,16 @@ import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeli
 import { stepDepths, waitsFor } from '@base/features/pipeline/presentation/utils/pipeline-steps.ts';
 import { nodeIdIssue, stepIssue } from '@base/features/pipeline/presentation/utils/step-summary.ts';
 
-export interface JobRow {
+export interface StepRow {
   step: PipelineStep;
-  /** Its stage: how many jobs run before it, on the longest path. Its column in the blueprint. */
+  /** Its stage: how many steps run before it, on the longest path. Its column in the blueprint. */
   depth: number;
-  /** The job cannot be saved or run as it is. */
+  /** The step cannot be saved or run as it is. */
   hasIssue: boolean;
 }
 
-/** The jobs in the order they run: by stage, then in the order of the document. */
-export const jobRows = (steps: PipelineStep[]): JobRow[] => {
+/** The steps in the order they run: by stage, then in the order of the document. */
+export const stepRows = (steps: PipelineStep[]): StepRow[] => {
   const depths = stepDepths(steps);
   return steps
     .map(step => ({
@@ -22,21 +22,21 @@ export const jobRows = (steps: PipelineStep[]): JobRow[] => {
     .sort((a, b) => a.depth - b.depth);
 };
 
-/** The rows grouped by stage. A stage holds the jobs that can run together. */
-export const jobStages = (rows: JobRow[]): JobRow[][] => {
-  const stages: JobRow[][] = [];
+/** The rows grouped by stage. A stage holds the steps that can run together. */
+export const stepStages = (rows: StepRow[]): StepRow[][] => {
+  const stages: StepRow[][] = [];
   for (const row of rows) (stages[row.depth] ??= []).push(row);
   return stages.filter(Boolean);
 };
 
-/** How a job relates to the job in focus: one it waits for, or one that waits for it. */
-export type JobRelation = 'dependency' | 'dependent';
+/** How a step relates to the step in focus: one it waits for, or one that waits for it. */
+export type StepRelation = 'dependency' | 'dependent';
 
-export const jobRelations = (
+export const stepRelations = (
   steps: PipelineStep[],
   focus: string | null,
-): Map<string, JobRelation> => {
-  const relations = new Map<string, JobRelation>();
+): Map<string, StepRelation> => {
+  const relations = new Map<string, StepRelation>();
   const focused = steps.find(step => step.id === focus);
   if (!focused) return relations;
   for (const dep of focused.deps) relations.set(dep, 'dependency');
@@ -45,8 +45,8 @@ export const jobRelations = (
 };
 
 /**
- * The dependencies of a job dropped in the list: on another job, it waits for that one only, or
- * for it too with `keep`; on no job (`null`), it runs first.
+ * The dependencies of a step dropped in the list: on another step, it waits for that one only, or
+ * for it too with `keep`; on no step (`null`), it runs first.
  */
 export const depsAfterDrop = (deps: string[], target: string | null, keep: boolean): string[] => {
   if (target === null) return [];
@@ -55,8 +55,8 @@ export const depsAfterDrop = (deps: string[], target: string | null, keep: boole
 };
 
 /**
- * The steps after a job is dropped in the list (`depsAfterDrop`). Dropped on a job that waits for
- * it, the job first leaves its place: the jobs that waited for it wait for what it waited for.
+ * The steps after a step is dropped in the list (`depsAfterDrop`). Dropped on a step that waits for
+ * it, the step first leaves its place: the steps that waited for it wait for what it waited for.
  * Nothing waits for it then, so the drop makes no loop: `a → b → c`, `b` on `c` gives `a → c → b`.
  */
 export const stepsAfterDrop = (
@@ -66,7 +66,7 @@ export const stepsAfterDrop = (
   keep: boolean,
 ): PipelineStep[] => {
   const moved = steps.find(step => step.id === id);
-  // The document may have changed during the drag: a job that left is no target.
+  // The document may have changed during the drag: a step that left is no target.
   if (!moved || target === id || (target !== null && !steps.some(step => step.id === target)))
     return steps;
 

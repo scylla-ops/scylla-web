@@ -9,15 +9,15 @@
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import { stepPreview } from '@base/features/pipeline/presentation/utils/step-summary.ts';
   import { copyToClipboard } from '../copy-to-clipboard.ts';
-  import type { JobPane } from '../job-panes.svelte.ts';
+  import type { StepPane } from '../step-panes.svelte.ts';
   import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '../scripting.messages.ts';
 
   interface Props {
     scripting: PipelineScriptingState;
-    pane: JobPane;
+    pane: StepPane;
     index: number;
-    /** The job the pane shows. */
+    /** The step the pane shows. */
     step?: PipelineStep;
     /** At the start and at the end of the bar: where the view puts the toggles of its side panels. */
     leading?: Snippet;
@@ -27,8 +27,8 @@
   let { scripting, pane, index, step, leading, trailing }: Props = $props();
 
   // A script is copied as it runs; a command as one line.
-  const copyJob = (job: PipelineStep) =>
-    copyToClipboard(job.kind === 'script' ? job.script : stepPreview(job));
+  const copyStep = (step: PipelineStep) =>
+    copyToClipboard(step.kind === 'script' ? step.script : stepPreview(step));
 </script>
 
 <div class="flex h-10 shrink-0 items-stretch border-b bg-muted/40">
@@ -37,7 +37,7 @@
   {/if}
   <div
     role="group"
-    aria-label={t(scriptingMessages.openJobs)}
+    aria-label={t(scriptingMessages.openSteps)}
     class="relative flex min-w-0 flex-1 items-stretch overflow-x-auto"
   >
     {#each pane.tabs as tab (tab)}
@@ -77,14 +77,14 @@
               {...props}
               variant="ghost"
               size="icon-sm"
-              aria-label={t(scriptingMessages.copyJob)}
-              onclick={() => copyJob(step)}
+              aria-label={t(scriptingMessages.copyStep)}
+              onclick={() => copyStep(step)}
             >
               <CopyIcon class="size-4" />
             </Button>
           {/snippet}
         </TooltipTrigger>
-        <TooltipContent>{t(scriptingMessages.copyJob)}</TooltipContent>
+        <TooltipContent>{t(scriptingMessages.copyStep)}</TooltipContent>
       </Tooltip>
     {/if}
     {#if scripting.panes.canSplit}

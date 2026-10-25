@@ -4,7 +4,7 @@
   import PanelRightCloseIcon from '@lucide/svelte/icons/panel-right-close';
   import PanelRightOpenIcon from '@lucide/svelte/icons/panel-right-open';
   import { Button, Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
-  import type { SidePanel } from './jobs-view.state.svelte.ts';
+  import type { SidePanel } from './steps-view.state.svelte.ts';
 
   interface Props {
     panel: SidePanel;

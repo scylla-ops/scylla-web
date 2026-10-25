@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { flushSync } from 'svelte';
 import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
 import type * as StepDraftModule from '@base/features/pipeline/presentation/ui/editor/step/step-draft.svelte.ts';
-import { createJobDrafts } from '../job-drafts.svelte.ts';
+import { createStepDrafts } from '../step-drafts.svelte.ts';
 
 const released = vi.hoisted(() => ({ ids: [] as string[] }));
 
@@ -28,23 +28,23 @@ const build: PipelineStep = {
 };
 
 const withDrafts = (
-  run: (drafts: ReturnType<typeof createJobDrafts>, onChange: ReturnType<typeof vi.fn>) => void,
+  run: (drafts: ReturnType<typeof createStepDrafts>, onChange: ReturnType<typeof vi.fn>) => void,
   onRename: (id: string, desired: string) => string = (_, desired) => desired,
 ) => {
   const onChange = vi.fn();
   const cleanup = $effect.root(() => {
-    run(createJobDrafts({ onChange, onRename }), onChange);
+    run(createStepDrafts({ onChange, onRename }), onChange);
     flushSync();
   });
   cleanup();
 };
 
-describe('createJobDrafts', () => {
+describe('createStepDrafts', () => {
   beforeEach(() => {
     released.ids.length = 0;
   });
 
-  it('gives every view of a job the same draft', () => {
+  it('gives every view of a step the same draft', () => {
     withDrafts(drafts => {
       expect(drafts.of(build)).toBe(drafts.of({ ...build }));
     });
@@ -63,7 +63,7 @@ describe('createJobDrafts', () => {
     });
   });
 
-  it('builds a new draft when the document changed the job from elsewhere', () => {
+  it('builds a new draft when the document changed the step from elsewhere', () => {
     withDrafts(drafts => {
       const draft = drafts.of(build);
       const changed = drafts.of({ ...build, script: 'make test' });
@@ -107,7 +107,7 @@ describe('createJobDrafts', () => {
     });
   });
 
-  it('drops and disposes the draft of a job that left the document', () => {
+  it('drops and disposes the draft of a step that left the document', () => {
     withDrafts(drafts => {
       const draft = drafts.of(build);
       drafts.of({ ...build, id: 'test' });

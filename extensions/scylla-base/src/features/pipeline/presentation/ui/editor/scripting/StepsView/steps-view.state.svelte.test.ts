@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { flushSync } from 'svelte';
 import {
-  JOBS_VIEW_SIZES,
-  createJobsViewState,
-  type JobsViewOptions,
-} from './jobs-view.state.svelte.ts';
+  STEPS_VIEW_SIZES,
+  createStepsViewState,
+  type StepsViewOptions,
+} from './steps-view.state.svelte.ts';
 
 type Notify = (entries: Array<{ contentRect: { width: number } }>) => void;
 
@@ -43,11 +43,11 @@ const fakePane = () => ({
 });
 
 const withView = (
-  run: (view: ReturnType<typeof createJobsViewState>) => void,
-  options?: JobsViewOptions,
+  run: (view: ReturnType<typeof createStepsViewState>) => void,
+  options?: StepsViewOptions,
 ) => {
   const cleanup = $effect.root(() => {
-    const view = createJobsViewState(options);
+    const view = createStepsViewState(options);
     const node = document.createElement('div');
     view.list.measure(node);
     view.properties.measure(node);
@@ -56,7 +56,7 @@ const withView = (
   cleanup();
 };
 
-describe('createJobsViewState', () => {
+describe('createStepsViewState', () => {
   it('opens both panels while nothing has been measured', () => {
     withView(view => {
       expect(view.list.open).toBe(true);
@@ -169,7 +169,7 @@ describe('createJobsViewState', () => {
   it('starts a panel at the size of its state when the view was created', () => {
     withView(
       view => {
-        expect(view.list.defaultSize).toBe(JOBS_VIEW_SIZES.list.default);
+        expect(view.list.defaultSize).toBe(STEPS_VIEW_SIZES.list.default);
         expect(view.properties.defaultSize).toBe(0);
       },
       { hasProperties: () => false },
@@ -206,15 +206,15 @@ describe('createJobsViewState', () => {
     });
   });
 
-  describe('the properties, when no job is focused', () => {
+  describe('the properties, when no step is focused', () => {
     const withFocus = (
-      run: (focus: { on: boolean }, view: ReturnType<typeof createJobsViewState>) => void,
+      run: (focus: { on: boolean }, view: ReturnType<typeof createStepsViewState>) => void,
     ) => {
       const focus = $state({ on: true });
       withView(view => run(focus, view), { hasProperties: () => focus.on });
     };
 
-    it('collapses the pane, and opens it again when a job comes back', () => {
+    it('collapses the pane, and opens it again when a step comes back', () => {
       withFocus((focus, view) => {
         const pane = fakePane();
         view.properties.pane = pane;
@@ -232,7 +232,7 @@ describe('createJobsViewState', () => {
       });
     });
 
-    it('stores no choice for a collapse the lack of a job caused', () => {
+    it('stores no choice for a collapse the lack of a step caused', () => {
       withFocus((focus, view) => {
         focus.on = false;
         flushSync();
@@ -245,7 +245,7 @@ describe('createJobsViewState', () => {
       });
     });
 
-    it('keeps the choice of the user when a job comes back', () => {
+    it('keeps the choice of the user when a step comes back', () => {
       withFocus((focus, view) => {
         view.properties.toggle();
         expect(view.properties.open).toBe(false);

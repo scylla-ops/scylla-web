@@ -132,7 +132,7 @@ msgid "Close the panel"
 msgstr "Fermer le panneau"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:13
-msgctxt "job-kind"
+msgctxt "step-kind"
 msgid "cmd"
 msgstr "cmd"
 

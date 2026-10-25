@@ -17,7 +17,7 @@
   import StepIdField from '@base/features/pipeline/presentation/ui/editor/step/StepIdField.svelte';
   import StepKindPicker from '@base/features/pipeline/presentation/ui/editor/step/StepKindPicker.svelte';
   import StepWorkingDirField from '@base/features/pipeline/presentation/ui/editor/step/StepWorkingDirField.svelte';
-  import JobDependencies from './JobDependencies.svelte';
+  import StepDependencies from './StepDependencies.svelte';
 
   interface Props {
     scripting: PipelineScriptingState;
@@ -34,7 +34,7 @@
   const tone = $derived(KIND_TONES[draft.mode]);
 </script>
 
-<aside aria-label={t(scriptingMessages.jobProperties)} class="flex h-full flex-col border-l bg-card">
+<aside aria-label={t(scriptingMessages.stepProperties)} class="flex h-full flex-col border-l bg-card">
   <div class="relative flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-4">
     <div class="flex items-start gap-2.5">
       <span class={cn('flex size-8 shrink-0 items-center justify-center rounded-lg', tone.tile, tone.text)}>
@@ -46,7 +46,7 @@
     <StepKindPicker {draft} />
     <StepWorkingDirField {draft} />
 
-    <JobDependencies
+    <StepDependencies
       deps={step.deps}
       candidates={scripting.dependencyCandidates(step.id)}
       dependents={scripting.dependentsOf(step.id)}
@@ -78,7 +78,7 @@
       onclick={() => scripting.remove(step.id)}
     >
       <Trash2Icon class="size-4" />
-      {t(scriptingMessages.deleteJob)}
+      {t(scriptingMessages.deleteStep)}
     </Button>
   </div>
 </aside>

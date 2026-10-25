@@ -47,9 +47,9 @@ const withScripting = (
 const stepIn = (doc: PipelineScript, id: string) => doc.steps.find(step => step.id === id);
 
 describe('createPipelineScriptingState', () => {
-  it('shows the jobs one by one by default', () => {
+  it('shows the steps one by one by default', () => {
     withScripting(scripting => {
-      expect(scripting.mode).toBe('jobs');
+      expect(scripting.mode).toBe('steps');
       expect(scripting.focusedStep?.id).toBe('build');
     });
   });
@@ -59,25 +59,25 @@ describe('createPipelineScriptingState', () => {
       doc.setScript('{ "nodes": [');
       flushSync();
 
-      expect(scripting.canShowJobs).toBe(false);
+      expect(scripting.canShowSteps).toBe(false);
       expect(scripting.mode).toBe('document');
     });
   });
 
   it.each([
-    ['two jobs share an id', [{ id: 'a' }, { id: 'a' }]],
-    ['a job lists a dependency twice', [{ id: 'a' }, { id: 'b', deps: ['a', 'a'] }]],
-  ])('shows the full document, not the jobs, when %s', (_, nodes) => {
+    ['two steps share an id', [{ id: 'a' }, { id: 'a' }]],
+    ['a step lists a dependency twice', [{ id: 'a' }, { id: 'b', deps: ['a', 'a'] }]],
+  ])('shows the full document, not the steps, when %s', (_, nodes) => {
     withScripting(
       scripting => {
-        expect(scripting.canShowJobs).toBe(false);
+        expect(scripting.canShowSteps).toBe(false);
         expect(scripting.mode).toBe('document');
       },
       JSON.stringify({ name: 'web', nodes }),
     );
   });
 
-  it('writes an edit of a job to the document', () => {
+  it('writes an edit of a step to the document', () => {
     withScripting((scripting, doc) => {
       const step = scripting.stepOf('build')!;
       scripting.draftOf(step).script = 'make all';
@@ -88,7 +88,7 @@ describe('createPipelineScriptingState', () => {
     });
   });
 
-  it('renames a job in the document, in the dependencies and in the open tabs', () => {
+  it('renames a step in the document, in the dependencies and in the open tabs', () => {
     withScripting((scripting, doc) => {
       const draft = scripting.draftOf(scripting.stepOf('build')!);
       draft.id = 'compile';
@@ -97,9 +97,9 @@ describe('createPipelineScriptingState', () => {
 
       expect(doc.steps.map(step => step.id)).toEqual(['compile', 'test']);
       expect(stepIn(doc, 'test')?.deps).toEqual(['compile']);
-      expect(scripting.panes.focusedJob).toBe('compile');
+      expect(scripting.panes.focusedId).toBe('compile');
 
-      // The renamed job keeps its draft: an edit after the rename still reaches the document.
+      // The renamed step keeps its draft: an edit after the rename still reaches the document.
       expect(scripting.draftOf(scripting.stepOf('compile')!)).toBe(draft);
       draft.script = 'make all';
       flushSync();
@@ -107,17 +107,17 @@ describe('createPipelineScriptingState', () => {
     });
   });
 
-  it('adds a job after the focused one, and opens it', () => {
+  it('adds a step after the focused one, and opens it', () => {
     withScripting((scripting, doc) => {
       scripting.add();
       flushSync();
 
-      expect(stepIn(doc, 'job')).toMatchObject({ deps: ['build'], kind: 'script', shell: 'bash' });
-      expect(scripting.panes.focusedJob).toBe('job');
+      expect(stepIn(doc, 'step')).toMatchObject({ deps: ['build'], kind: 'script', shell: 'bash' });
+      expect(scripting.panes.focusedId).toBe('step');
     });
   });
 
-  it('removes a job and the dependencies on it', () => {
+  it('removes a step and the dependencies on it', () => {
     withScripting((scripting, doc) => {
       scripting.remove('build');
       flushSync();
@@ -127,7 +127,7 @@ describe('createPipelineScriptingState', () => {
     });
   });
 
-  it('offers as dependencies only the jobs that do not wait for the job', () => {
+  it('offers as dependencies only the steps that do not wait for the step', () => {
     withScripting(scripting => {
       expect(scripting.dependencyCandidates('build')).toEqual([]);
       expect(scripting.dependencyCandidates('test')).toEqual(['build']);
@@ -135,7 +135,7 @@ describe('createPipelineScriptingState', () => {
     });
   });
 
-  describe('moveJob', () => {
+  describe('moveStep', () => {
     const graph = JSON.stringify({
       name: 'web',
       nodes: ['build', 'lint', 'test', 'deploy'].map(id => ({
@@ -155,9 +155,9 @@ describe('createPipelineScriptingState', () => {
       options.action.onClick();
     };
 
-    it('makes a job wait only for the job it is dropped on, and offers to undo', () => {
+    it('makes a step wait only for the step it is dropped on, and offers to undo', () => {
       withScripting((scripting, doc) => {
-        scripting.moveJob('test', 'build', false);
+        scripting.moveStep('test', 'build', false);
         flushSync();
 
         expect(stepIn(doc, 'test')?.deps).toEqual(['build']);
@@ -171,7 +171,7 @@ describe('createPipelineScriptingState', () => {
 
     it('keeps the other dependencies with keep, and says nothing', () => {
       withScripting((scripting, doc) => {
-        scripting.moveJob('deploy', 'lint', true);
+        scripting.moveStep('deploy', 'lint', true);
         flushSync();
 
         expect(stepIn(doc, 'deploy')?.deps).toEqual(['test', 'lint']);
@@ -179,18 +179,18 @@ describe('createPipelineScriptingState', () => {
       }, graph);
     });
 
-    it('makes a job run first when dropped on no job', () => {
+    it('makes a step run first when dropped on no step', () => {
       withScripting((scripting, doc) => {
-        scripting.moveJob('deploy', null, false);
+        scripting.moveStep('deploy', null, false);
         flushSync();
 
         expect(stepIn(doc, 'deploy')?.deps).toEqual([]);
       }, graph);
     });
 
-    it('rearranges the dependencies when a job is dropped on a job that waits for it', () => {
+    it('rearranges the dependencies when a step is dropped on a step that waits for it', () => {
       withScripting((scripting, doc) => {
-        scripting.moveJob('test', 'deploy', false);
+        scripting.moveStep('test', 'deploy', false);
         flushSync();
 
         expect(stepIn(doc, 'deploy')?.deps).toEqual(['build', 'lint']);
@@ -206,8 +206,8 @@ describe('createPipelineScriptingState', () => {
 
     it('does not restore on undo a dependency that now makes a loop', () => {
       withScripting((scripting, doc) => {
-        scripting.moveJob('test', null, false);
-        scripting.moveJob('lint', 'test', false);
+        scripting.moveStep('test', null, false);
+        scripting.moveStep('lint', 'test', false);
         flushSync();
 
         undo();

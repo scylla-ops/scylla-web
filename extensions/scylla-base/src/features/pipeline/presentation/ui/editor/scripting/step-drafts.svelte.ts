@@ -8,9 +8,9 @@ import {
   type StepDraft,
 } from '@base/features/pipeline/presentation/ui/editor/step/step-draft.svelte.ts';
 
-export interface JobDraftsParams {
+export interface StepDraftsParams {
   onChange: (id: string, value: StepDefinition) => void;
-  /** Returns the id the job really got. */
+  /** Returns the id the step really got. */
   onRename: (id: string, desired: string) => string;
 }
 
@@ -27,11 +27,11 @@ const signatureOf = (definition: StepDefinition) =>
   JSON.stringify(definitionOf({ id: '', deps: [], ...definition }));
 
 /**
- * One draft per job, shared by every view of the job: the panes that show it and the properties
- * panel. Two drafts of one job would each write their own copy and undo the other's edits. A job
+ * One draft per step, shared by every view of the step: the panes that show it and the properties
+ * panel. Two drafts of one step would each write their own copy and undo the other's edits. A step
  * that the document changed from elsewhere (the full document, the blueprint) gets a new draft.
  */
-export const createJobDrafts = ({ onChange, onRename }: JobDraftsParams) => {
+export const createStepDrafts = ({ onChange, onRename }: StepDraftsParams) => {
   // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a cache of drafts, never read as state
   const entries = new Map<string, Entry>();
 
@@ -62,7 +62,7 @@ export const createJobDrafts = ({ onChange, onRename }: JobDraftsParams) => {
   };
 
   return {
-    /** Drops the drafts of the jobs that left the document. */
+    /** Drops the drafts of the steps that left the document. */
     prune(ids: string[]) {
       for (const [id, entry] of entries) {
         if (ids.includes(id)) continue;

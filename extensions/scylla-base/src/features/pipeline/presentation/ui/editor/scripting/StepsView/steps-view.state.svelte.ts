@@ -7,8 +7,8 @@ const LIST_AUTO_HIDE_PX = 800;
 const PROPERTIES_AUTO_HIDE_PX = 1100;
 
 // In percent of the group they belong to: the view for the list, the middle and the properties,
-// the middle for the panes of the open jobs.
-export const JOBS_VIEW_SIZES = {
+// the middle for the panes of the open steps.
+export const STEPS_VIEW_SIZES = {
   list: { default: 18, min: 14, max: 30 },
   middle: { min: 25 },
   pane: { min: 25 },
@@ -87,17 +87,17 @@ const createSidePanel = (
   };
 };
 
-export interface JobsViewOptions {
-  /** False when no job is focused: the properties have nothing to show. */
+export interface StepsViewOptions {
+  /** False when no step is focused: the properties have nothing to show. */
   hasProperties?: () => boolean;
 }
 
-export const createJobsViewState = ({ hasProperties = () => true }: JobsViewOptions = {}) => {
-  const list = createSidePanel(LIST_AUTO_HIDE_PX, () => true, JOBS_VIEW_SIZES.list.default);
+export const createStepsViewState = ({ hasProperties = () => true }: StepsViewOptions = {}) => {
+  const list = createSidePanel(LIST_AUTO_HIDE_PX, () => true, STEPS_VIEW_SIZES.list.default);
   const properties = createSidePanel(
     PROPERTIES_AUTO_HIDE_PX,
     hasProperties,
-    JOBS_VIEW_SIZES.properties.default,
+    STEPS_VIEW_SIZES.properties.default,
   );
 
   // The first measure can hide a panel: that change is not animated, or a narrow view would

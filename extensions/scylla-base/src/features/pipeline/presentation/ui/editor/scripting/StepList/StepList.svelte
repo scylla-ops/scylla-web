@@ -14,9 +14,9 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-  import { jobRelations, jobRows, jobStages, type JobRow } from './job-list.calculator.ts';
-  import { acceptJobDrop, dragJob } from './job-drag.attachments.ts';
-  import { createJobDrag } from './job-drag.state.svelte.ts';
+  import { stepRelations, stepRows, stepStages, type StepRow } from './step-list.calculator.ts';
+  import { acceptStepDrop, dragStep } from './step-drag.attachments.ts';
+  import { createStepDrag } from './step-drag.state.svelte.ts';
   import { scriptingMessages } from '../scripting.messages.ts';
   import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
   import {
@@ -26,31 +26,31 @@
 
   interface Props {
     steps: PipelineStep[];
-    /** The job of the focused pane. */
+    /** The step of the focused pane. */
     activeId: string | null;
     onOpen: (id: string) => void;
     onOpenToSide: (id: string) => void;
     onAdd: () => void;
     onRemove: (id: string) => void;
-    /** A job dropped on `target`, or on the "runs first" zone (`null`). */
+    /** A step dropped on `target`, or on the "runs first" zone (`null`). */
     onMove: (id: string, target: string | null, keep: boolean) => void;
   }
 
   let { steps, activeId, onOpen, onOpenToSide, onAdd, onRemove, onMove }: Props = $props();
 
   const uid = $props.id();
-  const stages = $derived(jobStages(jobRows(steps)));
+  const stages = $derived(stepStages(stepRows(steps)));
 
-  // The job whose links show: the one under the pointer, else the open one.
+  // The step whose links show: the one under the pointer, else the open one.
   let hovered = $state<string | null>(null);
-  const relations = $derived(jobRelations(steps, hovered ?? activeId));
+  const relations = $derived(stepRelations(steps, hovered ?? activeId));
 
-  const drag = createJobDrag({
+  const drag = createStepDrag({
     onDrop: (id, target, keep) => onMove(id, target, keep),
   });
 </script>
 
-{#snippet jobRow(row: JobRow)}
+{#snippet stepRow(row: StepRow)}
   {@const Icon = stepIcon(row.step.kind)}
   {@const active = row.step.id === activeId}
   {@const dragged = drag.dragged === row.step.id}
@@ -66,7 +66,7 @@
     )}
     onpointerenter={() => (hovered = row.step.id)}
     onpointerleave={() => (hovered = null)}
-    {@attach acceptJobDrop(() => ({ target: row.step.id, drag }))}
+    {@attach acceptStepDrop(() => ({ target: row.step.id, drag }))}
   >
     <!-- Its width is kept while it is hidden, so nothing shifts when the pointer comes. -->
     <span
@@ -75,7 +75,7 @@
         'flex w-4 shrink-0 cursor-grab items-center justify-center self-stretch text-muted-foreground opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 active:cursor-grabbing',
         dragged && 'opacity-100',
       )}
-      {@attach dragJob(() => ({ id: row.step.id, drag }))}
+      {@attach dragStep(() => ({ id: row.step.id, drag }))}
     >
       <GripVerticalIcon class="size-3.5" />
     </span>
@@ -90,9 +90,9 @@
         <span class="min-w-0 flex-1 truncate">{row.step.id}</span>
         {#if row.hasIssue}
           <CircleAlertIcon class="size-3.5 shrink-0 text-destructive" />
-          <span class="sr-only">{t(scriptingMessages.jobIssue)}</span>
+          <span class="sr-only">{t(scriptingMessages.stepIssue)}</span>
         {/if}
-        <!-- Shown before the id, read after it: the name of the button starts with the job. -->
+        <!-- Shown before the id, read after it: the name of the button starts with the step. -->
         <span class="-order-1 shrink-0 text-[11px] text-muted-foreground">
           {row.step.kind === 'script' ? row.step.shell : t(scriptingMessages.commandShort)}
         </span>
@@ -108,7 +108,7 @@
     <DropdownMenu>
       <DropdownMenuTrigger
         class={cn(buttonVariants({ variant: 'ghost', size: 'icon-sm' }), 'shrink-0')}
-        aria-label={t(scriptingMessages.jobActions(row.step.id))}
+        aria-label={t(scriptingMessages.stepActions(row.step.id))}
       >
         <EllipsisIcon class="size-4" />
       </DropdownMenuTrigger>
@@ -117,21 +117,21 @@
           {t(scriptingMessages.openToSide)}
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => onRemove(row.step.id)} class="text-destructive">
-          {t(scriptingMessages.deleteJob)}
+          {t(scriptingMessages.deleteStep)}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   </li>
 {/snippet}
 
-<nav aria-label={t(scriptingMessages.jobs)} class="@container flex h-full flex-col">
+<nav aria-label={t(scriptingMessages.steps)} class="@container flex h-full flex-col">
   <!-- During a drag, the header is the "runs first" zone: the rows do not move. -->
   <div
     class="relative flex items-center px-4 pt-3 pb-1.5"
-    {@attach acceptJobDrop(() => ({ target: null, drag }))}
+    {@attach acceptStepDrop(() => ({ target: null, drag }))}
   >
     <span class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-      {t(scriptingMessages.jobs)} · {steps.length}
+      {t(scriptingMessages.steps)} · {steps.length}
     </span>
     {#if drag.dragged !== null}
       <div
@@ -146,7 +146,7 @@
   </div>
 
   {#if steps.length === 0}
-    <p class="px-4 py-2 text-sm text-muted-foreground">{t(scriptingMessages.noJob)}</p>
+    <p class="px-4 py-2 text-sm text-muted-foreground">{t(scriptingMessages.noStep)}</p>
   {/if}
 
   <div class="relative flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-2 pb-2">
@@ -160,7 +160,7 @@
         </h3>
         <ul class="flex flex-col gap-0.5">
           {#each stage as row (row.step.id)}
-            {@render jobRow(row)}
+            {@render stepRow(row)}
           {/each}
         </ul>
       </div>
@@ -179,7 +179,7 @@
       onclick={onAdd}
     >
       <PlusIcon class="size-4" />
-      <span class="sr-only @[12rem]:not-sr-only">{t(scriptingMessages.newJob)}</span>
+      <span class="sr-only @[12rem]:not-sr-only">{t(scriptingMessages.newStep)}</span>
     </Button>
     <p
       class={cn(

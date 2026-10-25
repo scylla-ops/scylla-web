@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { flushSync } from 'svelte';
-import { createJobPanes, type JobPanes } from '../job-panes.svelte.ts';
+import { createStepPanes, type StepPanes } from '../step-panes.svelte.ts';
 
 const withPanes = (
   initial: string[],
-  run: (panes: JobPanes, setIds: (ids: string[]) => void) => void,
+  run: (panes: StepPanes, setIds: (ids: string[]) => void) => void,
 ) => {
   const cleanup = $effect.root(() => {
     let ids = $state(initial);
-    const panes = createJobPanes(() => ids);
+    const panes = createStepPanes(() => ids);
     flushSync();
     run(panes, next => {
       ids = next;
@@ -18,22 +18,22 @@ const withPanes = (
   cleanup();
 };
 
-describe('createJobPanes', () => {
-  it('shows the first job until a job is opened', () => {
+describe('createStepPanes', () => {
+  it('shows the first step until a step is opened', () => {
     withPanes(['build', 'test'], panes => {
       expect(panes.panes).toEqual([{ tabs: ['build'], active: 'build' }]);
-      expect(panes.focusedJob).toBe('build');
+      expect(panes.focusedId).toBe('build');
     });
   });
 
-  it('shows the first job of the ids it is given, so the list order decides', () => {
+  it('shows the first step of the ids it is given, so the list order decides', () => {
     withPanes(['build', 'test'], (panes, setIds) => {
       setIds(['test', 'build']);
-      expect(panes.focusedJob).toBe('test');
+      expect(panes.focusedId).toBe('test');
     });
   });
 
-  it('keeps the shown job when the order of the ids changes after a pin', () => {
+  it('keeps the shown step when the order of the ids changes after a pin', () => {
     withPanes(['a', 'b'], (panes, setIds) => {
       panes.pin();
       setIds(['b', 'a']);
@@ -41,14 +41,14 @@ describe('createJobPanes', () => {
     });
   });
 
-  it('adds a tab to the focused pane and keeps the first job open', () => {
+  it('adds a tab to the focused pane and keeps the first step open', () => {
     withPanes(['build', 'test'], panes => {
       panes.open('test');
       expect(panes.panes).toEqual([{ tabs: ['build', 'test'], active: 'test' }]);
     });
   });
 
-  it('opens a job to the side in a second pane, and focuses it', () => {
+  it('opens a step to the side in a second pane, and focuses it', () => {
     withPanes(['build', 'test'], panes => {
       panes.openToSide('test');
       expect(panes.panes).toEqual([
@@ -70,7 +70,7 @@ describe('createJobPanes', () => {
     });
   });
 
-  it('splits the focused job into a second pane', () => {
+  it('splits the focused step into a second pane', () => {
     withPanes(['build'], panes => {
       panes.split();
       expect(panes.panes).toEqual([
@@ -103,11 +103,11 @@ describe('createJobPanes', () => {
     withPanes(['a'], panes => {
       panes.close('a', 0);
       expect(panes.panes).toEqual([{ tabs: [], active: null }]);
-      expect(panes.focusedJob).toBeNull();
+      expect(panes.focusedId).toBeNull();
     });
   });
 
-  it('drops the tab of a job that leaves the document', () => {
+  it('drops the tab of a step that leaves the document', () => {
     withPanes(['a', 'b'], (panes, setIds) => {
       panes.open('b');
       setIds(['a']);

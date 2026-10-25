@@ -1,14 +1,14 @@
-export interface JobDragParams {
-  /** `target` is the job dropped on, or `null` for the "runs first" zone. */
+export interface StepDragParams {
+  /** `target` is the step dropped on, or `null` for the "runs first" zone. */
   onDrop: (id: string, target: string | null, keep: boolean) => void;
 }
 
 /**
- * A job dragged in the list, onto the job it must wait for. A drop target is a job id, or `null`
- * for the "runs first" zone. Any job but the dragged one is a target: a drop on a job that waits
+ * A step dragged in the list, onto the step it must wait for. A drop target is a step id, or `null`
+ * for the "runs first" zone. Any step but the dragged one is a target: a drop on a step that waits
  * for it rearranges the dependencies (`stepsAfterDrop`).
  */
-export const createJobDrag = (params: JobDragParams) => {
+export const createStepDrag = (params: StepDragParams) => {
   let dragged = $state<string | null>(null);
   // `undefined`: the pointer is over no target. `null` is a target: the "runs first" zone.
   let hovered = $state<string | null | undefined>(undefined);
@@ -43,4 +43,4 @@ export const createJobDrag = (params: JobDragParams) => {
   };
 };
 
-export type JobDrag = ReturnType<typeof createJobDrag>;
+export type StepDrag = ReturnType<typeof createStepDrag>;

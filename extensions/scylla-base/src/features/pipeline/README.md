@@ -95,27 +95,27 @@ one entry — the canvas, the switch and the layout do not change.
 ### The scripting tab: one step at a time
 
 The script used to be one large JSON text: a shell script was a JSON string, with `\n` and
-`\"` in it, and a pipeline of ten jobs was hundreds of lines to scroll. The scripting tab now
+`\"` in it, and a pipeline of ten steps was hundreds of lines to scroll. The scripting tab now
 has two views of the same document:
 
 - **By step** (the default): the list of the steps in the order they run, an editor for the open
-  job, and its properties. A script is edited as shell code; a command, which runs with no
-  shell, as a form. Two jobs can be open side by side, as in an IDE.
-  To change what a job waits for, drag it in the list onto that job: the list follows the
+  step, and its properties. A script is edited as shell code; a command, which runs with no
+  shell, as a form. Two steps can be open side by side, as in an IDE.
+  To change what a step waits for, drag it in the list onto that step: the list follows the
   graph, so a drop sets the dependencies instead of a position. Alt keeps the other ones.
-  The list and the properties each have a button in the tab bar of the jobs to hide them. They
+  The list and the properties each have a button in the tab bar of the steps to hide them. They
   hide themselves when the view is too narrow for three columns, and a click on the button wins
   over the width for the rest of the visit. A handle between two panels resizes them, also
-  between the two open jobs; drag a panel under its minimum and it closes.
+  between the two open steps; drag a panel under its minimum and it closes.
 - **Full document**: the JSON text, as it is saved, to copy a whole pipeline or paste one.
 
-The jobs are views, not files: every edit goes back to the one document, as the blueprint does,
-and the document stays what is saved. A document that does not parse has no jobs to show, so
+The steps are views, not files: every edit goes back to the one document, as the blueprint does,
+and the document stays what is saved. A document that does not parse has no steps to show, so
 the tab shows its text until it is fixed.
 
-A job has one draft (`job-drafts.svelte.ts`), shared by the panes that show it and by its
-properties: two drafts of one job would each write their own copy and undo the other's edits.
-The draft is built again only when the document changes the job from elsewhere.
+A step has one draft (`step-drafts.svelte.ts`), shared by the panes that show it and by its
+properties: two drafts of one step would each write their own copy and undo the other's edits.
+The draft is built again only when the document changes the step from elsewhere.
 
 The script side is CodeMirror 6, mounted with the `renderCodeMirror` attachment of `@scylla/ui`. `pipeline-script.state.svelte.ts` holds `script` and `initialScript`: the draft text
 and the baseline for the dirty check. That is UI state hosted in a ViewModel, and it stays there

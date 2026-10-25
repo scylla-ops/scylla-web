@@ -1,25 +1,25 @@
-/** The jobs open in one pane, and the one it shows. */
-export interface JobPane {
+/** The steps open in one pane, and the one it shows. */
+export interface StepPane {
   tabs: string[];
   active: string | null;
 }
 
-/** Two jobs side by side, as in an IDE: one pane, or two. */
+/** Two steps side by side, as in an IDE: one pane, or two. */
 const MAX_PANES = 2;
 
-const emptyPane = (): JobPane => ({ tabs: [], active: null });
+const emptyPane = (): StepPane => ({ tabs: [], active: null });
 
 /**
- * The open jobs of the scripting view. The panes are derived from the job ids, in the order the
- * list shows them, so the tabs of a removed job go away with it. Until a job is opened, the first
+ * The open steps of the scripting view. The panes are derived from the step ids, in the order the
+ * list shows them, so the tabs of a removed step go away with it. Until a step is opened, the first
  * one of the list is shown.
  */
-export const createJobPanes = (ids: () => string[]) => {
-  let panes = $state<JobPane[]>([emptyPane()]);
+export const createStepPanes = (ids: () => string[]) => {
+  let panes = $state<StepPane[]>([emptyPane()]);
   let focused = $state(0);
   let opened = $state(false);
 
-  const visible = $derived.by((): JobPane[] => {
+  const visible = $derived.by((): StepPane[] => {
     const known = ids();
     const shown = panes.map(pane => {
       const tabs = pane.tabs.filter(id => known.includes(id));
@@ -35,8 +35,8 @@ export const createJobPanes = (ids: () => string[]) => {
 
   const focusedIndex = $derived(Math.min(focused, visible.length - 1));
 
-  /** Each change starts from what is shown: a tab of a removed job is dropped for good. */
-  const write = (next: JobPane[], focus: number) => {
+  /** Each change starts from what is shown: a tab of a removed step is dropped for good. */
+  const write = (next: StepPane[], focus: number) => {
     panes = next;
     focused = focus;
     opened = true;
@@ -60,8 +60,8 @@ export const createJobPanes = (ids: () => string[]) => {
     get focused() {
       return focusedIndex;
     },
-    /** The job of the focused pane: the properties panel shows it. */
-    get focusedJob() {
+    /** The step of the focused pane: the properties panel shows it. */
+    get focusedId() {
       return visible[focusedIndex]?.active ?? null;
     },
     get canSplit() {
@@ -70,12 +70,12 @@ export const createJobPanes = (ids: () => string[]) => {
 
     open,
 
-    /** Keeps the jobs shown now: a later change of the list order does not move them. */
+    /** Keeps the steps shown now: a later change of the list order does not move them. */
     pin() {
       write(snapshot(), focusedIndex);
     },
 
-    /** Opens the job in the other pane, which is created when there is one pane only. */
+    /** Opens the step in the other pane, which is created when there is one pane only. */
     openToSide(id: string) {
       if (visible.length < MAX_PANES) {
         write([...snapshot(), { tabs: [id], active: id }], visible.length);
@@ -84,7 +84,7 @@ export const createJobPanes = (ids: () => string[]) => {
       }
     },
 
-    /** Shows the job of the focused pane in a new pane too. */
+    /** Shows the step of the focused pane in a new pane too. */
     split() {
       const active = visible[focusedIndex]?.active;
       if (active && visible.length < MAX_PANES) write([...snapshot(), { tabs: [active], active }], 1);
@@ -129,4 +129,4 @@ export const createJobPanes = (ids: () => string[]) => {
   };
 };
 
-export type JobPanes = ReturnType<typeof createJobPanes>;
+export type StepPanes = ReturnType<typeof createStepPanes>;

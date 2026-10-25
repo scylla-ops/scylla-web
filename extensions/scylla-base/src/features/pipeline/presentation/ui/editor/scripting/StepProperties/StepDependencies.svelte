@@ -13,9 +13,9 @@
 
   interface Props {
     deps: string[];
-    /** The jobs it can wait for without a loop. */
+    /** The steps it can wait for without a loop. */
     candidates: string[];
-    /** The jobs that wait for this one. */
+    /** The steps that wait for this one. */
     dependents: string[];
     onChange: (deps: string[]) => void;
     onOpen: (id: string) => void;

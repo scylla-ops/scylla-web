@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { flushSync } from 'svelte';
-import { acceptJobDrop, dragJob } from './job-drag.attachments.ts';
-import { createJobDrag, type JobDrag } from './job-drag.state.svelte.ts';
+import { acceptStepDrop, dragStep } from './step-drag.attachments.ts';
+import { createStepDrag, type StepDrag } from './step-drag.state.svelte.ts';
 
 const fire = (node: HTMLElement, type: string, init: { altKey?: boolean } = {}) => {
   const event = Object.assign(new Event(type, { bubbles: true, cancelable: true }), {
@@ -15,21 +15,21 @@ const fire = (node: HTMLElement, type: string, init: { altKey?: boolean } = {}) 
 };
 
 const withList = (
-  run: (rows: Record<string, HTMLElement>, zone: HTMLElement, drag: JobDrag) => void,
+  run: (rows: Record<string, HTMLElement>, zone: HTMLElement, drag: StepDrag) => void,
 ) => {
   const onDrop = vi.fn();
   const cleanup = $effect.root(() => {
-    const drag = createJobDrag({ onDrop });
+    const drag = createStepDrag({ onDrop });
     const rows = Object.fromEntries(
       ['build', 'lint', 'test'].map(id => [id, document.createElement('li')]),
     );
     const zone = document.createElement('div');
     $effect(() => {
       for (const [id, row] of Object.entries(rows)) {
-        dragJob(() => ({ id, drag }))(row);
-        acceptJobDrop(() => ({ target: id, drag }))(row);
+        dragStep(() => ({ id, drag }))(row);
+        acceptStepDrop(() => ({ target: id, drag }))(row);
       }
-      acceptJobDrop(() => ({ target: null, drag }))(zone);
+      acceptStepDrop(() => ({ target: null, drag }))(zone);
     });
     flushSync();
     run(rows, zone, drag);
@@ -38,8 +38,8 @@ const withList = (
   return onDrop;
 };
 
-describe('job drag', () => {
-  it('drops a job on a job it can wait for', () => {
+describe('step drag', () => {
+  it('drops a step on a step it can wait for', () => {
     const onDrop = withList((rows, _zone, drag) => {
       fire(rows.test, 'dragstart');
       expect(fire(rows.build, 'dragover').defaultPrevented).toBe(true);
@@ -59,7 +59,7 @@ describe('job drag', () => {
     expect(onDrop).toHaveBeenCalledWith('test', 'lint', true);
   });
 
-  it('refuses the dragged job itself', () => {
+  it('refuses the dragged step itself', () => {
     const onDrop = withList((rows, _zone, drag) => {
       fire(rows.build, 'dragstart');
       expect(fire(rows.build, 'dragover').defaultPrevented).toBe(false);
@@ -69,7 +69,7 @@ describe('job drag', () => {
     expect(onDrop).not.toHaveBeenCalled();
   });
 
-  it('makes the job run first on the zone, Alt or not', () => {
+  it('makes the step run first on the zone, Alt or not', () => {
     const onDrop = withList((rows, zone) => {
       fire(rows.test, 'dragstart');
       fire(zone, 'drop', { altKey: true });
@@ -86,7 +86,7 @@ describe('job drag', () => {
     expect(onDrop).not.toHaveBeenCalled();
   });
 
-  it('carries the job in a private type, which no editor or input takes', () => {
+  it('carries the step in a private type, which no editor or input takes', () => {
     const setData = vi.fn();
     withList(rows => {
       const event = Object.assign(new Event('dragstart', { bubbles: true }), {
@@ -95,17 +95,17 @@ describe('job drag', () => {
       rows.test.dispatchEvent(event);
     });
     expect(setData).toHaveBeenCalledTimes(1);
-    expect(setData).toHaveBeenCalledWith('application/x-scylla-job', 'test');
+    expect(setData).toHaveBeenCalledWith('application/x-scylla-step', 'test');
   });
 
   it('ends the drag when the dragged row leaves the list before dragend', () => {
-    let drag!: JobDrag;
+    let drag!: StepDrag;
     const keep = $effect.root(() => {
-      drag = createJobDrag({ onDrop: vi.fn() });
+      drag = createStepDrag({ onDrop: vi.fn() });
     });
     const row = document.createElement('li');
     const stop = $effect.root(() => {
-      $effect(() => dragJob(() => ({ id: 'test', drag }))(row));
+      $effect(() => dragStep(() => ({ id: 'test', drag }))(row));
     });
     flushSync();
     fire(row, 'dragstart');

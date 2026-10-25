@@ -25,14 +25,14 @@ const renderScripting = (initialScript = document) => {
   return () => doc;
 };
 
-/** The job each pane shows. */
-const shownJobs = () =>
+/** The step each pane shows. */
+const shownSteps = () =>
   screen
     .getAllByRole('region')
     .map(pane => within(pane).getByRole('button', { current: true }).textContent?.trim());
 
 describe('PipelineScripting', () => {
-  it('lists the jobs in the order they run, and opens the first one', () => {
+  it('lists the steps in the order they run, and opens the first one', () => {
     renderScripting();
 
     const list = screen.getByRole('navigation', { name: 'Steps' });
@@ -45,7 +45,7 @@ describe('PipelineScripting', () => {
     expect(screen.getByRole('complementary', { name: 'Step properties' })).toBeInTheDocument();
   });
 
-  it('opens the first job of the list, not the first of the document', () => {
+  it('opens the first step of the list, not the first of the document', () => {
     renderScripting(
       JSON.stringify({
         name: 'web',
@@ -82,7 +82,7 @@ describe('PipelineScripting', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
   });
 
-  it('shows the full document, and no jobs, while the JSON does not parse', () => {
+  it('shows the full document, and no steps, while the JSON does not parse', () => {
     renderScripting('{ "nodes": [');
 
     expect(screen.getByRole('tab', { name: 'By step' })).toBeDisabled();
@@ -90,9 +90,9 @@ describe('PipelineScripting', () => {
   });
 
   it.each([
-    ['two jobs share an id', [{ id: 'a' }, { id: 'a' }]],
-    ['a job lists a dependency twice', [{ id: 'a' }, { id: 'b', deps: ['a', 'a'] }]],
-  ])('shows the full document, and renders no job, when %s', (_, nodes) => {
+    ['two steps share an id', [{ id: 'a' }, { id: 'a' }]],
+    ['a step lists a dependency twice', [{ id: 'a' }, { id: 'b', deps: ['a', 'a'] }]],
+  ])('shows the full document, and renders no step, when %s', (_, nodes) => {
     renderScripting(JSON.stringify({ name: 'web', nodes }));
 
     expect(screen.getByRole('tab', { name: 'By step' })).toBeDisabled();
@@ -100,7 +100,7 @@ describe('PipelineScripting', () => {
     expect(screen.queryByRole('navigation', { name: 'Steps' })).not.toBeInTheDocument();
   });
 
-  it('falls back to the full document when an edit of the text repeats a job id', async () => {
+  it('falls back to the full document when an edit of the text repeats a step id', async () => {
     const doc = renderScripting();
     expect(screen.getByRole('navigation', { name: 'Steps' })).toBeInTheDocument();
 
@@ -112,7 +112,7 @@ describe('PipelineScripting', () => {
     expect(screen.queryByRole('navigation', { name: 'Steps' })).not.toBeInTheDocument();
   });
 
-  it('opens a command job as a form, with the line that runs', async () => {
+  it('opens a command step as a form, with the line that runs', async () => {
     const user = userEvent.setup();
     renderScripting();
 
@@ -123,7 +123,7 @@ describe('PipelineScripting', () => {
     expect(screen.getByText('make test', { selector: 'code' })).toBeInTheDocument();
   });
 
-  it('marks only the shown job as current among the open ones, each with a close button', async () => {
+  it('marks only the shown step as current among the open ones, each with a close button', async () => {
     const user = userEvent.setup();
     renderScripting();
     await user.click(
@@ -140,17 +140,17 @@ describe('PipelineScripting', () => {
     expect(within(open).queryByRole('tab')).not.toBeInTheDocument();
   });
 
-  it('opens a job to the side, in a second pane', async () => {
+  it('opens a step to the side, in a second pane', async () => {
     renderScripting();
 
     await userEvent.click(screen.getByRole('button', { name: 'Actions of test' }));
     await userEvent.click(await findFloating('menuitem', 'Open to the side'));
 
-    expect(shownJobs()).toEqual(['build', 'test']);
+    expect(shownSteps()).toEqual(['build', 'test']);
     expect(screen.getAllByRole('button', { name: 'Close the pane' })).toHaveLength(2);
   });
 
-  it('puts a resize handle between the panels and the open job, and one more per open job', async () => {
+  it('puts a resize handle between the panels and the open step, and one more per open step', async () => {
     renderScripting();
     expect(screen.getAllByRole('separator', { name: 'Resize panel' })).toHaveLength(2);
 
@@ -160,20 +160,20 @@ describe('PipelineScripting', () => {
     expect(screen.getAllByRole('separator', { name: 'Resize panel' })).toHaveLength(3);
   });
 
-  it('shows no properties, and a hidden handle for them, in a pipeline with no job', () => {
+  it('shows no properties, and a hidden handle for them, in a pipeline with no step', () => {
     renderScripting(JSON.stringify({ name: 'web', nodes: [] }));
 
     expect(screen.getByRole('navigation', { name: 'Steps' })).toBeInTheDocument();
     expect(screen.queryByRole('complementary', { name: 'Step properties' })).not.toBeInTheDocument();
     expect(
-      globalThis.document.querySelector('[data-pane-id="jobs-view-properties"]'),
+      globalThis.document.querySelector('[data-pane-id="steps-view-properties"]'),
     ).toHaveAttribute('data-collapsed', '');
     // The list handle only: the one of the properties is hidden.
     const handles = screen.getAllByRole('separator', { name: 'Resize panel' });
     expect(handles.filter(handle => !handle.classList.contains('hidden'))).toHaveLength(1);
   });
 
-  it('keeps a list that was hidden hidden when a second job opens', async () => {
+  it('keeps a list that was hidden hidden when a second step opens', async () => {
     const user = userEvent.setup();
     renderScripting();
     await user.click(screen.getByRole('button', { name: 'Actions of test' }));
@@ -183,7 +183,7 @@ describe('PipelineScripting', () => {
 
     await user.click(screen.getAllByRole('button', { name: 'Close the pane' })[1]);
 
-    expect(shownJobs()).toEqual(['build']);
+    expect(shownSteps()).toEqual(['build']);
     expect(screen.queryByRole('navigation', { name: 'Steps' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Show or hide the steps' })).toHaveAttribute(
       'aria-expanded',
@@ -191,17 +191,17 @@ describe('PipelineScripting', () => {
     );
   });
 
-  it('adds a job after the open one, opens it, and writes it to the document', async () => {
+  it('adds a step after the open one, opens it, and writes it to the document', async () => {
     const user = userEvent.setup();
     const doc = renderScripting();
 
     await user.click(screen.getAllByRole('button', { name: 'New step' })[0]);
 
-    expect(screen.getByRole('button', { name: 'job', current: true })).toBeInTheDocument();
-    expect(doc().steps.find(step => step.id === 'job')?.deps).toEqual(['build']);
+    expect(screen.getByRole('button', { name: 'step', current: true })).toBeInTheDocument();
+    expect(doc().steps.find(step => step.id === 'step')?.deps).toEqual(['build']);
   });
 
-  it('renames a job from its properties, and the jobs that wait for it follow', async () => {
+  it('renames a step from its properties, and the steps that wait for it follow', async () => {
     const user = userEvent.setup();
     const doc = renderScripting();
 
@@ -214,7 +214,7 @@ describe('PipelineScripting', () => {
   });
 
   describe('the dependency picker', () => {
-    const jobs = JSON.stringify({
+    const steps = JSON.stringify({
       name: 'web',
       nodes: ['a', 'b', 'c'].map(id => ({
         id,
@@ -234,7 +234,7 @@ describe('PipelineScripting', () => {
 
     it('offers a dependency again once its chip is removed', async () => {
       const user = userEvent.setup();
-      const doc = renderScripting(jobs);
+      const doc = renderScripting(steps);
 
       await pick(user, 'b');
       expect(depsOf(doc, 'a')).toEqual(['b']);
@@ -245,9 +245,9 @@ describe('PipelineScripting', () => {
       expect(depsOf(doc, 'a')).toEqual(['b']);
     });
 
-    it('adds the dependency that was just picked on another job', async () => {
+    it('adds the dependency that was just picked on another step', async () => {
       const user = userEvent.setup();
-      const doc = renderScripting(jobs);
+      const doc = renderScripting(steps);
 
       await pick(user, 'b');
       const list = screen.getByRole('navigation', { name: 'Steps' });
