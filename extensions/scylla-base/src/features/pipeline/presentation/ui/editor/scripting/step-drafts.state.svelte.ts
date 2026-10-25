@@ -6,7 +6,7 @@ import {
 import {
   createStepDraft,
   type StepDraft,
-} from '@base/features/pipeline/presentation/ui/editor/step/step-draft.svelte.ts';
+} from '@base/features/pipeline/presentation/ui/editor/step/step-draft.state.svelte.ts';
 
 export interface StepDraftsParams {
   onChange: (id: string, value: StepDefinition) => void;

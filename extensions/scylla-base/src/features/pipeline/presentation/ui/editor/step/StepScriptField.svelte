@@ -4,9 +4,9 @@
   import { renderCodeMirror } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { StepDraft } from './step-draft.svelte.ts';
+  import type { StepDraft } from './step-draft.state.svelte.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
-  import { createScriptEditor } from '@base/features/pipeline/presentation/ui/editor/script-editor.svelte.ts';
+  import { createCodeEditor } from '@base/features/pipeline/presentation/ui/editor/controls/code-editor.effect.svelte.ts';
 
   interface Props {
     draft: StepDraft;
@@ -17,7 +17,7 @@
 
   let { draft, flush = false, class: className }: Props = $props();
 
-  const editor = createScriptEditor({
+  const editor = createCodeEditor({
     value: () => draft.script,
     onChange: next => (draft.script = next),
     extensions: () => [StreamLanguage.define(shellLanguage)],

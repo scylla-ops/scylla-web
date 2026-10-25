@@ -2,11 +2,11 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
 import type * as Utils from '@scylla/ui/utils';
 import {
-  createPipelineScript,
-  type PipelineScript,
-} from '@base/features/pipeline/presentation/ui/editor/pipeline-script.state.svelte.ts';
+  createPipelineDocument,
+  type PipelineDocument,
+} from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
 import {
-  createPipelineScriptingState,
+  createPipelineDocumentingState,
   type PipelineScriptingState,
 } from '../pipeline-scripting.state.svelte.ts';
 
@@ -25,15 +25,15 @@ const document = JSON.stringify({
 });
 
 const withScripting = (
-  run: (scripting: PipelineScriptingState, doc: PipelineScript) => void,
+  run: (scripting: PipelineScriptingState, doc: PipelineDocument) => void,
   initialScript = document,
 ) => {
   const cleanup = $effect.root(() => {
-    const doc = createPipelineScript({
+    const doc = createPipelineDocument({
       projectId: () => 'project-1',
       initialScript: () => initialScript,
     });
-    const scripting = createPipelineScriptingState({
+    const scripting = createPipelineDocumentingState({
       steps: () => doc.steps,
       isValid: () => doc.isValid,
       onStepsChange: steps => doc.setSteps(steps),
@@ -44,9 +44,9 @@ const withScripting = (
   cleanup();
 };
 
-const stepIn = (doc: PipelineScript, id: string) => doc.steps.find(step => step.id === id);
+const stepIn = (doc: PipelineDocument, id: string) => doc.steps.find(step => step.id === id);
 
-describe('createPipelineScriptingState', () => {
+describe('createPipelineDocumentingState', () => {
   it('shows the steps one by one by default', () => {
     withScripting(scripting => {
       expect(scripting.mode).toBe('steps');

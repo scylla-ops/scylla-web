@@ -48,7 +48,7 @@ export const PipelineModule = {
           highlight: pipelineName,
           detail: msg`Jobs`,
         }),
-        page: () => import('./presentation/ui/PipelineJobsRoute.svelte'),
+        page: () => import('./presentation/ui/PipelineJobs.page.svelte'),
       },
     ],
   },

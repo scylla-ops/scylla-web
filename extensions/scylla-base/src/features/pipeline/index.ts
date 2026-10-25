@@ -10,5 +10,5 @@ export {
   PIPELINES_QUERY_ROOT,
   CREATE_PIPELINE_MUTATION_KEY,
   RUN_PIPELINE_MUTATION_KEY,
-} from './presentation/pipelines.query-keys.ts';
+} from './presentation/pipeline.query-keys.ts';
 export { asPipelineFeed, pipelineQueries } from './presentation/pipeline.queries.ts';

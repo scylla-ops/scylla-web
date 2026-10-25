@@ -5,21 +5,21 @@
   import { renderCodeMirror } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type { PipelineScript } from '@base/features/pipeline/presentation/ui/editor/pipeline-script.state.svelte.ts';
-  import { createScriptEditor } from '@base/features/pipeline/presentation/ui/editor/script-editor.svelte.ts';
+  import type { PipelineDocument } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
+  import { createCodeEditor } from '@base/features/pipeline/presentation/ui/editor/controls/code-editor.effect.svelte.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
   import { copyToClipboard } from './copy-to-clipboard.ts';
   import { scriptingMessages } from './scripting.messages.ts';
 
   interface Props {
-    doc: PipelineScript;
+    doc: PipelineDocument;
   }
 
   let { doc }: Props = $props();
 
   const parseLinter = jsonParseLinter();
 
-  const editor = createScriptEditor({
+  const editor = createCodeEditor({
     value: () => doc.script,
     onChange: next => doc.setScript(next),
     // An empty editor is not an error: `parseScript` says so too.

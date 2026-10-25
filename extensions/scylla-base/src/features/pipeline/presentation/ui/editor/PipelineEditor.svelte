@@ -4,8 +4,8 @@
   import { toast } from '@scylla/ui/utils';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import {
-    createPipelineScript,
-  } from './pipeline-script.state.svelte.ts';
+    createPipelineDocument,
+  } from './pipeline-document.state.svelte.ts';
   import PipelineBlueprint from './blueprint/PipelineBlueprint.svelte';
   import PipelineEditorHeader from './PipelineEditorHeader/PipelineEditorHeader.svelte';
   import PipelineScripting from './scripting/PipelineScripting/PipelineScripting.svelte';
@@ -31,7 +31,7 @@
     isSubmitPending = false,
   }: Props = $props();
 
-  const doc = createPipelineScript({
+  const doc = createPipelineDocument({
     projectId: () => projectId ?? '',
     initialScript: () => initialScript,
   });

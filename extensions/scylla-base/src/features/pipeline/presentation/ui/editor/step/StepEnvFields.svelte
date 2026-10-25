@@ -16,7 +16,7 @@
   import type {
     EnvRow,
     StepDraft,
-  } from './step-draft.svelte.ts';
+  } from './step-draft.state.svelte.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {

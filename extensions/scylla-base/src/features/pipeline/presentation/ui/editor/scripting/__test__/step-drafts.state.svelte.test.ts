@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { flushSync } from 'svelte';
 import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import type * as StepDraftModule from '@base/features/pipeline/presentation/ui/editor/step/step-draft.svelte.ts';
-import { createStepDrafts } from '../step-drafts.svelte.ts';
+import type * as StepDraftModule from '@base/features/pipeline/presentation/ui/editor/step/step-draft.state.svelte.ts';
+import { createStepDrafts } from '../step-drafts.state.svelte.ts';
 
 const released = vi.hoisted(() => ({ ids: [] as string[] }));
 
 // A draft owns no effect: this one runs its cleanup when the draft's root is disposed.
-vi.mock('@base/features/pipeline/presentation/ui/editor/step/step-draft.svelte.ts', async load => {
+vi.mock('@base/features/pipeline/presentation/ui/editor/step/step-draft.state.svelte.ts', async load => {
   const actual = await load<typeof StepDraftModule>();
   return {
     ...actual,

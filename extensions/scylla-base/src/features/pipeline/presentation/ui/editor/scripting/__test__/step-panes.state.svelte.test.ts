@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { flushSync } from 'svelte';
-import { createStepPanes, type StepPanes } from '../step-panes.svelte.ts';
+import { createStepPanes, type StepPanes } from '../step-panes.state.svelte.ts';
 
 const withPanes = (
   initial: string[],

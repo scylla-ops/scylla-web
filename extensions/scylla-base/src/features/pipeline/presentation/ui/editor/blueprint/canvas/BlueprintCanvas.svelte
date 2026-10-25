@@ -14,7 +14,7 @@
   import '@xyflow/svelte/dist/style.css';
   import { t } from '@scylla/ui/i18n';
   import type { BlueprintState } from '../blueprint.state.svelte.ts';
-  import type { NodeAppearancePreference } from './node-appearance.svelte.ts';
+  import type { NodeAppearancePreference } from './node-appearance-preference.state.svelte.ts';
   import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
   import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
   import {

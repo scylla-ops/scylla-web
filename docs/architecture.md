@@ -463,8 +463,10 @@ Where the logic goes:
 | Need | Solution | Where |
 |------|----------|-------|
 | Simple UI state (a toggle, a dialog, tabs) | `$state` | the `<script>` of the `.svelte` file |
-| Page orchestration (queries + filters + pagination) | a ViewModel | `<view>.state.svelte.ts`, beside the view |
-| Complex UI logic without network | a UI-only ViewModel | `<view>.state.svelte.ts`, beside the view |
+| Page orchestration (queries + filters + pagination) | the state of the view (its ViewModel) | `<view>.state.svelte.ts`, beside the view |
+| UI state with one responsibility | a state | `<responsibility>.state.svelte.ts`, beside its users |
+| Synchronize with a system outside Svelte | an effect | `*.effect.svelte.ts`, beside its user |
+| Read an outside API from rune code | an adapter | `*.adapter.svelte.ts` |
 | A pure algorithm | a pure function | `*.calculator.ts`, beside its user |
 | DOM measurement, native events, a third-party widget | an attachment (`{@attach}`) | `*.attachments.ts`, beside its user |
 

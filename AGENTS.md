@@ -394,14 +394,31 @@ static SPA that the Rust binary serves. See `refacto_svelte.md` for the reasons.
 | Need | Solution | Where |
 |------|----------|-------|
 | Simple UI state (a toggle, a dialog, tabs) | `$state` | the `<script>` of the `.svelte` file |
-| Page orchestration (queries + filters + pagination) | a ViewModel | `<view>.state.svelte.ts`, beside the view |
-| Complex UI logic without network (a wizard, a matrix) | a UI-only ViewModel | `<view>.state.svelte.ts`, beside the view |
+| Page orchestration (queries + filters + pagination) | the state of the view (its ViewModel) | `<view>.state.svelte.ts`, beside the view |
+| UI state with one responsibility (a draft, the open panes, a drag, a preference) | a state | `<responsibility>.state.svelte.ts`, beside its users |
+| Synchronize with a system outside Svelte (the router, a store, CodeMirror) | an effect | `*.effect.svelte.ts`, beside its user |
+| Read an outside API from rune code (a store, Lingui) | an adapter | `*.adapter.svelte.ts` |
 | A pure algorithm (a chart scale, a graph layout) | a pure function | `*.calculator.ts`, beside its user |
 | DOM measurement, native events, a third-party widget | an attachment (`{@attach}`) | `*.attachments.ts`, beside its user |
 
-**Never put non-trivial logic in a `.svelte` file.** A ViewModel is named after the view it
-controls (`user-list.state.svelte.ts`), never after a global concept. A ViewModel is testable in
-plain TypeScript, without a component.
+**Never put non-trivial logic in a `.svelte` file.**
+
+**Every file of rune code tells its role in its suffix**: `.state`, `.effect`, `.adapter` or
+`.attachments`, then `.svelte.ts`. A plain `*.svelte.ts` is not permitted: a file with no role
+does not have a known place. A test takes the name of the file it tests
+(`step-draft.state.svelte.test.ts`).
+
+- **A state holds UI state for one responsibility.** It is a `create*` factory that returns
+  getters and methods, and it can run queries. A component can use several states. A state is
+  named after what it holds (`step-draft.state.svelte.ts`, `step-panes.state.svelte.ts`). The
+  state that orchestrates a view is named after the view (`user-list.state.svelte.ts`): that is
+  the ViewModel of the view. If you cannot name a state with one noun, split it.
+- **An effect synchronizes with a system outside Svelte**, for a component that calls it
+  (`organization-sync.effect.svelte.ts`). It installs `$effect`s, and returns nothing or what
+  the component must connect.
+- **An adapter makes an outside API readable from rune code** (`to-rune.adapter.svelte.ts`).
+
+A state, an effect and an adapter are testable in plain TypeScript, without a component.
 
 ### `$effect` is a last resort, not the default tool
 
@@ -510,8 +527,9 @@ The package and layer structure is mandatory; everything else must earn its plac
 |-------|---------|---------|
 | Page component file | `*.page.svelte` | `UserAdmin.page.svelte` |
 | Svelte component | `PascalCase.svelte` | `SecretList.svelte` |
-| ViewModel (runes) | `<view>.state.svelte.ts` → `create{View}State` or a `{View}State` class | `roles-page.state.svelte.ts` |
-| Rune helper (no view) | `*.svelte.ts` | `organization-sync.svelte.ts` |
+| State (runes): a ViewModel, or UI state with one responsibility | `<view>.state.svelte.ts` / `<responsibility>.state.svelte.ts` → `create{Name}` or a `{View}State` class | `roles-page.state.svelte.ts`, `step-draft.state.svelte.ts` / `createStepDraft` |
+| Effect (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` → a verb | `organization-sync.effect.svelte.ts` / `syncOrganization` |
+| Adapter (runes): an outside API read from rune code | `*.adapter.svelte.ts` | `to-rune.adapter.svelte.ts` / `toRune` |
 | Query / mutation options | `<feature>.queries.ts` → `{feature}Queries`, `{feature}Mutations` | `user.queries.ts` / `userQueries` |
 | Messages (i18n) | `*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
 | Attachment | `*.attachments.ts` (`.svelte.ts` when it uses runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |

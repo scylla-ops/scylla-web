@@ -2,14 +2,14 @@ import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeli
 import { nameOf, parseScript, stepsOf, withName, withSteps } from '@base/features/pipeline/domain/structs/pipeline-document.struct.ts';
 import { nodeIdIssue } from '@base/features/pipeline/domain/structs/step-issue.struct.ts';
 
-export interface PipelineScriptParams {
+export interface PipelineDocumentParams {
   projectId: () => string;
   /** A default draft, or a fetched pipeline. */
   initialScript: () => string | undefined;
 }
 
 /** The editor's document: the script text is the single source of truth for both tabs. */
-export const createPipelineScript = (params: PipelineScriptParams) => {
+export const createPipelineDocument = (params: PipelineDocumentParams) => {
   let script = $state('');
   /** The saved state: the dirty check compares against it. */
   let baseline = $state('');
@@ -83,4 +83,4 @@ export const createPipelineScript = (params: PipelineScriptParams) => {
   };
 };
 
-export type PipelineScript = ReturnType<typeof createPipelineScript>;
+export type PipelineDocument = ReturnType<typeof createPipelineDocument>;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { StepDraft } from '@base/features/pipeline/presentation/ui/editor/step/step-draft.svelte.ts';
+  import type { StepDraft } from '@base/features/pipeline/presentation/ui/editor/step/step-draft.state.svelte.ts';
   import StepCommandFields from '@base/features/pipeline/presentation/ui/editor/step/StepCommandFields.svelte';
   import StepKindPicker from '@base/features/pipeline/presentation/ui/editor/step/StepKindPicker.svelte';
   import StepScriptField from '@base/features/pipeline/presentation/ui/editor/step/StepScriptField.svelte';

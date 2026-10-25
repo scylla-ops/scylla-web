@@ -2,9 +2,9 @@
   import { onDestroy } from 'svelte';
   import { Tabs, TabsContent, TabsList, TabsTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type { PipelineScript } from '@base/features/pipeline/presentation/ui/editor/pipeline-script.state.svelte.ts';
+  import type { PipelineDocument } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
   import {
-    createPipelineScriptingState,
+    createPipelineDocumentingState,
     type ScriptingMode,
   } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '../scripting.messages.ts';
@@ -12,13 +12,13 @@
   import StepsView from '../StepsView/StepsView.svelte';
 
   interface Props {
-    doc: PipelineScript;
+    doc: PipelineDocument;
     projectId?: string;
   }
 
   let { doc, projectId }: Props = $props();
 
-  const scripting = createPipelineScriptingState({
+  const scripting = createPipelineDocumentingState({
     steps: () => doc.steps,
     isValid: () => doc.isValid,
     onStepsChange: steps => doc.setSteps(steps),

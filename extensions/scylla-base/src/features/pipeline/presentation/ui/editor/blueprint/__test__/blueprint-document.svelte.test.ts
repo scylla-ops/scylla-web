@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { flushSync } from 'svelte';
 import { createBlueprintState } from '../blueprint.state.svelte.ts';
-import { createPipelineScript } from '@base/features/pipeline/presentation/ui/editor/pipeline-script.state.svelte.ts';
+import { createPipelineDocument } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
 
 const SCRIPT = JSON.stringify({
   name: 'nightly',
@@ -13,7 +13,7 @@ const SCRIPT = JSON.stringify({
 /** The blueprint wired to the editor's document, as `PipelineEditor` wires them. */
 const withEditor = (run: (state: ReturnType<typeof createBlueprintState>) => void) => {
   const cleanup = $effect.root(() => {
-    const doc = createPipelineScript({ projectId: () => 'p', initialScript: () => SCRIPT });
+    const doc = createPipelineDocument({ projectId: () => 'p', initialScript: () => SCRIPT });
     flushSync();
     const state = createBlueprintState({
       steps: () => doc.steps,

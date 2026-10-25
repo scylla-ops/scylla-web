@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
-import { createPipelineScript } from '../pipeline-script.state.svelte.ts';
+import { createPipelineDocument } from '../pipeline-document.state.svelte.ts';
 
 const withScript = (
   initialScript: string | undefined,
-  run: (script: ReturnType<typeof createPipelineScript>) => void,
+  run: (script: ReturnType<typeof createPipelineDocument>) => void,
 ) => {
   const cleanup = $effect.root(() => {
-    const script = createPipelineScript({
+    const script = createPipelineDocument({
       projectId: () => 'project-1',
       initialScript: () => initialScript,
     });
@@ -24,7 +24,7 @@ const document = JSON.stringify({
 
 afterEach(() => vi.restoreAllMocks());
 
-describe('createPipelineScript', () => {
+describe('createPipelineDocument', () => {
   it('starts from the initial script, clean', () => {
     withScript(document, script => {
       expect(script.script).toBe(document);

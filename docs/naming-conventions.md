@@ -56,8 +56,9 @@ The suffix of a file tells its role.
 |------|---------|---------|
 | **Query / mutation options** | `<feature>.queries.ts` → `{feature}Queries`, `{feature}Mutations` | `user.queries.ts` / `userQueries` |
 | **Query-key factories** (when they have their own file) | `<feature>.query-keys.ts` | `jobs.query-keys.ts` |
-| **ViewModel** (runes) | `<view>.state.svelte.ts` | `roles-page.state.svelte.ts` |
-| **Rune helper** (no view) | `*.svelte.ts` | `organization-sync.svelte.ts` |
+| **State** (runes): a ViewModel, or UI state with one responsibility | `<view>.state.svelte.ts` / `<responsibility>.state.svelte.ts` | `roles-page.state.svelte.ts`, `step-draft.state.svelte.ts` |
+| **Effect** (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` | `organization-sync.effect.svelte.ts` |
+| **Adapter** (runes): an outside API read from rune code | `*.adapter.svelte.ts` | `to-rune.adapter.svelte.ts` |
 | **Attachment** | `*.attachments.ts` (`.svelte.ts` with runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
 | **Pure algorithm** | `*.calculator.ts` | `outcomes-chart.calculator.ts` |
 | **Messages** (i18n) | `*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
@@ -230,10 +231,13 @@ There are **no `use*` hooks**. A factory of rune state is **camelCase `create*`*
 | Kind | Pattern | Example |
 |------|---------|---------|
 | ViewModel of a view | `create{View}` in `<view>.state.svelte.ts`, or a `{View}State` class | `createRolesPage()`, `createPipelineDashboard(projectId)`, `LoginState` |
-| Shared rune helper | `create{Concept}` | `createSelection(key)`, `createPagination(options)`, `createFormState(() => items)` |
+| State with one responsibility | `create{Responsibility}` in `<responsibility>.state.svelte.ts` | `createStepDraft(...)`, `createSelection(key)`, `createPagination(options)` |
+| Effect | a verb, in `*.effect.svelte.ts` | `syncOrganization(slug)`, `cleanContext(projectId)` |
 | TanStack Query | `createQuery`, `createMutation`, `createQueries` (from `@scylla/core-sdk`) | `createQuery(() => userQueries.byId(id))` |
 
-A ViewModel is named after the view that it controls, never after a global concept.
+A ViewModel is named after the view that it controls. Another state is named after what it
+holds. There is no plain `*.svelte.ts`: each file of rune code has the suffix of its role
+(`.state`, `.effect`, `.adapter`, `.attachments`).
 
 ### 3.4 Stores
 

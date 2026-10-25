@@ -14,8 +14,8 @@ import {
   setDependencies,
   updateStep,
 } from '@base/features/pipeline/domain/structs/pipeline-graph.struct.ts';
-import { createStepDrafts } from './step-drafts.svelte.ts';
-import { createStepPanes } from './step-panes.svelte.ts';
+import { createStepDrafts } from './step-drafts.state.svelte.ts';
+import { createStepPanes } from './step-panes.state.svelte.ts';
 import { stepRows, stepsAfterDrop } from './StepList/step-list.calculator.ts';
 import { scriptingMessages } from './scripting.messages.ts';
 
@@ -42,7 +42,7 @@ const sameDeps = (a: string[], b: string[]) =>
  * show: the tab shows the text, so that it can be fixed. So does a document with a repeated step id
  * or dependency: the views key the steps by id.
  */
-export const createPipelineScriptingState = (params: PipelineScriptingStateParams) => {
+export const createPipelineDocumentingState = (params: PipelineScriptingStateParams) => {
   let chosenMode = $state<ScriptingMode>('steps');
   const canShowSteps = $derived(params.isValid() && !hasRepeats(params.steps()));
   const mode = $derived<ScriptingMode>(canShowSteps ? chosenMode : 'document');
@@ -167,4 +167,4 @@ export const createPipelineScriptingState = (params: PipelineScriptingStateParam
   };
 };
 
-export type PipelineScriptingState = ReturnType<typeof createPipelineScriptingState>;
+export type PipelineScriptingState = ReturnType<typeof createPipelineDocumentingState>;

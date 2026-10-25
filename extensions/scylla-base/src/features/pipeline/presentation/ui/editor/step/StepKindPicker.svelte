@@ -2,7 +2,7 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { Shell } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-  import type { StepDraft } from './step-draft.svelte.ts';
+  import type { StepDraft } from './step-draft.state.svelte.ts';
   import { stepMessages } from './step.messages.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
   import Segmented from '@base/features/pipeline/presentation/ui/editor/controls/Segmented.svelte';

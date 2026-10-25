@@ -1,6 +1,6 @@
 <script lang="ts">
   import { loadJobsPage } from '@base/features/jobs';
-  import { createRunPipeline } from './run-pipeline.svelte.ts';
+  import { createRunPipeline } from './run-pipeline.state.svelte.ts';
 
   interface Props {
     pipelineId?: string;

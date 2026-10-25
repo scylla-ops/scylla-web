@@ -20,7 +20,7 @@ import {
   PROJECT_PIPELINES_QUERY_ROOT,
   RUN_PIPELINE_MUTATION_KEY,
   STEP_TEMPLATES_QUERY_KEY,
-} from './pipelines.query-keys.ts';
+} from './pipeline.query-keys.ts';
 
 // Resolved per call: tests swap the registry.
 const repository = () =>

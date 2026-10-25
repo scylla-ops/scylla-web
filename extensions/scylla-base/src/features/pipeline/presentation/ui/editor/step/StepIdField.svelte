@@ -2,7 +2,7 @@
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { StepDraft } from './step-draft.svelte.ts';
+  import type { StepDraft } from './step-draft.state.svelte.ts';
   import { stepMessages } from './step.messages.ts';
   import { nodeIdIssueText } from './step-issue-text.ts';
 

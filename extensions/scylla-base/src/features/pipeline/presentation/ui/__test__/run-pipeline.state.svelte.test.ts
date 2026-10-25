@@ -4,7 +4,7 @@ import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import { createRunPipeline } from '../run-pipeline.svelte.ts';
+import { createRunPipeline } from '../run-pipeline.state.svelte.ts';
 
 const toast = vi.hoisted(() => ({ success: vi.fn(), warning: vi.fn(), error: vi.fn() }));
 vi.mock('svelte-sonner', () => ({ toast }));

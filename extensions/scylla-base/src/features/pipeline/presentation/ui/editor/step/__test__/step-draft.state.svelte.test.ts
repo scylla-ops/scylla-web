@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { flushSync } from 'svelte';
 import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import { createStepDraft, type StepDraft } from '../step-draft.svelte.ts';
+import { createStepDraft, type StepDraft } from '../step-draft.state.svelte.ts';
 
 const scriptStep: PipelineStep = {
   id: 'test',

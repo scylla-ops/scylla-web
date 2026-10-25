@@ -9,7 +9,7 @@
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import { stepPreview } from '@base/features/pipeline/presentation/ui/editor/step/step-summary.ts';
   import { copyToClipboard } from '../copy-to-clipboard.ts';
-  import type { StepPane } from '../step-panes.svelte.ts';
+  import type { StepPane } from '../step-panes.state.svelte.ts';
   import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '../scripting.messages.ts';
 

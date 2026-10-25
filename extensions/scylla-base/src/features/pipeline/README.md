@@ -113,11 +113,11 @@ The steps are views, not files: every edit goes back to the one document, as the
 and the document stays what is saved. A document that does not parse has no steps to show, so
 the tab shows its text until it is fixed.
 
-A step has one draft (`step-drafts.svelte.ts`), shared by the panes that show it and by its
+A step has one draft (`step-drafts.state.svelte.ts`), shared by the panes that show it and by its
 properties: two drafts of one step would each write their own copy and undo the other's edits.
 The draft is built again only when the document changes the step from elsewhere.
 
-The script side is CodeMirror 6, mounted with the `renderCodeMirror` attachment of `@scylla/ui`. `pipeline-script.state.svelte.ts` holds `script` and `initialScript`: the draft text
+The script side is CodeMirror 6, mounted with the `renderCodeMirror` attachment of `@scylla/ui`. `pipeline-document.state.svelte.ts` holds `script` and `initialScript`: the draft text
 and the baseline for the dirty check. That is UI state hosted in a ViewModel, and it stays there
 — the *saved* pipeline stays in TanStack Query.
 
@@ -132,7 +132,7 @@ editor's edge: the rest of the module derives during render with Runes.
 
 The reason is the Run button. Running is a pipeline operation. If `jobs` owned the route it
 would need a pipeline mutation, which means importing `pipeline` for a concern that isn't its
-own. Instead `PipelineJobsRoute` wraps `JobsPage` — imported from `jobs`'s public API — and
+own. Instead `PipelineJobsPage` wraps `JobsPage` — imported from `jobs`'s public API — and
 supplies the Run action itself. `JobsPage` is one of only two pages in the codebase exported
 from a feature barrel, and this is its single consumer.
 

@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { StepPane } from '../step-panes.svelte.ts';
+  import type { StepPane } from '../step-panes.state.svelte.ts';
   import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '../scripting.messages.ts';
   import StepEditor from './StepEditor.svelte';

@@ -4,7 +4,7 @@ import type { XYPosition } from '@xyflow/svelte';
 import LayoutListIcon from '@lucide/svelte/icons/layout-list';
 import SquareIcon from '@lucide/svelte/icons/square';
 import type { LucideIcon } from '@scylla/ui';
-import type { NodeAppearance } from '@base/features/pipeline/presentation/ui/editor/blueprint/canvas/node-appearance.svelte.ts';
+import type { NodeAppearance } from '@base/features/pipeline/presentation/ui/editor/blueprint/canvas/node-appearance-preference.state.svelte.ts';
 import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
 import {
   DETAILED_ANCHOR,

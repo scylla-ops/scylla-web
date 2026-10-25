@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { findFloating, render, withQueryClient } from '@test/render.svelte.ts';
-import type { PipelineScript } from '@base/features/pipeline/presentation/ui/editor/pipeline-script.state.svelte.ts';
+import type { PipelineDocument } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
 import Fixture from './PipelineScripting.fixture.svelte';
 
 const document = JSON.stringify({
@@ -20,8 +20,8 @@ beforeEach(() => {
 afterEach(() => restore());
 
 const renderScripting = (initialScript = document) => {
-  let doc!: PipelineScript;
-  render(Fixture, { initialScript, onDoc: (next: PipelineScript) => (doc = next) });
+  let doc!: PipelineDocument;
+  render(Fixture, { initialScript, onDoc: (next: PipelineDocument) => (doc = next) });
   return () => doc;
 };
 
@@ -229,7 +229,7 @@ describe('PipelineScripting', () => {
       await user.click(screen.getByRole('combobox', { name: 'Add a dependency' }));
       await user.click(await findFloating('option', id));
     };
-    const depsOf = (doc: () => PipelineScript, id: string) =>
+    const depsOf = (doc: () => PipelineDocument, id: string) =>
       doc().steps.find(step => step.id === id)?.deps;
 
     it('offers a dependency again once its chip is removed', async () => {

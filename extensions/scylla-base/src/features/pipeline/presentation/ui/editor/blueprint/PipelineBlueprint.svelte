@@ -4,7 +4,7 @@
   import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '@scylla/ui/primitives';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import { createBlueprintState } from './blueprint.state.svelte.ts';
-  import { createNodeAppearance } from './canvas/node-appearance.svelte.ts';
+  import { createNodeAppearance } from './canvas/node-appearance-preference.state.svelte.ts';
   import { stepTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import { createQuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
   import BlueprintCanvas from './canvas/BlueprintCanvas.svelte';

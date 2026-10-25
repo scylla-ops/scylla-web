@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { NODE_APPEARANCES } from '@base/features/pipeline/presentation/ui/editor/blueprint/canvas/node-appearance.svelte.ts';
+import { NODE_APPEARANCES } from '@base/features/pipeline/presentation/ui/editor/blueprint/canvas/node-appearance-preference.state.svelte.ts';
 import { NODE_APPEARANCE_VIEWS, nodePositionAt } from '../node-appearances.ts';
 import { MINIMAL_NODE } from '../node-geometry.ts';
 

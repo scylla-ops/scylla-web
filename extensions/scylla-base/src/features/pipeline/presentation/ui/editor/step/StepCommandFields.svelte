@@ -3,7 +3,7 @@
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
   import { Button, Input, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type { StepDraft } from './step-draft.svelte.ts';
+  import type { StepDraft } from './step-draft.state.svelte.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
