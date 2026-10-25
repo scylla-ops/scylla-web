@@ -28,7 +28,7 @@
   import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';
   import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.registry.ts';
   import StartNode from './nodes/StartNode.svelte';
-  import StepNode from './nodes/StepNode.svelte';
+  import PipelineNode from './nodes/PipelineNode.svelte';
   import QuickAddMenu from '../catalog/QuickAddMenu/QuickAddMenu.svelte';
 
   interface Props {
@@ -41,7 +41,7 @@
 
   let { blueprint, appearance, quickAdd, drag, entries }: Props = $props();
 
-  const nodeTypes: NodeTypes = { pipelineStep: StepNode, startNode: StartNode };
+  const nodeTypes: NodeTypes = { pipelineStep: PipelineNode, startNode: StartNode };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
 
   const { screenToFlowPosition } = useSvelteFlow();
@@ -94,7 +94,7 @@
     changes. Only a click opens the side panel: a drag neither selects nor opens.
   -->
   <SvelteFlow
-    bind:nodes={blueprint.nodes}
+    bind:nodes={blueprint.flowNodes}
     bind:edges={blueprint.edges}
     {nodeTypes}
     {edgeTypes}

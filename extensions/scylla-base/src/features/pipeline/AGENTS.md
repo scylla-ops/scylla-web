@@ -204,7 +204,7 @@ the page.
 - **Two steps with the same id: shown, marked, never repaired.** `pipelineIssue` refuses them
   (`repeated-ids`), so Save is disabled and the header says why (`doc.issue`). The blueprint draws
   each of them (a repeat gets a node key of its own, `build#2`, its step keeps its id), marks them
-  in red (`StepNodeData.repeated`), and is read-only (`blueprint.readOnly`): an edit goes through
+  in red (`PipelineFlowNodeData.repeated`), and is read-only (`blueprint.readOnly`): an edit goes through
   the ids, so it would change the wrong step. The user fixes the ids in the Scripting tab.
 - **One draft per step** (`step-drafts.state.svelte.ts`). The panes that show a step and its properties
   panel share it, or each would write its own copy and undo the other's edits. A step that the
@@ -324,9 +324,9 @@ the page.
   through `blueprint.addNode(nodeId, definition, placement)`. The menu is a combobox: the focus
   stays in the search, `aria-activedescendant` names the active option, Tab closes the menu.
 - **Node styles are a registry.** `NODE_APPEARANCES` (`canvas/node-appearance-preference.state.svelte.ts`) names them,
-  `canvas/nodes/node-appearances.registry.ts` maps each to a step view (`StepNodeViewProps`), a start view
+  `canvas/nodes/node-appearances.registry.ts` maps each to a step view (`PipelineNodeViewProps`), a start view
   (`StartNodeViewProps`), an `anchor`, a label and an icon. A new style is one name, two views
-  and one entry: `StepNode` and `StartNode` only dispatch. The nodes read the style from the
+  and one entry: `PipelineNode` and `StartNode` only dispatch. The nodes read the style from the
   canvas context (`blueprint-canvas.context.ts`), since xyflow gives a node only its own props.
   The label of a node is part of the node element, so that xyflow measures it.
 - **Sizes of the nodes live in `presenters/blueprint-geometry.presenter.ts`**: the views set their width from it,

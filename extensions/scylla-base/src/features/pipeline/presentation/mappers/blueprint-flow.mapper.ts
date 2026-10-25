@@ -9,13 +9,13 @@ import { layoutSteps } from '@base/features/pipeline/presentation/presenters/blu
 /** A node's `data` must be a `Record`: a step travels wrapped, as `{ step }`. */
 
 /** `repeated`: another step has the same id. */
-export type StepNodeData = { step: PipelineStepEntity; repeated?: true };
-export type StartNodeData = { name: string };
+export type PipelineFlowNodeData = { step: PipelineStepEntity; repeated?: true };
+export type StartFlowNodeData = { name: string };
 
-export type BlueprintStepNode = Node<StepNodeData, 'pipelineStep'>;
-export type BlueprintStartNode = Node<StartNodeData, 'startNode'>;
-export type BlueprintNode = BlueprintStepNode | BlueprintStartNode;
-export type BlueprintEdge = Edge;
+export type PipelineFlowNode = Node<PipelineFlowNodeData, 'pipelineStep'>;
+export type StartFlowNode = Node<StartFlowNodeData, 'startNode'>;
+export type FlowNode = PipelineFlowNode | StartFlowNode;
+export type FlowEdge = Edge;
 
 export const START_NODE_ID = '__start__';
 export const EDGE_COLOR = 'var(--input)';
@@ -23,9 +23,9 @@ export const EDGE_COLOR = 'var(--input)';
 export const DEFAULT_EDGE_STYLE = {
   type: 'deletable',
   markerEnd: { type: 'arrowclosed', color: EDGE_COLOR, width: 16, height: 16 },
-} satisfies Partial<BlueprintEdge>;
+} satisfies Partial<FlowEdge>;
 
-export const edgeBetween = (source: string, target: string): BlueprintEdge => ({
+export const edgeBetween = (source: string, target: string): FlowEdge => ({
   id: `${source}->${target}`,
   source,
   target,
@@ -52,13 +52,13 @@ const nodeKeys = (steps: PipelineStepEntity[]): string[] => {
 export function stepsToFlow(
   steps: PipelineStepEntity[],
   pipelineName: string,
-): { nodes: BlueprintNode[]; edges: BlueprintEdge[] } {
+): { flowNodes: FlowNode[]; edges: FlowEdge[] } {
   const keys = nodeKeys(steps);
   const ids = new Set(steps.map(step => step.id));
   const repeated = new Set(repeatedStepIds(steps));
   const layout = layoutSteps(steps.map((step, index) => ({ ...step, id: keys[index] })));
 
-  const startNode: BlueprintStartNode = {
+  const startNode: StartFlowNode = {
     id: START_NODE_ID,
     type: 'startNode',
     position: layout.start,
@@ -66,7 +66,7 @@ export function stepsToFlow(
     deletable: false,
   };
 
-  const stepNodes: BlueprintStepNode[] = steps.map((step, index) => ({
+  const pipelineFlowNodes: PipelineFlowNode[] = steps.map((step, index) => ({
     id: keys[index],
     type: 'pipelineStep',
     position: layout.steps.get(keys[index]) ?? { x: 0, y: 0 },
@@ -80,23 +80,23 @@ export function stepsToFlow(
       : [edgeBetween(START_NODE_ID, keys[index])];
   });
 
-  return { nodes: [startNode, ...stepNodes], edges };
+  return { flowNodes: [startNode, ...pipelineFlowNodes], edges };
 }
 
-export const stepOf = (node: BlueprintNode): PipelineStepEntity | undefined =>
-  node.type === 'pipelineStep' ? node.data.step : undefined;
+export const stepOf = (flowNode: FlowNode): PipelineStepEntity | undefined =>
+  flowNode.type === 'pipelineStep' ? flowNode.data.step : undefined;
 
 /** The ids of the steps a node waits for: the start node is not a step. */
-export const depsOf = (edges: BlueprintEdge[], id: string): string[] =>
+export const depsOf = (edges: FlowEdge[], id: string): string[] =>
   edges
     .filter(edge => edge.target === id && edge.source !== START_NODE_ID)
     .map(edge => edge.source);
 
-export function flowToSteps(nodes: BlueprintNode[], edges: BlueprintEdge[]): PipelineStepEntity[] {
-  return nodes.flatMap(node => {
-    const step = stepOf(node);
+export function flowToSteps(flowNodes: FlowNode[], edges: FlowEdge[]): PipelineStepEntity[] {
+  return flowNodes.flatMap(flowNode => {
+    const step = stepOf(flowNode);
     if (!step) return [];
 
-    return [{ id: step.id, deps: depsOf(edges, node.id), ...definitionOf(step) }];
+    return [{ id: step.id, deps: depsOf(edges, flowNode.id), ...definitionOf(step) }];
   });
 }

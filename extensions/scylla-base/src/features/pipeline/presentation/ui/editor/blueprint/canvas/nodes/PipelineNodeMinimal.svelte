@@ -6,9 +6,9 @@
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
   import { MINIMAL_NODE, minimalHandleStyle } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import { handleClass } from '@base/features/pipeline/presentation/presenters/step-summary.presenter.ts';
-import type { StepNodeViewProps } from './node-appearances.registry.ts';
+import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
 
-  let { step, selected, summary, detached }: StepNodeViewProps = $props();
+  let { step, selected, summary, detached }: PipelineNodeViewProps = $props();
 
   const handle = $derived(handleClass(summary, selected));
 </script>

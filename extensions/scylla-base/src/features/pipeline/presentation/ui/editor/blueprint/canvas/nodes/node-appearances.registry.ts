@@ -17,10 +17,10 @@ import type { StepSummary } from '@base/features/pipeline/presentation/presenter
 import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import StartNodeDetailed from './StartNodeDetailed.svelte';
 import StartNodeMinimal from './StartNodeMinimal.svelte';
-import StepNodeDetailed from './StepNodeDetailed.svelte';
-import StepNodeMinimal from './StepNodeMinimal.svelte';
+import PipelineNodeDetailed from './PipelineNodeDetailed.svelte';
+import PipelineNodeMinimal from './PipelineNodeMinimal.svelte';
 
-export interface StepNodeViewProps {
+export interface PipelineNodeViewProps {
   step: PipelineStepEntity;
   selected: boolean;
   summary: StepSummary;
@@ -34,7 +34,7 @@ export interface StartNodeViewProps {
 }
 
 interface NodeAppearanceView {
-  step: Component<StepNodeViewProps>;
+  step: Component<PipelineNodeViewProps>;
   start: Component<StartNodeViewProps>;
   /** The point of a new node that lands where it is dropped or picked. */
   anchor: XYPosition;
@@ -46,7 +46,7 @@ interface NodeAppearanceView {
 /** One entry per style: its views, and how the style switch shows it. */
 export const NODE_APPEARANCE_VIEWS: Record<NodeAppearance, NodeAppearanceView> = {
   detailed: {
-    step: StepNodeDetailed,
+    step: PipelineNodeDetailed,
     start: StartNodeDetailed,
     anchor: DETAILED_ANCHOR,
     footprint: DETAILED_FOOTPRINT,
@@ -54,7 +54,7 @@ export const NODE_APPEARANCE_VIEWS: Record<NodeAppearance, NodeAppearanceView> =
     icon: LayoutListIcon,
   },
   minimal: {
-    step: StepNodeMinimal,
+    step: PipelineNodeMinimal,
     start: StartNodeMinimal,
     anchor: MINIMAL_ANCHOR,
     footprint: MINIMAL_FOOTPRINT,

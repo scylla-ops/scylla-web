@@ -11,11 +11,11 @@ const STEP_TYPE = 'application/x-scylla-step';
  */
 export const dragStep =
   (options: () => { id: string; drag: StepDrag }): Attachment<HTMLElement> =>
-  node => {
+  element => {
     const { id, drag } = untrack(options);
 
     const onDragStart = (event: DragEvent) => {
-      const row = node.closest('li');
+      const row = element.closest('li');
       event.dataTransfer?.setData(STEP_TYPE, id);
       if (event.dataTransfer) event.dataTransfer.effectAllowed = 'copyMove';
       if (row) event.dataTransfer?.setDragImage?.(row, 0, 0);
@@ -23,15 +23,15 @@ export const dragStep =
     };
     const onDragEnd = () => drag.end();
 
-    node.draggable = true;
-    node.addEventListener('dragstart', onDragStart);
-    node.addEventListener('dragend', onDragEnd);
+    element.draggable = true;
+    element.addEventListener('dragstart', onDragStart);
+    element.addEventListener('dragend', onDragEnd);
     return () => {
-      node.draggable = false;
+      element.draggable = false;
       // The grip left during the drag (the step was removed): no `dragend` comes.
       if (drag.dragged === id) drag.end();
-      node.removeEventListener('dragstart', onDragStart);
-      node.removeEventListener('dragend', onDragEnd);
+      element.removeEventListener('dragstart', onDragStart);
+      element.removeEventListener('dragend', onDragEnd);
     };
   };
 
@@ -41,7 +41,7 @@ export const dragStep =
  */
 export const acceptStepDrop =
   (options: () => { target: string | null; drag: StepDrag }): Attachment<HTMLElement> =>
-  node => {
+  element => {
     const { target, drag } = untrack(options);
     const keeps = (event: DragEvent) => event.altKey && target !== null;
 
@@ -52,7 +52,7 @@ export const acceptStepDrop =
       drag.hover(target);
     };
     const onDragLeave = (event: DragEvent) => {
-      if (!node.contains(event.relatedTarget as Node | null)) drag.leave(target);
+      if (!element.contains(event.relatedTarget as Node | null)) drag.leave(target);
     };
     const onDrop = (event: DragEvent) => {
       if (!drag.canDrop(target)) return;
@@ -60,12 +60,12 @@ export const acceptStepDrop =
       drag.drop(target, keeps(event));
     };
 
-    node.addEventListener('dragover', onDragOver);
-    node.addEventListener('dragleave', onDragLeave);
-    node.addEventListener('drop', onDrop);
+    element.addEventListener('dragover', onDragOver);
+    element.addEventListener('dragleave', onDragLeave);
+    element.addEventListener('drop', onDrop);
     return () => {
-      node.removeEventListener('dragover', onDragOver);
-      node.removeEventListener('dragleave', onDragLeave);
-      node.removeEventListener('drop', onDrop);
+      element.removeEventListener('dragover', onDragOver);
+      element.removeEventListener('dragleave', onDragLeave);
+      element.removeEventListener('drop', onDrop);
     };
   };

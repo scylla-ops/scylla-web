@@ -44,13 +44,13 @@ export const layoutSteps = (steps: PipelineStepEntity[]): BlueprintLayout => {
 
 /** Next to the node it follows, else right of the graph: where a new node lands. */
 export const positionAfter = (
-  nodes: readonly { id: string; position: XYPosition }[],
+  flowNodes: readonly { id: string; position: XYPosition }[],
   sourceId?: string,
 ): XYPosition => {
   const source =
-    nodes.find(node => node.id === sourceId) ??
-    nodes.reduce<(typeof nodes)[number] | undefined>(
-      (best, node) => (!best || node.position.x > best.position.x ? node : best),
+    flowNodes.find(flowNode => flowNode.id === sourceId) ??
+    flowNodes.reduce<(typeof flowNodes)[number] | undefined>(
+      (best, flowNode) => (!best || flowNode.position.x > best.position.x ? flowNode : best),
       undefined,
     );
   return source

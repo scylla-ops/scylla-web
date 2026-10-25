@@ -39,7 +39,7 @@ const withState = (
 describe('createBlueprint', () => {
   it('builds the graph from the steps, with the start node', () => {
     withState([execStep('build'), execStep('test', ['build'])], state => {
-      expect(state.nodes.map(node => node.id).sort()).toEqual([START_NODE_ID, 'build', 'test'].sort());
+      expect(state.flowNodes.map(flowNode => flowNode.id).sort()).toEqual([START_NODE_ID, 'build', 'test'].sort());
       expect(state.edges.some(edge => edge.source === 'build' && edge.target === 'test')).toBe(true);
     });
   });
@@ -112,7 +112,7 @@ describe('createBlueprint', () => {
       state.edges = state.edges.filter(edge => edge.target !== 'test');
       state.sync();
 
-      expect(onStepsChange).toHaveBeenLastCalledWith(flowToSteps(state.nodes, state.edges));
+      expect(onStepsChange).toHaveBeenLastCalledWith(flowToSteps(state.flowNodes, state.edges));
       expect(
         (onStepsChange.mock.lastCall?.[0] as PipelineStepEntity[]).find(step => step.id === 'test')?.deps,
       ).toEqual([]);
@@ -141,7 +141,7 @@ describe('createBlueprint', () => {
       state.addNode('test', definition, { after: 'build' });
 
       expect(state.inspected?.id).toBe('build');
-      expect(state.nodes.filter(node => node.selected).map(node => node.id)).toEqual(['build']);
+      expect(state.flowNodes.filter(flowNode => flowNode.selected).map(flowNode => flowNode.id)).toEqual(['build']);
       const published = onStepsChange.mock.lastCall?.[0] as PipelineStepEntity[];
       expect(published.find(step => step.id === 'test')?.deps).toEqual(['build']);
     });
@@ -149,10 +149,10 @@ describe('createBlueprint', () => {
 
   it('hangs a step added with no link off the start node, right of the graph', () => {
     withState([execStep('build')], state => {
-      const build = state.nodes.find(node => node.id === 'build')!;
+      const build = state.flowNodes.find(flowNode => flowNode.id === 'build')!;
       state.addNode('lint', definition);
 
-      const lint = state.nodes.find(node => node.id === 'lint')!;
+      const lint = state.flowNodes.find(flowNode => flowNode.id === 'lint')!;
       expect(lint.position.x).toBeGreaterThan(build.position.x);
       expect(
         state.edges.some(edge => edge.source === START_NODE_ID && edge.target === 'lint'),
@@ -163,7 +163,7 @@ describe('createBlueprint', () => {
   it('places a dropped step where it was dropped', () => {
     withState([], state => {
       state.addNode('lint', definition, { position: { x: 12, y: 34 } });
-      expect(state.nodes.find(node => node.id === 'lint')?.position).toEqual({ x: 12, y: 34 });
+      expect(state.flowNodes.find(flowNode => flowNode.id === 'lint')?.position).toEqual({ x: 12, y: 34 });
     });
   });
 
@@ -181,7 +181,7 @@ describe('createBlueprint', () => {
   it('removes a step with its edges, but never the start node', () => {
     withState([execStep('build'), execStep('test', ['build'])], (state, onStepsChange) => {
       state.removeStep(START_NODE_ID);
-      expect(state.nodes.some(node => node.id === START_NODE_ID)).toBe(true);
+      expect(state.flowNodes.some(flowNode => flowNode.id === START_NODE_ID)).toBe(true);
 
       state.removeStep('build');
       expect(state.edges.some(edge => edge.source === 'build')).toBe(false);
@@ -194,11 +194,11 @@ describe('createBlueprint', () => {
     withState([execStep('build'), execStep('test')], state => {
       state.inspect('build');
       expect(state.inspected?.id).toBe('build');
-      expect(state.nodes.filter(node => node.selected).map(node => node.id)).toEqual(['build']);
+      expect(state.flowNodes.filter(flowNode => flowNode.selected).map(flowNode => flowNode.id)).toEqual(['build']);
 
       state.inspect(null);
       expect(state.inspected).toBeUndefined();
-      expect(state.nodes.some(node => node.selected)).toBe(false);
+      expect(state.flowNodes.some(flowNode => flowNode.selected)).toBe(false);
     });
   });
 
@@ -212,7 +212,7 @@ describe('createBlueprint', () => {
 
   it('never opens the side panel for a selection made on the canvas', () => {
     withState([execStep('build'), execStep('test')], state => {
-      state.nodes = state.nodes.map(node => ({ ...node, selected: true }));
+      state.flowNodes = state.flowNodes.map(flowNode => ({ ...flowNode, selected: true }));
       expect(state.inspected).toBeUndefined();
     });
   });
@@ -223,7 +223,7 @@ describe('createBlueprint', () => {
       state.renameStep('build', 'compile');
       expect(state.inspected?.id).toBe('compile');
 
-      state.nodes = state.nodes.filter(node => node.id !== 'compile');
+      state.flowNodes = state.flowNodes.filter(flowNode => flowNode.id !== 'compile');
       state.sync();
       expect(state.inspected).toBeUndefined();
     });
@@ -248,10 +248,10 @@ describe('createBlueprint', () => {
 
   it('lays the graph out again by depth', () => {
     withState([execStep('build'), execStep('test', ['build'])], state => {
-      state.nodes = state.nodes.map(node => ({ ...node, position: { x: 0, y: 0 } }));
+      state.flowNodes = state.flowNodes.map(flowNode => ({ ...flowNode, position: { x: 0, y: 0 } }));
       state.arrange();
 
-      const x = (id: string) => state.nodes.find(node => node.id === id)!.position.x;
+      const x = (id: string) => state.flowNodes.find(flowNode => flowNode.id === id)!.position.x;
       expect(x('build')).toBeLessThan(x('test'));
     });
   });
@@ -300,7 +300,7 @@ describe('the blueprint over the document', () => {
       });
       flushSync();
 
-      expect(state.nodes.find(node => node.id === 'lint')?.position).toEqual({ x: 640, y: 480 });
+      expect(state.flowNodes.find(flowNode => flowNode.id === 'lint')?.position).toEqual({ x: 640, y: 480 });
     });
   });
 });

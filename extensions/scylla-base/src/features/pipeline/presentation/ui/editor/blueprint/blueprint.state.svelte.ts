@@ -10,9 +10,9 @@ import {
   flowToSteps,
   stepOf,
   stepsToFlow,
-  type BlueprintEdge,
-  type BlueprintNode,
-  type BlueprintStepNode,
+  type FlowEdge,
+  type FlowNode,
+  type PipelineFlowNode,
 } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
 
 export interface BlueprintParams {
@@ -38,8 +38,8 @@ export type StepPlacement = StepLink & { position?: XYPosition };
  */
 export const createBlueprint = (params: BlueprintParams) => {
   // `$state.raw`: replaced whole, never mutated.
-  let nodes = $state.raw<BlueprintNode[]>([]);
-  let edges = $state.raw<BlueprintEdge[]>([]);
+  let flowNodes = $state.raw<FlowNode[]>([]);
+  let edges = $state.raw<FlowEdge[]>([]);
   let inspectedId = $state<string | null>(null);
 
   let lastEmitted = '';
@@ -48,7 +48,7 @@ export const createBlueprint = (params: BlueprintParams) => {
 
   const emit = () => {
     if (readOnly) return;
-    const steps = flowToSteps(nodes, edges);
+    const steps = flowToSteps(flowNodes, edges);
     const key = keyOf(steps, params.pipelineName());
     if (key === lastEmitted) return;
 
@@ -65,10 +65,10 @@ export const createBlueprint = (params: BlueprintParams) => {
     const flow = stepsToFlow(steps, name);
     // A node that is still there keeps its place and its selection: only a new one is laid out.
     // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to this run, never state
-    const previous = new Map(untrack(() => nodes).map(node => [node.id, node]));
-    nodes = flow.nodes.map(node => {
-      const kept = previous.get(node.id);
-      return kept ? { ...node, position: kept.position, selected: kept.selected } : node;
+    const previous = new Map(untrack(() => flowNodes).map(flowNode => [flowNode.id, flowNode]));
+    flowNodes = flow.flowNodes.map(flowNode => {
+      const kept = previous.get(flowNode.id);
+      return kept ? { ...flowNode, position: kept.position, selected: kept.selected } : flowNode;
     });
     edges = flow.edges;
 
@@ -82,10 +82,10 @@ export const createBlueprint = (params: BlueprintParams) => {
   const readOnly = $derived(pipeline.repeatedStepIds(params.steps()).length > 0);
 
   const inspected = $derived(
-    nodes.find((node): node is BlueprintStepNode => node.id === inspectedId && !!stepOf(node)),
+    flowNodes.find((flowNode): flowNode is PipelineFlowNode => flowNode.id === inspectedId && !!stepOf(flowNode)),
   );
 
-  const currentSteps = () => flowToSteps(nodes, edges);
+  const currentSteps = () => flowToSteps(flowNodes, edges);
 
   /**
    * Writes back what an operation of the pipeline changed in the steps. The edges are the
@@ -97,12 +97,12 @@ export const createBlueprint = (params: BlueprintParams) => {
     const byId = new Map(next.map(step => [step.id, step]));
     const follow = (id: string) => (renamed && id === renamed.from ? renamed.to : id);
 
-    nodes = nodes.map((node): BlueprintNode => {
+    flowNodes = flowNodes.map((flowNode): FlowNode => {
       // The start node is the pipeline, not a step.
-      if (node.type !== 'pipelineStep') return node;
-      const id = follow(node.id);
+      if (flowNode.type !== 'pipelineStep') return flowNode;
+      const id = follow(flowNode.id);
       const step = byId.get(id);
-      return step ? { ...node, id, data: { step } } : node;
+      return step ? { ...flowNode, id, data: { step } } : flowNode;
     });
 
     if (renamed) {
@@ -119,16 +119,16 @@ export const createBlueprint = (params: BlueprintParams) => {
   };
 
   return {
-    get nodes() {
-      return nodes;
+    get flowNodes() {
+      return flowNodes;
     },
-    set nodes(next: BlueprintNode[]) {
-      nodes = next;
+    set flowNodes(next: FlowNode[]) {
+      flowNodes = next;
     },
     get edges() {
       return edges;
     },
-    set edges(next: BlueprintEdge[]) {
+    set edges(next: FlowEdge[]) {
       edges = next;
     },
     /** The node the side panel shows. */
@@ -170,14 +170,14 @@ export const createBlueprint = (params: BlueprintParams) => {
       const after = 'after' in placement ? placement.after : undefined;
       const source = replaced?.source ?? after ?? START_NODE_ID;
 
-      const node: BlueprintStepNode = {
+      const flowNode: PipelineFlowNode = {
         id,
         type: 'pipelineStep',
-        position: placement.position ?? positionAfter(nodes, replaced?.source ?? after),
+        position: placement.position ?? positionAfter(flowNodes, replaced?.source ?? after),
         data: { step: { id, deps: [], ...value } },
       };
 
-      nodes = [...nodes, node];
+      flowNodes = [...flowNodes, flowNode];
       edges = [
         ...edges.filter(edge => edge !== replaced),
         edgeBetween(source, id),
@@ -202,7 +202,7 @@ export const createBlueprint = (params: BlueprintParams) => {
     removeStep(id: string) {
       if (id === START_NODE_ID || readOnly) return;
       if (inspectedId === id) inspectedId = null;
-      nodes = nodes.filter(node => node.id !== id);
+      flowNodes = flowNodes.filter(flowNode => flowNode.id !== id);
       edges = edges.filter(edge => edge.source !== id && edge.target !== id);
       emit();
     },
@@ -214,17 +214,17 @@ export const createBlueprint = (params: BlueprintParams) => {
     inspect(id: string | null) {
       const next = id === START_NODE_ID || readOnly ? null : id;
       inspectedId = next;
-      nodes = nodes.map(node =>
-        Boolean(node.selected) === (node.id === next) ? node : { ...node, selected: node.id === next },
+      flowNodes = flowNodes.map(flowNode =>
+        Boolean(flowNode.selected) === (flowNode.id === next) ? flowNode : { ...flowNode, selected: flowNode.id === next },
       );
     },
 
     /** Lays the graph out again by depth: the same layout as a freshly opened pipeline. */
     arrange() {
-      const flow = stepsToFlow(flowToSteps(nodes, edges), params.pipelineName());
+      const flow = stepsToFlow(flowToSteps(flowNodes, edges), params.pipelineName());
       // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to this call, never state
-      const positions = new Map(flow.nodes.map(node => [node.id, node.position]));
-      nodes = nodes.map(node => ({ ...node, position: positions.get(node.id) ?? node.position }));
+      const positions = new Map(flow.flowNodes.map(flowNode => [flowNode.id, flowNode.position]));
+      flowNodes = flowNodes.map(flowNode => ({ ...flowNode, position: positions.get(flowNode.id) ?? flowNode.position }));
     },
   };
 };
