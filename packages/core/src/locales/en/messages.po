@@ -13,13 +13,9 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: packages/core/src/shell/shell.messages.ts:6
+#: packages/core/src/shell/shell.messages.ts:5
 msgid "Language"
 msgstr "Language"
-
-#: packages/core/src/shell/shell.messages.ts:5
-msgid "Toggle dark mode"
-msgstr "Toggle dark mode"
 
 #: packages/core/src/shell/shell.messages.ts:4
 msgid "Toggle Sidebar"

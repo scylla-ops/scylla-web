@@ -8,6 +8,7 @@
   import UserAccessList from '@base/features/user/presentation/ui/components/UserAccessList/UserAccessList.svelte';
   import UserIdentityCard from '@base/features/user/presentation/ui/components/UserIdentityCard.svelte';
   import UserProfileForm from '@base/features/user/presentation/ui/components/UserProfileForm/UserProfileForm.svelte';
+  import ThemePicker from '@base/features/user/presentation/ui/components/ThemePicker/ThemePicker.svelte';
   import ChangePasswordForm from './ChangePasswordForm.svelte';
   import DeleteAccountDialog from '../DeleteAccountDialog/DeleteAccountDialog.svelte';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
@@ -40,6 +41,13 @@
         isPending={page.isSavingProfile}
         onSave={page.saveProfile}
       />
+    </SettingsSection>
+
+    <SettingsSection
+      title={t(userMessages.appearance)}
+      description={t(userMessages.appearanceDescription)}
+    >
+      <ThemePicker />
     </SettingsSection>
 
     <SettingsSection title={t(userMessages.password)} description={t(userMessages.passwordDescription)}>
