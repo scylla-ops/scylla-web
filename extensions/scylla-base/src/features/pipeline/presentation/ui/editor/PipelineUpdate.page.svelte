@@ -44,7 +44,8 @@
       projectId={pipeline?.projectId}
       {initialScript}
       onSubmit={({ name, steps }) => {
-        if (pipelineId) updatePipeline.mutate({ id: pipelineId, name, nodes: steps });
+        if (pipelineId && pipeline)
+          updatePipeline.mutate({ id: pipelineId, projectId: pipeline.projectId, name, steps });
       }}
       isSubmitPending={updatePipeline.isPending}
     />

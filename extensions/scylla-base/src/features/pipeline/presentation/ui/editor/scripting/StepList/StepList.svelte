@@ -3,7 +3,7 @@
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
   import { stepRelations, stepRows, stepStages } from './step-list.calculator.ts';
   import { acceptStepDrop } from './step-drag.attachments.ts';
   import { createStepDrag } from './step-drag.state.svelte.ts';
@@ -12,7 +12,7 @@
   import StepListRow from './StepListRow.svelte';
 
   interface Props {
-    steps: PipelineStep[];
+    steps: PipelineStepEntity[];
     /** The step of the focused pane. */
     activeId: string | null;
     onOpen: (id: string) => void;

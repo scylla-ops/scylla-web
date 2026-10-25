@@ -1,13 +1,13 @@
 import type { Edge, Node } from '@xyflow/svelte';
 import {
   definitionOf,
-  type PipelineStep,
-} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import { stepDepths } from '@base/features/pipeline/domain/structs/pipeline-graph.struct.ts';
+  type PipelineStepEntity,
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { stepDepths } from '@base/features/pipeline/domain/services/step-graph.service.ts';
 
 /** A node's `data` must be a `Record`: a step travels wrapped, as `{ step }`. */
 
-export type StepNodeData = { step: PipelineStep };
+export type StepNodeData = { step: PipelineStepEntity };
 export type StartNodeData = { name: string };
 
 export type BlueprintStepNode = Node<StepNodeData, 'pipelineStep'>;
@@ -38,10 +38,10 @@ export const edgeBetween = (source: string, target: string): BlueprintEdge => ({
 });
 
 /** Deduplicates ids, removes self-deps and deps to missing nodes. */
-export function sanitizeSteps(steps: PipelineStep[]): PipelineStep[] {
+export function sanitizeSteps(steps: PipelineStepEntity[]): PipelineStepEntity[] {
   const seen = new Set<string>();
   const idMap = new Map<string, string>();
-  const deduped: PipelineStep[] = [];
+  const deduped: PipelineStepEntity[] = [];
 
   for (const step of steps) {
     let id = step.id;
@@ -64,13 +64,13 @@ export function sanitizeSteps(steps: PipelineStep[]): PipelineStep[] {
 }
 
 export function stepsToFlow(
-  rawSteps: PipelineStep[],
+  rawSteps: PipelineStepEntity[],
   pipelineName: string,
-): { nodes: BlueprintNode[]; edges: BlueprintEdge[]; sanitizedSteps: PipelineStep[] } {
+): { nodes: BlueprintNode[]; edges: BlueprintEdge[]; sanitizedSteps: PipelineStepEntity[] } {
   const steps = sanitizeSteps(rawSteps);
   const depthMap = stepDepths(steps);
 
-  const depthGroups = new Map<number, PipelineStep[]>();
+  const depthGroups = new Map<number, PipelineStepEntity[]>();
   for (const step of steps) {
     const d = depthMap.get(step.id) ?? 0;
     if (!depthGroups.has(d)) depthGroups.set(d, []);
@@ -116,7 +116,7 @@ export function stepsToFlow(
   };
 }
 
-export const stepOf = (node: BlueprintNode): PipelineStep | undefined =>
+export const stepOf = (node: BlueprintNode): PipelineStepEntity | undefined =>
   node.type === 'pipelineStep' ? node.data.step : undefined;
 
 /** The ids of the steps a node waits for: the start node is not a step. */
@@ -125,7 +125,7 @@ export const depsOf = (edges: BlueprintEdge[], id: string): string[] =>
     .filter(edge => edge.target === id && edge.source !== START_NODE_ID)
     .map(edge => edge.source);
 
-export function flowToSteps(nodes: BlueprintNode[], edges: BlueprintEdge[]): PipelineStep[] {
+export function flowToSteps(nodes: BlueprintNode[], edges: BlueprintEdge[]): PipelineStepEntity[] {
   return nodes.flatMap(node => {
     const step = stepOf(node);
     if (!step) return [];

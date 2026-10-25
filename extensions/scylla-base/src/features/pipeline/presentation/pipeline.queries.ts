@@ -4,9 +4,15 @@ import { scyllaNavigate, contextStore } from '@platform/context';
 import { JOBS_QUERY_KEY } from '@base/features/jobs';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import { toast } from '@scylla/ui/utils';
+import { ScyllaError } from '@shared/utils/scylla-result.ts';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import type { PipelineEntity } from '../domain/entities/pipeline.entity.ts';
-import type { PipelineMetadata, PipelineStep } from '../domain/structs/pipeline.struct.ts';
+import type { PipelineMetadata } from '../domain/structs/pipeline.struct.ts';
+import type { PipelineIssue } from '../domain/structs/pipeline-issue.struct.ts';
+import {
+  InvalidPipelineError,
+  type SavePipelineInput,
+} from '../domain/use-cases/save-pipeline.use-case.ts';
 import type { StepTemplate } from '../domain/structs/step-template.struct.ts';
 import type { PipelineModule } from '../pipeline.module.ts';
 import { pipelineMessages } from './pipeline.messages.ts';
@@ -25,6 +31,8 @@ import {
 // Resolved per call: tests swap the registry.
 const repository = () =>
   getModuleDomain<typeof PipelineModule.domain>('pipeline').pipelineRepository;
+
+const savePipeline = () => getModuleDomain<typeof PipelineModule.domain>('pipeline').savePipeline;
 
 const templateRepository = () =>
   getModuleDomain<typeof PipelineModule.domain>('pipeline').stepTemplateRepository;
@@ -89,11 +97,21 @@ export const asPipelineFeed = (data: PaginatedList<PipelineMetadata> | undefined
   };
 };
 
-export interface EditPipelineInput {
-  id: string;
-  nodes: PipelineStep[];
-  name?: string;
-}
+const issueMessage = (issue: PipelineIssue): string => {
+  if (issue.kind === 'step-ids')
+    return i18n._(pipelineMessages.invalidStepIds(issue.ids.join(', ')));
+  return i18n._(
+    issue.issue === 'empty' ? pipelineMessages.nameRequired : pipelineMessages.noSpaces,
+  );
+};
+
+/** A pipeline the domain refuses gets the error toast of the app, in the language of the user. */
+const save = async (input: SavePipelineInput) =>
+  (await savePipeline().execute(input))
+    .mapError(error =>
+      error instanceof InvalidPipelineError ? new ScyllaError(issueMessage(error.issue)) : error,
+    )
+    .unwrap();
 
 /** Needs the name too: `goToProject` writes it into the context (the breadcrumb). */
 const returnToProject = () => {
@@ -105,8 +123,7 @@ export const pipelineMutations = {
   create: () =>
     mutationOptions({
       mutationKey: CREATE_PIPELINE_MUTATION_KEY,
-      mutationFn: async (pipeline: Omit<PipelineEntity, 'id'>) =>
-        (await repository().create(pipeline)).unwrap(),
+      mutationFn: (pipeline: Omit<SavePipelineInput, 'id'>) => save(pipeline),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.PIPELINE_CREATE));
         const { id, name } = currentProject();
@@ -119,14 +136,11 @@ export const pipelineMutations = {
 
   update: () =>
     mutationOptions({
-      mutationFn: async ({ id, nodes, name }: EditPipelineInput) =>
-        (await repository().edit(id, nodes, name)).unwrap(),
-      onSuccess: pipeline => {
+      mutationFn: (pipeline: SavePipelineInput & { id: string }) => save(pipeline),
+      onSuccess: (_, { id, projectId }) => {
         const queryClient = getQueryClient();
-        void queryClient.invalidateQueries({
-          queryKey: PROJECT_PIPELINES_QUERY_ROOT(pipeline.projectId),
-        });
-        void queryClient.invalidateQueries({ queryKey: PIPELINE_QUERY_KEY(pipeline.id) });
+        void queryClient.invalidateQueries({ queryKey: PROJECT_PIPELINES_QUERY_ROOT(projectId) });
+        void queryClient.invalidateQueries({ queryKey: PIPELINE_QUERY_KEY(id) });
         toast.success(i18n._(ToastMessages.PIPELINE_UPDATE));
         returnToProject();
       },

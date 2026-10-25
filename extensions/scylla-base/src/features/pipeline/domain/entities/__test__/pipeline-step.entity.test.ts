@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { StepDefinition } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import { nodeIdIssue, stepIssue, toNodeId } from '../step-issue.struct.ts';
+import type { StepDefinition } from '../pipeline-step.entity.ts';
+import { nodeIdIssue, stepIssue, toNodeId } from '../pipeline-step.entity.ts';
 
 const script = (body: string): StepDefinition => ({
   kind: 'script',

@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import { flushSync } from 'svelte';
-import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import { createStepDraft, type StepDraft } from '../step-draft.state.svelte.ts';
 
-const scriptStep: PipelineStep = {
+const scriptStep: PipelineStepEntity = {
   id: 'test',
   deps: ['build'],
   kind: 'script',
@@ -13,7 +13,7 @@ const scriptStep: PipelineStep = {
 };
 
 const withDraft = (
-  step: PipelineStep,
+  step: PipelineStepEntity,
   run: (draft: StepDraft, onChange: ReturnType<typeof vi.fn>) => void,
   onRename: (id: string) => string = id => id,
 ) => {

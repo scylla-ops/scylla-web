@@ -1,9 +1,9 @@
-import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import { stepDepths, waitsFor } from '@base/features/pipeline/domain/structs/pipeline-graph.struct.ts';
-import { nodeIdIssue, stepIssue } from '@base/features/pipeline/domain/structs/step-issue.struct.ts';
+import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { stepDepths, waitsFor } from '@base/features/pipeline/domain/services/step-graph.service.ts';
+import { nodeIdIssue, stepIssue } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 export interface StepRow {
-  step: PipelineStep;
+  step: PipelineStepEntity;
   /** Its stage: how many steps run before it, on the longest path. Its column in the blueprint. */
   depth: number;
   /** The step cannot be saved or run as it is. */
@@ -11,7 +11,7 @@ export interface StepRow {
 }
 
 /** The steps in the order they run: by stage, then in the order of the document. */
-export const stepRows = (steps: PipelineStep[]): StepRow[] => {
+export const stepRows = (steps: PipelineStepEntity[]): StepRow[] => {
   const depths = stepDepths(steps);
   return steps
     .map(step => ({
@@ -33,7 +33,7 @@ export const stepStages = (rows: StepRow[]): StepRow[][] => {
 export type StepRelation = 'dependency' | 'dependent';
 
 export const stepRelations = (
-  steps: PipelineStep[],
+  steps: PipelineStepEntity[],
   focus: string | null,
 ): Map<string, StepRelation> => {
   const relations = new Map<string, StepRelation>();
@@ -60,11 +60,11 @@ export const depsAfterDrop = (deps: string[], target: string | null, keep: boole
  * Nothing waits for it then, so the drop makes no loop: `a → b → c`, `b` on `c` gives `a → c → b`.
  */
 export const stepsAfterDrop = (
-  steps: PipelineStep[],
+  steps: PipelineStepEntity[],
   id: string,
   target: string | null,
   keep: boolean,
-): PipelineStep[] => {
+): PipelineStepEntity[] => {
   const moved = steps.find(step => step.id === id);
   // The document may have changed during the drag: a step that left is no target.
   if (!moved || target === id || (target !== null && !steps.some(step => step.id === target)))

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { flushSync } from 'svelte';
-import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import type * as StepDraftModule from '@base/features/pipeline/presentation/ui/editor/step/step-draft.state.svelte.ts';
 import { createStepDrafts } from '../step-drafts.state.svelte.ts';
 
@@ -18,7 +18,7 @@ vi.mock('@base/features/pipeline/presentation/ui/editor/step/step-draft.state.sv
   };
 });
 
-const build: PipelineStep = {
+const build: PipelineStepEntity = {
   id: 'build',
   deps: [],
   kind: 'script',

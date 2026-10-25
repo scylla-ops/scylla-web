@@ -39,8 +39,9 @@ The suffix of a file tells its role.
 |------|---------|---------|
 | **Repository interface** | `*.repository.ts` → `{Entity}Repository` | `user.repository.ts` / `UserRepository` |
 | **Domain entity** | `*.entity.ts` → `{Name}Entity` | `secret.entity.ts` / `SecretEntity` |
-| **Struct** (value object / enum / DTO / wrapper) | `*.struct.ts`, plain name | `permission.struct.ts` / `PermissionScope` |
+| **Struct** (value object / enum / DTO / wrapper), types only | `*.struct.ts`, plain name | `permission.struct.ts` / `PermissionScope` |
 | **Use case** (only when it orchestrates) | `*.use-case.ts` → `{Verb}{Entity}UseCase` | `update-role.use-case.ts` / `UpdateRoleUseCase` |
+| **Domain service** (pure operations on several entities) | `domain/services/*.service.ts`, functions only | `step-graph.service.ts` / `addStep` |
 
 #### Infrastructure
 

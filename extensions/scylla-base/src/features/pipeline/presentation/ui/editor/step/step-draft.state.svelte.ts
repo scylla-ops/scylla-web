@@ -1,14 +1,13 @@
+import type { EnvEntry, Shell } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
 import type {
-  EnvEntry,
-  PipelineStep,
-  Shell,
+  PipelineStepEntity,
   StepDefinition,
-} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import {
   nodeIdIssue,
   stepIssue,
   toNodeId,
-} from '@base/features/pipeline/domain/structs/step-issue.struct.ts';
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 /** Keeps both a literal and a secret reference, so switching the kind loses nothing typed. */
 export interface EnvRow {
@@ -30,7 +29,7 @@ const entryFrom = (row: EnvRow): EnvEntry =>
 
 export interface StepDraftParams {
   /** Read once: a draft is built again for another step. */
-  step: PipelineStep;
+  step: PipelineStepEntity;
   /** Called after each edit. */
   onChange: (value: StepDefinition) => void;
   /** Returns the id the step really got: a taken id gets a suffix, an empty one is refused. */
@@ -44,7 +43,7 @@ export interface StepDraftParams {
  */
 export const createStepDraft = ({ step, onChange, onRename }: StepDraftParams) => {
   let id = $state(step.id);
-  let mode = $state<PipelineStep['kind']>(step.kind);
+  let mode = $state<PipelineStepEntity['kind']>(step.kind);
   let script = $state(step.kind === 'script' ? step.script : '');
   let shell = $state<Shell>(step.kind === 'script' ? step.shell : 'bash');
   let command = $state(step.kind === 'exec' ? step.command : '');
@@ -99,7 +98,7 @@ export const createStepDraft = ({ step, onChange, onRename }: StepDraftParams) =
     get mode() {
       return mode;
     },
-    set mode(next: PipelineStep['kind']) {
+    set mode(next: PipelineStepEntity['kind']) {
       mode = next;
       commit();
     },

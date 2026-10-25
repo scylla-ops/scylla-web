@@ -16,37 +16,3 @@ export type Shell = 'sh' | 'bash';
 export type EnvEntry =
   | { key: string; kind: 'literal'; value: string }
   | { key: string; kind: 'secret'; secretRef: string };
-
-interface PipelineStepBase {
-  id: string;
-  deps: string[];
-  workingDir?: string;
-  env: EnvEntry[];
-}
-
-export interface ExecPipelineStep extends PipelineStepBase {
-  kind: 'exec';
-  command: string;
-  args: string[];
-}
-
-export interface ScriptPipelineStep extends PipelineStepBase {
-  kind: 'script';
-  script: string;
-  shell: Shell;
-}
-
-export type PipelineStep = ExecPipelineStep | ScriptPipelineStep;
-
-/** A step without its place in the graph: the canvas owns `id` and `deps`. */
-export type StepDefinition =
-  | Omit<ExecPipelineStep, 'id' | 'deps'>
-  | Omit<ScriptPipelineStep, 'id' | 'deps'>;
-
-/** The step without its id and dependencies, which the graph owns. */
-export const definitionOf = (step: PipelineStep): StepDefinition => {
-  const base = { workingDir: step.workingDir, env: step.env };
-  return step.kind === 'script'
-    ? { ...base, kind: 'script', script: step.script, shell: step.shell }
-    : { ...base, kind: 'exec', command: step.command, args: step.args };
-};

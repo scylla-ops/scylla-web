@@ -2,7 +2,7 @@
   import { SvelteFlowProvider } from '@xyflow/svelte';
   import { createQuery } from '@scylla/core-sdk';
   import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '@scylla/ui/primitives';
-  import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
   import { createBlueprintState } from './blueprint.state.svelte.ts';
   import { createNodeAppearance } from './canvas/node-appearance-preference.state.svelte.ts';
   import { stepTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
@@ -15,10 +15,10 @@
   import BlueprintSidePanel from './side-panel/BlueprintSidePanel.svelte';
 
   interface Props {
-    steps: PipelineStep[];
+    steps: PipelineStepEntity[];
     pipelineName: string;
     projectId?: string;
-    onStepsChange: (steps: PipelineStep[]) => void;
+    onStepsChange: (steps: PipelineStepEntity[]) => void;
   }
 
   let { steps, pipelineName, projectId, onStepsChange }: Props = $props();

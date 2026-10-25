@@ -348,12 +348,21 @@ modules: a view and its logic are found, changed and deleted together.
 - **Repository interfaces** are the data contract of the module. Presentation calls them
   directly. They know nothing about gRPC or HTTP, and their input types live beside them.
 - **Entities** (`entities/*.entity.ts`, `{Name}Entity`) are the identity-bearing objects that the
-  feature owns. They can hold the related input shapes and pure behavior.
-- **Structs** (`structs/*.struct.ts`, plain PascalCase) are data shapes with no identity.
+  feature owns: a thing of the domain with a life cycle. They can hold the related input shapes,
+  and pure functions on **one** entity: a function that takes this entity (or an attribute of
+  it), or creates one.
+- **Structs** (`structs/*.struct.ts`, plain PascalCase) are data shapes with no identity. A
+  struct holds types only, never a function.
+- **Domain services are optional** (`services/*.service.ts`). A pure business operation on a
+  collection of entities goes there: functions only, no state, no I/O, named after the concept
+  (`step-graph.service.ts`), never a `utils/` folder.
+- **Behavior is pure functions, not classes with methods.** The data stays plain, so that
+  `$state`, TanStack Query and the mappers hold it as it is.
 - **Use cases are optional.** A use case is necessary only when it does something that a
   repository method cannot do: orchestrate several calls, apply a business rule, or combine
-  repositories. A class that only forwards to `repository.method(args)` is deleted. Today, one
-  use case exists: `UpdateRoleUseCase` (read → apply a pure entity function → save).
+  repositories. A class that only forwards to `repository.method(args)` is deleted. Examples:
+  `UpdateRoleUseCase` (read → apply a pure entity function → save), `SavePipelineUseCase`
+  (apply the rules of the server → create or edit).
 
 #### Entities vs. structs
 

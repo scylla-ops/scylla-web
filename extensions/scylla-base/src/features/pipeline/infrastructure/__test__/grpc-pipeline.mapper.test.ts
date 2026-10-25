@@ -8,10 +8,8 @@ import type {
   PipelineSummary,
   EnvVar,
 } from '@base/generated/scylla/pipeline/v1/pipeline.ts';
-import type {
-  PipelineStep,
-  EnvEntry,
-} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { EnvEntry } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
 const ISO = '2025-01-01T00:00:00.000Z';
@@ -140,7 +138,7 @@ describe('GrpcPipelineMapper.toDomain (via nodeToDomain)', () => {
 describe('GrpcPipelineMapper.nodeFromDomain', () => {
   const execStep = (
     params: { command?: string; args?: string[]; deps?: string[]; env?: EnvEntry[] } = {},
-  ): PipelineStep => ({
+  ): PipelineStepEntity => ({
     id: 'node-1',
     deps: params.deps ?? [],
     env: params.env ?? [],
@@ -149,7 +147,7 @@ describe('GrpcPipelineMapper.nodeFromDomain', () => {
     args: params.args ?? ['hi'],
   });
 
-  const scriptStep = (shell: 'sh' | 'bash'): PipelineStep => ({
+  const scriptStep = (shell: 'sh' | 'bash'): PipelineStepEntity => ({
     id: 'node-1',
     deps: [],
     env: [],

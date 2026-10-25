@@ -7,9 +7,9 @@ import {
   stepOf,
   START_NODE_ID,
 } from '../blueprint-converter';
-import type { PipelineStep, ExecPipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { PipelineStepEntity, ExecPipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
-const execStep = (id: string, deps: string[] = []): ExecPipelineStep => ({
+const execStep = (id: string, deps: string[] = []): ExecPipelineStepEntity => ({
   id,
   deps,
   kind: 'exec',
@@ -20,19 +20,19 @@ const execStep = (id: string, deps: string[] = []): ExecPipelineStep => ({
 
 describe('sanitizeSteps', () => {
   it('leaves already-valid steps untouched', () => {
-    const steps: PipelineStep[] = [execStep('a'), execStep('b', ['a'])];
+    const steps: PipelineStepEntity[] = [execStep('a'), execStep('b', ['a'])];
     expect(sanitizeSteps(steps)).toEqual(steps);
   });
 
   it('deduplicates a repeated id by suffixing _1, _2, ...', () => {
-    const steps: PipelineStep[] = [execStep('a'), execStep('a'), execStep('a')];
+    const steps: PipelineStepEntity[] = [execStep('a'), execStep('a'), execStep('a')];
     const result = sanitizeSteps(steps);
     expect(result.map(s => s.id)).toEqual(['a', 'a_1', 'a_2']);
   });
 
   it('remaps a dependency on a duplicated id to the LAST occurrence, not the first', () => {
     // The rename map is keyed by the original id: the last duplicate wins for a downstream dep.
-    const steps: PipelineStep[] = [execStep('build'), execStep('build'), execStep('test', ['build'])];
+    const steps: PipelineStepEntity[] = [execStep('build'), execStep('build'), execStep('test', ['build'])];
     const result = sanitizeSteps(steps);
     const ids = result.map(s => s.id);
     expect(ids).toEqual(['build', 'build_1', 'test']);
@@ -40,24 +40,24 @@ describe('sanitizeSteps', () => {
   });
 
   it('drops a self-dependency', () => {
-    const steps: PipelineStep[] = [execStep('a', ['a'])];
+    const steps: PipelineStepEntity[] = [execStep('a', ['a'])];
     expect(sanitizeSteps(steps)[0].deps).toEqual([]);
   });
 
   it('drops a dependency pointing at a non-existent node', () => {
-    const steps: PipelineStep[] = [execStep('a', ['ghost'])];
+    const steps: PipelineStepEntity[] = [execStep('a', ['ghost'])];
     expect(sanitizeSteps(steps)[0].deps).toEqual([]);
   });
 
   it('keeps a valid dependency alongside a dropped invalid one', () => {
-    const steps: PipelineStep[] = [execStep('a'), execStep('b', ['a', 'ghost', 'b'])];
+    const steps: PipelineStepEntity[] = [execStep('a'), execStep('b', ['a', 'ghost', 'b'])];
     expect(sanitizeSteps(steps)[1].deps).toEqual(['a']);
   });
 });
 
 describe('stepsToFlow', () => {
   it('produces one start node plus one node per step', () => {
-    const steps: PipelineStep[] = [execStep('a'), execStep('b', ['a'])];
+    const steps: PipelineStepEntity[] = [execStep('a'), execStep('b', ['a'])];
     const { nodes } = stepsToFlow(steps, 'my-pipeline');
     expect(nodes).toHaveLength(3);
     expect(nodes[0].id).toBe(START_NODE_ID);
@@ -65,21 +65,21 @@ describe('stepsToFlow', () => {
   });
 
   it('wires an edge from the start node to every root step (no deps)', () => {
-    const steps: PipelineStep[] = [execStep('a'), execStep('b')];
+    const steps: PipelineStepEntity[] = [execStep('a'), execStep('b')];
     const { edges } = stepsToFlow(steps, 'p');
     const fromStart = edges.filter(e => e.source === START_NODE_ID).map(e => e.target);
     expect(fromStart.sort()).toEqual(['a', 'b']);
   });
 
   it('wires a direct edge for each dependency, not from the start node', () => {
-    const steps: PipelineStep[] = [execStep('a'), execStep('b', ['a'])];
+    const steps: PipelineStepEntity[] = [execStep('a'), execStep('b', ['a'])];
     const { edges } = stepsToFlow(steps, 'p');
     expect(edges).toContainEqual(expect.objectContaining({ source: 'a', target: 'b' }));
     expect(edges.some(e => e.source === START_NODE_ID && e.target === 'b')).toBe(false);
   });
 
   it('places steps at increasing depth (x position) the further they are from a root', () => {
-    const steps: PipelineStep[] = [execStep('a'), execStep('b', ['a']), execStep('c', ['b'])];
+    const steps: PipelineStepEntity[] = [execStep('a'), execStep('b', ['a']), execStep('c', ['b'])];
     const { nodes } = stepsToFlow(steps, 'p');
     const byId = Object.fromEntries(nodes.map(n => [n.id, n]));
     expect(byId.a.position.x).toBeLessThan(byId.b.position.x);
@@ -87,7 +87,7 @@ describe('stepsToFlow', () => {
   });
 
   it('gives siblings at the same depth distinct y positions', () => {
-    const steps: PipelineStep[] = [execStep('a'), execStep('b', ['a']), execStep('c', ['a'])];
+    const steps: PipelineStepEntity[] = [execStep('a'), execStep('b', ['a']), execStep('c', ['a'])];
     const { nodes } = stepsToFlow(steps, 'p');
     const byId = Object.fromEntries(nodes.map(n => [n.id, n]));
     expect(byId.b.position.y).not.toBe(byId.c.position.y);
@@ -95,7 +95,7 @@ describe('stepsToFlow', () => {
 
   it('runs sanitizeSteps first, so a bad incoming graph still produces a coherent flow', () => {
     // Duplicate id and dangling dep: no throw, still connected.
-    const steps: PipelineStep[] = [execStep('a'), execStep('a'), execStep('c', ['ghost'])];
+    const steps: PipelineStepEntity[] = [execStep('a'), execStep('a'), execStep('c', ['ghost'])];
     const { nodes, edges, sanitizedSteps } = stepsToFlow(steps, 'p');
     expect(nodes).toHaveLength(4); // start + 3 sanitized steps
     expect(sanitizedSteps.map(s => s.id)).toEqual(['a', 'a_1', 'c']);
@@ -136,7 +136,7 @@ describe('flowToSteps', () => {
   });
 
   it('round-trips exec steps through stepsToFlow -> flowToSteps unchanged', () => {
-    const steps: PipelineStep[] = [
+    const steps: PipelineStepEntity[] = [
       { id: 'a', deps: [], kind: 'exec', command: 'echo', args: ['hi'], env: [] },
       { id: 'b', deps: ['a'], kind: 'exec', command: 'ls', args: [], workingDir: '/tmp', env: [] },
     ];
@@ -145,7 +145,7 @@ describe('flowToSteps', () => {
   });
 
   it('round-trips script steps through stepsToFlow -> flowToSteps unchanged', () => {
-    const steps: PipelineStep[] = [
+    const steps: PipelineStepEntity[] = [
       { id: 'build', deps: [], kind: 'script', script: 'echo hi', shell: 'bash', env: [] },
     ];
     const { nodes, edges } = stepsToFlow(steps, 'p');

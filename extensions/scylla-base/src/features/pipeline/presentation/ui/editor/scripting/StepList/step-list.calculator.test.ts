@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import {
   depsAfterDrop,
   stepRelations,
@@ -9,7 +9,7 @@ import {
   stepsAfterDrop,
 } from './step-list.calculator.ts';
 
-const script = (id: string, deps: string[] = [], body = 'make'): PipelineStep => ({
+const script = (id: string, deps: string[] = [], body = 'make'): PipelineStepEntity => ({
   id,
   deps,
   kind: 'script',
@@ -93,7 +93,8 @@ describe('stepsAfterDrop', () => {
     expect(stepsAfterDrop(steps, 'b', 'gone', false)).toBe(steps);
   });
 
-  const depsOf = (steps: PipelineStep[]) => Object.fromEntries(steps.map(s => [s.id, s.deps]));
+  const depsOf = (steps: PipelineStepEntity[]) =>
+    Object.fromEntries(steps.map(s => [s.id, s.deps]));
 
   it('moves a step with the steps that wait for it', () => {
     const steps = [script('a'), script('b', ['a']), script('c', ['b']), script('d')];

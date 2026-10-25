@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import { stepIcon } from '@base/features/pipeline/presentation/ui/editor/step/step-kinds.ts';
 import { summarize } from '../node-view.ts';
 
-const step = (id: string, script: string): PipelineStep => ({
+const step = (id: string, script: string): PipelineStepEntity => ({
   id,
   deps: [],
   kind: 'script',

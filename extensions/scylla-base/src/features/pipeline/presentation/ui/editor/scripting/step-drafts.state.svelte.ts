@@ -1,8 +1,8 @@
 import {
   definitionOf,
-  type PipelineStep,
+  type PipelineStepEntity,
   type StepDefinition,
-} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import {
   createStepDraft,
   type StepDraft,
@@ -35,7 +35,7 @@ export const createStepDrafts = ({ onChange, onRename }: StepDraftsParams) => {
   // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a cache of drafts, never read as state
   const entries = new Map<string, Entry>();
 
-  const build = (step: PipelineStep): Entry => {
+  const build = (step: PipelineStepEntity): Entry => {
     // The draft's callbacks read the entry, so the entry exists before the draft.
     const entry = { id: step.id, signature: signatureOf(step) } as Entry;
     // Its own root: the deriveds of a draft must outlive the component that asked for it first,
@@ -76,7 +76,7 @@ export const createStepDrafts = ({ onChange, onRename }: StepDraftsParams) => {
       entries.clear();
     },
 
-    of(step: PipelineStep): StepDraft {
+    of(step: PipelineStepEntity): StepDraft {
       const kept = entries.get(step.id);
       if (kept?.signature === signatureOf(step)) return kept.draft;
 

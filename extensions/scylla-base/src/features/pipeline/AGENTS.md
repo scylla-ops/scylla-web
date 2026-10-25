@@ -2,7 +2,7 @@
 
 Pipelines: their definition, their editor, and the metadata the overviews read.
 
-**Layer** `features/` · **id** `pipeline` · **DI keys** `pipelineRepository`, `stepTemplateRepository`
+**Layer** `features/` · **id** `pipeline` · **DI keys** `pipelineRepository`, `stepTemplateRepository`, `savePipeline`
 
 ## Import rules
 
@@ -14,7 +14,7 @@ Pipelines: their definition, their editor, and the metadata the overviews read.
 
 ```typescript
 type PipelineEntity
-type PipelineMetadata, PipelineStep, PipelineIdentity
+type PipelineMetadata, PipelineStepEntity, PipelineIdentity
 PIPELINES_QUERY_KEY, ORGANIZATION_PIPELINES_QUERY_KEY, PIPELINES_QUERY_ROOT
 CREATE_PIPELINE_MUTATION_KEY, RUN_PIPELINE_MUTATION_KEY   // onboarding follows these writes
 pipelineQueries                // Query options factory (replaces useOrganizationPipelines)
@@ -65,14 +65,15 @@ Reach a repository with `getModuleDomain<typeof PipelineModule.domain>('pipeline
 pipeline.module.ts                           4 routes + DI wiring (private; registry only)
 index.ts                                     public API
 domain/
-  entities/pipeline.entity.ts                PipelineEntity
-  structs/pipeline.struct.ts                 PipelineMetadata, PipelineStep, StepDefinition, definitionOf
-  structs/pipeline-graph.struct.ts           operations on PipelineStep[]: depths, waitsFor, add,
-                                             rename, remove, deps (pure, tested)
-  structs/pipeline-document.struct.ts        the script document (JSON), pipelineNameIssue,
-                                             createDefaultScript
-  structs/step-issue.struct.ts               what stops a step: stepIssue, nodeIdIssue, toNodeId
+  entities/pipeline.entity.ts                PipelineEntity, pipelineNameIssue, pipelineIssue (can it be saved)
+  entities/pipeline-step.entity.ts           PipelineStepEntity, StepDefinition, definitionOf, stepIssue,
+                                             the id rule of the server (nodeIdIssue, toNodeId)
+  structs/pipeline.struct.ts                 PipelineIdentity, PipelineMetadata, Shell, EnvEntry
+  structs/pipeline-issue.struct.ts           StepIssue, NodeIdIssue, PipelineNameIssue, PipelineIssue
   structs/step-template.struct.ts            StepTemplate
+  services/step-graph.service.ts             operations on the graph of the steps: depths, waitsFor, add,
+                                             rename, remove, deps (pure, tested)
+  use-cases/save-pipeline.use-case.ts        SavePipelineUseCase: the rules of the server, then create or edit
   repository/pipeline.repository.ts
   repository/step-template.repository.ts
 infrastructure/
@@ -93,6 +94,7 @@ presentation/
     editor/
       PipelineCreation.page.svelte, PipelineUpdate.page.svelte, PipelineEditor.svelte
       pipeline-document.state.svelte.ts      the document of both tabs: script text, baseline, dirty check
+      pipeline-document.ts                   the JSON format of the editor: parse, write, createDefaultScript
       PipelineEditorHeader/                  the header, with the name field
       controls/                              what the tabs share: Segmented, SearchField, and
                                              code-editor.effect.svelte.ts (CodeMirror ↔ a string)
@@ -118,7 +120,7 @@ presentation/
         scripting.messages.ts, copy-to-clipboard.ts
       blueprint/                             the visual editor, one folder per responsibility
         PipelineBlueprint.svelte             wires the graph, the canvas, the side panel, the drag
-        blueprint-converter.ts               Graph ↔ PipelineStep[] (pure, TS only, tested)
+        blueprint-converter.ts               Graph ↔ PipelineStepEntity[] (pure, TS only, tested)
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected step, add/insert/rename
         blueprint.messages.ts                the strings of the whole blueprint
         canvas/                              the canvas and what it draws
@@ -180,7 +182,7 @@ the page.
   The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
   xyflow's and is not the panel's state.
 - **The scripting tab edits the document, never a copy.** `createPipelineDocumentingState` reads
-  `doc.steps` and writes `doc.setSteps(...)` with the operations of `domain/structs/pipeline-graph.struct.ts`,
+  `doc.steps` and writes `doc.setSteps(...)` with the operations of `domain/services/step-graph.service.ts`,
   as the blueprint does. The steps are views of the document, not files. A document that does
   not parse, or that repeats a step id or a dependency (`hasRepeats`), shows the full document
   only: the "By step" tab is disabled and `StepsView` is not rendered, since its lists are keyed by
@@ -280,12 +282,12 @@ the page.
   front `ViewportPortal`, so it follows the zoom and no node hides it. No move transition: it
   must stay under the pointer.
 - **A step id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
-  protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`domain/structs/step-issue.struct.ts`)
+  protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`domain/entities/pipeline-step.entity.ts`)
   is that rule; keep both the same. A refused id is shown on the node, in the inspector while it
   is typed (with `toNodeId`, the nearest valid id, as a suggestion), and stops the save before
-  the server is called (`invalidStepIds`). It is applied like any edit, never held back.
+  the server is called (`SavePipelineUseCase`). It is applied like any edit, never held back.
 - **No loop of dependencies.** `blueprint.canConnect` refuses a link whose source already waits
-  for its target (`waitsFor`, `domain/structs/pipeline-graph.struct.ts`). A document typed by hand can
+  for its target (`waitsFor`, `domain/services/step-graph.service.ts`). A document typed by hand can
   still hold a loop: every walk of the dependencies must end on one (`stepDepths` cuts the
   loop where it closes).
 - **A detached step is shown, not fixed.** A step with no edge into it is linked to the start
@@ -311,13 +313,18 @@ the page.
 - **Sizes of the nodes live in `canvas/nodes/node-geometry.ts`**: the views set their width from it,
   the handles of a minimal node and the `anchor` (`nodePositionAt`: a dropped step lands on its
   middle, not its corner) are computed from it. Do not write these sizes as Tailwind classes.
-- **The rules of a pipeline are in `domain/structs/`**: the operations on the steps, the script
-  document, the id rule of the server. A view never writes its own copy of one. What only
-  serves the display (a preview, an icon, a layout) stays in `presentation/`, beside its users.
+- **The rules of a pipeline are in `domain/`**: the id and name rules on the entities, the
+  operations on the graph of the steps in `services/step-graph.service.ts`. A view never writes
+  its own copy of one. What only serves the display (a preview, an icon, a layout, the JSON
+  format of the editor) stays in `presentation/`, beside its users.
+- **A save goes through `SavePipelineUseCase`** (`pipelineMutations.create` / `update`). It
+  refuses a pipeline that breaks a rule of the server, with an `InvalidPipelineError`: nothing is
+  sent. `pipeline.queries.ts` turns the issue into a translated message, and the error toast of
+  the app shows it. The editor does not check the rules itself.
 - **`catalog/node-catalog.ts` stays pure**: no `t()`. What translates a catalog entry
   (`catalogText`, `BLANK_STEPS`) is in `blueprint/catalog/catalog.ts`; the search takes a
   `resolve` function.
-- `blueprint-converter.ts` is the single translation between the flow graph and `PipelineStep[]`. 
+- `blueprint-converter.ts` is the single translation between the flow graph and `PipelineStepEntity[]`. 
   Both directions live there; do not inline conversion in a component. It's pure TypeScript with 
   full test coverage.
 - Largest module in the codebase — respect the ~150-line component rule. New editor UI goes in

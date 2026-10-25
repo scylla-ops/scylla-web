@@ -1,10 +1,6 @@
 import { untrack } from 'svelte';
 import type { Connection, XYPosition } from '@xyflow/svelte';
-import {
-  definitionOf,
-  type PipelineStep,
-  type StepDefinition,
-} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import { definitionOf, type PipelineStepEntity, type StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import {
   NODE_WIDTH,
   START_NODE_ID,
@@ -17,16 +13,13 @@ import {
   type BlueprintNode,
   type BlueprintStepNode,
 } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
-import {
-  generateUniqueNodeId,
-  waitsFor,
-} from '@base/features/pipeline/domain/structs/pipeline-graph.struct.ts';
+import { generateUniqueNodeId, waitsFor } from '@base/features/pipeline/domain/services/step-graph.service.ts';
 
 export interface BlueprintStateParams {
   /** Getters: the editor's document changes. */
-  steps: () => PipelineStep[];
+  steps: () => PipelineStepEntity[];
   pipelineName: () => string;
-  onStepsChange: (steps: PipelineStep[]) => void;
+  onStepsChange: (steps: PipelineStepEntity[]) => void;
 }
 
 /** How a new step joins the graph: after a node (by default the start node), or inside an edge. */
@@ -53,7 +46,7 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
 
   let lastEmitted = '';
 
-  const keyOf = (steps: PipelineStep[], name: string) => JSON.stringify({ steps, name });
+  const keyOf = (steps: PipelineStepEntity[], name: string) => JSON.stringify({ steps, name });
 
   const emit = () => {
     const steps = flowToSteps(nodes, edges);

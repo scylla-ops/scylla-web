@@ -4,7 +4,7 @@
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
   import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '../scripting.messages.ts';
   import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
@@ -21,7 +21,7 @@
 
   interface Props {
     scripting: PipelineScriptingState;
-    step: PipelineStep;
+    step: PipelineStepEntity;
     /** Scopes the secret picker. */
     projectId?: string;
   }

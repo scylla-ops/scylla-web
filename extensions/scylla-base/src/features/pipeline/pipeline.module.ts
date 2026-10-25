@@ -5,6 +5,7 @@ import { grpcTransport } from '@platform/grpc';
 import { PipelineServiceClient } from '@base/generated/scylla/pipeline/v1/pipeline.client.ts';
 import { DefaultPipelineRepository } from './infrastructure/default-pipeline.repository.ts';
 import { DefaultStepTemplateRepository } from './infrastructure/default-step-template.repository.ts';
+import { SavePipelineUseCase } from './domain/use-cases/save-pipeline.use-case.ts';
 
 const pipelineRepository = new DefaultPipelineRepository(
   new PipelineServiceClient(grpcTransport.getTransport()),
@@ -15,6 +16,7 @@ export const PipelineModule = {
   domain: {
     pipelineRepository: pipelineRepository,
     stepTemplateRepository: new DefaultStepTemplateRepository(),
+    savePipeline: new SavePipelineUseCase(pipelineRepository),
   },
   routes: {
     project: [

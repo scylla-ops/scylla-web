@@ -1,9 +1,9 @@
 import { activeLocale, t } from '@scylla/ui/i18n';
 import { toast } from '@scylla/ui/utils';
 import type {
-  PipelineStep,
+  PipelineStepEntity,
   StepDefinition,
-} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import {
   addStep,
   dependencyCandidates,
@@ -13,7 +13,7 @@ import {
   renameStep,
   setDependencies,
   updateStep,
-} from '@base/features/pipeline/domain/structs/pipeline-graph.struct.ts';
+} from '@base/features/pipeline/domain/services/step-graph.service.ts';
 import { createStepDrafts } from './step-drafts.state.svelte.ts';
 import { createStepPanes } from './step-panes.state.svelte.ts';
 import { stepRows, stepsAfterDrop } from './StepList/step-list.calculator.ts';
@@ -21,10 +21,10 @@ import { scriptingMessages } from './scripting.messages.ts';
 
 export interface PipelineScriptingStateParams {
   /** Getters: the editor's document changes. */
-  steps: () => PipelineStep[];
+  steps: () => PipelineStepEntity[];
   /** The document parses: its steps can be shown one by one. */
   isValid: () => boolean;
-  onStepsChange: (steps: PipelineStep[]) => void;
+  onStepsChange: (steps: PipelineStepEntity[]) => void;
 }
 
 /** One step at a time, or the whole document as text. */
@@ -68,7 +68,7 @@ export const createPipelineDocumentingState = (params: PipelineScriptingStatePar
   const focusedStep = $derived(stepOf(panes.focusedId));
 
   // The document may have changed since: each step gets back only what still makes no loop.
-  const restore = (previous: PipelineStep[]) => {
+  const restore = (previous: PipelineStepEntity[]) => {
     let steps = params.steps();
     for (const { id, deps } of previous) {
       if (!steps.some(step => step.id === id)) continue;
@@ -103,7 +103,7 @@ export const createPipelineDocumentingState = (params: PipelineScriptingStatePar
 
     stepOf,
     /** The draft of a step, shared by all the views of the step. */
-    draftOf(step: PipelineStep) {
+    draftOf(step: PipelineStepEntity) {
       drafts.prune(params.steps().map(({ id }) => id));
       return drafts.of(step);
     },

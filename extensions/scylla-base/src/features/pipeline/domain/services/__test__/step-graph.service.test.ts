@@ -1,10 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import type {
-  ExecPipelineStep,
-  PipelineStep,
+  ExecPipelineStepEntity,
+  PipelineStepEntity,
   StepDefinition,
-} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import {
   addStep,
   dependencyCandidates,
@@ -17,9 +17,9 @@ import {
   stepDepths,
   updateStep,
   waitsFor,
-} from '../pipeline-graph.struct.ts';
+} from '../step-graph.service.ts';
 
-const execStep = (id: string, deps: string[] = []): ExecPipelineStep => ({
+const execStep = (id: string, deps: string[] = []): ExecPipelineStepEntity => ({
   id,
   deps,
   kind: 'exec',
@@ -58,7 +58,7 @@ describe('waitsFor', () => {
   });
 });
 
-const ids = (steps: PipelineStep[]) => steps.map(step => step.id);
+const ids = (steps: PipelineStepEntity[]) => steps.map(step => step.id);
 
 describe('addStep', () => {
   const definition: StepDefinition = { kind: 'script', shell: 'bash', script: '', env: [] };
@@ -169,7 +169,7 @@ describe('generateUniqueNodeId', () => {
 });
 
 describe('hasRepeats', () => {
-  const step = (id: string, deps: string[] = []): PipelineStep => ({
+  const step = (id: string, deps: string[] = []): PipelineStepEntity => ({
     id,
     deps,
     kind: 'script',

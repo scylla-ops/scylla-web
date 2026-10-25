@@ -1,8 +1,8 @@
 import type { LucideIcon } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
 import { cn } from '@scylla/ui/utils';
-import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import { nodeIdIssue, stepIssue } from '@base/features/pipeline/domain/structs/step-issue.struct.ts';
+import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { nodeIdIssue, stepIssue } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import { envCounts, stepPreview } from '@base/features/pipeline/presentation/ui/editor/step/step-summary.ts';
 import { KIND_TONES, stepIcon } from '@base/features/pipeline/presentation/ui/editor/step/step-kinds.ts';
 import {
@@ -14,7 +14,7 @@ import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/ste
 /** What every node appearance renders: computed once, so the views only lay it out. */
 export interface StepSummary {
   icon: LucideIcon;
-  tone: (typeof KIND_TONES)[PipelineStep['kind']];
+  tone: (typeof KIND_TONES)[PipelineStepEntity['kind']];
   /** `bash` and `sh` are names, not words: only `command` is translated. */
   kind: string;
   preview: string;
@@ -26,7 +26,7 @@ export interface StepSummary {
 }
 
 export interface StepNodeViewProps {
-  step: PipelineStep;
+  step: PipelineStepEntity;
   selected: boolean;
   summary: StepSummary;
   /** No edge goes into the step: saving links it to the start node. */
@@ -40,7 +40,7 @@ export interface StartNodeViewProps {
 
 /** Reads `t()`: called in a `$derived`, it follows a locale switch. */
 /** `iconHint`: the icon of the template whose code the step runs. */
-export const summarize = (step: PipelineStep, iconHint?: string): StepSummary => ({
+export const summarize = (step: PipelineStepEntity, iconHint?: string): StepSummary => ({
   icon: stepIcon(step.kind, iconHint),
   tone: KIND_TONES[step.kind],
   kind: step.kind === 'script' ? step.shell : t(stepMessages.kindCommand),
@@ -50,7 +50,7 @@ export const summarize = (step: PipelineStep, iconHint?: string): StepSummary =>
   workingDir: step.workingDir,
 });
 
-const problemOf = (step: PipelineStep): StepSummary['problem'] => {
+const problemOf = (step: PipelineStepEntity): StepSummary['problem'] => {
   const idIssue = nodeIdIssue(step.id);
   if (idIssue) return { label: t(stepMessages.invalidId), detail: nodeIdIssueText(idIssue) };
 

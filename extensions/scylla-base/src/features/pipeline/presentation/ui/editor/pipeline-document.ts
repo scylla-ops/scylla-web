@@ -1,8 +1,5 @@
-import type {
-  EnvEntry,
-  PipelineStep,
-  Shell,
-} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { EnvEntry, Shell } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 export interface ParsedScript {
   /** `null` for an empty editor and for malformed JSON. */
@@ -51,7 +48,7 @@ const serializeEnv = (env: EnvEntry[]): Record<string, unknown>[] =>
       : { key: entry.key, kind: 'literal', value: entry.value },
   );
 
-const parseNode = (node: Record<string, unknown>): PipelineStep => {
+const parseNode = (node: Record<string, unknown>): PipelineStepEntity => {
   const base = {
     id: typeof node.id === 'string' ? node.id : '',
     deps: Array.isArray(node.deps) ? node.deps.filter(dep => typeof dep === 'string') : [],
@@ -89,7 +86,7 @@ const parseNode = (node: Record<string, unknown>): PipelineStep => {
   };
 };
 
-const serializeNode = (step: PipelineStep): Record<string, unknown> => {
+const serializeNode = (step: PipelineStepEntity): Record<string, unknown> => {
   const base = {
     id: step.id,
     deps: step.deps,
@@ -103,7 +100,7 @@ const serializeNode = (step: PipelineStep): Record<string, unknown> => {
   return { ...base, kind: 'exec', command: step.command, args: step.args };
 };
 
-export const stepsOf = (document: Record<string, unknown> | null): PipelineStep[] =>
+export const stepsOf = (document: Record<string, unknown> | null): PipelineStepEntity[] =>
   ((document?.nodes ?? []) as Record<string, unknown>[]).map(parseNode);
 
 export const nameOf = (document: Record<string, unknown> | null): string =>
@@ -112,7 +109,7 @@ export const nameOf = (document: Record<string, unknown> | null): string =>
 /** Replaces the steps and keeps the rest (the name). Seeds a minimal document when there is none. */
 export const withSteps = (
   document: Record<string, unknown> | null,
-  steps: PipelineStep[],
+  steps: PipelineStepEntity[],
   projectId: string,
 ): string => {
   const base = document ?? { name: DEFAULT_PIPELINE_NAME, projectId };
@@ -121,13 +118,6 @@ export const withSteps = (
 
 export const withName = (document: Record<string, unknown> | null, name: string): string | null =>
   document ? JSON.stringify({ ...document, name }, null, 2) : null;
-
-/** The name goes into the breadcrumb and the URLs: it is a single word. */
-export const pipelineNameIssue = (name: string): 'empty' | 'spaces' | null => {
-  const trimmed = name.trim();
-  if (!trimmed) return 'empty';
-  return /\s/.test(trimmed) ? 'spaces' : null;
-};
 
 /** The document a new pipeline starts from: two steps, the second waiting for the first. */
 export const createDefaultScript = (projectId: string) =>

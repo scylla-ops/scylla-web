@@ -7,10 +7,7 @@
   import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type {
-    PipelineStep,
-    StepDefinition,
-  } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import type { PipelineStepEntity, StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
   import { createStepDraft } from '@base/features/pipeline/presentation/ui/editor/step/step-draft.state.svelte.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
   import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
@@ -25,7 +22,7 @@
 
   interface Props {
     /** Read once: the panel rebuilds the draft for each step. */
-    step: PipelineStep;
+    step: PipelineStepEntity;
     dependencies: string[];
     /** No edge goes into the step: saving links it to the start node. */
     detached: boolean;

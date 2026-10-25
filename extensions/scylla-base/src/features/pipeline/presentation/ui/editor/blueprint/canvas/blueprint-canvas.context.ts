@@ -1,6 +1,6 @@
 import { createContext } from 'svelte';
 import type { XYPosition } from '@xyflow/svelte';
-import type { StepDefinition } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import type { NodeAppearance } from './node-appearance-preference.state.svelte.ts';
 
 /** What the custom nodes and edges need from the canvas: xyflow hands them only their own props. */

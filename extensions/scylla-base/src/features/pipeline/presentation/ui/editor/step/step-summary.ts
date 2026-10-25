@@ -1,4 +1,4 @@
-import type { StepDefinition } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 /** A shebang, a comment or a `set -e` says nothing about what the step does. */
 const isNoise = (line: string) => line.startsWith('#') || /^set\s/.test(line);

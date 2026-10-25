@@ -23,7 +23,7 @@ lifecycle — authoring a pipeline and watching it run.
 The most important modelling decision here is that a pipeline has two shapes:
 
 - **`PipelineMetadata`** — id, name, project, status. What a *list* needs.
-- **`PipelineEntity`** — the whole thing, including its `PipelineStep[]`. What the *editor*
+- **`PipelineEntity`** — the whole thing, including its `PipelineStepEntity[]`. What the *editor*
   needs.
 
 The repository exposes them through different methods, and lists never fetch the full entity.
@@ -40,7 +40,7 @@ The graph is [@xyflow/svelte](https://xyflow.dev): `BlueprintCanvas` with custom
 (`StartNode`, `StepNode`) and a custom edge (`DeletableEdge`). `blueprint.state.svelte.ts` is the
 ViewModel (Svelte Runes-based) that owns the nodes and edges, keeping them in sync with the
 document. `blueprint-converter.ts` is the single place that translates between the graph and the
-domain's `PipelineStep[]` — both directions, so the round-trip can't drift. It's written in pure
+domain's `PipelineStepEntity[]` — both directions, so the round-trip can't drift. It's written in pure
 TypeScript and thoroughly tested.
 
 ### One panel instead of dialogs
@@ -124,6 +124,16 @@ and the baseline for the dirty check. That is UI state hosted in a ViewModel, an
 CodeMirror is the clearest legitimate use of Svelte `$effect` in this module: it's a system
 outside the framework that has to be synchronized imperatively. That licence stops at the
 editor's edge: the rest of the module derives during render with Runes.
+
+## The rules live in the domain
+
+The server refuses a whole pipeline for one step id it does not accept. That rule, and the
+others on a pipeline, are in `domain/`: the rules of one pipeline or one step on its entity,
+the operations on the graph of the steps in a domain service (`step-graph.service.ts`). They
+are plain functions on plain data, so the editor states and the query cache hold the data as
+it is. A save goes through `SavePipelineUseCase`, which applies the rules before it calls the
+server: whatever page saves a pipeline, the rule holds. The JSON text of the editor is not a
+rule of the domain: the server never sees it, so its format stays in `presentation/`.
 
 ## Owning the jobs route
 

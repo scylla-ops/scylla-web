@@ -16,6 +16,7 @@ import {
   asPipelineFeed,
   stepTemplateQueries,
 } from '../pipeline.queries.ts';
+import { SavePipelineUseCase } from '../../domain/use-cases/save-pipeline.use-case.ts';
 
 const toastSuccess = vi.fn();
 vi.mock('svelte-sonner', () => ({
@@ -87,6 +88,7 @@ beforeEach(() => {
   restoreRegistry = withRegistry({
     pipeline: {
       pipelineRepository: repository as unknown as PipelineRepository,
+      savePipeline: new SavePipelineUseCase(repository as unknown as PipelineRepository),
       stepTemplateRepository: { list: () => Promise.resolve(ScyllaResult.success(templates)) },
     },
   });
@@ -182,7 +184,7 @@ describe('pipelineMutations.create', () => {
     runOnSuccess(pipelineMutations.create(), undefined, {
       projectId: 'project-1',
       name: 'ci',
-      nodes: [],
+      steps: [],
     });
 
     expect(toastSuccess).toHaveBeenCalledWith('Pipeline created');
@@ -196,7 +198,7 @@ describe('pipelineMutations.create', () => {
     runOnSuccess(pipelineMutations.create(), undefined, {
       projectId: 'project-1',
       name: 'ci',
-      nodes: [],
+      steps: [],
     });
 
     expect(toastSuccess).toHaveBeenCalledWith('Pipeline created');
@@ -206,16 +208,29 @@ describe('pipelineMutations.create', () => {
 });
 
 describe('pipelineMutations.update', () => {
+  const edited = { id: 'pipeline-1', projectId: 'project-1', name: 'ci', steps: [] };
+
   it('edits by id', async () => {
-    await runMutationFn(pipelineMutations.update(), { id: 'pipeline-1', nodes: [] });
-    expect(repository.edit).toHaveBeenCalledWith('pipeline-1', [], undefined);
+    await runMutationFn(pipelineMutations.update(), edited);
+    expect(repository.edit).toHaveBeenCalledWith('pipeline-1', [], 'ci');
+  });
+
+  it('refuses a step id the server does not accept, in the words of the user, and sends nothing', async () => {
+    const steps = [
+      { id: 'Run Tests', deps: [], env: [], kind: 'exec' as const, command: 'make', args: [] },
+    ];
+
+    await expect(runMutationFn(pipelineMutations.update(), { ...edited, steps })).rejects.toThrow(
+      'Fix the ID of these steps before you save: Run Tests',
+    );
+    expect(repository.edit).not.toHaveBeenCalled();
   });
 
   it('invalidates the project list and the single-pipeline entry, then returns to the project', () => {
     contextStore.setState({ project: { id: 'project-1', name: 'web' } });
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
 
-    runOnSuccess(pipelineMutations.update(), pipeline(), { id: 'pipeline-1', nodes: [] });
+    runOnSuccess(pipelineMutations.update(), undefined, edited);
 
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipelines', 'project-1'] });
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipeline', 'pipeline-1'] });
@@ -224,7 +239,7 @@ describe('pipelineMutations.update', () => {
   });
 
   it('does not navigate when there is no active project in context', () => {
-    runOnSuccess(pipelineMutations.update(), pipeline(), { id: 'pipeline-1', nodes: [] });
+    runOnSuccess(pipelineMutations.update(), undefined, edited);
 
     expect(toastSuccess).toHaveBeenCalledWith('Pipeline edited');
     expect(navigator.navigate).not.toHaveBeenCalled();

@@ -3,13 +3,12 @@ import { describe, it, expect } from 'vitest';
 import {
   nameOf,
   parseScript,
-  pipelineNameIssue,
   stepsOf,
   withName,
   withSteps,
   createDefaultScript,
-} from '../pipeline-document.struct.ts';
-import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+} from '../pipeline-document.ts';
+import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 const documentOf = (value: unknown) => parseScript(JSON.stringify(value)).document;
 
@@ -129,7 +128,7 @@ describe('stepsOf', () => {
 
 describe('withSteps', () => {
   it('seeds a fresh {name, projectId} document when nothing was parsed yet', () => {
-    const steps: PipelineStep[] = [
+    const steps: PipelineStepEntity[] = [
       { id: 'build', deps: [], env: [], kind: 'exec', command: 'make', args: [] },
     ];
 
@@ -143,7 +142,7 @@ describe('withSteps', () => {
   });
 
   it('preserves the rest of an already-parsed document — its name above all', () => {
-    const steps: PipelineStep[] = [
+    const steps: PipelineStepEntity[] = [
       { id: 's', deps: [], env: [], kind: 'script', script: 'echo hi', shell: 'bash' },
     ];
 
@@ -152,7 +151,7 @@ describe('withSteps', () => {
   });
 
   it('round-trips a step unchanged: the empty workingDir it writes reads back as none', () => {
-    const steps: PipelineStep[] = [
+    const steps: PipelineStepEntity[] = [
       { id: 's', deps: [], env: [], kind: 'script', script: 'echo hi', shell: 'bash' },
     ];
 
@@ -171,17 +170,6 @@ describe('withName', () => {
       projectId: string;
     };
     expect(renamed).toEqual({ name: 'new-name', projectId: 'p' });
-  });
-});
-
-describe('pipelineNameIssue', () => {
-  it('accepts one word, around which spaces are trimmed', () => {
-    expect(pipelineNameIssue('  deploy-api ')).toBeNull();
-  });
-
-  it('refuses an empty name and a name with spaces inside', () => {
-    expect(pipelineNameIssue('   ')).toBe('empty');
-    expect(pipelineNameIssue('deploy api')).toBe('spaces');
   });
 });
 

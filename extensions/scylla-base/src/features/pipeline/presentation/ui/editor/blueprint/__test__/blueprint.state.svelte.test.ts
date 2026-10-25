@@ -1,13 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import { flushSync } from 'svelte';
-import type {
-  ExecPipelineStep,
-  PipelineStep,
-} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { ExecPipelineStepEntity, PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import { createBlueprintState } from '../blueprint.state.svelte.ts';
 import { START_NODE_ID, flowToSteps } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
 
-const execStep = (id: string, deps: string[] = []): ExecPipelineStep => ({
+const execStep = (id: string, deps: string[] = []): ExecPipelineStepEntity => ({
   id,
   deps,
   kind: 'exec',
@@ -17,12 +14,12 @@ const execStep = (id: string, deps: string[] = []): ExecPipelineStep => ({
 });
 
 const definition = { kind: 'exec', command: 'make', args: [], env: [] } as const satisfies Omit<
-  ExecPipelineStep,
+  ExecPipelineStepEntity,
   'id' | 'deps'
 >;
 
 const withState = (
-  initial: PipelineStep[],
+  initial: PipelineStepEntity[],
   run: (state: ReturnType<typeof createBlueprintState>, onStepsChange: ReturnType<typeof vi.fn>) => void,
 ) => {
   const onStepsChange = vi.fn();
@@ -77,7 +74,7 @@ describe('createBlueprintState', () => {
     withState([execStep('build')], (state, onStepsChange) => {
       state.addNode('build', { kind: 'exec', command: 'make', args: [], env: [] });
 
-      const published = onStepsChange.mock.lastCall?.[0] as PipelineStep[];
+      const published = onStepsChange.mock.lastCall?.[0] as PipelineStepEntity[];
       expect(published.map(step => step.id)).toEqual(['build', 'build_1']);
     });
   });
@@ -87,7 +84,7 @@ describe('createBlueprintState', () => {
       state.updateStep('build', { kind: 'exec', command: 'make', args: [], env: [] });
       expect(state.renameStep('build', 'compile')).toBe('compile');
 
-      const published = onStepsChange.mock.lastCall?.[0] as PipelineStep[];
+      const published = onStepsChange.mock.lastCall?.[0] as PipelineStepEntity[];
       expect(published.find(step => step.id === 'compile')).toMatchObject({ command: 'make' });
       expect(published.find(step => step.id === 'test')?.deps).toEqual(['compile']);
       expect(state.edges.some(edge => edge.source === 'compile' && edge.target === 'test')).toBe(true);
@@ -101,7 +98,7 @@ describe('createBlueprintState', () => {
 
       expect(onStepsChange).toHaveBeenLastCalledWith(flowToSteps(state.nodes, state.edges));
       expect(
-        (onStepsChange.mock.lastCall?.[0] as PipelineStep[]).find(step => step.id === 'test')?.deps,
+        (onStepsChange.mock.lastCall?.[0] as PipelineStepEntity[]).find(step => step.id === 'test')?.deps,
       ).toEqual([]);
     });
   });
@@ -129,7 +126,7 @@ describe('createBlueprintState', () => {
 
       expect(state.inspected?.id).toBe('build');
       expect(state.nodes.filter(node => node.selected).map(node => node.id)).toEqual(['build']);
-      const published = onStepsChange.mock.lastCall?.[0] as PipelineStep[];
+      const published = onStepsChange.mock.lastCall?.[0] as PipelineStepEntity[];
       expect(published.find(step => step.id === 'test')?.deps).toEqual(['build']);
     });
   });
@@ -159,7 +156,7 @@ describe('createBlueprintState', () => {
       state.addNode('lint', definition, { replacing: 'build->test' });
 
       expect(state.edges.some(edge => edge.id === 'build->test')).toBe(false);
-      const published = onStepsChange.mock.lastCall?.[0] as PipelineStep[];
+      const published = onStepsChange.mock.lastCall?.[0] as PipelineStepEntity[];
       expect(published.find(step => step.id === 'lint')?.deps).toEqual(['build']);
       expect(published.find(step => step.id === 'test')?.deps).toEqual(['lint']);
     });
@@ -172,7 +169,7 @@ describe('createBlueprintState', () => {
 
       state.removeStep('build');
       expect(state.edges.some(edge => edge.source === 'build')).toBe(false);
-      const published = onStepsChange.mock.lastCall?.[0] as PipelineStep[];
+      const published = onStepsChange.mock.lastCall?.[0] as PipelineStepEntity[];
       expect(published.map(step => step.id)).toEqual(['test']);
     });
   });

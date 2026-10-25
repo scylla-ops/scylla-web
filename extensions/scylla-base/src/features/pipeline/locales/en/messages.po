@@ -27,7 +27,7 @@ msgstr "{id} no longer waits for {deps}."
 msgid "{id} now runs after {target}. The steps that waited for it wait for what it waited for."
 msgstr "{id} now runs after {target}. The steps that waited for it wait for what it waited for."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:82
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:83
 msgid "{name} (copy)"
 msgstr "{name} (copy)"
 
@@ -67,11 +67,11 @@ msgstr "Add a step"
 msgid "Add a step after {id}"
 msgstr "Add a step after {id}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:68
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:69
 msgid "Add argument"
 msgstr "Add argument"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:78
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:79
 msgid "Add variable"
 msgstr "Add variable"
 
@@ -87,7 +87,7 @@ msgstr "All changes saved"
 msgid "Applied to the draft"
 msgstr "Applied to the draft"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:66
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:67
 msgid "Arguments"
 msgstr "Arguments"
 
@@ -144,7 +144,7 @@ msgstr "Code"
 msgid "command"
 msgstr "command"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:63
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:64
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:15
 msgid "Command"
 msgstr "Command"
@@ -161,7 +161,7 @@ msgstr "Copy all"
 msgid "Copy the step"
 msgstr "Copy the step"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:29
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:31
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:41
 msgid "Create"
 msgstr "Create"
@@ -211,15 +211,15 @@ msgstr "Duplicate"
 msgid "Duration: {duration}"
 msgstr "Duration: {duration}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:67
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:68
 msgid "e.g., --release"
 msgstr "e.g., --release"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:70
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:71
 msgid "e.g., ./services/api or /workspace"
 msgstr "e.g., ./services/api or /workspace"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:64
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:65
 msgid "e.g., cargo build && cargo test"
 msgstr "e.g., cargo build && cargo test"
 
@@ -227,7 +227,7 @@ msgstr "e.g., cargo build && cargo test"
 msgid "e.g., my-pipeline"
 msgstr "e.g., my-pipeline"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:38
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:40
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:24
 msgid "Edit"
 msgstr "Edit"
@@ -252,7 +252,7 @@ msgstr "Failed to load pipeline"
 msgid "Finished {time}"
 msgstr "Finished {time}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:60
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:61
 msgid "Fix the ID of these steps before you save: {ids}"
 msgstr "Fix the ID of these steps before you save: {ids}"
 
@@ -276,11 +276,11 @@ msgstr "Invalid JSON"
 msgid "Invalid step ID"
 msgstr "Invalid step ID"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:49
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:51
 msgid "Jobs"
 msgstr "Jobs"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:71
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:72
 msgid "KEY"
 msgstr "KEY"
 
@@ -288,7 +288,7 @@ msgstr "KEY"
 msgid "Last Run"
 msgstr "Last Run"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:73
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:74
 msgid "Literal"
 msgstr "Literal"
 
@@ -356,8 +356,8 @@ msgstr "Open the last run"
 msgid "Open to the side"
 msgstr "Open to the side"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:36
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:47
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:38
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:49
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:9
 msgid "Pipeline"
 msgstr "Pipeline"
@@ -374,11 +374,11 @@ msgstr "Pipeline name"
 msgid "Pipelines"
 msgstr "Pipelines"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:76
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:77
 msgid "Reference a secret"
 msgstr "Reference a secret"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:79
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:80
 msgid "Remove argument"
 msgstr "Remove argument"
 
@@ -386,7 +386,7 @@ msgstr "Remove argument"
 msgid "Remove the dependency on {id}"
 msgstr "Remove the dependency on {id}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:80
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:81
 msgid "Remove variable"
 msgstr "Remove variable"
 
@@ -414,7 +414,7 @@ msgstr "Save"
 msgid "Saving…"
 msgstr "Saving…"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:62
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:63
 msgid "Script"
 msgstr "Script"
 
@@ -430,11 +430,11 @@ msgstr "Scripting"
 msgid "Search a node"
 msgstr "Search a node"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:74
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:75
 msgid "Secret"
 msgstr "Secret"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:77
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:78
 msgid "secret name"
 msgstr "secret name"
 
@@ -450,7 +450,7 @@ msgstr "Select a project first"
 msgid "sh script"
 msgstr "sh script"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:65
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:66
 msgid "Shell"
 msgstr "Shell"
 
@@ -519,6 +519,10 @@ msgstr "The line that runs"
 msgid "The name cannot contain spaces."
 msgstr "The name cannot contain spaces."
 
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:60
+msgid "The pipeline needs a name."
+msgstr "The pipeline needs a name."
+
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/step/step.messages.ts:11
 msgid "The script is empty."
 msgstr "The script is empty."
@@ -576,11 +580,11 @@ msgstr "Use"
 msgid "Use {id}"
 msgstr "Use {id}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:72
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:73
 msgid "value"
 msgstr "value"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:75
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:76
 msgid "Value kind"
 msgstr "Value kind"
 
@@ -592,7 +596,7 @@ msgstr "View Jobs"
 msgid "Waits for"
 msgstr "Waits for"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:69
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:70
 msgid "Working directory"
 msgstr "Working directory"
 

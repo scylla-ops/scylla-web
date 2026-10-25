@@ -7,9 +7,9 @@ import PlayIcon from '@lucide/svelte/icons/play';
 import RocketIcon from '@lucide/svelte/icons/rocket';
 import TerminalIcon from '@lucide/svelte/icons/terminal';
 import type { LucideIcon } from '@scylla/ui';
-import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
-type StepKind = PipelineStep['kind'];
+type StepKind = PipelineStepEntity['kind'];
 
 /** The icon hints a template may give. An unknown hint falls back to the kind of the step. */
 const HINTED: Record<string, LucideIcon> = {

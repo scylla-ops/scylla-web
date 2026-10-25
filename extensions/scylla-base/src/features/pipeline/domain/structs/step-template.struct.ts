@@ -1,4 +1,4 @@
-import type { StepDefinition } from './pipeline.struct.ts';
+import type { StepDefinition } from '../entities/pipeline-step.entity.ts';
 
 /** A ready-made step that the editor offers. Built in today; the backend can serve them later. */
 export interface StepTemplate {

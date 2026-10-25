@@ -1,9 +1,6 @@
 export type { PipelineEntity } from './domain/entities/pipeline.entity.ts';
-export type {
-  PipelineMetadata,
-  PipelineStep,
-  PipelineIdentity,
-} from './domain/structs/pipeline.struct.ts';
+export type { PipelineStepEntity } from './domain/entities/pipeline-step.entity.ts';
+export type { PipelineMetadata, PipelineIdentity } from './domain/structs/pipeline.struct.ts';
 export {
   PIPELINES_QUERY_KEY,
   ORGANIZATION_PIPELINES_QUERY_KEY,

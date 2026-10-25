@@ -1,9 +1,6 @@
-import type {
-  EnvEntry,
-  PipelineMetadata,
-  PipelineStep,
-} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import type { PipelineEntity } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import type { EnvEntry, PipelineMetadata } from '../domain/structs/pipeline.struct.ts';
+import type { PipelineStepEntity } from '../domain/entities/pipeline-step.entity.ts';
+import type { PipelineEntity } from '../domain/entities/pipeline.entity.ts';
 import type {
   EnvVar,
   ListProjectPipelinesResponse,
@@ -51,7 +48,7 @@ function envVarFromDomain(entry: EnvEntry): EnvVar {
 type PipelineListResponse = Pick<ListProjectPipelinesResponse, 'pipelines' | 'pagination'>;
 
 export class GrpcPipelineMapper {
-  private static nodeToDomain(node: PipelineNode): PipelineStep {
+  private static nodeToDomain(node: PipelineNode): PipelineStepEntity {
     const base = {
       id: idValue(node.nodeId),
       deps: node.deps.map(idValue),
@@ -79,7 +76,7 @@ export class GrpcPipelineMapper {
     throw new UnknownArmError(`Step "${base.id}"`);
   }
 
-  static nodeFromDomain(step: PipelineStep): PipelineNode {
+  static nodeFromDomain(step: PipelineStepEntity): PipelineNode {
     return {
       nodeId: wrapId(step.id),
       deps: step.deps.map(wrapId),

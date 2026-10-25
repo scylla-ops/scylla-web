@@ -1,9 +1,7 @@
 import type { PipelineRepository } from '@base/features/pipeline/domain/repository/pipeline.repository.ts';
-import type { PipelineEntity } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
-import type {
-  PipelineMetadata,
-  PipelineStep,
-} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { PipelineEntity } from '../domain/entities/pipeline.entity.ts';
+import type { PipelineMetadata } from '../domain/structs/pipeline.struct.ts';
+import type { PipelineStepEntity } from '../domain/entities/pipeline-step.entity.ts';
 import type { IPipelineServiceClient } from '@base/generated/scylla/pipeline/v1/pipeline.client.ts';
 import type { Pipeline } from '@base/generated/scylla/pipeline/v1/pipeline.ts';
 import { DEFAULT_PAGE_SIZE, type PaginatedList, type PaginationParams } from '@scylla/ui/structs';
@@ -78,7 +76,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
 
   public edit(
     id: string,
-    steps: PipelineStep[],
+    steps: PipelineStepEntity[],
     name?: string,
   ): Promise<ScyllaResult<PipelineEntity>> {
     return ScyllaResult.tryAsync(async () => {

@@ -6,7 +6,7 @@
   import { Button, Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
   import { stepPreview } from '@base/features/pipeline/presentation/ui/editor/step/step-summary.ts';
   import { copyToClipboard } from '../copy-to-clipboard.ts';
   import type { StepPane } from '../step-panes.state.svelte.ts';
@@ -18,7 +18,7 @@
     pane: StepPane;
     index: number;
     /** The step the pane shows. */
-    step?: PipelineStep;
+    step?: PipelineStepEntity;
     /** At the start and at the end of the bar: where the view puts the toggles of its side panels. */
     leading?: Snippet;
     trailing?: Snippet;
@@ -27,7 +27,7 @@
   let { scripting, pane, index, step, leading, trailing }: Props = $props();
 
   // A script is copied as it runs; a command as one line.
-  const copyStep = (step: PipelineStep) =>
+  const copyStep = (step: PipelineStepEntity) =>
     copyToClipboard(step.kind === 'script' ? step.script : stepPreview(step));
 </script>
 

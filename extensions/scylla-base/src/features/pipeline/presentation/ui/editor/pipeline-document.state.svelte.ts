@@ -1,6 +1,5 @@
-import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import { nameOf, parseScript, stepsOf, withName, withSteps } from '@base/features/pipeline/domain/structs/pipeline-document.struct.ts';
-import { nodeIdIssue } from '@base/features/pipeline/domain/structs/step-issue.struct.ts';
+import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { nameOf, parseScript, stepsOf, withName, withSteps } from './pipeline-document.ts';
 
 export interface PipelineDocumentParams {
   projectId: () => string;
@@ -28,8 +27,6 @@ export const createPipelineDocument = (params: PipelineDocumentParams) => {
   const pipelineName = $derived(nameOf(parsed.document));
   const isValid = $derived(parsed.document !== null && parsed.error === null);
   const isDirty = $derived(script !== baseline);
-  /** The server refuses the whole pipeline for one of these. */
-  const invalidStepIds = $derived(steps.filter(step => nodeIdIssue(step.id)).map(step => step.id));
 
   // The browser's "leave site?" prompt, for a reload or a closed tab.
   $effect(() => {
@@ -64,15 +61,12 @@ export const createPipelineDocument = (params: PipelineDocumentParams) => {
     get isDirty() {
       return isDirty;
     },
-    get invalidStepIds() {
-      return invalidStepIds;
-    },
 
     setScript(next: string) {
       script = next;
     },
 
-    setSteps(next: PipelineStep[]) {
+    setSteps(next: PipelineStepEntity[]) {
       script = withSteps(parsed.document, next, params.projectId());
     },
 

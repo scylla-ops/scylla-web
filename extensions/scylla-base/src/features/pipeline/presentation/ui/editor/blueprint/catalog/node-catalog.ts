@@ -1,5 +1,5 @@
 import type { MessageDescriptor } from '@lingui/core';
-import type { StepDefinition } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 /** Text written by the app is a descriptor; text from a template is shown as is. */
 export type CatalogText = string | MessageDescriptor;

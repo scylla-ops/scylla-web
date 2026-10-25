@@ -1,21 +1,18 @@
 <script lang="ts">
   import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
-  import { t } from '@scylla/ui/i18n';
-  import { toast } from '@scylla/ui/utils';
-  import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
   import {
     createPipelineDocument,
   } from './pipeline-document.state.svelte.ts';
   import PipelineBlueprint from './blueprint/PipelineBlueprint.svelte';
   import PipelineEditorHeader from './PipelineEditorHeader/PipelineEditorHeader.svelte';
   import PipelineScripting from './scripting/PipelineScripting/PipelineScripting.svelte';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
     /** `edit` tracks the unsaved changes; `create` does not. */
     mode: 'create' | 'edit';
     submitLabel: string;
-    onSubmit: (values: { name: string; steps: PipelineStep[] }) => void;
+    onSubmit: (values: { name: string; steps: PipelineStepEntity[] }) => void;
     /** A default draft, or a fetched pipeline. */
     initialScript?: string;
     projectId?: string;
@@ -37,13 +34,7 @@
   });
 
   const handleSubmit = () => {
-    if (!doc.isValid) return;
-    // Said here, before the server answers with a generic refusal.
-    if (doc.invalidStepIds.length) {
-      toast.error(t(pipelineMessages.invalidStepIds(doc.invalidStepIds.join(', '))));
-      return;
-    }
-    onSubmit({ name: doc.pipelineName, steps: doc.steps });
+    if (doc.isValid) onSubmit({ name: doc.pipelineName, steps: doc.steps });
   };
 </script>
 

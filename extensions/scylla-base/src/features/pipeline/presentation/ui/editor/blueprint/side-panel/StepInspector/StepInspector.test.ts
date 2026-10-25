@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { render, withQueryClient } from '@test/render.svelte.ts';
-import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import StepInspector from './StepInspector.svelte';
 
-const step: PipelineStep = {
+const step: PipelineStepEntity = {
   id: 'test',
   deps: ['build'],
   kind: 'script',
@@ -30,9 +30,9 @@ beforeEach(() => {
 
 afterEach(() => restore());
 
-const renderInspector = (overrides: Partial<PipelineStep> = {}, detached = false) =>
+const renderInspector = (overrides: Partial<PipelineStepEntity> = {}, detached = false) =>
   render(StepInspector, {
-    step: { ...step, ...overrides } as PipelineStep,
+    step: { ...step, ...overrides } as PipelineStepEntity,
     dependencies: ['build'],
     detached,
     ...handlers,
