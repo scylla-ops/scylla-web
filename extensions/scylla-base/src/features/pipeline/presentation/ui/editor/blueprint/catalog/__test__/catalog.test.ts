@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
-import { searchCatalog } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
+import { searchCatalog } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/node-catalog.ts';
 import { BLANK_STEPS, catalogEntries, catalogText } from '../catalog.ts';
 
 const template: StepTemplate = {

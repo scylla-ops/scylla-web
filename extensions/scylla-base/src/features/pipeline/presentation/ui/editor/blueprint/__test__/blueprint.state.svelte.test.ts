@@ -5,7 +5,7 @@ import type {
   PipelineStep,
 } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
 import { createBlueprintState } from '../blueprint.state.svelte.ts';
-import { START_NODE_ID, flowToSteps } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+import { START_NODE_ID, flowToSteps } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
 
 const execStep = (id: string, deps: string[] = []): ExecPipelineStep => ({
   id,

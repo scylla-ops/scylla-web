@@ -8,7 +8,7 @@ import {
   nodeIdIssue,
   stepIssue,
   toNodeId,
-} from '@base/features/pipeline/presentation/utils/step-summary.ts';
+} from '@base/features/pipeline/domain/structs/step-issue.struct.ts';
 
 /** Keeps both a literal and a secret reference, so switching the kind loses nothing typed. */
 export interface EnvRow {

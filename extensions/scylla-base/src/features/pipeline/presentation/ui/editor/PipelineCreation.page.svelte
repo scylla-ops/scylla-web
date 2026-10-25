@@ -4,7 +4,7 @@
   import { pipelineMutations } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import {
     createDefaultScript,
-  } from '@base/features/pipeline/presentation/utils/create-default-script.ts';
+  } from '@base/features/pipeline/domain/structs/pipeline-document.struct.ts';
   import PipelineEditor from './PipelineEditor.svelte';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 

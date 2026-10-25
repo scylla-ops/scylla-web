@@ -1,10 +1,13 @@
 import { untrack } from 'svelte';
 import type { Connection, XYPosition } from '@xyflow/svelte';
-import type { PipelineStep, StepDefinition } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import {
+  definitionOf,
+  type PipelineStep,
+  type StepDefinition,
+} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
 import {
   NODE_WIDTH,
   START_NODE_ID,
-  definitionOf,
   depsOf,
   edgeBetween,
   flowToSteps,
@@ -13,11 +16,11 @@ import {
   type BlueprintEdge,
   type BlueprintNode,
   type BlueprintStepNode,
-} from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+} from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
 import {
   generateUniqueNodeId,
   waitsFor,
-} from '@base/features/pipeline/presentation/utils/pipeline-steps.ts';
+} from '@base/features/pipeline/domain/structs/pipeline-graph.struct.ts';
 
 export interface BlueprintStateParams {
   /** Getters: the editor's document changes. */

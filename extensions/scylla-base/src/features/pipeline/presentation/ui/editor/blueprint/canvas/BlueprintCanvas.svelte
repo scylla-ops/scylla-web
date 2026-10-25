@@ -16,11 +16,11 @@
   import type { BlueprintState } from '../blueprint.state.svelte.ts';
   import type { NodeAppearancePreference } from './node-appearance.svelte.ts';
   import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
-  import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
   import {
     templateFor,
     type CatalogEntry,
-  } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
+  } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/node-catalog.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
   import { setBlueprintCanvas } from './blueprint-canvas.context.ts';
   import CanvasToolbar from './CanvasToolbar.svelte';

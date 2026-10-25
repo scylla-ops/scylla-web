@@ -3,7 +3,7 @@ import { t } from '@scylla/ui/i18n';
 import type {
   NodeIdIssue,
   StepIssue,
-} from '@base/features/pipeline/presentation/utils/step-summary.ts';
+} from '@base/features/pipeline/domain/structs/step-issue.struct.ts';
 import { stepMessages } from './step.messages.ts';
 
 /** A space is invisible between quotes: it is shown as `␣`. */

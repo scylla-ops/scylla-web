@@ -17,7 +17,7 @@ import {
   stepDepths,
   updateStep,
   waitsFor,
-} from '../pipeline-steps.ts';
+} from '../pipeline-graph.struct.ts';
 
 const execStep = (id: string, deps: string[] = []): ExecPipelineStep => ({
   id,

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { cn } from '@scylla/ui/utils';
-  import type { CatalogEntry } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
+  import type { CatalogEntry } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/node-catalog.ts';
   import { catalogText } from './catalog.ts';
   import CatalogIcon from './CatalogIcon.svelte';
 

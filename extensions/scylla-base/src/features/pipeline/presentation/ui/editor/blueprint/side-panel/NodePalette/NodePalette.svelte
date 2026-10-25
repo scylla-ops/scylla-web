@@ -5,7 +5,7 @@
     groupCatalog,
     searchCatalog,
     type CatalogEntry,
-  } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
+  } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/node-catalog.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
   import {
     CATALOG_GROUP_TITLES,

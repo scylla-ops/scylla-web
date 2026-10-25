@@ -1,9 +1,9 @@
 import type { Edge, Node } from '@xyflow/svelte';
-import type {
-  PipelineStep,
-  StepDefinition,
+import {
+  definitionOf,
+  type PipelineStep,
 } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import { stepDepths } from './pipeline-steps.ts';
+import { stepDepths } from '@base/features/pipeline/domain/structs/pipeline-graph.struct.ts';
 
 /** A node's `data` must be a `Record`: a step travels wrapped, as `{ step }`. */
 
@@ -118,14 +118,6 @@ export function stepsToFlow(
 
 export const stepOf = (node: BlueprintNode): PipelineStep | undefined =>
   node.type === 'pipelineStep' ? node.data.step : undefined;
-
-/** The step without its id and dependencies, which the canvas owns. */
-export const definitionOf = (step: PipelineStep): StepDefinition => {
-  const base = { workingDir: step.workingDir, env: step.env };
-  return step.kind === 'script'
-    ? { ...base, kind: 'script', script: step.script, shell: step.shell }
-    : { ...base, kind: 'exec', command: step.command, args: step.args };
-};
 
 /** The ids of the steps a node waits for: the start node is not a step. */
 export const depsOf = (edges: BlueprintEdge[], id: string): string[] =>

@@ -10,7 +10,7 @@
   } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
-  import { EDGE_COLOR } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import { EDGE_COLOR } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
   import { getBlueprintCanvas } from './blueprint-canvas.context.ts';
   import { blueprintMessages } from '../blueprint.messages.ts';
 

@@ -51,7 +51,7 @@ its own: an invalidation of a pipeline key never refetches it. A template's `nam
 is (a tool name such as `npm ci`), and its `icon` is a hint: an unknown hint falls back to the
 kind's icon. A step that runs exactly the code of a template (the same script, or the same
 command and arguments; its env, folder and shell do not count) shows the template's icon on its
-node and in the inspector (`templateFor`, `utils/node-catalog.ts`).
+node and in the inspector (`templateFor`, `catalog/node-catalog.ts`).
 
 **`PipelineMetadata` vs `PipelineEntity` is the split that matters**: lists fetch metadata (no
 steps), the editor fetches the entity. Do not make a list page call `getById`.
@@ -66,7 +66,12 @@ pipeline.module.ts                           4 routes + DI wiring (private; regi
 index.ts                                     public API
 domain/
   entities/pipeline.entity.ts                PipelineEntity
-  structs/pipeline.struct.ts                 PipelineMetadata, PipelineStep, StepDefinition, …
+  structs/pipeline.struct.ts                 PipelineMetadata, PipelineStep, StepDefinition, definitionOf
+  structs/pipeline-graph.struct.ts           operations on PipelineStep[]: depths, waitsFor, add,
+                                             rename, remove, deps (pure, tested)
+  structs/pipeline-document.struct.ts        the script document (JSON), pipelineNameIssue,
+                                             createDefaultScript
+  structs/step-issue.struct.ts               what stops a step: stepIssue, nodeIdIssue, toNodeId
   structs/step-template.struct.ts            StepTemplate
   repository/pipeline.repository.ts
   repository/step-template.repository.ts
@@ -88,6 +93,7 @@ presentation/
       step/                                  the fields of one step, for every view that edits a step
         step-draft.svelte.ts                 createStepDraft: the draft of a step, applied at each edit
         step-kinds.ts                        icon and colours of each kind of step
+        step-summary.ts                      the one-line preview of a step, its env counts
         step.messages.ts, step-issue-text.ts the strings of the fields and of the issues of a step
         StepIdField, StepKindPicker, StepScriptField, StepCommandFields, StepWorkingDirField,
         StepEnvFields                        one field (or one group of fields) each, on a StepDraft
@@ -106,6 +112,7 @@ presentation/
         scripting.messages.ts, copy-to-clipboard.ts
       blueprint/                             the visual editor, one folder per responsibility
         PipelineBlueprint.svelte             wires the graph, the canvas, the side panel, the drag
+        blueprint-converter.ts               Graph ↔ PipelineStep[] (pure, TS only, tested)
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected step, add/insert/rename
         blueprint.messages.ts                the strings of the whole blueprint
         canvas/                              the canvas and what it draws
@@ -116,6 +123,7 @@ presentation/
                                              node-appearances.ts (registry), node-geometry.ts
           drop-spot.calculator.ts, DropSpot.svelte   the outline of where a new step lands
         catalog/                             what can be added
+          node-catalog.ts                    catalog entry type, search, grouping, templateFor (pure)
           catalog.ts                         blank steps, template entries, catalogText (translates)
           CatalogIcon.svelte, CatalogItem.svelte   the tile and the row of an entry
           QuickAddMenu/                      the step picker of a dropped link, quick-add.state.svelte.ts
@@ -127,14 +135,6 @@ presentation/
           StepInspector/                     the inspector: the fields of step/, in two tabs
     dashboard/                               Dashboard, chart, table, pipeline table columns
       DashboardPipeline/                     the page, pipeline-dashboard.state.svelte.ts (its ViewModel)
-  utils/
-    blueprint-converter.ts                   Graph ↔ PipelineStep[] (pure, TS only, tested)
-    pipeline-steps.ts                        operations on PipelineStep[]: depths, waitsFor, add,
-                                             rename, remove, deps (pure, tested)
-    node-catalog.ts                          catalog entry type, search, grouping (pure)
-    step-summary.ts                          one-line preview and the issue of a step
-    create-default-script.ts
-    pipeline-script.ts                       the script document, pipelineNameIssue
 ```
 
 ## Routes & nav
@@ -176,7 +176,7 @@ the page.
   The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
   xyflow's and is not the panel's state.
 - **The scripting tab edits the document, never a copy.** `createPipelineScriptingState` reads
-  `doc.steps` and writes `doc.setSteps(...)` with the operations of `utils/pipeline-steps.ts`,
+  `doc.steps` and writes `doc.setSteps(...)` with the operations of `domain/structs/pipeline-graph.struct.ts`,
   as the blueprint does. The steps are views of the document, not files. A document that does
   not parse, or that repeats a step id or a dependency (`hasRepeats`), shows the full document
   only: the "By step" tab is disabled and `StepsView` is not rendered, since its lists are keyed by
@@ -276,12 +276,12 @@ the page.
   front `ViewportPortal`, so it follows the zoom and no node hides it. No move transition: it
   must stay under the pointer.
 - **A step id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
-  protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`utils/step-summary.ts`)
+  protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`domain/structs/step-issue.struct.ts`)
   is that rule; keep both the same. A refused id is shown on the node, in the inspector while it
   is typed (with `toNodeId`, the nearest valid id, as a suggestion), and stops the save before
   the server is called (`invalidStepIds`). It is applied like any edit, never held back.
 - **No loop of dependencies.** `blueprint.canConnect` refuses a link whose source already waits
-  for its target (`waitsFor`, `utils/pipeline-steps.ts`). A document typed by hand can
+  for its target (`waitsFor`, `domain/structs/pipeline-graph.struct.ts`). A document typed by hand can
   still hold a loop: every walk of the dependencies must end on one (`stepDepths` cuts the
   loop where it closes).
 - **A detached step is shown, not fixed.** A step with no edge into it is linked to the start
@@ -307,8 +307,11 @@ the page.
 - **Sizes of the nodes live in `canvas/nodes/node-geometry.ts`**: the views set their width from it,
   the handles of a minimal node and the `anchor` (`nodePositionAt`: a dropped step lands on its
   middle, not its corner) are computed from it. Do not write these sizes as Tailwind classes.
-- **`presentation/utils/` stays pure**: no `t()`, no import from `ui/`. What translates a
-  catalog entry (`catalogText`, `BLANK_STEPS`) is in `blueprint/catalog/catalog.ts`; the search takes a
+- **The rules of a pipeline are in `domain/structs/`**: the operations on the steps, the script
+  document, the id rule of the server. A view never writes its own copy of one. What only
+  serves the display (a preview, an icon, a layout) stays in `presentation/`, beside its users.
+- **`catalog/node-catalog.ts` stays pure**: no `t()`. What translates a catalog entry
+  (`catalogText`, `BLANK_STEPS`) is in `blueprint/catalog/catalog.ts`; the search takes a
   `resolve` function.
 - `blueprint-converter.ts` is the single translation between the flow graph and `PipelineStep[]`. 
   Both directions live there; do not inline conversion in a component. It's pure TypeScript with 

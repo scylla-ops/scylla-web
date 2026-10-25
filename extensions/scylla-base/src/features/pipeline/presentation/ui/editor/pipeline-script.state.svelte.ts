@@ -1,6 +1,6 @@
 import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import { nameOf, parseScript, stepsOf, withName, withSteps } from '@base/features/pipeline/presentation/utils/pipeline-script.ts';
-import { nodeIdIssue } from '@base/features/pipeline/presentation/utils/step-summary.ts';
+import { nameOf, parseScript, stepsOf, withName, withSteps } from '@base/features/pipeline/domain/structs/pipeline-document.struct.ts';
+import { nodeIdIssue } from '@base/features/pipeline/domain/structs/step-issue.struct.ts';
 
 export interface PipelineScriptParams {
   projectId: () => string;

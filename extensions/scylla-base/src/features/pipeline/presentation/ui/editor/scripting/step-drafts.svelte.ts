@@ -1,8 +1,8 @@
-import type {
-  PipelineStep,
-  StepDefinition,
+import {
+  definitionOf,
+  type PipelineStep,
+  type StepDefinition,
 } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import { definitionOf } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
 import {
   createStepDraft,
   type StepDraft,

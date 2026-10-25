@@ -56,7 +56,8 @@ const parseNode = (node: Record<string, unknown>): PipelineStep => {
     id: typeof node.id === 'string' ? node.id : '',
     deps: Array.isArray(node.deps) ? node.deps.filter(dep => typeof dep === 'string') : [],
     // Serializing writes `''` for no directory: it reads back as none, so a step round-trips.
-    workingDir: typeof node.workingDir === 'string' && node.workingDir ? node.workingDir : undefined,
+    workingDir:
+      typeof node.workingDir === 'string' && node.workingDir ? node.workingDir : undefined,
     env: parseEnv(node.env),
   };
 
@@ -118,10 +119,8 @@ export const withSteps = (
   return JSON.stringify({ ...base, nodes: steps.map(serializeNode) }, null, 2);
 };
 
-export const withName = (
-  document: Record<string, unknown> | null,
-  name: string,
-): string | null => (document ? JSON.stringify({ ...document, name }, null, 2) : null);
+export const withName = (document: Record<string, unknown> | null, name: string): string | null =>
+  document ? JSON.stringify({ ...document, name }, null, 2) : null;
 
 /** The name goes into the breadcrumb and the URLs: it is a single word. */
 export const pipelineNameIssue = (name: string): 'empty' | 'spaces' | null => {
@@ -129,3 +128,34 @@ export const pipelineNameIssue = (name: string): 'empty' | 'spaces' | null => {
   if (!trimmed) return 'empty';
   return /\s/.test(trimmed) ? 'spaces' : null;
 };
+
+/** The document a new pipeline starts from: two steps, the second waiting for the first. */
+export const createDefaultScript = (projectId: string) =>
+  JSON.stringify(
+    {
+      name: DEFAULT_PIPELINE_NAME,
+      projectId,
+      nodes: [
+        {
+          id: 'welcome',
+          deps: [],
+          kind: 'script',
+          shell: 'sh',
+          script: 'echo "Welcome to Scylla!"',
+          workingDir: '',
+          env: [],
+        },
+        {
+          id: 'example',
+          deps: ['welcome'],
+          kind: 'script',
+          shell: 'sh',
+          script: 'echo "This is an example pipeline."',
+          workingDir: '',
+          env: [],
+        },
+      ],
+    },
+    null,
+    2,
+  );

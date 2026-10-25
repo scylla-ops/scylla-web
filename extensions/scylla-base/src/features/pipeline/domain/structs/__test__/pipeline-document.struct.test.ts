@@ -7,7 +7,8 @@ import {
   stepsOf,
   withName,
   withSteps,
-} from '../pipeline-script';
+  createDefaultScript,
+} from '../pipeline-document.struct.ts';
 import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
 
 const documentOf = (value: unknown) => parseScript(JSON.stringify(value)).document;
@@ -42,11 +43,21 @@ describe('nameOf', () => {
 describe('stepsOf', () => {
   it('reads a fully specified step', () => {
     const steps = stepsOf(
-      documentOf({ nodes: [{ id: 'build', deps: [], kind: 'exec', command: 'make', args: ['build'] }] }),
+      documentOf({
+        nodes: [{ id: 'build', deps: [], kind: 'exec', command: 'make', args: ['build'] }],
+      }),
     );
 
     expect(steps).toEqual([
-      { id: 'build', deps: [], workingDir: undefined, env: [], kind: 'exec', command: 'make', args: ['build'] },
+      {
+        id: 'build',
+        deps: [],
+        workingDir: undefined,
+        env: [],
+        kind: 'exec',
+        command: 'make',
+        args: ['build'],
+      },
     ]);
   });
 
@@ -96,7 +107,9 @@ describe('stepsOf', () => {
 
   describe('env parsing', () => {
     it('tolerates a literal entry missing its value', () => {
-      const [step] = stepsOf(documentOf({ nodes: [{ id: 'a', command: 'x', env: [{ key: 'K' }] }] }));
+      const [step] = stepsOf(
+        documentOf({ nodes: [{ id: 'a', command: 'x', env: [{ key: 'K' }] }] }),
+      );
       expect(step.env).toEqual([{ key: 'K', kind: 'literal', value: '' }]);
     });
 
@@ -169,5 +182,30 @@ describe('pipelineNameIssue', () => {
   it('refuses an empty name and a name with spaces inside', () => {
     expect(pipelineNameIssue('   ')).toBe('empty');
     expect(pipelineNameIssue('deploy api')).toBe('spaces');
+  });
+});
+
+describe('createDefaultScript', () => {
+  it('produces valid, pretty-printed JSON scoped to the given project', () => {
+    const script = createDefaultScript('project-1');
+    expect(script).toContain('\n'); // pretty-printed (indent: 2)
+
+    const parsed = JSON.parse(script) as { name: string; projectId: string; nodes: unknown[] };
+    expect(parsed.projectId).toBe('project-1');
+    expect(parsed.name).toBe('my-pipeline');
+    expect(parsed.nodes).toHaveLength(2);
+  });
+
+  it('the second node depends on the first, so the example runs after the welcome message', () => {
+    const parsed = JSON.parse(createDefaultScript('p')) as {
+      nodes: { id: string; deps: string[] }[];
+    };
+    expect(parsed.nodes[0]).toMatchObject({ id: 'welcome', deps: [] });
+    expect(parsed.nodes[1]).toMatchObject({ id: 'example', deps: ['welcome'] });
+  });
+
+  it('is deterministic for the same projectId (differs only by that id)', () => {
+    expect(createDefaultScript('a')).not.toBe(createDefaultScript('b'));
+    expect(createDefaultScript('a')).toBe(createDefaultScript('a'));
   });
 });

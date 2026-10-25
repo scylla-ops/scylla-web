@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { NodeProps } from '@xyflow/svelte';
-  import type { BlueprintStepNode } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import type { BlueprintStepNode } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
   import { getBlueprintCanvas } from '../blueprint-canvas.context.ts';
   import { NODE_APPEARANCE_VIEWS } from './node-appearances.ts';
   import { summarize } from './node-view.ts';

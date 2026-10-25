@@ -42,3 +42,11 @@ export type PipelineStep = ExecPipelineStep | ScriptPipelineStep;
 export type StepDefinition =
   | Omit<ExecPipelineStep, 'id' | 'deps'>
   | Omit<ScriptPipelineStep, 'id' | 'deps'>;
+
+/** The step without its id and dependencies, which the graph owns. */
+export const definitionOf = (step: PipelineStep): StepDefinition => {
+  const base = { workingDir: step.workingDir, env: step.env };
+  return step.kind === 'script'
+    ? { ...base, kind: 'script', script: step.script, shell: step.shell }
+    : { ...base, kind: 'exec', command: step.command, args: step.args };
+};

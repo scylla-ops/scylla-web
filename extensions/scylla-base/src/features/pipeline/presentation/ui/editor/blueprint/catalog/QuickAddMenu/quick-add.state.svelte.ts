@@ -5,7 +5,7 @@ import {
   searchCatalog,
   type CatalogEntry,
   type CatalogText,
-} from '@base/features/pipeline/presentation/utils/node-catalog.ts';
+} from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/node-catalog.ts';
 
 /** Where the menu opened, and where the step it picks goes. */
 export interface QuickAddRequest {

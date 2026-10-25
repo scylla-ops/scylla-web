@@ -2,12 +2,8 @@ import type { LucideIcon } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
 import { cn } from '@scylla/ui/utils';
 import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import {
-  envCounts,
-  nodeIdIssue,
-  stepIssue,
-  stepPreview,
-} from '@base/features/pipeline/presentation/utils/step-summary.ts';
+import { nodeIdIssue, stepIssue } from '@base/features/pipeline/domain/structs/step-issue.struct.ts';
+import { envCounts, stepPreview } from '@base/features/pipeline/presentation/ui/editor/step/step-summary.ts';
 import { KIND_TONES, stepIcon } from '@base/features/pipeline/presentation/ui/editor/step/step-kinds.ts';
 import {
   ISSUE_MESSAGES,

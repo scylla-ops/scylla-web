@@ -1,6 +1,6 @@
 import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import { stepDepths, waitsFor } from '@base/features/pipeline/presentation/utils/pipeline-steps.ts';
-import { nodeIdIssue, stepIssue } from '@base/features/pipeline/presentation/utils/step-summary.ts';
+import { stepDepths, waitsFor } from '@base/features/pipeline/domain/structs/pipeline-graph.struct.ts';
+import { nodeIdIssue, stepIssue } from '@base/features/pipeline/domain/structs/step-issue.struct.ts';
 
 export interface StepRow {
   step: PipelineStep;

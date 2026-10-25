@@ -1,5 +1,5 @@
 import type { XYPosition } from '@xyflow/svelte';
-import type { CatalogEntry } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
+import type { CatalogEntry } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/node-catalog.ts';
 
 /** The canvas, as a palette drag sees it. Points are screen points. */
 export interface DropTarget {

@@ -7,7 +7,7 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-  import { stepPreview } from '@base/features/pipeline/presentation/utils/step-summary.ts';
+  import { stepPreview } from '@base/features/pipeline/presentation/ui/editor/step/step-summary.ts';
   import { copyToClipboard } from '../copy-to-clipboard.ts';
   import type { StepPane } from '../step-panes.svelte.ts';
   import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
