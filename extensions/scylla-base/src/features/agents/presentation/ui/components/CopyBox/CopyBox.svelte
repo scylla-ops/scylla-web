@@ -4,7 +4,7 @@
   import EyeIcon from '@lucide/svelte/icons/eye';
   import EyeOffIcon from '@lucide/svelte/icons/eye-off';
   import { t } from '@scylla/ui/i18n';
-  import { cn, toast } from '@scylla/ui/utils';
+  import { cn, copyToClipboard } from '@scylla/ui/utils';
   import { copyBoxMessages as messages } from '@base/features/agents/presentation/messages/copy-box.messages.ts';
 
   interface Props {
@@ -51,15 +51,10 @@
   let resetTimer: ReturnType<typeof setTimeout> | undefined;
 
   const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-      copied = true;
-      toast.success(copyToast);
-      clearTimeout(resetTimer);
-      resetTimer = setTimeout(() => (copied = false), 1500);
-    } catch {
-      toast.error(t(messages.copyFailed));
-    }
+    if (!(await copyToClipboard(value, { copied: copyToast, failed: t(messages.copyFailed) }))) return;
+    copied = true;
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(() => (copied = false), 1500);
   };
 
   const focusWithoutScroll = (node: HTMLElement) => {

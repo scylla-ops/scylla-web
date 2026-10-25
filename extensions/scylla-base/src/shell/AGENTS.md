@@ -97,7 +97,7 @@ changes only for a new mount, a new section or a new part of the shell.
   identifies its pipeline also after a reload.
 - `OrganizationSelector` shows `OrganizationList` from `features/organization` and opens
   `AddOrganizationDialog`, both through the **loaders** of its barrel.
-- `createShellState()` is created once, in `OrganizationGate`. It loads the organizations of
+- `createShell()` is created once, in `OrganizationGate`. It loads the organizations of
   the user, and an effect calls `syncMyPermissions` (`features/roles`) when the active
   organization or project changes. It is the only writer of the permissions store.
 - `reportQueryError` is the app's single error report. **A query or a mutation must not add its

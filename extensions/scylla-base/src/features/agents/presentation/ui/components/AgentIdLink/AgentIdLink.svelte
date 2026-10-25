@@ -1,7 +1,7 @@
 <script lang="ts">
   import { i18n } from '@lingui/core';
   import CopyIcon from '@lucide/svelte/icons/copy';
-  import { cn, toast } from '@scylla/ui/utils';
+  import { cn, copyToClipboard } from '@scylla/ui/utils';
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
   import { t } from '@scylla/ui/i18n';
   import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
@@ -20,13 +20,10 @@
   const copyId = async (event: MouseEvent) => {
     // The card opens on click: copying must not.
     event.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(id);
-      toast.success(i18n._(ToastMessages.AGENT_ID_COPIED));
-    } catch {
-      // The clipboard can be denied: say so.
-      toast.error(i18n._(ToastMessages.AGENT_ID_COPY_ERROR));
-    }
+    await copyToClipboard(id, {
+      copied: i18n._(ToastMessages.AGENT_ID_COPIED),
+      failed: i18n._(ToastMessages.AGENT_ID_COPY_ERROR),
+    });
   };
 </script>
 

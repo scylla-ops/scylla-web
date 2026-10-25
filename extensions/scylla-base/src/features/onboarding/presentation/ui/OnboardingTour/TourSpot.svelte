@@ -4,7 +4,7 @@
     onboardingMessages,
   } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
   import type {
-    OnboardingTourState,
+    OnboardingTour,
   } from './onboarding-tour.state.svelte.ts';
   import {
     VIEWPORT_MARGIN,
@@ -23,7 +23,7 @@
   import TourSpotlight from './TourSpotlight.svelte';
 
   interface Props {
-    tour: OnboardingTourState;
+    tour: OnboardingTour;
     step: TourSpotStep;
   }
 

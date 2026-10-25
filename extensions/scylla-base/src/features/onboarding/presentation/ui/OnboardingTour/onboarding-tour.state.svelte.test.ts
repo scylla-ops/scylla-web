@@ -11,8 +11,8 @@ import type {
   OnboardingStatus,
 } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
 import {
-  createOnboardingTourState,
-  type OnboardingTourState,
+  createOnboardingTour,
+  type OnboardingTour,
 } from './onboarding-tour.state.svelte.ts';
 
 let teardown: Array<() => void> = [];
@@ -36,9 +36,9 @@ const setUp = (stored: OnboardingStatus = { kind: 'not-started' }, canStart = tr
     agents: { agentsRepository: { listAgents } },
   });
 
-  let tour!: OnboardingTourState;
+  let tour!: OnboardingTour;
   const cleanup = $effect.root(() => {
-    tour = createOnboardingTourState(() => canStart);
+    tour = createOnboardingTour(() => canStart);
   });
   flushSync();
 
@@ -46,7 +46,7 @@ const setUp = (stored: OnboardingStatus = { kind: 'not-started' }, canStart = tr
   return { tour, repository, navigator, queryClient: cache.queryClient };
 };
 
-const onStep = async (tour: OnboardingTourState, id: string) => {
+const onStep = async (tour: OnboardingTour, id: string) => {
   await vi.waitFor(() => expect(tour.step?.id).toBe(id));
 };
 
@@ -77,7 +77,7 @@ const grantListAgents = () =>
     },
   });
 
-describe('createOnboardingTourState', () => {
+describe('createOnboardingTour', () => {
   it('welcomes a user who never saw the tour', async () => {
     const { tour, repository } = setUp();
 

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { loginPath, loginPathBackTo, returnPathOf, safeReturnPath } from '../return-path.ts';
+import { loginPath, loginPathBackTo, returnPathOf, safeReturnPath } from '../return-path.mapper.ts';
 
 describe('safeReturnPath', () => {
   it.each([

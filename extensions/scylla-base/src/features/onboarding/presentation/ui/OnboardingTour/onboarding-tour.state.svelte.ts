@@ -35,7 +35,7 @@ const createdAgentId = (data: unknown): string | undefined => {
 
 const currentUserId = () => localStorage.getItem('userId') || 'anonymous';
 
-export const createOnboardingTourState = (canStart: () => boolean) => {
+export const createOnboardingTour = (canStart: () => boolean) => {
   const userId = currentUserId();
 
   const statusQuery = createQuery(() => onboardingQueries.status(userId));
@@ -163,4 +163,4 @@ export const createOnboardingTourState = (canStart: () => boolean) => {
   };
 };
 
-export type OnboardingTourState = ReturnType<typeof createOnboardingTourState>;
+export type OnboardingTour = ReturnType<typeof createOnboardingTour>;

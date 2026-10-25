@@ -1,8 +1,8 @@
 import { createMutation, getModuleDomain } from '@scylla/core-sdk';
 import { navigateTo } from '@platform/context';
 import type { ScyllaError } from '@shared/utils/scylla-result.ts';
-import type { LoginModule } from '../login.module.ts';
-import { returnPathOf } from './return-path.ts';
+import type { LoginModule } from '@base/features/login/login.module.ts';
+import { returnPathOf } from '../mappers/return-path.mapper.ts';
 
 export interface Credentials {
   /** An email or a username. */
