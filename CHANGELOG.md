@@ -12,9 +12,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Added
 
-- The scripting tab of the pipeline editor shows the jobs one by one: a list of the jobs, the
-  script of a job as shell code (with no JSON escapes), and its properties. Two jobs can be open
-  side by side. The full JSON document stays available, to copy and paste.
+- The scripting tab of the pipeline editor shows the nodes one by one: a list of the nodes by
+  stage, the script of a node as shell code (with no JSON escapes), and its properties. Two nodes
+  can be open side by side. The full JSON document stays available, to copy and paste.
+- `copyToClipboard` in `@scylla/ui/utils`: writes a text to the clipboard, then shows a toast with
+  the result.
 
 ### Changed
 
@@ -26,6 +28,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   components render in the owner's tree, so they read its Svelte context. A `replace` does not
   mount the owner's content. A widget injection does not change.
 - A repository calls its gRPC client directly. The data source layer between them is removed.
+- **Breaking:** The node of a pipeline is `PipelineNodeEntity` in `@scylla/base-sdk` (it was
+  `PipelineStep`). The pipeline editor says node everywhere, as the protos, the jobs and the
+  dashboard do.
+- The pipeline editor does not save a pipeline that the server refuses: a name with spaces, a
+  node id that the server does not accept, or two nodes with the same id. Save is disabled, and
+  the header says why. The blueprint shows two nodes with the same id in red and does not
+  change them; it no longer renames one of them without a word.
 
 ### Fixed
 
