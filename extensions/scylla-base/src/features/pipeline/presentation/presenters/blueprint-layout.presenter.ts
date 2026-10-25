@@ -1,9 +1,8 @@
 import type { XYPosition } from '@xyflow/svelte';
 import { stepDepths } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import { NODE_WIDTH } from './blueprint-geometry.presenter.ts';
 import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
-/** The layout cell: wide enough for the widest node appearance. */
-export const NODE_WIDTH = 220;
 const NODE_HEIGHT = 112;
 const HORIZONTAL_GAP = 72;
 const VERTICAL_GAP = 40;
@@ -41,4 +40,20 @@ export const layoutSteps = (steps: PipelineStepEntity[]): BlueprintLayout => {
   }
 
   return { start: { x: 0, y: totalHeight / 2 - NODE_HEIGHT / 2 }, steps: positions };
+};
+
+/** Next to the node it follows, else right of the graph: where a new node lands. */
+export const positionAfter = (
+  nodes: readonly { id: string; position: XYPosition }[],
+  sourceId?: string,
+): XYPosition => {
+  const source =
+    nodes.find(node => node.id === sourceId) ??
+    nodes.reduce<(typeof nodes)[number] | undefined>(
+      (best, node) => (!best || node.position.x > best.position.x ? node : best),
+      undefined,
+    );
+  return source
+    ? { x: source.position.x + NODE_WIDTH + HORIZONTAL_GAP, y: source.position.y }
+    : { x: 0, y: 0 };
 };

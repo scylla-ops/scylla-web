@@ -4,6 +4,7 @@
   import {
     createPipelineDocument,
   } from './pipeline-document.state.svelte.ts';
+  import { warnBeforeUnload } from './unsaved-changes.effect.svelte.ts';
   import PipelineBlueprint from './blueprint/PipelineBlueprint.svelte';
   import PipelineEditorHeader from './PipelineEditorHeader/PipelineEditorHeader.svelte';
   import PipelineScripting from './scripting/PipelineScripting/PipelineScripting.svelte';
@@ -32,6 +33,7 @@
     projectId: () => projectId ?? '',
     initialScript: () => initialScript,
   });
+  warnBeforeUnload(() => doc.isDirty);
 
   const handleSubmit = () => {
     if (doc.isValid) onSubmit({ name: doc.pipelineName, steps: doc.steps });

@@ -1,8 +1,5 @@
 import type { Edge, Node } from '@xyflow/svelte';
-import {
-  definitionOf,
-  type PipelineStepEntity,
-} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { definitionOf, type PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import { layoutSteps } from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
 
 /** A node's `data` must be a `Record`: a step travels wrapped, as `{ step }`. */

@@ -3,7 +3,6 @@ import FileCodeIcon from '@lucide/svelte/icons/file-code';
 import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 import GitBranchIcon from '@lucide/svelte/icons/git-branch';
 import PackageIcon from '@lucide/svelte/icons/package';
-import PlayIcon from '@lucide/svelte/icons/play';
 import RocketIcon from '@lucide/svelte/icons/rocket';
 import TerminalIcon from '@lucide/svelte/icons/terminal';
 import type { LucideIcon } from '@scylla/ui';
@@ -24,8 +23,6 @@ const KIND_ICONS: Record<StepKind, LucideIcon> = {
   script: FileCodeIcon,
   exec: TerminalIcon,
 };
-
-export const START_ICON = PlayIcon;
 
 export const stepIcon = (kind: StepKind, hint?: string): LucideIcon =>
   (hint ? HINTED[hint] : undefined) ?? KIND_ICONS[kind];

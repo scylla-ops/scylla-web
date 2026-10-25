@@ -79,7 +79,7 @@
       <!-- Driven from the search: the focus stays in it, the active option is announced. -->
       <SearchField
         bind:value={quickAdd.query}
-        label={t(blueprintMessages.searchNodes)}
+        label={t(blueprintMessages.searchSteps)}
         role="combobox"
         aria-expanded="true"
         aria-controls="{uid}-list"

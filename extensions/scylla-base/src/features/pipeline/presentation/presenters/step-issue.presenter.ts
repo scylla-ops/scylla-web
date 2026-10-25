@@ -1,6 +1,6 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { t } from '@scylla/ui/i18n';
-import type { StepIssue } from '@base/features/pipeline/domain/structs/pipeline-issue.struct.ts';
+import type { StepIssue } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import type { StepIdIssue } from '@base/features/pipeline/domain/structs/step-id.struct.ts';
 import { stepMessages } from '../messages/step.messages.ts';
 
@@ -19,7 +19,7 @@ export const stepIdIssueText = (issue: StepIdIssue): string => {
   }
 };
 
-export const ISSUE_MESSAGES: Record<StepIssue, MessageDescriptor> = {
+export const STEP_ISSUE_MESSAGES: Record<StepIssue, MessageDescriptor> = {
   'missing-command': stepMessages.missingCommand,
   'empty-script': stepMessages.emptyScript,
 };

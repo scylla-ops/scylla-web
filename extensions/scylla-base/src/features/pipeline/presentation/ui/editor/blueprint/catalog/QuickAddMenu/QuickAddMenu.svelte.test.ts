@@ -35,7 +35,7 @@ describe('QuickAddMenu', () => {
     flushSync();
 
     expect(screen.getByRole('dialog', { name: 'Add a step after build' })).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: 'Search a node' })).toHaveFocus();
+    expect(screen.getByRole('combobox', { name: 'Search a step' })).toHaveFocus();
   });
 
   it('picks with the keyboard', async () => {
@@ -44,7 +44,7 @@ describe('QuickAddMenu', () => {
     flushSync();
 
     await userEvent.keyboard('{ArrowDown}');
-    const search = screen.getByRole('combobox', { name: 'Search a node' });
+    const search = screen.getByRole('combobox', { name: 'Search a step' });
     const active = screen.getByRole('option', { selected: true });
     expect(search).toHaveAttribute('aria-activedescendant', active.id);
     expect(active).toHaveAccessibleName(/sh script/);

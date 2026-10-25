@@ -13,11 +13,9 @@
     SelectValue,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type {
-    EnvRow,
-    StepDraft,
-  } from './step-draft.state.svelte.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import type { EnvRow } from '@base/features/pipeline/presentation/mappers/env-row.mapper.ts';
+  import type { StepDraft } from './step-draft.state.svelte.ts';
+  import { stepMessages } from '@base/features/pipeline/presentation/messages/step.messages.ts';
 
   interface Props {
     draft: StepDraft;
@@ -41,8 +39,8 @@
       <Input
         value={row.key}
         oninput={event => draft.setEnv(index, { key: event.currentTarget.value })}
-        placeholder={t(pipelineMessages.envKeyPlaceholder)}
-        aria-label={t(pipelineMessages.envKeyPlaceholder)}
+        placeholder={t(stepMessages.envKeyPlaceholder)}
+        aria-label={t(stepMessages.envKeyPlaceholder)}
         class="flex-1 font-mono"
       />
       <Select
@@ -50,15 +48,15 @@
         value={row.kind}
         onValueChange={value => draft.setEnv(index, { kind: value as EnvRow['kind'] })}
       >
-        <SelectTrigger aria-label={t(pipelineMessages.envKindLabel)} class="w-26 shrink-0">
+        <SelectTrigger aria-label={t(stepMessages.envKindLabel)} class="w-26 shrink-0">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="literal" label={t(pipelineMessages.envKindLiteral)}>
-            {t(pipelineMessages.envKindLiteral)}
+          <SelectItem value="literal" label={t(stepMessages.envKindLiteral)}>
+            {t(stepMessages.envKindLiteral)}
           </SelectItem>
-          <SelectItem value="secret" label={t(pipelineMessages.envKindSecret)}>
-            {t(pipelineMessages.envKindSecret)}
+          <SelectItem value="secret" label={t(stepMessages.envKindSecret)}>
+            {t(stepMessages.envKindSecret)}
           </SelectItem>
         </SelectContent>
       </Select>
@@ -71,8 +69,8 @@
             value={row.secretRef}
             onValueChange={value => draft.setEnv(index, { secretRef: value })}
           >
-            <SelectTrigger aria-label={t(pipelineMessages.referenceASecret)} class={valueClass}>
-              <SelectValue placeholder={t(pipelineMessages.referenceASecret)} />
+            <SelectTrigger aria-label={t(stepMessages.referenceASecret)} class={valueClass}>
+              <SelectValue placeholder={t(stepMessages.referenceASecret)} />
             </SelectTrigger>
             <SelectContent>
               {#if row.secretRef && !secrets.some(secret => secret.name === row.secretRef)}
@@ -87,8 +85,8 @@
           <Input
             value={row.secretRef}
             oninput={event => draft.setEnv(index, { secretRef: event.currentTarget.value })}
-            placeholder={t(pipelineMessages.secretNamePlaceholder)}
-            aria-label={t(pipelineMessages.referenceASecret)}
+            placeholder={t(stepMessages.secretNamePlaceholder)}
+            aria-label={t(stepMessages.referenceASecret)}
             class={valueClass}
           />
         {/if}
@@ -96,8 +94,8 @@
         <Input
           value={row.value}
           oninput={event => draft.setEnv(index, { value: event.currentTarget.value })}
-          placeholder={t(pipelineMessages.envValuePlaceholder)}
-          aria-label={t(pipelineMessages.envValuePlaceholder)}
+          placeholder={t(stepMessages.envValuePlaceholder)}
+          aria-label={t(stepMessages.envValuePlaceholder)}
           class="{valueClass} font-mono"
         />
       {/if}
@@ -105,7 +103,7 @@
       <Button
         variant="ghost"
         size="icon-sm"
-        aria-label={t(pipelineMessages.removeVariable)}
+        aria-label={t(stepMessages.removeVariable)}
         onclick={() => draft.removeEnv(index)}
       >
         <Trash2Icon class="size-4" />
@@ -114,6 +112,6 @@
   {/each}
   <Button variant="outline" size="sm" class="self-start" onclick={() => draft.addEnv()}>
     <PlusIcon class="size-4" />
-    {t(pipelineMessages.addVariable)}
+    {t(stepMessages.addVariable)}
   </Button>
 </div>

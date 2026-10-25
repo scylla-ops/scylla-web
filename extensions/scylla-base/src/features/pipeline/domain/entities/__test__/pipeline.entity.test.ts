@@ -1,25 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type {
-  ExecPipelineStepEntity,
-  PipelineStepEntity,
-  StepDefinition,
-} from '../pipeline-step.entity.ts';
-import {
-  addStep,
-  dependencyCandidates,
-  dependentsOf,
-  uniqueStepId,
-  hasRepeats,
-  newPipeline,
-  pipelineIssue,
-  removeStep,
-  renameStep,
-  setDependencies,
-  stepDepths,
-  updateStep,
-  waitsFor,
-} from '../pipeline.entity.ts';
+import type { ExecPipelineStepEntity, PipelineStepEntity, StepDefinition } from '../pipeline-step.entity.ts';
+import { addStep, dependencyCandidates, dependentsOf, uniqueStepId, hasRepeats, moveStep, newPipeline, pipelineIssue, removeStep, renameStep, setDependencies, stepDepths, updateStep, waitsFor } from '../pipeline.entity.ts';
 
 const execStep = (id: string, deps: string[] = []): ExecPipelineStepEntity => ({
   id,
@@ -234,5 +216,77 @@ describe('newPipeline', () => {
 
   it('can be saved as it is', () => {
     expect(pipelineIssue(newPipeline('p'))).toBeNull();
+  });
+});
+
+const script = (id: string, deps: string[] = []): PipelineStepEntity => ({
+  id,
+  deps,
+  kind: 'script',
+  shell: 'sh',
+  script: 'make',
+  env: [],
+});
+const depsOf = (steps: PipelineStepEntity[]): Record<string, string[]> =>
+  Object.fromEntries(steps.map(s => [s.id, s.deps]));
+
+describe('moveStep: the dependencies of the moved step', () => {
+  it('makes the step wait for the target, and for no other', () => {
+    expect(depsOf(moveStep([script('build'), script('lint'), script('deploy'), script('x', ['build', 'lint'])], 'x', 'deploy', false)).x).toEqual(['deploy']);
+  });
+
+  it('keeps the other dependencies when asked', () => {
+    const steps = [script('build'), script('lint'), script('x', ['build'])];
+    expect(depsOf(moveStep(steps, 'x', 'lint', true)).x).toEqual(['build', 'lint']);
+    expect(depsOf(moveStep(steps, 'x', 'build', true)).x).toEqual(['build']);
+  });
+
+  it('makes the step run first when moved after no step', () => {
+    expect(depsOf(moveStep([script('build'), script('lint'), script('x', ['build', 'lint'])], 'x', null, true)).x).toEqual([]);
+  });
+});
+
+describe('moveStep', () => {
+  it('ignores a target that left the document', () => {
+    const steps = [script('a'), script('b', ['a'])];
+
+    expect(moveStep(steps, 'b', 'gone', false)).toBe(steps);
+  });
+
+  it('moves a step with the steps that wait for it', () => {
+    const steps = [script('a'), script('b', ['a']), script('c', ['b']), script('d')];
+    expect(depsOf(moveStep(steps, 'b', 'd', false))).toEqual({
+      a: [],
+      b: ['d'],
+      c: ['b'],
+      d: [],
+    });
+  });
+
+  it('takes a step out of its place when moved after a step that waits for it', () => {
+    const steps = [script('a'), script('b', ['a']), script('c', ['b'])];
+    expect(depsOf(moveStep(steps, 'b', 'c', false))).toEqual({ a: [], b: ['c'], c: ['a'] });
+  });
+
+  it('gives each step that waited for it what it waited for, once', () => {
+    const steps = [
+      script('a'),
+      script('b', ['a']),
+      script('c', ['b', 'a']),
+      script('d', ['c']),
+      script('e', ['b']),
+    ];
+    expect(depsOf(moveStep(steps, 'b', 'd', true))).toEqual({
+      a: [],
+      b: ['a', 'd'],
+      c: ['a'],
+      d: ['c'],
+      e: ['a'],
+    });
+  });
+
+  it('changes nothing when a step is moved after itself', () => {
+    const steps = [script('a'), script('b', ['a'])];
+    expect(moveStep(steps, 'b', 'b', false)).toBe(steps);
   });
 });

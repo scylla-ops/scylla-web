@@ -2,13 +2,12 @@ import type { LucideIcon } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
 import { cn } from '@scylla/ui/utils';
 import {
-  stepIssue,
+  stepProblem,
   type PipelineStepEntity,
   type StepDefinition,
 } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { stepIdIssue } from '@base/features/pipeline/domain/structs/step-id.struct.ts';
 import { stepMessages } from '../messages/step.messages.ts';
-import { ISSUE_MESSAGES, stepIdIssueText } from './step-issue.presenter.ts';
+import { STEP_ISSUE_MESSAGES, stepIdIssueText } from './step-issue.presenter.ts';
 import { KIND_TONES, stepIcon } from './step-kind.presenter.ts';
 
 /** A shebang, a comment or a `set -e` says nothing about what the step does. */
@@ -45,8 +44,10 @@ export interface StepSummary {
   workingDir?: string;
 }
 
-/** Reads `t()`: called in a `$derived`, it follows a locale switch. */
-/** `iconHint`: the icon of the template whose code the step runs. */
+/**
+ * Reads `t()`: called in a `$derived`, it follows a locale switch. `iconHint`: the icon of the
+ * template whose code the step runs.
+ */
 export const summarize = (step: PipelineStepEntity, iconHint?: string): StepSummary => ({
   icon: stepIcon(step.kind, iconHint),
   tone: KIND_TONES[step.kind],
@@ -58,12 +59,12 @@ export const summarize = (step: PipelineStepEntity, iconHint?: string): StepSumm
 });
 
 const problemOf = (step: PipelineStepEntity): StepSummary['problem'] => {
-  const idIssue = stepIdIssue(step.id);
-  if (idIssue) return { label: t(stepMessages.invalidId), detail: stepIdIssueText(idIssue) };
+  const problem = stepProblem(step);
+  if (!problem) return null;
+  if (problem.kind === 'id')
+    return { label: t(stepMessages.invalidId), detail: stepIdIssueText(problem.issue) };
 
-  const issue = stepIssue(step);
-  if (!issue) return null;
-  const text = t(ISSUE_MESSAGES[issue]);
+  const text = t(STEP_ISSUE_MESSAGES[problem.issue]);
   return { label: text, detail: text };
 };
 

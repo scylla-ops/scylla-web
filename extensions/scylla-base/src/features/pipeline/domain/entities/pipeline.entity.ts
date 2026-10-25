@@ -1,15 +1,7 @@
 import type { PipelineIdentity } from '../structs/pipeline.struct.ts';
-import type { PipelineIssue } from '../structs/pipeline-issue.struct.ts';
-import { pipelineNameIssue } from '../structs/pipeline-name.struct.ts';
+import { pipelineNameIssue, type PipelineNameIssue } from '../structs/pipeline-name.struct.ts';
 import { stepIdIssue, type StepId } from '../structs/step-id.struct.ts';
-import {
-  withDefinition,
-  withDependencies,
-  withoutDependency,
-  withRenamedReference,
-  type PipelineStepEntity,
-  type StepDefinition,
-} from './pipeline-step.entity.ts';
+import { withDefinition, withDependencies, withoutDependency, withRenamedReference, type PipelineStepEntity, type StepDefinition } from './pipeline-step.entity.ts';
 
 /**
  * The root of its steps: each step waits for the steps of its `deps`, and the operations below
@@ -46,6 +38,11 @@ export interface StepsChange {
   steps: PipelineSteps;
   id: StepId;
 }
+
+/** What stops a pipeline from being saved. */
+export type PipelineIssue =
+  | { kind: 'name'; issue: PipelineNameIssue }
+  | { kind: 'step-ids'; ids: StepId[] };
 
 /** The first reason the pipeline cannot be saved, or `null`. The server refuses the whole pipeline for one step id. */
 export const pipelineIssue = ({
@@ -169,4 +166,36 @@ export const waitsFor = (steps: PipelineSteps, id: StepId, other: StepId): boole
     pending.push(...(depsOf.get(next) ?? []));
   }
   return false;
+};
+
+/** Waits for `target` only, or for it too with `keep`; for no step when `target` is `null`. */
+const depsAfterMove = (deps: StepId[], target: StepId | null, keep: boolean): StepId[] => {
+  if (target === null) return [];
+  if (!keep) return [target];
+  return deps.includes(target) ? deps : [...deps, target];
+};
+
+/**
+ * Makes a step wait for `target` (see `depsAfterMove`). When `target` waits for the step, the step
+ * first leaves its place: the steps that waited for it wait for what it waited for. Nothing waits
+ * for it then, so the move makes no loop: `a → b → c`, `b` after `c` gives `a → c → b`.
+ */
+export const moveStep = (
+  steps: PipelineSteps,
+  id: StepId,
+  target: StepId | null,
+  keep: boolean,
+): PipelineSteps => {
+  const moved = steps.find(step => step.id === id);
+  // A step that left the document is no target.
+  if (!moved || target === id || (target !== null && !steps.some(step => step.id === target)))
+    return steps;
+
+  const leaves = target !== null && waitsFor(steps, target, id);
+  return steps.map(step => {
+    if (step.id === id) return withDependencies(step, depsAfterMove(step.deps, target, keep));
+    if (!leaves || !step.deps.includes(id)) return step;
+    const deps = step.deps.flatMap(dep => (dep === id ? moved.deps : [dep]));
+    return withDependencies(step, [...new Set(deps)]);
+  });
 };

@@ -13,7 +13,6 @@ import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-t
 import {
   pipelineMutations,
   pipelineQueries,
-  asPipelineFeed,
   stepTemplateQueries,
 } from '../pipeline.queries.ts';
 import { SavePipelineUseCase } from '../../domain/use-cases/save-pipeline.use-case.ts';
@@ -159,23 +158,6 @@ describe('pipelineQueries.byId', () => {
   });
 });
 
-describe('asPipelineFeed', () => {
-  it('flags a window narrower than the full list', () => {
-    expect(asPipelineFeed(paginated([metadata()], 50))).toMatchObject({
-      totalCount: 50,
-      isPartialWindow: true,
-    });
-  });
-
-  it('reads an absent page as an empty, complete one', () => {
-    expect(asPipelineFeed(undefined)).toEqual({
-      pipelines: [],
-      totalCount: 0,
-      isPartialWindow: false,
-    });
-  });
-});
-
 describe('pipelineMutations.create', () => {
   it('invalidates that project\'s list and navigates back to it', () => {
     contextStore.setState({ project: { id: 'project-1', name: 'web' } });
@@ -192,7 +174,7 @@ describe('pipelineMutations.create', () => {
     expect(navigator.navigate).toHaveBeenCalled();
   });
 
-  it('does not invalidate or navigate when there is no active project in context', () => {
+  it('invalidates the list of its project, but does not navigate without a project in context', () => {
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
 
     runOnSuccess(pipelineMutations.create(), undefined, {
@@ -202,7 +184,7 @@ describe('pipelineMutations.create', () => {
     });
 
     expect(toastSuccess).toHaveBeenCalledWith('Pipeline created');
-    expect(invalidate).not.toHaveBeenCalled();
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipelines', 'project-1'] });
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 });

@@ -26,8 +26,8 @@
 
 <div class="flex h-full flex-col">
   <div class="flex flex-col gap-2.5 p-3 pb-2">
-    <h2 class="px-1 text-sm font-semibold">{t(blueprintMessages.nodes)}</h2>
-    <SearchField bind:value={query} label={t(blueprintMessages.searchNodes)} />
+    <h2 class="px-1 text-sm font-semibold">{t(blueprintMessages.addStep)}</h2>
+    <SearchField bind:value={query} label={t(blueprintMessages.searchSteps)} />
   </div>
 
   <div class="relative min-h-0 flex-1 overflow-y-auto px-2 pb-2">

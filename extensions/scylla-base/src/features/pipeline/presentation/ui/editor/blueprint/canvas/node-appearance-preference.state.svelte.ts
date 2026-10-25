@@ -1,4 +1,4 @@
-/** The node styles of the canvas. Adding one: a name here, a view in `nodes/node-appearances.ts`. */
+/** The node styles of the canvas. Adding one: a name here, a view in `nodes/node-appearances.registry.ts`. */
 export const NODE_APPEARANCES = ['detailed', 'minimal'] as const;
 export type NodeAppearance = (typeof NODE_APPEARANCES)[number];
 

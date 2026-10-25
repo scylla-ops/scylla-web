@@ -1,10 +1,9 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { Shell } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import type { Shell } from '@base/features/pipeline/domain/structs/step.struct.ts';
   import type { StepDraft } from './step-draft.state.svelte.ts';
   import { stepMessages } from '@base/features/pipeline/presentation/messages/step.messages.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import Segmented from '@base/features/pipeline/presentation/ui/editor/controls/Segmented.svelte';
 
   interface Props {
@@ -15,8 +14,8 @@
   let { draft, class: className }: Props = $props();
 
   const modes = $derived([
-    { value: 'script', label: t(pipelineMessages.script) },
-    { value: 'exec', label: t(pipelineMessages.command) },
+    { value: 'script', label: t(stepMessages.script) },
+    { value: 'exec', label: t(stepMessages.command) },
   ] as const);
   // `bash` and `sh` are names: not translated.
   const SHELLS = (['bash', 'sh'] satisfies Shell[]).map(shell => ({ value: shell, label: shell }));
@@ -34,7 +33,7 @@
     <Segmented
       value={draft.shell}
       options={SHELLS}
-      label={t(pipelineMessages.shell)}
+      label={t(stepMessages.shell)}
       onChange={shell => (draft.shell = shell)}
       class="ml-auto"
       itemClass="font-mono"

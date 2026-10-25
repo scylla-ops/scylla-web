@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { NODE_APPEARANCES } from '@base/features/pipeline/presentation/ui/editor/blueprint/canvas/node-appearance-preference.state.svelte.ts';
 import { NODE_APPEARANCE_VIEWS, nodePositionAt } from '../node-appearances.registry.ts';
-import { MINIMAL_NODE } from '@base/features/pipeline/presentation/presenters/blueprint-node.presenter.ts';
+import { MINIMAL_NODE } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
 
 describe('nodePositionAt', () => {
   it('lands the icon of a minimal node on the point, not its corner', () => {

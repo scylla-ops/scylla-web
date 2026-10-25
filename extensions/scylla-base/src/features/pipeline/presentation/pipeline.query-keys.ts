@@ -16,9 +16,6 @@ export const PIPELINES_QUERY_ROOT = ['pipelines'] as const;
 
 export const PIPELINE_QUERY_KEY = (pipelineId: string) => ['pipeline', pipelineId] as const;
 
-/** One request for a project's whole list, on the overview pages. */
-export const PIPELINES_LOOKUP_PAGE: PaginationParams = { page: 1, pageSize: 100 };
-
 /** The templates do not depend on the project, nor on a pipeline: a root of their own. */
 export const STEP_TEMPLATES_QUERY_KEY = () => ['step-templates'] as const;
 

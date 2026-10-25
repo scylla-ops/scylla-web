@@ -7,10 +7,7 @@ import {
   stepOf,
   START_NODE_ID,
 } from '../blueprint-flow.mapper.ts';
-import type {
-  PipelineStepEntity,
-  ExecPipelineStepEntity,
-} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import type { PipelineStepEntity, ExecPipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 const execStep = (id: string, deps: string[] = []): ExecPipelineStepEntity => ({
   id,

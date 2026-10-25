@@ -4,7 +4,7 @@
   import { cn } from '@scylla/ui/utils';
   import UnplugIcon from '@lucide/svelte/icons/unplug';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
-  import { MINIMAL_NODE, minimalHandleStyle } from '@base/features/pipeline/presentation/presenters/blueprint-node.presenter.ts';
+  import { MINIMAL_NODE, minimalHandleStyle } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import { handleClass } from '@base/features/pipeline/presentation/presenters/step-summary.presenter.ts';
 import type { StepNodeViewProps } from './node-appearances.registry.ts';
 

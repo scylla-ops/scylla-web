@@ -59,26 +59,6 @@ export const pipelineMessages = {
   nameRequired: msg`The pipeline needs a name.`,
   invalidStepIds: (ids: string) => msg`Fix the ID of these steps before you save: ${ids}`,
 
-  script: msg`Script`,
-  command: msg`Command`,
-  commandPlaceholder: msg`e.g., cargo build && cargo test`,
-  shell: msg`Shell`,
-  argumentsLabel: msg`Arguments`,
-  argumentPlaceholder: msg`e.g., --release`,
-  addArgument: msg`Add argument`,
-  workingDirectory: msg`Working directory`,
-  workingDirectoryPlaceholder: msg`e.g., ./services/api or /workspace`,
-  envKeyPlaceholder: msg`KEY`,
-  envValuePlaceholder: msg`value`,
-  envKindLiteral: msg`Literal`,
-  envKindSecret: msg`Secret`,
-  envKindLabel: msg`Value kind`,
-  referenceASecret: msg`Reference a secret`,
-  secretNamePlaceholder: msg`secret name`,
-  addVariable: msg`Add variable`,
-  removeArgument: msg`Remove argument`,
-  removeVariable: msg`Remove variable`,
-
   /** A pipeline name is one word: the copy keeps it one word. */
   copyOf: (name: string) => msg`${name}-copy`,
 };

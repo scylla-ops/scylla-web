@@ -8,7 +8,7 @@
   import type { PipelineScripting } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
   import { stepMessages } from '@base/features/pipeline/presentation/messages/step.messages.ts';
-  import { ISSUE_MESSAGES } from '@base/features/pipeline/presentation/presenters/step-issue.presenter.ts';
+  import { STEP_ISSUE_MESSAGES } from '@base/features/pipeline/presentation/presenters/step-issue.presenter.ts';
   import {
     KIND_TONES,
     stepIcon,
@@ -66,7 +66,7 @@
       class="mx-4 mb-2 flex items-center gap-2 rounded-md bg-destructive-subtle px-3 py-2 text-sm text-destructive"
     >
       <CircleAlertIcon class="size-4 shrink-0" />
-      {t(ISSUE_MESSAGES[draft.issue])}
+      {t(STEP_ISSUE_MESSAGES[draft.issue])}
     </p>
   {/if}
 
@@ -78,7 +78,7 @@
       onclick={() => scripting.remove(step.id)}
     >
       <Trash2Icon class="size-4" />
-      {t(scriptingMessages.deleteStep)}
+      {t(stepMessages.deleteStep)}
     </Button>
   </div>
 </aside>

@@ -11,7 +11,7 @@
   import { createStepDraft } from '@base/features/pipeline/presentation/ui/editor/step/step-draft.state.svelte.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
   import { stepMessages } from '@base/features/pipeline/presentation/messages/step.messages.ts';
-  import { ISSUE_MESSAGES } from '@base/features/pipeline/presentation/presenters/step-issue.presenter.ts';
+  import { STEP_ISSUE_MESSAGES } from '@base/features/pipeline/presentation/presenters/step-issue.presenter.ts';
   import {
     KIND_TONES,
     stepIcon,
@@ -127,7 +127,7 @@
       class="mx-4 mb-2 flex items-center gap-2 rounded-md bg-destructive-subtle px-3 py-2 text-sm text-destructive"
     >
       <CircleAlertIcon class="size-4 shrink-0" />
-      {t(ISSUE_MESSAGES[draft.issue])}
+      {t(STEP_ISSUE_MESSAGES[draft.issue])}
     </p>
   {/if}
 
@@ -139,7 +139,7 @@
       onclick={onDelete}
     >
       <Trash2Icon class="size-4" />
-      {t(blueprintMessages.deleteStep)}
+      {t(stepMessages.deleteStep)}
     </Button>
     <span class="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
       <CheckIcon class="size-3.5 text-primary" />

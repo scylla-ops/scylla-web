@@ -1,4 +1,5 @@
-import type { EnvEntry, PipelineMetadata } from '../domain/structs/pipeline.struct.ts';
+import type { PipelineMetadata } from '../domain/structs/pipeline.struct.ts';
+import type { EnvEntry, Shell as StepShell } from '../domain/structs/step.struct.ts';
 import type { PipelineStepEntity } from '../domain/entities/pipeline-step.entity.ts';
 import type { PipelineEntity } from '../domain/entities/pipeline.entity.ts';
 import type {
@@ -12,11 +13,11 @@ import { Shell } from '@base/generated/scylla/exec/v1/step.ts';
 import type { PaginationInfo, PaginatedList } from '@scylla/ui/structs';
 import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
-function shellFromProto(s: Shell): 'sh' | 'bash' {
+function shellFromProto(s: Shell): StepShell {
   return s === Shell.BASH ? 'bash' : 'sh';
 }
 
-function shellToProto(s: 'sh' | 'bash'): Shell {
+function shellToProto(s: StepShell): Shell {
   return s === 'bash' ? Shell.BASH : Shell.SH;
 }
 

@@ -2,11 +2,9 @@
 import { describe, it, expect } from 'vitest';
 import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import {
-  depsAfterDrop,
   stepRelations,
   stepRows,
   stepStages,
-  stepsAfterDrop,
 } from '../step-list.presenter.ts';
 
 const script = (id: string, deps: string[] = [], body = 'make'): PipelineStepEntity => ({
@@ -68,68 +66,5 @@ describe('stepRelations', () => {
 
   it('relates nothing without a focused step', () => {
     expect(stepRelations(steps, null).size).toBe(0);
-  });
-});
-
-describe('depsAfterDrop', () => {
-  it('makes the step wait for the step it is dropped on, and for no other', () => {
-    expect(depsAfterDrop(['build', 'lint'], 'deploy', false)).toEqual(['deploy']);
-  });
-
-  it('keeps the other dependencies when asked', () => {
-    expect(depsAfterDrop(['build'], 'lint', true)).toEqual(['build', 'lint']);
-    expect(depsAfterDrop(['build'], 'build', true)).toEqual(['build']);
-  });
-
-  it('makes the step run first when dropped on no step', () => {
-    expect(depsAfterDrop(['build', 'lint'], null, true)).toEqual([]);
-  });
-});
-
-describe('stepsAfterDrop', () => {
-  it('ignores a drop on a step that left the document', () => {
-    const steps = [script('a'), script('b', ['a'])];
-
-    expect(stepsAfterDrop(steps, 'b', 'gone', false)).toBe(steps);
-  });
-
-  const depsOf = (steps: PipelineStepEntity[]) =>
-    Object.fromEntries(steps.map(s => [s.id, s.deps]));
-
-  it('moves a step with the steps that wait for it', () => {
-    const steps = [script('a'), script('b', ['a']), script('c', ['b']), script('d')];
-    expect(depsOf(stepsAfterDrop(steps, 'b', 'd', false))).toEqual({
-      a: [],
-      b: ['d'],
-      c: ['b'],
-      d: [],
-    });
-  });
-
-  it('takes a step out of its place when dropped on a step that waits for it', () => {
-    const steps = [script('a'), script('b', ['a']), script('c', ['b'])];
-    expect(depsOf(stepsAfterDrop(steps, 'b', 'c', false))).toEqual({ a: [], b: ['c'], c: ['a'] });
-  });
-
-  it('gives each step that waited for it what it waited for, once', () => {
-    const steps = [
-      script('a'),
-      script('b', ['a']),
-      script('c', ['b', 'a']),
-      script('d', ['c']),
-      script('e', ['b']),
-    ];
-    expect(depsOf(stepsAfterDrop(steps, 'b', 'd', true))).toEqual({
-      a: [],
-      b: ['a', 'd'],
-      c: ['a'],
-      d: ['c'],
-      e: ['a'],
-    });
-  });
-
-  it('changes nothing when a step is dropped on itself', () => {
-    const steps = [script('a'), script('b', ['a'])];
-    expect(stepsAfterDrop(steps, 'b', 'b', false)).toBe(steps);
   });
 });

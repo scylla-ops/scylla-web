@@ -6,7 +6,7 @@ export interface StepDragParams {
 /**
  * A step dragged in the list, onto the step it must wait for. A drop target is a step id, or `null`
  * for the "runs first" zone. Any step but the dragged one is a target: a drop on a step that waits
- * for it rearranges the dependencies (`stepsAfterDrop`).
+ * for it rearranges the dependencies (`moveStep`).
  */
 export const createStepDrag = (params: StepDragParams) => {
   let dragged = $state<string | null>(null);

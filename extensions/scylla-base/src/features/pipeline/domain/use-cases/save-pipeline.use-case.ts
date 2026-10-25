@@ -2,7 +2,7 @@ import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { PipelineRepository } from '../repository/pipeline.repository.ts';
 import { pipelineIssue } from '../entities/pipeline.entity.ts';
 import type { PipelineStepEntity } from '../entities/pipeline-step.entity.ts';
-import type { PipelineIssue } from '../structs/pipeline-issue.struct.ts';
+import type { PipelineIssue } from '../entities/pipeline.entity.ts';
 
 export interface SavePipelineInput {
   /** None for a new pipeline. */

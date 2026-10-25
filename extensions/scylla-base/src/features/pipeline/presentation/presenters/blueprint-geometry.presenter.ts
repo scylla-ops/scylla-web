@@ -1,5 +1,7 @@
-import type { XYPosition } from '@xyflow/svelte';
-import { NODE_WIDTH } from './blueprint-layout.presenter.ts';
+import type { XYPosition, useConnection } from '@xyflow/svelte';
+
+/** The layout cell: wide enough for the widest node appearance. */
+export const NODE_WIDTH = 220;
 
 /** A card as wide as the layout cell; the start node is narrower. `height`: with one preview line. */
 export const DETAILED_NODE = { width: NODE_WIDTH, startWidth: 180, height: 86 } as const;
@@ -45,3 +47,16 @@ export const MINIMAL_FOOTPRINT: NodeFootprint = {
   height: MINIMAL_NODE.tile,
   radius: 18,
 };
+
+/** `@xyflow/svelte` does not export the type of its connection state. */
+type ConnectionState = ReturnType<typeof useConnection>['current'];
+
+/**
+ * Where a link pulled from a step's output would create a step: the point of the pointer, while
+ * it is over no node. Dropped there, the link opens the quick add menu, which puts the step at
+ * this point. `null` for any other link.
+ */
+export const linkDropPoint = (connection: ConnectionState): XYPosition | null =>
+  connection.inProgress && connection.fromHandle.type === 'source' && !connection.toNode
+    ? connection.to
+    : null;

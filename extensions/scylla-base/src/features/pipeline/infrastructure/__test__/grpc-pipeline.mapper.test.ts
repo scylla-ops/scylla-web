@@ -8,7 +8,7 @@ import type {
   PipelineSummary,
   EnvVar,
 } from '@base/generated/scylla/pipeline/v1/pipeline.ts';
-import type { EnvEntry } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { EnvEntry } from '@base/features/pipeline/domain/structs/step.struct.ts';
 import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };

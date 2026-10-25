@@ -1,6 +1,5 @@
-import type { EnvEntry, Shell } from '../structs/pipeline.struct.ts';
-import type { StepIssue } from '../structs/pipeline-issue.struct.ts';
-import type { StepId } from '../structs/step-id.struct.ts';
+import type { EnvEntry, Shell } from '../structs/step.struct.ts';
+import { stepIdIssue, type StepId, type StepIdIssue } from '../structs/step-id.struct.ts';
 
 interface PipelineStepBase {
   id: StepId;
@@ -36,10 +35,29 @@ export const definitionOf = (step: PipelineStepEntity): StepDefinition => {
     : { ...base, kind: 'exec', command: step.command, args: step.args };
 };
 
+/** What stops a step from running. The node and the inspector both show it. */
+export type StepIssue = 'missing-command' | 'empty-script';
+
 export const stepIssue = (definition: StepDefinition): StepIssue | null => {
   if (definition.kind === 'exec') return definition.command.trim() ? null : 'missing-command';
   return definition.script.trim() ? null : 'empty-script';
 };
+
+/** Why the step cannot be saved or run: a refused id first, as the server rejects the whole pipeline. */
+export type StepProblem = { kind: 'id'; issue: StepIdIssue } | { kind: 'run'; issue: StepIssue };
+
+export const stepProblem = (step: PipelineStepEntity): StepProblem | null => {
+  const idIssue = stepIdIssue(step.id);
+  if (idIssue) return { kind: 'id', issue: idIssue };
+  const issue = stepIssue(step);
+  return issue ? { kind: 'run', issue } : null;
+};
+
+/** A step with nothing to run yet: the editor adds it, then the user writes its code. */
+export const blankDefinition = (kind: PipelineStepEntity['kind'], shell: Shell = 'bash'): StepDefinition =>
+  kind === 'script'
+    ? { kind: 'script', shell, script: '', env: [] }
+    : { kind: 'exec', command: '', args: [], env: [] };
 
 /** Replaces what the step runs; its id and its dependencies stay. */
 export const withDefinition = (

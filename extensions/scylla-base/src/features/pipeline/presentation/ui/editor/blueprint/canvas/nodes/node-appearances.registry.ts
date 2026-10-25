@@ -12,7 +12,7 @@ import {
   MINIMAL_ANCHOR,
   MINIMAL_FOOTPRINT,
   type NodeFootprint,
-} from '@base/features/pipeline/presentation/presenters/blueprint-node.presenter.ts';
+} from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
 import type { StepSummary } from '@base/features/pipeline/presentation/presenters/step-summary.presenter.ts';
 import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import StartNodeDetailed from './StartNodeDetailed.svelte';

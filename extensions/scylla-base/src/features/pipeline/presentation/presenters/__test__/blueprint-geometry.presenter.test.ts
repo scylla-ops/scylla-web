@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { linkDropPoint } from '../drop-spot.presenter.ts';
+import { linkDropPoint } from '../blueprint-geometry.presenter.ts';
 
 type Connection = Parameters<typeof linkDropPoint>[0];
 

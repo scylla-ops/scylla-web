@@ -1,28 +1,12 @@
-import type { EnvEntry, Shell } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import type {
-  PipelineStepEntity,
-  StepDefinition,
-} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import type { Shell } from '@base/features/pipeline/domain/structs/step.struct.ts';
+import {
+  toEnvEntry,
+  toEnvRow,
+  type EnvRow,
+} from '@base/features/pipeline/presentation/mappers/env-row.mapper.ts';
+import type { PipelineStepEntity, StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import { stepIdIssue, toStepId } from '@base/features/pipeline/domain/structs/step-id.struct.ts';
 import { stepIssue } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-
-/** Keeps both a literal and a secret reference, so switching the kind loses nothing typed. */
-export interface EnvRow {
-  key: string;
-  kind: 'literal' | 'secret';
-  value: string;
-  secretRef: string;
-}
-
-const rowFrom = (entry: EnvEntry): EnvRow =>
-  entry.kind === 'secret'
-    ? { key: entry.key, kind: 'secret', value: '', secretRef: entry.secretRef }
-    : { key: entry.key, kind: 'literal', value: entry.value, secretRef: '' };
-
-const entryFrom = (row: EnvRow): EnvEntry =>
-  row.kind === 'secret'
-    ? { key: row.key, kind: 'secret', secretRef: row.secretRef }
-    : { key: row.key, kind: 'literal', value: row.value };
 
 export interface StepDraftParams {
   /** Read once: a draft is built again for another step. */
@@ -46,13 +30,13 @@ export const createStepDraft = ({ step, onChange, onRename }: StepDraftParams) =
   let command = $state(step.kind === 'exec' ? step.command : '');
   let args = $state<string[]>(step.kind === 'exec' ? [...step.args] : []);
   let workingDir = $state(step.workingDir ?? '');
-  let envRows = $state<EnvRow[]>(step.env.map(rowFrom));
+  let envRows = $state<EnvRow[]>(step.env.map(toEnvRow));
 
   const value = $derived.by((): StepDefinition => {
     // A row with no key is an empty line.
     const env = envRows
       .filter(row => row.key.trim())
-      .map(row => entryFrom({ ...row, key: row.key.trim() }));
+      .map(row => toEnvEntry({ ...row, key: row.key.trim() }));
     const base = { workingDir: workingDir.trim() || undefined, env };
 
     return mode === 'script'

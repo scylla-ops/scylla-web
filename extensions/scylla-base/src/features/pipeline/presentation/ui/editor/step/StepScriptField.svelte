@@ -5,7 +5,7 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { StepDraft } from './step-draft.state.svelte.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import { stepMessages } from '@base/features/pipeline/presentation/messages/step.messages.ts';
   import { syncCodeEditor } from '@base/features/pipeline/presentation/ui/editor/controls/code-editor.effect.svelte.ts';
 
   interface Props {
@@ -27,7 +27,7 @@
 <!-- The script as it runs: shell code, with no JSON escapes. -->
 <div
   class={cn('relative min-h-40 flex-1 overflow-auto [&_.cm-editor]:h-full', className)}
-  aria-label={t(pipelineMessages.script)}
+  aria-label={t(stepMessages.script)}
   {@attach renderCodeMirror(() => ({
     doc: draft.script,
     extensions: editor.extensions,

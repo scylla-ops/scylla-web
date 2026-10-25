@@ -22,7 +22,7 @@
   import { setBlueprintCanvas } from './blueprint-canvas.context.ts';
   import CanvasToolbar from './CanvasToolbar.svelte';
   import DeletableEdge from './DeletableEdge.svelte';
-  import { linkDropPoint } from '@base/features/pipeline/presentation/presenters/drop-spot.presenter.ts';
+  import { linkDropPoint } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import DropSpot from './DropSpot.svelte';
   import { acceptPaletteDrop } from '../palette-drag/palette-drag.attachments.ts';
   import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';

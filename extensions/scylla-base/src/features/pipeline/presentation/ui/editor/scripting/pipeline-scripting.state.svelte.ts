@@ -1,22 +1,13 @@
 import { activeLocale, t } from '@scylla/ui/i18n';
 import { toast } from '@scylla/ui/utils';
-import type {
-  PipelineStepEntity,
-  StepDefinition,
-} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import {
-  addStep,
-  dependencyCandidates,
-  dependentsOf,
-  hasRepeats,
-  removeStep,
-  renameStep,
-  setDependencies,
-  updateStep,
-} from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+  blankDefinition,
+  type PipelineStepEntity,
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { addStep, dependencyCandidates, dependentsOf, hasRepeats, moveStep, removeStep, renameStep, setDependencies, updateStep } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import { createStepDrafts } from './step-drafts.state.svelte.ts';
 import { createStepPanes } from './step-panes.state.svelte.ts';
-import { stepRows, stepsAfterDrop } from '@base/features/pipeline/presentation/presenters/step-list.presenter.ts';
+import { stepRows } from '@base/features/pipeline/presentation/presenters/step-list.presenter.ts';
 import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
 
 export interface PipelineScriptingParams {
@@ -31,7 +22,6 @@ export interface PipelineScriptingParams {
 export type ScriptingMode = 'steps' | 'document';
 
 const NEW_STEP_ID = 'step';
-const NEW_STEP: StepDefinition = { kind: 'script', shell: 'bash', script: '', env: [] };
 
 const sameDeps = (a: string[], b: string[]) =>
   a.length === b.length && a.every(dep => b.includes(dep));
@@ -112,7 +102,7 @@ export const createPipelineScripting = (params: PipelineScriptingParams) => {
 
     /** Adds a step after the focused one, and opens it. */
     add() {
-      const change = addStep(params.steps(), NEW_STEP_ID, NEW_STEP, panes.focusedId ?? undefined);
+      const change = addStep(params.steps(), NEW_STEP_ID, blankDefinition('script'), panes.focusedId ?? undefined);
       params.onStepsChange(change.steps);
       panes.open(change.id);
     },
@@ -127,7 +117,7 @@ export const createPipelineScripting = (params: PipelineScriptingParams) => {
     },
 
     /**
-     * Moves a step in the list (`stepsAfterDrop`). A move that removes dependencies says so, and
+     * Moves a step in the list (`moveStep`). A move that removes dependencies says so, and
      * can be undone: the editor has no history.
      */
     moveStep(id: string, target: string | null, keep: boolean) {
@@ -135,7 +125,7 @@ export const createPipelineScripting = (params: PipelineScriptingParams) => {
       const index = before.findIndex(step => step.id === id);
       if (index === -1) return;
 
-      const after = stepsAfterDrop(before, id, target, keep);
+      const after = moveStep(before, id, target, keep);
       const movedChanged = !sameDeps(before[index].deps, after[index].deps);
       // The other steps that waited for the moved one and now wait for something else.
       const rewired = before.filter(

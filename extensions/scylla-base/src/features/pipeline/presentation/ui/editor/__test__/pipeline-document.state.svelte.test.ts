@@ -65,14 +65,4 @@ describe('createPipelineDocument', () => {
       expect(script.steps.map(step => step.id)).toEqual(['test']);
     });
   });
-
-  it('warns before the page unloads while there are unsaved changes', () => {
-    const addEventListener = vi.spyOn(window, 'addEventListener');
-    withScript(document, script => {
-      script.setScript(`${document} `);
-      flushSync();
-
-      expect(addEventListener).toHaveBeenCalledWith('beforeunload', expect.any(Function));
-    });
-  });
 });

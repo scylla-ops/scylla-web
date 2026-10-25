@@ -8,7 +8,6 @@ import { ScyllaError } from '@shared/utils/scylla-result.ts';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import type { PipelineEntity } from '../domain/entities/pipeline.entity.ts';
 import type { PipelineMetadata } from '../domain/structs/pipeline.struct.ts';
-import type { PipelineIssue } from '../domain/structs/pipeline-issue.struct.ts';
 import {
   InvalidPipelineError,
   type SavePipelineInput,
@@ -16,10 +15,10 @@ import {
 import type { StepTemplate } from '../domain/structs/step-template.struct.ts';
 import type { PipelineModule } from '../pipeline.module.ts';
 import { pipelineMessages } from './messages/pipeline.messages.ts';
+import { pipelineIssueText } from './presenters/pipeline-issue.presenter.ts';
 import {
   CREATE_PIPELINE_MUTATION_KEY,
   ORGANIZATION_PIPELINES_QUERY_KEY,
-  PIPELINES_LOOKUP_PAGE,
   PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_ROOT,
   PIPELINE_QUERY_KEY,
@@ -38,6 +37,9 @@ const templateRepository = () =>
   getModuleDomain<typeof PipelineModule.domain>('pipeline').stepTemplateRepository;
 
 const currentProject = () => contextStore.getState().project;
+
+/** One request for a project's whole list, on the overview pages. */
+const PIPELINES_LOOKUP_PAGE: PaginationParams = { page: 1, pageSize: 100 };
 
 export const pipelineQueries = {
   /** `enabled`: wait until the page size is measured, or the first page is fetched twice. */
@@ -85,31 +87,11 @@ export const stepTemplateQueries = {
     }),
 };
 
-/** The single page, and whether it covers the whole list. */
-export const asPipelineFeed = (data: PaginatedList<PipelineMetadata> | undefined) => {
-  const pipelines = data?.items ?? [];
-  const totalCount = data?.pagination.totalCount ?? 0;
-
-  return {
-    pipelines,
-    totalCount,
-    isPartialWindow: totalCount > pipelines.length,
-  };
-};
-
-const issueMessage = (issue: PipelineIssue): string => {
-  if (issue.kind === 'step-ids')
-    return i18n._(pipelineMessages.invalidStepIds(issue.ids.join(', ')));
-  return i18n._(
-    issue.issue === 'empty' ? pipelineMessages.nameRequired : pipelineMessages.noSpaces,
-  );
-};
-
 /** A pipeline the domain refuses gets the error toast of the app, in the language of the user. */
 const save = async (input: SavePipelineInput) =>
   (await savePipeline().execute(input))
     .mapError(error =>
-      error instanceof InvalidPipelineError ? new ScyllaError(issueMessage(error.issue)) : error,
+      error instanceof InvalidPipelineError ? new ScyllaError(pipelineIssueText(error.issue)) : error,
     )
     .unwrap();
 
@@ -124,12 +106,11 @@ export const pipelineMutations = {
     mutationOptions({
       mutationKey: CREATE_PIPELINE_MUTATION_KEY,
       mutationFn: (pipeline: Omit<SavePipelineInput, 'id'>) => save(pipeline),
-      onSuccess: () => {
+      onSuccess: (_, { projectId }) => {
         toast.success(i18n._(ToastMessages.PIPELINE_CREATE));
-        const { id, name } = currentProject();
-        if (!id || !name) return;
-
-        void getQueryClient().invalidateQueries({ queryKey: PROJECT_PIPELINES_QUERY_ROOT(id) });
+        void getQueryClient().invalidateQueries({
+          queryKey: PROJECT_PIPELINES_QUERY_ROOT(projectId),
+        });
         returnToProject();
       },
     }),

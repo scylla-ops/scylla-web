@@ -1,11 +1,8 @@
 import { untrack } from 'svelte';
 import type { Connection, XYPosition } from '@xyflow/svelte';
-import {
-  definitionOf,
-  type PipelineStepEntity,
-  type StepDefinition,
-} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { NODE_WIDTH } from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
+import type { PipelineStepEntity, StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import * as pipeline from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import { positionAfter } from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
 import {
   START_NODE_ID,
   depsOf,
@@ -17,7 +14,6 @@ import {
   type BlueprintNode,
   type BlueprintStepNode,
 } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
-import { uniqueStepId, waitsFor } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
 export interface BlueprintParams {
   /** Getters: the editor's document changes. */
@@ -30,8 +26,6 @@ export interface BlueprintParams {
 export type StepLink = { after?: string } | { replacing: string };
 
 export type StepPlacement = StepLink & { position?: XYPosition };
-
-const COLUMN_GAP = 72;
 
 /**
  * The canvas graph, in step with the script. The script owns the steps, the
@@ -88,64 +82,36 @@ export const createBlueprint = (params: BlueprintParams) => {
     nodes.find((node): node is BlueprintStepNode => node.id === inspectedId && !!stepOf(node)),
   );
 
-  // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to a call, never state
-  const idsOf = () => new Set(nodes.map(node => node.id));
+  const currentSteps = () => flowToSteps(nodes, edges);
 
-  /** Next to the node it follows, else right of the graph. */
-  const positionAfter = (sourceId?: string): XYPosition => {
-    const source = nodes.find(node => node.id === sourceId);
-    if (source) return { x: source.position.x + NODE_WIDTH + COLUMN_GAP, y: source.position.y };
-
-    const rightmost = nodes.reduce<BlueprintNode | undefined>(
-      (best, node) => (!best || node.position.x > best.position.x ? node : best),
-      undefined,
-    );
-    return rightmost
-      ? { x: rightmost.position.x + NODE_WIDTH + COLUMN_GAP, y: rightmost.position.y }
-      : { x: 0, y: 0 };
-  };
-
-  /** A rename is followed in the `deps` of the other steps and in the edges. */
-  const editNode = (originalId: string, newNodeId: string, value: StepDefinition): string => {
-    const id = uniqueStepId(newNodeId, idsOf(), originalId);
+  /**
+   * Writes back what an operation of the pipeline changed in the steps. The edges are the
+   * dependencies of the graph: a rename is followed in them too.
+   */
+  const applyToSteps = (next: PipelineStepEntity[], renamed?: { from: string; to: string }) => {
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to a call, never state
+    const byId = new Map(next.map(step => [step.id, step]));
+    const follow = (id: string) => (renamed && id === renamed.from ? renamed.to : id);
 
     nodes = nodes.map((node): BlueprintNode => {
       // The start node is the pipeline, not a step.
       if (node.type !== 'pipelineStep') return node;
-
-      if (node.id === originalId) {
-        return { ...node, id, data: { step: { id, deps: [], ...value } } };
-      }
-
-      const deps = node.data.step.deps;
-      if (!deps.includes(originalId)) return node;
-
-      return {
-        ...node,
-        data: {
-          step: { ...node.data.step, deps: deps.map(dep => (dep === originalId ? id : dep)) },
-        },
-      };
+      const id = follow(node.id);
+      const step = byId.get(id);
+      return step ? { ...node, id, data: { step } } : node;
     });
 
-    if (originalId !== id) {
-      if (inspectedId === originalId) inspectedId = id;
+    if (renamed) {
+      if (inspectedId === renamed.from) inspectedId = renamed.to;
       edges = edges.map(edge => {
-        if (edge.source !== originalId && edge.target !== originalId) return edge;
-
-        const source = edge.source === originalId ? id : edge.source;
-        const target = edge.target === originalId ? id : edge.target;
+        if (edge.source !== renamed.from && edge.target !== renamed.from) return edge;
+        const source = follow(edge.source);
+        const target = follow(edge.target);
         return { ...edge, id: `${source}->${target}`, source, target };
       });
     }
 
     emit();
-    return id;
-  };
-
-  const stepById = (id: string) => {
-    const node = nodes.find(candidate => candidate.id === id);
-    return node ? stepOf(node) : undefined;
   };
 
   return {
@@ -173,7 +139,7 @@ export const createBlueprint = (params: BlueprintParams) => {
     canConnect: ({ source, target }: Connection) =>
       target !== START_NODE_ID &&
       source !== target &&
-      !waitsFor(flowToSteps(nodes, edges), source, target),
+      !pipeline.waitsFor(currentSteps(), source, target),
 
     sync() {
       emit();
@@ -189,7 +155,7 @@ export const createBlueprint = (params: BlueprintParams) => {
 
     /** Adds the step; the caller opens it with `inspect` when a click asked for it. Returns its final id. */
     addNode(desiredId: string, value: StepDefinition, placement: StepPlacement = {}): string {
-      const id = uniqueStepId(desiredId.trim() || 'step', idsOf());
+      const { id } = pipeline.addStep(currentSteps(), desiredId, value);
       const replaced =
         'replacing' in placement ? edges.find(edge => edge.id === placement.replacing) : undefined;
       const after = 'after' in placement ? placement.after : undefined;
@@ -198,7 +164,7 @@ export const createBlueprint = (params: BlueprintParams) => {
       const node: BlueprintStepNode = {
         id,
         type: 'pipelineStep',
-        position: placement.position ?? positionAfter(replaced?.source ?? after),
+        position: placement.position ?? positionAfter(nodes, replaced?.source ?? after),
         data: { step: { id, deps: [], ...value } },
       };
 
@@ -214,15 +180,14 @@ export const createBlueprint = (params: BlueprintParams) => {
     },
 
     updateStep(id: string, value: StepDefinition) {
-      editNode(id, id, value);
+      applyToSteps(pipeline.updateStep(currentSteps(), id, value));
     },
 
     /** A taken or empty id keeps the step usable: it gets a suffix, or keeps its id. */
     renameStep(id: string, desired: string): string {
-      const step = stepById(id);
-      const next = desired.trim();
-      if (!step || !next || next === id) return id;
-      return editNode(id, next, definitionOf(step));
+      const change = pipeline.renameStep(currentSteps(), id, desired);
+      if (change.id !== id) applyToSteps(change.steps, { from: id, to: change.id });
+      return change.id;
     },
 
     removeStep(id: string) {

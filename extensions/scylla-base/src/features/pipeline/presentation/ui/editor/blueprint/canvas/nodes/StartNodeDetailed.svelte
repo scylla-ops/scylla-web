@@ -3,8 +3,8 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
-  import { START_ICON } from '@base/features/pipeline/presentation/presenters/step-kind.presenter.ts';
-  import { DETAILED_NODE } from '@base/features/pipeline/presentation/presenters/blueprint-node.presenter.ts';
+  import PlayIcon from '@lucide/svelte/icons/play';
+  import { DETAILED_NODE } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import type { StartNodeViewProps } from './node-appearances.registry.ts';
 
   let { name, selected }: StartNodeViewProps = $props();
@@ -18,7 +18,7 @@
   style="width: {DETAILED_NODE.startWidth}px;"
 >
   <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary">
-    <START_ICON class="size-3.5 fill-primary-foreground text-primary-foreground" />
+    <PlayIcon class="size-3.5 fill-primary-foreground text-primary-foreground" />
   </span>
   <div class="min-w-0">
     <p class="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">

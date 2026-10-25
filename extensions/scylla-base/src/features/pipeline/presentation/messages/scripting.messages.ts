@@ -15,7 +15,6 @@ export const scriptingMessages = {
   waitsFor: msg`Waits for`,
   stepActions: (id: string) => msg`Actions of ${id}`,
   openToSide: msg`Open to the side`,
-  deleteStep: msg`Delete the step`,
   dropHint: msg`Drop on a step to wait for it. Hold Alt to keep the other dependencies.`,
   dependenciesDropped: (id: string, deps: string) => msg`${id} no longer waits for ${deps}.`,
   stepMoved: (id: string, target: string) =>

@@ -28,20 +28,6 @@ export const createPipelineDocument = (params: PipelineDocumentParams) => {
   const isValid = $derived(parsed.document !== null && parsed.error === null);
   const isDirty = $derived(script !== baseline);
 
-  // The browser's "leave site?" prompt, for a reload or a closed tab.
-  $effect(() => {
-    if (!isDirty) return;
-
-    const warn = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      // Chrome still needs it to show the prompt.
-      event.returnValue = '';
-    };
-
-    window.addEventListener('beforeunload', warn);
-    return () => window.removeEventListener('beforeunload', warn);
-  });
-
   return {
     get script() {
       return script;

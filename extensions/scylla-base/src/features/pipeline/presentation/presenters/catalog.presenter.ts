@@ -1,9 +1,13 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { t } from '@scylla/ui/i18n';
 import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
-import type { StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import {
+  blankDefinition,
+  type StepDefinition,
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import { blueprintMessages } from '../messages/blueprint.messages.ts';
 import { stepPreview } from './step-summary.presenter.ts';
+import { stepMessages } from '../messages/step.messages.ts';
 
 /** Text written by the app is a descriptor; text from a template is shown as is. */
 export type CatalogText = string | MessageDescriptor;
@@ -67,7 +71,7 @@ export const BLANK_STEPS: readonly CatalogEntry[] = [
     name: blueprintMessages.bashScript,
     detail: blueprintMessages.bashScriptDetail,
     stepId: 'script',
-    definition: { kind: 'script', shell: 'bash', script: '', env: [] },
+    definition: blankDefinition('script', 'bash'),
   },
   {
     id: 'kind:sh',
@@ -75,15 +79,15 @@ export const BLANK_STEPS: readonly CatalogEntry[] = [
     name: blueprintMessages.shScript,
     detail: blueprintMessages.shScriptDetail,
     stepId: 'script',
-    definition: { kind: 'script', shell: 'sh', script: '', env: [] },
+    definition: blankDefinition('script', 'sh'),
   },
   {
     id: 'kind:exec',
     group: 'steps',
-    name: blueprintMessages.command,
+    name: stepMessages.command,
     detail: blueprintMessages.commandDetail,
     stepId: 'command',
-    definition: { kind: 'exec', command: '', args: [], env: [] },
+    definition: blankDefinition('exec'),
   },
 ];
 

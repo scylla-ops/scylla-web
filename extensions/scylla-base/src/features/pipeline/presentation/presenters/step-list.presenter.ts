@@ -1,7 +1,8 @@
-import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { stepDepths, waitsFor } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
-import { stepIdIssue } from '@base/features/pipeline/domain/structs/step-id.struct.ts';
-import { stepIssue } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import {
+  stepProblem,
+  type PipelineStepEntity,
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { dependentsOf, stepDepths } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
 export interface StepRow {
   step: PipelineStepEntity;
@@ -18,7 +19,7 @@ export const stepRows = (steps: PipelineStepEntity[]): StepRow[] => {
     .map(step => ({
       step,
       depth: depths.get(step.id) ?? 0,
-      hasIssue: !!stepIdIssue(step.id) || !!stepIssue(step),
+      hasIssue: !!stepProblem(step),
     }))
     .sort((a, b) => a.depth - b.depth);
 };
@@ -41,41 +42,6 @@ export const stepRelations = (
   const focused = steps.find(step => step.id === focus);
   if (!focused) return relations;
   for (const dep of focused.deps) relations.set(dep, 'dependency');
-  for (const step of steps) if (step.deps.includes(focused.id)) relations.set(step.id, 'dependent');
+  for (const id of dependentsOf(steps, focused.id)) relations.set(id, 'dependent');
   return relations;
-};
-
-/**
- * The dependencies of a step dropped in the list: on another step, it waits for that one only, or
- * for it too with `keep`; on no step (`null`), it runs first.
- */
-export const depsAfterDrop = (deps: string[], target: string | null, keep: boolean): string[] => {
-  if (target === null) return [];
-  if (!keep) return [target];
-  return deps.includes(target) ? deps : [...deps, target];
-};
-
-/**
- * The steps after a step is dropped in the list (`depsAfterDrop`). Dropped on a step that waits for
- * it, the step first leaves its place: the steps that waited for it wait for what it waited for.
- * Nothing waits for it then, so the drop makes no loop: `a → b → c`, `b` on `c` gives `a → c → b`.
- */
-export const stepsAfterDrop = (
-  steps: PipelineStepEntity[],
-  id: string,
-  target: string | null,
-  keep: boolean,
-): PipelineStepEntity[] => {
-  const moved = steps.find(step => step.id === id);
-  // The document may have changed during the drag: a step that left is no target.
-  if (!moved || target === id || (target !== null && !steps.some(step => step.id === target)))
-    return steps;
-
-  const leaves = target !== null && waitsFor(steps, target, id);
-  return steps.map(step => {
-    if (step.id === id) return { ...step, deps: depsAfterDrop(step.deps, target, keep) };
-    if (!leaves || !step.deps.includes(id)) return step;
-    const deps = step.deps.flatMap(dep => (dep === id ? moved.deps : [dep]));
-    return { ...step, deps: [...new Set(deps)] };
-  });
 };

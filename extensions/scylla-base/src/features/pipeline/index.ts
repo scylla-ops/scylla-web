@@ -8,4 +8,5 @@ export {
   CREATE_PIPELINE_MUTATION_KEY,
   RUN_PIPELINE_MUTATION_KEY,
 } from './presentation/pipeline.query-keys.ts';
-export { asPipelineFeed, pipelineQueries } from './presentation/pipeline.queries.ts';
+export { pipelineQueries } from './presentation/pipeline.queries.ts';
+export { asPipelineFeed } from './presentation/presenters/pipeline-feed.presenter.ts';

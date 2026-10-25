@@ -19,6 +19,7 @@
     KIND_TONES,
     stepIcon,
   } from '@base/features/pipeline/presentation/presenters/step-kind.presenter.ts';
+  import { stepMessages } from '@base/features/pipeline/presentation/messages/step.messages.ts';
 
   interface Props {
     row: StepRow;
@@ -99,7 +100,7 @@
         {t(scriptingMessages.openToSide)}
       </DropdownMenuItem>
       <DropdownMenuItem onSelect={() => onRemove(row.step.id)} class="text-destructive">
-        {t(scriptingMessages.deleteStep)}
+        {t(stepMessages.deleteStep)}
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>

@@ -40,7 +40,7 @@ describe('NodePalette', () => {
   it('filters the entries and hides an emptied group', async () => {
     render(NodePalette, { entries, onAdd: vi.fn() });
 
-    await userEvent.type(screen.getByRole('textbox', { name: 'Search a node' }), 'npm');
+    await userEvent.type(screen.getByRole('textbox', { name: 'Search a step' }), 'npm');
 
     expect(screen.queryByRole('heading', { name: 'Steps' })).not.toBeInTheDocument();
     expect(screen.getAllByRole('button')).toHaveLength(1);
@@ -49,9 +49,9 @@ describe('NodePalette', () => {
   it('says so when nothing matches', async () => {
     render(NodePalette, { entries, onAdd: vi.fn() });
 
-    await userEvent.type(screen.getByRole('textbox', { name: 'Search a node' }), 'kubectl');
+    await userEvent.type(screen.getByRole('textbox', { name: 'Search a step' }), 'kubectl');
 
-    expect(screen.getByText('No node matches this search.')).toBeInTheDocument();
+    expect(screen.getByText('No step matches this search.')).toBeInTheDocument();
   });
 
   describe('a row dragged with the pointer', () => {
