@@ -72,7 +72,7 @@ catalogs of this package register themselves.
 | Error state | `ErrorState` |
 | Class names | `cn()` |
 | Toasts | `toast` from `@scylla/ui/utils` (`svelte-sonner`) |
-| Light/dark | `getTheme` / `setTheme` / `currentTheme()` (reactive) from `@scylla/ui/stores` |
+| Light/dark | `getTheme` / `currentTheme()` (reactive): the theme on screen. `getThemePreference` / `currentThemePreference()` / `setThemePreference(choice, origin?)`: the choice of the user (`light`, `dark` or `system`), from `@scylla/ui/stores` |
 | A store | `createStore` from `@scylla/ui/stores`; rune code reads it with `toRune(store)` |
 | Translating | `t()` from `@scylla/ui/i18n`, over a `*.messages.ts` |
 | A page transition | `PageTransition` — the core's router already wraps every page in it |
@@ -109,6 +109,14 @@ There are no hooks. Three rules carry over from the migration and still bite:
 
 DOM measurement is a **Svelte action**, never an effect: `createMeasuredHeight()` returns
 `{ height, measure }` and the caller writes `use:measure`.
+
+The theme store keeps the choice of the user (`light`, `dark`, `system`) under the
+`localStorage` key `scylla-theme`, which the inline script of `index.html` reads before the
+first paint: keep the two in step (no value means dark). `system` follows
+`prefers-color-scheme`, also when it changes. `setThemePreference(choice, origin)` with an
+origin spreads the new theme from that point as one circle (View Transitions API, 450 ms); with
+no origin, no API or a reduced motion setting, the swap is instant. The account page of
+scylla-base is the only place that changes the theme.
 
 `motion/` holds the transitions. `prefersReducedMotion()` is not optional decoration: the
 `@media (prefers-reduced-motion: reduce)` block in `styles.css` neutralises CSS animations, but a

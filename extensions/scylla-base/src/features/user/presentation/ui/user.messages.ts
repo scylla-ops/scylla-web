@@ -36,6 +36,12 @@ export const userMessages = {
   emailReadOnly: msg`Only an administrator can change it.`,
   save: msg`Save`,
 
+  appearance: msg`Appearance`,
+  appearanceDescription: msg`How Scylla looks on this device. System follows the setting of your operating system.`,
+  themeLight: msg({ context: 'theme', message: 'Light' }),
+  themeDark: msg({ context: 'theme', message: 'Dark' }),
+  themeSystem: msg({ context: 'theme', message: 'System' }),
+
   passwordDescription: msg`A new password signs out your other sessions.`,
   currentPassword: msg`Current password`,
   newPassword: msg`New password`,

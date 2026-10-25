@@ -5,7 +5,7 @@
 
 **The runtime that starts a Scylla frontend.** You give it a list of extensions. It loads them,
 builds one router from the routes they declare, and draws the application frame around their
-pages: the sidebar, the top bar, the breadcrumbs, and the theme and language switches.
+pages: the sidebar, the top bar, the breadcrumbs, and the language switch.
 
 The core has no business logic. It does not know what an organization, a permission or a
 backend is. Everything that the user sees inside the frame comes from an extension.
@@ -141,7 +141,7 @@ src/
     compilation/                  declarations → flat table (pure functions)
     runtime/                      location, matching, the router
     view/                         RouterView, RoutePage, RouteEntry
-  shell/                          ShellFrame, sidebar, top bar, breadcrumbs, theme, language
+  shell/                          ShellFrame, sidebar, top bar, breadcrumbs, language
   query/                          the app's TanStack Query client
   locales/                        the catalog of the shell
 ```
