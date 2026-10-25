@@ -3,7 +3,7 @@
   import { Dialog as SheetPrimitive } from 'bits-ui';
   import XIcon from '@lucide/svelte/icons/x';
   import { cn } from '../../utils/index.ts';
-  import { t } from '../../i18n/i18n-svelte.svelte.ts';
+  import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import { dialogMessages } from '../dialog/dialog.messages.ts';
 
   type Props = SheetPrimitive.ContentProps & {

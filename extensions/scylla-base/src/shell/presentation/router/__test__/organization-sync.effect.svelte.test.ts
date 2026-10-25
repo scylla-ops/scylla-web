@@ -3,8 +3,8 @@ import { flushSync } from 'svelte';
 import { contextStore } from '@platform/context';
 import { stubQuery } from '@test/queries.ts';
 import { installTestNavigator } from '@test/navigator.ts';
-import { withQueryClient } from '@test/render.svelte.ts';
-import { syncOrganization } from '../organization-sync.svelte.ts';
+import { withQueryClient } from '@test/render.ts';
+import { syncOrganization } from '../organization-sync.effect.svelte.ts';
 
 const organizationsState: { organizations?: { id: string; name: string }[]; isLoading: boolean } = {
   organizations: undefined,

@@ -4,7 +4,7 @@ import {
   type PaginationInfo,
   type PaginationParams,
 } from '../structs/pagination.struct.ts';
-import { createMeasuredHeight } from './measured-height.svelte.ts';
+import { createMeasuredHeight } from './measured-height.state.svelte.ts';
 import { MIN_PAGE_SIZE, computePageSize } from './responsive-page-size.ts';
 
 export interface PaginationOptions {

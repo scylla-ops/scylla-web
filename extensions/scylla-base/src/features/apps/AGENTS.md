@@ -132,7 +132,7 @@ an apps permission such as `LIST_APPS_BY_ORGANIZATION`, `page`-import the pages 
   the labels.
 - **A bits-ui menu lives in a floating layer**, which floating-ui leaves `visibility: hidden`
   under jsdom: `getByRole('menuitem')` finds nothing. Use `findFloating` from
-  `test/render.svelte.ts`.
+  `test/render.ts`.
 
 ## Before done
 

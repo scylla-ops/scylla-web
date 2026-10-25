@@ -5,7 +5,7 @@ import { contextStore } from '@platform/context';
 import { CREATE_AGENT_MUTATION_KEY } from '@base/features/agents';
 import { CREATE_PROJECT_MUTATION_KEY } from '@base/features/project';
 import { installTestNavigator } from '@test/navigator.ts';
-import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {
   OnboardingStatus,

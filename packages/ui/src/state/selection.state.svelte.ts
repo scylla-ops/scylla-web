@@ -1,5 +1,5 @@
 import { selectionStore } from '../stores/selection.store.ts';
-import { toRune } from '../stores/to-rune.svelte.ts';
+import { toRune } from '../stores/to-rune.adapter.svelte.ts';
 
 const EMPTY: string[] = [];
 

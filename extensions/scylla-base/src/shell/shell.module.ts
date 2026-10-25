@@ -5,7 +5,7 @@ import LaunchOverlays from './presentation/layout/ui/LaunchOverlays/LaunchOverla
 import { layoutMessages } from './presentation/layout/ui/layout.messages.ts';
 import NavUser from './presentation/layout/ui/NavUser/NavUser.svelte';
 import NewBadge from './presentation/layout/ui/NewBadge.svelte';
-import { markNavSeen } from './presentation/layout/whats-new.svelte.ts';
+import { markNavSeen } from './presentation/layout/whats-new.state.svelte.ts';
 import { reportQueryError } from './presentation/report-query-error.ts';
 import { retryQueryError } from './presentation/retry-query-error.ts';
 import AppLayout from './presentation/router/AppLayout.svelte';

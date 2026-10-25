@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findFloating, render } from '@test/render.svelte.ts';
+import { findFloating, render } from '@test/render.ts';
 import AddRoleSelect from './AddRoleSelect.svelte';
 
 const role = (roleId: string, name: string, ownedByOrganization = false) => ({

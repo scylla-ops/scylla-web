@@ -124,7 +124,7 @@ holding it that they are not split.
   read components, so a message declared there vanishes from the catalogs without failing a gate.
 - **A bits-ui select or menu lives in a floating layer**, which floating-ui leaves
   `visibility: hidden` under jsdom: `getByRole('option')` finds nothing. Use `findFloating` from
-  `test/render.svelte.ts`.
+  `test/render.ts`.
 
 ## Before done
 

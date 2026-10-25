@@ -2,7 +2,7 @@
   import { SIDEBAR_FADE } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import { highlightIdForNav, isUnseen } from '../whats-new.svelte.ts';
+  import { highlightIdForNav, isUnseen } from '../whats-new.state.svelte.ts';
   import { layoutMessages } from './layout.messages.ts';
 
   /** The path of a sidebar link in its mount. */

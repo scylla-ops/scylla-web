@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findFloating, render, withQueryClient } from '@test/render.svelte.ts';
+import { findFloating, render, withQueryClient } from '@test/render.ts';
 import type { PipelineDocument } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
 import Fixture from './PipelineScripting.fixture.svelte';
 

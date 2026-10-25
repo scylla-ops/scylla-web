@@ -1,7 +1,7 @@
 import type { RouteParams, TrailCrumb } from '@scylla/core-sdk';
 import type { RouteTable } from '../compilation/compile-routes.ts';
 import { joinPath, splitPath } from '../compilation/route-path.ts';
-import { location } from './location.svelte.ts';
+import { location } from './location.state.svelte.ts';
 import { matchRoute, type RouteMatch } from './match-route.ts';
 
 let table = $state.raw<RouteTable | null>(null);

@@ -4,7 +4,7 @@ import { setDependencyRegistry } from '@scylla/core-sdk';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { JobLog } from '@base/features/jobs/domain/structs/job.struct.ts';
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
-import { createTailJobLogs } from './tail-job-logs.svelte.ts';
+import { createTailJobLogs } from './tail-job-logs.state.svelte.ts';
 
 const JOB_ID = 'job-1';
 

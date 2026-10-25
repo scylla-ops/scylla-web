@@ -3,8 +3,8 @@
   import { EditorView, lineNumbers } from '@codemirror/view';
   import { renderCodeMirror } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { createTailJobLogs } from './tail-job-logs.svelte.ts';
-  import { createStreamedLogView } from './streamed-log-view.svelte.ts';
+  import { createTailJobLogs } from './tail-job-logs.state.svelte.ts';
+  import { createStreamedLogView } from './streamed-log-view.state.svelte.ts';
   import { jobsMessages } from '@base/features/jobs/presentation/ui/jobs.messages.ts';
 
   const DEFAULT_MAX_HEIGHT = 448;

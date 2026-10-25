@@ -3,7 +3,7 @@ import type * as Login from '@base/features/login';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { toast } from 'svelte-sonner';
-import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { UserAccess } from '@base/features/user/domain/structs/user-access.struct.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';

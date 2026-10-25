@@ -224,7 +224,7 @@ icon `HardDriveIcon`, same permission.
   components. The French catalog must stay complete; `ui/__test__/agents.messages.fr.test.ts`
   checks the plural forms.
 - A bits-ui menu is in a floating layer that jsdom hides: get its items with `findFloating`
-  from `test/render.svelte.ts`, not with `getByRole`.
+  from `test/render.ts`, not with `getByRole`.
 - `NoAgentsBanner` goes out as a loader, because a barrel must not export a component.
 - **`data-tour` attributes are anchors of the onboarding tour**: `agents` on the list page,
   `agent-details` on the detail page, `agent-status` with `data-online` on the header, and

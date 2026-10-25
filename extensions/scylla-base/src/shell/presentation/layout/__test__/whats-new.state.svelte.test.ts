@@ -8,7 +8,7 @@ import {
   markNavSeen,
   markSeen,
   unseenRelease,
-} from '../whats-new.svelte.ts';
+} from '../whats-new.state.svelte.ts';
 
 beforeEach(() => {
   localStorage.clear();

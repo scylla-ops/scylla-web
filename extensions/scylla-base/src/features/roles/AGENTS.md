@@ -126,7 +126,7 @@ presentation/
     grant-creator.state.svelte.ts    granting one role to one user
     grant-eligibility.calculator.ts  pure: who may receive a project grant, and why not
     role-assignees.state.svelte.ts   who holds a role (from the page's grants), and the revoke
-    grant-target-labels.svelte.ts    scope id → human name (fans out for projects)
+    grant-target-labels.state.svelte.ts    scope id → human name (fans out for projects)
   ui/components/role-form/           RoleFormDialog, RoleForm, RoleHolderField,
                                      RoleDialogPermissions, CheckboxTree/ (+ CheckboxTreeNode),
                                      checkbox-tree.ts

@@ -12,7 +12,7 @@
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
   import {
     createGrantTargetLabels,
-  } from './grant-target-labels.svelte.ts';
+  } from './grant-target-labels.state.svelte.ts';
   import {
     createRoleAssignees,
   } from './role-assignees.state.svelte.ts';

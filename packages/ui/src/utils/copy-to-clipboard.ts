@@ -1,5 +1,5 @@
 import { toast } from 'svelte-sonner';
-import { t } from '../i18n/i18n-svelte.svelte.ts';
+import { t } from '../i18n/lingui.adapter.svelte.ts';
 import { clipboardMessages } from './clipboard.messages.ts';
 
 /** The clipboard can be denied: a toast says what happened. */

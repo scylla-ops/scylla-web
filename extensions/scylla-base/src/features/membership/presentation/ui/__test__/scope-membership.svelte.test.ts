@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
-import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { toast } from '@scylla/ui/utils';
 import { MemberRoleOrigin } from '@base/features/membership/domain/structs/scope-member.struct.ts';

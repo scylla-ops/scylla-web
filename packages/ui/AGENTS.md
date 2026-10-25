@@ -1,6 +1,6 @@
 # `@scylla/ui` — agent guide
 
-The design system: the primitives (adapted from shadcn/ui), the generic composites, the rune helpers,
+The design system: the primitives (adapted from shadcn/ui), the generic composites, the rune states,
 the stores, i18n rendering and the theme tokens. **No business meaning.**
 
 **Package** `packages/ui` · the bottom of the workspace
@@ -20,7 +20,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 |---|---|
 | `@scylla/ui` | the composites (`DataTable`, `ScyllaDialog`, `FeatureHeader`, `ScyllaForm`, …) and `LucideIcon` |
 | `@scylla/ui/primitives` | the primitives on bits-ui, adapted from shadcn/ui |
-| `@scylla/ui/state` | rune helpers: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
+| `@scylla/ui/state` | rune states: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
 | `@scylla/ui/i18n` | `t`, `activeLocale`, `setAppLocale`, `registerCatalogs` |
 | `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result) |
@@ -95,14 +95,14 @@ language. The checks are the app's, with translated messages:
   `new-password`, `name`, …), `readonly`, and `description` (a hint under the field).
 - `autofocus={false}` on a page with several forms: by default the first field takes the focus.
 
-## Rune helpers: `state/`
+## Rune states: `state/`
 
 There are no hooks. Three rules carry over from the migration and still bite:
 
 - **A list that arrives later is passed as a getter, not an array.** `createFeatureSelection`
   takes `() => string[]` and `createFormState` takes `() => items`. Capturing the value once
   freezes the helper on whatever the first, usually empty, render held.
-- **`toRune(store)`** (`stores/to-rune.svelte.ts`) is how rune code reads a store. It is built on
+- **`toRune(store)`** (`stores/to-rune.adapter.svelte.ts`) is how rune code reads a store. It is built on
   `createSubscriber`, so the subscription starts only while something is reading and the helpers
   stay testable in plain TypeScript, outside any component.
 - **Derive instead of mirroring.** `createPagination` derives its page size from the measured
@@ -147,7 +147,7 @@ peer dependency, like bits-ui). `ResizablePaneGroup` and `ResizableHandle` are w
   A pane that collapses during a drag still shrinks smoothly. `motion-reduce` removes it.
 
 The sidebar (`Sidebar*`, `setSidebar` / `getSidebar`) keeps its open state in a Svelte context
-that `SidebarProvider` creates. `sidebar-state.svelte.ts` holds it; the mobile layout uses the
+that `SidebarProvider` creates. `sidebar.state.svelte.ts` holds it; the mobile layout uses the
 `svelte/reactivity` `MediaQuery`.
 
 What a port has to get right, all of it invisible to the compiler:
@@ -193,7 +193,7 @@ Three things about testing them, all in the shared harness so nobody re-derives 
 - **`setup.ts` stubs `Element.prototype.animate`.** jsdom has no Web Animations API, and a Svelte
   `transition:` runs on it. The stub stays *running* rather than resolving, so a leaving node is
   still observable.
-- **`findFloating(role, name?)` / `findTooltip()` from `render.svelte.ts`** for anything in a
+- **`findFloating(role, name?)` / `findTooltip()` from `@test/render.ts`** for anything in a
   floating layer — tooltip content, select options. floating-ui has no layout to measure in jsdom,
   so it leaves the wrapper at `visibility: hidden` forever: `getByRole` skips the subtree, *and*
   the accessible-name algorithm ignores its text, which is why the helper matches `name` against

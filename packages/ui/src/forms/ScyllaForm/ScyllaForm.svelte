@@ -12,8 +12,8 @@
     SelectTrigger,
     SelectValue,
   } from '../../primitives/index.ts';
-  import { t } from '../../i18n/i18n-svelte.svelte.ts';
-  import { createFormState } from '../form-state.svelte.ts';
+  import { t } from '../../i18n/lingui.adapter.svelte.ts';
+  import { createFormState } from '../form.state.svelte.ts';
   import { FormItemType, type FormItem, type FormValues } from '../scylla-form.struct.ts';
 
   interface Props {

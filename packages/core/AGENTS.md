@@ -18,7 +18,7 @@ business: no organization, no permission enum, no backend.
 ```typescript
 startCore({ extensions, target })    loads the extensions, installs the app-wide state, mounts the app
 loadExtensions(classes)              @Extension classes -> LoadedApp (router config, shell config, DI, catalogs, widget injections)
-mergeWidgetInjections(extensions, can)  the widget-injection half of loadExtensions, exposed for test/render.svelte.ts
+mergeWidgetInjections(extensions, can)  the widget-injection half of loadExtensions, exposed for test/render.ts
 compileRoutes(config)                AppRouterConfig -> the flat RouteTable
 createAppRouter(config)              compiles the routes, returns the AppNavigator
 setShellConfig, ShellBreadcrumbs     for the app-level tests
@@ -88,7 +88,7 @@ descriptor). Every message names the injections, e.g. `acme-auth/SignUpLinkWidge
 The text overrides go to `t()` through `setWidgetInjectionRegistry`, which installs them with
 `setMessageOverrides` (`@scylla/ui/i18n`). It is exported from `@scylla/core`'s barrel so
 `packages/core/src/loader/__test__/merge-widget-injections.test.ts` can reach it through the
-package's public API. **`test/render.svelte.ts`'s `withWidgetInjections` does not call it** — it
+package's public API. **`test/render.ts`'s `withWidgetInjections` does not call it** — it
 wraps `installWidgetInjectionsForTest` (`@scylla/core-sdk`): the same registry builder and
 conflict checks, with no owner/dependency check: a test installs only the injections it
 checks, without the extensions that own their points.

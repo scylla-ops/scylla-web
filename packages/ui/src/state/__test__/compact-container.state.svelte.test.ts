@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { flushSync } from 'svelte';
-import { createCompactContainer } from '../compact-container.svelte.ts';
+import { createCompactContainer } from '../compact-container.state.svelte.ts';
 
 let notify: ((entries: Array<{ contentRect: { width: number } }>) => void) | null = null;
 const disconnect = vi.fn();

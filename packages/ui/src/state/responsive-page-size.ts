@@ -3,7 +3,7 @@ export const MAX_PAGE_SIZE = 50;
 export const DEFAULT_ROW_HEIGHT = 61;
 export const DEFAULT_HEADER_HEIGHT = 44;
 
-/** How many rows fit in the height, clamped. The measure is in `measured-height.svelte.ts`. */
+/** How many rows fit in the height, clamped. The measure is in `measured-height.state.svelte.ts`. */
 export const computePageSize = (
   containerHeight: number,
   rowHeight: number = DEFAULT_ROW_HEIGHT,

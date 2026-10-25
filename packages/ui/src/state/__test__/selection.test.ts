@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach } from 'vitest';
 import { selectionStore } from '../../stores/selection.store.ts';
-import { createSelection } from '../selection.svelte.ts';
+import { createSelection } from '../selection.state.svelte.ts';
 
 beforeEach(() => selectionStore.setState({ selectedIds: {} }));
 

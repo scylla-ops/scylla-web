@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { fireEvent, screen, within } from '@testing-library/svelte';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
 import {
   runCommandOf,

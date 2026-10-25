@@ -5,7 +5,7 @@
   import CopyIcon from '@lucide/svelte/icons/copy';
   import { cn } from '../../utils/index.ts';
   import { toast } from '../../utils/toast.ts';
-  import { t } from '../../i18n/i18n-svelte.svelte.ts';
+  import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import { codeSnippetMessages } from './code-snippet.messages.ts';
 
   type CodeSnippetVariant = 'default' | 'dark' | 'warning';

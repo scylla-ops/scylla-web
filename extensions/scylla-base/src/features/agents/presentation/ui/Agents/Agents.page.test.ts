@@ -9,7 +9,7 @@ import {
   render,
   withQueryClient,
   withRegistry,
-} from '@test/render.svelte.ts';
+} from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { AppAccess } from '@base/features/apps';

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
 import { installTestNavigator } from '@test/navigator.ts';
-import { createOpenLogPanels } from './open-log-panels.svelte.ts';
+import { createOpenLogPanels } from './open-log-panels.state.svelte.ts';
 
 const NODES = ['build', 'test', 'deploy'];
 const PATHNAME = '/acme/projects/p1/pipelines/pipe-1/jobs/job-1';

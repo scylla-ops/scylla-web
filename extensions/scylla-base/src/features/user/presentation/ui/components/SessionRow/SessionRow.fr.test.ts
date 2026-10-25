@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import { withLocale } from '@test/i18n.ts';
 import { messages } from '@base/features/user/locales/fr/messages.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';

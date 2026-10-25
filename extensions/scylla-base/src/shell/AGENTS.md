@@ -30,13 +30,13 @@ presentation/
     AppLayout.svelte                    layout of the `app` mount: AuthGuard + OrganizationGate
     AuthGuard/                          token present (hasSession)? → the pages, else /login
     PersonalLayout/                     layout of the `personal` mount: AuthGuard + a centered column, no gate
-    OrganizationSync.wrapper.svelte     URL slug → context store (organization-sync.svelte.ts)
-    OrganizationRedirect.wrapper.svelte `/` → the user's organization (organization-redirect.svelte.ts)
-    ContextCleaner.wrapper.svelte       drops stale project/pipeline context (context-cleaner.svelte.ts)
+    OrganizationSync.wrapper.svelte     URL slug → context store (organization-sync.effect.svelte.ts)
+    OrganizationRedirect.wrapper.svelte `/` → the user's organization (organization-redirect.effect.svelte.ts)
+    ContextCleaner.wrapper.svelte       drops stale project/pipeline context (context-cleaner.effect.svelte.ts)
     LoginRedirect.svelte                the fallback for a URL that no route matches
   layout/
     shell.state.svelte.ts               organizations query, permission sync, first organization
-    whats-new.svelte.ts                 seen flags (reactive), markNavSeen
+    whats-new.state.svelte.ts                 seen flags (reactive), markNavSeen
     ui/OrganizationGate/                loading screen / first organization / the pages
       FirstOrganization.svelte          welcome screen when the user has no organization
     ui/context-selector/                OrganizationSelector (+ CurrentContextDisplay): the header of the organization section

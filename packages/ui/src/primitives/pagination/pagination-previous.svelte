@@ -1,7 +1,7 @@
 <script lang="ts">
   import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
   import { cn } from '../../utils/index.ts';
-  import { t } from '../../i18n/i18n-svelte.svelte.ts';
+  import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import PaginationLink from './pagination-link.svelte';
   import { paginationMessages } from './pagination.messages.ts';
 

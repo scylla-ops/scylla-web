@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { PermissionScope } from '@platform/authz';
 import { messages } from '@base/features/roles/locales/fr/messages.ts';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import { withLocale } from '@test/i18n.ts';
 import RoleDialogPermissions from './RoleDialogPermissions.svelte';
 

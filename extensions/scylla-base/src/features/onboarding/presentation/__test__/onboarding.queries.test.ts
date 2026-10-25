@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { withQueryClient, withRegistry } from '@test/render.ts';
 import { runMutationFn, runQueryFn } from '@test/queries.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {

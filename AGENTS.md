@@ -304,7 +304,7 @@ injected, still substitutable in a test. Only the redundant indirection is gone.
   language), `App.svelte`.
 - `sdks/core-sdk` — `@Extension`, `ScyllaModule`, the navigation (`navigateTo`, `routeParams`),
   DI (`getModuleDomain`) and query (`createQuery`) API that the core installs.
-- `packages/ui` — primitives (adapted from shadcn/ui), generic composites, rune helpers, stores, i18n runtime, theme.
+- `packages/ui` — primitives (adapted from shadcn/ui), generic composites, rune states, stores, i18n runtime, theme.
 - scylla-base `shell/` — `modules.ts` (the feature list), `ShellModule` (mounts, sidebar
   sections, auth gate, context wrappers, access policy, error policy, shell parts).
 - scylla-base `platform/` — `authz` (Permission, `can`, `Can`, `RequirePermission`), `context`
@@ -622,7 +622,7 @@ shared test code of the workspace:
 | | |
 |---|---|
 | `test/setup.ts` | Runs before every file. Activates an empty `en` catalog, and stubs the browser APIs jsdom lacks (`ResizeObserver`, `Element.animate`, pointer capture, `scrollIntoView`, `scrollTo`, `matchMedia`). **Never re-stub these per file.** |
-| `test/render.svelte.ts` | `render`, `withRegistry` (stub DI registry), `withQueryClient` (fresh cache, `retry: false`), `focusSettled`, `textSnippet`, `findFloating` / `findTooltip`. |
+| `test/render.ts` | `render`, `withRegistry` (stub DI registry), `withQueryClient` (fresh cache, `retry: false`), `focusSettled`, `textSnippet`, `findFloating` / `findTooltip`. |
 | `test/navigator.ts` | `installTestNavigator` — a fake navigator, for a test that navigates. |
 | `test/queries.ts` | `runQueryFn`, `runMutationFn`, `runOnSuccess`, `stubQuery`. |
 | `test/i18n.ts` | `withLocale(locale, messages)` — for the handful of tests that assert on a real translation. |

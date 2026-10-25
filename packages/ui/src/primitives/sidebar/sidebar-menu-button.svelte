@@ -3,7 +3,7 @@
   import type { HTMLButtonAttributes } from 'svelte/elements';
   import { mergeProps } from 'bits-ui';
   import { cn } from '../../utils/index.ts';
-  import { getSidebar } from './sidebar-state.svelte.ts';
+  import { getSidebar } from './sidebar.state.svelte.ts';
   import {
     sidebarMenuButtonVariants,
     type SidebarMenuButtonSize,

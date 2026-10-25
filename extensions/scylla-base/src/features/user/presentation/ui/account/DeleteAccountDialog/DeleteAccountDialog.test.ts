@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { focusSettled, render } from '@test/render.svelte.ts';
+import { focusSettled, render } from '@test/render.ts';
 import DeleteAccountDialog from './DeleteAccountDialog.svelte';
 
 const base = { open: true, onOpenChange: vi.fn(), isPending: false, onConfirm: vi.fn() };

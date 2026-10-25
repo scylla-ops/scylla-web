@@ -3,8 +3,8 @@ import { flushSync } from 'svelte';
 import { contextStore } from '@platform/context';
 import { stubQuery } from '@test/queries.ts';
 import { installTestNavigator } from '@test/navigator.ts';
-import { withQueryClient } from '@test/render.svelte.ts';
-import { cleanContext } from '../context-cleaner.svelte.ts';
+import { withQueryClient } from '@test/render.ts';
+import { cleanContext } from '../context-cleaner.effect.svelte.ts';
 
 const projectsState: { projects?: { id: string; name: string }[]; isLoading: boolean } = {
   projects: undefined,

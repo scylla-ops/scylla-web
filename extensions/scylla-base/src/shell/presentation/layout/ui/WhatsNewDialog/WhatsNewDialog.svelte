@@ -5,7 +5,7 @@
   import {
     dismissRelease,
     unseenRelease,
-  } from '@base/shell/presentation/layout/whats-new.svelte.ts';
+  } from '@base/shell/presentation/layout/whats-new.state.svelte.ts';
   import { layoutMessages } from '../layout.messages.ts';
 
   const release = $derived(unseenRelease());

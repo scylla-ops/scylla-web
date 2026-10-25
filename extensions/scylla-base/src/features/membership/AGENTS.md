@@ -165,7 +165,7 @@ Sidebar: one entry only — section `organization`, order `30`, icon `UsersRound
 - `AddMemberDialog` splits into a dialog and an `AddMemberForm` on purpose: the form owns the
   selection, so `{#key open}` on it *is* the reset React needed an effect for.
 - A bits-ui select's options live in a floating layer jsdom hides. Reach them with
-  `findFloating('option', …)` from `test/render.svelte.ts`, never `getByText`.
+  `findFloating('option', …)` from `test/render.ts`, never `getByText`.
 
 ## Before done
 

@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
 import { flushSync } from 'svelte';
 import { ScyllaError } from '@shared/utils/scylla-result.ts';
 import { installTestNavigator } from '@test/navigator.ts';
-import { createResourceError } from '../resource-error.svelte.ts';
+import { createResourceError } from '../resource-error.state.svelte.ts';
 
 const toastError = vi.fn();
 vi.mock('svelte-sonner', () => ({ toast: { error: (message: string) => toastError(message) } }));

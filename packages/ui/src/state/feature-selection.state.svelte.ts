@@ -1,4 +1,4 @@
-import { createSelection } from './selection.svelte.ts';
+import { createSelection } from './selection.state.svelte.ts';
 
 export interface FeatureSelectionOptions {
   /** When set, deleting the selection calls it for every selected id, then clears the selection. */

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createPagination } from '../pagination.svelte.ts';
+import { createPagination } from '../pagination.state.svelte.ts';
 
 class ResizeObserverMock {
   static instances: ResizeObserverMock[] = [];

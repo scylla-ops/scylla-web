@@ -49,9 +49,9 @@ and on the org overview, and there is no second opinion about what "running" mea
 **Infrastructure** is the repository and its mapper, like every module with one source.
 `tailLogs` is the odd one out in the whole codebase: it returns
 `ScyllaResult<JobLogStream>` **synchronously**, since it opens a server stream rather than
-awaiting a response. The presentation layer subscribes to it in `tail-job-logs.svelte.ts` and
+awaiting a response. The presentation layer subscribes to it in `tail-job-logs.state.svelte.ts` and
 closes it on teardown — a stream is a system outside the framework, and that is what actions and
-`*.svelte.ts` owners are for, not reactivity.
+`*.state.svelte.ts` owners are for, not reactivity.
 
 **Presentation** is the largest layer: a query-key factory module, the `*.queries.ts` factories
 that replaced the hooks, the `jobs-table/` folder holding the table, its columns and its cells
@@ -59,7 +59,7 @@ that replaced the hooks, the `jobs-table/` folder holding the table, its columns
 details page — `JobSummary` (what the run did) and `JobNodeLogs` (what it printed, per node).
 The streamed viewer itself, `jobs-log/JobLogDisplay`, is shared by both pages.
 
-The log viewer behaves like an IDE console, and `streamed-log-view.svelte.ts` is where that
+The log viewer behaves like an IDE console, and `streamed-log-view.state.svelte.ts` is where that
 lives. A live log is a stream, but a document you re-seed is a snapshot, and the gap between the
 two is the whole problem: replacing the editor's content on every flush — seven times a second —
 resets the scroll offset and destroys any selection the reader had made. So it appends the delta

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import type {
   AssignableRole,
 } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';

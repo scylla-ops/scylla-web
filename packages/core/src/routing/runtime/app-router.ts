@@ -1,8 +1,8 @@
 import type { AppNavigator, NavigateOptions } from '@scylla/core-sdk';
 import { compileRoutes, type AppRouterConfig } from '../compilation/compile-routes.ts';
-import { changeLocation, location, syncLocation } from './location.svelte.ts';
+import { changeLocation, location, syncLocation } from './location.state.svelte.ts';
 import { resolveTarget } from './resolve-target.ts';
-import { routeParams, routeTrail, setRouteTable } from './route-state.svelte.ts';
+import { routeParams, routeTrail, setRouteTable } from './route.state.svelte.ts';
 
 /** Call it once, before `RouterView` mounts. Throws when a route declaration is wrong. */
 export const createAppRouter = (config: AppRouterConfig): AppNavigator => {
