@@ -9,7 +9,7 @@
   import { createFeatureSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import { pipelineMutations } from '@base/features/pipeline/presentation/pipeline.queries.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
   interface Props {
     numberOfPipelines: number;

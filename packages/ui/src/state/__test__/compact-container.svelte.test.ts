@@ -36,6 +36,19 @@ describe('createCompactContainer', () => {
     cleanup();
   });
 
+  it('is measured only after the first measurement', () => {
+    const cleanup = $effect.root(() => {
+      const container = createCompactContainer();
+      attach(container);
+      expect(container.measured).toBe(false);
+
+      notify?.([{ contentRect: { width: 200 } }]);
+      flushSync();
+      expect(container.measured).toBe(true);
+    });
+    cleanup();
+  });
+
   it('reports compact once the element is narrower than the threshold', () => {
     const cleanup = $effect.root(() => {
       const container = createCompactContainer(70);

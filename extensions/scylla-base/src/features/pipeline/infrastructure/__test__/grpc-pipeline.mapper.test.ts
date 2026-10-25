@@ -8,10 +8,8 @@ import type {
   PipelineSummary,
   EnvVar,
 } from '@base/generated/scylla/pipeline/v1/pipeline.ts';
-import type {
-  PipelineStep,
-  EnvEntry,
-} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { EnvEntry } from '@base/features/pipeline/domain/structs/node.struct.ts';
+import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
 const ISO = '2025-01-01T00:00:00.000Z';
@@ -43,13 +41,13 @@ describe('GrpcPipelineMapper.toDomain (via nodeToDomain)', () => {
     expect(domain.name).toBe('ci');
   });
 
-  it('maps an exec step', () => {
-    const [step] = GrpcPipelineMapper.toDomain(basePipeline({ nodes: [execNode()] })).nodes;
-    expect(step).toMatchObject({ kind: 'exec', command: 'echo', args: ['hi'] });
+  it('maps an exec node', () => {
+    const [node] = GrpcPipelineMapper.toDomain(basePipeline({ nodes: [execNode()] })).nodes;
+    expect(node).toMatchObject({ kind: 'exec', command: 'echo', args: ['hi'] });
   });
 
-  it('maps a script step, including the shell', () => {
-    const [step] = GrpcPipelineMapper.toDomain(
+  it('maps a script node, including the shell', () => {
+    const [node] = GrpcPipelineMapper.toDomain(
       basePipeline({
         nodes: [
           execNode({
@@ -58,7 +56,7 @@ describe('GrpcPipelineMapper.toDomain (via nodeToDomain)', () => {
         ],
       }),
     ).nodes;
-    expect(step).toMatchObject({ kind: 'script', script: 'echo hi', shell: 'bash' });
+    expect(node).toMatchObject({ kind: 'script', script: 'echo hi', shell: 'bash' });
   });
 
   it('SHELL_SH and SHELL_UNSPECIFIED both read as "sh" (the agent treats unspecified as sh)', () => {
@@ -81,39 +79,39 @@ describe('GrpcPipelineMapper.toDomain (via nodeToDomain)', () => {
     ).toThrow(/doesn't understand/);
   });
 
-  it('an empty workingDir is omitted from the domain step entirely', () => {
-    const [step] = GrpcPipelineMapper.toDomain(
+  it('an empty workingDir is omitted from the domain node entirely', () => {
+    const [node] = GrpcPipelineMapper.toDomain(
       basePipeline({ nodes: [execNode({ workingDir: '' })] }),
     ).nodes;
-    expect(step).not.toHaveProperty('workingDir');
+    expect(node).not.toHaveProperty('workingDir');
   });
 
   it('a non-empty workingDir is carried through', () => {
-    const [step] = GrpcPipelineMapper.toDomain(
+    const [node] = GrpcPipelineMapper.toDomain(
       basePipeline({ nodes: [execNode({ workingDir: '/srv/app' })] }),
     ).nodes;
-    expect(step.workingDir).toBe('/srv/app');
+    expect(node.workingDir).toBe('/srv/app');
   });
 
   it('unwraps each dep id', () => {
-    const [step] = GrpcPipelineMapper.toDomain(
+    const [node] = GrpcPipelineMapper.toDomain(
       basePipeline({ nodes: [execNode({ deps: [{ value: 'a' }, { value: 'b' }] })] }),
     ).nodes;
-    expect(step.deps).toEqual(['a', 'b']);
+    expect(node.deps).toEqual(['a', 'b']);
   });
 
   describe('env', () => {
     it('maps a literal (value) env var', () => {
-      const [step] = GrpcPipelineMapper.toDomain(
+      const [node] = GrpcPipelineMapper.toDomain(
         basePipeline({
           nodes: [execNode({ env: [{ key: 'K', source: { oneofKind: 'value', value: 'v' } }] })],
         }),
       ).nodes;
-      expect(step.env).toEqual([{ key: 'K', kind: 'literal', value: 'v' }]);
+      expect(node.env).toEqual([{ key: 'K', kind: 'literal', value: 'v' }]);
     });
 
     it('maps a secretRef env var', () => {
-      const [step] = GrpcPipelineMapper.toDomain(
+      const [node] = GrpcPipelineMapper.toDomain(
         basePipeline({
           nodes: [
             execNode({
@@ -122,7 +120,7 @@ describe('GrpcPipelineMapper.toDomain (via nodeToDomain)', () => {
           ],
         }),
       ).nodes;
-      expect(step.env).toEqual([{ key: 'K', kind: 'secret', secretRef: 'db-url' }]);
+      expect(node.env).toEqual([{ key: 'K', kind: 'secret', secretRef: 'db-url' }]);
     });
 
     it('an env source oneof this build does not understand throws', () => {
@@ -138,9 +136,9 @@ describe('GrpcPipelineMapper.toDomain (via nodeToDomain)', () => {
 });
 
 describe('GrpcPipelineMapper.nodeFromDomain', () => {
-  const execStep = (
+  const execDomainNode = (
     params: { command?: string; args?: string[]; deps?: string[]; env?: EnvEntry[] } = {},
-  ): PipelineStep => ({
+  ): PipelineNodeEntity => ({
     id: 'node-1',
     deps: params.deps ?? [],
     env: params.env ?? [],
@@ -149,7 +147,7 @@ describe('GrpcPipelineMapper.nodeFromDomain', () => {
     args: params.args ?? ['hi'],
   });
 
-  const scriptStep = (shell: 'sh' | 'bash'): PipelineStep => ({
+  const scriptDomainNode = (shell: 'sh' | 'bash'): PipelineNodeEntity => ({
     id: 'node-1',
     deps: [],
     env: [],
@@ -158,30 +156,32 @@ describe('GrpcPipelineMapper.nodeFromDomain', () => {
     shell,
   });
 
-  it('defaults workingDir to "" when the domain step has none', () => {
-    const node = GrpcPipelineMapper.nodeFromDomain(execStep());
+  it('defaults workingDir to "" when the domain node has none', () => {
+    const node = GrpcPipelineMapper.nodeFromDomain(execDomainNode());
     expect(node.workingDir).toBe('');
   });
 
   it('wraps the id and every dep id', () => {
-    const node = GrpcPipelineMapper.nodeFromDomain(execStep({ deps: ['a', 'b'] }));
+    const node = GrpcPipelineMapper.nodeFromDomain(execDomainNode({ deps: ['a', 'b'] }));
     expect(node.nodeId).toEqual({ value: 'node-1' });
     expect(node.deps).toEqual([{ value: 'a' }, { value: 'b' }]);
   });
 
-  it('builds an exec step', () => {
-    const node = GrpcPipelineMapper.nodeFromDomain(execStep({ command: 'ls', args: ['-la'] }));
+  it('builds an exec node', () => {
+    const node = GrpcPipelineMapper.nodeFromDomain(
+      execDomainNode({ command: 'ls', args: ['-la'] }),
+    );
     expect(node.step).toEqual({ oneofKind: 'exec', exec: { command: 'ls', args: ['-la'] } });
   });
 
-  it('builds a script step, mapping "bash" to Shell.BASH and anything else to Shell.SH', () => {
-    const bashNode = GrpcPipelineMapper.nodeFromDomain(scriptStep('bash'));
+  it('builds a script node, mapping "bash" to Shell.BASH and anything else to Shell.SH', () => {
+    const bashNode = GrpcPipelineMapper.nodeFromDomain(scriptDomainNode('bash'));
     expect(bashNode.step).toEqual({
       oneofKind: 'script',
       script: { script: 'echo hi', shell: Shell.BASH },
     });
 
-    const shNode = GrpcPipelineMapper.nodeFromDomain(scriptStep('sh'));
+    const shNode = GrpcPipelineMapper.nodeFromDomain(scriptDomainNode('sh'));
     expect(shNode.step).toEqual({
       oneofKind: 'script',
       script: { script: 'echo hi', shell: Shell.SH },
@@ -189,7 +189,7 @@ describe('GrpcPipelineMapper.nodeFromDomain', () => {
   });
 
   describe('env', () => {
-    const withEnv = (env: EnvEntry[]) => GrpcPipelineMapper.nodeFromDomain(execStep({ env }));
+    const withEnv = (env: EnvEntry[]) => GrpcPipelineMapper.nodeFromDomain(execDomainNode({ env }));
 
     it('maps a literal entry to the value oneof', () => {
       const node = withEnv([{ key: 'K', kind: 'literal', value: 'v' }]);
@@ -207,7 +207,7 @@ describe('GrpcPipelineMapper.nodeFromDomain', () => {
   });
 });
 
-describe('GrpcPipelineMapper.toDomainInfoList', () => {
+describe('GrpcPipelineMapper.toMetadataList', () => {
   it('maps pipeline summaries, including timestamps, and carries pagination through', () => {
     const summary: PipelineSummary = {
       pipelineId: { value: 'pipeline-1' },
@@ -226,7 +226,7 @@ describe('GrpcPipelineMapper.toDomainInfoList', () => {
       hasPrevious: false,
     };
 
-    const result = GrpcPipelineMapper.toDomainInfoList({ pipelines: [summary], pagination });
+    const result = GrpcPipelineMapper.toMetadataList({ pipelines: [summary], pagination });
 
     expect(result.items).toEqual([
       {

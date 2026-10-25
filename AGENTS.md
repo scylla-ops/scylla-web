@@ -195,31 +195,64 @@ feature/
 │   ├── grpc-feature.mapper.ts          → proto ↔ domain mapping (pure, tested)
 │   └── __test__/
 ├── locales/             → i18n (en/, fr/)
-└── presentation/        → UI layer
+└── presentation/        → UI layer, one folder per role
     ├── <feature>.queries.ts        → TanStack Query options factories (plain TS) + key factories
-    ├── <feature>.messages.ts / <feature>.points.ts → what all the views share, when needed
-    └── ui/              → Svelte components (pages, dialogs, tables) + *.messages.ts, and
-                           beside each one its ViewModel, attachments and calculators
+    ├── <feature>.points.ts         → the widget points of the module, when needed
+    ├── messages/        → *.messages.ts: the texts of the views (`msg` descriptors)
+    ├── presenters/      → *.presenter.ts: domain data → what a view shows (plain TS)
+    ├── mappers/         → *.mapper.ts: one representation ↔ another, both ways (plain TS)
+    └── ui/              → Svelte only: the components (pages, dialogs, tables), their states,
+                           and the code that drives a component (attachments, effects,
+                           contexts, registries, columns)
 ```
 
-**The root of `presentation/` holds what the module shares**: with other modules (what
-`index.ts` exports) or with all its views (queries, query keys, module-wide messages, widget
-points). The rest serves a view, so it goes **beside the component that uses it**, in `ui/`:
+**`presentation/` sorts its files by role.** The root holds the queries, the query keys and the
+widget points. `ui/` holds Svelte only: the components, their states (`.state.svelte.ts`), and
+the code that drives a component (`.attachments.ts`, `.effect.svelte.ts`, `.context.ts`, a
+`.registry.ts` or a `.columns.ts` that maps a key to components). Every other file goes in the
+folder of its role:
 
-- one component uses it → in that component's folder (`StepInspector/step-inspector.state.svelte.ts`);
-- several components use it → in the folder of the component that owns the concept
-  (`AccessCard/access.calculator.ts`, used by `AccessCard` and `AccessBadges`), else in the
+- **`messages/`** — the texts of the views, as `msg` descriptors.
+- **`presenters/`** — a presenter takes data of the domain and gives what a view shows: rows,
+  text, icons, CSS classes, positions (`node-list.presenter.ts`: the nodes → the rows and the
+  stages of the list). It has no state and no rune, does not touch the DOM, and imports no
+  component of the module. It can call `t()`. A rule of the business is not a presenter: it goes
+  in `domain/`.
+- **`mappers/`** — a mapper converts one representation into another, both ways
+  (`pipeline-document.mapper.ts`: the JSON text of the editor ↔ the nodes). A mapper of
+  `infrastructure/` converts the protos; a mapper of `presentation/` converts a format of a view.
+
+These three folders never import `ui/` (`presentation-logic-knows-no-ui`, in depcruise): `ui/`
+uses them, never the reverse. There is no `utils/` folder.
+
+Inside `ui/`, Svelte code goes **beside the component that uses it**:
+
+- one component uses it → in that component's folder (`NodesView/nodes-view.state.svelte.ts`);
+- several components use it → in the folder of the component that owns the concept, else in the
   nearest folder above all of them (`ui/components/roles-page.state.svelte.ts`).
 
-A view and its logic move, change and get deleted together; you do not search the module for the
-ViewModel of a page.
+A view and its states move, change and get deleted together; you do not search the module for
+the ViewModel of a page.
 
 ### Layer responsibilities
 
 - **Domain** — The repository interface *is* the module's data contract, and presentation calls it
   directly. Repository interfaces know nothing about gRPC/HTTP, and their input types live beside
   them (e.g. `CreateGrantInput` in `permission.repository.ts`). No framework imports here, ever.
-  Split domain types into two buckets, both proto-independent: **entities** (`entities/*.entity.ts` → `{Name}Entity`) are the identity-bearing things the feature owns (e.g. `SecretEntity`, `RoleEntity`, `UserEntity`); they may hold related input shapes (`CreateSecretInput`) and pure behavior (`updateRole`). **Structs** (`structs/*.struct.ts`) are plain data shapes with no identity — value objects, enums, DTOs, and list/result wrappers (e.g. `Permission`, `PermissionScope`, `ProjectList`, `CreatedApp`) — named with plain PascalCase (no suffix). The `Entity` suffix is what distinguishes the two at every use site, including against the proto types (which keep the bare name, aliased in mappers). There are **no `*.model.ts` files** — every domain type is an entity or a struct.
+  Split domain types into two buckets, both proto-independent: **entities** (`entities/*.entity.ts` → `{Name}Entity`) are the identity-bearing things the feature owns (e.g. `SecretEntity`, `RoleEntity`, `UserEntity`); they may hold related input shapes (`CreateSecretInput`) and pure behavior on that entity: a function that takes the entity, or creates one (`updateRole`). **Structs** (`structs/*.struct.ts`) are plain data shapes with no identity — value objects, enums, DTOs, and list/result wrappers (e.g. `Permission`, `PermissionScope`, `ProjectList`, `CreatedApp`) — named with plain PascalCase (no suffix). The `Entity` suffix is what distinguishes the two at every use site, including against the proto types (which keep the bare name, aliased in mappers). There are **no `*.model.ts` files** — every domain type is an entity or a struct.
+  Where a rule goes:
+  - **A rule on one value** (an id, a name) goes in the struct of that value, as a value object:
+    the type and its own validation (`node-id.struct.ts`: `NodeId`, `nodeIdIssue`). A struct has
+    no other function.
+  - **A rule on one entity** goes in its entity file (`withDefinition(node, …)`).
+  - **A rule on an entity and the entities it holds** goes in the root entity (the aggregate):
+    the pipeline keeps the ids of its nodes unique and their dependencies whole (`addNode`,
+    `renameNode` in `pipeline.entity.ts`).
+  - **Orchestration of repositories** is a use case, which holds no rule (see below).
+
+  There is no `utils/` folder and no domain service. Behavior is pure functions on plain data,
+  not classes with methods: `$state` makes plain objects and arrays reactive, not class
+  instances, and the structural sharing of TanStack Query works on JSON data.
 - **Infrastructure** — `Default{Entity}Repository` implements the domain interface. It calls the
   gRPC client and maps proto ↔ domain with a `Grpc{Entity}Mapper`. Its constructor takes the
   **generated client interface** (`I{Service}ServiceClient`), so a test gives it a fake client
@@ -260,8 +293,9 @@ This is not a loophole in the layering: the repository *interface* is domain, so
 `presentation → domain ← infrastructure` and the dependency inversion are untouched. It is still
 injected, still substitutable in a test. Only the redundant indirection is gone.
 
-> The codebase once had 65 use cases; 64 were pure forwarding. Exactly one survives —
-> `UpdateRoleUseCase` (read → apply a pure entity function → save). Use that as the bar.
+> The codebase once had 65 use cases; 64 were pure forwarding. The ones that exist now are the
+> bar: `UpdateRoleUseCase` (read → apply a pure entity function → save), `ResetAppSecretUseCase`
+> (list → create → revoke), `SavePipelineUseCase` (apply the rules of the server → create or edit).
 
 ### Module map
 
@@ -394,14 +428,32 @@ static SPA that the Rust binary serves. See `refacto_svelte.md` for the reasons.
 | Need | Solution | Where |
 |------|----------|-------|
 | Simple UI state (a toggle, a dialog, tabs) | `$state` | the `<script>` of the `.svelte` file |
-| Page orchestration (queries + filters + pagination) | a ViewModel | `<view>.state.svelte.ts`, beside the view |
-| Complex UI logic without network (a wizard, a matrix) | a UI-only ViewModel | `<view>.state.svelte.ts`, beside the view |
-| A pure algorithm (a chart scale, a graph layout) | a pure function | `*.calculator.ts`, beside its user |
+| Page orchestration (queries + filters + pagination) | the state of the view (its ViewModel) | `<view>.state.svelte.ts`, beside the view |
+| UI state with one responsibility (a draft, the open panes, a drag, a preference) | a state | `<responsibility>.state.svelte.ts`, beside its users |
+| Synchronize with a system outside Svelte (the router, a store, CodeMirror) | an effect | `*.effect.svelte.ts`, beside its user |
+| Read an outside API from rune code (a store, Lingui) | an adapter | `*.adapter.svelte.ts` |
+| Turn domain data into what a view shows (rows, text, a chart scale, a graph layout) | a presenter | `presenters/*.presenter.ts` |
+| Convert one representation into another, both ways (a text format ↔ the domain) | a mapper | `mappers/*.mapper.ts` |
 | DOM measurement, native events, a third-party widget | an attachment (`{@attach}`) | `*.attachments.ts`, beside its user |
 
-**Never put non-trivial logic in a `.svelte` file.** A ViewModel is named after the view it
-controls (`user-list.state.svelte.ts`), never after a global concept. A ViewModel is testable in
-plain TypeScript, without a component.
+**Never put non-trivial logic in a `.svelte` file.**
+
+**Every file of rune code tells its role in its suffix**: `.state`, `.effect`, `.adapter` or
+`.attachments`, then `.svelte.ts`. A plain `*.svelte.ts` is not permitted: a file with no role
+does not have a known place. A test takes the name of the file it tests
+(`node-draft.state.svelte.test.ts`).
+
+- **A state holds UI state for one responsibility.** It is a `create*` factory that returns
+  getters and methods, and it can run queries. A component can use several states. A state is
+  named after what it holds (`node-draft.state.svelte.ts`, `node-panes.state.svelte.ts`). The
+  state that orchestrates a view is named after the view (`user-list.state.svelte.ts`): that is
+  the ViewModel of the view. If you cannot name a state with one noun, split it.
+- **An effect synchronizes with a system outside Svelte**, for a component that calls it
+  (`organization-sync.effect.svelte.ts`). It installs `$effect`s, and returns nothing or what
+  the component must connect.
+- **An adapter makes an outside API readable from rune code** (`to-rune.adapter.svelte.ts`).
+
+A state, an effect and an adapter are testable in plain TypeScript, without a component.
 
 ### `$effect` is a last resort, not the default tool
 
@@ -456,7 +508,7 @@ its element), and can be conditional (`{@attach enabled && fn}`).
 
 - **One component = one responsibility.** Past ~150 lines, or as soon as you have to scroll to
   follow the markup, split it.
-- Logic moves into a ViewModel, an attachment or a calculator; the component keeps rendering only.
+- Logic moves into a state, a presenter or an attachment; the component keeps rendering only.
 - Self-contained or repeated markup becomes a named component, or a `{#snippet}` when it is
   local to one file. A snippet can call itself — use that for recursion, not a component that
   imports itself (`no-circular`).
@@ -471,9 +523,8 @@ A component gets a PascalCase folder named after it (`OnboardingTour/OnboardingT
 as soon as it has more than its `.svelte` file:
 
 - a test or a fixture (see "Testing");
-- a file that only it uses: its own `*.messages.ts`, a `.ts` of types, variants or columns
-  (`DataTable/data-table.ts`, `SecretList/secret-columns.ts`), a calculator
-  (`AgentOutcomesChart/outcomes-chart.calculator.ts`);
+- a Svelte file that only it uses: a `.ts` of types or variants (`DataTable/data-table.ts`), its
+  columns (`PipelineTable/pipeline-table.columns.ts`), a state or an attachment;
 - a **private sub-component**: a component that only it renders (`OnboardingTour/TourSpot.svelte`,
   `AddMemberDialog/AddMemberForm.svelte`). A sub-component stays a plain file inside the folder;
   it gets a folder of its own only when it has a test.
@@ -481,7 +532,7 @@ as soon as it has more than its `.svelte` file:
 A lone `.svelte` file with nothing beside it stays a plain file. A file that two components use
 stays in the directory above them (`role-form/checkbox-tree.ts`). A group of related components
 that is not one component's internals stays a kebab-case group folder (`jobs-table/`,
-`role-detail/`). A ViewModel, an attachment or a calculator that a component uses is one of
+`role-detail/`). A state or an attachment that a component uses is one of
 these files: it goes in the component's folder, and gives the component a folder. Shared by
 several components, it goes where the root of a feature's tree says (see the feature layout).
 The permission conformance test reads every `*.state.svelte.ts` under `presentation/`, wherever
@@ -510,12 +561,16 @@ The package and layer structure is mandatory; everything else must earn its plac
 |-------|---------|---------|
 | Page component file | `*.page.svelte` | `UserAdmin.page.svelte` |
 | Svelte component | `PascalCase.svelte` | `SecretList.svelte` |
-| ViewModel (runes) | `<view>.state.svelte.ts` → `create{View}State` or a `{View}State` class | `roles-page.state.svelte.ts` |
-| Rune helper (no view) | `*.svelte.ts` | `organization-sync.svelte.ts` |
+| State (runes): a ViewModel, or UI state with one responsibility | `<view>.state.svelte.ts` / `<responsibility>.state.svelte.ts` → `create{Name}` or a `{View}State` class | `roles-page.state.svelte.ts`, `node-draft.state.svelte.ts` / `createNodeDraft` |
+| Effect (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` → a verb | `organization-sync.effect.svelte.ts` / `syncOrganization` |
+| Adapter (runes): an outside API read from rune code | `*.adapter.svelte.ts` | `to-rune.adapter.svelte.ts` / `toRune` |
 | Query / mutation options | `<feature>.queries.ts` → `{feature}Queries`, `{feature}Mutations` | `user.queries.ts` / `userQueries` |
-| Messages (i18n) | `*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
+| Messages (i18n) | `presentation/messages/*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
 | Attachment | `*.attachments.ts` (`.svelte.ts` when it uses runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
-| Pure algorithm | `*.calculator.ts` | `outcomes-chart.calculator.ts` |
+| Presenter (domain data → what a view shows) | `presentation/presenters/*.presenter.ts` | `node-list.presenter.ts` / `nodeRows` |
+| Mapper of a view format (both ways) | `presentation/mappers/*.mapper.ts` | `pipeline-document.mapper.ts` / `parseScript` |
+| Registry (a key → components or icons), in `ui/` | `*.registry.ts` | `node-appearances.registry.ts` / `NODE_APPEARANCE_VIEWS` |
+| Columns of a table, in `ui/` | `*.columns.ts` | `pipeline-table.columns.ts` / `pipelineColumns` |
 | Test fixture (a component a test renders) | `*.fixture.svelte` | `DataTable.fixture.svelte` |
 | Use case (only when it orchestrates) | `*.use-case.ts` → `{Verb}{Entity}UseCase` | `update-role.use-case.ts` / `UpdateRoleUseCase` |
 | Repository interface | `*.repository.ts` (domain) → `{Entity}Repository` | `user.repository.ts` / `UserRepository` |
@@ -582,7 +637,8 @@ shared test code of the workspace:
   `*.queries.ts` factory is tested with `runQueryFn` / `runMutationFn`.
 - A component with parts or a generic type is driven from a `*.fixture.svelte`.
 - **A pure test opts out of jsdom** with `// @vitest-environment node` on the first line.
-  Mappers, `domain/`, calculators — anything that never touches the DOM. A test that imports
+  Mappers, `domain/`, presenters that do not call `t()` — anything that never touches the DOM
+  or a rune (`t()` reads the locale from a rune). A test that imports
   `@scylla/core-sdk` (it holds `Redirect.svelte`) or the router needs jsdom.
 - **Query by role and accessible name**, not by CSS class. An icon-only control that can't be
   found by name is a missing `sr-only` label in the *component*, not a reason to reach for
@@ -640,7 +696,7 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
 ## i18n (Lingui)
 
 - **`lingui extract` does not read `.svelte` files.** Declare every message of a component with
-  `` msg`…` `` in a `*.messages.ts` beside it, and render it with `t()` from
+  `` msg`…` `` in a `*.messages.ts` of `presentation/messages/`, and render it with `t()` from
   `@scylla/ui/i18n` (reactive to a locale switch). A message
   written in a `.svelte` file disappears from the catalogs, and no gate fails.
 - A message with a placeholder is a function: `` newEntity: (label: string) => msg`New ${label}` ``.
@@ -746,11 +802,11 @@ Because of that, the tooling of this repo must work from another root. Keep it s
    factories. The repository comes from
    `getModuleDomain<typeof XModule.domain>('<id>')` — in this file only.
 6. Presentation: follow "Where the logic goes" — a `*.state.svelte.ts` ViewModel for a page that
-   orchestrates, attachments for DOM work, calculators for pure algorithms, each beside the
-   component that uses it. Components import shared
+   orchestrates and attachments for DOM work, beside the component that uses them; presenters
+   and mappers in their folders of `presentation/`. Components import shared
    UI from `@scylla/ui` and primitives from `@scylla/ui/primitives`. Read
    `packages/ui/AGENTS.md` first.
-7. Every message in a `*.messages.ts` beside its component (`msg`), rendered with `t()`. Add
+7. Every message in a `*.messages.ts` of `presentation/messages/` (`msg`), rendered with `t()`. Add
    `locales/{en,fr}/`: `lingui.config.js` finds the new catalog itself.
 8. `index.ts`: export only what other modules may use — never the `*.module.ts`, never a
    component (export a loader), and a page only when another module composes it behind its own

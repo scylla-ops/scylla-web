@@ -2,10 +2,10 @@
   import { Handle, Position } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
-  import { START_ICON } from '@base/features/pipeline/presentation/ui/editor/blueprint/step-kinds.ts';
-  import { MINIMAL_NODE, minimalHandleStyle } from './node-geometry.ts';
-  import type { StartNodeViewProps } from './node-view.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import PlayIcon from '@lucide/svelte/icons/play';
+  import { MINIMAL_NODE, minimalHandleStyle } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
+  import type { StartNodeViewProps } from './node-appearances.registry.ts';
 
   let { name, selected }: StartNodeViewProps = $props();
 </script>
@@ -18,7 +18,7 @@
     )}
     style="width: {MINIMAL_NODE.tile}px; height: {MINIMAL_NODE.tile}px;"
   >
-    <START_ICON class="size-6 fill-primary text-primary" />
+    <PlayIcon class="size-6 fill-primary text-primary" />
   </div>
   <div class="w-full text-center">
     <p class="truncate text-[12.5px] font-semibold">{name}</p>

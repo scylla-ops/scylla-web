@@ -1,18 +1,11 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import {
-    groupCatalog,
-    searchCatalog,
-    type CatalogEntry,
-  } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
-  import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
-  import {
-    CATALOG_GROUP_TITLES,
-    catalogText,
-  } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/catalog.ts';
+  import { groupCatalog, searchCatalog, type CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+  import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
+  import { CATALOG_GROUP_TITLES, catalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import CatalogItem from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/CatalogItem.svelte';
-  import SearchField from '@base/features/pipeline/presentation/ui/editor/blueprint/controls/SearchField.svelte';
+  import SearchField from '@base/features/pipeline/presentation/ui/editor/controls/SearchField.svelte';
   import { dragToCanvas } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag/palette-drag.attachments.ts';
   import type { PaletteDrag } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag/palette-drag.state.svelte.ts';
 
@@ -33,7 +26,7 @@
 
 <div class="flex h-full flex-col">
   <div class="flex flex-col gap-2.5 p-3 pb-2">
-    <h2 class="px-1 text-sm font-semibold">{t(blueprintMessages.nodes)}</h2>
+    <h2 class="px-1 text-sm font-semibold">{t(blueprintMessages.addNode)}</h2>
     <SearchField bind:value={query} label={t(blueprintMessages.searchNodes)} />
   </div>
 

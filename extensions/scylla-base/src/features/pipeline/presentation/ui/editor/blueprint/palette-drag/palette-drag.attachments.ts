@@ -1,7 +1,7 @@
 import { untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
 import type { XYPosition } from '@xyflow/svelte';
-import type { CatalogEntry } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
+import type { CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
 import type { DropTarget, PaletteDrag } from './palette-drag.state.svelte.ts';
 
 /** How far the pointer moves before a press on a row becomes a drag, not a click. */

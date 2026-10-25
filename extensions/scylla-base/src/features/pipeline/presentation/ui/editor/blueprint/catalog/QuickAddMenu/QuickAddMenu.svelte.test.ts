@@ -6,7 +6,7 @@ import {
   createQuickAdd,
   type QuickAdd,
 } from './quick-add.state.svelte.ts';
-import { BLANK_STEPS, catalogText } from '../catalog.ts';
+import { BLANK_NODES, catalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
 import QuickAddMenu from './QuickAddMenu.svelte';
 
 let cleanup: (() => void) | undefined;
@@ -15,7 +15,7 @@ const setup = () => {
   const onPick = vi.fn();
   let quickAdd!: QuickAdd;
   cleanup = $effect.root(() => {
-    quickAdd = createQuickAdd({ entries: () => BLANK_STEPS, resolve: catalogText, onPick });
+    quickAdd = createQuickAdd({ entries: () => BLANK_NODES, resolve: catalogText, onPick });
   });
   render(QuickAddMenu, { quickAdd });
   return { quickAdd, onPick };
@@ -29,12 +29,12 @@ describe('QuickAddMenu', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('names the step the new one follows, and focuses the search', () => {
+  it('names the node the new one follows, and focuses the search', () => {
     const { quickAdd } = setup();
     quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 }, link: { after: 'build' } });
     flushSync();
 
-    expect(screen.getByRole('dialog', { name: 'Add a step after build' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Add a node after build' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Search a node' })).toHaveFocus();
   });
 
@@ -51,7 +51,7 @@ describe('QuickAddMenu', () => {
 
     await userEvent.keyboard('{Enter}');
 
-    expect(onPick).toHaveBeenCalledWith(BLANK_STEPS[1], expect.anything());
+    expect(onPick).toHaveBeenCalledWith(BLANK_NODES[1], expect.anything());
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
@@ -60,11 +60,11 @@ describe('QuickAddMenu', () => {
     quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 }, link: { replacing: 'a->b' } });
     flushSync();
 
-    expect(screen.getByRole('dialog', { name: 'Insert a step here' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Insert a node here' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('option', { name: /Command/ }));
 
     expect(onPick).toHaveBeenCalledWith(
-      BLANK_STEPS[2],
+      BLANK_NODES[2],
       expect.objectContaining({ link: { replacing: 'a->b' } }),
     );
   });

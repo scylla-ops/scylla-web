@@ -39,7 +39,7 @@ The suffix of a file tells its role.
 |------|---------|---------|
 | **Repository interface** | `*.repository.ts` → `{Entity}Repository` | `user.repository.ts` / `UserRepository` |
 | **Domain entity** | `*.entity.ts` → `{Name}Entity` | `secret.entity.ts` / `SecretEntity` |
-| **Struct** (value object / enum / DTO / wrapper) | `*.struct.ts`, plain name | `permission.struct.ts` / `PermissionScope` |
+| **Struct** (value object / enum / DTO / wrapper): types, and a value object's own validation | `*.struct.ts`, plain name | `permission.struct.ts` / `PermissionScope`, `node-id.struct.ts` / `nodeIdIssue` |
 | **Use case** (only when it orchestrates) | `*.use-case.ts` → `{Verb}{Entity}UseCase` | `update-role.use-case.ts` / `UpdateRoleUseCase` |
 
 #### Infrastructure
@@ -56,11 +56,15 @@ The suffix of a file tells its role.
 |------|---------|---------|
 | **Query / mutation options** | `<feature>.queries.ts` → `{feature}Queries`, `{feature}Mutations` | `user.queries.ts` / `userQueries` |
 | **Query-key factories** (when they have their own file) | `<feature>.query-keys.ts` | `jobs.query-keys.ts` |
-| **ViewModel** (runes) | `<view>.state.svelte.ts` | `roles-page.state.svelte.ts` |
-| **Rune helper** (no view) | `*.svelte.ts` | `organization-sync.svelte.ts` |
+| **State** (runes): a ViewModel, or UI state with one responsibility | `<view>.state.svelte.ts` / `<responsibility>.state.svelte.ts` | `roles-page.state.svelte.ts`, `node-draft.state.svelte.ts` |
+| **Effect** (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` | `organization-sync.effect.svelte.ts` |
+| **Adapter** (runes): an outside API read from rune code | `*.adapter.svelte.ts` | `to-rune.adapter.svelte.ts` |
 | **Attachment** | `*.attachments.ts` (`.svelte.ts` with runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
-| **Pure algorithm** | `*.calculator.ts` | `outcomes-chart.calculator.ts` |
-| **Messages** (i18n) | `*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
+| **Presenter** (domain data → what a view shows) | `presenters/*.presenter.ts` | `node-list.presenter.ts` |
+| **Mapper** of a view format (both ways) | `mappers/*.mapper.ts` | `pipeline-document.mapper.ts` |
+| **Registry** (a key → components or icons), in `ui/` | `*.registry.ts` | `node-appearances.registry.ts` |
+| **Columns** of a table, in `ui/` | `*.columns.ts` | `pipeline-table.columns.ts` |
+| **Messages** (i18n) | `messages/*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
 | **Store** (framework-free, `createStore`) | `*.store.ts` → `{name}Store` | `context.store.ts` / `contextStore` |
 | **Page component** | `*.page.svelte` | `UserAdmin.page.svelte` |
 | **Guard / wrapper** | `*.guard.svelte` / `*.wrapper.svelte` | `Auth.guard.svelte`, `ContextCleaner.wrapper.svelte` |
@@ -230,10 +234,13 @@ There are **no `use*` hooks**. A factory of rune state is **camelCase `create*`*
 | Kind | Pattern | Example |
 |------|---------|---------|
 | ViewModel of a view | `create{View}` in `<view>.state.svelte.ts`, or a `{View}State` class | `createRolesPage()`, `createPipelineDashboard(projectId)`, `LoginState` |
-| Shared rune helper | `create{Concept}` | `createSelection(key)`, `createPagination(options)`, `createFormState(() => items)` |
+| State with one responsibility | `create{Responsibility}` in `<responsibility>.state.svelte.ts` | `createNodeDraft(...)`, `createSelection(key)`, `createPagination(options)` |
+| Effect | a verb, in `*.effect.svelte.ts` | `syncOrganization(slug)`, `cleanContext(projectId)` |
 | TanStack Query | `createQuery`, `createMutation`, `createQueries` (from `@scylla/core-sdk`) | `createQuery(() => userQueries.byId(id))` |
 
-A ViewModel is named after the view that it controls, never after a global concept.
+A ViewModel is named after the view that it controls. Another state is named after what it
+holds. There is no plain `*.svelte.ts`: each file of rune code has the suffix of its role
+(`.state`, `.effect`, `.adapter`, `.attachments`).
 
 ### 3.4 Stores
 

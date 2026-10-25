@@ -7,11 +7,11 @@
     menuPosition,
     type QuickAdd,
   } from './quick-add.state.svelte.ts';
-  import { START_NODE_ID } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
-  import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
-  import { CATALOG_GROUP_TITLES } from '../catalog.ts';
+  import { START_NODE_ID } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
+  import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
+  import { CATALOG_GROUP_TITLES } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import CatalogItem from '../CatalogItem.svelte';
-  import SearchField from '@base/features/pipeline/presentation/ui/editor/blueprint/controls/SearchField.svelte';
+  import SearchField from '@base/features/pipeline/presentation/ui/editor/controls/SearchField.svelte';
 
   interface Props {
     quickAdd: QuickAdd;
@@ -30,11 +30,11 @@
   );
   const title = $derived.by(() => {
     const link = request?.link;
-    if (link && 'replacing' in link) return t(blueprintMessages.insertStep);
+    if (link && 'replacing' in link) return t(blueprintMessages.insertNode);
     if (link?.after && link.after !== START_NODE_ID) {
       return t(blueprintMessages.addAfter(link.after));
     }
-    return t(blueprintMessages.addStep);
+    return t(blueprintMessages.addNode);
   });
 
   const focusOnMount: Attachment<HTMLInputElement> = node => node.focus();

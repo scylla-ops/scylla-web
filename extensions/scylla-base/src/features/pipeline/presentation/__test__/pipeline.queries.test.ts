@@ -9,13 +9,13 @@ import type { PipelineMetadata } from '@base/features/pipeline/domain/structs/pi
 import type {
   PipelineRepository,
 } from '@base/features/pipeline/domain/repository/pipeline.repository.ts';
-import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
+import type { NodeTemplate } from '@base/features/pipeline/domain/structs/node-template.struct.ts';
 import {
   pipelineMutations,
   pipelineQueries,
-  asPipelineFeed,
-  stepTemplateQueries,
+  nodeTemplateQueries,
 } from '../pipeline.queries.ts';
+import { SavePipelineUseCase } from '../../domain/use-cases/save-pipeline.use-case.ts';
 
 const toastSuccess = vi.fn();
 vi.mock('svelte-sonner', () => ({
@@ -55,7 +55,7 @@ const paginated = <T,>(items: T[], totalCount = items.length) => ({
   },
 });
 
-const templates: StepTemplate[] = [
+const templates: NodeTemplate[] = [
   {
     id: 'make',
     name: 'make',
@@ -87,7 +87,8 @@ beforeEach(() => {
   restoreRegistry = withRegistry({
     pipeline: {
       pipelineRepository: repository as unknown as PipelineRepository,
-      stepTemplateRepository: { list: () => Promise.resolve(ScyllaResult.success(templates)) },
+      savePipeline: new SavePipelineUseCase(repository as unknown as PipelineRepository),
+      nodeTemplateRepository: { list: () => Promise.resolve(ScyllaResult.success(templates)) },
     },
   });
   navigator = installTestNavigator({ pathname: '/acme/projects/project-1' });
@@ -144,7 +145,7 @@ describe('pipelineQueries.byOrganization', () => {
 });
 
 describe('pipelineQueries.byId', () => {
-  it('fetches the whole pipeline, steps included', async () => {
+  it('fetches the whole pipeline, nodes included', async () => {
     await expect(runQueryFn(pipelineQueries.byId('pipeline-1'))).resolves.toEqual(pipeline());
     expect(repository.getById).toHaveBeenCalledWith('pipeline-1');
   });
@@ -154,23 +155,6 @@ describe('pipelineQueries.byId', () => {
     repository.getById.mockResolvedValue(ScyllaResult.error(error));
 
     await expect(runQueryFn(pipelineQueries.byId('pipeline-1'))).rejects.toBe(error);
-  });
-});
-
-describe('asPipelineFeed', () => {
-  it('flags a window narrower than the full list', () => {
-    expect(asPipelineFeed(paginated([metadata()], 50))).toMatchObject({
-      totalCount: 50,
-      isPartialWindow: true,
-    });
-  });
-
-  it('reads an absent page as an empty, complete one', () => {
-    expect(asPipelineFeed(undefined)).toEqual({
-      pipelines: [],
-      totalCount: 0,
-      isPartialWindow: false,
-    });
   });
 });
 
@@ -190,7 +174,7 @@ describe('pipelineMutations.create', () => {
     expect(navigator.navigate).toHaveBeenCalled();
   });
 
-  it('does not invalidate or navigate when there is no active project in context', () => {
+  it('invalidates the list of its project, but does not navigate without a project in context', () => {
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
 
     runOnSuccess(pipelineMutations.create(), undefined, {
@@ -200,22 +184,35 @@ describe('pipelineMutations.create', () => {
     });
 
     expect(toastSuccess).toHaveBeenCalledWith('Pipeline created');
-    expect(invalidate).not.toHaveBeenCalled();
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipelines', 'project-1'] });
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 });
 
 describe('pipelineMutations.update', () => {
+  const edited = { id: 'pipeline-1', projectId: 'project-1', name: 'ci', nodes: [] };
+
   it('edits by id', async () => {
-    await runMutationFn(pipelineMutations.update(), { id: 'pipeline-1', nodes: [] });
-    expect(repository.edit).toHaveBeenCalledWith('pipeline-1', [], undefined);
+    await runMutationFn(pipelineMutations.update(), edited);
+    expect(repository.edit).toHaveBeenCalledWith('pipeline-1', [], 'ci');
+  });
+
+  it('refuses a node id the server does not accept, in the words of the user, and sends nothing', async () => {
+    const nodes = [
+      { id: 'Run Tests', deps: [], env: [], kind: 'exec' as const, command: 'make', args: [] },
+    ];
+
+    await expect(runMutationFn(pipelineMutations.update(), { ...edited, nodes })).rejects.toThrow(
+      'Fix the ID of these nodes before you save: Run Tests',
+    );
+    expect(repository.edit).not.toHaveBeenCalled();
   });
 
   it('invalidates the project list and the single-pipeline entry, then returns to the project', () => {
     contextStore.setState({ project: { id: 'project-1', name: 'web' } });
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
 
-    runOnSuccess(pipelineMutations.update(), pipeline(), { id: 'pipeline-1', nodes: [] });
+    runOnSuccess(pipelineMutations.update(), undefined, edited);
 
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipelines', 'project-1'] });
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipeline', 'pipeline-1'] });
@@ -224,7 +221,7 @@ describe('pipelineMutations.update', () => {
   });
 
   it('does not navigate when there is no active project in context', () => {
-    runOnSuccess(pipelineMutations.update(), pipeline(), { id: 'pipeline-1', nodes: [] });
+    runOnSuccess(pipelineMutations.update(), undefined, edited);
 
     expect(toastSuccess).toHaveBeenCalledWith('Pipeline edited');
     expect(navigator.navigate).not.toHaveBeenCalled();
@@ -245,7 +242,7 @@ describe('pipelineMutations.remove', () => {
 });
 
 describe('pipelineMutations.duplicate', () => {
-  it('reads the pipeline then creates a copy named "<name> (copy)"', async () => {
+  it('reads the pipeline then saves a copy, its name still one word (<name>-copy)', async () => {
     repository.getById.mockResolvedValue(
       ScyllaResult.success(pipeline({ name: 'ci', projectId: 'project-1', nodes: [] })),
     );
@@ -254,13 +251,13 @@ describe('pipelineMutations.duplicate', () => {
 
     expect(repository.getById).toHaveBeenCalledWith('pipeline-1');
     expect(repository.create).toHaveBeenCalledWith({
-      name: 'ci (copy)',
+      name: 'ci-copy',
       projectId: 'project-1',
       nodes: [],
     });
   });
 
-  it('propagates a failure from the read step without ever calling create', async () => {
+  it('propagates a failure from the read node without ever calling create', async () => {
     const error = new ScyllaError('not found');
     repository.getById.mockResolvedValue(ScyllaResult.error(error));
 
@@ -286,9 +283,9 @@ describe('pipelineMutations.run', () => {
   });
 });
 
-describe('stepTemplateQueries', () => {
+describe('nodeTemplateQueries', () => {
   it('reads the templates from the module repository, once for the whole app', async () => {
-    const options = stepTemplateQueries.list();
+    const options = nodeTemplateQueries.list();
 
     expect(options.staleTime).toBe(Infinity);
     expect(await runQueryFn(options)).toEqual(templates);
