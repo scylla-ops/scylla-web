@@ -39,7 +39,7 @@ stay in sync.
 The graph is [@xyflow/svelte](https://xyflow.dev): `BlueprintCanvas` with custom nodes
 (`StartNode`, `StepNode`) and a custom edge (`DeletableEdge`). `blueprint.state.svelte.ts` is the
 ViewModel (Svelte Runes-based) that owns the nodes and edges, keeping them in sync with the
-document. `blueprint-converter.ts` is the single place that translates between the graph and the
+document. `mappers/blueprint-flow.mapper.ts` is the single place that translates between the graph and the
 domain's `PipelineStepEntity[]` — both directions, so the round-trip can't drift. It's written in pure
 TypeScript and thoroughly tested.
 
@@ -89,7 +89,7 @@ what will happen, and you can still connect it to the step you meant.
 The viewer picks how steps look: **detailed** (a card: icon, id, what it runs, folder,
 variables) or **simplified** (a flat square with the kind's icon, the id under it). The choice is
 a per-browser convenience, kept in `localStorage`. Styles are a registry
-(`canvas/nodes/node-appearances.ts`), so a new one is a view of a step, a view of the start node and
+(`canvas/nodes/node-appearances.registry.ts`), so a new one is a view of a step, a view of the start node and
 one entry — the canvas, the switch and the layout do not change.
 
 ### The scripting tab: one step at a time
@@ -134,6 +134,14 @@ They are plain functions on plain data, so the editor states and the query cache
 it is. A save goes through `SavePipelineUseCase`, which applies the rules before it calls the
 server: whatever page saves a pipeline, the rule holds. The JSON text of the editor is not a
 rule of the domain: the server never sees it, so its format stays in `presentation/`.
+
+## The presentation, sorted by role
+
+`ui/` holds Svelte only: the components, their states, and the code that drives a component.
+What a view shows is computed by presenters (`presenters/`), from the data of the domain: the
+rows of the step list, the summary of a node, the layout of the graph. The conversions of a view
+format are mappers (`mappers/`), and the texts are in `messages/`. These are plain TypeScript,
+tested without a component, and they never import `ui/`: the folder of a file says what it does.
 
 ## Owning the jobs route
 

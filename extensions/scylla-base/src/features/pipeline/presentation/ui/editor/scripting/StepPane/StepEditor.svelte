@@ -1,8 +1,8 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
   import type { StepDraft } from '@base/features/pipeline/presentation/ui/editor/step/step-draft.state.svelte.ts';
-  import { stepPreview } from '@base/features/pipeline/presentation/ui/editor/step/step-summary.ts';
-  import { scriptingMessages } from '../scripting.messages.ts';
+  import { stepPreview } from '@base/features/pipeline/presentation/presenters/step-summary.presenter.ts';
+  import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
   import StepCommandFields from '@base/features/pipeline/presentation/ui/editor/step/StepCommandFields.svelte';
   import StepScriptField from '@base/features/pipeline/presentation/ui/editor/step/StepScriptField.svelte';
 

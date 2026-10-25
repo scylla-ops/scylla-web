@@ -51,7 +51,7 @@ its own: an invalidation of a pipeline key never refetches it. A template's `nam
 is (a tool name such as `npm ci`), and its `icon` is a hint: an unknown hint falls back to the
 kind's icon. A step that runs exactly the code of a template (the same script, or the same
 command and arguments; its env, folder and shell do not count) shows the template's icon on its
-node and in the inspector (`templateFor`, `catalog/node-catalog.ts`).
+node and in the inspector (`templateFor`, `presenters/catalog.presenter.ts`).
 
 **`PipelineMetadata` vs `PipelineEntity` is the split that matters**: lists fetch metadata (no
 steps), the editor fetches the entity. Do not make a list page call `getById`.
@@ -83,28 +83,36 @@ infrastructure/
   default-step-template.repository.ts        BUILT_IN_STEP_TEMPLATES
   grpc-pipeline.mapper.ts
 presentation/
-  pipeline.messages.ts                       i18n message descriptors
   pipeline.queries.ts                        TanStack Query options factories
   pipeline.query-keys.ts                     Query key factories (exported publicly)
-  ui/
+  messages/                                  pipeline, blueprint, scripting, step (.messages.ts)
+  presenters/                                domain data → what a view shows (plain TS, tested)
+    step-summary.presenter.ts                summarize (what a node shows), stepPreview, envCounts
+    step-kind.presenter.ts                   icon and colours of each kind of step
+    step-issue.presenter.ts                  the text of what stops a step (stepIdIssueText)
+    step-list.presenter.ts                   the rows and stages of the step list, stepsAfterDrop
+    catalog.presenter.ts                     blank steps, template entries, search, groups, templateFor
+    blueprint-layout.presenter.ts            the position of each node: one column per stage
+    blueprint-node.presenter.ts              the sizes, anchors and footprints of the nodes, handleClass
+    drop-spot.presenter.ts                   where a link dropped on the canvas lands
+  mappers/                                   a view format ↔ the domain, both ways (plain TS, tested)
+    pipeline-document.mapper.ts              the JSON text of the editor ↔ the steps, createDefaultScript
+    blueprint-flow.mapper.ts                 the steps ↔ the nodes and edges of xyflow
+  ui/                                        Svelte only
     run-pipeline.state.svelte.ts             the Run action, shared by the dashboard and the jobs page
     PipelineJobs.page.svelte                 the jobs page of a pipeline: JobsPage + the Run action
     dashboard/
       DashboardPipeline/                     the page, its header, pipeline-dashboard.state.svelte.ts
-      PipelineTable/                         the table, its columns, and the cells only it renders
-                                             (PipelineActions, PipelineChart, PipelineLastJob, PipelineStatus)
+      PipelineTable/                         the table, pipeline-table.columns.ts, and the cells only it
+                                             renders (PipelineActions, PipelineChart, PipelineLastJob, PipelineStatus)
     editor/
       PipelineCreation.page.svelte, PipelineUpdate.page.svelte, PipelineEditor.svelte
       pipeline-document.state.svelte.ts      the document of both tabs: script text, baseline, dirty check
-      pipeline-document.ts                   the JSON format of the editor: parse, write, createDefaultScript
       PipelineEditorHeader/                  the header, with the name field
       controls/                              what the tabs share: Segmented, SearchField, and
                                              code-editor.effect.svelte.ts (CodeMirror ↔ a string)
-      step/                                  one step, for every view that shows or edits a step
+      step/                                  the fields of one step, for every view that edits a step
         step-draft.state.svelte.ts           createStepDraft: the draft of a step, applied at each edit
-        step-kinds.ts                        icon and colours of each kind of step
-        step-summary.ts                      the one-line preview of a step, its env counts
-        step.messages.ts, step-issue-text.ts the strings of the fields and of the issues of a step
         StepIdField, StepKindPicker, StepScriptField, StepCommandFields, StepWorkingDirField,
         StepEnvFields                        one field (or one group of fields) each, on a StepDraft
       scripting/                             the scripting tab: the steps one by one, or the full document
@@ -114,29 +122,21 @@ presentation/
         step-drafts.state.svelte.ts          one StepDraft per step, shared by its panes and its properties
         StepsView/                           the list, the panes, the properties of the focused step
                                              (steps-view.state.svelte.ts: which side panels are open)
-        StepList/                            the steps by stage (step-list.calculator.ts), a row
-                                             (StepListRow), the drag of a step onto its dependency (step-drag.*)
+        StepList/                            the list (StepList, StepListRow), and the drag of a step
+                                             onto its dependency (step-drag.*)
         StepPane/                            the tabs of a pane and the editor of its step
         StepProperties/                      id, kind, folder, dependencies, environment of a step
         DocumentView.svelte                  the JSON text, with Copy all
-        scripting.messages.ts, copy-to-clipboard.ts
       blueprint/                             the visual editor, one folder per responsibility
         PipelineBlueprint.svelte             wires the graph, the canvas, the side panel, the drag
-        blueprint-converter.ts               Graph ↔ PipelineStepEntity[] (pure, TS only, tested)
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected step, add/insert/rename
-        blueprint.messages.ts                the strings of the whole blueprint
         canvas/                              the canvas and what it draws
-          BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte
+          BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte, DropSpot.svelte
           blueprint-canvas.context.ts        what the nodes and edges read from the canvas
           node-appearance-preference.state.svelte.ts   the viewer's node style, kept in localStorage
           nodes/                             one step view and one start view per node style,
-                                             node-appearances.ts (registry), node-geometry.ts
-          drop-spot.calculator.ts, DropSpot.svelte   the outline of where a new step lands
-        catalog/                             what can be added
-          node-catalog.ts                    catalog entry type, search, grouping, templateFor (pure)
-          catalog.ts                         blank steps, template entries, catalogText (translates)
-          CatalogIcon.svelte, CatalogItem.svelte   the tile and the row of an entry
-          QuickAddMenu/                      the step picker of a dropped link, quick-add.state.svelte.ts
+                                             node-appearances.registry.ts (style → views)
+        catalog/                             CatalogIcon, CatalogItem, QuickAddMenu/ (quick-add.state.svelte.ts)
         palette-drag/                        a palette entry dragged to the canvas with the pointer
           palette-drag.state.svelte.ts       entry, pointer, spot, the canvas as a drop target
           palette-drag.attachments.ts        dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
@@ -280,7 +280,7 @@ the page.
   outline). A new drag source uses the same state.
 - **The canvas outlines where a new step lands**: for a palette drag (`drag.spot`) and for a
   link pulled from an output onto empty canvas (`linkDropPoint`, on xyflow's `useConnection`).
-  `DropSpot` draws the `footprint` of the current node style (`canvas/nodes/node-geometry.ts`) in the
+  `DropSpot` draws the `footprint` of the current node style (`presenters/blueprint-node.presenter.ts`) in the
   front `ViewportPortal`, so it follows the zoom and no node hides it. No move transition: it
   must stay under the pointer.
 - **A step id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
@@ -307,12 +307,12 @@ the page.
   through `blueprint.addNode(nodeId, definition, placement)`. The menu is a combobox: the focus
   stays in the search, `aria-activedescendant` names the active option, Tab closes the menu.
 - **Node styles are a registry.** `NODE_APPEARANCES` (`canvas/node-appearance-preference.state.svelte.ts`) names them,
-  `canvas/nodes/node-appearances.ts` maps each to a step view (`StepNodeViewProps`), a start view
+  `canvas/nodes/node-appearances.registry.ts` maps each to a step view (`StepNodeViewProps`), a start view
   (`StartNodeViewProps`), an `anchor`, a label and an icon. A new style is one name, two views
   and one entry: `StepNode` and `StartNode` only dispatch. The nodes read the style from the
   canvas context (`blueprint-canvas.context.ts`), since xyflow gives a node only its own props.
   The label of a node is part of the node element, so that xyflow measures it.
-- **Sizes of the nodes live in `canvas/nodes/node-geometry.ts`**: the views set their width from it,
+- **Sizes of the nodes live in `presenters/blueprint-node.presenter.ts`**: the views set their width from it,
   the handles of a minimal node and the `anchor` (`nodePositionAt`: a dropped step lands on its
   middle, not its corner) are computed from it. Do not write these sizes as Tailwind classes.
 - **The rules of a pipeline are in `domain/`**: the id and name rules on their value objects,
@@ -323,17 +323,16 @@ the page.
   refuses a pipeline that breaks a rule of the server, with an `InvalidPipelineError`: nothing is
   sent. `pipeline.queries.ts` turns the issue into a translated message, and the error toast of
   the app shows it. The editor does not check the rules itself.
-- **`catalog/node-catalog.ts` stays pure**: no `t()`. What translates a catalog entry
-  (`catalogText`, `BLANK_STEPS`) is in `blueprint/catalog/catalog.ts`; the search takes a
-  `resolve` function.
-- `blueprint-converter.ts` is the single translation between the flow graph and `PipelineStepEntity[]`. 
-  Both directions live there; do not inline conversion in a component. It's pure TypeScript with 
-  full test coverage.
+- `blueprint-flow.mapper.ts` is the single translation between the flow graph and
+  `PipelineStepEntity[]`. Both directions live there; do not inline conversion in a component.
+  The position of each node comes from `blueprint-layout.presenter.ts`.
 - Largest module in the codebase — respect the ~150-line component rule. New editor UI goes in
   the folder of `ui/editor/blueprint/` that has its responsibility (`canvas/`, `catalog/`,
   `palette-drag/`, `side-panel/`), new list UI in `ui/dashboard/PipelineTable/`. A field of a
   step goes in `ui/editor/step/`, a control of the editor in `ui/editor/controls/`.
   The root of `blueprint/` keeps only what the whole blueprint shares.
+  Code that is not Svelte never goes in `ui/`: a text in `messages/`, what a view shows in
+  `presenters/`, a conversion in `mappers/`.
 - **`data-tour` attributes are anchors of the onboarding tour** (`pipelines` with `data-project-id`, `pipeline-editor`, `pipeline-submit`, and on each row
   `pipeline-history` / `pipeline-actions` / `pipeline-run` with `data-pipeline-id`,
   `data-pipeline-name`, `data-last-status`). Keep them on the same

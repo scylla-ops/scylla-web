@@ -2,7 +2,7 @@ import type { MessageDescriptor } from '@lingui/core';
 import { t } from '@scylla/ui/i18n';
 import type { StepIssue } from '@base/features/pipeline/domain/structs/pipeline-issue.struct.ts';
 import type { StepIdIssue } from '@base/features/pipeline/domain/structs/step-id.struct.ts';
-import { stepMessages } from './step.messages.ts';
+import { stepMessages } from '../messages/step.messages.ts';
 
 /** A space is invisible between quotes: it is shown as `␣`. */
 const quoted = (character: string) => `"${character === ' ' ? '␣' : character}"`;

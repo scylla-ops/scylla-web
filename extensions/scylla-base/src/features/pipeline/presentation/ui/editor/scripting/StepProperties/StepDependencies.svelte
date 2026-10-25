@@ -8,8 +8,8 @@
     SelectValue,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { scriptingMessages } from '../scripting.messages.ts';
-  import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
+  import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
+  import { stepMessages } from '@base/features/pipeline/presentation/messages/step.messages.ts';
 
   interface Props {
     deps: string[];

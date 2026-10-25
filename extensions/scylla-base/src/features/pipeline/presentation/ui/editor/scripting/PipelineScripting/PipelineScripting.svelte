@@ -7,7 +7,7 @@
     createPipelineDocumentingState,
     type ScriptingMode,
   } from '../pipeline-scripting.state.svelte.ts';
-  import { scriptingMessages } from '../scripting.messages.ts';
+  import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
   import DocumentView from '../DocumentView.svelte';
   import StepsView from '../StepsView/StepsView.svelte';
 

@@ -6,7 +6,7 @@
   import { GatedButton } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import PipelineNameField from './PipelineNameField.svelte';
 
   interface Props {

@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { NodeProps } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
-  import type { BlueprintStartNode } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import type { BlueprintStartNode } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import { getBlueprintCanvas } from '../blueprint-canvas.context.ts';
-  import { NODE_APPEARANCE_VIEWS } from './node-appearances.ts';
+  import { NODE_APPEARANCE_VIEWS } from './node-appearances.registry.ts';
 
   let { data, selected }: NodeProps<BlueprintStartNode> = $props();
 

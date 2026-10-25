@@ -9,13 +9,13 @@
   import { cn } from '@scylla/ui/utils';
   import type { PipelineStepEntity, StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
   import { createStepDraft } from '@base/features/pipeline/presentation/ui/editor/step/step-draft.state.svelte.ts';
-  import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
-  import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
-  import { ISSUE_MESSAGES } from '@base/features/pipeline/presentation/ui/editor/step/step-issue-text.ts';
+  import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
+  import { stepMessages } from '@base/features/pipeline/presentation/messages/step.messages.ts';
+  import { ISSUE_MESSAGES } from '@base/features/pipeline/presentation/presenters/step-issue.presenter.ts';
   import {
     KIND_TONES,
     stepIcon,
-  } from '@base/features/pipeline/presentation/ui/editor/step/step-kinds.ts';
+  } from '@base/features/pipeline/presentation/presenters/step-kind.presenter.ts';
   import StepCodeTab from './StepCodeTab.svelte';
   import StepEnvFields from '@base/features/pipeline/presentation/ui/editor/step/StepEnvFields.svelte';
   import StepIdField from '@base/features/pipeline/presentation/ui/editor/step/StepIdField.svelte';

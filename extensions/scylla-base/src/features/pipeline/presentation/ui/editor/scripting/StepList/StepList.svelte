@@ -4,11 +4,11 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-  import { stepRelations, stepRows, stepStages } from './step-list.calculator.ts';
+  import { stepRelations, stepRows, stepStages } from '@base/features/pipeline/presentation/presenters/step-list.presenter.ts';
   import { acceptStepDrop } from './step-drag.attachments.ts';
   import { createStepDrag } from './step-drag.state.svelte.ts';
-  import { scriptingMessages } from '../scripting.messages.ts';
-  import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
+  import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
+  import { stepMessages } from '@base/features/pipeline/presentation/messages/step.messages.ts';
   import StepListRow from './StepListRow.svelte';
 
   interface Props {

@@ -7,8 +7,8 @@
     NODE_APPEARANCES,
     type NodeAppearance,
   } from './node-appearance-preference.state.svelte.ts';
-  import { blueprintMessages } from '../blueprint.messages.ts';
-  import { NODE_APPEARANCE_VIEWS } from './nodes/node-appearances.ts';
+  import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
+  import { NODE_APPEARANCE_VIEWS } from './nodes/node-appearances.registry.ts';
   import Segmented from '@base/features/pipeline/presentation/ui/editor/controls/Segmented.svelte';
 
   interface Props {

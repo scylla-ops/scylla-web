@@ -3,8 +3,8 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { StepDraft } from './step-draft.state.svelte.ts';
-  import { stepMessages } from './step.messages.ts';
-  import { stepIdIssueText } from './step-issue-text.ts';
+  import { stepMessages } from '@base/features/pipeline/presentation/messages/step.messages.ts';
+  import { stepIdIssueText } from '@base/features/pipeline/presentation/presenters/step-issue.presenter.ts';
 
   interface Props {
     draft: StepDraft;

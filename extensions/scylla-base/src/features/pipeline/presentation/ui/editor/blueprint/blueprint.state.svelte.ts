@@ -1,8 +1,12 @@
 import { untrack } from 'svelte';
 import type { Connection, XYPosition } from '@xyflow/svelte';
-import { definitionOf, type PipelineStepEntity, type StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import {
-  NODE_WIDTH,
+  definitionOf,
+  type PipelineStepEntity,
+  type StepDefinition,
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { NODE_WIDTH } from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
+import {
   START_NODE_ID,
   depsOf,
   edgeBetween,
@@ -12,7 +16,7 @@ import {
   type BlueprintEdge,
   type BlueprintNode,
   type BlueprintStepNode,
-} from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
+} from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
 import { uniqueStepId, waitsFor } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
 export interface BlueprintStateParams {

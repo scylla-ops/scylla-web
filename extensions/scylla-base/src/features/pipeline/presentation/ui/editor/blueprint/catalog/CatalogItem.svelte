@@ -1,7 +1,7 @@
 <script lang="ts">
   import { cn } from '@scylla/ui/utils';
-  import type { CatalogEntry } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/node-catalog.ts';
-  import { catalogText } from './catalog.ts';
+  import type { CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+  import { catalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import CatalogIcon from './CatalogIcon.svelte';
 
   interface Props {

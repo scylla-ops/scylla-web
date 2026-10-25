@@ -5,7 +5,7 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { StepDraft } from './step-draft.state.svelte.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import { createCodeEditor } from '@base/features/pipeline/presentation/ui/editor/controls/code-editor.effect.svelte.ts';
 
   interface Props {

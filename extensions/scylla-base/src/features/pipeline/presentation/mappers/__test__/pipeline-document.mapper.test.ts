@@ -7,7 +7,7 @@ import {
   withName,
   withSteps,
   createDefaultScript,
-} from '../pipeline-document.ts';
+} from '../pipeline-document.mapper.ts';
 import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 const documentOf = (value: unknown) => parseScript(JSON.stringify(value)).document;

@@ -11,14 +11,14 @@
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { StepRelation, StepRow } from './step-list.calculator.ts';
+  import type { StepRelation, StepRow } from '@base/features/pipeline/presentation/presenters/step-list.presenter.ts';
   import { acceptStepDrop, dragStep } from './step-drag.attachments.ts';
   import type { StepDrag } from './step-drag.state.svelte.ts';
-  import { scriptingMessages } from '../scripting.messages.ts';
+  import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
   import {
     KIND_TONES,
     stepIcon,
-  } from '@base/features/pipeline/presentation/ui/editor/step/step-kinds.ts';
+  } from '@base/features/pipeline/presentation/presenters/step-kind.presenter.ts';
 
   interface Props {
     row: StepRow;

@@ -6,7 +6,7 @@
   import { t } from '@scylla/ui/i18n';
   import { calculateDuration, formatDuration, getRelativeTime } from '@shared/utils/date-utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
   interface Props {
     jobs: JobEntity[];

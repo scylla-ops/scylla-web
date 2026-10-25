@@ -5,7 +5,7 @@
     createPipelineDashboard,
   } from './pipeline-dashboard.state.svelte.ts';
   import { createRunPipeline } from '@base/features/pipeline/presentation/ui/run-pipeline.state.svelte.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import PipelineDashboardHeader from './PipelineDashboardHeader.svelte';
   import PipelineTable from '../PipelineTable/PipelineTable.svelte';
 

@@ -7,7 +7,7 @@ import {
   stepRows,
   stepStages,
   stepsAfterDrop,
-} from './step-list.calculator.ts';
+} from '../step-list.presenter.ts';
 
 const script = (id: string, deps: string[] = [], body = 'make'): PipelineStepEntity => ({
   id,

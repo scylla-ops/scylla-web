@@ -6,9 +6,10 @@
   import { Handle, Position } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
-  import { DETAILED_NODE } from './node-geometry.ts';
-  import { handleClass, type StepNodeViewProps } from './node-view.ts';
+  import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
+  import { DETAILED_NODE } from '@base/features/pipeline/presentation/presenters/blueprint-node.presenter.ts';
+  import { handleClass } from '@base/features/pipeline/presentation/presenters/step-summary.presenter.ts';
+import type { StepNodeViewProps } from './node-appearances.registry.ts';
 
   let { step, selected, summary, detached }: StepNodeViewProps = $props();
 

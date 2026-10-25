@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { flushSync } from 'svelte';
 import type { ExecPipelineStepEntity, PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import { createBlueprintState } from '../blueprint.state.svelte.ts';
-import { START_NODE_ID, flowToSteps } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
+import { START_NODE_ID, flowToSteps } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
 
 const execStep = (id: string, deps: string[] = []): ExecPipelineStepEntity => ({
   id,

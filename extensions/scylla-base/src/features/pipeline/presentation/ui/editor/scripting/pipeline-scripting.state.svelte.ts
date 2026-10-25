@@ -16,8 +16,8 @@ import {
 } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import { createStepDrafts } from './step-drafts.state.svelte.ts';
 import { createStepPanes } from './step-panes.state.svelte.ts';
-import { stepRows, stepsAfterDrop } from './StepList/step-list.calculator.ts';
-import { scriptingMessages } from './scripting.messages.ts';
+import { stepRows, stepsAfterDrop } from '@base/features/pipeline/presentation/presenters/step-list.presenter.ts';
+import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
 
 export interface PipelineScriptingStateParams {
   /** Getters: the editor's document changes. */

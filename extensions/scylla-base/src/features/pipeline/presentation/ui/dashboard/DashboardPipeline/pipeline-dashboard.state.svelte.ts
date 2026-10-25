@@ -3,7 +3,7 @@ import { jobsByPipelinesQueries, type JobEntity } from '@base/features/jobs';
 import { createPagination } from '@scylla/ui/state';
 import { t } from '@scylla/ui/i18n';
 import { ScyllaError } from '@shared/utils/scylla-result.ts';
-import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 import { pipelineQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
 
 type HistoryResult = {

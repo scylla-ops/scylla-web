@@ -60,8 +60,11 @@ The suffix of a file tells its role.
 | **Effect** (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` | `organization-sync.effect.svelte.ts` |
 | **Adapter** (runes): an outside API read from rune code | `*.adapter.svelte.ts` | `to-rune.adapter.svelte.ts` |
 | **Attachment** | `*.attachments.ts` (`.svelte.ts` with runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
-| **Pure algorithm** | `*.calculator.ts` | `outcomes-chart.calculator.ts` |
-| **Messages** (i18n) | `*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
+| **Presenter** (domain data → what a view shows) | `presenters/*.presenter.ts` | `step-list.presenter.ts` |
+| **Mapper** of a view format (both ways) | `mappers/*.mapper.ts` | `pipeline-document.mapper.ts` |
+| **Registry** (a key → components or icons), in `ui/` | `*.registry.ts` | `node-appearances.registry.ts` |
+| **Columns** of a table, in `ui/` | `*.columns.ts` | `pipeline-table.columns.ts` |
+| **Messages** (i18n) | `messages/*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
 | **Store** (framework-free, `createStore`) | `*.store.ts` → `{name}Store` | `context.store.ts` / `contextStore` |
 | **Page component** | `*.page.svelte` | `UserAdmin.page.svelte` |
 | **Guard / wrapper** | `*.guard.svelte` / `*.wrapper.svelte` | `Auth.guard.svelte`, `ContextCleaner.wrapper.svelte` |

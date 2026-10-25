@@ -5,19 +5,33 @@ import LayoutListIcon from '@lucide/svelte/icons/layout-list';
 import SquareIcon from '@lucide/svelte/icons/square';
 import type { LucideIcon } from '@scylla/ui';
 import type { NodeAppearance } from '@base/features/pipeline/presentation/ui/editor/blueprint/canvas/node-appearance-preference.state.svelte.ts';
-import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
+import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
 import {
   DETAILED_ANCHOR,
   DETAILED_FOOTPRINT,
   MINIMAL_ANCHOR,
   MINIMAL_FOOTPRINT,
   type NodeFootprint,
-} from './node-geometry.ts';
-import type { StartNodeViewProps, StepNodeViewProps } from './node-view.ts';
+} from '@base/features/pipeline/presentation/presenters/blueprint-node.presenter.ts';
+import type { StepSummary } from '@base/features/pipeline/presentation/presenters/step-summary.presenter.ts';
+import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import StartNodeDetailed from './StartNodeDetailed.svelte';
 import StartNodeMinimal from './StartNodeMinimal.svelte';
 import StepNodeDetailed from './StepNodeDetailed.svelte';
 import StepNodeMinimal from './StepNodeMinimal.svelte';
+
+export interface StepNodeViewProps {
+  step: PipelineStepEntity;
+  selected: boolean;
+  summary: StepSummary;
+  /** No edge goes into the step: saving links it to the start node. */
+  detached: boolean;
+}
+
+export interface StartNodeViewProps {
+  name: string;
+  selected: boolean;
+}
 
 interface NodeAppearanceView {
   step: Component<StepNodeViewProps>;

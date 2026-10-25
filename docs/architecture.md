@@ -328,18 +328,22 @@ feature/
 │   ├── grpc-feature.mapper.ts          → proto ↔ domain (Grpc{Entity}Mapper)
 │   └── __test__/
 ├── locales/             → i18n catalogs (en/, fr/)
-└── presentation/
+└── presentation/                   → one folder per role
     ├── <feature>.queries.ts        → query-key factories, queryOptions / mutationOptions
-    ├── <feature>.messages.ts / <feature>.points.ts → shared by all the views, when needed
-    └── ui/                         → Svelte components + *.messages.ts, and beside each
-                                      component its ViewModel, attachments, calculators
+    ├── <feature>.points.ts         → the widget points, when needed
+    ├── messages/                   → *.messages.ts: the texts of the views
+    ├── presenters/                 → *.presenter.ts: domain data → what a view shows
+    ├── mappers/                    → *.mapper.ts: a view format ↔ the domain, both ways
+    └── ui/                         → Svelte only: components, states, attachments, effects,
+                                      contexts, registries, columns
 ```
 
-The root of `presentation/` holds only what the module shares: with other modules (what
-`index.ts` exports) or with all its views. A ViewModel, an attachment or a calculator serves a
-view: it is in the folder of the component that uses it, or of the component that owns the
-concept when several use it. This is the colocation that Svelte recommends for `.svelte.ts`
-modules: a view and its logic are found, changed and deleted together.
+`ui/` holds Svelte only. A presenter, a mapper and the messages are plain TypeScript, in the
+folder of their role, and never import `ui/` (`presentation-logic-knows-no-ui`): a reader knows
+what a file does from its folder, and a presenter is tested without a component. Inside `ui/`, a
+state or an attachment is in the folder of the component that uses it, or of the component that
+owns the concept when several use it: a view and its states are found, changed and deleted
+together.
 
 ### 5.1 Domain layer
 
@@ -477,7 +481,8 @@ Where the logic goes:
 | UI state with one responsibility | a state | `<responsibility>.state.svelte.ts`, beside its users |
 | Synchronize with a system outside Svelte | an effect | `*.effect.svelte.ts`, beside its user |
 | Read an outside API from rune code | an adapter | `*.adapter.svelte.ts` |
-| A pure algorithm | a pure function | `*.calculator.ts`, beside its user |
+| Turn domain data into what a view shows | a presenter | `presenters/*.presenter.ts` |
+| Convert a view format and the domain, both ways | a mapper | `mappers/*.mapper.ts` |
 | DOM measurement, native events, a third-party widget | an attachment (`{@attach}`) | `*.attachments.ts`, beside its user |
 
 `$effect` is a last resort: use it only to synchronize with a system outside Svelte.

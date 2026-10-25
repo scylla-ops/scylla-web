@@ -8,7 +8,7 @@
     formatDuration,
     getRelativeTime,
   } from '@shared/utils/date-utils.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
   interface Props {
     jobs: JobEntity[];

@@ -3,7 +3,7 @@ import {
   definitionOf,
   type PipelineStepEntity,
 } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { stepDepths } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import { layoutSteps } from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
 
 /** A node's `data` must be a `Record`: a step travels wrapped, as `{ step }`. */
 
@@ -17,13 +17,6 @@ export type BlueprintEdge = Edge;
 
 export const START_NODE_ID = '__start__';
 export const EDGE_COLOR = 'var(--input)';
-
-/** The layout cell: wide enough for the widest node appearance. */
-export const NODE_WIDTH = 220;
-const NODE_HEIGHT = 112;
-const HORIZONTAL_GAP = 72;
-const VERTICAL_GAP = 40;
-const START_NODE_OFFSET = NODE_WIDTH + HORIZONTAL_GAP;
 
 export const DEFAULT_EDGE_STYLE = {
   type: 'deletable',
@@ -68,41 +61,22 @@ export function stepsToFlow(
   pipelineName: string,
 ): { nodes: BlueprintNode[]; edges: BlueprintEdge[]; sanitizedSteps: PipelineStepEntity[] } {
   const steps = sanitizeSteps(rawSteps);
-  const depthMap = stepDepths(steps);
-
-  const depthGroups = new Map<number, PipelineStepEntity[]>();
-  for (const step of steps) {
-    const d = depthMap.get(step.id) ?? 0;
-    if (!depthGroups.has(d)) depthGroups.set(d, []);
-    depthGroups.get(d)!.push(step);
-  }
-
-  const maxGroupSize = Math.max(1, ...Array.from(depthGroups.values()).map(g => g.length));
-  const totalHeight = maxGroupSize * (NODE_HEIGHT + VERTICAL_GAP) - VERTICAL_GAP;
+  const layout = layoutSteps(steps);
 
   const startNode: BlueprintStartNode = {
     id: START_NODE_ID,
     type: 'startNode',
-    position: { x: 0, y: totalHeight / 2 - NODE_HEIGHT / 2 },
+    position: layout.start,
     data: { name: pipelineName },
     deletable: false,
   };
 
-  const stepNodes: BlueprintStepNode[] = steps.map(step => {
-    const depth = depthMap.get(step.id) ?? 0;
-    const group = depthGroups.get(depth) ?? [step];
-    const indexInGroup = group.indexOf(step);
-
-    return {
-      id: step.id,
-      type: 'pipelineStep',
-      position: {
-        x: START_NODE_OFFSET + depth * (NODE_WIDTH + HORIZONTAL_GAP),
-        y: indexInGroup * (NODE_HEIGHT + VERTICAL_GAP),
-      },
-      data: { step },
-    };
-  });
+  const stepNodes: BlueprintStepNode[] = steps.map(step => ({
+    id: step.id,
+    type: 'pipelineStep',
+    position: layout.steps.get(step.id) ?? { x: 0, y: 0 },
+    data: { step },
+  }));
 
   const stepEdges = steps.flatMap(step => step.deps.map(dep => edgeBetween(dep, step.id)));
 

@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
 import { flushSync } from 'svelte';
-import { catalogEntries } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/catalog.ts';
+import { catalogEntries } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
 import {
   createPaletteDrag,
   type PaletteDrag,

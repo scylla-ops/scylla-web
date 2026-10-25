@@ -32,8 +32,6 @@ export const scriptingMessages = {
   copyStep: msg`Copy the step`,
   commandPreview: msg`The line that runs`,
   copyAll: msg`Copy all`,
-  copied: msg`Copied to the clipboard.`,
-  copyFailed: msg`The browser did not let the page write to the clipboard.`,
 
   stepProperties: msg`Step properties`,
   dependencies: msg`Dependencies`,

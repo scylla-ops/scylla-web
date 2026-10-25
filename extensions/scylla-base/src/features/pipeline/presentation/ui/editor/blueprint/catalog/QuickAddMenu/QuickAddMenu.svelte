@@ -7,9 +7,9 @@
     menuPosition,
     type QuickAdd,
   } from './quick-add.state.svelte.ts';
-  import { START_NODE_ID } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
-  import { blueprintMessages } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts';
-  import { CATALOG_GROUP_TITLES } from '../catalog.ts';
+  import { START_NODE_ID } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
+  import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
+  import { CATALOG_GROUP_TITLES } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import CatalogItem from '../CatalogItem.svelte';
   import SearchField from '@base/features/pipeline/presentation/ui/editor/controls/SearchField.svelte';
 

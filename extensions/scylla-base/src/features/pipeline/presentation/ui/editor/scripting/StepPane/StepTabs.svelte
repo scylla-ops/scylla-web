@@ -5,13 +5,12 @@
   import XIcon from '@lucide/svelte/icons/x';
   import { Button, Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { cn } from '@scylla/ui/utils';
+  import { cn, copyToClipboard } from '@scylla/ui/utils';
   import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-  import { stepPreview } from '@base/features/pipeline/presentation/ui/editor/step/step-summary.ts';
-  import { copyToClipboard } from '../copy-to-clipboard.ts';
+  import { stepPreview } from '@base/features/pipeline/presentation/presenters/step-summary.presenter.ts';
   import type { StepPane } from '../step-panes.state.svelte.ts';
   import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
-  import { scriptingMessages } from '../scripting.messages.ts';
+  import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
 
   interface Props {
     scripting: PipelineScriptingState;

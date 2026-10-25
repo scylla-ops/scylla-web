@@ -1,11 +1,8 @@
 <script lang="ts">
   import { ResizablePane } from '@scylla/ui/primitives';
   import type { BlueprintState } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.state.svelte.ts';
-  import { stepOf } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
-  import {
-    templateFor,
-    type CatalogEntry,
-  } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/node-catalog.ts';
+  import { stepOf } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
+  import { templateFor, type CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';
   import NodePalette from './NodePalette/NodePalette.svelte';
   import StepInspector from './StepInspector/StepInspector.svelte';

@@ -17,7 +17,7 @@
   import { IconButton, getDataTableLayout } from '@scylla/ui';
   import { createCompactContainer } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
   interface Props {
     onRun: (event: MouseEvent) => void;

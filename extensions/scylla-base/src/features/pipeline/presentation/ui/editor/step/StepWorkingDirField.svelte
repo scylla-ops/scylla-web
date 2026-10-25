@@ -2,7 +2,7 @@
   import { Input, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { StepDraft } from './step-draft.state.svelte.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
   interface Props {
     draft: StepDraft;

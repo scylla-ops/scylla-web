@@ -1,7 +1,7 @@
 <script lang="ts">
   import { cn } from '@scylla/ui/utils';
-  import type { CatalogEntry } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/node-catalog.ts';
-  import { KIND_TONES, stepIcon } from '@base/features/pipeline/presentation/ui/editor/step/step-kinds.ts';
+  import type { CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+  import { KIND_TONES, stepIcon } from '@base/features/pipeline/presentation/presenters/step-kind.presenter.ts';
 
   interface Props {
     entry: CatalogEntry;

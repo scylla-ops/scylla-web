@@ -6,8 +6,11 @@ import {
   flowToSteps,
   stepOf,
   START_NODE_ID,
-} from '../blueprint-converter';
-import type { PipelineStepEntity, ExecPipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+} from '../blueprint-flow.mapper.ts';
+import type {
+  PipelineStepEntity,
+  ExecPipelineStepEntity,
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 const execStep = (id: string, deps: string[] = []): ExecPipelineStepEntity => ({
   id,
@@ -32,7 +35,11 @@ describe('sanitizeSteps', () => {
 
   it('remaps a dependency on a duplicated id to the LAST occurrence, not the first', () => {
     // The rename map is keyed by the original id: the last duplicate wins for a downstream dep.
-    const steps: PipelineStepEntity[] = [execStep('build'), execStep('build'), execStep('test', ['build'])];
+    const steps: PipelineStepEntity[] = [
+      execStep('build'),
+      execStep('build'),
+      execStep('test', ['build']),
+    ];
     const result = sanitizeSteps(steps);
     const ids = result.map(s => s.id);
     expect(ids).toEqual(['build', 'build_1', 'test']);

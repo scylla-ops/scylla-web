@@ -3,8 +3,8 @@
   import { cn } from '@scylla/ui/utils';
   import type { Shell } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import type { StepDraft } from './step-draft.state.svelte.ts';
-  import { stepMessages } from './step.messages.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { stepMessages } from '@base/features/pipeline/presentation/messages/step.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import Segmented from '@base/features/pipeline/presentation/ui/editor/controls/Segmented.svelte';
 
   interface Props {

@@ -1,16 +1,35 @@
 import type { LucideIcon } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
 import { cn } from '@scylla/ui/utils';
-import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { stepIdIssue } from '@base/features/pipeline/domain/structs/step-id.struct.ts';
-import { stepIssue } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { envCounts, stepPreview } from '@base/features/pipeline/presentation/ui/editor/step/step-summary.ts';
-import { KIND_TONES, stepIcon } from '@base/features/pipeline/presentation/ui/editor/step/step-kinds.ts';
 import {
-  ISSUE_MESSAGES,
-  stepIdIssueText,
-} from '@base/features/pipeline/presentation/ui/editor/step/step-issue-text.ts';
-import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
+  stepIssue,
+  type PipelineStepEntity,
+  type StepDefinition,
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { stepIdIssue } from '@base/features/pipeline/domain/structs/step-id.struct.ts';
+import { stepMessages } from '../messages/step.messages.ts';
+import { ISSUE_MESSAGES, stepIdIssueText } from './step-issue.presenter.ts';
+import { KIND_TONES, stepIcon } from './step-kind.presenter.ts';
+
+/** A shebang, a comment or a `set -e` says nothing about what the step does. */
+const isNoise = (line: string) => line.startsWith('#') || /^set\s/.test(line);
+
+/** One line that tells what the step runs: the command, or the first meaningful script line. */
+export const stepPreview = (definition: StepDefinition): string => {
+  if (definition.kind === 'exec') return [definition.command, ...definition.args].join(' ').trim();
+
+  return (
+    definition.script
+      .split('\n')
+      .map(line => line.trim())
+      .find(line => line !== '' && !isNoise(line)) ?? ''
+  );
+};
+
+export const envCounts = (definition: StepDefinition) => {
+  const secrets = definition.env.filter(entry => entry.kind === 'secret').length;
+  return { variables: definition.env.length - secrets, secrets };
+};
 
 /** What every node appearance renders: computed once, so the views only lay it out. */
 export interface StepSummary {
@@ -24,19 +43,6 @@ export interface StepSummary {
   variables: number;
   secrets: number;
   workingDir?: string;
-}
-
-export interface StepNodeViewProps {
-  step: PipelineStepEntity;
-  selected: boolean;
-  summary: StepSummary;
-  /** No edge goes into the step: saving links it to the start node. */
-  detached: boolean;
-}
-
-export interface StartNodeViewProps {
-  name: string;
-  selected: boolean;
 }
 
 /** Reads `t()`: called in a `$derived`, it follows a locale switch. */

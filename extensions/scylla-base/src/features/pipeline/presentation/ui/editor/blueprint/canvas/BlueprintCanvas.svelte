@@ -16,20 +16,17 @@
   import type { BlueprintState } from '../blueprint.state.svelte.ts';
   import type { NodeAppearancePreference } from './node-appearance-preference.state.svelte.ts';
   import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
-  import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
-  import {
-    templateFor,
-    type CatalogEntry,
-  } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/node-catalog.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
+  import { templateFor, type CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import { setBlueprintCanvas } from './blueprint-canvas.context.ts';
   import CanvasToolbar from './CanvasToolbar.svelte';
   import DeletableEdge from './DeletableEdge.svelte';
-  import { linkDropPoint } from './drop-spot.calculator.ts';
+  import { linkDropPoint } from '@base/features/pipeline/presentation/presenters/drop-spot.presenter.ts';
   import DropSpot from './DropSpot.svelte';
   import { acceptPaletteDrop } from '../palette-drag/palette-drag.attachments.ts';
   import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';
-  import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.ts';
+  import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.registry.ts';
   import StartNode from './nodes/StartNode.svelte';
   import StepNode from './nodes/StepNode.svelte';
   import QuickAddMenu from '../catalog/QuickAddMenu/QuickAddMenu.svelte';

@@ -15,7 +15,7 @@ import {
 } from '../domain/use-cases/save-pipeline.use-case.ts';
 import type { StepTemplate } from '../domain/structs/step-template.struct.ts';
 import type { PipelineModule } from '../pipeline.module.ts';
-import { pipelineMessages } from './pipeline.messages.ts';
+import { pipelineMessages } from './messages/pipeline.messages.ts';
 import {
   CREATE_PIPELINE_MUTATION_KEY,
   ORGANIZATION_PIPELINES_QUERY_KEY,

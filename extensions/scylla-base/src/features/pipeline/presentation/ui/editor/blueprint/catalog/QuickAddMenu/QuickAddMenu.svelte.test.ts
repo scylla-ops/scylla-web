@@ -6,7 +6,7 @@ import {
   createQuickAdd,
   type QuickAdd,
 } from './quick-add.state.svelte.ts';
-import { BLANK_STEPS, catalogText } from '../catalog.ts';
+import { BLANK_STEPS, catalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
 import QuickAddMenu from './QuickAddMenu.svelte';
 
 let cleanup: (() => void) | undefined;

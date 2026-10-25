@@ -1,5 +1,5 @@
 import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { nameOf, parseScript, stepsOf, withName, withSteps } from './pipeline-document.ts';
+import { nameOf, parseScript, stepsOf, withName, withSteps } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
 
 export interface PipelineDocumentParams {
   projectId: () => string;

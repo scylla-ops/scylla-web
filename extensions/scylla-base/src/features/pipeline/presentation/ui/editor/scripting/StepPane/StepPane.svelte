@@ -4,7 +4,7 @@
   import { cn } from '@scylla/ui/utils';
   import type { StepPane } from '../step-panes.state.svelte.ts';
   import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
-  import { scriptingMessages } from '../scripting.messages.ts';
+  import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
   import StepEditor from './StepEditor.svelte';
   import StepTabs from './StepTabs.svelte';
 

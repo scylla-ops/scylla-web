@@ -1,5 +1,9 @@
 import type { MessageDescriptor } from '@lingui/core';
+import { t } from '@scylla/ui/i18n';
+import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
 import type { StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { blueprintMessages } from '../messages/blueprint.messages.ts';
+import { stepPreview } from './step-summary.presenter.ts';
 
 /** Text written by the app is a descriptor; text from a template is shown as is. */
 export type CatalogText = string | MessageDescriptor;
@@ -55,3 +59,54 @@ export const templateFor = (
   const code = codeOf(definition);
   return entries.find(entry => entry.group === 'templates' && codeOf(entry.definition) === code);
 };
+
+export const BLANK_STEPS: readonly CatalogEntry[] = [
+  {
+    id: 'kind:bash',
+    group: 'steps',
+    name: blueprintMessages.bashScript,
+    detail: blueprintMessages.bashScriptDetail,
+    nodeId: 'script',
+    definition: { kind: 'script', shell: 'bash', script: '', env: [] },
+  },
+  {
+    id: 'kind:sh',
+    group: 'steps',
+    name: blueprintMessages.shScript,
+    detail: blueprintMessages.shScriptDetail,
+    nodeId: 'script',
+    definition: { kind: 'script', shell: 'sh', script: '', env: [] },
+  },
+  {
+    id: 'kind:exec',
+    group: 'steps',
+    name: blueprintMessages.command,
+    detail: blueprintMessages.commandDetail,
+    nodeId: 'command',
+    definition: { kind: 'exec', command: '', args: [], env: [] },
+  },
+];
+
+export const catalogEntries = (templates: readonly StepTemplate[]): CatalogEntry[] => [
+  ...BLANK_STEPS,
+  ...templates.map(
+    (template): CatalogEntry => ({
+      id: `template:${template.id}`,
+      group: 'templates',
+      name: template.name,
+      detail: stepPreview(template.definition),
+      icon: template.icon,
+      nodeId: template.nodeId,
+      definition: template.definition,
+    }),
+  ),
+];
+
+/** Reactive to a locale switch, like `t()`. */
+export const catalogText = (text: CatalogText): string =>
+  typeof text === 'string' ? text : t(text);
+
+export const CATALOG_GROUP_TITLES = {
+  steps: blueprintMessages.steps,
+  templates: blueprintMessages.templates,
+} as const;

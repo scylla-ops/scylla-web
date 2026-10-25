@@ -6,13 +6,13 @@
   import { cn } from '@scylla/ui/utils';
   import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
   import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
-  import { scriptingMessages } from '../scripting.messages.ts';
-  import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
-  import { ISSUE_MESSAGES } from '@base/features/pipeline/presentation/ui/editor/step/step-issue-text.ts';
+  import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
+  import { stepMessages } from '@base/features/pipeline/presentation/messages/step.messages.ts';
+  import { ISSUE_MESSAGES } from '@base/features/pipeline/presentation/presenters/step-issue.presenter.ts';
   import {
     KIND_TONES,
     stepIcon,
-  } from '@base/features/pipeline/presentation/ui/editor/step/step-kinds.ts';
+  } from '@base/features/pipeline/presentation/presenters/step-kind.presenter.ts';
   import StepEnvFields from '@base/features/pipeline/presentation/ui/editor/step/StepEnvFields.svelte';
   import StepIdField from '@base/features/pipeline/presentation/ui/editor/step/StepIdField.svelte';
   import StepKindPicker from '@base/features/pipeline/presentation/ui/editor/step/StepKindPicker.svelte';

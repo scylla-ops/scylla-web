@@ -7,9 +7,9 @@
   import { t } from '@scylla/ui/i18n';
   import type { PipelineDocument } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
   import { createCodeEditor } from '@base/features/pipeline/presentation/ui/editor/controls/code-editor.effect.svelte.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
-  import { copyToClipboard } from './copy-to-clipboard.ts';
-  import { scriptingMessages } from './scripting.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import { copyToClipboard } from '@scylla/ui/utils';
+  import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
 
   interface Props {
     doc: PipelineDocument;

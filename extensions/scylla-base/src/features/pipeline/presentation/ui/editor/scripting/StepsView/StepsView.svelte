@@ -3,7 +3,7 @@
   import { cn } from '@scylla/ui/utils';
   import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '@scylla/ui/primitives';
   import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
-  import { scriptingMessages } from '../scripting.messages.ts';
+  import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
   import StepList from '../StepList/StepList.svelte';
   import StepPane from '../StepPane/StepPane.svelte';
   import StepProperties from '../StepProperties/StepProperties.svelte';

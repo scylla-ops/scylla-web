@@ -9,10 +9,10 @@
     type EdgeProps,
   } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
-  import { EDGE_COLOR } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import { EDGE_COLOR } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
   import { getBlueprintCanvas } from './blueprint-canvas.context.ts';
-  import { blueprintMessages } from '../blueprint.messages.ts';
+  import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
 
   let {
     id,

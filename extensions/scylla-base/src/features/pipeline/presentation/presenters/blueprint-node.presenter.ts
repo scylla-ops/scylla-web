@@ -1,5 +1,5 @@
 import type { XYPosition } from '@xyflow/svelte';
-import { NODE_WIDTH } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
+import { NODE_WIDTH } from './blueprint-layout.presenter.ts';
 
 /** A card as wide as the layout cell; the start node is narrower. `height`: with one preview line. */
 export const DETAILED_NODE = { width: NODE_WIDTH, startWidth: 180, height: 86 } as const;

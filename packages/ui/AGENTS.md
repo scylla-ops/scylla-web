@@ -23,7 +23,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 | `@scylla/ui/state` | rune helpers: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
 | `@scylla/ui/i18n` | `t`, `activeLocale`, `setAppLocale`, `registerCatalogs` |
-| `@scylla/ui/utils` | `cn`, `toast` |
+| `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result) |
 | `@scylla/ui/structs` | `PaginationParams`, `PaginationInfo`, `PaginatedList` — plain shapes, the only part a `domain/` may import |
 | `@scylla/ui/styles.css` | Tailwind, the theme tokens, the `@source` of every package — imported once, by `apps/web` |
 | `@scylla/ui/assets/*` | the logos |

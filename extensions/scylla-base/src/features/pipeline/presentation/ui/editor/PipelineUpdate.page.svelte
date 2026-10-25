@@ -7,7 +7,7 @@
     pipelineQueries,
   } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import PipelineEditor from './PipelineEditor.svelte';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
   interface Props {
     pipelineId?: string;

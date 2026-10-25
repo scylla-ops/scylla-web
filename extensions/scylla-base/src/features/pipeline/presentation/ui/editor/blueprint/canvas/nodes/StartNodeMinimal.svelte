@@ -2,10 +2,10 @@
   import { Handle, Position } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
-  import { START_ICON } from '@base/features/pipeline/presentation/ui/editor/step/step-kinds.ts';
-  import { MINIMAL_NODE, minimalHandleStyle } from './node-geometry.ts';
-  import type { StartNodeViewProps } from './node-view.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import { START_ICON } from '@base/features/pipeline/presentation/presenters/step-kind.presenter.ts';
+  import { MINIMAL_NODE, minimalHandleStyle } from '@base/features/pipeline/presentation/presenters/blueprint-node.presenter.ts';
+  import type { StartNodeViewProps } from './node-appearances.registry.ts';
 
   let { name, selected }: StartNodeViewProps = $props();
 </script>

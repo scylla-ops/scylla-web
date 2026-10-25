@@ -12,7 +12,7 @@
   import PipelineActions from './PipelineActions.svelte';
   import PipelineLastJob from './PipelineLastJob.svelte';
   import PipelineStatus from './PipelineStatus.svelte';
-  import { pipelineColumns } from './pipeline-columns.ts';
+  import { pipelineColumns } from './pipeline-table.columns.ts';
 
   interface Props {
     pipelines: PipelineMetadata[];
