@@ -1,14 +1,14 @@
 import type { XYPosition } from '@xyflow/svelte';
-import type { StepLink } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.state.svelte.ts';
+import type { NodeLink } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.state.svelte.ts';
 import { groupCatalog, searchCatalog, type CatalogEntry, type CatalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
 
-/** Where the menu opened, and where the step it picks goes. */
+/** Where the menu opened, and where the node it picks goes. */
 export interface QuickAddRequest {
   /** In the window: places the menu. */
   client: XYPosition;
-  /** On the canvas: places the new step. */
+  /** On the canvas: places the new node. */
   flow: XYPosition;
-  link: StepLink;
+  link: NodeLink;
 }
 
 export interface QuickAddParams {
@@ -31,7 +31,7 @@ export const menuPosition = (
   y: Math.max(MARGIN, Math.min(client.y - LIFT, viewport.height - MENU_SIZE.height - MARGIN)),
 });
 
-/** The menu that picks a step where a link was dropped, driven from the keyboard or the mouse. */
+/** The menu that picks a node where a link was dropped, driven from the keyboard or the mouse. */
 export const createQuickAdd = (params: QuickAddParams) => {
   let request = $state<QuickAddRequest | null>(null);
   let query = $state('');

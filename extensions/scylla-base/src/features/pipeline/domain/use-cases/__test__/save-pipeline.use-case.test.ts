@@ -3,9 +3,9 @@ import { describe, it, expect, vi } from 'vitest';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { InvalidPipelineError, SavePipelineUseCase } from '../save-pipeline.use-case.ts';
 import type { PipelineRepository } from '../../repository/pipeline.repository.ts';
-import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 
-const step = (id: string): PipelineStepEntity => ({
+const node = (id: string): PipelineNodeEntity => ({
   id,
   deps: [],
   env: [],
@@ -19,7 +19,7 @@ const repositoryWith = () => {
   const edit = vi
     .fn()
     .mockResolvedValue(
-      ScyllaResult.success({ id: 'p1', projectId: 'proj', name: 'nightly', steps: [] }),
+      ScyllaResult.success({ id: 'p1', projectId: 'proj', name: 'nightly', nodes: [] }),
     );
   return { create, edit, repository: { create, edit } as unknown as PipelineRepository };
 };
@@ -37,13 +37,13 @@ describe('SavePipelineUseCase', () => {
     const result = await new SavePipelineUseCase(repository).execute({
       projectId: 'proj',
       name: 'nightly',
-      steps: [step('build')],
+      nodes: [node('build')],
     });
 
     expect(create).toHaveBeenCalledWith({
       projectId: 'proj',
       name: 'nightly',
-      steps: [step('build')],
+      nodes: [node('build')],
     });
     expect(edit).not.toHaveBeenCalled();
     expect(issueOf(result)).toBeNull();
@@ -56,27 +56,27 @@ describe('SavePipelineUseCase', () => {
       id: 'p1',
       projectId: 'proj',
       name: 'nightly',
-      steps: [step('build')],
+      nodes: [node('build')],
     });
 
-    expect(edit).toHaveBeenCalledWith('p1', [step('build')], 'nightly');
+    expect(edit).toHaveBeenCalledWith('p1', [node('build')], 'nightly');
     expect(create).not.toHaveBeenCalled();
     expect(issueOf(result)).toBeNull();
   });
 
-  it('sends nothing for a step id the server refuses, and names every refused id', async () => {
+  it('sends nothing for a node id the server refuses, and names every refused id', async () => {
     const { create, edit, repository } = repositoryWith();
 
     const result = await new SavePipelineUseCase(repository).execute({
       id: 'p1',
       projectId: 'proj',
       name: 'nightly',
-      steps: [step('Build'), step('test'), step('déployer')],
+      nodes: [node('Build'), node('test'), node('déployer')],
     });
 
     expect(create).not.toHaveBeenCalled();
     expect(edit).not.toHaveBeenCalled();
-    expect(issueOf(result)).toEqual({ kind: 'step-ids', ids: ['Build', 'déployer'] });
+    expect(issueOf(result)).toEqual({ kind: 'node-ids', ids: ['Build', 'déployer'] });
   });
 
   it('sends nothing for a name of more than one word', async () => {
@@ -85,7 +85,7 @@ describe('SavePipelineUseCase', () => {
     const result = await new SavePipelineUseCase(repository).execute({
       projectId: 'proj',
       name: 'my pipeline',
-      steps: [step('build')],
+      nodes: [node('build')],
     });
 
     expect(create).not.toHaveBeenCalled();
@@ -100,7 +100,7 @@ describe('SavePipelineUseCase', () => {
     const result = await new SavePipelineUseCase(repository).execute({
       projectId: 'proj',
       name: 'nightly',
-      steps: [step('build')],
+      nodes: [node('build')],
     });
 
     expect(issueOf(result)).toBe(refused);

@@ -4,12 +4,12 @@ import type { PipelineEntity } from '@base/features/pipeline/domain/entities/pip
 import {
   nameOf,
   parseScript,
-  stepsOf,
+  nodesOf,
   withName,
-  withSteps,
+  withNodes,
   toDocument,
 } from '../pipeline-document.mapper.ts';
-import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 
 const documentOf = (value: unknown) => parseScript(JSON.stringify(value)).document;
 
@@ -40,15 +40,15 @@ describe('nameOf', () => {
   });
 });
 
-describe('stepsOf', () => {
-  it('reads a fully specified step', () => {
-    const steps = stepsOf(
+describe('nodesOf', () => {
+  it('reads a fully specified node', () => {
+    const nodes = nodesOf(
       documentOf({
         nodes: [{ id: 'build', deps: [], kind: 'exec', command: 'make', args: ['build'] }],
       }),
     );
 
-    expect(steps).toEqual([
+    expect(nodes).toEqual([
       {
         id: 'build',
         deps: [],
@@ -63,35 +63,35 @@ describe('stepsOf', () => {
 
   describe('node kind inference (no explicit "kind")', () => {
     it('a node with a "command" field is treated as exec', () => {
-      const [step] = stepsOf(documentOf({ nodes: [{ id: 'a', command: 'echo hi' }] }));
-      expect(step).toMatchObject({ kind: 'exec', command: 'echo hi' });
+      const [node] = nodesOf(documentOf({ nodes: [{ id: 'a', command: 'echo hi' }] }));
+      expect(node).toMatchObject({ kind: 'exec', command: 'echo hi' });
     });
 
     it('a node with a "script" field is treated as script', () => {
-      const [step] = stepsOf(documentOf({ nodes: [{ id: 'a', script: 'echo hi' }] }));
-      expect(step).toMatchObject({ kind: 'script', script: 'echo hi', shell: 'sh' });
+      const [node] = nodesOf(documentOf({ nodes: [{ id: 'a', script: 'echo hi' }] }));
+      expect(node).toMatchObject({ kind: 'script', script: 'echo hi', shell: 'sh' });
     });
 
     it('a node with neither field defaults to an empty exec command', () => {
-      const [step] = stepsOf(documentOf({ nodes: [{ id: 'a' }] }));
-      expect(step).toMatchObject({ kind: 'exec', command: '', args: [] });
+      const [node] = nodesOf(documentOf({ nodes: [{ id: 'a' }] }));
+      expect(node).toMatchObject({ kind: 'exec', command: '', args: [] });
     });
 
     it('an explicit shell other than "bash" falls back to "sh"', () => {
-      const [step] = stepsOf(
+      const [node] = nodesOf(
         documentOf({ nodes: [{ id: 'a', kind: 'script', script: 's', shell: 'zsh' }] }),
       );
-      expect(step).toMatchObject({ shell: 'sh' });
+      expect(node).toMatchObject({ shell: 'sh' });
     });
   });
 
   describe('ids and dependencies that are not strings', () => {
-    it('reads a non-string id as empty, so that the step is refused instead of crashing', () => {
-      expect(stepsOf(documentOf({ nodes: [{ id: 7, deps: [] }] }))[0].id).toBe('');
+    it('reads a non-string id as empty, so that the node is refused instead of crashing', () => {
+      expect(nodesOf(documentOf({ nodes: [{ id: 7, deps: [] }] }))[0].id).toBe('');
     });
 
     it('keeps only the string dependencies, and none for a non-array', () => {
-      const [step, other] = stepsOf(
+      const [node, other] = nodesOf(
         documentOf({
           nodes: [
             { id: 'a', deps: ['x', 1, null] },
@@ -100,40 +100,40 @@ describe('stepsOf', () => {
         }),
       );
 
-      expect(step.deps).toEqual(['x']);
+      expect(node.deps).toEqual(['x']);
       expect(other.deps).toEqual([]);
     });
   });
 
   describe('env parsing', () => {
     it('tolerates a literal entry missing its value', () => {
-      const [step] = stepsOf(
+      const [node] = nodesOf(
         documentOf({ nodes: [{ id: 'a', command: 'x', env: [{ key: 'K' }] }] }),
       );
-      expect(step.env).toEqual([{ key: 'K', kind: 'literal', value: '' }]);
+      expect(node.env).toEqual([{ key: 'K', kind: 'literal', value: '' }]);
     });
 
     it('tolerates a secret entry missing its secretRef', () => {
-      const [step] = stepsOf(
+      const [node] = nodesOf(
         documentOf({ nodes: [{ id: 'a', command: 'x', env: [{ key: 'K', kind: 'secret' }] }] }),
       );
-      expect(step.env).toEqual([{ key: 'K', kind: 'secret', secretRef: '' }]);
+      expect(node.env).toEqual([{ key: 'K', kind: 'secret', secretRef: '' }]);
     });
 
     it('a non-array env is treated as empty rather than throwing', () => {
-      const [step] = stepsOf(documentOf({ nodes: [{ id: 'a', command: 'x', env: 'nope' }] }));
-      expect(step.env).toEqual([]);
+      const [node] = nodesOf(documentOf({ nodes: [{ id: 'a', command: 'x', env: 'nope' }] }));
+      expect(node.env).toEqual([]);
     });
   });
 });
 
-describe('withSteps', () => {
+describe('withNodes', () => {
   it('seeds a fresh {name, projectId} document when nothing was parsed yet', () => {
-    const steps: PipelineStepEntity[] = [
+    const nodes: PipelineNodeEntity[] = [
       { id: 'build', deps: [], env: [], kind: 'exec', command: 'make', args: [] },
     ];
 
-    expect(JSON.parse(withSteps(null, steps, 'project-1'))).toEqual({
+    expect(JSON.parse(withNodes(null, nodes, 'project-1'))).toEqual({
       name: 'my-pipeline',
       projectId: 'project-1',
       nodes: [
@@ -143,20 +143,20 @@ describe('withSteps', () => {
   });
 
   it('preserves the rest of an already-parsed document — its name above all', () => {
-    const steps: PipelineStepEntity[] = [
+    const nodes: PipelineNodeEntity[] = [
       { id: 's', deps: [], env: [], kind: 'script', script: 'echo hi', shell: 'bash' },
     ];
 
-    const parsed = JSON.parse(withSteps({ name: 'my-ci' }, steps, 'project-1')) as { name: string };
+    const parsed = JSON.parse(withNodes({ name: 'my-ci' }, nodes, 'project-1')) as { name: string };
     expect(parsed.name).toBe('my-ci');
   });
 
-  it('round-trips a step unchanged: the empty workingDir it writes reads back as none', () => {
-    const steps: PipelineStepEntity[] = [
+  it('round-trips a node unchanged: the empty workingDir it writes reads back as none', () => {
+    const nodes: PipelineNodeEntity[] = [
       { id: 's', deps: [], env: [], kind: 'script', script: 'echo hi', shell: 'bash' },
     ];
 
-    expect(stepsOf(parseScript(withSteps(null, steps, 'p')).document)).toEqual(steps);
+    expect(nodesOf(parseScript(withNodes(null, nodes, 'p')).document)).toEqual(nodes);
   });
 });
 
@@ -175,11 +175,11 @@ describe('withName', () => {
 });
 
 describe('toDocument', () => {
-  const pipeline: Pick<PipelineEntity, 'name' | 'projectId' | 'steps'> & { id: string } = {
+  const pipeline: Pick<PipelineEntity, 'name' | 'projectId' | 'nodes'> & { id: string } = {
     id: 'pipeline-1',
     name: 'nightly',
     projectId: 'p',
-    steps: [
+    nodes: [
       { id: 'build', deps: [], env: [], kind: 'exec', command: 'make', args: [] },
       { id: 'test', deps: ['build'], env: [], kind: 'script', shell: 'sh', script: 'make test' },
     ],
@@ -193,8 +193,8 @@ describe('toDocument', () => {
     ]);
   });
 
-  it('reads back the same steps', () => {
+  it('reads back the same nodes', () => {
     const { document } = parseScript(toDocument(pipeline));
-    expect(stepsOf(document)).toEqual(pipeline.steps);
+    expect(nodesOf(document)).toEqual(pipeline.nodes);
   });
 });

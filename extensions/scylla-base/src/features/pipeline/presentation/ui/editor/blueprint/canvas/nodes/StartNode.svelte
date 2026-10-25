@@ -13,5 +13,5 @@
   const name = $derived(data.name || t(pipelineMessages.unnamedPipeline));
 </script>
 
-<!-- The pipeline itself: every step without a dependency hangs off it. Not deletable. -->
+<!-- The pipeline itself: every node without a dependency hangs off it. Not deletable. -->
 <View {name} selected={selected ?? false} />

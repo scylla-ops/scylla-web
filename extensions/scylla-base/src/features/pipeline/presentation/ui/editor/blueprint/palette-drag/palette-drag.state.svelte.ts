@@ -4,7 +4,7 @@ import type { CatalogEntry } from '@base/features/pipeline/presentation/presente
 /** The canvas, as a palette drag sees it. Points are screen points. */
 export interface DropTarget {
   contains: (client: XYPosition) => boolean;
-  /** The position a step dropped at this point takes in the graph. */
+  /** The position a node dropped at this point takes in the graph. */
   positionAt: (client: XYPosition) => XYPosition;
   drop: (entry: CatalogEntry, position: XYPosition) => void;
 }

@@ -13,18 +13,18 @@ import {
   MINIMAL_FOOTPRINT,
   type NodeFootprint,
 } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
-import type { StepSummary } from '@base/features/pipeline/presentation/presenters/step-summary.presenter.ts';
-import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import type { NodeSummary } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
+import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import StartNodeDetailed from './StartNodeDetailed.svelte';
 import StartNodeMinimal from './StartNodeMinimal.svelte';
 import PipelineNodeDetailed from './PipelineNodeDetailed.svelte';
 import PipelineNodeMinimal from './PipelineNodeMinimal.svelte';
 
 export interface PipelineNodeViewProps {
-  step: PipelineStepEntity;
+  node: PipelineNodeEntity;
   selected: boolean;
-  summary: StepSummary;
-  /** No edge goes into the step: saving links it to the start node. */
+  summary: NodeSummary;
+  /** No edge goes into the node: saving links it to the start node. */
   detached: boolean;
 }
 
@@ -34,7 +34,7 @@ export interface StartNodeViewProps {
 }
 
 interface NodeAppearanceView {
-  step: Component<PipelineNodeViewProps>;
+  node: Component<PipelineNodeViewProps>;
   start: Component<StartNodeViewProps>;
   /** The point of a new node that lands where it is dropped or picked. */
   anchor: XYPosition;
@@ -46,7 +46,7 @@ interface NodeAppearanceView {
 /** One entry per style: its views, and how the style switch shows it. */
 export const NODE_APPEARANCE_VIEWS: Record<NodeAppearance, NodeAppearanceView> = {
   detailed: {
-    step: PipelineNodeDetailed,
+    node: PipelineNodeDetailed,
     start: StartNodeDetailed,
     anchor: DETAILED_ANCHOR,
     footprint: DETAILED_FOOTPRINT,
@@ -54,7 +54,7 @@ export const NODE_APPEARANCE_VIEWS: Record<NodeAppearance, NodeAppearanceView> =
     icon: LayoutListIcon,
   },
   minimal: {
-    step: PipelineNodeMinimal,
+    node: PipelineNodeMinimal,
     start: StartNodeMinimal,
     anchor: MINIMAL_ANCHOR,
     footprint: MINIMAL_FOOTPRINT,

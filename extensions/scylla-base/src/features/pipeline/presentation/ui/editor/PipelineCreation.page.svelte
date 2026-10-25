@@ -27,7 +27,7 @@
       submitLabel={t(pipelineMessages.create)}
       {projectId}
       {initialScript}
-      onSubmit={({ name, steps }) => createPipeline.mutate({ projectId, name, steps })}
+      onSubmit={({ name, nodes }) => createPipeline.mutate({ projectId, name, nodes })}
       isSubmitPending={createPipeline.isPending}
     />
   </div>

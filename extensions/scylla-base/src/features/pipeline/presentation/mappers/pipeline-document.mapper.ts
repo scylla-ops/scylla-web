@@ -1,5 +1,5 @@
-import type { EnvEntry, Shell } from '@base/features/pipeline/domain/structs/step.struct.ts';
-import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import type { EnvEntry, Shell } from '@base/features/pipeline/domain/structs/node.struct.ts';
+import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import {
   DEFAULT_PIPELINE_NAME,
   type PipelineEntity,
@@ -50,11 +50,11 @@ const serializeEnv = (env: EnvEntry[]): Record<string, unknown>[] =>
       : { key: entry.key, kind: 'literal', value: entry.value },
   );
 
-const parseNode = (node: Record<string, unknown>): PipelineStepEntity => {
+const parseNode = (node: Record<string, unknown>): PipelineNodeEntity => {
   const base = {
     id: typeof node.id === 'string' ? node.id : '',
     deps: Array.isArray(node.deps) ? node.deps.filter(dep => typeof dep === 'string') : [],
-    // Serializing writes `''` for no directory: it reads back as none, so a step round-trips.
+    // Serializing writes `''` for no directory: it reads back as none, so a node round-trips.
     workingDir:
       typeof node.workingDir === 'string' && node.workingDir ? node.workingDir : undefined,
     env: parseEnv(node.env),
@@ -88,21 +88,21 @@ const parseNode = (node: Record<string, unknown>): PipelineStepEntity => {
   };
 };
 
-const serializeNode = (step: PipelineStepEntity): Record<string, unknown> => {
+const serializeNode = (node: PipelineNodeEntity): Record<string, unknown> => {
   const base = {
-    id: step.id,
-    deps: step.deps,
-    workingDir: step.workingDir ?? '',
-    env: serializeEnv(step.env),
+    id: node.id,
+    deps: node.deps,
+    workingDir: node.workingDir ?? '',
+    env: serializeEnv(node.env),
   };
 
-  if (step.kind === 'script') {
-    return { ...base, kind: 'script', shell: step.shell, script: step.script };
+  if (node.kind === 'script') {
+    return { ...base, kind: 'script', shell: node.shell, script: node.script };
   }
-  return { ...base, kind: 'exec', command: step.command, args: step.args };
+  return { ...base, kind: 'exec', command: node.command, args: node.args };
 };
 
-export const stepsOf = (document: Record<string, unknown> | null): PipelineStepEntity[] =>
+export const nodesOf = (document: Record<string, unknown> | null): PipelineNodeEntity[] =>
   ((document?.nodes ?? []) as Record<string, unknown>[]).map(parseNode);
 
 export const nameOf = (document: Record<string, unknown> | null): string =>
@@ -112,19 +112,19 @@ export const nameOf = (document: Record<string, unknown> | null): string =>
 export const toDocument = ({
   name,
   projectId,
-  steps,
-}: Pick<PipelineEntity, 'name' | 'projectId' | 'steps'>): string =>
-  JSON.stringify({ name, projectId, nodes: steps.map(serializeNode) }, null, 2);
+  nodes,
+}: Pick<PipelineEntity, 'name' | 'projectId' | 'nodes'>): string =>
+  JSON.stringify({ name, projectId, nodes: nodes.map(serializeNode) }, null, 2);
 
-/** Replaces the steps and keeps the rest (the name). Seeds a minimal document when there is none. */
-export const withSteps = (
+/** Replaces the nodes and keeps the rest (the name). Seeds a minimal document when there is none. */
+export const withNodes = (
   document: Record<string, unknown> | null,
-  steps: PipelineStepEntity[],
+  nodes: PipelineNodeEntity[],
   projectId: string,
 ): string =>
   document
-    ? JSON.stringify({ ...document, nodes: steps.map(serializeNode) }, null, 2)
-    : toDocument({ name: DEFAULT_PIPELINE_NAME, projectId, steps });
+    ? JSON.stringify({ ...document, nodes: nodes.map(serializeNode) }, null, 2)
+    : toDocument({ name: DEFAULT_PIPELINE_NAME, projectId, nodes });
 
 export const withName = (document: Record<string, unknown> | null, name: string): string | null =>
   document ? JSON.stringify({ ...document, name }, null, 2) : null;

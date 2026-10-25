@@ -1,30 +1,30 @@
 import type { PipelineIdentity } from '../structs/pipeline.struct.ts';
 import { pipelineNameIssue, type PipelineNameIssue } from '../structs/pipeline-name.struct.ts';
-import { stepIdIssue, type StepId } from '../structs/step-id.struct.ts';
+import { nodeIdIssue, type NodeId } from '../structs/node-id.struct.ts';
 import {
   withDefinition,
   withDependencies,
   withoutDependency,
   withRenamedReference,
-  type PipelineStepEntity,
-  type StepDefinition,
-} from './pipeline-step.entity.ts';
+  type PipelineNodeEntity,
+  type NodeDefinition,
+} from './pipeline-node.entity.ts';
 
 /**
- * The root of its steps: each step waits for the steps of its `deps`, and the operations below
+ * The root of its nodes: each node waits for the nodes of its `deps`, and the operations below
  * keep that graph whole. A rename or a removal follows into the dependencies of the others.
  */
 export interface PipelineEntity extends PipelineIdentity {
-  steps: PipelineStepEntity[];
+  nodes: PipelineNodeEntity[];
 }
 
 export const DEFAULT_PIPELINE_NAME = 'my-pipeline';
 
-/** What a new pipeline starts from: two steps, the second waiting for the first. No id before it is saved. */
+/** What a new pipeline starts from: two nodes, the second waiting for the first. No id before it is saved. */
 export const newPipeline = (projectId: string): Omit<PipelineEntity, 'id'> => ({
   projectId,
   name: DEFAULT_PIPELINE_NAME,
-  steps: [
+  nodes: [
     {
       id: 'welcome',
       deps: [],
@@ -44,42 +44,42 @@ export const newPipeline = (projectId: string): Omit<PipelineEntity, 'id'> => ({
   ],
 });
 
-/** The steps of a pipeline: what the operations on its graph take and give back. */
-export type PipelineSteps = PipelineEntity['steps'];
+/** The nodes of a pipeline: what the operations on its graph take and give back. */
+export type PipelineNodes = PipelineEntity['nodes'];
 
-/** The steps after an operation, and the id the step really got. */
-export interface StepsChange {
-  steps: PipelineSteps;
-  id: StepId;
+/** The nodes after an operation, and the id the node really got. */
+export interface NodesChange {
+  nodes: PipelineNodes;
+  id: NodeId;
 }
 
 /** What stops a pipeline from being saved. */
 export type PipelineIssue =
   | { kind: 'name'; issue: PipelineNameIssue }
-  | { kind: 'repeated-ids'; ids: StepId[] }
-  | { kind: 'step-ids'; ids: StepId[] };
+  | { kind: 'repeated-ids'; ids: NodeId[] }
+  | { kind: 'node-ids'; ids: NodeId[] };
 
-/** The first reason the pipeline cannot be saved, or `null`. The server refuses the whole pipeline for one step id. */
+/** The first reason the pipeline cannot be saved, or `null`. The server refuses the whole pipeline for one node id. */
 export const pipelineIssue = ({
   name,
-  steps,
-}: Pick<PipelineEntity, 'name' | 'steps'>): PipelineIssue | null => {
+  nodes,
+}: Pick<PipelineEntity, 'name' | 'nodes'>): PipelineIssue | null => {
   const nameIssue = pipelineNameIssue(name);
   if (nameIssue) return { kind: 'name', issue: nameIssue };
 
-  const repeated = repeatedStepIds(steps);
+  const repeated = repeatedNodeIds(nodes);
   if (repeated.length) return { kind: 'repeated-ids', ids: repeated };
 
-  const ids = steps.filter(step => stepIdIssue(step.id)).map(step => step.id);
-  return ids.length ? { kind: 'step-ids', ids } : null;
+  const ids = nodes.filter(node => nodeIdIssue(node.id)).map(node => node.id);
+  return ids.length ? { kind: 'node-ids', ids } : null;
 };
 
-/** `excludeId` is the step's own id when it is renamed. */
-export function uniqueStepId(
+/** `excludeId` is the node's own id when it is renamed. */
+export function uniqueNodeId(
   desired: string,
-  existingIds: Set<StepId>,
-  excludeId?: StepId,
-): StepId {
+  existingIds: Set<NodeId>,
+  excludeId?: NodeId,
+): NodeId {
   const ids = new Set(existingIds);
   if (excludeId) ids.delete(excludeId);
   if (!ids.has(desired)) return desired;
@@ -88,100 +88,100 @@ export function uniqueStepId(
   return `${desired}_${i}`;
 }
 
-const idsOf = (steps: PipelineSteps) => new Set(steps.map(step => step.id));
+const idsOf = (nodes: PipelineNodes) => new Set(nodes.map(node => node.id));
 
-/** The ids that two steps or more share. Each step must have its own: the others wait for it by id. */
-export const repeatedStepIds = (steps: PipelineSteps): StepId[] => {
-  const seen = new Set<StepId>();
-  const repeated = new Set<StepId>();
-  for (const { id } of steps) (seen.has(id) ? repeated : seen).add(id);
+/** The ids that two nodes or more share. Each node must have its own: the others wait for it by id. */
+export const repeatedNodeIds = (nodes: PipelineNodes): NodeId[] => {
+  const seen = new Set<NodeId>();
+  const repeated = new Set<NodeId>();
+  for (const { id } of nodes) (seen.has(id) ? repeated : seen).add(id);
   return [...repeated];
 };
 
-/** A repeated id or a repeated dependency: the steps cannot be keyed by id. */
-export const hasRepeats = (steps: PipelineSteps): boolean =>
-  idsOf(steps).size < steps.length ||
-  steps.some(step => new Set(step.deps).size < step.deps.length);
+/** A repeated id or a repeated dependency: the nodes cannot be keyed by id. */
+export const hasRepeats = (nodes: PipelineNodes): boolean =>
+  idsOf(nodes).size < nodes.length ||
+  nodes.some(node => new Set(node.deps).size < node.deps.length);
 
-/** Adds a step at the end. A taken id gets a suffix; `after` is the step it waits for. */
-export const addStep = (
-  steps: PipelineSteps,
+/** Adds a node at the end. A taken id gets a suffix; `after` is the node it waits for. */
+export const addNode = (
+  nodes: PipelineNodes,
   desiredId: string,
-  definition: StepDefinition,
-  after?: StepId,
-): StepsChange => {
-  const id = uniqueStepId(desiredId.trim() || 'step', idsOf(steps));
-  const deps = after && steps.some(step => step.id === after) ? [after] : [];
-  return { steps: [...steps, { id, deps, ...definition }], id };
+  definition: NodeDefinition,
+  after?: NodeId,
+): NodesChange => {
+  const id = uniqueNodeId(desiredId.trim() || 'node', idsOf(nodes));
+  const deps = after && nodes.some(node => node.id === after) ? [after] : [];
+  return { nodes: [...nodes, { id, deps, ...definition }], id };
 };
 
-export const updateStep = (
-  steps: PipelineSteps,
-  id: StepId,
-  definition: StepDefinition,
-): PipelineSteps => steps.map(step => (step.id === id ? withDefinition(step, definition) : step));
+export const updateNode = (
+  nodes: PipelineNodes,
+  id: NodeId,
+  definition: NodeDefinition,
+): PipelineNodes => nodes.map(node => (node.id === id ? withDefinition(node, definition) : node));
 
 /**
- * Renames a step, and the dependencies on it. An empty id keeps the old one, a taken id gets a
- * suffix: the step stays usable.
+ * Renames a node, and the dependencies on it. An empty id keeps the old one, a taken id gets a
+ * suffix: the node stays usable.
  */
-export const renameStep = (steps: PipelineSteps, id: StepId, desired: string): StepsChange => {
+export const renameNode = (nodes: PipelineNodes, id: NodeId, desired: string): NodesChange => {
   const trimmed = desired.trim();
-  if (!trimmed || trimmed === id || !steps.some(step => step.id === id)) return { steps, id };
+  if (!trimmed || trimmed === id || !nodes.some(node => node.id === id)) return { nodes, id };
 
-  const next = uniqueStepId(trimmed, idsOf(steps), id);
-  return { steps: steps.map(step => withRenamedReference(step, id, next)), id: next };
+  const next = uniqueNodeId(trimmed, idsOf(nodes), id);
+  return { nodes: nodes.map(node => withRenamedReference(node, id, next)), id: next };
 };
 
-/** Removes a step, and the dependencies on it. */
-export const removeStep = (steps: PipelineSteps, id: StepId): PipelineSteps =>
-  steps.filter(step => step.id !== id).map(step => withoutDependency(step, id));
+/** Removes a node, and the dependencies on it. */
+export const removeNode = (nodes: PipelineNodes, id: NodeId): PipelineNodes =>
+  nodes.filter(node => node.id !== id).map(node => withoutDependency(node, id));
 
-export const setDependencies = (steps: PipelineSteps, id: StepId, deps: StepId[]): PipelineSteps =>
-  steps.map(step => (step.id === id ? withDependencies(step, deps) : step));
+export const setDependencies = (nodes: PipelineNodes, id: NodeId, deps: NodeId[]): PipelineNodes =>
+  nodes.map(node => (node.id === id ? withDependencies(node, deps) : node));
 
-/** The steps that wait for this one. */
-export const dependentsOf = (steps: PipelineSteps, id: StepId): StepId[] =>
-  steps.filter(step => step.deps.includes(id)).map(step => step.id);
+/** The nodes that wait for this one. */
+export const dependentsOf = (nodes: PipelineNodes, id: NodeId): NodeId[] =>
+  nodes.filter(node => node.deps.includes(id)).map(node => node.id);
 
-/** The steps this one can wait for: not itself, and none that waits for it, or the graph loops. */
-export const dependencyCandidates = (steps: PipelineSteps, id: StepId): StepId[] =>
-  steps.filter(step => step.id !== id && !waitsFor(steps, step.id, id)).map(step => step.id);
+/** The nodes this one can wait for: not itself, and none that waits for it, or the graph loops. */
+export const dependencyCandidates = (nodes: PipelineNodes, id: NodeId): NodeId[] =>
+  nodes.filter(node => node.id !== id && !waitsFor(nodes, node.id, id)).map(node => node.id);
 
 /**
- * How many steps run before each one, on the longest path: its column. A missing step adds no
+ * How many nodes run before each one, on the longest path: its column. A missing node adds no
  * column. A loop, which only a document typed by hand can hold, is cut where it closes,
  * so the walk ends.
  */
-export function stepDepths(steps: PipelineSteps): Map<StepId, number> {
-  const byId = new Map(steps.map(step => [step.id, step]));
-  const depths = new Map<StepId, number>();
-  const onPath = new Set<StepId>();
+export function nodeDepths(nodes: PipelineNodes): Map<NodeId, number> {
+  const byId = new Map(nodes.map(node => [node.id, node]));
+  const depths = new Map<NodeId, number>();
+  const onPath = new Set<NodeId>();
 
-  const depthOf = (step: PipelineStepEntity): number => {
-    const known = depths.get(step.id);
+  const depthOf = (node: PipelineNodeEntity): number => {
+    const known = depths.get(node.id);
     if (known !== undefined) return known;
 
-    onPath.add(step.id);
+    onPath.add(node.id);
     let depth = 0;
-    for (const dep of step.deps) {
+    for (const dep of node.deps) {
       const parent = byId.get(dep);
       if (parent && !onPath.has(dep)) depth = Math.max(depth, depthOf(parent) + 1);
     }
-    onPath.delete(step.id);
+    onPath.delete(node.id);
 
-    depths.set(step.id, depth);
+    depths.set(node.id, depth);
     return depth;
   };
 
-  for (const step of steps) depthOf(step);
+  for (const node of nodes) depthOf(node);
   return depths;
 }
 
-/** True when `id` waits for `other`, directly or through other steps. */
-export const waitsFor = (steps: PipelineSteps, id: StepId, other: StepId): boolean => {
-  const depsOf = new Map(steps.map(step => [step.id, step.deps]));
-  const seen = new Set<StepId>();
+/** True when `id` waits for `other`, directly or through other nodes. */
+export const waitsFor = (nodes: PipelineNodes, id: NodeId, other: NodeId): boolean => {
+  const depsOf = new Map(nodes.map(node => [node.id, node.deps]));
+  const seen = new Set<NodeId>();
   const pending = [...(depsOf.get(id) ?? [])];
 
   while (pending.length) {
@@ -194,34 +194,34 @@ export const waitsFor = (steps: PipelineSteps, id: StepId, other: StepId): boole
   return false;
 };
 
-/** Waits for `target` only, or for it too with `keep`; for no step when `target` is `null`. */
-const depsAfterMove = (deps: StepId[], target: StepId | null, keep: boolean): StepId[] => {
+/** Waits for `target` only, or for it too with `keep`; for no node when `target` is `null`. */
+const depsAfterMove = (deps: NodeId[], target: NodeId | null, keep: boolean): NodeId[] => {
   if (target === null) return [];
   if (!keep) return [target];
   return deps.includes(target) ? deps : [...deps, target];
 };
 
 /**
- * Makes a step wait for `target` (see `depsAfterMove`). When `target` waits for the step, the step
- * first leaves its place: the steps that waited for it wait for what it waited for. Nothing waits
+ * Makes a node wait for `target` (see `depsAfterMove`). When `target` waits for the node, the node
+ * first leaves its place: the nodes that waited for it wait for what it waited for. Nothing waits
  * for it then, so the move makes no loop: `a → b → c`, `b` after `c` gives `a → c → b`.
  */
-export const moveStep = (
-  steps: PipelineSteps,
-  id: StepId,
-  target: StepId | null,
+export const moveNode = (
+  nodes: PipelineNodes,
+  id: NodeId,
+  target: NodeId | null,
   keep: boolean,
-): PipelineSteps => {
-  const moved = steps.find(step => step.id === id);
-  // A step that left the document is no target.
-  if (!moved || target === id || (target !== null && !steps.some(step => step.id === target)))
-    return steps;
+): PipelineNodes => {
+  const moved = nodes.find(node => node.id === id);
+  // A node that left the document is no target.
+  if (!moved || target === id || (target !== null && !nodes.some(node => node.id === target)))
+    return nodes;
 
-  const leaves = target !== null && waitsFor(steps, target, id);
-  return steps.map(step => {
-    if (step.id === id) return withDependencies(step, depsAfterMove(step.deps, target, keep));
-    if (!leaves || !step.deps.includes(id)) return step;
-    const deps = step.deps.flatMap(dep => (dep === id ? moved.deps : [dep]));
-    return withDependencies(step, [...new Set(deps)]);
+  const leaves = target !== null && waitsFor(nodes, target, id);
+  return nodes.map(node => {
+    if (node.id === id) return withDependencies(node, depsAfterMove(node.deps, target, keep));
+    if (!leaves || !node.deps.includes(id)) return node;
+    const deps = node.deps.flatMap(dep => (dep === id ? moved.deps : [dep]));
+    return withDependencies(node, [...new Set(deps)]);
   });
 };

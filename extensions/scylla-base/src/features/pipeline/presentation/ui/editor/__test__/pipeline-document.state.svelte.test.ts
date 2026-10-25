@@ -29,7 +29,7 @@ describe('createPipelineDocument', () => {
     withScript(document, script => {
       expect(script.script).toBe(document);
       expect(script.pipelineName).toBe('nightly');
-      expect(script.steps.map(step => step.id)).toEqual(['build']);
+      expect(script.nodes.map(node => node.id)).toEqual(['build']);
       expect(script.isValid).toBe(true);
       expect(script.isDirty).toBe(false);
     });
@@ -53,16 +53,16 @@ describe('createPipelineDocument', () => {
     });
   });
 
-  it('writes new steps and a new name into the document', () => {
+  it('writes new nodes and a new name into the document', () => {
     withScript(document, script => {
-      script.setSteps([
+      script.setNodes([
         { id: 'test', deps: [], kind: 'script', script: 'make test', shell: 'sh', env: [] },
       ]);
       script.setName('weekly');
       flushSync();
 
       expect(script.pipelineName).toBe('weekly');
-      expect(script.steps.map(step => step.id)).toEqual(['test']);
+      expect(script.nodes.map(node => node.id)).toEqual(['test']);
     });
   });
 });

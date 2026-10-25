@@ -1,6 +1,6 @@
 import type { PipelineMetadata } from '../domain/structs/pipeline.struct.ts';
-import type { EnvEntry, Shell as StepShell } from '../domain/structs/step.struct.ts';
-import type { PipelineStepEntity } from '../domain/entities/pipeline-step.entity.ts';
+import type { EnvEntry, Shell as NodeShell } from '../domain/structs/node.struct.ts';
+import type { PipelineNodeEntity } from '../domain/entities/pipeline-node.entity.ts';
 import type { PipelineEntity } from '../domain/entities/pipeline.entity.ts';
 import type {
   EnvVar,
@@ -13,11 +13,11 @@ import { Shell } from '@base/generated/scylla/exec/v1/step.ts';
 import type { PaginationInfo, PaginatedList } from '@scylla/ui/structs';
 import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
-function shellFromProto(s: Shell): StepShell {
+function shellFromProto(s: Shell): NodeShell {
   return s === Shell.BASH ? 'bash' : 'sh';
 }
 
-function shellToProto(s: StepShell): Shell {
+function shellToProto(s: NodeShell): Shell {
   return s === 'bash' ? Shell.BASH : Shell.SH;
 }
 
@@ -49,7 +49,7 @@ function envVarFromDomain(entry: EnvEntry): EnvVar {
 type PipelineListResponse = Pick<ListProjectPipelinesResponse, 'pipelines' | 'pagination'>;
 
 export class GrpcPipelineMapper {
-  private static nodeToDomain(node: PipelineNode): PipelineStepEntity {
+  private static nodeToDomain(node: PipelineNode): PipelineNodeEntity {
     const base = {
       id: idValue(node.nodeId),
       deps: node.deps.map(idValue),
@@ -74,24 +74,24 @@ export class GrpcPipelineMapper {
         args: step.exec.args,
       };
     }
-    throw new UnknownArmError(`Step "${base.id}"`);
+    throw new UnknownArmError(`Node "${base.id}"`);
   }
 
-  static nodeFromDomain(step: PipelineStepEntity): PipelineNode {
+  static nodeFromDomain(node: PipelineNodeEntity): PipelineNode {
     return {
-      nodeId: wrapId(step.id),
-      deps: step.deps.map(wrapId),
-      workingDir: step.workingDir ?? '',
-      env: step.env.map(envVarFromDomain),
+      nodeId: wrapId(node.id),
+      deps: node.deps.map(wrapId),
+      workingDir: node.workingDir ?? '',
+      env: node.env.map(envVarFromDomain),
       step:
-        step.kind === 'script'
+        node.kind === 'script'
           ? {
               oneofKind: 'script',
-              script: { script: step.script, shell: shellToProto(step.shell) },
+              script: { script: node.script, shell: shellToProto(node.shell) },
             }
           : {
               oneofKind: 'exec',
-              exec: { command: step.command, args: step.args },
+              exec: { command: node.command, args: node.args },
             },
     };
   }
@@ -101,7 +101,7 @@ export class GrpcPipelineMapper {
       id: idValue(pipeline.pipelineId),
       projectId: idValue(pipeline.projectId),
       name: pipeline.name,
-      steps: pipeline.nodes.map(GrpcPipelineMapper.nodeToDomain),
+      nodes: pipeline.nodes.map(GrpcPipelineMapper.nodeToDomain),
     };
   }
 
@@ -110,7 +110,7 @@ export class GrpcPipelineMapper {
       id: idValue(pipeline.pipelineId),
       projectId: idValue(pipeline.projectId),
       name: pipeline.name,
-      stepCount: pipeline.nodeCount,
+      nodeCount: pipeline.nodeCount,
       createdAt: timestampToIso(pipeline.createdAt),
       updatedAt: timestampToIso(pipeline.updatedAt),
     };

@@ -25,27 +25,27 @@ const renderScripting = (initialScript = document) => {
   return () => doc;
 };
 
-/** The step each pane shows. */
-const shownSteps = () =>
+/** The node each pane shows. */
+const shownNodes = () =>
   screen
     .getAllByRole('region')
     .map(pane => within(pane).getByRole('button', { current: true }).textContent?.trim());
 
 describe('PipelineScripting', () => {
-  it('lists the steps in the order they run, and opens the first one', () => {
+  it('lists the nodes in the order they run, and opens the first one', () => {
     renderScripting();
 
-    const list = screen.getByRole('navigation', { name: 'Steps' });
+    const list = screen.getByRole('navigation', { name: 'Nodes' });
     const rows = within(list)
       .getAllByRole('listitem')
       .map(row => row.textContent);
     expect(rows[0]).toContain('build');
     expect(rows[1]).toContain('test');
     expect(screen.getByRole('button', { name: 'build', current: true })).toBeInTheDocument();
-    expect(screen.getByRole('complementary', { name: 'Step properties' })).toBeInTheDocument();
+    expect(screen.getByRole('complementary', { name: 'Node properties' })).toBeInTheDocument();
   });
 
-  it('opens the first step of the list, not the first of the document', () => {
+  it('opens the first node of the list, not the first of the document', () => {
     renderScripting(
       JSON.stringify({
         name: 'web',
@@ -58,15 +58,15 @@ describe('PipelineScripting', () => {
 
     expect(screen.getByRole('button', { name: 'build', current: true })).toBeInTheDocument();
     expect(
-      within(screen.getByRole('group', { name: 'Open steps' })).queryByRole('button', {
+      within(screen.getByRole('group', { name: 'Open nodes' })).queryByRole('button', {
         name: 'test',
       }),
     ).not.toBeInTheDocument();
   });
 
   it.each([
-    ['list', 'Show or hide the steps', 'navigation', 'Steps'],
-    ['properties', 'Show or hide the step properties', 'complementary', 'Step properties'],
+    ['list', 'Show or hide the nodes', 'navigation', 'Nodes'],
+    ['properties', 'Show or hide the node properties', 'complementary', 'Node properties'],
   ] as const)('hides and restores the %s with its toggle', async (_, label, role, name) => {
     const user = userEvent.setup();
     renderScripting();
@@ -82,57 +82,57 @@ describe('PipelineScripting', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
   });
 
-  it('shows the full document, and no steps, while the JSON does not parse', () => {
+  it('shows the full document, and no nodes, while the JSON does not parse', () => {
     renderScripting('{ "nodes": [');
 
-    expect(screen.getByRole('tab', { name: 'By step' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'By node' })).toBeDisabled();
     expect(screen.getByRole('tab', { name: 'Full document', selected: true })).toBeInTheDocument();
   });
 
   it.each([
-    ['two steps share an id', [{ id: 'a' }, { id: 'a' }]],
-    ['a step lists a dependency twice', [{ id: 'a' }, { id: 'b', deps: ['a', 'a'] }]],
-  ])('shows the full document, and renders no step, when %s', (_, nodes) => {
+    ['two nodes share an id', [{ id: 'a' }, { id: 'a' }]],
+    ['a node lists a dependency twice', [{ id: 'a' }, { id: 'b', deps: ['a', 'a'] }]],
+  ])('shows the full document, and renders no node, when %s', (_, nodes) => {
     renderScripting(JSON.stringify({ name: 'web', nodes }));
 
-    expect(screen.getByRole('tab', { name: 'By step' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'By node' })).toBeDisabled();
     expect(screen.getByRole('tab', { name: 'Full document', selected: true })).toBeInTheDocument();
-    expect(screen.queryByRole('navigation', { name: 'Steps' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Nodes' })).not.toBeInTheDocument();
   });
 
-  it('falls back to the full document when an edit of the text repeats a step id', async () => {
+  it('falls back to the full document when an edit of the text repeats a node id', async () => {
     const doc = renderScripting();
-    expect(screen.getByRole('navigation', { name: 'Steps' })).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Nodes' })).toBeInTheDocument();
 
     doc().setScript(JSON.stringify({ name: 'web', nodes: [{ id: 'build' }, { id: 'build' }] }));
 
     expect(
       await screen.findByRole('tab', { name: 'Full document', selected: true }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole('navigation', { name: 'Steps' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Nodes' })).not.toBeInTheDocument();
   });
 
-  it('opens a command step as a form, with the line that runs', async () => {
+  it('opens a command node as a form, with the line that runs', async () => {
     const user = userEvent.setup();
     renderScripting();
 
-    const list = screen.getByRole('navigation', { name: 'Steps' });
+    const list = screen.getByRole('navigation', { name: 'Nodes' });
     await user.click(within(list).getByRole('button', { name: /^test/ }));
 
     expect(screen.getByRole('button', { name: 'test', current: true })).toBeInTheDocument();
     expect(screen.getByText('make test', { selector: 'code' })).toBeInTheDocument();
   });
 
-  it('marks only the shown step as current among the open ones, each with a close button', async () => {
+  it('marks only the shown node as current among the open ones, each with a close button', async () => {
     const user = userEvent.setup();
     renderScripting();
     await user.click(
-      within(screen.getByRole('navigation', { name: 'Steps' })).getByRole('button', {
+      within(screen.getByRole('navigation', { name: 'Nodes' })).getByRole('button', {
         name: /^test/,
       }),
     );
 
-    const open = screen.getByRole('group', { name: 'Open steps' });
+    const open = screen.getByRole('group', { name: 'Open nodes' });
     expect(within(open).getByRole('button', { name: 'test', current: true })).toBeInTheDocument();
     expect(within(open).getByRole('button', { name: 'build', current: false })).toBeInTheDocument();
     expect(within(open).getByRole('button', { name: 'Close build' })).toBeInTheDocument();
@@ -140,17 +140,17 @@ describe('PipelineScripting', () => {
     expect(within(open).queryByRole('tab')).not.toBeInTheDocument();
   });
 
-  it('opens a step to the side, in a second pane', async () => {
+  it('opens a node to the side, in a second pane', async () => {
     renderScripting();
 
     await userEvent.click(screen.getByRole('button', { name: 'Actions of test' }));
     await userEvent.click(await findFloating('menuitem', 'Open to the side'));
 
-    expect(shownSteps()).toEqual(['build', 'test']);
+    expect(shownNodes()).toEqual(['build', 'test']);
     expect(screen.getAllByRole('button', { name: 'Close the pane' })).toHaveLength(2);
   });
 
-  it('puts a resize handle between the panels and the open step, and one more per open step', async () => {
+  it('puts a resize handle between the panels and the open node, and one more per open node', async () => {
     renderScripting();
     expect(screen.getAllByRole('separator', { name: 'Resize panel' })).toHaveLength(2);
 
@@ -160,61 +160,61 @@ describe('PipelineScripting', () => {
     expect(screen.getAllByRole('separator', { name: 'Resize panel' })).toHaveLength(3);
   });
 
-  it('shows no properties, and a hidden handle for them, in a pipeline with no step', () => {
+  it('shows no properties, and a hidden handle for them, in a pipeline with no node', () => {
     renderScripting(JSON.stringify({ name: 'web', nodes: [] }));
 
-    expect(screen.getByRole('navigation', { name: 'Steps' })).toBeInTheDocument();
-    expect(screen.queryByRole('complementary', { name: 'Step properties' })).not.toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Nodes' })).toBeInTheDocument();
+    expect(screen.queryByRole('complementary', { name: 'Node properties' })).not.toBeInTheDocument();
     expect(
-      globalThis.document.querySelector('[data-pane-id="steps-view-properties"]'),
+      globalThis.document.querySelector('[data-pane-id="nodes-view-properties"]'),
     ).toHaveAttribute('data-collapsed', '');
     // The list handle only: the one of the properties is hidden.
     const handles = screen.getAllByRole('separator', { name: 'Resize panel' });
     expect(handles.filter(handle => !handle.classList.contains('hidden'))).toHaveLength(1);
   });
 
-  it('keeps a list that was hidden hidden when a second step opens', async () => {
+  it('keeps a list that was hidden hidden when a second node opens', async () => {
     const user = userEvent.setup();
     renderScripting();
     await user.click(screen.getByRole('button', { name: 'Actions of test' }));
     await user.click(await findFloating('menuitem', 'Open to the side'));
-    await user.click(screen.getByRole('button', { name: 'Show or hide the steps' }));
-    expect(screen.queryByRole('navigation', { name: 'Steps' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Show or hide the nodes' }));
+    expect(screen.queryByRole('navigation', { name: 'Nodes' })).not.toBeInTheDocument();
 
     await user.click(screen.getAllByRole('button', { name: 'Close the pane' })[1]);
 
-    expect(shownSteps()).toEqual(['build']);
-    expect(screen.queryByRole('navigation', { name: 'Steps' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Show or hide the steps' })).toHaveAttribute(
+    expect(shownNodes()).toEqual(['build']);
+    expect(screen.queryByRole('navigation', { name: 'Nodes' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Show or hide the nodes' })).toHaveAttribute(
       'aria-expanded',
       'false',
     );
   });
 
-  it('adds a step after the open one, opens it, and writes it to the document', async () => {
+  it('adds a node after the open one, opens it, and writes it to the document', async () => {
     const user = userEvent.setup();
     const doc = renderScripting();
 
-    await user.click(screen.getAllByRole('button', { name: 'New step' })[0]);
+    await user.click(screen.getAllByRole('button', { name: 'New node' })[0]);
 
-    expect(screen.getByRole('button', { name: 'step', current: true })).toBeInTheDocument();
-    expect(doc().steps.find(step => step.id === 'step')?.deps).toEqual(['build']);
+    expect(screen.getByRole('button', { name: 'node', current: true })).toBeInTheDocument();
+    expect(doc().nodes.find(node => node.id === 'node')?.deps).toEqual(['build']);
   });
 
-  it('renames a step from its properties, and the steps that wait for it follow', async () => {
+  it('renames a node from its properties, and the nodes that wait for it follow', async () => {
     const user = userEvent.setup();
     const doc = renderScripting();
 
-    const id = screen.getByRole('textbox', { name: 'Step ID' });
+    const id = screen.getByRole('textbox', { name: 'Node ID' });
     await user.clear(id);
     await user.type(id, 'compile{Enter}');
 
     expect(screen.getByRole('button', { name: 'compile', current: true })).toBeInTheDocument();
-    expect(doc().steps.find(step => step.id === 'test')?.deps).toEqual(['compile']);
+    expect(doc().nodes.find(node => node.id === 'test')?.deps).toEqual(['compile']);
   });
 
   describe('the dependency picker', () => {
-    const steps = JSON.stringify({
+    const nodes = JSON.stringify({
       name: 'web',
       nodes: ['a', 'b', 'c'].map(id => ({
         id,
@@ -230,11 +230,11 @@ describe('PipelineScripting', () => {
       await user.click(await findFloating('option', id));
     };
     const depsOf = (doc: () => PipelineDocument, id: string) =>
-      doc().steps.find(step => step.id === id)?.deps;
+      doc().nodes.find(node => node.id === id)?.deps;
 
     it('offers a dependency again once its chip is removed', async () => {
       const user = userEvent.setup();
-      const doc = renderScripting(steps);
+      const doc = renderScripting(nodes);
 
       await pick(user, 'b');
       expect(depsOf(doc, 'a')).toEqual(['b']);
@@ -245,12 +245,12 @@ describe('PipelineScripting', () => {
       expect(depsOf(doc, 'a')).toEqual(['b']);
     });
 
-    it('adds the dependency that was just picked on another step', async () => {
+    it('adds the dependency that was just picked on another node', async () => {
       const user = userEvent.setup();
-      const doc = renderScripting(steps);
+      const doc = renderScripting(nodes);
 
       await pick(user, 'b');
-      const list = screen.getByRole('navigation', { name: 'Steps' });
+      const list = screen.getByRole('navigation', { name: 'Nodes' });
       await user.click(within(list).getByRole('button', { name: /^c/ }));
       await pick(user, 'b');
 

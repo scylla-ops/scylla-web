@@ -30,11 +30,11 @@
   );
   const title = $derived.by(() => {
     const link = request?.link;
-    if (link && 'replacing' in link) return t(blueprintMessages.insertStep);
+    if (link && 'replacing' in link) return t(blueprintMessages.insertNode);
     if (link?.after && link.after !== START_NODE_ID) {
       return t(blueprintMessages.addAfter(link.after));
     }
-    return t(blueprintMessages.addStep);
+    return t(blueprintMessages.addNode);
   });
 
   const focusOnMount: Attachment<HTMLInputElement> = node => node.focus();
@@ -79,7 +79,7 @@
       <!-- Driven from the search: the focus stays in it, the active option is announced. -->
       <SearchField
         bind:value={quickAdd.query}
-        label={t(blueprintMessages.searchSteps)}
+        label={t(blueprintMessages.searchNodes)}
         role="combobox"
         aria-expanded="true"
         aria-controls="{uid}-list"

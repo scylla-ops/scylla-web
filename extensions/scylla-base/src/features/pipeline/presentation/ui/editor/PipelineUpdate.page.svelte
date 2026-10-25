@@ -35,9 +35,9 @@
       submitLabel={t(pipelineMessages.save)}
       projectId={pipeline?.projectId}
       {initialScript}
-      onSubmit={({ name, steps }) => {
+      onSubmit={({ name, nodes }) => {
         if (pipelineId && pipeline)
-          updatePipeline.mutate({ id: pipelineId, projectId: pipeline.projectId, name, steps });
+          updatePipeline.mutate({ id: pipelineId, projectId: pipeline.projectId, name, nodes });
       }}
       isSubmitPending={updatePipeline.isPending}
     />

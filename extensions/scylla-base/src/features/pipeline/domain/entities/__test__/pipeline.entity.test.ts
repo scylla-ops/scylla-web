@@ -1,29 +1,29 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import type {
-  ExecPipelineStepEntity,
-  PipelineStepEntity,
-  StepDefinition,
-} from '../pipeline-step.entity.ts';
+  ExecPipelineNodeEntity,
+  PipelineNodeEntity,
+  NodeDefinition,
+} from '../pipeline-node.entity.ts';
 import {
-  addStep,
+  addNode,
   dependencyCandidates,
   dependentsOf,
-  uniqueStepId,
+  uniqueNodeId,
   hasRepeats,
-  moveStep,
-  repeatedStepIds,
+  moveNode,
+  repeatedNodeIds,
   newPipeline,
   pipelineIssue,
-  removeStep,
-  renameStep,
+  removeNode,
+  renameNode,
   setDependencies,
-  stepDepths,
-  updateStep,
+  nodeDepths,
+  updateNode,
   waitsFor,
 } from '../pipeline.entity.ts';
 
-const execStep = (id: string, deps: string[] = []): ExecPipelineStepEntity => ({
+const execNode = (id: string, deps: string[] = []): ExecPipelineNodeEntity => ({
   id,
   deps,
   kind: 'exec',
@@ -32,7 +32,7 @@ const execStep = (id: string, deps: string[] = []): ExecPipelineStepEntity => ({
   env: [],
 });
 
-const step = (id: string): PipelineStepEntity => ({
+const node = (id: string): PipelineNodeEntity => ({
   id,
   deps: [],
   env: [],
@@ -41,66 +41,66 @@ const step = (id: string): PipelineStepEntity => ({
   args: [],
 });
 
-describe('stepDepths', () => {
-  it('puts a step one column after the deepest step it waits for', () => {
-    const depths = stepDepths([execStep('a'), execStep('b', ['a']), execStep('c', ['a', 'b'])]);
+describe('nodeDepths', () => {
+  it('puts a node one column after the deepest node it waits for', () => {
+    const depths = nodeDepths([execNode('a'), execNode('b', ['a']), execNode('c', ['a', 'b'])]);
     expect(Object.fromEntries(depths)).toEqual({ a: 0, b: 1, c: 2 });
   });
 
-  it('puts a step that waits for a missing step in the first column', () => {
-    expect(stepDepths([execStep('a', ['ghost'])]).get('a')).toBe(0);
+  it('puts a node that waits for a missing node in the first column', () => {
+    expect(nodeDepths([execNode('a', ['ghost'])]).get('a')).toBe(0);
   });
 });
 
 describe('waitsFor', () => {
-  const steps = [execStep('build'), execStep('test', ['build']), execStep('deploy', ['test'])];
+  const nodes = [execNode('build'), execNode('test', ['build']), execNode('deploy', ['test'])];
 
-  it('follows the dependencies through the other steps', () => {
-    expect(waitsFor(steps, 'deploy', 'build')).toBe(true);
+  it('follows the dependencies through the other nodes', () => {
+    expect(waitsFor(nodes, 'deploy', 'build')).toBe(true);
   });
 
-  it('is false the other way, and for a step that does not exist', () => {
-    expect(waitsFor(steps, 'build', 'deploy')).toBe(false);
-    expect(waitsFor(steps, 'ghost', 'build')).toBe(false);
+  it('is false the other way, and for a node that does not exist', () => {
+    expect(waitsFor(nodes, 'build', 'deploy')).toBe(false);
+    expect(waitsFor(nodes, 'ghost', 'build')).toBe(false);
   });
 
   it('ends on a loop of dependencies', () => {
-    const loop = [execStep('root'), execStep('a', ['root', 'b']), execStep('b', ['a'])];
+    const loop = [execNode('root'), execNode('a', ['root', 'b']), execNode('b', ['a'])];
     expect(waitsFor(loop, 'a', 'b')).toBe(true);
     expect(waitsFor(loop, 'root', 'a')).toBe(false);
   });
 });
 
-const ids = (steps: PipelineStepEntity[]) => steps.map(step => step.id);
+const ids = (nodes: PipelineNodeEntity[]) => nodes.map(node => node.id);
 
-describe('addStep', () => {
-  const definition: StepDefinition = { kind: 'script', shell: 'bash', script: '', env: [] };
+describe('addNode', () => {
+  const definition: NodeDefinition = { kind: 'script', shell: 'bash', script: '', env: [] };
 
   it('gives a taken id a suffix', () => {
-    const { steps, id } = addStep([execStep('step')], 'step', definition);
-    expect(id).toBe('step_1');
-    expect(ids(steps)).toEqual(['step', 'step_1']);
+    const { nodes, id } = addNode([execNode('node')], 'node', definition);
+    expect(id).toBe('node_1');
+    expect(ids(nodes)).toEqual(['node', 'node_1']);
   });
 
-  it('waits for the step it is added after', () => {
-    const { steps } = addStep([execStep('build')], 'test', definition, 'build');
-    expect(steps[1]).toEqual({ id: 'test', deps: ['build'], ...definition });
+  it('waits for the node it is added after', () => {
+    const { nodes } = addNode([execNode('build')], 'test', definition, 'build');
+    expect(nodes[1]).toEqual({ id: 'test', deps: ['build'], ...definition });
   });
 
-  it('waits for nothing when the step it follows does not exist', () => {
-    expect(addStep([], 'test', definition, 'ghost').steps[0]?.deps).toEqual([]);
+  it('waits for nothing when the node it follows does not exist', () => {
+    expect(addNode([], 'test', definition, 'ghost').nodes[0]?.deps).toEqual([]);
   });
 });
 
-describe('updateStep', () => {
-  it('keeps the id and the dependencies of the step', () => {
-    const steps = updateStep([execStep('a'), execStep('b', ['a'])], 'b', {
+describe('updateNode', () => {
+  it('keeps the id and the dependencies of the node', () => {
+    const nodes = updateNode([execNode('a'), execNode('b', ['a'])], 'b', {
       kind: 'script',
       shell: 'sh',
       script: 'make',
       env: [],
     });
-    expect(steps[1]).toEqual({
+    expect(nodes[1]).toEqual({
       id: 'b',
       deps: ['a'],
       kind: 'script',
@@ -111,78 +111,78 @@ describe('updateStep', () => {
   });
 });
 
-describe('renameStep', () => {
-  const pipeline = [execStep('build'), execStep('test', ['build']), execStep('lint')];
+describe('renameNode', () => {
+  const pipeline = [execNode('build'), execNode('test', ['build']), execNode('lint')];
 
-  it('follows the rename in the dependencies of the other steps', () => {
-    const { steps, id } = renameStep(pipeline, 'build', 'compile');
+  it('follows the rename in the dependencies of the other nodes', () => {
+    const { nodes, id } = renameNode(pipeline, 'build', 'compile');
     expect(id).toBe('compile');
-    expect(ids(steps)).toEqual(['compile', 'test', 'lint']);
-    expect(steps[1]?.deps).toEqual(['compile']);
+    expect(ids(nodes)).toEqual(['compile', 'test', 'lint']);
+    expect(nodes[1]?.deps).toEqual(['compile']);
   });
 
   it('gives a taken id a suffix', () => {
-    expect(renameStep(pipeline, 'build', 'lint').id).toBe('lint_1');
+    expect(renameNode(pipeline, 'build', 'lint').id).toBe('lint_1');
   });
 
   it('keeps the old id for an empty one', () => {
-    const change = renameStep(pipeline, 'build', '   ');
-    expect(change).toEqual({ steps: pipeline, id: 'build' });
+    const change = renameNode(pipeline, 'build', '   ');
+    expect(change).toEqual({ nodes: pipeline, id: 'build' });
   });
 
   it('trims the new id', () => {
-    expect(renameStep(pipeline, 'build', '  compile ').id).toBe('compile');
+    expect(renameNode(pipeline, 'build', '  compile ').id).toBe('compile');
   });
 });
 
-describe('removeStep', () => {
-  it('removes the dependencies on the step', () => {
-    const steps = removeStep([execStep('a'), execStep('b', ['a']), execStep('c', ['a', 'b'])], 'a');
-    expect(steps).toEqual([execStep('b'), execStep('c', ['b'])]);
+describe('removeNode', () => {
+  it('removes the dependencies on the node', () => {
+    const nodes = removeNode([execNode('a'), execNode('b', ['a']), execNode('c', ['a', 'b'])], 'a');
+    expect(nodes).toEqual([execNode('b'), execNode('c', ['b'])]);
   });
 });
 
 describe('setDependencies', () => {
-  it('changes the dependencies of one step only', () => {
-    const steps = setDependencies([execStep('a'), execStep('b'), execStep('c')], 'c', ['a', 'b']);
-    expect(steps.map(step => step.deps)).toEqual([[], [], ['a', 'b']]);
+  it('changes the dependencies of one node only', () => {
+    const nodes = setDependencies([execNode('a'), execNode('b'), execNode('c')], 'c', ['a', 'b']);
+    expect(nodes.map(node => node.deps)).toEqual([[], [], ['a', 'b']]);
   });
 });
 
 describe('dependentsOf', () => {
-  it('gives the steps that wait for the step', () => {
-    const steps = [execStep('a'), execStep('b', ['a']), execStep('c', ['b']), execStep('d', ['a'])];
-    expect(dependentsOf(steps, 'a')).toEqual(['b', 'd']);
+  it('gives the nodes that wait for the node', () => {
+    const nodes = [execNode('a'), execNode('b', ['a']), execNode('c', ['b']), execNode('d', ['a'])];
+    expect(dependentsOf(nodes, 'a')).toEqual(['b', 'd']);
   });
 });
 
 describe('dependencyCandidates', () => {
-  it('leaves out the step and every step that waits for it, so the graph cannot loop', () => {
-    const steps = [execStep('a'), execStep('b', ['a']), execStep('c', ['b']), execStep('d')];
-    expect(dependencyCandidates(steps, 'b')).toEqual(['a', 'd']);
+  it('leaves out the node and every node that waits for it, so the graph cannot loop', () => {
+    const nodes = [execNode('a'), execNode('b', ['a']), execNode('c', ['b']), execNode('d')];
+    expect(dependencyCandidates(nodes, 'b')).toEqual(['a', 'd']);
   });
 });
 
-describe('uniqueStepId', () => {
+describe('uniqueNodeId', () => {
   it('returns the desired id when it is free', () => {
-    expect(uniqueStepId('build', new Set())).toBe('build');
+    expect(uniqueNodeId('build', new Set())).toBe('build');
   });
 
   it('suffixes with _1 when the desired id is taken', () => {
-    expect(uniqueStepId('build', new Set(['build']))).toBe('build_1');
+    expect(uniqueNodeId('build', new Set(['build']))).toBe('build_1');
   });
 
   it('keeps incrementing the suffix past existing collisions', () => {
-    expect(uniqueStepId('build', new Set(['build', 'build_1', 'build_2']))).toBe('build_3');
+    expect(uniqueNodeId('build', new Set(['build', 'build_1', 'build_2']))).toBe('build_3');
   });
 
   it('excludes the node being renamed, so renaming to its own current id is a no-op', () => {
-    expect(uniqueStepId('build', new Set(['build']), 'build')).toBe('build');
+    expect(uniqueNodeId('build', new Set(['build']), 'build')).toBe('build');
   });
 });
 
 describe('hasRepeats', () => {
-  const step = (id: string, deps: string[] = []): PipelineStepEntity => ({
+  const node = (id: string, deps: string[] = []): PipelineNodeEntity => ({
     id,
     deps,
     kind: 'script',
@@ -191,44 +191,44 @@ describe('hasRepeats', () => {
     env: [],
   });
 
-  it('is false for steps with distinct ids and distinct dependencies', () => {
-    expect(hasRepeats([step('a'), step('b', ['a'])])).toBe(false);
+  it('is false for nodes with distinct ids and distinct dependencies', () => {
+    expect(hasRepeats([node('a'), node('b', ['a'])])).toBe(false);
   });
 
-  it('is true when two steps share an id', () => {
-    expect(hasRepeats([step('a'), step('a')])).toBe(true);
+  it('is true when two nodes share an id', () => {
+    expect(hasRepeats([node('a'), node('a')])).toBe(true);
   });
 
-  it('is true when a step lists a dependency twice', () => {
-    expect(hasRepeats([step('a'), step('b', ['a', 'a'])])).toBe(true);
+  it('is true when a node lists a dependency twice', () => {
+    expect(hasRepeats([node('a'), node('b', ['a', 'a'])])).toBe(true);
   });
 });
 
 describe('pipelineIssue', () => {
-  it('accepts a name of one word and step ids the server accepts', () => {
-    expect(pipelineIssue({ name: 'nightly', steps: [step('build'), step('test-2')] })).toBeNull();
+  it('accepts a name of one word and node ids the server accepts', () => {
+    expect(pipelineIssue({ name: 'nightly', nodes: [node('build'), node('test-2')] })).toBeNull();
   });
 
   it('says the name first, as it is the first field of the form', () => {
-    expect(pipelineIssue({ name: 'my pipeline', steps: [step('Build')] })).toEqual({
+    expect(pipelineIssue({ name: 'my pipeline', nodes: [node('Build')] })).toEqual({
       kind: 'name',
       issue: 'spaces',
     });
   });
 
-  it('names every step id the server refuses', () => {
+  it('names every node id the server refuses', () => {
     expect(
-      pipelineIssue({ name: 'nightly', steps: [step('Build'), step('ok'), step('a b')] }),
+      pipelineIssue({ name: 'nightly', nodes: [node('Build'), node('ok'), node('a b')] }),
     ).toEqual({
-      kind: 'step-ids',
+      kind: 'node-ids',
       ids: ['Build', 'a b'],
     });
   });
 });
 
 describe('newPipeline', () => {
-  it('starts from two steps, the second waiting for the first', () => {
-    expect(newPipeline('p').steps.map(({ id, deps }) => ({ id, deps }))).toEqual([
+  it('starts from two nodes, the second waiting for the first', () => {
+    expect(newPipeline('p').nodes.map(({ id, deps }) => ({ id, deps }))).toEqual([
       { id: 'welcome', deps: [] },
       { id: 'example', deps: ['welcome'] },
     ]);
@@ -239,7 +239,7 @@ describe('newPipeline', () => {
   });
 });
 
-const script = (id: string, deps: string[] = []): PipelineStepEntity => ({
+const script = (id: string, deps: string[] = []): PipelineNodeEntity => ({
   id,
   deps,
   kind: 'script',
@@ -247,14 +247,14 @@ const script = (id: string, deps: string[] = []): PipelineStepEntity => ({
   script: 'make',
   env: [],
 });
-const depsOf = (steps: PipelineStepEntity[]): Record<string, string[]> =>
-  Object.fromEntries(steps.map(s => [s.id, s.deps]));
+const depsOf = (nodes: PipelineNodeEntity[]): Record<string, string[]> =>
+  Object.fromEntries(nodes.map(s => [s.id, s.deps]));
 
-describe('moveStep: the dependencies of the moved step', () => {
-  it('makes the step wait for the target, and for no other', () => {
+describe('moveNode: the dependencies of the moved node', () => {
+  it('makes the node wait for the target, and for no other', () => {
     expect(
       depsOf(
-        moveStep(
+        moveNode(
           [script('build'), script('lint'), script('deploy'), script('x', ['build', 'lint'])],
           'x',
           'deploy',
@@ -265,15 +265,15 @@ describe('moveStep: the dependencies of the moved step', () => {
   });
 
   it('keeps the other dependencies when asked', () => {
-    const steps = [script('build'), script('lint'), script('x', ['build'])];
-    expect(depsOf(moveStep(steps, 'x', 'lint', true)).x).toEqual(['build', 'lint']);
-    expect(depsOf(moveStep(steps, 'x', 'build', true)).x).toEqual(['build']);
+    const nodes = [script('build'), script('lint'), script('x', ['build'])];
+    expect(depsOf(moveNode(nodes, 'x', 'lint', true)).x).toEqual(['build', 'lint']);
+    expect(depsOf(moveNode(nodes, 'x', 'build', true)).x).toEqual(['build']);
   });
 
-  it('makes the step run first when moved after no step', () => {
+  it('makes the node run first when moved after no node', () => {
     expect(
       depsOf(
-        moveStep(
+        moveNode(
           [script('build'), script('lint'), script('x', ['build', 'lint'])],
           'x',
           null,
@@ -284,16 +284,16 @@ describe('moveStep: the dependencies of the moved step', () => {
   });
 });
 
-describe('moveStep', () => {
+describe('moveNode', () => {
   it('ignores a target that left the document', () => {
-    const steps = [script('a'), script('b', ['a'])];
+    const nodes = [script('a'), script('b', ['a'])];
 
-    expect(moveStep(steps, 'b', 'gone', false)).toBe(steps);
+    expect(moveNode(nodes, 'b', 'gone', false)).toBe(nodes);
   });
 
-  it('moves a step with the steps that wait for it', () => {
-    const steps = [script('a'), script('b', ['a']), script('c', ['b']), script('d')];
-    expect(depsOf(moveStep(steps, 'b', 'd', false))).toEqual({
+  it('moves a node with the nodes that wait for it', () => {
+    const nodes = [script('a'), script('b', ['a']), script('c', ['b']), script('d')];
+    expect(depsOf(moveNode(nodes, 'b', 'd', false))).toEqual({
       a: [],
       b: ['d'],
       c: ['b'],
@@ -301,20 +301,20 @@ describe('moveStep', () => {
     });
   });
 
-  it('takes a step out of its place when moved after a step that waits for it', () => {
-    const steps = [script('a'), script('b', ['a']), script('c', ['b'])];
-    expect(depsOf(moveStep(steps, 'b', 'c', false))).toEqual({ a: [], b: ['c'], c: ['a'] });
+  it('takes a node out of its place when moved after a node that waits for it', () => {
+    const nodes = [script('a'), script('b', ['a']), script('c', ['b'])];
+    expect(depsOf(moveNode(nodes, 'b', 'c', false))).toEqual({ a: [], b: ['c'], c: ['a'] });
   });
 
-  it('gives each step that waited for it what it waited for, once', () => {
-    const steps = [
+  it('gives each node that waited for it what it waited for, once', () => {
+    const nodes = [
       script('a'),
       script('b', ['a']),
       script('c', ['b', 'a']),
       script('d', ['c']),
       script('e', ['b']),
     ];
-    expect(depsOf(moveStep(steps, 'b', 'd', true))).toEqual({
+    expect(depsOf(moveNode(nodes, 'b', 'd', true))).toEqual({
       a: [],
       b: ['a', 'd'],
       c: ['a'],
@@ -323,27 +323,27 @@ describe('moveStep', () => {
     });
   });
 
-  it('changes nothing when a step is moved after itself', () => {
-    const steps = [script('a'), script('b', ['a'])];
-    expect(moveStep(steps, 'b', 'b', false)).toBe(steps);
+  it('changes nothing when a node is moved after itself', () => {
+    const nodes = [script('a'), script('b', ['a'])];
+    expect(moveNode(nodes, 'b', 'b', false)).toBe(nodes);
   });
 });
 
-describe('repeatedStepIds', () => {
-  it('names each id that two steps or more share, once', () => {
-    expect(repeatedStepIds([step('build'), step('test'), step('build'), step('build')])).toEqual([
+describe('repeatedNodeIds', () => {
+  it('names each id that two nodes or more share, once', () => {
+    expect(repeatedNodeIds([node('build'), node('test'), node('build'), node('build')])).toEqual([
       'build',
     ]);
   });
 
-  it('is empty when each step has its own id', () => {
-    expect(repeatedStepIds([step('build'), step('test')])).toEqual([]);
+  it('is empty when each node has its own id', () => {
+    expect(repeatedNodeIds([node('build'), node('test')])).toEqual([]);
   });
 });
 
 describe('pipelineIssue: repeated ids', () => {
-  it('refuses two steps with the same id, before it looks at the ids themselves', () => {
-    expect(pipelineIssue({ name: 'nightly', steps: [step('Build'), step('Build')] })).toEqual({
+  it('refuses two nodes with the same id, before it looks at the ids themselves', () => {
+    expect(pipelineIssue({ name: 'nightly', nodes: [node('Build'), node('Build')] })).toEqual({
       kind: 'repeated-ids',
       ids: ['Build'],
     });

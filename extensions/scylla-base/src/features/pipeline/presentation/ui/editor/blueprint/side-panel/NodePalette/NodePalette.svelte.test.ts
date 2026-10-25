@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
+import type { NodeTemplate } from '@base/features/pipeline/domain/structs/node-template.struct.ts';
 import { flushSync } from 'svelte';
 import { catalogEntries } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
 import {
@@ -10,19 +10,19 @@ import {
 } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag/palette-drag.state.svelte.ts';
 import NodePalette from './NodePalette.svelte';
 
-const template: StepTemplate = {
+const template: NodeTemplate = {
   id: 'npm-ci',
   name: 'npm ci',
-  stepId: 'install-deps',
+  nodeId: 'install-deps',
   definition: { kind: 'script', shell: 'bash', script: 'npm ci', env: [] },
 };
 const entries = catalogEntries([template]);
 
 describe('NodePalette', () => {
-  it('offers the blank steps and the templates, in two groups', () => {
+  it('offers the blank nodes and the templates, in two groups', () => {
     render(NodePalette, { entries, onAdd: vi.fn() });
 
-    expect(screen.getByRole('heading', { name: 'Steps' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Nodes' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Templates' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Bash script/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /npm ci/ })).toBeInTheDocument();
@@ -40,18 +40,18 @@ describe('NodePalette', () => {
   it('filters the entries and hides an emptied group', async () => {
     render(NodePalette, { entries, onAdd: vi.fn() });
 
-    await userEvent.type(screen.getByRole('textbox', { name: 'Search a step' }), 'npm');
+    await userEvent.type(screen.getByRole('textbox', { name: 'Search a node' }), 'npm');
 
-    expect(screen.queryByRole('heading', { name: 'Steps' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Nodes' })).not.toBeInTheDocument();
     expect(screen.getAllByRole('button')).toHaveLength(1);
   });
 
   it('says so when nothing matches', async () => {
     render(NodePalette, { entries, onAdd: vi.fn() });
 
-    await userEvent.type(screen.getByRole('textbox', { name: 'Search a step' }), 'kubectl');
+    await userEvent.type(screen.getByRole('textbox', { name: 'Search a node' }), 'kubectl');
 
-    expect(screen.getByText('No step matches this search.')).toBeInTheDocument();
+    expect(screen.getByText('No node matches this search.')).toBeInTheDocument();
   });
 
   describe('a row dragged with the pointer', () => {

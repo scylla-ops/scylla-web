@@ -1,32 +1,32 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { t } from '@scylla/ui/i18n';
-import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
+import type { NodeTemplate } from '@base/features/pipeline/domain/structs/node-template.struct.ts';
 import {
   blankDefinition,
-  type StepDefinition,
-} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+  type NodeDefinition,
+} from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import { blueprintMessages } from '../messages/blueprint.messages.ts';
-import { stepPreview } from './step-summary.presenter.ts';
-import { stepMessages } from '../messages/step.messages.ts';
+import { nodePreview } from './node-summary.presenter.ts';
+import { nodeMessages } from '../messages/node.messages.ts';
 
 /** Text written by the app is a descriptor; text from a template is shown as is. */
 export type CatalogText = string | MessageDescriptor;
 
-export type CatalogGroup = 'steps' | 'templates';
+export type CatalogGroup = 'nodes' | 'templates';
 
-/** What the palette and the quick-add menu offer: a blank kind of step, or a template. */
+/** What the palette and the quick-add menu offer: a blank kind of node, or a template. */
 export interface CatalogEntry {
   id: string;
   group: CatalogGroup;
   name: CatalogText;
   detail: CatalogText;
-  /** A template's icon hint; a blank step shows the icon of its kind. */
+  /** A template's icon hint; a blank node shows the icon of its kind. */
   icon?: string;
-  stepId: string;
-  definition: StepDefinition;
+  nodeId: string;
+  definition: NodeDefinition;
 }
 
-const GROUP_ORDER: readonly CatalogGroup[] = ['steps', 'templates'];
+const GROUP_ORDER: readonly CatalogGroup[] = ['nodes', 'templates'];
 
 /** `resolve` translates a descriptor: the search matches what the viewer reads. */
 export const searchCatalog = (
@@ -49,58 +49,58 @@ export const groupCatalog = (entries: readonly CatalogEntry[]) =>
     items: entries.filter(entry => entry.group === group),
   })).filter(({ items }) => items.length > 0);
 
-/** What a step runs: its script, or its command and arguments. Its env and folder do not count. */
-const codeOf = (definition: StepDefinition): string =>
+/** What a node runs: its script, or its command and arguments. Its env and folder do not count. */
+const codeOf = (definition: NodeDefinition): string =>
   definition.kind === 'script'
     ? `script\u0000${definition.script.trim()}`
     : `exec\u0000${[definition.command.trim(), ...definition.args].join('\u0000')}`;
 
-/** The template whose code a step runs exactly: the step is shown with its icon. */
+/** The template whose code a node runs exactly: the node is shown with its icon. */
 export const templateFor = (
   entries: readonly CatalogEntry[],
-  definition: StepDefinition,
+  definition: NodeDefinition,
 ): CatalogEntry | undefined => {
   const code = codeOf(definition);
   return entries.find(entry => entry.group === 'templates' && codeOf(entry.definition) === code);
 };
 
-export const BLANK_STEPS: readonly CatalogEntry[] = [
+export const BLANK_NODES: readonly CatalogEntry[] = [
   {
     id: 'kind:bash',
-    group: 'steps',
+    group: 'nodes',
     name: blueprintMessages.bashScript,
     detail: blueprintMessages.bashScriptDetail,
-    stepId: 'script',
+    nodeId: 'script',
     definition: blankDefinition('script', 'bash'),
   },
   {
     id: 'kind:sh',
-    group: 'steps',
+    group: 'nodes',
     name: blueprintMessages.shScript,
     detail: blueprintMessages.shScriptDetail,
-    stepId: 'script',
+    nodeId: 'script',
     definition: blankDefinition('script', 'sh'),
   },
   {
     id: 'kind:exec',
-    group: 'steps',
-    name: stepMessages.command,
+    group: 'nodes',
+    name: nodeMessages.command,
     detail: blueprintMessages.commandDetail,
-    stepId: 'command',
+    nodeId: 'command',
     definition: blankDefinition('exec'),
   },
 ];
 
-export const catalogEntries = (templates: readonly StepTemplate[]): CatalogEntry[] => [
-  ...BLANK_STEPS,
+export const catalogEntries = (templates: readonly NodeTemplate[]): CatalogEntry[] => [
+  ...BLANK_NODES,
   ...templates.map(
     (template): CatalogEntry => ({
       id: `template:${template.id}`,
       group: 'templates',
       name: template.name,
-      detail: stepPreview(template.definition),
+      detail: nodePreview(template.definition),
       icon: template.icon,
-      stepId: template.stepId,
+      nodeId: template.nodeId,
       definition: template.definition,
     }),
   ),
@@ -111,6 +111,6 @@ export const catalogText = (text: CatalogText): string =>
   typeof text === 'string' ? text : t(text);
 
 export const CATALOG_GROUP_TITLES = {
-  steps: blueprintMessages.steps,
+  nodes: blueprintMessages.nodes,
   templates: blueprintMessages.templates,
 } as const;

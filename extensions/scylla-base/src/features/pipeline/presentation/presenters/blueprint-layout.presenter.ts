@@ -1,7 +1,7 @@
 import type { XYPosition } from '@xyflow/svelte';
-import { stepDepths } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import { nodeDepths } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import { NODE_WIDTH } from './blueprint-geometry.presenter.ts';
-import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 
 const NODE_HEIGHT = 112;
 const HORIZONTAL_GAP = 72;
@@ -10,20 +10,20 @@ const START_NODE_OFFSET = NODE_WIDTH + HORIZONTAL_GAP;
 
 export interface BlueprintLayout {
   start: XYPosition;
-  steps: Map<string, XYPosition>;
+  nodes: Map<string, XYPosition>;
 }
 
 /**
- * One column per stage (`stepDepths`), the steps of a stage one below the other in the order of
+ * One column per stage (`nodeDepths`), the nodes of a stage one below the other in the order of
  * the document, and the start node in the middle of the highest column.
  */
-export const layoutSteps = (steps: PipelineStepEntity[]): BlueprintLayout => {
-  const depths = stepDepths(steps);
+export const layoutNodes = (nodes: PipelineNodeEntity[]): BlueprintLayout => {
+  const depths = nodeDepths(nodes);
 
-  const columns = new Map<number, PipelineStepEntity[]>();
-  for (const step of steps) {
-    const depth = depths.get(step.id) ?? 0;
-    columns.set(depth, [...(columns.get(depth) ?? []), step]);
+  const columns = new Map<number, PipelineNodeEntity[]>();
+  for (const node of nodes) {
+    const depth = depths.get(node.id) ?? 0;
+    columns.set(depth, [...(columns.get(depth) ?? []), node]);
   }
 
   const highest = Math.max(1, ...Array.from(columns.values()).map(column => column.length));
@@ -31,15 +31,15 @@ export const layoutSteps = (steps: PipelineStepEntity[]): BlueprintLayout => {
 
   const positions = new Map<string, XYPosition>();
   for (const [depth, column] of columns) {
-    column.forEach((step, row) =>
-      positions.set(step.id, {
+    column.forEach((node, row) =>
+      positions.set(node.id, {
         x: START_NODE_OFFSET + depth * (NODE_WIDTH + HORIZONTAL_GAP),
         y: row * (NODE_HEIGHT + VERTICAL_GAP),
       }),
     );
   }
 
-  return { start: { x: 0, y: totalHeight / 2 - NODE_HEIGHT / 2 }, steps: positions };
+  return { start: { x: 0, y: totalHeight / 2 - NODE_HEIGHT / 2 }, nodes: positions };
 };
 
 /** Next to the node it follows, else right of the graph: where a new node lands. */

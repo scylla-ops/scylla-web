@@ -1,18 +1,18 @@
 import type { Edge, Node } from '@xyflow/svelte';
 import {
   definitionOf,
-  type PipelineStepEntity,
-} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { repeatedStepIds } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
-import { layoutSteps } from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
+  type PipelineNodeEntity,
+} from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import { repeatedNodeIds } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import { layoutNodes } from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
 
-/** A node's `data` must be a `Record`: a step travels wrapped, as `{ step }`. */
+/** A node's `data` must be a `Record`: a node travels wrapped, as `{ node }`. */
 
-/** `repeated`: another step has the same id. */
-export type PipelineFlowNodeData = { step: PipelineStepEntity; repeated?: true };
+/** `repeated`: another node has the same id. */
+export type PipelineFlowNodeData = { node: PipelineNodeEntity; repeated?: true };
 export type StartFlowNodeData = { name: string };
 
-export type PipelineFlowNode = Node<PipelineFlowNodeData, 'pipelineStep'>;
+export type PipelineFlowNode = Node<PipelineFlowNodeData, 'pipelineNode'>;
 export type StartFlowNode = Node<StartFlowNodeData, 'startNode'>;
 export type FlowNode = PipelineFlowNode | StartFlowNode;
 export type FlowEdge = Edge;
@@ -33,30 +33,30 @@ export const edgeBetween = (source: string, target: string): FlowEdge => ({
 });
 
 /**
- * xyflow keys the nodes by id, so a step whose id is taken by an earlier one gets a key of its own
- * (`build#2`). Its step keeps its id: nothing is renamed, and the node is marked `repeated`.
+ * xyflow keys the nodes by id, so a node whose id is taken by an earlier one gets a key of its own
+ * (`build#2`). Its node keeps its id: nothing is renamed, and the node is marked `repeated`.
  */
-const nodeKeys = (steps: PipelineStepEntity[]): string[] => {
+const nodeKeys = (nodes: PipelineNodeEntity[]): string[] => {
   const counts = new Map<string, number>();
-  return steps.map(step => {
-    const count = (counts.get(step.id) ?? 0) + 1;
-    counts.set(step.id, count);
-    return count === 1 ? step.id : `${step.id}#${count}`;
+  return nodes.map(node => {
+    const count = (counts.get(node.id) ?? 0) + 1;
+    counts.set(node.id, count);
+    return count === 1 ? node.id : `${node.id}#${count}`;
   });
 };
 
 /**
- * The graph of the steps, laid out by stage. A dependency on the step itself or on a step that
- * does not exist is not drawn; a dependency on a repeated id goes to the first step with it.
+ * The graph of the nodes, laid out by stage. A dependency on the node itself or on a node that
+ * does not exist is not drawn; a dependency on a repeated id goes to the first node with it.
  */
-export function stepsToFlow(
-  steps: PipelineStepEntity[],
+export function nodesToFlow(
+  nodes: PipelineNodeEntity[],
   pipelineName: string,
 ): { flowNodes: FlowNode[]; edges: FlowEdge[] } {
-  const keys = nodeKeys(steps);
-  const ids = new Set(steps.map(step => step.id));
-  const repeated = new Set(repeatedStepIds(steps));
-  const layout = layoutSteps(steps.map((step, index) => ({ ...step, id: keys[index] })));
+  const keys = nodeKeys(nodes);
+  const ids = new Set(nodes.map(node => node.id));
+  const repeated = new Set(repeatedNodeIds(nodes));
+  const layout = layoutNodes(nodes.map((node, index) => ({ ...node, id: keys[index] })));
 
   const startNode: StartFlowNode = {
     id: START_NODE_ID,
@@ -66,15 +66,15 @@ export function stepsToFlow(
     deletable: false,
   };
 
-  const pipelineFlowNodes: PipelineFlowNode[] = steps.map((step, index) => ({
+  const pipelineFlowNodes: PipelineFlowNode[] = nodes.map((node, index) => ({
     id: keys[index],
-    type: 'pipelineStep',
-    position: layout.steps.get(keys[index]) ?? { x: 0, y: 0 },
-    data: repeated.has(step.id) ? { step, repeated: true } : { step },
+    type: 'pipelineNode',
+    position: layout.nodes.get(keys[index]) ?? { x: 0, y: 0 },
+    data: repeated.has(node.id) ? { node, repeated: true } : { node },
   }));
 
-  const edges = steps.flatMap((step, index) => {
-    const deps = step.deps.filter(dep => dep !== step.id && ids.has(dep));
+  const edges = nodes.flatMap((node, index) => {
+    const deps = node.deps.filter(dep => dep !== node.id && ids.has(dep));
     return deps.length
       ? deps.map(dep => edgeBetween(dep, keys[index]))
       : [edgeBetween(START_NODE_ID, keys[index])];
@@ -83,20 +83,20 @@ export function stepsToFlow(
   return { flowNodes: [startNode, ...pipelineFlowNodes], edges };
 }
 
-export const stepOf = (flowNode: FlowNode): PipelineStepEntity | undefined =>
-  flowNode.type === 'pipelineStep' ? flowNode.data.step : undefined;
+export const nodeOf = (flowNode: FlowNode): PipelineNodeEntity | undefined =>
+  flowNode.type === 'pipelineNode' ? flowNode.data.node : undefined;
 
-/** The ids of the steps a node waits for: the start node is not a step. */
+/** The ids of the nodes a node waits for: the start node is not a node. */
 export const depsOf = (edges: FlowEdge[], id: string): string[] =>
   edges
     .filter(edge => edge.target === id && edge.source !== START_NODE_ID)
     .map(edge => edge.source);
 
-export function flowToSteps(flowNodes: FlowNode[], edges: FlowEdge[]): PipelineStepEntity[] {
+export function flowToNodes(flowNodes: FlowNode[], edges: FlowEdge[]): PipelineNodeEntity[] {
   return flowNodes.flatMap(flowNode => {
-    const step = stepOf(flowNode);
-    if (!step) return [];
+    const node = nodeOf(flowNode);
+    if (!node) return [];
 
-    return [{ id: step.id, deps: depsOf(edges, flowNode.id), ...definitionOf(step) }];
+    return [{ id: node.id, deps: depsOf(edges, flowNode.id), ...definitionOf(node) }];
   });
 }

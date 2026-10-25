@@ -1,7 +1,7 @@
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { PipelineRepository } from '../repository/pipeline.repository.ts';
 import { pipelineIssue } from '../entities/pipeline.entity.ts';
-import type { PipelineStepEntity } from '../entities/pipeline-step.entity.ts';
+import type { PipelineNodeEntity } from '../entities/pipeline-node.entity.ts';
 import type { PipelineIssue } from '../entities/pipeline.entity.ts';
 
 export interface SavePipelineInput {
@@ -9,7 +9,7 @@ export interface SavePipelineInput {
   id?: string;
   projectId: string;
   name: string;
-  steps: PipelineStepEntity[];
+  nodes: PipelineNodeEntity[];
 }
 
 /** The pipeline breaks a rule of the domain: nothing was sent to the server. */
@@ -21,7 +21,7 @@ export class InvalidPipelineError extends ScyllaError {
 }
 
 /**
- * Applies the rules of the server before it is called: a name of one word, and step ids that it
+ * Applies the rules of the server before it is called: a name of one word, and node ids that it
  * accepts. Then creates the pipeline, or edits it.
  */
 export class SavePipelineUseCase {
@@ -31,12 +31,12 @@ export class SavePipelineUseCase {
     id,
     projectId,
     name,
-    steps,
+    nodes,
   }: SavePipelineInput): Promise<ScyllaResult<void>> {
-    const issue = pipelineIssue({ name, steps });
+    const issue = pipelineIssue({ name, nodes });
     if (issue) return ScyllaResult.error(new InvalidPipelineError(issue));
 
-    if (!id) return this._repository.create({ projectId, name, steps });
-    return (await this._repository.edit(id, steps, name)).map(() => undefined);
+    if (!id) return this._repository.create({ projectId, name, nodes });
+    return (await this._repository.edit(id, nodes, name)).map(() => undefined);
   }
 }

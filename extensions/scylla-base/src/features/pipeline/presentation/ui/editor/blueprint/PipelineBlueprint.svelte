@@ -3,10 +3,10 @@
   import { createQuery } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '@scylla/ui/primitives';
-  import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+  import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import { createBlueprint } from './blueprint.state.svelte.ts';
   import { createNodeAppearancePreference } from './canvas/node-appearance-preference.state.svelte.ts';
-  import { stepTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
+  import { nodeTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import { createQuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
   import BlueprintCanvas from './canvas/BlueprintCanvas.svelte';
   import { catalogEntries, catalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
@@ -17,24 +17,24 @@
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
   interface Props {
-    steps: PipelineStepEntity[];
+    nodes: PipelineNodeEntity[];
     pipelineName: string;
     projectId?: string;
-    onStepsChange: (steps: PipelineStepEntity[]) => void;
+    onNodesChange: (nodes: PipelineNodeEntity[]) => void;
   }
 
-  let { steps, pipelineName, projectId, onStepsChange }: Props = $props();
+  let { nodes, pipelineName, projectId, onNodesChange }: Props = $props();
 
   const blueprint = createBlueprint({
-    steps: () => steps,
+    nodes: () => nodes,
     pipelineName: () => pipelineName,
     // Read at call time, so a swapped callback is the one called.
-    onStepsChange: next => onStepsChange(next),
+    onNodesChange: next => onNodesChange(next),
   });
 
   const appearance = createNodeAppearancePreference();
 
-  const templatesQuery = createQuery(() => stepTemplateQueries.list());
+  const templatesQuery = createQuery(() => nodeTemplateQueries.list());
   const entries = $derived(catalogEntries(templatesQuery.data ?? []));
 
   const drag = createPaletteDrag();
@@ -44,7 +44,7 @@
     resolve: catalogText,
     onPick: (entry, request) =>
       blueprint.inspect(
-        blueprint.addNode(entry.stepId, entry.definition, {
+        blueprint.addNode(entry.nodeId, entry.definition, {
           ...request.link,
           position: nodePositionAt(appearance.current, request.flow),
         }),
@@ -76,7 +76,7 @@
       {entries}
       {projectId}
       {drag}
-      onAdd={entry => blueprint.inspect(blueprint.addNode(entry.stepId, entry.definition))}
+      onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
     />
   </ResizablePaneGroup>
   <PaletteDragGhost {drag} />

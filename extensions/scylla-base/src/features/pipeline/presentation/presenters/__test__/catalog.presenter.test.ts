@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import type { StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
+import type { NodeDefinition } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import type { NodeTemplate } from '@base/features/pipeline/domain/structs/node-template.struct.ts';
 import {
-  BLANK_STEPS,
+  BLANK_NODES,
   catalogEntries,
   catalogText,
   groupCatalog,
@@ -22,36 +22,36 @@ const entry = (
   group,
   name,
   detail,
-  stepId: id,
+  nodeId: id,
   definition: { kind: 'exec', command: 'x', args: [], env: [] },
 });
 
 const entries = [
   entry('npm-ci', 'templates', 'npm ci', 'npm ci'),
-  entry('bash', 'steps', 'Bash script'),
+  entry('bash', 'nodes', 'Bash script'),
   entry('docker', 'templates', 'docker build', 'docker build -t app .'),
 ];
 const resolve = (text: CatalogText) => (typeof text === 'string' ? text : (text.message ?? ''));
-const template: StepTemplate = {
+const template: NodeTemplate = {
   id: 'npm-ci',
   name: 'npm ci',
-  stepId: 'install-deps',
+  nodeId: 'install-deps',
   icon: 'package',
   definition: { kind: 'script', shell: 'bash', script: '#!/bin/bash\nnpm ci', env: [] },
 };
 
 describe('catalogEntries', () => {
-  it('lists the blank steps first, then the templates', () => {
+  it('lists the blank nodes first, then the templates', () => {
     const entries = catalogEntries([template]);
 
-    expect(entries.slice(0, BLANK_STEPS.length)).toEqual(BLANK_STEPS);
+    expect(entries.slice(0, BLANK_NODES.length)).toEqual(BLANK_NODES);
     expect(entries.at(-1)).toMatchObject({
       id: 'template:npm-ci',
       group: 'templates',
       name: 'npm ci',
       detail: 'npm ci',
       icon: 'package',
-      stepId: 'install-deps',
+      nodeId: 'install-deps',
     });
   });
 });
@@ -59,7 +59,7 @@ describe('catalogEntries', () => {
 describe('catalogText', () => {
   it('shows a template text as is and translates a descriptor', () => {
     expect(catalogText('npm ci')).toBe('npm ci');
-    expect(catalogText(BLANK_STEPS[0].name)).toBe('Bash script');
+    expect(catalogText(BLANK_NODES[0].name)).toBe('Bash script');
   });
 
   it('lets the search match the translated name, whatever the case', () => {
@@ -86,11 +86,11 @@ describe('searchCatalog', () => {
 });
 
 describe('groupCatalog', () => {
-  it('puts the blank steps before the templates, whatever the order of the entries', () => {
+  it('puts the blank nodes before the templates, whatever the order of the entries', () => {
     expect(
       groupCatalog(entries).map(({ group, items }) => [group, items.map(item => item.id)]),
     ).toEqual([
-      ['steps', ['bash']],
+      ['nodes', ['bash']],
       ['templates', ['npm-ci', 'docker']],
     ]);
   });
@@ -101,13 +101,13 @@ describe('groupCatalog', () => {
 });
 
 describe('templateFor', () => {
-  const template = (id: string, definition: StepDefinition): CatalogEntry => ({
+  const template = (id: string, definition: NodeDefinition): CatalogEntry => ({
     id,
     group: 'templates',
     name: id,
     detail: '',
     icon: id,
-    stepId: id,
+    nodeId: id,
     definition,
   });
   const gitClone = template('git', {
@@ -124,7 +124,7 @@ describe('templateFor', () => {
   });
   const catalog = [gitClone, dockerBuild];
 
-  it('finds the template whose script the step runs, whatever its shell, env or folder', () => {
+  it('finds the template whose script the node runs, whatever its shell, env or folder', () => {
     expect(
       templateFor(catalog, {
         kind: 'script',
@@ -136,7 +136,7 @@ describe('templateFor', () => {
     ).toBe(gitClone);
   });
 
-  it('finds the template whose command and arguments the step runs', () => {
+  it('finds the template whose command and arguments the node runs', () => {
     expect(
       templateFor(catalog, { kind: 'exec', command: 'docker', args: ['build', '.'], env: [] }),
     ).toBe(dockerBuild);
@@ -151,8 +151,8 @@ describe('templateFor', () => {
     ).toBeUndefined();
   });
 
-  it('never takes a blank step for a template', () => {
-    const blank: CatalogEntry = { ...gitClone, id: 'kind:sh', group: 'steps' };
+  it('never takes a blank node for a template', () => {
+    const blank: CatalogEntry = { ...gitClone, id: 'kind:sh', group: 'nodes' };
     expect(templateFor([blank], gitClone.definition)).toBeUndefined();
   });
 });

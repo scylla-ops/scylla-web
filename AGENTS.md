@@ -214,12 +214,12 @@ folder of its role:
 
 - **`messages/`** — the texts of the views, as `msg` descriptors.
 - **`presenters/`** — a presenter takes data of the domain and gives what a view shows: rows,
-  text, icons, CSS classes, positions (`step-list.presenter.ts`: the steps → the rows and the
+  text, icons, CSS classes, positions (`node-list.presenter.ts`: the nodes → the rows and the
   stages of the list). It has no state and no rune, does not touch the DOM, and imports no
   component of the module. It can call `t()`. A rule of the business is not a presenter: it goes
   in `domain/`.
 - **`mappers/`** — a mapper converts one representation into another, both ways
-  (`pipeline-document.mapper.ts`: the JSON text of the editor ↔ the steps). A mapper of
+  (`pipeline-document.mapper.ts`: the JSON text of the editor ↔ the nodes). A mapper of
   `infrastructure/` converts the protos; a mapper of `presentation/` converts a format of a view.
 
 These three folders never import `ui/` (`presentation-logic-knows-no-ui`, in depcruise): `ui/`
@@ -227,7 +227,7 @@ uses them, never the reverse. There is no `utils/` folder.
 
 Inside `ui/`, Svelte code goes **beside the component that uses it**:
 
-- one component uses it → in that component's folder (`StepInspector/step-inspector.state.svelte.ts`);
+- one component uses it → in that component's folder (`NodesView/nodes-view.state.svelte.ts`);
 - several components use it → in the folder of the component that owns the concept, else in the
   nearest folder above all of them (`ui/components/roles-page.state.svelte.ts`).
 
@@ -242,12 +242,12 @@ the ViewModel of a page.
   Split domain types into two buckets, both proto-independent: **entities** (`entities/*.entity.ts` → `{Name}Entity`) are the identity-bearing things the feature owns (e.g. `SecretEntity`, `RoleEntity`, `UserEntity`); they may hold related input shapes (`CreateSecretInput`) and pure behavior on that entity: a function that takes the entity, or creates one (`updateRole`). **Structs** (`structs/*.struct.ts`) are plain data shapes with no identity — value objects, enums, DTOs, and list/result wrappers (e.g. `Permission`, `PermissionScope`, `ProjectList`, `CreatedApp`) — named with plain PascalCase (no suffix). The `Entity` suffix is what distinguishes the two at every use site, including against the proto types (which keep the bare name, aliased in mappers). There are **no `*.model.ts` files** — every domain type is an entity or a struct.
   Where a rule goes:
   - **A rule on one value** (an id, a name) goes in the struct of that value, as a value object:
-    the type and its own validation (`step-id.struct.ts`: `StepId`, `stepIdIssue`). A struct has
+    the type and its own validation (`node-id.struct.ts`: `NodeId`, `nodeIdIssue`). A struct has
     no other function.
-  - **A rule on one entity** goes in its entity file (`withDefinition(step, …)`).
+  - **A rule on one entity** goes in its entity file (`withDefinition(node, …)`).
   - **A rule on an entity and the entities it holds** goes in the root entity (the aggregate):
-    the pipeline keeps the ids of its steps unique and their dependencies whole (`addStep`,
-    `renameStep` in `pipeline.entity.ts`).
+    the pipeline keeps the ids of its nodes unique and their dependencies whole (`addNode`,
+    `renameNode` in `pipeline.entity.ts`).
   - **Orchestration of repositories** is a use case, which holds no rule (see below).
 
   There is no `utils/` folder and no domain service. Behavior is pure functions on plain data,
@@ -441,11 +441,11 @@ static SPA that the Rust binary serves. See `refacto_svelte.md` for the reasons.
 **Every file of rune code tells its role in its suffix**: `.state`, `.effect`, `.adapter` or
 `.attachments`, then `.svelte.ts`. A plain `*.svelte.ts` is not permitted: a file with no role
 does not have a known place. A test takes the name of the file it tests
-(`step-draft.state.svelte.test.ts`).
+(`node-draft.state.svelte.test.ts`).
 
 - **A state holds UI state for one responsibility.** It is a `create*` factory that returns
   getters and methods, and it can run queries. A component can use several states. A state is
-  named after what it holds (`step-draft.state.svelte.ts`, `step-panes.state.svelte.ts`). The
+  named after what it holds (`node-draft.state.svelte.ts`, `node-panes.state.svelte.ts`). The
   state that orchestrates a view is named after the view (`user-list.state.svelte.ts`): that is
   the ViewModel of the view. If you cannot name a state with one noun, split it.
 - **An effect synchronizes with a system outside Svelte**, for a component that calls it
@@ -561,13 +561,13 @@ The package and layer structure is mandatory; everything else must earn its plac
 |-------|---------|---------|
 | Page component file | `*.page.svelte` | `UserAdmin.page.svelte` |
 | Svelte component | `PascalCase.svelte` | `SecretList.svelte` |
-| State (runes): a ViewModel, or UI state with one responsibility | `<view>.state.svelte.ts` / `<responsibility>.state.svelte.ts` → `create{Name}` or a `{View}State` class | `roles-page.state.svelte.ts`, `step-draft.state.svelte.ts` / `createStepDraft` |
+| State (runes): a ViewModel, or UI state with one responsibility | `<view>.state.svelte.ts` / `<responsibility>.state.svelte.ts` → `create{Name}` or a `{View}State` class | `roles-page.state.svelte.ts`, `node-draft.state.svelte.ts` / `createNodeDraft` |
 | Effect (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` → a verb | `organization-sync.effect.svelte.ts` / `syncOrganization` |
 | Adapter (runes): an outside API read from rune code | `*.adapter.svelte.ts` | `to-rune.adapter.svelte.ts` / `toRune` |
 | Query / mutation options | `<feature>.queries.ts` → `{feature}Queries`, `{feature}Mutations` | `user.queries.ts` / `userQueries` |
 | Messages (i18n) | `presentation/messages/*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
 | Attachment | `*.attachments.ts` (`.svelte.ts` when it uses runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
-| Presenter (domain data → what a view shows) | `presentation/presenters/*.presenter.ts` | `step-list.presenter.ts` / `stepRows` |
+| Presenter (domain data → what a view shows) | `presentation/presenters/*.presenter.ts` | `node-list.presenter.ts` / `nodeRows` |
 | Mapper of a view format (both ways) | `presentation/mappers/*.mapper.ts` | `pipeline-document.mapper.ts` / `parseScript` |
 | Registry (a key → components or icons), in `ui/` | `*.registry.ts` | `node-appearances.registry.ts` / `NODE_APPEARANCE_VIEWS` |
 | Columns of a table, in `ui/` | `*.columns.ts` | `pipeline-table.columns.ts` / `pipelineColumns` |

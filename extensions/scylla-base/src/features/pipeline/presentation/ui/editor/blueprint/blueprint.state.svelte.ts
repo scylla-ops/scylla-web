@@ -1,15 +1,15 @@
 import { untrack } from 'svelte';
 import type { Connection, XYPosition } from '@xyflow/svelte';
-import type { PipelineStepEntity, StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import type { PipelineNodeEntity, NodeDefinition } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import * as pipeline from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import { positionAfter } from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
 import {
   START_NODE_ID,
   depsOf,
   edgeBetween,
-  flowToSteps,
-  stepOf,
-  stepsToFlow,
+  flowToNodes,
+  nodeOf,
+  nodesToFlow,
   type FlowEdge,
   type FlowNode,
   type PipelineFlowNode,
@@ -17,19 +17,19 @@ import {
 
 export interface BlueprintParams {
   /** Getters: the editor's document changes. */
-  steps: () => PipelineStepEntity[];
+  nodes: () => PipelineNodeEntity[];
   pipelineName: () => string;
-  onStepsChange: (steps: PipelineStepEntity[]) => void;
+  onNodesChange: (nodes: PipelineNodeEntity[]) => void;
 }
 
-/** How a new step joins the graph: after a node (by default the start node), or inside an edge. */
-export type StepLink = { after?: string } | { replacing: string };
+/** How a new node joins the graph: after a node (by default the start node), or inside an edge. */
+export type NodeLink = { after?: string } | { replacing: string };
 
-export type StepPlacement = StepLink & { position?: XYPosition };
+export type NodePlacement = NodeLink & { position?: XYPosition };
 
 /**
- * The canvas graph, in step with the script. The script owns the steps, the
- * canvas owns the positions, so the graph cannot be derived from the steps.
+ * The canvas graph, in node with the script. The script owns the nodes, the
+ * canvas owns the positions, so the graph cannot be derived from the nodes.
  * `lastEmitted` recognises the echo of our own edits, or one edit would loop.
  * `@xyflow/svelte` writes added and deleted elements itself: `sync` publishes them.
  *
@@ -44,25 +44,25 @@ export const createBlueprint = (params: BlueprintParams) => {
 
   let lastEmitted = '';
 
-  const keyOf = (steps: PipelineStepEntity[], name: string) => JSON.stringify({ steps, name });
+  const keyOf = (nodes: PipelineNodeEntity[], name: string) => JSON.stringify({ nodes, name });
 
   const emit = () => {
     if (readOnly) return;
-    const steps = flowToSteps(flowNodes, edges);
-    const key = keyOf(steps, params.pipelineName());
+    const nodes = flowToNodes(flowNodes, edges);
+    const key = keyOf(nodes, params.pipelineName());
     if (key === lastEmitted) return;
 
     lastEmitted = key;
-    params.onStepsChange(steps);
+    params.onNodesChange(nodes);
   };
 
   // Writes only `nodes` and `edges`, so it never re-triggers itself.
   $effect(() => {
-    const steps = params.steps();
+    const nodes = params.nodes();
     const name = params.pipelineName();
-    if (keyOf(steps, name) === lastEmitted) return;
+    if (keyOf(nodes, name) === lastEmitted) return;
 
-    const flow = stepsToFlow(steps, name);
+    const flow = nodesToFlow(nodes, name);
     // A node that is still there keeps its place and its selection: only a new one is laid out.
     // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to this run, never state
     const previous = new Map(untrack(() => flowNodes).map(flowNode => [flowNode.id, flowNode]));
@@ -72,37 +72,37 @@ export const createBlueprint = (params: BlueprintParams) => {
     });
     edges = flow.edges;
 
-    lastEmitted = keyOf(steps, name);
+    lastEmitted = keyOf(nodes, name);
   });
 
   /**
-   * Two steps share an id: the graph shows them, marked, but cannot edit them, as an edit goes
+   * Two nodes share an id: the graph shows them, marked, but cannot edit them, as an edit goes
    * through the ids. The document is never rewritten to remove the repeat.
    */
-  const readOnly = $derived(pipeline.repeatedStepIds(params.steps()).length > 0);
+  const readOnly = $derived(pipeline.repeatedNodeIds(params.nodes()).length > 0);
 
   const inspected = $derived(
-    flowNodes.find((flowNode): flowNode is PipelineFlowNode => flowNode.id === inspectedId && !!stepOf(flowNode)),
+    flowNodes.find((flowNode): flowNode is PipelineFlowNode => flowNode.id === inspectedId && !!nodeOf(flowNode)),
   );
 
-  const currentSteps = () => flowToSteps(flowNodes, edges);
+  const currentNodes = () => flowToNodes(flowNodes, edges);
 
   /**
-   * Writes back what an operation of the pipeline changed in the steps. The edges are the
+   * Writes back what an operation of the pipeline changed in the nodes. The edges are the
    * dependencies of the graph: a rename is followed in them too.
    */
-  const applyToSteps = (next: PipelineStepEntity[], renamed?: { from: string; to: string }) => {
+  const applyToNodes = (next: PipelineNodeEntity[], renamed?: { from: string; to: string }) => {
     if (readOnly) return;
     // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to a call, never state
-    const byId = new Map(next.map(step => [step.id, step]));
+    const byId = new Map(next.map(node => [node.id, node]));
     const follow = (id: string) => (renamed && id === renamed.from ? renamed.to : id);
 
     flowNodes = flowNodes.map((flowNode): FlowNode => {
-      // The start node is the pipeline, not a step.
-      if (flowNode.type !== 'pipelineStep') return flowNode;
+      // The start node is the pipeline, not a node.
+      if (flowNode.type !== 'pipelineNode') return flowNode;
       const id = follow(flowNode.id);
-      const step = byId.get(id);
-      return step ? { ...flowNode, id, data: { step } } : flowNode;
+      const node = byId.get(id);
+      return node ? { ...flowNode, id, data: { node } } : flowNode;
     });
 
     if (renamed) {
@@ -147,7 +147,7 @@ export const createBlueprint = (params: BlueprintParams) => {
       !readOnly &&
       target !== START_NODE_ID &&
       source !== target &&
-      !pipeline.waitsFor(currentSteps(), source, target),
+      !pipeline.waitsFor(currentNodes(), source, target),
 
     sync() {
       emit();
@@ -155,16 +155,16 @@ export const createBlueprint = (params: BlueprintParams) => {
       if (!inspected) inspectedId = null;
     },
 
-    /** A step no edge goes into: saving links it to the start node, so the canvas warns. */
+    /** A node no edge goes into: saving links it to the start node, so the canvas warns. */
     isDetached: (id: string) => !edges.some(edge => edge.target === id),
 
-    /** The ids of the steps this one waits for: the inspector lists them. */
+    /** The ids of the nodes this one waits for: the inspector lists them. */
     dependenciesOf: (id: string) => depsOf(edges, id),
 
-    /** Adds the step; the caller opens it with `inspect` when a click asked for it. Returns its final id. */
-    addNode(desiredId: string, value: StepDefinition, placement: StepPlacement = {}): string {
+    /** Adds the node; the caller opens it with `inspect` when a click asked for it. Returns its final id. */
+    addNode(desiredId: string, value: NodeDefinition, placement: NodePlacement = {}): string {
       if (readOnly) return desiredId;
-      const { id } = pipeline.addStep(currentSteps(), desiredId, value);
+      const { id } = pipeline.addNode(currentNodes(), desiredId, value);
       const replaced =
         'replacing' in placement ? edges.find(edge => edge.id === placement.replacing) : undefined;
       const after = 'after' in placement ? placement.after : undefined;
@@ -172,9 +172,9 @@ export const createBlueprint = (params: BlueprintParams) => {
 
       const flowNode: PipelineFlowNode = {
         id,
-        type: 'pipelineStep',
+        type: 'pipelineNode',
         position: placement.position ?? positionAfter(flowNodes, replaced?.source ?? after),
-        data: { step: { id, deps: [], ...value } },
+        data: { node: { id, deps: [], ...value } },
       };
 
       flowNodes = [...flowNodes, flowNode];
@@ -188,18 +188,18 @@ export const createBlueprint = (params: BlueprintParams) => {
       return id;
     },
 
-    updateStep(id: string, value: StepDefinition) {
-      applyToSteps(pipeline.updateStep(currentSteps(), id, value));
+    updateNode(id: string, value: NodeDefinition) {
+      applyToNodes(pipeline.updateNode(currentNodes(), id, value));
     },
 
-    /** A taken or empty id keeps the step usable: it gets a suffix, or keeps its id. */
-    renameStep(id: string, desired: string): string {
-      const change = pipeline.renameStep(currentSteps(), id, desired);
-      if (change.id !== id) applyToSteps(change.steps, { from: id, to: change.id });
+    /** A taken or empty id keeps the node usable: it gets a suffix, or keeps its id. */
+    renameNode(id: string, desired: string): string {
+      const change = pipeline.renameNode(currentNodes(), id, desired);
+      if (change.id !== id) applyToNodes(change.nodes, { from: id, to: change.id });
       return change.id;
     },
 
-    removeStep(id: string) {
+    removeNode(id: string) {
       if (id === START_NODE_ID || readOnly) return;
       if (inspectedId === id) inspectedId = null;
       flowNodes = flowNodes.filter(flowNode => flowNode.id !== id);
@@ -208,7 +208,7 @@ export const createBlueprint = (params: BlueprintParams) => {
     },
 
     /**
-     * Opens the side panel on a step, selected on the canvas; `null` closes it. The start node
+     * Opens the side panel on a node, selected on the canvas; `null` closes it. The start node
      * is the pipeline: its name is edited in the header, so it closes the panel too.
      */
     inspect(id: string | null) {
@@ -221,7 +221,7 @@ export const createBlueprint = (params: BlueprintParams) => {
 
     /** Lays the graph out again by depth: the same layout as a freshly opened pipeline. */
     arrange() {
-      const flow = stepsToFlow(flowToSteps(flowNodes, edges), params.pipelineName());
+      const flow = nodesToFlow(flowToNodes(flowNodes, edges), params.pipelineName());
       // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to this call, never state
       const positions = new Map(flow.flowNodes.map(flowNode => [flowNode.id, flowNode.position]));
       flowNodes = flowNodes.map(flowNode => ({ ...flowNode, position: positions.get(flowNode.id) ?? flowNode.position }));

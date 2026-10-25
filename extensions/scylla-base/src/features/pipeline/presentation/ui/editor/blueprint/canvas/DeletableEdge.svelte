@@ -42,7 +42,7 @@
   );
 </script>
 
-<!-- A dependency. Once selected, it offers to insert a step in its middle, or to go. -->
+<!-- A dependency. Once selected, it offers to insert a node in its middle, or to go. -->
 <BaseEdge
   {id}
   path={path[0]}
@@ -58,7 +58,7 @@
     <div class="flex gap-0.5 rounded-full border bg-card p-0.5 shadow-sm">
       <button
         type="button"
-        aria-label={t(blueprintMessages.insertStep)}
+        aria-label={t(blueprintMessages.insertNode)}
         class="flex size-6 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary-subtle"
         onclick={event => {
           event.stopPropagation();

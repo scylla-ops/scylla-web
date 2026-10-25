@@ -1,7 +1,7 @@
 <script lang="ts">
   import { cn } from '@scylla/ui/utils';
   import type { CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
-  import { KIND_TONES, stepIcon } from '@base/features/pipeline/presentation/presenters/step-kind.presenter.ts';
+  import { KIND_TONES, nodeIcon } from '@base/features/pipeline/presentation/presenters/node-kind.presenter.ts';
 
   interface Props {
     entry: CatalogEntry;
@@ -11,7 +11,7 @@
 
   let { entry, compact = false, class: className }: Props = $props();
 
-  const Icon = $derived(stepIcon(entry.definition.kind, entry.icon));
+  const Icon = $derived(nodeIcon(entry.definition.kind, entry.icon));
   const tone = $derived(KIND_TONES[entry.definition.kind]);
 </script>
 

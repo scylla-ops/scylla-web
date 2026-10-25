@@ -52,8 +52,8 @@ export const MINIMAL_FOOTPRINT: NodeFootprint = {
 type ConnectionState = ReturnType<typeof useConnection>['current'];
 
 /**
- * Where a link pulled from a step's output would create a step: the point of the pointer, while
- * it is over no node. Dropped there, the link opens the quick add menu, which puts the step at
+ * Where a link pulled from a node's output would create a node: the point of the pointer, while
+ * it is over no node. Dropped there, the link opens the quick add menu, which puts the node at
  * this point. `null` for any other link.
  */
 export const linkDropPoint = (connection: ConnectionState): XYPosition | null =>

@@ -39,7 +39,7 @@ The suffix of a file tells its role.
 |------|---------|---------|
 | **Repository interface** | `*.repository.ts` → `{Entity}Repository` | `user.repository.ts` / `UserRepository` |
 | **Domain entity** | `*.entity.ts` → `{Name}Entity` | `secret.entity.ts` / `SecretEntity` |
-| **Struct** (value object / enum / DTO / wrapper): types, and a value object's own validation | `*.struct.ts`, plain name | `permission.struct.ts` / `PermissionScope`, `step-id.struct.ts` / `stepIdIssue` |
+| **Struct** (value object / enum / DTO / wrapper): types, and a value object's own validation | `*.struct.ts`, plain name | `permission.struct.ts` / `PermissionScope`, `node-id.struct.ts` / `nodeIdIssue` |
 | **Use case** (only when it orchestrates) | `*.use-case.ts` → `{Verb}{Entity}UseCase` | `update-role.use-case.ts` / `UpdateRoleUseCase` |
 
 #### Infrastructure
@@ -56,11 +56,11 @@ The suffix of a file tells its role.
 |------|---------|---------|
 | **Query / mutation options** | `<feature>.queries.ts` → `{feature}Queries`, `{feature}Mutations` | `user.queries.ts` / `userQueries` |
 | **Query-key factories** (when they have their own file) | `<feature>.query-keys.ts` | `jobs.query-keys.ts` |
-| **State** (runes): a ViewModel, or UI state with one responsibility | `<view>.state.svelte.ts` / `<responsibility>.state.svelte.ts` | `roles-page.state.svelte.ts`, `step-draft.state.svelte.ts` |
+| **State** (runes): a ViewModel, or UI state with one responsibility | `<view>.state.svelte.ts` / `<responsibility>.state.svelte.ts` | `roles-page.state.svelte.ts`, `node-draft.state.svelte.ts` |
 | **Effect** (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` | `organization-sync.effect.svelte.ts` |
 | **Adapter** (runes): an outside API read from rune code | `*.adapter.svelte.ts` | `to-rune.adapter.svelte.ts` |
 | **Attachment** | `*.attachments.ts` (`.svelte.ts` with runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
-| **Presenter** (domain data → what a view shows) | `presenters/*.presenter.ts` | `step-list.presenter.ts` |
+| **Presenter** (domain data → what a view shows) | `presenters/*.presenter.ts` | `node-list.presenter.ts` |
 | **Mapper** of a view format (both ways) | `mappers/*.mapper.ts` | `pipeline-document.mapper.ts` |
 | **Registry** (a key → components or icons), in `ui/` | `*.registry.ts` | `node-appearances.registry.ts` |
 | **Columns** of a table, in `ui/` | `*.columns.ts` | `pipeline-table.columns.ts` |
@@ -234,7 +234,7 @@ There are **no `use*` hooks**. A factory of rune state is **camelCase `create*`*
 | Kind | Pattern | Example |
 |------|---------|---------|
 | ViewModel of a view | `create{View}` in `<view>.state.svelte.ts`, or a `{View}State` class | `createRolesPage()`, `createPipelineDashboard(projectId)`, `LoginState` |
-| State with one responsibility | `create{Responsibility}` in `<responsibility>.state.svelte.ts` | `createStepDraft(...)`, `createSelection(key)`, `createPagination(options)` |
+| State with one responsibility | `create{Responsibility}` in `<responsibility>.state.svelte.ts` | `createNodeDraft(...)`, `createSelection(key)`, `createPagination(options)` |
 | Effect | a verb, in `*.effect.svelte.ts` | `syncOrganization(slug)`, `cleanContext(projectId)` |
 | TanStack Query | `createQuery`, `createMutation`, `createQueries` (from `@scylla/core-sdk`) | `createQuery(() => userQueries.byId(id))` |
 

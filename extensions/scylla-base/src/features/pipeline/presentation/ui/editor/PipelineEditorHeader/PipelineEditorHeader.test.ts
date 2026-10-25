@@ -40,9 +40,9 @@ describe('PipelineEditorHeader', () => {
 
   it('says why the pipeline cannot be saved, and disables Save', () => {
     grantOnly(Permission.UPDATE_PIPELINE);
-    renderHeader({ isDirty: true, issue: 'Two steps or more have the ID build.' });
+    renderHeader({ isDirty: true, issue: 'Two nodes or more have the ID build.' });
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Two steps or more have the ID build.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Two nodes or more have the ID build.');
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 

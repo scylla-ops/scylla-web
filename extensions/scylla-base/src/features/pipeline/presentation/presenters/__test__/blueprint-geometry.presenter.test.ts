@@ -18,7 +18,7 @@ describe('linkDropPoint', () => {
     expect(linkDropPoint(pulling('source', null))).toEqual({ x: 300, y: 120 });
   });
 
-  it('is nothing over a node: the link connects to it, it creates no step', () => {
+  it('is nothing over a node: the link connects to it, it creates no node', () => {
     expect(linkDropPoint(pulling('source', { id: 'build' }))).toBeNull();
   });
 

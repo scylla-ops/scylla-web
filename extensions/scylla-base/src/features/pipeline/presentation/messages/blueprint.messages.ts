@@ -1,11 +1,11 @@
 import { msg, plural } from '@lingui/core/macro';
 
 export const blueprintMessages = {
-  searchSteps: msg`Search a step`,
-  steps: msg`Steps`,
+  searchNodes: msg`Search a node`,
+  nodes: msg`Nodes`,
   templates: msg`Templates`,
-  noMatch: msg`No step matches this search.`,
-  paletteHint: msg`Drag a step onto the canvas, or drop a link on empty space to add one.`,
+  noMatch: msg`No node matches this search.`,
+  paletteHint: msg`Drag a node onto the canvas, or drop a link on empty space to add one.`,
 
   bashScript: msg`Bash script`,
   bashScriptDetail: msg`A multi-line shell script`,
@@ -13,9 +13,9 @@ export const blueprintMessages = {
   shScriptDetail: msg`A POSIX shell script`,
   commandDetail: msg`One program and its arguments`,
 
-  addStep: msg`Add a step`,
-  addAfter: (id: string) => msg`Add a step after ${id}`,
-  insertStep: msg`Insert a step here`,
+  addNode: msg`Add a node`,
+  addAfter: (id: string) => msg`Add a node after ${id}`,
+  insertNode: msg`Insert a node here`,
   keyNavigate: msg`navigate`,
   keyAdd: msg`add`,
   keyCancel: msg`cancel`,
@@ -32,7 +32,7 @@ export const blueprintMessages = {
   close: msg`Close`,
   appliedToDraft: msg`Applied to the draft`,
   detached: msg`No input link`,
-  detachedHint: msg`This step has no input link. On save, it is linked to the start of the pipeline.`,
+  detachedHint: msg`This node has no input link. On save, it is linked to the start of the pipeline.`,
   variables: (count: number) => msg`${plural(count, { one: '# variable', other: '# variables' })}`,
   secrets: (count: number) => msg`${plural(count, { one: '# secret', other: '# secrets' })}`,
 };

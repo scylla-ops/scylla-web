@@ -7,7 +7,7 @@ import {
   type QuickAdd,
   type QuickAddRequest,
 } from './quick-add.state.svelte.ts';
-import { BLANK_STEPS, catalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+import { BLANK_NODES, catalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
 
 const request: QuickAddRequest = {
   client: { x: 10, y: 20 },
@@ -18,7 +18,7 @@ const request: QuickAddRequest = {
 const withQuickAdd = (run: (quickAdd: QuickAdd, onPick: ReturnType<typeof vi.fn>) => void) => {
   const onPick = vi.fn();
   const cleanup = $effect.root(() => {
-    const quickAdd = createQuickAdd({ entries: () => BLANK_STEPS, resolve: catalogText, onPick });
+    const quickAdd = createQuickAdd({ entries: () => BLANK_NODES, resolve: catalogText, onPick });
     flushSync();
     run(quickAdd, onPick);
   });
@@ -39,7 +39,7 @@ describe('createQuickAdd', () => {
       quickAdd.move(1);
       quickAdd.pick();
 
-      expect(onPick).toHaveBeenCalledWith(BLANK_STEPS[1], request);
+      expect(onPick).toHaveBeenCalledWith(BLANK_NODES[1], request);
       expect(quickAdd.request).toBeNull();
     });
   });
@@ -48,7 +48,7 @@ describe('createQuickAdd', () => {
     withQuickAdd(quickAdd => {
       quickAdd.open(request);
       quickAdd.move(-1);
-      expect(quickAdd.active).toBe(BLANK_STEPS.length - 1);
+      expect(quickAdd.active).toBe(BLANK_NODES.length - 1);
       quickAdd.move(1);
       expect(quickAdd.active).toBe(0);
     });
@@ -63,7 +63,7 @@ describe('createQuickAdd', () => {
       expect(quickAdd.results.map(entry => entry.id)).toEqual(['kind:exec']);
       expect(quickAdd.active).toBe(0);
       quickAdd.pick();
-      expect(onPick).toHaveBeenCalledWith(BLANK_STEPS[2], request);
+      expect(onPick).toHaveBeenCalledWith(BLANK_NODES[2], request);
     });
   });
 
@@ -91,18 +91,18 @@ describe('createQuickAdd', () => {
   });
 
   it('moves through the results in the order of their groups', () => {
-    const template = { ...BLANK_STEPS[0], id: 'template:x', group: 'templates' as const };
+    const template = { ...BLANK_NODES[0], id: 'template:x', group: 'templates' as const };
     const onPick = vi.fn();
     const cleanup = $effect.root(() => {
       const quickAdd = createQuickAdd({
-        entries: () => [template, ...BLANK_STEPS],
+        entries: () => [template, ...BLANK_NODES],
         resolve: catalogText,
         onPick,
       });
       flushSync();
 
       expect(quickAdd.results.at(-1)).toBe(template);
-      expect(quickAdd.groups.map(({ group }) => group)).toEqual(['steps', 'templates']);
+      expect(quickAdd.groups.map(({ group }) => group)).toEqual(['nodes', 'templates']);
     });
     cleanup();
   });

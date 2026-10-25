@@ -41,14 +41,14 @@
 
   let { blueprint, appearance, quickAdd, drag, entries }: Props = $props();
 
-  const nodeTypes: NodeTypes = { pipelineStep: PipelineNode, startNode: StartNode };
+  const nodeTypes: NodeTypes = { pipelineNode: PipelineNode, startNode: StartNode };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
 
   const { screenToFlowPosition } = useSvelteFlow();
 
   setBlueprintCanvas({
     appearance: () => appearance.current,
-    isDetached: stepId => blueprint.isDetached(stepId),
+    isDetached: nodeId => blueprint.isDetached(nodeId),
     iconHintOf: definition => templateFor(entries, definition)?.icon,
     insertOnEdge: (edgeId, at) => quickAdd.open({ ...at, link: { replacing: edgeId } }),
   });
@@ -58,7 +58,7 @@
     return { x: point.clientX, y: point.clientY };
   };
 
-  /** A link dropped on empty canvas asks which step to create there. */
+  /** A link dropped on empty canvas asks which node to create there. */
   const onConnectEnd: OnConnectEnd = (event, connection) => {
     const from = connection.fromNode;
     const droppedOnEmpty = !connection.isValid && !connection.toNode;
@@ -70,7 +70,7 @@
 
   const connection = useConnection();
 
-  /** The place of the step that a drop creates: a palette entry, or a link pulled onto empty canvas. */
+  /** The place of the node that a drop creates: a palette entry, or a link pulled onto empty canvas. */
   const spot = $derived.by(() => {
     if (drag.spot) return drag.spot;
     const point = linkDropPoint(connection.current);
@@ -86,7 +86,7 @@
     drag,
     // The middle of the node lands on the pointer: the dragged icon is in the middle of the outline.
     positionAt: client => nodePositionAt(appearance.current, screenToFlowPosition(client)),
-    drop: (entry, position) => blueprint.addNode(entry.stepId, entry.definition, { position }),
+    drop: (entry, position) => blueprint.addNode(entry.nodeId, entry.definition, { position }),
   }))}
 >
   <!--

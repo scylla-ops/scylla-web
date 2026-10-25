@@ -355,10 +355,10 @@ together.
   feature owns: a thing of the domain with a life cycle. They can hold the related input shapes,
   and pure functions on the entity: a function that takes it, or creates one.
 - **An aggregate root holds the rules on the entities it contains.** The pipeline keeps the ids
-  of its steps unique and their dependencies whole: `addStep`, `renameStep`, `removeStep` are in
-  `pipeline.entity.ts`. What concerns one step only is in `pipeline-step.entity.ts`.
+  of its nodes unique and their dependencies whole: `addNode`, `renameNode`, `removeNode` are in
+  `pipeline.entity.ts`. What concerns one node only is in `pipeline-node.entity.ts`.
 - **Structs** (`structs/*.struct.ts`, plain PascalCase) are data shapes with no identity. A value
-  object holds its own validation (`step-id.struct.ts`: `StepId`, `stepIdIssue`), and nothing
+  object holds its own validation (`node-id.struct.ts`: `NodeId`, `nodeIdIssue`), and nothing
   else. There is no `utils/` folder in the domain.
 - **Behavior is pure functions, not classes with methods.** `$state` makes plain objects and
   arrays deeply reactive, not class instances, and the structural sharing of TanStack Query

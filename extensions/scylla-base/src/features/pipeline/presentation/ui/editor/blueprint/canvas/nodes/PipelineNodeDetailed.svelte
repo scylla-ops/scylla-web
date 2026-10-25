@@ -8,10 +8,10 @@
   import { cn } from '@scylla/ui/utils';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
   import { DETAILED_NODE } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
-  import { handleClass } from '@base/features/pipeline/presentation/presenters/step-summary.presenter.ts';
+  import { handleClass } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
 import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
 
-  let { step, selected, summary, detached }: PipelineNodeViewProps = $props();
+  let { node, selected, summary, detached }: PipelineNodeViewProps = $props();
 
   const handle = $derived(handleClass(summary, selected));
 </script>
@@ -39,7 +39,7 @@ import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
       <summary.icon class="size-4" />
     </span>
     <div class="min-w-0 flex-1">
-      <p class="truncate text-[13px] leading-tight font-semibold">{step.id}</p>
+      <p class="truncate text-[13px] leading-tight font-semibold">{node.id}</p>
       <p class="text-[11px] text-muted-foreground">{summary.kind}</p>
     </div>
   </div>

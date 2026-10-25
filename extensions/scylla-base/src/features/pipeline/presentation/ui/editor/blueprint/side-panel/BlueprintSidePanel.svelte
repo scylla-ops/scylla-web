@@ -1,11 +1,11 @@
 <script lang="ts">
   import { ResizablePane } from '@scylla/ui/primitives';
   import type { Blueprint } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.state.svelte.ts';
-  import { stepOf } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
+  import { nodeOf } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
   import { templateFor, type CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';
   import NodePalette from './NodePalette/NodePalette.svelte';
-  import StepInspector from './StepInspector/StepInspector.svelte';
+  import NodeInspector from './NodeInspector/NodeInspector.svelte';
 
   type Mode = 'palette' | 'inspector';
 
@@ -25,13 +25,13 @@
 
   let { blueprint, entries, projectId, drag, onAdd }: Props = $props();
 
-  const step = $derived(blueprint.inspected ? stepOf(blueprint.inspected) : undefined);
-  const mode = $derived<Mode>(step ? 'inspector' : 'palette');
+  const node = $derived(blueprint.inspected ? nodeOf(blueprint.inspected) : undefined);
+  const mode = $derived<Mode>(node ? 'inspector' : 'palette');
   const close = () => blueprint.inspect(null);
 </script>
 
 <!--
-  One panel, two modes: the palette, or the inspector of the step a click opened. paneforge saves a
+  One panel, two modes: the palette, or the inspector of the node a click opened. paneforge saves a
   layout per set of panes, keyed by their order and constraints (not their ids): the two modes keep
   their own width only while their constraints differ (SIDE_PANEL_SIZES).
 -->
@@ -44,17 +44,17 @@
     maxSize={SIDE_PANEL_SIZES[mode].max}
   >
     <aside class="flex h-full flex-col bg-card">
-      {#if step}
-        {#key step.id}
-          <StepInspector
-            {step}
-            dependencies={blueprint.dependenciesOf(step.id)}
-            detached={blueprint.isDetached(step.id)}
+      {#if node}
+        {#key node.id}
+          <NodeInspector
+            {node}
+            dependencies={blueprint.dependenciesOf(node.id)}
+            detached={blueprint.isDetached(node.id)}
             iconHintOf={definition => templateFor(entries, definition)?.icon}
             {projectId}
-            onChange={value => blueprint.updateStep(step.id, value)}
-            onRename={id => blueprint.renameStep(step.id, id)}
-            onDelete={() => blueprint.removeStep(step.id)}
+            onChange={value => blueprint.updateNode(node.id, value)}
+            onRename={id => blueprint.renameNode(node.id, id)}
+            onDelete={() => blueprint.removeNode(node.id)}
             onClose={close}
           />
         {/key}

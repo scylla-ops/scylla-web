@@ -17,7 +17,7 @@ export const PIPELINES_QUERY_ROOT = ['pipelines'] as const;
 export const PIPELINE_QUERY_KEY = (pipelineId: string) => ['pipeline', pipelineId] as const;
 
 /** The templates do not depend on the project, nor on a pipeline: a root of their own. */
-export const STEP_TEMPLATES_QUERY_KEY = () => ['step-templates'] as const;
+export const NODE_TEMPLATES_QUERY_KEY = () => ['node-templates'] as const;
 
 export const CREATE_PIPELINE_MUTATION_KEY = ['pipeline', 'create'] as const;
 export const RUN_PIPELINE_MUTATION_KEY = ['pipeline', 'run'] as const;

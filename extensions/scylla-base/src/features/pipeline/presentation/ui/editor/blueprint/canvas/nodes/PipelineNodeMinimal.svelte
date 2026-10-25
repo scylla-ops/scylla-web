@@ -5,10 +5,10 @@
   import UnplugIcon from '@lucide/svelte/icons/unplug';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
   import { MINIMAL_NODE, minimalHandleStyle } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
-  import { handleClass } from '@base/features/pipeline/presentation/presenters/step-summary.presenter.ts';
+  import { handleClass } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
 import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
 
-  let { step, selected, summary, detached }: PipelineNodeViewProps = $props();
+  let { node, selected, summary, detached }: PipelineNodeViewProps = $props();
 
   const handle = $derived(handleClass(summary, selected));
 </script>
@@ -47,7 +47,7 @@ import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
     {/if}
   </div>
   <div class="w-full text-center">
-    <p class="truncate text-[12.5px] font-medium">{step.id}</p>
+    <p class="truncate text-[12.5px] font-medium">{node.id}</p>
     <p class="text-[11px] text-muted-foreground">{summary.kind}</p>
   </div>
 

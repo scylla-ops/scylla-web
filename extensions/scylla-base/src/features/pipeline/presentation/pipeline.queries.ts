@@ -12,7 +12,7 @@ import {
   InvalidPipelineError,
   type SavePipelineInput,
 } from '../domain/use-cases/save-pipeline.use-case.ts';
-import type { StepTemplate } from '../domain/structs/step-template.struct.ts';
+import type { NodeTemplate } from '../domain/structs/node-template.struct.ts';
 import type { PipelineModule } from '../pipeline.module.ts';
 import { pipelineMessages } from './messages/pipeline.messages.ts';
 import { pipelineIssueText } from './presenters/pipeline-issue.presenter.ts';
@@ -24,7 +24,7 @@ import {
   PIPELINE_QUERY_KEY,
   PROJECT_PIPELINES_QUERY_ROOT,
   RUN_PIPELINE_MUTATION_KEY,
-  STEP_TEMPLATES_QUERY_KEY,
+  NODE_TEMPLATES_QUERY_KEY,
 } from './pipeline.query-keys.ts';
 
 // Resolved per call: tests swap the registry.
@@ -34,7 +34,7 @@ const repository = () =>
 const savePipeline = () => getModuleDomain<typeof PipelineModule.domain>('pipeline').savePipeline;
 
 const templateRepository = () =>
-  getModuleDomain<typeof PipelineModule.domain>('pipeline').stepTemplateRepository;
+  getModuleDomain<typeof PipelineModule.domain>('pipeline').nodeTemplateRepository;
 
 const currentProject = () => contextStore.getState().project;
 
@@ -78,10 +78,10 @@ export const pipelineQueries = {
 };
 
 /** Read by the editor only, behind its own route guard: nothing to gate here. */
-export const stepTemplateQueries = {
+export const nodeTemplateQueries = {
   list: () =>
-    queryOptions<StepTemplate[]>({
-      queryKey: STEP_TEMPLATES_QUERY_KEY(),
+    queryOptions<NodeTemplate[]>({
+      queryKey: NODE_TEMPLATES_QUERY_KEY(),
       queryFn: async () => (await templateRepository().list()).unwrap(),
       staleTime: Infinity,
     }),
@@ -139,7 +139,7 @@ export const pipelineMutations = {
       },
     }),
 
-  /** The backend has no duplicate: read the pipeline, then create a copy of its steps. */
+  /** The backend has no duplicate: read the pipeline, then create a copy of its nodes. */
   duplicate: () =>
     mutationOptions({
       mutationFn: async (pipelineId: string) => {
@@ -148,7 +148,7 @@ export const pipelineMutations = {
         await save({
           projectId: pipeline.projectId,
           name: i18n._(pipelineMessages.copyOf(pipeline.name)),
-          steps: pipeline.steps,
+          nodes: pipeline.nodes,
         });
       },
       onSuccess: () => {

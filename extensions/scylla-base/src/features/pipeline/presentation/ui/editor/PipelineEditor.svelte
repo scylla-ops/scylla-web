@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
-  import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+  import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import {
     createPipelineDocument,
   } from './pipeline-document.state.svelte.ts';
@@ -14,7 +14,7 @@
     /** `edit` tracks the unsaved changes; `create` does not. */
     mode: 'create' | 'edit';
     submitLabel: string;
-    onSubmit: (values: { name: string; steps: PipelineStepEntity[] }) => void;
+    onSubmit: (values: { name: string; nodes: PipelineNodeEntity[] }) => void;
     /** A default draft, or a fetched pipeline. */
     initialScript?: string;
     projectId?: string;
@@ -37,12 +37,12 @@
   warnBeforeUnload(() => doc.isDirty);
 
   const handleSubmit = () => {
-    if (doc.isValid) onSubmit({ name: doc.pipelineName, steps: doc.steps });
+    if (doc.isValid) onSubmit({ name: doc.pipelineName, nodes: doc.nodes });
   };
 </script>
 
 <!--
-  The script is the document; the scripting tab and the blueprint read and write its steps. An
+  The script is the document; the scripting tab and the blueprint read and write its nodes. An
   invalid script disables the blueprint. Both panels stay mounted, so CodeMirror keeps its scroll.
 -->
 <Tabs value="blueprint" class="flex h-full flex-col gap-4">
@@ -68,10 +68,10 @@
   <TabsContent value="blueprint" class="min-h-0 flex-1">
     <Card class="h-full bg-card p-0">
       <PipelineBlueprint
-        steps={doc.steps}
+        nodes={doc.nodes}
         pipelineName={doc.pipelineName}
         {projectId}
-        onStepsChange={steps => doc.setSteps(steps)}
+        onNodesChange={nodes => doc.setNodes(nodes)}
       />
     </Card>
   </TabsContent>

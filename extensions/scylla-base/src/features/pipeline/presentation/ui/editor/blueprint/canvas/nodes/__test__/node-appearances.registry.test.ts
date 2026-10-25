@@ -11,10 +11,10 @@ describe('nodePositionAt', () => {
     });
   });
 
-  it('gives every style a view of a step, a view of the start node and an anchor', () => {
+  it('gives every style a view of a node, a view of the start node and an anchor', () => {
     for (const appearance of NODE_APPEARANCES) {
       const view = NODE_APPEARANCE_VIEWS[appearance];
-      expect([view.step, view.start, view.anchor]).not.toContain(undefined);
+      expect([view.node, view.start, view.anchor]).not.toContain(undefined);
     }
   });
 
