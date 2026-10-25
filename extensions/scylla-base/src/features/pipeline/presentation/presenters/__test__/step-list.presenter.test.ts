@@ -1,11 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import {
-  stepRelations,
-  stepRows,
-  stepStages,
-} from '../step-list.presenter.ts';
+import { stepRelations, stepRows, stepStages } from '../step-list.presenter.ts';
 
 const script = (id: string, deps: string[] = [], body = 'make'): PipelineStepEntity => ({
   id,

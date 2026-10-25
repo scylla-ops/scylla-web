@@ -45,8 +45,8 @@ TypeScript and thoroughly tested.
 
 ### One panel instead of dialogs
 
-Editing used to happen in a modal, which hid the graph while you wrote a script. The blueprint
-now has a single panel on the right: the **palette**, or the **inspector** of the step you
+A modal would hide the graph while you write a script. The blueprint has a single panel on the
+right: the **palette**, or the **inspector** of the step you
 clicked. You don't add and edit at the same time, so one panel is enough, and the left side
 stays free for the app's own sidebar.
 
@@ -94,9 +94,8 @@ one entry — the canvas, the switch and the layout do not change.
 
 ### The scripting tab: one step at a time
 
-The script used to be one large JSON text: a shell script was a JSON string, with `\n` and
-`\"` in it, and a pipeline of ten steps was hundreds of lines to scroll. The scripting tab now
-has two views of the same document:
+As one JSON text, a shell script is a JSON string, with `\n` and `\"` in it, and a pipeline of
+ten steps is hundreds of lines to scroll. The scripting tab has two views of the same document:
 
 - **By step** (the default): the list of the steps in the order they run, an editor for the open
   step, and its properties. A script is edited as shell code; a command, which runs with no
@@ -151,15 +150,15 @@ tested without a component, and they never import `ui/`: the folder of a file sa
 The reason is the Run button. Running is a pipeline operation. If `jobs` owned the route it
 would need a pipeline mutation, which means importing `pipeline` for a concern that isn't its
 own. Instead `PipelineJobsPage` wraps `JobsPage` — imported from `jobs`'s public API — and
-supplies the Run action itself. `JobsPage` is one of only two pages in the codebase exported
-from a feature barrel, and this is its single consumer.
+supplies the Run action itself. `jobs` exports the page as a loader (`loadJobsPage`), and this
+is its single consumer.
 
 ## Cache coordination
 
 `PIPELINES_QUERY_KEY`, `ORGANIZATION_PIPELINES_QUERY_KEY` and `PIPELINES_QUERY_ROOT` are part of
 the public API so other modules invalidate exactly what this one reads.
 
-Running a pipeline is the interesting case: it creates a *job*, so `useRunPipeline` invalidates
+Running a pipeline is the interesting case: it creates a *job*, so `createRunPipeline` invalidates
 the jobs keys as well as its own. That cross-module invalidation only works because both modules
 export their key factories instead of writing arrays inline.
 

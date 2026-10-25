@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import type { PipelineStepEntity, StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import type {
+  PipelineStepEntity,
+  StepDefinition,
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import { stepIcon } from '../step-kind.presenter.ts';
 import { envCounts, stepPreview, summarize } from '../step-summary.presenter.ts';
 

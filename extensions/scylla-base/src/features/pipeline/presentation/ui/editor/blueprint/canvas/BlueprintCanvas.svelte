@@ -100,7 +100,8 @@
     {edgeTypes}
     fitView
     fitViewOptions={{ padding: 0.25, maxZoom: 1 }}
-    deleteKey={['Backspace', 'Delete']}
+    deleteKey={blueprint.readOnly ? null : ['Backspace', 'Delete']}
+    nodesConnectable={!blueprint.readOnly}
     selectNodesOnDrag={false}
     edgesFocusable
     defaultEdgeOptions={DEFAULT_EDGE_STYLE}

@@ -38,6 +38,14 @@ describe('PipelineEditorHeader', () => {
     expect(screen.getByText('Draft: not created yet')).toBeInTheDocument();
   });
 
+  it('says why the pipeline cannot be saved, and disables Save', () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ isDirty: true, issue: 'Two steps or more have the ID build.' });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Two steps or more have the ID build.');
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  });
+
   it('shows unsaved changes, then saving, then saved', async () => {
     grantOnly(Permission.UPDATE_PIPELINE);
     const { rerender } = renderHeader({ isDirty: true });

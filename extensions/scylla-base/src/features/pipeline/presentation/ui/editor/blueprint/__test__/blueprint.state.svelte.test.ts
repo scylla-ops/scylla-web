@@ -50,9 +50,24 @@ describe('createBlueprint', () => {
     });
   });
 
-  it('publishes the steps again when it had to repair them', () => {
-    withState([execStep('build', ['ghost'])], (_state, onStepsChange) => {
-      expect(onStepsChange).toHaveBeenCalledWith([execStep('build')]);
+  it('never rewrites the document to repair it', () => {
+    withState([execStep('build', ['ghost']), execStep('test'), execStep('test')], (_s, onChange) => {
+      expect(onChange).not.toHaveBeenCalled();
+    });
+  });
+
+  it('shows two steps with the same id, but edits nothing until each has its own id', () => {
+    withState([execStep('build'), execStep('build')], (state, onStepsChange) => {
+      expect(state.readOnly).toBe(true);
+
+      state.addNode('lint', definition);
+      state.updateStep('build', definition);
+      state.removeStep('build');
+      state.inspect('build');
+
+      expect(onStepsChange).not.toHaveBeenCalled();
+      expect(state.inspected).toBeUndefined();
+      expect(state.canConnect({ source: START_NODE_ID, target: 'build' } as never)).toBe(false);
     });
   });
 

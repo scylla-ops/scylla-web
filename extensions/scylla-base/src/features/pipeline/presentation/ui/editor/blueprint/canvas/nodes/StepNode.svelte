@@ -9,7 +9,7 @@
 
   const canvas = getBlueprintCanvas();
   const View = $derived(NODE_APPEARANCE_VIEWS[canvas.appearance()].step);
-  const summary = $derived(summarize(data.step, canvas.iconHintOf(data.step)));
+  const summary = $derived(summarize(data.step, canvas.iconHintOf(data.step), data.repeated));
   const detached = $derived(canvas.isDetached(id));
 </script>
 

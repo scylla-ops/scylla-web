@@ -6,6 +6,7 @@ import {
   type PipelineStepEntity,
   type StepDefinition,
 } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { pipelineMessages } from '../messages/pipeline.messages.ts';
 import { stepMessages } from '../messages/step.messages.ts';
 import { STEP_ISSUE_MESSAGES, stepIdIssueText } from './step-issue.presenter.ts';
 import { KIND_TONES, stepIcon } from './step-kind.presenter.ts';
@@ -48,14 +49,24 @@ export interface StepSummary {
  * Reads `t()`: called in a `$derived`, it follows a locale switch. `iconHint`: the icon of the
  * template whose code the step runs.
  */
-export const summarize = (step: PipelineStepEntity, iconHint?: string): StepSummary => ({
+export const summarize = (
+  step: PipelineStepEntity,
+  iconHint?: string,
+  repeated = false,
+): StepSummary => ({
   icon: stepIcon(step.kind, iconHint),
   tone: KIND_TONES[step.kind],
   kind: step.kind === 'script' ? step.shell : t(stepMessages.kindCommand),
   preview: stepPreview(step),
-  problem: problemOf(step),
+  problem: repeated ? repeatedProblem() : problemOf(step),
   ...envCounts(step),
   workingDir: step.workingDir,
+});
+
+/** Another step has the same id: the server refuses the pipeline, and the graph cannot edit it. */
+const repeatedProblem = (): NonNullable<StepSummary['problem']> => ({
+  label: t(pipelineMessages.repeatedStepId),
+  detail: t(pipelineMessages.repeatedHint),
 });
 
 const problemOf = (step: PipelineStepEntity): StepSummary['problem'] => {

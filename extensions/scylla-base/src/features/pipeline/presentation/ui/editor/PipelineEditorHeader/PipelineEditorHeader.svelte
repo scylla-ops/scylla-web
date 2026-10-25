@@ -15,6 +15,8 @@
     /** `edit` tracks the unsaved changes; `create` does not. */
     mode: 'create' | 'edit';
     submitDisabled?: boolean;
+    /** Why the pipeline cannot be saved: shown in place of the save status, and Save is disabled. */
+    issue?: string;
     /** So that an invalid script is not overwritten from the blueprint. */
     blueprintDisabled?: boolean;
     isDirty: boolean;
@@ -28,6 +30,7 @@
     submitLabel,
     mode,
     submitDisabled = false,
+    issue,
     blueprintDisabled = false,
     isDirty,
     isSaving = false,
@@ -70,30 +73,34 @@
   </div>
 
   <div class="flex shrink-0 items-center gap-3">
-    <div class="flex items-center gap-2 text-sm text-foreground/80">
-      <span class="relative flex size-2">
-        {#if status === 'dirty'}
-          <span class="absolute inline-flex size-full animate-ping rounded-full bg-amber-500/70"
+    {#if issue}
+      <p role="alert" class="max-w-md text-sm text-destructive">{issue}</p>
+    {:else}
+      <div class="flex items-center gap-2 text-sm text-foreground/80">
+        <span class="relative flex size-2">
+          {#if status === 'dirty'}
+            <span class="absolute inline-flex size-full animate-ping rounded-full bg-amber-500/70"
+            ></span>
+          {/if}
+          <span
+            class={cn(
+              'relative inline-flex size-2 rounded-full transition-colors duration-300',
+              (status === 'draft' || status === 'saving') && 'bg-muted-foreground/60',
+              status === 'dirty' && 'bg-amber-500',
+              status === 'saved' && 'bg-emerald-500',
+            )}
           ></span>
-        {/if}
-        <span
-          class={cn(
-            'relative inline-flex size-2 rounded-full transition-colors duration-300',
-            (status === 'draft' || status === 'saving') && 'bg-muted-foreground/60',
-            status === 'dirty' && 'bg-amber-500',
-            status === 'saved' && 'bg-emerald-500',
-          )}
-        ></span>
-      </span>
-      <!-- `{#key}` replays the enter animation on each status change. -->
-      {#key status}
-        <span
-          class="hidden animate-in fade-in-0 slide-in-from-bottom-1 duration-150 ease-out whitespace-nowrap md:inline-flex"
-        >
-          {t(STATUS_LABEL[status])}
         </span>
-      {/key}
-    </div>
+        <!-- `{#key}` replays the enter animation on each status change. -->
+        {#key status}
+          <span
+            class="hidden animate-in fade-in-0 slide-in-from-bottom-1 duration-150 ease-out whitespace-nowrap md:inline-flex"
+          >
+            {t(STATUS_LABEL[status])}
+          </span>
+        {/key}
+      </div>
+    {/if}
 
     <GatedButton
       allowed={canSubmit}
@@ -101,7 +108,7 @@
         ? t(pipelineMessages.createDenied)
         : t(pipelineMessages.editDenied)}
       onclick={onSubmit}
-      disabled={submitDisabled || isSaving}
+      disabled={submitDisabled || !!issue || isSaving}
       data-tour="pipeline-submit"
     >
       {#if isSaving}<Loader2Icon class="mr-2 size-4 animate-spin" />{/if}

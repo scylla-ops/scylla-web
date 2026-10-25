@@ -1,6 +1,9 @@
 import type { EnvEntry, Shell } from '@base/features/pipeline/domain/structs/step.struct.ts';
 import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { DEFAULT_PIPELINE_NAME, type PipelineEntity } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import {
+  DEFAULT_PIPELINE_NAME,
+  type PipelineEntity,
+} from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
 export interface ParsedScript {
   /** `null` for an empty editor and for malformed JSON. */

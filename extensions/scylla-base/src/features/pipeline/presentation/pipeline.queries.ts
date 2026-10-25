@@ -91,7 +91,9 @@ export const stepTemplateQueries = {
 const save = async (input: SavePipelineInput) =>
   (await savePipeline().execute(input))
     .mapError(error =>
-      error instanceof InvalidPipelineError ? new ScyllaError(pipelineIssueText(error.issue)) : error,
+      error instanceof InvalidPipelineError
+        ? new ScyllaError(pipelineIssueText(error.issue))
+        : error,
     )
     .unwrap();
 

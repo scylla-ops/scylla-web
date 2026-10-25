@@ -1,4 +1,8 @@
-import { definitionOf, type PipelineStepEntity, type StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import {
+  definitionOf,
+  type PipelineStepEntity,
+  type StepDefinition,
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import {
   createStepDraft,
   type StepDraft,

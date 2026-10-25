@@ -58,6 +58,10 @@ export const pipelineMessages = {
   noSpaces: msg`The name cannot contain spaces.`,
   nameRequired: msg`The pipeline needs a name.`,
   invalidStepIds: (ids: string) => msg`Fix the ID of these steps before you save: ${ids}`,
+  repeatedStepIds: (ids: string) =>
+    msg`Two steps or more have the ID ${ids}. Give each step its own ID before you save.`,
+  repeatedStepId: msg`Same ID as another step`,
+  repeatedHint: msg`Two steps or more have the same ID. Give each step its own ID in the Scripting tab: the blueprint shows them, but cannot change them.`,
 
   /** A pipeline name is one word: the copy keeps it one word. */
   copyOf: (name: string) => msg`${name}-copy`,

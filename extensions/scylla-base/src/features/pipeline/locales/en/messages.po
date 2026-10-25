@@ -27,7 +27,7 @@ msgstr "{id} no longer waits for {deps}."
 msgid "{id} now runs after {target}. The steps that waited for it wait for what it waited for."
 msgstr "{id} now runs after {target}. The steps that waited for it wait for what it waited for."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:63
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:67
 msgid "{name}-copy"
 msgstr "{name}-copy"
 
@@ -396,6 +396,10 @@ msgstr "Run #{runNumber}"
 msgid "Runs first"
 msgstr "Runs first"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:63
+msgid "Same ID as another step"
+msgstr "Same ID as another step"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:41
 msgid "Save"
 msgstr "Save"
@@ -540,6 +544,14 @@ msgstr "This step has no input link. On save, it is linked to the start of the p
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:27
 msgid "Triggers"
 msgstr "Triggers"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:62
+msgid "Two steps or more have the ID {ids}. Give each step its own ID before you save."
+msgstr "Two steps or more have the ID {ids}. Give each step its own ID before you save."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:64
+msgid "Two steps or more have the same ID. Give each step its own ID in the Scripting tab: the blueprint shows them, but cannot change them."
+msgstr "Two steps or more have the same ID. Give each step its own ID in the Scripting tab: the blueprint shows them, but cannot change them."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:4
 msgid "Unable to load pipelines"

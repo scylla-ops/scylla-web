@@ -1,13 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import {
-  sanitizeSteps,
-  stepsToFlow,
-  flowToSteps,
-  stepOf,
-  START_NODE_ID,
-} from '../blueprint-flow.mapper.ts';
-import type { PipelineStepEntity, ExecPipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { stepsToFlow, flowToSteps, stepOf, START_NODE_ID } from '../blueprint-flow.mapper.ts';
+import type {
+  PipelineStepEntity,
+  ExecPipelineStepEntity,
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 const execStep = (id: string, deps: string[] = []): ExecPipelineStepEntity => ({
   id,
@@ -18,44 +15,41 @@ const execStep = (id: string, deps: string[] = []): ExecPipelineStepEntity => ({
   env: [],
 });
 
-describe('sanitizeSteps', () => {
-  it('leaves already-valid steps untouched', () => {
-    const steps: PipelineStepEntity[] = [execStep('a'), execStep('b', ['a'])];
-    expect(sanitizeSteps(steps)).toEqual(steps);
+describe('stepsToFlow: what it does not repair', () => {
+  it('keeps every id as it is: a repeated step gets a key of its own, and is marked', () => {
+    const steps: PipelineStepEntity[] = [execStep('a'), execStep('a'), execStep('b')];
+    const { nodes } = stepsToFlow(steps, 'p');
+    const stepNodes = nodes.filter(node => node.id !== START_NODE_ID);
+
+    expect(stepNodes.map(node => node.id)).toEqual(['a', 'a#2', 'b']);
+    expect(stepNodes.map(node => stepOf(node)?.id)).toEqual(['a', 'a', 'b']);
+    expect(stepNodes.map(node => node.type === 'pipelineStep' && !!node.data.repeated)).toEqual([
+      true,
+      true,
+      false,
+    ]);
   });
 
-  it('deduplicates a repeated id by suffixing _1, _2, ...', () => {
-    const steps: PipelineStepEntity[] = [execStep('a'), execStep('a'), execStep('a')];
-    const result = sanitizeSteps(steps);
-    expect(result.map(s => s.id)).toEqual(['a', 'a_1', 'a_2']);
-  });
-
-  it('remaps a dependency on a duplicated id to the LAST occurrence, not the first', () => {
-    // The rename map is keyed by the original id: the last duplicate wins for a downstream dep.
+  it('draws a dependency on a repeated id from the first step with it', () => {
     const steps: PipelineStepEntity[] = [
       execStep('build'),
       execStep('build'),
       execStep('test', ['build']),
     ];
-    const result = sanitizeSteps(steps);
-    const ids = result.map(s => s.id);
-    expect(ids).toEqual(['build', 'build_1', 'test']);
-    expect(result.find(s => s.id === 'test')?.deps).toEqual(['build_1']);
+    const { edges } = stepsToFlow(steps, 'p');
+    expect(edges).toContainEqual(expect.objectContaining({ source: 'build', target: 'test' }));
   });
 
-  it('drops a self-dependency', () => {
-    const steps: PipelineStepEntity[] = [execStep('a', ['a'])];
-    expect(sanitizeSteps(steps)[0].deps).toEqual([]);
+  it('draws no edge for a dependency on the step itself or on a step that does not exist', () => {
+    const steps: PipelineStepEntity[] = [execStep('a', ['a', 'ghost'])];
+    const { edges } = stepsToFlow(steps, 'p');
+    expect(edges).toEqual([expect.objectContaining({ source: START_NODE_ID, target: 'a' })]);
   });
 
-  it('drops a dependency pointing at a non-existent node', () => {
-    const steps: PipelineStepEntity[] = [execStep('a', ['ghost'])];
-    expect(sanitizeSteps(steps)[0].deps).toEqual([]);
-  });
-
-  it('keeps a valid dependency alongside a dropped invalid one', () => {
-    const steps: PipelineStepEntity[] = [execStep('a'), execStep('b', ['a', 'ghost', 'b'])];
-    expect(sanitizeSteps(steps)[1].deps).toEqual(['a']);
+  it('gives a repeated step a place of its own', () => {
+    const { nodes } = stepsToFlow([execStep('a'), execStep('a')], 'p');
+    const [first, second] = nodes.filter(node => node.id !== START_NODE_ID);
+    expect(first.position).not.toEqual(second.position);
   });
 });
 
@@ -95,16 +89,6 @@ describe('stepsToFlow', () => {
     const { nodes } = stepsToFlow(steps, 'p');
     const byId = Object.fromEntries(nodes.map(n => [n.id, n]));
     expect(byId.b.position.y).not.toBe(byId.c.position.y);
-  });
-
-  it('runs sanitizeSteps first, so a bad incoming graph still produces a coherent flow', () => {
-    // Duplicate id and dangling dep: no throw, still connected.
-    const steps: PipelineStepEntity[] = [execStep('a'), execStep('a'), execStep('c', ['ghost'])];
-    const { nodes, edges, sanitizedSteps } = stepsToFlow(steps, 'p');
-    expect(nodes).toHaveLength(4); // start + 3 sanitized steps
-    expect(sanitizedSteps.map(s => s.id)).toEqual(['a', 'a_1', 'c']);
-    // The dangling dep was dropped: "c" is a root.
-    expect(edges).toContainEqual(expect.objectContaining({ source: START_NODE_ID, target: 'c' }));
   });
 
   it('handles an empty pipeline (just the start node, no edges)', () => {

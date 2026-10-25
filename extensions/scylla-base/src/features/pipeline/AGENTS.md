@@ -17,8 +17,8 @@ type PipelineEntity
 type PipelineMetadata, PipelineStepEntity, PipelineIdentity
 PIPELINES_QUERY_KEY, ORGANIZATION_PIPELINES_QUERY_KEY, PIPELINES_QUERY_ROOT
 CREATE_PIPELINE_MUTATION_KEY, RUN_PIPELINE_MUTATION_KEY   // onboarding follows these writes
-pipelineQueries                // Query options factory (replaces useOrganizationPipelines)
-asPipelineFeed
+pipelineQueries                // Query options factories
+asPipelineFeed                 // a page of metadata → the list, and whether it is partial
 ```
 
 Never add: `pipeline.module.ts`, pages — the module registry imports `.module.ts` by path,
@@ -65,15 +65,19 @@ Reach a repository with `getModuleDomain<typeof PipelineModule.domain>('pipeline
 pipeline.module.ts                           4 routes + DI wiring (private; registry only)
 index.ts                                     public API
 domain/
-  entities/pipeline.entity.ts                PipelineEntity, the root of its steps: pipelineIssue (can it
-                                             be saved), and the graph of the steps: add, rename, remove,
-                                             deps, depths, waitsFor, hasRepeats (pure, tested)
+  entities/pipeline.entity.ts                PipelineEntity, the root of its steps: newPipeline,
+                                             pipelineIssue (can it be saved), repeatedStepIds, and the
+                                             graph of the steps: addStep, updateStep, renameStep,
+                                             removeStep, moveStep, setDependencies, dependentsOf,
+                                             dependencyCandidates, stepDepths, waitsFor, uniqueStepId,
+                                             hasRepeats (pure, tested)
   entities/pipeline-step.entity.ts           PipelineStepEntity, StepDefinition: definitionOf, stepIssue,
-                                             withDefinition, withDependencies, withRenamedReference
-  structs/pipeline.struct.ts                 PipelineIdentity, PipelineMetadata, Shell, EnvEntry
+                                             stepProblem, blankDefinition, withDefinition,
+                                             withDependencies, withoutDependency, withRenamedReference
+  structs/pipeline.struct.ts                 PipelineIdentity, PipelineMetadata
+  structs/step.struct.ts                     Shell, EnvEntry
   structs/step-id.struct.ts                  StepId: the id rule of the server (stepIdIssue, toStepId)
   structs/pipeline-name.struct.ts            PipelineNameIssue, pipelineNameIssue
-  structs/pipeline-issue.struct.ts           StepIssue, PipelineIssue
   structs/step-template.struct.ts            StepTemplate
   use-cases/save-pipeline.use-case.ts        SavePipelineUseCase: the rules of the server, then create or edit
   repository/pipeline.repository.ts
@@ -90,14 +94,16 @@ presentation/
     step-summary.presenter.ts                summarize (what a node shows), stepPreview, envCounts
     step-kind.presenter.ts                   icon and colours of each kind of step
     step-issue.presenter.ts                  the text of what stops a step (stepIdIssueText)
-    step-list.presenter.ts                   the rows and stages of the step list, stepsAfterDrop
+    step-list.presenter.ts                   the rows, stages and links of the step list
     catalog.presenter.ts                     blank steps, template entries, search, groups, templateFor
-    blueprint-layout.presenter.ts            the position of each node: one column per stage
-    blueprint-node.presenter.ts              the sizes, anchors and footprints of the nodes, handleClass
-    drop-spot.presenter.ts                   where a link dropped on the canvas lands
+    blueprint-layout.presenter.ts            the position of each node: one column per stage, positionAfter
+    blueprint-geometry.presenter.ts          the sizes, anchors and footprints of the nodes, linkDropPoint
+    pipeline-issue.presenter.ts              the text of what stops a save (pipelineIssueText)
+    pipeline-feed.presenter.ts               asPipelineFeed
   mappers/                                   a view format ↔ the domain, both ways (plain TS, tested)
-    pipeline-document.mapper.ts              the JSON text of the editor ↔ the steps, createDefaultScript
+    pipeline-document.mapper.ts              the JSON text of the editor ↔ the steps (toDocument writes it)
     blueprint-flow.mapper.ts                 the steps ↔ the nodes and edges of xyflow
+    env-row.mapper.ts                        an env entry ↔ a row of the environment form
   ui/                                        Svelte only
     run-pipeline.state.svelte.ts             the Run action, shared by the dashboard and the jobs page
     PipelineJobs.page.svelte                 the jobs page of a pipeline: JobsPage + the Run action
@@ -107,7 +113,9 @@ presentation/
                                              renders (PipelineActions, PipelineChart, PipelineLastJob, PipelineStatus)
     editor/
       PipelineCreation.page.svelte, PipelineUpdate.page.svelte, PipelineEditor.svelte
-      pipeline-document.state.svelte.ts      the document of both tabs: script text, baseline, dirty check
+      pipeline-document.state.svelte.ts      the document of both tabs: script text, baseline, dirty
+                                             check, and the issue that stops the save
+      unsaved-changes.effect.svelte.ts       warnBeforeUnload: the browser's prompt while unsaved
       PipelineEditorHeader/                  the header, with the name field
       controls/                              what the tabs share: Segmented, SearchField, and
                                              code-editor.effect.svelte.ts (CodeMirror ↔ a string)
@@ -165,9 +173,13 @@ the page.
 
 ## Rules that bite here
 
-- **Query options come from `pipeline.queries.ts`**, not from individual `use-` hooks, and are 
-  exported publicly so other modules invalidate what this one reads. After `run()`, also invalidate 
-  `JOBS_QUERY_ROOT` / `JOBS_QUERY_KEY(pipelineId)` from `features/jobs` — a run creates a job.
+- **Query options come from `pipeline.queries.ts`**, and the key factories are exported
+  publicly so other modules invalidate what this one reads. After `run()`, also invalidate
+  `JOBS_QUERY_KEY(pipelineId)` from `features/jobs` — a run creates a job.
+- **The domain says step; the graph and the formats outside say node.** `PipelineEntity.steps`,
+  `stepCount`, `StepTemplate.stepId`. The nodes of xyflow, the protos (`nodes`, `nodeCount`) and
+  the JSON text of the editor (`nodes`) keep node: the mappers translate. A step is not
+  sequential: steps that do not wait for each other run together, in the same stage.
 - **CodeMirror is a legitimate use of `$effect`** in `ui/editor/controls/code-editor.effect.svelte.ts` — it's a system 
   outside Svelte that must be synchronized imperatively. That licence does not extend to the rest 
   of the module, which uses Runes.
@@ -189,6 +201,11 @@ the page.
   not parse, or that repeats a step id or a dependency (`hasRepeats`), shows the full document
   only: the "By step" tab is disabled and `StepsView` is not rendered, since its lists are keyed by
   id. The text is never rewritten to remove the repeat.
+- **Two steps with the same id: shown, marked, never repaired.** `pipelineIssue` refuses them
+  (`repeated-ids`), so Save is disabled and the header says why (`doc.issue`). The blueprint draws
+  each of them (a repeat gets a node key of its own, `build#2`, its step keeps its id), marks them
+  in red (`StepNodeData.repeated`), and is read-only (`blueprint.readOnly`): an edit goes through
+  the ids, so it would change the wrong step. The user fixes the ids in the Scripting tab.
 - **One draft per step** (`step-drafts.state.svelte.ts`). The panes that show a step and its properties
   panel share it, or each would write its own copy and undo the other's edits. A step that the
   document changed from elsewhere (the full document, the blueprint) gets a new draft: its
@@ -203,7 +220,7 @@ the page.
   step under the pointer, else the open one, shows its links (`stepRelations`): the steps it waits
   for with an `info` bar on the left, the steps that wait for it with a `primary` bar. Only the
   bar changes, not the background: the rows stay readable. The list has no order of its own.
-- **A drop in the step list sets dependencies; it does not reorder** (`stepsAfterDrop`). A step
+- **A drop in the step list sets dependencies; it does not reorder** (`moveStep`). A step
   dropped on another one waits for that one only; with Alt it is added to the others; dropped on
   the header ("runs first"), it waits for none. Dropped on a step that waits for it, it first
   leaves its place: the steps that waited for it wait for what it waited for, so no loop is
@@ -280,7 +297,7 @@ the page.
   outline). A new drag source uses the same state.
 - **The canvas outlines where a new step lands**: for a palette drag (`drag.spot`) and for a
   link pulled from an output onto empty canvas (`linkDropPoint`, on xyflow's `useConnection`).
-  `DropSpot` draws the `footprint` of the current node style (`presenters/blueprint-node.presenter.ts`) in the
+  `DropSpot` draws the `footprint` of the current node style (`presenters/blueprint-geometry.presenter.ts`) in the
   front `ViewportPortal`, so it follows the zoom and no node hides it. No move transition: it
   must stay under the pointer.
 - **A step id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
@@ -312,7 +329,7 @@ the page.
   and one entry: `StepNode` and `StartNode` only dispatch. The nodes read the style from the
   canvas context (`blueprint-canvas.context.ts`), since xyflow gives a node only its own props.
   The label of a node is part of the node element, so that xyflow measures it.
-- **Sizes of the nodes live in `presenters/blueprint-node.presenter.ts`**: the views set their width from it,
+- **Sizes of the nodes live in `presenters/blueprint-geometry.presenter.ts`**: the views set their width from it,
   the handles of a minimal node and the `anchor` (`nodePositionAt`: a dropped step lands on its
   middle, not its corner) are computed from it. Do not write these sizes as Tailwind classes.
 - **The rules of a pipeline are in `domain/`**: the id and name rules on their value objects,
@@ -340,6 +357,6 @@ the page.
 
 ## Before done
 
-`pnpm typecheck && pnpm lint && pnpm depcruise && pnpm depcruise:cycles && pnpm i18n:collisions`
+`pnpm typecheck && pnpm test && pnpm lint && pnpm depcruise && pnpm depcruise:cycles && pnpm i18n:collisions`
 — all clean.
 New strings: `pnpm extract && pnpm compile`.

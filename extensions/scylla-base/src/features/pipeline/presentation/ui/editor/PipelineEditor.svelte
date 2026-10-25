@@ -4,6 +4,7 @@
   import {
     createPipelineDocument,
   } from './pipeline-document.state.svelte.ts';
+  import { pipelineIssueText } from '@base/features/pipeline/presentation/presenters/pipeline-issue.presenter.ts';
   import { warnBeforeUnload } from './unsaved-changes.effect.svelte.ts';
   import PipelineBlueprint from './blueprint/PipelineBlueprint.svelte';
   import PipelineEditorHeader from './PipelineEditorHeader/PipelineEditorHeader.svelte';
@@ -51,6 +52,7 @@
       {submitLabel}
       {mode}
       submitDisabled={!doc.isValid}
+      issue={doc.issue ? pipelineIssueText(doc.issue) : undefined}
       blueprintDisabled={!doc.isValid}
       isDirty={doc.isDirty}
       isSaving={isSubmitPending}

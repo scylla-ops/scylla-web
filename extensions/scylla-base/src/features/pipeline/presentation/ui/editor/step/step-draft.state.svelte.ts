@@ -4,7 +4,10 @@ import {
   toEnvRow,
   type EnvRow,
 } from '@base/features/pipeline/presentation/mappers/env-row.mapper.ts';
-import type { PipelineStepEntity, StepDefinition } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import type {
+  PipelineStepEntity,
+  StepDefinition,
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import { stepIdIssue, toStepId } from '@base/features/pipeline/domain/structs/step-id.struct.ts';
 import { stepIssue } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 

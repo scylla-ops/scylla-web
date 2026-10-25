@@ -1,5 +1,6 @@
 import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import { nameOf, parseScript, stepsOf, withName, withSteps } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
+import { pipelineIssue } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
 export interface PipelineDocumentParams {
   projectId: () => string;
@@ -27,6 +28,8 @@ export const createPipelineDocument = (params: PipelineDocumentParams) => {
   const pipelineName = $derived(nameOf(parsed.document));
   const isValid = $derived(parsed.document !== null && parsed.error === null);
   const isDirty = $derived(script !== baseline);
+  /** What stops the save: the rules of the domain, on the document as it is. */
+  const issue = $derived(isValid ? pipelineIssue({ name: pipelineName, steps }) : null);
 
   return {
     get script() {
@@ -46,6 +49,9 @@ export const createPipelineDocument = (params: PipelineDocumentParams) => {
     },
     get isDirty() {
       return isDirty;
+    },
+    get issue() {
+      return issue;
     },
 
     setScript(next: string) {

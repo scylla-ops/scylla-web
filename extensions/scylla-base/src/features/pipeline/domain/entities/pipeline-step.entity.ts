@@ -54,7 +54,10 @@ export const stepProblem = (step: PipelineStepEntity): StepProblem | null => {
 };
 
 /** A step with nothing to run yet: the editor adds it, then the user writes its code. */
-export const blankDefinition = (kind: PipelineStepEntity['kind'], shell: Shell = 'bash'): StepDefinition =>
+export const blankDefinition = (
+  kind: PipelineStepEntity['kind'],
+  shell: Shell = 'bash',
+): StepDefinition =>
   kind === 'script'
     ? { kind: 'script', shell, script: '', env: [] }
     : { kind: 'exec', command: '', args: [], env: [] };

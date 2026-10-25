@@ -47,6 +47,7 @@ export const createBlueprint = (params: BlueprintParams) => {
   const keyOf = (steps: PipelineStepEntity[], name: string) => JSON.stringify({ steps, name });
 
   const emit = () => {
+    if (readOnly) return;
     const steps = flowToSteps(nodes, edges);
     const key = keyOf(steps, params.pipelineName());
     if (key === lastEmitted) return;
@@ -71,12 +72,14 @@ export const createBlueprint = (params: BlueprintParams) => {
     });
     edges = flow.edges;
 
-    lastEmitted = keyOf(flow.sanitizedSteps, name);
-    // Sanitising (renamed duplicate id, dropped dangling dependency) must go back up.
-    if (JSON.stringify(flow.sanitizedSteps) !== JSON.stringify(steps)) {
-      params.onStepsChange(flow.sanitizedSteps);
-    }
+    lastEmitted = keyOf(steps, name);
   });
+
+  /**
+   * Two steps share an id: the graph shows them, marked, but cannot edit them, as an edit goes
+   * through the ids. The document is never rewritten to remove the repeat.
+   */
+  const readOnly = $derived(pipeline.repeatedStepIds(params.steps()).length > 0);
 
   const inspected = $derived(
     nodes.find((node): node is BlueprintStepNode => node.id === inspectedId && !!stepOf(node)),
@@ -89,6 +92,7 @@ export const createBlueprint = (params: BlueprintParams) => {
    * dependencies of the graph: a rename is followed in them too.
    */
   const applyToSteps = (next: PipelineStepEntity[], renamed?: { from: string; to: string }) => {
+    if (readOnly) return;
     // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to a call, never state
     const byId = new Map(next.map(step => [step.id, step]));
     const follow = (id: string) => (renamed && id === renamed.from ? renamed.to : id);
@@ -131,12 +135,16 @@ export const createBlueprint = (params: BlueprintParams) => {
     get inspected() {
       return inspected;
     },
+    get readOnly() {
+      return readOnly;
+    },
 
     /**
      * Nothing may depend on the start node, which is the pipeline itself, and no link may close a
      * loop: the source must not wait for the target already.
      */
     canConnect: ({ source, target }: Connection) =>
+      !readOnly &&
       target !== START_NODE_ID &&
       source !== target &&
       !pipeline.waitsFor(currentSteps(), source, target),
@@ -155,6 +163,7 @@ export const createBlueprint = (params: BlueprintParams) => {
 
     /** Adds the step; the caller opens it with `inspect` when a click asked for it. Returns its final id. */
     addNode(desiredId: string, value: StepDefinition, placement: StepPlacement = {}): string {
+      if (readOnly) return desiredId;
       const { id } = pipeline.addStep(currentSteps(), desiredId, value);
       const replaced =
         'replacing' in placement ? edges.find(edge => edge.id === placement.replacing) : undefined;
@@ -191,7 +200,7 @@ export const createBlueprint = (params: BlueprintParams) => {
     },
 
     removeStep(id: string) {
-      if (id === START_NODE_ID) return;
+      if (id === START_NODE_ID || readOnly) return;
       if (inspectedId === id) inspectedId = null;
       nodes = nodes.filter(node => node.id !== id);
       edges = edges.filter(edge => edge.source !== id && edge.target !== id);
@@ -203,7 +212,7 @@ export const createBlueprint = (params: BlueprintParams) => {
      * is the pipeline: its name is edited in the header, so it closes the panel too.
      */
     inspect(id: string | null) {
-      const next = id === START_NODE_ID ? null : id;
+      const next = id === START_NODE_ID || readOnly ? null : id;
       inspectedId = next;
       nodes = nodes.map(node =>
         Boolean(node.selected) === (node.id === next) ? node : { ...node, selected: node.id === next },

@@ -1,7 +1,14 @@
 import type { PipelineIdentity } from '../structs/pipeline.struct.ts';
 import { pipelineNameIssue, type PipelineNameIssue } from '../structs/pipeline-name.struct.ts';
 import { stepIdIssue, type StepId } from '../structs/step-id.struct.ts';
-import { withDefinition, withDependencies, withoutDependency, withRenamedReference, type PipelineStepEntity, type StepDefinition } from './pipeline-step.entity.ts';
+import {
+  withDefinition,
+  withDependencies,
+  withoutDependency,
+  withRenamedReference,
+  type PipelineStepEntity,
+  type StepDefinition,
+} from './pipeline-step.entity.ts';
 
 /**
  * The root of its steps: each step waits for the steps of its `deps`, and the operations below
@@ -18,7 +25,14 @@ export const newPipeline = (projectId: string): Omit<PipelineEntity, 'id'> => ({
   projectId,
   name: DEFAULT_PIPELINE_NAME,
   steps: [
-    { id: 'welcome', deps: [], env: [], kind: 'script', shell: 'sh', script: 'echo "Welcome to Scylla!"' },
+    {
+      id: 'welcome',
+      deps: [],
+      env: [],
+      kind: 'script',
+      shell: 'sh',
+      script: 'echo "Welcome to Scylla!"',
+    },
     {
       id: 'example',
       deps: ['welcome'],
@@ -42,6 +56,7 @@ export interface StepsChange {
 /** What stops a pipeline from being saved. */
 export type PipelineIssue =
   | { kind: 'name'; issue: PipelineNameIssue }
+  | { kind: 'repeated-ids'; ids: StepId[] }
   | { kind: 'step-ids'; ids: StepId[] };
 
 /** The first reason the pipeline cannot be saved, or `null`. The server refuses the whole pipeline for one step id. */
@@ -51,6 +66,9 @@ export const pipelineIssue = ({
 }: Pick<PipelineEntity, 'name' | 'steps'>): PipelineIssue | null => {
   const nameIssue = pipelineNameIssue(name);
   if (nameIssue) return { kind: 'name', issue: nameIssue };
+
+  const repeated = repeatedStepIds(steps);
+  if (repeated.length) return { kind: 'repeated-ids', ids: repeated };
 
   const ids = steps.filter(step => stepIdIssue(step.id)).map(step => step.id);
   return ids.length ? { kind: 'step-ids', ids } : null;
@@ -71,6 +89,14 @@ export function uniqueStepId(
 }
 
 const idsOf = (steps: PipelineSteps) => new Set(steps.map(step => step.id));
+
+/** The ids that two steps or more share. Each step must have its own: the others wait for it by id. */
+export const repeatedStepIds = (steps: PipelineSteps): StepId[] => {
+  const seen = new Set<StepId>();
+  const repeated = new Set<StepId>();
+  for (const { id } of steps) (seen.has(id) ? repeated : seen).add(id);
+  return [...repeated];
+};
 
 /** A repeated id or a repeated dependency: the steps cannot be keyed by id. */
 export const hasRepeats = (steps: PipelineSteps): boolean =>

@@ -1,10 +1,15 @@
 import type { Edge, Node } from '@xyflow/svelte';
-import { definitionOf, type PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import {
+  definitionOf,
+  type PipelineStepEntity,
+} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { repeatedStepIds } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import { layoutSteps } from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
 
 /** A node's `data` must be a `Record`: a step travels wrapped, as `{ step }`. */
 
-export type StepNodeData = { step: PipelineStepEntity };
+/** `repeated`: another step has the same id. */
+export type StepNodeData = { step: PipelineStepEntity; repeated?: true };
 export type StartNodeData = { name: string };
 
 export type BlueprintStepNode = Node<StepNodeData, 'pipelineStep'>;
@@ -27,38 +32,31 @@ export const edgeBetween = (source: string, target: string): BlueprintEdge => ({
   ...DEFAULT_EDGE_STYLE,
 });
 
-/** Deduplicates ids, removes self-deps and deps to missing nodes. */
-export function sanitizeSteps(steps: PipelineStepEntity[]): PipelineStepEntity[] {
-  const seen = new Set<string>();
-  const idMap = new Map<string, string>();
-  const deduped: PipelineStepEntity[] = [];
+/**
+ * xyflow keys the nodes by id, so a step whose id is taken by an earlier one gets a key of its own
+ * (`build#2`). Its step keeps its id: nothing is renamed, and the node is marked `repeated`.
+ */
+const nodeKeys = (steps: PipelineStepEntity[]): string[] => {
+  const counts = new Map<string, number>();
+  return steps.map(step => {
+    const count = (counts.get(step.id) ?? 0) + 1;
+    counts.set(step.id, count);
+    return count === 1 ? step.id : `${step.id}#${count}`;
+  });
+};
 
-  for (const step of steps) {
-    let id = step.id;
-    if (seen.has(id)) {
-      let i = 1;
-      while (seen.has(`${step.id}_${i}`)) i++;
-      id = `${step.id}_${i}`;
-    }
-    seen.add(id);
-    idMap.set(step.id, id);
-    deduped.push({ ...step, id });
-  }
-
-  const validIds = new Set(deduped.map(s => s.id));
-
-  return deduped.map(s => ({
-    ...s,
-    deps: s.deps.map(d => idMap.get(d) ?? d).filter(d => d !== s.id && validIds.has(d)),
-  }));
-}
-
+/**
+ * The graph of the steps, laid out by stage. A dependency on the step itself or on a step that
+ * does not exist is not drawn; a dependency on a repeated id goes to the first step with it.
+ */
 export function stepsToFlow(
-  rawSteps: PipelineStepEntity[],
+  steps: PipelineStepEntity[],
   pipelineName: string,
-): { nodes: BlueprintNode[]; edges: BlueprintEdge[]; sanitizedSteps: PipelineStepEntity[] } {
-  const steps = sanitizeSteps(rawSteps);
-  const layout = layoutSteps(steps);
+): { nodes: BlueprintNode[]; edges: BlueprintEdge[] } {
+  const keys = nodeKeys(steps);
+  const ids = new Set(steps.map(step => step.id));
+  const repeated = new Set(repeatedStepIds(steps));
+  const layout = layoutSteps(steps.map((step, index) => ({ ...step, id: keys[index] })));
 
   const startNode: BlueprintStartNode = {
     id: START_NODE_ID,
@@ -68,23 +66,21 @@ export function stepsToFlow(
     deletable: false,
   };
 
-  const stepNodes: BlueprintStepNode[] = steps.map(step => ({
-    id: step.id,
+  const stepNodes: BlueprintStepNode[] = steps.map((step, index) => ({
+    id: keys[index],
     type: 'pipelineStep',
-    position: layout.steps.get(step.id) ?? { x: 0, y: 0 },
-    data: { step },
+    position: layout.steps.get(keys[index]) ?? { x: 0, y: 0 },
+    data: repeated.has(step.id) ? { step, repeated: true } : { step },
   }));
 
-  const stepEdges = steps.flatMap(step => step.deps.map(dep => edgeBetween(dep, step.id)));
+  const edges = steps.flatMap((step, index) => {
+    const deps = step.deps.filter(dep => dep !== step.id && ids.has(dep));
+    return deps.length
+      ? deps.map(dep => edgeBetween(dep, keys[index]))
+      : [edgeBetween(START_NODE_ID, keys[index])];
+  });
 
-  const roots = steps.filter(s => s.deps.length === 0);
-  const startEdges = roots.map(root => edgeBetween(START_NODE_ID, root.id));
-
-  return {
-    nodes: [startNode, ...stepNodes],
-    edges: [...startEdges, ...stepEdges],
-    sanitizedSteps: steps,
-  };
+  return { nodes: [startNode, ...stepNodes], edges };
 }
 
 export const stepOf = (node: BlueprintNode): PipelineStepEntity | undefined =>

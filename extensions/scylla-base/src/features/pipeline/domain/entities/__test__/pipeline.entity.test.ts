@@ -1,7 +1,27 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { ExecPipelineStepEntity, PipelineStepEntity, StepDefinition } from '../pipeline-step.entity.ts';
-import { addStep, dependencyCandidates, dependentsOf, uniqueStepId, hasRepeats, moveStep, newPipeline, pipelineIssue, removeStep, renameStep, setDependencies, stepDepths, updateStep, waitsFor } from '../pipeline.entity.ts';
+import type {
+  ExecPipelineStepEntity,
+  PipelineStepEntity,
+  StepDefinition,
+} from '../pipeline-step.entity.ts';
+import {
+  addStep,
+  dependencyCandidates,
+  dependentsOf,
+  uniqueStepId,
+  hasRepeats,
+  moveStep,
+  repeatedStepIds,
+  newPipeline,
+  pipelineIssue,
+  removeStep,
+  renameStep,
+  setDependencies,
+  stepDepths,
+  updateStep,
+  waitsFor,
+} from '../pipeline.entity.ts';
 
 const execStep = (id: string, deps: string[] = []): ExecPipelineStepEntity => ({
   id,
@@ -232,7 +252,16 @@ const depsOf = (steps: PipelineStepEntity[]): Record<string, string[]> =>
 
 describe('moveStep: the dependencies of the moved step', () => {
   it('makes the step wait for the target, and for no other', () => {
-    expect(depsOf(moveStep([script('build'), script('lint'), script('deploy'), script('x', ['build', 'lint'])], 'x', 'deploy', false)).x).toEqual(['deploy']);
+    expect(
+      depsOf(
+        moveStep(
+          [script('build'), script('lint'), script('deploy'), script('x', ['build', 'lint'])],
+          'x',
+          'deploy',
+          false,
+        ),
+      ).x,
+    ).toEqual(['deploy']);
   });
 
   it('keeps the other dependencies when asked', () => {
@@ -242,7 +271,16 @@ describe('moveStep: the dependencies of the moved step', () => {
   });
 
   it('makes the step run first when moved after no step', () => {
-    expect(depsOf(moveStep([script('build'), script('lint'), script('x', ['build', 'lint'])], 'x', null, true)).x).toEqual([]);
+    expect(
+      depsOf(
+        moveStep(
+          [script('build'), script('lint'), script('x', ['build', 'lint'])],
+          'x',
+          null,
+          true,
+        ),
+      ).x,
+    ).toEqual([]);
   });
 });
 
@@ -288,5 +326,26 @@ describe('moveStep', () => {
   it('changes nothing when a step is moved after itself', () => {
     const steps = [script('a'), script('b', ['a'])];
     expect(moveStep(steps, 'b', 'b', false)).toBe(steps);
+  });
+});
+
+describe('repeatedStepIds', () => {
+  it('names each id that two steps or more share, once', () => {
+    expect(repeatedStepIds([step('build'), step('test'), step('build'), step('build')])).toEqual([
+      'build',
+    ]);
+  });
+
+  it('is empty when each step has its own id', () => {
+    expect(repeatedStepIds([step('build'), step('test')])).toEqual([]);
+  });
+});
+
+describe('pipelineIssue: repeated ids', () => {
+  it('refuses two steps with the same id, before it looks at the ids themselves', () => {
+    expect(pipelineIssue({ name: 'nightly', steps: [step('Build'), step('Build')] })).toEqual({
+      kind: 'repeated-ids',
+      ids: ['Build'],
+    });
   });
 });

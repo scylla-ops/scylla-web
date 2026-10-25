@@ -2,7 +2,10 @@ import {
   stepProblem,
   type PipelineStepEntity,
 } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { dependentsOf, stepDepths } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import {
+  dependentsOf,
+  stepDepths,
+} from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
 export interface StepRow {
   step: PipelineStepEntity;
