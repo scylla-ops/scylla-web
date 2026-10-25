@@ -16,7 +16,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   stage, the script of a node as shell code (with no JSON escapes), and its properties. Two nodes
   can be open side by side. The full JSON document stays available, to copy and paste.
 - `copyToClipboard` in `@scylla/ui/utils`: writes a text to the clipboard, then shows a toast with
-  the result.
+  the result. It takes the texts of its toasts, and tells whether it copied.
 
 ### Changed
 
@@ -31,6 +31,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - **Breaking:** The node of a pipeline is `PipelineNodeEntity` in `@scylla/base-sdk` (it was
   `PipelineStep`). The pipeline editor says node everywhere, as the protos, the jobs and the
   dashboard do.
+- Each module sorts its presentation by role, as `pipeline` does: `messages/`, `presenters/`
+  (domain data → what a view shows), `mappers/` (a view format ↔ the domain), and `ui/` for the
+  Svelte code. The rules of the backend move to the domain: the permission catalog of `roles`,
+  the escalation rule (`holdsFullControl`, `holdsPermission` on the effective permissions of
+  `@platform/authz`), the eligibility of a grant, the 5-field rule of a cron expression. Each rune
+  file names its role (`.state`, `.effect`, `.adapter`, `.attachments`), and the test harness is
+  `test/render.ts`.
 - The pipeline editor does not save a pipeline that the server refuses: a name with spaces, a
   node id that the server does not accept, or two nodes with the same id. Save is disabled, and
   the header says why. The blueprint shows two nodes with the same id in red and does not
@@ -38,6 +45,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
+- A refused copy of the id of an app shows an error toast; before, the error was not handled.
+- The form of a trigger no longer writes debug lines to the console.
 - The pipeline editor no longer freezes on a loop of dependencies. The blueprint refuses a link
   that closes a loop.
 
