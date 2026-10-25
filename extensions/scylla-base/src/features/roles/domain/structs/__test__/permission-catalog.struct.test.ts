@@ -1,18 +1,13 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { Permission, PermissionScope, permissionLevel } from '@platform/authz';
 import {
-  PERMISSION_CATALOG,
-  getPermissionDefinition,
-  isEditablePermission,
-  getPermissionDefinitionsForScope,
-  getAlwaysGrantedPermissionsForScope,
-  isHiddenAtScope,
-  withImplicitPermissions,
-  getEditablePermissionDefinitionsForScope,
-  getPermissionsForScope,
-  humanizePermission,
-} from '../permission-mapping';
+  Permission,
+  PermissionScope,
+  permissionLevel,
+  type EffectivePermissionsEntity,
+  type EffectiveScopeEntity,
+} from '@platform/authz';
+import { PERMISSION_CATALOG, getPermissionDefinition, isEditablePermission, getPermissionDefinitionsForScope, getAlwaysGrantedPermissionsForScope, isHiddenAtScope, withImplicitPermissions, getEditablePermissionDefinitionsForScope, getPermissionsForScope, lockedPermissionsOf } from '../permission-catalog.struct.ts';
 
 describe('catalog lookups', () => {
   it('getPermissionDefinition finds a cataloged permission', () => {
@@ -175,20 +170,51 @@ describe('getEditablePermissionDefinitionsForScope — what the editor actually 
   });
 });
 
-describe('humanizePermission', () => {
-  it('turns an enum key into a readable, capitalized phrase', () => {
-    expect(humanizePermission(Permission.LIST_JOBS_BY_PIPELINE)).toBe('List jobs by pipeline');
-  });
-
-  it('falls back to a numeric label for a value with no enum key (e.g. a future/unknown wire value)', () => {
-    expect(humanizePermission(9999 as Permission)).toBe('Permission #9999');
-  });
-});
-
 describe('the catalog and the levels of @platform/authz', () => {
   it('give each permission the same scope', () => {
     for (const definition of PERMISSION_CATALOG) {
       expect([definition.id, permissionLevel(definition.id)]).toEqual([definition.id, definition.scope]);
     }
+  });
+});
+
+const restricted = (
+  scope: PermissionScope,
+  scopeId: string,
+  permissions: Permission[],
+): EffectiveScopeEntity => ({ scope, scopeId, access: { kind: 'restricted', permissions } });
+
+const holding = (...scopes: EffectiveScopeEntity[]): EffectivePermissionsEntity => ({ scopes });
+
+describe('lockedPermissionsOf', () => {
+  it('locks what the author does not hold, and nothing else', () => {
+    const effective = holding(
+      restricted(PermissionScope.ORGANIZATION, 'org-1', [Permission.RUN_PIPELINE]),
+    );
+
+    const locked = lockedPermissionsOf(
+      [Permission.RUN_PIPELINE, Permission.DELETE_PIPELINE],
+      PermissionScope.PROJECT,
+      effective,
+      'org-1',
+    );
+
+    expect([...locked]).toEqual([Permission.DELETE_PIPELINE]);
+  });
+
+  it('locks a stand-in when the author lacks what it carries', () => {
+    // At project scope, listing the pipelines also writes READ_PIPELINE.
+    const effective = holding(
+      restricted(PermissionScope.ORGANIZATION, 'org-1', [Permission.LIST_PIPELINES_BY_PROJECT]),
+    );
+
+    const locked = lockedPermissionsOf(
+      [Permission.LIST_PIPELINES_BY_PROJECT],
+      PermissionScope.PROJECT,
+      effective,
+      'org-1',
+    );
+
+    expect(locked.has(Permission.LIST_PIPELINES_BY_PROJECT)).toBe(true);
   });
 });

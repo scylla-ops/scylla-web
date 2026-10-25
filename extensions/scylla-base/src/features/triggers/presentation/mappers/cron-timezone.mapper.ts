@@ -1,9 +1,7 @@
-import type {
-  TriggerDraft,
-  TriggerEntity,
-} from '@base/features/triggers/domain/entities/trigger.entity.ts';
-import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
-import type { TriggerDraftKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+/*
+ * The server reads a cron expression in UTC; the user writes it in the local time. These
+ * convert one into the other, and shift the days when the conversion crosses midnight.
+ */
 
 /** Shifts a day field (day of month or of week) by -1, 0 or 1; handles lists and ranges. */
 function shiftCronField(field: string, shift: number, min: number, max: number): string {
@@ -119,7 +117,7 @@ function convertCronTimezone(cronExpression: string, toUTC: boolean): string {
   }
 
   const shiftedDom = shiftCronField(dayOfMonth, dayDiff, 1, 31);
-  const shiftedDow = shiftCronField(dayOfWeek, dayDiff, 0, 6); // Supposant 0 = Dimanche, 6 = Samedi
+  const shiftedDow = shiftCronField(dayOfWeek, dayDiff, 0, 6); // 0 = Sunday, 6 = Saturday
 
   return `${targetMinute} ${targetHour} ${shiftedDom} ${month} ${shiftedDow}`;
 }
@@ -132,60 +130,3 @@ export function convertCronToUTC(cronExpression: string): string {
 export function convertCronToLocal(cronExpression: string): string {
   return convertCronTimezone(cronExpression, false);
 }
-
-export interface DraftInput {
-  key: string;
-  valueKind: 'literal' | 'jsonPointer';
-  value: string;
-}
-
-export const cronFieldCount = (expression: string): number => {
-  const trimmed = expression.trim();
-  return trimmed.length === 0 ? 0 : trimmed.split(/\s+/).length;
-};
-
-/** 5 fields: minute hour day month weekday. */
-export const isCronExpressionValid = (expression: string): boolean =>
-  cronFieldCount(expression) === 5;
-
-export const triggerToDraftInputs = (trigger?: TriggerEntity): DraftInput[] =>
-  (trigger?.inputs ?? []).map(input => ({
-    key: input.key,
-    valueKind: input.value.kind,
-    value: input.value.value,
-  }));
-
-export const buildTriggerDraft = (params: {
-  name: string;
-  kind: TriggerDraftKind;
-  cronExpression: string;
-  signatureHeader: string;
-  inputs: DraftInput[];
-}): TriggerDraft => {
-  const allowPointer = params.kind === TriggerKind.Webhook;
-
-  const inputs = params.inputs
-    .filter(input => input.key.trim().length > 0)
-    .map(input =>
-      allowPointer && input.valueKind === 'jsonPointer'
-        ? { key: input.key.trim(), value: { kind: 'jsonPointer', value: input.value } as const }
-        : { key: input.key.trim(), value: { kind: 'literal', value: input.value } as const },
-    );
-
-  let finalCronExpression = params.cronExpression.trim();
-
-  if (params.kind === TriggerKind.Cron) {
-    console.log('before', finalCronExpression);
-    finalCronExpression = convertCronToUTC(finalCronExpression);
-    console.log('after', finalCronExpression);
-  }
-
-  return {
-    name: params.name.trim(),
-    source:
-      params.kind === TriggerKind.Cron
-        ? { kind: TriggerKind.Cron, expression: finalCronExpression }
-        : { kind: TriggerKind.Webhook, signatureHeader: params.signatureHeader.trim() },
-    inputs,
-  };
-};

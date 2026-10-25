@@ -1,5 +1,5 @@
 import type { Permission } from '@platform/authz';
-import type { PermissionDefinition } from '@base/features/roles/presentation/utils/permission-mapping.ts';
+import type { PermissionDefinition } from '@base/features/roles/domain/structs/permission-catalog.struct.ts';
 import type { CheckboxNode } from '@base/features/roles/presentation/presenters/checkbox-tree.presenter.ts';
 
 /** Uses `dependsOn` as the parent; a parent outside `definitions` makes a root. */

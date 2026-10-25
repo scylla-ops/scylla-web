@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:111
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:29
 msgid "{days} at {time}"
 msgstr "{days} à {time}"
 
@@ -73,7 +73,7 @@ msgstr "Créer"
 msgid "Custom"
 msgstr "Personnalisé"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:116
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:34
 msgid "Custom schedule"
 msgstr "Planification personnalisée"
 
@@ -82,7 +82,7 @@ msgid "Daily"
 msgstr "Tous les jours"
 
 #. placeholder {0}: model.dayOfMonth
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:114
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:32
 msgid "Day {0} of each month at {time}"
 msgstr "Le {0} de chaque mois à {time}"
 
@@ -134,7 +134,7 @@ msgstr "Erreur"
 msgid "Every day"
 msgstr "Tous les jours"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:105
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:23
 msgid "Every day at {time}"
 msgstr "Tous les jours à {time}"
 
@@ -143,7 +143,7 @@ msgid "Every hour"
 msgstr "Toutes les heures"
 
 #. placeholder {0}: pad2(model.minute)
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:103
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:21
 msgid "Every hour at :{0}"
 msgstr "Toutes les heures à :{0}"
 
@@ -155,7 +155,7 @@ msgstr "Déclencher maintenant"
 msgid "Frequency"
 msgstr "Fréquence"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:22
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:11
 msgid "Fri"
 msgstr "Ven"
 
@@ -171,7 +171,7 @@ msgstr "Heure"
 msgid "Hourly"
 msgstr "Horaire"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:116
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:34
 msgid "Incomplete schedule"
 msgstr "Planification incomplète"
 
@@ -199,7 +199,7 @@ msgstr "heure locale"
 msgid "Minute"
 msgstr "Minute"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:18
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:7
 msgid "Mon"
 msgstr "Lun"
 
@@ -251,7 +251,7 @@ msgstr "le jour"
 msgid "Optional values injected into the run as environment variables."
 msgstr "Valeurs facultatives injectées dans l'exécution en tant que variables d'environnement."
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:107
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:25
 msgid "Pick at least one day"
 msgstr "Choisissez au moins un jour"
 
@@ -271,7 +271,7 @@ msgstr "ID de pipeline :"
 msgid "Remove input"
 msgstr "Supprimer l'entrée"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:23
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:12
 msgid "Sat"
 msgstr "Sam"
 
@@ -295,11 +295,11 @@ msgstr "Source"
 msgid "Status"
 msgstr "Statut"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:24
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:13
 msgid "Sun"
 msgstr "Dim"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:21
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:10
 msgid "Thu"
 msgstr "Jeu"
 
@@ -316,7 +316,7 @@ msgstr "Actions du déclencheur"
 msgid "Triggers"
 msgstr "Déclencheurs"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:19
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:8
 msgid "Tue"
 msgstr "Mar"
 
@@ -340,7 +340,7 @@ msgstr "Inconnu"
 msgid "webhook endpoints"
 msgstr "points de terminaison webhook"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:20
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:9
 msgid "Wed"
 msgstr "Mer"
 

@@ -7,7 +7,10 @@ import { userQueries } from '@base/features/user';
 import { userName } from '@shared/presentation/ui';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
-import { buildGrantEligibility, type GrantEligibility } from './grant-eligibility.calculator.ts';
+import {
+  buildGrantEligibility,
+  type GrantEligibility,
+} from '@base/features/roles/domain/entities/grant.entity.ts';
 import { organizationIdOf, type RolesScope } from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
 import { grantMutations, roleQueries } from '@base/features/roles/presentation/roles.queries.ts';
 

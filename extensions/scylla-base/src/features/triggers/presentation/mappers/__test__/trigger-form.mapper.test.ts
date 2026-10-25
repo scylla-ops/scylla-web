@@ -1,63 +1,9 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import {
-  convertCronToUTC,
-  convertCronToLocal,
-  cronFieldCount,
-  isCronExpressionValid,
-  triggerToDraftInputs,
-  buildTriggerDraft,
-} from '../trigger-form.utils';
+import { buildTriggerDraft, triggerToDraftInputs } from '../trigger-form.mapper.ts';
+import { isCronExpressionValid } from '@base/features/triggers/domain/structs/cron-expression.struct.ts';
 import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-
-describe('cronFieldCount', () => {
-  it('counts whitespace-separated fields', () => {
-    expect(cronFieldCount('30 9 * * *')).toBe(5);
-    expect(cronFieldCount('  30   9  *  *  * ')).toBe(5);
-  });
-
-  it('is 0 for an empty (or all-whitespace) expression', () => {
-    expect(cronFieldCount('')).toBe(0);
-    expect(cronFieldCount('   ')).toBe(0);
-  });
-});
-
-describe('isCronExpressionValid', () => {
-  it('requires exactly 5 fields', () => {
-    expect(isCronExpressionValid('30 9 * * *')).toBe(true);
-    expect(isCronExpressionValid('30 9 * *')).toBe(false);
-    expect(isCronExpressionValid('30 9 * * * *')).toBe(false);
-    expect(isCronExpressionValid('')).toBe(false);
-  });
-});
-
-describe('convertCronToUTC / convertCronToLocal', () => {
-  it('leaves a malformed (non-5-field) expression untouched', () => {
-    expect(convertCronToUTC('not a cron')).toBe('not a cron');
-    expect(convertCronToLocal('30 9 * *')).toBe('30 9 * *');
-  });
-
-  it('leaves an expression with a non-numeric minute or hour untouched (nothing to shift)', () => {
-    expect(convertCronToUTC('*/15 * * * *')).toBe('*/15 * * * *');
-    expect(convertCronToUTC('30 * * * *')).toBe('30 * * * *');
-  });
-
-  // The shift depends on the host's timezone: check the round trip, which holds everywhere.
-  it.each(['30 9 * * *', '0 0 * * *', '15 23 * * *', '45 6 * * 1-5'])(
-    'round-trips %s through UTC and back to local',
-    expression => {
-      expect(convertCronToLocal(convertCronToUTC(expression))).toBe(expression);
-    },
-  );
-
-  it.each(['30 9 * * *', '0 0 * * *', '15 23 * * *'])(
-    'round-trips %s through local and back to UTC',
-    expression => {
-      expect(convertCronToUTC(convertCronToLocal(expression))).toBe(expression);
-    },
-  );
-});
 
 describe('triggerToDraftInputs', () => {
   it('flattens each input to its key/kind/value', () => {

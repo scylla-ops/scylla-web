@@ -34,7 +34,7 @@ export type AccessEntity = AccessSpec | { kind: 'unknown' };
 
 /**
  * The wire vocabulary, value for value. The role editor offers a smaller
- * subset: see `permission-mapping.ts`.
+ * subset: see `permission-catalog.struct.ts` in `features/roles`.
  */
 export enum Permission {
   UNSPECIFIED = 0,

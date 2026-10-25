@@ -2,8 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { Permission, PermissionScope, PrincipalKind, RoleKind } from '@platform/authz';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
-import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
-import { buildGrantEligibility } from '../grant-eligibility.calculator.ts';
+import { buildGrantEligibility, type GrantEntity } from '../grant.entity.ts';
 
 const ORG_ID = 'org-1';
 

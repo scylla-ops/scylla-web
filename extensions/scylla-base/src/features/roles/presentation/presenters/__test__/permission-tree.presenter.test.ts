@@ -2,10 +2,9 @@
 import { describe, it, expect } from 'vitest';
 import { Permission, PermissionScope } from '@platform/authz';
 import { buildPermissionTree } from '@base/features/roles/presentation/presenters/permission-tree.presenter.ts';
-import type { PermissionDefinition } from '@base/features/roles/presentation/utils/permission-mapping.ts';
+import type { PermissionDefinition } from '@base/features/roles/domain/structs/permission-catalog.struct.ts';
 
 const def = (overrides: Partial<PermissionDefinition> & { id: Permission }): PermissionDefinition => ({
-  label: { id: Permission[overrides.id], message: Permission[overrides.id] },
   scope: PermissionScope.PROJECT,
   ...overrides,
 });

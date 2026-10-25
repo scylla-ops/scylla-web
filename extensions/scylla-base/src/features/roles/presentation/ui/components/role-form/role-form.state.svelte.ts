@@ -8,16 +8,10 @@ import {
 import { createMutation } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
-import { holdsFullControl, lockedPermissionsOf } from './role-authoring.calculator.ts';
+import { holdsFullControl } from '@platform/authz';
+import { lockedPermissionsOf } from '@base/features/roles/domain/structs/permission-catalog.struct.ts';
 import { roleMutations } from '@base/features/roles/presentation/roles.queries.ts';
-import {
-  ALL_SCOPES,
-  getEditablePermissionDefinitionsForScope,
-  getPermissionsForScope,
-  isEditablePermission,
-  isHiddenAtScope,
-  withImplicitPermissions,
-} from '@base/features/roles/presentation/utils/permission-mapping.ts';
+import { ALL_SCOPES, getEditablePermissionDefinitionsForScope, getPermissionsForScope, isEditablePermission, isHiddenAtScope, withImplicitPermissions } from '@base/features/roles/domain/structs/permission-catalog.struct.ts';
 
 export type AccessKind = 'fullControl' | 'restricted';
 

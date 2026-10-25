@@ -11,9 +11,7 @@
     SelectValue,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type {
-    DraftInput,
-  } from '@base/features/triggers/presentation/utils/trigger-form.utils.ts';
+  import type { DraftInput } from '@base/features/triggers/presentation/mappers/trigger-form.mapper.ts';
   import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {

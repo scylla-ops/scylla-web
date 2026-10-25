@@ -2,7 +2,7 @@ import { msg, plural } from '@lingui/core/macro';
 
 /**
  * Keep the msgids (placeholder names included) or the French is lost. Permission
- * and scope names are in `utils/permission-mapping.ts`.
+ * and scope names are in `presenters/permission-label.presenter.ts`.
  */
 export const rolesMessages = {
   role: msg`Role`,
