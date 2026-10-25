@@ -103,9 +103,13 @@ index.ts                             public API
 domain/
   entities/role.entity.ts            RoleEntity, RoleCreationData, RoleOrigin,
                                      roleConfers, roleOwnerOf, updateRole (pure)
-  entities/grant.entity.ts           GrantEntity
+  entities/grant.entity.ts           GrantEntity, buildGrantEligibility: who may receive a project
+                                     grant, and why not (pure)
   entities/grantable-role.entity.ts  GrantableRoleEntity
   entities/permission-vocabulary.entity.ts  PermissionVocabularyEntity, PermissionActionEntity
+  structs/permission-catalog.struct.ts      the permissions of a role: scope, dependencies, the
+                                     implicit ones, carriedBy, and lockedPermissionsOf (the
+                                     escalation rule: what an author may not tick) (pure)
   repository/permission.repository.ts       + CreateGrantInput, RevokeAllAccessInput
   use-cases/update-role.use-case.ts
 infrastructure/
@@ -114,29 +118,29 @@ infrastructure/
   grpc-permission-vocabulary, grpc-effective-permissions   (*.mapper.ts)
 presentation/
   roles.queries.ts                   every read and write, as plain options objects
+  messages/roles.messages.ts         every string the screens show
+  presenters/                        domain data → what a view shows (pure, tested)
+    permission-label.presenter.ts    the words of a permission and of a scope
+    permission-tree.presenter.ts     the catalog of a scope → the tree of the editor
+    checkbox-tree.presenter.ts       descendants, find, checked ids of a checkbox tree
+    role-list.presenter.ts           roles split by owner and sorted by name, holders per role
+    role-label.presenter.ts          humanizeRoleId
   ui/Roles/Roles.page.svelte         the roles of the current organization
   ui/PlatformRoles/PlatformRoles.page.svelte   the platform roles (System)
-  ui/roles.messages.ts               every string the screens show
   ui/components/RolesView.svelte     the body both pages render, on a RolesScope
   ui/components/roles-page.state.svelte.ts   the master–detail ViewModel of RolesView, and RolesScope
-  ui/components/role-list.calculator.ts      pure: roles split by owner and sorted by name, holders per role
   ui/components/RoleList.svelte, RoleListItem/RoleListItem.svelte, RoleDetailPanel.svelte
   ui/components/role-detail/         RoleDetailHeader, RoleDetailPermissions,
                                      RoleDetailGrantList, GrantCreator, TargetChecklist
     grant-creator.state.svelte.ts    granting one role to one user
-    grant-eligibility.calculator.ts  pure: who may receive a project grant, and why not
     role-assignees.state.svelte.ts   who holds a role (from the page's grants), and the revoke
     grant-target-labels.state.svelte.ts    scope id → human name (fans out for projects)
   ui/components/role-form/           RoleFormDialog, RoleForm, RoleHolderField,
-                                     RoleDialogPermissions, CheckboxTree/ (+ CheckboxTreeNode),
-                                     checkbox-tree.ts
+                                     RoleDialogPermissions, CheckboxTree/ (+ CheckboxTreeNode)
     role-form.state.svelte.ts        creating/editing one role
-    role-authoring.calculator.ts     pure: the escalation rule, what an author may put in a role
-  utils/permission-mapping.ts, permission-tree.ts, role-label.ts
 ```
 
-There is no `presentation/hooks/`, no `use-roles-domain.ts` and no store of its own — the thirteen
-hooks became `roles.queries.ts` plus the four ViewModels above.
+No store of its own: the server state is in `roles.queries.ts`, the UI state in the states above.
 
 ## Routes & nav
 
@@ -165,8 +169,8 @@ give it the scope.
   `permission-grants` prefix rather than an exact key.
 - `roleConfers` and `updateRole` are **pure entity functions**. Role logic goes in
   `role.entity.ts`, not in a component.
-- **The permission tree is data.** It is built from `permission-mapping.ts`'s catalog, shaped by
-  `permission-tree.ts`, and rendered by `CheckboxTree`. `checkbox-tree.ts` holds the pure rules —
+- **The permission tree is data.** It is built from `domain/structs/permission-catalog.struct.ts`'s catalog, shaped by
+  `presenters/permission-tree.presenter.ts`, and rendered by `CheckboxTree`. `presenters/checkbox-tree.presenter.ts` holds the pure rules —
   a child counts only when its whole parent chain is checked, unchecking a parent clears its
   descendants. Those rules are the permission model's, not a widget's, which is why the tree
   lives here rather than in `shared/`.
@@ -202,14 +206,14 @@ give it the scope.
   fallback name. An app shows by its id.
 - **The editor locks what the author does not hold.** The backend refuses a role with a
   permission its author does not hold at System or at the owner organization
-  (`ensure_no_escalation`). `role-authoring.calculator.ts` is that rule, and `lockedPermissions`
+  (`ensure_no_escalation`). `domain/structs/permission-catalog.struct.ts` is that rule, and `lockedPermissions`
   feeds the tree: a locked row is shown, disabled, with "Not held in <org>". A stand-in also
   needs what it carries (`carriedBy`). Full control is offered only to who holds it. A locked
   permission already in an edited role stays; it is never stripped.
 - **Who holds a role is fixed at creation.** `RoleHolderField` sets `RoleKind.MEMBER` (people) or
   `AGENT` (apps); an edit shows it read only. A role of an organization is organization or
   project scoped, never System. The grant dialog grants to people, so it refuses an `AGENT` role.
-- **A project grant follows the backend's tenant boundary.** `grant-eligibility.calculator.ts`
+- **A project grant follows the backend's tenant boundary.** `domain/entities/grant.entity.ts`
   answers *why* a user cannot receive one (`not-admitted` / `cannot-see-projects`) as a value;
   which sentence explains it is the component's business.
 
@@ -217,5 +221,5 @@ give it the scope.
 
 `pnpm typecheck && pnpm test && pnpm lint && pnpm depcruise && pnpm depcruise:cycles &&
 pnpm i18n:collisions` — all clean.
-New strings: add them to `presentation/ui/roles.messages.ts` (never inside a `.svelte` —
+New strings: add them to `presentation/messages/roles.messages.ts` (never inside a `.svelte` —
 `lingui extract` does not read one), then `pnpm extract && pnpm compile`.

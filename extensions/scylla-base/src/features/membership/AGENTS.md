@@ -20,10 +20,6 @@ membershipPoints                      the extension points (see below)
 type OrganizationMembersContext, ProjectMembersContext, AddMemberAction
 ```
 
-**This module is Svelte** (Phase 3). The two hooks that used to be exported are gone: they
-were view models, not API, and nothing outside this feature ever called them. What is left is
-the pure domain, which is the only part another module would want.
-
 Both pages are **deliberately not exported**: `membership.module.ts` loads them lazily, and a
 barrel that re-exported them would pull them into the chunk of anything importing this module.
 Never add: `membership.module.ts`, pages.
@@ -31,7 +27,7 @@ Never add: `membership.module.ts`, pages.
 ## Data contract
 
 **This module owns no repository.** `domain` is `{}`; it is registered for its routes alone.
-There is no `use-membership-domain.ts`, and adding one would be wrong.
+Do not add one: the members are built from the grants of `roles`.
 
 It composes, through public APIs only:
 
@@ -52,21 +48,21 @@ It composes, through public APIs only:
 ```
 membership.module.ts                 routes + nav, empty domain
 index.ts                             public API
-domain/structs/scope-member.struct.ts   ScopeMember, MemberRole, MemberRoleOrigin +
-                                        buildOrganizationMembers / buildProjectMembers (pure)
 presentation/
   membership.points.ts               the extension points (see below)
+  presenters/scope-members.presenter.ts   ScopeMember, MemberRole, MemberRoleOrigin +
+                                     buildOrganizationMembers / buildProjectMembers (pure)
+  presenters/assignable-roles.presenter.ts   grantable → AssignableRole (no apps roles), and
+                                     the grouping by owner the pickers render
   ui/OrganizationMembers.page.svelte, ProjectMembers.page.svelte
   ui/scope-membership.state.svelte.ts   grants → members, plus grant/revoke/refresh (a ViewModel
                                         of both pages)
-  ui/membership.messages.ts          every string — `lingui extract` cannot read `.svelte`
+  messages/membership.messages.ts          every string — `lingui extract` cannot read `.svelte`
   ui/components/                     AddMemberDialog (+ AddMemberForm), AddRoleSelect,
                                      MemberCard, MemberRoleBadges, MemberRowAction,
                                      MembersHint, MembersList, RoleChecklist
   ui/components/index.ts             local barrel — internal, not the module's public API
   ui/components/assignable-roles.state.svelte.ts   which roles *this* user may hand out
-  ui/components/assignable-roles.calculator.ts     pure: grantable → AssignableRole (no apps
-                                     roles), and the grouping by owner the pickers render
 ```
 
 Both ViewModels take **getters**, not values, for anything that arrives late — the scope id
@@ -156,7 +152,7 @@ Sidebar: one entry only — section `organization`, order `30`, icon `UsersRound
   value without an item would show its raw id in the trigger.
 - Two pages, one shape: keep the shared components scope-agnostic and pass the scope in. Do not
   fork `MembersList` per scope.
-- **New strings go in `ui/membership.messages.ts`, never inside a `.svelte`.** Extraction does
+- **New strings go in `messages/membership.messages.ts`, never inside a `.svelte`.** Extraction does
   not read components, so a message declared there vanishes from the catalogs without failing a
   gate.
 - **The role-count plural is load-bearing and has a French test.** `<Plural _0=…>` became

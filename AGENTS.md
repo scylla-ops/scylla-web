@@ -530,7 +530,7 @@ as soon as it has more than its `.svelte` file:
   it gets a folder of its own only when it has a test.
 
 A lone `.svelte` file with nothing beside it stays a plain file. A file that two components use
-stays in the directory above them (`role-form/checkbox-tree.ts`). A group of related components
+stays in the directory above them (`scripting/node-panes.state.svelte.ts`). A group of related components
 that is not one component's internals stays a kebab-case group folder (`jobs-table/`,
 `role-detail/`). A state or an attachment that a component uses is one of
 these files: it goes in the component's folder, and gives the component a folder. Shared by
@@ -605,7 +605,7 @@ Code identifiers: Interfaces/Types/Classes/Components/Enums **PascalCase** (no `
 Where a test goes:
 
 - **A tested Svelte component has its own folder**, with its test and its fixtures:
-  `LoginForm/LoginForm.svelte`, `LoginForm/LoginForm.test.ts`, `LoginForm/LoginForm.fixture.svelte`.
+  `PipelineScripting/PipelineScripting.svelte`, `PipelineScripting/PipelineScripting.test.ts`, `PipelineScripting/PipelineScripting.fixture.svelte`.
   A page drops `.page` from the folder name: `Login/Login.page.svelte`. This keeps a component
   and what describes it in one place (Storybook stories will go there too). See "Component
   folders" for the other reasons a component gets a folder.

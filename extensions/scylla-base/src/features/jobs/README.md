@@ -41,7 +41,7 @@ from a feature barrel, and it is safe because its single consumer is itself lazi
 ## How it is built
 
 **Domain** holds `JobEntity`, the log types (`JobLog`, `JobLogStream`) and — more interestingly
-— `jobs-summary.struct.ts`, which is pure logic with no I/O: `summarizeJobs` turns a list of
+— `presenters/jobs-summary.presenter.ts`, which is pure logic with no I/O: `summarizeJobs` turns a list of
 runs into counts, `isActiveStatus` and `isFinishedStatus` classify a status. Because these are
 plain functions in the domain, the same rules apply on the jobs table, in the pipeline dashboard
 and on the org overview, and there is no second opinion about what "running" means.
@@ -88,9 +88,9 @@ breaks it.
 
 - [pipeline](../pipeline/README.md) — owns the route, the Run action, and what a job executes.
 - [agents](../agents/README.md) — the machines that pick jobs up.
-- [dashboard](../dashboard/README.md) — consumes `useOrganizationJobs` for the overview.
+- [dashboard](../dashboard/README.md) — reads `jobsQueries.byOrganization` for the overview.
 
 ## Related shared pieces
 
-`DataTable`, `usePagination`, `useSelection` and `FeatureHeader` — see
-[shared](../../shared/README.md).
+`DataTable`, `createPagination`, `createSelection` and `FeatureHeader` — see
+[`@scylla/ui`](../../../../../packages/ui/README.md).

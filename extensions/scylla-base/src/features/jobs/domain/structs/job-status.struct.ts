@@ -13,7 +13,4 @@ export const isActiveStatus = (status: string): boolean =>
   status === 'pending' || status === 'running';
 
 export const isFinishedStatus = (status: string): boolean =>
-  status === 'completed' ||
-  status === 'failed' ||
-  status === 'cancelled' ||
-  status === 'orphaned';
+  status === 'completed' || status === 'failed' || status === 'cancelled' || status === 'orphaned';

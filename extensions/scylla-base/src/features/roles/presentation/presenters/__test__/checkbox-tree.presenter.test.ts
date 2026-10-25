@@ -1,7 +1,12 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import { Permission } from '@platform/authz';
-import { checkedIdsOf, descendantIdsOf, findNode, type CheckboxNode } from '../checkbox-tree.presenter.ts';
+import {
+  checkedIdsOf,
+  descendantIdsOf,
+  findNode,
+  type CheckboxNode,
+} from '../checkbox-tree.presenter.ts';
 
 const tree: CheckboxNode[] = [
   {

@@ -90,8 +90,8 @@ ScyllaForm.svelte
 DataTable.svelte
 ```
 
-A component with a test has its own folder, with the same name: `LoginForm/LoginForm.svelte`,
-`LoginForm/LoginForm.test.ts`, `LoginForm/LoginForm.fixture.svelte`. A page drops `.page` from
+A component with a test has its own folder, with the same name: `PipelineScripting/PipelineScripting.svelte`,
+`PipelineScripting/PipelineScripting.test.ts`, `PipelineScripting/PipelineScripting.fixture.svelte`. A page drops `.page` from
 the folder name: `Login/Login.page.svelte`.
 
 A test that does not test one component goes in the `__test__/` folder of the directory that it

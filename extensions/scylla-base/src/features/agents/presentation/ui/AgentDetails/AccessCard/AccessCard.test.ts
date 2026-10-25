@@ -10,13 +10,7 @@ import {
   type PrincipalEntity,
 } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import {
-  findFloating,
-  findTooltip,
-  render,
-  withQueryClient,
-  withRegistry,
-} from '@test/render.ts';
+import { findFloating, findTooltip, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { APP_ACCESS_QUERY_KEY, type AppAccess } from '@base/features/apps';
 import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';

@@ -23,7 +23,7 @@ jobsByPipelinesQueries
 loadJobsPage                          ← a loader, not the page
 ```
 
-**This module is Svelte** (Phase 3). There is no `use-jobs-domain.ts` and no hooks: the
+The
 factories in `presentation/jobs.queries.ts` resolve the repository through
 `getModuleDomain('jobs')` per call, and a component runs them with `createQuery` /
 `createMutation` from `@scylla/core-sdk`.
@@ -34,7 +34,7 @@ share the *same* cache entry as this module's pages.
 `loadJobsPage` is a **loader** (`() => import(…)`), never the component. `pipeline` composes this
 page behind its own route because it owns the "Run" action, and a `.svelte` re-exported from a
 barrel cannot be tree-shaken out of whoever imports that barrel for something else —
-`use-run-pipeline.ts` imports `JOBS_QUERY_KEY` from here. A function keeps the chunk separate.
+`pipeline` imports `JOBS_QUERY_KEY` from here. A function keeps the chunk separate.
 See `refacto_svelte.md` §2. `JobDetails.page.svelte` is mounted by this module's own route, so it
 stays private.
 
@@ -67,8 +67,7 @@ index.ts                             public API
 domain/
   entities/job.entity.ts             JobEntity
   structs/job.struct.ts              JobLog, JobLogStream
-  structs/jobs-summary.struct.ts     JobsSummary, JobStatus + summarizeJobs,
-                                     isActiveStatus, isFinishedStatus (pure)
+  structs/job-status.struct.ts       JobStatus, isActiveStatus, isFinishedStatus (pure)
   repository/jobs.repository.ts
 infrastructure/
   default-jobs.repository.ts       JobServiceClient → JobEntity; tailLogs maps the stream
@@ -80,9 +79,10 @@ presentation/
   ui/Jobs.page.svelte, JobsHeader.svelte
   ui/JobDetails/                     one job: info + per-node logs (JobSummary, JobNodeLogs)
     open-log-panels.state.svelte.ts        which node panels are open, mirrored in the URL
-  ui/jobs.messages.ts                every string — `lingui extract` cannot read `.svelte`
-  ui/jobs-table/                     JobsTable + job-columns.ts + cells
-  ui/jobs-table/job-timeline.calculator.ts   segment geometry, pure and tested in node
+  messages/jobs.messages.ts                every string — `lingui extract` cannot read `.svelte`
+  presenters/jobs-summary.presenter.ts   JobsSummary, summarizeJobs
+  presenters/job-timeline.presenter.ts   segment geometry, pure and tested in node
+  ui/jobs-table/                     JobsTable + jobs-table.columns.ts + cells
   ui/jobs-log/JobLogDisplay/         the streamed viewer, shared by both pages
     streamed-log-view.state.svelte.ts      owns the editor document + tail-follow
     tail-job-logs.state.svelte.ts          the live stream subscription (opens and closes it)
@@ -110,8 +110,8 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
   details page) stays internal. Never hand-write `['jobs', ...]`.
 - `JOBS_QUERY_ROOT` is the prefix for "invalidate everything jobs-related" after a run;
   `JOBS_QUERY_KEY(pipelineId)` is exact. Pick deliberately.
-- **`summarizeJobs`, `isActiveStatus`, `isFinishedStatus` are pure domain functions.** Status
-  logic goes there, not into a component or a `useMemo`.
+- **`isActiveStatus` and `isFinishedStatus` are rules of the domain** (`job-status.struct.ts`), and
+  `summarizeJobs` is a presenter. Status logic goes there, not into a component.
 - **Log tailing is a subscription to something outside the framework**, so it is a Svelte
   action / `*.state.svelte.ts` owner — `tail-job-logs.state.svelte.ts` — and never reactivity. It opens the
   stream and **closes it on teardown**; the same holds for `streamed-log-view.state.svelte.ts`, which
@@ -149,7 +149,7 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
 - **Log panels are independent, and each one is a live stream.** Every open panel holds its own
   tail subscription. Closing a panel unmounts it, which is what cancels that stream — never hide
   one with CSS instead.
-- **New strings go in `ui/jobs.messages.ts`, never inside a `.svelte`.** Extraction does not read
+- **New strings go in `messages/jobs.messages.ts`, never inside a `.svelte`.** Extraction does not read
   components, so a message declared there vanishes from the catalogs without failing a gate.
 - **`data-tour` attributes are anchors of the onboarding tour** (`job-details` on the job page). Keep them on the same
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).

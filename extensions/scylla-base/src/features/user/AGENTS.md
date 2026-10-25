@@ -75,17 +75,17 @@ domain/
   entities/user.entity.ts            UserEntity, UserSummary, the inputs, profileChanges (pure)
   entities/user-session.entity.ts    UserSessionEntity: no token, only what the list shows
   structs/user.struct.ts             UserList = PaginatedList<UserEntity>
-  structs/user-access.struct.ts      UserAccess, groupUserAccess (pure)
+  structs/user-access.struct.ts      UserAccess, UserAccessScope
   repository/user.repository.ts
 infrastructure/
   default-user.repository.ts         UserServiceClient → UserEntity
   grpc-user.mapper.ts                user, requests, access, session, delivery
 presentation/
   user.queries.ts                    the reads, the writes, `canListUsers`
-  ui/user.messages.ts                every string the screens show
+  messages/user.messages.ts                every string the screens show
   ui/admin/UserAdmin.page.svelte     the directory
   ui/admin/AddUserDialog/            "New user"
-  ui/admin/user-table/               UserTable, user-columns.ts
+  ui/admin/user-table/               UserTable, user-table.columns.ts
   ui/account/Account/                the account page (+ ChangePasswordForm)
     account-page.state.svelte.ts     createAccountPage: the account of the session
   ui/account/PersonalAccount/         the account page with no organization: + the sign-out at the end
@@ -96,8 +96,10 @@ presentation/
     UserSecurity.svelte
   ui/components/                     SettingsSection, UserStatusBadge, UserProfileForm/,
                                      UserAccessList/, UserIdentityCard, SessionList,
-                                     SessionRow/ (both pages; user-agent.calculator.ts:
-                                     parseUserAgent, browser, system and kind of a session)
+                                     SessionRow/ (both pages)
+  presenters/user-agent.presenter.ts parseUserAgent: browser, system and kind of a session
+  presenters/session-row.presenter.ts   the title and the activity of a session
+  presenters/user-access.presenter.ts   the access of a user, grouped by organization
 ```
 
 ## Routes & nav
@@ -166,7 +168,7 @@ user who has no organization.
   API client (`kind: 'api'`), named from its product token. Only a phone is `mobile`: a tablet
   is `desktop`. An empty user agent is `unknown` and has no name: the row shows "Unknown device"
   with a neutral icon (`circle-help`) and no "API client" prefix. The texts of a
-  row are in `SessionRow/session-row.ts`. The title is "<browser> on <system>", or the name of
+  row are in `presenters/session-row.presenter.ts`. The title is "<browser> on <system>", or the name of
   an API client alone. The detail line of a named API client starts with "API client". "Active
   now" shows for less than five minutes, because the server moves the last activity at most
   once every five minutes.

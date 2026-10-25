@@ -6,7 +6,10 @@ import { toRune } from '@scylla/ui/stores';
 import { appQueries, type AppAccess } from '@base/features/apps';
 import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
 import type { AgentStats } from '@base/features/agents/domain/structs/agent.struct.ts';
-import { isOnline, type AgentState } from '@base/features/agents/domain/structs/agent-state.struct.ts';
+import {
+  isOnline,
+  type AgentState,
+} from '@base/features/agents/domain/structs/agent-state.struct.ts';
 import { agentStateOf } from '@base/features/agents/domain/entities/agent.entity.ts';
 import { summarizeAgents } from '@base/features/agents/presentation/presenters/agents-summary.presenter.ts';
 import { agentQueries } from '@base/features/agents/presentation/agents.queries.ts';

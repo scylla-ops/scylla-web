@@ -46,13 +46,12 @@ with whoever else reads it.
 dashboard.module.ts                     route + nav, empty domain
 index.ts                                public API
 presentation/
-  org-overview.state.svelte.ts          the composition ViewModel
-  org-overview.svelte.test.ts
-  ui/Dashboard.page.svelte              the page
-  ui/RunActivityCard.svelte             recent run activity
+  messages/dashboard.messages.ts        every string on the page
+  presenters/outcomes-chart.presenter.ts   the chart's geometry — pure, node-tested
+  ui/org-overview.state.svelte.ts       the composition ViewModel (exported: other modules read it)
+  ui/Dashboard/Dashboard.page.svelte    the page
+  ui/RunActivityCard/                   recent run activity
   ui/AgentOutcomesChart/                run outcomes over time, in plain SVG
-    outcomes-chart.calculator.ts        the chart's geometry — pure, node-tested
-  ui/dashboard.messages.ts              every string on the page
 ```
 
 No `domain/`, no `infrastructure/` — correct for this module, do not add them.
@@ -79,7 +78,7 @@ narrower permission without moving that redirect target too.
   `jobs` even though the dashboard is their only consumer.
 - Cross-feature aggregation belongs in `org-overview.state.svelte.ts`, derived with `$derived` —
   not in a store, not in an effect.
-- **The chart's arithmetic stays in `outcomes-chart.calculator.ts`.** It is the half that
+- **The chart's arithmetic stays in `presenters/outcomes-chart.presenter.ts`.** It is the half that
   survives a change of framework and the half a test can pin without a DOM
   (`// @vitest-environment node`). The `.svelte` file holds markup, nothing else.
 - **The chart's SVG is stretched; its text is not.** `preserveAspectRatio="none"` fills the

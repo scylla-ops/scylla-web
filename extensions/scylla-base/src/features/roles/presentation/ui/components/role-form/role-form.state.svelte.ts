@@ -11,7 +11,14 @@ import type { RoleEntity } from '@base/features/roles/domain/entities/role.entit
 import { holdsFullControl } from '@platform/authz';
 import { lockedPermissionsOf } from '@base/features/roles/domain/structs/permission-catalog.struct.ts';
 import { roleMutations } from '@base/features/roles/presentation/roles.queries.ts';
-import { ALL_SCOPES, getEditablePermissionDefinitionsForScope, getPermissionsForScope, isEditablePermission, isHiddenAtScope, withImplicitPermissions } from '@base/features/roles/domain/structs/permission-catalog.struct.ts';
+import {
+  ALL_SCOPES,
+  getEditablePermissionDefinitionsForScope,
+  getPermissionsForScope,
+  isEditablePermission,
+  isHiddenAtScope,
+  withImplicitPermissions,
+} from '@base/features/roles/domain/structs/permission-catalog.struct.ts';
 
 export type AccessKind = 'fullControl' | 'restricted';
 

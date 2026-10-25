@@ -54,7 +54,7 @@ presentation/
   extensions.queries.ts                  the list read (`staleTime: Infinity`)
   ui/Extensions/Extensions.page.svelte   the grid of cards (+ its test)
   ui/Extensions/ExtensionCard.svelte     one extension
-  ui/extensions.messages.ts
+  messages/extensions.messages.ts
 ```
 
 ## Routes & nav

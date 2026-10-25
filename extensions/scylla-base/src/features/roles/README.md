@@ -82,7 +82,7 @@ before adding another one anywhere in the codebase.
 ## The permission tree is data, not code
 
 The role editor shows every permission grouped into a tree of resources and actions. That tree
-is **not** hardcoded — it is shaped by `permission-mapping.ts` and `permission-tree.ts`, and
+is **not** hardcoded — it is shaped by `domain/structs/permission-catalog.struct.ts` and `presenters/permission-tree.presenter.ts`, and
 rendered by `CheckboxTree` in this module. It used to live in `shared/`, on the strength of being
 "generic"; it never had a second consumer, and the rules it enforces are the permission model's,
 so the port brought it home.
@@ -118,8 +118,8 @@ entry; the ViewModels are where filters, selection and mutations are orchestrate
 components stay about rendering.
 
 Two pieces stayed pure TypeScript on purpose, because they are rules rather than UI:
-`grant-eligibility.calculator.ts` (why a user may not receive a project grant) and
-`checkbox-tree.ts` (a child counts only when its whole parent chain is checked). Both are tested
+`domain/entities/grant.entity.ts` (why a user may not receive a project grant) and
+`presenters/checkbox-tree.presenter.ts` (a child counts only when its whole parent chain is checked). Both are tested
 without a DOM, and both would survive another change of framework.
 
 The screen itself is a master–detail layout: `RoleListItem` on the left, `RoleDetailPanel` on the

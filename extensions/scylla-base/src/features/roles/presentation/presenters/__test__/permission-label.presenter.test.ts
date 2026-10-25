@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { Permission, PermissionScope } from '@platform/authz';
-import { humanizePermission, permissionLabelOf, scopeLabelOf } from '../permission-label.presenter.ts';
+import {
+  humanizePermission,
+  permissionLabelOf,
+  scopeLabelOf,
+} from '../permission-label.presenter.ts';
 
 describe('humanizePermission', () => {
   it('turns an enum key into a readable, capitalized phrase', () => {

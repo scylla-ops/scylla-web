@@ -19,7 +19,7 @@ TriggerKind                           (enum — a value, not a type)
 triggerQueries, triggerMutations, TRIGGERS_QUERY_KEY
 ```
 
-**This module is Svelte** (Phase 3). There is no `use-triggers-domain.ts` and no hooks: the
+The
 factories in `presentation/triggers.queries.ts` resolve the repository through
 `getModuleDomain('triggers')` per call, and a component runs them with `createQuery` /
 `createMutation` from `@scylla/core-sdk`.
@@ -67,6 +67,7 @@ index.ts                             public API
 domain/
   entities/trigger.entity.ts         TriggerEntity, TriggerDraft, CreatedTrigger
   structs/trigger-source.struct.ts   the union above, TriggerInput
+  structs/cron-expression.struct.ts  the 5-field rule of the server: isCronExpressionValid
   repository/triggers.repository.ts
 infrastructure/
   default-triggers.repository.ts      TriggerServiceClient → TriggerEntity
@@ -74,13 +75,16 @@ infrastructure/
 presentation/
   triggers.queries.ts                every read and write, as query/mutation options
   ui/Triggers.page.svelte
-  ui/triggers.messages.ts            every string — `lingui extract` cannot read `.svelte`
+  messages/triggers.messages.ts            every string — `lingui extract` cannot read `.svelte`
   ui/components/TriggersHeader.svelte, TriggersOverview.svelte, index.ts (local barrel)
   ui/dialogs/TriggerFormDialog/         the shell: `{#key open}` is the form's reset
     TriggerForm.svelte                  the fields, so recreating it re-seeds them
   ui/dialogs/CronScheduleBuilder.svelte, TriggerInputsEditor.svelte
-  ui/triggers-table/                 TriggersTable + trigger-columns.ts + cells
-  utils/cron.utils.ts, trigger-form.utils.ts
+  ui/triggers-table/                 TriggersTable + triggers-table.columns.ts + cells
+  mappers/cron.mapper.ts             the cron text ↔ the model of the builder
+  mappers/cron-timezone.mapper.ts    the local time ↔ UTC (the server reads UTC)
+  mappers/trigger-form.mapper.ts     the form ↔ the draft of a trigger
+  presenters/cron.presenter.ts       WEEKDAYS, describeCron
 ```
 
 ## Routes & nav
@@ -112,7 +116,7 @@ holding it that they are not split.
   a webhook trigger invalidates its URL forever. Keep them distinct in the UI.
 - Webhook secrets follow the reveal-once rule: shown at creation, never re-fetchable. Never
   store or log one.
-- Cron parsing/formatting lives in `cron.utils.ts`; `CronScheduleBuilder` is the only place that
+- Cron parsing/formatting lives in `mappers/cron.mapper.ts`; `CronScheduleBuilder` is the only place that
   composes an expression. Do not hand-roll cron strings in a component.
 - **`CronScheduleBuilder` does not emit on mount**, deliberately: its parent seeds its own state
   from the same string, so a mount-time emit only re-sends what the parent already has. The React
@@ -120,7 +124,7 @@ holding it that they are not split.
 - **A dialog's form lives in its own component**, and `{#key open}` in the parent is what resets
   it — recreating the child re-runs its `$state` initializers. That is the reset React needed an
   effect on `[open, trigger]` for. No effect watching `open`.
-- **New strings go in `ui/triggers.messages.ts`, never inside a `.svelte`.** Extraction does not
+- **New strings go in `messages/triggers.messages.ts`, never inside a `.svelte`.** Extraction does not
   read components, so a message declared there vanishes from the catalogs without failing a gate.
 - **A bits-ui select or menu lives in a floating layer**, which floating-ui leaves
   `visibility: hidden` under jsdom: `getByRole('option')` finds nothing. Use `findFloating` from
