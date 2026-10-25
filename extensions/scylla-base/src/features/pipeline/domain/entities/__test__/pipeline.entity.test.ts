@@ -11,6 +11,7 @@ import {
   dependentsOf,
   uniqueStepId,
   hasRepeats,
+  newPipeline,
   pipelineIssue,
   removeStep,
   renameStep,
@@ -203,11 +204,11 @@ describe('hasRepeats', () => {
 
 describe('pipelineIssue', () => {
   it('accepts a name of one word and step ids the server accepts', () => {
-    expect(pipelineIssue({ name: 'nightly', nodes: [step('build'), step('test-2')] })).toBeNull();
+    expect(pipelineIssue({ name: 'nightly', steps: [step('build'), step('test-2')] })).toBeNull();
   });
 
   it('says the name first, as it is the first field of the form', () => {
-    expect(pipelineIssue({ name: 'my pipeline', nodes: [step('Build')] })).toEqual({
+    expect(pipelineIssue({ name: 'my pipeline', steps: [step('Build')] })).toEqual({
       kind: 'name',
       issue: 'spaces',
     });
@@ -215,10 +216,23 @@ describe('pipelineIssue', () => {
 
   it('names every step id the server refuses', () => {
     expect(
-      pipelineIssue({ name: 'nightly', nodes: [step('Build'), step('ok'), step('a b')] }),
+      pipelineIssue({ name: 'nightly', steps: [step('Build'), step('ok'), step('a b')] }),
     ).toEqual({
       kind: 'step-ids',
       ids: ['Build', 'a b'],
     });
+  });
+});
+
+describe('newPipeline', () => {
+  it('starts from two steps, the second waiting for the first', () => {
+    expect(newPipeline('p').steps.map(({ id, deps }) => ({ id, deps }))).toEqual([
+      { id: 'welcome', deps: [] },
+      { id: 'example', deps: ['welcome'] },
+    ]);
+  });
+
+  it('can be saved as it is', () => {
+    expect(pipelineIssue(newPipeline('p'))).toBeNull();
   });
 });

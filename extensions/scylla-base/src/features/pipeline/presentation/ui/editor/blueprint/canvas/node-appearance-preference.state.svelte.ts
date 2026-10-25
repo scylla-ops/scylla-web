@@ -9,7 +9,7 @@ const isAppearance = (value: unknown): value is NodeAppearance =>
   NODE_APPEARANCES.includes(value as NodeAppearance);
 
 /** The viewer's node style, remembered by the browser. A blocked storage only forgets it. */
-export const createNodeAppearance = (
+export const createNodeAppearancePreference = (
   storage: () => Storage | undefined = () => globalThis.localStorage,
 ) => {
   const read = (): NodeAppearance => {
@@ -38,4 +38,4 @@ export const createNodeAppearance = (
   };
 };
 
-export type NodeAppearancePreference = ReturnType<typeof createNodeAppearance>;
+export type NodeAppearancePreference = ReturnType<typeof createNodeAppearancePreference>;

@@ -183,7 +183,7 @@ the page.
   a click on the empty canvas closes it. Nothing inspected: the palette. A step: its inspector.
   The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
   xyflow's and is not the panel's state.
-- **The scripting tab edits the document, never a copy.** `createPipelineDocumentingState` reads
+- **The scripting tab edits the document, never a copy.** `createPipelineScripting` reads
   `doc.steps` and writes `doc.setSteps(...)` with the operations of `domain/entities/pipeline.entity.ts`,
   as the blueprint does. The steps are views of the document, not files. A document that does
   not parse, or that repeats a step id or a dependency (`hasRepeats`), shows the full document

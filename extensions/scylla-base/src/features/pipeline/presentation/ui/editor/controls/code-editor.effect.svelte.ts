@@ -1,7 +1,7 @@
 import { EditorView } from '@codemirror/view';
 import type { Extension } from '@codemirror/state';
 
-export interface CodeEditorParams {
+export interface SyncCodeEditorParams {
   value: () => string;
   onChange: (value: string) => void;
   extensions?: () => Extension[];
@@ -11,7 +11,7 @@ export interface CodeEditorParams {
  * Two-way binding between CodeMirror and a string. `renderCodeMirror` reads `doc`
  * once: a changed value is dispatched here, only when it did not come from the editor.
  */
-export const createCodeEditor = (params: CodeEditorParams) => {
+export const syncCodeEditor = (params: SyncCodeEditorParams) => {
   let view = $state<EditorView | null>(null);
 
   const extensions = $derived([

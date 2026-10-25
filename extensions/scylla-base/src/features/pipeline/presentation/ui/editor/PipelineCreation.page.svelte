@@ -2,7 +2,8 @@
   import { createMutation } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import { pipelineMutations } from '@base/features/pipeline/presentation/pipeline.queries.ts';
-  import { createDefaultScript } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
+  import { newPipeline } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+  import { toDocument } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
   import PipelineEditor from './PipelineEditor.svelte';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
@@ -14,7 +15,7 @@
 
   const createPipeline = createMutation(() => pipelineMutations.create());
 
-  const initialScript = $derived(projectId ? createDefaultScript(projectId) : undefined);
+  const initialScript = $derived(projectId ? toDocument(newPipeline(projectId)) : undefined);
 </script>
 
 {#if !projectId}

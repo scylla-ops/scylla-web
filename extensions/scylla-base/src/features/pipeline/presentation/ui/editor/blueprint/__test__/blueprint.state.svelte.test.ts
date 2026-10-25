@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { flushSync } from 'svelte';
 import type { ExecPipelineStepEntity, PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { createBlueprintState } from '../blueprint.state.svelte.ts';
+import { createBlueprint } from '../blueprint.state.svelte.ts';
 import { START_NODE_ID, flowToSteps } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
 
 const execStep = (id: string, deps: string[] = []): ExecPipelineStepEntity => ({
@@ -20,11 +20,11 @@ const definition = { kind: 'exec', command: 'make', args: [], env: [] } as const
 
 const withState = (
   initial: PipelineStepEntity[],
-  run: (state: ReturnType<typeof createBlueprintState>, onStepsChange: ReturnType<typeof vi.fn>) => void,
+  run: (state: ReturnType<typeof createBlueprint>, onStepsChange: ReturnType<typeof vi.fn>) => void,
 ) => {
   const onStepsChange = vi.fn();
   const cleanup = $effect.root(() => {
-    const state = createBlueprintState({
+    const state = createBlueprint({
       steps: () => initial,
       pipelineName: () => 'nightly',
       onStepsChange,
@@ -35,7 +35,7 @@ const withState = (
   cleanup();
 };
 
-describe('createBlueprintState', () => {
+describe('createBlueprint', () => {
   it('builds the graph from the steps, with the start node', () => {
     withState([execStep('build'), execStep('test', ['build'])], state => {
       expect(state.nodes.map(node => node.id).sort()).toEqual([START_NODE_ID, 'build', 'test'].sort());

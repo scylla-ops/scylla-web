@@ -6,7 +6,7 @@ export const BUILT_IN_STEP_TEMPLATES: readonly StepTemplate[] = [
   {
     id: 'git-clone',
     name: 'git clone',
-    nodeId: 'checkout',
+    stepId: 'checkout',
     icon: 'git',
     definition: {
       kind: 'script',
@@ -18,21 +18,21 @@ export const BUILT_IN_STEP_TEMPLATES: readonly StepTemplate[] = [
   {
     id: 'npm-ci',
     name: 'npm ci',
-    nodeId: 'install-deps',
+    stepId: 'install-deps',
     icon: 'package',
     definition: { kind: 'script', shell: 'bash', script: 'npm ci', env: [] },
   },
   {
     id: 'npm-test',
     name: 'npm test',
-    nodeId: 'run-tests',
+    stepId: 'run-tests',
     icon: 'test',
     definition: { kind: 'script', shell: 'bash', script: 'npm test', env: [] },
   },
   {
     id: 'docker-build',
     name: 'docker build',
-    nodeId: 'build-image',
+    stepId: 'build-image',
     icon: 'container',
     definition: {
       kind: 'exec',
@@ -44,7 +44,7 @@ export const BUILT_IN_STEP_TEMPLATES: readonly StepTemplate[] = [
   {
     id: 'deploy-script',
     name: 'deploy.sh',
-    nodeId: 'deploy',
+    stepId: 'deploy',
     icon: 'deploy',
     definition: { kind: 'script', shell: 'sh', script: './deploy.sh', env: [] },
   },

@@ -100,25 +100,25 @@ export class GrpcPipelineMapper {
       id: idValue(pipeline.pipelineId),
       projectId: idValue(pipeline.projectId),
       name: pipeline.name,
-      nodes: pipeline.nodes.map(GrpcPipelineMapper.nodeToDomain),
+      steps: pipeline.nodes.map(GrpcPipelineMapper.nodeToDomain),
     };
   }
 
-  private static toDomainInfo(pipeline: PipelineSummary): PipelineMetadata {
+  private static toMetadata(pipeline: PipelineSummary): PipelineMetadata {
     return {
       id: idValue(pipeline.pipelineId),
       projectId: idValue(pipeline.projectId),
       name: pipeline.name,
-      nodeCount: pipeline.nodeCount,
+      stepCount: pipeline.nodeCount,
       createdAt: timestampToIso(pipeline.createdAt),
       updatedAt: timestampToIso(pipeline.updatedAt),
     };
   }
 
   /** The project and organization listings share this shape. */
-  static toDomainInfoList(pipelines: PipelineListResponse): PaginatedList<PipelineMetadata> {
+  static toMetadataList(pipelines: PipelineListResponse): PaginatedList<PipelineMetadata> {
     return {
-      items: pipelines.pipelines.map(GrpcPipelineMapper.toDomainInfo),
+      items: pipelines.pipelines.map(GrpcPipelineMapper.toMetadata),
       pagination: pipelines.pagination as PaginationInfo,
     };
   }

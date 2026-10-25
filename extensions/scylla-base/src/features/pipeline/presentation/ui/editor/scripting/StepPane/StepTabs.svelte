@@ -9,11 +9,11 @@
   import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
   import { stepPreview } from '@base/features/pipeline/presentation/presenters/step-summary.presenter.ts';
   import type { StepPane } from '../step-panes.state.svelte.ts';
-  import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
+  import type { PipelineScripting } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
 
   interface Props {
-    scripting: PipelineScriptingState;
+    scripting: PipelineScripting;
     pane: StepPane;
     index: number;
     /** The step the pane shows. */

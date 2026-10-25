@@ -245,7 +245,7 @@
                       <Badge variant="secondary">{pipeline.projectName}</Badge>
                     </td>
                     <td class="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                      {pipeline.nodeCount}
+                      {pipeline.stepCount}
                     </td>
                     <td class="hidden px-4 py-3 text-muted-foreground md:table-cell">
                       {getRelativeTime(pipeline.updatedAt)}

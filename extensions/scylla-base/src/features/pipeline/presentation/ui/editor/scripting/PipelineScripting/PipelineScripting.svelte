@@ -4,7 +4,7 @@
   import { t } from '@scylla/ui/i18n';
   import type { PipelineDocument } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
   import {
-    createPipelineDocumentingState,
+    createPipelineScripting,
     type ScriptingMode,
   } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
@@ -18,7 +18,7 @@
 
   let { doc, projectId }: Props = $props();
 
-  const scripting = createPipelineDocumentingState({
+  const scripting = createPipelineScripting({
     steps: () => doc.steps,
     isValid: () => doc.isValid,
     onStepsChange: steps => doc.setSteps(steps),

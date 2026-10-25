@@ -5,7 +5,7 @@ export interface PipelineIdentity {
 }
 
 export interface PipelineMetadata extends PipelineIdentity {
-  nodeCount: number;
+  stepCount: number;
   createdAt: string;
   updatedAt: string;
 }

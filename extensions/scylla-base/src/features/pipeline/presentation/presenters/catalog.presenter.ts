@@ -18,7 +18,7 @@ export interface CatalogEntry {
   detail: CatalogText;
   /** A template's icon hint; a blank step shows the icon of its kind. */
   icon?: string;
-  nodeId: string;
+  stepId: string;
   definition: StepDefinition;
 }
 
@@ -66,7 +66,7 @@ export const BLANK_STEPS: readonly CatalogEntry[] = [
     group: 'steps',
     name: blueprintMessages.bashScript,
     detail: blueprintMessages.bashScriptDetail,
-    nodeId: 'script',
+    stepId: 'script',
     definition: { kind: 'script', shell: 'bash', script: '', env: [] },
   },
   {
@@ -74,7 +74,7 @@ export const BLANK_STEPS: readonly CatalogEntry[] = [
     group: 'steps',
     name: blueprintMessages.shScript,
     detail: blueprintMessages.shScriptDetail,
-    nodeId: 'script',
+    stepId: 'script',
     definition: { kind: 'script', shell: 'sh', script: '', env: [] },
   },
   {
@@ -82,7 +82,7 @@ export const BLANK_STEPS: readonly CatalogEntry[] = [
     group: 'steps',
     name: blueprintMessages.command,
     detail: blueprintMessages.commandDetail,
-    nodeId: 'command',
+    stepId: 'command',
     definition: { kind: 'exec', command: '', args: [], env: [] },
   },
 ];
@@ -96,7 +96,7 @@ export const catalogEntries = (templates: readonly StepTemplate[]): CatalogEntry
       name: template.name,
       detail: stepPreview(template.definition),
       icon: template.icon,
-      nodeId: template.nodeId,
+      stepId: template.stepId,
       definition: template.definition,
     }),
   ),

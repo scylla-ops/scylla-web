@@ -1,6 +1,5 @@
 import { msg } from '@lingui/core/macro';
 
-/** Here, not under `ui/`: `pipeline.queries.ts` uses `copyOf`. */
 export const pipelineMessages = {
   loadError: msg`Unable to load pipelines`,
   noPipelines: msg`No pipeline found`,
@@ -80,5 +79,6 @@ export const pipelineMessages = {
   removeArgument: msg`Remove argument`,
   removeVariable: msg`Remove variable`,
 
-  copyOf: (name: string) => msg`${name} (copy)`,
+  /** A pipeline name is one word: the copy keeps it one word. */
+  copyOf: (name: string) => msg`${name}-copy`,
 };

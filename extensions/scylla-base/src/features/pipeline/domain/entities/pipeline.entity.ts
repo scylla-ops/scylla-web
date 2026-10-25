@@ -16,11 +16,30 @@ import {
  * keep that graph whole. A rename or a removal follows into the dependencies of the others.
  */
 export interface PipelineEntity extends PipelineIdentity {
-  nodes: PipelineStepEntity[];
+  steps: PipelineStepEntity[];
 }
 
+export const DEFAULT_PIPELINE_NAME = 'my-pipeline';
+
+/** What a new pipeline starts from: two steps, the second waiting for the first. No id before it is saved. */
+export const newPipeline = (projectId: string): Omit<PipelineEntity, 'id'> => ({
+  projectId,
+  name: DEFAULT_PIPELINE_NAME,
+  steps: [
+    { id: 'welcome', deps: [], env: [], kind: 'script', shell: 'sh', script: 'echo "Welcome to Scylla!"' },
+    {
+      id: 'example',
+      deps: ['welcome'],
+      env: [],
+      kind: 'script',
+      shell: 'sh',
+      script: 'echo "This is an example pipeline."',
+    },
+  ],
+});
+
 /** The steps of a pipeline: what the operations on its graph take and give back. */
-export type PipelineSteps = PipelineEntity['nodes'];
+export type PipelineSteps = PipelineEntity['steps'];
 
 /** The steps after an operation, and the id the step really got. */
 export interface StepsChange {
@@ -31,12 +50,12 @@ export interface StepsChange {
 /** The first reason the pipeline cannot be saved, or `null`. The server refuses the whole pipeline for one step id. */
 export const pipelineIssue = ({
   name,
-  nodes,
-}: Pick<PipelineEntity, 'name' | 'nodes'>): PipelineIssue | null => {
+  steps,
+}: Pick<PipelineEntity, 'name' | 'steps'>): PipelineIssue | null => {
   const nameIssue = pipelineNameIssue(name);
   if (nameIssue) return { kind: 'name', issue: nameIssue };
 
-  const ids = nodes.filter(step => stepIdIssue(step.id)).map(step => step.id);
+  const ids = steps.filter(step => stepIdIssue(step.id)).map(step => step.id);
   return ids.length ? { kind: 'step-ids', ids } : null;
 };
 

@@ -162,13 +162,11 @@ export const pipelineMutations = {
       mutationFn: async (pipelineId: string) => {
         const pipeline = (await repository().getById(pipelineId)).unwrap();
 
-        (
-          await repository().create({
-            name: i18n._(pipelineMessages.copyOf(pipeline.name)),
-            projectId: pipeline.projectId,
-            nodes: pipeline.nodes,
-          })
-        ).unwrap();
+        await save({
+          projectId: pipeline.projectId,
+          name: i18n._(pipelineMessages.copyOf(pipeline.name)),
+          steps: pipeline.steps,
+        });
       },
       onSuccess: () => {
         void getQueryClient().invalidateQueries({ queryKey: PIPELINES_QUERY_ROOT });
@@ -177,7 +175,7 @@ export const pipelineMutations = {
       },
     }),
 
-  /** No toast here: `run-pipeline.svelte.ts` decides it from the agents. */
+  /** No toast here: `run-pipeline.state.svelte.ts` decides it from the agents. */
   run: () =>
     mutationOptions({
       mutationKey: RUN_PIPELINE_MUTATION_KEY,

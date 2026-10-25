@@ -2,22 +2,22 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '@scylla/ui/primitives';
-  import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
+  import type { PipelineScripting } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
   import StepList from '../StepList/StepList.svelte';
   import StepPane from '../StepPane/StepPane.svelte';
   import StepProperties from '../StepProperties/StepProperties.svelte';
   import PanelToggle from './PanelToggle.svelte';
-  import { STEPS_VIEW_SIZES, createStepsViewState } from './steps-view.state.svelte.ts';
+  import { STEPS_VIEW_SIZES, createStepsView } from './steps-view.state.svelte.ts';
 
   interface Props {
-    scripting: PipelineScriptingState;
+    scripting: PipelineScripting;
     projectId?: string;
   }
 
   let { scripting, projectId }: Props = $props();
 
-  const view = createStepsViewState({ hasProperties: () => !!scripting.focusedStep });
+  const view = createStepsView({ hasProperties: () => !!scripting.focusedStep });
 </script>
 
 {#snippet listToggle()}

@@ -22,7 +22,7 @@ const entry = (
   group,
   name,
   detail,
-  nodeId: id,
+  stepId: id,
   definition: { kind: 'exec', command: 'x', args: [], env: [] },
 });
 
@@ -35,7 +35,7 @@ const resolve = (text: CatalogText) => (typeof text === 'string' ? text : (text.
 const template: StepTemplate = {
   id: 'npm-ci',
   name: 'npm ci',
-  nodeId: 'install-deps',
+  stepId: 'install-deps',
   icon: 'package',
   definition: { kind: 'script', shell: 'bash', script: '#!/bin/bash\nnpm ci', env: [] },
 };
@@ -51,7 +51,7 @@ describe('catalogEntries', () => {
       name: 'npm ci',
       detail: 'npm ci',
       icon: 'package',
-      nodeId: 'install-deps',
+      stepId: 'install-deps',
     });
   });
 });
@@ -107,7 +107,7 @@ describe('templateFor', () => {
     name: id,
     detail: '',
     icon: id,
-    nodeId: id,
+    stepId: id,
     definition,
   });
   const gitClone = template('git', {

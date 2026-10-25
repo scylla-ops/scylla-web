@@ -33,10 +33,10 @@ export class SavePipelineUseCase {
     name,
     steps,
   }: SavePipelineInput): Promise<ScyllaResult<void>> {
-    const issue = pipelineIssue({ name, nodes: steps });
+    const issue = pipelineIssue({ name, steps });
     if (issue) return ScyllaResult.error(new InvalidPipelineError(issue));
 
-    if (!id) return this._repository.create({ projectId, name, nodes: steps });
+    if (!id) return this._repository.create({ projectId, name, steps });
     return (await this._repository.edit(id, steps, name)).map(() => undefined);
   }
 }

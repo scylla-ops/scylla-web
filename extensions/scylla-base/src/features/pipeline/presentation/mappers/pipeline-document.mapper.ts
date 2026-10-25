@@ -1,13 +1,15 @@
 import type { EnvEntry, Shell } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
 import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import {
+  DEFAULT_PIPELINE_NAME,
+  type PipelineEntity,
+} from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
 export interface ParsedScript {
   /** `null` for an empty editor and for malformed JSON. */
   document: Record<string, unknown> | null;
   error: string | null;
 }
-
-export const DEFAULT_PIPELINE_NAME = 'my-pipeline';
 
 export const parseScript = (script: string): ParsedScript => {
   // An empty editor is not an error, just not saveable yet.
@@ -106,46 +108,23 @@ export const stepsOf = (document: Record<string, unknown> | null): PipelineStepE
 export const nameOf = (document: Record<string, unknown> | null): string =>
   (document?.name as string) ?? DEFAULT_PIPELINE_NAME;
 
+/** The document of a pipeline: only the fields the editor owns, so that no id or date travels back on save. */
+export const toDocument = ({
+  name,
+  projectId,
+  steps,
+}: Pick<PipelineEntity, 'name' | 'projectId' | 'steps'>): string =>
+  JSON.stringify({ name, projectId, nodes: steps.map(serializeNode) }, null, 2);
+
 /** Replaces the steps and keeps the rest (the name). Seeds a minimal document when there is none. */
 export const withSteps = (
   document: Record<string, unknown> | null,
   steps: PipelineStepEntity[],
   projectId: string,
-): string => {
-  const base = document ?? { name: DEFAULT_PIPELINE_NAME, projectId };
-  return JSON.stringify({ ...base, nodes: steps.map(serializeNode) }, null, 2);
-};
+): string =>
+  document
+    ? JSON.stringify({ ...document, nodes: steps.map(serializeNode) }, null, 2)
+    : toDocument({ name: DEFAULT_PIPELINE_NAME, projectId, steps });
 
 export const withName = (document: Record<string, unknown> | null, name: string): string | null =>
   document ? JSON.stringify({ ...document, name }, null, 2) : null;
-
-/** The document a new pipeline starts from: two steps, the second waiting for the first. */
-export const createDefaultScript = (projectId: string) =>
-  JSON.stringify(
-    {
-      name: DEFAULT_PIPELINE_NAME,
-      projectId,
-      nodes: [
-        {
-          id: 'welcome',
-          deps: [],
-          kind: 'script',
-          shell: 'sh',
-          script: 'echo "Welcome to Scylla!"',
-          workingDir: '',
-          env: [],
-        },
-        {
-          id: 'example',
-          deps: ['welcome'],
-          kind: 'script',
-          shell: 'sh',
-          script: 'echo "This is an example pipeline."',
-          workingDir: '',
-          env: [],
-        },
-      ],
-    },
-    null,
-    2,
-  );

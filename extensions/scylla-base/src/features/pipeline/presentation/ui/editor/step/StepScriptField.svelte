@@ -6,7 +6,7 @@
   import { cn } from '@scylla/ui/utils';
   import type { StepDraft } from './step-draft.state.svelte.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
-  import { createCodeEditor } from '@base/features/pipeline/presentation/ui/editor/controls/code-editor.effect.svelte.ts';
+  import { syncCodeEditor } from '@base/features/pipeline/presentation/ui/editor/controls/code-editor.effect.svelte.ts';
 
   interface Props {
     draft: StepDraft;
@@ -17,7 +17,7 @@
 
   let { draft, flush = false, class: className }: Props = $props();
 
-  const editor = createCodeEditor({
+  const editor = syncCodeEditor({
     value: () => draft.script,
     onChange: next => (draft.script = next),
     extensions: () => [StreamLanguage.define(shellLanguage)],

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ResizablePane } from '@scylla/ui/primitives';
-  import type { BlueprintState } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.state.svelte.ts';
+  import type { Blueprint } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.state.svelte.ts';
   import { stepOf } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
   import { templateFor, type CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';
@@ -16,7 +16,7 @@
   } as const satisfies Record<Mode, { default: number; min: number; max: number }>;
 
   interface Props {
-    blueprint: BlueprintState;
+    blueprint: Blueprint;
     entries: readonly CatalogEntry[];
     projectId?: string;
     drag: PaletteDrag;

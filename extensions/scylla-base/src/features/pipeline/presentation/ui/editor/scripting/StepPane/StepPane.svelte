@@ -3,13 +3,13 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { StepPane } from '../step-panes.state.svelte.ts';
-  import type { PipelineScriptingState } from '../pipeline-scripting.state.svelte.ts';
+  import type { PipelineScripting } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
   import StepEditor from './StepEditor.svelte';
   import StepTabs from './StepTabs.svelte';
 
   interface Props {
-    scripting: PipelineScriptingState;
+    scripting: PipelineScripting;
     pane: StepPane;
     index: number;
     /** The toggles that StepTabs shows at the ends of its bar. */

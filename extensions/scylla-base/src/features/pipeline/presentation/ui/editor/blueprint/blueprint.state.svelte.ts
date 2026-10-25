@@ -19,7 +19,7 @@ import {
 } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
 import { uniqueStepId, waitsFor } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
-export interface BlueprintStateParams {
+export interface BlueprintParams {
   /** Getters: the editor's document changes. */
   steps: () => PipelineStepEntity[];
   pipelineName: () => string;
@@ -42,7 +42,7 @@ const COLUMN_GAP = 72;
  * The side panel shows `inspected`, which a click opens and nothing else: the selection of the
  * canvas (a drag, a box, the delete key) never opens or closes it.
  */
-export const createBlueprintState = (params: BlueprintStateParams) => {
+export const createBlueprint = (params: BlueprintParams) => {
   // `$state.raw`: replaced whole, never mutated.
   let nodes = $state.raw<BlueprintNode[]>([]);
   let edges = $state.raw<BlueprintEdge[]>([]);
@@ -188,8 +188,8 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
     dependenciesOf: (id: string) => depsOf(edges, id),
 
     /** Adds the step; the caller opens it with `inspect` when a click asked for it. Returns its final id. */
-    addNode(nodeId: string, value: StepDefinition, placement: StepPlacement = {}): string {
-      const id = uniqueStepId(nodeId.trim() || 'step', idsOf());
+    addNode(desiredId: string, value: StepDefinition, placement: StepPlacement = {}): string {
+      const id = uniqueStepId(desiredId.trim() || 'step', idsOf());
       const replaced =
         'replacing' in placement ? edges.find(edge => edge.id === placement.replacing) : undefined;
       const after = 'after' in placement ? placement.after : undefined;
@@ -255,4 +255,4 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
   };
 };
 
-export type BlueprintState = ReturnType<typeof createBlueprintState>;
+export type Blueprint = ReturnType<typeof createBlueprint>;

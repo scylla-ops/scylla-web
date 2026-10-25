@@ -16,7 +16,7 @@ const pipeline = (overrides: Partial<PipelineMetadata> = {}): PipelineMetadata =
   id: 'pipeline-1',
   projectId: 'project-1',
   name: 'ci',
-  nodeCount: 1,
+  stepCount: 1,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
   ...overrides,

@@ -6,8 +6,8 @@ import {
   type PipelineDocument,
 } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
 import {
-  createPipelineDocumentingState,
-  type PipelineScriptingState,
+  createPipelineScripting,
+  type PipelineScripting,
 } from '../pipeline-scripting.state.svelte.ts';
 
 const toast = vi.hoisted(() => vi.fn());
@@ -25,7 +25,7 @@ const document = JSON.stringify({
 });
 
 const withScripting = (
-  run: (scripting: PipelineScriptingState, doc: PipelineDocument) => void,
+  run: (scripting: PipelineScripting, doc: PipelineDocument) => void,
   initialScript = document,
 ) => {
   const cleanup = $effect.root(() => {
@@ -33,7 +33,7 @@ const withScripting = (
       projectId: () => 'project-1',
       initialScript: () => initialScript,
     });
-    const scripting = createPipelineDocumentingState({
+    const scripting = createPipelineScripting({
       steps: () => doc.steps,
       isValid: () => doc.isValid,
       onStepsChange: steps => doc.setSteps(steps),
@@ -46,7 +46,7 @@ const withScripting = (
 
 const stepIn = (doc: PipelineDocument, id: string) => doc.steps.find(step => step.id === id);
 
-describe('createPipelineDocumentingState', () => {
+describe('createPipelineScripting', () => {
   it('shows the steps one by one by default', () => {
     withScripting(scripting => {
       expect(scripting.mode).toBe('steps');

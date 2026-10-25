@@ -13,7 +13,7 @@ import NodePalette from './NodePalette.svelte';
 const template: StepTemplate = {
   id: 'npm-ci',
   name: 'npm ci',
-  nodeId: 'install-deps',
+  stepId: 'install-deps',
   definition: { kind: 'script', shell: 'bash', script: 'npm ci', env: [] },
 };
 const entries = catalogEntries([template]);

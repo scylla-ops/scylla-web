@@ -27,7 +27,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
         projectId: wrapId(projectId),
         pagination: pagination ?? { page: 1, pageSize: DEFAULT_PAGE_SIZE },
       }).response;
-      return GrpcPipelineMapper.toDomainInfoList(response);
+      return GrpcPipelineMapper.toMetadataList(response);
     }, 'Error getting pipelines');
   }
 
@@ -40,7 +40,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
         organizationId: wrapId(organizationId),
         pagination: pagination ?? { page: 1, pageSize: DEFAULT_PAGE_SIZE },
       }).response;
-      return GrpcPipelineMapper.toDomainInfoList(response);
+      return GrpcPipelineMapper.toMetadataList(response);
     }, 'Error getting organization pipelines');
   }
 
@@ -62,7 +62,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
       await this.client.createPipeline({
         name: pipeline.name,
         projectId: wrapId(pipeline.projectId),
-        nodes: pipeline.nodes.map(GrpcPipelineMapper.nodeFromDomain),
+        nodes: pipeline.steps.map(GrpcPipelineMapper.nodeFromDomain),
       }).response;
     }, 'Failed to create pipeline.');
   }

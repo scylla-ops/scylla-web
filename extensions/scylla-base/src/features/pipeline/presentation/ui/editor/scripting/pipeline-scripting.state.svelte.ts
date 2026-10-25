@@ -19,7 +19,7 @@ import { createStepPanes } from './step-panes.state.svelte.ts';
 import { stepRows, stepsAfterDrop } from '@base/features/pipeline/presentation/presenters/step-list.presenter.ts';
 import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
 
-export interface PipelineScriptingStateParams {
+export interface PipelineScriptingParams {
   /** Getters: the editor's document changes. */
   steps: () => PipelineStepEntity[];
   /** The document parses: its steps can be shown one by one. */
@@ -42,7 +42,7 @@ const sameDeps = (a: string[], b: string[]) =>
  * show: the tab shows the text, so that it can be fixed. So does a document with a repeated step id
  * or dependency: the views key the steps by id.
  */
-export const createPipelineDocumentingState = (params: PipelineScriptingStateParams) => {
+export const createPipelineScripting = (params: PipelineScriptingParams) => {
   let chosenMode = $state<ScriptingMode>('steps');
   const canShowSteps = $derived(params.isValid() && !hasRepeats(params.steps()));
   const mode = $derived<ScriptingMode>(canShowSteps ? chosenMode : 'document');
@@ -167,4 +167,4 @@ export const createPipelineDocumentingState = (params: PipelineScriptingStatePar
   };
 };
 
-export type PipelineScriptingState = ReturnType<typeof createPipelineDocumentingState>;
+export type PipelineScripting = ReturnType<typeof createPipelineScripting>;

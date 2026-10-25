@@ -17,7 +17,7 @@ describe('DefaultStepTemplateRepository', () => {
       {
         id: 'make',
         name: 'make',
-        nodeId: 'build',
+        stepId: 'build',
         definition: { kind: 'exec', command: 'make', args: [], env: [] },
       },
     ];

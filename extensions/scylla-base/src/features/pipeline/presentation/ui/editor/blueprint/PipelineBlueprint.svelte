@@ -3,8 +3,8 @@
   import { createQuery } from '@scylla/core-sdk';
   import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '@scylla/ui/primitives';
   import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-  import { createBlueprintState } from './blueprint.state.svelte.ts';
-  import { createNodeAppearance } from './canvas/node-appearance-preference.state.svelte.ts';
+  import { createBlueprint } from './blueprint.state.svelte.ts';
+  import { createNodeAppearancePreference } from './canvas/node-appearance-preference.state.svelte.ts';
   import { stepTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import { createQuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
   import BlueprintCanvas from './canvas/BlueprintCanvas.svelte';
@@ -23,14 +23,14 @@
 
   let { steps, pipelineName, projectId, onStepsChange }: Props = $props();
 
-  const blueprint = createBlueprintState({
+  const blueprint = createBlueprint({
     steps: () => steps,
     pipelineName: () => pipelineName,
     // Read at call time, so a swapped callback is the one called.
     onStepsChange: next => onStepsChange(next),
   });
 
-  const appearance = createNodeAppearance();
+  const appearance = createNodeAppearancePreference();
 
   const templatesQuery = createQuery(() => stepTemplateQueries.list());
   const entries = $derived(catalogEntries(templatesQuery.data ?? []));
@@ -42,7 +42,7 @@
     resolve: catalogText,
     onPick: (entry, request) =>
       blueprint.inspect(
-        blueprint.addNode(entry.nodeId, entry.definition, {
+        blueprint.addNode(entry.stepId, entry.definition, {
           ...request.link,
           position: nodePositionAt(appearance.current, request.flow),
         }),
@@ -66,7 +66,7 @@
       {entries}
       {projectId}
       {drag}
-      onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
+      onAdd={entry => blueprint.inspect(blueprint.addNode(entry.stepId, entry.definition))}
     />
   </ResizablePaneGroup>
   <PaletteDragGhost {drag} />

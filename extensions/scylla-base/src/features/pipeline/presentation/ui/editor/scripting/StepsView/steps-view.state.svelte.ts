@@ -87,12 +87,12 @@ const createSidePanel = (
   };
 };
 
-export interface StepsViewOptions {
+export interface StepsViewParams {
   /** False when no step is focused: the properties have nothing to show. */
   hasProperties?: () => boolean;
 }
 
-export const createStepsViewState = ({ hasProperties = () => true }: StepsViewOptions = {}) => {
+export const createStepsView = ({ hasProperties = () => true }: StepsViewParams = {}) => {
   const list = createSidePanel(LIST_AUTO_HIDE_PX, () => true, STEPS_VIEW_SIZES.list.default);
   const properties = createSidePanel(
     PROPERTIES_AUTO_HIDE_PX,

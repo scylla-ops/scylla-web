@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { flushSync } from 'svelte';
 import {
   STEPS_VIEW_SIZES,
-  createStepsViewState,
-  type StepsViewOptions,
+  createStepsView,
+  type StepsViewParams,
 } from './steps-view.state.svelte.ts';
 
 type Notify = (entries: Array<{ contentRect: { width: number } }>) => void;
@@ -43,11 +43,11 @@ const fakePane = () => ({
 });
 
 const withView = (
-  run: (view: ReturnType<typeof createStepsViewState>) => void,
-  options?: StepsViewOptions,
+  run: (view: ReturnType<typeof createStepsView>) => void,
+  options?: StepsViewParams,
 ) => {
   const cleanup = $effect.root(() => {
-    const view = createStepsViewState(options);
+    const view = createStepsView(options);
     const node = document.createElement('div');
     view.list.measure(node);
     view.properties.measure(node);
@@ -56,7 +56,7 @@ const withView = (
   cleanup();
 };
 
-describe('createStepsViewState', () => {
+describe('createStepsView', () => {
   it('opens both panels while nothing has been measured', () => {
     withView(view => {
       expect(view.list.open).toBe(true);
@@ -208,7 +208,7 @@ describe('createStepsViewState', () => {
 
   describe('the properties, when no step is focused', () => {
     const withFocus = (
-      run: (focus: { on: boolean }, view: ReturnType<typeof createStepsViewState>) => void,
+      run: (focus: { on: boolean }, view: ReturnType<typeof createStepsView>) => void,
     ) => {
       const focus = $state({ on: true });
       withView(view => run(focus, view), { hasProperties: () => focus.on });

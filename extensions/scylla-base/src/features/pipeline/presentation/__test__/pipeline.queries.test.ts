@@ -30,7 +30,7 @@ const pipeline = (overrides: Partial<PipelineEntity> = {}): PipelineEntity => ({
   id: 'pipeline-1',
   projectId: 'project-1',
   name: 'ci',
-  nodes: [],
+  steps: [],
   ...overrides,
 });
 
@@ -38,7 +38,7 @@ const metadata = (overrides: Partial<PipelineMetadata> = {}): PipelineMetadata =
   id: 'pipeline-1',
   projectId: 'project-1',
   name: 'ci',
-  nodeCount: 2,
+  stepCount: 2,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
   ...overrides,
@@ -60,7 +60,7 @@ const templates: StepTemplate[] = [
   {
     id: 'make',
     name: 'make',
-    nodeId: 'build',
+    stepId: 'build',
     definition: { kind: 'exec', command: 'make', args: [], env: [] },
   },
 ];
@@ -260,18 +260,18 @@ describe('pipelineMutations.remove', () => {
 });
 
 describe('pipelineMutations.duplicate', () => {
-  it('reads the pipeline then creates a copy named "<name> (copy)"', async () => {
+  it('reads the pipeline then saves a copy, its name still one word (<name>-copy)', async () => {
     repository.getById.mockResolvedValue(
-      ScyllaResult.success(pipeline({ name: 'ci', projectId: 'project-1', nodes: [] })),
+      ScyllaResult.success(pipeline({ name: 'ci', projectId: 'project-1', steps: [] })),
     );
 
     await runMutationFn(pipelineMutations.duplicate(), 'pipeline-1');
 
     expect(repository.getById).toHaveBeenCalledWith('pipeline-1');
     expect(repository.create).toHaveBeenCalledWith({
-      name: 'ci (copy)',
+      name: 'ci-copy',
       projectId: 'project-1',
-      nodes: [],
+      steps: [],
     });
   });
 

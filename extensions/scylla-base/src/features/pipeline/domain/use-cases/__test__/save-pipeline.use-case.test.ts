@@ -19,7 +19,7 @@ const repositoryWith = () => {
   const edit = vi
     .fn()
     .mockResolvedValue(
-      ScyllaResult.success({ id: 'p1', projectId: 'proj', name: 'nightly', nodes: [] }),
+      ScyllaResult.success({ id: 'p1', projectId: 'proj', name: 'nightly', steps: [] }),
     );
   return { create, edit, repository: { create, edit } as unknown as PipelineRepository };
 };
@@ -43,7 +43,7 @@ describe('SavePipelineUseCase', () => {
     expect(create).toHaveBeenCalledWith({
       projectId: 'proj',
       name: 'nightly',
-      nodes: [step('build')],
+      steps: [step('build')],
     });
     expect(edit).not.toHaveBeenCalled();
     expect(issueOf(result)).toBeNull();

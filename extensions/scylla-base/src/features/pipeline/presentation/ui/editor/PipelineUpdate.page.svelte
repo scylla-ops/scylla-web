@@ -6,6 +6,7 @@
     pipelineMutations,
     pipelineQueries,
   } from '@base/features/pipeline/presentation/pipeline.queries.ts';
+  import { toDocument } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
   import PipelineEditor from './PipelineEditor.svelte';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
@@ -20,16 +21,7 @@
 
   const pipeline = $derived(pipelineQuery.data);
 
-  /** Only the fields the editor owns: an id or timestamps would travel back on save. */
-  const initialScript = $derived(
-    pipeline
-      ? JSON.stringify(
-          { name: pipeline.name, projectId: pipeline.projectId, nodes: pipeline.nodes },
-          null,
-          2,
-        )
-      : undefined,
-  );
+  const initialScript = $derived(pipeline ? toDocument(pipeline) : undefined);
 </script>
 
 {#if pipelineQuery.isLoading}

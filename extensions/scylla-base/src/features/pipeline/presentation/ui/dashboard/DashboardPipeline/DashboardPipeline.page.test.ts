@@ -12,8 +12,8 @@ import DashboardPipelinePage from './DashboardPipeline.page.svelte';
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), warning: vi.fn(), error: vi.fn() } }));
 
 const pipelines = [
-  { id: 'pipeline-1', projectId: 'project-1', name: 'nightly', nodeCount: 2, createdAt: '2026-09-01T10:00:00Z', updatedAt: '2026-09-01T10:00:00Z' },
-  { id: 'pipeline-2', projectId: 'project-1', name: 'release', nodeCount: 1, createdAt: '2026-09-02T10:00:00Z', updatedAt: '2026-09-02T10:00:00Z' },
+  { id: 'pipeline-1', projectId: 'project-1', name: 'nightly', stepCount: 2, createdAt: '2026-09-01T10:00:00Z', updatedAt: '2026-09-01T10:00:00Z' },
+  { id: 'pipeline-2', projectId: 'project-1', name: 'release', stepCount: 1, createdAt: '2026-09-02T10:00:00Z', updatedAt: '2026-09-02T10:00:00Z' },
 ];
 
 const job = {
