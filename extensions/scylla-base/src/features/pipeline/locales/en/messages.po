@@ -24,8 +24,8 @@ msgid "{id} no longer waits for {deps}."
 msgstr "{id} no longer waits for {deps}."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:22
-msgid "{id} now runs after {target}. The jobs that waited for it wait for what it waited for."
-msgstr "{id} now runs after {target}. The jobs that waited for it wait for what it waited for."
+msgid "{id} now runs after {target}. The steps that waited for it wait for what it waited for."
+msgstr "{id} now runs after {target}. The steps that waited for it wait for what it waited for."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:82
 msgid "{name} (copy)"
@@ -104,8 +104,8 @@ msgid "Blueprint"
 msgstr "Blueprint"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:5
-msgid "By job"
-msgstr "By job"
+msgid "By step"
+msgstr "By step"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:23
 msgid "cancel"
@@ -158,8 +158,8 @@ msgid "Copy all"
 msgstr "Copy all"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:32
-msgid "Copy the job"
-msgstr "Copy the job"
+msgid "Copy the step"
+msgstr "Copy the step"
 
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:29
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:41
@@ -178,11 +178,8 @@ msgstr "Creation:"
 msgid "Delete edge"
 msgstr "Delete edge"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:18
-msgid "Delete the job"
-msgstr "Delete the job"
-
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:35
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:18
 msgid "Delete the step"
 msgstr "Delete the step"
 
@@ -203,8 +200,8 @@ msgid "Drag a node onto the canvas, or drop a link on empty space to create one.
 msgstr "Drag a node onto the canvas, or drop a link on empty space to create one."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:19
-msgid "Drop on a job to wait for it. Hold Alt to keep the other dependencies."
-msgstr "Drop on a job to wait for it. Hold Alt to keep the other dependencies."
+msgid "Drop on a step to wait for it. Hold Alt to keep the other dependencies."
+msgstr "Drop on a step to wait for it. Hold Alt to keep the other dependencies."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:26
 msgid "Duplicate"
@@ -279,12 +276,7 @@ msgstr "Invalid JSON"
 msgid "Invalid step ID"
 msgstr "Invalid step ID"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:38
-msgid "Job properties"
-msgstr "Job properties"
-
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:49
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:8
 msgid "Jobs"
 msgstr "Jobs"
 
@@ -312,13 +304,13 @@ msgstr "Members"
 msgid "navigate"
 msgstr "navigate"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:9
-msgid "New job"
-msgstr "New job"
-
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:11
 msgid "New pipeline"
 msgstr "New pipeline"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:9
+msgid "New step"
+msgstr "New step"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:37
 msgid "No input link"
@@ -349,12 +341,12 @@ msgid "One program and its arguments"
 msgstr "One program and its arguments"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:31
-msgid "Open a job from the list."
-msgstr "Open a job from the list."
+msgid "Open a step from the list."
+msgstr "Open a step from the list."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:25
-msgid "Open jobs"
-msgstr "Open jobs"
+msgid "Open steps"
+msgstr "Open steps"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:34
 msgid "Open the last run"
@@ -463,12 +455,12 @@ msgid "Shell"
 msgstr "Shell"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:30
-msgid "Show or hide the job properties"
-msgstr "Show or hide the job properties"
+msgid "Show or hide the step properties"
+msgstr "Show or hide the step properties"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:29
-msgid "Show or hide the jobs"
-msgstr "Show or hide the jobs"
+msgid "Show or hide the steps"
+msgstr "Show or hide the steps"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:29
 msgid "Simplified"
@@ -498,7 +490,12 @@ msgstr "Step ID"
 msgid "Step kind"
 msgstr "Step kind"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:38
+msgid "Step properties"
+msgstr "Step properties"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:6
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:8
 msgid "Steps"
 msgstr "Steps"
 
@@ -538,13 +535,13 @@ msgstr "The step ID cannot contain {characters}. Use only lowercase letters (a-z
 msgid "The step ID has {length} characters. The maximum is 128."
 msgstr "The step ID has {length} characters. The maximum is 128."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:11
-msgid "This job cannot run as it is."
-msgstr "This job cannot run as it is."
-
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:10
-msgid "This pipeline has no job yet."
-msgstr "This pipeline has no job yet."
+msgid "This pipeline has no step yet."
+msgstr "This pipeline has no step yet."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:11
+msgid "This step cannot run as it is."
+msgstr "This step cannot run as it is."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:38
 msgid "This step has no input link. On save, it is linked to the start of the pipeline."

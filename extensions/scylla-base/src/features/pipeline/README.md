@@ -92,13 +92,13 @@ a per-browser convenience, kept in `localStorage`. Styles are a registry
 (`canvas/nodes/node-appearances.ts`), so a new one is a view of a step, a view of the start node and
 one entry — the canvas, the switch and the layout do not change.
 
-### The scripting tab: one job at a time
+### The scripting tab: one step at a time
 
 The script used to be one large JSON text: a shell script was a JSON string, with `\n` and
 `\"` in it, and a pipeline of ten jobs was hundreds of lines to scroll. The scripting tab now
 has two views of the same document:
 
-- **By job** (the default): the list of the jobs in the order they run, an editor for the open
+- **By step** (the default): the list of the steps in the order they run, an editor for the open
   job, and its properties. A script is edited as shell code; a command, which runs with no
   shell, as a form. Two jobs can be open side by side, as in an IDE.
   To change what a job waits for, drag it in the list onto that job: the list follows the

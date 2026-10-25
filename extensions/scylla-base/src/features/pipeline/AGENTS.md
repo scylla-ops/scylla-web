@@ -179,7 +179,7 @@ the page.
   `doc.steps` and writes `doc.setSteps(...)` with the operations of `utils/pipeline-steps.ts`,
   as the blueprint does. The jobs are views of the document, not files. A document that does
   not parse, or that repeats a job id or a dependency (`hasRepeats`), shows the full document
-  only: the "By job" tab is disabled and `JobsView` is not rendered, since its lists are keyed by
+  only: the "By step" tab is disabled and `JobsView` is not rendered, since its lists are keyed by
   id. The text is never rewritten to remove the repeat.
 - **One draft per job** (`job-drafts.svelte.ts`). The panes that show a job and its properties
   panel share it, or each would write its own copy and undo the other's edits. A job that the
