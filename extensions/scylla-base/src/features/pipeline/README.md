@@ -128,9 +128,9 @@ editor's edge: the rest of the module derives during render with Runes.
 ## The rules live in the domain
 
 The server refuses a whole pipeline for one step id it does not accept. That rule, and the
-others on a pipeline, are in `domain/`: the rules of one pipeline or one step on its entity,
-the operations on the graph of the steps in a domain service (`step-graph.service.ts`). They
-are plain functions on plain data, so the editor states and the query cache hold the data as
+others on a pipeline, are in `domain/`: the rule of an id or a name on its value object, what
+concerns one step on the step, and the graph of the steps on the pipeline, which is their root.
+They are plain functions on plain data, so the editor states and the query cache hold the data as
 it is. A save goes through `SavePipelineUseCase`, which applies the rules before it calls the
 server: whatever page saves a pipeline, the rule holds. The JSON text of the editor is not a
 rule of the domain: the server never sees it, so its format stays in `presentation/`.

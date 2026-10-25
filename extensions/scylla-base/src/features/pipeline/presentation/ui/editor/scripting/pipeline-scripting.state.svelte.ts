@@ -13,7 +13,7 @@ import {
   renameStep,
   setDependencies,
   updateStep,
-} from '@base/features/pipeline/domain/services/step-graph.service.ts';
+} from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import { createStepDrafts } from './step-drafts.state.svelte.ts';
 import { createStepPanes } from './step-panes.state.svelte.ts';
 import { stepRows, stepsAfterDrop } from './StepList/step-list.calculator.ts';

@@ -65,14 +65,16 @@ Reach a repository with `getModuleDomain<typeof PipelineModule.domain>('pipeline
 pipeline.module.ts                           4 routes + DI wiring (private; registry only)
 index.ts                                     public API
 domain/
-  entities/pipeline.entity.ts                PipelineEntity, pipelineNameIssue, pipelineIssue (can it be saved)
-  entities/pipeline-step.entity.ts           PipelineStepEntity, StepDefinition, definitionOf, stepIssue,
-                                             the id rule of the server (nodeIdIssue, toNodeId)
+  entities/pipeline.entity.ts                PipelineEntity, the root of its steps: pipelineIssue (can it
+                                             be saved), and the graph of the steps: add, rename, remove,
+                                             deps, depths, waitsFor, hasRepeats (pure, tested)
+  entities/pipeline-step.entity.ts           PipelineStepEntity, StepDefinition: definitionOf, stepIssue,
+                                             withDefinition, withDependencies, withRenamedReference
   structs/pipeline.struct.ts                 PipelineIdentity, PipelineMetadata, Shell, EnvEntry
-  structs/pipeline-issue.struct.ts           StepIssue, NodeIdIssue, PipelineNameIssue, PipelineIssue
+  structs/step-id.struct.ts                  StepId: the id rule of the server (stepIdIssue, toStepId)
+  structs/pipeline-name.struct.ts            PipelineNameIssue, pipelineNameIssue
+  structs/pipeline-issue.struct.ts           StepIssue, PipelineIssue
   structs/step-template.struct.ts            StepTemplate
-  services/step-graph.service.ts             operations on the graph of the steps: depths, waitsFor, add,
-                                             rename, remove, deps (pure, tested)
   use-cases/save-pipeline.use-case.ts        SavePipelineUseCase: the rules of the server, then create or edit
   repository/pipeline.repository.ts
   repository/step-template.repository.ts
@@ -182,7 +184,7 @@ the page.
   The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
   xyflow's and is not the panel's state.
 - **The scripting tab edits the document, never a copy.** `createPipelineDocumentingState` reads
-  `doc.steps` and writes `doc.setSteps(...)` with the operations of `domain/services/step-graph.service.ts`,
+  `doc.steps` and writes `doc.setSteps(...)` with the operations of `domain/entities/pipeline.entity.ts`,
   as the blueprint does. The steps are views of the document, not files. A document that does
   not parse, or that repeats a step id or a dependency (`hasRepeats`), shows the full document
   only: the "By step" tab is disabled and `StepsView` is not rendered, since its lists are keyed by
@@ -282,12 +284,12 @@ the page.
   front `ViewportPortal`, so it follows the zoom and no node hides it. No move transition: it
   must stay under the pointer.
 - **A step id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
-  protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`domain/entities/pipeline-step.entity.ts`)
+  protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `stepIdIssue` (`domain/structs/step-id.struct.ts`)
   is that rule; keep both the same. A refused id is shown on the node, in the inspector while it
-  is typed (with `toNodeId`, the nearest valid id, as a suggestion), and stops the save before
+  is typed (with `toStepId`, the nearest valid id, as a suggestion), and stops the save before
   the server is called (`SavePipelineUseCase`). It is applied like any edit, never held back.
 - **No loop of dependencies.** `blueprint.canConnect` refuses a link whose source already waits
-  for its target (`waitsFor`, `domain/services/step-graph.service.ts`). A document typed by hand can
+  for its target (`waitsFor`, `domain/entities/pipeline.entity.ts`). A document typed by hand can
   still hold a loop: every walk of the dependencies must end on one (`stepDepths` cuts the
   loop where it closes).
 - **A detached step is shown, not fixed.** A step with no edge into it is linked to the start
@@ -313,8 +315,8 @@ the page.
 - **Sizes of the nodes live in `canvas/nodes/node-geometry.ts`**: the views set their width from it,
   the handles of a minimal node and the `anchor` (`nodePositionAt`: a dropped step lands on its
   middle, not its corner) are computed from it. Do not write these sizes as Tailwind classes.
-- **The rules of a pipeline are in `domain/`**: the id and name rules on the entities, the
-  operations on the graph of the steps in `services/step-graph.service.ts`. A view never writes
+- **The rules of a pipeline are in `domain/`**: the id and name rules on their value objects,
+  the graph of the steps on the pipeline, the rest of a step on the step. A view never writes
   its own copy of one. What only serves the display (a preview, an icon, a layout, the JSON
   format of the editor) stays in `presentation/`, beside its users.
 - **A save goes through `SavePipelineUseCase`** (`pipelineMutations.create` / `update`). It

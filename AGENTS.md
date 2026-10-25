@@ -188,8 +188,7 @@ feature/
 ├── domain/              → PURE business logic, ZERO external deps (no Svelte, no gRPC, no proto)
 │   ├── repository/      → repository INTERFACES + their input types (the data contract)
 │   ├── entities/        → {Name}Entity — identity-bearing business objects (*.entity.ts)
-│   ├── structs/         → value objects, enums, DTOs, wrappers (*.struct.ts) — types only
-│   ├── services/        → OPTIONAL — pure business operations on several entities (*.service.ts)
+│   ├── structs/         → value objects, enums, DTOs, wrappers (*.struct.ts)
 │   └── use-cases/       → OPTIONAL — only when one earns its place (see below)
 ├── infrastructure/      → concrete implementations of domain abstractions, flat
 │   ├── default-feature.repository.ts   → repository impl: calls the gRPC client, maps the result
@@ -220,13 +219,20 @@ ViewModel of a page.
 - **Domain** — The repository interface *is* the module's data contract, and presentation calls it
   directly. Repository interfaces know nothing about gRPC/HTTP, and their input types live beside
   them (e.g. `CreateGrantInput` in `permission.repository.ts`). No framework imports here, ever.
-  Split domain types into two buckets, both proto-independent: **entities** (`entities/*.entity.ts` → `{Name}Entity`) are the identity-bearing things the feature owns (e.g. `SecretEntity`, `RoleEntity`, `UserEntity`); they may hold related input shapes (`CreateSecretInput`) and pure behavior on **one** entity: a function that takes this entity (or an attribute of it) or creates one (`updateRole`). **Structs** (`structs/*.struct.ts`) are plain data shapes with no identity — value objects, enums, DTOs, and list/result wrappers (e.g. `Permission`, `PermissionScope`, `ProjectList`, `CreatedApp`) — named with plain PascalCase (no suffix). The `Entity` suffix is what distinguishes the two at every use site, including against the proto types (which keep the bare name, aliased in mappers). There are **no `*.model.ts` files** — every domain type is an entity or a struct.
-  **A struct holds types only**, never a function. Behavior is written as pure functions, not as
-  classes with methods: the data stays plain, so that `$state`, TanStack Query and the mappers
-  hold it as it is. A pure business operation on a collection of entities (the graph of the steps
-  of a pipeline) is a **domain service**: `services/<concept>.service.ts`, functions only, no
-  state, no I/O. A domain service is not a `utils/` folder: it is named after its concept. An
-  operation that orchestrates repositories is a use case (see below).
+  Split domain types into two buckets, both proto-independent: **entities** (`entities/*.entity.ts` → `{Name}Entity`) are the identity-bearing things the feature owns (e.g. `SecretEntity`, `RoleEntity`, `UserEntity`); they may hold related input shapes (`CreateSecretInput`) and pure behavior on that entity: a function that takes the entity, or creates one (`updateRole`). **Structs** (`structs/*.struct.ts`) are plain data shapes with no identity — value objects, enums, DTOs, and list/result wrappers (e.g. `Permission`, `PermissionScope`, `ProjectList`, `CreatedApp`) — named with plain PascalCase (no suffix). The `Entity` suffix is what distinguishes the two at every use site, including against the proto types (which keep the bare name, aliased in mappers). There are **no `*.model.ts` files** — every domain type is an entity or a struct.
+  Where a rule goes:
+  - **A rule on one value** (an id, a name) goes in the struct of that value, as a value object:
+    the type and its own validation (`step-id.struct.ts`: `StepId`, `stepIdIssue`). A struct has
+    no other function.
+  - **A rule on one entity** goes in its entity file (`withDefinition(step, …)`).
+  - **A rule on an entity and the entities it holds** goes in the root entity (the aggregate):
+    the pipeline keeps the ids of its steps unique and their dependencies whole (`addStep`,
+    `renameStep` in `pipeline.entity.ts`).
+  - **Orchestration of repositories** is a use case, which holds no rule (see below).
+
+  There is no `utils/` folder and no domain service. Behavior is pure functions on plain data,
+  not classes with methods: `$state` makes plain objects and arrays reactive, not class
+  instances, and the structural sharing of TanStack Query works on JSON data.
 - **Infrastructure** — `Default{Entity}Repository` implements the domain interface. It calls the
   gRPC client and maps proto ↔ domain with a `Grpc{Entity}Mapper`. Its constructor takes the
   **generated client interface** (`I{Service}ServiceClient`), so a test gives it a fake client
@@ -549,7 +555,6 @@ The package and layer structure is mandatory; everything else must earn its plac
 | Data source (only with ≥ 2 sources) | `*.data-source.ts` → `{Source}{Entity}DataSource` | `local-job.data-source.ts` / `LocalJobDataSource` |
 | Mapper | `grpc-*.mapper.ts` → `Grpc{Entity}Mapper` | `grpc-user.mapper.ts` |
 | Domain entity | `*.entity.ts` → `{Name}Entity` | `secret.entity.ts` / `SecretEntity` |
-| Domain service (pure operations on several entities) | `*.service.ts` in `domain/services/`, functions only | `step-graph.service.ts` / `addStep` |
 | Struct (value object / enum / DTO / wrapper) | `*.struct.ts` (plain name, no suffix) | `permission.struct.ts` / `Permission`, `pagination.struct.ts` / `PaginationInfo` |
 | Widget points | `<feature>.points.ts` → `{feature}Points` | `login.points.ts` / `loginPoints` |
 | Widget injection | `*.widget-injection.ts` → `{Intention}WidgetInjection` | `email-login.widget-injection.ts` / `EmailLoginWidgetInjection` |

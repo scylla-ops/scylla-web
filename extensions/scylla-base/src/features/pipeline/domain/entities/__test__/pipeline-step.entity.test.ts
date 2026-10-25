@@ -1,7 +1,14 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { StepDefinition } from '../pipeline-step.entity.ts';
-import { nodeIdIssue, stepIssue, toNodeId } from '../pipeline-step.entity.ts';
+import {
+  stepIssue,
+  withDefinition,
+  withDependencies,
+  withoutDependency,
+  withRenamedReference,
+  type PipelineStepEntity,
+  type StepDefinition,
+} from '../pipeline-step.entity.ts';
 
 const script = (body: string): StepDefinition => ({
   kind: 'script',
@@ -15,6 +22,7 @@ const exec = (command: string, args: string[] = []): StepDefinition => ({
   args,
   env: [],
 });
+const build: PipelineStepEntity = { id: 'build', deps: ['lint', 'fetch'], ...script('make') };
 
 describe('stepIssue', () => {
   it('flags a command step without a command', () => {
@@ -31,43 +39,38 @@ describe('stepIssue', () => {
   });
 });
 
-describe('nodeIdIssue', () => {
-  it('accepts lowercase letters, digits, - and _, around spaces the server trims', () => {
-    expect(nodeIdIssue('build_image-2')).toBeNull();
-    expect(nodeIdIssue('  build ')).toBeNull();
-  });
-
-  it('refuses an empty id', () => {
-    expect(nodeIdIssue('   ')).toEqual({ kind: 'empty' });
-  });
-
-  it('names each refused character once, in the order it appears', () => {
-    expect(nodeIdIssue('Build image.Image')).toEqual({
-      kind: 'invalid-characters',
-      characters: ['B', ' ', '.', 'I'],
+describe('withDefinition', () => {
+  it('replaces what the step runs, and keeps its id and its dependencies', () => {
+    expect(withDefinition(build, exec('npm', ['ci']))).toEqual({
+      id: 'build',
+      deps: ['lint', 'fetch'],
+      ...exec('npm', ['ci']),
     });
-    expect(nodeIdIssue('déploiement')).toEqual({ kind: 'invalid-characters', characters: ['é'] });
-  });
-
-  it('refuses more than 128 characters', () => {
-    expect(nodeIdIssue('a'.repeat(128))).toBeNull();
-    expect(nodeIdIssue('a'.repeat(129))).toEqual({ kind: 'too-long', length: 129 });
   });
 });
 
-describe('toNodeId', () => {
-  it('gives the nearest valid id', () => {
-    expect(toNodeId('  Build Docker image! ')).toBe('build-docker-image');
-    expect(toNodeId('Déploiement prod')).toBe('deploiement-prod');
-    expect(toNodeId('a'.repeat(200))).toHaveLength(128);
+describe('withDependencies', () => {
+  it('replaces the dependencies only', () => {
+    expect(withDependencies(build, ['test'])).toEqual({ ...build, deps: ['test'] });
+  });
+});
+
+describe('withoutDependency', () => {
+  it('drops the dependency on the step', () => {
+    expect(withoutDependency(build, 'lint').deps).toEqual(['fetch']);
   });
 
-  it('falls back to "step" when nothing is left', () => {
-    expect(toNodeId('***')).toBe('step');
+  it('gives back the same step when it does not wait for that one', () => {
+    expect(withoutDependency(build, 'deploy')).toBe(build);
+  });
+});
+
+describe('withRenamedReference', () => {
+  it('renames the step itself when it is the renamed one', () => {
+    expect(withRenamedReference(build, 'build', 'compile').id).toBe('compile');
   });
 
-  it('gives an id that has no issue', () => {
-    for (const raw of ['Ça va', '__x__', 'A/B\\C', '  '])
-      expect(nodeIdIssue(toNodeId(raw))).toBeNull();
+  it('follows the rename in its dependencies', () => {
+    expect(withRenamedReference(build, 'lint', 'check').deps).toEqual(['check', 'fetch']);
   });
 });

@@ -1,16 +1,14 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { t } from '@scylla/ui/i18n';
-import type {
-  NodeIdIssue,
-  StepIssue,
-} from '@base/features/pipeline/domain/structs/pipeline-issue.struct.ts';
+import type { StepIssue } from '@base/features/pipeline/domain/structs/pipeline-issue.struct.ts';
+import type { StepIdIssue } from '@base/features/pipeline/domain/structs/step-id.struct.ts';
 import { stepMessages } from './step.messages.ts';
 
 /** A space is invisible between quotes: it is shown as `␣`. */
 const quoted = (character: string) => `"${character === ' ' ? '␣' : character}"`;
 
 /** Says what is wrong in the id, and what the server accepts. */
-export const nodeIdIssueText = (issue: NodeIdIssue): string => {
+export const stepIdIssueText = (issue: StepIdIssue): string => {
   switch (issue.kind) {
     case 'empty':
       return t(stepMessages.idEmpty);

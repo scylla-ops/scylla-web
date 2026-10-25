@@ -4,7 +4,7 @@
   import { cn } from '@scylla/ui/utils';
   import type { StepDraft } from './step-draft.state.svelte.ts';
   import { stepMessages } from './step.messages.ts';
-  import { nodeIdIssueText } from './step-issue-text.ts';
+  import { stepIdIssueText } from './step-issue-text.ts';
 
   interface Props {
     draft: StepDraft;
@@ -38,7 +38,7 @@
   </label>
   {#if draft.idIssue}
     <p id="{uid}-issue" class="mt-1 text-xs text-destructive">
-      {nodeIdIssueText(draft.idIssue)}
+      {stepIdIssueText(draft.idIssue)}
     </p>
     {#if draft.suggestedId}
       {@const suggestion = draft.suggestedId}

@@ -3,7 +3,7 @@ import {
   definitionOf,
   type PipelineStepEntity,
 } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { stepDepths } from '@base/features/pipeline/domain/services/step-graph.service.ts';
+import { stepDepths } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
 /** A node's `data` must be a `Record`: a step travels wrapped, as `{ step }`. */
 

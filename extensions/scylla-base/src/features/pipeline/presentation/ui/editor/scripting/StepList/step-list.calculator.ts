@@ -1,6 +1,7 @@
 import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { stepDepths, waitsFor } from '@base/features/pipeline/domain/services/step-graph.service.ts';
-import { nodeIdIssue, stepIssue } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { stepDepths, waitsFor } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import { stepIdIssue } from '@base/features/pipeline/domain/structs/step-id.struct.ts';
+import { stepIssue } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 export interface StepRow {
   step: PipelineStepEntity;
@@ -17,7 +18,7 @@ export const stepRows = (steps: PipelineStepEntity[]): StepRow[] => {
     .map(step => ({
       step,
       depth: depths.get(step.id) ?? 0,
-      hasIssue: !!nodeIdIssue(step.id) || !!stepIssue(step),
+      hasIssue: !!stepIdIssue(step.id) || !!stepIssue(step),
     }))
     .sort((a, b) => a.depth - b.depth);
 };

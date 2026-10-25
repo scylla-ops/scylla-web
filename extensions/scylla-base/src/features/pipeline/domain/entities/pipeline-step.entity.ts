@@ -1,9 +1,10 @@
 import type { EnvEntry, Shell } from '../structs/pipeline.struct.ts';
-import type { NodeIdIssue, StepIssue } from '../structs/pipeline-issue.struct.ts';
+import type { StepIssue } from '../structs/pipeline-issue.struct.ts';
+import type { StepId } from '../structs/step-id.struct.ts';
 
 interface PipelineStepBase {
-  id: string;
-  deps: string[];
+  id: StepId;
+  deps: StepId[];
   workingDir?: string;
   env: EnvEntry[];
 }
@@ -20,10 +21,10 @@ export interface ScriptPipelineStepEntity extends PipelineStepBase {
   shell: Shell;
 }
 
-/** A step of a pipeline: its id is unique in the pipeline, and the other steps wait for it by id. */
+/** A step of a pipeline. The pipeline keeps the ids unique and the dependencies whole. */
 export type PipelineStepEntity = ExecPipelineStepEntity | ScriptPipelineStepEntity;
 
-/** A step without its place in the graph: the graph owns `id` and `deps`. */
+/** A step without its place in the graph: the pipeline owns `id` and `deps`. */
 export type StepDefinition =
   | Omit<ExecPipelineStepEntity, 'id' | 'deps'>
   | Omit<ScriptPipelineStepEntity, 'id' | 'deps'>;
@@ -40,27 +41,27 @@ export const stepIssue = (definition: StepDefinition): StepIssue | null => {
   return definition.script.trim() ? null : 'empty-script';
 };
 
-/** The server's rule (`NodeIdRule` in scylla-domain): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. */
-export const NODE_ID_MAX_LENGTH = 128;
+/** Replaces what the step runs; its id and its dependencies stay. */
+export const withDefinition = (
+  step: PipelineStepEntity,
+  definition: StepDefinition,
+): PipelineStepEntity => ({ id: step.id, deps: step.deps, ...definition });
 
-export const nodeIdIssue = (raw: string): NodeIdIssue | null => {
-  const id = raw.trim();
-  if (!id) return { kind: 'empty' };
+export const withDependencies = (step: PipelineStepEntity, deps: StepId[]): PipelineStepEntity => ({
+  ...step,
+  deps,
+});
 
-  const characters = [...new Set([...id].filter(character => !/[a-z0-9_-]/.test(character)))];
-  if (characters.length) return { kind: 'invalid-characters', characters };
+export const withoutDependency = (step: PipelineStepEntity, id: StepId): PipelineStepEntity =>
+  step.deps.includes(id) ? { ...step, deps: step.deps.filter(dep => dep !== id) } : step;
 
-  // Only ASCII is left: a character is a byte.
-  return id.length > NODE_ID_MAX_LENGTH ? { kind: 'too-long', length: id.length } : null;
-};
-
-/** The nearest valid id: lowercase, accents dropped, any other run of characters a `-`. */
-export const toNodeId = (raw: string): string =>
-  raw
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .replace(/[^a-z0-9_-]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, NODE_ID_MAX_LENGTH) || 'step';
+/** The step after `from` is renamed `to`: its own id if it is `from`, and its dependency on it. */
+export const withRenamedReference = (
+  step: PipelineStepEntity,
+  from: StepId,
+  to: StepId,
+): PipelineStepEntity => ({
+  ...step,
+  id: step.id === from ? to : step.id,
+  deps: step.deps.map(dep => (dep === from ? to : dep)),
+});

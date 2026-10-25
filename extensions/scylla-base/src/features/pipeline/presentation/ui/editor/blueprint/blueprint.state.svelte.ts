@@ -13,7 +13,7 @@ import {
   type BlueprintNode,
   type BlueprintStepNode,
 } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint-converter.ts';
-import { generateUniqueNodeId, waitsFor } from '@base/features/pipeline/domain/services/step-graph.service.ts';
+import { uniqueStepId, waitsFor } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
 export interface BlueprintStateParams {
   /** Getters: the editor's document changes. */
@@ -103,7 +103,7 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
 
   /** A rename is followed in the `deps` of the other steps and in the edges. */
   const editNode = (originalId: string, newNodeId: string, value: StepDefinition): string => {
-    const id = generateUniqueNodeId(newNodeId, idsOf(), originalId);
+    const id = uniqueStepId(newNodeId, idsOf(), originalId);
 
     nodes = nodes.map((node): BlueprintNode => {
       // The start node is the pipeline, not a step.
@@ -185,7 +185,7 @@ export const createBlueprintState = (params: BlueprintStateParams) => {
 
     /** Adds the step; the caller opens it with `inspect` when a click asked for it. Returns its final id. */
     addNode(nodeId: string, value: StepDefinition, placement: StepPlacement = {}): string {
-      const id = generateUniqueNodeId(nodeId.trim() || 'step', idsOf());
+      const id = uniqueStepId(nodeId.trim() || 'step', idsOf());
       const replaced =
         'replacing' in placement ? edges.find(edge => edge.id === placement.replacing) : undefined;
       const after = 'after' in placement ? placement.after : undefined;

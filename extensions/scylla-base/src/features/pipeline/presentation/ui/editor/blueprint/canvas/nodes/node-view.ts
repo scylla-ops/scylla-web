@@ -2,12 +2,13 @@ import type { LucideIcon } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
 import { cn } from '@scylla/ui/utils';
 import type { PipelineStepEntity } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import { nodeIdIssue, stepIssue } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { stepIdIssue } from '@base/features/pipeline/domain/structs/step-id.struct.ts';
+import { stepIssue } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 import { envCounts, stepPreview } from '@base/features/pipeline/presentation/ui/editor/step/step-summary.ts';
 import { KIND_TONES, stepIcon } from '@base/features/pipeline/presentation/ui/editor/step/step-kinds.ts';
 import {
   ISSUE_MESSAGES,
-  nodeIdIssueText,
+  stepIdIssueText,
 } from '@base/features/pipeline/presentation/ui/editor/step/step-issue-text.ts';
 import { stepMessages } from '@base/features/pipeline/presentation/ui/editor/step/step.messages.ts';
 
@@ -51,8 +52,8 @@ export const summarize = (step: PipelineStepEntity, iconHint?: string): StepSumm
 });
 
 const problemOf = (step: PipelineStepEntity): StepSummary['problem'] => {
-  const idIssue = nodeIdIssue(step.id);
-  if (idIssue) return { label: t(stepMessages.invalidId), detail: nodeIdIssueText(idIssue) };
+  const idIssue = stepIdIssue(step.id);
+  if (idIssue) return { label: t(stepMessages.invalidId), detail: stepIdIssueText(idIssue) };
 
   const issue = stepIssue(step);
   if (!issue) return null;

@@ -349,15 +349,16 @@ modules: a view and its logic are found, changed and deleted together.
   directly. They know nothing about gRPC or HTTP, and their input types live beside them.
 - **Entities** (`entities/*.entity.ts`, `{Name}Entity`) are the identity-bearing objects that the
   feature owns: a thing of the domain with a life cycle. They can hold the related input shapes,
-  and pure functions on **one** entity: a function that takes this entity (or an attribute of
-  it), or creates one.
-- **Structs** (`structs/*.struct.ts`, plain PascalCase) are data shapes with no identity. A
-  struct holds types only, never a function.
-- **Domain services are optional** (`services/*.service.ts`). A pure business operation on a
-  collection of entities goes there: functions only, no state, no I/O, named after the concept
-  (`step-graph.service.ts`), never a `utils/` folder.
-- **Behavior is pure functions, not classes with methods.** The data stays plain, so that
-  `$state`, TanStack Query and the mappers hold it as it is.
+  and pure functions on the entity: a function that takes it, or creates one.
+- **An aggregate root holds the rules on the entities it contains.** The pipeline keeps the ids
+  of its steps unique and their dependencies whole: `addStep`, `renameStep`, `removeStep` are in
+  `pipeline.entity.ts`. What concerns one step only is in `pipeline-step.entity.ts`.
+- **Structs** (`structs/*.struct.ts`, plain PascalCase) are data shapes with no identity. A value
+  object holds its own validation (`step-id.struct.ts`: `StepId`, `stepIdIssue`), and nothing
+  else. There is no `utils/` folder in the domain.
+- **Behavior is pure functions, not classes with methods.** `$state` makes plain objects and
+  arrays deeply reactive, not class instances, and the structural sharing of TanStack Query
+  works on JSON data: the data stays plain.
 - **Use cases are optional.** A use case is necessary only when it does something that a
   repository method cannot do: orchestrate several calls, apply a business rule, or combine
   repositories. A class that only forwards to `repository.method(args)` is deleted. Examples:

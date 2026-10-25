@@ -3,11 +3,8 @@ import type {
   PipelineStepEntity,
   StepDefinition,
 } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
-import {
-  nodeIdIssue,
-  stepIssue,
-  toNodeId,
-} from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
+import { stepIdIssue, toStepId } from '@base/features/pipeline/domain/structs/step-id.struct.ts';
+import { stepIssue } from '@base/features/pipeline/domain/entities/pipeline-step.entity.ts';
 
 /** Keeps both a literal and a secret reference, so switching the kind loses nothing typed. */
 export interface EnvRow {
@@ -66,7 +63,7 @@ export const createStepDraft = ({ step, onChange, onRename }: StepDraftParams) =
 
   const issue = $derived(stepIssue(value));
   // Checked as typed, before the rename applies it: the field says it at once.
-  const idIssue = $derived(nodeIdIssue(id));
+  const idIssue = $derived(stepIdIssue(id));
 
   const commit = () => onChange(value);
 
@@ -89,7 +86,7 @@ export const createStepDraft = ({ step, onChange, onRename }: StepDraftParams) =
     },
     /** The nearest id the server accepts, while the typed one has an issue. */
     get suggestedId() {
-      return idIssue ? toNodeId(id) : null;
+      return idIssue ? toStepId(id) : null;
     },
     rename() {
       id = onRename(id);
