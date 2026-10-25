@@ -11,7 +11,7 @@
     placeCard,
     spotlightRect,
   } from '@base/features/onboarding/presentation/presenters/tour-placement.presenter.ts';
-  import type { TourSpotStep } from './tour-steps.ts';
+  import type { TourSpotStep } from './tour-steps.registry.ts';
   import {
     allowedAnchor,
     blockPage,

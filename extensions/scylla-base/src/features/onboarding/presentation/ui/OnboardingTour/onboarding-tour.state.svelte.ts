@@ -17,7 +17,7 @@ import {
   sameMutationKey,
   stepCount,
 } from '@base/features/onboarding/presentation/presenters/tour-machine.presenter.ts';
-import { TOUR_STEPS, type TourStep } from './tour-steps.ts';
+import { TOUR_STEPS, type TourStep } from './tour-steps.registry.ts';
 
 const STEP_IDS = TOUR_STEPS.map(step => step.id);
 const SPOT_STEP_IDS = TOUR_STEPS.filter(step => step.kind === 'spot').map(step => step.id);

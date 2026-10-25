@@ -9,7 +9,7 @@
   import { createOrganizationItems } from '@base/features/organization';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
   import SessionLine from '../SessionLine/SessionLine.svelte';
-  import { welcomeIn } from './welcome-transition.ts';
+  import { welcomeIn } from './welcome.transition.ts';
 
   interface Props {
     isPending: boolean;

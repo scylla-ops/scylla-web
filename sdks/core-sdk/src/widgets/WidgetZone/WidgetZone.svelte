@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import { componentsOf, nameOf, type RegisteredComponent } from '../widget-injection-registry.ts';
   import type { ZonePoint } from '../widget-points.struct.ts';
-  import { resolveZone } from '../widget-zone.calculator.ts';
+  import { resolveZone } from '../widget-zone.presenter.ts';
   import { loadInjectedComponent } from '../load-injected-component.ts';
   import { reportWidgetInjectionError } from '../report-widget-injection-error.ts';
 

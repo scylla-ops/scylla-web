@@ -7,7 +7,7 @@ import {
   unionRect,
   type TourRect,
 } from '@base/features/onboarding/presentation/presenters/tour-placement.presenter.ts';
-import type { TourAnchor, TourCondition, TourSpotStep } from './tour-steps.ts';
+import type { TourAnchor, TourCondition, TourSpotStep } from './tour-steps.registry.ts';
 
 export const LOST_AFTER_MS = 2000;
 export const MOVE_MS = 300;

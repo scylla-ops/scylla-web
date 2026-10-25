@@ -47,7 +47,7 @@ src/
               widget-injection.struct.ts     WidgetInjection
               widget-injection-registry.ts   WidgetInjectionRegistry (keyed by point object), setWidgetInjectionRegistry
               build-widget-injection-registry.ts  buildWidgetInjectionRegistry — load order + conflict checks, for the loader and the tests
-              widget-zone.calculator.ts      resolveZone (pure, internal)
+              widget-zone.presenter.ts       resolveZone (pure, internal)
               WidgetZone/WidgetZone.svelte   WidgetZone — opens a zone in the owner's markup
               load-injected-component.ts     one cached promise per RegisteredComponent
               report-widget-injection-error.ts

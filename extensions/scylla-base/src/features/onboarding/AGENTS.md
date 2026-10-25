@@ -50,11 +50,11 @@ infrastructure/
   stored-onboarding.mapper.ts            JSON ↔ status, tolerant
 presentation/
   onboarding.queries.ts              status query + save mutation (optimistic)
-  messages/onboarding.messages.ts    every string (tour-steps.ts uses them)
+  messages/onboarding.messages.ts    every string (tour-steps.registry.ts uses them)
   presenters/tour-machine.presenter.ts     pure transitions: advance, rewind, visibility, count
   presenters/tour-placement.presenter.ts   card placement, dim path, connector path
   ui/OnboardingTour/                 root (loaded by the shell) + its test, and its parts:
-    tour-steps.ts                    THE step list: text, anchors, what moves each step on
+    tour-steps.registry.ts                    THE step list: text, anchors, what moves each step on
     tour-tracking.attachments.svelte.ts  trackTourStep (rAF + click listener), blockPage, portalToBody, holdPointer
     onboarding-tour.state.svelte.ts  ViewModel: status, current step, skip, mutation events
     TourSpot.svelte                  one spot step: tracking, spotlight, card(s)
@@ -64,7 +64,7 @@ presentation/
 
 ## How a step moves on
 
-Each spot step in `tour-steps.ts` declares its `targets` (anchors, the card points at the first
+Each spot step in `tour-steps.registry.ts` declares its `targets` (anchors, the card points at the first
 one) and its `advance`:
 
 | `advance.on` | Fires when |

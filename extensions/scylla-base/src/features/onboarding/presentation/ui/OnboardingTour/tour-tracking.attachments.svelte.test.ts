@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { flushSync, untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
-import type { TourAnchor, TourSpotStep } from './tour-steps.ts';
+import type { TourAnchor, TourSpotStep } from './tour-steps.registry.ts';
 import {
   HOLD_MS,
   LOST_AFTER_MS,
