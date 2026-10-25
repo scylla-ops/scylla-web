@@ -19,6 +19,14 @@ msgstr "{count, plural, one {# secret} other {# secrets}}"
 msgid "{count, plural, one {# variable} other {# variables}}"
 msgstr "{count, plural, one {# variable} other {# variables}}"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:20
+msgid "{id} no longer waits for {deps}."
+msgstr "{id} n'attend plus {deps}."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:22
+msgid "{id} now runs after {target}. The jobs that waited for it wait for what it waited for."
+msgstr "{id} s'exécute maintenant après {target}. Les jobs qui l'attendaient attendent ce qu'il attendait."
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:82
 msgid "{name} (copy)"
 msgstr "{name} (copie)"
@@ -39,7 +47,7 @@ msgstr "Un script shell POSIX"
 msgid "Actions"
 msgstr "Actions"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:12
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:16
 msgid "Actions of {id}"
 msgstr "Actions de {id}"
 
@@ -47,7 +55,7 @@ msgstr "Actions de {id}"
 msgid "add"
 msgstr "ajouter"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:29
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:40
 msgid "Add a dependency"
 msgstr "Ajouter une dépendance"
 
@@ -107,7 +115,7 @@ msgstr "annuler"
 msgid "Close"
 msgstr "Fermer"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:17
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:26
 msgid "Close {id}"
 msgstr "Fermer {id}"
 
@@ -115,13 +123,18 @@ msgstr "Fermer {id}"
 msgid "Close the menu"
 msgstr "Fermer le menu"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:19
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:28
 msgid "Close the pane"
 msgstr "Fermer le volet"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:33
 msgid "Close the panel"
 msgstr "Fermer le panneau"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:13
+msgctxt "job-kind"
+msgid "cmd"
+msgstr "cmd"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:31
 msgid "Code"
@@ -136,15 +149,15 @@ msgstr "commande"
 msgid "Command"
 msgstr "Commande"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:24
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:35
 msgid "Copied to the clipboard."
 msgstr "Copié dans le presse-papiers."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:23
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:34
 msgid "Copy all"
 msgstr "Tout copier"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:21
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:32
 msgid "Copy the job"
 msgstr "Copier le job"
 
@@ -165,7 +178,7 @@ msgstr "Création :"
 msgid "Delete edge"
 msgstr "Supprimer la liaison"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:14
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:18
 msgid "Delete the job"
 msgstr "Supprimer le job"
 
@@ -173,7 +186,7 @@ msgstr "Supprimer le job"
 msgid "Delete the step"
 msgstr "Supprimer l'étape"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:28
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:39
 msgid "Dependencies"
 msgstr "Dépendances"
 
@@ -188,6 +201,10 @@ msgstr "Brouillon : non créé pour le moment"
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:9
 msgid "Drag a node onto the canvas, or drop a link on empty space to create one."
 msgstr "Glissez un nœud sur le canvas, ou lâchez un lien dans le vide pour en créer un."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:19
+msgid "Drop on a job to wait for it. Hold Alt to keep the other dependencies."
+msgstr "Déposez sur un job pour l'attendre. Maintenez Alt pour garder les autres dépendances."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:26
 msgid "Duplicate"
@@ -262,7 +279,7 @@ msgstr "JSON invalide"
 msgid "Invalid step ID"
 msgstr "ID d'étape invalide"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:27
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:38
 msgid "Job properties"
 msgstr "Propriétés du job"
 
@@ -331,11 +348,11 @@ msgstr "Nœuds"
 msgid "One program and its arguments"
 msgstr "Un programme et ses arguments"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:20
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:31
 msgid "Open a job from the list."
 msgstr "Ouvrez un job depuis la liste."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:16
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:25
 msgid "Open jobs"
 msgstr "Jobs ouverts"
 
@@ -343,7 +360,7 @@ msgstr "Jobs ouverts"
 msgid "Open the last run"
 msgstr "Ouvrir la dernière exécution"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:13
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:17
 msgid "Open to the side"
 msgstr "Ouvrir à côté"
 
@@ -373,7 +390,7 @@ msgstr "Référencez un secret"
 msgid "Remove argument"
 msgstr "Supprimer l'argument"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:30
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:41
 msgid "Remove the dependency on {id}"
 msgstr "Retirer la dépendance à {id}"
 
@@ -381,7 +398,7 @@ msgstr "Retirer la dépendance à {id}"
 msgid "Remove variable"
 msgstr "Supprimer la variable"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:31
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:42
 msgid "Required by"
 msgstr "Requis par"
 
@@ -445,13 +462,25 @@ msgstr "Script sh"
 msgid "Shell"
 msgstr "Shell"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:30
+msgid "Show or hide the job properties"
+msgstr "Afficher ou masquer les propriétés du job"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:29
+msgid "Show or hide the jobs"
+msgstr "Afficher ou masquer les jobs"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/blueprint.messages.ts:29
 msgid "Simplified"
 msgstr "Simplifié"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:18
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:27
 msgid "Split the editor"
 msgstr "Diviser l'éditeur"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:14
+msgid "Stage {number}"
+msgstr "Phase {number}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:36
 msgid "Started {time}"
@@ -481,11 +510,11 @@ msgstr "ID suggéré"
 msgid "Templates"
 msgstr "Modèles"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:25
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:36
 msgid "The browser did not let the page write to the clipboard."
 msgstr "Le navigateur n'a pas autorisé la page à écrire dans le presse-papiers."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:22
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:33
 msgid "The line that runs"
 msgstr "La ligne lancée"
 
@@ -529,6 +558,10 @@ msgstr "Déclencheurs"
 msgid "Unable to load pipelines"
 msgstr "Impossible de charger les pipelines"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:23
+msgid "Undo"
+msgstr "Annuler"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:55
 msgid "Unnamed"
 msgstr "Sans nom"
@@ -557,6 +590,10 @@ msgstr "Type de valeur"
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:27
 msgid "View Jobs"
 msgstr "Voir les travaux"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/ui/editor/scripting/scripting.messages.ts:15
+msgid "Waits for"
+msgstr "Attend"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:69
 msgid "Working directory"

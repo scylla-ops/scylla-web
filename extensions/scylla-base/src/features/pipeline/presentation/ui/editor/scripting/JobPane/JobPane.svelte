@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { JobPane } from '../job-panes.svelte.ts';
@@ -11,9 +12,12 @@
     scripting: PipelineScriptingState;
     pane: JobPane;
     index: number;
+    /** The toggles that JobTabs shows at the ends of its bar. */
+    leading?: Snippet;
+    trailing?: Snippet;
   }
 
-  let { scripting, pane, index }: Props = $props();
+  let { scripting, pane, index, leading, trailing }: Props = $props();
 
   const step = $derived(scripting.stepOf(pane.active));
   /** With two panes, the focused one is marked: the properties panel shows its job. */
@@ -24,12 +28,12 @@
 <section
   aria-label={pane.active ?? t(scriptingMessages.noJobOpen)}
   class={cn(
-    'flex min-w-0 flex-1 flex-col border-l first:border-l-0',
+    'flex h-full min-w-0 flex-col',
     marksFocus && 'shadow-[inset_0_2px_0_var(--primary)]',
   )}
   onfocusin={() => scripting.panes.focus(index)}
 >
-  <JobTabs {scripting} {pane} {index} {step} />
+  <JobTabs {scripting} {pane} {index} {step} {leading} {trailing} />
 
   {#if step}
     <!-- One editor per job: switching tabs does not mix the undo history of two jobs. -->

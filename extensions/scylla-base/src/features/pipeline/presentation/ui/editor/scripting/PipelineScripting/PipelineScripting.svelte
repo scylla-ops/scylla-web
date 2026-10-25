@@ -9,7 +9,7 @@
   } from '../pipeline-scripting.state.svelte.ts';
   import { scriptingMessages } from '../scripting.messages.ts';
   import DocumentView from '../DocumentView.svelte';
-  import JobsView from '../JobsView.svelte';
+  import JobsView from '../JobsView/JobsView.svelte';
 
   interface Props {
     doc: PipelineScript;

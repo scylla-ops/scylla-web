@@ -26,6 +26,7 @@ const VENDOR_CHUNKS: Record<string, string[]> = {
   'vendor-svelte': ['svelte', 'esm-env', 'clsx'],
   'vendor-ui': [
     'bits-ui',
+    'paneforge',
     '@lucide/svelte',
     'svelte-toolbelt',
     'runed',
@@ -147,6 +148,7 @@ export const defineScyllaConfig = ({ workspaceRoot, app, thresholds }: ScyllaCon
       exclude: [
         '@lucide/svelte',
         'bits-ui',
+        'paneforge',
         '@tanstack/svelte-query',
         '@tanstack/svelte-table',
         '@xyflow/svelte',

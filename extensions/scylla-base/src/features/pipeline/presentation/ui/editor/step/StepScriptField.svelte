@@ -10,10 +10,12 @@
 
   interface Props {
     draft: StepDraft;
+    /** The editor fills a pane that draws the frame (see `renderCodeMirror`). */
+    flush?: boolean;
     class?: string;
   }
 
-  let { draft, class: className }: Props = $props();
+  let { draft, flush = false, class: className }: Props = $props();
 
   const editor = createScriptEditor({
     value: () => draft.script,
@@ -30,6 +32,7 @@
     doc: draft.script,
     extensions: editor.extensions,
     hasError: draft.issue === 'empty-script',
+    flush,
     onView: editor.attach,
   }))}
 ></div>

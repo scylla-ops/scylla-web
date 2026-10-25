@@ -1,3 +1,5 @@
+import { activeLocale, t } from '@scylla/ui/i18n';
+import { toast } from '@scylla/ui/utils';
 import type {
   PipelineStep,
   StepDefinition,
@@ -14,7 +16,8 @@ import {
 } from '@base/features/pipeline/presentation/utils/pipeline-steps.ts';
 import { createJobDrafts } from './job-drafts.svelte.ts';
 import { createJobPanes } from './job-panes.svelte.ts';
-import { jobRows } from './JobList/job-list.calculator.ts';
+import { jobRows, stepsAfterDrop } from './JobList/job-list.calculator.ts';
+import { scriptingMessages } from './scripting.messages.ts';
 
 export interface PipelineScriptingStateParams {
   /** Getters: the editor's document changes. */
@@ -29,6 +32,9 @@ export type ScriptingMode = 'jobs' | 'document';
 
 const NEW_JOB_ID = 'job';
 const NEW_JOB: StepDefinition = { kind: 'script', shell: 'bash', script: '', env: [] };
+
+const sameDeps = (a: string[], b: string[]) =>
+  a.length === b.length && a.every(dep => b.includes(dep));
 
 /**
  * The scripting tab. The document stays the single source of truth: every edit of a job goes
@@ -60,6 +66,21 @@ export const createPipelineScriptingState = (params: PipelineScriptingStateParam
   });
 
   const focusedStep = $derived(stepOf(panes.focusedJob));
+
+  // The document may have changed since: each job gets back only what still makes no loop.
+  const restore = (previous: PipelineStep[]) => {
+    let steps = params.steps();
+    for (const { id, deps } of previous) {
+      if (!steps.some(step => step.id === id)) continue;
+      const candidates = dependencyCandidates(steps, id);
+      steps = setDependencies(
+        steps,
+        id,
+        deps.filter(dep => candidates.includes(dep)),
+      );
+    }
+    params.onStepsChange(steps);
+  };
 
   return {
     get mode() {
@@ -103,6 +124,42 @@ export const createPipelineScriptingState = (params: PipelineScriptingStateParam
     setDependencies(id: string, deps: string[]) {
       panes.pin();
       params.onStepsChange(setDependencies(params.steps(), id, deps));
+    },
+
+    /**
+     * Moves a job in the list (`stepsAfterDrop`). A move that removes dependencies says so, and
+     * can be undone: the editor has no history.
+     */
+    moveJob(id: string, target: string | null, keep: boolean) {
+      const before = params.steps();
+      const index = before.findIndex(step => step.id === id);
+      if (index === -1) return;
+
+      const after = stepsAfterDrop(before, id, target, keep);
+      const movedChanged = !sameDeps(before[index].deps, after[index].deps);
+      // The other jobs that waited for the moved one and now wait for something else.
+      const rewired = before.filter(
+        (step, i) => i !== index && !sameDeps(step.deps, after[i].deps),
+      );
+      if (!movedChanged && rewired.length === 0) return;
+      params.onStepsChange(after);
+
+      const lost = before[index].deps.filter(dep => !after[index].deps.includes(dep));
+      if (rewired.length === 0 && lost.length === 0) return;
+      const message =
+        target !== null && rewired.length > 0
+          ? scriptingMessages.jobMoved(id, target)
+          : scriptingMessages.dependenciesDropped(
+              id,
+              new Intl.ListFormat(activeLocale(), { type: 'unit' }).format(lost),
+            );
+      toast(t(message), {
+        action: {
+          label: t(scriptingMessages.undo),
+          // The moved job first: it drops its new dependency before the others get theirs back.
+          onClick: () => restore([before[index], ...rewired]),
+        },
+      });
     },
 
     dependentsOf: (id: string) => dependentsOf(params.steps(), id),

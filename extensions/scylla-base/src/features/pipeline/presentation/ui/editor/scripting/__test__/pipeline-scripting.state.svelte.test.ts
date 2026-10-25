@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
+import type * as Utils from '@scylla/ui/utils';
 import {
   createPipelineScript,
   type PipelineScript,
@@ -8,6 +9,12 @@ import {
   createPipelineScriptingState,
   type PipelineScriptingState,
 } from '../pipeline-scripting.state.svelte.ts';
+
+const toast = vi.hoisted(() => vi.fn());
+vi.mock('@scylla/ui/utils', async importOriginal => ({
+  ...(await importOriginal<typeof Utils>()),
+  toast,
+}));
 
 const document = JSON.stringify({
   name: 'web',
@@ -125,6 +132,88 @@ describe('createPipelineScriptingState', () => {
       expect(scripting.dependencyCandidates('build')).toEqual([]);
       expect(scripting.dependencyCandidates('test')).toEqual(['build']);
       expect(scripting.dependentsOf('build')).toEqual(['test']);
+    });
+  });
+
+  describe('moveJob', () => {
+    const graph = JSON.stringify({
+      name: 'web',
+      nodes: ['build', 'lint', 'test', 'deploy'].map(id => ({
+        id,
+        deps: { test: ['build', 'lint'], deploy: ['test'] }[id] ?? [],
+        kind: 'script',
+        shell: 'bash',
+        script: 'make',
+        env: [],
+      })),
+    });
+
+    afterEach(() => toast.mockClear());
+
+    const undo = () => {
+      const options = toast.mock.calls[0][1] as { action: { onClick: () => void } };
+      options.action.onClick();
+    };
+
+    it('makes a job wait only for the job it is dropped on, and offers to undo', () => {
+      withScripting((scripting, doc) => {
+        scripting.moveJob('test', 'build', false);
+        flushSync();
+
+        expect(stepIn(doc, 'test')?.deps).toEqual(['build']);
+        expect(toast).toHaveBeenCalledOnce();
+
+        undo();
+        flushSync();
+        expect(stepIn(doc, 'test')?.deps).toEqual(['build', 'lint']);
+      }, graph);
+    });
+
+    it('keeps the other dependencies with keep, and says nothing', () => {
+      withScripting((scripting, doc) => {
+        scripting.moveJob('deploy', 'lint', true);
+        flushSync();
+
+        expect(stepIn(doc, 'deploy')?.deps).toEqual(['test', 'lint']);
+        expect(toast).not.toHaveBeenCalled();
+      }, graph);
+    });
+
+    it('makes a job run first when dropped on no job', () => {
+      withScripting((scripting, doc) => {
+        scripting.moveJob('deploy', null, false);
+        flushSync();
+
+        expect(stepIn(doc, 'deploy')?.deps).toEqual([]);
+      }, graph);
+    });
+
+    it('rearranges the dependencies when a job is dropped on a job that waits for it', () => {
+      withScripting((scripting, doc) => {
+        scripting.moveJob('test', 'deploy', false);
+        flushSync();
+
+        expect(stepIn(doc, 'deploy')?.deps).toEqual(['build', 'lint']);
+        expect(stepIn(doc, 'test')?.deps).toEqual(['deploy']);
+        expect(toast).toHaveBeenCalledOnce();
+
+        undo();
+        flushSync();
+        expect(stepIn(doc, 'test')?.deps).toEqual(['build', 'lint']);
+        expect(stepIn(doc, 'deploy')?.deps).toEqual(['test']);
+      }, graph);
+    });
+
+    it('does not restore on undo a dependency that now makes a loop', () => {
+      withScripting((scripting, doc) => {
+        scripting.moveJob('test', null, false);
+        scripting.moveJob('lint', 'test', false);
+        flushSync();
+
+        undo();
+        flushSync();
+        expect(stepIn(doc, 'test')?.deps).toEqual(['build']);
+      }, graph);
     });
   });
 });

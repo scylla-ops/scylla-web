@@ -93,11 +93,13 @@ presentation/
         StepEnvFields                        one field (or one group of fields) each, on a StepDraft
       scripting/                             the scripting tab: the jobs one by one, or the full document
         PipelineScripting/                   the two views as tabs (and its test, its fixture)
-        pipeline-scripting.state.svelte.ts ViewModel: mode, add/remove/rename, deps, the panes, the drafts
+        pipeline-scripting.state.svelte.ts ViewModel: mode, add/remove/rename, deps, moveJob, the panes, the drafts
         job-panes.svelte.ts                  the open jobs: one or two panes, their tabs, the focus
         job-drafts.svelte.ts                 one StepDraft per job, shared by its panes and its properties
-        JobsView.svelte                      the list, the panes, the properties of the focused job
-        JobList/                             the jobs in the order they run (job-list.calculator.ts)
+        JobsView/                            the list, the panes, the properties of the focused job
+                                             (jobs-view.state.svelte.ts: which side panels are open)
+        JobList/                             the jobs by stage (job-list.calculator.ts), and the drag
+                                             of a job onto its dependency (job-drag.*)
         JobPane/                             the tabs of a pane and the editor of its job
         JobProperties/                       id, kind, folder, dependencies, environment of a job
         DocumentView.svelte                  the JSON text, with Copy all
@@ -122,7 +124,6 @@ presentation/
           palette-drag.attachments.ts        dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
           PaletteDragGhost.svelte            the dragged icon, in place of the pointer
         side-panel/                          palette (nothing inspected) / inspector of the inspected step
-          side-panel-width.svelte.ts         the width of the panel per mode, remembered in localStorage
           StepInspector/                     the inspector: the fields of step/, in two tabs
     dashboard/                               Dashboard, chart, table, pipeline table columns
       DashboardPipeline/                     the page, pipeline-dashboard.state.svelte.ts (its ViewModel)
@@ -185,21 +186,75 @@ the page.
   document changed from elsewhere (the full document, the blueprint) gets a new draft: its
   signature (`definitionOf`) no longer matches what the draft wrote. Each draft is built in its
   own `$effect.root`: its deriveds must outlive the component that asked for it first, which a
-  rename or a new tab mounts again. Because
-  the roots have no component owner, `draftOf` prunes the drafts of the jobs that left the
-  document, and `PipelineScripting` calls `dispose()` when it unmounts.
+  rename or a new tab mounts again. Because the roots have no component owner, `draftOf` prunes
+  the drafts of the jobs that left the document, and `PipelineScripting` calls `dispose()` when
+  it unmounts.
+- **The job list shows stages, not a tree** (`jobRows`, `jobStages`). The dependencies are a
+  graph: a tree would put a job under one of its dependencies only. A stage is the blueprint
+  column (the longest path); each row writes all its dependencies (`← build, lint`), and the
+  job under the pointer, else the open one, shows its links (`jobRelations`): the jobs it waits
+  for with an `info` bar on the left, the jobs that wait for it with a `primary` bar. Only the
+  bar changes, not the background: the rows stay readable. The list has no order of its own.
+- **A drop in the job list sets dependencies; it does not reorder** (`stepsAfterDrop`). A job
+  dropped on another one waits for that one only; with Alt it is added to the others; dropped on
+  the header ("runs first"), it waits for none. Dropped on a job that waits for it, it first
+  leaves its place: the jobs that waited for it wait for what it waited for, so no loop is
+  possible and every job but the dragged one is a target. `moveJob` shows a toast with "Undo"
+  when dependencies are removed (the list of them is formatted with `Intl.ListFormat` in the
+  active locale): the editor has no history. A drop on a job that left the document during the
+  drag changes nothing. The "runs first" zone covers the header and the hint takes the place of
+  the footer button: a row that moves at `dragstart` can cancel a native drag.
+- **The drag source of a job is its grip, not its row.** Firefox does not start a native drag
+  from a mousedown on a `<button>`, and nearly all the row is a button. The grip
+  (`GripVerticalIcon`, `aria-hidden`, shown on hover and focus, its width always kept) carries
+  `dragJob`; the `<li>` is only a drop target (`acceptJobDrop`). The id travels in the private
+  type `application/x-scylla-job`, never `text/plain`: an editor or an input would take the id
+  as text. If the grip leaves the list during a drag, no `dragend` comes: its cleanup ends the
+  drag.
+- **`JobsView` has two `ResizablePaneGroup`s, and the outer one never changes its panes.** The
+  outer group holds three panes that are always there: the list, the middle and the properties.
+  The open jobs are one or two panes in a group of their own inside the middle. paneforge builds a
+  layout again from the default sizes when the number of panes of a group changes (it also pairs
+  the i-th handle with the i-th and (i+1)-th pane, so a hidden pane between two others cannot be
+  faked with a collapsed pane): a second job would reset the sizes of the list and of the
+  properties, and open a list the user closed. Only the sizes of the two jobs start again, at
+  half each. The properties pane stays when no job is focused (collapsed, its handle hidden), for
+  the same reason. A handle between two panes; the toggle of the list is at the start of the tab
+  bar of the first job pane, the one of the properties at the end of the tab bar of the last job
+  pane (`PanelToggle`, passed to `JobPane` / `JobTabs` as `leading` / `trailing` snippets). A side
+  panel closes by a drag under its minimum, by its toggle button, or because the view is too
+  narrow: the list below 800 px, the properties below 1100 px, measured on the
+  `JobsView` root (`createCompactContainer`), not on the viewport. **The ViewModel is the source of
+  truth** (`jobs-view.state.svelte.ts`): `open` is the user's choice, else the width, and the
+  properties are also closed while no job is focused (`hasProperties`), which keeps the choice.
+  One effect per panel calls `pane.collapse()` / `pane.expand()` to follow `open`, with the call
+  untracked (a tracked call would run again at each drag step and undo a drag that collapses).
+  `onCollapse` / `onExpand` write the choice, only when they disagree with `open`: a collapse
+  that the width or the lack of a job caused stores nothing. Sizes are percent (`JOBS_VIEW_SIZES`)
+  and are not stored: they last for the visit. `defaultSize` of a pane stays constant, else a
+  toggle resets the sizes of the group: it is read once, when the ViewModel is created
+  (`defaultSize` of a `SidePanel`: the size of the state at that moment, `0` for a panel that is
+  closed then, e.g. the properties of a pipeline with no job). The sync effect does nothing while
+  paneforge has no layout for the pane (`getSize()` is `undefined`; `collapse()` would throw an
+  assertion). A panel that a narrow first measure hides closes without a transition: the group
+  has `transition-none` until a frame after the first measure (`animated`, from
+  `createCompactContainer`'s `measured`). The DOM ids of the panes are prefixed (`jobs-view-*`,
+  `blueprint-*`), as paneforge uses them as element ids.
 - **Two panes at most** (`job-panes.svelte.ts`). A job can be open in both. It takes the ids in
   the order of the list (`jobRows`, run order), so the first job opened is the first of the list.
-  The properties panel shows the job of the focused pane. The tabs of a job that leaves the document are dropped
-  (derived, no effect); a rename follows in the tabs (`panes.rename`, called before the
-  document changes). Each pane mounts one editor per job (`{#key step.id}`), so two jobs do
-  not share an undo history.
+  The properties panel shows the job of the focused pane. The tabs of a job that leaves the
+  document are dropped (derived, no effect); a rename follows in the tabs (`panes.rename`,
+  called before the document changes). Each pane mounts one editor per job (`{#key step.id}`),
+  so two jobs do not share an undo history.
 - **The dependency picker offers `dependencyCandidates` only**: the rule of `canConnect` (see
   "No loop of dependencies"), so a pick cannot make a loop.
 - **The pipeline name is edited in the header** (`PipelineNameField`), never in the panel: it is
   the name of the whole document. The start node opens nothing.
-- **The side panel is a `ResizablePanel`** (`@scylla/ui`). The palette and the inspector each
-  keep their own width (`side-panel-width.svelte.ts`).
+- **The side panel of the blueprint is a paneforge pane** (`ResizablePane`), right of the
+  canvas in one `ResizablePaneGroup` with `autoSaveId="scylla.blueprint.side-panel"`. The pane is
+  keyed by the mode (`{#key mode}`) and each mode has its own `SIDE_PANEL_SIZES` (percent), so
+  the group saves one width per mode: the layout is keyed by the constraints of the panes. The
+  inspector holds code, so it is wider than the palette.
 - **A rebuild from the document keeps the canvas state.** When the document changes from outside
   (the script tab), the graph is built again: a node that is still there keeps its position and
   its selection, and only a new one is laid out. The document must also read back what it

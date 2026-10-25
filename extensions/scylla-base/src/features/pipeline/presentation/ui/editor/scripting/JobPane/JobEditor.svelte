@@ -15,7 +15,7 @@
 
 <!-- A script is edited as shell code; a command, which runs with no shell, as a form. -->
 {#if draft.mode === 'script'}
-  <StepScriptField {draft} class="min-h-0 p-2" />
+  <StepScriptField {draft} flush class="min-h-0" />
 {:else}
   <div class="relative flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-6">
     <div class="flex max-w-2xl flex-col gap-4">

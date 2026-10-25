@@ -1,6 +1,7 @@
 <script lang="ts">
   import { SvelteFlowProvider } from '@xyflow/svelte';
   import { createQuery } from '@scylla/core-sdk';
+  import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '@scylla/ui/primitives';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
   import { createBlueprintState } from './blueprint.state.svelte.ts';
   import { createNodeAppearance } from './canvas/node-appearance.svelte.ts';
@@ -51,8 +52,15 @@
 
 <!-- The provider lets the canvas convert screen points to the graph's. -->
 <SvelteFlowProvider>
-  <div class="flex h-full w-full overflow-hidden">
-    <BlueprintCanvas {blueprint} {appearance} {quickAdd} {drag} {entries} />
+  <ResizablePaneGroup
+    direction="horizontal"
+    autoSaveId="scylla.blueprint.side-panel"
+    class="overflow-hidden"
+  >
+    <ResizablePane id="blueprint-canvas" order={1}>
+      <BlueprintCanvas {blueprint} {appearance} {quickAdd} {drag} {entries} />
+    </ResizablePane>
+    <ResizableHandle />
     <BlueprintSidePanel
       {blueprint}
       {entries}
@@ -60,6 +68,6 @@
       {drag}
       onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
     />
-  </div>
+  </ResizablePaneGroup>
   <PaletteDragGhost {drag} />
 </SvelteFlowProvider>

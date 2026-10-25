@@ -1,5 +1,5 @@
 import { msg } from '@lingui/core/macro';
 
-export const resizablePanelMessages = {
+export const resizableMessages = {
   resize: msg`Resize panel`,
 };

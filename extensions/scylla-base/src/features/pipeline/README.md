@@ -101,6 +101,12 @@ has two views of the same document:
 - **By job** (the default): the list of the jobs in the order they run, an editor for the open
   job, and its properties. A script is edited as shell code; a command, which runs with no
   shell, as a form. Two jobs can be open side by side, as in an IDE.
+  To change what a job waits for, drag it in the list onto that job: the list follows the
+  graph, so a drop sets the dependencies instead of a position. Alt keeps the other ones.
+  The list and the properties each have a button in the tab bar of the jobs to hide them. They
+  hide themselves when the view is too narrow for three columns, and a click on the button wins
+  over the width for the rest of the visit. A handle between two panels resizes them, also
+  between the two open jobs; drag a panel under its minimum and it closes.
 - **Full document**: the JSON text, as it is saved, to copy a whole pipeline or paste one.
 
 The jobs are views, not files: every edit goes back to the one document, as the blueprint does,

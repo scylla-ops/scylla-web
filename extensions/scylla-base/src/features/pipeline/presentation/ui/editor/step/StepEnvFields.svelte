@@ -30,11 +30,14 @@
   // Same options object as the `secret` module: one cache entry.
   const secretsQuery = createQuery(() => secretQueries.byProject(projectId ?? ''));
   const secrets = $derived(secretsQuery.data ?? []);
+
+  // Below the container's `sm` width the value control moves to its own line.
+  const valueClass = 'min-w-0 order-last basis-full @sm:order-none @sm:flex-1';
 </script>
 
-<div class="flex flex-col gap-2 p-4">
+<div class="@container flex flex-col gap-2 p-4">
   {#each draft.envRows as row, index (index)}
-    <div class="flex items-center gap-2">
+    <div class="flex flex-wrap items-center gap-2">
       <Input
         value={row.key}
         oninput={event => draft.setEnv(index, { key: event.currentTarget.value })}
@@ -68,7 +71,7 @@
             value={row.secretRef}
             onValueChange={value => draft.setEnv(index, { secretRef: value })}
           >
-            <SelectTrigger aria-label={t(pipelineMessages.referenceASecret)} class="flex-1">
+            <SelectTrigger aria-label={t(pipelineMessages.referenceASecret)} class={valueClass}>
               <SelectValue placeholder={t(pipelineMessages.referenceASecret)} />
             </SelectTrigger>
             <SelectContent>
@@ -86,7 +89,7 @@
             oninput={event => draft.setEnv(index, { secretRef: event.currentTarget.value })}
             placeholder={t(pipelineMessages.secretNamePlaceholder)}
             aria-label={t(pipelineMessages.referenceASecret)}
-            class="flex-1"
+            class={valueClass}
           />
         {/if}
       {:else}
@@ -95,7 +98,7 @@
           oninput={event => draft.setEnv(index, { value: event.currentTarget.value })}
           placeholder={t(pipelineMessages.envValuePlaceholder)}
           aria-label={t(pipelineMessages.envValuePlaceholder)}
-          class="flex-1 font-mono"
+          class="{valueClass} font-mono"
         />
       {/if}
 

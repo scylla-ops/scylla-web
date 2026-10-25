@@ -40,8 +40,10 @@
       <span class="font-sans text-muted-foreground">{t(stepMessages.runsFirst)}</span>
     {/if}
     {#each deps as dep (dep)}
-      <span class="flex items-center gap-1 rounded-full bg-primary-subtle py-0.5 pr-0.5 pl-2.5">
-        {dep}
+      <span
+        class="flex max-w-full min-w-0 items-center gap-1 rounded-full bg-primary-subtle py-0.5 pr-0.5 pl-2.5"
+      >
+        <span class="min-w-0 truncate" title={dep}>{dep}</span>
         <button
           type="button"
           class="flex size-5 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
@@ -74,7 +76,8 @@
       {#each dependents as id (id)}
         <button
           type="button"
-          class="font-mono text-primary underline-offset-2 hover:underline"
+          class="max-w-full truncate font-mono text-primary underline-offset-2 hover:underline"
+          title={id}
           onclick={() => onOpen(id)}
         >
           {id}

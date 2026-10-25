@@ -64,6 +64,24 @@ describe('PipelineScripting', () => {
     ).not.toBeInTheDocument();
   });
 
+  it.each([
+    ['list', 'Show or hide the jobs', 'navigation', 'Jobs'],
+    ['properties', 'Show or hide the job properties', 'complementary', 'Job properties'],
+  ] as const)('hides and restores the %s with its toggle', async (_, label, role, name) => {
+    const user = userEvent.setup();
+    renderScripting();
+    const toggle = screen.getByRole('button', { name: label });
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+    await user.click(toggle);
+    expect(screen.queryByRole(role, { name })).not.toBeInTheDocument();
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(toggle);
+    expect(screen.getByRole(role, { name })).toBeInTheDocument();
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  });
+
   it('shows the full document, and no jobs, while the JSON does not parse', () => {
     renderScripting('{ "nodes": [');
 
@@ -130,6 +148,47 @@ describe('PipelineScripting', () => {
 
     expect(shownJobs()).toEqual(['build', 'test']);
     expect(screen.getAllByRole('button', { name: 'Close the pane' })).toHaveLength(2);
+  });
+
+  it('puts a resize handle between the panels and the open job, and one more per open job', async () => {
+    renderScripting();
+    expect(screen.getAllByRole('separator', { name: 'Resize panel' })).toHaveLength(2);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Actions of test' }));
+    await userEvent.click(await findFloating('menuitem', 'Open to the side'));
+
+    expect(screen.getAllByRole('separator', { name: 'Resize panel' })).toHaveLength(3);
+  });
+
+  it('shows no properties, and a hidden handle for them, in a pipeline with no job', () => {
+    renderScripting(JSON.stringify({ name: 'web', nodes: [] }));
+
+    expect(screen.getByRole('navigation', { name: 'Jobs' })).toBeInTheDocument();
+    expect(screen.queryByRole('complementary', { name: 'Job properties' })).not.toBeInTheDocument();
+    expect(
+      globalThis.document.querySelector('[data-pane-id="jobs-view-properties"]'),
+    ).toHaveAttribute('data-collapsed', '');
+    // The list handle only: the one of the properties is hidden.
+    const handles = screen.getAllByRole('separator', { name: 'Resize panel' });
+    expect(handles.filter(handle => !handle.classList.contains('hidden'))).toHaveLength(1);
+  });
+
+  it('keeps a list that was hidden hidden when a second job opens', async () => {
+    const user = userEvent.setup();
+    renderScripting();
+    await user.click(screen.getByRole('button', { name: 'Actions of test' }));
+    await user.click(await findFloating('menuitem', 'Open to the side'));
+    await user.click(screen.getByRole('button', { name: 'Show or hide the jobs' }));
+    expect(screen.queryByRole('navigation', { name: 'Jobs' })).not.toBeInTheDocument();
+
+    await user.click(screen.getAllByRole('button', { name: 'Close the pane' })[1]);
+
+    expect(shownJobs()).toEqual(['build']);
+    expect(screen.queryByRole('navigation', { name: 'Jobs' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Show or hide the jobs' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
   });
 
   it('adds a job after the open one, opens it, and writes it to the document', async () => {

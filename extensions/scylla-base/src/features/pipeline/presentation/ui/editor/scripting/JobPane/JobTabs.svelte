@@ -1,8 +1,9 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import ColumnsIcon from '@lucide/svelte/icons/columns-2';
   import CopyIcon from '@lucide/svelte/icons/copy';
   import XIcon from '@lucide/svelte/icons/x';
-  import { Button } from '@scylla/ui/primitives';
+  import { Button, Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
@@ -18,9 +19,12 @@
     index: number;
     /** The job the pane shows. */
     step?: PipelineStep;
+    /** At the start and at the end of the bar: where the view puts the toggles of its side panels. */
+    leading?: Snippet;
+    trailing?: Snippet;
   }
 
-  let { scripting, pane, index, step }: Props = $props();
+  let { scripting, pane, index, step, leading, trailing }: Props = $props();
 
   // A script is copied as it runs; a command as one line.
   const copyJob = (job: PipelineStep) =>
@@ -28,6 +32,9 @@
 </script>
 
 <div class="flex h-10 shrink-0 items-stretch border-b bg-muted/40">
+  {#if leading}
+    <div class="flex shrink-0 items-center border-r px-1.5">{@render leading()}</div>
+  {/if}
   <div
     role="group"
     aria-label={t(scriptingMessages.openJobs)}
@@ -63,10 +70,22 @@
 
   <div class="flex shrink-0 items-center gap-0.5 px-1.5">
     {#if step}
-      <Button variant="ghost" size="sm" onclick={() => copyJob(step)}>
-        <CopyIcon class="size-3.5" />
-        {t(scriptingMessages.copyJob)}
-      </Button>
+      <Tooltip>
+        <TooltipTrigger>
+          {#snippet child({ props })}
+            <Button
+              {...props}
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t(scriptingMessages.copyJob)}
+              onclick={() => copyJob(step)}
+            >
+              <CopyIcon class="size-4" />
+            </Button>
+          {/snippet}
+        </TooltipTrigger>
+        <TooltipContent>{t(scriptingMessages.copyJob)}</TooltipContent>
+      </Tooltip>
     {/if}
     {#if scripting.panes.canSplit}
       <Button
@@ -88,5 +107,6 @@
         <XIcon class="size-4" />
       </Button>
     {/if}
+    {@render trailing?.()}
   </div>
 </div>

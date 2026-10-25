@@ -4,6 +4,8 @@ const COMPACT_WIDTH_PX = 70;
 
 export interface CompactContainer {
   readonly isCompact: boolean;
+  /** False until the first measurement: `isCompact` is a guess before it. */
+  readonly measured: boolean;
   measure: Attachment<HTMLElement>;
 }
 
@@ -13,11 +15,13 @@ export interface CompactContainer {
  */
 export const createCompactContainer = (threshold: number = COMPACT_WIDTH_PX): CompactContainer => {
   let isCompact = $state(false);
+  let measured = $state(false);
 
   const measure: Attachment<HTMLElement> = node => {
     const observer = new ResizeObserver(entries => {
       for (const entry of entries) {
         isCompact = entry.contentRect.width < threshold;
+        measured = true;
       }
     });
     observer.observe(node);
@@ -28,6 +32,9 @@ export const createCompactContainer = (threshold: number = COMPACT_WIDTH_PX): Co
   return {
     get isCompact() {
       return isCompact;
+    },
+    get measured() {
+      return measured;
     },
     measure,
   };
