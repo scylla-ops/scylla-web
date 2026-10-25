@@ -4,10 +4,8 @@
   import { organizationUrl } from '@platform/context';
   import { Badge, Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import {
-    groupUserAccess,
-    type UserAccess,
-  } from '@base/features/user/domain/structs/user-access.struct.ts';
+  import type { UserAccess } from '@base/features/user/domain/structs/user-access.struct.ts';
+import { groupUserAccess } from '@base/features/user/presentation/presenters/user-access.presenter.ts';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   interface Props {

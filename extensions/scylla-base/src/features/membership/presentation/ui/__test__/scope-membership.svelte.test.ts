@@ -3,8 +3,8 @@ import { PermissionScope, PrincipalKind, permissionsStore } from '@platform/auth
 import { withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { toast } from '@scylla/ui/utils';
-import { MemberRoleOrigin } from '@base/features/membership/domain/structs/scope-member.struct.ts';
-import type { MemberRole } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+import { MemberRoleOrigin } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
+import type { MemberRole } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import { createScopeMembership } from '../scope-membership.state.svelte.ts';
 
 vi.mock('svelte-sonner', () => ({

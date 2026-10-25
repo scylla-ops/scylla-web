@@ -8,7 +8,7 @@
   import {
     MemberRoleOrigin,
     type MemberRole,
-  } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
   import {
     membershipMessages,
   } from '@base/features/membership/presentation/messages/membership.messages.ts';

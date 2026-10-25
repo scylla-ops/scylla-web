@@ -12,7 +12,7 @@
   import { t } from '@scylla/ui/i18n';
   import {
     buildOrganizationMembers,
-  } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
   import {
     createAssignableRoles,
   } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';

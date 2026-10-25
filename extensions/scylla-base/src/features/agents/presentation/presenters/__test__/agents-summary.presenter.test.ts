@@ -5,7 +5,7 @@ import type {
   AgentStats,
   DailyOutcome,
 } from '@base/features/agents/domain/structs/agent.struct.ts';
-import { successRateOf, sumOutcomes, summarizeAgents } from '../agents-summary.struct.ts';
+import { successRateOf, sumOutcomes, summarizeAgents } from '../agents-summary.presenter.ts';
 
 const agent = (id: string, overrides: Partial<AgentEntity> = {}): AgentEntity => ({
   id,

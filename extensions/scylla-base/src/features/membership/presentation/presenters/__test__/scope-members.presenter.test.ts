@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import { PermissionScope, PrincipalKind } from '@platform/authz';
-import { buildOrganizationMembers, buildProjectMembers, MemberRoleOrigin } from '../scope-member.struct';
+import { buildOrganizationMembers, buildProjectMembers, MemberRoleOrigin } from '../scope-members.presenter.ts';
 import type { GrantEntity } from '@base/features/roles';
 
 const userGrant = (overrides: Partial<GrantEntity> = {}): GrantEntity => ({

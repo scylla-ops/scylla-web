@@ -3,7 +3,7 @@ import type {
   Agent as ProtoAgent,
   AgentHost as ProtoAgentHost,
 } from '@base/generated/scylla/agent/v1/agent_admin.ts';
-import type { AgentEntity, AgentHost } from '@base/features/agents/domain/entities/agent.entity.ts';
+import type { AgentEntity, AgentHost } from '../domain/entities/agent.entity.ts';
 import type { AgentStats } from '@base/features/agents/domain/structs/agent.struct.ts';
 import type { AgentJob } from '@base/features/agents/domain/structs/agent-job.struct.ts';
 import { JobOutcome, type Job as ProtoJob } from '@base/generated/scylla/job/v1/job.ts';

@@ -3,7 +3,7 @@ import { PrincipalKind, type PermissionScope } from '@platform/authz';
 import { createMutation, createQuery, getQueryClient } from '@scylla/core-sdk';
 import { GRANTS_QUERY_KEY, grantMutations, roleQueries } from '@base/features/roles';
 import { toast } from '@scylla/ui/utils';
-import type { MemberRole } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+import type { MemberRole } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import { membershipMessages } from '../messages/membership.messages.ts';
 
 export interface ScopeMembershipOptions {

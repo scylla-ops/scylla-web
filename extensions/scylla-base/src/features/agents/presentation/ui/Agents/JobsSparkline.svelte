@@ -4,7 +4,7 @@
   import {
     successRateOf,
     sumOutcomes,
-  } from '@base/features/agents/domain/structs/agents-summary.struct.ts';
+  } from '@base/features/agents/presentation/presenters/agents-summary.presenter.ts';
   import { fillDays } from '@base/features/agents/presentation/presenters/daily-outcomes.presenter.ts';
   import { formatPercent } from '@base/features/agents/presentation/presenters/agent-format.presenter.ts';
   import { agentsPageMessages as messages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';

@@ -5,7 +5,7 @@ import type {
   CreatedAgent,
   AgentStats,
 } from '@base/features/agents/domain/structs/agent.struct.ts';
-import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
+import type { AgentEntity } from '../domain/entities/agent.entity.ts';
 import type {
   AgentJob,
   PipelineName,

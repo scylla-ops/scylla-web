@@ -3,7 +3,8 @@ import type {
   AgentStats,
   DailyOutcome,
 } from '@base/features/agents/domain/structs/agent.struct.ts';
-import { agentStateOf, isOnline } from './agent-state.struct.ts';
+import { isOnline } from '@base/features/agents/domain/structs/agent-state.struct.ts';
+import { agentStateOf } from '@base/features/agents/domain/entities/agent.entity.ts';
 
 export interface Outcomes {
   completed: number;

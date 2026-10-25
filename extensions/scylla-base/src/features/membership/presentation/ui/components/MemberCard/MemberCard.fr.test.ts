@@ -7,7 +7,7 @@ import { PermissionScope } from '@platform/authz';
 import {
   MemberRoleOrigin,
   type MemberRole,
-} from '@base/features/membership/domain/structs/scope-member.struct.ts';
+} from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import MemberCard from './MemberCard.svelte';
 
 /** The exact-zero arm ("Aucun rôle") must survive extraction. */

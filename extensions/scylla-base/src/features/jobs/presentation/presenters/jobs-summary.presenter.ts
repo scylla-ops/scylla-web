@@ -1,24 +1,5 @@
 import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
-
-/** `unknown`: a state arm newer than this build. */
-export type JobStatus =
-  | 'pending'
-  | 'running'
-  | 'completed'
-  | 'failed'
-  | 'cancelled'
-  | 'orphaned'
-  | 'unknown';
-
-/** Still running: worth polling, and excluded from the success rate. */
-export const isActiveStatus = (status: string): boolean =>
-  status === 'pending' || status === 'running';
-
-export const isFinishedStatus = (status: string): boolean =>
-  status === 'completed' ||
-  status === 'failed' ||
-  status === 'cancelled' ||
-  status === 'orphaned';
+import { isFinishedStatus } from '@base/features/jobs/domain/structs/job-status.struct.ts';
 
 /** Over the fetched page only: the backend has no organization aggregate. Say so where it is shown (`isPartialWindow`). */
 export interface JobsSummary {

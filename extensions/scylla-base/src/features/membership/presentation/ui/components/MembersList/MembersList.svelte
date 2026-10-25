@@ -6,7 +6,7 @@
   import type {
     MemberRole,
     ScopeMember,
-  } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
   import type {
     AssignableRole,
   } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';

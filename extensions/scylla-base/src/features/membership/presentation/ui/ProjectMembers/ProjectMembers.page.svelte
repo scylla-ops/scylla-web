@@ -16,7 +16,7 @@
     buildProjectMembers,
     MemberRoleOrigin,
     type ScopeMember,
-  } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
   import {
     createAssignableRoles,
   } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';

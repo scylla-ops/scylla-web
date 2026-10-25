@@ -3,7 +3,7 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { findFloating, render } from '@test/render.ts';
 import type { UserSummary } from '@base/features/user';
-import type { ScopeMember } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+import type { ScopeMember } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import MembersList from './MembersList.svelte';
 
 const member = (overrides: Partial<ScopeMember> = {}): ScopeMember => ({
