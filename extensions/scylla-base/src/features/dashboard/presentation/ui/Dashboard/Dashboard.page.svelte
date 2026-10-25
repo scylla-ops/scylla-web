@@ -25,7 +25,7 @@
   } from '@base/features/dashboard/presentation/org-overview.state.svelte.ts';
   import AgentOutcomesChart from '../AgentOutcomesChart/AgentOutcomesChart.svelte';
   import RunActivityCard from '../RunActivityCard/RunActivityCard.svelte';
-  import { dashboardMessages } from '../dashboard.messages.ts';
+  import { dashboardMessages } from '@base/features/dashboard/presentation/messages/dashboard.messages.ts';
 
   const overview = createOrgOverview();
 

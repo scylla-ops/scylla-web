@@ -4,7 +4,7 @@ import { createMutation, createQuery, getQueryClient } from '@scylla/core-sdk';
 import { GRANTS_QUERY_KEY, grantMutations, roleQueries } from '@base/features/roles';
 import { toast } from '@scylla/ui/utils';
 import type { MemberRole } from '@base/features/membership/domain/structs/scope-member.struct.ts';
-import { membershipMessages } from './membership.messages.ts';
+import { membershipMessages } from '../messages/membership.messages.ts';
 
 export interface ScopeMembershipOptions {
   scope: PermissionScope;

@@ -7,8 +7,8 @@
   import {
     formatDurationMs,
     formatPercent,
-  } from '@base/features/agents/presentation/utils/agent-format.ts';
-  import { agentDetailsMessages as messages } from './agent-details.messages.ts';
+  } from '@base/features/agents/presentation/presenters/agent-format.presenter.ts';
+  import { agentDetailsMessages as messages } from '@base/features/agents/presentation/messages/agent-details.messages.ts';
 
   interface Props {
     stats: AgentStats | undefined;

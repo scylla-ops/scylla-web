@@ -14,7 +14,7 @@
   import { createCompactContainer } from '@scylla/ui/state';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import { jobsMessages } from '@base/features/jobs/presentation/ui/jobs.messages.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
     onView: (event: Event) => void;

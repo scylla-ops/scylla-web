@@ -9,7 +9,7 @@
     AgentReach,
   } from './create-agent.state.svelte.ts';
   import CreateAgentProject from './CreateAgentProject.svelte';
-  import { createAgentMessages as messages } from './create-agent.messages.ts';
+  import { createAgentMessages as messages } from '@base/features/agents/presentation/messages/create-agent.messages.ts';
 
   interface Props {
     creation: AgentCreation;

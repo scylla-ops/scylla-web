@@ -34,7 +34,7 @@
   } from '@base/features/triggers/presentation/utils/trigger-form.utils.ts';
   import CronScheduleBuilder from '../CronScheduleBuilder/CronScheduleBuilder.svelte';
   import TriggerInputsEditor from '../TriggerInputsEditor/TriggerInputsEditor.svelte';
-  import { triggersMessages } from '@base/features/triggers/presentation/ui/triggers.messages.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     pipelineId: string;

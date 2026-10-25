@@ -6,7 +6,7 @@
   import { t } from '@scylla/ui/i18n';
   import { projectMutations } from '../project.queries.ts';
   import AddProjectDialog from './AddProjectDialog.svelte';
-  import { projectMessages } from './project.messages.ts';
+  import { projectMessages } from '../messages/project.messages.ts';
 
   interface Props {
     numberOfProjects: number;

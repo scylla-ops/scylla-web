@@ -12,7 +12,7 @@
   import { isActiveStatus } from '@base/features/jobs/domain/structs/jobs-summary.struct.ts';
   import JobStatus from '../jobs-table/JobStatus/JobStatus.svelte';
   import JobTimeline from '../jobs-table/JobTimeline/JobTimeline.svelte';
-  import { jobsMessages } from '../jobs.messages.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
     job: JobEntity;

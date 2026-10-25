@@ -10,7 +10,7 @@
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { AgentCreation } from './create-agent.state.svelte.ts';
-  import { createAgentMessages as messages } from './create-agent.messages.ts';
+  import { createAgentMessages as messages } from '@base/features/agents/presentation/messages/create-agent.messages.ts';
 
   interface Props {
     creation: AgentCreation;

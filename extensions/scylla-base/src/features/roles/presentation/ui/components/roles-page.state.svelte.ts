@@ -7,7 +7,7 @@ import { userQueries, type UserSummary } from '@base/features/user';
 import { userName } from '@shared/presentation/ui';
 import { roleOwnerOf, type RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
-import { countHoldersByRole, groupRolesByOwner, sortRolesByName } from './role-list.calculator.ts';
+import { countHoldersByRole, groupRolesByOwner, sortRolesByName } from '@base/features/roles/presentation/presenters/role-list.presenter.ts';
 import { roleMutations, roleQueries } from '@base/features/roles/presentation/roles.queries.ts';
 
 /**

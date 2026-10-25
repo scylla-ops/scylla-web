@@ -5,7 +5,7 @@
   import { t } from '@scylla/ui/i18n';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type { StatusBarItem } from './status-bar.ts';
-  import { statusBarMessages } from './status-bar.messages.ts';
+  import { statusBarMessages } from '@base/shared/presentation/messages/status-bar.messages.ts';
 
   interface Props {
     items: TItem[];

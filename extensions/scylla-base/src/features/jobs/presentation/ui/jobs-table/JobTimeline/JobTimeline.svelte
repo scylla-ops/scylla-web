@@ -10,8 +10,8 @@
   } from '@shared/utils/date-utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type { JobNodeExecution } from '@base/features/jobs/domain/structs/job.struct.ts';
-  import { jobsMessages } from '@base/features/jobs/presentation/ui/jobs.messages.ts';
-  import { groupByStatus, nodeIdOf, shouldCollapse } from '../job-timeline.calculator.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
+  import { groupByStatus, nodeIdOf, shouldCollapse } from '@base/features/jobs/presentation/presenters/job-timeline.presenter.ts';
 
   interface Props {
     nodeExecutions: JobNodeExecution[];

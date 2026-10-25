@@ -11,7 +11,7 @@
   } from '@base/features/membership/domain/structs/scope-member.struct.ts';
   import {
     membershipMessages,
-  } from '@base/features/membership/presentation/ui/membership.messages.ts';
+  } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   interface Props {
     roles: MemberRole[];

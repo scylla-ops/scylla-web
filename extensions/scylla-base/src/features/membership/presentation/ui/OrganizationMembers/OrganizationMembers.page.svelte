@@ -25,7 +25,7 @@
   } from '@base/features/membership/presentation/membership.points.ts';
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';
-  import { membershipMessages } from '../membership.messages.ts';
+  import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   /** The builtin that only means "belongs here". */
   const ORGANIZATION_MEMBER_ROLE_ID = 'organization-member';

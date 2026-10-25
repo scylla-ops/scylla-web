@@ -2,7 +2,7 @@ import type { ScyllaModule } from '@scylla/core-sdk';
 import { RequirePermission, authorizationReady, can } from '@platform/authz';
 import OrganizationSelector from './presentation/layout/ui/context-selector/OrganizationSelector/OrganizationSelector.svelte';
 import LaunchOverlays from './presentation/layout/ui/LaunchOverlays/LaunchOverlays.svelte';
-import { layoutMessages } from './presentation/layout/ui/layout.messages.ts';
+import { layoutMessages } from './presentation/layout/messages/layout.messages.ts';
 import NavUser from './presentation/layout/ui/NavUser/NavUser.svelte';
 import NewBadge from './presentation/layout/ui/NewBadge.svelte';
 import { markNavSeen } from './presentation/layout/whats-new.state.svelte.ts';

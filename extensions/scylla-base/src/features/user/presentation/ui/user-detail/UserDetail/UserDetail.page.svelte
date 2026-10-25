@@ -6,7 +6,7 @@
   import { t } from '@scylla/ui/i18n';
   import { createUserDetail } from './user-detail.state.svelte.ts';
   import UserDetailContent from './UserDetailContent.svelte';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   interface Props {
     userId?: string;

@@ -13,13 +13,13 @@
   import type {
     AgentActions,
   } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
-  import { formatDayTime } from '@base/features/agents/presentation/utils/agent-format.ts';
+  import { formatDayTime } from '@base/features/agents/presentation/presenters/agent-format.presenter.ts';
   import AgentActionsMenu from '../components/AgentActionsMenu.svelte';
   import AgentBot from '../components/AgentBot/AgentBot.svelte';
   import AgentIdLink from '../components/AgentIdLink/AgentIdLink.svelte';
   import AgentStateDot from '../components/AgentStateDot.svelte';
-  import { agentsMessages } from '../agents.messages.ts';
-  import { agentDetailsMessages as messages } from './agent-details.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
+  import { agentDetailsMessages as messages } from '@base/features/agents/presentation/messages/agent-details.messages.ts';
 
   interface Props {
     agent: AgentEntity;

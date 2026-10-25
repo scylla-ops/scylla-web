@@ -20,8 +20,8 @@
   import TriggerSourceCell from './TriggerSourceCell/TriggerSourceCell.svelte';
   import TriggerStatusCell from './TriggerStatusCell/TriggerStatusCell.svelte';
   import TriggerFormDialog from '../dialogs/TriggerFormDialog/TriggerFormDialog.svelte';
-  import { triggerColumns } from './trigger-columns.ts';
-  import { triggersMessages } from '../triggers.messages.ts';
+  import { triggerColumns } from './triggers-table.columns.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     triggers: TriggerEntity[];

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { cn } from '@scylla/ui/utils';
-  import { userInitials, type UserIdentityProfile } from './user-identity.ts';
+  import { userInitials, type UserIdentityProfile } from '@base/shared/presentation/presenters/user-identity.presenter.ts';
 
   interface Props {
     /** `undefined`: a missing user, shown as '?'. */

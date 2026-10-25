@@ -2,7 +2,7 @@
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { UserDetail } from './user-detail.state.svelte.ts';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   let { page }: { page: UserDetail } = $props();
 </script>

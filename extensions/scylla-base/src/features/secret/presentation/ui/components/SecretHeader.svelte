@@ -5,7 +5,7 @@
   import { createFeatureSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import { secretMutations } from '@base/features/secret/presentation/secret.queries.ts';
-  import { secretMessages } from '../secret.messages.ts';
+  import { secretMessages } from '@base/features/secret/presentation/messages/secret.messages.ts';
 
   interface Props {
     activeCount: number;

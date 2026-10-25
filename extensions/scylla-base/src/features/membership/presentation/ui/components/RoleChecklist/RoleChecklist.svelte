@@ -4,10 +4,10 @@
   import {
     groupAssignableRoles,
     type AssignableRole,
-  } from '@base/features/membership/presentation/ui/components/assignable-roles.calculator.ts';
+  } from '@base/features/membership/presentation/presenters/assignable-roles.presenter.ts';
   import {
     membershipMessages,
-  } from '@base/features/membership/presentation/ui/membership.messages.ts';
+  } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   interface Props {
     label: string;

@@ -4,9 +4,9 @@
   import { t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import type { AgentHost } from '@base/features/agents/domain/entities/agent.entity.ts';
-  import { memoryAmount } from '@base/features/agents/presentation/utils/agent-format.ts';
-  import { agentsMessages } from '../agents.messages.ts';
-  import { agentDetailsMessages as messages } from './agent-details.messages.ts';
+  import { memoryAmount } from '@base/features/agents/presentation/presenters/agent-format.presenter.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
+  import { agentDetailsMessages as messages } from '@base/features/agents/presentation/messages/agent-details.messages.ts';
 
   interface Props {
     host: AgentHost | null;

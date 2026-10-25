@@ -16,7 +16,7 @@ import {
   rewindTour,
   sameMutationKey,
   stepCount,
-} from './tour-machine.calculator.ts';
+} from '@base/features/onboarding/presentation/presenters/tour-machine.presenter.ts';
 import { TOUR_STEPS, type TourStep } from './tour-steps.ts';
 
 const STEP_IDS = TOUR_STEPS.map(step => step.id);

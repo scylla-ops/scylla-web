@@ -2,7 +2,7 @@
   import { t } from '@scylla/ui/i18n';
   import {
     onboardingMessages,
-  } from '@base/features/onboarding/presentation/onboarding.messages.ts';
+  } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
   import type {
     OnboardingTourState,
   } from './onboarding-tour.state.svelte.ts';
@@ -10,7 +10,7 @@
     VIEWPORT_MARGIN,
     placeCard,
     spotlightRect,
-  } from './tour-placement.calculator.ts';
+  } from '@base/features/onboarding/presentation/presenters/tour-placement.presenter.ts';
   import type { TourSpotStep } from './tour-steps.ts';
   import {
     allowedAnchor,

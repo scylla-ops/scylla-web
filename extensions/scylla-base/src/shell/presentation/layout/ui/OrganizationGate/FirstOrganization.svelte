@@ -7,7 +7,7 @@
   import { ScyllaForm, type FormValues } from '@scylla/ui';
   import { activeLocale, t } from '@scylla/ui/i18n';
   import { createOrganizationItems } from '@base/features/organization';
-  import { layoutMessages } from '../layout.messages.ts';
+  import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
   import SessionLine from '../SessionLine/SessionLine.svelte';
   import { welcomeIn } from './welcome-transition.ts';
 

@@ -10,7 +10,7 @@
   import {
     organizationMutations,
   } from '@base/features/organization/presentation/organization.queries.ts';
-  import { organizationMessages } from '../organization.messages.ts';
+  import { organizationMessages } from '@base/features/organization/presentation/messages/organization.messages.ts';
 
   interface Props {
     open: boolean;

@@ -24,7 +24,7 @@
     type CronFrequency,
     type CronModel,
   } from '@base/features/triggers/presentation/utils/cron.utils.ts';
-  import { triggersMessages } from '@base/features/triggers/presentation/ui/triggers.messages.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     initialValue: string;

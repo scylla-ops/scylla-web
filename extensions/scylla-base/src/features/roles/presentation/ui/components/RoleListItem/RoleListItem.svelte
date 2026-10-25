@@ -8,7 +8,7 @@
   import { t } from '@scylla/ui/i18n';
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
   import { scopeLabelOf } from '@base/features/roles/presentation/utils/permission-mapping.ts';
-  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
 
   interface Props {
     role: RoleEntity;

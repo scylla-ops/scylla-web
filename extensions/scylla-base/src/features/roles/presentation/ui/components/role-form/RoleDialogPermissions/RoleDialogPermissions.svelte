@@ -7,8 +7,8 @@
     getEditablePermissionDefinitionsForScope,
     permissionLabelOf,
   } from '@base/features/roles/presentation/utils/permission-mapping.ts';
-  import { buildPermissionTree } from '@base/features/roles/presentation/utils/permission-tree.ts';
-  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
+  import { buildPermissionTree } from '@base/features/roles/presentation/presenters/permission-tree.presenter.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
   import CheckboxTree from '../CheckboxTree/CheckboxTree.svelte';
 
   interface Props {

@@ -5,7 +5,7 @@
   import type {
     InstalledExtension,
   } from '@base/features/extensions/domain/structs/installed-extension.struct.ts';
-  import { extensionsMessages } from '../extensions.messages.ts';
+  import { extensionsMessages } from '@base/features/extensions/presentation/messages/extensions.messages.ts';
 
   interface Props {
     extension: InstalledExtension;

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Card } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { marketplaceMessages } from './marketplace.messages.ts';
+  import { marketplaceMessages } from '../messages/marketplace.messages.ts';
 
   // A placeholder: the repository returns fixtures. See AGENTS.md.
 </script>

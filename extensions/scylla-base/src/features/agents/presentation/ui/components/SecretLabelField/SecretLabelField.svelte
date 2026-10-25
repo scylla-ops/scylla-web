@@ -3,7 +3,7 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { SecretLabelInput } from './secret-label-input.state.svelte.ts';
-  import { secretLabelFieldMessages as messages } from './secret-label-field.messages.ts';
+  import { secretLabelFieldMessages as messages } from '@base/features/agents/presentation/messages/secret-label-field.messages.ts';
 
   interface Props {
     input: SecretLabelInput;

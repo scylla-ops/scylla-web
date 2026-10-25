@@ -3,10 +3,10 @@ import { describe, it, expect } from 'vitest';
 import { i18n } from '@lingui/core';
 import { withLocale } from '@test/i18n.ts';
 import { messages } from '@base/features/agents/locales/fr/messages.ts';
-import { agentsMessages } from '../agents.messages.ts';
-import { agentsPageMessages } from '../Agents/agents-page.messages.ts';
-import { agentDetailsMessages } from '../AgentDetails/agent-details.messages.ts';
-import { resetSecretMessages } from '../components/ResetSecretDialog/reset-secret.messages.ts';
+import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
+import { agentsPageMessages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';
+import { agentDetailsMessages } from '@base/features/agents/presentation/messages/agent-details.messages.ts';
+import { resetSecretMessages } from '@base/features/agents/presentation/messages/reset-secret.messages.ts';
 
 /** The plural arms and the placeholders: a renamed placeholder loses the French form. */
 withLocale('fr', messages);

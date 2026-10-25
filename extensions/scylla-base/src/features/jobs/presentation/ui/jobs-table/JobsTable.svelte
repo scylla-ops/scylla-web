@@ -19,8 +19,8 @@
   import JobActions from './JobActions/JobActions.svelte';
   import JobStatus from './JobStatus/JobStatus.svelte';
   import JobTimeline from './JobTimeline/JobTimeline.svelte';
-  import { jobColumns } from './job-columns.ts';
-  import { jobsMessages } from '../jobs.messages.ts';
+  import { jobColumns } from './jobs-table.columns.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
     jobs: JobEntity[];

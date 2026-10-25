@@ -6,12 +6,12 @@
   import { cn } from '@scylla/ui/utils';
   import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
   import type { CreatedAgent } from '@base/features/agents/domain/structs/agent.struct.ts';
-  import { memoryAmount } from '@base/features/agents/presentation/utils/agent-format.ts';
-  import { agentsMessages } from '../../agents.messages.ts';
+  import { memoryAmount } from '@base/features/agents/presentation/presenters/agent-format.presenter.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
   import AgentBot from '../AgentBot/AgentBot.svelte';
   import AgentRunCommand from '../AgentRunCommand/AgentRunCommand.svelte';
   import CopyBox from '../CopyBox/CopyBox.svelte';
-  import { createAgentMessages as messages } from './create-agent.messages.ts';
+  import { createAgentMessages as messages } from '@base/features/agents/presentation/messages/create-agent.messages.ts';
 
   interface Props {
     created: CreatedAgent;

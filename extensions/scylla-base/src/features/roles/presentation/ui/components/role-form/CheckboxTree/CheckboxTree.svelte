@@ -1,7 +1,7 @@
 <script lang="ts">
   import { SvelteSet } from 'svelte/reactivity';
   import type { Permission } from '@platform/authz';
-  import { checkedIdsOf, descendantIdsOf, findNode, type CheckboxNode } from '../checkbox-tree.ts';
+  import { checkedIdsOf, descendantIdsOf, findNode, type CheckboxNode } from '@base/features/roles/presentation/presenters/checkbox-tree.presenter.ts';
   import CheckboxTreeNode from './CheckboxTreeNode.svelte';
 
   interface Props {

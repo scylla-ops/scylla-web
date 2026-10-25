@@ -6,7 +6,7 @@ export type { RoleEntity, RoleCreationData } from './domain/entities/role.entity
 export type { GrantEntity } from './domain/entities/grant.entity.ts';
 export type { GrantableRoleEntity } from './domain/entities/grantable-role.entity.ts';
 export { roleConfers } from './domain/entities/role.entity.ts';
-export { humanizeRoleId } from './presentation/utils/role-label.ts';
+export { humanizeRoleId } from './presentation/presenters/role-label.presenter.ts';
 export { scopeLabelOf } from './presentation/utils/permission-mapping.ts';
 export {
   roleQueries,

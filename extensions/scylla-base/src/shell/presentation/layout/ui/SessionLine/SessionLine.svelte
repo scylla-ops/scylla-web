@@ -7,8 +7,8 @@
   import {
     userName,
     userSecondaryLine,
-  } from '@shared/presentation/ui/data-display/user-identity.ts';
-  import { layoutMessages } from '../layout.messages.ts';
+  } from '@shared/presentation/presenters/user-identity.presenter.ts';
+  import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
 
   const meQuery = createQuery(() => userQueries.me());
 

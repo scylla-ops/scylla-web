@@ -5,7 +5,7 @@
   import EyeOffIcon from '@lucide/svelte/icons/eye-off';
   import { t } from '@scylla/ui/i18n';
   import { cn, toast } from '@scylla/ui/utils';
-  import { copyBoxMessages as messages } from './copy-box.messages.ts';
+  import { copyBoxMessages as messages } from '@base/features/agents/presentation/messages/copy-box.messages.ts';
 
   interface Props {
     /** Copied as it is, also while the secret is masked. */

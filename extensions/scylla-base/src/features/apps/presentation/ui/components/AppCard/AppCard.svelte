@@ -21,7 +21,7 @@
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
   import { t } from '@scylla/ui/i18n';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
-  import { appsMessages } from '@base/features/apps/presentation/ui/apps.messages.ts';
+  import { appsMessages } from '@base/features/apps/presentation/messages/apps.messages.ts';
 
   interface Props {
     app: AppEntity;

@@ -2,7 +2,7 @@ import { untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
 import { motionDuration } from '@scylla/ui';
 import type { OnboardingSubject } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
-import { easeRects, unionRect, type TourRect } from './tour-placement.calculator.ts';
+import { easeRects, unionRect, type TourRect } from '@base/features/onboarding/presentation/presenters/tour-placement.presenter.ts';
 import type { TourAnchor, TourCondition, TourSpotStep } from './tour-steps.ts';
 
 export const LOST_AFTER_MS = 2000;

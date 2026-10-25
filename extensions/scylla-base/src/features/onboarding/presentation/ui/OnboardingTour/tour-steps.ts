@@ -3,7 +3,7 @@ import { isActiveStatus } from '@base/features/jobs';
 import { CREATE_PIPELINE_MUTATION_KEY, RUN_PIPELINE_MUTATION_KEY } from '@base/features/pipeline';
 import { CREATE_PROJECT_MUTATION_KEY } from '@base/features/project';
 import type { OnboardingSubject } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
-import { onboardingMessages as m } from '@base/features/onboarding/presentation/onboarding.messages.ts';
+import { onboardingMessages as m } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
 
 export const SCYLLA_DOCS_URL = 'https://prelude.scylla-ops.com';
 

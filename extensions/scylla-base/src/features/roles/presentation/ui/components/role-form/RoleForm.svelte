@@ -24,7 +24,7 @@
     type RolesScope,
   } from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
   import { scopeLabelOf } from '@base/features/roles/presentation/utils/permission-mapping.ts';
-  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
   import RoleDialogPermissions from './RoleDialogPermissions/RoleDialogPermissions.svelte';
   import RoleHolderField from './RoleHolderField.svelte';
 
