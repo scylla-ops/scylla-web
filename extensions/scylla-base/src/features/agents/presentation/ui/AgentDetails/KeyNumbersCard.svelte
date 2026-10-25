@@ -3,12 +3,12 @@
   import { activeLocale, t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import type { AgentStats } from '@base/features/agents/domain/structs/agent.struct.ts';
-  import type { Outcomes } from '@base/features/agents/domain/structs/agents-summary.struct.ts';
+  import type { Outcomes } from '@base/features/agents/presentation/presenters/agents-summary.presenter.ts';
   import {
     formatDurationMs,
     formatPercent,
-  } from '@base/features/agents/presentation/utils/agent-format.ts';
-  import { agentDetailsMessages as messages } from './agent-details.messages.ts';
+  } from '@base/features/agents/presentation/presenters/agent-format.presenter.ts';
+  import { agentDetailsMessages as messages } from '@base/features/agents/presentation/messages/agent-details.messages.ts';
 
   interface Props {
     stats: AgentStats | undefined;

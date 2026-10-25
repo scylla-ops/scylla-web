@@ -27,7 +27,7 @@ export interface PermissionTarget {
 
 /**
  * Holding a listed permission is holding the key. Managing roles implies
- * managing system grants (see `permission-mapping.ts`), also for older roles.
+ * managing system grants (see `permission-catalog.struct.ts` in `features/roles`), also for older roles.
  */
 const IMPLIED_BY: Partial<Record<Permission, Permission[]>> = {
   [Permission.MANAGE_SYSTEM_GRANTS]: [Permission.MANAGE_ROLES],
@@ -131,3 +131,37 @@ export const canAccess = (
         return false;
     }
   });
+
+/**
+ * The backend's escalation rule (`ensure_no_escalation`): an author puts in a role only what it
+ * holds through a grant at System, or at the organization that owns the role (`null` for a
+ * platform role). A project grant never counts.
+ */
+const authoringScopes = (
+  effective: EffectivePermissionsEntity | null,
+  organizationId: string | null,
+): EffectiveScopeEntity[] =>
+  (effective?.scopes ?? []).filter(
+    entry =>
+      entry.scope === PermissionScope.SYSTEM ||
+      (organizationId !== null &&
+        entry.scope === PermissionScope.ORGANIZATION &&
+        entry.scopeId === organizationId),
+  );
+
+export const holdsFullControl = (
+  effective: EffectivePermissionsEntity | null,
+  organizationId: string | null,
+): boolean =>
+  authoringScopes(effective, organizationId).some(entry => entry.access.kind === 'fullControl');
+
+export const holdsPermission = (
+  effective: EffectivePermissionsEntity | null,
+  organizationId: string | null,
+  permission: Permission,
+): boolean =>
+  authoringScopes(effective, organizationId).some(
+    entry =>
+      entry.access.kind === 'fullControl' ||
+      (entry.access.kind === 'restricted' && entry.access.permissions.includes(permission)),
+  );

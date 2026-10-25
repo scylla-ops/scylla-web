@@ -6,7 +6,7 @@
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import { agentQueries } from '@base/features/agents/presentation/agents.queries.ts';
-  import { agentsMessages } from '../agents.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
 
   interface Props {
     hasPendingJobs: boolean;

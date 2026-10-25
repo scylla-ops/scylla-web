@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, expectTypeOf } from 'vitest';
-import { createFormState } from '../form-state.svelte.ts';
+import { createFormState } from '../form.state.svelte.ts';
 import { FormItemType, type FormItem } from '../scylla-form.struct.ts';
 
 type Ids = 'username' | 'bio' | 'email';

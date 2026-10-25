@@ -15,16 +15,9 @@
   } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import {
-    buildCron,
-    describeCron,
-    pad2,
-    parseCron,
-    WEEKDAYS,
-    type CronFrequency,
-    type CronModel,
-  } from '@base/features/triggers/presentation/utils/cron.utils.ts';
-  import { triggersMessages } from '@base/features/triggers/presentation/ui/triggers.messages.ts';
+  import { buildCron, pad2, parseCron, type CronFrequency, type CronModel } from '@base/features/triggers/presentation/mappers/cron.mapper.ts';
+import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/presenters/cron.presenter.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     initialValue: string;

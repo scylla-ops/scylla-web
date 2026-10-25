@@ -3,8 +3,8 @@
   import type { Permission } from '@platform/authz';
   import { Checkbox, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
-  import type { CheckboxNode } from '../checkbox-tree.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
+  import type { CheckboxNode } from '@base/features/roles/presentation/presenters/checkbox-tree.presenter.ts';
 
   interface Props {
     nodes: CheckboxNode[];

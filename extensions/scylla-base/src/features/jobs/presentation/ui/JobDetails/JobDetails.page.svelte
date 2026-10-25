@@ -5,11 +5,11 @@
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { jobQueries } from '@base/features/jobs/presentation/jobs.queries.ts';
-  import { createOpenLogPanels } from './open-log-panels.svelte.ts';
+  import { createOpenLogPanels } from './open-log-panels.state.svelte.ts';
   import JobNodeLogs from './JobNodeLogs.svelte';
   import JobSummary from './JobSummary.svelte';
-  import { nodeIdOf } from '../jobs-table/job-timeline.calculator.ts';
-  import { jobsMessages } from '../jobs.messages.ts';
+  import { nodeIdOf } from '@base/features/jobs/presentation/presenters/job-timeline.presenter.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
     jobId?: string;

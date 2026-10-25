@@ -208,9 +208,9 @@ feature/
 
 **`presentation/` sorts its files by role.** The root holds the queries, the query keys and the
 widget points. `ui/` holds Svelte only: the components, their states (`.state.svelte.ts`), and
-the code that drives a component (`.attachments.ts`, `.effect.svelte.ts`, `.context.ts`, a
-`.registry.ts` or a `.columns.ts` that maps a key to components). Every other file goes in the
-folder of its role:
+the code that drives a component (`.attachments.ts`, `.effect.svelte.ts`, `.context.ts`,
+`.transition.ts`, a `.registry.ts` that a component reads by key, a `.columns.ts`, a `.ts` of
+the types of its props). Every other file goes in the folder of its role:
 
 - **`messages/`** — the texts of the views, as `msg` descriptors.
 - **`presenters/`** — a presenter takes data of the domain and gives what a view shows: rows,
@@ -304,7 +304,7 @@ injected, still substitutable in a test. Only the redundant indirection is gone.
   language), `App.svelte`.
 - `sdks/core-sdk` — `@Extension`, `ScyllaModule`, the navigation (`navigateTo`, `routeParams`),
   DI (`getModuleDomain`) and query (`createQuery`) API that the core installs.
-- `packages/ui` — primitives (adapted from shadcn/ui), generic composites, rune helpers, stores, i18n runtime, theme.
+- `packages/ui` — primitives (adapted from shadcn/ui), generic composites, rune states, stores, i18n runtime, theme.
 - scylla-base `shell/` — `modules.ts` (the feature list), `ShellModule` (mounts, sidebar
   sections, auth gate, context wrappers, access policy, error policy, shell parts).
 - scylla-base `platform/` — `authz` (Permission, `can`, `Can`, `RequirePermission`), `context`
@@ -530,7 +530,7 @@ as soon as it has more than its `.svelte` file:
   it gets a folder of its own only when it has a test.
 
 A lone `.svelte` file with nothing beside it stays a plain file. A file that two components use
-stays in the directory above them (`role-form/checkbox-tree.ts`). A group of related components
+stays in the directory above them (`scripting/node-panes.state.svelte.ts`). A group of related components
 that is not one component's internals stays a kebab-case group folder (`jobs-table/`,
 `role-detail/`). A state or an attachment that a component uses is one of
 these files: it goes in the component's folder, and gives the component a folder. Shared by
@@ -569,7 +569,8 @@ The package and layer structure is mandatory; everything else must earn its plac
 | Attachment | `*.attachments.ts` (`.svelte.ts` when it uses runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
 | Presenter (domain data → what a view shows) | `presentation/presenters/*.presenter.ts` | `node-list.presenter.ts` / `nodeRows` |
 | Mapper of a view format (both ways) | `presentation/mappers/*.mapper.ts` | `pipeline-document.mapper.ts` / `parseScript` |
-| Registry (a key → components or icons), in `ui/` | `*.registry.ts` | `node-appearances.registry.ts` / `NODE_APPEARANCE_VIEWS` |
+| Registry (a table a component reads by key: views, icons, the steps of a tour), in `ui/` | `*.registry.ts` | `node-appearances.registry.ts` / `NODE_APPEARANCE_VIEWS` |
+| Svelte transition, in `ui/` | `*.transition.ts` | `welcome.transition.ts` / `welcomeIn` |
 | Columns of a table, in `ui/` | `*.columns.ts` | `pipeline-table.columns.ts` / `pipelineColumns` |
 | Test fixture (a component a test renders) | `*.fixture.svelte` | `DataTable.fixture.svelte` |
 | Use case (only when it orchestrates) | `*.use-case.ts` → `{Verb}{Entity}UseCase` | `update-role.use-case.ts` / `UpdateRoleUseCase` |
@@ -605,7 +606,7 @@ Code identifiers: Interfaces/Types/Classes/Components/Enums **PascalCase** (no `
 Where a test goes:
 
 - **A tested Svelte component has its own folder**, with its test and its fixtures:
-  `LoginForm/LoginForm.svelte`, `LoginForm/LoginForm.test.ts`, `LoginForm/LoginForm.fixture.svelte`.
+  `PipelineScripting/PipelineScripting.svelte`, `PipelineScripting/PipelineScripting.test.ts`, `PipelineScripting/PipelineScripting.fixture.svelte`.
   A page drops `.page` from the folder name: `Login/Login.page.svelte`. This keeps a component
   and what describes it in one place (Storybook stories will go there too). See "Component
   folders" for the other reasons a component gets a folder.
@@ -622,7 +623,7 @@ shared test code of the workspace:
 | | |
 |---|---|
 | `test/setup.ts` | Runs before every file. Activates an empty `en` catalog, and stubs the browser APIs jsdom lacks (`ResizeObserver`, `Element.animate`, pointer capture, `scrollIntoView`, `scrollTo`, `matchMedia`). **Never re-stub these per file.** |
-| `test/render.svelte.ts` | `render`, `withRegistry` (stub DI registry), `withQueryClient` (fresh cache, `retry: false`), `focusSettled`, `textSnippet`, `findFloating` / `findTooltip`. |
+| `test/render.ts` | `render`, `withRegistry` (stub DI registry), `withQueryClient` (fresh cache, `retry: false`), `focusSettled`, `textSnippet`, `findFloating` / `findTooltip`. |
 | `test/navigator.ts` | `installTestNavigator` — a fake navigator, for a test that navigates. |
 | `test/queries.ts` | `runQueryFn`, `runMutationFn`, `runOnSuccess`, `stubQuery`. |
 | `test/i18n.ts` | `withLocale(locale, messages)` — for the handful of tests that assert on a real translation. |
@@ -696,7 +697,8 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
 ## i18n (Lingui)
 
 - **`lingui extract` does not read `.svelte` files.** Declare every message of a component with
-  `` msg`…` `` in a `*.messages.ts` of `presentation/messages/`, and render it with `t()` from
+  `` msg`…` `` in a `*.messages.ts` of `presentation/messages/` (in a package without a
+  `presentation/`, such as `@scylla/ui` or `@scylla/core`: beside the component), and render it with `t()` from
   `@scylla/ui/i18n` (reactive to a locale switch). A message
   written in a `.svelte` file disappears from the catalogs, and no gate fails.
 - A message with a placeholder is a function: `` newEntity: (label: string) => msg`New ${label}` ``.

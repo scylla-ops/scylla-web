@@ -62,7 +62,8 @@ The suffix of a file tells its role.
 | **Attachment** | `*.attachments.ts` (`.svelte.ts` with runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
 | **Presenter** (domain data → what a view shows) | `presenters/*.presenter.ts` | `node-list.presenter.ts` |
 | **Mapper** of a view format (both ways) | `mappers/*.mapper.ts` | `pipeline-document.mapper.ts` |
-| **Registry** (a key → components or icons), in `ui/` | `*.registry.ts` | `node-appearances.registry.ts` |
+| **Registry** (a table a component reads by key: views, icons, the steps of a tour), in `ui/` | `*.registry.ts` | `node-appearances.registry.ts` |
+| **Svelte transition**, in `ui/` | `*.transition.ts` | `welcome.transition.ts` |
 | **Columns** of a table, in `ui/` | `*.columns.ts` | `pipeline-table.columns.ts` |
 | **Messages** (i18n) | `messages/*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
 | **Store** (framework-free, `createStore`) | `*.store.ts` → `{name}Store` | `context.store.ts` / `contextStore` |
@@ -90,8 +91,8 @@ ScyllaForm.svelte
 DataTable.svelte
 ```
 
-A component with a test has its own folder, with the same name: `LoginForm/LoginForm.svelte`,
-`LoginForm/LoginForm.test.ts`, `LoginForm/LoginForm.fixture.svelte`. A page drops `.page` from
+A component with a test has its own folder, with the same name: `PipelineScripting/PipelineScripting.svelte`,
+`PipelineScripting/PipelineScripting.test.ts`, `PipelineScripting/PipelineScripting.fixture.svelte`. A page drops `.page` from
 the folder name: `Login/Login.page.svelte`.
 
 A test that does not test one component goes in the `__test__/` folder of the directory that it

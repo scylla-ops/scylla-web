@@ -1,4 +1,4 @@
-import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
+import type { AgentEntity } from '../entities/agent.entity.ts';
 
 export interface AgentStats {
   total: number;

@@ -3,7 +3,7 @@ import { Permission, can } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { createMutation } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
-import { toast } from '@scylla/ui/utils';
+import { copyToClipboard } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
 import { agentMutations } from '@base/features/agents/presentation/agents.queries.ts';
@@ -75,14 +75,11 @@ export const createAgentActions = (options: { onDeleted?: () => void } = {}) => 
       });
     },
 
-    copyId: async (agent: AgentEntity) => {
-      try {
-        await navigator.clipboard.writeText(agent.id);
-        toast.success(i18n._(ToastMessages.AGENT_ID_COPIED));
-      } catch {
-        toast.error(i18n._(ToastMessages.AGENT_ID_COPY_ERROR));
-      }
-    },
+    copyId: (agent: AgentEntity) =>
+      copyToClipboard(agent.id, {
+        copied: i18n._(ToastMessages.AGENT_ID_COPIED),
+        failed: i18n._(ToastMessages.AGENT_ID_COPY_ERROR),
+      }),
   };
 };
 

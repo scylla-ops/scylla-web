@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { TOUR_STEPS, type TourAnchor, type TourSpotStep } from './tour-steps.ts';
+import { TOUR_STEPS, type TourAnchor, type TourSpotStep } from './tour-steps.registry.ts';
 
 const spot = (id: string) => {
   const step = TOUR_STEPS.find(candidate => candidate.id === id);

@@ -3,10 +3,8 @@
   import { t } from '@scylla/ui/i18n';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
-  import {
-    convertCronToLocal,
-  } from '@base/features/triggers/presentation/utils/trigger-form.utils.ts';
-  import { triggersMessages } from '@base/features/triggers/presentation/ui/triggers.messages.ts';
+  import { convertCronToLocal } from '@base/features/triggers/presentation/mappers/cron-timezone.mapper.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     trigger: TriggerEntity;

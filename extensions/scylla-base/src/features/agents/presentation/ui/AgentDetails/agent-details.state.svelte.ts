@@ -6,11 +6,11 @@ import { toRune } from '@scylla/ui/stores';
 import { appMutations, appQueries, type AppSecretEntity } from '@base/features/apps';
 import { canListProjects, projectQueries } from '@base/features/project';
 import type { AgentJob } from '@base/features/agents/domain/structs/agent-job.struct.ts';
-import { agentStateOf } from '@base/features/agents/domain/structs/agent-state.struct.ts';
+import { agentStateOf } from '@base/features/agents/domain/entities/agent.entity.ts';
 import {
   successRateOf,
   sumOutcomes,
-} from '@base/features/agents/domain/structs/agents-summary.struct.ts';
+} from '@base/features/agents/presentation/presenters/agents-summary.presenter.ts';
 import { agentQueries } from '@base/features/agents/presentation/agents.queries.ts';
 
 export interface RecentJobRow {

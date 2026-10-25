@@ -12,8 +12,8 @@
   import { t } from '@scylla/ui/i18n';
   import type { SecretEntity } from '@base/features/secret/domain/entities/secret.entity.ts';
   import { secretMutations } from '@base/features/secret/presentation/secret.queries.ts';
-  import { secretMessages } from '@base/features/secret/presentation/ui/secret.messages.ts';
-  import { secretColumns } from './secret-columns.ts';
+  import { secretMessages } from '@base/features/secret/presentation/messages/secret.messages.ts';
+  import { secretColumns } from './secret-list.columns.ts';
 
   interface Props {
     secrets: SecretEntity[];

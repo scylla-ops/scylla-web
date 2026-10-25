@@ -1,3 +1,5 @@
+import type { AgentState } from '../structs/agent-state.struct.ts';
+
 export interface AgentEntity {
   id: string;
   organizationId: string;
@@ -24,3 +26,16 @@ export interface AgentHost {
   totalMemoryMb: number | null;
   reportedAt: string;
 }
+
+/**
+ * Disabled first: the server closes the stream of a disabled agent. A job can stay in flight
+ * after a disconnect, so an agent runs a job only while it is connected.
+ */
+export const agentStateOf = (
+  agent: Pick<AgentEntity, 'isActive' | 'connected' | 'lastSeen' | 'inFlight'>,
+): AgentState => {
+  if (!agent.isActive) return 'disabled';
+  if (!agent.lastSeen) return 'never';
+  if (!agent.connected) return 'offline';
+  return agent.inFlight > 0 ? 'running' : 'idle';
+};

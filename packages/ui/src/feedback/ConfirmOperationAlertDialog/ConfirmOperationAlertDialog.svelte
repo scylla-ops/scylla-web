@@ -9,7 +9,7 @@
     AlertDialogHeader,
     AlertDialogTitle,
   } from '../../primitives/index.ts';
-  import { t } from '../../i18n/i18n-svelte.svelte.ts';
+  import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import { confirmOperationMessages } from './confirm-operation.messages.ts';
 
   interface Props {

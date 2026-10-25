@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { render, withQueryClient } from '@test/render.svelte.ts';
+import { render, withQueryClient } from '@test/render.ts';
 import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import NodeInspector from './NodeInspector.svelte';
 

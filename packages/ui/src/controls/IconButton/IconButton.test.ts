@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import PencilIcon from '@lucide/svelte/icons/pencil';
-import { findTooltip, render } from '@test/render.svelte.ts';
+import { findTooltip, render } from '@test/render.ts';
 import IconButton from './IconButton.svelte';
 
 describe('IconButton', () => {

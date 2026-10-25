@@ -7,8 +7,8 @@
   import { t } from '@scylla/ui/i18n';
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
   import UserStatusBadge from '@base/features/user/presentation/ui/components/UserStatusBadge.svelte';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
-  import { userColumns } from './user-columns.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
+  import { userColumns } from './user-table.columns.ts';
 
   interface Props {
     data?: UserEntity[];

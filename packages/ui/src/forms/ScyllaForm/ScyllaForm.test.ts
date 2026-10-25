@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findFloating, render } from '@test/render.svelte.ts';
+import { findFloating, render } from '@test/render.ts';
 // The fixture pins the id generic.
 import ScyllaForm from './ScyllaForm.props.fixture.svelte';
 import ScyllaFormFixture from './ScyllaForm.fixture.svelte';

@@ -53,7 +53,7 @@ The frontend is a pnpm workspace:
 ```
 apps/web/                  @scylla/web       the build: the list of extensions, main.ts
 packages/core/             @scylla/core      extension loader, route compilation, router, shell frame
-packages/ui/               @scylla/ui        design system: primitives, composites, rune helpers, stores, i18n
+packages/ui/               @scylla/ui        design system: primitives, composites, rune states, stores, i18n
 sdks/core-sdk/             @scylla/core-sdk  the contract: @Extension, ScyllaModule, navigation, DI, query
 sdks/scylla-base-sdk/      @scylla/base-sdk  the public API of scylla-base, for the other extensions
 extensions/scylla-base/    @scylla/base      the Scylla product

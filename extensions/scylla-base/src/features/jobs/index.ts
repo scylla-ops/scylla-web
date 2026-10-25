@@ -1,12 +1,10 @@
 /** `loadJobsPage` is a loader: `pipeline` renders this page behind its own route. */
 export type { JobEntity } from './domain/entities/job.entity.ts';
 export type { JobLog, JobLogStream } from './domain/structs/job.struct.ts';
-export type { JobsSummary, JobStatus } from './domain/structs/jobs-summary.struct.ts';
-export {
-  summarizeJobs,
-  isActiveStatus,
-  isFinishedStatus,
-} from './domain/structs/jobs-summary.struct.ts';
+export type { JobStatus } from './domain/structs/job-status.struct.ts';
+export { isActiveStatus, isFinishedStatus } from './domain/structs/job-status.struct.ts';
+export type { JobsSummary } from './presentation/presenters/jobs-summary.presenter.ts';
+export { summarizeJobs } from './presentation/presenters/jobs-summary.presenter.ts';
 export {
   JOBS_QUERY_KEY,
   ORGANIZATION_JOBS_QUERY_KEY,

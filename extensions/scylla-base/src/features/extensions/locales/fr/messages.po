@@ -13,45 +13,45 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/extensions/presentation/ui/extensions.messages.ts:12
+#: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:12
 msgid "{count, plural, one {# module} other {# modules}}"
 msgstr "{count, plural, one {# module} other {# modules}}"
 
-#: extensions/scylla-base/src/features/extensions/presentation/ui/extensions.messages.ts:13
+#: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:13
 msgid "{count, plural, one {# page} other {# pages}}"
 msgstr "{count, plural, one {# page} other {# pages}}"
 
-#: extensions/scylla-base/src/features/extensions/presentation/ui/extensions.messages.ts:9
+#: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:9
 msgctxt "feminine"
 msgid "Active"
 msgstr "Active"
 
-#: extensions/scylla-base/src/features/extensions/presentation/ui/extensions.messages.ts:10
+#: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:10
 msgid "Depends on"
 msgstr "Dépend de"
 
-#: extensions/scylla-base/src/features/extensions/presentation/ui/extensions.messages.ts:5
+#: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:5
 msgid "Extension"
 msgstr "Extension"
 
 #: extensions/scylla-base/src/features/extensions/extensions.module.ts:17
 #: extensions/scylla-base/src/features/extensions/extensions.module.ts:19
-#: extensions/scylla-base/src/features/extensions/presentation/ui/extensions.messages.ts:6
+#: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:6
 msgid "Extensions"
 msgstr "Extensions"
 
-#: extensions/scylla-base/src/features/extensions/presentation/ui/extensions.messages.ts:11
+#: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:11
 msgid "No dependency"
 msgstr "Aucune dépendance"
 
-#: extensions/scylla-base/src/features/extensions/presentation/ui/extensions.messages.ts:8
+#: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:8
 msgid "No extension is installed."
 msgstr "Aucune extension n'est installée."
 
-#: extensions/scylla-base/src/features/extensions/presentation/ui/extensions.messages.ts:4
+#: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:4
 msgid "Platform"
 msgstr "Plateforme"
 
-#: extensions/scylla-base/src/features/extensions/presentation/ui/extensions.messages.ts:7
+#: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:7
 msgid "The installed extensions could not be read."
 msgstr "Impossible de lire les extensions installées."

@@ -3,7 +3,7 @@
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import ProjectList from './ProjectList.svelte';
-  import { projectMessages } from './project.messages.ts';
+  import { projectMessages } from '../messages/project.messages.ts';
 
   const context = toRune(contextStore);
   const organizationId = $derived(context().organization.id);

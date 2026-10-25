@@ -8,7 +8,7 @@ import { APP_ACCESS_QUERY_KEY, appQueries, type AppAccess } from '@base/features
 import { canListProjects, projectQueries } from '@base/features/project';
 import { grantMutations } from '@base/features/roles';
 import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-import { accessCardMessages as messages } from './access-card.messages.ts';
+import { accessCardMessages as messages } from '@base/features/agents/presentation/messages/access-card.messages.ts';
 import {
   coversEveryProject,
   keepsCover,
@@ -16,7 +16,7 @@ import {
   projectGrantsIn,
   projectLabel,
   projectsWithoutGrant,
-} from './access.calculator.ts';
+} from '@base/features/agents/presentation/presenters/access.presenter.ts';
 import {
   ORGANIZATION_AGENT_ROLE,
   PROJECT_AGENT_ROLE,

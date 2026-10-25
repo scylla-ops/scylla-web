@@ -8,7 +8,7 @@
   import { jobQueries } from '../jobs.queries.ts';
   import JobsHeader from './JobsHeader/JobsHeader.svelte';
   import JobsTable from './jobs-table/JobsTable.svelte';
-  import { jobsMessages } from './jobs.messages.ts';
+  import { jobsMessages } from '../messages/jobs.messages.ts';
 
   interface Props {
     /** Passed by `PipelineJobsRoute`: `pipeline` owns this route (the Run action). */

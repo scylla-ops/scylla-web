@@ -66,7 +66,7 @@ presentation/
   ui/ProjectList.svelte              keyed on the organization — that is the page reset
   ui/ProjectHeader.svelte, ProjectCard.svelte
   ui/AddProjectDialog.svelte, EditProjectDialog.svelte
-  ui/project.messages.ts
+  messages/project.messages.ts
 ```
 
 ## Routes & nav
@@ -85,19 +85,17 @@ project routes (the `project` mount) are declared by the modules that own them
 
 ## Rules that bite here
 
-- **Three ways to read an organization's projects, one cache.** `useProjects` (paginated list),
-  `useOrganizationProjects` (dashboard overview) and `useProjectsByOrganizations` (grant-label
-  lookup) are all exported from this module precisely so no other module rebuilds a project
-  query against `projectRepository`. Add the fourth here too.
-- `useProjectsByOrganizations` uses `useQueries` to batch — never loop `useQuery`.
+- **Three ways to read an organization's projects, one cache.** `projectQueries.byOrganization`
+  (the paginated list), `projectQueries.lookup` (one page of every project: the dashboard, the
+  agents) and `projectLookupQueries` (the grant labels of `roles`, across organizations) are all
+  in `project.queries.ts`, so no other module builds a project query of its own. Add the fourth
+  here too.
+- `projectLookupQueries` gives the options of each organization to `createQueries`: one batch,
+  never a loop of `createQuery`.
 - `listMembers` gives `UserSummary` values of [`user`](../user/AGENTS.md), and the list means
   *holders of a project-scoped grant*, not a stored roster. The member UI belongs to [`membership`](../membership/AGENTS.md); this module
   supplies the raw list only.
-- **The camelCase hook filenames (`useProjects.ts`, `useCreateProject.ts`) violate the
-  kebab-case convention.** They predate it. Do not rename them opportunistically — that moves
-  Lingui message ownership and needs `node scripts/restore-translations.mjs`. New files use
-  `use-{name}.ts`.
-- Lists use `DataTable` + `usePagination()`; row keys are project ids.
+- Lists use `DataTable` + `createPagination()`; row keys are project ids.
 - **`data-tour` attributes are anchors of the onboarding tour** (`projects` on the list, `project-card` with
   `data-project-id` on each card). Keep them on the same
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).

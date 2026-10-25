@@ -22,7 +22,7 @@
   import type {
     AgentActions,
   } from './agent-actions.state.svelte.ts';
-  import { agentsMessages } from '../agents.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
 
   interface Props {
     agent: AgentEntity;

@@ -7,8 +7,8 @@
   import { cn } from '@scylla/ui/utils';
   import {
     onboardingMessages,
-  } from '@base/features/onboarding/presentation/onboarding.messages.ts';
-  import type { TourLink } from './tour-steps.ts';
+  } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
+  import type { TourLink } from './tour-steps.registry.ts';
   import { holdPointer } from './tour-tracking.attachments.svelte.ts';
 
   interface Props {

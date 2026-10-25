@@ -2,8 +2,8 @@ import { i18n } from '@lingui/core';
 import { createMutation, createQuery } from '@scylla/core-sdk';
 import { toast } from '@scylla/ui/utils';
 import { profileChanges, type ProfileValues } from '@base/features/user/domain/entities/user.entity.ts';
-import { groupUserAccess } from '@base/features/user/domain/structs/user-access.struct.ts';
-import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+import { groupUserAccess } from '@base/features/user/presentation/presenters/user-access.presenter.ts';
+import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 import { userMutations, userQueries } from '@base/features/user/presentation/user.queries.ts';
 
 /**

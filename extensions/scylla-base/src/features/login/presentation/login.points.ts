@@ -1,6 +1,6 @@
 import { point } from '@scylla/core-sdk';
 import type { FormItem } from '@scylla/ui';
-import { loginMessages } from './ui/login.messages.ts';
+import { loginMessages } from './messages/login.messages.ts';
 
 /** What the components in the login zones receive. */
 export interface LoginZoneContext {

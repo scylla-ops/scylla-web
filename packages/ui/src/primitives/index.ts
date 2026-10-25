@@ -130,7 +130,7 @@ export { default as SidebarMenuButton } from './sidebar/sidebar-menu-button.svel
 export { default as SidebarMenuItem } from './sidebar/sidebar-menu-item.svelte';
 export { default as SidebarProvider } from './sidebar/sidebar-provider.svelte';
 export { default as SidebarRail } from './sidebar/sidebar-rail.svelte';
-export { getSidebar, type SidebarState } from './sidebar/sidebar-state.svelte.ts';
+export { getSidebar, type SidebarState } from './sidebar/sidebar.state.svelte.ts';
 export { SIDEBAR_FADE } from './sidebar/sidebar-variants.ts';
 
 export { default as Pagination } from './pagination/pagination.svelte';

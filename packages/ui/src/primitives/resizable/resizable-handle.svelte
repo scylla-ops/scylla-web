@@ -1,6 +1,6 @@
 <script lang="ts">
   import { PaneResizer, type PaneResizerProps } from 'paneforge';
-  import { t } from '../../i18n/i18n-svelte.svelte.ts';
+  import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import { cn } from '../../utils/index.ts';
   import { resizableMessages } from './resizable.messages.ts';
 

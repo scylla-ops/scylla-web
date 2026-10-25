@@ -13,7 +13,7 @@
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
   import { t } from '@scylla/ui/i18n';
   import { projectMutations } from '../project.queries.ts';
-  import { projectMessages } from './project.messages.ts';
+  import { projectMessages } from '../messages/project.messages.ts';
 
   interface Props {
     open: boolean;

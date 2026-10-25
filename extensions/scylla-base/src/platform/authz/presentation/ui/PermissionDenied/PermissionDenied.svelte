@@ -1,7 +1,7 @@
 <script lang="ts">
   import ShieldOffIcon from '@lucide/svelte/icons/shield-off';
   import { t } from '@scylla/ui/i18n';
-  import { permissionDeniedMessages } from './permission-denied.messages.ts';
+  import { permissionDeniedMessages } from '@base/platform/authz/presentation/messages/permission-denied.messages.ts';
 
   let { message }: { message?: string } = $props();
 </script>

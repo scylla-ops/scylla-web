@@ -9,10 +9,10 @@
   import type {
     ResetOutcome,
   } from './reset-secret.state.svelte.ts';
-  import { agentsMessages } from '../../agents.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
   import CopyBox from '../CopyBox/CopyBox.svelte';
   import DialogFooterBand from '../DialogFooterBand.svelte';
-  import { resetSecretMessages as messages } from './reset-secret.messages.ts';
+  import { resetSecretMessages as messages } from '@base/features/agents/presentation/messages/reset-secret.messages.ts';
 
   interface Props {
     agent: AgentEntity;

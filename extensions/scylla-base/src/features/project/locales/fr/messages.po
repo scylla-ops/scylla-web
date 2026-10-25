@@ -13,81 +13,81 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:22
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:22
 msgid "Add a description..."
 msgstr "Ajouter une description..."
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:23
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:23
 msgid "Create a new project"
 msgstr "Créer un nouveau projet"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:25
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:25
 msgid "Create Project"
 msgstr "Créer le projet"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:20
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:20
 msgid "Description"
 msgstr "Description"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:21
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:21
 msgid "e.g., A short description of the project"
 msgstr "ex. Une courte description du projet"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:19
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:19
 msgid "e.g., My project"
 msgstr "ex. Mon projet"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:14
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:14
 msgid "Edit"
 msgstr "Modifier"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:26
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:26
 msgid "Edit project"
 msgstr "Modifier le projet"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:24
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:24
 msgid "Enter a name for your new project and select the organization it belongs to."
 msgstr "Entrez un nom pour votre nouveau projet et sélectionnez l'organisation à laquelle il appartient."
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:10
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:10
 msgid "New project"
 msgstr "Nouveau projet"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:16
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:16
 msgid "No description"
 msgstr "Aucune description"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:4
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:4
 msgid "No organization selected"
 msgstr "Aucune organisation sélectionnée"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:8
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:8
 msgid "Project"
 msgstr "Projet"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:18
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:18
 msgid "Project name"
 msgstr "Nom du projet"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:9
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:9
 #: extensions/scylla-base/src/features/project/project.module.ts:24
 #: extensions/scylla-base/src/features/project/project.module.ts:26
 msgid "Projects"
 msgstr "Projets"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:28
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:28
 msgid "Save"
 msgstr "Enregistrer"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:29
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:29
 msgid "Saving..."
 msgstr "Enregistrement..."
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:15
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:15
 msgid "Select"
 msgstr "Sélectionner"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:5
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:5
 msgid "Select an organization from the sidebar to view its projects"
 msgstr "Sélectionnez une organisation dans la barre latérale pour voir ses projets"
 
@@ -95,18 +95,18 @@ msgstr "Sélectionnez une organisation dans la barre latérale pour voir ses pro
 msgid "This organization has reached its project limit."
 msgstr "Cette organisation a atteint sa limite de projets."
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:6
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:6
 msgid "Unable to load projects"
 msgstr "Impossible de charger les projets"
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:27
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:27
 msgid "Update the project name and description."
 msgstr "Mettez à jour le nom du projet et sa description."
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:11
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:11
 msgid "You don't have permission to create projects."
 msgstr "Vous n'avez pas la permission de créer des projets."
 
-#: extensions/scylla-base/src/features/project/presentation/ui/project.messages.ts:12
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:12
 msgid "You don't have permission to delete projects."
 msgstr "Vous n'avez pas la permission de supprimer des projets."

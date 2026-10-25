@@ -7,7 +7,7 @@ import {
   render,
   withQueryClient,
   withRegistry,
-} from '@test/render.svelte.ts';
+} from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {
   TriggersRepository,

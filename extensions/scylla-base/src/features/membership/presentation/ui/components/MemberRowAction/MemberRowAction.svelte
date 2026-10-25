@@ -5,7 +5,7 @@
   import { t } from '@scylla/ui/i18n';
   import {
     membershipMessages,
-  } from '@base/features/membership/presentation/ui/membership.messages.ts';
+  } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   interface Props {
     isCurrentUser: boolean;

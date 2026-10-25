@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { render, withRegistry, withQueryClient } from '@test/render.svelte.ts';
+import { render, withRegistry, withQueryClient } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaResult, ScyllaError } from '@shared/utils/scylla-result.ts';
 import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
-import { loginPath } from '@base/features/login/presentation/return-path.ts';
+import { loginPath } from '@base/features/login/presentation/mappers/return-path.mapper.ts';
 import LoginPage from './Login.page.svelte';
 
 const makeFakeRepository = (overrides: Partial<LoginRepository> = {}) => {

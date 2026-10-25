@@ -39,4 +39,14 @@ describe('copyToClipboard', () => {
     );
     expect(toastSuccess).not.toHaveBeenCalled();
   });
+
+  it('says it with the texts of the caller, and tells whether it copied', async () => {
+    withClipboard(() => Promise.resolve());
+    expect(await copyToClipboard('id', { copied: 'ID copied', failed: 'No copy' })).toBe(true);
+    expect(toastSuccess).toHaveBeenCalledWith('ID copied');
+
+    withClipboard(() => Promise.reject(new Error('denied')));
+    expect(await copyToClipboard('id', { copied: 'ID copied', failed: 'No copy' })).toBe(false);
+    expect(toastError).toHaveBeenCalledWith('No copy');
+  });
 });

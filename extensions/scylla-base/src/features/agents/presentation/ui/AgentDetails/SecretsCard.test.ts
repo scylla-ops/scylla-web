@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findFloating, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { AppSecretEntity } from '@base/features/apps';
 import SecretsCard from './SecretsCard.svelte';

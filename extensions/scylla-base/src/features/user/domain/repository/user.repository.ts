@@ -6,7 +6,7 @@ import type {
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
-import type { UserAccess } from '@base/features/user/domain/structs/user-access.struct.ts';
+import type { UserAccess } from '../structs/user-access.struct.ts';
 import type { UserList } from '@base/features/user/domain/structs/user.struct.ts';
 
 export interface UserRepository {

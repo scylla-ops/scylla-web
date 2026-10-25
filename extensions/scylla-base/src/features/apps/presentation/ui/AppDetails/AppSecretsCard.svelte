@@ -18,8 +18,8 @@
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import {
     createAppSecretItems,
-  } from '@base/features/apps/presentation/utils/create-app-secret-form-items.ts';
-  import { appsMessages } from '../apps.messages.ts';
+  } from '@base/features/apps/presentation/presenters/app-secret-form.presenter.ts';
+  import { appsMessages } from '@base/features/apps/presentation/messages/apps.messages.ts';
 
   interface Props {
     app: AppEntity;

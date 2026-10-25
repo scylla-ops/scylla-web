@@ -27,6 +27,8 @@ import {
   NODE_TEMPLATES_QUERY_KEY,
 } from './pipeline.query-keys.ts';
 
+//todo: check about split this file into multiple .queries to improve readability
+
 // Resolved per call: tests swap the registry.
 const repository = () =>
   getModuleDomain<typeof PipelineModule.domain>('pipeline').pipelineRepository;

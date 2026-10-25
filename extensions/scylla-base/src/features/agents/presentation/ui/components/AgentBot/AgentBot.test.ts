@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import type { AgentState } from '@base/features/agents/domain/structs/agent-state.struct.ts';
 import { compile } from 'svelte/compiler';
 import AgentBot from './AgentBot.svelte';

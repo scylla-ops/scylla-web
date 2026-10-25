@@ -20,7 +20,7 @@
   import { t } from '@scylla/ui/i18n';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import AppSecretsCard from './AppSecretsCard.svelte';
-  import { appsMessages } from '../apps.messages.ts';
+  import { appsMessages } from '@base/features/apps/presentation/messages/apps.messages.ts';
 
   interface Props {
     appId?: string;

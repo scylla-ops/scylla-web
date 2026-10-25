@@ -16,8 +16,8 @@ import {
   rewindTour,
   sameMutationKey,
   stepCount,
-} from './tour-machine.calculator.ts';
-import { TOUR_STEPS, type TourStep } from './tour-steps.ts';
+} from '@base/features/onboarding/presentation/presenters/tour-machine.presenter.ts';
+import { TOUR_STEPS, type TourStep } from './tour-steps.registry.ts';
 
 const STEP_IDS = TOUR_STEPS.map(step => step.id);
 const SPOT_STEP_IDS = TOUR_STEPS.filter(step => step.kind === 'spot').map(step => step.id);
@@ -35,7 +35,7 @@ const createdAgentId = (data: unknown): string | undefined => {
 
 const currentUserId = () => localStorage.getItem('userId') || 'anonymous';
 
-export const createOnboardingTourState = (canStart: () => boolean) => {
+export const createOnboardingTour = (canStart: () => boolean) => {
   const userId = currentUserId();
 
   const statusQuery = createQuery(() => onboardingQueries.status(userId));
@@ -163,4 +163,4 @@ export const createOnboardingTourState = (canStart: () => boolean) => {
   };
 };
 
-export type OnboardingTourState = ReturnType<typeof createOnboardingTourState>;
+export type OnboardingTour = ReturnType<typeof createOnboardingTour>;
