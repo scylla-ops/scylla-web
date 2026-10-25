@@ -175,7 +175,14 @@ export function flowToSteps(nodes: BlueprintNode[], edges: BlueprintEdge[]): Pip
       .filter(edge => edge.target === node.id && edge.source !== START_NODE_ID)
       .map(edge => edge.source);
 
-    const base = { id: step.id, deps, workingDir: step.workingDir, env: step.env };
+    const base = {
+      id: step.id,
+      deps,
+      workingDir: step.workingDir,
+      env: step.env,
+      timeoutSeconds: step.timeoutSeconds,
+      retries: step.retries,
+    };
 
     return [
       step.kind === 'script'

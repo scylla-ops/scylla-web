@@ -25,6 +25,23 @@ const entryFrom = (row: EnvRow): EnvEntry =>
     ? { key: row.key, kind: 'secret', secretRef: row.secretRef }
     : { key: row.key, kind: 'literal', value: row.value };
 
+export const MAX_TIMEOUT_SECONDS = 604_800;
+export const MAX_RETRIES = 10;
+
+const wholeNumber = (raw: string): number | null =>
+  /^\d+$/.test(raw.trim()) ? Number(raw.trim()) : null;
+
+const timeoutOf = (raw: string): number | undefined | null => {
+  if (!raw.trim()) return undefined;
+  const seconds = wholeNumber(raw);
+  return seconds !== null && seconds >= 1 && seconds <= MAX_TIMEOUT_SECONDS ? seconds : null;
+};
+
+const retriesOf = (raw: string): number | null => {
+  const retries = raw.trim() ? wholeNumber(raw) : 0;
+  return retries !== null && retries <= MAX_RETRIES ? retries : null;
+};
+
 /** Seeded once: the dialog rebuilds it at each opening. `toValue()` holds every rule of a valid step. */
 export const createStepNodeForm = (editingStep?: PipelineStep) => {
   let nodeId = $state(editingStep?.id ?? '');
@@ -35,6 +52,8 @@ export const createStepNodeForm = (editingStep?: PipelineStep) => {
   let args = $state<string[]>(editingStep?.kind === 'exec' ? [...editingStep.args] : []);
   let workingDir = $state(editingStep?.workingDir ?? '');
   let envRows = $state<EnvRow[]>(editingStep ? editingStep.env.map(rowFrom) : []);
+  let timeoutSeconds = $state(editingStep?.timeoutSeconds?.toString() ?? '');
+  let retries = $state(String(editingStep?.retries ?? 0));
 
   return {
     get nodeId() {
@@ -72,6 +91,24 @@ export const createStepNodeForm = (editingStep?: PipelineStep) => {
     },
     set workingDir(next: string) {
       workingDir = next;
+    },
+    get timeoutSeconds() {
+      return timeoutSeconds;
+    },
+    set timeoutSeconds(next: string) {
+      timeoutSeconds = next;
+    },
+    get timeoutInvalid() {
+      return timeoutOf(timeoutSeconds) === null;
+    },
+    get retries() {
+      return retries;
+    },
+    set retries(next: string) {
+      retries = next;
+    },
+    get retriesInvalid() {
+      return retriesOf(retries) === null;
     },
 
     // An argument is its position: indexed, like its `{#each}` key.
@@ -111,12 +148,16 @@ export const createStepNodeForm = (editingStep?: PipelineStep) => {
         .filter(row => row.key.trim())
         .map(row => entryFrom({ ...row, key: row.key.trim() }));
       const directory = workingDir.trim() ? workingDir.trim() : undefined;
+      const timeout = timeoutOf(timeoutSeconds);
+      const retryCount = retriesOf(retries);
+      if (timeout === null || retryCount === null) return null;
+      const attempts = { timeoutSeconds: timeout, retries: retryCount };
 
       if (mode === 'script') {
         if (!script.trim()) return null;
         return {
           nodeId: trimmedId,
-          value: { kind: 'script', script, shell, workingDir: directory, env },
+          value: { kind: 'script', script, shell, workingDir: directory, env, ...attempts },
         };
       }
 
@@ -132,6 +173,7 @@ export const createStepNodeForm = (editingStep?: PipelineStep) => {
           args: args.filter(arg => arg !== ''),
           workingDir: directory,
           env,
+          ...attempts,
         },
       };
     },

@@ -57,6 +57,8 @@ export class GrpcPipelineMapper {
       deps: node.deps.map(idValue),
       ...(node.workingDir ? { workingDir: node.workingDir } : {}),
       env: node.env.map(envVarToDomain),
+      ...(node.timeoutSeconds !== undefined ? { timeoutSeconds: node.timeoutSeconds } : {}),
+      retries: node.retries,
     };
 
     const step = node.step;
@@ -85,6 +87,8 @@ export class GrpcPipelineMapper {
       deps: step.deps.map(wrapId),
       workingDir: step.workingDir ?? '',
       env: step.env.map(envVarFromDomain),
+      timeoutSeconds: step.timeoutSeconds,
+      retries: step.retries ?? 0,
       step:
         step.kind === 'script'
           ? {

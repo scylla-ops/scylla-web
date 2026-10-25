@@ -15,6 +15,7 @@ export const secretMessages = {
   created: msg`Created`,
   actions: msg`Actions`,
   deleteSecret: msg`Delete secret`,
+  editSecret: msg`Edit secret`,
 
   rotationPolicy: msg`Rotation Policy`,
   rotationOverdue: (warningCount: number) =>

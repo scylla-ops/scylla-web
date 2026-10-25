@@ -29,7 +29,12 @@
   import {
     createScriptEditor,
   } from '@base/features/pipeline/presentation/ui/editor/script-editor.svelte.ts';
-  import { createStepNodeForm, type EnvRow } from '../step-node-form.state.svelte.ts';
+  import {
+    MAX_RETRIES,
+    MAX_TIMEOUT_SECONDS,
+    createStepNodeForm,
+    type EnvRow,
+  } from '../step-node-form.state.svelte.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
 
   interface Props {
@@ -184,6 +189,46 @@
       bind:value={form.workingDir}
       placeholder={t(pipelineMessages.workingDirectoryPlaceholder)}
     />
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div class="space-y-2">
+      <Label for="node-timeout">{t(pipelineMessages.timeoutSeconds)}</Label>
+      <Input
+        id="node-timeout"
+        type="number"
+        min="1"
+        max={MAX_TIMEOUT_SECONDS}
+        value={form.timeoutSeconds}
+        oninput={event => (form.timeoutSeconds = event.currentTarget.value)}
+        placeholder={t(pipelineMessages.noTimeout)}
+        aria-invalid={form.timeoutInvalid}
+        aria-describedby={form.timeoutInvalid ? 'node-timeout-error' : undefined}
+      />
+      {#if form.timeoutInvalid}
+        <p id="node-timeout-error" class="text-xs text-destructive">
+          {t(pipelineMessages.timeoutRange)}
+        </p>
+      {/if}
+    </div>
+    <div class="space-y-2">
+      <Label for="node-retries">{t(pipelineMessages.retries)}</Label>
+      <Input
+        id="node-retries"
+        type="number"
+        min="0"
+        max={MAX_RETRIES}
+        value={form.retries}
+        oninput={event => (form.retries = event.currentTarget.value)}
+        aria-invalid={form.retriesInvalid}
+        aria-describedby={form.retriesInvalid ? 'node-retries-error' : undefined}
+      />
+      {#if form.retriesInvalid}
+        <p id="node-retries-error" class="text-xs text-destructive">
+          {t(pipelineMessages.retriesRange)}
+        </p>
+      {/if}
+    </div>
   </div>
 
   <div class="space-y-2">

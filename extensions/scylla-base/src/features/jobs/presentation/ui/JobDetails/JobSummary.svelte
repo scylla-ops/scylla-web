@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { Badge } from '@scylla/ui/primitives';
+  import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
+  import { Badge, Button } from '@scylla/ui/primitives';
   import { CopyableText } from '@scylla/ui';
   import { createNow } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
@@ -18,9 +19,11 @@
     job: JobEntity;
     /** Shows that node alone. A grouped segment names no node: the whole job. */
     onSelectNode: (nodeId?: string) => void;
+    onRerun?: () => void;
+    isRerunning?: boolean;
   }
 
-  let { job, onSelectNode }: Props = $props();
+  let { job, onSelectNode, onRerun, isRerunning = false }: Props = $props();
 
   // Ticks only while the job runs.
   const now = createNow(() => isActiveStatus(job.status));
@@ -46,8 +49,16 @@
         <CopyableText value={job.id} copyLabel={t(jobsMessages.copyJobId)} />
       </Badge>
     </div>
-    <div class="w-fit">
-      <JobStatus {job} />
+    <div class="flex items-center gap-3">
+      {#if onRerun}
+        <Button variant="outline" size="sm" onclick={onRerun} disabled={isRerunning}>
+          <RotateCcwIcon class="size-4" />
+          {t(jobsMessages.rerun)}
+        </Button>
+      {/if}
+      <div class="w-fit">
+        <JobStatus {job} />
+      </div>
     </div>
   </div>
 

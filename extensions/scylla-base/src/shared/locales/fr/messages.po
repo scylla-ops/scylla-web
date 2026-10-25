@@ -125,9 +125,13 @@ msgstr "En cours"
 msgid "Secret created"
 msgstr "Secret créé"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:40
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:41
 msgid "Secret deleted"
 msgstr "Secret supprimé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:40
+msgid "Secret updated"
+msgstr "Secret modifié"
 
 #: extensions/scylla-base/src/shared/utils/scylla-result.ts:52
 msgid "Server unreachable"
@@ -161,27 +165,27 @@ msgstr "Les deux mots de passe ne sont pas identiques."
 msgid "The username is too long: 255 bytes at most."
 msgstr "Le nom d'utilisateur est trop long : 255 octets au maximum."
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:43
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:44
 msgid "Trigger created"
 msgstr "Déclencheur créé"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:45
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:46
 msgid "Trigger deleted"
 msgstr "Déclencheur supprimé"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:47
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:48
 msgid "Trigger disabled"
 msgstr "Déclencheur désactivé"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:46
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:47
 msgid "Trigger enabled"
 msgstr "Déclencheur activé"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:48
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:49
 msgid "Trigger fired: run started"
 msgstr "Déclencheur déclenché : exécution démarrée"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:44
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:45
 msgid "Trigger updated"
 msgstr "Déclencheur mis à jour"
 

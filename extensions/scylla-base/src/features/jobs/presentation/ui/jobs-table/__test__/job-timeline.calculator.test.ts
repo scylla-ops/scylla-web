@@ -8,7 +8,12 @@ import {
   shouldCollapse,
 } from '../job-timeline.calculator.ts';
 
-const node = (id: string, state: string): JobNodeExecution => ({ id, state });
+const node = (id: string, state: string): JobNodeExecution => ({
+  id,
+  state,
+  attempts: 1,
+  maxAttempts: 1,
+});
 
 describe('shouldCollapse', () => {
   it('draws one segment per node right up to the threshold', () => {

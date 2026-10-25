@@ -1,7 +1,9 @@
 <script lang="ts">
   import KeyRoundIcon from '@lucide/svelte/icons/key-round';
+  import PencilIcon from '@lucide/svelte/icons/pencil';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
   import { i18n } from '@lingui/core';
+  import { Permission, can } from '@platform/authz';
   import { createMutation } from '@scylla/core-sdk';
   import { Button } from '@scylla/ui/primitives';
   import { ConfirmOperationAlertDialog, CopyableText, DataTable } from '@scylla/ui';
@@ -13,6 +15,7 @@
   import type { SecretEntity } from '@base/features/secret/domain/entities/secret.entity.ts';
   import { secretMutations } from '@base/features/secret/presentation/secret.queries.ts';
   import { secretMessages } from '@base/features/secret/presentation/ui/secret.messages.ts';
+  import EditSecretDialog from '../../EditSecretDialog/EditSecretDialog.svelte';
   import { secretColumns } from './secret-columns.ts';
 
   interface Props {
@@ -26,6 +29,9 @@
   const deleteSecret = createMutation(() => secretMutations.remove(projectId));
 
   let pendingDeletion = $state<string | null>(null);
+  let editing = $state<SecretEntity | null>(null);
+
+  const canUpdate = $derived(can(Permission.UPDATE_SECRET, { projectId }));
 
   const confirmDelete = () => {
     const secretId = pendingDeletion;
@@ -66,6 +72,21 @@
 {/snippet}
 
 {#snippet actionsCell(secret: SecretEntity)}
+  {#if canUpdate}
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      class="size-8"
+      onclick={event => {
+        event.stopPropagation();
+        editing = secret;
+      }}
+    >
+      <PencilIcon class="size-4" />
+      <span class="sr-only">{t(secretMessages.editSecret)}</span>
+    </Button>
+  {/if}
   <Button
     type="button"
     variant="ghost"
@@ -90,6 +111,8 @@
   getRowId={secret => secret.id}
   alignColumnsCenter
 />
+
+<EditSecretDialog secret={editing} {projectId} onClose={() => (editing = null)} />
 
 <ConfirmOperationAlertDialog
   open={pendingDeletion !== null}

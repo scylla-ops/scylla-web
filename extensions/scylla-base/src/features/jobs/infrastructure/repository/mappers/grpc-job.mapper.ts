@@ -109,12 +109,15 @@ function nodeStartedAt(execution: JobNode['execution']): string | undefined {
 
 export class GrpcJobMapper {
   private static nodeExecutionToDomain(node: JobNode): JobNodeExecution {
+    const running = node.execution.oneofKind === 'running' ? node.execution.running : undefined;
     const finished = node.execution.oneofKind === 'finished' ? node.execution.finished : undefined;
     return {
       id: idValue(node.nodeId),
       state: nodeStateFromExecution(node.execution),
       startedAt: nodeStartedAt(node.execution),
       finishedAt: timestampToIsoOpt(finished?.finishedAt),
+      attempts: running?.attempt ?? finished?.attempts ?? 0,
+      maxAttempts: node.maxAttempts,
     };
   }
 

@@ -1,4 +1,5 @@
 import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
+import { scyllaNavigate } from '@platform/context';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import type { JobEntity } from '../domain/entities/job.entity.ts';
 import { isActiveStatus, summarizeJobs } from '../domain/structs/jobs-summary.struct.ts';
@@ -95,6 +96,15 @@ export const jobMutations = {
         void getQueryClient().invalidateQueries({
           queryKey: pipelineId ? JOBS_QUERY_KEY(pipelineId) : JOBS_QUERY_ROOT,
         });
+      },
+    }),
+
+  rerun: (pipelineId: string) =>
+    mutationOptions({
+      mutationFn: async (jobId: string) => (await repository().rerun(jobId)).unwrap(),
+      onSuccess: (newJobId: string) => {
+        void getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId) });
+        scyllaNavigate.goToJobDetails(pipelineId, newJobId);
       },
     }),
 };

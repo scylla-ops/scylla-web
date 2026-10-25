@@ -24,6 +24,7 @@ export interface JobsRemoteDataSource {
   ): Promise<ScyllaResult<ListOrganizationJobsResponse>>;
   getById(jobId: string): Promise<ScyllaResult<Job>>;
   deleteById(jobId: string): Promise<ScyllaResult<void>>;
+  rerun(jobId: string): Promise<ScyllaResult<string>>;
   getLogs(
     jobId: string,
     nodeId?: string,

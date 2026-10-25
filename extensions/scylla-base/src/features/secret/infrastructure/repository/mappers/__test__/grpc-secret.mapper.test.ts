@@ -42,3 +42,34 @@ describe('GrpcSecretMapper.toDomain', () => {
     expect(domain.projectId).toBe('');
   });
 });
+
+describe('GrpcSecretMapper.usageToDomain', () => {
+  it('keeps the id and the name of each pipeline of the page, and the total of every page', () => {
+    const usage = GrpcSecretMapper.usageToDomain({
+      pipelines: [
+        {
+          pipelineId: { value: 'pipeline-1' },
+          projectId: { value: 'project-1' },
+          name: 'deploy',
+          nodeCount: 2,
+          createdAt: TS,
+          updatedAt: TS,
+        },
+      ],
+      pagination: {
+        totalCount: 12,
+        page: 1,
+        pageSize: 10,
+        totalPages: 2,
+        hasNext: true,
+        hasPrevious: false,
+      },
+    });
+
+    expect(usage).toEqual({ pipelines: [{ id: 'pipeline-1', name: 'deploy' }], totalCount: 12 });
+  });
+
+  it('counts the page when the server sends no pagination', () => {
+    expect(GrpcSecretMapper.usageToDomain({ pipelines: [] }).totalCount).toBe(0);
+  });
+});
