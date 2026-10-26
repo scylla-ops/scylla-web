@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { ScyllaError, refusalOf } from '../scylla-error.ts';
 
 describe('ScyllaError', () => {
@@ -117,12 +117,34 @@ describe('ScyllaError', () => {
     });
   });
 
-  it('log() warns with the message and, if present, the cause — never throws', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const err = new ScyllaError('boom', { cause: new Error('root cause') });
-    expect(() => err.log()).not.toThrow();
-    expect(warnSpy).toHaveBeenCalledTimes(2);
-    warnSpy.mockRestore();
+  describe('log', () => {
+    afterEach(() => {
+      vi.unstubAllEnvs();
+      vi.restoreAllMocks();
+    });
+
+    it('writes a server fault or a bug as an error, with the call and the cause, in production too', () => {
+      vi.stubEnv('DEV', false);
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const cause = new Error('panic');
+
+      new ScyllaError('boom', { code: 'INTERNAL', rpc: 'x.v1.S/Get', cause }).log();
+
+      expect(error).toHaveBeenCalledWith('[ScyllaError] INTERNAL x.v1.S/Get: boom', cause);
+    });
+
+    it('writes a refusal of the server in development only', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const refusal = new ScyllaError('gone', { code: 'NOT_FOUND' });
+
+      vi.stubEnv('DEV', false);
+      refusal.log();
+      expect(warn).not.toHaveBeenCalled();
+
+      vi.stubEnv('DEV', true);
+      refusal.log();
+      expect(warn).toHaveBeenCalledWith('[ScyllaError] NOT_FOUND: gone');
+    });
   });
 });
 

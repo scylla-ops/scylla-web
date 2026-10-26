@@ -5,7 +5,7 @@ import {
   ServerStreamingCall,
   UnaryCall,
 } from '@protobuf-ts/runtime-rpc';
-import type { RpcInterceptor, RpcOptions } from '@protobuf-ts/runtime-rpc';
+import type { MethodInfo, RpcInterceptor, RpcOptions } from '@protobuf-ts/runtime-rpc';
 import { ScyllaError, type ScyllaErrorCode } from '@shared/utils/scylla-error.ts';
 
 /**
@@ -21,19 +21,20 @@ const decode = (message: string): string => {
   }
 };
 
-const toScyllaError = (error: unknown): ScyllaError =>
+const toScyllaError = (error: unknown, method: MethodInfo): ScyllaError =>
   error instanceof RpcError
     ? new ScyllaError(decode(error.message), {
         // A cast: the value comes from the wire. An unknown code matches no branch.
         code: error.code as ScyllaErrorCode,
+        rpc: `${method.service.typeName}/${method.name}`,
         cause: error,
       })
     : ScyllaError.from(error);
 
 /** The rejection stays handled: a caller reads `response` only, not the headers or the status. */
-const rejectingWith = <T>(promise: Promise<T>): Promise<T> => {
+const rejectingWith = <T>(promise: Promise<T>, method: MethodInfo): Promise<T> => {
   const converted = promise.catch((error: unknown) => {
-    throw toScyllaError(error);
+    throw toScyllaError(error, method);
   });
   converted.catch(() => undefined);
   return converted;
@@ -47,26 +48,26 @@ const scyllaErrorInterceptor: RpcInterceptor = {
       method,
       call.requestHeaders,
       call.request,
-      rejectingWith(call.headers),
-      rejectingWith(call.response),
-      rejectingWith(call.status),
-      rejectingWith(call.trailers),
+      rejectingWith(call.headers, method),
+      rejectingWith(call.response, method),
+      rejectingWith(call.status, method),
+      rejectingWith(call.trailers, method),
     );
   },
   interceptServerStreaming(next, method, input, options) {
     const call = next(method, input, options);
     const responses = new RpcOutputStreamController<object>();
     call.responses.onNext((message, error, complete) =>
-      responses.notifyNext(message, error && toScyllaError(error), complete),
+      responses.notifyNext(message, error && toScyllaError(error, method), complete),
     );
     return new ServerStreamingCall(
       method,
       call.requestHeaders,
       call.request,
-      rejectingWith(call.headers),
+      rejectingWith(call.headers, method),
       responses,
-      rejectingWith(call.status),
-      rejectingWith(call.trailers),
+      rejectingWith(call.status, method),
+      rejectingWith(call.trailers, method),
     );
   },
 };

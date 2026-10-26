@@ -61,7 +61,8 @@ Changing the key or the storage mechanism means changing all three in one commit
   Do not construct a second `ScyllaGrpcTransport` in a feature — the auth interceptor and the
   base URL would then exist in two places.
 - **Every failed call rejects with a `ScyllaError`** (`scyllaErrorInterceptor`), for the unary
-  calls and the server streams: the gRPC `code` and the decoded server message. A repository
+  calls and the server streams: the gRPC `code`, the decoded server message, and the name of the
+  call (`rpc`: `scylla.secret.v1.SecretService/ListSecrets`), for the log. A repository
   awaits the call and never wraps it. A fake client in a test bypasses the transport: give it
   `failedCall(code)` (`@test/grpc.ts`), and read the error with `ScyllaError.from`.
 - **A request that does not get to the server is `UNAVAILABLE`** (`fetchOrUnavailable`), not the

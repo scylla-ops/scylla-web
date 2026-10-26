@@ -58,6 +58,13 @@ try {                                                           // a caller that
 - `userMessage()` gives the message only for the codes that the user can act on
   (`USER_FACING_CODES`). For `UNAVAILABLE`, `PERMISSION_DENIED` and every other code, it gives
   a fixed text: a server fault or a bug never shows its text.
+- `log()` writes a server fault or a bug (`INTERNAL`, `UNKNOWN_ERROR`, …) with `console.error`,
+  in production too: it is what a user can send to the support. A refusal of the server
+  (`EXPECTED_CODES`: the user-facing and transient codes, `PERMISSION_DENIED`,
+  `UNAUTHENTICATED`, `CANCELLED`) is a normal answer: it is written in development only. The line
+  names the call (`rpc`, set by the transport): `[ScyllaError] NOT_FOUND
+  scylla.secret.v1.SecretService/ListSecrets: no such secret`. Do not write a message of your own
+  for the log: the name of the call is exact for every call.
 - `isTransient()` is true for `UNAVAILABLE`, `DEADLINE_EXCEEDED`, `ABORTED`. `retryQueryError`
   retries only these.
 - When a generic code means something more precise for one call, catch it in the repository,

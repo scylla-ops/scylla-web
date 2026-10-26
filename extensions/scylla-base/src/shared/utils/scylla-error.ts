@@ -6,6 +6,8 @@ export type ScyllaErrorCode = keyof typeof GrpcStatusCode | 'UNKNOWN_ERROR' | 'I
 
 export interface ScyllaErrorOptions extends ErrorOptions {
   code?: ScyllaErrorCode;
+  /** The call that failed, e.g. `scylla.secret.v1.SecretService/ListSecrets`. */
+  rpc?: string;
 }
 
 /** The codes whose message tells the user what to change. Any other message stays in the log. */
@@ -25,6 +27,15 @@ const TRANSIENT_CODES: ReadonlySet<ScyllaErrorCode> = new Set<ScyllaErrorCode>([
   'ABORTED',
 ]);
 
+/** The refusals that the server gives on purpose: a normal answer, not a fault. */
+const EXPECTED_CODES: ReadonlySet<ScyllaErrorCode> = new Set<ScyllaErrorCode>([
+  ...USER_FACING_CODES,
+  ...TRANSIENT_CODES,
+  'PERMISSION_DENIED',
+  'UNAUTHENTICATED',
+  'CANCELLED',
+]);
+
 const codeOf = (error: unknown): ScyllaErrorCode | undefined =>
   error && typeof error === 'object' && 'code' in error && typeof error.code === 'string'
     ? // A cast: the value comes from the wire. An unknown code matches no branch.
@@ -38,10 +49,15 @@ const codeOf = (error: unknown): ScyllaErrorCode | undefined =>
 export class ScyllaError extends Error {
   public override readonly name = 'ScyllaError';
   public readonly code: ScyllaErrorCode;
+  public readonly rpc?: string;
 
-  constructor(message: string, { code = 'UNKNOWN_ERROR', ...options }: ScyllaErrorOptions = {}) {
+  constructor(
+    message: string,
+    { code = 'UNKNOWN_ERROR', rpc, ...options }: ScyllaErrorOptions = {},
+  ) {
     super(message, options);
     this.code = code;
+    this.rpc = rpc;
   }
 
   /** Any thrown value: a `ScyllaError` as it is, an error that carries a gRPC code with it. */
@@ -81,11 +97,15 @@ export class ScyllaError extends Error {
     return t`An unexpected error occurred`;
   }
 
+  /**
+   * A refusal of the server is written in development only. A server fault or a bug is written
+   * in production too, with its cause: it is what a user can send to the support.
+   */
   public log(): void {
-    console.warn(`>[${this.name}] ${this.code}:`, this.message);
-    if (this.cause) {
-      console.warn('Original cause:', this.cause);
-    }
+    const line = `[${this.name}] ${this.code}${this.rpc ? ` ${this.rpc}` : ''}: ${this.message}`;
+    const details = this.cause === undefined ? [] : [this.cause];
+    if (!EXPECTED_CODES.has(this.code)) console.error(line, ...details);
+    else if (import.meta.env.DEV) console.warn(line, ...details);
   }
 }
 

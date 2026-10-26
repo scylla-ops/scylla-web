@@ -27,7 +27,11 @@ describe('ScyllaGrpcTransport', () => {
     const error = await listSecrets().catch((thrown: unknown) => thrown);
 
     expect(error).toBeInstanceOf(ScyllaError);
-    expect(error).toMatchObject({ code: 'NOT_FOUND', message: 'no such secret' });
+    expect(error).toMatchObject({
+      code: 'NOT_FOUND',
+      message: 'no such secret',
+      rpc: 'scylla.secret.v1.SecretService/ListSecrets',
+    });
   });
 
   it('decodes the percent-encoded message of the server', async () => {

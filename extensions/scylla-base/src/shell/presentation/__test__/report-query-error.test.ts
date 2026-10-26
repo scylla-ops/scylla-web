@@ -97,6 +97,6 @@ describe('reportQueryError', () => {
     reportQueryError(new TypeError('x is undefined'), 'query');
 
     expect(toastError).toHaveBeenCalledWith('An unexpected error occurred');
-    expect(console.warn).toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalled();
   });
 });
