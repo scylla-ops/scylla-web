@@ -1,8 +1,8 @@
-import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
 import type {
+  AgentEntity,
   AgentStats,
   DailyOutcome,
-} from '@base/features/agents/domain/structs/agent.struct.ts';
+} from '@base/features/agents/domain/entities/agent.entity.ts';
 import { isOnline } from '@base/features/agents/domain/structs/agent-state.struct.ts';
 import { agentStateOf } from '@base/features/agents/domain/entities/agent.entity.ts';
 

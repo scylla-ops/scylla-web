@@ -2,7 +2,7 @@
   import type { MessageDescriptor } from '@lingui/core';
   import { Card } from '@scylla/ui/primitives';
   import { activeLocale, t } from '@scylla/ui/i18n';
-  import type { AgentStats } from '@base/features/agents/domain/structs/agent.struct.ts';
+  import type { AgentStats } from '@base/features/agents/domain/entities/agent.entity.ts';
   import {
     axisTop,
     bucketTotal,

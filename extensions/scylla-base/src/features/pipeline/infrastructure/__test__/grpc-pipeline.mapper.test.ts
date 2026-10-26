@@ -8,8 +8,10 @@ import type {
   PipelineSummary,
   EnvVar,
 } from '@base/generated/scylla/pipeline/v1/pipeline.ts';
-import type { EnvEntry } from '@base/features/pipeline/domain/structs/node.struct.ts';
-import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import type {
+  EnvEntry,
+  PipelineNodeEntity,
+} from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
 const ISO = '2025-01-01T00:00:00.000Z';

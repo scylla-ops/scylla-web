@@ -4,12 +4,10 @@ import type { IPipelineServiceClient } from '@base/generated/scylla/pipeline/v1/
 import type {
   CreatedAgent,
   AgentStats,
-} from '@base/features/agents/domain/structs/agent.struct.ts';
-import type { AgentEntity } from '../domain/entities/agent.entity.ts';
-import type {
+  AgentEntity,
   AgentJob,
   PipelineName,
-} from '@base/features/agents/domain/structs/agent-job.struct.ts';
+} from '@base/features/agents/domain/entities/agent.entity.ts';
 import type { AgentsRepository } from '@base/features/agents/domain/repository/agents.repository.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { idValue, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';

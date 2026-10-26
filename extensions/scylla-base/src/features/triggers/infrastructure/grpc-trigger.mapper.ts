@@ -11,12 +11,10 @@ import type {
   TriggerDraft,
   TriggerEntity,
   TriggerFireResult,
-} from '@base/features/triggers/domain/entities/trigger.entity.ts';
-import type {
   TriggerInput,
   TriggerSource,
-} from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
-import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+} from '@base/features/triggers/domain/entities/trigger.entity.ts';
+import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import {
   idValue,
   timestampToIso,

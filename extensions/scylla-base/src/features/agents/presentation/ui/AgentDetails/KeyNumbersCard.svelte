@@ -2,7 +2,7 @@
   import { Card, Skeleton } from '@scylla/ui/primitives';
   import { activeLocale, t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
-  import type { AgentStats } from '@base/features/agents/domain/structs/agent.struct.ts';
+  import type { AgentStats } from '@base/features/agents/domain/entities/agent.entity.ts';
   import type { Outcomes } from '@base/features/agents/presentation/presenters/agents-summary.presenter.ts';
   import {
     formatDurationMs,

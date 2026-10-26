@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { GrpcTriggerMapper } from '../grpc-trigger.mapper.ts';
 import type { Trigger } from '@base/generated/scylla/trigger/v1/trigger.ts';
-import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import type { TriggerDraft } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };

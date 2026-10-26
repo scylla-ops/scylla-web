@@ -4,11 +4,11 @@ import { setDependencyRegistry } from '@scylla/core-sdk';
 import { runQueryFn } from '@test/queries.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {
-  InstalledExtension,
-} from '@base/features/extensions/domain/structs/installed-extension.struct.ts';
+  InstalledExtensionEntity,
+} from '@base/features/extensions/domain/entities/installed-extension.entity.ts';
 import { EXTENSIONS_QUERY_KEY, extensionQueries } from '../extensions.queries.ts';
 
-const extension: InstalledExtension = {
+const extension: InstalledExtensionEntity = {
   id: 'scylla-base',
   name: 'Scylla',
   version: '0.5.0',

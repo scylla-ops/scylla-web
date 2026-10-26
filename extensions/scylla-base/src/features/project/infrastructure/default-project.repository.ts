@@ -1,7 +1,9 @@
 import { t } from '@lingui/core/macro';
 import type { ProjectRepository } from '@base/features/project/domain/repository/project.repository.ts';
-import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
-import type { ProjectList } from '@base/features/project/domain/structs/project.struct.ts';
+import type {
+  ProjectEntity,
+  ProjectList,
+} from '@base/features/project/domain/entities/project.entity.ts';
 import type { IProjectServiceClient } from '@base/generated/scylla/project/v1/project.client.ts';
 import type { Project } from '@base/generated/scylla/project/v1/project.ts';
 import type { UserSummary } from '@base/features/user';

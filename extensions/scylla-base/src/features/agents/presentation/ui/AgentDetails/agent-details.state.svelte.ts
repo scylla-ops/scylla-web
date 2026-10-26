@@ -5,7 +5,7 @@ import { createNow } from '@scylla/ui/state';
 import { toRune } from '@scylla/ui/stores';
 import { appMutations, appQueries, type AppSecretEntity } from '@base/features/apps';
 import { canListProjects, projectQueries } from '@base/features/project';
-import type { AgentJob } from '@base/features/agents/domain/structs/agent-job.struct.ts';
+import type { AgentJob } from '@base/features/agents/domain/entities/agent.entity.ts';
 import { agentStateOf } from '@base/features/agents/domain/entities/agent.entity.ts';
 import {
   successRateOf,

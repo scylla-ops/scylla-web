@@ -1,6 +1,9 @@
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
-import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
-import type { JobLog, JobLogStream } from '@base/features/jobs/domain/structs/job.struct.ts';
+import type {
+  JobEntity,
+  JobLog,
+  JobLogStream,
+} from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { IJobServiceClient } from '@base/generated/scylla/job/v1/job.client.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { wrapId, wrapIdOpt } from '@shared/infrastructure/grpc/wrappers.ts';

@@ -187,8 +187,8 @@ feature/
 ├── index.ts             → public API — the ONLY thing other modules may import (enforced)
 ├── domain/              → PURE business logic, ZERO external deps (no Svelte, no gRPC, no proto)
 │   ├── repository/      → repository INTERFACES + their input types (the data contract)
-│   ├── entities/        → {Name}Entity — identity-bearing business objects (*.entity.ts)
-│   ├── structs/         → value objects, enums, DTOs, wrappers (*.struct.ts)
+│   ├── entities/        → one file per thing with an identity ({Name}Entity) + its own types
+│   ├── structs/         → a concept with no identity: a value object + its rules, a vocabulary
 │   └── use-cases/       → OPTIONAL — only when one earns its place (see below)
 ├── infrastructure/      → concrete implementations of domain abstractions, flat
 │   ├── default-feature.repository.ts   → repository impl: calls the gRPC client, maps the result
@@ -225,6 +225,16 @@ the types of its props). Every other file goes in the folder of its role:
 These three folders never import `ui/` (`presentation-logic-knows-no-ui`, in depcruise): `ui/`
 uses them, never the reverse. There is no `utils/` folder.
 
+To place a function of the view, look at what it gives and what it needs, not at what it takes:
+
+1. It gives a type of the domain (a new status, a fact of the business) → `domain/`
+   (`advanceTour` in `onboarding-status.struct.ts`).
+2. It is plain TypeScript and computes what a view shows or does, from data of the domain or
+   from the structures of a view → `presenters/` (`checkbox-tree.presenter.ts`), or `mappers/`
+   when it converts both ways.
+3. It needs Svelte (a rune, the DOM, a component) → `ui/`, beside its component.
+4. It has no business meaning and two features use it → `@scylla/ui`.
+
 Inside `ui/`, Svelte code goes **beside the component that uses it**:
 
 - one component uses it → in that component's folder (`NodesView/nodes-view.state.svelte.ts`);
@@ -239,11 +249,27 @@ the ViewModel of a page.
 - **Domain** — The repository interface *is* the module's data contract, and presentation calls it
   directly. Repository interfaces know nothing about gRPC/HTTP, and their input types live beside
   them (e.g. `CreateGrantInput` in `permission.repository.ts`). No framework imports here, ever.
-  Split domain types into two buckets, both proto-independent: **entities** (`entities/*.entity.ts` → `{Name}Entity`) are the identity-bearing things the feature owns (e.g. `SecretEntity`, `RoleEntity`, `UserEntity`); they may hold related input shapes (`CreateSecretInput`) and pure behavior on that entity: a function that takes the entity, or creates one (`updateRole`). **Structs** (`structs/*.struct.ts`) are plain data shapes with no identity — value objects, enums, DTOs, and list/result wrappers (e.g. `Permission`, `PermissionScope`, `ProjectList`, `CreatedApp`) — named with plain PascalCase (no suffix). The `Entity` suffix is what distinguishes the two at every use site, including against the proto types (which keep the bare name, aliased in mappers). There are **no `*.model.ts` files** — every domain type is an entity or a struct.
+  **Domain types are sorted by concept, not by kind.** A concept has one file, both kinds are
+  proto-independent, and there are **no `*.model.ts` files**:
+  - **An entity file** (`entities/<name>.entity.ts`) holds a thing the feature owns, with an
+    identity (`{Name}Entity`: `SecretEntity`, `JobEntity`), and **every type that exists only
+    with it**: the types it holds (`JobNodeExecution`), its inputs (`CreateSecretInput`), its
+    list and result wrappers (`ProjectList`, `CreatedApp`), what the server tells about it
+    (`AgentStats`, `AppAccess`), and its pure behavior (`updateRole`).
+  - **A struct file** (`structs/<name>.struct.ts`) holds a concept with no identity that stands
+    alone: a value object and its rules (`NodeId`, `nodeIdIssue`), a vocabulary that several
+    entities or features share (`Permission`, `JobStatus`), or a shape that no entity of the
+    feature owns (`PasswordResetDelivery`).
+
+  To place a type: it exists only with one entity → the file of that entity. Else it has an
+  identity → an entity file of its own. Else → a struct file. Only a type with an identity takes
+  the `Entity` suffix (`AppSecretEntity` in `app.entity.ts`); the other types keep a plain
+  PascalCase name. The suffix also separates the domain type from the proto type with the bare
+  name (aliased in mappers).
   Where a rule goes:
-  - **A rule on one value** (an id, a name) goes in the struct of that value, as a value object:
-    the type and its own validation (`node-id.struct.ts`: `NodeId`, `nodeIdIssue`). A struct has
-    no other function.
+  - **A rule on one value** (an id, a name, a status) goes in the struct of that value, as a
+    value object: the type and its own rules (`node-id.struct.ts`: `NodeId`, `nodeIdIssue`;
+    `onboarding-status.struct.ts`: `advanceTour`). A struct has no other function.
   - **A rule on one entity** goes in its entity file (`withDefinition(node, …)`).
   - **A rule on an entity and the entities it holds** goes in the root entity (the aggregate):
     the pipeline keeps the ids of its nodes unique and their dependencies whole (`addNode`,
@@ -432,7 +458,7 @@ static SPA that the Rust binary serves. See `refacto_svelte.md` for the reasons.
 | UI state with one responsibility (a draft, the open panes, a drag, a preference) | a state | `<responsibility>.state.svelte.ts`, beside its users |
 | Synchronize with a system outside Svelte (the router, a store, CodeMirror) | an effect | `*.effect.svelte.ts`, beside its user |
 | Read an outside API from rune code (a store, Lingui) | an adapter | `*.adapter.svelte.ts` |
-| Turn domain data into what a view shows (rows, text, a chart scale, a graph layout) | a presenter | `presenters/*.presenter.ts` |
+| Compute what a view shows or does, in plain TypeScript (rows, text, a chart scale, a graph layout) | a presenter | `presenters/*.presenter.ts` |
 | Convert one representation into another, both ways (a text format ↔ the domain) | a mapper | `mappers/*.mapper.ts` |
 | DOM measurement, native events, a third-party widget | an attachment (`{@attach}`) | `*.attachments.ts`, beside its user |
 
@@ -567,7 +593,7 @@ The package and layer structure is mandatory; everything else must earn its plac
 | Query / mutation options | `<feature>.queries.ts` → `{feature}Queries`, `{feature}Mutations` | `user.queries.ts` / `userQueries` |
 | Messages (i18n) | `presentation/messages/*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
 | Attachment | `*.attachments.ts` (`.svelte.ts` when it uses runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
-| Presenter (domain data → what a view shows) | `presentation/presenters/*.presenter.ts` | `node-list.presenter.ts` / `nodeRows` |
+| Presenter (plain TypeScript: what a view shows or does) | `presentation/presenters/*.presenter.ts` | `node-list.presenter.ts` / `nodeRows` |
 | Mapper of a view format (both ways) | `presentation/mappers/*.mapper.ts` | `pipeline-document.mapper.ts` / `parseScript` |
 | Registry (a table a component reads by key: views, icons, the steps of a tour), in `ui/` | `*.registry.ts` | `node-appearances.registry.ts` / `NODE_APPEARANCE_VIEWS` |
 | Svelte transition, in `ui/` | `*.transition.ts` | `welcome.transition.ts` / `welcomeIn` |
@@ -578,8 +604,8 @@ The package and layer structure is mandatory; everything else must earn its plac
 | Repository impl | `default-*.repository.ts` (infra) → `Default{Entity}Repository` | `default-user.repository.ts` / `DefaultUserRepository` |
 | Data source (only with ≥ 2 sources) | `*.data-source.ts` → `{Source}{Entity}DataSource` | `local-job.data-source.ts` / `LocalJobDataSource` |
 | Mapper | `grpc-*.mapper.ts` → `Grpc{Entity}Mapper` | `grpc-user.mapper.ts` |
-| Domain entity | `*.entity.ts` → `{Name}Entity` | `secret.entity.ts` / `SecretEntity` |
-| Struct (value object / enum / DTO / wrapper) | `*.struct.ts` (plain name, no suffix) | `permission.struct.ts` / `Permission`, `pagination.struct.ts` / `PaginationInfo` |
+| Domain entity (+ the types that exist only with it) | `*.entity.ts` → `{Name}Entity` | `app.entity.ts` / `AppEntity`, `CreatedApp` |
+| Struct (a concept with no identity that stands alone: value object, shared vocabulary) | `*.struct.ts` (plain name, no suffix) | `permission.struct.ts` / `Permission`, `pagination.struct.ts` / `PaginationInfo` |
 | Widget points | `<feature>.points.ts` → `{feature}Points` | `login.points.ts` / `loginPoints` |
 | Widget injection | `*.widget-injection.ts` → `{Intention}WidgetInjection` | `email-login.widget-injection.ts` / `EmailLoginWidgetInjection` |
 | Store (framework-free, `createStore`) | `*.store.ts` → `{name}Store` | `context.store.ts` / `contextStore` |
@@ -595,7 +621,7 @@ Code identifiers: Interfaces/Types/Classes/Components/Enums **PascalCase** (no `
 - **`interface`** for object shapes that are extended or implemented: component props (`interface Props`), repository contracts. This is the codebase majority — follow it.
 - **`type`** for everything a shape can't express: unions, literal unions, mapped/utility types, function types, aliases (`type PermissionScope = 'org' | 'project'`).
 - Type-only imports must use `import type` (`@typescript-eslint/consistent-type-imports` is an error, and `verbatimModuleSyntax` requires it).
-- Colocate a type with the file that uses it; a dedicated file is only justified for shared or bulky types — and in `domain/` it must land in `entities/` or `structs/` per the rules above.
+- Colocate a type with the file that uses it; a dedicated file is only justified for shared or bulky types — and in `domain/` a type goes in the file of its concept, per the rules above.
 
 > Note: docs/naming-conventions.md shows `{Entity}RepositoryImpl` for the impl, but the actual codebase uses `Default{Entity}Repository` in `default-{entity}.repository.ts`. **Follow the codebase convention.**
 
@@ -736,7 +762,7 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
   imports.
 - Inside scylla-base, a relative import goes up one level at most (`./x`, `../x`). Above that,
   use the alias: `@platform/` for `platform/`, `@shared/` for `shared/`, `@base/` for the rest
-  (`@base/features/agents/domain/structs/agent.struct.ts`, not `../../../../domain/…`).
+  (`@base/features/agents/domain/structs/agent-state.struct.ts`, not `../../../../domain/…`).
 - Prettier: semicolons, single quotes (incl. JSX), 2-space tabs, trailing commas (all), printWidth 100, `arrowParens: avoid`. Match this style; don't reformat unrelated code.
 - Routing: written in the project, in `@scylla/core` (no router library); the declaration
   types are in `@scylla/core-sdk`. The mounts of scylla-base are in `ShellModule`
@@ -789,7 +815,8 @@ Because of that, the tooling of this repo must work from another root. Keep it s
 ## Adding a feature (checklist)
 
 1. Create `extensions/scylla-base/src/features/<feature>/` with `domain/ infrastructure/ locales/ presentation/`.
-2. Domain: repository interface (+ its input types), `entities/*.entity.ts` and `structs/*.struct.ts`.
+2. Domain: repository interface (+ its input types), one `entities/*.entity.ts` per entity (with
+   its own types) and a `structs/*.struct.ts` only for a concept that stands alone.
    **Add a use case only if it orchestrates** — see "Use cases are optional".
 3. Infrastructure, flat: `default-<feature>.repository.ts` (takes the generated
    `I{Service}ServiceClient`) and `grpc-<feature>.mapper.ts`. **No data source** while there is

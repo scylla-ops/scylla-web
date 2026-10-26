@@ -1,8 +1,8 @@
 import type { NodeTemplateRepository } from '@base/features/pipeline/domain/repository/node-template.repository.ts';
-import type { NodeTemplate } from '@base/features/pipeline/domain/structs/node-template.struct.ts';
+import type { NodeTemplateEntity } from '@base/features/pipeline/domain/entities/node-template.entity.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 
-export const BUILT_IN_NODE_TEMPLATES: readonly NodeTemplate[] = [
+export const BUILT_IN_NODE_TEMPLATES: readonly NodeTemplateEntity[] = [
   {
     id: 'git-clone',
     name: 'git clone',
@@ -52,9 +52,11 @@ export const BUILT_IN_NODE_TEMPLATES: readonly NodeTemplate[] = [
 
 /** Serves the built-in templates. A backend source replaces this class, not its callers. */
 export class DefaultNodeTemplateRepository implements NodeTemplateRepository {
-  constructor(private readonly templates: readonly NodeTemplate[] = BUILT_IN_NODE_TEMPLATES) {}
+  constructor(
+    private readonly templates: readonly NodeTemplateEntity[] = BUILT_IN_NODE_TEMPLATES,
+  ) {}
 
-  public list(): Promise<ScyllaResult<NodeTemplate[]>> {
+  public list(): Promise<ScyllaResult<NodeTemplateEntity[]>> {
     return Promise.resolve(ScyllaResult.success([...this.templates]));
   }
 }

@@ -1,10 +1,11 @@
 import type { IAppServiceClient } from '@base/generated/scylla/app/v1/app.client.ts';
-import type { AppEntity, AppSecretEntity } from '@base/features/apps/domain/entities/app.entity.ts';
 import type {
+  AppEntity,
+  AppSecretEntity,
   AppAccess,
   CreatedApp,
   CreatedAppSecret,
-} from '@base/features/apps/domain/structs/app.struct.ts';
+} from '@base/features/apps/domain/entities/app.entity.ts';
 import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';

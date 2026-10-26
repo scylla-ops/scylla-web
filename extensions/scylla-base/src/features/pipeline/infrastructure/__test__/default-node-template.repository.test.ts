@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { NodeTemplate } from '@base/features/pipeline/domain/structs/node-template.struct.ts';
+import type { NodeTemplateEntity } from '@base/features/pipeline/domain/entities/node-template.entity.ts';
 import {
   BUILT_IN_NODE_TEMPLATES,
   DefaultNodeTemplateRepository,
@@ -13,7 +13,7 @@ describe('DefaultNodeTemplateRepository', () => {
   });
 
   it('gives a copy, so a caller cannot change the source list', async () => {
-    const templates: NodeTemplate[] = [
+    const templates: NodeTemplateEntity[] = [
       {
         id: 'make',
         name: 'make',

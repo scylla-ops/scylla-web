@@ -1,5 +1,8 @@
-import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
-import type { JobNodeExecution, JobLog } from '@base/features/jobs/domain/structs/job.struct.ts';
+import type {
+  JobEntity,
+  JobNodeExecution,
+  JobLog,
+} from '@base/features/jobs/domain/entities/job.entity.ts';
 import type {
   Job,
   JobNode,

@@ -1,7 +1,9 @@
-import type { PipelineMetadata } from '../domain/structs/pipeline.struct.ts';
-import type { EnvEntry, Shell as NodeShell } from '../domain/structs/node.struct.ts';
-import type { PipelineNodeEntity } from '../domain/entities/pipeline-node.entity.ts';
-import type { PipelineEntity } from '../domain/entities/pipeline.entity.ts';
+import type { PipelineMetadata, PipelineEntity } from '../domain/entities/pipeline.entity.ts';
+import type {
+  EnvEntry,
+  Shell as NodeShell,
+  PipelineNodeEntity,
+} from '../domain/entities/pipeline-node.entity.ts';
 import type {
   EnvVar,
   ListProjectPipelinesResponse,

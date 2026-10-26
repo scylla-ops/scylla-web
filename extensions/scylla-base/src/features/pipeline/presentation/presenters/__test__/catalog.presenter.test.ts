@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { NodeDefinition } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
-import type { NodeTemplate } from '@base/features/pipeline/domain/structs/node-template.struct.ts';
+import type { NodeTemplateEntity } from '@base/features/pipeline/domain/entities/node-template.entity.ts';
 import {
   BLANK_NODES,
   catalogEntries,
@@ -32,7 +32,7 @@ const entries = [
   entry('docker', 'templates', 'docker build', 'docker build -t app .'),
 ];
 const resolve = (text: CatalogText) => (typeof text === 'string' ? text : (text.message ?? ''));
-const template: NodeTemplate = {
+const template: NodeTemplateEntity = {
   id: 'npm-ci',
   name: 'npm ci',
   nodeId: 'install-deps',

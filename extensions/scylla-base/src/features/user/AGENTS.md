@@ -63,7 +63,7 @@ one).
 
 `UpdateUserInput` holds the changed fields only: an absent field stays absent on the wire, and
 the server leaves it unchanged. `profileChanges` (`user.entity.ts`) builds it from the profile
-form. `groupUserAccess` (`user-access.struct.ts`) puts the system grants apart and groups the
+form. `groupUserAccess` (`presenters/user-access.presenter.ts`) puts the system grants apart and groups the
 others by organization.
 
 ## Layout
@@ -72,10 +72,9 @@ others by organization.
 user.module.ts                       routes + nav + DI wiring (private; registry only)
 index.ts                             public API
 domain/
-  entities/user.entity.ts            UserEntity, UserSummary, the inputs, profileChanges (pure)
+  entities/user.entity.ts            UserEntity, UserSummary, UserList, UserAccess, UserAccessScope,
+                                     the inputs, profileChanges (pure)
   entities/user-session.entity.ts    UserSessionEntity: no token, only what the list shows
-  structs/user.struct.ts             UserList = PaginatedList<UserEntity>
-  structs/user-access.struct.ts      UserAccess, UserAccessScope
   repository/user.repository.ts
 infrastructure/
   default-user.repository.ts         UserServiceClient → UserEntity

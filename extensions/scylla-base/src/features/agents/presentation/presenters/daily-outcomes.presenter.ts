@@ -1,4 +1,4 @@
-import type { DailyOutcome } from '@base/features/agents/domain/structs/agent.struct.ts';
+import type { DailyOutcome } from '@base/features/agents/domain/entities/agent.entity.ts';
 
 /** The window of `AgentStats.daily`. */
 export const WINDOW_DAYS = 30;

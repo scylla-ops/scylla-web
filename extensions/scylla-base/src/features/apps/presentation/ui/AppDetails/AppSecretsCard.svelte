@@ -12,8 +12,10 @@
   } from '@scylla/ui';
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { activeLocale, t } from '@scylla/ui/i18n';
-  import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
-  import type { CreatedAppSecret } from '@base/features/apps/domain/structs/app.struct.ts';
+  import type {
+    AppEntity,
+    CreatedAppSecret,
+  } from '@base/features/apps/domain/entities/app.entity.ts';
   import { trimSecretLabel } from '@base/features/apps/domain/structs/secret-label.struct.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import {

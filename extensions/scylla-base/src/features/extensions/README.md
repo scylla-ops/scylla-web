@@ -27,8 +27,8 @@ business, so it belongs in an extension.
 
 ## How it is built
 
-**Domain** is one struct, `InstalledExtension`, and one repository interface. The struct is
-plain data: it does not carry the manifest, so the domain does not depend on the core SDK.
+**Domain** is one entity, `InstalledExtensionEntity`, and one repository interface. The entity
+is plain data: it does not carry the manifest, so the domain does not depend on the core SDK.
 
 **Infrastructure** is one repository that receives `installedExtensions` and maps each manifest.
 It reads the list at each call: the module file loads before the core installs it.

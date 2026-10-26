@@ -15,7 +15,7 @@ import type {
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
-import type { UserAccess, UserAccessScope } from '../domain/structs/user-access.struct.ts';
+import type { UserAccess, UserAccessScope } from '../domain/entities/user.entity.ts';
 import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
 const accessScopeOf = (access: GrpcUserAccess): { scope: UserAccessScope; projectId?: string } => {

@@ -3,11 +3,13 @@ import { screen } from '@testing-library/svelte';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {
-  InstalledExtension,
-} from '@base/features/extensions/domain/structs/installed-extension.struct.ts';
+  InstalledExtensionEntity,
+} from '@base/features/extensions/domain/entities/installed-extension.entity.ts';
 import ExtensionsPage from './Extensions.page.svelte';
 
-const extension = (overrides: Partial<InstalledExtension> = {}): InstalledExtension => ({
+const extension = (
+  overrides: Partial<InstalledExtensionEntity> = {},
+): InstalledExtensionEntity => ({
   id: 'scylla-base',
   name: 'Scylla',
   version: '0.5.0',

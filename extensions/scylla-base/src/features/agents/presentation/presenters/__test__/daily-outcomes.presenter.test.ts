@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { DailyOutcome } from '@base/features/agents/domain/structs/agent.struct.ts';
+import type { DailyOutcome } from '@base/features/agents/domain/entities/agent.entity.ts';
 import { axisTop, bucketTotal, dateOfDay, fillDays } from '../daily-outcomes.presenter.ts';
 
 const TODAY = new Date(2026, 9, 11, 12, 0);

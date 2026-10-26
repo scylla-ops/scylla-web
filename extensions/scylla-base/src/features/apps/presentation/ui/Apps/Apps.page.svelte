@@ -16,7 +16,7 @@
   } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { activeLocale, t } from '@scylla/ui/i18n';
-  import type { CreatedApp } from '@base/features/apps/domain/structs/app.struct.ts';
+  import type { CreatedApp } from '@base/features/apps/domain/entities/app.entity.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import { createAppItems } from '@base/features/apps/presentation/presenters/app-form.presenter.ts';
   import AppCard from '../components/AppCard/AppCard.svelte';

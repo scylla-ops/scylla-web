@@ -1,6 +1,8 @@
 import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
-import type { AppSecretEntity } from '@base/features/apps/domain/entities/app.entity.ts';
-import type { ResetAppSecret } from '@base/features/apps/domain/structs/app.struct.ts';
+import type {
+  AppSecretEntity,
+  ResetAppSecret,
+} from '@base/features/apps/domain/entities/app.entity.ts';
 import { trimSecretLabel } from '@base/features/apps/domain/structs/secret-label.struct.ts';
 import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
 

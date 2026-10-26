@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { PipelineMetadata } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { PipelineMetadata } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import { asPipelineFeed } from '../pipeline-feed.presenter.ts';
 
 const metadata: PipelineMetadata = {

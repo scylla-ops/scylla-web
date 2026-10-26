@@ -4,12 +4,14 @@ import { withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { PipelineEntity } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
-import type { PipelineMetadata } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type {
+  PipelineEntity,
+  PipelineMetadata,
+} from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import type {
   PipelineRepository,
 } from '@base/features/pipeline/domain/repository/pipeline.repository.ts';
-import type { NodeTemplate } from '@base/features/pipeline/domain/structs/node-template.struct.ts';
+import type { NodeTemplateEntity } from '@base/features/pipeline/domain/entities/node-template.entity.ts';
 import {
   pipelineMutations,
   pipelineQueries,
@@ -55,7 +57,7 @@ const paginated = <T,>(items: T[], totalCount = items.length) => ({
   },
 });
 
-const templates: NodeTemplate[] = [
+const templates: NodeTemplateEntity[] = [
   {
     id: 'make',
     name: 'make',

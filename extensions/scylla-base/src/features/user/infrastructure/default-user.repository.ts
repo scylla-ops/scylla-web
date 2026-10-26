@@ -5,7 +5,7 @@ import type {
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
-import type { UserAccess } from '../domain/structs/user-access.struct.ts';
+import type { UserAccess } from '../domain/entities/user.entity.ts';
 import type { IUserServiceClient } from '@base/generated/scylla/user/v1/user.client.ts';
 import type { User } from '@base/generated/scylla/user/v1/user.ts';
 import type { PasswordResetDelivery } from '@base/features/login';

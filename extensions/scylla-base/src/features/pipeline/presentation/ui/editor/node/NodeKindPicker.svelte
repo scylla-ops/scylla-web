@@ -1,7 +1,7 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { Shell } from '@base/features/pipeline/domain/structs/node.struct.ts';
+  import type { Shell } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import type { NodeDraft } from './node-draft.state.svelte.ts';
   import { nodeMessages } from '@base/features/pipeline/presentation/messages/node.messages.ts';
   import Segmented from '@base/features/pipeline/presentation/ui/editor/controls/Segmented.svelte';

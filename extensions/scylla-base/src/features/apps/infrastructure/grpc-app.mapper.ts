@@ -5,8 +5,11 @@ import type {
   CreateAppRequest,
   SetAppSecretLabelRequest,
 } from '@base/generated/scylla/app/v1/app.ts';
-import type { AppEntity, AppSecretEntity } from '@base/features/apps/domain/entities/app.entity.ts';
-import type { AppAccess } from '@base/features/apps/domain/structs/app.struct.ts';
+import type {
+  AppEntity,
+  AppSecretEntity,
+  AppAccess,
+} from '@base/features/apps/domain/entities/app.entity.ts';
 import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
 export class GrpcAppMapper {

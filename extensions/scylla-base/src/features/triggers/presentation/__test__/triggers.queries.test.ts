@@ -11,7 +11,7 @@ import type {
   TriggerDraft,
   TriggerEntity,
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import { TRIGGERS_QUERY_KEY, triggerMutations, triggerQueries } from '../triggers.queries.ts';
 
 const PIPELINE_ID = 'pipeline-1';

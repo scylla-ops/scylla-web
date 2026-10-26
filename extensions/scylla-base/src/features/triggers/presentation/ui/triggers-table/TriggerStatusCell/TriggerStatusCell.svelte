@@ -7,7 +7,7 @@
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { t } from '@scylla/ui/i18n';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-  import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+  import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {

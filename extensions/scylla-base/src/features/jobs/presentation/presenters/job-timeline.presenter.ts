@@ -1,4 +1,4 @@
-import type { JobNodeExecution } from '@base/features/jobs/domain/structs/job.struct.ts';
+import type { JobNodeExecution } from '@base/features/jobs/domain/entities/job.entity.ts';
 
 export const COLLAPSE_THRESHOLD = 10;
 

@@ -65,8 +65,7 @@ All wrapped in `ScyllaResult`. Reach it from `jobs.queries.ts` only — never fr
 jobs.module.ts                       DI wiring + the job details route (no nav)
 index.ts                             public API
 domain/
-  entities/job.entity.ts             JobEntity
-  structs/job.struct.ts              JobLog, JobLogStream
+  entities/job.entity.ts             JobEntity, JobNodeExecution, JobLog, JobLogStream
   structs/job-status.struct.ts       JobStatus, isActiveStatus, isFinishedStatus (pure)
   repository/jobs.repository.ts
 infrastructure/

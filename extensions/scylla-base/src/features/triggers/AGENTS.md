@@ -45,7 +45,7 @@ All wrapped in `ScyllaResult`. Reach it from `triggers.queries.ts` only — neve
 
 ## The `TriggerSource` union
 
-`domain/structs/trigger-source.struct.ts` is the heart of the module:
+`domain/entities/trigger.entity.ts` holds the heart of the module:
 
 ```typescript
 TriggerKind = Cron | Webhook | Unknown
@@ -65,8 +65,8 @@ TriggerSource = CronSource | WebhookSource | UnknownSource   // discriminated on
 triggers.module.ts                   route + DI wiring (private; registry only)
 index.ts                             public API
 domain/
-  entities/trigger.entity.ts         TriggerEntity, TriggerDraft, CreatedTrigger
-  structs/trigger-source.struct.ts   the union above, TriggerInput
+  entities/trigger.entity.ts         TriggerEntity, TriggerDraft, CreatedTrigger, the union above,
+                                     TriggerInput
   structs/cron-expression.struct.ts  the 5-field rule of the server: isCronExpressionValid
   repository/triggers.repository.ts
 infrastructure/

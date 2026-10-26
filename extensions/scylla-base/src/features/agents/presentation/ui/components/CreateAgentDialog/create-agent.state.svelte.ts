@@ -5,8 +5,10 @@ import { prefersReducedMotion } from '@scylla/ui';
 import { toRune } from '@scylla/ui/stores';
 import { canListProjects, projectQueries } from '@base/features/project';
 import { grantMutations, roleQueries } from '@base/features/roles';
-import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-import type { CreatedAgent } from '@base/features/agents/domain/structs/agent.struct.ts';
+import type {
+  AgentEntity,
+  CreatedAgent,
+} from '@base/features/agents/domain/entities/agent.entity.ts';
 import { agentMutations, agentQueries } from '@base/features/agents/presentation/agents.queries.ts';
 
 /** Where the new agent takes jobs. */

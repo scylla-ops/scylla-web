@@ -23,7 +23,7 @@
   import {
     TriggerKind,
     type TriggerDraftKind,
-  } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+  } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggerMutations } from '@base/features/triggers/presentation/triggers.queries.ts';
   import { convertCronToLocal } from '@base/features/triggers/presentation/mappers/cron-timezone.mapper.ts';
 import { isCronExpressionValid } from '@base/features/triggers/domain/structs/cron-expression.struct.ts';

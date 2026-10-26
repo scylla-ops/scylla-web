@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
 import { setDependencyRegistry } from '@scylla/core-sdk';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { JobLog } from '@base/features/jobs/domain/structs/job.struct.ts';
+import type { JobLog } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
 import { createTailJobLogs } from './tail-job-logs.state.svelte.ts';
 

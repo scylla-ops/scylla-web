@@ -68,9 +68,8 @@ checks `LIST_PIPELINES_BY_ORGANIZATION` and runs only once a job shows.
 agents.module.ts                       routes + nav + DI wiring (private; registry only)
 index.ts                               public API
 domain/
-  entities/agent.entity.ts             AgentEntity, AgentHost, agentStateOf (pure)
-  structs/agent.struct.ts              AgentStats, CreatedAgent, DailyOutcome
-  structs/agent-job.struct.ts          AgentJob, PipelineName
+  entities/agent.entity.ts             AgentEntity, AgentHost, agentStateOf (pure), AgentStats,
+                                       DailyOutcome, CreatedAgent, AgentJob, PipelineName
   structs/agent-state.struct.ts        AgentState, isOnline (pure)
   repository/agents.repository.ts      the contract
 infrastructure/

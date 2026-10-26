@@ -1,5 +1,8 @@
-import type { EnvEntry, Shell } from '@base/features/pipeline/domain/structs/node.struct.ts';
-import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import type {
+  EnvEntry,
+  Shell,
+  PipelineNodeEntity,
+} from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import {
   DEFAULT_PIPELINE_NAME,
   type PipelineEntity,

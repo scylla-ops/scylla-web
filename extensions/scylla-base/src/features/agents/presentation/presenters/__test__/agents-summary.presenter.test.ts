@@ -1,10 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
 import type {
+  AgentEntity,
   AgentStats,
   DailyOutcome,
-} from '@base/features/agents/domain/structs/agent.struct.ts';
+} from '@base/features/agents/domain/entities/agent.entity.ts';
 import { successRateOf, sumOutcomes, summarizeAgents } from '../agents-summary.presenter.ts';
 
 const agent = (id: string, overrides: Partial<AgentEntity> = {}): AgentEntity => ({

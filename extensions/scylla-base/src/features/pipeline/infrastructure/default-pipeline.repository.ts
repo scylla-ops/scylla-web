@@ -1,6 +1,5 @@
 import type { PipelineRepository } from '@base/features/pipeline/domain/repository/pipeline.repository.ts';
-import type { PipelineEntity } from '../domain/entities/pipeline.entity.ts';
-import type { PipelineMetadata } from '../domain/structs/pipeline.struct.ts';
+import type { PipelineEntity, PipelineMetadata } from '../domain/entities/pipeline.entity.ts';
 import type { PipelineNodeEntity } from '../domain/entities/pipeline-node.entity.ts';
 import type { IPipelineServiceClient } from '@base/generated/scylla/pipeline/v1/pipeline.client.ts';
 import type { Pipeline } from '@base/generated/scylla/pipeline/v1/pipeline.ts';

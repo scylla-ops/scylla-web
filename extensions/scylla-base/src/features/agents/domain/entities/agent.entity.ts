@@ -39,3 +39,53 @@ export const agentStateOf = (
   if (!agent.connected) return 'offline';
   return agent.inFlight > 0 ? 'running' : 'idle';
 };
+
+export interface AgentStats {
+  total: number;
+  pending: number;
+  running: number;
+  completed: number;
+  failed: number;
+  cancelled: number;
+  orphaned: number;
+  lastRunAt: string;
+  /** Last 30 days, oldest first; days without a finished job are absent. */
+  daily: DailyOutcome[];
+  /** `null`: no job ran yet (not a 0 ms run). */
+  medianDurationMs: number | null;
+  p95DurationMs: number | null;
+}
+
+export interface DailyOutcome {
+  day: string;
+  completed: number;
+  failed: number;
+  cancelled: number;
+  orphaned: number;
+  medianDurationMs: number | null;
+}
+
+/** The secret is returned once, at creation, and never again. */
+export interface CreatedAgent {
+  agent: AgentEntity;
+  secret: string;
+}
+
+/** A job the server placed on an agent, as the recent jobs show it. */
+export interface AgentJob {
+  id: string;
+  pipelineId: string;
+  /** `pending`, `running`, `completed`, `failed`, `cancelled`, `orphaned` or `unknown`. */
+  status: string;
+  createdAt: string;
+  /** Unset before an agent starts it. */
+  startedAt?: string;
+  finishedAt?: string;
+}
+
+/** The name of a pipeline and its project: a job carries the pipeline id only. */
+export interface PipelineName {
+  id: string;
+  projectId: string;
+  name: string;
+}

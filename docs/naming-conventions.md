@@ -38,8 +38,8 @@ The suffix of a file tells its role.
 | Role | Pattern | Example |
 |------|---------|---------|
 | **Repository interface** | `*.repository.ts` → `{Entity}Repository` | `user.repository.ts` / `UserRepository` |
-| **Domain entity** | `*.entity.ts` → `{Name}Entity` | `secret.entity.ts` / `SecretEntity` |
-| **Struct** (value object / enum / DTO / wrapper): types, and a value object's own validation | `*.struct.ts`, plain name | `permission.struct.ts` / `PermissionScope`, `node-id.struct.ts` / `nodeIdIssue` |
+| **Domain entity**, with the types that exist only with it | `*.entity.ts` → `{Name}Entity` | `app.entity.ts` / `AppEntity`, `CreatedApp` |
+| **Struct** (a concept with no identity that stands alone: a value object, a shared vocabulary): types, and their own rules | `*.struct.ts`, plain name | `permission.struct.ts` / `PermissionScope`, `node-id.struct.ts` / `nodeIdIssue` |
 | **Use case** (only when it orchestrates) | `*.use-case.ts` → `{Verb}{Entity}UseCase` | `update-role.use-case.ts` / `UpdateRoleUseCase` |
 
 #### Infrastructure
@@ -60,7 +60,7 @@ The suffix of a file tells its role.
 | **Effect** (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` | `organization-sync.effect.svelte.ts` |
 | **Adapter** (runes): an outside API read from rune code | `*.adapter.svelte.ts` | `to-rune.adapter.svelte.ts` |
 | **Attachment** | `*.attachments.ts` (`.svelte.ts` with runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
-| **Presenter** (domain data → what a view shows) | `presenters/*.presenter.ts` | `node-list.presenter.ts` |
+| **Presenter** (plain TypeScript: what a view shows or does) | `presenters/*.presenter.ts` | `node-list.presenter.ts` |
 | **Mapper** of a view format (both ways) | `mappers/*.mapper.ts` | `pipeline-document.mapper.ts` |
 | **Registry** (a table a component reads by key: views, icons, the steps of a tour), in `ui/` | `*.registry.ts` | `node-appearances.registry.ts` |
 | **Svelte transition**, in `ui/` | `*.transition.ts` | `welcome.transition.ts` |
@@ -131,15 +131,17 @@ type FormValues<TId extends string> = Record<TId, string>;
 
 ### 2.2 Domain entities and structs
 
-The domain layer has two kinds of types (see `architecture.md` §5.1): **entities** are the
-identity-bearing objects that a feature owns; **structs** are data shapes with no identity.
+The domain layer sorts its types by concept (see `architecture.md` §5.1): an **entity** file holds
+an identity-bearing object that a feature owns and every type that exists only with it; a
+**struct** file holds a concept with no identity that stands alone.
 
 | Kind | File | Type name | Example |
 |------|------|-----------|---------|
 | Entity | `{name}.entity.ts` | `{Name}Entity` | `SecretEntity`, `UserEntity` |
 | Entity input shape | the same entity file | `Create{Name}Input` / `{Name}CreationData` | `CreateSecretInput`, `RoleCreationData` |
 | Entity behavior (pure function) | the same entity file | camelCase verb | `updateRole(role, changes)` |
-| Struct | `{name}.struct.ts` | plain PascalCase, no suffix | `Permission`, `PermissionScope`, `ProjectList`, `CreatedApp` |
+| Type that exists only with the entity (a part, a wrapper, a result) | the same entity file | plain PascalCase, no suffix | `JobNodeExecution`, `ProjectList`, `CreatedApp` |
+| Struct | `{name}.struct.ts` | plain PascalCase, no suffix | `NodeId`, `Permission`, `PermissionScope`, `JobStatus` |
 
 ```typescript
 // secret.entity.ts

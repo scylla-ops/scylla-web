@@ -6,13 +6,12 @@ import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import { toast } from '@scylla/ui/utils';
 import { ScyllaError } from '@shared/utils/scylla-result.ts';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
-import type { PipelineEntity } from '../domain/entities/pipeline.entity.ts';
-import type { PipelineMetadata } from '../domain/structs/pipeline.struct.ts';
+import type { PipelineEntity, PipelineMetadata } from '../domain/entities/pipeline.entity.ts';
 import {
   InvalidPipelineError,
   type SavePipelineInput,
 } from '../domain/use-cases/save-pipeline.use-case.ts';
-import type { NodeTemplate } from '../domain/structs/node-template.struct.ts';
+import type { NodeTemplateEntity } from '../domain/entities/node-template.entity.ts';
 import type { PipelineModule } from '../pipeline.module.ts';
 import { pipelineMessages } from './messages/pipeline.messages.ts';
 import { pipelineIssueText } from './presenters/pipeline-issue.presenter.ts';
@@ -82,7 +81,7 @@ export const pipelineQueries = {
 /** Read by the editor only, behind its own route guard: nothing to gate here. */
 export const nodeTemplateQueries = {
   list: () =>
-    queryOptions<NodeTemplate[]>({
+    queryOptions<NodeTemplateEntity[]>({
       queryKey: NODE_TEMPLATES_QUERY_KEY(),
       queryFn: async () => (await templateRepository().list()).unwrap(),
       staleTime: Infinity,

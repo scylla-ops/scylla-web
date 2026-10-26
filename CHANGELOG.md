@@ -38,6 +38,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   `@platform/authz`), the eligibility of a grant, the 5-field rule of a cron expression. Each rune
   file names its role (`.state`, `.effect`, `.adapter`, `.attachments`), and the test harness is
   `test/render.ts`.
+- The domain of each module sorts its types by concept: the file of an entity holds every type
+  that exists only with it (its parts, its inputs, its wrappers), and a struct file holds only a
+  concept with no identity that stands alone. The transitions of the onboarding status move to
+  the domain.
+- **Breaking:** The extension that the app runs is `InstalledExtensionEntity` in
+  `@scylla/base-sdk` (it was `InstalledExtension`).
 - The pipeline editor does not save a pipeline that the server refuses: a name with spaces, a
   node id that the server does not accept, or two nodes with the same id. Save is disabled, and
   the header says why. The blueprint shows two nodes with the same id in red and does not

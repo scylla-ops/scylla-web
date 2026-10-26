@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { JobNodeExecution } from '@base/features/jobs/domain/structs/job.struct.ts';
+import type { JobNodeExecution } from '@base/features/jobs/domain/entities/job.entity.ts';
 import {
   COLLAPSE_THRESHOLD,
   groupByStatus,

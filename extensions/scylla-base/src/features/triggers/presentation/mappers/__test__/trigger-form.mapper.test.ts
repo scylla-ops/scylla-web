@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { buildTriggerDraft, triggerToDraftInputs } from '../trigger-form.mapper.ts';
 import { isCronExpressionValid } from '@base/features/triggers/domain/structs/cron-expression.struct.ts';
-import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 
 describe('triggerToDraftInputs', () => {

@@ -9,7 +9,7 @@ import type {
 } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import type { GrantableRoleEntity } from '@base/features/roles/domain/entities/grantable-role.entity.ts';
-import type { PermissionVocabularyEntity } from '@base/features/roles/domain/entities/permission-vocabulary.entity.ts';
+import type { PermissionVocabulary } from '@base/features/roles/domain/structs/permission-vocabulary.struct.ts';
 import type { IGrantServiceClient } from '@base/generated/scylla/authz/v1/grant.client.ts';
 import type { IRoleServiceClient } from '@base/generated/scylla/authz/v1/role.client.ts';
 import type { EffectivePermissionsEntity, PermissionScope, PrincipalEntity } from '@platform/authz';
@@ -148,7 +148,7 @@ export class DefaultPermissionRepository implements PermissionRepository {
     }, 'Failed to list grantable roles.');
   }
 
-  public listPermissionVocabulary(): Promise<ScyllaResult<PermissionVocabularyEntity>> {
+  public listPermissionVocabulary(): Promise<ScyllaResult<PermissionVocabulary>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.roles.listAuthzVocabulary({}).response;
       return GrpcPermissionVocabularyMapper.toDomain(response.actions);
