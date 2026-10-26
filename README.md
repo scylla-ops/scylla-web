@@ -126,4 +126,4 @@ packages/ui                the design system — imports no other package
 
 | Module | What it owns |
 |--------|--------------|
-| [shared](extensions/scylla-base/src/shared/README.md) | `ScyllaResult`, status presentation, the shared code with a business meaning |
+| [shared](extensions/scylla-base/src/shared/README.md) | `ScyllaError`, status presentation, the shared code with a business meaning |

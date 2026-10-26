@@ -10,7 +10,7 @@ export const extensionQueries = {
   installed: () =>
     queryOptions({
       queryKey: EXTENSIONS_QUERY_KEY(),
-      queryFn: async () => (await repository().getInstalledExtensions()).unwrap(),
+      queryFn: () => repository().getInstalledExtensions(),
       // The loaded extensions do not change while the app runs.
       staleTime: Infinity,
     }),

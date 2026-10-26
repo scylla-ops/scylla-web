@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { AppSecretEntity } from '@base/features/apps';
 import SecretsCard from './SecretsCard.svelte';
 
@@ -24,9 +23,7 @@ let restoreRegistry: () => void;
 beforeEach(() => {
   setAppSecretLabel = vi
     .fn()
-    .mockImplementation((id: string, label: string) =>
-      Promise.resolve(ScyllaResult.success(secret(id, label))),
-    );
+    .mockImplementation((id: string, label: string) => Promise.resolve(secret(id, label)));
   cache = withQueryClient();
   restoreRegistry = withRegistry({ apps: { appsRepository: { setAppSecretLabel } } });
 });

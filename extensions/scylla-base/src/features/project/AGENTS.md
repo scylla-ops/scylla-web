@@ -56,7 +56,7 @@ domain/
   entities/project.entity.ts         ProjectEntity, ProjectList
   repository/project.repository.ts
 infrastructure/
-  default-project.repository.ts      ProjectServiceClient → ProjectEntity; toCreateProjectError
+  default-project.repository.ts      ProjectServiceClient → ProjectEntity; the project cap
   grpc-project.mapper.ts
   grpc-project-member.mapper.ts
 presentation/
@@ -100,7 +100,7 @@ project routes (the `project` mount) are declared by the modules that own them
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
 - **A project cap comes from an extension.** `CreateProject` can fail with `RESOURCE_EXHAUSTED`
   and an English server text that names the organization by id. The repository maps it to
-  its own sentence (`toCreateProjectError`) and keeps the code; the global toast shows it.
+  its own sentence in `create` and keeps the code; the global toast shows it.
 - The description is optional in both dialogs (`optional: true`).
 
 ## Before done

@@ -3,7 +3,6 @@ import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { selectionStore } from '@scylla/ui/stores';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { SecretEntity } from '@base/features/secret/domain/entities/secret.entity.ts';
 import type {
   SecretRepository,
@@ -27,9 +26,9 @@ let teardown: Array<() => void> = [];
 let deleteById: ReturnType<typeof vi.fn>;
 
 const setUp = (secrets: SecretEntity[] = [secret()]) => {
-  deleteById = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
+  deleteById = vi.fn().mockResolvedValue(undefined);
   const repository = {
-    listByProjectId: vi.fn().mockResolvedValue(ScyllaResult.success(secrets)),
+    listByProjectId: vi.fn().mockResolvedValue(secrets),
     create: vi.fn(),
     deleteById,
   } as unknown as SecretRepository;

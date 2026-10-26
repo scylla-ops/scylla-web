@@ -5,10 +5,8 @@ import { PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  TriggersRepository,
-} from '@base/features/triggers/domain/repository/triggers.repository.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { TriggersRepository } from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import TriggersPage from './Triggers.page.svelte';
@@ -33,8 +31,8 @@ let restoreRegistry: () => void;
 const props = { pipelineId: 'pipeline-1', projectId: 'project-1' };
 
 beforeEach(() => {
-  listByPipelineId = vi.fn().mockResolvedValue(ScyllaResult.success([trigger()]));
-  create = vi.fn().mockResolvedValue(ScyllaResult.success({ trigger: trigger() }));
+  listByPipelineId = vi.fn().mockResolvedValue([trigger()]);
+  create = vi.fn().mockResolvedValue({ trigger: trigger() });
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -85,7 +83,7 @@ describe('TriggersPage', () => {
   });
 
   it('explains an empty pipeline instead of showing a bare table', async () => {
-    listByPipelineId.mockResolvedValue(ScyllaResult.success([]));
+    listByPipelineId.mockResolvedValue([]);
     render(TriggersPage, props);
 
     expect(await screen.findByText('No triggers yet')).toBeInTheDocument();
@@ -100,8 +98,8 @@ describe('TriggersPage', () => {
   });
 
   it("surfaces the backend's own message when the list fails", async () => {
-    const error = new ScyllaError('nope', { cause: { code: 'PERMISSION_DENIED' } });
-    listByPipelineId.mockResolvedValue(ScyllaResult.error(error));
+    const error = new ScyllaError('nope', { code: 'PERMISSION_DENIED' });
+    listByPipelineId.mockRejectedValue(error);
     render(TriggersPage, props);
 
     expect(await screen.findByText(error.userMessage())).toBeInTheDocument();
@@ -109,9 +107,7 @@ describe('TriggersPage', () => {
 
   it('reveals a webhook secret exactly once, after creating a webhook trigger', async () => {
     const created = trigger({ id: 'trigger-9', name: 'gh-push' });
-    create.mockResolvedValue(
-      ScyllaResult.success({ trigger: created, webhookSecret: 'whsec-once' }),
-    );
+    create.mockResolvedValue({ trigger: created, webhookSecret: 'whsec-once' });
     render(TriggersPage, props);
     await screen.findByText('nightly');
 
@@ -124,7 +120,7 @@ describe('TriggersPage', () => {
   });
 
   it('reveals nothing when the created trigger carries no secret', async () => {
-    create.mockResolvedValue(ScyllaResult.success({ trigger: trigger({ id: 'trigger-9' }) }));
+    create.mockResolvedValue({ trigger: trigger({ id: 'trigger-9' }) });
     render(TriggersPage, props);
     await screen.findByText('nightly');
 

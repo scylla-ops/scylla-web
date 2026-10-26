@@ -35,9 +35,9 @@ Never add: `login.module.ts`, a page. A state calls `getModuleDomain('login')` d
 
 | Method | Returns |
 |---|---|
-| `login(identifier, password)` | `ScyllaResult<void>` |
-| `requestPasswordReset(email)` | `ScyllaResult<PasswordResetDelivery>` |
-| `resetPassword(token, newPassword)` | `ScyllaResult<void>` |
+| `login(identifier, password)` | `void` |
+| `requestPasswordReset(email)` | `PasswordResetDelivery` |
+| `resetPassword(token, newPassword)` | `void` |
 
 **`void` on `login` is not an oversight.** The session token never travels back through the
 domain: `DefaultLoginRepository` calls `openSession` as a side effect of a successful call. Do not
@@ -144,7 +144,7 @@ sign-in, the login page goes to `returnTo` with `replace`, else to `/`.
   `history.replaceState` and starts again from an empty form. The token never reaches the
   server in a request line, and it does not stay in the address bar or the history.
 - FAILED_PRECONDITION of `ResetPassword` (unknown, used or expired link, inactive account) is a
-  state of the page, not an error: `refusalOf` (`@shared/utils/scylla-result.ts`) gives it back as
+  state of the page, not an error: `refusalOf` (`@shared/utils/scylla-error.ts`) gives it back as
   data, so the global handler does not toast it too. A link with no token shows the same state.
 - The new password is checked in the app first (`@shared/utils/account-validation.ts`): 8 to 255
   characters, and a confirmation equal to it.
@@ -170,7 +170,7 @@ sign-in, the login page goes to `returnTo` with `replace`, else to `/`.
   redirect is the shell's job, not this module's.
 - Never log, toast or store a password. Errors surface as a generic failure: do not leak
   whether the account exists.
-- **The repository re-codes `UNAUTHENTICATED` to `INVALID_CREDENTIALS`** (via `mapError`). On
+- **The repository re-codes `UNAUTHENTICATED` to `INVALID_CREDENTIALS`** (it catches the error and throws a new `ScyllaError`). On
   every other call that code means "session expired", and the shell's `reportQueryError`
   handler reacts to it by clearing the session and hard-loading `/login`. From the login page
   that is a silent reload that eats the error. Remove the translation and a wrong password

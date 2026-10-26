@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import OrganizationMembersPage from './OrganizationMembers.page.svelte';
 
 const member = (overrides: Record<string, unknown> = {}) => ({
@@ -46,28 +45,22 @@ const grant = (permissions: Permission[] | 'all') =>
   });
 
 beforeEach(() => {
-  listMembers = vi.fn().mockResolvedValue(ScyllaResult.success([member()]));
-  getAll = vi
-    .fn()
-    .mockResolvedValue(
-      ScyllaResult.success([
-        { id: 'user-1', username: 'alice' },
-        { id: 'user-2', username: 'bob' },
-      ]),
-    );
-  listGrants = vi.fn().mockResolvedValue(ScyllaResult.success([grantEntity()]));
-  listGrantableRoles = vi.fn().mockResolvedValue(
-    ScyllaResult.success([
-      {
-        roleId: 'organization-member',
-        scope: PermissionScope.ORGANIZATION,
-        kind: 0,
-        description: 'Belongs here',
-      },
-    ]),
-  );
-  revokeAllAccess = vi.fn().mockResolvedValue(ScyllaResult.success(2));
-  createGrant = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
+  listMembers = vi.fn().mockResolvedValue([member()]);
+  getAll = vi.fn().mockResolvedValue([
+    { id: 'user-1', username: 'alice' },
+    { id: 'user-2', username: 'bob' },
+  ]);
+  listGrants = vi.fn().mockResolvedValue([grantEntity()]);
+  listGrantableRoles = vi.fn().mockResolvedValue([
+    {
+      roleId: 'organization-member',
+      scope: PermissionScope.ORGANIZATION,
+      kind: 0,
+      description: 'Belongs here',
+    },
+  ]);
+  revokeAllAccess = vi.fn().mockResolvedValue(2);
+  createGrant = vi.fn().mockResolvedValue(undefined);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -77,11 +70,11 @@ beforeEach(() => {
       permissionRepository: {
         listGrants,
         listGrantableRoles,
-        listRoles: vi.fn().mockResolvedValue(ScyllaResult.success([])),
+        listRoles: vi.fn().mockResolvedValue([]),
         createGrant,
         revokeGrant: vi.fn(),
         revokeAllAccess,
-        getMyPermissions: vi.fn().mockResolvedValue(ScyllaResult.success({ scopes: [] })),
+        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
       },
     },
   });
@@ -121,8 +114,8 @@ describe('OrganizationMembersPage', () => {
   });
 
   it('says so when nobody belongs to the organization yet', async () => {
-    listMembers.mockResolvedValue(ScyllaResult.success([]));
-    listGrants.mockResolvedValue(ScyllaResult.success([]));
+    listMembers.mockResolvedValue([]);
+    listGrants.mockResolvedValue([]);
     render(OrganizationMembersPage);
 
     expect(await screen.findByText('Nobody belongs to this organization yet.')).toBeInTheDocument();

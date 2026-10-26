@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { ScyllaError } from '@shared/utils/scylla-result.ts';
+import { ScyllaError, type ScyllaErrorCode } from '@shared/utils/scylla-error.ts';
 import { reportQueryError } from '../report-query-error.ts';
 
 const toastError = vi.fn();
 vi.mock('svelte-sonner', () => ({ toast: { error: (message: string) => toastError(message) } }));
 
-const errorWith = (code: string) => new ScyllaError('boom', { cause: { code } });
+const errorWith = (code: ScyllaErrorCode) => new ScyllaError('boom', { code });
 let location: Location;
 
 const at = (pathname: string, hash = '', search = '') =>
@@ -93,10 +93,10 @@ describe('reportQueryError', () => {
     expect(localStorage.getItem('token')).toBe('a-token');
   });
 
-  it('only logs an error that does not come from Scylla', () => {
-    reportQueryError(new Error('boom'), 'query');
+  it('gives an error that does not come from Scylla the generic message, not its own text', () => {
+    reportQueryError(new TypeError('x is undefined'), 'query');
 
-    expect(toastError).not.toHaveBeenCalled();
-    expect(console.error).toHaveBeenCalled();
+    expect(toastError).toHaveBeenCalledWith('An unexpected error occurred');
+    expect(console.warn).toHaveBeenCalled();
   });
 });

@@ -1,7 +1,7 @@
 # `@scylla/base-sdk` — agent guide
 
 The public API of `scylla-base` for the other extensions: `Permission` and `can`, the context
-store and `scyllaNavigate`, the gRPC transport, `ScyllaResult`, and the exports of the 15
+store and `scyllaNavigate`, the gRPC transport, `ScyllaError`, and the exports of the 15
 feature barrels (query factories, entity types, page loaders).
 
 **Package** `sdks/scylla-base-sdk` · entry `@scylla/base-sdk`
@@ -11,7 +11,7 @@ feature barrels (query factories, entity types, page loaders).
 - **The only door into scylla-base** (`sdk-is-the-door`, error). An extension imports
   `@scylla/base-sdk`, never `@scylla/base`.
 - It is a facade: `src/index.ts` re-exports `@scylla/base/features/*`, `@scylla/base/platform/*`,
-  `@scylla/base/scylla-result` and `@scylla/base/account-validation` (the account checks of a
+  `@scylla/base/scylla-error` and `@scylla/base/account-validation` (the account checks of a
   form: `checkEmail`, `checkNewPassword`, `checkPasswordConfirmation`, `checkUsername`,
   `checkDisplayName`). It holds no code of its own, so there is one instance of
   every store.

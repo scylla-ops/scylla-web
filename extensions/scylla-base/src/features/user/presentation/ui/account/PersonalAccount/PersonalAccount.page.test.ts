@@ -3,7 +3,6 @@ import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import type * as Login from '@base/features/login';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import PersonalAccountPage from './PersonalAccount.page.svelte';
 
 const signOut = vi.fn();
@@ -19,16 +18,14 @@ beforeEach(() => {
   localStorage.setItem('userId', 'user-1');
   const cache = withQueryClient();
   const userRepository = {
-    getMe: vi.fn().mockResolvedValue(
-      ScyllaResult.success({
-        userId: 'user-1',
-        username: 'ada',
-        isActive: true,
-        updatedAt: '2025-01-01T00:00:00.000Z',
-      }),
-    ),
-    listAccess: vi.fn().mockResolvedValue(ScyllaResult.success([])),
-    listSessions: vi.fn().mockResolvedValue(ScyllaResult.success([])),
+    getMe: vi.fn().mockResolvedValue({
+      userId: 'user-1',
+      username: 'ada',
+      isActive: true,
+      updatedAt: '2025-01-01T00:00:00.000Z',
+    }),
+    listAccess: vi.fn().mockResolvedValue([]),
+    listSessions: vi.fn().mockResolvedValue([]),
   };
   teardown = [cache.restore, withRegistry({ user: { userRepository } })];
 });

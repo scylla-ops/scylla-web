@@ -23,7 +23,7 @@ export const secretQueries = {
     queryOptions<SecretEntity[]>({
       queryKey: SECRETS_QUERY_KEY(projectId),
       enabled: !!projectId,
-      queryFn: async () => (await repository().listByProjectId(projectId)).unwrap(),
+      queryFn: () => repository().listByProjectId(projectId),
       staleTime: 30 * 1000,
     }),
 };
@@ -35,8 +35,8 @@ export const secretMutations = {
   /** The value passes through once and is never stored. */
   create: (projectId: string) =>
     mutationOptions({
-      mutationFn: async ({ name, value, description }: CreateSecretValues) =>
-        (await repository().create({ projectId, name, value, description })).unwrap(),
+      mutationFn: ({ name, value, description }: CreateSecretValues) =>
+        repository().create({ projectId, name, value, description }),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.SECRET_CREATE));
         void invalidateProject(projectId);
@@ -46,8 +46,7 @@ export const secretMutations = {
   /** Breaks the pipelines that use it: confirm first. No success toast: each caller words its own. */
   remove: (projectId: string) =>
     mutationOptions({
-      mutationFn: async (secretId: string) =>
-        (await repository().deleteById(secretId)).unwrap(),
+      mutationFn: (secretId: string) => repository().deleteById(secretId),
       onSuccess: () => void invalidateProject(projectId),
     }),
 };

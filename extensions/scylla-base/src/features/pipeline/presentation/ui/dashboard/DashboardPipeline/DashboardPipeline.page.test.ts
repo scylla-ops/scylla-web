@@ -6,7 +6,7 @@ import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import DashboardPipelinePage from './DashboardPipeline.page.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), warning: vi.fn(), error: vi.fn() } }));
@@ -44,7 +44,7 @@ const grantEverything = () =>
   });
 
 const setUp = (getMetadataByProjectId: () => Promise<unknown>) => {
-  run = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
+  run = vi.fn().mockResolvedValue(undefined);
   const cache = withQueryClient();
   teardown = [
     cache.restore,
@@ -53,12 +53,10 @@ const setUp = (getMetadataByProjectId: () => Promise<unknown>) => {
       jobs: {
         jobsRepository: {
           getByPipelineId: (pipelineId: string) =>
-            Promise.resolve(
-              ScyllaResult.success({ items: pipelineId === 'pipeline-1' ? [job] : [] }),
-            ),
+            Promise.resolve({ items: pipelineId === 'pipeline-1' ? [job] : [] }),
         },
       },
-      agents: { agentsRepository: { listAgents: () => Promise.resolve(ScyllaResult.success([])) } },
+      agents: { agentsRepository: { listAgents: () => Promise.resolve([]) } },
     }),
   ];
   return render(DashboardPipelinePage, { projectId: 'project-1' });
@@ -81,27 +79,27 @@ afterEach(() => {
 
 describe('DashboardPipelinePage', () => {
   it('lists the pipelines of the project with their count', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success(page(pipelines))));
+    setUp(() => Promise.resolve(page(pipelines)));
 
     expect(await screen.findByText('nightly')).toBeInTheDocument();
     expect(screen.getByText('release')).toBeInTheDocument();
   });
 
   it('says so when the project has no pipeline', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success(page([]))));
+    setUp(() => Promise.resolve(page([])));
 
     expect(await screen.findByText('No pipeline found')).toBeInTheDocument();
   });
 
   it('shows the error of the backend when the list fails', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.error(new ScyllaError('backend is down'))));
+    setUp(() => Promise.reject(new ScyllaError('backend is down')));
 
     expect(await screen.findByText('Error')).toBeInTheDocument();
     expect(screen.queryByText('nightly')).not.toBeInTheDocument();
   });
 
   it('opens the last run of a pipeline', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success(page(pipelines))));
+    setUp(() => Promise.resolve(page(pipelines)));
 
     await userEvent.click(await screen.findByRole('button', { name: 'Open the last run' }));
 
@@ -112,7 +110,7 @@ describe('DashboardPipelinePage', () => {
   });
 
   it('runs a pipeline from its row', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success(page(pipelines))));
+    setUp(() => Promise.resolve(page(pipelines)));
     await screen.findByText('nightly');
 
     const [runNightly] = screen.getAllByRole('button', { name: 'Run' });
@@ -122,7 +120,7 @@ describe('DashboardPipelinePage', () => {
   });
 
   it('opens the editor, the jobs and the triggers of a pipeline', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success(page(pipelines))));
+    setUp(() => Promise.resolve(page(pipelines)));
     await screen.findByText('nightly');
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Edit pipeline' })[0]);
@@ -144,7 +142,7 @@ describe('DashboardPipelinePage', () => {
   });
 
   it('opens the members and the secrets of the project from the header', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success(page(pipelines))));
+    setUp(() => Promise.resolve(page(pipelines)));
     await screen.findByText('nightly');
 
     await userEvent.click(screen.getByRole('button', { name: 'Members' }));
@@ -155,7 +153,7 @@ describe('DashboardPipelinePage', () => {
   });
 
   it('selects a pipeline when the user clicks its row', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success(page(pipelines))));
+    setUp(() => Promise.resolve(page(pipelines)));
 
     await userEvent.click(await screen.findByText('release'));
 

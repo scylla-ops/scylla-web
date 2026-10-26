@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
 import { withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { toast } from '@scylla/ui/utils';
 import { MemberRoleOrigin } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import type { MemberRole } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
@@ -22,9 +21,9 @@ let restoreRegistry: () => void;
 beforeEach(() => {
   vi.mocked(toastSuccess).mockClear();
 
-  createGrant = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
-  revokeGrant = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
-  revokeAllAccess = vi.fn().mockResolvedValue(ScyllaResult.success(3));
+  createGrant = vi.fn().mockResolvedValue(undefined);
+  revokeGrant = vi.fn().mockResolvedValue(undefined);
+  revokeAllAccess = vi.fn().mockResolvedValue(3);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -33,8 +32,8 @@ beforeEach(() => {
         createGrant,
         revokeGrant,
         revokeAllAccess,
-        listGrants: vi.fn().mockResolvedValue(ScyllaResult.success([])),
-        getMyPermissions: vi.fn().mockResolvedValue(ScyllaResult.success({ scopes: [] })),
+        listGrants: vi.fn().mockResolvedValue([]),
+        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
       },
     },
   });

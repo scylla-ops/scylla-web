@@ -5,7 +5,7 @@ import type {
   JobLogStream,
 } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { IJobServiceClient } from '@base/generated/scylla/job/v1/job.client.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { wrapId, wrapIdOpt } from '@shared/infrastructure/grpc/wrappers.ts';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import * as grpcJob from './grpc-job.mapper.ts';
@@ -13,85 +13,68 @@ import * as grpcJob from './grpc-job.mapper.ts';
 export class DefaultJobsRepository implements JobsRepository {
   constructor(private readonly client: IJobServiceClient) {}
 
-  public getByPipelineId(
+  public async getByPipelineId(
     pipelineId: string,
     pagination?: PaginationParams,
-  ): Promise<ScyllaResult<PaginatedList<JobEntity>>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.listPipelineJobs({
-        pipelineId: wrapId(pipelineId),
-        pagination,
-      }).response;
-      return grpcJob.toDomainList(response);
-    }, 'Error fetching pipeline jobs');
+  ): Promise<PaginatedList<JobEntity>> {
+    const response = await this.client.listPipelineJobs({
+      pipelineId: wrapId(pipelineId),
+      pagination,
+    }).response;
+    return grpcJob.toDomainList(response);
   }
 
-  public getByOrganizationId(
+  public async getByOrganizationId(
     organizationId: string,
     pagination?: PaginationParams,
-  ): Promise<ScyllaResult<PaginatedList<JobEntity>>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.listOrganizationJobs({
-        organizationId: wrapId(organizationId),
-        pagination,
-      }).response;
-      return grpcJob.toDomainList(response);
-    }, 'Error fetching organization jobs');
+  ): Promise<PaginatedList<JobEntity>> {
+    const response = await this.client.listOrganizationJobs({
+      organizationId: wrapId(organizationId),
+      pagination,
+    }).response;
+    return grpcJob.toDomainList(response);
   }
 
-  public getById(jobId: string): Promise<ScyllaResult<JobEntity>> {
-    return ScyllaResult.tryAsync(async () => {
-      const { job } = await this.client.getJob({ jobId: wrapId(jobId) }).response;
-      if (!job) throw new ScyllaError('Job missing from GetJobResponse');
-      return grpcJob.toDomain(job);
-    }, 'Error fetching job');
+  public async getById(jobId: string): Promise<JobEntity> {
+    const { job } = await this.client.getJob({ jobId: wrapId(jobId) }).response;
+    if (!job) throw new ScyllaError('Job missing from GetJobResponse');
+    return grpcJob.toDomain(job);
   }
 
-  public deleteById(jobId: string): Promise<ScyllaResult<void>> {
-    return ScyllaResult.tryAsync(async () => {
-      await this.client.deleteJob({ jobId: wrapId(jobId) }).response;
-    }, 'Error deleting job');
+  public async deleteById(jobId: string): Promise<void> {
+    await this.client.deleteJob({ jobId: wrapId(jobId) }).response;
   }
 
-  public getLogs(
+  public async getLogs(
     jobId: string,
     nodeId?: string,
     pagination?: PaginationParams,
-  ): Promise<ScyllaResult<PaginatedList<JobLog>>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.listJobLogs({
-        jobId: wrapId(jobId),
-        nodeId: wrapIdOpt(nodeId),
-        pagination,
-      }).response;
-      return grpcJob.logsToDomainList(response);
-    }, 'Error fetching job logs');
+  ): Promise<PaginatedList<JobLog>> {
+    const response = await this.client.listJobLogs({
+      jobId: wrapId(jobId),
+      nodeId: wrapIdOpt(nodeId),
+      pagination,
+    }).response;
+    return grpcJob.logsToDomainList(response);
   }
 
-  /** An error ends the stream as its last item; `cancel` aborts the call. */
-  public tailLogs(jobId: string, nodeId?: string): ScyllaResult<JobLogStream> {
+  /** A failure ends `logs` with a throw; `cancel` aborts the call. */
+  public tailLogs(jobId: string, nodeId?: string): JobLogStream {
     const abortController = new AbortController();
+    const call = this.client.tailJobLogs(
+      { jobId: wrapId(jobId), nodeId: wrapIdOpt(nodeId) },
+      { abort: abortController.signal },
+    );
 
-    return ScyllaResult.try<JobLogStream>(() => {
-      const call = this.client.tailJobLogs(
-        { jobId: wrapId(jobId), nodeId: wrapIdOpt(nodeId) },
-        { abort: abortController.signal },
-      );
-
-      return {
-        logs: {
-          async *[Symbol.asyncIterator]() {
-            try {
-              for await (const event of call.responses) {
-                if (event.log) yield ScyllaResult.success(grpcJob.logEntryToDomain(event.log));
-              }
-            } catch (err) {
-              yield ScyllaResult.error(new ScyllaError('Error tailing job logs', { cause: err }));
-            }
-          },
+    return {
+      logs: {
+        async *[Symbol.asyncIterator]() {
+          for await (const event of call.responses) {
+            if (event.log) yield grpcJob.logEntryToDomain(event.log);
+          }
         },
-        cancel: () => abortController.abort(),
-      };
-    }, 'Error tailing job logs');
+      },
+      cancel: () => abortController.abort(),
+    };
   }
 }

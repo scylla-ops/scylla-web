@@ -6,7 +6,7 @@ import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import UserDetailPage from './UserDetail.page.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
@@ -73,28 +73,26 @@ const setUp = (
 ) => {
   holding(permissions);
   repository = {
-    getMe: vi.fn().mockResolvedValue(ScyllaResult.success(me)),
-    getById: vi.fn().mockResolvedValue(ScyllaResult.success(grace)),
-    listAccess: vi.fn().mockResolvedValue(
-      ScyllaResult.success([
-        {
-          grantId: 'g-1',
-          scope: 'organization',
-          organizationId: 'org-1',
-          organizationName: 'Acme',
-          projectName: '',
-          roleId: 'organization-member',
-          roleName: 'Member',
-        },
-      ]),
-    ),
-    update: vi.fn().mockResolvedValue(ScyllaResult.success(grace)),
-    sendPasswordReset: vi.fn().mockResolvedValue(ScyllaResult.success('mail')),
-    revokeSessions: vi.fn().mockResolvedValue(ScyllaResult.success(1)),
-    listSessions: vi.fn().mockResolvedValue(ScyllaResult.success(sessions)),
-    revokeSession: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-    setActive: vi.fn().mockResolvedValue(ScyllaResult.success({ ...grace, isActive: false })),
-    delete: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
+    getMe: vi.fn().mockResolvedValue(me),
+    getById: vi.fn().mockResolvedValue(grace),
+    listAccess: vi.fn().mockResolvedValue([
+      {
+        grantId: 'g-1',
+        scope: 'organization',
+        organizationId: 'org-1',
+        organizationName: 'Acme',
+        projectName: '',
+        roleId: 'organization-member',
+        roleName: 'Member',
+      },
+    ]),
+    update: vi.fn().mockResolvedValue(grace),
+    sendPasswordReset: vi.fn().mockResolvedValue('mail'),
+    revokeSessions: vi.fn().mockResolvedValue(1),
+    listSessions: vi.fn().mockResolvedValue(sessions),
+    revokeSession: vi.fn().mockResolvedValue(undefined),
+    setActive: vi.fn().mockResolvedValue({ ...grace, isActive: false }),
+    delete: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
   const cache = withQueryClient();
@@ -255,7 +253,7 @@ describe('UserDetailPage', () => {
     });
 
     it('says when the user has no active session', async () => {
-      setUp({}, { listSessions: vi.fn().mockResolvedValue(ScyllaResult.success([])) });
+      setUp({}, { listSessions: vi.fn().mockResolvedValue([]) });
 
       const list = await screen.findByRole('region', { name: 'Sessions' });
       expect(await within(list).findByText('No active session.')).toBeInTheDocument();
@@ -267,9 +265,7 @@ describe('UserDetailPage', () => {
         {
           listSessions: vi
             .fn()
-            .mockResolvedValue(
-              ScyllaResult.error(new ScyllaError('Failed.', { cause: { code: 'UNAVAILABLE' } })),
-            ),
+            .mockRejectedValue(new ScyllaError('Failed.', { code: 'UNAVAILABLE' })),
         },
       );
 
@@ -291,7 +287,7 @@ describe('UserDetailPage', () => {
   });
 
   it('says when the reset link is in the server log', async () => {
-    setUp({}, { sendPasswordReset: vi.fn().mockResolvedValue(ScyllaResult.success('server-log')) });
+    setUp({}, { sendPasswordReset: vi.fn().mockResolvedValue('server-log') });
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Send a reset link' }));
@@ -328,10 +324,7 @@ describe('UserDetailPage', () => {
   });
 
   it('offers to reactivate a deactivated account', async () => {
-    setUp(
-      {},
-      { getById: vi.fn().mockResolvedValue(ScyllaResult.success({ ...grace, isActive: false })) },
-    );
+    setUp({}, { getById: vi.fn().mockResolvedValue({ ...grace, isActive: false }) });
     const user = userEvent.setup();
 
     expect(await screen.findByText('Deactivated')).toBeInTheDocument();
@@ -360,11 +353,7 @@ describe('UserDetailPage', () => {
     setUp(
       {},
       {
-        getById: vi
-          .fn()
-          .mockResolvedValue(
-            ScyllaResult.error(new ScyllaError('Failed.', { cause: { code: 'UNAVAILABLE' } })),
-          ),
+        getById: vi.fn().mockRejectedValue(new ScyllaError('Failed.', { code: 'UNAVAILABLE' })),
       },
     );
 

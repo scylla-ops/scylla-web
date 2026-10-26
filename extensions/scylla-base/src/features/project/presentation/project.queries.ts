@@ -38,8 +38,7 @@ export const projectQueries = {
   byOrganization: (organizationId: string | null, pagination: PaginationParams = FIRST_PAGE) =>
     queryOptions({
       queryKey: PROJECTS_QUERY_KEY(organizationId, pagination),
-      queryFn: async () =>
-        (await repository().getByOrganizationId(organizationId!, pagination)).unwrap(),
+      queryFn: () => repository().getByOrganizationId(organizationId!, pagination),
       enabled: canListProjects(organizationId),
     }),
 
@@ -47,8 +46,7 @@ export const projectQueries = {
   lookup: (organizationId: string | null) =>
     queryOptions({
       queryKey: PROJECTS_QUERY_KEY(organizationId, PROJECTS_LOOKUP_PAGE),
-      queryFn: async () =>
-        (await repository().getByOrganizationId(organizationId!, PROJECTS_LOOKUP_PAGE)).unwrap(),
+      queryFn: () => repository().getByOrganizationId(organizationId!, PROJECTS_LOOKUP_PAGE),
       enabled: !!organizationId,
       staleTime: 30_000,
     }),
@@ -57,7 +55,7 @@ export const projectQueries = {
   members: (projectId: string | null, options: { enabled?: boolean } = {}) =>
     queryOptions({
       queryKey: PROJECT_MEMBERS_QUERY_KEY(projectId ?? ''),
-      queryFn: async () => (await repository().listMembers(projectId!)).unwrap(),
+      queryFn: () => repository().listMembers(projectId!),
       enabled: (options.enabled ?? true) && !!projectId,
     }),
 };
@@ -110,7 +108,7 @@ export const projectMutations = {
   create: () =>
     mutationOptions({
       mutationKey: CREATE_PROJECT_MUTATION_KEY,
-      mutationFn: async ({
+      mutationFn: ({
         name,
         organizationId,
         description,
@@ -118,7 +116,7 @@ export const projectMutations = {
         name: string;
         organizationId: string;
         description?: string;
-      }) => (await repository().create(name, organizationId, description)).unwrap(),
+      }) => repository().create(name, organizationId, description),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.PROJECT_CREATE));
         return invalidateProjects();
@@ -127,7 +125,7 @@ export const projectMutations = {
 
   update: () =>
     mutationOptions({
-      mutationFn: async ({
+      mutationFn: ({
         projectId,
         name,
         description,
@@ -135,7 +133,7 @@ export const projectMutations = {
         projectId: string;
         name?: string;
         description?: string;
-      }) => (await repository().update(projectId, name, description)).unwrap(),
+      }) => repository().update(projectId, name, description),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.PROJECT_UPDATE));
         return invalidateProjects();
@@ -144,7 +142,7 @@ export const projectMutations = {
 
   remove: () =>
     mutationOptions({
-      mutationFn: async (projectId: string) => (await repository().delete(projectId)).unwrap(),
+      mutationFn: (projectId: string) => repository().delete(projectId),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.PROJECT_DELETE));
         return invalidateProjects();

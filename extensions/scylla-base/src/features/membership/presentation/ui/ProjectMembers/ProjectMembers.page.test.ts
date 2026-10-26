@@ -3,13 +3,7 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import {
-  render,
-  withQueryClient,
-  withRegistry,
-  withWidgetInjections,
-} from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { render, withQueryClient, withRegistry, withWidgetInjections } from '@test/render.ts';
 import { membershipPoints } from '@base/features/membership/presentation/membership.points.ts';
 import ProjectMembersPage from './ProjectMembers.page.svelte';
 
@@ -54,38 +48,32 @@ const grant = (permissions: Permission[] | 'all') =>
   });
 
 beforeEach(() => {
-  listProjectMembers = vi
-    .fn()
-    .mockResolvedValue(ScyllaResult.success([{ userId: 'user-1', username: 'alice' }]));
-  listOrganizationMembers = vi.fn().mockResolvedValue(
-    ScyllaResult.success([
-      { userId: 'user-1', username: 'alice' },
-      { userId: 'user-2', username: 'bob' },
-      { userId: 'user-3', username: 'carol' },
-    ]),
-  );
+  listProjectMembers = vi.fn().mockResolvedValue([{ userId: 'user-1', username: 'alice' }]);
+  listOrganizationMembers = vi.fn().mockResolvedValue([
+    { userId: 'user-1', username: 'alice' },
+    { userId: 'user-2', username: 'bob' },
+    { userId: 'user-3', username: 'carol' },
+  ]);
 
   // The scope decides which grant list answers.
-  listGrants = vi.fn().mockImplementation((scope?: PermissionScope) =>
-    Promise.resolve(
-      ScyllaResult.success(
+  listGrants = vi
+    .fn()
+    .mockImplementation((scope?: PermissionScope) =>
+      Promise.resolve(
         scope === PermissionScope.ORGANIZATION ? [organizationGrant()] : [projectGrant()],
       ),
-    ),
-  );
-  listRoles = vi.fn().mockResolvedValue(
-    ScyllaResult.success([
-      {
-        id: 'organization-admin',
-        name: 'Organization admin',
-        description: '',
-        scope: PermissionScope.ORGANIZATION,
-        origin: { kind: 'builtin' },
-        access: { kind: 'fullControl' },
-      },
-    ]),
-  );
-  revokeAllAccess = vi.fn().mockResolvedValue(ScyllaResult.success(1));
+    );
+  listRoles = vi.fn().mockResolvedValue([
+    {
+      id: 'organization-admin',
+      name: 'Organization admin',
+      description: '',
+      scope: PermissionScope.ORGANIZATION,
+      origin: { kind: 'builtin' },
+      access: { kind: 'fullControl' },
+    },
+  ]);
+  revokeAllAccess = vi.fn().mockResolvedValue(1);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -95,11 +83,11 @@ beforeEach(() => {
       permissionRepository: {
         listGrants,
         listRoles,
-        listGrantableRoles: vi.fn().mockResolvedValue(ScyllaResult.success([])),
-        createGrant: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-        revokeGrant: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
+        listGrantableRoles: vi.fn().mockResolvedValue([]),
+        createGrant: vi.fn().mockResolvedValue(undefined),
+        revokeGrant: vi.fn().mockResolvedValue(undefined),
         revokeAllAccess,
-        getMyPermissions: vi.fn().mockResolvedValue(ScyllaResult.success({ scopes: [] })),
+        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
       },
     },
   });
@@ -169,8 +157,8 @@ describe('ProjectMembersPage', () => {
   });
 
   it('says so when nobody has access to the project yet', async () => {
-    listProjectMembers.mockResolvedValue(ScyllaResult.success([]));
-    listGrants.mockResolvedValue(ScyllaResult.success([]));
+    listProjectMembers.mockResolvedValue([]);
+    listGrants.mockResolvedValue([]);
     render(ProjectMembersPage, { projectId: 'project-1' });
 
     expect(await screen.findByText('Nobody has access to this project yet.')).toBeInTheDocument();
@@ -242,12 +230,10 @@ describe('ProjectMembersPage', () => {
     expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();
     expect(screen.queryByText('Unknown user')).not.toBeInTheDocument();
 
-    answer(
-      ScyllaResult.success([
-        { userId: 'user-1', username: 'alice' },
-        { userId: 'user-2', username: 'bob' },
-      ]),
-    );
+    answer([
+      { userId: 'user-1', username: 'alice' },
+      { userId: 'user-2', username: 'bob' },
+    ]);
 
     expect(await screen.findByText('bob')).toBeInTheDocument();
     expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();

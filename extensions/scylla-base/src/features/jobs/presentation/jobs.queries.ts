@@ -27,7 +27,7 @@ export const jobQueries = {
     queryOptions<JobEntity>({
       queryKey: JOB_QUERY_KEY(jobId),
       enabled: !!jobId,
-      queryFn: async () => (await repository().getById(jobId)).unwrap(),
+      queryFn: () => repository().getById(jobId),
       refetchInterval: query => {
         const status = query.state.data?.status;
         if (!status || status === 'completed' || status === 'failed') return false;
@@ -40,7 +40,7 @@ export const jobQueries = {
     queryOptions<PaginatedList<JobEntity>>({
       queryKey: [...JOBS_QUERY_KEY(pipelineId), pagination],
       enabled: (options.enabled ?? true) && !!pipelineId,
-      queryFn: async () => (await repository().getByPipelineId(pipelineId, pagination)).unwrap(),
+      queryFn: () => repository().getByPipelineId(pipelineId, pagination),
       staleTime: 0,
       refetchInterval: query => (hasActive(query.state.data?.items ?? []) ? 5000 : false),
     }),
@@ -50,10 +50,7 @@ export const jobQueries = {
     queryOptions({
       queryKey: ORGANIZATION_JOBS_QUERY_KEY(organizationId, ORGANIZATION_JOBS_WINDOW),
       enabled: enabled && !!organizationId,
-      queryFn: async () =>
-        (
-          await repository().getByOrganizationId(organizationId!, ORGANIZATION_JOBS_WINDOW)
-        ).unwrap(),
+      queryFn: () => repository().getByOrganizationId(organizationId!, ORGANIZATION_JOBS_WINDOW),
       staleTime: 10_000,
       refetchInterval: query => (hasActive(query.state.data?.items ?? []) ? 5_000 : false),
     }),
@@ -67,7 +64,7 @@ export const jobQueries = {
           page: 1,
           pageSize: MAX_JOBS_PER_PIPELINE,
         });
-        return { pipelineId, jobs: list.unwrap().items };
+        return { pipelineId, jobs: list.items };
       },
       staleTime: 0,
       refetchInterval: query => (hasActive(query.state.data?.jobs ?? []) ? 2000 : false),
@@ -91,7 +88,7 @@ export const jobMutations = {
   /** Invalidates the pipeline's list, or every job list when the pipeline is not known. */
   remove: (pipelineId?: string) =>
     mutationOptions({
-      mutationFn: async (jobId: string) => (await repository().deleteById(jobId)).unwrap(),
+      mutationFn: (jobId: string) => repository().deleteById(jobId),
       onSuccess: () => {
         void getQueryClient().invalidateQueries({
           queryKey: pipelineId ? JOBS_QUERY_KEY(pipelineId) : JOBS_QUERY_ROOT,

@@ -59,16 +59,16 @@ describe('DefaultUserRepository', () => {
   it('reads the account of the session', async () => {
     const result = await repositoryOn(client()).getMe();
 
-    expect(result.unwrap()).toMatchObject({ userId: 'user-1', email: 'ada@example.com' });
+    expect(result).toMatchObject({ userId: 'user-1', email: 'ada@example.com' });
   });
 
   it('fails on a response without a user instead of giving an empty one', async () => {
     const fake = client();
     fake.getMe.mockReturnValue(unaryCall({} as { user: User }));
 
-    const result = await repositoryOn(fake).getMe();
-
-    expect(() => result.unwrap()).toThrow('Failed to fetch your account.');
+    await expect(repositoryOn(fake).getMe()).rejects.toThrow(
+      'Server returned a response without a user.',
+    );
   });
 
   it('sends the email and the display name of a new user', async () => {
@@ -103,19 +103,19 @@ describe('DefaultUserRepository', () => {
   it('gives the new status of the user', async () => {
     const result = await repositoryOn(client()).setActive('user-1', false);
 
-    expect(result.unwrap().isActive).toBe(false);
+    expect(result.isActive).toBe(false);
   });
 
   it('gives the delivery of a reset link in domain terms', async () => {
     const result = await repositoryOn(client()).sendPasswordReset('user-1');
 
-    expect(result.unwrap()).toBe('mail');
+    expect(result).toBe('mail');
   });
 
   it('gives the number of revoked sessions', async () => {
     const result = await repositoryOn(client()).revokeSessions('user-1');
 
-    expect(result.unwrap()).toBe(3);
+    expect(result).toBe(3);
   });
 
   it('passes the passwords through', async () => {
@@ -135,7 +135,7 @@ describe('DefaultUserRepository', () => {
   it('maps every grant of the user', async () => {
     const result = await repositoryOn(client()).listAccess('user-1');
 
-    expect(result.unwrap()).toEqual([
+    expect(result).toEqual([
       expect.objectContaining({ grantId: 'grant-1', scope: 'system', roleName: 'System admin' }),
     ]);
   });
@@ -143,7 +143,7 @@ describe('DefaultUserRepository', () => {
   it('maps every session of the user', async () => {
     const result = await repositoryOn(client()).listSessions('user-1');
 
-    expect(result.unwrap()).toEqual([
+    expect(result).toEqual([
       expect.objectContaining({ sessionId: 'session-1', ipAddress: '203.0.113.7', current: true }),
     ]);
   });

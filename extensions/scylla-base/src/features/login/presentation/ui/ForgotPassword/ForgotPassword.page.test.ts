@@ -2,17 +2,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  PasswordResetDelivery,
-} from '@base/features/login/domain/structs/password-reset.struct.ts';
+import type { PasswordResetDelivery } from '@base/features/login/domain/structs/password-reset.struct.ts';
 import ForgotPasswordPage from './ForgotPassword.page.svelte';
 
 let teardown: Array<() => void> = [];
 let requestPasswordReset: ReturnType<typeof vi.fn>;
 
 const setUp = (delivery: PasswordResetDelivery = 'mail') => {
-  requestPasswordReset = vi.fn().mockResolvedValue(ScyllaResult.success(delivery));
+  requestPasswordReset = vi.fn().mockResolvedValue(delivery);
   const cache = withQueryClient();
   teardown = [
     cache.restore,

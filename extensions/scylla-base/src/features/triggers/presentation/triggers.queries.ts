@@ -22,7 +22,7 @@ export const triggerQueries = {
     queryOptions<TriggerEntity[]>({
       queryKey: TRIGGERS_QUERY_KEY(pipelineId),
       enabled: !!pipelineId,
-      queryFn: async () => (await repository().listByPipelineId(pipelineId)).unwrap(),
+      queryFn: () => repository().listByPipelineId(pipelineId),
       staleTime: 30 * 1000,
       refetchInterval: query => {
         const triggers = query.state.data ?? [];
@@ -40,8 +40,7 @@ const invalidateTriggers = (pipelineId: string) =>
 export const triggerMutations = {
   create: (pipelineId: string) =>
     mutationOptions({
-      mutationFn: async (draft: TriggerDraft) =>
-        (await repository().create(pipelineId, draft)).unwrap(),
+      mutationFn: (draft: TriggerDraft) => repository().create(pipelineId, draft),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.TRIGGER_CREATE));
         void invalidateTriggers(pipelineId);
@@ -50,8 +49,8 @@ export const triggerMutations = {
 
   update: (pipelineId: string) =>
     mutationOptions({
-      mutationFn: async ({ triggerId, draft }: { triggerId: string; draft: TriggerDraft }) =>
-        (await repository().update(triggerId, draft)).unwrap(),
+      mutationFn: ({ triggerId, draft }: { triggerId: string; draft: TriggerDraft }) =>
+        repository().update(triggerId, draft),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.TRIGGER_UPDATE));
         void invalidateTriggers(pipelineId);
@@ -61,8 +60,7 @@ export const triggerMutations = {
   /** A deleted webhook URL is gone forever, unlike disabling. Confirm first. */
   remove: (pipelineId: string) =>
     mutationOptions({
-      mutationFn: async (triggerId: string) =>
-        (await repository().deleteById(triggerId)).unwrap(),
+      mutationFn: (triggerId: string) => repository().deleteById(triggerId),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.TRIGGER_DELETE));
         void invalidateTriggers(pipelineId);
@@ -72,8 +70,8 @@ export const triggerMutations = {
   /** Optimistic: the switch moves at once, and `onError` rolls it back. */
   setEnabled: (pipelineId: string) =>
     mutationOptions({
-      mutationFn: async ({ triggerId, enabled }: { triggerId: string; enabled: boolean }) =>
-        (await repository().setEnabled(triggerId, enabled)).unwrap(),
+      mutationFn: ({ triggerId, enabled }: { triggerId: string; enabled: boolean }) =>
+        repository().setEnabled(triggerId, enabled),
       onMutate: async ({ triggerId, enabled }) => {
         const queryClient = getQueryClient();
         const key = TRIGGERS_QUERY_KEY(pipelineId);
@@ -104,7 +102,7 @@ export const triggerMutations = {
   /** Creates a real job: the pipeline's job list is invalidated too. */
   fireNow: (pipelineId: string) =>
     mutationOptions({
-      mutationFn: async (triggerId: string) => (await repository().fireNow(triggerId)).unwrap(),
+      mutationFn: (triggerId: string) => repository().fireNow(triggerId),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.TRIGGER_FIRED));
         void getQueryClient().invalidateQueries({ queryKey: JOBS_OF_PIPELINE(pipelineId) });

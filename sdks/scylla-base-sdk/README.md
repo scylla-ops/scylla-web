@@ -9,7 +9,7 @@ Scylla features. It is the only access to [`scylla-base`](../../extensions/scyll
 for other extensions.
 
 ```typescript
-import { Permission, can, contextStore, grpcTransport, ScyllaResult } from '@scylla/base-sdk';
+import { Permission, can, contextStore, grpcTransport, ScyllaError } from '@scylla/base-sdk';
 ```
 
 ## What it gives
@@ -19,7 +19,7 @@ import { Permission, can, contextStore, grpcTransport, ScyllaResult } from '@scy
 | Access control | `Permission`, `can`, `authorizationReady`, `Can`, `RequirePermission` | Put a permission on a route, show or hide a control. |
 | Context | `contextStore`, `scyllaNavigate` | Read the active organization, project and pipeline. Navigate inside them. |
 | Backend | `grpcTransport` | The gRPC-Web transport, with authentication. Give it to your generated clients. |
-| Errors | `ScyllaResult`, `ScyllaError`, `refusalOf` | Return errors as values from your repositories, like the Scylla features. |
+| Errors | `ScyllaError`, `ScyllaErrorCode`, `refusalOf` | The error of every failed call of `grpcTransport`. Your repository awaits its call, and your query returns it. |
 | Session | `openSession`, `closeSession`, `hasSession`, `signOut` | Open the session after a sign-up, know if one is open, end it. Never read or write `localStorage` yourself. |
 | Account forms | `checkEmail`, `checkNewPassword`, `checkPasswordConfirmation`, `checkUsername`, `checkDisplayName` | The checks of the backend rules, with the messages of Scylla, as `FormItem.validate`. |
 | Features | query factories, query keys, entity types, page loaders | Reuse the data of a Scylla feature, e.g. `jobQueries`, `JobEntity`, `loadJobsPage`. |

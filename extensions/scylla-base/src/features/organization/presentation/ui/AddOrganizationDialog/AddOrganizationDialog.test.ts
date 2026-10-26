@@ -4,10 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '@platform/context';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  OrganizationRepository,
-} from '@base/features/organization/domain/repository/organization.repository.ts';
+import type { OrganizationRepository } from '@base/features/organization/domain/repository/organization.repository.ts';
 import AddOrganizationDialog from './AddOrganizationDialog.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn() } }));
@@ -17,9 +14,7 @@ let testNavigator: ReturnType<typeof installTestNavigator>;
 let create: ReturnType<typeof vi.fn>;
 
 const setUp = (props: { setOpen?: (open: boolean) => void; hideCancel?: boolean } = {}) => {
-  create = vi
-    .fn()
-    .mockResolvedValue(ScyllaResult.success({ id: 'org-1', name: 'Acme Corp', description: '' }));
+  create = vi.fn().mockResolvedValue({ id: 'org-1', name: 'Acme Corp', description: '' });
   const repository = { create } as unknown as OrganizationRepository;
 
   const cache = withQueryClient();

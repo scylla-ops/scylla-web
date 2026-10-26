@@ -51,13 +51,15 @@ Never add: `jobs.module.ts`, and never export a `.svelte` component from this ba
 | `getById(jobId)` | `JobEntity` |
 | `deleteById(jobId)` | `void` |
 | `getLogs(...)` | `JobLog[]` |
-| `tailLogs(jobId, nodeId?)` | **`ScyllaResult<JobLogStream>` — synchronous, not a Promise** |
+| `tailLogs(jobId, nodeId?)` | **`JobLogStream` — synchronous, not a Promise** |
 
 `tailLogs` is the one non-`Promise` method in the codebase: it opens a server stream and returns
 the handle immediately. It is a genuine outside-the-framework subscription, so it belongs in
-`tail-job-logs.state.svelte.ts` — and **the stream is always closed on teardown**.
+`tail-job-logs.state.svelte.ts` — and **the stream is always closed on teardown**. A failure of
+the stream ends the iteration of `logs` with a throw: the state keeps the lines read before it,
+and logs the failure.
 
-All wrapped in `ScyllaResult`. Reach it from `jobs.queries.ts` only — never from a component.
+Each method rejects with a `ScyllaError` on failure. Reach it from `jobs.queries.ts` only — never from a component.
 
 ## Layout
 

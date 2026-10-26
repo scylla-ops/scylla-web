@@ -1,4 +1,3 @@
-import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {
   ProjectEntity,
   ProjectList,
@@ -10,17 +9,9 @@ export interface ProjectRepository {
   getByOrganizationId: (
     organizationId: string,
     pagination?: PaginationParams,
-  ) => Promise<ScyllaResult<ProjectList>>;
-  listMembers: (projectId: string) => Promise<ScyllaResult<UserSummary[]>>;
-  create: (
-    name: string,
-    organizationId: string,
-    description?: string,
-  ) => Promise<ScyllaResult<ProjectEntity>>;
-  update: (
-    projectId: string,
-    name?: string,
-    description?: string,
-  ) => Promise<ScyllaResult<ProjectEntity>>;
-  delete: (projectId: string) => Promise<ScyllaResult<void>>;
+  ) => Promise<ProjectList>;
+  listMembers: (projectId: string) => Promise<UserSummary[]>;
+  create: (name: string, organizationId: string, description?: string) => Promise<ProjectEntity>;
+  update: (projectId: string, name?: string, description?: string) => Promise<ProjectEntity>;
+  delete: (projectId: string) => Promise<void>;
 }

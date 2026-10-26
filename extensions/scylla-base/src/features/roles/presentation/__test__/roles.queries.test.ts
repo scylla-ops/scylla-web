@@ -9,7 +9,7 @@ import {
   RoleKind,
 } from '@platform/authz';
 import { runMutationFn, runQueryFn } from '@test/queries.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import {
@@ -62,25 +62,23 @@ let execute: Fn;
 let queryClient: QueryClient;
 
 beforeEach(() => {
-  listRoles = vi.fn().mockResolvedValue(ScyllaResult.success([role]));
-  getRole = vi.fn().mockResolvedValue(ScyllaResult.success(role));
-  createRole = vi.fn().mockResolvedValue(ScyllaResult.success(role));
-  updateRoleCall = vi.fn().mockResolvedValue(ScyllaResult.success(role));
-  deleteRole = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
-  listGrants = vi.fn().mockResolvedValue(ScyllaResult.success([grant]));
-  createGrant = vi.fn().mockResolvedValue(ScyllaResult.success(grant));
-  revokeGrant = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
-  revokeAllAccess = vi.fn().mockResolvedValue(ScyllaResult.success(1));
-  listGrantableRoles = vi.fn().mockResolvedValue(ScyllaResult.success([]));
+  listRoles = vi.fn().mockResolvedValue([role]);
+  getRole = vi.fn().mockResolvedValue(role);
+  createRole = vi.fn().mockResolvedValue(role);
+  updateRoleCall = vi.fn().mockResolvedValue(role);
+  deleteRole = vi.fn().mockResolvedValue(undefined);
+  listGrants = vi.fn().mockResolvedValue([grant]);
+  createGrant = vi.fn().mockResolvedValue(grant);
+  revokeGrant = vi.fn().mockResolvedValue(undefined);
+  revokeAllAccess = vi.fn().mockResolvedValue(1);
+  listGrantableRoles = vi.fn().mockResolvedValue([]);
   getEffectivePermissions = vi
     .fn()
-    .mockResolvedValue(ScyllaResult.success({ permissions: [Permission.READ_ORGANIZATION] }));
-  getMyPermissions = vi.fn().mockResolvedValue(
-    ScyllaResult.success({
-      scopes: [{ scope: PermissionScope.SYSTEM, scopeId: '', access: { kind: 'fullControl' } }],
-    }),
-  );
-  execute = vi.fn().mockResolvedValue(ScyllaResult.success(role));
+    .mockResolvedValue({ permissions: [Permission.READ_ORGANIZATION] });
+  getMyPermissions = vi.fn().mockResolvedValue({
+    scopes: [{ scope: PermissionScope.SYSTEM, scopeId: '', access: { kind: 'fullControl' } }],
+  });
+  execute = vi.fn().mockResolvedValue(role);
 
   setDependencyRegistry({
     roles: {
@@ -95,7 +93,7 @@ beforeEach(() => {
         revokeGrant,
         revokeAllAccess,
         listGrantableRoles,
-        listPermissionVocabulary: vi.fn().mockResolvedValue(ScyllaResult.success({ actions: [] })),
+        listPermissionVocabulary: vi.fn().mockResolvedValue({ actions: [] }),
         getEffectivePermissions,
         getMyPermissions,
       },
@@ -355,7 +353,7 @@ describe('refreshMyPermissions', () => {
   });
 
   it('settles a failed lookup the same way — the backend stays the real enforcer', async () => {
-    getMyPermissions.mockResolvedValue(ScyllaResult.error(new ScyllaError('nope')));
+    getMyPermissions.mockRejectedValue(new ScyllaError('nope'));
 
     await refreshMyPermissions();
 

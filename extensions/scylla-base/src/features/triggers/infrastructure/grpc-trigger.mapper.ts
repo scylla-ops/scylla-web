@@ -21,7 +21,7 @@ import {
   timestampToIsoOpt,
   wrapId,
 } from '@shared/infrastructure/grpc/wrappers.ts';
-import { ScyllaError } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
 function sourceToDomain(source: ProtoTrigger['source']): TriggerSource {
   switch (source.oneofKind) {
