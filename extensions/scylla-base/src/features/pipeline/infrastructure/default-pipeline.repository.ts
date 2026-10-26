@@ -6,12 +6,12 @@ import type { Pipeline } from '@base/generated/scylla/pipeline/v1/pipeline.ts';
 import { DEFAULT_PAGE_SIZE, type PaginatedList, type PaginationParams } from '@scylla/ui/structs';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
-import { GrpcPipelineMapper } from './grpc-pipeline.mapper.ts';
+import * as grpcPipeline from './grpc-pipeline.mapper.ts';
 
 /** The wrapped entity is optional on the wire: fail here rather than pass `undefined` to a mapper. */
 const requirePipeline = (pipeline: Pipeline | undefined): PipelineEntity => {
   if (!pipeline) throw new Error('Server response carried no pipeline');
-  return GrpcPipelineMapper.toDomain(pipeline);
+  return grpcPipeline.toDomain(pipeline);
 };
 
 export class DefaultPipelineRepository implements PipelineRepository {
@@ -26,7 +26,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
         projectId: wrapId(projectId),
         pagination: pagination ?? { page: 1, pageSize: DEFAULT_PAGE_SIZE },
       }).response;
-      return GrpcPipelineMapper.toMetadataList(response);
+      return grpcPipeline.toMetadataList(response);
     }, 'Error getting pipelines');
   }
 
@@ -39,7 +39,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
         organizationId: wrapId(organizationId),
         pagination: pagination ?? { page: 1, pageSize: DEFAULT_PAGE_SIZE },
       }).response;
-      return GrpcPipelineMapper.toMetadataList(response);
+      return grpcPipeline.toMetadataList(response);
     }, 'Error getting organization pipelines');
   }
 
@@ -61,7 +61,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
       await this.client.createPipeline({
         name: pipeline.name,
         projectId: wrapId(pipeline.projectId),
-        nodes: pipeline.nodes.map(GrpcPipelineMapper.nodeFromDomain),
+        nodes: pipeline.nodes.map(grpcPipeline.nodeFromDomain),
       }).response;
     }, 'Failed to create pipeline.');
   }
@@ -81,7 +81,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.updatePipeline({
         pipelineId: wrapId(id),
-        nodes: nodes.map(GrpcPipelineMapper.nodeFromDomain),
+        nodes: nodes.map(grpcPipeline.nodeFromDomain),
         name,
       }).response;
       return requirePipeline(response.pipeline);

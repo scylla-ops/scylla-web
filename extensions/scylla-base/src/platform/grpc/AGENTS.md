@@ -63,7 +63,7 @@ Changing the key or the storage mechanism means changing all three in one commit
   `ScyllaResult.tryAsync` in the repository, and let `ScyllaError` extract the gRPC code.
 - Generated proto clients live in `src/generated/` and are **never hand-edited** — run
   `pnpm gen-proto`.
-- Proto vocabulary stops at infrastructure. Mappers (`Grpc{Entity}Mapper`) convert proto types
+- Proto vocabulary stops at infrastructure. Mappers (`grpc-{entity}.mapper.ts`) convert proto types
   into domain entities/structs; a proto type must never reach `domain/` or `presentation/`.
 - Streaming calls (see `jobs`' `tailLogs`) return a handle synchronously rather than a promise.
   Consumers must close them.

@@ -9,7 +9,7 @@ import type {
 import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
-import { GrpcAppMapper } from './grpc-app.mapper.ts';
+import * as grpcApp from './grpc-app.mapper.ts';
 
 export class DefaultAppsRepository implements AppsRepository {
   constructor(private readonly client: IAppServiceClient) {}
@@ -18,7 +18,7 @@ export class DefaultAppsRepository implements AppsRepository {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.listApps({ organizationId: wrapId(organizationId) })
         .response;
-      return response.apps.map(app => GrpcAppMapper.toDomain(app));
+      return response.apps.map(app => grpcApp.toDomain(app));
     }, 'Failed to list apps');
   }
 
@@ -26,17 +26,16 @@ export class DefaultAppsRepository implements AppsRepository {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.getApp({ appId: wrapId(appId) }).response;
       if (!response.app) throw new Error('GetApp returned no app');
-      return GrpcAppMapper.toDomain(response.app);
+      return grpcApp.toDomain(response.app);
     }, 'Failed to fetch app');
   }
 
   createApp(organizationId: string, name: string): Promise<ScyllaResult<CreatedApp>> {
     return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.createApp(
-        GrpcAppMapper.toCreateAppRequest(organizationId, name),
-      ).response;
+      const response = await this.client.createApp(grpcApp.toCreateAppRequest(organizationId, name))
+        .response;
       if (!response.app) throw new Error('CreateApp returned no app');
-      return { app: GrpcAppMapper.toDomain(response.app), secret: response.secret };
+      return { app: grpcApp.toDomain(response.app), secret: response.secret };
     }, 'Failed to create app');
   }
 
@@ -51,14 +50,14 @@ export class DefaultAppsRepository implements AppsRepository {
       const response = await this.client.setAppActive({ appId: wrapId(appId), isActive: active })
         .response;
       if (!response.app) throw new Error('SetAppActive returned no app');
-      return GrpcAppMapper.toDomain(response.app);
+      return grpcApp.toDomain(response.app);
     }, 'Failed to update app');
   }
 
   listAppSecrets(appId: string): Promise<ScyllaResult<AppSecretEntity[]>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.listAppSecrets({ appId: wrapId(appId) }).response;
-      return response.appSecrets.map(s => GrpcAppMapper.secretToDomain(s));
+      return response.appSecrets.map(s => grpcApp.secretToDomain(s));
     }, 'Failed to list app secrets');
   }
 
@@ -67,7 +66,7 @@ export class DefaultAppsRepository implements AppsRepository {
       const response = await this.client.createAppSecret({ appId: wrapId(appId), label }).response;
       if (!response.appSecret) throw new Error('CreateAppSecret returned no secret metadata');
       return {
-        credential: GrpcAppMapper.secretToDomain(response.appSecret),
+        credential: grpcApp.secretToDomain(response.appSecret),
         secret: response.secret,
       };
     }, 'Failed to create app secret');
@@ -86,24 +85,24 @@ export class DefaultAppsRepository implements AppsRepository {
         enabled,
       }).response;
       if (!response.appSecret) throw new Error('SetAppSecretEnabled returned no secret metadata');
-      return GrpcAppMapper.secretToDomain(response.appSecret);
+      return grpcApp.secretToDomain(response.appSecret);
     }, 'Failed to update app secret');
   }
 
   setAppSecretLabel(secretId: string, label: string): Promise<ScyllaResult<AppSecretEntity>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.setAppSecretLabel(
-        GrpcAppMapper.toSetSecretLabelRequest(secretId, label),
+        grpcApp.toSetSecretLabelRequest(secretId, label),
       ).response;
       if (!response.appSecret) throw new Error('SetAppSecretLabel returned no secret metadata');
-      return GrpcAppMapper.secretToDomain(response.appSecret);
+      return grpcApp.secretToDomain(response.appSecret);
     }, 'Failed to rename app secret');
   }
 
   listAppAccess(appId: string): Promise<ScyllaResult<AppAccess[]>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.listAppAccess({ appId: wrapId(appId) }).response;
-      return response.access.flatMap(access => GrpcAppMapper.accessToDomain(access) ?? []);
+      return response.access.flatMap(access => grpcApp.accessToDomain(access) ?? []);
     }, 'Failed to list app access');
   }
 }

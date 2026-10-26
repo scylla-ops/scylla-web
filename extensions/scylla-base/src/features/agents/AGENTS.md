@@ -47,7 +47,7 @@ All of them return a `ScyllaResult`. Only `agents.queries.ts` uses the repositor
 **`listJobs` and `listPipelineNames` are here, not in `jobs` and `pipeline`.** `jobs` (the
 `NoAgentsBanner`) and `pipeline` (the run toast) import this module. If this module imports them
 back, the module graph has a cycle, and `pnpm depcruise:cycles` fails. Thus this module asks
-`JobService` and `PipelineService` itself. `GrpcAgentMapper.jobToDomain` gives the status names
+`JobService` and `PipelineService` itself. `jobToDomain` (`grpc-agent.mapper.ts`) gives the status names
 of `jobs`.
 
 An agent is an app. The other calls go through the barrels of the features that own them:
@@ -74,7 +74,7 @@ domain/
   repository/agents.repository.ts      the contract
 infrastructure/
   default-agents.repository.ts         AgentAdmin, Job, Pipeline clients → domain types
-  grpc-agent.mapper.ts                 GrpcAgentMapper (agents, stats, jobs)
+  grpc-agent.mapper.ts                 agents, stats, jobs
 presentation/
   agents.queries.ts                    the reads and writes of this module
   messages/                            the texts: agents (both pages), agents-page, agent-details,

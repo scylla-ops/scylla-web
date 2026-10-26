@@ -37,77 +37,75 @@ const jobStatusOf = (state: ProtoJob['state']): string => {
   }
 };
 
-export class GrpcAgentMapper {
-  static toDomain(w: ProtoAgent): AgentEntity {
-    return {
-      id: idValue(w.agentId),
-      organizationId: idValue(w.organizationId),
-      name: w.name,
-      isActive: w.isActive,
-      connected: w.connected,
-      lastSeen: timestampToIso(w.lastSeen),
-      inFlight: w.inFlight,
-      host: w.host ? GrpcAgentMapper.hostToDomain(w.host) : null,
-      createdAt: timestampToIso(w.createdAt),
-      updatedAt: timestampToIso(w.updatedAt),
-    };
-  }
+export function toDomain(w: ProtoAgent): AgentEntity {
+  return {
+    id: idValue(w.agentId),
+    organizationId: idValue(w.organizationId),
+    name: w.name,
+    isActive: w.isActive,
+    connected: w.connected,
+    lastSeen: timestampToIso(w.lastSeen),
+    inFlight: w.inFlight,
+    host: w.host ? hostToDomain(w.host) : null,
+    createdAt: timestampToIso(w.createdAt),
+    updatedAt: timestampToIso(w.updatedAt),
+  };
+}
 
-  private static hostToDomain(h: ProtoAgentHost): AgentHost {
-    return {
-      version: h.version,
-      os: h.os,
-      arch: h.arch,
-      hostname: h.hostname,
-      cpuCount: h.cpuCount > 0 ? h.cpuCount : null,
-      totalMemoryMb: h.totalMemoryMb > 0n ? Number(h.totalMemoryMb) : null,
-      reportedAt: timestampToIso(h.reportedAt),
-    };
-  }
+function hostToDomain(h: ProtoAgentHost): AgentHost {
+  return {
+    version: h.version,
+    os: h.os,
+    arch: h.arch,
+    hostname: h.hostname,
+    cpuCount: h.cpuCount > 0 ? h.cpuCount : null,
+    totalMemoryMb: h.totalMemoryMb > 0n ? Number(h.totalMemoryMb) : null,
+    reportedAt: timestampToIso(h.reportedAt),
+  };
+}
 
-  static jobToDomain(job: ProtoJob): AgentJob {
-    const { state } = job;
-    const startedAt =
-      state.oneofKind === 'running'
-        ? state.running.startedAt
-        : state.oneofKind === 'terminal'
-          ? state.terminal.startedAt
-          : undefined;
+export function jobToDomain(job: ProtoJob): AgentJob {
+  const { state } = job;
+  const startedAt =
+    state.oneofKind === 'running'
+      ? state.running.startedAt
+      : state.oneofKind === 'terminal'
+        ? state.terminal.startedAt
+        : undefined;
 
-    return {
-      id: idValue(job.jobId),
-      pipelineId: idValue(job.pipelineId),
-      status: jobStatusOf(state),
-      createdAt: timestampToIso(job.createdAt),
-      startedAt: timestampToIsoOpt(startedAt),
-      finishedAt: timestampToIsoOpt(
-        state.oneofKind === 'terminal' ? state.terminal.finishedAt : undefined,
-      ),
-    };
-  }
+  return {
+    id: idValue(job.jobId),
+    pipelineId: idValue(job.pipelineId),
+    status: jobStatusOf(state),
+    createdAt: timestampToIso(job.createdAt),
+    startedAt: timestampToIsoOpt(startedAt),
+    finishedAt: timestampToIsoOpt(
+      state.oneofKind === 'terminal' ? state.terminal.finishedAt : undefined,
+    ),
+  };
+}
 
-  static statsToDomain(s: ProtoAgentStats): AgentStats {
-    return {
-      total: Number(s.total),
-      pending: Number(s.pending),
-      running: Number(s.running),
-      completed: Number(s.completed),
-      failed: Number(s.failed),
-      cancelled: Number(s.cancelled),
-      orphaned: Number(s.orphaned),
-      lastRunAt: timestampToIso(s.lastRunAt),
-      medianDurationMs: optionalCount(s.medianDurationMs),
-      p95DurationMs: optionalCount(s.p95DurationMs),
-      daily: s.daily.map(d => ({
-        day: timestampToIso(d.day),
-        completed: Number(d.completed),
-        failed: Number(d.failed),
-        cancelled: Number(d.cancelled),
-        orphaned: Number(d.orphaned),
-        medianDurationMs: optionalCount(d.medianDurationMs),
-      })),
-    };
-  }
+export function statsToDomain(s: ProtoAgentStats): AgentStats {
+  return {
+    total: Number(s.total),
+    pending: Number(s.pending),
+    running: Number(s.running),
+    completed: Number(s.completed),
+    failed: Number(s.failed),
+    cancelled: Number(s.cancelled),
+    orphaned: Number(s.orphaned),
+    lastRunAt: timestampToIso(s.lastRunAt),
+    medianDurationMs: optionalCount(s.medianDurationMs),
+    p95DurationMs: optionalCount(s.p95DurationMs),
+    daily: s.daily.map(d => ({
+      day: timestampToIso(d.day),
+      completed: Number(d.completed),
+      failed: Number(d.failed),
+      cancelled: Number(d.cancelled),
+      orphaned: Number(d.orphaned),
+      medianDurationMs: optionalCount(d.medianDurationMs),
+    })),
+  };
 }
 
 /** Absent on the wire means unknown: `null`, never 0. */

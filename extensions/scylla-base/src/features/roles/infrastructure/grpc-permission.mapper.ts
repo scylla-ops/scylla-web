@@ -22,135 +22,133 @@ export interface ScopeBinding {
   scopeId: string;
 }
 
-export class GrpcPermissionMapper {
-  public static toDomain(permission: Permission): PermissionDomain {
-    return permission;
-  }
+export function toDomain(permission: Permission): PermissionDomain {
+  return permission;
+}
 
-  public static toGrpc(permission: PermissionDomain): Permission {
-    return permission;
-  }
+export function toGrpc(permission: PermissionDomain): Permission {
+  return permission;
+}
 
-  /** A `switch`, so a divergence of the two enums fails to compile. */
-  public static roleKindToDomain(kind: GrpcRoleKind): RoleKind {
-    switch (kind) {
-      case GrpcRoleKind.ADMIN:
-        return RoleKind.ADMIN;
-      case GrpcRoleKind.AGENT:
-        return RoleKind.AGENT;
-      case GrpcRoleKind.MEMBER:
-        return RoleKind.MEMBER;
-      case GrpcRoleKind.UNSPECIFIED:
-        return RoleKind.UNSPECIFIED;
-    }
+/** A `switch`, so a divergence of the two enums fails to compile. */
+export function roleKindToDomain(kind: GrpcRoleKind): RoleKind {
+  switch (kind) {
+    case GrpcRoleKind.ADMIN:
+      return RoleKind.ADMIN;
+    case GrpcRoleKind.AGENT:
+      return RoleKind.AGENT;
+    case GrpcRoleKind.MEMBER:
+      return RoleKind.MEMBER;
+    case GrpcRoleKind.UNSPECIFIED:
+      return RoleKind.UNSPECIFIED;
   }
+}
 
-  public static roleKindToGrpc(kind: RoleKind): GrpcRoleKind {
-    switch (kind) {
-      case RoleKind.ADMIN:
-        return GrpcRoleKind.ADMIN;
-      case RoleKind.AGENT:
-        return GrpcRoleKind.AGENT;
-      case RoleKind.MEMBER:
-        return GrpcRoleKind.MEMBER;
-      case RoleKind.UNSPECIFIED:
-        return GrpcRoleKind.UNSPECIFIED;
-    }
+export function roleKindToGrpc(kind: RoleKind): GrpcRoleKind {
+  switch (kind) {
+    case RoleKind.ADMIN:
+      return GrpcRoleKind.ADMIN;
+    case RoleKind.AGENT:
+      return GrpcRoleKind.AGENT;
+    case RoleKind.MEMBER:
+      return GrpcRoleKind.MEMBER;
+    case RoleKind.UNSPECIFIED:
+      return GrpcRoleKind.UNSPECIFIED;
   }
+}
 
-  public static scopeToDomain(scope: ScopeKind): PermissionScope {
-    return scope as unknown as PermissionScope;
-  }
+export function scopeToDomain(scope: ScopeKind): PermissionScope {
+  return scope as unknown as PermissionScope;
+}
 
-  public static scopeToGrpc(scope: PermissionScope): ScopeKind {
-    return scope as unknown as ScopeKind;
-  }
+export function scopeToGrpc(scope: PermissionScope): ScopeKind {
+  return scope as unknown as ScopeKind;
+}
 
-  /** An unknown arm becomes `UNSPECIFIED`, never SYSTEM. */
-  public static scopeRefToDomain(ref: ScopeRef | undefined): ScopeBinding {
-    switch (ref?.scope.oneofKind) {
-      case 'system':
-        return { scope: PermissionScope.SYSTEM, scopeId: '' };
-      case 'organization':
-        return {
-          scope: PermissionScope.ORGANIZATION,
-          scopeId: ref.scope.organization.organizationId?.value ?? '',
-        };
-      case 'project':
-        return {
-          scope: PermissionScope.PROJECT,
-          scopeId: ref.scope.project.projectId?.value ?? '',
-        };
-      default:
-        return { scope: PermissionScope.UNSPECIFIED, scopeId: '' };
-    }
+/** An unknown arm becomes `UNSPECIFIED`, never SYSTEM. */
+export function scopeRefToDomain(ref: ScopeRef | undefined): ScopeBinding {
+  switch (ref?.scope.oneofKind) {
+    case 'system':
+      return { scope: PermissionScope.SYSTEM, scopeId: '' };
+    case 'organization':
+      return {
+        scope: PermissionScope.ORGANIZATION,
+        scopeId: ref.scope.organization.organizationId?.value ?? '',
+      };
+    case 'project':
+      return {
+        scope: PermissionScope.PROJECT,
+        scopeId: ref.scope.project.projectId?.value ?? '',
+      };
+    default:
+      return { scope: PermissionScope.UNSPECIFIED, scopeId: '' };
   }
+}
 
-  /** Throws on UNSPECIFIED. */
-  public static scopeRefToGrpc(scope: PermissionScope, scopeId: string): ScopeRef {
-    switch (scope) {
-      case PermissionScope.SYSTEM:
-        return { scope: { oneofKind: 'system', system: {} } };
-      case PermissionScope.ORGANIZATION:
-        return {
-          scope: {
-            oneofKind: 'organization',
-            organization: { organizationId: { value: scopeId } },
-          },
-        };
-      case PermissionScope.PROJECT:
-        return { scope: { oneofKind: 'project', project: { projectId: { value: scopeId } } } };
-      default:
-        throw new Error('A scope must be chosen before sending it to the backend.');
-    }
+/** Throws on UNSPECIFIED. */
+export function scopeRefToGrpc(scope: PermissionScope, scopeId: string): ScopeRef {
+  switch (scope) {
+    case PermissionScope.SYSTEM:
+      return { scope: { oneofKind: 'system', system: {} } };
+    case PermissionScope.ORGANIZATION:
+      return {
+        scope: {
+          oneofKind: 'organization',
+          organization: { organizationId: { value: scopeId } },
+        },
+      };
+    case PermissionScope.PROJECT:
+      return { scope: { oneofKind: 'project', project: { projectId: { value: scopeId } } } };
+    default:
+      throw new Error('A scope must be chosen before sending it to the backend.');
   }
+}
 
-  /** An unknown arm stays UNSPECIFIED. */
-  public static principalRefToDomain(ref: PrincipalRef | undefined): PrincipalEntity {
-    switch (ref?.principal.oneofKind) {
-      case 'user':
-        return { kind: PrincipalKind.USER, id: ref.principal.user.userId?.value ?? '' };
-      case 'app':
-        return { kind: PrincipalKind.APP, id: ref.principal.app.appId?.value ?? '' };
-      default:
-        return { kind: PrincipalKind.UNSPECIFIED, id: '' };
-    }
+/** An unknown arm stays UNSPECIFIED. */
+export function principalRefToDomain(ref: PrincipalRef | undefined): PrincipalEntity {
+  switch (ref?.principal.oneofKind) {
+    case 'user':
+      return { kind: PrincipalKind.USER, id: ref.principal.user.userId?.value ?? '' };
+    case 'app':
+      return { kind: PrincipalKind.APP, id: ref.principal.app.appId?.value ?? '' };
+    default:
+      return { kind: PrincipalKind.UNSPECIFIED, id: '' };
   }
+}
 
-  public static principalRefToGrpc(principal: PrincipalEntity): PrincipalRef {
-    switch (principal.kind) {
-      case PrincipalKind.USER:
-        return { principal: { oneofKind: 'user', user: { userId: { value: principal.id } } } };
-      case PrincipalKind.APP:
-        return { principal: { oneofKind: 'app', app: { appId: { value: principal.id } } } };
-      default:
-        throw new Error('A principal must be chosen before sending it to the backend.');
-    }
+export function principalRefToGrpc(principal: PrincipalEntity): PrincipalRef {
+  switch (principal.kind) {
+    case PrincipalKind.USER:
+      return { principal: { oneofKind: 'user', user: { userId: { value: principal.id } } } };
+    case PrincipalKind.APP:
+      return { principal: { oneofKind: 'app', app: { appId: { value: principal.id } } } };
+    default:
+      throw new Error('A principal must be chosen before sending it to the backend.');
   }
+}
 
-  /** A missing or unknown arm becomes `unknown`, never an empty list ("holds nothing"). */
-  public static accessToDomain(access: Access | undefined): AccessEntity {
-    switch (access?.access.oneofKind) {
-      case 'fullControl':
-        return { kind: 'fullControl' };
-      case 'restricted':
-        return {
-          kind: 'restricted',
-          permissions: access.access.restricted.permissions.map(GrpcPermissionMapper.toDomain),
-        };
-      default:
-        return { kind: 'unknown' };
-    }
+/** A missing or unknown arm becomes `unknown`, never an empty list ("holds nothing"). */
+export function accessToDomain(access: Access | undefined): AccessEntity {
+  switch (access?.access.oneofKind) {
+    case 'fullControl':
+      return { kind: 'fullControl' };
+    case 'restricted':
+      return {
+        kind: 'restricted',
+        permissions: access.access.restricted.permissions.map(toDomain),
+      };
+    default:
+      return { kind: 'unknown' };
   }
+}
 
-  public static accessToGrpc(access: AccessSpec): Access {
-    return access.kind === 'fullControl'
-      ? { access: { oneofKind: 'fullControl', fullControl: {} } }
-      : {
-          access: {
-            oneofKind: 'restricted',
-            restricted: { permissions: access.permissions.map(GrpcPermissionMapper.toGrpc) },
-          },
-        };
-  }
+export function accessToGrpc(access: AccessSpec): Access {
+  return access.kind === 'fullControl'
+    ? { access: { oneofKind: 'fullControl', fullControl: {} } }
+    : {
+        access: {
+          oneofKind: 'restricted',
+          restricted: { permissions: access.permissions.map(toGrpc) },
+        },
+      };
 }

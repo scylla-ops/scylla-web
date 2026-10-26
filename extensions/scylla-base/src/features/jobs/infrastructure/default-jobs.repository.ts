@@ -8,7 +8,7 @@ import type { IJobServiceClient } from '@base/generated/scylla/job/v1/job.client
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { wrapId, wrapIdOpt } from '@shared/infrastructure/grpc/wrappers.ts';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
-import { GrpcJobMapper } from './grpc-job.mapper.ts';
+import * as grpcJob from './grpc-job.mapper.ts';
 
 export class DefaultJobsRepository implements JobsRepository {
   constructor(private readonly client: IJobServiceClient) {}
@@ -22,7 +22,7 @@ export class DefaultJobsRepository implements JobsRepository {
         pipelineId: wrapId(pipelineId),
         pagination,
       }).response;
-      return GrpcJobMapper.toDomainList(response);
+      return grpcJob.toDomainList(response);
     }, 'Error fetching pipeline jobs');
   }
 
@@ -35,7 +35,7 @@ export class DefaultJobsRepository implements JobsRepository {
         organizationId: wrapId(organizationId),
         pagination,
       }).response;
-      return GrpcJobMapper.toDomainList(response);
+      return grpcJob.toDomainList(response);
     }, 'Error fetching organization jobs');
   }
 
@@ -43,7 +43,7 @@ export class DefaultJobsRepository implements JobsRepository {
     return ScyllaResult.tryAsync(async () => {
       const { job } = await this.client.getJob({ jobId: wrapId(jobId) }).response;
       if (!job) throw new ScyllaError('Job missing from GetJobResponse');
-      return GrpcJobMapper.toDomain(job);
+      return grpcJob.toDomain(job);
     }, 'Error fetching job');
   }
 
@@ -64,7 +64,7 @@ export class DefaultJobsRepository implements JobsRepository {
         nodeId: wrapIdOpt(nodeId),
         pagination,
       }).response;
-      return GrpcJobMapper.logsToDomainList(response);
+      return grpcJob.logsToDomainList(response);
     }, 'Error fetching job logs');
   }
 
@@ -83,8 +83,7 @@ export class DefaultJobsRepository implements JobsRepository {
           async *[Symbol.asyncIterator]() {
             try {
               for await (const event of call.responses) {
-                if (event.log)
-                  yield ScyllaResult.success(GrpcJobMapper.logEntryToDomain(event.log));
+                if (event.log) yield ScyllaResult.success(grpcJob.logEntryToDomain(event.log));
               }
             } catch (err) {
               yield ScyllaResult.error(new ScyllaError('Error tailing job logs', { cause: err }));

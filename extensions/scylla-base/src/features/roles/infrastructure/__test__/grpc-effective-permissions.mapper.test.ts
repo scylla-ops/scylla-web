@@ -1,10 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { GrpcEffectivePermissionsMapper } from '../grpc-effective-permissions.mapper.ts';
+import * as grpcEffectivePermissions from '../grpc-effective-permissions.mapper.ts';
 import type { EffectiveScope } from '@base/generated/scylla/authz/v1/role.ts';
 import { PermissionScope } from '@platform/authz';
 
-describe('GrpcEffectivePermissionsMapper.scopeToDomain', () => {
+describe('grpcEffectivePermissions.scopeToDomain', () => {
   it('flattens the scope ref and maps the access', () => {
     const scope: EffectiveScope = {
       scope: {
@@ -12,7 +12,7 @@ describe('GrpcEffectivePermissionsMapper.scopeToDomain', () => {
       },
       access: { access: { oneofKind: 'fullControl', fullControl: {} } },
     };
-    expect(GrpcEffectivePermissionsMapper.scopeToDomain(scope)).toEqual({
+    expect(grpcEffectivePermissions.scopeToDomain(scope)).toEqual({
       scope: PermissionScope.ORGANIZATION,
       scopeId: 'org-1',
       access: { kind: 'fullControl' },
@@ -24,9 +24,7 @@ describe('GrpcEffectivePermissionsMapper.scopeToDomain', () => {
       scope: undefined,
       access: { access: { oneofKind: 'fullControl', fullControl: {} } },
     };
-    expect(GrpcEffectivePermissionsMapper.scopeToDomain(scope).scope).toBe(
-      PermissionScope.UNSPECIFIED,
-    );
+    expect(grpcEffectivePermissions.scopeToDomain(scope).scope).toBe(PermissionScope.UNSPECIFIED);
   });
 
   it('an absent access reads as unknown', () => {
@@ -34,11 +32,11 @@ describe('GrpcEffectivePermissionsMapper.scopeToDomain', () => {
       scope: { scope: { oneofKind: 'system', system: {} } },
       access: undefined,
     };
-    expect(GrpcEffectivePermissionsMapper.scopeToDomain(scope).access).toEqual({ kind: 'unknown' });
+    expect(grpcEffectivePermissions.scopeToDomain(scope).access).toEqual({ kind: 'unknown' });
   });
 });
 
-describe('GrpcEffectivePermissionsMapper.toDomain', () => {
+describe('grpcEffectivePermissions.toDomain', () => {
   it('maps every scope, in order', () => {
     const scopes: EffectiveScope[] = [
       {
@@ -50,7 +48,7 @@ describe('GrpcEffectivePermissionsMapper.toDomain', () => {
         access: { access: { oneofKind: 'restricted', restricted: { permissions: [] } } },
       },
     ];
-    const domain = GrpcEffectivePermissionsMapper.toDomain(scopes);
+    const domain = grpcEffectivePermissions.toDomain(scopes);
     expect(domain.scopes).toHaveLength(2);
     expect(domain.scopes[0]).toEqual({
       scope: PermissionScope.SYSTEM,
@@ -65,6 +63,6 @@ describe('GrpcEffectivePermissionsMapper.toDomain', () => {
   });
 
   it('no scopes maps to an empty list', () => {
-    expect(GrpcEffectivePermissionsMapper.toDomain([])).toEqual({ scopes: [] });
+    expect(grpcEffectivePermissions.toDomain([])).toEqual({ scopes: [] });
   });
 });

@@ -1,10 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { StoredOnboardingMapper } from '../stored-onboarding.mapper.ts';
+import * as storedOnboarding from '../stored-onboarding.mapper.ts';
 
-describe('StoredOnboardingMapper', () => {
+describe('storedOnboarding', () => {
   it('reads a user who never saw the tour as not started', () => {
-    expect(StoredOnboardingMapper.toStatus(null)).toEqual({ kind: 'not-started' });
+    expect(storedOnboarding.toStatus(null)).toEqual({ kind: 'not-started' });
   });
 
   it('round-trips every status, with the subject of a tour in progress', () => {
@@ -21,15 +21,13 @@ describe('StoredOnboardingMapper', () => {
     ] as const;
 
     for (const status of statuses) {
-      expect(StoredOnboardingMapper.toStatus(StoredOnboardingMapper.toStored(status))).toEqual(
-        status,
-      );
+      expect(storedOnboarding.toStatus(storedOnboarding.toStored(status))).toEqual(status);
     }
   });
 
   it('shows the tour again rather than trusting a value it cannot read', () => {
     for (const raw of ['{', '42', 'null', '{"kind":"paused"}', '{"kind":"in-progress"}']) {
-      expect(StoredOnboardingMapper.toStatus(raw)).toEqual({ kind: 'not-started' });
+      expect(storedOnboarding.toStatus(raw)).toEqual({ kind: 'not-started' });
     }
   });
 
@@ -40,7 +38,7 @@ describe('StoredOnboardingMapper', () => {
       subject: { pipelineId: 7 },
     });
 
-    expect(StoredOnboardingMapper.toStatus(raw)).toEqual({
+    expect(storedOnboarding.toStatus(raw)).toEqual({
       kind: 'in-progress',
       step: 'run-pipeline',
       subject: {},

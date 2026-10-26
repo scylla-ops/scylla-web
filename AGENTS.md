@@ -221,6 +221,10 @@ the types of its props). Every other file goes in the folder of its role:
 - **`mappers/`** — a mapper converts one representation into another, both ways
   (`pipeline-document.mapper.ts`: the JSON text of the editor ↔ the nodes). A mapper of
   `infrastructure/` converts the protos; a mapper of `presentation/` converts a format of a view.
+  A mapper exports functions, not a class with static methods. When the name of a function is
+  not clear where it is called, the caller imports the module as a namespace:
+  `import * as pipelineDocument from '…/pipeline-document.mapper.ts'`, then
+  `pipelineDocument.withName(…)`.
 
 These three folders never import `ui/` (`presentation-logic-knows-no-ui`, in depcruise): `ui/`
 uses them, never the reverse. There is no `utils/` folder.
@@ -280,9 +284,10 @@ the ViewModel of a page.
   not classes with methods: `$state` makes plain objects and arrays reactive, not class
   instances, and the structural sharing of TanStack Query works on JSON data.
 - **Infrastructure** — `Default{Entity}Repository` implements the domain interface. It calls the
-  gRPC client and maps proto ↔ domain with a `Grpc{Entity}Mapper`. Its constructor takes the
-  **generated client interface** (`I{Service}ServiceClient`), so a test gives it a fake client
-  (`unaryCall` from `@test/grpc.ts`) and nothing else needs a hand-written interface. See "Data
+  gRPC client and maps proto ↔ domain with the functions of `grpc-{entity}.mapper.ts`, imported
+  as a namespace (`grpcUser.toDomain`). Its constructor takes the **generated client interface**
+  (`I{Service}ServiceClient`), so a test gives it a fake client (`unaryCall` from
+  `@test/grpc.ts`) and nothing else needs a hand-written interface. See "Data
   sources are optional" below.
 - **Presentation** — `*.queries.ts` wraps the repository (or a use case) in `queryOptions` /
   `mutationOptions`. A component or a ViewModel runs them with `createQuery` / `createMutation`
@@ -603,7 +608,7 @@ The package and layer structure is mandatory; everything else must earn its plac
 | Repository interface | `*.repository.ts` (domain) → `{Entity}Repository` | `user.repository.ts` / `UserRepository` |
 | Repository impl | `default-*.repository.ts` (infra) → `Default{Entity}Repository` | `default-user.repository.ts` / `DefaultUserRepository` |
 | Data source (only with ≥ 2 sources) | `*.data-source.ts` → `{Source}{Entity}DataSource` | `local-job.data-source.ts` / `LocalJobDataSource` |
-| Mapper | `grpc-*.mapper.ts` → `Grpc{Entity}Mapper` | `grpc-user.mapper.ts` |
+| Mapper of the protos | `grpc-*.mapper.ts` → functions, imported as a namespace | `grpc-user.mapper.ts` / `import * as grpcUser` |
 | Domain entity (+ the types that exist only with it) | `*.entity.ts` → `{Name}Entity` | `app.entity.ts` / `AppEntity`, `CreatedApp` |
 | Struct (a concept with no identity that stands alone: value object, shared vocabulary) | `*.struct.ts` (plain name, no suffix) | `permission.struct.ts` / `Permission`, `pagination.struct.ts` / `PaginationInfo` |
 | Widget points | `<feature>.points.ts` → `{feature}Points` | `login.points.ts` / `loginPoints` |

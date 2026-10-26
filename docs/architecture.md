@@ -325,7 +325,7 @@ feature/
 │   └── use-cases/       → optional — only when a use case orchestrates (§5.1)
 ├── infrastructure/      → flat
 │   ├── default-feature.repository.ts   → repository implementation: gRPC call + mapping
-│   ├── grpc-feature.mapper.ts          → proto ↔ domain (Grpc{Entity}Mapper)
+│   ├── grpc-feature.mapper.ts          → proto ↔ domain (functions)
 │   └── __test__/
 ├── locales/             → i18n catalogs (en/, fr/)
 └── presentation/                   → one folder per role
@@ -429,7 +429,8 @@ from the proto type with the same bare name (aliased in mappers, e.g. `User as P
 - **Repository implementation** (`Default{Entity}Repository`): calls the gRPC client and maps
   the response to domain types. Its constructor takes the generated client interface
   (`I{Service}ServiceClient`), which a test replaces with a fake.
-- **Mappers** (`Grpc{Entity}Mapper`): proto ↔ domain. Pure functions, tested alone.
+- **Mappers** (`grpc-{entity}.mapper.ts`): proto ↔ domain. Pure functions, tested alone. The
+  repository imports the module as a namespace: `import * as grpcUser from './grpc-user.mapper.ts'`.
 - **Data sources**: only when a feature has two sources or more (a cache, a local store, a
   second transport). One data source per source, behind the same repository. With one source,
   a data source interface would only repeat the repository contract.
@@ -441,7 +442,7 @@ export class DefaultUserRepository implements UserRepository {
   public getAll(): Promise<ScyllaResult<PaginatedList<UserEntity>>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.listUsers({}).response;
-      return GrpcUserMapper.toDomainList(response);
+      return grpcUser.toDomainList(response);
     }, 'Failed to fetch users.');
   }
 }

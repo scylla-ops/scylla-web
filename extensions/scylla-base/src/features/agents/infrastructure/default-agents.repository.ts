@@ -11,7 +11,7 @@ import type {
 import type { AgentsRepository } from '@base/features/agents/domain/repository/agents.repository.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { idValue, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
-import { GrpcAgentMapper } from './grpc-agent.mapper.ts';
+import * as grpcAgent from './grpc-agent.mapper.ts';
 
 /** One page for the whole organization, as the pipeline lookups of `pipeline`. */
 const PIPELINE_NAMES_PAGE_SIZE = 100;
@@ -27,7 +27,7 @@ export class DefaultAgentsRepository implements AgentsRepository {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.listAgents({ organizationId: wrapId(organizationId) })
         .response;
-      return response.agents.map(agent => GrpcAgentMapper.toDomain(agent));
+      return response.agents.map(agent => grpcAgent.toDomain(agent));
     }, 'Failed to list agents');
   }
 
@@ -35,7 +35,7 @@ export class DefaultAgentsRepository implements AgentsRepository {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.getAgent({ agentId: wrapId(agentId) }).response;
       if (!response.agent) throw new Error('GetAgent returned no agent');
-      return GrpcAgentMapper.toDomain(response.agent);
+      return grpcAgent.toDomain(response.agent);
     }, 'Failed to fetch agent');
   }
 
@@ -43,7 +43,7 @@ export class DefaultAgentsRepository implements AgentsRepository {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.getAgentStats({ agentId: wrapId(agentId) }).response;
       if (!response.stats) throw new Error('GetAgentStats returned no stats');
-      return GrpcAgentMapper.statsToDomain(response.stats);
+      return grpcAgent.statsToDomain(response.stats);
     }, 'Failed to fetch agent stats');
   }
 
@@ -54,7 +54,7 @@ export class DefaultAgentsRepository implements AgentsRepository {
         name,
       }).response;
       if (!response.agent) throw new Error('CreateAgent returned no agent');
-      return { agent: GrpcAgentMapper.toDomain(response.agent), secret: response.secret };
+      return { agent: grpcAgent.toDomain(response.agent), secret: response.secret };
     }, 'Failed to create agent');
   }
 
@@ -75,7 +75,7 @@ export class DefaultAgentsRepository implements AgentsRepository {
         agentId: wrapId(agentId),
         pagination: { page: 1, pageSize: limit },
       }).response;
-      return response.jobs.map(job => GrpcAgentMapper.jobToDomain(job));
+      return response.jobs.map(job => grpcAgent.jobToDomain(job));
     }, 'Failed to list the jobs of the agent');
   }
 

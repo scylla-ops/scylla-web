@@ -91,7 +91,7 @@ domain/
   use-cases/reset-app-secret.use-case.ts   ResetAppSecretUseCase
 infrastructure/
   default-apps.repository.ts         AppServiceClient → AppEntity
-  grpc-app.mapper.ts                 GrpcAppMapper
+  grpc-app.mapper.ts                 proto ↔ domain
 presentation/
   apps.queries.ts                    every read and write, as query/mutation options
   ui/Apps.page.svelte, AppDetails.page.svelte

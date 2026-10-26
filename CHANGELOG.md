@@ -28,6 +28,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   components render in the owner's tree, so they read its Svelte context. A `replace` does not
   mount the owner's content. A widget injection does not change.
 - A repository calls its gRPC client directly. The data source layer between them is removed.
+- A mapper exports functions, not a class with static methods. A repository imports the mapper as
+  a namespace: `grpcUser.toDomain(user)`, not `GrpcUserMapper.toDomain(user)`. No mapper is part of
+  a public API, so no extension changes.
 - **Breaking:** The node of a pipeline is `PipelineNodeEntity` in `@scylla/base-sdk` (it was
   `PipelineStep`). The pipeline editor says node everywhere, as the protos, the jobs and the
   dashboard do.

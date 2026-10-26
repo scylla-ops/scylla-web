@@ -48,7 +48,7 @@ The suffix of a file tells its role.
 |------|---------|---------|
 | **Repository implementation** | `default-*.repository.ts` → `Default{Entity}Repository` | `default-user.repository.ts` / `DefaultUserRepository` |
 | **Data source** (only with two sources or more) | `*.data-source.ts` → `{Source}{Entity}DataSource` | `local-job.data-source.ts` / `LocalJobDataSource` |
-| **Mapper** | `grpc-*.mapper.ts` → `Grpc{Entity}Mapper` | `grpc-user.mapper.ts` / `GrpcUserMapper` |
+| **Mapper** | `grpc-*.mapper.ts` → functions, imported as a namespace | `grpc-user.mapper.ts` / `import * as grpcUser` |
 
 #### Presentation
 
@@ -165,7 +165,6 @@ two names clash.
 | Extension | `{Name}Extension` | `ScyllaBaseExtension` |
 | Use case | `{Verb}{Entity}UseCase` | `UpdateRoleUseCase` |
 | Repository implementation | `Default{Entity}Repository` | `DefaultUserRepository` |
-| Mapper | `Grpc{Entity}Mapper` | `GrpcUserMapper` |
 | ViewModel class | `{View}State` | `LoginState` |
 | Error / result | `ScyllaError`, `ScyllaResult<T>` | — |
 

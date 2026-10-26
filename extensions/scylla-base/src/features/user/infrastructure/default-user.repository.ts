@@ -12,12 +12,12 @@ import type { PasswordResetDelivery } from '@base/features/login';
 import type { PaginatedList } from '@scylla/ui/structs';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
-import { GrpcUserMapper } from './grpc-user.mapper.ts';
+import * as grpcUser from './grpc-user.mapper.ts';
 
 /** The wrapped entity is optional on the wire: fail here rather than pass an empty user on. */
 const requireUser = (user: User | undefined): UserEntity => {
   if (!user) throw new Error('Server returned a response without a user.');
-  return GrpcUserMapper.toDomain(user);
+  return grpcUser.toDomain(user);
 };
 
 export class DefaultUserRepository implements UserRepository {
@@ -26,7 +26,7 @@ export class DefaultUserRepository implements UserRepository {
   public getAll(): Promise<ScyllaResult<PaginatedList<UserEntity>>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.listUsers({}).response;
-      return GrpcUserMapper.toDomainList(response);
+      return grpcUser.toDomainList(response);
     }, 'Failed to fetch users.');
   }
 
@@ -46,14 +46,14 @@ export class DefaultUserRepository implements UserRepository {
 
   public create(input: CreateUserInput): Promise<ScyllaResult<UserEntity>> {
     return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.createUser(GrpcUserMapper.toCreateRequest(input)).response;
+      const response = await this.client.createUser(grpcUser.toCreateRequest(input)).response;
       return requireUser(response.user);
     }, 'Failed to create user.');
   }
 
   public update(input: UpdateUserInput): Promise<ScyllaResult<UserEntity>> {
     return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.updateUser(GrpcUserMapper.toUpdateRequest(input)).response;
+      const response = await this.client.updateUser(grpcUser.toUpdateRequest(input)).response;
       return requireUser(response.user);
     }, 'Failed to update user.');
   }
@@ -81,7 +81,7 @@ export class DefaultUserRepository implements UserRepository {
   public sendPasswordReset(userId: string): Promise<ScyllaResult<PasswordResetDelivery>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.sendPasswordReset({ userId: wrapId(userId) }).response;
-      return GrpcUserMapper.deliveryToDomain(response.delivery);
+      return grpcUser.deliveryToDomain(response.delivery);
     }, 'Failed to send a reset link.');
   }
 
@@ -101,14 +101,14 @@ export class DefaultUserRepository implements UserRepository {
   public listAccess(userId: string): Promise<ScyllaResult<UserAccess[]>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.listUserAccess({ userId: wrapId(userId) }).response;
-      return response.access.map(GrpcUserMapper.accessToDomain);
+      return response.access.map(grpcUser.accessToDomain);
     }, 'Failed to fetch the organizations and roles of the user.');
   }
 
   public listSessions(userId: string): Promise<ScyllaResult<UserSessionEntity[]>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.listUserSessions({ userId: wrapId(userId) }).response;
-      return response.sessions.map(GrpcUserMapper.sessionToDomain);
+      return response.sessions.map(grpcUser.sessionToDomain);
     }, 'Failed to fetch the sessions of the user.');
   }
 
