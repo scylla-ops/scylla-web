@@ -165,6 +165,9 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.8.3
+      prettier-plugin-svelte:
+        specifier: ^4.1.1
+        version: 4.1.1(prettier@3.8.3)(svelte@5.57.0(@typescript-eslint/types@8.59.3))
       svelte-check:
         specifier: ^4.7.6
         version: 4.7.6(@typescript/typescript6@6.0.2)(picomatch@4.0.5)(svelte@5.57.0(@typescript-eslint/types@8.59.3))
@@ -2448,6 +2451,13 @@ packages:
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
+
+  prettier-plugin-svelte@4.1.1:
+    resolution: {integrity: sha512-wXvbXMjSvb4C9ENWTHXyd+ihakKCsJ6rJhLP6/8HFNj4GkZr48jqL9PoKsl2sk7SyCZRTnJ7O2TTowUpOxP/KA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      prettier: ^3.0.0
+      svelte: ^5.0.0
 
   prettier@3.8.3:
     resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
@@ -4973,6 +4983,11 @@ snapshots:
       source-map-js: 1.2.1
 
   prelude-ls@1.2.1: {}
+
+  prettier-plugin-svelte@4.1.1(prettier@3.8.3)(svelte@5.57.0(@typescript-eslint/types@8.59.3)):
+    dependencies:
+      prettier: 3.8.3
+      svelte: 5.57.0(@typescript-eslint/types@8.59.3)
 
   prettier@3.8.3: {}
 

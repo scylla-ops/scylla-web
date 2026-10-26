@@ -1,0 +1,6 @@
+# Generated: regenerate them, never format them by hand.
+**/generated/
+**/locales/*/messages.ts
+coverage/
+dist/
+protos/
