@@ -3,7 +3,7 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { type Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
 import AppsPage from './Apps.page.svelte';

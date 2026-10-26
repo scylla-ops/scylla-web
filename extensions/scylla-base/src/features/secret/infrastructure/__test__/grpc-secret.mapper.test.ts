@@ -1,12 +1,12 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { GrpcSecretMapper } from '../grpc-secret.mapper.ts';
+import * as grpcSecret from '../grpc-secret.mapper.ts';
 import type { Secret } from '@base/generated/scylla/secret/v1/secret.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
 const ISO = '2025-01-01T00:00:00.000Z';
 
-describe('GrpcSecretMapper.toDomain', () => {
+describe('grpcSecret.toDomain', () => {
   it('unwraps ids, formats timestamps, never carries the value (metadata only)', () => {
     const secret: Secret = {
       secretId: { value: 'secret-1' },
@@ -16,7 +16,7 @@ describe('GrpcSecretMapper.toDomain', () => {
       createdAt: TS,
       updatedAt: TS,
     };
-    const domain = GrpcSecretMapper.toDomain(secret);
+    const domain = grpcSecret.toDomain(secret);
     expect(domain).toEqual({
       id: 'secret-1',
       projectId: 'project-1',
@@ -37,7 +37,7 @@ describe('GrpcSecretMapper.toDomain', () => {
       createdAt: TS,
       updatedAt: TS,
     };
-    const domain = GrpcSecretMapper.toDomain(secret);
+    const domain = grpcSecret.toDomain(secret);
     expect(domain.id).toBe('');
     expect(domain.projectId).toBe('');
   });

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findFloating, render } from '@test/render.svelte.ts';
-import type { DraftInput } from '@base/features/triggers/presentation/utils/trigger-form.utils.ts';
+import { findFloating, render } from '@test/render.ts';
+import type { DraftInput } from '@base/features/triggers/presentation/mappers/trigger-form.mapper.ts';
 import TriggerInputsEditor from './TriggerInputsEditor.svelte';
 
 const literal = (overrides: Partial<DraftInput> = {}): DraftInput => ({

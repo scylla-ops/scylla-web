@@ -3,12 +3,12 @@
   import { Badge, Card, CardContent } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type {
-    InstalledExtension,
-  } from '@base/features/extensions/domain/structs/installed-extension.struct.ts';
-  import { extensionsMessages } from '../extensions.messages.ts';
+    InstalledExtensionEntity,
+  } from '@base/features/extensions/domain/entities/installed-extension.entity.ts';
+  import { extensionsMessages } from '@base/features/extensions/presentation/messages/extensions.messages.ts';
 
   interface Props {
-    extension: InstalledExtension;
+    extension: InstalledExtensionEntity;
   }
 
   let { extension }: Props = $props();

@@ -16,11 +16,11 @@
   } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { activeLocale, t } from '@scylla/ui/i18n';
-  import type { CreatedApp } from '@base/features/apps/domain/structs/app.struct.ts';
+  import type { CreatedApp } from '@base/features/apps/domain/entities/app.entity.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
-  import { createAppItems } from '@base/features/apps/presentation/utils/create-app-form-items.ts';
+  import { createAppItems } from '@base/features/apps/presentation/presenters/app-form.presenter.ts';
   import AppCard from '../components/AppCard/AppCard.svelte';
-  import { appsMessages } from '../apps.messages.ts';
+  import { appsMessages } from '@base/features/apps/presentation/messages/apps.messages.ts';
 
   // From the context store: the organization selector writes there.
   const context = toRune(contextStore);

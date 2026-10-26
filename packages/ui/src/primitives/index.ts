@@ -130,7 +130,7 @@ export { default as SidebarMenuButton } from './sidebar/sidebar-menu-button.svel
 export { default as SidebarMenuItem } from './sidebar/sidebar-menu-item.svelte';
 export { default as SidebarProvider } from './sidebar/sidebar-provider.svelte';
 export { default as SidebarRail } from './sidebar/sidebar-rail.svelte';
-export { getSidebar, type SidebarState } from './sidebar/sidebar-state.svelte.ts';
+export { getSidebar, type SidebarState } from './sidebar/sidebar.state.svelte.ts';
 export { SIDEBAR_FADE } from './sidebar/sidebar-variants.ts';
 
 export { default as Pagination } from './pagination/pagination.svelte';
@@ -140,4 +140,12 @@ export { default as PaginationItem } from './pagination/pagination-item.svelte';
 export { default as PaginationLink } from './pagination/pagination-link.svelte';
 export { default as PaginationNext } from './pagination/pagination-next.svelte';
 export { default as PaginationPrevious } from './pagination/pagination-previous.svelte';
+
+// The pane is paneforge's own, aliased rather than wrapped: only the group and the handle carry
+// styling.
+export { default as ResizablePaneGroup } from './resizable/resizable-pane-group.svelte';
+export { default as ResizableHandle } from './resizable/resizable-handle.svelte';
+export { Pane as ResizablePane } from 'paneforge';
+export type { PaneAPI as ResizablePaneApi } from 'paneforge';
+
 export { default as Toaster } from './sonner/sonner.svelte';

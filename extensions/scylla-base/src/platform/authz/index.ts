@@ -13,6 +13,8 @@ export {
 } from './domain/structs/permission.struct.ts';
 export {
   canAccess,
+  holdsFullControl,
+  holdsPermission,
   permissionLevel,
   type EffectivePermissionsEntity,
   type EffectiveScopeEntity,

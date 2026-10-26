@@ -3,7 +3,7 @@ import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';

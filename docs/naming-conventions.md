@@ -38,8 +38,8 @@ The suffix of a file tells its role.
 | Role | Pattern | Example |
 |------|---------|---------|
 | **Repository interface** | `*.repository.ts` → `{Entity}Repository` | `user.repository.ts` / `UserRepository` |
-| **Domain entity** | `*.entity.ts` → `{Name}Entity` | `secret.entity.ts` / `SecretEntity` |
-| **Struct** (value object / enum / DTO / wrapper) | `*.struct.ts`, plain name | `permission.struct.ts` / `PermissionScope` |
+| **Domain entity**, with the types that exist only with it | `*.entity.ts` → `{Name}Entity` | `app.entity.ts` / `AppEntity`, `CreatedApp` |
+| **Struct** (a concept with no identity that stands alone: a value object, a shared vocabulary): types, and their own rules | `*.struct.ts`, plain name | `permission.struct.ts` / `PermissionScope`, `node-id.struct.ts` / `nodeIdIssue` |
 | **Use case** (only when it orchestrates) | `*.use-case.ts` → `{Verb}{Entity}UseCase` | `update-role.use-case.ts` / `UpdateRoleUseCase` |
 
 #### Infrastructure
@@ -48,7 +48,7 @@ The suffix of a file tells its role.
 |------|---------|---------|
 | **Repository implementation** | `default-*.repository.ts` → `Default{Entity}Repository` | `default-user.repository.ts` / `DefaultUserRepository` |
 | **Data source** (only with two sources or more) | `*.data-source.ts` → `{Source}{Entity}DataSource` | `local-job.data-source.ts` / `LocalJobDataSource` |
-| **Mapper** | `grpc-*.mapper.ts` → `Grpc{Entity}Mapper` | `grpc-user.mapper.ts` / `GrpcUserMapper` |
+| **Mapper** | `grpc-*.mapper.ts` → functions, imported as a namespace | `grpc-user.mapper.ts` / `import * as grpcUser` |
 
 #### Presentation
 
@@ -56,11 +56,16 @@ The suffix of a file tells its role.
 |------|---------|---------|
 | **Query / mutation options** | `<feature>.queries.ts` → `{feature}Queries`, `{feature}Mutations` | `user.queries.ts` / `userQueries` |
 | **Query-key factories** (when they have their own file) | `<feature>.query-keys.ts` | `jobs.query-keys.ts` |
-| **ViewModel** (runes) | `<view>.state.svelte.ts` | `roles-page.state.svelte.ts` |
-| **Rune helper** (no view) | `*.svelte.ts` | `organization-sync.svelte.ts` |
+| **State** (runes): a ViewModel, or UI state with one responsibility | `<view>.state.svelte.ts` / `<responsibility>.state.svelte.ts` | `roles-page.state.svelte.ts`, `node-draft.state.svelte.ts` |
+| **Effect** (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` | `organization-sync.effect.svelte.ts` |
+| **Adapter** (runes): an outside API read from rune code | `*.adapter.svelte.ts` | `to-rune.adapter.svelte.ts` |
 | **Attachment** | `*.attachments.ts` (`.svelte.ts` with runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
-| **Pure algorithm** | `*.calculator.ts` | `outcomes-chart.calculator.ts` |
-| **Messages** (i18n) | `*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
+| **Presenter** (plain TypeScript: what a view shows or does) | `presenters/*.presenter.ts` | `node-list.presenter.ts` |
+| **Mapper** of a view format (both ways) | `mappers/*.mapper.ts` | `pipeline-document.mapper.ts` |
+| **Registry** (a table a component reads by key: views, icons, the steps of a tour), in `ui/` | `*.registry.ts` | `node-appearances.registry.ts` |
+| **Svelte transition**, in `ui/` | `*.transition.ts` | `welcome.transition.ts` |
+| **Columns** of a table, in `ui/` | `*.columns.ts` | `pipeline-table.columns.ts` |
+| **Messages** (i18n) | `messages/*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
 | **Store** (framework-free, `createStore`) | `*.store.ts` → `{name}Store` | `context.store.ts` / `contextStore` |
 | **Page component** | `*.page.svelte` | `UserAdmin.page.svelte` |
 | **Guard / wrapper** | `*.guard.svelte` / `*.wrapper.svelte` | `Auth.guard.svelte`, `ContextCleaner.wrapper.svelte` |
@@ -86,8 +91,8 @@ ScyllaForm.svelte
 DataTable.svelte
 ```
 
-A component with a test has its own folder, with the same name: `LoginForm/LoginForm.svelte`,
-`LoginForm/LoginForm.test.ts`, `LoginForm/LoginForm.fixture.svelte`. A page drops `.page` from
+A component with a test has its own folder, with the same name: `PipelineScripting/PipelineScripting.svelte`,
+`PipelineScripting/PipelineScripting.test.ts`, `PipelineScripting/PipelineScripting.fixture.svelte`. A page drops `.page` from
 the folder name: `Login/Login.page.svelte`.
 
 A test that does not test one component goes in the `__test__/` folder of the directory that it
@@ -126,15 +131,17 @@ type FormValues<TId extends string> = Record<TId, string>;
 
 ### 2.2 Domain entities and structs
 
-The domain layer has two kinds of types (see `architecture.md` §5.1): **entities** are the
-identity-bearing objects that a feature owns; **structs** are data shapes with no identity.
+The domain layer sorts its types by concept (see `architecture.md` §5.1): an **entity** file holds
+an identity-bearing object that a feature owns and every type that exists only with it; a
+**struct** file holds a concept with no identity that stands alone.
 
 | Kind | File | Type name | Example |
 |------|------|-----------|---------|
 | Entity | `{name}.entity.ts` | `{Name}Entity` | `SecretEntity`, `UserEntity` |
 | Entity input shape | the same entity file | `Create{Name}Input` / `{Name}CreationData` | `CreateSecretInput`, `RoleCreationData` |
 | Entity behavior (pure function) | the same entity file | camelCase verb | `updateRole(role, changes)` |
-| Struct | `{name}.struct.ts` | plain PascalCase, no suffix | `Permission`, `PermissionScope`, `ProjectList`, `CreatedApp` |
+| Type that exists only with the entity (a part, a wrapper, a result) | the same entity file | plain PascalCase, no suffix | `JobNodeExecution`, `ProjectList`, `CreatedApp` |
+| Struct | `{name}.struct.ts` | plain PascalCase, no suffix | `NodeId`, `Permission`, `PermissionScope`, `JobStatus` |
 
 ```typescript
 // secret.entity.ts
@@ -158,7 +165,6 @@ two names clash.
 | Extension | `{Name}Extension` | `ScyllaBaseExtension` |
 | Use case | `{Verb}{Entity}UseCase` | `UpdateRoleUseCase` |
 | Repository implementation | `Default{Entity}Repository` | `DefaultUserRepository` |
-| Mapper | `Grpc{Entity}Mapper` | `GrpcUserMapper` |
 | ViewModel class | `{View}State` | `LoginState` |
 | Error / result | `ScyllaError`, `ScyllaResult<T>` | — |
 
@@ -230,10 +236,13 @@ There are **no `use*` hooks**. A factory of rune state is **camelCase `create*`*
 | Kind | Pattern | Example |
 |------|---------|---------|
 | ViewModel of a view | `create{View}` in `<view>.state.svelte.ts`, or a `{View}State` class | `createRolesPage()`, `createPipelineDashboard(projectId)`, `LoginState` |
-| Shared rune helper | `create{Concept}` | `createSelection(key)`, `createPagination(options)`, `createFormState(() => items)` |
+| State with one responsibility | `create{Responsibility}` in `<responsibility>.state.svelte.ts` | `createNodeDraft(...)`, `createSelection(key)`, `createPagination(options)` |
+| Effect | a verb, in `*.effect.svelte.ts` | `syncOrganization(slug)`, `cleanContext(projectId)` |
 | TanStack Query | `createQuery`, `createMutation`, `createQueries` (from `@scylla/core-sdk`) | `createQuery(() => userQueries.byId(id))` |
 
-A ViewModel is named after the view that it controls, never after a global concept.
+A ViewModel is named after the view that it controls. Another state is named after what it
+holds. There is no plain `*.svelte.ts`: each file of rune code has the suffix of its role
+(`.state`, `.effect`, `.adapter`, `.attachments`).
 
 ### 3.4 Stores
 

@@ -13,7 +13,7 @@
   import AlertDialogCloseButton from '../AlertDialogCloseButton.svelte';
   import DialogFooterBand from '../DialogFooterBand.svelte';
   import SecretLabelField from '../SecretLabelField/SecretLabelField.svelte';
-  import { renameSecretMessages as messages } from './rename-secret.messages.ts';
+  import { renameSecretMessages as messages } from '@base/features/agents/presentation/messages/rename-secret.messages.ts';
 
   interface Props {
     /** Open while set. */

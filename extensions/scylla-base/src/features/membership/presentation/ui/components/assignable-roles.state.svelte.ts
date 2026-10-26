@@ -1,9 +1,9 @@
 import { Permission, authorizationReady, can, type PermissionScope } from '@platform/authz';
 import { createQuery } from '@scylla/core-sdk';
 import { humanizeRoleId, roleQueries } from '@base/features/roles';
-import { assignableForPeople } from './assignable-roles.calculator.ts';
+import { assignableForPeople } from '@base/features/membership/presentation/presenters/assignable-roles.presenter.ts';
 
-export type { AssignableRole } from './assignable-roles.calculator.ts';
+export type { AssignableRole } from '@base/features/membership/presentation/presenters/assignable-roles.presenter.ts';
 
 /**
  * The roles a member view can hand out at `scope`: what `ListGrantableRoles` returns, the roles

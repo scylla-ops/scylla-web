@@ -8,7 +8,7 @@
   import { createFeatureSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import { jobMutations } from '@base/features/jobs/presentation/jobs.queries.ts';
-  import { jobsMessages } from '../jobs.messages.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
     numberOfJobs: number;

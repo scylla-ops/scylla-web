@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findFloating, render } from '@test/render.svelte.ts';
+import { findFloating, render } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '@platform/context';
 import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';

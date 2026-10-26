@@ -20,7 +20,7 @@
     organizationMutations,
     organizationQueries,
   } from '@base/features/organization/presentation/organization.queries.ts';
-  import { organizationMessages } from '../organization.messages.ts';
+  import { organizationMessages } from '@base/features/organization/presentation/messages/organization.messages.ts';
   import EditOrganizationDialog from '../EditOrganizationDialog/EditOrganizationDialog.svelte';
   import OrganizationRow from './OrganizationRow.svelte';
 

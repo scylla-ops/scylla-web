@@ -2,7 +2,7 @@
   import { t } from '@scylla/ui/i18n';
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
   import type { RolesPage } from './roles-page.state.svelte.ts';
-  import { rolesMessages } from '../roles.messages.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
   import RoleListItem from './RoleListItem/RoleListItem.svelte';
 
   interface Props {

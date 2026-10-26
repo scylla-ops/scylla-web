@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { flushSync } from 'svelte';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';

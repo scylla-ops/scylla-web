@@ -1,5 +1,5 @@
 import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { PermissionScope, PrincipalEntity, } from '@platform/authz';
+import type { PermissionScope, PrincipalEntity, EffectivePermissionsEntity } from '@platform/authz';
 import type {
   RoleCreationData,
   RoleEntity,
@@ -8,8 +8,7 @@ import type {
   GrantEntity,
 } from '@base/features/roles/domain/entities/grant.entity.ts';
 import type { GrantableRoleEntity } from '@base/features/roles/domain/entities/grantable-role.entity.ts';
-import type { EffectivePermissionsEntity } from '@platform/authz';
-import type { PermissionVocabularyEntity } from '@base/features/roles/domain/entities/permission-vocabulary.entity.ts';
+import type { PermissionVocabulary } from '@base/features/roles/domain/structs/permission-vocabulary.struct.ts';
 
 export interface CreateGrantInput {
   principal: PrincipalEntity;
@@ -55,5 +54,5 @@ export interface PermissionRepository {
     organizationId?: string,
   ): Promise<ScyllaResult<GrantableRoleEntity[]>>;
 
-  listPermissionVocabulary(): Promise<ScyllaResult<PermissionVocabularyEntity>>;
+  listPermissionVocabulary(): Promise<ScyllaResult<PermissionVocabulary>>;
 }

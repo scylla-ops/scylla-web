@@ -1,6 +1,6 @@
 <script lang="ts">
   import { loadOnboardingTour } from '@base/features/onboarding';
-  import { unseenRelease } from '@base/shell/presentation/layout/whats-new.svelte.ts';
+  import { unseenRelease } from '@base/shell/presentation/layout/whats-new.state.svelte.ts';
   import WhatsNewDialog from '../WhatsNewDialog/WhatsNewDialog.svelte';
 </script>
 

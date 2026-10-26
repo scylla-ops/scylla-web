@@ -3,7 +3,7 @@
   import { t } from '@scylla/ui/i18n';
   import type { UserSummary } from '@base/features/user';
   import { UserIdentity, type MissingUser } from '@shared/presentation/ui';
-  import type { MemberRole } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  import type { MemberRole } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
   import type {
     AssignableRole,
   } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
@@ -12,7 +12,7 @@
   import MemberRowAction from '../MemberRowAction/MemberRowAction.svelte';
   import {
     membershipMessages,
-  } from '@base/features/membership/presentation/ui/membership.messages.ts';
+  } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   interface Props {
     /** `undefined`: a missing user, named after `missing`. */

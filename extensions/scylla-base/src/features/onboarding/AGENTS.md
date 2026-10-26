@@ -43,18 +43,19 @@ sources: split it into a local and a remote data source then. Presentation does 
 onboarding.module.ts                 DI wiring (private; registry only)
 index.ts                             public API: the loader
 domain/
-  structs/onboarding-status.struct.ts
+  structs/onboarding-status.struct.ts    the status and its transitions: currentStepId, advanceTour,
+                                         rewindTour, rememberSubject (pure)
   repository/onboarding.repository.ts
 infrastructure/
   default-onboarding.repository.ts       reads localStorage (any `Storage` in a test)
   stored-onboarding.mapper.ts            JSON ↔ status, tolerant
 presentation/
   onboarding.queries.ts              status query + save mutation (optimistic)
-  onboarding.messages.ts             every string (tour-steps.ts uses them)
+  messages/onboarding.messages.ts    every string (tour-steps.registry.ts uses them)
+  presenters/tour.presenter.ts             visibility, step count, offline agent
+  presenters/tour-placement.presenter.ts   card placement, dim path, connector path
   ui/OnboardingTour/                 root (loaded by the shell) + its test, and its parts:
-    tour-steps.ts                    THE step list: text, anchors, what moves each step on
-    tour-machine.calculator.ts       pure transitions: advance, rewind, visibility, count
-    tour-placement.calculator.ts     card placement, dim path, connector path
+    tour-steps.registry.ts                    THE step list: text, anchors, what moves each step on
     tour-tracking.attachments.svelte.ts  trackTourStep (rAF + click listener), blockPage, portalToBody, holdPointer
     onboarding-tour.state.svelte.ts  ViewModel: status, current step, skip, mutation events
     TourSpot.svelte                  one spot step: tracking, spotlight, card(s)
@@ -64,7 +65,7 @@ presentation/
 
 ## How a step moves on
 
-Each spot step in `tour-steps.ts` declares its `targets` (anchors, the card points at the first
+Each spot step in `tour-steps.registry.ts` declares its `targets` (anchors, the card points at the first
 one) and its `advance`:
 
 | `advance.on` | Fires when |
@@ -96,7 +97,7 @@ Anchors are attributes on the real elements, never CSS classes:
 Removing or renaming one of these breaks a step without a type error. `tour-steps.test.ts` pins
 the anchors that carry logic.
 
-A saved tour can hold the id of a removed step. `REPLACED_STEPS` in `tour-machine.calculator.ts`
+A saved tour can hold the id of a removed step. `REPLACED_STEPS` in `domain/structs/onboarding-status.struct.ts`
 gives the step that took its place (`reveal-secret` to `copy-secret`). When you remove or rename
 a step, add its id there.
 

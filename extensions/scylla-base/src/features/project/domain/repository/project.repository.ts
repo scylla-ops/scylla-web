@@ -1,6 +1,8 @@
 import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
-import type { ProjectList } from '@base/features/project/domain/structs/project.struct.ts';
+import type {
+  ProjectEntity,
+  ProjectList,
+} from '@base/features/project/domain/entities/project.entity.ts';
 import type { UserSummary } from '@base/features/user';
 import type { PaginationParams } from '@scylla/ui/structs';
 

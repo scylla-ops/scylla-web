@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { HTMLButtonAttributes } from 'svelte/elements';
   import { cn } from '../../utils/index.ts';
-  import { getSidebar } from './sidebar-state.svelte.ts';
+  import { getSidebar } from './sidebar.state.svelte.ts';
 
   type Props = HTMLButtonAttributes & { label: string };
 

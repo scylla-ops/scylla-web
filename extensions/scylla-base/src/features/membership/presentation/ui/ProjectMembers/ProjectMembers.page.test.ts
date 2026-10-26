@@ -8,7 +8,7 @@ import {
   withQueryClient,
   withRegistry,
   withWidgetInjections,
-} from '@test/render.svelte.ts';
+} from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { membershipPoints } from '@base/features/membership/presentation/membership.points.ts';
 import ProjectMembersPage from './ProjectMembers.page.svelte';

@@ -14,9 +14,9 @@
   import { calculateExecutionDuration, formatDuration } from '@shared/utils/date-utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
-  import { nodeIdOf } from '../jobs-table/job-timeline.calculator.ts';
+  import { nodeIdOf } from '@base/features/jobs/presentation/presenters/job-timeline.presenter.ts';
   import JobLogDisplay from '../jobs-log/JobLogDisplay/JobLogDisplay.svelte';
-  import { jobsMessages } from '../jobs.messages.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   const PANEL_HEADER_HEIGHT = 36;
   const PANEL_BORDER_HEIGHT = 2;

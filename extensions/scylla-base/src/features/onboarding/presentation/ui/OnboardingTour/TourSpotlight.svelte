@@ -6,7 +6,7 @@
     ringPath,
     type TourRect,
     type TourSize,
-  } from './tour-placement.calculator.ts';
+  } from '@base/features/onboarding/presentation/presenters/tour-placement.presenter.ts';
   import { holdPointer } from './tour-tracking.attachments.svelte.ts';
 
   interface Props {

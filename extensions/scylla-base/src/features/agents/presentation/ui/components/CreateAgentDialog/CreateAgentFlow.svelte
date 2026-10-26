@@ -11,12 +11,12 @@
     createAgentCreation,
   } from './create-agent.state.svelte.ts';
   import { trackHeight } from './track-height.attachments.ts';
-  import { agentsMessages } from '../../agents.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
   import DialogFooterBand from '../DialogFooterBand.svelte';
   import CreateAgentForm from './CreateAgentForm.svelte';
   import CreateAgentStart from './CreateAgentStart.svelte';
   import CreateAgentStepper from './CreateAgentStepper.svelte';
-  import { createAgentMessages as messages } from './create-agent.messages.ts';
+  import { createAgentMessages as messages } from '@base/features/agents/presentation/messages/create-agent.messages.ts';
 
   interface Props {
     onClose: () => void;

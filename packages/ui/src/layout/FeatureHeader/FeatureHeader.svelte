@@ -6,7 +6,7 @@
   import { Button } from '../../primitives/index.ts';
   import type { LucideIcon } from '../../icon.ts';
   import { toast } from '../../utils/toast.ts';
-  import { activeLocale, t } from '../../i18n/i18n-svelte.svelte.ts';
+  import { activeLocale, t } from '../../i18n/lingui.adapter.svelte.ts';
   // Not the group barrels: they would import this file back.
   import GatedButton from '../../controls/GatedButton/GatedButton.svelte';
   import ConfirmOperationAlertDialog from '../../feedback/ConfirmOperationAlertDialog/ConfirmOperationAlertDialog.svelte';

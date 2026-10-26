@@ -11,7 +11,7 @@
   import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
   import AlertDialogCloseButton from '../AlertDialogCloseButton.svelte';
   import DialogFooterBand from '../DialogFooterBand.svelte';
-  import { disableAgentMessages as messages } from './disable-agent.messages.ts';
+  import { disableAgentMessages as messages } from '@base/features/agents/presentation/messages/disable-agent.messages.ts';
 
   interface Props {
     /** Open while set. */

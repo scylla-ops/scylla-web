@@ -6,7 +6,7 @@
   import { loginPoints } from '@base/features/login/presentation/login.points.ts';
   import AuthLayout from '../AuthLayout.svelte';
   import LoginForm from '../LoginForm/LoginForm.svelte';
-  import { loginMessages } from '../login.messages.ts';
+  import { loginMessages } from '@base/features/login/presentation/messages/login.messages.ts';
 
   // Built during initialisation: its mutation needs an owner.
   const state = new LoginState();

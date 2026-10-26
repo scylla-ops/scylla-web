@@ -1,15 +1,17 @@
 import { t } from '@lingui/core/macro';
 import type { ProjectRepository } from '@base/features/project/domain/repository/project.repository.ts';
-import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
-import type { ProjectList } from '@base/features/project/domain/structs/project.struct.ts';
+import type {
+  ProjectEntity,
+  ProjectList,
+} from '@base/features/project/domain/entities/project.entity.ts';
 import type { IProjectServiceClient } from '@base/generated/scylla/project/v1/project.client.ts';
 import type { Project } from '@base/generated/scylla/project/v1/project.ts';
 import type { UserSummary } from '@base/features/user';
 import { DEFAULT_PAGE_SIZE, type PaginationParams } from '@scylla/ui/structs';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
-import { GrpcProjectMapper } from './grpc-project.mapper.ts';
-import { GrpcProjectMemberMapper } from './grpc-project-member.mapper.ts';
+import * as grpcProject from './grpc-project.mapper.ts';
+import * as grpcProjectMember from './grpc-project-member.mapper.ts';
 
 /**
  * A cap on projects comes from an extension, with a server message in English that names the
@@ -25,7 +27,7 @@ export const toCreateProjectError = (error: ScyllaError): ScyllaError =>
 /** The wrapped entity is optional on the wire: fail here rather than pass `undefined` on. */
 const requireProject = (project: Project | undefined): ProjectEntity => {
   if (!project) throw new Error('Server returned no project.');
-  return GrpcProjectMapper.toDomain(project);
+  return grpcProject.toDomain(project);
 };
 
 export class DefaultProjectRepository implements ProjectRepository {
@@ -40,7 +42,7 @@ export class DefaultProjectRepository implements ProjectRepository {
         organizationId: wrapId(organizationId),
         pagination: pagination ?? { page: 1, pageSize: DEFAULT_PAGE_SIZE },
       }).response;
-      return GrpcProjectMapper.toDomainList(response);
+      return grpcProject.toDomainList(response);
     }, 'Failed to fetch projects.');
   }
 
@@ -49,7 +51,7 @@ export class DefaultProjectRepository implements ProjectRepository {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.listProjectMembers({ projectId: wrapId(projectId) })
         .response;
-      return response.members.map(GrpcProjectMemberMapper.toDomain);
+      return response.members.map(grpcProjectMember.toDomain);
     }, 'Failed to fetch project members.');
   }
 

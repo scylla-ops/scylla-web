@@ -27,8 +27,7 @@ loginPathBackTo(location)            // loginPath of the current page; '/login' 
 type PasswordResetDelivery           // 'mail' | 'server-log' | 'unknown'; `user` uses it too
 ```
 
-Never add: `login.module.ts`, a page. There is no `use-login-domain.ts`: a view model calls
-`getModuleDomain('login')` directly.
+Never add: `login.module.ts`, a page. A state calls `getModuleDomain('login')` directly.
 
 ## Data contract
 
@@ -61,17 +60,18 @@ infrastructure/
   session.ts                            openSession, closeSession (the writers of token + userId), hasSession
 presentation/
   login.points.ts                    the extension points — see below
-  login.state.svelte.ts              sign-in: the mutation + the redirect
   sign-out.ts                        signOut
-  return-path.ts                     loginPath, loginPathBackTo, safeReturnPath, returnPathOf
+  mappers/return-path.mapper.ts      loginPath, loginPathBackTo, safeReturnPath, returnPathOf
+  messages/                          login, password-reset
+  ui/login.state.svelte.ts           sign-in: the mutation + the redirect
   ui/AuthLayout.svelte               the frame of the public pages: logo, card, a `below` snippet
   ui/Login/Login.page.svelte, ui/LoginForm/LoginForm.svelte
   ui/ForgotPassword/ForgotPassword.page.svelte
     forgot-password.state.svelte.ts  the request of a reset link
   ui/ResetPassword/ResetPassword.page.svelte
     reset-password.state.svelte.ts   the token of the link, the new password
-  ui/login.messages.ts               the sign-in strings (the `login.texts` point)
-  ui/password-reset.messages.ts      the strings of the two reset pages
+  messages/login.messages.ts               the sign-in strings (the `login.texts` point)
+  messages/password-reset.messages.ts      the strings of the two reset pages
 ```
 
 ## Extension points

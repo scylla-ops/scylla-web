@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {
   OnboardingStatus,

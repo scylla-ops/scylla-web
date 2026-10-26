@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { GrpcRoleMapper } from '../grpc-role.mapper.ts';
+import * as grpcRole from '../grpc-role.mapper.ts';
 import { ScopeKind } from '@base/generated/scylla/authz/v1/permission.ts';
 import type { Role } from '@base/generated/scylla/authz/v1/role.ts';
 import { RoleKind as GrpcRoleKind } from '@base/generated/scylla/authz/v1/grant.ts';
@@ -21,9 +21,9 @@ const baseRole = (overrides: Partial<Role> = {}): Role => ({
   ...overrides,
 });
 
-describe('GrpcRoleMapper.toDomain', () => {
+describe('grpcRole.toDomain', () => {
   it('unwraps the id, carries name/description, and maps scope/access', () => {
-    const domain = GrpcRoleMapper.toDomain(baseRole());
+    const domain = grpcRole.toDomain(baseRole());
     expect(domain.id).toBe('role-1');
     expect(domain.name).toBe('CI runner');
     expect(domain.description).toBe('runs pipelines');
@@ -33,25 +33,23 @@ describe('GrpcRoleMapper.toDomain', () => {
   });
 
   it('maps an agent role to the agent kind', () => {
-    expect(GrpcRoleMapper.toDomain(baseRole({ kind: GrpcRoleKind.AGENT })).kind).toBe(
-      RoleKind.AGENT,
-    );
+    expect(grpcRole.toDomain(baseRole({ kind: GrpcRoleKind.AGENT })).kind).toBe(RoleKind.AGENT);
   });
 
   it('defaults to an empty id when the wrapper is absent', () => {
-    expect(GrpcRoleMapper.toDomain(baseRole({ roleId: undefined })).id).toBe('');
+    expect(grpcRole.toDomain(baseRole({ roleId: undefined })).id).toBe('');
   });
 
   describe('origin', () => {
     it('maps a builtin role, carrying its stable key', () => {
-      const domain = GrpcRoleMapper.toDomain(
+      const domain = grpcRole.toDomain(
         baseRole({ origin: { oneofKind: 'builtin', builtin: { key: 'organization-admin' } } }),
       );
       expect(domain.origin).toEqual({ kind: 'builtin', key: 'organization-admin' });
     });
 
     it('maps a custom role, carrying its owning organization', () => {
-      const domain = GrpcRoleMapper.toDomain(
+      const domain = grpcRole.toDomain(
         baseRole({
           origin: { oneofKind: 'custom', custom: { ownerOrganizationId: { value: 'org-1' } } },
         }),
@@ -60,20 +58,18 @@ describe('GrpcRoleMapper.toDomain', () => {
     });
 
     it('a custom role with no owner id is still "custom", with an undefined owner', () => {
-      const domain = GrpcRoleMapper.toDomain(
-        baseRole({ origin: { oneofKind: 'custom', custom: {} } }),
-      );
+      const domain = grpcRole.toDomain(baseRole({ origin: { oneofKind: 'custom', custom: {} } }));
       expect(domain.origin).toEqual({ kind: 'custom', ownerOrganizationId: undefined });
     });
 
     it('an origin arm this build does not know reads as unknown, never as "custom"', () => {
-      const domain = GrpcRoleMapper.toDomain(baseRole({ origin: { oneofKind: undefined } }));
+      const domain = grpcRole.toDomain(baseRole({ origin: { oneofKind: undefined } }));
       expect(domain.origin).toEqual({ kind: 'unknown' });
     });
   });
 });
 
-describe('GrpcRoleMapper.toGrpcCreateRequest', () => {
+describe('grpcRole.toGrpcCreateRequest', () => {
   const data = (overrides: Partial<RoleCreationData> = {}): RoleCreationData => ({
     name: 'CI runner',
     description: 'runs pipelines',
@@ -84,7 +80,7 @@ describe('GrpcRoleMapper.toGrpcCreateRequest', () => {
   });
 
   it('builds the wire create request of a platform role from RoleCreationData', () => {
-    expect(GrpcRoleMapper.toGrpcCreateRequest(data())).toEqual({
+    expect(grpcRole.toGrpcCreateRequest(data())).toEqual({
       name: 'CI runner',
       description: 'runs pipelines',
       scopeKind: ScopeKind.PROJECT,
@@ -95,25 +91,25 @@ describe('GrpcRoleMapper.toGrpcCreateRequest', () => {
   });
 
   it('names the owning organization of an organization role', () => {
-    expect(
-      GrpcRoleMapper.toGrpcCreateRequest(data({ organizationId: 'org-1' })).organizationId,
-    ).toEqual({ value: 'org-1' });
+    expect(grpcRole.toGrpcCreateRequest(data({ organizationId: 'org-1' })).organizationId).toEqual({
+      value: 'org-1',
+    });
   });
 
   it('sends an unspecified kind as a member role', () => {
-    expect(GrpcRoleMapper.toGrpcCreateRequest(data({ kind: RoleKind.UNSPECIFIED })).kind).toBe(
+    expect(grpcRole.toGrpcCreateRequest(data({ kind: RoleKind.UNSPECIFIED })).kind).toBe(
       GrpcRoleKind.MEMBER,
     );
   });
 
   it('refuses the admin kind: it belongs to the builtin owner roles', () => {
-    expect(() => GrpcRoleMapper.toGrpcCreateRequest(data({ kind: RoleKind.ADMIN }))).toThrow(
+    expect(() => grpcRole.toGrpcCreateRequest(data({ kind: RoleKind.ADMIN }))).toThrow(
       /reserved for the builtin roles/,
     );
   });
 });
 
-describe('GrpcRoleMapper.toGrpcUpdateRequest', () => {
+describe('grpcRole.toGrpcUpdateRequest', () => {
   const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
     id: 'role-1',
     name: 'CI runner',
@@ -126,7 +122,7 @@ describe('GrpcRoleMapper.toGrpcUpdateRequest', () => {
   });
 
   it("builds the wire update request (no scope - a role's scope is immutable)", () => {
-    expect(GrpcRoleMapper.toGrpcUpdateRequest(role())).toEqual({
+    expect(grpcRole.toGrpcUpdateRequest(role())).toEqual({
       roleId: { value: 'role-1' },
       name: 'CI runner',
       description: 'runs pipelines',
@@ -135,7 +131,7 @@ describe('GrpcRoleMapper.toGrpcUpdateRequest', () => {
   });
 
   it('refuses to update a role whose access this build cannot read - saving it back would drop it', () => {
-    expect(() => GrpcRoleMapper.toGrpcUpdateRequest(role({ access: { kind: 'unknown' } }))).toThrow(
+    expect(() => grpcRole.toGrpcUpdateRequest(role({ access: { kind: 'unknown' } }))).toThrow(
       /cannot be updated here/,
     );
   });

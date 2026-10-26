@@ -14,14 +14,14 @@
   import { createSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-  import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+  import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggerMutations } from '@base/features/triggers/presentation/triggers.queries.ts';
   import TriggerActions from './TriggerActions/TriggerActions.svelte';
   import TriggerSourceCell from './TriggerSourceCell/TriggerSourceCell.svelte';
   import TriggerStatusCell from './TriggerStatusCell/TriggerStatusCell.svelte';
   import TriggerFormDialog from '../dialogs/TriggerFormDialog/TriggerFormDialog.svelte';
-  import { triggerColumns } from './trigger-columns.ts';
-  import { triggersMessages } from '../triggers.messages.ts';
+  import { triggerColumns } from './triggers-table.columns.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     triggers: TriggerEntity[];

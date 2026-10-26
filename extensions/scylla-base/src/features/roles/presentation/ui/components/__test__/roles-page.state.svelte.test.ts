@@ -9,7 +9,7 @@ import {
   type EffectiveScopeEntity,
 } from '@platform/authz';
 import { selectionStore } from '@scylla/ui/stores';
-import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {
   PermissionRepository,

@@ -5,7 +5,7 @@
   import { t } from '@scylla/ui/i18n';
   import { extensionQueries } from '@base/features/extensions/presentation/extensions.queries.ts';
   import ExtensionCard from './ExtensionCard.svelte';
-  import { extensionsMessages } from '../extensions.messages.ts';
+  import { extensionsMessages } from '@base/features/extensions/presentation/messages/extensions.messages.ts';
 
   const extensionsQuery = createQuery(() => extensionQueries.installed());
   const extensions = $derived(extensionsQuery.data ?? []);

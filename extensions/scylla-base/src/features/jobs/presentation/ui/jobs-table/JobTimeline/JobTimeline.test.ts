@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findFloating, render } from '@test/render.svelte.ts';
-import type { JobNodeExecution } from '@base/features/jobs/domain/structs/job.struct.ts';
+import { findFloating, render } from '@test/render.ts';
+import type { JobNodeExecution } from '@base/features/jobs/domain/entities/job.entity.ts';
 import JobTimeline from './JobTimeline.svelte';
 
 const node = (overrides: Partial<JobNodeExecution> = {}): JobNodeExecution => ({

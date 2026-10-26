@@ -4,8 +4,8 @@
   import { t } from '@scylla/ui/i18n';
   import {
     onboardingMessages,
-  } from '@base/features/onboarding/presentation/onboarding.messages.ts';
-  import { SCYLLA_DOCS_URL } from './tour-steps.ts';
+  } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
+  import { SCYLLA_DOCS_URL } from './tour-steps.registry.ts';
 
   interface Props {
     open: boolean;

@@ -10,7 +10,7 @@
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { AgentAccess } from './agent-access.state.svelte.ts';
-  import { accessCardMessages as messages } from './access-card.messages.ts';
+  import { accessCardMessages as messages } from '@base/features/agents/presentation/messages/access-card.messages.ts';
 
   interface Props {
     manager: AgentAccess;

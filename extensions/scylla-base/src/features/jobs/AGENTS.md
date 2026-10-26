@@ -23,7 +23,7 @@ jobsByPipelinesQueries
 loadJobsPage                          ← a loader, not the page
 ```
 
-**This module is Svelte** (Phase 3). There is no `use-jobs-domain.ts` and no hooks: the
+The
 factories in `presentation/jobs.queries.ts` resolve the repository through
 `getModuleDomain('jobs')` per call, and a component runs them with `createQuery` /
 `createMutation` from `@scylla/core-sdk`.
@@ -34,7 +34,7 @@ share the *same* cache entry as this module's pages.
 `loadJobsPage` is a **loader** (`() => import(…)`), never the component. `pipeline` composes this
 page behind its own route because it owns the "Run" action, and a `.svelte` re-exported from a
 barrel cannot be tree-shaken out of whoever imports that barrel for something else —
-`use-run-pipeline.ts` imports `JOBS_QUERY_KEY` from here. A function keeps the chunk separate.
+`pipeline` imports `JOBS_QUERY_KEY` from here. A function keeps the chunk separate.
 See `refacto_svelte.md` §2. `JobDetails.page.svelte` is mounted by this module's own route, so it
 stays private.
 
@@ -55,7 +55,7 @@ Never add: `jobs.module.ts`, and never export a `.svelte` component from this ba
 
 `tailLogs` is the one non-`Promise` method in the codebase: it opens a server stream and returns
 the handle immediately. It is a genuine outside-the-framework subscription, so it belongs in
-`tail-job-logs.svelte.ts` — and **the stream is always closed on teardown**.
+`tail-job-logs.state.svelte.ts` — and **the stream is always closed on teardown**.
 
 All wrapped in `ScyllaResult`. Reach it from `jobs.queries.ts` only — never from a component.
 
@@ -65,10 +65,8 @@ All wrapped in `ScyllaResult`. Reach it from `jobs.queries.ts` only — never fr
 jobs.module.ts                       DI wiring + the job details route (no nav)
 index.ts                             public API
 domain/
-  entities/job.entity.ts             JobEntity
-  structs/job.struct.ts              JobLog, JobLogStream
-  structs/jobs-summary.struct.ts     JobsSummary, JobStatus + summarizeJobs,
-                                     isActiveStatus, isFinishedStatus (pure)
+  entities/job.entity.ts             JobEntity, JobNodeExecution, JobLog, JobLogStream
+  structs/job-status.struct.ts       JobStatus, isActiveStatus, isFinishedStatus (pure)
   repository/jobs.repository.ts
 infrastructure/
   default-jobs.repository.ts       JobServiceClient → JobEntity; tailLogs maps the stream
@@ -79,13 +77,14 @@ presentation/
   jobs-by-pipelines.queries.ts       the fan-out across pipelines, avoids N+1
   ui/Jobs.page.svelte, JobsHeader.svelte
   ui/JobDetails/                     one job: info + per-node logs (JobSummary, JobNodeLogs)
-    open-log-panels.svelte.ts        which node panels are open, mirrored in the URL
-  ui/jobs.messages.ts                every string — `lingui extract` cannot read `.svelte`
-  ui/jobs-table/                     JobsTable + job-columns.ts + cells
-  ui/jobs-table/job-timeline.calculator.ts   segment geometry, pure and tested in node
+    open-log-panels.state.svelte.ts        which node panels are open, mirrored in the URL
+  messages/jobs.messages.ts                every string — `lingui extract` cannot read `.svelte`
+  presenters/jobs-summary.presenter.ts   JobsSummary, summarizeJobs
+  presenters/job-timeline.presenter.ts   segment geometry, pure and tested in node
+  ui/jobs-table/                     JobsTable + jobs-table.columns.ts + cells
   ui/jobs-log/JobLogDisplay/         the streamed viewer, shared by both pages
-    streamed-log-view.svelte.ts      owns the editor document + tail-follow
-    tail-job-logs.svelte.ts          the live stream subscription (opens and closes it)
+    streamed-log-view.state.svelte.ts      owns the editor document + tail-follow
+    tail-job-logs.state.svelte.ts          the live stream subscription (opens and closes it)
 ```
 
 ## Routes & nav
@@ -110,16 +109,16 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
   details page) stays internal. Never hand-write `['jobs', ...]`.
 - `JOBS_QUERY_ROOT` is the prefix for "invalidate everything jobs-related" after a run;
   `JOBS_QUERY_KEY(pipelineId)` is exact. Pick deliberately.
-- **`summarizeJobs`, `isActiveStatus`, `isFinishedStatus` are pure domain functions.** Status
-  logic goes there, not into a component or a `useMemo`.
+- **`isActiveStatus` and `isFinishedStatus` are rules of the domain** (`job-status.struct.ts`), and
+  `summarizeJobs` is a presenter. Status logic goes there, not into a component.
 - **Log tailing is a subscription to something outside the framework**, so it is a Svelte
-  action / `*.svelte.ts` owner — `tail-job-logs.svelte.ts` — and never reactivity. It opens the
-  stream and **closes it on teardown**; the same holds for `streamed-log-view.svelte.ts`, which
+  action / `*.state.svelte.ts` owner — `tail-job-logs.state.svelte.ts` — and never reactivity. It opens the
+  stream and **closes it on teardown**; the same holds for `streamed-log-view.state.svelte.ts`, which
   drives a CodeMirror instance through `renderCodeMirror` (`@scylla/ui`).
 - **Never re-seed the editor with the whole live log string.** Replacing the document
   (`changes: { from: 0, to: doc.length }`) resets the scroll offset and collapses the selection;
   at one flush per 150 ms the log appears to jump back to the top and nothing can be selected.
-  `streamed-log-view.svelte.ts` appends the delta instead — that is the entire reason it exists.
+  `streamed-log-view.state.svelte.ts` appends the delta instead — that is the entire reason it exists.
   This is also why the CodeMirror mount is an attachment: the editor is an outside system, and a
   `value` prop would invite exactly the replacement above.
 - **Never scroll that viewer to the bottom on every log change** either — same flush rate, and it
@@ -135,7 +134,7 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
   the jobs table's view action and timeline, the pipeline dashboard's history and last run —
   links there through `scyllaNavigate.goToJobDetails(...)` from `@platform/context`, which is an
   object, not a hook. Which log panels are open is the `nodes` search param, not component
-  state (`open-log-panels.svelte.ts` owns it), so those links can open straight onto one node's
+  state (`open-log-panels.state.svelte.ts` owns it), so those links can open straight onto one node's
   logs.
 - **The whole job and the nodes are exclusive.** The details page opens a `JobLogDisplay` per node
   the URL names, and the job as a whole only when it names none — the whole job is the page at
@@ -149,7 +148,7 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
 - **Log panels are independent, and each one is a live stream.** Every open panel holds its own
   tail subscription. Closing a panel unmounts it, which is what cancels that stream — never hide
   one with CSS instead.
-- **New strings go in `ui/jobs.messages.ts`, never inside a `.svelte`.** Extraction does not read
+- **New strings go in `messages/jobs.messages.ts`, never inside a `.svelte`.** Extraction does not read
   components, so a message declared there vanishes from the catalogs without failing a gate.
 - **`data-tour` attributes are anchors of the onboarding tour** (`job-details` on the job page). Keep them on the same
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).

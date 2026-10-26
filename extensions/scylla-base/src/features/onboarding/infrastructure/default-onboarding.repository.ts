@@ -1,7 +1,7 @@
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { OnboardingRepository } from '@base/features/onboarding/domain/repository/onboarding.repository.ts';
 import type { OnboardingStatus } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
-import { StoredOnboardingMapper } from './stored-onboarding.mapper.ts';
+import * as storedOnboarding from './stored-onboarding.mapper.ts';
 
 const storageKey = (userId: string) => `onboarding:${userId}`;
 
@@ -14,7 +14,7 @@ export class DefaultOnboardingRepository implements OnboardingRepository {
   public getStatus(userId: string): Promise<ScyllaResult<OnboardingStatus>> {
     return Promise.resolve(
       ScyllaResult.try(
-        () => StoredOnboardingMapper.toStatus(this.storage().getItem(storageKey(userId))),
+        () => storedOnboarding.toStatus(this.storage().getItem(storageKey(userId))),
         'Failed to read the onboarding progress',
       ),
     );
@@ -23,7 +23,7 @@ export class DefaultOnboardingRepository implements OnboardingRepository {
   public saveStatus(userId: string, status: OnboardingStatus): Promise<ScyllaResult<void>> {
     return Promise.resolve(
       ScyllaResult.try(
-        () => this.storage().setItem(storageKey(userId), StoredOnboardingMapper.toStored(status)),
+        () => this.storage().setItem(storageKey(userId), storedOnboarding.toStored(status)),
         'Failed to save the onboarding progress',
       ),
     );

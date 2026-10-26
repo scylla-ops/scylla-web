@@ -1,7 +1,7 @@
 <script lang="ts">
   import MoreHorizontalIcon from '@lucide/svelte/icons/more-horizontal';
   import { cn } from '../../utils/index.ts';
-  import { t } from '../../i18n/i18n-svelte.svelte.ts';
+  import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import { paginationMessages } from './pagination.messages.ts';
 
   interface Props {

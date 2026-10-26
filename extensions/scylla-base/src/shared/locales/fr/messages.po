@@ -37,7 +37,7 @@ msgstr "Annulé"
 msgid "Could not copy: select the id manually"
 msgstr "Impossible de copier : sélectionnez l'ID manuellement"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/user-identity.messages.ts:4
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:4
 msgid "Deleted user"
 msgstr "Utilisateur supprimé"
 
@@ -53,7 +53,7 @@ msgstr "Échoué"
 msgid "Job queued: no agent connected"
 msgstr "Travail mis en file d'attente : aucun agent connecté"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/StatusBar/status-bar.messages.ts:4
+#: extensions/scylla-base/src/shared/presentation/messages/status-bar.messages.ts:4
 msgid "No data"
 msgstr "Aucune donnée"
 
@@ -189,7 +189,7 @@ msgstr "Déclencheur mis à jour"
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/user-identity.messages.ts:5
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:5
 msgid "Unknown user"
 msgstr "Utilisateur inconnu"
 

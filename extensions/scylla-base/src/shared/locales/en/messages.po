@@ -37,7 +37,7 @@ msgstr "Cancelled"
 msgid "Could not copy: select the id manually"
 msgstr "Could not copy: select the id manually"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/user-identity.messages.ts:4
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:4
 msgid "Deleted user"
 msgstr "Deleted user"
 
@@ -53,7 +53,7 @@ msgstr "Failed"
 msgid "Job queued: no agent connected"
 msgstr "Job queued: no agent connected"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/StatusBar/status-bar.messages.ts:4
+#: extensions/scylla-base/src/shared/presentation/messages/status-bar.messages.ts:4
 msgid "No data"
 msgstr "No data"
 
@@ -189,7 +189,7 @@ msgstr "Trigger updated"
 msgid "Unknown"
 msgstr "Unknown"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/user-identity.messages.ts:5
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:5
 msgid "Unknown user"
 msgstr "Unknown user"
 

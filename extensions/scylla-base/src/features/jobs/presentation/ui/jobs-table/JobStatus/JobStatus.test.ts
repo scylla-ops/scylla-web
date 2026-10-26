@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
 import JobStatus from './JobStatus.svelte';
 

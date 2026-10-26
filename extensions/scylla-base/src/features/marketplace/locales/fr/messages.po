@@ -13,11 +13,11 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/ui/marketplace.messages.ts:6
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:6
 msgid "Download"
 msgstr "Télécharger"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/ui/marketplace.messages.ts:5
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:5
 msgid "Learn more"
 msgstr "En savoir plus"
 
@@ -25,10 +25,10 @@ msgstr "En savoir plus"
 msgid "Marketplace"
 msgstr "Marketplace"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/ui/marketplace.messages.ts:7
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:7
 msgid "Search"
 msgstr "Rechercher"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/ui/marketplace.messages.ts:4
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:4
 msgid "This feature will be available soon"
 msgstr "Cette fonctionnalité sera bientôt disponible"

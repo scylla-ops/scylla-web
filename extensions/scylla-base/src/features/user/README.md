@@ -68,7 +68,7 @@ show them a second time.
 ## Structure
 
 Standard three layers. `DefaultUserRepository` calls the generated `UserServiceClient` and maps
-with `GrpcUserMapper`; there is no data source between them.
+with `grpc-user.mapper.ts`; there is no data source between them.
 
 The two pages each have a view model (`account-page.state.svelte.ts`,
 `user-detail.state.svelte.ts`) and share their sections: the profile form, the list of

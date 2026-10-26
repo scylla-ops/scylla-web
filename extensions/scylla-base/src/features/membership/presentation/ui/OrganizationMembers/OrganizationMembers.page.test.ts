@@ -3,7 +3,7 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { findFloating, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import OrganizationMembersPage from './OrganizationMembers.page.svelte';
 

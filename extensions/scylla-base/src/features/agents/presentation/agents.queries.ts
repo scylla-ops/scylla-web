@@ -6,9 +6,13 @@ import {
   APP_SECRETS_QUERY_KEY,
   appMutations,
 } from '@base/features/apps';
-import type { AgentEntity } from '../domain/entities/agent.entity.ts';
-import type { AgentStats, CreatedAgent } from '../domain/structs/agent.struct.ts';
-import type { AgentJob, PipelineName } from '../domain/structs/agent-job.struct.ts';
+import type {
+  AgentEntity,
+  AgentStats,
+  CreatedAgent,
+  AgentJob,
+  PipelineName,
+} from '../domain/entities/agent.entity.ts';
 import type { AgentsModule } from '../agents.module.ts';
 
 // Resolved per call: tests swap the registry.

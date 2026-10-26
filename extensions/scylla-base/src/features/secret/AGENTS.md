@@ -57,11 +57,11 @@ infrastructure/
 presentation/
   secret.queries.ts                  the read and both writes, as options objects
   ui/Secret.page.svelte, CreateSecretDialog.svelte
-  ui/secret.messages.ts              every string the screen shows
-  ui/components/                     SecretHeader, SecretList (+ secret-columns.ts),
+  messages/secret.messages.ts              every string the screen shows
+  ui/components/                     SecretHeader, SecretList (+ secret-list.columns.ts),
                                      SecretHealthOverview, SecretPagination
   ui/components/index.ts             local barrel — internal, not the module's public API
-  utils/createSecretItems.ts         ⚠ camelCase filename
+  presenters/secret-form.presenter.ts   the items of the form
 ```
 
 ## Routes & nav
@@ -79,7 +79,7 @@ presentation/
   check the mapper before displaying it.
 - The plaintext exists exactly once: in the create form, on its way out. Do not put it in a
   store, a query cache, a toast, a log or an error message.
-- `createSecretItems.ts` is camelCase, predating the kebab-case convention. Do not rename
+- `presenters/secret-form.presenter.ts` is camelCase, predating the kebab-case convention. Do not rename
   opportunistically — that moves Lingui message ownership and needs
   `node scripts/restore-translations.mjs`. New files use kebab-case.
 - Deletion is destructive and will break running pipelines that depend on the secret. Confirm
@@ -88,7 +88,7 @@ presentation/
   renders the header and the list only. They were ported as they stood; the figures in the
   first are placeholders, and the second lost the bold on its three numbers, because `<Trans>`
   could wrap them in elements and a `t()` string cannot.
-- A column's `cell` is a Svelte snippet, so it lives in `SecretList.svelte`; `secret-columns.ts`
+- A column's `cell` is a Svelte snippet, so it lives in `SecretList.svelte`; `secret-list.columns.ts`
   keeps the part that is data — `accessorKey`, `header`, `size`, `meta.align`.
 
 ## Before done

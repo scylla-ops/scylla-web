@@ -1,7 +1,13 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { canAccess, permissionLevel } from '../effective-permissions.entity';
-import type { EffectivePermissionsEntity } from '../effective-permissions.entity';
+import {
+  canAccess,
+  holdsFullControl,
+  holdsPermission,
+  permissionLevel,
+  type EffectivePermissionsEntity,
+  type EffectiveScopeEntity,
+} from '../effective-permissions.entity.ts';
 import { Permission, PermissionScope } from '@platform/authz/domain/structs/permission.struct.ts';
 
 const effective = (...scopes: EffectivePermissionsEntity['scopes']): EffectivePermissionsEntity => ({
@@ -150,5 +156,77 @@ describe('canAccess', () => {
       expect(permissionLevel(Permission.CREATE_PROJECT)).toBe(PermissionScope.ORGANIZATION);
       expect(permissionLevel(Permission.MANAGE_PROJECT_GRANTS)).toBe(PermissionScope.PROJECT);
     });
+  });
+});
+
+// The escalation rule of the backend, for the author of a role.
+const restricted = (
+  scope: PermissionScope,
+  scopeId: string,
+  permissions: Permission[],
+): EffectiveScopeEntity => ({ scope, scopeId, access: { kind: 'restricted', permissions } });
+
+const full = (scope: PermissionScope, scopeId: string): EffectiveScopeEntity => ({
+  scope,
+  scopeId,
+  access: { kind: 'fullControl' },
+});
+
+const holding = (...scopes: EffectiveScopeEntity[]): EffectivePermissionsEntity => ({ scopes });
+
+describe('holdsPermission — the escalation rule of the backend', () => {
+  it('counts a grant on the organization that owns the role', () => {
+    const effective = holding(
+      restricted(PermissionScope.ORGANIZATION, 'org-1', [Permission.RUN_PIPELINE]),
+    );
+
+    expect(holdsPermission(effective, 'org-1', Permission.RUN_PIPELINE)).toBe(true);
+    expect(holdsPermission(effective, 'org-2', Permission.RUN_PIPELINE)).toBe(false);
+  });
+
+  it('counts a System grant for any owner, the platform included', () => {
+    const effective = holding(restricted(PermissionScope.SYSTEM, '', [Permission.RUN_PIPELINE]));
+
+    expect(holdsPermission(effective, 'org-1', Permission.RUN_PIPELINE)).toBe(true);
+    expect(holdsPermission(effective, null, Permission.RUN_PIPELINE)).toBe(true);
+  });
+
+  it('never counts a project grant, even inside the organization', () => {
+    const effective = holding(
+      restricted(PermissionScope.PROJECT, 'p-1', [Permission.RUN_PIPELINE]),
+    );
+
+    expect(holdsPermission(effective, 'org-1', Permission.RUN_PIPELINE)).toBe(false);
+  });
+
+  it('never counts an organization grant toward a platform role', () => {
+    const effective = holding(full(PermissionScope.ORGANIZATION, 'org-1'));
+
+    expect(holdsPermission(effective, null, Permission.RUN_PIPELINE)).toBe(false);
+    expect(holdsFullControl(effective, null)).toBe(false);
+  });
+
+  it('lets full control cover every permission, and only full control give it', () => {
+    expect(
+      holdsPermission(
+        holding(full(PermissionScope.ORGANIZATION, 'org-1')),
+        'org-1',
+        Permission.DELETE_PROJECT,
+      ),
+    ).toBe(true);
+    expect(holdsFullControl(holding(full(PermissionScope.ORGANIZATION, 'org-1')), 'org-1')).toBe(
+      true,
+    );
+    expect(
+      holdsFullControl(
+        holding(restricted(PermissionScope.ORGANIZATION, 'org-1', [Permission.RUN_PIPELINE])),
+        'org-1',
+      ),
+    ).toBe(false);
+  });
+
+  it('holds nothing before the permissions load', () => {
+    expect(holdsPermission(null, 'org-1', Permission.RUN_PIPELINE)).toBe(false);
+    expect(holdsFullControl(null, 'org-1')).toBe(false);
   });
 });

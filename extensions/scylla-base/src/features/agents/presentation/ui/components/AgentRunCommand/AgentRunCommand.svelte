@@ -10,9 +10,9 @@
     RUN_METHODS,
     runCommandOf,
     type RunMethod,
-  } from './run-command.calculator.ts';
+  } from '@base/features/agents/presentation/presenters/run-command.presenter.ts';
   import CopyBox from '../CopyBox/CopyBox.svelte';
-  import { agentRunCommandMessages as messages } from './agent-run-command.messages.ts';
+  import { agentRunCommandMessages as messages } from '@base/features/agents/presentation/messages/agent-run-command.messages.ts';
 
   interface Props {
     appId: string;

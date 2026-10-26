@@ -45,11 +45,8 @@ organizations and roles of a user in [user](../user/README.md). A user's page re
 mappers — one for the organization, one for its members — because `listMembers` returns user
 identities rather than organization data.
 
-**Presentation** holds one hook per operation and the dialogs. Two hook files
-(`useOrganizations.ts`, `useCreateOrganization.ts`) are still camelCase, from before the
-kebab-case convention. They are left alone deliberately: renaming a file moves its Lingui
-message ownership and silently drops translations unless the restore script is run. New hooks
-here use `use-{name}.ts`.
+**Presentation** holds the query factories (`organization.queries.ts`: one entry per
+operation), the dialogs, and the items of the form (`presenters/organization-form.presenter.ts`).
 
 ## Related modules
 

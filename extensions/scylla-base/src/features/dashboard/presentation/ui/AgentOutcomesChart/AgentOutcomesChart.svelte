@@ -17,8 +17,8 @@
     projectPoints,
     type ChartGeometry,
     type OutcomeSeries,
-  } from './outcomes-chart.calculator.ts';
-  import { dashboardMessages } from '../dashboard.messages.ts';
+  } from '@base/features/dashboard/presentation/presenters/outcomes-chart.presenter.ts';
+  import { dashboardMessages } from '@base/features/dashboard/presentation/messages/dashboard.messages.ts';
 
   type Range = '7d' | '14d' | '30d';
   type StatusFilter = 'all' | OutcomeSeries;

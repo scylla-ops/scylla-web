@@ -9,17 +9,17 @@ import type {
 } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import type { GrantableRoleEntity } from '@base/features/roles/domain/entities/grantable-role.entity.ts';
-import type { PermissionVocabularyEntity } from '@base/features/roles/domain/entities/permission-vocabulary.entity.ts';
+import type { PermissionVocabulary } from '@base/features/roles/domain/structs/permission-vocabulary.struct.ts';
 import type { IGrantServiceClient } from '@base/generated/scylla/authz/v1/grant.client.ts';
 import type { IRoleServiceClient } from '@base/generated/scylla/authz/v1/role.client.ts';
 import type { EffectivePermissionsEntity, PermissionScope, PrincipalEntity } from '@platform/authz';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import { GrpcRoleMapper } from './grpc-role.mapper.ts';
-import { GrpcGrantMapper } from './grpc-grant.mapper.ts';
-import { GrpcGrantableRoleMapper } from './grpc-grantable-role.mapper.ts';
-import { GrpcEffectivePermissionsMapper } from './grpc-effective-permissions.mapper.ts';
-import { GrpcPermissionVocabularyMapper } from './grpc-permission-vocabulary.mapper.ts';
-import { GrpcPermissionMapper } from './grpc-permission.mapper.ts';
+import * as grpcRole from './grpc-role.mapper.ts';
+import * as grpcGrant from './grpc-grant.mapper.ts';
+import * as grpcGrantableRole from './grpc-grantable-role.mapper.ts';
+import * as grpcEffectivePermissions from './grpc-effective-permissions.mapper.ts';
+import * as grpcPermissionVocabulary from './grpc-permission-vocabulary.mapper.ts';
+import * as grpcPermission from './grpc-permission.mapper.ts';
 
 /** The backend always fills the wrapped entity on success: a missing one is a protocol error. */
 const required = <T>(value: T | undefined, what: string): T => {
@@ -41,30 +41,28 @@ export class DefaultPermissionRepository implements PermissionRepository {
       const response = await this.roles.listRoles({
         organizationId: organizationRef(organizationId),
       }).response;
-      return response.roles.map(GrpcRoleMapper.toDomain);
+      return response.roles.map(grpcRole.toDomain);
     }, 'Failed to list roles.');
   }
 
   public getRole(id: string): Promise<ScyllaResult<RoleEntity>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.roles.getRole({ roleId: { value: id } }).response;
-      return GrpcRoleMapper.toDomain(required(response.role, 'role'));
+      return grpcRole.toDomain(required(response.role, 'role'));
     }, 'Failed to fetch role.');
   }
 
   public createRole(role: RoleCreationData): Promise<ScyllaResult<RoleEntity>> {
     return ScyllaResult.tryAsync(async () => {
-      const response = await this.roles.createRole(GrpcRoleMapper.toGrpcCreateRequest(role))
-        .response;
-      return GrpcRoleMapper.toDomain(required(response.role, 'role'));
+      const response = await this.roles.createRole(grpcRole.toGrpcCreateRequest(role)).response;
+      return grpcRole.toDomain(required(response.role, 'role'));
     }, 'Failed to create role.');
   }
 
   public updateRole(role: RoleEntity): Promise<ScyllaResult<RoleEntity>> {
     return ScyllaResult.tryAsync(async () => {
-      const response = await this.roles.updateRole(GrpcRoleMapper.toGrpcUpdateRequest(role))
-        .response;
-      return GrpcRoleMapper.toDomain(required(response.role, 'role'));
+      const response = await this.roles.updateRole(grpcRole.toGrpcUpdateRequest(role)).response;
+      return grpcRole.toDomain(required(response.role, 'role'));
     }, 'Failed to update role.');
   }
 
@@ -79,16 +77,16 @@ export class DefaultPermissionRepository implements PermissionRepository {
   ): Promise<ScyllaResult<EffectivePermissionsEntity>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.roles.getEffectivePermissions({
-        principal: GrpcPermissionMapper.principalRefToGrpc(principal),
+        principal: grpcPermission.principalRefToGrpc(principal),
       }).response;
-      return GrpcEffectivePermissionsMapper.toDomain(response.scopes);
+      return grpcEffectivePermissions.toDomain(response.scopes);
     }, 'Failed to fetch effective permissions.');
   }
 
   public getMyPermissions(): Promise<ScyllaResult<EffectivePermissionsEntity>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.roles.getMyPermissions({}).response;
-      return GrpcEffectivePermissionsMapper.toDomain(response.scopes);
+      return grpcEffectivePermissions.toDomain(response.scopes);
     }, 'Failed to fetch your own permissions.');
   }
 
@@ -99,18 +97,16 @@ export class DefaultPermissionRepository implements PermissionRepository {
   ): Promise<ScyllaResult<GrantEntity[]>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.grants.listGrants({
-        scope:
-          scope != null ? GrpcPermissionMapper.scopeRefToGrpc(scope, scopeId ?? '') : undefined,
+        scope: scope != null ? grpcPermission.scopeRefToGrpc(scope, scopeId ?? '') : undefined,
       }).response;
-      return response.grants.map(GrpcGrantMapper.toDomain);
+      return response.grants.map(grpcGrant.toDomain);
     }, 'Failed to list grants.');
   }
 
   public createGrant(input: CreateGrantInput): Promise<ScyllaResult<GrantEntity>> {
     return ScyllaResult.tryAsync(async () => {
-      const response = await this.grants.createGrant(GrpcGrantMapper.toGrpcCreateRequest(input))
-        .response;
-      return GrpcGrantMapper.toDomain(required(response.grant, 'grant'));
+      const response = await this.grants.createGrant(grpcGrant.toGrpcCreateRequest(input)).response;
+      return grpcGrant.toDomain(required(response.grant, 'grant'));
     }, 'Failed to create grant.');
   }
 
@@ -128,8 +124,8 @@ export class DefaultPermissionRepository implements PermissionRepository {
   }: RevokeAllAccessInput): Promise<ScyllaResult<number>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.grants.revokeAllAccess({
-        principal: GrpcPermissionMapper.principalRefToGrpc(principal),
-        scope: GrpcPermissionMapper.scopeRefToGrpc(scope, scopeId),
+        principal: grpcPermission.principalRefToGrpc(principal),
+        scope: grpcPermission.scopeRefToGrpc(scope, scopeId),
       }).response;
       return Number(response.revoked);
     }, 'Failed to revoke access.');
@@ -141,17 +137,17 @@ export class DefaultPermissionRepository implements PermissionRepository {
   ): Promise<ScyllaResult<GrantableRoleEntity[]>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.grants.listGrantableRoles({
-        scopeKind: scope != null ? GrpcPermissionMapper.scopeToGrpc(scope) : undefined,
+        scopeKind: scope != null ? grpcPermission.scopeToGrpc(scope) : undefined,
         organizationId: organizationRef(organizationId),
       }).response;
-      return response.roles.map(GrpcGrantableRoleMapper.toDomain);
+      return response.roles.map(grpcGrantableRole.toDomain);
     }, 'Failed to list grantable roles.');
   }
 
-  public listPermissionVocabulary(): Promise<ScyllaResult<PermissionVocabularyEntity>> {
+  public listPermissionVocabulary(): Promise<ScyllaResult<PermissionVocabulary>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.roles.listAuthzVocabulary({}).response;
-      return GrpcPermissionVocabularyMapper.toDomain(response.actions);
+      return grpcPermissionVocabulary.toDomain(response.actions);
     }, 'Failed to load the permission vocabulary.');
   }
 }

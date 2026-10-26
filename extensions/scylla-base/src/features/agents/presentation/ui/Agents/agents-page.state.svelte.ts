@@ -4,14 +4,16 @@ import { createQueries, createQuery } from '@scylla/core-sdk';
 import { createNow } from '@scylla/ui/state';
 import { toRune } from '@scylla/ui/stores';
 import { appQueries, type AppAccess } from '@base/features/apps';
-import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-import type { AgentStats } from '@base/features/agents/domain/structs/agent.struct.ts';
+import type {
+  AgentEntity,
+  AgentStats,
+} from '@base/features/agents/domain/entities/agent.entity.ts';
 import {
-  agentStateOf,
   isOnline,
   type AgentState,
 } from '@base/features/agents/domain/structs/agent-state.struct.ts';
-import { summarizeAgents } from '@base/features/agents/domain/structs/agents-summary.struct.ts';
+import { agentStateOf } from '@base/features/agents/domain/entities/agent.entity.ts';
+import { summarizeAgents } from '@base/features/agents/presentation/presenters/agents-summary.presenter.ts';
 import { agentQueries } from '@base/features/agents/presentation/agents.queries.ts';
 
 export type AgentFilter = 'all' | 'online' | 'offline' | 'never' | 'disabled';

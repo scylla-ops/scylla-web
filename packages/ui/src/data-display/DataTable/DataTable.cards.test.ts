@@ -3,7 +3,7 @@ import { flushSync } from 'svelte';
 import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { renderComponent } from '@tanstack/svelte-table';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import DataTable from './DataTable.fixture.svelte';
 import LayoutProbe from './LayoutProbe.fixture.svelte';
 import { data, type Datum } from './data-table.fixture.ts';

@@ -11,7 +11,7 @@
     ProfileValues,
     UserEntity,
   } from '@base/features/user/domain/entities/user.entity.ts';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   interface Props {
     user: UserEntity;

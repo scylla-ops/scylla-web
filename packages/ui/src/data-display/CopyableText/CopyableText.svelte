@@ -3,7 +3,7 @@
   import CopyIcon from '@lucide/svelte/icons/copy';
   import { Tooltip, TooltipContent, TooltipTrigger } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
-  import { t } from '../../i18n/i18n-svelte.svelte.ts';
+  import { t } from '../../i18n/lingui.adapter.svelte.ts';
   // Not the group barrel: it would import this file back.
   import IconButton from '../../controls/IconButton/IconButton.svelte';
   import { copyableTextMessages } from './copyable-text.messages.ts';

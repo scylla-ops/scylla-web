@@ -19,7 +19,7 @@
   import type { AgentReach } from '@base/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.state.svelte.ts';
   import DialogFooterBand from '../../components/DialogFooterBand.svelte';
   import ProjectPicker from './ProjectPicker.svelte';
-  import { accessCardMessages as messages } from './access-card.messages.ts';
+  import { accessCardMessages as messages } from '@base/features/agents/presentation/messages/access-card.messages.ts';
 
   interface Props {
     manager: AgentAccess;

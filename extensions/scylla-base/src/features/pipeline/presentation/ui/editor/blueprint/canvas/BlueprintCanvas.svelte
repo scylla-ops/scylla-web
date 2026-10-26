@@ -13,29 +13,26 @@
   } from '@xyflow/svelte';
   import '@xyflow/svelte/dist/style.css';
   import { t } from '@scylla/ui/i18n';
-  import type { BlueprintState } from '../blueprint.state.svelte.ts';
-  import type { NodeAppearancePreference } from './node-appearance.svelte.ts';
+  import type { Blueprint } from '../blueprint.state.svelte.ts';
+  import type { NodeAppearancePreference } from './node-appearance-preference.state.svelte.ts';
   import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
-  import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
-  import {
-    templateFor,
-    type CatalogEntry,
-  } from '@base/features/pipeline/presentation/utils/node-catalog.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
+  import { templateFor, type CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import { setBlueprintCanvas } from './blueprint-canvas.context.ts';
   import CanvasToolbar from './CanvasToolbar.svelte';
   import DeletableEdge from './DeletableEdge.svelte';
-  import { linkDropPoint } from './drop-spot.calculator.ts';
+  import { linkDropPoint } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import DropSpot from './DropSpot.svelte';
   import { acceptPaletteDrop } from '../palette-drag/palette-drag.attachments.ts';
   import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';
-  import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.ts';
+  import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.registry.ts';
   import StartNode from './nodes/StartNode.svelte';
-  import StepNode from './nodes/StepNode.svelte';
+  import PipelineNode from './nodes/PipelineNode.svelte';
   import QuickAddMenu from '../catalog/QuickAddMenu/QuickAddMenu.svelte';
 
   interface Props {
-    blueprint: BlueprintState;
+    blueprint: Blueprint;
     appearance: NodeAppearancePreference;
     quickAdd: QuickAdd;
     drag: PaletteDrag;
@@ -44,14 +41,14 @@
 
   let { blueprint, appearance, quickAdd, drag, entries }: Props = $props();
 
-  const nodeTypes: NodeTypes = { pipelineStep: StepNode, startNode: StartNode };
+  const nodeTypes: NodeTypes = { pipelineNode: PipelineNode, startNode: StartNode };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
 
   const { screenToFlowPosition } = useSvelteFlow();
 
   setBlueprintCanvas({
     appearance: () => appearance.current,
-    isDetached: stepId => blueprint.isDetached(stepId),
+    isDetached: nodeId => blueprint.isDetached(nodeId),
     iconHintOf: definition => templateFor(entries, definition)?.icon,
     insertOnEdge: (edgeId, at) => quickAdd.open({ ...at, link: { replacing: edgeId } }),
   });
@@ -61,7 +58,7 @@
     return { x: point.clientX, y: point.clientY };
   };
 
-  /** A link dropped on empty canvas asks which step to create there. */
+  /** A link dropped on empty canvas asks which node to create there. */
   const onConnectEnd: OnConnectEnd = (event, connection) => {
     const from = connection.fromNode;
     const droppedOnEmpty = !connection.isValid && !connection.toNode;
@@ -73,7 +70,7 @@
 
   const connection = useConnection();
 
-  /** The place of the step that a drop creates: a palette entry, or a link pulled onto empty canvas. */
+  /** The place of the node that a drop creates: a palette entry, or a link pulled onto empty canvas. */
   const spot = $derived.by(() => {
     if (drag.spot) return drag.spot;
     const point = linkDropPoint(connection.current);
@@ -97,13 +94,14 @@
     changes. Only a click opens the side panel: a drag neither selects nor opens.
   -->
   <SvelteFlow
-    bind:nodes={blueprint.nodes}
+    bind:nodes={blueprint.flowNodes}
     bind:edges={blueprint.edges}
     {nodeTypes}
     {edgeTypes}
     fitView
     fitViewOptions={{ padding: 0.25, maxZoom: 1 }}
-    deleteKey={['Backspace', 'Delete']}
+    deleteKey={blueprint.readOnly ? null : ['Backspace', 'Delete']}
+    nodesConnectable={!blueprint.readOnly}
     selectNodesOnDrag={false}
     edgesFocusable
     defaultEdgeOptions={DEFAULT_EDGE_STYLE}

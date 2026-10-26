@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { GrpcJobMapper } from '../grpc-job.mapper.ts';
+import * as grpcJob from '../grpc-job.mapper.ts';
 import { JobOutcome, NodeOutcome } from '@base/generated/scylla/job/v1/job.ts';
 import type { Job, JobNode, JobLogEntry } from '@base/generated/scylla/job/v1/job.ts';
 import { LogStream } from '@base/generated/scylla/common/v1/common.ts';
@@ -18,9 +18,9 @@ const baseJob = (overrides: Partial<Job> = {}): Job => ({
   ...overrides,
 });
 
-describe('GrpcJobMapper.toDomain', () => {
+describe('grpcJob.toDomain', () => {
   it('unwraps the ids and formats the timestamps', () => {
-    const domain = GrpcJobMapper.toDomain(baseJob());
+    const domain = grpcJob.toDomain(baseJob());
     expect(domain.id).toBe('job-1');
     expect(domain.pipelineId).toBe('pipeline-1');
     expect(domain.createdAt).toBe('2025-01-01T00:00:00.000Z');
@@ -28,16 +28,14 @@ describe('GrpcJobMapper.toDomain', () => {
   });
 
   it('a pending job has no startedAt/finishedAt', () => {
-    const domain = GrpcJobMapper.toDomain(
-      baseJob({ state: { oneofKind: 'pending', pending: {} } }),
-    );
+    const domain = grpcJob.toDomain(baseJob({ state: { oneofKind: 'pending', pending: {} } }));
     expect(domain.status).toBe('pending');
     expect(domain.startedAt).toBeUndefined();
     expect(domain.finishedAt).toBeUndefined();
   });
 
   it('a running job surfaces its startedAt, still no finishedAt', () => {
-    const domain = GrpcJobMapper.toDomain(
+    const domain = grpcJob.toDomain(
       baseJob({ state: { oneofKind: 'running', running: { startedAt: TS } } }),
     );
     expect(domain.status).toBe('running');
@@ -51,7 +49,7 @@ describe('GrpcJobMapper.toDomain', () => {
     [JobOutcome.CANCELLED, 'cancelled'],
     [JobOutcome.ORPHANED, 'orphaned'],
   ])('a terminal job with outcome %i maps to status "%s"', (outcome, status) => {
-    const domain = GrpcJobMapper.toDomain(
+    const domain = grpcJob.toDomain(
       baseJob({
         state: { oneofKind: 'terminal', terminal: { outcome, startedAt: TS, finishedAt: TS } },
       }),
@@ -63,20 +61,18 @@ describe('GrpcJobMapper.toDomain', () => {
 
   it('an UNSPECIFIED outcome, or a state arm newer than this build, maps to "unknown" rather than a guess', () => {
     expect(
-      GrpcJobMapper.toDomain(
+      grpcJob.toDomain(
         baseJob({
           state: { oneofKind: 'terminal', terminal: { outcome: JobOutcome.UNSPECIFIED } },
         }),
       ).status,
     ).toBe('unknown');
 
-    expect(GrpcJobMapper.toDomain(baseJob({ state: { oneofKind: undefined } })).status).toBe(
-      'unknown',
-    );
+    expect(grpcJob.toDomain(baseJob({ state: { oneofKind: undefined } })).status).toBe('unknown');
   });
 
   it('a terminal job cancelled before it ever started has no startedAt (only finishedAt)', () => {
-    const domain = GrpcJobMapper.toDomain(
+    const domain = grpcJob.toDomain(
       baseJob({
         state: {
           oneofKind: 'terminal',
@@ -95,7 +91,7 @@ describe('GrpcJobMapper.toDomain', () => {
     });
 
     it('maps a pending node with no timestamps', () => {
-      const [n] = GrpcJobMapper.toDomain(
+      const [n] = grpcJob.toDomain(
         baseJob({ nodeExecutions: [node({ oneofKind: 'pending', pending: {} })] }),
       ).nodeExecutions;
       expect(n).toEqual({
@@ -107,7 +103,7 @@ describe('GrpcJobMapper.toDomain', () => {
     });
 
     it('maps a running node with its startedAt', () => {
-      const [n] = GrpcJobMapper.toDomain(
+      const [n] = grpcJob.toDomain(
         baseJob({ nodeExecutions: [node({ oneofKind: 'running', running: { startedAt: TS } })] }),
       ).nodeExecutions;
       expect(n.state).toBe('running');
@@ -120,7 +116,7 @@ describe('GrpcJobMapper.toDomain', () => {
       [NodeOutcome.CANCELLED, 'cancelled'],
       [NodeOutcome.SKIPPED, 'skipped'],
     ])('a finished node with outcome %i maps to state "%s"', (outcome, state) => {
-      const [n] = GrpcJobMapper.toDomain(
+      const [n] = grpcJob.toDomain(
         baseJob({
           nodeExecutions: [
             node({ oneofKind: 'finished', finished: { outcome, startedAt: TS, finishedAt: TS } }),
@@ -133,14 +129,14 @@ describe('GrpcJobMapper.toDomain', () => {
     });
 
     it('an execution arm newer than this build maps to "unknown"', () => {
-      const [n] = GrpcJobMapper.toDomain(
+      const [n] = grpcJob.toDomain(
         baseJob({ nodeExecutions: [node({ oneofKind: undefined })] }),
       ).nodeExecutions;
       expect(n.state).toBe('unknown');
     });
 
     it('preserves node order and count', () => {
-      const domain = GrpcJobMapper.toDomain(
+      const domain = grpcJob.toDomain(
         baseJob({
           nodeExecutions: [
             node({ oneofKind: 'pending', pending: {} }, 'a'),
@@ -153,7 +149,7 @@ describe('GrpcJobMapper.toDomain', () => {
   });
 });
 
-describe('GrpcJobMapper.toDomainList', () => {
+describe('grpcJob.toDomainList', () => {
   it('maps every job and carries the pagination metadata through as-is', () => {
     const pagination = {
       totalCount: 1,
@@ -163,14 +159,14 @@ describe('GrpcJobMapper.toDomainList', () => {
       hasNext: false,
       hasPrevious: false,
     };
-    const result = GrpcJobMapper.toDomainList({ jobs: [baseJob()], pagination });
+    const result = grpcJob.toDomainList({ jobs: [baseJob()], pagination });
     expect(result.items).toHaveLength(1);
     expect(result.items[0].id).toBe('job-1');
     expect(result.pagination).toBe(pagination);
   });
 });
 
-describe('GrpcJobMapper.logEntryToDomain', () => {
+describe('grpcJob.logEntryToDomain', () => {
   const entry = (overrides: Partial<JobLogEntry> = {}): JobLogEntry => ({
     jobLogId: { value: 'log-1' },
     jobId: { value: 'job-1' },
@@ -182,7 +178,7 @@ describe('GrpcJobMapper.logEntryToDomain', () => {
   });
 
   it('unwraps ids, resolves the stream, and formats the timestamp', () => {
-    const log = GrpcJobMapper.logEntryToDomain(entry());
+    const log = grpcJob.logEntryToDomain(entry());
     expect(log).toEqual({
       id: 'log-1',
       jobId: 'job-1',
@@ -194,19 +190,15 @@ describe('GrpcJobMapper.logEntryToDomain', () => {
   });
 
   it('maps STDERR to "stderr"', () => {
-    expect(GrpcJobMapper.logEntryToDomain(entry({ stream: LogStream.STDERR })).stream).toBe(
-      'stderr',
-    );
+    expect(grpcJob.logEntryToDomain(entry({ stream: LogStream.STDERR })).stream).toBe('stderr');
   });
 
   it('maps UNSPECIFIED (or a future stream) to an empty string', () => {
-    expect(GrpcJobMapper.logEntryToDomain(entry({ stream: LogStream.UNSPECIFIED })).stream).toBe(
-      '',
-    );
+    expect(grpcJob.logEntryToDomain(entry({ stream: LogStream.UNSPECIFIED })).stream).toBe('');
   });
 });
 
-describe('GrpcJobMapper.logsToDomainList', () => {
+describe('grpcJob.logsToDomainList', () => {
   it('maps every log entry and carries the pagination through', () => {
     const pagination = {
       totalCount: 1,
@@ -216,7 +208,7 @@ describe('GrpcJobMapper.logsToDomainList', () => {
       hasNext: false,
       hasPrevious: false,
     };
-    const result = GrpcJobMapper.logsToDomainList({
+    const result = grpcJob.logsToDomainList({
       logs: [
         {
           jobLogId: { value: 'log-1' },

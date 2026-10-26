@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { installTestNavigator } from '@test/navigator.ts';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import PersonalLayoutFixture from './PersonalLayout.fixture.svelte';
 

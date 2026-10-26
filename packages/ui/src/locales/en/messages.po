@@ -50,6 +50,10 @@ msgstr "Continue"
 msgid "Copied"
 msgstr "Copied"
 
+#: packages/ui/src/utils/clipboard.messages.ts:4
+msgid "Copied to the clipboard."
+msgstr "Copied to the clipboard."
+
 #: packages/ui/src/data-display/CopyableText/copyable-text.messages.ts:5
 msgid "Copied!"
 msgstr "Copied!"
@@ -123,7 +127,7 @@ msgstr "Pagination"
 msgid "Previous"
 msgstr "Previous"
 
-#: packages/ui/src/layout/ResizablePanel/resizable-panel.messages.ts:4
+#: packages/ui/src/primitives/resizable/resizable.messages.ts:4
 msgid "Resize panel"
 msgstr "Resize panel"
 
@@ -154,6 +158,10 @@ msgstr "shown once"
 #: packages/ui/src/primitives/sidebar/sidebar.messages.ts:4
 msgid "Sidebar"
 msgstr "Sidebar"
+
+#: packages/ui/src/utils/clipboard.messages.ts:5
+msgid "The browser did not let the page write to the clipboard."
+msgstr "The browser did not let the page write to the clipboard."
 
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:5
 msgid "This action cannot be undone."

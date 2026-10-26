@@ -1,12 +1,13 @@
 /** `secretsOf` and `accessOf` check `READ_APP` themselves. */
-export type { AppEntity, AppSecretEntity } from './domain/entities/app.entity.ts';
 export type {
+  AppEntity,
+  AppSecretEntity,
   AppAccess,
   AppAccessScope,
   CreatedApp,
   CreatedAppSecret,
   ResetAppSecret,
-} from './domain/structs/app.struct.ts';
+} from './domain/entities/app.entity.ts';
 export type { SecretLabelProblem } from './domain/structs/secret-label.struct.ts';
 export {
   SECRET_LABEL_MAX_BYTES,

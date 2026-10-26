@@ -10,7 +10,7 @@
     ForgotPasswordState,
   } from './forgot-password.state.svelte.ts';
   import AuthLayout from '../AuthLayout.svelte';
-  import { passwordResetMessages } from '../password-reset.messages.ts';
+  import { passwordResetMessages } from '@base/features/login/presentation/messages/password-reset.messages.ts';
 
   // Built during initialisation: its mutation needs an owner.
   const state = new ForgotPasswordState();

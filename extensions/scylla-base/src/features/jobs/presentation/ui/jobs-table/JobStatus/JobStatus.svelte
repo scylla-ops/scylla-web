@@ -6,7 +6,7 @@
   import { t } from '@scylla/ui/i18n';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
-  import { jobsMessages } from '@base/features/jobs/presentation/ui/jobs.messages.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
     job: JobEntity;

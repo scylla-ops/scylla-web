@@ -1,7 +1,8 @@
 import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import type { JobEntity } from '../domain/entities/job.entity.ts';
-import { isActiveStatus, summarizeJobs } from '../domain/structs/jobs-summary.struct.ts';
+import { isActiveStatus } from '../domain/structs/job-status.struct.ts';
+import { summarizeJobs } from './presenters/jobs-summary.presenter.ts';
 import type { JobsModule } from '../jobs.module.ts';
 import {
   JOBS_QUERY_KEY,

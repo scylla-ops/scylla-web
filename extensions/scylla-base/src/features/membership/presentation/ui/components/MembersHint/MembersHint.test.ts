@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import { render, textSnippet } from '@test/render.svelte.ts';
+import { render, textSnippet } from '@test/render.ts';
 import MembersHint from './MembersHint.svelte';
 
 describe('MembersHint', () => {

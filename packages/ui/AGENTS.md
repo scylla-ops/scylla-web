@@ -1,6 +1,6 @@
 # `@scylla/ui` — agent guide
 
-The design system: the primitives (adapted from shadcn/ui), the generic composites, the rune helpers,
+The design system: the primitives (adapted from shadcn/ui), the generic composites, the rune states,
 the stores, i18n rendering and the theme tokens. **No business meaning.**
 
 **Package** `packages/ui` · the bottom of the workspace
@@ -20,10 +20,10 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 |---|---|
 | `@scylla/ui` | the composites (`DataTable`, `ScyllaDialog`, `FeatureHeader`, `ScyllaForm`, …) and `LucideIcon` |
 | `@scylla/ui/primitives` | the primitives on bits-ui, adapted from shadcn/ui |
-| `@scylla/ui/state` | rune helpers: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
+| `@scylla/ui/state` | rune states: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
 | `@scylla/ui/i18n` | `t`, `activeLocale`, `setAppLocale`, `registerCatalogs` |
-| `@scylla/ui/utils` | `cn`, `toast` |
+| `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result) |
 | `@scylla/ui/structs` | `PaginationParams`, `PaginationInfo`, `PaginatedList` — plain shapes, the only part a `domain/` may import |
 | `@scylla/ui/styles.css` | Tailwind, the theme tokens, the `@source` of every package — imported once, by `apps/web` |
 | `@scylla/ui/assets/*` | the logos |
@@ -38,10 +38,10 @@ src/
                            CopyableText, TruncatedText
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
-  layout/                  FeatureHeader, ContextItem, PageTransition, ResizablePanel,
-                           ScyllaLoadingScreen
+  layout/                  FeatureHeader, ContextItem, PageTransition, ScyllaLoadingScreen
   motion/                  page transitions, reduced motion
-  editor/                  renderCodeMirror (an attachment), the CodeMirror theme
+  editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
+                           frame, for an editor that fills a pane with its own borders)
   icon.ts                  LucideIcon (the prop type of an icon)
   primitives/              the primitives on bits-ui, one folder per primitive
   state/  stores/  i18n/  utils/  structs/     the entry points above
@@ -77,7 +77,7 @@ catalogs of this package register themselves.
 | A store | `createStore` from `@scylla/ui/stores`; rune code reads it with `toRune(store)` |
 | Translating | `t()` from `@scylla/ui/i18n`, over a `*.messages.ts` |
 | A page transition | `PageTransition` — the core's router already wraps every page in it |
-| A side panel the user can widen | `ResizablePanel` (`bind:width`, `min`, `max`, `edge`) — a handle with the window splitter role: drag it, or focus it and use the arrow keys, Home and End |
+| Panels the user can resize | `ResizablePaneGroup`, `ResizablePane`, `ResizableHandle` (`@scylla/ui/primitives`, on paneforge). See "`resizable`" below |
 
 ## Forms: the app checks the values, not the browser
 
@@ -95,14 +95,14 @@ language. The checks are the app's, with translated messages:
   `new-password`, `name`, …), `readonly`, and `description` (a hint under the field).
 - `autofocus={false}` on a page with several forms: by default the first field takes the focus.
 
-## Rune helpers: `state/`
+## Rune states: `state/`
 
 There are no hooks. Three rules carry over from the migration and still bite:
 
 - **A list that arrives later is passed as a getter, not an array.** `createFeatureSelection`
   takes `() => string[]` and `createFormState` takes `() => items`. Capturing the value once
   freezes the helper on whatever the first, usually empty, render held.
-- **`toRune(store)`** (`stores/to-rune.svelte.ts`) is how rune code reads a store. It is built on
+- **`toRune(store)`** (`stores/to-rune.adapter.svelte.ts`) is how rune code reads a store. It is built on
   `createSubscriber`, so the subscription starts only while something is reading and the helpers
   stay testable in plain TypeScript, outside any component.
 - **Derive instead of mirroring.** `createPagination` derives its page size from the measured
@@ -124,8 +124,30 @@ see `primitives/README.md`): the Tailwind class strings were copied, then change
 needed it. They are our code now, not vendored code: no CLI and no upstream update manage them. Import them from `@scylla/ui/primitives`. A primitive is ported when its
 first consumer needs it — there is no primitive here without a consumer.
 
+**`resizable`** (`primitives/resizable/`) is on **`paneforge`** (listed in the `vendor-ui` chunk and a
+peer dependency, like bits-ui). `ResizablePaneGroup` and `ResizableHandle` are wrappers;
+`ResizablePane` is paneforge's `Pane` aliased, and `ResizablePaneApi` is its `PaneAPI` type.
+
+- **Sizes are percent** of the group (`defaultSize`, `minSize`, `maxSize`), not pixels.
+- **A panel that can close** is `collapsible` with `collapsedSize={0}`. Bind the pane
+  (`bind:this`) to get `collapse()` / `expand()`, and listen to `onCollapse` / `onExpand` to know
+  of a drag that closed or opened it. Keep `defaultSize` constant: it is part of the pane
+  constraints, and a change resets the layout of the whole group.
+- **A size that lasts** between visits: give the group an `autoSaveId`. paneforge saves one
+  layout per set of panes, keyed by their `order` and constraints (not their ids): two modes
+  of one pane need different constraints, or they share a layout.
+- **A pane that comes and goes** (an `{#if}`, an `{#each}`, a `{#key}`) needs an `id` and an `order`,
+  or the group cannot place it. A change of the number of panes resets the layout of the
+  group, unless `autoSaveId` restores it.
+- **The handle** has the `separator` role, named "Resize panel" (`aria-label` replaces it).
+  The group draws no border: the handle is the line between two panes.
+- **Animation is in the group's classes**, not in JavaScript: a pane eases its `flex-grow`
+  (200 ms) when it collapses, expands or changes size, but not while a pointer drags a handle
+  (`data-active="pointer"` on the handle, read with `:has()`), so the drag follows the pointer.
+  A pane that collapses during a drag still shrinks smoothly. `motion-reduce` removes it.
+
 The sidebar (`Sidebar*`, `setSidebar` / `getSidebar`) keeps its open state in a Svelte context
-that `SidebarProvider` creates. `sidebar-state.svelte.ts` holds it; the mobile layout uses the
+that `SidebarProvider` creates. `sidebar.state.svelte.ts` holds it; the mobile layout uses the
 `svelte/reactivity` `MediaQuery`.
 
 What a port has to get right, all of it invisible to the compiler:
@@ -171,7 +193,7 @@ Three things about testing them, all in the shared harness so nobody re-derives 
 - **`setup.ts` stubs `Element.prototype.animate`.** jsdom has no Web Animations API, and a Svelte
   `transition:` runs on it. The stub stays *running* rather than resolving, so a leaving node is
   still observable.
-- **`findFloating(role, name?)` / `findTooltip()` from `render.svelte.ts`** for anything in a
+- **`findFloating(role, name?)` / `findTooltip()` from `@test/render.ts`** for anything in a
   floating layer — tooltip content, select options. floating-ui has no layout to measure in jsdom,
   so it leaves the wrapper at `visibility: hidden` forever: `getByRole` skips the subtree, *and*
   the accessible-name algorithm ignores its text, which is why the helper matches `name` against

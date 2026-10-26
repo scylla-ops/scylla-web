@@ -3,7 +3,7 @@ import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import AgentOutcomesChart from './AgentOutcomesChart.svelte';
 

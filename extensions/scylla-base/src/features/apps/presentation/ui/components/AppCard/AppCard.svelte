@@ -16,12 +16,12 @@
     DropdownMenuItem,
     DropdownMenuTrigger,
   } from '@scylla/ui/primitives';
-  import { cn, toast } from '@scylla/ui/utils';
+  import { cn, copyToClipboard } from '@scylla/ui/utils';
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
   import { t } from '@scylla/ui/i18n';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
-  import { appsMessages } from '@base/features/apps/presentation/ui/apps.messages.ts';
+  import { appsMessages } from '@base/features/apps/presentation/messages/apps.messages.ts';
 
   interface Props {
     app: AppEntity;
@@ -32,10 +32,7 @@
 
   let { app, onRequestDelete, canDelete = true }: Props = $props();
 
-  const copyId = async () => {
-    await navigator.clipboard.writeText(app.id);
-    toast.success(i18n._(ToastMessages.APP_ID_COPIED));
-  };
+  const copyId = () => copyToClipboard(app.id, { copied: i18n._(ToastMessages.APP_ID_COPIED) });
 </script>
 
 <Card

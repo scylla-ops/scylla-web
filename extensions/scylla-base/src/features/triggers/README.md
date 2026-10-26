@@ -12,7 +12,7 @@ Triggers belong to a pipeline, and the page lives at
 The domain models trigger sources as a discriminated union on `kind`:
 
 - **Cron** — a schedule. `CronScheduleBuilder` composes the expression so users are not typing
-  `*/15 * * * *` from memory, and `cron.utils.ts` handles parsing and human-readable formatting.
+  `*/15 * * * *` from memory, and `mappers/cron.mapper.ts` handles parsing and human-readable formatting.
 - **Webhook** — an inbound URL. Calling it starts a run. It carries a signing secret and a
   header for the HMAC signature, so Scylla can verify the caller.
 - **Unknown** — the forward-compatibility branch.

@@ -7,11 +7,11 @@ import {
   permissionsStore,
   RoleKind,
 } from '@platform/authz';
-import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
-import { createGrantTargetLabels } from '../grant-target-labels.svelte.ts';
+import { createGrantTargetLabels } from '../grant-target-labels.state.svelte.ts';
 import { createRoleAssignees } from '../role-assignees.state.svelte.ts';
 
 const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({

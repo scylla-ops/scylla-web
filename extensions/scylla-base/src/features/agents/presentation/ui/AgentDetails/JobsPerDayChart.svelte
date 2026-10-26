@@ -2,15 +2,15 @@
   import type { MessageDescriptor } from '@lingui/core';
   import { Card } from '@scylla/ui/primitives';
   import { activeLocale, t } from '@scylla/ui/i18n';
-  import type { AgentStats } from '@base/features/agents/domain/structs/agent.struct.ts';
+  import type { AgentStats } from '@base/features/agents/domain/entities/agent.entity.ts';
   import {
     axisTop,
     bucketTotal,
     dateOfDay,
     fillDays,
     type DayBucket,
-  } from '@base/features/agents/presentation/ui/components/daily-outcomes.calculator.ts';
-  import { agentDetailsMessages as messages } from './agent-details.messages.ts';
+  } from '@base/features/agents/presentation/presenters/daily-outcomes.presenter.ts';
+  import { agentDetailsMessages as messages } from '@base/features/agents/presentation/messages/agent-details.messages.ts';
 
   interface Props {
     stats: AgentStats;

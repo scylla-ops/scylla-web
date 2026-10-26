@@ -3,7 +3,7 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { createRawSnippet } from 'svelte';
 import type { Row } from '@tanstack/table-core';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 // The fixture pins the generic row type.
 import DataTable from './DataTable.fixture.svelte';
 import { columns, data, type Datum } from './data-table.fixture.ts';

@@ -4,7 +4,7 @@
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
   import { Button, Card, CardContent, CardHeader, CardTitle } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { secretMessages } from '../secret.messages.ts';
+  import { secretMessages } from '@base/features/secret/presentation/messages/secret.messages.ts';
 
   interface Props {
     warningCount: number;

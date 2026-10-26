@@ -5,7 +5,7 @@ import {
   withRegistry,
   withQueryClient,
   withWidgetInjections,
-} from '@test/render.svelte.ts';
+} from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';

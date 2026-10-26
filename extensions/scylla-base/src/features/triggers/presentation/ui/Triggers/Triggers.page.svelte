@@ -11,7 +11,7 @@
   import TriggersOverview from '../components/TriggersOverview/TriggersOverview.svelte';
   import TriggerFormDialog from '../dialogs/TriggerFormDialog/TriggerFormDialog.svelte';
   import TriggersTable from '../triggers-table/TriggersTable.svelte';
-  import { triggersMessages } from '../triggers.messages.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     pipelineId?: string;

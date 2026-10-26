@@ -6,7 +6,7 @@ import type {
   SecretEntity,
 } from '@base/features/secret/domain/entities/secret.entity.ts';
 import type { SecretRepository } from '@base/features/secret/domain/repository/secret.repository.ts';
-import { GrpcSecretMapper } from './grpc-secret.mapper.ts';
+import * as grpcSecret from './grpc-secret.mapper.ts';
 
 export class DefaultSecretRepository implements SecretRepository {
   constructor(private readonly client: ISecretServiceClient) {}
@@ -14,7 +14,7 @@ export class DefaultSecretRepository implements SecretRepository {
   public listByProjectId(projectId: string): Promise<ScyllaResult<SecretEntity[]>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.listSecrets({ projectId: wrapId(projectId) }).response;
-      return response.secrets.map(GrpcSecretMapper.toDomain);
+      return response.secrets.map(grpcSecret.toDomain);
     }, 'Error listing secrets');
   }
 
@@ -28,7 +28,7 @@ export class DefaultSecretRepository implements SecretRepository {
       }).response;
       // No `secret` in the response: a shape this build cannot read.
       if (!response.secret) throw new Error('CreateSecret returned no secret');
-      return GrpcSecretMapper.toDomain(response.secret);
+      return grpcSecret.toDomain(response.secret);
     }, 'Failed to create secret.');
   }
 

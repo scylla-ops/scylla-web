@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { fireEvent, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import AlertDialogFixture from './alert-dialog.fixture.svelte';
 
 describe('AlertDialog', () => {

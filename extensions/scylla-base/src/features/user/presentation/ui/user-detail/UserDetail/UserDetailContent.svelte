@@ -10,7 +10,7 @@
   import UserProfileForm from '@base/features/user/presentation/ui/components/UserProfileForm/UserProfileForm.svelte';
   import UserDetailHeader from './UserDetailHeader.svelte';
   import UserSecurity from './UserSecurity.svelte';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   let { page, user }: { page: UserDetail; user: UserEntity } = $props();
 </script>

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findTooltip, render } from '@test/render.svelte.ts';
+import { findTooltip, render } from '@test/render.ts';
 import CopyableText from './CopyableText.svelte';
 
 const writeText = vi.fn().mockResolvedValue(undefined);
