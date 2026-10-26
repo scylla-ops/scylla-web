@@ -7,8 +7,8 @@
     AGENT_FILTERS,
     type AgentFilter,
   } from './agents-page.state.svelte.ts';
-  import { agentsMessages } from '../agents.messages.ts';
-  import { agentsPageMessages as messages } from './agents-page.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
+  import { agentsPageMessages as messages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';
 
   interface Props {
     filter: AgentFilter;

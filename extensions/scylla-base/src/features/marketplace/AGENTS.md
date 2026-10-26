@@ -63,7 +63,7 @@ presentation/
   ui/Marketplace.page.svelte, MarketplaceTopBar.svelte,
   ui/marketplace-filter.state.svelte.ts     search box state + `matchesFilter`
   ui/MarketItemList/                        the list + MarketItemCard
-  ui/marketplace.messages.ts
+  messages/marketplace.messages.ts
 ```
 
 `MarketItem` is a **struct**, not an entity: a catalog listing with no identity the app owns.

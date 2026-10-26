@@ -4,7 +4,7 @@
   import { Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { CreatedTrigger } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-  import { triggersMessages } from '@base/features/triggers/presentation/ui/triggers.messages.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
   import TriggerForm from '../TriggerForm.svelte';
   import { createTriggerEditorView } from './trigger-editor-view.state.svelte.ts';
 

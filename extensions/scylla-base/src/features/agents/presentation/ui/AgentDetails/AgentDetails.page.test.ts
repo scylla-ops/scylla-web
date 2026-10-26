@@ -3,12 +3,14 @@ import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { findFloating, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { AppAccess, AppSecretEntity } from '@base/features/apps';
-import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-import type { AgentStats } from '@base/features/agents/domain/structs/agent.struct.ts';
+import type {
+  AgentEntity,
+  AgentStats,
+} from '@base/features/agents/domain/entities/agent.entity.ts';
 import {
   AGENTS_QUERY_KEY,
   AGENT_QUERY_KEY,

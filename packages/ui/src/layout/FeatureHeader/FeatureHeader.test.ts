@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findTooltip, render, textSnippet } from '@test/render.svelte.ts';
+import { findTooltip, render, textSnippet } from '@test/render.ts';
 import FeatureHeader from './FeatureHeader.svelte';
 
 const toastSuccess = vi.fn();

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findTooltip, queryTooltip, render, textSnippet } from '@test/render.svelte.ts';
+import { findTooltip, queryTooltip, render, textSnippet } from '@test/render.ts';
 import GatedButton from './GatedButton.svelte';
 import GatedButtonFixture from './GatedButton.fixture.svelte';
 

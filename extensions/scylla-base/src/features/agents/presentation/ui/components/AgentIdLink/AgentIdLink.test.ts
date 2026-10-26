@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { fireEvent, screen } from '@testing-library/svelte';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import AgentIdLink from './AgentIdLink.svelte';
 import AgentIdLinkInCard from './AgentIdLink.fixture.svelte';
 

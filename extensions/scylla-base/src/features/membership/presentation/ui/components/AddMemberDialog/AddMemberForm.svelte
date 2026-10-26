@@ -22,7 +22,7 @@
   import RoleChecklist from '../RoleChecklist/RoleChecklist.svelte';
   import {
     membershipMessages,
-  } from '@base/features/membership/presentation/ui/membership.messages.ts';
+  } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   interface Props {
     title: string;

@@ -5,13 +5,13 @@ import type { Organization } from '@base/generated/scylla/organization/v1/organi
 import type { UserSummary } from '@base/features/user';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
-import { GrpcOrganizationMapper } from './grpc-organization.mapper.ts';
-import { GrpcOrganizationMemberMapper } from './grpc-organization-member.mapper.ts';
+import * as grpcOrganization from './grpc-organization.mapper.ts';
+import * as grpcOrganizationMember from './grpc-organization-member.mapper.ts';
 
 /** The server always fills it on success: an absent one is a protocol error. */
 const requireOrganization = (organization?: Organization): OrganizationEntity => {
   if (!organization) throw new Error('Server returned no organization.');
-  return GrpcOrganizationMapper.toDomain(organization);
+  return grpcOrganization.toDomain(organization);
 };
 
 export class DefaultOrganizationRepository implements OrganizationRepository {
@@ -20,7 +20,7 @@ export class DefaultOrganizationRepository implements OrganizationRepository {
   public getAll(): Promise<ScyllaResult<OrganizationEntity[]>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.listOrganizations({}).response;
-      return response.organizations.map(GrpcOrganizationMapper.toDomain);
+      return response.organizations.map(grpcOrganization.toDomain);
     }, 'Failed to fetch organizations.');
   }
 
@@ -29,7 +29,7 @@ export class DefaultOrganizationRepository implements OrganizationRepository {
     return ScyllaResult.tryAsync(async () => {
       const userId = localStorage.getItem('userId') ?? '';
       const response = await this.client.listUserOrganizations({ userId: wrapId(userId) }).response;
-      return response.organizations.map(GrpcOrganizationMapper.toDomain);
+      return response.organizations.map(grpcOrganization.toDomain);
     }, 'Failed to fetch organizations.');
   }
 
@@ -39,7 +39,7 @@ export class DefaultOrganizationRepository implements OrganizationRepository {
       const response = await this.client.listOrganizationMembers({
         organizationId: wrapId(organizationId),
       }).response;
-      return response.members.map(GrpcOrganizationMemberMapper.toDomain);
+      return response.members.map(grpcOrganizationMember.toDomain);
     }, 'Failed to fetch organization members.');
   }
 

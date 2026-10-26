@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import { WHATS_NEW } from '@base/shell/whats-new.ts';
 import WhatsNewDialog from './WhatsNewDialog.svelte';
 

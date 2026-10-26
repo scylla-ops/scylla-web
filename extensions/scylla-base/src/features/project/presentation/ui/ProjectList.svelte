@@ -6,7 +6,7 @@
   import { projectQueries } from '../project.queries.ts';
   import ProjectCard from './ProjectCard/ProjectCard.svelte';
   import ProjectHeader from './ProjectHeader.svelte';
-  import { projectMessages } from './project.messages.ts';
+  import { projectMessages } from '../messages/project.messages.ts';
 
   interface Props {
     organizationId: string;

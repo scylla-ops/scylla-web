@@ -277,6 +277,17 @@ module.exports = {
     },
 
     {
+      name: 'presentation-logic-knows-no-ui',
+      comment:
+        'Presenters, mappers and messages give the views what they show: they are plain ' +
+        'TypeScript, and `ui/` imports them. One of them that imports `ui/` reverses that ' +
+        'direction, and pulls Svelte into code that is tested without it.',
+      severity: 'error',
+      from: { path: '/presentation/(presenters|mappers|messages)/' },
+      to: { path: '/presentation/ui/' },
+    },
+
+    {
       name: 'no-feature-imports-the-shell',
       comment:
         'The shell (`shell/`) composes features. A feature reaching ' +

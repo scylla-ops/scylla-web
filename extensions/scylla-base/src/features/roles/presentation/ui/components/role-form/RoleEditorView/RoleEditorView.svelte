@@ -4,7 +4,7 @@
   import { Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { RolesScope } from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
-  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
   import RoleForm from '../RoleForm.svelte';
   import { createRoleEditorView } from './role-editor-view.state.svelte.ts';
 

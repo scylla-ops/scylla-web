@@ -8,11 +8,11 @@ import type { ITriggerServiceClient } from '@base/generated/scylla/trigger/v1/tr
 import type { Trigger } from '@base/generated/scylla/trigger/v1/trigger.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { idValue, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
-import { GrpcTriggerMapper } from './grpc-trigger.mapper.ts';
+import * as grpcTrigger from './grpc-trigger.mapper.ts';
 
 const requireTrigger = (trigger: Trigger | undefined, rpc: string): TriggerEntity => {
   if (!trigger) throw new ScyllaError(`${rpc} returned no trigger`);
-  return GrpcTriggerMapper.toDomain(trigger);
+  return grpcTrigger.toDomain(trigger);
 };
 
 export class DefaultTriggersRepository implements TriggersRepository {
@@ -22,7 +22,7 @@ export class DefaultTriggersRepository implements TriggersRepository {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.listPipelineTriggers({ pipelineId: wrapId(pipelineId) })
         .response;
-      return GrpcTriggerMapper.toDomainList(response.triggers);
+      return grpcTrigger.toDomainList(response.triggers);
     }, 'Error listing triggers');
   }
 
@@ -36,16 +36,16 @@ export class DefaultTriggersRepository implements TriggersRepository {
   public create(pipelineId: string, draft: TriggerDraft): Promise<ScyllaResult<CreatedTrigger>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.createTrigger(
-        GrpcTriggerMapper.draftToCreateRequest(pipelineId, draft),
+        grpcTrigger.draftToCreateRequest(pipelineId, draft),
       ).response;
-      return GrpcTriggerMapper.createdToDomain(response);
+      return grpcTrigger.createdToDomain(response);
     }, 'Failed to create trigger');
   }
 
   public update(triggerId: string, draft: TriggerDraft): Promise<ScyllaResult<TriggerEntity>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.updateTrigger(
-        GrpcTriggerMapper.draftToUpdateRequest(triggerId, draft),
+        grpcTrigger.draftToUpdateRequest(triggerId, draft),
       ).response;
       return requireTrigger(response.trigger, 'UpdateTrigger');
     }, 'Failed to update trigger');

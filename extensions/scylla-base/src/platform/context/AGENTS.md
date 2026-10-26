@@ -64,7 +64,7 @@ context when leaving a scope.
 index.ts                             public API
 context.store.ts                     the store (persisted)
 scylla-navigate.ts                   context-aware navigation
-resource-error.svelte.ts             createResourceError
+resource-error.state.svelte.ts             createResourceError
 ```
 
 ## The navigator

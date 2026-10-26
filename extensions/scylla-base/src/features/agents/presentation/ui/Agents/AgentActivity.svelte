@@ -5,8 +5,8 @@
   import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
   import type { AgentState } from '@base/features/agents/domain/structs/agent-state.struct.ts';
   import AgentStateDot from '../components/AgentStateDot.svelte';
-  import { agentsMessages } from '../agents.messages.ts';
-  import { agentsPageMessages as messages } from './agents-page.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
+  import { agentsPageMessages as messages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';
 
   interface Props {
     agent: AgentEntity;

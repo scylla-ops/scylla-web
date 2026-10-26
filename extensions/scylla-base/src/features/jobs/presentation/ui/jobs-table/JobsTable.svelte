@@ -14,13 +14,13 @@
     getRelativeTime,
   } from '@shared/utils/date-utils.ts';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
-  import { isActiveStatus } from '@base/features/jobs/domain/structs/jobs-summary.struct.ts';
+  import { isActiveStatus } from '@base/features/jobs/domain/structs/job-status.struct.ts';
   import { jobMutations } from '@base/features/jobs/presentation/jobs.queries.ts';
   import JobActions from './JobActions/JobActions.svelte';
   import JobStatus from './JobStatus/JobStatus.svelte';
   import JobTimeline from './JobTimeline/JobTimeline.svelte';
-  import { jobColumns } from './job-columns.ts';
-  import { jobsMessages } from '../jobs.messages.ts';
+  import { jobColumns } from './jobs-table.columns.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
     jobs: JobEntity[];

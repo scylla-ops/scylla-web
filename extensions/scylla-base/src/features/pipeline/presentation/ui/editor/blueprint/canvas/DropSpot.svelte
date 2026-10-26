@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ViewportPortal, type XYPosition } from '@xyflow/svelte';
-  import type { NodeFootprint } from './nodes/node-geometry.ts';
+  import type { NodeFootprint } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
 
   interface Props {
     /** The position of the node that a drop creates, in the graph. */

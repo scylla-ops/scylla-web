@@ -14,6 +14,8 @@ export interface CodeMirrorOptions {
   /** Reconfigured in place when it changes: the document stays. */
   extensions?: Extension[];
   hasError?: boolean;
+  /** See `CodeMirrorThemeOptions.flush`. */
+  flush?: boolean;
   /** The live view once it exists, `null` after teardown. */
   onView?: (view: EditorView | null) => void;
 }
@@ -33,11 +35,13 @@ export const renderCodeMirror =
     const initial = untrack(options);
 
     // `options()` also reads `doc`, which changes at each keystroke: compare what the theme uses.
-    const themeKey = () => `${currentTheme()}:${options().hasError ?? false}`;
+    const themeKey = () =>
+      `${currentTheme()}:${options().hasError ?? false}:${options().flush ?? false}`;
     const theme = () =>
       buildCodeMirrorTheme({
         isDark: currentTheme() !== 'light',
         hasError: options().hasError ?? false,
+        flush: options().flush ?? false,
       });
 
     const view = new EditorView({

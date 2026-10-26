@@ -19,7 +19,7 @@ TriggerKind                           (enum — a value, not a type)
 triggerQueries, triggerMutations, TRIGGERS_QUERY_KEY
 ```
 
-**This module is Svelte** (Phase 3). There is no `use-triggers-domain.ts` and no hooks: the
+The
 factories in `presentation/triggers.queries.ts` resolve the repository through
 `getModuleDomain('triggers')` per call, and a component runs them with `createQuery` /
 `createMutation` from `@scylla/core-sdk`.
@@ -45,7 +45,7 @@ All wrapped in `ScyllaResult`. Reach it from `triggers.queries.ts` only — neve
 
 ## The `TriggerSource` union
 
-`domain/structs/trigger-source.struct.ts` is the heart of the module:
+`domain/entities/trigger.entity.ts` holds the heart of the module:
 
 ```typescript
 TriggerKind = Cron | Webhook | Unknown
@@ -65,8 +65,9 @@ TriggerSource = CronSource | WebhookSource | UnknownSource   // discriminated on
 triggers.module.ts                   route + DI wiring (private; registry only)
 index.ts                             public API
 domain/
-  entities/trigger.entity.ts         TriggerEntity, TriggerDraft, CreatedTrigger
-  structs/trigger-source.struct.ts   the union above, TriggerInput
+  entities/trigger.entity.ts         TriggerEntity, TriggerDraft, CreatedTrigger, the union above,
+                                     TriggerInput
+  structs/cron-expression.struct.ts  the 5-field rule of the server: isCronExpressionValid
   repository/triggers.repository.ts
 infrastructure/
   default-triggers.repository.ts      TriggerServiceClient → TriggerEntity
@@ -75,14 +76,18 @@ presentation/
   triggers.queries.ts                every read and write, as query/mutation options
   ui/Triggers/Triggers.page.svelte
   ui/TriggerEditor/TriggerEditor.page.svelte   creates or edits a trigger of a pipeline
-  ui/triggers.messages.ts            every string — `lingui extract` cannot read `.svelte`
-  ui/components/TriggersHeader.svelte, TriggersOverview.svelte, index.ts (local barrel)
+  messages/triggers.messages.ts      every string — `lingui extract` cannot read `.svelte`
+  ui/components/TriggersHeader/, TriggersOverview/, index.ts (local barrel)
   ui/components/trigger-form/        TriggerForm, TriggerFormSection,
                                      CronScheduleBuilder/, TriggerInputsEditor/
     TriggerEditorView/               the body of the editor page
       trigger-editor-view.state.svelte.ts   the trigger to edit (from the list), and the way back
-  ui/triggers-table/                 TriggersTable + trigger-columns.ts + cells
-  utils/cron.utils.ts, trigger-form.utils.ts, triggers-navigation.ts
+  ui/triggers-table/                 TriggersTable + triggers-table.columns.ts + cells
+  mappers/cron.mapper.ts             the cron text ↔ the model of the builder
+  mappers/cron-timezone.mapper.ts    the local time ↔ UTC (the server reads UTC)
+  mappers/trigger-form.mapper.ts     the form ↔ the draft of a trigger
+  mappers/triggers-navigation.mapper.ts   a pipeline and a trigger → the list and editor pages
+  presenters/cron.presenter.ts       WEEKDAYS, describeCron
 ```
 
 ## Routes & nav
@@ -92,8 +97,8 @@ presentation/
 | `project` | `pipelines/:pipelineId/triggers` | `MANAGE_TRIGGERS` | `Triggers.page.svelte` |
 | `project` | `pipelines/:pipelineId/triggers/new`, `pipelines/:pipelineId/triggers/:triggerId/edit` | `MANAGE_TRIGGERS` | `TriggerEditor.page.svelte` |
 
-`triggersNavigation(pipelineId)` (`utils/triggers-navigation.ts`) builds every URL between the list
-and the editor.
+`mappers/triggers-navigation.mapper.ts` builds every URL between the list and the editor. Import
+it as a namespace: `triggersNavigation.toEdit(pipelineId, triggerId)`.
 
 **No nav entry** — reached from a pipeline. Breadcrumb highlights `pipelineName`.
 
@@ -126,18 +131,18 @@ holding it that they are not split.
   a webhook trigger invalidates its URL forever. Keep them distinct in the UI.
 - Webhook secrets follow the reveal-once rule: shown at creation, never re-fetchable. Never
   store or log one.
-- Cron parsing/formatting lives in `cron.utils.ts`; `CronScheduleBuilder` is the only place that
+- Cron parsing/formatting lives in `mappers/cron.mapper.ts`; `CronScheduleBuilder` is the only place that
   composes an expression. Do not hand-roll cron strings in a component.
 - **`CronScheduleBuilder` does not emit on mount**, deliberately: its parent seeds its own state
   from the same string, so a mount-time emit only re-sends what the parent already has. The React
   effect did, on every open.
 - **The form is seeded once.** `TriggerForm` reads its `$state` initializers when it mounts, and
-  the page mounts it again for another trigger. No effect watching `trigger`.
-- **New strings go in `ui/triggers.messages.ts`, never inside a `.svelte`.** Extraction does not
+  the page mounts it again for another trigger. Do not add an effect that watches `trigger`.
+- **New strings go in `messages/triggers.messages.ts`, never inside a `.svelte`.** Extraction does not
   read components, so a message declared there vanishes from the catalogs without failing a gate.
 - **A bits-ui select or menu lives in a floating layer**, which floating-ui leaves
   `visibility: hidden` under jsdom: `getByRole('option')` finds nothing. Use `findFloating` from
-  `test/render.svelte.ts`.
+  `test/render.ts`.
 
 ## Before done
 

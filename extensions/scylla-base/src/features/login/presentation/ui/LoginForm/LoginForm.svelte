@@ -3,7 +3,7 @@
   import { ScyllaForm, FormItemType } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { loginPoints } from '@base/features/login/presentation/login.points.ts';
-  import { loginMessages } from '../login.messages.ts';
+  import { loginMessages } from '@base/features/login/presentation/messages/login.messages.ts';
 
   interface Props {
     handleSubmit: (identifier: string, password: string) => void;

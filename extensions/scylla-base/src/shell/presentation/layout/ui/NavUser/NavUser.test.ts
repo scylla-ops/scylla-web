@@ -4,7 +4,7 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
-import { findFloating, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import InSidebar from '../__test__/InSidebar.fixture.svelte';
 import NavUser from './NavUser.svelte';

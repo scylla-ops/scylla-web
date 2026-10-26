@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { GrpcUserMapper } from '../grpc-user.mapper.ts';
+import * as grpcUser from '../grpc-user.mapper.ts';
 import type { User, UserAccess, UserSession } from '@base/generated/scylla/user/v1/user.ts';
 import { PasswordResetDelivery } from '@base/generated/scylla/auth/v1/auth.ts';
 
@@ -20,9 +20,9 @@ const baseUser = (overrides: Partial<User> = {}): User => ({
   ...overrides,
 });
 
-describe('GrpcUserMapper.toDomain', () => {
+describe('grpcUser.toDomain', () => {
   it('unwraps the id and the email, and formats both timestamps', () => {
-    expect(GrpcUserMapper.toDomain(baseUser())).toEqual({
+    expect(grpcUser.toDomain(baseUser())).toEqual({
       userId: 'user-1',
       username: 'ravenne',
       email: 'ravenne@example.com',
@@ -34,22 +34,22 @@ describe('GrpcUserMapper.toDomain', () => {
   });
 
   it('leaves out the email and the display name when the account has none', () => {
-    const user = GrpcUserMapper.toDomain(baseUser({ email: undefined, displayName: undefined }));
+    const user = grpcUser.toDomain(baseUser({ email: undefined, displayName: undefined }));
 
     expect(user).not.toHaveProperty('email');
     expect(user).not.toHaveProperty('displayName');
   });
 
   it('carries a deactivated account through', () => {
-    expect(GrpcUserMapper.toDomain(baseUser({ isActive: false })).isActive).toBe(false);
+    expect(grpcUser.toDomain(baseUser({ isActive: false })).isActive).toBe(false);
   });
 
   it('defaults to an empty userId when the wrapper is absent', () => {
-    expect(GrpcUserMapper.toDomain(baseUser({ userId: undefined })).userId).toBe('');
+    expect(grpcUser.toDomain(baseUser({ userId: undefined })).userId).toBe('');
   });
 });
 
-describe('GrpcUserMapper.toDomainList', () => {
+describe('grpcUser.toDomainList', () => {
   it('maps every user and carries the pagination metadata through', () => {
     const pagination = {
       totalCount: 1,
@@ -59,16 +59,16 @@ describe('GrpcUserMapper.toDomainList', () => {
       hasNext: false,
       hasPrevious: false,
     };
-    const result = GrpcUserMapper.toDomainList({ users: [baseUser()], pagination });
-    expect(result.items).toEqual([GrpcUserMapper.toDomain(baseUser())]);
+    const result = grpcUser.toDomainList({ users: [baseUser()], pagination });
+    expect(result.items).toEqual([grpcUser.toDomain(baseUser())]);
     expect(result.pagination).toBe(pagination);
   });
 });
 
-describe('GrpcUserMapper.toCreateRequest', () => {
+describe('grpcUser.toCreateRequest', () => {
   it('wraps the email and sends the display name when there is one', () => {
     expect(
-      GrpcUserMapper.toCreateRequest({
+      grpcUser.toCreateRequest({
         email: 'ada@example.com',
         username: 'ada',
         password: 'hunter22',
@@ -83,7 +83,7 @@ describe('GrpcUserMapper.toCreateRequest', () => {
   });
 
   it('sends no display name for an empty one', () => {
-    const request = GrpcUserMapper.toCreateRequest({
+    const request = grpcUser.toCreateRequest({
       email: 'ada@example.com',
       username: 'ada',
       password: 'hunter22',
@@ -94,16 +94,16 @@ describe('GrpcUserMapper.toCreateRequest', () => {
   });
 });
 
-describe('GrpcUserMapper.toUpdateRequest', () => {
+describe('grpcUser.toUpdateRequest', () => {
   it('sends only the fields that change', () => {
-    expect(GrpcUserMapper.toUpdateRequest({ userId: 'user-1', displayName: 'Ada' })).toEqual({
+    expect(grpcUser.toUpdateRequest({ userId: 'user-1', displayName: 'Ada' })).toEqual({
       userId: { value: 'user-1' },
       displayName: 'Ada',
     });
   });
 
   it('keeps an empty display name, which removes it', () => {
-    expect(GrpcUserMapper.toUpdateRequest({ userId: 'user-1', displayName: '' })).toEqual({
+    expect(grpcUser.toUpdateRequest({ userId: 'user-1', displayName: '' })).toEqual({
       userId: { value: 'user-1' },
       displayName: '',
     });
@@ -111,12 +111,12 @@ describe('GrpcUserMapper.toUpdateRequest', () => {
 
   it('wraps a new email', () => {
     expect(
-      GrpcUserMapper.toUpdateRequest({ userId: 'user-1', username: 'ada', email: 'a@b.co' }),
+      grpcUser.toUpdateRequest({ userId: 'user-1', username: 'ada', email: 'a@b.co' }),
     ).toEqual({ userId: { value: 'user-1' }, username: 'ada', email: { value: 'a@b.co' } });
   });
 });
 
-describe('GrpcUserMapper.accessToDomain', () => {
+describe('grpcUser.accessToDomain', () => {
   const access = (scope: UserAccess['scope'], overrides: Partial<UserAccess> = {}): UserAccess => ({
     grantId: { value: 'grant-1' },
     scope,
@@ -130,9 +130,7 @@ describe('GrpcUserMapper.accessToDomain', () => {
 
   it('maps a grant on an organization', () => {
     expect(
-      GrpcUserMapper.accessToDomain(
-        access({ scope: { oneofKind: 'organization', organization: {} } }),
-      ),
+      grpcUser.accessToDomain(access({ scope: { oneofKind: 'organization', organization: {} } })),
     ).toEqual({
       grantId: 'grant-1',
       scope: 'organization',
@@ -145,7 +143,7 @@ describe('GrpcUserMapper.accessToDomain', () => {
   });
 
   it('maps a grant on a project, with the project id', () => {
-    const grant = GrpcUserMapper.accessToDomain(
+    const grant = grpcUser.accessToDomain(
       access(
         { scope: { oneofKind: 'project', project: { projectId: { value: 'project-1' } } } },
         { projectName: 'Web' },
@@ -156,7 +154,7 @@ describe('GrpcUserMapper.accessToDomain', () => {
   });
 
   it('maps a system grant, with no organization', () => {
-    const grant = GrpcUserMapper.accessToDomain(
+    const grant = grpcUser.accessToDomain(
       access(
         { scope: { oneofKind: 'system', system: {} } },
         { organizationId: undefined, organizationName: '' },
@@ -168,17 +166,17 @@ describe('GrpcUserMapper.accessToDomain', () => {
   });
 });
 
-describe('GrpcUserMapper.deliveryToDomain', () => {
+describe('grpcUser.deliveryToDomain', () => {
   it.each([
     [PasswordResetDelivery.MAIL, 'mail'],
     [PasswordResetDelivery.SERVER_LOG, 'server-log'],
     [PasswordResetDelivery.UNSPECIFIED, 'unknown'],
   ] as const)('maps %s to %s', (delivery, expected) => {
-    expect(GrpcUserMapper.deliveryToDomain(delivery)).toBe(expected);
+    expect(grpcUser.deliveryToDomain(delivery)).toBe(expected);
   });
 });
 
-describe('GrpcUserMapper.sessionToDomain', () => {
+describe('grpcUser.sessionToDomain', () => {
   const session = (overrides: Partial<UserSession> = {}): UserSession => ({
     sessionId: { value: 'session-1' },
     createdAt: TS,
@@ -191,7 +189,7 @@ describe('GrpcUserMapper.sessionToDomain', () => {
   });
 
   it('unwraps the id, formats the times and carries the rest through', () => {
-    expect(GrpcUserMapper.sessionToDomain(session())).toEqual({
+    expect(grpcUser.sessionToDomain(session())).toEqual({
       sessionId: 'session-1',
       createdAt: ISO,
       lastActiveAt: LATER_ISO,
@@ -204,7 +202,7 @@ describe('GrpcUserMapper.sessionToDomain', () => {
 
   it('gives empty strings for an absent id and absent times', () => {
     expect(
-      GrpcUserMapper.sessionToDomain(
+      grpcUser.sessionToDomain(
         session({
           sessionId: undefined,
           createdAt: undefined,

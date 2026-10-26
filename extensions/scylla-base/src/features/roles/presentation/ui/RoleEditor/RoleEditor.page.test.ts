@@ -10,7 +10,7 @@ import {
 } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import RoleEditorPage from './RoleEditor.page.svelte';

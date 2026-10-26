@@ -1,21 +1,19 @@
 import type { EffectiveScope } from '@base/generated/scylla/authz/v1/role.ts';
 import type { EffectivePermissionsEntity, EffectiveScopeEntity } from '@platform/authz';
-import { GrpcPermissionMapper } from '@base/features/roles/infrastructure/grpc-permission.mapper.ts';
+import * as grpcPermission from '@base/features/roles/infrastructure/grpc-permission.mapper.ts';
 
-export class GrpcEffectivePermissionsMapper {
-  public static scopeToDomain(grpcScope: EffectiveScope): EffectiveScopeEntity {
-    const { scope, scopeId } = GrpcPermissionMapper.scopeRefToDomain(grpcScope.scope);
+export function scopeToDomain(grpcScope: EffectiveScope): EffectiveScopeEntity {
+  const { scope, scopeId } = grpcPermission.scopeRefToDomain(grpcScope.scope);
 
-    return {
-      scope,
-      scopeId,
-      access: GrpcPermissionMapper.accessToDomain(grpcScope.access),
-    };
-  }
+  return {
+    scope,
+    scopeId,
+    access: grpcPermission.accessToDomain(grpcScope.access),
+  };
+}
 
-  public static toDomain(grpcScopes: EffectiveScope[]): EffectivePermissionsEntity {
-    return {
-      scopes: grpcScopes.map(GrpcEffectivePermissionsMapper.scopeToDomain),
-    };
-  }
+export function toDomain(grpcScopes: EffectiveScope[]): EffectivePermissionsEntity {
+  return {
+    scopes: grpcScopes.map(scopeToDomain),
+  };
 }

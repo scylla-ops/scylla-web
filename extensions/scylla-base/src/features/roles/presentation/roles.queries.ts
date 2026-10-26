@@ -7,7 +7,7 @@ import {
 } from '@platform/authz';
 import type { RoleCreationData, RoleEntity } from '../domain/entities/role.entity.ts';
 import type { GrantEntity } from '../domain/entities/grant.entity.ts';
-import type { PermissionVocabularyEntity } from '../domain/entities/permission-vocabulary.entity.ts';
+import type { PermissionVocabulary } from '../domain/structs/permission-vocabulary.struct.ts';
 import type {
   CreateGrantInput,
   RevokeAllAccessInput,
@@ -105,7 +105,7 @@ export const roleQueries = {
 
   /** Every permission the backend knows, with its narrowest scope. New backend permissions show up without a frontend change. */
   vocabulary: () =>
-    queryOptions<PermissionVocabularyEntity>({
+    queryOptions<PermissionVocabulary>({
       queryKey: PERMISSION_VOCABULARY_QUERY_KEY,
       queryFn: async () => (await domain().permissionRepository.listPermissionVocabulary()).unwrap(),
       staleTime: Infinity,

@@ -9,10 +9,10 @@
     type EdgeProps,
   } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
-  import { EDGE_COLOR } from '@base/features/pipeline/presentation/utils/blueprint-converter.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import { EDGE_COLOR } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
   import { getBlueprintCanvas } from './blueprint-canvas.context.ts';
-  import { blueprintMessages } from '../blueprint.messages.ts';
+  import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
 
   let {
     id,
@@ -42,7 +42,7 @@
   );
 </script>
 
-<!-- A dependency. Once selected, it offers to insert a step in its middle, or to go. -->
+<!-- A dependency. Once selected, it offers to insert a node in its middle, or to go. -->
 <BaseEdge
   {id}
   path={path[0]}
@@ -58,7 +58,7 @@
     <div class="flex gap-0.5 rounded-full border bg-card p-0.5 shadow-sm">
       <button
         type="button"
-        aria-label={t(blueprintMessages.insertStep)}
+        aria-label={t(blueprintMessages.insertNode)}
         class="flex size-6 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary-subtle"
         onclick={event => {
           event.stopPropagation();

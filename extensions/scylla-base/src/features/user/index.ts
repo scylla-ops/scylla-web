@@ -3,9 +3,9 @@ export type {
   UpdateUserInput,
   UserEntity,
   UserSummary,
+  UserAccess,
 } from './domain/entities/user.entity.ts';
 export type { UserSessionEntity } from './domain/entities/user-session.entity.ts';
-export type { UserAccess } from './domain/structs/user-access.struct.ts';
 export {
   canListUsers,
   userMutations,

@@ -35,15 +35,14 @@ from the entities on purpose: they are the *creation response*, and they hold th
 secret the backend returns exactly once.
 
 **Infrastructure** implements `AppsRepository` over gRPC-Web: `DefaultAppsRepository` calls the
-generated client and `GrpcAppMapper` does proto → domain.
+generated client and `grpc-app.mapper.ts` does proto → domain.
 
-**Presentation** is Svelte, as of Phase 3 of the migration. `apps.queries.ts` declares every
-read and write as `queryOptions` / `mutationOptions` — plain data with no framework in it, which
-is what replaced the three hooks — and the two pages run them with `createQuery` /
-`createMutation`. The pages are composed from `AppCard` and `AppSecretsCard`, and both creation
-dialogs are declarative `ScyllaForm`s built from the `create-app-form-items` helpers.
+**Presentation**: `apps.queries.ts` declares every read and write as `queryOptions` /
+`mutationOptions` — plain data with no framework in it — and the two pages run them with
+`createQuery` / `createMutation`. The pages are composed from `AppCard` and `AppSecretsCard`, and both creation
+dialogs are declarative `ScyllaForm`s built from the form presenters (`app-form.presenter.ts`).
 
-Every string the screens show is declared in `ui/apps.messages.ts` rather than inside a
+Every string the screens show is declared in `messages/apps.messages.ts` rather than inside a
 component: `lingui extract` does not read `.svelte`, so a message written in one would disappear
 from the catalogs with no gate noticing. See `refacto_svelte.md` §4.5.
 

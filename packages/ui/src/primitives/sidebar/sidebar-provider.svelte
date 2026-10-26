@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '../../utils/index.ts';
-  import { setSidebar } from './sidebar-state.svelte.ts';
+  import { setSidebar } from './sidebar.state.svelte.ts';
 
   type Props = HTMLAttributes<HTMLDivElement> & { children?: Snippet };
 

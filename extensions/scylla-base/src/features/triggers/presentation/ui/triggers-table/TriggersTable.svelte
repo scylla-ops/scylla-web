@@ -14,14 +14,14 @@
   import { createSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-  import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+  import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggerMutations } from '@base/features/triggers/presentation/triggers.queries.ts';
-  import { triggersNavigation } from '@base/features/triggers/presentation/utils/triggers-navigation.ts';
+  import * as triggersNavigation from '@base/features/triggers/presentation/mappers/triggers-navigation.mapper.ts';
   import TriggerActions from './TriggerActions/TriggerActions.svelte';
   import TriggerSourceCell from './TriggerSourceCell/TriggerSourceCell.svelte';
   import TriggerStatusCell from './TriggerStatusCell/TriggerStatusCell.svelte';
-  import { triggerColumns } from './trigger-columns.ts';
-  import { triggersMessages } from '../triggers.messages.ts';
+  import { triggerColumns } from './triggers-table.columns.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     triggers: TriggerEntity[];
@@ -118,7 +118,7 @@
     }}
     onEdit={event => {
       event.stopPropagation();
-      triggersNavigation(pipelineId).toEdit(trigger.id);
+      triggersNavigation.toEdit(pipelineId, trigger.id);
     }}
     onDelete={event => {
       event.stopPropagation();

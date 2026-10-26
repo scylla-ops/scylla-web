@@ -5,7 +5,7 @@
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
   import UserIdentityCard from '@base/features/user/presentation/ui/components/UserIdentityCard.svelte';
   import UserStatusBadge from '@base/features/user/presentation/ui/components/UserStatusBadge.svelte';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   let { user }: { user: UserEntity } = $props();
 </script>

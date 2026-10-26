@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import Building2 from '@lucide/svelte/icons/building-2';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import ContextItem from './ContextItem.svelte';
 
 describe('ContextItem', () => {

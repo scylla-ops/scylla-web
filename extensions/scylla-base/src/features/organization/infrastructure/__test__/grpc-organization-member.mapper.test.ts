@@ -1,12 +1,12 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { GrpcOrganizationMemberMapper } from '../grpc-organization-member.mapper.ts';
+import * as grpcOrganizationMember from '../grpc-organization-member.mapper.ts';
 import type { OrganizationMember } from '@base/generated/scylla/organization/v1/organization.ts';
 
-describe('GrpcOrganizationMemberMapper.toDomain', () => {
+describe('grpcOrganizationMember.toDomain', () => {
   it('unwraps the user id and carries the username through', () => {
     const member: OrganizationMember = { userId: { value: 'user-1' }, username: 'ravenne' };
-    expect(GrpcOrganizationMemberMapper.toDomain(member)).toEqual({
+    expect(grpcOrganizationMember.toDomain(member)).toEqual({
       userId: 'user-1',
       username: 'ravenne',
     });
@@ -14,6 +14,6 @@ describe('GrpcOrganizationMemberMapper.toDomain', () => {
 
   it('defaults to an empty userId when the wrapper is absent', () => {
     const member: OrganizationMember = { userId: undefined, username: 'ravenne' };
-    expect(GrpcOrganizationMemberMapper.toDomain(member).userId).toBe('');
+    expect(grpcOrganizationMember.toDomain(member).userId).toBe('');
   });
 });

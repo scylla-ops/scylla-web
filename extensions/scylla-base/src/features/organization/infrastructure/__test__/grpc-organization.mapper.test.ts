@@ -1,9 +1,9 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { GrpcOrganizationMapper } from '../grpc-organization.mapper.ts';
+import * as grpcOrganization from '../grpc-organization.mapper.ts';
 import type { Organization } from '@base/generated/scylla/organization/v1/organization.ts';
 
-describe('GrpcOrganizationMapper.toDomain', () => {
+describe('grpcOrganization.toDomain', () => {
   it('unwraps the id and carries name/description through', () => {
     const org: Organization = {
       organizationId: { value: 'org-1' },
@@ -12,7 +12,7 @@ describe('GrpcOrganizationMapper.toDomain', () => {
       isActive: true,
       createdAt: { seconds: 1735689600n, nanos: 0 },
     };
-    expect(GrpcOrganizationMapper.toDomain(org)).toEqual({
+    expect(grpcOrganization.toDomain(org)).toEqual({
       id: 'org-1',
       name: 'Acme',
       description: 'Acme Corp',
@@ -27,6 +27,6 @@ describe('GrpcOrganizationMapper.toDomain', () => {
       isActive: true,
       createdAt: { seconds: 1735689600n, nanos: 0 },
     };
-    expect(GrpcOrganizationMapper.toDomain(org).id).toBe('');
+    expect(grpcOrganization.toDomain(org).id).toBe('');
   });
 });

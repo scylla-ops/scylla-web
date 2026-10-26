@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Badge } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { userMessages } from '../user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   let { isActive }: { isActive: boolean } = $props();
 </script>

@@ -41,7 +41,7 @@ from a feature barrel, and it is safe because its single consumer is itself lazi
 ## How it is built
 
 **Domain** holds `JobEntity`, the log types (`JobLog`, `JobLogStream`) and — more interestingly
-— `jobs-summary.struct.ts`, which is pure logic with no I/O: `summarizeJobs` turns a list of
+— `presenters/jobs-summary.presenter.ts`, which is pure logic with no I/O: `summarizeJobs` turns a list of
 runs into counts, `isActiveStatus` and `isFinishedStatus` classify a status. Because these are
 plain functions in the domain, the same rules apply on the jobs table, in the pipeline dashboard
 and on the org overview, and there is no second opinion about what "running" means.
@@ -49,9 +49,9 @@ and on the org overview, and there is no second opinion about what "running" mea
 **Infrastructure** is the repository and its mapper, like every module with one source.
 `tailLogs` is the odd one out in the whole codebase: it returns
 `ScyllaResult<JobLogStream>` **synchronously**, since it opens a server stream rather than
-awaiting a response. The presentation layer subscribes to it in `tail-job-logs.svelte.ts` and
+awaiting a response. The presentation layer subscribes to it in `tail-job-logs.state.svelte.ts` and
 closes it on teardown — a stream is a system outside the framework, and that is what actions and
-`*.svelte.ts` owners are for, not reactivity.
+`*.state.svelte.ts` owners are for, not reactivity.
 
 **Presentation** is the largest layer: a query-key factory module, the `*.queries.ts` factories
 that replaced the hooks, the `jobs-table/` folder holding the table, its columns and its cells
@@ -59,7 +59,7 @@ that replaced the hooks, the `jobs-table/` folder holding the table, its columns
 details page — `JobSummary` (what the run did) and `JobNodeLogs` (what it printed, per node).
 The streamed viewer itself, `jobs-log/JobLogDisplay`, is shared by both pages.
 
-The log viewer behaves like an IDE console, and `streamed-log-view.svelte.ts` is where that
+The log viewer behaves like an IDE console, and `streamed-log-view.state.svelte.ts` is where that
 lives. A live log is a stream, but a document you re-seed is a snapshot, and the gap between the
 two is the whole problem: replacing the editor's content on every flush — seven times a second —
 resets the scroll offset and destroys any selection the reader had made. So it appends the delta
@@ -88,9 +88,9 @@ breaks it.
 
 - [pipeline](../pipeline/README.md) — owns the route, the Run action, and what a job executes.
 - [agents](../agents/README.md) — the machines that pick jobs up.
-- [dashboard](../dashboard/README.md) — consumes `useOrganizationJobs` for the overview.
+- [dashboard](../dashboard/README.md) — reads `jobsQueries.byOrganization` for the overview.
 
 ## Related shared pieces
 
-`DataTable`, `usePagination`, `useSelection` and `FeatureHeader` — see
-[shared](../../shared/README.md).
+`DataTable`, `createPagination`, `createSelection` and `FeatureHeader` — see
+[`@scylla/ui`](../../../../../packages/ui/README.md).

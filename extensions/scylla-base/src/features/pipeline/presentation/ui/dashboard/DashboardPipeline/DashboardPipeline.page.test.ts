@@ -5,7 +5,7 @@ import { PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import DashboardPipelinePage from './DashboardPipeline.page.svelte';
 

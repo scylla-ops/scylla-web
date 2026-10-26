@@ -2,7 +2,7 @@
   import CheckIcon from '@lucide/svelte/icons/check';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import { createAgentMessages as messages } from './create-agent.messages.ts';
+  import { createAgentMessages as messages } from '@base/features/agents/presentation/messages/create-agent.messages.ts';
 
   interface Props {
     step: 1 | 2;

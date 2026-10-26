@@ -7,7 +7,7 @@ export {
   ORGANIZATIONS_QUERY_KEY,
   ORGANIZATION_MEMBERS_QUERY_KEY,
 } from './presentation/organization.queries.ts';
-export { createOrganizationItems } from './presentation/utils/create-organization-form-items.ts';
+export { createOrganizationItems } from './presentation/presenters/organization-form.presenter.ts';
 /** Loaders: a barrel must not re-export a component. */
 export const loadAddOrganizationDialog = () =>
   import('./presentation/ui/AddOrganizationDialog/AddOrganizationDialog.svelte');

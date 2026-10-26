@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
-import { render, withRegistry } from '@test/render.svelte.ts';
+import { render, withRegistry } from '@test/render.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { JobLog } from '@base/features/jobs/domain/structs/job.struct.ts';
+import type { JobLog } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
 import JobLogDisplay from './JobLogDisplay.svelte';
 

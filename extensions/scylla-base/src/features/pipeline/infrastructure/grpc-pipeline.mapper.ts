@@ -1,9 +1,9 @@
+import type { PipelineMetadata, PipelineEntity } from '../domain/entities/pipeline.entity.ts';
 import type {
   EnvEntry,
-  PipelineMetadata,
-  PipelineStep,
-} from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-import type { PipelineEntity } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+  Shell as NodeShell,
+  PipelineNodeEntity,
+} from '../domain/entities/pipeline-node.entity.ts';
 import type {
   EnvVar,
   ListProjectPipelinesResponse,
@@ -15,11 +15,11 @@ import { Shell } from '@base/generated/scylla/exec/v1/step.ts';
 import type { PaginationInfo, PaginatedList } from '@scylla/ui/structs';
 import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
-function shellFromProto(s: Shell): 'sh' | 'bash' {
+function shellFromProto(s: Shell): NodeShell {
   return s === Shell.BASH ? 'bash' : 'sh';
 }
 
-function shellToProto(s: 'sh' | 'bash'): Shell {
+function shellToProto(s: NodeShell): Shell {
   return s === 'bash' ? Shell.BASH : Shell.SH;
 }
 
@@ -50,79 +50,77 @@ function envVarFromDomain(entry: EnvEntry): EnvVar {
 
 type PipelineListResponse = Pick<ListProjectPipelinesResponse, 'pipelines' | 'pagination'>;
 
-export class GrpcPipelineMapper {
-  private static nodeToDomain(node: PipelineNode): PipelineStep {
-    const base = {
-      id: idValue(node.nodeId),
-      deps: node.deps.map(idValue),
-      ...(node.workingDir ? { workingDir: node.workingDir } : {}),
-      env: node.env.map(envVarToDomain),
-    };
+function nodeToDomain(node: PipelineNode): PipelineNodeEntity {
+  const base = {
+    id: idValue(node.nodeId),
+    deps: node.deps.map(idValue),
+    ...(node.workingDir ? { workingDir: node.workingDir } : {}),
+    env: node.env.map(envVarToDomain),
+  };
 
-    const step = node.step;
-    if (step.oneofKind === 'script') {
-      return {
-        ...base,
-        kind: 'script',
-        script: step.script.script,
-        shell: shellFromProto(step.script.shell),
-      };
-    }
-    if (step.oneofKind === 'exec') {
-      return {
-        ...base,
-        kind: 'exec',
-        command: step.exec.command,
-        args: step.exec.args,
-      };
-    }
-    throw new UnknownArmError(`Step "${base.id}"`);
-  }
-
-  static nodeFromDomain(step: PipelineStep): PipelineNode {
+  const step = node.step;
+  if (step.oneofKind === 'script') {
     return {
-      nodeId: wrapId(step.id),
-      deps: step.deps.map(wrapId),
-      workingDir: step.workingDir ?? '',
-      env: step.env.map(envVarFromDomain),
-      step:
-        step.kind === 'script'
-          ? {
-              oneofKind: 'script',
-              script: { script: step.script, shell: shellToProto(step.shell) },
-            }
-          : {
-              oneofKind: 'exec',
-              exec: { command: step.command, args: step.args },
-            },
+      ...base,
+      kind: 'script',
+      script: step.script.script,
+      shell: shellFromProto(step.script.shell),
     };
   }
-
-  static toDomain(pipeline: Pipeline): PipelineEntity {
+  if (step.oneofKind === 'exec') {
     return {
-      id: idValue(pipeline.pipelineId),
-      projectId: idValue(pipeline.projectId),
-      name: pipeline.name,
-      nodes: pipeline.nodes.map(GrpcPipelineMapper.nodeToDomain),
+      ...base,
+      kind: 'exec',
+      command: step.exec.command,
+      args: step.exec.args,
     };
   }
+  throw new UnknownArmError(`Node "${base.id}"`);
+}
 
-  private static toDomainInfo(pipeline: PipelineSummary): PipelineMetadata {
-    return {
-      id: idValue(pipeline.pipelineId),
-      projectId: idValue(pipeline.projectId),
-      name: pipeline.name,
-      nodeCount: pipeline.nodeCount,
-      createdAt: timestampToIso(pipeline.createdAt),
-      updatedAt: timestampToIso(pipeline.updatedAt),
-    };
-  }
+export function nodeFromDomain(node: PipelineNodeEntity): PipelineNode {
+  return {
+    nodeId: wrapId(node.id),
+    deps: node.deps.map(wrapId),
+    workingDir: node.workingDir ?? '',
+    env: node.env.map(envVarFromDomain),
+    step:
+      node.kind === 'script'
+        ? {
+            oneofKind: 'script',
+            script: { script: node.script, shell: shellToProto(node.shell) },
+          }
+        : {
+            oneofKind: 'exec',
+            exec: { command: node.command, args: node.args },
+          },
+  };
+}
 
-  /** The project and organization listings share this shape. */
-  static toDomainInfoList(pipelines: PipelineListResponse): PaginatedList<PipelineMetadata> {
-    return {
-      items: pipelines.pipelines.map(GrpcPipelineMapper.toDomainInfo),
-      pagination: pipelines.pagination as PaginationInfo,
-    };
-  }
+export function toDomain(pipeline: Pipeline): PipelineEntity {
+  return {
+    id: idValue(pipeline.pipelineId),
+    projectId: idValue(pipeline.projectId),
+    name: pipeline.name,
+    nodes: pipeline.nodes.map(nodeToDomain),
+  };
+}
+
+function toMetadata(pipeline: PipelineSummary): PipelineMetadata {
+  return {
+    id: idValue(pipeline.pipelineId),
+    projectId: idValue(pipeline.projectId),
+    name: pipeline.name,
+    nodeCount: pipeline.nodeCount,
+    createdAt: timestampToIso(pipeline.createdAt),
+    updatedAt: timestampToIso(pipeline.updatedAt),
+  };
+}
+
+/** The project and organization listings share this shape. */
+export function toMetadataList(pipelines: PipelineListResponse): PaginatedList<PipelineMetadata> {
+  return {
+    items: pipelines.pipelines.map(toMetadata),
+    pagination: pipelines.pagination as PaginationInfo,
+  };
 }

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { GrpcGrantableRoleMapper } from '../grpc-grantable-role.mapper.ts';
+import * as grpcGrantableRole from '../grpc-grantable-role.mapper.ts';
 import { RoleKind as GrpcRoleKind } from '@base/generated/scylla/authz/v1/grant.ts';
 import { ScopeKind } from '@base/generated/scylla/authz/v1/permission.ts';
 import type { GrantableRole } from '@base/generated/scylla/authz/v1/grant.ts';
@@ -15,9 +15,9 @@ const grantable = (overrides: Partial<GrantableRole> = {}): GrantableRole => ({
   ...overrides,
 });
 
-describe('GrpcGrantableRoleMapper.toDomain', () => {
+describe('grpcGrantableRole.toDomain', () => {
   it('unwraps the id, maps scope and kind, carries the name and the description', () => {
-    expect(GrpcGrantableRoleMapper.toDomain(grantable())).toEqual({
+    expect(grpcGrantableRole.toDomain(grantable())).toEqual({
       roleId: 'organization-admin',
       name: 'Organization admin',
       scope: PermissionScope.ORGANIZATION,
@@ -29,13 +29,13 @@ describe('GrpcGrantableRoleMapper.toDomain', () => {
 
   it('carries the owning organization of an organization role', () => {
     expect(
-      GrpcGrantableRoleMapper.toDomain(grantable({ ownerOrganizationId: { value: 'org-1' } }))
+      grpcGrantableRole.toDomain(grantable({ ownerOrganizationId: { value: 'org-1' } }))
         .ownerOrganizationId,
     ).toBe('org-1');
   });
 
   it('defaults to an empty roleId when the wrapper is absent', () => {
-    expect(GrpcGrantableRoleMapper.toDomain(grantable({ roleId: undefined })).roleId).toBe('');
+    expect(grpcGrantableRole.toDomain(grantable({ roleId: undefined })).roleId).toBe('');
   });
 
   it.each([
@@ -44,6 +44,6 @@ describe('GrpcGrantableRoleMapper.toDomain', () => {
     [GrpcRoleKind.MEMBER, RoleKind.MEMBER],
     [GrpcRoleKind.UNSPECIFIED, RoleKind.UNSPECIFIED],
   ])('maps wire RoleKind %i to domain RoleKind %i', (wire, domain) => {
-    expect(GrpcGrantableRoleMapper.toDomain(grantable({ kind: wire })).kind).toBe(domain);
+    expect(grpcGrantableRole.toDomain(grantable({ kind: wire })).kind).toBe(domain);
   });
 });

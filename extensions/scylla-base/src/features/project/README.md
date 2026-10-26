@@ -23,24 +23,25 @@ the organization.
 
 ## Three readers, one cache entry
 
-Three different screens need "the projects of an organization", and all three hooks live here:
+Three different screens need "the projects of an organization", and all three query factories
+live here, in `project.queries.ts`:
 
-| Hook | Used by | Shape |
+| Factory | Used by | Shape |
 |---|---|---|
-| `useProjects` | this module's list page | paginated |
-| `useOrganizationProjects` | [dashboard](../dashboard/README.md) | full overview |
-| `useProjectsByOrganizations` | [roles](../roles/README.md) grant labels | batched lookup |
+| `projectQueries.byOrganization` | this module's list page | paginated |
+| `projectQueries.lookup` | [dashboard](../dashboard/README.md), [agents](../agents/README.md) | one page of every project |
+| `projectLookupQueries` | [roles](../roles/README.md) grant labels | batched lookup |
 
 It would be easy to let each consumer build its own query. The rule against it exists because
 two modules querying the same resource through different repositories produce two cache keys for
 one thing — and a mutation invalidating one leaves the other showing stale data on screen.
 
-So the queries live with the module that owns the resource, and consumers import the hook. If a
-fourth reader appears, its hook belongs here too.
+So the queries live with the module that owns the resource, and consumers import the factory.
+If a fourth reader appears, its factory belongs here too.
 
-`useProjectsByOrganizations` is also the codebase's reference for batching: it resolves projects
-across several organizations with `useQueries` rather than a loop of `useQuery`, which is what
-keeps the grant list from firing one request per row.
+`projectLookupQueries` is also the codebase's reference for batching: it resolves projects
+across several organizations with `createQueries` rather than a loop of `createQuery`, which is
+what keeps the grant list from firing one request per row.
 
 ## Where the project's contents live
 
@@ -67,9 +68,7 @@ direct-vs-inherited roles with actions.
 ## Structure
 
 Standard three layers. Two mappers, because `listMembers` returns member data rather than
-project data. Two hook files (`useProjects.ts`, `useCreateProject.ts`) are still camelCase from
-before the kebab-case convention — deliberately not renamed, since renaming a file moves its
-Lingui message ownership and drops translations unless the restore script runs.
+project data.
 
 ## Related modules
 

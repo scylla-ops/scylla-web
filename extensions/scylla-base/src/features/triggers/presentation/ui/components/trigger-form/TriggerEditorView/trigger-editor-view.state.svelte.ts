@@ -1,6 +1,6 @@
 import { createQuery } from '@scylla/core-sdk';
 import { triggerQueries } from '@base/features/triggers/presentation/triggers.queries.ts';
-import { triggersNavigation } from '@base/features/triggers/presentation/utils/triggers-navigation.ts';
+import * as triggersNavigation from '@base/features/triggers/presentation/mappers/triggers-navigation.mapper.ts';
 
 /**
  * The page that creates a trigger of a pipeline, or edits one of them (`triggerId`). The trigger
@@ -23,8 +23,6 @@ export const createTriggerEditorView = (
     return (query.data ?? []).find(candidate => candidate.id === id) ?? null;
   });
 
-  const navigation = $derived(triggersNavigation(pipelineId()));
-
   return {
     get isEdit() {
       return isEdit;
@@ -40,7 +38,7 @@ export const createTriggerEditorView = (
     get isUnavailable() {
       return isEdit && !query.isLoading && trigger === null;
     },
-    leave: () => navigation.toList(),
+    leave: () => triggersNavigation.toList(pipelineId()),
   };
 };
 

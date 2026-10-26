@@ -66,7 +66,7 @@ as part of `prebuild` before `dev` and `build`. **Never hand-edit them** — the
 wipes the change.
 
 Just as importantly, generated types stay in infrastructure. Each feature's
-`Grpc{Entity}Mapper` converts proto messages into domain entities and structs, and that is where
+`grpc-{entity}.mapper.ts` converts proto messages into domain entities and structs, and that is where
 proto vocabulary ends. When a domain type and a proto type share a name, the proto one is
 aliased in the mapper; the domain one carries the `Entity` suffix. A proto type appearing in
 `domain/` or `presentation/` is a leak.

@@ -1,24 +1,20 @@
 <script lang="ts">
-  import { json, jsonParseLinter } from '@codemirror/lang-json';
-  import { linter } from '@codemirror/lint';
   import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
-  import { renderCodeMirror } from '@scylla/ui';
-  import { t } from '@scylla/ui/i18n';
-  import { toast } from '@scylla/ui/utils';
-  import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import {
-    createPipelineScript,
-  } from './pipeline-script.state.svelte.ts';
+    createPipelineDocument,
+  } from './pipeline-document.state.svelte.ts';
+  import { pipelineIssueText } from '@base/features/pipeline/presentation/presenters/pipeline-issue.presenter.ts';
+  import { warnBeforeUnload } from './unsaved-changes.effect.svelte.ts';
   import PipelineBlueprint from './blueprint/PipelineBlueprint.svelte';
   import PipelineEditorHeader from './PipelineEditorHeader/PipelineEditorHeader.svelte';
-  import { createScriptEditor } from './script-editor.svelte.ts';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import PipelineScripting from './scripting/PipelineScripting/PipelineScripting.svelte';
 
   interface Props {
     /** `edit` tracks the unsaved changes; `create` does not. */
     mode: 'create' | 'edit';
     submitLabel: string;
-    onSubmit: (values: { name: string; steps: PipelineStep[] }) => void;
+    onSubmit: (values: { name: string; nodes: PipelineNodeEntity[] }) => void;
     /** A default draft, or a fetched pipeline. */
     initialScript?: string;
     projectId?: string;
@@ -34,37 +30,20 @@
     isSubmitPending = false,
   }: Props = $props();
 
-  const doc = createPipelineScript({
+  const doc = createPipelineDocument({
     projectId: () => projectId ?? '',
     initialScript: () => initialScript,
   });
-
-  const parseLinter = jsonParseLinter();
-
-  const editor = createScriptEditor({
-    value: () => doc.script,
-    onChange: next => doc.setScript(next),
-    // An empty editor is not an error: `parseScript` says so too.
-    extensions: () => [
-      json(),
-      linter(view => (view.state.doc.toString().trim() ? parseLinter(view) : [])),
-    ],
-  });
+  warnBeforeUnload(() => doc.isDirty);
 
   const handleSubmit = () => {
-    if (!doc.isValid) return;
-    // Said here, before the server answers with a generic refusal.
-    if (doc.invalidStepIds.length) {
-      toast.error(t(pipelineMessages.invalidStepIds(doc.invalidStepIds.join(', '))));
-      return;
-    }
-    onSubmit({ name: doc.pipelineName, steps: doc.steps });
+    if (doc.isValid) onSubmit({ name: doc.pipelineName, nodes: doc.nodes });
   };
 </script>
 
 <!--
-  The script is the document; the blueprint reads and writes its steps. An invalid
-  script disables the blueprint. Both panels stay mounted, so CodeMirror keeps its scroll.
+  The script is the document; the scripting tab and the blueprint read and write its nodes. An
+  invalid script disables the blueprint. Both panels stay mounted, so CodeMirror keeps its scroll.
 -->
 <Tabs value="blueprint" class="flex h-full flex-col gap-4">
   <div class="flex w-full items-center justify-between gap-4">
@@ -73,6 +52,7 @@
       {submitLabel}
       {mode}
       submitDisabled={!doc.isValid}
+      issue={doc.issue ? pipelineIssueText(doc.issue) : undefined}
       blueprintDisabled={!doc.isValid}
       isDirty={doc.isDirty}
       isSaving={isSubmitPending}
@@ -82,33 +62,16 @@
   </div>
 
   <TabsContent value="scripting" class="min-h-0 flex-1 overflow-hidden">
-    <div class="flex h-full flex-col gap-2">
-      <div class="relative min-h-0 flex-1 overflow-auto p-2">
-        <div
-          class="h-full"
-          {@attach renderCodeMirror(() => ({
-            doc: doc.script,
-            extensions: editor.extensions,
-            hasError: !!doc.parseError,
-            onView: editor.attach,
-          }))}
-        ></div>
-      </div>
-      {#if doc.parseError}
-        <p class="text-sm text-destructive">
-          {t(pipelineMessages.invalidJson)}: {doc.parseError}
-        </p>
-      {/if}
-    </div>
+    <PipelineScripting {doc} {projectId} />
   </TabsContent>
 
   <TabsContent value="blueprint" class="min-h-0 flex-1">
     <Card class="h-full bg-card p-0">
       <PipelineBlueprint
-        steps={doc.steps}
+        nodes={doc.nodes}
         pipelineName={doc.pipelineName}
         {projectId}
-        onStepsChange={steps => doc.setSteps(steps)}
+        onNodesChange={nodes => doc.setNodes(nodes)}
       />
     </Card>
   </TabsContent>

@@ -9,7 +9,7 @@
   import { t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import type { JobsSummary } from '@base/features/jobs';
-  import { dashboardMessages } from '../dashboard.messages.ts';
+  import { dashboardMessages } from '@base/features/dashboard/presentation/messages/dashboard.messages.ts';
 
   interface Props {
     summary: JobsSummary;

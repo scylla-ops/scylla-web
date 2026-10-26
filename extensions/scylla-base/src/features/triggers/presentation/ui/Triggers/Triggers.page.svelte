@@ -6,11 +6,11 @@
   import { ScyllaError } from '@shared/utils/scylla-result.ts';
   import { t } from '@scylla/ui/i18n';
   import { triggerQueries } from '@base/features/triggers/presentation/triggers.queries.ts';
-  import { triggersNavigation } from '@base/features/triggers/presentation/utils/triggers-navigation.ts';
+  import * as triggersNavigation from '@base/features/triggers/presentation/mappers/triggers-navigation.mapper.ts';
   import TriggersHeader from '../components/TriggersHeader/TriggersHeader.svelte';
   import TriggersOverview from '../components/TriggersOverview/TriggersOverview.svelte';
   import TriggersTable from '../triggers-table/TriggersTable.svelte';
-  import { triggersMessages } from '../triggers.messages.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     pipelineId?: string;
@@ -44,7 +44,7 @@
       count={triggers.length}
       triggerIds={triggers.map(trigger => trigger.id)}
       {pipelineId}
-      onNew={() => triggersNavigation(pipelineId).toCreate()}
+      onNew={() => triggersNavigation.toCreate(pipelineId)}
     />
 
     {#if triggers.length > 0}

@@ -6,9 +6,9 @@
   import {
     successRateOf,
     type AgentsSummary,
-  } from '@base/features/agents/domain/structs/agents-summary.struct.ts';
-  import { formatPercent } from '@base/features/agents/presentation/utils/agent-format.ts';
-  import { agentsPageMessages as messages } from './agents-page.messages.ts';
+  } from '@base/features/agents/presentation/presenters/agents-summary.presenter.ts';
+  import { formatPercent } from '@base/features/agents/presentation/presenters/agent-format.presenter.ts';
+  import { agentsPageMessages as messages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';
 
   interface Props {
     summary: AgentsSummary;

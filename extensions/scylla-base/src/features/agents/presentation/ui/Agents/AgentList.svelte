@@ -8,7 +8,7 @@
     AgentRow as AgentRowData,
   } from './agents-page.state.svelte.ts';
   import AgentRow from './AgentRow.svelte';
-  import { agentsPageMessages as messages } from './agents-page.messages.ts';
+  import { agentsPageMessages as messages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';
 
   interface Props {
     rows: AgentRowData[];

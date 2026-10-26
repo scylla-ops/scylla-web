@@ -20,7 +20,7 @@ transport.
 This is a reasonable state to be in, and it illustrates why the layering pays off. The page,
 the hook and the domain contract are all written against `MarketplaceRepository.getMarketplace()`.
 When the backend endpoint appears, the work is confined to `infrastructure/`: add a mapper, give
-the repository the generated client, build that client in the module file. `MarketItem`, `useMarketplace` and every component stay
+the repository the generated client, build that client in the module file. `MarketItem`, `marketplaceQueries` and every component stay
 exactly as they are.
 
 ## How it is built

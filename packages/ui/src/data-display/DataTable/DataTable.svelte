@@ -4,9 +4,9 @@
   import type { Row, RowData } from '@tanstack/table-core';
   import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
-  import { t } from '../../i18n/i18n-svelte.svelte.ts';
+  import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import { dataTableMessages } from './data-table.messages.ts';
-  import { createCompactContainer } from '../../state/compact-container.svelte.ts';
+  import { createCompactContainer } from '../../state/compact-container.state.svelte.ts';
   import { setDataTableLayout } from './data-table-layout.ts';
   import {
     CARD_LAYOUT_WIDTH_PX,

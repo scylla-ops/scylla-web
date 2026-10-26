@@ -12,10 +12,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/platform/authz/presentation/ui/PermissionDenied/permission-denied.messages.ts:5
+#: extensions/scylla-base/src/platform/authz/presentation/messages/permission-denied.messages.ts:5
 msgid "Ask an administrator to grant you access if you think you should have it."
 msgstr "Demandez à un administrateur de vous accorder l'accès si vous pensez y avoir droit."
 
-#: extensions/scylla-base/src/platform/authz/presentation/ui/PermissionDenied/permission-denied.messages.ts:4
+#: extensions/scylla-base/src/platform/authz/presentation/messages/permission-denied.messages.ts:4
 msgid "You don't have the permission"
 msgstr "Vous n'avez pas la permission"

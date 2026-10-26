@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findTooltip, queryTooltip, render, textSnippet } from '@test/render.svelte.ts';
+import { findTooltip, queryTooltip, render, textSnippet } from '@test/render.ts';
 import TruncatedText from './TruncatedText.svelte';
 
 /** jsdom lays out nothing: fake the widths. */

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import PipelineEditorHeaderFixture from './PipelineEditorHeader.fixture.svelte';
 
 const onSubmit = vi.fn();
@@ -36,6 +36,14 @@ describe('PipelineEditorHeader', () => {
     renderHeader({ mode: 'create', submitLabel: 'Create' });
 
     expect(screen.getByText('Draft: not created yet')).toBeInTheDocument();
+  });
+
+  it('says why the pipeline cannot be saved, and disables Save', () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ isDirty: true, issue: 'Two nodes or more have the ID build.' });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Two nodes or more have the ID build.');
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
   it('shows unsaved changes, then saving, then saved', async () => {

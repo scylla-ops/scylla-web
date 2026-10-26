@@ -8,7 +8,7 @@
     SelectValue,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
   import type { AccessKind } from './role-form.state.svelte.ts';
 
   interface Props {

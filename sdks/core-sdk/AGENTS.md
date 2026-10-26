@@ -47,7 +47,7 @@ src/
               widget-injection.struct.ts     WidgetInjection
               widget-injection-registry.ts   WidgetInjectionRegistry (keyed by point object), setWidgetInjectionRegistry
               build-widget-injection-registry.ts  buildWidgetInjectionRegistry — load order + conflict checks, for the loader and the tests
-              widget-zone.calculator.ts      resolveZone (pure, internal)
+              widget-zone.presenter.ts       resolveZone (pure, internal)
               WidgetZone/WidgetZone.svelte   WidgetZone — opens a zone in the owner's markup
               load-injected-component.ts     one cached promise per RegisteredComponent
               report-widget-injection-error.ts
@@ -153,7 +153,7 @@ export const EmailLoginWidgetInjection = [
   `installWidgetInjectionsForTest({ EmailLoginWidgetInjection })` installs it with
   no owner/dependency check — render your component, read the overridden
   texts, resolve the patched value. The stricter path (the one `loadExtensions` actually runs)
-  is `test/render.svelte.ts`'s `withWidgetInjections`, for this repo's own tests.
+  is `test/render.ts`'s `withWidgetInjections`, for this repo's own tests.
 
 ## `Register` — the type of a route's `permission`
 
@@ -186,7 +186,7 @@ called by `startCore`, once. Extensions only read: `navigateTo`, `routeParams`,
   `package.json` that names `@tanstack/query-core` names the same version. Two copies fork the
   cache silently.
 - `getQueryClient()` falls back to a plain client until the core installs the app's. A test
-  installs its own with `withQueryClient()` (`test/render.svelte.ts`, `retry: false`).
+  installs its own with `withQueryClient()` (`test/render.ts`, `retry: false`).
 - `installedExtensions()` is empty until the core starts. Read it per call, never at import
   time: the modules load before `startCore` installs it.
 - `routeParams()` and `routeTrail()` are empty until a router is installed; `currentPathname()`

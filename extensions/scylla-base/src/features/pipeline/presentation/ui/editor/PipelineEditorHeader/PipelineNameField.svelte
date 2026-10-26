@@ -2,8 +2,8 @@
   import WorkflowIcon from '@lucide/svelte/icons/workflow';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
-  import { pipelineNameIssue } from '@base/features/pipeline/presentation/utils/pipeline-script.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import { pipelineNameIssue } from '@base/features/pipeline/domain/structs/pipeline-name.struct.ts';
 
   interface Props {
     /** Read once: the header rebuilds the field when the document's name changes. */

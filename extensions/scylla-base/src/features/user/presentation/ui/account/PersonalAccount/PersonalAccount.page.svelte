@@ -2,7 +2,7 @@
   import { t } from '@scylla/ui/i18n';
   import { signOut } from '@base/features/login';
   import AccountPage from '../Account/Account.page.svelte';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 </script>
 
 <!--

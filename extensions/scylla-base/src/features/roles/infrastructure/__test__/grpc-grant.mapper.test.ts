@@ -1,11 +1,11 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { GrpcGrantMapper } from '../grpc-grant.mapper.ts';
+import * as grpcGrant from '../grpc-grant.mapper.ts';
 import type { Grant } from '@base/generated/scylla/authz/v1/grant.ts';
 import { PermissionScope, PrincipalKind } from '@platform/authz';
 import type { CreateGrantInput } from '@base/features/roles/domain/repository/permission.repository.ts';
 
-describe('GrpcGrantMapper.toDomain', () => {
+describe('grpcGrant.toDomain', () => {
   const grant = (overrides: Partial<Grant> = {}): Grant => ({
     grantId: { value: 'grant-1' },
     principal: { principal: { oneofKind: 'user', user: { userId: { value: 'user-1' } } } },
@@ -15,7 +15,7 @@ describe('GrpcGrantMapper.toDomain', () => {
   });
 
   it('unwraps ids, flattens the principal and scope refs', () => {
-    expect(GrpcGrantMapper.toDomain(grant())).toEqual({
+    expect(grpcGrant.toDomain(grant())).toEqual({
       id: 'grant-1',
       principal: { kind: PrincipalKind.USER, id: 'user-1' },
       roleId: 'role-1',
@@ -25,20 +25,20 @@ describe('GrpcGrantMapper.toDomain', () => {
   });
 
   it('an app-principal grant maps its principal kind accordingly', () => {
-    const domain = GrpcGrantMapper.toDomain(
+    const domain = grpcGrant.toDomain(
       grant({ principal: { principal: { oneofKind: 'app', app: { appId: { value: 'app-1' } } } } }),
     );
     expect(domain.principal).toEqual({ kind: PrincipalKind.APP, id: 'app-1' });
   });
 
   it('defaults to empty strings when the id wrappers are absent (never crashes)', () => {
-    const domain = GrpcGrantMapper.toDomain(grant({ grantId: undefined, role: undefined }));
+    const domain = grpcGrant.toDomain(grant({ grantId: undefined, role: undefined }));
     expect(domain.id).toBe('');
     expect(domain.roleId).toBe('');
   });
 });
 
-describe('GrpcGrantMapper.toGrpcCreateRequest', () => {
+describe('grpcGrant.toGrpcCreateRequest', () => {
   it('builds the wire request from a domain CreateGrantInput', () => {
     const input: CreateGrantInput = {
       principal: { kind: PrincipalKind.USER, id: 'user-1' },
@@ -47,7 +47,7 @@ describe('GrpcGrantMapper.toGrpcCreateRequest', () => {
       scopeId: 'project-1',
     };
 
-    expect(GrpcGrantMapper.toGrpcCreateRequest(input)).toEqual({
+    expect(grpcGrant.toGrpcCreateRequest(input)).toEqual({
       principal: { principal: { oneofKind: 'user', user: { userId: { value: 'user-1' } } } },
       scope: { scope: { oneofKind: 'project', project: { projectId: { value: 'project-1' } } } },
       role: { value: 'role-1' },
@@ -61,7 +61,7 @@ describe('GrpcGrantMapper.toGrpcCreateRequest', () => {
       scope: PermissionScope.PROJECT,
       scopeId: 'project-1',
     };
-    expect(() => GrpcGrantMapper.toGrpcCreateRequest(input)).toThrow(/principal must be chosen/);
+    expect(() => grpcGrant.toGrpcCreateRequest(input)).toThrow(/principal must be chosen/);
   });
 
   it("propagates the scope-mapper's refusal of an UNSPECIFIED scope", () => {
@@ -71,6 +71,6 @@ describe('GrpcGrantMapper.toGrpcCreateRequest', () => {
       scope: PermissionScope.UNSPECIFIED,
       scopeId: '',
     };
-    expect(() => GrpcGrantMapper.toGrpcCreateRequest(input)).toThrow(/scope must be chosen/);
+    expect(() => grpcGrant.toGrpcCreateRequest(input)).toThrow(/scope must be chosen/);
   });
 });

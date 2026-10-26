@@ -23,7 +23,7 @@
     createGrantCreator,
   } from './grant-creator.state.svelte.ts';
   import type { RolesScope } from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
-  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
   import TargetChecklist from './TargetChecklist.svelte';
 
   interface Props {

@@ -11,7 +11,7 @@ import {
 import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
-import { withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {
   PermissionRepository,

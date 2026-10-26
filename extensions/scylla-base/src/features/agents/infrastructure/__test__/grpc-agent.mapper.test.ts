@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { GrpcAgentMapper } from '../grpc-agent.mapper.ts';
+import * as grpcAgent from '../grpc-agent.mapper.ts';
 import type { Agent, AgentHost, AgentStats } from '@base/generated/scylla/agent/v1/agent_admin.ts';
 import { JobOutcome, type Job } from '@base/generated/scylla/job/v1/job.ts';
 
@@ -21,9 +21,9 @@ const baseAgent = (overrides: Partial<Agent> = {}): Agent => ({
   ...overrides,
 });
 
-describe('GrpcAgentMapper.toDomain', () => {
+describe('grpcAgent.toDomain', () => {
   it('unwraps ids, formats timestamps, and carries scalar fields through', () => {
-    const domain = GrpcAgentMapper.toDomain(baseAgent());
+    const domain = grpcAgent.toDomain(baseAgent());
     expect(domain.id).toBe('agent-1');
     expect(domain.organizationId).toBe('org-1');
     expect(domain.name).toBe('runner-1');
@@ -36,7 +36,7 @@ describe('GrpcAgentMapper.toDomain', () => {
   });
 
   it('host is null when the agent has never said hello', () => {
-    expect(GrpcAgentMapper.toDomain(baseAgent({ host: undefined })).host).toBeNull();
+    expect(grpcAgent.toDomain(baseAgent({ host: undefined })).host).toBeNull();
   });
 
   describe('host', () => {
@@ -52,7 +52,7 @@ describe('GrpcAgentMapper.toDomain', () => {
     });
 
     it('maps a fully-reported host', () => {
-      const domain = GrpcAgentMapper.toDomain(baseAgent({ host: host() })).host;
+      const domain = grpcAgent.toDomain(baseAgent({ host: host() })).host;
       expect(domain).toEqual({
         version: '1.2.3',
         os: 'linux',
@@ -66,28 +66,26 @@ describe('GrpcAgentMapper.toDomain', () => {
 
     it('a cpuCount of 0 (never reported, not "zero cores") reads as null', () => {
       expect(
-        GrpcAgentMapper.toDomain(baseAgent({ host: host({ cpuCount: 0 }) })).host?.cpuCount,
+        grpcAgent.toDomain(baseAgent({ host: host({ cpuCount: 0 }) })).host?.cpuCount,
       ).toBeNull();
     });
 
     it('a totalMemoryMb of 0 reads as null the same way', () => {
       expect(
-        GrpcAgentMapper.toDomain(baseAgent({ host: host({ totalMemoryMb: 0n }) })).host
-          ?.totalMemoryMb,
+        grpcAgent.toDomain(baseAgent({ host: host({ totalMemoryMb: 0n }) })).host?.totalMemoryMb,
       ).toBeNull();
     });
 
     it('a positive totalMemoryMb converts the bigint to a plain number', () => {
-      const totalMemoryMb = GrpcAgentMapper.toDomain(
-        baseAgent({ host: host({ totalMemoryMb: 32000n }) }),
-      ).host?.totalMemoryMb;
+      const totalMemoryMb = grpcAgent.toDomain(baseAgent({ host: host({ totalMemoryMb: 32000n }) }))
+        .host?.totalMemoryMb;
       expect(totalMemoryMb).toBe(32000);
       expect(typeof totalMemoryMb).toBe('number');
     });
   });
 });
 
-describe('GrpcAgentMapper.statsToDomain', () => {
+describe('grpcAgent.statsToDomain', () => {
   const baseStats = (overrides: Partial<AgentStats> = {}): AgentStats => ({
     total: 100n,
     pending: 1n,
@@ -104,7 +102,7 @@ describe('GrpcAgentMapper.statsToDomain', () => {
   });
 
   it('converts every bigint counter to a plain number', () => {
-    const domain = GrpcAgentMapper.statsToDomain(baseStats());
+    const domain = grpcAgent.statsToDomain(baseStats());
     expect(domain).toMatchObject({
       total: 100,
       pending: 1,
@@ -118,13 +116,13 @@ describe('GrpcAgentMapper.statsToDomain', () => {
   });
 
   it('an unset medianDurationMs/p95DurationMs reads as null, not 0 (no job has run yet vs. a 0ms run)', () => {
-    const domain = GrpcAgentMapper.statsToDomain(baseStats());
+    const domain = grpcAgent.statsToDomain(baseStats());
     expect(domain.medianDurationMs).toBeNull();
     expect(domain.p95DurationMs).toBeNull();
   });
 
   it('a set duration converts from bigint to a plain number', () => {
-    const domain = GrpcAgentMapper.statsToDomain(
+    const domain = grpcAgent.statsToDomain(
       baseStats({ medianDurationMs: 1500n, p95DurationMs: 4200n }),
     );
     expect(domain.medianDurationMs).toBe(1500);
@@ -132,7 +130,7 @@ describe('GrpcAgentMapper.statsToDomain', () => {
   });
 
   it('maps each daily bucket, including its own optional medianDurationMs', () => {
-    const domain = GrpcAgentMapper.statsToDomain(
+    const domain = grpcAgent.statsToDomain(
       baseStats({
         daily: [
           {
@@ -161,7 +159,7 @@ describe('GrpcAgentMapper.statsToDomain', () => {
   });
 });
 
-describe('GrpcAgentMapper.jobToDomain', () => {
+describe('grpcAgent.jobToDomain', () => {
   const job = (state: Job['state']): Job => ({
     jobId: { value: 'job-1' },
     pipelineId: { value: 'pipeline-1' },
@@ -173,7 +171,7 @@ describe('GrpcAgentMapper.jobToDomain', () => {
   });
 
   it('gives a finished job its outcome and its start and end times', () => {
-    const domain = GrpcAgentMapper.jobToDomain(
+    const domain = grpcAgent.jobToDomain(
       job({
         oneofKind: 'terminal',
         terminal: { outcome: JobOutcome.FAILED, startedAt: TS, finishedAt: TS },
@@ -191,14 +189,14 @@ describe('GrpcAgentMapper.jobToDomain', () => {
   });
 
   it('names the states the way the jobs pages do', () => {
-    expect(GrpcAgentMapper.jobToDomain(job({ oneofKind: 'pending', pending: {} })).status).toBe(
+    expect(grpcAgent.jobToDomain(job({ oneofKind: 'pending', pending: {} })).status).toBe(
       'pending',
     );
     expect(
-      GrpcAgentMapper.jobToDomain(job({ oneofKind: 'running', running: { startedAt: TS } })).status,
+      grpcAgent.jobToDomain(job({ oneofKind: 'running', running: { startedAt: TS } })).status,
     ).toBe('running');
     expect(
-      GrpcAgentMapper.jobToDomain(
+      grpcAgent.jobToDomain(
         job({ oneofKind: 'terminal', terminal: { outcome: JobOutcome.ORPHANED } }),
       ).status,
     ).toBe('orphaned');
@@ -206,10 +204,10 @@ describe('GrpcAgentMapper.jobToDomain', () => {
 
   it('never reads a newer outcome as a success', () => {
     expect(
-      GrpcAgentMapper.jobToDomain(
+      grpcAgent.jobToDomain(
         job({ oneofKind: 'terminal', terminal: { outcome: JobOutcome.UNSPECIFIED } }),
       ).status,
     ).toBe('unknown');
-    expect(GrpcAgentMapper.jobToDomain(job({ oneofKind: undefined })).status).toBe('unknown');
+    expect(grpcAgent.jobToDomain(job({ oneofKind: undefined })).status).toBe('unknown');
   });
 });

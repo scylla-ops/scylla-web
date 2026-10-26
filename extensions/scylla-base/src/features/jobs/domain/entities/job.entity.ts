@@ -1,4 +1,4 @@
-import type { JobNodeExecution } from '@base/features/jobs/domain/structs/job.struct.ts';
+import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
 
 export interface JobEntity {
   id: string;
@@ -10,4 +10,25 @@ export interface JobEntity {
   /** When a worker picked it up. Unset while pending. */
   startedAt?: string;
   finishedAt?: string;
+}
+
+export interface JobNodeExecution {
+  id: string;
+  state: string;
+  startedAt?: string;
+  finishedAt?: string;
+}
+
+export interface JobLog {
+  id: string;
+  jobId: string;
+  nodeId: string;
+  stream: string;
+  line: string;
+  timestamp: string;
+}
+
+export interface JobLogStream {
+  logs: AsyncIterable<ScyllaResult<JobLog>>;
+  cancel: () => void;
 }

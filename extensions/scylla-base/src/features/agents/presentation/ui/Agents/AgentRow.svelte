@@ -12,14 +12,14 @@
     memoryAmount,
     shortId,
     versionTag,
-  } from '@base/features/agents/presentation/utils/agent-format.ts';
+  } from '@base/features/agents/presentation/presenters/agent-format.presenter.ts';
   import AgentActionsMenu from '../components/AgentActionsMenu.svelte';
   import AgentBot from '../components/AgentBot/AgentBot.svelte';
-  import { agentsMessages } from '../agents.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
   import AccessBadges from './AccessBadges.svelte';
   import AgentActivity from './AgentActivity.svelte';
   import JobsSparkline from './JobsSparkline.svelte';
-  import { agentsPageMessages as messages } from './agents-page.messages.ts';
+  import { agentsPageMessages as messages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';
 
   interface Props {
     row: AgentRow;

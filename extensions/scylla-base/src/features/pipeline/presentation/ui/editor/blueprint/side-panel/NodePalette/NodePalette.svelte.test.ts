@@ -1,16 +1,16 @@
 import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import type { StepTemplate } from '@base/features/pipeline/domain/structs/step-template.struct.ts';
+import type { NodeTemplateEntity } from '@base/features/pipeline/domain/entities/node-template.entity.ts';
 import { flushSync } from 'svelte';
-import { catalogEntries } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/catalog.ts';
+import { catalogEntries } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
 import {
   createPaletteDrag,
   type PaletteDrag,
 } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag/palette-drag.state.svelte.ts';
 import NodePalette from './NodePalette.svelte';
 
-const template: StepTemplate = {
+const template: NodeTemplateEntity = {
   id: 'npm-ci',
   name: 'npm ci',
   nodeId: 'install-deps',
@@ -19,10 +19,10 @@ const template: StepTemplate = {
 const entries = catalogEntries([template]);
 
 describe('NodePalette', () => {
-  it('offers the blank steps and the templates, in two groups', () => {
+  it('offers the blank nodes and the templates, in two groups', () => {
     render(NodePalette, { entries, onAdd: vi.fn() });
 
-    expect(screen.getByRole('heading', { name: 'Steps' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Nodes' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Templates' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Bash script/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /npm ci/ })).toBeInTheDocument();
@@ -42,7 +42,7 @@ describe('NodePalette', () => {
 
     await userEvent.type(screen.getByRole('textbox', { name: 'Search a node' }), 'npm');
 
-    expect(screen.queryByRole('heading', { name: 'Steps' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Nodes' })).not.toBeInTheDocument();
     expect(screen.getAllByRole('button')).toHaveLength(1);
   });
 

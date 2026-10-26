@@ -6,7 +6,7 @@
     UserSessionEntity,
   } from '@base/features/user/domain/entities/user-session.entity.ts';
   import SessionRow from './SessionRow/SessionRow.svelte';
-  import { userMessages } from '../user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   interface Props {
     sessions: UserSessionEntity[] | undefined;

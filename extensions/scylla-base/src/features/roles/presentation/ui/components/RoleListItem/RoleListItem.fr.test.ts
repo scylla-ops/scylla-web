@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { Permission, PermissionScope, RoleKind } from '@platform/authz';
 import { messages } from '@base/features/roles/locales/fr/messages.ts';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import { withLocale } from '@test/i18n.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import RoleListItem from './RoleListItem.svelte';

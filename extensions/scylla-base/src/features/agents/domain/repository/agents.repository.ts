@@ -2,12 +2,10 @@ import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {
   CreatedAgent,
   AgentStats,
-} from '@base/features/agents/domain/structs/agent.struct.ts';
-import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-import type {
+  AgentEntity,
   AgentJob,
   PipelineName,
-} from '@base/features/agents/domain/structs/agent-job.struct.ts';
+} from '@base/features/agents/domain/entities/agent.entity.ts';
 
 export interface AgentsRepository {
   listAgents(organizationId: string): Promise<ScyllaResult<AgentEntity[]>>;

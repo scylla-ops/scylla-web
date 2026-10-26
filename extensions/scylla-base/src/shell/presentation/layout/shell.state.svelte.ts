@@ -6,7 +6,7 @@ import { organizationMutations, organizationQueries } from '@base/features/organ
 import { syncMyPermissions } from '@base/features/roles';
 
 /** Loads the user's organizations and keeps the permissions in sync with the context. Create it once, in `Layout`. */
-export const createShellState = () => {
+export const createShell = () => {
   const organizations = createQuery(() => organizationQueries.mine());
   const createOrganization = createMutation(() => organizationMutations.create());
   const context = toRune(contextStore);
@@ -37,4 +37,4 @@ export const createShellState = () => {
   };
 };
 
-export type ShellState = ReturnType<typeof createShellState>;
+export type Shell = ReturnType<typeof createShell>;

@@ -10,7 +10,7 @@
   import UserProfileForm from '@base/features/user/presentation/ui/components/UserProfileForm/UserProfileForm.svelte';
   import ChangePasswordForm from './ChangePasswordForm.svelte';
   import DeleteAccountDialog from '../DeleteAccountDialog/DeleteAccountDialog.svelte';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   const page = createAccountPage();
 </script>

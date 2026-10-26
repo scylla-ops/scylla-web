@@ -14,8 +14,8 @@
     organizationIdOf,
     type RolesScope,
   } from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
-  import { scopeLabelOf } from '@base/features/roles/presentation/utils/permission-mapping.ts';
-  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
+  import { scopeLabelOf } from '@base/features/roles/presentation/presenters/permission-label.presenter.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
   import RolePermissions from './RolePermissions/RolePermissions.svelte';
   import RoleAccessField from './RoleAccessField.svelte';
   import RoleFormSection from './RoleFormSection.svelte';

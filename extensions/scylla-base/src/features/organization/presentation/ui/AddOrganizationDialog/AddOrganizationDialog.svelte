@@ -12,8 +12,8 @@
   } from '@base/features/organization/presentation/organization.queries.ts';
   import {
     createOrganizationItems,
-  } from '@base/features/organization/presentation/utils/create-organization-form-items.ts';
-  import { organizationMessages } from '../organization.messages.ts';
+  } from '@base/features/organization/presentation/presenters/organization-form.presenter.ts';
+  import { organizationMessages } from '@base/features/organization/presentation/messages/organization.messages.ts';
 
   interface Props {
     open: boolean;

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findTooltip, render } from '@test/render.svelte.ts';
+import { findTooltip, render } from '@test/render.ts';
 import TooltipFixture from './tooltip.fixture.svelte';
 
 /**

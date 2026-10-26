@@ -4,7 +4,7 @@
   import type {
     TargetOption,
   } from './grant-creator.state.svelte.ts';
-  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
 
   interface Props {
     label: string;

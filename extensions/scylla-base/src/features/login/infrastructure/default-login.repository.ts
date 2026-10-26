@@ -4,7 +4,7 @@ import type { PasswordResetDelivery } from '@base/features/login/domain/structs/
 import type { IAuthServiceClient } from '@base/generated/scylla/auth/v1/auth.client.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { idValue } from '@shared/infrastructure/grpc/wrappers.ts';
-import { GrpcPasswordResetMapper } from './grpc-password-reset.mapper.ts';
+import * as grpcPasswordReset from './grpc-password-reset.mapper.ts';
 import { openSession } from './session.ts';
 
 /**
@@ -34,7 +34,7 @@ export class DefaultLoginRepository implements LoginRepository {
   public requestPasswordReset(email: string): Promise<ScyllaResult<PasswordResetDelivery>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.requestPasswordReset({ email: { value: email } }).response;
-      return GrpcPasswordResetMapper.deliveryToDomain(response.delivery);
+      return grpcPasswordReset.deliveryToDomain(response.delivery);
     }, 'Failed to request a password reset.');
   }
 
