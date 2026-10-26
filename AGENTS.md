@@ -62,6 +62,7 @@ Lingui) covers every package. `vite.config.ts` builds `apps/web` into `dist/`.
 | `pnpm coverage` | Vitest + v8 coverage, enforces the thresholds in `vite.config.ts` |
 | `pnpm lint` | ESLint, `--max-warnings 0` (warnings are errors). Slow (~20 min) and needs an 8 GB heap, which the script sets |
 | `pnpm lint:fix` | ESLint with `--fix` |
+| `pnpm format:check` | Prettier, `.svelte` files included — **must be clean**. `pnpm format` writes the fixes |
 | `pnpm gen-proto` | Generate gRPC/protobuf-ts clients |
 | `pnpm extract` / `pnpm compile` | Lingui: extract messages (`--clean`, drops obsolete entries) / compile catalogs |
 | `pnpm depcruise` | Architecture rules: layer direction **and** public-API surface — **must be clean** |
@@ -83,10 +84,11 @@ the alias when TypeScript 7.1 and these tools support the new API.
 
 `prebuild` = `gen-proto` + `extract` + `compile`, and runs before `dev` and `build`. **Do not hand-edit generated proto code or compiled locale `messages.ts` files** — regenerate them.
 
-Before considering work done: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm depcruise`,
-`pnpm depcruise:cycles` and `pnpm i18n:collisions` must all pass clean (zero warnings, zero
-failures, zero violations, zero cycles, zero collisions). CI runs all six, and also checks that
-no commit of the branch names an AI agent as author or co-author (`pnpm check:authors`).
+Before considering work done: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`,
+`pnpm depcruise`, `pnpm depcruise:cycles` and `pnpm i18n:collisions` must all pass clean (zero
+warnings, zero failures, zero violations, zero cycles, zero collisions). CI runs all seven, and
+also checks that no commit of the branch names an AI agent as author or co-author
+(`pnpm check:authors`).
 
 **After moving any component between modules**, run `node scripts/restore-translations.mjs` —
 Lingui catalogs are per-module and keyed by source string, so `extract` silently drops the
@@ -789,7 +791,7 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
 - Inside scylla-base, a relative import goes up one level at most (`./x`, `../x`). Above that,
   use the alias: `@platform/` for `platform/`, `@shared/` for `shared/`, `@base/` for the rest
   (`@base/features/agents/domain/structs/agent-state.struct.ts`, not `../../../../domain/…`).
-- Prettier: semicolons, single quotes (incl. JSX), 2-space tabs, trailing commas (all), printWidth 100, `arrowParens: avoid`. Match this style; don't reformat unrelated code.
+- Prettier: semicolons, single quotes (incl. JSX), 2-space tabs, trailing commas (all), printWidth 100, `arrowParens: avoid` (`.prettierrc`). `pnpm format:check` is a CI gate; run `pnpm format` before you commit.
 - Routing: written in the project, in `@scylla/core` (no router library); the declaration
   types are in `@scylla/core-sdk`. The mounts of scylla-base are in `ShellModule`
   (`shell/shell.module.ts`); the routes of the `app` mount and below are wrapped by `AppLayout`
@@ -875,8 +877,8 @@ Because of that, the tooling of this repo must work from another root. Keep it s
     why it is built that way.
 11. Tests in the component's folder or in `__test__/` (`*.test.ts`) — see "Testing" above. Run `pnpm coverage`:
     the thresholds are the gate that sees a module arrive without tests.
-12. `pnpm typecheck && pnpm test && pnpm lint && pnpm depcruise && pnpm depcruise:cycles &&
-    pnpm i18n:collisions` all clean.
+12. `pnpm typecheck && pnpm test && pnpm lint && pnpm format:check && pnpm depcruise &&
+    pnpm depcruise:cycles && pnpm i18n:collisions` all clean.
 
 ---
 
@@ -918,4 +920,4 @@ Because of that, the tooling of this repo must work from another root. Keep it s
    re-exports its barrels, and add the pair of rules to `.dependency-cruiser.cjs`
    (`sdk-is-the-door` names scylla-base today).
 10. `AGENTS.md` + `README.md` at its root, a row in the root `README.md`.
-11. All six gates clean.
+11. All seven gates clean.

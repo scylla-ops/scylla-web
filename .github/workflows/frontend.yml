@@ -54,6 +54,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Early: it needs no generated code, so a bad format fails fast.
+      - name: Formatting
+        run: pnpm run format:check
+
       # src/generated is gitignored, so nothing below can run without this.
       - name: Generate proto clients
         run: pnpm run gen-proto

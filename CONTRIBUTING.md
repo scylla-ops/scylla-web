@@ -107,6 +107,7 @@ pass with zero warnings, zero failures, zero violations, zero cycles and zero co
 | `pnpm typecheck` | TypeScript, `.svelte` files included |
 | `pnpm test` (`pnpm coverage` in CI) | The Vitest suite, and the coverage thresholds |
 | `pnpm lint` | ESLint, warnings are errors. It is slow (about 20 minutes) |
+| `pnpm format:check` | Prettier formatting. `pnpm format` writes the fixes |
 | `pnpm depcruise` | The architecture: layer direction and public APIs |
 | `pnpm depcruise:cycles` | No dependency cycle between modules |
 | `pnpm i18n:collisions` | No message translated in two different ways |
@@ -156,6 +157,7 @@ The full rules are in [`AGENTS.md`](AGENTS.md). The ones that a review asks for 
   No snapshots. Name a test after the rule it pins.
 - **Comments.** Few and short, only where the code cannot speak for itself.
 - **Formatting.** Prettier: single quotes, semicolons, 2 spaces, trailing commas, 100 columns.
+  Run `pnpm format` before you commit.
 
 ## Report a bug or ask for a feature
 

@@ -44,6 +44,7 @@ The app will be available at `http://localhost:5173`. All commands run from the 
 | `pnpm preview` | Preview production build locally |
 | `pnpm typecheck` | Run TypeScript type checking |
 | `pnpm lint` | Run ESLint |
+| `pnpm format` | Format the code with Prettier |
 | `pnpm test` | Run the tests of every package |
 | `pnpm depcruise` | Check the package and module boundaries |
 | `pnpm gen-proto` | Regenerate gRPC TypeScript clients from proto files |
