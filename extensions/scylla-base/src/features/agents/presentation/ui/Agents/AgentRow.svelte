@@ -4,9 +4,7 @@
   import { Skeleton, TableCell, TableRow } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import type {
-    AgentActions,
-  } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
+  import type { AgentActions } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
   import type { AgentRow } from './agents-page.state.svelte.ts';
   import {
     memoryAmount,
@@ -84,7 +82,9 @@
         <span class="flex items-center gap-2 text-sm">
           <span class="truncate">{host.hostname}</span>
           {#if host.version}
-            <span class="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+            <span
+              class="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground"
+            >
               {versionTag(host.version)}
             </span>
           {/if}

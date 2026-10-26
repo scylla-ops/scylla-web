@@ -132,9 +132,7 @@
             aria-label={t(jobsMessages.wholeJob)}
             class="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-border shadow-sm"
           >
-            <header
-              class="flex h-9 shrink-0 items-center border-b border-border bg-muted/40 px-3"
-            >
+            <header class="flex h-9 shrink-0 items-center border-b border-border bg-muted/40 px-3">
               <p class="truncate text-sm font-medium text-foreground">
                 {t(jobsMessages.wholeJob)}
               </p>
@@ -150,9 +148,7 @@
               aria-label={id}
               class="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-border shadow-sm"
             >
-              <header
-                class="flex shrink-0 items-center border-b border-border bg-muted/40 pr-2"
-              >
+              <header class="flex shrink-0 items-center border-b border-border bg-muted/40 pr-2">
                 <Button
                   variant="ghost"
                   type="button"

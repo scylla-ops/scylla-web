@@ -48,7 +48,11 @@ describe('ScyllaGrpcTransport', () => {
   });
 
   it('calls a request that does not get to the server UNAVAILABLE, whatever the browser says', async () => {
-    for (const text of ['Failed to fetch', 'Load failed', 'NetworkError when attempting to fetch']) {
+    for (const text of [
+      'Failed to fetch',
+      'Load failed',
+      'NetworkError when attempting to fetch',
+    ]) {
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError(text)));
 
       await expect(listSecrets()).rejects.toMatchObject({ code: 'UNAVAILABLE' });

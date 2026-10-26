@@ -1,6 +1,11 @@
 import type { XYPosition } from '@xyflow/svelte';
 import type { NodeLink } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.state.svelte.ts';
-import { groupCatalog, searchCatalog, type CatalogEntry, type CatalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+import {
+  groupCatalog,
+  searchCatalog,
+  type CatalogEntry,
+  type CatalogText,
+} from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
 
 /** Where the menu opened, and where the node it picks goes. */
 export interface QuickAddRequest {

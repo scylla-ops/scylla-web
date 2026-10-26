@@ -2,9 +2,7 @@
   import { ScyllaDialog } from '@scylla/ui';
   import { Button, DialogFooter } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import {
-    onboardingMessages,
-  } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
+  import { onboardingMessages } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
   import { SCYLLA_DOCS_URL } from './tour-steps.registry.ts';
 
   interface Props {
@@ -34,7 +32,8 @@
     {t(onboardingMessages.seeDocumentation)}
   </a>
   <DialogFooter class="items-center gap-2">
-    <Button variant="outline" size="sm" onclick={onSkip}>{t(onboardingMessages.confirmSkip)}</Button>
+    <Button variant="outline" size="sm" onclick={onSkip}>{t(onboardingMessages.confirmSkip)}</Button
+    >
     <Button size="sm" onclick={onContinue}>{t(onboardingMessages.continueTour)}</Button>
   </DialogFooter>
 </ScyllaDialog>

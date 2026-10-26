@@ -4,9 +4,12 @@
   import { cn } from '@scylla/ui/utils';
   import UnplugIcon from '@lucide/svelte/icons/unplug';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
-  import { MINIMAL_NODE, minimalHandleStyle } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
+  import {
+    MINIMAL_NODE,
+    minimalHandleStyle,
+  } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import { handleClass } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
-import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
+  import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
 
   let { node, selected, summary, detached }: PipelineNodeViewProps = $props();
 
@@ -51,6 +54,16 @@ import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
     <p class="text-[11px] text-muted-foreground">{summary.kind}</p>
   </div>
 
-  <Handle type="target" position={Position.Left} class={handle} style={minimalHandleStyle('left')} />
-  <Handle type="source" position={Position.Right} class={handle} style={minimalHandleStyle('right')} />
+  <Handle
+    type="target"
+    position={Position.Left}
+    class={handle}
+    style={minimalHandleStyle('left')}
+  />
+  <Handle
+    type="source"
+    position={Position.Right}
+    class={handle}
+    style={minimalHandleStyle('right')}
+  />
 </div>

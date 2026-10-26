@@ -5,7 +5,7 @@
   import { Badge, Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { UserAccess } from '@base/features/user/domain/entities/user.entity.ts';
-import { groupUserAccess } from '@base/features/user/presentation/presenters/user-access.presenter.ts';
+  import { groupUserAccess } from '@base/features/user/presentation/presenters/user-access.presenter.ts';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   interface Props {

@@ -33,7 +33,10 @@ const setUp = (getMine: () => Promise<typeof organizations>) => {
   remove = vi.fn().mockResolvedValue(undefined);
   const repository = { getMine, delete: remove } as unknown as OrganizationRepository;
   const cache = withQueryClient();
-  teardown = [cache.restore, withRegistry({ organization: { organizationRepository: repository } })];
+  teardown = [
+    cache.restore,
+    withRegistry({ organization: { organizationRepository: repository } }),
+  ];
 };
 
 beforeEach(() => {

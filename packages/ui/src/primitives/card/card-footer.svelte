@@ -8,6 +8,10 @@
   let { class: className, children, ...rest }: Props = $props();
 </script>
 
-<div data-slot="card-footer" class={cn('flex items-center px-6 [.border-t]:pt-6', className)} {...rest}>
+<div
+  data-slot="card-footer"
+  class={cn('flex items-center px-6 [.border-t]:pt-6', className)}
+  {...rest}
+>
   {@render children?.()}
 </div>

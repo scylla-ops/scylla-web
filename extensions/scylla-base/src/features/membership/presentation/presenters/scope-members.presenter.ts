@@ -1,5 +1,5 @@
 import type { GrantEntity } from '@base/features/roles';
-import { PermissionScope, PrincipalKind, } from '@platform/authz';
+import { PermissionScope, PrincipalKind } from '@platform/authz';
 
 /** `INHERITED`: from an enclosing scope (an organization role reaching a project). It cannot be edited from the narrower view. */
 export enum MemberRoleOrigin {

@@ -3,8 +3,11 @@
   import CheckIcon from '@lucide/svelte/icons/check';
   import { cn } from '../../utils/index.ts';
 
-  let { class: className, checked = $bindable(false), ...rest }: CheckboxPrimitive.RootProps =
-    $props();
+  let {
+    class: className,
+    checked = $bindable(false),
+    ...rest
+  }: CheckboxPrimitive.RootProps = $props();
 </script>
 
 <CheckboxPrimitive.Root

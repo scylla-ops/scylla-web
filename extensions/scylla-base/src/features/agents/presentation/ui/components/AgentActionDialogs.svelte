@@ -1,9 +1,7 @@
 <script lang="ts">
   import { ConfirmOperationAlertDialog } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import type {
-    AgentActions,
-  } from './agent-actions.state.svelte.ts';
+  import type { AgentActions } from './agent-actions.state.svelte.ts';
   import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
   import DisableAgentDialog from './DisableAgentDialog/DisableAgentDialog.svelte';
   import ResetSecretDialog from './ResetSecretDialog/ResetSecretDialog.svelte';

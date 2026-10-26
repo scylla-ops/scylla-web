@@ -2,11 +2,7 @@
   import type { Attachment } from 'svelte/attachments';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import {
-    MENU_SIZE,
-    menuPosition,
-    type QuickAdd,
-  } from './quick-add.state.svelte.ts';
+  import { MENU_SIZE, menuPosition, type QuickAdd } from './quick-add.state.svelte.ts';
   import { START_NODE_ID } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
   import { CATALOG_GROUP_TITLES } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';

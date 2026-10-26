@@ -11,7 +11,11 @@
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type { JobNodeExecution } from '@base/features/jobs/domain/entities/job.entity.ts';
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
-  import { groupByStatus, nodeIdOf, shouldCollapse } from '@base/features/jobs/presentation/presenters/job-timeline.presenter.ts';
+  import {
+    groupByStatus,
+    nodeIdOf,
+    shouldCollapse,
+  } from '@base/features/jobs/presentation/presenters/job-timeline.presenter.ts';
 
   interface Props {
     nodeExecutions: JobNodeExecution[];
@@ -101,11 +105,7 @@
                 {/if}
               </button>
             {:else}
-              <div
-                {...props}
-                class={groupClass}
-                style="width: {group.percent}%; min-width: 18px"
-              >
+              <div {...props} class={groupClass} style="width: {group.percent}%; min-width: 18px">
                 {#if group.percent > 8}
                   <span
                     class="text-[10px] font-semibold text-primary-foreground drop-shadow-sm select-none"

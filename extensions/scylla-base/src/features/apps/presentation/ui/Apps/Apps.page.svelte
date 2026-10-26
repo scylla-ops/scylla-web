@@ -45,12 +45,15 @@
   const handleCreate = ({ name }: FormValues<'name'>) => {
     if (!name.trim()) return;
 
-    createApp.mutate({ name: name.trim() }, {
-      onSuccess: data => {
-        createOpen = false;
-        created = data;
+    createApp.mutate(
+      { name: name.trim() },
+      {
+        onSuccess: data => {
+          createOpen = false;
+          created = data;
+        },
       },
-    });
+    );
   };
 
   const confirmDelete = () => {

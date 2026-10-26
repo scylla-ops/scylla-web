@@ -1,11 +1,7 @@
 <script lang="ts">
   import { scyllaNavigate } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
-  import {
-    ConfirmOperationAlertDialog,
-    CopyableText,
-    DataTable,
-  } from '@scylla/ui';
+  import { ConfirmOperationAlertDialog, CopyableText, DataTable } from '@scylla/ui';
   import { createNow, createSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import {

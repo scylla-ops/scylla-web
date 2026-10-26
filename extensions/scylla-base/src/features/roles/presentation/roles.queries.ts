@@ -38,8 +38,10 @@ export const GRANTS_QUERY_KEY = (scope?: PermissionScope, scopeId?: string) =>
 const GRANTABLE_ROLES_QUERY_ROOT = 'permission-grantable-roles';
 
 /** No organization: the platform roles. With one: its roles too. Different permissions, so different keys. */
-export const GRANTABLE_ROLES_QUERY_KEY = (scope?: PermissionScope, organizationId?: string | null) =>
-  [GRANTABLE_ROLES_QUERY_ROOT, scope ?? 'all', organizationId ?? ''] as const;
+export const GRANTABLE_ROLES_QUERY_KEY = (
+  scope?: PermissionScope,
+  organizationId?: string | null,
+) => [GRANTABLE_ROLES_QUERY_ROOT, scope ?? 'all', organizationId ?? ''] as const;
 
 export const PERMISSION_VOCABULARY_QUERY_KEY = ['permission-vocabulary'] as const;
 

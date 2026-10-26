@@ -5,4 +5,3 @@ export const slugifyOrgName = (name: string): string =>
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
-

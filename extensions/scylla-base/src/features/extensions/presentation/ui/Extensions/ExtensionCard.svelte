@@ -2,9 +2,7 @@
   import PuzzleIcon from '@lucide/svelte/icons/puzzle';
   import { Badge, Card, CardContent } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type {
-    InstalledExtensionEntity,
-  } from '@base/features/extensions/domain/entities/installed-extension.entity.ts';
+  import type { InstalledExtensionEntity } from '@base/features/extensions/domain/entities/installed-extension.entity.ts';
   import { extensionsMessages } from '@base/features/extensions/presentation/messages/extensions.messages.ts';
 
   interface Props {

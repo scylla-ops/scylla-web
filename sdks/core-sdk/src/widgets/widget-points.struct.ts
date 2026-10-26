@@ -54,8 +54,9 @@ export interface ZonePoint<C> extends WidgetPoint {
  * Messages that contributors can override. The owner keeps rendering them with
  * `t(myMessages.key)`: `t` applies the overrides.
  */
-export interface TextsPoint<M extends Readonly<Record<string, MessageDescriptor>>>
-  extends WidgetPoint {
+export interface TextsPoint<
+  M extends Readonly<Record<string, MessageDescriptor>>,
+> extends WidgetPoint {
   readonly kind: 'texts';
   /** Contributor: override some messages, with `msg` descriptors. */
   override(overrides: Partial<Record<keyof M, MessageDescriptor>>): WidgetInjectionItem;

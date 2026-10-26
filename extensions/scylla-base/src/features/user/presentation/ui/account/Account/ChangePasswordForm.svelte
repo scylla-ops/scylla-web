@@ -2,10 +2,7 @@
   import { Button } from '@scylla/ui/primitives';
   import { FormItemType, ScyllaForm, type FormItem } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import {
-    checkNewPassword,
-    checkPasswordConfirmation,
-  } from '@shared/utils/account-validation.ts';
+  import { checkNewPassword, checkPasswordConfirmation } from '@shared/utils/account-validation.ts';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   interface Props {

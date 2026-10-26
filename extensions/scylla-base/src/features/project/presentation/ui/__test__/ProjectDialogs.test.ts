@@ -4,9 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { contextStore } from '@platform/context';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
-import type {
-  ProjectRepository,
-} from '@base/features/project/domain/repository/project.repository.ts';
+import type { ProjectRepository } from '@base/features/project/domain/repository/project.repository.ts';
 import AddProjectDialog from '../AddProjectDialog.svelte';
 import EditProjectDialog from '../EditProjectDialog.svelte';
 
@@ -159,9 +157,7 @@ describe('EditProjectDialog', () => {
     await userEvent.type(nameInput, '  renamed  ');
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-    await waitFor(() =>
-      expect(update).toHaveBeenCalledWith('project-9', 'renamed', 'the web app'),
-    );
+    await waitFor(() => expect(update).toHaveBeenCalledWith('project-9', 'renamed', 'the web app'));
     await waitFor(() => expect(setOpen).toHaveBeenCalledWith(false));
   });
 });

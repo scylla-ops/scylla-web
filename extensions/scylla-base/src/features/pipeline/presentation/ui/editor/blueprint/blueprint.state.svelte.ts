@@ -1,6 +1,9 @@
 import { untrack } from 'svelte';
 import type { Connection, XYPosition } from '@xyflow/svelte';
-import type { PipelineNodeEntity, NodeDefinition } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import type {
+  PipelineNodeEntity,
+  NodeDefinition,
+} from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import * as pipeline from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import { positionAfter } from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
 import {
@@ -82,7 +85,9 @@ export const createBlueprint = (params: BlueprintParams) => {
   const readOnly = $derived(pipeline.repeatedNodeIds(params.nodes()).length > 0);
 
   const inspected = $derived(
-    flowNodes.find((flowNode): flowNode is PipelineFlowNode => flowNode.id === inspectedId && !!nodeOf(flowNode)),
+    flowNodes.find(
+      (flowNode): flowNode is PipelineFlowNode => flowNode.id === inspectedId && !!nodeOf(flowNode),
+    ),
   );
 
   const currentNodes = () => flowToNodes(flowNodes, edges);
@@ -215,7 +220,9 @@ export const createBlueprint = (params: BlueprintParams) => {
       const next = id === START_NODE_ID || readOnly ? null : id;
       inspectedId = next;
       flowNodes = flowNodes.map(flowNode =>
-        Boolean(flowNode.selected) === (flowNode.id === next) ? flowNode : { ...flowNode, selected: flowNode.id === next },
+        Boolean(flowNode.selected) === (flowNode.id === next)
+          ? flowNode
+          : { ...flowNode, selected: flowNode.id === next },
       );
     },
 
@@ -224,7 +231,10 @@ export const createBlueprint = (params: BlueprintParams) => {
       const flow = nodesToFlow(flowToNodes(flowNodes, edges), params.pipelineName());
       // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to this call, never state
       const positions = new Map(flow.flowNodes.map(flowNode => [flowNode.id, flowNode.position]));
-      flowNodes = flowNodes.map(flowNode => ({ ...flowNode, position: positions.get(flowNode.id) ?? flowNode.position }));
+      flowNodes = flowNodes.map(flowNode => ({
+        ...flowNode,
+        position: positions.get(flowNode.id) ?? flowNode.position,
+      }));
     },
   };
 };

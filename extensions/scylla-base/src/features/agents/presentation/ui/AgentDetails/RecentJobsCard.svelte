@@ -5,9 +5,7 @@
   import { getStatusIcon } from '@shared/presentation/ui';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
-  import type {
-    RecentJobRow,
-  } from './agent-details.state.svelte.ts';
+  import type { RecentJobRow } from './agent-details.state.svelte.ts';
   import {
     formatDurationMs,
     shortId,
@@ -69,7 +67,9 @@
                 <span class="text-muted-foreground" aria-hidden="true">/</span>
               {/if}
               <span class="truncate font-medium">{pipeline}</span>
-              <span class="shrink-0 font-mono text-xs text-muted-foreground">{shortId(row.job.id)}</span>
+              <span class="shrink-0 font-mono text-xs text-muted-foreground"
+                >{shortId(row.job.id)}</span
+              >
             </span>
             <span class={cn('hidden sm:block', config.textClassName)}>{t(config.label)}</span>
             <span class="hidden text-muted-foreground tabular-nums sm:block">

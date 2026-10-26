@@ -10,12 +10,8 @@
   import { t } from '@scylla/ui/i18n';
   import { UserIdentity } from '@shared/presentation/ui';
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
-  import {
-    createGrantTargetLabels,
-  } from './grant-target-labels.state.svelte.ts';
-  import {
-    createRoleAssignees,
-  } from './role-assignees.state.svelte.ts';
+  import { createGrantTargetLabels } from './grant-target-labels.state.svelte.ts';
+  import { createRoleAssignees } from './role-assignees.state.svelte.ts';
   import type { RolesPage } from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
   import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
   import GrantCreator from './GrantCreator.svelte';

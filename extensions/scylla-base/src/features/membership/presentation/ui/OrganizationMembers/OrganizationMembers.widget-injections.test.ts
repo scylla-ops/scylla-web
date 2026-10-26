@@ -90,9 +90,7 @@ describe('OrganizationMembers.page with widget injections', () => {
   });
 
   it('puts a header action in place of "Add a member" with `replace`', async () => {
-    setUp([
-      membershipPoints.organizationActions.inject({ component: probe, position: 'replace' }),
-    ]);
+    setUp([membershipPoints.organizationActions.inject({ component: probe, position: 'replace' })]);
     expect(await screen.findByTestId('organization-members-probe')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Add a member' })).not.toBeInTheDocument();
   });

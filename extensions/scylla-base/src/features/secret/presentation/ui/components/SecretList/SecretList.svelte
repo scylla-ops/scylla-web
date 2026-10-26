@@ -40,7 +40,12 @@
   };
 
   const columns = $derived(
-    secretColumns({ name: nameCell, description: descriptionCell, createdAt: createdCell, actions: actionsCell }),
+    secretColumns({
+      name: nameCell,
+      description: descriptionCell,
+      createdAt: createdCell,
+      actions: actionsCell,
+    }),
   );
 </script>
 

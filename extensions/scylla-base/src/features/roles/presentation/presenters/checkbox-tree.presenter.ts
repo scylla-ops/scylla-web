@@ -12,10 +12,7 @@ export const descendantIdsOf = (node: CheckboxNode): Permission[] => [
   ...(node.children ?? []).flatMap(descendantIdsOf),
 ];
 
-export const findNode = (
-  nodes: readonly CheckboxNode[],
-  id: Permission,
-): CheckboxNode | null => {
+export const findNode = (nodes: readonly CheckboxNode[], id: Permission): CheckboxNode | null => {
   for (const node of nodes) {
     if (node.id === id) return node;
     const found = node.children ? findNode(node.children, id) : null;

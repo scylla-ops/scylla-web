@@ -133,7 +133,10 @@
   >
     <span class="text-xs">{t(messages.allTime)}</span>
     {#each allTime as item (item.key)}
-      <span><span class="font-semibold text-foreground tabular-nums">{item.count}</span> {item.word}</span>
+      <span
+        ><span class="font-semibold text-foreground tabular-nums">{item.count}</span>
+        {item.word}</span
+      >
     {/each}
   </div>
 </Card>

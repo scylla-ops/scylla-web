@@ -8,7 +8,9 @@ import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.t
 import AppCard from './AppCard.svelte';
 
 const toastSuccess = vi.fn();
-vi.mock('svelte-sonner', () => ({ toast: { success: (message: string) => toastSuccess(message) } }));
+vi.mock('svelte-sonner', () => ({
+  toast: { success: (message: string) => toastSuccess(message) },
+}));
 
 const app = (overrides: Partial<AppEntity> = {}): AppEntity => ({
   id: 'app-1',

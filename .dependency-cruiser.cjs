@@ -61,11 +61,14 @@ module.exports = {
     {
       name: 'extension-uses-sdks',
       comment:
-        'An extension reaches another extension only through that extension\'s SDK, and ' +
+        "An extension reaches another extension only through that extension's SDK, and " +
         'the core only through @scylla/core-sdk. The app (`apps/web`) composes them.',
       severity: 'error',
       from: { path: R + 'extensions/([^/]+)/' },
-      to: { path: [R + 'extensions/', R + 'packages/core/', R + 'apps/'], pathNot: R + 'extensions/$1/' },
+      to: {
+        path: [R + 'extensions/', R + 'packages/core/', R + 'apps/'],
+        pathNot: R + 'extensions/$1/',
+      },
     },
 
     {
@@ -74,8 +77,14 @@ module.exports = {
         'The internals of an extension are private. Its SDK re-exports what other ' +
         'extensions may use; only that SDK reaches the barrels behind it.',
       severity: 'error',
-      from: { path: R + '(apps|packages|sdks|extensions|test)/', pathNot: [R + 'extensions/scylla-base/', R + 'sdks/scylla-base-sdk/'] },
-      to: { path: R + 'extensions/scylla-base/src/', pathNot: R + 'extensions/scylla-base/src/index[.]ts$' },
+      from: {
+        path: R + '(apps|packages|sdks|extensions|test)/',
+        pathNot: [R + 'extensions/scylla-base/', R + 'sdks/scylla-base-sdk/'],
+      },
+      to: {
+        path: R + 'extensions/scylla-base/src/',
+        pathNot: R + 'extensions/scylla-base/src/index[.]ts$',
+      },
     },
 
     {
@@ -121,7 +130,7 @@ module.exports = {
     {
       name: 'feature-api-only',
       comment:
-        "A feature is reachable only through its `index.ts`. Reaching into another " +
+        'A feature is reachable only through its `index.ts`. Reaching into another ' +
         "feature's `domain/`, `presentation/` or `infrastructure/` makes every file in " +
         'it public, so no internal can be moved without breaking someone else — and it ' +
         'is how the module graph became a single strongly connected component before.',
@@ -177,15 +186,18 @@ module.exports = {
       from: { path: R + 'extensions/scylla-base/src/platform/([^/]+)/' },
       to: {
         path: R + 'extensions/scylla-base/src/platform/[^/]+/.+',
-        pathNot: [R + 'extensions/scylla-base/src/platform/$1/', R + 'extensions/scylla-base/src/platform/[^/]+/index[.]ts$'],
+        pathNot: [
+          R + 'extensions/scylla-base/src/platform/$1/',
+          R + 'extensions/scylla-base/src/platform/[^/]+/index[.]ts$',
+        ],
       },
     },
 
     {
       name: 'module-declaration-is-private',
       comment:
-        '`<feature>.module.ts` instantiates the module\'s infrastructure at import time, so ' +
-        'importing it eagerly pulls that feature\'s gRPC client into your chunk. Only the ' +
+        "`<feature>.module.ts` instantiates the module's infrastructure at import time, so " +
+        "importing it eagerly pulls that feature's gRPC client into your chunk. Only the " +
         'module list (`shell/modules.ts` in scylla-base; `<name>.extension.ts` elsewhere) and ' +
         'the feature itself may. One rule for every extension, not scylla-base only.',
       severity: 'error',
@@ -212,13 +224,14 @@ module.exports = {
       name: 'domain-accessor-is-private',
       comment:
         '`use-<feature>-domain.ts` is where a feature pins the type of its own injection. ' +
-        'Another module calling it would query that feature\'s repository directly — ' +
+        "Another module calling it would query that feature's repository directly — " +
         'bypassing its hooks and forking the query cache into two keys for one resource. ' +
-        'Consume the feature\'s hooks through its `index.ts` instead.',
+        "Consume the feature's hooks through its `index.ts` instead.",
       severity: 'error',
       from: { path: R + 'extensions/scylla-base/src/features/([^/]+)/' },
       to: {
-        path: R + 'extensions/scylla-base/src/features/[^/]+/presentation/hooks/use-[^/]+-domain[.]ts$',
+        path:
+          R + 'extensions/scylla-base/src/features/[^/]+/presentation/hooks/use-[^/]+-domain[.]ts$',
         pathNot: R + 'extensions/scylla-base/src/features/$1/',
       },
     },
@@ -249,7 +262,7 @@ module.exports = {
         'domain/ is pure business logic: no UI framework, no gRPC, no generated proto, no ' +
         'query/state library. Framework types belong in infrastructure or presentation. A ' +
         'type-only import is exempt — it leaves no runtime trace — which is what lets a ' +
-        "domain outside scylla-base name a type of `@scylla/base-sdk` (a `ScyllaErrorCode`, an " +
+        'domain outside scylla-base name a type of `@scylla/base-sdk` (a `ScyllaErrorCode`, an ' +
         "entity of a Scylla feature) without pulling that SDK's gRPC- and query-coupled exports " +
         'into the domain layer.',
       severity: 'error',
@@ -306,7 +319,13 @@ module.exports = {
       // the tests and `test/`, the suite's own harness, which never ship.
       from: {
         path: R + '(apps|packages|sdks|extensions)/',
-        pathNot: ['[.](spec|test)[.]ts$', '[.]fixture[.](ts|svelte)$', '/__test__/', '[.]d[.]ts$', R + 'test/'],
+        pathNot: [
+          '[.](spec|test)[.]ts$',
+          '[.]fixture[.](ts|svelte)$',
+          '/__test__/',
+          '[.]d[.]ts$',
+          R + 'test/',
+        ],
       },
       to: { dependencyTypes: ['npm-dev'], dependencyTypesNot: ['type-only'] },
     },
@@ -366,8 +385,14 @@ module.exports = {
     },
 
     reporterOptions: {
-      dot: { collapsePattern: R + '(extensions/[^/]+/src/(features/[^/]+|[^/]+)|(apps|packages|sdks)/[^/]+)' },
-      archi: { collapsePattern: R + '(extensions/[^/]+/src/(features/[^/]+|[^/]+)|(apps|packages|sdks)/[^/]+)' },
+      dot: {
+        collapsePattern:
+          R + '(extensions/[^/]+/src/(features/[^/]+|[^/]+)|(apps|packages|sdks)/[^/]+)',
+      },
+      archi: {
+        collapsePattern:
+          R + '(extensions/[^/]+/src/(features/[^/]+|[^/]+)|(apps|packages|sdks)/[^/]+)',
+      },
       text: { highlightFocused: true },
     },
   },

@@ -4,10 +4,7 @@
   import { Badge, Input, Label, RadioGroup, RadioGroupItem } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type {
-    AgentCreation,
-    AgentReach,
-  } from './create-agent.state.svelte.ts';
+  import type { AgentCreation, AgentReach } from './create-agent.state.svelte.ts';
   import CreateAgentProject from './CreateAgentProject.svelte';
   import { createAgentMessages as messages } from '@base/features/agents/presentation/messages/create-agent.messages.ts';
 

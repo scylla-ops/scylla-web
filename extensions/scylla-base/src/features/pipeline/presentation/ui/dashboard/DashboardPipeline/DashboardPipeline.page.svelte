@@ -1,9 +1,7 @@
 <script lang="ts">
   import { ErrorState, PaginationSlot } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import {
-    createPipelineDashboard,
-  } from './pipeline-dashboard.state.svelte.ts';
+  import { createPipelineDashboard } from './pipeline-dashboard.state.svelte.ts';
   import { createRunPipeline } from '@base/features/pipeline/presentation/ui/run-pipeline.state.svelte.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import PipelineDashboardHeader from './PipelineDashboardHeader.svelte';
@@ -23,7 +21,11 @@
   <ErrorState message={dashboard.errorMessage} />
 {:else}
   <!-- The frame renders first: the table area's height decides what to fetch. -->
-  <div data-tour="pipelines" data-project-id={projectId} class="flex h-full min-h-0 w-full flex-col gap-4">
+  <div
+    data-tour="pipelines"
+    data-project-id={projectId}
+    class="flex h-full min-h-0 w-full flex-col gap-4"
+  >
     <PipelineDashboardHeader
       numberOfPipelines={dashboard.totalCount}
       pipelineIds={dashboard.pipelineIds}

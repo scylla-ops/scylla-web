@@ -222,7 +222,9 @@ describe('createRoleForm — editing', () => {
     const uncatalogued = Permission.WRITE_JOB_STATUS;
 
     await withForm(
-      role({ access: { kind: 'restricted', permissions: [uncatalogued, Permission.LIST_SECRETS] } }),
+      role({
+        access: { kind: 'restricted', permissions: [uncatalogued, Permission.LIST_SECRETS] },
+      }),
       async form => {
         expect(form.preservedCount).toBe(1);
         expect(form.permissions).not.toContain(uncatalogued);
@@ -241,7 +243,9 @@ describe('createRoleForm — editing', () => {
 
       await expect(form.submit()).resolves.toBe(true);
 
-      expect(execute).toHaveBeenCalledWith(expect.objectContaining({ id: 'role-1', name: 'renamed' }));
+      expect(execute).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'role-1', name: 'renamed' }),
+      );
     });
   });
 

@@ -92,7 +92,9 @@ describe('AppsPage', () => {
     listApps.mockResolvedValue([]);
     render(AppsPage);
 
-    expect(await screen.findByRole('button', { name: 'Create your first app' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('button', { name: 'Create your first app' }),
+    ).toBeInTheDocument();
   });
 
   it('reports a failed load rather than an empty list', async () => {

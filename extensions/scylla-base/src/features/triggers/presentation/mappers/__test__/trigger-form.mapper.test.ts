@@ -63,7 +63,9 @@ describe('buildTriggerDraft', () => {
       inputs: [{ key: 'sha', valueKind: 'jsonPointer', value: '/head/sha' }],
     });
     // A cron trigger has no payload: always literal.
-    expect(cronDraft.inputs).toEqual([{ key: 'sha', value: { kind: 'literal', value: '/head/sha' } }]);
+    expect(cronDraft.inputs).toEqual([
+      { key: 'sha', value: { kind: 'literal', value: '/head/sha' } },
+    ]);
   });
 
   it('a Cron draft converts the expression (still a well-formed 5-field cron) and carries no signatureHeader', () => {

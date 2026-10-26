@@ -3,12 +3,8 @@
   import { Button, Card, Skeleton } from '@scylla/ui/primitives';
   import { ErrorState, FeatureHeader } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import {
-    createAgentActions,
-  } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
-  import {
-    createAgentsPage,
-  } from './agents-page.state.svelte.ts';
+  import { createAgentActions } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
+  import { createAgentsPage } from './agents-page.state.svelte.ts';
   import AgentActionDialogs from '../components/AgentActionDialogs.svelte';
   import AgentBot from '../components/AgentBot/AgentBot.svelte';
   import CreateAgentDialog from '../components/CreateAgentDialog/CreateAgentDialog.svelte';

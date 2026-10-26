@@ -34,7 +34,9 @@ describe('point', () => {
       const change = texts.override({ username: email });
 
       expect(change.point).toBe(texts);
-      expect(change.payload).toEqual({ username: { original: messages.username, override: email } });
+      expect(change.payload).toEqual({
+        username: { original: messages.username, override: email },
+      });
     });
   });
 

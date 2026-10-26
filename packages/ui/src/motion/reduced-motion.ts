@@ -7,5 +7,4 @@ export const prefersReducedMotion = (): boolean =>
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-export const motionDuration = (duration: number): number =>
-  prefersReducedMotion() ? 0 : duration;
+export const motionDuration = (duration: number): number => (prefersReducedMotion() ? 0 : duration);

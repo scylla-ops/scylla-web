@@ -3,9 +3,7 @@
   import { FormDialog, type FormValues } from '@scylla/ui';
   import { t, activeLocale } from '@scylla/ui/i18n';
   import { secretMutations } from '@base/features/secret/presentation/secret.queries.ts';
-  import {
-    createSecretsItems,
-  } from '@base/features/secret/presentation/presenters/secret-form.presenter.ts';
+  import { createSecretsItems } from '@base/features/secret/presentation/presenters/secret-form.presenter.ts';
   import { secretMessages } from '@base/features/secret/presentation/messages/secret.messages.ts';
 
   interface Props {

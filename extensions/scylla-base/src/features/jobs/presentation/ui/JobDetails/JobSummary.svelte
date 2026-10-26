@@ -54,15 +54,9 @@
   <div
     class="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-md border border-border bg-card px-3.5 py-2"
   >
-    {@render fact(
-      t(jobsMessages.duration),
-      duration === null ? '-' : formatDuration(duration),
-    )}
+    {@render fact(t(jobsMessages.duration), duration === null ? '-' : formatDuration(duration))}
     <span class="text-muted-foreground/50">·</span>
-    {@render fact(
-      t(jobsMessages.startedPrefix),
-      job.startedAt ? formatDate(job.startedAt) : '-',
-    )}
+    {@render fact(t(jobsMessages.startedPrefix), job.startedAt ? formatDate(job.startedAt) : '-')}
     <span class="text-muted-foreground/50">·</span>
     {@render fact(
       t(jobsMessages.finishedPrefix),

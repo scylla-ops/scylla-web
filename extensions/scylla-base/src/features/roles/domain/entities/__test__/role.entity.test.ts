@@ -28,7 +28,9 @@ describe('roleConfers', () => {
   });
 
   it('an unknown access arm confers everything, not nothing (deliberately, per the doc comment)', () => {
-    expect(roleConfers(role({ access: { kind: 'unknown' } }), Permission.DELETE_PROJECT)).toBe(true);
+    expect(roleConfers(role({ access: { kind: 'unknown' } }), Permission.DELETE_PROJECT)).toBe(
+      true,
+    );
   });
 
   it('a missing role (undefined) confers everything - denying would hide access that actually exists', () => {

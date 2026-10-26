@@ -33,7 +33,10 @@
       </UserIdentityCard>
     </header>
 
-    <SettingsSection title={t(userMessages.profile)} description={t(userMessages.profileDescription)}>
+    <SettingsSection
+      title={t(userMessages.profile)}
+      description={t(userMessages.profileDescription)}
+    >
       <UserProfileForm
         user={me}
         emailEditable={false}
@@ -42,7 +45,10 @@
       />
     </SettingsSection>
 
-    <SettingsSection title={t(userMessages.password)} description={t(userMessages.passwordDescription)}>
+    <SettingsSection
+      title={t(userMessages.password)}
+      description={t(userMessages.passwordDescription)}
+    >
       {#key page.passwordForm}
         <ChangePasswordForm
           isPending={page.isChangingPassword}
@@ -52,7 +58,10 @@
       {/key}
     </SettingsSection>
 
-    <SettingsSection title={t(userMessages.sessions)} description={t(userMessages.sessionsDescription)}>
+    <SettingsSection
+      title={t(userMessages.sessions)}
+      description={t(userMessages.sessionsDescription)}
+    >
       <div class="flex flex-col gap-4">
         <SessionList
           sessions={page.sessions}

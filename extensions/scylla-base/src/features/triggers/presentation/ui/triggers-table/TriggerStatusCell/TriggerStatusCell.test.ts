@@ -17,7 +17,11 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   ...overrides,
 });
 
-const webhook = { kind: TriggerKind.Webhook, signatureHeader: '', webhookUrl: 'https://x/y' } as const;
+const webhook = {
+  kind: TriggerKind.Webhook,
+  signatureHeader: '',
+  webhookUrl: 'https://x/y',
+} as const;
 
 describe('TriggerStatusCell', () => {
   it('shows "Never fired" when there is no lastResult and no lastFiredAt', () => {

@@ -134,9 +134,7 @@ describe('PlatformRolesPage — the catalog', () => {
     listRoles.mockResolvedValue([]);
     render(PlatformRolesPage);
 
-    expect(
-      await screen.findByText('No roles yet. Create one to get started.'),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('No roles yet. Create one to get started.')).toBeInTheDocument();
   });
 
   it('offers no detail until a role is opened', async () => {
@@ -251,7 +249,9 @@ describe('PlatformRolesPage — without the permission', () => {
       'true',
     );
     await screen.findByText('ada');
-    expect(screen.getByRole('button', { name: "You don't have permission to revoke grants." })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: "You don't have permission to revoke grants." }),
+    ).toBeDisabled();
   });
 });
 
@@ -302,8 +302,6 @@ describe('PlatformRolesPage — when the backend refuses', () => {
     listRoles.mockRejectedValue(error);
     render(PlatformRolesPage);
 
-    expect(
-      await screen.findByText('No roles yet. Create one to get started.'),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('No roles yet. Create one to get started.')).toBeInTheDocument();
   });
 });

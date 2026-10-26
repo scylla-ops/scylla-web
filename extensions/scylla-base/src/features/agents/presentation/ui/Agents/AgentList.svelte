@@ -1,12 +1,8 @@
 <script lang="ts">
   import { Card, TableBody, TableHead, TableHeader, TableRow } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type {
-    AgentActions,
-  } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
-  import type {
-    AgentRow as AgentRowData,
-  } from './agents-page.state.svelte.ts';
+  import type { AgentActions } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
+  import type { AgentRow as AgentRowData } from './agents-page.state.svelte.ts';
   import AgentRow from './AgentRow.svelte';
   import { agentsPageMessages as messages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';
 
@@ -34,7 +30,9 @@
           <TableHead class={HEAD}>{t(messages.columnAccess)}</TableHead>
           <TableHead class={HEAD}>{t(messages.columnJobs)}</TableHead>
           <TableHead class={HEAD}>{t(messages.columnActivity)}</TableHead>
-          <TableHead class="w-12"><span class="sr-only">{t(messages.columnActions)}</span></TableHead>
+          <TableHead class="w-12"
+            ><span class="sr-only">{t(messages.columnActions)}</span></TableHead
+          >
         </TableRow>
       </TableHeader>
       <TableBody>

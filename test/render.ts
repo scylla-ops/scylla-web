@@ -90,7 +90,9 @@ export const findFloating = async (role: RoleMatcher, name?: string): Promise<HT
 
   if (matches.length !== 1) {
     const described = name === undefined ? String(role) : `${String(role)} named "${name}"`;
-    throw new Error(`Expected exactly one ${described} in a floating layer, found ${matches.length}`);
+    throw new Error(
+      `Expected exactly one ${described} in a floating layer, found ${matches.length}`,
+    );
   }
 
   return matches[0];

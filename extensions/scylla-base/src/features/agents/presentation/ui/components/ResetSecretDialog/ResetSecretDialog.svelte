@@ -11,9 +11,7 @@
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-  import {
-    createResetSecret,
-  } from './reset-secret.state.svelte.ts';
+  import { createResetSecret } from './reset-secret.state.svelte.ts';
   import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
   import AlertDialogCloseButton from '../AlertDialogCloseButton.svelte';
   import DialogFooterBand from '../DialogFooterBand.svelte';

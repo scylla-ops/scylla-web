@@ -30,9 +30,7 @@
   connectivity is unknown: the banner only points at the agents.
 -->
 {#snippet banner(children: Snippet)}
-  <div
-    class="flex items-center gap-2.5 rounded-md border px-3 py-2 text-xs text-muted-foreground"
-  >
+  <div class="flex items-center gap-2.5 rounded-md border px-3 py-2 text-xs text-muted-foreground">
     <span class="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-warning"></span>
     {@render children()}
   </div>

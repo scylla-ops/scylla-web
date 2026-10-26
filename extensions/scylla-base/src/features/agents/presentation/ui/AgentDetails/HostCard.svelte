@@ -64,7 +64,9 @@
       {#each rows as row (row.key)}
         <div class="flex items-center justify-between gap-4">
           <dt class="text-muted-foreground">{row.label}</dt>
-          <dd class={row.mono ? 'truncate font-mono text-xs' : 'truncate font-medium'}>{row.value}</dd>
+          <dd class={row.mono ? 'truncate font-mono text-xs' : 'truncate font-medium'}>
+            {row.value}
+          </dd>
         </div>
       {/each}
     </dl>

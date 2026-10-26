@@ -36,7 +36,14 @@ const job = (overrides: Record<string, unknown> = {}) => ({
 
 const page = (items: unknown[], totalCount = items.length) => ({
   items,
-  pagination: { totalCount, page: 1, pageSize: 100, totalPages: 1, hasNext: false, hasPrevious: false },
+  pagination: {
+    totalCount,
+    page: 1,
+    pageSize: 100,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false,
+  },
 });
 
 let getProjects: ReturnType<typeof vi.fn>;

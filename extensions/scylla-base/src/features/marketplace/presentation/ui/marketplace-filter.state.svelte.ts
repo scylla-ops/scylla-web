@@ -15,7 +15,5 @@ export const matchesFilter = (
   search: string,
 ): boolean => {
   const needle = search.toLowerCase();
-  return (
-    item.title.toLowerCase().includes(needle) || item.provider.toLowerCase().includes(needle)
-  );
+  return item.title.toLowerCase().includes(needle) || item.provider.toLowerCase().includes(needle);
 };

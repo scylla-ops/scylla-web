@@ -56,8 +56,7 @@
           <Select
             type="single"
             value={input.valueKind}
-            onValueChange={value =>
-              update(index, { valueKind: value as DraftInput['valueKind'] })}
+            onValueChange={value => update(index, { valueKind: value as DraftInput['valueKind'] })}
           >
             <SelectTrigger class="w-36">
               <SelectValue />

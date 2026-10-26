@@ -34,7 +34,9 @@ describe('wrapIdOpt', () => {
 
 describe('timestampToIso', () => {
   it('formats seconds+nanos to a UTC ISO string', () => {
-    expect(timestampToIso({ seconds: 1735689600, nanos: 146000000 })).toBe('2025-01-01T00:00:00.146Z');
+    expect(timestampToIso({ seconds: 1735689600, nanos: 146000000 })).toBe(
+      '2025-01-01T00:00:00.146Z',
+    );
   });
 
   it('accepts seconds as a string or a bigint, with the same result', () => {

@@ -51,7 +51,8 @@
   let resetTimer: ReturnType<typeof setTimeout> | undefined;
 
   const copy = async () => {
-    if (!(await copyToClipboard(value, { copied: copyToast, failed: t(messages.copyFailed) }))) return;
+    if (!(await copyToClipboard(value, { copied: copyToast, failed: t(messages.copyFailed) })))
+      return;
     copied = true;
     clearTimeout(resetTimer);
     resetTimer = setTimeout(() => (copied = false), 1500);
@@ -62,7 +63,9 @@
   };
 </script>
 
-{#snippet masked()}<span aria-hidden="true">{bullets}</span><span class="sr-only">{t(messages.hidden)}</span>{/snippet}
+{#snippet masked()}<span aria-hidden="true">{bullets}</span><span class="sr-only"
+    >{t(messages.hidden)}</span
+  >{/snippet}
 
 <div class={cn('relative rounded-lg border bg-muted/50', className)}>
   {#if caption}

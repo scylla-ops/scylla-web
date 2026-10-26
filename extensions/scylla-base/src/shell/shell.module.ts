@@ -45,7 +45,11 @@ export const ShellModule = {
     { id: 'organization', title: layoutMessages.organization, header: OrganizationSelector },
     { id: 'system', title: layoutMessages.system },
   ],
-  access: { can: permission => can(permission), ready: authorizationReady, guard: RequirePermission },
+  access: {
+    can: permission => can(permission),
+    ready: authorizationReady,
+    guard: RequirePermission,
+  },
   shell: {
     sidebarFooter: [NavUser],
     overlays: [LaunchOverlays],

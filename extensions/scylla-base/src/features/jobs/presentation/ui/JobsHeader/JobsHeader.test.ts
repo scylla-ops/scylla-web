@@ -17,9 +17,7 @@ const grant = (permissions: Permission[] | 'all') =>
           scope: PermissionScope.SYSTEM,
           scopeId: '',
           access:
-            permissions === 'all'
-              ? { kind: 'fullControl' }
-              : { kind: 'restricted', permissions },
+            permissions === 'all' ? { kind: 'fullControl' } : { kind: 'restricted', permissions },
         },
       ],
     },

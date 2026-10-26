@@ -7,7 +7,10 @@
   import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { PipelineNodeEntity, NodeDefinition } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+  import type {
+    PipelineNodeEntity,
+    NodeDefinition,
+  } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import { createNodeDraft } from '@base/features/pipeline/presentation/ui/editor/node/node-draft.state.svelte.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
   import { nodeMessages } from '@base/features/pipeline/presentation/messages/node.messages.ts';
@@ -65,7 +68,11 @@
   <div class="flex flex-col gap-2.5 px-4 pt-3.5">
     <div class="flex items-start gap-2.5">
       <span
-        class={cn('flex size-8 shrink-0 items-center justify-center rounded-lg', tone.tile, tone.text)}
+        class={cn(
+          'flex size-8 shrink-0 items-center justify-center rounded-lg',
+          tone.tile,
+          tone.text,
+        )}
       >
         <Icon class="size-4" />
       </span>

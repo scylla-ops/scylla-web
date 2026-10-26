@@ -54,7 +54,9 @@ const hostLock = resolvedVersions(resolve(process.cwd(), 'pnpm-lock.yaml'));
 for (const [name, versions] of scyllaLock) {
   const extra = [...(hostLock.get(name) ?? [])].filter(version => !versions.has(version));
   if (extra.length > 0) {
-    problems.push(`  ${name}: resolves ${extra.join(', ')} (scylla-web: ${[...versions].join(', ')})`);
+    problems.push(
+      `  ${name}: resolves ${extra.join(', ')} (scylla-web: ${[...versions].join(', ')})`,
+    );
   }
 }
 

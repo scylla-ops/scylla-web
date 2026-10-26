@@ -67,7 +67,10 @@ describe('AppSidebar', () => {
 
   it('shows placeholders and no entry until the policy is ready, but keeps the section headers', () => {
     render(AppSidebarFixture, {
-      config: configWith({ entries: [entry({ permission: undefined })], access: policy([], false) }),
+      config: configWith({
+        entries: [entry({ permission: undefined })],
+        access: policy([], false),
+      }),
     });
 
     expect(screen.queryByRole('button', { name: /Secrets/ })).not.toBeInTheDocument();
@@ -102,7 +105,11 @@ describe('AppSidebar', () => {
 
   it('renders the badge of an extension on every link, and its footer below the links', () => {
     const contributions: ShellContributions[] = [
-      { linkParams: () => ({ organizationSlug: 'acme-corp' }), navBadge: Badge, sidebarFooter: [Stub] },
+      {
+        linkParams: () => ({ organizationSlug: 'acme-corp' }),
+        navBadge: Badge,
+        sidebarFooter: [Stub],
+      },
     ];
     render(AppSidebarFixture, {
       config: configWith({ contributions, sections: [{ id: 'organization', title: msg`Org` }] }),

@@ -203,7 +203,10 @@ describe('triggerMutations.setEnabled', () => {
     seedCache(true);
     const options = triggerMutations.setEnabled(PIPELINE_ID);
 
-    const context = await options.onMutate?.({ triggerId: 'trigger-1', enabled: false }, undefined as never);
+    const context = await options.onMutate?.(
+      { triggerId: 'trigger-1', enabled: false },
+      undefined as never,
+    );
     expect(cached()[0].enabled).toBe(false);
 
     options.onError?.(

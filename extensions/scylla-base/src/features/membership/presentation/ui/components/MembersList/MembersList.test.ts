@@ -13,7 +13,12 @@ const member = (overrides: Partial<ScopeMember> = {}): ScopeMember => ({
 });
 
 const users: Record<string, UserSummary> = {
-  'user-1': { userId: 'user-1', username: 'charlie', displayName: 'Charlie', email: 'c@example.com' },
+  'user-1': {
+    userId: 'user-1',
+    username: 'charlie',
+    displayName: 'Charlie',
+    email: 'c@example.com',
+  },
   'user-2': { userId: 'user-2', username: 'alice', displayName: 'Alice', email: 'a@example.com' },
   'user-3': { userId: 'user-3', username: 'bob', displayName: 'Bob', email: 'b@example.com' },
 };
@@ -56,7 +61,11 @@ describe('MembersList', () => {
     render(MembersList, {
       ...baseProps,
       currentUserId: 'none',
-      members: [member({ userId: 'user-1' }), member({ userId: 'user-2' }), member({ userId: 'user-3' })],
+      members: [
+        member({ userId: 'user-1' }),
+        member({ userId: 'user-2' }),
+        member({ userId: 'user-3' }),
+      ],
     });
 
     const rendered = screen.getAllByText(/Alice|Bob|Charlie/).map(element => element.textContent);
@@ -84,7 +93,9 @@ describe('MembersList', () => {
       currentUserId: 'none',
       members: [member({ userId: 'user-2' })],
       canManage: true,
-      addableRolesFor: () => [{ roleId: 'r1', name: 'Developer', description: '', ownedByOrganization: false }],
+      addableRolesFor: () => [
+        { roleId: 'r1', name: 'Developer', description: '', ownedByOrganization: false },
+      ],
       onAddRole,
     });
 

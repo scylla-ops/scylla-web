@@ -82,7 +82,11 @@
           {#if index > 0}
             <ResizableHandle />
           {/if}
-          <ResizablePane id="nodes-view-pane-{index}" order={1 + index} minSize={NODES_VIEW_SIZES.pane.min}>
+          <ResizablePane
+            id="nodes-view-pane-{index}"
+            order={1 + index}
+            minSize={NODES_VIEW_SIZES.pane.min}
+          >
             <NodePane
               {scripting}
               {pane}
@@ -98,7 +102,10 @@
     </ResizablePane>
 
     <!-- Always there: its handle is the only part that goes when no node is focused. -->
-    <ResizableHandle disabled={!scripting.focusedNode} class={scripting.focusedNode ? undefined : 'hidden'} />
+    <ResizableHandle
+      disabled={!scripting.focusedNode}
+      class={scripting.focusedNode ? undefined : 'hidden'}
+    />
     <ResizablePane
       id="nodes-view-properties"
       order={3}

@@ -26,5 +26,9 @@
     </p>
     <p class="truncate text-[13px] font-semibold">{name}</p>
   </div>
-  <Handle type="source" position={Position.Right} class="size-2.5! border-[1.5px]! border-primary! bg-card!" />
+  <Handle
+    type="source"
+    position={Position.Right}
+    class="size-2.5! border-[1.5px]! border-primary! bg-card!"
+  />
 </div>

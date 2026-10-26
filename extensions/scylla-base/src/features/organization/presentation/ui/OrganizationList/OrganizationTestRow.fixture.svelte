@@ -1,8 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
-  let { onSelect, children }: { onSelect?: () => void; children?: Snippet } =
-    $props();
+  let { onSelect, children }: { onSelect?: () => void; children?: Snippet } = $props();
 </script>
 
 <div data-testid="custom-row">

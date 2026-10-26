@@ -1,15 +1,8 @@
 <script lang="ts">
   import { createMutation } from '@scylla/core-sdk';
-  import {
-    FormDialog,
-    FormItemType,
-    type FormItem,
-    type FormValues,
-  } from '@scylla/ui';
+  import { FormDialog, FormItemType, type FormItem, type FormValues } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import {
-    organizationMutations,
-  } from '@base/features/organization/presentation/organization.queries.ts';
+  import { organizationMutations } from '@base/features/organization/presentation/organization.queries.ts';
   import { organizationMessages } from '@base/features/organization/presentation/messages/organization.messages.ts';
 
   interface Props {

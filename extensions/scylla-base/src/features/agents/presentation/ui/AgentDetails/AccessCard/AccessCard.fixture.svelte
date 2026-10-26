@@ -19,12 +19,7 @@
 </script>
 
 <!-- The card on the query of the page, as the page renders it. -->
-<AccessCard
-  {agent}
-  access={accessQuery.data}
-  loading={accessQuery.isLoading}
-  {organizationId}
-/>
+<AccessCard {agent} access={accessQuery.data} loading={accessQuery.isLoading} {organizationId} />
 {#if listEntry}
   <div data-testid="list-entry">
     <AccessBadges access={listQuery.data ?? []} {organizationId} />

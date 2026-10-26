@@ -1,7 +1,5 @@
 <script lang="ts">
-  import type {
-    OrganizationMembersContext,
-  } from '@base/features/membership/presentation/membership.points.ts';
+  import type { OrganizationMembersContext } from '@base/features/membership/presentation/membership.points.ts';
 
   let { context }: { context: OrganizationMembersContext } = $props();
 </script>

@@ -2,7 +2,13 @@
   import type { Snippet } from 'svelte';
   import { createTable, FlexRender } from '@tanstack/svelte-table';
   import type { Row, RowData } from '@tanstack/table-core';
-  import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../primitives/index.ts';
+  import {
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
   import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import { dataTableMessages } from './data-table.messages.ts';
@@ -108,7 +114,9 @@
       <div class="flex min-w-0 items-center gap-2">
         <div class="flex min-w-0 flex-1 items-center gap-3">
           {#each slots.title as cell (cell.id)}
-            <div class="min-w-0 overflow-hidden last:min-w-24 last:flex-1"><FlexRender {cell} /></div>
+            <div class="min-w-0 overflow-hidden last:min-w-24 last:flex-1">
+              <FlexRender {cell} />
+            </div>
           {/each}
         </div>
         {#if slots.actions.length > 0}
@@ -123,7 +131,7 @@
 
     {#each slots.body as cell (cell.id)}
       <!-- Cells built for a centred column: in a card they start at the left edge. -->
-        <div class="min-w-0 pr-1.5 *:justify-start"><FlexRender {cell} /></div>
+      <div class="min-w-0 pr-1.5 *:justify-start"><FlexRender {cell} /></div>
     {/each}
 
     {#if slots.meta.length > 0}
@@ -153,16 +161,18 @@
         <li class="flex flex-col">
           {@render card(row)}
           {#if (isRowExpanded?.(row.original) ?? false) && expandedContent}
-            <div class="mx-2 -mt-2 overflow-hidden rounded-b-2xl border border-t-0 border-border/70 bg-muted/30 pt-2">
+            <div
+              class="mx-2 -mt-2 overflow-hidden rounded-b-2xl border border-t-0 border-border/70 bg-muted/30 pt-2"
+            >
               {@render expandedContent(row)}
             </div>
           {/if}
         </li>
       {:else}
-      <li class="rounded-2xl border border-border/70 bg-card">{@render emptyState()}</li>
-    {/each}
-  </ul>
-{:else}
+        <li class="rounded-2xl border border-border/70 bg-card">{@render emptyState()}</li>
+      {/each}
+    </ul>
+  {:else}
     <div
       class="relative h-full w-full overflow-auto rounded-2xl border border-border/70 bg-card shadow-[0_1px_2px_oklch(0_0_0/0.04),0_12px_32px_-16px_oklch(0_0_0/0.18)]"
     >
@@ -181,7 +191,8 @@
           {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
             <TableRow role="row" class="grid hover:bg-transparent" style={rowStyle}>
               {#each headerGroup.headers as header (header.id)}
-                {@const align = header.column.columnDef.meta?.align ?? defaultAlign(alignColumnsCenter)}
+                {@const align =
+                  header.column.columnDef.meta?.align ?? defaultAlign(alignColumnsCenter)}
                 <TableHead
                   role="columnheader"
                   class={cn(
@@ -220,7 +231,10 @@
                 {@const align = cell.column.columnDef.meta?.align ?? defaultAlign(alignRowsCenter)}
                 <TableCell
                   role="cell"
-                  class={cn('flex min-w-0 items-center overflow-hidden px-5 py-3.5', alignClass[align])}
+                  class={cn(
+                    'flex min-w-0 items-center overflow-hidden px-5 py-3.5',
+                    alignClass[align],
+                  )}
                 >
                   <div class={cn('w-full min-w-0', cellAlignClass[align])}>
                     <FlexRender {cell} />

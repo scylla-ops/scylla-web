@@ -2,11 +2,7 @@
   import { Button } from '@scylla/ui/primitives';
   import { FormItemType, ScyllaForm, type FormItem } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import {
-    checkDisplayName,
-    checkEmail,
-    checkUsername,
-  } from '@shared/utils/account-validation.ts';
+  import { checkDisplayName, checkEmail, checkUsername } from '@shared/utils/account-validation.ts';
   import type {
     ProfileValues,
     UserEntity,

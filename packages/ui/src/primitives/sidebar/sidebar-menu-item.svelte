@@ -11,10 +11,7 @@
 <li
   data-slot="sidebar-menu-item"
   data-sidebar="menu-item"
-  class={cn(
-    'group/menu-item relative',
-    className,
-  )}
+  class={cn('group/menu-item relative', className)}
   {...rest}
 >
   {@render children?.()}

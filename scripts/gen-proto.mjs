@@ -31,7 +31,7 @@ const protoc = resolve(binDir, 'protoc');
 // the directory that mirrors its package (`scylla/job/v1/job.proto`), never at
 // the root.
 function collectProtos(dir) {
-  return readdirSync(dir).flatMap((entry) => {
+  return readdirSync(dir).flatMap(entry => {
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) return collectProtos(full);
     return entry.endsWith('.proto') ? [full] : [];
@@ -75,19 +75,21 @@ const extensionDirs = [
   ...(scyllaRoot === hostRoot ? [] : [resolve(scyllaRoot, 'extensions')]),
 ]
   .filter(existsSync)
-  .flatMap((root) => readdirSync(root).map((name) => join(root, name)));
+  .flatMap(root => readdirSync(root).map(name => join(root, name)));
 
-const targets = extensionDirs.flatMap((dir) => {
+const targets = extensionDirs.flatMap(dir => {
   const manifest = join(dir, 'package.json');
   if (!existsSync(manifest)) return [];
   const { scylla } = JSON.parse(readFileSync(manifest, 'utf8'));
   if (!scylla?.protos) return [];
-  const protoDir = scylla.protoRoot ? resolve(dir, scylla.protoRoot) : resolve(scyllaRoot, 'protos');
+  const protoDir = scylla.protoRoot
+    ? resolve(dir, scylla.protoRoot)
+    : resolve(scyllaRoot, 'protos');
   return [{ dir, protos: scylla.protos, protoDir }];
 });
 
 const protosUnder = (protoDir, allProtos, prefix) => {
-  const matches = allProtos.filter((file) => {
+  const matches = allProtos.filter(file => {
     const relPath = relative(protoDir, file).split(sep).join('/');
     return relPath === `${prefix}.proto` || relPath.startsWith(`${prefix}/`);
   });
@@ -109,12 +111,14 @@ for (const target of targets) {
   }
 
   const outDir = resolve(target.dir, 'src', 'generated');
-  const protoFiles = [...new Set(target.protos.flatMap((p) => protosUnder(target.protoDir, allProtos, p)))];
+  const protoFiles = [
+    ...new Set(target.protos.flatMap(p => protosUnder(target.protoDir, allProtos, p))),
+  ];
 
   rmSync(outDir, { recursive: true, force: true });
   mkdirSync(outDir, { recursive: true });
 
-  const fileArgs = protoFiles.map((f) => `"${f}"`).join(' ');
+  const fileArgs = protoFiles.map(f => `"${f}"`).join(' ');
   const cmd = `"${protoc}" -I="${target.protoDir}" --ts_out="${outDir}" ${fileArgs}`;
 
   // protoc resolves the protoc-gen-ts plugin from PATH; ensure node_modules/.bin

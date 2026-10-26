@@ -45,7 +45,9 @@
   <CardHeader class="pb-2">
     <div class="flex items-start justify-between gap-2">
       <div class="flex min-w-0 flex-1 items-center gap-3">
-        <div class="shrink-0 rounded-lg bg-primary/10 p-2 transition-colors group-hover:bg-primary/20">
+        <div
+          class="shrink-0 rounded-lg bg-primary/10 p-2 transition-colors group-hover:bg-primary/20"
+        >
           <FolderIcon class="h-5 w-5 text-primary" />
         </div>
         <CardTitle class="min-w-0 truncate text-base font-semibold" title={project.name}>

@@ -49,4 +49,5 @@ export const patchesOf = (value: WidgetPoint): readonly RegisteredPatch[] =>
 export const nameOf = (point: WidgetPoint): string | undefined => registry?.names.get(point);
 
 /** Read by `ZoneComponentOptions.permission` checks only. `undefined` with no registry installed. */
-export const canForWidgets = (): ((permission: RoutePermission) => boolean) | undefined => registry?.can;
+export const canForWidgets = (): ((permission: RoutePermission) => boolean) | undefined =>
+  registry?.can;

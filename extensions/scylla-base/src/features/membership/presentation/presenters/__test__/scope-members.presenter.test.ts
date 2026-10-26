@@ -1,7 +1,11 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import { PermissionScope, PrincipalKind } from '@platform/authz';
-import { buildOrganizationMembers, buildProjectMembers, MemberRoleOrigin } from '../scope-members.presenter.ts';
+import {
+  buildOrganizationMembers,
+  buildProjectMembers,
+  MemberRoleOrigin,
+} from '../scope-members.presenter.ts';
 import type { GrantEntity } from '@base/features/roles';
 
 const userGrant = (overrides: Partial<GrantEntity> = {}): GrantEntity => ({
@@ -19,7 +23,14 @@ describe('buildOrganizationMembers', () => {
     expect(members).toEqual([
       {
         userId: 'user-1',
-        roles: [{ grantId: 'grant-1', roleId: 'role-1', origin: MemberRoleOrigin.DIRECT, scope: PermissionScope.ORGANIZATION }],
+        roles: [
+          {
+            grantId: 'grant-1',
+            roleId: 'role-1',
+            origin: MemberRoleOrigin.DIRECT,
+            scope: PermissionScope.ORGANIZATION,
+          },
+        ],
       },
     ]);
   });
@@ -37,9 +48,10 @@ describe('buildOrganizationMembers', () => {
   });
 
   it('merges a known user id with their own grants into one row, not two', () => {
-    const members = buildOrganizationMembers([userGrant({ principal: { kind: PrincipalKind.USER, id: 'user-1' } })], [
-      'user-1',
-    ]);
+    const members = buildOrganizationMembers(
+      [userGrant({ principal: { kind: PrincipalKind.USER, id: 'user-1' } })],
+      ['user-1'],
+    );
     expect(members).toHaveLength(1);
     expect(members[0].roles).toHaveLength(1);
   });
@@ -69,7 +81,14 @@ describe('buildProjectMembers', () => {
     expect(members).toEqual([
       {
         userId: 'user-1',
-        roles: [{ grantId: 'p-grant-1', roleId: 'project-role', origin: MemberRoleOrigin.DIRECT, scope: PermissionScope.PROJECT }],
+        roles: [
+          {
+            grantId: 'p-grant-1',
+            roleId: 'project-role',
+            origin: MemberRoleOrigin.DIRECT,
+            scope: PermissionScope.PROJECT,
+          },
+        ],
       },
     ]);
   });
@@ -79,13 +98,24 @@ describe('buildProjectMembers', () => {
     expect(members).toEqual([
       {
         userId: 'user-1',
-        roles: [{ grantId: 'grant-1', roleId: 'org-admin', origin: MemberRoleOrigin.INHERITED, scope: PermissionScope.ORGANIZATION }],
+        roles: [
+          {
+            grantId: 'grant-1',
+            roleId: 'org-admin',
+            origin: MemberRoleOrigin.INHERITED,
+            scope: PermissionScope.ORGANIZATION,
+          },
+        ],
       },
     ]);
   });
 
   it('excludes an organization grant whose role does not reach into projects (e.g. the bare "member" floor)', () => {
-    const members = buildProjectMembers([], [userGrant({ roleId: 'organization-member' })], () => false);
+    const members = buildProjectMembers(
+      [],
+      [userGrant({ roleId: 'organization-member' })],
+      () => false,
+    );
     expect(members).toEqual([]);
   });
 

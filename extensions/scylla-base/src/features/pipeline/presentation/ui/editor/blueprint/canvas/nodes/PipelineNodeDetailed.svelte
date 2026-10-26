@@ -9,7 +9,7 @@
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
   import { DETAILED_NODE } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import { handleClass } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
-import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
+  import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
 
   let { node, selected, summary, detached }: PipelineNodeViewProps = $props();
 

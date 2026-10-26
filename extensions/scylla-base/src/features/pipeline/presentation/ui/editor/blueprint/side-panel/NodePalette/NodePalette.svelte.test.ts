@@ -70,7 +70,13 @@ describe('NodePalette', () => {
     afterEach(() => cleanup());
 
     const press = (row: HTMLElement, x: number) =>
-      fireEvent.pointerDown(row, { pointerId: 1, button: 0, isPrimary: true, clientX: x, clientY: 0 });
+      fireEvent.pointerDown(row, {
+        pointerId: 1,
+        button: 0,
+        isPrimary: true,
+        clientX: x,
+        clientY: 0,
+      });
     const moveTo = (row: HTMLElement, x: number) =>
       fireEvent.pointerMove(row, { pointerId: 1, clientX: x, clientY: 0 });
     const release = (row: HTMLElement, x: number) =>

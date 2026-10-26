@@ -1,9 +1,7 @@
 <script lang="ts">
   import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
   import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
-  import {
-    createPipelineDocument,
-  } from './pipeline-document.state.svelte.ts';
+  import { createPipelineDocument } from './pipeline-document.state.svelte.ts';
   import { pipelineIssueText } from '@base/features/pipeline/presentation/presenters/pipeline-issue.presenter.ts';
   import { warnBeforeUnload } from './unsaved-changes.effect.svelte.ts';
   import PipelineBlueprint from './blueprint/PipelineBlueprint.svelte';

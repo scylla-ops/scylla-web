@@ -29,7 +29,11 @@
   </SettingsSection>
 
   <SettingsSection title={t(userMessages.organizationsAndRoles)}>
-    <UserAccessList access={page.access} isLoading={page.accessLoading} isError={page.accessError} />
+    <UserAccessList
+      access={page.access}
+      isLoading={page.accessLoading}
+      isError={page.accessError}
+    />
   </SettingsSection>
 
   <SettingsSection

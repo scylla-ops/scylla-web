@@ -188,7 +188,9 @@ describe('compileRoutes', () => {
         ...configWith({ organization: [{ path: 'users', permission: LIST_USERS, page }] }),
         guard: undefined,
       }),
-    ).toThrow(/"\/:organizationSlug\/users" declares a `permission`, but no extension gives an access policy/);
+    ).toThrow(
+      /"\/:organizationSlug\/users" declares a `permission`, but no extension gives an access policy/,
+    );
   });
 
   it("keeps a route's own permission, and never lends it to a child", () => {

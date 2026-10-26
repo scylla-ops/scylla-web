@@ -1,11 +1,7 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
-  import {
-    onboardingMessages,
-  } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
-  import type {
-    OnboardingTour,
-  } from './onboarding-tour.state.svelte.ts';
+  import { onboardingMessages } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
+  import type { OnboardingTour } from './onboarding-tour.state.svelte.ts';
   import {
     VIEWPORT_MARGIN,
     placeCard,

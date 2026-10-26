@@ -3,9 +3,7 @@
   import { Badge } from '@scylla/ui/primitives';
   import { IconButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import {
-    membershipMessages,
-  } from '@base/features/membership/presentation/messages/membership.messages.ts';
+  import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   interface Props {
     isCurrentUser: boolean;

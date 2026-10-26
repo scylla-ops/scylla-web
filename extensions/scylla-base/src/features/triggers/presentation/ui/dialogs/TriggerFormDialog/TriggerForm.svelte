@@ -26,8 +26,12 @@
   } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggerMutations } from '@base/features/triggers/presentation/triggers.queries.ts';
   import { convertCronToLocal } from '@base/features/triggers/presentation/mappers/cron-timezone.mapper.ts';
-import { isCronExpressionValid } from '@base/features/triggers/domain/structs/cron-expression.struct.ts';
-import { buildTriggerDraft, triggerToDraftInputs, type DraftInput } from '@base/features/triggers/presentation/mappers/trigger-form.mapper.ts';
+  import { isCronExpressionValid } from '@base/features/triggers/domain/structs/cron-expression.struct.ts';
+  import {
+    buildTriggerDraft,
+    triggerToDraftInputs,
+    type DraftInput,
+  } from '@base/features/triggers/presentation/mappers/trigger-form.mapper.ts';
   import CronScheduleBuilder from '../CronScheduleBuilder/CronScheduleBuilder.svelte';
   import TriggerInputsEditor from '../TriggerInputsEditor/TriggerInputsEditor.svelte';
   import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
@@ -51,7 +55,6 @@ import { buildTriggerDraft, triggerToDraftInputs, type DraftInput } from '@base/
   // Seeded once: the dialog rebuilds the form at each opening.
   const DEFAULT_CRON = '0 9 * * *';
 
-   
   // svelte-ignore state_referenced_locally
   let name = $state(trigger?.name ?? '');
   // svelte-ignore state_referenced_locally
@@ -68,7 +71,6 @@ import { buildTriggerDraft, triggerToDraftInputs, type DraftInput } from '@base/
   );
   // svelte-ignore state_referenced_locally
   let inputs = $state<DraftInput[]>(triggerToDraftInputs(trigger));
-   
 
   /** An unknown source arm cannot be rendered, so it cannot be sent again. */
   // svelte-ignore state_referenced_locally

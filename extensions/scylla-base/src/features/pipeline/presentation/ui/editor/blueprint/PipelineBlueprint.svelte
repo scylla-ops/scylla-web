@@ -9,7 +9,10 @@
   import { nodeTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import { createQuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
   import BlueprintCanvas from './canvas/BlueprintCanvas.svelte';
-  import { catalogEntries, catalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+  import {
+    catalogEntries,
+    catalogText,
+  } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import PaletteDragGhost from './palette-drag/PaletteDragGhost.svelte';
   import { createPaletteDrag } from './palette-drag/palette-drag.state.svelte.ts';
   import { nodePositionAt } from './canvas/nodes/node-appearances.registry.ts';

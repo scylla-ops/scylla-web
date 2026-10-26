@@ -4,15 +4,11 @@
   import type { UserSummary } from '@base/features/user';
   import { UserIdentity, type MissingUser } from '@shared/presentation/ui';
   import type { MemberRole } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
-  import type {
-    AssignableRole,
-  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
+  import type { AssignableRole } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
   import AddRoleSelect from '../AddRoleSelect/AddRoleSelect.svelte';
   import MemberRoleBadges from '../MemberRoleBadges/MemberRoleBadges.svelte';
   import MemberRowAction from '../MemberRowAction/MemberRowAction.svelte';
-  import {
-    membershipMessages,
-  } from '@base/features/membership/presentation/messages/membership.messages.ts';
+  import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   interface Props {
     /** `undefined`: a missing user, named after `missing`. */
@@ -61,13 +57,7 @@
       {t(membershipMessages.roleCount(roles.length))}
     </span>
     <span class="shrink-0">
-      <MemberRowAction
-        {isCurrentUser}
-        {canRemove}
-        {disabled}
-        tooltip={removeTooltip}
-        {onRemove}
-      />
+      <MemberRowAction {isCurrentUser} {canRemove} {disabled} tooltip={removeTooltip} {onRemove} />
     </span>
   </div>
 
@@ -84,9 +74,7 @@
 
   {#if canManage}
     <!-- A constant height, so every card has the same size. -->
-    <div
-      class="flex min-h-11 items-center border-t border-border/70 bg-muted/30 px-4 py-2"
-    >
+    <div class="flex min-h-11 items-center border-t border-border/70 bg-muted/30 px-4 py-2">
       <AddRoleSelect {disabled} roles={addableRoles} {organizationName} onSelect={onAddRole} />
     </div>
   {/if}

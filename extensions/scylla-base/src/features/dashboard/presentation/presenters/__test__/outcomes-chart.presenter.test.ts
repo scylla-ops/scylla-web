@@ -28,8 +28,7 @@ const sampleCubic = (p0: Point, c1: Point, c2: Point, p1: Point, steps = 20): nu
     return u * u * u * p0.y + 3 * u * u * t * c1.y + 3 * u * t * t * c2.y + t * t * t * p1.y;
   });
 
-const numbersIn = (path: string): number[] =>
-  (path.match(/-?\d+(\.\d+)?/g) ?? []).map(Number);
+const numbersIn = (path: string): number[] => (path.match(/-?\d+(\.\d+)?/g) ?? []).map(Number);
 
 describe('localDay', () => {
   it('formats a local calendar day, zero-padded', () => {

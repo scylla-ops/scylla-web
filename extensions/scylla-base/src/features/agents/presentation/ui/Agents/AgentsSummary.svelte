@@ -32,9 +32,7 @@
         : t(messages.noAgentOnline),
   );
 
-  const jobsValue = $derived(
-    !canReadStats || statsLoading ? null : String(summary.outcomes.total),
-  );
+  const jobsValue = $derived(!canReadStats || statsLoading ? null : String(summary.outcomes.total));
   const jobsSub = $derived(
     !canReadStats
       ? t(messages.statsHidden)

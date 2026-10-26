@@ -7,7 +7,10 @@ import { reportWidgetInjectionError } from './report-widget-injection-error.ts';
  * a fresh app start) gives new `RegisteredComponent` objects, so the cache invalidates itself —
  * nothing to clear by hand.
  */
-const cache = new WeakMap<RegisteredComponent<never>, Promise<Component<{ context: never }> | null>>();
+const cache = new WeakMap<
+  RegisteredComponent<never>,
+  Promise<Component<{ context: never }> | null>
+>();
 
 /**
  * Never rejects: a failed import is logged and resolves to `null`, so the caller renders

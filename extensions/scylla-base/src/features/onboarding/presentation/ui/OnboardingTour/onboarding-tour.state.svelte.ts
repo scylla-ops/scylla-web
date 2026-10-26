@@ -10,7 +10,10 @@ import {
   type OnboardingStatus,
   type OnboardingSubject,
 } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
-import { onboardingMutations, onboardingQueries } from '@base/features/onboarding/presentation/onboarding.queries.ts';
+import {
+  onboardingMutations,
+  onboardingQueries,
+} from '@base/features/onboarding/presentation/onboarding.queries.ts';
 import {
   isAgentOffline,
   isTourVisible,

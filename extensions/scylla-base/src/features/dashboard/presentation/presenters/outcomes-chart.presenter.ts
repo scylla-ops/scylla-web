@@ -84,9 +84,10 @@ export const niceTicks = (peak: number, desired = 4): number[] => {
 
   const rawStep = peak / Math.max(1, desired);
   const magnitude = 10 ** Math.floor(Math.log10(rawStep));
-  const step = [1, 2, 5, 10]
-    .map(multiple => multiple * magnitude)
-    .find(candidate => candidate >= rawStep && candidate >= 1) ?? Math.ceil(rawStep);
+  const step =
+    [1, 2, 5, 10]
+      .map(multiple => multiple * magnitude)
+      .find(candidate => candidate >= rawStep && candidate >= 1) ?? Math.ceil(rawStep);
 
   const top = Math.ceil(peak / step) * step;
   const ticks: number[] = [];
@@ -94,11 +95,7 @@ export const niceTicks = (peak: number, desired = 4): number[] => {
   return ticks;
 };
 
-export const projectPoints = (
-  values: number[],
-  max: number,
-  geometry: ChartGeometry,
-): Point[] => {
+export const projectPoints = (values: number[], max: number, geometry: ChartGeometry): Point[] => {
   const { width, height, padding } = geometry;
   const innerWidth = width - padding.left - padding.right;
   const innerHeight = height - padding.top - padding.bottom;

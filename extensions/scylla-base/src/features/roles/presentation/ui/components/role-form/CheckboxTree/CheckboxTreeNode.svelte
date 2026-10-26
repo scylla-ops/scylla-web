@@ -97,11 +97,10 @@
                     class="absolute left-14 top-0 h-3.5 w-4 rounded-bl-md border-b border-l border-border"
                   ></span>
                 {:else}
-                  <span
-                    aria-hidden="true"
-                    class="absolute left-14 top-0 h-full w-px bg-border"
+                  <span aria-hidden="true" class="absolute left-14 top-0 h-full w-px bg-border"
                   ></span>
-                  <span aria-hidden="true" class="absolute left-14 top-3.5 h-px w-4 bg-border"></span>
+                  <span aria-hidden="true" class="absolute left-14 top-3.5 h-px w-4 bg-border"
+                  ></span>
                 {/if}
 
                 {@render level([child], isChecked)}

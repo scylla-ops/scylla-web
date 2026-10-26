@@ -7,9 +7,7 @@
   import { prefersReducedMotion } from '@scylla/ui';
   import { Button, DialogDescription, DialogTitle } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import {
-    createAgentCreation,
-  } from './create-agent.state.svelte.ts';
+  import { createAgentCreation } from './create-agent.state.svelte.ts';
   import { trackHeight } from './track-height.attachments.ts';
   import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
   import DialogFooterBand from '../DialogFooterBand.svelte';

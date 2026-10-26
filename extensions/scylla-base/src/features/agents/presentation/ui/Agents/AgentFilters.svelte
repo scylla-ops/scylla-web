@@ -3,10 +3,7 @@
   import SearchIcon from '@lucide/svelte/icons/search';
   import { Input, ToggleGroup, ToggleGroupItem } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import {
-    AGENT_FILTERS,
-    type AgentFilter,
-  } from './agents-page.state.svelte.ts';
+  import { AGENT_FILTERS, type AgentFilter } from './agents-page.state.svelte.ts';
   import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
   import { agentsPageMessages as messages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';
 

@@ -18,9 +18,7 @@
   } from '@base/features/apps/domain/entities/app.entity.ts';
   import { trimSecretLabel } from '@base/features/apps/domain/structs/secret-label.struct.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
-  import {
-    createAppSecretItems,
-  } from '@base/features/apps/presentation/presenters/app-secret-form.presenter.ts';
+  import { createAppSecretItems } from '@base/features/apps/presentation/presenters/app-secret-form.presenter.ts';
   import { appsMessages } from '@base/features/apps/presentation/messages/apps.messages.ts';
 
   interface Props {
@@ -80,9 +78,7 @@
           <Skeleton class="h-14 w-full rounded-md" />
         {/each}
       {:else if secrets.length === 0}
-        <p
-          class="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground"
-        >
+        <p class="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
           {t(appsMessages.noSecrets)}
         </p>
       {:else}

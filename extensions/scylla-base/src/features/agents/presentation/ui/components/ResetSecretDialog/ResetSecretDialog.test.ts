@@ -337,9 +337,7 @@ describe('ResetSecretDialog', () => {
     ]);
     expect(second[0].querySelector('svg')).toBeNull();
     expect(within(second[1] as HTMLElement).getByText('Shown one time')).toBeInTheDocument();
-    expect(
-      within(second[1] as HTMLElement).queryByText('Agent variables'),
-    ).not.toBeInTheDocument();
+    expect(within(second[1] as HTMLElement).queryByText('Agent variables')).not.toBeInTheDocument();
     expect(second[2]).toHaveTextContent('You will not see this secret again.');
   });
 });

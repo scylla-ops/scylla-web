@@ -72,7 +72,9 @@ const grantAll = () =>
 
 const renderPage = async (result: unknown, search = '') => {
   restoreRegistry = withRegistry({
-    jobs: { jobsRepository: { getById: vi.fn().mockResolvedValue(result) } as unknown as JobsRepository },
+    jobs: {
+      jobsRepository: { getById: vi.fn().mockResolvedValue(result) } as unknown as JobsRepository,
+    },
   });
   navigator = installTestNavigator({
     pathname: '/acme/projects/p1/pipelines/pipeline-1/jobs/job-1',
@@ -197,14 +199,8 @@ describe('JobDetailsPage', () => {
   it('marks the entries of the panels that are open', async () => {
     await renderPage(job(), '?nodes=build');
 
-    expect(screen.getByRole('button', { name: /^build/ })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
-    expect(screen.getByRole('button', { name: /^test/ })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: /^build/ })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /^test/ })).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('opens the node picked in the timeline alone, dropping the panels open beside it', async () => {
@@ -255,7 +251,9 @@ describe('JobDetailsPage', () => {
 
     await renderPage(job());
 
-    expect(screen.getByText("You don't have permission to view this job's logs")).toBeInTheDocument();
+    expect(
+      screen.getByText("You don't have permission to view this job's logs"),
+    ).toBeInTheDocument();
     expect(openPanels()).toEqual([]);
     // The job itself is still there — only its output is withheld.
     expect(screen.getByText('Success')).toBeInTheDocument();

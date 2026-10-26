@@ -9,9 +9,7 @@
     MemberRoleOrigin,
     type MemberRole,
   } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
-  import {
-    membershipMessages,
-  } from '@base/features/membership/presentation/messages/membership.messages.ts';
+  import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   interface Props {
     roles: MemberRole[];
@@ -23,14 +21,7 @@
     empty?: string;
   }
 
-  let {
-    roles,
-    labelFor,
-    canManage = false,
-    disabled = false,
-    onRevoke,
-    empty,
-  }: Props = $props();
+  let { roles, labelFor, canManage = false, disabled = false, onRevoke, empty }: Props = $props();
 
   /** Not `Badge`: its fixed height clips the scope dot and the revoke button. */
   const CHIP =

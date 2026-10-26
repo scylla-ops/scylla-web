@@ -1,8 +1,6 @@
 <script lang="ts">
   import type { MarketItem } from '@base/features/marketplace/domain/structs/market-item.struct.ts';
-  import {
-    matchesFilter,
-  } from '@base/features/marketplace/presentation/ui/marketplace-filter.state.svelte.ts';
+  import { matchesFilter } from '@base/features/marketplace/presentation/ui/marketplace-filter.state.svelte.ts';
   import MarketItemCard from './MarketItemCard.svelte';
 
   interface Props {
