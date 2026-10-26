@@ -7,8 +7,10 @@ import { findFloating, focusSettled, render, withQueryClient, withRegistry } fro
 import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { AppAccess } from '@base/features/apps';
-import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-import type { AgentStats } from '@base/features/agents/domain/structs/agent.struct.ts';
+import type {
+  AgentEntity,
+  AgentStats,
+} from '@base/features/agents/domain/entities/agent.entity.ts';
 import AgentsPage from './Agents.page.svelte';
 
 const NOW = '2026-10-11T08:00:00.000Z';

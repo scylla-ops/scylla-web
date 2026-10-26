@@ -1,5 +1,5 @@
 import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
-import { nameOf, parseScript, nodesOf, withName, withNodes } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
+import * as pipelineDocument from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
 import { pipelineIssue } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
 export interface PipelineDocumentParams {
@@ -23,9 +23,9 @@ export const createPipelineDocument = (params: PipelineDocumentParams) => {
     script = initial;
   });
 
-  const parsed = $derived(parseScript(script));
-  const nodes = $derived(nodesOf(parsed.document));
-  const pipelineName = $derived(nameOf(parsed.document));
+  const parsed = $derived(pipelineDocument.parseScript(script));
+  const nodes = $derived(pipelineDocument.nodesOf(parsed.document));
+  const pipelineName = $derived(pipelineDocument.nameOf(parsed.document));
   const isValid = $derived(parsed.document !== null && parsed.error === null);
   const isDirty = $derived(script !== baseline);
   /** What stops the save: the rules of the domain, on the document as it is. */
@@ -59,11 +59,11 @@ export const createPipelineDocument = (params: PipelineDocumentParams) => {
     },
 
     setNodes(next: PipelineNodeEntity[]) {
-      script = withNodes(parsed.document, next, params.projectId());
+      script = pipelineDocument.withNodes(parsed.document, next, params.projectId());
     },
 
     setName(name: string) {
-      const renamed = withName(parsed.document, name);
+      const renamed = pipelineDocument.withName(parsed.document, name);
       if (renamed !== null) script = renamed;
     },
   };

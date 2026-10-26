@@ -1,4 +1,4 @@
-import type { UserAccess } from '@base/features/user/domain/structs/user-access.struct.ts';
+import type { UserAccess } from '@base/features/user/domain/entities/user.entity.ts';
 
 export interface OrganizationAccess {
   organizationId: string;

@@ -1,7 +1,7 @@
 import type { ExtensionManifest, ModuleRoute } from '@scylla/core-sdk';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { ExtensionRepository } from '@base/features/extensions/domain/repository/extension.repository.ts';
-import type { InstalledExtension } from '@base/features/extensions/domain/structs/installed-extension.struct.ts';
+import type { InstalledExtensionEntity } from '@base/features/extensions/domain/entities/installed-extension.entity.ts';
 
 const countPages = (routes: readonly ModuleRoute[]): number =>
   routes.reduce(
@@ -9,7 +9,7 @@ const countPages = (routes: readonly ModuleRoute[]): number =>
     0,
   );
 
-const toInstalledExtension = (manifest: ExtensionManifest): InstalledExtension => ({
+const toInstalledExtension = (manifest: ExtensionManifest): InstalledExtensionEntity => ({
   id: manifest.id,
   name: manifest.name,
   version: manifest.version,
@@ -25,7 +25,7 @@ const toInstalledExtension = (manifest: ExtensionManifest): InstalledExtension =
 export class DefaultExtensionRepository implements ExtensionRepository {
   constructor(private readonly installed: () => readonly ExtensionManifest[]) {}
 
-  getInstalledExtensions(): Promise<ScyllaResult<InstalledExtension[]>> {
+  getInstalledExtensions(): Promise<ScyllaResult<InstalledExtensionEntity[]>> {
     return Promise.resolve(
       ScyllaResult.try(
         () => this.installed().map(toInstalledExtension),

@@ -320,12 +320,12 @@ feature/
 ├── AGENTS.md, README.md
 ├── domain/              → pure business logic: no Svelte, no gRPC, no proto
 │   ├── repository/      → repository interfaces + their input types (the data contract)
-│   ├── entities/        → {Name}Entity — identity-bearing objects (*.entity.ts)
-│   ├── structs/         → value objects, enums, DTOs, wrappers (*.struct.ts)
+│   ├── entities/        → one file per thing with an identity ({Name}Entity) + its own types
+│   ├── structs/         → a concept with no identity: a value object + its rules, a vocabulary
 │   └── use-cases/       → optional — only when a use case orchestrates (§5.1)
 ├── infrastructure/      → flat
 │   ├── default-feature.repository.ts   → repository implementation: gRPC call + mapping
-│   ├── grpc-feature.mapper.ts          → proto ↔ domain (Grpc{Entity}Mapper)
+│   ├── grpc-feature.mapper.ts          → proto ↔ domain (functions)
 │   └── __test__/
 ├── locales/             → i18n catalogs (en/, fr/)
 └── presentation/                   → one folder per role
@@ -340,7 +340,10 @@ feature/
 
 `ui/` holds Svelte only. A presenter, a mapper and the messages are plain TypeScript, in the
 folder of their role, and never import `ui/` (`presentation-logic-knows-no-ui`): a reader knows
-what a file does from its folder, and a presenter is tested without a component. Inside `ui/`, a
+what a file does from its folder, and a presenter is tested without a component. A function of
+the view goes by what it gives and what it needs, not by what it takes: a type of the domain →
+`domain/`; plain TypeScript, from data of the domain or from the structures of a view →
+`presenters/`; Svelte → `ui/`; no business meaning and two features use it → `@scylla/ui`. Inside `ui/`, a
 state or an attachment is in the folder of the component that uses it, or of the component that
 owns the concept when several use it: a view and its states are found, changed and deleted
 together.
@@ -351,15 +354,20 @@ together.
 
 - **Repository interfaces** are the data contract of the module. Presentation calls them
   directly. They know nothing about gRPC or HTTP, and their input types live beside them.
+- **Types are sorted by concept, not by kind.** A concept has one file.
 - **Entities** (`entities/*.entity.ts`, `{Name}Entity`) are the identity-bearing objects that the
-  feature owns: a thing of the domain with a life cycle. They can hold the related input shapes,
-  and pure functions on the entity: a function that takes it, or creates one.
+  feature owns: a thing of the domain with a life cycle. The file of an entity also holds every
+  type that exists only with it: the types it holds, its inputs, its list and result wrappers,
+  what the server tells about it, and its pure functions (a function that takes it, or creates
+  one).
 - **An aggregate root holds the rules on the entities it contains.** The pipeline keeps the ids
   of its nodes unique and their dependencies whole: `addNode`, `renameNode`, `removeNode` are in
   `pipeline.entity.ts`. What concerns one node only is in `pipeline-node.entity.ts`.
-- **Structs** (`structs/*.struct.ts`, plain PascalCase) are data shapes with no identity. A value
-  object holds its own validation (`node-id.struct.ts`: `NodeId`, `nodeIdIssue`), and nothing
-  else. There is no `utils/` folder in the domain.
+- **Structs** (`structs/*.struct.ts`, plain PascalCase) are concepts with no identity that stand
+  alone: a value object with its own rules (`node-id.struct.ts`: `NodeId`, `nodeIdIssue`), a
+  vocabulary that several entities or features share (`Permission`, `JobStatus`), or a shape
+  that no entity of the feature owns (`PasswordResetDelivery`). There is no `utils/` folder in
+  the domain.
 - **Behavior is pure functions, not classes with methods.** `$state` makes plain objects and
   arrays deeply reactive, not class instances, and the structural sharing of TanStack Query
   works on JSON data: the data stays plain.
@@ -373,11 +381,15 @@ together.
 
 | | **Entity** (`entities/*.entity.ts`) | **Struct** (`structs/*.struct.ts`) |
 |---|---|---|
-| Question | "What *thing* does this feature own?" | "What *plain shapes* describe or move data?" |
+| Question | "What *thing* does this feature own?" | "What concept with no identity stands alone?" |
 | Identity | Yes — has an `id` (or a stable key) | No — interchangeable by value |
-| Examples | `SecretEntity`, `RoleEntity`, `UserEntity`, `PipelineEntity` | `Permission`, `PermissionScope`, `ProjectList`, `CreatedApp` |
-| Naming | `{Name}Entity` | plain PascalCase (no suffix) |
-| One file per | aggregate / entity | cohesive group of related shapes |
+| Holds also | every type that exists only with the entity: `JobNodeExecution`, `CreateSecretInput`, `ProjectList`, `CreatedApp`, `AgentStats` | its own rules (validation, transitions) |
+| Examples | `SecretEntity`, `RoleEntity`, `UserEntity`, `PipelineEntity` | `NodeId`, `Permission`, `PermissionScope`, `JobStatus`, `OnboardingStatus` |
+| Naming | `{Name}Entity` for a type with an identity, plain PascalCase for the others | plain PascalCase (no suffix) |
+| One file per | entity (an aggregate root holds the entities it contains) | concept |
+
+To place a type: it exists only with one entity → the file of that entity. Else it has an
+identity → an entity file of its own. Else → a struct file.
 
 ```typescript
 // secret.entity.ts — the read shape (metadata only; the value is write-only)
@@ -417,7 +429,8 @@ from the proto type with the same bare name (aliased in mappers, e.g. `User as P
 - **Repository implementation** (`Default{Entity}Repository`): calls the gRPC client and maps
   the response to domain types. Its constructor takes the generated client interface
   (`I{Service}ServiceClient`), which a test replaces with a fake.
-- **Mappers** (`Grpc{Entity}Mapper`): proto ↔ domain. Pure functions, tested alone.
+- **Mappers** (`grpc-{entity}.mapper.ts`): proto ↔ domain. Pure functions, tested alone. The
+  repository imports the module as a namespace: `import * as grpcUser from './grpc-user.mapper.ts'`.
 - **Data sources**: only when a feature has two sources or more (a cache, a local store, a
   second transport). One data source per source, behind the same repository. With one source,
   a data source interface would only repeat the repository contract.
@@ -429,7 +442,7 @@ export class DefaultUserRepository implements UserRepository {
   public getAll(): Promise<ScyllaResult<PaginatedList<UserEntity>>> {
     return ScyllaResult.tryAsync(async () => {
       const response = await this.client.listUsers({}).response;
-      return GrpcUserMapper.toDomainList(response);
+      return grpcUser.toDomainList(response);
     }, 'Failed to fetch users.');
   }
 }
@@ -481,7 +494,7 @@ Where the logic goes:
 | UI state with one responsibility | a state | `<responsibility>.state.svelte.ts`, beside its users |
 | Synchronize with a system outside Svelte | an effect | `*.effect.svelte.ts`, beside its user |
 | Read an outside API from rune code | an adapter | `*.adapter.svelte.ts` |
-| Turn domain data into what a view shows | a presenter | `presenters/*.presenter.ts` |
+| Compute what a view shows or does, in plain TypeScript | a presenter | `presenters/*.presenter.ts` |
 | Convert a view format and the domain, both ways | a mapper | `mappers/*.mapper.ts` |
 | DOM measurement, native events, a third-party widget | an attachment (`{@attach}`) | `*.attachments.ts`, beside its user |
 

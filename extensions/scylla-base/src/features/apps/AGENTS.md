@@ -84,14 +84,14 @@ Dots and upper case are valid.
 apps.module.ts                       DI wiring only — no routes, no nav (see below)
 index.ts                             public API
 domain/
-  entities/app.entity.ts             AppEntity, AppSecretEntity
-  structs/app.struct.ts              CreatedApp, CreatedAppSecret, AppAccess, ResetAppSecret
+  entities/app.entity.ts             AppEntity, AppSecretEntity, CreatedApp, CreatedAppSecret,
+                                     AppAccess, ResetAppSecret
   structs/secret-label.struct.ts     the label rules and suggestSecretLabel (pure)
   repository/apps.repository.ts      the contract
   use-cases/reset-app-secret.use-case.ts   ResetAppSecretUseCase
 infrastructure/
   default-apps.repository.ts         AppServiceClient → AppEntity
-  grpc-app.mapper.ts                 GrpcAppMapper
+  grpc-app.mapper.ts                 proto ↔ domain
 presentation/
   apps.queries.ts                    every read and write, as query/mutation options
   ui/Apps.page.svelte, AppDetails.page.svelte

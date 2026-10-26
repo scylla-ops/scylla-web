@@ -35,7 +35,7 @@ from the entities on purpose: they are the *creation response*, and they hold th
 secret the backend returns exactly once.
 
 **Infrastructure** implements `AppsRepository` over gRPC-Web: `DefaultAppsRepository` calls the
-generated client and `GrpcAppMapper` does proto → domain.
+generated client and `grpc-app.mapper.ts` does proto → domain.
 
 **Presentation**: `apps.queries.ts` declares every read and write as `queryOptions` /
 `mutationOptions` — plain data with no framework in it — and the two pages run them with

@@ -1,6 +1,10 @@
 /** `agentQueries` checks `LIST_AGENTS` itself. */
-export type { AgentEntity } from './domain/entities/agent.entity.ts';
-export type { AgentStats, CreatedAgent, DailyOutcome } from './domain/structs/agent.struct.ts';
+export type {
+  AgentEntity,
+  AgentStats,
+  CreatedAgent,
+  DailyOutcome,
+} from './domain/entities/agent.entity.ts';
 export {
   agentQueries,
   agentMutations,

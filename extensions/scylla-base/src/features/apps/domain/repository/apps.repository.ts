@@ -2,12 +2,10 @@ import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {
   AppEntity,
   AppSecretEntity,
-} from '@base/features/apps/domain/entities/app.entity.ts';
-import type {
   AppAccess,
   CreatedApp,
   CreatedAppSecret,
-} from '@base/features/apps/domain/structs/app.struct.ts';
+} from '@base/features/apps/domain/entities/app.entity.ts';
 
 export interface AppsRepository {
   listApps(organizationId: string): Promise<ScyllaResult<AppEntity[]>>;

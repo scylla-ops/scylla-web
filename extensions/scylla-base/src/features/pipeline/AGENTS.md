@@ -42,7 +42,7 @@ not through the barrel.
 
 | Method | Returns |
 |---|---|
-| `list()` | `NodeTemplate[]` — the ready-made nodes of the editor's palette |
+| `list()` | `NodeTemplateEntity[]` — the ready-made nodes of the editor's palette |
 
 `DefaultNodeTemplateRepository` serves `BUILT_IN_NODE_TEMPLATES` today. When the backend
 serves templates, a gRPC implementation replaces it in `pipeline.module.ts`; the palette and
@@ -65,20 +65,20 @@ Reach a repository with `getModuleDomain<typeof PipelineModule.domain>('pipeline
 pipeline.module.ts                           4 routes + DI wiring (private; registry only)
 index.ts                                     public API
 domain/
-  entities/pipeline.entity.ts                PipelineEntity, the root of its nodes: newPipeline,
+  entities/pipeline.entity.ts                PipelineEntity, PipelineIdentity, PipelineMetadata, the
+                                             root of its nodes: newPipeline,
                                              pipelineIssue (can it be saved), repeatedNodeIds, and the
                                              graph of the nodes: addNode, updateNode, renameNode,
                                              removeNode, moveNode, setDependencies, dependentsOf,
                                              dependencyCandidates, nodeDepths, waitsFor, uniqueNodeId,
                                              hasRepeats (pure, tested)
-  entities/pipeline-node.entity.ts           PipelineNodeEntity, NodeDefinition: definitionOf, nodeIssue,
+  entities/pipeline-node.entity.ts           PipelineNodeEntity, NodeDefinition, Shell, EnvEntry:
+                                             definitionOf, nodeIssue,
                                              nodeProblem, blankDefinition, withDefinition,
                                              withDependencies, withoutDependency, withRenamedReference
-  structs/pipeline.struct.ts                 PipelineIdentity, PipelineMetadata
-  structs/node.struct.ts                     Shell, EnvEntry
+  entities/node-template.entity.ts           NodeTemplateEntity: a ready-made node of the palette
   structs/node-id.struct.ts                  NodeId: the id rule of the server (nodeIdIssue, toNodeId)
   structs/pipeline-name.struct.ts            PipelineNameIssue, pipelineNameIssue
-  structs/node-template.struct.ts            NodeTemplate
   use-cases/save-pipeline.use-case.ts        SavePipelineUseCase: the rules of the server, then create or edit
   repository/pipeline.repository.ts
   repository/node-template.repository.ts

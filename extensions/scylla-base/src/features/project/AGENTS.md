@@ -53,8 +53,7 @@ Reach it with `useProjectDomain()` **inside a hook only**.
 project.module.ts                    route + nav + DI wiring (private; registry only)
 index.ts                             public API
 domain/
-  entities/project.entity.ts         ProjectEntity
-  structs/project.struct.ts          ProjectList
+  entities/project.entity.ts         ProjectEntity, ProjectList
   repository/project.repository.ts
 infrastructure/
   default-project.repository.ts      ProjectServiceClient → ProjectEntity; toCreateProjectError

@@ -5,7 +5,7 @@
   import { DataTable } from '@scylla/ui';
   import { createSelection } from '@scylla/ui/state';
   import { toStatusState } from '@shared/utils/job-status.utils.ts';
-  import type { PipelineMetadata } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import type { PipelineMetadata } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
   import { pipelineMutations } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import type { RunPipeline } from '@base/features/pipeline/presentation/ui/run-pipeline.state.svelte.ts';
   import PipelineChart from './PipelineChart.svelte';

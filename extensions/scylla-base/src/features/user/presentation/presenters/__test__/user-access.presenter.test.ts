@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { UserAccess } from '@base/features/user/domain/structs/user-access.struct.ts';
+import type { UserAccess } from '@base/features/user/domain/entities/user.entity.ts';
 import { groupUserAccess } from '../user-access.presenter.ts';
 
 const grant = (overrides: Partial<UserAccess>): UserAccess => ({

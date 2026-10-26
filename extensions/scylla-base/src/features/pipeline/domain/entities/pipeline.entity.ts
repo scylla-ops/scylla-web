@@ -1,4 +1,3 @@
-import type { PipelineIdentity } from '../structs/pipeline.struct.ts';
 import { pipelineNameIssue, type PipelineNameIssue } from '../structs/pipeline-name.struct.ts';
 import { nodeIdIssue, type NodeId } from '../structs/node-id.struct.ts';
 import {
@@ -9,6 +8,18 @@ import {
   type PipelineNodeEntity,
   type NodeDefinition,
 } from './pipeline-node.entity.ts';
+
+export interface PipelineIdentity {
+  id: string;
+  projectId: string;
+  name: string;
+}
+
+export interface PipelineMetadata extends PipelineIdentity {
+  nodeCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 /**
  * The root of its nodes: each node waits for the nodes of its `deps`, and the operations below

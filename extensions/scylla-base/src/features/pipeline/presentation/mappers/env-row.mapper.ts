@@ -1,4 +1,4 @@
-import type { EnvEntry } from '@base/features/pipeline/domain/structs/node.struct.ts';
+import type { EnvEntry } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 
 /** A row of the environment form. Keeps both a literal and a secret reference, so switching the kind loses nothing typed. */
 export interface EnvRow {

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { activeLocale, t } from '@scylla/ui/i18n';
-  import type { DailyOutcome } from '@base/features/agents/domain/structs/agent.struct.ts';
+  import type { DailyOutcome } from '@base/features/agents/domain/entities/agent.entity.ts';
   import {
     successRateOf,
     sumOutcomes,

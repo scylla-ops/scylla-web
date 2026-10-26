@@ -17,35 +17,33 @@ const toSubject = (value: unknown): OnboardingSubject | undefined => {
   return subject;
 };
 
-export class StoredOnboardingMapper {
-  static toStatus(raw: string | null): OnboardingStatus {
-    if (raw === null) return NOT_STARTED;
+export function toStatus(raw: string | null): OnboardingStatus {
+  if (raw === null) return NOT_STARTED;
 
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return NOT_STARTED;
+  }
+  if (!isRecord(parsed)) return NOT_STARTED;
+
+  switch (parsed.kind) {
+    case 'completed':
+    case 'skipped':
+      return { kind: parsed.kind };
+    case 'in-progress': {
+      if (typeof parsed.step !== 'string') return NOT_STARTED;
+      const subject = toSubject(parsed.subject);
+      return subject
+        ? { kind: 'in-progress', step: parsed.step, subject }
+        : { kind: 'in-progress', step: parsed.step };
+    }
+    default:
       return NOT_STARTED;
-    }
-    if (!isRecord(parsed)) return NOT_STARTED;
-
-    switch (parsed.kind) {
-      case 'completed':
-      case 'skipped':
-        return { kind: parsed.kind };
-      case 'in-progress': {
-        if (typeof parsed.step !== 'string') return NOT_STARTED;
-        const subject = toSubject(parsed.subject);
-        return subject
-          ? { kind: 'in-progress', step: parsed.step, subject }
-          : { kind: 'in-progress', step: parsed.step };
-      }
-      default:
-        return NOT_STARTED;
-    }
   }
+}
 
-  static toStored(status: OnboardingStatus): string {
-    return JSON.stringify(status);
-  }
+export function toStored(status: OnboardingStatus): string {
+  return JSON.stringify(status);
 }

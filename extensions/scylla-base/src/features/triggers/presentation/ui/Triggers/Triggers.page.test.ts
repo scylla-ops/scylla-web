@@ -10,7 +10,7 @@ import type {
   TriggersRepository,
 } from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import TriggersPage from './Triggers.page.svelte';
 
 const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({

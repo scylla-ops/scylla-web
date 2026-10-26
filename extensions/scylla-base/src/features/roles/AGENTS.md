@@ -106,7 +106,7 @@ domain/
   entities/grant.entity.ts           GrantEntity, buildGrantEligibility: who may receive a project
                                      grant, and why not (pure)
   entities/grantable-role.entity.ts  GrantableRoleEntity
-  entities/permission-vocabulary.entity.ts  PermissionVocabularyEntity, PermissionActionEntity
+  structs/permission-vocabulary.struct.ts   PermissionVocabulary, PermissionAction
   structs/permission-catalog.struct.ts      the permissions of a role: scope, dependencies, the
                                      implicit ones, carriedBy, and lockedPermissionsOf (the
                                      escalation rule: what an author may not tick) (pure)

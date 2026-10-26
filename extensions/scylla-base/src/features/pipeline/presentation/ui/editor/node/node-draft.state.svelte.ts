@@ -1,13 +1,13 @@
-import type { Shell } from '@base/features/pipeline/domain/structs/node.struct.ts';
+import type {
+  Shell,
+  PipelineNodeEntity,
+  NodeDefinition,
+} from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import {
   toEnvEntry,
   toEnvRow,
   type EnvRow,
 } from '@base/features/pipeline/presentation/mappers/env-row.mapper.ts';
-import type {
-  PipelineNodeEntity,
-  NodeDefinition,
-} from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import { nodeIdIssue, toNodeId } from '@base/features/pipeline/domain/structs/node-id.struct.ts';
 import { nodeIssue } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 

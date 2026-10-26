@@ -1,9 +1,9 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { GrpcProjectMapper } from '../grpc-project.mapper.ts';
+import * as grpcProject from '../grpc-project.mapper.ts';
 import type { Project } from '@base/generated/scylla/project/v1/project.ts';
 
-describe('GrpcProjectMapper.toDomain', () => {
+describe('grpcProject.toDomain', () => {
   it('unwraps the id and carries name/description through', () => {
     const project: Project = {
       projectId: { value: 'project-1' },
@@ -12,7 +12,7 @@ describe('GrpcProjectMapper.toDomain', () => {
       description: 'the web app',
       isActive: true,
     };
-    expect(GrpcProjectMapper.toDomain(project)).toEqual({
+    expect(grpcProject.toDomain(project)).toEqual({
       id: 'project-1',
       name: 'web',
       description: 'the web app',
@@ -27,11 +27,11 @@ describe('GrpcProjectMapper.toDomain', () => {
       description: '',
       isActive: true,
     };
-    expect(GrpcProjectMapper.toDomain(project).id).toBe('');
+    expect(grpcProject.toDomain(project).id).toBe('');
   });
 });
 
-describe('GrpcProjectMapper.toDomainList', () => {
+describe('grpcProject.toDomainList', () => {
   it('maps every project and carries the pagination metadata through', () => {
     const pagination = {
       totalCount: 1,
@@ -41,7 +41,7 @@ describe('GrpcProjectMapper.toDomainList', () => {
       hasNext: false,
       hasPrevious: false,
     };
-    const result = GrpcProjectMapper.toDomainList({
+    const result = grpcProject.toDomainList({
       projects: [
         {
           projectId: { value: 'project-1' },

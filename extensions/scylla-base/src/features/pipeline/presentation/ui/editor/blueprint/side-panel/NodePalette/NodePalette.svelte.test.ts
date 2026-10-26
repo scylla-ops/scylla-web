@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import type { NodeTemplate } from '@base/features/pipeline/domain/structs/node-template.struct.ts';
+import type { NodeTemplateEntity } from '@base/features/pipeline/domain/entities/node-template.entity.ts';
 import { flushSync } from 'svelte';
 import { catalogEntries } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
 import {
@@ -10,7 +10,7 @@ import {
 } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag/palette-drag.state.svelte.ts';
 import NodePalette from './NodePalette.svelte';
 
-const template: NodeTemplate = {
+const template: NodeTemplateEntity = {
   id: 'npm-ci',
   name: 'npm ci',
   nodeId: 'install-deps',

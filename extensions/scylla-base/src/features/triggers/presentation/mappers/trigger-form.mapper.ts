@@ -1,9 +1,9 @@
 import type {
   TriggerDraft,
   TriggerEntity,
+  TriggerDraftKind,
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
-import type { TriggerDraftKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 
 import { convertCronToUTC } from './cron-timezone.mapper.ts';
 

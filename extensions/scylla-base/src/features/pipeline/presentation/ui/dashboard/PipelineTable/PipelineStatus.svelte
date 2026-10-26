@@ -6,7 +6,7 @@
   } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { formatDay } from '@shared/utils/date-utils.ts';
-  import type { PipelineMetadata } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+  import type { PipelineMetadata } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
   interface Props {

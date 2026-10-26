@@ -90,14 +90,9 @@ function convertCronTimezone(cronExpression: string, toUTC: boolean): string {
       else dayDiff = utcDayNum - localDayNum;
     }
   } else {
+    // The local day, as above: a UTC day can have another offset, and the round trip would shift.
     const utcDate = new Date(
-      Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate(),
-        Number(hour),
-        Number(minute),
-      ),
+      Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), Number(hour), Number(minute)),
     );
     targetMinute = String(utcDate.getMinutes());
     targetHour = String(utcDate.getHours());

@@ -1,3 +1,5 @@
+import type { PaginatedList } from '@scylla/ui/structs';
+
 export interface UserEntity {
   userId: string;
   /** A handle, unique across accounts, shown as `@username`. Never holds '@'. */
@@ -13,6 +15,24 @@ export interface UserEntity {
 
 /** What it takes to show a person. The member lists carry no more than this. */
 export type UserSummary = Pick<UserEntity, 'userId' | 'username' | 'email' | 'displayName'>;
+
+export type UserList = PaginatedList<UserEntity>;
+
+export type UserAccessScope = 'system' | 'organization' | 'project';
+
+/** One grant of a user, with the names to show it. */
+export interface UserAccess {
+  grantId: string;
+  scope: UserAccessScope;
+  /** Absent for the system scope. */
+  organizationId?: string;
+  organizationName: string;
+  /** Set for the project scope only. */
+  projectId?: string;
+  projectName: string;
+  roleId: string;
+  roleName: string;
+}
 
 export interface CreateUserInput {
   email: string;

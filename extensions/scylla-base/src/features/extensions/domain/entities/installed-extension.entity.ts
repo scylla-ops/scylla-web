@@ -1,5 +1,5 @@
 /** An extension that the app runs. */
-export interface InstalledExtension {
+export interface InstalledExtensionEntity {
   id: string;
   name: string;
   version: string;

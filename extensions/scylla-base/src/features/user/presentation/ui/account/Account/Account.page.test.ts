@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { toast } from 'svelte-sonner';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { UserAccess } from '@base/features/user/domain/structs/user-access.struct.ts';
+import type { UserAccess } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import AccountPage from './Account.page.svelte';
 

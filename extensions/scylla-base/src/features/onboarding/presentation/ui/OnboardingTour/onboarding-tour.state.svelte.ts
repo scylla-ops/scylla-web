@@ -2,25 +2,29 @@ import { createMutation, createQuery, getQueryClient } from '@scylla/core-sdk';
 import { agentQueries, CREATE_AGENT_MUTATION_KEY } from '@base/features/agents';
 import { contextStore, scyllaNavigate } from '@platform/context';
 import { toRune } from '@scylla/ui/stores';
-import type {
-  OnboardingStatus,
-  OnboardingSubject,
-} from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
-import { onboardingMutations, onboardingQueries } from '@base/features/onboarding/presentation/onboarding.queries.ts';
 import {
   advanceTour,
   currentStepId,
-  isAgentOffline,
-  isTourVisible,
   rememberSubject,
   rewindTour,
-  sameMutationKey,
+  type OnboardingStatus,
+  type OnboardingSubject,
+} from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
+import { onboardingMutations, onboardingQueries } from '@base/features/onboarding/presentation/onboarding.queries.ts';
+import {
+  isAgentOffline,
+  isTourVisible,
   stepCount,
-} from '@base/features/onboarding/presentation/presenters/tour-machine.presenter.ts';
+} from '@base/features/onboarding/presentation/presenters/tour.presenter.ts';
 import { TOUR_STEPS, type TourStep } from './tour-steps.registry.ts';
 
 const STEP_IDS = TOUR_STEPS.map(step => step.id);
 const SPOT_STEP_IDS = TOUR_STEPS.filter(step => step.kind === 'spot').map(step => step.id);
+
+const sameMutationKey = (
+  key: readonly unknown[] | undefined,
+  expected: readonly unknown[],
+): boolean => !!key && JSON.stringify(key) === JSON.stringify(expected);
 
 const createdAgentId = (data: unknown): string | undefined => {
   if (typeof data !== 'object' || data === null || !('agent' in data)) return undefined;

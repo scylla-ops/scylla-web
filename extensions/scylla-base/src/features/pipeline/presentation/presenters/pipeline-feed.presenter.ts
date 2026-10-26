@@ -1,5 +1,5 @@
 import type { PaginatedList } from '@scylla/ui/structs';
-import type { PipelineMetadata } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
+import type { PipelineMetadata } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
 /** The single page, and whether it covers the whole list. */
 export const asPipelineFeed = (data: PaginatedList<PipelineMetadata> | undefined) => {

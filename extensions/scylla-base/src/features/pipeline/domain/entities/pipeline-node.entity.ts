@@ -1,5 +1,11 @@
-import type { EnvEntry, Shell } from '../structs/node.struct.ts';
 import { nodeIdIssue, type NodeId, type NodeIdIssue } from '../structs/node-id.struct.ts';
+
+export type Shell = 'sh' | 'bash';
+
+/** An inline value, or the name of a project secret resolved at dispatch: the client never holds a secret value. */
+export type EnvEntry =
+  | { key: string; kind: 'literal'; value: string }
+  | { key: string; kind: 'secret'; secretRef: string };
 
 interface PipelineNodeBase {
   id: NodeId;

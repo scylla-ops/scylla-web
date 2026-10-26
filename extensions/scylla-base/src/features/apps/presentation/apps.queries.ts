@@ -1,12 +1,13 @@
 import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
 import { Permission, can } from '@platform/authz';
-import type { AppEntity, AppSecretEntity } from '../domain/entities/app.entity.ts';
 import type {
+  AppEntity,
+  AppSecretEntity,
   AppAccess,
   CreatedApp,
   CreatedAppSecret,
   ResetAppSecret,
-} from '../domain/structs/app.struct.ts';
+} from '../domain/entities/app.entity.ts';
 import { trimSecretLabel } from '../domain/structs/secret-label.struct.ts';
 import type { AppsModule } from '../apps.module.ts';
 import type { ScyllaResult } from '@shared/utils/scylla-result.ts';

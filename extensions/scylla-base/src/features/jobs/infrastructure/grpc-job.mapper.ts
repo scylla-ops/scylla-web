@@ -1,5 +1,8 @@
-import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
-import type { JobNodeExecution, JobLog } from '@base/features/jobs/domain/structs/job.struct.ts';
+import type {
+  JobEntity,
+  JobNodeExecution,
+  JobLog,
+} from '@base/features/jobs/domain/entities/job.entity.ts';
 import type {
   Job,
   JobNode,
@@ -102,54 +105,52 @@ function nodeStartedAt(execution: JobNode['execution']): string | undefined {
   return undefined;
 }
 
-export class GrpcJobMapper {
-  private static nodeExecutionToDomain(node: JobNode): JobNodeExecution {
-    const finished = node.execution.oneofKind === 'finished' ? node.execution.finished : undefined;
-    return {
-      id: idValue(node.nodeId),
-      state: nodeStateFromExecution(node.execution),
-      startedAt: nodeStartedAt(node.execution),
-      finishedAt: timestampToIsoOpt(finished?.finishedAt),
-    };
-  }
+function nodeExecutionToDomain(node: JobNode): JobNodeExecution {
+  const finished = node.execution.oneofKind === 'finished' ? node.execution.finished : undefined;
+  return {
+    id: idValue(node.nodeId),
+    state: nodeStateFromExecution(node.execution),
+    startedAt: nodeStartedAt(node.execution),
+    finishedAt: timestampToIsoOpt(finished?.finishedAt),
+  };
+}
 
-  static toDomain(job: Job): JobEntity {
-    const terminal = job.state.oneofKind === 'terminal' ? job.state.terminal : undefined;
-    return {
-      id: idValue(job.jobId),
-      pipelineId: idValue(job.pipelineId),
-      status: jobStatusFromState(job.state),
-      nodeExecutions: job.nodeExecutions.map(GrpcJobMapper.nodeExecutionToDomain),
-      createdAt: timestampToIso(job.createdAt),
-      updatedAt: timestampToIso(job.updatedAt),
-      startedAt: jobStartedAt(job.state),
-      finishedAt: timestampToIsoOpt(terminal?.finishedAt),
-    };
-  }
+export function toDomain(job: Job): JobEntity {
+  const terminal = job.state.oneofKind === 'terminal' ? job.state.terminal : undefined;
+  return {
+    id: idValue(job.jobId),
+    pipelineId: idValue(job.pipelineId),
+    status: jobStatusFromState(job.state),
+    nodeExecutions: job.nodeExecutions.map(nodeExecutionToDomain),
+    createdAt: timestampToIso(job.createdAt),
+    updatedAt: timestampToIso(job.updatedAt),
+    startedAt: jobStartedAt(job.state),
+    finishedAt: timestampToIsoOpt(terminal?.finishedAt),
+  };
+}
 
-  /** The pipeline, project and organization listings share this shape. */
-  static toDomainList(response: JobListResponse): PaginatedList<JobEntity> {
-    return {
-      items: response.jobs.map(GrpcJobMapper.toDomain),
-      pagination: response.pagination as PaginationInfo,
-    };
-  }
+/** The pipeline, project and organization listings share this shape. */
+export function toDomainList(response: JobListResponse): PaginatedList<JobEntity> {
+  return {
+    items: response.jobs.map(toDomain),
+    pagination: response.pagination as PaginationInfo,
+  };
+}
 
-  static logEntryToDomain(entry: JobLogEntry): JobLog {
-    return {
-      id: idValue(entry.jobLogId),
-      jobId: idValue(entry.jobId),
-      nodeId: idValue(entry.nodeId),
-      stream: logStreamToString(entry.stream),
-      line: entry.line,
-      timestamp: timestampToIso(entry.timestamp),
-    };
-  }
+export function logEntryToDomain(entry: JobLogEntry): JobLog {
+  return {
+    id: idValue(entry.jobLogId),
+    jobId: idValue(entry.jobId),
+    nodeId: idValue(entry.nodeId),
+    stream: logStreamToString(entry.stream),
+    line: entry.line,
+    timestamp: timestampToIso(entry.timestamp),
+  };
+}
 
-  static logsToDomainList(response: ListJobLogsResponse): PaginatedList<JobLog> {
-    return {
-      items: response.logs.map(GrpcJobMapper.logEntryToDomain),
-      pagination: response.pagination as PaginationInfo,
-    };
-  }
+export function logsToDomainList(response: ListJobLogsResponse): PaginatedList<JobLog> {
+  return {
+    items: response.logs.map(logEntryToDomain),
+    pagination: response.pagination as PaginationInfo,
+  };
 }

@@ -1,6 +1,6 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { t } from '@scylla/ui/i18n';
-import type { NodeTemplate } from '@base/features/pipeline/domain/structs/node-template.struct.ts';
+import type { NodeTemplateEntity } from '@base/features/pipeline/domain/entities/node-template.entity.ts';
 import {
   blankDefinition,
   type NodeDefinition,
@@ -91,7 +91,7 @@ export const BLANK_NODES: readonly CatalogEntry[] = [
   },
 ];
 
-export const catalogEntries = (templates: readonly NodeTemplate[]): CatalogEntry[] => [
+export const catalogEntries = (templates: readonly NodeTemplateEntity[]): CatalogEntry[] => [
   ...BLANK_NODES,
   ...templates.map(
     (template): CatalogEntry => ({

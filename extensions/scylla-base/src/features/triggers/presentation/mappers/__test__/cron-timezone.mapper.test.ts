@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { convertCronToLocal, convertCronToUTC } from '../cron-timezone.mapper.ts';
 
 describe('convertCronToUTC / convertCronToLocal', () => {
@@ -27,4 +27,23 @@ describe('convertCronToUTC / convertCronToLocal', () => {
       expect(convertCronToUTC(convertCronToLocal(expression))).toBe(expression);
     },
   );
+});
+
+describe('the day of reference', () => {
+  const hostZone = process.env.TZ;
+
+  afterEach(() => {
+    vi.useRealTimers();
+    if (hostZone === undefined) delete process.env.TZ;
+    else process.env.TZ = hostZone;
+  });
+
+  it('is the same local day in both directions, also when the UTC day has a different offset', () => {
+    // 00:23 in Paris on 26 October: still 25 October in UTC, the last day of summer time.
+    process.env.TZ = 'Europe/Paris';
+    vi.useFakeTimers({ now: new Date('2026-10-25T23:23:00Z') });
+
+    expect(convertCronToLocal('0 0 * * *')).toBe('0 1 * * *');
+    expect(convertCronToUTC(convertCronToLocal('0 0 * * *'))).toBe('0 0 * * *');
+  });
 });

@@ -28,6 +28,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   components render in the owner's tree, so they read its Svelte context. A `replace` does not
   mount the owner's content. A widget injection does not change.
 - A repository calls its gRPC client directly. The data source layer between them is removed.
+- A mapper exports functions, not a class with static methods. A repository imports the mapper as
+  a namespace: `grpcUser.toDomain(user)`, not `GrpcUserMapper.toDomain(user)`. No mapper is part of
+  a public API, so no extension changes.
 - **Breaking:** The node of a pipeline is `PipelineNodeEntity` in `@scylla/base-sdk` (it was
   `PipelineStep`). The pipeline editor says node everywhere, as the protos, the jobs and the
   dashboard do.
@@ -38,6 +41,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   `@platform/authz`), the eligibility of a grant, the 5-field rule of a cron expression. Each rune
   file names its role (`.state`, `.effect`, `.adapter`, `.attachments`), and the test harness is
   `test/render.ts`.
+- The domain of each module sorts its types by concept: the file of an entity holds every type
+  that exists only with it (its parts, its inputs, its wrappers), and a struct file holds only a
+  concept with no identity that stands alone. The transitions of the onboarding status move to
+  the domain.
+- **Breaking:** The extension that the app runs is `InstalledExtensionEntity` in
+  `@scylla/base-sdk` (it was `InstalledExtension`).
 - The pipeline editor does not save a pipeline that the server refuses: a name with spaces, a
   node id that the server does not accept, or two nodes with the same id. Save is disabled, and
   the header says why. The blueprint shows two nodes with the same id in red and does not
