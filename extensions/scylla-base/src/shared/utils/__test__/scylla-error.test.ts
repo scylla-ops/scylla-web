@@ -61,6 +61,11 @@ describe('ScyllaError', () => {
       expect(err.cause).toBe(cause);
     });
 
+    it('marks the message as raw: it comes from the server or from an exception', () => {
+      expect(ScyllaError.from(new Error('x')).raw).toBe(true);
+      expect(new ScyllaError('Written for the user').raw).toBe(false);
+    });
+
     it('makes any other thrown value an UNKNOWN_ERROR', () => {
       expect(ScyllaError.from(new TypeError('x is undefined')).code).toBe('UNKNOWN_ERROR');
       expect(ScyllaError.from('a string').message).toBe('a string');
@@ -80,7 +85,7 @@ describe('ScyllaError', () => {
       );
     });
 
-    it('surfaces the message for the codes the user can act on', () => {
+    it('surfaces the raw message of the server for the codes the user can act on', () => {
       for (const code of [
         'INVALID_ARGUMENT',
         'FAILED_PRECONDITION',
@@ -89,7 +94,7 @@ describe('ScyllaError', () => {
         'NOT_FOUND',
         'INVALID_CREDENTIALS',
       ] as const) {
-        expect(new ScyllaError('name must be unique', { code }).userMessage()).toBe(
+        expect(new ScyllaError('name must be unique', { code, raw: true }).userMessage()).toBe(
           'name must be unique',
         );
       }
@@ -101,13 +106,21 @@ describe('ScyllaError', () => {
       );
     });
 
-    it('never shows the text of a server fault or of a bug', () => {
-      expect(new ScyllaError('panic at db.rs:42', { code: 'INTERNAL' }).userMessage()).toBe(
-        'An unexpected error occurred',
-      );
+    it('never shows the raw text of a server fault or of a bug', () => {
+      expect(
+        new ScyllaError('panic at db.rs:42', { code: 'INTERNAL', raw: true }).userMessage(),
+      ).toBe('An unexpected error occurred');
       expect(ScyllaError.from(new TypeError('x is undefined')).userMessage()).toBe(
         'An unexpected error occurred',
       );
+    });
+
+    it('shows a message of this app whatever its code', () => {
+      expect(
+        new ScyllaError('Sign-up is not available on this server.', {
+          code: 'UNIMPLEMENTED',
+        }).userMessage(),
+      ).toBe('Sign-up is not available on this server.');
     });
 
     it('falls back to a generic message for an actionable code with no message', () => {

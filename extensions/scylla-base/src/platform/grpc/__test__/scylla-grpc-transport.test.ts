@@ -31,6 +31,7 @@ describe('ScyllaGrpcTransport', () => {
       code: 'NOT_FOUND',
       message: 'no such secret',
       rpc: 'scylla.secret.v1.SecretService/ListSecrets',
+      raw: true,
     });
   });
 

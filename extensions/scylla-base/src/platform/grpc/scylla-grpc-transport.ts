@@ -27,6 +27,7 @@ const toScyllaError = (error: unknown, method: MethodInfo): ScyllaError =>
         // A cast: the value comes from the wire. An unknown code matches no branch.
         code: error.code as ScyllaErrorCode,
         rpc: `${method.service.typeName}/${method.name}`,
+        raw: true,
         cause: error,
       })
     : ScyllaError.from(error);

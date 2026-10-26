@@ -55,9 +55,14 @@ try {                                                           // a caller that
 - `ScyllaError.from(value)` reads any thrown value: a `ScyllaError` stays as it is, an error with
   a gRPC `code` string keeps it, anything else (a bug, a `TypeError`) is `UNKNOWN_ERROR`. Use it
   in a `catch`, where the value is `unknown`.
-- `userMessage()` gives the message only for the codes that the user can act on
-  (`USER_FACING_CODES`). For `UNAVAILABLE`, `PERMISSION_DENIED` and every other code, it gives
-  a fixed text: a server fault or a bug never shows its text.
+- `userMessage()` gives a message of this app as it is, whatever its code. A **raw** message
+  (`raw: true`: the text of the server, set by the transport, or of an exception, set by
+  `from`) shows only for the codes that the user can act on (`USER_FACING_CODES`). For
+  `UNAVAILABLE`, `PERMISSION_DENIED` and every other raw message, it gives a fixed text: a
+  server fault or a bug never shows its text.
+- **A `new ScyllaError` is a message for the user**: write it with `` t`…` ``. A broken contract
+  of the server (an answer without its entity) is a bug: throw a plain `Error`, and the user
+  sees the generic message.
 - `log()` writes a server fault or a bug (`INTERNAL`, `UNKNOWN_ERROR`, …) with `console.error`,
   in production too: it is what a user can send to the support. A refusal of the server
   (`EXPECTED_CODES`: the user-facing and transient codes, `PERMISSION_DENIED`,

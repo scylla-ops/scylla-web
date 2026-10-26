@@ -8,9 +8,14 @@ export interface ScyllaErrorOptions extends ErrorOptions {
   code?: ScyllaErrorCode;
   /** The call that failed, e.g. `scylla.secret.v1.SecretService/ListSecrets`. */
   rpc?: string;
+  /**
+   * The message is a text of the server or of an exception, not a text of this app: the user
+   * sees it only for a code that they can act on.
+   */
+  raw?: boolean;
 }
 
-/** The codes whose message tells the user what to change. Any other message stays in the log. */
+/** The codes whose raw message tells the user what to change. Any other stays in the log. */
 const USER_FACING_CODES: ReadonlySet<ScyllaErrorCode> = new Set<ScyllaErrorCode>([
   'INVALID_ARGUMENT',
   'FAILED_PRECONDITION',
@@ -50,14 +55,16 @@ export class ScyllaError extends Error {
   public override readonly name = 'ScyllaError';
   public readonly code: ScyllaErrorCode;
   public readonly rpc?: string;
+  public readonly raw: boolean;
 
   constructor(
     message: string,
-    { code = 'UNKNOWN_ERROR', rpc, ...options }: ScyllaErrorOptions = {},
+    { code = 'UNKNOWN_ERROR', rpc, raw = false, ...options }: ScyllaErrorOptions = {},
   ) {
     super(message, options);
     this.code = code;
     this.rpc = rpc;
+    this.raw = raw;
   }
 
   /** Any thrown value: a `ScyllaError` as it is, an error that carries a gRPC code with it. */
@@ -65,6 +72,7 @@ export class ScyllaError extends Error {
     if (error instanceof ScyllaError) return error;
     return new ScyllaError(error instanceof Error ? error.message : String(error), {
       code: codeOf(error),
+      raw: true,
       cause: error,
     });
   }
@@ -90,10 +98,11 @@ export class ScyllaError extends Error {
     return this.code === 'ALREADY_EXISTS';
   }
 
+  /** A message of this app as it is; a raw message only for a code that the user can act on. */
   public userMessage(): string {
     if (this.isNetworkError()) return t`Server unreachable`;
     if (this.isForbidden()) return t`You don't have permission to perform this action`;
-    if (USER_FACING_CODES.has(this.code) && this.message) return this.message;
+    if (this.message && (!this.raw || USER_FACING_CODES.has(this.code))) return this.message;
     return t`An unexpected error occurred`;
   }
 

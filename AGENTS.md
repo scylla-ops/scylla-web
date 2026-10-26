@@ -416,7 +416,8 @@ no Result type: TanStack Query already holds the success or the failure of each 
   error that carries a gRPC code keeps it, anything else is `UNKNOWN_ERROR`.
 - `userMessage()` gives the server message only for the codes that the user can act on
   (`INVALID_ARGUMENT`, `FAILED_PRECONDITION`, `ALREADY_EXISTS`, `RESOURCE_EXHAUSTED`,
-  `NOT_FOUND`, `INVALID_CREDENTIALS`). For all other codes, it gives a generic text.
+  `NOT_FOUND`, `INVALID_CREDENTIALS`). For all other codes, it gives a generic text. A
+  ``new ScyllaError(t`…`, { code })`` is a message of the app: it shows whatever its code.
 
 ```typescript
 try {

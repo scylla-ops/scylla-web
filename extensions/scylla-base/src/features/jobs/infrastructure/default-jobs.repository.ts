@@ -5,7 +5,6 @@ import type {
   JobLogStream,
 } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { IJobServiceClient } from '@base/generated/scylla/job/v1/job.client.ts';
-import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { wrapId, wrapIdOpt } from '@shared/infrastructure/grpc/wrappers.ts';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import * as grpcJob from './grpc-job.mapper.ts';
@@ -37,7 +36,7 @@ export class DefaultJobsRepository implements JobsRepository {
 
   public async getById(jobId: string): Promise<JobEntity> {
     const { job } = await this.client.getJob({ jobId: wrapId(jobId) }).response;
-    if (!job) throw new ScyllaError('Job missing from GetJobResponse');
+    if (!job) throw new Error('Job missing from GetJobResponse');
     return grpcJob.toDomain(job);
   }
 
