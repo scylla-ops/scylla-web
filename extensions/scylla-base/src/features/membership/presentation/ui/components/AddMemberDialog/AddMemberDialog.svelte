@@ -1,8 +1,6 @@
 <script lang="ts">
   import { ScyllaDialog } from '@scylla/ui';
-  import type {
-    AssignableRole,
-  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
+  import type { AssignableRole } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
   import AddMemberForm from './AddMemberForm.svelte';
   import type { UserSummary } from '@base/features/user';
 

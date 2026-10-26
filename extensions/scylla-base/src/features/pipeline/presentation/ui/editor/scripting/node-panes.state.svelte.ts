@@ -87,7 +87,8 @@ export const createNodePanes = (ids: () => string[]) => {
     /** Shows the node of the focused pane in a new pane too. */
     split() {
       const active = visible[focusedIndex]?.active;
-      if (active && visible.length < MAX_PANES) write([...snapshot(), { tabs: [active], active }], 1);
+      if (active && visible.length < MAX_PANES)
+        write([...snapshot(), { tabs: [active], active }], 1);
     },
 
     /** Closes a tab. A second pane with no tab left closes too. */

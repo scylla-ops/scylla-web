@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { buttonVariants, Tooltip, TooltipContent, TooltipTrigger } from '../../primitives/index.ts';
+  import {
+    buttonVariants,
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+  } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
   import type { LucideIcon } from '../../icon.ts';
 

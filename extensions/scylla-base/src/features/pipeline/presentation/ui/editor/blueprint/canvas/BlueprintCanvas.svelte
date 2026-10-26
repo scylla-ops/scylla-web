@@ -17,7 +17,10 @@
   import type { NodeAppearancePreference } from './node-appearance-preference.state.svelte.ts';
   import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
   import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
-  import { templateFor, type CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+  import {
+    templateFor,
+    type CatalogEntry,
+  } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import { setBlueprintCanvas } from './blueprint-canvas.context.ts';
   import CanvasToolbar from './CanvasToolbar.svelte';
@@ -123,10 +126,7 @@
       onArrange={() => blueprint.arrange()}
     />
     {#if spot}
-      <DropSpot
-        position={spot}
-        footprint={NODE_APPEARANCE_VIEWS[appearance.current].footprint}
-      />
+      <DropSpot position={spot} footprint={NODE_APPEARANCE_VIEWS[appearance.current].footprint} />
     {/if}
   </SvelteFlow>
 

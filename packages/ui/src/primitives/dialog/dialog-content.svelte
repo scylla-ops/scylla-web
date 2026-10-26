@@ -10,8 +10,13 @@
 
   type Props = DialogPrimitive.ContentProps & { children?: Snippet };
 
-  let { class: className, children, onOpenAutoFocus, ref = $bindable(null), ...rest }: Props =
-    $props();
+  let {
+    class: className,
+    children,
+    onOpenAutoFocus,
+    ref = $bindable(null),
+    ...rest
+  }: Props = $props();
 
   /**
    * Puts the caret in the first field, the way Radix did.

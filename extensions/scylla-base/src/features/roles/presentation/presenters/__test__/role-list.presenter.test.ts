@@ -5,7 +5,12 @@ import type { RoleEntity } from '@base/features/roles/domain/entities/role.entit
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import { countHoldersByRole, groupRolesByOwner, sortRolesByName } from '../role-list.presenter.ts';
 
-const role = (id: string, name: string, owner?: string, scope = PermissionScope.ORGANIZATION): RoleEntity => ({
+const role = (
+  id: string,
+  name: string,
+  owner?: string,
+  scope = PermissionScope.ORGANIZATION,
+): RoleEntity => ({
   id,
   name,
   description: '',
@@ -28,7 +33,12 @@ const names = (roles: RoleEntity[]) => roles.map(entry => entry.name);
 describe('groupRolesByOwner', () => {
   it("puts the organization's roles apart from the platform roles, each sorted by name", () => {
     const groups = groupRolesByOwner(
-      [role('a', 'release', 'org-1'), role('b', 'Viewer'), role('c', 'Auditor', 'org-1'), role('d', 'admin')],
+      [
+        role('a', 'release', 'org-1'),
+        role('b', 'Viewer'),
+        role('c', 'Auditor', 'org-1'),
+        role('d', 'admin'),
+      ],
       'org-1',
     );
 
@@ -45,7 +55,10 @@ describe('groupRolesByOwner', () => {
 
   it('drops a SYSTEM-scope platform role: no grant in an organization binds it', () => {
     const groups = groupRolesByOwner(
-      [role('a', 'System Admin', undefined, PermissionScope.SYSTEM), role('b', 'Project Viewer', undefined, PermissionScope.PROJECT)],
+      [
+        role('a', 'System Admin', undefined, PermissionScope.SYSTEM),
+        role('b', 'Project Viewer', undefined, PermissionScope.PROJECT),
+      ],
       'org-1',
     );
 

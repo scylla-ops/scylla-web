@@ -164,7 +164,9 @@ describe('PipelineScripting', () => {
     renderScripting(JSON.stringify({ name: 'web', nodes: [] }));
 
     expect(screen.getByRole('navigation', { name: 'Nodes' })).toBeInTheDocument();
-    expect(screen.queryByRole('complementary', { name: 'Node properties' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('complementary', { name: 'Node properties' }),
+    ).not.toBeInTheDocument();
     expect(
       globalThis.document.querySelector('[data-pane-id="nodes-view-properties"]'),
     ).toHaveAttribute('data-collapsed', '');

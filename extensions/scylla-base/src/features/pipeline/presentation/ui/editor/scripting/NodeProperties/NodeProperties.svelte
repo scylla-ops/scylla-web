@@ -34,10 +34,19 @@
   const tone = $derived(KIND_TONES[draft.mode]);
 </script>
 
-<aside aria-label={t(scriptingMessages.nodeProperties)} class="flex h-full flex-col border-l bg-card">
+<aside
+  aria-label={t(scriptingMessages.nodeProperties)}
+  class="flex h-full flex-col border-l bg-card"
+>
   <div class="relative flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-4">
     <div class="flex items-start gap-2.5">
-      <span class={cn('flex size-8 shrink-0 items-center justify-center rounded-lg', tone.tile, tone.text)}>
+      <span
+        class={cn(
+          'flex size-8 shrink-0 items-center justify-center rounded-lg',
+          tone.tile,
+          tone.text,
+        )}
+      >
         <Icon class="size-4" />
       </span>
       <NodeIdField {draft} />

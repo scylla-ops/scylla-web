@@ -1,9 +1,4 @@
-import {
-  Permission,
-  PermissionScope,
-  PrincipalKind,
-  type PrincipalEntity,
-} from '@platform/authz';
+import { Permission, PermissionScope, PrincipalKind, type PrincipalEntity } from '@platform/authz';
 import { roleConfers, type RoleEntity } from './role.entity.ts';
 
 export interface GrantEntity {

@@ -4,7 +4,10 @@
   import { cn } from '@scylla/ui/utils';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import PlayIcon from '@lucide/svelte/icons/play';
-  import { MINIMAL_NODE, minimalHandleStyle } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
+  import {
+    MINIMAL_NODE,
+    minimalHandleStyle,
+  } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import type { StartNodeViewProps } from './node-appearances.registry.ts';
 
   let { name, selected }: StartNodeViewProps = $props();

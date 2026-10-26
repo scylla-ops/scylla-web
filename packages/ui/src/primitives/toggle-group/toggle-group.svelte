@@ -1,11 +1,7 @@
 <script lang="ts">
   import { ToggleGroup as ToggleGroupPrimitive } from 'bits-ui';
   import { cn } from '../../utils/index.ts';
-  import {
-    setToggleGroupStyle,
-    type ToggleSize,
-    type ToggleVariant,
-  } from './toggle-variants.ts';
+  import { setToggleGroupStyle, type ToggleSize, type ToggleVariant } from './toggle-variants.ts';
 
   type Props = ToggleGroupPrimitive.RootProps & {
     variant?: ToggleVariant;

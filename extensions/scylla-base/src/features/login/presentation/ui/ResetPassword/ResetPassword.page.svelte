@@ -2,13 +2,8 @@
   import { Button } from '@scylla/ui/primitives';
   import { FormItemType, ScyllaForm, type FormItem } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import {
-    checkNewPassword,
-    checkPasswordConfirmation,
-  } from '@shared/utils/account-validation.ts';
-  import {
-    ResetPasswordState,
-  } from './reset-password.state.svelte.ts';
+  import { checkNewPassword, checkPasswordConfirmation } from '@shared/utils/account-validation.ts';
+  import { ResetPasswordState } from './reset-password.state.svelte.ts';
   import AuthLayout from '../AuthLayout.svelte';
   import { passwordResetMessages } from '@base/features/login/presentation/messages/password-reset.messages.ts';
 

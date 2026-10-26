@@ -2,9 +2,7 @@
   import { ScyllaDialog } from '@scylla/ui';
   import { Button, DialogFooter } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import {
-    onboardingMessages,
-  } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
+  import { onboardingMessages } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
 
   interface Props {
     open: boolean;

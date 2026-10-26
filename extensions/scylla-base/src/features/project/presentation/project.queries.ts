@@ -8,13 +8,10 @@ import type { ProjectEntity } from '../domain/entities/project.entity.ts';
 import type { ProjectModule } from '../project.module.ts';
 
 // Resolved per call: tests swap the registry.
-const repository = () =>
-  getModuleDomain<typeof ProjectModule.domain>('project').projectRepository;
+const repository = () => getModuleDomain<typeof ProjectModule.domain>('project').projectRepository;
 
-export const PROJECTS_QUERY_KEY = (
-  organizationId: string | null,
-  pagination?: PaginationParams,
-) => ['projects', organizationId, pagination] as const;
+export const PROJECTS_QUERY_KEY = (organizationId: string | null, pagination?: PaginationParams) =>
+  ['projects', organizationId, pagination] as const;
 
 export const PROJECTS_QUERY_ROOT = ['projects'] as const;
 

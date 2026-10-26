@@ -96,7 +96,11 @@ describe('jobsByPipelinesQueries', () => {
     const { combine } = jobsByPipelinesQueries(['pipeline-1', 'pipeline-2']);
 
     const { jobsByPipelineId } = combine([
-      { data: { pipelineId: 'pipeline-1', jobs: [job('job-1')] }, isLoading: false, isError: false },
+      {
+        data: { pipelineId: 'pipeline-1', jobs: [job('job-1')] },
+        isLoading: false,
+        isError: false,
+      },
       { isLoading: false, isError: false },
     ]);
 

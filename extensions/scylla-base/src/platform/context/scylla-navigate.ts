@@ -47,8 +47,7 @@ const goToJobDetails = (
   navigateTo(
     `${getOrgPrefix()}/projects/${projectId}/pipelines/${pipelineId}/jobs/${jobId}${query}`,
   );
-  if (options.pipelineName)
-    contextStore.getState().setPipeline(pipelineId, options.pipelineName);
+  if (options.pipelineName) contextStore.getState().setPipeline(pipelineId, options.pipelineName);
 };
 
 const goToTriggers = (id: string, name: string) => {

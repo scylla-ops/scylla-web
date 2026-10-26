@@ -21,16 +21,15 @@
 
   const node = $derived(scripting.nodeOf(pane.active));
   /** With two panes, the focused one is marked: the properties panel shows its node. */
-  const marksFocus = $derived(scripting.panes.panes.length > 1 && scripting.panes.focused === index);
+  const marksFocus = $derived(
+    scripting.panes.panes.length > 1 && scripting.panes.focused === index,
+  );
 </script>
 
 <!-- A pane takes the focus of what is inside it: the properties panel follows that pane. -->
 <section
   aria-label={pane.active ?? t(scriptingMessages.noNodeOpen)}
-  class={cn(
-    'flex h-full min-w-0 flex-col',
-    marksFocus && 'shadow-[inset_0_2px_0_var(--primary)]',
-  )}
+  class={cn('flex h-full min-w-0 flex-col', marksFocus && 'shadow-[inset_0_2px_0_var(--primary)]')}
   onfocusin={() => scripting.panes.focus(index)}
 >
   <NodeTabs {scripting} {pane} {index} {node} {leading} {trailing} />

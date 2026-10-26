@@ -15,8 +15,17 @@
   } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import { buildCron, pad2, parseCron, type CronFrequency, type CronModel } from '@base/features/triggers/presentation/mappers/cron.mapper.ts';
-import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/presenters/cron.presenter.ts';
+  import {
+    buildCron,
+    pad2,
+    parseCron,
+    type CronFrequency,
+    type CronModel,
+  } from '@base/features/triggers/presentation/mappers/cron.mapper.ts';
+  import {
+    describeCron,
+    WEEKDAYS,
+  } from '@base/features/triggers/presentation/presenters/cron.presenter.ts';
   import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
@@ -50,17 +59,44 @@ import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/pre
         : { frequency },
     );
 
-  const FREQUENCIES: Array<{ value: CronFrequency; title: string; description: string; wide?: boolean }> =
-    $derived([
-      { value: 'hourly', title: t(triggersMessages.hourly), description: t(triggersMessages.everyHour) },
-      { value: 'daily', title: t(triggersMessages.daily), description: t(triggersMessages.everyDay) },
-      { value: 'weekly', title: t(triggersMessages.weekly), description: t(triggersMessages.onChosenDays) },
-      { value: 'monthly', title: t(triggersMessages.monthly), description: t(triggersMessages.onADayOfTheMonth) },
-      { value: 'custom', title: t(triggersMessages.custom), description: t(triggersMessages.writeACron), wide: true },
-    ]);
+  const FREQUENCIES: Array<{
+    value: CronFrequency;
+    title: string;
+    description: string;
+    wide?: boolean;
+  }> = $derived([
+    {
+      value: 'hourly',
+      title: t(triggersMessages.hourly),
+      description: t(triggersMessages.everyHour),
+    },
+    { value: 'daily', title: t(triggersMessages.daily), description: t(triggersMessages.everyDay) },
+    {
+      value: 'weekly',
+      title: t(triggersMessages.weekly),
+      description: t(triggersMessages.onChosenDays),
+    },
+    {
+      value: 'monthly',
+      title: t(triggersMessages.monthly),
+      description: t(triggersMessages.onADayOfTheMonth),
+    },
+    {
+      value: 'custom',
+      title: t(triggersMessages.custom),
+      description: t(triggersMessages.writeACron),
+      wide: true,
+    },
+  ]);
 </script>
 
-{#snippet numberSelect(label: string, value: number, options: number[], onPick: (n: number) => void, format: (n: number) => string)}
+{#snippet numberSelect(
+  label: string,
+  value: number,
+  options: number[],
+  onPick: (n: number) => void,
+  format: (n: number) => string,
+)}
   <Select type="single" value={String(value)} onValueChange={picked => onPick(Number(picked))}>
     <SelectTrigger class="w-[72px]" aria-label={label}>
       <SelectValue />
@@ -108,9 +144,7 @@ import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/pre
         for={`freq-${frequency.value}`}
         class={cn(
           'flex cursor-pointer items-start gap-2 rounded-md border p-2.5 transition-colors',
-          model.frequency === frequency.value
-            ? 'border-primary bg-primary/5'
-            : 'hover:bg-muted/50',
+          model.frequency === frequency.value ? 'border-primary bg-primary/5' : 'hover:bg-muted/50',
           frequency.wide && 'col-span-2',
         )}
       >

@@ -59,7 +59,10 @@
               {t(agentsMessages.createdOn(formatDay(secret.createdAt)))}
             </span>
           </div>
-          <Badge variant="outline" class={cn('font-normal', !secret.enabled && 'text-muted-foreground')}>
+          <Badge
+            variant="outline"
+            class={cn('font-normal', !secret.enabled && 'text-muted-foreground')}
+          >
             {secret.enabled ? t(messages.secretEnabled) : t(agentsMessages.stateDisabled)}
           </Badge>
           {#if canManage}
@@ -101,9 +104,5 @@
 </Card>
 
 {#if canManage}
-  <RenameSecretDialog
-    secret={renaming}
-    secrets={secrets ?? []}
-    onClose={() => (renaming = null)}
-  />
+  <RenameSecretDialog secret={renaming} secrets={secrets ?? []} onClose={() => (renaming = null)} />
 {/if}

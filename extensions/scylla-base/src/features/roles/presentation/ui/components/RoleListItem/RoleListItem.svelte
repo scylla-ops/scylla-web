@@ -57,10 +57,7 @@
 >
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <div
-    class="flex w-5 items-center justify-center"
-    onclick={event => event.stopPropagation()}
-  >
+  <div class="flex w-5 items-center justify-center" onclick={event => event.stopPropagation()}>
     <Checkbox
       checked={selected}
       disabled={!selectable}

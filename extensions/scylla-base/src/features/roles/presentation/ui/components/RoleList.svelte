@@ -48,7 +48,10 @@
 {/snippet}
 
 {#if scope.kind === 'organization'}
-  <section class="flex flex-col gap-2" aria-label={t(rolesMessages.organizationRoles(scope.organizationName))}>
+  <section
+    class="flex flex-col gap-2"
+    aria-label={t(rolesMessages.organizationRoles(scope.organizationName))}
+  >
     {@render header(
       t(rolesMessages.organizationRoles(scope.organizationName)),
       page.groups.organization.length,

@@ -21,7 +21,9 @@ const walk = (dir: string): string[] =>
 
 /** A test's mention of a permission proves nothing. */
 const sourcesIn = (dir: string): string[] =>
-  existsSync(dir) ? walk(dir).filter(f => /\.(tsx?|svelte)$/.test(f) && !/\.(test|fixture)\./.test(f)) : [];
+  existsSync(dir)
+    ? walk(dir).filter(f => /\.(tsx?|svelte)$/.test(f) && !/\.(test|fixture)\./.test(f))
+    : [];
 
 const read = (path: string): string => readFileSync(path, 'utf8');
 

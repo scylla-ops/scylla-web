@@ -24,7 +24,9 @@ let restoreRegistry: () => void;
 beforeEach(() => {
   getInstalledExtensions = vi.fn();
   cache = withQueryClient();
-  restoreRegistry = withRegistry({ extensions: { extensionRepository: { getInstalledExtensions } } });
+  restoreRegistry = withRegistry({
+    extensions: { extensionRepository: { getInstalledExtensions } },
+  });
 });
 
 afterEach(() => {

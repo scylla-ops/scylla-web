@@ -99,7 +99,12 @@ describe('createRoleAssignees', () => {
     const grants = [grant(), grant({ id: 'grant-2', roleId: 'role-other' })];
 
     await inRoot(
-      () => createRoleAssignees(() => role(), () => grants, labelOf),
+      () =>
+        createRoleAssignees(
+          () => role(),
+          () => grants,
+          labelOf,
+        ),
       assignees => {
         expect(assignees.assignees).toHaveLength(1);
         expect(assignees.assignees[0].grant.id).toBe('grant-1');
@@ -109,7 +114,12 @@ describe('createRoleAssignees', () => {
 
   it("labels each holder with the page's labeller, so one directory serves list and detail", async () => {
     await inRoot(
-      () => createRoleAssignees(() => role(), () => [grant()], labelOf),
+      () =>
+        createRoleAssignees(
+          () => role(),
+          () => [grant()],
+          labelOf,
+        ),
       assignees => {
         expect(assignees.assignees[0].label).toBe('label of user-1');
       },
@@ -118,7 +128,12 @@ describe('createRoleAssignees', () => {
 
   it('revokes one grant by id', async () => {
     await inRoot(
-      () => createRoleAssignees(() => role(), () => [grant()], labelOf),
+      () =>
+        createRoleAssignees(
+          () => role(),
+          () => [grant()],
+          labelOf,
+        ),
       async assignees => {
         assignees.remove('grant-1');
 

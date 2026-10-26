@@ -45,7 +45,12 @@
             >
               <!-- A failed read shows the menu all the same: signing out must stay possible. -->
               {#if meQuery.data}
-                <UserIdentity user={meQuery.data} size="sm" class="min-w-8 flex-1" textClass={SIDEBAR_FADE} />
+                <UserIdentity
+                  user={meQuery.data}
+                  size="sm"
+                  class="min-w-8 flex-1"
+                  textClass={SIDEBAR_FADE}
+                />
               {:else}
                 <span class="flex-1"></span>
               {/if}

@@ -1,11 +1,6 @@
 <script lang="ts">
   import { createMutation } from '@scylla/core-sdk';
-  import {
-    FormDialog,
-    FormItemType,
-    type FormItem,
-    type FormValues,
-  } from '@scylla/ui';
+  import { FormDialog, FormItemType, type FormItem, type FormValues } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
   import { projectMutations } from '../project.queries.ts';

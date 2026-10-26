@@ -5,9 +5,7 @@ import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
-import type {
-  ProjectRepository,
-} from '@base/features/project/domain/repository/project.repository.ts';
+import type { ProjectRepository } from '@base/features/project/domain/repository/project.repository.ts';
 import {
   canListProjects,
   invalidateProjectMembers,
@@ -21,7 +19,9 @@ import {
 } from '../project.queries.ts';
 
 const toastSuccess = vi.fn();
-vi.mock('svelte-sonner', () => ({ toast: { success: (...args: unknown[]) => toastSuccess(...args) } }));
+vi.mock('svelte-sonner', () => ({
+  toast: { success: (...args: unknown[]) => toastSuccess(...args) },
+}));
 
 const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
   id: 'project-1',
@@ -32,7 +32,14 @@ const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
 
 const page = (projects: ProjectEntity[]) => ({
   projects,
-  pagination: { page: 1, pageSize: 10, totalCount: projects.length, totalPages: 1, hasNext: false, hasPrevious: false },
+  pagination: {
+    page: 1,
+    pageSize: 10,
+    totalCount: projects.length,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false,
+  },
 });
 
 const withRepository = (overrides: Partial<ProjectRepository> = {}) => {

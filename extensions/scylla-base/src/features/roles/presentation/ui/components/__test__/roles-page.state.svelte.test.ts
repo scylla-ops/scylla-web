@@ -52,7 +52,11 @@ const grant = (overrides: Partial<GrantEntity> = {}): GrantEntity => ({
 });
 
 const PLATFORM: RolesScope = { kind: 'platform' };
-const ACME: RolesScope = { kind: 'organization', organizationId: 'org-1', organizationName: 'Acme' };
+const ACME: RolesScope = {
+  kind: 'organization',
+  organizationId: 'org-1',
+  organizationName: 'Acme',
+};
 
 let listRoles: ReturnType<typeof vi.fn>;
 let listGrants: Mock<(scope?: PermissionScope, scopeId?: string) => Promise<unknown>>;
@@ -377,9 +381,9 @@ describe('createRolesPage — an organization', () => {
 
     await withPage(ACME, page => {
       expect(page.canRevoke(grant())).toBe(false);
-      expect(
-        page.canRevoke(grant({ scope: PermissionScope.PROJECT, scopeId: 'project-1' })),
-      ).toBe(true);
+      expect(page.canRevoke(grant({ scope: PermissionScope.PROJECT, scopeId: 'project-1' }))).toBe(
+        true,
+      );
     });
   });
 });

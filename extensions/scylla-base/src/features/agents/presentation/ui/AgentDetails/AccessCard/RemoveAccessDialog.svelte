@@ -61,7 +61,10 @@
             <Icon class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span class="min-w-0 flex-1 truncate text-sm">{manager.nameOf(grant)}</span>
             <span
-              class={cn('text-xs font-medium', loses ? 'text-destructive' : 'text-muted-foreground')}
+              class={cn(
+                'text-xs font-medium',
+                loses ? 'text-destructive' : 'text-muted-foreground',
+              )}
             >
               {loses ? t(messages.loses) : t(messages.keeps)}
             </span>

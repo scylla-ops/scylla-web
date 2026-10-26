@@ -11,7 +11,10 @@ import {
   buildGrantEligibility,
   type GrantEligibility,
 } from '@base/features/roles/domain/entities/grant.entity.ts';
-import { organizationIdOf, type RolesScope } from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
+import {
+  organizationIdOf,
+  type RolesScope,
+} from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
 import { grantMutations, roleQueries } from '@base/features/roles/presentation/roles.queries.ts';
 
 export interface TargetOption {
@@ -81,9 +84,7 @@ export const createGrantCreator = (
   const createGrant = createMutation(() => grantMutations.create());
 
   const grants = $derived(knownGrants() ?? grantsQuery.data ?? []);
-  const roles = $derived(
-    (isOrganization ? organizationRolesQuery.data : rolesQuery.data) ?? [],
-  );
+  const roles = $derived((isOrganization ? organizationRolesQuery.data : rolesQuery.data) ?? []);
 
   const eligibilityFor = $derived(buildGrantEligibility(grants, roles, browseOrgId));
 
@@ -225,8 +226,7 @@ export const createGrantCreator = (
     /** Returns how many grants were created, for the toast. The mutation cache toasts the failures. */
     submit: async (): Promise<number | null> => {
       const current = role();
-      const scopeIds =
-        current.scope === PermissionScope.SYSTEM ? [''] : [...selected.keys()];
+      const scopeIds = current.scope === PermissionScope.SYSTEM ? [''] : [...selected.keys()];
 
       try {
         await Promise.all(

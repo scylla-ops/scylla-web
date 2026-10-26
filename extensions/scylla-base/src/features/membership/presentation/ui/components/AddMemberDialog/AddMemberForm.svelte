@@ -16,13 +16,9 @@
   import { t } from '@scylla/ui/i18n';
   import type { UserSummary } from '@base/features/user';
   import { userName } from '@shared/presentation/ui';
-  import type {
-    AssignableRole,
-  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
+  import type { AssignableRole } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
   import RoleChecklist from '../RoleChecklist/RoleChecklist.svelte';
-  import {
-    membershipMessages,
-  } from '@base/features/membership/presentation/messages/membership.messages.ts';
+  import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   interface Props {
     title: string;

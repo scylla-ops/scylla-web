@@ -9,8 +9,11 @@ import type { PipelineMetadata } from '@base/features/pipeline';
 import type { ProjectEntity } from '@base/features/project';
 import { createOrgOverview } from '../org-overview.state.svelte.ts';
 
-const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity =>
-  ({ id: 'project-1', name: 'Acme project', ...overrides });
+const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
+  id: 'project-1',
+  name: 'Acme project',
+  ...overrides,
+});
 
 const pipeline = (overrides: Partial<PipelineMetadata> = {}): PipelineMetadata => ({
   id: 'pipeline-1',
@@ -34,7 +37,14 @@ const job = (overrides: Partial<JobEntity> = {}): JobEntity => ({
 
 const page = <T>(items: T[], totalCount = items.length) => ({
   items,
-  pagination: { totalCount, page: 1, pageSize: 100, totalPages: 1, hasNext: false, hasPrevious: false },
+  pagination: {
+    totalCount,
+    page: 1,
+    pageSize: 100,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false,
+  },
 });
 
 let getProjects: ReturnType<typeof vi.fn>;

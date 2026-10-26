@@ -18,8 +18,14 @@
     onSelectJob?: (jobId: string) => void;
   }
 
-  let { jobs, maxJobs, isLoading = false, isError = false, isForbidden = false, onSelectJob }: Props =
-    $props();
+  let {
+    jobs,
+    maxJobs,
+    isLoading = false,
+    isError = false,
+    isForbidden = false,
+    onSelectJob,
+  }: Props = $props();
 
   type RunItem = StatusBarItem & { job: JobEntity; runNumber: number };
 
@@ -44,7 +50,9 @@
   {@const duration = calculateDuration(item.job.createdAt, item.job.updatedAt)}
   <div class="flex flex-col gap-1.5">
     <div class="flex items-center justify-between gap-4">
-      <span class="font-bold text-muted-foreground">{t(pipelineMessages.runNumber(item.runNumber))}</span>
+      <span class="font-bold text-muted-foreground"
+        >{t(pipelineMessages.runNumber(item.runNumber))}</span
+      >
       <span class="font-mono text-[10px] text-muted-foreground">{item.job.id.slice(0, 8)}...</span>
     </div>
     <div class="flex items-center gap-2">

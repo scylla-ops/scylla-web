@@ -24,7 +24,9 @@
 
   const pageItems = $derived(generatePageNumbers(paginationInfo.page, paginationInfo.totalPages));
   const start = $derived((paginationInfo.page - 1) * paginationInfo.pageSize + 1);
-  const end = $derived(Math.min(paginationInfo.page * paginationInfo.pageSize, paginationInfo.totalCount));
+  const end = $derived(
+    Math.min(paginationInfo.page * paginationInfo.pageSize, paginationInfo.totalCount),
+  );
 </script>
 
 <div class={cn('flex flex-col items-center gap-2', className)}>
@@ -33,9 +35,7 @@
       <PaginationItem>
         <PaginationPrevious
           onclick={() => paginationInfo.hasPrevious && onPageChange(paginationInfo.page - 1)}
-          class={paginationInfo.hasPrevious
-            ? 'cursor-pointer'
-            : 'pointer-events-none opacity-50'}
+          class={paginationInfo.hasPrevious ? 'cursor-pointer' : 'pointer-events-none opacity-50'}
         />
       </PaginationItem>
 

@@ -171,9 +171,7 @@ describe('roleQueries', () => {
   });
 
   it('separates the system-wide grant list from a scoped one', () => {
-    expect(GRANTS_QUERY_KEY()).not.toEqual(
-      GRANTS_QUERY_KEY(PermissionScope.ORGANIZATION, 'org-1'),
-    );
+    expect(GRANTS_QUERY_KEY()).not.toEqual(GRANTS_QUERY_KEY(PermissionScope.ORGANIZATION, 'org-1'));
   });
 
   it('asks for every grant when no scope is given', async () => {

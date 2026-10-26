@@ -17,12 +17,8 @@
     MemberRoleOrigin,
     type ScopeMember,
   } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
-  import {
-    createAssignableRoles,
-  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
-  import {
-    createScopeMembership,
-  } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
+  import { createAssignableRoles } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
+  import { createScopeMembership } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
   import {
     membershipPoints,
     type ProjectMembersContext,
@@ -49,9 +45,7 @@
   const canManage = $derived(can(Permission.MANAGE_PROJECT_GRANTS, target));
   // Inherited roles need the organization's grants (organization admins only).
   const canReadOrganizationGrants = $derived(can(Permission.MANAGE_ORG_GRANTS, target));
-  const canListOrganizationMembers = $derived(
-    can(Permission.LIST_ORGANIZATION_MEMBERS, target),
-  );
+  const canListOrganizationMembers = $derived(can(Permission.LIST_ORGANIZATION_MEMBERS, target));
 
   const projectMembersQuery = createQuery(() =>
     projectQueries.members(projectId ?? null, {
@@ -112,9 +106,7 @@
 
   const memberIds = $derived(new Set(members.map(member => member.userId)));
 
-  const candidates = $derived(
-    organizationMembers.filter(member => !memberIds.has(member.userId)),
-  );
+  const candidates = $derived(organizationMembers.filter(member => !memberIds.has(member.userId)));
 
   const zoneContext: ProjectMembersContext = $derived({
     organizationId: organizationId ?? '',
@@ -129,9 +121,7 @@
   /** The project's own roles: the editable ones. */
   const directRoleIds = (member: ScopeMember): Set<string> =>
     new Set(
-      member.roles
-        .filter(role => role.origin === MemberRoleOrigin.DIRECT)
-        .map(role => role.roleId),
+      member.roles.filter(role => role.origin === MemberRoleOrigin.DIRECT).map(role => role.roleId),
     );
 
   const handleAdd = async (userId: string, roleIds: string[]) => {
@@ -205,7 +195,10 @@
       onRemove={member =>
         (pendingRemoval = {
           userId: member.userId,
-          name: userName(userFor(member.userId), canListOrganizationMembers ? 'deleted' : 'unknown'),
+          name: userName(
+            userFor(member.userId),
+            canListOrganizationMembers ? 'deleted' : 'unknown',
+          ),
         })}
     />
 

@@ -67,7 +67,9 @@ describe('MemberCard', () => {
     render(MemberCard, {
       ...baseProps,
       canManage: false,
-      addableRoles: [{ roleId: 'r1', name: 'Developer', description: '', ownedByOrganization: false }],
+      addableRoles: [
+        { roleId: 'r1', name: 'Developer', description: '', ownedByOrganization: false },
+      ],
     });
 
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
@@ -78,7 +80,9 @@ describe('MemberCard', () => {
     render(MemberCard, {
       ...baseProps,
       canManage: true,
-      addableRoles: [{ roleId: 'r1', name: 'Developer', description: '', ownedByOrganization: false }],
+      addableRoles: [
+        { roleId: 'r1', name: 'Developer', description: '', ownedByOrganization: false },
+      ],
       onAddRole,
     });
 

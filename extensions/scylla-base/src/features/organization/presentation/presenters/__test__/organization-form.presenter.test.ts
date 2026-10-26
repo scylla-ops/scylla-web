@@ -7,8 +7,6 @@ describe('createOrganizationItems', () => {
   it('declares a name and a description field, neither pattern-constrained', () => {
     const items = createOrganizationItems();
     expect(items.map(i => i.id)).toEqual(['name', 'description']);
-    expect(
-      items.every(i => i.type === FormItemType.Input && i.pattern === undefined),
-    ).toBe(true);
+    expect(items.every(i => i.type === FormItemType.Input && i.pattern === undefined)).toBe(true);
   });
 });

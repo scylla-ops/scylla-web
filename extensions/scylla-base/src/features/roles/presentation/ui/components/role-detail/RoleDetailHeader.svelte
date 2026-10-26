@@ -48,7 +48,9 @@
         {#if appsOnly}
           <BotIcon class={['size-5', readOnly ? 'text-muted-foreground' : 'text-primary']} />
         {:else}
-          <ShieldCheckIcon class={['size-5', readOnly ? 'text-muted-foreground' : 'text-primary']} />
+          <ShieldCheckIcon
+            class={['size-5', readOnly ? 'text-muted-foreground' : 'text-primary']}
+          />
         {/if}
       </div>
       <div class="min-w-0">

@@ -59,7 +59,14 @@
   const shownSeries = $derived(
     status === 'all' ? SERIES : SERIES.filter(series => series.key === status),
   );
-  const ticks = $derived(niceTicks(peakOf(buckets, shownSeries.map(series => series.key))));
+  const ticks = $derived(
+    niceTicks(
+      peakOf(
+        buckets,
+        shownSeries.map(series => series.key),
+      ),
+    ),
+  );
   const axisTop = $derived(ticks[ticks.length - 1]);
   const showLabel = $derived(labelVisibility(buckets.length));
 

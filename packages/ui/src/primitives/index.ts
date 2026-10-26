@@ -101,7 +101,11 @@ export { default as RadioGroupItem } from './radio-group/radio-group-item.svelte
 
 export { default as ToggleGroup } from './toggle-group/toggle-group.svelte';
 export { default as ToggleGroupItem } from './toggle-group/toggle-group-item.svelte';
-export { toggleVariants, type ToggleSize, type ToggleVariant } from './toggle-group/toggle-variants.ts';
+export {
+  toggleVariants,
+  type ToggleSize,
+  type ToggleVariant,
+} from './toggle-group/toggle-variants.ts';
 
 export { default as Tabs } from './tabs/tabs.svelte';
 export { default as TabsContent } from './tabs/tabs-content.svelte';

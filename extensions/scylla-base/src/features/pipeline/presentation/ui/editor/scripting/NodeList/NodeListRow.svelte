@@ -11,7 +11,10 @@
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { NodeRelation, NodeRow } from '@base/features/pipeline/presentation/presenters/node-list.presenter.ts';
+  import type {
+    NodeRelation,
+    NodeRow,
+  } from '@base/features/pipeline/presentation/presenters/node-list.presenter.ts';
   import { acceptNodeDrop, dragNode } from './node-drag.attachments.ts';
   import type { NodeDrag } from './node-drag.state.svelte.ts';
   import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';

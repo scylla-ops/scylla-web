@@ -25,15 +25,23 @@ const summary = (overrides: Partial<JobsSummary> = {}): JobsSummary =>
 
 describe('RunActivityCard in French', () => {
   it('keeps both numbers of the partial-window sentence', () => {
-    render(RunActivityCard, { summary: summary(), totalRuns: 250, truncated: true, loading: false });
+    render(RunActivityCard, {
+      summary: summary(),
+      totalRuns: 250,
+      truncated: true,
+      loading: false,
+    });
 
-    expect(
-      screen.getByText(/sur les 10 dernières exécutions parmi 250/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/sur les 10 dernières exécutions parmi 250/)).toBeInTheDocument();
   });
 
   it('translates the whole-history sentence', () => {
-    render(RunActivityCard, { summary: summary(), totalRuns: 10, truncated: false, loading: false });
+    render(RunActivityCard, {
+      summary: summary(),
+      totalRuns: 10,
+      truncated: false,
+      loading: false,
+    });
 
     expect(screen.getByText(/sur l'ensemble des 10 exécutions/)).toBeInTheDocument();
   });

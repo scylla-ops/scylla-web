@@ -1,7 +1,12 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { msg } from '@lingui/core/macro';
-import { Extension, setAppNavigator, setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
+import {
+  Extension,
+  setAppNavigator,
+  setDependencyRegistry,
+  setQueryClient,
+} from '@scylla/core-sdk';
 import { loadExtensions, setShellConfig, startCore } from '@scylla/core';
 import { ScyllaBaseExtension } from '@scylla/base';
 import { loginPoints } from '@scylla/base-sdk';
@@ -61,7 +66,7 @@ const openLogin = async () => {
 };
 
 describe('widget injections of another extension', () => {
-  it('pass the loader\'s owner, dependency and conflict checks', () => {
+  it("pass the loader's owner, dependency and conflict checks", () => {
     expect(() => loadExtensions(extensions)).not.toThrow();
   });
 

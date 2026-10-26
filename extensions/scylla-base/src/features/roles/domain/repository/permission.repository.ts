@@ -3,9 +3,7 @@ import type {
   RoleCreationData,
   RoleEntity,
 } from '@base/features/roles/domain/entities/role.entity.ts';
-import type {
-  GrantEntity,
-} from '@base/features/roles/domain/entities/grant.entity.ts';
+import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import type { GrantableRoleEntity } from '@base/features/roles/domain/entities/grantable-role.entity.ts';
 import type { PermissionVocabulary } from '@base/features/roles/domain/structs/permission-vocabulary.struct.ts';
 

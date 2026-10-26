@@ -7,11 +7,24 @@ import {
   type EffectivePermissionsEntity,
   type EffectiveScopeEntity,
 } from '@platform/authz';
-import { PERMISSION_CATALOG, getPermissionDefinition, isEditablePermission, getPermissionDefinitionsForScope, getAlwaysGrantedPermissionsForScope, isHiddenAtScope, withImplicitPermissions, getEditablePermissionDefinitionsForScope, getPermissionsForScope, lockedPermissionsOf } from '../permission-catalog.struct.ts';
+import {
+  PERMISSION_CATALOG,
+  getPermissionDefinition,
+  isEditablePermission,
+  getPermissionDefinitionsForScope,
+  getAlwaysGrantedPermissionsForScope,
+  isHiddenAtScope,
+  withImplicitPermissions,
+  getEditablePermissionDefinitionsForScope,
+  getPermissionsForScope,
+  lockedPermissionsOf,
+} from '../permission-catalog.struct.ts';
 
 describe('catalog lookups', () => {
   it('getPermissionDefinition finds a cataloged permission', () => {
-    expect(getPermissionDefinition(Permission.CREATE_PROJECT)?.scope).toBe(PermissionScope.ORGANIZATION);
+    expect(getPermissionDefinition(Permission.CREATE_PROJECT)?.scope).toBe(
+      PermissionScope.ORGANIZATION,
+    );
   });
 
   it('getPermissionDefinition returns undefined for a permission outside the V1 catalog', () => {
@@ -23,7 +36,7 @@ describe('catalog lookups', () => {
     expect(isEditablePermission(Permission.UNSPECIFIED)).toBe(false);
   });
 
-  it('every catalog entry\'s dependsOn (if any) is itself in the catalog — no dangling tree parent', () => {
+  it("every catalog entry's dependsOn (if any) is itself in the catalog — no dangling tree parent", () => {
     const ids = new Set(PERMISSION_CATALOG.map(d => d.id));
     for (const definition of PERMISSION_CATALOG) {
       if (definition.dependsOn !== undefined) {
@@ -47,8 +60,12 @@ describe('getPermissionDefinitionsForScope — the scope hierarchy', () => {
   });
 
   it('a SYSTEM-scoped role sees every scope', () => {
-    const scopes = new Set(getPermissionDefinitionsForScope(PermissionScope.SYSTEM).map(d => d.scope));
-    expect(scopes).toEqual(new Set([PermissionScope.SYSTEM, PermissionScope.ORGANIZATION, PermissionScope.PROJECT]));
+    const scopes = new Set(
+      getPermissionDefinitionsForScope(PermissionScope.SYSTEM).map(d => d.scope),
+    );
+    expect(scopes).toEqual(
+      new Set([PermissionScope.SYSTEM, PermissionScope.ORGANIZATION, PermissionScope.PROJECT]),
+    );
   });
 
   it('UNSPECIFIED scope confers nothing', () => {
@@ -78,7 +95,9 @@ describe('implicit permissions — the "member of" / "manage grants" rule', () =
 
   it('isHiddenAtScope: MANAGE_SYSTEM_GRANTS is hidden at SYSTEM but a real, visible toggle elsewhere', () => {
     expect(isHiddenAtScope(Permission.MANAGE_SYSTEM_GRANTS, PermissionScope.SYSTEM)).toBe(true);
-    expect(isHiddenAtScope(Permission.MANAGE_SYSTEM_GRANTS, PermissionScope.ORGANIZATION)).toBe(false);
+    expect(isHiddenAtScope(Permission.MANAGE_SYSTEM_GRANTS, PermissionScope.ORGANIZATION)).toBe(
+      false,
+    );
   });
 
   it('isHiddenAtScope: READ_PROJECT is hidden at ORGANIZATION (stands in for LIST_PROJECTS_BY_ORGANIZATION) but not at PROJECT, where it is the whole point', () => {
@@ -143,7 +162,9 @@ describe('withImplicitPermissions — what actually gets written', () => {
 
 describe('getEditablePermissionDefinitionsForScope — what the editor actually renders', () => {
   it('never renders a hidden (implicit) permission as a toggle', () => {
-    const ids = getEditablePermissionDefinitionsForScope(PermissionScope.ORGANIZATION).map(d => d.id);
+    const ids = getEditablePermissionDefinitionsForScope(PermissionScope.ORGANIZATION).map(
+      d => d.id,
+    );
     expect(ids).not.toContain(Permission.READ_ORGANIZATION);
     expect(ids).not.toContain(Permission.READ_PROJECT);
     expect(ids).not.toContain(Permission.READ_PIPELINE);
@@ -164,7 +185,9 @@ describe('getEditablePermissionDefinitionsForScope — what the editor actually 
 
   it('is exactly getPermissionDefinitionsForScope minus the hidden entries, same order', () => {
     const all = getPermissionDefinitionsForScope(PermissionScope.PROJECT).map(d => d.id);
-    const editable = getEditablePermissionDefinitionsForScope(PermissionScope.PROJECT).map(d => d.id);
+    const editable = getEditablePermissionDefinitionsForScope(PermissionScope.PROJECT).map(
+      d => d.id,
+    );
     const hiddenIds = all.filter(id => isHiddenAtScope(id, PermissionScope.PROJECT));
     expect(editable).toEqual(all.filter(id => !hiddenIds.includes(id)));
   });
@@ -173,7 +196,10 @@ describe('getEditablePermissionDefinitionsForScope — what the editor actually 
 describe('the catalog and the levels of @platform/authz', () => {
   it('give each permission the same scope', () => {
     for (const definition of PERMISSION_CATALOG) {
-      expect([definition.id, permissionLevel(definition.id)]).toEqual([definition.id, definition.scope]);
+      expect([definition.id, permissionLevel(definition.id)]).toEqual([
+        definition.id,
+        definition.scope,
+      ]);
     }
   });
 });

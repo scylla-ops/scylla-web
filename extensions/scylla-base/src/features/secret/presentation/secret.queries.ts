@@ -6,8 +6,7 @@ import type { SecretEntity } from '../domain/entities/secret.entity.ts';
 import type { SecretModule } from '../secret.module.ts';
 
 // Resolved per call: tests swap the registry.
-const repository = () =>
-  getModuleDomain<typeof SecretModule.domain>('secret').secretRepository;
+const repository = () => getModuleDomain<typeof SecretModule.domain>('secret').secretRepository;
 
 export const SECRETS_QUERY_KEY = (projectId: string) => ['secrets', projectId] as const;
 

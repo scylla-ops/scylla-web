@@ -8,7 +8,10 @@ export const buildPermissionTree = (
   label: (permission: Permission) => string,
 ): CheckboxNode[] => {
   const nodes = new Map<Permission, CheckboxNode>(
-    definitions.map(definition => [definition.id, { id: definition.id, label: label(definition.id) }]),
+    definitions.map(definition => [
+      definition.id,
+      { id: definition.id, label: label(definition.id) },
+    ]),
   );
 
   const roots: CheckboxNode[] = [];

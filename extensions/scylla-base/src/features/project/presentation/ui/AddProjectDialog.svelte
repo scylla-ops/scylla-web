@@ -2,12 +2,7 @@
   import { i18n } from '@lingui/core';
   import { contextStore } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
-  import {
-    FormDialog,
-    FormItemType,
-    type FormItem,
-    type FormValues,
-  } from '@scylla/ui';
+  import { FormDialog, FormItemType, type FormItem, type FormValues } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { toast } from '@scylla/ui/utils';
   import { ToastMessages } from '@shared/utils/toast-messages.ts';

@@ -15,10 +15,7 @@
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
-  import {
-    createRoleForm,
-    type AccessKind,
-  } from './role-form.state.svelte.ts';
+  import { createRoleForm, type AccessKind } from './role-form.state.svelte.ts';
   import {
     organizationIdOf,
     type RolesScope,
@@ -42,9 +39,7 @@
   // svelte-ignore state_referenced_locally
   const form = createRoleForm(role, organizationIdOf(scope));
 
-  const organizationName = $derived(
-    scope.kind === 'organization' ? scope.organizationName : null,
-  );
+  const organizationName = $derived(scope.kind === 'organization' ? scope.organizationName : null);
   const lockedLabel = $derived(
     organizationName === null
       ? t(rolesMessages.notHeldAtSystem)
@@ -163,11 +158,7 @@
   <Button type="button" variant="outline" disabled={form.isPending} onclick={onDone}>
     {t(rolesMessages.cancel)}
   </Button>
-  <Button
-    type="button"
-    disabled={!form.isValid || form.isPending}
-    onclick={() => void submit()}
-  >
+  <Button type="button" disabled={!form.isValid || form.isPending} onclick={() => void submit()}>
     {form.isEdit ? t(rolesMessages.saveChanges) : t(rolesMessages.createRole)}
   </Button>
 </DialogFooter>

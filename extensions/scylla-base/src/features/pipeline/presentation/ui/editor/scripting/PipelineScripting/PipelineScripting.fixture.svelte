@@ -13,7 +13,10 @@
 
   let { initialScript, onDoc }: Props = $props();
 
-  const doc = createPipelineDocument({ projectId: () => 'project-1', initialScript: () => initialScript });
+  const doc = createPipelineDocument({
+    projectId: () => 'project-1',
+    initialScript: () => initialScript,
+  });
   // svelte-ignore state_referenced_locally
   onDoc(doc);
 </script>

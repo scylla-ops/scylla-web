@@ -36,7 +36,10 @@ describe('TriggerInputsEditor', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Add input' }));
 
-    expect(onChange).toHaveBeenCalledWith([literal(), { key: '', valueKind: 'literal', value: '' }]);
+    expect(onChange).toHaveBeenCalledWith([
+      literal(),
+      { key: '', valueKind: 'literal', value: '' },
+    ]);
   });
 
   it('edits only the row that was typed in', async () => {

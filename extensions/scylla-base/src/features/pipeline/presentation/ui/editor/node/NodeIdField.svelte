@@ -43,11 +43,15 @@
     {#if draft.suggestedId}
       {@const suggestion = draft.suggestedId}
       <!-- A long id is cut: the whole id is in its tooltip and in the name of the button. -->
-      <div class="mt-1.5 flex min-w-0 items-center gap-2 rounded-md border bg-muted/50 py-1 pr-1 pl-2">
+      <div
+        class="mt-1.5 flex min-w-0 items-center gap-2 rounded-md border bg-muted/50 py-1 pr-1 pl-2"
+      >
         <span class="shrink-0 text-[11px] text-muted-foreground">
           {t(nodeMessages.suggestedId)}
         </span>
-        <code class="min-w-0 flex-1 truncate font-mono text-xs" title={suggestion}>{suggestion}</code>
+        <code class="min-w-0 flex-1 truncate font-mono text-xs" title={suggestion}
+          >{suggestion}</code
+        >
         <!-- The pointer must not blur the field first: the blur applies the id and rebuilds the panel. -->
         <Button
           variant="outline"

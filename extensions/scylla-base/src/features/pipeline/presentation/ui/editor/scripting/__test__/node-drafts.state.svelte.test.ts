@@ -7,16 +7,19 @@ import { createNodeDrafts } from '../node-drafts.state.svelte.ts';
 const released = vi.hoisted(() => ({ ids: [] as string[] }));
 
 // A draft owns no effect: this one runs its cleanup when the draft's root is disposed.
-vi.mock('@base/features/pipeline/presentation/ui/editor/node/node-draft.state.svelte.ts', async load => {
-  const actual = await load<typeof NodeDraftModule>();
-  return {
-    ...actual,
-    createNodeDraft: (params: Parameters<typeof actual.createNodeDraft>[0]) => {
-      $effect(() => () => void released.ids.push(params.node.id));
-      return actual.createNodeDraft(params);
-    },
-  };
-});
+vi.mock(
+  '@base/features/pipeline/presentation/ui/editor/node/node-draft.state.svelte.ts',
+  async load => {
+    const actual = await load<typeof NodeDraftModule>();
+    return {
+      ...actual,
+      createNodeDraft: (params: Parameters<typeof actual.createNodeDraft>[0]) => {
+        $effect(() => () => void released.ids.push(params.node.id));
+        return actual.createNodeDraft(params);
+      },
+    };
+  },
+);
 
 const build: PipelineNodeEntity = {
   id: 'build',

@@ -115,9 +115,7 @@ describe('AppDetailsPage', () => {
 
     await userEvent.click(screen.getByRole('switch', { name: 'Toggle app active' }));
 
-    await vi.waitFor(() =>
-      expect(setAppActive).toHaveBeenCalledWith('app-1', false),
-    );
+    await vi.waitFor(() => expect(setAppActive).toHaveBeenCalledWith('app-1', false));
   });
 
   it('reports a failed load rather than a blank page', async () => {

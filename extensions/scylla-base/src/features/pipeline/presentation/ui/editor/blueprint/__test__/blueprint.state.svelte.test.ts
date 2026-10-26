@@ -1,8 +1,14 @@
 import { describe, it, expect, vi } from 'vitest';
 import { flushSync } from 'svelte';
-import type { ExecPipelineNodeEntity, PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import type {
+  ExecPipelineNodeEntity,
+  PipelineNodeEntity,
+} from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import { createBlueprint } from '../blueprint.state.svelte.ts';
-import { START_NODE_ID, flowToNodes } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
+import {
+  START_NODE_ID,
+  flowToNodes,
+} from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
 import { createPipelineDocument } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
 
 const execNode = (id: string, deps: string[] = []): ExecPipelineNodeEntity => ({
@@ -39,8 +45,12 @@ const withState = (
 describe('createBlueprint', () => {
   it('builds the graph from the nodes, with the start node', () => {
     withState([execNode('build'), execNode('test', ['build'])], state => {
-      expect(state.flowNodes.map(flowNode => flowNode.id).sort()).toEqual([START_NODE_ID, 'build', 'test'].sort());
-      expect(state.edges.some(edge => edge.source === 'build' && edge.target === 'test')).toBe(true);
+      expect(state.flowNodes.map(flowNode => flowNode.id).sort()).toEqual(
+        [START_NODE_ID, 'build', 'test'].sort(),
+      );
+      expect(state.edges.some(edge => edge.source === 'build' && edge.target === 'test')).toBe(
+        true,
+      );
     });
   });
 
@@ -51,9 +61,12 @@ describe('createBlueprint', () => {
   });
 
   it('never rewrites the document to repair it', () => {
-    withState([execNode('build', ['ghost']), execNode('test'), execNode('test')], (_s, onChange) => {
-      expect(onChange).not.toHaveBeenCalled();
-    });
+    withState(
+      [execNode('build', ['ghost']), execNode('test'), execNode('test')],
+      (_s, onChange) => {
+        expect(onChange).not.toHaveBeenCalled();
+      },
+    );
   });
 
   it('shows two nodes with the same id, but edits nothing until each has its own id', () => {
@@ -103,7 +116,9 @@ describe('createBlueprint', () => {
       const published = onNodesChange.mock.lastCall?.[0] as PipelineNodeEntity[];
       expect(published.find(node => node.id === 'compile')).toMatchObject({ command: 'make' });
       expect(published.find(node => node.id === 'test')?.deps).toEqual(['compile']);
-      expect(state.edges.some(edge => edge.source === 'compile' && edge.target === 'test')).toBe(true);
+      expect(state.edges.some(edge => edge.source === 'compile' && edge.target === 'test')).toBe(
+        true,
+      );
     });
   });
 
@@ -114,7 +129,8 @@ describe('createBlueprint', () => {
 
       expect(onNodesChange).toHaveBeenLastCalledWith(flowToNodes(state.flowNodes, state.edges));
       expect(
-        (onNodesChange.mock.lastCall?.[0] as PipelineNodeEntity[]).find(node => node.id === 'test')?.deps,
+        (onNodesChange.mock.lastCall?.[0] as PipelineNodeEntity[]).find(node => node.id === 'test')
+          ?.deps,
       ).toEqual([]);
     });
   });
@@ -141,7 +157,9 @@ describe('createBlueprint', () => {
       state.addNode('test', definition, { after: 'build' });
 
       expect(state.inspected?.id).toBe('build');
-      expect(state.flowNodes.filter(flowNode => flowNode.selected).map(flowNode => flowNode.id)).toEqual(['build']);
+      expect(
+        state.flowNodes.filter(flowNode => flowNode.selected).map(flowNode => flowNode.id),
+      ).toEqual(['build']);
       const published = onNodesChange.mock.lastCall?.[0] as PipelineNodeEntity[];
       expect(published.find(node => node.id === 'test')?.deps).toEqual(['build']);
     });
@@ -163,7 +181,10 @@ describe('createBlueprint', () => {
   it('places a dropped node where it was dropped', () => {
     withState([], state => {
       state.addNode('lint', definition, { position: { x: 12, y: 34 } });
-      expect(state.flowNodes.find(flowNode => flowNode.id === 'lint')?.position).toEqual({ x: 12, y: 34 });
+      expect(state.flowNodes.find(flowNode => flowNode.id === 'lint')?.position).toEqual({
+        x: 12,
+        y: 34,
+      });
     });
   });
 
@@ -194,7 +215,9 @@ describe('createBlueprint', () => {
     withState([execNode('build'), execNode('test')], state => {
       state.inspect('build');
       expect(state.inspected?.id).toBe('build');
-      expect(state.flowNodes.filter(flowNode => flowNode.selected).map(flowNode => flowNode.id)).toEqual(['build']);
+      expect(
+        state.flowNodes.filter(flowNode => flowNode.selected).map(flowNode => flowNode.id),
+      ).toEqual(['build']);
 
       state.inspect(null);
       expect(state.inspected).toBeUndefined();
@@ -248,7 +271,10 @@ describe('createBlueprint', () => {
 
   it('lays the graph out again by depth', () => {
     withState([execNode('build'), execNode('test', ['build'])], state => {
-      state.flowNodes = state.flowNodes.map(flowNode => ({ ...flowNode, position: { x: 0, y: 0 } }));
+      state.flowNodes = state.flowNodes.map(flowNode => ({
+        ...flowNode,
+        position: { x: 0, y: 0 },
+      }));
       state.arrange();
 
       const x = (id: string) => state.flowNodes.find(flowNode => flowNode.id === id)!.position.x;
@@ -260,7 +286,15 @@ describe('createBlueprint', () => {
 const SCRIPT = JSON.stringify({
   name: 'nightly',
   nodes: [
-    { id: 'build', deps: [], workingDir: '', env: [], kind: 'script', shell: 'bash', script: 'make' },
+    {
+      id: 'build',
+      deps: [],
+      workingDir: '',
+      env: [],
+      kind: 'script',
+      shell: 'bash',
+      script: 'make',
+    },
   ],
 });
 
@@ -295,12 +329,19 @@ describe('the blueprint over the document', () => {
 
   it('keeps a dropped node where it was dropped', () => {
     withEditor(state => {
-      state.addNode('lint', { kind: 'exec', command: 'eslint', args: [], workingDir: '', env: [] }, {
-        position: { x: 640, y: 480 },
-      });
+      state.addNode(
+        'lint',
+        { kind: 'exec', command: 'eslint', args: [], workingDir: '', env: [] },
+        {
+          position: { x: 640, y: 480 },
+        },
+      );
       flushSync();
 
-      expect(state.flowNodes.find(flowNode => flowNode.id === 'lint')?.position).toEqual({ x: 640, y: 480 });
+      expect(state.flowNodes.find(flowNode => flowNode.id === 'lint')?.position).toEqual({
+        x: 640,
+        y: 480,
+      });
     });
   });
 });

@@ -36,15 +36,15 @@ describe('calculateExecutionDuration', () => {
   });
 
   it('uses finishedAt once the node is done', () => {
-    expect(
-      calculateExecutionDuration('2026-01-01T00:00:00.000Z', '2026-01-01T00:00:45.000Z'),
-    ).toBe(45);
+    expect(calculateExecutionDuration('2026-01-01T00:00:00.000Z', '2026-01-01T00:00:45.000Z')).toBe(
+      45,
+    );
   });
 
   it('never goes negative if the clock is off (finishedAt before startedAt)', () => {
-    expect(
-      calculateExecutionDuration('2026-01-01T00:00:45.000Z', '2026-01-01T00:00:00.000Z'),
-    ).toBe(0);
+    expect(calculateExecutionDuration('2026-01-01T00:00:45.000Z', '2026-01-01T00:00:00.000Z')).toBe(
+      0,
+    );
   });
 });
 

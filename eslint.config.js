@@ -1,3 +1,3 @@
-import { scyllaEslintConfig } from './tooling/eslint.js'
+import { scyllaEslintConfig } from './tooling/eslint.js';
 
-export default scyllaEslintConfig(import.meta.dirname)
+export default scyllaEslintConfig(import.meta.dirname);

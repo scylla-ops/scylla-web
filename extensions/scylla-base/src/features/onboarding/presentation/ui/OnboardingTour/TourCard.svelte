@@ -5,9 +5,7 @@
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import {
-    onboardingMessages,
-  } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
+  import { onboardingMessages } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
   import type { TourLink } from './tour-steps.registry.ts';
   import { holdPointer } from './tour-tracking.attachments.svelte.ts';
 

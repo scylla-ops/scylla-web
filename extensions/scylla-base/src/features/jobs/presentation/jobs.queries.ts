@@ -36,7 +36,11 @@ export const jobQueries = {
     }),
 
   /** `enabled`: wait until the page size is measured, or the first page is fetched twice. */
-  byPipeline: (pipelineId: string, pagination: PaginationParams, options: { enabled?: boolean } = {}) =>
+  byPipeline: (
+    pipelineId: string,
+    pagination: PaginationParams,
+    options: { enabled?: boolean } = {},
+  ) =>
     queryOptions<PaginatedList<JobEntity>>({
       queryKey: [...JOBS_QUERY_KEY(pipelineId), pagination],
       enabled: (options.enabled ?? true) && !!pipelineId,

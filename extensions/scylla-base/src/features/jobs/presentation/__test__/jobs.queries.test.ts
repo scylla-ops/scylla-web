@@ -31,8 +31,7 @@ const page = (items: JobEntity[], totalCount = items.length): PaginatedList<JobE
   },
 });
 
-const withData = <TData>(data: TData | undefined) =>
-  ({ state: { data } }) as never;
+const withData = <TData>(data: TData | undefined) => ({ state: { data } }) as never;
 
 let repository: JobsRepository;
 let invalidate: ReturnType<typeof vi.fn>;
@@ -144,7 +143,9 @@ describe('jobQueries.byOrganization', () => {
 
 describe('asJobFeed', () => {
   it('summarizes the window it was handed', () => {
-    const feed = asJobFeed(page([job({ status: 'completed' }), job({ id: 'job-2', status: 'failed' })]));
+    const feed = asJobFeed(
+      page([job({ status: 'completed' }), job({ id: 'job-2', status: 'failed' })]),
+    );
 
     expect(feed.jobs).toHaveLength(2);
     expect(feed.summary.completed).toBe(1);

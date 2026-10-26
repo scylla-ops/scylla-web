@@ -5,10 +5,7 @@ export {
   type ExtensionClass,
   type ExtensionManifest,
 } from './extension/extension.decorator.ts';
-export {
-  installedExtensions,
-  setInstalledExtensions,
-} from './extension/installed-extensions.ts';
+export { installedExtensions, setInstalledExtensions } from './extension/installed-extensions.ts';
 export type {
   AccessPolicy,
   NavSectionDefinition,

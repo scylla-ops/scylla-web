@@ -12,8 +12,7 @@ export interface Credentials {
 
 /** Construct it during component initialisation: `createMutation` needs an owner. */
 export class LoginState {
-  private readonly repository = getModuleDomain<typeof LoginModule.domain>('login')
-    .loginRepository;
+  private readonly repository = getModuleDomain<typeof LoginModule.domain>('login').loginRepository;
 
   private readonly mutation = createMutation<void, ScyllaError, Credentials>(() => ({
     mutationFn: ({ identifier, password }: Credentials) =>

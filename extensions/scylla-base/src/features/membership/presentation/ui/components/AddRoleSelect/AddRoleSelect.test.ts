@@ -15,7 +15,12 @@ const roles = [role('project-viewer', 'Project viewer'), role('project-admin', '
 
 describe('AddRoleSelect', () => {
   it('renders nothing once there is no role left to add', () => {
-    render(AddRoleSelect, { roles: [], organizationName: 'Acme', disabled: false, onSelect: vi.fn() });
+    render(AddRoleSelect, {
+      roles: [],
+      organizationName: 'Acme',
+      disabled: false,
+      onSelect: vi.fn(),
+    });
 
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
@@ -69,4 +74,3 @@ describe('AddRoleSelect', () => {
     expect(screen.getByRole('combobox')).toHaveTextContent('+ role');
   });
 });
-

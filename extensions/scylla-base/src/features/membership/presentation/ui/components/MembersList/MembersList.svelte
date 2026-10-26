@@ -7,13 +7,9 @@
     MemberRole,
     ScopeMember,
   } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
-  import type {
-    AssignableRole,
-  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
+  import type { AssignableRole } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
   import MemberCard from '../MemberCard/MemberCard.svelte';
-  import {
-    membershipMessages,
-  } from '@base/features/membership/presentation/messages/membership.messages.ts';
+  import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   interface Props {
     members: ScopeMember[];

@@ -37,7 +37,10 @@ const MANIFEST = Symbol('scylla.extension');
  */
 export const Extension =
   (manifest: ExtensionManifest) =>
-  <TClass extends ExtensionClass>(target: TClass, _context: ClassDecoratorContext<TClass>): void => {
+  <TClass extends ExtensionClass>(
+    target: TClass,
+    _context: ClassDecoratorContext<TClass>,
+  ): void => {
     Object.defineProperty(target, MANIFEST, { value: manifest });
   };
 

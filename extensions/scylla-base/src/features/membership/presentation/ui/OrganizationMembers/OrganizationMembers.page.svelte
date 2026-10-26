@@ -10,15 +10,9 @@
   import { toRune } from '@scylla/ui/stores';
   import { toast } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import {
-    buildOrganizationMembers,
-  } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
-  import {
-    createAssignableRoles,
-  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
-  import {
-    createScopeMembership,
-  } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
+  import { buildOrganizationMembers } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
+  import { createAssignableRoles } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
+  import { createScopeMembership } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
   import {
     membershipPoints,
     type OrganizationMembersContext,

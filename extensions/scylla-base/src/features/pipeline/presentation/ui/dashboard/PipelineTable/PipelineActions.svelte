@@ -65,10 +65,7 @@
 {/snippet}
 
 <!-- Falls back to a menu when the column is too narrow. -->
-<div
-  {@attach compact.measure}
-  class="flex w-full shrink-0 items-center justify-center gap-2"
->
+<div {@attach compact.measure} class="flex w-full shrink-0 items-center justify-center gap-2">
   {#if asMenu}
     {#if runBesideMenu}
       {@render runButton()}
@@ -133,11 +130,7 @@
     {/if}
 
     {#if canEdit}
-      <IconButton
-        icon={PencilIcon}
-        tooltip={t(pipelineMessages.editPipeline)}
-        onclick={onEdit}
-      />
+      <IconButton icon={PencilIcon} tooltip={t(pipelineMessages.editPipeline)} onclick={onEdit} />
     {/if}
 
     {#if canDuplicate}

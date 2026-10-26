@@ -1,4 +1,10 @@
-import type { AccessEntity, AccessSpec, Permission, PermissionScope, RoleKind } from '@platform/authz';
+import type {
+  AccessEntity,
+  AccessSpec,
+  Permission,
+  PermissionScope,
+  RoleKind,
+} from '@platform/authz';
 
 /** `unknown`: an origin arm newer than this build. Never read it as "custom". */
 export type RoleOrigin =

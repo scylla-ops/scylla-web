@@ -11,4 +11,5 @@ export { createOrganizationItems } from './presentation/presenters/organization-
 /** Loaders: a barrel must not re-export a component. */
 export const loadAddOrganizationDialog = () =>
   import('./presentation/ui/AddOrganizationDialog/AddOrganizationDialog.svelte');
-export const loadOrganizationList = () => import('./presentation/ui/OrganizationList/OrganizationList.svelte');
+export const loadOrganizationList = () =>
+  import('./presentation/ui/OrganizationList/OrganizationList.svelte');

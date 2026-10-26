@@ -8,11 +8,7 @@
   import { navigateTo, contextStore } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { Skeleton } from '@scylla/ui/primitives';
-  import {
-    ConfirmOperationAlertDialog,
-    ContextItem,
-    IconButton,
-  } from '@scylla/ui';
+  import { ConfirmOperationAlertDialog, ContextItem, IconButton } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { slugifyOrgName } from '@shared/utils/slug.ts';
   import { t } from '@scylla/ui/i18n';

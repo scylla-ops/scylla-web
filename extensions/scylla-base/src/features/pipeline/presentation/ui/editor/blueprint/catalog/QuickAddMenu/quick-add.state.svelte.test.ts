@@ -7,7 +7,10 @@ import {
   type QuickAdd,
   type QuickAddRequest,
 } from './quick-add.state.svelte.ts';
-import { BLANK_NODES, catalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+import {
+  BLANK_NODES,
+  catalogText,
+} from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
 
 const request: QuickAddRequest = {
   client: { x: 10, y: 20 },

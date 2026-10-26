@@ -2,17 +2,10 @@
   import { navigateTo } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
   import { FormDialog, type FormValues } from '@scylla/ui';
-  import {
-    activeLocale,
-    t,
-  } from '@scylla/ui/i18n';
+  import { activeLocale, t } from '@scylla/ui/i18n';
   import { slugifyOrgName } from '@shared/utils/slug.ts';
-  import {
-    organizationMutations,
-  } from '@base/features/organization/presentation/organization.queries.ts';
-  import {
-    createOrganizationItems,
-  } from '@base/features/organization/presentation/presenters/organization-form.presenter.ts';
+  import { organizationMutations } from '@base/features/organization/presentation/organization.queries.ts';
+  import { createOrganizationItems } from '@base/features/organization/presentation/presenters/organization-form.presenter.ts';
   import { organizationMessages } from '@base/features/organization/presentation/messages/organization.messages.ts';
 
   interface Props {

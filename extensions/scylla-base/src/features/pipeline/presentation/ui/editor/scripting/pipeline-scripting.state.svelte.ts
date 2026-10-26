@@ -4,7 +4,17 @@ import {
   blankDefinition,
   type PipelineNodeEntity,
 } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
-import { addNode, dependencyCandidates, dependentsOf, hasRepeats, moveNode, removeNode, renameNode, setDependencies, updateNode } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import {
+  addNode,
+  dependencyCandidates,
+  dependentsOf,
+  hasRepeats,
+  moveNode,
+  removeNode,
+  renameNode,
+  setDependencies,
+  updateNode,
+} from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import { createNodeDrafts } from './node-drafts.state.svelte.ts';
 import { createNodePanes } from './node-panes.state.svelte.ts';
 import { nodeRows } from '@base/features/pipeline/presentation/presenters/node-list.presenter.ts';
@@ -102,7 +112,12 @@ export const createPipelineScripting = (params: PipelineScriptingParams) => {
 
     /** Adds a node after the focused one, and opens it. */
     add() {
-      const change = addNode(params.nodes(), NEW_NODE_ID, blankDefinition('script'), panes.focusedId ?? undefined);
+      const change = addNode(
+        params.nodes(),
+        NEW_NODE_ID,
+        blankDefinition('script'),
+        panes.focusedId ?? undefined,
+      );
       params.onNodesChange(change.nodes);
       panes.open(change.id);
     },

@@ -44,7 +44,9 @@
       <div
         class={cn(
           'flex shrink-0 items-center gap-1 border-r pr-1 font-mono text-[13px]',
-          active ? 'bg-card text-foreground shadow-[inset_0_2px_0_var(--primary)]' : 'text-muted-foreground',
+          active
+            ? 'bg-card text-foreground shadow-[inset_0_2px_0_var(--primary)]'
+            : 'text-muted-foreground',
         )}
       >
         <button

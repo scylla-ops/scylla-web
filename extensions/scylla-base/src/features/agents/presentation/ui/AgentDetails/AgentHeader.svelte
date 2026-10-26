@@ -6,10 +6,11 @@
   import { activeLocale, t } from '@scylla/ui/i18n';
   import { formatDay, getRelativeTime } from '@shared/utils/date-utils.ts';
   import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-  import { isOnline, type AgentState } from '@base/features/agents/domain/structs/agent-state.struct.ts';
-  import type {
-    AgentActions,
-  } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
+  import {
+    isOnline,
+    type AgentState,
+  } from '@base/features/agents/domain/structs/agent-state.struct.ts';
+  import type { AgentActions } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
   import { formatDayTime } from '@base/features/agents/presentation/presenters/agent-format.presenter.ts';
   import AgentActionsMenu from '../components/AgentActionsMenu.svelte';
   import AgentBot from '../components/AgentBot/AgentBot.svelte';

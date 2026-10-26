@@ -4,7 +4,9 @@ import { Permission, PermissionScope } from '@platform/authz';
 import { buildPermissionTree } from '@base/features/roles/presentation/presenters/permission-tree.presenter.ts';
 import type { PermissionDefinition } from '@base/features/roles/domain/structs/permission-catalog.struct.ts';
 
-const def = (overrides: Partial<PermissionDefinition> & { id: Permission }): PermissionDefinition => ({
+const def = (
+  overrides: Partial<PermissionDefinition> & { id: Permission },
+): PermissionDefinition => ({
   scope: PermissionScope.PROJECT,
   ...overrides,
 });
@@ -43,7 +45,9 @@ describe('buildPermissionTree', () => {
       label,
     );
 
-    expect(tree).toEqual([{ id: Permission.UPDATE_PROJECT, label: named(Permission.UPDATE_PROJECT) }]);
+    expect(tree).toEqual([
+      { id: Permission.UPDATE_PROJECT, label: named(Permission.UPDATE_PROJECT) },
+    ]);
   });
 
   it('preserves catalog order among roots', () => {
@@ -74,7 +78,7 @@ describe('buildPermissionTree', () => {
     expect(buildPermissionTree([], label)).toEqual([]);
   });
 
-  it('resolves each node\'s label through the given labeler', () => {
+  it("resolves each node's label through the given labeler", () => {
     const tree = buildPermissionTree([def({ id: Permission.READ_PROJECT })], () => 'Custom label');
     expect(tree[0].label).toBe('Custom label');
   });

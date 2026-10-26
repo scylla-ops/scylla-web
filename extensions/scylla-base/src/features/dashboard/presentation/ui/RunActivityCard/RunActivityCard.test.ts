@@ -24,7 +24,12 @@ const tileValue = (label: string): string | undefined =>
 
 describe('RunActivityCard', () => {
   it('breaks the window down by outcome', () => {
-    render(RunActivityCard, { summary: summary(), totalRuns: 10, truncated: false, loading: false });
+    render(RunActivityCard, {
+      summary: summary(),
+      totalRuns: 10,
+      truncated: false,
+      loading: false,
+    });
 
     expect(tileValue('Completed')).toBe('6');
     expect(tileValue('Failed')).toBe('2');
@@ -33,13 +38,23 @@ describe('RunActivityCard', () => {
   });
 
   it('says the figures cover a window, not the whole history, when they do', () => {
-    render(RunActivityCard, { summary: summary(), totalRuns: 250, truncated: true, loading: false });
+    render(RunActivityCard, {
+      summary: summary(),
+      totalRuns: 250,
+      truncated: true,
+      loading: false,
+    });
 
     expect(screen.getByText(/over the last 10 of 250 runs/)).toBeInTheDocument();
   });
 
   it('claims the whole history only when the window is the whole history', () => {
-    render(RunActivityCard, { summary: summary(), totalRuns: 10, truncated: false, loading: false });
+    render(RunActivityCard, {
+      summary: summary(),
+      totalRuns: 10,
+      truncated: false,
+      loading: false,
+    });
 
     expect(screen.getByText(/over all 10 runs/)).toBeInTheDocument();
   });

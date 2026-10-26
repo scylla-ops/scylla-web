@@ -20,9 +20,7 @@
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
-  import {
-    createOrgOverview,
-  } from '@base/features/dashboard/presentation/ui/org-overview.state.svelte.ts';
+  import { createOrgOverview } from '@base/features/dashboard/presentation/ui/org-overview.state.svelte.ts';
   import AgentOutcomesChart from '../AgentOutcomesChart/AgentOutcomesChart.svelte';
   import RunActivityCard from '../RunActivityCard/RunActivityCard.svelte';
   import { dashboardMessages } from '@base/features/dashboard/presentation/messages/dashboard.messages.ts';

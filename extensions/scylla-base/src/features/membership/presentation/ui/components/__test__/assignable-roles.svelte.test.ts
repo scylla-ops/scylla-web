@@ -14,17 +14,16 @@ interface GrantableRole {
   ownerOrganizationId?: string;
 }
 
-const role = (overrides: Partial<RoleEntity> = {}): RoleEntity =>
-  ({
-    id: 'role-1',
-    name: 'Custom name',
-    description: 'Custom description',
-    scope: PermissionScope.PROJECT,
-    origin: { kind: 'custom' },
-    kind: RoleKind.MEMBER,
-    access: { kind: 'fullControl' },
-    ...overrides,
-  });
+const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
+  id: 'role-1',
+  name: 'Custom name',
+  description: 'Custom description',
+  scope: PermissionScope.PROJECT,
+  origin: { kind: 'custom' },
+  kind: RoleKind.MEMBER,
+  access: { kind: 'fullControl' },
+  ...overrides,
+});
 
 const grantable = (overrides: Partial<GrantableRole> = {}): GrantableRole => ({
   roleId: 'project-viewer',

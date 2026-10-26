@@ -1,6 +1,9 @@
 // @vitest-environment node
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { setWidgetInjectionRegistry, type RegisteredComponent } from '../widget-injection-registry.ts';
+import {
+  setWidgetInjectionRegistry,
+  type RegisteredComponent,
+} from '../widget-injection-registry.ts';
 import { resolveZone } from '../widget-zone.presenter.ts';
 
 const component = () => Promise.resolve({ default: {} as never });

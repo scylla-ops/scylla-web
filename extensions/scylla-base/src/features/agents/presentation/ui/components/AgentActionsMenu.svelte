@@ -19,9 +19,7 @@
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-  import type {
-    AgentActions,
-  } from './agent-actions.state.svelte.ts';
+  import type { AgentActions } from './agent-actions.state.svelte.ts';
   import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
 
   interface Props {

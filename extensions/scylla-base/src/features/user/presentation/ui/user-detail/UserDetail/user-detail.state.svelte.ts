@@ -5,7 +5,10 @@ import { createMutation, createQuery } from '@scylla/core-sdk';
 import { t } from '@scylla/ui/i18n';
 import { toast } from '@scylla/ui/utils';
 import type { PasswordResetDelivery } from '@base/features/login';
-import { profileChanges, type ProfileValues } from '@base/features/user/domain/entities/user.entity.ts';
+import {
+  profileChanges,
+  type ProfileValues,
+} from '@base/features/user/domain/entities/user.entity.ts';
 import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 import { userMutations, userQueries } from '@base/features/user/presentation/user.queries.ts';
 

@@ -5,13 +5,13 @@ import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { SecretEntity } from '@base/features/secret/domain/entities/secret.entity.ts';
-import type {
-  SecretRepository,
-} from '@base/features/secret/domain/repository/secret.repository.ts';
+import type { SecretRepository } from '@base/features/secret/domain/repository/secret.repository.ts';
 import { SECRETS_QUERY_KEY, secretMutations, secretQueries } from '../secret.queries.ts';
 
 const toastSuccess = vi.fn();
-vi.mock('svelte-sonner', () => ({ toast: { success: (...args: unknown[]) => toastSuccess(...args) } }));
+vi.mock('svelte-sonner', () => ({
+  toast: { success: (...args: unknown[]) => toastSuccess(...args) },
+}));
 
 const secret = (overrides: Partial<SecretEntity> = {}): SecretEntity => ({
   id: 'secret-1',

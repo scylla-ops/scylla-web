@@ -9,14 +9,13 @@ import {
 } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import MemberRoleBadges from './MemberRoleBadges.svelte';
 
-const role = (overrides: Partial<MemberRole> = {}): MemberRole =>
-  ({
-    grantId: 'grant-1',
-    roleId: 'project-admin',
-    origin: MemberRoleOrigin.DIRECT,
-    scope: PermissionScope.PROJECT,
-    ...overrides,
-  });
+const role = (overrides: Partial<MemberRole> = {}): MemberRole => ({
+  grantId: 'grant-1',
+  roleId: 'project-admin',
+  origin: MemberRoleOrigin.DIRECT,
+  scope: PermissionScope.PROJECT,
+  ...overrides,
+});
 
 const props = (overrides: Record<string, unknown> = {}) => ({
   roles: [role()],

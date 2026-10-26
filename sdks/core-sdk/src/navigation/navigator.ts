@@ -44,8 +44,7 @@ export const navigateBack = (): void => require().back();
 export const currentPathname = (): string =>
   current ? current.pathname() : window.location.pathname;
 
-export const currentSearch = (): string =>
-  current ? current.search() : window.location.search;
+export const currentSearch = (): string => (current ? current.search() : window.location.search);
 
 /** Reactive once the router is installed. */
 export const routePathname = currentPathname;

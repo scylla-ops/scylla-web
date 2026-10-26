@@ -2,11 +2,11 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { createQuickAdd, type QuickAdd } from './quick-add.state.svelte.ts';
 import {
-  createQuickAdd,
-  type QuickAdd,
-} from './quick-add.state.svelte.ts';
-import { BLANK_NODES, catalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+  BLANK_NODES,
+  catalogText,
+} from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
 import QuickAddMenu from './QuickAddMenu.svelte';
 
 let cleanup: (() => void) | undefined;

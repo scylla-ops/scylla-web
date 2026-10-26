@@ -9,9 +9,7 @@
   import type { AppAccess } from '@base/features/apps';
   import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
   import { accessReachOf } from '@base/features/agents/presentation/presenters/access.presenter.ts';
-  import {
-    createAgentAccess,
-  } from './agent-access.state.svelte.ts';
+  import { createAgentAccess } from './agent-access.state.svelte.ts';
   import { takeFocus } from './take-focus.attachments.svelte.ts';
   import GiveAccessDialog from './GiveAccessDialog.svelte';
   import RemoveAccessDialog from './RemoveAccessDialog.svelte';

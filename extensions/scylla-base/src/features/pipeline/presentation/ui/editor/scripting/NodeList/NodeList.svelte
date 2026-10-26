@@ -4,7 +4,11 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
-  import { nodeRelations, nodeRows, nodeStages } from '@base/features/pipeline/presentation/presenters/node-list.presenter.ts';
+  import {
+    nodeRelations,
+    nodeRows,
+    nodeStages,
+  } from '@base/features/pipeline/presentation/presenters/node-list.presenter.ts';
   import { acceptNodeDrop } from './node-drag.attachments.ts';
   import { createNodeDrag } from './node-drag.state.svelte.ts';
   import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
@@ -97,7 +101,10 @@
     <Button
       variant="outline"
       size="sm"
-      class={cn('col-start-1 row-start-1 w-full border-dashed', drag.dragged !== null && 'invisible')}
+      class={cn(
+        'col-start-1 row-start-1 w-full border-dashed',
+        drag.dragged !== null && 'invisible',
+      )}
       onclick={onAdd}
     >
       <PlusIcon class="size-4" />

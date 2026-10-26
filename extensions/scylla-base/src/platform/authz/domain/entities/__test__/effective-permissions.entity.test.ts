@@ -10,7 +10,9 @@ import {
 } from '../effective-permissions.entity.ts';
 import { Permission, PermissionScope } from '@platform/authz/domain/structs/permission.struct.ts';
 
-const effective = (...scopes: EffectivePermissionsEntity['scopes']): EffectivePermissionsEntity => ({
+const effective = (
+  ...scopes: EffectivePermissionsEntity['scopes']
+): EffectivePermissionsEntity => ({
   scopes,
 });
 
@@ -20,9 +22,15 @@ describe('canAccess', () => {
   });
 
   it('a SYSTEM fullControl scope grants anything, anywhere, even with no target given', () => {
-    const perms = effective({ scope: PermissionScope.SYSTEM, scopeId: '', access: { kind: 'fullControl' } });
+    const perms = effective({
+      scope: PermissionScope.SYSTEM,
+      scopeId: '',
+      access: { kind: 'fullControl' },
+    });
     expect(canAccess(perms, Permission.READ_PROJECT)).toBe(true);
-    expect(canAccess(perms, Permission.DELETE_ORGANIZATION, { organizationId: 'org-1' })).toBe(true);
+    expect(canAccess(perms, Permission.DELETE_ORGANIZATION, { organizationId: 'org-1' })).toBe(
+      true,
+    );
   });
 
   it('a restricted access confers only the permissions it explicitly lists', () => {
@@ -36,7 +44,11 @@ describe('canAccess', () => {
   });
 
   it('an "unknown" access arm never confers anything, even at SYSTEM scope', () => {
-    const perms = effective({ scope: PermissionScope.SYSTEM, scopeId: '', access: { kind: 'unknown' } });
+    const perms = effective({
+      scope: PermissionScope.SYSTEM,
+      scopeId: '',
+      access: { kind: 'unknown' },
+    });
     expect(canAccess(perms, Permission.READ_PROJECT)).toBe(false);
   });
 
@@ -69,11 +81,15 @@ describe('canAccess', () => {
       });
 
     it('covers a target in that same organization', () => {
-      expect(canAccess(orgGrant('org-1'), Permission.READ_PROJECT, { organizationId: 'org-1' })).toBe(true);
+      expect(
+        canAccess(orgGrant('org-1'), Permission.READ_PROJECT, { organizationId: 'org-1' }),
+      ).toBe(true);
     });
 
     it('does not cover a different organization', () => {
-      expect(canAccess(orgGrant('org-1'), Permission.READ_PROJECT, { organizationId: 'org-2' })).toBe(false);
+      expect(
+        canAccess(orgGrant('org-1'), Permission.READ_PROJECT, { organizationId: 'org-2' }),
+      ).toBe(false);
     });
 
     it('does not cover a target with no organizationId given', () => {
@@ -81,7 +97,9 @@ describe('canAccess', () => {
     });
 
     it('does not cover a target scoped only by projectId', () => {
-      expect(canAccess(orgGrant('org-1'), Permission.READ_PROJECT, { projectId: 'project-1' })).toBe(false);
+      expect(
+        canAccess(orgGrant('org-1'), Permission.READ_PROJECT, { projectId: 'project-1' }),
+      ).toBe(false);
     });
   });
 
@@ -94,18 +112,18 @@ describe('canAccess', () => {
       });
 
     it('covers that exact project', () => {
-      expect(canAccess(projectGrant('project-1'), Permission.READ_PROJECT, { projectId: 'project-1' })).toBe(
-        true,
-      );
+      expect(
+        canAccess(projectGrant('project-1'), Permission.READ_PROJECT, { projectId: 'project-1' }),
+      ).toBe(true);
     });
 
     it('does not cover a different project', () => {
-      expect(canAccess(projectGrant('project-1'), Permission.READ_PROJECT, { projectId: 'project-2' })).toBe(
-        false,
-      );
+      expect(
+        canAccess(projectGrant('project-1'), Permission.READ_PROJECT, { projectId: 'project-2' }),
+      ).toBe(false);
     });
 
-    it('does not extend to the project\'s own organization - a project grant is narrower, not broader', () => {
+    it("does not extend to the project's own organization - a project grant is narrower, not broader", () => {
       expect(
         canAccess(projectGrant('project-1'), Permission.READ_PROJECT, { organizationId: 'org-1' }),
       ).toBe(false);
@@ -118,9 +136,12 @@ describe('canAccess', () => {
       scopeId: '',
       access: { kind: 'fullControl' },
     });
-    expect(canAccess(perms, Permission.READ_PROJECT, { organizationId: 'org-1', projectId: 'project-1' })).toBe(
-      false,
-    );
+    expect(
+      canAccess(perms, Permission.READ_PROJECT, {
+        organizationId: 'org-1',
+        projectId: 'project-1',
+      }),
+    ).toBe(false);
   });
 
   it('checks every scope and grants access as soon as any one of them matches', () => {
@@ -135,7 +156,11 @@ describe('canAccess', () => {
     const full = { kind: 'fullControl' } as const;
 
     it('an organization grant does not reach a system permission', () => {
-      const perms = effective({ scope: PermissionScope.ORGANIZATION, scopeId: 'org-1', access: full });
+      const perms = effective({
+        scope: PermissionScope.ORGANIZATION,
+        scopeId: 'org-1',
+        access: full,
+      });
       const target = { organizationId: 'org-1' };
       expect(canAccess(perms, Permission.MANAGE_ROLES, target)).toBe(false);
       expect(canAccess(perms, Permission.LIST_USERS, target)).toBe(false);

@@ -2,9 +2,7 @@
   import { Separator, Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { createNow } from '@scylla/ui/state';
-  import type {
-    UserSessionEntity,
-  } from '@base/features/user/domain/entities/user-session.entity.ts';
+  import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
   import SessionRow from './SessionRow/SessionRow.svelte';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
@@ -44,13 +42,7 @@
         {#if index > 0}
           <Separator />
         {/if}
-        <SessionRow
-          {session}
-          now={now.value}
-          {canRevoke}
-          disabled={isRevoking}
-          {onRevoke}
-        />
+        <SessionRow {session} now={now.value} {canRevoke} disabled={isRevoking} {onRevoke} />
       </li>
     {/each}
   </ul>

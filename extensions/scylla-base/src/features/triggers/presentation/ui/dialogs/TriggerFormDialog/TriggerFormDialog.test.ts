@@ -143,7 +143,9 @@ describe('TriggerFormDialog — edit mode', () => {
 
     expect(screen.getByText('Edit trigger')).toBeInTheDocument();
     expect(screen.getByLabelText('Name')).toHaveValue('nightly');
-    expect(screen.getByText("Type can't be changed. Delete and recreate to switch.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Type can't be changed. Delete and recreate to switch."),
+    ).toBeInTheDocument();
   });
 
   it('updates by trigger id rather than creating a second one', async () => {
@@ -161,7 +163,10 @@ describe('TriggerFormDialog — edit mode', () => {
   });
 
   it('refuses to re-send a source arm this build cannot render', () => {
-    render(TriggerFormDialog, props({ trigger: trigger({ source: { kind: TriggerKind.Unknown } }) }));
+    render(
+      TriggerFormDialog,
+      props({ trigger: trigger({ source: { kind: TriggerKind.Unknown } }) }),
+    );
 
     // A shape this build does not understand would be rewritten.
     expect(submitButton('Save')).toBeDisabled();

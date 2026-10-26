@@ -5,5 +5,5 @@ export default defineScyllaConfig({
   app: 'apps/web',
   // A ratchet, not a target: these are the levels reached today, so the number can only go up.
   // Raise them when a batch of tests lands; never lower them to make a red run green.
-  thresholds: { statements: 78, branches: 71, functions: 75, lines: 78 },
+  thresholds: { statements: 86, branches: 78, functions: 85, lines: 88 },
 });

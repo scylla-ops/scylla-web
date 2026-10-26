@@ -1,13 +1,13 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import tseslint from 'typescript-eslint'
-import svelte from 'eslint-plugin-svelte'
-import svelteParser from 'svelte-eslint-parser'
-import { globalIgnores } from 'eslint/config'
-import { dirname, relative, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import js from '@eslint/js';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+import svelte from 'eslint-plugin-svelte';
+import svelteParser from 'svelte-eslint-parser';
+import { globalIgnores } from 'eslint/config';
+import { dirname, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const scyllaRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const scyllaRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 /**
  * The ESLint configuration of a Scylla workspace: scylla-web itself, or a repo that mounts it as
@@ -15,7 +15,7 @@ const scyllaRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
  */
 export const scyllaEslintConfig = rootDir => {
   // `scylla` in a host repo, empty in scylla-web itself.
-  const mountedAt = relative(rootDir, scyllaRoot).split('\\').join('/')
+  const mountedAt = relative(rootDir, scyllaRoot).split('\\').join('/');
 
   return tseslint.config([
     // ── Ignored paths ────────────────────────────────────────────────────────────
@@ -159,5 +159,5 @@ export const scyllaEslintConfig = rootDir => {
         ],
       },
     },
-  ])
-}
+  ]);
+};

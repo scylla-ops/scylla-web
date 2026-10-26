@@ -1,9 +1,16 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import { groupCatalog, searchCatalog, type CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+  import {
+    groupCatalog,
+    searchCatalog,
+    type CatalogEntry,
+  } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
-  import { CATALOG_GROUP_TITLES, catalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+  import {
+    CATALOG_GROUP_TITLES,
+    catalogText,
+  } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import CatalogItem from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/CatalogItem.svelte';
   import SearchField from '@base/features/pipeline/presentation/ui/editor/controls/SearchField.svelte';
   import { dragToCanvas } from '@base/features/pipeline/presentation/ui/editor/blueprint/palette-drag/palette-drag.attachments.ts';
