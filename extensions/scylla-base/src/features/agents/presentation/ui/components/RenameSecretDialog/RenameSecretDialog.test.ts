@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { AppSecretEntity } from '@base/features/apps';
 import RenameSecretDialog from './RenameSecretDialog.svelte';
 
@@ -25,9 +25,7 @@ let restoreRegistry: () => void;
 beforeEach(() => {
   setAppSecretLabel = vi
     .fn()
-    .mockImplementation((id: string, label: string) =>
-      Promise.resolve(ScyllaResult.success(secret(id, label))),
-    );
+    .mockImplementation((id: string, label: string) => Promise.resolve(secret(id, label)));
   cache = withQueryClient();
   restoreRegistry = withRegistry({ apps: { appsRepository: { setAppSecretLabel } } });
 });
@@ -112,9 +110,7 @@ describe('RenameSecretDialog', () => {
   });
 
   it('shows a name that CE says is taken under the field, and stays open', async () => {
-    setAppSecretLabel.mockResolvedValue(
-      ScyllaResult.error(new ScyllaError('taken', { cause: { code: 'ALREADY_EXISTS' } })),
-    );
+    setAppSecretLabel.mockRejectedValue(new ScyllaError('taken', { code: 'ALREADY_EXISTS' }));
     const { dialog, field, onClose } = await open();
 
     await userEvent.clear(field);

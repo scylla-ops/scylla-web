@@ -1,5 +1,3 @@
-import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
-
 export interface JobEntity {
   id: string;
   pipelineId: string;
@@ -29,6 +27,6 @@ export interface JobLog {
 }
 
 export interface JobLogStream {
-  logs: AsyncIterable<ScyllaResult<JobLog>>;
+  logs: AsyncIterable<JobLog>;
   cancel: () => void;
 }

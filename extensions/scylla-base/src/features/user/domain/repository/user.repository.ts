@@ -1,4 +1,3 @@
-import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { PasswordResetDelivery } from '@base/features/login';
 import type {
   CreateUserInput,
@@ -10,25 +9,25 @@ import type {
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 
 export interface UserRepository {
-  getAll(): Promise<ScyllaResult<UserList>>;
-  getById(id: string): Promise<ScyllaResult<UserEntity>>;
+  getAll(): Promise<UserList>;
+  getById(id: string): Promise<UserEntity>;
   /** The account of the session. Needs no permission. */
-  getMe(): Promise<ScyllaResult<UserEntity>>;
-  create(input: CreateUserInput): Promise<ScyllaResult<UserEntity>>;
-  update(input: UpdateUserInput): Promise<ScyllaResult<UserEntity>>;
-  delete(userId: string): Promise<ScyllaResult<void>>;
+  getMe(): Promise<UserEntity>;
+  create(input: CreateUserInput): Promise<UserEntity>;
+  update(input: UpdateUserInput): Promise<UserEntity>;
+  delete(userId: string): Promise<void>;
   /** Deactivation signs the user out and blocks the sign-in. Never on the own id. */
-  setActive(userId: string, isActive: boolean): Promise<ScyllaResult<UserEntity>>;
+  setActive(userId: string, isActive: boolean): Promise<UserEntity>;
   /** Of the session's account. Signs out its other sessions. */
-  changePassword(currentPassword: string, newPassword: string): Promise<ScyllaResult<void>>;
-  sendPasswordReset(userId: string): Promise<ScyllaResult<PasswordResetDelivery>>;
+  changePassword(currentPassword: string, newPassword: string): Promise<void>;
+  sendPasswordReset(userId: string): Promise<PasswordResetDelivery>;
   /** The number of sessions revoked. For the own id, the current session stays. */
-  revokeSessions(userId: string): Promise<ScyllaResult<number>>;
+  revokeSessions(userId: string): Promise<number>;
   /** Of the session's account, with its password. */
-  deleteAccount(password: string): Promise<ScyllaResult<void>>;
-  listAccess(userId: string): Promise<ScyllaResult<UserAccess[]>>;
+  deleteAccount(password: string): Promise<void>;
+  listAccess(userId: string): Promise<UserAccess[]>;
   /** The sessions that have not expired, the most recently active first. */
-  listSessions(userId: string): Promise<ScyllaResult<UserSessionEntity[]>>;
+  listSessions(userId: string): Promise<UserSessionEntity[]>;
   /** The current session can be revoked too: its caller is then signed out. */
-  revokeSession(userId: string, sessionId: string): Promise<ScyllaResult<void>>;
+  revokeSession(userId: string, sessionId: string): Promise<void>;
 }

@@ -40,8 +40,8 @@ describe('DefaultJobsRepository.tailLogs', () => {
       yield { log: undefined };
     });
 
-    const stream = new DefaultJobsRepository(client).tailLogs('job-1').unwrap();
-    const logs = (await collect(stream.logs)).map(result => result.unwrap());
+    const stream = new DefaultJobsRepository(client).tailLogs('job-1');
+    const logs = await collect(stream.logs);
 
     expect(logs).toEqual([
       {
@@ -55,24 +55,28 @@ describe('DefaultJobsRepository.tailLogs', () => {
     ]);
   });
 
-  it('ends the stream with an error item when the call breaks, instead of throwing', async () => {
+  it('gives the lines read so far, then throws when the call breaks', async () => {
     const { client } = tailing(async function* () {
       await Promise.resolve();
       yield { log: entry };
       throw new Error('connection reset');
     });
 
-    const stream = new DefaultJobsRepository(client).tailLogs('job-1').unwrap();
-    const results = await collect(stream.logs);
+    const lines: string[] = [];
+    const reading = (async () => {
+      for await (const log of new DefaultJobsRepository(client).tailLogs('job-1').logs) {
+        lines.push(log.line);
+      }
+    })();
 
-    expect(results).toHaveLength(2);
-    expect(() => results[1].unwrap()).toThrow('Error tailing job logs');
+    await expect(reading).rejects.toThrow('connection reset');
+    expect(lines).toEqual(['hello']);
   });
 
   it('aborts the call on cancel', () => {
     const { client, seen } = tailing(async function* () {});
 
-    new DefaultJobsRepository(client).tailLogs('job-1').unwrap().cancel();
+    new DefaultJobsRepository(client).tailLogs('job-1').cancel();
 
     expect(seen.signal?.aborted).toBe(true);
   });

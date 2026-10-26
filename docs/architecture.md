@@ -22,27 +22,32 @@ If this document and one of them do not agree, they are correct: update this doc
 - **Framework independence**: the domain layer does not import Svelte, gRPC or proto code.
 - **Server state lives in TanStack Query**, never in a store.
 
-### 1.2 Error handling — `ScyllaResult<T>`
+### 1.2 Error handling — `ScyllaError`
 
-All async operations return `ScyllaResult<T>`, a Result type that holds a success or a failure:
+A repository method returns `Promise<T>` and rejects with a `ScyllaError`. The gRPC transport
+(`@platform/grpc`) makes each failed call into a `ScyllaError`, with the gRPC code (`code`) and
+the decoded server message. A request that does not get to the server is `UNAVAILABLE`.
 
 ```typescript
-const result = await ScyllaResult.tryAsync(async () => api.call(), 'Error message');
-
-result.fold({
-  onSuccess: data => handleSuccess(data),
-  onError: error => handleError(error),
-});
-
-const data = result.unwrap(); // throws on error
+export const secretQueries = {
+  byProject: (projectId: string) =>
+    queryOptions({
+      queryKey: SECRETS_QUERY_KEY(projectId),
+      queryFn: () => repository().listByProjectId(projectId),
+    }),
+};
 ```
 
-`ScyllaError` extends `Error`. It extracts the gRPC status code (`getCode`, `isNotFound`,
-`isForbidden`, `isNetworkError`, …) and gives a message for the user (`userMessage`). Both live
-in scylla-base `shared/utils/scylla-result.ts`. Other extensions get them from `@scylla/base-sdk`.
+There is no Result type. TanStack Query already holds the state of each call (`data`, `error`,
+`status`): a Result would be made in the repository only to be thrown again in each `queryFn`.
 
-In query and mutation options, call `.unwrap()` inside `queryFn` / `mutationFn`, so TanStack Query
-handles the error.
+`ScyllaError` extends `Error`. It has the code (`code`, `isNotFound`, `isForbidden`,
+`isNetworkError`, `isTransient`) and a message for the user (`userMessage`). `ScyllaError.from`
+reads any thrown value. It is in scylla-base `shared/utils/scylla-error.ts`. Other extensions get
+it from `@scylla/base-sdk`.
+
+The shell has the one error toast of the app (`reportQueryError`) and the retry policy
+(`retryQueryError`: only `UNAVAILABLE`, `DEADLINE_EXCEEDED` and `ABORTED` are retried).
 
 ---
 
@@ -180,7 +185,7 @@ declare a permission. The core only gives the permission to the access policy.
 
 An extension never imports another extension. It imports its SDK. `@scylla/base-sdk` re-exports
 the barrels of scylla-base (`platform/authz`, `platform/context`, `platform/grpc`,
-`ScyllaResult` and each feature). scylla-base itself never imports its SDK.
+`ScyllaError` and each feature). scylla-base itself never imports its SDK.
 
 If an extension needs something that the SDK does not export, export it from the `index.ts` of
 the owner module.
@@ -263,7 +268,7 @@ extensions/scylla-base/src/
   features/                    agents, apps, dashboard, jobs, login, marketplace, membership,
                                organization, pipeline, project, roles, secret, triggers, user
   platform/                    authz, context, grpc
-  shared/                      shared code with a business meaning (ScyllaResult, status presentation)
+  shared/                      shared code with a business meaning (ScyllaError, status presentation)
 ```
 
 ### 4.1 Four layers, dependencies point down
@@ -439,11 +444,9 @@ from the proto type with the same bare name (aliased in mappers, e.g. `User as P
 export class DefaultUserRepository implements UserRepository {
   constructor(private readonly client: IUserServiceClient) {}
 
-  public getAll(): Promise<ScyllaResult<PaginatedList<UserEntity>>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.listUsers({}).response;
-      return grpcUser.toDomainList(response);
-    }, 'Failed to fetch users.');
+  public async getAll(): Promise<PaginatedList<UserEntity>> {
+    const response = await this.client.listUsers({}).response;
+    return grpcUser.toDomainList(response);
   }
 }
 ```
@@ -467,7 +470,7 @@ export const USERS_QUERY_KEY = () => ['users'] as const;
 export const userMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: async (input: CreateUserInput) => (await repository().create(input)).unwrap(),
+      mutationFn: (input: CreateUserInput) => repository().create(input),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.USER_CREATE));
         return getQueryClient().invalidateQueries({ queryKey: USERS_QUERY_KEY() });
@@ -522,8 +525,8 @@ The repository is read at each call, so a test can replace the registry (`withRe
 ```
 Component / ViewModel → createQuery(() => xQueries.y()) → queryFn
     → Repository (interface) → Default{Entity}Repository → gRPC client
-    → ScyllaResult<T> ← mapper ← proto response
-    → .unwrap() → TanStack Query cache
+    → T ← mapper ← proto response          (a failure: ScyllaError, from the transport)
+    → TanStack Query cache
 ```
 
 ### 6.2 Write flow

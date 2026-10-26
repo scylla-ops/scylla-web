@@ -9,8 +9,8 @@ import type {
   ResetAppSecret,
 } from '../domain/entities/app.entity.ts';
 import { trimSecretLabel } from '../domain/structs/secret-label.struct.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { AppsModule } from '../apps.module.ts';
-import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
 
 // Resolved per call: tests swap the registry.
 const domain = () => getModuleDomain<typeof AppsModule.domain>('apps');
@@ -26,14 +26,14 @@ export const appQueries = {
     queryOptions<AppEntity[]>({
       queryKey: APPS_QUERY_KEY(organizationId),
       enabled: !!organizationId,
-      queryFn: async () => (await repository().listApps(organizationId)).unwrap(),
+      queryFn: () => repository().listApps(organizationId),
     }),
 
   byId: (appId: string) =>
     queryOptions<AppEntity>({
       queryKey: APP_QUERY_KEY(appId),
       enabled: !!appId,
-      queryFn: async () => (await repository().getApp(appId)).unwrap(),
+      queryFn: () => repository().getApp(appId),
     }),
 
   /** Metadata only. `agents` reads it outside this module's pages: checked here. */
@@ -41,7 +41,7 @@ export const appQueries = {
     queryOptions<AppSecretEntity[]>({
       queryKey: APP_SECRETS_QUERY_KEY(appId),
       enabled: !!appId && can(Permission.READ_APP),
-      queryFn: async () => (await repository().listAppSecrets(appId)).unwrap(),
+      queryFn: () => repository().listAppSecrets(appId),
     }),
 
   /** Every grant of the app, with names. Checked here, like `secretsOf`. */
@@ -50,7 +50,7 @@ export const appQueries = {
       queryKey: APP_ACCESS_QUERY_KEY(appId),
       enabled: !!appId && can(Permission.READ_APP),
       staleTime: 30_000,
-      queryFn: async () => (await repository().listAppAccess(appId)).unwrap(),
+      queryFn: () => repository().listAppAccess(appId),
     }),
 };
 
@@ -76,27 +76,27 @@ const forgetApp = async (organizationId: string, appId: string) => {
  * `null` when another secret of the app has the label (`ALREADY_EXISTS`): the dialog shows it
  * under the field, not in the global toast. Any other error throws.
  */
-const unlessLabelTaken = <T>(result: ScyllaResult<T>): T | null =>
-  result.fold<T | null>({
-    onSuccess: value => value,
-    onError: error => {
-      if (error.isAlreadyExists()) return null;
-      throw error;
-    },
-  });
+const unlessLabelTaken = async <T>(call: Promise<T>): Promise<T | null> => {
+  try {
+    return await call;
+  } catch (error) {
+    if (ScyllaError.from(error).isAlreadyExists()) return null;
+    throw error;
+  }
+};
 
 export const appMutations = {
   /** The value passes through once and is never stored. */
   create: (organizationId: string) =>
     mutationOptions({
-      mutationFn: async ({ name }: { name: string }): Promise<CreatedApp> =>
-        (await repository().createApp(organizationId, name)).unwrap(),
+      mutationFn: ({ name }: { name: string }): Promise<CreatedApp> =>
+        repository().createApp(organizationId, name),
       onSuccess: () => void invalidateList(organizationId),
     }),
 
   remove: (organizationId: string) =>
     mutationOptions({
-      mutationFn: async (appId: string) => (await repository().deleteApp(appId)).unwrap(),
+      mutationFn: (appId: string) => repository().deleteApp(appId),
       onSuccess: async (_data, appId) => {
         await forgetApp(organizationId, appId);
         void invalidateList(organizationId);
@@ -106,8 +106,8 @@ export const appMutations = {
   /** Reversible, unlike deleting. */
   setActive: (organizationId: string) =>
     mutationOptions({
-      mutationFn: async ({ appId, active }: { appId: string; active: boolean }) =>
-        (await repository().setAppActive(appId, active)).unwrap(),
+      mutationFn: ({ appId, active }: { appId: string; active: boolean }) =>
+        repository().setAppActive(appId, active),
       onSuccess: (_data, { appId }) => {
         // The list and the detail both show the flag.
         void invalidateList(organizationId);
@@ -117,8 +117,8 @@ export const appMutations = {
 
   createSecret: (appId: string) =>
     mutationOptions({
-      mutationFn: async (label: string): Promise<CreatedAppSecret> =>
-        (await repository().createAppSecret(appId, label)).unwrap(),
+      mutationFn: (label: string): Promise<CreatedAppSecret> =>
+        repository().createAppSecret(appId, label),
       onSuccess: () => void invalidateSecrets(appId),
     }),
 
@@ -130,43 +130,42 @@ export const appMutations = {
   resetSecret: (appId: string) =>
     mutationOptions({
       gcTime: 0,
-      mutationFn: async ({
+      mutationFn: ({
         label,
         revokeOthers,
       }: {
         label: string;
         revokeOthers: boolean;
       }): Promise<ResetAppSecret | null> =>
-        unlessLabelTaken(await domain().resetAppSecret.execute({ appId, label, revokeOthers })),
+        unlessLabelTaken(domain().resetAppSecret.execute({ appId, label, revokeOthers })),
       onSuccess: () => void invalidateSecrets(appId),
     }),
 
   /** Irreversible, and cuts any session using the secret. Confirm first. */
   revokeSecret: (appId: string) =>
     mutationOptions({
-      mutationFn: async (secretId: string) =>
-        (await repository().revokeAppSecret(secretId)).unwrap(),
+      mutationFn: (secretId: string) => repository().revokeAppSecret(secretId),
       onSuccess: () => void invalidateSecrets(appId),
     }),
 
   setSecretEnabled: (appId: string) =>
     mutationOptions({
-      mutationFn: async ({ secretId, enabled }: { secretId: string; enabled: boolean }) =>
-        (await repository().setAppSecretEnabled(secretId, enabled)).unwrap(),
+      mutationFn: ({ secretId, enabled }: { secretId: string; enabled: boolean }) =>
+        repository().setAppSecretEnabled(secretId, enabled),
       onSuccess: () => void invalidateSecrets(appId),
     }),
 
   /** `null`: the label is taken. The secrets refresh in both cases, to show the taken label. */
   setSecretLabel: (appId: string) =>
     mutationOptions({
-      mutationFn: async ({
+      mutationFn: ({
         secretId,
         label,
       }: {
         secretId: string;
         label: string;
       }): Promise<AppSecretEntity | null> =>
-        unlessLabelTaken(await repository().setAppSecretLabel(secretId, trimSecretLabel(label))),
+        unlessLabelTaken(repository().setAppSecretLabel(secretId, trimSecretLabel(label))),
       onSuccess: () => void invalidateSecrets(appId),
     }),
 };

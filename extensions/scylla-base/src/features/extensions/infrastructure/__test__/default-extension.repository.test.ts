@@ -13,8 +13,8 @@ const manifest = (overrides: Partial<ExtensionManifest> = {}): ExtensionManifest
   ...overrides,
 });
 
-const read = async (manifests: readonly ExtensionManifest[]) =>
-  (await new DefaultExtensionRepository(() => manifests).getInstalledExtensions()).unwrap();
+const read = (manifests: readonly ExtensionManifest[]) =>
+  new DefaultExtensionRepository(() => manifests).getInstalledExtensions();
 
 describe('DefaultExtensionRepository', () => {
   it('keeps the load order of the core', async () => {
@@ -55,6 +55,6 @@ describe('DefaultExtensionRepository', () => {
 
     installed = [manifest()];
 
-    expect((await repository.getInstalledExtensions()).unwrap()).toHaveLength(1);
+    expect(await repository.getInstalledExtensions()).toHaveLength(1);
   });
 });

@@ -1,4 +1,4 @@
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { PipelineRepository } from '../repository/pipeline.repository.ts';
 import { pipelineIssue } from '../entities/pipeline.entity.ts';
 import type { PipelineNodeEntity } from '../entities/pipeline-node.entity.ts';
@@ -15,8 +15,7 @@ export interface SavePipelineInput {
 /** The pipeline breaks a rule of the domain: nothing was sent to the server. */
 export class InvalidPipelineError extends ScyllaError {
   constructor(public readonly issue: PipelineIssue) {
-    super(`The pipeline cannot be saved: ${issue.kind}`);
-    Object.setPrototypeOf(this, InvalidPipelineError.prototype);
+    super(`The pipeline cannot be saved: ${issue.kind}`, { code: 'INVALID_ARGUMENT' });
   }
 }
 
@@ -27,16 +26,11 @@ export class InvalidPipelineError extends ScyllaError {
 export class SavePipelineUseCase {
   constructor(private readonly _repository: PipelineRepository) {}
 
-  public async execute({
-    id,
-    projectId,
-    name,
-    nodes,
-  }: SavePipelineInput): Promise<ScyllaResult<void>> {
+  public async execute({ id, projectId, name, nodes }: SavePipelineInput): Promise<void> {
     const issue = pipelineIssue({ name, nodes });
-    if (issue) return ScyllaResult.error(new InvalidPipelineError(issue));
+    if (issue) throw new InvalidPipelineError(issue);
 
-    if (!id) return this._repository.create({ projectId, name, nodes });
-    return (await this._repository.edit(id, nodes, name)).map(() => undefined);
+    if (id) await this._repository.edit(id, nodes, name);
+    else await this._repository.create({ projectId, name, nodes });
   }
 }

@@ -1,11 +1,10 @@
-import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {
   CreateSecretInput,
   SecretEntity,
 } from '@base/features/secret/domain/entities/secret.entity.ts';
 
 export interface SecretRepository {
-  listByProjectId(projectId: string): Promise<ScyllaResult<SecretEntity[]>>;
-  create(input: CreateSecretInput): Promise<ScyllaResult<SecretEntity>>;
-  deleteById(secretId: string): Promise<ScyllaResult<void>>;
+  listByProjectId(projectId: string): Promise<SecretEntity[]>;
+  create(input: CreateSecretInput): Promise<SecretEntity>;
+  deleteById(secretId: string): Promise<void>;
 }

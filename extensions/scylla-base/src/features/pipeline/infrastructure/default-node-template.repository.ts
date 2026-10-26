@@ -1,6 +1,5 @@
 import type { NodeTemplateRepository } from '@base/features/pipeline/domain/repository/node-template.repository.ts';
 import type { NodeTemplateEntity } from '@base/features/pipeline/domain/entities/node-template.entity.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 
 export const BUILT_IN_NODE_TEMPLATES: readonly NodeTemplateEntity[] = [
   {
@@ -56,7 +55,7 @@ export class DefaultNodeTemplateRepository implements NodeTemplateRepository {
     private readonly templates: readonly NodeTemplateEntity[] = BUILT_IN_NODE_TEMPLATES,
   ) {}
 
-  public list(): Promise<ScyllaResult<NodeTemplateEntity[]>> {
-    return Promise.resolve(ScyllaResult.success([...this.templates]));
+  public list(): Promise<NodeTemplateEntity[]> {
+    return Promise.resolve([...this.templates]);
   }
 }

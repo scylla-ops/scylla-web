@@ -49,7 +49,7 @@ export const roleQueries = {
     queryOptions<RoleEntity[]>({
       queryKey: ROLES_QUERY_KEY,
       enabled: options.enabled ?? true,
-      queryFn: async () => (await domain().permissionRepository.listRoles()).unwrap(),
+      queryFn: () => domain().permissionRepository.listRoles(),
     }),
 
   /** The platform roles and this organization's. Needs `MANAGE_ORG_ROLES` there: pass it as `enabled`. Idle while `organizationId` is `null`. */
@@ -57,8 +57,7 @@ export const roleQueries = {
     queryOptions<RoleEntity[]>({
       queryKey: ORGANIZATION_ROLES_QUERY_KEY(organizationId ?? ''),
       enabled: (options.enabled ?? true) && !!organizationId,
-      queryFn: async () =>
-        (await domain().permissionRepository.listRoles(organizationId ?? '')).unwrap(),
+      queryFn: () => domain().permissionRepository.listRoles(organizationId ?? ''),
     }),
 
   /**
@@ -73,13 +72,8 @@ export const roleQueries = {
     queryOptions<GrantableRoleEntity[]>({
       queryKey: GRANTABLE_ROLES_QUERY_KEY(scope, organizationId),
       enabled: options.enabled ?? true,
-      queryFn: async () =>
-        (
-          await domain().permissionRepository.listGrantableRoles(
-            scope,
-            organizationId ?? undefined,
-          )
-        ).unwrap(),
+      queryFn: () =>
+        domain().permissionRepository.listGrantableRoles(scope, organizationId ?? undefined),
     }),
 
   /** System admins only. */
@@ -87,7 +81,7 @@ export const roleQueries = {
     queryOptions<GrantEntity[]>({
       queryKey: GRANTS_QUERY_KEY(),
       enabled: options.enabled ?? true,
-      queryFn: async () => (await domain().permissionRepository.listGrants()).unwrap(),
+      queryFn: () => domain().permissionRepository.listGrants(),
     }),
 
   /** Needs `MANAGE_*_GRANTS` on the scope: pass `enabled: false` when the user lacks it. Idle while `scopeId` is `null`. */
@@ -99,15 +93,14 @@ export const roleQueries = {
     queryOptions<GrantEntity[]>({
       queryKey: GRANTS_QUERY_KEY(scope, scopeId ?? ''),
       enabled: (options.enabled ?? true) && !!scopeId,
-      queryFn: async () =>
-        (await domain().permissionRepository.listGrants(scope, scopeId ?? '')).unwrap(),
+      queryFn: () => domain().permissionRepository.listGrants(scope, scopeId ?? ''),
     }),
 
   /** Every permission the backend knows, with its narrowest scope. New backend permissions show up without a frontend change. */
   vocabulary: () =>
     queryOptions<PermissionVocabulary>({
       queryKey: PERMISSION_VOCABULARY_QUERY_KEY,
-      queryFn: async () => (await domain().permissionRepository.listPermissionVocabulary()).unwrap(),
+      queryFn: () => domain().permissionRepository.listPermissionVocabulary(),
       staleTime: Infinity,
     }),
 };
@@ -122,12 +115,12 @@ export const refreshMyPermissions = async (): Promise<void> => {
     return;
   }
 
-  const result = await domain().permissionRepository.getMyPermissions();
-  result.fold({
-    onSuccess: permissions => setPermissions(permissions),
+  try {
+    setPermissions(await domain().permissionRepository.getMyPermissions());
+  } catch {
     // On failure: no permissions. The backend still enforces.
-    onError: () => setPermissions({ scopes: [] }),
-  });
+    setPermissions({ scopes: [] });
+  }
 };
 
 /** Reloads only when user, organization or project change. */
@@ -162,30 +155,27 @@ const invalidateRoles = () => {
 export const roleMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: async (input: RoleCreationData) =>
-        (await domain().permissionRepository.createRole(input)).unwrap(),
+      mutationFn: (input: RoleCreationData) => domain().permissionRepository.createRole(input),
       onSuccess: invalidateRoles,
     }),
 
   update: () =>
     mutationOptions({
-      mutationFn: async (input: UpdateRoleInput) =>
-        (await domain().updateRole.execute(input)).unwrap(),
+      mutationFn: (input: UpdateRoleInput) => domain().updateRole.execute(input),
       onSuccess: invalidateRoles,
     }),
 
   remove: () =>
     mutationOptions({
-      mutationFn: async (roleId: string) =>
-        (await domain().permissionRepository.deleteRole(roleId)).unwrap(),
+      mutationFn: (roleId: string) => domain().permissionRepository.deleteRole(roleId),
       onSuccess: invalidateRoles,
     }),
 
   /** A mutation: it runs when asked, and its answer is not cached. */
   effectivePermissions: () =>
     mutationOptions({
-      mutationFn: async (principal: PrincipalEntity): Promise<EffectivePermissionsEntity> =>
-        (await domain().permissionRepository.getEffectivePermissions(principal)).unwrap(),
+      mutationFn: (principal: PrincipalEntity): Promise<EffectivePermissionsEntity> =>
+        domain().permissionRepository.getEffectivePermissions(principal),
     }),
 };
 
@@ -198,23 +188,21 @@ const afterGrantChange = () => {
 export const grantMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: async (input: CreateGrantInput) =>
-        (await domain().permissionRepository.createGrant(input)).unwrap(),
+      mutationFn: (input: CreateGrantInput) => domain().permissionRepository.createGrant(input),
       onSuccess: afterGrantChange,
     }),
 
   revoke: () =>
     mutationOptions({
-      mutationFn: async (grantId: string) =>
-        (await domain().permissionRepository.revokeGrant(grantId)).unwrap(),
+      mutationFn: (grantId: string) => domain().permissionRepository.revokeGrant(grantId),
       onSuccess: afterGrantChange,
     }),
 
   /** Removes a principal from a scope entirely, unlike `revoke` (one grant). */
   revokeAllAccess: () =>
     mutationOptions({
-      mutationFn: async (input: RevokeAllAccessInput) =>
-        (await domain().permissionRepository.revokeAllAccess(input)).unwrap(),
+      mutationFn: (input: RevokeAllAccessInput) =>
+        domain().permissionRepository.revokeAllAccess(input),
       onSuccess: afterGrantChange,
     }),
 };

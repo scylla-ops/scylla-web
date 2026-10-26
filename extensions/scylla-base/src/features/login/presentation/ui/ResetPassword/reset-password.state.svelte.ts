@@ -1,5 +1,5 @@
 import { createMutation, getModuleDomain } from '@scylla/core-sdk';
-import { refusalOf, type ScyllaError } from '@shared/utils/scylla-result.ts';
+import { refusalOf, type ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { LoginModule } from '@base/features/login/login.module.ts';
 
 export type ResetPasswordStep = 'form' | 'done' | 'invalid-link';
@@ -28,7 +28,7 @@ export class ResetPasswordState {
   /** The refusal is the page's own state: it must not reach the global error toast. */
   private readonly mutation = createMutation<string | null, ScyllaError, string>(() => ({
     mutationFn: async (newPassword: string) =>
-      refusalOf(await this.repository.resetPassword(this.token ?? '', newPassword)),
+      refusalOf(this.repository.resetPassword(this.token ?? '', newPassword)),
   }));
 
   get isPending(): boolean {

@@ -8,7 +8,6 @@ import {
   RoleKind,
 } from '@platform/authz';
 import { withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import { createGrantCreator } from '../grant-creator.state.svelte.ts';
@@ -55,26 +54,20 @@ let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
 beforeEach(() => {
-  listRoles = vi.fn().mockResolvedValue(ScyllaResult.success([memberRole, blindRole]));
-  listGrants = vi.fn().mockResolvedValue(ScyllaResult.success([grant()]));
-  createGrant = vi.fn().mockResolvedValue(ScyllaResult.success(grant()));
-  getAllUsers = vi.fn().mockResolvedValue(
-    ScyllaResult.success({
-      items: [
-        { userId: 'user-1', username: 'ada' },
-        { userId: 'user-2', username: 'grace' },
-      ],
-    }),
-  );
-  getMine = vi.fn().mockResolvedValue(
-    ScyllaResult.success([
-      { id: 'org-1', name: 'Acme' },
-      { id: 'org-2', name: 'Globex' },
-    ]),
-  );
-  getProjects = vi
-    .fn()
-    .mockResolvedValue(ScyllaResult.success({ projects: [{ id: 'project-1', name: 'Web' }] }));
+  listRoles = vi.fn().mockResolvedValue([memberRole, blindRole]);
+  listGrants = vi.fn().mockResolvedValue([grant()]);
+  createGrant = vi.fn().mockResolvedValue(grant());
+  getAllUsers = vi.fn().mockResolvedValue({
+    items: [
+      { userId: 'user-1', username: 'ada' },
+      { userId: 'user-2', username: 'grace' },
+    ],
+  });
+  getMine = vi.fn().mockResolvedValue([
+    { id: 'org-1', name: 'Acme' },
+    { id: 'org-2', name: 'Globex' },
+  ]);
+  getProjects = vi.fn().mockResolvedValue({ projects: [{ id: 'project-1', name: 'Web' }] });
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -84,7 +77,7 @@ beforeEach(() => {
         listGrants,
         createGrant,
         // Every grant change reloads the caller's own permissions.
-        getMyPermissions: vi.fn().mockResolvedValue(ScyllaResult.success({ scopes: [] })),
+        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
       },
       updateRole: { execute: vi.fn() },
     },
@@ -162,7 +155,7 @@ describe('createGrantCreator — what the role scope asks for', () => {
   it('marks a target the user already holds, rather than offering it twice', async () => {
     // The grant has to be of *this* role: holding another one on org-1 is not
     // the same thing, and offering the target again is then correct.
-    listGrants.mockResolvedValue(ScyllaResult.success([grant({ roleId: 'role-1' })]));
+    listGrants.mockResolvedValue([grant({ roleId: 'role-1' })]);
 
     await withCreator(role(), async creator => {
       await waitFor(() => expect(creator.organizations).toHaveLength(2));
@@ -199,16 +192,14 @@ describe('createGrantCreator — project scope and the tenant boundary', () => {
   });
 
   it('separates "not admitted" from "admitted but cannot see the projects"', async () => {
-    listGrants.mockResolvedValue(
-      ScyllaResult.success([
-        grant(),
-        grant({
-          id: 'grant-2',
-          principal: { kind: PrincipalKind.USER, id: 'user-2' },
-          roleId: 'role-blind',
-        }),
-      ]),
-    );
+    listGrants.mockResolvedValue([
+      grant(),
+      grant({
+        id: 'grant-2',
+        principal: { kind: PrincipalKind.USER, id: 'user-2' },
+        roleId: 'role-blind',
+      }),
+    ]);
 
     await withCreator(projectRole, async creator => {
       await waitFor(() => expect(creator.users).toHaveLength(2));
@@ -233,9 +224,7 @@ describe('createGrantCreator — project scope and the tenant boundary', () => {
   });
 
   it('keeps a chosen user who is still eligible after the switch', async () => {
-    listGrants.mockResolvedValue(
-      ScyllaResult.success([grant(), grant({ id: 'grant-2', scopeId: 'org-2' })]),
-    );
+    listGrants.mockResolvedValue([grant(), grant({ id: 'grant-2', scopeId: 'org-2' })]);
 
     await withCreator(projectRole, async creator => {
       await waitFor(() => expect(creator.users).toHaveLength(2));
@@ -250,7 +239,7 @@ describe('createGrantCreator — project scope and the tenant boundary', () => {
   });
 
   it('reports that nobody can receive a grant here, so the dialog can say why', async () => {
-    listGrants.mockResolvedValue(ScyllaResult.success([]));
+    listGrants.mockResolvedValue([]);
 
     await withCreator(projectRole, async creator => {
       await waitFor(() => expect(creator.users).toHaveLength(2));
@@ -338,9 +327,7 @@ describe('createGrantCreator — from an organization', () => {
   let listMembers: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    listMembers = vi
-      .fn()
-      .mockResolvedValue(ScyllaResult.success([{ userId: 'user-1', username: 'dave' }]));
+    listMembers = vi.fn().mockResolvedValue([{ userId: 'user-1', username: 'dave' }]);
     restoreRegistry();
     restoreRegistry = withRegistry({
       roles: {
@@ -348,7 +335,7 @@ describe('createGrantCreator — from an organization', () => {
           listRoles,
           listGrants,
           createGrant,
-          getMyPermissions: vi.fn().mockResolvedValue(ScyllaResult.success({ scopes: [] })),
+          getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
         },
         updateRole: { execute: vi.fn() },
       },

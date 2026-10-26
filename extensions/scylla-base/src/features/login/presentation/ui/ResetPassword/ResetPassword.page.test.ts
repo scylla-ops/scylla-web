@@ -2,24 +2,20 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import ResetPasswordPage from './ResetPassword.page.svelte';
 
 let teardown: Array<() => void> = [];
 let resetPassword: ReturnType<typeof vi.fn>;
 
-const refused = () =>
-  ScyllaResult.error<void>(
-    new ScyllaError('Failed.', {
-      cause: Object.assign(new Error('Invalid or expired token'), {
-        code: 'FAILED_PRECONDITION',
-      }),
-    }),
-  );
+const refused = () => new ScyllaError('Invalid or expired token', { code: 'FAILED_PRECONDITION' });
 
-const openAt = (url: string, outcome = ScyllaResult.success<void>(undefined)) => {
+/** `refusal`: the error the server gives, else the reset succeeds. */
+const openAt = (url: string, refusal?: ScyllaError) => {
   history.replaceState(null, '', url);
-  resetPassword = vi.fn().mockResolvedValue(outcome);
+  resetPassword = refusal
+    ? vi.fn().mockRejectedValue(refusal)
+    : vi.fn().mockResolvedValue(undefined);
   const cache = withQueryClient();
   teardown = [
     cache.restore,

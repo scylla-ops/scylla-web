@@ -3,10 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { QueryClient } from '@tanstack/query-core';
 import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { runMutationFn, runQueryFn } from '@test/queries.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  TriggersRepository,
-} from '@base/features/triggers/domain/repository/triggers.repository.ts';
+import type { TriggersRepository } from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import type {
   TriggerDraft,
   TriggerEntity,
@@ -52,17 +49,17 @@ let queryClient: QueryClient;
 
 beforeEach(() => {
   repository = {
-    listByPipelineId: vi.fn().mockResolvedValue(ScyllaResult.success([trigger()])),
-    getById: vi.fn().mockResolvedValue(ScyllaResult.success(trigger())),
-    create: vi.fn().mockResolvedValue(ScyllaResult.success({ trigger: trigger() })),
-    update: vi.fn().mockResolvedValue(ScyllaResult.success(trigger())),
-    deleteById: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
+    listByPipelineId: vi.fn().mockResolvedValue([trigger()]),
+    getById: vi.fn().mockResolvedValue(trigger()),
+    create: vi.fn().mockResolvedValue({ trigger: trigger() }),
+    update: vi.fn().mockResolvedValue(trigger()),
+    deleteById: vi.fn().mockResolvedValue(undefined),
     setEnabled: vi
       .fn()
       .mockImplementation((id: string, enabled: boolean) =>
-        Promise.resolve(ScyllaResult.success(trigger({ id, enabled }))),
+        Promise.resolve(trigger({ id, enabled })),
       ),
-    fireNow: vi.fn().mockResolvedValue(ScyllaResult.success('job-1')),
+    fireNow: vi.fn().mockResolvedValue('job-1'),
   };
 
   setDependencyRegistry({ triggers: { triggersRepository: repository } });
@@ -121,7 +118,7 @@ describe('triggerMutations', () => {
   it('creates a trigger on the pipeline and answers the one-time secret', async () => {
     repository.create = vi
       .fn()
-      .mockResolvedValue(ScyllaResult.success({ trigger: trigger(), webhookSecret: 'whsec-once' }));
+      .mockResolvedValue({ trigger: trigger(), webhookSecret: 'whsec-once' });
 
     const options = triggerMutations.create(PIPELINE_ID);
     const created = await runMutationFn(options, draft);

@@ -30,7 +30,7 @@ src/
 ```
 
 `package.json` exports `.` (the extension), `./features/*` and `./platform/*` (the barrels),
-and `./scylla-result`. Only `@scylla/base-sdk` imports the subpaths.
+and `./scylla-error`. Only `@scylla/base-sdk` imports the subpaths.
 
 ## The extension
 

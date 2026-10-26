@@ -91,7 +91,7 @@ msgstr "Select"
 msgid "Select an organization from the sidebar to view its projects"
 msgstr "Select an organization from the sidebar to view its projects"
 
-#: extensions/scylla-base/src/features/project/infrastructure/default-project.repository.ts:20
+#: extensions/scylla-base/src/features/project/infrastructure/default-project.repository.ts:23
 msgid "This organization has reached its project limit."
 msgstr "This organization has reached its project limit."
 

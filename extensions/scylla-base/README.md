@@ -31,7 +31,7 @@ src/
 | [`platform/authz`](src/platform/authz/README.md) | `Permission`, `can`, `Can`, `RequirePermission`: the read side of access control. |
 | [`platform/context`](src/platform/context/README.md) | The active organization, project and pipeline, and navigation from them. |
 | [`platform/grpc`](src/platform/grpc/README.md) | The gRPC-Web transport, with authentication. |
-| [`shared/`](src/shared/README.md) | `ScyllaResult`, the presentation of a run status. |
+| [`shared/`](src/shared/README.md) | `ScyllaError`, the presentation of a run status. |
 
 ## How it connects to the core
 
@@ -92,7 +92,7 @@ checklist to add a feature.
 The package exports:
 
 - `.` — `ScyllaBaseExtension`, for `apps/web`;
-- `./features/*`, `./platform/*`, `./scylla-result` — the barrels, for `@scylla/base-sdk` only.
+- `./features/*`, `./platform/*`, `./scylla-error` — the barrels, for `@scylla/base-sdk` only.
 
 Other extensions use [`@scylla/base-sdk`](../../sdks/scylla-base-sdk/README.md) and never import
 this package.

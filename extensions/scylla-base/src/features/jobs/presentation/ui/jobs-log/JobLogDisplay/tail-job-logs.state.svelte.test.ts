@@ -1,16 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
 import { setDependencyRegistry } from '@scylla/core-sdk';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { JobLog } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
 import { createTailJobLogs } from './tail-job-logs.state.svelte.ts';
 
 const JOB_ID = 'job-1';
 
-/** A log stream this test drives: `push`, `pushError`, `end`. */
+/** A log stream this test drives: `push`, `fail`, `end`. */
 const createControllableStream = () => {
-  const queue: ScyllaResult<JobLog>[] = [];
+  const queue: (JobLog | ScyllaError)[] = [];
   let wake: (() => void) | null = null;
   let ended = false;
   const cancel = vi.fn();
@@ -21,11 +21,13 @@ const createControllableStream = () => {
     resume?.();
   };
 
-  async function* generator(): AsyncGenerator<ScyllaResult<JobLog>> {
+  async function* generator(): AsyncGenerator<JobLog> {
     let index = 0;
     for (;;) {
       if (index < queue.length) {
-        yield queue[index++];
+        const next = queue[index++];
+        if (next instanceof ScyllaError) throw next;
+        yield next;
         continue;
       }
       if (ended) return;
@@ -47,11 +49,11 @@ const createControllableStream = () => {
   return {
     stream: { logs: generator(), cancel },
     push: (line: string) => {
-      queue.push(ScyllaResult.success(logAt(line)));
+      queue.push(logAt(line));
       wakeUp();
     },
-    pushError: (error: ScyllaError) => {
-      queue.push(ScyllaResult.error(error));
+    fail: (error: ScyllaError) => {
+      queue.push(error);
       wakeUp();
     },
     end: () => {
@@ -106,7 +108,7 @@ describe('createTailJobLogs', () => {
 
   it('opens the stream scoped to the job, and to the node when given one', () => {
     const { stream } = createControllableStream();
-    tailLogs.mockReturnValue(ScyllaResult.success(stream));
+    tailLogs.mockReturnValue(stream);
     install({ tailLogs });
 
     const cleanup = $effect.root(() => {
@@ -120,7 +122,9 @@ describe('createTailJobLogs', () => {
 
   it('reports the failure and stops loading when the stream cannot be opened', () => {
     const error = new ScyllaError('nope');
-    tailLogs.mockReturnValue(ScyllaResult.error(error));
+    tailLogs.mockImplementation(() => {
+      throw error;
+    });
     install({ tailLogs });
 
     const cleanup = $effect.root(() => {
@@ -136,7 +140,7 @@ describe('createTailJobLogs', () => {
 
   it('buffers a burst of lines and publishes them together, not once per line', async () => {
     const controller = createControllableStream();
-    tailLogs.mockReturnValue(ScyllaResult.success(controller.stream));
+    tailLogs.mockReturnValue(controller.stream);
     install({ tailLogs });
 
     const { tail, cleanup } = start();
@@ -151,7 +155,7 @@ describe('createTailJobLogs', () => {
 
   it('does a final flush when the stream ends, rather than losing the last lines between ticks', async () => {
     const controller = createControllableStream();
-    tailLogs.mockReturnValue(ScyllaResult.success(controller.stream));
+    tailLogs.mockReturnValue(controller.stream);
     install({ tailLogs });
 
     const { tail, cleanup } = start();
@@ -165,9 +169,9 @@ describe('createTailJobLogs', () => {
     cleanup();
   });
 
-  it('logs a per-line error instead of writing it into the document', async () => {
+  it('keeps the lines read before the stream breaks, and logs the failure instead of writing it', async () => {
     const controller = createControllableStream();
-    tailLogs.mockReturnValue(ScyllaResult.success(controller.stream));
+    tailLogs.mockReturnValue(controller.stream);
     install({ tailLogs });
 
     const failure = new ScyllaError('one bad line');
@@ -176,18 +180,17 @@ describe('createTailJobLogs', () => {
     const { tail, cleanup } = start();
 
     controller.push('before');
-    controller.pushError(failure);
-    controller.push('after');
+    controller.fail(failure);
     await settle();
 
-    expect(tail().text).toBe('before\nafter');
+    expect(tail().text).toBe('before');
     expect(logged).toHaveBeenCalled();
     cleanup();
   });
 
   it('cancels the stream when the view goes away', () => {
     const controller = createControllableStream();
-    tailLogs.mockReturnValue(ScyllaResult.success(controller.stream));
+    tailLogs.mockReturnValue(controller.stream);
     install({ tailLogs });
 
     const cleanup = $effect.root(() => {
@@ -202,9 +205,7 @@ describe('createTailJobLogs', () => {
   it('opens a fresh stream, from a clean document, when the job changes', () => {
     const first = createControllableStream();
     const second = createControllableStream();
-    tailLogs
-      .mockReturnValueOnce(ScyllaResult.success(first.stream))
-      .mockReturnValueOnce(ScyllaResult.success(second.stream));
+    tailLogs.mockReturnValueOnce(first.stream).mockReturnValueOnce(second.stream);
     install({ tailLogs });
 
     const cleanup = $effect.root(() => {

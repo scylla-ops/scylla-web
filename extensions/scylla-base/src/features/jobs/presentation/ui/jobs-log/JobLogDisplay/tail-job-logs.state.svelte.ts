@@ -1,5 +1,6 @@
 import { getModuleDomain } from '@scylla/core-sdk';
-import type { ScyllaError } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { JobLogStream } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { JobsModule } from '@base/features/jobs/jobs.module.ts';
 
 /** Lines are buffered and flushed on a timer: publishing per line is O(n²) and makes the stream lag and drop lines. */
@@ -41,19 +42,18 @@ export const createTailJobLogs = ({ jobId, nodeId }: TailJobLogsOptions): Tailed
     isError = false;
     error = null;
 
-    const stream = getModuleDomain<typeof JobsModule.domain>('jobs')
-      .jobsRepository.tailLogs(currentJobId, currentNodeId)
-      .fold({
-        onSuccess: value => value,
-        onError: failure => {
-          isError = true;
-          error = failure;
-          isLoading = false;
-          return null;
-        },
-      });
-
-    if (!stream) return;
+    let stream: JobLogStream;
+    try {
+      stream = getModuleDomain<typeof JobsModule.domain>('jobs').jobsRepository.tailLogs(
+        currentJobId,
+        currentNodeId,
+      );
+    } catch (failure) {
+      isError = true;
+      error = ScyllaError.from(failure);
+      isLoading = false;
+      return;
+    }
 
     const flush = () => {
       if (dirty && active) {
@@ -66,18 +66,14 @@ export const createTailJobLogs = ({ jobId, nodeId }: TailJobLogsOptions): Tailed
     const consume = async () => {
       isLoading = false;
       try {
-        for await (const entry of stream.logs) {
+        for await (const log of stream.logs) {
           if (!active) break;
-          entry.fold({
-            onSuccess: log => {
-              lines.push(log.line);
-              dirty = true;
-            },
-            onError: failure => failure.log(),
-          });
+          lines.push(log.line);
+          dirty = true;
         }
-      } catch {
-        // The stream was cancelled on cleanup.
+      } catch (failure) {
+        // After the cleanup, the failure is the cancel itself.
+        if (active) ScyllaError.from(failure).log();
       }
       flush(); // final flush, so the last lines aren't lost between ticks
     };

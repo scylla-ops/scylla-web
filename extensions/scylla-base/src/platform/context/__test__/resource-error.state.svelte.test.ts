@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
 import { flushSync } from 'svelte';
-import { ScyllaError } from '@shared/utils/scylla-result.ts';
+import { ScyllaError, type ScyllaErrorCode } from '@shared/utils/scylla-error.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { createResourceError } from '../resource-error.state.svelte.ts';
 
@@ -16,8 +16,7 @@ beforeEach(() => {
 
 afterEach(() => navigator.restore());
 
-const withCode = (code: string, message: string) =>
-  new ScyllaError(message, { cause: { code } });
+const withCode = (code: ScyllaErrorCode, message: string) => new ScyllaError(message, { code });
 const notFound = () => withCode('NOT_FOUND', 'gone');
 
 describe('createResourceError', () => {
@@ -62,7 +61,7 @@ describe('createResourceError', () => {
       flushSync();
 
       expect(state.redirecting).toBe(false);
-      expect(state.scyllaError?.getCode()).toBe('UNAVAILABLE');
+      expect(state.scyllaError?.code).toBe('UNAVAILABLE');
       expect(navigator.navigate).not.toHaveBeenCalled();
     });
     cleanup();

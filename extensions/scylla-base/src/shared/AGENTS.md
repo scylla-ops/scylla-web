@@ -9,8 +9,8 @@ cannot go to `@scylla/ui`.
 
 - **`shared/` MUST NOT import `features/`, `shell/` or `platform/`** (`shared-is-generic`, error).
   It may import `@scylla/ui` and `@scylla/core-sdk`.
-- The features of scylla-base import it by path (`@shared/utils/scylla-result.ts`). No other
-  extension does: `ScyllaResult` reaches them through `@scylla/base-sdk`.
+- The features of scylla-base import it by path (`@shared/utils/scylla-error.ts`). No other
+  extension does: `ScyllaError` reaches them through `@scylla/base-sdk`.
 - Generic UI does not go here. Could it live in another product, unchanged? Then it goes to
   [`@scylla/ui`](../../../../packages/ui/AGENTS.md).
 
@@ -18,8 +18,8 @@ cannot go to `@scylla/ui`.
 
 ```
 utils/
-  scylla-result.ts                   ScyllaResult<T>, ScyllaError (exported by @scylla/base-sdk),
-                                     refusalOf
+  scylla-error.ts                    ScyllaError, ScyllaErrorCode, refusalOf
+                                     (exported by @scylla/base-sdk)
   account-validation.ts              checkEmail, checkNewPassword, checkPasswordConfirmation,
                                      checkUsername, checkDisplayName (exported by @scylla/base-sdk)
   date-utils.ts, slug.ts, status-config.ts, job-status.utils.ts, toast-messages.ts
@@ -31,26 +31,52 @@ presentation/ui/index.ts             `@shared/presentation/ui`
 locales/                             the catalog of these files
 ```
 
-## `ScyllaResult<T>` — the error contract
+## `ScyllaError` — the error contract
 
-Every async operation returns `ScyllaResult<T>`, never a raw throw.
+A repository method returns `Promise<T>` and rejects with a `ScyllaError`. The transport of
+[`platform/grpc`](../platform/grpc/AGENTS.md) makes every failed gRPC call into one: a repository
+only awaits the call. There is no Result type.
 
 ```typescript
-const result = await ScyllaResult.tryAsync(() => api.call(), 'Error message');
-result.fold({ onSuccess: data => …, onError: err => … });
-const data = result.unwrap();          // throws — do this inside queryFn/mutationFn
+queryFn: () => repository().listByProjectId(projectId),        // no catch, no unwrap
+
+try {                                                           // a caller that branches
+  await repository().setAppSecretLabel(id, label);
+} catch (error) {
+  if (ScyllaError.from(error).isAlreadyExists()) return null;
+  throw error;
+}
 ```
 
-- Repositories wrap their gRPC calls with `tryAsync`; `ScyllaError` extracts the gRPC code.
-- `getCode()` returns `ScyllaErrorCode`, not `string`: the gRPC-Web status names (derived from
-  `GrpcStatusCode`, imported as a type only — nothing lands in the bundle) plus the codes we
-  mint. A code compared anywhere must exist in that union, so add yours there first.
-- Query and mutation options call `.unwrap()` **inside** `queryFn` / `mutationFn` so TanStack
-  Query owns the error.
-- `map` / `flatMapAsync` chain without unwrapping (see `UpdateRoleUseCase`).
-- `mapError` rewrites the failure of a result and leaves a success untouched — use it in a data
-  source when a generic gRPC code means something more precise for that one call (see
-  [`login`](../features/login/AGENTS.md)), rather than special-casing it in every consumer.
+- `new ScyllaError(message, { code, cause })`. `code` is a `ScyllaErrorCode`, not a `string`:
+  the gRPC-Web status names (derived from `GrpcStatusCode`, imported as a type only — nothing
+  lands in the bundle) plus the codes we mint. A code compared anywhere must exist in that
+  union, so add yours there first. With no `code`, it is `UNKNOWN_ERROR`.
+- `ScyllaError.from(value)` reads any thrown value: a `ScyllaError` stays as it is, an error with
+  a gRPC `code` string keeps it, anything else (a bug, a `TypeError`) is `UNKNOWN_ERROR`. Use it
+  in a `catch`, where the value is `unknown`.
+- `userMessage()` gives a message of this app as it is, whatever its code. A **raw** message
+  (`raw: true`: the text of the server, set by the transport, or of an exception, set by
+  `from`) shows only for the codes that the user can act on (`USER_FACING_CODES`). For
+  `UNAVAILABLE`, `PERMISSION_DENIED` and every other raw message, it gives a fixed text: a
+  server fault or a bug never shows its text.
+- **A `new ScyllaError` is a message for the user**: write it with `` t`…` ``. A broken contract
+  of the server (an answer without its entity) is a bug: throw a plain `Error`, and the user
+  sees the generic message.
+- `log()` writes a server fault or a bug (`INTERNAL`, `UNKNOWN_ERROR`, …) with `console.error`,
+  in production too: it is what a user can send to the support. A refusal of the server
+  (`EXPECTED_CODES`: the user-facing and transient codes, `PERMISSION_DENIED`,
+  `UNAUTHENTICATED`, `CANCELLED`) is a normal answer: it is written in development only. The line
+  names the call (`rpc`, set by the transport): `[ScyllaError] NOT_FOUND
+  scylla.secret.v1.SecretService/ListSecrets: no such secret`. Do not write a message of your own
+  for the log: the name of the call is exact for every call.
+- `isTransient()` is true for `UNAVAILABLE`, `DEADLINE_EXCEEDED`, `ABORTED`. `retryQueryError`
+  retries only these.
+- When a generic code means something more precise for one call, catch it in the repository,
+  and throw a new `ScyllaError` (see [`login`](../features/login/AGENTS.md):
+  `UNAUTHENTICATED` → `INVALID_CREDENTIALS`), rather than special-casing it in every consumer.
+- `refusalOf(call)` gives the message of a `FAILED_PRECONDITION` and throws any other error:
+  for a page that shows the refusal beside a field.
 - **Do not add an `onError` toast to a query or a mutation.** `reportQueryError`
   (`shell/presentation/report-query-error.ts`, the `onQueryError` of `ShellModule`) already
   toasts every error, and you would double it.

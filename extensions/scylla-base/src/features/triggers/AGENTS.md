@@ -41,7 +41,7 @@ one cannot be tree-shaken out of whoever imports it for a type.
 | `setEnabled(triggerId, enabled)` | `TriggerEntity` |
 | `fireNow(triggerId)` | `string` — the created job id |
 
-All wrapped in `ScyllaResult`. Reach it from `triggers.queries.ts` only — never from a component.
+Each method rejects with a `ScyllaError` on failure. Reach it from `triggers.queries.ts` only — never from a component.
 
 ## The `TriggerSource` union
 

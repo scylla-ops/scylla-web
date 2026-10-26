@@ -25,7 +25,7 @@ Never add: `extensions.module.ts`, pages, components.
 
 | Method | Returns |
 |---|---|
-| `getInstalledExtensions()` | `ScyllaResult<InstalledExtensionEntity[]>`, in load order |
+| `getInstalledExtensions()` | `InstalledExtensionEntity[]`, in load order |
 
 ## Where the data comes from
 

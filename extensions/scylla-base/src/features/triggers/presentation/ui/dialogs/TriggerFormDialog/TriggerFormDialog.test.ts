@@ -1,17 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import {
-  findFloating,
-  focusSettled,
-  render,
-  withQueryClient,
-  withRegistry,
-} from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  TriggersRepository,
-} from '@base/features/triggers/domain/repository/triggers.repository.ts';
+import { findFloating, focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
+import type { TriggersRepository } from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import TriggerFormDialog from './TriggerFormDialog.svelte';
@@ -34,8 +25,8 @@ let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
 beforeEach(() => {
-  create = vi.fn().mockResolvedValue(ScyllaResult.success({ trigger: trigger() }));
-  update = vi.fn().mockResolvedValue(ScyllaResult.success(trigger()));
+  create = vi.fn().mockResolvedValue({ trigger: trigger() });
+  update = vi.fn().mockResolvedValue(trigger());
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -89,7 +80,7 @@ describe('TriggerFormDialog — create mode', () => {
 
   it('hands the created trigger back so a one-time webhook secret can be revealed', async () => {
     const created = { trigger: trigger(), webhookSecret: 'whsec-once' };
-    create.mockResolvedValue(ScyllaResult.success(created));
+    create.mockResolvedValue(created);
     const onCreated = vi.fn();
     render(TriggerFormDialog, props({ onCreated }));
     await focusSettled();
