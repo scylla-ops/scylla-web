@@ -150,6 +150,10 @@ msgstr "e.g., John Doe"
 msgid "e.g., john.doe"
 msgstr "e.g., john.doe"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:30
+msgid "Edit"
+msgstr "Edit"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:14
 msgid "Email"
 msgstr "Email"
@@ -356,10 +360,6 @@ msgstr "Username"
 #: extensions/scylla-base/src/features/user/user.module.ts:23
 msgid "Users"
 msgstr "Users"
-
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:30
-msgid "View"
-msgstr "View"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:7
 msgid "You don't have permission to create users."

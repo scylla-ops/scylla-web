@@ -27,7 +27,7 @@ export const userMessages = {
   deactivated: msg`Deactivated`,
   createdAt: msg`Created at`,
   actions: msg`Actions`,
-  view: msg`View`,
+  edit: msg`Edit`,
 
   account: msg`Account`,
   accountLoadError: msg`Error loading your account`,
