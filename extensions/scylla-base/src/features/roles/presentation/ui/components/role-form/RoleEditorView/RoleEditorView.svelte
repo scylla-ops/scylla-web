@@ -28,8 +28,8 @@
   );
 </script>
 
-<div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
-  <header class="flex items-start gap-3">
+<div class="flex h-full min-h-0 w-full flex-col gap-6">
+  <header class="flex shrink-0 items-start gap-3">
     <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
       <ShieldCheckIcon class="size-5 text-primary" />
     </div>

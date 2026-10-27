@@ -225,6 +225,10 @@ role.
   `organizationCatalog`), so it adds no repository call. A role that the page cannot edit
   (builtin, a platform role seen from an organization, or an unknown id) shows an error, not
   the form. `create` and `update` are the same mutations as before.
+- **The editor page uses the full width of the frame**, like the list pages. On a wide screen,
+  General and Holders stay in the left column and Access fills the right column. Only the
+  sections scroll; the Cancel and Create bar stays below them, out of the scroll area. Do not
+  make the bar `sticky`: it hides the end of the last section.
 - **Who holds a role is fixed at creation.** `RoleHolderField` sets `RoleKind.MEMBER` (people) or
   `AGENT` (apps); an edit shows it read only. A role of an organization is organization or
   project scoped, never System. The grant dialog grants to people, so it refuses an `AGENT` role.
