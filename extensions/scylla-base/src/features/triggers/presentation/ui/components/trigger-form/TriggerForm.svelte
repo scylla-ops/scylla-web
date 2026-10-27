@@ -104,105 +104,111 @@
   };
 </script>
 
-<div class="flex flex-col gap-5">
-  <TriggerFormSection
-    id="trigger-general-title"
-    title={t(triggersMessages.generalSection)}
-    hint={t(triggersMessages.generalSectionHint)}
-  >
-    <div class="flex flex-col gap-1.5">
-      <Label for="trigger-name">{t(triggersMessages.name)}</Label>
-      <Input
-        id="trigger-name"
-        autofocus
-        value={name}
-        disabled={isPending}
-        placeholder="nightly-build"
-        oninput={event => (name = event.currentTarget.value)}
-      />
-    </div>
-
-    {#if isEdit}
-      <div class="flex flex-col gap-1.5">
-        <Label>{t(triggersMessages.type)}</Label>
-        <div class="flex items-center gap-2">
-          <Badge variant="secondary">
-            {isUnknownSource
-              ? t(triggersMessages.unknown)
-              : kind === TriggerKind.Cron
-                ? 'Cron'
-                : 'Webhook'}
-          </Badge>
-          <span class="text-xs text-muted-foreground">{t(triggersMessages.typeLocked)}</span>
-        </div>
-      </div>
-    {:else}
-      <div class="flex flex-col gap-1.5">
-        <Label for="trigger-kind">{t(triggersMessages.type)}</Label>
-        <Select
-          type="single"
-          value={kind}
-          disabled={isPending}
-          onValueChange={value => (kind = value as TriggerDraftKind)}
+<div class="flex min-h-0 flex-1 flex-col gap-3">
+  <div class="relative -mx-1 min-h-0 flex-1 overflow-y-auto px-1 pr-2 pb-1">
+    <div class="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div class="flex flex-col gap-5">
+        <TriggerFormSection
+          id="trigger-general-title"
+          title={t(triggersMessages.generalSection)}
+          hint={t(triggersMessages.generalSectionHint)}
         >
-          <SelectTrigger id="trigger-kind" class="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={TriggerKind.Cron} label="Cron">Cron</SelectItem>
-            <SelectItem value={TriggerKind.Webhook} label="Webhook">Webhook</SelectItem>
-          </SelectContent>
-        </Select>
+          <div class="flex flex-col gap-1.5">
+            <Label for="trigger-name">{t(triggersMessages.name)}</Label>
+            <Input
+              id="trigger-name"
+              autofocus
+              value={name}
+              disabled={isPending}
+              placeholder="nightly-build"
+              oninput={event => (name = event.currentTarget.value)}
+            />
+          </div>
+
+          {#if isEdit}
+            <div class="flex flex-col gap-1.5">
+              <Label>{t(triggersMessages.type)}</Label>
+              <div class="flex items-center gap-2">
+                <Badge variant="secondary">
+                  {isUnknownSource
+                    ? t(triggersMessages.unknown)
+                    : kind === TriggerKind.Cron
+                      ? 'Cron'
+                      : 'Webhook'}
+                </Badge>
+                <span class="text-xs text-muted-foreground">{t(triggersMessages.typeLocked)}</span>
+              </div>
+            </div>
+          {:else}
+            <div class="flex flex-col gap-1.5">
+              <Label for="trigger-kind">{t(triggersMessages.type)}</Label>
+              <Select
+                type="single"
+                value={kind}
+                disabled={isPending}
+                onValueChange={value => (kind = value as TriggerDraftKind)}
+              >
+                <SelectTrigger id="trigger-kind" class="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={TriggerKind.Cron} label="Cron">Cron</SelectItem>
+                  <SelectItem value={TriggerKind.Webhook} label="Webhook">Webhook</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          {/if}
+        </TriggerFormSection>
+
+        {#if kind === TriggerKind.Cron}
+          <TriggerFormSection
+            id="trigger-schedule-title"
+            title={t(triggersMessages.schedule)}
+            hint={t(triggersMessages.scheduleSectionHint)}
+          >
+            <CronScheduleBuilder
+              initialValue={initialCron}
+              onChange={expression => (cronExpression = expression)}
+            />
+          </TriggerFormSection>
+        {:else}
+          <TriggerFormSection
+            id="trigger-webhook-title"
+            title={t(triggersMessages.webhookSection)}
+            hint={t(triggersMessages.webhookSectionHint)}
+          >
+            <div class="flex flex-col gap-1.5">
+              <Label for="trigger-header">{t(triggersMessages.signatureHeader)}</Label>
+              <Input
+                id="trigger-header"
+                value={signatureHeader}
+                disabled={isPending}
+                placeholder="X-Hub-Signature-256"
+                oninput={event => (signatureHeader = event.currentTarget.value)}
+              />
+              <p class="text-xs text-muted-foreground">{t(triggersMessages.signatureHeaderHint)}</p>
+            </div>
+          </TriggerFormSection>
+        {/if}
       </div>
-    {/if}
-  </TriggerFormSection>
 
-  {#if kind === TriggerKind.Cron}
-    <TriggerFormSection
-      id="trigger-schedule-title"
-      title={t(triggersMessages.schedule)}
-      hint={t(triggersMessages.scheduleSectionHint)}
-    >
-      <CronScheduleBuilder
-        initialValue={initialCron}
-        onChange={expression => (cronExpression = expression)}
-      />
-    </TriggerFormSection>
-  {:else}
-    <TriggerFormSection
-      id="trigger-webhook-title"
-      title={t(triggersMessages.webhookSection)}
-      hint={t(triggersMessages.webhookSectionHint)}
-    >
-      <div class="flex flex-col gap-1.5">
-        <Label for="trigger-header">{t(triggersMessages.signatureHeader)}</Label>
-        <Input
-          id="trigger-header"
-          value={signatureHeader}
-          disabled={isPending}
-          placeholder="X-Hub-Signature-256"
-          oninput={event => (signatureHeader = event.currentTarget.value)}
-        />
-        <p class="text-xs text-muted-foreground">{t(triggersMessages.signatureHeaderHint)}</p>
+      <div class="flex flex-col gap-5">
+        <TriggerFormSection
+          id="trigger-inputs-title"
+          title={t(triggersMessages.inputs)}
+          hint={t(triggersMessages.inputsSectionHint)}
+        >
+          <TriggerInputsEditor
+            {inputs}
+            onChange={next => (inputs = next)}
+            allowJsonPointer={kind === TriggerKind.Webhook}
+          />
+        </TriggerFormSection>
       </div>
-    </TriggerFormSection>
-  {/if}
+    </div>
+  </div>
 
-  <TriggerFormSection
-    id="trigger-inputs-title"
-    title={t(triggersMessages.inputs)}
-    hint={t(triggersMessages.inputsSectionHint)}
-  >
-    <TriggerInputsEditor
-      {inputs}
-      onChange={next => (inputs = next)}
-      allowJsonPointer={kind === TriggerKind.Webhook}
-    />
-  </TriggerFormSection>
-
-  <div
-    class="sticky bottom-0 z-10 -mx-1 flex flex-col-reverse gap-2 border-t bg-background/95 px-1 py-3 backdrop-blur sm:flex-row sm:justify-end"
-  >
+  <div class="flex shrink-0 flex-col-reverse gap-2 border-t pt-3 sm:flex-row sm:justify-end">
     <Button type="button" variant="outline" onclick={onCancel} disabled={isPending}>
       {t(triggersMessages.cancel)}
     </Button>

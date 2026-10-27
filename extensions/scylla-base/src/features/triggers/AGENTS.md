@@ -124,6 +124,10 @@ holding it that they are not split.
   trigger from the same list query as the triggers page, so it adds no repository call. An id that
   is not in the pipeline shows an error, not the form. `create` and `update` are the same
   mutations as before.
+- **The editor page has the layout of the role editor.** It uses the full width of the frame. On
+  a wide screen, General and Schedule (or Webhook) are in the left column, and Inputs is in the
+  right column. Only the sections scroll; the Cancel and Create bar stays below them, out of the
+  scroll area.
 - **The webhook secret is shown by the editor page.** After a create that returns a secret, the
   page shows `SecretRevealDialog` and goes back to the list only when it is closed. Leaving
   earlier would lose a secret that cannot be fetched again.
