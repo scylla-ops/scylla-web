@@ -8,7 +8,9 @@ import {
   RoleKind,
   type EffectiveScopeEntity,
 } from '@platform/authz';
+import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
+import { installTestNavigator } from '@test/navigator.ts';
 import { withQueryClient, withRegistry } from '@test/render.ts';
 import type { PermissionRepository } from '@base/features/roles/domain/repository/permission.repository.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
@@ -201,19 +203,44 @@ describe('createRolesPage — the platform', () => {
     });
   });
 
-  it('opens the form on nothing when creating, and on the role when editing', async () => {
-    await withPage(PLATFORM, async page => {
-      await waitFor(() => expect(page.roles).toHaveLength(2));
+  describe('the editor pages', () => {
+    let navigator: ReturnType<typeof installTestNavigator>;
 
-      page.openCreate();
-      expect(page.formOpen).toBe(true);
-      expect(page.editingRole).toBeNull();
+    beforeEach(() => {
+      navigator = installTestNavigator({ pathname: '/acme/roles' });
+      contextStore.getState().setOrganization('org-1', 'Acme');
+    });
 
-      page.openEdit(page.roles[1]);
-      expect(page.editingRole?.id).toBe('role-1');
+    afterEach(() => {
+      navigator.restore();
+      contextStore.getState().setOrganization(null, null);
+    });
 
-      page.closeForm();
-      expect(page.formOpen).toBe(false);
+    it('creates and edits on a page of the scope, not in a dialog', async () => {
+      await withPage(ACME, async page => {
+        await waitFor(() => expect(page.roles.length).toBeGreaterThan(0));
+
+        page.openCreate();
+        expect(navigator.navigate).toHaveBeenLastCalledWith('/acme/roles/new', undefined);
+
+        page.openEdit(auditor);
+        expect(navigator.navigate).toHaveBeenLastCalledWith('/acme/roles/auditor/edit', undefined);
+      });
+
+      await withPage(PLATFORM, page => {
+        page.openCreate();
+        expect(navigator.navigate).toHaveBeenLastCalledWith('/acme/platform-roles/new', undefined);
+      });
+    });
+
+    it('opens on the role that the URL names', async () => {
+      navigator.restore();
+      navigator = installTestNavigator({ pathname: '/acme/platform-roles', search: '?role=role-2' });
+
+      await withPage(PLATFORM, async page => {
+        await waitFor(() => expect(page.roles).toHaveLength(2));
+        expect(page.activeRole?.name).toBe('admin');
+      });
     });
   });
 

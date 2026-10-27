@@ -50,8 +50,7 @@ import { permissionLabelOf } from '@base/features/roles/presentation/presenters/
     <Badge variant="secondary">{t(rolesMessages.conferredCount(conferredCount))}</Badge>
   </div>
 
-  <!-- Not `ScrollArea`: its root does not clip under a fixed height. -->
-  <div class="relative h-56 overflow-y-auto rounded-lg border p-2">
+  <div class="rounded-lg border p-2">
     <div class="flex flex-col gap-0.5">
       {#each alwaysGranted as permission (permission)}
         <label

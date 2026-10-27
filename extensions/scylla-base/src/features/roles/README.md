@@ -122,10 +122,13 @@ Two pieces stayed pure TypeScript on purpose, because they are rules rather than
 without a DOM, and both would survive another change of framework.
 
 The screen itself is a master–detail layout: `RoleListItem` on the left, `RoleDetailPanel` on the
-right, split into a header, a permissions view and a grant list with `GrantCreator`. The
-create/edit dialog lives under `role-form/`, and its reset is `{#key open}` — reopening the
-dialog builds a new form seeded from the role at hand, where React needed an effect on
-`[open, role]` and a frame showing the previous role's values.
+right, split into a header, a permissions view and a grant list with `GrantCreator`. Creating
+and editing a role happen on a page of their own (`roles/new`, `roles/:roleId/edit`), under
+`role-form/`. The form has a name, a description, who holds the role, its scope, its access and
+a tree of about thirty permissions: in a dialog, the tree was a small box that scrolled inside a
+box that scrolled. On a page, each group has a titled section, the tree shows in full, and the
+actions stay at the bottom of the screen. Each opening of the page mounts a new form, seeded
+from the role at hand, so the form needs no reset.
 
 ## Related modules
 

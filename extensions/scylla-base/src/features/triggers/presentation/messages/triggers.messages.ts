@@ -44,6 +44,13 @@ export const triggersMessages = {
 
   editTrigger: msg`Edit trigger`,
   formDescription: msg`A trigger starts a run of this pipeline automatically.`,
+  triggerNotFound: msg`This trigger does not exist.`,
+  generalSection: msg`General`,
+  generalSectionHint: msg`The name of the trigger and the way it starts a run.`,
+  scheduleSectionHint: msg`When the pipeline runs, in your local time.`,
+  webhookSection: msg`Webhook`,
+  webhookSectionHint: msg`A call to the webhook starts a run. The secret shows once, after you create the trigger.`,
+  inputsSectionHint: msg`The values that each run receives.`,
   type: msg`Type`,
   typeLocked: msg`Type can't be changed. Delete and recreate to switch.`,
   schedule: msg`Schedule`,

@@ -18,7 +18,7 @@ msgstr ""
 msgid "{0} grants created"
 msgstr "{0} grants created"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:100
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:108
 msgid "{conferredCount, plural, one {# selected} other {# selected}}"
 msgstr "{conferredCount, plural, one {# selected} other {# selected}}"
 
@@ -34,27 +34,31 @@ msgstr "{organization} has no role of its own yet. Create one to grant your own 
 msgid "{organization} roles"
 msgstr "{organization} roles"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:106
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:114
 msgid "{preservedCount, plural, one {This role also holds # permission not managed here. It is kept unchanged.} other {This role also holds # permissions not managed here. They are kept unchanged.}}"
 msgstr "{preservedCount, plural, one {This role also holds # permission not managed here. It is kept unchanged.} other {This role also holds # permissions not managed here. They are kept unchanged.}}"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:95
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:103
 msgid "Access"
 msgstr "Access"
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:80
+msgid "Access level"
+msgstr "Access level"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:45
 msgid "Add grant"
 msgstr "Add grant"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:101
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:109
 msgid "Always"
 msgstr "Always"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:84
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:92
 msgid "Apps"
 msgstr "Apps"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:88
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:96
 msgid "Apps of {organization}, such as agents. People cannot hold it."
 msgstr "Apps of {organization}, such as agents. People cannot hold it."
 
@@ -62,7 +66,7 @@ msgstr "Apps of {organization}, such as agents. People cannot hold it."
 msgid "Apps only"
 msgstr "Apps only"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:90
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:98
 msgid "Apps, such as agents. People cannot hold it."
 msgstr "Apps, such as agents. People cannot hold it."
 
@@ -166,11 +170,11 @@ msgstr "Delete the project"
 msgid "Delete users"
 msgstr "Delete users"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:75
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:83
 msgid "Description"
 msgstr "Description"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:74
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:82
 msgid "e.g., project-viewer"
 msgstr "e.g., project-viewer"
 
@@ -191,6 +195,8 @@ msgid "Edit pipelines"
 msgstr "Edit pipelines"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:72
+#: extensions/scylla-base/src/features/roles/roles.module.ts:41
+#: extensions/scylla-base/src/features/roles/roles.module.ts:67
 msgid "Edit role"
 msgstr "Edit role"
 
@@ -202,7 +208,7 @@ msgstr "Edit the organization"
 msgid "Edit the project"
 msgstr "Edit the project"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:81
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:89
 msgid "Every organization sees this role. You put in it only the permissions you hold at the system scope."
 msgstr "Every organization sees this role. You put in it only the permissions you hold at the system scope."
 
@@ -217,6 +223,10 @@ msgstr "For people"
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:33
 msgid "Full control"
 msgstr "Full control"
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:75
+msgid "General"
+msgstr "General"
 
 #. placeholder {0}: String(roleName)
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:48
@@ -259,11 +269,15 @@ msgstr "Grants"
 msgid "Grants full control over its scope."
 msgstr "Grants full control over its scope."
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:103
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:111
 msgid "Hide {label} sub-permissions"
 msgstr "Hide {label} sub-permissions"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:104
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:77
+msgid "Holders and scope"
+msgstr "Holders and scope"
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:112
 msgid "Holding a role in an organization is what belonging to it means, so every organization role carries it. An organization role applies to every project of the organization."
 msgstr "Holding a role in an organization is what belonging to it means, so every organization role carries it. An organization role applies to every project of the organization."
 
@@ -287,13 +301,19 @@ msgstr "Member of the organization"
 msgid "Member of the project"
 msgstr "Member of the project"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:86
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:94
 msgid "Members of {organization}. Apps cannot hold it."
 msgstr "Members of {organization}. Apps cannot hold it."
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:73
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:81
 msgid "Name"
 msgstr "Name"
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:73
+#: extensions/scylla-base/src/features/roles/roles.module.ts:35
+#: extensions/scylla-base/src/features/roles/roles.module.ts:61
+msgid "New role"
+msgstr "New role"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:13
 msgid "No description"
@@ -327,15 +347,15 @@ msgstr "Nobody can receive a project grant here yet. Admit someone to the organi
 msgid "not a member of this organization"
 msgstr "not a member of this organization"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:93
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:101
 msgid "Not held at the system scope"
 msgstr "Not held at the system scope"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:92
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:100
 msgid "Not held in {organization}"
 msgstr "Not held in {organization}"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:80
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:88
 msgid "Only {organization} sees this role. You put in it only the permissions you hold in {organization}."
 msgstr "Only {organization} sees this role. You put in it only the permissions you hold in {organization}."
 
@@ -364,11 +384,11 @@ msgstr "Organization"
 msgid "Organizations"
 msgstr "Organizations"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:83
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:91
 msgid "People"
 msgstr "People"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:89
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:97
 msgid "People. Apps cannot hold it."
 msgstr "People. Apps cannot hold it."
 
@@ -389,8 +409,8 @@ msgid "Platform"
 msgstr "Platform"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:16
-#: extensions/scylla-base/src/features/roles/roles.module.ts:35
-#: extensions/scylla-base/src/features/roles/roles.module.ts:39
+#: extensions/scylla-base/src/features/roles/roles.module.ts:49
+#: extensions/scylla-base/src/features/roles/roles.module.ts:53
 msgid "Platform roles"
 msgstr "Platform roles"
 
@@ -414,7 +434,7 @@ msgstr "Read only"
 msgid "Remove"
 msgstr "Remove"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:96
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:104
 msgid "Restricted permissions"
 msgstr "Restricted permissions"
 
@@ -432,15 +452,15 @@ msgstr "Roles"
 msgid "Run pipelines"
 msgstr "Run pipelines"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:97
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:105
 msgid "Save changes"
 msgstr "Save changes"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:77
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:85
 msgid "Scope"
 msgstr "Scope"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:78
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:86
 msgid "Scope cannot be changed after creation."
 msgstr "Scope cannot be changed after creation."
 
@@ -489,13 +509,21 @@ msgstr "Selected ({0})"
 msgid "Shipped with Scylla or made by a system administrator. You can grant them, not edit them."
 msgstr "Shipped with Scylla or made by a system administrator. You can grant them, not edit them."
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:102
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:110
 msgid "Show {label} sub-permissions"
 msgstr "Show {label} sub-permissions"
 
 #: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:97
 msgid "System"
 msgstr "System"
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:76
+msgid "The name and the description that the role list shows."
+msgstr "The name and the description that the role list shows."
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:74
+msgid "This role does not exist, or you cannot edit it here."
+msgstr "This role does not exist, or you cannot edit it here."
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:50
 msgid "This role grants access across the whole system."
@@ -551,19 +579,27 @@ msgstr "View the secrets of every project"
 msgid "View users"
 msgstr "View users"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:76
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:84
 msgid "What is this role for?"
 msgstr "What is this role for?"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:91
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:79
+msgid "What the holders of this role can do."
+msgstr "What the holders of this role can do."
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:78
+msgid "Who can hold this role, and where it applies."
+msgstr "Who can hold this role, and where it applies."
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:99
 msgid "Who holds a role cannot be changed after creation."
 msgstr "Who holds a role cannot be changed after creation."
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:82
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:90
 msgid "Who holds it"
 msgstr "Who holds it"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:94
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:102
 msgid "You do not hold full control here, so you cannot give it."
 msgstr "You do not hold full control here, so you cannot give it."
 

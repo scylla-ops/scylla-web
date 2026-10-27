@@ -1,6 +1,8 @@
 import { can, Permission, PermissionScope, PrincipalKind } from '@platform/authz';
 import { createMutation, createQueries, createQuery } from '@scylla/core-sdk';
+import { SvelteURLSearchParams } from 'svelte/reactivity';
 import { createFeatureSelection } from '@scylla/ui/state';
+import { currentSearch, scyllaNavigate } from '@platform/context';
 import { organizationQueries } from '@base/features/organization';
 import { projectLookupQueries } from '@base/features/project';
 import { userQueries, type UserSummary } from '@base/features/user';
@@ -24,6 +26,25 @@ export type RolesScope =
 
 export const organizationIdOf = (scope: RolesScope): string | null =>
   scope.kind === 'organization' ? scope.organizationId : null;
+
+/** The query parameter that names the role the list opens on. */
+export const OPEN_ROLE_PARAM = 'role';
+
+const listPathOf = (scope: RolesScope): string =>
+  scope.kind === 'organization' ? 'roles' : 'platform-roles';
+
+/** The pages of a scope: its list, opened on a role or not, and the editor. */
+export const rolesNavigation = (scope: RolesScope) => ({
+  toList: (roleId?: string) =>
+    scyllaNavigate.goToOrgRoute(
+      roleId
+        ? `${listPathOf(scope)}?${OPEN_ROLE_PARAM}=${encodeURIComponent(roleId)}`
+        : listPathOf(scope),
+    ),
+  toCreate: () => scyllaNavigate.goToOrgRoute(`${listPathOf(scope)}/new`),
+  toEdit: (roleId: string) =>
+    scyllaNavigate.goToOrgRoute(`${listPathOf(scope)}/${encodeURIComponent(roleId)}/edit`),
+});
 
 /**
  * The roles of a scope and the grants that hold them, fetched once for the list and the detail.
@@ -136,10 +157,9 @@ export const createRolesPage = (scope: () => RolesScope) => {
 
   const memberCounts = $derived(countHoldersByRole(grants));
 
-  let activeRoleId = $state<string | null>(null);
-  /** `null` when creating. */
-  let editingRole = $state<RoleEntity | null>(null);
-  let formOpen = $state(false);
+  let activeRoleId = $state<string | null>(
+    new SvelteURLSearchParams(currentSearch()).get(OPEN_ROLE_PARAM),
+  );
 
   const activeRole = $derived(roles.find(role => role.id === activeRoleId) ?? null);
 
@@ -167,12 +187,6 @@ export const createRolesPage = (scope: () => RolesScope) => {
     },
     get activeRoleId() {
       return activeRoleId;
-    },
-    get formOpen() {
-      return formOpen;
-    },
-    get editingRole() {
-      return editingRole;
     },
     selection,
     /** `null` when the grants are out of reach: an unknown count is not zero. */
@@ -203,17 +217,8 @@ export const createRolesPage = (scope: () => RolesScope) => {
     open: (roleId: string) => {
       activeRoleId = roleId;
     },
-    openCreate: () => {
-      editingRole = null;
-      formOpen = true;
-    },
-    openEdit: (role: RoleEntity) => {
-      editingRole = role;
-      formOpen = true;
-    },
-    closeForm: () => {
-      formOpen = false;
-    },
+    openCreate: () => rolesNavigation(scope()).toCreate(),
+    openEdit: (role: RoleEntity) => rolesNavigation(scope()).toEdit(role.id),
   };
 };
 

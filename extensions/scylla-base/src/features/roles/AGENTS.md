@@ -135,8 +135,12 @@ presentation/
     grant-creator.state.svelte.ts    granting one role to one user
     role-assignees.state.svelte.ts   who holds a role (from the page's grants), and the revoke
     grant-target-labels.state.svelte.ts    scope id → human name (fans out for projects)
-  ui/components/role-form/           RoleFormDialog, RoleForm, RoleHolderField,
-                                     RoleDialogPermissions, CheckboxTree/ (+ CheckboxTreeNode)
+  ui/RoleEditor/RoleEditor.page.svelte                  creates or edits a role of the current organization
+  ui/PlatformRoleEditor/PlatformRoleEditor.page.svelte  creates or edits a platform role (System)
+  ui/components/role-form/           RoleForm, RoleFormSection, RoleHolderField, RoleAccessField,
+                                     RolePermissions/, CheckboxTree/ (+ CheckboxTreeNode)
+    RoleEditorView/                  the body both editor pages render, on a RolesScope
+      role-editor-view.state.svelte.ts   the role to edit (from the catalog), and the way back
     role-form.state.svelte.ts        creating/editing one role
 ```
 
@@ -147,11 +151,17 @@ No store of its own: the server state is in `roles.queries.ts`, the UI state in 
 | Mount | Path | Permission | Component | Sidebar |
 |---|---|---|---|---|
 | `organization` | `roles` | `MANAGE_ORG_ROLES` | `Roles.page.svelte` | section `organization`, order `35`, `ShieldIcon` |
+| `organization` | `roles/new`, `roles/:roleId/edit` | `MANAGE_ORG_ROLES` | `RoleEditor.page.svelte` | — |
 | `organization` | `platform-roles` | `MANAGE_ROLES` | `PlatformRoles.page.svelte` | section `system`, order `20`, `ShieldCheckIcon` |
+| `organization` | `platform-roles/new`, `platform-roles/:roleId/edit` | `MANAGE_ROLES` | `PlatformRoleEditor.page.svelte` | — |
 
-Both pages render `RolesView` on a `RolesScope`: `{ kind: 'organization', organizationId,
-organizationName }` from the context, or `{ kind: 'platform' }`. Never fork a component per page:
-give it the scope.
+Both list pages render `RolesView` on a `RolesScope`: `{ kind: 'organization', organizationId,
+organizationName }` from the context, or `{ kind: 'platform' }`. Both editor pages render
+`RoleEditorView` on the same scope. Never fork a component per page: give it the scope.
+
+`rolesNavigation(scope)` (`roles-page.state.svelte.ts`) builds every URL between these pages.
+The editor goes back to the list with `?role=<id>` after an edit, and the list opens on that
+role.
 
 ## Rules that bite here
 
@@ -210,6 +220,15 @@ give it the scope.
   feeds the tree: a locked row is shown, disabled, with "Not held in <org>". A stand-in also
   needs what it carries (`carriedBy`). Full control is offered only to who holds it. A locked
   permission already in an edited role stays; it is never stripped.
+- **The role editor is a page, not a dialog.** The form has too many fields for a modal. The
+  edit page reads the role from the same catalog query as the list (`catalog` or
+  `organizationCatalog`), so it adds no repository call. A role that the page cannot edit
+  (builtin, a platform role seen from an organization, or an unknown id) shows an error, not
+  the form. `create` and `update` are the same mutations as before.
+- **The editor page uses the full width of the frame**, like the list pages. On a wide screen,
+  General and Holders stay in the left column and Access fills the right column. Only the
+  sections scroll; the Cancel and Create bar stays below them, out of the scroll area. Do not
+  make the bar `sticky`: it hides the end of the last section.
 - **Who holds a role is fixed at creation.** `RoleHolderField` sets `RoleKind.MEMBER` (people) or
   `AGENT` (apps); an edit shows it read only. A role of an organization is organization or
   project scoped, never System. The grant dialog grants to people, so it refuses an `AGENT` role.
