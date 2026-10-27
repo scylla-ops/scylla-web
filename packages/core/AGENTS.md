@@ -1,7 +1,7 @@
 # `@scylla/core` — agent guide
 
 What starts the application: it loads the extensions, compiles their routes, runs the router,
-and renders the shell (sidebar, top bar, breadcrumbs, theme and language). It knows no
+and renders the shell (sidebar, top bar, breadcrumbs and language). It knows no
 business: no organization, no permission enum, no backend.
 
 **Package** `packages/core` · entry `@scylla/core` · **no router library**
@@ -29,7 +29,7 @@ type AppRouterConfig, CompiledRoute, RouteTable, LoadedApp, StartOptions
 
 ```
 src/
-  index.ts  start-core.ts  App.svelte          ThemeToggle + RouterView + Toaster
+  index.ts  start-core.ts  App.svelte          RouterView + Toaster
   loader/load-extensions.ts                    checks and merges the extensions
   loader/merge-widget-injections.ts            widget injections: owners, dependencies, conflicts, order (pure)
   query/query-client.ts                        createAppQueryClient(handlers, retryPolicies)
@@ -47,7 +47,7 @@ src/
                                                (NavMain, nav-sections.ts, nav-classes.ts)
     TopBar/                                    SidebarTrigger + the crumbs of the route trail
                                                (ShellBreadcrumbs, breadcrumbs.ts)
-    LanguageSelector/  ThemeToggle
+    LanguageSelector/
     shell-config.ts                            ShellConfig, set once by startCore
   locales/                                     the catalog of the shell (tests excluded)
 ```

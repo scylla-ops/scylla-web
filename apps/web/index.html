@@ -3,11 +3,13 @@
   <head>
     <script>
       (() => {
+        // Same rules as packages/ui/src/stores/theme.store.ts: no value means dark.
         const theme = localStorage.getItem('scylla-theme');
-        document.documentElement.classList.toggle(
-                'dark',
-                theme !== 'light'
-        );
+        const dark =
+          theme === 'system'
+            ? window.matchMedia('(prefers-color-scheme: dark)').matches
+            : theme !== 'light';
+        document.documentElement.classList.toggle('dark', dark);
       })();
     </script>
     <style>

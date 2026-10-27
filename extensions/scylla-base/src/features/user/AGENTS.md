@@ -95,7 +95,8 @@ presentation/
     UserSecurity.svelte
   ui/components/                     SettingsSection, UserStatusBadge, UserProfileForm/,
                                      UserAccessList/, UserIdentityCard, SessionList,
-                                     SessionRow/ (both pages)
+                                     SessionRow/ (both pages),
+                                     ThemePicker/ (own page only)
   presenters/user-agent.presenter.ts parseUserAgent: browser, system and kind of a session
   presenters/session-row.presenter.ts   the title and the activity of a session
   presenters/user-access.presenter.ts   the access of a user, grouped by organization
@@ -154,6 +155,11 @@ user who has no organization.
   format, password 8 to 255 characters and not spaces only, confirmation equal to the new
   password, username with no '@' and 255 bytes at most, display name 100 characters at most. Every form with a
   new password has a confirmation field. Every field has its `autocomplete` value.
+- **Appearance is the only theme control of the app.** `ThemePicker` (Light, Dark, System)
+  calls `setThemePreference` of `@scylla/ui/stores` with the center of the chosen thumbnail, so
+  the new theme spreads from there. The choice is for the device (`localStorage`), not for the
+  account: no RPC, no query. The thumbnails use fixed colors (`theme-preview.ts`), copied from
+  the tokens of `@scylla/ui/styles.css`: keep them in step.
 - Passwords are write-only: no read returns one. Never log, store or display one.
 - **Sessions.** Both pages show the list in the Sessions section, then "Sign out everywhere
   else" (own page) or "Sign out everywhere" (another user). The current session has the badge
