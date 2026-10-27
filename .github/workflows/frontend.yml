@@ -91,21 +91,21 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Restore the ESLint cache
-        if: github.event_name == pull_request
+        if: github.event_name == 'pull_request'
         uses: actions/cache@v4
         with:
           path: ${{ env.ESLINT_CACHE_PATH }}
-          key: eslint-${{ hashFiles(pnpm-lock.yaml, eslint.config.js, tooling/eslint.js) }}-${{ github.head_ref }}-${{ github.run_id }}
+          key: eslint-${{ hashFiles('pnpm-lock.yaml', 'eslint.config.js', 'tooling/eslint.js') }}-${{ github.head_ref }}-${{ github.run_id }}
           restore-keys: |
-            eslint-${{ hashFiles(pnpm-lock.yaml, eslint.config.js, tooling/eslint.js) }}-${{ github.head_ref }}-
-            eslint-${{ hashFiles(pnpm-lock.yaml, eslint.config.js, tooling/eslint.js) }}-${{ github.base_ref }}-
+            eslint-${{ hashFiles('pnpm-lock.yaml', 'eslint.config.js', 'tooling/eslint.js') }}-${{ github.head_ref }}-
+            eslint-${{ hashFiles('pnpm-lock.yaml', 'eslint.config.js', 'tooling/eslint.js') }}-${{ github.base_ref }}-
 
       - name: Lint (cached)
-        if: github.event_name == pull_request
+        if: github.event_name == 'pull_request'
         run: pnpm run lint --cache --cache-location ${{ env.ESLINT_CACHE_PATH }}/
 
       - name: Lint
-        if: github.event_name != pull_request
+        if: github.event_name != 'pull_request'
         run: pnpm run lint
 
   static:
