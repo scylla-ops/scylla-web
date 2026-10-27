@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { Card, CardContent, CardDescription, CardHeader } from '@scylla/ui/primitives';
 
   interface Props {
     id: string;
@@ -12,12 +11,12 @@
   let { id, title, hint, children }: Props = $props();
 </script>
 
-<Card role="region" aria-labelledby={id} class="gap-5 py-5">
-  <CardHeader class="gap-1 px-5">
+<section aria-labelledby={id} class="flex flex-col gap-5">
+  <header class="flex flex-col gap-1">
     <h2 {id} class="text-base font-semibold">{title}</h2>
-    <CardDescription>{hint}</CardDescription>
-  </CardHeader>
-  <CardContent class="flex flex-col gap-4 px-5">
+    <p class="text-sm text-muted-foreground">{hint}</p>
+  </header>
+  <div class="flex flex-col gap-4">
     {@render children()}
-  </CardContent>
-</Card>
+  </div>
+</section>
