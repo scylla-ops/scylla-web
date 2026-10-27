@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
 import { Permission, PermissionScope, permissionsStore, RoleKind } from '@platform/authz';
 import { withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { RoleEntity } from '@base/features/roles';
 import { createAssignableRoles } from '../assignable-roles.state.svelte.ts';
 
@@ -64,8 +63,8 @@ const grantOnOrganization = (...permissions: Permission[]) =>
   });
 
 beforeEach(() => {
-  listRoles = vi.fn().mockResolvedValue(ScyllaResult.success([]));
-  listGrantableRoles = vi.fn().mockResolvedValue(ScyllaResult.success([]));
+  listRoles = vi.fn().mockResolvedValue([]);
+  listGrantableRoles = vi.fn().mockResolvedValue([]);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -119,9 +118,7 @@ describe('createAssignableRoles', () => {
   });
 
   it('lists the builtin grantable roles with no catalog access, humanizing an unmatched id', async () => {
-    listGrantableRoles.mockResolvedValue(
-      ScyllaResult.success([grantable({ roleId: 'project-viewer' })]),
-    );
+    listGrantableRoles.mockResolvedValue([grantable({ roleId: 'project-viewer' })]);
 
     await withAssignableRoles(PermissionScope.PROJECT, state => {
       expect(state.assignableRoles).toEqual([
@@ -143,10 +140,10 @@ describe('createAssignableRoles', () => {
       name: 'Catalog name',
       description: 'Catalog description',
     });
-    listGrantableRoles.mockResolvedValue(
-      ScyllaResult.success([grantable({ roleId: 'role-1', description: 'grantable-only' })]),
-    );
-    listRoles.mockResolvedValue(ScyllaResult.success([catalogRole]));
+    listGrantableRoles.mockResolvedValue([
+      grantable({ roleId: 'role-1', description: 'grantable-only' }),
+    ]);
+    listRoles.mockResolvedValue([catalogRole]);
 
     await withAssignableRoles(PermissionScope.PROJECT, async state => {
       await vi.waitFor(() => {
@@ -178,11 +175,9 @@ describe('createAssignableRoles', () => {
 
   it('names a role of the organization by the name the grantable list carries', async () => {
     grantOnOrganization(Permission.READ_ORGANIZATION);
-    listGrantableRoles.mockResolvedValue(
-      ScyllaResult.success([
-        grantable({ roleId: 'f3c1', name: 'Deployer', ownerOrganizationId: 'org-1' }),
-      ]),
-    );
+    listGrantableRoles.mockResolvedValue([
+      grantable({ roleId: 'f3c1', name: 'Deployer', ownerOrganizationId: 'org-1' }),
+    ]);
 
     await withAssignableRoles(PermissionScope.PROJECT, async state => {
       await vi.waitFor(() => {
@@ -203,11 +198,9 @@ describe('createAssignableRoles', () => {
 
   it('never offers a role of another organization that the whole catalog carries', async () => {
     grantCatalogAccess();
-    listRoles.mockResolvedValue(
-      ScyllaResult.success([
-        role({ id: 'other-org-role', origin: { kind: 'custom', ownerOrganizationId: 'org-2' } }),
-      ]),
-    );
+    listRoles.mockResolvedValue([
+      role({ id: 'other-org-role', origin: { kind: 'custom', ownerOrganizationId: 'org-2' } }),
+    ]);
 
     await withAssignableRoles(PermissionScope.PROJECT, async state => {
       await vi.waitFor(() => expect(listRoles).toHaveBeenCalled());
@@ -218,9 +211,7 @@ describe('createAssignableRoles', () => {
 
   it('excludes a custom role bound to a different scope', async () => {
     grantCatalogAccess();
-    listRoles.mockResolvedValue(
-      ScyllaResult.success([role({ id: 'org-role', scope: PermissionScope.ORGANIZATION })]),
-    );
+    listRoles.mockResolvedValue([role({ id: 'org-role', scope: PermissionScope.ORGANIZATION })]);
 
     await withAssignableRoles(PermissionScope.PROJECT, async state => {
       await vi.waitFor(() => expect(listRoles).toHaveBeenCalled());
@@ -231,8 +222,8 @@ describe('createAssignableRoles', () => {
 
   it('labelFor resolves a role through the assignable list first', async () => {
     grantCatalogAccess();
-    listGrantableRoles.mockResolvedValue(ScyllaResult.success([grantable({ roleId: 'role-1' })]));
-    listRoles.mockResolvedValue(ScyllaResult.success([role({ id: 'role-1', name: 'From catalog' })]));
+    listGrantableRoles.mockResolvedValue([grantable({ roleId: 'role-1' })]);
+    listRoles.mockResolvedValue([role({ id: 'role-1', name: 'From catalog' })]);
 
     await withAssignableRoles(PermissionScope.PROJECT, async state => {
       await vi.waitFor(() => {
@@ -244,11 +235,9 @@ describe('createAssignableRoles', () => {
 
   it('labelFor still names a role bound to another scope — known, just not assignable here', async () => {
     grantCatalogAccess();
-    listRoles.mockResolvedValue(
-      ScyllaResult.success([
-        role({ id: 'org-role', scope: PermissionScope.ORGANIZATION, name: 'Org-only role' }),
-      ]),
-    );
+    listRoles.mockResolvedValue([
+      role({ id: 'org-role', scope: PermissionScope.ORGANIZATION, name: 'Org-only role' }),
+    ]);
 
     await withAssignableRoles(PermissionScope.PROJECT, async state => {
       await vi.waitFor(() => {
@@ -260,16 +249,14 @@ describe('createAssignableRoles', () => {
 
   it('names an organization role inherited on a project, without offering it there', async () => {
     grantOnOrganization(Permission.READ_ORGANIZATION);
-    listGrantableRoles.mockResolvedValue(
-      ScyllaResult.success([
-        grantable({
-          roleId: '01m48tpcv54rh6nc689fh7trnq',
-          name: 'Auditor',
-          scope: PermissionScope.ORGANIZATION,
-          ownerOrganizationId: 'org-1',
-        }),
-      ]),
-    );
+    listGrantableRoles.mockResolvedValue([
+      grantable({
+        roleId: '01m48tpcv54rh6nc689fh7trnq',
+        name: 'Auditor',
+        scope: PermissionScope.ORGANIZATION,
+        ownerOrganizationId: 'org-1',
+      }),
+    ]);
 
     await withAssignableRoles(PermissionScope.PROJECT, async state => {
       await vi.waitFor(() => {

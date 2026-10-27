@@ -4,7 +4,6 @@ import type { PipelineNodeEntity } from '../domain/entities/pipeline-node.entity
 import type { IPipelineServiceClient } from '@base/generated/scylla/pipeline/v1/pipeline.client.ts';
 import type { Pipeline } from '@base/generated/scylla/pipeline/v1/pipeline.ts';
 import { DEFAULT_PAGE_SIZE, type PaginatedList, type PaginationParams } from '@scylla/ui/structs';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcPipeline from './grpc-pipeline.mapper.ts';
 
@@ -17,74 +16,60 @@ const requirePipeline = (pipeline: Pipeline | undefined): PipelineEntity => {
 export class DefaultPipelineRepository implements PipelineRepository {
   constructor(private readonly client: IPipelineServiceClient) {}
 
-  public getMetadataByProjectId(
+  public async getMetadataByProjectId(
     projectId: string,
     pagination?: PaginationParams,
-  ): Promise<ScyllaResult<PaginatedList<PipelineMetadata>>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.listProjectPipelines({
-        projectId: wrapId(projectId),
-        pagination: pagination ?? { page: 1, pageSize: DEFAULT_PAGE_SIZE },
-      }).response;
-      return grpcPipeline.toMetadataList(response);
-    }, 'Error getting pipelines');
+  ): Promise<PaginatedList<PipelineMetadata>> {
+    const response = await this.client.listProjectPipelines({
+      projectId: wrapId(projectId),
+      pagination: pagination ?? { page: 1, pageSize: DEFAULT_PAGE_SIZE },
+    }).response;
+    return grpcPipeline.toMetadataList(response);
   }
 
-  public getMetadataByOrganizationId(
+  public async getMetadataByOrganizationId(
     organizationId: string,
     pagination?: PaginationParams,
-  ): Promise<ScyllaResult<PaginatedList<PipelineMetadata>>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.listOrganizationPipelines({
-        organizationId: wrapId(organizationId),
-        pagination: pagination ?? { page: 1, pageSize: DEFAULT_PAGE_SIZE },
-      }).response;
-      return grpcPipeline.toMetadataList(response);
-    }, 'Error getting organization pipelines');
+  ): Promise<PaginatedList<PipelineMetadata>> {
+    const response = await this.client.listOrganizationPipelines({
+      organizationId: wrapId(organizationId),
+      pagination: pagination ?? { page: 1, pageSize: DEFAULT_PAGE_SIZE },
+    }).response;
+    return grpcPipeline.toMetadataList(response);
   }
 
-  public deleteById(id: string): Promise<ScyllaResult<void>> {
-    return ScyllaResult.tryAsync(async () => {
-      await this.client.deletePipeline({ pipelineId: wrapId(id) }).response;
-    }, 'Error deleting pipeline');
+  public async deleteById(id: string): Promise<void> {
+    await this.client.deletePipeline({ pipelineId: wrapId(id) }).response;
   }
 
   /** The returned job id is not needed: callers refetch the job list. */
-  public run(id: string): Promise<ScyllaResult<void>> {
-    return ScyllaResult.tryAsync(async () => {
-      await this.client.runPipeline({ pipelineId: wrapId(id) }).response;
-    }, 'Error running pipeline');
+  public async run(id: string): Promise<void> {
+    await this.client.runPipeline({ pipelineId: wrapId(id) }).response;
   }
 
-  public create(pipeline: Omit<PipelineEntity, 'id'>): Promise<ScyllaResult<void>> {
-    return ScyllaResult.tryAsync(async () => {
-      await this.client.createPipeline({
-        name: pipeline.name,
-        projectId: wrapId(pipeline.projectId),
-        nodes: pipeline.nodes.map(grpcPipeline.nodeFromDomain),
-      }).response;
-    }, 'Failed to create pipeline.');
+  public async create(pipeline: Omit<PipelineEntity, 'id'>): Promise<void> {
+    await this.client.createPipeline({
+      name: pipeline.name,
+      projectId: wrapId(pipeline.projectId),
+      nodes: pipeline.nodes.map(grpcPipeline.nodeFromDomain),
+    }).response;
   }
 
-  public getById(id: string): Promise<ScyllaResult<PipelineEntity>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.getPipeline({ pipelineId: wrapId(id) }).response;
-      return requirePipeline(response.pipeline);
-    }, 'Error getting pipeline');
+  public async getById(id: string): Promise<PipelineEntity> {
+    const response = await this.client.getPipeline({ pipelineId: wrapId(id) }).response;
+    return requirePipeline(response.pipeline);
   }
 
-  public edit(
+  public async edit(
     id: string,
     nodes: PipelineNodeEntity[],
     name?: string,
-  ): Promise<ScyllaResult<PipelineEntity>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.updatePipeline({
-        pipelineId: wrapId(id),
-        nodes: nodes.map(grpcPipeline.nodeFromDomain),
-        name,
-      }).response;
-      return requirePipeline(response.pipeline);
-    }, 'Failed to edit pipeline.');
+  ): Promise<PipelineEntity> {
+    const response = await this.client.updatePipeline({
+      pipelineId: wrapId(id),
+      nodes: nodes.map(grpcPipeline.nodeFromDomain),
+      name,
+    }).response;
+    return requirePipeline(response.pipeline);
   }
 }

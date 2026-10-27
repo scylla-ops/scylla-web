@@ -9,7 +9,7 @@ import {
 describe('DefaultNodeTemplateRepository', () => {
   it('serves the built-in templates by default', async () => {
     const result = await new DefaultNodeTemplateRepository().list();
-    expect(result.unwrap()).toEqual(BUILT_IN_NODE_TEMPLATES);
+    expect(result).toEqual(BUILT_IN_NODE_TEMPLATES);
   });
 
   it('gives a copy, so a caller cannot change the source list', async () => {
@@ -21,7 +21,7 @@ describe('DefaultNodeTemplateRepository', () => {
         definition: { kind: 'exec', command: 'make', args: [], env: [] },
       },
     ];
-    const listed = (await new DefaultNodeTemplateRepository(templates).list()).unwrap();
+    const listed = await new DefaultNodeTemplateRepository(templates).list();
     listed.pop();
 
     expect(templates).toHaveLength(1);

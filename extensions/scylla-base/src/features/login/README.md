@@ -22,7 +22,7 @@ Signing in touches three modules, and it helps to see the whole path at once:
 5. `AuthGuard` in [shell](../../shell/README.md) reads the same key to decide whether a protected
    route renders or redirects back to `/login`.
 
-Notice that the repository returns `ScyllaResult<void>`. The token deliberately never travels
+Notice that `login` returns `Promise<void>`. The token deliberately never travels
 back up through the domain — the repository persists it as a side effect, and everything
 downstream reads it from one place. The upside is that no component ever holds a credential; the
 cost is that the `localStorage` key is a contract shared by three modules, so changing it means

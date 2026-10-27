@@ -1,5 +1,4 @@
 import type { ExtensionManifest, ModuleRoute } from '@scylla/core-sdk';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { ExtensionRepository } from '@base/features/extensions/domain/repository/extension.repository.ts';
 import type { InstalledExtensionEntity } from '@base/features/extensions/domain/entities/installed-extension.entity.ts';
 
@@ -25,12 +24,7 @@ const toInstalledExtension = (manifest: ExtensionManifest): InstalledExtensionEn
 export class DefaultExtensionRepository implements ExtensionRepository {
   constructor(private readonly installed: () => readonly ExtensionManifest[]) {}
 
-  getInstalledExtensions(): Promise<ScyllaResult<InstalledExtensionEntity[]>> {
-    return Promise.resolve(
-      ScyllaResult.try(
-        () => this.installed().map(toInstalledExtension),
-        'Failed to read the installed extensions.',
-      ),
-    );
+  getInstalledExtensions(): Promise<InstalledExtensionEntity[]> {
+    return Promise.resolve(this.installed().map(toInstalledExtension));
   }
 }

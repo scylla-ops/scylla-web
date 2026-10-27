@@ -1,10 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { withQueryClient, withRegistry } from '@test/render.ts';
 import { runMutationFn, runQueryFn } from '@test/queries.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  OnboardingRepository,
-} from '@base/features/onboarding/domain/repository/onboarding.repository.ts';
+import type { OnboardingRepository } from '@base/features/onboarding/domain/repository/onboarding.repository.ts';
 import {
   ONBOARDING_QUERY_KEY,
   onboardingMutations,
@@ -15,8 +12,8 @@ let teardown: Array<() => void> = [];
 
 const setUp = () => {
   const repository: OnboardingRepository = {
-    getStatus: vi.fn(() => Promise.resolve(ScyllaResult.success({ kind: 'skipped' as const }))),
-    saveStatus: vi.fn(() => Promise.resolve(ScyllaResult.success(undefined))),
+    getStatus: vi.fn(() => Promise.resolve({ kind: 'skipped' as const })),
+    saveStatus: vi.fn(() => Promise.resolve(undefined)),
   };
   const cache = withQueryClient();
   teardown = [cache.restore, withRegistry({ onboarding: { onboardingRepository: repository } })];
@@ -64,14 +61,10 @@ describe('onboardingMutations.save', () => {
 
   it('surfaces a failed write to the global handler', async () => {
     const { repository } = setUp();
-    vi.mocked(repository.saveStatus).mockResolvedValue(
-      ScyllaResult.try<void>(() => {
-        throw new Error('full');
-      }, 'Failed to save the onboarding progress'),
-    );
+    vi.mocked(repository.saveStatus).mockRejectedValue(new Error('full'));
 
     await expect(
       runMutationFn(onboardingMutations.save('ada'), { kind: 'skipped' }),
-    ).rejects.toThrow('Failed to save the onboarding progress');
+    ).rejects.toThrow('full');
   });
 });

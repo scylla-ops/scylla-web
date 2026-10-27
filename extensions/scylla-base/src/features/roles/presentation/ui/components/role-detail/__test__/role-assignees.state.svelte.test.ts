@@ -8,7 +8,6 @@ import {
   RoleKind,
 } from '@platform/authz';
 import { withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import { createGrantTargetLabels } from '../grant-target-labels.state.svelte.ts';
@@ -43,17 +42,13 @@ let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
 beforeEach(() => {
-  listGrants = vi.fn().mockResolvedValue(ScyllaResult.success([grant()]));
-  revokeGrant = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
-  getAllUsers = vi
-    .fn()
-    .mockResolvedValue(ScyllaResult.success({ items: [{ userId: 'user-1', username: 'ada' }] }));
-  getMine = vi.fn().mockResolvedValue(ScyllaResult.success([{ id: 'org-1', name: 'Acme' }]));
+  listGrants = vi.fn().mockResolvedValue([grant()]);
+  revokeGrant = vi.fn().mockResolvedValue(undefined);
+  getAllUsers = vi.fn().mockResolvedValue({ items: [{ userId: 'user-1', username: 'ada' }] });
+  getMine = vi.fn().mockResolvedValue([{ id: 'org-1', name: 'Acme' }]);
   getProjects = vi
     .fn()
-    .mockResolvedValue(
-      ScyllaResult.success({ projects: [{ id: 'project-1', name: 'Web', organizationId: 'org-1' }] }),
-    );
+    .mockResolvedValue({ projects: [{ id: 'project-1', name: 'Web', organizationId: 'org-1' }] });
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -61,8 +56,8 @@ beforeEach(() => {
       permissionRepository: {
         listGrants,
         revokeGrant,
-        listRoles: vi.fn().mockResolvedValue(ScyllaResult.success([])),
-        getMyPermissions: vi.fn().mockResolvedValue(ScyllaResult.success({ scopes: [] })),
+        listRoles: vi.fn().mockResolvedValue([]),
+        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
       },
       updateRole: { execute: vi.fn() },
     },
@@ -163,7 +158,7 @@ describe('createGrantTargetLabels', () => {
     );
   });
 
-  it("resolves a project grant to the project, and names the organization owning it", async () => {
+  it('resolves a project grant to the project, and names the organization owning it', async () => {
     await inRoot(
       () => createGrantTargetLabels(() => PermissionScope.PROJECT),
       async targets => {

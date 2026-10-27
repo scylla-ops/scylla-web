@@ -11,7 +11,7 @@ import {
 } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { findFloating, findTooltip, render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { APP_ACCESS_QUERY_KEY, type AppAccess } from '@base/features/apps';
 import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
 import AccessCardFixture from './AccessCard.fixture.svelte';
@@ -88,8 +88,7 @@ interface GrantInput {
   scopeId: string;
 }
 
-const denied = () =>
-  ScyllaResult.error(new ScyllaError('denied', { cause: { code: 'PERMISSION_DENIED' } }));
+const denied = () => new ScyllaError('denied', { code: 'PERMISSION_DENIED' });
 
 /** What the server holds: the grant calls change it, `ListAppAccess` reads it. */
 let held: AppAccess[];
@@ -102,7 +101,7 @@ let restoreRegistry: () => void;
 
 const serverRevoke = (grantId: string) => {
   held = held.filter(grant => grant.grantId !== grantId);
-  return Promise.resolve(ScyllaResult.success(undefined));
+  return Promise.resolve(undefined);
 };
 
 const grantPermissions = (permissions: Permission[] | 'all') =>
@@ -179,17 +178,15 @@ beforeEach(() => {
   Object.values(toasts).forEach(toast => toast.mockClear());
 
   held = [];
-  listAppAccess = vi.fn(() => Promise.resolve(ScyllaResult.success(held)));
-  listProjects = vi.fn(() =>
-    Promise.resolve<unknown>(ScyllaResult.success({ projects: PROJECTS })),
-  );
+  listAppAccess = vi.fn(() => Promise.resolve(held));
+  listProjects = vi.fn(() => Promise.resolve<unknown>({ projects: PROJECTS }));
   createGrant = vi.fn((input: GrantInput) => {
     const grant =
       input.scope === PermissionScope.PROJECT
         ? projectGrant(input.scopeId)
         : { ...organizationGrant, grantId: 'grant-new-org' };
     held = [...held, grant];
-    return Promise.resolve(ScyllaResult.success({ ...input, id: grant.grantId }));
+    return Promise.resolve({ ...input, id: grant.grantId });
   });
   revokeGrant = vi.fn(serverRevoke);
 
@@ -202,9 +199,7 @@ beforeEach(() => {
         createGrant,
         revokeGrant,
         getMyPermissions: () =>
-          Promise.resolve(
-            ScyllaResult.success(permissionsStore.getState().permissions ?? { scopes: [] }),
-          ),
+          Promise.resolve(permissionsStore.getState().permissions ?? { scopes: [] }),
       },
     },
   });
@@ -286,9 +281,7 @@ describe('AccessCard: the card', () => {
   });
 
   it('shows an error with a retry when the access does not load', async () => {
-    listAppAccess
-      .mockResolvedValueOnce(denied())
-      .mockImplementation(() => Promise.resolve(ScyllaResult.success(held)));
+    listAppAccess.mockRejectedValueOnce(denied()).mockImplementation(() => Promise.resolve(held));
     held = [projectGrant('p-1')];
     renderCard();
 
@@ -416,7 +409,7 @@ describe('AccessCard: give access', () => {
   it('keeps the new organization access and warns when a replaced access cannot go', async () => {
     held = [projectGrant('p-1'), projectGrant('p-2')];
     revokeGrant.mockImplementation(grantId =>
-      grantId === 'grant-p-2' ? Promise.resolve(denied()) : serverRevoke(grantId),
+      grantId === 'grant-p-2' ? Promise.reject(denied()) : serverRevoke(grantId),
     );
     renderCard();
     await openGive();
@@ -437,7 +430,7 @@ describe('AccessCard: give access', () => {
   });
 
   it('keeps the give dialog open and usable when the grant fails', async () => {
-    createGrant.mockResolvedValue(denied());
+    createGrant.mockRejectedValue(denied());
     renderCard();
     const give = await openGive();
     await give.findByRole('combobox', { name: 'Project' });
@@ -476,9 +469,7 @@ describe('AccessCard: the project list of the give dialog', () => {
   });
 
   it('shows a failed project list with a retry, and never falls back to every project', async () => {
-    listProjects
-      .mockResolvedValueOnce(denied())
-      .mockResolvedValue(ScyllaResult.success({ projects: PROJECTS }));
+    listProjects.mockRejectedValueOnce(denied()).mockResolvedValue({ projects: PROJECTS });
     renderCard();
     const give = await openGive();
 
@@ -519,9 +510,7 @@ describe('AccessCard: the project list of the give dialog', () => {
   });
 
   it('says when the list of projects is cut', async () => {
-    listProjects.mockResolvedValue(
-      ScyllaResult.success({ projects: PROJECTS, pagination: { totalCount: 150 } }),
-    );
+    listProjects.mockResolvedValue({ projects: PROJECTS, pagination: { totalCount: 150 } });
     renderCard();
     const give = await openGive();
 
@@ -706,7 +695,7 @@ describe('AccessCard: remove access', () => {
 
   it('keeps the remove dialog open and usable when the revoke fails', async () => {
     held = [projectGrant('p-1')];
-    revokeGrant.mockResolvedValue(denied());
+    revokeGrant.mockRejectedValue(denied());
     renderCard();
 
     await userEvent.click(await removeButton('prelude'));

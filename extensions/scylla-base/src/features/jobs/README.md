@@ -48,7 +48,7 @@ and on the org overview, and there is no second opinion about what "running" mea
 
 **Infrastructure** is the repository and its mapper, like every module with one source.
 `tailLogs` is the odd one out in the whole codebase: it returns
-`ScyllaResult<JobLogStream>` **synchronously**, since it opens a server stream rather than
+a `JobLogStream` **synchronously**, since it opens a server stream rather than
 awaiting a response. The presentation layer subscribes to it in `tail-job-logs.state.svelte.ts` and
 closes it on teardown — a stream is a system outside the framework, and that is what actions and
 `*.state.svelte.ts` owners are for, not reactivity.

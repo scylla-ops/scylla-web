@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { withQueryClient, withRegistry } from '@test/render.ts';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError, type ScyllaErrorCode } from '@shared/utils/scylla-error.ts';
 import type * as Login from '@base/features/login';
 import {
   ME_QUERY_KEY,
@@ -22,10 +22,7 @@ vi.mock('@base/features/login', async importOriginal => ({
   signOut: () => signOut(),
 }));
 
-const failure = (code: string, message: string) =>
-  ScyllaResult.error<void>(
-    new ScyllaError('Failed.', { cause: Object.assign(new Error(message), { code }) }),
-  );
+const failure = (code: ScyllaErrorCode, message: string) => new ScyllaError(message, { code });
 
 const me = { userId: 'user-1', username: 'ada', isActive: true, updatedAt: '' };
 
@@ -36,13 +33,13 @@ let repository: Record<string, ReturnType<typeof vi.fn>>;
 beforeEach(() => {
   vi.clearAllMocks();
   repository = {
-    getMe: vi.fn().mockResolvedValue(ScyllaResult.success(me)),
-    listAccess: vi.fn().mockResolvedValue(ScyllaResult.success([])),
-    update: vi.fn().mockResolvedValue(ScyllaResult.success(me)),
-    changePassword: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-    deleteAccount: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-    listSessions: vi.fn().mockResolvedValue(ScyllaResult.success([])),
-    revokeSession: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
+    getMe: vi.fn().mockResolvedValue(me),
+    listAccess: vi.fn().mockResolvedValue([]),
+    update: vi.fn().mockResolvedValue(me),
+    changePassword: vi.fn().mockResolvedValue(undefined),
+    deleteAccount: vi.fn().mockResolvedValue(undefined),
+    listSessions: vi.fn().mockResolvedValue([]),
+    revokeSession: vi.fn().mockResolvedValue(undefined),
   };
   cache = withQueryClient();
   restoreRegistry = withRegistry({ user: { userRepository: repository } });
@@ -227,7 +224,7 @@ describe('userMutations.changePassword', () => {
   });
 
   it('gives a wrong current password as data, not as an error to toast', async () => {
-    repository.changePassword.mockResolvedValue(
+    repository.changePassword.mockRejectedValue(
       failure('FAILED_PRECONDITION', 'Current password is incorrect'),
     );
 
@@ -240,7 +237,7 @@ describe('userMutations.changePassword', () => {
   });
 
   it('throws any other error, for the global handler', async () => {
-    repository.changePassword.mockResolvedValue(failure('UNAVAILABLE', 'down'));
+    repository.changePassword.mockRejectedValue(failure('UNAVAILABLE', 'down'));
 
     await expect(
       runMutationFn(userMutations.changePassword(), {
@@ -253,7 +250,7 @@ describe('userMutations.changePassword', () => {
 
 describe('userMutations.deleteAccount', () => {
   it('gives the organizations to hand over as data', async () => {
-    repository.deleteAccount.mockResolvedValue(
+    repository.deleteAccount.mockRejectedValue(
       failure('FAILED_PRECONDITION', 'Appoint another admin of Acme first'),
     );
 

@@ -35,13 +35,14 @@ made every feature and the shell mutually dependent.
 
 ```
 index.ts                             re-exports the class + creates `grpcTransport`
-scylla-grpc-transport.ts             the transport
+scylla-grpc-transport.ts             the transport, its error interceptor and its `fetch`
+__test__/                            the errors of a refused, a failed and an aborted call
 ```
 
 ## What the transport does
 
 - `baseUrl` from `import.meta.env.VITE_API_URL` (empty string if unset).
-- **Attaches auth on every call**: reads `localStorage.getItem('token')` and, when present, sets
+- **Attaches auth on every unary call**: reads `localStorage.getItem('token')` and, when present, sets
   `options.meta['Authorization'] = 'Bearer <token>'`.
 
 That `token` key is a three-way contract:
@@ -59,8 +60,15 @@ Changing the key or the storage mechanism means changing all three in one commit
 - **One instance, module-scoped.** `grpcTransport` is created at import time in `index.ts`.
   Do not construct a second `ScyllaGrpcTransport` in a feature — the auth interceptor and the
   base URL would then exist in two places.
-- Errors are not handled here. Every call returns `ScyllaResult<T>` — wrap with
-  `ScyllaResult.tryAsync` in the repository, and let `ScyllaError` extract the gRPC code.
+- **Every failed call rejects with a `ScyllaError`** (`scyllaErrorInterceptor`), for the unary
+  calls and the server streams: the gRPC `code`, the decoded server message, and the name of the
+  call (`rpc`: `scylla.secret.v1.SecretService/ListSecrets`), for the log. A repository
+  awaits the call and never wraps it. A fake client in a test bypasses the transport: give it
+  `failedCall(code)` (`@test/grpc.ts`), and read the error with `ScyllaError.from`.
+- **A request that does not get to the server is `UNAVAILABLE`** (`fetchOrUnavailable`), not the
+  `INTERNAL` of protobuf-ts. An abort stays `CANCELLED`.
+- The auth interceptor has no `interceptServerStreaming`: a server stream (`tailJobLogs`) is sent
+  without the `Authorization` header.
 - Generated proto clients live in `src/generated/` and are **never hand-edited** — run
   `pnpm gen-proto`.
 - Proto vocabulary stops at infrastructure. Mappers (`grpc-{entity}.mapper.ts`) convert proto types

@@ -10,7 +10,7 @@ export const marketplaceQueries = {
   list: () =>
     queryOptions({
       queryKey: MARKETPLACE_QUERY_KEY(),
-      queryFn: async () => (await repository().getMarketplace()).unwrap(),
+      queryFn: () => repository().getMarketplace(),
       staleTime: 1000 * 60,
       retry: 1,
     }),

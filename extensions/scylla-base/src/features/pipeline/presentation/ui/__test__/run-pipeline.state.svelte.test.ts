@@ -3,7 +3,7 @@ import { flushSync } from 'svelte';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { createRunPipeline } from '../run-pipeline.state.svelte.ts';
 
 const toast = vi.hoisted(() => ({ success: vi.fn(), warning: vi.fn(), error: vi.fn() }));
@@ -22,7 +22,7 @@ const grant = (...permissions: Permission[]) =>
   });
 
 const setUp = (agents: { connected: boolean }[]) => {
-  runRepository = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
+  runRepository = vi.fn().mockResolvedValue(undefined);
   const cache = withQueryClient();
   teardown = [
     cache.restore,
@@ -30,7 +30,7 @@ const setUp = (agents: { connected: boolean }[]) => {
       pipeline: { pipelineRepository: { run: runRepository } },
       agents: {
         agentsRepository: {
-          listAgents: vi.fn().mockResolvedValue(ScyllaResult.success(agents)),
+          listAgents: vi.fn().mockResolvedValue(agents),
         },
       },
     }),
@@ -82,7 +82,7 @@ describe('createRunPipeline', () => {
   it('keeps quiet about a failed run: the global handler reports it', async () => {
     grant();
     setUp([]);
-    runRepository.mockResolvedValue(ScyllaResult.error(new ScyllaError('down')));
+    runRepository.mockRejectedValue(new ScyllaError('down'));
 
     await runIn(async runner => {
       await runner.run('pipeline-1');

@@ -4,10 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { selectionStore } from '@scylla/ui/stores';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  TriggersRepository,
-} from '@base/features/triggers/domain/repository/triggers.repository.ts';
+import type { TriggersRepository } from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import TriggersHeader from './TriggersHeader.svelte';
 
 const deleteById = vi.fn();
@@ -30,7 +27,7 @@ let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
 beforeEach(() => {
-  deleteById.mockReset().mockResolvedValue(ScyllaResult.success(undefined));
+  deleteById.mockReset().mockResolvedValue(undefined);
   cache = withQueryClient();
   restoreRegistry = withRegistry({
     triggers: { triggersRepository: { deleteById } as unknown as TriggersRepository },

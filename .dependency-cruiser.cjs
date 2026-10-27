@@ -249,9 +249,9 @@ module.exports = {
         'domain/ is pure business logic: no UI framework, no gRPC, no generated proto, no ' +
         'query/state library. Framework types belong in infrastructure or presentation. A ' +
         'type-only import is exempt — it leaves no runtime trace — which is what lets a ' +
-        "domain repository outside scylla-base return `ScyllaResult<T>` from `@scylla/base-sdk` " +
-        "(root AGENTS.md: \"other extensions get it from @scylla/base-sdk\") without pulling that " +
-        "SDK's gRPC- and query-coupled exports into the domain layer.",
+        "domain outside scylla-base name a type of `@scylla/base-sdk` (a `ScyllaErrorCode`, an " +
+        "entity of a Scylla feature) without pulling that SDK's gRPC- and query-coupled exports " +
+        'into the domain layer.',
       severity: 'error',
       from: { path: '/domain/' },
       to: {

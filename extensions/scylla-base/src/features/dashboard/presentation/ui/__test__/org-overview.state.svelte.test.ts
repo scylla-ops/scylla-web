@@ -3,7 +3,7 @@ import { waitFor } from '@testing-library/svelte';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { JobEntity } from '@base/features/jobs';
 import type { PipelineMetadata } from '@base/features/pipeline';
 import type { ProjectEntity } from '@base/features/project';
@@ -44,9 +44,9 @@ let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
 beforeEach(() => {
-  getProjects = vi.fn().mockResolvedValue(ScyllaResult.success({ projects: [project()] }));
-  getPipelines = vi.fn().mockResolvedValue(ScyllaResult.success(page([pipeline()])));
-  getJobs = vi.fn().mockResolvedValue(ScyllaResult.success(page([job()])));
+  getProjects = vi.fn().mockResolvedValue({ projects: [project()] });
+  getPipelines = vi.fn().mockResolvedValue(page([pipeline()]));
+  getJobs = vi.fn().mockResolvedValue(page([job()]));
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -103,9 +103,7 @@ describe('createOrgOverview', () => {
   });
 
   it("leaves projectName empty when the pipeline's project is not in the visible list", async () => {
-    getPipelines.mockResolvedValue(
-      ScyllaResult.success(page([pipeline({ projectId: 'project-404' })])),
-    );
+    getPipelines.mockResolvedValue(page([pipeline({ projectId: 'project-404' })]));
 
     await withOverview(async overview => {
       await waitFor(() => expect(overview.allPipelines).toHaveLength(1));
@@ -114,7 +112,7 @@ describe('createOrgOverview', () => {
   });
 
   it('reports the runs window as partial when the server holds more than it returned', async () => {
-    getJobs.mockResolvedValue(ScyllaResult.success(page([job()], 250)));
+    getJobs.mockResolvedValue(page([job()], 250));
 
     await withOverview(async overview => {
       await waitFor(() => expect(overview.runsTruncated).toBe(true));
@@ -137,7 +135,7 @@ describe('createOrgOverview', () => {
   });
 
   it('surfaces the projects failure, since it is the one the page refuses to render without', async () => {
-    getProjects.mockResolvedValue(ScyllaResult.error(new ScyllaError('boom')));
+    getProjects.mockRejectedValue(new ScyllaError('boom'));
 
     await withOverview(async overview => {
       await waitFor(() => expect(overview.projectsError).toBe(true));

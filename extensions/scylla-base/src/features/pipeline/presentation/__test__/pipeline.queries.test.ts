@@ -3,7 +3,7 @@ import { contextStore } from '@platform/context';
 import { withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type {
   PipelineEntity,
   PipelineMetadata,
@@ -73,15 +73,13 @@ let navigator: ReturnType<typeof installTestNavigator>;
 
 beforeEach(() => {
   repository = {
-    getMetadataByProjectId: vi.fn().mockResolvedValue(ScyllaResult.success(paginated([metadata()]))),
-    getMetadataByOrganizationId: vi
-      .fn()
-      .mockResolvedValue(ScyllaResult.success(paginated([metadata()]))),
-    deleteById: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-    run: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-    create: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-    getById: vi.fn().mockResolvedValue(ScyllaResult.success(pipeline())),
-    edit: vi.fn().mockResolvedValue(ScyllaResult.success(pipeline())),
+    getMetadataByProjectId: vi.fn().mockResolvedValue(paginated([metadata()])),
+    getMetadataByOrganizationId: vi.fn().mockResolvedValue(paginated([metadata()])),
+    deleteById: vi.fn().mockResolvedValue(undefined),
+    run: vi.fn().mockResolvedValue(undefined),
+    create: vi.fn().mockResolvedValue(undefined),
+    getById: vi.fn().mockResolvedValue(pipeline()),
+    edit: vi.fn().mockResolvedValue(pipeline()),
   };
 
   toastSuccess.mockClear();
@@ -90,7 +88,7 @@ beforeEach(() => {
     pipeline: {
       pipelineRepository: repository as unknown as PipelineRepository,
       savePipeline: new SavePipelineUseCase(repository as unknown as PipelineRepository),
-      nodeTemplateRepository: { list: () => Promise.resolve(ScyllaResult.success(templates)) },
+      nodeTemplateRepository: { list: () => Promise.resolve(templates) },
     },
   });
   navigator = installTestNavigator({ pathname: '/acme/projects/project-1' });
@@ -154,14 +152,14 @@ describe('pipelineQueries.byId', () => {
 
   it('propagates a repository failure to TanStack Query', async () => {
     const error = new ScyllaError('boom');
-    repository.getById.mockResolvedValue(ScyllaResult.error(error));
+    repository.getById.mockRejectedValue(error);
 
     await expect(runQueryFn(pipelineQueries.byId('pipeline-1'))).rejects.toBe(error);
   });
 });
 
 describe('pipelineMutations.create', () => {
-  it('invalidates that project\'s list and navigates back to it', () => {
+  it("invalidates that project's list and navigates back to it", () => {
     contextStore.setState({ project: { id: 'project-1', name: 'web' } });
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
 
@@ -246,7 +244,7 @@ describe('pipelineMutations.remove', () => {
 describe('pipelineMutations.duplicate', () => {
   it('reads the pipeline then saves a copy, its name still one word (<name>-copy)', async () => {
     repository.getById.mockResolvedValue(
-      ScyllaResult.success(pipeline({ name: 'ci', projectId: 'project-1', nodes: [] })),
+      pipeline({ name: 'ci', projectId: 'project-1', nodes: [] }),
     );
 
     await runMutationFn(pipelineMutations.duplicate(), 'pipeline-1');
@@ -261,7 +259,7 @@ describe('pipelineMutations.duplicate', () => {
 
   it('propagates a failure from the read node without ever calling create', async () => {
     const error = new ScyllaError('not found');
-    repository.getById.mockResolvedValue(ScyllaResult.error(error));
+    repository.getById.mockRejectedValue(error);
 
     await expect(runMutationFn(pipelineMutations.duplicate(), 'pipeline-1')).rejects.toBe(error);
     expect(repository.create).not.toHaveBeenCalled();

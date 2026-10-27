@@ -4,7 +4,6 @@ import { QueryClient } from '@tanstack/query-core';
 import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
 import type {
   ProjectRepository,
@@ -38,11 +37,11 @@ const page = (projects: ProjectEntity[]) => ({
 
 const withRepository = (overrides: Partial<ProjectRepository> = {}) => {
   const repository = {
-    getByOrganizationId: vi.fn().mockResolvedValue(ScyllaResult.success(page([project()]))),
-    listMembers: vi.fn().mockResolvedValue(ScyllaResult.success([])),
-    create: vi.fn().mockResolvedValue(ScyllaResult.success(project())),
-    update: vi.fn().mockResolvedValue(ScyllaResult.success(project())),
-    delete: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
+    getByOrganizationId: vi.fn().mockResolvedValue(page([project()])),
+    listMembers: vi.fn().mockResolvedValue([]),
+    create: vi.fn().mockResolvedValue(project()),
+    update: vi.fn().mockResolvedValue(project()),
+    delete: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 

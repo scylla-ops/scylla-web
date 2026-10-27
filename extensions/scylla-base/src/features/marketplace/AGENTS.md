@@ -30,7 +30,7 @@ Never add: `marketplace.module.ts`, pages.
 
 | Method | Returns |
 |---|---|
-| `getMarketplace()` | `ScyllaResult<MarketItem[]>` |
+| `getMarketplace()` | `MarketItem[]` |
 
 ## ⚠ The repository is stubbed
 

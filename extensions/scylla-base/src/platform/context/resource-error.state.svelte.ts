@@ -1,5 +1,5 @@
 import { toast } from '@scylla/ui/utils';
-import { ScyllaError } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { navigateTo } from '@scylla/core-sdk';
 
 export interface ResourceErrorOptions {

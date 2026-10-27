@@ -6,7 +6,6 @@ import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '@platform/context';
 import { permissionsStore, PermissionScope } from '@platform/authz';
 import { selectionStore } from '@scylla/ui/stores';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
 import type {
   ProjectRepository,
@@ -30,7 +29,7 @@ const renderCard = (entity: ProjectEntity = project()) => {
     getByOrganizationId: vi.fn(),
     listMembers: vi.fn(),
     create: vi.fn(),
-    update: vi.fn().mockResolvedValue(ScyllaResult.success(entity)),
+    update: vi.fn().mockResolvedValue(entity),
     delete: vi.fn(),
   } as unknown as ProjectRepository;
 

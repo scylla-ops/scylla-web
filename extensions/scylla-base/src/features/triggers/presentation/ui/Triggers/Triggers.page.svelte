@@ -3,7 +3,7 @@
   import { createQuery } from '@scylla/core-sdk';
   import { ErrorState, SecretRevealDialog } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
-  import { ScyllaError } from '@shared/utils/scylla-result.ts';
+  import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import { t } from '@scylla/ui/i18n';
   import type { CreatedTrigger } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggerQueries } from '@base/features/triggers/presentation/triggers.queries.ts';

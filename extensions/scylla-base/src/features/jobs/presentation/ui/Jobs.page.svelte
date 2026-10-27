@@ -4,7 +4,7 @@
   import { ErrorState, PaginationSlot } from '@scylla/ui';
   import { createPagination } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
-  import { ScyllaError } from '@shared/utils/scylla-result.ts';
+  import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import { jobQueries } from '../jobs.queries.ts';
   import JobsHeader from './JobsHeader/JobsHeader.svelte';
   import JobsTable from './jobs-table/JobsTable.svelte';

@@ -10,7 +10,6 @@ import type { IUserServiceClient } from '@base/generated/scylla/user/v1/user.cli
 import type { User } from '@base/generated/scylla/user/v1/user.ts';
 import type { PasswordResetDelivery } from '@base/features/login';
 import type { PaginatedList } from '@scylla/ui/structs';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcUser from './grpc-user.mapper.ts';
 
@@ -23,101 +22,72 @@ const requireUser = (user: User | undefined): UserEntity => {
 export class DefaultUserRepository implements UserRepository {
   constructor(private readonly client: IUserServiceClient) {}
 
-  public getAll(): Promise<ScyllaResult<PaginatedList<UserEntity>>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.listUsers({}).response;
-      return grpcUser.toDomainList(response);
-    }, 'Failed to fetch users.');
+  public async getAll(): Promise<PaginatedList<UserEntity>> {
+    const response = await this.client.listUsers({}).response;
+    return grpcUser.toDomainList(response);
   }
 
-  public getById(userId: string): Promise<ScyllaResult<UserEntity>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.getUser({ userId: wrapId(userId) }).response;
-      return requireUser(response.user);
-    }, 'Error fetching user');
+  public async getById(userId: string): Promise<UserEntity> {
+    const response = await this.client.getUser({ userId: wrapId(userId) }).response;
+    return requireUser(response.user);
   }
 
-  public getMe(): Promise<ScyllaResult<UserEntity>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.getMe({}).response;
-      return requireUser(response.user);
-    }, 'Failed to fetch your account.');
+  public async getMe(): Promise<UserEntity> {
+    const response = await this.client.getMe({}).response;
+    return requireUser(response.user);
   }
 
-  public create(input: CreateUserInput): Promise<ScyllaResult<UserEntity>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.createUser(grpcUser.toCreateRequest(input)).response;
-      return requireUser(response.user);
-    }, 'Failed to create user.');
+  public async create(input: CreateUserInput): Promise<UserEntity> {
+    const response = await this.client.createUser(grpcUser.toCreateRequest(input)).response;
+    return requireUser(response.user);
   }
 
-  public update(input: UpdateUserInput): Promise<ScyllaResult<UserEntity>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.updateUser(grpcUser.toUpdateRequest(input)).response;
-      return requireUser(response.user);
-    }, 'Failed to update user.');
+  public async update(input: UpdateUserInput): Promise<UserEntity> {
+    const response = await this.client.updateUser(grpcUser.toUpdateRequest(input)).response;
+    return requireUser(response.user);
   }
 
-  public delete(userId: string): Promise<ScyllaResult<void>> {
-    return ScyllaResult.tryAsync(async () => {
-      await this.client.deleteUser({ userId: wrapId(userId) }).response;
-    }, 'Failed to delete user.');
+  public async delete(userId: string): Promise<void> {
+    await this.client.deleteUser({ userId: wrapId(userId) }).response;
   }
 
-  public setActive(userId: string, isActive: boolean): Promise<ScyllaResult<UserEntity>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.setUserActive({ userId: wrapId(userId), isActive })
-        .response;
-      return requireUser(response.user);
-    }, 'Failed to change the status of the user.');
+  public async setActive(userId: string, isActive: boolean): Promise<UserEntity> {
+    const response = await this.client.setUserActive({ userId: wrapId(userId), isActive }).response;
+    return requireUser(response.user);
   }
 
-  public changePassword(currentPassword: string, newPassword: string): Promise<ScyllaResult<void>> {
-    return ScyllaResult.tryAsync(async () => {
-      await this.client.changePassword({ currentPassword, newPassword }).response;
-    }, 'Failed to change the password.');
+  public async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await this.client.changePassword({ currentPassword, newPassword }).response;
   }
 
-  public sendPasswordReset(userId: string): Promise<ScyllaResult<PasswordResetDelivery>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.sendPasswordReset({ userId: wrapId(userId) }).response;
-      return grpcUser.deliveryToDomain(response.delivery);
-    }, 'Failed to send a reset link.');
+  public async sendPasswordReset(userId: string): Promise<PasswordResetDelivery> {
+    const response = await this.client.sendPasswordReset({ userId: wrapId(userId) }).response;
+    return grpcUser.deliveryToDomain(response.delivery);
   }
 
-  public revokeSessions(userId: string): Promise<ScyllaResult<number>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.revokeUserSessions({ userId: wrapId(userId) }).response;
-      return response.revoked;
-    }, 'Failed to sign out the sessions.');
+  public async revokeSessions(userId: string): Promise<number> {
+    const response = await this.client.revokeUserSessions({ userId: wrapId(userId) }).response;
+    return response.revoked;
   }
 
-  public deleteAccount(password: string): Promise<ScyllaResult<void>> {
-    return ScyllaResult.tryAsync(async () => {
-      await this.client.deleteAccount({ password }).response;
-    }, 'Failed to delete the account.');
+  public async deleteAccount(password: string): Promise<void> {
+    await this.client.deleteAccount({ password }).response;
   }
 
-  public listAccess(userId: string): Promise<ScyllaResult<UserAccess[]>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.listUserAccess({ userId: wrapId(userId) }).response;
-      return response.access.map(grpcUser.accessToDomain);
-    }, 'Failed to fetch the organizations and roles of the user.');
+  public async listAccess(userId: string): Promise<UserAccess[]> {
+    const response = await this.client.listUserAccess({ userId: wrapId(userId) }).response;
+    return response.access.map(grpcUser.accessToDomain);
   }
 
-  public listSessions(userId: string): Promise<ScyllaResult<UserSessionEntity[]>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.listUserSessions({ userId: wrapId(userId) }).response;
-      return response.sessions.map(grpcUser.sessionToDomain);
-    }, 'Failed to fetch the sessions of the user.');
+  public async listSessions(userId: string): Promise<UserSessionEntity[]> {
+    const response = await this.client.listUserSessions({ userId: wrapId(userId) }).response;
+    return response.sessions.map(grpcUser.sessionToDomain);
   }
 
-  public revokeSession(userId: string, sessionId: string): Promise<ScyllaResult<void>> {
-    return ScyllaResult.tryAsync(async () => {
-      await this.client.revokeUserSession({
-        userId: wrapId(userId),
-        sessionId: wrapId(sessionId),
-      }).response;
-    }, 'Failed to sign out the session.');
+  public async revokeSession(userId: string, sessionId: string): Promise<void> {
+    await this.client.revokeUserSession({
+      userId: wrapId(userId),
+      sessionId: wrapId(sessionId),
+    }).response;
   }
 }

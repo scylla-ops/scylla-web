@@ -4,13 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import type { WidgetInjection } from '@scylla/core-sdk';
-import {
-  render,
-  withQueryClient,
-  withRegistry,
-  withWidgetInjections,
-} from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { render, withQueryClient, withRegistry, withWidgetInjections } from '@test/render.ts';
 import { membershipPoints } from '@base/features/membership/presentation/membership.points.ts';
 import OrganizationMembersPage from './OrganizationMembers.page.svelte';
 
@@ -40,37 +34,33 @@ const setUp = (injection?: WidgetInjection) => {
 };
 
 beforeEach(() => {
-  listMembers = vi.fn().mockResolvedValue(
-    ScyllaResult.success([
-      { userId: 'user-1', username: 'alice' },
-      { userId: 'user-2', username: 'bob' },
-    ]),
-  );
-  listGrants = vi.fn().mockResolvedValue(
-    ScyllaResult.success([
-      {
-        id: 'grant-1',
-        principal: { kind: PrincipalKind.USER, id: 'user-1' },
-        roleId: 'organization-admin',
-        scope: PermissionScope.ORGANIZATION,
-        scopeId: 'org-1',
-      },
-    ]),
-  );
+  listMembers = vi.fn().mockResolvedValue([
+    { userId: 'user-1', username: 'alice' },
+    { userId: 'user-2', username: 'bob' },
+  ]);
+  listGrants = vi.fn().mockResolvedValue([
+    {
+      id: 'grant-1',
+      principal: { kind: PrincipalKind.USER, id: 'user-1' },
+      roleId: 'organization-admin',
+      scope: PermissionScope.ORGANIZATION,
+      scopeId: 'org-1',
+    },
+  ]);
 
   const cache = withQueryClient();
   const restoreRegistry = withRegistry({
     organization: { organizationRepository: { listMembers } },
-    user: { userRepository: { getAll: vi.fn().mockResolvedValue(ScyllaResult.success([])) } },
+    user: { userRepository: { getAll: vi.fn().mockResolvedValue([]) } },
     roles: {
       permissionRepository: {
         listGrants,
-        listGrantableRoles: vi.fn().mockResolvedValue(ScyllaResult.success([])),
-        listRoles: vi.fn().mockResolvedValue(ScyllaResult.success([])),
+        listGrantableRoles: vi.fn().mockResolvedValue([]),
+        listRoles: vi.fn().mockResolvedValue([]),
         createGrant: vi.fn(),
         revokeGrant: vi.fn(),
         revokeAllAccess: vi.fn(),
-        getMyPermissions: vi.fn().mockResolvedValue(ScyllaResult.success({ scopes: [] })),
+        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
       },
     },
   });

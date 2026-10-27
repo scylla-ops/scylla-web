@@ -5,10 +5,7 @@ import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  OnboardingStatus,
-} from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
+import type { OnboardingStatus } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
 import OnboardingTour from './OnboardingTour.svelte';
 
 let teardown: Array<() => void> = [];
@@ -24,7 +21,7 @@ const grant = (...permissions: Permission[]) =>
 
 const setUp = (stored: OnboardingStatus = { kind: 'not-started' }) => {
   const saveStatus = vi.fn((_userId: string, _status: OnboardingStatus) =>
-    Promise.resolve(ScyllaResult.success(undefined)),
+    Promise.resolve(undefined),
   );
   const cache = withQueryClient();
   const navigator = installTestNavigator({ pathname: '/acme/dashboard' });
@@ -34,7 +31,7 @@ const setUp = (stored: OnboardingStatus = { kind: 'not-started' }) => {
     withRegistry({
       onboarding: {
         onboardingRepository: {
-          getStatus: () => Promise.resolve(ScyllaResult.success(stored)),
+          getStatus: () => Promise.resolve(stored),
           saveStatus,
         },
       },

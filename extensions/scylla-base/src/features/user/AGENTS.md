@@ -145,7 +145,7 @@ user who has no organization.
   The own account page never sends an email.
 - **A FAILED_PRECONDITION that a page shows beside a field is data, not an error.**
   `changePassword` and `deleteAccount` return the server message through `refusalOf`
-  (`@shared/utils/scylla-result.ts`): `null` on success. The global handler would toast it a
+  (`@shared/utils/scylla-error.ts`): `null` on success. The global handler would toast it a
   second time. `deleteAccount` signs out in its own `onSuccess`, not in the caller's: TanStack
   skips the callbacks of a `mutate` call when the component is gone. `remove` drops the queries
   of the deleted user (`removeQueries`), it does not only refresh them. On the page of another user, a FAILED_PRECONDITION goes to the global toast, as

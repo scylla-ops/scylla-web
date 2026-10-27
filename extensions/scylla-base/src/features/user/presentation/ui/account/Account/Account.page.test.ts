@@ -4,7 +4,7 @@ import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { toast } from 'svelte-sonner';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { UserAccess } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import AccountPage from './Account.page.svelte';
@@ -81,26 +81,21 @@ const sessions: UserSessionEntity[] = [
   },
 ];
 
-const refused = (message: string) =>
-  ScyllaResult.error<void>(
-    new ScyllaError('Failed.', {
-      cause: Object.assign(new Error(message), { code: 'FAILED_PRECONDITION' }),
-    }),
-  );
+const refused = (message: string) => new ScyllaError(message, { code: 'FAILED_PRECONDITION' });
 
 let teardown: Array<() => void> = [];
 let repository: Record<string, ReturnType<typeof vi.fn>>;
 
 const setUp = (overrides: Record<string, ReturnType<typeof vi.fn>> = {}) => {
   repository = {
-    getMe: vi.fn().mockResolvedValue(ScyllaResult.success(me)),
-    listAccess: vi.fn().mockResolvedValue(ScyllaResult.success(access)),
-    update: vi.fn().mockResolvedValue(ScyllaResult.success(me)),
-    changePassword: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-    revokeSessions: vi.fn().mockResolvedValue(ScyllaResult.success(2)),
-    listSessions: vi.fn().mockResolvedValue(ScyllaResult.success(sessions)),
-    revokeSession: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-    deleteAccount: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
+    getMe: vi.fn().mockResolvedValue(me),
+    listAccess: vi.fn().mockResolvedValue(access),
+    update: vi.fn().mockResolvedValue(me),
+    changePassword: vi.fn().mockResolvedValue(undefined),
+    revokeSessions: vi.fn().mockResolvedValue(2),
+    listSessions: vi.fn().mockResolvedValue(sessions),
+    revokeSession: vi.fn().mockResolvedValue(undefined),
+    deleteAccount: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
   const cache = withQueryClient();
@@ -140,7 +135,7 @@ describe('AccountPage', () => {
   });
 
   it('shows no role badge for a user with no system grant', async () => {
-    setUp({ listAccess: vi.fn().mockResolvedValue(ScyllaResult.success(access.slice(1))) });
+    setUp({ listAccess: vi.fn().mockResolvedValue(access.slice(1)) });
 
     const card = (await screen.findByText('@ada')).closest<HTMLElement>('[data-slot="user-identity"]')!;
     await screen.findByText('Organization admin');
@@ -158,7 +153,7 @@ describe('AccountPage', () => {
   });
 
   it('shows an error when the account cannot be read', async () => {
-    setUp({ getMe: vi.fn().mockResolvedValue(refused('down')) });
+    setUp({ getMe: vi.fn().mockRejectedValue(refused('down')) });
 
     expect(await screen.findByText('Error loading your account')).toBeInTheDocument();
   });
@@ -230,7 +225,7 @@ describe('AccountPage', () => {
 
     it('shows the message of the server under the current password', async () => {
       setUp({
-        changePassword: vi.fn().mockResolvedValue(refused('Current password is incorrect')),
+        changePassword: vi.fn().mockRejectedValue(refused('Current password is incorrect')),
       });
 
       await changeFrom('wrong-password');
@@ -306,14 +301,14 @@ describe('AccountPage', () => {
     });
 
     it('says when no session is active', async () => {
-      setUp({ listSessions: vi.fn().mockResolvedValue(ScyllaResult.success([])) });
+      setUp({ listSessions: vi.fn().mockResolvedValue([]) });
 
       const list = await screen.findByRole('region', { name: 'Sessions' });
       expect(await within(list).findByText('No active session.')).toBeInTheDocument();
     });
 
     it('shows an error when the sessions cannot be read', async () => {
-      setUp({ listSessions: vi.fn().mockResolvedValue(refused('down')) });
+      setUp({ listSessions: vi.fn().mockRejectedValue(refused('down')) });
 
       const list = await screen.findByRole('region', { name: 'Sessions' });
       expect(await within(list).findByText('Error loading the sessions')).toBeInTheDocument();
@@ -359,7 +354,7 @@ describe('AccountPage', () => {
       setUp({
         deleteAccount: vi
           .fn()
-          .mockResolvedValue(refused('Appoint another admin of Acme Corp first')),
+          .mockRejectedValue(refused('Appoint another admin of Acme Corp first')),
       });
 
       const dialog = await confirmWith('my-password');

@@ -3,7 +3,7 @@
 > [Scylla frontend](../../../../README.md) › `extensions/scylla-base` › `shared/` ·
 > [agent guide](./AGENTS.md) · [architecture](../../../../docs/architecture.md)
 
-What the Scylla features share and what has a meaning only for Scylla: the Result type of the
+What the Scylla features share and what has a meaning only for Scylla: the error type of the
 backend calls, the presentation of a run status, the instructions to start an agent, how a
 person shows, and the account rules checked before a call.
 
@@ -11,15 +11,25 @@ The generic parts — tables, forms, dialogs, the primitives — are in
 [`@scylla/ui`](../../../../packages/ui/README.md). This folder holds what fails the test of that
 package, *"could this live in another product, unchanged?"*, but is still used by two features.
 
-## `ScyllaResult<T>` — errors as values
+## `ScyllaError` — one error type, made at one place
 
-Async operations in Scylla do not throw. They return `ScyllaResult<T>`: repositories wrap their
-calls in `tryAsync`, so a gRPC failure becomes a `ScyllaError` with the status code and a
-user-facing message. At the presentation boundary, query and mutation options call `.unwrap()`
-inside `queryFn` / `mutationFn`, so that TanStack Query owns the error state. The `onQueryError`
-of the [shell](../shell/README.md) shows the one toast.
+A backend call that fails rejects with a `ScyllaError`: the status code, the server message, and
+a message for the user. The [gRPC transport](../platform/grpc/README.md) makes it, for every call
+of every feature and of every extension. A repository only awaits its call, and a query only
+returns the call of its repository.
 
-`ScyllaResult` is also the contract of other extensions that call the Scylla backend:
+There is no Result type. TanStack Query already holds the success or the failure of each call,
+and it reads a failure from a rejected promise. A Result would be made in the repository only to
+be thrown again in each `queryFn`. The two places that must see an error see it: the
+`onQueryError` of the [shell](../shell/README.md) shows the one toast, and its retry policy
+retries only the failures that a second call can pass (a network failure, a busy server). A
+refusal (`NOT_FOUND`, `PERMISSION_DENIED`) goes to the page at once.
+
+The message for the user is the server message only when the user can act on it: a name already
+taken, a field the server refuses. A server fault or a bug in the page shows a generic message,
+never its own text.
+
+`ScyllaError` is also the contract of other extensions that call the Scylla backend:
 [`@scylla/base-sdk`](../../../../sdks/scylla-base-sdk/README.md) exports it.
 
 Some refusals are not errors for the page: a wrong current password, or a link that expired.

@@ -6,27 +6,21 @@ import { CREATE_AGENT_MUTATION_KEY } from '@base/features/agents';
 import { CREATE_PROJECT_MUTATION_KEY } from '@base/features/project';
 import { installTestNavigator } from '@test/navigator.ts';
 import { withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  OnboardingStatus,
-} from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
-import {
-  createOnboardingTour,
-  type OnboardingTour,
-} from './onboarding-tour.state.svelte.ts';
+import type { OnboardingStatus } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
+import { createOnboardingTour, type OnboardingTour } from './onboarding-tour.state.svelte.ts';
 
 let teardown: Array<() => void> = [];
 
 let agents: { id: string; connected: boolean }[] = [];
-const listAgents = vi.fn(() => Promise.resolve(ScyllaResult.success(agents)));
+const listAgents = vi.fn(() => Promise.resolve(agents));
 
 const setUp = (stored: OnboardingStatus = { kind: 'not-started' }, canStart = true) => {
   let current = stored;
   const repository = {
-    getStatus: vi.fn(() => Promise.resolve(ScyllaResult.success(current))),
+    getStatus: vi.fn(() => Promise.resolve(current)),
     saveStatus: vi.fn((_userId: string, status: OnboardingStatus) => {
       current = status;
-      return Promise.resolve(ScyllaResult.success(undefined));
+      return Promise.resolve(undefined);
     }),
   };
   const cache = withQueryClient();
