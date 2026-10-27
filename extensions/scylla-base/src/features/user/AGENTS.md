@@ -91,7 +91,7 @@ presentation/
   ui/account/DeleteAccountDialog/
   ui/user-detail/UserDetail/         the page of another user, and its parts:
     user-detail.state.svelte.ts      createUserDetail: the page of another user
-    UserDetailContent.svelte, UserDetailHeader.svelte (the identity card with status, date and id),
+    UserDetailContent.svelte, UserDetailHeader.svelte (the identity block with status, date and id),
     UserSecurity.svelte
   ui/components/                     SettingsSection, UserStatusBadge, UserProfileForm/,
                                      UserAccessList/, UserIdentityCard, SessionList,
@@ -174,7 +174,7 @@ user who has no organization.
 - **The account page is one column, then three columns from 64rem of width.** The breakpoint is
   a container query on the page (`@5xl`), so the sidebar and the `personal` layout count. The
   grid places each section, and the order of the source is the order of the one column: keep
-  it. The list of sessions scrolls inside its card (`SettingsSection` with `fill`), so a long
+  it. The list of sessions scrolls inside its section (`SettingsSection` with `fill`), so a long
   list never makes the page longer.
 - `getAll()` is paginated (`UserList`). Use `createPagination()` + `DataTable`; do not render
   an unpaginated directory.

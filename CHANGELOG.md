@@ -52,7 +52,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the header says why. The blueprint shows two nodes with the same id in red and does not
   change them; it no longer renames one of them without a word.
 - The account page uses the width of the screen: three columns on a wide screen, one on a
-  phone. The list of sessions scrolls inside its card, so the page does not get longer.
+  phone. The list of sessions scrolls inside its section, so the page does not get longer.
 
 ### Fixed
 
