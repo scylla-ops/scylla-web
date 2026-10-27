@@ -124,11 +124,11 @@ describe('AccountPage', () => {
     expect(repository.getMe).toHaveBeenCalled();
   });
 
-  it('shows the identity block with the handle and the role of the first system grant', async () => {
+  it('shows the identity card with the handle and the role of the first system grant', async () => {
     setUp();
 
     const handle = await screen.findByText('@ada');
-    const card = handle.closest<HTMLElement>('[data-slot="user-identity"]')!;
+    const card = handle.closest<HTMLElement>('[data-slot="card"]')!;
     expect(within(card).getByText('Ada Lovelace')).toBeInTheDocument();
     expect(within(card).getByText('ada@example.com')).toBeInTheDocument();
     expect(await within(card).findByText('System admin')).toHaveAttribute('data-slot', 'badge');
@@ -137,7 +137,7 @@ describe('AccountPage', () => {
   it('shows no role badge for a user with no system grant', async () => {
     setUp({ listAccess: vi.fn().mockResolvedValue(access.slice(1)) });
 
-    const card = (await screen.findByText('@ada')).closest<HTMLElement>('[data-slot="user-identity"]')!;
+    const card = (await screen.findByText('@ada')).closest<HTMLElement>('[data-slot="card"]')!;
     await screen.findByText('Organization admin');
     expect(within(card).queryByText('Organization admin')).not.toBeInTheDocument();
     expect(card.querySelectorAll('[data-slot="badge"]')).toHaveLength(1);
