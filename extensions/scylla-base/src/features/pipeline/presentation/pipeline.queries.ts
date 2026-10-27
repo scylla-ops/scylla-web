@@ -4,7 +4,7 @@ import { scyllaNavigate, contextStore } from '@platform/context';
 import { JOBS_QUERY_KEY } from '@base/features/jobs';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import { toast } from '@scylla/ui/utils';
-import { ScyllaError } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import type { PipelineEntity, PipelineMetadata } from '../domain/entities/pipeline.entity.ts';
 import {
@@ -52,8 +52,7 @@ export const pipelineQueries = {
     queryOptions<PaginatedList<PipelineMetadata>>({
       queryKey: PIPELINES_QUERY_KEY(projectId, pagination),
       enabled: (options.enabled ?? true) && !!projectId,
-      queryFn: async () =>
-        (await repository().getMetadataByProjectId(projectId, pagination)).unwrap(),
+      queryFn: () => repository().getMetadataByProjectId(projectId, pagination),
       staleTime: 5_000,
     }),
 
@@ -62,10 +61,8 @@ export const pipelineQueries = {
     queryOptions<PaginatedList<PipelineMetadata>>({
       queryKey: ORGANIZATION_PIPELINES_QUERY_KEY(organizationId, PIPELINES_LOOKUP_PAGE),
       enabled: !!organizationId,
-      queryFn: async () =>
-        (
-          await repository().getMetadataByOrganizationId(organizationId!, PIPELINES_LOOKUP_PAGE)
-        ).unwrap(),
+      queryFn: () =>
+        repository().getMetadataByOrganizationId(organizationId!, PIPELINES_LOOKUP_PAGE),
       staleTime: 30_000,
     }),
 
@@ -73,7 +70,7 @@ export const pipelineQueries = {
     queryOptions<PipelineEntity>({
       queryKey: PIPELINE_QUERY_KEY(pipelineId),
       enabled: !!pipelineId,
-      queryFn: async () => (await repository().getById(pipelineId)).unwrap(),
+      queryFn: () => repository().getById(pipelineId),
       staleTime: 30_000,
     }),
 };
@@ -83,20 +80,20 @@ export const nodeTemplateQueries = {
   list: () =>
     queryOptions<NodeTemplateEntity[]>({
       queryKey: NODE_TEMPLATES_QUERY_KEY(),
-      queryFn: async () => (await templateRepository().list()).unwrap(),
+      queryFn: () => templateRepository().list(),
       staleTime: Infinity,
     }),
 };
 
 /** A pipeline the domain refuses gets the error toast of the app, in the language of the user. */
-const save = async (input: SavePipelineInput) =>
-  (await savePipeline().execute(input))
-    .mapError(error =>
-      error instanceof InvalidPipelineError
-        ? new ScyllaError(pipelineIssueText(error.issue))
-        : error,
-    )
-    .unwrap();
+const save = async (input: SavePipelineInput) => {
+  try {
+    await savePipeline().execute(input);
+  } catch (error) {
+    if (!(error instanceof InvalidPipelineError)) throw error;
+    throw new ScyllaError(pipelineIssueText(error.issue), { code: error.code, cause: error });
+  }
+};
 
 /** Needs the name too: `goToProject` writes it into the context (the breadcrumb). */
 const returnToProject = () => {
@@ -132,8 +129,7 @@ export const pipelineMutations = {
 
   remove: () =>
     mutationOptions({
-      mutationFn: async (pipelineId: string) =>
-        (await repository().deleteById(pipelineId)).unwrap(),
+      mutationFn: (pipelineId: string) => repository().deleteById(pipelineId),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.PIPELINE_DELETE));
         void getQueryClient().invalidateQueries({ queryKey: PIPELINES_QUERY_ROOT });
@@ -144,7 +140,7 @@ export const pipelineMutations = {
   duplicate: () =>
     mutationOptions({
       mutationFn: async (pipelineId: string) => {
-        const pipeline = (await repository().getById(pipelineId)).unwrap();
+        const pipeline = await repository().getById(pipelineId);
 
         await save({
           projectId: pipeline.projectId,
@@ -163,7 +159,7 @@ export const pipelineMutations = {
   run: () =>
     mutationOptions({
       mutationKey: RUN_PIPELINE_MUTATION_KEY,
-      mutationFn: async (pipelineId: string) => (await repository().run(pipelineId)).unwrap(),
+      mutationFn: (pipelineId: string) => repository().run(pipelineId),
       onSuccess: (_data, pipelineId) => {
         void getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId) });
       },

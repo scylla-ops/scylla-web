@@ -166,7 +166,7 @@ two names clash.
 | Use case | `{Verb}{Entity}UseCase` | `UpdateRoleUseCase` |
 | Repository implementation | `Default{Entity}Repository` | `DefaultUserRepository` |
 | ViewModel class | `{View}State` | `LoginState` |
-| Error / result | `ScyllaError`, `ScyllaResult<T>` | — |
+| Error | `ScyllaError`, `ScyllaErrorCode` | — |
 
 ### 2.4 Enums
 

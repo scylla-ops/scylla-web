@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { type Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
 import AppsPage from './Apps.page.svelte';
 
@@ -39,11 +39,9 @@ const grant = (permissions: Permission[] | 'all') =>
   });
 
 beforeEach(() => {
-  listApps = vi.fn().mockResolvedValue(ScyllaResult.success([app()]));
-  createApp = vi
-    .fn()
-    .mockResolvedValue(ScyllaResult.success({ app: app({ id: 'app-new' }), secret: 'sk-once' }));
-  deleteApp = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
+  listApps = vi.fn().mockResolvedValue([app()]);
+  createApp = vi.fn().mockResolvedValue({ app: app({ id: 'app-new' }), secret: 'sk-once' });
+  deleteApp = vi.fn().mockResolvedValue(undefined);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -84,23 +82,21 @@ describe('AppsPage', () => {
   });
 
   it('explains the empty state instead of showing a bare list', async () => {
-    listApps.mockResolvedValue(ScyllaResult.success([]));
+    listApps.mockResolvedValue([]);
     render(AppsPage);
 
     expect(await screen.findByText('No apps yet')).toBeInTheDocument();
   });
 
   it('offers to create the first app when the caller may', async () => {
-    listApps.mockResolvedValue(ScyllaResult.success([]));
+    listApps.mockResolvedValue([]);
     render(AppsPage);
 
     expect(await screen.findByRole('button', { name: 'Create your first app' })).toBeInTheDocument();
   });
 
   it('reports a failed load rather than an empty list', async () => {
-    listApps.mockResolvedValue(
-      ScyllaResult.error(new ScyllaError('boom', { cause: { code: 'INTERNAL' } })),
-    );
+    listApps.mockRejectedValue(new ScyllaError('boom', { code: 'INTERNAL' }));
     render(AppsPage);
 
     expect(await screen.findByText('Error loading apps')).toBeInTheDocument();

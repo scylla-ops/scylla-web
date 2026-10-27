@@ -140,7 +140,7 @@ features/                 the business modules.  May import platform + shared, n
 platform/                 cross-cutting capabilities that own a domain: authz, context, grpc.
                           MUST NEVER import a feature.
   ↓
-shared/                   shared code with a business meaning (ScyllaResult, status presentation).
+shared/                   shared code with a business meaning (ScyllaError, status presentation).
                           Generic UI goes to @scylla/ui.
 ```
 
@@ -397,18 +397,39 @@ export class ScyllaBaseExtension {}
 
 ---
 
-## Error Handling — `ScyllaResult<T>`
+## Error Handling — `ScyllaError`
 
-All async operations return `ScyllaResult<T>` (a Result type), not raw throws.
+A repository method returns `Promise<T>`. On failure, it rejects with a `ScyllaError`. There is
+no Result type: TanStack Query already holds the success or the failure of each call.
+
+- **The transport makes the error.** `@platform/grpc` rejects every failed call with a
+  `ScyllaError` that has the gRPC code (`code`) and the decoded server message. A request that
+  does not get to the server is `UNAVAILABLE`. A repository only awaits the call.
+- **A query or a mutation returns the call:** `queryFn: () => repository().list(id)`. Do not
+  catch an error there. The global handler of the shell (`reportQueryError`) shows the one
+  error toast of the app, and `retryQueryError` retries only a transient code.
+- **To give a code a more precise meaning, catch, re-code and throw**, in the repository (the
+  `login` repository makes `UNAUTHENTICATED` into `INVALID_CREDENTIALS`).
+- **To show a refusal beside a field, not in the toast,** use `refusalOf(call)`: it gives the
+  message of a `FAILED_PRECONDITION` and throws any other error.
+- **Read an unknown value with `ScyllaError.from(error)`**: a `ScyllaError` stays as it is, an
+  error that carries a gRPC code keeps it, anything else is `UNKNOWN_ERROR`.
+- `userMessage()` gives the server message only for the codes that the user can act on
+  (`INVALID_ARGUMENT`, `FAILED_PRECONDITION`, `ALREADY_EXISTS`, `RESOURCE_EXHAUSTED`,
+  `NOT_FOUND`, `INVALID_CREDENTIALS`). For all other codes, it gives a generic text. A
+  ``new ScyllaError(t`…`, { code })`` is a message of the app: it shows whatever its code.
 
 ```typescript
-const result = await ScyllaResult.tryAsync(async () => api.call(), 'Error message');
-result.fold({ onSuccess: data => ..., onError: err => ... });
-const data = result.unwrap(); // or throw on error
+try {
+  await repository().create(input);
+} catch (error) {
+  if (ScyllaError.from(error).isAlreadyExists()) return null;
+  throw error;
+}
 ```
 
-In query and mutation options, call `.unwrap()` inside `mutationFn`/`queryFn` so TanStack Query handles the error. `ScyllaError` extends `Error` with gRPC code extraction. It lives in scylla-base
-`shared/utils/scylla-result.ts`; other extensions get it from `@scylla/base-sdk`.
+`ScyllaError` is in scylla-base `shared/utils/scylla-error.ts`. Other extensions get it from
+`@scylla/base-sdk`.
 
 ---
 
@@ -870,7 +891,7 @@ Because of that, the tooling of this repo must work from another root. Keep it s
    `@Extension({ id, name, version, dependencies, modules, widgetInjections?, catalogs })` class,
    and `src/index.ts` that exports it — and nothing else.
 4. Use scylla-base through `@scylla/base-sdk` only: `Permission`, `can`, `contextStore`,
-   `grpcTransport`, `ScyllaResult`, the feature queries. Need more? Export it from the owning
+   `grpcTransport`, `ScyllaError`, the feature queries. Need more? Export it from the owning
    feature's `index.ts`.
 5. Changing another extension's UI (a text, a zone, a value it exposes) instead of adding your
    own page? That is a **widget injection**, not a module: a `*.widget-injection.ts`, listed in

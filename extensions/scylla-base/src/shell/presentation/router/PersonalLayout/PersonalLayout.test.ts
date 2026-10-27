@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import PersonalLayoutFixture from './PersonalLayout.fixture.svelte';
 
 let teardown: Array<() => void> = [];
@@ -14,9 +13,7 @@ beforeEach(() => {
   const cache = withQueryClient();
   const getMe = vi
     .fn()
-    .mockResolvedValue(
-      ScyllaResult.success({ userId: 'user-1', username: 'ada', isActive: true, updatedAt: '' }),
-    );
+    .mockResolvedValue({ userId: 'user-1', username: 'ada', isActive: true, updatedAt: '' });
   teardown = [cache.restore, withRegistry({ user: { userRepository: { getMe } } })];
 });
 

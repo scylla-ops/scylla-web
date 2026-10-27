@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { selectionStore } from '@scylla/ui/stores';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
 import JobsHeader from './JobsHeader.svelte';
 
@@ -30,7 +29,7 @@ let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
 beforeEach(() => {
-  deleteById.mockReset().mockResolvedValue(ScyllaResult.success(undefined));
+  deleteById.mockReset().mockResolvedValue(undefined);
   cache = withQueryClient();
   restoreRegistry = withRegistry({
     jobs: { jobsRepository: { deleteById } as unknown as JobsRepository },

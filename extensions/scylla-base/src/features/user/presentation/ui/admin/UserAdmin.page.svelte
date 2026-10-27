@@ -7,7 +7,7 @@
   import { createFeatureSelection } from '@scylla/ui/state';
   import { toast } from '@scylla/ui/utils';
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
-  import { ScyllaError } from '@shared/utils/scylla-result.ts';
+  import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import { t } from '@scylla/ui/i18n';
   import { userMutations, userQueries } from '@base/features/user/presentation/user.queries.ts';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';

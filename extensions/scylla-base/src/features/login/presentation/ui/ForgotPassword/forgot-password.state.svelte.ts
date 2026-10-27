@@ -1,5 +1,5 @@
 import { createMutation, getModuleDomain } from '@scylla/core-sdk';
-import type { ScyllaError } from '@shared/utils/scylla-result.ts';
+import type { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { PasswordResetDelivery } from '@base/features/login/domain/structs/password-reset.struct.ts';
 import type { LoginModule } from '@base/features/login/login.module.ts';
 
@@ -8,8 +8,7 @@ export class ForgotPasswordState {
   private readonly repository = getModuleDomain<typeof LoginModule.domain>('login').loginRepository;
 
   private readonly mutation = createMutation<PasswordResetDelivery, ScyllaError, string>(() => ({
-    mutationFn: async (email: string) =>
-      (await this.repository.requestPasswordReset(email.trim())).unwrap(),
+    mutationFn: (email: string) => this.repository.requestPasswordReset(email.trim()),
   }));
 
   get isPending(): boolean {

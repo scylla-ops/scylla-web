@@ -3,14 +3,7 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
-import {
-  findFloating,
-  focusSettled,
-  render,
-  withQueryClient,
-  withRegistry,
-} from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { findFloating, focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import type { TriggersRepository } from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
@@ -38,9 +31,9 @@ let restoreRegistry: () => void;
 let navigator: ReturnType<typeof installTestNavigator>;
 
 beforeEach(() => {
-  listByPipelineId = vi.fn().mockResolvedValue(ScyllaResult.success([trigger()]));
-  create = vi.fn().mockResolvedValue(ScyllaResult.success({ trigger: trigger() }));
-  update = vi.fn().mockResolvedValue(ScyllaResult.success(trigger()));
+  listByPipelineId = vi.fn().mockResolvedValue([trigger()]);
+  create = vi.fn().mockResolvedValue({ trigger: trigger() });
+  update = vi.fn().mockResolvedValue(trigger());
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -114,7 +107,7 @@ describe('TriggerEditorPage — create mode', () => {
 
   it('reveals a webhook secret once, and goes back to the list when it is closed', async () => {
     create.mockResolvedValue(
-      ScyllaResult.success({ trigger: trigger({ name: 'hook' }), webhookSecret: 'whsec-once' }),
+      { trigger: trigger({ name: 'hook' }), webhookSecret: 'whsec-once' },
     );
     render(TriggerEditorPage, props());
     await focusSettled();
@@ -183,7 +176,7 @@ describe('TriggerEditorPage — edit mode', () => {
 
   it('updates by trigger id rather than creating a second one, then goes back to the list', async () => {
     listByPipelineId.mockResolvedValue(
-      ScyllaResult.success([trigger({ id: 'trigger-9' })]),
+      [trigger({ id: 'trigger-9' })],
     );
     render(TriggerEditorPage, props({ triggerId: 'trigger-9' }));
     await focusSettled();
@@ -208,7 +201,7 @@ describe('TriggerEditorPage — edit mode', () => {
 
   it('refuses to re-send a source arm this build cannot render', async () => {
     listByPipelineId.mockResolvedValue(
-      ScyllaResult.success([trigger({ source: { kind: TriggerKind.Unknown } })]),
+      [trigger({ source: { kind: TriggerKind.Unknown } })],
     );
     render(TriggerEditorPage, props({ triggerId: 'trigger-1' }));
 
@@ -219,7 +212,7 @@ describe('TriggerEditorPage — edit mode', () => {
 
   it('keeps a webhook trigger on its signature header field', async () => {
     listByPipelineId.mockResolvedValue(
-      ScyllaResult.success([
+      [
         trigger({
           source: {
             kind: TriggerKind.Webhook,
@@ -227,7 +220,7 @@ describe('TriggerEditorPage — edit mode', () => {
             webhookUrl: 'https://x/y',
           },
         }),
-      ]),
+      ],
     );
     render(TriggerEditorPage, props({ triggerId: 'trigger-1' }));
 

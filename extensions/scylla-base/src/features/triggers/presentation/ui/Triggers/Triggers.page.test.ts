@@ -6,7 +6,7 @@ import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type {
   TriggersRepository,
 } from '@base/features/triggers/domain/repository/triggers.repository.ts';
@@ -34,7 +34,7 @@ let restoreRegistry: () => void;
 const props = { pipelineId: 'pipeline-1', projectId: 'project-1' };
 
 beforeEach(() => {
-  listByPipelineId = vi.fn().mockResolvedValue(ScyllaResult.success([trigger()]));
+  listByPipelineId = vi.fn().mockResolvedValue([trigger()]);
   navigator = installTestNavigator({
     pathname: '/acme/projects/project-1/pipelines/pipeline-1/triggers',
   });
@@ -89,7 +89,7 @@ describe('TriggersPage', () => {
   });
 
   it('explains an empty pipeline instead of showing a bare table', async () => {
-    listByPipelineId.mockResolvedValue(ScyllaResult.success([]));
+    listByPipelineId.mockResolvedValue([]);
     render(TriggersPage, props);
 
     expect(await screen.findByText('No triggers yet')).toBeInTheDocument();
@@ -104,8 +104,8 @@ describe('TriggersPage', () => {
   });
 
   it("surfaces the backend's own message when the list fails", async () => {
-    const error = new ScyllaError('nope', { cause: { code: 'PERMISSION_DENIED' } });
-    listByPipelineId.mockResolvedValue(ScyllaResult.error(error));
+    const error = new ScyllaError('nope', { code: 'PERMISSION_DENIED' });
+    listByPipelineId.mockRejectedValue(error);
     render(TriggersPage, props);
 
     expect(await screen.findByText(error.userMessage())).toBeInTheDocument();

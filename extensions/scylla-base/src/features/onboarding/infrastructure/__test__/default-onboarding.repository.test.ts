@@ -7,22 +7,22 @@ describe('DefaultOnboardingRepository', () => {
   it('keeps the progress of each user apart', async () => {
     const repository = new DefaultOnboardingRepository();
 
-    (await repository.saveStatus('ada', { kind: 'skipped' })).unwrap();
+    await repository.saveStatus('ada', { kind: 'skipped' });
 
-    expect((await repository.getStatus('ada')).unwrap()).toEqual({ kind: 'skipped' });
-    expect((await repository.getStatus('grace')).unwrap()).toEqual({ kind: 'not-started' });
+    expect(await repository.getStatus('ada')).toEqual({ kind: 'skipped' });
+    expect(await repository.getStatus('grace')).toEqual({ kind: 'not-started' });
   });
 
   it('resumes a tour in progress at its step', async () => {
     const repository = new DefaultOnboardingRepository();
     const status = { kind: 'in-progress', step: 'copy-secret' } as const;
 
-    (await repository.saveStatus('ada', status)).unwrap();
+    await repository.saveStatus('ada', status);
 
-    expect((await repository.getStatus('ada')).unwrap()).toEqual(status);
+    expect(await repository.getStatus('ada')).toEqual(status);
   });
 
-  it('reports a storage that refuses the write instead of throwing', async () => {
+  it('rejects when the storage refuses the write, instead of throwing in the caller', async () => {
     const full = {
       getItem: () => null,
       setItem: () => {
@@ -31,8 +31,8 @@ describe('DefaultOnboardingRepository', () => {
     };
     const repository = new DefaultOnboardingRepository(() => full);
 
-    const result = await repository.saveStatus('ada', { kind: 'completed' });
-
-    expect(() => result.unwrap()).toThrow('Failed to save the onboarding progress');
+    await expect(repository.saveStatus('ada', { kind: 'completed' })).rejects.toThrow(
+      'QuotaExceededError',
+    );
   });
 });

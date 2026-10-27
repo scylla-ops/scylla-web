@@ -2,10 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  OrganizationRepository,
-} from '@base/features/organization/domain/repository/organization.repository.ts';
+import type { OrganizationRepository } from '@base/features/organization/domain/repository/organization.repository.ts';
 import EditOrganizationDialog from './EditOrganizationDialog.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn() } }));
@@ -17,7 +14,7 @@ const setUp = (
   organization: { id: string; name: string; description?: string },
   setOpen: (open: boolean) => void = vi.fn(),
 ) => {
-  update = vi.fn().mockResolvedValue(ScyllaResult.success({ ...organization }));
+  update = vi.fn().mockResolvedValue({ ...organization });
   const repository = { update } as unknown as OrganizationRepository;
 
   const cache = withQueryClient();

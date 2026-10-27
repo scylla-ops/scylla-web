@@ -1,6 +1,6 @@
 import { createMutation, getModuleDomain } from '@scylla/core-sdk';
 import { navigateTo } from '@platform/context';
-import type { ScyllaError } from '@shared/utils/scylla-result.ts';
+import type { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { LoginModule } from '@base/features/login/login.module.ts';
 import { returnPathOf } from '../mappers/return-path.mapper.ts';
 
@@ -16,8 +16,8 @@ export class LoginState {
     .loginRepository;
 
   private readonly mutation = createMutation<void, ScyllaError, Credentials>(() => ({
-    mutationFn: async ({ identifier, password }: Credentials) =>
-      (await this.repository.login(identifier, password)).unwrap(),
+    mutationFn: ({ identifier, password }: Credentials) =>
+      this.repository.login(identifier, password),
     // The return path of `loginPath`, else `/`, which redirects to an organization.
     // `replace` keeps this page out of the history.
     onSuccess: () => navigateTo(returnPathOf(window.location.hash) ?? '/', { replace: true }),

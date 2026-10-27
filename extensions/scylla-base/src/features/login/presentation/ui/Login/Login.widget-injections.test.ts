@@ -7,7 +7,6 @@ import {
   withWidgetInjections,
 } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
 import { loginPoints } from '@base/features/login/presentation/login.points.ts';
 import LoginPage from './Login.page.svelte';
@@ -28,7 +27,7 @@ afterEach(() => teardown.forEach(restore => restore()));
 
 const setUp = () => {
   const cache = withQueryClient();
-  const login = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
+  const login = vi.fn().mockResolvedValue(undefined);
   const loginRepository: LoginRepository = {
     login,
     requestPasswordReset: vi.fn(),

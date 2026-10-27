@@ -12,7 +12,7 @@ import { selectionStore } from '@scylla/ui/stores';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import PlatformRolesPage from './PlatformRoles.page.svelte';
@@ -69,11 +69,11 @@ const withPermissions = (permissions: Permission[] | 'all') =>
   });
 
 beforeEach(() => {
-  listRoles = vi.fn().mockResolvedValue(ScyllaResult.success([custom(), builtin]));
-  listGrants = vi.fn().mockResolvedValue(ScyllaResult.success([grant()]));
-  createRole = vi.fn().mockResolvedValue(ScyllaResult.success(custom()));
-  deleteRole = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
-  revokeGrant = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
+  listRoles = vi.fn().mockResolvedValue([custom(), builtin]);
+  listGrants = vi.fn().mockResolvedValue([grant()]);
+  createRole = vi.fn().mockResolvedValue(custom());
+  deleteRole = vi.fn().mockResolvedValue(undefined);
+  revokeGrant = vi.fn().mockResolvedValue(undefined);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -85,25 +85,23 @@ beforeEach(() => {
         deleteRole,
         revokeGrant,
         createGrant: vi.fn(),
-        getMyPermissions: vi.fn().mockResolvedValue(ScyllaResult.success({ scopes: [] })),
+        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
       },
-      updateRole: { execute: vi.fn().mockResolvedValue(ScyllaResult.success(custom())) },
+      updateRole: { execute: vi.fn().mockResolvedValue(custom()) },
     },
     user: {
       userRepository: {
-        getAll: vi
-          .fn()
-          .mockResolvedValue(ScyllaResult.success({ items: [{ userId: 'user-1', username: 'ada' }] })),
+        getAll: vi.fn().mockResolvedValue({ items: [{ userId: 'user-1', username: 'ada' }] }),
       },
     },
     organization: {
       organizationRepository: {
-        getMine: vi.fn().mockResolvedValue(ScyllaResult.success([{ id: 'org-1', name: 'Acme' }])),
+        getMine: vi.fn().mockResolvedValue([{ id: 'org-1', name: 'Acme' }]),
       },
     },
     project: {
       projectRepository: {
-        getByOrganizationId: vi.fn().mockResolvedValue(ScyllaResult.success({ projects: [] })),
+        getByOrganizationId: vi.fn().mockResolvedValue({ projects: [] }),
       },
     },
   });
@@ -135,7 +133,7 @@ describe('PlatformRolesPage — the catalog', () => {
   });
 
   it('explains an empty catalog instead of showing a bare column', async () => {
-    listRoles.mockResolvedValue(ScyllaResult.success([]));
+    listRoles.mockResolvedValue([]);
     render(PlatformRolesPage);
 
     expect(
@@ -206,7 +204,7 @@ describe('PlatformRolesPage — one role in detail', () => {
   });
 
   it('explains an unheld role instead of showing an empty list', async () => {
-    listGrants.mockResolvedValue(ScyllaResult.success([]));
+    listGrants.mockResolvedValue([]);
     await openViewer();
 
     expect(await screen.findByText('No one holds this role yet.')).toBeInTheDocument();
@@ -301,8 +299,8 @@ describe('PlatformRolesPage — the role editor is a page of its own', () => {
 
 describe('PlatformRolesPage — when the backend refuses', () => {
   it("surfaces the backend's own message rather than an empty catalog", async () => {
-    const error = new ScyllaError('nope', { cause: { code: 'PERMISSION_DENIED' } });
-    listRoles.mockResolvedValue(ScyllaResult.error(error));
+    const error = new ScyllaError('nope', { code: 'PERMISSION_DENIED' });
+    listRoles.mockRejectedValue(error);
     render(PlatformRolesPage);
 
     expect(

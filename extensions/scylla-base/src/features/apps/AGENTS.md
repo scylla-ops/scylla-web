@@ -48,7 +48,7 @@ factories in `presentation/apps.queries.ts` resolve the repository through
 | `setAppSecretLabel(secretId, label)` | `AppSecretEntity`: `SetAppSecretLabel` |
 | `listAppAccess(appId)` | `AppAccess[]`: each grant with its scope, names and role |
 
-All wrapped in `ScyllaResult`. Reach it from `apps.queries.ts` only — never from a component.
+Each method rejects with a `ScyllaError` on failure. Reach it from `apps.queries.ts` only — never from a component.
 
 `ResetAppSecretUseCase` (`domain/use-cases/`, DI key `resetAppSecret`) lists the secrets,
 creates a secret with the `label` of the user, then revokes the secrets that existed before it

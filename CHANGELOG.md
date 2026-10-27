@@ -51,6 +51,14 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   node id that the server does not accept, or two nodes with the same id. Save is disabled, and
   the header says why. The blueprint shows two nodes with the same id in red and does not
   change them; it no longer renames one of them without a word.
+- **Breaking:** `ScyllaResult` is removed from `@scylla/base-sdk`. A repository returns
+  `Promise<T>` and rejects with a `ScyllaError`; a query returns the call
+  (`queryFn: () => repository().list(id)`), with no `.unwrap()`. `grpcTransport` makes every
+  failed call into a `ScyllaError`, so a repository only awaits its call. A `ScyllaError` takes
+  its code as an option (`new ScyllaError(message, { code })`) and gives it as `code` (it was
+  `getCode()`). `ScyllaError.from(error)` reads any thrown value. `refusalOf` takes the call:
+  `refusalOf(repository().resetPassword(token, password))`. The entry point of scylla-base is
+  `@scylla/base/scylla-error` (it was `@scylla/base/scylla-result`).
 
 ### Fixed
 
@@ -58,6 +66,14 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The form of a trigger no longer writes debug lines to the console.
 - The pipeline editor no longer freezes on a loop of dependencies. The blueprint refuses a link
   that closes a loop.
+- A query that the server refuses (`NOT_FOUND`, `PERMISSION_DENIED`, `INVALID_ARGUMENT`…) is not
+  sent again three times: the page shows the error, or leaves a deleted resource, at once instead
+  of after about 7 seconds. Only a network failure or a busy server is retried.
+- A network failure is "Server unreachable" in every browser. In Safari, it was a server error
+  with the text "Load failed".
+- The error toast no longer shows the text of a server fault (`INTERNAL`) or of a bug in the
+  page: it says "An unexpected error occurred". An error that is not a `ScyllaError` now shows
+  this toast too; before, it showed nothing.
 
 ## [0.5.0] - 2026-10-12
 

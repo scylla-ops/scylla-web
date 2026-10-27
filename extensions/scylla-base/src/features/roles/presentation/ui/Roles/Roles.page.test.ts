@@ -13,7 +13,6 @@ import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import RolesPage from './Roles.page.svelte';
@@ -69,15 +68,13 @@ const ACME_ADMIN: EffectiveScopeEntity = {
 };
 
 beforeEach(() => {
-  listRoles = vi.fn().mockResolvedValue(ScyllaResult.success([role(), deployBot, viewer]));
+  listRoles = vi.fn().mockResolvedValue([role(), deployBot, viewer]);
   listGrants = vi
     .fn()
     .mockImplementation((scope: PermissionScope) =>
-      Promise.resolve(
-        ScyllaResult.success(scope === PermissionScope.ORGANIZATION ? [grant()] : []),
-      ),
+      Promise.resolve(scope === PermissionScope.ORGANIZATION ? [grant()] : []),
     );
-  createRole = vi.fn().mockResolvedValue(ScyllaResult.success(role()));
+  createRole = vi.fn().mockResolvedValue(role());
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -86,21 +83,19 @@ beforeEach(() => {
         listRoles,
         listGrants,
         createRole,
-        getMyPermissions: vi.fn().mockResolvedValue(ScyllaResult.success({ scopes: [] })),
+        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
       },
-      updateRole: { execute: vi.fn().mockResolvedValue(ScyllaResult.success(role())) },
+      updateRole: { execute: vi.fn().mockResolvedValue(role()) },
     },
     organization: {
       organizationRepository: {
-        getMine: vi.fn().mockResolvedValue(ScyllaResult.success([{ id: 'org-1', name: 'Acme' }])),
-        listMembers: vi
-          .fn()
-          .mockResolvedValue(ScyllaResult.success([{ userId: 'user-1', username: 'dave' }])),
+        getMine: vi.fn().mockResolvedValue([{ id: 'org-1', name: 'Acme' }]),
+        listMembers: vi.fn().mockResolvedValue([{ userId: 'user-1', username: 'dave' }]),
       },
     },
     project: {
       projectRepository: {
-        getByOrganizationId: vi.fn().mockResolvedValue(ScyllaResult.success({ projects: [] })),
+        getByOrganizationId: vi.fn().mockResolvedValue({ projects: [] }),
       },
     },
   });

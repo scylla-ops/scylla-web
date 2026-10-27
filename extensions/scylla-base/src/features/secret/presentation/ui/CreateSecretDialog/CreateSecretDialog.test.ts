@@ -2,10 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  SecretRepository,
-} from '@base/features/secret/domain/repository/secret.repository.ts';
+import type { SecretRepository } from '@base/features/secret/domain/repository/secret.repository.ts';
 import CreateSecretDialog from './CreateSecretDialog.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn() } }));
@@ -14,16 +11,14 @@ let teardown: Array<() => void> = [];
 let create: ReturnType<typeof vi.fn>;
 
 const setUp = (props: { projectId?: string; setOpen?: (open: boolean) => void } = {}) => {
-  create = vi.fn().mockResolvedValue(
-    ScyllaResult.success({
-      id: 'secret-1',
-      projectId: props.projectId ?? 'project-1',
-      name: 'DATABASE_URL',
-      description: '',
-      createdAt: '',
-      updatedAt: '',
-    }),
-  );
+  create = vi.fn().mockResolvedValue({
+    id: 'secret-1',
+    projectId: props.projectId ?? 'project-1',
+    name: 'DATABASE_URL',
+    description: '',
+    createdAt: '',
+    updatedAt: '',
+  });
   const repository = {
     listByProjectId: vi.fn(),
     create,

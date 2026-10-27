@@ -11,7 +11,7 @@ import {
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import RoleEditorPage from './RoleEditor.page.svelte';
 
@@ -49,9 +49,9 @@ const ACME_ADMIN: EffectiveScopeEntity = {
 };
 
 beforeEach(() => {
-  listRoles = vi.fn().mockResolvedValue(ScyllaResult.success([role(), viewer]));
-  createRole = vi.fn().mockResolvedValue(ScyllaResult.success(role()));
-  updateRole = vi.fn().mockResolvedValue(ScyllaResult.success(role()));
+  listRoles = vi.fn().mockResolvedValue([role(), viewer]);
+  createRole = vi.fn().mockResolvedValue(role());
+  updateRole = vi.fn().mockResolvedValue(role());
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -59,7 +59,7 @@ beforeEach(() => {
       permissionRepository: {
         listRoles,
         createRole,
-        getMyPermissions: vi.fn().mockResolvedValue(ScyllaResult.success({ scopes: [] })),
+        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
       },
       updateRole: { execute: updateRole },
     },
@@ -128,7 +128,7 @@ describe('RoleEditorPage — creating a role of the organization', () => {
   });
 
   it('stays on the page when the backend refuses the role', async () => {
-    createRole.mockResolvedValue(ScyllaResult.error(new ScyllaError('nope')));
+    createRole.mockRejectedValue(new ScyllaError('nope'));
     render(RoleEditorPage);
 
     await userEvent.type(await screen.findByLabelText('Name'), 'Release bot');

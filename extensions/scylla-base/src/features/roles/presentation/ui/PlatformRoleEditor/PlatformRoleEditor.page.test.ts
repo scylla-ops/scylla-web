@@ -5,7 +5,6 @@ import { Permission, PermissionScope, permissionsStore, RoleKind } from '@platfo
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import PlatformRoleEditorPage from './PlatformRoleEditor.page.svelte';
 
@@ -28,9 +27,9 @@ let restoreRegistry: () => void;
 let navigator: ReturnType<typeof installTestNavigator>;
 
 beforeEach(() => {
-  listRoles = vi.fn().mockResolvedValue(ScyllaResult.success([custom()]));
-  createRole = vi.fn().mockResolvedValue(ScyllaResult.success(custom()));
-  updateRole = vi.fn().mockResolvedValue(ScyllaResult.success(custom()));
+  listRoles = vi.fn().mockResolvedValue([custom()]);
+  createRole = vi.fn().mockResolvedValue(custom());
+  updateRole = vi.fn().mockResolvedValue(custom());
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -38,7 +37,7 @@ beforeEach(() => {
       permissionRepository: {
         listRoles,
         createRole,
-        getMyPermissions: vi.fn().mockResolvedValue(ScyllaResult.success({ scopes: [] })),
+        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
       },
       updateRole: { execute: updateRole },
     },

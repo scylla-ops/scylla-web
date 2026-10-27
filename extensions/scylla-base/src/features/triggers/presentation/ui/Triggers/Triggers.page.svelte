@@ -3,7 +3,7 @@
   import { createQuery } from '@scylla/core-sdk';
   import { ErrorState } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
-  import { ScyllaError } from '@shared/utils/scylla-result.ts';
+  import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import { t } from '@scylla/ui/i18n';
   import { triggerQueries } from '@base/features/triggers/presentation/triggers.queries.ts';
   import * as triggersNavigation from '@base/features/triggers/presentation/mappers/triggers-navigation.mapper.ts';

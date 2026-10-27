@@ -12,10 +12,7 @@ import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
 import { withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  PermissionRepository,
-} from '@base/features/roles/domain/repository/permission.repository.ts';
+import type { PermissionRepository } from '@base/features/roles/domain/repository/permission.repository.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import { createRolesPage, type RolesScope } from '../roles-page.state.svelte.ts';
@@ -82,17 +79,15 @@ const ACME_ADMIN: EffectiveScopeEntity = {
 };
 
 beforeEach(() => {
-  listRoles = vi.fn().mockResolvedValue(ScyllaResult.success([role(), builtin, foreign]));
+  listRoles = vi.fn().mockResolvedValue([role(), builtin, foreign]);
   listGrants = vi
     .fn<(scope?: PermissionScope, scopeId?: string) => Promise<unknown>>()
-    .mockResolvedValue(ScyllaResult.success([grant()]));
-  deleteRole = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
-  listMembers = vi
+    .mockResolvedValue([grant()]);
+  deleteRole = vi.fn().mockResolvedValue(undefined);
+  listMembers = vi.fn().mockResolvedValue([{ userId: 'user-1', username: 'ada' }]);
+  getProjects = vi
     .fn()
-    .mockResolvedValue(ScyllaResult.success([{ userId: 'user-1', username: 'ada' }]));
-  getProjects = vi.fn().mockResolvedValue(
-    ScyllaResult.success({ projects: [{ id: 'project-1', name: 'Web', organizationId: 'org-1' }] }),
-  );
+    .mockResolvedValue({ projects: [{ id: 'project-1', name: 'Web', organizationId: 'org-1' }] });
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -106,11 +101,7 @@ beforeEach(() => {
     },
     user: {
       userRepository: {
-        getAll: vi
-          .fn()
-          .mockResolvedValue(
-            ScyllaResult.success({ items: [{ userId: 'user-1', username: 'grace' }] }),
-          ),
+        getAll: vi.fn().mockResolvedValue({ items: [{ userId: 'user-1', username: 'grace' }] }),
       },
     },
     organization: { organizationRepository: { listMembers } },
@@ -153,13 +144,11 @@ describe('createRolesPage — the platform', () => {
   });
 
   it('counts holders from the grant list it already needs, with no extra request', async () => {
-    listGrants.mockResolvedValue(
-      ScyllaResult.success([
-        grant(),
-        grant({ id: 'grant-2', principal: { kind: PrincipalKind.USER, id: 'user-2' } }),
-        grant({ id: 'grant-3', roleId: 'role-2' }),
-      ]),
-    );
+    listGrants.mockResolvedValue([
+      grant(),
+      grant({ id: 'grant-2', principal: { kind: PrincipalKind.USER, id: 'user-2' } }),
+      grant({ id: 'grant-3', roleId: 'role-2' }),
+    ]);
 
     await withPage(PLATFORM, async page => {
       await waitFor(() => expect(page.memberCountOf('role-1')).toBe(2));
@@ -269,7 +258,7 @@ describe('createRolesPage — the platform', () => {
 
 describe('createRolesPage — an organization', () => {
   beforeEach(() => {
-    listRoles.mockResolvedValue(ScyllaResult.success([builtin, auditor]));
+    listRoles.mockResolvedValue([builtin, auditor]);
     holding(ACME_ADMIN);
   });
 
@@ -290,7 +279,7 @@ describe('createRolesPage — an organization', () => {
       scope: PermissionScope.SYSTEM,
       origin: { kind: 'builtin', key: 'system-admin' },
     });
-    listRoles.mockResolvedValue(ScyllaResult.success([builtin, auditor, systemAdmin]));
+    listRoles.mockResolvedValue([builtin, auditor, systemAdmin]);
 
     await withPage(ACME, async page => {
       await waitFor(() => expect(page.roles).toHaveLength(2));
@@ -313,25 +302,23 @@ describe('createRolesPage — an organization', () => {
   it('counts the grants of the organization and of its projects', async () => {
     listGrants.mockImplementation(scope =>
       Promise.resolve(
-        ScyllaResult.success(
-          scope === PermissionScope.PROJECT
-            ? [
-                grant({
-                  id: 'grant-p',
-                  principal: { kind: PrincipalKind.USER, id: 'user-2' },
-                  roleId: 'auditor',
-                  scope: PermissionScope.PROJECT,
-                  scopeId: 'project-1',
-                }),
-                grant({
-                  id: 'grant-p2',
-                  roleId: 'auditor',
-                  scope: PermissionScope.PROJECT,
-                  scopeId: 'project-1',
-                }),
-              ]
-            : [grant({ roleId: 'auditor' })],
-        ),
+        scope === PermissionScope.PROJECT
+          ? [
+              grant({
+                id: 'grant-p',
+                principal: { kind: PrincipalKind.USER, id: 'user-2' },
+                roleId: 'auditor',
+                scope: PermissionScope.PROJECT,
+                scopeId: 'project-1',
+              }),
+              grant({
+                id: 'grant-p2',
+                roleId: 'auditor',
+                scope: PermissionScope.PROJECT,
+                scopeId: 'project-1',
+              }),
+            ]
+          : [grant({ roleId: 'auditor' })],
       ),
     );
 
@@ -390,7 +377,7 @@ describe('createRolesPage — an organization', () => {
     await withPage(ACME, async page => {
       await waitFor(() => expect(page.holdersLoading).toBe(true));
 
-      answer(ScyllaResult.success([{ userId: 'user-1', username: 'ada' }]));
+      answer([{ userId: 'user-1', username: 'ada' }]);
 
       await waitFor(() => expect(page.holdersLoading).toBe(false));
       expect(page.principalLabel(grant())).toBe('ada');

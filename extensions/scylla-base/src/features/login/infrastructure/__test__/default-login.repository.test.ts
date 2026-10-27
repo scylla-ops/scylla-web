@@ -19,7 +19,7 @@ describe('DefaultLoginRepository', () => {
   it('opens a session with the token the server gives', async () => {
     const auth = client();
 
-    (await new DefaultLoginRepository(auth).login('ada@example.com', 'hunter22')).unwrap();
+    await new DefaultLoginRepository(auth).login('ada@example.com', 'hunter22');
 
     expect(auth.login).toHaveBeenCalledWith({
       identifier: 'ada@example.com',
@@ -31,25 +31,25 @@ describe('DefaultLoginRepository', () => {
   it('re-codes UNAUTHENTICATED as wrong credentials, so the global handler does not sign out', async () => {
     const auth = client({ login: vi.fn(() => failedCall('UNAUTHENTICATED', 'no such user')) });
 
-    const result = await new DefaultLoginRepository(auth).login('ada@example.com', 'wrong');
-
-    expect(() => result.unwrap()).toThrow('Incorrect credentials');
+    await expect(
+      new DefaultLoginRepository(auth).login('ada@example.com', 'wrong'),
+    ).rejects.toMatchObject({ code: 'INVALID_CREDENTIALS', message: 'Incorrect credentials' });
     expect(hasSession()).toBe(false);
   });
 
   it('gives the delivery of a reset request in domain terms', async () => {
     const auth = client();
 
-    const result = await new DefaultLoginRepository(auth).requestPasswordReset('ada@example.com');
-
-    expect(result.unwrap()).toBe('server-log');
+    await expect(
+      new DefaultLoginRepository(auth).requestPasswordReset('ada@example.com'),
+    ).resolves.toBe('server-log');
     expect(auth.requestPasswordReset).toHaveBeenCalledWith({ email: { value: 'ada@example.com' } });
   });
 
   it('passes the token and the new password through', async () => {
     const auth = client();
 
-    (await new DefaultLoginRepository(auth).resetPassword('a-token', 'hunter22')).unwrap();
+    await new DefaultLoginRepository(auth).resetPassword('a-token', 'hunter22');
 
     expect(auth.resetPassword).toHaveBeenCalledWith({ token: 'a-token', newPassword: 'hunter22' });
   });

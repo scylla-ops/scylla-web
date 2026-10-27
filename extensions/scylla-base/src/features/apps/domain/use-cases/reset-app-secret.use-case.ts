@@ -4,7 +4,6 @@ import type {
   ResetAppSecret,
 } from '@base/features/apps/domain/entities/app.entity.ts';
 import { trimSecretLabel } from '@base/features/apps/domain/structs/secret-label.struct.ts';
-import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
 
 export interface ResetAppSecretInput {
   appId: string;
@@ -25,34 +24,21 @@ export class ResetAppSecretUseCase {
     appId,
     label,
     revokeOthers,
-  }: ResetAppSecretInput): Promise<ScyllaResult<ResetAppSecret>> {
-    const listed = await this._repository.listAppSecrets(appId);
+  }: ResetAppSecretInput): Promise<ResetAppSecret> {
+    const previous = await this._repository.listAppSecrets(appId);
+    const created = await this._repository.createAppSecret(appId, trimSecretLabel(label));
+    if (!revokeOthers) return { created, revoked: [], kept: previous, failed: [] };
 
-    return listed.flatMapAsync(async previous => {
-      const created = await this._repository.createAppSecret(appId, trimSecretLabel(label));
-
-      return created.flatMapAsync(async (credential): Promise<ScyllaResult<ResetAppSecret>> => {
-        if (!revokeOthers) {
-          return created.map(() => ({
-            created: credential,
-            revoked: [],
-            kept: previous,
-            failed: [],
-          }));
-        }
-
-        const revoked: AppSecretEntity[] = [];
-        const failed: AppSecretEntity[] = [];
-        for (const secret of previous) {
-          const result = await this._repository.revokeAppSecret(secret.id);
-          result.fold({
-            onSuccess: () => revoked.push(secret),
-            onError: () => failed.push(secret),
-          });
-        }
-
-        return created.map(() => ({ created: credential, revoked, kept: [], failed }));
-      });
-    });
+    const revoked: AppSecretEntity[] = [];
+    const failed: AppSecretEntity[] = [];
+    for (const secret of previous) {
+      try {
+        await this._repository.revokeAppSecret(secret.id);
+        revoked.push(secret);
+      } catch {
+        failed.push(secret);
+      }
+    }
+    return { created, revoked, kept: [], failed };
   }
 }

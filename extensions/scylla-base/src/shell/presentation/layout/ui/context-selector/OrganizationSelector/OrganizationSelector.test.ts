@@ -16,7 +16,6 @@ const findMenuItem = async (text: string) => {
   });
   return item as HTMLElement;
 };
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import InSidebar from '@base/shell/presentation/layout/ui/__test__/InSidebar.fixture.svelte';
 import OrganizationSelector from './OrganizationSelector.svelte';
 
@@ -38,13 +37,11 @@ beforeEach(() => {
   navigator = installTestNavigator();
   const cache = withQueryClient();
   const getMine = () =>
-    Promise.resolve(
-      ScyllaResult.success([
-        { id: 'org-1', name: 'Acme Corp' },
-        { id: 'org-2', name: 'Globex Inc' },
-      ]),
-    );
-  const create = (name: string) => Promise.resolve(ScyllaResult.success({ id: 'org-3', name }));
+    Promise.resolve([
+      { id: 'org-1', name: 'Acme Corp' },
+      { id: 'org-2', name: 'Globex Inc' },
+    ]);
+  const create = (name: string) => Promise.resolve({ id: 'org-3', name });
   teardown = [
     cache.restore,
     withRegistry({ organization: { organizationRepository: { getMine, create } } }),

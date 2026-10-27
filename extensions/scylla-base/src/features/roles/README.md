@@ -70,9 +70,8 @@ The codebase once had 65 use cases and 64 were pure forwarding — `execute(args
 
 ```typescript
 // UpdateRoleUseCase
-getRole(id)                          // read
-  .map(role => updateRole(role, changes))   // apply a pure entity function
-  .flatMapAsync(updated => repository.updateRole(updated))   // save
+const role = await repository.getRole(id);                    // read
+return repository.updateRole(updateRole(role, changes));      // apply a pure entity function, save
 ```
 
 It earns its place because it *orchestrates*: two repository calls with a pure domain

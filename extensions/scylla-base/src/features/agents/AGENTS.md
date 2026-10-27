@@ -42,7 +42,7 @@ callback, so that `can` stays reactive.
 | `listJobs(organizationId, agentId, limit)` | `AgentJob[]`: `ListOrganizationJobs` with `agent_id`, first page |
 | `listPipelineNames(organizationId)` | `PipelineName[]`: `ListOrganizationPipelines`, for the names of a job |
 
-All of them return a `ScyllaResult`. Only `agents.queries.ts` uses the repository.
+Each method rejects with a `ScyllaError` on failure. Only `agents.queries.ts` uses the repository.
 
 **`listJobs` and `listPipelineNames` are here, not in `jobs` and `pipeline`.** `jobs` (the
 `NoAgentsBanner`) and `pipeline` (the run toast) import this module. If this module imports them

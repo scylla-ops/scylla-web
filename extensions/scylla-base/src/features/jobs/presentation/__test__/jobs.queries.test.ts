@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { QueryClient } from '@tanstack/query-core';
 import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { PaginatedList } from '@scylla/ui/structs';
 import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
@@ -40,10 +39,10 @@ let invalidate: ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
   repository = {
-    getByPipelineId: vi.fn().mockResolvedValue(ScyllaResult.success(page([job()]))),
-    getByOrganizationId: vi.fn().mockResolvedValue(ScyllaResult.success(page([job()]))),
-    getById: vi.fn().mockResolvedValue(ScyllaResult.success(job())),
-    deleteById: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
+    getByPipelineId: vi.fn().mockResolvedValue(page([job()])),
+    getByOrganizationId: vi.fn().mockResolvedValue(page([job()])),
+    getById: vi.fn().mockResolvedValue(job()),
+    deleteById: vi.fn().mockResolvedValue(undefined),
     getLogs: vi.fn(),
     tailLogs: vi.fn(),
   };

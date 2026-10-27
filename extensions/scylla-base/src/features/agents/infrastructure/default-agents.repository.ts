@@ -9,7 +9,6 @@ import type {
   PipelineName,
 } from '@base/features/agents/domain/entities/agent.entity.ts';
 import type { AgentsRepository } from '@base/features/agents/domain/repository/agents.repository.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { idValue, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcAgent from './grpc-agent.mapper.ts';
 
@@ -23,73 +22,55 @@ export class DefaultAgentsRepository implements AgentsRepository {
     private readonly pipelines: IPipelineServiceClient,
   ) {}
 
-  listAgents(organizationId: string): Promise<ScyllaResult<AgentEntity[]>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.listAgents({ organizationId: wrapId(organizationId) })
-        .response;
-      return response.agents.map(agent => grpcAgent.toDomain(agent));
-    }, 'Failed to list agents');
+  async listAgents(organizationId: string): Promise<AgentEntity[]> {
+    const response = await this.client.listAgents({ organizationId: wrapId(organizationId) })
+      .response;
+    return response.agents.map(agent => grpcAgent.toDomain(agent));
   }
 
-  getAgent(agentId: string): Promise<ScyllaResult<AgentEntity>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.getAgent({ agentId: wrapId(agentId) }).response;
-      if (!response.agent) throw new Error('GetAgent returned no agent');
-      return grpcAgent.toDomain(response.agent);
-    }, 'Failed to fetch agent');
+  async getAgent(agentId: string): Promise<AgentEntity> {
+    const response = await this.client.getAgent({ agentId: wrapId(agentId) }).response;
+    if (!response.agent) throw new Error('GetAgent returned no agent');
+    return grpcAgent.toDomain(response.agent);
   }
 
-  getAgentStats(agentId: string): Promise<ScyllaResult<AgentStats>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.getAgentStats({ agentId: wrapId(agentId) }).response;
-      if (!response.stats) throw new Error('GetAgentStats returned no stats');
-      return grpcAgent.statsToDomain(response.stats);
-    }, 'Failed to fetch agent stats');
+  async getAgentStats(agentId: string): Promise<AgentStats> {
+    const response = await this.client.getAgentStats({ agentId: wrapId(agentId) }).response;
+    if (!response.stats) throw new Error('GetAgentStats returned no stats');
+    return grpcAgent.statsToDomain(response.stats);
   }
 
-  createAgent(organizationId: string, name: string): Promise<ScyllaResult<CreatedAgent>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.client.createAgent({
-        organizationId: wrapId(organizationId),
-        name,
-      }).response;
-      if (!response.agent) throw new Error('CreateAgent returned no agent');
-      return { agent: grpcAgent.toDomain(response.agent), secret: response.secret };
-    }, 'Failed to create agent');
+  async createAgent(organizationId: string, name: string): Promise<CreatedAgent> {
+    const response = await this.client.createAgent({
+      organizationId: wrapId(organizationId),
+      name,
+    }).response;
+    if (!response.agent) throw new Error('CreateAgent returned no agent');
+    return { agent: grpcAgent.toDomain(response.agent), secret: response.secret };
   }
 
-  deleteAgent(agentId: string): Promise<ScyllaResult<void>> {
-    return ScyllaResult.tryAsync(async () => {
-      await this.client.deleteAgent({ agentId: wrapId(agentId) }).response;
-    }, 'Failed to delete agent');
+  async deleteAgent(agentId: string): Promise<void> {
+    await this.client.deleteAgent({ agentId: wrapId(agentId) }).response;
   }
 
-  listJobs(
-    organizationId: string,
-    agentId: string,
-    limit: number,
-  ): Promise<ScyllaResult<AgentJob[]>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.jobs.listOrganizationJobs({
-        organizationId: wrapId(organizationId),
-        agentId: wrapId(agentId),
-        pagination: { page: 1, pageSize: limit },
-      }).response;
-      return response.jobs.map(job => grpcAgent.jobToDomain(job));
-    }, 'Failed to list the jobs of the agent');
+  async listJobs(organizationId: string, agentId: string, limit: number): Promise<AgentJob[]> {
+    const response = await this.jobs.listOrganizationJobs({
+      organizationId: wrapId(organizationId),
+      agentId: wrapId(agentId),
+      pagination: { page: 1, pageSize: limit },
+    }).response;
+    return response.jobs.map(job => grpcAgent.jobToDomain(job));
   }
 
-  listPipelineNames(organizationId: string): Promise<ScyllaResult<PipelineName[]>> {
-    return ScyllaResult.tryAsync(async () => {
-      const response = await this.pipelines.listOrganizationPipelines({
-        organizationId: wrapId(organizationId),
-        pagination: { page: 1, pageSize: PIPELINE_NAMES_PAGE_SIZE },
-      }).response;
-      return response.pipelines.map(pipeline => ({
-        id: idValue(pipeline.pipelineId),
-        projectId: idValue(pipeline.projectId),
-        name: pipeline.name,
-      }));
-    }, 'Failed to list the pipelines');
+  async listPipelineNames(organizationId: string): Promise<PipelineName[]> {
+    const response = await this.pipelines.listOrganizationPipelines({
+      organizationId: wrapId(organizationId),
+      pagination: { page: 1, pageSize: PIPELINE_NAMES_PAGE_SIZE },
+    }).response;
+    return response.pipelines.map(pipeline => ({
+      id: idValue(pipeline.pipelineId),
+      projectId: idValue(pipeline.projectId),
+      name: pipeline.name,
+    }));
   }
 }
