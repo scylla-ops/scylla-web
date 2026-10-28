@@ -6,7 +6,7 @@ import type {
   AgentStats,
   AgentEntity,
   AgentJob,
-  PipelineName,
+  AgentJobPipeline,
 } from '@base/features/agents/domain/entities/agent.entity.ts';
 import type { AgentsRepository } from '@base/features/agents/domain/repository/agents.repository.ts';
 import { idValue, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
@@ -62,7 +62,7 @@ export class DefaultAgentsRepository implements AgentsRepository {
     return response.jobs.map(job => grpcAgent.jobToDomain(job));
   }
 
-  async listPipelineNames(organizationId: string): Promise<PipelineName[]> {
+  async listPipelineNames(organizationId: string): Promise<AgentJobPipeline[]> {
     const response = await this.pipelines.listOrganizationPipelines({
       organizationId: wrapId(organizationId),
       pagination: { page: 1, pageSize: PIPELINE_NAMES_PAGE_SIZE },

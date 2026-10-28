@@ -40,7 +40,12 @@ callback, so that `can` stays reactive.
 | `createAgent(organizationId, name)` | `CreatedAgent` (the secret, one time) |
 | `deleteAgent(agentId)` | `void` |
 | `listJobs(organizationId, agentId, limit)` | `AgentJob[]`: `ListOrganizationJobs` with `agent_id`, first page |
-| `listPipelineNames(organizationId)` | `PipelineName[]`: `ListOrganizationPipelines`, for the names of a job |
+| `listPipelineNames(organizationId)` | `AgentJobPipeline[]`: `ListOrganizationPipelines`, for the names of a job |
+
+`AgentJob` and `AgentJobPipeline` are projections of a job and of a pipeline, owned here.
+`agents` cannot import `jobs` or `pipeline`, not even a type: both import `agents`, and the
+module graph must stay free of cycles. The status vocabulary that `jobs` and `agents` share,
+`JobStatus`, is in `@shared/domain/structs/job-status.struct.ts`.
 
 Each method rejects with a `ScyllaError` on failure. Only `agents.queries.ts` uses the repository.
 
@@ -68,9 +73,10 @@ checks `LIST_PIPELINES_BY_ORGANIZATION` and runs only once a job shows.
 agents.module.ts                       routes + nav + DI wiring (private; registry only)
 index.ts                               public API
 domain/
-  entities/agent.entity.ts             AgentEntity, AgentHost, agentStateOf (pure), AgentStats,
-                                       DailyOutcome, CreatedAgent, AgentJob, PipelineName
-  structs/agent-state.struct.ts        AgentState, isOnline (pure)
+  entities/agent.entity.ts             AgentEntity, AgentHost, AgentState, agentStateOf and
+                                       isOnline (pure), AgentStats, DailyOutcome, CreatedAgent,
+                                       AgentJob (its status is a JobStatus of `@shared`),
+                                       AgentJobPipeline
   repository/agents.repository.ts      the contract
 infrastructure/
   default-agents.repository.ts         AgentAdmin, Job, Pipeline clients → domain types

@@ -2,15 +2,18 @@ import type {
   JobEntity,
   JobNodeExecution,
   JobLog,
+  NodeExecutionState,
 } from '@base/features/jobs/domain/entities/job.entity.ts';
-import type {
-  Job,
-  JobNode,
-  JobLogEntry,
-  ListPipelineJobsResponse,
-  ListJobLogsResponse,
+import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
+import {
+  type Job,
+  type JobLogEntry,
+  type JobNode,
+  JobOutcome,
+  type ListJobLogsResponse,
+  type ListPipelineJobsResponse,
+  NodeOutcome,
 } from '@base/generated/scylla/job/v1/job.ts';
-import { JobOutcome, NodeOutcome } from '@base/generated/scylla/job/v1/job.ts';
 import { LogStream } from '@base/generated/scylla/common/v1/common.ts';
 import type { PaginationInfo, PaginatedList } from '@scylla/ui/structs';
 
@@ -22,7 +25,7 @@ import {
 } from '@shared/infrastructure/grpc/wrappers.ts';
 
 /** An arm newer than this build becomes `unknown`. */
-function jobStatusFromState(state: Job['state']): string {
+function jobStatusFromState(state: Job['state']): JobStatus {
   switch (state.oneofKind) {
     case 'pending':
       return 'pending';
@@ -35,7 +38,7 @@ function jobStatusFromState(state: Job['state']): string {
   }
 }
 
-function jobOutcomeToStatus(outcome: JobOutcome): string {
+function jobOutcomeToStatus(outcome: JobOutcome): JobStatus {
   switch (outcome) {
     case JobOutcome.COMPLETED:
       return 'completed';
@@ -52,7 +55,7 @@ function jobOutcomeToStatus(outcome: JobOutcome): string {
 }
 
 /** An arm newer than this build becomes `unknown`. */
-function nodeStateFromExecution(execution: JobNode['execution']): string {
+function nodeStateFromExecution(execution: JobNode['execution']): NodeExecutionState {
   switch (execution.oneofKind) {
     case 'pending':
       return 'pending';
@@ -65,7 +68,7 @@ function nodeStateFromExecution(execution: JobNode['execution']): string {
   }
 }
 
-function nodeOutcomeToState(outcome: NodeOutcome): string {
+function nodeOutcomeToState(outcome: NodeOutcome): NodeExecutionState {
   switch (outcome) {
     case NodeOutcome.COMPLETED:
       return 'completed';

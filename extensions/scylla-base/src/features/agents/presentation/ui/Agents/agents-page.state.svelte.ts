@@ -4,15 +4,13 @@ import { createQueries, createQuery } from '@scylla/core-sdk';
 import { createNow } from '@scylla/ui/state';
 import { toRune } from '@scylla/ui/stores';
 import { appQueries, type AppAccess } from '@base/features/apps';
-import type {
-  AgentEntity,
-  AgentStats,
-} from '@base/features/agents/domain/entities/agent.entity.ts';
 import {
-  isOnline,
+  type AgentEntity,
   type AgentState,
-} from '@base/features/agents/domain/structs/agent-state.struct.ts';
-import { agentStateOf } from '@base/features/agents/domain/entities/agent.entity.ts';
+  agentStateOf,
+  type AgentStats,
+  isOnline,
+} from '@base/features/agents/domain/entities/agent.entity.ts';
 import { summarizeAgents } from '@base/features/agents/presentation/presenters/agents-summary.presenter.ts';
 import { agentQueries } from '@base/features/agents/presentation/agents.queries.ts';
 

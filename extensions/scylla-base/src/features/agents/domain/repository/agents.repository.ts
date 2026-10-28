@@ -3,7 +3,7 @@ import type {
   AgentStats,
   AgentEntity,
   AgentJob,
-  PipelineName,
+  AgentJobPipeline,
 } from '@base/features/agents/domain/entities/agent.entity.ts';
 
 export interface AgentsRepository {
@@ -16,5 +16,5 @@ export interface AgentsRepository {
   /** The latest jobs the server placed on the agent, at any state, newest first. */
   listJobs(organizationId: string, agentId: string, limit: number): Promise<AgentJob[]>;
   /** The pipelines of the organization, for the names of the recent jobs. */
-  listPipelineNames(organizationId: string): Promise<PipelineName[]>;
+  listPipelineNames(organizationId: string): Promise<AgentJobPipeline[]>;
 }

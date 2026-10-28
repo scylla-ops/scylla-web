@@ -1,5 +1,5 @@
 import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
-import { isFinishedStatus } from '@base/features/jobs/domain/structs/job-status.struct.ts';
+import { isFinishedStatus } from '@shared/domain/structs/job-status.struct.ts';
 
 /** Over the fetched page only: the backend has no organization aggregate. Say so where it is shown (`isPartialWindow`). */
 export interface JobsSummary {

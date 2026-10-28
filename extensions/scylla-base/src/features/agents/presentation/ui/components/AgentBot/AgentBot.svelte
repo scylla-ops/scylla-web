@@ -1,7 +1,7 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { AgentState } from '@base/features/agents/domain/structs/agent-state.struct.ts';
+  import type { AgentState } from '@base/features/agents/domain/entities/agent.entity.ts';
   import { agentBotMessages } from '@base/features/agents/presentation/messages/agent-bot.messages.ts';
 
   interface Props {

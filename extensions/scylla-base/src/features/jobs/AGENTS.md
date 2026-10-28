@@ -67,8 +67,8 @@ Each method rejects with a `ScyllaError` on failure. Reach it from `jobs.queries
 jobs.module.ts                       DI wiring + the job details route (no nav)
 index.ts                             public API
 domain/
-  entities/job.entity.ts             JobEntity, JobNodeExecution, JobLog, JobLogStream
-  structs/job-status.struct.ts       JobStatus, isActiveStatus, isFinishedStatus (pure)
+  entities/job.entity.ts             JobEntity, JobNodeExecution, NodeExecutionState, JobLog,
+                                     JobLogStream
   repository/jobs.repository.ts
 infrastructure/
   default-jobs.repository.ts       JobServiceClient → JobEntity; tailLogs maps the stream
@@ -111,8 +111,10 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
   details page) stays internal. Never hand-write `['jobs', ...]`.
 - `JOBS_QUERY_ROOT` is the prefix for "invalidate everything jobs-related" after a run;
   `JOBS_QUERY_KEY(pipelineId)` is exact. Pick deliberately.
-- **`isActiveStatus` and `isFinishedStatus` are rules of the domain** (`job-status.struct.ts`), and
-  `summarizeJobs` is a presenter. Status logic goes there, not into a component.
+- **`JobStatus`, `isActiveStatus` and `isFinishedStatus` are rules of the domain**, shared with
+  `agents`: they are in `@shared/domain/structs/job-status.struct.ts`, and this barrel
+  re-exports them. `JobEntity.status` is a `JobStatus`: the mapper gives `unknown` for an arm
+  newer than this build. `summarizeJobs` is a presenter. Status logic goes there, not into a component.
 - **Log tailing is a subscription to something outside the framework**, so it is a Svelte
   action / `*.state.svelte.ts` owner — `tail-job-logs.state.svelte.ts` — and never reactivity. It opens the
   stream and **closes it on teardown**; the same holds for `streamed-log-view.state.svelte.ts`, which

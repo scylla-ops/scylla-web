@@ -1,4 +1,4 @@
-import type { AgentState } from '../structs/agent-state.struct.ts';
+import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
 
 export interface AgentEntity {
   id: string;
@@ -26,6 +26,10 @@ export interface AgentHost {
   totalMemoryMb: number | null;
   reportedAt: string;
 }
+
+export type AgentState = 'idle' | 'running' | 'offline' | 'never' | 'disabled';
+
+export const isOnline = (state: AgentState): boolean => state === 'idle' || state === 'running';
 
 /**
  * Disabled first: the server closes the stream of a disabled agent. A job can stay in flight
@@ -75,16 +79,15 @@ export interface CreatedAgent {
 export interface AgentJob {
   id: string;
   pipelineId: string;
-  /** `pending`, `running`, `completed`, `failed`, `cancelled`, `orphaned` or `unknown`. */
-  status: string;
+  status: JobStatus;
   createdAt: string;
   /** Unset before an agent starts it. */
   startedAt?: string;
   finishedAt?: string;
 }
 
-/** The name of a pipeline and its project: a job carries the pipeline id only. */
-export interface PipelineName {
+/** The pipeline of an agent job, with its project and its name: a job carries the pipeline id only. */
+export interface AgentJobPipeline {
   id: string;
   projectId: string;
   name: string;

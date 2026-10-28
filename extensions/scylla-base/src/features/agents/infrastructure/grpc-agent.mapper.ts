@@ -10,21 +10,22 @@ import type {
   AgentJob,
 } from '../domain/entities/agent.entity.ts';
 import { JobOutcome, type Job as ProtoJob } from '@base/generated/scylla/job/v1/job.ts';
+import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
 import {
   idValue,
   timestampToIso,
   timestampToIsoOpt,
 } from '@shared/infrastructure/grpc/wrappers.ts';
 
-const OUTCOMES: Partial<Record<JobOutcome, string>> = {
+const OUTCOMES: Partial<Record<JobOutcome, JobStatus>> = {
   [JobOutcome.COMPLETED]: 'completed',
   [JobOutcome.FAILED]: 'failed',
   [JobOutcome.CANCELLED]: 'cancelled',
   [JobOutcome.ORPHANED]: 'orphaned',
 };
 
-/** The status names of `features/jobs`. An arm or an outcome newer than this build is `unknown`. */
-const jobStatusOf = (state: ProtoJob['state']): string => {
+/** An arm or an outcome newer than this build is `unknown`. */
+const jobStatusOf = (state: ProtoJob['state']): JobStatus => {
   switch (state.oneofKind) {
     case 'pending':
       return 'pending';
