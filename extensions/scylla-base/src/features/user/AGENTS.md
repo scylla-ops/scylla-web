@@ -63,8 +63,10 @@ one).
 
 `UpdateUserInput` holds the changed fields only: an absent field stays absent on the wire, and
 the server leaves it unchanged. `profileChanges` (`user.entity.ts`) builds it from the profile
-form. `groupUserAccess` (`presenters/user-access.presenter.ts`) puts the system grants apart and groups the
-others by organization.
+form. `UserAccess` is a union on `scope`: a system grant has no organization, an organization
+grant has no project. Narrow on `scope` before you read a name. The mapper maps a grant that has
+no organization as a system grant. `groupUserAccess` (`presenters/user-access.presenter.ts`) puts
+the system grants apart and groups the others by organization.
 
 ## Layout
 
@@ -72,7 +74,7 @@ others by organization.
 user.module.ts                       routes + nav + DI wiring (private; registry only)
 index.ts                             public API
 domain/
-  entities/user.entity.ts            UserEntity, UserSummary, UserList, UserAccess, UserAccessScope,
+  entities/user.entity.ts            UserEntity, UserSummary, UserList, UserAccess,
                                      the inputs, profileChanges (pure)
   entities/user-session.entity.ts    UserSessionEntity: no token, only what the list shows
   repository/user.repository.ts

@@ -3,12 +3,13 @@ import { describe, it, expect } from 'vitest';
 import type { UserAccess } from '@base/features/user/domain/entities/user.entity.ts';
 import { groupUserAccess } from '../user-access.presenter.ts';
 
-const grant = (overrides: Partial<UserAccess>): UserAccess => ({
+const grant = (
+  overrides: Partial<Extract<UserAccess, { scope: 'organization' }>> = {},
+): UserAccess => ({
   grantId: 'grant',
   scope: 'organization',
   organizationId: 'org-1',
   organizationName: 'Acme',
-  projectName: '',
   roleId: 'organization-member',
   roleName: 'Member',
   ...overrides,
@@ -16,13 +17,12 @@ const grant = (overrides: Partial<UserAccess>): UserAccess => ({
 
 describe('groupUserAccess', () => {
   it('puts the system grants in their own group', () => {
-    const system = grant({
+    const system: UserAccess = {
       grantId: 'g-system',
       scope: 'system',
-      organizationId: undefined,
-      organizationName: '',
       roleId: 'system-admin',
-    });
+      roleName: 'System admin',
+    };
 
     const grouped = groupUserAccess([system]);
 
@@ -32,12 +32,16 @@ describe('groupUserAccess', () => {
 
   it('gathers the organization and project grants of one organization', () => {
     const member = grant({ grantId: 'g-1' });
-    const projectRole = grant({
+    const projectRole: UserAccess = {
       grantId: 'g-2',
       scope: 'project',
+      organizationId: 'org-1',
+      organizationName: 'Acme',
       projectId: 'project-1',
       projectName: 'Web',
-    });
+      roleId: 'project-viewer',
+      roleName: 'Viewer',
+    };
 
     expect(groupUserAccess([member, projectRole]).organizations).toEqual([
       { organizationId: 'org-1', organizationName: 'Acme', grants: [member, projectRole] },

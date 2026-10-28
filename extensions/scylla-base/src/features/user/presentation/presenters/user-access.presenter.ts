@@ -17,7 +17,7 @@ export const groupUserAccess = (access: readonly UserAccess[]): GroupedUserAcces
   const byOrganization = new Map<string, OrganizationAccess>();
 
   for (const grant of access) {
-    if (grant.scope === 'system' || !grant.organizationId) {
+    if (grant.scope === 'system') {
       system.push(grant);
       continue;
     }
