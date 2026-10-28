@@ -18,11 +18,11 @@
     provider: string;
     title: string;
     /** Spelt like the proto field. */
-    descrption: string;
+    description: string;
     class?: string;
   }
 
-  let { provider, title, descrption, class: className }: Props = $props();
+  let { provider, title, description, class: className }: Props = $props();
 </script>
 
 <Card class={cn('flex h-fit min-h-[250px] flex-col gap-2 bg-card', className)}>
@@ -35,7 +35,7 @@
 
   <CardContent class="flex-1">
     <CardTitle class="text-2xl">{title}</CardTitle>
-    <p>{descrption}</p>
+    <p>{description}</p>
   </CardContent>
 
   <CardFooter class="flex justify-end gap-2">

@@ -22,7 +22,7 @@
       class="h-50 max-w-[400px] min-w-[300px] flex-1"
       provider={item.provider}
       title={item.title}
-      descrption={item.descrption}
+      description={item.description}
     />
   {/each}
 </div>

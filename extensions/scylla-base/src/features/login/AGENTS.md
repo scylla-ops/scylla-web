@@ -53,7 +53,7 @@ login.module.ts                      routes + DI wiring (private; registry only)
 index.ts                             public API
 domain/
   repository/login.repository.ts
-  structs/password-reset.struct.ts   PasswordResetDelivery
+  structs/password-reset-delivery.struct.ts   PasswordResetDelivery
 infrastructure/
   default-login.repository.ts           AuthServiceClient; calls openSession
   grpc-password-reset.mapper.ts         proto enum → PasswordResetDelivery

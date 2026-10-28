@@ -1,6 +1,6 @@
 import { t } from '@lingui/core/macro';
 import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
-import type { PasswordResetDelivery } from '@base/features/login/domain/structs/password-reset.struct.ts';
+import type { PasswordResetDelivery } from '@base/features/login/domain/structs/password-reset-delivery.struct.ts';
 import type { IAuthServiceClient } from '@base/generated/scylla/auth/v1/auth.client.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { idValue } from '@shared/infrastructure/grpc/wrappers.ts';

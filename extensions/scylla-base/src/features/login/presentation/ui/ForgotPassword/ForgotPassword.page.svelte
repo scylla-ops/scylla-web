@@ -5,7 +5,7 @@
   import { checkEmail } from '@shared/utils/account-validation.ts';
   import type {
     PasswordResetDelivery,
-  } from '@base/features/login/domain/structs/password-reset.struct.ts';
+  } from '@base/features/login/domain/structs/password-reset-delivery.struct.ts';
   import {
     ForgotPasswordState,
   } from './forgot-password.state.svelte.ts';

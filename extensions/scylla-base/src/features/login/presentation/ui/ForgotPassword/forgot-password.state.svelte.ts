@@ -1,6 +1,6 @@
 import { createMutation, getModuleDomain } from '@scylla/core-sdk';
 import type { ScyllaError } from '@shared/utils/scylla-error.ts';
-import type { PasswordResetDelivery } from '@base/features/login/domain/structs/password-reset.struct.ts';
+import type { PasswordResetDelivery } from '@base/features/login/domain/structs/password-reset-delivery.struct.ts';
 import type { LoginModule } from '@base/features/login/login.module.ts';
 
 /** Construct it during component initialisation: `createMutation` needs an owner. */

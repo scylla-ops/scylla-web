@@ -7,7 +7,7 @@ import MarketItemList from './MarketItemList.svelte';
 const item = (overrides: Partial<MarketItem> = {}): MarketItem => ({
   provider: 'scylla',
   title: 'Hello world',
-  descrption: 'a starter pipeline template',
+  description: 'a starter pipeline template',
   ...overrides,
 });
 
