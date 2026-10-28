@@ -14,8 +14,7 @@ What starts a pipeline without a human: schedules and webhooks.
 
 ```typescript
 type TriggerEntity, TriggerDraft, CreatedTrigger
-type TriggerSource, TriggerInput
-TriggerKind                           (enum — a value, not a type)
+type TriggerSource, TriggerInput, TriggerKind
 triggerQueries, triggerMutations, TRIGGERS_QUERY_KEY
 ```
 
@@ -48,16 +47,19 @@ Each method rejects with a `ScyllaError` on failure. Reach it from `triggers.que
 `domain/entities/trigger.entity.ts` holds the heart of the module:
 
 ```typescript
-TriggerKind = Cron | Webhook | Unknown
 TriggerSource = CronSource | WebhookSource | UnknownSource   // discriminated on `kind`
+TriggerKind = TriggerSource['kind']                           // 'cron' | 'webhook' | 'unknown'
 ```
 
 - **Always narrow on `kind`**; never read `.cron` off a bare `TriggerSource`.
-- **`Unknown` is deliberate forward-compatibility.** A backend that adds a trigger type must not
-  crash this UI. Every `switch` needs an `Unknown` branch rendering a graceful "unsupported
+- **`'unknown'` is deliberate forward-compatibility.** A backend that adds a trigger type must not
+  crash this UI. Every `switch` needs an `'unknown'` branch rendering a graceful "unsupported
   trigger type" — do not `throw`, do not fall through, do not assume exhaustiveness.
 - `TriggerDraft` / `TriggerSourceDraft` are the *write* shapes (what a form produces); the
   entity is the *read* shape. Keep them distinct.
+- **`TriggerInput` is a word of the product**, as in the protos and the "Inputs" of the form: a
+  value that the trigger gives to the run. It is not the input of a repository call; the write
+  shape of a trigger is `TriggerDraft`.
 
 ## Layout
 
@@ -67,7 +69,8 @@ index.ts                             public API
 domain/
   entities/trigger.entity.ts         TriggerEntity, TriggerDraft, CreatedTrigger, the union above,
                                      TriggerInput
-  structs/cron-expression.struct.ts  the 5-field rule of the server: isCronExpressionValid
+  structs/cron-expression.struct.ts  CronExpression, and the 5-field rule of the server:
+                                     isCronExpressionValid
   repository/triggers.repository.ts
 infrastructure/
   default-triggers.repository.ts      TriggerServiceClient → TriggerEntity

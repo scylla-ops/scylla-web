@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { render } from '@test/render.ts';
-import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import TriggersOverview from './TriggersOverview.svelte';
 
@@ -9,7 +8,7 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   id: 't1',
   pipelineId: 'p1',
   name: 'nightly',
-  source: { kind: TriggerKind.Cron, expression: '0 9 * * *' },
+  source: { kind: 'cron', expression: '0 9 * * *' },
   inputs: [],
   enabled: true,
   createdAt: '2026-01-01T00:00:00.000Z',
@@ -18,7 +17,7 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
 });
 
 const webhookSource = {
-  kind: TriggerKind.Webhook,
+  kind: 'webhook',
   signatureHeader: '',
   webhookUrl: 'x',
 } as const;
@@ -35,7 +34,7 @@ describe('TriggersOverview', () => {
     render(TriggersOverview, {
       triggers: [
         trigger({ source: webhookSource }),
-        trigger({ id: 't2', source: { kind: TriggerKind.Cron, expression: '0 9 * * *' } }),
+        trigger({ id: 't2', source: { kind: 'cron', expression: '0 9 * * *' } }),
       ],
     });
     expect(screen.getByText('1')).toBeInTheDocument();

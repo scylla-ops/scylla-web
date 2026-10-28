@@ -17,7 +17,6 @@
     TriggerEntity,
   } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import {
-    TriggerKind,
     type TriggerDraftKind,
   } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggerMutations } from '@base/features/triggers/presentation/triggers.queries.ts';
@@ -57,15 +56,15 @@
   let name = $state(trigger?.name ?? '');
   // svelte-ignore state_referenced_locally
   let kind = $state<TriggerDraftKind>(
-    trigger?.source.kind === TriggerKind.Webhook ? TriggerKind.Webhook : TriggerKind.Cron,
+    trigger?.source.kind === 'webhook' ? 'webhook' : 'cron',
   );
   // svelte-ignore state_referenced_locally
   let cronExpression = $state(
-    trigger?.source.kind === TriggerKind.Cron ? trigger.source.expression : DEFAULT_CRON,
+    trigger?.source.kind === 'cron' ? trigger.source.expression : DEFAULT_CRON,
   );
   // svelte-ignore state_referenced_locally
   let signatureHeader = $state(
-    trigger?.source.kind === TriggerKind.Webhook ? trigger.source.signatureHeader : '',
+    trigger?.source.kind === 'webhook' ? trigger.source.signatureHeader : '',
   );
   // svelte-ignore state_referenced_locally
   let inputs = $state<DraftInput[]>(triggerToDraftInputs(trigger));
@@ -73,16 +72,16 @@
 
   /** An unknown source arm cannot be rendered, so it cannot be sent again. */
   // svelte-ignore state_referenced_locally
-  const isUnknownSource = trigger?.source.kind === TriggerKind.Unknown;
+  const isUnknownSource = trigger?.source.kind === 'unknown';
 
   const isValid = $derived(
     !isUnknownSource &&
       name.trim().length > 0 &&
-      (kind === TriggerKind.Cron ? isCronExpressionValid(cronExpression) : true),
+      (kind === 'cron' ? isCronExpressionValid(cronExpression) : true),
   );
 
   const initialCron = $derived(
-    trigger?.source.kind === TriggerKind.Cron
+    trigger?.source.kind === 'cron'
       ? convertCronToLocal(trigger.source.expression)
       : DEFAULT_CRON,
   );
@@ -132,7 +131,7 @@
                 <Badge variant="secondary">
                   {isUnknownSource
                     ? t(triggersMessages.unknown)
-                    : kind === TriggerKind.Cron
+                    : kind === 'cron'
                       ? 'Cron'
                       : 'Webhook'}
                 </Badge>
@@ -152,15 +151,15 @@
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={TriggerKind.Cron} label="Cron">Cron</SelectItem>
-                  <SelectItem value={TriggerKind.Webhook} label="Webhook">Webhook</SelectItem>
+                  <SelectItem value="cron" label="Cron">Cron</SelectItem>
+                  <SelectItem value="webhook" label="Webhook">Webhook</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           {/if}
         </TriggerFormSection>
 
-        {#if kind === TriggerKind.Cron}
+        {#if kind === 'cron'}
           <TriggerFormSection
             id="trigger-schedule-title"
             title={t(triggersMessages.schedule)}
@@ -201,7 +200,7 @@
           <TriggerInputsEditor
             {inputs}
             onChange={next => (inputs = next)}
-            allowJsonPointer={kind === TriggerKind.Webhook}
+            allowJsonPointer={kind === 'webhook'}
           />
         </TriggerFormSection>
       </div>

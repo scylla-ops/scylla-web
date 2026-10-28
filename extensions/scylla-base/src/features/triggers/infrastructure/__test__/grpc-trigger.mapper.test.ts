@@ -2,7 +2,6 @@
 import { describe, it, expect } from 'vitest';
 import * as grpcTrigger from '../grpc-trigger.mapper.ts';
 import type { Trigger } from '@base/generated/scylla/trigger/v1/trigger.ts';
-import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import type { TriggerDraft } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
@@ -34,7 +33,7 @@ describe('grpcTrigger.toDomain', () => {
       const domain = grpcTrigger.toDomain(
         baseTrigger({ source: { oneofKind: 'cron', cron: { expression: '0 9 * * *' } } }),
       );
-      expect(domain.source).toEqual({ kind: TriggerKind.Cron, expression: '0 9 * * *' });
+      expect(domain.source).toEqual({ kind: 'cron', expression: '0 9 * * *' });
     });
 
     it('maps a webhook source, including the server-derived url', () => {
@@ -47,7 +46,7 @@ describe('grpcTrigger.toDomain', () => {
         }),
       );
       expect(domain.source).toEqual({
-        kind: TriggerKind.Webhook,
+        kind: 'webhook',
         signatureHeader: 'X-Hub-Signature-256',
         webhookUrl: 'https://x/webhooks/1',
       });
@@ -55,7 +54,7 @@ describe('grpcTrigger.toDomain', () => {
 
     it('a source arm newer than this build maps to Unknown rather than a guess', () => {
       const domain = grpcTrigger.toDomain(baseTrigger({ source: { oneofKind: undefined } }));
-      expect(domain.source).toEqual({ kind: TriggerKind.Unknown });
+      expect(domain.source).toEqual({ kind: 'unknown' });
     });
   });
 
@@ -180,13 +179,13 @@ describe('grpcTrigger.createdToDomain', () => {
 describe('grpcTrigger draft -> proto', () => {
   const cronDraft: TriggerDraft = {
     name: 'nightly',
-    source: { kind: TriggerKind.Cron, expression: '0 0 * * *' },
+    source: { kind: 'cron', expression: '0 0 * * *' },
     inputs: [{ key: 'branch', value: { kind: 'literal', value: 'main' } }],
   };
 
   const webhookDraft: TriggerDraft = {
     name: 'github-push',
-    source: { kind: TriggerKind.Webhook, signatureHeader: 'X-Hub-Signature-256' },
+    source: { kind: 'webhook', signatureHeader: 'X-Hub-Signature-256' },
     inputs: [{ key: 'sha', value: { kind: 'jsonPointer', value: '/head/sha' } }],
   };
 

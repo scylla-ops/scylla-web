@@ -6,7 +6,6 @@
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { t } from '@scylla/ui/i18n';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-  import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
@@ -17,13 +16,13 @@
 
   const enabledCount = $derived(triggers.filter(trigger => trigger.enabled).length);
   const webhookCount = $derived(
-    triggers.filter(trigger => trigger.source.kind === TriggerKind.Webhook).length,
+    triggers.filter(trigger => trigger.source.kind === 'webhook').length,
   );
   const nextFire = $derived(
     triggers
       .filter(
         trigger =>
-          trigger.enabled && trigger.source.kind === TriggerKind.Cron && !!trigger.nextFireAt,
+          trigger.enabled && trigger.source.kind === 'cron' && !!trigger.nextFireAt,
       )
       .map(trigger => trigger.nextFireAt as string)
       .sort((left, right) => left.localeCompare(right))[0],

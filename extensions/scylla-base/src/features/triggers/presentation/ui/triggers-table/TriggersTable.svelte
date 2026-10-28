@@ -14,7 +14,6 @@
   import { createSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-  import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggerMutations } from '@base/features/triggers/presentation/triggers.queries.ts';
   import * as triggersNavigation from '@base/features/triggers/presentation/mappers/triggers-navigation.mapper.ts';
   import TriggerActions from './TriggerActions/TriggerActions.svelte';
@@ -32,9 +31,9 @@
   let { triggers, pipelineId, pipelineName }: Props = $props();
 
   const SOURCE_ICON = {
-    [TriggerKind.Cron]: ClockIcon,
-    [TriggerKind.Webhook]: WebhookIcon,
-    [TriggerKind.Unknown]: HelpCircleIcon,
+    ['cron']: ClockIcon,
+    ['webhook']: WebhookIcon,
+    ['unknown']: HelpCircleIcon,
   } as const;
 
   const selection = createSelection('triggers');
