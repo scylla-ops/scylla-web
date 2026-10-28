@@ -44,7 +44,7 @@ let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
 beforeEach(() => {
-  getProjects = vi.fn().mockResolvedValue({ projects: [project()] });
+  getProjects = vi.fn().mockResolvedValue({ items: [project()] });
   getPipelines = vi.fn().mockResolvedValue(page([pipeline()]));
   getJobs = vi.fn().mockResolvedValue(page([job()]));
 

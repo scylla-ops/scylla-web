@@ -75,7 +75,7 @@ export const createAgentCreation = () => {
 
   /** The project grant needs `MANAGE_PROJECT_GRANTS` on its project. */
   const projects = $derived(
-    (projectsQuery.data?.projects ?? []).filter(project =>
+    (projectsQuery.data?.items ?? []).filter(project =>
       can(Permission.MANAGE_PROJECT_GRANTS, { organizationId, projectId: project.id }),
     ),
   );

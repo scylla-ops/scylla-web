@@ -47,7 +47,7 @@ beforeEach(() => {
   getMine = vi.fn().mockResolvedValue([{ id: 'org-1', name: 'Acme' }]);
   getProjects = vi
     .fn()
-    .mockResolvedValue({ projects: [{ id: 'project-1', name: 'Web', organizationId: 'org-1' }] });
+    .mockResolvedValue({ items: [{ id: 'project-1', name: 'Web', organizationId: 'org-1' }] });
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({

@@ -16,7 +16,7 @@ export const cleanContext = (projectId: string | undefined): void => {
   const projects = createQuery(() => projectQueries.byOrganization(organizationId));
 
   $effect(() => {
-    const list = projects.data?.projects;
+    const list = projects.data?.items;
     if (projects.isLoading || !list || !projectId) return;
 
     untrack(() => {

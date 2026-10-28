@@ -14,7 +14,7 @@ const projectsState: { projects?: { id: string; name: string }[]; isLoading: boo
 vi.mock('@base/features/project', () => ({
   projectQueries: {
     byOrganization: () =>
-      stubQuery(['projects'], projectsState.projects && { projects: projectsState.projects }, {
+      stubQuery(['projects'], projectsState.projects && { items: projectsState.projects }, {
         loading: projectsState.isLoading,
       }),
   },

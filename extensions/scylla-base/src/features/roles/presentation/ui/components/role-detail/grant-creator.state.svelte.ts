@@ -138,7 +138,7 @@ export const createGrantCreator = (
   });
 
   const projects = $derived(
-    (projectsQuery.data?.projects ?? []).map(project => ({
+    (projectsQuery.data?.items ?? []).map(project => ({
       id: project.id,
       name: project.name,
     })),

@@ -4,7 +4,7 @@ import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import { DEFAULT_PAGE_SIZE, type PaginationParams } from '@scylla/ui/structs';
-import type { ProjectEntity } from '../domain/entities/project.entity.ts';
+import type { ProjectList } from '../domain/entities/project.entity.ts';
 import type { ProjectModule } from '../project.module.ts';
 
 // Resolved per call: tests swap the registry.
@@ -80,11 +80,11 @@ export const projectLookupQueries = (organizationIds: string[], enabled = true) 
   return {
     queries: readableIds.map(organizationId => projectQueries.lookup(organizationId)),
     // Folded here so TanStack Query memoizes it on the results.
-    combine: (results: { data?: { projects: ProjectEntity[] } }[]) => {
+    combine: (results: { data?: ProjectList }[]) => {
       const byProjectId = new Map<string, ProjectLookupEntry>();
       results.forEach((result, index) => {
         const organizationId = readableIds[index];
-        for (const project of result.data?.projects ?? []) {
+        for (const project of result.data?.items ?? []) {
           byProjectId.set(project.id, { name: project.name, organizationId });
         }
       });

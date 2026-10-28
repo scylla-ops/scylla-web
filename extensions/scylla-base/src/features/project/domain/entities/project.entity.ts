@@ -1,4 +1,4 @@
-import type { PaginationInfo } from '@scylla/ui/structs';
+import type { PaginatedList } from '@scylla/ui/structs';
 
 export interface ProjectEntity {
   id: string;
@@ -6,7 +6,4 @@ export interface ProjectEntity {
   description?: string;
 }
 
-export interface ProjectList {
-  projects: ProjectEntity[];
-  pagination: PaginationInfo;
-}
+export type ProjectList = PaginatedList<ProjectEntity>;

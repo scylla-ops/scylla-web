@@ -58,7 +58,7 @@ export const createAgentDetails = (agentId: () => string) => {
 
   const recentJobs = $derived.by((): RecentJobRow[] => {
     const pipelines = pipelinesQuery.data ?? [];
-    const projects = projectsQuery.data?.projects ?? [];
+    const projects = projectsQuery.data?.items ?? [];
     const current = now.value;
 
     return jobs.map(job => {

@@ -20,7 +20,7 @@
     projectQueries.byOrganization(organizationId, pagination.paginationParams),
   );
 
-  const projects = $derived(projectsQuery.data?.projects);
+  const projects = $derived(projectsQuery.data?.items);
   const paginationInfo = $derived(projectsQuery.data?.pagination);
 </script>
 

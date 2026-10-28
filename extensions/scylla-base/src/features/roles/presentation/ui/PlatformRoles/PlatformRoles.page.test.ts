@@ -100,7 +100,7 @@ beforeEach(() => {
     },
     project: {
       projectRepository: {
-        getByOrganizationId: vi.fn().mockResolvedValue({ projects: [] }),
+        getByOrganizationId: vi.fn().mockResolvedValue({ items: [] }),
       },
     },
   });

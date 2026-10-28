@@ -128,7 +128,7 @@ beforeEach(() => {
   setAppActive = vi.fn().mockResolvedValue({});
   revokeAppSecret = vi.fn().mockResolvedValue(undefined);
   listJobs = vi.fn().mockResolvedValue([job]);
-  listProjects = vi.fn().mockResolvedValue({ projects: [{ id: 'project-1', name: 'prelude' }] });
+  listProjects = vi.fn().mockResolvedValue({ items: [{ id: 'project-1', name: 'prelude' }] });
   listAppAccess = vi.fn().mockResolvedValue([projectGrant]);
 
   cache = withQueryClient();
