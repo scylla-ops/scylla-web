@@ -1,6 +1,6 @@
 # `features/roles` — agent guide
 
-Access-control administration: the role catalog, grants, and the permission vocabulary.
+Access-control administration: the role catalog and the grants.
 
 **Layer** `features/` · **id** `roles` · **DI keys** `permissionRepository`, `updateRole` ·
 **Svelte** (Phase 4)
@@ -62,7 +62,7 @@ never from a feature, and never write the authz store from anywhere else.
 | Roles | `listRoles(organizationId?)`, `getRole`, `createRole`, `updateRole`, `deleteRole` |
 | Effective permissions | `getEffectivePermissions(...)`, `getMyPermissions()` |
 | Grants | `listGrants(scope?, scopeId?)`, `createGrant(CreateGrantInput)`, `revokeGrant(id)`, `revokeAllAccess(RevokeAllAccessInput)` |
-| Vocabulary | `listGrantableRoles(scope?, organizationId?)`, `listPermissionVocabulary()` |
+| Grantable roles | `listGrantableRoles(scope?, organizationId?)` |
 
 Input types (`CreateGrantInput`, `RevokeAllAccessInput`) live beside the interface, in domain.
 
@@ -106,7 +106,6 @@ domain/
   entities/grant.entity.ts           GrantEntity, buildGrantEligibility: who may receive a project
                                      grant, and why not (pure)
   entities/grantable-role.entity.ts  GrantableRoleEntity
-  structs/permission-vocabulary.struct.ts   PermissionVocabulary, PermissionAction
   structs/permission-catalog.struct.ts      the permissions of a role: scope, dependencies, the
                                      implicit ones, carriedBy, and lockedPermissionsOf (the
                                      escalation rule: what an author may not tick) (pure)
@@ -115,7 +114,7 @@ domain/
 infrastructure/
   default-permission.repository.ts   RoleServiceClient + GrantServiceClient
   grpc-role, grpc-grant, grpc-grantable-role, grpc-permission,
-  grpc-permission-vocabulary, grpc-effective-permissions   (*.mapper.ts)
+  grpc-effective-permissions   (*.mapper.ts)
 presentation/
   roles.queries.ts                   every read and write, as plain options objects
   messages/roles.messages.ts         every string the screens show

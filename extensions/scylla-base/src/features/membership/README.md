@@ -92,7 +92,7 @@ the first render and capturing either once would freeze the view empty.
 
 ## Related modules
 
-- [roles](../roles/README.md) — grants, the role catalog, and the permission vocabulary.
+- [roles](../roles/README.md) — grants and the role catalog.
 - [organization](../organization/README.md) and [project](../project/README.md) — the two scopes.
 - [user](../user/README.md) — the human principals behind the members.
 - [platform/authz](../../platform/authz/README.md) — `PrincipalKind`, `PermissionScope`, gating.

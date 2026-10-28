@@ -1,5 +1,5 @@
 /**
- * Role catalog, grants and permission vocabulary. The authorization primitives
+ * Role catalog and grants. The authorization primitives
  * (`Permission`, `can`) are in `@platform/authz`. Exports no component.
  */
 export type { RoleEntity, RoleCreationData } from './domain/entities/role.entity.ts';

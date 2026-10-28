@@ -7,7 +7,6 @@ import {
 } from '@platform/authz';
 import type { RoleCreationData, RoleEntity } from '../domain/entities/role.entity.ts';
 import type { GrantEntity } from '../domain/entities/grant.entity.ts';
-import type { PermissionVocabulary } from '../domain/structs/permission-vocabulary.struct.ts';
 import type {
   CreateGrantInput,
   RevokeAllAccessInput,
@@ -41,7 +40,6 @@ const GRANTABLE_ROLES_QUERY_ROOT = 'permission-grantable-roles';
 export const GRANTABLE_ROLES_QUERY_KEY = (scope?: PermissionScope, organizationId?: string | null) =>
   [GRANTABLE_ROLES_QUERY_ROOT, scope ?? 'all', organizationId ?? ''] as const;
 
-export const PERMISSION_VOCABULARY_QUERY_KEY = ['permission-vocabulary'] as const;
 
 export const roleQueries = {
   /** Every role. Needs `MANAGE_ROLES`: without it, pass `enabled: false` and use `grantable`. */
@@ -94,14 +92,6 @@ export const roleQueries = {
       queryKey: GRANTS_QUERY_KEY(scope, scopeId ?? ''),
       enabled: (options.enabled ?? true) && !!scopeId,
       queryFn: () => domain().permissionRepository.listGrants(scope, scopeId ?? ''),
-    }),
-
-  /** Every permission the backend knows, with its narrowest scope. New backend permissions show up without a frontend change. */
-  vocabulary: () =>
-    queryOptions<PermissionVocabulary>({
-      queryKey: PERMISSION_VOCABULARY_QUERY_KEY,
-      queryFn: () => domain().permissionRepository.listPermissionVocabulary(),
-      staleTime: Infinity,
     }),
 };
 

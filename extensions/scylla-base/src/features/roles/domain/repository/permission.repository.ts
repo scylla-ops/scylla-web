@@ -7,7 +7,6 @@ import type {
   GrantEntity,
 } from '@base/features/roles/domain/entities/grant.entity.ts';
 import type { GrantableRoleEntity } from '@base/features/roles/domain/entities/grantable-role.entity.ts';
-import type { PermissionVocabulary } from '@base/features/roles/domain/structs/permission-vocabulary.struct.ts';
 
 export interface CreateGrantInput {
   principal: Principal;
@@ -50,6 +49,4 @@ export interface PermissionRepository {
     scope?: PermissionScope,
     organizationId?: string,
   ): Promise<GrantableRoleEntity[]>;
-
-  listPermissionVocabulary(): Promise<PermissionVocabulary>;
 }

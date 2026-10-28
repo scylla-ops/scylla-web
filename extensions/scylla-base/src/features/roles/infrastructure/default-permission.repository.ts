@@ -9,7 +9,6 @@ import type {
 } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import type { GrantableRoleEntity } from '@base/features/roles/domain/entities/grantable-role.entity.ts';
-import type { PermissionVocabulary } from '@base/features/roles/domain/structs/permission-vocabulary.struct.ts';
 import type { IGrantServiceClient } from '@base/generated/scylla/authz/v1/grant.client.ts';
 import type { IRoleServiceClient } from '@base/generated/scylla/authz/v1/role.client.ts';
 import type { EffectivePermissions, PermissionScope, Principal } from '@platform/authz';
@@ -17,7 +16,6 @@ import * as grpcRole from './grpc-role.mapper.ts';
 import * as grpcGrant from './grpc-grant.mapper.ts';
 import * as grpcGrantableRole from './grpc-grantable-role.mapper.ts';
 import * as grpcEffectivePermissions from './grpc-effective-permissions.mapper.ts';
-import * as grpcPermissionVocabulary from './grpc-permission-vocabulary.mapper.ts';
 import * as grpcPermission from './grpc-permission.mapper.ts';
 
 /** The backend always fills the wrapped entity on success: a missing one is a protocol error. */
@@ -114,10 +112,5 @@ export class DefaultPermissionRepository implements PermissionRepository {
       organizationId: organizationRef(organizationId),
     }).response;
     return response.roles.map(grpcGrantableRole.toDomain);
-  }
-
-  public async listPermissionVocabulary(): Promise<PermissionVocabulary> {
-    const response = await this.roles.listAuthzVocabulary({}).response;
-    return grpcPermissionVocabulary.toDomain(response.actions);
   }
 }

@@ -93,7 +93,6 @@ beforeEach(() => {
         revokeGrant,
         revokeAllAccess,
         listGrantableRoles,
-        listPermissionVocabulary: vi.fn().mockResolvedValue({ actions: [] }),
         getEffectivePermissions,
         getMyPermissions,
       },
@@ -198,10 +197,6 @@ describe('roleQueries', () => {
     });
 
     expect(options.enabled).toBe(false);
-  });
-
-  it('never restales the vocabulary — it is a code-owned catalog, not tenant data', () => {
-    expect(roleQueries.vocabulary().staleTime).toBe(Infinity);
   });
 });
 
