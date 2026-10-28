@@ -1,7 +1,7 @@
 <script lang="ts">
   import BotIcon from '@lucide/svelte/icons/bot';
   import UserIcon from '@lucide/svelte/icons/user';
-  import { RoleKind } from '@platform/authz';
+  import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
   import { Label, ToggleGroup, ToggleGroupItem } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';

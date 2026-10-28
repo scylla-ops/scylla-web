@@ -4,7 +4,8 @@ import * as grpcPermission from '../grpc-permission.mapper.ts';
 import { Permission as ProtoPermission } from '@base/generated/scylla/authz/v1/permission.ts';
 import type { ScopeRef, PrincipalRef, Access } from '@base/generated/scylla/authz/v1/permission.ts';
 import { RoleKind as ProtoRoleKind } from '@base/generated/scylla/authz/v1/grant.ts';
-import { Permission, PermissionScope, PrincipalKind, RoleKind } from '@platform/authz';
+import { Permission, PermissionScope, PrincipalKind } from '@platform/authz';
+import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 
 describe('grpcPermission.toDomain / toGrpc (Permission)', () => {
   it('is a value-identical pass-through in both directions', () => {

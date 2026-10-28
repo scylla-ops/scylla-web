@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
-import { Permission, PermissionScope, permissionsStore, RoleKind } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
+import { RoleKind } from '@base/features/roles';
 import { withQueryClient, withRegistry } from '@test/render.ts';
 import type { RoleEntity } from '@base/features/roles';
 import { createAssignableRoles } from '../assignable-roles.state.svelte.ts';

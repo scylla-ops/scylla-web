@@ -4,7 +4,8 @@ import * as grpcGrantableRole from '../grpc-grantable-role.mapper.ts';
 import { RoleKind as GrpcRoleKind } from '@base/generated/scylla/authz/v1/grant.ts';
 import { ScopeKind } from '@base/generated/scylla/authz/v1/permission.ts';
 import type { GrantableRole } from '@base/generated/scylla/authz/v1/grant.ts';
-import { PermissionScope, RoleKind } from '@platform/authz';
+import { PermissionScope } from '@platform/authz';
+import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 
 const grantable = (overrides: Partial<GrantableRole> = {}): GrantableRole => ({
   roleId: { value: 'organization-admin' },

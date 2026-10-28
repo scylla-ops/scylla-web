@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Permission, PermissionScope, permissionsStore, RoleKind } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
+import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { PermissionRepository } from '@base/features/roles/domain/repository/permission.repository.ts';

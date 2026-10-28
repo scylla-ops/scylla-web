@@ -12,7 +12,7 @@ import type { GrantableRoleEntity } from '@base/features/roles/domain/entities/g
 import type { PermissionVocabulary } from '@base/features/roles/domain/structs/permission-vocabulary.struct.ts';
 import type { IGrantServiceClient } from '@base/generated/scylla/authz/v1/grant.client.ts';
 import type { IRoleServiceClient } from '@base/generated/scylla/authz/v1/role.client.ts';
-import type { EffectivePermissionsEntity, PermissionScope, PrincipalEntity } from '@platform/authz';
+import type { EffectivePermissions, PermissionScope, Principal } from '@platform/authz';
 import * as grpcRole from './grpc-role.mapper.ts';
 import * as grpcGrant from './grpc-grant.mapper.ts';
 import * as grpcGrantableRole from './grpc-grantable-role.mapper.ts';
@@ -62,15 +62,15 @@ export class DefaultPermissionRepository implements PermissionRepository {
   }
 
   public async getEffectivePermissions(
-    principal: PrincipalEntity,
-  ): Promise<EffectivePermissionsEntity> {
+    principal: Principal,
+  ): Promise<EffectivePermissions> {
     const response = await this.roles.getEffectivePermissions({
       principal: grpcPermission.principalRefToGrpc(principal),
     }).response;
     return grpcEffectivePermissions.toDomain(response.scopes);
   }
 
-  public async getMyPermissions(): Promise<EffectivePermissionsEntity> {
+  public async getMyPermissions(): Promise<EffectivePermissions> {
     const response = await this.roles.getMyPermissions({}).response;
     return grpcEffectivePermissions.toDomain(response.scopes);
   }

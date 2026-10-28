@@ -1,4 +1,4 @@
-import { RoleKind } from '@platform/authz';
+import { RoleKind } from '@base/features/roles';
 import { humanizeRoleId, type GrantableRoleEntity, type RoleEntity } from '@base/features/roles';
 
 export interface AssignableRole {

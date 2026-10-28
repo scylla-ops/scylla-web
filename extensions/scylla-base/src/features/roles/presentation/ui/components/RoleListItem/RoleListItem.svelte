@@ -2,7 +2,7 @@
   import BotIcon from '@lucide/svelte/icons/bot';
   import LockIcon from '@lucide/svelte/icons/lock';
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
-  import { RoleKind } from '@platform/authz';
+  import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
   import { Badge, Checkbox } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';

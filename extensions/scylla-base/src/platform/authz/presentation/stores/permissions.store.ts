@@ -1,10 +1,10 @@
 import { createStore } from '@scylla/ui/stores';
-import type { EffectivePermissionsEntity } from '@platform/authz/domain/entities/effective-permissions.entity.ts';
+import type { EffectivePermissions } from '@platform/authz/domain/structs/effective-permissions.struct.ts';
 
 interface PermissionsState {
   /** `null` until the first load. */
-  permissions: EffectivePermissionsEntity | null;
-  setPermissions: (permissions: EffectivePermissionsEntity | null) => void;
+  permissions: EffectivePermissions | null;
+  setPermissions: (permissions: EffectivePermissions | null) => void;
 }
 
 /** Not persisted. Written only by `syncMyPermissions` in `features/roles`. */

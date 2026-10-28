@@ -4,8 +4,8 @@ import {
   Permission,
   PermissionScope,
   permissionLevel,
-  type EffectivePermissionsEntity,
-  type EffectiveScopeEntity,
+  type EffectivePermissions,
+  type EffectiveScope,
 } from '@platform/authz';
 import { PERMISSION_CATALOG, getPermissionDefinition, isEditablePermission, getPermissionDefinitionsForScope, getAlwaysGrantedPermissionsForScope, isHiddenAtScope, withImplicitPermissions, getEditablePermissionDefinitionsForScope, getPermissionsForScope, lockedPermissionsOf } from '../permission-catalog.struct.ts';
 
@@ -171,10 +171,15 @@ describe('getEditablePermissionDefinitionsForScope — what the editor actually 
 });
 
 describe('the catalog and the levels of @platform/authz', () => {
-  it('give each permission the same scope', () => {
+  it('takes the scope of each permission from its level', () => {
     for (const definition of PERMISSION_CATALOG) {
-      expect([definition.id, permissionLevel(definition.id)]).toEqual([definition.id, definition.scope]);
+      expect([definition.id, definition.scope]).toEqual([definition.id, permissionLevel(definition.id)]);
     }
+  });
+
+  it('lists the scopes broad to narrow, the order the editor renders', () => {
+    const scopes = PERMISSION_CATALOG.map(definition => definition.scope);
+    expect(scopes).toEqual([...scopes].sort((a, b) => a - b));
   });
 });
 
@@ -182,9 +187,9 @@ const restricted = (
   scope: PermissionScope,
   scopeId: string,
   permissions: Permission[],
-): EffectiveScopeEntity => ({ scope, scopeId, access: { kind: 'restricted', permissions } });
+): EffectiveScope => ({ scope, scopeId, access: { kind: 'restricted', permissions } });
 
-const holding = (...scopes: EffectiveScopeEntity[]): EffectivePermissionsEntity => ({ scopes });
+const holding = (...scopes: EffectiveScope[]): EffectivePermissions => ({ scopes });
 
 describe('lockedPermissionsOf', () => {
   it('locks what the author does not hold, and nothing else', () => {

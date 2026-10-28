@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { Permission, PermissionScope, RoleKind } from '@platform/authz';
+import { Permission, PermissionScope } from '@platform/authz';
+import { RoleKind } from '@base/features/roles';
 import type { GrantableRoleEntity, RoleEntity } from '@base/features/roles';
 import {
   assignableForPeople,

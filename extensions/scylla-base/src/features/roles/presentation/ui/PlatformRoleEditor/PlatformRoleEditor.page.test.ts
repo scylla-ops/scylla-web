@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { Permission, PermissionScope, permissionsStore, RoleKind } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
+import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';

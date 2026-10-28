@@ -6,8 +6,8 @@ import {
   PermissionScope,
   PrincipalKind,
   permissionsStore,
-  RoleKind,
 } from '@platform/authz';
+import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { runMutationFn, runQueryFn } from '@test/queries.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';

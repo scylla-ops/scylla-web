@@ -6,8 +6,8 @@ import {
   PermissionScope,
   PrincipalKind,
   permissionsStore,
-  RoleKind,
 } from '@platform/authz';
+import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { selectionStore } from '@scylla/ui/stores';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';

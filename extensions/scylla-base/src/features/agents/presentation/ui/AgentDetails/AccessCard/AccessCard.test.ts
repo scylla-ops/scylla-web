@@ -7,7 +7,7 @@ import {
   PermissionScope,
   PrincipalKind,
   permissionsStore,
-  type PrincipalEntity,
+  type Principal,
 } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { findFloating, findTooltip, render, withQueryClient, withRegistry } from '@test/render.ts';
@@ -82,7 +82,7 @@ const globexGrant = projectGrant('p-9', {
 });
 
 interface GrantInput {
-  principal: PrincipalEntity;
+  principal: Principal;
   roleId: string;
   scope: PermissionScope;
   scopeId: string;

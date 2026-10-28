@@ -3,7 +3,7 @@
   import LockIcon from '@lucide/svelte/icons/lock';
   import PencilIcon from '@lucide/svelte/icons/pencil';
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
-  import { RoleKind } from '@platform/authz';
+  import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
   import { Badge } from '@scylla/ui/primitives';
   import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';

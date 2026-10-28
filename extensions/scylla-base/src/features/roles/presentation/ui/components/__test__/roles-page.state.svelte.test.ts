@@ -5,9 +5,9 @@ import {
   PermissionScope,
   PrincipalKind,
   permissionsStore,
-  RoleKind,
-  type EffectiveScopeEntity,
+  type EffectiveScope,
 } from '@platform/authz';
+import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
@@ -64,15 +64,15 @@ let getProjects: ReturnType<typeof vi.fn>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
-const holding = (...scopes: EffectiveScopeEntity[]) =>
+const holding = (...scopes: EffectiveScope[]) =>
   permissionsStore.setState({ permissions: { scopes } });
 
-const SYSTEM_ADMIN: EffectiveScopeEntity = {
+const SYSTEM_ADMIN: EffectiveScope = {
   scope: PermissionScope.SYSTEM,
   scopeId: '',
   access: { kind: 'fullControl' },
 };
-const ACME_ADMIN: EffectiveScopeEntity = {
+const ACME_ADMIN: EffectiveScope = {
   scope: PermissionScope.ORGANIZATION,
   scopeId: 'org-1',
   access: { kind: 'fullControl' },

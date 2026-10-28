@@ -8,7 +8,7 @@ import type {
   RoleEntity,
   RoleOrigin,
 } from '@base/features/roles/domain/entities/role.entity.ts';
-import { RoleKind } from '@platform/authz';
+import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import * as grpcPermission from '@base/features/roles/infrastructure/grpc-permission.mapper.ts';
 
 /** An unknown arm becomes `unknown`, never "custom". */

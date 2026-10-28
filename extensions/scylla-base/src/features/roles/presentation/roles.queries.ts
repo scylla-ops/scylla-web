@@ -1,9 +1,9 @@
 import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
 import {
   permissionsStore,
-  type EffectivePermissionsEntity,
+  type EffectivePermissions,
   type PermissionScope,
-  type PrincipalEntity,
+  type Principal,
 } from '@platform/authz';
 import type { RoleCreationData, RoleEntity } from '../domain/entities/role.entity.ts';
 import type { GrantEntity } from '../domain/entities/grant.entity.ts';
@@ -174,7 +174,7 @@ export const roleMutations = {
   /** A mutation: it runs when asked, and its answer is not cached. */
   effectivePermissions: () =>
     mutationOptions({
-      mutationFn: (principal: PrincipalEntity): Promise<EffectivePermissionsEntity> =>
+      mutationFn: (principal: Principal): Promise<EffectivePermissions> =>
         domain().permissionRepository.getEffectivePermissions(principal),
     }),
 };

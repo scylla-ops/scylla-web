@@ -1,10 +1,10 @@
 import {
   permissionsStore,
   PermissionScope,
-  RoleKind,
   type AccessSpec,
   type Permission,
 } from '@platform/authz';
+import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { createMutation } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';

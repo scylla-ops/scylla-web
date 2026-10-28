@@ -5,7 +5,7 @@ import type { Permission } from '@platform/authz/domain/structs/permission.struc
 import {
   canAccess,
   type PermissionTarget,
-} from '@platform/authz/domain/entities/effective-permissions.entity.ts';
+} from '@platform/authz/domain/structs/effective-permissions.struct.ts';
 
 /** A route's `permission` is a `Permission`: `can` below is the access policy of the core. */
 declare module '@scylla/core-sdk' {

@@ -3,7 +3,7 @@
   import type { Permission } from '@platform/authz/domain/structs/permission.struct.ts';
   import type {
     PermissionTarget,
-  } from '@platform/authz/domain/entities/effective-permissions.entity.ts';
+  } from '@platform/authz/domain/structs/effective-permissions.struct.ts';
   import { can } from '@platform/authz/presentation/authorization.ts';
 
   interface Props {

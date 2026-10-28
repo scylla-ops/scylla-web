@@ -1,4 +1,4 @@
-import type { PermissionScope, PrincipalEntity, EffectivePermissionsEntity } from '@platform/authz';
+import type { PermissionScope, Principal, EffectivePermissions } from '@platform/authz';
 import type {
   RoleCreationData,
   RoleEntity,
@@ -10,14 +10,14 @@ import type { GrantableRoleEntity } from '@base/features/roles/domain/entities/g
 import type { PermissionVocabulary } from '@base/features/roles/domain/structs/permission-vocabulary.struct.ts';
 
 export interface CreateGrantInput {
-  principal: PrincipalEntity;
+  principal: Principal;
   roleId: string;
   scope: PermissionScope;
   scopeId: string;
 }
 
 export interface RevokeAllAccessInput {
-  principal: PrincipalEntity;
+  principal: Principal;
   scope: PermissionScope;
   scopeId: string;
 }
@@ -33,9 +33,9 @@ export interface PermissionRepository {
   updateRole(role: RoleEntity): Promise<RoleEntity>;
   deleteRole(id: string): Promise<void>;
 
-  getEffectivePermissions(principal: PrincipalEntity): Promise<EffectivePermissionsEntity>;
+  getEffectivePermissions(principal: Principal): Promise<EffectivePermissions>;
   /** Needs no permission, unlike the above. */
-  getMyPermissions(): Promise<EffectivePermissionsEntity>;
+  getMyPermissions(): Promise<EffectivePermissions>;
 
   listGrants(scope?: PermissionScope, scopeId?: string): Promise<GrantEntity[]>;
   createGrant(input: CreateGrantInput): Promise<GrantEntity>;

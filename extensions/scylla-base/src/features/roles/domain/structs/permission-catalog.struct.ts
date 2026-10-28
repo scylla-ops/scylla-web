@@ -1,8 +1,11 @@
 import {
   Permission,
+  PERMISSION_IMPLICATIONS,
   PermissionScope,
   holdsPermission,
-  type EffectivePermissionsEntity,
+  permissionLevel,
+  scopeCovers,
+  type EffectivePermissions,
 } from '@platform/authz';
 
 /**
@@ -11,7 +14,7 @@ import {
  */
 export interface PermissionDefinition {
   id: Permission;
-  /** The narrowest scope where it does something (backend `AuthzAction.min_scope`). */
+  /** The narrowest scope where it does something: its `permissionLevel`. */
   scope: PermissionScope;
   /** Needed for this one to mean anything; also its parent in the editor's tree. */
   dependsOn?: Permission;
@@ -20,73 +23,50 @@ export interface PermissionDefinition {
 const { SYSTEM, ORGANIZATION, PROJECT } = PermissionScope;
 
 /** Ordered by scope, then by tree: the order the editor renders. */
-export const PERMISSION_CATALOG: PermissionDefinition[] = [
-  { id: Permission.LIST_USERS, scope: SYSTEM },
-  { id: Permission.CREATE_USER, scope: SYSTEM, dependsOn: Permission.LIST_USERS },
-  { id: Permission.DELETE_USER, scope: SYSTEM, dependsOn: Permission.LIST_USERS },
-  { id: Permission.CREATE_ORGANIZATION, scope: SYSTEM },
-  { id: Permission.MANAGE_ROLES, scope: SYSTEM },
-  { id: Permission.MANAGE_SYSTEM_GRANTS, scope: SYSTEM },
-  { id: Permission.READ_ORGANIZATION, scope: ORGANIZATION },
-  {
-    id: Permission.UPDATE_ORGANIZATION,
-    scope: ORGANIZATION,
-    dependsOn: Permission.READ_ORGANIZATION,
-  },
-  {
-    id: Permission.DELETE_ORGANIZATION,
-    scope: ORGANIZATION,
-    dependsOn: Permission.READ_ORGANIZATION,
-  },
-  { id: Permission.LIST_AGENTS, scope: ORGANIZATION, dependsOn: Permission.READ_ORGANIZATION },
-  { id: Permission.CREATE_AGENT, scope: ORGANIZATION, dependsOn: Permission.LIST_AGENTS },
-  { id: Permission.READ_APP, scope: ORGANIZATION, dependsOn: Permission.LIST_AGENTS },
-  { id: Permission.READ_APP_STATS, scope: ORGANIZATION, dependsOn: Permission.LIST_AGENTS },
-  { id: Permission.DELETE_APP, scope: ORGANIZATION, dependsOn: Permission.LIST_AGENTS },
-  {
-    id: Permission.LIST_PROJECTS_BY_ORGANIZATION,
-    scope: ORGANIZATION,
-    dependsOn: Permission.READ_ORGANIZATION,
-  },
-  {
-    id: Permission.CREATE_PROJECT,
-    scope: ORGANIZATION,
-    dependsOn: Permission.LIST_PROJECTS_BY_ORGANIZATION,
-  },
-  {
-    id: Permission.LIST_ORGANIZATION_MEMBERS,
-    scope: ORGANIZATION,
-    dependsOn: Permission.READ_ORGANIZATION,
-  },
-  {
-    id: Permission.MANAGE_ORG_GRANTS,
-    scope: ORGANIZATION,
-    dependsOn: Permission.LIST_ORGANIZATION_MEMBERS,
-  },
-  { id: Permission.MANAGE_ORG_ROLES, scope: ORGANIZATION, dependsOn: Permission.READ_ORGANIZATION },
-  { id: Permission.READ_PROJECT, scope: PROJECT },
-  { id: Permission.UPDATE_PROJECT, scope: PROJECT, dependsOn: Permission.READ_PROJECT },
-  { id: Permission.DELETE_PROJECT, scope: PROJECT, dependsOn: Permission.READ_PROJECT },
-  { id: Permission.LIST_PROJECT_MEMBERS, scope: PROJECT, dependsOn: Permission.READ_PROJECT },
-  {
-    id: Permission.MANAGE_PROJECT_GRANTS,
-    scope: PROJECT,
-    dependsOn: Permission.LIST_PROJECT_MEMBERS,
-  },
-  { id: Permission.LIST_PIPELINES_BY_PROJECT, scope: PROJECT, dependsOn: Permission.READ_PROJECT },
-  { id: Permission.READ_PIPELINE, scope: PROJECT, dependsOn: Permission.LIST_PIPELINES_BY_PROJECT },
-  { id: Permission.CREATE_PIPELINE, scope: PROJECT, dependsOn: Permission.READ_PIPELINE },
-  { id: Permission.UPDATE_PIPELINE, scope: PROJECT, dependsOn: Permission.READ_PIPELINE },
-  { id: Permission.DELETE_PIPELINE, scope: PROJECT, dependsOn: Permission.READ_PIPELINE },
-  { id: Permission.RUN_PIPELINE, scope: PROJECT, dependsOn: Permission.READ_PIPELINE },
-  { id: Permission.MANAGE_TRIGGERS, scope: PROJECT, dependsOn: Permission.READ_PIPELINE },
-  { id: Permission.LIST_JOBS_BY_PIPELINE, scope: PROJECT, dependsOn: Permission.READ_PIPELINE },
-  { id: Permission.READ_JOB_LOGS, scope: PROJECT, dependsOn: Permission.LIST_JOBS_BY_PIPELINE },
-  { id: Permission.DELETE_JOB, scope: PROJECT, dependsOn: Permission.LIST_JOBS_BY_PIPELINE },
-  { id: Permission.LIST_SECRETS, scope: PROJECT, dependsOn: Permission.READ_PROJECT },
-  { id: Permission.CREATE_SECRET, scope: PROJECT, dependsOn: Permission.LIST_SECRETS },
-  { id: Permission.DELETE_SECRET, scope: PROJECT, dependsOn: Permission.LIST_SECRETS },
+const TREE: Omit<PermissionDefinition, 'scope'>[] = [
+  { id: Permission.LIST_USERS },
+  { id: Permission.CREATE_USER, dependsOn: Permission.LIST_USERS },
+  { id: Permission.DELETE_USER, dependsOn: Permission.LIST_USERS },
+  { id: Permission.CREATE_ORGANIZATION },
+  { id: Permission.MANAGE_ROLES },
+  { id: Permission.MANAGE_SYSTEM_GRANTS },
+  { id: Permission.READ_ORGANIZATION },
+  { id: Permission.UPDATE_ORGANIZATION, dependsOn: Permission.READ_ORGANIZATION },
+  { id: Permission.DELETE_ORGANIZATION, dependsOn: Permission.READ_ORGANIZATION },
+  { id: Permission.LIST_AGENTS, dependsOn: Permission.READ_ORGANIZATION },
+  { id: Permission.CREATE_AGENT, dependsOn: Permission.LIST_AGENTS },
+  { id: Permission.READ_APP, dependsOn: Permission.LIST_AGENTS },
+  { id: Permission.READ_APP_STATS, dependsOn: Permission.LIST_AGENTS },
+  { id: Permission.DELETE_APP, dependsOn: Permission.LIST_AGENTS },
+  { id: Permission.LIST_PROJECTS_BY_ORGANIZATION, dependsOn: Permission.READ_ORGANIZATION },
+  { id: Permission.CREATE_PROJECT, dependsOn: Permission.LIST_PROJECTS_BY_ORGANIZATION },
+  { id: Permission.LIST_ORGANIZATION_MEMBERS, dependsOn: Permission.READ_ORGANIZATION },
+  { id: Permission.MANAGE_ORG_GRANTS, dependsOn: Permission.LIST_ORGANIZATION_MEMBERS },
+  { id: Permission.MANAGE_ORG_ROLES, dependsOn: Permission.READ_ORGANIZATION },
+  { id: Permission.READ_PROJECT },
+  { id: Permission.UPDATE_PROJECT, dependsOn: Permission.READ_PROJECT },
+  { id: Permission.DELETE_PROJECT, dependsOn: Permission.READ_PROJECT },
+  { id: Permission.LIST_PROJECT_MEMBERS, dependsOn: Permission.READ_PROJECT },
+  { id: Permission.MANAGE_PROJECT_GRANTS, dependsOn: Permission.LIST_PROJECT_MEMBERS },
+  { id: Permission.LIST_PIPELINES_BY_PROJECT, dependsOn: Permission.READ_PROJECT },
+  { id: Permission.READ_PIPELINE, dependsOn: Permission.LIST_PIPELINES_BY_PROJECT },
+  { id: Permission.CREATE_PIPELINE, dependsOn: Permission.READ_PIPELINE },
+  { id: Permission.UPDATE_PIPELINE, dependsOn: Permission.READ_PIPELINE },
+  { id: Permission.DELETE_PIPELINE, dependsOn: Permission.READ_PIPELINE },
+  { id: Permission.RUN_PIPELINE, dependsOn: Permission.READ_PIPELINE },
+  { id: Permission.MANAGE_TRIGGERS, dependsOn: Permission.READ_PIPELINE },
+  { id: Permission.LIST_JOBS_BY_PIPELINE, dependsOn: Permission.READ_PIPELINE },
+  { id: Permission.READ_JOB_LOGS, dependsOn: Permission.LIST_JOBS_BY_PIPELINE },
+  { id: Permission.DELETE_JOB, dependsOn: Permission.LIST_JOBS_BY_PIPELINE },
+  { id: Permission.LIST_SECRETS, dependsOn: Permission.READ_PROJECT },
+  { id: Permission.CREATE_SECRET, dependsOn: Permission.LIST_SECRETS },
+  { id: Permission.DELETE_SECRET, dependsOn: Permission.LIST_SECRETS },
 ];
+
+export const PERMISSION_CATALOG: PermissionDefinition[] = TREE.map(entry => ({
+  ...entry,
+  scope: permissionLevel(entry.id),
+}));
 
 const DEFINITION_BY_PERMISSION = new Map<Permission, PermissionDefinition>(
   PERMISSION_CATALOG.map(definition => [definition.id, definition]),
@@ -100,20 +80,11 @@ export const isEditablePermission = (permission: Permission): boolean =>
 
 export const ALL_SCOPES: PermissionScope[] = [SYSTEM, ORGANIZATION, PROJECT];
 
-/** A role may confer the permissions of its scope and of every broader one. */
-const SCOPE_HIERARCHY: Record<PermissionScope, PermissionScope[]> = {
-  [PermissionScope.SYSTEM]: [SYSTEM, ORGANIZATION, PROJECT],
-  [PermissionScope.ORGANIZATION]: [ORGANIZATION, PROJECT],
-  [PermissionScope.PROJECT]: [PROJECT],
-  [PermissionScope.UNSPECIFIED]: [],
-};
-
+/** A role may confer the permissions of its scope and of every narrower one. */
 export const getPermissionDefinitionsForScope = (
   scope: PermissionScope,
-): PermissionDefinition[] => {
-  const allowed = SCOPE_HIERARCHY[scope] ?? [];
-  return PERMISSION_CATALOG.filter(definition => allowed.includes(definition.scope));
-};
+): PermissionDefinition[] =>
+  PERMISSION_CATALOG.filter(definition => scopeCovers(scope, definition.scope));
 
 /** Never shown by the editor at a scope, and written on the user's behalf. */
 interface ImplicitPermission {
@@ -126,12 +97,13 @@ interface ImplicitPermission {
  * What each scope confers without asking, because it is what the scope already means:
  * - organization: READ_ORGANIZATION is belonging; READ_PROJECT rides on
  *   LIST_PROJECTS_BY_ORGANIZATION (listing every project without opening any is useless).
- * - system: MANAGE_SYSTEM_GRANTS rides on MANAGE_ROLES (who writes roles hands them out).
+ * - system: the `PERMISSION_IMPLICATIONS` of authz (MANAGE_SYSTEM_GRANTS rides on MANAGE_ROLES).
  */
 const IMPLICIT_PERMISSIONS_BY_SCOPE: Partial<Record<PermissionScope, ImplicitPermission[]>> = {
-  [PermissionScope.SYSTEM]: [
-    { id: Permission.MANAGE_SYSTEM_GRANTS, standsIn: Permission.MANAGE_ROLES },
-  ],
+  [PermissionScope.SYSTEM]: PERMISSION_IMPLICATIONS.map(({ permission, by }) => ({
+    id: permission,
+    standsIn: by,
+  })),
   [PermissionScope.ORGANIZATION]: [
     { id: Permission.READ_ORGANIZATION },
     { id: Permission.READ_PROJECT, standsIn: Permission.LIST_PROJECTS_BY_ORGANIZATION },
@@ -202,7 +174,7 @@ export const getPermissionsForScope = (scope: PermissionScope): Permission[] =>
 export const lockedPermissionsOf = (
   candidates: readonly Permission[],
   scope: PermissionScope,
-  effective: EffectivePermissionsEntity | null,
+  effective: EffectivePermissions | null,
   organizationId: string | null,
 ): Set<Permission> =>
   new Set(

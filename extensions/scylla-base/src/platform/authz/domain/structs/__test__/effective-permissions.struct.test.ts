@@ -4,13 +4,13 @@ import {
   canAccess,
   holdsFullControl,
   holdsPermission,
-  permissionLevel,
-  type EffectivePermissionsEntity,
-  type EffectiveScopeEntity,
-} from '../effective-permissions.entity.ts';
-import { Permission, PermissionScope } from '@platform/authz/domain/structs/permission.struct.ts';
+  type EffectivePermissions,
+  type EffectiveScope,
+} from '../effective-permissions.struct.ts';
+import { Permission, permissionLevel } from '../permission.struct.ts';
+import { PermissionScope } from '../permission-scope.struct.ts';
 
-const effective = (...scopes: EffectivePermissionsEntity['scopes']): EffectivePermissionsEntity => ({
+const effective = (...scopes: EffectivePermissions['scopes']): EffectivePermissions => ({
   scopes,
 });
 
@@ -40,7 +40,7 @@ describe('canAccess', () => {
     expect(canAccess(perms, Permission.READ_PROJECT)).toBe(false);
   });
 
-  describe('IMPLIED_BY (MANAGE_ROLES implies MANAGE_SYSTEM_GRANTS)', () => {
+  describe('PERMISSION_IMPLICATIONS (MANAGE_ROLES implies MANAGE_SYSTEM_GRANTS)', () => {
     it('holding MANAGE_ROLES also confers MANAGE_SYSTEM_GRANTS', () => {
       const perms = effective({
         scope: PermissionScope.SYSTEM,
@@ -164,15 +164,15 @@ const restricted = (
   scope: PermissionScope,
   scopeId: string,
   permissions: Permission[],
-): EffectiveScopeEntity => ({ scope, scopeId, access: { kind: 'restricted', permissions } });
+): EffectiveScope => ({ scope, scopeId, access: { kind: 'restricted', permissions } });
 
-const full = (scope: PermissionScope, scopeId: string): EffectiveScopeEntity => ({
+const full = (scope: PermissionScope, scopeId: string): EffectiveScope => ({
   scope,
   scopeId,
   access: { kind: 'fullControl' },
 });
 
-const holding = (...scopes: EffectiveScopeEntity[]): EffectivePermissionsEntity => ({ scopes });
+const holding = (...scopes: EffectiveScope[]): EffectivePermissions => ({ scopes });
 
 describe('holdsPermission — the escalation rule of the backend', () => {
   it('counts a grant on the organization that owns the role', () => {

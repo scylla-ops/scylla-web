@@ -4,7 +4,8 @@ import * as grpcRole from '../grpc-role.mapper.ts';
 import { ScopeKind } from '@base/generated/scylla/authz/v1/permission.ts';
 import type { Role } from '@base/generated/scylla/authz/v1/role.ts';
 import { RoleKind as GrpcRoleKind } from '@base/generated/scylla/authz/v1/grant.ts';
-import { PermissionScope, RoleKind } from '@platform/authz';
+import { PermissionScope } from '@platform/authz';
+import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import type {
   RoleEntity,
   RoleCreationData,

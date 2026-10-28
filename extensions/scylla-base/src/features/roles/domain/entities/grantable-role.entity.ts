@@ -1,4 +1,5 @@
-import type { PermissionScope, RoleKind } from '@platform/authz';
+import type { PermissionScope } from '@platform/authz';
+import type { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 
 /** A role that can be granted: identity and scope only, for a picker. */
 export interface GrantableRoleEntity {

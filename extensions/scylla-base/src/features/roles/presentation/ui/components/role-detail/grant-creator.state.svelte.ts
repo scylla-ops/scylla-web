@@ -1,5 +1,6 @@
 import { SvelteMap } from 'svelte/reactivity';
-import { can, Permission, PermissionScope, PrincipalKind, RoleKind } from '@platform/authz';
+import { can, Permission, PermissionScope, PrincipalKind } from '@platform/authz';
+import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { createMutation, createQuery } from '@scylla/core-sdk';
 import { organizationQueries } from '@base/features/organization';
 import { projectQueries } from '@base/features/project';

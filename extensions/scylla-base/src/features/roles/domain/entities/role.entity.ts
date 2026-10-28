@@ -1,4 +1,11 @@
-import type { AccessEntity, AccessSpec, Permission, PermissionScope, RoleKind } from '@platform/authz';
+import type { Access, AccessSpec, Permission, PermissionScope } from '@platform/authz';
+
+export enum RoleKind {
+  UNSPECIFIED = 0,
+  ADMIN = 1,
+  AGENT = 2,
+  MEMBER = 3,
+}
 
 /** `unknown`: an origin arm newer than this build. Never read it as "custom". */
 export type RoleOrigin =
@@ -19,7 +26,7 @@ export interface RoleEntity {
   /** `AGENT`: for apps only. `ADMIN`: the builtin owner roles only. */
   kind: RoleKind;
 
-  access: AccessEntity;
+  access: Access;
 }
 
 export interface RoleCreationData {
