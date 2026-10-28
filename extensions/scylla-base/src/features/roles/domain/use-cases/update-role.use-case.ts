@@ -1,13 +1,9 @@
 import type { PermissionRepository } from '@base/features/roles/domain/repository/permission.repository.ts';
-import { type RoleEntity, updateRole } from '@base/features/roles/domain/entities/role.entity.ts';
-import type { AccessSpec } from '@platform/authz';
-
-export interface UpdateRoleInput {
-  id: string;
-  name?: string;
-  description?: string;
-  access?: AccessSpec;
-}
+import {
+  type RoleEntity,
+  type UpdateRoleInput,
+  updateRole,
+} from '@base/features/roles/domain/entities/role.entity.ts';
 
 export class UpdateRoleUseCase {
   constructor(private readonly _repository: PermissionRepository) {}

@@ -1,19 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
-import { RoleKind } from '@base/features/roles';
+import { RoleKind, type GrantableRole, type RoleEntity } from '@base/features/roles';
 import { withQueryClient, withRegistry } from '@test/render.ts';
-import type { RoleEntity } from '@base/features/roles';
 import { createAssignableRoles } from '../assignable-roles.state.svelte.ts';
-
-interface GrantableRole {
-  roleId: string;
-  name: string;
-  scope: PermissionScope;
-  kind: number;
-  description: string;
-  ownerOrganizationId?: string;
-}
 
 const role = (overrides: Partial<RoleEntity> = {}): RoleEntity =>
   ({
@@ -28,10 +18,10 @@ const role = (overrides: Partial<RoleEntity> = {}): RoleEntity =>
   });
 
 const grantable = (overrides: Partial<GrantableRole> = {}): GrantableRole => ({
-  roleId: 'project-viewer',
+  id: 'project-viewer',
   name: '',
   scope: PermissionScope.PROJECT,
-  kind: 0,
+  kind: RoleKind.UNSPECIFIED,
   description: 'Read-only access',
   ...overrides,
 });
@@ -119,7 +109,7 @@ describe('createAssignableRoles', () => {
   });
 
   it('lists the builtin grantable roles with no catalog access, humanizing an unmatched id', async () => {
-    listGrantableRoles.mockResolvedValue([grantable({ roleId: 'project-viewer' })]);
+    listGrantableRoles.mockResolvedValue([grantable({ id: 'project-viewer' })]);
 
     await withAssignableRoles(PermissionScope.PROJECT, state => {
       expect(state.assignableRoles).toEqual([
@@ -142,7 +132,7 @@ describe('createAssignableRoles', () => {
       description: 'Catalog description',
     });
     listGrantableRoles.mockResolvedValue([
-      grantable({ roleId: 'role-1', description: 'grantable-only' }),
+      grantable({ id: 'role-1', description: 'grantable-only' }),
     ]);
     listRoles.mockResolvedValue([catalogRole]);
 
@@ -177,7 +167,7 @@ describe('createAssignableRoles', () => {
   it('names a role of the organization by the name the grantable list carries', async () => {
     grantOnOrganization(Permission.READ_ORGANIZATION);
     listGrantableRoles.mockResolvedValue([
-      grantable({ roleId: 'f3c1', name: 'Deployer', ownerOrganizationId: 'org-1' }),
+      grantable({ id: 'f3c1', name: 'Deployer', ownerOrganizationId: 'org-1' }),
     ]);
 
     await withAssignableRoles(PermissionScope.PROJECT, async state => {
@@ -223,7 +213,7 @@ describe('createAssignableRoles', () => {
 
   it('labelFor resolves a role through the assignable list first', async () => {
     grantCatalogAccess();
-    listGrantableRoles.mockResolvedValue([grantable({ roleId: 'role-1' })]);
+    listGrantableRoles.mockResolvedValue([grantable({ id: 'role-1' })]);
     listRoles.mockResolvedValue([role({ id: 'role-1', name: 'From catalog' })]);
 
     await withAssignableRoles(PermissionScope.PROJECT, async state => {
@@ -252,7 +242,7 @@ describe('createAssignableRoles', () => {
     grantOnOrganization(Permission.READ_ORGANIZATION);
     listGrantableRoles.mockResolvedValue([
       grantable({
-        roleId: '01m48tpcv54rh6nc689fh7trnq',
+        id: '01m48tpcv54rh6nc689fh7trnq',
         name: 'Auditor',
         scope: PermissionScope.ORGANIZATION,
         ownerOrganizationId: 'org-1',

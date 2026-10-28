@@ -53,7 +53,7 @@ beforeEach(() => {
   listGrants = vi.fn().mockResolvedValue([grantEntity()]);
   listGrantableRoles = vi.fn().mockResolvedValue([
     {
-      roleId: 'organization-member',
+      id: 'organization-member',
       scope: PermissionScope.ORGANIZATION,
       kind: 0,
       description: 'Belongs here',

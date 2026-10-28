@@ -3,11 +3,10 @@
   import LockIcon from '@lucide/svelte/icons/lock';
   import PencilIcon from '@lucide/svelte/icons/pencil';
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
-  import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
+  import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
   import { Badge } from '@scylla/ui/primitives';
   import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
   import type { RolesPage } from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
   import { scopeLabelOf } from '@base/features/roles/presentation/presenters/permission-label.presenter.ts';
   import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';

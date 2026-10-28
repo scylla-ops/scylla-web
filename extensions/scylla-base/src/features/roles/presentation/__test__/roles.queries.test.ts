@@ -7,10 +7,9 @@ import {
   PrincipalKind,
   permissionsStore,
 } from '@platform/authz';
-import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
+import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { runMutationFn, runQueryFn } from '@test/queries.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import {
   GRANTABLE_ROLES_QUERY_KEY,

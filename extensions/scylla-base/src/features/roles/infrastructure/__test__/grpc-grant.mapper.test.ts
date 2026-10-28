@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import * as grpcGrant from '../grpc-grant.mapper.ts';
 import type { Grant } from '@base/generated/scylla/authz/v1/grant.ts';
 import { PermissionScope, PrincipalKind } from '@platform/authz';
-import type { CreateGrantInput } from '@base/features/roles/domain/repository/permission.repository.ts';
+import type { CreateGrantInput } from '@base/features/roles/domain/entities/grant.entity.ts';
 
 describe('grpcGrant.toDomain', () => {
   const grant = (overrides: Partial<Grant> = {}): Grant => ({

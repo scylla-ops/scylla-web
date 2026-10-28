@@ -1,4 +1,14 @@
-import type { Access, AccessSpec, Permission, PermissionScope } from '@platform/authz';
+import {
+  accessConfers,
+  holdsPermission,
+  type Access,
+  type AccessSpec,
+  type EffectivePermissions,
+  type Permission,
+  type PermissionScope,
+} from '@platform/authz';
+import { carriedBy } from '../structs/permission-catalog.struct.ts';
+import { roleNameIssue } from '../structs/role-name.struct.ts';
 
 export enum RoleKind {
   UNSPECIFIED = 0,
@@ -29,7 +39,18 @@ export interface RoleEntity {
   access: Access;
 }
 
-export interface RoleCreationData {
+/** A role that can be granted, as a picker shows it: identity and scope only. */
+export interface GrantableRole {
+  id: string;
+  name: string;
+  scope: PermissionScope;
+  kind: RoleKind;
+  description: string;
+  /** Set for a role of that organization, absent for a platform role. */
+  ownerOrganizationId?: string;
+}
+
+export interface CreateRoleInput {
   name: string;
   description: string;
   scope: PermissionScope;
@@ -37,6 +58,13 @@ export interface RoleCreationData {
   /** Set: a role of this organization. Absent: a platform role. */
   organizationId?: string;
   access: AccessSpec;
+}
+
+export interface UpdateRoleInput {
+  id: string;
+  name?: string;
+  description?: string;
+  access?: AccessSpec;
 }
 
 /** The organization that owns the role; `null` for a platform role (builtin, or made by a system administrator). */
@@ -48,20 +76,11 @@ export const roleOwnerOf = (role: RoleEntity): string | null =>
  * unlike `canAccess`: here the question is about someone else's role, and hiding
  * access that exists would mislead an administrator.
  */
-export const roleConfers = (role: RoleEntity | undefined, permission: Permission): boolean => {
-  if (!role) return true;
-  switch (role.access.kind) {
-    case 'fullControl':
-      return true;
-    case 'restricted':
-      return role.access.permissions.includes(permission);
-    default:
-      return true;
-  }
-};
+export const roleConfers = (role: RoleEntity | undefined, permission: Permission): boolean =>
+  !role || role.access.kind === 'unknown' || accessConfers(role.access, permission);
 
 export const updateRole = (role: RoleEntity, changes: Partial<RoleEntity>): RoleEntity => {
-  if (changes.name !== undefined && changes.name.trim() === '') {
+  if (changes.name !== undefined && roleNameIssue(changes.name)) {
     throw new Error('Role name cannot be empty');
   }
 
@@ -71,3 +90,22 @@ export const updateRole = (role: RoleEntity, changes: Partial<RoleEntity>): Role
     id: role.id,
   };
 };
+
+/**
+ * The candidates the author of a role may not tick at `scope`: the backend's escalation rule
+ * (`holdsPermission`). A stand-in also needs what it carries.
+ */
+export const lockedPermissionsOf = (
+  candidates: readonly Permission[],
+  scope: PermissionScope,
+  effective: EffectivePermissions | null,
+  organizationId: string | null,
+): Set<Permission> =>
+  new Set(
+    candidates.filter(
+      candidate =>
+        !carriedBy(scope, candidate).every(permission =>
+          holdsPermission(effective, organizationId, permission),
+        ),
+    ),
+  );

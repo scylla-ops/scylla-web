@@ -1,11 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect, vi } from 'vitest';
 import { PermissionScope } from '@platform/authz';
-import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
+import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { UpdateRoleUseCase } from '../update-role.use-case';
 import type { PermissionRepository } from '@base/features/roles/domain/repository/permission.repository.ts';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 
 const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
   id: 'role-1',

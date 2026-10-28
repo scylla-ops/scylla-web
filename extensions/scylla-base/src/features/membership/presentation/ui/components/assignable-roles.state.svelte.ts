@@ -55,7 +55,7 @@ export const createAssignableRoles = (
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
     new Map(
       grantableRoles
-        .map(entry => [entry.roleId, roleById.get(entry.roleId)?.name || entry.name] as const)
+        .map(entry => [entry.id, roleById.get(entry.id)?.name || entry.name] as const)
         .filter(([, name]) => name !== ''),
     ),
   );

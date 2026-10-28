@@ -5,10 +5,10 @@ import { ScopeKind } from '@base/generated/scylla/authz/v1/permission.ts';
 import type { Role } from '@base/generated/scylla/authz/v1/role.ts';
 import { RoleKind as GrpcRoleKind } from '@base/generated/scylla/authz/v1/grant.ts';
 import { PermissionScope } from '@platform/authz';
-import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
-import type {
-  RoleEntity,
-  RoleCreationData,
+import {
+  type CreateRoleInput,
+  type RoleEntity,
+  RoleKind,
 } from '@base/features/roles/domain/entities/role.entity.ts';
 
 const baseRole = (overrides: Partial<Role> = {}): Role => ({
@@ -71,7 +71,7 @@ describe('grpcRole.toDomain', () => {
 });
 
 describe('grpcRole.toGrpcCreateRequest', () => {
-  const data = (overrides: Partial<RoleCreationData> = {}): RoleCreationData => ({
+  const data = (overrides: Partial<CreateRoleInput> = {}): CreateRoleInput => ({
     name: 'CI runner',
     description: 'runs pipelines',
     scope: PermissionScope.PROJECT,
@@ -80,7 +80,7 @@ describe('grpcRole.toGrpcCreateRequest', () => {
     ...overrides,
   });
 
-  it('builds the wire create request of a platform role from RoleCreationData', () => {
+  it('builds the wire create request of a platform role from CreateRoleInput', () => {
     expect(grpcRole.toGrpcCreateRequest(data())).toEqual({
       name: 'CI runner',
       description: 'runs pipelines',

@@ -6,9 +6,8 @@ import {
   PrincipalKind,
   permissionsStore,
 } from '@platform/authz';
-import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
+import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { withQueryClient, withRegistry } from '@test/render.ts';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import { createGrantCreator } from '../grant-creator.state.svelte.ts';
 

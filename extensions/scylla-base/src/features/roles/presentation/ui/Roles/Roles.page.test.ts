@@ -8,12 +8,11 @@ import {
   permissionsStore,
   type EffectiveScope,
 } from '@platform/authz';
-import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
+import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import RolesPage from './Roles.page.svelte';
 

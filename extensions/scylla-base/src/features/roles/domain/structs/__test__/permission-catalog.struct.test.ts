@@ -1,13 +1,16 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
+import { Permission, PermissionScope, permissionLevel } from '@platform/authz';
 import {
-  Permission,
-  PermissionScope,
-  permissionLevel,
-  type EffectivePermissions,
-  type EffectiveScope,
-} from '@platform/authz';
-import { PERMISSION_CATALOG, getPermissionDefinition, isEditablePermission, getPermissionDefinitionsForScope, getAlwaysGrantedPermissionsForScope, isHiddenAtScope, withImplicitPermissions, getEditablePermissionDefinitionsForScope, getPermissionsForScope, lockedPermissionsOf } from '../permission-catalog.struct.ts';
+  PERMISSION_CATALOG,
+  getAlwaysGrantedPermissionsForScope,
+  getPermissionDefinition,
+  getPermissionDefinitionsForScope,
+  getPermissionsForScope,
+  isEditablePermission,
+  isImplicitAtScope,
+  withImplicitPermissions,
+} from '../permission-catalog.struct.ts';
 
 describe('catalog lookups', () => {
   it('getPermissionDefinition finds a cataloged permission', () => {
@@ -76,14 +79,14 @@ describe('implicit permissions — the "member of" / "manage grants" rule', () =
     expect(getAlwaysGrantedPermissionsForScope(PermissionScope.PROJECT)).toEqual([]);
   });
 
-  it('isHiddenAtScope: MANAGE_SYSTEM_GRANTS is hidden at SYSTEM but a real, visible toggle elsewhere', () => {
-    expect(isHiddenAtScope(Permission.MANAGE_SYSTEM_GRANTS, PermissionScope.SYSTEM)).toBe(true);
-    expect(isHiddenAtScope(Permission.MANAGE_SYSTEM_GRANTS, PermissionScope.ORGANIZATION)).toBe(false);
+  it('isImplicitAtScope: MANAGE_SYSTEM_GRANTS is hidden at SYSTEM but a real, visible toggle elsewhere', () => {
+    expect(isImplicitAtScope(Permission.MANAGE_SYSTEM_GRANTS, PermissionScope.SYSTEM)).toBe(true);
+    expect(isImplicitAtScope(Permission.MANAGE_SYSTEM_GRANTS, PermissionScope.ORGANIZATION)).toBe(false);
   });
 
-  it('isHiddenAtScope: READ_PROJECT is hidden at ORGANIZATION (stands in for LIST_PROJECTS_BY_ORGANIZATION) but not at PROJECT, where it is the whole point', () => {
-    expect(isHiddenAtScope(Permission.READ_PROJECT, PermissionScope.ORGANIZATION)).toBe(true);
-    expect(isHiddenAtScope(Permission.READ_PROJECT, PermissionScope.PROJECT)).toBe(false);
+  it('isImplicitAtScope: READ_PROJECT is hidden at ORGANIZATION (stands in for LIST_PROJECTS_BY_ORGANIZATION) but not at PROJECT, where it is the whole point', () => {
+    expect(isImplicitAtScope(Permission.READ_PROJECT, PermissionScope.ORGANIZATION)).toBe(true);
+    expect(isImplicitAtScope(Permission.READ_PROJECT, PermissionScope.PROJECT)).toBe(false);
   });
 });
 
@@ -141,35 +144,6 @@ describe('withImplicitPermissions — what actually gets written', () => {
   });
 });
 
-describe('getEditablePermissionDefinitionsForScope — what the editor actually renders', () => {
-  it('never renders a hidden (implicit) permission as a toggle', () => {
-    const ids = getEditablePermissionDefinitionsForScope(PermissionScope.ORGANIZATION).map(d => d.id);
-    expect(ids).not.toContain(Permission.READ_ORGANIZATION);
-    expect(ids).not.toContain(Permission.READ_PROJECT);
-    expect(ids).not.toContain(Permission.READ_PIPELINE);
-  });
-
-  it('re-parents a child of a hidden node onto its stand-in, so the tree does not point at a node that is not rendered', () => {
-    const definitions = getEditablePermissionDefinitionsForScope(PermissionScope.ORGANIZATION);
-    const updateProject = definitions.find(d => d.id === Permission.UPDATE_PROJECT);
-    // At ORGANIZATION scope, READ_PROJECT is hidden and LIST_PROJECTS_BY_ORGANIZATION stands in for it.
-    expect(updateProject?.dependsOn).toBe(Permission.LIST_PROJECTS_BY_ORGANIZATION);
-  });
-
-  it('leaves dependsOn untouched when the parent is not hidden at this scope', () => {
-    const definitions = getEditablePermissionDefinitionsForScope(PermissionScope.PROJECT);
-    const updateProject = definitions.find(d => d.id === Permission.UPDATE_PROJECT);
-    expect(updateProject?.dependsOn).toBe(Permission.READ_PROJECT);
-  });
-
-  it('is exactly getPermissionDefinitionsForScope minus the hidden entries, same order', () => {
-    const all = getPermissionDefinitionsForScope(PermissionScope.PROJECT).map(d => d.id);
-    const editable = getEditablePermissionDefinitionsForScope(PermissionScope.PROJECT).map(d => d.id);
-    const hiddenIds = all.filter(id => isHiddenAtScope(id, PermissionScope.PROJECT));
-    expect(editable).toEqual(all.filter(id => !hiddenIds.includes(id)));
-  });
-});
-
 describe('the catalog and the levels of @platform/authz', () => {
   it('takes the scope of each permission from its level', () => {
     for (const definition of PERMISSION_CATALOG) {
@@ -180,46 +154,5 @@ describe('the catalog and the levels of @platform/authz', () => {
   it('lists the scopes broad to narrow, the order the editor renders', () => {
     const scopes = PERMISSION_CATALOG.map(definition => definition.scope);
     expect(scopes).toEqual([...scopes].sort((a, b) => a - b));
-  });
-});
-
-const restricted = (
-  scope: PermissionScope,
-  scopeId: string,
-  permissions: Permission[],
-): EffectiveScope => ({ scope, scopeId, access: { kind: 'restricted', permissions } });
-
-const holding = (...scopes: EffectiveScope[]): EffectivePermissions => ({ scopes });
-
-describe('lockedPermissionsOf', () => {
-  it('locks what the author does not hold, and nothing else', () => {
-    const effective = holding(
-      restricted(PermissionScope.ORGANIZATION, 'org-1', [Permission.RUN_PIPELINE]),
-    );
-
-    const locked = lockedPermissionsOf(
-      [Permission.RUN_PIPELINE, Permission.DELETE_PIPELINE],
-      PermissionScope.PROJECT,
-      effective,
-      'org-1',
-    );
-
-    expect([...locked]).toEqual([Permission.DELETE_PIPELINE]);
-  });
-
-  it('locks a stand-in when the author lacks what it carries', () => {
-    // At project scope, listing the pipelines also writes READ_PIPELINE.
-    const effective = holding(
-      restricted(PermissionScope.ORGANIZATION, 'org-1', [Permission.LIST_PIPELINES_BY_PROJECT]),
-    );
-
-    const locked = lockedPermissionsOf(
-      [Permission.LIST_PIPELINES_BY_PROJECT],
-      PermissionScope.PROJECT,
-      effective,
-      'org-1',
-    );
-
-    expect(locked.has(Permission.LIST_PIPELINES_BY_PROJECT)).toBe(true);
   });
 });

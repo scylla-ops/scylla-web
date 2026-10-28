@@ -5,14 +5,17 @@ import {
   type PermissionScope,
   type Principal,
 } from '@platform/authz';
-import type { RoleCreationData, RoleEntity } from '../domain/entities/role.entity.ts';
-import type { GrantEntity } from '../domain/entities/grant.entity.ts';
+import type {
+  CreateRoleInput,
+  GrantableRole,
+  RoleEntity,
+  UpdateRoleInput,
+} from '../domain/entities/role.entity.ts';
 import type {
   CreateGrantInput,
+  GrantEntity,
   RevokeAllAccessInput,
-} from '../domain/repository/permission.repository.ts';
-import type { UpdateRoleInput } from '../domain/use-cases/update-role.use-case.ts';
-import type { GrantableRoleEntity } from '../domain/entities/grantable-role.entity.ts';
+} from '../domain/entities/grant.entity.ts';
 import type { RolesModule } from '../roles.module.ts';
 
 // Resolved per call: tests swap the registry.
@@ -67,7 +70,7 @@ export const roleQueries = {
     organizationId?: string | null,
     options: { enabled?: boolean } = {},
   ) =>
-    queryOptions<GrantableRoleEntity[]>({
+    queryOptions<GrantableRole[]>({
       queryKey: GRANTABLE_ROLES_QUERY_KEY(scope, organizationId),
       enabled: options.enabled ?? true,
       queryFn: () =>
@@ -145,7 +148,7 @@ const invalidateRoles = () => {
 export const roleMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: (input: RoleCreationData) => domain().permissionRepository.createRole(input),
+      mutationFn: (input: CreateRoleInput) => domain().permissionRepository.createRole(input),
       onSuccess: invalidateRoles,
     }),
 

@@ -1,14 +1,14 @@
+import type { PermissionRepository } from '@base/features/roles/domain/repository/permission.repository.ts';
 import type {
-  CreateGrantInput,
-  PermissionRepository,
-  RevokeAllAccessInput,
-} from '@base/features/roles/domain/repository/permission.repository.ts';
-import type {
-  RoleCreationData,
+  CreateRoleInput,
+  GrantableRole,
   RoleEntity,
 } from '@base/features/roles/domain/entities/role.entity.ts';
-import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
-import type { GrantableRoleEntity } from '@base/features/roles/domain/entities/grantable-role.entity.ts';
+import type {
+  CreateGrantInput,
+  GrantEntity,
+  RevokeAllAccessInput,
+} from '@base/features/roles/domain/entities/grant.entity.ts';
 import type { IGrantServiceClient } from '@base/generated/scylla/authz/v1/grant.client.ts';
 import type { IRoleServiceClient } from '@base/generated/scylla/authz/v1/role.client.ts';
 import type { EffectivePermissions, PermissionScope, Principal } from '@platform/authz';
@@ -45,7 +45,7 @@ export class DefaultPermissionRepository implements PermissionRepository {
     return grpcRole.toDomain(required(response.role, 'role'));
   }
 
-  public async createRole(role: RoleCreationData): Promise<RoleEntity> {
+  public async createRole(role: CreateRoleInput): Promise<RoleEntity> {
     const response = await this.roles.createRole(grpcRole.toGrpcCreateRequest(role)).response;
     return grpcRole.toDomain(required(response.role, 'role'));
   }
@@ -106,7 +106,7 @@ export class DefaultPermissionRepository implements PermissionRepository {
   public async listGrantableRoles(
     scope?: PermissionScope,
     organizationId?: string,
-  ): Promise<GrantableRoleEntity[]> {
+  ): Promise<GrantableRole[]> {
     const response = await this.grants.listGrantableRoles({
       scopeKind: scope != null ? grpcPermission.scopeToGrpc(scope) : undefined,
       organizationId: organizationRef(organizationId),

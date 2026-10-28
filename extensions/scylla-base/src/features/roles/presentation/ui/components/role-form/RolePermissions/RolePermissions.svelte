@@ -2,9 +2,12 @@
   import { Badge, Checkbox, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { Permission, PermissionScope } from '@platform/authz';
-  import { getAlwaysGrantedPermissionsForScope, getEditablePermissionDefinitionsForScope } from '@base/features/roles/domain/structs/permission-catalog.struct.ts';
-import { permissionLabelOf } from '@base/features/roles/presentation/presenters/permission-label.presenter.ts';
-  import { buildPermissionTree } from '@base/features/roles/presentation/presenters/permission-tree.presenter.ts';
+  import { getAlwaysGrantedPermissionsForScope } from '@base/features/roles/domain/structs/permission-catalog.struct.ts';
+  import { permissionLabelOf } from '@base/features/roles/presentation/presenters/permission-label.presenter.ts';
+  import {
+    buildPermissionTree,
+    getEditablePermissionDefinitionsForScope,
+  } from '@base/features/roles/presentation/presenters/permission-tree.presenter.ts';
   import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
   import CheckboxTree from '../CheckboxTree/CheckboxTree.svelte';
 

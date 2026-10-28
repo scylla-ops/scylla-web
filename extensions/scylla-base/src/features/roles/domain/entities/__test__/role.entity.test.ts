@@ -1,8 +1,18 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { Permission, PermissionScope } from '@platform/authz';
-import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
-import { roleConfers, updateRole, type RoleEntity } from '../role.entity';
+import {
+  Permission,
+  PermissionScope,
+  type EffectivePermissions,
+  type EffectiveScope,
+} from '@platform/authz';
+import {
+  lockedPermissionsOf,
+  roleConfers,
+  RoleKind,
+  updateRole,
+  type RoleEntity,
+} from '../role.entity.ts';
 
 const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
   id: 'role-1',
@@ -16,6 +26,16 @@ const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
 });
 
 describe('roleConfers', () => {
+  it('a restricted role confers what its permissions imply', () => {
+    const access = { kind: 'restricted', permissions: [Permission.MANAGE_ROLES] } as const;
+    expect(
+      roleConfers(
+        role({ access: { ...access, permissions: [...access.permissions] } }),
+        Permission.MANAGE_SYSTEM_GRANTS,
+      ),
+    ).toBe(true);
+  });
+
   it('a fullControl role confers everything', () => {
     expect(roleConfers(role({ access: { kind: 'fullControl' } }), Permission.DELETE_PROJECT)).toBe(
       true,
@@ -29,7 +49,9 @@ describe('roleConfers', () => {
   });
 
   it('an unknown access arm confers everything, not nothing (deliberately, per the doc comment)', () => {
-    expect(roleConfers(role({ access: { kind: 'unknown' } }), Permission.DELETE_PROJECT)).toBe(true);
+    expect(roleConfers(role({ access: { kind: 'unknown' } }), Permission.DELETE_PROJECT)).toBe(
+      true,
+    );
   });
 
   it('a missing role (undefined) confers everything - denying would hide access that actually exists', () => {
@@ -65,5 +87,46 @@ describe('updateRole', () => {
     const updated = updateRole(r, { name: 'renamed' });
     expect(updated).not.toBe(r);
     expect(r.name).toBe('CI runner');
+  });
+});
+
+const restricted = (
+  scope: PermissionScope,
+  scopeId: string,
+  permissions: Permission[],
+): EffectiveScope => ({ scope, scopeId, access: { kind: 'restricted', permissions } });
+
+const holding = (...scopes: EffectiveScope[]): EffectivePermissions => ({ scopes });
+
+describe('lockedPermissionsOf', () => {
+  it('locks what the author does not hold, and nothing else', () => {
+    const effective = holding(
+      restricted(PermissionScope.ORGANIZATION, 'org-1', [Permission.RUN_PIPELINE]),
+    );
+
+    const locked = lockedPermissionsOf(
+      [Permission.RUN_PIPELINE, Permission.DELETE_PIPELINE],
+      PermissionScope.PROJECT,
+      effective,
+      'org-1',
+    );
+
+    expect([...locked]).toEqual([Permission.DELETE_PIPELINE]);
+  });
+
+  it('locks a stand-in when the author lacks what it carries', () => {
+    // At project scope, listing the pipelines also writes READ_PIPELINE.
+    const effective = holding(
+      restricted(PermissionScope.ORGANIZATION, 'org-1', [Permission.LIST_PIPELINES_BY_PROJECT]),
+    );
+
+    const locked = lockedPermissionsOf(
+      [Permission.LIST_PIPELINES_BY_PROJECT],
+      PermissionScope.PROJECT,
+      effective,
+      'org-1',
+    );
+
+    expect(locked.has(Permission.LIST_PIPELINES_BY_PROJECT)).toBe(true);
   });
 });

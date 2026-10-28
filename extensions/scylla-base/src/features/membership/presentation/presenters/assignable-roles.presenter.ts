@@ -1,5 +1,4 @@
-import { RoleKind } from '@base/features/roles';
-import { humanizeRoleId, type GrantableRoleEntity, type RoleEntity } from '@base/features/roles';
+import { humanizeRoleId, RoleKind, type GrantableRole, type RoleEntity } from '@base/features/roles';
 
 export interface AssignableRole {
   roleId: string;
@@ -12,16 +11,16 @@ export interface AssignableRole {
 
 /** A member is a person: a role for apps is never offered. The full role comes from `roleById`. */
 export const assignableForPeople = (
-  grantable: readonly GrantableRoleEntity[],
+  grantable: readonly GrantableRole[],
   roleById: ReadonlyMap<string, RoleEntity>,
 ): AssignableRole[] =>
   grantable
     .filter(entry => entry.kind !== RoleKind.AGENT)
     .map(entry => {
-      const role = roleById.get(entry.roleId);
+      const role = roleById.get(entry.id);
       return {
-        roleId: entry.roleId,
-        name: role?.name || entry.name || humanizeRoleId(entry.roleId),
+        roleId: entry.id,
+        name: role?.name || entry.name || humanizeRoleId(entry.id),
         description: role?.description || entry.description,
         ownedByOrganization: entry.ownerOrganizationId !== undefined,
         role,

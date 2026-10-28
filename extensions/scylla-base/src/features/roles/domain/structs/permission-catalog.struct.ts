@@ -2,10 +2,8 @@ import {
   Permission,
   PERMISSION_IMPLICATIONS,
   PermissionScope,
-  holdsPermission,
   permissionLevel,
   scopeCovers,
-  type EffectivePermissions,
 } from '@platform/authz';
 
 /**
@@ -86,8 +84,8 @@ export const getPermissionDefinitionsForScope = (
 ): PermissionDefinition[] =>
   PERMISSION_CATALOG.filter(definition => scopeCovers(scope, definition.scope));
 
-/** Never shown by the editor at a scope, and written on the user's behalf. */
-interface ImplicitPermission {
+/** Conferred by the scope itself, and written on the author's behalf: the editor does not offer it. */
+export interface ImplicitPermission {
   id: Permission;
   /** Takes its place (adopts its children, ticking it writes `id` too). Absent: always conferred, shown locked. */
   standsIn?: Permission;
@@ -114,16 +112,16 @@ const IMPLICIT_PERMISSIONS_BY_SCOPE: Partial<Record<PermissionScope, ImplicitPer
   ],
 };
 
-const getImplicitAtScope = (scope: PermissionScope): ImplicitPermission[] =>
+export const getImplicitAtScope = (scope: PermissionScope): ImplicitPermission[] =>
   IMPLICIT_PERMISSIONS_BY_SCOPE[scope] ?? [];
 
-/** The ticked, locked rows above the tree. */
+/** What the scope confers whatever the author chooses. */
 export const getAlwaysGrantedPermissionsForScope = (scope: PermissionScope): Permission[] =>
   getImplicitAtScope(scope)
     .filter(entry => entry.standsIn === undefined)
     .map(entry => entry.id);
 
-export const isHiddenAtScope = (permission: Permission, scope: PermissionScope): boolean =>
+export const isImplicitAtScope = (permission: Permission, scope: PermissionScope): boolean =>
   getImplicitAtScope(scope).some(entry => entry.id === permission);
 
 /** What gets written: the choices, what the scope confers, and what a ticked stand-in carries. */
@@ -146,42 +144,5 @@ export const carriedBy = (scope: PermissionScope, permission: Permission): Permi
     .map(entry => entry.id),
 ];
 
-/** What the editor renders. A child of a hidden entry hangs under its stand-in, or becomes a root. */
-export const getEditablePermissionDefinitionsForScope = (
-  scope: PermissionScope,
-): PermissionDefinition[] => {
-  const implicit = getImplicitAtScope(scope);
-  const hidden = new Set(implicit.map(entry => entry.id));
-  const standInFor = new Map(
-    implicit
-      .filter(entry => entry.standsIn !== undefined)
-      .map(entry => [entry.id, entry.standsIn!] as const),
-  );
-
-  return getPermissionDefinitionsForScope(scope)
-    .filter(definition => !hidden.has(definition.id))
-    .map(definition => {
-      if (definition.dependsOn === undefined) return definition;
-      const substitute = standInFor.get(definition.dependsOn);
-      return substitute === undefined ? definition : { ...definition, dependsOn: substitute };
-    });
-};
-
 export const getPermissionsForScope = (scope: PermissionScope): Permission[] =>
   getPermissionDefinitionsForScope(scope).map(definition => definition.id);
-
-/** The candidates the author may not tick at `scope`: a stand-in also needs what it carries. */
-export const lockedPermissionsOf = (
-  candidates: readonly Permission[],
-  scope: PermissionScope,
-  effective: EffectivePermissions | null,
-  organizationId: string | null,
-): Set<Permission> =>
-  new Set(
-    candidates.filter(
-      candidate =>
-        !carriedBy(scope, candidate).every(permission =>
-          holdsPermission(effective, organizationId, permission),
-        ),
-    ),
-  );

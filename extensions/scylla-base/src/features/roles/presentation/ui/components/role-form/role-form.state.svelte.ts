@@ -1,22 +1,25 @@
 import {
-  permissionsStore,
-  PermissionScope,
   type AccessSpec,
+  holdsFullControl,
   type Permission,
+  PermissionScope,
+  permissionsStore,
 } from '@platform/authz';
-import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
+import {
+  lockedPermissionsOf,
+  type RoleEntity,
+  RoleKind,
+} from '@base/features/roles/domain/entities/role.entity.ts';
 import { createMutation } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
-import { holdsFullControl } from '@platform/authz';
-import { lockedPermissionsOf } from '@base/features/roles/domain/structs/permission-catalog.struct.ts';
+import { roleNameIssue } from '@base/features/roles/domain/structs/role-name.struct.ts';
+import { getEditablePermissionDefinitionsForScope } from '@base/features/roles/presentation/presenters/permission-tree.presenter.ts';
 import { roleMutations } from '@base/features/roles/presentation/roles.queries.ts';
 import {
   ALL_SCOPES,
-  getEditablePermissionDefinitionsForScope,
   getPermissionsForScope,
   isEditablePermission,
-  isHiddenAtScope,
+  isImplicitAtScope,
   withImplicitPermissions,
 } from '@base/features/roles/domain/structs/permission-catalog.struct.ts';
 
@@ -53,7 +56,7 @@ export const createRoleForm = (role: RoleEntity | null, organizationId: string |
     role?.access.kind === 'restricted'
       ? role.access.permissions.filter(
           permission =>
-            isEditablePermission(permission) && !isHiddenAtScope(permission, initialScope),
+            isEditablePermission(permission) && !isImplicitAtScope(permission, initialScope),
         )
       : [],
   );
@@ -157,7 +160,7 @@ export const createRoleForm = (role: RoleEntity | null, organizationId: string |
     /** An organization role is never empty: it always carries what belonging means. */
     get isValid() {
       return (
-        name.trim().length > 0 &&
+        roleNameIssue(name) === null &&
         (accessKind === 'fullControl' || conferred.length + preserved.length > 0)
       );
     },
@@ -169,7 +172,7 @@ export const createRoleForm = (role: RoleEntity | null, organizationId: string |
       // eslint-disable-next-line svelte/prefer-svelte-reactivity
       const allowed = new Set(getPermissionsForScope(next) ?? []);
       permissions = permissions.filter(
-        permission => allowed.has(permission) && !isHiddenAtScope(permission, next),
+        permission => allowed.has(permission) && !isImplicitAtScope(permission, next),
       );
     },
     /** Returns whether it was saved: the dialog closes on success and keeps the input on failure. */

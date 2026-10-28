@@ -15,6 +15,19 @@ export interface GrantEntity {
   scopeId: string;
 }
 
+export interface CreateGrantInput {
+  principal: Principal;
+  roleId: string;
+  scope: PermissionScope;
+  scopeId: string;
+}
+
+export interface RevokeAllAccessInput {
+  principal: Principal;
+  scope: PermissionScope;
+  scopeId: string;
+}
+
 /**
  * - `not-admitted`: no grant on the organization; the backend rejects the grant.
  * - `cannot-see-projects`: admitted, but cannot read the organization, so the grant would be useless.

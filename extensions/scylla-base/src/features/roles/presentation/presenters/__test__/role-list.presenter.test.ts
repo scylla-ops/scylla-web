@@ -1,8 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import { Permission, PermissionScope, PrincipalKind } from '@platform/authz';
-import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
+import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import { countHoldersByRole, groupRolesByOwner, sortRolesByName } from '../role-list.presenter.ts';
 

@@ -1,6 +1,8 @@
 import type { CreateGrantRequest, Grant } from '@base/generated/scylla/authz/v1/grant.ts';
-import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
-import type { CreateGrantInput } from '@base/features/roles/domain/repository/permission.repository.ts';
+import type {
+  CreateGrantInput,
+  GrantEntity,
+} from '@base/features/roles/domain/entities/grant.entity.ts';
 import * as grpcPermission from '@base/features/roles/infrastructure/grpc-permission.mapper.ts';
 
 export function toDomain(grpcGrant: Grant): GrantEntity {
