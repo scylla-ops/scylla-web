@@ -2,7 +2,7 @@ import type { LucideIcon } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
 import { cn } from '@scylla/ui/utils';
 import {
-  nodeProblem,
+  nodeIssue,
   type PipelineNodeEntity,
   type NodeDefinition,
 } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
@@ -70,7 +70,7 @@ const repeatedProblem = (): NonNullable<NodeSummary['problem']> => ({
 });
 
 const problemOf = (node: PipelineNodeEntity): NodeSummary['problem'] => {
-  const problem = nodeProblem(node);
+  const problem = nodeIssue(node);
   if (!problem) return null;
   if (problem.kind === 'id')
     return { label: t(nodeMessages.invalidId), detail: nodeIdIssueText(problem.issue) };

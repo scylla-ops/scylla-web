@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import {
   SECRET_LABEL_MAX_BYTES,
   normalizeSecretLabel,
-  secretLabelProblem,
+  secretLabelIssue,
   suggestSecretLabel,
   trimSecretLabel,
 } from '../secret-label.struct.ts';
@@ -34,33 +34,33 @@ describe('normalizeSecretLabel', () => {
   });
 });
 
-describe('secretLabelProblem', () => {
+describe('secretLabelIssue', () => {
   it('accepts what CE accepts, once trimmed', () => {
-    expect(secretLabelProblem(' runner.local ')).toBeNull();
-    expect(secretLabelProblem('é'.repeat(32))).toBeNull();
+    expect(secretLabelIssue(' runner.local ')).toBeNull();
+    expect(secretLabelIssue('é'.repeat(32))).toBeNull();
   });
 
   it('accepts U+0085 at the edge, which CE trims, and U+FEFF, which is not a control character', () => {
-    expect(secretLabelProblem('\u0085abc')).toBeNull();
+    expect(secretLabelIssue('\u0085abc')).toBeNull();
     expect(normalizeSecretLabel('\u0085abc')).toBe('abc');
-    expect(secretLabelProblem('\ufeffabc')).toBeNull();
+    expect(secretLabelIssue('\ufeffabc')).toBeNull();
     expect(normalizeSecretLabel('\ufeffabc')).toBe('\ufeffabc');
   });
 
   it('compares a taken label after the CE trim', () => {
-    expect(secretLabelProblem('\u0085runner.local', ['runner.local'])).toBe('taken');
+    expect(secretLabelIssue('\u0085runner.local', ['runner.local'])).toBe('taken');
   });
 
   it('names the CE rule that a label breaks', () => {
-    expect(secretLabelProblem('   ')).toBe('empty');
-    expect(secretLabelProblem('a\tb')).toBe('control');
-    expect(secretLabelProblem('a'.repeat(SECRET_LABEL_MAX_BYTES + 1))).toBe('tooLong');
-    expect(secretLabelProblem('é'.repeat(33))).toBe('tooLong');
+    expect(secretLabelIssue('   ')).toBe('empty');
+    expect(secretLabelIssue('a\tb')).toBe('control');
+    expect(secretLabelIssue('a'.repeat(SECRET_LABEL_MAX_BYTES + 1))).toBe('tooLong');
+    expect(secretLabelIssue('é'.repeat(33))).toBe('tooLong');
   });
 
   it('refuses a label that another secret of the app has, with the same case', () => {
-    expect(secretLabelProblem('runner.local ', ['runner.local'])).toBe('taken');
-    expect(secretLabelProblem('Runner.local', ['runner.local'])).toBeNull();
+    expect(secretLabelIssue('runner.local ', ['runner.local'])).toBe('taken');
+    expect(secretLabelIssue('Runner.local', ['runner.local'])).toBeNull();
   });
 });
 

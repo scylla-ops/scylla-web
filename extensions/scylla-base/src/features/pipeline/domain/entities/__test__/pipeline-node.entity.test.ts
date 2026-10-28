@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import {
-  nodeIssue,
+  nodeRunIssue,
   withDefinition,
   withDependencies,
   withoutDependency,
@@ -24,18 +24,18 @@ const exec = (command: string, args: string[] = []): NodeDefinition => ({
 });
 const build: PipelineNodeEntity = { id: 'build', deps: ['lint', 'fetch'], ...script('make') };
 
-describe('nodeIssue', () => {
+describe('nodeRunIssue', () => {
   it('flags a command node without a command', () => {
-    expect(nodeIssue(exec('  '))).toBe('missing-command');
+    expect(nodeRunIssue(exec('  '))).toBe('missing-command');
   });
 
   it('flags a blank script', () => {
-    expect(nodeIssue(script('\n  \n'))).toBe('empty-script');
+    expect(nodeRunIssue(script('\n  \n'))).toBe('empty-script');
   });
 
   it('finds nothing wrong with a runnable node', () => {
-    expect(nodeIssue(exec('make'))).toBeNull();
-    expect(nodeIssue(script('make'))).toBeNull();
+    expect(nodeRunIssue(exec('make'))).toBeNull();
+    expect(nodeRunIssue(script('make'))).toBeNull();
   });
 });
 

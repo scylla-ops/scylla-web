@@ -1,6 +1,6 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { t } from '@scylla/ui/i18n';
-import type { NodeIssue } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import type { NodeRunIssue } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import type { NodeIdIssue } from '@base/features/pipeline/domain/structs/node-id.struct.ts';
 import { nodeMessages } from '../messages/node.messages.ts';
 
@@ -19,7 +19,7 @@ export const nodeIdIssueText = (issue: NodeIdIssue): string => {
   }
 };
 
-export const NODE_ISSUE_MESSAGES: Record<NodeIssue, MessageDescriptor> = {
+export const NODE_ISSUE_MESSAGES: Record<NodeRunIssue, MessageDescriptor> = {
   'missing-command': nodeMessages.missingCommand,
   'empty-script': nodeMessages.emptyScript,
 };

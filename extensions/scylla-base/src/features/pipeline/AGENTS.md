@@ -73,8 +73,8 @@ domain/
                                              dependencyCandidates, nodeDepths, waitsFor, uniqueNodeId,
                                              hasRepeats (pure, tested)
   entities/pipeline-node.entity.ts           PipelineNodeEntity, NodeDefinition, Shell, EnvEntry:
-                                             definitionOf, nodeIssue,
-                                             nodeProblem, blankDefinition, withDefinition,
+                                             definitionOf, nodeRunIssue,
+                                             nodeIssue, blankDefinition, withDefinition,
                                              withDependencies, withoutDependency, withRenamedReference
   entities/node-template.entity.ts           NodeTemplateEntity: a ready-made node of the palette
   structs/node-id.struct.ts                  NodeId: the id rule of the server (nodeIdIssue, toNodeId)
@@ -316,7 +316,7 @@ the page.
   the inspector; the canvas does not add the edge itself.
 - **The inspector applies each edit at once** (`blueprint.updateNode`), also when the node
   cannot run yet: the inspector, the node and the document always show the same node, and
-  `nodeIssue` (no command, empty script) is shown on the node and in the inspector. Never hold
+  `nodeRunIssue` (no command, empty script) is shown on the node and in the inspector. Never hold
   an edit back: a held edit is lost when the panel closes. A rename is applied on blur or Enter
   (`draft.rename()` → `renameNode`), never per keystroke: the panel is keyed by the node id
   and rebuilds on a rename. The inspector keeps the id that `renameNode` returns, so a refused

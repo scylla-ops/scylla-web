@@ -15,8 +15,8 @@ Machine identities ("apps") and the secrets they authenticate with.
 ```typescript
 type AppEntity, AppSecretEntity
 type CreatedApp, CreatedAppSecret, AppAccess, ResetAppSecret
-type SecretLabelProblem
-SECRET_LABEL_MAX_BYTES, normalizeSecretLabel, secretLabelProblem, suggestSecretLabel, trimSecretLabel
+type SecretLabelIssue
+SECRET_LABEL_MAX_BYTES, normalizeSecretLabel, secretLabelIssue, suggestSecretLabel, trimSecretLabel
 appQueries, appMutations
 APPS_QUERY_KEY, APP_QUERY_KEY, APP_SECRETS_QUERY_KEY, APP_ACCESS_QUERY_KEY
 ```
@@ -62,7 +62,7 @@ runs it, with `gcTime: 0`.
 `AppSecretLabel` in CE: trimmed, 1 to 64 UTF-8 bytes, no control character, unique in the app.
 Dots and upper case are valid.
 
-- `secretLabelProblem(label, taken)` gives the broken rule (`empty`, `tooLong`, `control`,
+- `secretLabelIssue(label, taken)` gives the broken rule (`empty`, `tooLong`, `control`,
   `taken`), or `null`.
 - `normalizeSecretLabel(raw)` removes the control characters, trims, and cuts to 64 bytes.
 - `trimSecretLabel(value)` is the trim of CE (Rust `str::trim`, the Unicode White_Space

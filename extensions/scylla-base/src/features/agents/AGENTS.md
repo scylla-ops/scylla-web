@@ -59,7 +59,7 @@ An agent is an app. The other calls go through the barrels of the features that 
 
 | From | Used for |
 |---|---|
-| `features/apps` | `appQueries.secretsOf`, `appQueries.accessOf` (`ListAppAccess`), `appMutations.resetSecret`, `revokeSecret`, `setSecretEnabled`, `setSecretLabel`, `setActive`; `suggestSecretLabel`, `secretLabelProblem`, `trimSecretLabel` |
+| `features/apps` | `appQueries.secretsOf`, `appQueries.accessOf` (`ListAppAccess`), `appMutations.resetSecret`, `revokeSecret`, `setSecretEnabled`, `setSecretLabel`, `setActive`; `suggestSecretLabel`, `secretLabelIssue`, `trimSecretLabel` |
 | `features/project` | `projectQueries.lookup`, `canListProjects`: the project names of the recent jobs, and the projects of the new agent dialog and of the give access dialog |
 | `features/roles` | `grantMutations.create`, `grantMutations.revoke`, `roleQueries.scopedGrants`: a new agent limited to one project, and the access edits of the agent page |
 
