@@ -4,7 +4,7 @@ import { idValue } from '@shared/infrastructure/grpc/wrappers.ts';
 
 export function toDomain(member: GrpcProjectMember): UserSummary {
   return {
-    userId: idValue(member.userId),
+    id: idValue(member.userId),
     username: member.username,
   };
 }

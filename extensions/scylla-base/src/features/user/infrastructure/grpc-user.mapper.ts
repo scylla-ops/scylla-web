@@ -15,10 +15,11 @@ import type {
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
-import type { UserAccess, UserAccessScope } from '../domain/entities/user.entity.ts';
+import type { AccessScope } from '@platform/authz';
+import type { UserAccess } from '../domain/entities/user.entity.ts';
 import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
-const accessScopeOf = (access: GrpcUserAccess): { scope: UserAccessScope; projectId?: string } => {
+const accessScopeOf = (access: GrpcUserAccess): { scope: AccessScope; projectId?: string } => {
   const ref = access.scope?.scope;
   switch (ref?.oneofKind) {
     case 'organization':
@@ -32,7 +33,7 @@ const accessScopeOf = (access: GrpcUserAccess): { scope: UserAccessScope; projec
 
 export function toDomain(user: User): UserEntity {
   return {
-    userId: idValue(user.userId),
+    id: idValue(user.userId),
     username: user.username,
     ...(user.email?.value ? { email: user.email.value } : {}),
     ...(user.displayName ? { displayName: user.displayName } : {}),
@@ -61,7 +62,7 @@ export function toCreateRequest(input: CreateUserInput): CreateUserRequest {
 /** An absent field stays absent on the wire: the server leaves it unchanged. */
 export function toUpdateRequest(input: UpdateUserInput): UpdateUserRequest {
   return {
-    userId: wrapId(input.userId),
+    userId: wrapId(input.id),
     ...(input.username !== undefined && { username: input.username }),
     ...(input.displayName !== undefined && { displayName: input.displayName }),
     ...(input.email !== undefined && { email: { value: input.email } }),
@@ -84,7 +85,7 @@ export function accessToDomain(access: GrpcUserAccess): UserAccess {
 
 export function sessionToDomain(session: GrpcUserSession): UserSessionEntity {
   return {
-    sessionId: idValue(session.sessionId),
+    id: idValue(session.sessionId),
     createdAt: timestampToIso(session.createdAt),
     lastActiveAt: timestampToIso(session.lastActiveAt),
     expiresAt: timestampToIso(session.expiresAt),

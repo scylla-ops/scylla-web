@@ -4,6 +4,7 @@ import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { ScyllaError, type ScyllaErrorCode } from '@shared/utils/scylla-error.ts';
 import type * as Login from '@base/features/login';
+import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import {
   ME_QUERY_KEY,
   USERS_QUERY_KEY,
@@ -24,7 +25,7 @@ vi.mock('@base/features/login', async importOriginal => ({
 
 const failure = (code: ScyllaErrorCode, message: string) => new ScyllaError(message, { code });
 
-const me = { userId: 'user-1', username: 'ada', isActive: true, updatedAt: '' };
+const me = { id: 'user-1', username: 'ada', isActive: true, updatedAt: '' };
 
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
@@ -115,8 +116,8 @@ describe('userQueries.sessions', () => {
   });
 });
 
-const session = (sessionId: string, current: boolean) => ({
-  sessionId,
+const session = (id: string, current: boolean): UserSessionEntity => ({
+  id,
   createdAt: '',
   lastActiveAt: '',
   expiresAt: '',
@@ -185,7 +186,7 @@ describe('userMutations.setActive', () => {
 
     runOnSuccess(
       userMutations.setActive(),
-      { ...me, userId: 'user-2', isActive: false },
+      { ...me, id: 'user-2', isActive: false },
       {
         userId: 'user-2',
         isActive: false,
@@ -204,7 +205,7 @@ describe('userMutations.update', () => {
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
     const options = userMutations.update();
 
-    runOnSuccess(options, me, { userId: 'user-1', displayName: 'Ada' });
+    runOnSuccess(options, me, { id: 'user-1', displayName: 'Ada' });
 
     await vi.waitFor(() => expect(invalidate).toHaveBeenCalledTimes(3));
     expect(invalidate).toHaveBeenCalledWith({ queryKey: USER_QUERY_KEY('user-1') });

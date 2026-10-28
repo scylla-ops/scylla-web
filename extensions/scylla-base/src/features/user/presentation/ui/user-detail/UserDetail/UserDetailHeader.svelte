@@ -25,7 +25,7 @@
       <div class="flex min-w-0 items-center gap-2">
         <dt>{t(userMessages.userId)}</dt>
         <dd class="min-w-0">
-          <CopyableText value={user.userId} copyLabel={t(userMessages.copyUserId)} />
+          <CopyableText value={user.id} copyLabel={t(userMessages.copyUserId)} />
         </dd>
       </div>
     </dl>

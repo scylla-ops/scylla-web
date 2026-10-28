@@ -18,7 +18,7 @@ vi.mock('@base/features/login', async importOriginal => ({
 }));
 
 const me = {
-  userId: 'user-1',
+  id: 'user-1',
   username: 'ada',
   displayName: 'Ada Lovelace',
   email: 'ada@example.com',
@@ -61,7 +61,7 @@ const recently = () => new Date(Date.now() - 60_000).toISOString();
 
 const sessions: UserSessionEntity[] = [
   {
-    sessionId: 'session-1',
+    id: 'session-1',
     createdAt: recently(),
     lastActiveAt: recently(),
     expiresAt: '',
@@ -71,7 +71,7 @@ const sessions: UserSessionEntity[] = [
     current: true,
   },
   {
-    sessionId: 'session-2',
+    id: 'session-2',
     createdAt: recently(),
     lastActiveAt: recently(),
     expiresAt: '',
@@ -172,7 +172,7 @@ describe('AccountPage', () => {
 
       await waitFor(() =>
         expect(repository.update).toHaveBeenCalledWith({
-          userId: 'user-1',
+          id: 'user-1',
           displayName: 'Ada King',
         }),
       );

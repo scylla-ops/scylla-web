@@ -89,7 +89,7 @@ beforeEach(() => {
     organization: {
       organizationRepository: {
         getMine: vi.fn().mockResolvedValue([{ id: 'org-1', name: 'Acme' }]),
-        listMembers: vi.fn().mockResolvedValue([{ userId: 'user-1', username: 'dave' }]),
+        listMembers: vi.fn().mockResolvedValue([{ id: 'user-1', username: 'dave' }]),
       },
     },
     project: {

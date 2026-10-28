@@ -17,11 +17,11 @@
   const usersQuery = createQuery(() => userQueries.list());
   const users = $derived(usersQuery.data?.items ?? []);
   const meQuery = createQuery(() => userQueries.me());
-  const currentUserId = $derived(meQuery.data?.userId);
+  const currentUserId = $derived(meQuery.data?.id);
 
   const deleteUser = createMutation(() => userMutations.remove());
 
-  const selection = createFeatureSelection('users', () => users.map(user => user.userId));
+  const selection = createFeatureSelection('users', () => users.map(user => user.id));
 
   let openDialog = $state(false);
 

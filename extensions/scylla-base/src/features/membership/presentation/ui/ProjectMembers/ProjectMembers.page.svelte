@@ -89,8 +89,8 @@
     // reactive collection would only make a throwaway object track dependencies.
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const users = new Map<string, UserSummary>();
-    for (const member of organizationMembers) users.set(member.userId, member);
-    for (const member of projectMembers) users.set(member.userId, member);
+    for (const member of organizationMembers) users.set(member.id, member);
+    for (const member of projectMembers) users.set(member.id, member);
     return users;
   });
 
@@ -106,14 +106,14 @@
       membership.grants,
       organizationGrants,
       reachesProjects,
-      projectMembers.map(member => member.userId),
+      projectMembers.map(member => member.id),
     ),
   );
 
   const memberIds = $derived(new Set(members.map(member => member.userId)));
 
   const candidates = $derived(
-    organizationMembers.filter(member => !memberIds.has(member.userId)),
+    organizationMembers.filter(member => !memberIds.has(member.id)),
   );
 
   const zoneContext: ProjectMembersContext = $derived({

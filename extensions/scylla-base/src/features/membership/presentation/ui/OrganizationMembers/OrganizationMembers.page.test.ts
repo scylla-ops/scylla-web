@@ -7,7 +7,7 @@ import { findFloating, render, withQueryClient, withRegistry } from '@test/rende
 import OrganizationMembersPage from './OrganizationMembers.page.svelte';
 
 const member = (overrides: Record<string, unknown> = {}) => ({
-  userId: 'user-1',
+  id: 'user-1',
   username: 'alice',
   ...overrides,
 });

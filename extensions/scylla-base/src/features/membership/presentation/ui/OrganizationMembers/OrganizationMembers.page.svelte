@@ -72,9 +72,9 @@
   const userById = $derived.by(() => {
     // Rebuilt whole by the `$derived` and never mutated after it is read.
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const users = new Map<string, UserSummary>(members.map(member => [member.userId, member]));
+    const users = new Map<string, UserSummary>(members.map(member => [member.id, member]));
     for (const user of usersQuery.data?.items ?? []) {
-      if (users.has(user.userId)) users.set(user.userId, user);
+      if (users.has(user.id)) users.set(user.id, user);
     }
     return users;
   });
@@ -85,7 +85,7 @@
   const scopeMembers = $derived(buildOrganizationMembers(membership.grants, [...userById.keys()]));
 
   const candidates = $derived(
-    (usersQuery.data?.items ?? []).filter(user => !userById.has(user.userId)),
+    (usersQuery.data?.items ?? []).filter(user => !userById.has(user.id)),
   );
 
   const defaultRoleId = $derived(

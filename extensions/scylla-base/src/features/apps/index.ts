@@ -3,7 +3,6 @@ export type {
   AppEntity,
   AppSecretEntity,
   AppAccess,
-  AppAccessScope,
   CreatedApp,
   CreatedAppSecret,
   ResetAppSecret,

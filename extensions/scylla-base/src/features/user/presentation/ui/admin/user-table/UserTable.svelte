@@ -47,7 +47,7 @@
     tooltip={t(userMessages.edit)}
     onclick={event => {
       event.stopPropagation();
-      onView(user.userId);
+      onView(user.id);
     }}
   />
 {/snippet}
@@ -55,8 +55,8 @@
 <DataTable
   {columns}
   data={data ?? []}
-  onRowClick={row => selection.select(row.original.userId)}
-  getRowId={(user, index) => user.userId || index.toString()}
-  isRowSelected={user => selection.selectedIds.includes(user.userId)}
+  onRowClick={row => selection.select(row.original.id)}
+  getRowId={(user, index) => user.id || index.toString()}
+  isRowSelected={user => selection.selectedIds.includes(user.id)}
   alignRowsCenter
 />

@@ -39,7 +39,7 @@
   <p class="text-sm text-muted-foreground">{t(userMessages.noSessions)}</p>
 {:else}
   <ul class="flex flex-col">
-    {#each sessions as session, index (session.sessionId)}
+    {#each sessions as session, index (session.id)}
       <li>
         {#if index > 0}
           <Separator />

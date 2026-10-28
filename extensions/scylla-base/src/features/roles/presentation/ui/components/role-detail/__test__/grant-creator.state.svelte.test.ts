@@ -58,8 +58,8 @@ beforeEach(() => {
   createGrant = vi.fn().mockResolvedValue(grant());
   getAllUsers = vi.fn().mockResolvedValue({
     items: [
-      { userId: 'user-1', username: 'ada' },
-      { userId: 'user-2', username: 'grace' },
+      { id: 'user-1', username: 'ada' },
+      { id: 'user-2', username: 'grace' },
     ],
   });
   getMine = vi.fn().mockResolvedValue([
@@ -326,7 +326,7 @@ describe('createGrantCreator — from an organization', () => {
   let listMembers: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    listMembers = vi.fn().mockResolvedValue([{ userId: 'user-1', username: 'dave' }]);
+    listMembers = vi.fn().mockResolvedValue([{ id: 'user-1', username: 'dave' }]);
     restoreRegistry();
     restoreRegistry = withRegistry({
       roles: {

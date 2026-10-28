@@ -98,8 +98,8 @@ export const createGrantCreator = (
   /** Everyone stays listed; who cannot receive the grant carries the reason. */
   const users = $derived.by((): UserOption[] => {
     const all = isOrganization
-      ? (membersQuery.data ?? []).map(member => ({ id: member.userId, name: userName(member) }))
-      : (usersQuery.data?.items ?? []).map(user => ({ id: user.userId, name: userName(user) }));
+      ? (membersQuery.data ?? []).map(member => ({ id: member.id, name: userName(member) }))
+      : (usersQuery.data?.items ?? []).map(user => ({ id: user.id, name: userName(user) }));
     if (!isProjectScope || !browseOrgId) return all;
 
     return all.map(user => {

@@ -97,8 +97,8 @@
         />
       </SelectTrigger>
       <SelectContent>
-        {#each candidates as candidate (candidate.userId)}
-          <SelectItem value={candidate.userId} label={userName(candidate)}>
+        {#each candidates as candidate (candidate.id)}
+          <SelectItem value={candidate.id} label={userName(candidate)}>
             {userName(candidate)}
           </SelectItem>
         {/each}

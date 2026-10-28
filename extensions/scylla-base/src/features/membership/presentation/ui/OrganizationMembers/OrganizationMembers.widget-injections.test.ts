@@ -35,8 +35,8 @@ const setUp = (injection?: WidgetInjection) => {
 
 beforeEach(() => {
   listMembers = vi.fn().mockResolvedValue([
-    { userId: 'user-1', username: 'alice' },
-    { userId: 'user-2', username: 'bob' },
+    { id: 'user-1', username: 'alice' },
+    { id: 'user-2', username: 'bob' },
   ]);
   listGrants = vi.fn().mockResolvedValue([
     {

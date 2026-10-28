@@ -13,9 +13,9 @@ const member = (overrides: Partial<ScopeMember> = {}): ScopeMember => ({
 });
 
 const users: Record<string, UserSummary> = {
-  'user-1': { userId: 'user-1', username: 'charlie', displayName: 'Charlie', email: 'c@example.com' },
-  'user-2': { userId: 'user-2', username: 'alice', displayName: 'Alice', email: 'a@example.com' },
-  'user-3': { userId: 'user-3', username: 'bob', displayName: 'Bob', email: 'b@example.com' },
+  'user-1': { id: 'user-1', username: 'charlie', displayName: 'Charlie', email: 'c@example.com' },
+  'user-2': { id: 'user-2', username: 'alice', displayName: 'Alice', email: 'a@example.com' },
+  'user-3': { id: 'user-3', username: 'bob', displayName: 'Bob', email: 'b@example.com' },
 };
 
 const baseProps = {

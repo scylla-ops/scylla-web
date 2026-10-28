@@ -43,7 +43,7 @@ let restoreRegistry: () => void;
 beforeEach(() => {
   listGrants = vi.fn().mockResolvedValue([grant()]);
   revokeGrant = vi.fn().mockResolvedValue(undefined);
-  getAllUsers = vi.fn().mockResolvedValue({ items: [{ userId: 'user-1', username: 'ada' }] });
+  getAllUsers = vi.fn().mockResolvedValue({ items: [{ id: 'user-1', username: 'ada' }] });
   getMine = vi.fn().mockResolvedValue([{ id: 'org-1', name: 'Acme' }]);
   getProjects = vi
     .fn()

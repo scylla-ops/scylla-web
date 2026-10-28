@@ -83,7 +83,7 @@ beforeEach(() => {
     .fn<(scope?: PermissionScope, scopeId?: string) => Promise<unknown>>()
     .mockResolvedValue([grant()]);
   deleteRole = vi.fn().mockResolvedValue(undefined);
-  listMembers = vi.fn().mockResolvedValue([{ userId: 'user-1', username: 'ada' }]);
+  listMembers = vi.fn().mockResolvedValue([{ id: 'user-1', username: 'ada' }]);
   getProjects = vi
     .fn()
     .mockResolvedValue({ projects: [{ id: 'project-1', name: 'Web', organizationId: 'org-1' }] });
@@ -100,7 +100,7 @@ beforeEach(() => {
     },
     user: {
       userRepository: {
-        getAll: vi.fn().mockResolvedValue({ items: [{ userId: 'user-1', username: 'grace' }] }),
+        getAll: vi.fn().mockResolvedValue({ items: [{ id: 'user-1', username: 'grace' }] }),
       },
     },
     organization: { organizationRepository: { listMembers } },
@@ -376,7 +376,7 @@ describe('createRolesPage — an organization', () => {
     await withPage(ACME, async page => {
       await waitFor(() => expect(page.holdersLoading).toBe(true));
 
-      answer([{ userId: 'user-1', username: 'ada' }]);
+      answer([{ id: 'user-1', username: 'ada' }]);
 
       await waitFor(() => expect(page.holdersLoading).toBe(false));
       expect(page.principalLabel(grant())).toBe('ada');
@@ -386,7 +386,7 @@ describe('createRolesPage — an organization', () => {
   it('names a holder from the members of the organization, not the user directory', async () => {
     await withPage(ACME, async page => {
       await waitFor(() => expect(page.principalLabel(grant())).toBe('ada'));
-      expect(page.principalUser(grant())).toEqual({ userId: 'user-1', username: 'ada' });
+      expect(page.principalUser(grant())).toEqual({ id: 'user-1', username: 'ada' });
       expect(listMembers).toHaveBeenCalledWith('org-1');
     });
   });

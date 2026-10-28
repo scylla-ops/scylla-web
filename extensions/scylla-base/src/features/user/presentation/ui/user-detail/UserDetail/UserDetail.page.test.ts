@@ -11,10 +11,10 @@ import UserDetailPage from './UserDetail.page.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
-const me = { userId: 'admin-1', username: 'root', isActive: true, updatedAt: '' };
+const me = { id: 'admin-1', username: 'root', isActive: true, updatedAt: '' };
 
 const grace = {
-  userId: 'user-2',
+  id: 'user-2',
   username: 'grace',
   displayName: 'Grace Hopper',
   email: 'grace@example.com',
@@ -27,7 +27,7 @@ const recently = new Date(Date.now() - 60_000).toISOString();
 
 const sessions = [
   {
-    sessionId: 'session-a',
+    id: 'session-a',
     createdAt: recently,
     lastActiveAt: recently,
     expiresAt: '',
@@ -37,7 +37,7 @@ const sessions = [
     current: false,
   },
   {
-    sessionId: 'session-b',
+    id: 'session-b',
     createdAt: recently,
     lastActiveAt: recently,
     expiresAt: '',
@@ -173,7 +173,7 @@ describe('UserDetailPage', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() =>
-      expect(repository.update).toHaveBeenCalledWith({ userId: 'user-2', email: 'grace@navy.mil' }),
+      expect(repository.update).toHaveBeenCalledWith({ id: 'user-2', email: 'grace@navy.mil' }),
     );
   });
 

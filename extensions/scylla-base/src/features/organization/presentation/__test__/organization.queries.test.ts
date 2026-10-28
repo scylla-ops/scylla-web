@@ -31,7 +31,7 @@ const withRepository = (overrides: Partial<OrganizationRepository> = {}) => {
   const repository = {
     getAll: vi.fn().mockResolvedValue([org()]),
     getMine: vi.fn().mockResolvedValue([org()]),
-    listMembers: vi.fn().mockResolvedValue([{ userId: 'user-1', username: 'ravenne' }]),
+    listMembers: vi.fn().mockResolvedValue([{ id: 'user-1', username: 'ravenne' }]),
     create: vi.fn().mockResolvedValue(org()),
     update: vi.fn().mockResolvedValue(org()),
     delete: vi.fn().mockResolvedValue(undefined),

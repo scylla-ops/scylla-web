@@ -19,7 +19,7 @@ beforeEach(() => {
   const cache = withQueryClient();
   const userRepository = {
     getMe: vi.fn().mockResolvedValue({
-      userId: 'user-1',
+      id: 'user-1',
       username: 'ada',
       isActive: true,
       updatedAt: '2025-01-01T00:00:00.000Z',

@@ -32,7 +32,7 @@ USER_SESSIONS_QUERY_KEY
 SDK gives them to other extensions): the own id of the session needs no grant, any other id
 needs `READ_USER`.
 
-**`UserSummary` is the one type for a person** (`userId`, `username`, `email?`,
+**`UserSummary` is the one type for a person** (`id`, `username`, `email?`,
 `displayName?`): a `Pick` of `UserEntity`. The member lists of `organization` and `project`
 return it, because their RPCs carry no more. Show it with `UserIdentity` from
 `@shared/presentation/ui`, never with a local avatar and name.
@@ -62,8 +62,9 @@ one).
 | `listAccess(userId)` | `ListUserAccess` | `UserAccess[]` |
 
 `UpdateUserInput` holds the changed fields only: an absent field stays absent on the wire, and
-the server leaves it unchanged. `profileChanges` (`user.entity.ts`) builds it from the profile
-form. `groupUserAccess` (`presenters/user-access.presenter.ts`) puts the system grants apart and groups the
+the server leaves it unchanged. `profileChanges` (`presenters/profile-form.presenter.ts`) builds
+it from the values of the profile form: it reads a form, so it is not domain.
+`groupUserAccess` (`presenters/user-access.presenter.ts`) puts the system grants apart and groups the
 others by organization.
 
 ## Layout
@@ -72,8 +73,8 @@ others by organization.
 user.module.ts                       routes + nav + DI wiring (private; registry only)
 index.ts                             public API
 domain/
-  entities/user.entity.ts            UserEntity, UserSummary, UserList, UserAccess, UserAccessScope,
-                                     the inputs, profileChanges (pure)
+  entities/user.entity.ts            UserEntity, UserSummary, UserList, UserAccess (its scope is
+                                     the AccessScope of authz), the inputs
   entities/user-session.entity.ts    UserSessionEntity: no token, only what the list shows
   repository/user.repository.ts
 infrastructure/
@@ -100,6 +101,7 @@ presentation/
   presenters/user-agent.presenter.ts parseUserAgent: browser, system and kind of a session
   presenters/session-row.presenter.ts   the title and the activity of a session
   presenters/user-access.presenter.ts   the access of a user, grouped by organization
+  presenters/profile-form.presenter.ts  ProfileValues, profileChanges: the form → UpdateUserInput
 ```
 
 ## Routes & nav

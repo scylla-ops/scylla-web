@@ -14,7 +14,7 @@ Machine identities ("apps") and the secrets they authenticate with.
 
 ```typescript
 type AppEntity, AppSecretEntity
-type CreatedApp, CreatedAppSecret, AppAccess, AppAccessScope, ResetAppSecret
+type CreatedApp, CreatedAppSecret, AppAccess, ResetAppSecret
 type SecretLabelProblem
 SECRET_LABEL_MAX_BYTES, normalizeSecretLabel, secretLabelProblem, suggestSecretLabel, trimSecretLabel
 appQueries, appMutations

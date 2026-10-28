@@ -24,7 +24,7 @@ const setUp = (getMine: () => Promise<{ id: string; name: string }[]>) => {
   const cache = withQueryClient();
   const getMe = vi
     .fn()
-    .mockResolvedValue({ userId: 'user-1', username: 'ada', isActive: true, updatedAt: '' });
+    .mockResolvedValue({ id: 'user-1', username: 'ada', isActive: true, updatedAt: '' });
   teardown = [
     cache.restore,
     withRegistry({

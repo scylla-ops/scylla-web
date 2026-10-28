@@ -132,7 +132,7 @@ export const createRolesPage = (scope: () => RolesScope) => {
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
     new Map<string, UserSummary>(
       (isOrganization ? (membersQuery.data ?? []) : (usersQuery.data?.items ?? [])).map(user => [
-        user.userId,
+        user.id,
         user,
       ]),
     ),

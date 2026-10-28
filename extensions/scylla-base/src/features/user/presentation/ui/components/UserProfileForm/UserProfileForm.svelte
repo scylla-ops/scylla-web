@@ -7,10 +7,8 @@
     checkEmail,
     checkUsername,
   } from '@shared/utils/account-validation.ts';
-  import type {
-    ProfileValues,
-    UserEntity,
-  } from '@base/features/user/domain/entities/user.entity.ts';
+  import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
+  import type { ProfileValues } from '@base/features/user/presentation/presenters/profile-form.presenter.ts';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   interface Props {
