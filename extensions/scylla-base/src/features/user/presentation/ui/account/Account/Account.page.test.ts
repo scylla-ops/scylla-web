@@ -31,8 +31,6 @@ const access: UserAccess[] = [
   {
     grantId: 'g-system',
     scope: 'system',
-    organizationName: '',
-    projectName: '',
     roleId: 'system-admin',
     roleName: 'System admin',
   },
@@ -41,7 +39,6 @@ const access: UserAccess[] = [
     scope: 'organization',
     organizationId: 'org-1',
     organizationName: 'Acme Corp',
-    projectName: '',
     roleId: 'organization-admin',
     roleName: 'Organization admin',
   },

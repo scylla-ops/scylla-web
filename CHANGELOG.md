@@ -20,6 +20,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Changed
 
+- **Breaking:** `UserAccess` from `@scylla/base-sdk` is a union on `scope`. A system grant has
+  no `organizationId` or `organizationName`, and only a project grant has `projectId` and
+  `projectName`. Check `scope` before you read these names.
 - **Breaking:** Code that touches an element is an attachment (`{@attach}`), not a Svelte
   action. `renderCodeMirror` from `@scylla/ui` takes its options as a getter:
   `{@attach renderCodeMirror(() => ({ doc, extensions }))}`.
