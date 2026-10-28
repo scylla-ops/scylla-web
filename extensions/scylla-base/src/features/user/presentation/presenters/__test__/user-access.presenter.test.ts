@@ -1,11 +1,13 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { UserAccess } from '@base/features/user/domain/entities/user.entity.ts';
+import type {
+  OrganizationAccess,
+  ProjectAccess,
+  SystemAccess,
+} from '@base/features/user/domain/entities/user.entity.ts';
 import { groupUserAccess } from '../user-access.presenter.ts';
 
-const grant = (
-  overrides: Partial<Extract<UserAccess, { scope: 'organization' }>> = {},
-): UserAccess => ({
+const grant = (overrides: Partial<OrganizationAccess> = {}): OrganizationAccess => ({
   grantId: 'grant',
   scope: 'organization',
   organizationId: 'org-1',
@@ -17,7 +19,7 @@ const grant = (
 
 describe('groupUserAccess', () => {
   it('puts the system grants in their own group', () => {
-    const system: UserAccess = {
+    const system: SystemAccess = {
       grantId: 'g-system',
       scope: 'system',
       roleId: 'system-admin',
@@ -32,7 +34,7 @@ describe('groupUserAccess', () => {
 
   it('gathers the organization and project grants of one organization', () => {
     const member = grant({ grantId: 'g-1' });
-    const projectRole: UserAccess = {
+    const projectRole: ProjectAccess = {
       grantId: 'g-2',
       scope: 'project',
       organizationId: 'org-1',

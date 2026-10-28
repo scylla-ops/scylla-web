@@ -1,6 +1,6 @@
 import type { UserAccess } from '@base/features/user/domain/entities/user.entity.ts';
 
-export interface OrganizationAccess {
+export interface OrganizationGrants {
   organizationId: string;
   organizationName: string;
   grants: UserAccess[];
@@ -8,13 +8,13 @@ export interface OrganizationAccess {
 
 export interface GroupedUserAccess {
   system: UserAccess[];
-  organizations: OrganizationAccess[];
+  organizations: OrganizationGrants[];
 }
 
 /** The system grants apart, the others by organization, in the order of the server. */
 export const groupUserAccess = (access: readonly UserAccess[]): GroupedUserAccess => {
   const system: UserAccess[] = [];
-  const byOrganization = new Map<string, OrganizationAccess>();
+  const byOrganization = new Map<string, OrganizationGrants>();
 
   for (const grant of access) {
     if (grant.scope === 'system') {
