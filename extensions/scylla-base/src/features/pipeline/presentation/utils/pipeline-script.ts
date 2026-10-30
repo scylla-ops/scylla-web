@@ -25,6 +25,13 @@ export const parseScript = (script: string): ParsedScript => {
 
 const parseShell = (value: unknown): Shell => (value === 'bash' ? 'bash' : 'sh');
 
+const MAX_UINT32 = 4_294_967_295;
+
+const parseCount = (value: unknown): number | undefined =>
+  Number.isInteger(value) && (value as number) >= 0 && (value as number) <= MAX_UINT32
+    ? (value as number)
+    : undefined;
+
 /** Tolerates partial input. */
 const parseEnv = (value: unknown): EnvEntry[] => {
   if (!Array.isArray(value)) return [];
@@ -57,6 +64,8 @@ const parseNode = (node: Record<string, unknown>): PipelineStep => {
     deps: (node.deps as string[]) ?? [],
     workingDir: typeof node.workingDir === 'string' ? node.workingDir : undefined,
     env: parseEnv(node.env),
+    timeoutSeconds: parseCount(node.timeoutSeconds),
+    retries: parseCount(node.retries),
   };
 
   // An explicit `kind` wins; else the present field decides.
@@ -93,6 +102,8 @@ const serializeNode = (step: PipelineStep): Record<string, unknown> => {
     deps: step.deps,
     workingDir: step.workingDir ?? '',
     env: serializeEnv(step.env),
+    timeoutSeconds: step.timeoutSeconds ?? null,
+    retries: step.retries ?? 0,
   };
 
   if (step.kind === 'script') {

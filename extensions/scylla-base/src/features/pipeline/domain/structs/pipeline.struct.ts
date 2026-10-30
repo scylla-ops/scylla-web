@@ -22,6 +22,8 @@ interface PipelineStepBase {
   deps: string[];
   workingDir?: string;
   env: EnvEntry[];
+  timeoutSeconds?: number;
+  retries?: number;
 }
 
 export interface ExecPipelineStep extends PipelineStepBase {

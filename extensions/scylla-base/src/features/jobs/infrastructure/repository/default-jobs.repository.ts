@@ -35,6 +35,10 @@ export class DefaultJobsRepository implements JobsRepository {
     return this.remoteDataSource.deleteById(jobId);
   }
 
+  public async rerun(jobId: string): Promise<ScyllaResult<string>> {
+    return this.remoteDataSource.rerun(jobId);
+  }
+
   public async getLogs(
     jobId: string,
     nodeId?: string,

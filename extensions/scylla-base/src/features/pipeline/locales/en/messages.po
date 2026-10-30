@@ -11,7 +11,7 @@ msgstr ""
 "Language: \n"
 "Language-Team: \n"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:92
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:97
 msgid "{name} (copy)"
 msgstr "{name} (copy)"
 
@@ -47,7 +47,7 @@ msgstr "Arguments"
 msgid "Blueprint"
 msgstr "Blueprint"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:90
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:95
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -125,6 +125,14 @@ msgstr "Edit node"
 msgid "Edit pipeline"
 msgstr "Edit pipeline"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:94
+msgid "Enter a whole number from 0 to 10."
+msgstr "Enter a whole number from 0 to 10."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:92
+msgid "Enter a whole number from 1 to 604800."
+msgstr "Enter a whole number from 1 to 604800."
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:79
 msgid "Environment variables"
 msgstr "Environment variables"
@@ -189,6 +197,10 @@ msgstr "No jobs yet"
 msgid "No pipeline found"
 msgstr "No pipeline found"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:91
+msgid "No timeout"
+msgstr "No timeout"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:68
 msgid "Node ID"
 msgstr "Node ID"
@@ -226,6 +238,10 @@ msgstr "Remove argument"
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:89
 msgid "Remove variable"
 msgstr "Remove variable"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:93
+msgid "Retries"
+msgstr "Retries"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:23
 msgid "Run"
@@ -282,6 +298,10 @@ msgstr "Started {time}"
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:17
 msgid "Status"
 msgstr "Status"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:90
+msgid "Timeout (seconds)"
+msgstr "Timeout (seconds)"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.messages.ts:28
 msgid "Triggers"

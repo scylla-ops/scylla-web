@@ -64,6 +64,14 @@ export class GrpcJobsRemoteDataSource implements JobsRemoteDataSource {
     }, 'Error deleting job');
   }
 
+  public async rerun(jobId: string): Promise<ScyllaResult<string>> {
+    return Result.tryAsync<string>(async () => {
+      const { response } = await this._jobClient.rerunJob({ jobId: wrapId(jobId) });
+      if (!response.jobId?.value) throw new ScyllaError('Job id missing from RerunJobResponse');
+      return response.jobId.value;
+    }, 'Error re-running job');
+  }
+
   public async getLogs(
     jobId: string,
     nodeId?: string,

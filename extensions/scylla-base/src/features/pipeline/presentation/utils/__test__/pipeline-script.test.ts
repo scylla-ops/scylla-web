@@ -67,6 +67,31 @@ describe('stepsOf', () => {
     });
   });
 
+  it('reads the timeout and the retries, and ignores a value that is not a number', () => {
+    const [step, other] = stepsOf(
+      documentOf({
+        nodes: [
+          { id: 'a', command: 'x', timeoutSeconds: 60, retries: 3 },
+          { id: 'b', command: 'x', timeoutSeconds: '60', retries: null },
+        ],
+      }),
+    );
+    expect(step).toMatchObject({ timeoutSeconds: 60, retries: 3 });
+    expect(other.timeoutSeconds).toBeUndefined();
+    expect(other.retries).toBeUndefined();
+  });
+
+  it.each([1.5, -1, 2 ** 32, Number.NaN])(
+    'ignores %s, which the wire cannot carry as a count',
+    value => {
+      const [step] = stepsOf(
+        documentOf({ nodes: [{ id: 'a', command: 'x', timeoutSeconds: value, retries: value }] }),
+      );
+      expect(step.timeoutSeconds).toBeUndefined();
+      expect(step.retries).toBeUndefined();
+    },
+  );
+
   describe('env parsing', () => {
     it('tolerates a literal entry missing its value', () => {
       const [step] = stepsOf(documentOf({ nodes: [{ id: 'a', command: 'x', env: [{ key: 'K' }] }] }));
@@ -97,7 +122,17 @@ describe('withSteps', () => {
       name: 'my-pipeline',
       projectId: 'project-1',
       nodes: [
-        { id: 'build', deps: [], workingDir: '', env: [], kind: 'exec', command: 'make', args: [] },
+        {
+          id: 'build',
+          deps: [],
+          workingDir: '',
+          env: [],
+          timeoutSeconds: null,
+          retries: 0,
+          kind: 'exec',
+          command: 'make',
+          args: [],
+        },
       ],
     });
   });
@@ -118,8 +153,37 @@ describe('withSteps', () => {
 
     // Serializing always writes a workingDir.
     expect(stepsOf(parseScript(withSteps(null, steps, 'p')).document)).toEqual([
-      { id: 's', deps: [], workingDir: '', env: [], kind: 'script', script: 'echo hi', shell: 'bash' },
+      {
+        id: 's',
+        deps: [],
+        workingDir: '',
+        env: [],
+        retries: 0,
+        kind: 'script',
+        script: 'echo hi',
+        shell: 'bash',
+      },
     ]);
+  });
+
+  it('round-trips the timeout and the retries of a step', () => {
+    const steps: PipelineStep[] = [
+      {
+        id: 's',
+        deps: [],
+        env: [],
+        kind: 'script',
+        script: 'echo hi',
+        shell: 'sh',
+        timeoutSeconds: 30,
+        retries: 2,
+      },
+    ];
+
+    const document = parseScript(withSteps(null, steps, 'p')).document;
+
+    expect(document).toMatchObject({ nodes: [{ timeoutSeconds: 30, retries: 2 }] });
+    expect(stepsOf(document)[0]).toMatchObject({ timeoutSeconds: 30, retries: 2 });
   });
 });
 

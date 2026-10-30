@@ -1,19 +1,26 @@
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import { SecretServiceClient } from '@base/generated/scylla/secret/v1/secret.client.ts';
+import { PipelineServiceClient } from '@base/generated/scylla/pipeline/v1/pipeline.client.ts';
 import type { ScyllaGrpcTransport } from '@platform/grpc';
 import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import type {
   CreateSecretInput,
   SecretEntity,
+  UpdateSecretInput,
 } from '@base/features/secret/domain/entities/secret.entity.ts';
+import type { SecretUsage } from '@base/features/secret/domain/structs/secret-usage.struct.ts';
 import type { SecretRemoteDataSource } from '@base/features/secret/infrastructure/repository/data-sources/secret-remote.data-source.ts';
 import { GrpcSecretMapper } from '@base/features/secret/infrastructure/repository/mappers/grpc-secret.mapper.ts';
 
+const USAGE_PAGE = { page: 1, pageSize: 10 };
+
 export class GrpcSecretRemoteDataSource implements SecretRemoteDataSource {
   private readonly _secretClient: SecretServiceClient;
+  private readonly _pipelineClient: PipelineServiceClient;
 
   public constructor(transport: ScyllaGrpcTransport) {
     this._secretClient = new SecretServiceClient(transport.getTransport());
+    this._pipelineClient = new PipelineServiceClient(transport.getTransport());
   }
 
   public async listByProjectId(projectId: string): Promise<ScyllaResult<SecretEntity[]>> {
@@ -37,6 +44,32 @@ export class GrpcSecretRemoteDataSource implements SecretRemoteDataSource {
       if (!response.secret) throw new Error('CreateSecret returned no secret');
       return GrpcSecretMapper.toDomain(response.secret);
     }, 'Failed to create secret.');
+  }
+
+  public async update(input: UpdateSecretInput): Promise<ScyllaResult<SecretEntity>> {
+    return ScyllaResult.tryAsync<SecretEntity>(async () => {
+      const response = await this._secretClient.updateSecret({
+        secretId: wrapId(input.secretId),
+        value: input.value,
+        description: input.description,
+      }).response;
+      if (!response.secret) throw new Error('UpdateSecret returned no secret');
+      return GrpcSecretMapper.toDomain(response.secret);
+    }, 'Failed to update secret.');
+  }
+
+  public async listPipelinesUsing(
+    projectId: string,
+    secretName: string,
+  ): Promise<ScyllaResult<SecretUsage>> {
+    return ScyllaResult.tryAsync<SecretUsage>(async () => {
+      const response = await this._pipelineClient.listProjectPipelines({
+        projectId: wrapId(projectId),
+        pagination: USAGE_PAGE,
+        secretRef: secretName,
+      }).response;
+      return GrpcSecretMapper.usageToDomain(response);
+    }, 'Error listing the pipelines that use the secret');
   }
 
   public async deleteById(secretId: string): Promise<ScyllaResult<void>> {

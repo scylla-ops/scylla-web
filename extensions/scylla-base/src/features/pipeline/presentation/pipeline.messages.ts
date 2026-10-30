@@ -87,6 +87,11 @@ export const pipelineMessages = {
   addVariable: msg`Add variable`,
   removeArgument: msg`Remove argument`,
   removeVariable: msg`Remove variable`,
+  timeoutSeconds: msg`Timeout (seconds)`,
+  noTimeout: msg`No timeout`,
+  timeoutRange: msg`Enter a whole number from 1 to 604800.`,
+  retries: msg`Retries`,
+  retriesRange: msg`Enter a whole number from 0 to 10.`,
   cancel: msg`Cancel`,
 
   copyOf: (name: string) => msg`${name} (copy)`,

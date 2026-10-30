@@ -81,8 +81,13 @@ describe('GrpcJobMapper.toDomain', () => {
   });
 
   describe('node executions', () => {
-    const node = (execution: JobNode['execution'], nodeId = 'node-1'): JobNode => ({
+    const node = (
+      execution: JobNode['execution'],
+      nodeId = 'node-1',
+      maxAttempts = 1,
+    ): JobNode => ({
       nodeId: { value: nodeId },
+      maxAttempts,
       execution,
     });
 
@@ -90,12 +95,50 @@ describe('GrpcJobMapper.toDomain', () => {
       const [n] = GrpcJobMapper.toDomain(
         baseJob({ nodeExecutions: [node({ oneofKind: 'pending', pending: {} })] }),
       ).nodeExecutions;
-      expect(n).toEqual({ id: 'node-1', state: 'pending', startedAt: undefined, finishedAt: undefined });
+      expect(n).toEqual({
+        id: 'node-1',
+        state: 'pending',
+        startedAt: undefined,
+        finishedAt: undefined,
+        attempts: 0,
+        maxAttempts: 1,
+      });
+    });
+
+    it('carries the current attempt of a running node and its maximum', () => {
+      const [n] = GrpcJobMapper.toDomain(
+        baseJob({
+          nodeExecutions: [
+            node({ oneofKind: 'running', running: { startedAt: TS, attempt: 2 } }, 'node-1', 3),
+          ],
+        }),
+      ).nodeExecutions;
+      expect(n).toMatchObject({ attempts: 2, maxAttempts: 3 });
+    });
+
+    it('carries the attempts of a finished node', () => {
+      const [n] = GrpcJobMapper.toDomain(
+        baseJob({
+          nodeExecutions: [
+            node(
+              {
+                oneofKind: 'finished',
+                finished: { outcome: NodeOutcome.FAILED, startedAt: TS, finishedAt: TS, attempts: 3 },
+              },
+              'node-1',
+              3,
+            ),
+          ],
+        }),
+      ).nodeExecutions;
+      expect(n).toMatchObject({ state: 'failed', attempts: 3, maxAttempts: 3 });
     });
 
     it('maps a running node with its startedAt', () => {
       const [n] = GrpcJobMapper.toDomain(
-        baseJob({ nodeExecutions: [node({ oneofKind: 'running', running: { startedAt: TS } })] }),
+        baseJob({
+          nodeExecutions: [node({ oneofKind: 'running', running: { startedAt: TS, attempt: 1 } })],
+        }),
       ).nodeExecutions;
       expect(n.state).toBe('running');
       expect(n.startedAt).toBe('2025-01-01T00:00:00.000Z');
@@ -110,7 +153,10 @@ describe('GrpcJobMapper.toDomain', () => {
       const [n] = GrpcJobMapper.toDomain(
         baseJob({
           nodeExecutions: [
-            node({ oneofKind: 'finished', finished: { outcome, startedAt: TS, finishedAt: TS } }),
+            node({
+              oneofKind: 'finished',
+              finished: { outcome, startedAt: TS, finishedAt: TS, attempts: 1 },
+            }),
           ],
         }),
       ).nodeExecutions;

@@ -15,3 +15,9 @@ export interface CreateSecretInput {
   value: string;
   description: string;
 }
+
+export interface UpdateSecretInput {
+  secretId: string;
+  value?: string;
+  description?: string;
+}

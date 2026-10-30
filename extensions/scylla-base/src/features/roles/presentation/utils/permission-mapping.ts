@@ -254,6 +254,12 @@ export const PERMISSION_CATALOG: PermissionDefinition[] = [
     dependsOn: Permission.LIST_SECRETS,
   },
   {
+    id: Permission.UPDATE_SECRET,
+    label: msg`Change the value and the description of secrets`,
+    scope: PROJECT,
+    dependsOn: Permission.LIST_SECRETS,
+  },
+  {
     id: Permission.DELETE_SECRET,
     label: msg`Delete secrets`,
     scope: PROJECT,

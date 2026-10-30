@@ -108,6 +108,11 @@ the page.
 - **`pipeline-script.state.svelte.ts` holds `script` + `initialScript` only** — draft editor text 
   and the baseline for the dirty check. It is UI state, not server state. Never put the fetched 
   `PipelineEntity` in it.
+- **A step carries `timeoutSeconds` and `retries`.** `timeoutSeconds` is optional: absent means the
+  server default, or no time limit. `retries` is 0 to 10, absent means 0. The node form checks the
+  ranges (1 to 604800 for the timeout) and does not submit a value out of range. The JSON script
+  writes both keys (`timeoutSeconds: null` when there is none) and reads them back, so a round trip
+  form → script → form keeps them. `blueprint-converter.ts` copies both.
 - `blueprint-converter.ts` is the single translation between the flow graph and `PipelineStep[]`. 
   Both directions live there; do not inline conversion in a component. It's pure TypeScript with 
   full test coverage.

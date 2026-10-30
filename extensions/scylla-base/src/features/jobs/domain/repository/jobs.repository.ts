@@ -15,6 +15,7 @@ export interface JobsRepository {
   ): Promise<ScyllaResult<PaginatedList<JobEntity>>>;
   getById(jobId: string): Promise<ScyllaResult<JobEntity>>;
   deleteById(jobId: string): Promise<ScyllaResult<void>>;
+  rerun(jobId: string): Promise<ScyllaResult<string>>;
   getLogs(
     jobId: string,
     nodeId?: string,

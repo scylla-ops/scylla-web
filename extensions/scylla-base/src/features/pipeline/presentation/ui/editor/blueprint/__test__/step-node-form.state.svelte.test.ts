@@ -60,6 +60,7 @@ describe('createStepNodeForm', () => {
           shell: 'bash',
           workingDir: undefined,
           env: [{ key: 'A', kind: 'literal', value: '1' }],
+          retries: 0,
         },
       });
     });
@@ -98,6 +99,7 @@ describe('createStepNodeForm', () => {
           args: ['build', '--release'],
           workingDir: 'crates',
           env: [{ key: 'TOKEN', kind: 'secret', secretRef: 'GH' }],
+          retries: 0,
         },
       });
     });
@@ -109,6 +111,71 @@ describe('createStepNodeForm', () => {
       form.nodeId = 'build';
       form.mode = 'exec';
       expect(form.toValue()).toBeNull();
+    });
+  });
+
+  it('starts from the timeout and the retries of the step it edits', () => {
+    inRoot(() => {
+      const form = createStepNodeForm({
+        id: 'build',
+        deps: [],
+        kind: 'script',
+        script: 'make',
+        shell: 'sh',
+        env: [],
+        timeoutSeconds: 30,
+        retries: 2,
+      });
+      expect(form.timeoutSeconds).toBe('30');
+      expect(form.retries).toBe('2');
+      expect(form.toValue()?.value).toMatchObject({ timeoutSeconds: 30, retries: 2 });
+    });
+  });
+
+  it('gives no timeout for an empty field', () => {
+    inRoot(() => {
+      const form = createStepNodeForm();
+      form.nodeId = 'build';
+      form.script = 'make';
+      form.timeoutSeconds = '  ';
+      expect(form.timeoutInvalid).toBe(false);
+      expect(form.toValue()?.value.timeoutSeconds).toBeUndefined();
+    });
+  });
+
+  it.each(['0', '604801', '1.5', '-1', 'abc'])('refuses the timeout %s', raw => {
+    inRoot(() => {
+      const form = createStepNodeForm();
+      form.nodeId = 'build';
+      form.script = 'make';
+      form.timeoutSeconds = raw;
+      expect(form.timeoutInvalid).toBe(true);
+      expect(form.toValue()).toBeNull();
+    });
+  });
+
+  it.each(['11', '-1', '2.5'])('refuses the retries %s', raw => {
+    inRoot(() => {
+      const form = createStepNodeForm();
+      form.nodeId = 'build';
+      form.script = 'make';
+      form.retries = raw;
+      expect(form.retriesInvalid).toBe(true);
+      expect(form.toValue()).toBeNull();
+    });
+  });
+
+  it('accepts the bounds of each range', () => {
+    inRoot(() => {
+      const form = createStepNodeForm();
+      form.nodeId = 'build';
+      form.script = 'make';
+      form.timeoutSeconds = '604800';
+      form.retries = '10';
+      expect(form.toValue()?.value).toMatchObject({ timeoutSeconds: 604800, retries: 10 });
+      form.timeoutSeconds = '1';
+      form.retries = '0';
+      expect(form.toValue()?.value).toMatchObject({ timeoutSeconds: 1, retries: 0 });
     });
   });
 

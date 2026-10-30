@@ -43,8 +43,8 @@ const job = (overrides: Partial<JobEntity> = {}): JobEntity => ({
   pipelineId: 'pipeline-1',
   status: 'completed',
   nodeExecutions: [
-    { id: 'build', state: 'completed' },
-    { id: 'test', state: 'failed' },
+    { id: 'build', state: 'completed', attempts: 1, maxAttempts: 1 },
+    { id: 'test', state: 'failed', attempts: 3, maxAttempts: 3 },
   ],
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:01:00.000Z',
@@ -62,6 +62,7 @@ const logHeights = () =>
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: (() => void) | null = null;
 let navigator: ReturnType<typeof installTestNavigator>;
+let rerun: ReturnType<typeof vi.fn>;
 
 const grantAll = () =>
   permissionsStore.setState({
@@ -71,8 +72,14 @@ const grantAll = () =>
   });
 
 const renderPage = async (result: unknown, search = '') => {
+  rerun = vi.fn().mockResolvedValue(ScyllaResult.success('job-2'));
   restoreRegistry = withRegistry({
-    jobs: { jobsRepository: { getById: vi.fn().mockResolvedValue(result) } as unknown as JobsRepository },
+    jobs: {
+      jobsRepository: {
+        getById: vi.fn().mockResolvedValue(result),
+        rerun,
+      } as unknown as JobsRepository,
+    },
   });
   navigator = installTestNavigator({
     pathname: '/acme/projects/p1/pipelines/pipeline-1/jobs/job-1',
@@ -259,6 +266,62 @@ describe('JobDetailsPage', () => {
     expect(openPanels()).toEqual([]);
     // The job itself is still there — only its output is withheld.
     expect(screen.getByText('Success')).toBeInTheDocument();
+  });
+
+  it('shows the attempt of a node that can retry, in its entry and in its panel header', async () => {
+    await renderPage(ScyllaResult.success(job()), '?nodes=build,test');
+
+    expect(screen.getAllByText('Attempt 3/3')).toHaveLength(2);
+    expect(screen.queryByText(/Attempt \d+\/1/)).not.toBeInTheDocument();
+  });
+
+  it('shows a skipped node as skipped, with no attempt when it did not start', async () => {
+    await renderPage(
+      ScyllaResult.success(
+        job({ nodeExecutions: [{ id: 'test', state: 'skipped', attempts: 0, maxAttempts: 3 }] }),
+      ),
+      '?nodes=test',
+    );
+
+    expect(screen.getByRole('region', { name: 'test' })).toHaveTextContent('Skipped');
+    expect(screen.queryByText(/^Attempt/)).not.toBeInTheDocument();
+  });
+
+  it('re-runs an ended job and opens the new one', async () => {
+    await renderPage(ScyllaResult.success(job()));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Re-run' }));
+
+    await waitFor(() => expect(rerun).toHaveBeenCalledWith('job-1'));
+    await waitFor(() =>
+      expect(navigator.navigate.mock.calls.at(-1)?.[0]).toMatch(
+        /\/pipelines\/pipeline-1\/jobs\/job-2$/,
+      ),
+    );
+  });
+
+  it('offers no re-run for a job that runs', async () => {
+    await renderPage(ScyllaResult.success(job({ status: 'running', finishedAt: undefined })));
+
+    expect(screen.queryByRole('button', { name: 'Re-run' })).not.toBeInTheDocument();
+  });
+
+  it('offers no re-run without RUN_PIPELINE', async () => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.SYSTEM,
+            scopeId: '',
+            access: { kind: 'restricted', permissions: [Permission.READ_JOB] },
+          },
+        ],
+      },
+    });
+
+    await renderPage(ScyllaResult.success(job()));
+
+    expect(screen.queryByRole('button', { name: 'Re-run' })).not.toBeInTheDocument();
   });
 
   it('reports an error instead of an empty page when the job cannot be read', async () => {

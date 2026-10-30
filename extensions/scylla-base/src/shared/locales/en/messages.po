@@ -125,9 +125,13 @@ msgstr "Running"
 msgid "Secret created"
 msgstr "Secret created"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:40
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:41
 msgid "Secret deleted"
 msgstr "Secret deleted"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:40
+msgid "Secret updated"
+msgstr "Secret updated"
 
 #: extensions/scylla-base/src/shared/utils/scylla-result.ts:52
 msgid "Server unreachable"
@@ -161,27 +165,27 @@ msgstr "The two passwords are not the same."
 msgid "The username is too long: 255 bytes at most."
 msgstr "The username is too long: 255 bytes at most."
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:43
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:44
 msgid "Trigger created"
 msgstr "Trigger created"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:45
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:46
 msgid "Trigger deleted"
 msgstr "Trigger deleted"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:47
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:48
 msgid "Trigger disabled"
 msgstr "Trigger disabled"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:46
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:47
 msgid "Trigger enabled"
 msgstr "Trigger enabled"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:48
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:49
 msgid "Trigger fired: run started"
 msgstr "Trigger fired: run started"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:44
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:45
 msgid "Trigger updated"
 msgstr "Trigger updated"
 

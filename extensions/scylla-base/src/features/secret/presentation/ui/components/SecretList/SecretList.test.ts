@@ -3,6 +3,7 @@ import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
 import { selectionStore } from '@scylla/ui/stores';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { SecretEntity } from '@base/features/secret/domain/entities/secret.entity.ts';
 import type {
@@ -31,6 +32,7 @@ const setUp = (secrets: SecretEntity[] = [secret()]) => {
   const repository = {
     listByProjectId: vi.fn().mockResolvedValue(ScyllaResult.success(secrets)),
     create: vi.fn(),
+    update: vi.fn(),
     deleteById,
   } as unknown as SecretRepository;
   const cache = withQueryClient();
@@ -44,7 +46,23 @@ beforeEach(() => {
   selectionStore.setState({ selectedIds: {} });
 });
 
-afterEach(() => teardown.forEach(restore => restore()));
+afterEach(() => {
+  teardown.forEach(restore => restore());
+  permissionsStore.setState({ permissions: null });
+});
+
+const grant = (permissions: Permission[]) =>
+  permissionsStore.setState({
+    permissions: {
+      scopes: [
+        {
+          scope: PermissionScope.PROJECT,
+          scopeId: 'project-1',
+          access: { kind: 'restricted', permissions },
+        },
+      ],
+    },
+  });
 
 describe('SecretList', () => {
   it('shows a secret’s name and its copyable id, never a value', () => {
@@ -98,5 +116,26 @@ describe('SecretList', () => {
     setUp([]);
 
     expect(screen.getByText('No results.')).toBeInTheDocument();
+  });
+
+  it('offers an edit action only with UPDATE_SECRET', () => {
+    grant([Permission.LIST_SECRETS]);
+    const { unmount } = setUp();
+    expect(screen.queryByRole('button', { name: 'Edit secret' })).not.toBeInTheDocument();
+    unmount();
+
+    grant([Permission.LIST_SECRETS, Permission.UPDATE_SECRET]);
+    setUp();
+    expect(screen.getByRole('button', { name: 'Edit secret' })).toBeInTheDocument();
+  });
+
+  it('opens the edit dialog on the secret, without selecting the row', async () => {
+    grant([Permission.UPDATE_SECRET]);
+    setUp();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit secret' }));
+
+    expect(await screen.findByRole('dialog')).toHaveTextContent('Edit secret DATABASE_URL');
+    expect(selectionStore.getState().selectedIds.secrets ?? []).toEqual([]);
   });
 });

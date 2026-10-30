@@ -58,7 +58,44 @@ describe('StepNodeForm', () => {
       args: ['build'],
       workingDir: 'crates',
       env: [{ key: 'MODE', kind: 'literal', value: 'ci' }],
+      retries: 0,
     });
+  });
+
+  it('submits the timeout and the retries of a step', async () => {
+    const user = userEvent.setup();
+    render(StepNodeForm, { onSubmit, onCancel });
+
+    await user.type(screen.getByLabelText('Node ID'), 'build');
+    await user.click(screen.getByRole('button', { name: 'Command' }));
+    await user.type(screen.getByLabelText('Command'), 'cargo');
+    await user.type(screen.getByLabelText('Timeout (seconds)'), '30');
+    await user.clear(screen.getByLabelText('Retries'));
+    await user.type(screen.getByLabelText('Retries'), '2');
+    await user.click(screen.getByRole('button', { name: 'Add Node' }));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      'build',
+      expect.objectContaining({ timeoutSeconds: 30, retries: 2 }),
+    );
+  });
+
+  it('shows the range and does not submit a value out of range', async () => {
+    const user = userEvent.setup();
+    render(StepNodeForm, { onSubmit, onCancel });
+
+    await user.type(screen.getByLabelText('Node ID'), 'build');
+    await user.click(screen.getByRole('button', { name: 'Command' }));
+    await user.type(screen.getByLabelText('Command'), 'cargo');
+    await user.clear(screen.getByLabelText('Retries'));
+    await user.type(screen.getByLabelText('Retries'), '11');
+    await user.type(screen.getByLabelText('Timeout (seconds)'), '0');
+    await user.click(screen.getByRole('button', { name: 'Add Node' }));
+
+    expect(screen.getByText('Enter a whole number from 0 to 10.')).toBeInTheDocument();
+    expect(screen.getByText('Enter a whole number from 1 to 604800.')).toBeInTheDocument();
+    expect(screen.getByLabelText('Retries')).toHaveAttribute('aria-invalid', 'true');
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it('removes an argument and a variable', async () => {
@@ -99,6 +136,7 @@ describe('StepNodeForm', () => {
       shell: 'bash',
       workingDir: undefined,
       env: [{ key: 'TOKEN', kind: 'secret', secretRef: 'GH' }],
+      retries: 0,
     });
   });
 

@@ -37,6 +37,7 @@ export const ToastMessages = {
 
   // Secrets
   SECRET_CREATE: msg`Secret created`,
+  SECRET_UPDATE: msg`Secret updated`,
   SECRET_DELETE: msg`Secret deleted`,
 
   // Triggers

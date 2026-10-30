@@ -78,6 +78,10 @@ msgstr "ne peut pas voir les projets de cette organisation"
 msgid "Cancel"
 msgstr "Annuler"
 
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:258
+msgid "Change the value and the description of secrets"
+msgstr "Modifier la valeur et la description des secrets"
+
 #: extensions/scylla-base/src/features/roles/presentation/ui/roles.messages.ts:49
 msgid "Choose who receives this role and where it applies."
 msgstr "Choisissez qui reçoit ce rôle et où il s'applique."
@@ -150,7 +154,7 @@ msgstr "Supprimer des jobs"
 msgid "Delete pipelines"
 msgstr "Supprimer des pipelines"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:258
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:264
 msgid "Delete secrets"
 msgstr "Supprimer des secrets"
 
@@ -356,7 +360,7 @@ msgid "Open any project"
 msgstr "Ouvrir n'importe quel projet"
 
 #: extensions/scylla-base/src/features/roles/presentation/ui/roles.messages.ts:56
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:278
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:284
 msgid "Organization"
 msgstr "Organisation"
 
@@ -394,7 +398,7 @@ msgstr "Plateforme"
 msgid "Platform roles"
 msgstr "Rôles de la plateforme"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:279
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:285
 msgid "Project"
 msgstr "Projet"
 
@@ -493,7 +497,7 @@ msgstr "Fournis avec Scylla ou créés par un administrateur système. Vous pouv
 msgid "Show {label} sub-permissions"
 msgstr "Afficher les sous-permissions de {label}"
 
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:277
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:283
 msgid "System"
 msgstr "Système"
 
@@ -506,7 +510,7 @@ msgid "This role is for apps. People cannot hold it."
 msgstr "Ce rôle est réservé aux applications. Une personne ne peut pas le détenir."
 
 #: extensions/scylla-base/src/features/roles/presentation/ui/roles.messages.ts:30
-#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:280
+#: extensions/scylla-base/src/features/roles/presentation/utils/permission-mapping.ts:286
 msgctxt "feminine"
 msgid "Unknown"
 msgstr "Inconnue"

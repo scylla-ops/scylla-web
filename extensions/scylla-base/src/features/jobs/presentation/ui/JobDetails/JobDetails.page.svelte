@@ -1,10 +1,12 @@
 <script lang="ts">
+  import { Permission, can } from '@platform/authz';
   import { createResourceError } from '@platform/context';
-  import { createQuery } from '@scylla/core-sdk';
+  import { createMutation, createQuery } from '@scylla/core-sdk';
   import { Skeleton } from '@scylla/ui/primitives';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { jobQueries } from '@base/features/jobs/presentation/jobs.queries.ts';
+  import { isFinishedStatus } from '@base/features/jobs/domain/structs/jobs-summary.struct.ts';
+  import { jobMutations, jobQueries } from '@base/features/jobs/presentation/jobs.queries.ts';
   import { createOpenLogPanels } from '@base/features/jobs/presentation/open-log-panels.svelte.ts';
   import JobNodeLogs from './JobNodeLogs.svelte';
   import JobSummary from './JobSummary.svelte';
@@ -19,6 +21,11 @@
 
   const jobQuery = createQuery(() => jobQueries.byId(jobId ?? ''));
   const job = $derived(jobQuery.data);
+
+  const rerun = createMutation(() => jobMutations.rerun(job?.pipelineId ?? ''));
+  const canRerun = $derived(
+    !!job && isFinishedStatus(job.status) && can(Permission.RUN_PIPELINE),
+  );
 
   // A getter: the nodes arrive with the job.
   const panels = createOpenLogPanels(() => job?.nodeExecutions.map(nodeIdOf) ?? []);
@@ -41,7 +48,12 @@
   <ErrorState message={t(jobsMessages.jobLoadError)} />
 {:else}
   <div data-tour="job-details" class="flex h-full min-h-0 w-full flex-col gap-6">
-    <JobSummary {job} onSelectNode={panels.selectNode} />
+    <JobSummary
+      {job}
+      onSelectNode={panels.selectNode}
+      onRerun={canRerun ? () => rerun.mutate(job.id) : undefined}
+      isRerunning={rerun.isPending}
+    />
     <JobNodeLogs
       {job}
       openNodeIds={panels.openNodeIds}
