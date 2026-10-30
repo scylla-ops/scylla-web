@@ -17,6 +17,11 @@ describe('grpcPermission.toDomain / toGrpc (Permission)', () => {
     expect(grpcPermission.toGrpc(Permission.READ_PROJECT)).toBe(ProtoPermission.READ_PROJECT);
   });
 
+  it('carries UPDATE_SECRET both ways', () => {
+    expect(grpcPermission.toDomain(ProtoPermission.UPDATE_SECRET)).toBe(Permission.UPDATE_SECRET);
+    expect(grpcPermission.toGrpc(Permission.UPDATE_SECRET)).toBe(ProtoPermission.UPDATE_SECRET);
+  });
+
   it('carries MANAGE_ORG_ROLES both ways', () => {
     expect(grpcPermission.toDomain(ProtoPermission.MANAGE_ORG_ROLES)).toBe(
       Permission.MANAGE_ORG_ROLES,

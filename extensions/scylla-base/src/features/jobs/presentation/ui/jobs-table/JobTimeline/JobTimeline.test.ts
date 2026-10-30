@@ -11,6 +11,8 @@ import JobTimeline from './JobTimeline.svelte';
 const node = (overrides: Partial<JobNodeExecution> = {}): JobNodeExecution => ({
   id: 'build',
   state: 'completed',
+  attempts: 1,
+  maxAttempts: 1,
   ...overrides,
 });
 

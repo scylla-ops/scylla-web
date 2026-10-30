@@ -50,6 +50,7 @@ Never add: `jobs.module.ts`, and never export a `.svelte` component from this ba
 | `getByOrganizationId(...)` | paginated `JobEntity` list |
 | `getById(jobId)` | `JobEntity` |
 | `deleteById(jobId)` | `void` |
+| `rerun(jobId)` | `string` — the id of the new job |
 | `getLogs(...)` | `JobLog[]` |
 | `tailLogs(jobId, nodeId?)` | **`JobLogStream` — synchronous, not a Promise** |
 
@@ -83,6 +84,7 @@ presentation/
   messages/jobs.messages.ts                every string — `lingui extract` cannot read `.svelte`
   presenters/jobs-summary.presenter.ts   JobsSummary, summarizeJobs
   presenters/job-timeline.presenter.ts   segment geometry, pure and tested in node
+  presenters/node-attempt.presenter.ts   attemptOf: the `Attempt N/M` of a node
   ui/jobs-table/                     JobsTable + jobs-table.columns.ts + cells
   ui/jobs-log/JobLogDisplay/         the streamed viewer, shared by both pages
     streamed-log-view.state.svelte.ts      owns the editor document + tail-follow
@@ -134,6 +136,12 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
   column scrolls rather than shrink them. A fixed height on the editor itself is what this
   replaced — do not put one back.
 - Lists go through `DataTable` + pagination. Row keys are job ids, never indices.
+- **Re-run is on an ended job only** (`isFinishedStatus`), in the jobs table and in the job
+  details header, and only with `RUN_PIPELINE`. The new job runs the nodes and the inputs of the
+  old job, not the pipeline as it is now. `jobMutations.rerun` refreshes the list and opens the
+  new job. The action is disabled while the mutation is pending, so a double click makes one job.
+- **A node shows `Attempt N/M` only when it can retry and it started** (`attemptOf`: `M > 1` and
+  `N > 0`), in the node list and in the node panel header.
 - **The details page is the one place a job's logs are read.** Everywhere a job is displayed —
   the jobs table's view action and timeline, the pipeline dashboard's history and last run —
   links there through `scyllaNavigate.goToJobDetails(...)` from `@platform/context`, which is an

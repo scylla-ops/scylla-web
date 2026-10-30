@@ -56,6 +56,8 @@ function nodeToDomain(node: PipelineNode): PipelineNodeEntity {
     deps: node.deps.map(idValue),
     ...(node.workingDir ? { workingDir: node.workingDir } : {}),
     env: node.env.map(envVarToDomain),
+    ...(node.timeoutSeconds !== undefined ? { timeoutSeconds: node.timeoutSeconds } : {}),
+    ...(node.retries ? { retries: node.retries } : {}),
   };
 
   const step = node.step;
@@ -84,6 +86,8 @@ export function nodeFromDomain(node: PipelineNodeEntity): PipelineNode {
     deps: node.deps.map(wrapId),
     workingDir: node.workingDir ?? '',
     env: node.env.map(envVarFromDomain),
+    timeoutSeconds: node.timeoutSeconds,
+    retries: node.retries ?? 0,
     step:
       node.kind === 'script'
         ? {

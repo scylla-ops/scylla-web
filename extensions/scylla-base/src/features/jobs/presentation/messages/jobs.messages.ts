@@ -24,6 +24,7 @@ export const jobsMessages = {
   queuedHint: msg`queued: waiting for an agent`,
   orphanedHint: msg`agent disconnected mid-run`,
   view: msg`View`,
+  rerun: msg`Re-run`,
   delete: msg`Delete`,
   jobActions: msg`Job actions`,
 
@@ -37,6 +38,7 @@ export const jobsMessages = {
   nodeStarted: (time: string) => msg`Started: ${time}`,
   nodeFinished: (time: string) => msg`Finished: ${time}`,
   nodeDuration: (duration: string) => msg`Duration: ${duration}`,
+  attempt: (attempt: number, maxAttempts: number) => msg`Attempt ${attempt}/${maxAttempts}`,
   groupLabel: (count: number, status: string) => msg`${count} ${status} nodes`,
   groupShare: (count: number, total: number, percent: number) =>
     msg`${count} / ${total} nodes (${percent}%)`,

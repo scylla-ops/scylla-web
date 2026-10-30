@@ -16,6 +16,7 @@
   import NodeEnvFields from '@base/features/pipeline/presentation/ui/editor/node/NodeEnvFields.svelte';
   import NodeIdField from '@base/features/pipeline/presentation/ui/editor/node/NodeIdField.svelte';
   import NodeKindPicker from '@base/features/pipeline/presentation/ui/editor/node/NodeKindPicker.svelte';
+  import NodeTimeoutRetriesFields from '@base/features/pipeline/presentation/ui/editor/node/NodeTimeoutRetriesFields.svelte';
   import NodeWorkingDirField from '@base/features/pipeline/presentation/ui/editor/node/NodeWorkingDirField.svelte';
   import NodeDependencies from './NodeDependencies.svelte';
 
@@ -45,6 +46,7 @@
 
     <NodeKindPicker {draft} />
     <NodeWorkingDirField {draft} />
+    <NodeTimeoutRetriesFields {draft} />
 
     <NodeDependencies
       deps={node.deps}

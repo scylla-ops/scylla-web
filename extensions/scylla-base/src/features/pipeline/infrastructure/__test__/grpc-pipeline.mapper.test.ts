@@ -21,6 +21,7 @@ const execNode = (overrides: Partial<PipelineNode> = {}): PipelineNode => ({
   deps: [],
   workingDir: '',
   env: [],
+  retries: 0,
   step: { oneofKind: 'exec', exec: { command: 'echo', args: ['hi'] } },
   ...overrides,
 });
@@ -86,6 +87,20 @@ describe('grpcPipeline.toDomain (via nodeToDomain)', () => {
       basePipeline({ nodes: [execNode({ workingDir: '' })] }),
     ).nodes;
     expect(node).not.toHaveProperty('workingDir');
+  });
+
+  it('reads the timeout and the retries, and none when the node has none', () => {
+    const [node, bare] = grpcPipeline.toDomain(
+      basePipeline({
+        nodes: [
+          execNode({ timeoutSeconds: 30, retries: 2 }),
+          execNode({ nodeId: { value: 'node-2' } }),
+        ],
+      }),
+    ).nodes;
+    expect(node).toMatchObject({ timeoutSeconds: 30, retries: 2 });
+    expect(bare).not.toHaveProperty('timeoutSeconds');
+    expect(bare).not.toHaveProperty('retries');
   });
 
   it('a non-empty workingDir is carried through', () => {
@@ -156,6 +171,19 @@ describe('grpcPipeline.nodeFromDomain', () => {
     kind: 'script',
     script: 'echo hi',
     shell,
+  });
+
+  it('sends the timeout and the retries, and 0 retries and no timeout when the node has none', () => {
+    const node = grpcPipeline.nodeFromDomain({
+      ...scriptDomainNode('sh'),
+      timeoutSeconds: 30,
+      retries: 2,
+    });
+    expect(node).toMatchObject({ timeoutSeconds: 30, retries: 2 });
+
+    const bare = grpcPipeline.nodeFromDomain(scriptDomainNode('sh'));
+    expect(bare.timeoutSeconds).toBeUndefined();
+    expect(bare.retries).toBe(0);
   });
 
   it('defaults workingDir to "" when the domain node has none', () => {

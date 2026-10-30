@@ -14,6 +14,7 @@
   import { calculateExecutionDuration, formatDuration } from '@shared/utils/date-utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
+  import { attemptOf } from '@base/features/jobs/presentation/presenters/node-attempt.presenter.ts';
   import { nodeIdOf } from '@base/features/jobs/presentation/presenters/job-timeline.presenter.ts';
   import JobLogDisplay from '../jobs-log/JobLogDisplay/JobLogDisplay.svelte';
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
@@ -108,6 +109,7 @@
           {@const config = getStatusConfig(node.state)}
           {@const Icon = getStatusIcon(node.state)}
           {@const duration = calculateExecutionDuration(node.startedAt, node.finishedAt)}
+          {@const attempt = attemptOf(node)}
           <button
             type="button"
             onclick={() => onToggleNode(id)}
@@ -116,6 +118,11 @@
           >
             <Icon class={cn('size-4 shrink-0', config.iconClassName)} />
             <span class="min-w-0 flex-1 truncate text-sm font-medium">{id}</span>
+            {#if attempt}
+              <span class="shrink-0 text-xs text-muted-foreground">
+                {t(jobsMessages.attempt(attempt.attempt, attempt.maxAttempts))}
+              </span>
+            {/if}
             <span class="shrink-0 text-xs text-muted-foreground">
               {duration === null ? '-' : formatDuration(duration)}
             </span>
@@ -146,6 +153,7 @@
             {@const config = getStatusConfig(node.state)}
             {@const Icon = getStatusIcon(node.state)}
             {@const collapsed = collapsedIds.has(id)}
+            {@const attempt = attemptOf(node)}
             <section
               aria-label={id}
               class="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-border shadow-sm"
@@ -173,6 +181,11 @@
                   <Badge variant="outline" class={config.badgeClassName}>
                     {t(config.label)}
                   </Badge>
+                  {#if attempt}
+                    <span class="shrink-0 text-xs text-muted-foreground">
+                      {t(jobsMessages.attempt(attempt.attempt, attempt.maxAttempts))}
+                    </span>
+                  {/if}
                 </Button>
                 <button
                   type="button"

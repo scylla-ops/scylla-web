@@ -3,6 +3,7 @@
   import NodeCommandFields from '@base/features/pipeline/presentation/ui/editor/node/NodeCommandFields.svelte';
   import NodeKindPicker from '@base/features/pipeline/presentation/ui/editor/node/NodeKindPicker.svelte';
   import NodeScriptField from '@base/features/pipeline/presentation/ui/editor/node/NodeScriptField.svelte';
+  import NodeTimeoutRetriesFields from '@base/features/pipeline/presentation/ui/editor/node/NodeTimeoutRetriesFields.svelte';
   import NodeWorkingDirField from '@base/features/pipeline/presentation/ui/editor/node/NodeWorkingDirField.svelte';
 
   interface Props {
@@ -22,4 +23,5 @@
   {/if}
 
   <NodeWorkingDirField {draft} />
+  <NodeTimeoutRetriesFields {draft} />
 </div>

@@ -46,6 +46,7 @@ beforeEach(() => {
     getByOrganizationId: vi.fn(),
     getById: vi.fn(),
     deleteById: vi.fn(),
+    rerun: vi.fn(),
     getLogs: vi.fn(),
     tailLogs: vi.fn(),
   };

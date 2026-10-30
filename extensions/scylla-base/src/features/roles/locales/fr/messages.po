@@ -82,6 +82,10 @@ msgstr "ne peut pas voir les projets de cette organisation"
 msgid "Cancel"
 msgstr "Annuler"
 
+#: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:93
+msgid "Change the value and the description of secrets"
+msgstr "Modifier la valeur et la description des secrets"
+
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:49
 msgid "Choose who receives this role and where it applies."
 msgstr "Choisissez qui reçoit ce rôle et où il s'applique."
@@ -154,7 +158,7 @@ msgstr "Supprimer des jobs"
 msgid "Delete pipelines"
 msgstr "Supprimer des pipelines"
 
-#: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:93
+#: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:94
 msgid "Delete secrets"
 msgstr "Supprimer des secrets"
 
@@ -376,7 +380,7 @@ msgid "Open any project"
 msgstr "Ouvrir n'importe quel projet"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:56
-#: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:98
+#: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:99
 msgid "Organization"
 msgstr "Organisation"
 
@@ -414,7 +418,7 @@ msgstr "Plateforme"
 msgid "Platform roles"
 msgstr "Rôles de la plateforme"
 
-#: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:99
+#: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:100
 msgid "Project"
 msgstr "Projet"
 
@@ -513,7 +517,7 @@ msgstr "Fournis avec Scylla ou créés par un administrateur système. Vous pouv
 msgid "Show {label} sub-permissions"
 msgstr "Afficher les sous-permissions de {label}"
 
-#: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:97
+#: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:98
 msgid "System"
 msgstr "Système"
 
@@ -534,7 +538,7 @@ msgid "This role is for apps. People cannot hold it."
 msgstr "Ce rôle est réservé aux applications. Une personne ne peut pas le détenir."
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:30
-#: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:100
+#: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:101
 msgctxt "feminine"
 msgid "Unknown"
 msgstr "Inconnue"

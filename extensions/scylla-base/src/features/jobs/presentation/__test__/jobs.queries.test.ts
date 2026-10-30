@@ -3,6 +3,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { QueryClient } from '@tanstack/query-core';
 import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
+import { installTestNavigator } from '@test/navigator.ts';
+import { contextStore } from '@platform/context';
 import type { PaginatedList } from '@scylla/ui/structs';
 import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
@@ -43,6 +45,7 @@ beforeEach(() => {
     getByOrganizationId: vi.fn().mockResolvedValue(page([job()])),
     getById: vi.fn().mockResolvedValue(job()),
     deleteById: vi.fn().mockResolvedValue(undefined),
+    rerun: vi.fn().mockResolvedValue('job-2'),
     getLogs: vi.fn(),
     tailLogs: vi.fn(),
   };
@@ -182,5 +185,25 @@ describe('jobMutations.remove', () => {
   it('invalidates every job listing when it does not — the details page knows no pipeline', () => {
     runOnSuccess(jobMutations.remove(), undefined, 'job-1');
     expect(invalidate).toHaveBeenCalledWith({ queryKey: JOBS_QUERY_ROOT });
+  });
+});
+
+describe('jobMutations.rerun', () => {
+  it('re-runs by job id and gives the id of the new job', async () => {
+    await expect(runMutationFn(jobMutations.rerun('pipeline-1'), 'job-1')).resolves.toBe('job-2');
+    expect(repository.rerun).toHaveBeenCalledWith('job-1');
+  });
+
+  it("refreshes the pipeline's list and opens the new job", () => {
+    const navigator = installTestNavigator();
+    contextStore.getState().setProject('project-1', 'rocket');
+
+    runOnSuccess(jobMutations.rerun('pipeline-1'), 'job-2', 'job-1');
+
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: JOBS_QUERY_KEY('pipeline-1') });
+    expect(navigator.navigate.mock.calls.at(-1)?.[0]).toBe(
+      '/projects/project-1/pipelines/pipeline-1/jobs/job-2',
+    );
+    navigator.restore();
   });
 });

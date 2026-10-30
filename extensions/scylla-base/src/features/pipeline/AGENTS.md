@@ -122,7 +122,8 @@ presentation/
       node/                                  the fields of one node, for every view that edits a node
         node-draft.state.svelte.ts           createNodeDraft: the draft of a node, applied at each edit
         NodeIdField, NodeKindPicker, NodeScriptField, NodeCommandFields, NodeWorkingDirField,
-        NodeEnvFields                        one field (or one group of fields) each, on a NodeDraft
+        NodeTimeoutRetriesFields, NodeEnvFields
+                                             one field (or one group of fields) each, on a NodeDraft
       scripting/                             the scripting tab: the nodes one by one, or the full document
         PipelineScripting/                   the two views as tabs (and its test, its fixture)
         pipeline-scripting.state.svelte.ts   ViewModel: mode, add/remove/rename, deps, moveNode
@@ -342,6 +343,13 @@ the page.
   refuses a pipeline that breaks a rule of the server, with an `InvalidPipelineError`: nothing is
   sent. `pipeline.queries.ts` turns the issue into a translated message, and the error toast of
   the app shows it. The editor does not check the rules itself.
+- **A node carries `timeoutSeconds` and `retries`.** `timeoutSeconds` is optional: absent means the
+  server default, or no time limit. `retries` is 0 to 10, absent means 0. The node draft
+  (`node-draft.state.svelte.ts`) checks the ranges (1 to 604800 for the timeout); a value out of
+  range is shown as an error in `NodeTimeoutRetriesFields` and is not applied, so the node keeps its
+  last value in range. The JSON document writes both keys (`timeoutSeconds: null` and
+  `retries: 0` when there is none) and reads them back as none, so `nodesOf(withNodes(nodes))`
+  still equals `nodes`. The gRPC mapper also reads 0 retries as none.
 - `blueprint-flow.mapper.ts` is the single translation between the flow graph and
   `PipelineNodeEntity[]`. Both directions live there; do not inline conversion in a component.
   The position of each node comes from `blueprint-layout.presenter.ts`.

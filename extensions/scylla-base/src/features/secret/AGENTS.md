@@ -18,7 +18,7 @@ options objects in `presentation/*.queries.ts`, which a component or another fea
 ## Public API — `index.ts`
 
 ```typescript
-type SecretEntity, CreateSecretInput, CreateSecretValues
+type SecretEntity, CreateSecretInput, UpdateSecretInput, CreateSecretValues, UpdateSecretValues
 secretQueries, secretMutations, SECRETS_QUERY_KEY
 ```
 
@@ -35,13 +35,19 @@ Never add: `secret.module.ts`, pages.
 |---|---|
 | `listByProjectId(projectId)` | `SecretEntity[]` — **metadata only, no values** |
 | `create(CreateSecretInput)` | `SecretEntity` |
+| `update(UpdateSecretInput)` | `SecretEntity` — sends only the fields it gets |
+| `listPipelinesUsing(projectId, secretName)` | `SecretUsage` — the first page of the pipelines that use the secret, and the total |
 | `deleteById(secretId)` | `void` |
 
-`CreateSecretInput` lives beside the interface, in domain. The repository is reached from
-`presentation/secret.queries.ts` and nowhere else — never from a component.
+`CreateSecretInput` and `UpdateSecretInput` live in `domain/entities/secret.entity.ts`. The repository
+is reached from `presentation/secret.queries.ts` and nowhere else — never from a component.
 
-There is **no `update`**: a secret is replaced by delete + create, and no method returns a
-stored value. Both are backend constraints — do not add hooks pretending otherwise.
+No method returns a stored value. That is a backend constraint — do not add hooks pretending
+otherwise.
+
+`listPipelinesUsing` calls `PipelineService.ListProjectPipelines` with `secret_ref` from this
+module's repository. It does not go through the `pipeline` barrel: `pipeline` imports this
+module (the secret picker), so the reverse import is a module cycle.
 
 ## Layout
 
@@ -49,15 +55,19 @@ stored value. Both are backend constraints — do not add hooks pretending other
 secret.module.ts                     route + DI wiring (private; registry only)
 index.ts                             public API
 domain/
-  entities/secret.entity.ts          SecretEntity, CreateSecretInput
+  entities/secret.entity.ts          SecretEntity, CreateSecretInput, UpdateSecretInput
+  structs/secret-usage.struct.ts     SecretUsage
   repository/secret.repository.ts
 infrastructure/
   default-secret.repository.ts       SecretServiceClient → SecretEntity
   grpc-secret.mapper.ts
 presentation/
-  secret.queries.ts                  the read and both writes, as options objects
+  secret.queries.ts                  the reads and the writes, as options objects
   ui/Secret.page.svelte, CreateSecretDialog.svelte
+  ui/EditSecretDialog/               EditSecretDialog (the form), ReplaceSecretValueDialog
+                                     (the warning before a new value)
   messages/secret.messages.ts              every string the screen shows
+  messages/edit-secret.messages.ts         the strings of the edit dialogs
   ui/components/                     SecretHeader, SecretList (+ secret-list.columns.ts),
                                      SecretHealthOverview, SecretPagination
   ui/components/index.ts             local barrel — internal, not the module's public API
@@ -74,10 +84,17 @@ presentation/
 
 ## Rules that bite here
 
+- **The edit form never shows the current value.** Its value field starts empty, and an empty
+  field keeps the value: the UI cannot send an empty value. A new value opens
+  `ReplaceSecretValueDialog` first, in the destructive style; a description change alone does
+  not. The edit action and the warning list need their own permissions: `UPDATE_SECRET` on the
+  project for the row action, `LIST_PIPELINES_BY_PROJECT` for the list in the warning. Without
+  that permission, or when the list does not load, the warning says so in one line: the user
+  must not read a missing list as "no pipeline".
 - **Never render a secret value.** `listByProjectId` returns metadata (name, scope, timestamps)
   and the backend does not return values at all. If something looks like a value, it isn't —
   check the mapper before displaying it.
-- The plaintext exists exactly once: in the create form, on its way out. Do not put it in a
+- The plaintext exists only in the create and the edit forms, on its way out. Do not put it in a
   store, a query cache, a toast, a log or an error message.
 - `presenters/secret-form.presenter.ts` is camelCase, predating the kebab-case convention. Do not rename
   opportunistically — that moves Lingui message ownership and needs

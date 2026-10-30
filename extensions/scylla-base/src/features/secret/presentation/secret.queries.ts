@@ -3,6 +3,7 @@ import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import type { SecretEntity } from '../domain/entities/secret.entity.ts';
+import type { SecretUsage } from '../domain/structs/secret-usage.struct.ts';
 import type { SecretModule } from '../secret.module.ts';
 
 // Resolved per call: tests swap the registry.
@@ -11,9 +12,18 @@ const repository = () =>
 
 export const SECRETS_QUERY_KEY = (projectId: string) => ['secrets', projectId] as const;
 
+const SECRET_USAGE_QUERY_KEY = (projectId: string, secretName: string) =>
+  [...SECRETS_QUERY_KEY(projectId), 'pipelines', secretName] as const;
+
 export interface CreateSecretValues {
   name: string;
   value: string;
+  description: string;
+}
+
+export interface UpdateSecretValues {
+  secretId: string;
+  value?: string;
   description: string;
 }
 
@@ -25,6 +35,14 @@ export const secretQueries = {
       enabled: !!projectId,
       queryFn: () => repository().listByProjectId(projectId),
       staleTime: 30 * 1000,
+    }),
+
+  usage: (projectId: string, secretName: string, enabled: boolean) =>
+    queryOptions<SecretUsage>({
+      queryKey: SECRET_USAGE_QUERY_KEY(projectId, secretName),
+      enabled: enabled && !!projectId && !!secretName,
+      queryFn: () => repository().listPipelinesUsing(projectId, secretName),
+      staleTime: 0,
     }),
 };
 
@@ -39,6 +57,15 @@ export const secretMutations = {
         repository().create({ projectId, name, value, description }),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.SECRET_CREATE));
+        void invalidateProject(projectId);
+      },
+    }),
+
+  update: (projectId: string) =>
+    mutationOptions({
+      mutationFn: (values: UpdateSecretValues) => repository().update(values),
+      onSuccess: () => {
+        toast.success(i18n._(ToastMessages.SECRET_UPDATE));
         void invalidateProject(projectId);
       },
     }),

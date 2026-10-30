@@ -28,6 +28,8 @@ const withRepository = (overrides: Partial<SecretRepository> = {}) => {
     listByProjectId: vi.fn().mockResolvedValue([secret()]),
     create: vi.fn().mockResolvedValue(secret()),
     deleteById: vi.fn().mockResolvedValue(undefined),
+    update: vi.fn().mockResolvedValue(secret()),
+    listPipelinesUsing: vi.fn().mockResolvedValue({ pipelines: [], totalCount: 0 }),
     ...overrides,
   };
   setDependencyRegistry({ secret: { secretRepository: repository } });
@@ -120,5 +122,46 @@ describe('secretMutations.remove', () => {
 
     expect(invalidate).toHaveBeenCalledWith({ queryKey: SECRETS_QUERY_KEY('project-1') });
     expect(toastSuccess).not.toHaveBeenCalled();
+  });
+});
+
+describe('secretMutations.update', () => {
+  it('sends only the fields it gets', async () => {
+    const repository = withRepository();
+
+    await runMutationFn(secretMutations.update('project-1'), {
+      secretId: 'secret-1',
+      description: 'rotated',
+    });
+
+    expect(repository.update).toHaveBeenCalledWith({ secretId: 'secret-1', description: 'rotated' });
+  });
+
+  it('toasts and refreshes the list of the project', () => {
+    withRepository();
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+
+    runOnSuccess(secretMutations.update('project-1'), secret(), {
+      secretId: 'secret-1',
+      description: 'rotated',
+    });
+
+    expect(toastSuccess).toHaveBeenCalled();
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: SECRETS_QUERY_KEY('project-1') });
+  });
+});
+
+describe('secretQueries.usage', () => {
+  it('asks for the pipelines that use the secret, under the list key of the project', async () => {
+    const repository = withRepository();
+    const options = secretQueries.usage('project-1', 'API_TOKEN', true);
+
+    expect(options.queryKey.slice(0, 2)).toEqual([...SECRETS_QUERY_KEY('project-1')]);
+    await expect(runQueryFn(options)).resolves.toEqual({ pipelines: [], totalCount: 0 });
+    expect(repository.listPipelinesUsing).toHaveBeenCalledWith('project-1', 'API_TOKEN');
+  });
+
+  it('asks nothing while its caller keeps it off', () => {
+    expect(secretQueries.usage('project-1', 'API_TOKEN', false).enabled).toBe(false);
   });
 });

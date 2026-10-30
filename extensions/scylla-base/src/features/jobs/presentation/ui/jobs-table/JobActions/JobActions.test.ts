@@ -3,7 +3,7 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { flushSync } from 'svelte';
 import { findFloating, render } from '@test/render.ts';
-import { PermissionScope, permissionsStore } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import JobActions from './JobActions.svelte';
 
 /** Captures the observer's callback so a test can report a width. */
@@ -88,5 +88,61 @@ describe('JobActions', () => {
 
     expect(await findFloating('menuitem', 'View')).toBeInTheDocument();
     expect(screen.queryByText('Delete')).not.toBeInTheDocument();
+  });
+
+  it('shows a re-run action next to view when the job ended and the user may run the pipeline', async () => {
+    const onRerun = vi.fn();
+    render(JobActions, { onView: vi.fn(), onDelete: vi.fn(), onRerun });
+
+    expect(screen.getAllByRole('button')).toHaveLength(3);
+    await userEvent.click(screen.getByRole('button', { name: 'Re-run' }));
+
+    expect(onRerun).toHaveBeenCalled();
+  });
+
+  it('disables the re-run action while a re-run is pending, so a second click starts nothing', async () => {
+    const onRerun = vi.fn();
+    render(JobActions, { onView: vi.fn(), onDelete: vi.fn(), onRerun, isRerunning: true });
+
+    const rerun = screen.getByRole('button', { name: 'Re-run' });
+    expect(rerun).toBeDisabled();
+    await userEvent.click(rerun);
+
+    expect(onRerun).not.toHaveBeenCalled();
+  });
+
+  it('hides the re-run action without RUN_PIPELINE', () => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.SYSTEM,
+            scopeId: '',
+            access: { kind: 'restricted', permissions: [Permission.DELETE_JOB] },
+          },
+        ],
+      },
+    });
+    render(JobActions, { onView: vi.fn(), onDelete: vi.fn(), onRerun: vi.fn() });
+
+    expect(screen.queryByRole('button', { name: 'Re-run' })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button')).toHaveLength(2);
+  });
+
+  it('offers no re-run for a job that has not ended', () => {
+    render(JobActions, { onView: vi.fn(), onDelete: vi.fn() });
+
+    expect(screen.queryByRole('button', { name: 'Re-run' })).not.toBeInTheDocument();
+  });
+
+  it('the collapsed menu forwards a re-run pick', async () => {
+    const onRerun = vi.fn();
+    render(JobActions, { onView: vi.fn(), onDelete: vi.fn(), onRerun });
+
+    ResizeObserverMock.instances[0].fire(50);
+    await userEvent.click(screen.getByRole('button', { name: 'Job actions' }));
+    await userEvent.click(await findFloating('menuitem', 'Re-run'));
+
+    expect(onRerun).toHaveBeenCalled();
   });
 });

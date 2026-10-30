@@ -39,7 +39,7 @@ msgstr "Un lien de réinitialisation a été envoyé à {email}."
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:32
 #: extensions/scylla-base/src/features/user/user.module.ts:40
-#: extensions/scylla-base/src/features/user/user.module.ts:45
+#: extensions/scylla-base/src/features/user/user.module.ts:46
 msgid "Account"
 msgstr "Compte"
 

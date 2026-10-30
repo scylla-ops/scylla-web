@@ -71,7 +71,7 @@ msgstr "Ajouter un nœud après {id}"
 msgid "Add argument"
 msgstr "Ajouter un argument"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:38
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:43
 msgid "Add variable"
 msgstr "Ajouter une variable"
 
@@ -230,6 +230,14 @@ msgstr "Modifier"
 msgid "Edit pipeline"
 msgstr "Modifier la pipeline"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:35
+msgid "Enter a whole number from 0 to 10."
+msgstr "Saisissez un nombre entier de 0 à 10."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:33
+msgid "Enter a whole number from 1 to 604800."
+msgstr "Saisissez un nombre entier de 1 à 604800."
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:8
 msgid "Environment"
 msgstr "Environnement"
@@ -274,7 +282,7 @@ msgstr "ID de nœud invalide"
 msgid "Jobs"
 msgstr "Jobs"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:31
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:36
 msgid "KEY"
 msgstr "CLÉ"
 
@@ -282,7 +290,7 @@ msgstr "CLÉ"
 msgid "Last Run"
 msgstr "Dernière exécution"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:33
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:38
 msgid "Literal"
 msgstr "Littéral"
 
@@ -321,6 +329,10 @@ msgstr "Aucun nœud ne correspond à cette recherche."
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:5
 msgid "No pipeline found"
 msgstr "Aucun pipeline trouvé"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:32
+msgid "No timeout"
+msgstr "Aucun délai"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:9
 msgid "Node ID"
@@ -381,11 +393,11 @@ msgstr "Nom de la pipeline"
 msgid "Pipelines"
 msgstr "Pipelines"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:36
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:41
 msgid "Reference a secret"
 msgstr "Référencez un secret"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:39
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:44
 msgid "Remove argument"
 msgstr "Supprimer l'argument"
 
@@ -393,13 +405,17 @@ msgstr "Supprimer l'argument"
 msgid "Remove the dependency on {id}"
 msgstr "Retirer la dépendance à {id}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:40
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:45
 msgid "Remove variable"
 msgstr "Supprimer la variable"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/scripting.messages.ts:39
 msgid "Required by"
 msgstr "Requis par"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:34
+msgid "Retries"
+msgstr "Nouvelles tentatives"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:22
 msgid "Run"
@@ -441,11 +457,11 @@ msgstr "Écriture de scripts"
 msgid "Search a node"
 msgstr "Rechercher un nœud"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:34
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:39
 msgid "Secret"
 msgstr "Secret"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:37
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:42
 msgid "secret name"
 msgstr "Nom du secret"
 
@@ -541,6 +557,10 @@ msgstr "Ce nœud n'a aucun lien en entrée. À l'enregistrement, il sera relié 
 msgid "This pipeline has no node yet."
 msgstr "Ce pipeline n'a encore aucun nœud."
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:31
+msgid "Timeout (seconds)"
+msgstr "Délai d'expiration (secondes)"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:27
 msgid "Triggers"
 msgstr "Déclencheurs"
@@ -578,11 +598,11 @@ msgstr "Utiliser"
 msgid "Use {id}"
 msgstr "Utiliser {id}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:32
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:37
 msgid "value"
 msgstr "valeur"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:35
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:40
 msgid "Value kind"
 msgstr "Type de valeur"
 

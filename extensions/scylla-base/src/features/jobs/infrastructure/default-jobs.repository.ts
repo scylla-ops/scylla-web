@@ -44,6 +44,12 @@ export class DefaultJobsRepository implements JobsRepository {
     await this.client.deleteJob({ jobId: wrapId(jobId) }).response;
   }
 
+  public async rerun(jobId: string): Promise<string> {
+    const response = await this.client.rerunJob({ jobId: wrapId(jobId) }).response;
+    if (!response.jobId?.value) throw new Error('Job id missing from RerunJobResponse');
+    return response.jobId.value;
+  }
+
   public async getLogs(
     jobId: string,
     nodeId?: string,

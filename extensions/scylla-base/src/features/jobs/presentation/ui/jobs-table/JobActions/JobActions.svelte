@@ -1,6 +1,7 @@
 <script lang="ts">
   import EyeIcon from '@lucide/svelte/icons/eye';
   import MoreHorizontalIcon from '@lucide/svelte/icons/more-horizontal';
+  import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
   import TrashIcon from '@lucide/svelte/icons/trash';
   import { Permission, can } from '@platform/authz';
   import {
@@ -19,11 +20,14 @@
   interface Props {
     onView: (event: Event) => void;
     onDelete: (event: Event) => void;
+    onRerun?: (event: Event) => void;
+    isRerunning?: boolean;
   }
 
-  let { onView, onDelete }: Props = $props();
+  let { onView, onDelete, onRerun, isRerunning = false }: Props = $props();
 
   const canDelete = $derived(can(Permission.DELETE_JOB));
+  const canRerun = $derived(!!onRerun && can(Permission.RUN_PIPELINE));
 
   const container = createCompactContainer();
 </script>
@@ -47,6 +51,12 @@
           <EyeIcon class="w-4 h-4 mr-2" />
           {t(jobsMessages.view)}
         </DropdownMenuItem>
+        {#if canRerun && onRerun}
+          <DropdownMenuItem onSelect={onRerun} disabled={isRerunning}>
+            <RotateCcwIcon class="w-4 h-4 mr-2" />
+            {t(jobsMessages.rerun)}
+          </DropdownMenuItem>
+        {/if}
         {#if canDelete}
           <DropdownMenuItem onSelect={onDelete} class="text-destructive">
             <TrashIcon class="w-4 h-4 mr-2" />
@@ -57,6 +67,15 @@
     </DropdownMenu>
   {:else}
     <IconButton icon={EyeIcon} tooltip={t(jobsMessages.view)} onclick={onView} />
+
+    {#if canRerun && onRerun}
+      <IconButton
+        icon={RotateCcwIcon}
+        tooltip={t(jobsMessages.rerun)}
+        onclick={onRerun}
+        busy={isRerunning}
+      />
+    {/if}
 
     {#if canDelete}
       <IconButton

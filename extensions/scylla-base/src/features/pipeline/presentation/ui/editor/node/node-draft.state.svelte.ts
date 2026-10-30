@@ -11,6 +11,24 @@ import {
 import { nodeIdIssue, toNodeId } from '@base/features/pipeline/domain/structs/node-id.struct.ts';
 import { nodeRunIssue } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 
+export const MAX_TIMEOUT_SECONDS = 604_800;
+export const MAX_RETRIES = 10;
+
+const wholeNumber = (raw: string): number | null =>
+  /^\d+$/.test(raw.trim()) ? Number(raw.trim()) : null;
+
+// `undefined`: no timeout. `null`: out of range.
+const timeoutOf = (raw: string): number | undefined | null => {
+  if (!raw.trim()) return undefined;
+  const seconds = wholeNumber(raw);
+  return seconds !== null && seconds >= 1 && seconds <= MAX_TIMEOUT_SECONDS ? seconds : null;
+};
+
+const retriesOf = (raw: string): number | null => {
+  const retries = raw.trim() ? wholeNumber(raw) : 0;
+  return retries !== null && retries <= MAX_RETRIES ? retries : null;
+};
+
 export interface NodeDraftParams {
   /** Read once: a draft is built again for another node. */
   node: PipelineNodeEntity;
@@ -34,13 +52,23 @@ export const createNodeDraft = ({ node, onChange, onRename }: NodeDraftParams) =
   let args = $state<string[]>(node.kind === 'exec' ? [...node.args] : []);
   let workingDir = $state(node.workingDir ?? '');
   let envRows = $state<EnvRow[]>(node.env.map(toEnvRow));
+  let timeoutSeconds = $state(node.timeoutSeconds?.toString() ?? '');
+  let retries = $state(String(node.retries ?? 0));
+  // The last values in range: a value out of range is shown, never applied.
+  let timeout = $state(node.timeoutSeconds);
+  let retryCount = $state(node.retries ?? 0);
 
   const value = $derived.by((): NodeDefinition => {
     // A row with no key is an empty line.
     const env = envRows
       .filter(row => row.key.trim())
       .map(row => toEnvEntry({ ...row, key: row.key.trim() }));
-    const base = { workingDir: workingDir.trim() || undefined, env };
+    const base = {
+      workingDir: workingDir.trim() || undefined,
+      env,
+      timeoutSeconds: timeout,
+      retries: retryCount || undefined,
+    };
 
     return mode === 'script'
       ? { ...base, kind: 'script', script, shell }
@@ -113,6 +141,32 @@ export const createNodeDraft = ({ node, onChange, onRename }: NodeDraftParams) =
     set workingDir(next: string) {
       workingDir = next;
       commit();
+    },
+    get timeoutSeconds() {
+      return timeoutSeconds;
+    },
+    set timeoutSeconds(next: string) {
+      timeoutSeconds = next;
+      const parsed = timeoutOf(next);
+      if (parsed === null) return;
+      timeout = parsed;
+      commit();
+    },
+    get timeoutInvalid() {
+      return timeoutOf(timeoutSeconds) === null;
+    },
+    get retries() {
+      return retries;
+    },
+    set retries(next: string) {
+      retries = next;
+      const parsed = retriesOf(next);
+      if (parsed === null) return;
+      retryCount = parsed;
+      commit();
+    },
+    get retriesInvalid() {
+      return retriesOf(retries) === null;
     },
 
     // An argument is its position: indexed, like its `{#each}` key.

@@ -58,6 +58,7 @@ const TREE: Omit<PermissionDefinition, 'scope'>[] = [
   { id: Permission.DELETE_JOB, dependsOn: Permission.LIST_JOBS_BY_PIPELINE },
   { id: Permission.LIST_SECRETS, dependsOn: Permission.READ_PROJECT },
   { id: Permission.CREATE_SECRET, dependsOn: Permission.LIST_SECRETS },
+  { id: Permission.UPDATE_SECRET, dependsOn: Permission.LIST_SECRETS },
   { id: Permission.DELETE_SECRET, dependsOn: Permission.LIST_SECRETS },
 ];
 

@@ -90,6 +90,7 @@ const PERMISSION_LABELS: Partial<Record<Permission, PermissionLabel>> = {
     broadLabel: msg`View the secrets of every project`,
   },
   [Permission.CREATE_SECRET]: { label: msg`Create secrets` },
+  [Permission.UPDATE_SECRET]: { label: msg`Change the value and the description of secrets` },
   [Permission.DELETE_SECRET]: { label: msg`Delete secrets` },
 };
 

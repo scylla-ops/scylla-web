@@ -17,6 +17,7 @@ export interface JobsRepository {
   ): Promise<PaginatedList<JobEntity>>;
   getById(jobId: string): Promise<JobEntity>;
   deleteById(jobId: string): Promise<void>;
+  rerun(jobId: string): Promise<string>;
   getLogs(
     jobId: string,
     nodeId?: string,

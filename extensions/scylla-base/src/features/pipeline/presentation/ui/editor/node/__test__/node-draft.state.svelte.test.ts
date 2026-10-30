@@ -148,4 +148,58 @@ describe('createNodeDraft', () => {
       expect(draft.suggestedId).toBe('run-tests');
     });
   });
+
+  it('starts from the timeout and the retries of the node', () => {
+    withDraft({ ...scriptNode, timeoutSeconds: 30, retries: 2 }, draft => {
+      expect(draft.timeoutSeconds).toBe('30');
+      expect(draft.retries).toBe('2');
+      expect(draft.value).toMatchObject({ timeoutSeconds: 30, retries: 2 });
+    });
+  });
+
+  it('applies a timeout and retries in range, and none for an empty timeout or 0 retries', () => {
+    withDraft({ ...scriptNode, timeoutSeconds: 30, retries: 2 }, (draft, onChange) => {
+      draft.timeoutSeconds = '604800';
+      draft.retries = '10';
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({ timeoutSeconds: 604800, retries: 10 }),
+      );
+
+      draft.timeoutSeconds = '  ';
+      draft.retries = '0';
+      expect(draft.timeoutInvalid).toBe(false);
+      expect(onChange.mock.lastCall?.[0]).toMatchObject({
+        timeoutSeconds: undefined,
+        retries: undefined,
+      });
+    });
+  });
+
+  it.each(['0', '604801', '1.5', '-1', 'abc'])(
+    'shows the timeout %s as out of range and keeps the last one in range',
+    raw => {
+      withDraft({ ...scriptNode, timeoutSeconds: 30 }, (draft, onChange) => {
+        draft.timeoutSeconds = raw;
+        flushSync();
+
+        expect(draft.timeoutInvalid).toBe(true);
+        expect(onChange).not.toHaveBeenCalled();
+        expect(draft.value.timeoutSeconds).toBe(30);
+      });
+    },
+  );
+
+  it.each(['11', '-1', '2.5'])(
+    'shows the retries %s as out of range and keeps the last one in range',
+    raw => {
+      withDraft({ ...scriptNode, retries: 2 }, (draft, onChange) => {
+        draft.retries = raw;
+        flushSync();
+
+        expect(draft.retriesInvalid).toBe(true);
+        expect(onChange).not.toHaveBeenCalled();
+        expect(draft.value.retries).toBe(2);
+      });
+    },
+  );
 });

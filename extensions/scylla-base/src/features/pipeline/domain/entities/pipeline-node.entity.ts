@@ -12,6 +12,8 @@ interface PipelineNodeBase {
   deps: NodeId[];
   workingDir?: string;
   env: EnvEntry[];
+  timeoutSeconds?: number;
+  retries?: number;
 }
 
 export interface ExecPipelineNodeEntity extends PipelineNodeBase {
@@ -35,7 +37,12 @@ export type NodeDefinition =
   | Omit<ScriptPipelineNodeEntity, 'id' | 'deps'>;
 
 export const definitionOf = (node: PipelineNodeEntity): NodeDefinition => {
-  const base = { workingDir: node.workingDir, env: node.env };
+  const base = {
+    workingDir: node.workingDir,
+    env: node.env,
+    timeoutSeconds: node.timeoutSeconds,
+    retries: node.retries,
+  };
   return node.kind === 'script'
     ? { ...base, kind: 'script', script: node.script, shell: node.shell }
     : { ...base, kind: 'exec', command: node.command, args: node.args };

@@ -11,15 +11,20 @@ sidebar entry — secrets are reached from inside a project.
 
 ## The shape of the feature
 
-Three operations, and the *absence* of a fourth:
+Four operations:
 
 - **List** — names, scope and timestamps for every secret in the project.
 - **Create** — name plus value; the value goes out and never comes back.
+- **Edit** — a new description, a new value, or both. The name does not change, because a
+  pipeline refers to a secret by its name. The edit dialog never shows the current value: an
+  empty value field keeps it.
 - **Delete** — remove it.
-- **No update.** Changing a secret means deleting it and creating a new one.
 
-That is a backend constraint, not an oversight, and the UI reflects it rather than papering over
-it with an edit dialog that would secretly delete-and-recreate.
+A new value is destructive: the old value is lost. So before the UI sends it, a warning lists
+the pipelines that use the secret (`ListProjectPipelines` with `secret_ref`). These pipelines
+and the jobs that wait for an agent get the new value; the running jobs keep the old one. A
+description change has no effect on a run, so it shows no warning. The last write wins: the
+backend keeps no version of a secret.
 
 ## Values are write-only
 
@@ -28,8 +33,8 @@ created.**
 
 `listByProjectId` returns metadata only. There is no `getValue` method, because the backend
 exposes none — values are decrypted at run time, inside the runner, never in a browser. The
-plaintext exists in exactly one place in this codebase: the create form, on its way to the
-server.
+plaintext exists in two places in this codebase: the create form and the edit form, on its way
+to the server.
 
 So it must never be written to a Zustand store, kept in a query cache, echoed in a toast, or
 included in an error message. Any code path that could persist it beyond the form submission is

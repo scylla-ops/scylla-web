@@ -105,6 +105,33 @@ describe('nodesOf', () => {
     });
   });
 
+  describe('timeout and retries', () => {
+    it('reads the timeout and the retries, and ignores a value that is not a number', () => {
+      const [node, other] = nodesOf(
+        documentOf({
+          nodes: [
+            { id: 'a', command: 'x', timeoutSeconds: 60, retries: 3 },
+            { id: 'b', command: 'x', timeoutSeconds: '60', retries: null },
+          ],
+        }),
+      );
+      expect(node).toMatchObject({ timeoutSeconds: 60, retries: 3 });
+      expect(other.timeoutSeconds).toBeUndefined();
+      expect(other.retries).toBeUndefined();
+    });
+
+    it.each([1.5, -1, 2 ** 32, Number.NaN])(
+      'ignores %s, which the wire cannot carry as a count',
+      value => {
+        const [node] = nodesOf(
+          documentOf({ nodes: [{ id: 'a', command: 'x', timeoutSeconds: value, retries: value }] }),
+        );
+        expect(node.timeoutSeconds).toBeUndefined();
+        expect(node.retries).toBeUndefined();
+      },
+    );
+  });
+
   describe('env parsing', () => {
     it('tolerates a literal entry missing its value', () => {
       const [node] = nodesOf(
@@ -137,7 +164,17 @@ describe('withNodes', () => {
       name: 'my-pipeline',
       projectId: 'project-1',
       nodes: [
-        { id: 'build', deps: [], workingDir: '', env: [], kind: 'exec', command: 'make', args: [] },
+        {
+          id: 'build',
+          deps: [],
+          workingDir: '',
+          env: [],
+          timeoutSeconds: null,
+          retries: 0,
+          kind: 'exec',
+          command: 'make',
+          args: [],
+        },
       ],
     });
   });
@@ -157,6 +194,38 @@ describe('withNodes', () => {
     ];
 
     expect(nodesOf(parseScript(withNodes(null, nodes, 'p')).document)).toEqual(nodes);
+  });
+
+  it('round-trips the timeout and the retries of a node', () => {
+    const nodes: PipelineNodeEntity[] = [
+      {
+        id: 's',
+        deps: [],
+        env: [],
+        kind: 'script',
+        script: 'echo hi',
+        shell: 'sh',
+        timeoutSeconds: 30,
+        retries: 2,
+      },
+    ];
+
+    const document = parseScript(withNodes(null, nodes, 'p')).document;
+
+    expect(document).toMatchObject({ nodes: [{ timeoutSeconds: 30, retries: 2 }] });
+    expect(nodesOf(document)).toEqual(nodes);
+  });
+
+  it('writes no timeout as null and no retry as 0, and reads them back as none', () => {
+    const nodes: PipelineNodeEntity[] = [
+      { id: 's', deps: [], env: [], kind: 'script', script: 'echo hi', shell: 'sh' },
+    ];
+
+    const document = parseScript(withNodes(null, nodes, 'p')).document;
+
+    expect(document).toMatchObject({ nodes: [{ timeoutSeconds: null, retries: 0 }] });
+    expect(nodesOf(document)[0].timeoutSeconds).toBeUndefined();
+    expect(nodesOf(document)[0].retries).toBeUndefined();
   });
 });
 

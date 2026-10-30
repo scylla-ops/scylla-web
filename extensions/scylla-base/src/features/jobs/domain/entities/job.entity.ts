@@ -27,6 +27,8 @@ export interface JobNodeExecution {
   state: NodeExecutionState;
   startedAt?: string;
   finishedAt?: string;
+  attempts: number;
+  maxAttempts: number;
 }
 
 export interface JobLog {
