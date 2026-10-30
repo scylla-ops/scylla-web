@@ -54,7 +54,7 @@
   onSubmit={values => onSubmit(values.currentPassword, values.newPassword)}
 >
   {#snippet footer({ isValid, isPending: pending })}
-    <div class="flex justify-end">
+    <div data-slot="form-actions" class="flex justify-end">
       <Button type="submit" disabled={!isValid || pending}>
         {t(userMessages.changePassword)}
       </Button>
