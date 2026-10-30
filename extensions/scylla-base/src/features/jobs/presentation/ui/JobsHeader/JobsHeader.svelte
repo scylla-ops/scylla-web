@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PlayIcon from '@lucide/svelte/icons/play';
   import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
   import { Permission, can } from '@platform/authz';
   import { createMutation } from '@scylla/core-sdk';
@@ -7,7 +8,7 @@
   import { createFeatureSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import { jobMutations } from '@base/features/jobs/presentation/jobs.queries.ts';
-  import { jobsMessages } from '../jobs.messages.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
     numberOfJobs: number;
@@ -71,6 +72,7 @@
     label={t(jobsMessages.job)}
     pluralLabel={t(jobsMessages.jobs)}
     newLabel={t(jobsMessages.run)}
+    newIcon={PlayIcon}
     onNew={onRun ? () => void onRun() : undefined}
     canNew={canRun}
     newDeniedReason={t(jobsMessages.runDenied)}

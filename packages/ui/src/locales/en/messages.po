@@ -17,6 +17,10 @@ msgstr ""
 msgid "{selectedCount, plural, one {# item deleted} other {# items deleted}}"
 msgstr "{selectedCount, plural, one {# item deleted} other {# items deleted}}"
 
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:15
+msgid "{selectedCount, plural, one {# selected} other {# selected}}"
+msgstr "{selectedCount, plural, one {# selected} other {# selected}}"
+
 #: packages/ui/src/feedback/ErrorState/error-state.messages.ts:5
 msgid "An error occurred"
 msgstr "An error occurred"
@@ -45,6 +49,10 @@ msgstr "Continue"
 #: packages/ui/src/primitives/code-snippet/code-snippet.messages.ts:6
 msgid "Copied"
 msgstr "Copied"
+
+#: packages/ui/src/utils/clipboard.messages.ts:4
+msgid "Copied to the clipboard."
+msgstr "Copied to the clipboard."
 
 #: packages/ui/src/data-display/CopyableText/copyable-text.messages.ts:5
 msgid "Copied!"
@@ -119,6 +127,10 @@ msgstr "Pagination"
 msgid "Previous"
 msgstr "Previous"
 
+#: packages/ui/src/primitives/resizable/resizable.messages.ts:4
+msgid "Resize panel"
+msgstr "Resize panel"
+
 #: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:7
 msgid "Reveal"
 msgstr "Reveal"
@@ -146,6 +158,10 @@ msgstr "shown once"
 #: packages/ui/src/primitives/sidebar/sidebar.messages.ts:4
 msgid "Sidebar"
 msgstr "Sidebar"
+
+#: packages/ui/src/utils/clipboard.messages.ts:5
+msgid "The browser did not let the page write to the clipboard."
+msgstr "The browser did not let the page write to the clipboard."
 
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:5
 msgid "This action cannot be undone."

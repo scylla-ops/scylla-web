@@ -202,7 +202,7 @@ module.exports = {
         '`*.widget-injection.ts` points to components and lists changes to another widget: ' +
         'importing it anywhere but the extension class would pull those components into the ' +
         "importer's chunk. Only `<name>.extension.ts` may, the same door as `widgetInjections` " +
-        'on `@Extension` (see `widgets_plan.md` §4.1).',
+        'on `@Extension`.',
       severity: 'error',
       from: { path: R + 'extensions/([^/]+)/src/', pathNot: '[.]extension[.]ts$' },
       to: { path: R + 'extensions/$1/src/.+[.]widget-injection[.]ts$' },
@@ -249,9 +249,9 @@ module.exports = {
         'domain/ is pure business logic: no UI framework, no gRPC, no generated proto, no ' +
         'query/state library. Framework types belong in infrastructure or presentation. A ' +
         'type-only import is exempt — it leaves no runtime trace — which is what lets a ' +
-        "domain repository outside scylla-base return `ScyllaResult<T>` from `@scylla/base-sdk` " +
-        "(root AGENTS.md: \"other extensions get it from @scylla/base-sdk\") without pulling that " +
-        "SDK's gRPC- and query-coupled exports into the domain layer.",
+        "domain outside scylla-base name a type of `@scylla/base-sdk` (a `ScyllaErrorCode`, an " +
+        "entity of a Scylla feature) without pulling that SDK's gRPC- and query-coupled exports " +
+        'into the domain layer.',
       severity: 'error',
       from: { path: '/domain/' },
       to: {
@@ -274,6 +274,17 @@ module.exports = {
       severity: 'error',
       from: { path: '/domain/' },
       to: { path: '/src/.+/infrastructure/' },
+    },
+
+    {
+      name: 'presentation-logic-knows-no-ui',
+      comment:
+        'Presenters, mappers and messages give the views what they show: they are plain ' +
+        'TypeScript, and `ui/` imports them. One of them that imports `ui/` reverses that ' +
+        'direction, and pulls Svelte into code that is tested without it.',
+      severity: 'error',
+      from: { path: '/presentation/(presenters|mappers|messages)/' },
+      to: { path: '/presentation/ui/' },
     },
 
     {

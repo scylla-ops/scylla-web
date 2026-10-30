@@ -4,8 +4,7 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
-import { findFloating, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import InSidebar from '../__test__/InSidebar.fixture.svelte';
 import NavUser from './NavUser.svelte';
 
@@ -16,7 +15,7 @@ vi.mock('@base/features/login', async importOriginal => ({
 }));
 
 const me = {
-  userId: 'user-1',
+  id: 'user-1',
   username: 'ravenne',
   displayName: 'Ravenne Lee',
   email: 'ravenne@example.com',
@@ -54,7 +53,7 @@ describe('NavUser', () => {
   });
 
   it('shows who is signed in, from the account of the session', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success(me)));
+    setUp(() => Promise.resolve(me));
 
     expect(await screen.findByText('Ravenne Lee')).toBeInTheDocument();
     expect(screen.getByText('ravenne@example.com')).toBeInTheDocument();
@@ -63,7 +62,7 @@ describe('NavUser', () => {
   });
 
   it('opens the account page from the menu', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success(me)));
+    setUp(() => Promise.resolve(me));
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
@@ -73,7 +72,7 @@ describe('NavUser', () => {
   });
 
   it('signs the user out from the menu', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success(me)));
+    setUp(() => Promise.resolve(me));
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: /Ravenne Lee/ }));

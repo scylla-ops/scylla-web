@@ -2,21 +2,20 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { setDependencyRegistry } from '@scylla/core-sdk';
 import { runQueryFn } from '@test/queries.ts';
-import { ScyllaResult, ScyllaError } from '@shared/utils/scylla-result.ts';
-import type MarketplaceRepository from '@base/features/marketplace/domain/repository/marketplace.repository.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { MarketplaceRepository } from '@base/features/marketplace/domain/repository/marketplace.repository.ts';
 import type { MarketItem } from '@base/features/marketplace/domain/structs/market-item.struct.ts';
 import { MARKETPLACE_QUERY_KEY, marketplaceQueries } from '../marketplace.queries.ts';
 
 const item = (overrides: Partial<MarketItem> = {}): MarketItem => ({
   provider: 'scylla',
   title: 'Hello world',
-  descrption: 'a starter pipeline template',
+  description: 'a starter pipeline template',
   ...overrides,
 });
 
 const withRepository = (overrides: Partial<MarketplaceRepository> = {}) => {
-  const getMarketplace =
-    overrides.getMarketplace ?? vi.fn().mockResolvedValue(ScyllaResult.success([item()]));
+  const getMarketplace = overrides.getMarketplace ?? vi.fn().mockResolvedValue([item()]);
   setDependencyRegistry({ marketplace: { marketplaceRepository: { getMarketplace } } });
   return { getMarketplace };
 };
@@ -34,8 +33,8 @@ describe('marketplaceQueries.list', () => {
   });
 
   it('lets a repository error through, for the query to own', async () => {
-    const error = new ScyllaError('boom', { cause: { code: 'INTERNAL' } });
-    withRepository({ getMarketplace: vi.fn().mockResolvedValue(ScyllaResult.error(error)) });
+    const error = new ScyllaError('boom', { code: 'INTERNAL' });
+    withRepository({ getMarketplace: vi.fn().mockRejectedValue(error) });
 
     await expect(runQueryFn(marketplaceQueries.list())).rejects.toBe(error);
   });
@@ -50,7 +49,7 @@ describe('marketplaceQueries.list', () => {
     await runQueryFn(marketplaceQueries.list());
 
     const second = withRepository({
-      getMarketplace: vi.fn().mockResolvedValue(ScyllaResult.success([item({ title: 'Other' })])),
+      getMarketplace: vi.fn().mockResolvedValue([item({ title: 'Other' })]),
     });
     const items = await runQueryFn(marketplaceQueries.list());
 

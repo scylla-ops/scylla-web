@@ -1,26 +1,29 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
 import { Permission } from '@platform/authz';
-import type { PipelineRemoteDataSource } from '@base/features/pipeline/infrastructure/repository/data-sources/pipeline-remote.data-source.ts';
-import { GrpcPipelineRemoteDataSource } from '@base/features/pipeline/infrastructure/data/remote/grpc-pipeline-remote.data-source.ts';
-import { DefaultPipelineRepository } from '@base/features/pipeline/infrastructure/repository/default-pipeline.repository.ts';
 import { grpcTransport } from '@platform/grpc';
+import { PipelineServiceClient } from '@base/generated/scylla/pipeline/v1/pipeline.client.ts';
+import { DefaultPipelineRepository } from './infrastructure/default-pipeline.repository.ts';
+import { DefaultNodeTemplateRepository } from './infrastructure/default-node-template.repository.ts';
+import { SavePipelineUseCase } from './domain/use-cases/save-pipeline.use-case.ts';
 
-const pipelineRemoteDataSource: PipelineRemoteDataSource = new GrpcPipelineRemoteDataSource(
-  grpcTransport,
+const pipelineRepository = new DefaultPipelineRepository(
+  new PipelineServiceClient(grpcTransport.getTransport()),
 );
-const pipelineRepository = new DefaultPipelineRepository(pipelineRemoteDataSource);
 
 export const PipelineModule = {
   id: 'pipeline',
   domain: {
     pipelineRepository: pipelineRepository,
+    nodeTemplateRepository: new DefaultNodeTemplateRepository(),
+    savePipeline: new SavePipelineUseCase(pipelineRepository),
   },
   routes: {
     project: [
       {
         permission: Permission.LIST_PIPELINES_BY_PROJECT,
-        page: () => import('./presentation/ui/dashboard/DashboardPipeline/DashboardPipeline.page.svelte'),
+        page: () =>
+          import('./presentation/ui/dashboard/DashboardPipeline/DashboardPipeline.page.svelte'),
       },
       {
         path: 'create',
@@ -47,7 +50,7 @@ export const PipelineModule = {
           highlight: pipelineName,
           detail: msg`Jobs`,
         }),
-        page: () => import('./presentation/ui/PipelineJobsRoute.svelte'),
+        page: () => import('./presentation/ui/PipelineJobs.page.svelte'),
       },
     ],
   },

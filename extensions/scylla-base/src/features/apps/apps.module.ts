@@ -1,11 +1,10 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
-import { AppsRemoteDataSourceImpl } from '@base/features/apps/infrastructure/data/apps-remote.data-source.ts';
 import { grpcTransport } from '@platform/grpc';
-import { DefaultAppsRepository } from '@base/features/apps/infrastructure/repository/default-apps.repository.ts';
-import { ResetAppSecretUseCase } from '@base/features/apps/domain/use-cases/reset-app-secret.use-case.ts';
+import { AppServiceClient } from '@base/generated/scylla/app/v1/app.client.ts';
+import { DefaultAppsRepository } from './infrastructure/default-apps.repository.ts';
+import { ResetAppSecretUseCase } from './domain/use-cases/reset-app-secret.use-case.ts';
 
-const dataSource = new AppsRemoteDataSourceImpl(grpcTransport);
-const repository = new DefaultAppsRepository(dataSource);
+const repository = new DefaultAppsRepository(new AppServiceClient(grpcTransport.getTransport()));
 
 export const AppsModule = {
   id: 'apps',

@@ -5,18 +5,18 @@
   import { t } from '@scylla/ui/i18n';
   import {
     createAgentActions,
-  } from '@base/features/agents/presentation/agent-actions.state.svelte.ts';
+  } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
   import {
     createAgentsPage,
-  } from '@base/features/agents/presentation/agents-page.state.svelte.ts';
+  } from './agents-page.state.svelte.ts';
   import AgentActionDialogs from '../components/AgentActionDialogs.svelte';
   import AgentBot from '../components/AgentBot/AgentBot.svelte';
   import CreateAgentDialog from '../components/CreateAgentDialog/CreateAgentDialog.svelte';
-  import { agentsMessages } from '../agents.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
   import AgentFilters from './AgentFilters.svelte';
   import AgentList from './AgentList.svelte';
   import AgentsSummary from './AgentsSummary.svelte';
-  import { agentsPageMessages as messages } from './agents-page.messages.ts';
+  import { agentsPageMessages as messages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';
 
   const page = createAgentsPage();
   const actions = createAgentActions();

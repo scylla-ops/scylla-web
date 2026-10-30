@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { flushSync } from 'svelte';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
 import JobDetailsPage from './JobDetails.page.svelte';
@@ -72,7 +72,7 @@ const grantAll = () =>
   });
 
 const renderPage = async (result: unknown, search = '') => {
-  rerun = vi.fn().mockResolvedValue(ScyllaResult.success('job-2'));
+  rerun = vi.fn().mockResolvedValue('job-2');
   restoreRegistry = withRegistry({
     jobs: {
       jobsRepository: {
@@ -108,34 +108,34 @@ afterEach(() => {
 
 describe('JobDetailsPage', () => {
   it('shows the job status and id', async () => {
-    await renderPage(ScyllaResult.success(job()));
+    await renderPage(job());
 
     expect(screen.getByText('Success')).toBeInTheDocument();
     expect(screen.getByText('job-1')).toBeInTheDocument();
   });
 
   it('defaults to the whole job when the URL names no node', async () => {
-    await renderPage(ScyllaResult.success(job()));
+    await renderPage(job());
     expect(openPanels()).toEqual(['logs for job-1/whole job']);
   });
 
   it("opens straight on a node's logs when the URL names one", async () => {
-    await renderPage(ScyllaResult.success(job()), '?nodes=test');
+    await renderPage(job(), '?nodes=test');
     expect(openPanels()).toEqual(['logs for job-1/test']);
   });
 
   it('falls back to the whole job for a node id no execution matches', async () => {
-    await renderPage(ScyllaResult.success(job()), '?nodes=ghost');
+    await renderPage(job(), '?nodes=ghost');
     expect(openPanels()).toEqual(['logs for job-1/whole job']);
   });
 
   it('streams several nodes at once when the URL names them', async () => {
-    await renderPage(ScyllaResult.success(job()), '?nodes=build,test');
+    await renderPage(job(), '?nodes=build,test');
     expect(openPanels()).toEqual(['logs for job-1/build', 'logs for job-1/test']);
   });
 
   it('replaces the whole job with the first node picked, rather than adding to it', async () => {
-    await renderPage(ScyllaResult.success(job()));
+    await renderPage(job());
 
     await userEvent.click(screen.getByRole('button', { name: /^build/ }));
 
@@ -143,7 +143,7 @@ describe('JobDetailsPage', () => {
   });
 
   it('opens a second node without closing the first', async () => {
-    await renderPage(ScyllaResult.success(job()), '?nodes=build');
+    await renderPage(job(), '?nodes=build');
 
     await userEvent.click(screen.getByRole('button', { name: /^test/ }));
 
@@ -153,7 +153,7 @@ describe('JobDetailsPage', () => {
   });
 
   it("closes a node's logs when its entry is picked again, unmounting that view", async () => {
-    await renderPage(ScyllaResult.success(job()), '?nodes=build,test');
+    await renderPage(job(), '?nodes=build,test');
 
     await userEvent.click(screen.getByRole('button', { name: /^build/ }));
 
@@ -161,7 +161,7 @@ describe('JobDetailsPage', () => {
   });
 
   it('comes back to the whole job when the last node panel is closed', async () => {
-    await renderPage(ScyllaResult.success(job()), '?nodes=build');
+    await renderPage(job(), '?nodes=build');
 
     await userEvent.click(screen.getByRole('button', { name: 'Close the logs for build' }));
 
@@ -169,7 +169,7 @@ describe('JobDetailsPage', () => {
   });
 
   it('brings the whole job back from its own entry, dropping the node panels', async () => {
-    await renderPage(ScyllaResult.success(job()), '?nodes=build,test');
+    await renderPage(job(), '?nodes=build,test');
 
     await userEvent.click(screen.getByRole('button', { name: 'Whole job' }));
 
@@ -177,14 +177,14 @@ describe('JobDetailsPage', () => {
   });
 
   it('gives the whole job no way to be closed, being what the page falls back to', async () => {
-    await renderPage(ScyllaResult.success(job()));
+    await renderPage(job());
 
     expect(screen.queryByRole('button', { name: /^Close the logs/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Collapse the logs/ })).not.toBeInTheDocument();
   });
 
   it('collapses a node panel without unmounting its log, so the stream keeps running', async () => {
-    await renderPage(ScyllaResult.success(job()), '?nodes=build');
+    await renderPage(job(), '?nodes=build');
 
     await userEvent.click(screen.getByRole('button', { name: 'Collapse the logs for build' }));
 
@@ -193,7 +193,7 @@ describe('JobDetailsPage', () => {
   });
 
   it('collapses each node panel independently', async () => {
-    await renderPage(ScyllaResult.success(job()), '?nodes=build,test');
+    await renderPage(job(), '?nodes=build,test');
 
     await userEvent.click(screen.getByRole('button', { name: 'Collapse the logs for build' }));
 
@@ -202,7 +202,7 @@ describe('JobDetailsPage', () => {
   });
 
   it('marks the entries of the panels that are open', async () => {
-    await renderPage(ScyllaResult.success(job()), '?nodes=build');
+    await renderPage(job(), '?nodes=build');
 
     expect(screen.getByRole('button', { name: /^build/ })).toHaveAttribute(
       'aria-pressed',
@@ -215,7 +215,7 @@ describe('JobDetailsPage', () => {
   });
 
   it('opens the node picked in the timeline alone, dropping the panels open beside it', async () => {
-    await renderPage(ScyllaResult.success(job()), '?nodes=build,test');
+    await renderPage(job(), '?nodes=build,test');
 
     await userEvent.click(screen.getByRole('button', { name: 'Node build' }));
 
@@ -223,7 +223,7 @@ describe('JobDetailsPage', () => {
   });
 
   it('gives the whole job every pixel the column has', async () => {
-    await renderPage(ScyllaResult.success(job()));
+    await renderPage(job());
 
     giveTheLogColumn(900);
 
@@ -232,7 +232,7 @@ describe('JobDetailsPage', () => {
   });
 
   it('stops shrinking the whole job at a readable height on a short window', async () => {
-    await renderPage(ScyllaResult.success(job()));
+    await renderPage(job());
 
     giveTheLogColumn(100);
 
@@ -240,7 +240,7 @@ describe('JobDetailsPage', () => {
   });
 
   it('keeps every node panel at the same readable height, scrolling the column instead', async () => {
-    await renderPage(ScyllaResult.success(job()), '?nodes=build,test');
+    await renderPage(job(), '?nodes=build,test');
 
     giveTheLogColumn(300);
 
@@ -260,7 +260,7 @@ describe('JobDetailsPage', () => {
       },
     });
 
-    await renderPage(ScyllaResult.success(job()));
+    await renderPage(job());
 
     expect(screen.getByText("You don't have permission to view this job's logs")).toBeInTheDocument();
     expect(openPanels()).toEqual([]);
@@ -269,7 +269,7 @@ describe('JobDetailsPage', () => {
   });
 
   it('shows the attempt of a node that can retry, in its entry and in its panel header', async () => {
-    await renderPage(ScyllaResult.success(job()), '?nodes=build,test');
+    await renderPage(job(), '?nodes=build,test');
 
     expect(screen.getAllByText('Attempt 3/3')).toHaveLength(2);
     expect(screen.queryByText(/Attempt \d+\/1/)).not.toBeInTheDocument();
@@ -277,9 +277,7 @@ describe('JobDetailsPage', () => {
 
   it('shows a skipped node as skipped, with no attempt when it did not start', async () => {
     await renderPage(
-      ScyllaResult.success(
-        job({ nodeExecutions: [{ id: 'test', state: 'skipped', attempts: 0, maxAttempts: 3 }] }),
-      ),
+      job({ nodeExecutions: [{ id: 'test', state: 'skipped', attempts: 0, maxAttempts: 3 }] }),
       '?nodes=test',
     );
 
@@ -288,7 +286,7 @@ describe('JobDetailsPage', () => {
   });
 
   it('re-runs an ended job and opens the new one', async () => {
-    await renderPage(ScyllaResult.success(job()));
+    await renderPage(job());
 
     await userEvent.click(screen.getByRole('button', { name: 'Re-run' }));
 
@@ -301,7 +299,7 @@ describe('JobDetailsPage', () => {
   });
 
   it('offers no re-run for a job that runs', async () => {
-    await renderPage(ScyllaResult.success(job({ status: 'running', finishedAt: undefined })));
+    await renderPage(job({ status: 'running', finishedAt: undefined }));
 
     expect(screen.queryByRole('button', { name: 'Re-run' })).not.toBeInTheDocument();
   });
@@ -319,7 +317,7 @@ describe('JobDetailsPage', () => {
       },
     });
 
-    await renderPage(ScyllaResult.success(job()));
+    await renderPage(job());
 
     expect(screen.queryByRole('button', { name: 'Re-run' })).not.toBeInTheDocument();
   });
@@ -328,7 +326,7 @@ describe('JobDetailsPage', () => {
     restoreRegistry = withRegistry({
       jobs: {
         jobsRepository: {
-          getById: vi.fn().mockResolvedValue(ScyllaResult.error(new ScyllaError('boom'))),
+          getById: vi.fn().mockRejectedValue(new ScyllaError('boom')),
         } as unknown as JobsRepository,
       },
     });

@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { contextStore } from '@platform/context';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
 import type {
   ProjectRepository,
@@ -28,8 +27,8 @@ let create: ReturnType<typeof vi.fn>;
 let update: ReturnType<typeof vi.fn>;
 
 const install = () => {
-  create = vi.fn().mockResolvedValue(ScyllaResult.success(project()));
-  update = vi.fn().mockResolvedValue(ScyllaResult.success(project()));
+  create = vi.fn().mockResolvedValue(project());
+  update = vi.fn().mockResolvedValue(project());
   const repository = {
     getByOrganizationId: vi.fn(),
     listMembers: vi.fn(),

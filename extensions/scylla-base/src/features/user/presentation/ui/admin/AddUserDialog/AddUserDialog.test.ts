@@ -1,8 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import AddUserDialog from './AddUserDialog.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
@@ -12,7 +11,7 @@ let create: ReturnType<typeof vi.fn>;
 let setOpen: ReturnType<typeof vi.fn<(open: boolean) => void>>;
 
 beforeEach(async () => {
-  create = vi.fn().mockResolvedValue(ScyllaResult.success({ userId: 'user-9' }));
+  create = vi.fn().mockResolvedValue({ userId: 'user-9' });
   setOpen = vi.fn<(open: boolean) => void>();
   const cache = withQueryClient();
   teardown = [cache.restore, withRegistry({ user: { userRepository: { create } } })];

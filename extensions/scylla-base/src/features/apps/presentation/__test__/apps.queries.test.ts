@@ -4,7 +4,7 @@ import { QueryClient } from '@tanstack/query-core';
 import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
 import type { ResetAppSecretUseCase } from '@base/features/apps/domain/use-cases/reset-app-secret.use-case.ts';
 import {
@@ -46,19 +46,17 @@ let invalidate: ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
   repository = {
-    listApps: vi.fn().mockResolvedValue(ScyllaResult.success([app])),
-    getApp: vi.fn().mockResolvedValue(ScyllaResult.success(app)),
-    createApp: vi.fn().mockResolvedValue(ScyllaResult.success({ app, secret: 'sk-once' })),
-    deleteApp: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-    setAppActive: vi.fn().mockResolvedValue(ScyllaResult.success(app)),
-    listAppSecrets: vi.fn().mockResolvedValue(ScyllaResult.success([])),
-    createAppSecret: vi
-      .fn()
-      .mockResolvedValue(ScyllaResult.success({ credential: {}, secret: 's' })),
-    revokeAppSecret: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-    setAppSecretEnabled: vi.fn().mockResolvedValue(ScyllaResult.success({})),
-    setAppSecretLabel: vi.fn().mockResolvedValue(ScyllaResult.success({ label: 'runner.local' })),
-    listAppAccess: vi.fn().mockResolvedValue(ScyllaResult.success([])),
+    listApps: vi.fn().mockResolvedValue([app]),
+    getApp: vi.fn().mockResolvedValue(app),
+    createApp: vi.fn().mockResolvedValue({ app, secret: 'sk-once' }),
+    deleteApp: vi.fn().mockResolvedValue(undefined),
+    setAppActive: vi.fn().mockResolvedValue(app),
+    listAppSecrets: vi.fn().mockResolvedValue([]),
+    createAppSecret: vi.fn().mockResolvedValue({ credential: {}, secret: 's' }),
+    revokeAppSecret: vi.fn().mockResolvedValue(undefined),
+    setAppSecretEnabled: vi.fn().mockResolvedValue({}),
+    setAppSecretLabel: vi.fn().mockResolvedValue({ label: 'runner.local' }),
+    listAppAccess: vi.fn().mockResolvedValue([]),
   };
   resetAppSecret = { execute: vi.fn() };
 
@@ -121,7 +119,7 @@ describe('appQueries', () => {
   });
 
   it('surfaces a repository failure so TanStack Query owns the error', async () => {
-    vi.mocked(repository.getApp).mockResolvedValue(ScyllaResult.error(new ScyllaError('gone')));
+    vi.mocked(repository.getApp).mockRejectedValue(new ScyllaError('gone'));
 
     await expect(runQueryFn(appQueries.byId('app-1'))).rejects.toThrow('gone');
   });
@@ -203,7 +201,7 @@ describe('appMutations', () => {
       kept: [],
       failed: [],
     };
-    resetAppSecret.execute.mockResolvedValue(ScyllaResult.success(result));
+    resetAppSecret.execute.mockResolvedValue(result);
     const options = appMutations.resetSecret('app-1');
     const variables = { label: 'runner.local', revokeOthers: true };
 
@@ -220,9 +218,7 @@ describe('appMutations', () => {
   });
 
   it('gives null for a reset whose label is taken, so the dialog shows it under the field', async () => {
-    resetAppSecret.execute.mockResolvedValue(
-      ScyllaResult.error(new ScyllaError('taken', { cause: { code: 'ALREADY_EXISTS' } })),
-    );
+    resetAppSecret.execute.mockRejectedValue(new ScyllaError('taken', { code: 'ALREADY_EXISTS' }));
 
     await expect(
       runMutationFn(appMutations.resetSecret('app-1'), { label: 'ci', revokeOthers: true }),
@@ -252,13 +248,13 @@ describe('appMutations', () => {
   it('gives null for a taken label and throws any other error to the global handler', async () => {
     const options = appMutations.setSecretLabel('app-1');
     const variables = { secretId: 'secret-9', label: 'ci' };
-    vi.mocked(repository.setAppSecretLabel).mockResolvedValueOnce(
-      ScyllaResult.error(new ScyllaError('taken', { cause: { code: 'ALREADY_EXISTS' } })),
+    vi.mocked(repository.setAppSecretLabel).mockRejectedValueOnce(
+      new ScyllaError('taken', { code: 'ALREADY_EXISTS' }),
     );
     await expect(runMutationFn(options, variables)).resolves.toBeNull();
 
-    vi.mocked(repository.setAppSecretLabel).mockResolvedValueOnce(
-      ScyllaResult.error(new ScyllaError('denied', { cause: { code: 'PERMISSION_DENIED' } })),
+    vi.mocked(repository.setAppSecretLabel).mockRejectedValueOnce(
+      new ScyllaError('denied', { code: 'PERMISSION_DENIED' }),
     );
     await expect(runMutationFn(options, variables)).rejects.toThrow('denied');
   });

@@ -8,15 +8,15 @@
   import { cn } from '@scylla/ui/utils';
   import type { AppAccess } from '@base/features/apps';
   import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-  import { accessReachOf } from '@base/features/agents/presentation/access.calculator.ts';
+  import { accessReachOf } from '@base/features/agents/presentation/presenters/access.presenter.ts';
   import {
     createAgentAccess,
-  } from '@base/features/agents/presentation/agent-access.state.svelte.ts';
-  import { takeFocus } from '@base/features/agents/presentation/take-focus.actions.ts';
+  } from './agent-access.state.svelte.ts';
+  import { takeFocus } from './take-focus.attachments.svelte.ts';
   import GiveAccessDialog from './GiveAccessDialog.svelte';
   import RemoveAccessDialog from './RemoveAccessDialog.svelte';
-  import { accessCardMessages as messages } from './access-card.messages.ts';
-  import { GRANT_ICONS } from './grant-icons.ts';
+  import { accessCardMessages as messages } from '@base/features/agents/presentation/messages/access-card.messages.ts';
+  import { GRANT_ICONS } from './grant-icons.registry.ts';
 
   interface Props {
     agent: AgentEntity;
@@ -65,7 +65,7 @@
       <h2
         tabindex="-1"
         class="text-sm font-semibold outline-none"
-        use:takeFocus={manager.focusRequest}
+        {@attach takeFocus(() => manager.focusRequest)}
       >
         {t(messages.access)}
       </h2>

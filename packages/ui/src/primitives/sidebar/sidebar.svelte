@@ -3,9 +3,9 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { Dialog as SheetPrimitive } from 'bits-ui';
   import { cn } from '../../utils/index.ts';
-  import { t } from '../../i18n/i18n-svelte.svelte.ts';
+  import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import SheetContent from '../sheet/sheet-content.svelte';
-  import { getSidebar } from './sidebar-state.svelte.ts';
+  import { getSidebar } from './sidebar.state.svelte.ts';
   import { sidebarMessages } from './sidebar.messages.ts';
   import { SIDEBAR_MOTION } from './sidebar-variants.ts';
 

@@ -4,13 +4,9 @@ import { QueryClient } from '@tanstack/query-core';
 import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { contextStore } from '@platform/context';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
-import { ScyllaResult, ScyllaError } from '@shared/utils/scylla-result.ts';
-import type {
-  OrganizationEntity,
-} from '@base/features/organization/domain/entities/organization.entity.ts';
-import type {
-  OrganizationRepository,
-} from '@base/features/organization/domain/repository/organization.repository.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { OrganizationEntity } from '@base/features/organization/domain/entities/organization.entity.ts';
+import type { OrganizationRepository } from '@base/features/organization/domain/repository/organization.repository.ts';
 import {
   invalidateOrganizationMembers,
   organizationMutations,
@@ -33,14 +29,12 @@ const org = (overrides: Partial<OrganizationEntity> = {}): OrganizationEntity =>
 
 const withRepository = (overrides: Partial<OrganizationRepository> = {}) => {
   const repository = {
-    getAll: vi.fn().mockResolvedValue(ScyllaResult.success([org()])),
-    getMine: vi.fn().mockResolvedValue(ScyllaResult.success([org()])),
-    listMembers: vi
-      .fn()
-      .mockResolvedValue(ScyllaResult.success([{ userId: 'user-1', username: 'ravenne' }])),
-    create: vi.fn().mockResolvedValue(ScyllaResult.success(org())),
-    update: vi.fn().mockResolvedValue(ScyllaResult.success(org())),
-    delete: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
+    getAll: vi.fn().mockResolvedValue([org()]),
+    getMine: vi.fn().mockResolvedValue([org()]),
+    listMembers: vi.fn().mockResolvedValue([{ id: 'user-1', username: 'ravenne' }]),
+    create: vi.fn().mockResolvedValue(org()),
+    update: vi.fn().mockResolvedValue(org()),
+    delete: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 
@@ -74,8 +68,8 @@ describe('organizationQueries.mine', () => {
   });
 
   it('surfaces a failure for the query to own', async () => {
-    const error = new ScyllaError('boom', { cause: { code: 'INTERNAL' } });
-    withRepository({ getMine: vi.fn().mockResolvedValue(ScyllaResult.error(error)) });
+    const error = new ScyllaError('boom', { code: 'INTERNAL' });
+    withRepository({ getMine: vi.fn().mockRejectedValue(error) });
 
     await expect(runQueryFn(organizationQueries.mine())).rejects.toBe(error);
   });

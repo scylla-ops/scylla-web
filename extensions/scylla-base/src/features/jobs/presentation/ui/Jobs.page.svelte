@@ -4,11 +4,11 @@
   import { ErrorState, PaginationSlot } from '@scylla/ui';
   import { createPagination } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
-  import { ScyllaError } from '@shared/utils/scylla-result.ts';
+  import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import { jobQueries } from '../jobs.queries.ts';
   import JobsHeader from './JobsHeader/JobsHeader.svelte';
   import JobsTable from './jobs-table/JobsTable.svelte';
-  import { jobsMessages } from './jobs.messages.ts';
+  import { jobsMessages } from '../messages/jobs.messages.ts';
 
   interface Props {
     /** Passed by `PipelineJobsRoute`: `pipeline` owns this route (the Run action). */
@@ -60,7 +60,7 @@
       <banner.default hasPendingJobs={jobs?.some(job => job.status === 'pending') ?? false} />
     {/await}
 
-    <div use:pagination.measure class="relative flex-1 min-h-0 overflow-auto">
+    <div {@attach pagination.measure} class="relative flex-1 min-h-0 overflow-auto">
       <div class="relative">
         {#if jobs && jobs.length > 0}
           <JobsTable {jobs} {pipelineId} />

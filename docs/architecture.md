@@ -22,27 +22,32 @@ If this document and one of them do not agree, they are correct: update this doc
 - **Framework independence**: the domain layer does not import Svelte, gRPC or proto code.
 - **Server state lives in TanStack Query**, never in a store.
 
-### 1.2 Error handling — `ScyllaResult<T>`
+### 1.2 Error handling — `ScyllaError`
 
-All async operations return `ScyllaResult<T>`, a Result type that holds a success or a failure:
+A repository method returns `Promise<T>` and rejects with a `ScyllaError`. The gRPC transport
+(`@platform/grpc`) makes each failed call into a `ScyllaError`, with the gRPC code (`code`) and
+the decoded server message. A request that does not get to the server is `UNAVAILABLE`.
 
 ```typescript
-const result = await ScyllaResult.tryAsync(async () => api.call(), 'Error message');
-
-result.fold({
-  onSuccess: data => handleSuccess(data),
-  onError: error => handleError(error),
-});
-
-const data = result.unwrap(); // throws on error
+export const secretQueries = {
+  byProject: (projectId: string) =>
+    queryOptions({
+      queryKey: SECRETS_QUERY_KEY(projectId),
+      queryFn: () => repository().listByProjectId(projectId),
+    }),
+};
 ```
 
-`ScyllaError` extends `Error`. It extracts the gRPC status code (`getCode`, `isNotFound`,
-`isForbidden`, `isNetworkError`, …) and gives a message for the user (`userMessage`). Both live
-in scylla-base `shared/utils/scylla-result.ts`. Other extensions get them from `@scylla/base-sdk`.
+There is no Result type. TanStack Query already holds the state of each call (`data`, `error`,
+`status`): a Result would be made in the repository only to be thrown again in each `queryFn`.
 
-In query and mutation options, call `.unwrap()` inside `queryFn` / `mutationFn`, so TanStack Query
-handles the error.
+`ScyllaError` extends `Error`. It has the code (`code`, `isNotFound`, `isForbidden`,
+`isNetworkError`, `isTransient`) and a message for the user (`userMessage`). `ScyllaError.from`
+reads any thrown value. It is in scylla-base `shared/utils/scylla-error.ts`. Other extensions get
+it from `@scylla/base-sdk`.
+
+The shell has the one error toast of the app (`reportQueryError`) and the retry policy
+(`retryQueryError`: only `UNAVAILABLE`, `DEADLINE_EXCEEDED` and `ABORTED` are retried).
 
 ---
 
@@ -53,7 +58,7 @@ The frontend is a pnpm workspace:
 ```
 apps/web/                  @scylla/web       the build: the list of extensions, main.ts
 packages/core/             @scylla/core      extension loader, route compilation, router, shell frame
-packages/ui/               @scylla/ui        design system: primitives, composites, rune helpers, stores, i18n
+packages/ui/               @scylla/ui        design system: primitives, composites, rune states, stores, i18n
 sdks/core-sdk/             @scylla/core-sdk  the contract: @Extension, ScyllaModule, navigation, DI, query
 sdks/scylla-base-sdk/      @scylla/base-sdk  the public API of scylla-base, for the other extensions
 extensions/scylla-base/    @scylla/base      the Scylla product
@@ -111,7 +116,7 @@ without an import of the core.
 @Extension({
   id: 'scylla-base',
   name: 'Scylla',
-  version: '0.5.0',
+  version: '0.6.0',
   modules: [ShellModule, ...modules],
   catalogs: import.meta.glob<CatalogModule>('./**/locales/*/messages.ts'),
 })
@@ -142,8 +147,7 @@ A declaration that cannot work fails at start-up and in the tests, not on the pa
 Each module declares itself in `<feature>.module.ts`:
 
 ```typescript
-const dataSource = new UserRemoteDataSourceImpl(grpcTransport);
-const repository = new DefaultUserRepository(dataSource);
+const repository = new DefaultUserRepository(new UserServiceClient(grpcTransport.getTransport()));
 
 export const UserModule = {
   id: 'user',
@@ -181,14 +185,14 @@ declare a permission. The core only gives the permission to the access policy.
 
 An extension never imports another extension. It imports its SDK. `@scylla/base-sdk` re-exports
 the barrels of scylla-base (`platform/authz`, `platform/context`, `platform/grpc`,
-`ScyllaResult` and each feature). scylla-base itself never imports its SDK.
+`ScyllaError` and each feature). scylla-base itself never imports its SDK.
 
 If an extension needs something that the SDK does not export, export it from the `index.ts` of
 the owner module.
 
 ### 3.5 Widget injections — changing another extension's UI
 
-Full design: `widgets_plan.md` at the repo root. The gist, for the architecture picture: a
+Full mechanism: `sdks/core-sdk/AGENTS.md`. The gist, for the architecture picture: a
 **widget** (a component) opens **points** — a **zone** (receives components), a **text scope**
 (overridable messages), a **value** (patchable data) — as a typed object it exports from its own
 barrel:
@@ -210,7 +214,7 @@ owner, and names it `<module id>.<key>` (`login.footer`) in the errors.
 There is deliberately no `declare module` augmentation here: a point is a value, reached by an
 ordinary import through the owner's SDK, so the dependency is real and `dependency-cruiser`
 sees it, and it works the same inside this monorepo or in a community extension's own
-repository (`widgets_plan.md` §13 has the full comparison against the augmentation it replaced).
+repository.
 
 Another extension changes those points with a **widget injection** — an array of changes per
 *intention* (a change the user sees), never per owner, grouping the components, texts and patches
@@ -243,9 +247,10 @@ alongside `loadExtensions`) rejects, at start-up and in tests: a change to a poi
 not a loaded module; a change to another extension's point when that extension is not listed in
 `dependencies`; two injections that `replace` the same zone; two that override the same text.
 
-The owner writes almost the code it writes with no points. A zone point is itself a Svelte
-action — `<div use:loginPoints.footer={{ isPending }}>` — which owns the whole mount, update and
-cleanup lifecycle of whatever is injected into it. Texts keep `t(loginMessages.title)`: `t` finds
+The owner writes almost the code it writes with no points. A zone opens with one component —
+`<WidgetZone point={loginPoints.footer} context={{ isPending }} />` — which renders whatever is
+injected into it in the owner's own tree: an injected component reads the owner's Svelte context,
+and one that throws is stopped by its own `<svelte:boundary>`. Texts keep `t(loginMessages.title)`: `t` finds
 an override by the descriptor object (never by its id, which two modules with the same source
 string share). Only a value point shows in the owner's code, as `resolve(value)`. A sign-up link that another
 extension adds to `scylla-base`'s login page is the reference example this mechanism was built
@@ -263,7 +268,7 @@ extensions/scylla-base/src/
   features/                    agents, apps, dashboard, jobs, login, marketplace, membership,
                                organization, pipeline, project, roles, secret, triggers, user
   platform/                    authz, context, grpc
-  shared/                      shared code with a business meaning (ScyllaResult, status presentation)
+  shared/                      shared code with a business meaning (ScyllaError, status presentation)
 ```
 
 ### 4.1 Four layers, dependencies point down
@@ -286,7 +291,7 @@ Generic UI without a business meaning goes to `@scylla/ui`, not to `shared/`. Th
 Other modules import a module only through its `index.ts`. The rest of the module is private.
 A barrel must not export:
 
-- the `<feature>.module.ts`. It creates the data sources at import time, so a re-export pulls the
+- the `<feature>.module.ts`. It creates the repository at import time, so a re-export pulls the
   gRPC client into the chunk of each consumer. Only `shell/modules.ts` imports it, by path.
 - a Svelte component. Rollup cannot remove a component that a barrel re-exports. Export a loader
   (`export const loadJobsPage = () => import('./…/Jobs.page.svelte')`).
@@ -319,47 +324,82 @@ feature/
 ├── index.ts             → the public API
 ├── AGENTS.md, README.md
 ├── domain/              → pure business logic: no Svelte, no gRPC, no proto
-│   ├── repository/      → repository interfaces + their input types (the data contract)
-│   ├── entities/        → {Name}Entity — identity-bearing objects (*.entity.ts)
-│   ├── structs/         → value objects, enums, DTOs, wrappers (*.struct.ts)
+│   ├── repository/      → repository interfaces (the data contract)
+│   ├── entities/        → one file per thing it manages, with an id ({Name}Entity) + its own types
+│   ├── structs/         → a concept no entity owns: a value object, a vocabulary, a reference table
 │   └── use-cases/       → optional — only when a use case orchestrates (§5.1)
-├── infrastructure/
-│   ├── repository/
-│   │   ├── default-feature.repository.ts   → repository implementation
-│   │   ├── data-sources/                    → data source interface
-│   │   └── mappers/                         → proto ↔ domain (Grpc{Entity}Mapper)
-│   └── data/remote/                         → gRPC calls (*.data-source.impl.ts)
+├── infrastructure/      → flat
+│   ├── default-feature.repository.ts   → repository implementation: gRPC call + mapping
+│   ├── grpc-feature.mapper.ts          → proto ↔ domain (functions)
+│   └── __test__/
 ├── locales/             → i18n catalogs (en/, fr/)
-└── presentation/
+└── presentation/                   → one folder per role
     ├── <feature>.queries.ts        → query-key factories, queryOptions / mutationOptions
-    ├── <view>.state.svelte.ts      → ViewModels (runes), when a view needs one
-    ├── *.actions.ts / *.calculator.ts → Svelte actions / pure algorithms
-    └── ui/                         → Svelte components + *.messages.ts
+    ├── <feature>.points.ts         → the widget points, when needed
+    ├── messages/                   → *.messages.ts: the texts of the views
+    ├── presenters/                 → *.presenter.ts: domain data → what a view shows
+    ├── mappers/                    → *.mapper.ts: a view format ↔ the domain, both ways
+    └── ui/                         → Svelte only: components, states, attachments, effects,
+                                      contexts, registries, columns
 ```
+
+`ui/` holds Svelte only. A presenter, a mapper and the messages are plain TypeScript, in the
+folder of their role, and never import `ui/` (`presentation-logic-knows-no-ui`): a reader knows
+what a file does from its folder, and a presenter is tested without a component. A function of
+the view goes by what it gives and what it needs, not by what it takes: a type of the domain →
+`domain/`; plain TypeScript, from data of the domain or from the structures of a view →
+`presenters/`; Svelte → `ui/`; no business meaning and two features use it → `@scylla/ui`. Inside `ui/`, a
+state or an attachment is in the folder of the component that uses it, or of the component that
+owns the concept when several use it: a view and its states are found, changed and deleted
+together.
 
 ### 5.1 Domain layer
 
 **Pure business logic, zero external dependencies.**
 
 - **Repository interfaces** are the data contract of the module. Presentation calls them
-  directly. They know nothing about gRPC or HTTP, and their input types live beside them.
-- **Entities** (`entities/*.entity.ts`, `{Name}Entity`) are the identity-bearing objects that the
-  feature owns. They can hold the related input shapes and pure behavior.
-- **Structs** (`structs/*.struct.ts`, plain PascalCase) are data shapes with no identity.
+  directly. They know nothing about gRPC or HTTP. Their input types live in the entity file of
+  what they create or change, not beside the interface.
+- **Types are sorted by concept, not by kind.** A concept has one file.
+- **Entities** (`entities/*.entity.ts`, `{Name}Entity`) are the things that the feature manages
+  and that the server designates by an id: a thing of the domain with a life cycle. The file of
+  an entity also holds every type that exists only with it: the types it holds, its states, its
+  inputs, its projections, its list and result wrappers, what the server tells about it, and
+  its pure functions (a function that takes it, or creates one).
+- **An aggregate root holds the rules on the entities it contains.** The pipeline keeps the ids
+  of its nodes unique and their dependencies whole: `addNode`, `renameNode`, `removeNode` are in
+  `pipeline.entity.ts`. What concerns one node only is in `pipeline-node.entity.ts`.
+- **Structs** (`structs/*.struct.ts`, plain PascalCase) are concepts that stand alone and that
+  no entity of the feature owns. A struct is one of three things: a **value object** with its
+  own rules (`node-id.struct.ts`: `NodeId`, `nodeIdIssue`), a **vocabulary** that several
+  entities or features share (`Permission`, `JobStatus`), or a **reference table** and its rules
+  (`permission-catalog.struct.ts`). A struct holds nothing that tells what a screen shows: that
+  is a presenter. There is no `utils/` folder in the domain.
+- **Behavior is pure functions, not classes with methods.** `$state` makes plain objects and
+  arrays deeply reactive, not class instances, and the structural sharing of TanStack Query
+  works on JSON data: the data stays plain.
 - **Use cases are optional.** A use case is necessary only when it does something that a
   repository method cannot do: orchestrate several calls, apply a business rule, or combine
-  repositories. A class that only forwards to `repository.method(args)` is deleted. Today, one
-  use case exists: `UpdateRoleUseCase` (read → apply a pure entity function → save).
+  repositories. A class that only forwards to `repository.method(args)` is deleted. Examples:
+  `UpdateRoleUseCase` (read → apply a pure entity function → save), `SavePipelineUseCase`
+  (apply the rules of the server → create or edit).
 
 #### Entities vs. structs
 
 | | **Entity** (`entities/*.entity.ts`) | **Struct** (`structs/*.struct.ts`) |
 |---|---|---|
-| Question | "What *thing* does this feature own?" | "What *plain shapes* describe or move data?" |
-| Identity | Yes — has an `id` (or a stable key) | No — interchangeable by value |
-| Examples | `SecretEntity`, `RoleEntity`, `UserEntity`, `PipelineEntity` | `Permission`, `PermissionScope`, `ProjectList`, `CreatedApp` |
-| Naming | `{Name}Entity` | plain PascalCase (no suffix) |
-| One file per | aggregate / entity | cohesive group of related shapes |
+| Question | "What *thing* does this feature manage, by an id?" | "What concept stands alone, owned by no entity?" |
+| Identity | Yes — an `id` field, named `id` | No own identity. It can hold the id of something else (`Principal`) |
+| Holds also | every type that exists only with the entity: `JobNodeExecution`, `AgentState`, `CreateSecretInput`, `GrantableRole`, `ProjectList`, `CreatedApp`, `AgentStats` | its own rules (validation, transitions) |
+| Examples | `SecretEntity`, `RoleEntity`, `UserEntity`, `PipelineEntity` | `NodeId`, `Permission`, `PermissionScope`, `Principal`, `EffectivePermissions`, `JobStatus`, `OnboardingStatus` |
+| Naming | `{Name}Entity` for a type with an identity, plain PascalCase for the others | plain PascalCase (no suffix) |
+| One file per | entity (an aggregate root holds the entities it contains) | concept |
+
+To place a type, ask first what it is about: it exists only with one entity → the file of that
+entity (an input, a projection, a state, a result). Else the feature manages it by an id → an
+entity file of its own. Else → a struct file. A snapshot that the server computes and a
+reference to a thing of another module are structs, even when they hold an id. A vocabulary that
+two features share goes to `shared/domain/structs/` when one cannot import the other.
 
 ```typescript
 // secret.entity.ts — the read shape (metadata only; the value is write-only)
@@ -384,7 +424,7 @@ export interface CreateSecretInput {
 ```typescript
 // role.entity.ts — pure domain behavior
 export const updateRole = (role: RoleEntity, changes: Partial<RoleEntity>): RoleEntity => {
-  if (changes.name !== undefined && changes.name.trim() === '') {
+  if (changes.name !== undefined && roleNameIssue(changes.name)) {
     throw new Error('Role name cannot be empty');
   }
   return { ...role, ...changes, id: role.id };
@@ -396,17 +436,22 @@ from the proto type with the same bare name (aliased in mappers, e.g. `User as P
 
 ### 5.2 Infrastructure layer
 
-- **Data sources**: an interface + an implementation (`*.impl.ts`) for each transport.
-- **Repository implementation** (`Default{Entity}Repository`): coordinates the data sources and
-  maps infrastructure types to domain types.
-- **Mappers** (`Grpc{Entity}Mapper`): proto ↔ domain.
+- **Repository implementation** (`Default{Entity}Repository`): calls the gRPC client and maps
+  the response to domain types. Its constructor takes the generated client interface
+  (`I{Service}ServiceClient`), which a test replaces with a fake.
+- **Mappers** (`grpc-{entity}.mapper.ts`): proto ↔ domain. Pure functions, tested alone. The
+  repository imports the module as a namespace: `import * as grpcUser from './grpc-user.mapper.ts'`.
+- **Data sources**: only when a feature has two sources or more (a cache, a local store, a
+  second transport). One data source per source, behind the same repository. With one source,
+  a data source interface would only repeat the repository contract.
 
 ```typescript
 export class DefaultUserRepository implements UserRepository {
-  constructor(private readonly _remoteDataSource: UserRemoteDataSource) {}
+  constructor(private readonly client: IUserServiceClient) {}
 
-  public async getAll(): Promise<ScyllaResult<PaginatedList<UserEntity>>> {
-    return (await this._remoteDataSource.getAll()).map(list => GrpcUserMapper.toDomainList(list));
+  public async getAll(): Promise<PaginatedList<UserEntity>> {
+    const response = await this.client.listUsers({}).response;
+    return grpcUser.toDomainList(response);
   }
 }
 ```
@@ -430,7 +475,7 @@ export const USERS_QUERY_KEY = () => ['users'] as const;
 export const userMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: async (input: CreateUserInput) => (await repository().create(input)).unwrap(),
+      mutationFn: (input: CreateUserInput) => repository().create(input),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.USER_CREATE));
         return getQueryClient().invalidateQueries({ queryKey: USERS_QUERY_KEY() });
@@ -453,17 +498,20 @@ Where the logic goes:
 | Need | Solution | Where |
 |------|----------|-------|
 | Simple UI state (a toggle, a dialog, tabs) | `$state` | the `<script>` of the `.svelte` file |
-| Page orchestration (queries + filters + pagination) | a ViewModel | `presentation/<view>.state.svelte.ts` |
-| Complex UI logic without network | a UI-only ViewModel | `presentation/<view>.state.svelte.ts` |
-| A pure algorithm | a pure function | `presentation/*.calculator.ts` |
-| DOM measurement, native events, a third-party widget | a Svelte action | `presentation/*.actions.ts` |
+| Page orchestration (queries + filters + pagination) | the state of the view (its ViewModel) | `<view>.state.svelte.ts`, beside the view |
+| UI state with one responsibility | a state | `<responsibility>.state.svelte.ts`, beside its users |
+| Synchronize with a system outside Svelte | an effect | `*.effect.svelte.ts`, beside its user |
+| Read an outside API from rune code | an adapter | `*.adapter.svelte.ts` |
+| Compute what a view shows or does, in plain TypeScript | a presenter | `presenters/*.presenter.ts` |
+| Convert a view format and the domain, both ways | a mapper | `mappers/*.mapper.ts` |
+| DOM measurement, native events, a third-party widget | an attachment (`{@attach}`) | `*.attachments.ts`, beside its user |
 
 `$effect` is a last resort: use it only to synchronize with a system outside Svelte.
 
 ### 5.4 Dependency injection
 
-There is no IoC container. The `<feature>.module.ts` creates the data sources and the
-repository, and exposes them in `domain`. `loadExtensions` builds the registry (module id →
+There is no IoC container. The `<feature>.module.ts` creates the gRPC client and the
+repository, and exposes the repository in `domain`. `loadExtensions` builds the registry (module id →
 `domain`) from all the modules of all the extensions, and `startCore` installs it with
 `setDependencyRegistry`. The `*.queries.ts` of the feature reads it:
 
@@ -481,16 +529,16 @@ The repository is read at each call, so a test can replace the registry (`withRe
 
 ```
 Component / ViewModel → createQuery(() => xQueries.y()) → queryFn
-    → Repository (interface) → Default{Entity}Repository → RemoteDataSourceImpl → gRPC client
-    → ScyllaResult<T> ← mapper ← proto response
-    → .unwrap() → TanStack Query cache
+    → Repository (interface) → Default{Entity}Repository → gRPC client
+    → T ← mapper ← proto response          (a failure: ScyllaError, from the transport)
+    → TanStack Query cache
 ```
 
 ### 6.2 Write flow
 
 ```
 Component → createMutation(() => xMutations.y()) → mutationFn → Repository
-    → RemoteDataSourceImpl → gRPC client
+    → Default{Entity}Repository → gRPC client
     → onSuccess: getQueryClient().invalidateQueries({ queryKey: X_QUERY_KEY(...) }) → refetch
 ```
 

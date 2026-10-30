@@ -2,17 +2,17 @@ import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
-import type { JobsRemoteDataSource } from '@base/features/jobs/infrastructure/repository/data-sources/jobs-remote.data-source.ts';
-import { GrpcJobsRemoteDataSource } from '@base/features/jobs/infrastructure/data/remote/grpc-jobs-remote.data-source.ts';
-import { DefaultJobsRepository } from '@base/features/jobs/infrastructure/repository/default-jobs.repository.ts';
+import { JobServiceClient } from '@base/generated/scylla/job/v1/job.client.ts';
+import { DefaultJobsRepository } from './infrastructure/default-jobs.repository.ts';
 
-const jobsRemoteDataSource: JobsRemoteDataSource = new GrpcJobsRemoteDataSource(grpcTransport);
-const jobsRepository = new DefaultJobsRepository(jobsRemoteDataSource);
+const jobsRepository = new DefaultJobsRepository(
+  new JobServiceClient(grpcTransport.getTransport()),
+);
 
 export const JobsModule = {
   id: 'jobs',
   domain: {
-    jobsRepository: jobsRepository,
+    jobsRepository,
   },
   routes: {
     project: [

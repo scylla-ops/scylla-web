@@ -40,21 +40,26 @@ callback, so that `can` stays reactive.
 | `createAgent(organizationId, name)` | `CreatedAgent` (the secret, one time) |
 | `deleteAgent(agentId)` | `void` |
 | `listJobs(organizationId, agentId, limit)` | `AgentJob[]`: `ListOrganizationJobs` with `agent_id`, first page |
-| `listPipelineNames(organizationId)` | `PipelineName[]`: `ListOrganizationPipelines`, for the names of a job |
+| `listPipelineNames(organizationId)` | `AgentJobPipeline[]`: `ListOrganizationPipelines`, for the names of a job |
 
-All of them return a `ScyllaResult`. Only `agents.queries.ts` uses the repository.
+`AgentJob` and `AgentJobPipeline` are projections of a job and of a pipeline, owned here.
+`agents` cannot import `jobs` or `pipeline`, not even a type: both import `agents`, and the
+module graph must stay free of cycles. The status vocabulary that `jobs` and `agents` share,
+`JobStatus`, is in `@shared/domain/structs/job-status.struct.ts`.
+
+Each method rejects with a `ScyllaError` on failure. Only `agents.queries.ts` uses the repository.
 
 **`listJobs` and `listPipelineNames` are here, not in `jobs` and `pipeline`.** `jobs` (the
 `NoAgentsBanner`) and `pipeline` (the run toast) import this module. If this module imports them
 back, the module graph has a cycle, and `pnpm depcruise:cycles` fails. Thus this module asks
-`JobService` and `PipelineService` itself. `GrpcAgentMapper.jobToDomain` gives the status names
+`JobService` and `PipelineService` itself. `jobToDomain` (`grpc-agent.mapper.ts`) gives the status names
 of `jobs`.
 
 An agent is an app. The other calls go through the barrels of the features that own them:
 
 | From | Used for |
 |---|---|
-| `features/apps` | `appQueries.secretsOf`, `appQueries.accessOf` (`ListAppAccess`), `appMutations.resetSecret`, `revokeSecret`, `setSecretEnabled`, `setSecretLabel`, `setActive`; `suggestSecretLabel`, `secretLabelProblem`, `trimSecretLabel` |
+| `features/apps` | `appQueries.secretsOf`, `appQueries.accessOf` (`ListAppAccess`), `appMutations.resetSecret`, `revokeSecret`, `setSecretEnabled`, `setSecretLabel`, `setActive`; `suggestSecretLabel`, `secretLabelIssue`, `trimSecretLabel` |
 | `features/project` | `projectQueries.lookup`, `canListProjects`: the project names of the recent jobs, and the projects of the new agent dialog and of the give access dialog |
 | `features/roles` | `grantMutations.create`, `grantMutations.revoke`, `roleQueries.scopedGrants`: a new agent limited to one project, and the access edits of the agent page |
 
@@ -68,46 +73,50 @@ checks `LIST_PIPELINES_BY_ORGANIZATION` and runs only once a job shows.
 agents.module.ts                       routes + nav + DI wiring (private; registry only)
 index.ts                               public API
 domain/
-  entities/agent.entity.ts             AgentEntity, AgentHost
-  structs/agent.struct.ts              AgentStats, CreatedAgent, DailyOutcome
-  structs/agent-job.struct.ts          AgentJob, PipelineName
-  structs/agent-state.struct.ts        AgentState, agentStateOf, isOnline (pure)
-  structs/agents-summary.struct.ts     sumOutcomes, successRateOf, summarizeAgents (pure)
+  entities/agent.entity.ts             AgentEntity, AgentHost, AgentState, agentStateOf and
+                                       isOnline (pure), AgentStats, DailyOutcome, CreatedAgent,
+                                       AgentJob (its status is a JobStatus of `@shared`),
+                                       AgentJobPipeline
   repository/agents.repository.ts      the contract
 infrastructure/
-  data/agents-remote.data-source.ts    interface + Impl, in one file
-  data/grpc-agent.mapper.ts            GrpcAgentMapper (agents, stats, jobs)
-  repository/default-agents.repository.ts
+  default-agents.repository.ts         AgentAdmin, Job, Pipeline clients → domain types
+  grpc-agent.mapper.ts                 agents, stats, jobs
 presentation/
   agents.queries.ts                    the reads and writes of this module
-  agents-page.state.svelte.ts          ViewModel of the list: rows, filter, search, summary
-  agent-details.state.svelte.ts        ViewModel of the detail page
-  agent-actions.state.svelte.ts        the actions on one agent and their dialogs, for both pages
-  reset-secret.state.svelte.ts         the two steps of a reset, resetOutcomeOf
-  rename-secret.state.svelte.ts        the rename of one secret
-  secret-label-input.state.svelte.ts   a secret name field: suggestion, edit, CE rules, refusal
-  create-agent.state.svelte.ts         the two steps of a new agent: create, grants, live status
-  agent-access.state.svelte.ts         the access card of the agent page: give, replace, remove
-  take-focus.actions.ts                focuses a node on request (the card heading, after a remove)
-  run-command.calculator.ts            the Docker, Docker Compose and source commands; AGENT_IMAGE
-  track-height.actions.ts              reports the height of a node (the dialog body animates on it)
-  daily-outcomes.calculator.ts         30 days, zero-filled; axis top (pure)
-  access.calculator.ts                 grant order, project labels, where the agent takes jobs,
-                                       the projects without a grant, the grants that "All projects" replaces,
-                                       keepsCover (pure)
-  utils/agent-format.ts                short id, durations, memory, percent, dates
-  ui/agents.messages.ts                the strings that both pages show
+  messages/                            the texts: agents (both pages), agents-page, agent-details,
+                                       access-card, agent-bot, agent-run-command, copy-box,
+                                       create-agent, disable-agent, rename-secret, reset-secret,
+                                       secret-label-field
+  presenters/                          domain data → what a view shows (pure, tested)
+    agent-format.presenter.ts          short id, durations, memory, percent, dates
+    agents-summary.presenter.ts        sumOutcomes, successRateOf, summarizeAgents
+    access.presenter.ts                grant order, project labels, where the agent takes jobs,
+                                       the projects without a grant, the grants that "All projects"
+                                       replaces, keepsCover
+    run-command.presenter.ts           the Docker, Docker Compose and source commands; AGENT_IMAGE
+    daily-outcomes.presenter.ts        30 days, zero-filled; axis top
   ui/Agents/                           the list page and its private parts
+    agents-page.state.svelte.ts        ViewModel of the list: rows, filter, search, summary
   ui/AgentDetails/                     the detail page and its private cards
+    agent-details.state.svelte.ts      ViewModel of the detail page
   ui/AgentDetails/AccessCard/          the access card, its give and remove dialogs
+    agent-access.state.svelte.ts       the access card of the agent page: give, replace, remove
+    grant-icons.registry.ts            the icon of each kind of grant
+    take-focus.attachments.svelte.ts   focuses a node on request (the card heading, after a remove)
   ui/components/AgentBot/              the animated bot tile
   ui/components/CreateAgentDialog/     the new agent dialog: name and access, then start the agent
+    create-agent.state.svelte.ts       the two steps of a new agent: create, grants, live status
+    track-height.attachments.ts        reports the height of a node (the dialog body animates on it)
   ui/components/AgentRunCommand/       address, way to run, and the command (dialog step 2, agent page)
   ui/components/CopyBox/               a value with a copy button
   ui/components/ResetSecretDialog/     name and confirm, then show the new secret one time
+    reset-secret.state.svelte.ts       the two steps of a reset, resetOutcomeOf
   ui/components/RenameSecretDialog/    rename one secret (the "Rename" item of the Secrets card)
+    rename-secret.state.svelte.ts      the rename of one secret
   ui/components/SecretLabelField/      the secret name field and its errors (reset, rename)
+    secret-label-input.state.svelte.ts a secret name field: suggestion, edit, CE rules, refusal
   ui/components/DisableAgentDialog/    confirm a disable
+  ui/components/agent-actions.state.svelte.ts   the actions on one agent and their dialogs, for both pages
   ui/components/AgentActionsMenu.svelte, AgentActionDialogs.svelte, AgentStateDot.svelte
   ui/components/DialogFooterBand.svelte, AlertDialogCloseButton.svelte   the parts of the dialog layout
   ui/components/AgentIdLink/           the id with a copy button
@@ -208,7 +217,7 @@ icon `HardDriveIcon`, same permission.
 - **The tile "Finished jobs, last 30 days" never shows a partial sum.** It waits while a stats
   query loads. When a stats query fails, it shows the sum with "Partial: N agents not counted".
   It counts the completed, failed, cancelled and orphaned jobs only.
-- **`ListAppAccess` can return grants on other organizations.** `access.calculator.ts` compares
+- **`ListAppAccess` can return grants on other organizations.** `presenters/access.presenter.ts` compares
   `organizationId` with the organization on screen: the first badge prefers a grant of this
   organization, and a grant of another organization names its organization ("All projects of
   <org>", "<org> / <project>"). "Every project of this organization" is for this organization
@@ -225,9 +234,7 @@ icon `HardDriveIcon`, same permission.
   components. The French catalog must stay complete; `ui/__test__/agents.messages.fr.test.ts`
   checks the plural forms.
 - A bits-ui menu is in a floating layer that jsdom hides: get its items with `findFloating`
-  from `test/render.svelte.ts`, not with `getByRole`.
-- The data source **puts the interface and its impl in one file** (`AgentsRemoteDataSource` is
-  a type alias of `AgentsRepository`). Keep it so.
+  from `test/render.ts`, not with `getByRole`.
 - `NoAgentsBanner` goes out as a loader, because a barrel must not export a component.
 - **`data-tour` attributes are anchors of the onboarding tour**: `agents` on the list page,
   `agent-details` on the detail page, `agent-status` with `data-online` on the header, and

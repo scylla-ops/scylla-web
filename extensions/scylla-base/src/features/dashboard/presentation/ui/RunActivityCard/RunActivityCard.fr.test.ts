@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { messages } from '@base/features/dashboard/locales/fr/messages.ts';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import { withLocale } from '@test/i18n.ts';
 import type { JobsSummary } from '@base/features/jobs';
 import RunActivityCard from './RunActivityCard.svelte';

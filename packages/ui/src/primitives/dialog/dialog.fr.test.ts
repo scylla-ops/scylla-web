@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { messages } from '../../locales/fr/messages.ts';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import { withLocale } from '@test/i18n.ts';
 import DialogFixture from './dialog.fixture.svelte';
 

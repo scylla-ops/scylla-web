@@ -21,9 +21,9 @@
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
   import {
     createGrantCreator,
-  } from '@base/features/roles/presentation/grant-creator.state.svelte.ts';
-  import type { RolesScope } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
-  import { rolesMessages } from '@base/features/roles/presentation/ui/roles.messages.ts';
+  } from './grant-creator.state.svelte.ts';
+  import type { RolesScope } from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
   import TargetChecklist from './TargetChecklist.svelte';
 
   interface Props {

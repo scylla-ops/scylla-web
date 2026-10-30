@@ -22,7 +22,7 @@
   import { userQueries } from '@base/features/user';
   // By path, not the barrel: this file is in the entry chunk, the other components are not.
   import UserIdentity from '@shared/presentation/ui/data-display/UserIdentity/UserIdentity.svelte';
-  import { layoutMessages } from '../layout.messages.ts';
+  import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
 
   const sidebar = getSidebar();
   const meQuery = createQuery(() => userQueries.me());

@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { QueryClient } from '@tanstack/query-core';
 import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
-import { ScyllaResult, ScyllaError } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { SecretEntity } from '@base/features/secret/domain/entities/secret.entity.ts';
 import type {
   SecretRepository,
@@ -25,13 +25,11 @@ const secret = (overrides: Partial<SecretEntity> = {}): SecretEntity => ({
 
 const withRepository = (overrides: Partial<SecretRepository> = {}) => {
   const repository = {
-    listByProjectId: vi.fn().mockResolvedValue(ScyllaResult.success([secret()])),
-    create: vi.fn().mockResolvedValue(ScyllaResult.success(secret())),
-    deleteById: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-    update: vi.fn().mockResolvedValue(ScyllaResult.success(secret())),
-    listPipelinesUsing: vi.fn().mockResolvedValue(
-      ScyllaResult.success({ pipelines: [], totalCount: 0 }),
-    ),
+    listByProjectId: vi.fn().mockResolvedValue([secret()]),
+    create: vi.fn().mockResolvedValue(secret()),
+    deleteById: vi.fn().mockResolvedValue(undefined),
+    update: vi.fn().mockResolvedValue(secret()),
+    listPipelinesUsing: vi.fn().mockResolvedValue({ pipelines: [], totalCount: 0 }),
     ...overrides,
   };
   setDependencyRegistry({ secret: { secretRepository: repository } });
@@ -67,8 +65,8 @@ describe('secretQueries.byProject', () => {
   });
 
   it('surfaces a repository failure for the query to own', async () => {
-    const error = new ScyllaError('boom', { cause: { code: 'INTERNAL' } });
-    withRepository({ listByProjectId: vi.fn().mockResolvedValue(ScyllaResult.error(error)) });
+    const error = new ScyllaError('boom', { code: 'INTERNAL' });
+    withRepository({ listByProjectId: vi.fn().mockRejectedValue(error) });
 
     await expect(runQueryFn(secretQueries.byProject('project-1'))).rejects.toBe(error);
   });

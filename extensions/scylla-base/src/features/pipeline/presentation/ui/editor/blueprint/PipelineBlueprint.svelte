@@ -1,76 +1,83 @@
 <script lang="ts">
-  import PlusIcon from '@lucide/svelte/icons/plus';
-  import { Button } from '@scylla/ui/primitives';
+  import { SvelteFlowProvider } from '@xyflow/svelte';
+  import { createQuery } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
-  import type { PipelineStep } from '@base/features/pipeline/domain/structs/pipeline.struct.ts';
-  import {
-    createBlueprintState,
-  } from '@base/features/pipeline/presentation/blueprint.state.svelte.ts';
-  import BlueprintCanvas from './BlueprintCanvas.svelte';
-  import StartNodeFormDialog from './StartNodeFormDialog.svelte';
-  import StepNodeFormDialog from './StepNodeFormDialog.svelte';
-  import { pipelineMessages } from '@base/features/pipeline/presentation/pipeline.messages.ts';
+  import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '@scylla/ui/primitives';
+  import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+  import { createBlueprint } from './blueprint.state.svelte.ts';
+  import { createNodeAppearancePreference } from './canvas/node-appearance-preference.state.svelte.ts';
+  import { nodeTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
+  import { createQuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
+  import BlueprintCanvas from './canvas/BlueprintCanvas.svelte';
+  import { catalogEntries, catalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+  import PaletteDragGhost from './palette-drag/PaletteDragGhost.svelte';
+  import { createPaletteDrag } from './palette-drag/palette-drag.state.svelte.ts';
+  import { nodePositionAt } from './canvas/nodes/node-appearances.registry.ts';
+  import BlueprintSidePanel from './side-panel/BlueprintSidePanel.svelte';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
   interface Props {
-    steps: PipelineStep[];
+    nodes: PipelineNodeEntity[];
     pipelineName: string;
     projectId?: string;
-    onStepsChange: (steps: PipelineStep[]) => void;
-    onNameChange: (name: string) => void;
+    onNodesChange: (nodes: PipelineNodeEntity[]) => void;
   }
 
-  let { steps, pipelineName, projectId, onStepsChange, onNameChange }: Props = $props();
+  let { nodes, pipelineName, projectId, onNodesChange }: Props = $props();
 
-  const blueprint = createBlueprintState({
-    steps: () => steps,
+  const blueprint = createBlueprint({
+    nodes: () => nodes,
     pipelineName: () => pipelineName,
     // Read at call time, so a swapped callback is the one called.
-    onStepsChange: next => onStepsChange(next),
+    onNodesChange: next => onNodesChange(next),
   });
 
-  let editingStep = $state<PipelineStep | undefined>(undefined);
-  let stepDialogOpen = $state(false);
-  let nameDialogOpen = $state(false);
+  const appearance = createNodeAppearancePreference();
+
+  const templatesQuery = createQuery(() => nodeTemplateQueries.list());
+  const entries = $derived(catalogEntries(templatesQuery.data ?? []));
+
+  const drag = createPaletteDrag();
+
+  const quickAdd = createQuickAdd({
+    entries: () => entries,
+    resolve: catalogText,
+    onPick: (entry, request) =>
+      blueprint.inspect(
+        blueprint.addNode(entry.nodeId, entry.definition, {
+          ...request.link,
+          position: nodePositionAt(appearance.current, request.flow),
+        }),
+      ),
+  });
 </script>
 
-<div class="relative h-full w-full">
-  <div class="absolute top-3 right-3 z-10 flex gap-2">
-    <Button
-      size="sm"
-      variant="outline"
-      onclick={() => {
-        editingStep = undefined;
-        stepDialogOpen = true;
-      }}
-    >
-      <PlusIcon class="mr-1 h-4 w-4" />
-      {t(pipelineMessages.addNode)}
-    </Button>
-  </div>
-
-  <BlueprintCanvas
-    {blueprint}
-    onStartNodeDoubleClick={() => (nameDialogOpen = true)}
-    onStepNodeDoubleClick={step => {
-      editingStep = step;
-      stepDialogOpen = true;
-    }}
-  />
-
-  <!-- One dialog for adding and editing: `editingStep` tells them apart. -->
-  <StepNodeFormDialog
-    open={stepDialogOpen}
-    onOpenChange={open => (stepDialogOpen = open)}
-    {editingStep}
-    {projectId}
-    onAdd={(nodeId, value) => blueprint.addNode(nodeId, value)}
-    onEdit={(originalId, nodeId, value) => blueprint.editNode(originalId, nodeId, value)}
-  />
-
-  <StartNodeFormDialog
-    open={nameDialogOpen}
-    onOpenChange={open => (nameDialogOpen = open)}
-    currentName={pipelineName}
-    onSave={onNameChange}
-  />
-</div>
+<!-- The provider lets the canvas convert screen points to the graph's. -->
+<SvelteFlowProvider>
+  <ResizablePaneGroup
+    direction="horizontal"
+    autoSaveId="scylla.blueprint.side-panel"
+    class="overflow-hidden"
+  >
+    <ResizablePane id="blueprint-canvas" order={1} class="relative">
+      <BlueprintCanvas {blueprint} {appearance} {quickAdd} {drag} {entries} />
+      {#if blueprint.readOnly}
+        <p
+          role="alert"
+          class="absolute inset-x-4 top-4 z-10 rounded-md border border-destructive/40 bg-card px-3 py-2 text-sm text-destructive shadow-xs"
+        >
+          {t(pipelineMessages.repeatedHint)}
+        </p>
+      {/if}
+    </ResizablePane>
+    <ResizableHandle />
+    <BlueprintSidePanel
+      {blueprint}
+      {entries}
+      {projectId}
+      {drag}
+      onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
+    />
+  </ResizablePaneGroup>
+  <PaletteDragGhost {drag} />
+</SvelteFlowProvider>

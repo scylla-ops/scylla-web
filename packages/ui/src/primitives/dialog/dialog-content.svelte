@@ -3,7 +3,7 @@
   import { Dialog as DialogPrimitive } from 'bits-ui';
   import XIcon from '@lucide/svelte/icons/x';
   import { cn } from '../../utils/index.ts';
-  import { t } from '../../i18n/i18n-svelte.svelte.ts';
+  import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import DialogOverlay from './dialog-overlay.svelte';
   import { dialogMessages } from './dialog.messages.ts';
   import { CENTERED_DIALOG_CLASS } from './dialog-variants.ts';

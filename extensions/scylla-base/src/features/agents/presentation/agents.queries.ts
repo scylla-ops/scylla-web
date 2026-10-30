@@ -6,9 +6,13 @@ import {
   APP_SECRETS_QUERY_KEY,
   appMutations,
 } from '@base/features/apps';
-import type { AgentEntity } from '../domain/entities/agent.entity.ts';
-import type { AgentStats, CreatedAgent } from '../domain/structs/agent.struct.ts';
-import type { AgentJob, PipelineName } from '../domain/structs/agent-job.struct.ts';
+import type {
+  AgentEntity,
+  AgentStats,
+  CreatedAgent,
+  AgentJob,
+  AgentJobPipeline,
+} from '../domain/entities/agent.entity.ts';
 import type { AgentsModule } from '../agents.module.ts';
 
 // Resolved per call: tests swap the registry.
@@ -37,7 +41,7 @@ export const agentQueries = {
       queryKey: AGENTS_QUERY_KEY(organizationId),
       enabled: !!organizationId && can(Permission.LIST_AGENTS),
       ...LIVE,
-      queryFn: async () => (await repository().listAgents(organizationId)).unwrap(),
+      queryFn: () => repository().listAgents(organizationId),
     }),
 
   byId: (agentId: string) =>
@@ -45,7 +49,7 @@ export const agentQueries = {
       queryKey: AGENT_QUERY_KEY(agentId),
       enabled: !!agentId,
       ...LIVE,
-      queryFn: async () => (await repository().getAgent(agentId)).unwrap(),
+      queryFn: () => repository().getAgent(agentId),
     }),
 
   statsOf: (agentId: string) =>
@@ -53,7 +57,7 @@ export const agentQueries = {
       queryKey: AGENT_STATS_QUERY_KEY(agentId),
       enabled: !!agentId && can(Permission.READ_APP_STATS),
       ...LIVE,
-      queryFn: async () => (await repository().getAgentStats(agentId)).unwrap(),
+      queryFn: () => repository().getAgentStats(agentId),
     }),
 
   /**
@@ -69,20 +73,19 @@ export const agentQueries = {
         !!agentId &&
         can(Permission.LIST_JOBS_BY_ORGANIZATION, { organizationId }),
       ...LIVE,
-      queryFn: async () =>
-        (await repository().listJobs(organizationId, agentId, RECENT_JOBS_LIMIT)).unwrap(),
+      queryFn: () => repository().listJobs(organizationId, agentId, RECENT_JOBS_LIMIT),
     }),
 
   /** The names of the recent jobs. Asked only once a job shows. */
   pipelineNames: (organizationId: string, wanted: boolean) =>
-    queryOptions<PipelineName[]>({
+    queryOptions<AgentJobPipeline[]>({
       queryKey: PIPELINE_NAMES_QUERY_KEY(organizationId),
       enabled:
         wanted &&
         !!organizationId &&
         can(Permission.LIST_PIPELINES_BY_ORGANIZATION, { organizationId }),
       staleTime: 30_000,
-      queryFn: async () => (await repository().listPipelineNames(organizationId)).unwrap(),
+      queryFn: () => repository().listPipelineNames(organizationId),
     }),
 };
 
@@ -126,14 +129,14 @@ export const agentMutations = {
     mutationOptions({
       mutationKey: CREATE_AGENT_MUTATION_KEY,
       gcTime: 0,
-      mutationFn: async ({ name }: { name: string }): Promise<CreatedAgent> =>
-        (await repository().createAgent(organizationId, name)).unwrap(),
+      mutationFn: ({ name }: { name: string }): Promise<CreatedAgent> =>
+        repository().createAgent(organizationId, name),
       onSuccess: () => void invalidateList(organizationId),
     }),
 
   remove: (organizationId: string) =>
     mutationOptions({
-      mutationFn: async (agentId: string) => (await repository().deleteAgent(agentId)).unwrap(),
+      mutationFn: (agentId: string) => repository().deleteAgent(agentId),
       onSuccess: async (_data, agentId) => {
         await forgetAgent(organizationId, agentId);
         void invalidateList(organizationId);

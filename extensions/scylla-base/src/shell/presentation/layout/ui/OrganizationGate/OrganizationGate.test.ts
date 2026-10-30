@@ -4,8 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
-import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import OrganizationGateFixture from './OrganizationGate.fixture.svelte';
 
 const syncMyPermissions = vi.fn();
@@ -20,14 +19,12 @@ let teardown: Array<() => void> = [];
 let navigator: ReturnType<typeof installTestNavigator>;
 let create: ReturnType<typeof vi.fn>;
 
-const setUp = (getMine: () => Promise<ScyllaResult<{ id: string; name: string }[]>>) => {
-  create = vi.fn((name: string) => Promise.resolve(ScyllaResult.success({ id: 'org-9', name })));
+const setUp = (getMine: () => Promise<{ id: string; name: string }[]>) => {
+  create = vi.fn((name: string) => Promise.resolve({ id: 'org-9', name }));
   const cache = withQueryClient();
   const getMe = vi
     .fn()
-    .mockResolvedValue(
-      ScyllaResult.success({ userId: 'user-1', username: 'ada', isActive: true, updatedAt: '' }),
-    );
+    .mockResolvedValue({ id: 'user-1', username: 'ada', isActive: true, updatedAt: '' });
   teardown = [
     cache.restore,
     withRegistry({
@@ -72,20 +69,20 @@ describe('OrganizationGate', () => {
   });
 
   it('renders the page when the user has organizations', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success([{ id: 'org-1', name: 'Acme' }])));
+    setUp(() => Promise.resolve([{ id: 'org-1', name: 'Acme' }]));
 
     expect(await screen.findByText('page content')).toBeInTheDocument();
   });
 
   it('loads the permissions for the active organization and project', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success([{ id: 'org-1', name: 'Acme' }])));
+    setUp(() => Promise.resolve([{ id: 'org-1', name: 'Acme' }]));
     await screen.findByText('page content');
 
     expect(syncMyPermissions).toHaveBeenCalledWith('org-1', 'project-1');
   });
 
   it('loads the permissions again when the active project changes', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success([{ id: 'org-1', name: 'Acme' }])));
+    setUp(() => Promise.resolve([{ id: 'org-1', name: 'Acme' }]));
     await screen.findByText('page content');
 
     contextStore.getState().setProject('project-2', 'api');
@@ -94,7 +91,7 @@ describe('OrganizationGate', () => {
   });
 
   it('shows the welcome screen when the user has no organization', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success([])));
+    setUp(() => Promise.resolve([]));
 
     expect(await screen.findByText('Welcome to Scylla!')).toBeInTheDocument();
     expect(screen.queryByText('page content')).not.toBeInTheDocument();
@@ -102,7 +99,7 @@ describe('OrganizationGate', () => {
 
   it('creates the first organization and opens its dashboard', async () => {
     holding([Permission.CREATE_ORGANIZATION]);
-    setUp(() => Promise.resolve(ScyllaResult.success([])));
+    setUp(() => Promise.resolve([]));
     await screen.findByText('Welcome to Scylla!');
     await focusSettled();
     const user = userEvent.setup();
@@ -119,7 +116,7 @@ describe('OrganizationGate', () => {
 
   it('tells a user who may not create an organization to ask an administrator, with no form', async () => {
     holding([]);
-    setUp(() => Promise.resolve(ScyllaResult.success([])));
+    setUp(() => Promise.resolve([]));
 
     expect(
       await screen.findByText(
@@ -136,7 +133,7 @@ describe('OrganizationGate', () => {
     'offers the account page and the sign-out under the card to a user %s',
     async (_who, permissions) => {
       holding(permissions);
-      setUp(() => Promise.resolve(ScyllaResult.success([])));
+      setUp(() => Promise.resolve([]));
 
       expect(await screen.findByText('Signed in as ada')).toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'Account' })).toHaveAttribute('href', '/account');

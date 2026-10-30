@@ -89,10 +89,6 @@ export const scyllaEslintConfig = rootDir => {
         '@typescript-eslint/no-unsafe-return': 'off',
         // Enum comparisons between domain ↔ gRPC enums (same values, different types).
         '@typescript-eslint/no-unsafe-enum-comparison': 'off',
-
-        // Static mapper methods (GrpcXxxMapper.toDomain etc.) are pure functions that
-        // never access `this` — treating them as unbound is a false positive.
-        '@typescript-eslint/unbound-method': ['error', { ignoreStatic: true }],
       },
     },
 

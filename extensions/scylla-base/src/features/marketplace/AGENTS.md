@@ -30,23 +30,21 @@ Never add: `marketplace.module.ts`, pages.
 
 | Method | Returns |
 |---|---|
-| `getMarketplace()` | `ScyllaResult<MarketItem[]>` |
+| `getMarketplace()` | `MarketItem[]` |
 
 ## ⚠ The repository is stubbed
 
-`DefaultMarketplaceRepository` returns **hardcoded in-memory items**. It has no data source, no
+`DefaultMarketplaceRepository` returns **hardcoded in-memory items**. It has no gRPC client, no
 mapper, and carries a `TODO` saying so. That is why `marketplace.module.ts` constructs it with
 `new DefaultMarketplaceRepository()` and no `grpcTransport` — the only module in the codebase
 that takes no transport.
 
 When wiring the real backend:
 
-1. Add `infrastructure/repository/data-sources/marketplace-remote.data-source.ts` (interface).
-2. Add `infrastructure/data/remote/grpc-marketplace-remote.data-source.ts` (impl).
-3. Add `infrastructure/repository/mappers/grpc-market-item.mapper.ts`.
-4. Inject the data source into `DefaultMarketplaceRepository` and pass `grpcTransport` in
-   `marketplace.module.ts`.
-5. Delete the `TODO` and the inline fixtures.
+1. Add `infrastructure/grpc-market-item.mapper.ts`.
+2. Give `DefaultMarketplaceRepository` the generated `I…ServiceClient` in its constructor, and
+   build it in `marketplace.module.ts` with `grpcTransport.getTransport()`.
+3. Delete the `TODO` and the inline fixtures.
 
 The domain contract and `marketplaceQueries` do **not** change — that is the point of the
 interface.
@@ -59,13 +57,13 @@ index.ts                             public API
 domain/
   structs/market-item.struct.ts      MarketItem
   repository/marketplace.repository.ts
-infrastructure/repository/default-marketplace.repository.ts   ← stubbed
+infrastructure/default-marketplace.repository.ts   ← stubbed
 presentation/
   marketplace.queries.ts                    the catalog read
-  marketplace-filter.state.svelte.ts        search box state + `matchesFilter`
   ui/Marketplace.page.svelte, MarketplaceTopBar.svelte,
+  ui/marketplace-filter.state.svelte.ts     search box state + `matchesFilter`
   ui/MarketItemList/                        the list + MarketItemCard
-  ui/marketplace.messages.ts
+  messages/marketplace.messages.ts
 ```
 
 `MarketItem` is a **struct**, not an entity: a catalog listing with no identity the app owns.

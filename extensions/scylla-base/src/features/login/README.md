@@ -14,7 +14,7 @@ Signing in touches three modules, and it helps to see the whole path at once:
 1. `LoginForm` collects an identifier (an email or a username) and a password, and calls
    `LoginState.submit`.
 2. `LoginState` runs the mutation against `LoginRepository.login()`.
-3. The gRPC data source calls the backend and, on success, calls `openSession(token, userId)`,
+3. `DefaultLoginRepository` calls the backend and, on success, calls `openSession(token, userId)`,
    which writes them into `localStorage`.
 4. Every later request picks the token up: the transport in
    [platform/grpc](../../platform/grpc/README.md) reads `localStorage.token` and attaches
@@ -22,8 +22,8 @@ Signing in touches three modules, and it helps to see the whole path at once:
 5. `AuthGuard` in [shell](../../shell/README.md) reads the same key to decide whether a protected
    route renders or redirects back to `/login`.
 
-Notice that the repository returns `ScyllaResult<void>`. The token deliberately never travels
-back up through the domain — the data source persists it as a side effect, and everything
+Notice that `login` returns `Promise<void>`. The token deliberately never travels
+back up through the domain — the repository persists it as a side effect, and everything
 downstream reads it from one place. The upside is that no component ever holds a credential; the
 cost is that the `localStorage` key is a contract shared by three modules, so changing it means
 changing all three together.
@@ -70,7 +70,7 @@ module it owns). An extension that changes the label of the identifier also chan
 placeholder and the description of the card: all three name what the field takes.
 `openSession` exists for the same reason, one level down: a sign-up flow needs
 to open a session exactly the way sign-in does, without a second place that knows the
-`localStorage` keys. See `widgets_plan.md` at the repo root for the full mechanism, and
+`localStorage` keys. See [`@scylla/core-sdk`](../../../../../sdks/core-sdk/README.md) for the full mechanism, and
 `AGENTS.md`'s "Extension points" for the exact points this page opens.
 
 ## Why it is a module at all

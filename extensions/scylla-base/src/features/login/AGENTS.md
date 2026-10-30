@@ -27,8 +27,7 @@ loginPathBackTo(location)            // loginPath of the current page; '/login' 
 type PasswordResetDelivery           // 'mail' | 'server-log' | 'unknown'; `user` uses it too
 ```
 
-Never add: `login.module.ts`, a page. There is no `use-login-domain.ts`: a view model calls
-`getModuleDomain('login')` directly.
+Never add: `login.module.ts`, a page. A state calls `getModuleDomain('login')` directly.
 
 ## Data contract
 
@@ -36,12 +35,12 @@ Never add: `login.module.ts`, a page. There is no `use-login-domain.ts`: a view 
 
 | Method | Returns |
 |---|---|
-| `login(identifier, password)` | `ScyllaResult<void>` |
-| `requestPasswordReset(email)` | `ScyllaResult<PasswordResetDelivery>` |
-| `resetPassword(token, newPassword)` | `ScyllaResult<void>` |
+| `login(identifier, password)` | `void` |
+| `requestPasswordReset(email)` | `PasswordResetDelivery` |
+| `resetPassword(token, newPassword)` | `void` |
 
 **`void` on `login` is not an oversight.** The session token never travels back through the
-domain: the gRPC data source calls `openSession` as a side effect of a successful call. Do not
+domain: `DefaultLoginRepository` calls `openSession` as a side effect of a successful call. Do not
 "improve" this by returning the token: read the rule below before changing anything here.
 
 `identifier` is the name of the value at every layer, from the form field to the request: an
@@ -54,37 +53,36 @@ login.module.ts                      routes + DI wiring (private; registry only)
 index.ts                             public API
 domain/
   repository/login.repository.ts
-  structs/password-reset.struct.ts   PasswordResetDelivery
+  structs/password-reset-delivery.struct.ts   PasswordResetDelivery
 infrastructure/
-  repository/data-sources/login-remote.data-source.ts   interface
-  data/remote/grpc-login-remote.data-source.ts          impl — calls openSession
-  repository/default-login.repository.ts
-  repository/mappers/grpc-password-reset.mapper.ts      proto enum → PasswordResetDelivery
-  session/session.ts                                    openSession, closeSession (the writers of token + userId), hasSession
+  default-login.repository.ts           AuthServiceClient; calls openSession
+  grpc-password-reset.mapper.ts         proto enum → PasswordResetDelivery
+  session.ts                            openSession, closeSession (the writers of token + userId), hasSession
 presentation/
   login.points.ts                    the extension points — see below
-  login.state.svelte.ts              sign-in: the mutation + the redirect
-  forgot-password.state.svelte.ts    the request of a reset link
-  reset-password.state.svelte.ts     the token of the link, the new password
   sign-out.ts                        signOut
-  return-path.ts                     loginPath, loginPathBackTo, safeReturnPath, returnPathOf
+  mappers/return-path.mapper.ts      loginPath, loginPathBackTo, safeReturnPath, returnPathOf
+  messages/                          login, password-reset
+  ui/login.state.svelte.ts           sign-in: the mutation + the redirect
   ui/AuthLayout.svelte               the frame of the public pages: logo, card, a `below` snippet
   ui/Login/Login.page.svelte, ui/LoginForm/LoginForm.svelte
   ui/ForgotPassword/ForgotPassword.page.svelte
+    forgot-password.state.svelte.ts  the request of a reset link
   ui/ResetPassword/ResetPassword.page.svelte
-  ui/login.messages.ts               the sign-in strings (the `login.texts` point)
-  ui/password-reset.messages.ts      the strings of the two reset pages
+    reset-password.state.svelte.ts   the token of the link, the new password
+  messages/login.messages.ts               the sign-in strings (the `login.texts` point)
+  messages/password-reset.messages.ts      the strings of the two reset pages
 ```
 
 ## Extension points
 
-Full mechanism: `widgets_plan.md` at the repo root; the owner guide is its §6. Defined in
+Full mechanism: `sdks/core-sdk/AGENTS.md`, "Widgets". Defined in
 `presentation/login.points.ts`, listed in `LoginModule.points` (that names them `login.*`),
 exported from this barrel and from `@scylla/base-sdk`.
 
 | Point | Kind | Context / type | Notes |
 |---|---|---|---|
-| `login.footer` | zone | `LoginZoneContext` (`{ isPending }`) | Below the card, opened with `use:loginPoints.footer={{ isPending }}`. No default content: a zone that only ever receives `after` components. **No `permission`** — the user has none yet on this page; see the rule below. |
+| `login.footer` | zone | `LoginZoneContext` (`{ isPending }`) | Below the card, opened with `<WidgetZone point={loginPoints.footer} context={{ isPending }} />`. No default content: a zone that only ever receives `after` components. **No `permission`** — the user has none yet on this page; see the rule below. |
 | `login.texts` | text scope | `typeof loginMessages` | `title`, `description`, `identifier`, `identifierPlaceholder`, `password`, `passwordPlaceholder`, `submit`, `forgotPassword`. The page renders them with `t(loginMessages.x)`, as usual: `t` applies the overrides. Render the descriptor of `loginMessages` itself: a copy (`{ ...loginMessages.title }`) is a different object, and an override would not reach it. |
 | `login.fields` | value | `readonly FormItem<'identifier' \| 'password'>[]` | The `ScyllaForm` fields of `LoginForm.svelte`. Keep the ids: `submit` reads `values.identifier` and `values.password`. |
 
@@ -146,7 +144,7 @@ sign-in, the login page goes to `returnTo` with `replace`, else to `/`.
   `history.replaceState` and starts again from an empty form. The token never reaches the
   server in a request line, and it does not stay in the address bar or the history.
 - FAILED_PRECONDITION of `ResetPassword` (unknown, used or expired link, inactive account) is a
-  state of the page, not an error: `refusalOf` (`@shared/utils/scylla-result.ts`) gives it back as
+  state of the page, not an error: `refusalOf` (`@shared/utils/scylla-error.ts`) gives it back as
   data, so the global handler does not toast it too. A link with no token shows the same state.
 - The new password is checked in the app first (`@shared/utils/account-validation.ts`): 8 to 255
   characters, and a confirmation equal to it.
@@ -154,7 +152,7 @@ sign-in, the login page goes to `returnTo` with `replace`, else to `/`.
 ## Rules that bite here
 
 - **Session storage is `localStorage`, keys `token` and `userId`, written only by
-  `infrastructure/session/session.ts`.** Three places must agree: `openSession` writes them,
+  `infrastructure/session.ts`.** Three places must agree: `openSession` writes them,
   `platform/grpc`'s transport reads `token` for the `Authorization: Bearer` header, and
   `shell/.../Auth.guard.svelte` reads it (through `hasSession`) to decide whether to redirect. Changing the key or the
   mechanism means changing all three in the same commit. **A sign-up flow (in another extension)
@@ -172,7 +170,7 @@ sign-in, the login page goes to `returnTo` with `replace`, else to `/`.
   redirect is the shell's job, not this module's.
 - Never log, toast or store a password. Errors surface as a generic failure: do not leak
   whether the account exists.
-- **The data source re-codes `UNAUTHENTICATED` to `INVALID_CREDENTIALS`** (via `mapError`). On
+- **The repository re-codes `UNAUTHENTICATED` to `INVALID_CREDENTIALS`** (it catches the error and throws a new `ScyllaError`). On
   every other call that code means "session expired", and the shell's `reportQueryError`
   handler reacts to it by clearing the session and hard-loading `/login`. From the login page
   that is a silent reload that eats the error. Remove the translation and a wrong password

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { listenToLocation } from '../../runtime/location.svelte.ts';
-  import { currentMatch, routeFallback, routeShell } from '../../runtime/route-state.svelte.ts';
+  import { listenToLocation } from '../../runtime/location.state.svelte.ts';
+  import { currentMatch, routeFallback, routeShell } from '../../runtime/route.state.svelte.ts';
   import RoutePage from './RoutePage.svelte';
 
   $effect(() => listenToLocation());

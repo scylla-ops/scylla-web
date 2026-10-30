@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack, type Component } from 'svelte';
   import { Redirect, type RouteParams } from '@scylla/core-sdk';
-  import { currentMatch, routeGuard } from '../../runtime/route-state.svelte.ts';
+  import { currentMatch, routeGuard } from '../../runtime/route.state.svelte.ts';
 
   const { route, params } = untrack(() => {
     const match = currentMatch();

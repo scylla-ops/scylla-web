@@ -1,27 +1,24 @@
-import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {
   AppEntity,
   AppSecretEntity,
-} from '@base/features/apps/domain/entities/app.entity.ts';
-import type {
   AppAccess,
   CreatedApp,
   CreatedAppSecret,
-} from '@base/features/apps/domain/structs/app.struct.ts';
+} from '@base/features/apps/domain/entities/app.entity.ts';
 
 export interface AppsRepository {
-  listApps(organizationId: string): Promise<ScyllaResult<AppEntity[]>>;
-  getApp(appId: string): Promise<ScyllaResult<AppEntity>>;
+  listApps(organizationId: string): Promise<AppEntity[]>;
+  getApp(appId: string): Promise<AppEntity>;
   /** CE names the first secret with the app name. */
-  createApp(organizationId: string, name: string): Promise<ScyllaResult<CreatedApp>>;
-  deleteApp(appId: string): Promise<ScyllaResult<void>>;
-  setAppActive(appId: string, active: boolean): Promise<ScyllaResult<AppEntity>>;
+  createApp(organizationId: string, name: string): Promise<CreatedApp>;
+  deleteApp(appId: string): Promise<void>;
+  setAppActive(appId: string, active: boolean): Promise<AppEntity>;
 
-  listAppSecrets(appId: string): Promise<ScyllaResult<AppSecretEntity[]>>;
-  createAppSecret(appId: string, label: string): Promise<ScyllaResult<CreatedAppSecret>>;
-  revokeAppSecret(secretId: string): Promise<ScyllaResult<void>>;
-  setAppSecretEnabled(secretId: string, enabled: boolean): Promise<ScyllaResult<AppSecretEntity>>;
-  setAppSecretLabel(secretId: string, label: string): Promise<ScyllaResult<AppSecretEntity>>;
+  listAppSecrets(appId: string): Promise<AppSecretEntity[]>;
+  createAppSecret(appId: string, label: string): Promise<CreatedAppSecret>;
+  revokeAppSecret(secretId: string): Promise<void>;
+  setAppSecretEnabled(secretId: string, enabled: boolean): Promise<AppSecretEntity>;
+  setAppSecretLabel(secretId: string, label: string): Promise<AppSecretEntity>;
 
-  listAppAccess(appId: string): Promise<ScyllaResult<AppAccess[]>>;
+  listAppAccess(appId: string): Promise<AppAccess[]>;
 }

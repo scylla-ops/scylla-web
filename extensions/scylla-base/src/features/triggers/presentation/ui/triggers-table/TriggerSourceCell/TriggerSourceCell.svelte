@@ -2,11 +2,8 @@
   import { CopyableText } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-  import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
-  import {
-    convertCronToLocal,
-  } from '@base/features/triggers/presentation/utils/trigger-form.utils.ts';
-  import { triggersMessages } from '@base/features/triggers/presentation/ui/triggers.messages.ts';
+  import { convertCronToLocal } from '@base/features/triggers/presentation/mappers/cron-timezone.mapper.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     trigger: TriggerEntity;
@@ -15,13 +12,13 @@
   let { trigger }: Props = $props();
 </script>
 
-{#if trigger.source.kind === TriggerKind.Cron}
+{#if trigger.source.kind === 'cron'}
   <div class="flex items-center justify-center gap-2">
     <code class="font-mono text-xs text-muted-foreground">
       {convertCronToLocal(trigger.source.expression) || '—'}
     </code>
   </div>
-{:else if trigger.source.kind === TriggerKind.Webhook}
+{:else if trigger.source.kind === 'webhook'}
   <CopyableText
     value={trigger.source.webhookUrl}
     showFullOnHover

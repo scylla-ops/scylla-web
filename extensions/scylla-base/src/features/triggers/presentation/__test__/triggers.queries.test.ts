@@ -3,15 +3,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { QueryClient } from '@tanstack/query-core';
 import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { runMutationFn, runQueryFn } from '@test/queries.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  TriggersRepository,
-} from '@base/features/triggers/domain/repository/triggers.repository.ts';
+import type { TriggersRepository } from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import type {
   TriggerDraft,
   TriggerEntity,
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
 import { TRIGGERS_QUERY_KEY, triggerMutations, triggerQueries } from '../triggers.queries.ts';
 
 const PIPELINE_ID = 'pipeline-1';
@@ -20,7 +16,7 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   id: 'trigger-1',
   pipelineId: PIPELINE_ID,
   name: 'github-push',
-  source: { kind: TriggerKind.Webhook, signatureHeader: '', webhookUrl: 'https://x/webhooks/1' },
+  source: { kind: 'webhook', signatureHeader: '', webhookUrl: 'https://x/webhooks/1' },
   inputs: [],
   enabled: true,
   createdAt: '2026-01-01T00:00:00.000Z',
@@ -29,11 +25,11 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
 });
 
 const cronTrigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity =>
-  trigger({ source: { kind: TriggerKind.Cron, expression: '0 * * * *' }, ...overrides });
+  trigger({ source: { kind: 'cron', expression: '0 * * * *' }, ...overrides });
 
 const draft: TriggerDraft = {
   name: 'github-push',
-  source: { kind: TriggerKind.Webhook, signatureHeader: '' },
+  source: { kind: 'webhook', signatureHeader: '' },
   inputs: [],
 };
 
@@ -52,17 +48,17 @@ let queryClient: QueryClient;
 
 beforeEach(() => {
   repository = {
-    listByPipelineId: vi.fn().mockResolvedValue(ScyllaResult.success([trigger()])),
-    getById: vi.fn().mockResolvedValue(ScyllaResult.success(trigger())),
-    create: vi.fn().mockResolvedValue(ScyllaResult.success({ trigger: trigger() })),
-    update: vi.fn().mockResolvedValue(ScyllaResult.success(trigger())),
-    deleteById: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
+    listByPipelineId: vi.fn().mockResolvedValue([trigger()]),
+    getById: vi.fn().mockResolvedValue(trigger()),
+    create: vi.fn().mockResolvedValue({ trigger: trigger() }),
+    update: vi.fn().mockResolvedValue(trigger()),
+    deleteById: vi.fn().mockResolvedValue(undefined),
     setEnabled: vi
       .fn()
       .mockImplementation((id: string, enabled: boolean) =>
-        Promise.resolve(ScyllaResult.success(trigger({ id, enabled }))),
+        Promise.resolve(trigger({ id, enabled })),
       ),
-    fireNow: vi.fn().mockResolvedValue(ScyllaResult.success('job-1')),
+    fireNow: vi.fn().mockResolvedValue('job-1'),
   };
 
   setDependencyRegistry({ triggers: { triggersRepository: repository } });
@@ -121,7 +117,7 @@ describe('triggerMutations', () => {
   it('creates a trigger on the pipeline and answers the one-time secret', async () => {
     repository.create = vi
       .fn()
-      .mockResolvedValue(ScyllaResult.success({ trigger: trigger(), webhookSecret: 'whsec-once' }));
+      .mockResolvedValue({ trigger: trigger(), webhookSecret: 'whsec-once' });
 
     const options = triggerMutations.create(PIPELINE_ID);
     const created = await runMutationFn(options, draft);

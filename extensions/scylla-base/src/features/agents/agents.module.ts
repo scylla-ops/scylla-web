@@ -2,12 +2,17 @@ import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
 import HardDriveIcon from '@lucide/svelte/icons/hard-drive';
 import { Permission } from '@platform/authz';
-import { AgentsRemoteDataSourceImpl } from '@base/features/agents/infrastructure/data/agents-remote.data-source.ts';
 import { grpcTransport } from '@platform/grpc';
-import { DefaultAgentsRepository } from '@base/features/agents/infrastructure/repository/default-agents.repository.ts';
+import { AgentAdminServiceClient } from '@base/generated/scylla/agent/v1/agent_admin.client.ts';
+import { JobServiceClient } from '@base/generated/scylla/job/v1/job.client.ts';
+import { PipelineServiceClient } from '@base/generated/scylla/pipeline/v1/pipeline.client.ts';
+import { DefaultAgentsRepository } from './infrastructure/default-agents.repository.ts';
 
-const dataSource = new AgentsRemoteDataSourceImpl(grpcTransport);
-const repository = new DefaultAgentsRepository(dataSource);
+const repository = new DefaultAgentsRepository(
+  new AgentAdminServiceClient(grpcTransport.getTransport()),
+  new JobServiceClient(grpcTransport.getTransport()),
+  new PipelineServiceClient(grpcTransport.getTransport()),
+);
 
 export const AgentsModule = {
   id: 'agents',

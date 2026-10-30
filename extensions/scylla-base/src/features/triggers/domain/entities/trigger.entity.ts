@@ -1,8 +1,47 @@
-import type {
-  TriggerInput,
-  TriggerSource,
-  TriggerSourceDraft,
-} from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
+import type { CronExpression } from '../structs/cron-expression.struct.ts';
+
+export interface CronSource {
+  kind: 'cron';
+  expression: CronExpression;
+}
+
+export interface WebhookSource {
+  kind: 'webhook';
+  /** Empty: the default Scylla header. */
+  signatureHeader: string;
+  /** Derived by the server. Read-only. */
+  webhookUrl: string;
+}
+
+/** A source arm this build does not know: rendered as it is, never edited, it cannot round-trip. */
+export interface UnknownSource {
+  kind: 'unknown';
+}
+
+export type TriggerSource = CronSource | WebhookSource | UnknownSource;
+
+export type TriggerKind = TriggerSource['kind'];
+
+/** A constant, or a value extracted from the webhook payload. */
+export type TriggerInputValue =
+  | { kind: 'literal'; value: string }
+  | { kind: 'jsonPointer'; value: string };
+
+/**
+ * A value that the trigger gives to the run of its pipeline. "Input" is the word of the product
+ * and of the protos: this is not the input of a repository call.
+ */
+export interface TriggerInput {
+  key: string;
+  value: TriggerInputValue;
+}
+
+/** Without the read-only `webhookUrl`. */
+export type TriggerSourceDraft =
+  | { kind: 'cron'; expression: CronExpression }
+  | { kind: 'webhook'; signatureHeader: string };
+
+export type TriggerDraftKind = TriggerSourceDraft['kind'];
 
 /** `unknown`: an outcome arm newer than this build. */
 export type TriggerFireResult =

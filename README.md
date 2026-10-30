@@ -83,7 +83,7 @@ packages/ui                the design system — imports no other package
 | [apps/web](apps/web/README.md) | The build: `startCore` with the extensions of this build, the app-level conformance tests |
 | [@scylla/core](packages/core/README.md) | Extension loader, route compilation and router (no router library), the shell frame |
 | [@scylla/core-sdk](sdks/core-sdk/README.md) | `@Extension`, `ScyllaModule`, the navigation, DI and query API the core installs |
-| [@scylla/ui](packages/ui/README.md) | primitives (adapted from shadcn/ui), generic composites, rune helpers, stores, i18n runtime, theme |
+| [@scylla/ui](packages/ui/README.md) | primitives (adapted from shadcn/ui), generic composites, rune states, stores, i18n runtime, theme |
 | [@scylla/base-sdk](sdks/scylla-base-sdk/README.md) | What other extensions may use of scylla-base |
 | [scylla-base](extensions/scylla-base/README.md) | The Scylla product — the modules below |
 
@@ -109,7 +109,7 @@ packages/ui                the design system — imports no other package
 | [organization](extensions/scylla-base/src/features/organization/README.md) | The top-level tenant and the switcher in the shell |
 | [pipeline](extensions/scylla-base/src/features/pipeline/README.md) | Pipeline definitions, the visual + script editor, and running them |
 | [project](extensions/scylla-base/src/features/project/README.md) | The unit that owns pipelines, secrets and members |
-| [roles](extensions/scylla-base/src/features/roles/README.md) | Role catalog, grants, and the permission vocabulary |
+| [roles](extensions/scylla-base/src/features/roles/README.md) | Role catalog and grants |
 | [secret](extensions/scylla-base/src/features/secret/README.md) | Project-scoped secrets injected into runs |
 | [triggers](extensions/scylla-base/src/features/triggers/README.md) | What starts a pipeline without a human: schedules and webhooks |
 | [user](extensions/scylla-base/src/features/user/README.md) | User accounts: the directory, the page of a user and the own account |
@@ -126,4 +126,4 @@ packages/ui                the design system — imports no other package
 
 | Module | What it owns |
 |--------|--------------|
-| [shared](extensions/scylla-base/src/shared/README.md) | `ScyllaResult`, status presentation, the shared code with a business meaning |
+| [shared](extensions/scylla-base/src/shared/README.md) | `ScyllaError`, status presentation, the shared code with a business meaning |

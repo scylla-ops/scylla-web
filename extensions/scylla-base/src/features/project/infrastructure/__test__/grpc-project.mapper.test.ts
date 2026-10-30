@@ -1,0 +1,59 @@
+// @vitest-environment node
+import { describe, it, expect } from 'vitest';
+import * as grpcProject from '../grpc-project.mapper.ts';
+import type { Project } from '@base/generated/scylla/project/v1/project.ts';
+
+describe('grpcProject.toDomain', () => {
+  it('unwraps the id and carries name/description through', () => {
+    const project: Project = {
+      projectId: { value: 'project-1' },
+      organizationId: { value: 'org-1' },
+      name: 'web',
+      description: 'the web app',
+      isActive: true,
+    };
+    expect(grpcProject.toDomain(project)).toEqual({
+      id: 'project-1',
+      name: 'web',
+      description: 'the web app',
+    });
+  });
+
+  it('defaults to an empty id when the wrapper is absent', () => {
+    const project: Project = {
+      projectId: undefined,
+      organizationId: { value: 'org-1' },
+      name: 'web',
+      description: '',
+      isActive: true,
+    };
+    expect(grpcProject.toDomain(project).id).toBe('');
+  });
+});
+
+describe('grpcProject.toDomainList', () => {
+  it('maps every project and carries the pagination metadata through', () => {
+    const pagination = {
+      totalCount: 1,
+      page: 1,
+      pageSize: 10,
+      totalPages: 1,
+      hasNext: false,
+      hasPrevious: false,
+    };
+    const result = grpcProject.toDomainList({
+      projects: [
+        {
+          projectId: { value: 'project-1' },
+          organizationId: { value: 'org-1' },
+          name: 'web',
+          description: '',
+          isActive: true,
+        },
+      ],
+      pagination,
+    });
+    expect(result.items).toEqual([{ id: 'project-1', name: 'web', description: '' }]);
+    expect(result.pagination).toBe(pagination);
+  });
+});

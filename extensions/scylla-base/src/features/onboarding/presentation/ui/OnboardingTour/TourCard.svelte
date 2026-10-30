@@ -7,9 +7,9 @@
   import { cn } from '@scylla/ui/utils';
   import {
     onboardingMessages,
-  } from '@base/features/onboarding/presentation/onboarding.messages.ts';
-  import type { TourLink } from '@base/features/onboarding/presentation/tour-steps.ts';
-  import { holdPointer } from '@base/features/onboarding/presentation/tour-tracking.actions.ts';
+  } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
+  import type { TourLink } from './tour-steps.registry.ts';
+  import { holdPointer } from './tour-tracking.attachments.svelte.ts';
 
   interface Props {
     title?: string;
@@ -56,7 +56,7 @@
 {/snippet}
 
 <div
-  use:holdPointer
+  {@attach holdPointer}
   bind:offsetWidth={width}
   bind:offsetHeight={height}
   in:fly={{ y: 8, duration: motionDuration(250) }}

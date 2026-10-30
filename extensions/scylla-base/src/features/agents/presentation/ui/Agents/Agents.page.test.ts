@@ -3,18 +3,14 @@ import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import {
-  findFloating,
-  focusSettled,
-  render,
-  withQueryClient,
-  withRegistry,
-} from '@test/render.svelte.ts';
+import { findFloating, focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { AppAccess } from '@base/features/apps';
-import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-import type { AgentStats } from '@base/features/agents/domain/structs/agent.struct.ts';
+import type {
+  AgentEntity,
+  AgentStats,
+} from '@base/features/agents/domain/entities/agent.entity.ts';
 import AgentsPage from './Agents.page.svelte';
 
 const NOW = '2026-10-11T08:00:00.000Z';
@@ -96,9 +92,9 @@ const ACCESS: Record<string, AppAccess[]> = {
 let listAgents: ReturnType<typeof vi.fn>;
 let createAgent: ReturnType<typeof vi.fn>;
 let deleteAgent: ReturnType<typeof vi.fn>;
-let getAgentStats: Mock<(id: string) => Promise<ScyllaResult<AgentStats>>>;
+let getAgentStats: Mock<(id: string) => Promise<AgentStats>>;
 let setAppActive: ReturnType<typeof vi.fn>;
-let listAppAccess: Mock<(id: string) => Promise<ScyllaResult<AppAccess[]>>>;
+let listAppAccess: Mock<(id: string) => Promise<AppAccess[]>>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 let nav: ReturnType<typeof installTestNavigator>;
@@ -137,22 +133,14 @@ beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date(NOW));
 
-  listAgents = vi.fn().mockResolvedValue(ScyllaResult.success(AGENTS));
-  createAgent = vi
-    .fn()
-    .mockResolvedValue(
-      ScyllaResult.success({ agent: agent({ id: 'agent-new' }), secret: 'sk-once' }),
-    );
-  deleteAgent = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
+  listAgents = vi.fn().mockResolvedValue(AGENTS);
+  createAgent = vi.fn().mockResolvedValue({ agent: agent({ id: 'agent-new' }), secret: 'sk-once' });
+  deleteAgent = vi.fn().mockResolvedValue(undefined);
   getAgentStats = vi.fn((id: string) =>
-    Promise.resolve(
-      ScyllaResult.success(
-        id === 'a-idle' ? stats(41, 1) : id === 'a-run' ? stats(7, 1) : stats(0, 0),
-      ),
-    ),
+    Promise.resolve(id === 'a-idle' ? stats(41, 1) : id === 'a-run' ? stats(7, 1) : stats(0, 0)),
   );
-  setAppActive = vi.fn().mockResolvedValue(ScyllaResult.success({}));
-  listAppAccess = vi.fn((id: string) => Promise.resolve(ScyllaResult.success(ACCESS[id] ?? [])));
+  setAppActive = vi.fn().mockResolvedValue({});
+  listAppAccess = vi.fn((id: string) => Promise.resolve(ACCESS[id] ?? []));
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -169,13 +157,13 @@ beforeEach(() => {
       appsRepository: {
         setAppActive,
         listAppAccess,
-        listAppSecrets: vi.fn().mockResolvedValue(ScyllaResult.success([])),
+        listAppSecrets: vi.fn().mockResolvedValue([]),
       },
       resetAppSecret: { execute: vi.fn() },
     },
     project: {
       projectRepository: {
-        getByOrganizationId: vi.fn().mockResolvedValue(ScyllaResult.success({ projects: [] })),
+        getByOrganizationId: vi.fn().mockResolvedValue({ items: [] }),
       },
     },
   });
@@ -240,7 +228,7 @@ describe('AgentsPage', () => {
 
   it('waits for the stats of every agent rather than show a partial sum', async () => {
     getAgentStats.mockImplementation((id: string) =>
-      id === 'a-run' ? new Promise(() => {}) : Promise.resolve(ScyllaResult.success(stats(41, 1))),
+      id === 'a-run' ? new Promise(() => {}) : Promise.resolve(stats(41, 1)),
     );
     render(AgentsPage);
     await screen.findByRole('button', { name: 'prelude-deployer' });
@@ -252,11 +240,9 @@ describe('AgentsPage', () => {
 
   it('counts the stats it has, and says how many agents it could not count', async () => {
     getAgentStats.mockImplementation((id: string) =>
-      Promise.resolve(
-        id === 'a-run'
-          ? ScyllaResult.error(new ScyllaError('boom', { cause: { code: 'INTERNAL' } }))
-          : ScyllaResult.success(id === 'a-idle' ? stats(41, 1) : stats(0, 0)),
-      ),
+      id === 'a-run'
+        ? Promise.reject(new ScyllaError('boom', { code: 'INTERNAL' }))
+        : Promise.resolve(id === 'a-idle' ? stats(41, 1) : stats(0, 0)),
     );
     render(AgentsPage);
     await screen.findByRole('button', { name: 'prelude-deployer' });
@@ -266,13 +252,13 @@ describe('AgentsPage', () => {
   });
 
   it('says every agent waits only when one is online, and that none is online otherwise', async () => {
-    listAgents.mockResolvedValue(ScyllaResult.success([AGENTS[0]]));
+    listAgents.mockResolvedValue([AGENTS[0]]);
     const { unmount } = render(AgentsPage);
     expect(await screen.findByText('Every agent waits')).toBeInTheDocument();
     unmount();
     cache.queryClient.clear();
 
-    listAgents.mockResolvedValue(ScyllaResult.success([AGENTS[2], AGENTS[3]]));
+    listAgents.mockResolvedValue([AGENTS[2], AGENTS[3]]);
     render(AgentsPage);
     expect(await screen.findByText('No agent online')).toBeInTheDocument();
     expect(screen.queryByText('Every agent waits')).not.toBeInTheDocument();
@@ -308,13 +294,11 @@ describe('AgentsPage', () => {
     });
     listAppAccess.mockImplementation((id: string) =>
       Promise.resolve(
-        ScyllaResult.success(
-          id === 'a-run'
-            ? [globex('organization'), grantOn('project', 'vitrine')]
-            : id === 'a-off'
-              ? [globex('organization')]
-              : (ACCESS[id] ?? []),
-        ),
+        id === 'a-run'
+          ? [globex('organization'), grantOn('project', 'vitrine')]
+          : id === 'a-off'
+            ? [globex('organization')]
+            : (ACCESS[id] ?? []),
       ),
     );
     render(AgentsPage);
@@ -444,17 +428,12 @@ describe('AgentsPage', () => {
     render(AgentsPage);
     await screen.findByRole('button', { name: 'prelude-deployer' });
     await vi.waitFor(() => expect(getAgentStats).toHaveBeenCalledWith('a-idle'));
-    const notFound = <T>() =>
-      ScyllaResult.error<T>(
-        new ScyllaError("App 'a-idle' not found", { cause: { code: 'NOT_FOUND' } }),
-      );
+    const notFound = () => new ScyllaError("App 'a-idle' not found", { code: 'NOT_FOUND' });
     getAgentStats.mockImplementation(id =>
-      Promise.resolve(id === 'a-idle' ? notFound<AgentStats>() : ScyllaResult.success(stats(0, 0))),
+      id === 'a-idle' ? Promise.reject(notFound()) : Promise.resolve(stats(0, 0)),
     );
     listAppAccess.mockImplementation(id =>
-      Promise.resolve(
-        id === 'a-idle' ? notFound<AppAccess[]>() : ScyllaResult.success(ACCESS[id] ?? []),
-      ),
+      id === 'a-idle' ? Promise.reject(notFound()) : Promise.resolve(ACCESS[id] ?? []),
     );
     listAgents.mockReturnValue(new Promise(() => {}));
     const callsFor = (spy: Mock<(id: string) => unknown>) =>
@@ -478,7 +457,7 @@ describe('AgentsPage', () => {
   });
 
   it('explains the empty state and offers to create the first agent', async () => {
-    listAgents.mockResolvedValue(ScyllaResult.success([]));
+    listAgents.mockResolvedValue([]);
     render(AgentsPage);
 
     expect(await screen.findByText('No agent yet')).toBeInTheDocument();
@@ -486,7 +465,7 @@ describe('AgentsPage', () => {
   });
 
   it('does not offer to create without CREATE_AGENT', async () => {
-    listAgents.mockResolvedValue(ScyllaResult.success([]));
+    listAgents.mockResolvedValue([]);
     grant([Permission.LIST_AGENTS]);
     render(AgentsPage);
 
@@ -497,9 +476,7 @@ describe('AgentsPage', () => {
   });
 
   it('reports a failed load rather than an empty list', async () => {
-    listAgents.mockResolvedValue(
-      ScyllaResult.error(new ScyllaError('boom', { cause: { code: 'INTERNAL' } })),
-    );
+    listAgents.mockRejectedValue(new ScyllaError('boom', { code: 'INTERNAL' }));
     render(AgentsPage);
 
     expect(await screen.findByText('Error loading agents')).toBeInTheDocument();
@@ -508,7 +485,13 @@ describe('AgentsPage', () => {
   it('creates an agent from the new agent dialog, and shows its secret in step 2', async () => {
     vi.mocked(window.matchMedia).mockImplementation(
       (query: string) =>
-        ({ matches: query.includes('prefers-reduced-motion'), media: query }) as MediaQueryList,
+        ({
+          matches: query.includes('prefers-reduced-motion'),
+          media: query,
+          // The page header follows a media query.
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+        }) as unknown as MediaQueryList,
     );
     render(AgentsPage);
     await screen.findByRole('button', { name: 'prelude-deployer' });

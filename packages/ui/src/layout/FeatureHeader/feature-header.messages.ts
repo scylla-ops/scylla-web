@@ -11,4 +11,6 @@ export const featureHeaderMessages = {
   /** `selectedCount`, not `count`: the placeholder name is part of the msgid (see the `.fr` test). */
   itemsDeleted: (selectedCount: number) =>
     msg`${plural(selectedCount, { one: '# item deleted', other: '# items deleted' })}`,
+  selected: (selectedCount: number) =>
+    msg`${plural(selectedCount, { one: '# selected', other: '# selected' })}`,
 };

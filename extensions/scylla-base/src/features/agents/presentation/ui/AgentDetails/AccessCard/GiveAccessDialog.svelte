@@ -15,11 +15,11 @@
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { AgentAccess } from '@base/features/agents/presentation/agent-access.state.svelte.ts';
-  import type { AgentReach } from '@base/features/agents/presentation/create-agent.state.svelte.ts';
+  import type { AgentAccess } from './agent-access.state.svelte.ts';
+  import type { AgentReach } from '@base/features/agents/presentation/ui/components/CreateAgentDialog/create-agent.state.svelte.ts';
   import DialogFooterBand from '../../components/DialogFooterBand.svelte';
   import ProjectPicker from './ProjectPicker.svelte';
-  import { accessCardMessages as messages } from './access-card.messages.ts';
+  import { accessCardMessages as messages } from '@base/features/agents/presentation/messages/access-card.messages.ts';
 
   interface Props {
     manager: AgentAccess;

@@ -39,14 +39,14 @@ Never add: `secret.module.ts`, pages.
 | `listPipelinesUsing(projectId, secretName)` | `SecretUsage` — the first page of the pipelines that use the secret, and the total |
 | `deleteById(secretId)` | `void` |
 
-`CreateSecretInput` and `UpdateSecretInput` live beside the interface, in domain. The repository
+`CreateSecretInput` and `UpdateSecretInput` live in `domain/entities/secret.entity.ts`. The repository
 is reached from `presentation/secret.queries.ts` and nowhere else — never from a component.
 
 No method returns a stored value. That is a backend constraint — do not add hooks pretending
 otherwise.
 
 `listPipelinesUsing` calls `PipelineService.ListProjectPipelines` with `secret_ref` from this
-module's data source. It does not go through the `pipeline` barrel: `pipeline` imports this
+module's repository. It does not go through the `pipeline` barrel: `pipeline` imports this
 module (the secret picker), so the reverse import is a module cycle.
 
 ## Layout
@@ -59,20 +59,19 @@ domain/
   structs/secret-usage.struct.ts     SecretUsage
   repository/secret.repository.ts
 infrastructure/
-  data/grpc-credential-remote.data-source.ts             impl (⚠ "credential", not "secret")
-  repository/data-sources/secret-remote.data-source.ts   interface
-  repository/mappers/grpc-secret.mapper.ts
-  repository/default-secret.repository.ts
+  default-secret.repository.ts       SecretServiceClient → SecretEntity
+  grpc-secret.mapper.ts
 presentation/
   secret.queries.ts                  the reads and the writes, as options objects
   ui/Secret.page.svelte, CreateSecretDialog.svelte
   ui/EditSecretDialog/               EditSecretDialog (the form), ReplaceSecretValueDialog
                                      (the warning before a new value)
-  ui/secret.messages.ts              every string the screen shows
-  ui/components/                     SecretHeader, SecretList (+ secret-columns.ts),
+  messages/secret.messages.ts              every string the screen shows
+  messages/edit-secret.messages.ts         the strings of the edit dialogs
+  ui/components/                     SecretHeader, SecretList (+ secret-list.columns.ts),
                                      SecretHealthOverview, SecretPagination
   ui/components/index.ts             local barrel — internal, not the module's public API
-  utils/createSecretItems.ts         ⚠ camelCase filename
+  presenters/secret-form.presenter.ts   the items of the form
 ```
 
 ## Routes & nav
@@ -97,10 +96,7 @@ presentation/
   check the mapper before displaying it.
 - The plaintext exists only in the create and the edit forms, on its way out. Do not put it in a
   store, a query cache, a toast, a log or an error message.
-- The data source file is named `grpc-credential-remote.data-source.ts` because the proto
-  service is `Credential`. Domain-side the concept is **Secret** everywhere. Keep the proto name
-  inside infrastructure; never let "credential" leak into domain or presentation.
-- `createSecretItems.ts` is camelCase, predating the kebab-case convention. Do not rename
+- `presenters/secret-form.presenter.ts` is camelCase, predating the kebab-case convention. Do not rename
   opportunistically — that moves Lingui message ownership and needs
   `node scripts/restore-translations.mjs`. New files use kebab-case.
 - Deletion is destructive and will break running pipelines that depend on the secret. Confirm
@@ -109,7 +105,7 @@ presentation/
   renders the header and the list only. They were ported as they stood; the figures in the
   first are placeholders, and the second lost the bold on its three numbers, because `<Trans>`
   could wrap them in elements and a `t()` string cannot.
-- A column's `cell` is a Svelte snippet, so it lives in `SecretList.svelte`; `secret-columns.ts`
+- A column's `cell` is a Svelte snippet, so it lives in `SecretList.svelte`; `secret-list.columns.ts`
   keeps the part that is data — `accessorKey`, `header`, `size`, `meta.align`.
 
 ## Before done

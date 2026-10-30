@@ -2,7 +2,7 @@
   import { i18n } from '@lingui/core';
   import { can, Permission, PermissionScope } from '@platform/authz';
   import { contextStore } from '@platform/context';
-  import { createQuery } from '@scylla/core-sdk';
+  import { createQuery, WidgetZone } from '@scylla/core-sdk';
   import { invalidateOrganizationMembers, organizationQueries } from '@base/features/organization';
   import { userQueries, type UserSummary } from '@base/features/user';
   import { userName } from '@shared/presentation/ui';
@@ -12,20 +12,20 @@
   import { t } from '@scylla/ui/i18n';
   import {
     buildOrganizationMembers,
-  } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
   import {
     createAssignableRoles,
-  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
   import {
     createScopeMembership,
-  } from '@base/features/membership/presentation/scope-membership.state.svelte.ts';
+  } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
   import {
     membershipPoints,
     type OrganizationMembersContext,
   } from '@base/features/membership/presentation/membership.points.ts';
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';
-  import { membershipMessages } from '../membership.messages.ts';
+  import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   /** The builtin that only means "belongs here". */
   const ORGANIZATION_MEMBER_ROLE_ID = 'organization-member';
@@ -72,9 +72,9 @@
   const userById = $derived.by(() => {
     // Rebuilt whole by the `$derived` and never mutated after it is read.
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const users = new Map<string, UserSummary>(members.map(member => [member.userId, member]));
+    const users = new Map<string, UserSummary>(members.map(member => [member.id, member]));
     for (const user of usersQuery.data?.items ?? []) {
-      if (users.has(user.userId)) users.set(user.userId, user);
+      if (users.has(user.id)) users.set(user.id, user);
     }
     return users;
   });
@@ -85,7 +85,7 @@
   const scopeMembers = $derived(buildOrganizationMembers(membership.grants, [...userById.keys()]));
 
   const candidates = $derived(
-    (usersQuery.data?.items ?? []).filter(user => !userById.has(user.userId)),
+    (usersQuery.data?.items ?? []).filter(user => !userById.has(user.id)),
   );
 
   const defaultRoleId = $derived(
@@ -117,7 +117,7 @@
 
 <!-- Writes need `MANAGE_ORG_GRANTS` on this organization. -->
 {#snippet actions()}
-  <div class="contents" use:membershipPoints.organizationActions={zoneContext}>
+  <WidgetZone point={membershipPoints.organizationActions} context={zoneContext}>
     {#if showAdd}
       <GatedButton
         allowed={canManage && canListUsers}
@@ -128,7 +128,7 @@
         {t(membershipMessages.addAMember)}
       </GatedButton>
     {/if}
-  </div>
+  </WidgetZone>
 {/snippet}
 
 {#snippet blurb()}
@@ -176,7 +176,7 @@
         (pendingRemoval = { userId: member.userId, name: userName(userFor(member.userId)) })}
     />
 
-    <div class="contents" use:membershipPoints.organizationSection={zoneContext}></div>
+    <WidgetZone point={membershipPoints.organizationSection} context={zoneContext} />
 
     <AddMemberDialog
       open={addOpen}

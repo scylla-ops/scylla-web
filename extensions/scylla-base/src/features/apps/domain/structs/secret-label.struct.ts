@@ -2,7 +2,7 @@
 export const SECRET_LABEL_MAX_BYTES = 64;
 
 /** `taken`: another secret of the app has the label. CE says `ALREADY_EXISTS`. */
-export type SecretLabelProblem = 'empty' | 'tooLong' | 'control' | 'taken';
+export type SecretLabelIssue = 'empty' | 'tooLong' | 'control' | 'taken';
 
 const CONTROL = /\p{Cc}/u;
 const CONTROLS = /\p{Cc}/gu;
@@ -30,10 +30,10 @@ export const normalizeSecretLabel = (raw: string, maxBytes = SECRET_LABEL_MAX_BY
   trimSecretLabel(cutToBytes(trimSecretLabel(raw.replace(CONTROLS, '')), maxBytes));
 
 /** `null` when CE accepts the label and no label of `taken` is the same. */
-export const secretLabelProblem = (
+export const secretLabelIssue = (
   label: string,
   taken: readonly string[] = [],
-): SecretLabelProblem | null => {
+): SecretLabelIssue | null => {
   const value = trimSecretLabel(label);
   if (value === '') return 'empty';
   if (CONTROL.test(value)) return 'control';

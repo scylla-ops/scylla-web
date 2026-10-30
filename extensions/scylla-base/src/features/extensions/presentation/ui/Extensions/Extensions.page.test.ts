@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  InstalledExtension,
-} from '@base/features/extensions/domain/structs/installed-extension.struct.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { InstalledExtensionEntity } from '@base/features/extensions/domain/entities/installed-extension.entity.ts';
 import ExtensionsPage from './Extensions.page.svelte';
 
-const extension = (overrides: Partial<InstalledExtension> = {}): InstalledExtension => ({
+const extension = (
+  overrides: Partial<InstalledExtensionEntity> = {},
+): InstalledExtensionEntity => ({
   id: 'scylla-base',
   name: 'Scylla',
   version: '0.5.0',
@@ -34,12 +34,10 @@ afterEach(() => {
 
 describe('ExtensionsPage', () => {
   it('shows one card per installed extension, with its version and counts', async () => {
-    getInstalledExtensions.mockResolvedValue(
-      ScyllaResult.success([
-        extension(),
-        extension({ id: 'acme-billing', name: 'Acme Billing', dependencies: ['scylla-base'] }),
-      ]),
-    );
+    getInstalledExtensions.mockResolvedValue([
+      extension(),
+      extension({ id: 'acme-billing', name: 'Acme Billing', dependencies: ['scylla-base'] }),
+    ]);
 
     render(ExtensionsPage);
 
@@ -50,9 +48,9 @@ describe('ExtensionsPage', () => {
   });
 
   it('names the dependencies of an extension, and says so when it has none', async () => {
-    getInstalledExtensions.mockResolvedValue(
-      ScyllaResult.success([extension({ id: 'cloud', dependencies: ['scylla-base'] })]),
-    );
+    getInstalledExtensions.mockResolvedValue([
+      extension({ id: 'cloud', dependencies: ['scylla-base'] }),
+    ]);
 
     render(ExtensionsPage);
 
@@ -62,7 +60,7 @@ describe('ExtensionsPage', () => {
   });
 
   it('shows the error state when the extensions cannot be read', async () => {
-    getInstalledExtensions.mockResolvedValue(ScyllaResult.error(new ScyllaError('boom')));
+    getInstalledExtensions.mockRejectedValue(new ScyllaError('boom'));
 
     render(ExtensionsPage);
 

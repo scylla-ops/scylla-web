@@ -9,8 +9,8 @@
     isOtherOrganization,
     orderGrants,
     projectLabel,
-  } from '@base/features/agents/presentation/access.calculator.ts';
-  import { agentsPageMessages as messages } from './agents-page.messages.ts';
+  } from '@base/features/agents/presentation/presenters/access.presenter.ts';
+  import { agentsPageMessages as messages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';
 
   interface Props {
     access: AppAccess[];

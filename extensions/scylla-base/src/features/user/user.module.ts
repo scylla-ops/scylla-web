@@ -2,12 +2,12 @@ import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
 import UsersIcon from '@lucide/svelte/icons/users';
 import { Permission } from '@platform/authz';
-import { UserRemoteDataSourceImpl } from '@base/features/user/infrastructure/data/remote/user-remote.data-source.impl.ts';
 import { grpcTransport } from '@platform/grpc';
-import { DefaultUserRepository } from '@base/features/user/infrastructure/repository/default-user.repository.ts';
+import { UserServiceClient } from '@base/generated/scylla/user/v1/user.client.ts';
+import { DefaultUserRepository } from './infrastructure/default-user.repository.ts';
+import { accountSection } from './presentation/ui/account/Account/account-sections.registry.ts';
 
-const dataSource = new UserRemoteDataSourceImpl(grpcTransport);
-const repository = new DefaultUserRepository(dataSource);
+const repository = new DefaultUserRepository(new UserServiceClient(grpcTransport.getTransport()));
 
 export const UserModule = {
   id: 'user',
@@ -38,14 +38,30 @@ export const UserModule = {
         // The account of the session, in the frame of the organization: its calls need no grant.
         path: 'account',
         breadcrumb: () => ({ label: msg`Account` }),
-        page: () => import('./presentation/ui/account/Account/Account.page.svelte'),
+        children: [
+          { redirect: 'profile' },
+          {
+            path: ':section',
+            breadcrumb: ({ section }) => ({
+              label: accountSection(section)?.title ?? msg`Account`,
+            }),
+            page: () => import('./presentation/ui/account/Account/Account.page.svelte'),
+          },
+        ],
       },
     ],
     // The same page with no organization: for a user who has none yet.
     personal: [
       {
         path: 'account',
-        page: () => import('./presentation/ui/account/PersonalAccount/PersonalAccount.page.svelte'),
+        children: [
+          { redirect: 'profile' },
+          {
+            path: ':section',
+            page: () =>
+              import('./presentation/ui/account/PersonalAccount/PersonalAccount.page.svelte'),
+          },
+        ],
       },
     ],
   },

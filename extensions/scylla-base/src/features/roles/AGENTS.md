@@ -1,6 +1,6 @@
 # `features/roles` — agent guide
 
-Access-control administration: the role catalog, grants, and the permission vocabulary.
+Access-control administration: the role catalog and the grants.
 
 **Layer** `features/` · **id** `roles` · **DI keys** `permissionRepository`, `updateRole` ·
 **Svelte** (Phase 4)
@@ -14,8 +14,9 @@ Access-control administration: the role catalog, grants, and the permission voca
 ## Public API — `index.ts`
 
 ```typescript
-type RoleEntity, RoleCreationData, GrantEntity
-roleConfers
+type RoleEntity, GrantableRole, CreateRoleInput, UpdateRoleInput
+type GrantEntity, CreateGrantInput, RevokeAllAccessInput
+RoleKind, roleConfers
 humanizeRoleId, scopeLabelOf
 roleQueries, roleMutations, grantMutations
 refreshMyPermissions, syncMyPermissions, resetPermissionSync
@@ -62,14 +63,16 @@ never from a feature, and never write the authz store from anywhere else.
 | Roles | `listRoles(organizationId?)`, `getRole`, `createRole`, `updateRole`, `deleteRole` |
 | Effective permissions | `getEffectivePermissions(...)`, `getMyPermissions()` |
 | Grants | `listGrants(scope?, scopeId?)`, `createGrant(CreateGrantInput)`, `revokeGrant(id)`, `revokeAllAccess(RevokeAllAccessInput)` |
-| Vocabulary | `listGrantableRoles(scope?, organizationId?)`, `listPermissionVocabulary()` |
+| Grantable roles | `listGrantableRoles(scope?, organizationId?)` |
 
-Input types (`CreateGrantInput`, `RevokeAllAccessInput`) live beside the interface, in domain.
+Input types live in the entity file of what they create or change: `CreateRoleInput` and
+`UpdateRoleInput` in `role.entity.ts`, `CreateGrantInput` and `RevokeAllAccessInput` in
+`grant.entity.ts`.
 
 A role with no owner is a **platform role** (the builtins and the custom roles of the system
-administrators). A role with an owner belongs to that **organization**: `RoleCreationData.organizationId`
-creates one, `RoleOrigin.custom.ownerOrganizationId` and `GrantableRoleEntity.ownerOrganizationId`
-name the owner. `RoleEntity.kind` and `RoleCreationData.kind` are a `RoleKind`: `AGENT` roles go to
+administrators). A role with an owner belongs to that **organization**: `CreateRoleInput.organizationId`
+creates one, `RoleOrigin.custom.ownerOrganizationId` and `GrantableRole.ownerOrganizationId`
+name the owner. `RoleEntity.kind` and `CreateRoleInput.kind` are a `RoleKind`: `AGENT` roles go to
 apps only, `ADMIN` is for the builtin owner roles and the mapper refuses to send it, and
 `UNSPECIFIED` is sent as `MEMBER`.
 
@@ -101,56 +104,67 @@ That is the bar. Anything that would just forward to a repository method is not 
 roles.module.ts                      route + nav + DI wiring (private; registry only)
 index.ts                             public API
 domain/
-  entities/role.entity.ts            RoleEntity, RoleCreationData, RoleOrigin,
-                                     roleConfers, roleOwnerOf, updateRole (pure)
-  entities/grant.entity.ts           GrantEntity
-  entities/grantable-role.entity.ts  GrantableRoleEntity
-  entities/permission-vocabulary.entity.ts  PermissionVocabularyEntity, PermissionActionEntity
-  repository/permission.repository.ts       + CreateGrantInput, RevokeAllAccessInput
+  entities/role.entity.ts            RoleEntity, RoleKind, RoleOrigin, GrantableRole (a projection
+                                     of a role, for a picker), CreateRoleInput, UpdateRoleInput,
+                                     roleConfers, roleOwnerOf, updateRole, lockedPermissionsOf (the
+                                     escalation rule: what an author may not tick) (pure)
+  entities/grant.entity.ts           GrantEntity, CreateGrantInput, RevokeAllAccessInput,
+                                     buildGrantEligibility: who may receive a project grant (pure)
+  structs/permission-catalog.struct.ts      the permissions of a role: dependencies, the
+                                     implicit ones, carriedBy, withImplicitPermissions (pure)
+  structs/role-name.struct.ts        roleNameIssue
+  repository/permission.repository.ts
   use-cases/update-role.use-case.ts
 infrastructure/
-  data/grpc-permission-remote.data-source.ts             impl
-  repository/data-sources/permission.data-source.ts      interface
-  repository/mappers/                grpc-role, grpc-grant, grpc-grantable-role,
-                                     grpc-permission, grpc-permission-vocabulary,
-                                     grpc-effective-permissions
-  repository/default-permission.repository.ts
+  default-permission.repository.ts   RoleServiceClient + GrantServiceClient
+  grpc-role, grpc-grant, grpc-grantable-role, grpc-permission,
+  grpc-effective-permissions   (*.mapper.ts)
 presentation/
   roles.queries.ts                   every read and write, as plain options objects
-  roles-page.state.svelte.ts         the master–detail ViewModel, and RolesScope
-  role-form.state.svelte.ts          creating/editing one role
-  grant-creator.state.svelte.ts      granting one role to one user
-  role-assignees.state.svelte.ts     who holds a role (from the page's grants), and the revoke
-  grant-target-labels.svelte.ts      scope id → human name (fans out for projects)
-  grant-eligibility.calculator.ts    pure: who may receive a project grant, and why not
-  role-authoring.calculator.ts       pure: the escalation rule, what an author may put in a role
-  role-list.calculator.ts            pure: roles split by owner and sorted by name, holders per role
+  messages/roles.messages.ts         every string the screens show
+  presenters/                        domain data → what a view shows (pure, tested)
+    permission-label.presenter.ts    the words of a permission and of a scope
+    permission-tree.presenter.ts     the catalog of a scope → the entries and the tree of the editor
+    checkbox-tree.presenter.ts       descendants, find, checked ids of a checkbox tree
+    role-list.presenter.ts           roles split by owner and sorted by name, holders per role
+    role-label.presenter.ts          humanizeRoleId
   ui/Roles/Roles.page.svelte         the roles of the current organization
   ui/PlatformRoles/PlatformRoles.page.svelte   the platform roles (System)
-  ui/roles.messages.ts               every string the screens show
   ui/components/RolesView.svelte     the body both pages render, on a RolesScope
+  ui/components/roles-page.state.svelte.ts   the master–detail ViewModel of RolesView, and RolesScope
   ui/components/RoleList.svelte, RoleListItem/RoleListItem.svelte, RoleDetailPanel.svelte
   ui/components/role-detail/         RoleDetailHeader, RoleDetailPermissions,
                                      RoleDetailGrantList, GrantCreator, TargetChecklist
-  ui/components/role-form/           RoleFormDialog, RoleForm, RoleHolderField,
-                                     RoleDialogPermissions, CheckboxTree/ (+ CheckboxTreeNode),
-                                     checkbox-tree.ts
-  utils/permission-mapping.ts, permission-tree.ts, role-label.ts
+    grant-creator.state.svelte.ts    granting one role to one user
+    role-assignees.state.svelte.ts   who holds a role (from the page's grants), and the revoke
+    grant-target-labels.state.svelte.ts    scope id → human name (fans out for projects)
+  ui/RoleEditor/RoleEditor.page.svelte                  creates or edits a role of the current organization
+  ui/PlatformRoleEditor/PlatformRoleEditor.page.svelte  creates or edits a platform role (System)
+  ui/components/role-form/           RoleForm, RoleFormSection, RoleHolderField, RoleAccessField,
+                                     RolePermissions/, CheckboxTree/ (+ CheckboxTreeNode)
+    RoleEditorView/                  the body both editor pages render, on a RolesScope
+      role-editor-view.state.svelte.ts   the role to edit (from the catalog), and the way back
+    role-form.state.svelte.ts        creating/editing one role
 ```
 
-There is no `presentation/hooks/`, no `use-roles-domain.ts` and no store of its own — the thirteen
-hooks became `roles.queries.ts` plus the four ViewModels above.
+No store of its own: the server state is in `roles.queries.ts`, the UI state in the states above.
 
 ## Routes & nav
 
 | Mount | Path | Permission | Component | Sidebar |
 |---|---|---|---|---|
 | `organization` | `roles` | `MANAGE_ORG_ROLES` | `Roles.page.svelte` | section `organization`, order `35`, `ShieldIcon` |
+| `organization` | `roles/new`, `roles/:roleId/edit` | `MANAGE_ORG_ROLES` | `RoleEditor.page.svelte` | — |
 | `organization` | `platform-roles` | `MANAGE_ROLES` | `PlatformRoles.page.svelte` | section `system`, order `20`, `ShieldCheckIcon` |
+| `organization` | `platform-roles/new`, `platform-roles/:roleId/edit` | `MANAGE_ROLES` | `PlatformRoleEditor.page.svelte` | — |
 
-Both pages render `RolesView` on a `RolesScope`: `{ kind: 'organization', organizationId,
-organizationName }` from the context, or `{ kind: 'platform' }`. Never fork a component per page:
-give it the scope.
+Both list pages render `RolesView` on a `RolesScope`: `{ kind: 'organization', organizationId,
+organizationName }` from the context, or `{ kind: 'platform' }`. Both editor pages render
+`RoleEditorView` on the same scope. Never fork a component per page: give it the scope.
+
+`rolesNavigation(scope)` (`roles-page.state.svelte.ts`) builds every URL between these pages.
+The editor goes back to the list with `?role=<id>` after an edit, and the list opens on that
+role.
 
 ## Rules that bite here
 
@@ -166,10 +180,15 @@ give it the scope.
 - **One grant mutation invalidates every grant list.** A grant created from the project view
   changes the organization's list too, and neither view knows the other exists — hence the shared
   `permission-grants` prefix rather than an exact key.
-- `roleConfers` and `updateRole` are **pure entity functions**. Role logic goes in
-  `role.entity.ts`, not in a component.
-- **The permission tree is data.** It is built from `permission-mapping.ts`'s catalog, shaped by
-  `permission-tree.ts`, and rendered by `CheckboxTree`. `checkbox-tree.ts` holds the pure rules —
+- `roleConfers`, `updateRole` and `lockedPermissionsOf` are **pure entity functions**. Role
+  logic goes in `role.entity.ts`, not in a component. The rule on a role name is
+  `roleNameIssue` (`role-name.struct.ts`): the form and `updateRole` both read it.
+- **The catalog takes its scopes from authz.** The scope of an entry is
+  `permissionLevel(id)`, and the scopes a role may confer are those `scopeCovers` its own.
+  The catalog only gives the order and the dependencies of the tree.
+- **The permission tree is data.** It is built from `domain/structs/permission-catalog.struct.ts`'s catalog, shaped by
+  `presenters/permission-tree.presenter.ts` (`getEditablePermissionDefinitionsForScope`: what the
+  editor offers, children of an implicit entry moved under its stand-in), and rendered by `CheckboxTree`. `presenters/checkbox-tree.presenter.ts` holds the pure rules —
   a child counts only when its whole parent chain is checked, unchecking a parent clears its
   descendants. Those rules are the permission model's, not a widget's, which is why the tree
   lives here rather than in `shared/`.
@@ -205,14 +224,23 @@ give it the scope.
   fallback name. An app shows by its id.
 - **The editor locks what the author does not hold.** The backend refuses a role with a
   permission its author does not hold at System or at the owner organization
-  (`ensure_no_escalation`). `role-authoring.calculator.ts` is that rule, and `lockedPermissions`
+  (`ensure_no_escalation`). `lockedPermissionsOf` in `role.entity.ts` is that rule, and `lockedPermissions`
   feeds the tree: a locked row is shown, disabled, with "Not held in <org>". A stand-in also
   needs what it carries (`carriedBy`). Full control is offered only to who holds it. A locked
   permission already in an edited role stays; it is never stripped.
+- **The role editor is a page, not a dialog.** The form has too many fields for a modal. The
+  edit page reads the role from the same catalog query as the list (`catalog` or
+  `organizationCatalog`), so it adds no repository call. A role that the page cannot edit
+  (builtin, a platform role seen from an organization, or an unknown id) shows an error, not
+  the form. `create` and `update` are the same mutations as before.
+- **The editor page uses the full width of the frame**, like the list pages. On a wide screen,
+  General and Holders stay in the left column and Access fills the right column. Only the
+  sections scroll; the Cancel and Create bar stays below them, out of the scroll area. Do not
+  make the bar `sticky`: it hides the end of the last section.
 - **Who holds a role is fixed at creation.** `RoleHolderField` sets `RoleKind.MEMBER` (people) or
   `AGENT` (apps); an edit shows it read only. A role of an organization is organization or
   project scoped, never System. The grant dialog grants to people, so it refuses an `AGENT` role.
-- **A project grant follows the backend's tenant boundary.** `grant-eligibility.calculator.ts`
+- **A project grant follows the backend's tenant boundary.** `domain/entities/grant.entity.ts`
   answers *why* a user cannot receive one (`not-admitted` / `cannot-see-projects`) as a value;
   which sentence explains it is the component's business.
 
@@ -220,5 +248,5 @@ give it the scope.
 
 `pnpm typecheck && pnpm test && pnpm lint && pnpm depcruise && pnpm depcruise:cycles &&
 pnpm i18n:collisions` — all clean.
-New strings: add them to `presentation/ui/roles.messages.ts` (never inside a `.svelte` —
+New strings: add them to `presentation/messages/roles.messages.ts` (never inside a `.svelte` —
 `lingui extract` does not read one), then `pnpm extract && pnpm compile`.

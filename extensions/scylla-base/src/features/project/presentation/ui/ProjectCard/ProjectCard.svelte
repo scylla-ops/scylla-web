@@ -19,7 +19,7 @@
   import { t } from '@scylla/ui/i18n';
   import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
   import EditProjectDialog from '../EditProjectDialog.svelte';
-  import { projectMessages } from '../project.messages.ts';
+  import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
 
   interface Props {
     project: ProjectEntity;

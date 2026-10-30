@@ -18,11 +18,11 @@
   import { userName } from '@shared/presentation/ui';
   import type {
     AssignableRole,
-  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
   import RoleChecklist from '../RoleChecklist/RoleChecklist.svelte';
   import {
     membershipMessages,
-  } from '@base/features/membership/presentation/ui/membership.messages.ts';
+  } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   interface Props {
     title: string;
@@ -97,8 +97,8 @@
         />
       </SelectTrigger>
       <SelectContent>
-        {#each candidates as candidate (candidate.userId)}
-          <SelectItem value={candidate.userId} label={userName(candidate)}>
+        {#each candidates as candidate (candidate.id)}
+          <SelectItem value={candidate.id} label={userName(candidate)}>
             {userName(candidate)}
           </SelectItem>
         {/each}

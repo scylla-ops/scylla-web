@@ -1,0 +1,33 @@
+name: Set up the frontend
+description: Install Node, pnpm and the dependencies. Optionally generate the proto clients and the locale catalogs.
+
+inputs:
+  generate:
+    description: Run gen-proto and compile after the install.
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: pnpm
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
+
+    # src/generated is gitignored, so nothing that imports it can run without this.
+    # @protobuf-ts/protoc downloads the protoc of `config.protocVersion` itself.
+    - name: Generate proto clients
+      if: inputs.generate == 'true'
+      shell: bash
+      run: pnpm run gen-proto
+
+    - name: Compile locale catalogs
+      if: inputs.generate == 'true'
+      shell: bash
+      run: pnpm run compile

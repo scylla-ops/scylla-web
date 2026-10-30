@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { fireEvent, screen, within } from '@testing-library/svelte';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
 import {
   runCommandOf,
   type RunMethod,
-} from '@base/features/agents/presentation/run-command.calculator.ts';
+} from '@base/features/agents/presentation/presenters/run-command.presenter.ts';
 import CreateAgentStart from './CreateAgentStart.svelte';
 
 const SECRET = '7f3a9c0e5b2d4f6a8c1e3b5d7f9a2c4e6b8d0f1a3c5e7b9d2f4a6c8e0b1d3f5a';

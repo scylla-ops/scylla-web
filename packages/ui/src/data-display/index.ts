@@ -4,10 +4,12 @@ export { default as TruncatedText } from './TruncatedText/TruncatedText.svelte';
 export {
   buildGridTemplate,
   minTableWidthOf,
+  type CardSlot,
   type ColumnAlign,
   type DataTableColumn,
   type DataTableFeatures,
 } from './DataTable/data-table.ts';
+export { getDataTableLayout, type DataTableLayout } from './DataTable/data-table-layout.ts';
 export { default as Pagination } from './Pagination/Pagination.svelte';
 export { default as PaginationSlot } from './Pagination/PaginationSlot.svelte';
 export { generatePageNumbers, type PageItem } from './Pagination/pagination.ts';

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
-import { render, withRegistry } from '@test/render.svelte.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { JobLog } from '@base/features/jobs/domain/structs/job.struct.ts';
+import { render, withRegistry } from '@test/render.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { JobLog } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
 import JobLogDisplay from './JobLogDisplay.svelte';
 
@@ -18,7 +18,7 @@ const logLine = (line: string): JobLog => ({
 const streamOf = (lines: string[]) => ({
   // eslint-disable-next-line @typescript-eslint/require-await
   logs: (async function* () {
-    for (const line of lines) yield ScyllaResult.success(logLine(line));
+    for (const line of lines) yield logLine(line);
   })(),
   cancel: vi.fn(),
 });
@@ -50,7 +50,9 @@ describe('JobLogDisplay', () => {
   });
 
   it('shows an error message when the stream could not be opened', async () => {
-    install(() => ScyllaResult.error(new ScyllaError('no stream')));
+    install(() => {
+      throw new ScyllaError('no stream');
+    });
 
     render(JobLogDisplay, { jobId: 'job-1' });
 
@@ -58,7 +60,7 @@ describe('JobLogDisplay', () => {
   });
 
   it('writes the streamed lines into the editor document', async () => {
-    install(() => ScyllaResult.success(streamOf(['first line', 'second line'])));
+    install(() => streamOf(['first line', 'second line']));
 
     render(JobLogDisplay, { jobId: 'job-1' });
 
@@ -68,7 +70,7 @@ describe('JobLogDisplay', () => {
   });
 
   it('scopes the stream to the node when the caller names one', async () => {
-    const tailLogs = vi.fn(() => ScyllaResult.success(streamOf([])));
+    const tailLogs = vi.fn(() => streamOf([]));
     install(tailLogs);
 
     render(JobLogDisplay, { jobId: 'job-1', nodeId: 'build' });
@@ -77,7 +79,7 @@ describe('JobLogDisplay', () => {
   });
 
   it('grows only to the height the caller measured for it', async () => {
-    install(() => ScyllaResult.success(streamOf(['a line'])));
+    install(() => streamOf(['a line']));
 
     render(JobLogDisplay, { jobId: 'job-1', maxHeight: 300 });
 
@@ -86,7 +88,7 @@ describe('JobLogDisplay', () => {
   });
 
   it('falls back to a fixed height when the caller measured none', async () => {
-    install(() => ScyllaResult.success(streamOf(['a line'])));
+    install(() => streamOf(['a line']));
 
     render(JobLogDisplay, { jobId: 'job-1' });
 

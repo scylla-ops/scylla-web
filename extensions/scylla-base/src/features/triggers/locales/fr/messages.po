@@ -13,345 +13,375 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:111
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:29
 msgid "{days} at {time}"
 msgstr "{days} à {time}"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:9
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:9
 msgid "{name} webhook secret"
 msgstr "Secret webhook {name}"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:77
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:84
 msgid "5-field cron (min hour day month weekday), evaluated in your local time."
 msgstr "Cron en 5 champs (min heure jour mois jour de semaine), évalué selon votre heure locale."
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:46
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:52
+msgid "A call to the webhook starts a run. The secret shows once, after you create the trigger."
+msgstr "Un appel au webhook lance une exécution. Le secret s'affiche une seule fois, après la création du déclencheur."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:46
 msgid "A trigger starts a run of this pipeline automatically."
 msgstr "Un déclencheur lance automatiquement une exécution de ce pipeline."
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:27
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:27
 msgid "Actions"
 msgstr "Actions"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:8
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:8
 msgid "Add a cron schedule or webhook to start runs automatically."
 msgstr "Ajoutez une planification cron ou un webhook pour démarrer des exécutions automatiquement."
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:57
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:64
 msgid "Add input"
 msgstr "Ajouter une entrée"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:11
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:11
 msgid "Add this signing secret to your webhook sender's HMAC configuration."
 msgstr "Ajoutez ce secret de signature à la configuration HMAC de votre émetteur de webhook."
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:73
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:80
 msgid "at"
 msgstr "à"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:75
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:82
 msgid "at minute"
 msgstr "à la minute"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:52
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:59
 msgid "Cancel"
 msgstr "Annuler"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:10
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:10
 msgid "Copy the secret below. It is shown only once."
 msgstr "Copiez le secret ci-dessous. Il est affiché une seule fois."
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:28
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:28
 msgid "Copy url"
 msgstr "Copier l'URL"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:54
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:61
 msgid "Create"
 msgstr "Créer"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:71
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:78
 msgid "Custom"
 msgstr "Personnalisé"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:116
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:34
 msgid "Custom schedule"
 msgstr "Planification personnalisée"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:65
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:72
 msgid "Daily"
 msgstr "Tous les jours"
 
 #. placeholder {0}: model.dayOfMonth
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:114
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:32
 msgid "Day {0} of each month at {time}"
 msgstr "Le {0} de chaque mois à {time}"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:80
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:87
 msgid "Day of the month"
 msgstr "Jour du mois"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:82
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:89
 msgid "Days of the week"
 msgstr "Jours de la semaine"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:43
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:43
 msgid "Delete"
 msgstr "Supprimer"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:37
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:37
 msgid "disabled"
 msgstr "désactivé"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:36
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:36
 msgid "disabled: URL returns 404"
 msgstr "désactivé : l'URL renvoie 404"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:42
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:42
 msgid "Edit"
 msgstr "Modifier"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:45
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:45
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:38
 msgid "Edit trigger"
 msgstr "Modifier le déclencheur"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:29
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:29
 msgid "Enable {name}"
 msgstr "Activer {name}"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:19
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:19
 msgid "enabled"
 msgstr "activé"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:26
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:26
 msgid "Enabled"
 msgstr "Activé"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:33
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:33
 msgid "Error"
 msgstr "Erreur"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:66
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:73
 msgid "Every day"
 msgstr "Tous les jours"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:105
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:23
 msgid "Every day at {time}"
 msgstr "Tous les jours à {time}"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:64
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:71
 msgid "Every hour"
 msgstr "Toutes les heures"
 
 #. placeholder {0}: pad2(model.minute)
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:103
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:21
 msgid "Every hour at :{0}"
 msgstr "Toutes les heures à :{0}"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:41
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:41
 msgid "Fire now"
 msgstr "Déclencher maintenant"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:81
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:88
 msgid "Frequency"
 msgstr "Fréquence"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:22
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:11
 msgid "Fri"
 msgstr "Ven"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:51
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:48
+msgid "General"
+msgstr "Général"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:58
 msgid "Header carrying the HMAC signature. Leave empty for the Scylla default."
 msgstr "En-tête portant la signature HMAC. Laissez vide pour la valeur par défaut de Scylla."
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:78
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:85
 msgid "Hour"
 msgstr "Heure"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:63
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:70
 msgid "Hourly"
 msgstr "Horaire"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:116
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:34
 msgid "Incomplete schedule"
 msgstr "Planification incomplète"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:56
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:63
 msgid "Inputs"
 msgstr "Entrées"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:60
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:67
 msgid "JSON pointer"
 msgstr "Pointeur JSON"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:39
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:39
 msgid "last"
 msgstr "dernier"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:59
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:66
 msgid "Literal"
 msgstr "Littéral"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:74
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:81
 msgid "local time"
 msgstr "heure locale"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:79
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:86
 msgid "Minute"
 msgstr "Minute"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:18
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:7
 msgid "Mon"
 msgstr "Lun"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:69
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:76
 msgid "Monthly"
 msgstr "Mensuel"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:23
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:23
 msgid "Name"
 msgstr "Nom"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:32
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:32
 msgid "Never fired"
 msgstr "Jamais déclenché"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:15
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:15
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:32
 msgid "New trigger"
 msgstr "Nouveau déclencheur"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:38
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:38
 msgid "next"
 msgstr "suivant"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:20
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:20
 msgid "next scheduled run (Local time)"
 msgstr "prochaine exécution planifiée (heure locale)"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:7
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:7
 msgid "No triggers yet"
 msgstr "Aucun déclencheur pour l'instant"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:34
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:34
 msgid "OK"
 msgstr "OK"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:70
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:77
 msgid "On a day of the month"
 msgstr "Un jour du mois"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:68
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:75
 msgid "On chosen days"
 msgstr "Les jours choisis"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:76
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:83
 msgid "on day"
 msgstr "le jour"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:58
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:65
 msgid "Optional values injected into the run as environment variables."
 msgstr "Valeurs facultatives injectées dans l'exécution en tant que variables d'environnement."
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:107
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:25
 msgid "Pick at least one day"
 msgstr "Choisissez au moins un jour"
 
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:25
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:23
 msgid "Pipeline"
 msgstr "Pipeline"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:5
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:5
 msgid "Pipeline ID is missing"
 msgstr "L'identifiant de pipeline est manquant"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:17
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:17
 msgid "Pipeline ID:"
 msgstr "ID de pipeline :"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:61
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:68
 msgid "Remove input"
 msgstr "Supprimer l'entrée"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:23
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:12
 msgid "Sat"
 msgstr "Sam"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:53
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:60
 msgid "Save"
 msgstr "Enregistrer"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:49
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:56
 msgid "Schedule"
 msgstr "Planification"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:50
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:57
 msgid "Signature header"
 msgstr "En-tête de signature"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:24
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:24
 msgid "Source"
 msgstr "Source"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:25
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:25
 msgid "Status"
 msgstr "Statut"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:24
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:13
 msgid "Sun"
 msgstr "Dim"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:21
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:49
+msgid "The name of the trigger and the way it starts a run."
+msgstr "Le nom du déclencheur et la façon dont il lance une exécution."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:53
+msgid "The values that each run receives."
+msgstr "Les valeurs que reçoit chaque exécution."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:47
+msgid "This trigger does not exist."
+msgstr "Ce déclencheur n'existe pas."
+
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:10
 msgid "Thu"
 msgstr "Jeu"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:13
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:13
 msgid "Trigger"
 msgstr "Déclencheur"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:30
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:30
 msgid "Trigger actions"
 msgstr "Actions du déclencheur"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:14
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:27
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:14
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:25
 msgid "Triggers"
 msgstr "Déclencheurs"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:19
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:8
 msgid "Tue"
 msgstr "Mar"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:47
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:54
 msgid "Type"
 msgstr "Type"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:48
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:55
 msgid "Type can't be changed. Delete and recreate to switch."
 msgstr "Le type ne peut pas être modifié. Supprimez et recréez pour changer."
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:6
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:6
 msgid "Unable to load triggers"
 msgstr "Impossible de charger les déclencheurs"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:35
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:35
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:21
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:51
+msgid "Webhook"
+msgstr "Webhook"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:21
 msgid "webhook endpoints"
 msgstr "points de terminaison webhook"
 
-#: extensions/scylla-base/src/features/triggers/presentation/utils/cron.utils.ts:20
+#: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:9
 msgid "Wed"
 msgstr "Mer"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:67
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:74
 msgid "Weekly"
 msgstr "Hebdomadaire"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:72
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:50
+msgid "When the pipeline runs, in your local time."
+msgstr "Quand le pipeline s'exécute, à votre heure locale."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:79
 msgid "Write a cron expression"
 msgstr "Rédigez une expression cron"
 
-#: extensions/scylla-base/src/features/triggers/presentation/ui/triggers.messages.ts:16
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:16
 msgid "You don't have permission to manage triggers."
 msgstr "Vous n'avez pas la permission de gérer les déclencheurs."

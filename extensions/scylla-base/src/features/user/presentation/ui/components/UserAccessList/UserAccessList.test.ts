@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import UserAccessList from './UserAccessList.svelte';
 
 describe('UserAccessList', () => {
@@ -30,7 +30,6 @@ describe('UserAccessList', () => {
           scope: 'organization',
           organizationId: 'org-1',
           organizationName: 'Beta Lab',
-          projectName: '',
           roleId: 'organization-member',
           roleName: 'Member',
         },

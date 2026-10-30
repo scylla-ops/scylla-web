@@ -2,11 +2,13 @@
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { formatDay, getRelativeTime } from '@shared/utils/date-utils.ts';
-  import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-  import type { AgentState } from '@base/features/agents/domain/structs/agent-state.struct.ts';
+  import type {
+    AgentEntity,
+    AgentState,
+  } from '@base/features/agents/domain/entities/agent.entity.ts';
   import AgentStateDot from '../components/AgentStateDot.svelte';
-  import { agentsMessages } from '../agents.messages.ts';
-  import { agentsPageMessages as messages } from './agents-page.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
+  import { agentsPageMessages as messages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';
 
   interface Props {
     agent: AgentEntity;

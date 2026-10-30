@@ -6,7 +6,7 @@
     checkNewPassword,
     checkPasswordConfirmation,
   } from '@shared/utils/account-validation.ts';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   interface Props {
     isPending: boolean;
@@ -54,7 +54,7 @@
   onSubmit={values => onSubmit(values.currentPassword, values.newPassword)}
 >
   {#snippet footer({ isValid, isPending: pending })}
-    <div class="flex justify-end">
+    <div data-slot="form-actions" class="flex justify-end">
       <Button type="submit" disabled={!isValid || pending}>
         {t(userMessages.changePassword)}
       </Button>

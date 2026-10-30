@@ -2,7 +2,7 @@
   import { i18n } from '@lingui/core';
   import { can, Permission, PermissionScope } from '@platform/authz';
   import { contextStore } from '@platform/context';
-  import { createQuery } from '@scylla/core-sdk';
+  import { createQuery, WidgetZone } from '@scylla/core-sdk';
   import { organizationQueries } from '@base/features/organization';
   import { invalidateProjectMembers, projectQueries } from '@base/features/project';
   import { roleConfers, roleQueries } from '@base/features/roles';
@@ -16,13 +16,13 @@
     buildProjectMembers,
     MemberRoleOrigin,
     type ScopeMember,
-  } from '@base/features/membership/domain/structs/scope-member.struct.ts';
+  } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
   import {
     createAssignableRoles,
-  } from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
   import {
     createScopeMembership,
-  } from '@base/features/membership/presentation/scope-membership.state.svelte.ts';
+  } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
   import {
     membershipPoints,
     type ProjectMembersContext,
@@ -30,7 +30,7 @@
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
   import MembersHint from '../components/MembersHint/MembersHint.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';
-  import { membershipMessages } from '../membership.messages.ts';
+  import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
   interface Props {
     projectId?: string;
@@ -89,8 +89,8 @@
     // reactive collection would only make a throwaway object track dependencies.
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const users = new Map<string, UserSummary>();
-    for (const member of organizationMembers) users.set(member.userId, member);
-    for (const member of projectMembers) users.set(member.userId, member);
+    for (const member of organizationMembers) users.set(member.id, member);
+    for (const member of projectMembers) users.set(member.id, member);
     return users;
   });
 
@@ -106,14 +106,14 @@
       membership.grants,
       organizationGrants,
       reachesProjects,
-      projectMembers.map(member => member.userId),
+      projectMembers.map(member => member.id),
     ),
   );
 
   const memberIds = $derived(new Set(members.map(member => member.userId)));
 
   const candidates = $derived(
-    organizationMembers.filter(member => !memberIds.has(member.userId)),
+    organizationMembers.filter(member => !memberIds.has(member.id)),
   );
 
   const zoneContext: ProjectMembersContext = $derived({
@@ -153,7 +153,7 @@
   Candidates are the organization's members (a project grant needs one).
 -->
 {#snippet actions()}
-  <div class="contents" use:membershipPoints.projectActions={zoneContext}>
+  <WidgetZone point={membershipPoints.projectActions} context={zoneContext}>
     <GatedButton
       allowed={canManage}
       deniedReason={t(membershipMessages.projectNewDenied)}
@@ -161,7 +161,7 @@
     >
       {t(membershipMessages.addAMember)}
     </GatedButton>
-  </div>
+  </WidgetZone>
 {/snippet}
 
 {#snippet blurb()}
@@ -215,7 +215,7 @@
         : t(membershipMessages.inheritedHintHidden)}
     </MembersHint>
 
-    <div class="contents" use:membershipPoints.projectSection={zoneContext}></div>
+    <WidgetZone point={membershipPoints.projectSection} context={zoneContext} />
 
     <AddMemberDialog
       open={addOpen}

@@ -10,8 +10,8 @@ import { setWidgetInjectionRegistry } from './widget-injection-registry.ts';
  * Each key names an injection, as in `@Extension`. Restore with
  * `setWidgetInjectionRegistry(null)`.
  *
- * A community extension outside this monorepo has no access to `test/render.svelte.ts`
- * (`@test/*`, internal to this workspace — see `widgets_plan.md` §4.2): this is what it tests
+ * A community extension outside this monorepo has no access to `test/render.ts`
+ * (`@test/*`, internal to this workspace): this is what it tests
  * against instead.
  */
 export const installWidgetInjectionsForTest = (

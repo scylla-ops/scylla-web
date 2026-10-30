@@ -27,7 +27,7 @@ repository at all: its `domain` is `{}` and there is no `infrastructure/` folder
 
 ## Members are computed from grants
 
-The core of the module is `scope-member.struct.ts`, and it is pure logic:
+The core of the module is `presenters/scope-members.presenter.ts`, and it is pure logic:
 `buildOrganizationMembers` and `buildProjectMembers` take grants and user identities and fold
 them into `ScopeMember[]` — one entry per principal, each carrying the roles that principal
 holds.
@@ -70,22 +70,21 @@ function that reloads the members. The details are in [`AGENTS.md`](./AGENTS.md)
 
 ## Structure at a glance
 
-- `domain/structs/scope-member.struct.ts` — the whole domain: types and the two builders.
-- `presentation/scope-membership.state.svelte.ts` — grants for a scope, plus grant and revoke
+- `presenters/scope-members.presenter.ts` — the whole domain: types and the two builders.
+- `presentation/ui/scope-membership.state.svelte.ts` — grants for a scope, plus grant and revoke
   mutations, with toasts.
-- `presentation/assignable-roles.state.svelte.ts` — the assignable-role calculation.
+- `presentation/ui/components/assignable-roles.state.svelte.ts` — the assignable-role calculation.
 - `presentation/ui/` — two pages over one set of scope-agnostic components.
 
 Neither page is exported from `index.ts`. They are lazily loaded by the module declaration, and
 exporting them would drag them into the bundle of anything importing this module.
 
-## A note on the Svelte port
+## One cache entry for the grants
 
-This module went Svelte in Phase 3, ahead of `roles`, which it reads from. That is why `roles`
-now carries `roles.queries.ts`: a Svelte component cannot call `useScopedGrants`, and declaring
-the same grant list a second time here would have forked one resource into two cache entries
-that disagree after a mutation. The factories are the shared declaration, so the pages of
-`roles` and these pages read the same entry.
+The pages read the grants through `roles.queries.ts`, the query factories of `roles`. A second
+declaration of the same grant list here would make two cache entries that disagree after a
+mutation. The factories are the shared declaration, so the pages of `roles` and these pages read
+the same entry.
 
 The two files above are ViewModels, not hooks: they hold `$state`/`$derived` and are created by
 the page. They take **getters** for the scope id and the permission, because both arrive after
@@ -93,7 +92,7 @@ the first render and capturing either once would freeze the view empty.
 
 ## Related modules
 
-- [roles](../roles/README.md) — grants, the role catalog, and the permission vocabulary.
+- [roles](../roles/README.md) — grants and the role catalog.
 - [organization](../organization/README.md) and [project](../project/README.md) — the two scopes.
 - [user](../user/README.md) — the human principals behind the members.
 - [platform/authz](../../platform/authz/README.md) — `PrincipalKind`, `PermissionScope`, gating.

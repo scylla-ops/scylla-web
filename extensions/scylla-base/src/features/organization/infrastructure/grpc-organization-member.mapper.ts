@@ -1,0 +1,10 @@
+import type { OrganizationMember as GrpcOrganizationMember } from '@base/generated/scylla/organization/v1/organization.ts';
+import { idValue } from '@shared/infrastructure/grpc/wrappers.ts';
+import type { UserSummary } from '@base/features/user';
+
+export function toDomain(member: GrpcOrganizationMember): UserSummary {
+  return {
+    id: idValue(member.userId),
+    username: member.username,
+  };
+}

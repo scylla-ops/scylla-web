@@ -3,8 +3,7 @@ import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import AgentOutcomesChart from './AgentOutcomesChart.svelte';
 
 const agent = (overrides: Record<string, unknown> = {}) => ({
@@ -56,12 +55,10 @@ const drawnSeries = (container: HTMLElement): string[] =>
   [...container.querySelectorAll('path[stroke]')].map(path => path.getAttribute('stroke') ?? '');
 
 beforeEach(() => {
-  listAgents = vi.fn().mockResolvedValue(ScyllaResult.success([agent()]));
+  listAgents = vi.fn().mockResolvedValue([agent()]);
   getAgentStats = vi
     .fn()
-    .mockResolvedValue(
-      ScyllaResult.success(stats([day(1, { completed: 3, failed: 1, cancelled: 2 })])),
-    );
+    .mockResolvedValue(stats([day(1, { completed: 3, failed: 1, cancelled: 2 })]));
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -96,7 +93,7 @@ afterEach(() => {
 
 describe('AgentOutcomesChart', () => {
   it('asks for nothing and explains itself when the organization has no agent', async () => {
-    listAgents.mockResolvedValue(ScyllaResult.success([]));
+    listAgents.mockResolvedValue([]);
     render(AgentOutcomesChart);
 
     expect(
@@ -114,9 +111,7 @@ describe('AgentOutcomesChart', () => {
 
   it('switches to the agent the reader picks', async () => {
     const user = userEvent.setup();
-    listAgents.mockResolvedValue(
-      ScyllaResult.success([agent(), agent({ id: 'agent-2', name: 'runner-2' })]),
-    );
+    listAgents.mockResolvedValue([agent(), agent({ id: 'agent-2', name: 'runner-2' })]);
     render(AgentOutcomesChart);
 
     await user.click(await screen.findByRole('button', { name: 'runner-2' }));
@@ -137,7 +132,7 @@ describe('AgentOutcomesChart', () => {
   });
 
   it('says so rather than drawing an empty frame when nothing finished in the window', async () => {
-    getAgentStats.mockResolvedValue(ScyllaResult.success(stats([])));
+    getAgentStats.mockResolvedValue(stats([]));
     render(AgentOutcomesChart);
 
     expect(await screen.findByText('No finished jobs in this window.')).toBeInTheDocument();
@@ -147,7 +142,7 @@ describe('AgentOutcomesChart', () => {
   it('narrows the window to the range picked, which can empty it', async () => {
     const user = userEvent.setup();
     // Only the range button decides.
-    getAgentStats.mockResolvedValue(ScyllaResult.success(stats([day(9, { completed: 2 })])));
+    getAgentStats.mockResolvedValue(stats([day(9, { completed: 2 })]));
     render(AgentOutcomesChart);
 
     await screen.findByRole('img', { name: 'Agent Outcomes' });

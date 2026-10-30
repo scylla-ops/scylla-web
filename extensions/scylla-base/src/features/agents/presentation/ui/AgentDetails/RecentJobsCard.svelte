@@ -7,12 +7,12 @@
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type {
     RecentJobRow,
-  } from '@base/features/agents/presentation/agent-details.state.svelte.ts';
+  } from './agent-details.state.svelte.ts';
   import {
     formatDurationMs,
     shortId,
-  } from '@base/features/agents/presentation/utils/agent-format.ts';
-  import { agentDetailsMessages as messages } from './agent-details.messages.ts';
+  } from '@base/features/agents/presentation/presenters/agent-format.presenter.ts';
+  import { agentDetailsMessages as messages } from '@base/features/agents/presentation/messages/agent-details.messages.ts';
 
   interface Props {
     rows: RecentJobRow[];

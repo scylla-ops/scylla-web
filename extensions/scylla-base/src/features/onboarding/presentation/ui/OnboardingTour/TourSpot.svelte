@@ -2,28 +2,28 @@
   import { t } from '@scylla/ui/i18n';
   import {
     onboardingMessages,
-  } from '@base/features/onboarding/presentation/onboarding.messages.ts';
+  } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
   import type {
-    OnboardingTourState,
-  } from '@base/features/onboarding/presentation/onboarding-tour.state.svelte.ts';
+    OnboardingTour,
+  } from './onboarding-tour.state.svelte.ts';
   import {
     VIEWPORT_MARGIN,
     placeCard,
     spotlightRect,
-  } from '@base/features/onboarding/presentation/tour-placement.calculator.ts';
-  import type { TourSpotStep } from '@base/features/onboarding/presentation/tour-steps.ts';
+  } from '@base/features/onboarding/presentation/presenters/tour-placement.presenter.ts';
+  import type { TourSpotStep } from './tour-steps.registry.ts';
   import {
     allowedAnchor,
     blockPage,
     portalToBody,
     trackTourStep,
     type TourLayout,
-  } from '@base/features/onboarding/presentation/tour-tracking.actions.ts';
+  } from './tour-tracking.attachments.svelte.ts';
   import TourCard from './TourCard.svelte';
   import TourSpotlight from './TourSpotlight.svelte';
 
   interface Props {
-    tour: OnboardingTourState;
+    tour: OnboardingTour;
     step: TourSpotStep;
   }
 
@@ -139,9 +139,9 @@
 {/snippet}
 
 <div
-  use:portalToBody
-  use:blockPage={blockingOptions}
-  use:trackTourStep={tracking}
+  {@attach portalToBody}
+  {@attach blockPage(() => blockingOptions)}
+  {@attach trackTourStep(() => tracking)}
   data-onboarding-tour
   class="contents"
 >

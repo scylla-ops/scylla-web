@@ -19,10 +19,6 @@ describe('point', () => {
       expect(change.point).toBe(footer);
       expect(change.payload).toEqual({ position: 'after', component });
     });
-
-    it('is itself the Svelte action that opens the zone', () => {
-      expect(typeof point.zone()).toBe('function');
-    });
   });
 
   describe('a texts point', () => {

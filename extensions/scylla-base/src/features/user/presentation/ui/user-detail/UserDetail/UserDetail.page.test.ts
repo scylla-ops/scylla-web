@@ -5,16 +5,16 @@ import { toast } from 'svelte-sonner';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import UserDetailPage from './UserDetail.page.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
-const me = { userId: 'admin-1', username: 'root', isActive: true, updatedAt: '' };
+const me = { id: 'admin-1', username: 'root', isActive: true, updatedAt: '' };
 
 const grace = {
-  userId: 'user-2',
+  id: 'user-2',
   username: 'grace',
   displayName: 'Grace Hopper',
   email: 'grace@example.com',
@@ -27,7 +27,7 @@ const recently = new Date(Date.now() - 60_000).toISOString();
 
 const sessions = [
   {
-    sessionId: 'session-a',
+    id: 'session-a',
     createdAt: recently,
     lastActiveAt: recently,
     expiresAt: '',
@@ -37,7 +37,7 @@ const sessions = [
     current: false,
   },
   {
-    sessionId: 'session-b',
+    id: 'session-b',
     createdAt: recently,
     lastActiveAt: recently,
     expiresAt: '',
@@ -73,28 +73,25 @@ const setUp = (
 ) => {
   holding(permissions);
   repository = {
-    getMe: vi.fn().mockResolvedValue(ScyllaResult.success(me)),
-    getById: vi.fn().mockResolvedValue(ScyllaResult.success(grace)),
-    listAccess: vi.fn().mockResolvedValue(
-      ScyllaResult.success([
-        {
-          grantId: 'g-1',
-          scope: 'organization',
-          organizationId: 'org-1',
-          organizationName: 'Acme',
-          projectName: '',
-          roleId: 'organization-member',
-          roleName: 'Member',
-        },
-      ]),
-    ),
-    update: vi.fn().mockResolvedValue(ScyllaResult.success(grace)),
-    sendPasswordReset: vi.fn().mockResolvedValue(ScyllaResult.success('mail')),
-    revokeSessions: vi.fn().mockResolvedValue(ScyllaResult.success(1)),
-    listSessions: vi.fn().mockResolvedValue(ScyllaResult.success(sessions)),
-    revokeSession: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-    setActive: vi.fn().mockResolvedValue(ScyllaResult.success({ ...grace, isActive: false })),
-    delete: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
+    getMe: vi.fn().mockResolvedValue(me),
+    getById: vi.fn().mockResolvedValue(grace),
+    listAccess: vi.fn().mockResolvedValue([
+      {
+        grantId: 'g-1',
+        scope: 'organization',
+        organizationId: 'org-1',
+        organizationName: 'Acme',
+        roleId: 'organization-member',
+        roleName: 'Member',
+      },
+    ]),
+    update: vi.fn().mockResolvedValue(grace),
+    sendPasswordReset: vi.fn().mockResolvedValue('mail'),
+    revokeSessions: vi.fn().mockResolvedValue(1),
+    listSessions: vi.fn().mockResolvedValue(sessions),
+    revokeSession: vi.fn().mockResolvedValue(undefined),
+    setActive: vi.fn().mockResolvedValue({ ...grace, isActive: false }),
+    delete: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
   const cache = withQueryClient();
@@ -175,7 +172,7 @@ describe('UserDetailPage', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() =>
-      expect(repository.update).toHaveBeenCalledWith({ userId: 'user-2', email: 'grace@navy.mil' }),
+      expect(repository.update).toHaveBeenCalledWith({ id: 'user-2', email: 'grace@navy.mil' }),
     );
   });
 
@@ -255,7 +252,7 @@ describe('UserDetailPage', () => {
     });
 
     it('says when the user has no active session', async () => {
-      setUp({}, { listSessions: vi.fn().mockResolvedValue(ScyllaResult.success([])) });
+      setUp({}, { listSessions: vi.fn().mockResolvedValue([]) });
 
       const list = await screen.findByRole('region', { name: 'Sessions' });
       expect(await within(list).findByText('No active session.')).toBeInTheDocument();
@@ -267,9 +264,7 @@ describe('UserDetailPage', () => {
         {
           listSessions: vi
             .fn()
-            .mockResolvedValue(
-              ScyllaResult.error(new ScyllaError('Failed.', { cause: { code: 'UNAVAILABLE' } })),
-            ),
+            .mockRejectedValue(new ScyllaError('Failed.', { code: 'UNAVAILABLE' })),
         },
       );
 
@@ -291,7 +286,7 @@ describe('UserDetailPage', () => {
   });
 
   it('says when the reset link is in the server log', async () => {
-    setUp({}, { sendPasswordReset: vi.fn().mockResolvedValue(ScyllaResult.success('server-log')) });
+    setUp({}, { sendPasswordReset: vi.fn().mockResolvedValue('server-log') });
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Send a reset link' }));
@@ -328,10 +323,7 @@ describe('UserDetailPage', () => {
   });
 
   it('offers to reactivate a deactivated account', async () => {
-    setUp(
-      {},
-      { getById: vi.fn().mockResolvedValue(ScyllaResult.success({ ...grace, isActive: false })) },
-    );
+    setUp({}, { getById: vi.fn().mockResolvedValue({ ...grace, isActive: false }) });
     const user = userEvent.setup();
 
     expect(await screen.findByText('Deactivated')).toBeInTheDocument();
@@ -360,11 +352,7 @@ describe('UserDetailPage', () => {
     setUp(
       {},
       {
-        getById: vi
-          .fn()
-          .mockResolvedValue(
-            ScyllaResult.error(new ScyllaError('Failed.', { cause: { code: 'UNAVAILABLE' } })),
-          ),
+        getById: vi.fn().mockRejectedValue(new ScyllaError('Failed.', { code: 'UNAVAILABLE' })),
       },
     );
 

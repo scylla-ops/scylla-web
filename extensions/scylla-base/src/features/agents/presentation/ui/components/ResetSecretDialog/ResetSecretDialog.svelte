@@ -13,13 +13,13 @@
   import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
   import {
     createResetSecret,
-  } from '@base/features/agents/presentation/reset-secret.state.svelte.ts';
-  import { agentsMessages } from '../../agents.messages.ts';
+  } from './reset-secret.state.svelte.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
   import AlertDialogCloseButton from '../AlertDialogCloseButton.svelte';
   import DialogFooterBand from '../DialogFooterBand.svelte';
   import SecretLabelField from '../SecretLabelField/SecretLabelField.svelte';
   import ResetSecretReveal from './ResetSecretReveal.svelte';
-  import { resetSecretMessages as messages } from './reset-secret.messages.ts';
+  import { resetSecretMessages as messages } from '@base/features/agents/presentation/messages/reset-secret.messages.ts';
 
   interface Props {
     /** Open while set. */

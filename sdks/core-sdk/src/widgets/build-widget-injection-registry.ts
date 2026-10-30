@@ -22,8 +22,7 @@ export interface WidgetInjectionRegistryOptions {
 
 /**
  * The one place that turns injections into a registry, for the loader and for the tests alike.
- * The order is the order of `injections`, then of each injection's items (`widgets_plan.md`
- * §8.1): a zone shows its components in that order. An owner that lets contributors place
+ * The order is the order of `injections`, then of each injection's items: a zone shows its components in that order. An owner that lets contributors place
  * items among its own (a row of buttons) opens a value point — a list with ids — not a zone.
  * Throws when two injections replace one zone or override one message: those cannot both apply.
  * It does not check owners or dependencies — that needs the extensions, so the loader

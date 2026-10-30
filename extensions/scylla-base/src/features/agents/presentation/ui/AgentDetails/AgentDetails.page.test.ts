@@ -3,12 +3,14 @@ import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { findFloating, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { AppAccess, AppSecretEntity } from '@base/features/apps';
-import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-import type { AgentStats } from '@base/features/agents/domain/structs/agent.struct.ts';
+import type {
+  AgentEntity,
+  AgentStats,
+} from '@base/features/agents/domain/entities/agent.entity.ts';
 import {
   AGENTS_QUERY_KEY,
   AGENT_QUERY_KEY,
@@ -87,7 +89,7 @@ const job = {
 };
 
 let getAgent: ReturnType<typeof vi.fn>;
-let getAgentStats: Mock<(id: string) => Promise<ScyllaResult<AgentStats>>>;
+let getAgentStats: Mock<(id: string) => Promise<AgentStats>>;
 let listAgents: ReturnType<typeof vi.fn>;
 let deleteAgent: ReturnType<typeof vi.fn>;
 let setAppActive: ReturnType<typeof vi.fn>;
@@ -119,17 +121,15 @@ beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date(NOW));
 
-  getAgent = vi.fn().mockResolvedValue(ScyllaResult.success(agent()));
-  getAgentStats = vi.fn().mockResolvedValue(ScyllaResult.success(stats));
-  listAgents = vi.fn().mockResolvedValue(ScyllaResult.success([]));
-  deleteAgent = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
-  setAppActive = vi.fn().mockResolvedValue(ScyllaResult.success({}));
-  revokeAppSecret = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
-  listJobs = vi.fn().mockResolvedValue(ScyllaResult.success([job]));
-  listProjects = vi
-    .fn()
-    .mockResolvedValue(ScyllaResult.success({ projects: [{ id: 'project-1', name: 'prelude' }] }));
-  listAppAccess = vi.fn().mockResolvedValue(ScyllaResult.success([projectGrant]));
+  getAgent = vi.fn().mockResolvedValue(agent());
+  getAgentStats = vi.fn().mockResolvedValue(stats);
+  listAgents = vi.fn().mockResolvedValue([]);
+  deleteAgent = vi.fn().mockResolvedValue(undefined);
+  setAppActive = vi.fn().mockResolvedValue({});
+  revokeAppSecret = vi.fn().mockResolvedValue(undefined);
+  listJobs = vi.fn().mockResolvedValue([job]);
+  listProjects = vi.fn().mockResolvedValue({ items: [{ id: 'project-1', name: 'prelude' }] });
+  listAppAccess = vi.fn().mockResolvedValue([projectGrant]);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -143,18 +143,16 @@ beforeEach(() => {
         listJobs,
         listPipelineNames: vi
           .fn()
-          .mockResolvedValue(
-            ScyllaResult.success([{ id: 'pipeline-1', projectId: 'project-1', name: 'deploy' }]),
-          ),
+          .mockResolvedValue([{ id: 'pipeline-1', projectId: 'project-1', name: 'deploy' }]),
       },
     },
     apps: {
       appsRepository: {
         setAppActive,
         revokeAppSecret,
-        setAppSecretEnabled: vi.fn().mockResolvedValue(ScyllaResult.success(defaultSecret)),
+        setAppSecretEnabled: vi.fn().mockResolvedValue(defaultSecret),
         listAppAccess,
-        listAppSecrets: vi.fn().mockResolvedValue(ScyllaResult.success([defaultSecret])),
+        listAppSecrets: vi.fn().mockResolvedValue([defaultSecret]),
       },
       resetAppSecret: { execute: vi.fn() },
     },
@@ -192,7 +190,7 @@ describe('AgentDetailsPage', () => {
     [{ connected: false, lastSeen: '' }, 'Never connected', 'Agent never connected'],
     [{ isActive: false }, 'Disabled', 'Agent disabled'],
   ])('shows the state of the agent in its chip and its bot (%o)', async (overrides, chip, bot) => {
-    getAgent.mockResolvedValue(ScyllaResult.success(agent(overrides)));
+    getAgent.mockResolvedValue(agent(overrides));
     render(AgentDetailsPage, { agentId: 'agent-1' });
     await heading();
 
@@ -201,7 +199,7 @@ describe('AgentDetailsPage', () => {
   });
 
   it('warns that a disabled agent cannot sign in, and enables it from the banner', async () => {
-    getAgent.mockResolvedValue(ScyllaResult.success(agent({ isActive: false })));
+    getAgent.mockResolvedValue(agent({ isActive: false }));
     render(AgentDetailsPage, { agentId: 'agent-1' });
     await heading();
 
@@ -213,13 +211,13 @@ describe('AgentDetailsPage', () => {
   });
 
   it('shows the run command only while the agent never connected', async () => {
-    getAgent.mockResolvedValue(ScyllaResult.success(agent({ connected: false, lastSeen: '' })));
+    getAgent.mockResolvedValue(agent({ connected: false, lastSeen: '' }));
     const { unmount } = render(AgentDetailsPage, { agentId: 'agent-1' });
     expect(await screen.findByRole('heading', { name: 'Run this agent' })).toBeInTheDocument();
     unmount();
     cache.queryClient.clear();
 
-    getAgent.mockResolvedValue(ScyllaResult.success(agent()));
+    getAgent.mockResolvedValue(agent());
     render(AgentDetailsPage, { agentId: 'agent-1' });
     await heading();
     expect(screen.queryByRole('heading', { name: 'Run this agent' })).not.toBeInTheDocument();
@@ -279,19 +277,17 @@ describe('AgentDetailsPage', () => {
   });
 
   it('names the organization of a grant on another organization', async () => {
-    listAppAccess.mockResolvedValue(
-      ScyllaResult.success([
-        {
-          ...projectGrant,
-          grantId: 'grant-2',
-          scope: 'organization',
-          scopeId: 'org-2',
-          organizationId: 'org-2',
-          organizationName: 'Globex',
-          projectName: '',
-        },
-      ]),
-    );
+    listAppAccess.mockResolvedValue([
+      {
+        ...projectGrant,
+        grantId: 'grant-2',
+        scope: 'organization',
+        scopeId: 'org-2',
+        organizationId: 'org-2',
+        organizationName: 'Globex',
+        projectName: '',
+      },
+    ]);
     render(AgentDetailsPage, { agentId: 'agent-1' });
     await heading();
 
@@ -304,9 +300,7 @@ describe('AgentDetailsPage', () => {
   });
 
   it('says "Connected" for a connected agent, as last_seen moves only on events', async () => {
-    getAgent.mockResolvedValue(
-      ScyllaResult.success(agent({ lastSeen: '2026-10-11T07:46:00.000Z' })),
-    );
+    getAgent.mockResolvedValue(agent({ lastSeen: '2026-10-11T07:46:00.000Z' }));
     render(AgentDetailsPage, { agentId: 'agent-1' });
     await heading();
 
@@ -315,14 +309,14 @@ describe('AgentDetailsPage', () => {
   });
 
   it('says when an offline agent was last seen, and nothing for one that never connected', async () => {
-    getAgent.mockResolvedValue(ScyllaResult.success(agent({ connected: false })));
+    getAgent.mockResolvedValue(agent({ connected: false }));
     const { unmount } = render(AgentDetailsPage, { agentId: 'agent-1' });
     await heading();
     expect(screen.getByText(/^Last seen/)).toBeInTheDocument();
     unmount();
     cache.queryClient.clear();
 
-    getAgent.mockResolvedValue(ScyllaResult.success(agent({ connected: false, lastSeen: '' })));
+    getAgent.mockResolvedValue(agent({ connected: false, lastSeen: '' }));
     render(AgentDetailsPage, { agentId: 'agent-1' });
     await heading();
     expect(screen.queryByText(/^(Last seen|Connected)/)).not.toBeInTheDocument();
@@ -423,13 +417,10 @@ describe('AgentDetailsPage', () => {
     render(AgentDetailsPage, { agentId: 'agent-1' });
     await heading();
     await vi.waitFor(() => expect(getAgentStats).toHaveBeenCalledWith('agent-1'));
-    const notFound = <T>() =>
-      ScyllaResult.error<T>(
-        new ScyllaError("App 'agent-1' not found", { cause: { code: 'NOT_FOUND' } }),
-      );
-    getAgent.mockResolvedValue(notFound<AgentEntity>());
+    const notFound = () => new ScyllaError("App 'agent-1' not found", { code: 'NOT_FOUND' });
+    getAgent.mockRejectedValue(notFound());
     getAgentStats.mockImplementation(id =>
-      Promise.resolve(id === 'agent-1' ? notFound<AgentStats>() : ScyllaResult.success(stats)),
+      id === 'agent-1' ? Promise.reject(notFound()) : Promise.resolve(stats),
     );
     listAgents.mockReturnValue(new Promise(() => {}));
     const callsFor = (spy: { mock: { calls: unknown[][] } }) =>
@@ -455,18 +446,14 @@ describe('AgentDetailsPage', () => {
   });
 
   it('reports a failed load rather than a blank page', async () => {
-    getAgent.mockResolvedValue(
-      ScyllaResult.error(new ScyllaError('boom', { cause: { code: 'INTERNAL' } })),
-    );
+    getAgent.mockRejectedValue(new ScyllaError('boom', { code: 'INTERNAL' }));
     render(AgentDetailsPage, { agentId: 'agent-1' });
 
     expect(await screen.findByText('Error loading agent')).toBeInTheDocument();
   });
 
   it('leaves for the list when the agent no longer exists', async () => {
-    getAgent.mockResolvedValue(
-      ScyllaResult.error(new ScyllaError('gone', { cause: { code: 'NOT_FOUND' } })),
-    );
+    getAgent.mockRejectedValue(new ScyllaError('gone', { code: 'NOT_FOUND' }));
     render(AgentDetailsPage, { agentId: 'agent-1' });
 
     await vi.waitFor(() => expect(nav.navigate).toHaveBeenCalledWith('..', expect.anything()));

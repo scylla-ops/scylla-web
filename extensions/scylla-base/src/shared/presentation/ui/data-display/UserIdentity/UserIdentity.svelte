@@ -6,7 +6,7 @@
     userSecondaryLine,
     type MissingUser,
     type UserIdentityProfile,
-  } from '../user-identity.ts';
+  } from '@base/shared/presentation/presenters/user-identity.presenter.ts';
 
   interface Props {
     /** `undefined`: a missing user, named after `missing`. */

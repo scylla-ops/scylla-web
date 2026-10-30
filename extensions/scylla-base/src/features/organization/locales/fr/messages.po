@@ -13,64 +13,64 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:18
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:18
 msgid "Add a description..."
 msgstr "Ajouter une description..."
 
-#: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:8
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:8
 msgid "Create a new organization"
 msgstr "Créer une nouvelle organisation"
 
-#: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:10
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:10
 msgid "Create Organization"
 msgstr "Créer l'organisation"
 
-#: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:6
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:6
 msgid "Delete"
 msgstr "Supprimer"
 
-#: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:17
-#: extensions/scylla-base/src/features/organization/presentation/utils/create-organization-form-items.ts:14
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:17
+#: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:14
 msgid "Description"
 msgstr "Description"
 
-#: extensions/scylla-base/src/features/organization/presentation/utils/create-organization-form-items.ts:8
+#: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:8
 msgid "e.g., My Organization"
 msgstr "ex. Mon organisation"
 
-#: extensions/scylla-base/src/features/organization/presentation/utils/create-organization-form-items.ts:15
+#: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:15
 msgid "e.g., Our company's main organization"
 msgstr "ex. L'organisation principale de notre entreprise"
 
-#: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:5
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:5
 msgid "Edit"
 msgstr "Modifier"
 
-#: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:12
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:12
 msgid "Edit organization"
 msgstr "Modifier l'organisation"
 
-#: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:9
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:9
 msgid "Enter a name and description for your new organization. You can change these later in settings."
 msgstr "Entrez un nom et une description pour votre nouvelle organisation. Vous pourrez les modifier plus tard dans les paramètres."
 
-#: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:4
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:4
 msgid "Members"
 msgstr "Membres"
 
-#: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:16
-#: extensions/scylla-base/src/features/organization/presentation/utils/create-organization-form-items.ts:7
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:16
+#: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:7
 msgid "Organization name"
 msgstr "Nom de l'organisation"
 
-#: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:14
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:14
 msgid "Save"
 msgstr "Enregistrer"
 
-#: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:15
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:15
 msgid "Saving..."
 msgstr "Enregistrement..."
 
-#: extensions/scylla-base/src/features/organization/presentation/ui/organization.messages.ts:13
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:13
 msgid "Update the organization name and description."
 msgstr "Mettez à jour le nom et la description de l'organisation."

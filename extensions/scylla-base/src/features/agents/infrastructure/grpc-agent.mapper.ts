@@ -1,0 +1,114 @@
+import type {
+  AgentStats as ProtoAgentStats,
+  Agent as ProtoAgent,
+  AgentHost as ProtoAgentHost,
+} from '@base/generated/scylla/agent/v1/agent_admin.ts';
+import type {
+  AgentEntity,
+  AgentHost,
+  AgentStats,
+  AgentJob,
+} from '../domain/entities/agent.entity.ts';
+import { JobOutcome, type Job as ProtoJob } from '@base/generated/scylla/job/v1/job.ts';
+import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
+import {
+  idValue,
+  timestampToIso,
+  timestampToIsoOpt,
+} from '@shared/infrastructure/grpc/wrappers.ts';
+
+const OUTCOMES: Partial<Record<JobOutcome, JobStatus>> = {
+  [JobOutcome.COMPLETED]: 'completed',
+  [JobOutcome.FAILED]: 'failed',
+  [JobOutcome.CANCELLED]: 'cancelled',
+  [JobOutcome.ORPHANED]: 'orphaned',
+};
+
+/** An arm or an outcome newer than this build is `unknown`. */
+const jobStatusOf = (state: ProtoJob['state']): JobStatus => {
+  switch (state.oneofKind) {
+    case 'pending':
+      return 'pending';
+    case 'running':
+      return 'running';
+    case 'terminal':
+      return OUTCOMES[state.terminal.outcome] ?? 'unknown';
+    default:
+      return 'unknown';
+  }
+};
+
+export function toDomain(w: ProtoAgent): AgentEntity {
+  return {
+    id: idValue(w.agentId),
+    organizationId: idValue(w.organizationId),
+    name: w.name,
+    isActive: w.isActive,
+    connected: w.connected,
+    lastSeen: timestampToIso(w.lastSeen),
+    inFlight: w.inFlight,
+    host: w.host ? hostToDomain(w.host) : null,
+    createdAt: timestampToIso(w.createdAt),
+    updatedAt: timestampToIso(w.updatedAt),
+  };
+}
+
+function hostToDomain(h: ProtoAgentHost): AgentHost {
+  return {
+    version: h.version,
+    os: h.os,
+    arch: h.arch,
+    hostname: h.hostname,
+    cpuCount: h.cpuCount > 0 ? h.cpuCount : null,
+    totalMemoryMb: h.totalMemoryMb > 0n ? Number(h.totalMemoryMb) : null,
+    reportedAt: timestampToIso(h.reportedAt),
+  };
+}
+
+export function jobToDomain(job: ProtoJob): AgentJob {
+  const { state } = job;
+  const startedAt =
+    state.oneofKind === 'running'
+      ? state.running.startedAt
+      : state.oneofKind === 'terminal'
+        ? state.terminal.startedAt
+        : undefined;
+
+  return {
+    id: idValue(job.jobId),
+    pipelineId: idValue(job.pipelineId),
+    status: jobStatusOf(state),
+    createdAt: timestampToIso(job.createdAt),
+    startedAt: timestampToIsoOpt(startedAt),
+    finishedAt: timestampToIsoOpt(
+      state.oneofKind === 'terminal' ? state.terminal.finishedAt : undefined,
+    ),
+  };
+}
+
+export function statsToDomain(s: ProtoAgentStats): AgentStats {
+  return {
+    total: Number(s.total),
+    pending: Number(s.pending),
+    running: Number(s.running),
+    completed: Number(s.completed),
+    failed: Number(s.failed),
+    cancelled: Number(s.cancelled),
+    orphaned: Number(s.orphaned),
+    lastRunAt: timestampToIso(s.lastRunAt),
+    medianDurationMs: optionalCount(s.medianDurationMs),
+    p95DurationMs: optionalCount(s.p95DurationMs),
+    daily: s.daily.map(d => ({
+      day: timestampToIso(d.day),
+      completed: Number(d.completed),
+      failed: Number(d.failed),
+      cancelled: Number(d.cancelled),
+      orphaned: Number(d.orphaned),
+      medianDurationMs: optionalCount(d.medianDurationMs),
+    })),
+  };
+}
+
+/** Absent on the wire means unknown: `null`, never 0. */
+const optionalCount = (v: bigint | undefined): number | null =>
+  v === undefined ? null : Number(v);

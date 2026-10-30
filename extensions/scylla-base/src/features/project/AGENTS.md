@@ -18,7 +18,7 @@ options objects in `presentation/*.queries.ts`, which a component or another fea
 ## Public API — `index.ts`
 
 ```typescript
-type ProjectEntity, ProjectLookupEntry
+type ProjectEntity, ProjectList, ProjectLookupEntry
 projectQueries        byOrganization (paginated) · lookup (org-wide) · members
 projectLookupQueries  the batched fan-out: { queries, combine } for useQueries/createQueries
 projectMutations      create · update · remove
@@ -39,7 +39,7 @@ Never add: `project.module.ts`, pages.
 
 | Method | Returns |
 |---|---|
-| `getByOrganizationId(organizationId, pagination?)` | `ProjectList` |
+| `getByOrganizationId(organizationId, pagination?)` | `ProjectList`: a `PaginatedList<ProjectEntity>` (`items`, `pagination`) |
 | `listMembers(projectId)` | `UserSummary[]` (from `user`): the holders of a project-scoped grant |
 | `create(name, organizationId, description?)` | `ProjectEntity` |
 | `update(projectId, name?, description?)` | `ProjectEntity` |
@@ -53,22 +53,19 @@ Reach it with `useProjectDomain()` **inside a hook only**.
 project.module.ts                    route + nav + DI wiring (private; registry only)
 index.ts                             public API
 domain/
-  entities/project.entity.ts         ProjectEntity
-  structs/project.struct.ts          ProjectList
+  entities/project.entity.ts         ProjectEntity, ProjectList
   repository/project.repository.ts
 infrastructure/
-  data/grpc-project-remote.data-source.ts                 impl
-  repository/data-sources/project-remote.data-source.ts   interface
-  repository/mappers/grpc-project.mapper.ts
-  repository/mappers/grpc-project-member.mapper.ts
-  repository/default-project.repository.ts
+  default-project.repository.ts      ProjectServiceClient → ProjectEntity; the project cap
+  grpc-project.mapper.ts
+  grpc-project-member.mapper.ts
 presentation/
   project.queries.ts                 every read and write, plus the key factories
   ui/Project.page.svelte             picks the organization, or says there is none
   ui/ProjectList.svelte              keyed on the organization — that is the page reset
   ui/ProjectHeader.svelte, ProjectCard.svelte
   ui/AddProjectDialog.svelte, EditProjectDialog.svelte
-  ui/project.messages.ts
+  messages/project.messages.ts
 ```
 
 ## Routes & nav
@@ -87,25 +84,23 @@ project routes (the `project` mount) are declared by the modules that own them
 
 ## Rules that bite here
 
-- **Three ways to read an organization's projects, one cache.** `useProjects` (paginated list),
-  `useOrganizationProjects` (dashboard overview) and `useProjectsByOrganizations` (grant-label
-  lookup) are all exported from this module precisely so no other module rebuilds a project
-  query against `projectRepository`. Add the fourth here too.
-- `useProjectsByOrganizations` uses `useQueries` to batch — never loop `useQuery`.
+- **Three ways to read an organization's projects, one cache.** `projectQueries.byOrganization`
+  (the paginated list), `projectQueries.lookup` (one page of every project: the dashboard, the
+  agents) and `projectLookupQueries` (the grant labels of `roles`, across organizations) are all
+  in `project.queries.ts`, so no other module builds a project query of its own. Add the fourth
+  here too.
+- `projectLookupQueries` gives the options of each organization to `createQueries`: one batch,
+  never a loop of `createQuery`.
 - `listMembers` gives `UserSummary` values of [`user`](../user/AGENTS.md), and the list means
   *holders of a project-scoped grant*, not a stored roster. The member UI belongs to [`membership`](../membership/AGENTS.md); this module
   supplies the raw list only.
-- **The camelCase hook filenames (`useProjects.ts`, `useCreateProject.ts`) violate the
-  kebab-case convention.** They predate it. Do not rename them opportunistically — that moves
-  Lingui message ownership and needs `node scripts/restore-translations.mjs`. New files use
-  `use-{name}.ts`.
-- Lists use `DataTable` + `usePagination()`; row keys are project ids.
+- Lists use `DataTable` + `createPagination()`; row keys are project ids.
 - **`data-tour` attributes are anchors of the onboarding tour** (`projects` on the list, `project-card` with
   `data-project-id` on each card). Keep them on the same
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
 - **A project cap comes from an extension.** `CreateProject` can fail with `RESOURCE_EXHAUSTED`
-  and an English server text that names the organization by id. The data source maps it to
-  its own sentence (`toCreateProjectError`) and keeps the code; the global toast shows it.
+  and an English server text that names the organization by id. The repository maps it to
+  its own sentence in `create` and keeps the code; the global toast shows it.
 - The description is optional in both dialogs (`optional: true`).
 
 ## Before done

@@ -5,7 +5,7 @@ export {
   MemberRoleOrigin,
   buildOrganizationMembers,
   buildProjectMembers,
-} from './domain/structs/scope-member.struct.ts';
+} from './presentation/presenters/scope-members.presenter.ts';
 export {
   membershipPoints,
   type AddMemberAction,

@@ -1,13 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { messages } from '@base/features/membership/locales/fr/messages.ts';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import { withLocale } from '@test/i18n.ts';
 import { PermissionScope } from '@platform/authz';
 import {
   MemberRoleOrigin,
   type MemberRole,
-} from '@base/features/membership/domain/structs/scope-member.struct.ts';
+} from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import MemberCard from './MemberCard.svelte';
 
 /** The exact-zero arm ("Aucun rôle") must survive extraction. */
@@ -22,7 +22,7 @@ const role = (overrides: Partial<MemberRole> = {}): MemberRole => ({
 });
 
 const baseProps = {
-  user: { userId: 'user-1', username: 'ravenne' },
+  user: { id: 'user-1', username: 'ravenne' },
   isCurrentUser: false,
   canRemove: true,
   addableRoles: [],

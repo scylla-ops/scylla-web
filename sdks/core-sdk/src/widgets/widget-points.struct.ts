@@ -1,6 +1,5 @@
 import type { MessageDescriptor } from '@lingui/core';
 import type { Component } from 'svelte';
-import type { Action } from 'svelte/action';
 import type { RoutePermission } from '../extension/register.struct.ts';
 
 export type ZonePosition = 'before' | 'after' | 'replace';
@@ -41,10 +40,11 @@ export type TextOverrides = Readonly<
 >;
 
 /**
- * A place that receives components. The owner opens it with the point itself, as a Svelte
- * action: `<div use:loginPoints.footer={{ isPending }}>`.
+ * A place that receives components. The owner opens it with `<WidgetZone>`, in its markup:
+ * `<WidgetZone point={loginPoints.footer} context={{ isPending }}>…</WidgetZone>`. The injected
+ * components render in the owner's tree, so they read its Svelte context too.
  */
-export interface ZonePoint<C> extends Action<HTMLElement, C>, WidgetPoint {
+export interface ZonePoint<C> extends WidgetPoint {
   readonly kind: 'zone';
   /** Contributor: put a component in this zone. */
   inject(options: ZoneComponentOptions<C>): WidgetInjectionItem;

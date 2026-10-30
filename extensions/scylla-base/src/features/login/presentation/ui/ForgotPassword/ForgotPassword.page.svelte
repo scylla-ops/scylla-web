@@ -5,12 +5,12 @@
   import { checkEmail } from '@shared/utils/account-validation.ts';
   import type {
     PasswordResetDelivery,
-  } from '@base/features/login/domain/structs/password-reset.struct.ts';
+  } from '@base/features/login/domain/structs/password-reset-delivery.struct.ts';
   import {
     ForgotPasswordState,
-  } from '@base/features/login/presentation/forgot-password.state.svelte.ts';
+  } from './forgot-password.state.svelte.ts';
   import AuthLayout from '../AuthLayout.svelte';
-  import { passwordResetMessages } from '../password-reset.messages.ts';
+  import { passwordResetMessages } from '@base/features/login/presentation/messages/password-reset.messages.ts';
 
   // Built during initialisation: its mutation needs an owner.
   const state = new ForgotPasswordState();

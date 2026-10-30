@@ -2,7 +2,7 @@
   import type { MarketItem } from '@base/features/marketplace/domain/structs/market-item.struct.ts';
   import {
     matchesFilter,
-  } from '@base/features/marketplace/presentation/marketplace-filter.state.svelte.ts';
+  } from '@base/features/marketplace/presentation/ui/marketplace-filter.state.svelte.ts';
   import MarketItemCard from './MarketItemCard.svelte';
 
   interface Props {
@@ -22,7 +22,7 @@
       class="h-50 max-w-[400px] min-w-[300px] flex-1"
       provider={item.provider}
       title={item.title}
-      descrption={item.descrption}
+      description={item.description}
     />
   {/each}
 </div>

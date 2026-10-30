@@ -8,7 +8,7 @@
     type UpdateSecretValues,
   } from '@base/features/secret/presentation/secret.queries.ts';
   import ReplaceSecretValueDialog from './ReplaceSecretValueDialog.svelte';
-  import { editSecretMessages as messages } from './edit-secret.messages.ts';
+  import { editSecretMessages as messages } from '@base/features/secret/presentation/messages/edit-secret.messages.ts';
 
   interface Props {
     secret: SecretEntity | null;

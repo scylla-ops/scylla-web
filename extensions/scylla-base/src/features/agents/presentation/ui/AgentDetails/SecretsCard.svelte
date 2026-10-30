@@ -20,10 +20,10 @@
   import { t } from '@scylla/ui/i18n';
   import { formatDay } from '@shared/utils/date-utils.ts';
   import type { AppSecretEntity } from '@base/features/apps';
-  import { agentsMessages } from '../agents.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
   import RenameSecretDialog from '../components/RenameSecretDialog/RenameSecretDialog.svelte';
-  import { renameSecretMessages } from '../components/RenameSecretDialog/rename-secret.messages.ts';
-  import { agentDetailsMessages as messages } from './agent-details.messages.ts';
+  import { renameSecretMessages } from '@base/features/agents/presentation/messages/rename-secret.messages.ts';
+  import { agentDetailsMessages as messages } from '@base/features/agents/presentation/messages/agent-details.messages.ts';
 
   interface Props {
     secrets: AppSecretEntity[] | undefined;

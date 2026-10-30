@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { i18n } from '@lingui/core';
 import { withLocale } from '@test/i18n.ts';
 import { messages } from '@base/features/roles/locales/fr/messages.ts';
-import { rolesMessages } from '../roles.messages.ts';
+import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
 
 /** French needs no elision before any name: "de l'organisation Acme", never "de Acme". */
 withLocale('fr', messages);

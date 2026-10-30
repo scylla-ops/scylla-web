@@ -4,7 +4,7 @@
   import LogoScylla from '@scylla/ui/assets/logo_scylla.svg';
   import LogoScyllaDark from '@scylla/ui/assets/logo_scylla_dark.svg';
   import { t } from '@scylla/ui/i18n';
-  import { layoutMessages } from '@base/shell/presentation/layout/ui/layout.messages.ts';
+  import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
   import AuthGuard from '../AuthGuard/Auth.guard.svelte';
 
   let { children }: { children: Snippet } = $props();
@@ -22,7 +22,7 @@
     <img src={LogoScylla} alt="Scylla" class="mb-8 w-56 dark:hidden" />
     <img src={LogoScyllaDark} alt="Scylla" class="mb-8 hidden w-56 dark:block" />
 
-    <div class="flex w-full max-w-3xl flex-col gap-4">
+    <div class="flex w-full max-w-5xl flex-col gap-4">
       <!-- `/` opens the organization of the user, or the first-organization screen. -->
       <a
         href="/"

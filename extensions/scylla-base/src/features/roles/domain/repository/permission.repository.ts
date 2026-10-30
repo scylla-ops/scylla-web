@@ -1,59 +1,37 @@
-import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { PermissionScope, PrincipalEntity, } from '@platform/authz';
+import type { PermissionScope, Principal, EffectivePermissions } from '@platform/authz';
+import type { CreateRoleInput, GrantableRole, RoleEntity } from '../entities/role.entity.ts';
 import type {
-  RoleCreationData,
-  RoleEntity,
-} from '@base/features/roles/domain/entities/role.entity.ts';
-import type {
+  CreateGrantInput,
   GrantEntity,
-} from '@base/features/roles/domain/entities/grant.entity.ts';
-import type { GrantableRoleEntity } from '@base/features/roles/domain/entities/grantable-role.entity.ts';
-import type { EffectivePermissionsEntity } from '@platform/authz';
-import type { PermissionVocabularyEntity } from '@base/features/roles/domain/entities/permission-vocabulary.entity.ts';
-
-export interface CreateGrantInput {
-  principal: PrincipalEntity;
-  roleId: string;
-  scope: PermissionScope;
-  scopeId: string;
-}
-
-export interface RevokeAllAccessInput {
-  principal: PrincipalEntity;
-  scope: PermissionScope;
-  scopeId: string;
-}
+  RevokeAllAccessInput,
+} from '../entities/grant.entity.ts';
 
 export interface PermissionRepository {
   /**
    * Set: the platform roles and the roles of that organization (`MANAGE_ORG_ROLES` there).
    * Unset: every role (`MANAGE_ROLES`).
    */
-  listRoles(organizationId?: string): Promise<ScyllaResult<RoleEntity[]>>;
-  getRole(id: string): Promise<ScyllaResult<RoleEntity>>;
-  createRole(role: RoleCreationData): Promise<ScyllaResult<RoleEntity>>;
-  updateRole(role: RoleEntity): Promise<ScyllaResult<RoleEntity>>;
-  deleteRole(id: string): Promise<ScyllaResult<void>>;
+  listRoles(organizationId?: string): Promise<RoleEntity[]>;
+  getRole(id: string): Promise<RoleEntity>;
+  createRole(role: CreateRoleInput): Promise<RoleEntity>;
+  updateRole(role: RoleEntity): Promise<RoleEntity>;
+  deleteRole(id: string): Promise<void>;
 
-  getEffectivePermissions(
-    principal: PrincipalEntity,
-  ): Promise<ScyllaResult<EffectivePermissionsEntity>>;
+  getEffectivePermissions(principal: Principal): Promise<EffectivePermissions>;
   /** Needs no permission, unlike the above. */
-  getMyPermissions(): Promise<ScyllaResult<EffectivePermissionsEntity>>;
+  getMyPermissions(): Promise<EffectivePermissions>;
 
-  listGrants(scope?: PermissionScope, scopeId?: string): Promise<ScyllaResult<GrantEntity[]>>;
-  createGrant(input: CreateGrantInput): Promise<ScyllaResult<GrantEntity>>;
-  revokeGrant(id: string): Promise<ScyllaResult<void>>;
+  listGrants(scope?: PermissionScope, scopeId?: string): Promise<GrantEntity[]>;
+  createGrant(input: CreateGrantInput): Promise<GrantEntity>;
+  revokeGrant(id: string): Promise<void>;
   /**
    * Clears every grant of `principal` at a scope and beneath it, and returns how many.
    * Membership is derived from grants: the project grants must go too.
    */
-  revokeAllAccess(input: RevokeAllAccessInput): Promise<ScyllaResult<number>>;
+  revokeAllAccess(input: RevokeAllAccessInput): Promise<number>;
   /** Unset `organizationId`: the platform roles, no permission. Set: its roles too (`READ_ORGANIZATION`). */
   listGrantableRoles(
     scope?: PermissionScope,
     organizationId?: string,
-  ): Promise<ScyllaResult<GrantableRoleEntity[]>>;
-
-  listPermissionVocabulary(): Promise<ScyllaResult<PermissionVocabularyEntity>>;
+  ): Promise<GrantableRole[]>;
 }

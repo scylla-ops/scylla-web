@@ -9,11 +9,11 @@
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { AppSecretEntity } from '@base/features/apps';
-  import { createRenameSecret } from '@base/features/agents/presentation/rename-secret.state.svelte.ts';
+  import { createRenameSecret } from './rename-secret.state.svelte.ts';
   import AlertDialogCloseButton from '../AlertDialogCloseButton.svelte';
   import DialogFooterBand from '../DialogFooterBand.svelte';
   import SecretLabelField from '../SecretLabelField/SecretLabelField.svelte';
-  import { renameSecretMessages as messages } from './rename-secret.messages.ts';
+  import { renameSecretMessages as messages } from '@base/features/agents/presentation/messages/rename-secret.messages.ts';
 
   interface Props {
     /** Open while set. */

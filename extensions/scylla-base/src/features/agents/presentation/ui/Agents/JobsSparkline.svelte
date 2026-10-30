@@ -1,13 +1,13 @@
 <script lang="ts">
   import { activeLocale, t } from '@scylla/ui/i18n';
-  import type { DailyOutcome } from '@base/features/agents/domain/structs/agent.struct.ts';
+  import type { DailyOutcome } from '@base/features/agents/domain/entities/agent.entity.ts';
   import {
     successRateOf,
     sumOutcomes,
-  } from '@base/features/agents/domain/structs/agents-summary.struct.ts';
-  import { fillDays } from '@base/features/agents/presentation/daily-outcomes.calculator.ts';
-  import { formatPercent } from '@base/features/agents/presentation/utils/agent-format.ts';
-  import { agentsPageMessages as messages } from './agents-page.messages.ts';
+  } from '@base/features/agents/presentation/presenters/agents-summary.presenter.ts';
+  import { fillDays } from '@base/features/agents/presentation/presenters/daily-outcomes.presenter.ts';
+  import { formatPercent } from '@base/features/agents/presentation/presenters/agent-format.presenter.ts';
+  import { agentsPageMessages as messages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';
 
   interface Props {
     daily: DailyOutcome[];

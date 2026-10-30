@@ -5,15 +5,14 @@ import {
   withRegistry,
   withQueryClient,
   withWidgetInjections,
-} from '@test/render.svelte.ts';
+} from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
 import { loginPoints } from '@base/features/login/presentation/login.points.ts';
 import LoginPage from './Login.page.svelte';
 
 /**
- * The reference case of `widgets_plan.md`: a cloud-like extension turns the identifier field
+ * The reference case of the widget mechanism: a cloud-like extension turns the identifier field
  * into an email field and adds a sign-up link below the card, through the login page's own
  * widget points — with no change to `Login.page.svelte` or `LoginForm.svelte` for this test.
  */
@@ -28,7 +27,7 @@ afterEach(() => teardown.forEach(restore => restore()));
 
 const setUp = () => {
   const cache = withQueryClient();
-  const login = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
+  const login = vi.fn().mockResolvedValue(undefined);
   const loginRepository: LoginRepository = {
     login,
     requestPasswordReset: vi.fn(),

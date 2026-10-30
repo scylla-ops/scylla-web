@@ -2,13 +2,11 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { setDependencyRegistry } from '@scylla/core-sdk';
 import { runQueryFn } from '@test/queries.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  InstalledExtension,
-} from '@base/features/extensions/domain/structs/installed-extension.struct.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { InstalledExtensionEntity } from '@base/features/extensions/domain/entities/installed-extension.entity.ts';
 import { EXTENSIONS_QUERY_KEY, extensionQueries } from '../extensions.queries.ts';
 
-const extension: InstalledExtension = {
+const extension: InstalledExtensionEntity = {
   id: 'scylla-base',
   name: 'Scylla',
   version: '0.5.0',
@@ -24,14 +22,14 @@ afterEach(() => setDependencyRegistry(null));
 
 describe('extensionQueries.installed', () => {
   it('reads the extensions through the injected repository', async () => {
-    withRepository(vi.fn().mockResolvedValue(ScyllaResult.success([extension])));
+    withRepository(vi.fn().mockResolvedValue([extension]));
 
     await expect(runQueryFn(extensionQueries.installed())).resolves.toEqual([extension]);
   });
 
   it('lets a repository error through, for the query to own', async () => {
     const error = new ScyllaError('boom');
-    withRepository(vi.fn().mockResolvedValue(ScyllaResult.error(error)));
+    withRepository(vi.fn().mockRejectedValue(error));
 
     await expect(runQueryFn(extensionQueries.installed())).rejects.toBe(error);
   });

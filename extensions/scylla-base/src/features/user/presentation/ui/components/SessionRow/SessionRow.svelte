@@ -8,9 +8,9 @@
   import type {
     UserSessionEntity,
   } from '@base/features/user/domain/entities/user-session.entity.ts';
-  import { parseUserAgent } from '@base/features/user/presentation/user-agent.calculator.ts';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
-  import { sessionActivity, sessionTitle } from './session-row.ts';
+  import { parseUserAgent } from '@base/features/user/presentation/presenters/user-agent.presenter.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
+  import { sessionActivity, sessionTitle } from '@base/features/user/presentation/presenters/session-row.presenter.ts';
 
   interface Props {
     session: UserSessionEntity;
@@ -62,7 +62,7 @@
       size="sm"
       {disabled}
       aria-label={t(userMessages.signOutSession(title))}
-      onclick={() => onRevoke(session.sessionId)}
+      onclick={() => onRevoke(session.id)}
     >
       {t(userMessages.signOut)}
     </Button>

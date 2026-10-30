@@ -4,11 +4,10 @@
   import {
     createRolesPage,
     type RolesScope,
-  } from '@base/features/roles/presentation/roles-page.state.svelte.ts';
-  import { rolesMessages } from '../roles.messages.ts';
+  } from './roles-page.state.svelte.ts';
+  import { rolesMessages } from '@base/features/roles/presentation/messages/roles.messages.ts';
   import RoleDetailPanel from './RoleDetailPanel.svelte';
   import RoleList from './RoleList.svelte';
-  import RoleFormDialog from './role-form/RoleFormDialog.svelte';
 
   interface Props {
     scope: RolesScope;
@@ -41,6 +40,4 @@
       <RoleDetailPanel {page} />
     </div>
   </div>
-
-  <RoleFormDialog open={page.formOpen} role={page.editingRole} {scope} onClose={page.closeForm} />
 </div>

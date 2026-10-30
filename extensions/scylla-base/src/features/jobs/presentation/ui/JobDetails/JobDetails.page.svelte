@@ -5,13 +5,13 @@
   import { Skeleton } from '@scylla/ui/primitives';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { isFinishedStatus } from '@base/features/jobs/domain/structs/jobs-summary.struct.ts';
+  import { isFinishedStatus } from '@shared/domain/structs/job-status.struct.ts';
   import { jobMutations, jobQueries } from '@base/features/jobs/presentation/jobs.queries.ts';
-  import { createOpenLogPanels } from '@base/features/jobs/presentation/open-log-panels.svelte.ts';
+  import { createOpenLogPanels } from './open-log-panels.state.svelte.ts';
   import JobNodeLogs from './JobNodeLogs.svelte';
   import JobSummary from './JobSummary.svelte';
-  import { nodeIdOf } from '../jobs-table/job-timeline.calculator.ts';
-  import { jobsMessages } from '../jobs.messages.ts';
+  import { nodeIdOf } from '@base/features/jobs/presentation/presenters/job-timeline.presenter.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
     jobId?: string;

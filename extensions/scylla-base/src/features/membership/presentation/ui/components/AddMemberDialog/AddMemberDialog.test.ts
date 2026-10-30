@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findFloating, render } from '@test/render.svelte.ts';
+import { findFloating, render } from '@test/render.ts';
 import type {
   AssignableRole,
-} from '@base/features/membership/presentation/assignable-roles.state.svelte.ts';
+} from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
 import AddMemberDialog from './AddMemberDialog.svelte';
 
 const assignable = (overrides: Partial<AssignableRole> = {}): AssignableRole => ({
@@ -21,8 +21,8 @@ const props = (overrides: Record<string, unknown> = {}) => ({
   title: 'Add a member',
   description: 'Admit someone to this project.',
   candidates: [
-    { userId: 'user-1', username: 'alice' },
-    { userId: 'user-2', username: 'bob' },
+    { id: 'user-1', username: 'alice' },
+    { id: 'user-2', username: 'bob' },
   ],
   emptyCandidatesLabel: 'Everyone is already a member',
   roles: [assignable(), assignable({ roleId: 'project-admin', name: 'Project admin' })],

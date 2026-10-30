@@ -3,7 +3,7 @@ import { Permission, authorizationReady, can } from '@platform/authz';
 import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { signOut } from '@base/features/login';
-import { refusalOf } from '@shared/utils/scylla-result.ts';
+import { refusalOf } from '@shared/utils/scylla-error.ts';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import type { CreateUserInput, UpdateUserInput } from '../domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '../domain/entities/user-session.entity.ts';
@@ -22,7 +22,7 @@ export const userQueries = {
   list: (options: { enabled?: boolean } = {}) =>
     queryOptions({
       queryKey: USERS_QUERY_KEY(),
-      queryFn: async () => (await repository().getAll()).unwrap(),
+      queryFn: () => repository().getAll(),
       enabled: (options.enabled ?? true) && canListUsers(),
     }),
 
@@ -30,9 +30,9 @@ export const userQueries = {
   byId: (userId?: string, options: { enabled?: boolean } = {}) =>
     queryOptions({
       queryKey: USER_QUERY_KEY(userId),
-      queryFn: async () => {
+      queryFn: () => {
         if (!userId) throw new Error('User ID is required');
-        return (await repository().getById(userId)).unwrap();
+        return repository().getById(userId);
       },
       enabled: !!userId && (options.enabled ?? true) && canReadUser(userId),
     }),
@@ -41,7 +41,7 @@ export const userQueries = {
   me: () =>
     queryOptions({
       queryKey: ME_QUERY_KEY(),
-      queryFn: async () => (await repository().getMe()).unwrap(),
+      queryFn: () => repository().getMe(),
     }),
 
   /**
@@ -51,9 +51,9 @@ export const userQueries = {
   access: (userId?: string, options: { enabled?: boolean } = {}) =>
     queryOptions({
       queryKey: USER_ACCESS_QUERY_KEY(userId),
-      queryFn: async () => {
+      queryFn: () => {
         if (!userId) throw new Error('User ID is required');
-        return (await repository().listAccess(userId)).unwrap();
+        return repository().listAccess(userId);
       },
       enabled: !!userId && (options.enabled ?? true) && canReadUser(userId),
     }),
@@ -62,9 +62,9 @@ export const userQueries = {
   sessions: (userId?: string, options: { enabled?: boolean } = {}) =>
     queryOptions({
       queryKey: USER_SESSIONS_QUERY_KEY(userId),
-      queryFn: async () => {
+      queryFn: () => {
         if (!userId) throw new Error('User ID is required');
-        return (await repository().listSessions(userId)).unwrap();
+        return repository().listSessions(userId);
       },
       enabled: !!userId && (options.enabled ?? true) && canReadUser(userId),
     }),
@@ -95,7 +95,7 @@ const invalidateSessions = (userId: string) =>
 export const userMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: async (input: CreateUserInput) => (await repository().create(input)).unwrap(),
+      mutationFn: (input: CreateUserInput) => repository().create(input),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.USER_CREATE));
         return getQueryClient().invalidateQueries({ queryKey: USERS_QUERY_KEY() });
@@ -105,16 +105,16 @@ export const userMutations = {
   /** Send the changed fields only. */
   update: () =>
     mutationOptions({
-      mutationFn: async (input: UpdateUserInput) => (await repository().update(input)).unwrap(),
+      mutationFn: (input: UpdateUserInput) => repository().update(input),
       onSuccess: (_result, input) => {
         toast.success(i18n._(ToastMessages.USER_UPDATE));
-        return invalidateUser(input.userId);
+        return invalidateUser(input.id);
       },
     }),
 
   remove: () =>
     mutationOptions({
-      mutationFn: async (userId: string) => (await repository().delete(userId)).unwrap(),
+      mutationFn: (userId: string) => repository().delete(userId),
       onSuccess: (_result, userId) => {
         toast.success(i18n._(ToastMessages.USER_DELETE));
         const client = getQueryClient();
@@ -128,11 +128,11 @@ export const userMutations = {
 
   setActive: () =>
     mutationOptions({
-      mutationFn: async ({ userId, isActive }: { userId: string; isActive: boolean }) =>
-        (await repository().setActive(userId, isActive)).unwrap(),
+      mutationFn: ({ userId, isActive }: { userId: string; isActive: boolean }) =>
+        repository().setActive(userId, isActive),
       // A deactivation signs the user out everywhere.
       onSuccess: user =>
-        Promise.all([invalidateUser(user.userId), invalidateSessions(user.userId)]),
+        Promise.all([invalidateUser(user.id), invalidateSessions(user.id)]),
     }),
 
   /** The refusal of a wrong current password: the page shows it under the field, as data. */
@@ -144,30 +144,30 @@ export const userMutations = {
       }: {
         currentPassword: string;
         newPassword: string;
-      }) => refusalOf(await repository().changePassword(currentPassword, newPassword)),
+      }) => refusalOf(repository().changePassword(currentPassword, newPassword)),
     }),
 
   sendPasswordReset: () =>
     mutationOptions({
-      mutationFn: async (userId: string) => (await repository().sendPasswordReset(userId)).unwrap(),
+      mutationFn: (userId: string) => repository().sendPasswordReset(userId),
     }),
 
   revokeSessions: () =>
     mutationOptions({
-      mutationFn: async (userId: string) => (await repository().revokeSessions(userId)).unwrap(),
+      mutationFn: (userId: string) => repository().revokeSessions(userId),
       onSuccess: (_count, userId) => invalidateSessions(userId),
     }),
 
   /** The revocation of the current session signs out here: the page can be gone by then. */
   revokeSession: () =>
     mutationOptions({
-      mutationFn: async ({ userId, sessionId }: { userId: string; sessionId: string }) =>
-        (await repository().revokeSession(userId, sessionId)).unwrap(),
+      mutationFn: ({ userId, sessionId }: { userId: string; sessionId: string }) =>
+        repository().revokeSession(userId, sessionId),
       onSuccess: async (_result, { userId, sessionId }) => {
         const sessions = getQueryClient().getQueryData<UserSessionEntity[]>(
           USER_SESSIONS_QUERY_KEY(userId),
         );
-        if (sessions?.some(session => session.sessionId === sessionId && session.current)) {
+        if (sessions?.some(session => session.id === sessionId && session.current)) {
           signOut();
         } else {
           await invalidateSessions(userId);
@@ -181,7 +181,7 @@ export const userMutations = {
    */
   deleteAccount: () =>
     mutationOptions({
-      mutationFn: async (password: string) => refusalOf(await repository().deleteAccount(password)),
+      mutationFn: async (password: string) => refusalOf(repository().deleteAccount(password)),
       onSuccess: (refusal: string | null) => {
         if (refusal === null) signOut();
       },

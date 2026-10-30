@@ -4,27 +4,43 @@ import { scyllaNavigate, contextStore } from '@platform/context';
 import { JOBS_QUERY_KEY } from '@base/features/jobs';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import { toast } from '@scylla/ui/utils';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
-import type { PipelineEntity } from '../domain/entities/pipeline.entity.ts';
-import type { PipelineMetadata, PipelineStep } from '../domain/structs/pipeline.struct.ts';
+import type { PipelineEntity, PipelineMetadata } from '../domain/entities/pipeline.entity.ts';
+import {
+  InvalidPipelineError,
+  type SavePipelineInput,
+} from '../domain/use-cases/save-pipeline.use-case.ts';
+import type { NodeTemplateEntity } from '../domain/entities/node-template.entity.ts';
 import type { PipelineModule } from '../pipeline.module.ts';
-import { pipelineMessages } from './pipeline.messages.ts';
+import { pipelineMessages } from './messages/pipeline.messages.ts';
+import { pipelineIssueText } from './presenters/pipeline-issue.presenter.ts';
 import {
   CREATE_PIPELINE_MUTATION_KEY,
   ORGANIZATION_PIPELINES_QUERY_KEY,
-  PIPELINES_LOOKUP_PAGE,
   PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_ROOT,
   PIPELINE_QUERY_KEY,
   PROJECT_PIPELINES_QUERY_ROOT,
   RUN_PIPELINE_MUTATION_KEY,
-} from './pipelines.query-keys.ts';
+  NODE_TEMPLATES_QUERY_KEY,
+} from './pipeline.query-keys.ts';
+
+//todo: check about split this file into multiple .queries to improve readability
 
 // Resolved per call: tests swap the registry.
 const repository = () =>
   getModuleDomain<typeof PipelineModule.domain>('pipeline').pipelineRepository;
 
+const savePipeline = () => getModuleDomain<typeof PipelineModule.domain>('pipeline').savePipeline;
+
+const templateRepository = () =>
+  getModuleDomain<typeof PipelineModule.domain>('pipeline').nodeTemplateRepository;
+
 const currentProject = () => contextStore.getState().project;
+
+/** One request for a project's whole list, on the overview pages. */
+const PIPELINES_LOOKUP_PAGE: PaginationParams = { page: 1, pageSize: 100 };
 
 export const pipelineQueries = {
   /** `enabled`: wait until the page size is measured, or the first page is fetched twice. */
@@ -36,8 +52,7 @@ export const pipelineQueries = {
     queryOptions<PaginatedList<PipelineMetadata>>({
       queryKey: PIPELINES_QUERY_KEY(projectId, pagination),
       enabled: (options.enabled ?? true) && !!projectId,
-      queryFn: async () =>
-        (await repository().getMetadataByProjectId(projectId, pagination)).unwrap(),
+      queryFn: () => repository().getMetadataByProjectId(projectId, pagination),
       staleTime: 5_000,
     }),
 
@@ -46,10 +61,8 @@ export const pipelineQueries = {
     queryOptions<PaginatedList<PipelineMetadata>>({
       queryKey: ORGANIZATION_PIPELINES_QUERY_KEY(organizationId, PIPELINES_LOOKUP_PAGE),
       enabled: !!organizationId,
-      queryFn: async () =>
-        (
-          await repository().getMetadataByOrganizationId(organizationId!, PIPELINES_LOOKUP_PAGE)
-        ).unwrap(),
+      queryFn: () =>
+        repository().getMetadataByOrganizationId(organizationId!, PIPELINES_LOOKUP_PAGE),
       staleTime: 30_000,
     }),
 
@@ -57,28 +70,30 @@ export const pipelineQueries = {
     queryOptions<PipelineEntity>({
       queryKey: PIPELINE_QUERY_KEY(pipelineId),
       enabled: !!pipelineId,
-      queryFn: async () => (await repository().getById(pipelineId)).unwrap(),
+      queryFn: () => repository().getById(pipelineId),
       staleTime: 30_000,
     }),
 };
 
-/** The single page, and whether it covers the whole list. */
-export const asPipelineFeed = (data: PaginatedList<PipelineMetadata> | undefined) => {
-  const pipelines = data?.items ?? [];
-  const totalCount = data?.pagination.totalCount ?? 0;
-
-  return {
-    pipelines,
-    totalCount,
-    isPartialWindow: totalCount > pipelines.length,
-  };
+/** Read by the editor only, behind its own route guard: nothing to gate here. */
+export const nodeTemplateQueries = {
+  list: () =>
+    queryOptions<NodeTemplateEntity[]>({
+      queryKey: NODE_TEMPLATES_QUERY_KEY(),
+      queryFn: () => templateRepository().list(),
+      staleTime: Infinity,
+    }),
 };
 
-export interface EditPipelineInput {
-  id: string;
-  nodes: PipelineStep[];
-  name?: string;
-}
+/** A pipeline the domain refuses gets the error toast of the app, in the language of the user. */
+const save = async (input: SavePipelineInput) => {
+  try {
+    await savePipeline().execute(input);
+  } catch (error) {
+    if (!(error instanceof InvalidPipelineError)) throw error;
+    throw new ScyllaError(pipelineIssueText(error.issue), { code: error.code, cause: error });
+  }
+};
 
 /** Needs the name too: `goToProject` writes it into the context (the breadcrumb). */
 const returnToProject = () => {
@@ -90,28 +105,23 @@ export const pipelineMutations = {
   create: () =>
     mutationOptions({
       mutationKey: CREATE_PIPELINE_MUTATION_KEY,
-      mutationFn: async (pipeline: Omit<PipelineEntity, 'id'>) =>
-        (await repository().create(pipeline)).unwrap(),
-      onSuccess: () => {
+      mutationFn: (pipeline: Omit<SavePipelineInput, 'id'>) => save(pipeline),
+      onSuccess: (_, { projectId }) => {
         toast.success(i18n._(ToastMessages.PIPELINE_CREATE));
-        const { id, name } = currentProject();
-        if (!id || !name) return;
-
-        void getQueryClient().invalidateQueries({ queryKey: PROJECT_PIPELINES_QUERY_ROOT(id) });
+        void getQueryClient().invalidateQueries({
+          queryKey: PROJECT_PIPELINES_QUERY_ROOT(projectId),
+        });
         returnToProject();
       },
     }),
 
   update: () =>
     mutationOptions({
-      mutationFn: async ({ id, nodes, name }: EditPipelineInput) =>
-        (await repository().edit(id, nodes, name)).unwrap(),
-      onSuccess: pipeline => {
+      mutationFn: (pipeline: SavePipelineInput & { id: string }) => save(pipeline),
+      onSuccess: (_, { id, projectId }) => {
         const queryClient = getQueryClient();
-        void queryClient.invalidateQueries({
-          queryKey: PROJECT_PIPELINES_QUERY_ROOT(pipeline.projectId),
-        });
-        void queryClient.invalidateQueries({ queryKey: PIPELINE_QUERY_KEY(pipeline.id) });
+        void queryClient.invalidateQueries({ queryKey: PROJECT_PIPELINES_QUERY_ROOT(projectId) });
+        void queryClient.invalidateQueries({ queryKey: PIPELINE_QUERY_KEY(id) });
         toast.success(i18n._(ToastMessages.PIPELINE_UPDATE));
         returnToProject();
       },
@@ -119,27 +129,24 @@ export const pipelineMutations = {
 
   remove: () =>
     mutationOptions({
-      mutationFn: async (pipelineId: string) =>
-        (await repository().deleteById(pipelineId)).unwrap(),
+      mutationFn: (pipelineId: string) => repository().deleteById(pipelineId),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.PIPELINE_DELETE));
         void getQueryClient().invalidateQueries({ queryKey: PIPELINES_QUERY_ROOT });
       },
     }),
 
-  /** The backend has no duplicate: read the pipeline, then create a copy of its steps. */
+  /** The backend has no duplicate: read the pipeline, then create a copy of its nodes. */
   duplicate: () =>
     mutationOptions({
       mutationFn: async (pipelineId: string) => {
-        const pipeline = (await repository().getById(pipelineId)).unwrap();
+        const pipeline = await repository().getById(pipelineId);
 
-        (
-          await repository().create({
-            name: i18n._(pipelineMessages.copyOf(pipeline.name)),
-            projectId: pipeline.projectId,
-            nodes: pipeline.nodes,
-          })
-        ).unwrap();
+        await save({
+          projectId: pipeline.projectId,
+          name: i18n._(pipelineMessages.copyOf(pipeline.name)),
+          nodes: pipeline.nodes,
+        });
       },
       onSuccess: () => {
         void getQueryClient().invalidateQueries({ queryKey: PIPELINES_QUERY_ROOT });
@@ -148,11 +155,11 @@ export const pipelineMutations = {
       },
     }),
 
-  /** No toast here: `run-pipeline.svelte.ts` decides it from the agents. */
+  /** No toast here: `run-pipeline.state.svelte.ts` decides it from the agents. */
   run: () =>
     mutationOptions({
       mutationKey: RUN_PIPELINE_MUTATION_KEY,
-      mutationFn: async (pipelineId: string) => (await repository().run(pipelineId)).unwrap(),
+      mutationFn: (pipelineId: string) => repository().run(pipelineId),
       onSuccess: (_data, pipelineId) => {
         void getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId) });
       },

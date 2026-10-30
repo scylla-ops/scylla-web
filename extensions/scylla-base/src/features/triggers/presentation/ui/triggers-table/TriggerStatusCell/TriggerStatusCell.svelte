@@ -7,8 +7,7 @@
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { t } from '@scylla/ui/i18n';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-  import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
-  import { triggersMessages } from '@base/features/triggers/presentation/ui/triggers.messages.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     trigger: TriggerEntity;
@@ -47,11 +46,11 @@
 
   {#if !trigger.enabled}
     <span class="text-xs text-muted-foreground">
-      {trigger.source.kind === TriggerKind.Webhook
+      {trigger.source.kind === 'webhook'
         ? t(triggersMessages.disabledWebhook)
         : t(triggersMessages.disabled)}
     </span>
-  {:else if trigger.source.kind === TriggerKind.Cron}
+  {:else if trigger.source.kind === 'cron'}
     {#if trigger.nextFireAt}
       <span class="text-xs text-muted-foreground">
         {t(triggersMessages.next)}

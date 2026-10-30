@@ -7,7 +7,7 @@
     type ThemePreference,
   } from '@scylla/ui/stores';
   import { cn } from '@scylla/ui/utils';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
   import ThemePreview from './ThemePreview.svelte';
 
   const id = $props.id();

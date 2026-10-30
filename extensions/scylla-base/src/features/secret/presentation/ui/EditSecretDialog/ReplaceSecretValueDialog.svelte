@@ -13,7 +13,7 @@
     Button,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { editSecretMessages as messages } from './edit-secret.messages.ts';
+  import { editSecretMessages as messages } from '@base/features/secret/presentation/messages/edit-secret.messages.ts';
 
   interface Props {
     open: boolean;

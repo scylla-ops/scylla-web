@@ -25,7 +25,7 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 | Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect` |
 | DI | `getModuleDomain`, `setDependencyRegistry`, `DomainRegistry` |
 | Query | `createQuery`, `createMutation`, `createQueries`, `queryOptions`, `mutationOptions`, `getQueryClient`, `setQueryClient` |
-| Widgets | `point`, `WidgetPoint`, `ZonePoint`, `TextsPoint`, `ValuePoint`, `ZoneComponentOptions`, `ZonePosition`, `WidgetInjection`, `installWidgetInjectionsForTest` |
+| Widgets | `point`, `WidgetZone`, `WidgetPoint`, `ZonePoint`, `TextsPoint`, `ValuePoint`, `ZoneComponentOptions`, `ZonePosition`, `WidgetInjection`, `installWidgetInjectionsForTest` |
 | Widgets (core wiring) | `buildWidgetInjectionRegistry`, `setWidgetInjectionRegistry`, `WidgetInjectionRegistry` |
 
 ## Layout
@@ -47,9 +47,8 @@ src/
               widget-injection.struct.ts     WidgetInjection
               widget-injection-registry.ts   WidgetInjectionRegistry (keyed by point object), setWidgetInjectionRegistry
               build-widget-injection-registry.ts  buildWidgetInjectionRegistry — load order + conflict checks, for the loader and the tests
-              widget-zone.calculator.ts      resolveZone (pure, internal)
-              widget-zone.actions.svelte.ts  mountZone — what a zone point does as an action
-              WidgetInjectionHost.svelte     internal — mounts one injected component
+              widget-zone.presenter.ts       resolveZone (pure, internal)
+              WidgetZone/WidgetZone.svelte   WidgetZone — opens a zone in the owner's markup
               load-injected-component.ts     one cached promise per RegisteredComponent
               report-widget-injection-error.ts
               install-widget-injections-for-test.ts  installWidgetInjectionsForTest
@@ -81,8 +80,6 @@ export class AcmeAuthExtension {}
 
 ## Widgets — letting one extension change another's UI
 
-Full design: `widgets_plan.md` at the repo root. This is the practical summary.
-
 A **widget** is a component that opens **points**: a **zone** (receives components), a **text
 scope** (messages that can be overridden) or a **value** (data that can be patched). The owner
 defines its points once, as values — never a `declare module` — and its module lists them:
@@ -107,7 +104,7 @@ lists cannot be changed: an injection on it fails at start-up. The feature's bar
 The owner renders them with almost the code it writes with no points:
 
 ```svelte
-<div use:loginPoints.footer={{ isPending: state.isPending }}></div>  <!-- a zone point is an action -->
+<WidgetZone point={loginPoints.footer} context={{ isPending: state.isPending }} />  <!-- opens the zone -->
 {t(loginMessages.title)}                                             <!-- `t` applies the overrides -->
 ```
 ```typescript
@@ -118,7 +115,13 @@ const items = $derived(loginPoints.fields.resolve([/* … */]));
   *object*, not by its id: the id is a hash of the source string, so another "Password" elsewhere
   in the app is not changed. A message with a placeholder is a function and stays closed — open a
   subset object if a messages file has some (`point.texts({ title: m.title })`).
-- **A zone point is a Svelte action.** `use:loginPoints.footer={context}`, nothing to import.
+- **A zone opens with `<WidgetZone point={…} context={…}>`** (`@scylla/core-sdk`). Its children
+  are the owner's own content, which a `replace` takes the place of (it is then not mounted). The
+  injected components get `context` as a prop and follow it without a remount. They render in the
+  owner's tree, so they read its Svelte context (`useSidebar()`, a `DataTable` layout): never
+  mount them with `mount()`, which starts a tree with no parent. Each one is in its own
+  `<svelte:boundary>`: one that throws is logged and renders nothing. The zone is a
+  `display: contents` element with `data-widget-zone="<module id>.<key>"`.
 
 A **widget injection** is what another extension declares to change those points — components,
 texts, patches, grouped by intention, never by owner. It is an array of changes, listed on
@@ -150,7 +153,7 @@ export const EmailLoginWidgetInjection = [
   `installWidgetInjectionsForTest({ EmailLoginWidgetInjection })` installs it with
   no owner/dependency check — render your component, read the overridden
   texts, resolve the patched value. The stricter path (the one `loadExtensions` actually runs)
-  is `test/render.svelte.ts`'s `withWidgetInjections`, for this repo's own tests.
+  is `test/render.ts`'s `withWidgetInjections`, for this repo's own tests.
 
 ## `Register` — the type of a route's `permission`
 
@@ -183,7 +186,7 @@ called by `startCore`, once. Extensions only read: `navigateTo`, `routeParams`,
   `package.json` that names `@tanstack/query-core` names the same version. Two copies fork the
   cache silently.
 - `getQueryClient()` falls back to a plain client until the core installs the app's. A test
-  installs its own with `withQueryClient()` (`test/render.svelte.ts`, `retry: false`).
+  installs its own with `withQueryClient()` (`test/render.ts`, `retry: false`).
 - `installedExtensions()` is empty until the core starts. Read it per call, never at import
   time: the modules load before `startCore` installs it.
 - `routeParams()` and `routeTrail()` are empty until a router is installed; `currentPathname()`

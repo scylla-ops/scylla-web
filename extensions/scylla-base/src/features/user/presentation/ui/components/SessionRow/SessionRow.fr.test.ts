@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import { withLocale } from '@test/i18n.ts';
 import { messages } from '@base/features/user/locales/fr/messages.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
@@ -13,7 +13,7 @@ const NOW = Date.parse('2026-10-09T12:00:00.000Z');
 const minutesAgo = (minutes: number) => new Date(NOW - minutes * 60_000).toISOString();
 
 const session = (overrides: Partial<UserSessionEntity> = {}): UserSessionEntity => ({
-  sessionId: 'session-2',
+  id: 'session-2',
   createdAt: minutesAgo(600),
   lastActiveAt: minutesAgo(1),
   expiresAt: minutesAgo(-600),
@@ -62,7 +62,7 @@ describe('SessionRow in French', () => {
     expect(screen.getByText('Client API · 203.0.113.7 · Active maintenant')).toBeInTheDocument();
     expect(screen.getByText('Cette session')).toBeInTheDocument();
 
-    show({ userAgent: '', sessionId: 'session-3' });
+    show({ userAgent: '', id: 'session-3' });
     expect(screen.getByText('Appareil inconnu')).toBeInTheDocument();
   });
 });

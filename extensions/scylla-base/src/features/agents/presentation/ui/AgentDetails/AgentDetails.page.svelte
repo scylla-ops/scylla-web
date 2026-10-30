@@ -7,14 +7,14 @@
   import { activeLocale, t } from '@scylla/ui/i18n';
   import {
     createAgentActions,
-  } from '@base/features/agents/presentation/agent-actions.state.svelte.ts';
+  } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
   import {
     createAgentDetails,
-  } from '@base/features/agents/presentation/agent-details.state.svelte.ts';
-  import { formatDayTime } from '@base/features/agents/presentation/utils/agent-format.ts';
+  } from './agent-details.state.svelte.ts';
+  import { formatDayTime } from '@base/features/agents/presentation/presenters/agent-format.presenter.ts';
   import AgentActionDialogs from '../components/AgentActionDialogs.svelte';
   import AgentRunCommand from '../components/AgentRunCommand/AgentRunCommand.svelte';
-  import { agentsMessages } from '../agents.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
   import AccessCard from './AccessCard/AccessCard.svelte';
   import AgentHeader from './AgentHeader.svelte';
   import HostCard from './HostCard.svelte';
@@ -22,7 +22,7 @@
   import KeyNumbersCard from './KeyNumbersCard.svelte';
   import RecentJobsCard from './RecentJobsCard.svelte';
   import SecretsCard from './SecretsCard.svelte';
-  import { agentDetailsMessages as messages } from './agent-details.messages.ts';
+  import { agentDetailsMessages as messages } from '@base/features/agents/presentation/messages/agent-details.messages.ts';
 
   interface Props {
     agentId?: string;

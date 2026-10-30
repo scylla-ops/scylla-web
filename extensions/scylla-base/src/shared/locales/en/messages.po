@@ -21,7 +21,7 @@ msgstr "A username cannot contain \"@\"."
 msgid "Agent id copied"
 msgstr "Agent id copied"
 
-#: extensions/scylla-base/src/shared/utils/scylla-result.ts:64
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:106
 msgid "An unexpected error occurred"
 msgstr "An unexpected error occurred"
 
@@ -37,7 +37,7 @@ msgstr "Cancelled"
 msgid "Could not copy: select the id manually"
 msgstr "Could not copy: select the id manually"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/user-identity.messages.ts:4
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:4
 msgid "Deleted user"
 msgstr "Deleted user"
 
@@ -53,7 +53,7 @@ msgstr "Failed"
 msgid "Job queued: no agent connected"
 msgstr "Job queued: no agent connected"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/StatusBar/status-bar.messages.ts:4
+#: extensions/scylla-base/src/shared/presentation/messages/status-bar.messages.ts:4
 msgid "No data"
 msgstr "No data"
 
@@ -133,7 +133,7 @@ msgstr "Secret deleted"
 msgid "Secret updated"
 msgstr "Secret updated"
 
-#: extensions/scylla-base/src/shared/utils/scylla-result.ts:52
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:103
 msgid "Server unreachable"
 msgstr "Server unreachable"
 
@@ -193,7 +193,7 @@ msgstr "Trigger updated"
 msgid "Unknown"
 msgstr "Unknown"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/user-identity.messages.ts:5
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:5
 msgid "Unknown user"
 msgstr "Unknown user"
 
@@ -213,6 +213,6 @@ msgstr "User information updated"
 msgid "You cannot delete your own account."
 msgstr "You cannot delete your own account."
 
-#: extensions/scylla-base/src/shared/utils/scylla-result.ts:62
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:104
 msgid "You don't have permission to perform this action"
 msgstr "You don't have permission to perform this action"

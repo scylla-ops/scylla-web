@@ -1,27 +1,20 @@
-import type { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type {
   CreatedAgent,
   AgentStats,
-} from '@base/features/agents/domain/structs/agent.struct.ts';
-import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
-import type {
+  AgentEntity,
   AgentJob,
-  PipelineName,
-} from '@base/features/agents/domain/structs/agent-job.struct.ts';
+  AgentJobPipeline,
+} from '@base/features/agents/domain/entities/agent.entity.ts';
 
 export interface AgentsRepository {
-  listAgents(organizationId: string): Promise<ScyllaResult<AgentEntity[]>>;
-  getAgent(agentId: string): Promise<ScyllaResult<AgentEntity>>;
-  getAgentStats(agentId: string): Promise<ScyllaResult<AgentStats>>;
+  listAgents(organizationId: string): Promise<AgentEntity[]>;
+  getAgent(agentId: string): Promise<AgentEntity>;
+  getAgentStats(agentId: string): Promise<AgentStats>;
   /** CE labels the first secret with the name. */
-  createAgent(organizationId: string, name: string): Promise<ScyllaResult<CreatedAgent>>;
-  deleteAgent(agentId: string): Promise<ScyllaResult<void>>;
+  createAgent(organizationId: string, name: string): Promise<CreatedAgent>;
+  deleteAgent(agentId: string): Promise<void>;
   /** The latest jobs the server placed on the agent, at any state, newest first. */
-  listJobs(
-    organizationId: string,
-    agentId: string,
-    limit: number,
-  ): Promise<ScyllaResult<AgentJob[]>>;
+  listJobs(organizationId: string, agentId: string, limit: number): Promise<AgentJob[]>;
   /** The pipelines of the organization, for the names of the recent jobs. */
-  listPipelineNames(organizationId: string): Promise<ScyllaResult<PipelineName[]>>;
+  listPipelineNames(organizationId: string): Promise<AgentJobPipeline[]>;
 }

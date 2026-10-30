@@ -1,6 +1,6 @@
 /** One session of a user. It holds no token: its id cannot authenticate a call. */
 export interface UserSessionEntity {
-  sessionId: string;
+  id: string;
   createdAt: string;
   /** Up to five minutes old: the server moves it at most once every five minutes. */
   lastActiveAt: string;

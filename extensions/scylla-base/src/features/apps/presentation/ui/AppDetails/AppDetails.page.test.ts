@@ -3,9 +3,9 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { type Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
 import AppDetailsPage from './AppDetails.page.svelte';
 
@@ -51,10 +51,10 @@ const grant = (permissions: Permission[] | 'all') =>
   });
 
 beforeEach(() => {
-  getApp = vi.fn().mockResolvedValue(ScyllaResult.success(app()));
-  deleteApp = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
-  setAppActive = vi.fn().mockResolvedValue(ScyllaResult.success(app({ isActive: false })));
-  listAppSecrets = vi.fn().mockResolvedValue(ScyllaResult.success([secret()]));
+  getApp = vi.fn().mockResolvedValue(app());
+  deleteApp = vi.fn().mockResolvedValue(undefined);
+  setAppActive = vi.fn().mockResolvedValue(app({ isActive: false }));
+  listAppSecrets = vi.fn().mockResolvedValue([secret()]);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -121,18 +121,14 @@ describe('AppDetailsPage', () => {
   });
 
   it('reports a failed load rather than a blank page', async () => {
-    getApp.mockResolvedValue(
-      ScyllaResult.error(new ScyllaError('boom', { cause: { code: 'INTERNAL' } })),
-    );
+    getApp.mockRejectedValue(new ScyllaError('boom', { code: 'INTERNAL' }));
     render(AppDetailsPage, { appId: 'app-1' });
 
     expect(await screen.findByText('Error loading app')).toBeInTheDocument();
   });
 
   it('leaves for the list when the app no longer exists', async () => {
-    getApp.mockResolvedValue(
-      ScyllaResult.error(new ScyllaError('gone', { cause: { code: 'NOT_FOUND' } })),
-    );
+    getApp.mockRejectedValue(new ScyllaError('gone', { code: 'NOT_FOUND' }));
     render(AppDetailsPage, { appId: 'app-1' });
 
     await vi.waitFor(() => expect(nav.navigate).toHaveBeenCalledWith('..', expect.anything()));

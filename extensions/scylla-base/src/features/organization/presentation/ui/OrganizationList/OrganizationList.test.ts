@@ -4,11 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type {
-  OrganizationRepository,
-} from '@base/features/organization/domain/repository/organization.repository.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import type { OrganizationRepository } from '@base/features/organization/domain/repository/organization.repository.ts';
 import OrganizationList from './OrganizationList.svelte';
 import OrganizationListFixture from './OrganizationList.fixture.svelte';
 
@@ -32,8 +29,8 @@ const grant = (...permissions: Permission[]) =>
     },
   });
 
-const setUp = (getMine: () => Promise<ScyllaResult<typeof organizations>>) => {
-  remove = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
+const setUp = (getMine: () => Promise<typeof organizations>) => {
+  remove = vi.fn().mockResolvedValue(undefined);
   const repository = { getMine, delete: remove } as unknown as OrganizationRepository;
   const cache = withQueryClient();
   teardown = [cache.restore, withRegistry({ organization: { organizationRepository: repository } })];
@@ -60,7 +57,7 @@ describe('OrganizationList', () => {
   });
 
   it('lists the organizations of the user', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success(organizations)));
+    setUp(() => Promise.resolve(organizations));
     render(OrganizationList);
 
     expect(await screen.findByText('Acme Corp')).toBeInTheDocument();
@@ -69,7 +66,7 @@ describe('OrganizationList', () => {
   });
 
   it('makes a selected organization active and opens its dashboard', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success(organizations)));
+    setUp(() => Promise.resolve(organizations));
     render(OrganizationList);
 
     await fireEvent.click(await screen.findByText('Globex Inc'));
@@ -80,7 +77,7 @@ describe('OrganizationList', () => {
 
   it('hides the row actions that the user may not use', async () => {
     grant();
-    setUp(() => Promise.resolve(ScyllaResult.success(organizations)));
+    setUp(() => Promise.resolve(organizations));
     render(OrganizationList);
     await screen.findByText('Acme Corp');
 
@@ -91,7 +88,7 @@ describe('OrganizationList', () => {
 
   it('opens the members of an organization without also selecting the row', async () => {
     grant(Permission.LIST_ORGANIZATION_MEMBERS);
-    setUp(() => Promise.resolve(ScyllaResult.success(organizations)));
+    setUp(() => Promise.resolve(organizations));
     render(OrganizationList);
 
     const [, globexMembers] = await screen.findAllByRole('button', { name: 'Members' });
@@ -104,7 +101,7 @@ describe('OrganizationList', () => {
 
   it('opens the edit dialog for an organization', async () => {
     grant(Permission.UPDATE_ORGANIZATION);
-    setUp(() => Promise.resolve(ScyllaResult.success(organizations)));
+    setUp(() => Promise.resolve(organizations));
     render(OrganizationList);
 
     const [acmeEdit] = await screen.findAllByRole('button', { name: 'Edit' });
@@ -115,7 +112,7 @@ describe('OrganizationList', () => {
 
   it('moves to another organization after deleting the active one', async () => {
     grant(Permission.DELETE_ORGANIZATION);
-    setUp(() => Promise.resolve(ScyllaResult.success(organizations)));
+    setUp(() => Promise.resolve(organizations));
     render(OrganizationList);
 
     const [acmeDelete] = await screen.findAllByRole('button', { name: 'Delete' });
@@ -131,7 +128,7 @@ describe('OrganizationList', () => {
 
   it('keeps the active organization after deleting another one', async () => {
     grant(Permission.DELETE_ORGANIZATION);
-    setUp(() => Promise.resolve(ScyllaResult.success(organizations)));
+    setUp(() => Promise.resolve(organizations));
     render(OrganizationList);
 
     const [, globexDelete] = await screen.findAllByRole('button', { name: 'Delete' });
@@ -144,7 +141,7 @@ describe('OrganizationList', () => {
   });
 
   it('renders each row with the row component that the caller gives', async () => {
-    setUp(() => Promise.resolve(ScyllaResult.success(organizations)));
+    setUp(() => Promise.resolve(organizations));
     render(OrganizationListFixture);
 
     await screen.findByText('Acme Corp');

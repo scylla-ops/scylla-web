@@ -16,10 +16,12 @@ Authorization primitives: may this user do this?
 ## Public API — `index.ts`
 
 ```typescript
-Permission, PermissionScope, PrincipalKind, RoleKind
-type AccessEntity, AccessSpec, PrincipalEntity
-canAccess, permissionLevel
-type EffectivePermissionsEntity, EffectiveScopeEntity, PermissionTarget
+Permission, permissionLevel, PERMISSION_IMPLICATIONS, impliersOf
+PermissionScope, scopeCovers, type AccessScope
+PrincipalKind, type Principal
+accessConfers, type Access, AccessSpec
+canAccess, holdsFullControl, holdsPermission
+type EffectivePermissions, EffectiveScope, PermissionTarget
 can, authorizationReady                            // reactive in a Svelte component
 permissionsStore
 Can, RequirePermission, PermissionDenied           // Svelte components
@@ -52,7 +54,16 @@ scope of the resource a permission targets, as the backend's `Permission::resour
 user counts as SYSTEM, an app as ORGANIZATION). Full control on an organization therefore does
 not answer `MANAGE_ROLES` or `LIST_USERS`, and full control on a project does not answer an
 organization permission. A new permission of the SYSTEM or ORGANIZATION level goes in the sets
-of `effective-permissions.entity.ts`; the roles catalog test fails until it does.
+of `permission.struct.ts`. The roles catalog takes the scope of each permission from
+`permissionLevel`: there is one table, not two.
+
+**Scopes go broad to narrow, in one function.** `scopeCovers(scope, other)` is the only place
+that compares two scopes. `canAccess` and the role editor both use it. Do not compare the enum
+values by hand.
+
+**An implication is declared once.** `PERMISSION_IMPLICATIONS` (holding `MANAGE_ROLES` is
+holding `MANAGE_SYSTEM_GRANTS`) is read by `accessConfers`, and the role editor writes the
+implied permission from the same list.
 
 `permissionsStore` has exactly **one writer**: `syncMyPermissions`, called by the shell state in
 `shell/`. If you find yourself writing to it from anywhere else, the fix is upstream.
@@ -62,9 +73,12 @@ of `effective-permissions.entity.ts`; the roles catalog test fails until it does
 ```
 index.ts                             public API
 domain/
-  structs/permission.struct.ts       Permission, PermissionScope, PrincipalKind, RoleKind,
-                                     AccessSpec, AccessEntity, PrincipalEntity
-  entities/effective-permissions.entity.ts   EffectivePermissionsEntity + canAccess (pure)
+  structs/                           no entity: the module owns nothing with an identity
+    permission.struct.ts             Permission, permissionLevel, PERMISSION_IMPLICATIONS
+    permission-scope.struct.ts       PermissionScope, AccessScope, scopeCovers
+    principal.struct.ts              PrincipalKind, Principal
+    access.struct.ts                 AccessSpec, Access, accessConfers
+    effective-permissions.struct.ts  EffectivePermissions + canAccess, holdsPermission (pure)
 presentation/
   authorization.ts                   can, authorizationReady
   stores/permissions.store.ts        the store (single writer: features/roles)
@@ -91,12 +105,13 @@ action exists cannot ask for access to it.
 - **Route permissions are declared on the module, not here.** For a `ModuleRoute.permission`,
   the route guard of [`platform/routing`](../../../../../packages/core/AGENTS.md) renders `RequirePermission` for
   you. Do not wrap a page by hand as well.
-- `Permission` is the enum every module gates on — adding one means adding it here, and the
-  role editor picks it up from the backend vocabulary without further changes.
-- `canAccess` in `effective-permissions.entity.ts` is **pure**. Authorization logic goes there,
+- `Permission` is the enum every module gates on — adding one means adding it here, in the
+  level sets of `permission.struct.ts`, and in the catalog of `features/roles` when a human may
+  toggle it.
+- `canAccess` in `effective-permissions.struct.ts` is **pure**. Authorization logic goes there,
   not into a component.
 - Scope matters: a permission held at the organization applies to its projects; one held on a
-  project does not apply upward. `can` handles this — do not compare permission arrays by hand.
+  project does not apply upward (`scopeCovers`). `can` handles this — do not compare permission arrays by hand.
 - Client-side gating is UX, not security. The backend enforces. Never treat a passing `can`
   as proof.
 

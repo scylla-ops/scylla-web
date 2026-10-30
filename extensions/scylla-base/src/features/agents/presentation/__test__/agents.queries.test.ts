@@ -5,7 +5,6 @@ import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { AgentsRepository } from '@base/features/agents/domain/repository/agents.repository.ts';
 import {
   APPS_QUERY_KEY,
@@ -63,16 +62,16 @@ const grantEverything = () =>
 
 beforeEach(() => {
   repository = {
-    listAgents: vi.fn().mockResolvedValue(ScyllaResult.success([agent])),
-    getAgent: vi.fn().mockResolvedValue(ScyllaResult.success(agent)),
-    getAgentStats: vi.fn().mockResolvedValue(ScyllaResult.success({ daily: [] })),
-    createAgent: vi.fn().mockResolvedValue(ScyllaResult.success({ agent, secret: 'sk-once' })),
-    deleteAgent: vi.fn().mockResolvedValue(ScyllaResult.success(undefined)),
-    listJobs: vi.fn().mockResolvedValue(ScyllaResult.success([])),
-    listPipelineNames: vi.fn().mockResolvedValue(ScyllaResult.success([])),
+    listAgents: vi.fn().mockResolvedValue([agent]),
+    getAgent: vi.fn().mockResolvedValue(agent),
+    getAgentStats: vi.fn().mockResolvedValue({ daily: [] }),
+    createAgent: vi.fn().mockResolvedValue({ agent, secret: 'sk-once' }),
+    deleteAgent: vi.fn().mockResolvedValue(undefined),
+    listJobs: vi.fn().mockResolvedValue([]),
+    listPipelineNames: vi.fn().mockResolvedValue([]),
   };
 
-  setAppActive = vi.fn().mockResolvedValue(ScyllaResult.success({ id: 'agent-1' }));
+  setAppActive = vi.fn().mockResolvedValue({ id: 'agent-1' });
 
   setDependencyRegistry({
     agents: { agentsRepository: repository },

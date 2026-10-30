@@ -6,20 +6,20 @@
   import { t } from '@scylla/ui/i18n';
   import type {
     AgentActions,
-  } from '@base/features/agents/presentation/agent-actions.state.svelte.ts';
-  import type { AgentRow } from '@base/features/agents/presentation/agents-page.state.svelte.ts';
+  } from '@base/features/agents/presentation/ui/components/agent-actions.state.svelte.ts';
+  import type { AgentRow } from './agents-page.state.svelte.ts';
   import {
     memoryAmount,
     shortId,
     versionTag,
-  } from '@base/features/agents/presentation/utils/agent-format.ts';
+  } from '@base/features/agents/presentation/presenters/agent-format.presenter.ts';
   import AgentActionsMenu from '../components/AgentActionsMenu.svelte';
   import AgentBot from '../components/AgentBot/AgentBot.svelte';
-  import { agentsMessages } from '../agents.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
   import AccessBadges from './AccessBadges.svelte';
   import AgentActivity from './AgentActivity.svelte';
   import JobsSparkline from './JobsSparkline.svelte';
-  import { agentsPageMessages as messages } from './agents-page.messages.ts';
+  import { agentsPageMessages as messages } from '@base/features/agents/presentation/messages/agents-page.messages.ts';
 
   interface Props {
     row: AgentRow;

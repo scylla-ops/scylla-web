@@ -4,7 +4,6 @@ import { setDependencyRegistry } from '@scylla/core-sdk';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { runQueryFn } from '@test/queries.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
 import { jobsByPipelinesQueries } from '../jobs-by-pipelines.queries.ts';
@@ -43,7 +42,7 @@ let repository: JobsRepository;
 
 beforeEach(() => {
   repository = {
-    getByPipelineId: vi.fn().mockResolvedValue(ScyllaResult.success(listOf([job('job-1')]))),
+    getByPipelineId: vi.fn().mockResolvedValue(listOf([job('job-1')])),
     getByOrganizationId: vi.fn(),
     getById: vi.fn(),
     deleteById: vi.fn(),

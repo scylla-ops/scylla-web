@@ -1,0 +1,162 @@
+import type {
+  JobEntity,
+  JobNodeExecution,
+  JobLog,
+  NodeExecutionState,
+} from '@base/features/jobs/domain/entities/job.entity.ts';
+import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
+import {
+  type Job,
+  type JobLogEntry,
+  type JobNode,
+  JobOutcome,
+  type ListJobLogsResponse,
+  type ListPipelineJobsResponse,
+  NodeOutcome,
+} from '@base/generated/scylla/job/v1/job.ts';
+import { LogStream } from '@base/generated/scylla/common/v1/common.ts';
+import type { PaginationInfo, PaginatedList } from '@scylla/ui/structs';
+
+type JobListResponse = Pick<ListPipelineJobsResponse, 'jobs' | 'pagination'>;
+import {
+  idValue,
+  timestampToIso,
+  timestampToIsoOpt,
+} from '@shared/infrastructure/grpc/wrappers.ts';
+
+/** An arm newer than this build becomes `unknown`. */
+function jobStatusFromState(state: Job['state']): JobStatus {
+  switch (state.oneofKind) {
+    case 'pending':
+      return 'pending';
+    case 'running':
+      return 'running';
+    case 'terminal':
+      return jobOutcomeToStatus(state.terminal.outcome);
+    default:
+      return 'unknown';
+  }
+}
+
+function jobOutcomeToStatus(outcome: JobOutcome): JobStatus {
+  switch (outcome) {
+    case JobOutcome.COMPLETED:
+      return 'completed';
+    case JobOutcome.FAILED:
+      return 'failed';
+    case JobOutcome.CANCELLED:
+      return 'cancelled';
+    case JobOutcome.ORPHANED:
+      return 'orphaned';
+    // UNSPECIFIED or a newer outcome: never a success.
+    default:
+      return 'unknown';
+  }
+}
+
+/** An arm newer than this build becomes `unknown`. */
+function nodeStateFromExecution(execution: JobNode['execution']): NodeExecutionState {
+  switch (execution.oneofKind) {
+    case 'pending':
+      return 'pending';
+    case 'running':
+      return 'running';
+    case 'finished':
+      return nodeOutcomeToState(execution.finished.outcome);
+    default:
+      return 'unknown';
+  }
+}
+
+function nodeOutcomeToState(outcome: NodeOutcome): NodeExecutionState {
+  switch (outcome) {
+    case NodeOutcome.COMPLETED:
+      return 'completed';
+    case NodeOutcome.FAILED:
+      return 'failed';
+    case NodeOutcome.CANCELLED:
+      return 'cancelled';
+    case NodeOutcome.SKIPPED:
+      return 'skipped';
+    // UNSPECIFIED or a newer outcome: never a success.
+    default:
+      return 'unknown';
+  }
+}
+
+/** `UNSPECIFIED` or an unknown stream gives `''`. */
+function logStreamToString(stream: LogStream): string {
+  switch (stream) {
+    case LogStream.STDOUT:
+      return 'stdout';
+    case LogStream.STDERR:
+      return 'stderr';
+    default:
+      return '';
+  }
+}
+
+function jobStartedAt(state: Job['state']): string | undefined {
+  if (state.oneofKind === 'running') return timestampToIsoOpt(state.running.startedAt);
+  if (state.oneofKind === 'terminal') return timestampToIsoOpt(state.terminal.startedAt);
+  return undefined;
+}
+
+function nodeStartedAt(execution: JobNode['execution']): string | undefined {
+  if (execution.oneofKind === 'running') return timestampToIsoOpt(execution.running.startedAt);
+  if (execution.oneofKind === 'finished') return timestampToIsoOpt(execution.finished.startedAt);
+  return undefined;
+}
+
+function nodeExecutionToDomain(node: JobNode): JobNodeExecution {
+  const running = node.execution.oneofKind === 'running' ? node.execution.running : undefined;
+  const finished = node.execution.oneofKind === 'finished' ? node.execution.finished : undefined;
+  return {
+    id: idValue(node.nodeId),
+    state: nodeStateFromExecution(node.execution),
+    startedAt: nodeStartedAt(node.execution),
+    finishedAt: timestampToIsoOpt(finished?.finishedAt),
+    attempts: running?.attempt ?? finished?.attempts ?? 0,
+    maxAttempts: node.maxAttempts,
+  };
+}
+
+export function toDomain(job: Job): JobEntity {
+  const terminal = job.state.oneofKind === 'terminal' ? job.state.terminal : undefined;
+  return {
+    id: idValue(job.jobId),
+    pipelineId: idValue(job.pipelineId),
+    status: jobStatusFromState(job.state),
+    nodeExecutions: job.nodeExecutions.map(nodeExecutionToDomain),
+    createdAt: timestampToIso(job.createdAt),
+    updatedAt: timestampToIso(job.updatedAt),
+    startedAt: jobStartedAt(job.state),
+    finishedAt: timestampToIsoOpt(terminal?.finishedAt),
+  };
+}
+
+/** The pipeline, project and organization listings share this shape. */
+export function toDomainList(response: JobListResponse): PaginatedList<JobEntity> {
+  return {
+    items: response.jobs.map(toDomain),
+    pagination: response.pagination as PaginationInfo,
+  };
+}
+
+export function logEntryToDomain(entry: JobLogEntry): JobLog {
+  return {
+    id: idValue(entry.jobLogId),
+    jobId: idValue(entry.jobId),
+    nodeId: idValue(entry.nodeId),
+    stream: logStreamToString(entry.stream),
+    line: entry.line,
+    timestamp: timestampToIso(entry.timestamp),
+  };
+}
+
+export function logsToDomainList(response: ListJobLogsResponse): PaginatedList<JobLog> {
+  return {
+    items: response.logs.map(logEntryToDomain),
+    pagination: response.pagination as PaginationInfo,
+  };
+}

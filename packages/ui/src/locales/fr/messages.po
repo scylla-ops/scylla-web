@@ -17,6 +17,10 @@ msgstr ""
 msgid "{selectedCount, plural, one {# item deleted} other {# items deleted}}"
 msgstr "{selectedCount, plural, one {# élément supprimé} other {# éléments supprimés}}"
 
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:15
+msgid "{selectedCount, plural, one {# selected} other {# selected}}"
+msgstr "{selectedCount, plural, one {# sélectionné} other {# sélectionnés}}"
+
 #: packages/ui/src/feedback/ErrorState/error-state.messages.ts:5
 msgid "An error occurred"
 msgstr "Une erreur s'est produite"
@@ -45,6 +49,10 @@ msgstr "Continuer"
 #: packages/ui/src/primitives/code-snippet/code-snippet.messages.ts:6
 msgid "Copied"
 msgstr "Copié"
+
+#: packages/ui/src/utils/clipboard.messages.ts:4
+msgid "Copied to the clipboard."
+msgstr "Copié dans le presse-papiers."
 
 #: packages/ui/src/data-display/CopyableText/copyable-text.messages.ts:5
 msgid "Copied!"
@@ -119,6 +127,10 @@ msgstr "Pagination"
 msgid "Previous"
 msgstr "Précédent"
 
+#: packages/ui/src/primitives/resizable/resizable.messages.ts:4
+msgid "Resize panel"
+msgstr "Redimensionner le panneau"
+
 #: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:7
 msgid "Reveal"
 msgstr "Révéler"
@@ -146,6 +158,10 @@ msgstr "montré une seule fois"
 #: packages/ui/src/primitives/sidebar/sidebar.messages.ts:4
 msgid "Sidebar"
 msgstr "Barre latérale"
+
+#: packages/ui/src/utils/clipboard.messages.ts:5
+msgid "The browser did not let the page write to the clipboard."
+msgstr "Le navigateur n'a pas autorisé la page à écrire dans le presse-papiers."
 
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:5
 msgid "This action cannot be undone."

@@ -28,6 +28,21 @@ describe('buildCodeMirrorTheme', () => {
     expect(tokenClass(true, [tags.propertyName])).not.toBeNull();
   });
 
+  it('colours the commands and the flags of a shell script in both modes', () => {
+    for (const isDark of [false, true]) {
+      expect(tokenClass(isDark, [tags.standard(tags.variableName)])).not.toBeNull();
+      expect(tokenClass(isDark, [tags.attributeName])).not.toBeNull();
+    }
+  });
+
+  it('flush builds a different frame than the bordered editor, with or without an error', () => {
+    for (const hasError of [false, true]) {
+      const framed = buildCodeMirrorTheme({ isDark: false, hasError });
+      const flush = buildCodeMirrorTheme({ isDark: false, hasError, flush: true });
+      expect(flush).not.toEqual(framed);
+    }
+  });
+
   it('hasError changes the built extension (destructive accent instead of primary)', () => {
     const normal = buildCodeMirrorTheme({ isDark: false });
     const errored = buildCodeMirrorTheme({ isDark: false, hasError: true });

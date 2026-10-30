@@ -1,12 +1,12 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { render } from '@test/render.svelte.ts';
+import { render } from '@test/render.ts';
 import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
 import UserProfileForm from './UserProfileForm.svelte';
 
 const ada: UserEntity = {
-  userId: 'user-1',
+  id: 'user-1',
   username: 'ada',
   email: 'ada@example.com',
   isActive: true,

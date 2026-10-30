@@ -3,9 +3,9 @@ import { fireEvent, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
 import { AGENT_QUERY_KEY } from '@base/features/agents/presentation/agents.queries.ts';
 import CreateAgentDialog from './CreateAgentDialog.svelte';
@@ -71,29 +71,27 @@ beforeEach(() => {
   reduceMotion(true);
   localStorage.setItem('userId', 'ada');
 
-  createAgent = vi.fn().mockResolvedValue(ScyllaResult.success({ agent: agent(), secret: SECRET }));
-  getAgent = vi.fn().mockResolvedValue(ScyllaResult.success(agent()));
-  listProjects = vi.fn().mockResolvedValue(ScyllaResult.success({ projects: [] }));
-  createGrant = vi.fn().mockResolvedValue(ScyllaResult.success({ id: 'grant-project' }));
-  listGrants = vi.fn().mockResolvedValue(
-    ScyllaResult.success([
-      {
-        id: 'grant-org',
-        principal: { kind: PrincipalKind.APP, id: 'agent-new' },
-        roleId: 'organization-agent',
-        scope: PermissionScope.ORGANIZATION,
-        scopeId: 'org-1',
-      },
-      {
-        id: 'grant-other',
-        principal: { kind: PrincipalKind.APP, id: 'agent-old' },
-        roleId: 'organization-agent',
-        scope: PermissionScope.ORGANIZATION,
-        scopeId: 'org-1',
-      },
-    ]),
-  );
-  revokeGrant = vi.fn().mockResolvedValue(ScyllaResult.success(undefined));
+  createAgent = vi.fn().mockResolvedValue({ agent: agent(), secret: SECRET });
+  getAgent = vi.fn().mockResolvedValue(agent());
+  listProjects = vi.fn().mockResolvedValue({ items: [] });
+  createGrant = vi.fn().mockResolvedValue({ id: 'grant-project' });
+  listGrants = vi.fn().mockResolvedValue([
+    {
+      id: 'grant-org',
+      principal: { kind: PrincipalKind.APP, id: 'agent-new' },
+      roleId: 'organization-agent',
+      scope: PermissionScope.ORGANIZATION,
+      scopeId: 'org-1',
+    },
+    {
+      id: 'grant-other',
+      principal: { kind: PrincipalKind.APP, id: 'agent-old' },
+      roleId: 'organization-agent',
+      scope: PermissionScope.ORGANIZATION,
+      scopeId: 'org-1',
+    },
+  ]);
+  revokeGrant = vi.fn().mockResolvedValue(undefined);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -105,9 +103,7 @@ beforeEach(() => {
         listGrants,
         revokeGrant,
         getMyPermissions: () =>
-          Promise.resolve(
-            ScyllaResult.success(permissionsStore.getState().permissions ?? { scopes: [] }),
-          ),
+          Promise.resolve(permissionsStore.getState().permissions ?? { scopes: [] }),
       },
     },
   });
@@ -159,7 +155,7 @@ const deferred = <T>() => {
   return { promise, resolve };
 };
 
-const createdAgent = (secret = SECRET) => ScyllaResult.success({ agent: agent(), secret });
+const createdAgent = (secret = SECRET) => ({ agent: agent(), secret });
 
 const command = () => {
   const block = document.querySelector('[data-tour="agent-run-command"]');
@@ -219,9 +215,7 @@ describe('CreateAgentDialog', () => {
   });
 
   it('offers one project only to a user who manages the grants of an organization with projects', async () => {
-    listProjects.mockResolvedValue(
-      ScyllaResult.success({ projects: [{ id: 'p-1', name: 'prelude' }] }),
-    );
+    listProjects.mockResolvedValue({ items: [{ id: 'p-1', name: 'prelude' }] });
     const { unmount } = render(CreateAgentDialog, { open: true, onClose: vi.fn() });
     expect(await dialog().findByRole('radio', { name: /One project/ })).toBeChecked();
     unmount();
@@ -233,9 +227,7 @@ describe('CreateAgentDialog', () => {
   });
 
   it('limits the agent to one project: a project grant, then the organization grant goes', async () => {
-    listProjects.mockResolvedValue(
-      ScyllaResult.success({ projects: [{ id: 'p-1', name: 'prelude' }] }),
-    );
+    listProjects.mockResolvedValue({ items: [{ id: 'p-1', name: 'prelude' }] });
     render(CreateAgentDialog, { open: true, onClose: vi.fn() });
     await dialog().findByRole('radio', { name: /One project/ });
 
@@ -255,12 +247,8 @@ describe('CreateAgentDialog', () => {
   });
 
   it('still shows the secret when a grant step fails, and warns that every project stays open', async () => {
-    listProjects.mockResolvedValue(
-      ScyllaResult.success({ projects: [{ id: 'p-1', name: 'prelude' }] }),
-    );
-    createGrant.mockResolvedValue(
-      ScyllaResult.error(new ScyllaError('denied', { cause: { code: 'PERMISSION_DENIED' } })),
-    );
+    listProjects.mockResolvedValue({ items: [{ id: 'p-1', name: 'prelude' }] });
+    createGrant.mockRejectedValue(new ScyllaError('denied', { code: 'PERMISSION_DENIED' }));
     render(CreateAgentDialog, { open: true, onClose: vi.fn() });
     await dialog().findByRole('radio', { name: /One project/ });
 
@@ -273,9 +261,7 @@ describe('CreateAgentDialog', () => {
   });
 
   it('keeps step 1 when the creation fails, with the inputs usable again', async () => {
-    createAgent.mockResolvedValue(
-      ScyllaResult.error(new ScyllaError('taken', { cause: { code: 'ALREADY_EXISTS' } })),
-    );
+    createAgent.mockRejectedValue(new ScyllaError('taken', { code: 'ALREADY_EXISTS' }));
     render(CreateAgentDialog, { open: true, onClose: vi.fn() });
 
     await fillAndCreate();
@@ -286,22 +272,20 @@ describe('CreateAgentDialog', () => {
   });
 
   it('waits for the first connection, then shows the host and opens the agent', async () => {
-    getAgent.mockResolvedValueOnce(ScyllaResult.success(agent())).mockResolvedValue(
-      ScyllaResult.success(
-        agent({
-          connected: true,
-          lastSeen: '2026-10-11T08:00:00.000Z',
-          host: {
-            version: '0.5.0',
-            os: 'macos',
-            arch: 'aarch64',
-            hostname: 'runner.local',
-            cpuCount: 15,
-            totalMemoryMb: 24576,
-            reportedAt: '2026-10-11T08:00:00.000Z',
-          },
-        }),
-      ),
+    getAgent.mockResolvedValueOnce(agent()).mockResolvedValue(
+      agent({
+        connected: true,
+        lastSeen: '2026-10-11T08:00:00.000Z',
+        host: {
+          version: '0.5.0',
+          os: 'macos',
+          arch: 'aarch64',
+          hostname: 'runner.local',
+          cpuCount: 15,
+          totalMemoryMb: 24576,
+          reportedAt: '2026-10-11T08:00:00.000Z',
+        },
+      }),
     );
     const onClose = vi.fn();
     render(CreateAgentDialog, { open: true, onClose });
@@ -404,7 +388,7 @@ describe('CreateAgentDialog: the grant permissions of "One project"', () => {
     restricted(PermissionScope.PROJECT, projectId, [Permission.MANAGE_PROJECT_GRANTS]);
 
   beforeEach(() => {
-    listProjects.mockResolvedValue(ScyllaResult.success({ projects: PROJECTS }));
+    listProjects.mockResolvedValue({ items: PROJECTS });
   });
 
   it('lists only the projects where the user may manage the grants, and limits the agent to one', async () => {
@@ -454,8 +438,7 @@ describe('CreateAgentDialog: the grant permissions of "One project"', () => {
 describe('CreateAgentDialog: the project list of "One project"', () => {
   const PROJECTS = [{ id: 'p-1', name: 'prelude' }];
 
-  const denied = () =>
-    ScyllaResult.error(new ScyllaError('denied', { cause: { code: 'PERMISSION_DENIED' } }));
+  const denied = () => new ScyllaError('denied', { code: 'PERMISSION_DENIED' });
 
   const restricted = (scope: PermissionScope, scopeId: string, permissions: Permission[]) => ({
     scope,
@@ -490,7 +473,7 @@ describe('CreateAgentDialog: the project list of "One project"', () => {
   beforeEach(() => grantInOrganization(Permission.LIST_PROJECTS_BY_ORGANIZATION));
 
   it('waits for the project list, with "Create agent" disabled and nothing wider chosen', async () => {
-    const list = deferred<ReturnType<typeof ScyllaResult.success>>();
+    const list = deferred<unknown>();
     listProjects.mockReturnValue(list.promise);
     render(CreateAgentDialog, { open: true, onClose: vi.fn() });
     await typeName();
@@ -500,7 +483,7 @@ describe('CreateAgentDialog: the project list of "One project"', () => {
     expect(allProjects()).not.toBeChecked();
     expect(createButton()).toBeDisabled();
 
-    list.resolve(ScyllaResult.success({ projects: PROJECTS }));
+    list.resolve({ items: PROJECTS });
 
     expect(await dialog().findByRole('combobox', { name: 'Project' })).toBeInTheDocument();
     expect(createButton()).toBeEnabled();
@@ -512,9 +495,7 @@ describe('CreateAgentDialog: the project list of "One project"', () => {
   });
 
   it('shows a failed project list with a retry, and chooses no option for the user', async () => {
-    listProjects
-      .mockResolvedValueOnce(denied())
-      .mockResolvedValue(ScyllaResult.success({ projects: PROJECTS }));
+    listProjects.mockRejectedValueOnce(denied()).mockResolvedValue({ items: PROJECTS });
     render(CreateAgentDialog, { open: true, onClose: vi.fn() });
 
     expect(await dialog().findByRole('alert')).toHaveTextContent(
@@ -535,7 +516,7 @@ describe('CreateAgentDialog: the project list of "One project"', () => {
   });
 
   it('creates the agent for all projects after a failed list only when the user chose it', async () => {
-    listProjects.mockResolvedValue(denied());
+    listProjects.mockRejectedValue(denied());
     render(CreateAgentDialog, { open: true, onClose: vi.fn() });
     await dialog().findByRole('alert');
     await typeName();
@@ -749,12 +730,8 @@ describe('CreateAgentDialog grant warning', () => {
     ['the organization grants cannot be listed', () => listGrants],
     ['the organization grant cannot be revoked', () => revokeGrant],
   ])('warns that every project stays open when %s', async (_case, failing) => {
-    listProjects.mockResolvedValue(
-      ScyllaResult.success({ projects: [{ id: 'p-1', name: 'prelude' }] }),
-    );
-    failing().mockResolvedValue(
-      ScyllaResult.error(new ScyllaError('denied', { cause: { code: 'PERMISSION_DENIED' } })),
-    );
+    listProjects.mockResolvedValue({ items: [{ id: 'p-1', name: 'prelude' }] });
+    failing().mockRejectedValue(new ScyllaError('denied', { code: 'PERMISSION_DENIED' }));
     render(CreateAgentDialog, { open: true, onClose: vi.fn() });
     await dialog().findByRole('radio', { name: /One project/ });
 

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/svelte';
+import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { findTooltip, render, textSnippet } from '@test/render.svelte.ts';
+import { findTooltip, render, textSnippet } from '@test/render.ts';
 import FeatureHeader from './FeatureHeader.svelte';
 
 const toastSuccess = vi.fn();
@@ -187,5 +187,83 @@ describe('FeatureHeader', () => {
     render(FeatureHeader, { label: 'Secret', underLabel: textSnippet('project: acme') });
 
     expect(screen.getByText('project: acme')).toBeInTheDocument();
+  });
+});
+
+describe('FeatureHeader on a phone', () => {
+  // `setup.ts` reports the desktop layout before each test; this block reports a phone.
+  beforeEach(() => {
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: true,
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }));
+  });
+
+  const selectionBar = () =>
+    document.querySelector<HTMLElement>('[data-part="feature-header-selection-bar"]');
+
+  it('shrinks "New" to an icon that keeps its accessible name', async () => {
+    const onNew = vi.fn();
+    render(FeatureHeader, { label: 'Secret', onNew });
+
+    const button = screen.getByRole('button', { name: 'New Secret' });
+    // The label stays for screen readers only.
+    expect(within(button).getByText('New Secret')).toHaveClass('sr-only');
+
+    await userEvent.click(button);
+    expect(onNew).toHaveBeenCalledOnce();
+  });
+
+  it('shows no selection bar while nothing is selected', () => {
+    render(FeatureHeader, {
+      count: 5,
+      label: 'Secret',
+      onSelectAll: vi.fn(),
+      onClearSelection: vi.fn(),
+      onDeleteSelection: vi.fn(),
+    });
+
+    expect(selectionBar()).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Select all' })).not.toBeInTheDocument();
+  });
+
+  it('moves the selection actions to a bar that counts the selection', async () => {
+    const onSelectAll = vi.fn();
+    const onClearSelection = vi.fn();
+    render(FeatureHeader, {
+      count: 5,
+      label: 'Secret',
+      selectedCount: 2,
+      onSelectAll,
+      onClearSelection,
+      onDeleteSelection: vi.fn(),
+    });
+
+    const bar = within(selectionBar() as HTMLElement);
+    expect(bar.getByText('2 selected')).toBeInTheDocument();
+
+    await userEvent.click(bar.getByRole('button', { name: 'Select all' }));
+    await userEvent.click(bar.getByRole('button', { name: 'Clear' }));
+    expect(onSelectAll).toHaveBeenCalledOnce();
+    expect(onClearSelection).toHaveBeenCalledOnce();
+    // One set of actions: none left in the header itself.
+    expect(screen.getAllByRole('button', { name: 'Clear' })).toHaveLength(1);
+  });
+
+  it('still confirms before a delete started from the bar', async () => {
+    const onDeleteSelection = vi.fn().mockResolvedValue(undefined);
+    render(FeatureHeader, { label: 'Secret', selectedCount: 2, onDeleteSelection });
+
+    await userEvent.click(
+      within(selectionBar() as HTMLElement).getByRole('button', { name: 'Delete' }),
+    );
+    await screen.findByRole('alertdialog');
+    expect(onDeleteSelection).not.toHaveBeenCalled();
   });
 });

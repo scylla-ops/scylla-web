@@ -4,7 +4,7 @@ import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import { DEFAULT_PAGE_SIZE, type PaginationParams } from '@scylla/ui/structs';
-import type { ProjectEntity } from '../domain/entities/project.entity.ts';
+import type { ProjectList } from '../domain/entities/project.entity.ts';
 import type { ProjectModule } from '../project.module.ts';
 
 // Resolved per call: tests swap the registry.
@@ -38,8 +38,7 @@ export const projectQueries = {
   byOrganization: (organizationId: string | null, pagination: PaginationParams = FIRST_PAGE) =>
     queryOptions({
       queryKey: PROJECTS_QUERY_KEY(organizationId, pagination),
-      queryFn: async () =>
-        (await repository().getByOrganizationId(organizationId!, pagination)).unwrap(),
+      queryFn: () => repository().getByOrganizationId(organizationId!, pagination),
       enabled: canListProjects(organizationId),
     }),
 
@@ -47,8 +46,7 @@ export const projectQueries = {
   lookup: (organizationId: string | null) =>
     queryOptions({
       queryKey: PROJECTS_QUERY_KEY(organizationId, PROJECTS_LOOKUP_PAGE),
-      queryFn: async () =>
-        (await repository().getByOrganizationId(organizationId!, PROJECTS_LOOKUP_PAGE)).unwrap(),
+      queryFn: () => repository().getByOrganizationId(organizationId!, PROJECTS_LOOKUP_PAGE),
       enabled: !!organizationId,
       staleTime: 30_000,
     }),
@@ -57,7 +55,7 @@ export const projectQueries = {
   members: (projectId: string | null, options: { enabled?: boolean } = {}) =>
     queryOptions({
       queryKey: PROJECT_MEMBERS_QUERY_KEY(projectId ?? ''),
-      queryFn: async () => (await repository().listMembers(projectId!)).unwrap(),
+      queryFn: () => repository().listMembers(projectId!),
       enabled: (options.enabled ?? true) && !!projectId,
     }),
 };
@@ -82,11 +80,11 @@ export const projectLookupQueries = (organizationIds: string[], enabled = true) 
   return {
     queries: readableIds.map(organizationId => projectQueries.lookup(organizationId)),
     // Folded here so TanStack Query memoizes it on the results.
-    combine: (results: { data?: { projects: ProjectEntity[] } }[]) => {
+    combine: (results: { data?: ProjectList }[]) => {
       const byProjectId = new Map<string, ProjectLookupEntry>();
       results.forEach((result, index) => {
         const organizationId = readableIds[index];
-        for (const project of result.data?.projects ?? []) {
+        for (const project of result.data?.items ?? []) {
           byProjectId.set(project.id, { name: project.name, organizationId });
         }
       });
@@ -110,7 +108,7 @@ export const projectMutations = {
   create: () =>
     mutationOptions({
       mutationKey: CREATE_PROJECT_MUTATION_KEY,
-      mutationFn: async ({
+      mutationFn: ({
         name,
         organizationId,
         description,
@@ -118,7 +116,7 @@ export const projectMutations = {
         name: string;
         organizationId: string;
         description?: string;
-      }) => (await repository().create(name, organizationId, description)).unwrap(),
+      }) => repository().create(name, organizationId, description),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.PROJECT_CREATE));
         return invalidateProjects();
@@ -127,7 +125,7 @@ export const projectMutations = {
 
   update: () =>
     mutationOptions({
-      mutationFn: async ({
+      mutationFn: ({
         projectId,
         name,
         description,
@@ -135,7 +133,7 @@ export const projectMutations = {
         projectId: string;
         name?: string;
         description?: string;
-      }) => (await repository().update(projectId, name, description)).unwrap(),
+      }) => repository().update(projectId, name, description),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.PROJECT_UPDATE));
         return invalidateProjects();
@@ -144,7 +142,7 @@ export const projectMutations = {
 
   remove: () =>
     mutationOptions({
-      mutationFn: async (projectId: string) => (await repository().delete(projectId)).unwrap(),
+      mutationFn: (projectId: string) => repository().delete(projectId),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.PROJECT_DELETE));
         return invalidateProjects();

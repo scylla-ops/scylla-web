@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import type * as Login from '@base/features/login';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import SessionLine from './SessionLine.svelte';
 
 const signOut = vi.fn();
@@ -17,16 +16,14 @@ let teardown: Array<() => void> = [];
 beforeEach(() => {
   vi.clearAllMocks();
   const cache = withQueryClient();
-  const getMe = vi.fn().mockResolvedValue(
-    ScyllaResult.success({
-      userId: 'user-1',
-      username: 'ada',
-      displayName: 'Ada Lovelace',
-      email: 'ada@example.com',
-      isActive: true,
-      updatedAt: '',
-    }),
-  );
+  const getMe = vi.fn().mockResolvedValue({
+    id: 'user-1',
+    username: 'ada',
+    displayName: 'Ada Lovelace',
+    email: 'ada@example.com',
+    isActive: true,
+    updatedAt: '',
+  });
   teardown = [cache.restore, withRegistry({ user: { userRepository: { getMe } } })];
 });
 

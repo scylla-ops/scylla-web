@@ -2,10 +2,10 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
 import { screen } from '@testing-library/svelte';
 import { i18n } from '@lingui/core';
-import { Permission, PermissionScope, RoleKind } from '@platform/authz';
+import { Permission, PermissionScope } from '@platform/authz';
+import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { messages } from '@base/features/roles/locales/fr/messages.ts';
-import { render } from '@test/render.svelte.ts';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
+import { render } from '@test/render.ts';
 import RoleListItem from './RoleListItem.svelte';
 
 const role: RoleEntity = {

@@ -3,8 +3,8 @@
 > [Scylla frontend](../../../../../README.md) › `features/` › **roles** ·
 > [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
 
-Access-control administration: the catalog of roles, the grants that bind principals to them,
-and the permission vocabulary underneath. Two pages show it:
+Access-control administration: the catalog of roles, and the grants that bind principals to
+them. Two pages show it:
 
 - `/:org/roles`, in the **organization** section, behind `MANAGE_ORG_ROLES`: the roles that
   organization owns, which its administrators create, edit and delete, above the platform roles
@@ -70,9 +70,8 @@ The codebase once had 65 use cases and 64 were pure forwarding — `execute(args
 
 ```typescript
 // UpdateRoleUseCase
-getRole(id)                          // read
-  .map(role => updateRole(role, changes))   // apply a pure entity function
-  .flatMapAsync(updated => repository.updateRole(updated))   // save
+const role = await repository.getRole(id);                    // read
+return repository.updateRole(updateRole(role, changes));      // apply a pure entity function, save
 ```
 
 It earns its place because it *orchestrates*: two repository calls with a pure domain
@@ -82,13 +81,13 @@ before adding another one anywhere in the codebase.
 ## The permission tree is data, not code
 
 The role editor shows every permission grouped into a tree of resources and actions. That tree
-is **not** hardcoded — it is shaped by `permission-mapping.ts` and `permission-tree.ts`, and
+is **not** hardcoded — it is shaped by `domain/structs/permission-catalog.struct.ts` and `presenters/permission-tree.presenter.ts`, and
 rendered by `CheckboxTree` in this module. It used to live in `shared/`, on the strength of being
 "generic"; it never had a second consumer, and the rules it enforces are the permission model's,
 so the port brought it home.
 
-The payoff: when the backend adds a permission, it appears in the editor with no frontend
-change. The cost: labels have to be resolved rather than written inline, which is what
+The payoff: a permission added to the catalog appears in the editor with no other change, at
+the scope that `permissionLevel` gives it. The cost: labels have to be resolved rather than written inline, which is what
 `permissionLabelOf` and `humanizeRoleId` are for. Never interpolate a raw permission or role id
 into the UI.
 
@@ -102,10 +101,12 @@ a single honest count; `withImplicitPermissions` is the one place that knows the
 
 ## Structure
 
-**Domain** is the richest in the codebase — four entities (role, grant, grantable role,
-permission vocabulary), a repository interface with its input types, and the one use case. Role
-behaviour lives in `role.entity.ts` as pure functions: `roleConfers` answers whether a role
-includes a permission, `updateRole` applies changes immutably.
+**Domain** is the richest in the codebase — two entities (role, grant) with their inputs and
+projections, two structs (the permission catalog, the rule on a role name), a repository
+interface, and the one use case. Role behaviour lives in `role.entity.ts` as pure functions:
+`roleConfers` answers whether a role includes a permission, `updateRole` applies changes
+immutably, `lockedPermissionsOf` applies the escalation rule of the backend. What the editor
+renders from the catalog is a presenter, not domain.
 
 **Infrastructure** carries six mappers, one per proto shape.
 
@@ -118,15 +119,18 @@ entry; the ViewModels are where filters, selection and mutations are orchestrate
 components stay about rendering.
 
 Two pieces stayed pure TypeScript on purpose, because they are rules rather than UI:
-`grant-eligibility.calculator.ts` (why a user may not receive a project grant) and
-`checkbox-tree.ts` (a child counts only when its whole parent chain is checked). Both are tested
+`domain/entities/grant.entity.ts` (why a user may not receive a project grant) and
+`presenters/checkbox-tree.presenter.ts` (a child counts only when its whole parent chain is checked). Both are tested
 without a DOM, and both would survive another change of framework.
 
 The screen itself is a master–detail layout: `RoleListItem` on the left, `RoleDetailPanel` on the
-right, split into a header, a permissions view and a grant list with `GrantCreator`. The
-create/edit dialog lives under `role-form/`, and its reset is `{#key open}` — reopening the
-dialog builds a new form seeded from the role at hand, where React needed an effect on
-`[open, role]` and a frame showing the previous role's values.
+right, split into a header, a permissions view and a grant list with `GrantCreator`. Creating
+and editing a role happen on a page of their own (`roles/new`, `roles/:roleId/edit`), under
+`role-form/`. The form has a name, a description, who holds the role, its scope, its access and
+a tree of about thirty permissions: in a dialog, the tree was a small box that scrolled inside a
+box that scrolled. On a page, each group has a titled section, the tree shows in full, and the
+actions stay at the bottom of the screen. Each opening of the page mounts a new form, seeded
+from the role at hand, so the form needs no reset.
 
 ## Related modules
 

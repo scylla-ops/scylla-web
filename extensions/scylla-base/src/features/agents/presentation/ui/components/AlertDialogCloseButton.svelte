@@ -1,7 +1,7 @@
 <script lang="ts">
   import XIcon from '@lucide/svelte/icons/x';
   import { t } from '@scylla/ui/i18n';
-  import { agentsMessages } from '../agents.messages.ts';
+  import { agentsMessages } from '@base/features/agents/presentation/messages/agents.messages.ts';
 
   interface Props {
     onclick: () => void;

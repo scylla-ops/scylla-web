@@ -19,7 +19,7 @@ export const organizationQueries = {
   mine: () =>
     queryOptions({
       queryKey: MY_ORGANIZATIONS_QUERY_KEY(),
-      queryFn: async () => (await repository().getMine()).unwrap(),
+      queryFn: () => repository().getMine(),
       staleTime: 1000 * 60 * 5, // 5 minutes TODO: change
     }),
 
@@ -27,7 +27,7 @@ export const organizationQueries = {
   members: (organizationId: string | null, options: { enabled?: boolean } = {}) =>
     queryOptions({
       queryKey: ORGANIZATION_MEMBERS_QUERY_KEY(organizationId ?? ''),
-      queryFn: async () => (await repository().listMembers(organizationId!)).unwrap(),
+      queryFn: () => repository().listMembers(organizationId!),
       enabled: (options.enabled ?? true) && !!organizationId,
     }),
 };
@@ -46,8 +46,8 @@ const invalidateOrganizations = () =>
 export const organizationMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: async ({ name, description }: { name: string; description?: string }) =>
-        (await repository().create(name, description)).unwrap(),
+      mutationFn: ({ name, description }: { name: string; description?: string }) =>
+        repository().create(name, description),
       onSuccess: data => {
         // The new organization becomes the active one.
         contextStore.getState().setOrganization(data.id, data.name);
@@ -58,7 +58,7 @@ export const organizationMutations = {
 
   update: () =>
     mutationOptions({
-      mutationFn: async ({
+      mutationFn: ({
         organizationId,
         name,
         description,
@@ -66,7 +66,7 @@ export const organizationMutations = {
         organizationId: string;
         name?: string;
         description?: string;
-      }) => (await repository().update(organizationId, name, description)).unwrap(),
+      }) => repository().update(organizationId, name, description),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.ORGANIZATION_UPDATE));
         return invalidateOrganizations();
@@ -75,8 +75,7 @@ export const organizationMutations = {
 
   remove: () =>
     mutationOptions({
-      mutationFn: async (organizationId: string) =>
-        (await repository().delete(organizationId)).unwrap(),
+      mutationFn: (organizationId: string) => repository().delete(organizationId),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.ORGANIZATION_DELETE));
         return invalidateOrganizations();

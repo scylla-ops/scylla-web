@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { PermissionScope, permissionsStore } from '@platform/authz';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
-import type { AppSecretEntity, ResetAppSecret } from '@base/features/apps';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { AppSecretEntity } from '@base/features/apps';
 import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
 import ResetSecretDialog from './ResetSecretDialog.svelte';
 
@@ -50,19 +50,15 @@ let restoreRegistry: () => void;
 beforeEach(() => {
   // The orchestration is `ResetAppSecretUseCase`, tested in `apps`: this fake answers as it does.
   execute = vi.fn().mockImplementation(({ revokeOthers }: { revokeOthers: boolean }) =>
-    Promise.resolve(
-      ScyllaResult.success<ResetAppSecret>({
-        created: { credential: secret('s-new', 'reset-2026-10-11'), secret: NEW_SECRET },
-        revoked: revokeOthers ? [secret('s-default', 'default')] : [],
-        kept: revokeOthers ? [] : [secret('s-default', 'default')],
-        failed: [],
-      }),
-    ),
+    Promise.resolve({
+      created: { credential: secret('s-new', 'reset-2026-10-11'), secret: NEW_SECRET },
+      revoked: revokeOthers ? [secret('s-default', 'default')] : [],
+      kept: revokeOthers ? [] : [secret('s-default', 'default')],
+      failed: [],
+    }),
   );
 
-  listAppSecrets = vi
-    .fn()
-    .mockResolvedValue(ScyllaResult.success([secret('s-default', 'default')]));
+  listAppSecrets = vi.fn().mockResolvedValue([secret('s-default', 'default')]);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -227,12 +223,10 @@ describe('ResetSecretDialog', () => {
   });
 
   it('adds a suffix to the suggestion when another secret has the name', async () => {
-    listAppSecrets.mockResolvedValue(
-      ScyllaResult.success([
-        secret('s-default', 'default'),
-        secret('s-host', 'Deploy-01.example.com'),
-      ]),
-    );
+    listAppSecrets.mockResolvedValue([
+      secret('s-default', 'default'),
+      secret('s-host', 'Deploy-01.example.com'),
+    ]);
     render(ResetSecretDialog, { agent: { ...agent, host }, onClose: vi.fn() });
     const dialog = within(await screen.findByRole('alertdialog'));
 
@@ -290,9 +284,7 @@ describe('ResetSecretDialog', () => {
   });
 
   it('shows a name that CE says is taken under the field, and keeps the step', async () => {
-    execute.mockResolvedValue(
-      ScyllaResult.error(new ScyllaError('taken', { cause: { code: 'ALREADY_EXISTS' } })),
-    );
+    execute.mockRejectedValue(new ScyllaError('taken', { code: 'ALREADY_EXISTS' }));
     render(ResetSecretDialog, { agent, onClose: vi.fn() });
     const dialog = await confirmStep();
 

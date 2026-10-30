@@ -14,14 +14,13 @@
   import { createSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-  import { TriggerKind } from '@base/features/triggers/domain/structs/trigger-source.struct.ts';
   import { triggerMutations } from '@base/features/triggers/presentation/triggers.queries.ts';
+  import * as triggersNavigation from '@base/features/triggers/presentation/mappers/triggers-navigation.mapper.ts';
   import TriggerActions from './TriggerActions/TriggerActions.svelte';
   import TriggerSourceCell from './TriggerSourceCell/TriggerSourceCell.svelte';
   import TriggerStatusCell from './TriggerStatusCell/TriggerStatusCell.svelte';
-  import TriggerFormDialog from '../dialogs/TriggerFormDialog/TriggerFormDialog.svelte';
-  import { triggerColumns } from './trigger-columns.ts';
-  import { triggersMessages } from '../triggers.messages.ts';
+  import { triggerColumns } from './triggers-table.columns.ts';
+  import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     triggers: TriggerEntity[];
@@ -32,9 +31,9 @@
   let { triggers, pipelineId, pipelineName }: Props = $props();
 
   const SOURCE_ICON = {
-    [TriggerKind.Cron]: ClockIcon,
-    [TriggerKind.Webhook]: WebhookIcon,
-    [TriggerKind.Unknown]: HelpCircleIcon,
+    ['cron']: ClockIcon,
+    ['webhook']: WebhookIcon,
+    ['unknown']: HelpCircleIcon,
   } as const;
 
   const selection = createSelection('triggers');
@@ -42,7 +41,6 @@
   const setEnabled = createMutation(() => triggerMutations.setEnabled(pipelineId));
   const fireNow = createMutation(() => triggerMutations.fireNow(pipelineId));
 
-  let editTarget = $state<TriggerEntity | null>(null);
   let deleteTargetId = $state<string | null>(null);
   const firingIds = new SvelteSet<string>();
 
@@ -119,7 +117,7 @@
     }}
     onEdit={event => {
       event.stopPropagation();
-      editTarget = trigger;
+      triggersNavigation.toEdit(pipelineId, trigger.id);
     }}
     onDelete={event => {
       event.stopPropagation();
@@ -136,17 +134,6 @@
   isRowSelected={trigger => selection.selectedIds.includes(trigger.id)}
   alignColumnsCenter
 />
-
-{#if editTarget}
-  <TriggerFormDialog
-    open
-    onOpenChange={open => {
-      if (!open) editTarget = null;
-    }}
-    {pipelineId}
-    trigger={editTarget}
-  />
-{/if}
 
 <ConfirmOperationAlertDialog
   open={deleteTargetId !== null}

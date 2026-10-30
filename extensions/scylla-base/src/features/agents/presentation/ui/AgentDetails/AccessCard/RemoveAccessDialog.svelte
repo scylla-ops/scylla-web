@@ -9,11 +9,11 @@
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { AgentAccess } from '@base/features/agents/presentation/agent-access.state.svelte.ts';
+  import type { AgentAccess } from './agent-access.state.svelte.ts';
   import AlertDialogCloseButton from '../../components/AlertDialogCloseButton.svelte';
   import DialogFooterBand from '../../components/DialogFooterBand.svelte';
-  import { accessCardMessages as messages } from './access-card.messages.ts';
-  import { GRANT_ICONS } from './grant-icons.ts';
+  import { accessCardMessages as messages } from '@base/features/agents/presentation/messages/access-card.messages.ts';
+  import { GRANT_ICONS } from './grant-icons.registry.ts';
 
   interface Props {
     manager: AgentAccess;

@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:14
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:14
 msgid "Account"
 msgstr "Account"
 
@@ -21,7 +21,7 @@ msgstr "Account"
 msgid "Add people to your organization and your projects, and manage what each of them can do."
 msgstr "Add people to your organization and your projects, and manage what each of them can do."
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:17
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:17
 msgid "Back"
 msgstr "Back"
 
@@ -29,11 +29,11 @@ msgstr "Back"
 msgid "Build your own roles and grant them fine-grained permissions on an organization or a project."
 msgstr "Build your own roles and grant them fine-grained permissions on an organization or a project."
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:12
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:12
 msgid "Create"
 msgstr "Create"
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:8
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:8
 msgid "Create an organization"
 msgstr "Create an organization"
 
@@ -45,11 +45,11 @@ msgstr "Dark mode"
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:21
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:21
 msgid "Got it"
 msgstr "Got it"
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:20
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:20
 msgid "Here is what landed in this version."
 msgstr "Here is what landed in this version."
 
@@ -57,7 +57,7 @@ msgstr "Here is what landed in this version."
 msgid "Live metrics for your agents, pipelines and recent runs, all in one place."
 msgstr "Live metrics for your agents, pipelines and recent runs, all in one place."
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:13
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:13
 msgid "Loading..."
 msgstr "Loading..."
 
@@ -65,15 +65,15 @@ msgstr "Loading..."
 msgid "Members"
 msgstr "Members"
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:18
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:18
 msgid "New"
 msgstr "New"
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:4
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:4
 msgid "Organization"
 msgstr "Organization"
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:5
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:5
 msgid "Project"
 msgstr "Project"
 
@@ -85,35 +85,35 @@ msgstr "Roles"
 msgid "Scylla now comes in light and dark. Switch with the button in the top-right corner."
 msgstr "Scylla now comes in light and dark. Switch with the button in the top-right corner."
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:7
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:7
 msgid "Select Organization"
 msgstr "Select Organization"
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:15
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:15
 msgid "Sign out"
 msgstr "Sign out"
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:16
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:16
 msgid "Signed in as {name}"
 msgstr "Signed in as {name}"
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:6
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:6
 msgid "System"
 msgstr "System"
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:10
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:10
 msgid "To get started, please create your first organization."
 msgstr "To get started, please create your first organization."
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:9
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:9
 msgid "Welcome to Scylla!"
 msgstr "Welcome to Scylla!"
 
 #. placeholder {0}: String(version)
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:19
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:19
 msgid "What's new in Scylla {0}"
 msgstr "What's new in Scylla {0}"
 
-#: extensions/scylla-base/src/shell/presentation/layout/ui/layout.messages.ts:11
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:11
 msgid "You are not a member of an organization yet. Ask an administrator to add you."
 msgstr "You are not a member of an organization yet. Ask an administrator to add you."

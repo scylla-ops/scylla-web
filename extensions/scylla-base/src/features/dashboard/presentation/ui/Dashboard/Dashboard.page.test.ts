@@ -3,8 +3,8 @@ import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { setAppNavigator, contextStore } from '@platform/context';
-import { render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import DashboardPage from './Dashboard.page.svelte';
 
 const project = (overrides: Record<string, unknown> = {}) => ({
@@ -61,10 +61,10 @@ const grant = (permissions: Permission[]) =>
   });
 
 beforeEach(() => {
-  getProjects = vi.fn().mockResolvedValue(ScyllaResult.success({ projects: [project()] }));
-  getPipelines = vi.fn().mockResolvedValue(ScyllaResult.success(page([pipeline()])));
-  getJobs = vi.fn().mockResolvedValue(ScyllaResult.success(page([job()])));
-  listAgents = vi.fn().mockResolvedValue(ScyllaResult.success([]));
+  getProjects = vi.fn().mockResolvedValue({ items: [project()] });
+  getPipelines = vi.fn().mockResolvedValue(page([pipeline()]));
+  getJobs = vi.fn().mockResolvedValue(page([job()]));
+  listAgents = vi.fn().mockResolvedValue([]);
   navigate = vi.fn();
 
   cache = withQueryClient();
@@ -116,14 +116,14 @@ describe('DashboardPage', () => {
   });
 
   it('shows an em dash rather than 0% when nothing has finished yet', async () => {
-    getJobs.mockResolvedValue(ScyllaResult.success(page([job({ status: 'running' })])));
+    getJobs.mockResolvedValue(page([job({ status: 'running' })]));
     render(DashboardPage);
 
     expect(await screen.findByText('—')).toBeInTheDocument();
   });
 
   it('says the success rate is recent when the window does not cover every run', async () => {
-    getJobs.mockResolvedValue(ScyllaResult.success(page([job()], 250)));
+    getJobs.mockResolvedValue(page([job()], 250));
     render(DashboardPage);
 
     expect(await screen.findByText('Success rate (recent)')).toBeInTheDocument();
@@ -185,7 +185,7 @@ describe('DashboardPage', () => {
   });
 
   it('replaces the whole page with an error state when the project list fails', async () => {
-    getProjects.mockResolvedValue(ScyllaResult.error(new ScyllaError('boom')));
+    getProjects.mockRejectedValue(new ScyllaError('boom'));
     render(DashboardPage);
 
     expect(await screen.findByText('Unable to load dashboard')).toBeInTheDocument();

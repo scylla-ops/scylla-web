@@ -1,6 +1,6 @@
 import { point } from '@scylla/core-sdk';
 import type { FormItem } from '@scylla/ui';
-import { loginMessages } from './ui/login.messages.ts';
+import { loginMessages } from './messages/login.messages.ts';
 
 /** What the components in the login zones receive. */
 export interface LoginZoneContext {
@@ -11,7 +11,7 @@ export interface LoginZoneContext {
 export const loginPoints = {
   /**
    * Below the card. Receives components; there is no default content.
-   * No `permission`: the user has none yet on this page (`widgets_plan.md` §14, question 3).
+   * No `permission`: the user has none yet on this page.
    */
   footer: point.zone<LoginZoneContext>(),
   /** The title, the description and the labels of the login page. */

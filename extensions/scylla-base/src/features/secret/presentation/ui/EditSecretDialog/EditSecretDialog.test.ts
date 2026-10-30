@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { PermissionScope, permissionsStore } from '@platform/authz';
-import { ScyllaError, ScyllaResult } from '@shared/utils/scylla-result.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { SecretEntity } from '@base/features/secret/domain/entities/secret.entity.ts';
 import type { SecretUsage } from '@base/features/secret/domain/structs/secret-usage.struct.ts';
 import EditSecretDialog from './EditSecretDialog.svelte';
@@ -30,8 +30,8 @@ let listPipelines: ReturnType<typeof vi.fn>;
 let onClose: ReturnType<typeof vi.fn<() => void>>;
 
 const setUp = (using = usage(['build', 'deploy'], 5)) => {
-  update = vi.fn().mockResolvedValue(ScyllaResult.success(secret));
-  listPipelines = vi.fn().mockResolvedValue(ScyllaResult.success(using));
+  update = vi.fn().mockResolvedValue(secret);
+  listPipelines = vi.fn().mockResolvedValue(using);
   onClose = vi.fn<() => void>();
   const cache = withQueryClient();
   teardown = [
@@ -155,7 +155,7 @@ describe('EditSecretDialog', () => {
   it('says so when the pipelines that use the secret cannot be loaded, and still warns', async () => {
     const user = userEvent.setup();
     setUp();
-    listPipelines.mockResolvedValue(ScyllaResult.error(new ScyllaError('boom')));
+    listPipelines.mockRejectedValue(new ScyllaError('boom'));
     await focusSettled();
 
     await user.type(screen.getByLabelText('New value'), 'new');

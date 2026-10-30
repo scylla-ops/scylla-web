@@ -12,7 +12,7 @@ Triggers belong to a pipeline, and the page lives at
 The domain models trigger sources as a discriminated union on `kind`:
 
 - **Cron** — a schedule. `CronScheduleBuilder` composes the expression so users are not typing
-  `*/15 * * * *` from memory, and `cron.utils.ts` handles parsing and human-readable formatting.
+  `*/15 * * * *` from memory, and `mappers/cron.mapper.ts` handles parsing and human-readable formatting.
 - **Webhook** — an inbound URL. Calling it starts a run. It carries a signing secret and a
   header for the HMAC signature, so Scylla can verify the caller.
 - **Unknown** — the forward-compatibility branch.
@@ -57,7 +57,8 @@ afterwards — the same reveal-once handling as [apps](../apps/README.md) and
 **Infrastructure** is the standard interface / gRPC impl / mapper trio, with the mapper
 responsible for turning an unrecognised proto kind into `Unknown` rather than throwing.
 **Presentation** splits into the table (`triggers-table/`, with cells for source and status), the
-dialogs (`TriggerFormDialog` composing the cron builder and the inputs editor), and an overview
+editor page (`triggers/new`, `triggers/:triggerId/edit`, composing the cron builder and the inputs
+editor in titled sections), and an overview
 card summarising what is scheduled.
 
 ## Related modules

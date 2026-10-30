@@ -15,7 +15,7 @@
   import { createCompactContainer } from '@scylla/ui/state';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import { jobsMessages } from '@base/features/jobs/presentation/ui/jobs.messages.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
     onView: (event: Event) => void;
@@ -33,7 +33,7 @@
 </script>
 
 <!-- Falls back to a menu when the column is too narrow. -->
-<div use:container.measure class="flex w-full items-center justify-center gap-2 shrink-0">
+<div {@attach container.measure} class="flex w-full items-center justify-center gap-2 shrink-0">
   {#if container.isCompact}
     <DropdownMenu>
       <DropdownMenuTrigger

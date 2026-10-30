@@ -6,7 +6,7 @@
   import { t } from '@scylla/ui/i18n';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
-  import { jobsMessages } from '@base/features/jobs/presentation/ui/jobs.messages.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
     job: JobEntity;
@@ -19,7 +19,7 @@
 </script>
 
 <div class="w-full flex items-center gap-2">
-  <Icon class={cn('w-5 h-5', config.iconClassName)} />
+  <Icon class={cn('w-5 h-5 shrink-0', config.iconClassName)} />
   <div class="flex min-w-0 flex-col">
     <Badge variant="outline" class={cn('w-fit', config.badgeClassName)}>
       {t(config.label)}

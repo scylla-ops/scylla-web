@@ -59,17 +59,15 @@ domain/
   entities/organization.entity.ts    OrganizationEntity
   repository/organization.repository.ts
 infrastructure/
-  data/grpc-organization-remote.data-source.ts          impl
-  repository/data-sources/organization-remote.data-source.ts   interface
-  repository/mappers/grpc-organization.mapper.ts
-  repository/mappers/grpc-organization-member.mapper.ts
-  repository/default-organization.repository.ts
+  default-organization.repository.ts   OrganizationServiceClient → OrganizationEntity
+  grpc-organization.mapper.ts
+  grpc-organization-member.mapper.ts
 presentation/
   organization.queries.ts            every read and write, plus the key factories
   ui/OrganizationList/               the list; the shell's selector gives it its rows
   ui/AddOrganizationDialog.svelte, EditOrganizationDialog.svelte
-  ui/organization.messages.ts
-  utils/create-organization-form-items.ts
+  messages/organization.messages.ts
+  presenters/organization-form.presenter.ts   the items of the form
 ```
 
 ## Routes & nav

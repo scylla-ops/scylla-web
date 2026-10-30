@@ -1,40 +1,8 @@
-/** `UNSPECIFIED` also means a scope this build does not know. */
-export enum PermissionScope {
-  UNSPECIFIED = 0,
-  SYSTEM = 1,
-  ORGANIZATION = 2,
-  PROJECT = 3,
-}
-
-/** `UNSPECIFIED` also means a principal kind this build does not know. */
-export enum PrincipalKind {
-  UNSPECIFIED = 0,
-  USER = 1,
-  APP = 2,
-}
-
-export enum RoleKind {
-  UNSPECIFIED = 0,
-  ADMIN = 1,
-  AGENT = 2,
-  MEMBER = 3,
-}
-
-export interface PrincipalEntity {
-  kind: PrincipalKind;
-  id: string;
-}
-
-export type AccessSpec =
-  | { kind: 'fullControl' }
-  | { kind: 'restricted'; permissions: Permission[] };
-
-/** `unknown`: an access arm newer than this build. Never read it as "no permission". */
-export type AccessEntity = AccessSpec | { kind: 'unknown' };
+import { PermissionScope } from './permission-scope.struct.ts';
 
 /**
  * The wire vocabulary, value for value. The role editor offers a smaller
- * subset: see `permission-mapping.ts`.
+ * subset: see `permission-catalog.struct.ts` in `features/roles`.
  */
 export enum Permission {
   UNSPECIFIED = 0,
@@ -104,3 +72,67 @@ export enum Permission {
   MANAGE_ORG_ROLES = 63,
   UPDATE_SECRET = 64,
 }
+
+/**
+ * Holding `by` is holding `permission`, also for the roles made before `permission` existed:
+ * who writes roles hands them out. The role editor writes the implied permission too
+ * (`permission-catalog.struct.ts` in `features/roles`).
+ */
+export const PERMISSION_IMPLICATIONS: readonly { permission: Permission; by: Permission }[] = [
+  { permission: Permission.MANAGE_SYSTEM_GRANTS, by: Permission.MANAGE_ROLES },
+];
+
+/** The permissions that confer `permission` without listing it. */
+export const impliersOf = (permission: Permission): Permission[] =>
+  PERMISSION_IMPLICATIONS.filter(entry => entry.permission === permission).map(entry => entry.by);
+
+const SYSTEM_LEVEL = new Set<Permission>([
+  Permission.CREATE_USER,
+  Permission.READ_USER,
+  Permission.UPDATE_USER,
+  Permission.DELETE_USER,
+  Permission.LIST_USERS,
+  Permission.LIST_USER_ORGANIZATIONS,
+  Permission.LIST_USER_PROJECTS,
+  Permission.CREATE_ORGANIZATION,
+  Permission.LIST_ORGANIZATIONS,
+  Permission.LIST_PROJECTS,
+  Permission.LIST_PIPELINES,
+  Permission.CREATE_JOB,
+  Permission.LIST_JOBS,
+  Permission.MANAGE_SYSTEM_GRANTS,
+  Permission.MANAGE_ROLES,
+]);
+
+const ORGANIZATION_LEVEL = new Set<Permission>([
+  Permission.READ_ORGANIZATION,
+  Permission.UPDATE_ORGANIZATION,
+  Permission.DELETE_ORGANIZATION,
+  Permission.LIST_ORGANIZATION_MEMBERS,
+  Permission.ADD_ORGANIZATION_MEMBER,
+  Permission.REMOVE_ORGANIZATION_MEMBER,
+  Permission.CREATE_PROJECT,
+  Permission.LIST_PROJECTS_BY_ORGANIZATION,
+  Permission.LIST_PIPELINES_BY_ORGANIZATION,
+  Permission.LIST_JOBS_BY_ORGANIZATION,
+  Permission.CREATE_APP,
+  Permission.READ_APP,
+  Permission.READ_APP_STATS,
+  Permission.DELETE_APP,
+  Permission.LIST_APPS_BY_ORGANIZATION,
+  Permission.CREATE_AGENT,
+  Permission.LIST_AGENTS,
+  Permission.MANAGE_ORG_GRANTS,
+  Permission.MANAGE_ORG_ROLES,
+]);
+
+/**
+ * The scope of the resource a permission targets, as the backend's `Permission::resource()`:
+ * a user counts as SYSTEM, an app as ORGANIZATION. A grant reaches a permission at its own
+ * scope or below it, never above.
+ */
+export const permissionLevel = (permission: Permission): PermissionScope => {
+  if (SYSTEM_LEVEL.has(permission)) return PermissionScope.SYSTEM;
+  if (ORGANIZATION_LEVEL.has(permission)) return PermissionScope.ORGANIZATION;
+  return PermissionScope.PROJECT;
+};

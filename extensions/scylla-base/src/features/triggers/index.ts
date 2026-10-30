@@ -1,6 +1,11 @@
-export type { TriggerEntity, TriggerDraft, CreatedTrigger } from './domain/entities/trigger.entity.ts';
-export type { TriggerSource, TriggerInput } from './domain/structs/trigger-source.struct.ts';
-export { TriggerKind } from './domain/structs/trigger-source.struct.ts';
+export type {
+  TriggerEntity,
+  TriggerDraft,
+  CreatedTrigger,
+  TriggerSource,
+  TriggerInput,
+  TriggerKind,
+} from './domain/entities/trigger.entity.ts';
 export {
   triggerQueries,
   triggerMutations,

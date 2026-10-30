@@ -1,7 +1,7 @@
 /** The composites. The primitives are in `@scylla/ui/primitives`. */
 export * from './controls';
 export * from './data-display';
-export * from './editor/code-mirror.actions.ts';
+export * from './editor/code-mirror.attachments.svelte.ts';
 export * from './feedback';
 export * from './forms';
 export * from './layout';

@@ -11,7 +11,7 @@ export const onboardingQueries = {
   status: (userId: string) =>
     queryOptions<OnboardingStatus>({
       queryKey: ONBOARDING_QUERY_KEY(userId),
-      queryFn: async () => (await repository().getStatus(userId)).unwrap(),
+      queryFn: () => repository().getStatus(userId),
       staleTime: Infinity,
     }),
 };
@@ -19,8 +19,7 @@ export const onboardingQueries = {
 export const onboardingMutations = {
   save: (userId: string) =>
     mutationOptions({
-      mutationFn: async (status: OnboardingStatus) =>
-        (await repository().saveStatus(userId, status)).unwrap(),
+      mutationFn: (status: OnboardingStatus) => repository().saveStatus(userId, status),
       onMutate: (status: OnboardingStatus) => {
         getQueryClient().setQueryData(ONBOARDING_QUERY_KEY(userId), status);
       },

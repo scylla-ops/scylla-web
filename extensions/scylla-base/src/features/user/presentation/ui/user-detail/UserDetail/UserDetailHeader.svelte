@@ -5,7 +5,7 @@
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
   import UserIdentityCard from '@base/features/user/presentation/ui/components/UserIdentityCard.svelte';
   import UserStatusBadge from '@base/features/user/presentation/ui/components/UserStatusBadge.svelte';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   let { user }: { user: UserEntity } = $props();
 </script>
@@ -25,7 +25,7 @@
       <div class="flex min-w-0 items-center gap-2">
         <dt>{t(userMessages.userId)}</dt>
         <dd class="min-w-0">
-          <CopyableText value={user.userId} copyLabel={t(userMessages.copyUserId)} />
+          <CopyableText value={user.id} copyLabel={t(userMessages.copyUserId)} />
         </dd>
       </div>
     </dl>

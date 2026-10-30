@@ -3,7 +3,7 @@ import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { flushSync } from 'svelte';
 import { PermissionScope, permissionsStore } from '@platform/authz';
-import { findFloating, render } from '@test/render.svelte.ts';
+import { findFloating, render } from '@test/render.ts';
 import TriggerActions from './TriggerActions.svelte';
 
 /** Drives the observer, to reach the narrow layout. */

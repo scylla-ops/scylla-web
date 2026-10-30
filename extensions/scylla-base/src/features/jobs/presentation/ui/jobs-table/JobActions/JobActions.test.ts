@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { flushSync } from 'svelte';
-import { findFloating, render } from '@test/render.svelte.ts';
+import { findFloating, render } from '@test/render.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import JobActions from './JobActions.svelte';
 

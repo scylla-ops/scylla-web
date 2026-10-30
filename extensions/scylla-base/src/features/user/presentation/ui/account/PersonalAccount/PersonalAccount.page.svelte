@@ -2,16 +2,18 @@
   import { t } from '@scylla/ui/i18n';
   import { signOut } from '@base/features/login';
   import AccountPage from '../Account/Account.page.svelte';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
+
+  let { section }: { section?: string } = $props();
 </script>
 
 <!--
-  The account page with no organization (`/account`): no sidebar holds the sign-out, so it comes
+  The account page with no organization (`/account/<section>`): no sidebar holds the sign-out, so it comes
   after the last section, in the style of the line under the first-organization card. Here, not
   in the layout: the router places the page out of the flow of its layout.
 -->
 <div class="flex flex-col gap-2 pb-8">
-  <AccountPage />
+  <AccountPage {section} />
   <p class="flex justify-center text-center text-sm">
     <button
       type="button"

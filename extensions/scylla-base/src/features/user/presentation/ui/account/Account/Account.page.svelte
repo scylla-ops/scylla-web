@@ -1,104 +1,96 @@
 <script lang="ts">
-  import { Badge, Button, Skeleton } from '@scylla/ui/primitives';
+  import { Redirect } from '@scylla/core-sdk';
+  import { Button, Skeleton } from '@scylla/ui/primitives';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { createAccountPage } from '@base/features/user/presentation/account-page.state.svelte.ts';
-  import SessionList from '@base/features/user/presentation/ui/components/SessionList.svelte';
+  import { createAccountPage } from './account-page.state.svelte.ts';
+  import { accountSection } from './account-sections.registry.ts';
+  import AccountHeader from './AccountHeader.svelte';
+  import AccountNav from './AccountNav.svelte';
+  import AccountSecurity from './AccountSecurity.svelte';
   import SettingsSection from '@base/features/user/presentation/ui/components/SettingsSection.svelte';
-  import UserAccessList from '@base/features/user/presentation/ui/components/UserAccessList/UserAccessList.svelte';
-  import UserIdentityCard from '@base/features/user/presentation/ui/components/UserIdentityCard.svelte';
-  import UserProfileForm from '@base/features/user/presentation/ui/components/UserProfileForm/UserProfileForm.svelte';
   import ThemePicker from '@base/features/user/presentation/ui/components/ThemePicker/ThemePicker.svelte';
-  import ChangePasswordForm from './ChangePasswordForm.svelte';
+  import UserAccessList from '@base/features/user/presentation/ui/components/UserAccessList/UserAccessList.svelte';
+  import UserProfileForm from '@base/features/user/presentation/ui/components/UserProfileForm/UserProfileForm.svelte';
   import DeleteAccountDialog from '../DeleteAccountDialog/DeleteAccountDialog.svelte';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
+
+  interface Props {
+    /** Absent on the `personal` mount (`/account/<section>`). */
+    organizationSlug?: string;
+    section?: string;
+  }
+
+  let { organizationSlug, section }: Props = $props();
 
   const page = createAccountPage();
+  const current = $derived(accountSection(section));
+  const base = $derived(organizationSlug ? `/${organizationSlug}/account` : '/account');
 </script>
 
-{#if page.isLoading}
+{#if !current}
+  <Redirect to="../profile" />
+{:else if page.isLoading}
   <Skeleton class="m-4 h-64 rounded-xl" />
 {:else if page.isError || !page.me}
   <ErrorState message={t(userMessages.accountLoadError)} />
 {:else}
   {@const me = page.me}
-  <div class="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8">
-    <header class="flex flex-col gap-3">
-      <h1 class="text-2xl font-semibold">{t(userMessages.account)}</h1>
-      <UserIdentityCard user={me}>
-        {#snippet badges()}
-          {#if page.systemRole}
-            <Badge variant="secondary">{page.systemRole}</Badge>
-          {/if}
-        {/snippet}
-      </UserIdentityCard>
-    </header>
+  <div class="mx-auto flex w-full max-w-5xl flex-col gap-6 pb-8">
+    <AccountHeader user={me} systemRole={page.systemRole} />
 
-    <SettingsSection title={t(userMessages.profile)} description={t(userMessages.profileDescription)}>
-      <UserProfileForm
-        user={me}
-        emailEditable={false}
-        isPending={page.isSavingProfile}
-        onSave={page.saveProfile}
-      />
-    </SettingsSection>
+    <div class="flex flex-col gap-6 md:flex-row md:items-start md:gap-10">
+      <AccountNav {base} current={current.id} />
 
-    <SettingsSection
-      title={t(userMessages.appearance)}
-      description={t(userMessages.appearanceDescription)}
-    >
-      <ThemePicker />
-    </SettingsSection>
-
-    <SettingsSection title={t(userMessages.password)} description={t(userMessages.passwordDescription)}>
-      {#key page.passwordForm}
-        <ChangePasswordForm
-          isPending={page.isChangingPassword}
-          refusal={page.passwordRefusal}
-          onSubmit={page.changePassword}
-        />
-      {/key}
-    </SettingsSection>
-
-    <SettingsSection title={t(userMessages.sessions)} description={t(userMessages.sessionsDescription)}>
-      <div class="flex flex-col gap-4">
-        <SessionList
-          sessions={page.sessions}
-          isLoading={page.sessionsLoading}
-          isError={page.sessionsError}
-          canRevoke
-          isRevoking={page.isRevokingSession}
-          onRevoke={page.revokeSession}
-        />
-        <div>
-          <Button
-            variant="outline"
-            disabled={page.isRevokingSessions}
-            onclick={page.signOutOtherSessions}
+      <div class="flex min-w-0 flex-1 flex-col gap-6">
+        {#if current.id === 'profile'}
+          <SettingsSection
+            title={t(userMessages.profile)}
+            description={t(userMessages.profileDescription)}
+            actionBar
           >
-            {t(userMessages.signOutOthers)}
-          </Button>
-        </div>
+            <UserProfileForm
+              user={me}
+              emailEditable={false}
+              isPending={page.isSavingProfile}
+              onSave={page.saveProfile}
+            />
+          </SettingsSection>
+        {:else if current.id === 'appearance'}
+          <SettingsSection
+            title={t(userMessages.appearance)}
+            description={t(userMessages.appearanceDescription)}
+          >
+            <ThemePicker />
+          </SettingsSection>
+        {:else if current.id === 'security'}
+          <AccountSecurity {page} />
+        {:else if current.id === 'organizations'}
+          <SettingsSection
+            title={t(userMessages.organizationsAndRoles)}
+            description={t(userMessages.organizationsDescription)}
+          >
+            <UserAccessList
+              access={page.access}
+              isLoading={page.accessLoading}
+              isError={page.accessError}
+            />
+          </SettingsSection>
+        {:else}
+          <SettingsSection
+            title={t(userMessages.deleteMyAccount)}
+            description={t(userMessages.deleteMyAccountDescription)}
+            tone="danger"
+          >
+            {#snippet action()}
+              <Button variant="destructive" size="sm" onclick={page.openDelete}>
+                {t(userMessages.deleteMyAccount)}
+              </Button>
+            {/snippet}
+          </SettingsSection>
+        {/if}
       </div>
-    </SettingsSection>
-
-    <SettingsSection title={t(userMessages.organizationsAndRoles)}>
-      <UserAccessList
-        access={page.access}
-        isLoading={page.accessLoading}
-        isError={page.accessError}
-      />
-    </SettingsSection>
-
-    <SettingsSection
-      title={t(userMessages.dangerZone)}
-      description={t(userMessages.deleteMyAccountDescription)}
-      tone="danger"
-    >
-      <Button variant="destructive" onclick={page.openDelete}>
-        {t(userMessages.deleteMyAccount)}
-      </Button>
-    </SettingsSection>
+    </div>
 
     <DeleteAccountDialog
       open={page.deleteOpen}

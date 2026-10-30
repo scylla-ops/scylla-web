@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EyeIcon from '@lucide/svelte/icons/eye';
+  import PencilIcon from '@lucide/svelte/icons/pencil';
   import { DataTable, IconButton } from '@scylla/ui';
   import { createSelection } from '@scylla/ui/state';
   import { UserIdentity } from '@shared/presentation/ui';
@@ -7,8 +7,8 @@
   import { t } from '@scylla/ui/i18n';
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
   import UserStatusBadge from '@base/features/user/presentation/ui/components/UserStatusBadge.svelte';
-  import { userMessages } from '@base/features/user/presentation/ui/user.messages.ts';
-  import { userColumns } from './user-columns.ts';
+  import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
+  import { userColumns } from './user-table.columns.ts';
 
   interface Props {
     data?: UserEntity[];
@@ -43,11 +43,11 @@
 
 {#snippet actionsCell(user: UserEntity)}
   <IconButton
-    icon={EyeIcon}
-    tooltip={t(userMessages.view)}
+    icon={PencilIcon}
+    tooltip={t(userMessages.edit)}
     onclick={event => {
       event.stopPropagation();
-      onView(user.userId);
+      onView(user.id);
     }}
   />
 {/snippet}
@@ -55,8 +55,8 @@
 <DataTable
   {columns}
   data={data ?? []}
-  onRowClick={row => selection.select(row.original.userId)}
-  getRowId={(user, index) => user.userId || index.toString()}
-  isRowSelected={user => selection.selectedIds.includes(user.userId)}
+  onRowClick={row => selection.select(row.original.id)}
+  getRowId={(user, index) => user.id || index.toString()}
+  isRowSelected={user => selection.selectedIds.includes(user.id)}
   alignRowsCenter
 />

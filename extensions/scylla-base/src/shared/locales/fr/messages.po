@@ -21,7 +21,7 @@ msgstr "Un nom d'utilisateur ne peut pas contenir \"@\"."
 msgid "Agent id copied"
 msgstr "ID d'agent copié"
 
-#: extensions/scylla-base/src/shared/utils/scylla-result.ts:64
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:106
 msgid "An unexpected error occurred"
 msgstr "Une erreur inattendue s'est produite"
 
@@ -37,7 +37,7 @@ msgstr "Annulé"
 msgid "Could not copy: select the id manually"
 msgstr "Impossible de copier : sélectionnez l'ID manuellement"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/user-identity.messages.ts:4
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:4
 msgid "Deleted user"
 msgstr "Utilisateur supprimé"
 
@@ -53,7 +53,7 @@ msgstr "Échoué"
 msgid "Job queued: no agent connected"
 msgstr "Travail mis en file d'attente : aucun agent connecté"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/StatusBar/status-bar.messages.ts:4
+#: extensions/scylla-base/src/shared/presentation/messages/status-bar.messages.ts:4
 msgid "No data"
 msgstr "Aucune donnée"
 
@@ -133,7 +133,7 @@ msgstr "Secret supprimé"
 msgid "Secret updated"
 msgstr "Secret modifié"
 
-#: extensions/scylla-base/src/shared/utils/scylla-result.ts:52
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:103
 msgid "Server unreachable"
 msgstr "Serveur injoignable"
 
@@ -193,7 +193,7 @@ msgstr "Déclencheur mis à jour"
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: extensions/scylla-base/src/shared/presentation/ui/data-display/user-identity.messages.ts:5
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:5
 msgid "Unknown user"
 msgstr "Utilisateur inconnu"
 
@@ -213,6 +213,6 @@ msgstr "Informations utilisateur mises à jour"
 msgid "You cannot delete your own account."
 msgstr "Vous ne pouvez pas supprimer votre propre compte."
 
-#: extensions/scylla-base/src/shared/utils/scylla-result.ts:62
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:104
 msgid "You don't have permission to perform this action"
 msgstr "Vous n'avez pas la permission d'effectuer cette action"

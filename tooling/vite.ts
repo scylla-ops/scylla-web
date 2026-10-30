@@ -26,6 +26,7 @@ const VENDOR_CHUNKS: Record<string, string[]> = {
   'vendor-svelte': ['svelte', 'esm-env', 'clsx'],
   'vendor-ui': [
     'bits-ui',
+    'paneforge',
     '@lucide/svelte',
     'svelte-toolbelt',
     'runed',
@@ -147,6 +148,7 @@ export const defineScyllaConfig = ({ workspaceRoot, app, thresholds }: ScyllaCon
       exclude: [
         '@lucide/svelte',
         'bits-ui',
+        'paneforge',
         '@tanstack/svelte-query',
         '@tanstack/svelte-table',
         '@xyflow/svelte',
@@ -209,7 +211,7 @@ export const defineScyllaConfig = ({ workspaceRoot, app, thresholds }: ScyllaCon
           // Barrels and module declarations are re-exports and wiring: covering
           // them measures nothing, and `*.module.ts` pulls a feature's gRPC
           // client in just by being imported. `*.widget-injection.ts` is the
-          // same kind of declaration, one layer up (see `widgets_plan.md`).
+          // same kind of declaration, one layer up.
           '**/index.ts',
           '**/*.module.ts',
           '**/*.widget-injection.ts',

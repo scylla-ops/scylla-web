@@ -3,9 +3,8 @@ import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.svelte.ts';
+import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
-import { ScyllaResult } from '@shared/utils/scylla-result.ts';
 import type { AgentEntity } from '@base/features/agents/domain/entities/agent.entity.ts';
 import CreateAgentDialog from './CreateAgentDialog.svelte';
 
@@ -30,23 +29,23 @@ let restoreRegistry: () => void;
 let nav: ReturnType<typeof installTestNavigator>;
 
 beforeEach(() => {
-  createAgent = vi.fn().mockResolvedValue(ScyllaResult.success({ agent, secret: 'sk-once' }));
+  createAgent = vi.fn().mockResolvedValue({ agent, secret: 'sk-once' });
   cache = withQueryClient();
   restoreRegistry = withRegistry({
     agents: {
       agentsRepository: {
         createAgent,
-        getAgent: vi.fn().mockResolvedValue(ScyllaResult.success(agent)),
+        getAgent: vi.fn().mockResolvedValue(agent),
       },
     },
     project: {
       projectRepository: {
-        getByOrganizationId: vi.fn().mockResolvedValue(ScyllaResult.success({ projects: [] })),
+        getByOrganizationId: vi.fn().mockResolvedValue({ items: [] }),
       },
     },
     roles: {
       permissionRepository: {
-        getMyPermissions: () => Promise.resolve(ScyllaResult.success({ scopes: [fullControl] })),
+        getMyPermissions: () => Promise.resolve({ scopes: [fullControl] }),
       },
     },
   });
