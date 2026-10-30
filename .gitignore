@@ -31,3 +31,4 @@ extensions/*/src/generated
 coverage
 
 .env
+.vitest

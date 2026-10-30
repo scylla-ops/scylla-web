@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EyeIcon from '@lucide/svelte/icons/eye';
+  import PencilIcon from '@lucide/svelte/icons/pencil';
   import { DataTable, IconButton } from '@scylla/ui';
   import { createSelection } from '@scylla/ui/state';
   import { UserIdentity } from '@shared/presentation/ui';
@@ -43,8 +43,8 @@
 
 {#snippet actionsCell(user: UserEntity)}
   <IconButton
-    icon={EyeIcon}
-    tooltip={t(userMessages.view)}
+    icon={PencilIcon}
+    tooltip={t(userMessages.edit)}
     onclick={event => {
       event.stopPropagation();
       onView(user.userId);

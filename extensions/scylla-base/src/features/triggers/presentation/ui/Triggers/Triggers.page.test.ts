@@ -4,9 +4,12 @@ import userEvent from '@testing-library/user-event';
 import { PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
-import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
+import { installTestNavigator } from '@test/navigator.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import type { TriggersRepository } from '@base/features/triggers/domain/repository/triggers.repository.ts';
+import type {
+  TriggersRepository,
+} from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import TriggersPage from './Triggers.page.svelte';
@@ -24,7 +27,7 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
 });
 
 let listByPipelineId: ReturnType<typeof vi.fn>;
-let create: ReturnType<typeof vi.fn>;
+let navigator: ReturnType<typeof installTestNavigator>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
@@ -32,14 +35,16 @@ const props = { pipelineId: 'pipeline-1', projectId: 'project-1' };
 
 beforeEach(() => {
   listByPipelineId = vi.fn().mockResolvedValue([trigger()]);
-  create = vi.fn().mockResolvedValue({ trigger: trigger() });
+  navigator = installTestNavigator({
+    pathname: '/acme/projects/project-1/pipelines/pipeline-1/triggers',
+  });
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
     triggers: {
       triggersRepository: {
         listByPipelineId,
-        create,
+        create: vi.fn(),
         update: vi.fn(),
         deleteById: vi.fn(),
         setEnabled: vi.fn(),
@@ -63,6 +68,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  navigator.restore();
   cache.restore();
   restoreRegistry();
   permissionsStore.setState({ permissions: null });
@@ -105,31 +111,29 @@ describe('TriggersPage', () => {
     expect(await screen.findByText(error.userMessage())).toBeInTheDocument();
   });
 
-  it('reveals a webhook secret exactly once, after creating a webhook trigger', async () => {
-    const created = trigger({ id: 'trigger-9', name: 'gh-push' });
-    create.mockResolvedValue({ trigger: created, webhookSecret: 'whsec-once' });
+  it('opens the editor page to create a trigger', async () => {
     render(TriggersPage, props);
     await screen.findByText('nightly');
 
     await userEvent.click(screen.getByRole('button', { name: 'New trigger' }));
-    await focusSettled();
-    await userEvent.type(await screen.findByLabelText('Name'), 'gh-push');
-    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
 
-    expect(await screen.findByText('whsec-once')).toBeInTheDocument();
+    expect(navigator.navigate).toHaveBeenCalledWith(
+      '/acme/projects/project-1/pipelines/pipeline-1/triggers/new',
+      undefined,
+    );
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('reveals nothing when the created trigger carries no secret', async () => {
-    create.mockResolvedValue({ trigger: trigger({ id: 'trigger-9' }) });
+  it('opens the editor page of a trigger from its edit action', async () => {
     render(TriggersPage, props);
     await screen.findByText('nightly');
 
-    await userEvent.click(screen.getByRole('button', { name: 'New trigger' }));
-    await focusSettled();
-    await userEvent.type(await screen.findByLabelText('Name'), 'cron-job');
-    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
-    await vi.waitFor(() => expect(create).toHaveBeenCalled());
-    expect(screen.queryByText('whsec-once')).not.toBeInTheDocument();
+    expect(navigator.navigate).toHaveBeenCalledWith(
+      '/acme/projects/project-1/pipelines/pipeline-1/triggers/trigger-1/edit',
+      undefined,
+    );
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

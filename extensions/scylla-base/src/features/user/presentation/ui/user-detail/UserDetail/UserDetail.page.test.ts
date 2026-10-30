@@ -81,7 +81,6 @@ const setUp = (
         scope: 'organization',
         organizationId: 'org-1',
         organizationName: 'Acme',
-        projectName: '',
         roleId: 'organization-member',
         roleName: 'Member',
       },

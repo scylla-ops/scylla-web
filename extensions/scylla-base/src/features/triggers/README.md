@@ -57,7 +57,8 @@ afterwards — the same reveal-once handling as [apps](../apps/README.md) and
 **Infrastructure** is the standard interface / gRPC impl / mapper trio, with the mapper
 responsible for turning an unrecognised proto kind into `Unknown` rather than throwing.
 **Presentation** splits into the table (`triggers-table/`, with cells for source and status), the
-dialogs (`TriggerFormDialog` composing the cron builder and the inputs editor), and an overview
+editor page (`triggers/new`, `triggers/:triggerId/edit`, composing the cron builder and the inputs
+editor in titled sections), and an overview
 card summarising what is scheduled.
 
 ## Related modules

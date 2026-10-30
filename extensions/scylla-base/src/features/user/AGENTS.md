@@ -63,8 +63,12 @@ one).
 
 `UpdateUserInput` holds the changed fields only: an absent field stays absent on the wire, and
 the server leaves it unchanged. `profileChanges` (`user.entity.ts`) builds it from the profile
-form. `groupUserAccess` (`presenters/user-access.presenter.ts`) puts the system grants apart and groups the
-others by organization.
+form. `UserAccess` is a union on `scope` of `SystemAccess`, `OrganizationAccess` and
+`ProjectAccess`: a system grant has no organization, an organization grant has no project.
+Narrow on `scope` before you read a name. The barrel exports only `UserAccess`, because
+`dashboard` already exports another `ProjectAccess`. The mapper maps a grant that has no
+organization as a system grant. `groupUserAccess` (`presenters/user-access.presenter.ts`) puts
+the system grants apart and groups the others by organization.
 
 ## Layout
 
@@ -72,7 +76,8 @@ others by organization.
 user.module.ts                       routes + nav + DI wiring (private; registry only)
 index.ts                             public API
 domain/
-  entities/user.entity.ts            UserEntity, UserSummary, UserList, UserAccess, UserAccessScope,
+  entities/user.entity.ts            UserEntity, UserSummary, UserList, UserAccess
+                                     (SystemAccess | OrganizationAccess | ProjectAccess),
                                      the inputs, profileChanges (pure)
   entities/user-session.entity.ts    UserSessionEntity: no token, only what the list shows
   repository/user.repository.ts
@@ -95,7 +100,8 @@ presentation/
     UserSecurity.svelte
   ui/components/                     SettingsSection, UserStatusBadge, UserProfileForm/,
                                      UserAccessList/, UserIdentityCard, SessionList,
-                                     SessionRow/ (both pages)
+                                     SessionRow/ (both pages),
+                                     ThemePicker/ (own page only)
   presenters/user-agent.presenter.ts parseUserAgent: browser, system and kind of a session
   presenters/session-row.presenter.ts   the title and the activity of a session
   presenters/user-access.presenter.ts   the access of a user, grouped by organization
@@ -154,6 +160,11 @@ user who has no organization.
   format, password 8 to 255 characters and not spaces only, confirmation equal to the new
   password, username with no '@' and 255 bytes at most, display name 100 characters at most. Every form with a
   new password has a confirmation field. Every field has its `autocomplete` value.
+- **Appearance is the only theme control of the app.** `ThemePicker` (Light, Dark, System)
+  calls `setThemePreference` of `@scylla/ui/stores` with the center of the chosen thumbnail, so
+  the new theme spreads from there. The choice is for the device (`localStorage`), not for the
+  account: no RPC, no query. The thumbnails use fixed colors (`theme-preview.ts`), copied from
+  the tokens of `@scylla/ui/styles.css`: keep them in step.
 - Passwords are write-only: no read returns one. Never log, store or display one.
 - **Sessions.** Both pages show the list in the Sessions section, then "Sign out everywhere
   else" (own page) or "Sign out everywhere" (another user). The current session has the badge

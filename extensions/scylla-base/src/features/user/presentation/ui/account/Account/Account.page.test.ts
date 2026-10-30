@@ -31,8 +31,6 @@ const access: UserAccess[] = [
   {
     grantId: 'g-system',
     scope: 'system',
-    organizationName: '',
-    projectName: '',
     roleId: 'system-admin',
     roleName: 'System admin',
   },
@@ -41,7 +39,6 @@ const access: UserAccess[] = [
     scope: 'organization',
     organizationId: 'org-1',
     organizationName: 'Acme Corp',
-    projectName: '',
     roleId: 'organization-admin',
     roleName: 'Organization admin',
   },
@@ -149,7 +146,7 @@ describe('AccountPage', () => {
     await screen.findByRole('region', { name: 'Profile' });
     expect(
       screen.getAllByRole('heading', { level: 2 }).map(heading => heading.textContent?.trim()),
-    ).toEqual(['Profile', 'Password', 'Sessions', 'Organizations and roles', 'Danger zone']);
+    ).toEqual(['Profile', 'Appearance', 'Password', 'Sessions', 'Organizations and roles', 'Danger zone']);
   });
 
   it('shows an error when the account cannot be read', async () => {

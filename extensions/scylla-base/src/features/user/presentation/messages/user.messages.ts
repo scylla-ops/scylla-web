@@ -27,7 +27,7 @@ export const userMessages = {
   deactivated: msg`Deactivated`,
   createdAt: msg`Created at`,
   actions: msg`Actions`,
-  view: msg`View`,
+  edit: msg`Edit`,
 
   account: msg`Account`,
   accountLoadError: msg`Error loading your account`,
@@ -35,6 +35,12 @@ export const userMessages = {
   profileDescription: msg`The names that other people see.`,
   emailReadOnly: msg`Only an administrator can change it.`,
   save: msg`Save`,
+
+  appearance: msg`Appearance`,
+  appearanceDescription: msg`How Scylla looks on this device. System follows the setting of your operating system.`,
+  themeLight: msg({ context: 'theme', message: 'Light' }),
+  themeDark: msg({ context: 'theme', message: 'Dark' }),
+  themeSystem: msg({ context: 'theme', message: 'System' }),
 
   passwordDescription: msg`A new password signs out your other sessions.`,
   currentPassword: msg`Current password`,

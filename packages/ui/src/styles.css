@@ -257,6 +257,14 @@
   }
 }
 
+/* The theme switch of `setThemePreference`: the new theme spreads as one circle from where
+   the user chose it (an animation of `::view-transition-new(root)`), with no cross-fade. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 @keyframes smooth-pulse {
   0%,
   100% {

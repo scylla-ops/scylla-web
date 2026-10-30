@@ -30,7 +30,6 @@ describe('UserAccessList', () => {
           scope: 'organization',
           organizationId: 'org-1',
           organizationName: 'Beta Lab',
-          projectName: '',
           roleId: 'organization-member',
           roleName: 'Member',
         },

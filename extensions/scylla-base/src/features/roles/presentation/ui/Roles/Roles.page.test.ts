@@ -11,7 +11,8 @@ import {
 } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
-import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
+import { installTestNavigator } from '@test/navigator.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import RolesPage from './Roles.page.svelte';
@@ -172,68 +173,30 @@ describe('RolesPage — the roles of an organization', () => {
   });
 });
 
-describe('RolesPage — creating a role of the organization', () => {
-  const openForm = async () => {
+describe('RolesPage — the role editor is a page of its own', () => {
+  let navigator: ReturnType<typeof installTestNavigator>;
+
+  beforeEach(() => {
+    navigator = installTestNavigator({ pathname: '/acme/roles' });
+  });
+
+  afterEach(() => navigator.restore());
+
+  it('opens the creation page of the organization from the header button', async () => {
     render(RolesPage);
     await screen.findByText('Auditor');
+
     await userEvent.click(screen.getByRole('button', { name: 'Create role' }));
-    await focusSettled();
-    return screen.findByRole('dialog');
-  };
 
-  it('says the role stays in the organization, and offers no System scope', async () => {
-    const dialog = await openForm();
-
-    expect(
-      within(dialog).getByText(
-        'Only Acme sees this role. You put in it only the permissions you hold in Acme.',
-      ),
-    ).toBeInTheDocument();
-    expect(within(dialog).getByRole('radio', { name: 'Organization' })).toBeInTheDocument();
-    expect(within(dialog).getByRole('radio', { name: 'Project' })).toBeInTheDocument();
-    expect(within(dialog).queryByRole('radio', { name: 'System' })).not.toBeInTheDocument();
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme/roles/new', undefined);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('creates a role for apps of this organization', async () => {
-    const dialog = await openForm();
+  it('opens the edit page of its own role', async () => {
+    render(RolesPage);
+    await userEvent.click(await screen.findByRole('button', { name: /Auditor/ }));
+    await userEvent.click(await screen.findByRole('button', { name: /Edit/ }));
 
-    await userEvent.type(within(dialog).getByLabelText('Name'), 'Release bot');
-    await userEvent.click(within(dialog).getByRole('radio', { name: 'Apps' }));
-    expect(
-      within(dialog).getByText('Apps of Acme, such as agents. People cannot hold it.'),
-    ).toBeInTheDocument();
-    await userEvent.click(within(dialog).getByRole('button', { name: 'Create role' }));
-
-    await vi.waitFor(() =>
-      expect(createRole).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: 'Release bot',
-          organizationId: 'org-1',
-          kind: RoleKind.AGENT,
-        }),
-      ),
-    );
-  });
-
-  it('locks the permissions the author does not hold, with the reason on the row', async () => {
-    holding({
-      scope: PermissionScope.ORGANIZATION,
-      scopeId: 'org-1',
-      access: {
-        kind: 'restricted',
-        permissions: [
-          Permission.MANAGE_ORG_ROLES,
-          Permission.READ_ORGANIZATION,
-          Permission.LIST_ORGANIZATION_MEMBERS,
-        ],
-      },
-    });
-    const dialog = await openForm();
-
-    expect(
-      within(dialog).getByRole('checkbox', { name: 'See who belongs to the organization' }),
-    ).toBeEnabled();
-    expect(within(dialog).getByRole('checkbox', { name: 'Edit the organization' })).toBeDisabled();
-    expect(within(dialog).getAllByText('Not held in Acme').length).toBeGreaterThan(0);
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme/roles/auditor/edit', undefined);
   });
 });

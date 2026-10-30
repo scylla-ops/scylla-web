@@ -32,8 +32,7 @@
 </script>
 
 <div class="space-y-2">
-  <div class="flex items-center justify-between">
-    <span class="text-sm font-medium">{t(triggersMessages.inputs)}</span>
+  <div class="flex items-center justify-end">
     <Button type="button" variant="ghost" size="sm" onclick={add} class="gap-1">
       <PlusIcon class="size-4" />
       {t(triggersMessages.addInput)}
@@ -45,12 +44,12 @@
   {:else}
     <!-- Keyed by index: a draft row has no id. -->
     {#each inputs as input, index (index)}
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2 sm:flex-nowrap">
         <Input
           placeholder="KEY"
           value={input.key}
           oninput={event => update(index, { key: event.currentTarget.value })}
-          class="w-1/3 font-mono"
+          class="w-full font-mono sm:w-1/3"
         />
         {#if allowJsonPointer}
           <Select
@@ -76,7 +75,7 @@
           placeholder={input.valueKind === 'jsonPointer' ? '/after' : 'value'}
           value={input.value}
           oninput={event => update(index, { value: event.currentTarget.value })}
-          class="flex-1"
+          class="min-w-40 flex-1 sm:min-w-0"
         />
         <Button
           type="button"
