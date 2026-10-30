@@ -30,6 +30,7 @@ export const userMessages = {
   edit: msg`Edit`,
 
   account: msg`Account`,
+  accountSettings: msg`Account settings`,
   accountLoadError: msg`Error loading your account`,
   profile: msg`Profile`,
   profileDescription: msg`The names that other people see.`,
@@ -64,7 +65,9 @@ export const userMessages = {
   sessionsRevoked: (count: number) =>
     msg`${plural(count, { 0: 'No session to sign out.', one: '# session signed out.', other: '# sessions signed out.' })}`,
 
+  organizations: msg`Organizations`,
   organizationsAndRoles: msg`Organizations and roles`,
+  organizationsDescription: msg`The organizations and the projects where you have a role.`,
   system: msg`System`,
   organizationRole: msg`Organization`,
   projectRole: (project: string) => msg`Project ${project}`,

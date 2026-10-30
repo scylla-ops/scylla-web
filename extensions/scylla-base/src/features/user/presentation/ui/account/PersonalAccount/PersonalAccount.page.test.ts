@@ -36,17 +36,17 @@ afterEach(() => {
 });
 
 describe('PersonalAccountPage', () => {
-  it('keeps only the title in the title row', async () => {
-    render(PersonalAccountPage);
+  it('keeps the sign-out out of the header', async () => {
+    render(PersonalAccountPage, { section: 'danger-zone' });
 
-    const title = await screen.findByRole('heading', { name: 'Account' });
-    expect(within(title.parentElement!).queryByRole('button', { name: 'Sign out' })).toBeNull();
+    const header = (await screen.findByRole('heading', { level: 1 })).closest('header')!;
+    expect(within(header).queryByRole('button', { name: 'Sign out' })).toBeNull();
   });
 
-  it('puts the sign-out after the last section, the danger zone', async () => {
-    render(PersonalAccountPage);
+  it('puts the sign-out after the section of the page', async () => {
+    render(PersonalAccountPage, { section: 'danger-zone' });
 
-    const dangerZone = await screen.findByRole('region', { name: 'Danger zone' });
+    const dangerZone = await screen.findByRole('region', { name: 'Delete my account' });
     const signOutButton = screen.getByRole('button', { name: 'Sign out' });
 
     expect(
@@ -56,7 +56,7 @@ describe('PersonalAccountPage', () => {
   });
 
   it('signs the user out', async () => {
-    render(PersonalAccountPage);
+    render(PersonalAccountPage, { section: 'danger-zone' });
 
     await userEvent.click(await screen.findByRole('button', { name: 'Sign out' }));
 
