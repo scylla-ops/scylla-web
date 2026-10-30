@@ -15,8 +15,6 @@
     description?: string;
     /** `danger`: the section of the actions that cannot be undone. */
     tone?: 'default' | 'danger';
-    /** True: the content takes the height that the card gets from its grid cell. */
-    fill?: boolean;
     /** True: the `form-actions` slot of a form in the card is a bar at the bottom of the card. */
     actionBar?: boolean;
     class?: string;
@@ -29,7 +27,6 @@
     title,
     description,
     tone = 'default',
-    fill = false,
     actionBar = false,
     class: className,
     action,
@@ -62,7 +59,7 @@
       {/if}
     </CardHeader>
     {#if children}
-      <CardContent class={cn(fill && 'flex min-h-0 flex-1 flex-col')}>
+      <CardContent>
         {@render children()}
       </CardContent>
     {/if}

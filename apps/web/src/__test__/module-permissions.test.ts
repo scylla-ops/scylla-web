@@ -25,11 +25,11 @@ const UNGATED_PAGES: Readonly<Record<string, string>> = {
   '/:organizationSlug/users/:userId':
     'The page checks READ_USER itself, after it sends the own id to the account page: an old ' +
     'link to /users/<own id> must not end on a denial for a user without READ_USER.',
-  '/:organizationSlug/account':
-    'The account of the signed-in user. Every call of the page is on the own id, which the ' +
+  '/:organizationSlug/account/:section':
+    'The account of the signed-in user, one section per page. Every call of the page is on the own id, which the ' +
     'backend allows with no grant (GetMe, UpdateUser, ChangePassword, DeleteAccount, ...): no ' +
     'permission exists to declare.',
-  '/account':
+  '/account/:section':
     'The same account page outside any organization, for a user who has none yet (a user that ' +
     'an administrator made, a new sign-up). The same reason: every call is on the own id.',
   '/:organizationSlug/marketplace':
