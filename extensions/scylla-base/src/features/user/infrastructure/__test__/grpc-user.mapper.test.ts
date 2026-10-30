@@ -136,13 +136,12 @@ describe('grpcUser.accessToDomain', () => {
       scope: 'organization',
       organizationId: 'org-1',
       organizationName: 'Acme',
-      projectName: '',
       roleId: 'organization-admin',
       roleName: 'Organization admin',
     });
   });
 
-  it('maps a grant on a project, with the project id', () => {
+  it('maps a grant on a project, with its organization and the project id', () => {
     const grant = grpcUser.accessToDomain(
       access(
         { scope: { oneofKind: 'project', project: { projectId: { value: 'project-1' } } } },
@@ -150,19 +149,41 @@ describe('grpcUser.accessToDomain', () => {
       ),
     );
 
-    expect(grant).toMatchObject({ scope: 'project', projectId: 'project-1', projectName: 'Web' });
+    expect(grant).toMatchObject({
+      scope: 'project',
+      organizationId: 'org-1',
+      organizationName: 'Acme',
+      projectId: 'project-1',
+      projectName: 'Web',
+    });
   });
 
-  it('maps a system grant, with no organization', () => {
+  it('maps a system grant with no name of an organization or a project', () => {
+    expect(
+      grpcUser.accessToDomain(
+        access(
+          { scope: { oneofKind: 'system', system: {} } },
+          { organizationId: undefined, organizationName: '' },
+        ),
+      ),
+    ).toEqual({
+      grantId: 'grant-1',
+      scope: 'system',
+      roleId: 'organization-admin',
+      roleName: 'Organization admin',
+    });
+  });
+
+  it('maps a grant with no organization as a system grant, whatever its scope', () => {
     const grant = grpcUser.accessToDomain(
       access(
-        { scope: { oneofKind: 'system', system: {} } },
-        { organizationId: undefined, organizationName: '' },
+        { scope: { oneofKind: 'organization', organization: {} } },
+        { organizationId: undefined },
       ),
     );
 
     expect(grant.scope).toBe('system');
-    expect(grant).not.toHaveProperty('organizationId');
+    expect(grant).not.toHaveProperty('organizationName');
   });
 });
 

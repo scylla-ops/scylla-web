@@ -38,8 +38,9 @@ roles, its sessions, the security actions (a reset link, the deactivation) and t
 action shows only to a viewer with the permission of its RPC, because a button that the server
 would refuse is noise.
 
-**The account page** (`/:org/account`) is the signed-in user's own page: an identity card,
-profile, password, sessions, organizations and roles, and the deletion of the account. The backend lets a user act
+**The account page** (`/:org/account/<section>`) is the signed-in user's own page: a short
+identity header, a settings nav, and one page for each section: profile, appearance, security
+(password and sessions), organizations and roles, and the deletion of the account. The backend lets a user act
 on the own account with no grant, so this page carries no permission. It exists at two
 addresses: `/:org/account` inside the frame of an organization, and `/account` with a plain
 layout, for a user who has no organization yet (an account that an administrator made, a new

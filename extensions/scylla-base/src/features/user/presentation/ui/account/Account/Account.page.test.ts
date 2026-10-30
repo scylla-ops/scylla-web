@@ -3,6 +3,7 @@ import type * as Login from '@base/features/login';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { toast } from 'svelte-sonner';
+import { installTestNavigator } from '@test/navigator.ts';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { UserAccess } from '@base/features/user/domain/entities/user.entity.ts';
@@ -31,8 +32,6 @@ const access: UserAccess[] = [
   {
     grantId: 'g-system',
     scope: 'system',
-    organizationName: '',
-    projectName: '',
     roleId: 'system-admin',
     roleName: 'System admin',
   },
@@ -41,7 +40,6 @@ const access: UserAccess[] = [
     scope: 'organization',
     organizationId: 'org-1',
     organizationName: 'Acme Corp',
-    projectName: '',
     roleId: 'organization-admin',
     roleName: 'Organization admin',
   },
@@ -85,8 +83,13 @@ const refused = (message: string) => new ScyllaError(message, { code: 'FAILED_PR
 
 let teardown: Array<() => void> = [];
 let repository: Record<string, ReturnType<typeof vi.fn>>;
+let navigator: ReturnType<typeof installTestNavigator>;
 
-const setUp = (overrides: Record<string, ReturnType<typeof vi.fn>> = {}) => {
+const setUp = (
+  section: string | undefined,
+  overrides: Record<string, ReturnType<typeof vi.fn>> = {},
+  organizationSlug: string | null = 'acme-corp',
+) => {
   repository = {
     getMe: vi.fn().mockResolvedValue(me),
     listAccess: vi.fn().mockResolvedValue(access),
@@ -100,7 +103,7 @@ const setUp = (overrides: Record<string, ReturnType<typeof vi.fn>> = {}) => {
   };
   const cache = withQueryClient();
   teardown = [cache.restore, withRegistry({ user: { userRepository: repository } })];
-  render(AccountPage);
+  render(AccountPage, { organizationSlug: organizationSlug ?? undefined, section });
 };
 
 const section = (name: string) => screen.getByRole('region', { name });
@@ -108,50 +111,94 @@ const section = (name: string) => screen.getByRole('region', { name });
 beforeEach(() => {
   vi.clearAllMocks();
   localStorage.setItem('userId', 'user-1');
+  navigator = installTestNavigator({ pathname: '/acme-corp/account/profile' });
 });
 
 afterEach(() => {
   teardown.forEach(restore => restore());
+  navigator.restore();
   localStorage.clear();
 });
 
 describe('AccountPage', () => {
   it('shows who is signed in, from the account of the session', async () => {
-    setUp();
+    setUp('profile');
 
-    expect(await screen.findByRole('heading', { name: 'Account' })).toBeInTheDocument();
-    expect(screen.getAllByText('Ada Lovelace').length).toBeGreaterThan(0);
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Ada Lovelace' }),
+    ).toBeInTheDocument();
     expect(repository.getMe).toHaveBeenCalled();
   });
 
-  it('shows the identity card with the handle and the role of the first system grant', async () => {
-    setUp();
+  it('shows the email, the handle and the role of the first system grant in the header', async () => {
+    setUp('profile');
 
-    const handle = await screen.findByText('@ada');
-    const card = handle.closest<HTMLElement>('[data-slot="card"]')!;
-    expect(within(card).getByText('Ada Lovelace')).toBeInTheDocument();
-    expect(within(card).getByText('ada@example.com')).toBeInTheDocument();
-    expect(await within(card).findByText('System admin')).toHaveAttribute('data-slot', 'badge');
+    const header = (await screen.findByRole('heading', { level: 1 })).closest('header')!;
+    expect(within(header).getByText('ada@example.com')).toBeInTheDocument();
+    expect(within(header).getByText('@ada')).toHaveAttribute('data-slot', 'badge');
+    expect(await within(header).findByText('System admin')).toHaveAttribute('data-slot', 'badge');
   });
 
   it('shows no role badge for a user with no system grant', async () => {
-    setUp({ listAccess: vi.fn().mockResolvedValue(access.slice(1)) });
+    setUp('organizations', { listAccess: vi.fn().mockResolvedValue(access.slice(1)) });
 
-    const card = (await screen.findByText('@ada')).closest<HTMLElement>('[data-slot="card"]')!;
     await screen.findByText('Organization admin');
-    expect(within(card).queryByText('Organization admin')).not.toBeInTheDocument();
-    expect(card.querySelectorAll('[data-slot="badge"]')).toHaveLength(1);
+    const header = screen.getByRole('heading', { level: 1 }).closest('header')!;
+    expect(within(header).queryByText('Organization admin')).not.toBeInTheDocument();
+    expect(header.querySelectorAll('[data-slot="badge"]')).toHaveLength(1);
+  });
+
+  it('links each entry of the settings nav to its page, and marks the current one', async () => {
+    setUp('security');
+
+    const nav = await screen.findByRole('navigation', { name: 'Account settings' });
+    const links = within(nav).getAllByRole('link');
+    expect(links.map(link => [link.textContent?.trim(), link.getAttribute('href')])).toEqual([
+      ['Profile', '/acme-corp/account/profile'],
+      ['Appearance', '/acme-corp/account/appearance'],
+      ['Security', '/acme-corp/account/security'],
+      ['Organizations', '/acme-corp/account/organizations'],
+      ['Danger zone', '/acme-corp/account/danger-zone'],
+    ]);
+    expect(within(nav).getByRole('link', { current: 'page' })).toHaveTextContent('Security');
+  });
+
+  it('links the nav to /account outside an organization', async () => {
+    setUp('profile', {}, null);
+
+    const nav = await screen.findByRole('navigation', { name: 'Account settings' });
+    expect(within(nav).getByRole('link', { name: 'Profile' })).toHaveAttribute(
+      'href',
+      '/account/profile',
+    );
+  });
+
+  it('shows only the sections of the current page', async () => {
+    setUp('security');
+
+    await screen.findByRole('region', { name: 'Password' });
+    expect(
+      screen.getAllByRole('heading', { level: 2 }).map(heading => heading.textContent?.trim()),
+    ).toEqual(['Password', 'Sessions']);
+  });
+
+  it('sends an unknown section to the profile', async () => {
+    setUp('billing');
+
+    await waitFor(() =>
+      expect(navigator.navigate).toHaveBeenCalledWith('../profile', { replace: true }),
+    );
   });
 
   it('shows an error when the account cannot be read', async () => {
-    setUp({ getMe: vi.fn().mockRejectedValue(refused('down')) });
+    setUp('profile', { getMe: vi.fn().mockRejectedValue(refused('down')) });
 
     expect(await screen.findByText('Error loading your account')).toBeInTheDocument();
   });
 
   describe('profile', () => {
     it('shows the email read-only, with the reason', async () => {
-      setUp();
+      setUp('profile');
 
       const email = await screen.findByLabelText('Email');
       expect(email).toHaveAttribute('readonly');
@@ -162,7 +209,7 @@ describe('AccountPage', () => {
     });
 
     it('saves the changed fields only', async () => {
-      setUp();
+      setUp('profile');
       const user = userEvent.setup();
 
       const displayName = await screen.findByLabelText('Display name');
@@ -179,7 +226,7 @@ describe('AccountPage', () => {
     });
 
     it('calls nothing when nothing changed', async () => {
-      setUp();
+      setUp('profile');
       const user = userEvent.setup();
 
       await screen.findByLabelText('Display name');
@@ -187,6 +234,13 @@ describe('AccountPage', () => {
 
       expect(repository.update).not.toHaveBeenCalled();
     });
+  });
+
+  it('shows the theme choice on the appearance page', async () => {
+    setUp('appearance');
+
+    const appearance = await screen.findByRole('region', { name: 'Appearance' });
+    expect(within(appearance).getAllByRole('radio')).toHaveLength(3);
   });
 
   describe('password', () => {
@@ -199,7 +253,7 @@ describe('AccountPage', () => {
     };
 
     it('changes it, says the other sessions are out, and empties the form', async () => {
-      setUp();
+      setUp('security');
 
       await changeFrom('old-password');
 
@@ -215,7 +269,7 @@ describe('AccountPage', () => {
     });
 
     it('shows the message of the server under the current password', async () => {
-      setUp({
+      setUp('security', {
         changePassword: vi.fn().mockRejectedValue(refused('Current password is incorrect')),
       });
 
@@ -230,7 +284,7 @@ describe('AccountPage', () => {
     });
 
     it('refuses a confirmation that differs, before any call', async () => {
-      setUp();
+      setUp('security');
 
       await changeFrom('old-password', 'new-password', 'other-password');
 
@@ -239,7 +293,7 @@ describe('AccountPage', () => {
     });
 
     it('gives each field its autocomplete value', async () => {
-      setUp();
+      setUp('security');
 
       expect(await screen.findByLabelText('Current password')).toHaveAttribute(
         'autocomplete',
@@ -251,7 +305,7 @@ describe('AccountPage', () => {
 
   describe('sessions', () => {
     it('lists the sessions, marks the current one and gives it no sign-out button', async () => {
-      setUp();
+      setUp('security');
 
       const list = await screen.findByRole('region', { name: 'Sessions' });
       expect(await within(list).findByText('Chrome on macOS')).toBeInTheDocument();
@@ -268,7 +322,7 @@ describe('AccountPage', () => {
     });
 
     it('signs out one other session, then reads the list again', async () => {
-      setUp();
+      setUp('security');
       const user = userEvent.setup();
 
       await user.click(await screen.findByRole('button', { name: 'Sign out Firefox on Windows' }));
@@ -281,7 +335,7 @@ describe('AccountPage', () => {
     });
 
     it('signs out the other sessions, tells how many, and reads the list again', async () => {
-      setUp();
+      setUp('security');
       const user = userEvent.setup();
 
       await user.click(await screen.findByRole('button', { name: 'Sign out everywhere else' }));
@@ -292,14 +346,14 @@ describe('AccountPage', () => {
     });
 
     it('says when no session is active', async () => {
-      setUp({ listSessions: vi.fn().mockResolvedValue([]) });
+      setUp('security', { listSessions: vi.fn().mockResolvedValue([]) });
 
       const list = await screen.findByRole('region', { name: 'Sessions' });
       expect(await within(list).findByText('No active session.')).toBeInTheDocument();
     });
 
     it('shows an error when the sessions cannot be read', async () => {
-      setUp({ listSessions: vi.fn().mockRejectedValue(refused('down')) });
+      setUp('security', { listSessions: vi.fn().mockRejectedValue(refused('down')) });
 
       const list = await screen.findByRole('region', { name: 'Sessions' });
       expect(await within(list).findByText('Error loading the sessions')).toBeInTheDocument();
@@ -307,7 +361,7 @@ describe('AccountPage', () => {
   });
 
   it('lists the roles by organization, the system grants apart', async () => {
-    setUp();
+    setUp('organizations');
 
     const roles = await screen.findByRole('region', { name: 'Organizations and roles' });
     await within(roles).findByText('System admin');
@@ -324,7 +378,8 @@ describe('AccountPage', () => {
   describe('deletion', () => {
     const confirmWith = async (password: string) => {
       const user = userEvent.setup();
-      await user.click(await screen.findByRole('button', { name: 'Delete my account' }));
+      const zone = await screen.findByRole('region', { name: 'Delete my account' });
+      await user.click(within(zone).getByRole('button', { name: 'Delete my account' }));
       const dialog = await screen.findByRole('dialog');
       await focusSettled();
       await user.type(within(dialog).getByLabelText('Password'), password);
@@ -333,7 +388,7 @@ describe('AccountPage', () => {
     };
 
     it('asks for the password, deletes the account and signs out', async () => {
-      setUp();
+      setUp('danger-zone');
 
       await confirmWith('my-password');
 
@@ -342,7 +397,7 @@ describe('AccountPage', () => {
     });
 
     it('shows the refusal of the server in the dialog, and stays signed in', async () => {
-      setUp({
+      setUp('danger-zone', {
         deleteAccount: vi
           .fn()
           .mockRejectedValue(refused('Appoint another admin of Acme Corp first')),

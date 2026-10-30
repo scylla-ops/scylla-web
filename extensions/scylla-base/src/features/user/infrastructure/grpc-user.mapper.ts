@@ -15,21 +15,8 @@ import type {
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
-import type { AccessScope } from '@platform/authz';
 import type { UserAccess } from '../domain/entities/user.entity.ts';
 import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
-
-const accessScopeOf = (access: GrpcUserAccess): { scope: AccessScope; projectId?: string } => {
-  const ref = access.scope?.scope;
-  switch (ref?.oneofKind) {
-    case 'organization':
-      return { scope: 'organization' };
-    case 'project':
-      return { scope: 'project', projectId: idValue(ref.project.projectId) };
-    default:
-      return { scope: 'system' };
-  }
-};
 
 export function toDomain(user: User): UserEntity {
   return {
@@ -69,18 +56,34 @@ export function toUpdateRequest(input: UpdateUserInput): UpdateUserRequest {
   };
 }
 
+/** A grant with no organization is shown as a system grant, whatever its scope says. */
 export function accessToDomain(access: GrpcUserAccess): UserAccess {
-  const { scope, projectId } = accessScopeOf(access);
-  return {
+  const grant = {
     grantId: idValue(access.grantId),
-    scope,
-    ...(access.organizationId ? { organizationId: idValue(access.organizationId) } : {}),
-    organizationName: access.organizationName,
-    ...(projectId ? { projectId } : {}),
-    projectName: access.projectName,
     roleId: idValue(access.roleId),
     roleName: access.roleName,
   };
+  const ref = access.scope?.scope;
+  if (
+    !access.organizationId ||
+    (ref?.oneofKind !== 'organization' && ref?.oneofKind !== 'project')
+  ) {
+    return { ...grant, scope: 'system' };
+  }
+
+  const organization = {
+    organizationId: idValue(access.organizationId),
+    organizationName: access.organizationName,
+  };
+  return ref.oneofKind === 'organization'
+    ? { ...grant, scope: 'organization', ...organization }
+    : {
+        ...grant,
+        scope: 'project',
+        ...organization,
+        projectId: idValue(ref.project.projectId),
+        projectName: access.projectName,
+      };
 }
 
 export function sessionToDomain(session: GrpcUserSession): UserSessionEntity {

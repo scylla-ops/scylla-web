@@ -5,6 +5,7 @@ import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
 import { UserServiceClient } from '@base/generated/scylla/user/v1/user.client.ts';
 import { DefaultUserRepository } from './infrastructure/default-user.repository.ts';
+import { accountSection } from './presentation/ui/account/Account/account-sections.registry.ts';
 
 const repository = new DefaultUserRepository(new UserServiceClient(grpcTransport.getTransport()));
 
@@ -37,14 +38,30 @@ export const UserModule = {
         // The account of the session, in the frame of the organization: its calls need no grant.
         path: 'account',
         breadcrumb: () => ({ label: msg`Account` }),
-        page: () => import('./presentation/ui/account/Account/Account.page.svelte'),
+        children: [
+          { redirect: 'profile' },
+          {
+            path: ':section',
+            breadcrumb: ({ section }) => ({
+              label: accountSection(section)?.title ?? msg`Account`,
+            }),
+            page: () => import('./presentation/ui/account/Account/Account.page.svelte'),
+          },
+        ],
       },
     ],
     // The same page with no organization: for a user who has none yet.
     personal: [
       {
         path: 'account',
-        page: () => import('./presentation/ui/account/PersonalAccount/PersonalAccount.page.svelte'),
+        children: [
+          { redirect: 'profile' },
+          {
+            path: ':section',
+            page: () =>
+              import('./presentation/ui/account/PersonalAccount/PersonalAccount.page.svelte'),
+          },
+        ],
       },
     ],
   },

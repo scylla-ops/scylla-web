@@ -19,19 +19,33 @@ export type UserSummary = Pick<UserEntity, 'id' | 'username' | 'email' | 'displa
 
 export type UserList = PaginatedList<UserEntity>;
 
-/** One grant of a user, with the names to show it. */
-export interface UserAccess {
+interface Grant {
   grantId: string;
   scope: AccessScope;
-  /** Absent for the system scope. */
-  organizationId?: string;
-  organizationName: string;
-  /** Set for the project scope only. */
-  projectId?: string;
-  projectName: string;
   roleId: string;
   roleName: string;
 }
+
+export interface SystemAccess extends Grant {
+  scope: 'system';
+}
+
+export interface OrganizationAccess extends Grant {
+  scope: 'organization';
+  organizationId: string;
+  organizationName: string;
+}
+
+export interface ProjectAccess extends Grant {
+  scope: 'project';
+  organizationId: string;
+  organizationName: string;
+  projectId: string;
+  projectName: string;
+}
+
+/** One grant of a user, with the names to show it. Each scope carries only the names it has. */
+export type UserAccess = SystemAccess | OrganizationAccess | ProjectAccess;
 
 export interface CreateUserInput {
   email: string;

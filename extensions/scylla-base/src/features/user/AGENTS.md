@@ -63,9 +63,13 @@ one).
 
 `UpdateUserInput` holds the changed fields only: an absent field stays absent on the wire, and
 the server leaves it unchanged. `profileChanges` (`presenters/profile-form.presenter.ts`) builds
-it from the values of the profile form: it reads a form, so it is not domain.
-`groupUserAccess` (`presenters/user-access.presenter.ts`) puts the system grants apart and groups the
-others by organization.
+it from the values of the profile form: it reads a form, so it is not domain. `UserAccess` is a
+union on `scope` of `SystemAccess`, `OrganizationAccess` and `ProjectAccess`: a system grant has
+no organization, an organization grant has no project. Narrow on `scope` before you read a name.
+The barrel exports only `UserAccess`, because `dashboard` already exports another
+`ProjectAccess`. The mapper maps a grant that has no organization as a system grant.
+`groupUserAccess` (`presenters/user-access.presenter.ts`) puts the system grants apart and groups
+the others by organization.
 
 ## Layout
 
@@ -73,8 +77,9 @@ others by organization.
 user.module.ts                       routes + nav + DI wiring (private; registry only)
 index.ts                             public API
 domain/
-  entities/user.entity.ts            UserEntity, UserSummary, UserList, UserAccess (its scope is
-                                     the AccessScope of authz), the inputs
+  entities/user.entity.ts            UserEntity, UserSummary, UserList, UserAccess
+                                     (SystemAccess | OrganizationAccess | ProjectAccess, its
+                                     scope is the AccessScope of authz), the inputs
   entities/user-session.entity.ts    UserSessionEntity: no token, only what the list shows
   repository/user.repository.ts
 infrastructure/
@@ -86,8 +91,10 @@ presentation/
   ui/admin/UserAdmin.page.svelte     the directory
   ui/admin/AddUserDialog/            "New user"
   ui/admin/user-table/               UserTable, user-table.columns.ts
-  ui/account/Account/                the account page (+ ChangePasswordForm)
+  ui/account/Account/                the account page: AccountHeader, AccountNav, one section per
+                                     page, AccountSecurity (password + sessions), ChangePasswordForm
     account-page.state.svelte.ts     createAccountPage: the account of the session
+    account-sections.registry.ts     ACCOUNT_SECTIONS: the entries of the nav, their URL and title
   ui/account/PersonalAccount/         the account page with no organization: + the sign-out at the end
   ui/account/DeleteAccountDialog/
   ui/user-detail/UserDetail/         the page of another user, and its parts:
@@ -111,8 +118,13 @@ presentation/
 | `organization` | `users` | `LIST_USERS` | `UserAdmin.page.svelte` |
 | `organization` | `users/me` | (redirect) | to `account` |
 | `organization` | `users/:userId` | none on the route (`UNGATED_PAGES`); the page asks `READ_USER` | `UserDetail.page.svelte` |
-| `organization` | `account` | none (`UNGATED_PAGES`) | `Account.page.svelte` |
-| `personal` | `account` (`/account`) | none (`UNGATED_PAGES`) | `PersonalAccount.page.svelte`: `Account.page.svelte`, then the sign-out |
+| `organization` | `account` | (redirect) | to `account/profile` |
+| `organization` | `account/:section` | none (`UNGATED_PAGES`) | `Account.page.svelte` |
+| `personal` | `account` (`/account`) | (redirect) | to `/account/profile` |
+| `personal` | `account/:section` | none (`UNGATED_PAGES`) | `PersonalAccount.page.svelte`: `Account.page.svelte`, then the sign-out |
+
+`:section` is `profile`, `appearance`, `security`, `organizations` or `danger-zone`
+(`ACCOUNT_SECTIONS` in `account-sections.registry.ts`). Another value goes to `profile`.
 
 Sidebar: one entry, section **`system`** (not `organization`), order `10`, icon `UsersIcon`.
 The user menu of the shell opens the `account` of the organization
@@ -179,6 +191,12 @@ user who has no organization.
   an API client alone. The detail line of a named API client starts with "API client". "Active
   now" shows for less than five minutes, because the server moves the last activity at most
   once every five minutes.
+- **The account page shows one section of the settings at a time.** The header (avatar, name,
+  email, badges) and the nav stay on each page. The nav links are absolute URLs: the page
+  builds them from `organizationSlug`, or from `/account` when it has none. To add a section, add
+  it to `ACCOUNT_SECTIONS` and to the branches of `Account.page.svelte`. A form in a
+  `SettingsSection` with `actionBar` shows its `data-slot="form-actions"` as a bar at the bottom of
+  the card.
 - `getAll()` is paginated (`UserList`). Use `createPagination()` + `DataTable`; do not render
   an unpaginated directory.
 - Users are principals in the authz model: deleting one removes their grants. Confirm through

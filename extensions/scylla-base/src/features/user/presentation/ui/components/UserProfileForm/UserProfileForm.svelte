@@ -67,7 +67,7 @@
   <ScyllaForm {items} {isPending} autofocus={false} onSubmit={onSave}>
     {#snippet footer({ isValid, isPending: pending })}
       {#if canEdit}
-        <div class="flex justify-end">
+        <div data-slot="form-actions" class="flex justify-end">
           <Button type="submit" disabled={!isValid || pending}>{t(userMessages.save)}</Button>
         </div>
       {/if}

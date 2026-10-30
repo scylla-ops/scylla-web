@@ -20,6 +20,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Changed
 
+- **Breaking:** `UserAccess` from `@scylla/base-sdk` is a union on `scope`. A system grant has
+  no `organizationId` or `organizationName`, and only a project grant has `projectId` and
+  `projectName`. Check `scope` before you read these names.
 - **Breaking:** Code that touches an element is an attachment (`{@attach}`), not a Svelte
   action. `renderCodeMirror` from `@scylla/ui` takes its options as a getter:
   `{@attach renderCodeMirror(() => ({ doc, extensions }))}`.
@@ -51,6 +54,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   node id that the server does not accept, or two nodes with the same id. Save is disabled, and
   the header says why. The blueprint shows two nodes with the same id in red and does not
   change them; it no longer renames one of them without a word.
+- The account page has a settings nav on the left and one page for each entry: Profile,
+  Appearance, Security (password and sessions), Organizations and Danger zone
+  (`account/<section>`). A short header above the nav shows the avatar, the name, the email and
+  the badges. `account` opens the profile. On a phone, the nav is a row above the page.
 - **Breaking:** `ScyllaResult` is removed from `@scylla/base-sdk`. A repository returns
   `Promise<T>` and rejects with a `ScyllaError`; a query returns the call
   (`queryFn: () => repository().list(id)`), with no `.unwrap()`. `grpcTransport` makes every
