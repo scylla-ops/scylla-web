@@ -81,6 +81,36 @@ describe('NodeInspector', () => {
     expect(handlers.onChange).toHaveBeenLastCalledWith(expect.objectContaining({ shell: 'sh' }));
   });
 
+  it('applies the timeout and the retries of a node', async () => {
+    const user = userEvent.setup();
+    renderInspector();
+
+    await user.type(screen.getByLabelText('Timeout (seconds)'), '30');
+    await user.clear(screen.getByLabelText('Retries'));
+    await user.type(screen.getByLabelText('Retries'), '2');
+
+    expect(handlers.onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ timeoutSeconds: 30, retries: 2 }),
+    );
+  });
+
+  it('shows the range and does not apply a value out of range', async () => {
+    const user = userEvent.setup();
+    renderInspector();
+
+    await user.clear(screen.getByLabelText('Retries'));
+    await user.type(screen.getByLabelText('Retries'), '11');
+    await user.type(screen.getByLabelText('Timeout (seconds)'), '0');
+
+    expect(screen.getByText('Enter a whole number from 0 to 10.')).toBeInTheDocument();
+    expect(screen.getByText('Enter a whole number from 1 to 604800.')).toBeInTheDocument();
+    expect(screen.getByLabelText('Retries')).toHaveAttribute('aria-invalid', 'true');
+    expect(handlers.onChange).not.toHaveBeenCalledWith(expect.objectContaining({ retries: 11 }));
+    expect(handlers.onChange).not.toHaveBeenCalledWith(
+      expect.objectContaining({ timeoutSeconds: 0 }),
+    );
+  });
+
   it('renames the node when the id field is left', async () => {
     const user = userEvent.setup();
     renderInspector();
