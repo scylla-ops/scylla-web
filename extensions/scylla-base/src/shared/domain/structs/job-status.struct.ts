@@ -1,4 +1,7 @@
-/** `unknown`: a state arm newer than this build. */
+/**
+ * The status of a job, as `jobs` and `agents` show it. `unknown`: a state arm newer than this
+ * build.
+ */
 export type JobStatus =
   | 'pending'
   | 'running'

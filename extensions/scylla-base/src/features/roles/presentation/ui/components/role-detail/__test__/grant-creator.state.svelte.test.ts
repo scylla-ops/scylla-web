@@ -5,10 +5,9 @@ import {
   PermissionScope,
   PrincipalKind,
   permissionsStore,
-  RoleKind,
 } from '@platform/authz';
+import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { withQueryClient, withRegistry } from '@test/render.ts';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import { createGrantCreator } from '../grant-creator.state.svelte.ts';
 
@@ -59,15 +58,15 @@ beforeEach(() => {
   createGrant = vi.fn().mockResolvedValue(grant());
   getAllUsers = vi.fn().mockResolvedValue({
     items: [
-      { userId: 'user-1', username: 'ada' },
-      { userId: 'user-2', username: 'grace' },
+      { id: 'user-1', username: 'ada' },
+      { id: 'user-2', username: 'grace' },
     ],
   });
   getMine = vi.fn().mockResolvedValue([
     { id: 'org-1', name: 'Acme' },
     { id: 'org-2', name: 'Globex' },
   ]);
-  getProjects = vi.fn().mockResolvedValue({ projects: [{ id: 'project-1', name: 'Web' }] });
+  getProjects = vi.fn().mockResolvedValue({ items: [{ id: 'project-1', name: 'Web' }] });
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -327,7 +326,7 @@ describe('createGrantCreator — from an organization', () => {
   let listMembers: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    listMembers = vi.fn().mockResolvedValue([{ userId: 'user-1', username: 'dave' }]);
+    listMembers = vi.fn().mockResolvedValue([{ id: 'user-1', username: 'dave' }]);
     restoreRegistry();
     restoreRegistry = withRegistry({
       roles: {

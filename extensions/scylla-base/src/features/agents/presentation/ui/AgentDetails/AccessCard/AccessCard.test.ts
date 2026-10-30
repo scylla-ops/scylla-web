@@ -7,7 +7,7 @@ import {
   PermissionScope,
   PrincipalKind,
   permissionsStore,
-  type PrincipalEntity,
+  type Principal,
 } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { findFloating, findTooltip, render, withQueryClient, withRegistry } from '@test/render.ts';
@@ -82,7 +82,7 @@ const globexGrant = projectGrant('p-9', {
 });
 
 interface GrantInput {
-  principal: PrincipalEntity;
+  principal: Principal;
   roleId: string;
   scope: PermissionScope;
   scopeId: string;
@@ -179,7 +179,7 @@ beforeEach(() => {
 
   held = [];
   listAppAccess = vi.fn(() => Promise.resolve(held));
-  listProjects = vi.fn(() => Promise.resolve<unknown>({ projects: PROJECTS }));
+  listProjects = vi.fn(() => Promise.resolve<unknown>({ items: PROJECTS }));
   createGrant = vi.fn((input: GrantInput) => {
     const grant =
       input.scope === PermissionScope.PROJECT
@@ -469,7 +469,7 @@ describe('AccessCard: the project list of the give dialog', () => {
   });
 
   it('shows a failed project list with a retry, and never falls back to every project', async () => {
-    listProjects.mockRejectedValueOnce(denied()).mockResolvedValue({ projects: PROJECTS });
+    listProjects.mockRejectedValueOnce(denied()).mockResolvedValue({ items: PROJECTS });
     renderCard();
     const give = await openGive();
 
@@ -510,7 +510,7 @@ describe('AccessCard: the project list of the give dialog', () => {
   });
 
   it('says when the list of projects is cut', async () => {
-    listProjects.mockResolvedValue({ projects: PROJECTS, pagination: { totalCount: 150 } });
+    listProjects.mockResolvedValue({ items: PROJECTS, pagination: { totalCount: 150 } });
     renderCard();
     const give = await openGive();
 

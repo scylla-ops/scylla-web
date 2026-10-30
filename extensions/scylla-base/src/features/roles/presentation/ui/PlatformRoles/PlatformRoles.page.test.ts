@@ -6,14 +6,13 @@ import {
   PermissionScope,
   PrincipalKind,
   permissionsStore,
-  RoleKind,
 } from '@platform/authz';
+import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { selectionStore } from '@scylla/ui/stores';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import PlatformRolesPage from './PlatformRoles.page.svelte';
 
@@ -91,7 +90,7 @@ beforeEach(() => {
     },
     user: {
       userRepository: {
-        getAll: vi.fn().mockResolvedValue({ items: [{ userId: 'user-1', username: 'ada' }] }),
+        getAll: vi.fn().mockResolvedValue({ items: [{ id: 'user-1', username: 'ada' }] }),
       },
     },
     organization: {
@@ -101,7 +100,7 @@ beforeEach(() => {
     },
     project: {
       projectRepository: {
-        getByOrganizationId: vi.fn().mockResolvedValue({ projects: [] }),
+        getByOrganizationId: vi.fn().mockResolvedValue({ items: [] }),
       },
     },
   });

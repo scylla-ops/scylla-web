@@ -9,7 +9,7 @@
     formatDuration,
   } from '@shared/utils/date-utils.ts';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
-  import { isActiveStatus } from '@base/features/jobs/domain/structs/job-status.struct.ts';
+  import { isActiveStatus } from '@shared/domain/structs/job-status.struct.ts';
   import JobStatus from '../jobs-table/JobStatus/JobStatus.svelte';
   import JobTimeline from '../jobs-table/JobTimeline/JobTimeline.svelte';
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';

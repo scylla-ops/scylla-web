@@ -3,12 +3,12 @@ import type {
   Role,
   UpdateRoleRequest,
 } from '@base/generated/scylla/authz/v1/role.ts';
-import type {
-  RoleCreationData,
-  RoleEntity,
-  RoleOrigin,
+import {
+  type CreateRoleInput,
+  type RoleEntity,
+  RoleKind,
+  type RoleOrigin,
 } from '@base/features/roles/domain/entities/role.entity.ts';
-import { RoleKind } from '@platform/authz';
 import * as grpcPermission from '@base/features/roles/infrastructure/grpc-permission.mapper.ts';
 
 /** An unknown arm becomes `unknown`, never "custom". */
@@ -39,7 +39,7 @@ export function toDomain(grpcRole: Role): RoleEntity {
 }
 
 /** `UNSPECIFIED` is sent as `MEMBER`. Throws on `ADMIN`: the builtin owner roles only. */
-export function toGrpcCreateRequest(data: RoleCreationData): CreateRoleRequest {
+export function toGrpcCreateRequest(data: CreateRoleInput): CreateRoleRequest {
   if (data.kind === RoleKind.ADMIN) {
     throw new Error('The admin kind is reserved for the builtin roles.');
   }

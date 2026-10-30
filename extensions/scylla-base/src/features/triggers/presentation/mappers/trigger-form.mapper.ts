@@ -3,7 +3,6 @@ import type {
   TriggerEntity,
   TriggerDraftKind,
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 
 import { convertCronToUTC } from './cron-timezone.mapper.ts';
 
@@ -27,7 +26,7 @@ export const buildTriggerDraft = (params: {
   signatureHeader: string;
   inputs: DraftInput[];
 }): TriggerDraft => {
-  const allowPointer = params.kind === TriggerKind.Webhook;
+  const allowPointer = params.kind === 'webhook';
 
   const inputs = params.inputs
     .filter(input => input.key.trim().length > 0)
@@ -39,16 +38,16 @@ export const buildTriggerDraft = (params: {
 
   let finalCronExpression = params.cronExpression.trim();
 
-  if (params.kind === TriggerKind.Cron) {
+  if (params.kind === 'cron') {
     finalCronExpression = convertCronToUTC(finalCronExpression);
   }
 
   return {
     name: params.name.trim(),
     source:
-      params.kind === TriggerKind.Cron
-        ? { kind: TriggerKind.Cron, expression: finalCronExpression }
-        : { kind: TriggerKind.Webhook, signatureHeader: params.signatureHeader.trim() },
+      params.kind === 'cron'
+        ? { kind: 'cron', expression: finalCronExpression }
+        : { kind: 'webhook', signatureHeader: params.signatureHeader.trim() },
     inputs,
   };
 };

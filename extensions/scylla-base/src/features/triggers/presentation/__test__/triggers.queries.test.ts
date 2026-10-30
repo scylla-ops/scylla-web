@@ -8,7 +8,6 @@ import type {
   TriggerDraft,
   TriggerEntity,
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import { TRIGGERS_QUERY_KEY, triggerMutations, triggerQueries } from '../triggers.queries.ts';
 
 const PIPELINE_ID = 'pipeline-1';
@@ -17,7 +16,7 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   id: 'trigger-1',
   pipelineId: PIPELINE_ID,
   name: 'github-push',
-  source: { kind: TriggerKind.Webhook, signatureHeader: '', webhookUrl: 'https://x/webhooks/1' },
+  source: { kind: 'webhook', signatureHeader: '', webhookUrl: 'https://x/webhooks/1' },
   inputs: [],
   enabled: true,
   createdAt: '2026-01-01T00:00:00.000Z',
@@ -26,11 +25,11 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
 });
 
 const cronTrigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity =>
-  trigger({ source: { kind: TriggerKind.Cron, expression: '0 * * * *' }, ...overrides });
+  trigger({ source: { kind: 'cron', expression: '0 * * * *' }, ...overrides });
 
 const draft: TriggerDraft = {
   name: 'github-push',
-  source: { kind: TriggerKind.Webhook, signatureHeader: '' },
+  source: { kind: 'webhook', signatureHeader: '' },
   inputs: [],
 };
 

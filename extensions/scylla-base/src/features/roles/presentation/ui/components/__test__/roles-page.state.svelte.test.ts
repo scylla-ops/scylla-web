@@ -5,15 +5,14 @@ import {
   PermissionScope,
   PrincipalKind,
   permissionsStore,
-  RoleKind,
-  type EffectiveScopeEntity,
+  type EffectiveScope,
 } from '@platform/authz';
+import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
 import { withQueryClient, withRegistry } from '@test/render.ts';
 import type { PermissionRepository } from '@base/features/roles/domain/repository/permission.repository.ts';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import { createRolesPage, type RolesScope } from '../roles-page.state.svelte.ts';
 
@@ -64,15 +63,15 @@ let getProjects: ReturnType<typeof vi.fn>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
-const holding = (...scopes: EffectiveScopeEntity[]) =>
+const holding = (...scopes: EffectiveScope[]) =>
   permissionsStore.setState({ permissions: { scopes } });
 
-const SYSTEM_ADMIN: EffectiveScopeEntity = {
+const SYSTEM_ADMIN: EffectiveScope = {
   scope: PermissionScope.SYSTEM,
   scopeId: '',
   access: { kind: 'fullControl' },
 };
-const ACME_ADMIN: EffectiveScopeEntity = {
+const ACME_ADMIN: EffectiveScope = {
   scope: PermissionScope.ORGANIZATION,
   scopeId: 'org-1',
   access: { kind: 'fullControl' },
@@ -84,10 +83,10 @@ beforeEach(() => {
     .fn<(scope?: PermissionScope, scopeId?: string) => Promise<unknown>>()
     .mockResolvedValue([grant()]);
   deleteRole = vi.fn().mockResolvedValue(undefined);
-  listMembers = vi.fn().mockResolvedValue([{ userId: 'user-1', username: 'ada' }]);
+  listMembers = vi.fn().mockResolvedValue([{ id: 'user-1', username: 'ada' }]);
   getProjects = vi
     .fn()
-    .mockResolvedValue({ projects: [{ id: 'project-1', name: 'Web', organizationId: 'org-1' }] });
+    .mockResolvedValue({ items: [{ id: 'project-1', name: 'Web', organizationId: 'org-1' }] });
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -101,7 +100,7 @@ beforeEach(() => {
     },
     user: {
       userRepository: {
-        getAll: vi.fn().mockResolvedValue({ items: [{ userId: 'user-1', username: 'grace' }] }),
+        getAll: vi.fn().mockResolvedValue({ items: [{ id: 'user-1', username: 'grace' }] }),
       },
     },
     organization: { organizationRepository: { listMembers } },
@@ -377,7 +376,7 @@ describe('createRolesPage — an organization', () => {
     await withPage(ACME, async page => {
       await waitFor(() => expect(page.holdersLoading).toBe(true));
 
-      answer([{ userId: 'user-1', username: 'ada' }]);
+      answer([{ id: 'user-1', username: 'ada' }]);
 
       await waitFor(() => expect(page.holdersLoading).toBe(false));
       expect(page.principalLabel(grant())).toBe('ada');
@@ -387,7 +386,7 @@ describe('createRolesPage — an organization', () => {
   it('names a holder from the members of the organization, not the user directory', async () => {
     await withPage(ACME, async page => {
       await waitFor(() => expect(page.principalLabel(grant())).toBe('ada'));
-      expect(page.principalUser(grant())).toEqual({ userId: 'user-1', username: 'ada' });
+      expect(page.principalUser(grant())).toEqual({ id: 'user-1', username: 'ada' });
       expect(listMembers).toHaveBeenCalledWith('org-1');
     });
   });

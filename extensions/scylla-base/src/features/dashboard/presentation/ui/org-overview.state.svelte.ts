@@ -23,7 +23,7 @@ export const createOrgOverview = () => {
   const pipelinesQuery = createQuery(() => pipelineQueries.byOrganization(organizationId));
   const jobsQuery = createQuery(() => jobQueries.byOrganization(organizationId));
 
-  const projects = $derived(projectsQuery.data?.projects ?? []);
+  const projects = $derived(projectsQuery.data?.items ?? []);
   const pipelineFeed = $derived(asPipelineFeed(pipelinesQuery.data));
   const jobFeed = $derived(asJobFeed(jobsQuery.data));
 

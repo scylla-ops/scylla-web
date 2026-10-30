@@ -6,14 +6,13 @@ import { installTestNavigator } from '@test/navigator.ts';
 import { findFloating, focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import type { TriggersRepository } from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import TriggerEditorPage from './TriggerEditor.page.svelte';
 
 const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   id: 'trigger-1',
   pipelineId: 'pipeline-1',
   name: 'nightly',
-  source: { kind: TriggerKind.Cron, expression: '0 9 * * *' },
+  source: { kind: 'cron', expression: '0 9 * * *' },
   inputs: [],
   enabled: true,
   createdAt: '2026-01-01T00:00:00.000Z',
@@ -101,7 +100,7 @@ describe('TriggerEditorPage — create mode', () => {
     const [pipelineId, draft] = create.mock.calls[0];
     expect(pipelineId).toBe('pipeline-1');
     expect(draft.name).toBe('nightly-build');
-    expect(draft.source.kind).toBe(TriggerKind.Cron);
+    expect(draft.source.kind).toBe('cron');
     await vi.waitFor(() => expect(navigator.navigate).toHaveBeenCalledWith(LIST_PATH, undefined));
   });
 
@@ -201,7 +200,7 @@ describe('TriggerEditorPage — edit mode', () => {
 
   it('refuses to re-send a source arm this build cannot render', async () => {
     listByPipelineId.mockResolvedValue(
-      [trigger({ source: { kind: TriggerKind.Unknown } })],
+      [trigger({ source: { kind: 'unknown' } })],
     );
     render(TriggerEditorPage, props({ triggerId: 'trigger-1' }));
 
@@ -215,7 +214,7 @@ describe('TriggerEditorPage — edit mode', () => {
       [
         trigger({
           source: {
-            kind: TriggerKind.Webhook,
+            kind: 'webhook',
             signatureHeader: 'X-Hub-Signature-256',
             webhookUrl: 'https://x/y',
           },

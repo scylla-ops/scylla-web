@@ -4,7 +4,7 @@ import { SvelteURLSearchParams } from 'svelte/reactivity';
 import { createFeatureSelection } from '@scylla/ui/state';
 import { currentSearch, scyllaNavigate } from '@platform/context';
 import { organizationQueries } from '@base/features/organization';
-import { projectLookupQueries } from '@base/features/project';
+import { projectLookupQueries, type ProjectList } from '@base/features/project';
 import { userQueries, type UserSummary } from '@base/features/user';
 import { userName } from '@shared/presentation/ui';
 import { roleOwnerOf, type RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
@@ -80,7 +80,7 @@ export const createRolesPage = (scope: () => RolesScope) => {
   );
   const projectResults = createQueries(() => ({ queries: projectLookup.queries }));
   const projects = $derived(
-    ([...projectResults] as { data?: { projects: { id: string }[] } }[])[0]?.data?.projects ?? [],
+    ([...projectResults] as { data?: ProjectList }[])[0]?.data?.items ?? [],
   );
   const projectGrantResults = createQueries(() => ({
     queries: projects.map(project =>
@@ -132,7 +132,7 @@ export const createRolesPage = (scope: () => RolesScope) => {
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
     new Map<string, UserSummary>(
       (isOrganization ? (membersQuery.data ?? []) : (usersQuery.data?.items ?? [])).map(user => [
-        user.userId,
+        user.id,
         user,
       ]),
     ),

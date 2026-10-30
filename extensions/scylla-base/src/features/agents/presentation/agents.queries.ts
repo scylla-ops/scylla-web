@@ -11,7 +11,7 @@ import type {
   AgentStats,
   CreatedAgent,
   AgentJob,
-  PipelineName,
+  AgentJobPipeline,
 } from '../domain/entities/agent.entity.ts';
 import type { AgentsModule } from '../agents.module.ts';
 
@@ -78,7 +78,7 @@ export const agentQueries = {
 
   /** The names of the recent jobs. Asked only once a job shows. */
   pipelineNames: (organizationId: string, wanted: boolean) =>
-    queryOptions<PipelineName[]>({
+    queryOptions<AgentJobPipeline[]>({
       queryKey: PIPELINE_NAMES_QUERY_KEY(organizationId),
       enabled:
         wanted &&

@@ -1,5 +1,5 @@
 import type {
-  Access,
+  Access as GrpcAccess,
   Permission,
   PrincipalRef,
   ScopeKind,
@@ -7,14 +7,14 @@ import type {
 } from '@base/generated/scylla/authz/v1/permission.ts';
 import { RoleKind as GrpcRoleKind } from '@base/generated/scylla/authz/v1/grant.ts';
 import {
-  type AccessEntity,
+  type Access,
   type AccessSpec,
   type Permission as PermissionDomain,
   PermissionScope,
-  type PrincipalEntity,
+  type Principal,
   PrincipalKind,
-  RoleKind,
 } from '@platform/authz';
+import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 
 export interface ScopeBinding {
   scope: PermissionScope;
@@ -105,7 +105,7 @@ export function scopeRefToGrpc(scope: PermissionScope, scopeId: string): ScopeRe
 }
 
 /** An unknown arm stays UNSPECIFIED. */
-export function principalRefToDomain(ref: PrincipalRef | undefined): PrincipalEntity {
+export function principalRefToDomain(ref: PrincipalRef | undefined): Principal {
   switch (ref?.principal.oneofKind) {
     case 'user':
       return { kind: PrincipalKind.USER, id: ref.principal.user.userId?.value ?? '' };
@@ -116,7 +116,7 @@ export function principalRefToDomain(ref: PrincipalRef | undefined): PrincipalEn
   }
 }
 
-export function principalRefToGrpc(principal: PrincipalEntity): PrincipalRef {
+export function principalRefToGrpc(principal: Principal): PrincipalRef {
   switch (principal.kind) {
     case PrincipalKind.USER:
       return { principal: { oneofKind: 'user', user: { userId: { value: principal.id } } } };
@@ -128,7 +128,7 @@ export function principalRefToGrpc(principal: PrincipalEntity): PrincipalRef {
 }
 
 /** A missing or unknown arm becomes `unknown`, never an empty list ("holds nothing"). */
-export function accessToDomain(access: Access | undefined): AccessEntity {
+export function accessToDomain(access: GrpcAccess | undefined): Access {
   switch (access?.access.oneofKind) {
     case 'fullControl':
       return { kind: 'fullControl' };
@@ -142,7 +142,7 @@ export function accessToDomain(access: Access | undefined): AccessEntity {
   }
 }
 
-export function accessToGrpc(access: AccessSpec): Access {
+export function accessToGrpc(access: AccessSpec): GrpcAccess {
   return access.kind === 'fullControl'
     ? { access: { oneofKind: 'fullControl', fullControl: {} } }
     : {

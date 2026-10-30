@@ -1,4 +1,4 @@
-import { secretLabelProblem, trimSecretLabel, type SecretLabelProblem } from '@base/features/apps';
+import { secretLabelIssue, trimSecretLabel, type SecretLabelIssue } from '@base/features/apps';
 
 /**
  * A secret label field. It shows `suggested` until the user edits it, and checks the CE rules
@@ -15,10 +15,10 @@ export const createSecretLabelInput = (
   let refusals = $state(0);
 
   const value = $derived(edited ?? suggested());
-  const problem = $derived<SecretLabelProblem | null>(
+  const problem = $derived<SecretLabelIssue | null>(
     refused !== null && refused === trimSecretLabel(value)
       ? 'taken'
-      : secretLabelProblem(value, taken()),
+      : secretLabelIssue(value, taken()),
   );
 
   return {
@@ -33,7 +33,7 @@ export const createSecretLabelInput = (
       return problem === null;
     },
     /** Shown once the user edited the field or CE refused it: a suggestion is not an error. */
-    get problem(): SecretLabelProblem | null {
+    get problem(): SecretLabelIssue | null {
       return edited === null && refused === null ? null : problem;
     },
     /** Counts the refusals: the field takes the focus back at each one. */

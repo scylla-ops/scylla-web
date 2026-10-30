@@ -1,15 +1,15 @@
 import { SvelteMap } from 'svelte/reactivity';
-import { can, Permission, PermissionScope, PrincipalKind, RoleKind } from '@platform/authz';
+import { can, Permission, PermissionScope, PrincipalKind } from '@platform/authz';
+import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { createMutation, createQuery } from '@scylla/core-sdk';
 import { organizationQueries } from '@base/features/organization';
 import { projectQueries } from '@base/features/project';
 import { userQueries } from '@base/features/user';
 import { userName } from '@shared/presentation/ui';
-import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import {
   buildGrantEligibility,
   type GrantEligibility,
+  type GrantEntity,
 } from '@base/features/roles/domain/entities/grant.entity.ts';
 import { organizationIdOf, type RolesScope } from '@base/features/roles/presentation/ui/components/roles-page.state.svelte.ts';
 import { grantMutations, roleQueries } from '@base/features/roles/presentation/roles.queries.ts';
@@ -98,8 +98,8 @@ export const createGrantCreator = (
   /** Everyone stays listed; who cannot receive the grant carries the reason. */
   const users = $derived.by((): UserOption[] => {
     const all = isOrganization
-      ? (membersQuery.data ?? []).map(member => ({ id: member.userId, name: userName(member) }))
-      : (usersQuery.data?.items ?? []).map(user => ({ id: user.userId, name: userName(user) }));
+      ? (membersQuery.data ?? []).map(member => ({ id: member.id, name: userName(member) }))
+      : (usersQuery.data?.items ?? []).map(user => ({ id: user.id, name: userName(user) }));
     if (!isProjectScope || !browseOrgId) return all;
 
     return all.map(user => {
@@ -138,7 +138,7 @@ export const createGrantCreator = (
   });
 
   const projects = $derived(
-    (projectsQuery.data?.projects ?? []).map(project => ({
+    (projectsQuery.data?.items ?? []).map(project => ({
       id: project.id,
       name: project.name,
     })),

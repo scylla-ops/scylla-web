@@ -4,8 +4,8 @@ export type {
   CreatedTrigger,
   TriggerSource,
   TriggerInput,
+  TriggerKind,
 } from './domain/entities/trigger.entity.ts';
-export { TriggerKind } from './domain/entities/trigger.entity.ts';
 export {
   triggerQueries,
   triggerMutations,

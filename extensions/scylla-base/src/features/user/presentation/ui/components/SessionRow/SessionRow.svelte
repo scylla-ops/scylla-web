@@ -62,7 +62,7 @@
       size="sm"
       {disabled}
       aria-label={t(userMessages.signOutSession(title))}
-      onclick={() => onRevoke(session.sessionId)}
+      onclick={() => onRevoke(session.id)}
     >
       {t(userMessages.signOut)}
     </Button>

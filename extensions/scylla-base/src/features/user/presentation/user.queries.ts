@@ -108,7 +108,7 @@ export const userMutations = {
       mutationFn: (input: UpdateUserInput) => repository().update(input),
       onSuccess: (_result, input) => {
         toast.success(i18n._(ToastMessages.USER_UPDATE));
-        return invalidateUser(input.userId);
+        return invalidateUser(input.id);
       },
     }),
 
@@ -132,7 +132,7 @@ export const userMutations = {
         repository().setActive(userId, isActive),
       // A deactivation signs the user out everywhere.
       onSuccess: user =>
-        Promise.all([invalidateUser(user.userId), invalidateSessions(user.userId)]),
+        Promise.all([invalidateUser(user.id), invalidateSessions(user.id)]),
     }),
 
   /** The refusal of a wrong current password: the page shows it under the field, as data. */
@@ -167,7 +167,7 @@ export const userMutations = {
         const sessions = getQueryClient().getQueryData<UserSessionEntity[]>(
           USER_SESSIONS_QUERY_KEY(userId),
         );
-        if (sessions?.some(session => session.sessionId === sessionId && session.current)) {
+        if (sessions?.some(session => session.id === sessionId && session.current)) {
           signOut();
         } else {
           await invalidateSessions(userId);

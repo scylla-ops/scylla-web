@@ -48,11 +48,11 @@ const grant = (permissions: Permission[] | 'all') =>
   });
 
 beforeEach(() => {
-  listProjectMembers = vi.fn().mockResolvedValue([{ userId: 'user-1', username: 'alice' }]);
+  listProjectMembers = vi.fn().mockResolvedValue([{ id: 'user-1', username: 'alice' }]);
   listOrganizationMembers = vi.fn().mockResolvedValue([
-    { userId: 'user-1', username: 'alice' },
-    { userId: 'user-2', username: 'bob' },
-    { userId: 'user-3', username: 'carol' },
+    { id: 'user-1', username: 'alice' },
+    { id: 'user-2', username: 'bob' },
+    { id: 'user-3', username: 'carol' },
   ]);
 
   // The scope decides which grant list answers.
@@ -231,8 +231,8 @@ describe('ProjectMembersPage', () => {
     expect(screen.queryByText('Unknown user')).not.toBeInTheDocument();
 
     answer([
-      { userId: 'user-1', username: 'alice' },
-      { userId: 'user-2', username: 'bob' },
+      { id: 'user-1', username: 'alice' },
+      { id: 'user-2', username: 'bob' },
     ]);
 
     expect(await screen.findByText('bob')).toBeInTheDocument();

@@ -2,9 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { render } from '@test/render.ts';
 import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type { JobStatus as Status } from '@shared/domain/structs/job-status.struct.ts';
 import JobStatus from './JobStatus.svelte';
 
-const job = (status: string): JobEntity => ({
+const job = (status: Status): JobEntity => ({
   id: 'job-1',
   pipelineId: 'pipeline-1',
   status,
@@ -30,7 +31,7 @@ describe('JobStatus', () => {
   });
 
   it('shows no extra hint for a running, completed or failed job', () => {
-    for (const status of ['running', 'completed', 'failed']) {
+    for (const status of ['running', 'completed', 'failed'] as const) {
       const { unmount } = render(JobStatus, { job: job(status) });
 
       expect(screen.queryByText('queued: waiting for an agent')).not.toBeInTheDocument();
@@ -40,11 +41,11 @@ describe('JobStatus', () => {
     }
   });
 
-  it('falls back to the pending config for an unrecognized status, without its hint', () => {
+  it('shows a status newer than this build as unknown, without the pending hint', () => {
     // A status this build does not know is not "queued".
-    render(JobStatus, { job: job('teleported') });
+    render(JobStatus, { job: job('unknown') });
 
-    expect(screen.getByText('Pending')).toBeInTheDocument();
+    expect(screen.getByText('Unknown')).toBeInTheDocument();
     expect(screen.queryByText('queued: waiting for an agent')).not.toBeInTheDocument();
   });
 });

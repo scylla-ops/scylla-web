@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import { Permission, PermissionScope, RoleKind } from '@platform/authz';
+import { Permission, PermissionScope } from '@platform/authz';
+import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { messages } from '@base/features/roles/locales/fr/messages.ts';
 import { render } from '@test/render.ts';
 import { withLocale } from '@test/i18n.ts';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import RoleListItem from './RoleListItem.svelte';
 
 /** French puts 0 and 1 in the singular arm: "0 membre", "1 membre", "2 membres". */

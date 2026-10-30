@@ -1,26 +1,10 @@
-import type { PermissionScope, PrincipalEntity, EffectivePermissionsEntity } from '@platform/authz';
+import type { PermissionScope, Principal, EffectivePermissions } from '@platform/authz';
+import type { CreateRoleInput, GrantableRole, RoleEntity } from '../entities/role.entity.ts';
 import type {
-  RoleCreationData,
-  RoleEntity,
-} from '@base/features/roles/domain/entities/role.entity.ts';
-import type {
+  CreateGrantInput,
   GrantEntity,
-} from '@base/features/roles/domain/entities/grant.entity.ts';
-import type { GrantableRoleEntity } from '@base/features/roles/domain/entities/grantable-role.entity.ts';
-import type { PermissionVocabulary } from '@base/features/roles/domain/structs/permission-vocabulary.struct.ts';
-
-export interface CreateGrantInput {
-  principal: PrincipalEntity;
-  roleId: string;
-  scope: PermissionScope;
-  scopeId: string;
-}
-
-export interface RevokeAllAccessInput {
-  principal: PrincipalEntity;
-  scope: PermissionScope;
-  scopeId: string;
-}
+  RevokeAllAccessInput,
+} from '../entities/grant.entity.ts';
 
 export interface PermissionRepository {
   /**
@@ -29,13 +13,13 @@ export interface PermissionRepository {
    */
   listRoles(organizationId?: string): Promise<RoleEntity[]>;
   getRole(id: string): Promise<RoleEntity>;
-  createRole(role: RoleCreationData): Promise<RoleEntity>;
+  createRole(role: CreateRoleInput): Promise<RoleEntity>;
   updateRole(role: RoleEntity): Promise<RoleEntity>;
   deleteRole(id: string): Promise<void>;
 
-  getEffectivePermissions(principal: PrincipalEntity): Promise<EffectivePermissionsEntity>;
+  getEffectivePermissions(principal: Principal): Promise<EffectivePermissions>;
   /** Needs no permission, unlike the above. */
-  getMyPermissions(): Promise<EffectivePermissionsEntity>;
+  getMyPermissions(): Promise<EffectivePermissions>;
 
   listGrants(scope?: PermissionScope, scopeId?: string): Promise<GrantEntity[]>;
   createGrant(input: CreateGrantInput): Promise<GrantEntity>;
@@ -49,7 +33,5 @@ export interface PermissionRepository {
   listGrantableRoles(
     scope?: PermissionScope,
     organizationId?: string,
-  ): Promise<GrantableRoleEntity[]>;
-
-  listPermissionVocabulary(): Promise<PermissionVocabulary>;
+  ): Promise<GrantableRole[]>;
 }

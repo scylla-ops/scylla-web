@@ -1,23 +1,21 @@
+import type { PermissionRepository } from '@base/features/roles/domain/repository/permission.repository.ts';
 import type {
-  CreateGrantInput,
-  PermissionRepository,
-  RevokeAllAccessInput,
-} from '@base/features/roles/domain/repository/permission.repository.ts';
-import type {
-  RoleCreationData,
+  CreateRoleInput,
+  GrantableRole,
   RoleEntity,
 } from '@base/features/roles/domain/entities/role.entity.ts';
-import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
-import type { GrantableRoleEntity } from '@base/features/roles/domain/entities/grantable-role.entity.ts';
-import type { PermissionVocabulary } from '@base/features/roles/domain/structs/permission-vocabulary.struct.ts';
+import type {
+  CreateGrantInput,
+  GrantEntity,
+  RevokeAllAccessInput,
+} from '@base/features/roles/domain/entities/grant.entity.ts';
 import type { IGrantServiceClient } from '@base/generated/scylla/authz/v1/grant.client.ts';
 import type { IRoleServiceClient } from '@base/generated/scylla/authz/v1/role.client.ts';
-import type { EffectivePermissionsEntity, PermissionScope, PrincipalEntity } from '@platform/authz';
+import type { EffectivePermissions, PermissionScope, Principal } from '@platform/authz';
 import * as grpcRole from './grpc-role.mapper.ts';
 import * as grpcGrant from './grpc-grant.mapper.ts';
 import * as grpcGrantableRole from './grpc-grantable-role.mapper.ts';
 import * as grpcEffectivePermissions from './grpc-effective-permissions.mapper.ts';
-import * as grpcPermissionVocabulary from './grpc-permission-vocabulary.mapper.ts';
 import * as grpcPermission from './grpc-permission.mapper.ts';
 
 /** The backend always fills the wrapped entity on success: a missing one is a protocol error. */
@@ -47,7 +45,7 @@ export class DefaultPermissionRepository implements PermissionRepository {
     return grpcRole.toDomain(required(response.role, 'role'));
   }
 
-  public async createRole(role: RoleCreationData): Promise<RoleEntity> {
+  public async createRole(role: CreateRoleInput): Promise<RoleEntity> {
     const response = await this.roles.createRole(grpcRole.toGrpcCreateRequest(role)).response;
     return grpcRole.toDomain(required(response.role, 'role'));
   }
@@ -62,15 +60,15 @@ export class DefaultPermissionRepository implements PermissionRepository {
   }
 
   public async getEffectivePermissions(
-    principal: PrincipalEntity,
-  ): Promise<EffectivePermissionsEntity> {
+    principal: Principal,
+  ): Promise<EffectivePermissions> {
     const response = await this.roles.getEffectivePermissions({
       principal: grpcPermission.principalRefToGrpc(principal),
     }).response;
     return grpcEffectivePermissions.toDomain(response.scopes);
   }
 
-  public async getMyPermissions(): Promise<EffectivePermissionsEntity> {
+  public async getMyPermissions(): Promise<EffectivePermissions> {
     const response = await this.roles.getMyPermissions({}).response;
     return grpcEffectivePermissions.toDomain(response.scopes);
   }
@@ -108,16 +106,11 @@ export class DefaultPermissionRepository implements PermissionRepository {
   public async listGrantableRoles(
     scope?: PermissionScope,
     organizationId?: string,
-  ): Promise<GrantableRoleEntity[]> {
+  ): Promise<GrantableRole[]> {
     const response = await this.grants.listGrantableRoles({
       scopeKind: scope != null ? grpcPermission.scopeToGrpc(scope) : undefined,
       organizationId: organizationRef(organizationId),
     }).response;
     return response.roles.map(grpcGrantableRole.toDomain);
-  }
-
-  public async listPermissionVocabulary(): Promise<PermissionVocabulary> {
-    const response = await this.roles.listAuthzVocabulary({}).response;
-    return grpcPermissionVocabulary.toDomain(response.actions);
   }
 }

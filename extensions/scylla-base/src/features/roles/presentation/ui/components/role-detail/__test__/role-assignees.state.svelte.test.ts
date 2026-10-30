@@ -5,10 +5,9 @@ import {
   PermissionScope,
   PrincipalKind,
   permissionsStore,
-  RoleKind,
 } from '@platform/authz';
+import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { withQueryClient, withRegistry } from '@test/render.ts';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import type { GrantEntity } from '@base/features/roles/domain/entities/grant.entity.ts';
 import { createGrantTargetLabels } from '../grant-target-labels.state.svelte.ts';
 import { createRoleAssignees } from '../role-assignees.state.svelte.ts';
@@ -44,11 +43,11 @@ let restoreRegistry: () => void;
 beforeEach(() => {
   listGrants = vi.fn().mockResolvedValue([grant()]);
   revokeGrant = vi.fn().mockResolvedValue(undefined);
-  getAllUsers = vi.fn().mockResolvedValue({ items: [{ userId: 'user-1', username: 'ada' }] });
+  getAllUsers = vi.fn().mockResolvedValue({ items: [{ id: 'user-1', username: 'ada' }] });
   getMine = vi.fn().mockResolvedValue([{ id: 'org-1', name: 'Acme' }]);
   getProjects = vi
     .fn()
-    .mockResolvedValue({ projects: [{ id: 'project-1', name: 'Web', organizationId: 'org-1' }] });
+    .mockResolvedValue({ items: [{ id: 'project-1', name: 'Web', organizationId: 'org-1' }] });
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({

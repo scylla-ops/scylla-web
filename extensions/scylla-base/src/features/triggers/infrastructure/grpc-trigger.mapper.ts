@@ -14,7 +14,6 @@ import type {
   TriggerInput,
   TriggerSource,
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import {
   idValue,
   timestampToIso,
@@ -25,16 +24,16 @@ import {
 function sourceToDomain(source: ProtoTrigger['source']): TriggerSource {
   switch (source.oneofKind) {
     case 'cron':
-      return { kind: TriggerKind.Cron, expression: source.cron.expression };
+      return { kind: 'cron', expression: source.cron.expression };
     case 'webhook':
       return {
-        kind: TriggerKind.Webhook,
+        kind: 'webhook',
         signatureHeader: source.webhook.signatureHeader,
         webhookUrl: source.webhook.url,
       };
     default:
       // A source arm newer than this build: unknown.
-      return { kind: TriggerKind.Unknown };
+      return { kind: 'unknown' };
   }
 }
 
@@ -108,7 +107,7 @@ function inputToProto(input: TriggerInput): ProtoTriggerInput {
 }
 
 function draftSourceToProto(draft: TriggerDraft): CreateTriggerRequest['source'] {
-  return draft.source.kind === TriggerKind.Cron
+  return draft.source.kind === 'cron'
     ? { oneofKind: 'cron', cron: { expression: draft.source.expression } }
     : { oneofKind: 'webhook', webhook: { signatureHeader: draft.source.signatureHeader } };
 }

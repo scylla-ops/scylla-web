@@ -5,14 +5,13 @@ import {
   Permission,
   PermissionScope,
   permissionsStore,
-  RoleKind,
-  type EffectiveScopeEntity,
+  type EffectiveScope,
 } from '@platform/authz';
+import { type RoleEntity, RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
 import RoleEditorPage from './RoleEditor.page.svelte';
 
 const role = (overrides: Partial<RoleEntity> = {}): RoleEntity => ({
@@ -39,10 +38,10 @@ let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 let navigator: ReturnType<typeof installTestNavigator>;
 
-const holding = (...scopes: EffectiveScopeEntity[]) =>
+const holding = (...scopes: EffectiveScope[]) =>
   permissionsStore.setState({ permissions: { scopes } });
 
-const ACME_ADMIN: EffectiveScopeEntity = {
+const ACME_ADMIN: EffectiveScope = {
   scope: PermissionScope.ORGANIZATION,
   scopeId: 'org-1',
   access: { kind: 'fullControl' },

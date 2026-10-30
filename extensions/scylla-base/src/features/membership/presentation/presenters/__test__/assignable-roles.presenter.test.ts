@@ -1,15 +1,15 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { Permission, PermissionScope, RoleKind } from '@platform/authz';
-import type { GrantableRoleEntity, RoleEntity } from '@base/features/roles';
+import { Permission, PermissionScope } from '@platform/authz';
+import { RoleKind, type GrantableRole, type RoleEntity } from '@base/features/roles';
 import {
   assignableForPeople,
   groupAssignableRoles,
   type AssignableRole,
 } from '../assignable-roles.presenter.ts';
 
-const grantable = (overrides: Partial<GrantableRoleEntity> = {}): GrantableRoleEntity => ({
-  roleId: 'organization-viewer',
+const grantable = (overrides: Partial<GrantableRole> = {}): GrantableRole => ({
+  id: 'organization-viewer',
   name: 'Organization Viewer',
   scope: PermissionScope.ORGANIZATION,
   kind: RoleKind.MEMBER,
@@ -27,7 +27,7 @@ const assignable = (roleId: string, ownedByOrganization: boolean): AssignableRol
 describe('assignableForPeople', () => {
   it('never offers a role for apps to a person', () => {
     const roles = assignableForPeople(
-      [grantable(), grantable({ roleId: 'deploy-bot', kind: RoleKind.AGENT })],
+      [grantable(), grantable({ id: 'deploy-bot', kind: RoleKind.AGENT })],
       new Map(),
     );
 
@@ -36,7 +36,7 @@ describe('assignableForPeople', () => {
 
   it('marks the roles the organization owns', () => {
     const [platform, owned] = assignableForPeople(
-      [grantable(), grantable({ roleId: 'auditor', ownerOrganizationId: 'org-1' })],
+      [grantable(), grantable({ id: 'auditor', ownerOrganizationId: 'org-1' })],
       new Map(),
     );
 
@@ -56,9 +56,9 @@ describe('assignableForPeople', () => {
     };
     const roles = assignableForPeople(
       [
-        grantable({ roleId: 'auditor' }),
-        grantable({ roleId: 'support' }),
-        grantable({ roleId: 'project-viewer', name: '' }),
+        grantable({ id: 'auditor' }),
+        grantable({ id: 'support' }),
+        grantable({ id: 'project-viewer', name: '' }),
       ],
       new Map([['auditor', catalog]]),
     );

@@ -1,5 +1,5 @@
 import {
-  nodeProblem,
+  nodeIssue,
   type PipelineNodeEntity,
 } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import {
@@ -22,7 +22,7 @@ export const nodeRows = (nodes: PipelineNodeEntity[]): NodeRow[] => {
     .map(node => ({
       node,
       depth: depths.get(node.id) ?? 0,
-      hasIssue: !!nodeProblem(node),
+      hasIssue: !!nodeIssue(node),
     }))
     .sort((a, b) => a.depth - b.depth);
 };

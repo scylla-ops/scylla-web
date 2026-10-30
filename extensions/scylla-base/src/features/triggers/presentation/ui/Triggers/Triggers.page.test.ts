@@ -11,14 +11,13 @@ import type {
   TriggersRepository,
 } from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import TriggersPage from './Triggers.page.svelte';
 
 const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   id: 'trigger-1',
   pipelineId: 'pipeline-1',
   name: 'nightly',
-  source: { kind: TriggerKind.Cron, expression: '0 9 * * *' },
+  source: { kind: 'cron', expression: '0 9 * * *' },
   inputs: [],
   enabled: true,
   createdAt: '2026-01-01T00:00:00.000Z',

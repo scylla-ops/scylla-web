@@ -1,4 +1,4 @@
-import type { PasswordResetDelivery } from '@base/features/login/domain/structs/password-reset.struct.ts';
+import type { PasswordResetDelivery } from '@base/features/login/domain/structs/password-reset-delivery.struct.ts';
 
 export interface LoginRepository {
   /** `identifier` is an email when it holds '@', else a username. */

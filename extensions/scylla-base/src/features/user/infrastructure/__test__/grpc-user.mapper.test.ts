@@ -23,7 +23,7 @@ const baseUser = (overrides: Partial<User> = {}): User => ({
 describe('grpcUser.toDomain', () => {
   it('unwraps the id and the email, and formats both timestamps', () => {
     expect(grpcUser.toDomain(baseUser())).toEqual({
-      userId: 'user-1',
+      id: 'user-1',
       username: 'ravenne',
       email: 'ravenne@example.com',
       displayName: 'Ravenne Lee',
@@ -44,8 +44,8 @@ describe('grpcUser.toDomain', () => {
     expect(grpcUser.toDomain(baseUser({ isActive: false })).isActive).toBe(false);
   });
 
-  it('defaults to an empty userId when the wrapper is absent', () => {
-    expect(grpcUser.toDomain(baseUser({ userId: undefined })).userId).toBe('');
+  it('defaults to an empty id when the wrapper is absent', () => {
+    expect(grpcUser.toDomain(baseUser({ userId: undefined })).id).toBe('');
   });
 });
 
@@ -96,14 +96,14 @@ describe('grpcUser.toCreateRequest', () => {
 
 describe('grpcUser.toUpdateRequest', () => {
   it('sends only the fields that change', () => {
-    expect(grpcUser.toUpdateRequest({ userId: 'user-1', displayName: 'Ada' })).toEqual({
+    expect(grpcUser.toUpdateRequest({ id: 'user-1', displayName: 'Ada' })).toEqual({
       userId: { value: 'user-1' },
       displayName: 'Ada',
     });
   });
 
   it('keeps an empty display name, which removes it', () => {
-    expect(grpcUser.toUpdateRequest({ userId: 'user-1', displayName: '' })).toEqual({
+    expect(grpcUser.toUpdateRequest({ id: 'user-1', displayName: '' })).toEqual({
       userId: { value: 'user-1' },
       displayName: '',
     });
@@ -111,7 +111,7 @@ describe('grpcUser.toUpdateRequest', () => {
 
   it('wraps a new email', () => {
     expect(
-      grpcUser.toUpdateRequest({ userId: 'user-1', username: 'ada', email: 'a@b.co' }),
+      grpcUser.toUpdateRequest({ id: 'user-1', username: 'ada', email: 'a@b.co' }),
     ).toEqual({ userId: { value: 'user-1' }, username: 'ada', email: { value: 'a@b.co' } });
   });
 });
@@ -211,7 +211,7 @@ describe('grpcUser.sessionToDomain', () => {
 
   it('unwraps the id, formats the times and carries the rest through', () => {
     expect(grpcUser.sessionToDomain(session())).toEqual({
-      sessionId: 'session-1',
+      id: 'session-1',
       createdAt: ISO,
       lastActiveAt: LATER_ISO,
       expiresAt: LATER_ISO,
@@ -235,7 +235,7 @@ describe('grpcUser.sessionToDomain', () => {
         }),
       ),
     ).toEqual({
-      sessionId: '',
+      id: '',
       createdAt: '',
       lastActiveAt: '',
       expiresAt: '',

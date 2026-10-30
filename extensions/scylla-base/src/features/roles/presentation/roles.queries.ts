@@ -1,19 +1,21 @@
 import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
 import {
   permissionsStore,
-  type EffectivePermissionsEntity,
+  type EffectivePermissions,
   type PermissionScope,
-  type PrincipalEntity,
+  type Principal,
 } from '@platform/authz';
-import type { RoleCreationData, RoleEntity } from '../domain/entities/role.entity.ts';
-import type { GrantEntity } from '../domain/entities/grant.entity.ts';
-import type { PermissionVocabulary } from '../domain/structs/permission-vocabulary.struct.ts';
+import type {
+  CreateRoleInput,
+  GrantableRole,
+  RoleEntity,
+  UpdateRoleInput,
+} from '../domain/entities/role.entity.ts';
 import type {
   CreateGrantInput,
+  GrantEntity,
   RevokeAllAccessInput,
-} from '../domain/repository/permission.repository.ts';
-import type { UpdateRoleInput } from '../domain/use-cases/update-role.use-case.ts';
-import type { GrantableRoleEntity } from '../domain/entities/grantable-role.entity.ts';
+} from '../domain/entities/grant.entity.ts';
 import type { RolesModule } from '../roles.module.ts';
 
 // Resolved per call: tests swap the registry.
@@ -41,7 +43,6 @@ const GRANTABLE_ROLES_QUERY_ROOT = 'permission-grantable-roles';
 export const GRANTABLE_ROLES_QUERY_KEY = (scope?: PermissionScope, organizationId?: string | null) =>
   [GRANTABLE_ROLES_QUERY_ROOT, scope ?? 'all', organizationId ?? ''] as const;
 
-export const PERMISSION_VOCABULARY_QUERY_KEY = ['permission-vocabulary'] as const;
 
 export const roleQueries = {
   /** Every role. Needs `MANAGE_ROLES`: without it, pass `enabled: false` and use `grantable`. */
@@ -69,7 +70,7 @@ export const roleQueries = {
     organizationId?: string | null,
     options: { enabled?: boolean } = {},
   ) =>
-    queryOptions<GrantableRoleEntity[]>({
+    queryOptions<GrantableRole[]>({
       queryKey: GRANTABLE_ROLES_QUERY_KEY(scope, organizationId),
       enabled: options.enabled ?? true,
       queryFn: () =>
@@ -94,14 +95,6 @@ export const roleQueries = {
       queryKey: GRANTS_QUERY_KEY(scope, scopeId ?? ''),
       enabled: (options.enabled ?? true) && !!scopeId,
       queryFn: () => domain().permissionRepository.listGrants(scope, scopeId ?? ''),
-    }),
-
-  /** Every permission the backend knows, with its narrowest scope. New backend permissions show up without a frontend change. */
-  vocabulary: () =>
-    queryOptions<PermissionVocabulary>({
-      queryKey: PERMISSION_VOCABULARY_QUERY_KEY,
-      queryFn: () => domain().permissionRepository.listPermissionVocabulary(),
-      staleTime: Infinity,
     }),
 };
 
@@ -155,7 +148,7 @@ const invalidateRoles = () => {
 export const roleMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: (input: RoleCreationData) => domain().permissionRepository.createRole(input),
+      mutationFn: (input: CreateRoleInput) => domain().permissionRepository.createRole(input),
       onSuccess: invalidateRoles,
     }),
 
@@ -174,7 +167,7 @@ export const roleMutations = {
   /** A mutation: it runs when asked, and its answer is not cached. */
   effectivePermissions: () =>
     mutationOptions({
-      mutationFn: (principal: PrincipalEntity): Promise<EffectivePermissionsEntity> =>
+      mutationFn: (principal: Principal): Promise<EffectivePermissions> =>
         domain().permissionRepository.getEffectivePermissions(principal),
     }),
 };

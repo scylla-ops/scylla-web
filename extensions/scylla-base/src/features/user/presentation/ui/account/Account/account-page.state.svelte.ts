@@ -1,7 +1,10 @@
 import { i18n } from '@lingui/core';
 import { createMutation, createQuery } from '@scylla/core-sdk';
 import { toast } from '@scylla/ui/utils';
-import { profileChanges, type ProfileValues } from '@base/features/user/domain/entities/user.entity.ts';
+import {
+  profileChanges,
+  type ProfileValues,
+} from '@base/features/user/presentation/presenters/profile-form.presenter.ts';
 import { groupUserAccess } from '@base/features/user/presentation/presenters/user-access.presenter.ts';
 import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 import { userMutations, userQueries } from '@base/features/user/presentation/user.queries.ts';
@@ -13,8 +16,8 @@ import { userMutations, userQueries } from '@base/features/user/presentation/use
 export const createAccountPage = () => {
   const meQuery = createQuery(() => userQueries.me());
   const me = $derived(meQuery.data);
-  const accessQuery = createQuery(() => userQueries.access(me?.userId));
-  const sessionsQuery = createQuery(() => userQueries.sessions(me?.userId));
+  const accessQuery = createQuery(() => userQueries.access(me?.id));
+  const sessionsQuery = createQuery(() => userQueries.sessions(me?.id));
   const systemRole = $derived(groupUserAccess(accessQuery.data ?? []).system[0]?.roleName);
 
   const profileUpdate = createMutation(() => userMutations.update());
@@ -95,14 +98,14 @@ export const createAccountPage = () => {
       return oneSessionRevocation.isPending;
     },
     revokeSession: (sessionId: string) => {
-      if (me) oneSessionRevocation.mutate({ userId: me.userId, sessionId });
+      if (me) oneSessionRevocation.mutate({ userId: me.id, sessionId });
     },
     get isRevokingSessions() {
       return sessionRevocation.isPending;
     },
     signOutOtherSessions: () => {
       if (!me) return;
-      sessionRevocation.mutate(me.userId, {
+      sessionRevocation.mutate(me.id, {
         onSuccess: count => toast.success(i18n._(userMessages.sessionsRevoked(count))),
       });
     },

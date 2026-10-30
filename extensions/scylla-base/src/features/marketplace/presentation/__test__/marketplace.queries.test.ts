@@ -3,14 +3,14 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { setDependencyRegistry } from '@scylla/core-sdk';
 import { runQueryFn } from '@test/queries.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import type MarketplaceRepository from '@base/features/marketplace/domain/repository/marketplace.repository.ts';
+import type { MarketplaceRepository } from '@base/features/marketplace/domain/repository/marketplace.repository.ts';
 import type { MarketItem } from '@base/features/marketplace/domain/structs/market-item.struct.ts';
 import { MARKETPLACE_QUERY_KEY, marketplaceQueries } from '../marketplace.queries.ts';
 
 const item = (overrides: Partial<MarketItem> = {}): MarketItem => ({
   provider: 'scylla',
   title: 'Hello world',
-  descrption: 'a starter pipeline template',
+  description: 'a starter pipeline template',
   ...overrides,
 });
 

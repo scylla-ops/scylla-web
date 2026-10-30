@@ -31,7 +31,7 @@ const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
 });
 
 const page = (projects: ProjectEntity[]) => ({
-  projects,
+  items: projects,
   pagination: { page: 1, pageSize: 10, totalCount: projects.length, totalPages: 1, hasNext: false, hasPrevious: false },
 });
 
@@ -100,7 +100,7 @@ describe('projectQueries.byOrganization', () => {
       page: 1,
       pageSize: expect.any(Number) as number,
     });
-    expect(result.projects).toHaveLength(1);
+    expect(result.items).toHaveLength(1);
   });
 
   it('never asks for a list it may not read', () => {

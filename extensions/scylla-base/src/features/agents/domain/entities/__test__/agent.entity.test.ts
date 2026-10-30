@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { isOnline } from '@base/features/agents/domain/structs/agent-state.struct.ts';
+import { isOnline } from '@base/features/agents/domain/entities/agent.entity.ts';
 import { agentStateOf } from '../agent.entity.ts';
 
 const agent = (overrides: Partial<Parameters<typeof agentStateOf>[0]> = {}) => ({

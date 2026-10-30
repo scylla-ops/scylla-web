@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { render } from '@test/render.ts';
-import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import TriggerStatusCell from './TriggerStatusCell.svelte';
 
@@ -9,7 +8,7 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   id: 'trigger-1',
   pipelineId: 'pipeline-1',
   name: 'nightly',
-  source: { kind: TriggerKind.Cron, expression: '0 0 * * *' },
+  source: { kind: 'cron', expression: '0 0 * * *' },
   inputs: [],
   enabled: true,
   createdAt: '2026-01-01T00:00:00.000Z',
@@ -17,7 +16,7 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   ...overrides,
 });
 
-const webhook = { kind: TriggerKind.Webhook, signatureHeader: '', webhookUrl: 'https://x/y' } as const;
+const webhook = { kind: 'webhook', signatureHeader: '', webhookUrl: 'https://x/y' } as const;
 
 describe('TriggerStatusCell', () => {
   it('shows "Never fired" when there is no lastResult and no lastFiredAt', () => {

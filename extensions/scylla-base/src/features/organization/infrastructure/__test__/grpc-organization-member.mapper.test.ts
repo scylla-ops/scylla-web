@@ -7,13 +7,13 @@ describe('grpcOrganizationMember.toDomain', () => {
   it('unwraps the user id and carries the username through', () => {
     const member: OrganizationMember = { userId: { value: 'user-1' }, username: 'ravenne' };
     expect(grpcOrganizationMember.toDomain(member)).toEqual({
-      userId: 'user-1',
+      id: 'user-1',
       username: 'ravenne',
     });
   });
 
-  it('defaults to an empty userId when the wrapper is absent', () => {
+  it('defaults to an empty id when the wrapper is absent', () => {
     const member: OrganizationMember = { userId: undefined, username: 'ravenne' };
-    expect(grpcOrganizationMember.toDomain(member).userId).toBe('');
+    expect(grpcOrganizationMember.toDomain(member).id).toBe('');
   });
 });

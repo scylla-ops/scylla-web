@@ -7,7 +7,7 @@ import { findFloating, render, withQueryClient, withRegistry } from '@test/rende
 import OrganizationMembersPage from './OrganizationMembers.page.svelte';
 
 const member = (overrides: Record<string, unknown> = {}) => ({
-  userId: 'user-1',
+  id: 'user-1',
   username: 'alice',
   ...overrides,
 });
@@ -53,7 +53,7 @@ beforeEach(() => {
   listGrants = vi.fn().mockResolvedValue([grantEntity()]);
   listGrantableRoles = vi.fn().mockResolvedValue([
     {
-      roleId: 'organization-member',
+      id: 'organization-member',
       scope: PermissionScope.ORGANIZATION,
       kind: 0,
       description: 'Belongs here',

@@ -1,5 +1,5 @@
 /** The list, the overview and the lookup share one cache entry through `projectQueries`. */
-export type { ProjectEntity } from './domain/entities/project.entity.ts';
+export type { ProjectEntity, ProjectList } from './domain/entities/project.entity.ts';
 export {
   CREATE_PROJECT_MUTATION_KEY,
   canListProjects,

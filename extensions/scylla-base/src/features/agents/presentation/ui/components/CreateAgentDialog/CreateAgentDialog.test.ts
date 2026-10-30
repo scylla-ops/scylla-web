@@ -73,7 +73,7 @@ beforeEach(() => {
 
   createAgent = vi.fn().mockResolvedValue({ agent: agent(), secret: SECRET });
   getAgent = vi.fn().mockResolvedValue(agent());
-  listProjects = vi.fn().mockResolvedValue({ projects: [] });
+  listProjects = vi.fn().mockResolvedValue({ items: [] });
   createGrant = vi.fn().mockResolvedValue({ id: 'grant-project' });
   listGrants = vi.fn().mockResolvedValue([
     {
@@ -215,7 +215,7 @@ describe('CreateAgentDialog', () => {
   });
 
   it('offers one project only to a user who manages the grants of an organization with projects', async () => {
-    listProjects.mockResolvedValue({ projects: [{ id: 'p-1', name: 'prelude' }] });
+    listProjects.mockResolvedValue({ items: [{ id: 'p-1', name: 'prelude' }] });
     const { unmount } = render(CreateAgentDialog, { open: true, onClose: vi.fn() });
     expect(await dialog().findByRole('radio', { name: /One project/ })).toBeChecked();
     unmount();
@@ -227,7 +227,7 @@ describe('CreateAgentDialog', () => {
   });
 
   it('limits the agent to one project: a project grant, then the organization grant goes', async () => {
-    listProjects.mockResolvedValue({ projects: [{ id: 'p-1', name: 'prelude' }] });
+    listProjects.mockResolvedValue({ items: [{ id: 'p-1', name: 'prelude' }] });
     render(CreateAgentDialog, { open: true, onClose: vi.fn() });
     await dialog().findByRole('radio', { name: /One project/ });
 
@@ -247,7 +247,7 @@ describe('CreateAgentDialog', () => {
   });
 
   it('still shows the secret when a grant step fails, and warns that every project stays open', async () => {
-    listProjects.mockResolvedValue({ projects: [{ id: 'p-1', name: 'prelude' }] });
+    listProjects.mockResolvedValue({ items: [{ id: 'p-1', name: 'prelude' }] });
     createGrant.mockRejectedValue(new ScyllaError('denied', { code: 'PERMISSION_DENIED' }));
     render(CreateAgentDialog, { open: true, onClose: vi.fn() });
     await dialog().findByRole('radio', { name: /One project/ });
@@ -388,7 +388,7 @@ describe('CreateAgentDialog: the grant permissions of "One project"', () => {
     restricted(PermissionScope.PROJECT, projectId, [Permission.MANAGE_PROJECT_GRANTS]);
 
   beforeEach(() => {
-    listProjects.mockResolvedValue({ projects: PROJECTS });
+    listProjects.mockResolvedValue({ items: PROJECTS });
   });
 
   it('lists only the projects where the user may manage the grants, and limits the agent to one', async () => {
@@ -483,7 +483,7 @@ describe('CreateAgentDialog: the project list of "One project"', () => {
     expect(allProjects()).not.toBeChecked();
     expect(createButton()).toBeDisabled();
 
-    list.resolve({ projects: PROJECTS });
+    list.resolve({ items: PROJECTS });
 
     expect(await dialog().findByRole('combobox', { name: 'Project' })).toBeInTheDocument();
     expect(createButton()).toBeEnabled();
@@ -495,7 +495,7 @@ describe('CreateAgentDialog: the project list of "One project"', () => {
   });
 
   it('shows a failed project list with a retry, and chooses no option for the user', async () => {
-    listProjects.mockRejectedValueOnce(denied()).mockResolvedValue({ projects: PROJECTS });
+    listProjects.mockRejectedValueOnce(denied()).mockResolvedValue({ items: PROJECTS });
     render(CreateAgentDialog, { open: true, onClose: vi.fn() });
 
     expect(await dialog().findByRole('alert')).toHaveTextContent(
@@ -730,7 +730,7 @@ describe('CreateAgentDialog grant warning', () => {
     ['the organization grants cannot be listed', () => listGrants],
     ['the organization grant cannot be revoked', () => revokeGrant],
   ])('warns that every project stays open when %s', async (_case, failing) => {
-    listProjects.mockResolvedValue({ projects: [{ id: 'p-1', name: 'prelude' }] });
+    listProjects.mockResolvedValue({ items: [{ id: 'p-1', name: 'prelude' }] });
     failing().mockRejectedValue(new ScyllaError('denied', { code: 'PERMISSION_DENIED' }));
     render(CreateAgentDialog, { open: true, onClose: vi.fn() });
     await dialog().findByRole('radio', { name: /One project/ });

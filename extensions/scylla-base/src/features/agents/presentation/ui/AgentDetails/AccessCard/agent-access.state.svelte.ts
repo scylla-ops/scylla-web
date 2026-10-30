@@ -84,7 +84,7 @@ export const createAgentAccess = (input: {
     if (projectsQuery.data) return 'ready';
     return projectsQuery.isError ? 'error' : 'loading';
   });
-  const listed = $derived(projectsQuery.data?.projects ?? []);
+  const listed = $derived(projectsQuery.data?.items ?? []);
   const withoutGrant = $derived(projectsWithoutGrant(listed, access));
   const projects = $derived(withoutGrant.filter(candidate => canManageProject(candidate.id)));
   const canPickProject = $derived(projectsStatus === 'ready' && projects.length > 0);

@@ -4,22 +4,25 @@
  */
 export {
   Permission,
-  PermissionScope,
-  PrincipalKind,
-  RoleKind,
-  type AccessEntity,
-  type AccessSpec,
-  type PrincipalEntity,
+  PERMISSION_IMPLICATIONS,
+  impliersOf,
+  permissionLevel,
 } from './domain/structs/permission.struct.ts';
+export {
+  PermissionScope,
+  scopeCovers,
+  type AccessScope,
+} from './domain/structs/permission-scope.struct.ts';
+export { PrincipalKind, type Principal } from './domain/structs/principal.struct.ts';
+export { accessConfers, type Access, type AccessSpec } from './domain/structs/access.struct.ts';
 export {
   canAccess,
   holdsFullControl,
   holdsPermission,
-  permissionLevel,
-  type EffectivePermissionsEntity,
-  type EffectiveScopeEntity,
+  type EffectivePermissions,
+  type EffectiveScope,
   type PermissionTarget,
-} from './domain/entities/effective-permissions.entity.ts';
+} from './domain/structs/effective-permissions.struct.ts';
 export { authorizationReady, can } from './presentation/authorization.ts';
 export { permissionsStore } from './presentation/stores/permissions.store.ts';
 export { default as Can } from './presentation/ui/Can/Can.svelte';

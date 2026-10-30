@@ -1,6 +1,6 @@
 <script lang="ts">
   import { cn } from '@scylla/ui/utils';
-  import type { AgentState } from '@base/features/agents/domain/structs/agent-state.struct.ts';
+  import type { AgentState } from '@base/features/agents/domain/entities/agent.entity.ts';
 
   interface Props {
     state: AgentState;

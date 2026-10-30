@@ -67,6 +67,30 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   `refusalOf(repository().resetPassword(token, password))`. The entry point of scylla-base is
   `@scylla/base/scylla-error` (it was `@scylla/base/scylla-result`).
 
+- **Breaking:** The domain types of `@scylla/base-sdk` take the name of their concept. In
+  `authz`: `Principal` (it was `PrincipalEntity`), `Access` (`AccessEntity`),
+  `EffectivePermissions` (`EffectivePermissionsEntity`) and `EffectiveScope`
+  (`EffectiveScopeEntity`). `RoleKind` comes from `roles`, not from `authz`. In `roles`:
+  `GrantableRole` (it was `GrantableRoleEntity`, and its `roleId` is `id`) and `CreateRoleInput`
+  (`RoleCreationData`). In `apps`: `SecretLabelIssue` and `secretLabelIssue` (they were
+  `SecretLabelProblem` and `secretLabelProblem`).
+- **Breaking:** The id of a user is `id`, not `userId`: on `UserEntity`, `UserSummary` and
+  `UpdateUserInput`. The id of a session is `id`, not `sessionId`.
+- **Breaking:** `ProjectList` is a `PaginatedList<ProjectEntity>`: its projects are in `items`,
+  not in `projects`.
+- **Breaking:** `TriggerKind` is a union of literals (`'cron' | 'webhook' | 'unknown'`), not an
+  enum. `UserAccessScope` and `AppAccessScope` are replaced by `AccessScope` of `authz`.
+- **Breaking:** `MarketItem.descrption` is `MarketItem.description`.
+- `JobEntity.status` and the status of a job of an agent are a `JobStatus`, not a `string`. A
+  status that this build does not know is `unknown`.
+- The domain rules of `AGENTS.md` say where a type goes when it is not clear: an input, a
+  projection, a snapshot of the server, a reference, and a vocabulary that two features share.
+
+### Removed
+
+- **Breaking:** `roleQueries.vocabulary` and `PermissionVocabulary`. No screen used them: the role
+  editor reads the permission catalog, and `permissionLevel` gives the scope of a permission.
+
 ### Fixed
 
 - A refused copy of the id of an app shows an error toast; before, the error was not handled.

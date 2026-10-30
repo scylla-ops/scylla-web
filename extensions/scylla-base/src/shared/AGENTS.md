@@ -23,6 +23,8 @@ utils/
   account-validation.ts              checkEmail, checkNewPassword, checkPasswordConfirmation,
                                      checkUsername, checkDisplayName (exported by @scylla/base-sdk)
   date-utils.ts, slug.ts, status-config.ts, job-status.utils.ts, toast-messages.ts
+domain/structs/job-status.struct.ts  JobStatus, isActiveStatus, isFinishedStatus: the status of a
+                                     job, which `jobs` and `agents` both read (`jobs` re-exports it)
 infrastructure/grpc/wrappers.ts      proto helpers
 presentation/ui/index.ts             `@shared/presentation/ui`
   data-display/                      StatusBar, STATUS_ICONS / getStatusIcon,

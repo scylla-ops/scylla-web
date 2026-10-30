@@ -53,7 +53,7 @@ describe('grpcProject.toDomainList', () => {
       ],
       pagination,
     });
-    expect(result.projects).toEqual([{ id: 'project-1', name: 'web', description: '' }]);
+    expect(result.items).toEqual([{ id: 'project-1', name: 'web', description: '' }]);
     expect(result.pagination).toBe(pagination);
   });
 });

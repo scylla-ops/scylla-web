@@ -18,7 +18,7 @@ options objects in `presentation/*.queries.ts`, which a component or another fea
 ## Public API — `index.ts`
 
 ```typescript
-type ProjectEntity, ProjectLookupEntry
+type ProjectEntity, ProjectList, ProjectLookupEntry
 projectQueries        byOrganization (paginated) · lookup (org-wide) · members
 projectLookupQueries  the batched fan-out: { queries, combine } for useQueries/createQueries
 projectMutations      create · update · remove
@@ -39,7 +39,7 @@ Never add: `project.module.ts`, pages.
 
 | Method | Returns |
 |---|---|
-| `getByOrganizationId(organizationId, pagination?)` | `ProjectList` |
+| `getByOrganizationId(organizationId, pagination?)` | `ProjectList`: a `PaginatedList<ProjectEntity>` (`items`, `pagination`) |
 | `listMembers(projectId)` | `UserSummary[]` (from `user`): the holders of a project-scoped grant |
 | `create(name, organizationId, description?)` | `ProjectEntity` |
 | `update(projectId, name?, description?)` | `ProjectEntity` |

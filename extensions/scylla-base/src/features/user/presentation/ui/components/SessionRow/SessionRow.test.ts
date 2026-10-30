@@ -14,7 +14,7 @@ const NOW = Date.parse('2026-10-09T12:00:00.000Z');
 const minutesAgo = (minutes: number) => new Date(NOW - minutes * 60_000).toISOString();
 
 const session = (overrides: Partial<UserSessionEntity> = {}): UserSessionEntity => ({
-  sessionId: 'session-2',
+  id: 'session-2',
   createdAt: minutesAgo(600),
   lastActiveAt: minutesAgo(1),
   expiresAt: minutesAgo(-600),

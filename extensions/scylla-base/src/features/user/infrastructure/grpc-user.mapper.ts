@@ -20,7 +20,7 @@ import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wra
 
 export function toDomain(user: User): UserEntity {
   return {
-    userId: idValue(user.userId),
+    id: idValue(user.userId),
     username: user.username,
     ...(user.email?.value ? { email: user.email.value } : {}),
     ...(user.displayName ? { displayName: user.displayName } : {}),
@@ -49,7 +49,7 @@ export function toCreateRequest(input: CreateUserInput): CreateUserRequest {
 /** An absent field stays absent on the wire: the server leaves it unchanged. */
 export function toUpdateRequest(input: UpdateUserInput): UpdateUserRequest {
   return {
-    userId: wrapId(input.userId),
+    userId: wrapId(input.id),
     ...(input.username !== undefined && { username: input.username }),
     ...(input.displayName !== undefined && { displayName: input.displayName }),
     ...(input.email !== undefined && { email: { value: input.email } }),
@@ -88,7 +88,7 @@ export function accessToDomain(access: GrpcUserAccess): UserAccess {
 
 export function sessionToDomain(session: GrpcUserSession): UserSessionEntity {
   return {
-    sessionId: idValue(session.sessionId),
+    id: idValue(session.sessionId),
     createdAt: timestampToIso(session.createdAt),
     lastActiveAt: timestampToIso(session.lastActiveAt),
     expiresAt: timestampToIso(session.expiresAt),

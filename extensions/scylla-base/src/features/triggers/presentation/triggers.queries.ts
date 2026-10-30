@@ -3,7 +3,6 @@ import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import type { TriggerDraft, TriggerEntity } from '../domain/entities/trigger.entity.ts';
-import { TriggerKind } from '../domain/entities/trigger.entity.ts';
 import type { TriggersModule } from '../triggers.module.ts';
 
 // Resolved per call: tests swap the registry.
@@ -27,7 +26,7 @@ export const triggerQueries = {
       refetchInterval: query => {
         const triggers = query.state.data ?? [];
         const hasEnabledCron = triggers.some(
-          trigger => trigger.enabled && trigger.source.kind === TriggerKind.Cron,
+          trigger => trigger.enabled && trigger.source.kind === 'cron',
         );
         return hasEnabledCron ? 30_000 : false;
       },

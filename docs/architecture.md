@@ -324,9 +324,9 @@ feature/
 ├── index.ts             → the public API
 ├── AGENTS.md, README.md
 ├── domain/              → pure business logic: no Svelte, no gRPC, no proto
-│   ├── repository/      → repository interfaces + their input types (the data contract)
-│   ├── entities/        → one file per thing with an identity ({Name}Entity) + its own types
-│   ├── structs/         → a concept with no identity: a value object + its rules, a vocabulary
+│   ├── repository/      → repository interfaces (the data contract)
+│   ├── entities/        → one file per thing it manages, with an id ({Name}Entity) + its own types
+│   ├── structs/         → a concept no entity owns: a value object, a vocabulary, a reference table
 │   └── use-cases/       → optional — only when a use case orchestrates (§5.1)
 ├── infrastructure/      → flat
 │   ├── default-feature.repository.ts   → repository implementation: gRPC call + mapping
@@ -358,21 +358,23 @@ together.
 **Pure business logic, zero external dependencies.**
 
 - **Repository interfaces** are the data contract of the module. Presentation calls them
-  directly. They know nothing about gRPC or HTTP, and their input types live beside them.
+  directly. They know nothing about gRPC or HTTP. Their input types live in the entity file of
+  what they create or change, not beside the interface.
 - **Types are sorted by concept, not by kind.** A concept has one file.
-- **Entities** (`entities/*.entity.ts`, `{Name}Entity`) are the identity-bearing objects that the
-  feature owns: a thing of the domain with a life cycle. The file of an entity also holds every
-  type that exists only with it: the types it holds, its inputs, its list and result wrappers,
-  what the server tells about it, and its pure functions (a function that takes it, or creates
-  one).
+- **Entities** (`entities/*.entity.ts`, `{Name}Entity`) are the things that the feature manages
+  and that the server designates by an id: a thing of the domain with a life cycle. The file of
+  an entity also holds every type that exists only with it: the types it holds, its states, its
+  inputs, its projections, its list and result wrappers, what the server tells about it, and
+  its pure functions (a function that takes it, or creates one).
 - **An aggregate root holds the rules on the entities it contains.** The pipeline keeps the ids
   of its nodes unique and their dependencies whole: `addNode`, `renameNode`, `removeNode` are in
   `pipeline.entity.ts`. What concerns one node only is in `pipeline-node.entity.ts`.
-- **Structs** (`structs/*.struct.ts`, plain PascalCase) are concepts with no identity that stand
-  alone: a value object with its own rules (`node-id.struct.ts`: `NodeId`, `nodeIdIssue`), a
-  vocabulary that several entities or features share (`Permission`, `JobStatus`), or a shape
-  that no entity of the feature owns (`PasswordResetDelivery`). There is no `utils/` folder in
-  the domain.
+- **Structs** (`structs/*.struct.ts`, plain PascalCase) are concepts that stand alone and that
+  no entity of the feature owns. A struct is one of three things: a **value object** with its
+  own rules (`node-id.struct.ts`: `NodeId`, `nodeIdIssue`), a **vocabulary** that several
+  entities or features share (`Permission`, `JobStatus`), or a **reference table** and its rules
+  (`permission-catalog.struct.ts`). A struct holds nothing that tells what a screen shows: that
+  is a presenter. There is no `utils/` folder in the domain.
 - **Behavior is pure functions, not classes with methods.** `$state` makes plain objects and
   arrays deeply reactive, not class instances, and the structural sharing of TanStack Query
   works on JSON data: the data stays plain.
@@ -386,15 +388,18 @@ together.
 
 | | **Entity** (`entities/*.entity.ts`) | **Struct** (`structs/*.struct.ts`) |
 |---|---|---|
-| Question | "What *thing* does this feature own?" | "What concept with no identity stands alone?" |
-| Identity | Yes — has an `id` (or a stable key) | No — interchangeable by value |
-| Holds also | every type that exists only with the entity: `JobNodeExecution`, `CreateSecretInput`, `ProjectList`, `CreatedApp`, `AgentStats` | its own rules (validation, transitions) |
-| Examples | `SecretEntity`, `RoleEntity`, `UserEntity`, `PipelineEntity` | `NodeId`, `Permission`, `PermissionScope`, `JobStatus`, `OnboardingStatus` |
+| Question | "What *thing* does this feature manage, by an id?" | "What concept stands alone, owned by no entity?" |
+| Identity | Yes — an `id` field, named `id` | No own identity. It can hold the id of something else (`Principal`) |
+| Holds also | every type that exists only with the entity: `JobNodeExecution`, `AgentState`, `CreateSecretInput`, `GrantableRole`, `ProjectList`, `CreatedApp`, `AgentStats` | its own rules (validation, transitions) |
+| Examples | `SecretEntity`, `RoleEntity`, `UserEntity`, `PipelineEntity` | `NodeId`, `Permission`, `PermissionScope`, `Principal`, `EffectivePermissions`, `JobStatus`, `OnboardingStatus` |
 | Naming | `{Name}Entity` for a type with an identity, plain PascalCase for the others | plain PascalCase (no suffix) |
 | One file per | entity (an aggregate root holds the entities it contains) | concept |
 
-To place a type: it exists only with one entity → the file of that entity. Else it has an
-identity → an entity file of its own. Else → a struct file.
+To place a type, ask first what it is about: it exists only with one entity → the file of that
+entity (an input, a projection, a state, a result). Else the feature manages it by an id → an
+entity file of its own. Else → a struct file. A snapshot that the server computes and a
+reference to a thing of another module are structs, even when they hold an id. A vocabulary that
+two features share goes to `shared/domain/structs/` when one cannot import the other.
 
 ```typescript
 // secret.entity.ts — the read shape (metadata only; the value is write-only)
@@ -419,7 +424,7 @@ export interface CreateSecretInput {
 ```typescript
 // role.entity.ts — pure domain behavior
 export const updateRole = (role: RoleEntity, changes: Partial<RoleEntity>): RoleEntity => {
-  if (changes.name !== undefined && changes.name.trim() === '') {
+  if (changes.name !== undefined && roleNameIssue(changes.name)) {
     throw new Error('Role name cannot be empty');
   }
   return { ...role, ...changes, id: role.id };

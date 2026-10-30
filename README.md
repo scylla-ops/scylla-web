@@ -109,7 +109,7 @@ packages/ui                the design system — imports no other package
 | [organization](extensions/scylla-base/src/features/organization/README.md) | The top-level tenant and the switcher in the shell |
 | [pipeline](extensions/scylla-base/src/features/pipeline/README.md) | Pipeline definitions, the visual + script editor, and running them |
 | [project](extensions/scylla-base/src/features/project/README.md) | The unit that owns pipelines, secrets and members |
-| [roles](extensions/scylla-base/src/features/roles/README.md) | Role catalog, grants, and the permission vocabulary |
+| [roles](extensions/scylla-base/src/features/roles/README.md) | Role catalog and grants |
 | [secret](extensions/scylla-base/src/features/secret/README.md) | Project-scoped secrets injected into runs |
 | [triggers](extensions/scylla-base/src/features/triggers/README.md) | What starts a pipeline without a human: schedules and webhooks |
 | [user](extensions/scylla-base/src/features/user/README.md) | User accounts: the directory, the page of a user and the own account |

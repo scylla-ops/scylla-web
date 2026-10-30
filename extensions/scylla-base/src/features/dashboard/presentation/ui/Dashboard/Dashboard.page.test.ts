@@ -61,7 +61,7 @@ const grant = (permissions: Permission[]) =>
   });
 
 beforeEach(() => {
-  getProjects = vi.fn().mockResolvedValue({ projects: [project()] });
+  getProjects = vi.fn().mockResolvedValue({ items: [project()] });
   getPipelines = vi.fn().mockResolvedValue(page([pipeline()]));
   getJobs = vi.fn().mockResolvedValue(page([job()]));
   listAgents = vi.fn().mockResolvedValue([]);

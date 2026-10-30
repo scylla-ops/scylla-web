@@ -3,8 +3,8 @@
 > [Scylla frontend](../../../../../README.md) › `features/` › **roles** ·
 > [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
 
-Access-control administration: the catalog of roles, the grants that bind principals to them,
-and the permission vocabulary underneath. Two pages show it:
+Access-control administration: the catalog of roles, and the grants that bind principals to
+them. Two pages show it:
 
 - `/:org/roles`, in the **organization** section, behind `MANAGE_ORG_ROLES`: the roles that
   organization owns, which its administrators create, edit and delete, above the platform roles
@@ -86,8 +86,8 @@ rendered by `CheckboxTree` in this module. It used to live in `shared/`, on the 
 "generic"; it never had a second consumer, and the rules it enforces are the permission model's,
 so the port brought it home.
 
-The payoff: when the backend adds a permission, it appears in the editor with no frontend
-change. The cost: labels have to be resolved rather than written inline, which is what
+The payoff: a permission added to the catalog appears in the editor with no other change, at
+the scope that `permissionLevel` gives it. The cost: labels have to be resolved rather than written inline, which is what
 `permissionLabelOf` and `humanizeRoleId` are for. Never interpolate a raw permission or role id
 into the UI.
 
@@ -101,10 +101,12 @@ a single honest count; `withImplicitPermissions` is the one place that knows the
 
 ## Structure
 
-**Domain** is the richest in the codebase — four entities (role, grant, grantable role,
-permission vocabulary), a repository interface with its input types, and the one use case. Role
-behaviour lives in `role.entity.ts` as pure functions: `roleConfers` answers whether a role
-includes a permission, `updateRole` applies changes immutably.
+**Domain** is the richest in the codebase — two entities (role, grant) with their inputs and
+projections, two structs (the permission catalog, the rule on a role name), a repository
+interface, and the one use case. Role behaviour lives in `role.entity.ts` as pure functions:
+`roleConfers` answers whether a role includes a permission, `updateRole` applies changes
+immutably, `lockedPermissionsOf` applies the escalation rule of the backend. What the editor
+renders from the catalog is a presenter, not domain.
 
 **Infrastructure** carries six mappers, one per proto shape.
 

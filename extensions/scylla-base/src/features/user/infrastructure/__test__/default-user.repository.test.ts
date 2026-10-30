@@ -59,7 +59,7 @@ describe('DefaultUserRepository', () => {
   it('reads the account of the session', async () => {
     const result = await repositoryOn(client()).getMe();
 
-    expect(result).toMatchObject({ userId: 'user-1', email: 'ada@example.com' });
+    expect(result).toMatchObject({ id: 'user-1', email: 'ada@example.com' });
   });
 
   it('fails on a response without a user instead of giving an empty one', async () => {
@@ -92,7 +92,7 @@ describe('DefaultUserRepository', () => {
   it('sends only the changed fields of an update', async () => {
     const fake = client();
 
-    await repositoryOn(fake).update({ userId: 'user-1', displayName: 'Ada' });
+    await repositoryOn(fake).update({ id: 'user-1', displayName: 'Ada' });
 
     expect(fake.updateUser).toHaveBeenCalledWith({
       userId: { value: 'user-1' },
@@ -144,7 +144,7 @@ describe('DefaultUserRepository', () => {
     const result = await repositoryOn(client()).listSessions('user-1');
 
     expect(result).toEqual([
-      expect.objectContaining({ sessionId: 'session-1', ipAddress: '203.0.113.7', current: true }),
+      expect.objectContaining({ id: 'session-1', ipAddress: '203.0.113.7', current: true }),
     ]);
   });
 

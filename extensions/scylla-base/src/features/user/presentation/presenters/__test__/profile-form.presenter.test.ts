@@ -1,9 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { profileChanges, type UserEntity } from '../user.entity.ts';
+import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
+import { profileChanges } from '../profile-form.presenter.ts';
 
 const ada: UserEntity = {
-  userId: 'user-1',
+  id: 'user-1',
   username: 'ada',
   email: 'ada@example.com',
   displayName: 'Ada',
@@ -24,14 +25,14 @@ describe('profileChanges', () => {
 
   it('holds only the fields that changed', () => {
     expect(profileChanges(ada, { ...same, displayName: 'Ada Lovelace' }, true)).toEqual({
-      userId: 'user-1',
+      id: 'user-1',
       displayName: 'Ada Lovelace',
     });
   });
 
   it('sends an empty display name to remove it', () => {
     expect(profileChanges(ada, { ...same, displayName: '' }, false)).toEqual({
-      userId: 'user-1',
+      id: 'user-1',
       displayName: '',
     });
   });
@@ -40,7 +41,7 @@ describe('profileChanges', () => {
     const { displayName: _displayName, ...withoutName } = ada;
 
     expect(profileChanges(withoutName, { ...same, displayName: 'Ada' }, false)).toEqual({
-      userId: 'user-1',
+      id: 'user-1',
       displayName: 'Ada',
     });
   });
@@ -51,7 +52,7 @@ describe('profileChanges', () => {
 
   it('sends a changed email when the viewer may change it', () => {
     expect(profileChanges(ada, { ...same, email: 'new@example.com' }, true)).toEqual({
-      userId: 'user-1',
+      id: 'user-1',
       email: 'new@example.com',
     });
   });

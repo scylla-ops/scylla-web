@@ -19,7 +19,7 @@ export function toDomain(grpcProject: Project): ProjectEntity {
 
 export function toDomainList(grpcProjects: ListOrganizationProjectsResponse): ProjectList {
   return {
-    projects: grpcProjects.projects.map(toDomain),
+    items: grpcProjects.projects.map(toDomain),
     pagination: grpcProjects.pagination as PaginationInfo,
   };
 }

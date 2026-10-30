@@ -1,7 +1,9 @@
+import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
+
 export interface JobEntity {
   id: string;
   pipelineId: string;
-  status: string;
+  status: JobStatus;
   nodeExecutions: JobNodeExecution[];
   createdAt: string;
   updatedAt: string;
@@ -10,9 +12,19 @@ export interface JobEntity {
   finishedAt?: string;
 }
 
+/** `unknown`: an outcome newer than this build. */
+export type NodeExecutionState =
+  | 'pending'
+  | 'running'
+  | 'completed'
+  | 'failed'
+  | 'cancelled'
+  | 'skipped'
+  | 'unknown';
+
 export interface JobNodeExecution {
   id: string;
-  state: string;
+  state: NodeExecutionState;
   startedAt?: string;
   finishedAt?: string;
 }

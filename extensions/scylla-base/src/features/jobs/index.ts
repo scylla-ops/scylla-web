@@ -1,7 +1,7 @@
 /** `loadJobsPage` is a loader: `pipeline` renders this page behind its own route. */
 export type { JobEntity, JobLog, JobLogStream } from './domain/entities/job.entity.ts';
-export type { JobStatus } from './domain/structs/job-status.struct.ts';
-export { isActiveStatus, isFinishedStatus } from './domain/structs/job-status.struct.ts';
+export type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
+export { isActiveStatus, isFinishedStatus } from '@shared/domain/structs/job-status.struct.ts';
 export type { JobsSummary } from './presentation/presenters/jobs-summary.presenter.ts';
 export { summarizeJobs } from './presentation/presenters/jobs-summary.presenter.ts';
 export {

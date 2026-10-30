@@ -187,8 +187,8 @@ feature/
 ├── index.ts             → public API — the ONLY thing other modules may import (enforced)
 ├── domain/              → PURE business logic, ZERO external deps (no Svelte, no gRPC, no proto)
 │   ├── repository/      → repository INTERFACES + their input types (the data contract)
-│   ├── entities/        → one file per thing with an identity ({Name}Entity) + its own types
-│   ├── structs/         → a concept with no identity: a value object + its rules, a vocabulary
+│   ├── entities/        → one file per thing it manages, with an id ({Name}Entity) + its own types
+│   ├── structs/         → a concept no entity owns: a value object, a vocabulary, a reference table
 │   └── use-cases/       → OPTIONAL — only when one earns its place (see below)
 ├── infrastructure/      → concrete implementations of domain abstractions, flat
 │   ├── default-feature.repository.ts   → repository impl: calls the gRPC client, maps the result
@@ -251,25 +251,47 @@ the ViewModel of a page.
 ### Layer responsibilities
 
 - **Domain** — The repository interface *is* the module's data contract, and presentation calls it
-  directly. Repository interfaces know nothing about gRPC/HTTP, and their input types live beside
-  them (e.g. `CreateGrantInput` in `permission.repository.ts`). No framework imports here, ever.
+  directly. Repository interfaces know nothing about gRPC/HTTP. No framework imports here, ever.
   **Domain types are sorted by concept, not by kind.** A concept has one file, both kinds are
-  proto-independent, and there are **no `*.model.ts` files**:
-  - **An entity file** (`entities/<name>.entity.ts`) holds a thing the feature owns, with an
-    identity (`{Name}Entity`: `SecretEntity`, `JobEntity`), and **every type that exists only
-    with it**: the types it holds (`JobNodeExecution`), its inputs (`CreateSecretInput`), its
-    list and result wrappers (`ProjectList`, `CreatedApp`), what the server tells about it
-    (`AgentStats`, `AppAccess`), and its pure behavior (`updateRole`).
-  - **A struct file** (`structs/<name>.struct.ts`) holds a concept with no identity that stands
-    alone: a value object and its rules (`NodeId`, `nodeIdIssue`), a vocabulary that several
-    entities or features share (`Permission`, `JobStatus`), or a shape that no entity of the
-    feature owns (`PasswordResetDelivery`).
+  proto-independent, and there are **no `*.model.ts` files**.
 
-  To place a type: it exists only with one entity → the file of that entity. Else it has an
-  identity → an entity file of its own. Else → a struct file. Only a type with an identity takes
-  the `Entity` suffix (`AppSecretEntity` in `app.entity.ts`); the other types keep a plain
-  PascalCase name. The suffix also separates the domain type from the proto type with the bare
-  name (aliased in mappers).
+  **The main rule: a type goes in the file of the concept that it belongs to.** Ask "what is this
+  type about?" before you ask "does it have an identity?":
+  - **An entity file** (`entities/<name>.entity.ts`) holds a thing that the feature manages and
+    that the server designates by an id (`{Name}Entity`: `SecretEntity`, `JobEntity`), and
+    **every type that exists only with it**: the types it holds (`JobNodeExecution`), its states
+    (`AgentState`), its inputs (`CreateSecretInput`, `CreateGrantInput`), its projections
+    (`GrantableRole`, `UserSummary`), its list and result wrappers (`ProjectList`, `CreatedApp`),
+    what the server tells about it (`AgentStats`, `AppAccess`), and its pure behavior
+    (`updateRole`).
+  - **A struct file** (`structs/<name>.struct.ts`) holds a concept that stands alone and that no
+    entity of the feature owns. A struct is one of three things, and its file name says which:
+    a **value object** and its rules (`node-id.struct.ts`: `NodeId`, `nodeIdIssue`), a
+    **vocabulary** that several entities or features share (`permission.struct.ts`,
+    `job-status.struct.ts`), or a **reference table** and its rules
+    (`permission-catalog.struct.ts`). A struct holds the concept and its rules, and nothing that
+    tells what a screen shows: that is a presenter.
+
+  The cases that are not clear:
+  - **An input** goes in the file of what it creates or changes (`CreateRoleInput` and
+    `UpdateRoleInput` in `role.entity.ts`), never in the repository file or a use-case file.
+    Name it `Create{X}Input` / `Update{X}Input`, and name the target `id`.
+  - **A projection** of an entity (a part of it, for a list or a picker) goes in the file of that
+    entity, with no `Entity` suffix: `UserSummary` (a `Pick`), `GrantableRole`.
+  - **A snapshot that the server computes** (`EffectivePermissions`) and **a reference to a thing
+    of another module** (`Principal`: a kind and an id) are structs, even when they hold an id:
+    the feature does not manage them.
+  - **A vocabulary that two features share** goes to `shared/domain/structs/` when one of the two
+    features cannot import the other (`JobStatus`, read by `jobs` and `agents`).
+
+  Only an entity takes the `Entity` suffix; the other types keep a plain PascalCase name. The
+  identity field of an entity is `id` (not `userId`, not `sessionId`). The suffix also separates
+  the domain type from the proto type with the bare name; when a struct has the bare name of a
+  proto type, the mapper aliases the proto one (`Access as GrpcAccess`). A union of literals is
+  preferred to an `enum`, except for a value of the wire that is a number (`Permission`).
+  A validation function gives `{X}Issue | null`: `nodeIdIssue`, `pipelineNameIssue`,
+  `roleNameIssue`, `secretLabelIssue`.
+
   Where a rule goes:
   - **A rule on one value** (an id, a name, a status) goes in the struct of that value, as a
     value object: the type and its own rules (`node-id.struct.ts`: `NodeId`, `nodeIdIssue`;
@@ -630,8 +652,8 @@ The package and layer structure is mandatory; everything else must earn its plac
 | Repository impl | `default-*.repository.ts` (infra) → `Default{Entity}Repository` | `default-user.repository.ts` / `DefaultUserRepository` |
 | Data source (only with ≥ 2 sources) | `*.data-source.ts` → `{Source}{Entity}DataSource` | `local-job.data-source.ts` / `LocalJobDataSource` |
 | Mapper of the protos | `grpc-*.mapper.ts` → functions, imported as a namespace | `grpc-user.mapper.ts` / `import * as grpcUser` |
-| Domain entity (+ the types that exist only with it) | `*.entity.ts` → `{Name}Entity` | `app.entity.ts` / `AppEntity`, `CreatedApp` |
-| Struct (a concept with no identity that stands alone: value object, shared vocabulary) | `*.struct.ts` (plain name, no suffix) | `permission.struct.ts` / `Permission`, `pagination.struct.ts` / `PaginationInfo` |
+| Domain entity (+ the types that exist only with it: inputs, projections, states) | `*.entity.ts` → `{Name}Entity` | `app.entity.ts` / `AppEntity`, `CreatedApp` |
+| Struct (a concept no entity owns: value object, shared vocabulary, reference table) | `*.struct.ts` (plain name, no suffix) | `permission.struct.ts` / `Permission`, `pagination.struct.ts` / `PaginationInfo` |
 | Widget points | `<feature>.points.ts` → `{feature}Points` | `login.points.ts` / `loginPoints` |
 | Widget injection | `*.widget-injection.ts` → `{Intention}WidgetInjection` | `email-login.widget-injection.ts` / `EmailLoginWidgetInjection` |
 | Store (framework-free, `createStore`) | `*.store.ts` → `{name}Store` | `context.store.ts` / `contextStore` |
@@ -841,8 +863,9 @@ Because of that, the tooling of this repo must work from another root. Keep it s
 ## Adding a feature (checklist)
 
 1. Create `extensions/scylla-base/src/features/<feature>/` with `domain/ infrastructure/ locales/ presentation/`.
-2. Domain: repository interface (+ its input types), one `entities/*.entity.ts` per entity (with
-   its own types) and a `structs/*.struct.ts` only for a concept that stands alone.
+2. Domain: repository interface, one `entities/*.entity.ts` per entity (with its own types: its
+   inputs, its projections, its states) and a `structs/*.struct.ts` only for a concept that no
+   entity owns.
    **Add a use case only if it orchestrates** — see "Use cases are optional".
 3. Infrastructure, flat: `default-<feature>.repository.ts` (takes the generated
    `I{Service}ServiceClient`) and `grpc-<feature>.mapper.ts`. **No data source** while there is

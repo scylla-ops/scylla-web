@@ -4,7 +4,7 @@ import type { UserSummary } from '@base/features/user';
 
 export function toDomain(member: GrpcOrganizationMember): UserSummary {
   return {
-    userId: idValue(member.userId),
+    id: idValue(member.userId),
     username: member.username,
   };
 }

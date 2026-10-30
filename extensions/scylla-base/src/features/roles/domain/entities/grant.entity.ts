@@ -2,15 +2,28 @@ import {
   Permission,
   PermissionScope,
   PrincipalKind,
-  type PrincipalEntity,
+  type Principal,
 } from '@platform/authz';
 import { roleConfers, type RoleEntity } from './role.entity.ts';
 
 export interface GrantEntity {
   id: string;
-  principal: PrincipalEntity;
+  principal: Principal;
   /** A grant carries a role and nothing else: a narrower grant is a role with fewer permissions. */
   roleId: string;
+  scope: PermissionScope;
+  scopeId: string;
+}
+
+export interface CreateGrantInput {
+  principal: Principal;
+  roleId: string;
+  scope: PermissionScope;
+  scopeId: string;
+}
+
+export interface RevokeAllAccessInput {
+  principal: Principal;
   scope: PermissionScope;
   scopeId: string;
 }

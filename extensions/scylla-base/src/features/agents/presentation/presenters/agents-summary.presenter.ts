@@ -1,10 +1,10 @@
-import type {
-  AgentEntity,
-  AgentStats,
-  DailyOutcome,
+import {
+  type AgentEntity,
+  agentStateOf,
+  type AgentStats,
+  type DailyOutcome,
+  isOnline,
 } from '@base/features/agents/domain/entities/agent.entity.ts';
-import { isOnline } from '@base/features/agents/domain/structs/agent-state.struct.ts';
-import { agentStateOf } from '@base/features/agents/domain/entities/agent.entity.ts';
 
 export interface Outcomes {
   completed: number;

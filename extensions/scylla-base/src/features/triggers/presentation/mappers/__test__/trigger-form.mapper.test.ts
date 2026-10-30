@@ -2,7 +2,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildTriggerDraft, triggerToDraftInputs } from '../trigger-form.mapper.ts';
 import { isCronExpressionValid } from '@base/features/triggers/domain/structs/cron-expression.struct.ts';
-import { TriggerKind } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 
 describe('triggerToDraftInputs', () => {
@@ -29,7 +28,7 @@ describe('buildTriggerDraft', () => {
   it('trims the name and drops inputs with a blank key', () => {
     const draft = buildTriggerDraft({
       name: '  github-push  ',
-      kind: TriggerKind.Webhook,
+      kind: 'webhook',
       cronExpression: '',
       signatureHeader: '  X-Hub-Signature  ',
       inputs: [
@@ -40,13 +39,13 @@ describe('buildTriggerDraft', () => {
 
     expect(draft.name).toBe('github-push');
     expect(draft.inputs).toEqual([{ key: 'branch', value: { kind: 'literal', value: 'main' } }]);
-    expect(draft.source).toEqual({ kind: TriggerKind.Webhook, signatureHeader: 'X-Hub-Signature' });
+    expect(draft.source).toEqual({ kind: 'webhook', signatureHeader: 'X-Hub-Signature' });
   });
 
   it('a jsonPointer input kind is only honored for a Webhook trigger', () => {
     const webhookDraft = buildTriggerDraft({
       name: 'x',
-      kind: TriggerKind.Webhook,
+      kind: 'webhook',
       cronExpression: '',
       signatureHeader: '',
       inputs: [{ key: 'sha', valueKind: 'jsonPointer', value: '/head/sha' }],
@@ -57,7 +56,7 @@ describe('buildTriggerDraft', () => {
 
     const cronDraft = buildTriggerDraft({
       name: 'x',
-      kind: TriggerKind.Cron,
+      kind: 'cron',
       cronExpression: '0 0 * * *',
       signatureHeader: '',
       inputs: [{ key: 'sha', valueKind: 'jsonPointer', value: '/head/sha' }],
@@ -69,15 +68,15 @@ describe('buildTriggerDraft', () => {
   it('a Cron draft converts the expression (still a well-formed 5-field cron) and carries no signatureHeader', () => {
     const draft = buildTriggerDraft({
       name: 'nightly',
-      kind: TriggerKind.Cron,
+      kind: 'cron',
       cronExpression: ' 0 3 * * * ',
       signatureHeader: 'ignored-for-cron',
       inputs: [],
     });
 
-    expect(draft.source.kind).toBe(TriggerKind.Cron);
+    expect(draft.source.kind).toBe('cron');
     expect(draft.source).not.toHaveProperty('signatureHeader');
-    if (draft.source.kind === TriggerKind.Cron) {
+    if (draft.source.kind === 'cron') {
       expect(isCronExpressionValid(draft.source.expression)).toBe(true);
     }
   });

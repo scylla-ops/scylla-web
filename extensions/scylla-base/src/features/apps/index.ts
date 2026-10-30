@@ -3,16 +3,15 @@ export type {
   AppEntity,
   AppSecretEntity,
   AppAccess,
-  AppAccessScope,
   CreatedApp,
   CreatedAppSecret,
   ResetAppSecret,
 } from './domain/entities/app.entity.ts';
-export type { SecretLabelProblem } from './domain/structs/secret-label.struct.ts';
+export type { SecretLabelIssue } from './domain/structs/secret-label.struct.ts';
 export {
   SECRET_LABEL_MAX_BYTES,
   normalizeSecretLabel,
-  secretLabelProblem,
+  secretLabelIssue,
   suggestSecretLabel,
   trimSecretLabel,
 } from './domain/structs/secret-label.struct.ts';

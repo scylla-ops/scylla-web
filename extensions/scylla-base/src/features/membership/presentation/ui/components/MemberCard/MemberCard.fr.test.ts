@@ -22,7 +22,7 @@ const role = (overrides: Partial<MemberRole> = {}): MemberRole => ({
 });
 
 const baseProps = {
-  user: { userId: 'user-1', username: 'ravenne' },
+  user: { id: 'user-1', username: 'ravenne' },
   isCurrentUser: false,
   canRemove: true,
   addableRoles: [],

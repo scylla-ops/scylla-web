@@ -2,7 +2,10 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { findFloating, render } from '@test/render.ts';
-import type { JobNodeExecution } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type {
+  JobNodeExecution,
+  NodeExecutionState,
+} from '@base/features/jobs/domain/entities/job.entity.ts';
 import JobTimeline from './JobTimeline.svelte';
 
 const node = (overrides: Partial<JobNodeExecution> = {}): JobNodeExecution => ({
@@ -11,7 +14,7 @@ const node = (overrides: Partial<JobNodeExecution> = {}): JobNodeExecution => ({
   ...overrides,
 });
 
-const many = (count: number, state = 'completed') =>
+const many = (count: number, state: NodeExecutionState = 'completed') =>
   Array.from({ length: count }, (_, index) => node({ id: `node-${index}`, state }));
 
 describe('JobTimeline', () => {

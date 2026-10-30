@@ -15,7 +15,7 @@ vi.mock('@base/features/login', async importOriginal => ({
 }));
 
 const me = {
-  userId: 'user-1',
+  id: 'user-1',
   username: 'ravenne',
   displayName: 'Ravenne Lee',
   email: 'ravenne@example.com',

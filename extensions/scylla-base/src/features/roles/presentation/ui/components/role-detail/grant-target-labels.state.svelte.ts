@@ -1,7 +1,7 @@
 import { PermissionScope } from '@platform/authz';
 import { createQueries, createQuery } from '@scylla/core-sdk';
 import { organizationQueries } from '@base/features/organization';
-import { projectLookupQueries } from '@base/features/project';
+import { projectLookupQueries, type ProjectList } from '@base/features/project';
 
 export interface GrantTargetLabel {
   name: string;
@@ -36,7 +36,7 @@ export const createGrantTargetLabels = (scope: () => PermissionScope) => {
    * combined `Map` into an empty object.
    */
   const projectInfoById = $derived(
-    lookup.combine([...results] as { data?: { projects: { id: string; name: string }[] } }[]),
+    lookup.combine([...results] as { data?: ProjectList }[]),
   );
 
   return {

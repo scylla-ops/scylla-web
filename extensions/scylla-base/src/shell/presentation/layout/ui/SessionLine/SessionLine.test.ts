@@ -17,7 +17,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   const cache = withQueryClient();
   const getMe = vi.fn().mockResolvedValue({
-    userId: 'user-1',
+    id: 'user-1',
     username: 'ada',
     displayName: 'Ada Lovelace',
     email: 'ada@example.com',

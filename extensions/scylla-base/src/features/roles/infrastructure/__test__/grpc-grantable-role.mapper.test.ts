@@ -1,10 +1,13 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import * as grpcGrantableRole from '../grpc-grantable-role.mapper.ts';
-import { RoleKind as GrpcRoleKind } from '@base/generated/scylla/authz/v1/grant.ts';
+import {
+  type GrantableRole,
+  RoleKind as GrpcRoleKind,
+} from '@base/generated/scylla/authz/v1/grant.ts';
 import { ScopeKind } from '@base/generated/scylla/authz/v1/permission.ts';
-import type { GrantableRole } from '@base/generated/scylla/authz/v1/grant.ts';
-import { PermissionScope, RoleKind } from '@platform/authz';
+import { PermissionScope } from '@platform/authz';
+import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
 
 const grantable = (overrides: Partial<GrantableRole> = {}): GrantableRole => ({
   roleId: { value: 'organization-admin' },
@@ -18,7 +21,7 @@ const grantable = (overrides: Partial<GrantableRole> = {}): GrantableRole => ({
 describe('grpcGrantableRole.toDomain', () => {
   it('unwraps the id, maps scope and kind, carries the name and the description', () => {
     expect(grpcGrantableRole.toDomain(grantable())).toEqual({
-      roleId: 'organization-admin',
+      id: 'organization-admin',
       name: 'Organization admin',
       scope: PermissionScope.ORGANIZATION,
       kind: RoleKind.ADMIN,
@@ -34,8 +37,8 @@ describe('grpcGrantableRole.toDomain', () => {
     ).toBe('org-1');
   });
 
-  it('defaults to an empty roleId when the wrapper is absent', () => {
-    expect(grpcGrantableRole.toDomain(grantable({ roleId: undefined })).roleId).toBe('');
+  it('defaults to an empty id when the wrapper is absent', () => {
+    expect(grpcGrantableRole.toDomain(grantable({ roleId: undefined })).id).toBe('');
   });
 
   it.each([

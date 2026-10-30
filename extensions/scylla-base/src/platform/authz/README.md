@@ -42,11 +42,16 @@ from stale data.
 
 - **`Permission`** — a single capability (`LIST_SECRETS`, `MANAGE_ROLES`, …). The enum every
   module gates on.
-- **`PermissionScope`** — `org` or `project`. Permissions are held at a scope, and an
-  organization-level permission applies inside its projects. Not the reverse.
-- **`PrincipalEntity` / `PrincipalKind`** — who holds access: a user, or an app.
-- **`EffectivePermissionsEntity`** — the flattened answer for the current user, per scope, after
+- **`PermissionScope`** — system, organization or project. Permissions are held at a scope, and
+  a broader scope covers the narrower ones (`scopeCovers`). Not the reverse.
+- **`Principal` / `PrincipalKind`** — who holds access: a user, or an app.
+- **`Access`** — what a role or a scope confers: full control, a list of permissions, or an arm
+  this build does not know. `accessConfers` reads it.
+- **`EffectivePermissions`** — the flattened answer for the current user, per scope, after
   all their roles and grants are resolved. `canAccess` is the pure function that queries it.
+
+None of them is an entity: the module owns no thing with an identity. They are structs, one
+file per concept, in `domain/structs/`.
 
 Scope resolution is the part worth *not* reimplementing. "Does this user have `X` on project
 `P`?" means checking the project's own grants and the parent organization's. `can` does it; comparing permission arrays by hand gets it wrong.

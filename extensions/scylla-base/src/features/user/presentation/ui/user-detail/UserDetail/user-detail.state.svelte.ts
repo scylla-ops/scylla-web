@@ -5,7 +5,10 @@ import { createMutation, createQuery } from '@scylla/core-sdk';
 import { t } from '@scylla/ui/i18n';
 import { toast } from '@scylla/ui/utils';
 import type { PasswordResetDelivery } from '@base/features/login';
-import { profileChanges, type ProfileValues } from '@base/features/user/domain/entities/user.entity.ts';
+import {
+  profileChanges,
+  type ProfileValues,
+} from '@base/features/user/presentation/presenters/profile-form.presenter.ts';
 import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 import { userMutations, userQueries } from '@base/features/user/presentation/user.queries.ts';
 
@@ -16,7 +19,7 @@ import { userMutations, userQueries } from '@base/features/user/presentation/use
 export const createUserDetail = (userId: () => string | undefined) => {
   const meQuery = createQuery(() => userQueries.me());
   /** The own account has its own page: this one sends it there. */
-  const isSelf = $derived(!!userId() && meQuery.data?.userId === userId());
+  const isSelf = $derived(!!userId() && meQuery.data?.id === userId());
 
   /** The route has no permission (the own id must reach its redirect): the reads check it. */
   const canRead = $derived(can(Permission.READ_USER));
@@ -121,7 +124,7 @@ export const createUserDetail = (userId: () => string | undefined) => {
 
     sendResetLink: () => {
       if (!user) return;
-      resetLink.mutate(user.userId, {
+      resetLink.mutate(user.id, {
         onSuccess: delivery => toast.success(resetLinkToast(delivery)),
       });
     },
@@ -129,14 +132,14 @@ export const createUserDetail = (userId: () => string | undefined) => {
       return oneSessionRevocation.isPending;
     },
     revokeSession: (sessionId: string) => {
-      if (user) oneSessionRevocation.mutate({ userId: user.userId, sessionId });
+      if (user) oneSessionRevocation.mutate({ userId: user.id, sessionId });
     },
     get isRevokingSessions() {
       return sessionRevocation.isPending;
     },
     signOutEverywhere: () => {
       if (!user) return;
-      sessionRevocation.mutate(user.userId, {
+      sessionRevocation.mutate(user.id, {
         onSuccess: count => toast.success(i18n._(userMessages.sessionsRevoked(count))),
       });
     },
@@ -152,7 +155,7 @@ export const createUserDetail = (userId: () => string | undefined) => {
       if (!user) return;
       const isActive = !user.isActive;
       statusChange.mutate(
-        { userId: user.userId, isActive },
+        { userId: user.id, isActive },
         {
           onSuccess: () =>
             toast.success(
@@ -175,7 +178,7 @@ export const createUserDetail = (userId: () => string | undefined) => {
     },
     remove: () => {
       if (!user) return;
-      removal.mutate(user.userId, {
+      removal.mutate(user.id, {
         onSuccess: () => scyllaNavigate.navigate('..'),
         onSettled: () => (confirmDelete = false),
       });

@@ -9,7 +9,7 @@ import {
   type EnvRow,
 } from '@base/features/pipeline/presentation/mappers/env-row.mapper.ts';
 import { nodeIdIssue, toNodeId } from '@base/features/pipeline/domain/structs/node-id.struct.ts';
-import { nodeIssue } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import { nodeRunIssue } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 
 export interface NodeDraftParams {
   /** Read once: a draft is built again for another node. */
@@ -48,7 +48,7 @@ export const createNodeDraft = ({ node, onChange, onRename }: NodeDraftParams) =
         { ...base, kind: 'exec', command: command.trim(), args: args.filter(arg => arg !== '') };
   });
 
-  const issue = $derived(nodeIssue(value));
+  const issue = $derived(nodeRunIssue(value));
   // Checked as typed, before the rename applies it: the field says it at once.
   const idIssue = $derived(nodeIdIssue(id));
 

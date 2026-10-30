@@ -39,7 +39,7 @@ The suffix of a file tells its role.
 |------|---------|---------|
 | **Repository interface** | `*.repository.ts` → `{Entity}Repository` | `user.repository.ts` / `UserRepository` |
 | **Domain entity**, with the types that exist only with it | `*.entity.ts` → `{Name}Entity` | `app.entity.ts` / `AppEntity`, `CreatedApp` |
-| **Struct** (a concept with no identity that stands alone: a value object, a shared vocabulary): types, and their own rules | `*.struct.ts`, plain name | `permission.struct.ts` / `PermissionScope`, `node-id.struct.ts` / `nodeIdIssue` |
+| **Struct** (a concept that no entity owns: a value object, a shared vocabulary, a reference table): types, and their own rules | `*.struct.ts`, plain name | `permission-scope.struct.ts` / `PermissionScope`, `node-id.struct.ts` / `nodeIdIssue` |
 | **Use case** (only when it orchestrates) | `*.use-case.ts` → `{Verb}{Entity}UseCase` | `update-role.use-case.ts` / `UpdateRoleUseCase` |
 
 #### Infrastructure
@@ -132,23 +132,25 @@ type FormValues<TId extends string> = Record<TId, string>;
 ### 2.2 Domain entities and structs
 
 The domain layer sorts its types by concept (see `architecture.md` §5.1): an **entity** file holds
-an identity-bearing object that a feature owns and every type that exists only with it; a
-**struct** file holds a concept with no identity that stands alone.
+a thing that a feature manages by an id, and every type that exists only with it; a **struct**
+file holds a concept that stands alone and that no entity owns.
 
 | Kind | File | Type name | Example |
 |------|------|-----------|---------|
 | Entity | `{name}.entity.ts` | `{Name}Entity` | `SecretEntity`, `UserEntity` |
-| Entity input shape | the same entity file | `Create{Name}Input` / `{Name}CreationData` | `CreateSecretInput`, `RoleCreationData` |
+| Entity input shape | the same entity file | `Create{Name}Input` / `Update{Name}Input`, the target named `id` | `CreateSecretInput`, `CreateRoleInput`, `UpdateRoleInput` |
+| Projection of the entity (a part of it, for a list or a picker) | the same entity file | plain PascalCase, no suffix | `UserSummary`, `GrantableRole` |
 | Entity behavior (pure function) | the same entity file | camelCase verb | `updateRole(role, changes)` |
 | Type that exists only with the entity (a part, a wrapper, a result) | the same entity file | plain PascalCase, no suffix | `JobNodeExecution`, `ProjectList`, `CreatedApp` |
-| Struct | `{name}.struct.ts` | plain PascalCase, no suffix | `NodeId`, `Permission`, `PermissionScope`, `JobStatus` |
+| Struct | `{name}.struct.ts` | plain PascalCase, no suffix | `NodeId`, `Permission`, `PermissionScope`, `Principal`, `JobStatus` |
+| Validation of a value | its struct (or entity) file | `{X}Issue` type, `{x}Issue(value): {X}Issue \| null` | `NodeIdIssue` / `nodeIdIssue`, `roleNameIssue` |
 
 ```typescript
 // secret.entity.ts
 export interface SecretEntity { id: string; projectId: string; name: string; /* ... */ }
 export interface CreateSecretInput { projectId: string; name: string; value: string; /* ... */ }
 
-// permission.struct.ts
+// permission-scope.struct.ts
 export enum PermissionScope { UNSPECIFIED = 0, SYSTEM = 1, ORGANIZATION = 2, PROJECT = 3 }
 ```
 

@@ -42,20 +42,20 @@ export const definitionOf = (node: PipelineNodeEntity): NodeDefinition => {
 };
 
 /** What stops a node from running. The node and the inspector both show it. */
-export type NodeIssue = 'missing-command' | 'empty-script';
+export type NodeRunIssue = 'missing-command' | 'empty-script';
 
-export const nodeIssue = (definition: NodeDefinition): NodeIssue | null => {
+export const nodeRunIssue = (definition: NodeDefinition): NodeRunIssue | null => {
   if (definition.kind === 'exec') return definition.command.trim() ? null : 'missing-command';
   return definition.script.trim() ? null : 'empty-script';
 };
 
 /** Why the node cannot be saved or run: a refused id first, as the server rejects the whole pipeline. */
-export type NodeProblem = { kind: 'id'; issue: NodeIdIssue } | { kind: 'run'; issue: NodeIssue };
+export type NodeIssue = { kind: 'id'; issue: NodeIdIssue } | { kind: 'run'; issue: NodeRunIssue };
 
-export const nodeProblem = (node: PipelineNodeEntity): NodeProblem | null => {
+export const nodeIssue = (node: PipelineNodeEntity): NodeIssue | null => {
   const idIssue = nodeIdIssue(node.id);
   if (idIssue) return { kind: 'id', issue: idIssue };
-  const issue = nodeIssue(node);
+  const issue = nodeRunIssue(node);
   return issue ? { kind: 'run', issue } : null;
 };
 

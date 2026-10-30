@@ -1,6 +1,9 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { JobNodeExecution } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type {
+  JobNodeExecution,
+  NodeExecutionState,
+} from '@base/features/jobs/domain/entities/job.entity.ts';
 import {
   COLLAPSE_THRESHOLD,
   groupByStatus,
@@ -8,7 +11,7 @@ import {
   shouldCollapse,
 } from '../job-timeline.presenter.ts';
 
-const node = (id: string, state: string): JobNodeExecution => ({ id, state });
+const node = (id: string, state: NodeExecutionState): JobNodeExecution => ({ id, state });
 
 describe('shouldCollapse', () => {
   it('draws one segment per node right up to the threshold', () => {

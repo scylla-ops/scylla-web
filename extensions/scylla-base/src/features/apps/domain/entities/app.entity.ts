@@ -1,3 +1,5 @@
+import type { AccessScope } from '@platform/authz';
+
 export interface AppEntity {
   id: string;
   organizationId: string;
@@ -29,12 +31,10 @@ export interface CreatedAppSecret {
   secret: string;
 }
 
-export type AppAccessScope = 'system' | 'organization' | 'project';
-
 /** One grant of an app, with the names to show it. */
 export interface AppAccess {
   grantId: string;
-  scope: AppAccessScope;
+  scope: AccessScope;
   /** The organization or the project. Empty for the system scope. */
   scopeId: string;
   /** `null` for the system scope. */
