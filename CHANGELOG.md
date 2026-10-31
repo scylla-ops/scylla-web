@@ -85,6 +85,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   status that this build does not know is `unknown`.
 - The domain rules of `AGENTS.md` say where a type goes when it is not clear: an input, a
   projection, a snapshot of the server, a reference, and a vocabulary that two features share.
+- The "What's new" dialog announces 0.6.0: the scripting by node, the drag and drop on the
+  blueprint, the safer pipeline saves, the role and trigger pages, the account page and the tables
+  on a phone. The "New" badge is on the Roles link.
 
 ### Removed
 

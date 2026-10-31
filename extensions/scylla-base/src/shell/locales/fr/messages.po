@@ -13,21 +13,17 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/shell/whats-new.ts:58
+msgid "A new account page"
+msgstr "Une nouvelle page de compte"
+
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:14
 msgid "Account"
 msgstr "Compte"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:46
-msgid "Add people to your organization and your projects, and manage what each of them can do."
-msgstr "Ajoutez des personnes à votre organisation et à vos projets, et gérez ce que chacune peut faire."
-
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:17
 msgid "Back"
 msgstr "Retour"
-
-#: extensions/scylla-base/src/shell/whats-new.ts:39
-msgid "Build your own roles and grant them fine-grained permissions on an organization or a project."
-msgstr "Créez vos propres rôles et accordez-leur des permissions fines sur une organisation ou un projet."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:12
 msgid "Create"
@@ -38,12 +34,12 @@ msgid "Create an organization"
 msgstr "Créer une organisation"
 
 #: extensions/scylla-base/src/shell/whats-new.ts:52
-msgid "Dark mode"
-msgstr "Mode sombre"
+msgid "Create and edit a role or a trigger on a full page, with room for all of its permissions and settings."
+msgstr "Créez et modifiez un rôle ou un déclencheur sur une page entière, avec de la place pour toutes ses permissions et tous ses réglages."
 
-#: extensions/scylla-base/src/shell/whats-new.ts:31
-msgid "Dashboard"
-msgstr "Tableau de bord"
+#: extensions/scylla-base/src/shell/whats-new.ts:39
+msgid "Drag and drop on the blueprint"
+msgstr "Glisser-déposer sur le blueprint"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:21
 msgid "Got it"
@@ -53,37 +49,49 @@ msgstr "C'est noté"
 msgid "Here is what landed in this version."
 msgstr "Voici ce qui arrive dans cette version."
 
-#: extensions/scylla-base/src/shell/whats-new.ts:32
-msgid "Live metrics for your agents, pipelines and recent runs, all in one place."
-msgstr "Les métriques en direct de vos agents, pipelines et exécutions récentes, au même endroit."
-
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:13
 msgid "Loading..."
 msgstr "Chargement…"
-
-#: extensions/scylla-base/src/shell/whats-new.ts:45
-msgid "Members"
-msgstr "Membres"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:18
 msgid "New"
 msgstr "Nouveau"
 
+#: extensions/scylla-base/src/shell/whats-new.ts:65
+msgid "On a small screen, each row of a table shows as a card."
+msgstr "Sur un petit écran, chaque ligne d'un tableau s'affiche comme une carte."
+
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:4
 msgid "Organization"
 msgstr "Organisation"
+
+#: extensions/scylla-base/src/shell/whats-new.ts:59
+msgid "Profile, appearance, security and organizations: each setting has its own page. Choose your theme in Appearance."
+msgstr "Profil, apparence, sécurité et organisations : chaque réglage a sa propre page. Choisissez votre thème dans Apparence."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:5
 msgid "Project"
 msgstr "Projet"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:38
-msgid "Roles"
-msgstr "Rôles"
+#: extensions/scylla-base/src/shell/whats-new.ts:51
+msgid "Roles and triggers on their own page"
+msgstr "Les rôles et les déclencheurs sur leur propre page"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:53
-msgid "Scylla now comes in light and dark. Switch with the button in the top-right corner."
-msgstr "Scylla existe désormais en clair et en sombre. Basculez avec le bouton en haut à droite."
+#: extensions/scylla-base/src/shell/whats-new.ts:45
+msgid "Safer pipeline saves"
+msgstr "Des enregistrements de pipeline plus sûrs"
+
+#: extensions/scylla-base/src/shell/whats-new.ts:33
+msgid "Scripting, node by node"
+msgstr "L'écriture de scripts, nœud par nœud"
+
+#: extensions/scylla-base/src/shell/whats-new.ts:64
+msgid "Scylla on your phone"
+msgstr "Scylla sur votre téléphone"
+
+#: extensions/scylla-base/src/shell/whats-new.ts:40
+msgid "See where a node lands while you drag it from the palette. A node that runs a template shows the icon of the template."
+msgstr "Voyez où un nœud se pose pendant que vous le glissez depuis la palette. Un nœud qui exécute un modèle affiche l'icône du modèle."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:7
 msgid "Select Organization"
@@ -100,6 +108,14 @@ msgstr "Connecté en tant que {name}"
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:6
 msgid "System"
 msgstr "Système"
+
+#: extensions/scylla-base/src/shell/whats-new.ts:46
+msgid "The pipeline editor tells you why it cannot save, for example two nodes with the same id. The blueprint refuses a link that closes a loop."
+msgstr "L'éditeur de pipeline vous dit pourquoi il ne peut pas enregistrer, par exemple deux nœuds avec le même id. Le blueprint refuse un lien qui ferme une boucle."
+
+#: extensions/scylla-base/src/shell/whats-new.ts:34
+msgid "The scripting tab lists the nodes of a pipeline by stage and shows the script of each node as shell code. Open two nodes side by side."
+msgstr "L'onglet Écriture de scripts liste les nœuds d'un pipeline par étape et affiche le script de chaque nœud comme du code shell. Ouvrez deux nœuds côte à côte."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:10
 msgid "To get started, please create your first organization."

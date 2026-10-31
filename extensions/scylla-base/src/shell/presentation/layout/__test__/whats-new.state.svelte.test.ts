@@ -51,7 +51,7 @@ describe('isUnseen', () => {
 
 describe('highlightIdForNav', () => {
   it('finds the highlight id for a nav url this release announces', () => {
-    expect(highlightIdForNav('dashboard')).toBe('dashboard');
+    expect(highlightIdForNav('roles')).toBe('role-and-trigger-pages');
   });
 
   it('returns undefined for a url with no highlight in this release', () => {
@@ -61,13 +61,13 @@ describe('highlightIdForNav', () => {
 
 describe('markNavSeen', () => {
   it('marks seen the highlight that announces the opened link', () => {
-    markNavSeen('dashboard');
-    expect(isUnseen('dashboard')).toBe(false);
+    markNavSeen('roles');
+    expect(isUnseen('role-and-trigger-pages')).toBe(false);
   });
 
   it('ignores a link that no highlight announces', () => {
     markNavSeen('secrets');
-    expect(isUnseen('dashboard')).toBe(true);
+    expect(isUnseen('role-and-trigger-pages')).toBe(true);
   });
 });
 
