@@ -10,6 +10,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-01
+
 ### Added
 
 - The scripting tab of the pipeline editor shows the nodes one by one: a list of the nodes by
@@ -144,5 +146,6 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The tab title shows the version of the app. It said 0.4: the title now comes from the
   version of `apps/web/package.json`.
 
-[Unreleased]: https://github.com/scylla-ops/scylla-web/compare/v0.5.0...v0.6.0
+[Unreleased]: https://github.com/scylla-ops/scylla-web/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/scylla-ops/scylla-web/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/scylla-ops/scylla-web/releases/tag/v0.5.0
