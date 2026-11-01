@@ -81,7 +81,7 @@
 <div
   role="application"
   aria-label={t(pipelineMessages.blueprint)}
-  class="relative h-full min-w-0 flex-1"
+  class="canvas relative h-full min-w-0 flex-1"
   {@attach acceptPaletteDrop(() => ({
     drag,
     // The middle of the node lands on the pointer: the dragged icon is in the middle of the outline.
@@ -134,6 +134,24 @@
 </div>
 
 <style>
+  /*
+    The canvas keeps the cursor of the system, as the rest of the app does: an arrow on the pane, a
+    pointer on a node. The closed hand of the library shows only during a drag.
+  */
+  .canvas :global(.svelte-flow__pane.draggable) {
+    cursor: default;
+  }
+
+  .canvas :global(.svelte-flow__node.draggable),
+  .canvas :global(.svelte-flow__nodesselection-rect) {
+    cursor: pointer;
+  }
+
+  .canvas :global(.svelte-flow__pane.dragging),
+  .canvas :global(.svelte-flow__node.dragging) {
+    cursor: grabbing;
+  }
+
   :global(.svelte-flow__controls-button) {
     --xy-controls-button-background-color: var(--card);
     --xy-controls-button-background-color-hover: var(--muted);

@@ -97,6 +97,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The form of a trigger no longer writes debug lines to the console.
 - The pipeline editor no longer freezes on a loop of dependencies. The blueprint refuses a link
   that closes a loop.
+- The blueprint of the pipeline editor keeps the cursor of the system: an arrow on the canvas, a
+  pointer on a node. Before, it was a white hand that did not show on the light canvas.
 - A query that the server refuses (`NOT_FOUND`, `PERMISSION_DENIED`, `INVALID_ARGUMENT`…) is not
   sent again three times: the page shows the error, or leaves a deleted resource, at once instead
   of after about 7 seconds. Only a network failure or a busy server is retried.
