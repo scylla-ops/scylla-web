@@ -85,6 +85,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   status that this build does not know is `unknown`.
 - The domain rules of `AGENTS.md` say where a type goes when it is not clear: an input, a
   projection, a snapshot of the server, a reference, and a vocabulary that two features share.
+- The "What's new" dialog announces 0.6.0: the scripting by node, the drag and drop on the
+  blueprint, the safer pipeline saves, the role and trigger pages, the account page and the tables
+  on a phone. The "New" badge is on the Roles link.
 
 ### Removed
 
@@ -97,6 +100,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The form of a trigger no longer writes debug lines to the console.
 - The pipeline editor no longer freezes on a loop of dependencies. The blueprint refuses a link
   that closes a loop.
+- The blueprint of the pipeline editor keeps the cursor of the system: an arrow on the canvas, a
+  pointer on a node. Before, it was a white hand that did not show on the light canvas.
 - A query that the server refuses (`NOT_FOUND`, `PERMISSION_DENIED`, `INVALID_ARGUMENT`…) is not
   sent again three times: the page shows the error, or leaves a deleted resource, at once instead
   of after about 7 seconds. Only a network failure or a busy server is retried.
