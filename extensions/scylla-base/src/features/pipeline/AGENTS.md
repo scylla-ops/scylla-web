@@ -142,6 +142,7 @@ presentation/
         canvas/                              the canvas and what it draws
           BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte, DropSpot.svelte
           blueprint-canvas.context.ts        what the nodes and edges read from the canvas
+          keep-fitted.attachments.ts         keepFitted: fits the view again when the canvas resizes
           node-appearance-preference.state.svelte.ts   the viewer's node style, kept in localStorage
           nodes/                             one node view and one start view per node style,
                                              node-appearances.registry.ts (style → views)
@@ -283,6 +284,12 @@ the page.
   keyed by the mode (`{#key mode}`) and each mode has its own `SIDE_PANEL_SIZES` (percent), so
   the group saves one width per mode: the layout is keyed by the constraints of the panes. The
   inspector holds code, so it is wider than the palette.
+- **The view frames the nodes until the user moves it.** paneforge gives the panes their sizes
+  after the first `fitView`, and animates them, so a single fit frames the nodes in a narrow
+  canvas: they show on the left. `keepFitted` fits again at each resize of the canvas while
+  `fitted` is true. A pan or a zoom by the user (`onmove` with an event, or a zoom button) sets
+  it to false; the fit button sets it to true. Use `onmove`, not `onmovestart`: a click on the
+  pane starts a move with no change of the view.
 - **A rebuild from the document keeps the canvas state.** When the document changes from outside
   (the script tab), the graph is built again: a node that is still there keeps its position and
   its selection, and only a new one is laid out. The document must also read back what it

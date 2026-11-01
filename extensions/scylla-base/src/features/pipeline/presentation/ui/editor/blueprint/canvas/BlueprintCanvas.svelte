@@ -7,6 +7,7 @@
     useConnection,
     useSvelteFlow,
     type EdgeTypes,
+    type FitViewOptions,
     type NodeTypes,
     type OnConnectEnd,
     type XYPosition,
@@ -25,6 +26,7 @@
   import { linkDropPoint } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import DropSpot from './DropSpot.svelte';
   import { acceptPaletteDrop } from '../palette-drag/palette-drag.attachments.ts';
+  import { keepFitted } from './keep-fitted.attachments.ts';
   import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';
   import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.registry.ts';
   import StartNode from './nodes/StartNode.svelte';
@@ -44,7 +46,17 @@
   const nodeTypes: NodeTypes = { pipelineNode: PipelineNode, startNode: StartNode };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
 
-  const { screenToFlowPosition } = useSvelteFlow();
+  const FIT_VIEW_OPTIONS: FitViewOptions = { padding: 0.25, maxZoom: 1 };
+
+  const { screenToFlowPosition, fitView } = useSvelteFlow();
+
+  /** The view frames all the nodes until the user pans or zooms; the fit button frames them again. */
+  let fitted = $state(true);
+
+  const onControlsClick = (event: MouseEvent) => {
+    const button = (event.target as Element).closest('button');
+    if (button) fitted = button.classList.contains('svelte-flow__controls-fitview');
+  };
 
   setBlueprintCanvas({
     appearance: () => appearance.current,
@@ -88,6 +100,7 @@
     positionAt: client => nodePositionAt(appearance.current, screenToFlowPosition(client)),
     drop: (entry, position) => blueprint.addNode(entry.nodeId, entry.definition, { position }),
   }))}
+  {@attach keepFitted(() => ({ fitted, fit: () => void fitView(FIT_VIEW_OPTIONS) }))}
 >
   <!--
     `nodes` and `edges` are bound: the library drags, selects and deletes; the callbacks report the
@@ -99,7 +112,7 @@
     {nodeTypes}
     {edgeTypes}
     fitView
-    fitViewOptions={{ padding: 0.25, maxZoom: 1 }}
+    fitViewOptions={FIT_VIEW_OPTIONS}
     deleteKey={blueprint.readOnly ? null : ['Backspace', 'Delete']}
     nodesConnectable={!blueprint.readOnly}
     selectNodesOnDrag={false}
@@ -111,10 +124,16 @@
     ondelete={() => blueprint.sync()}
     onnodeclick={({ node }) => blueprint.inspect(node.id)}
     onpaneclick={() => blueprint.inspect(null)}
+    onmove={event => {
+      // A move with no event is the code's own, such as a fit.
+      if (event) fitted = false;
+    }}
   >
     <Background variant={BackgroundVariant.Dots} gap={16} size={1} class="bg-background!" />
     <Controls
       showLock={false}
+      fitViewOptions={FIT_VIEW_OPTIONS}
+      onclick={onControlsClick}
       class="overflow-hidden rounded-[10px]! border! border-border! shadow-xs!"
     />
     <CanvasToolbar
