@@ -18,7 +18,23 @@ const refusal = (status: number, message: string) =>
 const transport = () => new ScyllaGrpcTransport().getTransport();
 const listSecrets = () => new SecretServiceClient(transport()).listSecrets({}).response;
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  localStorage.clear();
+});
+
+/** A gRPC-Web answer with no message, as a stream that ends at once. */
+const ok = () =>
+  new Response(null, {
+    status: 200,
+    headers: { 'content-type': 'application/grpc-web+proto', 'grpc-status': '0' },
+  });
+
+const authorizationSentTo = (fetchMock: ReturnType<typeof vi.fn>, index = 0) =>
+  new Headers((fetchMock.mock.calls[index][1] as RequestInit).headers).get('authorization');
+
+const tailJobLogs = (transport: ReturnType<typeof ScyllaGrpcTransport.prototype.getTransport>) =>
+  new JobServiceClient(transport).tailJobLogs({}).status.catch(() => undefined);
 
 describe('ScyllaGrpcTransport', () => {
   it('rejects a refused call with a ScyllaError that keeps the gRPC code', async () => {
@@ -48,7 +64,11 @@ describe('ScyllaGrpcTransport', () => {
   });
 
   it('calls a request that does not get to the server UNAVAILABLE, whatever the browser says', async () => {
-    for (const text of ['Failed to fetch', 'Load failed', 'NetworkError when attempting to fetch']) {
+    for (const text of [
+      'Failed to fetch',
+      'Load failed',
+      'NetworkError when attempting to fetch',
+    ]) {
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError(text)));
 
       await expect(listSecrets()).rejects.toMatchObject({ code: 'UNAVAILABLE' });
@@ -72,5 +92,32 @@ describe('ScyllaGrpcTransport', () => {
     };
 
     await expect(read()).rejects.toMatchObject({ code: 'PERMISSION_DENIED', name: 'ScyllaError' });
+  });
+
+  it('sends the session token on a server stream, as on a unary call', async () => {
+    localStorage.setItem('token', 'session-token');
+    const fetchMock = vi.fn().mockResolvedValue(ok());
+    vi.stubGlobal('fetch', fetchMock);
+
+    // The stream first, on a fresh transport: nothing has set the header before it.
+    await tailJobLogs(transport());
+
+    expect(authorizationSentTo(fetchMock)).toBe('Bearer session-token');
+  });
+
+  it('sends no token on a call after the session is closed', async () => {
+    const shared = transport();
+    localStorage.setItem('token', 'session-token');
+    const fetchMock = vi.fn().mockResolvedValue(ok());
+    vi.stubGlobal('fetch', fetchMock);
+    await new SecretServiceClient(shared).listSecrets({}).response.catch(() => undefined);
+    expect(authorizationSentTo(fetchMock, 0)).toBe('Bearer session-token');
+
+    localStorage.removeItem('token');
+    await new SecretServiceClient(shared).listSecrets({}).response.catch(() => undefined);
+    await tailJobLogs(shared);
+
+    expect(authorizationSentTo(fetchMock, 1)).toBeNull();
+    expect(authorizationSentTo(fetchMock, 2)).toBeNull();
   });
 });
