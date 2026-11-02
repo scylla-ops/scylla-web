@@ -1,129 +1,25 @@
 <script lang="ts">
-  import { i18n } from '@lingui/core';
-  import { can, Permission, PermissionScope } from '@platform/authz';
-  import { contextStore } from '@platform/context';
-  import { createQuery, WidgetZone } from '@scylla/core-sdk';
-  import { invalidateOrganizationMembers, organizationQueries } from '@base/features/organization';
-  import { userQueries, type UserSummary } from '@base/features/user';
-  import { userName } from '@shared/presentation/ui';
+  import { WidgetZone } from '@scylla/core-sdk';
   import { ConfirmOperationAlertDialog, FeatureHeader, GatedButton } from '@scylla/ui';
-  import { toRune } from '@scylla/ui/stores';
-  import { toast } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import {
-    buildOrganizationMembers,
-  } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
-  import {
-    createAssignableRoles,
-  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
-  import {
-    createScopeMembership,
-  } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
-  import {
-    membershipPoints,
-    type OrganizationMembersContext,
-  } from '@base/features/membership/presentation/membership.points.ts';
+  import { membershipPoints } from '@base/features/membership/presentation/membership.points.ts';
+  import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';
-  import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
+  import { createOrganizationMembersPage } from './organization-members.state.svelte.ts';
 
-  /** The builtin that only means "belongs here". */
-  const ORGANIZATION_MEMBER_ROLE_ID = 'organization-member';
-
-  const context = toRune(contextStore);
-  const organization = $derived(context().organization);
-  const organizationId = $derived(organization.id);
-  const target = $derived({ organizationId: organizationId ?? undefined });
-
-  const canManage = $derived(can(Permission.MANAGE_ORG_GRANTS, target));
-  // Without LIST_USERS, roles can still be changed among the people already here.
-  const canListUsers = $derived(can(Permission.LIST_USERS));
-
-  const membersQuery = createQuery(() => organizationQueries.members(organizationId));
-  const usersQuery = createQuery(() => userQueries.list({ enabled: canListUsers }));
-
-  const members = $derived(membersQuery.data ?? []);
-
-  const roles = createAssignableRoles(PermissionScope.ORGANIZATION, () => organizationId);
-
-  const membership = createScopeMembership({
-    scope: PermissionScope.ORGANIZATION,
-    scopeId: () => organizationId,
-    canManage: () => canManage,
-    // The backend derives members from grants; the grant mutations cannot reach this key.
-    onMembershipChanged: () => void invalidateOrganizationMembers(organizationId),
-  });
-
-  const addAction = membershipPoints.organizationAddMember.resolve({
-    withoutDirectory: 'deny',
-    variant: 'default',
-  });
-  const showAdd = $derived(canListUsers || addAction.withoutDirectory === 'deny');
-  const addDeniedReason = $derived(
-    canManage
-      ? t(membershipMessages.onlySystemAdminCanBrowseUsers)
-      : t(membershipMessages.organizationNewDenied),
-  );
-
-  let addOpen = $state(false);
-  let pendingRemoval = $state<{ userId: string; name: string } | null>(null);
-
-  /** The members, with the display name and the email of the directory when it is readable. */
-  const userById = $derived.by(() => {
-    // Rebuilt whole by the `$derived` and never mutated after it is read.
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const users = new Map<string, UserSummary>(members.map(member => [member.id, member]));
-    for (const user of usersQuery.data?.items ?? []) {
-      if (users.has(user.id)) users.set(user.id, user);
-    }
-    return users;
-  });
-
-  const userFor = (memberId: string) => userById.get(memberId);
-
-  /** Seeded with the backend's list: someone reached only through a project is listed too. */
-  const scopeMembers = $derived(buildOrganizationMembers(membership.grants, [...userById.keys()]));
-
-  const candidates = $derived(
-    (usersQuery.data?.items ?? []).filter(user => !userById.has(user.id)),
-  );
-
-  const defaultRoleId = $derived(
-    roles.assignableRoles.find(role => role.roleId === ORGANIZATION_MEMBER_ROLE_ID)?.roleId,
-  );
-
-  const zoneContext: OrganizationMembersContext = $derived({
-    organizationId: organizationId ?? '',
-    organizationName: organization.name ?? '',
-    canManage,
-    memberCount: scopeMembers.length,
-    refreshMembers: membership.refresh,
-  });
-
-  const currentUserId = localStorage.getItem('userId') ?? '';
-
-  const handleAdd = async (userId: string, roleIds: string[]) => {
-    const granted = await membership.grantRoles(userId, roleIds);
-    if (granted) toast.success(i18n._(membershipMessages.memberAdded(roleIds.length)));
-    return granted;
-  };
-
-  const handleRemove = async () => {
-    if (!pendingRemoval) return;
-    await membership.removeMember(pendingRemoval.userId, pendingRemoval.name);
-    pendingRemoval = null;
-  };
+  const page = createOrganizationMembersPage();
 </script>
 
 <!-- Writes need `MANAGE_ORG_GRANTS` on this organization. -->
 {#snippet actions()}
-  <WidgetZone point={membershipPoints.organizationActions} context={zoneContext}>
-    {#if showAdd}
+  <WidgetZone point={membershipPoints.organizationActions} context={page.zoneContext}>
+    {#if page.showAdd}
       <GatedButton
-        allowed={canManage && canListUsers}
-        deniedReason={addDeniedReason}
-        variant={addAction.variant}
-        onclick={() => (addOpen = true)}
+        allowed={page.canManage && page.canListUsers}
+        deniedReason={page.addDeniedReason}
+        variant={page.addVariant}
+        onclick={() => (page.addOpen = true)}
       >
         {t(membershipMessages.addAMember)}
       </GatedButton>
@@ -133,18 +29,18 @@
 
 {#snippet blurb()}
   <p class="max-w-3xl text-sm text-muted-foreground">
-    {t(membershipMessages.organizationBlurb(organization.name ?? ''))}
+    {t(membershipMessages.organizationBlurb(page.organizationName))}
   </p>
 {/snippet}
 
-{#if !organizationId}
+{#if !page.organizationId}
   <div class="flex h-full items-center justify-center">
     <p class="text-sm text-muted-foreground">{t(membershipMessages.selectAnOrganization)}</p>
   </div>
 {:else}
   <div class="flex h-full min-h-0 w-full flex-col gap-4">
     <FeatureHeader
-      count={scopeMembers.length}
+      count={page.members.length}
       label={t(membershipMessages.member)}
       pluralLabel={t(membershipMessages.members)}
       underLabel={blurb}
@@ -152,62 +48,58 @@
     />
 
     <MembersList
-      members={scopeMembers}
-      isLoading={membersQuery.isLoading || membership.isLoading}
+      members={page.members}
+      isLoading={page.isLoading}
       emptyMessage={t(membershipMessages.organizationEmpty)}
-      {userFor}
-      organizationName={organization.name ?? ''}
-      labelFor={roles.labelFor}
-      {currentUserId}
-      {canManage}
-      disabled={membership.isPending}
-      onRevokeRole={role => void membership.revokeRole(role)}
-      addableRolesFor={member =>
-        roles.assignableRoles.filter(
-          role => !member.roles.some(held => held.roleId === role.roleId),
-        )}
-      onAddRole={(memberId, roleId) => void membership.addRole(memberId, roleId)}
-      emptyRoles={canManage
+      userFor={page.userFor}
+      organizationName={page.organizationName}
+      labelFor={page.roles.labelFor}
+      currentUserId={page.currentUserId}
+      canManage={page.canManage}
+      disabled={page.isPending}
+      onRevokeRole={role => void page.revokeRole(role)}
+      addableRolesFor={page.addableRolesFor}
+      onAddRole={(memberId, roleId) => void page.addRole(memberId, roleId)}
+      emptyRoles={page.canManage
         ? t(membershipMessages.reachedViaProject)
         : t(membershipMessages.managedByOrgAdmin)}
-      canRemove={() => canManage}
+      canRemove={() => page.canManage}
       removeTooltip={t(membershipMessages.removeFromOrganization)}
-      onRemove={member =>
-        (pendingRemoval = { userId: member.userId, name: userName(userFor(member.userId)) })}
+      onRemove={page.requestRemoval}
     />
 
-    <WidgetZone point={membershipPoints.organizationSection} context={zoneContext} />
+    <WidgetZone point={membershipPoints.organizationSection} context={page.zoneContext} />
 
     <AddMemberDialog
-      open={addOpen}
-      onOpenChange={open => (addOpen = open)}
-      title={t(membershipMessages.addToOrganization(organization.name ?? ''))}
+      open={page.addOpen}
+      onOpenChange={open => (page.addOpen = open)}
+      title={t(membershipMessages.addToOrganization(page.organizationName))}
       description={t(membershipMessages.addToOrganizationBody)}
-      {candidates}
+      candidates={page.candidates}
       emptyCandidatesLabel={t(membershipMessages.everyoneIsMember)}
-      roles={roles.assignableRoles}
-      organizationName={organization.name ?? ''}
+      roles={page.roles.assignableRoles}
+      organizationName={page.organizationName}
       rolesLabel={t(membershipMessages.rolesToGrant)}
-      rolesLoading={roles.isLoading}
-      isPending={membership.isPending}
-      {defaultRoleId}
-      onSubmit={handleAdd}
+      rolesLoading={page.roles.isLoading}
+      isPending={page.isPending}
+      defaultRoleId={page.defaultRoleId}
+      onSubmit={page.addMember}
     />
 
     <ConfirmOperationAlertDialog
-      open={pendingRemoval !== null}
+      open={page.pendingRemoval !== null}
       onOpenChange={open => {
-        if (!open) pendingRemoval = null;
+        if (!open) page.cancelRemoval();
       }}
-      isLoading={membership.isRemoving}
+      isLoading={page.isRemoving}
       title={t(
         membershipMessages.confirmRemoveFromOrganization(
-          pendingRemoval?.name ?? '',
-          organization.name ?? '',
+          page.pendingRemoval?.name ?? '',
+          page.organizationName,
         ),
       )}
       description={t(membershipMessages.confirmRemoveFromOrganizationBody)}
-      onContinue={() => void handleRemove()}
+      onContinue={() => void page.removeMember()}
     />
   </div>
 {/if}

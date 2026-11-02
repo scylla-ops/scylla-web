@@ -54,9 +54,12 @@ presentation/
                                      buildOrganizationMembers / buildProjectMembers (pure)
   presenters/assignable-roles.presenter.ts   grantable → AssignableRole (no apps roles), and
                                      the grouping by owner the pickers render
-  ui/OrganizationMembers.page.svelte, ProjectMembers.page.svelte
-  ui/scope-membership.state.svelte.ts   grants → members, plus grant/revoke/refresh (a ViewModel
-                                        of both pages)
+  ui/OrganizationMembers/              OrganizationMembers.page.svelte, and its ViewModel
+                                       organization-members.state.svelte.ts
+  ui/ProjectMembers/                   ProjectMembers.page.svelte, and its ViewModel
+                                       project-members.state.svelte.ts
+  ui/scope-membership.state.svelte.ts   grants → members, plus grant/revoke/refresh (a state
+                                        that both ViewModels compose)
   messages/membership.messages.ts          every string — `lingui extract` cannot read `.svelte`
   ui/components/                     AddMemberDialog (+ AddMemberForm), AddRoleSelect,
                                      MemberCard, MemberRoleBadges, MemberRowAction,
@@ -65,8 +68,10 @@ presentation/
   ui/components/assignable-roles.state.svelte.ts   which roles *this* user may hand out
 ```
 
-Both ViewModels take **getters**, not values, for anything that arrives late — the scope id
-from the route or the context store, the permission from a store that loads after first paint.
+The states take **getters**, not values, for anything that arrives late — the scope id from the
+route or the context store, the permission from a store that loads after first paint. Each
+page creates its ViewModel (`createProjectMembersPage(() => projectId)`,
+`createOrganizationMembersPage()`) and renders what it gives: the page holds no logic.
 Capturing either once freezes the view on the first, usually empty, render. The React hooks
 re-ran on every render and got this for free.
 

@@ -74,6 +74,9 @@ function that reloads the members. The details are in [`AGENTS.md`](./AGENTS.md)
 - `presentation/ui/scope-membership.state.svelte.ts` — grants for a scope, plus grant and revoke
   mutations, with toasts.
 - `presentation/ui/components/assignable-roles.state.svelte.ts` — the assignable-role calculation.
+- `presentation/ui/ProjectMembers/project-members.state.svelte.ts` and
+  `presentation/ui/OrganizationMembers/organization-members.state.svelte.ts` — the ViewModel of
+  each page: it composes the two states above with the queries of the page.
 - `presentation/ui/` — two pages over one set of scope-agnostic components.
 
 Neither page is exported from `index.ts`. They are lazily loaded by the module declaration, and
@@ -86,9 +89,10 @@ declaration of the same grant list here would make two cache entries that disagr
 mutation. The factories are the shared declaration, so the pages of `roles` and these pages read
 the same entry.
 
-The two files above are ViewModels, not hooks: they hold `$state`/`$derived` and are created by
-the page. They take **getters** for the scope id and the permission, because both arrive after
-the first render and capturing either once would freeze the view empty.
+These state files are not hooks: they hold `$state`/`$derived` and are created by the page,
+which only renders what its ViewModel gives. They take **getters** for the scope id and the
+permission, because both arrive after the first render and capturing either once would freeze
+the view empty.
 
 ## Related modules
 
