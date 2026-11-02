@@ -13,10 +13,22 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: packages/core/src/routing/view/RouterView/route-entry.messages.ts:5
+msgid "An error stopped the page. The rest of the app still works."
+msgstr "An error stopped the page. The rest of the app still works."
+
 #: packages/core/src/shell/shell.messages.ts:5
 msgid "Language"
 msgstr "Language"
 
+#: packages/core/src/routing/view/RouterView/route-entry.messages.ts:4
+msgid "This page could not be shown"
+msgstr "This page could not be shown"
+
 #: packages/core/src/shell/shell.messages.ts:4
 msgid "Toggle Sidebar"
 msgstr "Toggle Sidebar"
+
+#: packages/core/src/routing/view/RouterView/route-entry.messages.ts:6
+msgid "Try again"
+msgstr "Try again"
