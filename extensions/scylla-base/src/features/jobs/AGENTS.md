@@ -57,8 +57,9 @@ Never add: `jobs.module.ts`, and never export a `.svelte` component from this ba
 `tailLogs` is the one non-`Promise` method in the codebase: it opens a server stream and returns
 the handle immediately. It is a genuine outside-the-framework subscription, so it belongs in
 `tail-job-logs.state.svelte.ts` — and **the stream is always closed on teardown**. A failure of
-the stream ends the iteration of `logs` with a throw: the state keeps the lines read before it,
-and logs the failure.
+the stream ends the iteration of `logs` with a throw: the state logs the failure and keeps the
+lines read before it. A failure before any line sets `isError`, so the panel shows the error
+instead of an empty log.
 
 Each method rejects with a `ScyllaError` on failure. Reach it from `jobs.queries.ts` only — never from a component.
 

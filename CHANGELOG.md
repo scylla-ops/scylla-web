@@ -15,6 +15,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The blueprint of the pipeline editor opens with its nodes in the middle of the canvas. Before,
   they showed on the left. The view frames the nodes again when the canvas changes size, until
   the user moves the view.
+- The log panel of a job shows an error when the log stream fails before its first line. It
+  showed an empty log, and wrote the failure in the console only.
 
 ## [0.6.0] - 2026-11-01
 
