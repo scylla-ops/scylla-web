@@ -106,6 +106,7 @@ pass with zero warnings, zero failures, zero violations, zero cycles and zero co
 |---|---|
 | `pnpm typecheck` | TypeScript, `.svelte` files included |
 | `pnpm test` (`pnpm coverage` in CI) | The Vitest suite, and the coverage thresholds |
+| `pnpm test:e2e` | The Playwright smoke tests on the built app. Run `pnpm build` first |
 | `pnpm lint` | ESLint, warnings are errors. It is slow (about 20 minutes) |
 | `pnpm depcruise` | The architecture: layer direction and public APIs |
 | `pnpm depcruise:cycles` | No dependency cycle between modules |

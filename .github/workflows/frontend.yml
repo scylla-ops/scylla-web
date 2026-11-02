@@ -136,3 +136,10 @@ jobs:
 
       - name: Build
         run: pnpm run build
+
+      # The built app in a real Chromium, with no backend: the pages before the sign-in.
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: End-to-end smoke tests
+        run: pnpm run test:e2e

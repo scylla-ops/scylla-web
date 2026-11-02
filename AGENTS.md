@@ -59,6 +59,7 @@ Lingui) covers every package. `vite.config.ts` builds `apps/web` into `dist/`.
 | `pnpm typecheck` | `tsc -b && svelte-check` — `tsc` cannot see `.svelte` files, `svelte-check` can |
 | `pnpm test` | Vitest, single run — **must be green** |
 | `pnpm test:watch` | Vitest in watch mode |
+| `pnpm test:e2e` | Playwright: the built app (`dist/`) in Chromium, with no backend. Build first |
 | `pnpm coverage` | Vitest + v8 coverage, enforces the thresholds in `vite.config.ts` |
 | `pnpm lint` | ESLint, `--max-warnings 0` (warnings are errors). Slow (~20 min) and needs an 8 GB heap, which the script sets |
 | `pnpm lint:fix` | ESLint with `--fix` |
@@ -758,6 +759,14 @@ All three rules answer **completeness, not correctness**: they cannot tell you t
 a button is the wrong one. That stays the job of the per-component tests. `UNGATED_FEATURES` and
 `UNCHECKED_SHARED_HOOKS` are ratchets seeded with today's state; `SEEDED DEBT` and `TRIAGE`
 entries are open questions, not decisions.
+
+### End-to-end
+
+`test/e2e/*.e2e.ts` run the built app in a real Chromium, with no backend (`playwright.config.ts`
+serves `dist/` with `vite preview`). They cover what jsdom cannot: the real router, the real
+transport, the real chunks. Keep them few and on the pages before the sign-in, or route the
+backend calls with `page.route`. Vitest does not pick them up: their suffix is `.e2e.ts`, not
+`.test.ts`. CI runs them in the `static` job, after the build.
 
 ### Coverage
 
