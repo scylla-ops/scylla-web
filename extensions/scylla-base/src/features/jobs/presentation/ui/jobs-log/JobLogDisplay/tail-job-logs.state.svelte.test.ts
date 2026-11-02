@@ -169,6 +169,25 @@ describe('createTailJobLogs', () => {
     cleanup();
   });
 
+  it('reports the failure when the stream breaks before any line, so the panel is not left empty', async () => {
+    const controller = createControllableStream();
+    tailLogs.mockReturnValue(controller.stream);
+    install({ tailLogs });
+
+    const failure = new ScyllaError('not yours', { code: 'PERMISSION_DENIED' });
+    vi.spyOn(failure, 'log').mockImplementation(() => failure);
+
+    const { tail, cleanup } = start();
+
+    controller.fail(failure);
+    await settle();
+
+    expect(tail().isError).toBe(true);
+    expect(tail().error).toBe(failure);
+    expect(tail().isLoading).toBe(false);
+    cleanup();
+  });
+
   it('keeps the lines read before the stream breaks, and logs the failure instead of writing it', async () => {
     const controller = createControllableStream();
     tailLogs.mockReturnValue(controller.stream);
@@ -184,6 +203,7 @@ describe('createTailJobLogs', () => {
     await settle();
 
     expect(tail().text).toBe('before');
+    expect(tail().isError).toBe(false);
     expect(logged).toHaveBeenCalled();
     cleanup();
   });
