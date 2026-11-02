@@ -73,7 +73,14 @@ export const createTailJobLogs = ({ jobId, nodeId }: TailJobLogsOptions): Tailed
         }
       } catch (failure) {
         // After the cleanup, the failure is the cancel itself.
-        if (active) ScyllaError.from(failure).log();
+        if (!active) return;
+        const thrown = ScyllaError.from(failure);
+        thrown.log();
+        // The lines already read stay on screen. With none, the panel says why it is empty.
+        if (lines.length === 0) {
+          isError = true;
+          error = thrown;
+        }
       }
       flush(); // final flush, so the last lines aren't lost between ticks
     };
