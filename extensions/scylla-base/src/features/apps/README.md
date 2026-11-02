@@ -44,7 +44,7 @@ dialogs are declarative `ScyllaForm`s built from the form presenters (`app-form.
 
 Every string the screens show is declared in `messages/apps.messages.ts` rather than inside a
 component: `lingui extract` does not read `.svelte`, so a message written in one would disappear
-from the catalogs with no gate noticing. See `refacto_svelte.md` §4.5.
+from the catalogs with no gate noticing.
 
 ## Used by agents
 
