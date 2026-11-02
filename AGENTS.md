@@ -159,9 +159,9 @@ import { Permission } from '@platform/authz';               // ✅
 import { Permission } from '@platform/authz/domain/structs/permission.struct.ts';           // ❌
 ```
 
-Enforced by six rules in `.dependency-cruiser.cjs`, all `error`: `feature-api-only`,
+Enforced by five rules in `.dependency-cruiser.cjs`, all `error`: `feature-api-only`,
 `shell-uses-feature-api`, `platform-api-only`, `platform-capability-api-only`,
-`module-declaration-is-private`, `domain-accessor-is-private`.
+`module-declaration-is-private`.
 
 What a barrel must **not** export:
 - **`<feature>.module.ts`** — it instantiates the feature's repository at import time, so
@@ -227,7 +227,9 @@ the types of its props). Every other file goes in the folder of its role:
   `pipelineDocument.withName(…)`.
 
 These three folders never import `ui/` (`presentation-logic-knows-no-ui`, in depcruise): `ui/`
-uses them, never the reverse. There is no `utils/` folder.
+uses them, never the reverse. There is no `utils/` folder in a feature: a helper with a
+business meaning that several features share goes to `shared/utils/`, a generic one to
+`@scylla/ui/utils`.
 
 To place a function of the view, look at what it gives and what it needs, not at what it takes:
 
@@ -501,7 +503,8 @@ export const JOBS_QUERY_KEY = (pipelineId: string) =>
 ## Svelte — Best Practices
 
 Svelte 5, **runes only** (`svelte.config.js` sets `runes: true`). No SvelteKit: the build is a
-static SPA that the Rust binary serves. See `refacto_svelte.md` for the reasons.
+static SPA that the Rust binary serves. See `docs/architecture.md`, "Tech stack", for the
+reasons.
 
 ### Where the logic goes
 
@@ -676,8 +679,6 @@ Code identifiers: Interfaces/Types/Classes/Components/Enums **PascalCase** (no `
 - **`type`** for everything a shape can't express: unions, literal unions, mapped/utility types, function types, aliases (`type PermissionScope = 'org' | 'project'`).
 - Type-only imports must use `import type` (`@typescript-eslint/consistent-type-imports` is an error, and `verbatimModuleSyntax` requires it).
 - Colocate a type with the file that uses it; a dedicated file is only justified for shared or bulky types — and in `domain/` a type goes in the file of its concept, per the rules above.
-
-> Note: docs/naming-conventions.md shows `{Entity}RepositoryImpl` for the impl, but the actual codebase uses `Default{Entity}Repository` in `default-{entity}.repository.ts`. **Follow the codebase convention.**
 
 ---
 

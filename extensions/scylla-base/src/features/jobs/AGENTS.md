@@ -35,7 +35,7 @@ share the *same* cache entry as this module's pages.
 page behind its own route because it owns the "Run" action, and a `.svelte` re-exported from a
 barrel cannot be tree-shaken out of whoever imports that barrel for something else —
 `pipeline` imports `JOBS_QUERY_KEY` from here. A function keeps the chunk separate.
-See `refacto_svelte.md` §2. `JobDetails.page.svelte` is mounted by this module's own route, so it
+`JobDetails.page.svelte` is mounted by this module's own route, so it
 stays private.
 
 Never add: `jobs.module.ts`, and never export a `.svelte` component from this barrel.

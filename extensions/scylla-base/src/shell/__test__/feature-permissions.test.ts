@@ -21,7 +21,9 @@ const walk = (dir: string): string[] =>
 
 /** A test's mention of a permission proves nothing. */
 const sourcesIn = (dir: string): string[] =>
-  existsSync(dir) ? walk(dir).filter(f => /\.(tsx?|svelte)$/.test(f) && !/\.(test|fixture)\./.test(f)) : [];
+  existsSync(dir)
+    ? walk(dir).filter(f => /\.(tsx?|svelte)$/.test(f) && !/\.(test|fixture)\./.test(f))
+    : [];
 
 const read = (path: string): string => readFileSync(path, 'utf8');
 
@@ -37,7 +39,6 @@ const featureDirs = modules.map(module => {
   return {
     id: module.id,
     dir,
-    hooks: join(dir, 'presentation/hooks'),
     ui: join(dir, 'presentation/ui'),
   };
 });
@@ -60,9 +61,8 @@ describe('feature permission conformance', () => {
   };
 
   describe('a feature that mutates gates something in its UI', () => {
-    /** A write is a `useMutation(` call or a `mutationOptions(` declaration. */
+    /** A write is a `mutationOptions(` declaration. */
     const writesIn = (feature: (typeof featureDirs)[number]) =>
-      sourcesIn(feature.hooks).some(file => code(file).includes('useMutation(')) ||
       sourcesIn(join(feature.dir, 'presentation'))
         .filter(file => file.endsWith('.queries.ts') || file.endsWith('.mutations.ts'))
         .some(file => code(file).includes('mutationOptions('));
@@ -82,9 +82,7 @@ describe('feature permission conformance', () => {
     ];
 
     it.each(mutating.map(feature => [feature.id, feature] as const))('%s', (id, feature) => {
-      const gates = uiSources(feature).some(file =>
-        /Permission\.[A-Z_]+|PermissionButton|useCan|useAuthorization|\bcan\(/.test(code(file)),
-      );
+      const gates = uiSources(feature).some(file => /Permission\.[A-Z_]+|\bcan\(/.test(code(file)));
 
       if (id in UNGATED_FEATURES) {
         expect(
@@ -108,13 +106,13 @@ describe('feature permission conformance', () => {
    * check its permission itself (like `jobsByPipelinesQueries`).
    */
   describe('a query hook consumed across a feature boundary checks for itself', () => {
-    const isSharedRead = (name: string) => /^use[A-Z]/.test(name) || /Queries$/.test(name);
+    const isSharedRead = (name: string) => /Queries$/.test(name);
 
     const barrelExports = new Map(
       featureDirs.map(feature => {
         const barrel = join(feature.dir, 'index.ts');
         const names = existsSync(barrel)
-          ? [...code(barrel).matchAll(/\b(?:use[A-Z]\w*|\w+Queries)\b/g)].map(match => match[0])
+          ? [...code(barrel).matchAll(/\b\w+Queries\b/g)].map(match => match[0])
           : [];
         return [feature.id, new Set(names)];
       }),
@@ -169,25 +167,14 @@ describe('feature permission conformance', () => {
         });
     };
 
-    const sharedHooks: SharedHook[] = featureDirs.flatMap(feature => [
-      ...sourcesIn(feature.hooks).flatMap(file =>
-        // `useQueryClient` is not a query: match the call.
-        /\buseQuery\(|\buseQueries\(/.test(code(file))
-          ? sharedReadsIn(
-              feature.id,
-              file,
-              /export const (use[A-Z]\w*)/g,
-              /useAuthorization|useCan/,
-            )
-          : [],
-      ),
-      // A `*.queries.ts` factory gates with a `can(...)` inside its options.
-      ...sourcesIn(join(feature.dir, 'presentation'))
+    // A `*.queries.ts` factory gates with a `can(...)` inside its options.
+    const sharedHooks: SharedHook[] = featureDirs.flatMap(feature =>
+      sourcesIn(join(feature.dir, 'presentation'))
         .filter(file => file.endsWith('.queries.ts'))
         .flatMap(file =>
           sharedReadsIn(feature.id, file, /export const (\w+Queries)\b/g, /\bcan\(/),
         ),
-    ]);
+    );
 
     /** A ratchet. `TRIAGE`: nobody decided yet what the consuming page should show instead. */
     const UNCHECKED_SHARED_HOOKS: Readonly<Record<string, string>> = {
