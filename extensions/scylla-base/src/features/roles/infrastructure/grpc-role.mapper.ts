@@ -10,6 +10,7 @@ import {
   type RoleOrigin,
 } from '@base/features/roles/domain/entities/role.entity.ts';
 import * as grpcPermission from '@base/features/roles/infrastructure/grpc-permission.mapper.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
 /** An unknown arm becomes `unknown`, never "custom". */
 function originToDomain(grpcRole: Role): RoleOrigin {
@@ -41,7 +42,10 @@ export function toDomain(grpcRole: Role): RoleEntity {
 /** `UNSPECIFIED` is sent as `MEMBER`. Throws on `ADMIN`: the builtin owner roles only. */
 export function toGrpcCreateRequest(data: CreateRoleInput): CreateRoleRequest {
   if (data.kind === RoleKind.ADMIN) {
-    throw new Error('The admin kind is reserved for the builtin roles.');
+    throw new ScyllaError('The admin kind is reserved for the builtin roles.', {
+      code: 'INTERNAL',
+      raw: true,
+    });
   }
 
   return {
@@ -58,8 +62,9 @@ export function toGrpcCreateRequest(data: CreateRoleInput): CreateRoleRequest {
 
 export function toGrpcUpdateRequest(role: RoleEntity): UpdateRoleRequest {
   if (role.access.kind === 'unknown') {
-    throw new Error(
+    throw new ScyllaError(
       'This role uses an access mode this version does not understand; it cannot be updated here.',
+      { code: 'INTERNAL', raw: true },
     );
   }
 

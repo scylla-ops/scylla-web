@@ -29,7 +29,8 @@ const toCreateProjectError = (thrown: unknown): unknown => {
 
 /** The wrapped entity is optional on the wire: fail here rather than pass `undefined` on. */
 const requireProject = (project: Project | undefined): ProjectEntity => {
-  if (!project) throw new Error('Server returned no project.');
+  if (!project)
+    throw new ScyllaError('Server returned no project.', { code: 'INTERNAL', raw: true });
   return grpcProject.toDomain(project);
 };
 

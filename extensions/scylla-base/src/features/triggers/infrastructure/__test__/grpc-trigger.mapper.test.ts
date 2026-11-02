@@ -173,6 +173,9 @@ describe('grpcTrigger.createdToDomain', () => {
 
   it('throws if the response carries no trigger (a malformed response, never expected in practice)', () => {
     expect(() => grpcTrigger.createdToDomain({})).toThrow('CreateTrigger returned no trigger');
+    expect(() => grpcTrigger.createdToDomain({})).toThrow(
+      expect.objectContaining({ name: 'ScyllaError', code: 'INTERNAL' }),
+    );
   });
 });
 

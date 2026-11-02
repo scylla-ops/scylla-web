@@ -8,9 +8,11 @@ import type { ITriggerServiceClient } from '@base/generated/scylla/trigger/v1/tr
 import type { Trigger } from '@base/generated/scylla/trigger/v1/trigger.ts';
 import { idValue, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcTrigger from './grpc-trigger.mapper.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
 const requireTrigger = (trigger: Trigger | undefined, rpc: string): TriggerEntity => {
-  if (!trigger) throw new Error(`${rpc} returned no trigger`);
+  if (!trigger)
+    throw new ScyllaError(`${rpc} returned no trigger`, { code: 'INTERNAL', raw: true });
   return grpcTrigger.toDomain(trigger);
 };
 

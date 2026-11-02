@@ -69,6 +69,10 @@ describe('DefaultUserRepository', () => {
     await expect(repositoryOn(fake).getMe()).rejects.toThrow(
       'Server returned a response without a user.',
     );
+    await expect(repositoryOn(fake).getMe()).rejects.toMatchObject({
+      name: 'ScyllaError',
+      code: 'INTERNAL',
+    });
   });
 
   it('sends the email and the display name of a new user', async () => {

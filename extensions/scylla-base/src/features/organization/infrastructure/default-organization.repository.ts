@@ -6,10 +6,12 @@ import type { UserSummary } from '@base/features/user';
 import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcOrganization from './grpc-organization.mapper.ts';
 import * as grpcOrganizationMember from './grpc-organization-member.mapper.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
 /** The server always fills it on success: an absent one is a protocol error. */
 const requireOrganization = (organization?: Organization): OrganizationEntity => {
-  if (!organization) throw new Error('Server returned no organization.');
+  if (!organization)
+    throw new ScyllaError('Server returned no organization.', { code: 'INTERNAL', raw: true });
   return grpcOrganization.toDomain(organization);
 };
 

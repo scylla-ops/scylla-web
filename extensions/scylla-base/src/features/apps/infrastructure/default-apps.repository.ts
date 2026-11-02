@@ -9,6 +9,7 @@ import type {
 import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
 import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcApp from './grpc-app.mapper.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
 export class DefaultAppsRepository implements AppsRepository {
   constructor(private readonly client: IAppServiceClient) {}
@@ -21,14 +22,16 @@ export class DefaultAppsRepository implements AppsRepository {
 
   async getApp(appId: string): Promise<AppEntity> {
     const response = await this.client.getApp({ appId: wrapId(appId) }).response;
-    if (!response.app) throw new Error('GetApp returned no app');
+    if (!response.app)
+      throw new ScyllaError('GetApp returned no app', { code: 'INTERNAL', raw: true });
     return grpcApp.toDomain(response.app);
   }
 
   async createApp(organizationId: string, name: string): Promise<CreatedApp> {
     const response = await this.client.createApp(grpcApp.toCreateAppRequest(organizationId, name))
       .response;
-    if (!response.app) throw new Error('CreateApp returned no app');
+    if (!response.app)
+      throw new ScyllaError('CreateApp returned no app', { code: 'INTERNAL', raw: true });
     return { app: grpcApp.toDomain(response.app), secret: response.secret };
   }
 
@@ -39,7 +42,8 @@ export class DefaultAppsRepository implements AppsRepository {
   async setAppActive(appId: string, active: boolean): Promise<AppEntity> {
     const response = await this.client.setAppActive({ appId: wrapId(appId), isActive: active })
       .response;
-    if (!response.app) throw new Error('SetAppActive returned no app');
+    if (!response.app)
+      throw new ScyllaError('SetAppActive returned no app', { code: 'INTERNAL', raw: true });
     return grpcApp.toDomain(response.app);
   }
 
@@ -50,7 +54,11 @@ export class DefaultAppsRepository implements AppsRepository {
 
   async createAppSecret(appId: string, label: string): Promise<CreatedAppSecret> {
     const response = await this.client.createAppSecret({ appId: wrapId(appId), label }).response;
-    if (!response.appSecret) throw new Error('CreateAppSecret returned no secret metadata');
+    if (!response.appSecret)
+      throw new ScyllaError('CreateAppSecret returned no secret metadata', {
+        code: 'INTERNAL',
+        raw: true,
+      });
     return {
       credential: grpcApp.secretToDomain(response.appSecret),
       secret: response.secret,
@@ -66,7 +74,11 @@ export class DefaultAppsRepository implements AppsRepository {
       appSecretId: wrapId(secretId),
       enabled,
     }).response;
-    if (!response.appSecret) throw new Error('SetAppSecretEnabled returned no secret metadata');
+    if (!response.appSecret)
+      throw new ScyllaError('SetAppSecretEnabled returned no secret metadata', {
+        code: 'INTERNAL',
+        raw: true,
+      });
     return grpcApp.secretToDomain(response.appSecret);
   }
 
@@ -74,7 +86,11 @@ export class DefaultAppsRepository implements AppsRepository {
     const response = await this.client.setAppSecretLabel(
       grpcApp.toSetSecretLabelRequest(secretId, label),
     ).response;
-    if (!response.appSecret) throw new Error('SetAppSecretLabel returned no secret metadata');
+    if (!response.appSecret)
+      throw new ScyllaError('SetAppSecretLabel returned no secret metadata', {
+        code: 'INTERNAL',
+        raw: true,
+      });
     return grpcApp.secretToDomain(response.appSecret);
   }
 

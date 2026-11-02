@@ -11,6 +11,7 @@ import type {
 import type { AgentsRepository } from '@base/features/agents/domain/repository/agents.repository.ts';
 import { idValue, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcAgent from './grpc-agent.mapper.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
 /** One page for the whole organization, as the pipeline lookups of `pipeline`. */
 const PIPELINE_NAMES_PAGE_SIZE = 100;
@@ -30,13 +31,15 @@ export class DefaultAgentsRepository implements AgentsRepository {
 
   async getAgent(agentId: string): Promise<AgentEntity> {
     const response = await this.client.getAgent({ agentId: wrapId(agentId) }).response;
-    if (!response.agent) throw new Error('GetAgent returned no agent');
+    if (!response.agent)
+      throw new ScyllaError('GetAgent returned no agent', { code: 'INTERNAL', raw: true });
     return grpcAgent.toDomain(response.agent);
   }
 
   async getAgentStats(agentId: string): Promise<AgentStats> {
     const response = await this.client.getAgentStats({ agentId: wrapId(agentId) }).response;
-    if (!response.stats) throw new Error('GetAgentStats returned no stats');
+    if (!response.stats)
+      throw new ScyllaError('GetAgentStats returned no stats', { code: 'INTERNAL', raw: true });
     return grpcAgent.statsToDomain(response.stats);
   }
 
@@ -45,7 +48,8 @@ export class DefaultAgentsRepository implements AgentsRepository {
       organizationId: wrapId(organizationId),
       name,
     }).response;
-    if (!response.agent) throw new Error('CreateAgent returned no agent');
+    if (!response.agent)
+      throw new ScyllaError('CreateAgent returned no agent', { code: 'INTERNAL', raw: true });
     return { agent: grpcAgent.toDomain(response.agent), secret: response.secret };
   }
 

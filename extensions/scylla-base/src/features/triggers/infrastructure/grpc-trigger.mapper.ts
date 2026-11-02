@@ -20,6 +20,7 @@ import {
   timestampToIsoOpt,
   wrapId,
 } from '@shared/infrastructure/grpc/wrappers.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
 function sourceToDomain(source: ProtoTrigger['source']): TriggerSource {
   switch (source.oneofKind) {
@@ -88,7 +89,7 @@ export function toDomainList(triggers: ProtoTrigger[]): TriggerEntity[] {
 
 export function createdToDomain(response: CreateTriggerResponse): CreatedTrigger {
   if (!response.trigger) {
-    throw new Error('CreateTrigger returned no trigger');
+    throw new ScyllaError('CreateTrigger returned no trigger', { code: 'INTERNAL', raw: true });
   }
   return {
     trigger: toDomain(response.trigger),

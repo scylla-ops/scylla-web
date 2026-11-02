@@ -15,6 +15,7 @@ import {
   PrincipalKind,
 } from '@platform/authz';
 import { RoleKind } from '@base/features/roles/domain/entities/role.entity.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
 export interface ScopeBinding {
   scope: PermissionScope;
@@ -100,7 +101,10 @@ export function scopeRefToGrpc(scope: PermissionScope, scopeId: string): ScopeRe
     case PermissionScope.PROJECT:
       return { scope: { oneofKind: 'project', project: { projectId: { value: scopeId } } } };
     default:
-      throw new Error('A scope must be chosen before sending it to the backend.');
+      throw new ScyllaError('A scope must be chosen before sending it to the backend.', {
+        code: 'INTERNAL',
+        raw: true,
+      });
   }
 }
 
@@ -123,7 +127,10 @@ export function principalRefToGrpc(principal: Principal): PrincipalRef {
     case PrincipalKind.APP:
       return { principal: { oneofKind: 'app', app: { appId: { value: principal.id } } } };
     default:
-      throw new Error('A principal must be chosen before sending it to the backend.');
+      throw new ScyllaError('A principal must be chosen before sending it to the backend.', {
+        code: 'INTERNAL',
+        raw: true,
+      });
   }
 }
 

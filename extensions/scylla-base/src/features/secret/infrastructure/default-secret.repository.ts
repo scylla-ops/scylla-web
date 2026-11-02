@@ -9,6 +9,7 @@ import type {
 import type { SecretUsage } from '@base/features/secret/domain/structs/secret-usage.struct.ts';
 import type { SecretRepository } from '@base/features/secret/domain/repository/secret.repository.ts';
 import * as grpcSecret from './grpc-secret.mapper.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
 const USAGE_PAGE = { page: 1, pageSize: 10 };
 
@@ -31,7 +32,8 @@ export class DefaultSecretRepository implements SecretRepository {
       description: input.description,
     }).response;
     // No `secret` in the response: a shape this build cannot read.
-    if (!response.secret) throw new Error('CreateSecret returned no secret');
+    if (!response.secret)
+      throw new ScyllaError('CreateSecret returned no secret', { code: 'INTERNAL', raw: true });
     return grpcSecret.toDomain(response.secret);
   }
 
@@ -41,7 +43,8 @@ export class DefaultSecretRepository implements SecretRepository {
       value: input.value,
       description: input.description,
     }).response;
-    if (!response.secret) throw new Error('UpdateSecret returned no secret');
+    if (!response.secret)
+      throw new ScyllaError('UpdateSecret returned no secret', { code: 'INTERNAL', raw: true });
     return grpcSecret.toDomain(response.secret);
   }
 
