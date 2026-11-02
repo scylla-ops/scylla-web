@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { msg } from '@lingui/core/macro';
@@ -19,6 +19,8 @@ import {
 } from '../../__test__/test-permission.fixture.ts';
 import type { AppRouterConfig } from '../../compilation/compile-routes.ts';
 import { createAppRouter } from '../../runtime/app-router.ts';
+import { breakOnce } from './fixtures/broken-page.fixture.ts';
+import TestBrokenPage from './fixtures/TestBrokenPage.fixture.svelte';
 import TestFallback from './fixtures/TestFallback.fixture.svelte';
 import TestFrame from './fixtures/TestFrame.fixture.svelte';
 import TestGuard from './fixtures/TestGuard.fixture.svelte';
@@ -30,6 +32,7 @@ import RouterView from './RouterView.svelte';
 
 const page: PageLoader = () => Promise.resolve({ default: TestPage });
 const otherPage: PageLoader = () => Promise.resolve({ default: TestOtherPage });
+const brokenPage: PageLoader = () => Promise.resolve({ default: TestBrokenPage });
 
 const config: AppRouterConfig = {
   mounts: {
@@ -65,6 +68,7 @@ const config: AppRouterConfig = {
           },
           { path: 'open', breadcrumb: () => ({ label: msg`Open` }), page: otherPage },
           { path: 'tabs/:tab', inPageParams: ['tab'], page },
+          { path: 'broken', page: brokenPage },
         ],
       },
     },
@@ -180,6 +184,33 @@ describe('the app router', () => {
 
     await expect.poll(() => window.location.search).toBe('?nodes=build,test');
     expect(currentPathname()).toBe('/acme/open');
+  });
+});
+
+describe('a page that fails to render', () => {
+  it('shows an error in its place and keeps the layout, the shell and the wrappers', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    breakOnce();
+    await renderAt('/acme/broken');
+
+    expect(await screen.findByText('This page could not be shown')).toBeInTheDocument();
+    expect(screen.getByTestId('layout')).toBeInTheDocument();
+    expect(screen.getByTestId('frame')).toBeInTheDocument();
+    expect(screen.getByTestId('wrapper')).toBeInTheDocument();
+    expect(consoleError).toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
+  it('renders the page again on "Try again"', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    breakOnce();
+    await renderAt('/acme/broken');
+    await screen.findByText('This page could not be shown');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(await screen.findByTestId('broken-page')).toHaveTextContent('recovered');
+    vi.restoreAllMocks();
   });
 });
 
