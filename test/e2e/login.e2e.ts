@@ -10,9 +10,7 @@ test('the sign-in page renders without a backend', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
 });
 
-test('a URL of the app sends a visitor without a session to the sign-in page', async ({
-  page,
-}) => {
+test('a URL of the app sends a visitor without a session to the sign-in page', async ({ page }) => {
   await page.goto('/acme/projects/web/secrets');
 
   await expect(page).toHaveURL(/\/login$/);
