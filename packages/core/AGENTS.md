@@ -40,7 +40,8 @@ src/
       compile-routes.ts                        compileRoutes, AppRouterConfig, mountPath
       nav-entries.ts                           navEntriesFor
     runtime/                                   location, matchRoute, route state, createAppRouter
-    view/RouterView/                           RouterView, RoutePage, RouteEntry
+    view/RouterView/                           RouterView, RoutePage, RouteEntry (+ the error
+                                               boundary of a page, route-entry.messages.ts)
   shell/
     ShellFrame/                                sidebar + top bar around the pages of a `shell` mount
     AppSidebar/                                the sidebar, built from the nav entries
@@ -129,6 +130,10 @@ module gives an access policy.
   on screen for its exit animation; `RoutePage` mounts a new `RouteEntry` for each pathname.
 - **A change of pathname mounts the page again, with its wrappers.** A change of the query
   string does not.
+- **A page that throws fails alone.** `RouteEntry` renders the page inside a `<svelte:boundary>`:
+  the layout, the shell and the wrappers stay, the page shows an error with a "Try again"
+  button (`route-entry.messages.ts`), and the error goes to the console. A redirect and the
+  guard are outside the boundary.
 - **Route parameters arrive as props**, on the page and on each wrapper (`params`).
 - **`permission` is declared once.** The guard and the sidebar read the same value. Never also
   wrap a page in the guard component.
