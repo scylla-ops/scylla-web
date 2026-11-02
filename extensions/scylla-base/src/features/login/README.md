@@ -4,8 +4,7 @@
 > [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
 
 The pages that come before a session, and the session itself: sign-in, sign-out, and the
-password reset by link. It was the first feature migrated to Svelte, which is why
-`refacto_svelte.md` uses it as the yardstick for the recipe.
+password reset by link. It was the first feature migrated to Svelte.
 
 ## The session, end to end
 
