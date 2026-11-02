@@ -84,20 +84,33 @@ const fetchOrUnavailable: typeof fetch = (input, init) =>
     throw new RpcError(error instanceof Error ? error.message : String(error), 'UNAVAILABLE');
   });
 
+/**
+ * The session of the call: the stored token as a `Bearer` header, on the unary calls and on the
+ * server streams alike. Without a token the header is removed: when no options are given,
+ * protobuf-ts hands the interceptor the default options of the transport itself, and a header
+ * set there stays for every later call.
+ */
+const withSession = (options: RpcOptions): RpcOptions => {
+  const token = localStorage.getItem('token');
+  options.meta = options.meta ?? {};
+  if (token) options.meta['Authorization'] = `Bearer ${token}`;
+  else delete options.meta['Authorization'];
+  return options;
+};
+
+const authInterceptor: RpcInterceptor = {
+  interceptUnary(next, method, input, options) {
+    return next(method, input, withSession(options));
+  },
+  interceptServerStreaming(next, method, input, options) {
+    return next(method, input, withSession(options));
+  },
+};
+
 export class ScyllaGrpcTransport {
   private readonly _transport: GrpcWebFetchTransport;
 
   constructor() {
-    const authInterceptor: RpcInterceptor = {
-      interceptUnary(next, method, input, options: RpcOptions) {
-        options.meta = options.meta ?? {};
-        const token = localStorage.getItem('token');
-        if (token) {
-          options.meta['Authorization'] = `Bearer ${token}`;
-        }
-        return next(method, input, options);
-      },
-    };
     this._transport = new GrpcWebFetchTransport({
       baseUrl: import.meta.env.VITE_API_URL ?? '',
       format: 'binary',

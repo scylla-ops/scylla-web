@@ -36,14 +36,18 @@ made every feature and the shell mutually dependent.
 ```
 index.ts                             re-exports the class + creates `grpcTransport`
 scylla-grpc-transport.ts             the transport, its error interceptor and its `fetch`
-__test__/                            the errors of a refused, a failed and an aborted call
+__test__/                            the errors of a refused, a failed and an aborted call, and
+                                     the `Authorization` header of a unary call and of a stream
 ```
 
 ## What the transport does
 
 - `baseUrl` from `import.meta.env.VITE_API_URL` (empty string if unset).
-- **Attaches auth on every unary call**: reads `localStorage.getItem('token')` and, when present, sets
-  `options.meta['Authorization'] = 'Bearer <token>'`.
+- **Attaches the session on every call**, unary and server stream: reads
+  `localStorage.getItem('token')` and sets `options.meta['Authorization'] = 'Bearer <token>'`.
+  Without a token it removes the header. protobuf-ts hands the interceptor the default options
+  of the transport itself when a call gives none, so a header left there would stay for every
+  later call, after a sign-out too.
 
 That `token` key is a three-way contract:
 
@@ -67,8 +71,6 @@ Changing the key or the storage mechanism means changing all three in one commit
   `failedCall(code)` (`@test/grpc.ts`), and read the error with `ScyllaError.from`.
 - **A request that does not get to the server is `UNAVAILABLE`** (`fetchOrUnavailable`), not the
   `INTERNAL` of protobuf-ts. An abort stays `CANCELLED`.
-- The auth interceptor has no `interceptServerStreaming`: a server stream (`tailJobLogs`) is sent
-  without the `Authorization` header.
 - Generated proto clients live in `src/generated/` and are **never hand-edited** — run
   `pnpm gen-proto`.
 - Proto vocabulary stops at infrastructure. Mappers (`grpc-{entity}.mapper.ts`) convert proto types
