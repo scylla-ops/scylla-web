@@ -10,6 +10,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+### Fixed
+
+- The blueprint of the pipeline editor opens with its nodes in the middle of the canvas. Before,
+  they showed on the left. The view frames the nodes again when the canvas changes size, until
+  the user moves the view.
+
 ## [0.6.0] - 2026-11-01
 
 ### Added
