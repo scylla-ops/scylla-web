@@ -84,12 +84,7 @@ const fetchOrUnavailable: typeof fetch = (input, init) =>
     throw new RpcError(error instanceof Error ? error.message : String(error), 'UNAVAILABLE');
   });
 
-/**
- * The session of the call: the stored token as a `Bearer` header, on the unary calls and on the
- * server streams alike. A new options object, never a write into the one given: when a call
- * gives no options, protobuf-ts hands the interceptor the default options of the transport
- * itself, and a header written there would stay for every later call.
- */
+/** A new options object: a write into the one given would land on the defaults of the transport. */
 const withSession = (options: RpcOptions): RpcOptions => {
   const token = localStorage.getItem('token');
   if (!token) return options;

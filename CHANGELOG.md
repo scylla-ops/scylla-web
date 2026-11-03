@@ -10,7 +10,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
-### Fixed
+### Security
 
 - The gRPC transport sets the `Authorization` header on a server stream itself. The live tail of
   the job logs carried the token only because a unary call had written it on the default options

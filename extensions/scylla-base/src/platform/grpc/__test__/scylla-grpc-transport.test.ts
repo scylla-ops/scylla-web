@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { SecretServiceClient } from '@base/generated/scylla/secret/v1/secret.client.ts';
 import { JobServiceClient } from '@base/generated/scylla/job/v1/job.client.ts';
+import type { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { ScyllaGrpcTransport } from '../scylla-grpc-transport.ts';
 
@@ -23,7 +24,7 @@ afterEach(() => {
   localStorage.clear();
 });
 
-/** A gRPC-Web answer with no message, as a stream that ends at once. */
+/** An answer the transport cannot read: only the request matters to these tests. */
 const ok = () =>
   new Response(null, {
     status: 200,
@@ -33,7 +34,7 @@ const ok = () =>
 const authorizationSentTo = (fetchMock: ReturnType<typeof vi.fn>, index = 0) =>
   new Headers((fetchMock.mock.calls[index][1] as RequestInit).headers).get('authorization');
 
-const tailJobLogs = (transport: ReturnType<typeof ScyllaGrpcTransport.prototype.getTransport>) =>
+const tailJobLogs = (transport: GrpcWebFetchTransport) =>
   new JobServiceClient(transport).tailJobLogs({}).status.catch(() => undefined);
 
 describe('ScyllaGrpcTransport', () => {
@@ -103,6 +104,20 @@ describe('ScyllaGrpcTransport', () => {
     await tailJobLogs(transport());
 
     expect(authorizationSentTo(fetchMock)).toBe('Bearer session-token');
+  });
+
+  it('keeps the meta a call gives, beside the token', async () => {
+    localStorage.setItem('token', 'session-token');
+    const fetchMock = vi.fn().mockResolvedValue(ok());
+    vi.stubGlobal('fetch', fetchMock);
+
+    await new SecretServiceClient(transport())
+      .listSecrets({}, { meta: { 'x-trace': 'abc' } })
+      .response.catch(() => undefined);
+
+    const headers = new Headers((fetchMock.mock.calls[0][1] as RequestInit).headers);
+    expect(headers.get('authorization')).toBe('Bearer session-token');
+    expect(headers.get('x-trace')).toBe('abc');
   });
 
   it('sends no token on a call after the session is closed: the defaults of the transport never hold it', async () => {
