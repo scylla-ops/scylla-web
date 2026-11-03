@@ -3,7 +3,10 @@ import { PrincipalKind, type PermissionScope } from '@platform/authz';
 import { createMutation, createQuery, getQueryClient } from '@scylla/core-sdk';
 import { GRANTS_QUERY_KEY, grantMutations, roleQueries } from '@base/features/roles';
 import { toast } from '@scylla/ui/utils';
-import type { MemberRole } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
+import type {
+  MemberRole,
+  ScopeMember,
+} from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import { membershipMessages } from '../messages/membership.messages.ts';
 
 /** The member a page is about to remove, named for the confirmation. */
@@ -16,21 +19,28 @@ export interface ScopeMembershipOptions {
   scope: PermissionScope;
   scopeId: () => string | null;
   canManage: () => boolean;
+  /** The name of a member, for the confirmation of a removal and its toast. */
+  nameOf: (userId: string) => string;
   /** Refreshes the backend's member list, which another feature's query key holds. */
   onMembershipChanged?: () => void;
 }
 
 /**
- * The grants of one scope, and the operations that change who holds what. There is
- * no member RPC: admitting is granting a role; removing is `RevokeAllAccess` at the
+ * The grants of one scope, the operations that change who holds what, and the two dialogs of
+ * a members page: the add dialog (`addOpen`) and the removal to confirm (`pendingRemoval`).
+ * There is no member RPC: admitting is granting a role; removing is `RevokeAllAccess` at the
  * scope and beneath it. `scopeId` and `canManage` are getters: they load after the first render.
  */
 export const createScopeMembership = ({
   scope,
   scopeId,
   canManage,
+  nameOf,
   onMembershipChanged,
 }: ScopeMembershipOptions) => {
+  let addOpen = $state(false);
+  let pendingRemoval = $state<PendingRemoval | null>(null);
+
   const grantsQuery = createQuery(() =>
     roleQueries.scopedGrants(scope, scopeId(), { enabled: canManage() }),
   );
@@ -95,6 +105,27 @@ export const createScopeMembership = ({
     }
   };
 
+  /** The add dialog: every role granted, and a toast. `false` keeps the form open. */
+  const addMember = async (userId: string, roleIds: string[]): Promise<boolean> => {
+    const granted = await grantRoles(userId, roleIds);
+    if (granted) toast.success(i18n._(membershipMessages.memberAdded(roleIds.length)));
+    return granted;
+  };
+
+  const requestRemoval = (member: ScopeMember) => {
+    pendingRemoval = { userId: member.userId, name: nameOf(member.userId) };
+  };
+
+  const cancelRemoval = () => {
+    pendingRemoval = null;
+  };
+
+  const confirmRemoval = async () => {
+    if (!pendingRemoval) return;
+    await removeMember(pendingRemoval.userId, pendingRemoval.name);
+    pendingRemoval = null;
+  };
+
   /** After a change that this view model did not make. */
   const refresh = () => {
     onMembershipChanged?.();
@@ -119,6 +150,19 @@ export const createScopeMembership = ({
     get isRemoving() {
       return revokeAllAccess.isPending;
     },
+    get addOpen() {
+      return addOpen;
+    },
+    set addOpen(value: boolean) {
+      addOpen = value;
+    },
+    get pendingRemoval() {
+      return pendingRemoval;
+    },
+    addMember,
+    requestRemoval,
+    cancelRemoval,
+    confirmRemoval,
     grantRoles,
     addRole,
     revokeRole,

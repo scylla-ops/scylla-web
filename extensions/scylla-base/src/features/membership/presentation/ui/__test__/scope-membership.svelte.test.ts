@@ -57,6 +57,7 @@ const withMembership = async (
       scope: PermissionScope.PROJECT,
       scopeId: () => scopeId,
       canManage: () => true,
+      nameOf: userId => `name of ${userId}`,
       onMembershipChanged,
     });
   });
@@ -198,5 +199,62 @@ describe('removeMember', () => {
 
     expect(onMembershipChanged).not.toHaveBeenCalled();
     expect(toastSuccess).not.toHaveBeenCalled();
+  });
+});
+
+describe('addMember', () => {
+  it('grants every role and confirms the new member once', async () => {
+    await withMembership({}, async state => {
+      await expect(state.addMember('user-1', ['role-a', 'role-b'])).resolves.toBe(true);
+    });
+
+    expect(createGrant).toHaveBeenCalledTimes(2);
+    expect(toastSuccess).toHaveBeenCalledTimes(1);
+  });
+
+  it('answers false and stays silent when a grant fails, so the dialog stays open', async () => {
+    createGrant.mockRejectedValue(new Error('denied'));
+
+    await withMembership({}, async state => {
+      await expect(state.addMember('user-1', ['role-a'])).resolves.toBe(false);
+    });
+
+    expect(toastSuccess).not.toHaveBeenCalled();
+  });
+});
+
+describe('the removal to confirm', () => {
+  const member = { userId: 'user-1', roles: [] };
+
+  it('names the member, then revokes all their access on confirm and forgets them', async () => {
+    await withMembership({}, async state => {
+      state.requestRemoval(member);
+      expect(state.pendingRemoval).toEqual({ userId: 'user-1', name: 'name of user-1' });
+
+      await state.confirmRemoval();
+      expect(state.pendingRemoval).toBeNull();
+    });
+
+    expect(revokeAllAccess).toHaveBeenCalledWith(
+      expect.objectContaining({ principal: { kind: PrincipalKind.USER, id: 'user-1' } }),
+    );
+  });
+
+  it('forgets the member on cancel without a call', async () => {
+    await withMembership({}, state => {
+      state.requestRemoval(member);
+      state.cancelRemoval();
+      expect(state.pendingRemoval).toBeNull();
+    });
+
+    expect(revokeAllAccess).not.toHaveBeenCalled();
+  });
+
+  it('does nothing on confirm when no removal is pending', async () => {
+    await withMembership({}, async state => {
+      await state.confirmRemoval();
+    });
+
+    expect(revokeAllAccess).not.toHaveBeenCalled();
   });
 });

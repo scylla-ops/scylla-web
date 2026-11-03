@@ -1,9 +1,7 @@
-import { i18n } from '@lingui/core';
 import { can, Permission, PermissionScope } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { createQuery } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
-import { toast } from '@scylla/ui/utils';
 import { organizationQueries } from '@base/features/organization';
 import { invalidateProjectMembers, projectQueries } from '@base/features/project';
 import { roleConfers, roleQueries } from '@base/features/roles';
@@ -15,12 +13,8 @@ import {
   type ScopeMember,
 } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import { createAssignableRoles } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
-import {
-  createScopeMembership,
-  type PendingRemoval,
-} from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
+import { createScopeMembership } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
 import type { ProjectMembersContext } from '@base/features/membership/presentation/membership.points.ts';
-import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
 /**
  * The members page of a project: its own grants, the organization roles that reach it, the
@@ -61,19 +55,6 @@ export const createProjectMembersPage = (projectId: () => string | undefined) =>
   const organizationMembers = $derived(organizationMembersQuery.data ?? []);
   const organizationGrants = $derived(organizationGrantsQuery.data ?? []);
 
-  const roles = createAssignableRoles(PermissionScope.PROJECT, () => organizationId);
-
-  const membership = createScopeMembership({
-    scope: PermissionScope.PROJECT,
-    scopeId: () => projectId() ?? null,
-    canManage: () => canManage,
-    // The backend derives members from grants; the grant mutations cannot reach this key.
-    onMembershipChanged: () => void invalidateProjectMembers(projectId() ?? null),
-  });
-
-  let addOpen = $state(false);
-  let pendingRemoval = $state<PendingRemoval | null>(null);
-
   const userById = $derived.by(() => {
     // Rebuilt whole by the `$derived` and never mutated after it is read, so a
     // reactive collection would only make a throwaway object track dependencies.
@@ -85,6 +66,17 @@ export const createProjectMembersPage = (projectId: () => string | undefined) =>
   });
 
   const userFor = (memberId: string) => userById.get(memberId);
+
+  const roles = createAssignableRoles(PermissionScope.PROJECT, () => organizationId);
+
+  const membership = createScopeMembership({
+    scope: PermissionScope.PROJECT,
+    scopeId: () => projectId() ?? null,
+    canManage: () => canManage,
+    nameOf: userId => userName(userFor(userId), missing),
+    // The backend derives members from grants; the grant mutations cannot reach this key.
+    onMembershipChanged: () => void invalidateProjectMembers(projectId() ?? null),
+  });
 
   /** An organization role reaches the project when it confers reading one. `organization-member` does not. */
   const reachesProjects = $derived((roleId: string) =>
@@ -131,22 +123,6 @@ export const createProjectMembersPage = (projectId: () => string | undefined) =>
 
   const canRemove = (member: ScopeMember) => canManage && directRoleIds(member).size > 0;
 
-  const requestRemoval = (member: ScopeMember) => {
-    pendingRemoval = { userId: member.userId, name: userName(userFor(member.userId), missing) };
-  };
-
-  const addMember = async (userId: string, roleIds: string[]) => {
-    const granted = await membership.grantRoles(userId, roleIds);
-    if (granted) toast.success(i18n._(membershipMessages.memberAdded(roleIds.length)));
-    return granted;
-  };
-
-  const removeMember = async () => {
-    if (!pendingRemoval) return;
-    await membership.removeMember(pendingRemoval.userId, pendingRemoval.name);
-    pendingRemoval = null;
-  };
-
   return {
     get organizationName() {
       return context().organization.name ?? '';
@@ -177,40 +153,18 @@ export const createProjectMembersPage = (projectId: () => string | undefined) =>
         membership.isLoading
       );
     },
-    get isPending() {
-      return membership.isPending;
-    },
-    get isRemoving() {
-      return membership.isRemoving;
-    },
     get roles() {
       return roles;
     },
+    get membership() {
+      return membership;
+    },
     get zoneContext() {
       return zoneContext;
-    },
-    get addOpen() {
-      return addOpen;
-    },
-    set addOpen(value: boolean) {
-      addOpen = value;
-    },
-    get pendingRemoval() {
-      return pendingRemoval;
     },
     currentUserId,
     userFor,
     addableRolesFor,
     canRemove,
-    requestRemoval,
-    cancelRemoval: () => {
-      pendingRemoval = null;
-    },
-    revokeRole: membership.revokeRole,
-    addRole: membership.addRole,
-    addMember,
-    removeMember,
   };
 };
-
-export type ProjectMembersPage = ReturnType<typeof createProjectMembersPage>;

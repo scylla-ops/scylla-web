@@ -7,7 +7,7 @@
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
   import MembersHint from '../components/MembersHint/MembersHint.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';
-  import { createProjectMembersPage } from './project-members.state.svelte.ts';
+  import { createProjectMembersPage } from './project-members-page.state.svelte.ts';
 
   interface Props {
     projectId?: string;
@@ -28,7 +28,7 @@
     <GatedButton
       allowed={page.canManage}
       deniedReason={t(membershipMessages.projectNewDenied)}
-      onclick={() => (page.addOpen = true)}
+      onclick={() => (page.membership.addOpen = true)}
     >
       {t(membershipMessages.addAMember)}
     </GatedButton>
@@ -59,14 +59,14 @@
       labelFor={page.roles.labelFor}
       currentUserId={page.currentUserId}
       canManage={page.canManage}
-      disabled={page.isPending}
-      onRevokeRole={role => void page.revokeRole(role)}
+      disabled={page.membership.isPending}
+      onRevokeRole={role => void page.membership.revokeRole(role)}
       addableRolesFor={page.addableRolesFor}
-      onAddRole={(memberId, roleId) => void page.addRole(memberId, roleId)}
+      onAddRole={(memberId, roleId) => void page.membership.addRole(memberId, roleId)}
       emptyRoles={t(membershipMessages.managedByProjectAdmin)}
       canRemove={page.canRemove}
       removeTooltip={t(membershipMessages.removeFromProject)}
-      onRemove={page.requestRemoval}
+      onRemove={page.membership.requestRemoval}
     />
 
     <MembersHint>
@@ -78,8 +78,8 @@
     <WidgetZone point={membershipPoints.projectSection} context={page.zoneContext} />
 
     <AddMemberDialog
-      open={page.addOpen}
-      onOpenChange={open => (page.addOpen = open)}
+      open={page.membership.addOpen}
+      onOpenChange={open => (page.membership.addOpen = open)}
       title={t(membershipMessages.addToProject)}
       description={t(membershipMessages.addToProjectBody)}
       candidates={page.candidates}
@@ -90,19 +90,21 @@
       organizationName={page.organizationName}
       rolesLabel={t(membershipMessages.projectRolesToGrant)}
       rolesLoading={page.roles.isLoading}
-      isPending={page.isPending}
-      onSubmit={page.addMember}
+      isPending={page.membership.isPending}
+      onSubmit={page.membership.addMember}
     />
 
     <ConfirmOperationAlertDialog
-      open={page.pendingRemoval !== null}
+      open={page.membership.pendingRemoval !== null}
       onOpenChange={open => {
-        if (!open) page.cancelRemoval();
+        if (!open) page.membership.cancelRemoval();
       }}
-      isLoading={page.isRemoving}
-      title={t(membershipMessages.confirmRemoveFromProject(page.pendingRemoval?.name ?? ''))}
+      isLoading={page.membership.isRemoving}
+      title={t(
+        membershipMessages.confirmRemoveFromProject(page.membership.pendingRemoval?.name ?? ''),
+      )}
       description={t(membershipMessages.confirmRemoveFromProjectBody)}
-      onContinue={() => void page.removeMember()}
+      onContinue={() => void page.membership.confirmRemoval()}
     />
   </div>
 {/if}

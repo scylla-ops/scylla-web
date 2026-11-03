@@ -1,9 +1,7 @@
-import { i18n } from '@lingui/core';
 import { can, Permission, PermissionScope } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { createQuery } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
-import { toast } from '@scylla/ui/utils';
 import { t } from '@scylla/ui/i18n';
 import { invalidateOrganizationMembers, organizationQueries } from '@base/features/organization';
 import { userQueries, type UserSummary } from '@base/features/user';
@@ -13,10 +11,7 @@ import {
   type ScopeMember,
 } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import { createAssignableRoles } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
-import {
-  createScopeMembership,
-  type PendingRemoval,
-} from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
+import { createScopeMembership } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
 import {
   membershipPoints,
   type OrganizationMembersContext,
@@ -45,12 +40,26 @@ export const createOrganizationMembersPage = () => {
 
   const members = $derived(membersQuery.data ?? []);
 
+  /** The members, with the display name and the email of the directory when it is readable. */
+  const userById = $derived.by(() => {
+    // Rebuilt whole by the `$derived` and never mutated after it is read.
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+    const users = new Map<string, UserSummary>(members.map(member => [member.id, member]));
+    for (const user of usersQuery.data?.items ?? []) {
+      if (users.has(user.id)) users.set(user.id, user);
+    }
+    return users;
+  });
+
+  const userFor = (memberId: string) => userById.get(memberId);
+
   const roles = createAssignableRoles(PermissionScope.ORGANIZATION, () => organizationId);
 
   const membership = createScopeMembership({
     scope: PermissionScope.ORGANIZATION,
     scopeId: () => organizationId,
     canManage: () => canManage,
+    nameOf: userId => userName(userFor(userId)),
     // The backend derives members from grants; the grant mutations cannot reach this key.
     onMembershipChanged: () => void invalidateOrganizationMembers(organizationId),
   });
@@ -65,22 +74,6 @@ export const createOrganizationMembersPage = () => {
       ? t(membershipMessages.onlySystemAdminCanBrowseUsers)
       : t(membershipMessages.organizationNewDenied),
   );
-
-  let addOpen = $state(false);
-  let pendingRemoval = $state<PendingRemoval | null>(null);
-
-  /** The members, with the display name and the email of the directory when it is readable. */
-  const userById = $derived.by(() => {
-    // Rebuilt whole by the `$derived` and never mutated after it is read.
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const users = new Map<string, UserSummary>(members.map(member => [member.id, member]));
-    for (const user of usersQuery.data?.items ?? []) {
-      if (users.has(user.id)) users.set(user.id, user);
-    }
-    return users;
-  });
-
-  const userFor = (memberId: string) => userById.get(memberId);
 
   /** Seeded with the backend's list: someone reached only through a project is listed too. */
   const scopeMembers = $derived(buildOrganizationMembers(membership.grants, [...userById.keys()]));
@@ -105,22 +98,6 @@ export const createOrganizationMembersPage = () => {
 
   const addableRolesFor = (member: ScopeMember) =>
     roles.assignableRoles.filter(role => !member.roles.some(held => held.roleId === role.roleId));
-
-  const requestRemoval = (member: ScopeMember) => {
-    pendingRemoval = { userId: member.userId, name: userName(userFor(member.userId)) };
-  };
-
-  const addMember = async (userId: string, roleIds: string[]) => {
-    const granted = await membership.grantRoles(userId, roleIds);
-    if (granted) toast.success(i18n._(membershipMessages.memberAdded(roleIds.length)));
-    return granted;
-  };
-
-  const removeMember = async () => {
-    if (!pendingRemoval) return;
-    await membership.removeMember(pendingRemoval.userId, pendingRemoval.name);
-    pendingRemoval = null;
-  };
 
   return {
     get organizationId() {
@@ -156,39 +133,17 @@ export const createOrganizationMembersPage = () => {
     get isLoading() {
       return membersQuery.isLoading || membership.isLoading;
     },
-    get isPending() {
-      return membership.isPending;
-    },
-    get isRemoving() {
-      return membership.isRemoving;
-    },
     get roles() {
       return roles;
+    },
+    get membership() {
+      return membership;
     },
     get zoneContext() {
       return zoneContext;
     },
-    get addOpen() {
-      return addOpen;
-    },
-    set addOpen(value: boolean) {
-      addOpen = value;
-    },
-    get pendingRemoval() {
-      return pendingRemoval;
-    },
     currentUserId,
     userFor,
     addableRolesFor,
-    requestRemoval,
-    cancelRemoval: () => {
-      pendingRemoval = null;
-    },
-    revokeRole: membership.revokeRole,
-    addRole: membership.addRole,
-    addMember,
-    removeMember,
   };
 };
-
-export type OrganizationMembersPage = ReturnType<typeof createOrganizationMembersPage>;

@@ -55,11 +55,12 @@ presentation/
   presenters/assignable-roles.presenter.ts   grantable → AssignableRole (no apps roles), and
                                      the grouping by owner the pickers render
   ui/OrganizationMembers/              OrganizationMembers.page.svelte, and its ViewModel
-                                       organization-members.state.svelte.ts
+                                       organization-members-page.state.svelte.ts
   ui/ProjectMembers/                   ProjectMembers.page.svelte, and its ViewModel
-                                       project-members.state.svelte.ts
-  ui/scope-membership.state.svelte.ts   grants → members, plus grant/revoke/refresh (a state
-                                        that both ViewModels compose)
+                                       project-members-page.state.svelte.ts
+  ui/scope-membership.state.svelte.ts   grants → members, grant/revoke/refresh, and the two
+                                        dialogs of a members page (add, removal to confirm):
+                                        a state that both ViewModels compose
   messages/membership.messages.ts          every string — `lingui extract` cannot read `.svelte`
   ui/components/                     AddMemberDialog (+ AddMemberForm), AddRoleSelect,
                                      MemberCard, MemberRoleBadges, MemberRowAction,
@@ -69,11 +70,12 @@ presentation/
 ```
 
 The states take **getters**, not values, for anything that arrives late — the scope id from the
-route or the context store, the permission from a store that loads after first paint. Each
-page creates its ViewModel (`createProjectMembersPage(() => projectId)`,
-`createOrganizationMembersPage()`) and renders what it gives: the page holds no logic.
-Capturing either once freezes the view on the first, usually empty, render. The React hooks
-re-ran on every render and got this for free.
+route or the context store, the permission from a store that loads after first paint.
+Capturing either once freezes the view on the first, usually empty, render. Each page creates
+its ViewModel (`createProjectMembersPage(() => projectId)`, `createOrganizationMembersPage()`)
+and renders what it gives: the page holds no logic. What the two pages do alike (the add dialog,
+the removal to confirm, the toasts) lives once, in `createScopeMembership`, which takes a
+`nameOf(userId)` getter for the confirmation.
 
 No `infrastructure/` — correct, do not add one.
 

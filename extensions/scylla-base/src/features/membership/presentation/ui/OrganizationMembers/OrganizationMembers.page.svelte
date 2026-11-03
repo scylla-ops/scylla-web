@@ -6,7 +6,7 @@
   import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';
-  import { createOrganizationMembersPage } from './organization-members.state.svelte.ts';
+  import { createOrganizationMembersPage } from './organization-members-page.state.svelte.ts';
 
   const page = createOrganizationMembersPage();
 </script>
@@ -19,7 +19,7 @@
         allowed={page.canManage && page.canListUsers}
         deniedReason={page.addDeniedReason}
         variant={page.addVariant}
-        onclick={() => (page.addOpen = true)}
+        onclick={() => (page.membership.addOpen = true)}
       >
         {t(membershipMessages.addAMember)}
       </GatedButton>
@@ -56,23 +56,23 @@
       labelFor={page.roles.labelFor}
       currentUserId={page.currentUserId}
       canManage={page.canManage}
-      disabled={page.isPending}
-      onRevokeRole={role => void page.revokeRole(role)}
+      disabled={page.membership.isPending}
+      onRevokeRole={role => void page.membership.revokeRole(role)}
       addableRolesFor={page.addableRolesFor}
-      onAddRole={(memberId, roleId) => void page.addRole(memberId, roleId)}
+      onAddRole={(memberId, roleId) => void page.membership.addRole(memberId, roleId)}
       emptyRoles={page.canManage
         ? t(membershipMessages.reachedViaProject)
         : t(membershipMessages.managedByOrgAdmin)}
       canRemove={() => page.canManage}
       removeTooltip={t(membershipMessages.removeFromOrganization)}
-      onRemove={page.requestRemoval}
+      onRemove={page.membership.requestRemoval}
     />
 
     <WidgetZone point={membershipPoints.organizationSection} context={page.zoneContext} />
 
     <AddMemberDialog
-      open={page.addOpen}
-      onOpenChange={open => (page.addOpen = open)}
+      open={page.membership.addOpen}
+      onOpenChange={open => (page.membership.addOpen = open)}
       title={t(membershipMessages.addToOrganization(page.organizationName))}
       description={t(membershipMessages.addToOrganizationBody)}
       candidates={page.candidates}
@@ -81,25 +81,25 @@
       organizationName={page.organizationName}
       rolesLabel={t(membershipMessages.rolesToGrant)}
       rolesLoading={page.roles.isLoading}
-      isPending={page.isPending}
+      isPending={page.membership.isPending}
       defaultRoleId={page.defaultRoleId}
-      onSubmit={page.addMember}
+      onSubmit={page.membership.addMember}
     />
 
     <ConfirmOperationAlertDialog
-      open={page.pendingRemoval !== null}
+      open={page.membership.pendingRemoval !== null}
       onOpenChange={open => {
-        if (!open) page.cancelRemoval();
+        if (!open) page.membership.cancelRemoval();
       }}
-      isLoading={page.isRemoving}
+      isLoading={page.membership.isRemoving}
       title={t(
         membershipMessages.confirmRemoveFromOrganization(
-          page.pendingRemoval?.name ?? '',
+          page.membership.pendingRemoval?.name ?? '',
           page.organizationName,
         ),
       )}
       description={t(membershipMessages.confirmRemoveFromOrganizationBody)}
-      onContinue={() => void page.removeMember()}
+      onContinue={() => void page.membership.confirmRemoval()}
     />
   </div>
 {/if}
