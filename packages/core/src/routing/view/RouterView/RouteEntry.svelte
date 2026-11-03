@@ -14,30 +14,47 @@
   const wrappers = route?.wrappers ?? [];
   const Guard = routeGuard();
 
-  /** The boundary swallows the error: write it, so a bug of a page is still seen. */
+  /** The boundary and the catch swallow the error: write it, so a bug of a page is still seen. */
   const reportPageError = (error: unknown) => console.error('[RouteEntry] page failed', error);
+
+  const failing = (error: unknown): never => {
+    reportPageError(error);
+    throw error;
+  };
+
+  /** "Try again" after a chunk that could not load: a new import of the page. */
+  let attempt = $state(0);
+  const loading = $derived.by(() => {
+    void attempt;
+    return route?.page?.().catch(failing);
+  });
 </script>
+
+{#snippet failure(retry: () => void)}
+  <div class="flex h-full flex-col items-center justify-center gap-4">
+    <ErrorState
+      title={t(routeEntryMessages.pageFailed)}
+      message={t(routeEntryMessages.pageFailedBody)}
+    />
+    <Button variant="outline" onclick={retry}>{t(routeEntryMessages.tryAgain)}</Button>
+  </div>
+{/snippet}
 
 {#snippet content()}
   {#if route?.redirect !== undefined}
     <Redirect to={route.redirect} />
-  {:else if route?.page}
-    {#await route.page() then module}
+  {:else if loading}
+    {#await loading then module}
       {@const Page = module.default as Component<RouteParams>}
-      <!-- A page that throws fails alone: the layout, the shell and the wrappers stay. -->
       <svelte:boundary onerror={reportPageError}>
         <Page {...params} />
 
         {#snippet failed(_error, reset)}
-          <div class="flex h-full flex-col items-center justify-center gap-4">
-            <ErrorState
-              title={t(routeEntryMessages.pageFailed)}
-              message={t(routeEntryMessages.pageFailedBody)}
-            />
-            <Button variant="outline" onclick={reset}>{t(routeEntryMessages.tryAgain)}</Button>
-          </div>
+          {@render failure(reset)}
         {/snippet}
       </svelte:boundary>
+    {:catch}
+      {@render failure(() => attempt++)}
     {/await}
   {/if}
 {/snippet}
