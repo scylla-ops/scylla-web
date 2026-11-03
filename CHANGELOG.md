@@ -12,8 +12,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
-- The log panel of a job shows an error when the log stream fails before its first line. It
-  showed an empty log, and wrote the failure in the console only.
+- The log panel of a job shows an error when the log stream fails before its first line, and
+  says under the lines when a live tail stops. It showed an empty or a frozen log, and wrote the
+  failure in the console only.
 
 ## [0.6.0] - 2026-11-01
 

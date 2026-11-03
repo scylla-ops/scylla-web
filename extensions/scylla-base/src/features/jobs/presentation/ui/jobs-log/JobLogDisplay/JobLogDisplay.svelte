@@ -40,5 +40,10 @@
 {:else}
   <div class="min-w-0 w-full overflow-hidden">
     <div {@attach renderCodeMirror(() => ({ extensions, onView: stream.attach }))}></div>
+    {#if tail.error}
+      <p role="status" class="px-3 py-1 text-xs text-destructive">
+        {t(jobsMessages.liveTailStopped)}
+      </p>
+    {/if}
   </div>
 {/if}

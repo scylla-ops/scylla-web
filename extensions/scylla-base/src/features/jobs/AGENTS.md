@@ -58,8 +58,9 @@ Never add: `jobs.module.ts`, and never export a `.svelte` component from this ba
 the handle immediately. It is a genuine outside-the-framework subscription, so it belongs in
 `tail-job-logs.state.svelte.ts` — and **the stream is always closed on teardown**. A failure of
 the stream ends the iteration of `logs` with a throw: the state logs the failure, exposes it as
-`error`, and keeps the lines read before it. `isError` is set only when no line was read, so the
-panel shows the error instead of an empty log, and a view can tell a live tail that broke.
+`error`, and keeps the lines read before it. `isError` is set only when no line was read: the
+panel then shows the error instead of an empty log; after some lines, it says under them that
+the live tail stopped.
 
 Each method rejects with a `ScyllaError` on failure. Reach it from `jobs.queries.ts` only — never from a component.
 

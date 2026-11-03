@@ -63,4 +63,5 @@ export const jobsMessages = {
 
   loading: msg`Loading...`,
   logsError: msg`Error loading logs...`,
+  liveTailStopped: msg`The live tail stopped. The lines above were read before it broke.`,
 };

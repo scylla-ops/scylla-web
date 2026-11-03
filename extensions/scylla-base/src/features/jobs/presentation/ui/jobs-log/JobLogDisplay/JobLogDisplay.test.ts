@@ -59,6 +59,23 @@ describe('JobLogDisplay', () => {
     expect(await screen.findByText('Error loading logs...')).toBeInTheDocument();
   });
 
+  it('keeps the lines and says so under them when the live tail stops', async () => {
+    install(() => ({
+      // eslint-disable-next-line @typescript-eslint/require-await
+      logs: (async function* () {
+        yield logLine('first line');
+        throw new ScyllaError('gone', { code: 'UNAVAILABLE' });
+      })(),
+      cancel: vi.fn(),
+    }));
+
+    render(JobLogDisplay, { jobId: 'job-1' });
+
+    expect(await screen.findByRole('status')).toHaveTextContent('The live tail stopped.');
+    expect(editor()?.textContent).toContain('first line');
+    expect(screen.queryByText('Error loading logs...')).not.toBeInTheDocument();
+  });
+
   it('writes the streamed lines into the editor document', async () => {
     install(() => streamOf(['first line', 'second line']));
 
