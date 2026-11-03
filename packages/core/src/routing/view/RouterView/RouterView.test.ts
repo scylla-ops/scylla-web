@@ -19,7 +19,7 @@ import {
 } from '../../__test__/test-permission.fixture.ts';
 import type { AppRouterConfig } from '../../compilation/compile-routes.ts';
 import { createAppRouter } from '../../runtime/app-router.ts';
-import { breakOnce } from './fixtures/broken-page.fixture.ts';
+import { breakLoadOnce, breakOnce, failsThisLoad } from './fixtures/broken-page.fixture.ts';
 import TestBrokenPage from './fixtures/TestBrokenPage.fixture.svelte';
 import TestFallback from './fixtures/TestFallback.fixture.svelte';
 import TestFrame from './fixtures/TestFrame.fixture.svelte';
@@ -33,6 +33,11 @@ import RouterView from './RouterView.svelte';
 const page: PageLoader = () => Promise.resolve({ default: TestPage });
 const otherPage: PageLoader = () => Promise.resolve({ default: TestOtherPage });
 const brokenPage: PageLoader = () => Promise.resolve({ default: TestBrokenPage });
+/** A chunk that is gone after a deploy: the import rejects. */
+const stalePage: PageLoader = () =>
+  failsThisLoad()
+    ? Promise.reject(new Error('stale chunk'))
+    : Promise.resolve({ default: TestOtherPage });
 
 const config: AppRouterConfig = {
   mounts: {
@@ -69,6 +74,7 @@ const config: AppRouterConfig = {
           { path: 'open', breadcrumb: () => ({ label: msg`Open` }), page: otherPage },
           { path: 'tabs/:tab', inPageParams: ['tab'], page },
           { path: 'broken', page: brokenPage },
+          { path: 'stale', page: stalePage },
         ],
       },
     },
@@ -187,9 +193,18 @@ describe('the app router', () => {
   });
 });
 
-describe('a page that fails to render', () => {
-  it('shows an error in its place and keeps the layout, the shell and the wrappers', async () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+describe('a page that fails', () => {
+  let consoleError: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('shows an error in its place when its render throws, and keeps the layout, the shell and the wrappers', async () => {
     breakOnce();
     await renderAt('/acme/broken');
 
@@ -198,11 +213,9 @@ describe('a page that fails to render', () => {
     expect(screen.getByTestId('frame')).toBeInTheDocument();
     expect(screen.getByTestId('wrapper')).toBeInTheDocument();
     expect(consoleError).toHaveBeenCalled();
-    consoleError.mockRestore();
   });
 
   it('renders the page again on "Try again"', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => undefined);
     breakOnce();
     await renderAt('/acme/broken');
     await screen.findByText('This page could not be shown');
@@ -210,7 +223,25 @@ describe('a page that fails to render', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
 
     expect(await screen.findByTestId('broken-page')).toHaveTextContent('recovered');
-    vi.restoreAllMocks();
+  });
+
+  it('shows the same error when its chunk cannot be loaded, and keeps the frame', async () => {
+    breakLoadOnce();
+    await renderAt('/acme/stale');
+
+    expect(await screen.findByText('This page could not be shown')).toBeInTheDocument();
+    expect(screen.getByTestId('frame')).toBeInTheDocument();
+    expect(consoleError).toHaveBeenCalled();
+  });
+
+  it('imports the page again on "Try again" after a chunk that could not be loaded', async () => {
+    breakLoadOnce();
+    await renderAt('/acme/stale');
+    await screen.findByText('This page could not be shown');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(await screen.findByTestId('other-page')).toBeInTheDocument();
   });
 });
 

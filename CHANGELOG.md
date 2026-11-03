@@ -22,8 +22,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   failure in the console only.
 ### Added
 
-- A page that fails to render shows an error in its place, with a "Try again" button. The
-  sidebar, the top bar and the other pages keep working.
+- A page that fails to load or to render shows an error in its place, with a "Try again" button.
+  The sidebar, the top bar and the other pages keep working.
 
 ## [0.6.0] - 2026-11-01
 
