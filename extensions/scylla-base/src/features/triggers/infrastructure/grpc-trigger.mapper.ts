@@ -16,6 +16,7 @@ import type {
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import {
   idValue,
+  required,
   timestampToIso,
   timestampToIsoOpt,
   wrapId,
@@ -87,11 +88,9 @@ export function toDomainList(triggers: ProtoTrigger[]): TriggerEntity[] {
 }
 
 export function createdToDomain(response: CreateTriggerResponse): CreatedTrigger {
-  if (!response.trigger) {
-    throw new Error('CreateTrigger returned no trigger');
-  }
+  const trigger = required(response.trigger, 'trigger');
   return {
-    trigger: toDomain(response.trigger),
+    trigger: toDomain(trigger),
     webhookSecret: response.webhookSecret,
   };
 }

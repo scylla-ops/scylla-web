@@ -10,14 +10,11 @@ import type { IUserServiceClient } from '@base/generated/scylla/user/v1/user.cli
 import type { User } from '@base/generated/scylla/user/v1/user.ts';
 import type { PasswordResetDelivery } from '@base/features/login';
 import type { PaginatedList } from '@scylla/ui/structs';
-import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcUser from './grpc-user.mapper.ts';
 
-/** The wrapped entity is optional on the wire: fail here rather than pass an empty user on. */
-const requireUser = (user: User | undefined): UserEntity => {
-  if (!user) throw new Error('Server returned a response without a user.');
-  return grpcUser.toDomain(user);
-};
+const requireUser = (user: User | undefined): UserEntity =>
+  grpcUser.toDomain(required(user, 'user'));
 
 export class DefaultUserRepository implements UserRepository {
   constructor(private readonly client: IUserServiceClient) {}

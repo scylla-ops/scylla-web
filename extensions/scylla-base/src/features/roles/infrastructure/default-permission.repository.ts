@@ -17,12 +17,7 @@ import * as grpcGrant from './grpc-grant.mapper.ts';
 import * as grpcGrantableRole from './grpc-grantable-role.mapper.ts';
 import * as grpcEffectivePermissions from './grpc-effective-permissions.mapper.ts';
 import * as grpcPermission from './grpc-permission.mapper.ts';
-
-/** The backend always fills the wrapped entity on success: a missing one is a protocol error. */
-const required = <T>(value: T | undefined, what: string): T => {
-  if (value === undefined) throw new Error(`The server response carried no ${what}.`);
-  return value;
-};
+import { required } from '@shared/infrastructure/grpc/wrappers.ts';
 
 const organizationRef = (organizationId?: string) =>
   organizationId ? { value: organizationId } : undefined;

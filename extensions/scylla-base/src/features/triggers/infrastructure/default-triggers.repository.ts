@@ -6,13 +6,11 @@ import type {
 import type { TriggersRepository } from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import type { ITriggerServiceClient } from '@base/generated/scylla/trigger/v1/trigger.client.ts';
 import type { Trigger } from '@base/generated/scylla/trigger/v1/trigger.ts';
-import { idValue, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { idValue, required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcTrigger from './grpc-trigger.mapper.ts';
 
-const requireTrigger = (trigger: Trigger | undefined, rpc: string): TriggerEntity => {
-  if (!trigger) throw new Error(`${rpc} returned no trigger`);
-  return grpcTrigger.toDomain(trigger);
-};
+const requireTrigger = (trigger: Trigger | undefined): TriggerEntity =>
+  grpcTrigger.toDomain(required(trigger, 'trigger'));
 
 export class DefaultTriggersRepository implements TriggersRepository {
   constructor(private readonly client: ITriggerServiceClient) {}
@@ -25,7 +23,7 @@ export class DefaultTriggersRepository implements TriggersRepository {
 
   public async getById(triggerId: string): Promise<TriggerEntity> {
     const response = await this.client.getTrigger({ triggerId: wrapId(triggerId) }).response;
-    return requireTrigger(response.trigger, 'GetTrigger');
+    return requireTrigger(response.trigger);
   }
 
   public async create(pipelineId: string, draft: TriggerDraft): Promise<CreatedTrigger> {
@@ -39,7 +37,7 @@ export class DefaultTriggersRepository implements TriggersRepository {
     const response = await this.client.updateTrigger(
       grpcTrigger.draftToUpdateRequest(triggerId, draft),
     ).response;
-    return requireTrigger(response.trigger, 'UpdateTrigger');
+    return requireTrigger(response.trigger);
   }
 
   public async deleteById(triggerId: string): Promise<void> {
@@ -51,7 +49,7 @@ export class DefaultTriggersRepository implements TriggersRepository {
       triggerId: wrapId(triggerId),
       enabled,
     }).response;
-    return requireTrigger(response.trigger, 'SetTriggerEnabled');
+    return requireTrigger(response.trigger);
   }
 
   /** Gives only the id of the job it created. */

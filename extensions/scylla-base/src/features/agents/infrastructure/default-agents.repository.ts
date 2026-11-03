@@ -9,7 +9,7 @@ import type {
   AgentJobPipeline,
 } from '@base/features/agents/domain/entities/agent.entity.ts';
 import type { AgentsRepository } from '@base/features/agents/domain/repository/agents.repository.ts';
-import { idValue, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { idValue, required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcAgent from './grpc-agent.mapper.ts';
 
 /** One page for the whole organization, as the pipeline lookups of `pipeline`. */
@@ -30,14 +30,12 @@ export class DefaultAgentsRepository implements AgentsRepository {
 
   async getAgent(agentId: string): Promise<AgentEntity> {
     const response = await this.client.getAgent({ agentId: wrapId(agentId) }).response;
-    if (!response.agent) throw new Error('GetAgent returned no agent');
-    return grpcAgent.toDomain(response.agent);
+    return grpcAgent.toDomain(required(response.agent, 'agent'));
   }
 
   async getAgentStats(agentId: string): Promise<AgentStats> {
     const response = await this.client.getAgentStats({ agentId: wrapId(agentId) }).response;
-    if (!response.stats) throw new Error('GetAgentStats returned no stats');
-    return grpcAgent.statsToDomain(response.stats);
+    return grpcAgent.statsToDomain(required(response.stats, 'agent stats'));
   }
 
   async createAgent(organizationId: string, name: string): Promise<CreatedAgent> {
@@ -45,8 +43,10 @@ export class DefaultAgentsRepository implements AgentsRepository {
       organizationId: wrapId(organizationId),
       name,
     }).response;
-    if (!response.agent) throw new Error('CreateAgent returned no agent');
-    return { agent: grpcAgent.toDomain(response.agent), secret: response.secret };
+    return {
+      agent: grpcAgent.toDomain(required(response.agent, 'agent')),
+      secret: response.secret,
+    };
   }
 
   async deleteAgent(agentId: string): Promise<void> {

@@ -3,15 +3,12 @@ import type { OrganizationEntity } from '@base/features/organization/domain/enti
 import type { IOrganizationServiceClient } from '@base/generated/scylla/organization/v1/organization.client.ts';
 import type { Organization } from '@base/generated/scylla/organization/v1/organization.ts';
 import type { UserSummary } from '@base/features/user';
-import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcOrganization from './grpc-organization.mapper.ts';
 import * as grpcOrganizationMember from './grpc-organization-member.mapper.ts';
 
-/** The server always fills it on success: an absent one is a protocol error. */
-const requireOrganization = (organization?: Organization): OrganizationEntity => {
-  if (!organization) throw new Error('Server returned no organization.');
-  return grpcOrganization.toDomain(organization);
-};
+const requireOrganization = (organization?: Organization): OrganizationEntity =>
+  grpcOrganization.toDomain(required(organization, 'organization'));
 
 export class DefaultOrganizationRepository implements OrganizationRepository {
   constructor(private readonly client: IOrganizationServiceClient) {}
