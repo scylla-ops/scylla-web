@@ -53,9 +53,8 @@ syncMyPermissions  (this module)  ──fills──▶  permissionsStore  (platf
 ```
 
 `syncMyPermissions` is a plain function with the "has anything actually changed?" guard inside
-it — user, organization, project. That guard used to be a React ref inside an effect, which is
-why the shell had to be careful about how often it re-rendered; now the shell can call it as
-often as it likes and the backend is hit only when the answer could differ. The shell still owns
+it — user, organization, project. The shell can call it as often as it likes: the backend is
+hit only when the answer could differ. The shell still owns
 *when*, and it is the only caller.
 
 The corollary matters when you change grants: if a mutation could affect the *current* user's
@@ -110,8 +109,7 @@ renders from the catalog is a presenter, not domain.
 
 **Infrastructure** carries six mappers, one per proto shape.
 
-**Presentation** is Svelte since Phase 4, and the shape of it is the part worth knowing. The
-thirteen React hooks collapsed into two kinds of file: `roles.queries.ts`, which declares every
+**Presentation** has two kinds of file: `roles.queries.ts`, which declares every
 read and write as a plain options object with no framework in it, and four
 `*.state.svelte.ts` ViewModels, one per view rather than one per module. The queries file is what
 lets `membership` and the shell read the same role catalog out of the same cache

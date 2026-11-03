@@ -92,5 +92,5 @@ of a `ScyllaError`. See
 
 - [features/login](../../features/login/README.md) — writes the token this transport reads.
 - [shell](../../shell/README.md) — the auth guard reading the same key.
-- [`@scylla/core-sdk`](../../../../../sdks/core-sdk/README.md) — how the repositories built on this transport reach the hooks.
+- [`@scylla/core-sdk`](../../../../../sdks/core-sdk/README.md) — how the repositories built on this transport reach the queries.
 - [shared](../../shared/README.md) — `ScyllaError`.

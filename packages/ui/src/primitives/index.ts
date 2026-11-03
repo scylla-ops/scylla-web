@@ -2,8 +2,7 @@
  * The primitives, adapted from shadcn/ui and ported to Svelte on bits-ui (see README.md).
  *
  * Ported on demand: a primitive lands here when its first consumer needs it.
- * Class strings are copied verbatim from shadcn/ui, which is why the design
- * survived the migration from React untouched.
+ * Class strings are copied verbatim from shadcn/ui, which keeps its design.
  */
 import {
   AlertDialog as AlertDialogPrimitive,
@@ -101,7 +100,11 @@ export { default as RadioGroupItem } from './radio-group/radio-group-item.svelte
 
 export { default as ToggleGroup } from './toggle-group/toggle-group.svelte';
 export { default as ToggleGroupItem } from './toggle-group/toggle-group-item.svelte';
-export { toggleVariants, type ToggleSize, type ToggleVariant } from './toggle-group/toggle-variants.ts';
+export {
+  toggleVariants,
+  type ToggleSize,
+  type ToggleVariant,
+} from './toggle-group/toggle-variants.ts';
 
 export { default as Tabs } from './tabs/tabs.svelte';
 export { default as TabsContent } from './tabs/tabs-content.svelte';

@@ -10,10 +10,8 @@ Ready-made pipeline templates a project can start from.
 - Must never import: `shell/`, `@scylla/core`, another feature's internals.
 - Outside code reaches this module **only** through `index.ts`.
 
-**Presentation is Svelte**. Domain and infrastructure are
-unchanged. There is no `use-<feature>-domain.ts` and no hooks: reads and writes are declared as
-options objects in `presentation/*.queries.ts`, which a component or another feature runs with
-`createQuery`.
+Reads and writes are declared as options objects in `presentation/*.queries.ts`, which a
+component or another feature runs with `createQuery`.
 
 ## Public API — `index.ts`
 

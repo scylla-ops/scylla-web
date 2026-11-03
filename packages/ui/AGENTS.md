@@ -97,7 +97,7 @@ language. The checks are the app's, with translated messages:
 
 ## Rune states: `state/`
 
-There are no hooks. Three rules carry over from the migration and still bite:
+Three rules bite here:
 
 - **A list that arrives later is passed as a getter, not an array.** `createFeatureSelection`
   takes `() => string[]` and `createFormState` takes `() => items`. Capturing the value once

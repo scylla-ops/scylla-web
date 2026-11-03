@@ -39,8 +39,7 @@ const TOGGLE_GROUP_STYLE = Symbol('ToggleGroupStyle');
 /**
  * How a group tells its items how to look.
  *
- * The React version used a `Context.Provider` for exactly this; Svelte's
- * context is the same idea with no component in the tree. It carries only
+ * A Svelte context: a provider with no component in the tree. It carries only
  * styling — the pressed state and the keyboard roving stay inside bits-ui — so
  * an item outside a group still renders, with the `cva` defaults.
  */

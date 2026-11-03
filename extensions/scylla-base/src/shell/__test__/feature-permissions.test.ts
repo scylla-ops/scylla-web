@@ -103,7 +103,7 @@ describe('feature permission conformance', () => {
    * A query another feature uses runs outside its owner's route guard, so it must
    * check its permission itself (like `jobsByPipelinesQueries`).
    */
-  describe('a query hook consumed across a feature boundary checks for itself', () => {
+  describe('a query consumed across a feature boundary checks for itself', () => {
     const isSharedRead = (name: string) => /Queries$/.test(name);
 
     const barrelExports = new Map(
@@ -134,7 +134,7 @@ describe('feature permission conformance', () => {
       }
     }
 
-    interface SharedHook {
+    interface SharedQuery {
       readonly key: string;
       readonly consumers: readonly string[];
       readonly selfGated: boolean;
@@ -145,7 +145,7 @@ describe('feature permission conformance', () => {
       file: string,
       exportPattern: RegExp,
       gatePattern: RegExp,
-    ): SharedHook[] => {
+    ): SharedQuery[] => {
       const source = code(file);
       const exported = barrelExports.get(featureId) ?? new Set<string>();
 
@@ -166,7 +166,7 @@ describe('feature permission conformance', () => {
     };
 
     // A `*.queries.ts` factory gates with a `can(...)` inside its options.
-    const sharedHooks: SharedHook[] = featureDirs.flatMap(feature =>
+    const sharedQueries: SharedQuery[] = featureDirs.flatMap(feature =>
       sourcesIn(join(feature.dir, 'presentation'))
         .filter(file => file.endsWith('.queries.ts'))
         .flatMap(file =>
@@ -175,29 +175,26 @@ describe('feature permission conformance', () => {
     );
 
     /** A ratchet. `TRIAGE`: nobody decided yet what the consuming page should show instead. */
-    const UNCHECKED_SHARED_HOOKS: Readonly<Record<string, string>> = {
+    const UNCHECKED_SHARED_QUERIES: Readonly<Record<string, string>> = {
       'jobs.jobQueries':
-        'The entry `useOrganizationJobs` left behind. `byOrganization`, the read that crosses ' +
-        'the barrel, is organization-scoped and filtered server-side; the per-project fan-out it ' +
-        'replaced cost one PERMISSION_DENIED toast per unreadable project — see ' +
-        'use-org-overview.ts. The fan-out that *does* check lives in its own file precisely so ' +
-        'its `can(` does not vouch for this one.',
+        '`byOrganization`, the read that crosses the barrel, is organization-scoped and filtered ' +
+        'server-side: there is nothing to gate client-side. A per-project fan-out would cost one ' +
+        'PERMISSION_DENIED toast per unreadable project. The fan-out that does check, ' +
+        '`jobsByPipelinesQueries`, lives in its own file precisely so its `can(` does not vouch ' +
+        'for this one.',
       'pipeline.pipelineQueries':
-        'The entry `useOrganizationPipelines` left behind, for the same reason as jobQueries: ' +
-        '`byOrganization` is the one read that crosses the barrel, and ' +
-        '`ListOrganizationPipelines` is scoped server-side, so there is nothing to gate ' +
-        "client-side. The hook is now this factory's React binding and goes in Phase 5.",
+        'The same reason as jobQueries: `byOrganization` is the one read that crosses the ' +
+        'barrel, and `ListOrganizationPipelines` is scoped server-side, so there is nothing to ' +
+        'gate client-side.',
       'organization.organizationQueries':
-        'One entry where there were three hooks, and the same reasons. `members` is consumed by ' +
-        'membership, whose route requires LIST_ORGANIZATION_MEMBERS — the permission the read ' +
+        '`members` is consumed by membership, whose route requires LIST_ORGANIZATION_MEMBERS — the permission the read ' +
         'needs, so the route guard covers it. TRIAGE for `mine`: roles consumes it on a route ' +
         'requiring MANAGE_ROLES, and listing organizations is a different permission.',
       'secret.secretQueries':
         "TRIAGE: consumed by pipeline's step dialog to offer secret names, on an editor route " +
-        'requiring UPDATE_PIPELINE rather than LIST_SECRETS. Newly listed rather than newly ' +
-        'true — `useSecrets` crossed the same boundary before the factory replaced it.',
+        'requiring UPDATE_PIPELINE rather than LIST_SECRETS.',
       'roles.roleQueries':
-        'The entry `useGrantableRoles` left behind, and a decision rather than debt: every read ' +
+        'A decision rather than debt: every read ' +
         "this factory exposes across the barrel takes the caller's gate as `enabled`, which is " +
         'the only place the answer is known. `grantable` needs no permission without an ' +
         'organization and READ_ORGANIZATION with one; `catalog`, `organizationCatalog` and ' +
@@ -207,35 +204,35 @@ describe('feature permission conformance', () => {
         'permission for reads that each need their own.',
     };
 
-    it('finds the shared hooks it is supposed to check', () => {
-      expect(sharedHooks.length).toBeGreaterThan(5);
+    it('finds the shared queries it is supposed to check', () => {
+      expect(sharedQueries.length).toBeGreaterThan(5);
     });
 
-    it.each(sharedHooks.map(hook => [hook.key, hook] as const))('%s', (key, hook) => {
-      if (key in UNCHECKED_SHARED_HOOKS) {
+    it.each(sharedQueries.map(query => [query.key, query] as const))('%s', (key, query) => {
+      if (key in UNCHECKED_SHARED_QUERIES) {
         expect(
-          hook.selfGated,
-          `${key} now checks for itself — drop it from UNCHECKED_SHARED_HOOKS, the list only shrinks.`,
+          query.selfGated,
+          `${key} now checks for itself — drop it from UNCHECKED_SHARED_QUERIES, the list only shrinks.`,
         ).toBe(false);
         return;
       }
 
       expect(
-        hook.selfGated,
-        `${key} is consumed by ${hook.consumers.join(', ')}, so it runs outside its own route ` +
+        query.selfGated,
+        `${key} is consumed by ${query.consumers.join(', ')}, so it runs outside its own route ` +
           'guard: those pages were entered on their permission, not this one. Gate the query ' +
-          'with `enabled: ready && can(...)` as useJobsByPipelines does, or list it in ' +
-          'UNCHECKED_SHARED_HOOKS with the reason.',
+          'with `enabled: ready && can(...)` as jobsByPipelinesQueries does, or list it in ' +
+          'UNCHECKED_SHARED_QUERIES with the reason.',
       ).toBe(true);
     });
 
-    it('the unchecked list names only hooks that still cross a boundary', () => {
-      const live = new Set(sharedHooks.map(hook => hook.key));
-      const stale = Object.keys(UNCHECKED_SHARED_HOOKS).filter(key => !live.has(key));
+    it('the unchecked list names only queries that still cross a boundary', () => {
+      const live = new Set(sharedQueries.map(query => query.key));
+      const stale = Object.keys(UNCHECKED_SHARED_QUERIES).filter(key => !live.has(key));
 
       expect(
         stale,
-        'these UNCHECKED_SHARED_HOOKS entries are no longer shared — delete them',
+        'these UNCHECKED_SHARED_QUERIES entries are no longer shared — delete them',
       ).toEqual([]);
     });
   });

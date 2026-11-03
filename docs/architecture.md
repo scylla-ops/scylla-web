@@ -684,3 +684,8 @@ runtime merges them into one map, so `pnpm i18n:collisions` must stay at zero.
 | Vite 7 | Build tool |
 | Vitest + Testing Library | Tests |
 | dependency-cruiser | Architecture rules |
+
+No SvelteKit, on purpose: `dist/` is embedded in the Rust binary (`rust-embed`), which serves it
+as static files. There is no Node runtime in production, so no server routes and no SSR. The
+router is written in `@scylla/core` for the same reason: the routes are declared by the modules
+of the extensions, which no file-based router can read.

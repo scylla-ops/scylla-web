@@ -2,7 +2,7 @@
 
 The organization landing page: projects, pipelines and recent runs at a glance.
 
-**Layer** `features/` · **id** `dashboard` · **DI key** none (`domain: {}`) · **Svelte** (Phase 4)
+**Layer** `features/` · **id** `dashboard` · **DI key** none (`domain: {}`)
 
 ## Import rules
 

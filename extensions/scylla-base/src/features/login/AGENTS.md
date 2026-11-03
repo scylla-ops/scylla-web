@@ -11,9 +11,6 @@ come before it.
 - Must never import: `shell/`, `@scylla/core`, another feature's internals.
 - Outside code reaches this module **only** through `index.ts`.
 
-**Presentation is Svelte**. Domain and infrastructure never had
-a framework in them.
-
 ## Public API — `index.ts`
 
 ```typescript

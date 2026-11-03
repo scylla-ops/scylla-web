@@ -10,7 +10,7 @@ describe('PageTransition', () => {
     expect(screen.getByRole('main')).toHaveTextContent('Secrets page');
   });
 
-  it('keeps both pages mounted across a key change, which is what React could not do', async () => {
+  it('keeps both pages mounted across a key change', async () => {
     const { rerender } = render(PageTransition, {
       key: '/secrets',
       children: textSnippet('Secrets page'),

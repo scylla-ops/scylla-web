@@ -128,8 +128,7 @@ an apps permission such as `LIST_APPS_BY_ORGANIZATION`, `page`-import the pages 
 - **New strings go in `messages/apps.messages.ts`, never inside a `.svelte`.** Extraction does not read
   components, so a message declared there vanishes from the catalogs without failing a gate.
 - Both icon-only controls on `AppCard` carry an `sr-only` label (`App actions`, `Delete app`).
-  The React original had none, so the only way to reach them in a test was a CSS selector. Keep
-  the labels.
+  Without them, the only way to reach them in a test is a CSS selector. Keep the labels.
 - **A bits-ui menu lives in a floating layer**, which floating-ui leaves `visibility: hidden`
   under jsdom: `getByRole('menuitem')` finds nothing. Use `findFloating` from
   `test/render.ts`.

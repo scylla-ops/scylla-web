@@ -2,8 +2,7 @@
 
 Access-control administration: the role catalog and the grants.
 
-**Layer** `features/` · **id** `roles` · **DI keys** `permissionRepository`, `updateRole` ·
-**Svelte** (Phase 4)
+**Layer** `features/` · **id** `roles` · **DI keys** `permissionRepository`, `updateRole`
 
 ## Import rules
 

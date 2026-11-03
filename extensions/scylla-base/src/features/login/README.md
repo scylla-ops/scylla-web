@@ -4,7 +4,7 @@
 > [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
 
 The pages that come before a session, and the session itself: sign-in, sign-out, and the
-password reset by link. It was the first feature migrated to Svelte.
+password reset by link.
 
 ## The session, end to end
 

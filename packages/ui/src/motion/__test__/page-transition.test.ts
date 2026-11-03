@@ -49,7 +49,7 @@ describe('page transitions', () => {
     expect(inAt(PAGE_OUT_MS + PAGE_IN_MS / 2)).not.toContain('opacity: 0;');
   });
 
-  it('settles the incoming page within the 400 ms that the React transition took', () => {
+  it('settles the incoming page within 400 ms', () => {
     setReducedMotion(false);
 
     expect(pageIn().duration).toBe(PAGE_OUT_MS + PAGE_IN_MS);

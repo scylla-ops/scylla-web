@@ -126,7 +126,7 @@ describe('RolePermissions', () => {
     ).toBeInTheDocument();
   });
 
-  it('gives its expand control a name, which the React original never had', async () => {
+  it('gives its expand control a name', async () => {
     mount();
 
     const collapse = screen.getAllByRole('button', { name: /sub-permissions$/ })[0];
