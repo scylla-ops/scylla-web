@@ -47,7 +47,7 @@ would only give the next contributor somewhere wrong to put a query.
 - **Run activity** (`RunActivityCard`) — recent job volume and outcomes across the workspace.
 - **Agent outcomes** (`AgentOutcomesChart`) — success/failure trend over time, drawn in plain
   SVG. It used to be `recharts`, whose 119 kB gzip (plus `d3-*` and `victory-vendor`) served
-  exactly this one chart; Phase 4 of the Svelte migration replaced it with
+  exactly this one chart; it is replaced by
   `presenters/outcomes-chart.presenter.ts` — scales, monotone curves and whole-number ticks, ~150 lines of
   arithmetic tested with no DOM — and markup around it. The curve is still monotone
   (Fritsch–Carlson) because a plain spline through run counts dips below zero between two empty

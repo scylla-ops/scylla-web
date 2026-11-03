@@ -141,8 +141,7 @@ holding it that they are not split.
 - Cron parsing/formatting lives in `mappers/cron.mapper.ts`; `CronScheduleBuilder` is the only place that
   composes an expression. Do not hand-roll cron strings in a component.
 - **`CronScheduleBuilder` does not emit on mount**, deliberately: its parent seeds its own state
-  from the same string, so a mount-time emit only re-sends what the parent already has. The React
-  effect did, on every open.
+  from the same string, so a mount-time emit only re-sends what the parent already has.
 - **The form is seeded once.** `TriggerForm` reads its `$state` initializers when it mounts, and
   the page mounts it again for another trigger. Do not add an effect that watches `trigger`.
 - **New strings go in `messages/triggers.messages.ts`, never inside a `.svelte`.** Extraction does not

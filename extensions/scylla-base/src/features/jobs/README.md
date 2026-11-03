@@ -53,8 +53,8 @@ awaiting a response. The presentation layer subscribes to it in `tail-job-logs.s
 closes it on teardown — a stream is a system outside the framework, and that is what actions and
 `*.state.svelte.ts` owners are for, not reactivity.
 
-**Presentation** is the largest layer: a query-key factory module, the `*.queries.ts` factories
-that replaced the hooks, the `jobs-table/` folder holding the table, its columns and its cells
+**Presentation** is the largest layer: a query-key factory module, the `*.queries.ts` factories,
+the `jobs-table/` folder holding the table, its columns and its cells
 (`JobStatus`, `JobTimeline`, `JobActions`), and the `JobDetails/` page folder holding the two halves of the
 details page — `JobSummary` (what the run did) and `JobNodeLogs` (what it printed, per node).
 The streamed viewer itself, `jobs-log/JobLogDisplay`, is shared by both pages.

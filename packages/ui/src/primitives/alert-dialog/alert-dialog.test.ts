@@ -11,7 +11,7 @@ describe('AlertDialog', () => {
     expect(screen.queryByRole('alertdialog')).toBeNull();
   });
 
-  it('is an alertdialog, not a dialog — which the React original never was', async () => {
+  it('is an alertdialog, not a dialog', async () => {
     render(AlertDialogFixture, { open: true });
 
     const dialog = await screen.findByRole('alertdialog');

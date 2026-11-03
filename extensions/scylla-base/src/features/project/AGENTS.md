@@ -10,10 +10,8 @@ Projects: the unit that owns pipelines, secrets and its own member list.
 - Must never import: `shell/`, `@scylla/core`, another feature's internals.
 - Outside code reaches this module **only** through `index.ts`.
 
-**Presentation is Svelte**. Domain and infrastructure are
-unchanged. There is no `use-<feature>-domain.ts` and no hooks: reads and writes are declared as
-options objects in `presentation/*.queries.ts`, which a component or another feature runs with
-`createQuery`.
+Reads and writes are declared as options objects in `presentation/*.queries.ts`, which a
+component or another feature runs with `createQuery`.
 
 ## Public API — `index.ts`
 
@@ -45,7 +43,7 @@ Never add: `project.module.ts`, pages.
 | `update(projectId, name?, description?)` | `ProjectEntity` |
 | `delete(projectId)` | `void` |
 
-Reach it with `useProjectDomain()` **inside a hook only**.
+Reach it from `presentation/project.queries.ts` only, never from a component.
 
 ## Layout
 

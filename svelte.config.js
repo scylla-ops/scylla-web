@@ -10,7 +10,6 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
  *
  * No SvelteKit: `dist/` (built from `apps/web`) is embedded in the Rust binary by
  * `rust-embed`, so there is never a Node runtime to host server routes.
- * See `refacto_svelte.md` §0.
  *
  * @type {import('@sveltejs/vite-plugin-svelte').SvelteConfig}
  */

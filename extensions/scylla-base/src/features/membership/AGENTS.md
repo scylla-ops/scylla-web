@@ -159,7 +159,7 @@ Sidebar: one entry only — section `workspace`, order `30`, icon `UsersRound`, 
   `plural(value, { 0: … })`; the two compile to the same `=0 {…}` arm, which is what kept the
   translation attached. `MemberCard.fr.test.ts` is what proves it — no gate would have.
 - `AddMemberDialog` splits into a dialog and an `AddMemberForm` on purpose: the form owns the
-  selection, so `{#key open}` on it *is* the reset React needed an effect for.
+  selection, so `{#key open}` on it is the reset: no effect.
 - A bits-ui select's options live in a floating layer jsdom hides. Reach them with
   `findFloating('option', …)` from `test/render.ts`, never `getByText`.
 

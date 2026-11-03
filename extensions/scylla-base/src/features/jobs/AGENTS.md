@@ -150,7 +150,7 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
 - **The details page is the one place a job's logs are read.** Everywhere a job is displayed —
   the jobs table's view action and timeline, the pipeline dashboard's history and last run —
   links there through `scyllaNavigate.goToJobDetails(...)` from `@platform/context`, which is an
-  object, not a hook. Which log panels are open is the `nodes` search param, not component
+  object. Which log panels are open is the `nodes` search param, not component
   state (`open-log-panels.state.svelte.ts` owns it), so those links can open straight onto one node's
   logs.
 - **The whole job and the nodes are exclusive.** The details page opens a `JobLogDisplay` per node

@@ -21,7 +21,7 @@ never import a feature, and the moment this store held a `ProjectEntity` it woul
 cycle between the two.
 
 Keeping it to ids and names means it never needs to know what a project *is*. A component that
-needs more reads the id from here and calls the owning feature's hook with it. The store is a
+needs more reads the id from here and runs the owning feature's query with it. The store is a
 pointer, not a cache.
 
 The same reasoning explains why it is one of only two global stores in the app (the other being

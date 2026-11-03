@@ -18,7 +18,7 @@ only module declaration that does not take `grpcTransport` — because there is 
 transport.
 
 This is a reasonable state to be in, and it illustrates why the layering pays off. The page,
-the hook and the domain contract are all written against `MarketplaceRepository.getMarketplace()`.
+the queries and the domain contract are all written against `MarketplaceRepository.getMarketplace()`.
 When the backend endpoint appears, the work is confined to `infrastructure/`: add a mapper, give
 the repository the generated client, build that client in the module file. `MarketItem`, `marketplaceQueries` and every component stay
 exactly as they are.

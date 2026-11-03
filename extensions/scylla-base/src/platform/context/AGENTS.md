@@ -43,11 +43,11 @@ it below the features that own those entities.
 
 **Never widen it.** Adding a `ProjectEntity` here would make `platform/` import a feature and
 break the layer. If a component needs more than an id and a name, it reads the id from here and
-calls that feature's hook.
+runs that feature's query.
 
 Persistence: `createStore` (`@scylla/ui/stores`) keeps it in
 `localStorage` under key `scylla-context`, so a reload keeps the user where they were. The stored
-format is the format that Zustand used before Phase 6, so a stored context stays valid.
+format does not change: a context stored by an earlier version stays valid.
 
 ## Cascade on workspace change
 

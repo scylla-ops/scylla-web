@@ -503,8 +503,7 @@ export const JOBS_QUERY_KEY = (pipelineId: string) =>
 ## Svelte — Best Practices
 
 Svelte 5, **runes only** (`svelte.config.js` sets `runes: true`). No SvelteKit: the build is a
-static SPA that the Rust binary serves. See `docs/architecture.md`, "Tech stack", for the
-reasons.
+static SPA that the Rust binary serves. `docs/architecture.md`, "Tech stack", gives the reasons.
 
 ### Where the logic goes
 
@@ -763,7 +762,7 @@ the gating of a *button* is declared nowhere a type can see it:
 
 All three rules answer **completeness, not correctness**: they cannot tell you the permission on
 a button is the wrong one. That stays the job of the per-component tests. `UNGATED_FEATURES` and
-`UNCHECKED_SHARED_HOOKS` are ratchets seeded with today's state; `SEEDED DEBT` and `TRIAGE`
+`UNCHECKED_SHARED_QUERIES` are ratchets seeded with today's state; `SEEDED DEBT` and `TRIAGE`
 entries are open questions, not decisions.
 
 ### Coverage

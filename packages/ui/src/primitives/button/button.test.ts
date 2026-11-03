@@ -8,7 +8,7 @@ import Button from './button.svelte';
  * The primitives are vendored and excluded from coverage, so this is not about
  * hitting lines. It pins the two things the port could silently get wrong: the
  * app-owned attributes the rest of the suite queries by, and the `href` arm that
- * replaces React's `asChild`.
+ * replaces `asChild` of shadcn/ui.
  */
 describe('Button', () => {
   it('is found by its accessible role and name', () => {
@@ -26,7 +26,7 @@ describe('Button', () => {
     expect(button).toHaveAttribute('data-size', 'sm');
   });
 
-  it('defaults to the default variant and size, as the React one does', () => {
+  it('defaults to the default variant and size, as shadcn/ui does', () => {
     render(Button, { children: textSnippet('Go') });
 
     const button = screen.getByRole('button', { name: 'Go' });
