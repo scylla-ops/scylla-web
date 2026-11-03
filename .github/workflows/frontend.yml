@@ -137,9 +137,22 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      # The built app in a real Chromium, with no backend: the pages before the sign-in.
+      # The built app in a real Chromium, with no backend: the pages before the sign-in. The
+      # browser is cached by the version of Playwright in the lockfile.
+      - name: Cache Chromium
+        id: chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
       - name: Install Chromium
+        if: steps.chromium.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install the system dependencies of Chromium
+        if: steps.chromium.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
 
       - name: End-to-end smoke tests
         run: pnpm run test:e2e
