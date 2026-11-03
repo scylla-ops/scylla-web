@@ -204,6 +204,7 @@ describe('createTailJobLogs', () => {
 
     expect(tail().text).toBe('before');
     expect(tail().isError).toBe(false);
+    expect(tail().error).toBe(failure);
     expect(logged).toHaveBeenCalled();
     cleanup();
   });
