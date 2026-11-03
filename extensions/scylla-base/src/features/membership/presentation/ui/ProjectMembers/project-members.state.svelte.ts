@@ -15,14 +15,12 @@ import {
   type ScopeMember,
 } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import { createAssignableRoles } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
-import { createScopeMembership } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
+import {
+  createScopeMembership,
+  type PendingRemoval,
+} from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
 import type { ProjectMembersContext } from '@base/features/membership/presentation/membership.points.ts';
 import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
-
-export interface PendingRemoval {
-  userId: string;
-  name: string;
-}
 
 /**
  * The members page of a project: its own grants, the organization roles that reach it, the

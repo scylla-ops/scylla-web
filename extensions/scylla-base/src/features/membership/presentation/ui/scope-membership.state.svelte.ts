@@ -6,6 +6,12 @@ import { toast } from '@scylla/ui/utils';
 import type { MemberRole } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import { membershipMessages } from '../messages/membership.messages.ts';
 
+/** The member a page is about to remove, named for the confirmation. */
+export interface PendingRemoval {
+  userId: string;
+  name: string;
+}
+
 export interface ScopeMembershipOptions {
   scope: PermissionScope;
   scopeId: () => string | null;

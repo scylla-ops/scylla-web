@@ -13,13 +13,15 @@ import {
   type ScopeMember,
 } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import { createAssignableRoles } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
-import { createScopeMembership } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
+import {
+  createScopeMembership,
+  type PendingRemoval,
+} from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
 import {
   membershipPoints,
   type OrganizationMembersContext,
 } from '@base/features/membership/presentation/membership.points.ts';
 import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
-import type { PendingRemoval } from '../ProjectMembers/project-members.state.svelte.ts';
 
 /** The builtin that only means "belongs here". */
 const ORGANIZATION_MEMBER_ROLE_ID = 'organization-member';
