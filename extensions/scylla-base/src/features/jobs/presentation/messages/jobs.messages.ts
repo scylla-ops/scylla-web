@@ -67,4 +67,5 @@ export const jobsMessages = {
   noLogs: msg`No log was written.`,
   nodeSkipped: msg`It did not run, because another node of the job failed first.`,
   agent: msg`Agent`,
+  liveTailStopped: msg`The live tail stopped. The lines above were read before it broke.`,
 };

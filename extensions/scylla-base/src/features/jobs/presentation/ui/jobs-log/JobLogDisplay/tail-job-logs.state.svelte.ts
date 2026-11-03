@@ -9,10 +9,10 @@ const FLUSH_INTERVAL_MS = 150;
 export interface TailedLogs {
   readonly text: string;
   readonly isLoading: boolean;
-  /** No line to show, and a failure instead. */
+  /** A failure before any line: the panel shows it instead of an empty log. */
   readonly isError: boolean;
   readonly isEnded: boolean;
-  /** The failure of the stream, with or without lines before it. */
+  /** The failure of the stream. After some lines, they stay and the panel says it stopped. */
   readonly error: ScyllaError | null;
 }
 
@@ -82,8 +82,6 @@ export const createTailJobLogs = ({ jobId, nodeId }: TailJobLogsOptions): Tailed
         if (!active) return;
         const thrown = ScyllaError.from(failure);
         thrown.log();
-        // The failure is readable either way. The lines already read stay on screen: `isError`
-        // replaces the log only when there is none, so the panel says why it is empty.
         error = thrown;
         isError = lines.length === 0;
       }

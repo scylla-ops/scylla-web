@@ -209,6 +209,10 @@ msgstr "Flux de sortie en direct"
 msgid "The job failed"
 msgstr "Le job a échoué"
 
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:70
+msgid "The live tail stopped. The lines above were read before it broke."
+msgstr "Le suivi en direct s'est arrêté. Les lignes ci-dessus ont été lues avant la coupure."
+
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:19
 msgid "Timeline"
 msgstr "Chronologie"
