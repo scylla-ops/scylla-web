@@ -13,8 +13,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 ### Fixed
 
 - The gRPC transport sets the `Authorization` header on a server stream itself. The live tail of
-  the job logs carried the token only because a unary call had set it on the default options of
-  the transport before. The header is removed when the session is closed.
+  the job logs carried the token only because a unary call had written it on the default options
+  of the transport before. The transport no longer writes there: a closed session sends no token.
 
 ## [0.6.0] - 2026-11-01
 

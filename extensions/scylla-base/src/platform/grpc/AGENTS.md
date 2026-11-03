@@ -44,10 +44,10 @@ __test__/                            the errors of a refused, a failed and an ab
 
 - `baseUrl` from `import.meta.env.VITE_API_URL` (empty string if unset).
 - **Attaches the session on every call**, unary and server stream: reads
-  `localStorage.getItem('token')` and sets `options.meta['Authorization'] = 'Bearer <token>'`.
-  Without a token it removes the header. protobuf-ts hands the interceptor the default options
-  of the transport itself when a call gives none, so a header left there would stay for every
-  later call, after a sign-out too.
+  `localStorage.getItem('token')` and gives `next` a new options object with
+  `meta.Authorization = 'Bearer <token>'`. It never writes into the options it receives:
+  protobuf-ts hands the interceptor the default options of the transport itself when a call
+  gives none, and a header written there would stay for every later call, after a sign-out too.
 
 That `token` key is a three-way contract:
 

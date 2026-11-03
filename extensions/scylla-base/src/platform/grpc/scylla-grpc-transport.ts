@@ -86,16 +86,14 @@ const fetchOrUnavailable: typeof fetch = (input, init) =>
 
 /**
  * The session of the call: the stored token as a `Bearer` header, on the unary calls and on the
- * server streams alike. Without a token the header is removed: when no options are given,
- * protobuf-ts hands the interceptor the default options of the transport itself, and a header
- * set there stays for every later call.
+ * server streams alike. A new options object, never a write into the one given: when a call
+ * gives no options, protobuf-ts hands the interceptor the default options of the transport
+ * itself, and a header written there would stay for every later call.
  */
 const withSession = (options: RpcOptions): RpcOptions => {
   const token = localStorage.getItem('token');
-  options.meta = options.meta ?? {};
-  if (token) options.meta['Authorization'] = `Bearer ${token}`;
-  else delete options.meta['Authorization'];
-  return options;
+  if (!token) return options;
+  return { ...options, meta: { ...options.meta, Authorization: `Bearer ${token}` } };
 };
 
 const authInterceptor: RpcInterceptor = {

@@ -105,7 +105,7 @@ describe('ScyllaGrpcTransport', () => {
     expect(authorizationSentTo(fetchMock)).toBe('Bearer session-token');
   });
 
-  it('sends no token on a call after the session is closed', async () => {
+  it('sends no token on a call after the session is closed: the defaults of the transport never hold it', async () => {
     const shared = transport();
     localStorage.setItem('token', 'session-token');
     const fetchMock = vi.fn().mockResolvedValue(ok());
