@@ -2,15 +2,17 @@ import { t } from '@lingui/core/macro';
 import type { GrpcStatusCode } from '@protobuf-ts/grpcweb-transport';
 
 /**
- * The gRPC status names, plus our own codes: `INVALID_CREDENTIALS` from `login`, and
+ * The gRPC status names, plus our own codes: `INVALID_CREDENTIALS` from `login`;
  * `MALFORMED_RESPONSE` when the server answers without the entity it must carry (`required` in
- * `shared/infrastructure/grpc/wrappers.ts`).
+ * `shared/infrastructure/grpc/wrappers.ts`); `UNSUPPORTED_RESPONSE` when it answers with a
+ * value this build cannot read, from a newer server.
  */
 export type ScyllaErrorCode =
   | keyof typeof GrpcStatusCode
   | 'UNKNOWN_ERROR'
   | 'INVALID_CREDENTIALS'
-  | 'MALFORMED_RESPONSE';
+  | 'MALFORMED_RESPONSE'
+  | 'UNSUPPORTED_RESPONSE';
 
 export interface ScyllaErrorOptions extends ErrorOptions {
   code?: ScyllaErrorCode;

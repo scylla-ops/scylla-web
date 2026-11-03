@@ -1,6 +1,6 @@
 import type { ISecretServiceClient } from '@base/generated/scylla/secret/v1/secret.client.ts';
 import type { IPipelineServiceClient } from '@base/generated/scylla/pipeline/v1/pipeline.client.ts';
-import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import type {
   CreateSecretInput,
   SecretEntity,
@@ -9,7 +9,6 @@ import type {
 import type { SecretUsage } from '@base/features/secret/domain/structs/secret-usage.struct.ts';
 import type { SecretRepository } from '@base/features/secret/domain/repository/secret.repository.ts';
 import * as grpcSecret from './grpc-secret.mapper.ts';
-import { required } from '@shared/infrastructure/grpc/wrappers.ts';
 
 const USAGE_PAGE = { page: 1, pageSize: 10 };
 

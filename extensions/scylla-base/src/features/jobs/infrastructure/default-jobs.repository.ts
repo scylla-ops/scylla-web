@@ -5,7 +5,7 @@ import type {
   JobLogStream,
 } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { IJobServiceClient } from '@base/generated/scylla/job/v1/job.client.ts';
-import { required, wrapId, wrapIdOpt } from '@shared/infrastructure/grpc/wrappers.ts';
+import { idValue, required, wrapId, wrapIdOpt } from '@shared/infrastructure/grpc/wrappers.ts';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import * as grpcJob from './grpc-job.mapper.ts';
 
@@ -45,7 +45,7 @@ export class DefaultJobsRepository implements JobsRepository {
 
   public async rerun(jobId: string): Promise<string> {
     const response = await this.client.rerunJob({ jobId: wrapId(jobId) }).response;
-    return required(response.jobId?.value || undefined, 'job id');
+    return required(idValue(response.jobId), 'job id');
   }
 
   public async getLogs(

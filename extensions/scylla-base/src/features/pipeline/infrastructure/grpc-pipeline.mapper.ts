@@ -28,7 +28,7 @@ function shellToProto(s: NodeShell): Shell {
 class UnknownArmError extends ScyllaError {
   constructor(what: string) {
     super(`${what} uses a variant this client doesn't understand — update Scylla`, {
-      code: 'MALFORMED_RESPONSE',
+      code: 'UNSUPPORTED_RESPONSE',
       raw: true,
     });
   }

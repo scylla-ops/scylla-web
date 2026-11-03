@@ -7,9 +7,8 @@ import type {
   CreatedAppSecret,
 } from '@base/features/apps/domain/entities/app.entity.ts';
 import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
-import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcApp from './grpc-app.mapper.ts';
-import { required } from '@shared/infrastructure/grpc/wrappers.ts';
 
 export class DefaultAppsRepository implements AppsRepository {
   constructor(private readonly client: IAppServiceClient) {}

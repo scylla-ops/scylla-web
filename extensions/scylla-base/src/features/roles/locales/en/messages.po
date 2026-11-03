@@ -38,14 +38,6 @@ msgstr "{organization} roles"
 msgid "{preservedCount, plural, one {This role also holds # permission not managed here. It is kept unchanged.} other {This role also holds # permissions not managed here. They are kept unchanged.}}"
 msgstr "{preservedCount, plural, one {This role also holds # permission not managed here. It is kept unchanged.} other {This role also holds # permissions not managed here. They are kept unchanged.}}"
 
-#: extensions/scylla-base/src/features/roles/infrastructure/grpc-permission.mapper.ts:130
-msgid "A principal must be chosen before sending it to the backend."
-msgstr "A principal must be chosen before sending it to the backend."
-
-#: extensions/scylla-base/src/features/roles/infrastructure/grpc-permission.mapper.ts:105
-msgid "A scope must be chosen before sending it to the backend."
-msgstr "A scope must be chosen before sending it to the backend."
-
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:103
 msgid "Access"
 msgstr "Access"
@@ -529,10 +521,6 @@ msgstr "Show {label} sub-permissions"
 msgid "System"
 msgstr "System"
 
-#: extensions/scylla-base/src/features/roles/infrastructure/grpc-role.mapper.ts:46
-msgid "The admin kind is reserved for the builtin roles."
-msgstr "The admin kind is reserved for the builtin roles."
-
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:76
 msgid "The name and the description that the role list shows."
 msgstr "The name and the description that the role list shows."
@@ -548,10 +536,6 @@ msgstr "This role grants access across the whole system."
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:47
 msgid "This role is for apps. People cannot hold it."
 msgstr "This role is for apps. People cannot hold it."
-
-#: extensions/scylla-base/src/features/roles/infrastructure/grpc-role.mapper.ts:66
-msgid "This role uses an access mode this version does not understand; it cannot be updated here."
-msgstr "This role uses an access mode this version does not understand; it cannot be updated here."
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:30
 #: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:101

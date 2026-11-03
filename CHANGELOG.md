@@ -10,6 +10,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** `ScyllaErrorCode` of `@scylla/base-sdk` has two more members:
+  `MALFORMED_RESPONSE` (the server answered without the entity it must carry) and
+  `UNSUPPORTED_RESPONSE` (it answered with a value this build cannot read). A map over every
+  code must list them. `required` of the shared gRPC wrappers gives the first.
+
 ## [0.6.0] - 2026-11-01
 
 ### Added
