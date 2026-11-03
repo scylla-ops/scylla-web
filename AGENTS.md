@@ -763,7 +763,7 @@ entries are open questions, not decisions.
 ### End-to-end
 
 `test/e2e/*.e2e.ts` run the built app in a real Chromium, with no backend (`playwright.config.ts`
-serves `dist/` with `vite preview`). They cover what jsdom cannot: the real router, the real
+serves `dist/` with `vite preview`, and refuses to start without a build). They cover what jsdom cannot: the real router, the real
 transport, the real chunks. Keep them few and on the pages before the sign-in, or route the
 backend calls with `page.route`. Vitest does not pick them up: their suffix is `.e2e.ts`, not
 `.test.ts`. CI runs them in the `static` job, after the build.

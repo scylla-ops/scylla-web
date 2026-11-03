@@ -8,6 +8,7 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: 'test/e2e',
   testMatch: '**/*.e2e.ts',
+  globalSetup: './test/e2e/check-build.ts',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
