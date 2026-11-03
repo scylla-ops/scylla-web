@@ -38,6 +38,14 @@ msgstr "Rôles de l'organisation {organization}"
 msgid "{preservedCount, plural, one {This role also holds # permission not managed here. It is kept unchanged.} other {This role also holds # permissions not managed here. They are kept unchanged.}}"
 msgstr "{preservedCount, plural, one {Ce rôle détient aussi # permission non gérée ici. Elle est conservée telle quelle.} other {Ce rôle détient aussi # permissions non gérées ici. Elles sont conservées telles quelles.}}"
 
+#: extensions/scylla-base/src/features/roles/infrastructure/grpc-permission.mapper.ts:130
+msgid "A principal must be chosen before sending it to the backend."
+msgstr "Un principal doit être choisi avant l'envoi au serveur."
+
+#: extensions/scylla-base/src/features/roles/infrastructure/grpc-permission.mapper.ts:105
+msgid "A scope must be chosen before sending it to the backend."
+msgstr "Une portée doit être choisie avant l'envoi au serveur."
+
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:103
 msgid "Access"
 msgstr "Accès"
@@ -521,6 +529,10 @@ msgstr "Afficher les sous-permissions de {label}"
 msgid "System"
 msgstr "Système"
 
+#: extensions/scylla-base/src/features/roles/infrastructure/grpc-role.mapper.ts:46
+msgid "The admin kind is reserved for the builtin roles."
+msgstr "Le type admin est réservé aux rôles intégrés."
+
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:76
 msgid "The name and the description that the role list shows."
 msgstr "Le nom et la description qu'affiche la liste des rôles."
@@ -536,6 +548,10 @@ msgstr "Ce rôle donne accès à tout le système."
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:47
 msgid "This role is for apps. People cannot hold it."
 msgstr "Ce rôle est réservé aux applications. Une personne ne peut pas le détenir."
+
+#: extensions/scylla-base/src/features/roles/infrastructure/grpc-role.mapper.ts:66
+msgid "This role uses an access mode this version does not understand; it cannot be updated here."
+msgstr "Ce rôle utilise un mode d'accès que cette version ne connaît pas ; il ne peut pas être modifié ici."
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:30
 #: extensions/scylla-base/src/features/roles/presentation/presenters/permission-label.presenter.ts:101

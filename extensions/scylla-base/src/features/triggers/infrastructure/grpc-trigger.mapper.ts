@@ -16,11 +16,11 @@ import type {
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import {
   idValue,
+  required,
   timestampToIso,
   timestampToIsoOpt,
   wrapId,
 } from '@shared/infrastructure/grpc/wrappers.ts';
-import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
 function sourceToDomain(source: ProtoTrigger['source']): TriggerSource {
   switch (source.oneofKind) {
@@ -88,11 +88,9 @@ export function toDomainList(triggers: ProtoTrigger[]): TriggerEntity[] {
 }
 
 export function createdToDomain(response: CreateTriggerResponse): CreatedTrigger {
-  if (!response.trigger) {
-    throw new ScyllaError('CreateTrigger returned no trigger', { code: 'INTERNAL', raw: true });
-  }
+  const trigger = required(response.trigger, 'trigger');
   return {
-    trigger: toDomain(response.trigger),
+    trigger: toDomain(trigger),
     webhookSecret: response.webhookSecret,
   };
 }

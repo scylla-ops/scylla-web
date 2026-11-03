@@ -66,12 +66,10 @@ describe('DefaultUserRepository', () => {
     const fake = client();
     fake.getMe.mockReturnValue(unaryCall({} as { user: User }));
 
-    await expect(repositoryOn(fake).getMe()).rejects.toThrow(
-      'Server returned a response without a user.',
-    );
     await expect(repositoryOn(fake).getMe()).rejects.toMatchObject({
       name: 'ScyllaError',
-      code: 'INTERNAL',
+      code: 'MALFORMED_RESPONSE',
+      message: 'The server response carried no user.',
     });
   });
 

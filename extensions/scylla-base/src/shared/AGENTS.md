@@ -25,7 +25,8 @@ utils/
   date-utils.ts, slug.ts, status-config.ts, job-status.utils.ts, toast-messages.ts
 domain/structs/job-status.struct.ts  JobStatus, isActiveStatus, isFinishedStatus: the status of a
                                      job, which `jobs` and `agents` both read (`jobs` re-exports it)
-infrastructure/grpc/wrappers.ts      proto helpers
+infrastructure/grpc/wrappers.ts      proto helpers, and `required`: the entity a response must carry
+                                     (MALFORMED_RESPONSE when the server left it out)
 presentation/ui/index.ts             `@shared/presentation/ui`
   data-display/                      StatusBar, STATUS_ICONS / getStatusIcon,
                                      UserIdentity, UserAvatar, userName, userSecondaryLine,

@@ -17,17 +17,7 @@ import * as grpcGrant from './grpc-grant.mapper.ts';
 import * as grpcGrantableRole from './grpc-grantable-role.mapper.ts';
 import * as grpcEffectivePermissions from './grpc-effective-permissions.mapper.ts';
 import * as grpcPermission from './grpc-permission.mapper.ts';
-import { ScyllaError } from '@shared/utils/scylla-error.ts';
-
-/** The backend always fills the wrapped entity on success: a missing one is a protocol error. */
-const required = <T>(value: T | undefined, what: string): T => {
-  if (value === undefined)
-    throw new ScyllaError(`The server response carried no ${what}.`, {
-      code: 'INTERNAL',
-      raw: true,
-    });
-  return value;
-};
+import { required } from '@shared/infrastructure/grpc/wrappers.ts';
 
 const organizationRef = (organizationId?: string) =>
   organizationId ? { value: organizationId } : undefined;
@@ -64,7 +54,9 @@ export class DefaultPermissionRepository implements PermissionRepository {
     await this.roles.deleteRole({ roleId: { value: id } }).response;
   }
 
-  public async getEffectivePermissions(principal: Principal): Promise<EffectivePermissions> {
+  public async getEffectivePermissions(
+    principal: Principal,
+  ): Promise<EffectivePermissions> {
     const response = await this.roles.getEffectivePermissions({
       principal: grpcPermission.principalRefToGrpc(principal),
     }).response;

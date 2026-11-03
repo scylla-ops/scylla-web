@@ -432,10 +432,11 @@ no Result type: TanStack Query already holds the success or the failure of each 
   error toast of the app, and `retryQueryError` retries only a transient code.
 - **To give a code a more precise meaning, catch, re-code and throw**, in the repository (the
   `login` repository makes `UNAUTHENTICATED` into `INVALID_CREDENTIALS`).
-- **A fault of the protocol is `INTERNAL`.** A response without the entity it must carry, or a
-  value that a mapper cannot send, throws ``new ScyllaError('…', { code: 'INTERNAL', raw: true })``:
-  the toast shows the generic text, the console shows the message. Never a plain `Error`: it
-  would come out as `UNKNOWN_ERROR`, with no code to branch on.
+- **A response without the entity it must carry is `MALFORMED_RESPONSE`**: a repository or a
+  mapper reads it with `required(response.agent, 'agent')` (`@shared/infrastructure/grpc/wrappers.ts`),
+  and so does a oneof arm this build cannot read. The toast shows the generic text, the console
+  shows what is missing. A value that a mapper cannot send is `INVALID_ARGUMENT`, with a text of
+  the app. Never a plain `Error`: it would come out as `UNKNOWN_ERROR`, with no code to branch on.
 - **To show a refusal beside a field, not in the toast,** use `refusalOf(call)`: it gives the
   message of a `FAILED_PRECONDITION` and throws any other error.
 - **Read an unknown value with `ScyllaError.from(error)`**: a `ScyllaError` stays as it is, an

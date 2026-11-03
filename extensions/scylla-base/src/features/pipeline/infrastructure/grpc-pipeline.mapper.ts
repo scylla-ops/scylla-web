@@ -14,6 +14,7 @@ import type {
 import { Shell } from '@base/generated/scylla/exec/v1/step.ts';
 import type { PaginationInfo, PaginatedList } from '@scylla/ui/structs';
 import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
 function shellFromProto(s: Shell): NodeShell {
   return s === Shell.BASH ? 'bash' : 'sh';
@@ -24,9 +25,12 @@ function shellToProto(s: NodeShell): Shell {
 }
 
 /** A oneof arm this build does not know: refuse the pipeline, or saving it would erase the arm on the server. */
-class UnknownArmError extends Error {
+class UnknownArmError extends ScyllaError {
   constructor(what: string) {
-    super(`${what} uses a variant this client doesn't understand — update Scylla`);
+    super(`${what} uses a variant this client doesn't understand — update Scylla`, {
+      code: 'MALFORMED_RESPONSE',
+      raw: true,
+    });
   }
 }
 

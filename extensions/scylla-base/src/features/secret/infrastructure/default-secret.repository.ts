@@ -9,7 +9,7 @@ import type {
 import type { SecretUsage } from '@base/features/secret/domain/structs/secret-usage.struct.ts';
 import type { SecretRepository } from '@base/features/secret/domain/repository/secret.repository.ts';
 import * as grpcSecret from './grpc-secret.mapper.ts';
-import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import { required } from '@shared/infrastructure/grpc/wrappers.ts';
 
 const USAGE_PAGE = { page: 1, pageSize: 10 };
 
@@ -31,10 +31,7 @@ export class DefaultSecretRepository implements SecretRepository {
       value: input.value,
       description: input.description,
     }).response;
-    // No `secret` in the response: a shape this build cannot read.
-    if (!response.secret)
-      throw new ScyllaError('CreateSecret returned no secret', { code: 'INTERNAL', raw: true });
-    return grpcSecret.toDomain(response.secret);
+    return grpcSecret.toDomain(required(response.secret, 'secret'));
   }
 
   public async update(input: UpdateSecretInput): Promise<SecretEntity> {
@@ -43,9 +40,7 @@ export class DefaultSecretRepository implements SecretRepository {
       value: input.value,
       description: input.description,
     }).response;
-    if (!response.secret)
-      throw new ScyllaError('UpdateSecret returned no secret', { code: 'INTERNAL', raw: true });
-    return grpcSecret.toDomain(response.secret);
+    return grpcSecret.toDomain(required(response.secret, 'secret'));
   }
 
   public async listPipelinesUsing(projectId: string, secretName: string): Promise<SecretUsage> {
