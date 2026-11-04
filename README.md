@@ -24,7 +24,7 @@ cp .env.example .env
 
 ### Install & Run
 
-The `.proto` files are in `protos/`: `protos/scylla` is a copy of `ce/proto/scylla` of the backend, and `protos/google/rpc` holds the error details. After a change of the backend protos, run `node scripts/sync-protos.mjs <path to ce/proto>`.
+The `.proto` files are in `protos/`, the git submodule `scylla-ops/scylla-protos`: `protos/scylla` holds the contract, and `protos/google/rpc` the error details. Clone with `git clone --recurse-submodules`, or run `git submodule update --init` in a clone. After a change of the protos, move the submodule to the new commit and commit the new pin with the code that uses it.
 
 ```bash
 # Install dependencies

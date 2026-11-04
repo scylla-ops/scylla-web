@@ -27,9 +27,9 @@ pnpm install
 pnpm dev
 ```
 
-The `.proto` files are in `protos/`, a copy of the protos of the backend: after a change there,
-run `node scripts/sync-protos.mjs <path to ce/proto>`. Run all commands from the repository
-root.
+The `.proto` files are in `protos/`, the git submodule `scylla-ops/scylla-protos`: run
+`git submodule update --init` after a clone, and move the submodule to a new commit after a
+change of the protos. Run all commands from the repository root.
 
 ## Branches
 
