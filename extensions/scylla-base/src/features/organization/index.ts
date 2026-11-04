@@ -1,8 +1,11 @@
-export type { OrganizationEntity } from './domain/entities/organization.entity.ts';
+export type { OrganizationEntity, WorkspaceOwner } from './domain/entities/organization.entity.ts';
 export {
   invalidateOrganizationMembers,
   organizationMutations,
   organizationQueries,
+  ownerMutations,
+  ownerQueries,
+  ORGANIZATION_OWNERS_QUERY_KEY,
   MY_ORGANIZATIONS_QUERY_KEY,
   ORGANIZATIONS_QUERY_KEY,
   ORGANIZATION_MEMBERS_QUERY_KEY,

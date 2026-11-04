@@ -29,6 +29,15 @@ const profiles = () =>
     listSessions: vi.fn(() => unaryCall({ sessions })),
     revokeSession: vi.fn(() => unaryCall({})),
     revokeOtherSessions: vi.fn(() => unaryCall({})),
+    requestEmailChange: vi.fn(() => unaryCall({})),
+    confirmEmailChange: vi.fn(() => unaryCall({ user: wireUser })),
+    listIdentities: vi.fn(() =>
+      unaryCall({
+        hasPassword: false,
+        identities: [{ provider: 'github', subject: '42', email: 'ada@example.com' }],
+      }),
+    ),
+    unlinkIdentity: vi.fn(() => unaryCall({})),
   }) as unknown as IProfileServiceClient;
 
 const admin = () =>
@@ -46,6 +55,8 @@ const admin = () =>
     listUserSessions: vi.fn(() => unaryCall({ sessions })),
     revokeUserSessions: vi.fn(() => unaryCall({})),
     sendPasswordReset: vi.fn(() => unaryCall({})),
+    grantInstanceAdmin: vi.fn(() => unaryCall({})),
+    revokeInstanceAdmin: vi.fn(() => unaryCall({})),
   }) as unknown as IUserAdminServiceClient;
 
 const repository = (p = profiles(), a = admin()) =>
@@ -85,7 +96,10 @@ describe('DefaultUserRepository', () => {
 
     const user = await repo.setActive('user-2', false);
 
-    expect(a.setUserStatus).toHaveBeenCalledWith({ userId: { value: 'user-2' }, status: 'disabled' });
+    expect(a.setUserStatus).toHaveBeenCalledWith({
+      userId: { value: 'user-2' },
+      status: 'disabled',
+    });
     expect(user.isActive).toBe(false);
   });
 
@@ -112,5 +126,35 @@ describe('DefaultUserRepository', () => {
     await expect(repo.revokeSession('user-2', 's-9')).rejects.toMatchObject({
       code: 'UNIMPLEMENTED',
     });
+  });
+
+  it('gives the ways to sign in of the own account', async () => {
+    const { repo } = repository();
+
+    await expect(repo.listSignInMethods()).resolves.toEqual({
+      hasPassword: false,
+      identities: [{ provider: 'github', subject: '42', email: 'ada@example.com', linkedAt: '' }],
+    });
+  });
+
+  it('asks for an email change with the password', async () => {
+    const { repo, p } = repository();
+
+    await repo.requestEmailChange('new@example.com', 'hunter22');
+
+    expect(p.requestEmailChange).toHaveBeenCalledWith({
+      newEmail: 'new@example.com',
+      password: 'hunter22',
+    });
+  });
+
+  it('grants and revokes the instance admin right', async () => {
+    const { repo, a } = repository();
+
+    await repo.setInstanceAdmin('user-2', true);
+    await repo.setInstanceAdmin('user-2', false);
+
+    expect(a.grantInstanceAdmin).toHaveBeenCalledWith({ userId: { value: 'user-2' } });
+    expect(a.revokeInstanceAdmin).toHaveBeenCalledWith({ userId: { value: 'user-2' } });
   });
 });

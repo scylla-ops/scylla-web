@@ -68,7 +68,12 @@ describe('grpcUser.toCreateRequest', () => {
         password: 'hunter22',
         displayName: 'Ada',
       }),
-    ).toEqual({ email: 'ada@example.com', handle: 'ada', password: 'hunter22', displayName: 'Ada' });
+    ).toEqual({
+      email: 'ada@example.com',
+      handle: 'ada',
+      password: 'hunter22',
+      displayName: 'Ada',
+    });
   });
 
   it('falls back on the handle for the required display name', () => {

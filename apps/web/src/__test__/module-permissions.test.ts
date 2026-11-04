@@ -19,6 +19,8 @@ const guardedPages = compileRoutes(app.router).routes.flatMap(route =>
 
 /** A ratchet: it may shrink, never grow. Each entry says why the page has no permission. */
 const UNGATED_PAGES: Readonly<Record<string, string>> = {
+  '/change-email':
+    'The link of a mail: it changes the email of the account of the session, which needs no grant.',
   '/':
     'The landing of the shell: it only sends the user on to the dashboard of a workspace, ' +
     'which declares its own permission.',

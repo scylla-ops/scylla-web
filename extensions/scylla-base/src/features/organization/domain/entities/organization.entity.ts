@@ -5,3 +5,10 @@ export interface OrganizationEntity {
   /** Unique and editable: the first segment of the URLs of the workspace. */
   slug: string;
 }
+
+/** An owner of a workspace: it can delete it and change its owners. No role gives that. */
+export interface WorkspaceOwner {
+  userId: string;
+  displayName: string;
+  since: string;
+}

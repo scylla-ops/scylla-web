@@ -44,22 +44,22 @@ one).
 
 `UserRepository` — `domain/repository/user.repository.ts`:
 
-| Method | RPC | Returns |
-|---|---|---|
-| `getAll()` | `ListUsers` | `UserList` (= `PaginatedList<UserEntity>`) |
-| `getById(id)` | `GetUser` | `UserEntity` |
-| `getMe()` | `GetMe` | `UserEntity` |
-| `create(CreateUserInput)` | `CreateUser` | `UserEntity` |
-| `update(UpdateUserInput)` | `UpdateUser` | `UserEntity` |
-| `delete(userId)` | `DeleteUser` | `void` |
-| `setActive(userId, isActive)` | `SetUserActive` | `UserEntity` |
-| `changePassword(current, next)` | `ChangePassword` | `void` |
-| `sendPasswordReset(userId)` | `SendPasswordReset` | `PasswordResetDelivery` (from `login`) |
-| `revokeSessions(userId)` | `RevokeUserSessions` | `number` (sessions revoked) |
-| `listSessions(userId)` | `ListUserSessions` | `UserSessionEntity[]`, the most recently active first |
-| `revokeSession(userId, sessionId)` | `RevokeUserSession` | `void` |
-| `deleteAccount(password)` | `DeleteAccount` | `void` |
-| `listAccess(userId)` | `ListUserAccess` | `UserAccess[]` |
+| Method                             | RPC                  | Returns                                               |
+| ---------------------------------- | -------------------- | ----------------------------------------------------- |
+| `getAll()`                         | `ListUsers`          | `UserList` (= `PaginatedList<UserEntity>`)            |
+| `getById(id)`                      | `GetUser`            | `UserEntity`                                          |
+| `getMe()`                          | `GetMe`              | `UserEntity`                                          |
+| `create(CreateUserInput)`          | `CreateUser`         | `UserEntity`                                          |
+| `update(UpdateUserInput)`          | `UpdateUser`         | `UserEntity`                                          |
+| `delete(userId)`                   | `DeleteUser`         | `void`                                                |
+| `setActive(userId, isActive)`      | `SetUserActive`      | `UserEntity`                                          |
+| `changePassword(current, next)`    | `ChangePassword`     | `void`                                                |
+| `sendPasswordReset(userId)`        | `SendPasswordReset`  | `PasswordResetDelivery` (from `login`)                |
+| `revokeSessions(userId)`           | `RevokeUserSessions` | `number` (sessions revoked)                           |
+| `listSessions(userId)`             | `ListUserSessions`   | `UserSessionEntity[]`, the most recently active first |
+| `revokeSession(userId, sessionId)` | `RevokeUserSession`  | `void`                                                |
+| `deleteAccount(password)`          | `DeleteAccount`      | `void`                                                |
+| `listAccess(userId)`               | `ListUserAccess`     | `UserAccess[]`                                        |
 
 `UpdateUserInput` holds the changed fields only: an absent field stays absent on the wire, and
 the server leaves it unchanged. `profileChanges` (`presenters/profile-form.presenter.ts`) builds
@@ -113,15 +113,15 @@ presentation/
 
 ## Routes & nav
 
-| Mount | Path | Permission | Component |
-|---|---|---|---|
-| `organization` | `users` | `LIST_USERS` | `UserAdmin.page.svelte` |
-| `organization` | `users/me` | (redirect) | to `account` |
-| `organization` | `users/:userId` | none on the route (`UNGATED_PAGES`); the page asks `READ_USER` | `UserDetail.page.svelte` |
-| `organization` | `account` | (redirect) | to `account/profile` |
-| `organization` | `account/:section` | none (`UNGATED_PAGES`) | `Account.page.svelte` |
-| `personal` | `account` (`/account`) | (redirect) | to `/account/profile` |
-| `personal` | `account/:section` | none (`UNGATED_PAGES`) | `PersonalAccount.page.svelte`: `Account.page.svelte`, then the sign-out |
+| Mount          | Path                   | Permission                                                     | Component                                                               |
+| -------------- | ---------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `organization` | `users`                | `LIST_USERS`                                                   | `UserAdmin.page.svelte`                                                 |
+| `organization` | `users/me`             | (redirect)                                                     | to `account`                                                            |
+| `organization` | `users/:userId`        | none on the route (`UNGATED_PAGES`); the page asks `READ_USER` | `UserDetail.page.svelte`                                                |
+| `organization` | `account`              | (redirect)                                                     | to `account/profile`                                                    |
+| `organization` | `account/:section`     | none (`UNGATED_PAGES`)                                         | `Account.page.svelte`                                                   |
+| `personal`     | `account` (`/account`) | (redirect)                                                     | to `/account/profile`                                                   |
+| `personal`     | `account/:section`     | none (`UNGATED_PAGES`)                                         | `PersonalAccount.page.svelte`: `Account.page.svelte`, then the sign-out |
 
 `:section` is `profile`, `appearance`, `security`, `organizations` or `danger-zone`
 (`ACCOUNT_SECTIONS` in `account-sections.registry.ts`). Another value goes to `profile`.

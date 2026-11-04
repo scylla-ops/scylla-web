@@ -13,6 +13,8 @@ export const ORGANIZATIONS_QUERY_KEY = () => ['organizations'] as const;
 export const MY_ORGANIZATIONS_QUERY_KEY = () => ['organizations', 'mine'] as const;
 export const ORGANIZATION_MEMBERS_QUERY_KEY = (organizationId: string) =>
   ['organizations', organizationId, 'members'] as const;
+export const ORGANIZATION_OWNERS_QUERY_KEY = (organizationId: string) =>
+  ['organizations', organizationId, 'owners'] as const;
 
 export const organizationQueries = {
   /** Not the global list: non-admins may not read it. */
@@ -29,6 +31,39 @@ export const organizationQueries = {
       queryKey: ORGANIZATION_MEMBERS_QUERY_KEY(organizationId ?? ''),
       queryFn: () => repository().listMembers(organizationId!),
       enabled: (options.enabled ?? true) && !!organizationId,
+    }),
+};
+
+/** The owners of a workspace. A reader of the workspace can list them: the caller gates it. */
+export const ownerQueries = {
+  list: (organizationId: string | null, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: ORGANIZATION_OWNERS_QUERY_KEY(organizationId ?? ''),
+      queryFn: () => repository().listOwners(organizationId!),
+      enabled: (options.enabled ?? true) && !!organizationId,
+    }),
+};
+
+/** An owner change also changes the members list: the owners are in it. */
+const afterOwnerChange = (organizationId: string) => {
+  const client = getQueryClient();
+  void client.invalidateQueries({ queryKey: ORGANIZATION_OWNERS_QUERY_KEY(organizationId) });
+  void client.invalidateQueries({ queryKey: ORGANIZATION_MEMBERS_QUERY_KEY(organizationId) });
+  void client.invalidateQueries({ queryKey: ['access', 'workspace', organizationId] });
+};
+
+export const ownerMutations = {
+  add: () =>
+    mutationOptions({
+      mutationFn: ({ organizationId, userId }: { organizationId: string; userId: string }) =>
+        repository().addOwner(organizationId, userId),
+      onSuccess: (_result, { organizationId }) => afterOwnerChange(organizationId),
+    }),
+  remove: () =>
+    mutationOptions({
+      mutationFn: ({ organizationId, userId }: { organizationId: string; userId: string }) =>
+        repository().removeOwner(organizationId, userId),
+      onSuccess: (_result, { organizationId }) => afterOwnerChange(organizationId),
     }),
 };
 

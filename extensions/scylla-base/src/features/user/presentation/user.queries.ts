@@ -15,6 +15,7 @@ export const USERS_QUERY_KEY = () => ['users'] as const;
 export const USER_QUERY_KEY = (userId?: string) => ['user', userId] as const;
 export const ME_QUERY_KEY = () => ['me'] as const;
 export const USER_SESSIONS_QUERY_KEY = (userId?: string) => ['user-sessions', userId] as const;
+export const SIGN_IN_METHODS_OF_USER_QUERY_KEY = () => ['me', 'sign-in-methods'] as const;
 
 export const userQueries = {
   /** Checks `LIST_USERS` itself (used outside this module's route guard). An empty list can mean "not allowed": see `canListUsers`. */
@@ -52,6 +53,15 @@ export const userQueries = {
         return repository().listSessions(userId);
       },
       enabled: !!userId && (options.enabled ?? true) && canReadUser(userId),
+    }),
+};
+
+/** The ways the user of the session signs in. Needs no permission. */
+export const myIdentityQueries = {
+  signInMethods: () =>
+    queryOptions({
+      queryKey: SIGN_IN_METHODS_OF_USER_QUERY_KEY(),
+      queryFn: () => repository().listSignInMethods(),
     }),
 };
 
@@ -115,8 +125,7 @@ export const userMutations = {
       mutationFn: ({ userId, isActive }: { userId: string; isActive: boolean }) =>
         repository().setActive(userId, isActive),
       // A deactivation signs the user out everywhere.
-      onSuccess: user =>
-        Promise.all([invalidateUser(user.id), invalidateSessions(user.id)]),
+      onSuccess: user => Promise.all([invalidateUser(user.id), invalidateSessions(user.id)]),
     }),
 
   /** The refusal of a wrong current password: the page shows it under the field, as data. */
@@ -167,5 +176,33 @@ export const userMutations = {
     mutationOptions({
       mutationFn: async (password: string) => refusalOf(repository().deleteAccount(password)),
       onSuccess: (refusal: string | null) => (refusal === null ? signOut() : undefined),
+    }),
+
+  /** The refusal (wrong password, too soon) is data: the dialog shows it. */
+  requestEmailChange: () =>
+    mutationOptions({
+      mutationFn: ({ newEmail, password }: { newEmail: string; password: string }) =>
+        refusalOf(repository().requestEmailChange(newEmail.trim(), password)),
+    }),
+
+  confirmEmailChange: () =>
+    mutationOptions({
+      mutationFn: (token: string) => repository().confirmEmailChange(token),
+      onSuccess: user => invalidateUser(user.id),
+    }),
+
+  unlinkIdentity: () =>
+    mutationOptions({
+      mutationFn: ({ provider, subject }: { provider: string; subject: string }) =>
+        repository().unlinkIdentity(provider, subject),
+      onSuccess: () =>
+        getQueryClient().invalidateQueries({ queryKey: SIGN_IN_METHODS_OF_USER_QUERY_KEY() }),
+    }),
+
+  setInstanceAdmin: () =>
+    mutationOptions({
+      mutationFn: ({ userId, admin }: { userId: string; admin: boolean }) =>
+        repository().setInstanceAdmin(userId, admin),
+      onSuccess: (_result, { userId }) => invalidateUser(userId),
     }),
 };

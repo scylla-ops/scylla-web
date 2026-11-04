@@ -42,11 +42,13 @@ export const createUserDetail = (userId: () => string | undefined) => {
   const oneSessionRevocation = createMutation(() => userMutations.revokeSession());
   const statusChange = createMutation(() => userMutations.setActive());
   const removal = createMutation(() => userMutations.remove());
+  const adminChange = createMutation(() => userMutations.setInstanceAdmin());
 
   const canUpdate = $derived(can(Permission.UPDATE_USER));
   /** The backend asks for `createUser` at system scope to change an email. */
   const canEditEmail = $derived(canUpdate && can(Permission.CREATE_USER));
   const canDelete = $derived(can(Permission.DELETE_USER));
+  const canChangeAdmin = $derived(can(Permission.MANAGE_SYSTEM_GRANTS));
 
   let confirmStatusChange = $state(false);
   let confirmDelete = $state(false);
@@ -99,7 +101,14 @@ export const createUserDetail = (userId: () => string | undefined) => {
     },
     /** True while one of the security actions runs. */
     get isBusy() {
-      return resetLink.isPending || statusChange.isPending;
+      return resetLink.isPending || statusChange.isPending || adminChange.isPending;
+    },
+    get canChangeAdmin() {
+      return canChangeAdmin;
+    },
+    /** Makes the user an admin of the instance, or takes the right back. */
+    toggleInstanceAdmin: () => {
+      if (user) adminChange.mutate({ userId: user.id, admin: !user.instanceAdmin });
     },
 
     get isSavingProfile() {

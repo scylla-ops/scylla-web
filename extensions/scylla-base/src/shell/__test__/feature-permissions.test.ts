@@ -191,6 +191,12 @@ describe('feature permission conformance', () => {
 
     /** A ratchet. `TRIAGE`: nobody decided yet what the consuming page should show instead. */
     const UNCHECKED_SHARED_HOOKS: Readonly<Record<string, string>> = {
+      'login.loginQueries':
+        '`signInMethods` is public: the sign-in page reads it with no session. The account page ' +
+        'reads it to offer the providers to link.',
+      'organization.ownerQueries':
+        '`list` takes the gate of its caller: ListOwners needs to read the workspace, and the ' +
+        'members page that shows it requires LIST_ORGANIZATION_MEMBERS.',
       'jobs.jobQueries':
         '`byOrganization`, the read that crosses the barrel, is workspace-scoped and filtered ' +
         'server-side (ListWorkspaceJobs gives only what the caller may read). The fan-out that ' +

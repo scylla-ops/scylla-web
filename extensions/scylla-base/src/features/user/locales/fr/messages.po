@@ -13,11 +13,11 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:60
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:82
 msgid "{browser} on {system}"
 msgstr "{browser} sur {system}"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:67
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:89
 msgid "{count, plural, =0 {No session to sign out.} one {# session signed out.} other {# sessions signed out.}}"
 msgstr "{count, plural, =0 {Aucune session à déconnecter.} one {# session déconnectée.} other {# sessions déconnectées.}}"
 
@@ -25,15 +25,15 @@ msgstr "{count, plural, =0 {Aucune session à déconnecter.} one {# session déc
 msgid "A handle that other people see."
 msgstr "Un identifiant que les autres personnes voient."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:47
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:69
 msgid "A new password signs out your other sessions."
 msgstr "Un nouveau mot de passe déconnecte vos autres sessions."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:87
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:108
 msgid "A reset link was made."
 msgstr "Un lien de réinitialisation a été créé."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:85
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:106
 msgid "A reset link was sent to {email}."
 msgstr "Un lien de réinitialisation a été envoyé à {email}."
 
@@ -43,11 +43,11 @@ msgstr "Un lien de réinitialisation a été envoyé à {email}."
 msgid "Account"
 msgstr "Compte"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:97
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:118
 msgid "Account deactivated"
 msgstr "Compte désactivé"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:98
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:119
 msgid "Account reactivated"
 msgstr "Compte réactivé"
 
@@ -63,31 +63,47 @@ msgstr "Actions"
 msgid "Active"
 msgstr "Actif"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:63
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:85
 msgid "Active now"
 msgstr "Active maintenant"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:61
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:83
 msgid "API client"
 msgstr "Client API"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:41
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:63
 msgid "Appearance"
 msgstr "Apparence"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:75
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:50
+msgid "Back to your account"
+msgstr "Retour à votre compte"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:96
 msgid "Cancel"
 msgstr "Annuler"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:50
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:40
+msgid "Change the email"
+msgstr "Changer l'e-mail"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:72
 msgid "Change the password"
 msgstr "Changer le mot de passe"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:46
+msgid "Change your email"
+msgstr "Changer votre e-mail"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:47
+msgid "Changing your email…"
+msgstr "Changement de votre e-mail…"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:23
 msgid "Confirm password"
 msgstr "Confirmer le mot de passe"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:81
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:102
 msgid "Copy the user ID"
 msgstr "Copier l'identifiant utilisateur"
 
@@ -103,32 +119,32 @@ msgstr "Créer l'utilisateur"
 msgid "Created at"
 msgstr "Créé le"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:79
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:100
 msgid "Created on {date}"
 msgstr "Créé le {date}"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:48
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:70
 msgid "Current password"
 msgstr "Mot de passe actuel"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:71
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:92
 msgid "Danger zone"
 msgstr "Zone de danger"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:44
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:66
 msgctxt "theme"
 msgid "Dark"
 msgstr "Sombre"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:95
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:116
 msgid "Deactivate"
 msgstr "Désactiver"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:89
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:110
 msgid "Deactivate account"
 msgstr "Désactiver le compte"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:91
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:112
 msgid "Deactivate this account?"
 msgstr "Désactiver ce compte ?"
 
@@ -136,15 +152,15 @@ msgstr "Désactiver ce compte ?"
 msgid "Deactivated"
 msgstr "Désactivé"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:72
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:93
 msgid "Delete my account"
 msgstr "Supprimer mon compte"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:100
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:121
 msgid "Delete this user?"
 msgstr "Supprimer cet utilisateur ?"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:99
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:120
 msgid "Delete user"
 msgstr "Supprimer l'utilisateur"
 
@@ -180,15 +196,15 @@ msgstr "Saisissez un mot de passe"
 msgid "Enter an email, a username and a password."
 msgstr "Saisissez une adresse e-mail, un nom d'utilisateur et un mot de passe."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:74
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:95
 msgid "Enter your password to confirm."
 msgstr "Saisissez votre mot de passe pour confirmer."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:58
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:80
 msgid "Error loading the sessions"
 msgstr "Erreur lors du chargement des sessions"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:77
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:98
 msgid "Error loading the user"
 msgstr "Erreur lors du chargement de l'utilisateur"
 
@@ -200,32 +216,56 @@ msgstr "Erreur lors du chargement des utilisateurs"
 msgid "Error loading your account"
 msgstr "Erreur lors du chargement de votre compte"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:83
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:104
 msgid "Help this user sign in again, or stop the sign-in."
 msgstr "Aidez cet utilisateur à se connecter de nouveau, ou bloquez la connexion."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:42
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:64
 msgid "How Scylla looks on this device. System follows the setting of your operating system."
 msgstr "L'apparence de Scylla sur cet appareil. Système suit le réglage de votre système d'exploitation."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:58
+msgid "Identity unlinked"
+msgstr "Identité dissociée"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:45
+msgid "If no other account uses {email}, a link is on its way there."
+msgstr "Si aucun autre compte n'utilise {email}, un lien y est envoyé."
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:38
 msgid "Instance admin"
 msgstr "Admin de l'instance"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:64
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:86
 msgid "Last active {time}"
 msgstr "Dernière activité {time}"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:43
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:65
 msgctxt "theme"
 msgid "Light"
 msgstr "Clair"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:57
+msgid "Link {provider}"
+msgstr "Associer {provider}"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:55
+msgid "Linked {date}"
+msgstr "Associée le {date}"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:59
+msgid "Make instance admin"
+msgstr "Rendre admin de l'instance"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:15
 msgid "name@example.com"
 msgstr "nom@exemple.com"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:49
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:41
+msgid "New email"
+msgstr "Nouvel e-mail"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:71
 msgid "New password"
 msgstr "Nouveau mot de passe"
 
@@ -233,19 +273,24 @@ msgstr "Nouveau mot de passe"
 msgid "New user"
 msgstr "Nouvel utilisateur"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:57
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:79
 msgid "No active session."
 msgstr "Aucune session active."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:54
+msgid "No password: you sign in with a provider."
+msgstr "Pas de mot de passe : vous vous connectez avec un fournisseur."
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:37
 msgid "Only an administrator can change it."
 msgstr "Seul un administrateur peut la changer."
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:21
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:53
 msgid "Password"
 msgstr "Mot de passe"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:51
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:73
 msgid "Password changed. Your other sessions are signed out."
 msgstr "Mot de passe changé. Vos autres sessions sont déconnectées."
 
@@ -253,47 +298,55 @@ msgstr "Mot de passe changé. Vos autres sessions sont déconnectées."
 msgid "Profile"
 msgstr "Profil"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:96
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:117
 msgid "Reactivate"
 msgstr "Réactiver"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:90
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:111
 msgid "Reactivate account"
 msgstr "Réactiver le compte"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:93
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:114
 msgid "Reactivate this account?"
 msgstr "Réactiver ce compte ?"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:39
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:60
+msgid "Remove instance admin"
+msgstr "Retirer l'admin de l'instance"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:61
 msgid "Save"
 msgstr "Enregistrer"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:82
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:103
 msgid "Security"
 msgstr "Sécurité"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:84
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:105
 msgid "Send a reset link"
 msgstr "Envoyer un lien de réinitialisation"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:53
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:43
+msgid "Send the link"
+msgstr "Envoyer le lien"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:75
 msgid "Sessions"
 msgstr "Sessions"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:70
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:91
 msgid "Sign out"
 msgstr "Se déconnecter"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:65
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:87
 msgid "Sign out {device}"
 msgstr "Se déconnecter de {device}"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:88
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:109
 msgid "Sign out everywhere"
 msgstr "Déconnecter partout"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:56
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:78
 msgid "Sign out everywhere else"
 msgstr "Déconnecter partout ailleurs"
 
@@ -301,16 +354,20 @@ msgstr "Déconnecter partout ailleurs"
 msgid "Status"
 msgstr "Statut"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:45
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:67
 msgctxt "theme"
 msgid "System"
 msgstr "Système"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:55
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:39
+msgid "The address of your account. A change needs a click on a link sent to the new address."
+msgstr "L'adresse de votre compte. Un changement demande un clic sur un lien envoyé à la nouvelle adresse."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:77
 msgid "The devices and apps where this user is signed in."
 msgstr "Les appareils et les applications où cet utilisateur est connecté."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:54
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:76
 msgid "The devices and apps where your account is signed in."
 msgstr "Les appareils et les applications où votre compte est connecté."
 
@@ -318,44 +375,56 @@ msgstr "Les appareils et les applications où votre compte est connecté."
 msgid "The names that other people see."
 msgstr "Les noms que les autres personnes voient."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:86
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:52
+msgid "The password and the identity providers of your account. The last one cannot go."
+msgstr "Le mot de passe et les fournisseurs d'identité de votre compte. Le dernier ne peut pas être retiré."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:107
 msgid "The reset link is in the server log."
 msgstr "Le lien de réinitialisation est dans le journal du serveur."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:94
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:115
 msgid "The user can sign in again."
 msgstr "L'utilisateur peut de nouveau se connecter."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:92
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:113
 msgid "The user is signed out everywhere and cannot sign in until an administrator reactivates the account."
 msgstr "L'utilisateur est déconnecté partout et ne peut plus se connecter tant qu'un administrateur ne réactive pas le compte."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:101
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:122
 msgid "This deletes the account, its sessions and every role it holds. You cannot undo it."
 msgstr "Cette action supprime le compte, ses sessions et tous ses rôles. Vous ne pouvez pas l'annuler."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:73
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:94
 msgid "This deletes your account, its sessions and its roles. You cannot undo it."
 msgstr "Cette action supprime votre compte, ses sessions et ses rôles. Vous ne pouvez pas l'annuler."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:59
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:49
+msgid "This link is not valid any more. Ask for a new one from your account."
+msgstr "Ce lien n'est plus valide. Demandez-en un nouveau depuis votre compte."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:81
 msgid "This session"
 msgstr "Cette session"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:78
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:99
 msgid "This user does not exist."
 msgstr "Cet utilisateur n'existe pas."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:62
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:84
 msgid "Unknown device"
 msgstr "Appareil inconnu"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:56
+msgid "Unlink"
+msgstr "Dissocier"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:4
 #: extensions/scylla-base/src/features/user/user.module.ts:38
 msgid "User"
 msgstr "Utilisateur"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:80
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:101
 msgid "User ID"
 msgstr "Identifiant utilisateur"
 
@@ -369,6 +438,10 @@ msgstr "Nom d'utilisateur"
 msgid "Users"
 msgstr "Utilisateurs"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:51
+msgid "Ways to sign in"
+msgstr "Méthodes de connexion"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:7
 msgid "You don't have permission to create users."
 msgstr "Vous n'avez pas la permission de créer des utilisateurs."
@@ -376,3 +449,11 @@ msgstr "Vous n'avez pas la permission de créer des utilisateurs."
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:8
 msgid "You don't have permission to delete users."
 msgstr "Vous n'avez pas la permission de supprimer des utilisateurs."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:48
+msgid "Your email is now {email}."
+msgstr "Votre e-mail est maintenant {email}."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:42
+msgid "Your password"
+msgstr "Votre mot de passe"

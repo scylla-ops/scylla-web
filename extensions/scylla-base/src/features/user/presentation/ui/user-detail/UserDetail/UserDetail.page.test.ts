@@ -201,7 +201,9 @@ describe('UserDetailPage', () => {
       setUp();
 
       await screen.findByText('gRPC Python');
-      expect(screen.queryByRole('button', { name: 'Sign out gRPC Python' })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Sign out gRPC Python' }),
+      ).not.toBeInTheDocument();
     });
 
     it('shows the sessions to a reader, with no sign-out button', async () => {

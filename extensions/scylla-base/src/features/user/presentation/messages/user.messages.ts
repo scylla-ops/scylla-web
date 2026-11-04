@@ -36,6 +36,28 @@ export const userMessages = {
   profileDescription: msg`The names that other people see.`,
   emailReadOnly: msg`Only an administrator can change it.`,
   instanceAdmin: msg`Instance admin`,
+  emailDescription: msg`The address of your account. A change needs a click on a link sent to the new address.`,
+  changeEmail: msg`Change the email`,
+  newEmail: msg`New email`,
+  currentPasswordForEmail: msg`Your password`,
+  sendEmailLink: msg`Send the link`,
+  emailLinkSent: (email: string) =>
+    msg`If no other account uses ${email}, a link is on its way there.`,
+  confirmEmailTitle: msg`Change your email`,
+  confirmingEmail: msg`Changing your email…`,
+  emailChanged: (email: string) => msg`Your email is now ${email}.`,
+  invalidEmailLink: msg`This link is not valid any more. Ask for a new one from your account.`,
+  backToAccount: msg`Back to your account`,
+  signInMethods: msg`Ways to sign in`,
+  signInMethodsDescription: msg`The password and the identity providers of your account. The last one cannot go.`,
+  passwordMethod: msg`Password`,
+  noPassword: msg`No password: you sign in with a provider.`,
+  linkedOn: (date: string) => msg`Linked ${date}`,
+  unlink: msg`Unlink`,
+  linkProvider: (provider: string) => msg`Link ${provider}`,
+  identityUnlinked: msg`Identity unlinked`,
+  makeInstanceAdmin: msg`Make instance admin`,
+  removeInstanceAdmin: msg`Remove instance admin`,
   save: msg`Save`,
 
   appearance: msg`Appearance`,
@@ -65,7 +87,6 @@ export const userMessages = {
   signOutSession: (device: string) => msg`Sign out ${device}`,
   sessionsRevoked: (count: number) =>
     msg`${plural(count, { 0: 'No session to sign out.', one: '# session signed out.', other: '# sessions signed out.' })}`,
-
 
   signOut: msg`Sign out`,
   dangerZone: msg`Danger zone`,

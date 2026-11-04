@@ -182,7 +182,7 @@ describe('OrganizationMembersPage', () => {
     render(OrganizationMembersPage);
     await screen.findByText('alice');
 
-    await userEvent.click(screen.getByRole('combobox'));
+    await userEvent.click(screen.getAllByRole('combobox')[0]);
     await userEvent.click(await findFloating('option', 'Member'));
 
     await vi.waitFor(() => expect(grantRole).toHaveBeenCalledWith(workspace, 'member', 'user-1'));

@@ -5,8 +5,10 @@ export type {
   UserSummary,
 } from './domain/entities/user.entity.ts';
 export type { UserSessionEntity } from './domain/entities/user-session.entity.ts';
+export type { IdentityEntity, SignInMethodsOfUser } from './domain/entities/identity.entity.ts';
 export {
   canListUsers,
+  myIdentityQueries,
   userMutations,
   userQueries,
   ME_QUERY_KEY,

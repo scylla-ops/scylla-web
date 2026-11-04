@@ -71,6 +71,8 @@ export enum Permission {
   MANAGE_TRIGGERS = 62,
   MANAGE_ORG_ROLES = 63,
   UPDATE_SECRET = 64,
+  /** Add and remove the owners of a workspace: its owners only. */
+  MANAGE_OWNERS = 65,
 }
 
 /**
@@ -106,6 +108,7 @@ const SYSTEM_LEVEL = new Set<Permission>([
 
 const ORGANIZATION_LEVEL = new Set<Permission>([
   Permission.READ_ORGANIZATION,
+  Permission.MANAGE_OWNERS,
   Permission.UPDATE_ORGANIZATION,
   Permission.DELETE_ORGANIZATION,
   Permission.LIST_ORGANIZATION_MEMBERS,

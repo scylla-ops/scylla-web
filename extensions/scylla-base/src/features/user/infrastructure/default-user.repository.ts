@@ -5,13 +5,14 @@ import type {
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
+import type { SignInMethodsOfUser } from '@base/features/user/domain/entities/identity.entity.ts';
 import type { IProfileServiceClient } from '@base/generated/scylla/accounts/v1/profile_service.client.ts';
 import type { IUserAdminServiceClient } from '@base/generated/scylla/accounts/v1/user_admin_service.client.ts';
 import type { User } from '@base/generated/scylla/accounts/v1/user.ts';
 import type { PasswordResetDelivery } from '@base/features/login';
 import type { PaginatedList } from '@scylla/ui/structs';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcUser from './grpc-user.mapper.ts';
 
 /** The wrapped entity is optional on the wire: fail here rather than pass an empty user on. */
@@ -127,5 +128,37 @@ export class DefaultUserRepository implements UserRepository {
       });
     }
     await this.profiles.revokeSession({ sessionId: wrapId(sessionId) }).response;
+  }
+
+  public async requestEmailChange(newEmail: string, password: string): Promise<void> {
+    await this.profiles.requestEmailChange({ newEmail, password }).response;
+  }
+
+  public async confirmEmailChange(token: string): Promise<UserEntity> {
+    const response = await this.profiles.confirmEmailChange({ token }).response;
+    return requireUser(response.user);
+  }
+
+  public async listSignInMethods(): Promise<SignInMethodsOfUser> {
+    const response = await this.profiles.listIdentities({}).response;
+    return {
+      hasPassword: response.hasPassword,
+      identities: response.identities.map(identity => ({
+        provider: identity.provider,
+        subject: identity.subject,
+        email: identity.email,
+        linkedAt: timestampToIso(identity.linkedAt),
+      })),
+    };
+  }
+
+  public async unlinkIdentity(provider: string, subject: string): Promise<void> {
+    await this.profiles.unlinkIdentity({ provider, subject }).response;
+  }
+
+  public async setInstanceAdmin(userId: string, admin: boolean): Promise<void> {
+    const request = { userId: wrapId(userId) };
+    if (admin) await this.admin.grantInstanceAdmin(request).response;
+    else await this.admin.revokeInstanceAdmin(request).response;
   }
 }

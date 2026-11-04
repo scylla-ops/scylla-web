@@ -59,6 +59,11 @@ export const UserModule = {
     // The same page with no organization: for a user who has none yet.
     personal: [
       {
+        // The path of the link in the mail of the server: keep it.
+        path: 'change-email',
+        page: () => import('./presentation/ui/account/ChangeEmail/ChangeEmail.page.svelte'),
+      },
+      {
         path: 'account',
         children: [
           { redirect: 'profile' },

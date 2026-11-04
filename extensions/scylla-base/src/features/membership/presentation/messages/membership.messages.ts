@@ -2,6 +2,10 @@ import { msg, plural } from '@lingui/core/macro';
 
 /** Keep the msgids (placeholder names included) or the French is lost. */
 export const membershipMessages = {
+  owners: msg`Owners`,
+  ownersDescription: msg`The owners can delete the workspace and change its owners. No role gives that. The last owner stays.`,
+  addOwner: msg`+ owner`,
+  removeOwner: (name: string) => msg`Remove ${name} from the owners`,
   inviteByEmail: msg`Invite by email`,
   workspaceScope: msg`Workspace`,
   ownerScope: msg`Owners`,

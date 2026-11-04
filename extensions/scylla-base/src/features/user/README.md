@@ -13,7 +13,7 @@ The user directory sits in the sidebar's **System** section, not the organizatio
 that placement is the module's defining fact: it lists every account in the Scylla installation,
 regardless of which organization you happen to be viewing.
 
-The question "who is in *this* organization?" is a different one, answered by
+The question "who is in _this_ organization?" is a different one, answered by
 [membership](../membership/README.md) from grants. Filtering this directory by the current
 organization would quietly conflate the two, and an administrator would lose the only view of
 all accounts.

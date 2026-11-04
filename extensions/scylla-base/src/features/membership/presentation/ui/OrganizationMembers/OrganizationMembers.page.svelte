@@ -26,6 +26,7 @@
   } from '@base/features/membership/presentation/membership.points.ts';
   import { loadInviteDialog, loadPendingInvitations } from '@base/features/invitation';
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
+  import OwnersCard from '../components/OwnersCard/OwnersCard.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';
   import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
@@ -192,6 +193,11 @@
     />
 
     {#if organizationId}
+      <OwnersCard
+        workspaceId={organizationId}
+        members={[...userById.values()]}
+        canManage={can(Permission.MANAGE_OWNERS, target)}
+      />
       {#await loadPendingInvitations() then { default: PendingInvitations }}
         <PendingInvitations workspaceId={organizationId} />
       {/await}

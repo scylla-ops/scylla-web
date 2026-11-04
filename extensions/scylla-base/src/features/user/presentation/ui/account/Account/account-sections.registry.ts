@@ -6,11 +6,7 @@ import UserIcon from '@lucide/svelte/icons/user';
 import type { LucideIcon } from '@scylla/ui';
 import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
-export type AccountSectionId =
-  | 'profile'
-  | 'appearance'
-  | 'security'
-  | 'danger-zone';
+export type AccountSectionId = 'profile' | 'appearance' | 'security' | 'danger-zone';
 
 export interface AccountSection {
   /** The last segment of the URL: `account/<id>`. */

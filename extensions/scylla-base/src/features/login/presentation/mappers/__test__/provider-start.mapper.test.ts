@@ -15,4 +15,10 @@ describe('providerStartUrl', () => {
       '/auth/corp%20sso/start?return_to=http%3A%2F%2Flocalhost%2F',
     );
   });
+
+  it('asks for a link to the account of the session', () => {
+    expect(providerStartUrl('', 'github', 'http://localhost', '/account', { link: true })).toBe(
+      '/auth/github/start?return_to=http%3A%2F%2Flocalhost%2Faccount&link=true',
+    );
+  });
 });

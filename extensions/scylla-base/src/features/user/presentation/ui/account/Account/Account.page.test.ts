@@ -145,7 +145,7 @@ describe('AccountPage', () => {
     await screen.findByRole('region', { name: 'Password' });
     expect(
       screen.getAllByRole('heading', { level: 2 }).map(heading => heading.textContent?.trim()),
-    ).toEqual(['Password', 'Sessions']);
+    ).toEqual(['Email', 'Ways to sign in', 'Password', 'Sessions']);
   });
 
   it('sends an unknown section to the profile', async () => {

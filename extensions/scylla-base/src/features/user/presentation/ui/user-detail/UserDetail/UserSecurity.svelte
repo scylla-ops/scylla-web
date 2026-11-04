@@ -18,4 +18,11 @@
   >
     {page.user?.isActive ? t(userMessages.deactivate) : t(userMessages.reactivate)}
   </Button>
+  {#if page.canChangeAdmin}
+    <Button variant="outline" disabled={page.isBusy} onclick={page.toggleInstanceAdmin}>
+      {page.user?.instanceAdmin
+        ? t(userMessages.removeInstanceAdmin)
+        : t(userMessages.makeInstanceAdmin)}
+    </Button>
+  {/if}
 </div>

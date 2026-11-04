@@ -1,11 +1,17 @@
 import type { OrganizationRepository } from '@base/features/organization/domain/repository/organization.repository.ts';
-import type { OrganizationEntity } from '@base/features/organization/domain/entities/organization.entity.ts';
+import type {
+  OrganizationEntity,
+  WorkspaceOwner,
+} from '@base/features/organization/domain/entities/organization.entity.ts';
 import type { IWorkspaceServiceClient } from '@base/generated/scylla/workspaces/v1/workspace_service.client.ts';
 import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import type { AccessEntry } from '@base/generated/scylla/access/v1/access_service.ts';
-import type { Workspace } from '@base/generated/scylla/workspaces/v1/workspace.ts';
+import type {
+  Workspace,
+  WorkspaceOwner as GrpcWorkspaceOwner,
+} from '@base/generated/scylla/workspaces/v1/workspace.ts';
 import type { UserSummary } from '@base/features/user';
-import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcOrganization from './grpc-organization.mapper.ts';
 import * as grpcOrganizationMember from './grpc-organization-member.mapper.ts';
 
@@ -78,5 +84,32 @@ export class DefaultOrganizationRepository implements OrganizationRepository {
 
   public async delete(organizationId: string): Promise<void> {
     await this.workspaces.deleteWorkspace({ workspaceId: wrapId(organizationId) }).response;
+  }
+
+  public async listOwners(organizationId: string): Promise<WorkspaceOwner[]> {
+    const owners = await allPages<GrpcWorkspaceOwner>(async token => {
+      const response = await this.workspaces.listOwners({
+        workspaceId: wrapId(organizationId),
+        page: { size: PAGE_SIZE, token },
+      }).response;
+      return { items: response.owners, next: response.page?.nextToken ?? '' };
+    });
+    return owners.map(owner => ({
+      userId: idValue(owner.userId),
+      displayName: owner.displayName,
+      since: timestampToIso(owner.since),
+    }));
+  }
+
+  public async addOwner(organizationId: string, userId: string): Promise<void> {
+    await this.workspaces.addOwner({ workspaceId: wrapId(organizationId), userId: wrapId(userId) })
+      .response;
+  }
+
+  public async removeOwner(organizationId: string, userId: string): Promise<void> {
+    await this.workspaces.removeOwner({
+      workspaceId: wrapId(organizationId),
+      userId: wrapId(userId),
+    }).response;
   }
 }
