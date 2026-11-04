@@ -9,6 +9,7 @@ import type {
 import type { CiIdentityEntity, CreateCiIdentityInput } from '../entities/ci-identity.entity.ts';
 import type { AgentStats } from '../structs/agent-stats.struct.ts';
 import type { RunnerChange } from '../structs/agent-access.struct.ts';
+import type { RoleGrant } from '../structs/app-grants.struct.ts';
 import type {
   ApiToken,
   CreatedToken,
@@ -32,6 +33,8 @@ export interface AppsRepository {
   deleteApp(appId: string): Promise<void>;
   /** Gives and takes back the role `runner` of an agent, one change after the other. */
   changeRunner(workspaceId: string, appId: string, changes: readonly RunnerChange[]): Promise<void>;
+  /** Gives roles to an app, one after the other. */
+  grantRoles(workspaceId: string, appId: string, grants: readonly RoleGrant[]): Promise<void>;
   /** A new join code: one more machine, or the same machine with a new key. */
   createJoinCode(appId: string): Promise<JoinCode>;
   revokeKey(appId: string, keyId: string): Promise<void>;

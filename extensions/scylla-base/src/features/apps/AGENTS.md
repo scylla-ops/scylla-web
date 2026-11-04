@@ -40,6 +40,15 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   them one by one), the keys (rename, revoke, new join code) and the delete zone (type the name).
   An agent that never said hello shows a connect card with a join code made on open. The other
   apps keep `ui/AppDetails/` (route `/apps/:appId`).
+- "Add an app" (`components/AddAppDialog/`) has three steps: name and roles (`grantsOf`), the
+  connection (API token, CI identity or key pair), and the credential.
+  `credentialMutations.createApp` makes the app, gives its roles, then makes the credential; a
+  key pair gets the join code of the new app at the end of step 2. The token form is shared
+  (`@shared/presentation/ui` `TokenForm`, `@shared/domain/structs/token-actions.struct.ts`: the
+  boxes of the advanced limits and the presets). A CI identity gets the preset `full`: its roles
+  bound it. `ci-ref.struct.ts` writes a GitHub branch as `refs/heads/<name>`, because the server
+  compares the `ref` claim as it is. The code samples (`app-snippets.struct.ts`) call the JSON
+  gateway `POST /api/<package>.<Service>/<Method>`.
 - `appQueries.runners` and `loadNoAgentsBanner` serve the pipelines and the jobs: they warn when
   jobs wait and no agent is connected.
 

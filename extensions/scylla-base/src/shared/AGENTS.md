@@ -110,6 +110,15 @@ them) and not spaces only, a confirmation equal to the new password, a username 
 them, and `@scylla/base-sdk` exports them (`@scylla/base/account-validation`) for the forms of
 other extensions: keep their messages, the msgids are shared.
 
+## The token form
+
+`TokenForm` (`presentation/ui/forms/`) is the form of a new API token: the name, the life (7, 30,
+90 or 365 days), the limits (a preset, or the boxes of `token-actions.struct.ts`: a changed box
+gives the preset `custom` with the methods of the checked boxes) and the projects. The caller
+gives the projects and the hint, because `shared/` cannot read the projects. The app tokens use
+it, and the personal tokens must use it too. When the server gets a new method, add it to its
+box in `ACTION_GROUPS`.
+
 ## Rules that bite here
 
 - **`refusalOf(result)`** is for a call whose FAILED_PRECONDITION a page shows itself, beside a

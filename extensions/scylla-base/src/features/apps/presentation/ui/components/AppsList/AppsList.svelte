@@ -10,11 +10,12 @@
   import { appStateOf } from '@base/features/apps/domain/entities/app.entity.ts';
   import { appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import AppStateDot from '../AppStateDot/AppStateDot.svelte';
-  import CreateAppDialog from '../CreateAppDialog/CreateAppDialog.svelte';
+  import AddAppDialog from '../AddAppDialog/AddAppDialog.svelte';
   import { appsMessages } from '@base/features/apps/presentation/messages/apps.messages.ts';
 
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id ?? '');
+  const workspaceName = $derived(context().workspace.name ?? '');
 
   let createOpen = $state(false);
 
@@ -84,10 +85,10 @@
 </div>
 
 {#if workspaceId}
-  <CreateAppDialog
+  <AddAppDialog
     open={createOpen}
     setOpen={open => (createOpen = open)}
     {workspaceId}
-    runner={false}
+    {workspaceName}
   />
 {/if}

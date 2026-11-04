@@ -25,9 +25,9 @@ export type AppFilter = 'all' | 'agents' | 'others';
 const runnerOf = (filter: AppFilter): boolean | undefined =>
   filter === 'all' ? undefined : filter === 'agents';
 
-/** A machine joined with a new key, and the agent is connected. */
+/** A machine joined with a new key, and, for an agent, it is connected. */
 export const hasJoined = (details: AppDetails | undefined, keysBefore: number): boolean =>
-  !!details && details.app.connected && details.keys.length > keysBefore;
+  !!details && details.keys.length > keysBefore && (!details.app.runner || details.app.connected);
 
 export const APPS_QUERY_ROOT = ['apps'] as const;
 /** The onboarding tour follows the creation of the first agent. */

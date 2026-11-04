@@ -9,3 +9,4 @@ export {
   type MissingUser,
   type UserIdentityProfile,
 } from '../presenters/user-identity.presenter.ts';
+export { default as TokenForm } from './forms/TokenForm/TokenForm.svelte';

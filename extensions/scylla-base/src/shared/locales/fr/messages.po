@@ -13,6 +13,14 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:7
+msgid "{count, plural, one {# day} other {# days}}"
+msgstr "{count, plural, one {# jour} other {# jours}}"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:8
+msgid "1 year"
+msgstr "1 an"
+
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:8
 msgid "A username cannot contain \"@\"."
 msgstr "Un nom d'utilisateur ne peut pas contenir \"@\"."
@@ -21,9 +29,25 @@ msgstr "Un nom d'utilisateur ne peut pas contenir \"@\"."
 msgid "Add another sign-in method before you remove this one"
 msgstr "Ajoutez une autre méthode de connexion avant de retirer celle-ci"
 
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:17
+msgid "Advanced: choose the actions"
+msgstr "Avancé : choisir les actions"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:18
+msgid "Advanced: custom actions (no preset)"
+msgstr "Avancé : actions personnalisées (sans préréglage)"
+
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:32
 msgid "Agent id copied"
 msgstr "ID d'agent copié"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:35
+msgid "All projects"
+msgstr "Tous les projets"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:16
+msgid "All that the roles allow."
+msgstr "Tout ce que les rôles permettent."
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:9
 msgid "An account already uses this email"
@@ -65,9 +89,22 @@ msgstr "Un autre espace de travail utilise déjà cette adresse"
 msgid "App id copied"
 msgstr "ID d'application copié"
 
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:24
+msgid "Apps"
+msgstr "Apps"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:29
+msgid "Cancel"
+msgstr "Annuler"
+
 #: extensions/scylla-base/src/shared/utils/status-config.ts:84
 msgid "Cancelled"
 msgstr "Annulé"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:27
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:34
+msgid "Change"
+msgstr "Modifier"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:33
 msgid "Could not copy: select the id manually"
@@ -81,17 +118,45 @@ msgstr "Supprimez d'abord les projets et les agents de l'espace de travail"
 msgid "Deleted user"
 msgstr "Utilisateur supprimé"
 
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:13
+msgid "Deploy"
+msgstr "Déploiement"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:5
+msgid "deploy-script"
+msgstr "deploy-script"
+
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:4
 msgid "Enter a valid email address."
 msgstr "Saisissez une adresse e-mail valide."
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:6
+msgid "Expires in"
+msgstr "Expire dans"
 
 #: extensions/scylla-base/src/shared/utils/status-config.ts:57
 msgid "Failed"
 msgstr "Échoué"
 
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:15
+msgid "Full"
+msgstr "Complet"
+
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:27
 msgid "Job queued: no agent connected"
 msgstr "Travail mis en file d'attente : aucun agent connecté"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:21
+msgid "Jobs"
+msgstr "Jobs"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:10
+msgid "Limits"
+msgstr "Limites"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:31
+msgid "Manage"
+msgstr "Gérer"
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:17
 msgid "No account is linked to this identity"
@@ -100,6 +165,14 @@ msgstr "Aucun compte n'est lié à cette identité"
 #: extensions/scylla-base/src/shared/presentation/messages/status-bar.messages.ts:4
 msgid "No data"
 msgstr "Aucune donnée"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:37
+msgid "No project yet."
+msgstr "Aucun projet pour l'instant."
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:9
+msgid "On {day}. A token never lasts forever."
+msgstr "Le {day}. Un token ne dure jamais pour toujours."
 
 #: extensions/scylla-base/src/shared/utils/status-config.ts:75
 msgid "Orphaned"
@@ -133,6 +206,10 @@ msgstr "Pipeline exécuté"
 msgid "Pipeline ran: check that your agents are connected"
 msgstr "Pipeline exécutée : vérifiez que vos agents sont bien connectés"
 
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:20
+msgid "Pipelines"
+msgstr "Pipelines"
+
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:17
 msgid "Project created"
 msgstr "Projet créé"
@@ -149,9 +226,49 @@ msgstr "Le nom du projet est requis et vous devez sélectionner un espace de tra
 msgid "Project updated"
 msgstr "Projet mis à jour"
 
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:19
+msgid "Projects"
+msgstr "Projets"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:33
+msgid "Projects: {names}"
+msgstr "Projets : {names}"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:32
+msgid "Projects: all projects"
+msgstr "Projets : tous les projets"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:25
+msgid "Read"
+msgstr "Lire"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:30
+msgid "Read logs"
+msgstr "Lire les logs"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:26
+msgid "Read names"
+msgstr "Lire les noms"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:11
+msgid "Read-only"
+msgstr "Lecture seule"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:12
+msgid "Reads projects, pipelines, jobs and logs."
+msgstr "Lit les projets, pipelines, jobs et logs."
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:28
+msgid "Run"
+msgstr "Lancer"
+
 #: extensions/scylla-base/src/shared/utils/status-config.ts:29
 msgid "Running"
 msgstr "En cours"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:14
+msgid "Runs pipelines. Reads jobs and logs."
+msgstr "Lance les pipelines. Lit les jobs et les logs."
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:39
 msgid "Secret created"
@@ -165,6 +282,10 @@ msgstr "Secret supprimé"
 msgid "Secret updated"
 msgstr "Secret modifié"
 
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:22
+msgid "Secrets"
+msgstr "Secrets"
+
 #: extensions/scylla-base/src/shared/utils/scylla-error.ts:137
 msgid "Server unreachable"
 msgstr "Serveur injoignable"
@@ -176,6 +297,10 @@ msgstr "Les inscriptions sont fermées sur ce serveur"
 #: extensions/scylla-base/src/shared/utils/status-config.ts:66
 msgid "Skipped"
 msgstr "Ignoré"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:36
+msgid "Some projects"
+msgstr "Certains projets"
 
 #: extensions/scylla-base/src/shared/utils/status-config.ts:48
 msgid "Success"
@@ -241,6 +366,10 @@ msgstr "Cette identité est déjà liée à un autre compte"
 msgid "This invitation is for another email address"
 msgstr "Cette invitation est pour une autre adresse e-mail"
 
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:4
+msgid "Token name"
+msgstr "Nom du token"
+
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:44
 msgid "Trigger created"
 msgstr "Déclencheur créé"
@@ -264,6 +393,10 @@ msgstr "Déclencheur déclenché : exécution démarrée"
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:45
 msgid "Trigger updated"
 msgstr "Déclencheur mis à jour"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:23
+msgid "Triggers"
+msgstr "Déclencheurs"
 
 #: extensions/scylla-base/src/shared/utils/status-config.ts:94
 msgid "Unknown"
