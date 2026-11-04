@@ -22,6 +22,9 @@ export type NavNode = NavItem | NavGroupItem;
 
 export const isNavGroup = (node: NavNode): node is NavGroupItem => 'items' in node;
 
+export const isNavItemActive = (item: NavItem, pathname: string): boolean =>
+  pathname.startsWith(item.href);
+
 export interface NavSection {
   id: string;
   title: string;

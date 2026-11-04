@@ -10,9 +10,10 @@
     SIDEBAR_FADE,
   } from '@scylla/ui/primitives';
   import { NAV_SECTION_CARD_CLASS, NAV_SECTION_DIVIDER_CLASS } from './nav-classes.ts';
+  import { isNavGroupOpen, toggleNavGroup } from './nav-groups.state.svelte.ts';
   import {
     isNavGroup,
-    type NavGroupItem,
+    isNavItemActive,
     type NavItem,
     type NavNode,
     type NavSection,
@@ -28,14 +29,7 @@
   const pathname = $derived(routePathname());
   const badges = $derived(contributions.flatMap(shell => shell.navBadge ?? []));
 
-  /** The groups that the user opened or closed. A group with no choice is open on its pages. */
-  let chosen = $state<Record<string, boolean>>({});
-
-  const isActive = (item: NavItem) => pathname.startsWith(item.href);
-  const isOpen = (group: NavGroupItem) => chosen[group.id] ?? group.items.some(isActive);
-  const toggle = (group: NavGroupItem) => {
-    chosen[group.id] = !isOpen(group);
-  };
+  const isActive = (item: NavItem) => isNavItemActive(item, pathname);
 
   const open = (item: NavItem) => {
     contributions.forEach(shell => shell.onNavOpen?.(item.url));
@@ -80,12 +74,12 @@
           class="transition-transform duration-200 hover:scale-105 group-data-[collapsible=icon]:hover:scale-100"
         >
           {#if isNavGroup(node)}
-            {@const expanded = isOpen(node)}
+            {@const expanded = isNavGroupOpen(node.id)}
             <SidebarMenuButton
               tooltip={node.title}
               isActive={!expanded && node.items.some(isActive)}
               aria-expanded={expanded}
-              onclick={() => toggle(node)}
+              onclick={() => toggleNavGroup(node.id)}
               data-nav-group={node.id}
             >
               {#if node.icon}

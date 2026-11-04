@@ -44,7 +44,8 @@ src/
   shell/
     ShellFrame/                                sidebar + top bar around the pages of a `shell` mount
     AppSidebar/                                the sidebar, built from the nav entries
-                                               (NavMain, nav-sections.ts, nav-classes.ts; a NavGroup folds its links)
+                                               (NavMain, nav-sections.ts, nav-classes.ts; a NavGroup folds its links,
+                                               nav-groups.state.svelte.ts keeps which groups are open)
     TopBar/                                    SidebarTrigger + the crumbs of the route trail
                                                (ShellBreadcrumbs, breadcrumbs.ts)
     LanguageSelector/
@@ -137,6 +138,11 @@ module gives an access policy.
   word appears in `shell/`.
 - A sidebar link carries `data-nav-url` (its path in the mount): code outside the core can point
   at a link without knowing its title.
+- **A folding group never closes by itself.** It opens when the user goes to a page of its links.
+  Only the user closes it, and it stays closed until the user opens it or goes to a page of its
+  links. The open state is in memory, out of the sidebar, because a page with no shell unmounts
+  the sidebar. A page load resets it. `AppSidebar` watches the pages, not `NavMain`: `NavMain`
+  unmounts while the access policy is not ready.
 
 ## Tests
 

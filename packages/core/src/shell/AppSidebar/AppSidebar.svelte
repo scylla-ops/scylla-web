@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { routeParams } from '@scylla/core-sdk';
+  import { routeParams, routePathname } from '@scylla/core-sdk';
   import {
     Sidebar,
     SidebarContent,
@@ -12,6 +12,7 @@
   import { fillPath } from '../../routing/compilation/route-path.ts';
   import LanguageSelector from '../LanguageSelector/LanguageSelector.svelte';
   import { NAV_SECTION_CARD_CLASS, NAV_SECTION_DIVIDER_CLASS } from './nav-classes.ts';
+  import { openNavGroupsOnArrival } from './nav-groups.state.svelte.ts';
   import { navSectionsFor } from './nav-sections.ts';
   import NavMain from './NavMain.svelte';
   import { mergeParams, type ShellConfig } from '../shell-config.ts';
@@ -36,6 +37,8 @@
       translate: t,
     }),
   );
+
+  openNavGroupsOnArrival(() => sections, routePathname);
 </script>
 
 <Sidebar variant="inset" collapsible="icon">

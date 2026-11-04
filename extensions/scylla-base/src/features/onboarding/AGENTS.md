@@ -96,8 +96,8 @@ Anchors are attributes on the real elements, never CSS classes:
   inset and the dialogs.
 - The agent steps use the agents page (`/agents`, `data-tour="agents"`) and its "Add an agent"
   dialog: `app-join-code` (the install command) and `app-dialog-actions` (the footer). The
-  "Agents" link is in the group "Machines", folded on the other pages: the step points at the
-  group until the link shows.
+  "Agents" link is in the group "Machines", which can be folded: the step points at the group
+  until the link shows.
 
 Removing or renaming one of these breaks a step without a type error. `tour-steps.test.ts` pins
 the anchors that carry logic.
