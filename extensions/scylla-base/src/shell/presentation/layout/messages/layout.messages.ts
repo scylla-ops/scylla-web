@@ -3,7 +3,9 @@ import { msg } from '@lingui/core/macro';
 export const layoutMessages = {
   workspace: msg`Workspace`,
   project: msg`Project`,
-  system: msg`System`,
+  access: msg`Access`,
+  instance: msg`Instance`,
+  instanceAdmins: msg`Instance · admins`,
   selectWorkspace: msg`Select Workspace`,
   createWorkspace: msg`Create a workspace`,
   welcome: msg`Welcome to Scylla!`,

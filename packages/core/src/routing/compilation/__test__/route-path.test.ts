@@ -1,6 +1,14 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { fillPath } from '../route-path.ts';
+import { bySpecificity, fillPath } from '../route-path.ts';
+
+describe('bySpecificity', () => {
+  it('puts a static path before a parameter, also with the root path in the list', () => {
+    const paths = [[':slug'], [], ['login']];
+
+    expect([...paths].sort(bySpecificity)).toEqual([[], ['login'], [':slug']]);
+  });
+});
 
 describe('fillPath', () => {
   it('fills each parameter of the pattern, encoded', () => {

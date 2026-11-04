@@ -21,16 +21,14 @@ export const UserModule = {
     userRepository: repository,
   },
   routes: {
-    workspace: [
+    instance: [
       {
         path: 'users',
         permission: Permission.LIST_USERS,
         breadcrumb: () => ({ label: msg`Users` }),
         page: () => import('./presentation/ui/admin/UserAdmin.page.svelte'),
-        nav: { section: 'system', title: msg`Users`, icon: UsersIcon, order: 10 },
+        nav: { section: 'instance', title: msg`Users`, icon: UsersIcon, order: 10 },
         children: [
-          // The old address of the own settings: the account page replaces it.
-          { path: 'me', redirect: '../../account' },
           {
             // No `permission`: the page sends the own id to `account` before it checks READ_USER,
             // so an old link to the own settings works without that permission.
@@ -40,6 +38,8 @@ export const UserModule = {
           },
         ],
       },
+    ],
+    workspace: [
       {
         // The account of the session, in the frame of the workspace: its calls need no grant.
         path: 'account',

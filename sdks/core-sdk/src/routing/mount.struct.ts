@@ -18,4 +18,6 @@ export interface MountDefinition {
   /** Inside the wrappers of the parent mounts. */
   wrapper?: RouteWrapper;
   breadcrumb?: BreadcrumbFn;
+  /** The trail of its pages starts here: the crumbs of the parent mounts do not show. */
+  rootCrumb?: boolean;
 }

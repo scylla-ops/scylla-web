@@ -64,7 +64,7 @@ const goToTriggers = (id: string, name: string) => {
 };
 
 const goToUser = (userId: string) => {
-  navigateTo(`${getWorkspacePrefix()}/users/${userId}`);
+  navigateTo(`${getWorkspacePrefix()}/instance/users/${userId}`);
 };
 
 /** The account of the session. */

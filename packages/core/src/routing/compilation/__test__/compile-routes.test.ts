@@ -24,7 +24,18 @@ const configWith = (...routes: ModuleRoutes[]): AppRouterConfig => ({
   mounts: {
     public: {},
     app: { layout: Layout, shell: true },
-    workspace: { parent: 'app', path: ':workspaceSlug', wrapper: WorkspaceWrapper },
+    workspace: {
+      parent: 'app',
+      path: ':workspaceSlug',
+      wrapper: WorkspaceWrapper,
+      breadcrumb: crumb('Workspace'),
+    },
+    instance: {
+      parent: 'workspace',
+      path: 'instance',
+      rootCrumb: true,
+      breadcrumb: crumb('Instance'),
+    },
     project: {
       parent: 'workspace',
       path: 'projects/:projectId',
@@ -42,7 +53,7 @@ const paths = (...routes: ModuleRoutes[]) => compile(...routes).map(route => joi
 const routeAt = (path: string, ...routes: ModuleRoutes[]) =>
   compile(...routes).find(route => joinPath(route.path) === path);
 const labelsOf = (route?: CompiledRoute) =>
-  route?.trail.map(mark => mark.breadcrumb({}).label.message);
+  route?.trail.map(mark => (mark.breadcrumb({}).label as { message: string }).message);
 
 describe('flattenModuleRoutes', () => {
   it('gives each child the path of its parents', () => {
@@ -218,8 +229,8 @@ describe('compileRoutes', () => {
         { workspace: [{ path: 'projects', breadcrumb: crumb('Projects'), page }] },
       );
 
-      expect(labelsOf(route)).toEqual(['Projects', 'Project', 'Jobs', 'Job']);
-      expect(route?.trail.map(mark => mark.depth)).toEqual([2, 3, 6, 7]);
+      expect(labelsOf(route)).toEqual(['Workspace', 'Projects', 'Project', 'Jobs', 'Job']);
+      expect(route?.trail.map(mark => mark.depth)).toEqual([1, 2, 3, 6, 7]);
     });
 
     it('skips the crumbs of paths the page is not under', () => {
@@ -230,7 +241,15 @@ describe('compileRoutes', () => {
         ],
       });
 
-      expect(route?.trail).toEqual([]);
+      expect(labelsOf(route)).toEqual(['Workspace']);
+    });
+
+    it('starts at a mount with a root crumb', () => {
+      const route = routeAt('/:workspaceSlug/instance/users', {
+        instance: [{ path: 'users', breadcrumb: crumb('Users'), page }],
+      });
+
+      expect(labelsOf(route)).toEqual(['Instance', 'Users']);
     });
   });
 

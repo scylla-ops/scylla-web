@@ -95,7 +95,7 @@ describe('WorkspaceList', () => {
     await userEvent.click(globexMembers);
 
     expect(navigator.navigate).toHaveBeenCalledTimes(1);
-    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/members', undefined);
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/access/members', undefined);
     expect(contextStore.getState().workspace.id).toBe('org-2');
   });
 

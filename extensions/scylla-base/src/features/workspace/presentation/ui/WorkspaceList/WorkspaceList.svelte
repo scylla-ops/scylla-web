@@ -99,7 +99,7 @@
                 contextStore
                   .getState()
                   .setWorkspace(workspace.id, workspace.name, workspace.slug);
-                navigateTo(workspaceUrl(workspace.slug, 'members'));
+                navigateTo(workspaceUrl(workspace.slug, 'access/members'));
               }}
               class="h-7 w-7"
               iconClass="h-3.5 w-3.5"

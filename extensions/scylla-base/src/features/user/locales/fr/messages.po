@@ -164,7 +164,7 @@ msgstr "Supprimer cet utilisateur ?"
 msgid "Delete user"
 msgstr "Supprimer l'utilisateur"
 
-#: extensions/scylla-base/src/features/user/user.module.ts:38
+#: extensions/scylla-base/src/features/user/user.module.ts:36
 msgid "Detail"
 msgstr "Détail"
 
@@ -420,7 +420,7 @@ msgid "Unlink"
 msgstr "Dissocier"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:4
-#: extensions/scylla-base/src/features/user/user.module.ts:38
+#: extensions/scylla-base/src/features/user/user.module.ts:36
 msgid "User"
 msgstr "Utilisateur"
 

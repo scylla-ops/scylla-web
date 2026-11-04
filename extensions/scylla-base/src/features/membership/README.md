@@ -4,7 +4,7 @@
 > [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
 
 Who belongs to an workspace or a project, with which roles, and how to change that. Two
-pages — `/:org/members` and `/:org/projects/:projectId/members` — showing the same idea about
+pages — `/:org/access/members` and `/:org/projects/:projectId/members` — showing the same idea about
 two different subjects.
 
 ## Why membership is its own module

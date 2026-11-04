@@ -10,13 +10,13 @@ export const ExtensionsModule = {
   id: 'extensions',
   domain: { extensionRepository },
   routes: {
-    workspace: [
+    instance: [
       {
         permission: Permission.MANAGE_ROLES,
         path: 'extensions',
         breadcrumb: () => ({ label: msg`Extensions` }),
         page: () => import('./presentation/ui/Extensions/Extensions.page.svelte'),
-        nav: { section: 'system', title: msg`Extensions`, icon: PuzzleIcon, order: 30 },
+        nav: { section: 'instance', title: msg`Extensions`, icon: PuzzleIcon, order: 40 },
       },
     ],
   },

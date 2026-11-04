@@ -7,6 +7,16 @@ const translate = (message: { id: string; message?: string }) =>
   `t:${message.message ?? message.id}`;
 
 describe('breadcrumbsFor', () => {
+  it('shows a text label as it is', () => {
+    const trail: TrailCrumb[] = [
+      { breadcrumb: ({ workspaceName }) => ({ label: workspaceName ?? '' }), pathname: '/acme' },
+    ];
+
+    expect(breadcrumbsFor(trail, { workspaceName: 'acme' }, translate)).toEqual([
+      { label: 'acme', pathname: '/acme' },
+    ]);
+  });
+
   it('translates the label and the detail, and keeps the highlight as it is', () => {
     const trail: TrailCrumb[] = [
       {

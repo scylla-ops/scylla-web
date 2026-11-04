@@ -90,19 +90,31 @@ const placeInMount = (route: FlatRoute, mounts: Mounts): FlatRoute => ({
   path: [...mountPath(route.mount, mounts), ...route.path],
 });
 
+/** The paths of the mounts where a trail starts. */
+const rootCrumbPaths = (mounts: Mounts): RoutePath[] =>
+  Object.keys(mounts)
+    .filter(mount => mounts[mount].rootCrumb)
+    .map(mount => mountPath(mount, mounts));
+
 /**
  * The crumbs of a page: those of every path its own path starts with, from the
  * root. So the page of `jobs/:jobId` shows the crumb that another module
- * declares on `jobs`.
+ * declares on `jobs`. Under a mount with `rootCrumb`, the trail starts at that mount.
  */
 export const trailOf = (
   path: RoutePath,
   crumbs: readonly { path: RoutePath; breadcrumb: BreadcrumbFn }[],
-): TrailMark[] =>
-  crumbs
-    .filter(crumb => startsWithPath(path, crumb.path))
+  roots: readonly RoutePath[] = [],
+): TrailMark[] => {
+  const start = Math.max(
+    0,
+    ...roots.filter(root => startsWithPath(path, root)).map(root => root.length),
+  );
+  return crumbs
+    .filter(crumb => startsWithPath(path, crumb.path) && crumb.path.length >= start)
     .sort((a, b) => a.path.length - b.path.length)
     .map(crumb => ({ breadcrumb: crumb.breadcrumb, depth: crumb.path.length }));
+};
 
 const assertGuarded = (routes: readonly CompiledRoute[], guard: RouteTable['guard']): void => {
   const gated = routes.find(route => route.permission !== undefined);
@@ -148,6 +160,7 @@ export const compileRoutes = ({
   const crumbs = declared.flatMap(({ path, breadcrumb }) =>
     breadcrumb ? [{ path, breadcrumb }] : [],
   );
+  const roots = rootCrumbPaths(mounts);
 
   const routes: CompiledRoute[] = declared
     .filter(route => route.page || route.redirect)
@@ -163,7 +176,7 @@ export const compileRoutes = ({
         layout: chain[0].layout,
         shell: chain[0].shell ?? false,
         wrappers: chain.flatMap(definition => (definition.wrapper ? [definition.wrapper] : [])),
-        trail: trailOf(path, crumbs),
+        trail: trailOf(path, crumbs, roots),
       };
     })
     .sort((a, b) => bySpecificity(a.path, b.path));

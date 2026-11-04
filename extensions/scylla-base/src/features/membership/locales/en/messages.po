@@ -105,9 +105,9 @@ msgstr "Member"
 msgid "Member added with {count} role(s)"
 msgstr "Member added with {count} role(s)"
 
-#: extensions/scylla-base/src/features/membership/membership.module.ts:15
-#: extensions/scylla-base/src/features/membership/membership.module.ts:17
-#: extensions/scylla-base/src/features/membership/membership.module.ts:24
+#: extensions/scylla-base/src/features/membership/membership.module.ts:16
+#: extensions/scylla-base/src/features/membership/membership.module.ts:20
+#: extensions/scylla-base/src/features/membership/membership.module.ts:31
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:13
 msgid "Members"
 msgstr "Members"

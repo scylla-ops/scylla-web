@@ -28,14 +28,15 @@ export const startsWithPath = (path: RoutePath, prefix: RoutePath): boolean =>
 /**
  * Orders the more specific path first: at the first segment where the two
  * differ in kind, a static segment beats a parameter. So `/login` is tried
- * before `/:workspaceSlug`.
+ * before `/:workspaceSlug`. With no such segment, the shorter path comes first, so
+ * the order stays consistent for any list of paths.
  */
 export const bySpecificity = (a: RoutePath, b: RoutePath): number => {
   for (let index = 0; index < Math.min(a.length, b.length); index++) {
     const rank = Number(isParam(a[index])) - Number(isParam(b[index]));
     if (rank !== 0) return rank;
   }
-  return 0;
+  return a.length - b.length;
 };
 
 /** `[':workspaceSlug', 'agents']` with `{ workspaceSlug: 'acme' }` → `/acme/agents`. `null` when a parameter has no value. */

@@ -25,6 +25,10 @@ msgstr "1 an"
 msgid "A username cannot contain \"@\"."
 msgstr "Un nom d'utilisateur ne peut pas contenir \"@\"."
 
+#: extensions/scylla-base/src/shared/presentation/access-nav.ts:6
+msgid "Access"
+msgstr "Accès"
+
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:19
 msgid "Add another sign-in method before you remove this one"
 msgstr "Ajoutez une autre méthode de connexion avant de retirer celle-ci"

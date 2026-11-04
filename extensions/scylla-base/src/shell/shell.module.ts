@@ -28,22 +28,42 @@ export const ShellModule = {
     app: { layout: AppLayout, shell: true },
     // Signed in, but outside any workspace: a user who has none reaches these pages too.
     personal: { layout: PersonalLayout },
-    workspace: { parent: 'app', path: ':workspaceSlug', wrapper: WorkspaceSyncWrapper },
+    workspace: {
+      parent: 'app',
+      path: ':workspaceSlug',
+      wrapper: WorkspaceSyncWrapper,
+      breadcrumb: ({ workspaceName }) => ({ label: workspaceName ?? layoutMessages.workspace }),
+    },
+    // Members and roles of the workspace.
+    access: {
+      parent: 'workspace',
+      path: 'access',
+      breadcrumb: () => ({ label: layoutMessages.access }),
+    },
+    // The pages of the whole server: they do not belong to the active workspace.
+    instance: {
+      parent: 'workspace',
+      path: 'instance',
+      rootCrumb: true,
+      breadcrumb: () => ({ label: layoutMessages.instance }),
+    },
     project: {
       parent: 'workspace',
       path: 'projects/:projectId',
       wrapper: ContextCleanerWrapper,
-      breadcrumb: ({ projectName }) => ({ label: layoutMessages.project, highlight: projectName }),
+      breadcrumb: ({ projectName }) => ({ label: projectName ?? layoutMessages.project }),
     },
   },
   routes: {
     // The pages the shell owns, which send the user on to a module's page.
     app: [{ page: () => import('./presentation/router/WorkspaceRedirect.wrapper.svelte') }],
     workspace: [{ redirect: 'dashboard' }],
+    access: [{ redirect: 'members' }],
+    instance: [{ redirect: 'users' }],
   },
   navSections: [
     { id: 'workspace', title: layoutMessages.workspace, header: WorkspaceSelector },
-    { id: 'system', title: layoutMessages.system },
+    { id: 'instance', title: layoutMessages.instanceAdmins },
   ],
   access: { can: permission => can(permission), ready: authorizationReady, guard: RequirePermission },
   shell: {
