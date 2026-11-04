@@ -1,5 +1,6 @@
 import type { IAppServiceClient } from '@base/generated/scylla/apps/v1/app_service.client.ts';
 import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
+import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import type { App } from '@base/generated/scylla/apps/v1/app.ts';
 import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
 import type {
@@ -23,6 +24,7 @@ export class DefaultAppsRepository implements AppsRepository {
   constructor(
     private readonly client: IAppServiceClient,
     private readonly jobs: IJobServiceClient,
+    private readonly access: IAccessServiceClient,
   ) {}
 
   public async listApps(workspaceId: string, runner?: boolean): Promise<AppEntity[]> {
@@ -54,8 +56,16 @@ export class DefaultAppsRepository implements AppsRepository {
       name,
       runner,
     }).response;
+    const app = requireApp(response.app, 'CreateApp');
+    if (runner) {
+      await this.access.grant({
+        object: { kind: 'workspace', id: wrapId(workspaceId) },
+        role: 'runner',
+        actorId: wrapId(app.id),
+      }).response;
+    }
     return {
-      app: requireApp(response.app, 'CreateApp'),
+      app,
       joinCode: {
         code: response.joinCode,
         expiresAt: timestampToIso(response.joinCodeExpiresAt),

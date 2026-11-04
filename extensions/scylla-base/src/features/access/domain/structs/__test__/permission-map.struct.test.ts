@@ -20,9 +20,6 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'revoke_user_sessions',
     'grant_instance_admin',
     'revoke_instance_admin',
-    'create_workspace',
-    'list_workspaces',
-    'accept_invitation',
   ],
   workspace: [
     'add_app_key',
@@ -62,6 +59,7 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'list_workspace_jobs',
     'list_workspace_pipelines',
     'list_workspaces',
+
     'remove_owner',
     'rerun_job',
     'resend_invitation',

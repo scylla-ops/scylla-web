@@ -2,6 +2,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import type { IAppServiceClient } from '@base/generated/scylla/apps/v1/app_service.client.ts';
 import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
+import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import type { App } from '@base/generated/scylla/apps/v1/app.ts';
 import { JobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';
 import { unaryCall } from '@test/grpc.ts';
@@ -72,7 +73,8 @@ const clients = () => {
       }),
     ),
   } as unknown as IJobServiceClient;
-  return { apps, jobs, repository: new DefaultAppsRepository(apps, jobs) };
+  const access = { grant: vi.fn(() => unaryCall({})) } as unknown as IAccessServiceClient;
+  return { apps, jobs, access, repository: new DefaultAppsRepository(apps, jobs, access) };
 };
 
 describe('grpcApp.toDomain', () => {
@@ -127,13 +129,26 @@ describe('DefaultAppsRepository', () => {
     expect(apps.listApps).toHaveBeenCalledWith(expect.not.objectContaining({ runner: true }));
   });
 
-  it('gives the first join code of a new app', async () => {
-    const { repository } = clients();
+  it('gives the first join code of a new agent, and the runner role', async () => {
+    const { access, repository } = clients();
 
     await expect(repository.createApp('ws-1', 'builder', true)).resolves.toMatchObject({
       app: { id: 'app-1' },
       joinCode: { code: 'JOIN-1', expiresAt: ISO },
     });
+    expect(access.grant).toHaveBeenCalledWith({
+      object: { kind: 'workspace', id: { value: 'ws-1' } },
+      role: 'runner',
+      actorId: { value: 'app-1' },
+    });
+  });
+
+  it('gives no role to an app that runs no job', async () => {
+    const { access, repository } = clients();
+
+    await repository.createApp('ws-1', 'ci', false);
+
+    expect(access.grant).not.toHaveBeenCalled();
   });
 
   it('gives the keys of an app with the app', async () => {

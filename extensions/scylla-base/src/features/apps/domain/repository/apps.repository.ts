@@ -10,7 +10,10 @@ export interface AppsRepository {
   /** `runner`: only the agents, or only the other apps. Absent: every app. */
   listApps(workspaceId: string, runner?: boolean): Promise<AppEntity[]>;
   getApp(appId: string): Promise<AppDetails>;
-  /** Gives the first join code of the app. */
+  /**
+   * Gives the first join code of the app. An agent also gets the workspace role `runner`: with
+   * no role, it would take no job.
+   */
   createApp(workspaceId: string, name: string, runner: boolean): Promise<CreatedApp>;
   deleteApp(appId: string): Promise<void>;
   /** A new join code: one more machine, or the same machine with a new key. */

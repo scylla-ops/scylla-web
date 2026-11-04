@@ -5,12 +5,14 @@ import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
 import { AppServiceClient } from '@base/generated/scylla/apps/v1/app_service.client.ts';
 import { JobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
+import { AccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import { DefaultAppsRepository } from './infrastructure/default-apps.repository.ts';
 
 const transport = grpcTransport.getTransport();
 const appsRepository = new DefaultAppsRepository(
   new AppServiceClient(transport),
   new JobServiceClient(transport),
+  new AccessServiceClient(transport),
 );
 
 /** One page for the apps of a workspace; the agents are the apps that run jobs. */

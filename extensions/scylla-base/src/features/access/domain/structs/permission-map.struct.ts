@@ -16,8 +16,6 @@ const MAP: Partial<Record<Permission, Names>> = {
   [Permission.UPDATE_USER]: { platform: 'update_user' },
   [Permission.DELETE_USER]: { platform: 'delete_user' },
   [Permission.MANAGE_SYSTEM_GRANTS]: { platform: 'grant_instance_admin' },
-  [Permission.CREATE_WORKSPACE]: { platform: 'create_workspace' },
-  [Permission.LIST_WORKSPACES]: { platform: 'list_workspaces' },
   // A workspace.
   [Permission.READ_WORKSPACE]: { workspace: 'get_workspace' },
   [Permission.UPDATE_WORKSPACE]: { workspace: 'update_workspace' },
@@ -49,14 +47,23 @@ const MAP: Partial<Record<Permission, Names>> = {
   [Permission.DELETE_PIPELINE]: { workspace: 'delete_pipeline', project: 'delete_pipeline' },
   [Permission.RUN_PIPELINE]: { workspace: 'run_pipeline', project: 'run_pipeline' },
   [Permission.EXECUTE_JOB]: { workspace: 'run_pipeline', project: 'run_pipeline' },
-  [Permission.LIST_PIPELINES_BY_PROJECT]: { workspace: 'list_project_pipelines', project: 'list_project_pipelines' },
+  [Permission.LIST_PIPELINES_BY_PROJECT]: {
+    workspace: 'list_project_pipelines',
+    project: 'list_project_pipelines',
+  },
   [Permission.LIST_PIPELINES_BY_WORKSPACE]: { workspace: 'list_workspace_pipelines' },
   [Permission.READ_JOB]: { workspace: 'get_job', project: 'get_job' },
   [Permission.UPDATE_JOB]: { workspace: 'cancel_job', project: 'cancel_job' },
   [Permission.CREATE_JOB]: { workspace: 'rerun_job', project: 'rerun_job' },
   [Permission.DELETE_JOB]: { workspace: 'delete_job', project: 'delete_job' },
-  [Permission.LIST_JOBS_BY_PIPELINE]: { workspace: 'list_pipeline_jobs', project: 'list_pipeline_jobs' },
-  [Permission.LIST_JOBS_BY_PROJECT]: { workspace: 'list_pipeline_jobs', project: 'list_pipeline_jobs' },
+  [Permission.LIST_JOBS_BY_PIPELINE]: {
+    workspace: 'list_pipeline_jobs',
+    project: 'list_pipeline_jobs',
+  },
+  [Permission.LIST_JOBS_BY_PROJECT]: {
+    workspace: 'list_pipeline_jobs',
+    project: 'list_pipeline_jobs',
+  },
   [Permission.LIST_JOBS_BY_WORKSPACE]: { workspace: 'list_workspace_jobs' },
   [Permission.READ_JOB_LOGS]: { workspace: 'tail_job_logs', project: 'tail_job_logs' },
   // The triggers of a pipeline.
@@ -70,6 +77,15 @@ const MAP: Partial<Record<Permission, Names>> = {
   [Permission.CREATE_AGENT]: { workspace: 'create_app' },
   [Permission.LIST_AGENTS]: { workspace: 'list_apps' },
 };
+
+/**
+ * What each signed-in user may do: the server checks these on the caller itself (the `actor`
+ * definition), which `CheckPermissions` does not answer.
+ */
+export const EVERY_USER: readonly Permission[] = [
+  Permission.CREATE_WORKSPACE,
+  Permission.LIST_WORKSPACES,
+];
 
 /** The scope of the UI for each kind of object. */
 export const SCOPE_OF: Record<ObjectKind, PermissionScope> = {

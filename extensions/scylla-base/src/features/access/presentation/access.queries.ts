@@ -8,7 +8,12 @@ import {
   PLATFORM_ID,
   type ObjectRef,
 } from '../domain/structs/object-ref.struct.ts';
-import { SCOPE_OF, namesFor, permissionsFrom } from '../domain/structs/permission-map.struct.ts';
+import {
+  EVERY_USER,
+  SCOPE_OF,
+  namesFor,
+  permissionsFrom,
+} from '../domain/structs/permission-map.struct.ts';
 
 const repository = () => getModuleDomain<typeof AccessModule.domain>('access').accessRepository;
 
@@ -56,7 +61,13 @@ export const refreshMyPermissions = async (): Promise<void> => {
     ...(projectId ? [projectRef(projectId)] : []),
   ];
   try {
-    setPermissions({ scopes: await Promise.all(objects.map(scopeOf)) });
+    const scopes = await Promise.all(objects.map(scopeOf));
+    const everyUser: EffectiveScope = {
+      scope: SCOPE_OF.platform,
+      scopeId: '',
+      access: { kind: 'restricted', permissions: [...EVERY_USER] },
+    };
+    setPermissions({ scopes: [...scopes, everyUser] });
   } catch {
     // On failure: no permissions. The backend still enforces.
     setPermissions({ scopes: [] });
@@ -66,10 +77,7 @@ export const refreshMyPermissions = async (): Promise<void> => {
 /** Reloads only when user, workspace or project change. */
 let lastSyncedKey: string | null = null;
 
-export const syncMyPermissions = (
-  workspaceId: string | null,
-  projectId: string | null,
-): void => {
+export const syncMyPermissions = (workspaceId: string | null, projectId: string | null): void => {
   const userId = localStorage.getItem('userId') ?? '';
   const key = `${userId}/${workspaceId ?? ''}/${projectId ?? ''}`;
   if (lastSyncedKey === key) return;

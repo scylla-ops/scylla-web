@@ -7,7 +7,7 @@ export interface ObjectRef {
 }
 
 /** The id of the one platform object: the instance. */
-export const PLATFORM_ID = '00000000000000000000000000';
+export const PLATFORM_ID = '00000000-0000-0000-0000-000000000000';
 
 export const platformRef: ObjectRef = { kind: 'platform', id: PLATFORM_ID };
 export const workspaceRef = (id: string): ObjectRef => ({ kind: 'workspace', id });
