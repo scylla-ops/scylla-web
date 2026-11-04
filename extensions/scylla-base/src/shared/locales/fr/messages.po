@@ -260,7 +260,7 @@ msgstr "Lit les projets, pipelines, jobs et logs."
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:28
 msgid "Run"
-msgstr "Lancer"
+msgstr "Exécuter"
 
 #: extensions/scylla-base/src/shared/utils/status-config.ts:29
 msgid "Running"
