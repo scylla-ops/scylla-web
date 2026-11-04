@@ -73,16 +73,6 @@ const setUp = (
   repository = {
     getMe: vi.fn().mockResolvedValue(me),
     getById: vi.fn().mockResolvedValue(grace),
-    listAccess: vi.fn().mockResolvedValue([
-      {
-        grantId: 'g-1',
-        scope: 'organization',
-        organizationId: 'org-1',
-        organizationName: 'Acme',
-        roleId: 'organization-member',
-        roleName: 'Member',
-      },
-    ]),
     update: vi.fn().mockResolvedValue(grace),
     sendPasswordReset: vi.fn().mockResolvedValue('mail'),
     revokeSessions: vi.fn().mockResolvedValue(1),
@@ -100,7 +90,7 @@ const setUp = (
 beforeEach(() => {
   vi.clearAllMocks();
   navigator = installTestNavigator({ pathname: '/acme/users/user-2' });
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme' } });
+  contextStore.setState({ organization: { id: 'org-1', name: 'Acme', slug: null } });
 });
 
 afterEach(() => {
@@ -121,17 +111,6 @@ describe('UserDetailPage', () => {
     expect(screen.getByRole('button', { name: 'Copy the user ID' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: 'Grace Hopper' })).toBeInTheDocument();
     expect(screen.getByText('@grace')).toBeInTheDocument();
-  });
-
-  it('lists the organizations and roles of the user, read with the page', async () => {
-    setUp();
-
-    expect(await screen.findByRole('link', { name: 'Acme' })).toHaveAttribute(
-      'href',
-      '/acme/dashboard',
-    );
-    expect(screen.getByText('Member')).toBeInTheDocument();
-    expect(repository.listAccess).toHaveBeenCalledWith('user-2');
   });
 
   it('sends the own id to the account page', async () => {
@@ -156,7 +135,7 @@ describe('UserDetailPage', () => {
 
     expect(await screen.findByText("You don't have the permission")).toBeInTheDocument();
     expect(repository.getById).not.toHaveBeenCalled();
-    expect(repository.listAccess).not.toHaveBeenCalled();
+    expect(repository.listSessions).not.toHaveBeenCalled();
   });
 
   it('lets an administrator who may create users change the email', async () => {
@@ -190,16 +169,12 @@ describe('UserDetailPage', () => {
   });
 
   describe('sessions', () => {
-    it('comes after the organizations and roles, and before the security', async () => {
+    it('comes before the security', async () => {
       setUp();
 
       const sessionsSection = await screen.findByRole('region', { name: 'Sessions' });
-      const roles = screen.getByRole('region', { name: 'Organizations and roles' });
       const security = screen.getByRole('region', { name: 'Security' });
 
-      expect(
-        roles.compareDocumentPosition(sessionsSection) & Node.DOCUMENT_POSITION_FOLLOWING,
-      ).toBeTruthy();
       expect(
         sessionsSection.compareDocumentPosition(security) & Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
@@ -222,16 +197,11 @@ describe('UserDetailPage', () => {
       expect(repository.listSessions).toHaveBeenCalledWith('user-2');
     });
 
-    it('signs out one session of the user, then reads the list again', async () => {
+    it('offers no sign-out of one session of another user: the server revokes them all', async () => {
       setUp();
-      const user = userEvent.setup();
 
-      await user.click(await screen.findByRole('button', { name: 'Sign out gRPC Python' }));
-
-      await waitFor(() =>
-        expect(repository.revokeSession).toHaveBeenCalledWith('user-2', 'session-b'),
-      );
-      await waitFor(() => expect(repository.listSessions).toHaveBeenCalledTimes(2));
+      await screen.findByText('gRPC Python');
+      expect(screen.queryByRole('button', { name: 'Sign out gRPC Python' })).not.toBeInTheDocument();
     });
 
     it('shows the sessions to a reader, with no sign-out button', async () => {

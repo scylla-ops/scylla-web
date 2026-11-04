@@ -35,6 +35,7 @@ export const userMessages = {
   profile: msg`Profile`,
   profileDescription: msg`The names that other people see.`,
   emailReadOnly: msg`Only an administrator can change it.`,
+  instanceAdmin: msg`Instance admin`,
   save: msg`Save`,
 
   appearance: msg`Appearance`,
@@ -65,14 +66,6 @@ export const userMessages = {
   sessionsRevoked: (count: number) =>
     msg`${plural(count, { 0: 'No session to sign out.', one: '# session signed out.', other: '# sessions signed out.' })}`,
 
-  organizations: msg`Organizations`,
-  organizationsAndRoles: msg`Organizations and roles`,
-  organizationsDescription: msg`The organizations and the projects where you have a role.`,
-  system: msg`System`,
-  organizationRole: msg`Organization`,
-  projectRole: (project: string) => msg`Project ${project}`,
-  noAccess: msg`No role yet.`,
-  accessLoadError: msg`Error loading the organizations and roles`,
 
   signOut: msg`Sign out`,
   dangerZone: msg`Danger zone`,

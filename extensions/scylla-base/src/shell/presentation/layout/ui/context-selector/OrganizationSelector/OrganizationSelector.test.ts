@@ -38,15 +38,15 @@ beforeEach(() => {
   const cache = withQueryClient();
   const getMine = () =>
     Promise.resolve([
-      { id: 'org-1', name: 'Acme Corp' },
-      { id: 'org-2', name: 'Globex Inc' },
+      { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' },
+      { id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' },
     ]);
-  const create = (name: string) => Promise.resolve({ id: 'org-3', name });
+  const create = (name: string) => Promise.resolve({ id: 'org-3', name, slug: name.toLowerCase() });
   teardown = [
     cache.restore,
     withRegistry({ organization: { organizationRepository: { getMine, create } } }),
   ];
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp' } });
+  contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' } });
   permissionsStore.setState({ permissions: null });
 });
 
@@ -63,7 +63,7 @@ describe('OrganizationSelector', () => {
   });
 
   it('asks the user to select an organization when none is active', () => {
-    contextStore.setState({ organization: { id: null, name: null } });
+    contextStore.setState({ organization: { id: null, name: null, slug: null } });
     render(InSidebar, { component: OrganizationSelector });
 
     expect(screen.getByRole('button', { name: /Select Organization/ })).toBeInTheDocument();
@@ -76,7 +76,7 @@ describe('OrganizationSelector', () => {
     await user.click(screen.getByRole('button', { name: /Acme Corp/ }));
     await user.click(await findMenuItem('Globex Inc'));
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/dashboard', undefined);
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', undefined);
     expect(contextStore.getState().organization.id).toBe('org-2');
   });
 
@@ -103,7 +103,7 @@ describe('OrganizationSelector', () => {
     ).toBeInTheDocument();
   });
 
-  it('creates an organization from the menu, makes it active and opens its dashboard', async () => {
+  it('creates an organization from the menu, makes it active and opens its projects', async () => {
     grant(Permission.CREATE_ORGANIZATION);
     render(InSidebar, { component: OrganizationSelector });
     const user = userEvent.setup();
@@ -115,8 +115,8 @@ describe('OrganizationSelector', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Create Organization' }));
 
     await waitFor(() =>
-      expect(navigator.navigate).toHaveBeenCalledWith('/initech/dashboard', undefined),
+      expect(navigator.navigate).toHaveBeenCalledWith('/initech/projects', undefined),
     );
-    expect(contextStore.getState().organization).toEqual({ id: 'org-3', name: 'Initech' });
+    expect(contextStore.getState().organization).toEqual({ id: 'org-3', name: 'Initech', slug: 'initech' });
   });
 });

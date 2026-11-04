@@ -43,14 +43,14 @@ const install = () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme' } });
+  contextStore.setState({ organization: { id: 'org-1', name: 'Acme', slug: null } });
 });
 
 afterEach(() => teardown.forEach(restore => restore()));
 
 describe('AddProjectDialog', () => {
   it('toasts an error and never calls the repository when no organization is selected', async () => {
-    contextStore.setState({ organization: { id: null, name: null } });
+    contextStore.setState({ organization: { id: null, name: null, slug: null } });
     install();
     render(AddProjectDialog, { open: true, setOpen: vi.fn() });
     await focusSettled();

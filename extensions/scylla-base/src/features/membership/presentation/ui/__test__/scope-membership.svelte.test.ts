@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
+import { PermissionScope, permissionsStore } from '@platform/authz';
 import { withQueryClient, withRegistry } from '@test/render.ts';
 import { toast } from '@scylla/ui/utils';
+import type { AccessEntryEntity } from '@base/features/access';
 import { MemberRoleOrigin } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import type { MemberRole } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
 import { createScopeMembership } from '../scope-membership.state.svelte.ts';
@@ -11,30 +12,34 @@ vi.mock('svelte-sonner', () => ({
 }));
 
 const toastSuccess = vi.mocked(toast.success);
+const project = { kind: 'project', id: 'project-1' };
 
-let createGrant: ReturnType<typeof vi.fn>;
-let revokeGrant: ReturnType<typeof vi.fn>;
-let revokeAllAccess: ReturnType<typeof vi.fn>;
+const entry = (overrides: Partial<AccessEntryEntity> = {}): AccessEntryEntity => ({
+  actorId: 'user-1',
+  actorKind: 'user',
+  displayName: 'Alice',
+  handle: 'alice',
+  role: 'editor',
+  ...overrides,
+});
+
+let listAccess: ReturnType<typeof vi.fn>;
+let grant: ReturnType<typeof vi.fn>;
+let revoke: ReturnType<typeof vi.fn>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
 beforeEach(() => {
-  vi.mocked(toastSuccess).mockClear();
+  toastSuccess.mockClear();
 
-  createGrant = vi.fn().mockResolvedValue(undefined);
-  revokeGrant = vi.fn().mockResolvedValue(undefined);
-  revokeAllAccess = vi.fn().mockResolvedValue(3);
+  listAccess = vi.fn().mockResolvedValue([]);
+  grant = vi.fn().mockResolvedValue(undefined);
+  revoke = vi.fn().mockResolvedValue(undefined);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
-    roles: {
-      permissionRepository: {
-        createGrant,
-        revokeGrant,
-        revokeAllAccess,
-        listGrants: vi.fn().mockResolvedValue([]),
-        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
-      },
+    access: {
+      accessRepository: { listAccess, grant, revoke, check: vi.fn().mockResolvedValue(new Set()) },
     },
   });
 });
@@ -56,7 +61,7 @@ const withMembership = async (
     state = createScopeMembership({
       scope: PermissionScope.PROJECT,
       scopeId: () => scopeId,
-      canManage: () => true,
+      canRead: () => true,
       onMembershipChanged,
     });
   });
@@ -69,52 +74,58 @@ const withMembership = async (
   return { onMembershipChanged };
 };
 
-const memberRole = (overrides: Partial<MemberRole> = {}): MemberRole =>
-  ({
-    grantId: 'grant-1',
-    roleId: 'role-a',
-    origin: MemberRoleOrigin.DIRECT,
-    ...overrides,
-  }) as MemberRole;
+const memberRole = (overrides: Partial<MemberRole> = {}): MemberRole => ({
+  grantId: `${PermissionScope.PROJECT}:editor`,
+  userId: 'user-1',
+  roleId: 'editor',
+  origin: MemberRoleOrigin.DIRECT,
+  scope: PermissionScope.PROJECT,
+  ...overrides,
+});
+
+describe('entries', () => {
+  it('reads the roles on the object of the view', async () => {
+    listAccess.mockResolvedValue([entry()]);
+
+    await withMembership({}, async state => {
+      await vi.waitFor(() => expect(state.entries).toHaveLength(1));
+    });
+    expect(listAccess).toHaveBeenCalledWith(project);
+  });
+});
 
 describe('grantRoles', () => {
-  it('creates one grant per role id, each scoped to this view', async () => {
+  it('gives each role on the object of the view', async () => {
     const { onMembershipChanged } = await withMembership({}, async state => {
-      await expect(state.grantRoles('user-1', ['role-a', 'role-b'])).resolves.toBe(true);
+      await expect(state.grantRoles('user-2', ['viewer', 'editor'])).resolves.toBe(true);
     });
 
-    expect(createGrant).toHaveBeenCalledWith({
-      principal: { kind: PrincipalKind.USER, id: 'user-1' },
-      roleId: 'role-a',
-      scope: PermissionScope.PROJECT,
-      scopeId: 'project-1',
-    });
-    expect(createGrant).toHaveBeenCalledWith(expect.objectContaining({ roleId: 'role-b' }));
-    expect(onMembershipChanged).toHaveBeenCalled();
+    expect(grant).toHaveBeenCalledWith(project, 'viewer', 'user-2');
+    expect(grant).toHaveBeenCalledWith(project, 'editor', 'user-2');
+    expect(onMembershipChanged).toHaveBeenCalledOnce();
   });
 
-  it('is a no-op returning false while the scope id is still resolving', async () => {
-    const { onMembershipChanged } = await withMembership({ scopeId: null }, async state => {
-      await expect(state.grantRoles('user-1', ['role-a'])).resolves.toBe(false);
+  it('does nothing and answers false while the object id is still resolving', async () => {
+    await withMembership({ scopeId: null }, async state => {
+      await expect(state.grantRoles('user-2', ['viewer'])).resolves.toBe(false);
     });
 
-    expect(createGrant).not.toHaveBeenCalled();
-    expect(onMembershipChanged).not.toHaveBeenCalled();
+    expect(grant).not.toHaveBeenCalled();
   });
 
-  it('refuses an empty role list rather than issuing a pointless round trip', async () => {
+  it('refuses an empty role list rather than sending a call', async () => {
     await withMembership({}, async state => {
-      await expect(state.grantRoles('user-1', [])).resolves.toBe(false);
+      await expect(state.grantRoles('user-2', [])).resolves.toBe(false);
     });
 
-    expect(createGrant).not.toHaveBeenCalled();
+    expect(grant).not.toHaveBeenCalled();
   });
 
   it('answers false when a grant fails, so the caller can keep its form open', async () => {
-    createGrant.mockRejectedValue(new Error('denied'));
+    grant.mockRejectedValue(new Error('denied'));
 
     const { onMembershipChanged } = await withMembership({}, async state => {
-      await expect(state.grantRoles('user-1', ['role-a'])).resolves.toBe(false);
+      await expect(state.grantRoles('user-2', ['viewer'])).resolves.toBe(false);
     });
 
     expect(onMembershipChanged).not.toHaveBeenCalled();
@@ -122,43 +133,39 @@ describe('grantRoles', () => {
 });
 
 describe('addRole', () => {
-  it('grants the single role and confirms it', async () => {
-    await withMembership({}, async state => {
-      await state.addRole('user-1', 'role-a');
-    });
+  it('gives the one role and confirms it', async () => {
+    await withMembership({}, state => state.addRole('user-2', 'viewer'));
 
-    expect(createGrant).toHaveBeenCalledWith(expect.objectContaining({ roleId: 'role-a' }));
-    expect(toastSuccess).toHaveBeenCalled();
+    expect(grant).toHaveBeenCalledWith(project, 'viewer', 'user-2');
+    expect(toastSuccess).toHaveBeenCalledOnce();
   });
 
-  it('stays silent when the grant failed — the failure is already toasted globally', async () => {
-    createGrant.mockRejectedValue(new Error('denied'));
+  it('stays silent when the grant failed: the global handler toasts it', async () => {
+    grant.mockRejectedValue(new Error('denied'));
 
-    await withMembership({}, async state => {
-      await state.addRole('user-1', 'role-a');
-    });
+    await withMembership({}, state => state.addRole('user-2', 'viewer'));
 
     expect(toastSuccess).not.toHaveBeenCalled();
   });
 });
 
 describe('revokeRole', () => {
-  it('revokes the one grant by id and refreshes the member list', async () => {
-    const { onMembershipChanged } = await withMembership({}, async state => {
-      await state.revokeRole(memberRole({ grantId: 'grant-9' }));
-    });
+  it('takes back the role of the user and refreshes the member list', async () => {
+    const { onMembershipChanged } = await withMembership({}, state =>
+      state.revokeRole(memberRole()),
+    );
 
-    expect(revokeGrant).toHaveBeenCalledWith('grant-9');
-    expect(onMembershipChanged).toHaveBeenCalled();
-    expect(toastSuccess).toHaveBeenCalled();
+    expect(revoke).toHaveBeenCalledWith(project, 'editor', 'user-1');
+    expect(onMembershipChanged).toHaveBeenCalledOnce();
+    expect(toastSuccess).toHaveBeenCalledOnce();
   });
 
-  it('swallows a refused revoke — the last-owner guard lands here', async () => {
-    revokeGrant.mockRejectedValue(new Error('last owner'));
+  it('swallows a refused revoke: the last-owner guard lands here', async () => {
+    revoke.mockRejectedValue(new Error('LAST_OWNER'));
 
-    const { onMembershipChanged } = await withMembership({}, async state => {
-      await expect(state.revokeRole(memberRole())).resolves.toBeUndefined();
-    });
+    const { onMembershipChanged } = await withMembership({}, state =>
+      state.revokeRole(memberRole()),
+    );
 
     expect(onMembershipChanged).not.toHaveBeenCalled();
     expect(toastSuccess).not.toHaveBeenCalled();
@@ -166,37 +173,43 @@ describe('revokeRole', () => {
 });
 
 describe('removeMember', () => {
-  it('clears every grant at this scope and beneath, not just the scope’s own', async () => {
+  it('takes back each role of the user on the object, and keeps the owner', async () => {
+    listAccess.mockResolvedValue([
+      entry({ role: 'editor' }),
+      entry({ role: 'viewer' }),
+      entry({ role: 'owner' }),
+      entry({ actorId: 'user-2', role: 'admin' }),
+    ]);
+
     const { onMembershipChanged } = await withMembership({}, async state => {
+      await vi.waitFor(() => expect(state.entries).toHaveLength(4));
       await state.removeMember('user-1', 'alice');
     });
 
-    // RevokeAllAccess, not a series of revokeGrant: a grant left behind would keep the person listed.
-    expect(revokeAllAccess).toHaveBeenCalledWith({
-      principal: { kind: PrincipalKind.USER, id: 'user-1' },
-      scope: PermissionScope.PROJECT,
-      scopeId: 'project-1',
-    });
-    expect(revokeGrant).not.toHaveBeenCalled();
-    expect(onMembershipChanged).toHaveBeenCalled();
+    expect(revoke.mock.calls).toEqual([
+      [project, 'editor', 'user-1'],
+      [project, 'viewer', 'user-1'],
+    ]);
+    expect(onMembershipChanged).toHaveBeenCalledOnce();
+    expect(toastSuccess).toHaveBeenCalledWith('alice removed: 2 grant(s) revoked');
   });
 
-  it('does nothing while the scope id is still resolving', async () => {
-    await withMembership({ scopeId: null }, async state => {
-      await state.removeMember('user-1', 'alice');
-    });
+  it('does nothing while the object id is still resolving', async () => {
+    await withMembership({ scopeId: null }, state => state.removeMember('user-1', 'alice'));
 
-    expect(revokeAllAccess).not.toHaveBeenCalled();
+    expect(revoke).not.toHaveBeenCalled();
   });
 
   it('swallows a refused removal', async () => {
-    revokeAllAccess.mockRejectedValue(new Error('last owner'));
+    listAccess.mockResolvedValue([entry()]);
+    revoke.mockRejectedValue(new Error('denied'));
 
     const { onMembershipChanged } = await withMembership({}, async state => {
-      await expect(state.removeMember('user-1', 'alice')).resolves.toBeUndefined();
+      await vi.waitFor(() => expect(state.entries).toHaveLength(1));
+      await state.removeMember('user-1', 'alice');
+      expect(state.isRemoving).toBe(false);
     });
 
     expect(onMembershipChanged).not.toHaveBeenCalled();
-    expect(toastSuccess).not.toHaveBeenCalled();
   });
 });

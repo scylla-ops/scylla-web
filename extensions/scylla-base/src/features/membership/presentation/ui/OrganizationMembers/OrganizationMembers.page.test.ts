@@ -1,32 +1,27 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { Permission, PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
+import type { AccessEntryEntity } from '@base/features/access';
 import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import OrganizationMembersPage from './OrganizationMembers.page.svelte';
 
-const member = (overrides: Record<string, unknown> = {}) => ({
-  id: 'user-1',
-  username: 'alice',
+const entry = (overrides: Partial<AccessEntryEntity> = {}): AccessEntryEntity => ({
+  actorId: 'user-1',
+  actorKind: 'user',
+  displayName: '',
+  handle: 'alice',
+  role: 'admin',
   ...overrides,
 });
 
-const grantEntity = (overrides: Record<string, unknown> = {}) => ({
-  id: 'grant-1',
-  principal: { kind: PrincipalKind.USER, id: 'user-1' },
-  roleId: 'organization-admin',
-  scope: PermissionScope.ORGANIZATION,
-  scopeId: 'org-1',
-  ...overrides,
-});
+const workspace = { kind: 'workspace', id: 'org-1' };
 
-let listMembers: ReturnType<typeof vi.fn>;
+let listAccess: ReturnType<typeof vi.fn>;
 let getAll: ReturnType<typeof vi.fn>;
-let listGrants: ReturnType<typeof vi.fn>;
-let listGrantableRoles: ReturnType<typeof vi.fn>;
-let revokeAllAccess: ReturnType<typeof vi.fn>;
-let createGrant: ReturnType<typeof vi.fn>;
+let grantRole: ReturnType<typeof vi.fn>;
+let revoke: ReturnType<typeof vi.fn>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
@@ -45,42 +40,31 @@ const grant = (permissions: Permission[] | 'all') =>
   });
 
 beforeEach(() => {
-  listMembers = vi.fn().mockResolvedValue([member()]);
-  getAll = vi.fn().mockResolvedValue([
-    { id: 'user-1', username: 'alice' },
-    { id: 'user-2', username: 'bob' },
-  ]);
-  listGrants = vi.fn().mockResolvedValue([grantEntity()]);
-  listGrantableRoles = vi.fn().mockResolvedValue([
-    {
-      id: 'organization-member',
-      scope: PermissionScope.ORGANIZATION,
-      kind: 0,
-      description: 'Belongs here',
-    },
-  ]);
-  revokeAllAccess = vi.fn().mockResolvedValue(2);
-  createGrant = vi.fn().mockResolvedValue(undefined);
+  listAccess = vi.fn().mockResolvedValue([entry(), entry({ role: 'viewer' })]);
+  getAll = vi.fn().mockResolvedValue({
+    items: [
+      { id: 'user-1', username: 'alice' },
+      { id: 'user-2', username: 'bob' },
+    ],
+  });
+  grantRole = vi.fn().mockResolvedValue(undefined);
+  revoke = vi.fn().mockResolvedValue(undefined);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
-    organization: { organizationRepository: { listMembers } },
     user: { userRepository: { getAll } },
-    roles: {
-      permissionRepository: {
-        listGrants,
-        listGrantableRoles,
-        listRoles: vi.fn().mockResolvedValue([]),
-        createGrant,
-        revokeGrant: vi.fn(),
-        revokeAllAccess,
-        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
+    access: {
+      accessRepository: {
+        listAccess,
+        grant: grantRole,
+        revoke,
+        check: vi.fn().mockResolvedValue(new Set()),
       },
     },
   });
 
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme' },
+    organization: { id: 'org-1', name: 'Acme', slug: 'acme' },
     project: { id: null, name: null },
   });
   localStorage.setItem('userId', 'user-9');
@@ -97,32 +81,39 @@ afterEach(() => {
 describe('OrganizationMembersPage', () => {
   it('asks for an organization rather than rendering an empty list', () => {
     contextStore.setState({
-      organization: { id: null, name: null },
+      organization: { id: null, name: null, slug: null },
       project: { id: null, name: null },
     });
     render(OrganizationMembersPage);
 
     expect(screen.getByText('Select an organization to see its members.')).toBeInTheDocument();
-    expect(listMembers).not.toHaveBeenCalled();
+    expect(listAccess).not.toHaveBeenCalled();
   });
 
   it("lists the organization's members", async () => {
     render(OrganizationMembersPage);
 
     expect(await screen.findByText('alice')).toBeInTheDocument();
-    expect(listMembers).toHaveBeenCalledWith('org-1');
+    expect(listAccess).toHaveBeenCalledWith(workspace);
+  });
+
+  it('shows an owner locked, with no way to revoke it here', async () => {
+    listAccess.mockResolvedValue([entry({ role: 'owner' })]);
+    render(OrganizationMembersPage);
+
+    await screen.findByText('Owner');
+    expect(screen.queryByRole('button', { name: /Revoke Owner/ })).not.toBeInTheDocument();
   });
 
   it('says so when nobody belongs to the organization yet', async () => {
-    listMembers.mockResolvedValue([]);
-    listGrants.mockResolvedValue([]);
+    listAccess.mockResolvedValue([]);
     render(OrganizationMembersPage);
 
     expect(await screen.findByText('Nobody belongs to this organization yet.')).toBeInTheDocument();
   });
 
   it('does not enumerate accounts without LIST_USERS', async () => {
-    grant([Permission.MANAGE_ORG_GRANTS]);
+    grant([Permission.MANAGE_ORG_GRANTS, Permission.LIST_ORGANIZATION_MEMBERS]);
     render(OrganizationMembersPage);
 
     await screen.findByText('alice');
@@ -149,7 +140,7 @@ describe('OrganizationMembersPage', () => {
   });
 
   it('denies "Add a member" without LIST_USERS, and says who can browse the users', async () => {
-    grant([Permission.MANAGE_ORG_GRANTS]);
+    grant([Permission.MANAGE_ORG_GRANTS, Permission.LIST_ORGANIZATION_MEMBERS]);
     render(OrganizationMembersPage);
     await screen.findByText('alice');
 
@@ -172,23 +163,19 @@ describe('OrganizationMembersPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('confirms before removing a member, and revokes all their access on continue', async () => {
+  it('confirms before removing a member, and revokes each of their roles on continue', async () => {
     render(OrganizationMembersPage);
     await screen.findByText('alice');
 
     await userEvent.click(screen.getByRole('button', { name: 'Remove from the organization' }));
-    expect(revokeAllAccess).not.toHaveBeenCalled();
+    expect(revoke).not.toHaveBeenCalled();
 
     await userEvent.click(await screen.findByRole('button', { name: 'Continue' }));
 
-    // RevokeAllAccess: a grant left behind would keep them listed.
-    await vi.waitFor(() =>
-      expect(revokeAllAccess).toHaveBeenCalledWith({
-        principal: { kind: PrincipalKind.USER, id: 'user-1' },
-        scope: PermissionScope.ORGANIZATION,
-        scopeId: 'org-1',
-      }),
-    );
+    // A role left behind would keep them listed.
+    await vi.waitFor(() => expect(revoke).toHaveBeenCalledTimes(2));
+    expect(revoke).toHaveBeenCalledWith(workspace, 'admin', 'user-1');
+    expect(revoke).toHaveBeenCalledWith(workspace, 'viewer', 'user-1');
   });
 
   it('grants a role to somebody already listed, without opening the dialog', async () => {
@@ -196,12 +183,8 @@ describe('OrganizationMembersPage', () => {
     await screen.findByText('alice');
 
     await userEvent.click(screen.getByRole('combobox'));
-    await userEvent.click(await findFloating('option', 'Organization member'));
+    await userEvent.click(await findFloating('option', 'Member'));
 
-    await vi.waitFor(() =>
-      expect(createGrant).toHaveBeenCalledWith(
-        expect.objectContaining({ roleId: 'organization-member', scopeId: 'org-1' }),
-      ),
-    );
+    await vi.waitFor(() => expect(grantRole).toHaveBeenCalledWith(workspace, 'member', 'user-1'));
   });
 });

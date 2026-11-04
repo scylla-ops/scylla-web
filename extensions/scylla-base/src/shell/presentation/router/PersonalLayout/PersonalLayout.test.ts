@@ -1,3 +1,4 @@
+import type * as Login from '@base/features/login';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import { installTestNavigator } from '@test/navigator.ts';
@@ -5,8 +6,8 @@ import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import PersonalLayoutFixture from './PersonalLayout.fixture.svelte';
 
 const hasSession = vi.hoisted(() => vi.fn<() => Promise<boolean>>());
-vi.mock('@base/features/login', async (original) => ({
-  ...(await original<typeof import('@base/features/login')>()),
+vi.mock('@base/features/login', async original => ({
+  ...(await original<typeof Login>()),
   hasSession,
 }));
 

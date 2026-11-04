@@ -933,7 +933,7 @@ Because of that, the tooling of this repo must work from another root. Keep it s
    `@scylla/ui/styles.css`).
 8. Calls the backend directly? Declare the proto packages this extension uses in its
    `package.json`: `"scylla": { "protos": ["scylla/registration/v1"] }` (and `protoRoot`,
-   relative to the extension, when the protos are not in the `protos/` submodule).
+   relative to the extension, when the protos are not in `protos/`).
    `scripts/gen-proto.mjs` finds it. Never deep-import another extension's `src/generated/`. A
    proto package two extensions both need (e.g. `common`) is generated once per extension on
    purpose: each copy stays private to its own extension.

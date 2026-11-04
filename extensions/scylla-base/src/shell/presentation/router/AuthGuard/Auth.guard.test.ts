@@ -1,11 +1,12 @@
+import type * as Login from '@base/features/login';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { installTestNavigator } from '@test/navigator.ts';
 import AuthGuardFixture from './AuthGuard.fixture.svelte';
 
 const hasSession = vi.hoisted(() => vi.fn<() => Promise<boolean>>());
-vi.mock('@base/features/login', async (original) => ({
-  ...(await original<typeof import('@base/features/login')>()),
+vi.mock('@base/features/login', async original => ({
+  ...(await original<typeof Login>()),
   hasSession,
 }));
 

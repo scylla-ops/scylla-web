@@ -1,59 +1,45 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import * as grpcProject from '../grpc-project.mapper.ts';
-import type { Project } from '@base/generated/scylla/project/v1/project.ts';
+import { toDomain, toDomainPage } from '../grpc-project.mapper.ts';
+
+const project = (id: string) => ({
+  id: { value: id },
+  workspaceId: { value: 'ws-1' },
+  name: `Project ${id}`,
+  description: 'about it',
+});
 
 describe('grpcProject.toDomain', () => {
-  it('unwraps the id and carries name/description through', () => {
-    const project: Project = {
-      projectId: { value: 'project-1' },
-      organizationId: { value: 'org-1' },
-      name: 'web',
-      description: 'the web app',
-      isActive: true,
-    };
-    expect(grpcProject.toDomain(project)).toEqual({
-      id: 'project-1',
-      name: 'web',
-      description: 'the web app',
+  it('unwraps the id and keeps the name and the description', () => {
+    expect(toDomain(project('p-1'))).toEqual({
+      id: 'p-1',
+      name: 'Project p-1',
+      description: 'about it',
     });
-  });
-
-  it('defaults to an empty id when the wrapper is absent', () => {
-    const project: Project = {
-      projectId: undefined,
-      organizationId: { value: 'org-1' },
-      name: 'web',
-      description: '',
-      isActive: true,
-    };
-    expect(grpcProject.toDomain(project).id).toBe('');
   });
 });
 
-describe('grpcProject.toDomainList', () => {
-  it('maps every project and carries the pagination metadata through', () => {
-    const pagination = {
-      totalCount: 1,
-      page: 1,
-      pageSize: 10,
+describe('grpcProject.toDomainPage', () => {
+  const all = ['a', 'b', 'c', 'd', 'e'].map(project);
+
+  it('cuts the page that the UI asks for and counts the pages', () => {
+    const page = toDomainPage(all, { page: 2, pageSize: 2 });
+
+    expect(page.items.map(item => item.id)).toEqual(['c', 'd']);
+    expect(page.pagination).toEqual({
+      totalCount: 5,
+      page: 2,
+      pageSize: 2,
+      totalPages: 3,
+      hasNext: true,
+      hasPrevious: true,
+    });
+  });
+
+  it('has one empty page for no project', () => {
+    expect(toDomainPage([], { page: 1, pageSize: 10 }).pagination).toMatchObject({
       totalPages: 1,
       hasNext: false,
-      hasPrevious: false,
-    };
-    const result = grpcProject.toDomainList({
-      projects: [
-        {
-          projectId: { value: 'project-1' },
-          organizationId: { value: 'org-1' },
-          name: 'web',
-          description: '',
-          isActive: true,
-        },
-      ],
-      pagination,
     });
-    expect(result.items).toEqual([{ id: 'project-1', name: 'web', description: '' }]);
-    expect(result.pagination).toBe(pagination);
   });
 });

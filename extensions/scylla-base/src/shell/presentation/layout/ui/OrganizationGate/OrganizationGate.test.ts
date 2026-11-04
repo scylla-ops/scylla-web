@@ -9,7 +9,7 @@ import OrganizationGateFixture from './OrganizationGate.fixture.svelte';
 
 const syncMyPermissions = vi.fn();
 
-vi.mock('@base/features/roles', () => ({
+vi.mock('@base/features/access', () => ({
   syncMyPermissions: (organizationId: string | null, projectId: string | null) =>
     syncMyPermissions(organizationId, projectId),
 }));
@@ -19,8 +19,8 @@ let teardown: Array<() => void> = [];
 let navigator: ReturnType<typeof installTestNavigator>;
 let create: ReturnType<typeof vi.fn>;
 
-const setUp = (getMine: () => Promise<{ id: string; name: string }[]>) => {
-  create = vi.fn((name: string) => Promise.resolve({ id: 'org-9', name }));
+const setUp = (getMine: () => Promise<{ id: string; name: string; slug: string }[]>) => {
+  create = vi.fn((name: string) => Promise.resolve({ id: 'org-9', name, slug: 'my-org' }));
   const cache = withQueryClient();
   const getMe = vi
     .fn()
@@ -40,7 +40,7 @@ beforeEach(() => {
   localStorage.clear();
   navigator = installTestNavigator();
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme' },
+    organization: { id: 'org-1', name: 'Acme', slug: 'acme' },
     project: { id: 'project-1', name: 'web' },
   });
 });
@@ -69,20 +69,20 @@ describe('OrganizationGate', () => {
   });
 
   it('renders the page when the user has organizations', async () => {
-    setUp(() => Promise.resolve([{ id: 'org-1', name: 'Acme' }]));
+    setUp(() => Promise.resolve([{ id: 'org-1', name: 'Acme', slug: 'acme' }]));
 
     expect(await screen.findByText('page content')).toBeInTheDocument();
   });
 
   it('loads the permissions for the active organization and project', async () => {
-    setUp(() => Promise.resolve([{ id: 'org-1', name: 'Acme' }]));
+    setUp(() => Promise.resolve([{ id: 'org-1', name: 'Acme', slug: 'acme' }]));
     await screen.findByText('page content');
 
     expect(syncMyPermissions).toHaveBeenCalledWith('org-1', 'project-1');
   });
 
   it('loads the permissions again when the active project changes', async () => {
-    setUp(() => Promise.resolve([{ id: 'org-1', name: 'Acme' }]));
+    setUp(() => Promise.resolve([{ id: 'org-1', name: 'Acme', slug: 'acme' }]));
     await screen.findByText('page content');
 
     contextStore.getState().setProject('project-2', 'api');
@@ -97,7 +97,7 @@ describe('OrganizationGate', () => {
     expect(screen.queryByText('page content')).not.toBeInTheDocument();
   });
 
-  it('creates the first organization and opens its dashboard', async () => {
+  it('creates the first organization and opens its projects', async () => {
     holding([Permission.CREATE_ORGANIZATION]);
     setUp(() => Promise.resolve([]));
     await screen.findByText('Welcome to Scylla!');
@@ -105,12 +105,12 @@ describe('OrganizationGate', () => {
     const user = userEvent.setup();
 
     await user.type(screen.getByLabelText('Organization name'), 'My Org');
-    await user.type(screen.getByLabelText('Description'), 'Our team');
+    await user.type(screen.getByLabelText('Address'), 'my-org');
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
-    await waitFor(() => expect(create).toHaveBeenCalledWith('My Org', 'Our team'));
+    await waitFor(() => expect(create).toHaveBeenCalledWith('My Org', 'my-org'));
     await waitFor(() =>
-      expect(navigator.navigate).toHaveBeenCalledWith('/my-org/dashboard', undefined),
+      expect(navigator.navigate).toHaveBeenCalledWith('/my-org/projects', undefined),
     );
   });
 

@@ -1,35 +1,27 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { Permission, PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
+import type { AccessEntryEntity, ObjectRef } from '@base/features/access';
 import { render, withQueryClient, withRegistry, withWidgetInjections } from '@test/render.ts';
 import { membershipPoints } from '@base/features/membership/presentation/membership.points.ts';
 import ProjectMembersPage from './ProjectMembers.page.svelte';
 
-const projectGrant = (overrides: Record<string, unknown> = {}) => ({
-  id: 'grant-1',
-  principal: { kind: PrincipalKind.USER, id: 'user-1' },
-  roleId: 'project-admin',
-  scope: PermissionScope.PROJECT,
-  scopeId: 'project-1',
-  ...overrides,
+const entry = (actorId: string, handle: string, role: string): AccessEntryEntity => ({
+  actorId,
+  actorKind: 'user',
+  displayName: '',
+  handle,
+  role,
 });
 
-const organizationGrant = (overrides: Record<string, unknown> = {}) => ({
-  id: 'grant-org-1',
-  principal: { kind: PrincipalKind.USER, id: 'user-2' },
-  roleId: 'organization-admin',
-  scope: PermissionScope.ORGANIZATION,
-  scopeId: 'org-1',
-  ...overrides,
-});
+const project = { kind: 'project', id: 'project-1' };
 
-let listProjectMembers: ReturnType<typeof vi.fn>;
-let listOrganizationMembers: ReturnType<typeof vi.fn>;
-let listGrants: ReturnType<typeof vi.fn>;
-let listRoles: ReturnType<typeof vi.fn>;
-let revokeAllAccess: ReturnType<typeof vi.fn>;
+let projectEntries: AccessEntryEntity[];
+let workspaceEntries: AccessEntryEntity[];
+let listAccess: ReturnType<typeof vi.fn>;
+let revoke: ReturnType<typeof vi.fn>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
@@ -48,52 +40,29 @@ const grant = (permissions: Permission[] | 'all') =>
   });
 
 beforeEach(() => {
-  listProjectMembers = vi.fn().mockResolvedValue([{ id: 'user-1', username: 'alice' }]);
-  listOrganizationMembers = vi.fn().mockResolvedValue([
-    { id: 'user-1', username: 'alice' },
-    { id: 'user-2', username: 'bob' },
-    { id: 'user-3', username: 'carol' },
-  ]);
-
-  // The scope decides which grant list answers.
-  listGrants = vi
-    .fn()
-    .mockImplementation((scope?: PermissionScope) =>
-      Promise.resolve(
-        scope === PermissionScope.ORGANIZATION ? [organizationGrant()] : [projectGrant()],
-      ),
-    );
-  listRoles = vi.fn().mockResolvedValue([
-    {
-      id: 'organization-admin',
-      name: 'Organization admin',
-      description: '',
-      scope: PermissionScope.ORGANIZATION,
-      origin: { kind: 'builtin' },
-      access: { kind: 'fullControl' },
-    },
-  ]);
-  revokeAllAccess = vi.fn().mockResolvedValue(1);
+  // alice has a role of the project; bob reaches it through his workspace role.
+  projectEntries = [entry('user-1', 'alice', 'editor')];
+  workspaceEntries = [entry('user-2', 'bob', 'admin'), entry('user-1', 'alice', 'viewer')];
+  // The kind of the object decides which list answers.
+  listAccess = vi.fn((object: ObjectRef) =>
+    Promise.resolve(object.kind === 'project' ? projectEntries : workspaceEntries),
+  );
+  revoke = vi.fn().mockResolvedValue(undefined);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
-    project: { projectRepository: { listMembers: listProjectMembers } },
-    organization: { organizationRepository: { listMembers: listOrganizationMembers } },
-    roles: {
-      permissionRepository: {
-        listGrants,
-        listRoles,
-        listGrantableRoles: vi.fn().mockResolvedValue([]),
-        createGrant: vi.fn().mockResolvedValue(undefined),
-        revokeGrant: vi.fn().mockResolvedValue(undefined),
-        revokeAllAccess,
-        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
+    access: {
+      accessRepository: {
+        listAccess,
+        grant: vi.fn().mockResolvedValue(undefined),
+        revoke,
+        check: vi.fn().mockResolvedValue(new Set()),
       },
     },
   });
 
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme' },
+    organization: { id: 'org-1', name: 'Acme', slug: 'acme' },
     project: { id: 'project-1', name: 'Web' },
   });
   localStorage.setItem('userId', 'user-9');
@@ -111,28 +80,30 @@ describe('ProjectMembersPage', () => {
   it('renders nothing without a project id', () => {
     render(ProjectMembersPage, {});
 
-    expect(listProjectMembers).not.toHaveBeenCalled();
+    expect(listAccess).not.toHaveBeenCalledWith(expect.objectContaining({ kind: 'project' }));
     expect(screen.queryByRole('button', { name: 'Add a member' })).not.toBeInTheDocument();
   });
 
-  it('lists the holders of a project-scoped grant', async () => {
+  it('lists the holders of a role of the project', async () => {
     render(ProjectMembersPage, { projectId: 'project-1' });
 
     expect(await screen.findByText('alice')).toBeInTheDocument();
+    expect(listAccess).toHaveBeenCalledWith(project);
   });
 
-  it('also lists someone who only reaches the project through an organization role', async () => {
+  it('also lists someone who only reaches the project through a workspace role', async () => {
     render(ProjectMembersPage, { projectId: 'project-1' });
 
     expect(await screen.findByText('bob')).toBeInTheDocument();
   });
 
-  it('leaves out an organization member whose role confers nothing here', async () => {
+  it('lets a manager revoke only the roles of the project', async () => {
     render(ProjectMembersPage, { projectId: 'project-1' });
+    await screen.findByText('bob');
 
-    await screen.findByText('alice');
-    // carol holds no grant: listing her would show access she does not have.
-    expect(screen.queryByText('carol')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Revoke Editor' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Revoke Admin' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Revoke Viewer' })).not.toBeInTheDocument();
   });
 
   it('explains that inherited roles are visible and managed elsewhere', async () => {
@@ -143,22 +114,19 @@ describe('ProjectMembersPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('says what it cannot show when the organization grants are out of reach', async () => {
-    grant([
-      Permission.LIST_PROJECT_MEMBERS,
-      Permission.MANAGE_PROJECT_GRANTS,
-      Permission.LIST_ORGANIZATION_MEMBERS,
-    ]);
+  it('says what it cannot show when the workspace roles are out of reach', async () => {
+    grant([Permission.LIST_PROJECT_MEMBERS, Permission.MANAGE_PROJECT_GRANTS]);
     render(ProjectMembersPage, { projectId: 'project-1' });
 
     expect(
       await screen.findByText(/Their roles are managed at the organization level/),
     ).toBeInTheDocument();
+    expect(listAccess).not.toHaveBeenCalledWith(expect.objectContaining({ kind: 'workspace' }));
   });
 
   it('says so when nobody has access to the project yet', async () => {
-    listProjectMembers.mockResolvedValue([]);
-    listGrants.mockResolvedValue([]);
+    projectEntries = [];
+    workspaceEntries = [];
     render(ProjectMembersPage, { projectId: 'project-1' });
 
     expect(await screen.findByText('Nobody has access to this project yet.')).toBeInTheDocument();
@@ -201,7 +169,7 @@ describe('ProjectMembersPage', () => {
     }
   });
 
-  it('removes only someone who holds a project-scoped grant', async () => {
+  it('removes only someone who holds a role of the project, and revokes only that role', async () => {
     render(ProjectMembersPage, { projectId: 'project-1' });
     await screen.findByText('bob');
 
@@ -212,43 +180,7 @@ describe('ProjectMembersPage', () => {
     await userEvent.click(removals[0]);
     await userEvent.click(await screen.findByRole('button', { name: 'Continue' }));
 
-    await vi.waitFor(() =>
-      expect(revokeAllAccess).toHaveBeenCalledWith({
-        principal: { kind: PrincipalKind.USER, id: 'user-1' },
-        scope: PermissionScope.PROJECT,
-        scopeId: 'project-1',
-      }),
-    );
-  });
-
-  it('waits for the members of the organization before it names an inherited holder', async () => {
-    let answer: (value: unknown) => void = () => {};
-    listOrganizationMembers.mockReturnValue(new Promise(resolve => (answer = resolve)));
-    render(ProjectMembersPage, { projectId: 'project-1' });
-
-    await screen.findByRole('status');
-    expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();
-    expect(screen.queryByText('Unknown user')).not.toBeInTheDocument();
-
-    answer([
-      { id: 'user-1', username: 'alice' },
-      { id: 'user-2', username: 'bob' },
-    ]);
-
-    expect(await screen.findByText('bob')).toBeInTheDocument();
-    expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();
-  });
-
-  it('names an inherited holder "Unknown user" when the organization members are out of reach', async () => {
-    grant([
-      Permission.LIST_PROJECT_MEMBERS,
-      Permission.MANAGE_PROJECT_GRANTS,
-      Permission.MANAGE_ORG_GRANTS,
-    ]);
-    render(ProjectMembersPage, { projectId: 'project-1' });
-
-    expect(await screen.findByText('Unknown user')).toBeInTheDocument();
-    expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();
-    expect(listOrganizationMembers).not.toHaveBeenCalled();
+    await vi.waitFor(() => expect(revoke).toHaveBeenCalledWith(project, 'editor', 'user-1'));
+    expect(revoke).toHaveBeenCalledOnce();
   });
 });

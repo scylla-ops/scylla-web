@@ -5,7 +5,7 @@ import { reportQueryError } from '../report-query-error.ts';
 const toastError = vi.fn();
 vi.mock('svelte-sonner', () => ({ toast: { error: (message: string) => toastError(message) } }));
 
-const close = vi.hoisted(() => vi.fn(async () => undefined));
+const close = vi.hoisted(() => vi.fn(() => Promise.resolve()));
 vi.mock('@platform/grpc', () => ({ browserSession: { close } }));
 
 const errorWith = (code: ScyllaErrorCode) => new ScyllaError('boom', { code });

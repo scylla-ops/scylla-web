@@ -14,6 +14,10 @@ const makeFakeRepository = (overrides: Partial<LoginRepository> = {}) => {
     login,
     requestPasswordReset: vi.fn(),
     resetPassword: vi.fn(),
+    listSignInMethods: vi.fn().mockResolvedValue({ providers: [], signUpMode: 'closed' }),
+    signUp: vi.fn(),
+    verifyEmail: vi.fn(),
+    ...overrides,
   };
   return { repository, login };
 };
@@ -131,5 +135,46 @@ describe('LoginPage', () => {
     await signIn('ada@example.com', 'hunter22');
 
     await waitFor(() => expect(login).toHaveBeenCalledWith('ada@example.com', 'hunter22'));
+  });
+
+  it('shows a button for each identity provider, to its start route with the way back', async () => {
+    const { repository } = makeFakeRepository({
+      listSignInMethods: vi.fn().mockResolvedValue({
+        providers: [{ slug: 'github', displayName: 'GitHub', kind: 'github' }],
+        signUpMode: 'closed',
+      }),
+    });
+    setUp(repository);
+    history.replaceState(null, '', loginPath('/acme/projects'));
+    render(LoginPage);
+
+    const button = await screen.findByRole('link', { name: 'Continue with GitHub' });
+    const href = new URL(button.getAttribute('href') ?? '', window.location.origin);
+    expect(href.pathname).toBe('/auth/github/start');
+    expect(href.searchParams.get('return_to')).toBe(`${window.location.origin}/acme/projects`);
+  });
+
+  it('links to the sign-up page only when the sign-up is open', async () => {
+    const { repository } = makeFakeRepository({
+      listSignInMethods: vi.fn().mockResolvedValue({ providers: [], signUpMode: 'open' }),
+    });
+    setUp(repository);
+    render(LoginPage);
+
+    expect(await screen.findByRole('link', { name: 'No account yet? Create one' })).toHaveAttribute(
+      'href',
+      '/sign-up',
+    );
+  });
+
+  it('shows no sign-up link on a closed server', async () => {
+    const { repository } = makeFakeRepository();
+    setUp(repository);
+    render(LoginPage);
+
+    await waitFor(() => expect(repository.listSignInMethods).toHaveBeenCalled());
+    expect(
+      screen.queryByRole('link', { name: 'No account yet? Create one' }),
+    ).not.toBeInTheDocument();
   });
 });

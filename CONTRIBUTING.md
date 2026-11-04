@@ -20,15 +20,15 @@ You need:
 - The Scylla backend, for a dev server that does something (see the [README](README.md))
 
 ```bash
-git clone --recurse-submodules https://github.com/scylla-ops/scylla-web.git
+git clone https://github.com/scylla-ops/scylla-web.git
 cd scylla-web
 cp .env.example .env
 pnpm install
 pnpm dev
 ```
 
-The `.proto` files come from the `protos/` submodule. If you cloned without
-`--recurse-submodules`, run `git submodule update --init`. Run all commands from the repository
+The `.proto` files are in `protos/`, a copy of the protos of the backend: after a change there,
+run `node scripts/sync-protos.mjs <path to ce/proto>`. Run all commands from the repository
 root.
 
 ## Branches

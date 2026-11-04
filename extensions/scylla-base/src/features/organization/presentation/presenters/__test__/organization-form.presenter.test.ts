@@ -4,9 +4,9 @@ import { createOrganizationItems } from '@base/features/organization/presentatio
 import { FormItemType } from '@scylla/ui';
 
 describe('createOrganizationItems', () => {
-  it('declares a name and a description field, neither pattern-constrained', () => {
+  it('declares a name and a slug field, neither pattern-constrained', () => {
     const items = createOrganizationItems();
-    expect(items.map(i => i.id)).toEqual(['name', 'description']);
+    expect(items.map(i => i.id)).toEqual(['name', 'slug']);
     expect(
       items.every(i => i.type === FormItemType.Input && i.pattern === undefined),
     ).toBe(true);

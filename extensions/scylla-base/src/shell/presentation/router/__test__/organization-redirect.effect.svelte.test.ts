@@ -6,7 +6,7 @@ import { installTestNavigator } from '@test/navigator.ts';
 import { withQueryClient } from '@test/render.ts';
 import { redirectToOrganization } from '../organization-redirect.effect.svelte.ts';
 
-const organizationsState: { organizations?: { id: string; name: string }[]; isLoading: boolean } = {
+const organizationsState: { organizations?: { id: string; name: string; slug: string }[]; isLoading: boolean } = {
   organizations: undefined,
   isLoading: false,
 };
@@ -36,7 +36,7 @@ beforeEach(() => {
   cache = withQueryClient();
   organizationsState.organizations = undefined;
   organizationsState.isLoading = false;
-  contextStore.setState({ organization: { id: null, name: null } });
+  contextStore.setState({ organization: { id: null, name: null, slug: null } });
 });
 
 afterEach(() => {
@@ -52,22 +52,22 @@ describe('redirectToOrganization', () => {
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
-  it('goes to the dashboard of the active organization', () => {
-    contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp' } });
-    organizationsState.organizations = [{ id: 'org-2', name: 'Other Co' }];
+  it('goes to the projects of the active organization', () => {
+    contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' } });
+    organizationsState.organizations = [{ id: 'org-2', name: 'Other Co', slug: 'other-co' }];
     run();
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', { replace: true });
   });
 
   it('goes to the first organization when none is active', () => {
     organizationsState.organizations = [
-      { id: 'org-1', name: 'Globex Inc' },
-      { id: 'org-2', name: 'Other Co' },
+      { id: 'org-1', name: 'Globex Inc', slug: 'globex-inc' },
+      { id: 'org-2', name: 'Other Co', slug: 'other-co' },
     ];
     run();
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/dashboard', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', { replace: true });
   });
 
   it('stays when there is no organization at all', () => {

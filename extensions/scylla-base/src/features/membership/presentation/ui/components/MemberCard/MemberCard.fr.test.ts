@@ -15,6 +15,7 @@ withLocale('fr', messages);
 
 const role = (overrides: Partial<MemberRole> = {}): MemberRole => ({
   grantId: 'grant-1',
+  userId: 'user-1',
   roleId: 'role-1',
   origin: MemberRoleOrigin.DIRECT,
   scope: PermissionScope.PROJECT,

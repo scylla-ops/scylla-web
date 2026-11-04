@@ -2,7 +2,6 @@ import type { UserRepository } from '@base/features/user/domain/repository/user.
 import type {
   CreateUserInput,
   UpdateUserInput,
-  UserAccess,
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
@@ -112,10 +111,6 @@ export class DefaultUserRepository implements UserRepository {
 
   public async deleteAccount(password: string): Promise<void> {
     await this.profiles.deleteAccount({ password }).response;
-  }
-
-  public async listAccess(_userId: string): Promise<UserAccess[]> {
-    return [];
   }
 
   public async listSessions(userId: string): Promise<UserSessionEntity[]> {

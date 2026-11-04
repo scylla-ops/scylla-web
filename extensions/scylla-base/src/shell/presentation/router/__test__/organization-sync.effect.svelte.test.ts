@@ -6,7 +6,7 @@ import { installTestNavigator } from '@test/navigator.ts';
 import { withQueryClient } from '@test/render.ts';
 import { syncOrganization } from '../organization-sync.effect.svelte.ts';
 
-const organizationsState: { organizations?: { id: string; name: string }[]; isLoading: boolean } = {
+const organizationsState: { organizations?: { id: string; name: string; slug: string }[]; isLoading: boolean } = {
   organizations: undefined,
   isLoading: false,
 };
@@ -35,11 +35,11 @@ beforeEach(() => {
   navigator = installTestNavigator();
   cache = withQueryClient();
   organizationsState.organizations = [
-    { id: 'org-1', name: 'Acme Corp' },
-    { id: 'org-2', name: 'Globex Inc' },
+    { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' },
+    { id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' },
   ];
   organizationsState.isLoading = false;
-  contextStore.setState({ organization: { id: null, name: null } });
+  contextStore.setState({ organization: { id: null, name: null, slug: null } });
 });
 
 afterEach(() => {
@@ -66,12 +66,12 @@ describe('syncOrganization', () => {
   it('makes the organization that matches the slug the active one', () => {
     run('globex-inc')();
 
-    expect(contextStore.getState().organization).toEqual({ id: 'org-2', name: 'Globex Inc' });
+    expect(contextStore.getState().organization).toEqual({ id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' });
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
   it('does not set the store again when the matched organization is already active', () => {
-    contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp' } });
+    contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' } });
     const setOrganization = vi.spyOn(contextStore.getState(), 'setOrganization');
 
     run('acme-corp')();
@@ -82,8 +82,8 @@ describe('syncOrganization', () => {
   it('goes to the first organization when the slug matches none', () => {
     run('no-such-org')();
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
-    expect(contextStore.getState().organization).toEqual({ id: 'org-1', name: 'Acme Corp' });
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', { replace: true });
+    expect(contextStore.getState().organization).toEqual({ id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' });
   });
 
   it('does nothing when the slug matches none and there is no organization', () => {

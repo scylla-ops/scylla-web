@@ -13,9 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:18
-msgid "Add a description..."
-msgstr "Add a description..."
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:17
+#: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:14
+msgid "Address"
+msgstr "Address"
 
 #: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:8
 msgid "Create a new organization"
@@ -29,18 +30,13 @@ msgstr "Create Organization"
 msgid "Delete"
 msgstr "Delete"
 
-#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:17
-#: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:14
-msgid "Description"
-msgstr "Description"
-
 #: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:8
 msgid "e.g., My Organization"
 msgstr "e.g., My Organization"
 
 #: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:15
-msgid "e.g., Our company's main organization"
-msgstr "e.g., Our company's main organization"
+msgid "e.g., my-workspace"
+msgstr "e.g., my-workspace"
 
 #: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:5
 msgid "Edit"

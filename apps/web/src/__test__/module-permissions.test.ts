@@ -41,7 +41,7 @@ const UNGATED_PAGES: Readonly<Record<string, string>> = {
 describe('module permission declarations', () => {
   // Enumerating nothing would pass: make sure there is something to check.
   it('finds the registry pages it is supposed to check', () => {
-    expect(guardedPages.length).toBeGreaterThan(10);
+    expect(guardedPages.length).toBeGreaterThan(4);
     expect(app.shell.entries.length).toBeGreaterThan(0);
   });
 

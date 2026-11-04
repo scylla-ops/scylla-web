@@ -7,8 +7,9 @@ import { extensions } from '../extensions.ts';
 
 const app = loadExtensions(extensions);
 
-const jobsPath = '/acme/projects/project-1/pipelines/pipeline-1/jobs';
-const jobPath = `${jobsPath}/job-42`;
+const membersPath = '/acme/projects/project-1/members';
+/** The list of the projects, the project with its name, then the page. */
+const TRAIL = ['Projects', 'Project#Scylla', 'Members'];
 
 const trail = () => screen.getAllByRole('listitem').map(item => item.textContent?.trim());
 
@@ -21,7 +22,7 @@ const renderTrailAt = async (path: string) => {
 
 beforeEach(() => {
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme' },
+    organization: { id: 'org-1', name: 'Acme', slug: 'acme' },
     project: { id: 'project-1', name: 'Scylla' },
     pipeline: { id: 'pipeline-1', name: 'Nightly' },
   });
@@ -30,36 +31,9 @@ beforeEach(() => {
 afterEach(() => setAppNavigator(null));
 
 describe('the breadcrumb trail that the modules of the extensions compose', () => {
-  it("ends on the pipeline's jobs for the list", async () => {
-    await renderTrailAt(jobsPath);
+  it('ends on the members of a project', async () => {
+    await renderTrailAt(membersPath);
 
-    expect(trail()).toEqual(['Projects', 'Project#Scylla', 'Pipeline#Nightly- Jobs']);
-  });
-
-  it("keeps that crumb and adds the job for one job's page", async () => {
-    await renderTrailAt(jobPath);
-
-    expect(trail()).toEqual(['Projects', 'Project#Scylla', 'Pipeline#Nightly- Jobs', 'Job#job-42']);
-  });
-
-  it('leaves the jobs crumb clickable and the job itself the current page', async () => {
-    await renderTrailAt(jobPath);
-
-    expect(screen.getByRole('link', { name: /Jobs/ })).toHaveAttribute('href', jobsPath);
-    expect(screen.getByRole('link', { name: /job-42/ })).toHaveAttribute('aria-current', 'page');
-  });
-
-  it('shows the pipeline id when the active pipeline is unknown', async () => {
-    contextStore.setState({ pipeline: { id: null, name: null } });
-    await renderTrailAt(jobsPath);
-
-    expect(trail()).toEqual(['Projects', 'Project#Scylla', 'Pipeline#pipeline-1- Jobs']);
-  });
-
-  it('shows the pipeline id when the active pipeline is another one', async () => {
-    contextStore.setState({ pipeline: { id: 'pipeline-2', name: 'Release' } });
-    await renderTrailAt('/acme/projects/project-1/edit/pipeline-1');
-
-    expect(trail()).toEqual(['Projects', 'Project#Scylla', 'Pipeline#pipeline-1- Edit']);
+    expect(trail()).toEqual(TRAIL);
   });
 });

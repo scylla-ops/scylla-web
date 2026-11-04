@@ -12,6 +12,7 @@ import MemberRoleBadges from './MemberRoleBadges.svelte';
 const role = (overrides: Partial<MemberRole> = {}): MemberRole =>
   ({
     grantId: 'grant-1',
+    userId: 'user-1',
     roleId: 'project-admin',
     origin: MemberRoleOrigin.DIRECT,
     scope: PermissionScope.PROJECT,

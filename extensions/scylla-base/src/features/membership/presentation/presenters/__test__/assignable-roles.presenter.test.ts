@@ -1,21 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { Permission, PermissionScope } from '@platform/authz';
-import { RoleKind, type GrantableRole, type RoleEntity } from '@base/features/roles';
 import {
   assignableForPeople,
   groupAssignableRoles,
   type AssignableRole,
 } from '../assignable-roles.presenter.ts';
-
-const grantable = (overrides: Partial<GrantableRole> = {}): GrantableRole => ({
-  id: 'organization-viewer',
-  name: 'Organization Viewer',
-  scope: PermissionScope.ORGANIZATION,
-  kind: RoleKind.MEMBER,
-  description: 'Reads everything',
-  ...overrides,
-});
 
 const assignable = (roleId: string, ownedByOrganization: boolean): AssignableRole => ({
   roleId,
@@ -25,50 +14,31 @@ const assignable = (roleId: string, ownedByOrganization: boolean): AssignableRol
 });
 
 describe('assignableForPeople', () => {
-  it('never offers a role for apps to a person', () => {
-    const roles = assignableForPeople(
-      [grantable(), grantable({ id: 'deploy-bot', kind: RoleKind.AGENT })],
-      new Map(),
-    );
-
-    expect(roles.map(role => role.roleId)).toEqual(['organization-viewer']);
-  });
-
-  it('marks the roles the organization owns', () => {
-    const [platform, owned] = assignableForPeople(
-      [grantable(), grantable({ id: 'auditor', ownerOrganizationId: 'org-1' })],
-      new Map(),
-    );
-
-    expect(platform.ownedByOrganization).toBe(false);
-    expect(owned.ownedByOrganization).toBe(true);
-  });
-
-  it('names a role from the catalog first, then the grantable entry, then its id', () => {
-    const catalog: RoleEntity = {
-      id: 'auditor',
-      name: 'Auditor (catalog)',
-      description: 'From the catalog',
-      scope: PermissionScope.ORGANIZATION,
-      origin: { kind: 'custom', ownerOrganizationId: 'org-1' },
-      kind: RoleKind.MEMBER,
-      access: { kind: 'restricted', permissions: [Permission.READ_ORGANIZATION] },
-    };
-    const roles = assignableForPeople(
-      [
-        grantable({ id: 'auditor' }),
-        grantable({ id: 'support' }),
-        grantable({ id: 'project-viewer', name: '' }),
-      ],
-      new Map([['auditor', catalog]]),
-    );
-
-    expect(roles.map(role => role.name)).toEqual([
-      'Auditor (catalog)',
-      'Organization Viewer',
-      'Project viewer',
+  it('offers the fixed roles of a workspace, the strongest first, and never runner', () => {
+    expect(assignableForPeople('workspace').map(role => role.roleId)).toEqual([
+      'admin',
+      'member',
+      'viewer',
     ]);
-    expect(roles[0].role).toBe(catalog);
+  });
+
+  it('offers the fixed roles of a project', () => {
+    expect(assignableForPeople('project').map(role => role.roleId)).toEqual([
+      'admin',
+      'editor',
+      'viewer',
+    ]);
+  });
+
+  it('gives each role its name and what it allows', () => {
+    const [admin] = assignableForPeople('workspace');
+
+    expect(admin).toMatchObject({ name: 'Admin', ownedByOrganization: true });
+    expect(admin.description).not.toBe('');
+  });
+
+  it('offers nothing on the platform', () => {
+    expect(assignableForPeople('platform')).toEqual([]);
   });
 });
 

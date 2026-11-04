@@ -26,9 +26,6 @@ export const createUserDetail = (userId: () => string | undefined) => {
 
   const userQuery = createQuery(() => userQueries.byId(userId(), { enabled: !isSelf && canRead }));
   const user = $derived(userQuery.data);
-  const accessQuery = createQuery(() =>
-    userQueries.access(userId(), { enabled: !isSelf && canRead }),
-  );
   const sessionsQuery = createQuery(() =>
     userQueries.sessions(userId(), { enabled: !isSelf && canRead }),
   );
@@ -80,15 +77,6 @@ export const createUserDetail = (userId: () => string | undefined) => {
     },
     get redirecting() {
       return resourceError.redirecting;
-    },
-    get access() {
-      return accessQuery.data;
-    },
-    get accessLoading() {
-      return accessQuery.isLoading;
-    },
-    get accessError() {
-      return accessQuery.isError;
     },
     get sessions() {
       return sessionsQuery.data;

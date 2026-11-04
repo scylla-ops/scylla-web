@@ -1,19 +1,19 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import * as grpcProjectMember from '../grpc-project-member.mapper.ts';
-import type { ProjectMember } from '@base/generated/scylla/project/v1/project.ts';
+import { toDomainList } from '../grpc-project-member.mapper.ts';
 
-describe('grpcProjectMember.toDomain', () => {
-  it('unwraps the user id and carries the username through', () => {
-    const member: ProjectMember = { userId: { value: 'user-1' }, username: 'ravenne' };
-    expect(grpcProjectMember.toDomain(member)).toEqual({
-      id: 'user-1',
-      username: 'ravenne',
-    });
-  });
+const entry = (actorId: string, role: string, actorKind = 'user') => ({
+  actorId: { value: actorId },
+  actorKind,
+  displayName: '',
+  handle: actorId,
+  role,
+});
 
-  it('defaults to an empty id when the wrapper is absent', () => {
-    const member: ProjectMember = { userId: undefined, username: 'ravenne' };
-    expect(grpcProjectMember.toDomain(member).id).toBe('');
+describe('grpcProjectMember.toDomainList', () => {
+  it('lists each user once, with no display name when there is none, and no app', () => {
+    expect(
+      toDomainList([entry('ada', 'admin'), entry('ada', 'editor'), entry('ci', 'viewer', 'app')]),
+    ).toEqual([{ id: 'ada', username: 'ada' }]);
   });
 });

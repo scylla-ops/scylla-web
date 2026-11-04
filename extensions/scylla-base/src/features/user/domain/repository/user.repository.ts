@@ -2,7 +2,6 @@ import type { PasswordResetDelivery } from '@base/features/login';
 import type {
   CreateUserInput,
   UpdateUserInput,
-  UserAccess,
   UserEntity,
   UserList,
 } from '@base/features/user/domain/entities/user.entity.ts';
@@ -25,8 +24,6 @@ export interface UserRepository {
   revokeSessions(userId: string): Promise<number>;
   /** Of the session's account, with its password. */
   deleteAccount(password: string): Promise<void>;
-  /** The grants of a user across workspaces. The new server has no such list yet: empty. */
-  listAccess(userId: string): Promise<UserAccess[]>;
   /** The sessions that have not expired, the most recently active first. */
   listSessions(userId: string): Promise<UserSessionEntity[]>;
   /**

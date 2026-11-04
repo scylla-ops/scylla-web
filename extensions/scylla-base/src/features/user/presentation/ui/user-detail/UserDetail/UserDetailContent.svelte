@@ -6,7 +6,6 @@
   import type { UserDetail } from './user-detail.state.svelte.ts';
   import SessionList from '@base/features/user/presentation/ui/components/SessionList.svelte';
   import SettingsSection from '@base/features/user/presentation/ui/components/SettingsSection.svelte';
-  import UserAccessList from '@base/features/user/presentation/ui/components/UserAccessList/UserAccessList.svelte';
   import UserProfileForm from '@base/features/user/presentation/ui/components/UserProfileForm/UserProfileForm.svelte';
   import UserDetailHeader from './UserDetailHeader.svelte';
   import UserSecurity from './UserSecurity.svelte';
@@ -26,10 +25,6 @@
       isPending={page.isSavingProfile}
       onSave={page.saveProfile}
     />
-  </SettingsSection>
-
-  <SettingsSection title={t(userMessages.organizationsAndRoles)}>
-    <UserAccessList access={page.access} isLoading={page.accessLoading} isError={page.accessError} />
   </SettingsSection>
 
   <SettingsSection

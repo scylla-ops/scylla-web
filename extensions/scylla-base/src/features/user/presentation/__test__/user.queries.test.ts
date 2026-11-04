@@ -8,7 +8,6 @@ import type { UserSessionEntity } from '@base/features/user/domain/entities/user
 import {
   ME_QUERY_KEY,
   USERS_QUERY_KEY,
-  USER_ACCESS_QUERY_KEY,
   USER_QUERY_KEY,
   USER_SESSIONS_QUERY_KEY,
   userMutations,
@@ -35,7 +34,6 @@ beforeEach(() => {
   vi.clearAllMocks();
   repository = {
     getMe: vi.fn().mockResolvedValue(me),
-    listAccess: vi.fn().mockResolvedValue([]),
     update: vi.fn().mockResolvedValue(me),
     changePassword: vi.fn().mockResolvedValue(undefined),
     deleteAccount: vi.fn().mockResolvedValue(undefined),
@@ -70,7 +68,6 @@ describe('userQueries.me', () => {
 });
 
 describe.each([
-  ['access', userQueries.access],
   ['byId', userQueries.byId],
   ['sessions', userQueries.sessions],
 ] as const)('userQueries.%s checks for itself', (_name, factory) => {
@@ -97,14 +94,6 @@ describe.each([
 
   it('refuses another id while the permissions are unknown', () => {
     expect(factory('user-2').enabled).toBe(false);
-  });
-});
-
-describe('userQueries.access', () => {
-  it('lists the grants of the user', async () => {
-    await runQueryFn(userQueries.access('user-2'));
-
-    expect(repository.listAccess).toHaveBeenCalledWith('user-2');
   });
 });
 
@@ -261,9 +250,8 @@ describe('userMutations.deleteAccount', () => {
 });
 
 describe('userMutations.remove', () => {
-  it('drops the page, the grants and the sessions of the deleted user, and refreshes the directory', async () => {
+  it('drops the page and the sessions of the deleted user, and refreshes the directory', async () => {
     cache.queryClient.setQueryData(USER_QUERY_KEY('user-2'), { userId: 'user-2' });
-    cache.queryClient.setQueryData(USER_ACCESS_QUERY_KEY('user-2'), []);
     cache.queryClient.setQueryData(USER_SESSIONS_QUERY_KEY('user-2'), []);
     cache.queryClient.setQueryData(USER_QUERY_KEY('user-3'), { userId: 'user-3' });
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
@@ -271,7 +259,6 @@ describe('userMutations.remove', () => {
     runOnSuccess(userMutations.remove(), undefined, 'user-2');
 
     expect(cache.queryClient.getQueryData(USER_QUERY_KEY('user-2'))).toBeUndefined();
-    expect(cache.queryClient.getQueryData(USER_ACCESS_QUERY_KEY('user-2'))).toBeUndefined();
     expect(cache.queryClient.getQueryData(USER_SESSIONS_QUERY_KEY('user-2'))).toBeUndefined();
     expect(cache.queryClient.getQueryData(USER_QUERY_KEY('user-3'))).toEqual({ userId: 'user-3' });
     await vi.waitFor(() =>

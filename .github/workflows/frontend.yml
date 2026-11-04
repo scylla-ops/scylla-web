@@ -40,8 +40,6 @@ jobs:
         shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - uses: ./.github/actions/setup
 
@@ -85,8 +83,6 @@ jobs:
       ESLINT_CACHE_PATH: node_modules/.cache/eslint
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - uses: ./.github/actions/setup
 
@@ -112,8 +108,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - uses: ./.github/actions/setup
 

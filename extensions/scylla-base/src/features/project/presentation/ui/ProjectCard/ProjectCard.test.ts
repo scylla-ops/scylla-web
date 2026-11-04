@@ -44,7 +44,7 @@ const renderCard = (entity: ProjectEntity = project()) => {
 beforeEach(() => {
   selectionStore.setState({ selectedIds: {} });
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme' },
+    organization: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: null, name: null },
   });
   permissionsStore.setState({

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { Permission, PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import type { WidgetInjection } from '@scylla/core-sdk';
 import { render, withQueryClient, withRegistry, withWidgetInjections } from '@test/render.ts';
@@ -10,8 +10,7 @@ import OrganizationMembersPage from './OrganizationMembers.page.svelte';
 
 const probe = () => import('./OrganizationMembersProbe.fixture.svelte');
 
-let listMembers: ReturnType<typeof vi.fn>;
-let listGrants: ReturnType<typeof vi.fn>;
+let listAccess: ReturnType<typeof vi.fn>;
 let teardown: Array<() => void> = [];
 
 const grant = (permissions: Permission[] | 'all') =>
@@ -34,40 +33,27 @@ const setUp = (injection?: WidgetInjection) => {
 };
 
 beforeEach(() => {
-  listMembers = vi.fn().mockResolvedValue([
-    { id: 'user-1', username: 'alice' },
-    { id: 'user-2', username: 'bob' },
-  ]);
-  listGrants = vi.fn().mockResolvedValue([
-    {
-      id: 'grant-1',
-      principal: { kind: PrincipalKind.USER, id: 'user-1' },
-      roleId: 'organization-admin',
-      scope: PermissionScope.ORGANIZATION,
-      scopeId: 'org-1',
-    },
+  listAccess = vi.fn().mockResolvedValue([
+    { actorId: 'user-1', actorKind: 'user', displayName: '', handle: 'alice', role: 'admin' },
+    { actorId: 'user-2', actorKind: 'user', displayName: '', handle: 'bob', role: 'member' },
   ]);
 
   const cache = withQueryClient();
   const restoreRegistry = withRegistry({
-    organization: { organizationRepository: { listMembers } },
-    user: { userRepository: { getAll: vi.fn().mockResolvedValue([]) } },
-    roles: {
-      permissionRepository: {
-        listGrants,
-        listGrantableRoles: vi.fn().mockResolvedValue([]),
-        listRoles: vi.fn().mockResolvedValue([]),
-        createGrant: vi.fn(),
-        revokeGrant: vi.fn(),
-        revokeAllAccess: vi.fn(),
-        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
+    user: { userRepository: { getAll: vi.fn().mockResolvedValue({ items: [] }) } },
+    access: {
+      accessRepository: {
+        listAccess,
+        grant: vi.fn(),
+        revoke: vi.fn(),
+        check: vi.fn().mockResolvedValue(new Set()),
       },
     },
   });
   teardown = [cache.restore, restoreRegistry];
 
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme' },
+    organization: { id: 'org-1', name: 'Acme', slug: 'acme' },
     project: { id: null, name: null },
   });
   grant('all');
@@ -103,20 +89,18 @@ describe('OrganizationMembers.page with widget injections', () => {
     expect(await screen.findByTestId('organization-members-probe')).toBeInTheDocument();
   });
 
-  it('reloads the members and their grants when a component asks for it', async () => {
+  it('reloads the roles of the members when a component asks for it', async () => {
     setUp([membershipPoints.organizationSection.inject({ component: probe })]);
     await screen.findByText('alice');
-    const members = listMembers.mock.calls.length;
-    const grants = listGrants.mock.calls.length;
+    const reads = listAccess.mock.calls.length;
 
     await userEvent.click(await screen.findByTestId('organization-members-probe'));
 
-    await vi.waitFor(() => expect(listMembers.mock.calls.length).toBe(members + 1));
-    await vi.waitFor(() => expect(listGrants.mock.calls.length).toBe(grants + 1));
+    await vi.waitFor(() => expect(listAccess.mock.calls.length).toBe(reads + 1));
   });
 
   it('hides "Add a member" without LIST_USERS when an extension asks for it', async () => {
-    grant([Permission.MANAGE_ORG_GRANTS]);
+    grant([Permission.MANAGE_ORG_GRANTS, Permission.LIST_ORGANIZATION_MEMBERS]);
     setUp([
       membershipPoints.organizationAddMember.patch(action => ({
         ...action,

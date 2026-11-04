@@ -11,7 +11,7 @@ let teardown: Array<() => void> = [];
 let update: ReturnType<typeof vi.fn>;
 
 const setUp = (
-  organization: { id: string; name: string; description?: string },
+  organization: { id: string; name: string; slug: string },
   setOpen: (open: boolean) => void = vi.fn(),
 ) => {
   update = vi.fn().mockResolvedValue({ ...organization });
@@ -31,7 +31,7 @@ afterEach(() => teardown.forEach(restore => restore()));
 
 describe('EditOrganizationDialog', () => {
   it('starts with blank fields — the current values are placeholders — so Save starts disabled', async () => {
-    setUp({ id: 'org-1', name: 'Acme Corp', description: 'a real one' });
+    setUp({ id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' });
     await focusSettled();
 
     expect(screen.getByLabelText('Organization name')).toHaveValue('');
@@ -39,27 +39,24 @@ describe('EditOrganizationDialog', () => {
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
-  it('falls back to a generic placeholder when there is no existing description', async () => {
-    setUp({ id: 'org-1', name: 'Acme' });
+  it('shows the current address as the placeholder of its field', async () => {
+    setUp({ id: 'org-1', name: 'Acme', slug: 'acme' });
     await focusSettled();
 
-    expect(screen.getByLabelText('Description')).toHaveAttribute(
-      'placeholder',
-      'Add a description...',
-    );
+    expect(screen.getByLabelText('Address')).toHaveAttribute('placeholder', 'acme');
   });
 
-  it('submits the trimmed new name and description for this id, and closes on success', async () => {
+  it('submits the trimmed new name and address for this id, and closes on success', async () => {
     const setOpen = vi.fn();
     const user = userEvent.setup();
-    setUp({ id: 'org-9', name: 'Acme Corp' }, setOpen);
+    setUp({ id: 'org-9', name: 'Acme Corp', slug: 'acme-corp' }, setOpen);
     await focusSettled();
 
     await user.type(screen.getByLabelText('Organization name'), '  New Name  ');
-    await user.type(screen.getByLabelText('Description'), '  new desc  ');
+    await user.type(screen.getByLabelText('Address'), '  new-desc  ');
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
-    await waitFor(() => expect(update).toHaveBeenCalledWith('org-9', 'New Name', 'new desc'));
+    await waitFor(() => expect(update).toHaveBeenCalledWith('org-9', 'New Name', 'new-desc'));
     await waitFor(() => expect(setOpen).toHaveBeenCalledWith(false));
   });
 });

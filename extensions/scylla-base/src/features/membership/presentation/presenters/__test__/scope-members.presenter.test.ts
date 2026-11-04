@@ -1,116 +1,97 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { PermissionScope, PrincipalKind } from '@platform/authz';
-import { buildOrganizationMembers, buildProjectMembers, MemberRoleOrigin } from '../scope-members.presenter.ts';
-import type { GrantEntity } from '@base/features/roles';
+import { PermissionScope } from '@platform/authz';
+import type { AccessEntryEntity } from '@base/features/access';
+import {
+  buildOrganizationMembers,
+  buildProjectMembers,
+  MemberRoleOrigin,
+} from '../scope-members.presenter.ts';
 
-const userGrant = (overrides: Partial<GrantEntity> = {}): GrantEntity => ({
-  id: 'grant-1',
-  principal: { kind: PrincipalKind.USER, id: 'user-1' },
-  roleId: 'role-1',
-  scope: PermissionScope.ORGANIZATION,
-  scopeId: 'org-1',
+const entry = (overrides: Partial<AccessEntryEntity> = {}): AccessEntryEntity => ({
+  actorId: 'user-1',
+  actorKind: 'user',
+  displayName: 'Alice',
+  handle: 'alice',
+  role: 'admin',
   ...overrides,
 });
 
 describe('buildOrganizationMembers', () => {
-  it('lists a user holding an organization grant, with that grant as a DIRECT role', () => {
-    const members = buildOrganizationMembers([userGrant()]);
-    expect(members).toEqual([
+  it('lists a user with a role on the workspace, with that role as a DIRECT one', () => {
+    expect(buildOrganizationMembers([entry()])).toEqual([
       {
         userId: 'user-1',
-        roles: [{ grantId: 'grant-1', roleId: 'role-1', origin: MemberRoleOrigin.DIRECT, scope: PermissionScope.ORGANIZATION }],
+        roles: [
+          {
+            grantId: `${PermissionScope.ORGANIZATION}:admin`,
+            userId: 'user-1',
+            roleId: 'admin',
+            origin: MemberRoleOrigin.DIRECT,
+            scope: PermissionScope.ORGANIZATION,
+          },
+        ],
       },
     ]);
   });
 
-  it('excludes app-principal grants - only USER principals are members', () => {
-    const members = buildOrganizationMembers([
-      userGrant({ principal: { kind: PrincipalKind.APP, id: 'app-1' } }),
-    ]);
-    expect(members).toEqual([]);
+  it('leaves the apps out: only a person is a member', () => {
+    expect(buildOrganizationMembers([entry({ actorKind: 'app', role: 'runner' })])).toEqual([]);
   });
 
-  it('a known user id with no grant at all is still listed, with an empty role list', () => {
-    const members = buildOrganizationMembers([], ['user-2']);
-    expect(members).toEqual([{ userId: 'user-2', roles: [] }]);
+  it('lists a user once, with each role, the strongest first', () => {
+    const [member] = buildOrganizationMembers([entry({ role: 'viewer' }), entry({ role: 'admin' })]);
+
+    expect(member.roles.map(role => role.roleId)).toEqual(['admin', 'viewer']);
   });
 
-  it('merges a known user id with their own grants into one row, not two', () => {
-    const members = buildOrganizationMembers([userGrant({ principal: { kind: PrincipalKind.USER, id: 'user-1' } })], [
-      'user-1',
-    ]);
-    expect(members).toHaveLength(1);
-    expect(members[0].roles).toHaveLength(1);
+  it('shows an owner as locked: Revoke does not take it back', () => {
+    const [member] = buildOrganizationMembers([entry({ role: 'owner' })]);
+
+    expect(member.roles[0]).toMatchObject({ roleId: 'owner', origin: MemberRoleOrigin.INHERITED });
   });
 
-  it('one user holding two grants gets both roles listed under the same row', () => {
-    const members = buildOrganizationMembers([
-      userGrant({ id: 'grant-1', roleId: 'role-a' }),
-      userGrant({ id: 'grant-2', roleId: 'role-b' }),
-    ]);
-    expect(members).toHaveLength(1);
-    expect(members[0].roles.map(r => r.roleId).sort()).toEqual(['role-a', 'role-b']);
+  it('keeps one role once when the server lists it twice', () => {
+    const [member] = buildOrganizationMembers([entry(), entry()]);
+
+    expect(member.roles).toHaveLength(1);
   });
 });
 
 describe('buildProjectMembers', () => {
-  const projectGrant = (overrides: Partial<GrantEntity> = {}): GrantEntity => ({
-    id: 'p-grant-1',
-    principal: { kind: PrincipalKind.USER, id: 'user-1' },
-    roleId: 'project-role',
-    scope: PermissionScope.PROJECT,
-    scopeId: 'project-1',
-    ...overrides,
-  });
+  it('gives the roles of the project as DIRECT, and the workspace roles as locked', () => {
+    const [member] = buildProjectMembers(
+      [entry({ role: 'editor' })],
+      [entry({ role: 'member' })],
+    );
 
-  it('lists a direct project grant as DIRECT/PROJECT', () => {
-    const members = buildProjectMembers([projectGrant()], [], () => true);
-    expect(members).toEqual([
-      {
-        userId: 'user-1',
-        roles: [{ grantId: 'p-grant-1', roleId: 'project-role', origin: MemberRoleOrigin.DIRECT, scope: PermissionScope.PROJECT }],
-      },
+    expect(member.roles).toEqual([
+      expect.objectContaining({
+        roleId: 'editor',
+        origin: MemberRoleOrigin.DIRECT,
+        scope: PermissionScope.PROJECT,
+      }),
+      expect.objectContaining({
+        roleId: 'member',
+        origin: MemberRoleOrigin.INHERITED,
+        scope: PermissionScope.ORGANIZATION,
+      }),
     ]);
   });
 
-  it('includes an organization grant as INHERITED/ORGANIZATION when the predicate says it reaches projects', () => {
-    const members = buildProjectMembers([], [userGrant({ roleId: 'org-admin' })], () => true);
-    expect(members).toEqual([
-      {
-        userId: 'user-1',
-        roles: [{ grantId: 'grant-1', roleId: 'org-admin', origin: MemberRoleOrigin.INHERITED, scope: PermissionScope.ORGANIZATION }],
-      },
+  it('keeps a project admin and a workspace admin apart', () => {
+    const [member] = buildProjectMembers([entry()], [entry()]);
+
+    expect(member.roles.map(role => role.grantId)).toEqual([
+      `${PermissionScope.PROJECT}:admin`,
+      `${PermissionScope.ORGANIZATION}:admin`,
     ]);
   });
 
-  it('excludes an organization grant whose role does not reach into projects (e.g. the bare "member" floor)', () => {
-    const members = buildProjectMembers([], [userGrant({ roleId: 'organization-member' })], () => false);
-    expect(members).toEqual([]);
-  });
+  it('lists a person of the workspace with no role of the project', () => {
+    const members = buildProjectMembers([], [entry({ actorId: 'user-2', role: 'viewer' })]);
 
-  it('combines a direct project role and an inherited organization role for the same user into one row', () => {
-    const members = buildProjectMembers(
-      [projectGrant()],
-      [userGrant({ id: 'org-grant', roleId: 'org-admin' })],
-      () => true,
-    );
-    expect(members).toHaveLength(1);
-    expect(members[0].roles).toHaveLength(2);
-    expect(members[0].roles.map(r => r.origin).sort()).toEqual(['direct', 'inherited']);
-  });
-
-  it('seeds known user ids the same way the organization builder does', () => {
-    const members = buildProjectMembers([], [], () => true, ['user-9']);
-    expect(members).toEqual([{ userId: 'user-9', roles: [] }]);
-  });
-
-  it('excludes app-principal grants from both project and organization sources', () => {
-    const members = buildProjectMembers(
-      [projectGrant({ principal: { kind: PrincipalKind.APP, id: 'app-1' } })],
-      [userGrant({ principal: { kind: PrincipalKind.APP, id: 'app-1' } })],
-      () => true,
-    );
-    expect(members).toEqual([]);
+    expect(members.map(member => member.userId)).toEqual(['user-2']);
+    expect(members[0].roles[0].origin).toBe(MemberRoleOrigin.INHERITED);
   });
 });

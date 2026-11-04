@@ -50,7 +50,7 @@ export const organizationMutations = {
         repository().create(name, slug),
       onSuccess: data => {
         // The new organization becomes the active one.
-        contextStore.getState().setOrganization(data.id, data.name);
+        contextStore.getState().setOrganization(data.id, data.name, data.slug);
         toast.success(i18n._(ToastMessages.ORGANIZATION_CREATE));
         return invalidateOrganizations();
       },

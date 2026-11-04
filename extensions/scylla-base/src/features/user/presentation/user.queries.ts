@@ -14,7 +14,6 @@ const repository = () => getModuleDomain<typeof UserModule.domain>('user').userR
 export const USERS_QUERY_KEY = () => ['users'] as const;
 export const USER_QUERY_KEY = (userId?: string) => ['user', userId] as const;
 export const ME_QUERY_KEY = () => ['me'] as const;
-export const USER_ACCESS_QUERY_KEY = (userId?: string) => ['user-access', userId] as const;
 export const USER_SESSIONS_QUERY_KEY = (userId?: string) => ['user-sessions', userId] as const;
 
 export const userQueries = {
@@ -26,7 +25,7 @@ export const userQueries = {
       enabled: (options.enabled ?? true) && canListUsers(),
     }),
 
-  /** Checks for itself, as `access` does: the own id, or `READ_USER`. */
+  /** Checks for itself: the own id, or `READ_USER`. */
   byId: (userId?: string, options: { enabled?: boolean } = {}) =>
     queryOptions({
       queryKey: USER_QUERY_KEY(userId),
@@ -44,21 +43,7 @@ export const userQueries = {
       queryFn: () => repository().getMe(),
     }),
 
-  /**
-   * The grants of a user. Checks for itself (other extensions run it through the SDK): the own
-   * id needs no grant, any other id needs `READ_USER`.
-   */
-  access: (userId?: string, options: { enabled?: boolean } = {}) =>
-    queryOptions({
-      queryKey: USER_ACCESS_QUERY_KEY(userId),
-      queryFn: () => {
-        if (!userId) throw new Error('User ID is required');
-        return repository().listAccess(userId);
-      },
-      enabled: !!userId && (options.enabled ?? true) && canReadUser(userId),
-    }),
-
-  /** The sessions of a user. Checks for itself, as `access` does. */
+  /** The sessions of a user. Checks for itself: the own id, or `READ_USER`. */
   sessions: (userId?: string, options: { enabled?: boolean } = {}) =>
     queryOptions({
       queryKey: USER_SESSIONS_QUERY_KEY(userId),
@@ -120,7 +105,6 @@ export const userMutations = {
         const client = getQueryClient();
         // Gone, not stale: a refetch would only answer NOT_FOUND.
         client.removeQueries({ queryKey: USER_QUERY_KEY(userId), exact: true });
-        client.removeQueries({ queryKey: USER_ACCESS_QUERY_KEY(userId), exact: true });
         client.removeQueries({ queryKey: USER_SESSIONS_QUERY_KEY(userId), exact: true });
         return client.invalidateQueries({ queryKey: USERS_QUERY_KEY() });
       },
@@ -168,7 +152,7 @@ export const userMutations = {
           USER_SESSIONS_QUERY_KEY(userId),
         );
         if (sessions?.some(session => session.id === sessionId && session.current)) {
-          signOut();
+          await signOut();
         } else {
           await invalidateSessions(userId);
         }
@@ -182,8 +166,6 @@ export const userMutations = {
   deleteAccount: () =>
     mutationOptions({
       mutationFn: async (password: string) => refusalOf(repository().deleteAccount(password)),
-      onSuccess: (refusal: string | null) => {
-        if (refusal === null) signOut();
-      },
+      onSuccess: (refusal: string | null) => (refusal === null ? signOut() : undefined),
     }),
 };

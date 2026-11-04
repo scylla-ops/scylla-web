@@ -17,6 +17,14 @@ msgstr ""
 msgid "••••••••"
 msgstr "••••••••"
 
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:7
+msgid "Ada Lovelace"
+msgstr "Ada Lovelace"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:14
+msgid "Already have an account? Sign in"
+msgstr "Déjà un compte ? Connectez-vous"
+
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:12
 msgid "Back to sign in"
 msgstr "Retour à la connexion"
@@ -33,7 +41,24 @@ msgstr "Choisissez un nouveau mot de passe"
 msgid "Confirm password"
 msgstr "Confirmer le mot de passe"
 
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:11
+msgid "Confirm the password"
+msgstr "Confirmez le mot de passe"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:17
+msgid "Continue with {provider}"
+msgstr "Continuer avec {provider}"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:4
+msgid "Create an account"
+msgstr "Créer un compte"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:12
+msgid "Create the account"
+msgstr "Créer le compte"
+
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:6
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:8
 msgid "Email"
 msgstr "Adresse e-mail"
 
@@ -52,6 +77,10 @@ msgstr "Saisissez le nouveau mot de passe de votre compte."
 #: extensions/scylla-base/src/features/login/presentation/messages/login.messages.ts:5
 msgid "Enter your email or username, and your password."
 msgstr "Saisissez votre e-mail ou votre nom d'utilisateur, et votre mot de passe."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:5
+msgid "Enter your name, your email and a password."
+msgstr "Saisissez votre nom, votre e-mail et un mot de passe."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:4
 msgid "Forgot password"
@@ -77,11 +106,16 @@ msgstr "Si un compte utilise cette adresse e-mail, le serveur a écrit un lien d
 msgid "If an account uses this email, we sent it a link to reset the password. The link expires in one hour."
 msgstr "Si un compte utilise cette adresse e-mail, nous lui avons envoyé un lien pour réinitialiser le mot de passe. Le lien expire dans une heure."
 
-#: extensions/scylla-base/src/features/login/infrastructure/default-login.repository.ts:16
+#: extensions/scylla-base/src/features/login/infrastructure/default-login.repository.ts:21
 msgid "Incorrect credentials"
 msgstr "Identifiants incorrects"
 
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:6
+msgid "Name"
+msgstr "Nom"
+
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:7
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:9
 msgid "name@example.com"
 msgstr "nom@exemple.com"
 
@@ -93,7 +127,16 @@ msgstr "nom@exemple.com ou nom d'utilisateur"
 msgid "New password"
 msgstr "Nouveau mot de passe"
 
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:15
+msgid "No account yet? Create one"
+msgstr "Pas encore de compte ? Créez-en un"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:16
+msgid "or"
+msgstr "ou"
+
 #: extensions/scylla-base/src/features/login/presentation/messages/login.messages.ts:10
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:10
 msgid "Password"
 msgstr "Mot de passe"
 
@@ -104,12 +147,33 @@ msgstr "Envoyer le lien"
 #: extensions/scylla-base/src/features/login/presentation/messages/login.messages.ts:4
 #: extensions/scylla-base/src/features/login/presentation/messages/login.messages.ts:12
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:20
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:22
 msgid "Sign in"
 msgstr "Se connecter"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:21
+msgid "This link is not valid any more. Sign up again to get a new one."
+msgstr "Ce lien n'est plus valide. Inscrivez-vous de nouveau pour en recevoir un autre."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:21
 msgid "This link is not valid or has expired."
 msgstr "Ce lien n'est pas valide ou a expiré."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:18
+msgid "Verify your email"
+msgstr "Vérifiez votre e-mail"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:19
+msgid "Verifying your email address…"
+msgstr "Vérification de votre adresse e-mail…"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:13
+msgid "We sent a link to this address. Open it to activate your account."
+msgstr "Nous avons envoyé un lien à cette adresse. Ouvrez-le pour activer votre compte."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:20
+msgid "Your email address is verified. You can sign in."
+msgstr "Votre adresse e-mail est vérifiée. Vous pouvez vous connecter."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:19
 msgid "Your password is changed."

@@ -39,7 +39,7 @@ beforeEach(() => {
   projectsState.projects = [{ id: 'project-1', name: 'web' }];
   projectsState.isLoading = false;
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme Corp' },
+    organization: { id: 'org-1', name: 'Acme Corp', slug: null },
     project: { id: 'project-1', name: 'web' },
     pipeline: { id: null, name: null },
   });
@@ -81,7 +81,7 @@ describe('cleanContext', () => {
   });
 
   it('goes to "/" when there is no organization name to make a slug from', () => {
-    contextStore.setState({ organization: { id: 'org-1', name: null } });
+    contextStore.setState({ organization: { id: 'org-1', name: null, slug: null } });
     run('deleted-project');
 
     expect(navigator.navigate).toHaveBeenCalledWith('/', { replace: true });

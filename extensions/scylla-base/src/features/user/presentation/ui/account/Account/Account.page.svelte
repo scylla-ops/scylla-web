@@ -10,7 +10,6 @@
   import AccountSecurity from './AccountSecurity.svelte';
   import SettingsSection from '@base/features/user/presentation/ui/components/SettingsSection.svelte';
   import ThemePicker from '@base/features/user/presentation/ui/components/ThemePicker/ThemePicker.svelte';
-  import UserAccessList from '@base/features/user/presentation/ui/components/UserAccessList/UserAccessList.svelte';
   import UserProfileForm from '@base/features/user/presentation/ui/components/UserProfileForm/UserProfileForm.svelte';
   import DeleteAccountDialog from '../DeleteAccountDialog/DeleteAccountDialog.svelte';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
@@ -65,17 +64,6 @@
           </SettingsSection>
         {:else if current.id === 'security'}
           <AccountSecurity {page} />
-        {:else if current.id === 'organizations'}
-          <SettingsSection
-            title={t(userMessages.organizationsAndRoles)}
-            description={t(userMessages.organizationsDescription)}
-          >
-            <UserAccessList
-              access={page.access}
-              isLoading={page.accessLoading}
-              isError={page.accessError}
-            />
-          </SettingsSection>
         {:else}
           <SettingsSection
             title={t(userMessages.deleteMyAccount)}

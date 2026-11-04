@@ -12,8 +12,8 @@ import OrganizationListFixture from './OrganizationList.fixture.svelte';
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 const organizations = [
-  { id: 'org-1', name: 'Acme Corp', description: 'the first' },
-  { id: 'org-2', name: 'Globex Inc' },
+  { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' },
+  { id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' },
 ];
 
 let teardown: Array<() => void> = [];
@@ -40,7 +40,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   navigator = installTestNavigator();
   permissionsStore.setState({ permissions: null });
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp' } });
+  contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp', slug: null } });
 });
 
 afterEach(() => {
@@ -61,18 +61,18 @@ describe('OrganizationList', () => {
     render(OrganizationList);
 
     expect(await screen.findByText('Acme Corp')).toBeInTheDocument();
-    expect(screen.getByText('the first')).toBeInTheDocument();
+    expect(screen.getByText('acme-corp')).toBeInTheDocument();
     expect(screen.getByText('Globex Inc')).toBeInTheDocument();
   });
 
-  it('makes a selected organization active and opens its dashboard', async () => {
+  it('makes a selected organization active and opens its projects', async () => {
     setUp(() => Promise.resolve(organizations));
     render(OrganizationList);
 
     await fireEvent.click(await screen.findByText('Globex Inc'));
 
-    expect(contextStore.getState().organization).toEqual({ id: 'org-2', name: 'Globex Inc' });
-    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/dashboard', undefined);
+    expect(contextStore.getState().organization).toEqual({ id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' });
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', undefined);
   });
 
   it('hides the row actions that the user may not use', async () => {
@@ -121,9 +121,9 @@ describe('OrganizationList', () => {
 
     await waitFor(() => expect(remove).toHaveBeenCalledWith('org-1'));
     await waitFor(() =>
-      expect(contextStore.getState().organization).toEqual({ id: 'org-2', name: 'Globex Inc' }),
+      expect(contextStore.getState().organization).toEqual({ id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' }),
     );
-    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/dashboard', undefined);
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', undefined);
   });
 
   it('keeps the active organization after deleting another one', async () => {
@@ -148,6 +148,6 @@ describe('OrganizationList', () => {
     expect(screen.getAllByTestId('custom-row')).toHaveLength(2);
 
     await userEvent.click(screen.getAllByRole('button', { name: 'pick' })[1]);
-    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/dashboard', undefined);
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', undefined);
   });
 });

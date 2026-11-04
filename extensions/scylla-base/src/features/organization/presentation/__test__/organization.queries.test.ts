@@ -23,13 +23,12 @@ const ORG_ID = 'org-1';
 const org = (overrides: Partial<OrganizationEntity> = {}): OrganizationEntity => ({
   id: ORG_ID,
   name: 'Scylla Inc',
-  description: 'a test org',
+  slug: 'scylla-inc',
   ...overrides,
 });
 
 const withRepository = (overrides: Partial<OrganizationRepository> = {}) => {
   const repository = {
-    getAll: vi.fn().mockResolvedValue([org()]),
     getMine: vi.fn().mockResolvedValue([org()]),
     listMembers: vi.fn().mockResolvedValue([{ id: 'user-1', username: 'ravenne' }]),
     create: vi.fn().mockResolvedValue(org()),
@@ -57,13 +56,12 @@ afterEach(() => {
 });
 
 describe('organizationQueries.mine', () => {
-  it('asks for the organizations the user belongs to — getMine, never getAll', async () => {
+  it('asks for the organizations the user belongs to', async () => {
     const repository = withRepository();
 
     const organizations = await runQueryFn(organizationQueries.mine());
 
     expect(repository.getMine).toHaveBeenCalled();
-    expect(repository.getAll).not.toHaveBeenCalled();
     expect(organizations).toHaveLength(1);
   });
 
@@ -123,7 +121,7 @@ describe('organizationMutations.create', () => {
   it('creates the organization', async () => {
     const repository = withRepository();
 
-    await runMutationFn(organizationMutations.create(), { name: 'New Org', description: 'd' });
+    await runMutationFn(organizationMutations.create(), { name: 'New Org', slug: 'd' });
 
     expect(repository.create).toHaveBeenCalledWith('New Org', 'd');
   });
@@ -136,7 +134,11 @@ describe('organizationMutations.create', () => {
       name: 'New Org',
     });
 
-    expect(contextStore.getState().organization).toEqual({ id: 'org-new', name: 'New Org' });
+    expect(contextStore.getState().organization).toEqual({
+      id: 'org-new',
+      name: 'New Org',
+      slug: 'scylla-inc',
+    });
     expect(toastSuccess).toHaveBeenCalledWith('Organization created');
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ORGANIZATIONS_QUERY_KEY() });
   });

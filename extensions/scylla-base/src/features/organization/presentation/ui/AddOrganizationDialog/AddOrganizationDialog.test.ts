@@ -14,7 +14,7 @@ let testNavigator: ReturnType<typeof installTestNavigator>;
 let create: ReturnType<typeof vi.fn>;
 
 const setUp = (props: { setOpen?: (open: boolean) => void; hideCancel?: boolean } = {}) => {
-  create = vi.fn().mockResolvedValue({ id: 'org-1', name: 'Acme Corp', description: '' });
+  create = vi.fn().mockResolvedValue({ id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' });
   const repository = { create } as unknown as OrganizationRepository;
 
   const cache = withQueryClient();
@@ -31,13 +31,13 @@ const setUp = (props: { setOpen?: (open: boolean) => void; hideCancel?: boolean 
 
 beforeEach(() => {
   vi.clearAllMocks();
-  contextStore.setState({ organization: { id: null, name: null } });
+  contextStore.setState({ organization: { id: null, name: null, slug: null } });
 });
 
 afterEach(() => teardown.forEach(restore => restore()));
 
 describe('AddOrganizationDialog', () => {
-  it('enables Create once a name is entered: the description is optional', async () => {
+  it('enables Create once a name is entered: the address is optional', async () => {
     const user = userEvent.setup();
     setUp();
     await focusSettled();
@@ -49,7 +49,7 @@ describe('AddOrganizationDialog', () => {
     expect(button).toBeEnabled();
   });
 
-  it('creates an organization without a description', async () => {
+  it('creates an organization without an address', async () => {
     const user = userEvent.setup();
     setUp();
     await focusSettled();
@@ -60,30 +60,29 @@ describe('AddOrganizationDialog', () => {
     await waitFor(() => expect(create).toHaveBeenCalledWith('Acme Corp', undefined));
   });
 
-  it('submits the raw (untrimmed) name, then closes and navigates on success', async () => {
+  it('submits the trimmed name, then closes and navigates to its slug on success', async () => {
     const setOpen = vi.fn();
     const user = userEvent.setup();
     setUp({ setOpen });
     await focusSettled();
 
     await user.type(screen.getByLabelText('Organization name'), '  Acme Corp  ');
-    await user.type(screen.getByLabelText('Description'), 'a real one');
+    await user.type(screen.getByLabelText('Address'), 'a real one');
     await user.click(screen.getByRole('button', { name: 'Create Organization' }));
 
-    // The name reaches the repository as typed; only the checks trim a copy.
-    await waitFor(() => expect(create).toHaveBeenCalledWith('  Acme Corp  ', 'a real one'));
+    await waitFor(() => expect(create).toHaveBeenCalledWith('Acme Corp', 'a real one'));
     await waitFor(() => expect(setOpen).toHaveBeenCalledWith(false));
-    expect(contextStore.getState().organization).toEqual({ id: 'org-1', name: 'Acme Corp' });
-    expect(testNavigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', undefined);
+    expect(contextStore.getState().organization).toEqual({ id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' });
+    expect(testNavigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', undefined);
   });
 
-  it('sends a trimmed, non-empty description', async () => {
+  it('sends a trimmed, non-empty address', async () => {
     const user = userEvent.setup();
     setUp();
     await focusSettled();
 
     await user.type(screen.getByLabelText('Organization name'), 'Acme');
-    await user.type(screen.getByLabelText('Description'), '  a real one  ');
+    await user.type(screen.getByLabelText('Address'), '  a real one  ');
     await user.click(screen.getByRole('button', { name: 'Create Organization' }));
 
     await waitFor(() => expect(create).toHaveBeenCalledWith('Acme', 'a real one'));

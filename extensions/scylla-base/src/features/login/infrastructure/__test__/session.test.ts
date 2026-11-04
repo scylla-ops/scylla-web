@@ -3,8 +3,8 @@ import { closeSession, hasSession, openSession, resolveUserWith } from '../sessi
 
 const browserSession = vi.hoisted(() => ({
   open: vi.fn(),
-  restore: vi.fn(async () => true),
-  close: vi.fn(async () => undefined),
+  restore: vi.fn(() => Promise.resolve(true)),
+  close: vi.fn(() => Promise.resolve()),
 }));
 vi.mock('@platform/grpc', () => ({ browserSession }));
 
@@ -33,7 +33,7 @@ describe('hasSession', () => {
   });
 
   it('asks the server who the user is after the redirect of a provider', async () => {
-    resolveUserWith(async () => 'user-7');
+    resolveUserWith(() => Promise.resolve('user-7'));
 
     await expect(hasSession()).resolves.toBe(true);
     expect(localStorage.getItem('userId')).toBe('user-7');

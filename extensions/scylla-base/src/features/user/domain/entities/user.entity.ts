@@ -1,4 +1,3 @@
-import type { AccessScope } from '@platform/authz';
 import type { PaginatedList } from '@scylla/ui/structs';
 
 export interface UserEntity {
@@ -21,34 +20,6 @@ export interface UserEntity {
 export type UserSummary = Pick<UserEntity, 'id' | 'username' | 'email' | 'displayName'>;
 
 export type UserList = PaginatedList<UserEntity>;
-
-interface Grant {
-  grantId: string;
-  scope: AccessScope;
-  roleId: string;
-  roleName: string;
-}
-
-export interface SystemAccess extends Grant {
-  scope: 'system';
-}
-
-export interface OrganizationAccess extends Grant {
-  scope: 'organization';
-  organizationId: string;
-  organizationName: string;
-}
-
-export interface ProjectAccess extends Grant {
-  scope: 'project';
-  organizationId: string;
-  organizationName: string;
-  projectId: string;
-  projectName: string;
-}
-
-/** One grant of a user, with the names to show it. Each scope carries only the names it has. */
-export type UserAccess = SystemAccess | OrganizationAccess | ProjectAccess;
 
 export interface CreateUserInput {
   email: string;

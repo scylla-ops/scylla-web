@@ -1,5 +1,4 @@
 import type { MessageDescriptor } from '@lingui/core';
-import Building2Icon from '@lucide/svelte/icons/building-2';
 import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 import SunIcon from '@lucide/svelte/icons/sun';
 import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
@@ -11,7 +10,6 @@ export type AccountSectionId =
   | 'profile'
   | 'appearance'
   | 'security'
-  | 'organizations'
   | 'danger-zone';
 
 export interface AccountSection {
@@ -27,7 +25,6 @@ export const ACCOUNT_SECTIONS: readonly AccountSection[] = [
   { id: 'profile', title: userMessages.profile, icon: UserIcon },
   { id: 'appearance', title: userMessages.appearance, icon: SunIcon },
   { id: 'security', title: userMessages.security, icon: ShieldCheckIcon },
-  { id: 'organizations', title: userMessages.organizations, icon: Building2Icon },
   { id: 'danger-zone', title: userMessages.dangerZone, icon: TriangleAlertIcon, danger: true },
 ];
 

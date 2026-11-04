@@ -7,7 +7,7 @@ let navigator: ReturnType<typeof installTestNavigator>;
 
 beforeEach(() => {
   navigator = installTestNavigator();
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp' } });
+  contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp', slug: null } });
 });
 
 afterEach(() => navigator.restore());
@@ -27,11 +27,20 @@ describe('scyllaNavigate', () => {
 });
 
 describe('organizationUrl', () => {
-  it('gives the dashboard of any organization by default', () => {
-    expect(organizationUrl('Beta Lab')).toBe('/beta-lab/dashboard');
+  it('gives the projects of any workspace by default, from its slug', () => {
+    expect(organizationUrl('beta-lab')).toBe('/beta-lab/projects');
   });
 
   it('gives another page of it on request', () => {
-    expect(organizationUrl('Beta Lab', 'account')).toBe('/beta-lab/account');
+    expect(organizationUrl('beta-lab', 'account')).toBe('/beta-lab/account');
+  });
+});
+
+describe('the prefix of the URLs', () => {
+  it('uses the slug of the workspace, not its name', () => {
+    contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp', slug: 'acme' } });
+    scyllaNavigate.goToAccount();
+
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme/account', undefined);
   });
 });

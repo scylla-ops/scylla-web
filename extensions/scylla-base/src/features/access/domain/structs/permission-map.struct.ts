@@ -52,7 +52,7 @@ export const namesFor = (kind: ObjectKind): string[] => [
 
 /** The `Permission`s that the allowed names give on an object of `kind`. */
 export const permissionsFrom = (kind: ObjectKind, allowed: ReadonlySet<string>): Permission[] =>
-  (Object.entries(MAP) as [string, Names][]).flatMap(([permission, names]) => {
+  Object.entries(MAP).flatMap(([permission, names]) => {
     const name = names[kind];
-    return name && allowed.has(name) ? [Number(permission) as Permission] : [];
+    return name && allowed.has(name) ? [Number(permission)] : [];
   });

@@ -6,7 +6,6 @@ import { toast } from 'svelte-sonner';
 import { installTestNavigator } from '@test/navigator.ts';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import type { UserAccess } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import AccountPage from './Account.page.svelte';
 
@@ -27,33 +26,6 @@ const me = {
   createdAt: '2025-01-01T00:00:00.000Z',
   updatedAt: '2025-01-01T00:00:00.000Z',
 };
-
-const access: UserAccess[] = [
-  {
-    grantId: 'g-system',
-    scope: 'system',
-    roleId: 'system-admin',
-    roleName: 'System admin',
-  },
-  {
-    grantId: 'g-org',
-    scope: 'organization',
-    organizationId: 'org-1',
-    organizationName: 'Acme Corp',
-    roleId: 'organization-admin',
-    roleName: 'Organization admin',
-  },
-  {
-    grantId: 'g-project',
-    scope: 'project',
-    organizationId: 'org-1',
-    organizationName: 'Acme Corp',
-    projectId: 'project-1',
-    projectName: 'Web',
-    roleId: 'project-viewer',
-    roleName: 'Viewer',
-  },
-];
 
 const recently = () => new Date(Date.now() - 60_000).toISOString();
 
@@ -90,7 +62,6 @@ const setUp = (
 ) => {
   repository = {
     getMe: vi.fn().mockResolvedValue(me),
-    listAccess: vi.fn().mockResolvedValue(access),
     update: vi.fn().mockResolvedValue(me),
     changePassword: vi.fn().mockResolvedValue(undefined),
     revokeSessions: vi.fn().mockResolvedValue(2),
@@ -128,21 +99,19 @@ describe('AccountPage', () => {
     expect(repository.getMe).toHaveBeenCalled();
   });
 
-  it('shows the email, the handle and the role of the first system grant in the header', async () => {
-    setUp('profile');
+  it('shows the email, the handle and the instance admin badge in the header', async () => {
+    setUp('profile', { getMe: vi.fn().mockResolvedValue({ ...me, instanceAdmin: true }) });
 
     const header = (await screen.findByRole('heading', { level: 1 })).closest('header')!;
     expect(within(header).getByText('ada@example.com')).toBeInTheDocument();
     expect(within(header).getByText('@ada')).toHaveAttribute('data-slot', 'badge');
-    expect(await within(header).findByText('System admin')).toHaveAttribute('data-slot', 'badge');
+    expect(await within(header).findByText('Instance admin')).toHaveAttribute('data-slot', 'badge');
   });
 
-  it('shows no role badge for a user with no system grant', async () => {
-    setUp('organizations', { listAccess: vi.fn().mockResolvedValue(access.slice(1)) });
+  it('shows no role badge for a user who is not an instance admin', async () => {
+    setUp('profile');
 
-    await screen.findByText('Organization admin');
-    const header = screen.getByRole('heading', { level: 1 }).closest('header')!;
-    expect(within(header).queryByText('Organization admin')).not.toBeInTheDocument();
+    const header = (await screen.findByRole('heading', { level: 1 })).closest('header')!;
     expect(header.querySelectorAll('[data-slot="badge"]')).toHaveLength(1);
   });
 
@@ -155,7 +124,6 @@ describe('AccountPage', () => {
       ['Profile', '/acme-corp/account/profile'],
       ['Appearance', '/acme-corp/account/appearance'],
       ['Security', '/acme-corp/account/security'],
-      ['Organizations', '/acme-corp/account/organizations'],
       ['Danger zone', '/acme-corp/account/danger-zone'],
     ]);
     expect(within(nav).getByRole('link', { current: 'page' })).toHaveTextContent('Security');
@@ -356,21 +324,6 @@ describe('AccountPage', () => {
       const list = await screen.findByRole('region', { name: 'Sessions' });
       expect(await within(list).findByText('Error loading the sessions')).toBeInTheDocument();
     });
-  });
-
-  it('lists the roles by organization, the system grants apart', async () => {
-    setUp('organizations');
-
-    const roles = await screen.findByRole('region', { name: 'Organizations and roles' });
-    await within(roles).findByText('System admin');
-    expect(within(roles).getByText('System')).toBeInTheDocument();
-    expect(within(roles).getByRole('link', { name: 'Acme Corp' })).toHaveAttribute(
-      'href',
-      '/acme-corp/dashboard',
-    );
-    expect(within(roles).getByText('Organization admin')).toBeInTheDocument();
-    expect(within(roles).getByText('Project Web')).toBeInTheDocument();
-    expect(repository.listAccess).toHaveBeenCalledWith('user-1');
   });
 
   describe('deletion', () => {

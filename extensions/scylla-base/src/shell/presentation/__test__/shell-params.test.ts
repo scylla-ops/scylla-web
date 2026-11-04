@@ -15,7 +15,7 @@ const inRoute = (params: Record<string, string>) =>
 
 beforeEach(() => {
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme Corp' },
+    organization: { id: 'org-1', name: 'Acme Corp', slug: null },
     project: { id: 'project-1', name: 'Scylla' },
     pipeline: { id: 'pipeline-1', name: 'Nightly' },
   });
@@ -47,7 +47,7 @@ describe('linkParams', () => {
   });
 
   it('gives no organization when none is active', () => {
-    contextStore.setState({ organization: { id: null, name: null } });
+    contextStore.setState({ organization: { id: null, name: null, slug: null } });
 
     expect(linkParams()).toEqual({ organizationSlug: undefined });
   });

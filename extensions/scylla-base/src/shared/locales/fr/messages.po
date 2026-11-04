@@ -17,13 +17,49 @@ msgstr ""
 msgid "A username cannot contain \"@\"."
 msgstr "Un nom d'utilisateur ne peut pas contenir \"@\"."
 
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:19
+msgid "Add another sign-in method before you remove this one"
+msgstr "Ajoutez une autre méthode de connexion avant de retirer celle-ci"
+
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:32
 msgid "Agent id copied"
 msgstr "ID d'agent copié"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:106
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:9
+msgid "An account already uses this email"
+msgstr "Un compte utilise déjà cet e-mail"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:28
+msgid "An app gets roles only in its own workspace"
+msgstr "Une app reçoit des rôles seulement dans son propre espace de travail"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:27
+msgid "An invitation is already pending for this email"
+msgstr "Une invitation est déjà en attente pour cet e-mail"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:15
+msgid "An invitation is required to sign up"
+msgstr "Une invitation est nécessaire pour s'inscrire"
+
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:142
 msgid "An unexpected error occurred"
 msgstr "Une erreur inattendue s'est produite"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:10
+msgid "Another account already uses this handle"
+msgstr "Un autre compte utilise déjà cet identifiant"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:32
+msgid "Another secret of the project already uses this name"
+msgstr "Un autre secret du projet utilise déjà ce nom"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:34
+msgid "Another trigger of the pipeline already uses this name"
+msgstr "Un autre déclencheur du pipeline utilise déjà ce nom"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:24
+msgid "Another workspace already uses this slug"
+msgstr "Un autre espace de travail utilise déjà cette adresse"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:36
 msgid "App id copied"
@@ -36,6 +72,10 @@ msgstr "Annulé"
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:33
 msgid "Could not copy: select the id manually"
 msgstr "Impossible de copier : sélectionnez l'ID manuellement"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:25
+msgid "Delete the projects and the agents of the workspace first"
+msgstr "Supprimez d'abord les projets et les agents de l'espace de travail"
 
 #: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:4
 msgid "Deleted user"
@@ -52,6 +92,10 @@ msgstr "Échoué"
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:27
 msgid "Job queued: no agent connected"
 msgstr "Travail mis en file d'attente : aucun agent connecté"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:17
+msgid "No account is linked to this identity"
+msgstr "Aucun compte n'est lié à cette identité"
 
 #: extensions/scylla-base/src/shared/presentation/messages/status-bar.messages.ts:4
 msgid "No data"
@@ -133,9 +177,13 @@ msgstr "Secret supprimé"
 msgid "Secret updated"
 msgstr "Secret modifié"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:103
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:137
 msgid "Server unreachable"
 msgstr "Serveur injoignable"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:16
+msgid "Sign-up is closed on this server"
+msgstr "Les inscriptions sont fermées sur ce serveur"
 
 #: extensions/scylla-base/src/shared/utils/status-config.ts:66
 msgid "Skipped"
@@ -149,6 +197,22 @@ msgstr "Réussi"
 msgid "The display name must have 100 characters at most."
 msgstr "Le nom affiché doit contenir 100 caractères au maximum."
 
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:12
+msgid "The identity provider gives no email address"
+msgstr "Le fournisseur d'identité ne donne pas d'adresse e-mail"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:35
+msgid "The job has not ended yet"
+msgstr "Le job n'est pas encore terminé"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:30
+msgid "The limit is reached"
+msgstr "La limite est atteinte"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:30
+msgid "The limit is reached ({used} of {limit})"
+msgstr "La limite est atteinte ({used} sur {limit})"
+
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:6
 msgid "The password cannot be only spaces."
 msgstr "Le mot de passe ne peut pas contenir que des espaces."
@@ -157,6 +221,14 @@ msgstr "Le mot de passe ne peut pas contenir que des espaces."
 msgid "The password must have 8 to 128 characters."
 msgstr "Le mot de passe doit contenir de 8 à 128 caractères."
 
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:33
+msgid "The server has no key to encrypt secrets"
+msgstr "Le serveur n'a pas de clé pour chiffrer les secrets"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:18
+msgid "The server needs at least one other administrator"
+msgstr "Le serveur a besoin d'au moins un autre administrateur"
+
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:7
 msgid "The two passwords are not the same."
 msgstr "Les deux mots de passe ne sont pas identiques."
@@ -164,6 +236,22 @@ msgstr "Les deux mots de passe ne sont pas identiques."
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:9
 msgid "The username is too long: 255 bytes at most."
 msgstr "Le nom d'utilisateur est trop long : 255 octets au maximum."
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:26
+msgid "The workspace needs at least one other owner"
+msgstr "L'espace de travail a besoin d'au moins un autre propriétaire"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:36
+msgid "This app is not a runner"
+msgstr "Cette app n'est pas un runner"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:13
+msgid "This identity is already linked to another account"
+msgstr "Cette identité est déjà liée à un autre compte"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:14
+msgid "This invitation is for another email address"
+msgstr "Cette invitation est pour une autre adresse e-mail"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:44
 msgid "Trigger created"
@@ -209,10 +297,26 @@ msgstr "Utilisateur supprimé"
 msgid "User information updated"
 msgstr "Informations utilisateur mises à jour"
 
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:11
+msgid "Verify your email address first"
+msgstr "Vérifiez d'abord votre adresse e-mail"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:22
+msgid "Wait {seconds} seconds before you send it again"
+msgstr "Attendez {seconds} secondes avant de le renvoyer"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:22
+msgid "Wait before you send it again"
+msgstr "Attendez avant de le renvoyer"
+
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:9
 msgid "You cannot delete your own account."
 msgstr "Vous ne pouvez pas supprimer votre propre compte."
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:104
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:20
+msgid "You cannot do this on your own account"
+msgstr "Vous ne pouvez pas faire cela sur votre propre compte"
+
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:138
 msgid "You don't have permission to perform this action"
 msgstr "Vous n'avez pas la permission d'effectuer cette action"
