@@ -90,6 +90,7 @@ function nodeExecutionsOf(job: Job): JobNodeExecution[] {
       finishedAt: timestampToIsoOpt(run?.finishedAt),
       attempts: run?.attempt ?? 0,
       maxAttempts: node.retries + 1,
+      error: run?.error || undefined,
     };
   });
 }
@@ -108,6 +109,7 @@ export function toDomain(job: Job): JobEntity {
     updatedAt: finishedAt ?? startedAt ?? createdAt,
     startedAt,
     finishedAt,
+    error: job.error || undefined,
   };
 }
 
@@ -115,7 +117,10 @@ export function toDomain(job: Job): JobEntity {
  * One page of the whole list, most recent first. The server pages with tokens and has no
  * count: the list is read whole, then cut here, so that the page numbers of the UI stay.
  */
-export function toDomainPage(jobs: Job[], { page, pageSize }: PaginationParams): PaginatedList<JobEntity> {
+export function toDomainPage(
+  jobs: Job[],
+  { page, pageSize }: PaginationParams,
+): PaginatedList<JobEntity> {
   const sorted = jobs.map(toDomain).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const start = (page - 1) * pageSize;

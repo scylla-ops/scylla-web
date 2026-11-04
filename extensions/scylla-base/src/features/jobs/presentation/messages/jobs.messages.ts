@@ -39,6 +39,7 @@ export const jobsMessages = {
   nodeStarted: (time: string) => msg`Started: ${time}`,
   nodeFinished: (time: string) => msg`Finished: ${time}`,
   nodeDuration: (duration: string) => msg`Duration: ${duration}`,
+  jobFailed: msg`The job failed`,
   attempt: (attempt: number, maxAttempts: number) => msg`Attempt ${attempt}/${maxAttempts}`,
   groupLabel: (count: number, status: string) => msg`${count} ${status} nodes`,
   groupShare: (count: number, total: number, percent: number) =>

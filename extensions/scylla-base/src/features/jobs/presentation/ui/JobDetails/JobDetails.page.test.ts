@@ -114,6 +114,34 @@ describe('JobDetailsPage', () => {
     expect(screen.getByText('job-1')).toBeInTheDocument();
   });
 
+  it('says why the job failed', async () => {
+    await renderPage(job({ status: 'failed', error: 'the node test failed: exit code 2' }));
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('The job failed');
+    expect(alert).toHaveTextContent('the node test failed: exit code 2');
+  });
+
+  it('shows no reason for a job that did not fail', async () => {
+    await renderPage(job());
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('says why a node failed above its logs', async () => {
+    await renderPage(
+      job({
+        status: 'failed',
+        nodeExecutions: [
+          { id: 'test', state: 'failed', attempts: 1, maxAttempts: 1, error: 'exit code 2' },
+        ],
+      }),
+      '?nodes=test',
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent('exit code 2');
+  });
+
   it('defaults to the whole job when the URL names no node', async () => {
     await renderPage(job());
     expect(openPanels()).toEqual(['logs for job-1/whole job']);
@@ -204,14 +232,8 @@ describe('JobDetailsPage', () => {
   it('marks the entries of the panels that are open', async () => {
     await renderPage(job(), '?nodes=build');
 
-    expect(screen.getByRole('button', { name: /^build/ })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
-    expect(screen.getByRole('button', { name: /^test/ })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: /^build/ })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /^test/ })).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('opens the node picked in the timeline alone, dropping the panels open beside it', async () => {
@@ -262,7 +284,9 @@ describe('JobDetailsPage', () => {
 
     await renderPage(job());
 
-    expect(screen.getByText("You don't have permission to view this job's logs")).toBeInTheDocument();
+    expect(
+      screen.getByText("You don't have permission to view this job's logs"),
+    ).toBeInTheDocument();
     expect(openPanels()).toEqual([]);
     // The job itself is still there — only its output is withheld.
     expect(screen.getByText('Success')).toBeInTheDocument();

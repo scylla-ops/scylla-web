@@ -10,6 +10,8 @@ export interface JobEntity {
   /** When a worker picked it up. Unset while pending. */
   startedAt?: string;
   finishedAt?: string;
+  /** Why the job failed. Unset for another job. */
+  error?: string;
 }
 
 /** `unknown`: an outcome newer than this build. */
@@ -29,6 +31,8 @@ export interface JobNodeExecution {
   finishedAt?: string;
   attempts: number;
   maxAttempts: number;
+  /** Why the last attempt failed. Unset for another node. */
+  error?: string;
 }
 
 export interface JobLog {

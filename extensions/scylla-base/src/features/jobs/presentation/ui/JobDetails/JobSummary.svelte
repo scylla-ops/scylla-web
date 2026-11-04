@@ -1,4 +1,5 @@
 <script lang="ts">
+  import CircleAlertIcon from '@lucide/svelte/icons/circle-alert';
   import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
   import { Badge, Button } from '@scylla/ui/primitives';
   import { CopyableText } from '@scylla/ui';
@@ -82,6 +83,19 @@
     <span class="text-muted-foreground/50">·</span>
     {@render fact(t(jobsMessages.createdPrefix), formatDate(job.createdAt))}
   </div>
+
+  {#if job.error}
+    <div
+      role="alert"
+      class="flex items-start gap-2.5 rounded-md border border-destructive/40 bg-destructive-subtle px-3.5 py-2.5"
+    >
+      <CircleAlertIcon class="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
+      <div class="min-w-0">
+        <p class="text-sm font-medium text-foreground">{t(jobsMessages.jobFailed)}</p>
+        <p class="mt-0.5 font-mono text-xs break-words text-foreground">{job.error}</p>
+      </div>
+    </div>
+  {/if}
 
   <div>
     <h2 class="mb-2 text-lg font-semibold text-foreground">{t(jobsMessages.timeline)}</h2>

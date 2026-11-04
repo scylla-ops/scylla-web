@@ -198,6 +198,14 @@
               </header>
               <!-- Collapsing only hides the log: the stream stays open. -->
               <div class={cn(collapsed && 'hidden')}>
+                {#if node.error}
+                  <p
+                    role="alert"
+                    class="border-b border-border bg-destructive-subtle px-3 py-2 font-mono text-xs break-words text-foreground"
+                  >
+                    {node.error}
+                  </p>
+                {/if}
                 <JobLogDisplay jobId={job.id} nodeId={id} maxHeight={NODE_LOG_HEIGHT} />
               </div>
             </section>
