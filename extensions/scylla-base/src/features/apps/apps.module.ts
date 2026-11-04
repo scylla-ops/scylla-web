@@ -22,8 +22,16 @@ const appsRepository = new DefaultAppsRepository(
 /** The agents and the other apps fold under one item of the sidebar. */
 const MACHINES: NavGroup = { id: 'machines', title: msg`Machines`, icon: HardDriveIcon };
 
-/** The page of an app, under its list. */
-const details = {
+/** The page of an agent, under its list. */
+const agentDetails = {
+  path: ':appId',
+  permission: Permission.READ_APP,
+  breadcrumb: () => ({ label: msg`Agent`, detail: msg`Detail` }),
+  page: () => import('./presentation/ui/AgentDetails/AgentDetails.page.svelte'),
+};
+
+/** The page of another app, under its list. */
+const appDetails = {
   path: ':appId',
   permission: Permission.READ_APP,
   breadcrumb: () => ({ label: msg`App`, detail: msg`Detail` }),
@@ -43,16 +51,28 @@ export const AppsModule = {
         permission: Permission.LIST_APPS_BY_WORKSPACE,
         breadcrumb: () => ({ label: msg`Agents` }),
         page: () => import('./presentation/ui/Agents/Agents.page.svelte'),
-        nav: { section: 'workspace', title: msg`Agents`, icon: CpuIcon, order: 40, group: MACHINES },
-        children: [details],
+        nav: {
+          section: 'workspace',
+          title: msg`Agents`,
+          icon: CpuIcon,
+          order: 40,
+          group: MACHINES,
+        },
+        children: [agentDetails],
       },
       {
         path: 'apps',
         permission: Permission.LIST_APPS_BY_WORKSPACE,
         breadcrumb: () => ({ label: msg`Apps` }),
         page: () => import('./presentation/ui/Apps/Apps.page.svelte'),
-        nav: { section: 'workspace', title: msg`Apps`, icon: KeyRoundIcon, order: 41, group: MACHINES },
-        children: [details],
+        nav: {
+          section: 'workspace',
+          title: msg`Apps`,
+          icon: KeyRoundIcon,
+          order: 41,
+          group: MACHINES,
+        },
+        children: [appDetails],
       },
     ],
   },

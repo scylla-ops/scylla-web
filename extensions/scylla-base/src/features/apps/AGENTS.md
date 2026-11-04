@@ -33,6 +33,13 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   the roles of the workspace and of each project (`agent-access.struct.ts`). The sparkline comes
   from `appQueries.agentStats` (one call for the workspace). Disable and delete need `delete_app`;
   a new join code needs `create_app`. The other apps have their own page (`AppsList`).
+- The agent page (`ui/AgentDetails/`, route `/agents/:appId`) shows the header (Disable or
+  Enable), a banner when it is disabled, the 30-day stats (`appQueries.agentStatsOf`), the jobs per
+  day, the machine, the recent jobs, the access (Change: `runnerChanges` in
+  `agent-access.struct.ts` gives the grants before the revokes; `appMutations.changeAccess` sends
+  them one by one), the keys (rename, revoke, new join code) and the delete zone (type the name).
+  An agent that never said hello shows a connect card with a join code made on open. The other
+  apps keep `ui/AppDetails/` (route `/apps/:appId`).
 - `appQueries.runners` and `loadNoAgentsBanner` serve the pipelines and the jobs: they warn when
   jobs wait and no agent is connected.
 

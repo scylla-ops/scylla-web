@@ -18,6 +18,7 @@ import type {
   CreateCiIdentityInput,
 } from '@base/features/apps/domain/entities/ci-identity.entity.ts';
 import type { AgentStats } from '@base/features/apps/domain/structs/agent-stats.struct.ts';
+import type { RunnerChange } from '@base/features/apps/domain/structs/agent-access.struct.ts';
 import type {
   ApiToken,
   CreatedToken,
@@ -166,7 +167,7 @@ export class DefaultAppsRepository implements AppsRepository {
       const objects =
         projectIds.length === 0
           ? [{ kind: 'workspace', id: wrapId(workspaceId) }]
-          : projectIds.map((id) => ({ kind: 'project', id: wrapId(id) }));
+          : projectIds.map(id => ({ kind: 'project', id: wrapId(id) }));
       for (const object of objects) {
         await this.access.grant({ object, role: 'runner', actorId: wrapId(app.id) }).response;
       }
@@ -178,6 +179,22 @@ export class DefaultAppsRepository implements AppsRepository {
         expiresAt: timestampToIso(response.joinCodeExpiresAt),
       },
     };
+  }
+
+  public async changeRunner(
+    workspaceId: string,
+    appId: string,
+    changes: readonly RunnerChange[],
+  ): Promise<void> {
+    for (const { kind, projectId } of changes) {
+      const object =
+        projectId === null
+          ? { kind: 'workspace', id: wrapId(workspaceId) }
+          : { kind: 'project', id: wrapId(projectId) };
+      const request = { object, role: 'runner', actorId: wrapId(appId) };
+      if (kind === 'grant') await this.access.grant(request).response;
+      else await this.access.revoke(request).response;
+    }
   }
 
   public async deleteApp(appId: string): Promise<void> {

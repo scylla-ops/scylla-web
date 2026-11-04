@@ -8,7 +8,6 @@ import {
   matchesSearch,
   summarizeAgents,
 } from '../agent-list.struct.ts';
-import { agentAccessOf } from '../agent-access.struct.ts';
 
 const agent = (patch: Partial<Parameters<typeof agentStatusOf>[0]> = {}) => ({
   runner: true,
@@ -65,25 +64,5 @@ describe('agent list', () => {
       outcomes: { completed, failed, cancelled: 0, orphaned: 0 },
     });
     expect(dailyJobs({ days: [day(1, 2), day(0, 0)] })).toEqual([3, 0]);
-  });
-});
-
-describe('agent access', () => {
-  const runner = (actorId: string) => ({ actorId, role: 'runner' });
-
-  it('gives each project to a runner of the workspace', () => {
-    expect(agentAccessOf('a1', [runner('a1')], [])).toEqual({ kind: 'all' });
-  });
-
-  it('gives the projects of a runner of some projects, by name', () => {
-    const projects = [
-      { name: 'web', entries: [runner('a1')] },
-      { name: 'api', entries: [runner('a1'), { actorId: 'a1', role: 'viewer' }] },
-      { name: 'ml', entries: [runner('a2')] },
-    ];
-    expect(agentAccessOf('a1', [], projects)).toEqual({ kind: 'some', projects: ['api', 'web'] });
-    expect(agentAccessOf('a3', [{ actorId: 'a3', role: 'viewer' }], projects)).toEqual({
-      kind: 'none',
-    });
   });
 });

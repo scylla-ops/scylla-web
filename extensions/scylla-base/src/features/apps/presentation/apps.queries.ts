@@ -6,8 +6,8 @@ import type { AppsModule } from '../apps.module.ts';
 import type { AppDetails } from '../domain/entities/app.entity.ts';
 import { appsMessages } from './messages/apps.messages.ts';
 import { appStatsOf } from '../domain/structs/app-stats.struct.ts';
-import { agentAccessOf } from '../domain/structs/agent-access.struct.ts';
-import { accessQueries, projectRef, workspaceRef } from '@base/features/access';
+import { agentAccessOf, type RunnerChange } from '../domain/structs/agent-access.struct.ts';
+import { accessQueries, projectRef, workspaceRef, type ObjectRef } from '@base/features/access';
 import { projectQueries } from '@base/features/project';
 
 const repository = () => getModuleDomain<typeof AppsModule.domain>('apps').appsRepository;
@@ -106,19 +106,32 @@ export const appQueries = {
       queryKey: [...APPS_QUERY_ROOT, 'access', workspaceId, [...agentIds].sort()] as const,
       queryFn: async () => {
         const client = getQueryClient();
+        const roles = (object: ObjectRef) =>
+          client.fetchQuery({ ...accessQueries.list(object), staleTime: 0 });
         const [workspace, projects] = await Promise.all([
-          client.fetchQuery(accessQueries.list(workspaceRef(workspaceId))),
+          roles(workspaceRef(workspaceId)),
           client.fetchQuery(projectQueries.lookup(workspaceId)),
         ]);
-        const roles = await Promise.all(
+        const byProject = await Promise.all(
           projects.items.map(async project => ({
+            id: project.id,
             name: project.name,
-            entries: await client.fetchQuery(accessQueries.list(projectRef(project.id))),
+            entries: await roles(projectRef(project.id)),
           })),
         );
-        return new Map(agentIds.map(id => [id, agentAccessOf(id, workspace, roles)]));
+        return new Map(agentIds.map(id => [id, agentAccessOf(id, workspace, byProject)]));
       },
       enabled: enabled && !!workspaceId && agentIds.length > 0,
+    }),
+
+  /** The 30 days of one agent. */
+  agentStatsOf: (appId: string, workspaceId: string) =>
+    queryOptions({
+      queryKey: [...APPS_QUERY_ROOT, 'stats', 'one', appId] as const,
+      queryFn: () => repository().getAgentStats(appId),
+      enabled:
+        !!appId && authorizationReady() && can(Permission.READ_APP, { workspaceId: workspaceId }),
+      refetchInterval: 60_000,
     }),
 };
 
@@ -155,6 +168,31 @@ export const appMutations = {
   joinCode: () =>
     mutationOptions({
       mutationFn: (appId: string) => repository().createJoinCode(appId),
+    }),
+
+  renameKey: () =>
+    mutationOptions({
+      mutationFn: ({ appId, keyId, label }: { appId: string; keyId: string; label: string }) =>
+        repository().renameKey(appId, keyId, label.trim()),
+      onSuccess: (_key, { appId }) => {
+        toast.success(i18n._(appsMessages.keyRenamed));
+        return getQueryClient().invalidateQueries({ queryKey: APP_QUERY_KEY(appId) });
+      },
+    }),
+
+  /** Gives and takes back the role `runner` of an agent, the grants first. */
+  changeAccess: (workspaceId: string) =>
+    mutationOptions({
+      mutationFn: ({ appId, changes }: { appId: string; changes: readonly RunnerChange[] }) =>
+        repository().changeRunner(workspaceId, appId, changes),
+      onSuccess: () => {
+        toast.success(i18n._(appsMessages.accessChanged));
+        const client = getQueryClient();
+        return Promise.all([
+          client.invalidateQueries({ queryKey: ['access'] }),
+          client.invalidateQueries({ queryKey: [...APPS_QUERY_ROOT, 'access'] }),
+        ]);
+      },
     }),
 
   /** A disabled app gets no token and no job; its running jobs stop. */

@@ -56,7 +56,13 @@ const clients = () => {
     deleteApp: vi.fn(() => unaryCall({})),
     createAppToken: vi.fn(() =>
       unaryCall({
-        token: { id: { value: 't-1' }, name: 'ci', hint: 'scya_...abcd', createdAt: TS, expiresAt: TS },
+        token: {
+          id: { value: 't-1' },
+          name: 'ci',
+          hint: 'scya_...abcd',
+          createdAt: TS,
+          expiresAt: TS,
+        },
         secret: 'scya_secret',
       }),
     ),
@@ -103,7 +109,17 @@ const clients = () => {
       }),
     ),
   } as unknown as IJobServiceClient;
-  const access = { grant: vi.fn(() => unaryCall({})) } as unknown as IAccessServiceClient;
+  const order: string[] = [];
+  const access = {
+    grant: vi.fn(() => {
+      order.push('grant');
+      return unaryCall({});
+    }),
+    revoke: vi.fn(() => {
+      order.push('revoke');
+      return unaryCall({});
+    }),
+  } as unknown as IAccessServiceClient;
   const agents = {
     getAgentStats: vi.fn(() =>
       unaryCall({
@@ -117,7 +133,7 @@ const clients = () => {
     ),
   } as unknown as IAgentServiceClient;
   const repository = new DefaultAppsRepository(apps, jobs, access, agents);
-  return { apps, jobs, access, agents, repository };
+  return { apps, jobs, access, agents, repository, order };
 };
 
 describe('grpcApp.toDomain', () => {
@@ -253,6 +269,27 @@ describe('DefaultAppsRepository, the stats and the credentials', () => {
     expect(access.grant).toHaveBeenCalledTimes(2);
     expect(access.grant).toHaveBeenCalledWith({
       object: { kind: 'project', id: { value: 'p-2' } },
+      role: 'runner',
+      actorId: { value: 'app-1' },
+    });
+  });
+
+  it('changes the runner roles of an agent in the given order', async () => {
+    const { access, repository, order } = clients();
+
+    await repository.changeRunner('ws-1', 'app-1', [
+      { kind: 'grant', projectId: 'p-1' },
+      { kind: 'revoke', projectId: null },
+    ]);
+
+    expect(order).toEqual(['grant', 'revoke']);
+    expect(access.grant).toHaveBeenCalledWith({
+      object: { kind: 'project', id: { value: 'p-1' } },
+      role: 'runner',
+      actorId: { value: 'app-1' },
+    });
+    expect(access.revoke).toHaveBeenCalledWith({
+      object: { kind: 'workspace', id: { value: 'ws-1' } },
       role: 'runner',
       actorId: { value: 'app-1' },
     });

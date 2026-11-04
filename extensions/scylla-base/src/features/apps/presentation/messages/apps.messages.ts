@@ -52,6 +52,8 @@ export const appsMessages = {
   deleteTitle: (name: string) => msg`Delete ${name}?`,
   deleteBody: msg`Its machines cannot sign in any more, and its roles go away. The jobs that it ran stay.`,
   deleted: msg`App deleted`,
+  keyRenamed: msg`Key renamed`,
+  accessChanged: msg`Access changed`,
   disabledToast: (name: string) => msg`${name} is disabled`,
   enabledToast: (name: string) => msg`${name} is enabled`,
   noAgentConnected: msg`Jobs are waiting and no agent is connected.`,

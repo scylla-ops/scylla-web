@@ -82,7 +82,7 @@
     if (!value) return '';
     if (value.kind === 'all') return t(messages.allProjects);
     if (value.kind === 'none') return t(messages.noProject);
-    return value.projects.join(', ');
+    return value.projects.map(project => project.name).join(', ');
   };
 
   const openAgent = (id: string) => scyllaNavigate.goToWorkspaceRoute(`/agents/${id}`);
