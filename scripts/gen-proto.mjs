@@ -65,7 +65,9 @@ function prependTsNoCheck(dir) {
 //
 // `protos` lists the proto packages it uses; `protoRoot`, relative to the
 // extension, is where they are (default: the `protos/` submodule of
-// scylla-web). Each extension gets only those packages, generated into its own
+// scylla-web). The `protos/` submodule is always a second root, so a package of
+// `protoRoot` can import the public messages (`scylla/common/v1`), and `protos`
+// can list them. Each extension gets only those packages, generated into its own
 // `src/generated/` — kept private to it the same way the rest of its internals
 // are (`extension-uses-sdks`, `sdk-is-the-door`): no extension imports another
 // one's generated client. A package used by two extensions (`common`) is
@@ -82,40 +84,43 @@ const targets = extensionDirs.flatMap((dir) => {
   if (!existsSync(manifest)) return [];
   const { scylla } = JSON.parse(readFileSync(manifest, 'utf8'));
   if (!scylla?.protos) return [];
-  const protoDir = scylla.protoRoot ? resolve(dir, scylla.protoRoot) : resolve(scyllaRoot, 'protos');
-  return [{ dir, protos: scylla.protos, protoDir }];
+  const publicDir = resolve(scyllaRoot, 'protos');
+  const protoDir = scylla.protoRoot ? resolve(dir, scylla.protoRoot) : publicDir;
+  return [{ dir, protos: scylla.protos, protoDirs: [...new Set([protoDir, publicDir])] }];
 });
 
-const protosUnder = (protoDir, allProtos, prefix) => {
-  const matches = allProtos.filter((file) => {
-    const relPath = relative(protoDir, file).split(sep).join('/');
-    return relPath === `${prefix}.proto` || relPath.startsWith(`${prefix}/`);
-  });
-  if (matches.length === 0) {
-    console.error(`No .proto file under ${protoDir} matches "${prefix}".`);
-    process.exit(1);
+const protosUnder = (roots, prefix) => {
+  for (const { dir, files } of roots) {
+    const matches = files.filter((file) => {
+      const relPath = relative(dir, file).split(sep).join('/');
+      return relPath === `${prefix}.proto` || relPath.startsWith(`${prefix}/`);
+    });
+    if (matches.length > 0) return matches;
   }
-  return matches;
+  console.error(`No .proto file under ${roots.map((root) => root.dir).join(' or ')} matches "${prefix}".`);
+  process.exit(1);
 };
 
 for (const target of targets) {
-  const allProtos = existsSync(target.protoDir) ? collectProtos(target.protoDir) : [];
-  if (allProtos.length === 0) {
+  const roots = target.protoDirs.map((dir) => ({ dir, files: existsSync(dir) ? collectProtos(dir) : [] }));
+  const empty = roots.find((root) => root.files.length === 0);
+  if (empty) {
     console.error(
-      `No .proto file in ${target.protoDir}. The protos submodule is not checked out.\n` +
+      `No .proto file in ${empty.dir}. A protos submodule is not checked out.\n` +
         'Run: git submodule update --init --recursive',
     );
     process.exit(1);
   }
 
   const outDir = resolve(target.dir, 'src', 'generated');
-  const protoFiles = [...new Set(target.protos.flatMap((p) => protosUnder(target.protoDir, allProtos, p)))];
+  const protoFiles = [...new Set(target.protos.flatMap((p) => protosUnder(roots, p)))];
 
   rmSync(outDir, { recursive: true, force: true });
   mkdirSync(outDir, { recursive: true });
 
   const fileArgs = protoFiles.map((f) => `"${f}"`).join(' ');
-  const cmd = `"${protoc}" -I="${target.protoDir}" --ts_out="${outDir}" ${fileArgs}`;
+  const includes = target.protoDirs.map((dir) => `-I="${dir}"`).join(' ');
+  const cmd = `"${protoc}" ${includes} --ts_out="${outDir}" ${fileArgs}`;
 
   // protoc resolves the protoc-gen-ts plugin from PATH; ensure node_modules/.bin
   // is on it so the local plugin is found (cross-platform).
