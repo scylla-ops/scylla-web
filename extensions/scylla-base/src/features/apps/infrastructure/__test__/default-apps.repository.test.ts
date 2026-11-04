@@ -3,7 +3,9 @@ import { describe, it, expect, vi } from 'vitest';
 import type { IAppServiceClient } from '@base/generated/scylla/apps/v1/app_service.client.ts';
 import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
 import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
-import type { App } from '@base/generated/scylla/apps/v1/app.ts';
+import type { IAgentServiceClient } from '@base/generated/scylla/agents/v1/agent_service.client.ts';
+import { type App, CiProvider } from '@base/generated/scylla/apps/v1/app.ts';
+import { TokenExpiry, TokenPreset } from '@base/generated/scylla/auth/v1/api_token.ts';
 import { JobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';
 import { unaryCall } from '@test/grpc.ts';
 import { DefaultAppsRepository } from '../default-apps.repository.ts';
@@ -35,7 +37,15 @@ const clients = () => {
     getApp: vi.fn(() =>
       unaryCall({
         app: wireApp(),
-        keys: [{ id: { value: 'key-1' }, publicKey: new Uint8Array(), createdAt: TS }],
+        keys: [
+          {
+            id: { value: 'key-1' },
+            label: 'ci-1',
+            publicKey: new Uint8Array(),
+            createdAt: TS,
+            lastUsedAt: TS,
+          },
+        ],
       }),
     ),
     createApp: vi.fn(() =>
@@ -44,6 +54,25 @@ const clients = () => {
     createJoinCode: vi.fn(() => unaryCall({ joinCode: 'JOIN-2', expiresAt: TS })),
     revokeAppKey: vi.fn(() => unaryCall({})),
     deleteApp: vi.fn(() => unaryCall({})),
+    createAppToken: vi.fn(() =>
+      unaryCall({
+        token: { id: { value: 't-1' }, name: 'ci', hint: 'scya_...abcd', createdAt: TS, expiresAt: TS },
+        secret: 'scya_secret',
+      }),
+    ),
+    addCiIdentity: vi.fn(() =>
+      unaryCall({
+        identity: {
+          id: { value: 'ci-1' },
+          provider: CiProvider.GITLAB,
+          issuer: 'https://gitlab.com',
+          repository: 'group/project',
+          gitRef: '',
+          environment: 'prod',
+          createdAt: TS,
+        },
+      }),
+    ),
   } as unknown as IAppServiceClient;
   const jobs = {
     listWorkspaceJobs: vi.fn(() =>
@@ -75,7 +104,20 @@ const clients = () => {
     ),
   } as unknown as IJobServiceClient;
   const access = { grant: vi.fn(() => unaryCall({})) } as unknown as IAccessServiceClient;
-  return { apps, jobs, access, repository: new DefaultAppsRepository(apps, jobs, access) };
+  const agents = {
+    getAgentStats: vi.fn(() =>
+      unaryCall({
+        stats: {
+          agentId: { value: 'app-1' },
+          outcomes: { completed: 3, failed: 1, cancelled: 0, orphaned: 0 },
+          medianDuration: { seconds: 2n, nanos: 500_000_000 },
+          days: [{ day: TS, outcomes: { completed: 3, failed: 1, cancelled: 0, orphaned: 0 } }],
+        },
+      }),
+    ),
+  } as unknown as IAgentServiceClient;
+  const repository = new DefaultAppsRepository(apps, jobs, access, agents);
+  return { apps, jobs, access, agents, repository };
 };
 
 describe('grpcApp.toDomain', () => {
@@ -89,6 +131,8 @@ describe('grpcApp.toDomain', () => {
       lastSeenAt: '',
       host: null,
       createdAt: ISO,
+      runningJobs: 0,
+      disabledAt: '',
     });
   });
 
@@ -157,7 +201,9 @@ describe('DefaultAppsRepository', () => {
 
     const details = await repository.getApp('app-1');
 
-    expect(details.keys).toEqual([{ id: 'key-1', createdAt: ISO, revokedAt: '' }]);
+    expect(details.keys).toEqual([
+      { id: 'key-1', label: 'ci-1', createdAt: ISO, revokedAt: '', lastUsedAt: ISO },
+    ]);
   });
 
   it('reads the jobs of the agent, newest first', async () => {
@@ -183,5 +229,67 @@ describe('DefaultAppsRepository', () => {
       appId: { value: 'app-1' },
       keyId: { value: 'key-1' },
     });
+  });
+});
+
+describe('DefaultAppsRepository, the stats and the credentials', () => {
+  it('reads the stats of the server, with the durations in milliseconds', async () => {
+    const { repository } = clients();
+
+    const stats = await repository.getAgentStats('app-1');
+
+    expect(stats.medianMs).toBe(2500);
+    expect(stats.p95Ms).toBeNull();
+    expect(stats.days).toEqual([
+      { day: ISO, outcomes: { completed: 3, failed: 1, cancelled: 0, orphaned: 0 } },
+    ]);
+  });
+
+  it('gives an agent of some projects the runner role on each project', async () => {
+    const { access, repository } = clients();
+
+    await repository.createApp('ws-1', 'builder', true, ['p-1', 'p-2']);
+
+    expect(access.grant).toHaveBeenCalledTimes(2);
+    expect(access.grant).toHaveBeenCalledWith({
+      object: { kind: 'project', id: { value: 'p-2' } },
+      role: 'runner',
+      actorId: { value: 'app-1' },
+    });
+  });
+
+  it('sends the expiry and the limits of a token, and gives its secret one time', async () => {
+    const { apps, repository } = clients();
+
+    const created = await repository.createToken('app-1', {
+      name: 'ci',
+      expiry: 30,
+      limits: { preset: 'deploy', actions: ['ignored'], projectIds: ['p-1'] },
+    });
+
+    expect(created.secret).toBe('scya_secret');
+    expect(created.token).toMatchObject({ id: 't-1', hint: 'scya_...abcd', revokedAt: '' });
+    expect(created.token.limits.preset).toBe('read_only');
+    expect(apps.createAppToken).toHaveBeenCalledWith({
+      appId: { value: 'app-1' },
+      name: 'ci',
+      expiry: TokenExpiry.DAYS_30,
+      limits: { preset: TokenPreset.DEPLOY, actions: [], projectIds: [{ value: 'p-1' }] },
+    });
+  });
+
+  it('reads the provider of a CI identity', async () => {
+    const { repository } = clients();
+
+    const identity = await repository.addCiIdentity('app-1', {
+      provider: 'gitlab',
+      issuer: '',
+      repository: 'group/project',
+      gitRef: '',
+      environment: 'prod',
+      limits: { preset: 'read_only', actions: [], projectIds: [] },
+    });
+
+    expect(identity).toMatchObject({ provider: 'gitlab', environment: 'prod', lastUsedAt: '' });
   });
 });

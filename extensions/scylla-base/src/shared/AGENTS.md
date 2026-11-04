@@ -25,7 +25,10 @@ utils/
   date-utils.ts, slug.ts, status-config.ts, job-status.utils.ts, toast-messages.ts
 domain/structs/job-status.struct.ts  JobStatus, isActiveStatus, isFinishedStatus: the status of a
                                      job, which `jobs` and `agents` both read (`jobs` re-exports it)
+domain/structs/api-token.struct.ts   ApiToken, TokenLimits, TokenPreset, TokenExpiry, expiryStateOf:
+                                     the API tokens of the apps and the personal tokens
 infrastructure/grpc/wrappers.ts      proto helpers
+infrastructure/grpc/api-token.mapper.ts  apiTokenToDomain, limitsToProto, expiryToProto
 presentation/ui/index.ts             `@shared/presentation/ui`
   data-display/                      StatusBar, STATUS_ICONS / getStatusIcon,
                                      UserIdentity, UserAvatar, userName, userSecondaryLine,

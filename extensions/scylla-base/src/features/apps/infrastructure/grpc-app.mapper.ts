@@ -1,4 +1,12 @@
-import type { App, AppKey, Host } from '@base/generated/scylla/apps/v1/app.ts';
+import {
+  type App,
+  type AppKey,
+  type CiIdentity,
+  CiProvider as GrpcCiProvider,
+  type Host,
+} from '@base/generated/scylla/apps/v1/app.ts';
+import type { AgentStats as GrpcAgentStats, JobOutcomes as GrpcJobOutcomes } from '@base/generated/scylla/agents/v1/agent_stats.ts';
+import type { Duration } from '@base/generated/google/protobuf/duration.ts';
 import { type Job, JobStatus as GrpcJobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';
 import type {
   AppEntity,
@@ -6,7 +14,16 @@ import type {
   AppJob,
   AppKeyEntity,
 } from '@base/features/apps/domain/entities/app.entity.ts';
+import type {
+  CiIdentityEntity,
+  CiProvider,
+} from '@base/features/apps/domain/entities/ci-identity.entity.ts';
+import type {
+  AgentStats,
+  JobOutcomes,
+} from '@base/features/apps/domain/structs/agent-stats.struct.ts';
 import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
+import { limitsToDomain } from '@shared/infrastructure/grpc/api-token.mapper.ts';
 import {
   idValue,
   timestampToIso,
@@ -40,14 +57,18 @@ export function toDomain(app: App): AppEntity {
     lastSeenAt: timestampToIso(app.lastSeenAt),
     host: hostToDomain(app.host),
     createdAt: timestampToIso(app.createdAt),
+    runningJobs: app.runningJobs,
+    disabledAt: timestampToIso(app.disabledAt),
   };
 }
 
 export function keyToDomain(key: AppKey): AppKeyEntity {
   return {
     id: idValue(key.id),
+    label: key.label,
     createdAt: timestampToIso(key.createdAt),
     revokedAt: timestampToIso(key.revokedAt),
+    lastUsedAt: timestampToIso(key.lastUsedAt),
   };
 }
 
@@ -72,3 +93,44 @@ export function jobToDomain(job: Job): AppJob {
     finishedAt: timestampToIsoOpt(job.finishedAt),
   };
 }
+
+const outcomesToDomain = (outcomes: GrpcJobOutcomes | undefined): JobOutcomes => ({
+  completed: outcomes?.completed ?? 0,
+  failed: outcomes?.failed ?? 0,
+  cancelled: outcomes?.cancelled ?? 0,
+  orphaned: outcomes?.orphaned ?? 0,
+});
+
+/** `null` for an absent duration: no job started and ended. */
+const durationMs = (duration: Duration | undefined): number | null =>
+  duration ? Number(duration.seconds) * 1000 + Math.round(duration.nanos / 1e6) : null;
+
+export function statsToDomain(stats: GrpcAgentStats): AgentStats {
+  return {
+    agentId: idValue(stats.agentId),
+    outcomes: outcomesToDomain(stats.outcomes),
+    medianMs: durationMs(stats.medianDuration),
+    p95Ms: durationMs(stats.p95Duration),
+    days: stats.days.map((day) => ({
+      day: timestampToIso(day.day),
+      outcomes: outcomesToDomain(day.outcomes),
+    })),
+  };
+}
+
+export function ciIdentityToDomain(identity: CiIdentity): CiIdentityEntity {
+  return {
+    id: idValue(identity.id),
+    provider: identity.provider === GrpcCiProvider.GITLAB ? 'gitlab' : 'github',
+    issuer: identity.issuer,
+    repository: identity.repository,
+    gitRef: identity.gitRef,
+    environment: identity.environment,
+    limits: limitsToDomain(identity.limits),
+    createdAt: timestampToIso(identity.createdAt),
+    lastUsedAt: timestampToIso(identity.lastUsedAt),
+  };
+}
+
+export const providerToProto = (provider: CiProvider): GrpcCiProvider =>
+  provider === 'gitlab' ? GrpcCiProvider.GITLAB : GrpcCiProvider.GITHUB;

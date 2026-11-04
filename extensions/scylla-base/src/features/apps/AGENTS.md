@@ -22,3 +22,16 @@ The apps of a workspace (`scylla.apps.v1.AppService`). An agent is an app that r
   computed from them (`app-stats.struct.ts`).
 - `appQueries.runners` and `loadNoAgentsBanner` serve the pipelines and the jobs: they warn when
   jobs wait and no agent is connected.
+
+## Repository (`appsRepository`)
+
+- Apps: `listApps`, `getApp`, `createApp` (an agent gets `runner` on the workspace, or on each of
+  `projectIds`), `deleteApp`, `disableApp`, `enableApp`.
+- Keys and join codes: `createJoinCode`, `revokeKey`, `renameKey` (the agent names its key after
+  its machine at the join).
+- Agents: `listJobs`, `getAgentStats`, `listAgentStats` (the server counts 30 days in UTC:
+  `domain/structs/agent-stats.struct.ts`).
+- Credentials: `createToken` (the secret comes one time), `listTokens`, `revokeToken`;
+  `addCiIdentity`, `listCiIdentities`, `removeCiIdentity` (`domain/entities/ci-identity.entity.ts`).
+  The token types are shared with the personal tokens: `@shared/domain/structs/api-token.struct.ts`
+  and `@shared/infrastructure/grpc/api-token.mapper.ts`.

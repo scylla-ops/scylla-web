@@ -18,6 +18,10 @@ export interface AppEntity {
   /** `null` until an agent said hello. */
   host: AppHost | null;
   createdAt: string;
+  /** The jobs that the agent holds now: taken and not ended. */
+  runningJobs: number;
+  /** Empty while the app is enabled. A disabled app gets no token and no job. */
+  disabledAt: string;
 }
 
 export interface AppHost {
@@ -37,9 +41,13 @@ export interface AppHost {
 /** A public key of an app. A revoked key signs nothing any more. */
 export interface AppKeyEntity {
   id: string;
+  /** The name of the key, for example the host name of its machine. Empty if it has none. */
+  label: string;
   createdAt: string;
   /** Empty while the key is valid. */
   revokedAt: string;
+  /** The last token that the key signed for. Empty before its first use. */
+  lastUsedAt: string;
 }
 
 /** A code that a machine uses one time, before its expiry, to join the app with a new key. */
