@@ -41,9 +41,11 @@ export const createStreamedLogView = (logs: () => string): StreamedLogView => {
     if (end === 0) return;
 
     // A finished job arrives whole: jump to the end (CodeMirror only renders the viewport).
+    // The start of the last line, or a long line also scrolls the view to its right.
     if (!hasAnchored) {
       hasAnchored = true;
-      view.dispatch({ effects: EditorView.scrollIntoView(end, { y: 'end' }) });
+      const lastLine = view.state.doc.lineAt(end).from;
+      view.dispatch({ effects: EditorView.scrollIntoView(lastLine, { y: 'end' }) });
       return;
     }
 
