@@ -1,0 +1,135 @@
+// @vitest-environment node
+import { describe, it, expect } from 'vitest';
+import { Permission } from '@platform/authz';
+import { namesFor, permissionsFrom } from '../permission-map.struct.ts';
+
+/**
+ * The permissions of the `authz!` definitions of the server (scylla-domain), for each kind. The
+ * server refuses a name that the definition does not have: a typo here breaks every `can()`.
+ */
+const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
+  platform: [
+    'list_users',
+    'get_user',
+    'create_user',
+    'update_user',
+    'set_user_status',
+    'delete_user',
+    'send_password_reset',
+    'list_user_sessions',
+    'revoke_user_sessions',
+    'grant_instance_admin',
+    'revoke_instance_admin',
+    'create_workspace',
+    'list_workspaces',
+    'accept_invitation',
+  ],
+  workspace: [
+    'add_app_key',
+    'add_owner',
+    'cancel_job',
+    'create_app',
+    'create_invitation',
+    'create_join_code',
+    'create_pipeline',
+    'create_project',
+    'create_secret',
+    'create_trigger',
+    'delete_app',
+    'delete_job',
+    'delete_pipeline',
+    'delete_project',
+    'delete_secret',
+    'delete_trigger',
+    'delete_workspace',
+    'fire_trigger_now',
+    'get_app',
+    'get_job',
+    'get_pipeline',
+    'get_project',
+    'get_trigger',
+    'get_workspace',
+    'grant',
+    'list_access',
+    'list_apps',
+    'list_invitations',
+    'list_owners',
+    'list_pipeline_jobs',
+    'list_pipeline_triggers',
+    'list_project_pipelines',
+    'list_projects',
+    'list_secrets',
+    'list_workspace_jobs',
+    'list_workspace_pipelines',
+    'list_workspaces',
+    'remove_owner',
+    'rerun_job',
+    'resend_invitation',
+    'revoke',
+    'revoke_app_key',
+    'revoke_invitation',
+    'run_jobs',
+    'run_pipeline',
+    'set_trigger_enabled',
+    'tail_job_logs',
+    'update_pipeline',
+    'update_project',
+    'update_secret',
+    'update_trigger',
+    'update_workspace',
+  ],
+  project: [
+    'cancel_job',
+    'create_pipeline',
+    'create_secret',
+    'create_trigger',
+    'delete_job',
+    'delete_pipeline',
+    'delete_project',
+    'delete_secret',
+    'delete_trigger',
+    'fire_trigger_now',
+    'get_job',
+    'get_pipeline',
+    'get_project',
+    'get_trigger',
+    'grant',
+    'list_access',
+    'list_pipeline_jobs',
+    'list_pipeline_triggers',
+    'list_project_pipelines',
+    'list_projects',
+    'list_secrets',
+    'rerun_job',
+    'revoke',
+    'run_pipeline',
+    'set_trigger_enabled',
+    'tail_job_logs',
+    'update_pipeline',
+    'update_project',
+    'update_secret',
+    'update_trigger',
+  ],
+};
+
+describe('the permission map', () => {
+  it.each(['platform', 'workspace', 'project'] as const)(
+    'asks the server only the names of the definition %s',
+    kind => {
+      expect(namesFor(kind).filter(name => !SERVER[kind].includes(name))).toEqual([]);
+    },
+  );
+
+  it('gives a workspace permission from its name, and nothing for another kind', () => {
+    const allowed = new Set(['create_project']);
+
+    expect(permissionsFrom('workspace', allowed)).toEqual([Permission.CREATE_PROJECT]);
+    expect(permissionsFrom('project', allowed)).toEqual([]);
+  });
+
+  it('gives each permission that a shared name stands for', () => {
+    expect(permissionsFrom('workspace', new Set(['create_app']))).toEqual(
+      expect.arrayContaining([Permission.CREATE_APP, Permission.CREATE_AGENT]),
+    );
+  });
+});

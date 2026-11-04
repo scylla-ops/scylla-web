@@ -1,0 +1,39 @@
+<script lang="ts">
+  import { createMutation } from '@scylla/core-sdk';
+  import { FormDialog, type FormValues } from '@scylla/ui';
+  import { t, activeLocale } from '@scylla/ui/i18n';
+  import { secretMutations } from '@base/features/secret/presentation/secret.queries.ts';
+  import {
+    createSecretsItems,
+  } from '@base/features/secret/presentation/presenters/secret-form.presenter.ts';
+  import { secretMessages } from '@base/features/secret/presentation/messages/secret.messages.ts';
+
+  interface Props {
+    projectId: string;
+    isOpen: boolean;
+    setOpen: (open: boolean) => void;
+  }
+
+  let { projectId, isOpen, setOpen }: Props = $props();
+
+  const createSecret = createMutation(() => secretMutations.create(projectId));
+
+  // Reading the locale rebuilds the labels on a switch.
+  const items = $derived((activeLocale(), createSecretsItems()));
+
+  const handleSubmit = ({ name, value }: FormValues<'name' | 'value'>) => {
+    // Rejects whitespace-only input.
+    if (!name.trim() || !value.trim()) return;
+
+    createSecret.mutate({ name, value });
+    setOpen(false);
+  };
+</script>
+
+<FormDialog
+  open={isOpen}
+  onOpenChange={setOpen}
+  title={t(secretMessages.createSecret)}
+  {items}
+  onSubmit={handleSubmit}
+/>

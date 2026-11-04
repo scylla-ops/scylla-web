@@ -36,6 +36,38 @@ const MAP: Partial<Record<Permission, Names>> = {
   [Permission.ADD_PROJECT_MEMBER]: { project: 'grant' },
   [Permission.REMOVE_PROJECT_MEMBER]: { project: 'revoke' },
   [Permission.MANAGE_PROJECT_GRANTS]: { project: 'grant' },
+  // The secrets of a project.
+  [Permission.CREATE_SECRET]: { workspace: 'create_secret', project: 'create_secret' },
+  [Permission.UPDATE_SECRET]: { workspace: 'update_secret', project: 'update_secret' },
+  [Permission.DELETE_SECRET]: { workspace: 'delete_secret', project: 'delete_secret' },
+  [Permission.LIST_SECRETS]: { workspace: 'list_secrets', project: 'list_secrets' },
+  // The pipelines and their jobs.
+  [Permission.CREATE_PIPELINE]: { workspace: 'create_pipeline', project: 'create_pipeline' },
+  [Permission.READ_PIPELINE]: { workspace: 'get_pipeline', project: 'get_pipeline' },
+  [Permission.UPDATE_PIPELINE]: { workspace: 'update_pipeline', project: 'update_pipeline' },
+  [Permission.DELETE_PIPELINE]: { workspace: 'delete_pipeline', project: 'delete_pipeline' },
+  [Permission.RUN_PIPELINE]: { workspace: 'run_pipeline', project: 'run_pipeline' },
+  [Permission.EXECUTE_JOB]: { workspace: 'run_pipeline', project: 'run_pipeline' },
+  [Permission.LIST_PIPELINES_BY_PROJECT]: { workspace: 'list_project_pipelines', project: 'list_project_pipelines' },
+  [Permission.LIST_PIPELINES_BY_ORGANIZATION]: { workspace: 'list_workspace_pipelines' },
+  [Permission.READ_JOB]: { workspace: 'get_job', project: 'get_job' },
+  [Permission.UPDATE_JOB]: { workspace: 'cancel_job', project: 'cancel_job' },
+  [Permission.CREATE_JOB]: { workspace: 'rerun_job', project: 'rerun_job' },
+  [Permission.DELETE_JOB]: { workspace: 'delete_job', project: 'delete_job' },
+  [Permission.LIST_JOBS_BY_PIPELINE]: { workspace: 'list_pipeline_jobs', project: 'list_pipeline_jobs' },
+  [Permission.LIST_JOBS_BY_PROJECT]: { workspace: 'list_pipeline_jobs', project: 'list_pipeline_jobs' },
+  [Permission.LIST_JOBS_BY_ORGANIZATION]: { workspace: 'list_workspace_jobs' },
+  [Permission.READ_JOB_LOGS]: { workspace: 'tail_job_logs', project: 'tail_job_logs' },
+  // The triggers of a pipeline.
+  [Permission.MANAGE_TRIGGERS]: { workspace: 'create_trigger', project: 'create_trigger' },
+  // The apps of a workspace; an agent is an app that runs jobs.
+  [Permission.CREATE_APP]: { workspace: 'create_app' },
+  [Permission.READ_APP]: { workspace: 'get_app' },
+  [Permission.READ_APP_STATS]: { workspace: 'get_app' },
+  [Permission.DELETE_APP]: { workspace: 'delete_app' },
+  [Permission.LIST_APPS_BY_ORGANIZATION]: { workspace: 'list_apps' },
+  [Permission.CREATE_AGENT]: { workspace: 'create_app' },
+  [Permission.LIST_AGENTS]: { workspace: 'list_apps' },
 };
 
 /** The scope of the UI for each kind of object. */

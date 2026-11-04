@@ -3,6 +3,7 @@ import { LoginModule } from '@base/features/login/login.module.ts';
 import { MarketplaceModule } from '@base/features/marketplace/marketplace.module.ts';
 import { OrganizationModule } from '@base/features/organization/organization.module.ts';
 import { ProjectModule } from '@base/features/project/project.module.ts';
+import { SecretModule } from '@base/features/secret/secret.module.ts';
 import { UserModule } from '@base/features/user/user.module.ts';
 import { AccessModule } from '@base/features/access/access.module.ts';
 import { MembershipModule } from '@base/features/membership/membership.module.ts';
@@ -16,6 +17,7 @@ import { ExtensionsModule } from '@base/features/extensions/extensions.module.ts
 export const modules = [
   LoginModule,
   ProjectModule,
+  SecretModule,
   MembershipModule,
   InvitationModule,
   OrganizationModule,

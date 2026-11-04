@@ -15,4 +15,5 @@ export * from '@scylla/base/features/marketplace';
 export * from '@scylla/base/features/membership';
 export * from '@scylla/base/features/organization';
 export * from '@scylla/base/features/project';
+export * from '@scylla/base/features/secret';
 export * from '@scylla/base/features/user';
