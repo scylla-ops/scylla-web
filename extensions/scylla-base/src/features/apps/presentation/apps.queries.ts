@@ -3,8 +3,12 @@ import { i18n } from '@lingui/core';
 import { Permission, authorizationReady, can } from '@platform/authz';
 import { toast } from '@scylla/ui/utils';
 import type { AppsModule } from '../apps.module.ts';
+import type { AppDetails } from '../domain/entities/app.entity.ts';
 import { appsMessages } from './messages/apps.messages.ts';
 import { appStatsOf } from '../domain/structs/app-stats.struct.ts';
+import { agentAccessOf } from '../domain/structs/agent-access.struct.ts';
+import { accessQueries, projectRef, workspaceRef } from '@base/features/access';
+import { projectQueries } from '@base/features/project';
 
 const repository = () => getModuleDomain<typeof AppsModule.domain>('apps').appsRepository;
 
@@ -20,6 +24,10 @@ export type AppFilter = 'all' | 'agents' | 'others';
 
 const runnerOf = (filter: AppFilter): boolean | undefined =>
   filter === 'all' ? undefined : filter === 'agents';
+
+/** A machine joined with a new key, and the agent is connected. */
+export const hasJoined = (details: AppDetails | undefined, keysBefore: number): boolean =>
+  !!details && details.app.connected && details.keys.length > keysBefore;
 
 export const APPS_QUERY_ROOT = ['apps'] as const;
 /** The onboarding tour follows the creation of the first agent. */
@@ -59,17 +67,18 @@ export const appQueries = {
       queryKey: APP_QUERY_KEY(appId),
       queryFn: () => repository().getApp(appId),
       enabled:
-        !!appId &&
-        authorizationReady() &&
-        can(Permission.READ_APP, { workspaceId: workspaceId }),
+        !!appId && authorizationReady() && can(Permission.READ_APP, { workspaceId: workspaceId }),
       refetchInterval: 15_000,
     }),
 
-  /** An app that the add dialog waits for: it reads it every 2 s until the agent connects. */
-  waiting: (appId: string, workspaceId: string) =>
+  /**
+   * An app that a join waits for: it reads it every 2 s until a machine joined with a new key
+   * (more than `keysBefore`) and the agent connected.
+   */
+  waiting: (appId: string, workspaceId: string, keysBefore: number) =>
     queryOptions({
       ...appQueries.byId(appId, workspaceId),
-      refetchInterval: query => (query.state.data?.app.connected ? false : 2_000),
+      refetchInterval: query => (hasJoined(query.state.data, keysBefore) ? false : 2_000),
     }),
 
   jobs: (workspaceId: string, appId: string, enabled = true) =>
@@ -77,6 +86,39 @@ export const appQueries = {
       queryKey: APP_JOBS_QUERY_KEY(appId),
       queryFn: () => repository().listJobs(workspaceId, appId, RECENT_JOBS),
       enabled: enabled && !!workspaceId && !!appId,
+    }),
+
+  /** The 30 days of each agent with a job in them, by agent. */
+  agentStats: (workspaceId: string) =>
+    queryOptions({
+      queryKey: [...APPS_QUERY_ROOT, 'stats', workspaceId] as const,
+      queryFn: async () =>
+        new Map(
+          (await repository().listAgentStats(workspaceId)).map(stats => [stats.agentId, stats]),
+        ),
+      enabled: !!workspaceId && canList(workspaceId),
+      refetchInterval: 60_000,
+    }),
+
+  /** The projects of each agent, from the `runner` roles on the workspace and on each project. */
+  agentAccess: (workspaceId: string, agentIds: readonly string[], enabled: boolean) =>
+    queryOptions({
+      queryKey: [...APPS_QUERY_ROOT, 'access', workspaceId, [...agentIds].sort()] as const,
+      queryFn: async () => {
+        const client = getQueryClient();
+        const [workspace, projects] = await Promise.all([
+          client.fetchQuery(accessQueries.list(workspaceRef(workspaceId))),
+          client.fetchQuery(projectQueries.lookup(workspaceId)),
+        ]);
+        const roles = await Promise.all(
+          projects.items.map(async project => ({
+            name: project.name,
+            entries: await client.fetchQuery(accessQueries.list(projectRef(project.id))),
+          })),
+        );
+        return new Map(agentIds.map(id => [id, agentAccessOf(id, workspace, roles)]));
+      },
+      enabled: enabled && !!workspaceId && agentIds.length > 0,
     }),
 };
 
@@ -113,6 +155,25 @@ export const appMutations = {
   joinCode: () =>
     mutationOptions({
       mutationFn: (appId: string) => repository().createJoinCode(appId),
+    }),
+
+  /** A disabled app gets no token and no job; its running jobs stop. */
+  disable: () =>
+    mutationOptions({
+      mutationFn: (appId: string) => repository().disableApp(appId),
+      onSuccess: app => {
+        toast.success(i18n._(appsMessages.disabledToast(app.name)));
+        return invalidateApps();
+      },
+    }),
+
+  enable: () =>
+    mutationOptions({
+      mutationFn: (appId: string) => repository().enableApp(appId),
+      onSuccess: app => {
+        toast.success(i18n._(appsMessages.enabledToast(app.name)));
+        return invalidateApps();
+      },
     }),
 
   revokeKey: () =>

@@ -91,8 +91,13 @@ Anchors are attributes on the real elements, never CSS classes:
   `pipeline-history` / `pipeline-actions` (+ `data-pipeline-id`, `data-pipeline-name`,
   `data-last-status`), `pipeline-run`, `job-details`.
 - `data-part="…"` in `@scylla/ui` (generic parts): `feature-header-new`.
-- `data-nav-url` on the core's sidebar links, `data-item-id` on `StatusBar` segments, and the
-  `data-slot` of the primitives: the sidebar, the inset and the dialogs.
+- `data-nav-url` on the core's sidebar links, `data-nav-group` on its folding groups,
+  `data-item-id` on `StatusBar` segments, and the `data-slot` of the primitives: the sidebar, the
+  inset and the dialogs.
+- The agent steps use the agents page (`/agents`, `data-tour="agents"`) and its "Add an agent"
+  dialog: `app-join-code` (the install command) and `app-dialog-actions` (the footer). The
+  "Agents" link is in the group "Machines", folded on the other pages: the step points at the
+  group until the link shows.
 
 Removing or renaming one of these breaks a step without a type error. `tour-steps.test.ts` pins
 the anchors that carry logic.

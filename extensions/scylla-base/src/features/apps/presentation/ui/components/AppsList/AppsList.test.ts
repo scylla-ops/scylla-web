@@ -23,7 +23,7 @@ const app = (id: string, overrides: Record<string, unknown> = {}) => ({
 let teardown: Array<() => void> = [];
 let repository: Record<string, ReturnType<typeof vi.fn>>;
 
-const setUp = (permissions: Permission[], kind: 'agents' | 'others' = 'agents') => {
+const setUp = (permissions: Permission[]) => {
   permissionsStore.setState({
     permissions: {
       scopes: [
@@ -38,9 +38,7 @@ const setUp = (permissions: Permission[], kind: 'agents' | 'others' = 'agents') 
   contextStore.setState({ workspace: { id: 'ws-1', name: 'Acme', slug: 'acme' } });
   repository = {
     listApps: vi.fn((_workspaceId: string, runner?: boolean) =>
-      Promise.resolve(
-        runner === false ? [app('ci', { runner: false })] : [app('a1', { connected: true })],
-      ),
+      Promise.resolve(runner === false ? [app('ci', { runner: false })] : []),
     ),
     createApp: vi.fn().mockResolvedValue({
       app: app('a2'),
@@ -49,7 +47,7 @@ const setUp = (permissions: Permission[], kind: 'agents' | 'others' = 'agents') 
   };
   const cache = withQueryClient();
   teardown = [cache.restore, withRegistry({ apps: { appsRepository: repository } })];
-  render(AppsList, { kind });
+  render(AppsList);
 };
 
 beforeEach(() => vi.clearAllMocks());
@@ -59,33 +57,15 @@ afterEach(() => {
 });
 
 describe('AppsList', () => {
-  it('lists the agents, with their state', async () => {
+  it('lists the apps that run no job', async () => {
     setUp([Permission.LIST_APPS_BY_WORKSPACE]);
-
-    expect(await screen.findByText('app a1')).toBeInTheDocument();
-    expect(screen.getByText(/Online/)).toBeInTheDocument();
-    expect(repository.listApps).toHaveBeenCalledWith('ws-1', true);
-  });
-
-  it('lists the other apps on their page', async () => {
-    setUp([Permission.LIST_APPS_BY_WORKSPACE], 'others');
 
     expect(await screen.findByText('app ci')).toBeInTheDocument();
     expect(repository.listApps).toHaveBeenCalledWith('ws-1', false);
   });
 
-  it('opens the wizard of a new agent on the agents page', async () => {
-    setUp([Permission.LIST_APPS_BY_WORKSPACE, Permission.CREATE_APP]);
-    const user = userEvent.setup();
-
-    await user.click(await screen.findByRole('button', { name: /New app/ }));
-
-    const dialog = await screen.findByRole('dialog');
-    expect(within(dialog).getByText('Add an agent')).toBeInTheDocument();
-  });
-
   it('creates another app with its join code on the apps page', async () => {
-    setUp([Permission.LIST_APPS_BY_WORKSPACE, Permission.CREATE_APP], 'others');
+    setUp([Permission.LIST_APPS_BY_WORKSPACE, Permission.CREATE_APP]);
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: /New app/ }));

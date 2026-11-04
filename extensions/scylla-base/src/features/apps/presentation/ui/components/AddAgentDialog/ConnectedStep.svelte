@@ -8,8 +8,8 @@
 
   interface Props {
     app: AppEntity;
-    /** The projects of the agent. Zero: each project. */
-    projectCount: number;
+    /** The projects of the agent. Zero: each project. `null`: not known here. */
+    projectCount: number | null;
   }
 
   let { app, projectCount }: Props = $props();
@@ -45,9 +45,11 @@
   {#if facts}
     <p class="text-xs text-muted-foreground">{facts}</p>
   {/if}
-  <p class="text-xs text-muted-foreground">
-    {projectCount === 0
-      ? t(messages.allProjectsDone)
-      : t(messages.someProjectsDone(projectCount))}
-  </p>
+  {#if projectCount !== null}
+    <p class="text-xs text-muted-foreground">
+      {projectCount === 0
+        ? t(messages.allProjectsDone)
+        : t(messages.someProjectsDone(projectCount))}
+    </p>
+  {/if}
 </div>

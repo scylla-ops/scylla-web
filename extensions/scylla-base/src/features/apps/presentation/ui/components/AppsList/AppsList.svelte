@@ -11,22 +11,14 @@
   import { appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import AppStateDot from '../AppStateDot/AppStateDot.svelte';
   import CreateAppDialog from '../CreateAppDialog/CreateAppDialog.svelte';
-  import AddAgentDialog from '../AddAgentDialog/AddAgentDialog.svelte';
   import { appsMessages } from '@base/features/apps/presentation/messages/apps.messages.ts';
-
-  interface Props {
-    /** The agents (the apps that run jobs), or the other apps. */
-    kind: 'agents' | 'others';
-  }
-
-  let { kind }: Props = $props();
 
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id ?? '');
 
   let createOpen = $state(false);
 
-  const apps = createQuery(() => appQueries.list(workspaceId, kind));
+  const apps = createQuery(() => appQueries.list(workspaceId, 'others'));
   const canCreate = $derived(can(Permission.CREATE_APP, { workspaceId: workspaceId }));
 
   const STATE_LABEL = {
@@ -67,7 +59,7 @@
             <button
               type="button"
               class="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-accent/50"
-              onclick={() => scyllaNavigate.goToWorkspaceRoute(`/${kind === 'agents' ? 'agents' : 'apps'}/${app.id}`)}
+              onclick={() => scyllaNavigate.goToWorkspaceRoute(`/apps/${app.id}`)}
             >
               <AppStateDot {state} />
               <span class="min-w-0 flex-1">
@@ -91,9 +83,7 @@
   {/if}
 </div>
 
-{#if workspaceId && kind === 'agents'}
-  <AddAgentDialog open={createOpen} setOpen={open => (createOpen = open)} {workspaceId} />
-{:else if workspaceId}
+{#if workspaceId}
   <CreateAppDialog
     open={createOpen}
     setOpen={open => (createOpen = open)}

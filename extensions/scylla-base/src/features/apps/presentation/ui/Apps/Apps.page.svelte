@@ -2,4 +2,4 @@
   import AppsList from '../components/AppsList/AppsList.svelte';
 </script>
 
-<AppsList kind="others" />
+<AppsList />

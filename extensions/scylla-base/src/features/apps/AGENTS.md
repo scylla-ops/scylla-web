@@ -23,8 +23,16 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   computed from them (`app-stats.struct.ts`).
 - "Add agent" is a dialog in three steps (`components/AddAgentDialog/`): name and projects, install,
   connected. The install step shows one command for each OS (`agent-install.struct.ts`) and
-  `appQueries.waiting` asks for the app each 2 s until it is connected. A `Button` in the form must
-  have `type="button"`, because the primitive has no default type.
+  `appQueries.waiting` asks for the app each 2 s until a machine joined with a new key and the
+  agent is connected (`hasJoined`). With an `agent`, the dialog makes a new join code for it and
+  starts at the install step. A `Button` in the form must have `type="button"`, because the
+  primitive has no default type.
+- The agents page (`components/AgentsList/`) shows four stat cards, filters by state
+  (`agent-list.struct.ts`: a running agent is also online), a search on the name and the host name,
+  and a table. The access column needs `list_workspace_members`: `appQueries.agentAccess` reads
+  the roles of the workspace and of each project (`agent-access.struct.ts`). The sparkline comes
+  from `appQueries.agentStats` (one call for the workspace). Disable and delete need `delete_app`;
+  a new join code needs `create_app`. The other apps have their own page (`AppsList`).
 - `appQueries.runners` and `loadNoAgentsBanner` serve the pipelines and the jobs: they warn when
   jobs wait and no agent is connected.
 

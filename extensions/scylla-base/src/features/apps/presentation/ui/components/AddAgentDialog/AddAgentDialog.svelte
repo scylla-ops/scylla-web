@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fly } from 'svelte/transition';
   import { scyllaNavigate } from '@platform/context';
-  import { createMutation, createQuery } from '@scylla/core-sdk';
+  import { createMutation, createQuery, getQueryClient } from '@scylla/core-sdk';
   import {
     Button,
     Dialog,
@@ -9,10 +9,19 @@
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    Skeleton,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type { CreatedApp, JoinCode } from '@base/features/apps/domain/entities/app.entity.ts';
-  import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
+  import type {
+    AppEntity,
+    CreatedApp,
+    JoinCode,
+  } from '@base/features/apps/domain/entities/app.entity.ts';
+  import {
+    appMutations,
+    appQueries,
+    hasJoined,
+  } from '@base/features/apps/presentation/apps.queries.ts';
   import StepBar from './StepBar.svelte';
   import NameStep from './NameStep.svelte';
   import InstallStep from './InstallStep.svelte';
@@ -23,9 +32,11 @@
     open: boolean;
     setOpen: (open: boolean) => void;
     workspaceId: string;
+    /** An agent that a machine joins again: the dialog starts at the install step. */
+    agent?: AppEntity | null;
   }
 
-  let { open, setOpen, workspaceId }: Props = $props();
+  let { open, setOpen, workspaceId, agent = null }: Props = $props();
 
   const create = createMutation(() => appMutations.create(workspaceId));
   const renew = createMutation(() => appMutations.joinCode());
@@ -35,21 +46,43 @@
   let someProjects = $state(false);
   let created = $state<CreatedApp | null>(null);
   let joinCode = $state<JoinCode | null>(null);
+  let keysBefore = $state(0);
+  let requested: string | null = null;
 
-  const watched = createQuery(() => appQueries.waiting(created?.app.id ?? '', workspaceId));
-  const connected = $derived(watched.data?.app.connected === true);
-  const step = $derived(!created ? 0 : connected ? 2 : 1);
+  const watched = createQuery(() =>
+    appQueries.waiting(created?.app.id ?? '', workspaceId, keysBefore),
+  );
+  const connected = $derived(hasJoined(watched.data, keysBefore));
+  const step = $derived(created ? (connected ? 2 : 1) : agent ? 1 : 0);
   const chosen = $derived(someProjects ? projectIds : []);
   const canAdd = $derived(!!name.trim() && (!someProjects || projectIds.length > 0));
+  const agentName = $derived(created?.app.name ?? agent?.name ?? '');
 
   const STEPS = $derived([t(messages.stepName), t(messages.stepInstall), t(messages.stepConnected)]);
   const title = $derived(
     step === 0
       ? t(messages.title)
       : step === 1
-        ? t(messages.installTitle(created?.app.name ?? ''))
-        : t(messages.onlineTitle(created?.app.name ?? '')),
+        ? t(messages.installTitle(agentName))
+        : t(messages.onlineTitle(agentName)),
   );
+
+  $effect(() => {
+    const target = agent;
+    if (!open || !target || requested === target.id) return;
+    requested = target.id;
+    void getQueryClient()
+      .fetchQuery(appQueries.byId(target.id, workspaceId))
+      .then(details => {
+        keysBefore = details.keys.length;
+        renew.mutate(target.id, {
+          onSuccess: code => {
+            created = { app: target, joinCode: code };
+            joinCode = code;
+          },
+        });
+      });
+  });
 
   const close = () => {
     setOpen(false);
@@ -58,6 +91,8 @@
     someProjects = false;
     created = null;
     joinCode = null;
+    keysBefore = 0;
+    requested = null;
     create.reset();
   };
 
@@ -106,14 +141,22 @@
             <NameStep {workspaceId} bind:name bind:projectIds bind:someProjects />
           {:else if step === 1 && joinCode}
             <InstallStep {joinCode} onNewCode={newCode} renewing={renew.isPending} />
+          {:else if step === 1}
+            <Skeleton class="h-40 w-full rounded-lg" />
           {:else if step === 2 && watched.data}
-            <ConnectedStep app={watched.data.app} projectCount={chosen.length} />
+            <ConnectedStep
+              app={watched.data.app}
+              projectCount={agent ? null : chosen.length}
+            />
           {/if}
         </div>
       {/key}
     </form>
 
-    <DialogFooter class="items-center border-t pt-4 sm:justify-between">
+    <DialogFooter
+      class="items-center border-t pt-4 sm:justify-between"
+      data-tour="app-dialog-actions"
+    >
       <span class="text-xs text-muted-foreground">{t(messages.stepOf(step + 1))}</span>
       <div class="flex gap-2">
         {#if step === 0}

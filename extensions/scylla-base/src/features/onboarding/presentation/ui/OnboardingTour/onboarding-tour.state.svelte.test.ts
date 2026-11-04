@@ -24,7 +24,7 @@ const setUp = (stored: OnboardingStatus = { kind: 'not-started' }, canStart = tr
     }),
   };
   const cache = withQueryClient();
-  const navigator = installTestNavigator({ pathname: '/acme/apps' });
+  const navigator = installTestNavigator({ pathname: '/acme/agents' });
   const restoreRegistry = withRegistry({
     onboarding: { onboardingRepository: repository },
     apps: { appsRepository: { listApps: listAgents } },
@@ -350,6 +350,6 @@ describe('createOnboardingTour', () => {
 
     tour.openAgent();
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme/apps/agent-7', undefined);
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme/agents/agent-7', undefined);
   });
 });

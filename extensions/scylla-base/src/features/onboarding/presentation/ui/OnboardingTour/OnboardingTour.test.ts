@@ -133,11 +133,11 @@ describe('OnboardingTour', () => {
   it('leaves the target usable on a step that the user finishes with a click', async () => {
     setUp({ kind: 'in-progress', step: 'open-agents' });
     const page = pageElement(
-      '<button data-nav-url="apps">Apps and agents</button>',
-      '[data-nav-url="apps"]',
+      '<button data-nav-url="agents">Agents</button>',
+      '[data-nav-url="agents"]',
     );
 
-    expect(await screen.findByText(/Open the Apps and agents tab/)).toBeInTheDocument();
+    expect(await screen.findByText(/Open the Agents tab/)).toBeInTheDocument();
     expect(page).not.toHaveAttribute('inert');
     expect(document.querySelector('[data-tour-blocker]')).toBeNull();
   });

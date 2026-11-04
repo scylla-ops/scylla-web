@@ -89,22 +89,23 @@
       {/each}
     </TabsList>
   </Tabs>
-  <CopyBox value={commands[way]} copyToast={t(messages.copied)} focusOnMount />
-
-  <p class="flex items-center gap-1.5 text-xs text-muted-foreground">
-    <ClockIcon class="size-3.5" aria-hidden="true" />
-    <span>{left > 0 ? t(messages.expiresIn(formatCountdown(left))) : t(messages.expired)}</span>
-    <Button
-      type="button"
-      variant="link"
-      size="sm"
-      class="h-auto p-0 text-xs"
-      disabled={renewing}
-      onclick={onNewCode}
-    >
-      {t(messages.newCode)}
-    </Button>
-  </p>
+  <div class="flex flex-col gap-2" data-tour="app-join-code">
+    <CopyBox value={commands[way]} copyToast={t(messages.copied)} focusOnMount />
+    <p class="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <ClockIcon class="size-3.5" aria-hidden="true" />
+      <span>{left > 0 ? t(messages.expiresIn(formatCountdown(left))) : t(messages.expired)}</span>
+      <Button
+        type="button"
+        variant="link"
+        size="sm"
+        class="h-auto p-0 text-xs"
+        disabled={renewing}
+        onclick={onNewCode}
+      >
+        {t(messages.newCode)}
+      </Button>
+    </p>
+  </div>
 
   <div class="flex items-center gap-3 rounded-lg border px-4 py-3" role="status">
     <span class="relative flex size-2" aria-hidden="true">

@@ -56,7 +56,10 @@ const setUp = () => {
     getApp: vi
       .fn()
       .mockResolvedValueOnce({ app: app(false), keys: [] })
-      .mockResolvedValue({ app: app(true), keys: [] }),
+      .mockResolvedValue({
+        app: app(true),
+        keys: [{ id: 'k1', label: 'host-1', createdAt: '', revokedAt: '', lastUsedAt: '' }],
+      }),
   };
   const projects = {
     getByWorkspaceId: vi.fn().mockResolvedValue({
@@ -104,7 +107,9 @@ describe('AddAgentDialog', () => {
 
     expect(await screen.findByText('agent-1 is online', {}, { timeout: 5000 })).toBeInTheDocument();
     expect(screen.getByText('Connected from host-1')).toBeInTheDocument();
-    expect(screen.getByText(/linux\/x86_64 · 8 CPU · 16 GB · 2 jobs at once · docker/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/linux\/x86_64 · 8 CPU · 16 GB · 2 jobs at once · docker/),
+    ).toBeInTheDocument();
   });
 
   it('gives the agent the projects that the user chose', async () => {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import AppsList from '../components/AppsList/AppsList.svelte';
+  import AgentsList from '../components/AgentsList/AgentsList.svelte';
 </script>
 
-<AppsList kind="agents" />
+<AgentsList />

@@ -10,7 +10,10 @@ import {
   type OnboardingStatus,
   type OnboardingSubject,
 } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
-import { onboardingMutations, onboardingQueries } from '@base/features/onboarding/presentation/onboarding.queries.ts';
+import {
+  onboardingMutations,
+  onboardingQueries,
+} from '@base/features/onboarding/presentation/onboarding.queries.ts';
 import {
   isAgentOffline,
   isTourVisible,
@@ -146,7 +149,7 @@ export const createOnboardingTour = (canStart: () => boolean) => {
       scyllaNavigate.goToWorkspaceRoute(step.page(subject));
     },
     openAgent() {
-      scyllaNavigate.goToWorkspaceRoute(subject.agentId ? `/apps/${subject.agentId}` : '/apps');
+      scyllaNavigate.goToWorkspaceRoute(subject.agentId ? `/agents/${subject.agentId}` : '/agents');
     },
     requestSkip() {
       confirmingSkip = true;

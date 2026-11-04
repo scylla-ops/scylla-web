@@ -171,7 +171,7 @@ describe('the way back from another page', () => {
   it('leads back to the agent and the project the tour created', () => {
     const subject = { agentId: 'a-1', projectId: 'p-1' };
 
-    expect(spot('connect-agent').page?.(subject)).toBe('/apps/a-1');
+    expect(spot('connect-agent').page?.(subject)).toBe('/agents/a-1');
     expect(spot('pipeline-editor').page?.(subject)).toBe('/projects/p-1/create');
     expect(spot('wait-job').page?.(subject)).toBe('/projects/p-1');
     expect(spot('wait-job').page?.({})).toBe('/projects');
@@ -251,5 +251,19 @@ describe('the anchors of the dialog steps', () => {
     expect(run(document, {})?.id).toBe('run');
     expect(actions(document, {})?.id).toBe('actions');
     expect(conditionOf(spot('run-command'))(document, {})?.id).toBe('actions');
+  });
+
+  it('points at the folded Machines group until its Agents link shows', () => {
+    const [agents] = spot('open-agents').targets;
+
+    document.body.innerHTML = '<button data-nav-group="machines" id="group"></button>';
+    expect(agents(document, {})?.id).toBe('group');
+    expect(conditionOf(spot('open-agents'))(document, {})).toBeNull();
+
+    document.body.innerHTML = `
+      <button data-nav-group="machines" id="group"></button>
+      <a data-nav-url="agents" id="link"></a>`;
+    expect(agents(document, {})?.id).toBe('link');
+    expect(conditionOf(spot('open-agents'))(document, {})?.id).toBe('link');
   });
 });

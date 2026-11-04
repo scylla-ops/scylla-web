@@ -54,7 +54,7 @@ export type TourStep = TourSpotStep | TourDialogStep;
 
 export const JOB_HINT_AFTER_MS = 5000;
 
-const agentPage = ({ agentId }: OnboardingSubject) => (agentId ? `/apps/${agentId}` : '/apps');
+const agentPage = ({ agentId }: OnboardingSubject) => (agentId ? `/agents/${agentId}` : '/agents');
 const projectPage = ({ projectId }: OnboardingSubject) =>
   projectId ? `/projects/${projectId}` : '/projects';
 const pipelineEditorPage = ({ projectId }: OnboardingSubject) =>
@@ -66,6 +66,11 @@ const select =
     root.querySelector(selector);
 
 const navLink = (url: string) => select(`[data-nav-url="${url}"]`);
+
+/** The link of the agents, or its folded group "Machines" until the user opens it. */
+const agentsNav: TourAnchor = root =>
+  root.querySelector('[data-nav-url="agents"]') ??
+  root.querySelector('[data-nav-group="machines"]');
 
 const newButtonOf = (page: string) =>
   select(`[data-tour="${page}"] [data-part="feature-header-new"]`);
@@ -164,23 +169,23 @@ export const TOUR_STEPS: readonly TourStep[] = [
     id: 'open-agents',
     title: m.openAgentsTitle,
     body: [m.openAgentsBody],
-    targets: [navLink('apps')],
-    advance: { on: 'click', anchor: navLink('apps') },
+    targets: [agentsNav],
+    advance: { on: 'click', anchor: navLink('agents') },
   },
   {
     kind: 'spot',
     id: 'new-agent',
-    page: () => '/apps',
+    page: () => '/agents',
     title: m.newAgentTitle,
     body: [m.newAgentBody],
-    targets: [newButtonOf('apps')],
-    advance: { on: 'click', anchor: newButtonOf('apps') },
+    targets: [newButtonOf('agents')],
+    advance: { on: 'click', anchor: newButtonOf('agents') },
     fallback: 'open-agents',
   },
   {
     kind: 'spot',
     id: 'create-agent',
-    page: () => '/apps',
+    page: () => '/agents',
     title: m.createAgentTitle,
     body: [m.createAgentBody],
     targets: [formDialog],
@@ -190,7 +195,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     kind: 'spot',
     id: 'run-command',
-    page: () => '/apps',
+    page: () => '/agents',
     title: m.runAgentTitle,
     body: [m.runCommandBody, m.runCommandUrl, m.runCommandDone],
     link: docs(m.connectDocs),
