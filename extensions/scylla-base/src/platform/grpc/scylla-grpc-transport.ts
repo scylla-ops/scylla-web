@@ -5,8 +5,10 @@ import {
   ServerStreamingCall,
   UnaryCall,
 } from '@protobuf-ts/runtime-rpc';
-import type { MethodInfo, RpcInterceptor, RpcOptions } from '@protobuf-ts/runtime-rpc';
+import type { MethodInfo, RpcInterceptor } from '@protobuf-ts/runtime-rpc';
 import { ScyllaError, type ScyllaErrorCode } from '@shared/utils/scylla-error.ts';
+import { accessToken, apiUrl, isPublicCall, refreshSession } from './session.ts';
+import { statusDetailsOf } from './status-details.ts';
 
 /**
  * The server percent-encodes the `grpc-message` trailer and
@@ -29,6 +31,7 @@ const toScyllaError = (error: unknown, method: MethodInfo): ScyllaError =>
         rpc: `${method.service.typeName}/${method.name}`,
         raw: true,
         cause: error,
+        ...statusDetailsOf(error.meta),
       })
     : ScyllaError.from(error);
 
@@ -84,25 +87,42 @@ const fetchOrUnavailable: typeof fetch = (input, init) =>
     throw new RpcError(error instanceof Error ? error.message : String(error), 'UNAVAILABLE');
   });
 
+/** The gRPC code of an answer that has only a status: the server gives it before any message. */
+const UNAUTHENTICATED = '16';
+
+const send = (input: RequestInfo | URL, init: RequestInit | undefined, token: string | null) => {
+  const headers = new Headers(init?.headers);
+  if (token) headers.set('authorization', `Bearer ${token}`);
+  else headers.delete('authorization');
+  return fetchOrUnavailable(input, { ...init, headers, credentials: 'include' });
+};
+
+/**
+ * Adds the access token to each call, for unary calls and for streams. An `UNAUTHENTICATED`
+ * answer gets one refresh and one more try: the token can end between the check and the call.
+ */
+const authorizedFetch: typeof fetch = async (input, init) => {
+  const url = input instanceof Request ? input.url : String(input);
+  if (isPublicCall(url)) return send(input, init, null);
+  const sent = await accessToken();
+  const response = await send(input, init, sent);
+  // No token: the refresh already failed, a second one fails too.
+  if (!sent || response.headers.get('grpc-status') !== UNAUTHENTICATED) return response;
+  const token = await refreshSession();
+  if (!token) return response;
+  await response.body?.cancel();
+  return send(input, init, token);
+};
+
 export class ScyllaGrpcTransport {
   private readonly _transport: GrpcWebFetchTransport;
 
   constructor() {
-    const authInterceptor: RpcInterceptor = {
-      interceptUnary(next, method, input, options: RpcOptions) {
-        options.meta = options.meta ?? {};
-        const token = localStorage.getItem('token');
-        if (token) {
-          options.meta['Authorization'] = `Bearer ${token}`;
-        }
-        return next(method, input, options);
-      },
-    };
     this._transport = new GrpcWebFetchTransport({
-      baseUrl: import.meta.env.VITE_API_URL ?? '',
+      baseUrl: apiUrl(),
       format: 'binary',
-      fetch: fetchOrUnavailable,
-      interceptors: [authInterceptor, scyllaErrorInterceptor],
+      fetch: authorizedFetch,
+      interceptors: [scyllaErrorInterceptor],
     });
   }
 

@@ -1,5 +1,6 @@
 import { t } from '@lingui/core/macro';
 import type { GrpcStatusCode } from '@protobuf-ts/grpcweb-transport';
+import { reasonMessage } from './error-reasons.ts';
 
 /** The gRPC status names, plus our own codes (e.g. `INVALID_CREDENTIALS` from `login`). */
 export type ScyllaErrorCode = keyof typeof GrpcStatusCode | 'UNKNOWN_ERROR' | 'INVALID_CREDENTIALS';
@@ -13,6 +14,20 @@ export interface ScyllaErrorOptions extends ErrorOptions {
    * sees it only for a code that they can act on.
    */
   raw?: boolean;
+  /** The stable code of a refusal of the server (`google.rpc.ErrorInfo`), e.g. `SLUG_IN_USE`. */
+  reason?: string;
+  /** The values that come with the reason. */
+  metadata?: Record<string, string>;
+  /** The fields that are not valid (`google.rpc.BadRequest`). */
+  violations?: FieldViolation[];
+}
+
+/** A field that the server refuses, and why. */
+export interface FieldViolation {
+  /** The path of the field, e.g. `display_name` or `page.size`. */
+  field: string;
+  /** Why the value is not valid, in English. */
+  description: string;
 }
 
 /** The codes whose raw message tells the user what to change. Any other stays in the log. */
@@ -56,15 +71,34 @@ export class ScyllaError extends Error {
   public readonly code: ScyllaErrorCode;
   public readonly rpc?: string;
   public readonly raw: boolean;
+  public readonly reason?: string;
+  public readonly metadata: Readonly<Record<string, string>>;
+  public readonly violations: readonly FieldViolation[];
 
   constructor(
     message: string,
-    { code = 'UNKNOWN_ERROR', rpc, raw = false, ...options }: ScyllaErrorOptions = {},
+    {
+      code = 'UNKNOWN_ERROR',
+      rpc,
+      raw = false,
+      reason,
+      metadata = {},
+      violations = [],
+      ...options
+    }: ScyllaErrorOptions = {},
   ) {
     super(message, options);
     this.code = code;
     this.rpc = rpc;
     this.raw = raw;
+    this.reason = reason;
+    this.metadata = metadata;
+    this.violations = violations;
+  }
+
+  /** The violation of one field, e.g. to show it under the input. */
+  public violationOf(field: string): FieldViolation | undefined {
+    return this.violations.find((violation) => violation.field === field);
   }
 
   /** Any thrown value: a `ScyllaError` as it is, an error that carries a gRPC code with it. */
@@ -102,6 +136,8 @@ export class ScyllaError extends Error {
   public userMessage(): string {
     if (this.isNetworkError()) return t`Server unreachable`;
     if (this.isForbidden()) return t`You don't have permission to perform this action`;
+    const known = this.reason ? reasonMessage(this.reason, this.metadata) : undefined;
+    if (known) return known;
     if (this.message && (!this.raw || USER_FACING_CODES.has(this.code))) return this.message;
     return t`An unexpected error occurred`;
   }
@@ -111,7 +147,8 @@ export class ScyllaError extends Error {
    * in production too, with its cause: it is what a user can send to the support.
    */
   public log(): void {
-    const line = `[${this.name}] ${this.code}${this.rpc ? ` ${this.rpc}` : ''}: ${this.message}`;
+    const reason = this.reason ? ` (${this.reason})` : '';
+    const line = `[${this.name}] ${this.code}${reason}${this.rpc ? ` ${this.rpc}` : ''}: ${this.message}`;
     const details = this.cause === undefined ? [] : [this.cause];
     if (!EXPECTED_CODES.has(this.code)) console.error(line, ...details);
     else if (import.meta.env.DEV) console.warn(line, ...details);

@@ -1,24 +1,42 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
-import { SecretServiceClient } from '@base/generated/scylla/secret/v1/secret.client.ts';
-import { JobServiceClient } from '@base/generated/scylla/job/v1/job.client.ts';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
+import { base64encode } from '@protobuf-ts/runtime';
+import { SecretServiceClient } from '@base/generated/scylla/projects/v1/secret_service.client.ts';
+import { JobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
+import { Status } from '@base/generated/google/rpc/status.ts';
+import { BadRequest, ErrorInfo } from '@base/generated/google/rpc/error_details.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { ScyllaGrpcTransport } from '../scylla-grpc-transport.ts';
+import { forgetSession, openSession } from '../session.ts';
 
 /** A gRPC-Web answer that carries only a status, as the server gives for a refused call. */
-const refusal = (status: number, message: string) =>
+const refusal = (status: number, message: string, details?: Status) =>
   new Response(null, {
     status: 200,
     headers: {
       'content-type': 'application/grpc-web+proto',
       'grpc-status': String(status),
       'grpc-message': message,
+      ...(details && { 'grpc-status-details-bin': base64encode(Status.toBinary(details)) }),
     },
   });
 
-const transport = () => new ScyllaGrpcTransport().getTransport();
-const listSecrets = () => new SecretServiceClient(transport()).listSecrets({}).response;
+const any = (typeName: string, value: Uint8Array) => ({
+  typeUrl: `type.googleapis.com/${typeName}`,
+  value,
+});
 
-afterEach(() => vi.unstubAllGlobals());
+const farFuture = { seconds: BigInt(Math.floor(Date.now() / 1000) + 3600), nanos: 0 };
+
+const transport = () => new ScyllaGrpcTransport().getTransport();
+const listSecrets = () =>
+  new SecretServiceClient(transport()).listSecrets({ projectId: 'p' }).response;
+const headersOf = (call: unknown[]) => new Headers((call[1] as RequestInit).headers);
+
+beforeEach(() => openSession({ value: 'access-1', expiresAt: farFuture }));
+afterEach(() => {
+  vi.unstubAllGlobals();
+  forgetSession();
+});
 
 describe('ScyllaGrpcTransport', () => {
   it('rejects a refused call with a ScyllaError that keeps the gRPC code', async () => {
@@ -30,7 +48,7 @@ describe('ScyllaGrpcTransport', () => {
     expect(error).toMatchObject({
       code: 'NOT_FOUND',
       message: 'no such secret',
-      rpc: 'scylla.secret.v1.SecretService/ListSecrets',
+      rpc: 'scylla.projects.v1.SecretService/ListSecrets',
       raw: true,
     });
   });
@@ -45,6 +63,40 @@ describe('ScyllaGrpcTransport', () => {
       code: 'FAILED_PRECONDITION',
       message: 'Hand over « acme » first',
     });
+  });
+
+  it('reads the reason and the metadata of an ErrorInfo', async () => {
+    const info = ErrorInfo.create({
+      reason: 'RESEND_TOO_SOON',
+      domain: 'scylla',
+      metadata: { retry_after_seconds: '42' },
+    });
+    const details = Status.create({
+      code: 9,
+      details: [any('google.rpc.ErrorInfo', ErrorInfo.toBinary(info))],
+    });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(refusal(9, 'too soon', details)));
+
+    const error = (await listSecrets().catch((thrown: unknown) => thrown)) as ScyllaError;
+
+    expect(error.reason).toBe('RESEND_TOO_SOON');
+    expect(error.metadata).toEqual({ retry_after_seconds: '42' });
+    expect(error.userMessage()).toContain('42');
+  });
+
+  it('reads the field violations of a BadRequest', async () => {
+    const request = BadRequest.create({
+      fieldViolations: [{ field: 'display_name', description: 'is required' }],
+    });
+    const details = Status.create({
+      code: 3,
+      details: [any('google.rpc.BadRequest', BadRequest.toBinary(request))],
+    });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(refusal(3, 'bad', details)));
+
+    const error = (await listSecrets().catch((thrown: unknown) => thrown)) as ScyllaError;
+
+    expect(error.violationOf('display_name')?.description).toBe('is required');
   });
 
   it('calls a request that does not get to the server UNAVAILABLE, whatever the browser says', async () => {
@@ -72,5 +124,43 @@ describe('ScyllaGrpcTransport', () => {
     };
 
     await expect(read()).rejects.toMatchObject({ code: 'PERMISSION_DENIED', name: 'ScyllaError' });
+  });
+
+  it('sends the access token and the cookie', async () => {
+    const fetch = vi.fn().mockResolvedValue(refusal(5, 'none'));
+    vi.stubGlobal('fetch', fetch);
+
+    await listSecrets().catch(() => undefined);
+
+    expect(headersOf(fetch.mock.calls[0]).get('authorization')).toBe('Bearer access-1');
+    expect((fetch.mock.calls[0][1] as RequestInit).credentials).toBe('include');
+  });
+
+  it('refreshes the token one time on UNAUTHENTICATED and sends the call again', async () => {
+    const fetch = vi.fn(async (input: RequestInfo | URL) =>
+      String(input).endsWith('TokenService/Refresh')
+        ? refusal(5, 'refresh answer is not read here')
+        : refusal(16, 'token ended'),
+    );
+    vi.stubGlobal('fetch', fetch);
+
+    await expect(listSecrets()).rejects.toMatchObject({ code: 'UNAUTHENTICATED' });
+
+    const urls = fetch.mock.calls.map(([input]) => String(input));
+    expect(urls.filter((url) => url.endsWith('TokenService/Refresh'))).toHaveLength(1);
+    expect(urls.filter((url) => url.endsWith('SecretService/ListSecrets'))).toHaveLength(1);
+  });
+
+  it('sends no token to a public call', async () => {
+    const fetch = vi.fn().mockResolvedValue(refusal(5, 'none'));
+    vi.stubGlobal('fetch', fetch);
+    const { AccountServiceClient } = await import(
+      '@base/generated/scylla/accounts/v1/account_service.client.ts'
+    );
+
+    await new AccountServiceClient(transport()).listSignInMethods({}).response.catch(() => null);
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(headersOf(fetch.mock.calls[0]).get('authorization')).toBeNull();
   });
 });
