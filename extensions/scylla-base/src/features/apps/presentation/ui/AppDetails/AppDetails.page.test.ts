@@ -188,6 +188,22 @@ describe('AppDetails', () => {
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/acme/apps', undefined));
   });
 
+  it('asks nothing more about the app after its delete: the server would refuse', async () => {
+    setUp();
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Delete app' }));
+    const dialog = await screen.findByRole('dialog');
+    await focusSettled();
+    await user.type(within(dialog).getByLabelText('Type release-bot to confirm'), 'release-bot');
+    await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/acme/apps', undefined));
+
+    expect(apps.getApp).toHaveBeenCalledTimes(1);
+    expect(apps.listTokens).toHaveBeenCalledTimes(1);
+    expect(apps.listCiIdentities).toHaveBeenCalledTimes(1);
+  });
+
   it('hides the actions that the user may not use', async () => {
     setUp([Permission.READ_APP]);
 

@@ -145,6 +145,16 @@ export const appStatsQueries = { of: statsQuery };
 
 const invalidateApps = () => getQueryClient().invalidateQueries({ queryKey: APPS_QUERY_ROOT });
 
+/**
+ * The key of a query on one app ends with its id. A page stays open during the invalidation, and
+ * the server refuses each read on a deleted app.
+ */
+const removeQueriesOfApp = (appId: string) =>
+  getQueryClient().removeQueries({
+    queryKey: APPS_QUERY_ROOT,
+    predicate: query => query.queryKey.at(-1) === appId,
+  });
+
 export const appMutations = {
   /** Gives the first join code: the dialog shows it once. */
   create: (workspaceId: string) =>
@@ -160,7 +170,7 @@ export const appMutations = {
       mutationFn: (appId: string) => repository().deleteApp(appId),
       onSuccess: (_result, appId) => {
         toast.success(i18n._(appsMessages.deleted));
-        getQueryClient().removeQueries({ queryKey: APP_QUERY_KEY(appId), exact: true });
+        removeQueriesOfApp(appId);
         return invalidateApps();
       },
     }),

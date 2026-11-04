@@ -270,6 +270,25 @@ describe('AgentDetails', () => {
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/acme/agents', undefined));
   });
 
+  it('asks nothing more about the agent after its delete: the server would refuse', async () => {
+    setUp();
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Delete agent' }));
+    const dialog = await screen.findByRole('dialog');
+    await focusSettled();
+    await user.type(
+      within(dialog).getByLabelText('Type build-linux-01 to confirm'),
+      'build-linux-01',
+    );
+    await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/acme/agents', undefined));
+
+    expect(apps.getApp).toHaveBeenCalledTimes(1);
+    expect(apps.getAgentStats).toHaveBeenCalledTimes(1);
+    expect(apps.listJobs).toHaveBeenCalledTimes(1);
+  });
+
   it('hides the actions that the user may not use', async () => {
     setUp(agent(), [Permission.READ_APP]);
 

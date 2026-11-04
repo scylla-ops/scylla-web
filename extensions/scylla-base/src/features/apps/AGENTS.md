@@ -60,7 +60,9 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
 ## Repository (`appsRepository`)
 
 - Apps: `listApps`, `getApp`, `createApp` (an agent gets `runner` on the workspace, or on each of
-  `projectIds`), `deleteApp`, `disableApp`, `enableApp`.
+  `projectIds`), `deleteApp`, `disableApp`, `enableApp`. The key of a query on one app must end
+  with its id: `appMutations.remove` removes these queries, because the server refuses each read
+  on a deleted app and the refusal shows a toast.
 - Keys and join codes: `createJoinCode`, `revokeKey`, `renameKey` (the agent names its key after
   its machine at the join).
 - Agents: `listJobs`, `getAgentStats`, `listAgentStats` (the server counts 30 days in UTC:
