@@ -28,6 +28,15 @@ export interface NavLink {
   title: MessageDescriptor;
   icon?: LucideIcon;
   order?: number;
+  /** The links of one group fold under one item of their section, at the place of the first. */
+  group?: NavGroup;
+}
+
+/** A folding item of a nav section. The links that name the same `id` go under it. */
+export interface NavGroup {
+  id: string;
+  title: MessageDescriptor;
+  icon?: LucideIcon;
 }
 
 /** A route with only `path` and `children` groups them; a child without `path` is its parent's page. */

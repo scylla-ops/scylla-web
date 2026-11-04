@@ -95,4 +95,23 @@ describe('navSectionsFor', () => {
     const sections = sectionsFor([entry()], [LIST_SECRETS], { hrefOf: () => null });
     expect(titles(sections)).toEqual([]);
   });
+
+  it('folds the links of one group under one item, at the place of its first link', () => {
+    const group = { id: 'machines', title: msg`Machines` };
+    const entries = [
+      entry({ permission: undefined, title: msg`Dashboard`, url: 'dashboard' }),
+      entry({ permission: undefined, title: msg`Agents`, url: 'agents', group }),
+      entry({ permission: undefined, title: msg`Secrets`, url: 'secrets' }),
+      entry({ permission: undefined, title: msg`Apps`, url: 'apps', group }),
+    ];
+
+    const [section] = sectionsFor(entries, []);
+
+    expect(section?.items.map(node => node.title)).toEqual(['Dashboard', 'Machines', 'Secrets']);
+    const machines = section?.items[1];
+    expect(machines && 'items' in machines ? machines.items.map(item => item.title) : []).toEqual([
+      'Agents',
+      'Apps',
+    ]);
+  });
 });

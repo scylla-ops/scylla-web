@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { navigateTo, routePathname, type ShellContributions } from '@scylla/core-sdk';
   import {
     SidebarGroup,
@@ -9,7 +10,13 @@
     SIDEBAR_FADE,
   } from '@scylla/ui/primitives';
   import { NAV_SECTION_CARD_CLASS, NAV_SECTION_DIVIDER_CLASS } from './nav-classes.ts';
-  import type { NavItem, NavSection } from '../structs/nav-section.struct.ts';
+  import {
+    isNavGroup,
+    type NavGroupItem,
+    type NavItem,
+    type NavNode,
+    type NavSection,
+  } from '../structs/nav-section.struct.ts';
 
   interface Props {
     sections: NavSection[];
@@ -21,11 +28,40 @@
   const pathname = $derived(routePathname());
   const badges = $derived(contributions.flatMap(shell => shell.navBadge ?? []));
 
+  /** The groups that the user opened or closed. A group with no choice is open on its pages. */
+  let chosen = $state<Record<string, boolean>>({});
+
+  const isActive = (item: NavItem) => pathname.startsWith(item.href);
+  const isOpen = (group: NavGroupItem) => chosen[group.id] ?? group.items.some(isActive);
+  const toggle = (group: NavGroupItem) => {
+    chosen[group.id] = !isOpen(group);
+  };
+
   const open = (item: NavItem) => {
     contributions.forEach(shell => shell.onNavOpen?.(item.url));
     navigateTo(item.href);
   };
+
+  const keyOf = (node: NavNode) => (isNavGroup(node) ? `group:${node.id}` : node.href);
 </script>
+
+{#snippet link(item: NavItem, size: 'default' | 'sm')}
+  <SidebarMenuButton
+    tooltip={item.title}
+    isActive={isActive(item)}
+    onclick={() => open(item)}
+    data-nav-url={item.url}
+    {size}
+  >
+    {#if item.icon}
+      <item.icon />
+    {/if}
+    <span class={SIDEBAR_FADE}>{item.title}</span>
+    {#each badges as Badge, index (index)}
+      <Badge url={item.url} />
+    {/each}
+  </SidebarMenuButton>
+{/snippet}
 
 {#each sections as section (section.id)}
   <SidebarGroup class={NAV_SECTION_CARD_CLASS}>
@@ -39,24 +75,41 @@
       </SidebarGroupLabel>
     {/if}
     <SidebarMenu>
-      {#each section.items as item (item.href)}
+      {#each section.items as node (keyOf(node))}
         <SidebarMenuItem
           class="transition-transform duration-200 hover:scale-105 group-data-[collapsible=icon]:hover:scale-100"
         >
-          <SidebarMenuButton
-            tooltip={item.title}
-            isActive={pathname.startsWith(item.href)}
-            onclick={() => open(item)}
-            data-nav-url={item.url}
-          >
-            {#if item.icon}
-              <item.icon />
+          {#if isNavGroup(node)}
+            {@const expanded = isOpen(node)}
+            <SidebarMenuButton
+              tooltip={node.title}
+              isActive={!expanded && node.items.some(isActive)}
+              aria-expanded={expanded}
+              onclick={() => toggle(node)}
+              data-nav-group={node.id}
+            >
+              {#if node.icon}
+                <node.icon />
+              {/if}
+              <span class={SIDEBAR_FADE}>{node.title}</span>
+              <ChevronRightIcon
+                class="ml-auto transition-transform duration-200 group-data-[collapsible=icon]:hidden {expanded
+                  ? 'rotate-90'
+                  : ''}"
+              />
+            </SidebarMenuButton>
+            {#if expanded}
+              <ul
+                class="border-sidebar-border mt-1 ml-4 flex flex-col gap-1 border-l pl-2 group-data-[collapsible=icon]:hidden"
+              >
+                {#each node.items as item (item.href)}
+                  <li>{@render link(item, 'sm')}</li>
+                {/each}
+              </ul>
             {/if}
-            <span class={SIDEBAR_FADE}>{item.title}</span>
-            {#each badges as Badge, index (index)}
-              <Badge url={item.url} />
-            {/each}
-          </SidebarMenuButton>
+          {:else}
+            {@render link(node, 'default')}
+          {/if}
         </SidebarMenuItem>
       {/each}
     </SidebarMenu>

@@ -1,7 +1,8 @@
 # `features/apps` — agent guide
 
 The apps of a workspace (`scylla.apps.v1.AppService`). An agent is an app that runs jobs
-(`runner`); a CI or a script is an app that does not. One page shows them, with a filter.
+(`runner`); a CI or a script is an app that does not. Two pages list them: `agents` and `apps`,
+under the folding item "Machines" of the sidebar (a `NavGroup`).
 
 **Layer** `features/` · **id** `apps` · **DI keys** `appsRepository`
 

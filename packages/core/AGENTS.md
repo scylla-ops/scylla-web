@@ -44,7 +44,7 @@ src/
   shell/
     ShellFrame/                                sidebar + top bar around the pages of a `shell` mount
     AppSidebar/                                the sidebar, built from the nav entries
-                                               (NavMain, nav-sections.ts, nav-classes.ts)
+                                               (NavMain, nav-sections.ts, nav-classes.ts; a NavGroup folds its links)
     TopBar/                                    SidebarTrigger + the crumbs of the route trail
                                                (ShellBreadcrumbs, breadcrumbs.ts)
     LanguageSelector/

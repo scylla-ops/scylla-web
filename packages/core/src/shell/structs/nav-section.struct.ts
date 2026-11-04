@@ -10,10 +10,22 @@ export interface NavItem {
   icon?: LucideIcon;
 }
 
+/** A folding item with the links of one `NavGroup`, e.g. the agents and the apps. */
+export interface NavGroupItem {
+  id: string;
+  title: string;
+  icon?: LucideIcon;
+  items: NavItem[];
+}
+
+export type NavNode = NavItem | NavGroupItem;
+
+export const isNavGroup = (node: NavNode): node is NavGroupItem => 'items' in node;
+
 export interface NavSection {
   id: string;
   title: string;
-  items: NavItem[];
+  items: NavNode[];
   /** Replaces the section label, e.g. a context selector. */
   header?: Component;
 }

@@ -1,6 +1,8 @@
-import type { ScyllaModule } from '@scylla/core-sdk';
+import type { NavGroup, ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
+import CpuIcon from '@lucide/svelte/icons/cpu';
 import HardDriveIcon from '@lucide/svelte/icons/hard-drive';
+import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
 import { AppServiceClient } from '@base/generated/scylla/apps/v1/app_service.client.ts';
@@ -17,7 +19,18 @@ const appsRepository = new DefaultAppsRepository(
   new AgentServiceClient(transport),
 );
 
-/** One page for the apps of a workspace; the agents are the apps that run jobs. */
+/** The agents and the other apps fold under one item of the sidebar. */
+const MACHINES: NavGroup = { id: 'machines', title: msg`Machines`, icon: HardDriveIcon };
+
+/** The page of an app, under its list. */
+const details = {
+  path: ':appId',
+  permission: Permission.READ_APP,
+  breadcrumb: () => ({ label: msg`App`, detail: msg`Detail` }),
+  page: () => import('./presentation/ui/AppDetails/AppDetails.page.svelte'),
+};
+
+/** Two lists of the apps of a workspace: the agents, which run jobs, and the other apps. */
 export const AppsModule = {
   id: 'apps',
   domain: {
@@ -26,27 +39,21 @@ export const AppsModule = {
   routes: {
     workspace: [
       {
+        path: 'agents',
+        permission: Permission.LIST_APPS_BY_WORKSPACE,
+        breadcrumb: () => ({ label: msg`Agents` }),
+        page: () => import('./presentation/ui/Agents/Agents.page.svelte'),
+        nav: { section: 'workspace', title: msg`Agents`, icon: CpuIcon, order: 40, group: MACHINES },
+        children: [details],
+      },
+      {
         path: 'apps',
         permission: Permission.LIST_APPS_BY_WORKSPACE,
         breadcrumb: () => ({ label: msg`Apps` }),
         page: () => import('./presentation/ui/Apps/Apps.page.svelte'),
-        nav: {
-          section: 'workspace',
-          title: msg`Apps and agents`,
-          icon: HardDriveIcon,
-          order: 40,
-        },
-        children: [
-          {
-            path: ':appId',
-            permission: Permission.READ_APP,
-            breadcrumb: () => ({ label: msg`App`, detail: msg`Detail` }),
-            page: () => import('./presentation/ui/AppDetails/AppDetails.page.svelte'),
-          },
-        ],
+        nav: { section: 'workspace', title: msg`Apps`, icon: KeyRoundIcon, order: 41, group: MACHINES },
+        children: [details],
       },
-      // The old address of the agents: the agents are a view of the apps now.
-      { path: 'agents', redirect: 'apps' },
     ],
   },
 } satisfies ScyllaModule;

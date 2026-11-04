@@ -18,7 +18,7 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 | Group | Exports |
 |---|---|
 | Extension | `Extension` (the class decorator), `extensionOf`, `ExtensionManifest`, `ExtensionClass`, `installedExtensions`, `setInstalledExtensions` |
-| Module | `ScyllaModule`, `ModuleRoute`, `ModuleRoutes`, `NavLink`, `PageLoader`, `PageComponent`, `RouteMount`, `RouteParams`, `RouteSource` |
+| Module | `ScyllaModule`, `ModuleRoute`, `ModuleRoutes`, `NavLink`, `NavGroup`, `PageLoader`, `PageComponent`, `RouteMount`, `RouteParams`, `RouteSource` |
 | Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `QueryErrorHandler`, `QueryRetryPolicy`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
 | Crumbs | `BreadcrumbFn`, `BreadcrumbParams`, `Crumb`, `TrailCrumb` |
 | Permission type | `Register` (augmented by one extension), `RoutePermission` |
@@ -37,7 +37,7 @@ src/
               installed-extensions.ts  the manifests the core loaded, for a page that lists them
               contributions.struct.ts  AccessPolicy, NavSectionDefinition, ShellContributions, QueryErrorHandler, QueryRetryPolicy
               register.struct.ts       Register, RoutePermission
-  routing/    scylla-module.struct.ts  ScyllaModule, ModuleRoute, NavLink
+  routing/    scylla-module.struct.ts  ScyllaModule, ModuleRoute, NavLink, NavGroup (links of one group fold under one item)
               mount.struct.ts, route.struct.ts, crumb.struct.ts, Redirect.svelte
   navigation/ navigator.ts             the AppNavigator the core installs, and its readers
   di/         dependencies.registry.ts

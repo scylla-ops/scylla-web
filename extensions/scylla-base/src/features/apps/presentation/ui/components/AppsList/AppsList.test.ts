@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
-import AppsPage from './Apps.page.svelte';
+import AppsList from './AppsList.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
@@ -23,7 +23,7 @@ const app = (id: string, overrides: Record<string, unknown> = {}) => ({
 let teardown: Array<() => void> = [];
 let repository: Record<string, ReturnType<typeof vi.fn>>;
 
-const setUp = (permissions: Permission[]) => {
+const setUp = (permissions: Permission[], kind: 'agents' | 'others' = 'agents') => {
   permissionsStore.setState({
     permissions: {
       scopes: [
@@ -49,7 +49,7 @@ const setUp = (permissions: Permission[]) => {
   };
   const cache = withQueryClient();
   teardown = [cache.restore, withRegistry({ apps: { appsRepository: repository } })];
-  render(AppsPage);
+  render(AppsList, { kind });
 };
 
 beforeEach(() => vi.clearAllMocks());
@@ -58,8 +58,8 @@ afterEach(() => {
   permissionsStore.setState({ permissions: null });
 });
 
-describe('AppsPage', () => {
-  it('lists the agents first, with their state', async () => {
+describe('AppsList', () => {
+  it('lists the agents, with their state', async () => {
     setUp([Permission.LIST_APPS_BY_WORKSPACE]);
 
     expect(await screen.findByText('app a1')).toBeInTheDocument();
@@ -67,11 +67,8 @@ describe('AppsPage', () => {
     expect(repository.listApps).toHaveBeenCalledWith('ws-1', true);
   });
 
-  it('shows the other apps on their filter', async () => {
-    setUp([Permission.LIST_APPS_BY_WORKSPACE]);
-    const user = userEvent.setup();
-
-    await user.click(screen.getByRole('button', { name: 'Other apps' }));
+  it('lists the other apps on their page', async () => {
+    setUp([Permission.LIST_APPS_BY_WORKSPACE], 'others');
 
     expect(await screen.findByText('app ci')).toBeInTheDocument();
     expect(repository.listApps).toHaveBeenCalledWith('ws-1', false);

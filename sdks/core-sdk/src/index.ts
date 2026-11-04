@@ -22,6 +22,7 @@ export type {
   ModuleRoute,
   ModuleRoutes,
   NavLink,
+  NavGroup,
   PageComponent,
   PageLoader,
   RouteMount,
