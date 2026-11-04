@@ -11,14 +11,14 @@ const assignable = (overrides: Partial<AssignableRole> = {}): AssignableRole => 
   roleId: 'project-viewer',
   name: 'Project viewer',
   description: 'Read-only access',
-  ownedByOrganization: false,
+  ownedByWorkspace: false,
   ...overrides,
 });
 
 const props = (overrides: Record<string, unknown> = {}) => ({
   label: 'Roles',
   roles: [assignable()],
-  organizationName: 'Acme',
+  workspaceName: 'Acme',
   selected: new Set<string>(),
   onToggle: vi.fn(),
   ...overrides,
@@ -99,13 +99,13 @@ describe('RoleChecklist', () => {
     expect(screen.getByRole('checkbox')).toBeDisabled();
   });
 
-  it("groups the organization's own roles first, under their names", () => {
+  it("groups the workspace's own roles first, under their names", () => {
     render(
       RoleChecklist,
       props({
         roles: [
-          assignable({ roleId: 'organization-viewer', name: 'Workspace viewer' }),
-          assignable({ roleId: 'auditor', name: 'Auditor', ownedByOrganization: true }),
+          assignable({ roleId: 'workspace-viewer', name: 'Workspace viewer' }),
+          assignable({ roleId: 'auditor', name: 'Auditor', ownedByWorkspace: true }),
         ],
       }),
     );

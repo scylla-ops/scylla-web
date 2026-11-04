@@ -12,22 +12,22 @@ export type PipelineWithProject = PipelineMetadata & { projectName: string };
 export type ProjectAccess = (projectId: string) => boolean;
 
 /**
- * Projects, pipelines and recent runs of the organization, each from the module
+ * Projects, pipelines and recent runs of the workspace, each from the module
  * that owns it. Scoped by the backend: no permission gate on the data.
  */
-export const createOrgOverview = () => {
+export const createWorkspaceOverview = () => {
   const context = toRune(contextStore);
-  const organizationId = $derived(context().organization.id);
+  const workspaceId = $derived(context().workspace.id);
 
-  const projectsQuery = createQuery(() => projectQueries.lookup(organizationId));
-  const pipelinesQuery = createQuery(() => pipelineQueries.byOrganization(organizationId));
-  const jobsQuery = createQuery(() => jobQueries.byOrganization(organizationId));
+  const projectsQuery = createQuery(() => projectQueries.lookup(workspaceId));
+  const pipelinesQuery = createQuery(() => pipelineQueries.byWorkspace(workspaceId));
+  const jobsQuery = createQuery(() => jobQueries.byWorkspace(workspaceId));
 
   const projects = $derived(projectsQuery.data?.items ?? []);
   const pipelineFeed = $derived(asPipelineFeed(pipelinesQuery.data));
   const jobFeed = $derived(asJobFeed(jobsQuery.data));
 
-  // The organization listing carries `projectId` but not the project's name, so
+  // The workspace listing carries `projectId` but not the project's name, so
   // the label is joined here rather than asked of the server again.
   // Rebuilt whole by the `$derived` and never mutated after it is read, so a
   // reactive collection would only make a throwaway object track dependencies.
@@ -42,8 +42,8 @@ export const createOrgOverview = () => {
   );
 
   return {
-    get organizationId() {
-      return organizationId;
+    get workspaceId() {
+      return workspaceId;
     },
     get projects() {
       return projects;
@@ -86,4 +86,4 @@ export const createOrgOverview = () => {
   };
 };
 
-export type OrgOverview = ReturnType<typeof createOrgOverview>;
+export type WorkspaceOverview = ReturnType<typeof createWorkspaceOverview>;

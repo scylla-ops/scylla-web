@@ -9,15 +9,15 @@
   import { projectMessages } from '../messages/project.messages.ts';
 
   interface Props {
-    organizationId: string;
+    workspaceId: string;
   }
 
-  let { organizationId }: Props = $props();
+  let { workspaceId }: Props = $props();
 
   const pagination = createPagination();
 
   const projectsQuery = createQuery(() =>
-    projectQueries.byOrganization(organizationId, pagination.paginationParams),
+    projectQueries.byWorkspace(workspaceId, pagination.paginationParams),
   );
 
   const projects = $derived(projectsQuery.data?.items);

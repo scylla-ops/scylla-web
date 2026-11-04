@@ -80,7 +80,7 @@ presentation/
 |---|---|---|---|
 | `project` | `secrets` | `LIST_SECRETS` | `SecretPage` |
 
-**No nav entry** — reached from inside a project, not the organization sidebar.
+**No nav entry** — reached from inside a project, not the workspace sidebar.
 
 ## Rules that bite here
 

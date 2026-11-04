@@ -3,32 +3,32 @@
 > [Scylla frontend](../../../../../README.md) › `features/` › **membership** ·
 > [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
 
-Who belongs to an organization or a project, with which roles, and how to change that. Two
+Who belongs to an workspace or a project, with which roles, and how to change that. Two
 pages — `/:org/members` and `/:org/projects/:projectId/members` — showing the same idea about
 two different subjects.
 
 ## Why membership is its own module
 
-It could have been a corner of [organization](../organization/README.md) and a corner of
+It could have been a corner of [workspace](../workspace/README.md) and a corner of
 [project](../project/README.md). It isn't, for two reasons.
 
 First, both scopes answer the *same question* with the same components: a list of principals,
 their roles, an add dialog, a revoke action. Splitting it in two would have meant maintaining
 that twice and letting the copies drift.
 
-Second, membership is not a thing either module stores. Neither organizations nor projects have
+Second, membership is not a thing either module stores. Neither workspaces nor projects have
 a member list in the backend — **membership is a derived view of grants**. Putting the derivation
-inside `organization` would have made that module depend on `roles`, and `project` too, for a
+inside `workspace` would have made that module depend on `roles`, and `project` too, for a
 concern belonging to neither.
 
 So `membership` sits above both and composes four modules through their public APIs — `roles`,
-`organization`, `project`, `user` — while nothing except the router depends on it. It owns no
+`workspace`, `project`, `user` — while nothing except the router depends on it. It owns no
 repository at all: its `domain` is `{}` and there is no `infrastructure/` folder.
 
 ## Members are computed from grants
 
 The core of the module is `presenters/scope-members.presenter.ts`, and it is pure logic:
-`buildOrganizationMembers` and `buildProjectMembers` take grants and user identities and fold
+`buildWorkspaceMembers` and `buildProjectMembers` take grants and user identities and fold
 them into `ScopeMember[]` — one entry per principal, each carrying the roles that principal
 holds.
 
@@ -40,12 +40,12 @@ Because it lives in `domain/` as plain functions, the same rules apply on both p
 The distinction that matters most is `MemberRoleOrigin`:
 
 - **`DIRECT`** — the role was granted at this exact scope.
-- **`INHERITED`** — the role was granted at the organization and therefore applies inside the
+- **`INHERITED`** — the role was granted at the workspace and therefore applies inside the
   project too.
 
 A project page shows both, because a user with an org-level role really can act on the project.
 But only direct roles can be revoked from there; removing an inherited one means going up to the
-organization. The UI reflects this — `MemberRoleBadges` distinguishes the two, and
+workspace. The UI reflects this — `MemberRoleBadges` distinguishes the two, and
 `MemberRowAction` only offers revocation where it would work. Flattening the distinction would
 produce a revoke button that silently does nothing.
 
@@ -53,15 +53,15 @@ produce a revoke button that silently does nothing.
 
 `createAssignableRoles` answers a narrower question than "which roles exist": which roles is the
 *current user* permitted to hand out, at this scope. The grantable list from the backend is the
-answer: the platform roles, and the roles of the organization when the user may read it. The
-role catalog the user may read (all of it with `MANAGE_ROLES`, the organization's with
-`MANAGE_ORG_ROLES`) only adds the full role, for its permissions. The add-member dialog is built from that,
+answer: the platform roles, and the roles of the workspace when the user may read it. The
+role catalog the user may read (all of it with `MANAGE_ROLES`, the workspace's with
+`MANAGE_WORKSPACE_ROLES`) only adds the full role, for its permissions. The add-member dialog is built from that,
 so a user is never offered a role the server would refuse.
 
 ## Other ways to add a member
 
 The "Add a member" dialog picks a person in the user directory. Only a system admin can read
-the directory (`LIST_USERS`), so for an organization admin the button is denied, with the
+the directory (`LIST_USERS`), so for an workspace admin the button is denied, with the
 reason. Another extension can add its own way, for example an invitation by email, through the
 widget points of the two pages: a zone for the header actions, a zone under the members list,
 and a value that hides the directory button without `LIST_USERS` and makes it a secondary
@@ -93,6 +93,6 @@ the first render and capturing either once would freeze the view empty.
 ## Related modules
 
 - [roles](../roles/README.md) — grants and the role catalog.
-- [organization](../organization/README.md) and [project](../project/README.md) — the two scopes.
+- [workspace](../workspace/README.md) and [project](../project/README.md) — the two scopes.
 - [user](../user/README.md) — the human principals behind the members.
 - [platform/authz](../../platform/authz/README.md) — `PrincipalKind`, `PermissionScope`, gating.

@@ -11,9 +11,9 @@ interface WorkspaceItem extends ContextItem {
 }
 
 interface ContextState {
-  organization: WorkspaceItem;
+  workspace: WorkspaceItem;
   /** An absent slug: the slug made from the name, for a context saved before the slugs. */
-  setOrganization: (id: string | null, name: string | null, slug?: string | null) => void;
+  setWorkspace: (id: string | null, name: string | null, slug?: string | null) => void;
 
   project: ContextItem;
   setProject: (id: string | null, name: string | null) => void;
@@ -25,7 +25,7 @@ interface ContextState {
 }
 
 const initialState = {
-  organization: { id: null, name: null, slug: null } as WorkspaceItem,
+  workspace: { id: null, name: null, slug: null } as WorkspaceItem,
   project: { id: null, name: null } as ContextItem,
   pipeline: { id: null, name: null } as ContextItem,
 };
@@ -34,9 +34,9 @@ const initialState = {
 export const contextStore = createStore<ContextState>(
   set => ({
     ...initialState,
-    setOrganization: (id, name, slug = null) =>
+    setWorkspace: (id, name, slug = null) =>
       set({
-        organization: { id, name, slug },
+        workspace: { id, name, slug },
         project: { id: null, name: null },
         pipeline: { id: null, name: null },
       }),
@@ -44,5 +44,6 @@ export const contextStore = createStore<ContextState>(
     setPipeline: (id, name) => set({ pipeline: { id, name } }),
     reset: () => set(initialState),
   }),
-  { persistAs: 'scylla-context' },
+  // A new key: the context saved before the workspaces had an `organization`, not a `workspace`.
+  { persistAs: 'scylla-workspace-context' },
 );

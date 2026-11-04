@@ -9,7 +9,7 @@ export const onboardingMessages = {
   stepCount: (step: number, total: number) => msg`${step}/${total}`,
 
   dashboardTitle: msg`The dashboard`,
-  dashboardBody: msg`This is your organization's dashboard. It brings together all the information about your projects, pipelines, and agents at a glance!`,
+  dashboardBody: msg`This is your workspace's dashboard. It brings together all the information about your projects, pipelines, and agents at a glance!`,
   navbarTitle: msg`The navbar`,
   navbarBody: msg`This is Scylla's navigation bar; you'll use it to navigate the tool. We're now going to create a new agent that will run your future pipelines.`,
   openAgentsTitle: msg`Open the Apps and agents tab`,

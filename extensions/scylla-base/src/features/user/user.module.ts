@@ -21,7 +21,7 @@ export const UserModule = {
     userRepository: repository,
   },
   routes: {
-    organization: [
+    workspace: [
       {
         path: 'users',
         permission: Permission.LIST_USERS,
@@ -41,7 +41,7 @@ export const UserModule = {
         ],
       },
       {
-        // The account of the session, in the frame of the organization: its calls need no grant.
+        // The account of the session, in the frame of the workspace: its calls need no grant.
         path: 'account',
         breadcrumb: () => ({ label: msg`Account` }),
         children: [
@@ -56,7 +56,7 @@ export const UserModule = {
         ],
       },
     ],
-    // The same page with no organization: for a user who has none yet.
+    // The same page with no workspace: for a user who has none yet.
     personal: [
       {
         // The path of the link in the mail of the server: keep it.

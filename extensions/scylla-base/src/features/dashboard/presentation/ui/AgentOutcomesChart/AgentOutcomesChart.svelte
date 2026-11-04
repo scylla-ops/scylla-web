@@ -41,9 +41,9 @@
   ];
 
   const context = toRune(contextStore);
-  const organizationId = $derived(context().organization.id ?? '');
+  const workspaceId = $derived(context().workspace.id ?? '');
 
-  const agentsQuery = createQuery(() => appQueries.runners(organizationId));
+  const agentsQuery = createQuery(() => appQueries.runners(workspaceId));
   const agents = $derived(agentsQuery.data ?? []);
 
   let selectedAgentId = $state<string | null>(null);
@@ -53,7 +53,7 @@
   let status = $state<StatusFilter>('all');
   let hover = $state<number | null>(null);
 
-  const statsQuery = createQuery(() => appStatsQueries.of(organizationId, agentId ?? ''));
+  const statsQuery = createQuery(() => appStatsQueries.of(workspaceId, agentId ?? ''));
 
   const buckets = $derived(fillBuckets(statsQuery.data?.daily ?? [], RANGE_DAYS[range]));
   const shownSeries = $derived(

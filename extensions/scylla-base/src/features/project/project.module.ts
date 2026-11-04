@@ -19,14 +19,14 @@ export const ProjectModule = {
     projectRepository: projectRepository,
   },
   routes: {
-    organization: [
+    workspace: [
       {
         path: 'projects',
-        // Reading the organization is the real gate.
-        permission: Permission.READ_ORGANIZATION,
+        // Reading the workspace is the real gate.
+        permission: Permission.READ_WORKSPACE,
         breadcrumb: () => ({ label: msg`Projects` }),
         page: () => import('./presentation/ui/Project.page.svelte'),
-        nav: { section: 'organization', title: msg`Projects`, icon: WorkflowIcon, order: 20 },
+        nav: { section: 'workspace', title: msg`Projects`, icon: WorkflowIcon, order: 20 },
       },
     ],
   },

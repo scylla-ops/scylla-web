@@ -48,7 +48,7 @@ root.
   | `test/` | tests only |
   | `chore/` | tooling, dependencies, CI |
 
-  Example: `fix/organization-selector-width`.
+  Example: `fix/workspace-selector-width`.
 
 - Open the pull request against the version branch, not against `main`.
 

@@ -32,7 +32,7 @@ const openAt = (
     navigator.restore,
     withRegistry({
       invitation: { invitationRepository: { accept } },
-      organization: { organizationRepository: { getMine } },
+      workspace: { workspaceRepository: { getMine } },
     }),
   ];
   render(AcceptInvitationPage);
@@ -51,7 +51,7 @@ describe('AcceptInvitationPage', () => {
     await waitFor(() =>
       expect(navigator.navigate).toHaveBeenCalledWith('/globex/projects', { replace: true }),
     );
-    expect(contextStore.getState().organization).toEqual({
+    expect(contextStore.getState().workspace).toEqual({
       id: 'ws-2',
       name: 'Globex',
       slug: 'globex',

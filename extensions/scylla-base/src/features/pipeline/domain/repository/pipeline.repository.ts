@@ -7,9 +7,9 @@ export interface PipelineRepository {
     projectId: string,
     pagination?: PaginationParams,
   ): Promise<PaginatedList<PipelineMetadata>>;
-  /** One call for the whole organization, instead of one per project. */
-  getMetadataByOrganizationId(
-    organizationId: string,
+  /** One call for the whole workspace, instead of one per project. */
+  getMetadataByWorkspaceId(
+    workspaceId: string,
     pagination?: PaginationParams,
   ): Promise<PaginatedList<PipelineMetadata>>;
   deleteById(id: string): Promise<void>;

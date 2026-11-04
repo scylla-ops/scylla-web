@@ -14,13 +14,13 @@
   import { appsMessages } from '@base/features/apps/presentation/messages/apps.messages.ts';
 
   const context = toRune(contextStore);
-  const workspaceId = $derived(context().organization.id ?? '');
+  const workspaceId = $derived(context().workspace.id ?? '');
 
   let filter = $state<AppFilter>('agents');
   let createOpen = $state(false);
 
   const apps = createQuery(() => appQueries.list(workspaceId, filter));
-  const canCreate = $derived(can(Permission.CREATE_APP, { organizationId: workspaceId }));
+  const canCreate = $derived(can(Permission.CREATE_APP, { workspaceId: workspaceId }));
 
   const FILTERS = [
     ['agents', appsMessages.filterAgents],
@@ -82,7 +82,7 @@
             <button
               type="button"
               class="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-accent/50"
-              onclick={() => scyllaNavigate.goToOrgRoute(`/apps/${app.id}`)}
+              onclick={() => scyllaNavigate.goToWorkspaceRoute(`/apps/${app.id}`)}
             >
               <AppStateDot {state} />
               <span class="min-w-0 flex-1">

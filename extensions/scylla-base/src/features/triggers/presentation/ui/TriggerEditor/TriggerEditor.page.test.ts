@@ -42,7 +42,7 @@ beforeEach(() => {
   });
   navigator = installTestNavigator({ pathname: `${LIST_PATH}/new` });
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme', slug: null },
+    workspace: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: 'project-1', name: 'Web' },
     pipeline: { id: 'pipeline-1', name: 'build' },
   });

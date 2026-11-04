@@ -10,7 +10,7 @@ const routeAt = (path: string) => routes.find(route => `/${route.path.join('/')}
 
 describe('the routes of the accounts', () => {
   it('sends the old address of the own settings to the account page', () => {
-    const redirect = routeAt('/:organizationSlug/users/me')?.redirect;
+    const redirect = routeAt('/:workspaceSlug/users/me')?.redirect;
 
     expect(redirect).toBeDefined();
     // A relative target starts from the URL of the route.
@@ -18,15 +18,15 @@ describe('the routes of the accounts', () => {
   });
 
   it('leaves READ_USER to the page of a user, so the own id reaches its redirect', () => {
-    expect(routeAt('/:organizationSlug/users/:userId')?.permission).toBeUndefined();
+    expect(routeAt('/:workspaceSlug/users/:userId')?.permission).toBeUndefined();
   });
 
   it('guards the directory with LIST_USERS', () => {
-    expect(routeAt('/:organizationSlug/users')?.permission).toBe(Permission.LIST_USERS);
+    expect(routeAt('/:workspaceSlug/users')?.permission).toBe(Permission.LIST_USERS);
   });
 
   it('opens the account page inside the shell of a workspace', () => {
-    expect(routeAt('/:organizationSlug/account')?.shell).toBe(true);
+    expect(routeAt('/:workspaceSlug/account')?.shell).toBe(true);
   });
 
   it('opens the account page also without a workspace: no shell, but a signed-in layout', () => {

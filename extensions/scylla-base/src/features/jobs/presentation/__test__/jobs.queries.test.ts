@@ -41,7 +41,7 @@ let invalidate: ReturnType<typeof vi.fn>;
 beforeEach(() => {
   repository = {
     getByPipelineId: vi.fn().mockResolvedValue(page([job()])),
-    getByOrganizationId: vi.fn().mockResolvedValue(page([job()])),
+    getByWorkspaceId: vi.fn().mockResolvedValue(page([job()])),
     getById: vi.fn().mockResolvedValue(job()),
     deleteById: vi.fn().mockResolvedValue(undefined),
     rerun: vi.fn().mockResolvedValue('job-2'),
@@ -126,21 +126,21 @@ describe('jobQueries.byPipeline', () => {
   });
 });
 
-describe('jobQueries.byOrganization', () => {
+describe('jobQueries.byWorkspace', () => {
   it('reads one fixed window of recent runs', async () => {
-    await runQueryFn(jobQueries.byOrganization('org-1'));
-    expect(repository.getByOrganizationId).toHaveBeenCalledWith('org-1', {
+    await runQueryFn(jobQueries.byWorkspace('org-1'));
+    expect(repository.getByWorkspaceId).toHaveBeenCalledWith('org-1', {
       page: 1,
       pageSize: 100,
     });
   });
 
-  it('stays idle for a null organizationId', () => {
-    expect(jobQueries.byOrganization(null).enabled).toBe(false);
+  it('stays idle for a null workspaceId', () => {
+    expect(jobQueries.byWorkspace(null).enabled).toBe(false);
   });
 
-  it('stays idle when the caller disables it, valid organization or not', () => {
-    expect(jobQueries.byOrganization('org-1', false).enabled).toBe(false);
+  it('stays idle when the caller disables it, valid workspace or not', () => {
+    expect(jobQueries.byWorkspace('org-1', false).enabled).toBe(false);
   });
 });
 

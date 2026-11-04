@@ -8,10 +8,10 @@ export const ToastMessages = {
   USER_UPDATE: msg`User information updated`,
   USER_DELETE_OWN_ACCOUNT_ERROR: msg`You cannot delete your own account.`,
 
-  // Organizations
-  ORGANIZATION_CREATE: msg`Workspace created`,
-  ORGANIZATION_DELETE: msg`Workspace deleted`,
-  ORGANIZATION_UPDATE: msg`Workspace updated`,
+  // Workspaces
+  WORKSPACE_CREATE: msg`Workspace created`,
+  WORKSPACE_DELETE: msg`Workspace deleted`,
+  WORKSPACE_UPDATE: msg`Workspace updated`,
 
   // Projects
   PROJECT_CREATE: msg`Project created`,

@@ -31,8 +31,8 @@ const RECENT_JOBS = 100;
  */
 const canList = (workspaceId: string) =>
   authorizationReady() &&
-  (can(Permission.LIST_AGENTS, { organizationId: workspaceId }) ||
-    can(Permission.LIST_APPS_BY_ORGANIZATION, { organizationId: workspaceId }));
+  (can(Permission.LIST_AGENTS, { workspaceId: workspaceId }) ||
+    can(Permission.LIST_APPS_BY_WORKSPACE, { workspaceId: workspaceId }));
 
 export const appQueries = {
   list: (workspaceId: string, filter: AppFilter = 'all') =>
@@ -54,7 +54,7 @@ export const appQueries = {
       enabled:
         !!appId &&
         authorizationReady() &&
-        can(Permission.READ_APP, { organizationId: workspaceId }),
+        can(Permission.READ_APP, { workspaceId: workspaceId }),
       refetchInterval: 15_000,
     }),
 

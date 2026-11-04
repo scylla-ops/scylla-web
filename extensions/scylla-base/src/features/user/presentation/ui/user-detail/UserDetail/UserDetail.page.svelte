@@ -22,7 +22,7 @@
   something reads, and a field read for the first time later stays at its old value.
 -->
 {#if page.isSelf}
-  <!-- From `/<organization>/users/<id>`: an old link to the own settings. -->
+  <!-- From `/<workspace>/users/<id>`: an old link to the own settings. -->
   <Redirect to="../../account" />
 {:else if page.isLoading || page.resolvingSelf}
   <Skeleton class="m-4 h-64 rounded-xl" />

@@ -37,7 +37,7 @@ const setUp = (answer: () => Promise<unknown>) => {
 beforeEach(() => {
   vi.clearAllMocks();
   navigator = installTestNavigator();
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme', slug: null } });
+  contextStore.setState({ workspace: { id: 'org-1', name: 'Acme', slug: null } });
 });
 
 afterEach(() => {

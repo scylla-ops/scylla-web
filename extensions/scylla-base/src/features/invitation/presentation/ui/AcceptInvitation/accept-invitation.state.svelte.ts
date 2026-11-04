@@ -1,7 +1,7 @@
 import { createMutation, getModuleDomain, getQueryClient } from '@scylla/core-sdk';
-import { contextStore, navigateTo, organizationUrl } from '@platform/context';
+import { contextStore, navigateTo, workspaceUrl } from '@platform/context';
 import { hasSession, loginPath } from '@base/features/login';
-import { organizationQueries, MY_ORGANIZATIONS_QUERY_KEY } from '@base/features/organization';
+import { workspaceQueries, MY_WORKSPACES_QUERY_KEY } from '@base/features/workspace';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { InvitationModule } from '../../../invitation.module.ts';
 
@@ -74,14 +74,14 @@ export class AcceptInvitationState {
   /** Makes the new workspace the active one and opens it. */
   private async open(workspaceId: string): Promise<void> {
     const client = getQueryClient();
-    await client.invalidateQueries({ queryKey: MY_ORGANIZATIONS_QUERY_KEY() });
-    const workspaces = await client.fetchQuery(organizationQueries.mine());
+    await client.invalidateQueries({ queryKey: MY_WORKSPACES_QUERY_KEY() });
+    const workspaces = await client.fetchQuery(workspaceQueries.mine());
     const workspace = workspaces.find(item => item.id === workspaceId);
     if (!workspace) {
       navigateTo('/', { replace: true });
       return;
     }
-    contextStore.getState().setOrganization(workspace.id, workspace.name, workspace.slug);
-    navigateTo(organizationUrl(workspace.slug), { replace: true });
+    contextStore.getState().setWorkspace(workspace.id, workspace.name, workspace.slug);
+    navigateTo(workspaceUrl(workspace.slug), { replace: true });
   }
 }

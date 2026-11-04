@@ -12,12 +12,12 @@ export const MarketplaceModule = {
     marketplaceRepository: marketPlaceRepository,
   },
   routes: {
-    organization: [
+    workspace: [
       {
         path: 'marketplace',
         page: () => import('./presentation/ui/Marketplace.page.svelte'),
         nav: {
-          section: 'organization',
+          section: 'workspace',
           title: msg`Marketplace`,
           icon: ShoppingCartIcon,
           order: 50,

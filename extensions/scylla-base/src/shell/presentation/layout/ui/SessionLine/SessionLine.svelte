@@ -18,7 +18,7 @@
 
 <!--
   The session on a screen with no sidebar, as one line in the style of the links of the sign-in
-  page: who is signed in, the account page (`/account`: the user may have no organization), the
+  page: who is signed in, the account page (`/account`: the user may have no workspace), the
   sign-out.
 -->
 <p class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-sm">

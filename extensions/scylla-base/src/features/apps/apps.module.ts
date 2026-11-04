@@ -20,14 +20,14 @@ export const AppsModule = {
     appsRepository,
   },
   routes: {
-    organization: [
+    workspace: [
       {
         path: 'apps',
-        permission: Permission.LIST_APPS_BY_ORGANIZATION,
+        permission: Permission.LIST_APPS_BY_WORKSPACE,
         breadcrumb: () => ({ label: msg`Apps` }),
         page: () => import('./presentation/ui/Apps/Apps.page.svelte'),
         nav: {
-          section: 'organization',
+          section: 'workspace',
           title: msg`Apps and agents`,
           icon: HardDriveIcon,
           order: 40,

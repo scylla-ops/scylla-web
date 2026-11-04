@@ -13,11 +13,11 @@ const LIST_PIPELINES = testPermission('LIST_PIPELINES');
 const LIST_USERS = testPermission('LIST_USERS');
 
 const entry = (overrides: Partial<NavEntry> = {}): NavEntry => ({
-  section: 'organization',
+  section: 'workspace',
   title: msg`Secrets`,
-  mount: 'organization',
+  mount: 'workspace',
   url: 'secrets',
-  pattern: [':organizationSlug', 'secrets'],
+  pattern: [':workspaceSlug', 'secrets'],
   permission: LIST_SECRETS,
   ...overrides,
 });
@@ -25,7 +25,7 @@ const entry = (overrides: Partial<NavEntry> = {}): NavEntry => ({
 const header = {} as Component;
 
 const SECTIONS: readonly NavSectionDefinition[] = [
-  { id: 'organization', title: msg`Organization`, header },
+  { id: 'workspace', title: msg`Workspace`, header },
   { id: 'system', title: msg`System` },
 ];
 
@@ -37,7 +37,7 @@ const sectionsFor = (
   navSectionsFor({
     entries,
     sections: SECTIONS,
-    hrefOf: ({ pattern }) => fillPath(pattern, { organizationSlug: 'acme-corp' }),
+    hrefOf: ({ pattern }) => fillPath(pattern, { workspaceSlug: 'acme-corp' }),
     can: permission => held.includes(permission),
     translate: message => message.message ?? message.id,
     ...overrides,
@@ -72,7 +72,7 @@ describe('navSectionsFor', () => {
     const entries = [entry(), entry({ section: 'system', title: msg`Users`, url: 'users' })];
     const sections = sectionsFor(entries, []);
 
-    expect(sections.map(section => section.title)).toEqual(['Organization']);
+    expect(sections.map(section => section.title)).toEqual(['Workspace']);
     expect(sections[0].header).toBe(header);
   });
 
@@ -83,12 +83,12 @@ describe('navSectionsFor', () => {
     ];
     const sections = sectionsFor(entries, [LIST_USERS, LIST_SECRETS]);
 
-    expect(sections.map(section => section.id)).toEqual(['organization', 'system']);
+    expect(sections.map(section => section.id)).toEqual(['workspace', 'system']);
   });
 
   it('opens an entry at its URL, and keeps its path in the mount for the extensions', () => {
-    const [organization] = sectionsFor([entry()], [LIST_SECRETS]);
-    expect(organization.items[0]).toMatchObject({ href: '/acme-corp/secrets', url: 'secrets' });
+    const [workspace] = sectionsFor([entry()], [LIST_SECRETS]);
+    expect(workspace.items[0]).toMatchObject({ href: '/acme-corp/secrets', url: 'secrets' });
   });
 
   it('drops an entry whose URL the current parameters cannot fill', () => {

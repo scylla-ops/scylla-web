@@ -72,9 +72,9 @@ presentation/
 
 | Mount | Path | Permission | Component |
 |---|---|---|---|
-| `organization` | `marketplace` | `LIST_APPS_BY_ORGANIZATION` | `MarketplacePage` |
+| `workspace` | `marketplace` | `LIST_APPS_BY_WORKSPACE` | `MarketplacePage` |
 
-Sidebar: section `organization`, order `50`, icon `ShoppingCartIcon`.
+Sidebar: section `workspace`, order `50`, icon `ShoppingCartIcon`.
 
 The permission is a stand-in — the browsing gate was borrowed from apps and should be revisited
 when the real catalog lands.

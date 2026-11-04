@@ -55,13 +55,13 @@ export class DefaultPipelineRepository implements PipelineRepository {
     return grpcPipeline.toMetadataPage(pipelines, pagination);
   }
 
-  public async getMetadataByOrganizationId(
-    organizationId: string,
+  public async getMetadataByWorkspaceId(
+    workspaceId: string,
     pagination: PaginationParams = FIRST_PAGE,
   ): Promise<PaginatedList<PipelineMetadata>> {
     const pipelines = await allPages(async token => {
       const response = await this.client.listWorkspacePipelines({
-        workspaceId: wrapId(organizationId),
+        workspaceId: wrapId(workspaceId),
         page: { size: PAGE_SIZE, token },
       }).response;
       return { pipelines: response.pipelines, next: response.page?.nextToken ?? '' };

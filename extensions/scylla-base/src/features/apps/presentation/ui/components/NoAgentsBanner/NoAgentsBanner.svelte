@@ -15,11 +15,11 @@
   let { hasPendingJobs }: Props = $props();
 
   const context = toRune(contextStore);
-  const workspaceId = $derived(context().organization.id ?? '');
+  const workspaceId = $derived(context().workspace.id ?? '');
 
   // Checked again: without the permission the banner says something else.
   const canListAgents = $derived(
-    can(Permission.LIST_AGENTS, { organizationId: workspaceId || undefined }),
+    can(Permission.LIST_AGENTS, { workspaceId: workspaceId || undefined }),
   );
 
   const agentsQuery = createQuery(() => appQueries.runners(workspaceId));
@@ -53,7 +53,7 @@
   <span>{t(appsMessages.noAgentConnected)}</span>
   <button
     type="button"
-    onclick={() => scyllaNavigate.goToOrgRoute('/apps')}
+    onclick={() => scyllaNavigate.goToWorkspaceRoute('/apps')}
     class="ml-auto shrink-0 font-medium text-primary hover:underline"
   >
     {t(appsMessages.setUpAnAgent)} →

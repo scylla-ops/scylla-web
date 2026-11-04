@@ -29,11 +29,11 @@ const setUp = (canManage = true) => {
     permissions: {
       scopes: [
         {
-          scope: PermissionScope.ORGANIZATION,
+          scope: PermissionScope.WORKSPACE,
           scopeId: 'ws-1',
           access: {
             kind: 'restricted',
-            permissions: canManage ? [Permission.ADD_ORGANIZATION_MEMBER] : [],
+            permissions: canManage ? [Permission.ADD_WORKSPACE_MEMBER] : [],
           },
         },
       ],

@@ -39,7 +39,7 @@ describe('DefaultProjectRepository.create', () => {
   });
 });
 
-describe('DefaultProjectRepository.getByOrganizationId', () => {
+describe('DefaultProjectRepository.getByWorkspaceId', () => {
   it('reads every page of the workspace, then cuts the asked page', async () => {
     const project = (id: string) => ({ id: { value: id }, name: id, description: '' });
     const listProjects = vi.fn(({ page }: { page: { token: string } }) =>
@@ -54,7 +54,7 @@ describe('DefaultProjectRepository.getByOrganizationId', () => {
       {} as IAccessServiceClient,
     );
 
-    const list = await repository.getByOrganizationId('ws-1', { page: 2, pageSize: 2 });
+    const list = await repository.getByWorkspaceId('ws-1', { page: 2, pageSize: 2 });
 
     expect(listProjects).toHaveBeenCalledTimes(2);
     expect(list.items.map(item => item.id)).toEqual(['c']);

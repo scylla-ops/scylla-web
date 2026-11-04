@@ -6,7 +6,7 @@ export type {
 export type { PipelineNodeEntity } from './domain/entities/pipeline-node.entity.ts';
 export {
   PIPELINES_QUERY_KEY,
-  ORGANIZATION_PIPELINES_QUERY_KEY,
+  WORKSPACE_PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_ROOT,
   CREATE_PIPELINE_MUTATION_KEY,
   RUN_PIPELINE_MUTATION_KEY,

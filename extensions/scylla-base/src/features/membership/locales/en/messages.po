@@ -13,10 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:23
-msgid "{organization} roles"
-msgstr "{organization} roles"
-
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:36
 msgid "{username} removed: {revoked} grant(s) revoked"
 msgstr "{username} removed: {revoked} grant(s) revoked"
@@ -24,6 +20,10 @@ msgstr "{username} removed: {revoked} grant(s) revoked"
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:31
 msgid "{value, plural, =0 {No role} one {# role} other {# roles}}"
 msgstr "{value, plural, =0 {No role} one {# role} other {# roles}}"
+
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:23
+msgid "{workspace} roles"
+msgstr "{workspace} roles"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:7
 msgid "+ owner"
@@ -170,8 +170,8 @@ msgid "Remove {name} from the owners"
 msgstr "Remove {name} from the owners"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:53
-msgid "Remove {username} from “{organization}”?"
-msgstr "Remove {username} from “{organization}”?"
+msgid "Remove {username} from “{workspace}”?"
+msgstr "Remove {username} from “{workspace}”?"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:68
 msgid "Remove {username} from this project?"

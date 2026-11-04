@@ -99,14 +99,14 @@ packages/ui                the design system — imports no other package
 |--------|--------------|
 | [agents](extensions/scylla-base/src/features/agents/README.md) | Build agents — the machines that pick up jobs — and their run statistics |
 | [apps](extensions/scylla-base/src/features/apps/README.md) | Machine identities and the secrets they authenticate with |
-| [dashboard](extensions/scylla-base/src/features/dashboard/README.md) | The organization landing page — a composite view owning no data |
+| [dashboard](extensions/scylla-base/src/features/dashboard/README.md) | The workspace landing page — a composite view owning no data |
 | [extensions](extensions/scylla-base/src/features/extensions/README.md) | The page that lists the extensions the app runs |
 | [jobs](extensions/scylla-base/src/features/jobs/README.md) | Pipeline runs: status, logs, and the live tail of both |
 | [login](extensions/scylla-base/src/features/login/README.md) | Sign-in, sign-out, the password reset and the session token |
 | [marketplace](extensions/scylla-base/src/features/marketplace/README.md) | Ready-made pipeline templates |
-| [membership](extensions/scylla-base/src/features/membership/README.md) | Who belongs to an organization or project, and with which roles |
+| [membership](extensions/scylla-base/src/features/membership/README.md) | Who belongs to an workspace or project, and with which roles |
 | [onboarding](extensions/scylla-base/src/features/onboarding/README.md) | The first-pipeline tour, and where its progress is kept |
-| [organization](extensions/scylla-base/src/features/organization/README.md) | The top-level tenant and the switcher in the shell |
+| [workspace](extensions/scylla-base/src/features/workspace/README.md) | The top-level tenant and the switcher in the shell |
 | [pipeline](extensions/scylla-base/src/features/pipeline/README.md) | Pipeline definitions, the visual + script editor, and running them |
 | [project](extensions/scylla-base/src/features/project/README.md) | The unit that owns pipelines, secrets and members |
 | [roles](extensions/scylla-base/src/features/roles/README.md) | Role catalog and grants |
@@ -119,7 +119,7 @@ packages/ui                the design system — imports no other package
 | Module | What it owns |
 |--------|--------------|
 | [authz](extensions/scylla-base/src/platform/authz/README.md) | `Permission`, `can`, `Can`, `RequirePermission` — the read side of authorization |
-| [context](extensions/scylla-base/src/platform/context/README.md) | The active organization / project / pipeline, and navigation derived from it |
+| [context](extensions/scylla-base/src/platform/context/README.md) | The active workspace / project / pipeline, and navigation derived from it |
 | [grpc](extensions/scylla-base/src/platform/grpc/README.md) | The single gRPC-Web transport, with auth attached |
 
 ### scylla-base — `shared/`

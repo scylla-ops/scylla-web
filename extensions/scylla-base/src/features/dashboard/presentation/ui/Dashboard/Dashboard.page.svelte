@@ -21,13 +21,13 @@
   import { t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import {
-    createOrgOverview,
+    createWorkspaceOverview,
   } from '@base/features/dashboard/presentation/ui/org-overview.state.svelte.ts';
   import AgentOutcomesChart from '../AgentOutcomesChart/AgentOutcomesChart.svelte';
   import RunActivityCard from '../RunActivityCard/RunActivityCard.svelte';
   import { dashboardMessages } from '@base/features/dashboard/presentation/messages/dashboard.messages.ts';
 
-  const overview = createOrgOverview();
+  const overview = createWorkspaceOverview();
 
   const stats = $derived([
     {
@@ -130,7 +130,7 @@
         <h2 class="text-base font-semibold">{t(dashboardMessages.projects)}</h2>
         <button
           type="button"
-          onclick={() => scyllaNavigate.goToOrgRoute('/projects')}
+          onclick={() => scyllaNavigate.goToWorkspaceRoute('/projects')}
           class="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           {t(dashboardMessages.seeAll)}

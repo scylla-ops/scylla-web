@@ -22,10 +22,10 @@ export const can = (permission: Permission, target?: PermissionTarget): boolean 
   const effective = readPermissions().permissions;
   if (!effective) return false;
 
-  const { organization, project } = readContext();
+  const { workspace, project } = readContext();
 
   return canAccess(effective, permission, {
-    organizationId: target?.organizationId ?? organization.id ?? undefined,
+    workspaceId: target?.workspaceId ?? workspace.id ?? undefined,
     projectId: target?.projectId ?? project.id ?? undefined,
   });
 };

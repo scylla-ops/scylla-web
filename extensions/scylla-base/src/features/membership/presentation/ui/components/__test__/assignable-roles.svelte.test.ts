@@ -12,7 +12,7 @@ const roles = (scope: PermissionScope) => {
 
 describe('createAssignableRoles', () => {
   it('offers the fixed roles of a workspace with no call', () => {
-    const { state, cleanup } = roles(PermissionScope.ORGANIZATION);
+    const { state, cleanup } = roles(PermissionScope.WORKSPACE);
 
     expect(state.assignableRoles.map(role => role.roleId)).toEqual(['admin', 'member', 'viewer']);
     expect(state.isLoading).toBe(false);

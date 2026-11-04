@@ -31,8 +31,8 @@
     onRevokeRole: (role: MemberRole) => void;
     /** At the view's own scope. */
     addableRolesFor: (member: ScopeMember) => AssignableRole[];
-    /** Names the group of the organization's own roles in the pickers. */
-    organizationName: string;
+    /** Names the group of the workspace's own roles in the pickers. */
+    workspaceName: string;
     onAddRole: (userId: string, roleId: string) => void;
     emptyRoles?: string;
     canRemove: (member: ScopeMember) => boolean;
@@ -52,7 +52,7 @@
     disabled,
     onRevokeRole,
     addableRolesFor,
-    organizationName,
+    workspaceName,
     onAddRole,
     emptyRoles,
     canRemove,
@@ -95,7 +95,7 @@
           isCurrentUser={member.userId === currentUserId}
           canRemove={canRemove(member)}
           addableRoles={addableRolesFor(member)}
-          {organizationName}
+          {workspaceName}
           onAddRole={roleId => onAddRole(member.userId, roleId)}
           onRemove={() => onRemove(member)}
           {labelFor}

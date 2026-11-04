@@ -23,7 +23,7 @@
     deleteItem: id => deleteProject.mutateAsync(id),
   });
 
-  // Creating is an organization capability; deleting is checked per project.
+  // Creating is an workspace capability; deleting is checked per project.
   const canCreate = $derived(can(Permission.CREATE_PROJECT));
   const canDelete = $derived(can(Permission.DELETE_PROJECT));
 </script>

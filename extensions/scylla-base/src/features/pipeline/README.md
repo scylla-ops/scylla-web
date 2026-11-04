@@ -15,7 +15,7 @@ lifecycle — authoring a pipeline and watching it run.
   full, unclipped list.
 - **The editor** — creating and updating a pipeline, in two coordinated views.
 - **Running** — the Run action, and the jobs page that follows it.
-- **Organization-wide reads** — pipeline metadata across every project, for the
+- **Workspace-wide reads** — pipeline metadata across every project, for the
   [dashboard](../dashboard/README.md).
 
 ## Metadata vs entity
@@ -155,7 +155,7 @@ is its single consumer.
 
 ## Cache coordination
 
-`PIPELINES_QUERY_KEY`, `ORGANIZATION_PIPELINES_QUERY_KEY` and `PIPELINES_QUERY_ROOT` are part of
+`PIPELINES_QUERY_KEY`, `WORKSPACE_PIPELINES_QUERY_KEY` and `PIPELINES_QUERY_ROOT` are part of
 the public API so other modules invalidate exactly what this one reads.
 
 Running a pipeline is the interesting case: it creates a *job*, so `createRunPipeline` invalidates

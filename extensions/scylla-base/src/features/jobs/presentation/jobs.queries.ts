@@ -9,7 +9,7 @@ import {
   JOBS_QUERY_KEY,
   JOBS_QUERY_ROOT,
   JOB_QUERY_KEY,
-  ORGANIZATION_JOBS_QUERY_KEY,
+  WORKSPACE_JOBS_QUERY_KEY,
 } from './jobs.query-keys.ts';
 
 // Resolved per call: tests swap the registry.
@@ -18,7 +18,7 @@ const repository = () => getModuleDomain<typeof JobsModule.domain>('jobs').jobsR
 const MAX_JOBS_PER_PIPELINE = 10;
 
 /** The dashboard's figures are computed over this window: the backend does not aggregate. */
-export const ORGANIZATION_JOBS_WINDOW: PaginationParams = { page: 1, pageSize: 100 };
+export const WORKSPACE_JOBS_WINDOW: PaginationParams = { page: 1, pageSize: 100 };
 
 const hasActive = (jobs: readonly JobEntity[]) => jobs.some(job => isActiveStatus(job.status));
 
@@ -47,11 +47,11 @@ export const jobQueries = {
     }),
 
   /** Polls while a job of the window is running. */
-  byOrganization: (organizationId: string | null, enabled = true) =>
+  byWorkspace: (workspaceId: string | null, enabled = true) =>
     queryOptions({
-      queryKey: ORGANIZATION_JOBS_QUERY_KEY(organizationId, ORGANIZATION_JOBS_WINDOW),
-      enabled: enabled && !!organizationId,
-      queryFn: () => repository().getByOrganizationId(organizationId!, ORGANIZATION_JOBS_WINDOW),
+      queryKey: WORKSPACE_JOBS_QUERY_KEY(workspaceId, WORKSPACE_JOBS_WINDOW),
+      enabled: enabled && !!workspaceId,
+      queryFn: () => repository().getByWorkspaceId(workspaceId!, WORKSPACE_JOBS_WINDOW),
       staleTime: 10_000,
       refetchInterval: query => (hasActive(query.state.data?.items ?? []) ? 5_000 : false),
     }),

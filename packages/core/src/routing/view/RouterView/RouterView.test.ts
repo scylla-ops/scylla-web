@@ -35,8 +35,8 @@ const config: AppRouterConfig = {
   mounts: {
     public: {},
     app: { layout: TestLayout, shell: true },
-    organization: { parent: 'app', path: ':slug', wrapper: TestWrapper },
-    project: { parent: 'organization', path: 'projects/:projectId' },
+    workspace: { parent: 'app', path: ':slug', wrapper: TestWrapper },
+    project: { parent: 'workspace', path: 'projects/:projectId' },
   },
   fallback: TestFallback,
   guard: TestGuard,
@@ -46,7 +46,7 @@ const config: AppRouterConfig = {
       id: 'test',
       routes: {
         public: [{ path: 'login', page: otherPage }],
-        organization: [
+        workspace: [
           { redirect: 'secrets' },
           {
             path: 'secrets',

@@ -23,7 +23,7 @@
   let { open, setOpen }: Props = $props();
 
   const context = toRune(contextStore);
-  const organizationId = $derived(context().organization.id);
+  const workspaceId = $derived(context().workspace.id);
 
   const createProject = createMutation(() => projectMutations.create());
 
@@ -46,14 +46,14 @@
   ]);
 
   const handleSubmit = ({ name, description }: FormValues<'name' | 'description'>) => {
-    // A project needs an organization: the toast says so.
-    if (!name.trim() || !organizationId) {
+    // A project needs an workspace: the toast says so.
+    if (!name.trim() || !workspaceId) {
       toast.error(i18n._(ToastMessages.PROJECT_NAME_REQUIRED_ERROR));
       return;
     }
 
     createProject.mutate(
-      { name, organizationId, description: description.trim() || undefined },
+      { name, workspaceId, description: description.trim() || undefined },
       { onSuccess: () => setOpen(false) },
     );
   };

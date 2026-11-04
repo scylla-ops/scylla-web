@@ -1,0 +1,119 @@
+import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
+import { contextStore } from '@platform/context';
+import { i18n } from '@lingui/core';
+import { toast } from '@scylla/ui/utils';
+import { ToastMessages } from '@shared/utils/toast-messages.ts';
+import type { WorkspaceModule } from '../workspace.module.ts';
+
+// Resolved per call: tests swap the registry.
+const repository = () =>
+  getModuleDomain<typeof WorkspaceModule.domain>('workspace').workspaceRepository;
+
+export const WORKSPACES_QUERY_KEY = () => ['workspaces'] as const;
+export const MY_WORKSPACES_QUERY_KEY = () => ['workspaces', 'mine'] as const;
+export const WORKSPACE_MEMBERS_QUERY_KEY = (workspaceId: string) =>
+  ['workspaces', workspaceId, 'members'] as const;
+export const WORKSPACE_OWNERS_QUERY_KEY = (workspaceId: string) =>
+  ['workspaces', workspaceId, 'owners'] as const;
+
+export const workspaceQueries = {
+  /** Not the global list: non-admins may not read it. */
+  mine: () =>
+    queryOptions({
+      queryKey: MY_WORKSPACES_QUERY_KEY(),
+      queryFn: () => repository().getMine(),
+      staleTime: 1000 * 60 * 5, // 5 minutes TODO: change
+    }),
+
+  /** Derived from grants: callers invalidate it with `invalidateWorkspaceMembers`. */
+  members: (workspaceId: string | null, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: WORKSPACE_MEMBERS_QUERY_KEY(workspaceId ?? ''),
+      queryFn: () => repository().listMembers(workspaceId!),
+      enabled: (options.enabled ?? true) && !!workspaceId,
+    }),
+};
+
+/** The owners of a workspace. A reader of the workspace can list them: the caller gates it. */
+export const ownerQueries = {
+  list: (workspaceId: string | null, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: WORKSPACE_OWNERS_QUERY_KEY(workspaceId ?? ''),
+      queryFn: () => repository().listOwners(workspaceId!),
+      enabled: (options.enabled ?? true) && !!workspaceId,
+    }),
+};
+
+/** An owner change also changes the members list: the owners are in it. */
+const afterOwnerChange = (workspaceId: string) => {
+  const client = getQueryClient();
+  void client.invalidateQueries({ queryKey: WORKSPACE_OWNERS_QUERY_KEY(workspaceId) });
+  void client.invalidateQueries({ queryKey: WORKSPACE_MEMBERS_QUERY_KEY(workspaceId) });
+  void client.invalidateQueries({ queryKey: ['access', 'workspace', workspaceId] });
+};
+
+export const ownerMutations = {
+  add: () =>
+    mutationOptions({
+      mutationFn: ({ workspaceId, userId }: { workspaceId: string; userId: string }) =>
+        repository().addOwner(workspaceId, userId),
+      onSuccess: (_result, { workspaceId }) => afterOwnerChange(workspaceId),
+    }),
+  remove: () =>
+    mutationOptions({
+      mutationFn: ({ workspaceId, userId }: { workspaceId: string; userId: string }) =>
+        repository().removeOwner(workspaceId, userId),
+      onSuccess: (_result, { workspaceId }) => afterOwnerChange(workspaceId),
+    }),
+};
+
+export const invalidateWorkspaceMembers = (workspaceId: string | null): void => {
+  if (!workspaceId) return;
+  void getQueryClient().invalidateQueries({
+    queryKey: WORKSPACE_MEMBERS_QUERY_KEY(workspaceId),
+    exact: true,
+  });
+};
+
+const invalidateWorkspaces = () =>
+  getQueryClient().invalidateQueries({ queryKey: WORKSPACES_QUERY_KEY() });
+
+export const workspaceMutations = {
+  create: () =>
+    mutationOptions({
+      mutationFn: ({ name, slug }: { name: string; slug?: string }) =>
+        repository().create(name, slug),
+      onSuccess: data => {
+        // The new workspace becomes the active one.
+        contextStore.getState().setWorkspace(data.id, data.name, data.slug);
+        toast.success(i18n._(ToastMessages.WORKSPACE_CREATE));
+        return invalidateWorkspaces();
+      },
+    }),
+
+  update: () =>
+    mutationOptions({
+      mutationFn: ({
+        workspaceId,
+        name,
+        slug,
+      }: {
+        workspaceId: string;
+        name?: string;
+        slug?: string;
+      }) => repository().update(workspaceId, name, slug),
+      onSuccess: () => {
+        toast.success(i18n._(ToastMessages.WORKSPACE_UPDATE));
+        return invalidateWorkspaces();
+      },
+    }),
+
+  remove: () =>
+    mutationOptions({
+      mutationFn: (workspaceId: string) => repository().delete(workspaceId),
+      onSuccess: () => {
+        toast.success(i18n._(ToastMessages.WORKSPACE_DELETE));
+        return invalidateWorkspaces();
+      },
+    }),
+};

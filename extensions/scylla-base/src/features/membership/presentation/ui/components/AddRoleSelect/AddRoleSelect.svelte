@@ -19,13 +19,13 @@
 
   interface Props {
     roles: AssignableRole[];
-    /** Names the group of the organization's own roles. */
-    organizationName: string;
+    /** Names the group of the workspace's own roles. */
+    workspaceName: string;
     disabled: boolean;
     onSelect: (roleId: string) => void;
   }
 
-  let { roles, organizationName, disabled, onSelect }: Props = $props();
+  let { roles, workspaceName, disabled, onSelect }: Props = $props();
 
   const groups = $derived(groupAssignableRoles(roles));
 
@@ -58,8 +58,8 @@
       {#each groups as group (group.owner)}
         <SelectGroup>
           <SelectGroupHeading>
-            {group.owner === 'organization'
-              ? t(membershipMessages.organizationRoles(organizationName))
+            {group.owner === 'workspace'
+              ? t(membershipMessages.workspaceRoles(workspaceName))
               : t(membershipMessages.platformRoles)}
           </SelectGroupHeading>
           {#each group.roles as role (role.roleId)}

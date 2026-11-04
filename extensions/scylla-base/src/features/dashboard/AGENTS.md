@@ -1,6 +1,6 @@
 # `features/dashboard` — agent guide
 
-The organization landing page: projects, pipelines and recent runs at a glance.
+The workspace landing page: projects, pipelines and recent runs at a glance.
 
 **Layer** `features/` · **id** `dashboard` · **DI key** none (`domain: {}`) · **Svelte** (Phase 4)
 
@@ -13,7 +13,7 @@ The organization landing page: projects, pipelines and recent runs at a glance.
 ## Public API — `index.ts`
 
 ```typescript
-createOrgOverview, type OrgOverview, type ProjectAccess, type PipelineWithProject
+createWorkspaceOverview, type WorkspaceOverview, type ProjectAccess, type PipelineWithProject
 ```
 
 Nothing imports it today. It exists so that the day something does, it finds a door — and it
@@ -26,16 +26,16 @@ would drag bits-ui into the chunk of whoever imported the barrel for a type.
 `shell/modules.ts` for its route alone. There is no domain accessor, and adding one would be
 wrong.
 
-`createOrgOverview` is a *composition* ViewModel. It reads, through public APIs only:
+`createWorkspaceOverview` is a *composition* ViewModel. It reads, through public APIs only:
 
 | From | Read |
 |---|---|
-| `@platform/context` | `contextStore` — the current organization |
+| `@platform/context` | `contextStore` — the current workspace |
 | `@platform/authz` | `can`, `Permission` — per-project access |
 | `features/project` | `projectQueries.lookup` |
-| `features/pipeline` | `pipelineQueries.byOrganization` + `asPipelineFeed` |
-| `features/jobs` | `jobQueries.byOrganization` + `asJobFeed` |
-| `features/agents` | `agentQueries.byOrganization`, `agentQueries.statsOf` (in the chart) |
+| `features/pipeline` | `pipelineQueries.byWorkspace` + `asPipelineFeed` |
+| `features/jobs` | `jobQueries.byWorkspace` + `asJobFeed` |
+| `features/agents` | `agentQueries.byWorkspace`, `agentQueries.statsOf` (in the chart) |
 
 All four reads are `queryOptions` objects, so this module shares one cache entry per resource
 with whoever else reads it.
@@ -60,12 +60,12 @@ No `domain/`, no `infrastructure/` — correct for this module, do not add them.
 
 | Mount | Path | Permission | Component |
 |---|---|---|---|
-| `organization` | `dashboard` | `READ_ORGANIZATION` | `Dashboard.page.svelte` |
+| `workspace` | `dashboard` | `READ_WORKSPACE` | `Dashboard.page.svelte` |
 
-Sidebar: section `organization`, order `10`, icon `LayoutDashboard`.
+Sidebar: section `workspace`, order `10`, icon `LayoutDashboard`.
 
-`READ_ORGANIZATION` is intentionally the same gate as the projects list: the overview is a read
-of the organization, and it is where every org-level redirect lands. Do not tighten it to a
+`READ_WORKSPACE` is intentionally the same gate as the projects list: the overview is a read
+of the workspace, and it is where every org-level redirect lands. Do not tighten it to a
 narrower permission without moving that redirect target too.
 
 ## Rules that bite here
@@ -74,7 +74,7 @@ narrower permission without moving that redirect target too.
   that *owns* the resource and export the options factory from its `index.ts`. A
   `pipelineRepository` call made from here would fork the query cache into two keys for one
   resource.
-- That is why `pipelineQueries.byOrganization` / `jobQueries.byOrganization` live in `pipeline` /
+- That is why `pipelineQueries.byWorkspace` / `jobQueries.byWorkspace` live in `pipeline` /
   `jobs` even though the dashboard is their only consumer.
 - Cross-feature aggregation belongs in `org-overview.state.svelte.ts`, derived with `$derived` —
   not in a store, not in an effect.

@@ -17,8 +17,8 @@ type JobEntity
 type JobLog, JobLogStream
 type JobsSummary, JobStatus
 summarizeJobs, isActiveStatus, isFinishedStatus
-JOBS_QUERY_KEY, ORGANIZATION_JOBS_QUERY_KEY, JOBS_QUERY_ROOT
-jobQueries, asJobFeed, ORGANIZATION_JOBS_WINDOW
+JOBS_QUERY_KEY, WORKSPACE_JOBS_QUERY_KEY, JOBS_QUERY_ROOT
+jobQueries, asJobFeed, WORKSPACE_JOBS_WINDOW
 jobsByPipelinesQueries
 loadJobsPage                          ← a loader, not the page
 ```
@@ -47,7 +47,7 @@ Never add: `jobs.module.ts`, and never export a `.svelte` component from this ba
 | Method | Returns |
 |---|---|
 | `getByPipelineId(...)` | paginated `JobEntity` list |
-| `getByOrganizationId(...)` | paginated `JobEntity` list |
+| `getByWorkspaceId(...)` | paginated `JobEntity` list |
 | `getById(jobId)` | `JobEntity` |
 | `deleteById(jobId)` | `void` |
 | `rerun(jobId)` | `string` — the id of the new job |
@@ -108,7 +108,7 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
 ## Rules that bite here
 
 - **Query keys come from `jobs.query-keys.ts`.** Four exist; three (`JOBS_QUERY_KEY`,
-  `ORGANIZATION_JOBS_QUERY_KEY`, `JOBS_QUERY_ROOT`) are exported publicly so other modules
+  `WORKSPACE_JOBS_QUERY_KEY`, `JOBS_QUERY_ROOT`) are exported publicly so other modules
   invalidate the *same* key this module queries, and `JOB_QUERY_KEY` (one job, read by the
   details page) stays internal. Never hand-write `['jobs', ...]`.
 - `JOBS_QUERY_ROOT` is the prefix for "invalidate everything jobs-related" after a run;

@@ -18,11 +18,11 @@ vi.mock('../LanguageSelector/LanguageSelector.svelte', async () => ({
 const LIST_SECRETS = testPermission('LIST_SECRETS');
 
 const entry = (overrides: Partial<NavEntry> = {}): NavEntry => ({
-  section: 'organization',
+  section: 'workspace',
   title: msg`Secrets`,
-  mount: 'organization',
+  mount: 'workspace',
   url: 'secrets',
-  pattern: [':organizationSlug', 'secrets'],
+  pattern: [':workspaceSlug', 'secrets'],
   permission: LIST_SECRETS,
   ...overrides,
 });
@@ -36,11 +36,11 @@ const policy = (held: readonly RoutePermission[], ready = true): AccessPolicy =>
 const configWith = (overrides: Partial<ShellConfig> = {}): ShellConfig => ({
   entries: [entry()],
   sections: [
-    { id: 'organization', title: msg`Organization`, header: Stub },
+    { id: 'workspace', title: msg`Workspace`, header: Stub },
     { id: 'system', title: msg`System` },
   ],
   access: policy([LIST_SECRETS]),
-  contributions: [{ linkParams: () => ({ organizationSlug: 'acme-corp' }) }],
+  contributions: [{ linkParams: () => ({ workspaceSlug: 'acme-corp' }) }],
   ...overrides,
 });
 
@@ -91,7 +91,7 @@ describe('AppSidebar', () => {
   it('tells the extensions which link the user opened, by its path in the mount', async () => {
     const onNavOpen = vi.fn();
     const contributions: ShellContributions[] = [
-      { linkParams: () => ({ organizationSlug: 'acme-corp' }), onNavOpen },
+      { linkParams: () => ({ workspaceSlug: 'acme-corp' }), onNavOpen },
     ];
     render(AppSidebarFixture, { config: configWith({ contributions }) });
 
@@ -102,10 +102,10 @@ describe('AppSidebar', () => {
 
   it('renders the badge of an extension on every link, and its footer below the links', () => {
     const contributions: ShellContributions[] = [
-      { linkParams: () => ({ organizationSlug: 'acme-corp' }), navBadge: Badge, sidebarFooter: [Stub] },
+      { linkParams: () => ({ workspaceSlug: 'acme-corp' }), navBadge: Badge, sidebarFooter: [Stub] },
     ];
     render(AppSidebarFixture, {
-      config: configWith({ contributions, sections: [{ id: 'organization', title: msg`Org` }] }),
+      config: configWith({ contributions, sections: [{ id: 'workspace', title: msg`Org` }] }),
     });
 
     expect(screen.getByText('badge:secrets')).toBeInTheDocument();

@@ -18,7 +18,7 @@ export class LoginState {
   private readonly mutation = createMutation<void, ScyllaError, Credentials>(() => ({
     mutationFn: ({ identifier, password }: Credentials) =>
       this.repository.login(identifier, password),
-    // The return path of `loginPath`, else `/`, which redirects to an organization.
+    // The return path of `loginPath`, else `/`, which redirects to an workspace.
     // `replace` keeps this page out of the history.
     onSuccess: () => navigateTo(returnPathOf(window.location.hash) ?? '/', { replace: true }),
     // No `onError`: the global handler toasts.

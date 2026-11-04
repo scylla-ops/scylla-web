@@ -26,14 +26,14 @@ canListUsers, USERS_QUERY_KEY, USER_QUERY_KEY, ME_QUERY_KEY, USER_ACCESS_QUERY_K
 USER_SESSIONS_QUERY_KEY
 ```
 
-`roles`, `membership`, `organization`, `project` and `shell` use this barrel. The shell runs
+`roles`, `membership`, `workspace`, `project` and `shell` use this barrel. The shell runs
 `userQueries.me` in its user menu, on the same cache entry as the account page.
 `userQueries.byId`, `userQueries.access` and `userQueries.sessions` check for themselves (the
 SDK gives them to other extensions): the own id of the session needs no grant, any other id
 needs `READ_USER`.
 
 **`UserSummary` is the one type for a person** (`id`, `username`, `email?`,
-`displayName?`): a `Pick` of `UserEntity`. The member lists of `organization` and `project`
+`displayName?`): a `Pick` of `UserEntity`. The member lists of `workspace` and `project`
 return it, because their RPCs carry no more. Show it with `UserIdentity` from
 `@shared/presentation/ui`, never with a local avatar and name.
 
@@ -64,12 +64,12 @@ one).
 `UpdateUserInput` holds the changed fields only: an absent field stays absent on the wire, and
 the server leaves it unchanged. `profileChanges` (`presenters/profile-form.presenter.ts`) builds
 it from the values of the profile form: it reads a form, so it is not domain. `UserAccess` is a
-union on `scope` of `SystemAccess`, `OrganizationAccess` and `ProjectAccess`: a system grant has
-no organization, an organization grant has no project. Narrow on `scope` before you read a name.
+union on `scope` of `SystemAccess`, `WorkspaceAccess` and `ProjectAccess`: a system grant has
+no workspace, an workspace grant has no project. Narrow on `scope` before you read a name.
 The barrel exports only `UserAccess`, because `dashboard` already exports another
-`ProjectAccess`. The mapper maps a grant that has no organization as a system grant.
+`ProjectAccess`. The mapper maps a grant that has no workspace as a system grant.
 `groupUserAccess` (`presenters/user-access.presenter.ts`) puts the system grants apart and groups
-the others by organization.
+the others by workspace.
 
 ## Layout
 
@@ -78,7 +78,7 @@ user.module.ts                       routes + nav + DI wiring (private; registry
 index.ts                             public API
 domain/
   entities/user.entity.ts            UserEntity, UserSummary, UserList, UserAccess
-                                     (SystemAccess | OrganizationAccess | ProjectAccess, its
+                                     (SystemAccess | WorkspaceAccess | ProjectAccess, its
                                      scope is the AccessScope of authz), the inputs
   entities/user-session.entity.ts    UserSessionEntity: no token, only what the list shows
   repository/user.repository.ts
@@ -95,7 +95,7 @@ presentation/
                                      page, AccountSecurity (password + sessions), ChangePasswordForm
     account-page.state.svelte.ts     createAccountPage: the account of the session
     account-sections.registry.ts     ACCOUNT_SECTIONS: the entries of the nav, their URL and title
-  ui/account/PersonalAccount/         the account page with no organization: + the sign-out at the end
+  ui/account/PersonalAccount/         the account page with no workspace: + the sign-out at the end
   ui/account/DeleteAccountDialog/
   ui/user-detail/UserDetail/         the page of another user, and its parts:
     user-detail.state.svelte.ts      createUserDetail: the page of another user
@@ -107,7 +107,7 @@ presentation/
                                      ThemePicker/ (own page only)
   presenters/user-agent.presenter.ts parseUserAgent: browser, system and kind of a session
   presenters/session-row.presenter.ts   the title and the activity of a session
-  presenters/user-access.presenter.ts   the access of a user, grouped by organization
+  presenters/user-access.presenter.ts   the access of a user, grouped by workspace
   presenters/profile-form.presenter.ts  ProfileValues, profileChanges: the form → UpdateUserInput
 ```
 
@@ -115,28 +115,28 @@ presentation/
 
 | Mount          | Path                   | Permission                                                     | Component                                                               |
 | -------------- | ---------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `organization` | `users`                | `LIST_USERS`                                                   | `UserAdmin.page.svelte`                                                 |
-| `organization` | `users/me`             | (redirect)                                                     | to `account`                                                            |
-| `organization` | `users/:userId`        | none on the route (`UNGATED_PAGES`); the page asks `READ_USER` | `UserDetail.page.svelte`                                                |
-| `organization` | `account`              | (redirect)                                                     | to `account/profile`                                                    |
-| `organization` | `account/:section`     | none (`UNGATED_PAGES`)                                         | `Account.page.svelte`                                                   |
+| `workspace` | `users`                | `LIST_USERS`                                                   | `UserAdmin.page.svelte`                                                 |
+| `workspace` | `users/me`             | (redirect)                                                     | to `account`                                                            |
+| `workspace` | `users/:userId`        | none on the route (`UNGATED_PAGES`); the page asks `READ_USER` | `UserDetail.page.svelte`                                                |
+| `workspace` | `account`              | (redirect)                                                     | to `account/profile`                                                    |
+| `workspace` | `account/:section`     | none (`UNGATED_PAGES`)                                         | `Account.page.svelte`                                                   |
 | `personal`     | `account` (`/account`) | (redirect)                                                     | to `/account/profile`                                                   |
 | `personal`     | `account/:section`     | none (`UNGATED_PAGES`)                                         | `PersonalAccount.page.svelte`: `Account.page.svelte`, then the sign-out |
 
-`:section` is `profile`, `appearance`, `security`, `organizations` or `danger-zone`
+`:section` is `profile`, `appearance`, `security`, `workspaces` or `danger-zone`
 (`ACCOUNT_SECTIONS` in `account-sections.registry.ts`). Another value goes to `profile`.
 
-Sidebar: one entry, section **`system`** (not `organization`), order `10`, icon `UsersIcon`.
-The user menu of the shell opens the `account` of the organization
-(`scyllaNavigate.goToAccount`, which gives `/account` when no organization is active). The
-first-organization screen and the `personal` layout link to `/account`: the same page, for a
-user who has no organization.
+Sidebar: one entry, section **`system`** (not `workspace`), order `10`, icon `UsersIcon`.
+The user menu of the shell opens the `account` of the workspace
+(`scyllaNavigate.goToAccount`, which gives `/account` when no workspace is active). The
+first-workspace screen and the `personal` layout link to `/account`: the same page, for a
+user who has no workspace.
 
 ## Rules that bite here
 
 - **`user` is system-wide, not org-scoped.** It is the directory of every account in the
   installation — hence the `system` sidebar section. Do not filter it by the current
-  organization; "who is in this org" is [`membership`](../membership/AGENTS.md)'s question.
+  workspace; "who is in this org" is [`membership`](../membership/AGENTS.md)'s question.
   The user permissions are SYSTEM level: `can(Permission.X)` needs no target.
 - **The own account has its own page.** `account` calls the RPCs on the own id, which need no
   grant. `users/:userId` sends the own id to `account` (`<Redirect to="../../account">`), and
@@ -193,7 +193,7 @@ user who has no organization.
   once every five minutes.
 - **The account page shows one section of the settings at a time.** The header (avatar, name,
   email, badges) and the nav stay on each page. The nav links are absolute URLs: the page
-  builds them from `organizationSlug`, or from `/account` when it has none. To add a section, add
+  builds them from `workspaceSlug`, or from `/account` when it has none. To add a section, add
   it to `ACCOUNT_SECTIONS` and to the branches of `Account.page.svelte`. A form in a
   `SettingsSection` with `actionBar` shows its `data-slot="form-actions"` as a bar at the bottom of
   the card.

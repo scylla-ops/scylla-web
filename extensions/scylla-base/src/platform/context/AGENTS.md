@@ -1,6 +1,6 @@
 # `platform/context` — agent guide
 
-Which organization / project / pipeline the user is currently looking at, and navigation derived
+Which workspace / project / pipeline the user is currently looking at, and navigation derived
 from it.
 
 **Layer** `platform/` · alias `@platform/context`
@@ -16,7 +16,7 @@ from it.
 ```typescript
 contextStore
 scyllaNavigate, type ScyllaNavigate       context-aware navigation (goToUser, goToAccount, …)
-organizationUrl(name, path = 'dashboard') the URL of a page of any organization, for a link
+workspaceUrl(name, path = 'dashboard') the URL of a page of any workspace, for a link
 navigateTo, navigateBack                  plain navigation
 currentPathname, currentSearch            the current URL
 setAppNavigator, type AppNavigator, type NavigateOptions
@@ -28,10 +28,10 @@ createResourceError                       NOT_FOUND on a detail page → toast +
 `contextStore` holds **ids and display names, nothing else**:
 
 ```typescript
-organization: { id, name }
+workspace: { id, name }
 project:      { id, name }
 pipeline:     { id, name }
-setOrganization(id, name)   // also clears project + pipeline
+setWorkspace(id, name)   // also clears project + pipeline
 setProject(id, name)
 setPipeline(id, name)
 reset()
@@ -49,9 +49,9 @@ Persistence: `createStore` (`@scylla/ui/stores`) keeps it in
 `localStorage` under key `scylla-context`, so a reload keeps the user where they were. The stored
 format is the format that Zustand used before Phase 6, so a stored context stays valid.
 
-## Cascade on organization change
+## Cascade on workspace change
 
-`setOrganization` **clears `project` and `pipeline`**. A project id from another organization is
+`setWorkspace` **clears `project` and `pipeline`**. A project id from another workspace is
 meaningless and would produce a broken URL or a cross-tenant query. Preserve that behaviour if
 you touch the store.
 
@@ -83,10 +83,10 @@ The navigator of the app is in `@scylla/core-sdk`; `index.ts` re-exports `naviga
 
 - **`scyllaNavigate` is the only sanctioned way to navigate between scoped screens.** It builds
   URLs from the current context so callers do not hand-assemble
-  `/${orgSlug}/projects/${projectId}/…`. A template string passed to `navigateTo` is how a route
+  `/${workspaceSlug}/projects/${projectId}/…`. A template string passed to `navigateTo` is how a route
   change becomes fourteen broken links.
 - **The URL is the source of truth, the store is the mirror.** The shell's
-  `OrganizationSync.wrapper.svelte` syncs the store *from* route params. Do not add a second sync
+  `WorkspaceSync.wrapper.svelte` syncs the store *from* route params. Do not add a second sync
   in the other direction — that is the effect cascade this design exists to avoid.
 - Server state never goes in here. Only TanStack Query holds fetched data.
 - `contextStore` and `selectionStore` (`@shared`) are the app's **only** two global

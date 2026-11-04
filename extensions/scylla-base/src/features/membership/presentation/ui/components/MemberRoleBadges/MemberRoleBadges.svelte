@@ -92,7 +92,7 @@
               <span {...props} class="inline-flex max-w-full">{@render chip(role)}</span>
             {/snippet}
           </TooltipTrigger>
-          <TooltipContent>{t(membershipMessages.managedAtOrganization)}</TooltipContent>
+          <TooltipContent>{t(membershipMessages.managedAtWorkspace)}</TooltipContent>
         </Tooltip>
       {:else}
         <span>{@render chip(role)}</span>

@@ -15,10 +15,10 @@ import { pipelineMutations } from '../pipeline.queries.ts';
  */
 export const createRunPipeline = () => {
   const context = toRune(contextStore);
-  const organizationId = $derived(context().organization.id ?? '');
+  const workspaceId = $derived(context().workspace.id ?? '');
 
-  const canListAgents = $derived(can(Permission.LIST_AGENTS, { organizationId }));
-  const agentsQuery = createQuery(() => appQueries.runners(organizationId));
+  const canListAgents = $derived(can(Permission.LIST_AGENTS, { workspaceId }));
+  const agentsQuery = createQuery(() => appQueries.runners(workspaceId));
   const runPipeline = createMutation(() => pipelineMutations.run());
 
   const inFlight = new SvelteSet<string>();
@@ -31,7 +31,7 @@ export const createRunPipeline = () => {
 
     if (!(agentsQuery.data ?? []).some(agent => agent.connected)) {
       toast.warning(i18n._(ToastMessages.PIPELINE_JOB_QUEUED_WARNING), {
-        action: { label: 'Agents', onClick: () => scyllaNavigate.goToOrgRoute('/apps') },
+        action: { label: 'Agents', onClick: () => scyllaNavigate.goToWorkspaceRoute('/apps') },
       });
       return;
     }

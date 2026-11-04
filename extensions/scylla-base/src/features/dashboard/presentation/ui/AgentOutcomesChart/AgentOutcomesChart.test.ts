@@ -68,7 +68,7 @@ beforeEach(() => {
   });
 
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme', slug: null },
+    workspace: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: null, name: null },
   });
   permissionsStore.setState({
@@ -94,7 +94,7 @@ afterEach(() => {
 });
 
 describe('AgentOutcomesChart', () => {
-  it('asks for nothing and explains itself when the organization has no agent', async () => {
+  it('asks for nothing and explains itself when the workspace has no agent', async () => {
     listAgents.mockResolvedValue([]);
     render(AgentOutcomesChart);
 

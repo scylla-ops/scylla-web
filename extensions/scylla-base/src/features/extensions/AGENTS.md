@@ -61,7 +61,7 @@ presentation/
 
 | Mount | Path | Permission | Component |
 |---|---|---|---|
-| `organization` | `extensions` | `MANAGE_ROLES` | `ExtensionsPage` |
+| `workspace` | `extensions` | `MANAGE_ROLES` | `ExtensionsPage` |
 
 Sidebar: section `system`, order `30`, icon `PuzzleIcon`. The link takes the route's permission:
 a user without `MANAGE_ROLES` does not see it.

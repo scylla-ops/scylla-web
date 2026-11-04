@@ -2,7 +2,7 @@
 
 What starts the application: it loads the extensions, compiles their routes, runs the router,
 and renders the shell (sidebar, top bar, breadcrumbs and language). It knows no
-business: no organization, no permission enum, no backend.
+business: no workspace, no permission enum, no backend.
 
 **Package** `packages/core` · entry `@scylla/core` · **no router library**
 
@@ -104,7 +104,7 @@ checks, without the extensions that own their points.
 3. **`placeInMount`** — each route gets the path of its mount in front of its own.
 4. **`trailOf`** — the crumbs of a page are the crumbs of each path that its path starts with.
 5. **`bySpecificity`** — a static segment before a parameter, so `/login` matches before
-   `/:organizationSlug`.
+   `/:workspaceSlug`.
 
 It **throws** when two declarations of one path set the same field; a route has a `page` and a
 `redirect`; a route has a `permission` or a `nav` but no `page`; two mounts put a page on one

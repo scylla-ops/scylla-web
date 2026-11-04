@@ -3,12 +3,12 @@ export {
   type ScopeMember,
   type MemberRole,
   MemberRoleOrigin,
-  buildOrganizationMembers,
+  buildWorkspaceMembers,
   buildProjectMembers,
 } from './presentation/presenters/scope-members.presenter.ts';
 export {
   membershipPoints,
   type AddMemberAction,
-  type OrganizationMembersContext,
+  type WorkspaceMembersContext,
   type ProjectMembersContext,
 } from './presentation/membership.points.ts';

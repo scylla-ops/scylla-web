@@ -1,8 +1,8 @@
 import type { RouteParams } from '@scylla/core-sdk';
 
 /**
- * A route path as a list of segments: `/:organizationSlug/agents` is
- * `[':organizationSlug', 'agents']`. A segment that starts with `:` is a parameter.
+ * A route path as a list of segments: `/:workspaceSlug/agents` is
+ * `[':workspaceSlug', 'agents']`. A segment that starts with `:` is a parameter.
  */
 export type RoutePath = readonly string[];
 
@@ -28,7 +28,7 @@ export const startsWithPath = (path: RoutePath, prefix: RoutePath): boolean =>
 /**
  * Orders the more specific path first: at the first segment where the two
  * differ in kind, a static segment beats a parameter. So `/login` is tried
- * before `/:organizationSlug`.
+ * before `/:workspaceSlug`.
  */
 export const bySpecificity = (a: RoutePath, b: RoutePath): number => {
   for (let index = 0; index < Math.min(a.length, b.length); index++) {
@@ -38,7 +38,7 @@ export const bySpecificity = (a: RoutePath, b: RoutePath): number => {
   return 0;
 };
 
-/** `[':organizationSlug', 'agents']` with `{ organizationSlug: 'acme' }` → `/acme/agents`. `null` when a parameter has no value. */
+/** `[':workspaceSlug', 'agents']` with `{ workspaceSlug: 'acme' }` → `/acme/agents`. `null` when a parameter has no value. */
 export const fillPath = (pattern: RoutePath, params: RouteParams): string | null => {
   const segments: string[] = [];
   for (const segment of pattern) {

@@ -40,7 +40,7 @@ export interface TrailMark {
 /** A page or a redirect, with everything needed to render it. */
 export interface CompiledRoute {
   mount: RouteMount;
-  /** From the root, e.g. `[':organizationSlug', 'agents']`. */
+  /** From the root, e.g. `[':workspaceSlug', 'agents']`. */
   path: RoutePath;
   page?: PageLoader;
   redirect?: string;
@@ -72,7 +72,7 @@ export const mountChain = (mount: RouteMount, mounts: Mounts): MountDefinition[]
   return [...(parent ? mountChain(parent, mounts) : []), definition];
 };
 
-/** The path of a mount from the root, e.g. `project` → `/:organizationSlug/projects/:projectId`. */
+/** The path of a mount from the root, e.g. `project` → `/:workspaceSlug/projects/:projectId`. */
 export const mountPath = (mount: RouteMount, mounts: Mounts): RoutePath =>
   mountChain(mount, mounts).flatMap(definition => splitPath(definition.path));
 
@@ -82,7 +82,7 @@ const mountCrumbs = (mounts: Mounts): FlatRoute[] =>
     return breadcrumb ? [{ mount, path: [], breadcrumb, declaredBy: [`mount "${mount}"`] }] : [];
   });
 
-/** Moves a route from its mount to the root: `agents` → `:organizationSlug/agents`. */
+/** Moves a route from its mount to the root: `agents` → `:workspaceSlug/agents`. */
 const placeInMount = (route: FlatRoute, mounts: Mounts): FlatRoute => ({
   ...route,
   path: [...mountPath(route.mount, mounts), ...route.path],

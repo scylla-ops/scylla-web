@@ -58,7 +58,7 @@ let navigator: ReturnType<typeof installTestNavigator>;
 const setUp = (
   section: string | undefined,
   overrides: Record<string, ReturnType<typeof vi.fn>> = {},
-  organizationSlug: string | null = 'acme-corp',
+  workspaceSlug: string | null = 'acme-corp',
 ) => {
   repository = {
     getMe: vi.fn().mockResolvedValue(me),
@@ -72,7 +72,7 @@ const setUp = (
   };
   const cache = withQueryClient();
   teardown = [cache.restore, withRegistry({ user: { userRepository: repository } })];
-  render(AccountPage, { organizationSlug: organizationSlug ?? undefined, section });
+  render(AccountPage, { workspaceSlug: workspaceSlug ?? undefined, section });
 };
 
 const section = (name: string) => screen.getByRole('region', { name });
@@ -129,7 +129,7 @@ describe('AccountPage', () => {
     expect(within(nav).getByRole('link', { current: 'page' })).toHaveTextContent('Security');
   });
 
-  it('links the nav to /account outside an organization', async () => {
+  it('links the nav to /account outside an workspace', async () => {
     setUp('profile', {}, null);
 
     const nav = await screen.findByRole('navigation', { name: 'Account settings' });

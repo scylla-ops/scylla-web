@@ -4,7 +4,7 @@ import {
   currentPathname,
   navigateTo,
   contextStore,
-  organizationUrl,
+  workspaceUrl,
 } from '@platform/context';
 import { createQuery } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
@@ -17,8 +17,8 @@ const isPipelinePath = (pathname: string): boolean =>
 export const cleanContext = (projectId: string | undefined): void => {
   const pathname = currentPathname();
   const context = toRune(contextStore);
-  const organizationId = $derived(context().organization.id);
-  const projects = createQuery(() => projectQueries.byOrganization(organizationId));
+  const workspaceId = $derived(context().workspace.id);
+  const projects = createQuery(() => projectQueries.byWorkspace(workspaceId));
 
   $effect(() => {
     const list = projects.data?.items;
@@ -31,7 +31,7 @@ export const cleanContext = (projectId: string | undefined): void => {
         store.setProject(null, null);
         store.setPipeline(null, null);
         const slug = activeWorkspaceSlug();
-        navigateTo(slug ? organizationUrl(slug) : '/', { replace: true });
+        navigateTo(slug ? workspaceUrl(slug) : '/', { replace: true });
         return;
       }
 

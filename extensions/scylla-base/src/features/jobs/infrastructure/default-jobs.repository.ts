@@ -40,13 +40,13 @@ export class DefaultJobsRepository implements JobsRepository {
     return grpcJob.toDomainPage(jobs, pagination);
   }
 
-  public async getByOrganizationId(
-    organizationId: string,
+  public async getByWorkspaceId(
+    workspaceId: string,
     pagination: PaginationParams = FIRST_PAGE,
   ): Promise<PaginatedList<JobEntity>> {
     const jobs = await allPages(async token => {
       const response = await this.client.listWorkspaceJobs({
-        workspaceId: wrapId(organizationId),
+        workspaceId: wrapId(workspaceId),
         page: { size: PAGE_SIZE, token },
       }).response;
       return { jobs: response.jobs, next: response.page?.nextToken ?? '' };

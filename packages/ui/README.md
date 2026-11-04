@@ -16,7 +16,7 @@ look like the rest of Scylla: it builds with the same parts.
 > Could this live in a completely different product, unchanged?
 
 If the answer is yes, it belongs here. If it mentions a pipeline, a job, a role or an
-organization — even in a type name — it belongs to the extension that owns that concept
+workspace — even in a type name — it belongs to the extension that owns that concept
 (for scylla-base: the feature, or [`shared/`](../../extensions/scylla-base/src/shared/README.md)).
 
 The corollary is a rule about *timing*: something moves here at its **second real usage**, not

@@ -4,10 +4,10 @@ export const PIPELINES_QUERY_KEY = (projectId: string, pagination?: PaginationPa
   ['pipelines', projectId, pagination] as const;
 
 /** Under the `'pipelines'` root: invalidating it refreshes both scopes. */
-export const ORGANIZATION_PIPELINES_QUERY_KEY = (
-  organizationId: string | null,
+export const WORKSPACE_PIPELINES_QUERY_KEY = (
+  workspaceId: string | null,
   pagination?: PaginationParams,
-) => ['pipelines', 'organization', organizationId, pagination] as const;
+) => ['pipelines', 'workspace', workspaceId, pagination] as const;
 
 export const PROJECT_PIPELINES_QUERY_ROOT = (projectId: string) =>
   ['pipelines', projectId] as const;

@@ -43,12 +43,12 @@ describe('hasSession', () => {
 describe('closeSession', () => {
   it('closes the session on the server and removes the user id, and nothing else', async () => {
     openSession({ value: 'a-token' }, 'user-1');
-    localStorage.setItem('scylla-context', '{}');
+    localStorage.setItem('scylla-workspace-context', '{}');
 
     await closeSession();
 
     expect(browserSession.close).toHaveBeenCalledOnce();
     expect(localStorage.getItem('userId')).toBeNull();
-    expect(localStorage.getItem('scylla-context')).toBe('{}');
+    expect(localStorage.getItem('scylla-workspace-context')).toBe('{}');
   });
 });

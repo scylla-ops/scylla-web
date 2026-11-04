@@ -43,7 +43,7 @@ const setUp = (stored: OnboardingStatus = { kind: 'not-started' }) => {
 
 beforeEach(() => {
   localStorage.clear();
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme', slug: null } });
+  contextStore.setState({ workspace: { id: 'org-1', name: 'Acme', slug: null } });
   grant(Permission.CREATE_AGENT, Permission.CREATE_PROJECT);
 });
 

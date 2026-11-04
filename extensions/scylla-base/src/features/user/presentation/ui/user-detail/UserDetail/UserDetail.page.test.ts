@@ -90,7 +90,7 @@ const setUp = (
 beforeEach(() => {
   vi.clearAllMocks();
   navigator = installTestNavigator({ pathname: '/acme/users/user-2' });
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme', slug: null } });
+  contextStore.setState({ workspace: { id: 'org-1', name: 'Acme', slug: null } });
 });
 
 afterEach(() => {

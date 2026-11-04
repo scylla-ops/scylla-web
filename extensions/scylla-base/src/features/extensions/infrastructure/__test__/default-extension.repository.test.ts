@@ -34,7 +34,7 @@ describe('DefaultExtensionRepository', () => {
       id: 'a',
       domain: {},
       routes: {
-        organization: [
+        workspace: [
           { path: 'list', page, children: [{ path: ':id', page }] },
           { path: 'group', children: [{ path: 'x', page }] },
           { redirect: 'list' },

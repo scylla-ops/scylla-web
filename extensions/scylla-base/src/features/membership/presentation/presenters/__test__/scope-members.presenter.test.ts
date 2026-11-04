@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { PermissionScope } from '@platform/authz';
 import type { AccessEntryEntity } from '@base/features/access';
 import {
-  buildOrganizationMembers,
+  buildWorkspaceMembers,
   buildProjectMembers,
   MemberRoleOrigin,
 } from '../scope-members.presenter.ts';
@@ -17,18 +17,18 @@ const entry = (overrides: Partial<AccessEntryEntity> = {}): AccessEntryEntity =>
   ...overrides,
 });
 
-describe('buildOrganizationMembers', () => {
+describe('buildWorkspaceMembers', () => {
   it('lists a user with a role on the workspace, with that role as a DIRECT one', () => {
-    expect(buildOrganizationMembers([entry()])).toEqual([
+    expect(buildWorkspaceMembers([entry()])).toEqual([
       {
         userId: 'user-1',
         roles: [
           {
-            grantId: `${PermissionScope.ORGANIZATION}:admin`,
+            grantId: `${PermissionScope.WORKSPACE}:admin`,
             userId: 'user-1',
             roleId: 'admin',
             origin: MemberRoleOrigin.DIRECT,
-            scope: PermissionScope.ORGANIZATION,
+            scope: PermissionScope.WORKSPACE,
           },
         ],
       },
@@ -36,23 +36,23 @@ describe('buildOrganizationMembers', () => {
   });
 
   it('leaves the apps out: only a person is a member', () => {
-    expect(buildOrganizationMembers([entry({ actorKind: 'app', role: 'runner' })])).toEqual([]);
+    expect(buildWorkspaceMembers([entry({ actorKind: 'app', role: 'runner' })])).toEqual([]);
   });
 
   it('lists a user once, with each role, the strongest first', () => {
-    const [member] = buildOrganizationMembers([entry({ role: 'viewer' }), entry({ role: 'admin' })]);
+    const [member] = buildWorkspaceMembers([entry({ role: 'viewer' }), entry({ role: 'admin' })]);
 
     expect(member.roles.map(role => role.roleId)).toEqual(['admin', 'viewer']);
   });
 
   it('shows an owner as locked: Revoke does not take it back', () => {
-    const [member] = buildOrganizationMembers([entry({ role: 'owner' })]);
+    const [member] = buildWorkspaceMembers([entry({ role: 'owner' })]);
 
     expect(member.roles[0]).toMatchObject({ roleId: 'owner', origin: MemberRoleOrigin.INHERITED });
   });
 
   it('keeps one role once when the server lists it twice', () => {
-    const [member] = buildOrganizationMembers([entry(), entry()]);
+    const [member] = buildWorkspaceMembers([entry(), entry()]);
 
     expect(member.roles).toHaveLength(1);
   });
@@ -74,7 +74,7 @@ describe('buildProjectMembers', () => {
       expect.objectContaining({
         roleId: 'member',
         origin: MemberRoleOrigin.INHERITED,
-        scope: PermissionScope.ORGANIZATION,
+        scope: PermissionScope.WORKSPACE,
       }),
     ]);
   });
@@ -84,7 +84,7 @@ describe('buildProjectMembers', () => {
 
     expect(member.roles.map(role => role.grantId)).toEqual([
       `${PermissionScope.PROJECT}:admin`,
-      `${PermissionScope.ORGANIZATION}:admin`,
+      `${PermissionScope.WORKSPACE}:admin`,
     ]);
   });
 

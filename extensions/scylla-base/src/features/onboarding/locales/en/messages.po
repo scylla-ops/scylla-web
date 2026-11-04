@@ -225,8 +225,8 @@ msgid "This is the pipeline creation page. Here, you'll find our low-code tool f
 msgstr "This is the pipeline creation page. Here, you'll find our low-code tool for easily building your pipelines, or the traditional plain-text scripting format if you prefer that method for creating and editing your pipelines."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:12
-msgid "This is your organization's dashboard. It brings together all the information about your projects, pipelines, and agents at a glance!"
-msgstr "This is your organization's dashboard. It brings together all the information about your projects, pipelines, and agents at a glance!"
+msgid "This is your workspace's dashboard. It brings together all the information about your projects, pipelines, and agents at a glance!"
+msgstr "This is your workspace's dashboard. It brings together all the information about your projects, pipelines, and agents at a glance!"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:57
 msgid "This step is on another page."

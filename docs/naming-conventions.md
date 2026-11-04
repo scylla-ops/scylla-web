@@ -57,7 +57,7 @@ The suffix of a file tells its role.
 | **Query / mutation options** | `<feature>.queries.ts` → `{feature}Queries`, `{feature}Mutations` | `user.queries.ts` / `userQueries` |
 | **Query-key factories** (when they have their own file) | `<feature>.query-keys.ts` | `jobs.query-keys.ts` |
 | **State** (runes): a ViewModel, or UI state with one responsibility | `<view>.state.svelte.ts` / `<responsibility>.state.svelte.ts` | `roles-page.state.svelte.ts`, `node-draft.state.svelte.ts` |
-| **Effect** (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` | `organization-sync.effect.svelte.ts` |
+| **Effect** (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` | `workspace-sync.effect.svelte.ts` |
 | **Adapter** (runes): an outside API read from rune code | `*.adapter.svelte.ts` | `to-rune.adapter.svelte.ts` |
 | **Attachment** | `*.attachments.ts` (`.svelte.ts` with runes), named by a verb | `code-mirror.attachments.svelte.ts` / `renderCodeMirror` |
 | **Presenter** (plain TypeScript: what a view shows or does) | `presenters/*.presenter.ts` | `node-list.presenter.ts` |
@@ -151,7 +151,7 @@ export interface SecretEntity { id: string; projectId: string; name: string; /* 
 export interface CreateSecretInput { projectId: string; name: string; value: string; /* ... */ }
 
 // permission-scope.struct.ts
-export enum PermissionScope { UNSPECIFIED = 0, SYSTEM = 1, ORGANIZATION = 2, PROJECT = 3 }
+export enum PermissionScope { UNSPECIFIED = 0, SYSTEM = 1, WORKSPACE = 2, PROJECT = 3 }
 ```
 
 The `Entity` suffix also makes the domain type different from the proto type with the same
@@ -239,7 +239,7 @@ There are **no `use*` hooks**. A factory of rune state is **camelCase `create*`*
 |------|---------|---------|
 | ViewModel of a view | `create{View}` in `<view>.state.svelte.ts`, or a `{View}State` class | `createRolesPage()`, `createPipelineDashboard(projectId)`, `LoginState` |
 | State with one responsibility | `create{Responsibility}` in `<responsibility>.state.svelte.ts` | `createNodeDraft(...)`, `createSelection(key)`, `createPagination(options)` |
-| Effect | a verb, in `*.effect.svelte.ts` | `syncOrganization(slug)`, `cleanContext(projectId)` |
+| Effect | a verb, in `*.effect.svelte.ts` | `syncWorkspace(slug)`, `cleanContext(projectId)` |
 | TanStack Query | `createQuery`, `createMutation`, `createQueries` (from `@scylla/core-sdk`) | `createQuery(() => userQueries.byId(id))` |
 
 A ViewModel is named after the view that it controls. Another state is named after what it
@@ -270,7 +270,7 @@ Each module exports `{Feature}Module` from `<feature>.module.ts`, with a kebab-c
 export const UserModule = {
   id: 'user',
   domain: { userRepository: repository },
-  routes: { organization: [ /* ... */ ] },
+  routes: { workspace: [ /* ... */ ] },
 } satisfies ScyllaModule;
 ```
 

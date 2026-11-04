@@ -15,7 +15,7 @@ const setUp = (owners: { userId: string; displayName: string }[], canManage = tr
   const cache = withQueryClient();
   teardown = [
     cache.restore,
-    withRegistry({ organization: { organizationRepository: repository } }),
+    withRegistry({ workspace: { workspaceRepository: repository } }),
   ];
   render(OwnersCard, {
     workspaceId: 'ws-1',

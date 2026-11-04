@@ -169,7 +169,7 @@ export const userMutations = {
     }),
 
   /**
-   * The refusal (wrong password, organizations to hand over) is data: the dialog shows it. The
+   * The refusal (wrong password, workspaces to hand over) is data: the dialog shows it. The
    * sign-out is here, not in the caller: it must run also when the page is already gone.
    */
   deleteAccount: () =>

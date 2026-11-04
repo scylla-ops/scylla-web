@@ -14,7 +14,7 @@ If this document and one of them do not agree, they are correct: update this doc
 ### 1.1 Core principles
 
 - **The core knows no business.** It loads extensions, compiles their routes, runs the router and
-  renders the shell frame. It does not know organizations, permissions or the backend.
+  renders the shell frame. It does not know workspaces, permissions or the backend.
 - **Everything is declared by modules.** Routes, sidebar links, DI, the shell parts and the
   access policy come from the modules of the extensions. There is no second list to keep in sync.
 - **Dependencies point one way**, between packages and between the layers of a module. The
@@ -153,7 +153,7 @@ export const UserModule = {
   id: 'user',
   domain: { userRepository: repository },          // the DI surface
   routes: {
-    organization: [                                // the mount where the route grafts
+    workspace: [                                // the mount where the route grafts
       {
         path: 'users',
         permission: Permission.LIST_USERS,         // the route guard AND the sidebar link
@@ -266,7 +266,7 @@ extensions/scylla-base/src/
   scylla-base.extension.ts     the @Extension class
   shell/                       modules.ts (the feature list), ShellModule (the frame)
   features/                    agents, apps, dashboard, jobs, login, marketplace, membership,
-                               organization, pipeline, project, roles, secret, triggers, user
+                               workspace, pipeline, project, roles, secret, triggers, user
   platform/                    authz, context, grpc
   shared/                      shared code with a business meaning (ScyllaError, status presentation)
 ```
@@ -303,11 +303,11 @@ A barrel must not export:
 | Mount | Path | What it adds |
 |-------|------|--------------|
 | `public` | `/` | nothing — e.g. `/login` |
-| `app` | `/` | `AppLayout` (auth gate + organization gate) and the core's shell frame |
-| `organization` | `/:organizationSlug` | `OrganizationSyncWrapper` |
-| `project` | `/:organizationSlug/projects/:projectId` | `ContextCleanerWrapper`, the "Project" crumb |
+| `app` | `/` | `AppLayout` (auth gate + workspace gate) and the core's shell frame |
+| `workspace` | `/:workspaceSlug` | `WorkspaceSyncWrapper` |
+| `project` | `/:workspaceSlug/projects/:projectId` | `ContextCleanerWrapper`, the "Project" crumb |
 
-It also declares the nav sections (`organization`, `system`), the access policy (`can`,
+It also declares the nav sections (`workspace`, `system`), the access policy (`can`,
 `authorizationReady`, `RequirePermission`), the shell parts, the query error handler and the
 fallback page (a redirect to `/login`).
 
@@ -644,7 +644,7 @@ action), and `isPageSizeReady` is false until the measure is done.
 
 | Store | Package | Purpose |
 |-------|---------|---------|
-| `contextStore` | scylla-base `@platform/context` | Current organization, project and pipeline |
+| `contextStore` | scylla-base `@platform/context` | Current workspace, project and pipeline |
 | `permissionsStore` | scylla-base `@platform/authz` | Effective permissions of the user |
 | `selectionStore` | `@scylla/ui/stores` | Generic row selection, keyed by feature |
 

@@ -124,7 +124,7 @@ The mutation keys come from the barrels: `CREATE_AGENT_MUTATION_KEY` (`agents`),
   button that opens `step.page(subject)`. The tour never jumps forward on its own: a step
   skipped by hand would lose what the next ones need (the agent, the project, the pipeline).
 - **Agent offline.** `needsAgent` steps (run the pipeline, wait for the job) watch
-  `agentQueries.byOrganization`: the agent that the tour created (`subject.agentId`, from the
+  `agentQueries.byWorkspace`: the agent that the tour created (`subject.agentId`, from the
   create-agent mutation) or else any agent. While it is offline the card says so and offers to
   open it; the notice goes away by itself when the agent is back.
 - **Hint.** `step.hint` shows only when `when` still holds `afterMs` after the step began, and

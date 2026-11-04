@@ -6,21 +6,21 @@
   import { projectMessages } from '../messages/project.messages.ts';
 
   const context = toRune(contextStore);
-  const organizationId = $derived(context().organization.id);
+  const workspaceId = $derived(context().workspace.id);
 </script>
 
-{#if !organizationId}
+{#if !workspaceId}
   <div class="flex h-full items-center justify-center">
     <div class="space-y-2 text-center">
       <p class="text-lg font-semibold text-muted-foreground">
-        {t(projectMessages.noOrganization)}
+        {t(projectMessages.noWorkspace)}
       </p>
-      <p class="text-sm text-muted-foreground">{t(projectMessages.noOrganizationHint)}</p>
+      <p class="text-sm text-muted-foreground">{t(projectMessages.noWorkspaceHint)}</p>
     </div>
   </div>
 {:else}
-  <!-- Keyed on the organization: the page number resets on a switch. -->
-  {#key organizationId}
-    <ProjectList {organizationId} />
+  <!-- Keyed on the workspace: the page number resets on a switch. -->
+  {#key workspaceId}
+    <ProjectList {workspaceId} />
   {/key}
 {/if}

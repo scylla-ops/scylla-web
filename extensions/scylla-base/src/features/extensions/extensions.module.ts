@@ -10,7 +10,7 @@ export const ExtensionsModule = {
   id: 'extensions',
   domain: { extensionRepository },
   routes: {
-    organization: [
+    workspace: [
       {
         permission: Permission.MANAGE_ROLES,
         path: 'extensions',

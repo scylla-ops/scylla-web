@@ -121,7 +121,7 @@ deep path. Enforced in `.dependency-cruiser.cjs`, all `error`: `ui-is-generic`,
 - **An extension is a class with `@Extension`** (`@scylla/core-sdk`), listed in
   `apps/web/src/extensions.ts`. Its manifest is `{ id, name, version, dependencies?, modules,
   catalogs? }` — the modules carry everything else (see "The `ScyllaModule` contract").
-- **The core knows no business.** No organization, no `Permission` enum, no backend. What the
+- **The core knows no business.** No workspace, no `Permission` enum, no backend. What the
   frame shows (sections, links, header, footer, gate, guard, error policy) comes from modules.
 - **An extension reaches another one only through its SDK.** `@scylla/base-sdk` re-exports the
   barrels of scylla-base; scylla-base never imports it.
@@ -363,7 +363,7 @@ injected, still substitutable in a test. Only the redundant indirection is gone.
 - scylla-base `platform/` — `authz` (Permission, `can`, `Can`, `RequirePermission`), `context`
   (current org/project/pipeline + navigation), `grpc`.
 - scylla-base `features/` — `agents`, `apps`, `dashboard`, `extensions`, `jobs`, `login`, `marketplace`,
-  `membership`, `organization`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`.
+  `membership`, `workspace`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`.
 - scylla-base `shared/` — shared code with a business meaning. **No feature imports.**
 
 ### The `ScyllaModule` contract
@@ -523,7 +523,7 @@ does not have a known place. A test takes the name of the file it tests
   state that orchestrates a view is named after the view (`user-list.state.svelte.ts`): that is
   the ViewModel of the view. If you cannot name a state with one noun, split it.
 - **An effect synchronizes with a system outside Svelte**, for a component that calls it
-  (`organization-sync.effect.svelte.ts`). It installs `$effect`s, and returns nothing or what
+  (`workspace-sync.effect.svelte.ts`). It installs `$effect`s, and returns nothing or what
   the component must connect.
 - **An adapter makes an outside API readable from rune code** (`to-rune.adapter.svelte.ts`).
 
@@ -636,7 +636,7 @@ The package and layer structure is mandatory; everything else must earn its plac
 | Page component file | `*.page.svelte` | `UserAdmin.page.svelte` |
 | Svelte component | `PascalCase.svelte` | `SecretList.svelte` |
 | State (runes): a ViewModel, or UI state with one responsibility | `<view>.state.svelte.ts` / `<responsibility>.state.svelte.ts` → `create{Name}` or a `{View}State` class | `roles-page.state.svelte.ts`, `node-draft.state.svelte.ts` / `createNodeDraft` |
-| Effect (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` → a verb | `organization-sync.effect.svelte.ts` / `syncOrganization` |
+| Effect (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` → a verb | `workspace-sync.effect.svelte.ts` / `syncWorkspace` |
 | Adapter (runes): an outside API read from rune code | `*.adapter.svelte.ts` | `to-rune.adapter.svelte.ts` / `toRune` |
 | Query / mutation options | `<feature>.queries.ts` → `{feature}Queries`, `{feature}Mutations` | `user.queries.ts` / `userQueries` |
 | Messages (i18n) | `presentation/messages/*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
@@ -815,7 +815,7 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
 - Routing: written in the project, in `@scylla/core` (no router library); the declaration
   types are in `@scylla/core-sdk`. The mounts of scylla-base are in `ShellModule`
   (`shell/shell.module.ts`); the routes of the `app` mount and below are wrapped by `AppLayout`
-  (`AuthGuard` + `OrganizationGate`) and the core's shell frame.
+  (`AuthGuard` + `WorkspaceGate`) and the core's shell frame.
 - `@Extension` is a standard decorator (no `experimentalDecorators`). `vite.config.ts` sets
   `esbuild.target` so that the dev server lowers it, and the Lingui Babel pass parses it.
 - Backend comms: gRPC-Web via protobuf-ts through `CoreGrpcTransport`.
@@ -908,7 +908,7 @@ Because of that, the tooling of this repo must work from another root. Keep it s
 1. `extensions/<name>/` with a `package.json` (`"name": "@scylla/<name>"`, `exports: { ".": "./src/index.ts" }`,
    `dependencies` on `@scylla/core-sdk`, `@scylla/ui` and the SDKs it uses — `workspace:*`).
 2. Its modules, each a `*.module.ts` like a feature's: `domain`, `routes`, `nav` on the routes.
-   Graft pages on the mounts of another extension (`organization`, `project` of scylla-base),
+   Graft pages on the mounts of another extension (`workspace`, `project` of scylla-base),
    or declare new `mounts` / `navSections` in one module of your own.
 3. `src/<name>.extension.ts`: an
    `@Extension({ id, name, version, dependencies, modules, widgetInjections?, catalogs })` class,

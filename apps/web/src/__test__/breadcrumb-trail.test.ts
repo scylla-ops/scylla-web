@@ -22,7 +22,7 @@ const renderTrailAt = async (path: string) => {
 
 beforeEach(() => {
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme', slug: 'acme' },
+    workspace: { id: 'org-1', name: 'Acme', slug: 'acme' },
     project: { id: 'project-1', name: 'Scylla' },
     pipeline: { id: 'pipeline-1', name: 'Nightly' },
   });

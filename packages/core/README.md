@@ -7,7 +7,7 @@
 builds one router from the routes they declare, and draws the application frame around their
 pages: the sidebar, the top bar, the breadcrumbs, and the language switch.
 
-The core has no business logic. It does not know what an organization, a permission or a
+The core has no business logic. It does not know what an workspace, a permission or a
 backend is. Everything that the user sees inside the frame comes from an extension.
 
 ```typescript
@@ -25,7 +25,7 @@ void startCore({ extensions: [ScyllaBaseExtension], target: document.getElementB
 | **Extension** | A package that adds features to the app. It is a class with `@Extension`. | the extension, with [`@scylla/core-sdk`](../../sdks/core-sdk/README.md) |
 | **Module** | One unit inside an extension (`ScyllaModule`): its pages, its sidebar links, its dependencies. | `<feature>.module.ts` |
 | **Route** | A path, its lazy page, its permission, its breadcrumb and, as an option, its sidebar link. | the `routes` of a module |
-| **Mount** | A named place where routes attach, e.g. `organization` at `/:organizationSlug`. A mount brings its layout, its wrappers and its breadcrumb. | the `mounts` of a module |
+| **Mount** | A named place where routes attach, e.g. `workspace` at `/:workspaceSlug`. A mount brings its layout, its wrappers and its breadcrumb. | the `mounts` of a module |
 | **Shell frame** | The sidebar and the top bar. The core draws them. The modules supply their contents. | the core |
 | **Access policy** | How to check a route's `permission`: `can`, `ready`, `guard`. The core calls it. It does not know what it checks. | one module of the app |
 
@@ -66,26 +66,26 @@ export const AgentsModule = {
   id: 'agents',
   domain: { agentsRepository },
   routes: {
-    organization: [
+    workspace: [
       {
         path: 'agents',
         permission: Permission.LIST_AGENTS,
         breadcrumb: () => ({ label: msg`Agents` }),
         page: () => import('./presentation/ui/Agents/Agents.page.svelte'),
-        nav: { section: 'organization', title: msg`Agents`, icon: HardDriveIcon, order: 40 },
+        nav: { section: 'workspace', title: msg`Agents`, icon: HardDriveIcon, order: 40 },
       },
     ],
   },
 } satisfies ScyllaModule;
 ```
 
-When the URL matches `/:organizationSlug/agents`, the core renders these layers, from the
+When the URL matches `/:workspaceSlug/agents`, the core renders these layers, from the
 outside to the inside:
 
 ```
 layout of the root mount         e.g. an authentication gate
 └─ ShellFrame                     sidebar + top bar, when the root mount has shell: true
-   └─ wrappers of the mounts      outermost first, e.g. "sync the organization in the URL"
+   └─ wrappers of the mounts      outermost first, e.g. "sync the workspace in the URL"
       └─ access policy guard      only when the route has a permission
          └─ the page              loaded on demand, route parameters as props
 ```

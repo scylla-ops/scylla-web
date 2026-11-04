@@ -58,7 +58,7 @@ export const createOnboardingTour = (canStart: () => boolean) => {
   const context = toRune(contextStore);
   const needsAgent = $derived(visible && step?.kind === 'spot' && !!step.needsAgent);
   const agentsQuery = createQuery(() => {
-    const options = appQueries.runners(context().organization.id ?? '');
+    const options = appQueries.runners(context().workspace.id ?? '');
     return { ...options, enabled: options.enabled !== false && needsAgent };
   });
   const agentOffline = $derived(needsAgent && isAgentOffline(agentsQuery.data, subject.agentId));
@@ -125,7 +125,7 @@ export const createOnboardingTour = (canStart: () => boolean) => {
     start() {
       if (step?.kind !== 'welcome') return;
       advanceFrom(step.id);
-      scyllaNavigate.goToOrgRoute('/dashboard');
+      scyllaNavigate.goToWorkspaceRoute('/dashboard');
     },
     next() {
       if (step?.kind === 'spot' && canGoNext) advanceFrom(step.id);
@@ -143,10 +143,10 @@ export const createOnboardingTour = (canStart: () => boolean) => {
     },
     goBack() {
       if (step?.kind !== 'spot' || !step.page) return;
-      scyllaNavigate.goToOrgRoute(step.page(subject));
+      scyllaNavigate.goToWorkspaceRoute(step.page(subject));
     },
     openAgent() {
-      scyllaNavigate.goToOrgRoute(subject.agentId ? `/apps/${subject.agentId}` : '/apps');
+      scyllaNavigate.goToWorkspaceRoute(subject.agentId ? `/apps/${subject.agentId}` : '/apps');
     },
     requestSkip() {
       confirmingSkip = true;

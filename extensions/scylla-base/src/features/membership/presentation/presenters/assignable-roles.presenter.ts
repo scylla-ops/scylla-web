@@ -6,7 +6,7 @@ export interface AssignableRole {
   name: string;
   description: string;
   /** Kept for the pickers, which group the roles: every fixed role is of the workspace. */
-  ownedByOrganization: boolean;
+  ownedByWorkspace: boolean;
 }
 
 /** The fixed roles that a person can get on an object of `kind`, the strongest first. */
@@ -15,19 +15,19 @@ export const assignableForPeople = (kind: ObjectKind): AssignableRole[] =>
     roleId: role,
     name: roleLabel(role),
     description: roleDescriptions[role] ? i18n._(roleDescriptions[role]) : '',
-    ownedByOrganization: true,
+    ownedByWorkspace: true,
   }));
 
 export interface AssignableRoleGroup {
-  owner: 'organization' | 'platform';
+  owner: 'workspace' | 'platform';
   roles: AssignableRole[];
 }
 
-/** The roles of the organization first, then the platform roles. An empty group is left out. */
+/** The roles of the workspace first, then the platform roles. An empty group is left out. */
 export const groupAssignableRoles = (roles: readonly AssignableRole[]): AssignableRoleGroup[] =>
   (
     [
-      { owner: 'organization', roles: roles.filter(role => role.ownedByOrganization) },
-      { owner: 'platform', roles: roles.filter(role => !role.ownedByOrganization) },
+      { owner: 'workspace', roles: roles.filter(role => role.ownedByWorkspace) },
+      { owner: 'platform', roles: roles.filter(role => !role.ownedByWorkspace) },
     ] satisfies AssignableRoleGroup[]
   ).filter(group => group.roles.length > 0);

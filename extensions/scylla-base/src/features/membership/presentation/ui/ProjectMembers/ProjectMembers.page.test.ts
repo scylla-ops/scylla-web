@@ -62,7 +62,7 @@ beforeEach(() => {
   });
 
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme', slug: 'acme' },
+    workspace: { id: 'org-1', name: 'Acme', slug: 'acme' },
     project: { id: 'project-1', name: 'Web' },
   });
   localStorage.setItem('userId', 'user-9');
@@ -133,7 +133,7 @@ describe('ProjectMembersPage', () => {
   });
 
   it('disables adding a member without MANAGE_PROJECT_GRANTS', async () => {
-    grant([Permission.LIST_PROJECT_MEMBERS, Permission.LIST_ORGANIZATION_MEMBERS]);
+    grant([Permission.LIST_PROJECT_MEMBERS, Permission.LIST_WORKSPACE_MEMBERS]);
     render(ProjectMembersPage, { projectId: 'project-1' });
 
     await vi.waitFor(() =>

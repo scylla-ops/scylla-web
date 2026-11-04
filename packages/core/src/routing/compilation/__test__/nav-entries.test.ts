@@ -7,11 +7,11 @@ import { navEntriesFor } from '../nav-entries.ts';
 import { splitPath } from '../route-path.ts';
 
 const page: PageLoader = () => Promise.resolve({ default: {} as never });
-const nav = (order?: number): NavLink => ({ section: 'organization', title: msg`Entry`, order });
+const nav = (order?: number): NavLink => ({ section: 'workspace', title: msg`Entry`, order });
 const moduleWith = (id: string, routes: RouteSource['routes']): RouteSource => ({ id, routes });
 const MOUNT_PATHS: Record<RouteMount, string> = {
-  organization: ':organizationSlug',
-  project: ':organizationSlug/projects/:projectId',
+  workspace: ':workspaceSlug',
+  project: ':workspaceSlug/projects/:projectId',
 };
 const entriesFor = (modules: readonly RouteSource[]) =>
   navEntriesFor(modules, mount => splitPath(MOUNT_PATHS[mount]));
@@ -21,7 +21,7 @@ describe('navEntriesFor', () => {
   it("takes the URL and the permission of the link's route", () => {
     const [entry] = entriesFor([
       moduleWith('agents', {
-        organization: [
+        workspace: [
           {
             path: 'agents',
             children: [{ permission: LIST_AGENTS, page, nav: nav() }],
@@ -31,9 +31,9 @@ describe('navEntriesFor', () => {
     ]);
 
     expect(entry).toMatchObject({
-      mount: 'organization',
+      mount: 'workspace',
       url: 'agents',
-      pattern: [':organizationSlug', 'agents'],
+      pattern: [':workspaceSlug', 'agents'],
       permission: LIST_AGENTS,
     });
   });
@@ -41,13 +41,13 @@ describe('navEntriesFor', () => {
   it('sorts by order, an entry without one as 0, then by registration order', () => {
     const entries = entriesFor([
       moduleWith('first', {
-        organization: [
+        workspace: [
           { path: 'c', page, nav: nav(3) },
           { path: 'a', page, nav: nav() },
         ],
       }),
       moduleWith('second', {
-        organization: [
+        workspace: [
           { path: 'b', page, nav: nav(-1) },
           { path: 'd', page, nav: nav() },
         ],
@@ -58,7 +58,7 @@ describe('navEntriesFor', () => {
   });
 
   it('ignores the routes without a link', () => {
-    expect(entriesFor([moduleWith('m', { organization: [{ path: 'a', page }] })])).toEqual([]);
+    expect(entriesFor([moduleWith('m', { workspace: [{ path: 'a', page }] })])).toEqual([]);
   });
 
   it('gives a link of another mount the path of that mount', () => {
@@ -66,6 +66,6 @@ describe('navEntriesFor', () => {
       moduleWith('m', { project: [{ path: 'secrets', page, nav: nav() }] }),
     ]);
 
-    expect(entry.pattern).toEqual([':organizationSlug', 'projects', ':projectId', 'secrets']);
+    expect(entry.pattern).toEqual([':workspaceSlug', 'projects', ':projectId', 'secrets']);
   });
 });

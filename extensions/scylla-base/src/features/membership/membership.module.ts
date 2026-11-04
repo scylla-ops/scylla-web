@@ -8,13 +8,13 @@ export const MembershipModule = {
   id: 'membership',
   domain: {},
   routes: {
-    organization: [
+    workspace: [
       {
         path: 'members',
-        permission: Permission.LIST_ORGANIZATION_MEMBERS,
+        permission: Permission.LIST_WORKSPACE_MEMBERS,
         breadcrumb: () => ({ label: msg`Members` }),
-        page: () => import('./presentation/ui/OrganizationMembers/OrganizationMembers.page.svelte'),
-        nav: { section: 'organization', title: msg`Members`, icon: UsersRound, order: 30 },
+        page: () => import('./presentation/ui/WorkspaceMembers/WorkspaceMembers.page.svelte'),
+        nav: { section: 'workspace', title: msg`Members`, icon: UsersRound, order: 30 },
       },
     ],
     project: [

@@ -3,7 +3,7 @@
 > [Scylla frontend](../../../../../README.md) › `features/` › **project** ·
 > [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
 
-A project is the working unit inside an organization. It owns pipelines, secrets and its own
+A project is the working unit inside an workspace. It owns pipelines, secrets and its own
 member list, and it is the second segment of nearly every deep URL:
 `/:org/projects/:projectId/…`.
 
@@ -18,17 +18,17 @@ This module owns the project entity itself — the list, the CRUD, and the card 
   *experience* is [membership](../membership/README.md)'s.
 - **Reads for other modules** — the dashboard overview and the grant-label lookup.
 
-Access is gated on `READ_ORGANIZATION`, because listing an organization's projects is a read of
-the organization.
+Access is gated on `READ_WORKSPACE`, because listing an workspace's projects is a read of
+the workspace.
 
 ## Three readers, one cache entry
 
-Three different screens need "the projects of an organization", and all three query factories
+Three different screens need "the projects of an workspace", and all three query factories
 live here, in `project.queries.ts`:
 
 | Factory | Used by | Shape |
 |---|---|---|
-| `projectQueries.byOrganization` | this module's list page | paginated |
+| `projectQueries.byWorkspace` | this module's list page | paginated |
 | `projectQueries.lookup` | [dashboard](../dashboard/README.md), [agents](../agents/README.md) | one page of every project |
 | `projectLookupQueries` | [roles](../roles/README.md) grant labels | batched lookup |
 
@@ -40,7 +40,7 @@ So the queries live with the module that owns the resource, and consumers import
 If a fourth reader appears, its factory belongs here too.
 
 `projectLookupQueries` is also the codebase's reference for batching: it resolves projects
-across several organizations with `createQueries` rather than a loop of `createQuery`, which is
+across several workspaces with `createQueries` rather than a loop of `createQuery`, which is
 what keeps the grant list from firing one request per row.
 
 ## Where the project's contents live
@@ -72,7 +72,7 @@ project data.
 
 ## Related modules
 
-- [organization](../organization/README.md) — the parent scope.
+- [workspace](../workspace/README.md) — the parent scope.
 - [pipeline](../pipeline/README.md), [secret](../secret/README.md),
   [triggers](../triggers/README.md) — what a project contains.
 - [membership](../membership/README.md) — the member experience.

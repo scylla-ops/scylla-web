@@ -37,7 +37,7 @@ const page = (projects: ProjectEntity[]) => ({
 
 const withRepository = (overrides: Partial<ProjectRepository> = {}) => {
   const repository = {
-    getByOrganizationId: vi.fn().mockResolvedValue(page([project()])),
+    getByWorkspaceId: vi.fn().mockResolvedValue(page([project()])),
     listMembers: vi.fn().mockResolvedValue([]),
     create: vi.fn().mockResolvedValue(project()),
     update: vi.fn().mockResolvedValue(project()),
@@ -80,7 +80,7 @@ describe('canListProjects', () => {
     expect(canListProjects('org-1')).toBe(false);
   });
 
-  it('denies without LIST_PROJECTS_BY_ORGANIZATION', () => {
+  it('denies without LIST_PROJECTS_BY_WORKSPACE', () => {
     grantNothing();
     expect(canListProjects('org-1')).toBe(false);
   });
@@ -90,13 +90,13 @@ describe('canListProjects', () => {
   });
 });
 
-describe('projectQueries.byOrganization', () => {
+describe('projectQueries.byWorkspace', () => {
   it('fetches the first page for the given workspace', async () => {
     const repository = withRepository();
 
-    const result = await runQueryFn(projectQueries.byOrganization('org-1'));
+    const result = await runQueryFn(projectQueries.byWorkspace('org-1'));
 
-    expect(repository.getByOrganizationId).toHaveBeenCalledWith('org-1', {
+    expect(repository.getByWorkspaceId).toHaveBeenCalledWith('org-1', {
       page: 1,
       pageSize: expect.any(Number) as number,
     });
@@ -106,18 +106,18 @@ describe('projectQueries.byOrganization', () => {
   it('never asks for a list it may not read', () => {
     grantNothing();
     withRepository();
-    expect(projectQueries.byOrganization('org-1').enabled).toBe(false);
+    expect(projectQueries.byWorkspace('org-1').enabled).toBe(false);
   });
 
   it('is disabled without a workspace', () => {
     withRepository();
-    expect(projectQueries.byOrganization(null).enabled).toBe(false);
+    expect(projectQueries.byWorkspace(null).enabled).toBe(false);
   });
 
   it('keys each page separately, so a page change is a new cache entry', () => {
     withRepository();
-    const first = projectQueries.byOrganization('org-1', { page: 1, pageSize: 10 }).queryKey;
-    const second = projectQueries.byOrganization('org-1', { page: 2, pageSize: 10 }).queryKey;
+    const first = projectQueries.byWorkspace('org-1', { page: 1, pageSize: 10 }).queryKey;
+    const second = projectQueries.byWorkspace('org-1', { page: 2, pageSize: 10 }).queryKey;
 
     expect(first).not.toEqual(second);
   });
@@ -129,7 +129,7 @@ describe('projectQueries.lookup', () => {
 
     await runQueryFn(projectQueries.lookup('org-1'));
 
-    expect(repository.getByOrganizationId).toHaveBeenCalledWith('org-1', PROJECTS_LOOKUP_PAGE);
+    expect(repository.getByWorkspaceId).toHaveBeenCalledWith('org-1', PROJECTS_LOOKUP_PAGE);
   });
 
   it('shares its cache entry with the fan-out lookup for the same workspace', () => {
@@ -152,9 +152,9 @@ describe('projectLookupQueries', () => {
       permissions: {
         scopes: [
           {
-            scope: PermissionScope.ORGANIZATION,
+            scope: PermissionScope.WORKSPACE,
             scopeId: 'org-1',
-            access: { kind: 'restricted', permissions: [Permission.LIST_PROJECTS_BY_ORGANIZATION] },
+            access: { kind: 'restricted', permissions: [Permission.LIST_PROJECTS_BY_WORKSPACE] },
           },
         ],
       },
@@ -172,7 +172,7 @@ describe('projectLookupQueries', () => {
     expect(projectLookupQueries(['org-1'], false).queries).toHaveLength(0);
   });
 
-  it('combines results into a projectId -> {name, organizationId} map', () => {
+  it('combines results into a projectId -> {name, workspaceId} map', () => {
     withRepository();
     const { combine } = projectLookupQueries(['org-1', 'org-2']);
 
@@ -181,8 +181,8 @@ describe('projectLookupQueries', () => {
       { data: page([project({ id: 'p-2', name: 'api' })]) },
     ]);
 
-    expect(map.get('p-1')).toEqual({ name: 'web', organizationId: 'org-1' });
-    expect(map.get('p-2')).toEqual({ name: 'api', organizationId: 'org-2' });
+    expect(map.get('p-1')).toEqual({ name: 'web', workspaceId: 'org-1' });
+    expect(map.get('p-2')).toEqual({ name: 'api', workspaceId: 'org-2' });
   });
 
   it('keeps each result attached to the workspace it came from when some are skipped', () => {
@@ -190,9 +190,9 @@ describe('projectLookupQueries', () => {
       permissions: {
         scopes: [
           {
-            scope: PermissionScope.ORGANIZATION,
+            scope: PermissionScope.WORKSPACE,
             scopeId: 'org-2',
-            access: { kind: 'restricted', permissions: [Permission.LIST_PROJECTS_BY_ORGANIZATION] },
+            access: { kind: 'restricted', permissions: [Permission.LIST_PROJECTS_BY_WORKSPACE] },
           },
         ],
       },
@@ -203,7 +203,7 @@ describe('projectLookupQueries', () => {
     const map = combine([{ data: page([project({ id: 'p-2' })]) }]);
 
     // The indexes follow the readable ids, not the requested ones.
-    expect(map.get('p-2')?.organizationId).toBe('org-2');
+    expect(map.get('p-2')?.workspaceId).toBe('org-2');
   });
 });
 
@@ -250,10 +250,10 @@ describe('the mutations', () => {
 
     await runMutationFn(projectMutations.create(), {
       name: 'web',
-      organizationId: 'org-1',
+      workspaceId: 'org-1',
       description: 'd',
     });
-    runOnSuccess(projectMutations.create(), project(), { name: 'web', organizationId: 'org-1' });
+    runOnSuccess(projectMutations.create(), project(), { name: 'web', workspaceId: 'org-1' });
 
     expect(repository.create).toHaveBeenCalledWith('web', 'org-1', 'd');
     expect(toastSuccess).toHaveBeenCalledWith('Project created');

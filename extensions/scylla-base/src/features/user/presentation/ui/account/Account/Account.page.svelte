@@ -16,15 +16,15 @@
 
   interface Props {
     /** Absent on the `personal` mount (`/account/<section>`). */
-    organizationSlug?: string;
+    workspaceSlug?: string;
     section?: string;
   }
 
-  let { organizationSlug, section }: Props = $props();
+  let { workspaceSlug, section }: Props = $props();
 
   const page = createAccountPage();
   const current = $derived(accountSection(section));
-  const base = $derived(organizationSlug ? `/${organizationSlug}/account` : '/account');
+  const base = $derived(workspaceSlug ? `/${workspaceSlug}/account` : '/account');
 </script>
 
 {#if !current}

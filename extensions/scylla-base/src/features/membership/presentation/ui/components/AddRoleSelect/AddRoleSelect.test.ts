@@ -4,24 +4,24 @@ import userEvent from '@testing-library/user-event';
 import { findFloating, render } from '@test/render.ts';
 import AddRoleSelect from './AddRoleSelect.svelte';
 
-const role = (roleId: string, name: string, ownedByOrganization = false) => ({
+const role = (roleId: string, name: string, ownedByWorkspace = false) => ({
   roleId,
   name,
   description: '',
-  ownedByOrganization,
+  ownedByWorkspace,
 });
 
 const roles = [role('project-viewer', 'Project viewer'), role('project-admin', 'Project admin')];
 
 describe('AddRoleSelect', () => {
   it('renders nothing once there is no role left to add', () => {
-    render(AddRoleSelect, { roles: [], organizationName: 'Acme', disabled: false, onSelect: vi.fn() });
+    render(AddRoleSelect, { roles: [], workspaceName: 'Acme', disabled: false, onSelect: vi.fn() });
 
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 
   it('offers every addable role', async () => {
-    render(AddRoleSelect, { roles, organizationName: 'Acme', disabled: false, onSelect: vi.fn() });
+    render(AddRoleSelect, { roles, workspaceName: 'Acme', disabled: false, onSelect: vi.fn() });
 
     await userEvent.click(screen.getByRole('combobox'));
 
@@ -31,7 +31,7 @@ describe('AddRoleSelect', () => {
 
   it('reports the role id that was chosen, not its label', async () => {
     const onSelect = vi.fn();
-    render(AddRoleSelect, { roles, organizationName: 'Acme', disabled: false, onSelect });
+    render(AddRoleSelect, { roles, workspaceName: 'Acme', disabled: false, onSelect });
 
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(await findFloating('option', 'Project admin'));
@@ -40,15 +40,15 @@ describe('AddRoleSelect', () => {
   });
 
   it('is disabled while a write is in flight', () => {
-    render(AddRoleSelect, { roles, organizationName: 'Acme', disabled: true, onSelect: vi.fn() });
+    render(AddRoleSelect, { roles, workspaceName: 'Acme', disabled: true, onSelect: vi.fn() });
 
     expect(screen.getByRole('combobox')).toBeDisabled();
   });
 
-  it("lists the organization's own roles under their header, before the platform roles", async () => {
+  it("lists the workspace's own roles under their header, before the platform roles", async () => {
     render(AddRoleSelect, {
-      roles: [role('organization-viewer', 'Workspace viewer'), role('auditor', 'Auditor', true)],
-      organizationName: 'Acme',
+      roles: [role('workspace-viewer', 'Workspace viewer'), role('auditor', 'Auditor', true)],
+      workspaceName: 'Acme',
       disabled: false,
       onSelect: vi.fn(),
     });
@@ -61,7 +61,7 @@ describe('AddRoleSelect', () => {
   });
 
   it('goes back to its placeholder after a pick, never showing a role id', async () => {
-    render(AddRoleSelect, { roles, organizationName: 'Acme', disabled: false, onSelect: vi.fn() });
+    render(AddRoleSelect, { roles, workspaceName: 'Acme', disabled: false, onSelect: vi.fn() });
 
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(await findFloating('option', 'Project admin'));

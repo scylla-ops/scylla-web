@@ -4,9 +4,9 @@
 > [agent guide](./AGENTS.md) · [architecture](../../docs/architecture.md)
 
 **The Scylla product, as an extension.** Everything that a user of Scylla sees is here:
-organizations, projects, pipelines and their editor, jobs and their logs, triggers, agents,
+workspaces, projects, pipelines and their editor, jobs and their logs, triggers, agents,
 apps, secrets, roles and members. The extension also fills the frame of the core: the login
-gate, the organization selector, the user menu, the access policy and the error policy.
+gate, the workspace selector, the user menu, the access policy and the error policy.
 
 [`@scylla/core`](../../packages/core/README.md) loads this extension like any other. It is the
 *base* because other extensions build on it, through
@@ -27,9 +27,9 @@ src/
 | Layer | Contents |
 |-------|----------|
 | [`shell/`](src/shell/README.md) | The feature list and `ShellModule`: mounts, sidebar sections, access policy, error policy, shell parts. |
-| [`features/`](../../README.md#scylla-base--features) | `agents`, `apps`, `dashboard`, `extensions`, `jobs`, `login`, `marketplace`, `membership`, `organization`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`. |
+| [`features/`](../../README.md#scylla-base--features) | `agents`, `apps`, `dashboard`, `extensions`, `jobs`, `login`, `marketplace`, `membership`, `workspace`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`. |
 | [`platform/authz`](src/platform/authz/README.md) | `Permission`, `can`, `Can`, `RequirePermission`: the read side of access control. |
-| [`platform/context`](src/platform/context/README.md) | The active organization, project and pipeline, and navigation from them. |
+| [`platform/context`](src/platform/context/README.md) | The active workspace, project and pipeline, and navigation from them. |
 | [`platform/grpc`](src/platform/grpc/README.md) | The gRPC-Web transport, with authentication. |
 | [`shared/`](src/shared/README.md) | `ScyllaError`, the presentation of a run status. |
 
@@ -55,10 +55,10 @@ four mounts:
 |-------|------|--------------|
 | `public` | `/` | Pages outside the shell, e.g. `/login`. |
 | `app` | `/` | The authentication gate and the core's shell frame. |
-| `organization` | `/:organizationSlug` | Writes the organization of the URL into the context. |
-| `project` | `/:organizationSlug/projects/:projectId` | Clears a stale project context. Adds the "Project" breadcrumb. |
+| `workspace` | `/:workspaceSlug` | Writes the workspace of the URL into the context. |
+| `project` | `/:workspaceSlug/projects/:projectId` | Clears a stale project context. Adds the "Project" breadcrumb. |
 
-It also declares the `organization` and `system` sidebar sections, the access policy (from
+It also declares the `workspace` and `system` sidebar sections, the access policy (from
 `platform/authz`), the error policy (an expired session goes to `/login`, other errors show a
 toast), and the fallback page.
 

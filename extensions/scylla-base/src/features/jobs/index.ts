@@ -6,10 +6,10 @@ export type { JobsSummary } from './presentation/presenters/jobs-summary.present
 export { summarizeJobs } from './presentation/presenters/jobs-summary.presenter.ts';
 export {
   JOBS_QUERY_KEY,
-  ORGANIZATION_JOBS_QUERY_KEY,
+  WORKSPACE_JOBS_QUERY_KEY,
   JOBS_QUERY_ROOT,
 } from './presentation/jobs.query-keys.ts';
-export { jobQueries, asJobFeed, ORGANIZATION_JOBS_WINDOW } from './presentation/jobs.queries.ts';
+export { jobQueries, asJobFeed, WORKSPACE_JOBS_WINDOW } from './presentation/jobs.queries.ts';
 export { jobsByPipelinesQueries } from './presentation/jobs-by-pipelines.queries.ts';
 
 export const loadJobsPage = () => import('./presentation/ui/Jobs.page.svelte');

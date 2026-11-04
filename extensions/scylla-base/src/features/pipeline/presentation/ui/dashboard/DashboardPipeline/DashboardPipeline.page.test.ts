@@ -67,7 +67,7 @@ beforeEach(() => {
   grantEverything();
   selectionStore.setState({ selectedIds: {} });
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme', slug: null },
+    workspace: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: 'project-1', name: 'web' },
   });
 });

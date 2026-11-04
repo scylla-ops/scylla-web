@@ -18,7 +18,7 @@
   let { workspaceId }: Props = $props();
 
   /** `list_invitations` needs the same right as a grant: the admins of the workspace. */
-  const canManage = $derived(can(Permission.ADD_ORGANIZATION_MEMBER, { organizationId: workspaceId }));
+  const canManage = $derived(can(Permission.ADD_WORKSPACE_MEMBER, { workspaceId: workspaceId }));
 
   const invitations = createQuery(() =>
     invitationQueries.list(workspaceId, { enabled: canManage }),

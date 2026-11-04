@@ -15,7 +15,7 @@ const fake = (pathname = '/acme', search = '') => ({
   back: vi.fn<AppNavigator['back']>(),
   pathname: () => pathname,
   search: () => search,
-  params: () => ({ organizationSlug: 'acme' }),
+  params: () => ({ workspaceSlug: 'acme' }),
   trail: () => [],
 });
 
@@ -53,7 +53,7 @@ describe('the app navigator', () => {
 
   it('reads the route parameters through the router', () => {
     setAppNavigator(fake('/acme'));
-    expect(routeParams()).toEqual({ organizationSlug: 'acme' });
+    expect(routeParams()).toEqual({ workspaceSlug: 'acme' });
   });
 
   it('gives no parameters and no crumbs when nothing is installed', () => {

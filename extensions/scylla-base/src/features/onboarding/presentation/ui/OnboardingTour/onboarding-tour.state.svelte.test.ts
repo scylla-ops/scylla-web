@@ -47,7 +47,7 @@ const onStep = async (tour: OnboardingTour, id: string) => {
 beforeEach(() => {
   localStorage.clear();
   localStorage.setItem('userId', 'ada');
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme', slug: null } });
+  contextStore.setState({ workspace: { id: 'org-1', name: 'Acme', slug: null } });
 });
 
 afterEach(() => {

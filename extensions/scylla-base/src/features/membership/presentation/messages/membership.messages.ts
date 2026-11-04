@@ -20,11 +20,11 @@ export const membershipMessages = {
   noRoleGrantable: msg`No role can be granted here.`,
   held: msg`Held`,
   addRolePlaceholder: msg`+ role`,
-  organizationRoles: (organization: string) => msg`${organization} roles`,
+  workspaceRoles: (workspace: string) => msg`${workspace} roles`,
   platformRoles: msg`Platform roles`,
   selectAUser: msg`Select a user`,
   nobodyListed: msg`Nobody is listed here yet.`,
-  managedAtOrganization: msg`Managed at the workspace level.`,
+  managedAtWorkspace: msg`Managed at the workspace level.`,
   revokeRole: (name: string) => msg`Revoke ${name}`,
   /** Keep `value` and the `0:` arm: they are part of the msgid. */
   roleCount: (value: number) =>
@@ -36,22 +36,22 @@ export const membershipMessages = {
     msg`${username} removed: ${revoked} grant(s) revoked`,
   memberAdded: (count: number) => msg`Member added with ${count} role(s)`,
 
-  selectAnOrganization: msg`Select a workspace to see its members.`,
-  organizationBlurb: (name: string) =>
+  selectAnWorkspace: msg`Select a workspace to see its members.`,
+  workspaceBlurb: (name: string) =>
     msg`Belonging to “${name}” means holding a role in it. Granting someone their first role admits them; revoking every role they hold here, and on its projects, removes them.`,
-  organizationNewDenied: msg`You don't have permission to admit members here.`,
+  workspaceNewDenied: msg`You don't have permission to admit members here.`,
   onlySystemAdminCanBrowseUsers: msg`Only a system admin can browse the users.`,
-  organizationEmpty: msg`Nobody belongs to this workspace yet.`,
+  workspaceEmpty: msg`Nobody belongs to this workspace yet.`,
   reachedViaProject: msg`Reached via a project`,
-  managedByOrgAdmin: msg`Managed by a workspace administrator`,
-  removeFromOrganization: msg`Remove from the workspace`,
-  addToOrganization: (name: string) => msg`Add a member to “${name}”`,
-  addToOrganizationBody: msg`Pick someone and the roles they should hold in this workspace.`,
+  managedByWorkspaceAdmin: msg`Managed by a workspace administrator`,
+  removeFromWorkspace: msg`Remove from the workspace`,
+  addToWorkspace: (name: string) => msg`Add a member to “${name}”`,
+  addToWorkspaceBody: msg`Pick someone and the roles they should hold in this workspace.`,
   everyoneIsMember: msg`Everyone is already a member`,
   rolesToGrant: msg`Roles to grant`,
-  confirmRemoveFromOrganization: (username: string, organization: string) =>
-    msg`Remove ${username} from “${organization}”?`,
-  confirmRemoveFromOrganizationBody: msg`Every role they hold on this workspace and on its projects will be revoked. They will lose access immediately.`,
+  confirmRemoveFromWorkspace: (username: string, workspace: string) =>
+    msg`Remove ${username} from “${workspace}”?`,
+  confirmRemoveFromWorkspaceBody: msg`Every role they hold on this workspace and on its projects will be revoked. They will lose access immediately.`,
 
   projectBlurb: msg`Everyone with access to this project, whether granted here or through a role on the workspace. Only project roles can be changed from this page.`,
   projectNewDenied: msg`You don't have permission to add members to this project.`,
@@ -62,8 +62,8 @@ export const membershipMessages = {
   inheritedHintHidden: msg`Workspace administrators also reach this project. Their roles are managed at the workspace level and are not listed here.`,
   addToProject: msg`Add a member to this project`,
   addToProjectBody: msg`Only members of the workspace can be added: a project role granted to anyone else is refused.`,
-  everyOrgMemberHere: msg`Every member of the workspace is already here`,
-  cannotBrowseOrgMembers: msg`You can't browse the workspace's members`,
+  everyWorkspaceMemberHere: msg`Every member of the workspace is already here`,
+  cannotBrowseWorkspaceMembers: msg`You can't browse the workspace's members`,
   projectRolesToGrant: msg`Project roles to grant`,
   confirmRemoveFromProject: (username: string) => msg`Remove ${username} from this project?`,
   confirmRemoveFromProjectBody: msg`Every role they hold on this project will be revoked. Roles inherited from the workspace are untouched: they are managed at the workspace level.`,

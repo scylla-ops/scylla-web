@@ -43,7 +43,7 @@ let repository: JobsRepository;
 beforeEach(() => {
   repository = {
     getByPipelineId: vi.fn().mockResolvedValue(listOf([job('job-1')])),
-    getByOrganizationId: vi.fn(),
+    getByWorkspaceId: vi.fn(),
     getById: vi.fn(),
     deleteById: vi.fn(),
     rerun: vi.fn(),
@@ -123,7 +123,7 @@ describe('jobsByPipelinesQueries', () => {
 
   it('resolves against the project the page is already scoped to, with no target passed', () => {
     contextStore.setState({
-      organization: { id: 'org-1', name: 'Acme', slug: null },
+      workspace: { id: 'org-1', name: 'Acme', slug: null },
       project: { id: 'project-1', name: 'Acme project' },
     });
 

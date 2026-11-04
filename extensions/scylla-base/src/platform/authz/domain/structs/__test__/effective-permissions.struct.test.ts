@@ -22,7 +22,7 @@ describe('canAccess', () => {
   it('a SYSTEM fullControl scope grants anything, anywhere, even with no target given', () => {
     const perms = effective({ scope: PermissionScope.SYSTEM, scopeId: '', access: { kind: 'fullControl' } });
     expect(canAccess(perms, Permission.READ_PROJECT)).toBe(true);
-    expect(canAccess(perms, Permission.DELETE_ORGANIZATION, { organizationId: 'org-1' })).toBe(true);
+    expect(canAccess(perms, Permission.DELETE_WORKSPACE, { workspaceId: 'org-1' })).toBe(true);
   });
 
   it('a restricted access confers only the permissions it explicitly lists', () => {
@@ -60,28 +60,28 @@ describe('canAccess', () => {
     });
   });
 
-  describe('ORGANIZATION scope', () => {
-    const orgGrant = (orgId: string) =>
+  describe('WORKSPACE scope', () => {
+    const workspaceGrant = (workspaceId: string) =>
       effective({
-        scope: PermissionScope.ORGANIZATION,
-        scopeId: orgId,
+        scope: PermissionScope.WORKSPACE,
+        scopeId: workspaceId,
         access: { kind: 'fullControl' },
       });
 
     it('covers a target in that same workspace', () => {
-      expect(canAccess(orgGrant('org-1'), Permission.READ_PROJECT, { organizationId: 'org-1' })).toBe(true);
+      expect(canAccess(workspaceGrant('org-1'), Permission.READ_PROJECT, { workspaceId: 'org-1' })).toBe(true);
     });
 
     it('does not cover a different workspace', () => {
-      expect(canAccess(orgGrant('org-1'), Permission.READ_PROJECT, { organizationId: 'org-2' })).toBe(false);
+      expect(canAccess(workspaceGrant('org-1'), Permission.READ_PROJECT, { workspaceId: 'org-2' })).toBe(false);
     });
 
-    it('does not cover a target with no organizationId given', () => {
-      expect(canAccess(orgGrant('org-1'), Permission.READ_PROJECT)).toBe(false);
+    it('does not cover a target with no workspaceId given', () => {
+      expect(canAccess(workspaceGrant('org-1'), Permission.READ_PROJECT)).toBe(false);
     });
 
     it('does not cover a target scoped only by projectId', () => {
-      expect(canAccess(orgGrant('org-1'), Permission.READ_PROJECT, { projectId: 'project-1' })).toBe(false);
+      expect(canAccess(workspaceGrant('org-1'), Permission.READ_PROJECT, { projectId: 'project-1' })).toBe(false);
     });
   });
 
@@ -105,9 +105,9 @@ describe('canAccess', () => {
       );
     });
 
-    it('does not extend to the project\'s own organization - a project grant is narrower, not broader', () => {
+    it('does not extend to the project\'s own workspace - a project grant is narrower, not broader', () => {
       expect(
-        canAccess(projectGrant('project-1'), Permission.READ_PROJECT, { organizationId: 'org-1' }),
+        canAccess(projectGrant('project-1'), Permission.READ_PROJECT, { workspaceId: 'org-1' }),
       ).toBe(false);
     });
   });
@@ -118,7 +118,7 @@ describe('canAccess', () => {
       scopeId: '',
       access: { kind: 'fullControl' },
     });
-    expect(canAccess(perms, Permission.READ_PROJECT, { organizationId: 'org-1', projectId: 'project-1' })).toBe(
+    expect(canAccess(perms, Permission.READ_PROJECT, { workspaceId: 'org-1', projectId: 'project-1' })).toBe(
       false,
     );
   });
@@ -135,25 +135,25 @@ describe('canAccess', () => {
     const full = { kind: 'fullControl' } as const;
 
     it('a workspace grant does not reach a system permission', () => {
-      const perms = effective({ scope: PermissionScope.ORGANIZATION, scopeId: 'org-1', access: full });
-      const target = { organizationId: 'org-1' };
+      const perms = effective({ scope: PermissionScope.WORKSPACE, scopeId: 'org-1', access: full });
+      const target = { workspaceId: 'org-1' };
       expect(canAccess(perms, Permission.MANAGE_ROLES, target)).toBe(false);
       expect(canAccess(perms, Permission.LIST_USERS, target)).toBe(false);
-      expect(canAccess(perms, Permission.MANAGE_ORG_ROLES, target)).toBe(true);
+      expect(canAccess(perms, Permission.MANAGE_WORKSPACE_ROLES, target)).toBe(true);
       expect(canAccess(perms, Permission.RUN_PIPELINE, target)).toBe(true);
     });
 
     it('a project grant does not reach a workspace permission', () => {
       const perms = effective({ scope: PermissionScope.PROJECT, scopeId: 'p-1', access: full });
-      const target = { organizationId: 'org-1', projectId: 'p-1' };
-      expect(canAccess(perms, Permission.UPDATE_ORGANIZATION, target)).toBe(false);
+      const target = { workspaceId: 'org-1', projectId: 'p-1' };
+      expect(canAccess(perms, Permission.UPDATE_WORKSPACE, target)).toBe(false);
       expect(canAccess(perms, Permission.READ_APP, target)).toBe(false);
       expect(canAccess(perms, Permission.UPDATE_PROJECT, target)).toBe(true);
     });
 
     it('reads the level of a permission from the resource it targets', () => {
       expect(permissionLevel(Permission.READ_USER)).toBe(PermissionScope.SYSTEM);
-      expect(permissionLevel(Permission.CREATE_PROJECT)).toBe(PermissionScope.ORGANIZATION);
+      expect(permissionLevel(Permission.CREATE_PROJECT)).toBe(PermissionScope.WORKSPACE);
       expect(permissionLevel(Permission.MANAGE_PROJECT_GRANTS)).toBe(PermissionScope.PROJECT);
     });
   });
@@ -177,7 +177,7 @@ const holding = (...scopes: EffectiveScope[]): EffectivePermissions => ({ scopes
 describe('holdsPermission — the escalation rule of the backend', () => {
   it('counts a grant on the workspace that owns the role', () => {
     const effective = holding(
-      restricted(PermissionScope.ORGANIZATION, 'org-1', [Permission.RUN_PIPELINE]),
+      restricted(PermissionScope.WORKSPACE, 'org-1', [Permission.RUN_PIPELINE]),
     );
 
     expect(holdsPermission(effective, 'org-1', Permission.RUN_PIPELINE)).toBe(true);
@@ -200,7 +200,7 @@ describe('holdsPermission — the escalation rule of the backend', () => {
   });
 
   it('never counts a workspace grant toward a platform role', () => {
-    const effective = holding(full(PermissionScope.ORGANIZATION, 'org-1'));
+    const effective = holding(full(PermissionScope.WORKSPACE, 'org-1'));
 
     expect(holdsPermission(effective, null, Permission.RUN_PIPELINE)).toBe(false);
     expect(holdsFullControl(effective, null)).toBe(false);
@@ -209,17 +209,17 @@ describe('holdsPermission — the escalation rule of the backend', () => {
   it('lets full control cover every permission, and only full control give it', () => {
     expect(
       holdsPermission(
-        holding(full(PermissionScope.ORGANIZATION, 'org-1')),
+        holding(full(PermissionScope.WORKSPACE, 'org-1')),
         'org-1',
         Permission.DELETE_PROJECT,
       ),
     ).toBe(true);
-    expect(holdsFullControl(holding(full(PermissionScope.ORGANIZATION, 'org-1')), 'org-1')).toBe(
+    expect(holdsFullControl(holding(full(PermissionScope.WORKSPACE, 'org-1')), 'org-1')).toBe(
       true,
     );
     expect(
       holdsFullControl(
-        holding(restricted(PermissionScope.ORGANIZATION, 'org-1', [Permission.RUN_PIPELINE])),
+        holding(restricted(PermissionScope.WORKSPACE, 'org-1', [Permission.RUN_PIPELINE])),
         'org-1',
       ),
     ).toBe(false);

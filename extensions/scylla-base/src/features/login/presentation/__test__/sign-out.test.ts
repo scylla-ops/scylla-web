@@ -10,7 +10,7 @@ const location = { href: '/acme/projects' };
 beforeEach(() => {
   vi.stubGlobal('location', location);
   localStorage.setItem('userId', 'user-1');
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme', slug: null } });
+  contextStore.setState({ workspace: { id: 'org-1', name: 'Acme', slug: null } });
 });
 
 afterEach(() => vi.unstubAllGlobals());
@@ -21,7 +21,7 @@ describe('signOut', () => {
 
     expect(close).toHaveBeenCalledOnce();
     expect(localStorage.getItem('userId')).toBeNull();
-    expect(contextStore.getState().organization).toEqual({ id: null, name: null, slug: null });
+    expect(contextStore.getState().workspace).toEqual({ id: null, name: null, slug: null });
     expect(location.href).toBe('/login');
   });
 });

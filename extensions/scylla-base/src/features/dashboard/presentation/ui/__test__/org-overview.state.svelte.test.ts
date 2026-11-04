@@ -7,7 +7,7 @@ import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { JobEntity } from '@base/features/jobs';
 import type { PipelineMetadata } from '@base/features/pipeline';
 import type { ProjectEntity } from '@base/features/project';
-import { createOrgOverview } from '../org-overview.state.svelte.ts';
+import { createWorkspaceOverview } from '../org-overview.state.svelte.ts';
 
 const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity =>
   ({ id: 'project-1', name: 'Acme project', ...overrides });
@@ -50,13 +50,13 @@ beforeEach(() => {
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
-    project: { projectRepository: { getByOrganizationId: getProjects } },
-    pipeline: { pipelineRepository: { getMetadataByOrganizationId: getPipelines } },
-    jobs: { jobsRepository: { getByOrganizationId: getJobs } },
+    project: { projectRepository: { getByWorkspaceId: getProjects } },
+    pipeline: { pipelineRepository: { getMetadataByWorkspaceId: getPipelines } },
+    jobs: { jobsRepository: { getByWorkspaceId: getJobs } },
   });
 
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme', slug: null },
+    workspace: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: null, name: null },
   });
   permissionsStore.setState({ permissions: null });
@@ -69,11 +69,11 @@ afterEach(() => {
 });
 
 const withOverview = async (
-  body: (overview: ReturnType<typeof createOrgOverview>) => Promise<void> | void,
+  body: (overview: ReturnType<typeof createWorkspaceOverview>) => Promise<void> | void,
 ) => {
-  let overview!: ReturnType<typeof createOrgOverview>;
+  let overview!: ReturnType<typeof createWorkspaceOverview>;
   const cleanup = $effect.root(() => {
-    overview = createOrgOverview();
+    overview = createWorkspaceOverview();
   });
 
   try {
@@ -83,10 +83,10 @@ const withOverview = async (
   }
 };
 
-describe('createOrgOverview', () => {
-  it('reads the current organization from context and asks each module for its own half', async () => {
+describe('createWorkspaceOverview', () => {
+  it('reads the current workspace from context and asks each module for its own half', async () => {
     await withOverview(async overview => {
-      expect(overview.organizationId).toBe('org-1');
+      expect(overview.workspaceId).toBe('org-1');
 
       await waitFor(() => expect(overview.projects).toHaveLength(1));
       expect(getProjects).toHaveBeenCalledWith('org-1', { page: 1, pageSize: 100 });

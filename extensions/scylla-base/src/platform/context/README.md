@@ -3,7 +3,7 @@
 > [Scylla frontend](../../../../../README.md) › `platform/` › **context** ·
 > [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
 
-Scylla's UI is scoped: you are always inside an organization, often inside a project, sometimes
+Scylla's UI is scoped: you are always inside an workspace, often inside a project, sometimes
 looking at a pipeline. This capability holds *which ones*, and builds navigation from that.
 
 Imported as `@platform/context`: the `contextStore`, the navigator of the app, and
@@ -12,7 +12,7 @@ Imported as `@platform/context`: the `contextStore`, the navigator of the app, a
 ## Identifiers only, on purpose
 
 The store holds an `{ id, name }` pair for each of the three scopes. Nothing more — no
-`OrganizationEntity`, no `ProjectEntity`, no members, no settings.
+`WorkspaceEntity`, no `ProjectEntity`, no members, no settings.
 
 That restriction is what makes the module possible at all. Context is genuinely *business*
 information, which is why it lives in `platform/` rather than `shared/`. But `platform/` may
@@ -28,22 +28,22 @@ The same reasoning explains why it is one of only two global stores in the app (
 `selectionStore` in [shared](../../shared/README.md)). Everything else is either server state
 in TanStack Query or local `$state`.
 
-## Switching organizations clears the rest
+## Switching workspaces clears the rest
 
-`setOrganization` resets `project` and `pipeline` to null.
+`setWorkspace` resets `project` and `pipeline` to null.
 
-A project id only means something inside its organization. Carrying one across a switch would
+A project id only means something inside its workspace. Carrying one across a switch would
 build a URL pointing at another tenant's resource, or fire a query for a project the user cannot
 see. Clearing is the correct behaviour, and it is worth knowing about before writing code that
 assumes `project.id` survives an org change.
 
 The store persists to `localStorage` under `scylla-context`, so a reload keeps you where you
-were rather than dumping you at the organization picker.
+were rather than dumping you at the workspace picker.
 
 ## The URL is the source of truth
 
 Context is *derived from the route*, not the other way round. The shell's
-`OrganizationSync.wrapper.svelte` reads route params and writes them into the store;
+`WorkspaceSync.wrapper.svelte` reads route params and writes them into the store;
 `ContextCleaner.wrapper.svelte` clears context when you leave a scope. See
 [shell](../../shell/README.md).
 
@@ -54,7 +54,7 @@ need effects on both sides watching for changes — a mirror-state cascade. One 
 
 `scyllaNavigate` is how you move between scoped screens. It knows the current context, so
 callers ask for a destination rather than assembling
-`/${orgSlug}/projects/${projectId}/pipelines/${id}/jobs` by hand.
+`/${workspaceSlug}/projects/${projectId}/pipelines/${id}/jobs` by hand.
 
 Beyond convenience, it is a single point of change: when a route's shape changes, one file is
 updated instead of every template literal scattered across fourteen modules.
@@ -72,5 +72,5 @@ small capability does not need scaffolding to look like one.
 ## Related modules
 
 - [shell](../../shell/README.md) — the wrappers that sync the store from the URL, the context
-  selector, and the mounts (`organization`, `project`) these ids correspond to.
+  selector, and the mounts (`workspace`, `project`) these ids correspond to.
 - [`@scylla/core`](../../../../../packages/core/README.md) — the router.

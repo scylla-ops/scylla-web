@@ -15,7 +15,7 @@
     SelectValue,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { ownerMutations, ownerQueries } from '@base/features/organization';
+  import { ownerMutations, ownerQueries } from '@base/features/workspace';
   import type { UserSummary } from '@base/features/user';
   import { userName } from '@shared/presentation/ui';
   import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
@@ -57,7 +57,7 @@
             type="button"
             aria-label={t(membershipMessages.removeOwner(owner.displayName || owner.userId))}
             disabled={remove.isPending}
-            onclick={() => remove.mutate({ organizationId: workspaceId, userId: owner.userId })}
+            onclick={() => remove.mutate({ workspaceId: workspaceId, userId: owner.userId })}
           >
             <XIcon class="size-3" />
           </button>
@@ -72,7 +72,7 @@
         onValueChange={userId => {
           if (!userId) return;
           value = '';
-          add.mutate({ organizationId: workspaceId, userId });
+          add.mutate({ workspaceId: workspaceId, userId });
         }}
       >
         <SelectTrigger size="sm" class="w-auto border-dashed text-xs">

@@ -25,7 +25,7 @@ const extension = (manifest: ExtensionManifest): ExtensionClass => {
 const frame: ScyllaModule = {
   id: 'frame',
   domain: {},
-  mounts: { public: {}, app: { shell: true }, organization: { parent: 'app', path: ':slug' } },
+  mounts: { public: {}, app: { shell: true }, workspace: { parent: 'app', path: ':slug' } },
   navSections: [{ id: 'main', title: msg`Main` }],
   access: policy,
   fallback: Fallback,
@@ -35,7 +35,7 @@ const agents: ScyllaModule = {
   id: 'agents',
   domain: { agentsRepository: {} },
   routes: {
-    organization: [
+    workspace: [
       {
         path: 'agents',
         page,
@@ -50,7 +50,7 @@ const billing = (overrides: Partial<ScyllaModule> = {}): ScyllaModule => ({
   id: 'billing',
   domain: { billingRepository: {} },
   routes: {
-    organization: [{ path: 'billing', page, nav: { section: 'main', title: msg`Billing` } }],
+    workspace: [{ path: 'billing', page, nav: { section: 'main', title: msg`Billing` } }],
   },
   ...overrides,
 });
@@ -171,7 +171,7 @@ describe('loadExtensions', () => {
   it('refuses a sidebar link to a section that no module declares', () => {
     const lost = billing({
       routes: {
-        organization: [{ path: 'billing', page, nav: { section: 'money', title: msg`Billing` } }],
+        workspace: [{ path: 'billing', page, nav: { section: 'money', title: msg`Billing` } }],
       },
     });
 

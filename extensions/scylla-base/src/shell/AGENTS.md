@@ -27,19 +27,19 @@ presentation/
   shell-params.ts                       breadcrumbParams, linkParams (from the context store)
   report-query-error.ts                 the one error toast; on UNAUTHENTICATED `closeSession`, `loginPathBackTo` (login)
   router/
-    AppLayout.svelte                    layout of the `app` mount: AuthGuard + OrganizationGate
+    AppLayout.svelte                    layout of the `app` mount: AuthGuard + WorkspaceGate
     AuthGuard/                          token present (hasSession)? → the pages, else /login
     PersonalLayout/                     layout of the `personal` mount: AuthGuard + a centered column, no gate
-    OrganizationSync.wrapper.svelte     URL slug → context store (organization-sync.effect.svelte.ts)
-    OrganizationRedirect.wrapper.svelte `/` → the user's organization (organization-redirect.effect.svelte.ts)
+    WorkspaceSync.wrapper.svelte     URL slug → context store (workspace-sync.effect.svelte.ts)
+    WorkspaceRedirect.wrapper.svelte `/` → the user's workspace (workspace-redirect.effect.svelte.ts)
     ContextCleaner.wrapper.svelte       drops stale project/pipeline context (context-cleaner.effect.svelte.ts)
     LoginRedirect.svelte                the fallback for a URL that no route matches
   layout/
-    shell.state.svelte.ts               organizations query, permission sync, first organization
+    shell.state.svelte.ts               workspaces query, permission sync, first workspace
     whats-new.state.svelte.ts                 seen flags (reactive), markNavSeen
-    ui/OrganizationGate/                loading screen / first organization / the pages
-      FirstOrganization.svelte          welcome screen when the user has no organization
-    ui/context-selector/                OrganizationSelector (+ CurrentContextDisplay): the header of the organization section
+    ui/WorkspaceGate/                loading screen / first workspace / the pages
+      FirstWorkspace.svelte          welcome screen when the user has no workspace
+    ui/context-selector/                WorkspaceSelector (+ CurrentContextDisplay): the header of the workspace section
     ui/NavUser/                         who is signed in (userQueries.me), Account, Sign out (sidebar footer)
     ui/SessionLine/                     "Signed in as … · Account · Sign out", one centered line, outside the sidebar
     ui/NewBadge.svelte                  "New" pill of a sidebar link (navBadge)
@@ -62,11 +62,11 @@ entry chunk. `module-declaration-is-private` enforces that no other module does 
 mounts
   public         /                                        no layout, no guard
   app            /                                        layout AppLayout, shell: true
-  personal       /                                        layout PersonalLayout (no shell, no organization)
-  organization   /:organizationSlug                       wrapper OrganizationSyncWrapper
-  project        /:organizationSlug/projects/:projectId   wrapper ContextCleanerWrapper, crumb "Project"
-routes           app: / -> OrganizationRedirectWrapper · organization: (its root) -> 'dashboard'
-navSections      organization (header: OrganizationSelector), system
+  personal       /                                        layout PersonalLayout (no shell, no workspace)
+  workspace   /:workspaceSlug                       wrapper WorkspaceSyncWrapper
+  project        /:workspaceSlug/projects/:projectId   wrapper ContextCleanerWrapper, crumb "Project"
+routes           app: / -> WorkspaceRedirectWrapper · workspace: (its root) -> 'dashboard'
+navSections      workspace (header: WorkspaceSelector), system
 access           can / authorizationReady / RequirePermission, from @platform/authz
 shell            sidebarFooter NavUser · overlays LaunchOverlays · navBadge NewBadge ·
                  onNavOpen markNavSeen · breadcrumbParams · linkParams
@@ -91,15 +91,15 @@ changes only for a new mount, a new section or a new part of the shell.
 
 ## The shell parts
 
-- `linkParams` gives the sidebar links the slug of the **active organization** (context store).
-  `breadcrumbParams` gives the crumbs `organizationName`, `projectName`, and `pipelineName` —
+- `linkParams` gives the sidebar links the slug of the **active workspace** (context store).
+  `breadcrumbParams` gives the crumbs `workspaceName`, `projectName`, and `pipelineName` —
   the name of the active pipeline only when it is the one in the URL, else its id, so the crumb
   identifies its pipeline also after a reload.
-- `OrganizationSelector` shows `OrganizationList` from `features/organization` and opens
-  `AddOrganizationDialog`, both through the **loaders** of its barrel.
-- `createShell()` is created once, in `OrganizationGate`. It loads the organizations of
+- `WorkspaceSelector` shows `WorkspaceList` from `features/workspace` and opens
+  `AddWorkspaceDialog`, both through the **loaders** of its barrel.
+- `createShell()` is created once, in `WorkspaceGate`. It loads the workspaces of
   the user, and an effect calls `syncMyPermissions` (`features/roles`) when the active
-  organization or project changes. It is the only writer of the permissions store.
+  workspace or project changes. It is the only writer of the permissions store.
 - `reportQueryError` is the app's single error report. **A query or a mutation must not add its
   own `onError` toast.** A *query* that fails on the network signs out (the UI is served by the
   control plane, so "unreachable" and "no longer authenticated" look the same); a *mutation*
@@ -134,13 +134,13 @@ page-level rule (every page in the shell declares a `permission`) is in
   (`@shared/presentation/ui/data-display/UserIdentity/UserIdentity.svelte`): the barrel of
   `@shared/presentation/ui` re-exports the other shared components, and this file is in the entry
   chunk. "Who am I" is `userQueries.me`, never `localStorage.userId`.
-- After the first organization, the shell opens its dashboard (`organizationUrl(name)`).
-- **A user with no organization is not stuck.** Under its card, the first-organization screen
+- After the first workspace, the shell opens its dashboard (`workspaceUrl(name)`).
+- **A user with no workspace is not stuck.** Under its card, the first-workspace screen
   shows `SessionLine` ("Signed in as <name>", "Account" to `/account`, "Sign out"). It shows the
-  create form only with `CREATE_ORGANIZATION`; without it, it asks the user to wait for an
+  create form only with `CREATE_WORKSPACE`; without it, it asks the user to wait for an
   administrator. The `personal` mount (`PersonalLayout`: `AuthGuard`, the logo and a centered
-  column like the sign-in pages, a "Back" link to `/` above the page; no `OrganizationGate`, no
-  sidebar) holds the pages that need no organization: `/account`. The page itself puts the
+  column like the sign-in pages, a "Back" link to `/` above the page; no `WorkspaceGate`, no
+  sidebar) holds the pages that need no workspace: `/account`. The page itself puts the
   sign-out after its last section: the router places a page out of the flow of its layout
   (`PageTransition`), so nothing can follow `children` in a layout.
 - **No screen has a top bar.** The core's dark-mode toggle is fixed in the top-right corner of

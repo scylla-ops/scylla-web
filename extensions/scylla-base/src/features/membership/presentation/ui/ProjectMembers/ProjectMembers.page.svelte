@@ -38,22 +38,22 @@
   let { projectId }: Props = $props();
 
   const context = toRune(contextStore);
-  const organizationId = $derived(context().organization.id);
+  const workspaceId = $derived(context().workspace.id);
   // About this project, not the context's: a direct URL can land here before the two agree.
   const target = $derived({
     projectId: projectId ?? undefined,
-    organizationId: organizationId ?? undefined,
+    workspaceId: workspaceId ?? undefined,
   });
 
   const canManage = $derived(can(Permission.MANAGE_PROJECT_GRANTS, target));
-  const canListOrganizationMembers = $derived(
-    can(Permission.LIST_ORGANIZATION_MEMBERS, target),
+  const canListWorkspaceMembers = $derived(
+    can(Permission.LIST_WORKSPACE_MEMBERS, target),
   );
 
   // The roles of the workspace reach its projects: they show here, locked.
   const workspaceAccessQuery = createQuery(() =>
-    accessQueries.list(organizationId ? workspaceRef(organizationId) : null, {
-      enabled: canListOrganizationMembers,
+    accessQueries.list(workspaceId ? workspaceRef(workspaceId) : null, {
+      enabled: canListWorkspaceMembers,
     }),
   );
   const workspaceEntries = $derived(workspaceAccessQuery.data ?? []);
@@ -105,7 +105,7 @@
   );
 
   const zoneContext: ProjectMembersContext = $derived({
-    organizationId: organizationId ?? '',
+    workspaceId: workspaceId ?? '',
     projectId: projectId ?? '',
     canManage,
     memberCount: members.length,
@@ -136,9 +136,9 @@
 </script>
 
 <!--
-  The project's own members plus the organization roles that reach it, each badged
+  The project's own members plus the workspace roles that reach it, each badged
   with its scope. Inherited roles are locked: revoking them changes every project.
-  Candidates are the organization's members (a project grant needs one).
+  Candidates are the workspace's members (a project grant needs one).
 -->
 {#snippet actions()}
   <WidgetZone point={membershipPoints.projectActions} context={zoneContext}>
@@ -172,8 +172,8 @@
         membership.isLoading}
       emptyMessage={t(membershipMessages.projectEmpty)}
       {userFor}
-      missing={canListOrganizationMembers ? 'deleted' : 'unknown'}
-      organizationName={context().organization.name ?? ''}
+      missing={canListWorkspaceMembers ? 'deleted' : 'unknown'}
+      workspaceName={context().workspace.name ?? ''}
       labelFor={roles.labelFor}
       {currentUserId}
       {canManage}
@@ -191,12 +191,12 @@
       onRemove={member =>
         (pendingRemoval = {
           userId: member.userId,
-          name: userName(userFor(member.userId), canListOrganizationMembers ? 'deleted' : 'unknown'),
+          name: userName(userFor(member.userId), canListWorkspaceMembers ? 'deleted' : 'unknown'),
         })}
     />
 
     <MembersHint>
-      {canListOrganizationMembers
+      {canListWorkspaceMembers
         ? t(membershipMessages.inheritedHintVisible)
         : t(membershipMessages.inheritedHintHidden)}
     </MembersHint>
@@ -209,11 +209,11 @@
       title={t(membershipMessages.addToProject)}
       description={t(membershipMessages.addToProjectBody)}
       {candidates}
-      emptyCandidatesLabel={canListOrganizationMembers
-        ? t(membershipMessages.everyOrgMemberHere)
-        : t(membershipMessages.cannotBrowseOrgMembers)}
+      emptyCandidatesLabel={canListWorkspaceMembers
+        ? t(membershipMessages.everyWorkspaceMemberHere)
+        : t(membershipMessages.cannotBrowseWorkspaceMembers)}
       roles={roles.assignableRoles}
-      organizationName={context().organization.name ?? ''}
+      workspaceName={context().workspace.name ?? ''}
       rolesLabel={t(membershipMessages.projectRolesToGrant)}
       rolesLoading={roles.isLoading}
       isPending={membership.isPending}

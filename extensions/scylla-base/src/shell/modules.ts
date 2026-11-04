@@ -3,7 +3,7 @@ import { LoginModule } from '@base/features/login/login.module.ts';
 import { DashboardModule } from '@base/features/dashboard/dashboard.module.ts';
 import { OnboardingModule } from '@base/features/onboarding/onboarding.module.ts';
 import { MarketplaceModule } from '@base/features/marketplace/marketplace.module.ts';
-import { OrganizationModule } from '@base/features/organization/organization.module.ts';
+import { WorkspaceModule } from '@base/features/workspace/workspace.module.ts';
 import { ProjectModule } from '@base/features/project/project.module.ts';
 import { SecretModule } from '@base/features/secret/secret.module.ts';
 import { PipelineModule } from '@base/features/pipeline/pipeline.module.ts';
@@ -31,7 +31,7 @@ export const modules = [
   AppsModule,
   MembershipModule,
   InvitationModule,
-  OrganizationModule,
+  WorkspaceModule,
   UserModule,
   AccessModule,
   MarketplaceModule,

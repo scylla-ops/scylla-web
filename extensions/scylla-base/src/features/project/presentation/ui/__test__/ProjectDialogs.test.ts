@@ -30,7 +30,7 @@ const install = () => {
   create = vi.fn().mockResolvedValue(project());
   update = vi.fn().mockResolvedValue(project());
   const repository = {
-    getByOrganizationId: vi.fn(),
+    getByWorkspaceId: vi.fn(),
     listMembers: vi.fn(),
     create,
     update,
@@ -43,14 +43,14 @@ const install = () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme', slug: null } });
+  contextStore.setState({ workspace: { id: 'org-1', name: 'Acme', slug: null } });
 });
 
 afterEach(() => teardown.forEach(restore => restore()));
 
 describe('AddProjectDialog', () => {
   it('toasts an error and never calls the repository when no workspace is selected', async () => {
-    contextStore.setState({ organization: { id: null, name: null, slug: null } });
+    contextStore.setState({ workspace: { id: null, name: null, slug: null } });
     install();
     render(AddProjectDialog, { open: true, setOpen: vi.fn() });
     await focusSettled();

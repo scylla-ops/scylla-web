@@ -69,9 +69,9 @@ beforeEach(() => {
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
-    project: { projectRepository: { getByOrganizationId: getProjects } },
-    pipeline: { pipelineRepository: { getMetadataByOrganizationId: getPipelines } },
-    jobs: { jobsRepository: { getByOrganizationId: getJobs } },
+    project: { projectRepository: { getByWorkspaceId: getProjects } },
+    pipeline: { pipelineRepository: { getMetadataByWorkspaceId: getPipelines } },
+    jobs: { jobsRepository: { getByWorkspaceId: getJobs } },
     agents: { agentsRepository: { listAgents, getAgentStats: vi.fn() } },
   });
 
@@ -84,7 +84,7 @@ beforeEach(() => {
     trail: () => [],
   });
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme', slug: null },
+    workspace: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: null, name: null },
   });
   grant([Permission.LIST_PIPELINES_BY_PROJECT]);
@@ -192,7 +192,7 @@ describe('DashboardPage', () => {
     expect(screen.queryByText('All Pipelines')).not.toBeInTheDocument();
   });
 
-  it('sends "See all" to the organization project list', async () => {
+  it('sends "See all" to the workspace project list', async () => {
     const user = userEvent.setup();
     render(DashboardPage);
 

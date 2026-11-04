@@ -79,7 +79,7 @@ describe('MemberRoleBadges', () => {
     render(
       MemberRoleBadges,
       props({
-        roles: [role({ origin: MemberRoleOrigin.INHERITED, scope: PermissionScope.ORGANIZATION })],
+        roles: [role({ origin: MemberRoleOrigin.INHERITED, scope: PermissionScope.WORKSPACE })],
         canManage: true,
       }),
     );
@@ -91,7 +91,7 @@ describe('MemberRoleBadges', () => {
     render(
       MemberRoleBadges,
       props({
-        roles: [role({ origin: MemberRoleOrigin.INHERITED, scope: PermissionScope.ORGANIZATION })],
+        roles: [role({ origin: MemberRoleOrigin.INHERITED, scope: PermissionScope.WORKSPACE })],
         canManage: true,
       }),
     );
@@ -111,7 +111,7 @@ describe('MemberRoleBadges', () => {
             grantId: 'g2',
             roleId: 'inherited-role',
             origin: MemberRoleOrigin.INHERITED,
-            scope: PermissionScope.ORGANIZATION,
+            scope: PermissionScope.WORKSPACE,
           }),
         ],
         canManage: true,

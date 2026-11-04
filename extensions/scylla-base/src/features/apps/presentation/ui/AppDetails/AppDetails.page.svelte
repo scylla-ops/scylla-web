@@ -19,8 +19,8 @@
   let { appId = '' }: { appId?: string } = $props();
 
   const context = toRune(contextStore);
-  const workspaceId = $derived(context().organization.id ?? '');
-  const target = $derived({ organizationId: workspaceId || undefined });
+  const workspaceId = $derived(context().workspace.id ?? '');
+  const target = $derived({ workspaceId: workspaceId || undefined });
 
   const details = createQuery(() => appQueries.byId(appId, workspaceId));
   const remove = createMutation(() => appMutations.remove());
@@ -75,14 +75,14 @@
       <AppRolesCard
         {appId}
         {workspaceId}
-        canRead={can(Permission.LIST_ORGANIZATION_MEMBERS, target)}
-        canManage={can(Permission.MANAGE_ORG_GRANTS, target)}
+        canRead={can(Permission.LIST_WORKSPACE_MEMBERS, target)}
+        canManage={can(Permission.MANAGE_WORKSPACE_GRANTS, target)}
       />
       {#if app.runner}
         <AppJobsCard
           {appId}
           {workspaceId}
-          canRead={can(Permission.LIST_JOBS_BY_ORGANIZATION, target)}
+          canRead={can(Permission.LIST_JOBS_BY_WORKSPACE, target)}
         />
       {/if}
     </div>
@@ -99,7 +99,7 @@
       remove.mutate(appId, {
         onSuccess: () => {
           confirmDelete = false;
-          scyllaNavigate.goToOrgRoute('/apps');
+          scyllaNavigate.goToWorkspaceRoute('/apps');
         },
       })}
   />

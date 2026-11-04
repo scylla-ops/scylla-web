@@ -26,7 +26,7 @@ let testNavigator: ReturnType<typeof installTestNavigator>;
 
 const renderCard = (entity: ProjectEntity = project()) => {
   const repository = {
-    getByOrganizationId: vi.fn(),
+    getByWorkspaceId: vi.fn(),
     listMembers: vi.fn(),
     create: vi.fn(),
     update: vi.fn().mockResolvedValue(entity),
@@ -44,7 +44,7 @@ const renderCard = (entity: ProjectEntity = project()) => {
 beforeEach(() => {
   selectionStore.setState({ selectedIds: {} });
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme', slug: null },
+    workspace: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: null, name: null },
   });
   permissionsStore.setState({

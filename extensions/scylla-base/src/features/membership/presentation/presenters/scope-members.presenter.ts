@@ -58,8 +58,8 @@ const collect = (
 };
 
 /** The roles on a workspace, its owners included. */
-export const buildOrganizationMembers = (entries: AccessEntryEntity[]): ScopeMember[] =>
-  collect([{ entries, scope: PermissionScope.ORGANIZATION, editable: true }]);
+export const buildWorkspaceMembers = (entries: AccessEntryEntity[]): ScopeMember[] =>
+  collect([{ entries, scope: PermissionScope.WORKSPACE, editable: true }]);
 
 /** Each member once, with the roles of the project and the workspace roles that reach it. */
 export const buildProjectMembers = (
@@ -69,5 +69,5 @@ export const buildProjectMembers = (
   collect([
     { entries: projectEntries, scope: PermissionScope.PROJECT, editable: true },
     // Each role of a workspace reads its projects.
-    { entries: workspaceEntries, scope: PermissionScope.ORGANIZATION, editable: false },
+    { entries: workspaceEntries, scope: PermissionScope.WORKSPACE, editable: false },
   ]);

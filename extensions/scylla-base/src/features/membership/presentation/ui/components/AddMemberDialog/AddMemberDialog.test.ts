@@ -11,7 +11,7 @@ const assignable = (overrides: Partial<AssignableRole> = {}): AssignableRole => 
   roleId: 'project-viewer',
   name: 'Project viewer',
   description: 'Read-only access',
-  ownedByOrganization: false,
+  ownedByWorkspace: false,
   ...overrides,
 });
 
@@ -26,7 +26,7 @@ const props = (overrides: Record<string, unknown> = {}) => ({
   ],
   emptyCandidatesLabel: 'Everyone is already a member',
   roles: [assignable(), assignable({ roleId: 'project-admin', name: 'Project admin' })],
-  organizationName: 'Acme',
+  workspaceName: 'Acme',
   rolesLabel: 'Roles',
   isPending: false,
   onSubmit: vi.fn().mockResolvedValue(true),

@@ -6,11 +6,11 @@ import {
   type AssignableRole,
 } from '../assignable-roles.presenter.ts';
 
-const assignable = (roleId: string, ownedByOrganization: boolean): AssignableRole => ({
+const assignable = (roleId: string, ownedByWorkspace: boolean): AssignableRole => ({
   roleId,
   name: roleId,
   description: '',
-  ownedByOrganization,
+  ownedByWorkspace,
 });
 
 describe('assignableForPeople', () => {
@@ -33,7 +33,7 @@ describe('assignableForPeople', () => {
   it('gives each role its name and what it allows', () => {
     const [admin] = assignableForPeople('workspace');
 
-    expect(admin).toMatchObject({ name: 'Admin', ownedByOrganization: true });
+    expect(admin).toMatchObject({ name: 'Admin', ownedByWorkspace: true });
     expect(admin.description).not.toBe('');
   });
 
@@ -43,16 +43,16 @@ describe('assignableForPeople', () => {
 });
 
 describe('groupAssignableRoles', () => {
-  it("puts the organization's roles first, then the platform roles", () => {
+  it("puts the workspace's roles first, then the platform roles", () => {
     const groups = groupAssignableRoles([
-      assignable('organization-viewer', false),
+      assignable('workspace-viewer', false),
       assignable('auditor', true),
       assignable('support', false),
     ]);
 
     expect(groups.map(group => [group.owner, group.roles.map(role => role.roleId)])).toEqual([
-      ['organization', ['auditor']],
-      ['platform', ['organization-viewer', 'support']],
+      ['workspace', ['auditor']],
+      ['platform', ['workspace-viewer', 'support']],
     ]);
   });
 

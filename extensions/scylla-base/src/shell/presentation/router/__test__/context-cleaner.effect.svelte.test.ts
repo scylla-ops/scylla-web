@@ -13,7 +13,7 @@ const projectsState: { projects?: { id: string; name: string }[]; isLoading: boo
 
 vi.mock('@base/features/project', () => ({
   projectQueries: {
-    byOrganization: () =>
+    byWorkspace: () =>
       stubQuery(['projects'], projectsState.projects && { items: projectsState.projects }, {
         loading: projectsState.isLoading,
       }),
@@ -39,7 +39,7 @@ beforeEach(() => {
   projectsState.projects = [{ id: 'project-1', name: 'web' }];
   projectsState.isLoading = false;
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme Corp', slug: null },
+    workspace: { id: 'org-1', name: 'Acme Corp', slug: null },
     project: { id: 'project-1', name: 'web' },
     pipeline: { id: null, name: null },
   });
@@ -80,8 +80,8 @@ describe('cleanContext', () => {
     expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', { replace: true });
   });
 
-  it('goes to "/" when there is no organization name to make a slug from', () => {
-    contextStore.setState({ organization: { id: 'org-1', name: null, slug: null } });
+  it('goes to "/" when there is no workspace name to make a slug from', () => {
+    contextStore.setState({ workspace: { id: 'org-1', name: null, slug: null } });
     run('deleted-project');
 
     expect(navigator.navigate).toHaveBeenCalledWith('/', { replace: true });

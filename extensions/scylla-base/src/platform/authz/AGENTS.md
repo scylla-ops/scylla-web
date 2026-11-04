@@ -51,9 +51,9 @@ it needs a transport and a feature's contract, and the layer inverts.
 
 **A grant reaches a permission at its own scope or below it.** `permissionLevel` gives the
 scope of the resource a permission targets, as the backend's `Permission::resource()` does (a
-user counts as SYSTEM, an app as ORGANIZATION). Full control on an organization therefore does
+user counts as SYSTEM, an app as WORKSPACE). Full control on an workspace therefore does
 not answer `MANAGE_ROLES` or `LIST_USERS`, and full control on a project does not answer an
-organization permission. A new permission of the SYSTEM or ORGANIZATION level goes in the sets
+workspace permission. A new permission of the SYSTEM or WORKSPACE level goes in the sets
 of `permission.struct.ts`. The roles catalog takes the scope of each permission from
 `permissionLevel`: there is one table, not two.
 
@@ -110,7 +110,7 @@ action exists cannot ask for access to it.
   toggle it.
 - `canAccess` in `effective-permissions.struct.ts` is **pure**. Authorization logic goes there,
   not into a component.
-- Scope matters: a permission held at the organization applies to its projects; one held on a
+- Scope matters: a permission held at the workspace applies to its projects; one held on a
   project does not apply upward (`scopeCovers`). `can` handles this — do not compare permission arrays by hand.
 - Client-side gating is UX, not security. The backend enforces. Never treat a passing `can`
   as proof.

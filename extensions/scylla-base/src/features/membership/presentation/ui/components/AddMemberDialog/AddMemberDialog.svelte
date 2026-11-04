@@ -14,8 +14,8 @@
     candidates: UserSummary[];
     emptyCandidatesLabel: string;
     roles: AssignableRole[];
-    /** Names the group of the organization's own roles. */
-    organizationName: string;
+    /** Names the group of the workspace's own roles. */
+    workspaceName: string;
     rolesLabel: string;
     rolesLoading?: boolean;
     isPending: boolean;

@@ -17,7 +17,7 @@ import { pipelineMessages } from './messages/pipeline.messages.ts';
 import { pipelineIssueText } from './presenters/pipeline-issue.presenter.ts';
 import {
   CREATE_PIPELINE_MUTATION_KEY,
-  ORGANIZATION_PIPELINES_QUERY_KEY,
+  WORKSPACE_PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_ROOT,
   PIPELINE_QUERY_KEY,
@@ -57,12 +57,12 @@ export const pipelineQueries = {
     }),
 
   /** One call, scoped by the backend: nothing to gate here. */
-  byOrganization: (organizationId: string | null) =>
+  byWorkspace: (workspaceId: string | null) =>
     queryOptions<PaginatedList<PipelineMetadata>>({
-      queryKey: ORGANIZATION_PIPELINES_QUERY_KEY(organizationId, PIPELINES_LOOKUP_PAGE),
-      enabled: !!organizationId,
+      queryKey: WORKSPACE_PIPELINES_QUERY_KEY(workspaceId, PIPELINES_LOOKUP_PAGE),
+      enabled: !!workspaceId,
       queryFn: () =>
-        repository().getMetadataByOrganizationId(organizationId!, PIPELINES_LOOKUP_PAGE),
+        repository().getMetadataByWorkspaceId(workspaceId!, PIPELINES_LOOKUP_PAGE),
       staleTime: 30_000,
     }),
 

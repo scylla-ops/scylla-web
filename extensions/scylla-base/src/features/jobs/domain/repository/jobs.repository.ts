@@ -10,8 +10,8 @@ export interface JobsRepository {
     pagination?: PaginationParams,
   ): Promise<PaginatedList<JobEntity>>;
   /** Most recent first. Scoped by the backend to what the caller may see. */
-  getByOrganizationId(
-    organizationId: string,
+  getByWorkspaceId(
+    workspaceId: string,
     pagination?: PaginationParams,
   ): Promise<PaginatedList<JobEntity>>;
   getById(jobId: string): Promise<JobEntity>;

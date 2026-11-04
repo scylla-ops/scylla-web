@@ -4,7 +4,7 @@
 > [agent guide](./AGENTS.md) · [architecture](../../docs/architecture.md)
 
 **The API for building on Scylla.** An extension that adds features to Scylla uses this package
-to read the active organization, check permissions, call the backend and reuse the data of the
+to read the active workspace, check permissions, call the backend and reuse the data of the
 Scylla features. It is the only access to [`scylla-base`](../../extensions/scylla-base/README.md)
 for other extensions.
 
@@ -17,7 +17,7 @@ import { Permission, can, contextStore, grpcTransport, ScyllaError } from '@scyl
 | Area | Exports | Use |
 |------|---------|-----|
 | Access control | `Permission`, `can`, `authorizationReady`, `Can`, `RequirePermission` | Put a permission on a route, show or hide a control. |
-| Context | `contextStore`, `scyllaNavigate` | Read the active organization, project and pipeline. Navigate inside them. |
+| Context | `contextStore`, `scyllaNavigate` | Read the active workspace, project and pipeline. Navigate inside them. |
 | Backend | `grpcTransport` | The gRPC-Web transport, with authentication. Give it to your generated clients. |
 | Errors | `ScyllaError`, `ScyllaErrorCode`, `refusalOf` | The error of every failed call of `grpcTransport`. Your repository awaits its call, and your query returns it. |
 | Session | `openSession`, `closeSession`, `hasSession`, `signOut` | Open the session after a sign-up, know if one is open, end it. Never read or write `localStorage` yourself. |
@@ -29,7 +29,7 @@ API.
 
 ## Example
 
-A module of another extension, with a page in each organization of Scylla:
+A module of another extension, with a page in each workspace of Scylla:
 
 ```typescript
 import type { ScyllaModule } from '@scylla/core-sdk';
@@ -44,10 +44,10 @@ export const BillingModule = {
   id: 'billing',
   domain: { invoiceRepository },
   routes: {
-    organization: [
+    workspace: [
       {
         path: 'billing',
-        permission: Permission.READ_ORGANIZATION,
+        permission: Permission.READ_WORKSPACE,
         breadcrumb: () => ({ label: msg`Billing` }),
         page: () => import('./presentation/ui/Billing.page.svelte'),
       },
@@ -56,7 +56,7 @@ export const BillingModule = {
 } satisfies ScyllaModule;
 ```
 
-The page is at `/:organizationSlug/billing`. It is inside the Scylla shell, behind the Scylla
+The page is at `/:workspaceSlug/billing`. It is inside the Scylla shell, behind the Scylla
 login and the Scylla access check. [`@scylla/core-sdk`](../core-sdk/README.md) shows how to
 declare the extension.
 

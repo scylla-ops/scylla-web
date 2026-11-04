@@ -28,14 +28,14 @@ const setUp = (permissions: Permission[]) => {
     permissions: {
       scopes: [
         {
-          scope: PermissionScope.ORGANIZATION,
+          scope: PermissionScope.WORKSPACE,
           scopeId: 'ws-1',
           access: { kind: 'restricted', permissions },
         },
       ],
     },
   });
-  contextStore.setState({ organization: { id: 'ws-1', name: 'Acme', slug: 'acme' } });
+  contextStore.setState({ workspace: { id: 'ws-1', name: 'Acme', slug: 'acme' } });
   repository = {
     listApps: vi.fn((_workspaceId: string, runner?: boolean) =>
       Promise.resolve(
@@ -60,7 +60,7 @@ afterEach(() => {
 
 describe('AppsPage', () => {
   it('lists the agents first, with their state', async () => {
-    setUp([Permission.LIST_APPS_BY_ORGANIZATION]);
+    setUp([Permission.LIST_APPS_BY_WORKSPACE]);
 
     expect(await screen.findByText('app a1')).toBeInTheDocument();
     expect(screen.getByText(/Online/)).toBeInTheDocument();
@@ -68,7 +68,7 @@ describe('AppsPage', () => {
   });
 
   it('shows the other apps on their filter', async () => {
-    setUp([Permission.LIST_APPS_BY_ORGANIZATION]);
+    setUp([Permission.LIST_APPS_BY_WORKSPACE]);
     const user = userEvent.setup();
 
     await user.click(screen.getByRole('button', { name: 'Other apps' }));
@@ -78,7 +78,7 @@ describe('AppsPage', () => {
   });
 
   it('creates an agent and shows the commands that join it', async () => {
-    setUp([Permission.LIST_APPS_BY_ORGANIZATION, Permission.CREATE_APP]);
+    setUp([Permission.LIST_APPS_BY_WORKSPACE, Permission.CREATE_APP]);
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: /New app/ }));

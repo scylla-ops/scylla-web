@@ -29,7 +29,7 @@ const baseProps = {
   disabled: false,
   onRevokeRole: vi.fn(),
   removeTooltip: 'Remove',
-  organizationName: 'Acme',
+  workspaceName: 'Acme',
   onRemove: vi.fn(),
   roles: [] as MemberRole[],
 };
@@ -68,7 +68,7 @@ describe('MemberCard', () => {
     render(MemberCard, {
       ...baseProps,
       canManage: false,
-      addableRoles: [{ roleId: 'r1', name: 'Developer', description: '', ownedByOrganization: false }],
+      addableRoles: [{ roleId: 'r1', name: 'Developer', description: '', ownedByWorkspace: false }],
     });
 
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
@@ -79,7 +79,7 @@ describe('MemberCard', () => {
     render(MemberCard, {
       ...baseProps,
       canManage: true,
-      addableRoles: [{ roleId: 'r1', name: 'Developer', description: '', ownedByOrganization: false }],
+      addableRoles: [{ roleId: 'r1', name: 'Developer', description: '', ownedByWorkspace: false }],
       onAddRole,
     });
 

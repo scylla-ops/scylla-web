@@ -105,7 +105,7 @@ export const createAccountPage = () => {
     get isDeletingAccount() {
       return accountDeletion.isPending;
     },
-    /** The message of the server: a wrong password, or the organizations to hand over first. */
+    /** The message of the server: a wrong password, or the workspaces to hand over first. */
     get deleteRefusal() {
       return accountDeletion.data ?? undefined;
     },

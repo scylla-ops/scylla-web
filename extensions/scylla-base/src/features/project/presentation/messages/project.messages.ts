@@ -1,8 +1,8 @@
 import { msg } from '@lingui/core/macro';
 
 export const projectMessages = {
-  noOrganization: msg`No workspace selected`,
-  noOrganizationHint: msg`Select a workspace from the sidebar to view its projects`,
+  noWorkspace: msg`No workspace selected`,
+  noWorkspaceHint: msg`Select a workspace from the sidebar to view its projects`,
   loadError: msg`Unable to load projects`,
 
   project: msg`Project`,

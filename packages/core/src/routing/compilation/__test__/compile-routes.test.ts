@@ -16,7 +16,7 @@ import { joinPath } from '../route-path.ts';
 const page: PageLoader = () => Promise.resolve({ default: {} as never });
 const crumb = (label: string) => () => ({ label: { id: label, message: label } });
 const Layout = {} as LayoutComponent;
-const OrgWrapper = {} as RouteWrapper;
+const WorkspaceWrapper = {} as RouteWrapper;
 const ProjectWrapper = {} as RouteWrapper;
 const guard = {} as AccessPolicy['guard'];
 
@@ -24,9 +24,9 @@ const configWith = (...routes: ModuleRoutes[]): AppRouterConfig => ({
   mounts: {
     public: {},
     app: { layout: Layout, shell: true },
-    organization: { parent: 'app', path: ':organizationSlug', wrapper: OrgWrapper },
+    workspace: { parent: 'app', path: ':workspaceSlug', wrapper: WorkspaceWrapper },
     project: {
-      parent: 'organization',
+      parent: 'workspace',
       path: 'projects/:projectId',
       wrapper: ProjectWrapper,
       breadcrumb: crumb('Project'),
@@ -50,7 +50,7 @@ describe('flattenModuleRoutes', () => {
       {
         id: 'agents',
         routes: {
-          organization: [{ path: 'agents', page, children: [{ path: ':agentId/logs', page }] }],
+          workspace: [{ path: 'agents', page, children: [{ path: ':agentId/logs', page }] }],
         },
       },
     ]);
@@ -63,7 +63,7 @@ describe('flattenModuleRoutes', () => {
       {
         id: 'agents',
         routes: {
-          organization: [{ path: 'agents', breadcrumb: crumb('Agents'), children: [{ page }] }],
+          workspace: [{ path: 'agents', breadcrumb: crumb('Agents'), children: [{ page }] }],
         },
       },
     ]);
@@ -75,19 +75,19 @@ describe('flattenModuleRoutes', () => {
 
   it('merges what two modules declare on one path, whatever they name the parameters', () => {
     const flat = flattenModuleRoutes([
-      { id: 'user', routes: { organization: [{ path: 'users/:id', breadcrumb: crumb('User') }] } },
-      { id: 'organization', routes: { organization: [{ path: 'users/:userId', page }] } },
+      { id: 'user', routes: { workspace: [{ path: 'users/:id', breadcrumb: crumb('User') }] } },
+      { id: 'workspace', routes: { workspace: [{ path: 'users/:userId', page }] } },
     ]);
 
     expect(flat).toHaveLength(1);
-    expect(flat[0].declaredBy).toEqual(['user', 'organization']);
+    expect(flat[0].declaredBy).toEqual(['user', 'workspace']);
   });
 
   it('keeps apart the same path under two mounts', () => {
     const flat = flattenModuleRoutes([
       {
         id: 'membership',
-        routes: { organization: [{ path: 'members', page }], project: [{ path: 'members', page }] },
+        routes: { workspace: [{ path: 'members', page }], project: [{ path: 'members', page }] },
       },
     ]);
 
@@ -97,8 +97,8 @@ describe('flattenModuleRoutes', () => {
   it('refuses a field that two declarations of one path both set', () => {
     const declare = () =>
       flattenModuleRoutes([
-        { id: 'first', routes: { organization: [{ path: 'users', page }] } },
-        { id: 'second', routes: { organization: [{ path: 'users', page }] } },
+        { id: 'first', routes: { workspace: [{ path: 'users', page }] } },
+        { id: 'second', routes: { workspace: [{ path: 'users', page }] } },
       ]);
 
     expect(declare).toThrow(/"\/users" declares `page` twice \(first, second\)/);
@@ -107,7 +107,7 @@ describe('flattenModuleRoutes', () => {
   it('refuses a route with both a page and a redirect', () => {
     expect(() =>
       flattenModuleRoutes([
-        { id: 'm', routes: { organization: [{ path: 'a', page, redirect: 'b' }] } },
+        { id: 'm', routes: { workspace: [{ path: 'a', page, redirect: 'b' }] } },
       ]),
     ).toThrow(/both a `page` and a `redirect`/);
   });
@@ -115,7 +115,7 @@ describe('flattenModuleRoutes', () => {
   it('refuses a permission without a page to guard', () => {
     expect(() =>
       flattenModuleRoutes([
-        { id: 'm', routes: { organization: [{ path: 'a', permission: LIST_USERS }] } },
+        { id: 'm', routes: { workspace: [{ path: 'a', permission: LIST_USERS }] } },
       ]),
     ).toThrow(/`permission` or a `nav` but no `page`/);
   });
@@ -126,38 +126,38 @@ describe('compileRoutes', () => {
     expect(
       paths({
         public: [{ path: 'login', page }],
-        organization: [{ path: 'agents', page }],
+        workspace: [{ path: 'agents', page }],
         project: [{ path: 'secrets', page }],
       }),
     ).toEqual([
       '/login',
-      '/:organizationSlug/agents',
-      '/:organizationSlug/projects/:projectId/secrets',
+      '/:workspaceSlug/agents',
+      '/:workspaceSlug/projects/:projectId/secrets',
     ]);
   });
 
   it('keeps only the routes that render something: a page or a redirect', () => {
     expect(
       paths({
-        organization: [{ redirect: 'dashboard' }, { path: 'users', breadcrumb: crumb('Users') }],
+        workspace: [{ redirect: 'dashboard' }, { path: 'users', breadcrumb: crumb('Users') }],
       }),
-    ).toEqual(['/:organizationSlug']);
+    ).toEqual(['/:workspaceSlug']);
   });
 
-  it('puts a static segment before a parameter, so /login is tried before /:organizationSlug', () => {
-    expect(paths({ organization: [{ page }] }, { public: [{ path: 'login', page }] })).toEqual([
+  it('puts a static segment before a parameter, so /login is tried before /:workspaceSlug', () => {
+    expect(paths({ workspace: [{ page }] }, { public: [{ path: 'login', page }] })).toEqual([
       '/login',
-      '/:organizationSlug',
+      '/:workspaceSlug',
     ]);
   });
 
   it('gives a route the layout of its root mount and the wrappers of its mounts, outermost first', () => {
-    const route = routeAt('/:organizationSlug/projects/:projectId/secrets', {
+    const route = routeAt('/:workspaceSlug/projects/:projectId/secrets', {
       project: [{ path: 'secrets', page }],
     });
 
     expect(route?.layout).toBe(Layout);
-    expect(route?.wrappers).toEqual([OrgWrapper, ProjectWrapper]);
+    expect(route?.wrappers).toEqual([WorkspaceWrapper, ProjectWrapper]);
   });
 
   it('gives a public route no layout, no shell and no wrapper', () => {
@@ -169,7 +169,7 @@ describe('compileRoutes', () => {
   });
 
   it('puts in the shell every page below a root mount that asks for it', () => {
-    const route = routeAt('/:organizationSlug/projects/:projectId/secrets', {
+    const route = routeAt('/:workspaceSlug/projects/:projectId/secrets', {
       project: [{ path: 'secrets', page }],
     });
 
@@ -177,23 +177,23 @@ describe('compileRoutes', () => {
   });
 
   it('refuses a route on a mount that no extension declares', () => {
-    expect(() => compile({ workspace: [{ path: 'a', page }] })).toThrow(
-      /No extension declares the mount "workspace"/,
+    expect(() => compile({ nowhere: [{ path: 'a', page }] })).toThrow(
+      /No extension declares the mount "nowhere"/,
     );
   });
 
   it('refuses a permission when no extension gives an access policy', () => {
     expect(() =>
       compileRoutes({
-        ...configWith({ organization: [{ path: 'users', permission: LIST_USERS, page }] }),
+        ...configWith({ workspace: [{ path: 'users', permission: LIST_USERS, page }] }),
         guard: undefined,
       }),
-    ).toThrow(/"\/:organizationSlug\/users" declares a `permission`, but no extension gives an access policy/);
+    ).toThrow(/"\/:workspaceSlug\/users" declares a `permission`, but no extension gives an access policy/);
   });
 
   it("keeps a route's own permission, and never lends it to a child", () => {
     const routes = {
-      organization: [
+      workspace: [
         {
           path: 'users',
           permission: LIST_USERS,
@@ -203,19 +203,19 @@ describe('compileRoutes', () => {
       ],
     };
 
-    expect(routeAt('/:organizationSlug/users', routes)?.permission).toBe(LIST_USERS);
-    expect(routeAt('/:organizationSlug/users/:userId', routes)?.permission).toBeUndefined();
+    expect(routeAt('/:workspaceSlug/users', routes)?.permission).toBe(LIST_USERS);
+    expect(routeAt('/:workspaceSlug/users/:userId', routes)?.permission).toBeUndefined();
   });
 
   describe('the trail of a page', () => {
     it('holds the crumb of every path it starts with, from the root, with the depth of each', () => {
       const route = routeAt(
-        '/:organizationSlug/projects/:projectId/pipelines/:pipelineId/jobs/:jobId',
+        '/:workspaceSlug/projects/:projectId/pipelines/:pipelineId/jobs/:jobId',
         { project: [{ path: 'pipelines/:pipelineId/jobs', breadcrumb: crumb('Jobs') }] },
         {
           project: [{ path: 'pipelines/:pipelineId/jobs/:jobId', breadcrumb: crumb('Job'), page }],
         },
-        { organization: [{ path: 'projects', breadcrumb: crumb('Projects'), page }] },
+        { workspace: [{ path: 'projects', breadcrumb: crumb('Projects'), page }] },
       );
 
       expect(labelsOf(route)).toEqual(['Projects', 'Project', 'Jobs', 'Job']);
@@ -223,8 +223,8 @@ describe('compileRoutes', () => {
     });
 
     it('skips the crumbs of paths the page is not under', () => {
-      const route = routeAt('/:organizationSlug/agents', {
-        organization: [
+      const route = routeAt('/:workspaceSlug/agents', {
+        workspace: [
           { path: 'agents', page },
           { path: 'users', breadcrumb: crumb('Users') },
         ],
@@ -236,7 +236,7 @@ describe('compileRoutes', () => {
 
   it('refuses two pages that two mounts put on one URL', () => {
     expect(() =>
-      compile({ organization: [{ path: 'projects/:id', page }], project: [{ page }] }),
-    ).toThrow(/Two mounts declare a page on "\/:organizationSlug\/projects\/:id"/);
+      compile({ workspace: [{ path: 'projects/:id', page }], project: [{ page }] }),
+    ).toThrow(/Two mounts declare a page on "\/:workspaceSlug\/projects\/:id"/);
   });
 });

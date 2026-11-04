@@ -12,8 +12,8 @@
   interface Props {
     label: string;
     roles: AssignableRole[];
-    /** Names the group of the organization's own roles. */
-    organizationName: string;
+    /** Names the group of the workspace's own roles. */
+    workspaceName: string;
     isLoading?: boolean;
     disabled?: boolean;
     selected: Set<string>;
@@ -25,7 +25,7 @@
   let {
     label,
     roles,
-    organizationName,
+    workspaceName,
     isLoading = false,
     disabled = false,
     selected,
@@ -58,8 +58,8 @@
             id="{uid}-{group.owner}"
             class="px-2 pt-2 pb-1 text-xs font-medium text-muted-foreground"
           >
-            {group.owner === 'organization'
-              ? t(membershipMessages.organizationRoles(organizationName))
+            {group.owner === 'workspace'
+              ? t(membershipMessages.workspaceRoles(workspaceName))
               : t(membershipMessages.platformRoles)}
           </p>
           {#each group.roles as role (role.roleId)}

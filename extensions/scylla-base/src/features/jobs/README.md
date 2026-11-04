@@ -8,7 +8,7 @@ them, reading their status, following their logs while they happen, and deleting
 
 ## What it covers
 
-- **The jobs table** — runs for a pipeline or across an organization, paginated, with status,
+- **The jobs table** — runs for a pipeline or across an workspace, paginated, with status,
   timing and the nodes each run touched.
 - **The job details page** — one run: its status, its timing, the nodes it touched and their
   logs.
@@ -78,7 +78,7 @@ storm. `pipeline` and the pages here run them with `createQueries`, sharing one 
 
 ## Query keys are part of the contract
 
-`JOBS_QUERY_KEY`, `ORGANIZATION_JOBS_QUERY_KEY` and `JOBS_QUERY_ROOT` are exported from the
+`JOBS_QUERY_KEY`, `WORKSPACE_JOBS_QUERY_KEY` and `JOBS_QUERY_ROOT` are exported from the
 module's public API, not kept private. That is on purpose: when `pipeline` triggers a run, it
 must invalidate *the same* cache entries this module reads. Sharing the factory is what keeps
 "I clicked Run and the table updated" true. Hand-writing a key array anywhere else silently
@@ -88,7 +88,7 @@ breaks it.
 
 - [pipeline](../pipeline/README.md) — owns the route, the Run action, and what a job executes.
 - [agents](../agents/README.md) — the machines that pick jobs up.
-- [dashboard](../dashboard/README.md) — reads `jobsQueries.byOrganization` for the overview.
+- [dashboard](../dashboard/README.md) — reads `jobsQueries.byWorkspace` for the overview.
 
 ## Related shared pieces
 

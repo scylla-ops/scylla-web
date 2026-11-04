@@ -36,7 +36,7 @@ const scopeOf = async (object: ObjectRef): Promise<EffectiveScope> => {
   };
 };
 
-let current = { organizationId: null as string | null, projectId: null as string | null };
+let current = { workspaceId: null as string | null, projectId: null as string | null };
 
 /**
  * Every `can()` reads the store this writes: the permissions on the platform, on the active
@@ -49,10 +49,10 @@ export const refreshMyPermissions = async (): Promise<void> => {
     return;
   }
 
-  const { organizationId, projectId } = current;
+  const { workspaceId, projectId } = current;
   const objects = [
     platformRef,
-    ...(organizationId ? [workspaceRef(organizationId)] : []),
+    ...(workspaceId ? [workspaceRef(workspaceId)] : []),
     ...(projectId ? [projectRef(projectId)] : []),
   ];
   try {
@@ -67,15 +67,15 @@ export const refreshMyPermissions = async (): Promise<void> => {
 let lastSyncedKey: string | null = null;
 
 export const syncMyPermissions = (
-  organizationId: string | null,
+  workspaceId: string | null,
   projectId: string | null,
 ): void => {
   const userId = localStorage.getItem('userId') ?? '';
-  const key = `${userId}/${organizationId ?? ''}/${projectId ?? ''}`;
+  const key = `${userId}/${workspaceId ?? ''}/${projectId ?? ''}`;
   if (lastSyncedKey === key) return;
 
   lastSyncedKey = key;
-  current = { organizationId, projectId };
+  current = { workspaceId, projectId };
   void refreshMyPermissions();
 };
 

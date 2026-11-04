@@ -8,7 +8,7 @@
     open: boolean;
     onOpenChange: (open: boolean) => void;
     isPending: boolean;
-    /** The message of the server: a wrong password, or the organizations to hand over first. */
+    /** The message of the server: a wrong password, or the workspaces to hand over first. */
     refusal?: string;
     onConfirm: (password: string) => void;
   }

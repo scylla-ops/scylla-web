@@ -15,7 +15,7 @@ Pipelines: their definition, their editor, and the metadata the overviews read.
 ```typescript
 type PipelineEntity
 type PipelineMetadata, PipelineNodeEntity, PipelineIdentity
-PIPELINES_QUERY_KEY, ORGANIZATION_PIPELINES_QUERY_KEY, PIPELINES_QUERY_ROOT
+PIPELINES_QUERY_KEY, WORKSPACE_PIPELINES_QUERY_KEY, PIPELINES_QUERY_ROOT
 CREATE_PIPELINE_MUTATION_KEY, RUN_PIPELINE_MUTATION_KEY   // onboarding follows these writes
 pipelineQueries                // Query options factories
 asPipelineFeed                 // a page of metadata → the list, and whether it is partial
@@ -31,7 +31,7 @@ not through the barrel.
 | Method | Returns |
 |---|---|
 | `getMetadataByProjectId(...)` | paginated `PipelineMetadata` |
-| `getMetadataByOrganizationId(...)` | paginated `PipelineMetadata` |
+| `getMetadataByWorkspaceId(...)` | paginated `PipelineMetadata` |
 | `getById(id)` | `PipelineEntity` (full, with nodes) |
 | `create(pipeline)` | `void` |
 | `edit(id, nodes, name?)` | `PipelineEntity` |

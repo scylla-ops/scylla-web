@@ -68,7 +68,7 @@ let navigator: ReturnType<typeof installTestNavigator>;
 beforeEach(() => {
   repository = {
     getMetadataByProjectId: vi.fn().mockResolvedValue(paginated([metadata()])),
-    getMetadataByOrganizationId: vi.fn().mockResolvedValue(paginated([metadata()])),
+    getMetadataByWorkspaceId: vi.fn().mockResolvedValue(paginated([metadata()])),
     deleteById: vi.fn().mockResolvedValue(undefined),
     run: vi.fn().mockResolvedValue(undefined),
     create: vi.fn().mockResolvedValue(undefined),
@@ -88,7 +88,7 @@ beforeEach(() => {
   navigator = installTestNavigator({ pathname: '/acme/projects/project-1' });
 
   contextStore.setState({
-    organization: { id: null, name: null, slug: null },
+    workspace: { id: null, name: null, slug: null },
     project: { id: null, name: null },
     pipeline: { id: null, name: null },
   });
@@ -128,17 +128,17 @@ describe('pipelineQueries.byProject', () => {
   });
 });
 
-describe('pipelineQueries.byOrganization', () => {
-  it('reads one page covering the whole organization', async () => {
-    await runQueryFn(pipelineQueries.byOrganization('org-1'));
-    expect(repository.getMetadataByOrganizationId).toHaveBeenCalledWith('org-1', {
+describe('pipelineQueries.byWorkspace', () => {
+  it('reads one page covering the whole workspace', async () => {
+    await runQueryFn(pipelineQueries.byWorkspace('org-1'));
+    expect(repository.getMetadataByWorkspaceId).toHaveBeenCalledWith('org-1', {
       page: 1,
       pageSize: 100,
     });
   });
 
-  it('does not query for a null organizationId', () => {
-    expect(pipelineQueries.byOrganization(null).enabled).toBe(false);
+  it('does not query for a null workspaceId', () => {
+    expect(pipelineQueries.byWorkspace(null).enabled).toBe(false);
   });
 });
 

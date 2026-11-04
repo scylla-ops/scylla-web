@@ -11,7 +11,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
   It is the bottom of the graph and depends on nobody.
 - Everyone may import it, **through its entry points only** (`package-api-only`, error).
 - **Test before adding anything here:** could this live in another product, unchanged? If it
-  mentions a pipeline, a job, a role or an organization, it is not UI — it belongs to the
+  mentions a pipeline, a job, a role or an workspace, it is not UI — it belongs to the
   feature, or to the `shared/` folder of its extension.
 
 ## Entry points

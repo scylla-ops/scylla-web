@@ -6,7 +6,7 @@ export interface NavEntry extends NavLink {
   mount: RouteMount;
   /** Relative to the mount, e.g. `agents`. */
   url: string;
-  /** From the root, e.g. `[':organizationSlug', 'agents']`. Its parameters are filled at render. */
+  /** From the root, e.g. `[':workspaceSlug', 'agents']`. Its parameters are filled at render. */
   pattern: RoutePath;
   /** The permission of the page. The link hides when the page would deny the user. */
   permission?: RoutePermission;

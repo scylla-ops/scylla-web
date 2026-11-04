@@ -6,7 +6,7 @@
 A catalog of ready-made pipeline templates, so a new project does not start from a blank canvas.
 The page lists items, lets you search and filter them, and shows what each one does.
 
-Reachable at `/:org/marketplace`, with a sidebar entry under the organization section.
+Reachable at `/:org/marketplace`, with a sidebar entry under the workspace section.
 
 ## Status: front-end complete, backend pending
 

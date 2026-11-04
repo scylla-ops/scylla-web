@@ -30,7 +30,7 @@
     candidates: UserSummary[];
     emptyCandidatesLabel: string;
     roles: AssignableRole[];
-    organizationName: string;
+    workspaceName: string;
     rolesLabel: string;
     rolesLoading: boolean;
     isPending: boolean;
@@ -45,7 +45,7 @@
     candidates,
     emptyCandidatesLabel,
     roles,
-    organizationName,
+    workspaceName,
     rolesLabel,
     rolesLoading,
     isPending,
@@ -109,7 +109,7 @@
   <RoleChecklist
     label={rolesLabel}
     {roles}
-    {organizationName}
+    {workspaceName}
     isLoading={rolesLoading}
     disabled={isPending}
     selected={selectedRoles}

@@ -43,15 +43,15 @@ export class DefaultProjectRepository implements ProjectRepository {
     private readonly access: IAccessServiceClient,
   ) {}
 
-  public async getByOrganizationId(
-    organizationId: string,
+  public async getByWorkspaceId(
+    workspaceId: string,
     pagination?: PaginationParams,
   ): Promise<ProjectList> {
     const projects: Project[] = [];
     let token = '';
     do {
       const response = await this.client.listProjects({
-        workspaceId: wrapId(organizationId),
+        workspaceId: wrapId(workspaceId),
         page: { size: PAGE_SIZE, token },
       }).response;
       projects.push(...response.projects);
@@ -80,13 +80,13 @@ export class DefaultProjectRepository implements ProjectRepository {
 
   public async create(
     name: string,
-    organizationId: string,
+    workspaceId: string,
     description?: string,
   ): Promise<ProjectEntity> {
     try {
       const response = await this.client.createProject({
         name,
-        workspaceId: wrapId(organizationId),
+        workspaceId: wrapId(workspaceId),
         description: description ?? '',
       }).response;
       return requireProject(response.project);
