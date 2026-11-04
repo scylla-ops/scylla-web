@@ -19,6 +19,7 @@ const wireApp = (overrides: Partial<App> = {}): App => ({
   runner: true,
   connected: false,
   createdAt: TS,
+  runningJobs: 0,
   ...overrides,
 });
 
