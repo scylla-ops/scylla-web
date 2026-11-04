@@ -1,0 +1,17 @@
+// A subset of googleapis google/rpc/status.proto, with the same field numbers: the server sends
+// it in the trailer grpc-status-details-bin.
+syntax = "proto3";
+
+package google.rpc;
+
+import "google/protobuf/any.proto";
+
+// The status of a failed call, with its typed details.
+message Status {
+  // The gRPC code.
+  int32 code = 1;
+  // The message of the server, in English.
+  string message = 2;
+  // The details: ErrorInfo, BadRequest.
+  repeated google.protobuf.Any details = 3;
+}

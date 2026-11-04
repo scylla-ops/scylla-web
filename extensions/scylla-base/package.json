@@ -16,7 +16,8 @@
   },
   "scylla": {
     "protos": [
-      "scylla"
+      "scylla",
+      "google/rpc"
     ]
   }
 }
