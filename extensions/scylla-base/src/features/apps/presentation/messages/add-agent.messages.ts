@@ -23,6 +23,8 @@ export const addAgentMessages = {
   unix: msg`Linux & macOS`,
   windows: msg`Windows`,
   docker: msg`Docker`,
+  unixHint: msg`It installs a service with sudo. Without sudo, add --no-service.`,
+  windowsHint: msg`Run it in PowerShell as administrator: it installs the service ScyllaAgent. Without admin rights, add -NoService.`,
   expiresIn: (time: string) => msg`The code expires in ${time}.`,
   expired: msg`The code expired.`,
   newCode: msg`New code`,

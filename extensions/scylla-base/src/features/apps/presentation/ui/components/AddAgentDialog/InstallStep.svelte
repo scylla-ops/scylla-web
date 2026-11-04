@@ -64,6 +64,8 @@
     ['windows', messages.windows, MonitorIcon],
     ['docker', messages.docker, BoxIcon],
   ] as const;
+  const HINTS = { unix: messages.unixHint, windows: messages.windowsHint, docker: null };
+  const hint = $derived(HINTS[way]);
   const CAPACITIES = ['1', '2', '3', '4', '6', '8'];
   const RUNTIMES = [
     ['auto', messages.runtimeAuto],
@@ -91,6 +93,9 @@
   </Tabs>
   <div class="flex flex-col gap-2" data-tour="app-join-code">
     <CopyBox value={commands[way]} copyToast={t(messages.copied)} focusOnMount />
+    {#if hint}
+      <p class="text-xs text-muted-foreground">{t(hint)}</p>
+    {/if}
     <p class="flex items-center gap-1.5 text-xs text-muted-foreground">
       <ClockIcon class="size-3.5" aria-hidden="true" />
       <span>{left > 0 ? t(messages.expiresIn(formatCountdown(left))) : t(messages.expired)}</span>

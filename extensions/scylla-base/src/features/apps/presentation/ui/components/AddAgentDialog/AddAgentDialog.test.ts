@@ -105,6 +105,7 @@ describe('AddAgentDialog', () => {
 
     await user.click(screen.getByRole('tab', { name: /Windows/ }));
     expect(screen.getByText(/install\.ps1\)\)\) -JoinCode JOIN-42/)).toBeInTheDocument();
+    expect(screen.getByText(/PowerShell as administrator.*add -NoService/)).toBeInTheDocument();
 
     expect(await screen.findByText('agent-1 is online', {}, { timeout: 5000 })).toBeInTheDocument();
     expect(screen.getByText('Connected from host-1')).toBeInTheDocument();
