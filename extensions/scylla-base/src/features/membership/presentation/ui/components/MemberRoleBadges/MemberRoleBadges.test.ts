@@ -98,7 +98,7 @@ describe('MemberRoleBadges', () => {
 
     await userEvent.hover(screen.getByText('project-admin'));
 
-    expect(await findTooltip()).toHaveTextContent('organization');
+    expect(await findTooltip()).toHaveTextContent('workspace');
   });
 
   it('renders a direct and an inherited role side by side', () => {

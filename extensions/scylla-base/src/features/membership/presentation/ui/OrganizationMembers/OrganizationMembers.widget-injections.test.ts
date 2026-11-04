@@ -65,7 +65,7 @@ afterEach(() => {
 });
 
 describe('OrganizationMembers.page with widget injections', () => {
-  it('gives the organization, the right to manage and the member count to a header action', async () => {
+  it('gives the workspace, the right to manage and the member count to a header action', async () => {
     setUp([membershipPoints.organizationActions.inject({ component: probe })]);
     await screen.findByText('alice');
 

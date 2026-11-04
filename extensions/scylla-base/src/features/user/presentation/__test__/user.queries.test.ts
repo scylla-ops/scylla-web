@@ -238,7 +238,7 @@ describe('userMutations.changePassword', () => {
 });
 
 describe('userMutations.deleteAccount', () => {
-  it('gives the organizations to hand over as data', async () => {
+  it('gives the workspaces to hand over as data', async () => {
     repository.deleteAccount.mockRejectedValue(
       failure('FAILED_PRECONDITION', 'Appoint another admin of Acme first'),
     );

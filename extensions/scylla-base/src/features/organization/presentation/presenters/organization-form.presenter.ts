@@ -4,8 +4,8 @@ import { t } from '@lingui/core/macro';
 export const createOrganizationItems = (): readonly FormItem<'name' | 'slug'>[] => [
   {
     id: 'name',
-    label: t`Organization name`,
-    placeholder: t`e.g., My Organization`,
+    label: t`Workspace name`,
+    placeholder: t`e.g., My Workspace`,
     type: FormItemType.Input,
     inputType: 'text',
   },

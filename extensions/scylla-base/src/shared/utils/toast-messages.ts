@@ -9,15 +9,15 @@ export const ToastMessages = {
   USER_DELETE_OWN_ACCOUNT_ERROR: msg`You cannot delete your own account.`,
 
   // Organizations
-  ORGANIZATION_CREATE: msg`Organization created`,
-  ORGANIZATION_DELETE: msg`Organization deleted`,
-  ORGANIZATION_UPDATE: msg`Organization updated`,
+  ORGANIZATION_CREATE: msg`Workspace created`,
+  ORGANIZATION_DELETE: msg`Workspace deleted`,
+  ORGANIZATION_UPDATE: msg`Workspace updated`,
 
   // Projects
   PROJECT_CREATE: msg`Project created`,
   PROJECT_DELETE: msg`Project deleted`,
   PROJECT_UPDATE: msg`Project updated`,
-  PROJECT_NAME_REQUIRED_ERROR: msg`Project name is required and you must select an organization.`,
+  PROJECT_NAME_REQUIRED_ERROR: msg`Project name is required and you must select a workspace.`,
 
   // Pipelines
   PIPELINE_CREATE: msg`Pipeline created`,

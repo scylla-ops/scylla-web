@@ -30,7 +30,7 @@ afterEach(() => {
 });
 
 describe('PersonalLayout', () => {
-  it('shows the page with no organization, under a way back', async () => {
+  it('shows the page with no workspace, under a way back', async () => {
     hasSession.mockResolvedValue(true);
     render(PersonalLayoutFixture);
 

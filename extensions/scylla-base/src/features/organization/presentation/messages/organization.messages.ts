@@ -5,14 +5,14 @@ export const organizationMessages = {
   edit: msg`Edit`,
   delete: msg`Delete`,
 
-  createTitle: msg`Create a new organization`,
-  createDescription: msg`Enter a name and description for your new organization. You can change these later in settings.`,
-  createSubmit: msg`Create Organization`,
+  createTitle: msg`Create a new workspace`,
+  createDescription: msg`Enter a name for your new workspace, and an address if you want to choose it. You can change both later.`,
+  createSubmit: msg`Create Workspace`,
 
-  editTitle: msg`Edit organization`,
-  editDescription: msg`Update the organization name and description.`,
+  editTitle: msg`Edit workspace`,
+  editDescription: msg`Update the name and the address of the workspace.`,
   save: msg`Save`,
   saving: msg`Saving...`,
-  organizationName: msg`Organization name`,
+  organizationName: msg`Workspace name`,
   slug: msg`Address`,
 };

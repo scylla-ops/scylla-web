@@ -49,14 +49,14 @@ afterEach(() => {
 });
 
 describe('OrganizationList', () => {
-  it('shows no organization while the list is loading', () => {
+  it('shows no workspace while the list is loading', () => {
     setUp(() => new Promise(() => {}));
     render(OrganizationList);
 
     expect(screen.queryByText('Acme Corp')).not.toBeInTheDocument();
   });
 
-  it('lists the organizations of the user', async () => {
+  it('lists the workspaces of the user', async () => {
     setUp(() => Promise.resolve(organizations));
     render(OrganizationList);
 
@@ -65,7 +65,7 @@ describe('OrganizationList', () => {
     expect(screen.getByText('Globex Inc')).toBeInTheDocument();
   });
 
-  it('makes a selected organization active and opens its projects', async () => {
+  it('makes a selected workspace active and opens its projects', async () => {
     setUp(() => Promise.resolve(organizations));
     render(OrganizationList);
 
@@ -86,7 +86,7 @@ describe('OrganizationList', () => {
     expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
   });
 
-  it('opens the members of an organization without also selecting the row', async () => {
+  it('opens the members of a workspace without also selecting the row', async () => {
     grant(Permission.LIST_ORGANIZATION_MEMBERS);
     setUp(() => Promise.resolve(organizations));
     render(OrganizationList);
@@ -99,7 +99,7 @@ describe('OrganizationList', () => {
     expect(contextStore.getState().organization.id).toBe('org-2');
   });
 
-  it('opens the edit dialog for an organization', async () => {
+  it('opens the edit dialog for a workspace', async () => {
     grant(Permission.UPDATE_ORGANIZATION);
     setUp(() => Promise.resolve(organizations));
     render(OrganizationList);
@@ -107,10 +107,10 @@ describe('OrganizationList', () => {
     const [acmeEdit] = await screen.findAllByRole('button', { name: 'Edit' });
     await userEvent.click(acmeEdit);
 
-    expect(await screen.findByRole('dialog', { name: 'Edit organization' })).toBeInTheDocument();
+    expect(await screen.findByRole('dialog', { name: 'Edit workspace' })).toBeInTheDocument();
   });
 
-  it('moves to another organization after deleting the active one', async () => {
+  it('moves to another workspace after deleting the active one', async () => {
     grant(Permission.DELETE_ORGANIZATION);
     setUp(() => Promise.resolve(organizations));
     render(OrganizationList);
@@ -126,7 +126,7 @@ describe('OrganizationList', () => {
     expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', undefined);
   });
 
-  it('keeps the active organization after deleting another one', async () => {
+  it('keeps the active workspace after deleting another one', async () => {
     grant(Permission.DELETE_ORGANIZATION);
     setUp(() => Promise.resolve(organizations));
     render(OrganizationList);

@@ -56,7 +56,7 @@ afterEach(() => {
 });
 
 describe('organizationQueries.mine', () => {
-  it('asks for the organizations the user belongs to', async () => {
+  it('asks for the workspaces the user belongs to', async () => {
     const repository = withRepository();
 
     const organizations = await runQueryFn(organizationQueries.mine());
@@ -74,7 +74,7 @@ describe('organizationQueries.mine', () => {
 });
 
 describe('organizationQueries.members', () => {
-  it('lists members for the given organization', async () => {
+  it('lists members for the given workspace', async () => {
     const repository = withRepository();
 
     const members = await runQueryFn(organizationQueries.members(ORG_ID));
@@ -83,7 +83,7 @@ describe('organizationQueries.members', () => {
     expect(members).toHaveLength(1);
   });
 
-  it('is disabled without an organization id', () => {
+  it('is disabled without a workspace id', () => {
     withRepository();
     expect(organizationQueries.members(null).enabled).toBe(false);
   });
@@ -107,7 +107,7 @@ describe('invalidateOrganizationMembers', () => {
     });
   });
 
-  it('is a no-op without an organization id', () => {
+  it('is a no-op without a workspace id', () => {
     withRepository();
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
 
@@ -118,7 +118,7 @@ describe('invalidateOrganizationMembers', () => {
 });
 
 describe('organizationMutations.create', () => {
-  it('creates the organization', async () => {
+  it('creates the workspace', async () => {
     const repository = withRepository();
 
     await runMutationFn(organizationMutations.create(), { name: 'New Org', slug: 'd' });
@@ -139,7 +139,7 @@ describe('organizationMutations.create', () => {
       name: 'New Org',
       slug: 'scylla-inc',
     });
-    expect(toastSuccess).toHaveBeenCalledWith('Organization created');
+    expect(toastSuccess).toHaveBeenCalledWith('Workspace created');
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ORGANIZATIONS_QUERY_KEY() });
   });
 });
@@ -156,7 +156,7 @@ describe('organizationMutations.update', () => {
     runOnSuccess(organizationMutations.update(), org(), { organizationId: ORG_ID });
 
     expect(repository.update).toHaveBeenCalledWith(ORG_ID, 'Renamed', undefined);
-    expect(toastSuccess).toHaveBeenCalledWith('Organization updated');
+    expect(toastSuccess).toHaveBeenCalledWith('Workspace updated');
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ORGANIZATIONS_QUERY_KEY() });
   });
 });
@@ -170,7 +170,7 @@ describe('organizationMutations.remove', () => {
     runOnSuccess(organizationMutations.remove(), undefined, ORG_ID);
 
     expect(repository.delete).toHaveBeenCalledWith(ORG_ID);
-    expect(toastSuccess).toHaveBeenCalledWith('Organization deleted');
+    expect(toastSuccess).toHaveBeenCalledWith('Workspace deleted');
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ORGANIZATIONS_QUERY_KEY() });
   });
 });

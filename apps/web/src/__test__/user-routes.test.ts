@@ -25,11 +25,11 @@ describe('the routes of the accounts', () => {
     expect(routeAt('/:organizationSlug/users')?.permission).toBe(Permission.LIST_USERS);
   });
 
-  it('opens the account page inside the shell of an organization', () => {
+  it('opens the account page inside the shell of a workspace', () => {
     expect(routeAt('/:organizationSlug/account')?.shell).toBe(true);
   });
 
-  it('opens the account page also without an organization: no shell, but a signed-in layout', () => {
+  it('opens the account page also without a workspace: no shell, but a signed-in layout', () => {
     const route = routeAt('/account');
 
     expect(route?.shell).toBe(false);

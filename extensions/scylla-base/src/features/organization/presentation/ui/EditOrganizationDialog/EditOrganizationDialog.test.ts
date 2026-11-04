@@ -34,8 +34,8 @@ describe('EditOrganizationDialog', () => {
     setUp({ id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' });
     await focusSettled();
 
-    expect(screen.getByLabelText('Organization name')).toHaveValue('');
-    expect(screen.getByLabelText('Organization name')).toHaveAttribute('placeholder', 'Acme Corp');
+    expect(screen.getByLabelText('Workspace name')).toHaveValue('');
+    expect(screen.getByLabelText('Workspace name')).toHaveAttribute('placeholder', 'Acme Corp');
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
@@ -52,7 +52,7 @@ describe('EditOrganizationDialog', () => {
     setUp({ id: 'org-9', name: 'Acme Corp', slug: 'acme-corp' }, setOpen);
     await focusSettled();
 
-    await user.type(screen.getByLabelText('Organization name'), '  New Name  ');
+    await user.type(screen.getByLabelText('Workspace name'), '  New Name  ');
     await user.type(screen.getByLabelText('Address'), '  new-desc  ');
     await user.click(screen.getByRole('button', { name: 'Save' }));
 

@@ -85,13 +85,13 @@ describe('canListProjects', () => {
     expect(canListProjects('org-1')).toBe(false);
   });
 
-  it('denies without an organization', () => {
+  it('denies without a workspace', () => {
     expect(canListProjects(null)).toBe(false);
   });
 });
 
 describe('projectQueries.byOrganization', () => {
-  it('fetches the first page for the given organization', async () => {
+  it('fetches the first page for the given workspace', async () => {
     const repository = withRepository();
 
     const result = await runQueryFn(projectQueries.byOrganization('org-1'));
@@ -109,7 +109,7 @@ describe('projectQueries.byOrganization', () => {
     expect(projectQueries.byOrganization('org-1').enabled).toBe(false);
   });
 
-  it('is disabled without an organization', () => {
+  it('is disabled without a workspace', () => {
     withRepository();
     expect(projectQueries.byOrganization(null).enabled).toBe(false);
   });
@@ -132,7 +132,7 @@ describe('projectQueries.lookup', () => {
     expect(repository.getByOrganizationId).toHaveBeenCalledWith('org-1', PROJECTS_LOOKUP_PAGE);
   });
 
-  it('shares its cache entry with the fan-out lookup for the same organization', () => {
+  it('shares its cache entry with the fan-out lookup for the same workspace', () => {
     withRepository();
 
     expect(projectQueries.lookup('org-1').queryKey).toEqual(
@@ -140,14 +140,14 @@ describe('projectQueries.lookup', () => {
     );
   });
 
-  it('is disabled without an organization', () => {
+  it('is disabled without a workspace', () => {
     withRepository();
     expect(projectQueries.lookup(null).enabled).toBe(false);
   });
 });
 
 describe('projectLookupQueries', () => {
-  it('skips the organizations the caller may not read rather than collecting denials', () => {
+  it('skips the workspaces the caller may not read rather than collecting denials', () => {
     permissionsStore.setState({
       permissions: {
         scopes: [
@@ -185,7 +185,7 @@ describe('projectLookupQueries', () => {
     expect(map.get('p-2')).toEqual({ name: 'api', organizationId: 'org-2' });
   });
 
-  it('keeps each result attached to the organization it came from when some are skipped', () => {
+  it('keeps each result attached to the workspace it came from when some are skipped', () => {
     permissionsStore.setState({
       permissions: {
         scopes: [
@@ -244,7 +244,7 @@ describe('projectQueries.members', () => {
 });
 
 describe('the mutations', () => {
-  it('create scopes the project to the organization, toasts and invalidates the projects root', async () => {
+  it('create scopes the project to the workspace, toasts and invalidates the projects root', async () => {
     const repository = withRepository();
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
 

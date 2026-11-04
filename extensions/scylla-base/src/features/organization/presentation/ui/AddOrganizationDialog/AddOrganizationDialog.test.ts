@@ -42,20 +42,20 @@ describe('AddOrganizationDialog', () => {
     setUp();
     await focusSettled();
 
-    const button = screen.getByRole('button', { name: 'Create Organization' });
+    const button = screen.getByRole('button', { name: 'Create Workspace' });
     expect(button).toBeDisabled();
 
-    await user.type(screen.getByLabelText('Organization name'), 'Acme Corp');
+    await user.type(screen.getByLabelText('Workspace name'), 'Acme Corp');
     expect(button).toBeEnabled();
   });
 
-  it('creates an organization without an address', async () => {
+  it('creates a workspace without an address', async () => {
     const user = userEvent.setup();
     setUp();
     await focusSettled();
 
-    await user.type(screen.getByLabelText('Organization name'), 'Acme Corp');
-    await user.click(screen.getByRole('button', { name: 'Create Organization' }));
+    await user.type(screen.getByLabelText('Workspace name'), 'Acme Corp');
+    await user.click(screen.getByRole('button', { name: 'Create Workspace' }));
 
     await waitFor(() => expect(create).toHaveBeenCalledWith('Acme Corp', undefined));
   });
@@ -66,9 +66,9 @@ describe('AddOrganizationDialog', () => {
     setUp({ setOpen });
     await focusSettled();
 
-    await user.type(screen.getByLabelText('Organization name'), '  Acme Corp  ');
+    await user.type(screen.getByLabelText('Workspace name'), '  Acme Corp  ');
     await user.type(screen.getByLabelText('Address'), 'a real one');
-    await user.click(screen.getByRole('button', { name: 'Create Organization' }));
+    await user.click(screen.getByRole('button', { name: 'Create Workspace' }));
 
     await waitFor(() => expect(create).toHaveBeenCalledWith('Acme Corp', 'a real one'));
     await waitFor(() => expect(setOpen).toHaveBeenCalledWith(false));
@@ -81,9 +81,9 @@ describe('AddOrganizationDialog', () => {
     setUp();
     await focusSettled();
 
-    await user.type(screen.getByLabelText('Organization name'), 'Acme');
+    await user.type(screen.getByLabelText('Workspace name'), 'Acme');
     await user.type(screen.getByLabelText('Address'), '  a real one  ');
-    await user.click(screen.getByRole('button', { name: 'Create Organization' }));
+    await user.click(screen.getByRole('button', { name: 'Create Workspace' }));
 
     await waitFor(() => expect(create).toHaveBeenCalledWith('Acme', 'a real one'));
   });

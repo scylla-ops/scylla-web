@@ -61,20 +61,20 @@ const holding = (permissions: Permission[]) =>
   });
 
 describe('OrganizationGate', () => {
-  it('shows neither the page nor the welcome screen while the organizations load', () => {
+  it('shows neither the page nor the welcome screen while the workspaces load', () => {
     setUp(() => new Promise(() => {}));
 
     expect(screen.queryByText('page content')).not.toBeInTheDocument();
     expect(screen.queryByText('Welcome to Scylla!')).not.toBeInTheDocument();
   });
 
-  it('renders the page when the user has organizations', async () => {
+  it('renders the page when the user has workspaces', async () => {
     setUp(() => Promise.resolve([{ id: 'org-1', name: 'Acme', slug: 'acme' }]));
 
     expect(await screen.findByText('page content')).toBeInTheDocument();
   });
 
-  it('loads the permissions for the active organization and project', async () => {
+  it('loads the permissions for the active workspace and project', async () => {
     setUp(() => Promise.resolve([{ id: 'org-1', name: 'Acme', slug: 'acme' }]));
     await screen.findByText('page content');
 
@@ -90,21 +90,21 @@ describe('OrganizationGate', () => {
     await waitFor(() => expect(syncMyPermissions).toHaveBeenCalledWith('org-1', 'project-2'));
   });
 
-  it('shows the welcome screen when the user has no organization', async () => {
+  it('shows the welcome screen when the user has no workspace', async () => {
     setUp(() => Promise.resolve([]));
 
     expect(await screen.findByText('Welcome to Scylla!')).toBeInTheDocument();
     expect(screen.queryByText('page content')).not.toBeInTheDocument();
   });
 
-  it('creates the first organization and opens its projects', async () => {
+  it('creates the first workspace and opens its projects', async () => {
     holding([Permission.CREATE_ORGANIZATION]);
     setUp(() => Promise.resolve([]));
     await screen.findByText('Welcome to Scylla!');
     await focusSettled();
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText('Organization name'), 'My Org');
+    await user.type(screen.getByLabelText('Workspace name'), 'My Org');
     await user.type(screen.getByLabelText('Address'), 'my-org');
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
@@ -114,20 +114,20 @@ describe('OrganizationGate', () => {
     );
   });
 
-  it('tells a user who may not create an organization to ask an administrator, with no form', async () => {
+  it('tells a user who may not create a workspace to ask an administrator, with no form', async () => {
     holding([]);
     setUp(() => Promise.resolve([]));
 
     expect(
       await screen.findByText(
-        'You are not a member of an organization yet. Ask an administrator to add you.',
+        'You are not a member of a workspace yet. Ask an administrator to add you.',
       ),
     ).toBeInTheDocument();
-    expect(screen.queryByLabelText('Organization name')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Workspace name')).not.toBeInTheDocument();
   });
 
   it.each([
-    ['who may create an organization', [Permission.CREATE_ORGANIZATION]],
+    ['who may create a workspace', [Permission.CREATE_ORGANIZATION]],
     ['who may not', []],
   ])(
     'offers the account page and the sign-out under the card to a user %s',

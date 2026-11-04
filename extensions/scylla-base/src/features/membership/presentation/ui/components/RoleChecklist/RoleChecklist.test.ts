@@ -104,7 +104,7 @@ describe('RoleChecklist', () => {
       RoleChecklist,
       props({
         roles: [
-          assignable({ roleId: 'organization-viewer', name: 'Organization viewer' }),
+          assignable({ roleId: 'organization-viewer', name: 'Workspace viewer' }),
           assignable({ roleId: 'auditor', name: 'Auditor', ownedByOrganization: true }),
         ],
       }),
@@ -114,7 +114,7 @@ describe('RoleChecklist', () => {
     expect(acme).toHaveAccessibleName('Acme roles');
     expect(acme).toHaveTextContent('Auditor');
     expect(platform).toHaveAccessibleName('Platform roles');
-    expect(platform).toHaveTextContent('Organization viewer');
+    expect(platform).toHaveTextContent('Workspace viewer');
   });
 });
 

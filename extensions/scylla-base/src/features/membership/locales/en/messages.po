@@ -54,24 +54,24 @@ msgid "Cancel"
 msgstr "Cancel"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:61
-msgid "Every member of the organization is already here"
-msgstr "Every member of the organization is already here"
-
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:50
-msgid "Every role they hold on this organization and on its projects will be revoked. They will lose access immediately."
-msgstr "Every role they hold on this organization and on its projects will be revoked. They will lose access immediately."
+msgid "Every member of the workspace is already here"
+msgstr "Every member of the workspace is already here"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:65
-msgid "Every role they hold on this project will be revoked. Roles inherited from the organization are untouched: they are managed at the organization level."
-msgstr "Every role they hold on this project will be revoked. Roles inherited from the organization are untouched: they are managed at the organization level."
+msgid "Every role they hold on this project will be revoked. Roles inherited from the workspace are untouched: they are managed at the workspace level."
+msgstr "Every role they hold on this project will be revoked. Roles inherited from the workspace are untouched: they are managed at the workspace level."
+
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:50
+msgid "Every role they hold on this workspace and on its projects will be revoked. They will lose access immediately."
+msgstr "Every role they hold on this workspace and on its projects will be revoked. They will lose access immediately."
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:46
 msgid "Everyone is already a member"
 msgstr "Everyone is already a member"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:52
-msgid "Everyone with access to this project, whether granted here or through a role on the organization. Only project roles can be changed from this page."
-msgstr "Everyone with access to this project, whether granted here or through a role on the organization. Only project roles can be changed from this page."
+msgid "Everyone with access to this project, whether granted here or through a role on the workspace. Only project roles can be changed from this page."
+msgstr "Everyone with access to this project, whether granted here or through a role on the workspace. Only project roles can be changed from this page."
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:17
 msgid "Held"
@@ -86,16 +86,16 @@ msgid "Loading…"
 msgstr "Loading…"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:23
-msgid "Managed at the organization level."
-msgstr "Managed at the organization level."
+msgid "Managed at the workspace level."
+msgstr "Managed at the workspace level."
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:55
 msgid "Managed by a project administrator"
 msgstr "Managed by a project administrator"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:42
-msgid "Managed by an organization administrator"
-msgstr "Managed by an organization administrator"
+msgid "Managed by a workspace administrator"
+msgstr "Managed by a workspace administrator"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:8
 msgid "Member"
@@ -121,8 +121,8 @@ msgid "No role can be granted here."
 msgstr "No role can be granted here."
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:40
-msgid "Nobody belongs to this organization yet."
-msgstr "Nobody belongs to this organization yet."
+msgid "Nobody belongs to this workspace yet."
+msgstr "Nobody belongs to this workspace yet."
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:54
 msgid "Nobody has access to this project yet."
@@ -137,20 +137,16 @@ msgid "Only a system admin can browse the users."
 msgstr "Only a system admin can browse the users."
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:60
-msgid "Only members of the organization can be added: a project role granted to anyone else is refused."
-msgstr "Only members of the organization can be added: a project role granted to anyone else is refused."
-
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:58
-msgid "Organization administrators also reach this project. Their roles are managed at the organization level and are not listed here."
-msgstr "Organization administrators also reach this project. Their roles are managed at the organization level and are not listed here."
+msgid "Only members of the workspace can be added: a project role granted to anyone else is refused."
+msgstr "Only members of the workspace can be added: a project role granted to anyone else is refused."
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:7
 msgid "Owners"
 msgstr "Owners"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:45
-msgid "Pick someone and the roles they should hold in this organization."
-msgstr "Pick someone and the roles they should hold in this organization."
+msgid "Pick someone and the roles they should hold in this workspace."
+msgstr "Pick someone and the roles they should hold in this workspace."
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:20
 msgid "Platform roles"
@@ -172,13 +168,13 @@ msgstr "Remove {username} from “{organization}”?"
 msgid "Remove {username} from this project?"
 msgstr "Remove {username} from this project?"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:43
-msgid "Remove from the organization"
-msgstr "Remove from the organization"
-
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:56
 msgid "Remove from the project"
 msgstr "Remove from the project"
+
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:43
+msgid "Remove from the workspace"
+msgstr "Remove from the workspace"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:24
 msgid "Revoke {name}"
@@ -193,8 +189,8 @@ msgid "Role revoked"
 msgstr "Role revoked"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:57
-msgid "Roles badged “Organization” are inherited from the organization and are managed there."
-msgstr "Roles badged “Organization” are inherited from the organization and are managed there."
+msgid "Roles badged “Workspace” are inherited from the workspace and are managed there."
+msgstr "Roles badged “Workspace” are inherited from the workspace and are managed there."
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:47
 msgid "Roles to grant"
@@ -205,20 +201,24 @@ msgid "Select a user"
 msgstr "Select a user"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:35
-msgid "Select an organization to see its members."
-msgstr "Select an organization to see its members."
+msgid "Select a workspace to see its members."
+msgstr "Select a workspace to see its members."
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:6
 msgid "Workspace"
 msgstr "Workspace"
+
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:58
+msgid "Workspace administrators also reach this project. Their roles are managed at the workspace level and are not listed here."
+msgstr "Workspace administrators also reach this project. Their roles are managed at the workspace level and are not listed here."
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:13
 msgid "You"
 msgstr "You"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:62
-msgid "You can't browse the organization's members"
-msgstr "You can't browse the organization's members"
+msgid "You can't browse the workspace's members"
+msgstr "You can't browse the workspace's members"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:53
 msgid "You don't have permission to add members to this project."

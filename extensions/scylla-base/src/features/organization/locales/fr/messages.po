@@ -19,20 +19,20 @@ msgid "Address"
 msgstr "Adresse"
 
 #: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:8
-msgid "Create a new organization"
-msgstr "Créer une nouvelle organisation"
+msgid "Create a new workspace"
+msgstr "Créer un nouvel espace de travail"
 
 #: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:10
-msgid "Create Organization"
-msgstr "Créer l'organisation"
+msgid "Create Workspace"
+msgstr "Créer l'espace de travail"
 
 #: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:6
 msgid "Delete"
 msgstr "Supprimer"
 
 #: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:8
-msgid "e.g., My Organization"
-msgstr "ex. : Mon organisation"
+msgid "e.g., My Workspace"
+msgstr "ex. : Mon espace de travail"
 
 #: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:15
 msgid "e.g., my-workspace"
@@ -43,21 +43,16 @@ msgid "Edit"
 msgstr "Modifier"
 
 #: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:12
-msgid "Edit organization"
-msgstr "Modifier l'organisation"
+msgid "Edit workspace"
+msgstr "Modifier l'espace de travail"
 
 #: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:9
-msgid "Enter a name and description for your new organization. You can change these later in settings."
-msgstr "Entrez un nom et une description pour votre nouvelle organisation. Vous pourrez les modifier plus tard dans les paramètres."
+msgid "Enter a name for your new workspace, and an address if you want to choose it. You can change both later."
+msgstr "Entrez un nom pour votre nouvel espace de travail, et une adresse si vous voulez la choisir. Vous pourrez modifier les deux plus tard."
 
 #: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:4
 msgid "Members"
 msgstr "Membres"
-
-#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:16
-#: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:7
-msgid "Organization name"
-msgstr "Nom de l'organisation"
 
 #: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:14
 msgid "Save"
@@ -68,5 +63,10 @@ msgid "Saving..."
 msgstr "Enregistrement..."
 
 #: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:13
-msgid "Update the organization name and description."
-msgstr "Mettez à jour le nom et la description de l'organisation."
+msgid "Update the name and the address of the workspace."
+msgstr "Mettez à jour le nom et l'adresse de l'espace de travail."
+
+#: extensions/scylla-base/src/features/organization/presentation/messages/organization.messages.ts:16
+#: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:7
+msgid "Workspace name"
+msgstr "Nom de l'espace de travail"

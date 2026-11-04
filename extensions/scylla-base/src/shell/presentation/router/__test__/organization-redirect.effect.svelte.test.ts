@@ -45,14 +45,14 @@ afterEach(() => {
 });
 
 describe('redirectToOrganization', () => {
-  it('waits while the organizations are loading', () => {
+  it('waits while the workspaces are loading', () => {
     organizationsState.isLoading = true;
     run();
 
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
-  it('goes to the projects of the active organization', () => {
+  it('goes to the projects of the active workspace', () => {
     contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' } });
     organizationsState.organizations = [{ id: 'org-2', name: 'Other Co', slug: 'other-co' }];
     run();
@@ -60,7 +60,7 @@ describe('redirectToOrganization', () => {
     expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', { replace: true });
   });
 
-  it('goes to the first organization when none is active', () => {
+  it('goes to the first workspace when none is active', () => {
     organizationsState.organizations = [
       { id: 'org-1', name: 'Globex Inc', slug: 'globex-inc' },
       { id: 'org-2', name: 'Other Co', slug: 'other-co' },
@@ -70,7 +70,7 @@ describe('redirectToOrganization', () => {
     expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', { replace: true });
   });
 
-  it('stays when there is no organization at all', () => {
+  it('stays when there is no workspace at all', () => {
     organizationsState.organizations = [];
     run();
 

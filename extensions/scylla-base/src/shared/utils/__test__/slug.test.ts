@@ -4,7 +4,7 @@ import { slugifyOrgName } from '../slug';
 
 describe('slugifyOrgName', () => {
   it('lowercases and hyphenates spaces', () => {
-    expect(slugifyOrgName('My Organization')).toBe('my-organization');
+    expect(slugifyOrgName('My Workspace')).toBe('my-workspace');
   });
 
   it('collapses runs of non-alphanumeric characters into a single hyphen', () => {

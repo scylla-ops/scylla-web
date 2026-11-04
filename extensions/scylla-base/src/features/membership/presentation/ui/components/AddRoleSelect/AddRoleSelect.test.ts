@@ -47,7 +47,7 @@ describe('AddRoleSelect', () => {
 
   it("lists the organization's own roles under their header, before the platform roles", async () => {
     render(AddRoleSelect, {
-      roles: [role('organization-viewer', 'Organization viewer'), role('auditor', 'Auditor', true)],
+      roles: [role('organization-viewer', 'Workspace viewer'), role('auditor', 'Auditor', true)],
       organizationName: 'Acme',
       disabled: false,
       onSelect: vi.fn(),
@@ -57,7 +57,7 @@ describe('AddRoleSelect', () => {
 
     const [acme, platform] = await screen.findAllByRole('group', { hidden: true });
     expect(acme).toHaveTextContent(/^Acme roles\s*Auditor$/);
-    expect(platform).toHaveTextContent(/^Platform roles\s*Organization viewer$/);
+    expect(platform).toHaveTextContent(/^Platform roles\s*Workspace viewer$/);
   });
 
   it('goes back to its placeholder after a pick, never showing a role id', async () => {

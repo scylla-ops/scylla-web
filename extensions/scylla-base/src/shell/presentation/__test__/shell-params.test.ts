@@ -24,7 +24,7 @@ beforeEach(() => {
 afterEach(() => setAppNavigator(null));
 
 describe('breadcrumbParams', () => {
-  it('names the organization, the project and the pipeline of the URL', () => {
+  it('names the workspace, the project and the pipeline of the URL', () => {
     inRoute({ pipelineId: 'pipeline-1' });
 
     expect(breadcrumbParams()).toEqual({
@@ -42,11 +42,11 @@ describe('breadcrumbParams', () => {
 });
 
 describe('linkParams', () => {
-  it('opens the sidebar links in the active organization', () => {
+  it('opens the sidebar links in the active workspace', () => {
     expect(linkParams()).toEqual({ organizationSlug: 'acme-corp' });
   });
 
-  it('gives no organization when none is active', () => {
+  it('gives no workspace when none is active', () => {
     contextStore.setState({ organization: { id: null, name: null, slug: null } });
 
     expect(linkParams()).toEqual({ organizationSlug: undefined });

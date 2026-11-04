@@ -79,14 +79,14 @@ afterEach(() => {
 });
 
 describe('OrganizationMembersPage', () => {
-  it('asks for an organization rather than rendering an empty list', () => {
+  it('asks for a workspace rather than rendering an empty list', () => {
     contextStore.setState({
       organization: { id: null, name: null, slug: null },
       project: { id: null, name: null },
     });
     render(OrganizationMembersPage);
 
-    expect(screen.getByText('Select an organization to see its members.')).toBeInTheDocument();
+    expect(screen.getByText('Select a workspace to see its members.')).toBeInTheDocument();
     expect(listAccess).not.toHaveBeenCalled();
   });
 
@@ -105,11 +105,11 @@ describe('OrganizationMembersPage', () => {
     expect(screen.queryByRole('button', { name: /Revoke Owner/ })).not.toBeInTheDocument();
   });
 
-  it('says so when nobody belongs to the organization yet', async () => {
+  it('says so when nobody belongs to the workspace yet', async () => {
     listAccess.mockResolvedValue([]);
     render(OrganizationMembersPage);
 
-    expect(await screen.findByText('Nobody belongs to this organization yet.')).toBeInTheDocument();
+    expect(await screen.findByText('Nobody belongs to this workspace yet.')).toBeInTheDocument();
   });
 
   it('does not enumerate accounts without LIST_USERS', async () => {
@@ -167,7 +167,7 @@ describe('OrganizationMembersPage', () => {
     render(OrganizationMembersPage);
     await screen.findByText('alice');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Remove from the organization' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Remove from the workspace' }));
     expect(revoke).not.toHaveBeenCalled();
 
     await userEvent.click(await screen.findByRole('button', { name: 'Continue' }));

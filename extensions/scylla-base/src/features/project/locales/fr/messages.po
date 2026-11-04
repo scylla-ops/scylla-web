@@ -46,8 +46,8 @@ msgid "Edit project"
 msgstr "Modifier le projet"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:24
-msgid "Enter a name for your new project and select the organization it belongs to."
-msgstr "Entrez un nom pour votre nouveau projet et sélectionnez l'organisation à laquelle il appartient."
+msgid "Enter a name for your new project and select the workspace it belongs to."
+msgstr "Entrez un nom pour votre nouveau projet et sélectionnez l'espace de travail auquel il appartient."
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:10
 msgid "New project"
@@ -58,8 +58,8 @@ msgid "No description"
 msgstr "Aucune description"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:4
-msgid "No organization selected"
-msgstr "Aucune organisation sélectionnée"
+msgid "No workspace selected"
+msgstr "Aucun espace de travail sélectionné"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:8
 msgid "Project"
@@ -88,8 +88,8 @@ msgid "Select"
 msgstr "Sélectionner"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:5
-msgid "Select an organization from the sidebar to view its projects"
-msgstr "Sélectionnez une organisation dans la barre latérale pour voir ses projets"
+msgid "Select a workspace from the sidebar to view its projects"
+msgstr "Sélectionnez un espace de travail dans la barre latérale pour voir ses projets"
 
 #: extensions/scylla-base/src/features/project/infrastructure/default-project.repository.ts:27
 msgid "This workspace has reached its project limit."

@@ -56,20 +56,20 @@ afterEach(() => {
 });
 
 describe('OrganizationSelector', () => {
-  it('shows the active organization', () => {
+  it('shows the active workspace', () => {
     render(InSidebar, { component: OrganizationSelector });
 
     expect(screen.getByRole('button', { name: /Acme Corp/ })).toBeInTheDocument();
   });
 
-  it('asks the user to select an organization when none is active', () => {
+  it('asks the user to select a workspace when none is active', () => {
     contextStore.setState({ organization: { id: null, name: null, slug: null } });
     render(InSidebar, { component: OrganizationSelector });
 
-    expect(screen.getByRole('button', { name: /Select Organization/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Select Workspace/ })).toBeInTheDocument();
   });
 
-  it('lists the organizations as menu items, and opens the one the user picks', async () => {
+  it('lists the workspaces as menu items, and opens the one the user picks', async () => {
     render(InSidebar, { component: OrganizationSelector });
     const user = userEvent.setup();
 
@@ -80,14 +80,14 @@ describe('OrganizationSelector', () => {
     expect(contextStore.getState().organization.id).toBe('org-2');
   });
 
-  it('offers to create an organization only to a user who may', async () => {
+  it('offers to create a workspace only to a user who may', async () => {
     render(InSidebar, { component: OrganizationSelector });
     const user = userEvent.setup();
 
     await user.click(screen.getByRole('button', { name: /Acme Corp/ }));
     await findMenuItem('Globex Inc');
 
-    expect(screen.queryByText('Create an organization')).not.toBeInTheDocument();
+    expect(screen.queryByText('Create a workspace')).not.toBeInTheDocument();
   });
 
   it('opens the create dialog from the menu', async () => {
@@ -96,23 +96,23 @@ describe('OrganizationSelector', () => {
     const user = userEvent.setup();
 
     await user.click(screen.getByRole('button', { name: /Acme Corp/ }));
-    await user.click(await findMenuItem('Create an organization'));
+    await user.click(await findMenuItem('Create a workspace'));
 
     expect(
-      await screen.findByRole('dialog', { name: 'Create a new organization' }),
+      await screen.findByRole('dialog', { name: 'Create a new workspace' }),
     ).toBeInTheDocument();
   });
 
-  it('creates an organization from the menu, makes it active and opens its projects', async () => {
+  it('creates a workspace from the menu, makes it active and opens its projects', async () => {
     grant(Permission.CREATE_ORGANIZATION);
     render(InSidebar, { component: OrganizationSelector });
     const user = userEvent.setup();
 
     await user.click(screen.getByRole('button', { name: /Acme Corp/ }));
-    await user.click(await findMenuItem('Create an organization'));
-    const dialog = await screen.findByRole('dialog', { name: 'Create a new organization' });
-    await user.type(within(dialog).getByLabelText('Organization name'), 'Initech');
-    await user.click(within(dialog).getByRole('button', { name: 'Create Organization' }));
+    await user.click(await findMenuItem('Create a workspace'));
+    const dialog = await screen.findByRole('dialog', { name: 'Create a new workspace' });
+    await user.type(within(dialog).getByLabelText('Workspace name'), 'Initech');
+    await user.click(within(dialog).getByRole('button', { name: 'Create Workspace' }));
 
     await waitFor(() =>
       expect(navigator.navigate).toHaveBeenCalledWith('/initech/projects', undefined),

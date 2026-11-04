@@ -49,7 +49,7 @@ beforeEach(() => {
 afterEach(() => teardown.forEach(restore => restore()));
 
 describe('AddProjectDialog', () => {
-  it('toasts an error and never calls the repository when no organization is selected', async () => {
+  it('toasts an error and never calls the repository when no workspace is selected', async () => {
     contextStore.setState({ organization: { id: null, name: null, slug: null } });
     install();
     render(AddProjectDialog, { open: true, setOpen: vi.fn() });
@@ -60,12 +60,12 @@ describe('AddProjectDialog', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Create Project' }));
 
     expect(toastError).toHaveBeenCalledWith(
-      'Project name is required and you must select an organization.',
+      'Project name is required and you must select a workspace.',
     );
     expect(create).not.toHaveBeenCalled();
   });
 
-  it('creates the project under the current organization and closes on success', async () => {
+  it('creates the project under the current workspace and closes on success', async () => {
     const setOpen = vi.fn();
     install();
     render(AddProjectDialog, { open: true, setOpen });

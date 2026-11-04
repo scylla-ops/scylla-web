@@ -1,8 +1,8 @@
 import { msg } from '@lingui/core/macro';
 
 export const projectMessages = {
-  noOrganization: msg`No organization selected`,
-  noOrganizationHint: msg`Select an organization from the sidebar to view its projects`,
+  noOrganization: msg`No workspace selected`,
+  noOrganizationHint: msg`Select a workspace from the sidebar to view its projects`,
   loadError: msg`Unable to load projects`,
 
   project: msg`Project`,
@@ -21,7 +21,7 @@ export const projectMessages = {
   descriptionPlaceholder: msg`e.g., A short description of the project`,
   addDescription: msg`Add a description...`,
   createTitle: msg`Create a new project`,
-  createDescription: msg`Enter a name for your new project and select the organization it belongs to.`,
+  createDescription: msg`Enter a name for your new project and select the workspace it belongs to.`,
   createSubmit: msg`Create Project`,
   editTitle: msg`Edit project`,
   editDescription: msg`Update the project name and description.`,

@@ -30,8 +30,8 @@ msgid "Create"
 msgstr "Créer"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:8
-msgid "Create an organization"
-msgstr "Créer une organisation"
+msgid "Create a workspace"
+msgstr "Créer un espace de travail"
 
 #: extensions/scylla-base/src/shell/whats-new.ts:52
 msgid "Create and edit a role or a trigger on a full page, with room for all of its permissions and settings."
@@ -60,10 +60,6 @@ msgstr "Nouveau"
 #: extensions/scylla-base/src/shell/whats-new.ts:65
 msgid "On a small screen, each row of a table shows as a card."
 msgstr "Sur un petit écran, chaque ligne d'un tableau s'affiche comme une carte."
-
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:4
-msgid "Organization"
-msgstr "Organisation"
 
 #: extensions/scylla-base/src/shell/whats-new.ts:59
 msgid "Profile, appearance, security and organizations: each setting has its own page. Choose your theme in Appearance."
@@ -94,8 +90,8 @@ msgid "See where a node lands while you drag it from the palette. A node that ru
 msgstr "Voyez où un nœud se pose pendant que vous le glissez depuis la palette. Un nœud qui exécute un modèle affiche l'icône du modèle."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:7
-msgid "Select Organization"
-msgstr "Sélectionner une organisation"
+msgid "Select Workspace"
+msgstr "Sélectionner un espace de travail"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:15
 msgid "Sign out"
@@ -118,8 +114,8 @@ msgid "The scripting tab lists the nodes of a pipeline by stage and shows the sc
 msgstr "L'onglet Écriture de scripts liste les nœuds d'un pipeline par étape et affiche le script de chaque nœud comme du code shell. Ouvrez deux nœuds côte à côte."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:10
-msgid "To get started, please create your first organization."
-msgstr "Pour commencer, veuillez créer votre première organisation."
+msgid "To get started, please create your first workspace."
+msgstr "Pour commencer, veuillez créer votre premier espace de travail."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:9
 msgid "Welcome to Scylla!"
@@ -130,6 +126,10 @@ msgstr "Bienvenue sur Scylla !"
 msgid "What's new in Scylla {0}"
 msgstr "Nouveautés de Scylla {0}"
 
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:4
+msgid "Workspace"
+msgstr "Espace de travail"
+
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:11
-msgid "You are not a member of an organization yet. Ask an administrator to add you."
-msgstr "Vous n'êtes membre d'aucune organisation. Demandez à un administrateur de vous ajouter."
+msgid "You are not a member of a workspace yet. Ask an administrator to add you."
+msgstr "Vous n'êtes membre d'aucun espace de travail. Demandez à un administrateur de vous ajouter."

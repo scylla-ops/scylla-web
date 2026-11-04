@@ -101,18 +101,6 @@ msgstr "Aucun compte n'est lié à cette identité"
 msgid "No data"
 msgstr "Aucune donnée"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:12
-msgid "Organization created"
-msgstr "Organisation créée"
-
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:13
-msgid "Organization deleted"
-msgstr "Organisation supprimée"
-
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:14
-msgid "Organization updated"
-msgstr "Organisation mise à jour"
-
 #: extensions/scylla-base/src/shared/utils/status-config.ts:75
 msgid "Orphaned"
 msgstr "Orphelin"
@@ -154,8 +142,8 @@ msgid "Project deleted"
 msgstr "Projet supprimé"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:20
-msgid "Project name is required and you must select an organization."
-msgstr "Le nom du projet est requis et vous devez sélectionner une organisation."
+msgid "Project name is required and you must select a workspace."
+msgstr "Le nom du projet est requis et vous devez sélectionner un espace de travail."
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:19
 msgid "Project updated"
@@ -308,6 +296,18 @@ msgstr "Attendez {seconds} secondes avant de le renvoyer"
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:22
 msgid "Wait before you send it again"
 msgstr "Attendez avant de le renvoyer"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:12
+msgid "Workspace created"
+msgstr "Espace de travail créé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:13
+msgid "Workspace deleted"
+msgstr "Espace de travail supprimé"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:14
+msgid "Workspace updated"
+msgstr "Espace de travail mis à jour"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:9
 msgid "You cannot delete your own account."

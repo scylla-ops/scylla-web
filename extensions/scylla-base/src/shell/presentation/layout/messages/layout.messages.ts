@@ -1,14 +1,14 @@
 import { msg } from '@lingui/core/macro';
 
 export const layoutMessages = {
-  organization: msg`Organization`,
+  organization: msg`Workspace`,
   project: msg`Project`,
   system: msg`System`,
-  selectOrganization: msg`Select Organization`,
-  createOrganization: msg`Create an organization`,
+  selectOrganization: msg`Select Workspace`,
+  createOrganization: msg`Create a workspace`,
   welcome: msg`Welcome to Scylla!`,
-  getStarted: msg`To get started, please create your first organization.`,
-  noOrganization: msg`You are not a member of an organization yet. Ask an administrator to add you.`,
+  getStarted: msg`To get started, please create your first workspace.`,
+  noOrganization: msg`You are not a member of a workspace yet. Ask an administrator to add you.`,
   create: msg`Create`,
   loading: msg`Loading...`,
   account: msg`Account`,

@@ -68,11 +68,11 @@ describe('canAccess', () => {
         access: { kind: 'fullControl' },
       });
 
-    it('covers a target in that same organization', () => {
+    it('covers a target in that same workspace', () => {
       expect(canAccess(orgGrant('org-1'), Permission.READ_PROJECT, { organizationId: 'org-1' })).toBe(true);
     });
 
-    it('does not cover a different organization', () => {
+    it('does not cover a different workspace', () => {
       expect(canAccess(orgGrant('org-1'), Permission.READ_PROJECT, { organizationId: 'org-2' })).toBe(false);
     });
 
@@ -134,7 +134,7 @@ describe('canAccess', () => {
   describe('a grant reaches a permission at its own scope or below it', () => {
     const full = { kind: 'fullControl' } as const;
 
-    it('an organization grant does not reach a system permission', () => {
+    it('a workspace grant does not reach a system permission', () => {
       const perms = effective({ scope: PermissionScope.ORGANIZATION, scopeId: 'org-1', access: full });
       const target = { organizationId: 'org-1' };
       expect(canAccess(perms, Permission.MANAGE_ROLES, target)).toBe(false);
@@ -143,7 +143,7 @@ describe('canAccess', () => {
       expect(canAccess(perms, Permission.RUN_PIPELINE, target)).toBe(true);
     });
 
-    it('a project grant does not reach an organization permission', () => {
+    it('a project grant does not reach a workspace permission', () => {
       const perms = effective({ scope: PermissionScope.PROJECT, scopeId: 'p-1', access: full });
       const target = { organizationId: 'org-1', projectId: 'p-1' };
       expect(canAccess(perms, Permission.UPDATE_ORGANIZATION, target)).toBe(false);
@@ -175,7 +175,7 @@ const full = (scope: PermissionScope, scopeId: string): EffectiveScope => ({
 const holding = (...scopes: EffectiveScope[]): EffectivePermissions => ({ scopes });
 
 describe('holdsPermission — the escalation rule of the backend', () => {
-  it('counts a grant on the organization that owns the role', () => {
+  it('counts a grant on the workspace that owns the role', () => {
     const effective = holding(
       restricted(PermissionScope.ORGANIZATION, 'org-1', [Permission.RUN_PIPELINE]),
     );
@@ -191,7 +191,7 @@ describe('holdsPermission — the escalation rule of the backend', () => {
     expect(holdsPermission(effective, null, Permission.RUN_PIPELINE)).toBe(true);
   });
 
-  it('never counts a project grant, even inside the organization', () => {
+  it('never counts a project grant, even inside the workspace', () => {
     const effective = holding(
       restricted(PermissionScope.PROJECT, 'p-1', [Permission.RUN_PIPELINE]),
     );
@@ -199,7 +199,7 @@ describe('holdsPermission — the escalation rule of the backend', () => {
     expect(holdsPermission(effective, 'org-1', Permission.RUN_PIPELINE)).toBe(false);
   });
 
-  it('never counts an organization grant toward a platform role', () => {
+  it('never counts a workspace grant toward a platform role', () => {
     const effective = holding(full(PermissionScope.ORGANIZATION, 'org-1'));
 
     expect(holdsPermission(effective, null, Permission.RUN_PIPELINE)).toBe(false);

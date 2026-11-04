@@ -55,7 +55,7 @@ describe('syncOrganization', () => {
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
-  it('does nothing while the organizations are still loading', () => {
+  it('does nothing while the workspaces are still loading', () => {
     organizationsState.isLoading = true;
     run('acme-corp')();
 
@@ -63,14 +63,14 @@ describe('syncOrganization', () => {
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
-  it('makes the organization that matches the slug the active one', () => {
+  it('makes the workspace that matches the slug the active one', () => {
     run('globex-inc')();
 
     expect(contextStore.getState().organization).toEqual({ id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' });
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
-  it('does not set the store again when the matched organization is already active', () => {
+  it('does not set the store again when the matched workspace is already active', () => {
     contextStore.setState({ organization: { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' } });
     const setOrganization = vi.spyOn(contextStore.getState(), 'setOrganization');
 
@@ -79,14 +79,14 @@ describe('syncOrganization', () => {
     expect(setOrganization).not.toHaveBeenCalled();
   });
 
-  it('goes to the first organization when the slug matches none', () => {
+  it('goes to the first workspace when the slug matches none', () => {
     run('no-such-org')();
 
     expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', { replace: true });
     expect(contextStore.getState().organization).toEqual({ id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' });
   });
 
-  it('does nothing when the slug matches none and there is no organization', () => {
+  it('does nothing when the slug matches none and there is no workspace', () => {
     organizationsState.organizations = [];
     run('no-such-org')();
 

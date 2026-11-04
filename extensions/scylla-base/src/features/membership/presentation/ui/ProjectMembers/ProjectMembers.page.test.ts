@@ -110,7 +110,7 @@ describe('ProjectMembersPage', () => {
     render(ProjectMembersPage, { projectId: 'project-1' });
 
     expect(
-      await screen.findByText(/inherited from the organization and are managed there/),
+      await screen.findByText(/inherited from the workspace and are managed there/),
     ).toBeInTheDocument();
   });
 
@@ -119,7 +119,7 @@ describe('ProjectMembersPage', () => {
     render(ProjectMembersPage, { projectId: 'project-1' });
 
     expect(
-      await screen.findByText(/Their roles are managed at the organization level/),
+      await screen.findByText(/Their roles are managed at the workspace level/),
     ).toBeInTheDocument();
     expect(listAccess).not.toHaveBeenCalledWith(expect.objectContaining({ kind: 'workspace' }));
   });
