@@ -274,6 +274,18 @@ describe('DefaultAppsRepository, the stats and the credentials', () => {
     });
   });
 
+  it('keeps the new agent and says so when its role cannot be given', async () => {
+    const { access, repository } = clients();
+    vi.mocked(access.grant).mockImplementationOnce(() => {
+      throw new Error('PERMISSION_DENIED');
+    });
+
+    const created = await repository.createApp('ws-1', 'builder', true);
+
+    expect(created.app.id).toBe('app-1');
+    expect(created.accessGranted).toBe(false);
+  });
+
   it('changes the runner roles of an agent in the given order', async () => {
     const { access, repository, order } = clients();
 

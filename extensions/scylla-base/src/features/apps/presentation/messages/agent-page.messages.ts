@@ -48,7 +48,11 @@ export const agentPageMessages = {
   allProjectsOf: (workspace: string) => msg`All projects of ${workspace}`,
   allBody: msg`It takes the pending jobs of every project.`,
   someBody: msg`It takes the pending jobs of these projects only.`,
-  noneBody: msg`It takes no job. Give it some projects.`,
+  noAccess: msg`No access: this agent takes no job.`,
+  giveAccess: msg`Give access`,
+  addedWithoutAccess: msg`Added without access`,
+  addedWithoutAccessBody: (name: string) =>
+    msg`Scylla could not give ${name} its access. Give it on the agent page, or it takes no job.`,
   changeTitle: msg`Change access`,
   changeHint: msg`It takes the jobs of these projects only, and reads only their secrets. The agent reconnects in a few seconds.`,
   save: msg`Save`,

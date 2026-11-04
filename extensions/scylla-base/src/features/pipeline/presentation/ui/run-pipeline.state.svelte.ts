@@ -31,7 +31,7 @@ export const createRunPipeline = () => {
 
     if (!(agentsQuery.data ?? []).some(agent => agent.connected)) {
       toast.warning(i18n._(ToastMessages.PIPELINE_JOB_QUEUED_WARNING), {
-        action: { label: 'Agents', onClick: () => scyllaNavigate.goToWorkspaceRoute('/apps') },
+        action: { label: 'Agents', onClick: () => scyllaNavigate.goToWorkspaceRoute('/agents') },
       });
       return;
     }

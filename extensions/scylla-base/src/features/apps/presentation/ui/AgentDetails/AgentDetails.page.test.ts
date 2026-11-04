@@ -63,7 +63,12 @@ let teardown: Array<() => void> = [];
 let apps: Record<string, ReturnType<typeof vi.fn>>;
 let navigate: ReturnType<typeof vi.fn>;
 
-const setUp = (details = agent(), permissions = ALL) => {
+const DEFAULT_KEYS = [
+  key('k-active-01JBX9QF7T', 'build-linux-01.acme.lan'),
+  key('k-old', 'build-old-01', '2026-11-04T00:00:00.000Z'),
+];
+
+const setUp = (details = agent(), permissions = ALL, keys = DEFAULT_KEYS, granted = true) => {
   permissionsStore.setState({
     permissions: {
       scopes: [
@@ -79,10 +84,7 @@ const setUp = (details = agent(), permissions = ALL) => {
   apps = {
     getApp: vi.fn().mockResolvedValue({
       app: details,
-      keys: [
-        key('k-active-01JBX9QF7T', 'build-linux-01.acme.lan'),
-        key('k-old', 'build-old-01', '2026-11-04T00:00:00.000Z'),
-      ],
+      keys,
     }),
     getAgentStats: vi.fn().mockResolvedValue({
       agentId: details.id,
@@ -117,7 +119,7 @@ const setUp = (details = agent(), permissions = ALL) => {
   const access = {
     listAccess: vi.fn(({ kind }: { kind: string }) =>
       Promise.resolve(
-        kind === 'workspace'
+        kind === 'workspace' && granted
           ? [{ actorId: details.id, actorKind: 'app', displayName: '', handle: '', role: 'runner' }]
           : [],
       ),
@@ -277,5 +279,20 @@ describe('AgentDetails', () => {
     expect(screen.queryByRole('button', { name: 'New join code' })).not.toBeInTheDocument();
     expect(screen.queryByText('Access')).not.toBeInTheDocument();
     expect(screen.queryByText('Recent jobs')).not.toBeInTheDocument();
+  });
+
+  it('says so when each key is revoked', async () => {
+    setUp(agent({ connected: false, runningJobs: 0 }), ALL, [
+      key('k-old', 'build-old-01', '2026-11-04T00:00:00.000Z'),
+    ]);
+
+    expect(await screen.findByText('No active key')).toBeInTheDocument();
+  });
+
+  it('offers to give access to an agent with none', async () => {
+    setUp(agent(), ALL, DEFAULT_KEYS, false);
+
+    expect(await screen.findByText('No access: this agent takes no job.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Give access' })).toBeInTheDocument();
   });
 });

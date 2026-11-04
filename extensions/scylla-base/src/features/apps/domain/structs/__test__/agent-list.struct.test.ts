@@ -4,6 +4,7 @@ import {
   agentStatusOf,
   countByFilter,
   dailyJobs,
+  hasNoActiveKey,
   matchesFilter,
   matchesSearch,
   summarizeAgents,
@@ -64,5 +65,11 @@ describe('agent list', () => {
       outcomes: { completed, failed, cancelled: 0, orphaned: 0 },
     });
     expect(dailyJobs({ days: [day(1, 2), day(0, 0)] })).toEqual([3, 0]);
+  });
+
+  it('finds an agent whose keys are all revoked', () => {
+    expect(hasNoActiveKey([{ revokedAt: '2026-11-04' }])).toBe(true);
+    expect(hasNoActiveKey([{ revokedAt: '2026-11-04' }, { revokedAt: '' }])).toBe(false);
+    expect(hasNoActiveKey([])).toBe(false);
   });
 });

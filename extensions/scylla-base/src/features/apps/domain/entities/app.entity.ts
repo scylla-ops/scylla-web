@@ -59,6 +59,8 @@ export interface JoinCode {
 export interface CreatedApp {
   app: AppEntity;
   joinCode: JoinCode;
+  /** `false`: the app exists, but a role `runner` could not be given. The agent takes no job. */
+  accessGranted: boolean;
 }
 
 export interface AppDetails {

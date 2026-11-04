@@ -7,11 +7,16 @@
 
   interface Props {
     agent: Pick<AppEntity, 'runner' | 'connected' | 'lastSeenAt' | 'runningJobs' | 'disabledAt'>;
+    /** Each key is revoked: shown in place of offline. */
+    noActiveKey?: boolean;
   }
 
-  let { agent }: Props = $props();
+  let { agent, noActiveKey = false }: Props = $props();
 
-  const status = $derived(agentStatusOf(agent));
+  const status = $derived.by(() => {
+    const base = agentStatusOf(agent);
+    return noActiveKey && (base === 'offline' || base === 'never') ? 'nokey' : base;
+  });
 
   const label = $derived(
     {
@@ -20,6 +25,7 @@
       offline: t(messages.offline),
       never: t(messages.never),
       disabled: t(messages.disabled),
+      nokey: t(messages.noActiveKey),
     }[status],
   );
 
@@ -29,13 +35,14 @@
     offline: 'bg-muted-foreground',
     never: 'border border-primary bg-transparent',
     disabled: 'border border-muted-foreground bg-transparent',
+    nokey: 'bg-destructive',
   } as const;
 </script>
 
 <span
   class={cn(
     'inline-flex items-center gap-2 rounded-full px-2.5 py-0.5 text-xs font-medium',
-    status === 'running' ? 'bg-warning/15' : 'bg-muted',
+    status === 'running' ? 'bg-warning/15' : status === 'nokey' ? 'bg-destructive/15' : 'bg-muted',
   )}
 >
   <span class={cn('size-2 rounded-full', DOT[status])} aria-hidden="true"></span>

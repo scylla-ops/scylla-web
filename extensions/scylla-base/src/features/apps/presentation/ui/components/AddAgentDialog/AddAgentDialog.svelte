@@ -1,5 +1,6 @@
 <script lang="ts">
   import { fly } from 'svelte/transition';
+  import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
   import { scyllaNavigate } from '@platform/context';
   import { createMutation, createQuery, getQueryClient } from '@scylla/core-sdk';
   import {
@@ -27,6 +28,7 @@
   import InstallStep from './InstallStep.svelte';
   import ConnectedStep from './ConnectedStep.svelte';
   import { addAgentMessages as messages } from '@base/features/apps/presentation/messages/add-agent.messages.ts';
+  import { agentPageMessages as pageMessages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
 
   interface Props {
     open: boolean;
@@ -77,7 +79,7 @@
         keysBefore = details.keys.length;
         renew.mutate(target.id, {
           onSuccess: code => {
-            created = { app: target, joinCode: code };
+            created = { app: target, joinCode: code, accessGranted: true };
             joinCode = code;
           },
         });
@@ -133,6 +135,21 @@
       <DialogTitle>{title}</DialogTitle>
     </DialogHeader>
     <StepBar labels={STEPS} current={step} />
+
+    {#if created && !created.accessGranted}
+      <div
+        class="flex items-start gap-3 rounded-lg border border-warning/60 bg-warning/10 p-3"
+        role="alert"
+      >
+        <TriangleAlertIcon class="mt-0.5 size-4 shrink-0 text-warning" aria-hidden="true" />
+        <div class="flex flex-col gap-1">
+          <p class="text-sm font-medium">{t(pageMessages.addedWithoutAccess)}</p>
+          <p class="text-xs text-muted-foreground">
+            {t(pageMessages.addedWithoutAccessBody(created.app.name))}
+          </p>
+        </div>
+      </div>
+    {/if}
 
     <form id="add-agent" class="contents" onsubmit={submit}>
       {#key step}

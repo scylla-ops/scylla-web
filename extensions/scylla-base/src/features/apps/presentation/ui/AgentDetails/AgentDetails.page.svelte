@@ -9,6 +9,7 @@
   import { t } from '@scylla/ui/i18n';
   import { formatDay } from '@shared/utils/date-utils.ts';
   import { appStateOf } from '@base/features/apps/domain/entities/app.entity.ts';
+  import { hasNoActiveKey } from '@base/features/apps/domain/structs/agent-list.struct.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import AddAgentDialog from '../components/AddAgentDialog/AddAgentDialog.svelte';
   import AgentHeader from './AgentHeader.svelte';
@@ -69,6 +70,7 @@
   <div class="flex flex-col gap-6" data-tour="agent-details">
     <AgentHeader
       {agent}
+      noActiveKey={hasNoActiveKey(details.data?.keys ?? [])}
       onDisable={canManage ? () => (disabling = true) : undefined}
       onEnable={canManage ? () => enable.mutate(agent.id) : undefined}
       enabling={enable.isPending}

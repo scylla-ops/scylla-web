@@ -52,6 +52,7 @@ const setUp = () => {
     createApp: vi.fn().mockResolvedValue({
       app: app(false),
       joinCode: { code: 'JOIN-42', expiresAt: new Date(Date.now() + 900_000).toISOString() },
+      accessGranted: true,
     }),
     getApp: vi
       .fn()
@@ -128,5 +129,24 @@ describe('AddAgentDialog', () => {
     await waitFor(() =>
       expect(apps.createApp).toHaveBeenCalledWith('ws-1', 'agent-1', true, ['p-1']),
     );
+    expect(screen.queryByText('Added without access')).not.toBeInTheDocument();
+  });
+
+  it('warns when the new agent got no access', async () => {
+    const { apps } = setUp();
+    apps.createApp.mockResolvedValueOnce({
+      app: app(false),
+      joinCode: { code: 'JOIN-42', expiresAt: new Date(Date.now() + 900_000).toISOString() },
+      accessGranted: false,
+    });
+    const user = userEvent.setup();
+    const dialog = await screen.findByRole('dialog');
+    await focusSettled();
+
+    await user.type(within(dialog).getByLabelText('Name'), 'agent-1');
+    await user.click(within(dialog).getByRole('button', { name: 'Add agent' }));
+
+    expect(await screen.findByText('Added without access')).toBeInTheDocument();
+    expect(screen.getByText(/could not give agent-1 its access/)).toBeInTheDocument();
   });
 });

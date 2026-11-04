@@ -53,7 +53,7 @@
   <span>{t(appsMessages.noAgentConnected)}</span>
   <button
     type="button"
-    onclick={() => scyllaNavigate.goToWorkspaceRoute('/apps')}
+    onclick={() => scyllaNavigate.goToWorkspaceRoute('/agents')}
     class="ml-auto shrink-0 font-medium text-primary hover:underline"
   >
     {t(appsMessages.setUpAnAgent)} →

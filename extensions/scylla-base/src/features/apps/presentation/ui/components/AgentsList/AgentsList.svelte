@@ -1,10 +1,13 @@
 <script lang="ts">
+  import BotIcon from '@lucide/svelte/icons/bot';
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import SearchIcon from '@lucide/svelte/icons/search';
   import { can, Permission } from '@platform/authz';
   import { contextStore, scyllaNavigate } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { ConfirmOperationAlertDialog, ErrorState, FeatureHeader, ListSkeleton } from '@scylla/ui';
   import {
+    Button,
     Input,
     TableBody,
     TableCell,
@@ -108,6 +111,7 @@
     }}
     newLabel={t(messages.add)}
     canNew={canCreate}
+    newDeniedReason={t(messages.onlyAdmins)}
   />
 
   {#if agents.isError}
@@ -115,7 +119,33 @@
   {:else if agents.isPending}
     <ListSkeleton rows={4} rowClass="h-16 w-full rounded-xl" />
   {:else if all.length === 0}
-    <p class="text-sm text-muted-foreground">{t(messages.empty)}</p>
+    <section
+      class="flex min-h-80 flex-1 flex-col items-center justify-center gap-3 rounded-xl border p-8 text-center"
+    >
+      <span
+        class="flex size-12 items-center justify-center rounded-full bg-muted text-primary"
+        aria-hidden="true"
+      >
+        <BotIcon class="size-5" />
+      </span>
+      <h2 class="text-xl font-medium">
+        {canCreate ? t(messages.firstTitle) : t(messages.emptyTitle)}
+      </h2>
+      <p class="max-w-md text-sm text-muted-foreground">
+        {canCreate ? t(messages.firstBody) : t(messages.askAdmin)}
+      </p>
+      {#if canCreate}
+        <Button
+          onclick={() => {
+            joining = null;
+            addOpen = true;
+          }}
+        >
+          <PlusIcon class="size-4" aria-hidden="true" />
+          {t(messages.add)}
+        </Button>
+      {/if}
+    </section>
   {:else}
     <AgentStatCards {summary} {outcomes} />
 

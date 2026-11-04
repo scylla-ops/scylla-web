@@ -14,13 +14,15 @@
 
   interface Props {
     agent: AppEntity;
+    /** Each key is revoked. */
+    noActiveKey?: boolean;
     /** Absent: the user may not disable or enable the agent. */
     onDisable?: () => void;
     onEnable?: () => void;
     enabling?: boolean;
   }
 
-  let { agent, onDisable, onEnable, enabling = false }: Props = $props();
+  let { agent, noActiveKey = false, onDisable, onEnable, enabling = false }: Props = $props();
 
   const shortId = $derived(
     agent.id.length > 12 ? `${agent.id.slice(0, 6)}…${agent.id.slice(-3)}` : agent.id,
@@ -38,7 +40,7 @@
     <div class="flex flex-wrap items-center gap-3">
       <h1 class="truncate text-2xl font-medium">{agent.name}</h1>
       <span data-tour="agent-status" data-online={agent.connected}>
-        <AgentStatusPill {agent} />
+        <AgentStatusPill {agent} {noActiveKey} />
       </span>
     </div>
     <p class="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">

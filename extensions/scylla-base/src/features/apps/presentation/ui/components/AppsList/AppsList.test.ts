@@ -43,6 +43,7 @@ const setUp = (permissions: Permission[]) => {
     createApp: vi.fn().mockResolvedValue({
       app: app('a2'),
       joinCode: { code: 'JOIN-42', expiresAt: '2026-01-01T01:00:00.000Z' },
+      accessGranted: true,
     }),
   };
   const cache = withQueryClient();

@@ -85,7 +85,16 @@
       </ul>
       <p class="text-xs text-muted-foreground">{t(messages.someBody)}</p>
     {:else}
-      <p class="text-xs text-muted-foreground">{t(messages.noneBody)}</p>
+      <p
+        class="flex items-center gap-2 rounded-lg border border-warning/60 bg-warning/10 px-3 py-2"
+        role="status"
+      >
+        <FolderIcon class="size-4 shrink-0" aria-hidden="true" />
+        {t(messages.noAccess)}
+      </p>
+      {#if canChange}
+        <Button size="sm" class="self-start" onclick={start}>{t(messages.giveAccess)}</Button>
+      {/if}
     {/if}
   </CardContent>
 </Card>

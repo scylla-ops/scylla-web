@@ -163,13 +163,18 @@ export class DefaultAppsRepository implements AppsRepository {
       runner,
     }).response;
     const app = requireApp(response.app, 'CreateApp');
+    let accessGranted = true;
     if (runner) {
       const objects =
         projectIds.length === 0
           ? [{ kind: 'workspace', id: wrapId(workspaceId) }]
           : projectIds.map(id => ({ kind: 'project', id: wrapId(id) }));
-      for (const object of objects) {
-        await this.access.grant({ object, role: 'runner', actorId: wrapId(app.id) }).response;
+      try {
+        for (const object of objects) {
+          await this.access.grant({ object, role: 'runner', actorId: wrapId(app.id) }).response;
+        }
+      } catch {
+        accessGranted = false;
       }
     }
     return {
@@ -178,6 +183,7 @@ export class DefaultAppsRepository implements AppsRepository {
         code: response.joinCode,
         expiresAt: timestampToIso(response.joinCodeExpiresAt),
       },
+      accessGranted,
     };
   }
 

@@ -80,3 +80,7 @@ export const summarizeAgents = (agents: readonly ListedAgent[]): AgentSummary =>
 /** The ended jobs of each of the 30 days, oldest first. */
 export const dailyJobs = (stats: Pick<AgentStats, 'days'>): number[] =>
   stats.days.map(day => endedJobs(day.outcomes));
+
+/** The machines joined, and each key is revoked now: no machine can sign in. */
+export const hasNoActiveKey = (keys: readonly { revokedAt: string }[]): boolean =>
+  keys.length > 0 && keys.every(key => !!key.revokedAt);

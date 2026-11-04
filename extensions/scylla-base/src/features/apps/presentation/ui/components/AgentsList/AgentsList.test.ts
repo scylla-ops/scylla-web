@@ -49,7 +49,7 @@ const day = (completed: number, failed: number) => ({
 let teardown: Array<() => void> = [];
 let apps: Record<string, ReturnType<typeof vi.fn>>;
 
-const setUp = (permissions: Permission[]) => {
+const setUp = (permissions: Permission[], agents: unknown[] = AGENTS) => {
   permissionsStore.setState({
     permissions: {
       scopes: [
@@ -63,7 +63,7 @@ const setUp = (permissions: Permission[]) => {
   });
   contextStore.setState({ workspace: { id: 'ws-1', name: 'Acme', slug: 'acme' } });
   apps = {
-    listApps: vi.fn().mockResolvedValue(AGENTS),
+    listApps: vi.fn().mockResolvedValue(agents),
     listAgentStats: vi.fn().mockResolvedValue([
       {
         agentId: 'a1',
@@ -210,5 +210,26 @@ describe('AgentsList', () => {
     await user.click(screen.getByRole('button', { name: 'Actions of gpu-runner-01' }));
     const items = await screen.findAllByRole('menuitem', { hidden: true });
     expect(items.map(item => item.textContent?.trim())).toEqual(['Open agent', 'Copy ID']);
+  });
+
+  it('asks an admin to add the first agent to open the wizard', async () => {
+    setUp(ALL, []);
+    const user = userEvent.setup();
+
+    expect(await screen.findByText('Run your first agent')).toBeInTheDocument();
+    const adds = screen.getAllByRole('button', { name: /Add an agent/ });
+    await user.click(adds[adds.length - 1]);
+
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('tells a member with no right to add one to ask an admin', async () => {
+    setUp([Permission.LIST_APPS_BY_WORKSPACE], []);
+
+    expect(await screen.findByText('No agent yet')).toBeInTheDocument();
+    expect(
+      screen.getByText('Agents run your pipeline jobs. Ask an admin to add one.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Run your first agent')).not.toBeInTheDocument();
   });
 });
