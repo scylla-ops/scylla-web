@@ -40,8 +40,6 @@ export const ShellModule = {
     // The pages the shell owns, which send the user on to a module's page.
     app: [{ page: () => import('./presentation/router/OrganizationRedirect.wrapper.svelte') }],
     organization: [{ redirect: 'projects' }],
-    // The pipelines are the page of a project; until they come back, its members.
-    project: [{ redirect: 'members' }],
   },
   navSections: [
     { id: 'organization', title: layoutMessages.organization, header: OrganizationSelector },

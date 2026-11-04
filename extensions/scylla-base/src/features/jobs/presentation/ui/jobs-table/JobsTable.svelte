@@ -1,0 +1,134 @@
+<script lang="ts">
+  import { scyllaNavigate } from '@platform/context';
+  import { createMutation } from '@scylla/core-sdk';
+  import {
+    ConfirmOperationAlertDialog,
+    CopyableText,
+    DataTable,
+  } from '@scylla/ui';
+  import { createNow, createSelection } from '@scylla/ui/state';
+  import { t } from '@scylla/ui/i18n';
+  import {
+    calculateExecutionDuration,
+    formatDuration,
+    getRelativeTime,
+  } from '@shared/utils/date-utils.ts';
+  import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
+  import { isActiveStatus, isFinishedStatus } from '@shared/domain/structs/job-status.struct.ts';
+  import { jobMutations } from '@base/features/jobs/presentation/jobs.queries.ts';
+  import JobActions from './JobActions/JobActions.svelte';
+  import JobStatus from './JobStatus/JobStatus.svelte';
+  import JobTimeline from './JobTimeline/JobTimeline.svelte';
+  import { jobColumns } from './jobs-table.columns.ts';
+  import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
+
+  interface Props {
+    jobs: JobEntity[];
+    pipelineId: string;
+  }
+
+  let { jobs, pipelineId }: Props = $props();
+
+  const selection = createSelection('jobs');
+  const deleteJob = createMutation(() => jobMutations.remove(pipelineId));
+  const rerunJob = createMutation(() => jobMutations.rerun(pipelineId));
+  const cancelJob = createMutation(() => jobMutations.cancel(pipelineId));
+
+  let jobToDelete = $state<string | null>(null);
+
+  // One clock for the table, stopped when nothing runs.
+  const now = createNow(() => jobs.some(job => isActiveStatus(job.status)));
+
+  const durationOf = (job: JobEntity) => {
+    void now.value;
+    return calculateExecutionDuration(job.startedAt, job.finishedAt);
+  };
+
+  const columns = $derived(
+    jobColumns({
+      status: statusCell,
+      id: idCell,
+      timeline: timelineCell,
+      duration: durationCell,
+      created: createdCell,
+      actions: actionsCell,
+    }),
+  );
+</script>
+
+{#snippet statusCell(job: JobEntity)}
+  <JobStatus {job} />
+{/snippet}
+
+{#snippet idCell(job: JobEntity)}
+  <CopyableText value={job.id} truncate={12} copyLabel={t(jobsMessages.copyId)} />
+{/snippet}
+
+{#snippet timelineCell(job: JobEntity)}
+  <JobTimeline
+    nodeExecutions={job.nodeExecutions}
+    onSelectNode={nodeId => scyllaNavigate.goToJobDetails(pipelineId, job.id, { nodeId })}
+  />
+{/snippet}
+
+{#snippet durationCell(job: JobEntity)}
+  {@const duration = durationOf(job)}
+  <span class="text-sm font-medium whitespace-nowrap">
+    {duration === null ? '-' : formatDuration(duration)}
+  </span>
+{/snippet}
+
+{#snippet createdCell(job: JobEntity)}
+  <span class="text-sm whitespace-nowrap">{getRelativeTime(job.createdAt)}</span>
+{/snippet}
+
+{#snippet actionsCell(job: JobEntity)}
+  <JobActions
+    onView={event => {
+      event.stopPropagation();
+      scyllaNavigate.goToJobDetails(pipelineId, job.id);
+    }}
+    onDelete={event => {
+      event.stopPropagation();
+      jobToDelete = job.id;
+    }}
+    onRerun={isFinishedStatus(job.status)
+      ? event => {
+          event.stopPropagation();
+          rerunJob.mutate(job.id);
+        }
+      : undefined}
+    isRerunning={rerunJob.isPending}
+    onCancel={isFinishedStatus(job.status)
+      ? undefined
+      : event => {
+          event.stopPropagation();
+          cancelJob.mutate(job.id);
+        }}
+    isCancelling={cancelJob.isPending}
+  />
+{/snippet}
+
+<DataTable
+  {columns}
+  data={jobs}
+  onRowClick={row => selection.select(row.original.id)}
+  getRowId={(job, index) => job.id || String(index)}
+  isRowSelected={job => selection.selectedIds.includes(job.id)}
+  alignColumnsCenter
+  alignRowsCenter
+/>
+
+<ConfirmOperationAlertDialog
+  open={jobToDelete !== null}
+  onOpenChange={open => {
+    if (!open) jobToDelete = null;
+  }}
+  onContinue={() => {
+    if (!jobToDelete) return;
+    deleteJob.mutate(jobToDelete);
+    jobToDelete = null;
+  }}
+  title={t(jobsMessages.deleteJobTitle)}
+  description={t(jobsMessages.deleteJobBody(jobToDelete ?? ''))}
+/>

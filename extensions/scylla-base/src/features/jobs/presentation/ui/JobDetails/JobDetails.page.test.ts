@@ -1,0 +1,352 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { screen, waitFor } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
+import { flushSync } from 'svelte';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { installTestNavigator } from '@test/navigator.ts';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
+import JobDetailsPage from './JobDetails.page.svelte';
+
+/** The viewer (CodeMirror, live stream) reduced to what this page decides: which panels, and how tall. */
+vi.mock('../jobs-log/JobLogDisplay/JobLogDisplay.svelte', async () => ({
+  default: (await import('./JobLogDisplay.stub.svelte')).default,
+}));
+
+/** jsdom lays nothing out: an observer a test can report a height through. */
+class ResizeObserverMock {
+  static instances: ResizeObserverMock[] = [];
+  callback: (entries: Array<{ contentRect: { height: number } }>) => void;
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+
+  constructor(callback: (entries: Array<{ contentRect: { height: number } }>) => void) {
+    this.callback = callback;
+    ResizeObserverMock.instances.push(this);
+  }
+
+  fire(height: number) {
+    this.callback([{ contentRect: { height } }]);
+  }
+}
+
+const giveTheLogColumn = (height: number) => {
+  ResizeObserverMock.instances.forEach(observer => observer.fire(height));
+  flushSync();
+};
+
+const job = (overrides: Partial<JobEntity> = {}): JobEntity => ({
+  id: 'job-1',
+  pipelineId: 'pipeline-1',
+  status: 'completed',
+  nodeExecutions: [
+    { id: 'build', state: 'completed', attempts: 1, maxAttempts: 1 },
+    { id: 'test', state: 'failed', attempts: 3, maxAttempts: 3 },
+  ],
+  createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-01-01T00:01:00.000Z',
+  startedAt: '2026-01-01T00:00:00.000Z',
+  finishedAt: '2026-01-01T00:00:45.000Z',
+  ...overrides,
+});
+
+const openPanels = () =>
+  screen.queryAllByTestId('job-log-display').map(panel => panel.textContent?.trim());
+
+const logHeights = () =>
+  screen.queryAllByTestId('job-log-display').map(panel => panel.getAttribute('data-max-height'));
+
+let cache: ReturnType<typeof withQueryClient>;
+let restoreRegistry: (() => void) | null = null;
+let navigator: ReturnType<typeof installTestNavigator>;
+let rerun: ReturnType<typeof vi.fn>;
+
+const grantAll = () =>
+  permissionsStore.setState({
+    permissions: {
+      scopes: [{ scope: PermissionScope.SYSTEM, scopeId: '', access: { kind: 'fullControl' } }],
+    },
+  });
+
+const renderPage = async (result: unknown, search = '') => {
+  rerun = vi.fn().mockResolvedValue('job-2');
+  restoreRegistry = withRegistry({
+    jobs: {
+      jobsRepository: {
+        getById: vi.fn().mockResolvedValue(result),
+        rerun,
+      } as unknown as JobsRepository,
+    },
+  });
+  navigator = installTestNavigator({
+    pathname: '/acme/projects/p1/pipelines/pipeline-1/jobs/job-1',
+    search,
+  });
+
+  const rendered = render(JobDetailsPage, { jobId: 'job-1' });
+  await screen.findByRole('heading', { name: 'Job' });
+  return rendered;
+};
+
+beforeEach(() => {
+  ResizeObserverMock.instances = [];
+  vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+  cache = withQueryClient();
+  grantAll();
+});
+
+afterEach(() => {
+  cache.restore();
+  restoreRegistry?.();
+  restoreRegistry = null;
+  navigator?.restore();
+  permissionsStore.setState({ permissions: null });
+});
+
+describe('JobDetailsPage', () => {
+  it('shows the job status and id', async () => {
+    await renderPage(job());
+
+    expect(screen.getByText('Success')).toBeInTheDocument();
+    expect(screen.getByText('job-1')).toBeInTheDocument();
+  });
+
+  it('defaults to the whole job when the URL names no node', async () => {
+    await renderPage(job());
+    expect(openPanels()).toEqual(['logs for job-1/whole job']);
+  });
+
+  it("opens straight on a node's logs when the URL names one", async () => {
+    await renderPage(job(), '?nodes=test');
+    expect(openPanels()).toEqual(['logs for job-1/test']);
+  });
+
+  it('falls back to the whole job for a node id no execution matches', async () => {
+    await renderPage(job(), '?nodes=ghost');
+    expect(openPanels()).toEqual(['logs for job-1/whole job']);
+  });
+
+  it('streams several nodes at once when the URL names them', async () => {
+    await renderPage(job(), '?nodes=build,test');
+    expect(openPanels()).toEqual(['logs for job-1/build', 'logs for job-1/test']);
+  });
+
+  it('replaces the whole job with the first node picked, rather than adding to it', async () => {
+    await renderPage(job());
+
+    await userEvent.click(screen.getByRole('button', { name: /^build/ }));
+
+    await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/build']));
+  });
+
+  it('opens a second node without closing the first', async () => {
+    await renderPage(job(), '?nodes=build');
+
+    await userEvent.click(screen.getByRole('button', { name: /^test/ }));
+
+    await waitFor(() =>
+      expect(openPanels()).toEqual(['logs for job-1/build', 'logs for job-1/test']),
+    );
+  });
+
+  it("closes a node's logs when its entry is picked again, unmounting that view", async () => {
+    await renderPage(job(), '?nodes=build,test');
+
+    await userEvent.click(screen.getByRole('button', { name: /^build/ }));
+
+    await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/test']));
+  });
+
+  it('comes back to the whole job when the last node panel is closed', async () => {
+    await renderPage(job(), '?nodes=build');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Close the logs for build' }));
+
+    await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/whole job']));
+  });
+
+  it('brings the whole job back from its own entry, dropping the node panels', async () => {
+    await renderPage(job(), '?nodes=build,test');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Whole job' }));
+
+    await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/whole job']));
+  });
+
+  it('gives the whole job no way to be closed, being what the page falls back to', async () => {
+    await renderPage(job());
+
+    expect(screen.queryByRole('button', { name: /^Close the logs/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Collapse the logs/ })).not.toBeInTheDocument();
+  });
+
+  it('collapses a node panel without unmounting its log, so the stream keeps running', async () => {
+    await renderPage(job(), '?nodes=build');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse the logs for build' }));
+
+    expect(openPanels()).toEqual(['logs for job-1/build']);
+    expect(screen.getByRole('button', { name: 'Expand the logs for build' })).toBeInTheDocument();
+  });
+
+  it('collapses each node panel independently', async () => {
+    await renderPage(job(), '?nodes=build,test');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse the logs for build' }));
+
+    expect(screen.getByRole('button', { name: 'Expand the logs for build' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Collapse the logs for test' })).toBeInTheDocument();
+  });
+
+  it('marks the entries of the panels that are open', async () => {
+    await renderPage(job(), '?nodes=build');
+
+    expect(screen.getByRole('button', { name: /^build/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: /^test/ })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+  });
+
+  it('opens the node picked in the timeline alone, dropping the panels open beside it', async () => {
+    await renderPage(job(), '?nodes=build,test');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Node build' }));
+
+    await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/build']));
+  });
+
+  it('gives the whole job every pixel the column has', async () => {
+    await renderPage(job());
+
+    giveTheLogColumn(900);
+
+    // 900 less the panel's own 36px header and its 2px of border.
+    await waitFor(() => expect(logHeights()).toEqual(['862']));
+  });
+
+  it('stops shrinking the whole job at a readable height on a short window', async () => {
+    await renderPage(job());
+
+    giveTheLogColumn(100);
+
+    await waitFor(() => expect(logHeights()).toEqual(['192']));
+  });
+
+  it('keeps every node panel at the same readable height, scrolling the column instead', async () => {
+    await renderPage(job(), '?nodes=build,test');
+
+    giveTheLogColumn(300);
+
+    await waitFor(() => expect(logHeights()).toEqual(['448', '448']));
+  });
+
+  it('hides the logs, keeping the job itself, without READ_JOB_LOGS', async () => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.SYSTEM,
+            scopeId: '',
+            access: { kind: 'restricted', permissions: [Permission.READ_JOB] },
+          },
+        ],
+      },
+    });
+
+    await renderPage(job());
+
+    expect(screen.getByText("You don't have permission to view this job's logs")).toBeInTheDocument();
+    expect(openPanels()).toEqual([]);
+    // The job itself is still there — only its output is withheld.
+    expect(screen.getByText('Success')).toBeInTheDocument();
+  });
+
+  it('shows the attempt of a node that can retry, in its entry and in its panel header', async () => {
+    await renderPage(job(), '?nodes=build,test');
+
+    expect(screen.getAllByText('Attempt 3/3')).toHaveLength(2);
+    expect(screen.queryByText(/Attempt \d+\/1/)).not.toBeInTheDocument();
+  });
+
+  it('shows a skipped node as skipped, with no attempt when it did not start', async () => {
+    await renderPage(
+      job({ nodeExecutions: [{ id: 'test', state: 'skipped', attempts: 0, maxAttempts: 3 }] }),
+      '?nodes=test',
+    );
+
+    expect(screen.getByRole('region', { name: 'test' })).toHaveTextContent('Skipped');
+    expect(screen.queryByText(/^Attempt/)).not.toBeInTheDocument();
+  });
+
+  it('re-runs an ended job and opens the new one', async () => {
+    await renderPage(job());
+
+    await userEvent.click(screen.getByRole('button', { name: 'Re-run' }));
+
+    await waitFor(() => expect(rerun).toHaveBeenCalledWith('job-1'));
+    await waitFor(() =>
+      expect(navigator.navigate.mock.calls.at(-1)?.[0]).toMatch(
+        /\/pipelines\/pipeline-1\/jobs\/job-2$/,
+      ),
+    );
+  });
+
+  it('offers no re-run for a job that runs', async () => {
+    await renderPage(job({ status: 'running', finishedAt: undefined }));
+
+    expect(screen.queryByRole('button', { name: 'Re-run' })).not.toBeInTheDocument();
+  });
+
+  it('offers no re-run without RUN_PIPELINE', async () => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.SYSTEM,
+            scopeId: '',
+            access: { kind: 'restricted', permissions: [Permission.READ_JOB] },
+          },
+        ],
+      },
+    });
+
+    await renderPage(job());
+
+    expect(screen.queryByRole('button', { name: 'Re-run' })).not.toBeInTheDocument();
+  });
+
+  it('reports an error instead of an empty page when the job cannot be read', async () => {
+    restoreRegistry = withRegistry({
+      jobs: {
+        jobsRepository: {
+          getById: vi.fn().mockRejectedValue(new ScyllaError('boom')),
+        } as unknown as JobsRepository,
+      },
+    });
+    navigator = installTestNavigator({ pathname: '/acme/jobs/job-1' });
+
+    render(JobDetailsPage, { jobId: 'job-1' });
+
+    expect(await screen.findByText('Unable to load this job')).toBeInTheDocument();
+  });
+
+  it('refuses to query at all without a job id', async () => {
+    const getById = vi.fn();
+    restoreRegistry = withRegistry({
+      jobs: { jobsRepository: { getById } as unknown as JobsRepository },
+    });
+    navigator = installTestNavigator({ pathname: '/acme/jobs' });
+
+    render(JobDetailsPage, {});
+
+    expect(await screen.findByText('Job ID is missing')).toBeInTheDocument();
+    expect(getById).not.toHaveBeenCalled();
+  });
+});

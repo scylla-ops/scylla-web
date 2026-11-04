@@ -1,0 +1,68 @@
+import { msg } from '@lingui/core/macro';
+
+export const pipelineMessages = {
+  loadError: msg`Unable to load pipelines`,
+  noPipelines: msg`No pipeline found`,
+  noPipelinesBody: msg`Create your first pipeline to get started`,
+
+  pipeline: msg`Pipeline`,
+  pipelines: msg`Pipelines`,
+  newPipeline: msg`New pipeline`,
+  createDenied: msg`You don't have permission to create pipelines.`,
+  deleteDenied: msg`You don't have permission to delete pipelines.`,
+  members: msg`Members`,
+  secrets: msg`Secrets`,
+
+  status: msg`Status`,
+  history: msg`History`,
+  lastRun: msg`Last Run`,
+  actions: msg`Actions`,
+  creation: msg`Creation:`,
+
+  run: msg`Run`,
+  edit: msg`Edit`,
+  editPipeline: msg`Edit pipeline`,
+  duplicate: msg`Duplicate`,
+  viewJobs: msg`View Jobs`,
+  triggers: msg`Triggers`,
+  pipelineActions: msg`Pipeline actions`,
+
+  jobsForbidden: msg`You don't have permission to view this pipeline's jobs`,
+  jobsError: msg`Error loading jobs`,
+  noJobsYet: msg`No jobs yet`,
+  openLastRun: msg`Open the last run`,
+  runNumber: (runNumber: number) => msg`Run #${runNumber}`,
+  startedAt: (time: string) => msg`Started ${time}`,
+  finishedAt: (time: string) => msg`Finished ${time}`,
+  durationOf: (duration: string) => msg`Duration: ${duration}`,
+
+  selectProjectFirst: msg`Select a project first`,
+  create: msg`Create`,
+  save: msg`Save`,
+  loadPipelineError: msg`Failed to load pipeline`,
+  loading: msg`Loading...`,
+  invalidJson: msg`Invalid JSON`,
+  scripting: msg`Scripting`,
+  blueprint: msg`Blueprint`,
+  statusDraft: msg`Draft: not created yet`,
+  statusSaving: msg`Saving…`,
+  statusDirty: msg`Unsaved changes`,
+  statusSaved: msg`All changes saved`,
+  editDenied: msg`You don't have permission to edit this pipeline.`,
+
+  deleteEdge: msg`Delete edge`,
+  unnamedPipeline: msg`Unnamed`,
+
+  pipelineName: msg`Pipeline name`,
+  namePlaceholder: msg`e.g., my-pipeline`,
+  noSpaces: msg`The name cannot contain spaces.`,
+  nameRequired: msg`The pipeline needs a name.`,
+  invalidNodeIds: (ids: string) => msg`Fix the ID of these nodes before you save: ${ids}`,
+  repeatedNodeIds: (ids: string) =>
+    msg`Two nodes or more have the ID ${ids}. Give each node its own ID before you save.`,
+  repeatedNodeId: msg`Same ID as another node`,
+  repeatedHint: msg`Two nodes or more have the same ID. Give each node its own ID in the Scripting tab: the blueprint shows them, but cannot change them.`,
+
+  /** A pipeline name is one word: the copy keeps it one word. */
+  copyOf: (name: string) => msg`${name}-copy`,
+};

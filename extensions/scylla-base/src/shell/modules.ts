@@ -4,6 +4,10 @@ import { MarketplaceModule } from '@base/features/marketplace/marketplace.module
 import { OrganizationModule } from '@base/features/organization/organization.module.ts';
 import { ProjectModule } from '@base/features/project/project.module.ts';
 import { SecretModule } from '@base/features/secret/secret.module.ts';
+import { PipelineModule } from '@base/features/pipeline/pipeline.module.ts';
+import { JobsModule } from '@base/features/jobs/jobs.module.ts';
+import { TriggersModule } from '@base/features/triggers/triggers.module.ts';
+import { AppsModule } from '@base/features/apps/apps.module.ts';
 import { UserModule } from '@base/features/user/user.module.ts';
 import { AccessModule } from '@base/features/access/access.module.ts';
 import { MembershipModule } from '@base/features/membership/membership.module.ts';
@@ -17,7 +21,11 @@ import { ExtensionsModule } from '@base/features/extensions/extensions.module.ts
 export const modules = [
   LoginModule,
   ProjectModule,
+  PipelineModule,
+  JobsModule,
+  TriggersModule,
   SecretModule,
+  AppsModule,
   MembershipModule,
   InvitationModule,
   OrganizationModule,
