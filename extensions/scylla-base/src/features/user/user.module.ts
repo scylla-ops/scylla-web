@@ -48,6 +48,7 @@ export const UserModule = {
           { redirect: 'profile' },
           {
             path: ':section',
+            inPageParams: ['section'],
             breadcrumb: ({ section }) => ({
               label: accountSection(section)?.title ?? msg`Account`,
             }),
@@ -69,6 +70,7 @@ export const UserModule = {
           { redirect: 'profile' },
           {
             path: ':section',
+            inPageParams: ['section'],
             page: () =>
               import('./presentation/ui/account/PersonalAccount/PersonalAccount.page.svelte'),
           },

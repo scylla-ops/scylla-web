@@ -13,7 +13,7 @@ export interface FlatRoute extends RouteFields {
   declaredBy: readonly string[];
 }
 
-const FIELDS = ['page', 'redirect', 'permission', 'breadcrumb', 'nav'] as const;
+const FIELDS = ['page', 'redirect', 'permission', 'breadcrumb', 'nav', 'inPageParams'] as const;
 
 /**
  * Unfolds a tree of routes: each route gets the path of its parents in front

@@ -64,6 +64,7 @@ const config: AppRouterConfig = {
             ],
           },
           { path: 'open', breadcrumb: () => ({ label: msg`Open` }), page: otherPage },
+          { path: 'tabs/:tab', inPageParams: ['tab'], page },
         ],
       },
     },
@@ -127,6 +128,28 @@ describe('the app router', () => {
 
     expect(await screen.findByTestId('page')).toHaveTextContent('slug=acme');
     expect(currentPathname()).toBe('/acme/secrets');
+  });
+
+  it('keeps the page mounted when only a param of `inPageParams` changes', async () => {
+    await renderAt('/acme/tabs/one');
+    const mounted = await screen.findByTestId('page');
+
+    navigateTo('/acme/tabs/two');
+    await expect.poll(() => routePathname()).toBe('/acme/tabs/two');
+
+    // The same element: no new mount, no transition. The page reads the tab from the route.
+    expect(screen.getByTestId('page')).toBe(mounted);
+  });
+
+  it('mounts the page again when another param changes', async () => {
+    grantOnly(LIST_SECRETS);
+    await renderAt('/acme/secrets/secret-1');
+    const first = await screen.findByTestId('page');
+
+    navigateTo('/acme/secrets/secret-2');
+
+    const second = await screen.findByText(/secretId=secret-2/);
+    expect(second).not.toBe(first);
   });
 
   it('shows the page of the new URL after a navigation', async () => {

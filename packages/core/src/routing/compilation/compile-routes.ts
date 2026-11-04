@@ -45,6 +45,8 @@ export interface CompiledRoute {
   page?: PageLoader;
   redirect?: string;
   permission?: RoutePermission;
+  /** The params whose change keeps the page mounted. */
+  inPageParams?: readonly string[];
   /** The layout of the root mount, around the shell. */
   layout?: LayoutComponent;
   /** The root mount renders its pages inside the shell. */
@@ -149,7 +151,7 @@ export const compileRoutes = ({
 
   const routes: CompiledRoute[] = declared
     .filter(route => route.page || route.redirect)
-    .map(({ mount, path, page, redirect, permission }) => {
+    .map(({ mount, path, page, redirect, permission, inPageParams }) => {
       const chain = mountChain(mount, mounts);
       return {
         mount,
@@ -157,6 +159,7 @@ export const compileRoutes = ({
         page,
         redirect,
         permission,
+        ...(inPageParams && { inPageParams }),
         layout: chain[0].layout,
         shell: chain[0].shell ?? false,
         wrappers: chain.flatMap(definition => (definition.wrapper ? [definition.wrapper] : [])),

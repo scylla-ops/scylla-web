@@ -44,6 +44,12 @@ export interface ModuleRoute {
   breadcrumb?: BreadcrumbFn;
   /** A sidebar link to this page. */
   nav?: NavLink;
+  /**
+   * The params whose change stays inside the page, e.g. the section of a page of tabs: a new
+   * value keeps the page mounted, with no transition. The page reads them with `routeParams()`.
+   * Any other change of the URL mounts the page again.
+   */
+  inPageParams?: readonly string[];
   children?: readonly ModuleRoute[];
 }
 

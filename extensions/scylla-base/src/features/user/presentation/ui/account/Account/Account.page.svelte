@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Redirect } from '@scylla/core-sdk';
+  import { Redirect, routeParams } from '@scylla/core-sdk';
   import { Button, Skeleton } from '@scylla/ui/primitives';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
@@ -23,7 +23,8 @@
   let { workspaceSlug, section }: Props = $props();
 
   const page = createAccountPage();
-  const current = $derived(accountSection(section));
+  // The section changes inside the page (`inPageParams`): read it from the route, not the props.
+  const current = $derived(accountSection(routeParams().section ?? section));
   const base = $derived(workspaceSlug ? `/${workspaceSlug}/account` : '/account');
 </script>
 
