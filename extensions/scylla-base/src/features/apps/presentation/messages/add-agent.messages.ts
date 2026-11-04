@@ -11,7 +11,6 @@ export const addAgentMessages = {
   name: msg`Name`,
   namePlaceholder: msg`build-linux-01`,
   allProjectsLine: msg`Takes jobs from all projects`,
-  someProjectsLine: (count: number) => msg`Takes jobs from ${count} projects`,
   change: msg`Change`,
   takesJobsFrom: msg`Takes jobs from`,
   allProjects: msg`All projects`,

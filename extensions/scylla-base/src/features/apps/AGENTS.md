@@ -38,8 +38,13 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   day, the machine, the recent jobs, the access (Change: `runnerChanges` in
   `agent-access.struct.ts` gives the grants before the revokes; `appMutations.changeAccess` sends
   them one by one), the keys (rename, revoke, new join code) and the delete zone (type the name).
-  An agent that never said hello shows a connect card with a join code made on open. The other
-  apps keep `ui/AppDetails/` (route `/apps/:appId`).
+  An agent that never said hello shows a connect card with a join code made on open.
+- The page of another app (`ui/AppDetails/`, route `/apps/:appId`) shows the header (Disable or
+  Enable), the workspace roles, the activity (the latest sign-in of a credential), the credentials
+  (`credentialRows` in `app-credentials.struct.ts`: the tokens, the CI identities and the keys,
+  with the expiry states of `@shared/domain/structs/api-token.struct.ts`), "Add a credential" and
+  the delete zone. The labels of a credential come from
+  `presenters/credential-labels.presenter.ts`.
 - "Add an app" (`components/AddAppDialog/`) has three steps: name and roles (`grantsOf`), the
   connection (API token, CI identity or key pair), and the credential.
   `credentialMutations.createApp` makes the app, gives its roles, then makes the credential; a
