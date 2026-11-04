@@ -138,18 +138,28 @@ describe('JobDetailsPage', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('says why a node failed above its logs', async () => {
+  it('says why a node did not run, and opens no log for it', async () => {
     await renderPage(
       job({
         status: 'failed',
-        nodeExecutions: [
-          { id: 'test', state: 'failed', attempts: 1, maxAttempts: 1, error: 'exit code 2' },
-        ],
+        nodeExecutions: [{ id: 'deploy', state: 'skipped', attempts: 0, maxAttempts: 1 }],
       }),
-      '?nodes=test',
+      '?nodes=deploy',
     );
 
-    expect(screen.getByRole('alert')).toHaveTextContent('exit code 2');
+    expect(
+      screen.getByText('It did not run, because another node of the job failed first.'),
+    ).toBeInTheDocument();
+    expect(openPanels()).toEqual([]);
+  });
+
+  it('links to the agent of the job, by its id until its name arrives', async () => {
+    await renderPage(job({ agentId: 'agent-1' }));
+
+    expect(screen.getByRole('link', { name: 'agent-1' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('/agents/agent-1'),
+    );
   });
 
   it('defaults to the whole job when the URL names no node', async () => {

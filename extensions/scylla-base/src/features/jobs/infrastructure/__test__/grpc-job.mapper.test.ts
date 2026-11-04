@@ -46,20 +46,19 @@ const baseJob = (overrides: Partial<Job> = {}): Job => ({
 });
 
 describe('grpcJob.toDomain', () => {
-  it('keeps why the job and its node failed', () => {
+  it('keeps why the job failed and the agent that ran it', () => {
     const domain = grpcJob.toDomain(
       baseJob({
         status: JobStatus.FAILED,
         error: 'the node a failed: exit code 2',
-        nodes: [node('a'), node('b')],
-        runs: [{ ...run('a', NodeStatus.FAILED, 1, true), error: 'exit code 2' }],
+        agentId: { value: 'agent-1' },
       }),
     );
 
     expect(domain.error).toBe('the node a failed: exit code 2');
-    expect(domain.nodeExecutions[0]?.error).toBe('exit code 2');
-    expect(domain.nodeExecutions[1]?.error).toBeUndefined();
+    expect(domain.agentId).toBe('agent-1');
     expect(grpcJob.toDomain(baseJob()).error).toBeUndefined();
+    expect(grpcJob.toDomain(baseJob()).agentId).toBeUndefined();
   });
 
   it('unwraps the ids and formats the times', () => {

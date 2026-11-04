@@ -12,6 +12,8 @@ export interface JobEntity {
   finishedAt?: string;
   /** Why the job failed. Unset for another job. */
   error?: string;
+  /** The agent that the server gave the job to. Unset before that, or after its delete. */
+  agentId?: string;
 }
 
 /** `unknown`: an outcome newer than this build. */
@@ -31,8 +33,6 @@ export interface JobNodeExecution {
   finishedAt?: string;
   attempts: number;
   maxAttempts: number;
-  /** Why the last attempt failed. Unset for another node. */
-  error?: string;
 }
 
 export interface JobLog {

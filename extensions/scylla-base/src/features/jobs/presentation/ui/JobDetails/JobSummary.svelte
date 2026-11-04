@@ -1,9 +1,13 @@
 <script lang="ts">
   import CircleAlertIcon from '@lucide/svelte/icons/circle-alert';
   import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
+  import { activeWorkspaceSlug, contextStore } from '@platform/context';
+  import { createQuery } from '@scylla/core-sdk';
+  import { appQueries } from '@base/features/apps';
   import { Badge, Button } from '@scylla/ui/primitives';
   import { CopyableText } from '@scylla/ui';
   import { createNow } from '@scylla/ui/state';
+  import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import {
     calculateExecutionDuration,
@@ -28,6 +32,13 @@
 
   // Ticks only while the job runs.
   const now = createNow(() => isActiveStatus(job.status));
+
+  const context = toRune(contextStore);
+  const workspaceId = $derived(context().workspace.id ?? '');
+  const agent = createQuery(() => ({
+    ...appQueries.byId(job.agentId ?? '', workspaceId),
+    refetchInterval: false,
+  }));
 
   const duration = $derived.by(() => {
     void now.value;
@@ -82,6 +93,20 @@
     )}
     <span class="text-muted-foreground/50">·</span>
     {@render fact(t(jobsMessages.createdPrefix), formatDate(job.createdAt))}
+    {#if job.agentId}
+      <span class="text-muted-foreground/50">·</span>
+      <span class="flex items-center gap-1.5">
+        <span class="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+          {t(jobsMessages.agent)}
+        </span>
+        <a
+          class="font-mono text-xs text-foreground hover:underline"
+          href="/{activeWorkspaceSlug() ?? ''}/agents/{job.agentId}"
+        >
+          {agent.data?.app.name ?? job.agentId}
+        </a>
+      </span>
+    {/if}
   </div>
 
   {#if job.error}

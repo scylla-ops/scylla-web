@@ -107,6 +107,9 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
 
 ## Rules that bite here
 
+- **The reason of a failure has two places.** The page shows `job.error` in a box. The agent writes
+  each failed attempt in the logs of its node (`scylla-agent: attempt <n> failed: <reason>`), so
+  `run.error` is not mapped. A skipped node has no log: its panel says why, and opens no stream.
 - **Query keys come from `jobs.query-keys.ts`.** Four exist; three (`JOBS_QUERY_KEY`,
   `WORKSPACE_JOBS_QUERY_KEY`, `JOBS_QUERY_ROOT`) are exported publicly so other modules
   invalidate the *same* key this module queries, and `JOB_QUERY_KEY` (one job, read by the

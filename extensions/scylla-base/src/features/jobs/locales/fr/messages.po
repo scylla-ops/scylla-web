@@ -25,6 +25,10 @@ msgstr "{count} / {total} nœuds ({percent} %)"
 msgid "Actions"
 msgstr "Actions"
 
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:69
+msgid "Agent"
+msgstr "Agent"
+
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:25
 msgid "agent disconnected mid-run"
 msgstr "agent déconnecté en cours d'exécution"
@@ -98,6 +102,10 @@ msgstr "Terminé le"
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:40
 msgid "Finished: {time}"
 msgstr "Terminé : {time}"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:68
+msgid "It did not run, because another node of the job failed first."
+msgstr "Il n'a pas tourné, car un autre nœud du job a échoué avant."
 
 #: extensions/scylla-base/src/features/jobs/jobs.module.ts:23
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:9

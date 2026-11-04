@@ -65,4 +65,6 @@ export const jobsMessages = {
 
   logsError: msg`Error loading logs...`,
   noLogs: msg`No log was written.`,
+  nodeSkipped: msg`It did not run, because another node of the job failed first.`,
+  agent: msg`Agent`,
 };

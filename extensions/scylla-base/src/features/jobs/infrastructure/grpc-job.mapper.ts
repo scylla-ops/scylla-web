@@ -90,7 +90,6 @@ function nodeExecutionsOf(job: Job): JobNodeExecution[] {
       finishedAt: timestampToIsoOpt(run?.finishedAt),
       attempts: run?.attempt ?? 0,
       maxAttempts: node.retries + 1,
-      error: run?.error || undefined,
     };
   });
 }
@@ -110,6 +109,7 @@ export function toDomain(job: Job): JobEntity {
     startedAt,
     finishedAt,
     error: job.error || undefined,
+    agentId: job.agentId ? idValue(job.agentId) : undefined,
   };
 }
 
