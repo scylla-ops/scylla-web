@@ -1,8 +1,13 @@
 import { untrack } from 'svelte';
-import { currentPathname, navigateTo, contextStore } from '@platform/context';
+import {
+  activeWorkspaceSlug,
+  currentPathname,
+  navigateTo,
+  contextStore,
+  organizationUrl,
+} from '@platform/context';
 import { createQuery } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
-import { slugifyOrgName } from '@shared/utils/slug.ts';
 import { projectQueries } from '@base/features/project';
 
 const isPipelinePath = (pathname: string): boolean =>
@@ -25,8 +30,8 @@ export const cleanContext = (projectId: string | undefined): void => {
       if (!list.some(project => project.id === projectId)) {
         store.setProject(null, null);
         store.setPipeline(null, null);
-        const name = store.organization.name;
-        navigateTo(name ? `/${slugifyOrgName(name)}/projects` : '/', { replace: true });
+        const slug = activeWorkspaceSlug();
+        navigateTo(slug ? organizationUrl(slug) : '/', { replace: true });
         return;
       }
 

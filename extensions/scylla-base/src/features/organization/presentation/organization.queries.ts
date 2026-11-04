@@ -46,8 +46,8 @@ const invalidateOrganizations = () =>
 export const organizationMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: ({ name, description }: { name: string; description?: string }) =>
-        repository().create(name, description),
+      mutationFn: ({ name, slug }: { name: string; slug?: string }) =>
+        repository().create(name, slug),
       onSuccess: data => {
         // The new organization becomes the active one.
         contextStore.getState().setOrganization(data.id, data.name);
@@ -61,12 +61,12 @@ export const organizationMutations = {
       mutationFn: ({
         organizationId,
         name,
-        description,
+        slug,
       }: {
         organizationId: string;
         name?: string;
-        description?: string;
-      }) => repository().update(organizationId, name, description),
+        slug?: string;
+      }) => repository().update(organizationId, name, slug),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.ORGANIZATION_UPDATE));
         return invalidateOrganizations();

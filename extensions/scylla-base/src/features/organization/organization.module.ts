@@ -1,13 +1,16 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { grpcTransport } from '@platform/grpc';
-import { OrganizationServiceClient } from '@base/generated/scylla/organization/v1/organization.client.ts';
+import { AccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
+import { WorkspaceServiceClient } from '@base/generated/scylla/workspaces/v1/workspace_service.client.ts';
 import { DefaultOrganizationRepository } from './infrastructure/default-organization.repository.ts';
 
+const transport = grpcTransport.getTransport();
 const organizationRepository = new DefaultOrganizationRepository(
-  new OrganizationServiceClient(grpcTransport.getTransport()),
+  new WorkspaceServiceClient(transport),
+  new AccessServiceClient(transport),
 );
 
-/** No page: the organization switcher of the shell and the other features read its queries. */
+/** No page: the workspace switcher of the shell and the other features read its queries. */
 export const OrganizationModule = {
   id: 'organization',
   domain: {

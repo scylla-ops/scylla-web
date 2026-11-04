@@ -62,7 +62,6 @@ const sessions: UserSessionEntity[] = [
     id: 'session-1',
     createdAt: recently(),
     lastActiveAt: recently(),
-    expiresAt: '',
     userAgent:
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
     ipAddress: '203.0.113.7',
@@ -72,7 +71,6 @@ const sessions: UserSessionEntity[] = [
     id: 'session-2',
     createdAt: recently(),
     lastActiveAt: recently(),
-    expiresAt: '',
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0',
     ipAddress: '198.51.100.4',
     current: false,

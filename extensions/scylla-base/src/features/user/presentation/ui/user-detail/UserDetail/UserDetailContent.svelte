@@ -41,7 +41,7 @@
         sessions={page.sessions}
         isLoading={page.sessionsLoading}
         isError={page.sessionsError}
-        canRevoke={page.canUpdate}
+        canRevoke={false}
         isRevoking={page.isRevokingSession}
         onRevoke={page.revokeSession}
       />

@@ -3,14 +3,17 @@ import type { PaginatedList } from '@scylla/ui/structs';
 
 export interface UserEntity {
   id: string;
-  /** A handle, unique across accounts, shown as `@username`. Never holds '@'. */
+  /** The handle, unique across accounts, shown as `@username`. Never holds '@'. Can be empty. */
   username: string;
   /** Absent only on an old account made without one. */
   email?: string;
   displayName?: string;
   /** False blocks the sign-in. */
   isActive: boolean;
+  /** An admin of the instance: it manages the users. */
+  instanceAdmin?: boolean;
   createdAt?: string;
+  /** The server gives no time of the last change: the creation time. */
   updatedAt: string;
 }
 

@@ -6,7 +6,6 @@
     activeLocale,
     t,
   } from '@scylla/ui/i18n';
-  import { slugifyOrgName } from '@shared/utils/slug.ts';
   import {
     organizationMutations,
   } from '@base/features/organization/presentation/organization.queries.ts';
@@ -28,16 +27,16 @@
   // Reading the locale rebuilds the labels on a switch.
   const items = $derived((activeLocale(), createOrganizationItems()));
 
-  const handleSubmit = ({ name, description }: FormValues<'name' | 'description'>) => {
+  const handleSubmit = ({ name, slug }: FormValues<'name' | 'slug'>) => {
     if (!name.trim()) return;
 
     createOrganization.mutate(
-      { name, description: description.trim() || undefined },
+      { name: name.trim(), slug: slug.trim() || undefined },
       {
         // The mutation already made it active; where to land is the caller's choice.
-        onSuccess: () => {
+        onSuccess: workspace => {
           setOpen(false);
-          navigateTo(`/${slugifyOrgName(name)}/dashboard`);
+          navigateTo(`/${workspace.slug}/projects`);
         },
       },
     );

@@ -4,9 +4,15 @@ import { slugifyOrgName } from '@shared/utils/slug.ts';
 
 /** Builds the URL from the current organization and project, read at call time. */
 
+/** The slug of the active workspace. A context saved before the slugs has its name only. */
+export const activeWorkspaceSlug = (): string | null => {
+  const { slug, name } = contextStore.getState().organization;
+  return slug || (name ? slugifyOrgName(name) : null);
+};
+
 const getOrgPrefix = () => {
-  const orgName = contextStore.getState().organization.name;
-  return orgName ? `/${slugifyOrgName(orgName)}` : '';
+  const slug = activeWorkspaceSlug();
+  return slug ? `/${slug}` : '';
 };
 
 const goToSubRoute = (subPath: string, options = {}) => {
@@ -66,9 +72,8 @@ const goToAccount = () => {
   navigateTo(`${getOrgPrefix()}/account`);
 };
 
-/** The URL of a page of any organization, the active one or not. */
-export const organizationUrl = (organizationName: string, path = 'dashboard'): string =>
-  `/${slugifyOrgName(organizationName)}/${path}`;
+/** The URL of a page of any workspace, the active one or not, from its slug. */
+export const organizationUrl = (slug: string, path = 'projects'): string => `/${slug}/${path}`;
 
 const goToAgentDetails = (agentId: string) => {
   navigateTo(`${getOrgPrefix()}/agents/${agentId}`);

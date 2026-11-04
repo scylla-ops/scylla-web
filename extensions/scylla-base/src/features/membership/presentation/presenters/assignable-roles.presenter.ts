@@ -1,31 +1,22 @@
-import { humanizeRoleId, RoleKind, type GrantableRole, type RoleEntity } from '@base/features/roles';
+import { i18n } from '@lingui/core';
+import { roleDescriptions, roleLabel, rolesOf, type ObjectKind } from '@base/features/access';
 
 export interface AssignableRole {
   roleId: string;
   name: string;
   description: string;
-  /** A role of the organization, as opposed to a platform role. */
+  /** Kept for the pickers, which group the roles: every fixed role is of the workspace. */
   ownedByOrganization: boolean;
-  role?: RoleEntity;
 }
 
-/** A member is a person: a role for apps is never offered. The full role comes from `roleById`. */
-export const assignableForPeople = (
-  grantable: readonly GrantableRole[],
-  roleById: ReadonlyMap<string, RoleEntity>,
-): AssignableRole[] =>
-  grantable
-    .filter(entry => entry.kind !== RoleKind.AGENT)
-    .map(entry => {
-      const role = roleById.get(entry.id);
-      return {
-        roleId: entry.id,
-        name: role?.name || entry.name || humanizeRoleId(entry.id),
-        description: role?.description || entry.description,
-        ownedByOrganization: entry.ownerOrganizationId !== undefined,
-        role,
-      };
-    });
+/** The fixed roles that a person can get on an object of `kind`, the strongest first. */
+export const assignableForPeople = (kind: ObjectKind): AssignableRole[] =>
+  rolesOf(kind).map(role => ({
+    roleId: role,
+    name: roleLabel(role),
+    description: roleDescriptions[role] ? i18n._(roleDescriptions[role]) : '',
+    ownedByOrganization: true,
+  }));
 
 export interface AssignableRoleGroup {
   owner: 'organization' | 'platform';

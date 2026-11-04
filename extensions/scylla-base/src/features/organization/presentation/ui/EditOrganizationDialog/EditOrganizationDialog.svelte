@@ -15,14 +15,14 @@
   interface Props {
     open: boolean;
     setOpen: (open: boolean) => void;
-    organization: { id: string; name: string; description?: string };
+    organization: { id: string; name: string; slug: string };
   }
 
   let { open, setOpen, organization }: Props = $props();
 
   const updateOrganization = createMutation(() => organizationMutations.update());
 
-  const items: readonly FormItem<'name' | 'description'>[] = $derived([
+  const items: readonly FormItem<'name' | 'slug'>[] = $derived([
     {
       id: 'name',
       label: t(organizationMessages.organizationName),
@@ -31,21 +31,21 @@
       inputType: 'text',
     },
     {
-      id: 'description',
-      label: t(organizationMessages.description),
-      placeholder: organization.description || t(organizationMessages.addDescription),
+      id: 'slug',
+      label: t(organizationMessages.slug),
+      placeholder: organization.slug,
       type: FormItemType.Input,
       inputType: 'text',
     },
   ]);
 
   // Empty means "leave it alone": placeholders, not default values.
-  const handleSubmit = ({ name, description }: FormValues<'name' | 'description'>) => {
+  const handleSubmit = ({ name, slug }: FormValues<'name' | 'slug'>) => {
     updateOrganization.mutate(
       {
         organizationId: organization.id,
         name: name.trim() || undefined,
-        description: description.trim() || undefined,
+        slug: slug.trim() || undefined,
       },
       { onSuccess: () => setOpen(false) },
     );

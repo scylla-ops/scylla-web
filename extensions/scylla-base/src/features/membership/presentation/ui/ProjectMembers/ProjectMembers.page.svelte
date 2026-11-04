@@ -3,9 +3,8 @@
   import { can, Permission, PermissionScope } from '@platform/authz';
   import { contextStore } from '@platform/context';
   import { createQuery, WidgetZone } from '@scylla/core-sdk';
-  import { organizationQueries } from '@base/features/organization';
-  import { invalidateProjectMembers, projectQueries } from '@base/features/project';
-  import { roleConfers, roleQueries } from '@base/features/roles';
+  import { accessQueries, workspaceRef, type AccessEntryEntity } from '@base/features/access';
+  import { invalidateProjectMembers } from '@base/features/project';
   import type { UserSummary } from '@base/features/user';
   import { userName } from '@shared/presentation/ui';
   import { ConfirmOperationAlertDialog, FeatureHeader, GatedButton } from '@scylla/ui';
@@ -47,38 +46,32 @@
   });
 
   const canManage = $derived(can(Permission.MANAGE_PROJECT_GRANTS, target));
-  // Inherited roles need the organization's grants (organization admins only).
-  const canReadOrganizationGrants = $derived(can(Permission.MANAGE_ORG_GRANTS, target));
   const canListOrganizationMembers = $derived(
     can(Permission.LIST_ORGANIZATION_MEMBERS, target),
   );
 
-  const projectMembersQuery = createQuery(() =>
-    projectQueries.members(projectId ?? null, {
-      enabled: can(Permission.LIST_PROJECT_MEMBERS, target),
+  // The roles of the workspace reach its projects: they show here, locked.
+  const workspaceAccessQuery = createQuery(() =>
+    accessQueries.list(organizationId ? workspaceRef(organizationId) : null, {
+      enabled: canListOrganizationMembers,
     }),
   );
-  const organizationMembersQuery = createQuery(() =>
-    organizationQueries.members(organizationId, { enabled: canListOrganizationMembers }),
-  );
-  const organizationGrantsQuery = createQuery(() =>
-    roleQueries.scopedGrants(PermissionScope.ORGANIZATION, organizationId, {
-      enabled: canReadOrganizationGrants,
-    }),
-  );
+  const workspaceEntries = $derived(workspaceAccessQuery.data ?? []);
 
-  const projectMembers = $derived(projectMembersQuery.data ?? []);
-  const organizationMembers = $derived(organizationMembersQuery.data ?? []);
-  const organizationGrants = $derived(organizationGrantsQuery.data ?? []);
-
-  const roles = createAssignableRoles(PermissionScope.PROJECT, () => organizationId);
+  const roles = createAssignableRoles(PermissionScope.PROJECT);
 
   const membership = createScopeMembership({
     scope: PermissionScope.PROJECT,
     scopeId: () => projectId ?? null,
-    canManage: () => canManage,
-    // The backend derives members from grants; the grant mutations cannot reach this key.
+    canRead: () => can(Permission.LIST_PROJECT_MEMBERS, target),
+    // The member list of the project feature reads the same roles.
     onMembershipChanged: () => void invalidateProjectMembers(projectId ?? null),
+  });
+
+  const summaryOf = (entry: AccessEntryEntity): UserSummary => ({
+    id: entry.actorId,
+    username: entry.handle,
+    ...(entry.displayName ? { displayName: entry.displayName } : {}),
   });
 
   let addOpen = $state(false);
@@ -89,31 +82,26 @@
     // reactive collection would only make a throwaway object track dependencies.
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const users = new Map<string, UserSummary>();
-    for (const member of organizationMembers) users.set(member.id, member);
-    for (const member of projectMembers) users.set(member.id, member);
+    for (const entry of workspaceEntries) users.set(entry.actorId, summaryOf(entry));
+    for (const entry of membership.entries) users.set(entry.actorId, summaryOf(entry));
     return users;
   });
 
   const userFor = (memberId: string) => userById.get(memberId);
 
-  /** An organization role reaches the project when it confers reading one. `organization-member` does not. */
-  const reachesProjects = $derived((roleId: string) =>
-    roleConfers(roles.roleById.get(roleId), Permission.READ_PROJECT),
-  );
+  const members = $derived(buildProjectMembers(membership.entries, workspaceEntries));
 
-  const members = $derived(
-    buildProjectMembers(
-      membership.grants,
-      organizationGrants,
-      reachesProjects,
-      projectMembers.map(member => member.id),
+  /** A person of the workspace with no role of the project's own can get one. */
+  const directMemberIds = $derived(
+    new Set(
+      members
+        .filter(member => member.roles.some(role => role.origin === MemberRoleOrigin.DIRECT))
+        .map(member => member.userId),
     ),
   );
 
-  const memberIds = $derived(new Set(members.map(member => member.userId)));
-
   const candidates = $derived(
-    organizationMembers.filter(member => !memberIds.has(member.id)),
+    [...userById.values()].filter(user => !directMemberIds.has(user.id)),
   );
 
   const zoneContext: ProjectMembersContext = $derived({
@@ -180,9 +168,7 @@
 
     <MembersList
       {members}
-      isLoading={projectMembersQuery.isLoading ||
-        organizationMembersQuery.isLoading ||
-        organizationGrantsQuery.isLoading ||
+      isLoading={workspaceAccessQuery.isLoading ||
         membership.isLoading}
       emptyMessage={t(membershipMessages.projectEmpty)}
       {userFor}
@@ -210,7 +196,7 @@
     />
 
     <MembersHint>
-      {canReadOrganizationGrants
+      {canListOrganizationMembers
         ? t(membershipMessages.inheritedHintVisible)
         : t(membershipMessages.inheritedHintHidden)}
     </MembersHint>

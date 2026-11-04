@@ -1,48 +1,52 @@
 import type {
   CreateUserRequest,
-  ListUsersResponse,
   UpdateUserRequest,
-  User,
-  UserAccess as GrpcUserAccess,
-  UserSession as GrpcUserSession,
-} from '@base/generated/scylla/user/v1/user.ts';
-import { PasswordResetDelivery as GrpcPasswordResetDelivery } from '@base/generated/scylla/auth/v1/auth.ts';
-import type { PaginationInfo, PaginatedList } from '@scylla/ui/structs';
-import type { PasswordResetDelivery } from '@base/features/login';
+} from '@base/generated/scylla/accounts/v1/user_admin_service.ts';
+import type { Session, User } from '@base/generated/scylla/accounts/v1/user.ts';
+import type { PaginatedList } from '@scylla/ui/structs';
 import type {
   CreateUserInput,
   UpdateUserInput,
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
-import type { UserAccess } from '../domain/entities/user.entity.ts';
 import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
 export function toDomain(user: User): UserEntity {
+  const createdAt = timestampToIso(user.createdAt);
   return {
-    id: idValue(user.userId),
-    username: user.username,
-    ...(user.email?.value ? { email: user.email.value } : {}),
+    id: idValue(user.id),
+    username: user.handle,
+    ...(user.email ? { email: user.email } : {}),
     ...(user.displayName ? { displayName: user.displayName } : {}),
-    isActive: user.isActive,
-    createdAt: timestampToIso(user.createdAt),
-    updatedAt: timestampToIso(user.updatedAt),
+    isActive: user.status === 'active',
+    instanceAdmin: user.instanceAdmin,
+    createdAt,
+    updatedAt: createdAt,
   };
 }
 
-export function toDomainList(list: ListUsersResponse): PaginatedList<UserEntity> {
+/** All the users on one page: the console shows them in one table. */
+export function toDomainList(users: User[]): PaginatedList<UserEntity> {
   return {
-    items: list.users.map(toDomain),
-    pagination: list.pagination as PaginationInfo,
+    items: users.map(toDomain),
+    pagination: {
+      totalCount: users.length,
+      page: 1,
+      pageSize: users.length,
+      totalPages: 1,
+      hasNext: false,
+      hasPrevious: false,
+    },
   };
 }
 
 export function toCreateRequest(input: CreateUserInput): CreateUserRequest {
   return {
-    username: input.username,
+    email: input.email,
+    handle: input.username,
     password: input.password,
-    email: { value: input.email },
-    ...(input.displayName ? { displayName: input.displayName } : {}),
+    displayName: input.displayName || input.username || input.email,
   };
 }
 
@@ -50,61 +54,20 @@ export function toCreateRequest(input: CreateUserInput): CreateUserRequest {
 export function toUpdateRequest(input: UpdateUserInput): UpdateUserRequest {
   return {
     userId: wrapId(input.id),
-    ...(input.username !== undefined && { username: input.username }),
+    ...(input.username !== undefined && { handle: input.username }),
     ...(input.displayName !== undefined && { displayName: input.displayName }),
-    ...(input.email !== undefined && { email: { value: input.email } }),
+    ...(input.email !== undefined && { email: input.email }),
   };
 }
 
-/** A grant with no organization is shown as a system grant, whatever its scope says. */
-export function accessToDomain(access: GrpcUserAccess): UserAccess {
-  const grant = {
-    grantId: idValue(access.grantId),
-    roleId: idValue(access.roleId),
-    roleName: access.roleName,
-  };
-  const ref = access.scope?.scope;
-  if (
-    !access.organizationId ||
-    (ref?.oneofKind !== 'organization' && ref?.oneofKind !== 'project')
-  ) {
-    return { ...grant, scope: 'system' };
-  }
-
-  const organization = {
-    organizationId: idValue(access.organizationId),
-    organizationName: access.organizationName,
-  };
-  return ref.oneofKind === 'organization'
-    ? { ...grant, scope: 'organization', ...organization }
-    : {
-        ...grant,
-        scope: 'project',
-        ...organization,
-        projectId: idValue(ref.project.projectId),
-        projectName: access.projectName,
-      };
-}
-
-export function sessionToDomain(session: GrpcUserSession): UserSessionEntity {
+export function sessionToDomain(session: Session): UserSessionEntity {
   return {
-    id: idValue(session.sessionId),
+    id: idValue(session.id),
     createdAt: timestampToIso(session.createdAt),
-    lastActiveAt: timestampToIso(session.lastActiveAt),
-    expiresAt: timestampToIso(session.expiresAt),
+    lastActiveAt: timestampToIso(session.lastUsedAt) || timestampToIso(session.createdAt),
+    methods: session.methods,
     userAgent: session.userAgent,
     ipAddress: session.ipAddress,
     current: session.current,
   };
-}
-
-export function deliveryToDomain(delivery: GrpcPasswordResetDelivery): PasswordResetDelivery {
-  switch (delivery) {
-    case GrpcPasswordResetDelivery.MAIL:
-      return 'mail';
-    case GrpcPasswordResetDelivery.SERVER_LOG:
-      return 'server-log';
-    default:
-      return 'unknown';
-  }
 }

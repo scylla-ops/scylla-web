@@ -14,6 +14,5 @@ export const organizationMessages = {
   save: msg`Save`,
   saving: msg`Saving...`,
   organizationName: msg`Organization name`,
-  description: msg`Description`,
-  addDescription: msg`Add a description...`,
+  slug: msg`Address`,
 };

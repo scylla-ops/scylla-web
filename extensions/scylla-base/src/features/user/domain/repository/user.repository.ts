@@ -25,9 +25,13 @@ export interface UserRepository {
   revokeSessions(userId: string): Promise<number>;
   /** Of the session's account, with its password. */
   deleteAccount(password: string): Promise<void>;
+  /** The grants of a user across workspaces. The new server has no such list yet: empty. */
   listAccess(userId: string): Promise<UserAccess[]>;
   /** The sessions that have not expired, the most recently active first. */
   listSessions(userId: string): Promise<UserSessionEntity[]>;
-  /** The current session can be revoked too: its caller is then signed out. */
+  /**
+   * The current session can be revoked too: its caller is then signed out. Only for the own id:
+   * for another user, revoke each session with `revokeSessions`.
+   */
   revokeSession(userId: string, sessionId: string): Promise<void>;
 }

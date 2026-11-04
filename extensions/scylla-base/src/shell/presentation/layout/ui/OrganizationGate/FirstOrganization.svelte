@@ -13,7 +13,7 @@
 
   interface Props {
     isPending: boolean;
-    onSubmit: (values: FormValues<'name' | 'description'>) => void;
+    onSubmit: (values: FormValues<'name' | 'slug'>) => void;
   }
 
   let { isPending, onSubmit }: Props = $props();

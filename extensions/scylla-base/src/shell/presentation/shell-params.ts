@@ -1,7 +1,6 @@
 import { routeParams, type BreadcrumbParams, type RouteParams } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
-import { contextStore } from '@platform/context';
-import { slugifyOrgName } from '@shared/utils/slug.ts';
+import { activeWorkspaceSlug, contextStore } from '@platform/context';
 
 const context = toRune(contextStore);
 
@@ -21,6 +20,7 @@ export const breadcrumbParams = (): BreadcrumbParams => {
 
 /** Reactive. The sidebar links open in the active organization. */
 export const linkParams = (): RouteParams => {
-  const { name } = context().organization;
-  return { organizationSlug: name ? slugifyOrgName(name) : undefined };
+  // Read for the reactivity: the slug comes from the same store.
+  context().organization;
+  return { organizationSlug: activeWorkspaceSlug() ?? undefined };
 };

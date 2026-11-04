@@ -14,7 +14,7 @@ export const signUpMessages = {
   haveAccount: msg`Already have an account? Sign in`,
   noAccount: msg`No account yet? Create one`,
   orContinueWith: msg`or`,
-  continueWith: msg`Continue with {provider}`,
+  continueWith: (provider: string) => msg`Continue with ${provider}`,
   verifyTitle: msg`Verify your email`,
   verifying: msg`Verifying your email address…`,
   verified: msg`Your email address is verified. You can sign in.`,

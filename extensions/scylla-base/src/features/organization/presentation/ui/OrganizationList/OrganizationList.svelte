@@ -5,7 +5,7 @@
   import TrashIcon from '@lucide/svelte/icons/trash';
   import UsersIcon from '@lucide/svelte/icons/users';
   import { can, Permission } from '@platform/authz';
-  import { navigateTo, contextStore } from '@platform/context';
+  import { navigateTo, contextStore, organizationUrl } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { Skeleton } from '@scylla/ui/primitives';
   import {
@@ -14,7 +14,6 @@
     IconButton,
   } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
-  import { slugifyOrgName } from '@shared/utils/slug.ts';
   import { t } from '@scylla/ui/i18n';
   import {
     organizationMutations,
@@ -40,12 +39,12 @@
   const context = toRune(contextStore);
   const currentOrganizationId = $derived(context().organization.id);
 
-  let editOrg = $state<{ id: string; name: string; description?: string } | null>(null);
+  let editOrg = $state<{ id: string; name: string; slug: string } | null>(null);
   let deleteOrgId = $state<string | null>(null);
 
-  const selectOrganization = (id: string, name: string) => {
-    contextStore.getState().setOrganization(id, name);
-    navigateTo(`/${slugifyOrgName(name)}/dashboard`);
+  const selectOrganization = (id: string, name: string, slug: string) => {
+    contextStore.getState().setOrganization(id, name, slug);
+    navigateTo(organizationUrl(slug));
   };
 
   /** Deleting the current organization moves the context to another one, or to none. */
@@ -59,8 +58,10 @@
     if (deletedId !== currentOrganizationId) return;
 
     const other = organizations?.find(organization => organization.id !== deletedId);
-    contextStore.getState().setOrganization(other?.id ?? null, other?.name ?? null);
-    if (other) navigateTo(`/${slugifyOrgName(other.name)}/dashboard`);
+    contextStore
+      .getState()
+      .setOrganization(other?.id ?? null, other?.name ?? null, other?.slug ?? null);
+    if (other) navigateTo(organizationUrl(other.slug));
   };
 </script>
 
@@ -77,13 +78,13 @@
   {#each organizations as organization (organization.id)}
     <Row
       class="group rounded-md transition-colors hover:bg-accent/70"
-      onSelect={() => selectOrganization(organization.id, organization.name)}
+      onSelect={() => selectOrganization(organization.id, organization.name, organization.slug)}
     >
       <div class="flex w-full items-center">
         <div class="min-w-0 flex-1">
           <ContextItem
             name={organization.name}
-            description={organization.description}
+            description={organization.slug}
             icon={Building2Icon}
           />
         </div>
@@ -95,8 +96,10 @@
               onclick={event => {
                 event.stopPropagation();
                 // The members page reads the organization from the context.
-                contextStore.getState().setOrganization(organization.id, organization.name);
-                navigateTo(`/${slugifyOrgName(organization.name)}/members`);
+                contextStore
+                  .getState()
+                  .setOrganization(organization.id, organization.name, organization.slug);
+                navigateTo(organizationUrl(organization.slug, 'members'));
               }}
               class="h-7 w-7"
               iconClass="h-3.5 w-3.5"
@@ -111,7 +114,7 @@
                 editOrg = {
                   id: organization.id,
                   name: organization.name,
-                  description: organization.description,
+                  slug: organization.slug,
                 };
               }}
               class="h-7 w-7"

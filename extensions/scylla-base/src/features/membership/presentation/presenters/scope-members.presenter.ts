@@ -1,96 +1,73 @@
-import type { GrantEntity } from '@base/features/roles';
-import { PermissionScope, PrincipalKind, } from '@platform/authz';
+import type { AccessEntryEntity } from '@base/features/access';
+import { roleRank } from '@base/features/access';
+import { PermissionScope } from '@platform/authz';
 
-/** `INHERITED`: from an enclosing scope (an organization role reaching a project). It cannot be edited from the narrower view. */
+/**
+ * `INHERITED`: from an enclosing scope (a workspace role reaching a project), or an owner of a
+ * workspace. It cannot be edited from this view.
+ */
 export enum MemberRoleOrigin {
   DIRECT = 'direct',
   INHERITED = 'inherited',
 }
 
 export interface MemberRole {
+  /** Unique among the roles of one member: its scope and its role. */
   grantId: string;
+  userId: string;
   roleId: string;
   origin: MemberRoleOrigin;
   scope: PermissionScope;
 }
 
-/** Built from grants: on the backend, holding a grant is belonging. */
+/** On the server, holding a role is belonging. */
 export interface ScopeMember {
   userId: string;
   roles: MemberRole[];
 }
 
-const userGrants = (grants: GrantEntity[]): GrantEntity[] =>
-  grants.filter(grant => grant.principal.kind === PrincipalKind.USER);
+/** The owners are a list of their own, not a role that `Revoke` takes back. */
+const OWNER = 'owner';
 
-/** Users known to belong but without an organization role are still listed, with no roles. */
-export const buildOrganizationMembers = (
-  organizationGrants: GrantEntity[],
-  knownUserIds: string[] = [],
+const byRank = (a: MemberRole, b: MemberRole) => roleRank(a.roleId) - roleRank(b.roleId);
+
+const collect = (
+  sources: { entries: AccessEntryEntity[]; scope: PermissionScope; editable: boolean }[],
 ): ScopeMember[] => {
   const byUser = new Map<string, ScopeMember>();
-  const ensure = (userId: string): ScopeMember => {
-    const existing = byUser.get(userId);
-    if (existing) return existing;
-    const member: ScopeMember = { userId, roles: [] };
-    byUser.set(userId, member);
-    return member;
-  };
-
-  for (const userId of knownUserIds) ensure(userId);
-
-  for (const grant of userGrants(organizationGrants)) {
-    ensure(grant.principal.id).roles.push({
-      grantId: grant.id,
-      roleId: grant.roleId,
-      origin: MemberRoleOrigin.DIRECT,
-      scope: PermissionScope.ORGANIZATION,
-    });
+  for (const { entries, scope, editable } of sources) {
+    for (const entry of entries) {
+      // A member is a person: the apps are on their own page.
+      if (entry.actorKind !== 'user') continue;
+      const member = byUser.get(entry.actorId) ?? { userId: entry.actorId, roles: [] };
+      byUser.set(entry.actorId, member);
+      const grantId = `${scope}:${entry.role}`;
+      if (member.roles.some(role => role.grantId === grantId)) continue;
+      member.roles.push({
+        grantId,
+        userId: entry.actorId,
+        roleId: entry.role,
+        origin:
+          editable && entry.role !== OWNER ? MemberRoleOrigin.DIRECT : MemberRoleOrigin.INHERITED,
+        scope,
+      });
+    }
   }
-
+  for (const member of byUser.values()) member.roles.sort(byRank);
   return [...byUser.values()];
 };
 
-/**
- * Each member once, with the project's own roles and the organization roles that
- * reach it. `organizationRoleReachesProjects` leaves out the roles that confer
- * nothing on a project. `knownUserIds` lists people whose grants the caller may not read.
- */
+/** The roles on a workspace, its owners included. */
+export const buildOrganizationMembers = (entries: AccessEntryEntity[]): ScopeMember[] =>
+  collect([{ entries, scope: PermissionScope.ORGANIZATION, editable: true }]);
+
+/** Each member once, with the roles of the project and the workspace roles that reach it. */
 export const buildProjectMembers = (
-  projectGrants: GrantEntity[],
-  organizationGrants: GrantEntity[],
-  organizationRoleReachesProjects: (roleId: string) => boolean,
-  knownUserIds: string[] = [],
-): ScopeMember[] => {
-  const byUser = new Map<string, ScopeMember>();
-  const ensure = (userId: string): ScopeMember => {
-    const existing = byUser.get(userId);
-    if (existing) return existing;
-    const member: ScopeMember = { userId, roles: [] };
-    byUser.set(userId, member);
-    return member;
-  };
-
-  for (const userId of knownUserIds) ensure(userId);
-
-  for (const grant of userGrants(projectGrants)) {
-    ensure(grant.principal.id).roles.push({
-      grantId: grant.id,
-      roleId: grant.roleId,
-      origin: MemberRoleOrigin.DIRECT,
-      scope: PermissionScope.PROJECT,
-    });
-  }
-
-  for (const grant of userGrants(organizationGrants)) {
-    if (!organizationRoleReachesProjects(grant.roleId)) continue;
-    ensure(grant.principal.id).roles.push({
-      grantId: grant.id,
-      roleId: grant.roleId,
-      origin: MemberRoleOrigin.INHERITED,
-      scope: PermissionScope.ORGANIZATION,
-    });
-  }
-
-  return [...byUser.values()];
-};
+  projectEntries: AccessEntryEntity[],
+  workspaceEntries: AccessEntryEntity[],
+): ScopeMember[] =>
+  collect([
+    { entries: projectEntries, scope: PermissionScope.PROJECT, editable: true },
+    // Each role of a workspace reads its projects.
+    { entries: workspaceEntries, scope: PermissionScope.ORGANIZATION, editable: false },
+  ]);

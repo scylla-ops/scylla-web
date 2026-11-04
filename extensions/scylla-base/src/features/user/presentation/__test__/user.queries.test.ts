@@ -120,7 +120,6 @@ const session = (id: string, current: boolean): UserSessionEntity => ({
   id,
   createdAt: '',
   lastActiveAt: '',
-  expiresAt: '',
   userAgent: '',
   ipAddress: '',
   current,

@@ -1,10 +1,9 @@
 import { untrack } from 'svelte';
-import { navigateTo, contextStore } from '@platform/context';
+import { navigateTo, contextStore, organizationUrl } from '@platform/context';
 import { createQuery } from '@scylla/core-sdk';
-import { slugifyOrgName } from '@shared/utils/slug.ts';
 import { organizationQueries } from '@base/features/organization';
 
-/** When no organization matches the slug, goes to the first organization's dashboard. */
+/** When no organization matches the slug, goes to the projects of the first workspace. */
 export const syncOrganization = (organizationSlug: string | undefined): void => {
   const organizations = createQuery(() => organizationQueries.mine());
 
@@ -14,20 +13,20 @@ export const syncOrganization = (organizationSlug: string | undefined): void => 
 
     untrack(() => {
       const store = contextStore.getState();
-      const match = list.find(
-        organization => slugifyOrgName(organization.name) === organizationSlug,
-      );
+      const match = list.find(organization => organization.slug === organizationSlug);
 
       if (match) {
-        if (match.id !== store.organization.id) store.setOrganization(match.id, match.name);
+        const { organization } = store;
+        if (match.id !== organization.id || match.slug !== organization.slug)
+          store.setOrganization(match.id, match.name, match.slug);
         return;
       }
 
       const fallback = list[0];
       if (!fallback) return;
 
-      navigateTo(`/${slugifyOrgName(fallback.name)}/dashboard`, { replace: true });
-      store.setOrganization(fallback.id, fallback.name);
+      navigateTo(organizationUrl(fallback.slug), { replace: true });
+      store.setOrganization(fallback.id, fallback.name, fallback.slug);
     });
   });
 };

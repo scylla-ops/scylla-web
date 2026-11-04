@@ -1,9 +1,10 @@
 <script lang="ts">
   import { i18n } from '@lingui/core';
   import { can, Permission, PermissionScope } from '@platform/authz';
+  import type { AccessEntryEntity } from '@base/features/access';
   import { contextStore } from '@platform/context';
   import { createQuery, WidgetZone } from '@scylla/core-sdk';
-  import { invalidateOrganizationMembers, organizationQueries } from '@base/features/organization';
+  import { invalidateOrganizationMembers } from '@base/features/organization';
   import { userQueries, type UserSummary } from '@base/features/user';
   import { userName } from '@shared/presentation/ui';
   import { ConfirmOperationAlertDialog, FeatureHeader, GatedButton } from '@scylla/ui';
@@ -27,8 +28,8 @@
   import MembersList from '../components/MembersList/MembersList.svelte';
   import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
 
-  /** The builtin that only means "belongs here". */
-  const ORGANIZATION_MEMBER_ROLE_ID = 'organization-member';
+  /** The role that only means "works here". */
+  const DEFAULT_ROLE_ID = 'member';
 
   const context = toRune(contextStore);
   const organization = $derived(context().organization);
@@ -36,22 +37,26 @@
   const target = $derived({ organizationId: organizationId ?? undefined });
 
   const canManage = $derived(can(Permission.MANAGE_ORG_GRANTS, target));
+  const canRead = $derived(can(Permission.LIST_ORGANIZATION_MEMBERS, target));
   // Without LIST_USERS, roles can still be changed among the people already here.
   const canListUsers = $derived(can(Permission.LIST_USERS));
 
-  const membersQuery = createQuery(() => organizationQueries.members(organizationId));
   const usersQuery = createQuery(() => userQueries.list({ enabled: canListUsers }));
 
-  const members = $derived(membersQuery.data ?? []);
-
-  const roles = createAssignableRoles(PermissionScope.ORGANIZATION, () => organizationId);
+  const roles = createAssignableRoles(PermissionScope.ORGANIZATION);
 
   const membership = createScopeMembership({
     scope: PermissionScope.ORGANIZATION,
     scopeId: () => organizationId,
-    canManage: () => canManage,
-    // The backend derives members from grants; the grant mutations cannot reach this key.
+    canRead: () => canRead,
+    // The member list of the workspace feature reads the same roles.
     onMembershipChanged: () => void invalidateOrganizationMembers(organizationId),
+  });
+
+  const summaryOf = (entry: AccessEntryEntity): UserSummary => ({
+    id: entry.actorId,
+    username: entry.handle,
+    ...(entry.displayName ? { displayName: entry.displayName } : {}),
   });
 
   const addAction = membershipPoints.organizationAddMember.resolve({
@@ -72,7 +77,9 @@
   const userById = $derived.by(() => {
     // Rebuilt whole by the `$derived` and never mutated after it is read.
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const users = new Map<string, UserSummary>(members.map(member => [member.id, member]));
+    const users = new Map<string, UserSummary>(
+      membership.entries.map(entry => [entry.actorId, summaryOf(entry)]),
+    );
     for (const user of usersQuery.data?.items ?? []) {
       if (users.has(user.id)) users.set(user.id, user);
     }
@@ -81,15 +88,14 @@
 
   const userFor = (memberId: string) => userById.get(memberId);
 
-  /** Seeded with the backend's list: someone reached only through a project is listed too. */
-  const scopeMembers = $derived(buildOrganizationMembers(membership.grants, [...userById.keys()]));
+  const scopeMembers = $derived(buildOrganizationMembers(membership.entries));
 
   const candidates = $derived(
     (usersQuery.data?.items ?? []).filter(user => !userById.has(user.id)),
   );
 
   const defaultRoleId = $derived(
-    roles.assignableRoles.find(role => role.roleId === ORGANIZATION_MEMBER_ROLE_ID)?.roleId,
+    roles.assignableRoles.find(role => role.roleId === DEFAULT_ROLE_ID)?.roleId,
   );
 
   const zoneContext: OrganizationMembersContext = $derived({
@@ -153,7 +159,7 @@
 
     <MembersList
       members={scopeMembers}
-      isLoading={membersQuery.isLoading || membership.isLoading}
+      isLoading={membership.isLoading}
       emptyMessage={t(membershipMessages.organizationEmpty)}
       {userFor}
       organizationName={organization.name ?? ''}

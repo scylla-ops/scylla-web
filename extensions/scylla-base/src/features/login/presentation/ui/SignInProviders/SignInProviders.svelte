@@ -30,7 +30,7 @@
         class="w-full"
         href={providerStartUrl(apiUrl, provider.slug, window.location.origin, returnPath)}
       >
-        {t(signUpMessages.continueWith, { provider: provider.displayName })}
+        {t(signUpMessages.continueWith(provider.displayName))}
       </Button>
     {/each}
   </div>

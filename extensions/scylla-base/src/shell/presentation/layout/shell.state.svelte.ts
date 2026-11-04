@@ -3,7 +3,7 @@ import { createMutation, createQuery } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
 import type { FormValues } from '@scylla/ui';
 import { organizationMutations, organizationQueries } from '@base/features/organization';
-import { syncMyPermissions } from '@base/features/roles';
+import { syncMyPermissions } from '@base/features/access';
 
 /** Loads the user's organizations and keeps the permissions in sync with the context. Create it once, in `Layout`. */
 export const createShell = () => {
@@ -26,12 +26,12 @@ export const createShell = () => {
     get isCreating() {
       return createOrganization.isPending;
     },
-    createFirstOrganization: ({ name, description }: FormValues<'name' | 'description'>) => {
+    createFirstOrganization: ({ name, slug }: FormValues<'name' | 'slug'>) => {
       if (!name.trim()) return;
 
       createOrganization.mutate(
-        { name, description: description.trim() || undefined },
-        { onSuccess: () => navigateTo(organizationUrl(name)) },
+        { name: name.trim(), slug: slug.trim() || undefined },
+        { onSuccess: workspace => navigateTo(organizationUrl(workspace.slug)) },
       );
     },
   };

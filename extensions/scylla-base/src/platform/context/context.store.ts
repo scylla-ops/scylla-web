@@ -5,9 +5,15 @@ interface ContextItem {
   name: string | null;
 }
 
+/** The workspace also has its slug: the first segment of its URLs. */
+interface WorkspaceItem extends ContextItem {
+  slug: string | null;
+}
+
 interface ContextState {
-  organization: ContextItem;
-  setOrganization: (id: string | null, name: string | null) => void;
+  organization: WorkspaceItem;
+  /** An absent slug: the slug made from the name, for a context saved before the slugs. */
+  setOrganization: (id: string | null, name: string | null, slug?: string | null) => void;
 
   project: ContextItem;
   setProject: (id: string | null, name: string | null) => void;
@@ -19,7 +25,7 @@ interface ContextState {
 }
 
 const initialState = {
-  organization: { id: null, name: null } as ContextItem,
+  organization: { id: null, name: null, slug: null } as WorkspaceItem,
   project: { id: null, name: null } as ContextItem,
   pipeline: { id: null, name: null } as ContextItem,
 };
@@ -28,9 +34,9 @@ const initialState = {
 export const contextStore = createStore<ContextState>(
   set => ({
     ...initialState,
-    setOrganization: (id, name) =>
+    setOrganization: (id, name, slug = null) =>
       set({
-        organization: { id, name },
+        organization: { id, name, slug },
         project: { id: null, name: null },
         pipeline: { id: null, name: null },
       }),

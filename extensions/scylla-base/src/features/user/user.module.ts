@@ -3,11 +3,17 @@ import { msg } from '@lingui/core/macro';
 import UsersIcon from '@lucide/svelte/icons/users';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
-import { UserServiceClient } from '@base/generated/scylla/user/v1/user.client.ts';
+import { ProfileServiceClient } from '@base/generated/scylla/accounts/v1/profile_service.client.ts';
+import { UserAdminServiceClient } from '@base/generated/scylla/accounts/v1/user_admin_service.client.ts';
 import { DefaultUserRepository } from './infrastructure/default-user.repository.ts';
 import { accountSection } from './presentation/ui/account/Account/account-sections.registry.ts';
 
-const repository = new DefaultUserRepository(new UserServiceClient(grpcTransport.getTransport()));
+const transport = grpcTransport.getTransport();
+const repository = new DefaultUserRepository(
+  new ProfileServiceClient(transport),
+  new UserAdminServiceClient(transport),
+  () => localStorage.getItem('userId'),
+);
 
 export const UserModule = {
   id: 'user',

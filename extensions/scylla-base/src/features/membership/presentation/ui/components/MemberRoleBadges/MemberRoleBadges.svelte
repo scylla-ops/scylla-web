@@ -2,7 +2,6 @@
   import LockIcon from '@lucide/svelte/icons/lock';
   import XIcon from '@lucide/svelte/icons/x';
   import { Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
-  import { scopeLabelOf } from '@base/features/roles';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import {
@@ -62,7 +61,7 @@
       <span
         class="shrink-0 rounded-full bg-background/70 px-1.5 py-0.5 text-[10px] uppercase leading-none tracking-wide"
       >
-        {scopeLabelOf(role.scope)}
+        {t(role.roleId === 'owner' ? membershipMessages.ownerScope : membershipMessages.workspaceScope)}
       </span>
       <LockIcon class="size-3 shrink-0" />
     {:else if canManage}
