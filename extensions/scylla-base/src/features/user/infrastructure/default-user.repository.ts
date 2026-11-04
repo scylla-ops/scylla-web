@@ -12,14 +12,11 @@ import type { User } from '@base/generated/scylla/accounts/v1/user.ts';
 import type { PasswordResetDelivery } from '@base/features/login';
 import type { PaginatedList } from '@scylla/ui/structs';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import { timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcUser from './grpc-user.mapper.ts';
 
-/** The wrapped entity is optional on the wire: fail here rather than pass an empty user on. */
-const requireUser = (user: User | undefined): UserEntity => {
-  if (!user) throw new Error('Server returned a response without a user.');
-  return grpcUser.toDomain(user);
-};
+const requireUser = (user: User | undefined): UserEntity =>
+  grpcUser.toDomain(required(user, 'user'));
 
 const PAGE_SIZE = 100;
 

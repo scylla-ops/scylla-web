@@ -1,6 +1,23 @@
 // The protos wrap ids (`{ value }`) and times (`Timestamp`); the domain uses plain
 // strings. Use these helpers only in mappers and repositories.
 
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+
+/**
+ * The entity, or the id, a response must carry. The server fills it on success, so an absent one
+ * (or an empty id) is a fault of the protocol, not a refusal: `MALFORMED_RESPONSE`, with `what`
+ * for the log.
+ */
+export function required<T>(value: T | null | undefined, what: string): T {
+  if (value == null || value === '') {
+    throw new ScyllaError(`The server response carried no ${what}.`, {
+      code: 'MALFORMED_RESPONSE',
+      raw: true,
+    });
+  }
+  return value;
+}
+
 export function idValue(wrapper?: { value: string }): string {
   return wrapper?.value ?? '';
 }

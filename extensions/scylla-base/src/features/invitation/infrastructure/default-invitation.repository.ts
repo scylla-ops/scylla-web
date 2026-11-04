@@ -2,7 +2,7 @@ import type { InvitationRepository } from '@base/features/invitation/domain/repo
 import type { InvitationEntity } from '@base/features/invitation/domain/entities/invitation.entity.ts';
 import type { IInvitationServiceClient } from '@base/generated/scylla/workspaces/v1/invitation_service.client.ts';
 import type { Invitation } from '@base/generated/scylla/workspaces/v1/invitation_service.ts';
-import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { idValue, required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
 const PAGE_SIZE = 100;
 
@@ -16,10 +16,8 @@ export const toDomain = (invitation: Invitation): InvitationEntity => ({
   sentAt: timestampToIso(invitation.sentAt),
 });
 
-const requireInvitation = (invitation: Invitation | undefined): InvitationEntity => {
-  if (!invitation) throw new Error('Server returned no invitation.');
-  return toDomain(invitation);
-};
+const requireInvitation = (invitation: Invitation | undefined): InvitationEntity =>
+  toDomain(required(invitation, 'invitation'));
 
 export class DefaultInvitationRepository implements InvitationRepository {
   constructor(private readonly client: IInvitationServiceClient) {}

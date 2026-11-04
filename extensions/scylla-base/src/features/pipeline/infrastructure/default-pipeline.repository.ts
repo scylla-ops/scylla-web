@@ -4,7 +4,7 @@ import type { PipelineNodeEntity } from '../domain/entities/pipeline-node.entity
 import type { IPipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
 import type { Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 import { DEFAULT_PAGE_SIZE, type PaginatedList, type PaginationParams } from '@scylla/ui/structs';
-import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcPipeline from './grpc-pipeline.mapper.ts';
 
 const PAGE_SIZE = 100;
@@ -33,9 +33,8 @@ export class DefaultPipelineRepository implements PipelineRepository {
 
   constructor(private readonly client: IPipelineServiceClient) {}
 
-  /** The wrapped entity is optional on the wire: fail here rather than pass `undefined` on. */
-  private keep(pipeline: Pipeline | undefined): PipelineEntity {
-    if (!pipeline) throw new Error('Server response carried no pipeline');
+  private keep(response: Pipeline | undefined): PipelineEntity {
+    const pipeline = required(response, 'pipeline');
     const entity = grpcPipeline.toDomain(pipeline);
     this.versions.set(entity.id, pipeline.version);
     return entity;

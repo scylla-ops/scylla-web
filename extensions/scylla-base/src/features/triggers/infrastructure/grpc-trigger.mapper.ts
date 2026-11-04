@@ -21,6 +21,7 @@ import {
   timestampToIso,
   timestampToIsoOpt,
   wrapId,
+  required,
 } from '@shared/infrastructure/grpc/wrappers.ts';
 
 function sourceToDomain(kind: ProtoTrigger['kind'], apiUrl: string): TriggerSource {
@@ -78,11 +79,8 @@ export function toDomain(trigger: ProtoTrigger, apiUrl = ''): TriggerEntity {
 }
 
 export function createdToDomain(response: CreateTriggerResponse, apiUrl = ''): CreatedTrigger {
-  if (!response.trigger) {
-    throw new Error('CreateTrigger returned no trigger');
-  }
   return {
-    trigger: toDomain(response.trigger, apiUrl),
+    trigger: toDomain(required(response.trigger, 'trigger'), apiUrl),
     ...(response.webhookSecret ? { webhookSecret: response.webhookSecret } : {}),
   };
 }

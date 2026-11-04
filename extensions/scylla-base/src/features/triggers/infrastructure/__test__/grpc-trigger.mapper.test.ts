@@ -143,7 +143,9 @@ describe('grpcTrigger.createdToDomain', () => {
   });
 
   it('throws when the answer has no trigger', () => {
-    expect(() => grpcTrigger.createdToDomain({ webhookSecret: '' })).toThrow();
+    expect(() => grpcTrigger.createdToDomain({ webhookSecret: '' })).toThrow(
+      expect.objectContaining({ code: 'MALFORMED_RESPONSE' }),
+    );
   });
 });
 

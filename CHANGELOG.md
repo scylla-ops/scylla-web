@@ -15,21 +15,24 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A write that the server refused because the item changed in the meantime is shown as such, in
   the words of the app, and the page reloads what the server has. Before, the user saw an
   unexpected error, and a query retried on it.
+- A page that fails to load or to render shows an error in its place, with a "Try again" button.
+  The sidebar, the top bar and the other pages keep working.
+
+### Changed
+
+- **Breaking:** `ScyllaErrorCode` of `@scylla/base-sdk` has two more members:
+  `MALFORMED_RESPONSE` (the server answered without the entity it must carry) and
+  `UNSUPPORTED_RESPONSE` (it answered with a value this build cannot read). A map over every
+  code must list them. `required` of the shared gRPC wrappers gives the first.
 
 ### Fixed
 
 - The blueprint of the pipeline editor opens with its nodes in the middle of the canvas. Before,
   they showed on the left. The view frames the nodes again when the canvas changes size, until
   the user moves the view.
-- The log panel of a job shows an error when the log stream fails before its first line. It
-  showed an empty log, and wrote the failure in the console only.
 - The log panel of a job shows an error when the log stream fails before its first line, and
   says under the lines when a live tail stops. It showed an empty or a frozen log, and wrote the
   failure in the console only.
-### Added
-
-- A page that fails to load or to render shows an error in its place, with a "Try again" button.
-  The sidebar, the top bar and the other pages keep working.
 
 ## [0.6.0] - 2026-11-01
 

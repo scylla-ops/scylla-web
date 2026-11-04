@@ -6,7 +6,7 @@ import type {
 import type { TriggersRepository } from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import type { ITriggerServiceClient } from '@base/generated/scylla/pipelines/v1/trigger_service.client.ts';
 import type { Trigger } from '@base/generated/scylla/pipelines/v1/trigger.ts';
-import { idValue, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { idValue, required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcTrigger from './grpc-trigger.mapper.ts';
 
 const PAGE_SIZE = 100;
@@ -18,9 +18,8 @@ export class DefaultTriggersRepository implements TriggersRepository {
     private readonly apiUrlOf: () => string = () => '',
   ) {}
 
-  private require(trigger: Trigger | undefined, rpc: string): TriggerEntity {
-    if (!trigger) throw new Error(`${rpc} returned no trigger`);
-    return grpcTrigger.toDomain(trigger, this.apiUrlOf());
+  private require(trigger: Trigger | undefined): TriggerEntity {
+    return grpcTrigger.toDomain(required(trigger, 'trigger'), this.apiUrlOf());
   }
 
   public async listByPipelineId(pipelineId: string): Promise<TriggerEntity[]> {
@@ -39,7 +38,7 @@ export class DefaultTriggersRepository implements TriggersRepository {
 
   public async getById(triggerId: string): Promise<TriggerEntity> {
     const response = await this.client.getTrigger({ triggerId: wrapId(triggerId) }).response;
-    return this.require(response.trigger, 'GetTrigger');
+    return this.require(response.trigger);
   }
 
   public async create(pipelineId: string, draft: TriggerDraft): Promise<CreatedTrigger> {
@@ -53,7 +52,7 @@ export class DefaultTriggersRepository implements TriggersRepository {
     const response = await this.client.updateTrigger(
       grpcTrigger.draftToUpdateRequest(triggerId, draft),
     ).response;
-    return this.require(response.trigger, 'UpdateTrigger');
+    return this.require(response.trigger);
   }
 
   public async deleteById(triggerId: string): Promise<void> {
@@ -65,7 +64,7 @@ export class DefaultTriggersRepository implements TriggersRepository {
       triggerId: wrapId(triggerId),
       enabled,
     }).response;
-    return this.require(response.trigger, 'SetTriggerEnabled');
+    return this.require(response.trigger);
   }
 
   /** Gives only the id of the job it created. */

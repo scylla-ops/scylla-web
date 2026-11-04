@@ -30,7 +30,7 @@ import {
   expiryToProto,
   limitsToProto,
 } from '@shared/infrastructure/grpc/api-token.mapper.ts';
-import { timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcApp from './grpc-app.mapper.ts';
 
 const PAGE_SIZE = 100;
@@ -40,15 +40,10 @@ const objectOf = (workspaceId: string, projectId: string | null) =>
     ? { kind: 'workspace', id: wrapId(workspaceId) }
     : { kind: 'project', id: wrapId(projectId) };
 
-const requireApp = (app: App | undefined, rpc: string): AppEntity => {
-  if (!app) throw new Error(`${rpc} returned no app`);
-  return grpcApp.toDomain(app);
-};
+const requireApp = (app: App | undefined): AppEntity => grpcApp.toDomain(required(app, 'app'));
 
-const requireToken = (token: GrpcApiToken | undefined): ApiToken => {
-  if (!token) throw new Error('CreateAppToken returned no token');
-  return apiTokenToDomain(token);
-};
+const requireToken = (token: GrpcApiToken | undefined): ApiToken =>
+  apiTokenToDomain(required(token, 'token'));
 
 export class DefaultAppsRepository implements AppsRepository {
   constructor(
@@ -60,8 +55,7 @@ export class DefaultAppsRepository implements AppsRepository {
 
   public async getAgentStats(appId: string): Promise<AgentStats> {
     const response = await this.agents.getAgentStats({ agentId: wrapId(appId) }).response;
-    if (!response.stats) throw new Error('GetAgentStats returned no stats');
-    return grpcApp.statsToDomain(response.stats);
+    return grpcApp.statsToDomain(required(response.stats, 'stats'));
   }
 
   public async listAgentStats(workspaceId: string): Promise<AgentStats[]> {
@@ -73,18 +67,17 @@ export class DefaultAppsRepository implements AppsRepository {
   public async renameKey(appId: string, keyId: string, label: string): Promise<AppKeyEntity> {
     const request = { appId: wrapId(appId), keyId: wrapId(keyId), label };
     const response = await this.client.renameAppKey(request).response;
-    if (!response.key) throw new Error('RenameAppKey returned no key');
-    return grpcApp.keyToDomain(response.key);
+    return grpcApp.keyToDomain(required(response.key, 'key'));
   }
 
   public async disableApp(appId: string): Promise<AppEntity> {
     const response = await this.client.disableApp({ appId: wrapId(appId) }).response;
-    return requireApp(response.app, 'DisableApp');
+    return requireApp(response.app);
   }
 
   public async enableApp(appId: string): Promise<AppEntity> {
     const response = await this.client.enableApp({ appId: wrapId(appId) }).response;
-    return requireApp(response.app, 'EnableApp');
+    return requireApp(response.app);
   }
 
   public async createToken(appId: string, input: CreateTokenInput): Promise<CreatedToken> {
@@ -120,8 +113,7 @@ export class DefaultAppsRepository implements AppsRepository {
       environment: input.environment,
       limits: limitsToProto(input.limits),
     }).response;
-    if (!response.identity) throw new Error('AddCiIdentity returned no identity');
-    return grpcApp.ciIdentityToDomain(response.identity);
+    return grpcApp.ciIdentityToDomain(required(response.identity, 'identity'));
   }
 
   public async listCiIdentities(appId: string): Promise<CiIdentityEntity[]> {
@@ -152,7 +144,7 @@ export class DefaultAppsRepository implements AppsRepository {
   public async getApp(appId: string): Promise<AppDetails> {
     const response = await this.client.getApp({ appId: wrapId(appId) }).response;
     return {
-      app: requireApp(response.app, 'GetApp'),
+      app: requireApp(response.app),
       keys: response.keys.map(grpcApp.keyToDomain),
     };
   }
@@ -168,7 +160,7 @@ export class DefaultAppsRepository implements AppsRepository {
       name,
       runner,
     }).response;
-    const app = requireApp(response.app, 'CreateApp');
+    const app = requireApp(response.app);
     let accessGranted = true;
     if (runner) {
       const objects =

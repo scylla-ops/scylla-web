@@ -11,17 +11,14 @@ import type {
   WorkspaceOwner as GrpcWorkspaceOwner,
 } from '@base/generated/scylla/workspaces/v1/workspace.ts';
 import type { UserSummary } from '@base/features/user';
-import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { idValue, required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcWorkspace from './grpc-workspace.mapper.ts';
 import * as grpcWorkspaceMember from './grpc-workspace-member.mapper.ts';
 
 const PAGE_SIZE = 100;
 
-/** The server always fills it on success: an absent one is a protocol error. */
-const requireWorkspace = (workspace?: Workspace): WorkspaceEntity => {
-  if (!workspace) throw new Error('Server returned no workspace.');
-  return grpcWorkspace.toDomain(workspace);
-};
+const requireWorkspace = (workspace?: Workspace): WorkspaceEntity =>
+  grpcWorkspace.toDomain(required(workspace, 'workspace'));
 
 /** Reads each page of a list. */
 const allPages = async <T>(
@@ -69,11 +66,7 @@ export class DefaultWorkspaceRepository implements WorkspaceRepository {
     return requireWorkspace(response.workspace);
   }
 
-  public async update(
-    workspaceId: string,
-    name?: string,
-    slug?: string,
-  ): Promise<WorkspaceEntity> {
+  public async update(workspaceId: string, name?: string, slug?: string): Promise<WorkspaceEntity> {
     const response = await this.workspaces.updateWorkspace({
       workspaceId: wrapId(workspaceId),
       ...(name !== undefined && { name }),

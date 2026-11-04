@@ -27,7 +27,8 @@ domain/structs/job-status.struct.ts  JobStatus, isActiveStatus, isFinishedStatus
                                      job, which `jobs` and `agents` both read (`jobs` re-exports it)
 domain/structs/api-token.struct.ts   ApiToken, TokenLimits, TokenPreset, TokenExpiry, expiryStateOf:
                                      the API tokens of the apps and the personal tokens
-infrastructure/grpc/wrappers.ts      proto helpers
+infrastructure/grpc/wrappers.ts      proto helpers, and `required`: the entity a response must carry
+                                     (MALFORMED_RESPONSE when the server left it out)
 infrastructure/grpc/api-token.mapper.ts  apiTokenToDomain, limitsToProto, expiryToProto
 presentation/ui/index.ts             `@shared/presentation/ui`
   data-display/                      StatusBar, STATUS_ICONS / getStatusIcon,

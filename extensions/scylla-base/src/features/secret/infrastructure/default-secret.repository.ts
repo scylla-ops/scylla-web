@@ -2,7 +2,7 @@ import type { ISecretServiceClient } from '@base/generated/scylla/projects/v1/se
 import type { IPipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
 import type { Secret } from '@base/generated/scylla/projects/v1/secret.ts';
 import type { Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
-import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import type {
   CreateSecretInput,
   SecretEntity,
@@ -51,9 +51,7 @@ export class DefaultSecretRepository implements SecretRepository {
       name: input.name,
       value: input.value,
     }).response;
-    // No `secret` in the response: a shape this build cannot read.
-    if (!response.secret) throw new Error('CreateSecret returned no secret');
-    return grpcSecret.toDomain(response.secret);
+    return grpcSecret.toDomain(required(response.secret, 'secret'));
   }
 
   public async update(input: UpdateSecretInput): Promise<SecretEntity> {
@@ -61,8 +59,7 @@ export class DefaultSecretRepository implements SecretRepository {
       secretId: wrapId(input.secretId),
       value: input.value,
     }).response;
-    if (!response.secret) throw new Error('UpdateSecret returned no secret');
-    return grpcSecret.toDomain(response.secret);
+    return grpcSecret.toDomain(required(response.secret, 'secret'));
   }
 
   /** The server has no filter: the pipelines of the project are read, and their nodes searched. */

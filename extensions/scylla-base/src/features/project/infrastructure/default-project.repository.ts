@@ -11,7 +11,7 @@ import type { Project } from '@base/generated/scylla/projects/v1/project.ts';
 import type { UserSummary } from '@base/features/user';
 import { DEFAULT_PAGE_SIZE, type PaginationParams } from '@scylla/ui/structs';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcProject from './grpc-project.mapper.ts';
 import * as grpcProjectMember from './grpc-project-member.mapper.ts';
 
@@ -31,11 +31,8 @@ const toCreateProjectError = (thrown: unknown): unknown => {
     : thrown;
 };
 
-/** The wrapped entity is optional on the wire: fail here rather than pass `undefined` on. */
-const requireProject = (project: Project | undefined): ProjectEntity => {
-  if (!project) throw new Error('Server returned no project.');
-  return grpcProject.toDomain(project);
-};
+const requireProject = (project: Project | undefined): ProjectEntity =>
+  grpcProject.toDomain(required(project, 'project'));
 
 export class DefaultProjectRepository implements ProjectRepository {
   constructor(

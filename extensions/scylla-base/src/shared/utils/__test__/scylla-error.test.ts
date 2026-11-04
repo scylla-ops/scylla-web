@@ -166,6 +166,17 @@ describe('ScyllaError', () => {
       expect(error).toHaveBeenCalledWith('[ScyllaError] INTERNAL x.v1.S/Get: boom', cause);
     });
 
+    it('writes a response this build cannot use as an error, in production too', () => {
+      vi.stubEnv('DEV', false);
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      new ScyllaError('no agent', { code: 'MALFORMED_RESPONSE', raw: true }).log();
+      new ScyllaError('new arm', { code: 'UNSUPPORTED_RESPONSE', raw: true }).log();
+
+      expect(error).toHaveBeenCalledWith('[ScyllaError] MALFORMED_RESPONSE: no agent');
+      expect(error).toHaveBeenCalledWith('[ScyllaError] UNSUPPORTED_RESPONSE: new arm');
+    });
+
     it('writes a refusal of the server in development only', () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const refusal = new ScyllaError('gone', { code: 'NOT_FOUND' });

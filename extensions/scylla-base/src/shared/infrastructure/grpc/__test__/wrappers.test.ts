@@ -1,6 +1,13 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { idValue, wrapId, wrapIdOpt, timestampToIso, timestampToIsoOpt } from '../wrappers';
+import {
+  idValue,
+  required,
+  wrapId,
+  wrapIdOpt,
+  timestampToIso,
+  timestampToIsoOpt,
+} from '../wrappers';
 
 describe('idValue', () => {
   it('unwraps a present id message', () => {
@@ -34,7 +41,9 @@ describe('wrapIdOpt', () => {
 
 describe('timestampToIso', () => {
   it('formats seconds+nanos to a UTC ISO string', () => {
-    expect(timestampToIso({ seconds: 1735689600, nanos: 146000000 })).toBe('2025-01-01T00:00:00.146Z');
+    expect(timestampToIso({ seconds: 1735689600, nanos: 146000000 })).toBe(
+      '2025-01-01T00:00:00.146Z',
+    );
   });
 
   it('accepts seconds as a string or a bigint, with the same result', () => {
@@ -69,5 +78,22 @@ describe('timestampToIsoOpt', () => {
 
   it('formats a genuinely set timestamp', () => {
     expect(timestampToIsoOpt({ seconds: 1735689600, nanos: 0 })).toBe('2025-01-01T00:00:00.000Z');
+  });
+});
+
+describe('required', () => {
+  it('gives the entity back when the server filled it', () => {
+    expect(required({ id: 'a' }, 'agent')).toEqual({ id: 'a' });
+  });
+
+  it('is a MALFORMED_RESPONSE, raw, named after what is missing, when the server left it out', () => {
+    expect(() => required(undefined, 'agent')).toThrow(
+      expect.objectContaining({
+        name: 'ScyllaError',
+        code: 'MALFORMED_RESPONSE',
+        raw: true,
+        message: 'The server response carried no agent.',
+      }),
+    );
   });
 });
