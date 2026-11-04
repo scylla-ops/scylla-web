@@ -7,7 +7,8 @@ import { DefaultTriggersRepository } from './infrastructure/default-triggers.rep
 
 const triggersRepository = new DefaultTriggersRepository(
   new TriggerServiceClient(grpcTransport.getTransport()),
-  import.meta.env.VITE_API_URL || window.location.origin,
+  // At call time: the module loads in node too, with no window.
+  () => import.meta.env.VITE_API_URL || window.location.origin,
 );
 
 export const TriggersModule = {

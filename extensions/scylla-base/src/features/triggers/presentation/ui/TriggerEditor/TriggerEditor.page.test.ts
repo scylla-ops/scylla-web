@@ -42,7 +42,7 @@ beforeEach(() => {
   });
   navigator = installTestNavigator({ pathname: `${LIST_PATH}/new` });
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme' },
+    organization: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: 'project-1', name: 'Web' },
     pipeline: { id: 'pipeline-1', name: 'build' },
   });
@@ -66,7 +66,9 @@ describe('TriggerEditorPage — create mode', () => {
   it('lays the form out as titled sections on a page, not in a dialog', async () => {
     render(TriggerEditorPage, props());
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'New trigger' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'New trigger' }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'General' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Schedule' })).toBeInTheDocument();
@@ -105,9 +107,7 @@ describe('TriggerEditorPage — create mode', () => {
   });
 
   it('reveals a webhook secret once, and goes back to the list when it is closed', async () => {
-    create.mockResolvedValue(
-      { trigger: trigger({ name: 'hook' }), webhookSecret: 'whsec-once' },
-    );
+    create.mockResolvedValue({ trigger: trigger({ name: 'hook' }), webhookSecret: 'whsec-once' });
     render(TriggerEditorPage, props());
     await focusSettled();
 
@@ -137,7 +137,7 @@ describe('TriggerEditorPage — create mode', () => {
     expect(screen.getByLabelText('Name')).toHaveValue('hook');
   });
 
-  it('swaps the schedule builder for a signature header when the kind is webhook', async () => {
+  it('swaps the schedule builder for the signature hint when the kind is webhook', async () => {
     render(TriggerEditorPage, props());
     await focusSettled();
 
@@ -145,7 +145,7 @@ describe('TriggerEditorPage — create mode', () => {
     await userEvent.click(await findFloating('option', 'Webhook'));
 
     expect(screen.getByRole('region', { name: 'Webhook' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Signature header')).toBeInTheDocument();
+    expect(screen.getByText(/X-Scylla-Signature-256/)).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Schedule' })).not.toBeInTheDocument();
     expect(screen.queryByRole('radio', { name: /daily/i })).not.toBeInTheDocument();
   });
@@ -174,9 +174,7 @@ describe('TriggerEditorPage — edit mode', () => {
   });
 
   it('updates by trigger id rather than creating a second one, then goes back to the list', async () => {
-    listByPipelineId.mockResolvedValue(
-      [trigger({ id: 'trigger-9' })],
-    );
+    listByPipelineId.mockResolvedValue([trigger({ id: 'trigger-9' })]);
     render(TriggerEditorPage, props({ triggerId: 'trigger-9' }));
     await focusSettled();
 
@@ -199,9 +197,7 @@ describe('TriggerEditorPage — edit mode', () => {
   });
 
   it('refuses to re-send a source arm this build cannot render', async () => {
-    listByPipelineId.mockResolvedValue(
-      [trigger({ source: { kind: 'unknown' } })],
-    );
+    listByPipelineId.mockResolvedValue([trigger({ source: { kind: 'unknown' } })]);
     render(TriggerEditorPage, props({ triggerId: 'trigger-1' }));
 
     await screen.findByLabelText('Name');
@@ -209,20 +205,19 @@ describe('TriggerEditorPage — edit mode', () => {
     expect(screen.getByText('Unknown')).toBeInTheDocument();
   });
 
-  it('keeps a webhook trigger on its signature header field', async () => {
-    listByPipelineId.mockResolvedValue(
-      [
-        trigger({
-          source: {
-            kind: 'webhook',
-            signatureHeader: 'X-Hub-Signature-256',
-            webhookUrl: 'https://x/y',
-          },
-        }),
-      ],
-    );
+  it('keeps a webhook trigger on the webhook section, with the signature hint', async () => {
+    listByPipelineId.mockResolvedValue([
+      trigger({
+        source: {
+          kind: 'webhook',
+          webhookUrl: 'https://x/y',
+        },
+      }),
+    ]);
     render(TriggerEditorPage, props({ triggerId: 'trigger-1' }));
 
-    expect(await screen.findByLabelText('Signature header')).toHaveValue('X-Hub-Signature-256');
+    expect(await screen.findByRole('region', { name: 'Webhook' })).toHaveTextContent(
+      'X-Hub-Signature-256',
+    );
   });
 });

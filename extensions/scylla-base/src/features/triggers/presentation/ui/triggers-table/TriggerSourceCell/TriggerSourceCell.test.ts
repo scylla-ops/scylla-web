@@ -39,7 +39,6 @@ describe('TriggerSourceCell', () => {
       trigger: trigger({
         source: {
           kind: 'webhook',
-          signatureHeader: '',
           webhookUrl: 'https://x/webhooks/1',
         },
       }),
@@ -54,7 +53,6 @@ describe('TriggerSourceCell', () => {
       trigger: trigger({
         source: {
           kind: 'webhook',
-          signatureHeader: '',
           webhookUrl: 'https://x/webhooks/1',
         },
       }),

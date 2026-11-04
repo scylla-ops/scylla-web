@@ -54,7 +54,7 @@ beforeEach(() => {
   });
 
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme' },
+    organization: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: 'project-1', name: 'Web' },
     pipeline: { id: 'pipeline-1', name: 'build' },
   });

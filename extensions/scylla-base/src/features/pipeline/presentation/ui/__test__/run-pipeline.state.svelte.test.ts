@@ -28,9 +28,9 @@ const setUp = (agents: { connected: boolean }[]) => {
     cache.restore,
     withRegistry({
       pipeline: { pipelineRepository: { run: runRepository } },
-      agents: {
-        agentsRepository: {
-          listAgents: vi.fn().mockResolvedValue(agents),
+      apps: {
+        appsRepository: {
+          listApps: vi.fn().mockResolvedValue(agents),
         },
       },
     }),
@@ -49,7 +49,7 @@ const runIn = async (run: (runner: ReturnType<typeof createRunPipeline>) => Prom
 
 beforeEach(() => {
   vi.clearAllMocks();
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme' } });
+  contextStore.setState({ organization: { id: 'org-1', name: 'Acme', slug: null } });
 });
 
 afterEach(() => teardown.forEach(restore => restore()));
@@ -96,7 +96,8 @@ describe('createRunPipeline', () => {
 
 describe('createRunPipeline with the agent list', () => {
   it('warns that the job waits when no agent is connected', async () => {
-    grant(Permission.LIST_AGENTS);
+    // The app list reads with list_apps, which both permissions stand for.
+    grant(Permission.LIST_AGENTS, Permission.LIST_APPS_BY_ORGANIZATION);
     setUp([{ connected: false }]);
 
     await runIn(async runner => {
@@ -108,7 +109,8 @@ describe('createRunPipeline with the agent list', () => {
   });
 
   it('confirms the run when an agent is connected', async () => {
-    grant(Permission.LIST_AGENTS);
+    // The app list reads with list_apps, which both permissions stand for.
+    grant(Permission.LIST_AGENTS, Permission.LIST_APPS_BY_ORGANIZATION);
     setUp([{ connected: true }]);
 
     await runIn(async runner => {

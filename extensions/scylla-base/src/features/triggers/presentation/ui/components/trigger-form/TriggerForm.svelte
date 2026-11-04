@@ -63,9 +63,7 @@
     trigger?.source.kind === 'cron' ? trigger.source.expression : DEFAULT_CRON,
   );
   // svelte-ignore state_referenced_locally
-  // svelte-ignore state_referenced_locally
   let inputs = $state<DraftInput[]>(triggerToDraftInputs(trigger));
-   
 
   /** An unknown source arm cannot be rendered, so it cannot be sent again. */
   // svelte-ignore state_referenced_locally

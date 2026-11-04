@@ -4,6 +4,7 @@ import { Permission, authorizationReady, can } from '@platform/authz';
 import { toast } from '@scylla/ui/utils';
 import type { AppsModule } from '../apps.module.ts';
 import { appsMessages } from './messages/apps.messages.ts';
+import { appStatsOf } from '../domain/structs/app-stats.struct.ts';
 
 const repository = () => getModuleDomain<typeof AppsModule.domain>('apps').appsRepository;
 
@@ -14,17 +15,24 @@ const runnerOf = (filter: AppFilter): boolean | undefined =>
   filter === 'all' ? undefined : filter === 'agents';
 
 export const APPS_QUERY_ROOT = ['apps'] as const;
+/** The onboarding tour follows the creation of the first agent. */
+export const CREATE_APP_MUTATION_KEY = ['apps', 'create'] as const;
 export const APPS_QUERY_KEY = (workspaceId: string, filter: AppFilter) =>
   [...APPS_QUERY_ROOT, workspaceId, filter] as const;
 export const APP_QUERY_KEY = (appId: string) => [...APPS_QUERY_ROOT, 'one', appId] as const;
 export const APP_JOBS_QUERY_KEY = (appId: string) => [...APPS_QUERY_ROOT, 'jobs', appId] as const;
 
 /** The recent jobs of an agent: enough for its stats and its list. */
-const RECENT_JOBS = 50;
+const RECENT_JOBS = 100;
 
-/** Each read checks `list_apps` or `get_app` itself: other features run them. */
+/**
+ * Each read checks `list_apps` or `get_app` itself: other features run them. The agents and the
+ * other apps need the same right on the server; the UI names it twice.
+ */
 const canList = (workspaceId: string) =>
-  authorizationReady() && can(Permission.LIST_APPS_BY_ORGANIZATION, { organizationId: workspaceId });
+  authorizationReady() &&
+  (can(Permission.LIST_AGENTS, { organizationId: workspaceId }) ||
+    can(Permission.LIST_APPS_BY_ORGANIZATION, { organizationId: workspaceId }));
 
 export const appQueries = {
   list: (workspaceId: string, filter: AppFilter = 'all') =>
@@ -44,7 +52,9 @@ export const appQueries = {
       queryKey: APP_QUERY_KEY(appId),
       queryFn: () => repository().getApp(appId),
       enabled:
-        !!appId && authorizationReady() && can(Permission.READ_APP, { organizationId: workspaceId }),
+        !!appId &&
+        authorizationReady() &&
+        can(Permission.READ_APP, { organizationId: workspaceId }),
       refetchInterval: 15_000,
     }),
 
@@ -56,12 +66,21 @@ export const appQueries = {
     }),
 };
 
+/** The stats of an agent, from its recent jobs. */
+const statsQuery = (workspaceId: string, appId: string) => ({
+  ...appQueries.jobs(workspaceId, appId, !!appId && canList(workspaceId)),
+  select: appStatsOf,
+});
+
+export const appStatsQueries = { of: statsQuery };
+
 const invalidateApps = () => getQueryClient().invalidateQueries({ queryKey: APPS_QUERY_ROOT });
 
 export const appMutations = {
   /** Gives the first join code: the dialog shows it once. */
   create: (workspaceId: string) =>
     mutationOptions({
+      mutationKey: CREATE_APP_MUTATION_KEY,
       mutationFn: ({ name, runner }: { name: string; runner: boolean }) =>
         repository().createApp(workspaceId, name.trim(), runner),
       onSuccess: () => invalidateApps(),

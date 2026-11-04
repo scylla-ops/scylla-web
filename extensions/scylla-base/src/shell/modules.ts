@@ -1,5 +1,7 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { LoginModule } from '@base/features/login/login.module.ts';
+import { DashboardModule } from '@base/features/dashboard/dashboard.module.ts';
+import { OnboardingModule } from '@base/features/onboarding/onboarding.module.ts';
 import { MarketplaceModule } from '@base/features/marketplace/marketplace.module.ts';
 import { OrganizationModule } from '@base/features/organization/organization.module.ts';
 import { ProjectModule } from '@base/features/project/project.module.ts';
@@ -20,6 +22,7 @@ import { ExtensionsModule } from '@base/features/extensions/extensions.module.ts
  */
 export const modules = [
   LoginModule,
+  DashboardModule,
   ProjectModule,
   PipelineModule,
   JobsModule,
@@ -33,4 +36,5 @@ export const modules = [
   AccessModule,
   MarketplaceModule,
   ExtensionsModule,
+  OnboardingModule,
 ] as const satisfies readonly ScyllaModule[];

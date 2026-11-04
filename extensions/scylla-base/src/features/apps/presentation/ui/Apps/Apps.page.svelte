@@ -39,7 +39,7 @@
   <p class="max-w-3xl text-sm text-muted-foreground">{t(appsMessages.blurb)}</p>
 {/snippet}
 
-<div class="flex h-full min-h-0 w-full flex-col gap-4">
+<div class="flex h-full min-h-0 w-full flex-col gap-4" data-tour="apps">
   <FeatureHeader
     count={apps.data?.length ?? 0}
     label={t(appsMessages.app)}

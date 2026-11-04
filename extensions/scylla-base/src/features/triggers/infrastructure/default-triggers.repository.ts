@@ -15,12 +15,12 @@ export class DefaultTriggersRepository implements TriggersRepository {
   constructor(
     private readonly client: ITriggerServiceClient,
     /** The base URL of the API: the address of a webhook starts with it. */
-    private readonly apiUrl = '',
+    private readonly apiUrlOf: () => string = () => '',
   ) {}
 
   private require(trigger: Trigger | undefined, rpc: string): TriggerEntity {
     if (!trigger) throw new Error(`${rpc} returned no trigger`);
-    return grpcTrigger.toDomain(trigger, this.apiUrl);
+    return grpcTrigger.toDomain(trigger, this.apiUrlOf());
   }
 
   public async listByPipelineId(pipelineId: string): Promise<TriggerEntity[]> {
@@ -34,7 +34,7 @@ export class DefaultTriggersRepository implements TriggersRepository {
       triggers.push(...response.triggers);
       token = response.page?.nextToken ?? '';
     } while (token);
-    return triggers.map(trigger => grpcTrigger.toDomain(trigger, this.apiUrl));
+    return triggers.map(trigger => grpcTrigger.toDomain(trigger, this.apiUrlOf()));
   }
 
   public async getById(triggerId: string): Promise<TriggerEntity> {
@@ -46,7 +46,7 @@ export class DefaultTriggersRepository implements TriggersRepository {
     const response = await this.client.createTrigger(
       grpcTrigger.draftToCreateRequest(pipelineId, draft),
     ).response;
-    return grpcTrigger.createdToDomain(response, this.apiUrl);
+    return grpcTrigger.createdToDomain(response, this.apiUrlOf());
   }
 
   public async update(triggerId: string, draft: TriggerDraft): Promise<TriggerEntity> {

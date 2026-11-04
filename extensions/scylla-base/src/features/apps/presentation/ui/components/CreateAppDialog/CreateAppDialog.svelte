@@ -61,7 +61,7 @@
         <DialogTitle>{t(appsMessages.joinTitle)}</DialogTitle>
       </DialogHeader>
       <JoinCodePanel joinCode={created.joinCode} runner={created.app.runner} />
-      <DialogFooter>
+      <DialogFooter data-tour="app-dialog-actions">
         <Button onclick={close}>{t(appsMessages.done)}</Button>
       </DialogFooter>
     {:else}

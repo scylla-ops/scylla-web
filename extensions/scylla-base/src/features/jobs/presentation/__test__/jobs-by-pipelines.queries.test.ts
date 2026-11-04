@@ -47,7 +47,7 @@ beforeEach(() => {
     getById: vi.fn(),
     deleteById: vi.fn(),
     rerun: vi.fn(),
-    getLogs: vi.fn(),
+    cancel: vi.fn(),
     tailLogs: vi.fn(),
   };
   setDependencyRegistry({ jobs: { jobsRepository: repository } });
@@ -97,7 +97,11 @@ describe('jobsByPipelinesQueries', () => {
     const { combine } = jobsByPipelinesQueries(['pipeline-1', 'pipeline-2']);
 
     const { jobsByPipelineId } = combine([
-      { data: { pipelineId: 'pipeline-1', jobs: [job('job-1')] }, isLoading: false, isError: false },
+      {
+        data: { pipelineId: 'pipeline-1', jobs: [job('job-1')] },
+        isLoading: false,
+        isError: false,
+      },
       { isLoading: false, isError: false },
     ]);
 
@@ -119,7 +123,7 @@ describe('jobsByPipelinesQueries', () => {
 
   it('resolves against the project the page is already scoped to, with no target passed', () => {
     contextStore.setState({
-      organization: { id: 'org-1', name: 'Acme' },
+      organization: { id: 'org-1', name: 'Acme', slug: null },
       project: { id: 'project-1', name: 'Acme project' },
     });
 

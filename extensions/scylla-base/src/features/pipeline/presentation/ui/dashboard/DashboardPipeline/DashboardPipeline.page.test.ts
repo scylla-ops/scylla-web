@@ -56,7 +56,7 @@ const setUp = (getMetadataByProjectId: () => Promise<unknown>) => {
             Promise.resolve({ items: pipelineId === 'pipeline-1' ? [job] : [] }),
         },
       },
-      agents: { agentsRepository: { listAgents: () => Promise.resolve([]) } },
+      apps: { appsRepository: { listApps: () => Promise.resolve([]) } },
     }),
   ];
   return render(DashboardPipelinePage, { projectId: 'project-1' });
@@ -67,7 +67,7 @@ beforeEach(() => {
   grantEverything();
   selectionStore.setState({ selectedIds: {} });
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme' },
+    organization: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: 'project-1', name: 'web' },
   });
 });

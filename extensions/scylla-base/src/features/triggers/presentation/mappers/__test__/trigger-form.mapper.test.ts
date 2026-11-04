@@ -30,7 +30,6 @@ describe('buildTriggerDraft', () => {
       name: '  github-push  ',
       kind: 'webhook',
       cronExpression: '',
-      signatureHeader: '  X-Hub-Signature  ',
       inputs: [
         { key: '  branch  ', valueKind: 'literal', value: 'main' },
         { key: '   ', valueKind: 'literal', value: 'dropped' },
@@ -39,7 +38,7 @@ describe('buildTriggerDraft', () => {
 
     expect(draft.name).toBe('github-push');
     expect(draft.inputs).toEqual([{ key: 'branch', value: { kind: 'literal', value: 'main' } }]);
-    expect(draft.source).toEqual({ kind: 'webhook', signatureHeader: 'X-Hub-Signature' });
+    expect(draft.source).toEqual({ kind: 'webhook',});
   });
 
   it('a jsonPointer input kind is only honored for a Webhook trigger', () => {
@@ -47,7 +46,6 @@ describe('buildTriggerDraft', () => {
       name: 'x',
       kind: 'webhook',
       cronExpression: '',
-      signatureHeader: '',
       inputs: [{ key: 'sha', valueKind: 'jsonPointer', value: '/head/sha' }],
     });
     expect(webhookDraft.inputs).toEqual([
@@ -58,24 +56,21 @@ describe('buildTriggerDraft', () => {
       name: 'x',
       kind: 'cron',
       cronExpression: '0 0 * * *',
-      signatureHeader: '',
       inputs: [{ key: 'sha', valueKind: 'jsonPointer', value: '/head/sha' }],
     });
     // A cron trigger has no payload: always literal.
     expect(cronDraft.inputs).toEqual([{ key: 'sha', value: { kind: 'literal', value: '/head/sha' } }]);
   });
 
-  it('a Cron draft converts the expression (still a well-formed 5-field cron) and carries no signatureHeader', () => {
+  it('a Cron draft converts the expression (still a well-formed 5-field cron)', () => {
     const draft = buildTriggerDraft({
       name: 'nightly',
       kind: 'cron',
       cronExpression: ' 0 3 * * * ',
-      signatureHeader: 'ignored-for-cron',
       inputs: [],
     });
 
     expect(draft.source.kind).toBe('cron');
-    expect(draft.source).not.toHaveProperty('signatureHeader');
     if (draft.source.kind === 'cron') {
       expect(isCronExpressionValid(draft.source.expression)).toBe(true);
     }

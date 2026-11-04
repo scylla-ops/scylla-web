@@ -21,7 +21,7 @@ msgstr "{days} at {time}"
 msgid "{name} webhook secret"
 msgstr "{name} webhook secret"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:84
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:83
 msgid "5-field cron (min hour day month weekday), evaluated in your local time."
 msgstr "5-field cron (min hour day month weekday), evaluated in your local time."
 
@@ -41,7 +41,7 @@ msgstr "Actions"
 msgid "Add a cron schedule or webhook to start runs automatically."
 msgstr "Add a cron schedule or webhook to start runs automatically."
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:64
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:63
 msgid "Add input"
 msgstr "Add input"
 
@@ -49,15 +49,15 @@ msgstr "Add input"
 msgid "Add this signing secret to your webhook sender's HMAC configuration."
 msgstr "Add this signing secret to your webhook sender's HMAC configuration."
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:80
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:79
 msgid "at"
 msgstr "at"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:82
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:81
 msgid "at minute"
 msgstr "at minute"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:59
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:58
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -69,11 +69,11 @@ msgstr "Copy the secret below. It is shown only once."
 msgid "Copy url"
 msgstr "Copy url"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:61
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:60
 msgid "Create"
 msgstr "Create"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:78
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:77
 msgid "Custom"
 msgstr "Custom"
 
@@ -81,7 +81,7 @@ msgstr "Custom"
 msgid "Custom schedule"
 msgstr "Custom schedule"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:72
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:71
 msgid "Daily"
 msgstr "Daily"
 
@@ -90,11 +90,11 @@ msgstr "Daily"
 msgid "Day {0} of each month at {time}"
 msgstr "Day {0} of each month at {time}"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:87
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:86
 msgid "Day of the month"
 msgstr "Day of the month"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:89
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:88
 msgid "Days of the week"
 msgstr "Days of the week"
 
@@ -115,7 +115,7 @@ msgid "Edit"
 msgstr "Edit"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:45
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:38
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:40
 msgid "Edit trigger"
 msgstr "Edit trigger"
 
@@ -135,7 +135,7 @@ msgstr "Enabled"
 msgid "Error"
 msgstr "Error"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:73
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:72
 msgid "Every day"
 msgstr "Every day"
 
@@ -143,7 +143,7 @@ msgstr "Every day"
 msgid "Every day at {time}"
 msgstr "Every day at {time}"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:71
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:70
 msgid "Every hour"
 msgstr "Every hour"
 
@@ -156,7 +156,7 @@ msgstr "Every hour at :{0}"
 msgid "Fire now"
 msgstr "Fire now"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:88
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:87
 msgid "Frequency"
 msgstr "Frequency"
 
@@ -168,15 +168,11 @@ msgstr "Fri"
 msgid "General"
 msgstr "General"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:58
-msgid "Header carrying the HMAC signature. Leave empty for the Scylla default."
-msgstr "Header carrying the HMAC signature. Leave empty for the Scylla default."
-
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:85
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:84
 msgid "Hour"
 msgstr "Hour"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:70
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:69
 msgid "Hourly"
 msgstr "Hourly"
 
@@ -184,11 +180,11 @@ msgstr "Hourly"
 msgid "Incomplete schedule"
 msgstr "Incomplete schedule"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:63
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:62
 msgid "Inputs"
 msgstr "Inputs"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:67
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:66
 msgid "JSON pointer"
 msgstr "JSON pointer"
 
@@ -196,15 +192,15 @@ msgstr "JSON pointer"
 msgid "last"
 msgstr "last"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:66
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:65
 msgid "Literal"
 msgstr "Literal"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:81
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:80
 msgid "local time"
 msgstr "local time"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:86
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:85
 msgid "Minute"
 msgstr "Minute"
 
@@ -212,7 +208,7 @@ msgstr "Minute"
 msgid "Mon"
 msgstr "Mon"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:76
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:75
 msgid "Monthly"
 msgstr "Monthly"
 
@@ -225,7 +221,7 @@ msgid "Never fired"
 msgstr "Never fired"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:15
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:32
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:34
 msgid "New trigger"
 msgstr "New trigger"
 
@@ -245,19 +241,19 @@ msgstr "No triggers yet"
 msgid "OK"
 msgstr "OK"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:77
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:76
 msgid "On a day of the month"
 msgstr "On a day of the month"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:75
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:74
 msgid "On chosen days"
 msgstr "On chosen days"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:83
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:82
 msgid "on day"
 msgstr "on day"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:65
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:64
 msgid "Optional values injected into the run as environment variables."
 msgstr "Optional values injected into the run as environment variables."
 
@@ -265,7 +261,7 @@ msgstr "Optional values injected into the run as environment variables."
 msgid "Pick at least one day"
 msgstr "Pick at least one day"
 
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:23
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:25
 msgid "Pipeline"
 msgstr "Pipeline"
 
@@ -277,7 +273,7 @@ msgstr "Pipeline ID is missing"
 msgid "Pipeline ID:"
 msgstr "Pipeline ID:"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:68
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:67
 msgid "Remove input"
 msgstr "Remove input"
 
@@ -285,17 +281,13 @@ msgstr "Remove input"
 msgid "Sat"
 msgstr "Sat"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:60
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:59
 msgid "Save"
 msgstr "Save"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:56
 msgid "Schedule"
 msgstr "Schedule"
-
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:57
-msgid "Signature header"
-msgstr "Signature header"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:24
 msgid "Source"
@@ -312,6 +304,10 @@ msgstr "Sun"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:49
 msgid "The name of the trigger and the way it starts a run."
 msgstr "The name of the trigger and the way it starts a run."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:57
+msgid "The sender signs the body with HMAC-SHA256 and the secret of the trigger, in the header X-Scylla-Signature-256 or X-Hub-Signature-256."
+msgstr "The sender signs the body with HMAC-SHA256 and the secret of the trigger, in the header X-Scylla-Signature-256 or X-Hub-Signature-256."
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:53
 msgid "The values that each run receives."
@@ -334,7 +330,7 @@ msgid "Trigger actions"
 msgstr "Trigger actions"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:14
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:25
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:27
 msgid "Triggers"
 msgstr "Triggers"
 
@@ -370,7 +366,7 @@ msgstr "webhook endpoints"
 msgid "Wed"
 msgstr "Wed"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:74
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:73
 msgid "Weekly"
 msgstr "Weekly"
 
@@ -378,7 +374,7 @@ msgstr "Weekly"
 msgid "When the pipeline runs, in your local time."
 msgstr "When the pipeline runs, in your local time."
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:79
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:78
 msgid "Write a cron expression"
 msgstr "Write a cron expression"
 

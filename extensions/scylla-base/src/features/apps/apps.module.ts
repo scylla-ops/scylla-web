@@ -26,7 +26,12 @@ export const AppsModule = {
         permission: Permission.LIST_APPS_BY_ORGANIZATION,
         breadcrumb: () => ({ label: msg`Apps` }),
         page: () => import('./presentation/ui/Apps/Apps.page.svelte'),
-        nav: { section: 'organization', title: msg`Apps and agents`, icon: HardDriveIcon, order: 40 },
+        nav: {
+          section: 'organization',
+          title: msg`Apps and agents`,
+          icon: HardDriveIcon,
+          order: 40,
+        },
         children: [
           {
             path: ':appId',

@@ -1,24 +1,27 @@
 // @vitest-environment node
-import { describe, it, expect } from 'vitest';
-import type { IJobServiceClient } from '@base/generated/scylla/job/v1/job.client.ts';
-import type { JobLogEntry, TailJobLogsResponse } from '@base/generated/scylla/job/v1/job.ts';
-import { LogStream } from '@base/generated/scylla/common/v1/common.ts';
+import { describe, it, expect, vi } from 'vitest';
+import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
+import type { TailJobLogsResponse } from '@base/generated/scylla/pipelines/v1/job_service.ts';
+import { JobStatus, LogStream, type Job } from '@base/generated/scylla/pipelines/v1/job.ts';
+import { unaryCall } from '@test/grpc.ts';
 import { DefaultJobsRepository } from '../default-jobs.repository.ts';
 
-const entry: JobLogEntry = {
-  jobLogId: { value: 'log-1' },
-  jobId: { value: 'job-1' },
-  nodeId: { value: 'node-1' },
-  stream: LogStream.STDOUT,
-  line: 'hello',
-  timestamp: { seconds: 1735689600n, nanos: 0 },
-};
+const response = (lines: string[]): TailJobLogsResponse => ({
+  cursor: 'c-1',
+  nodeId: 'node-1',
+  lines: lines.map(text => ({
+    stream: LogStream.STDOUT,
+    text,
+    at: { seconds: 1735689600n, nanos: 0 },
+  })),
+});
 
-/** A client whose `tailJobLogs` streams `responses`, and records the abort signal it gets. */
+/** A client whose `tailJobLogs` streams `responses`, and records its input and abort signal. */
 const tailing = (responses: () => AsyncGenerator<TailJobLogsResponse>) => {
-  const seen: { signal?: AbortSignal } = {};
+  const seen: { signal?: AbortSignal; input?: unknown } = {};
   const client = {
-    tailJobLogs: (_input: unknown, options?: { abort?: AbortSignal }) => {
+    tailJobLogs: (input: unknown, options?: { abort?: AbortSignal }) => {
+      seen.input = input;
       seen.signal = options?.abort;
       return { responses: responses() };
     },
@@ -32,33 +35,44 @@ const collect = async <T>(iterable: AsyncIterable<T>): Promise<T[]> => {
   return items;
 };
 
+const job = (id: string, seconds: number): Job => ({
+  id: { value: id },
+  pipelineId: { value: 'pipeline-1' },
+  status: JobStatus.COMPLETED,
+  nodes: [],
+  runs: [],
+  error: '',
+  createdAt: { seconds: BigInt(seconds), nanos: 0 },
+});
+
 describe('DefaultJobsRepository.tailLogs', () => {
-  it('maps each streamed entry to a domain log, and skips the events without one', async () => {
-    const { client } = tailing(async function* () {
+  it('gives each line of each answer as a domain log', async () => {
+    const { client, seen } = tailing(async function* () {
       await Promise.resolve();
-      yield { log: entry };
-      yield { log: undefined };
+      yield response(['hello', 'world']);
+      yield response([]);
     });
 
-    const stream = new DefaultJobsRepository(client).tailLogs('job-1');
-    const logs = await collect(stream.logs);
+    const logs = await collect(new DefaultJobsRepository(client).tailLogs('job-1', 'node-1').logs);
 
+    expect(seen.input).toEqual({ jobId: { value: 'job-1' }, nodeId: 'node-1', after: '' });
     expect(logs).toEqual([
       {
-        id: 'log-1',
+        id: 'c-1:0',
         jobId: 'job-1',
         nodeId: 'node-1',
         stream: 'stdout',
         line: 'hello',
         timestamp: '2025-01-01T00:00:00.000Z',
       },
+      expect.objectContaining({ id: 'c-1:1', line: 'world' }),
     ]);
   });
 
   it('gives the lines read so far, then throws when the call breaks', async () => {
     const { client } = tailing(async function* () {
       await Promise.resolve();
-      yield { log: entry };
+      yield response(['hello']);
       throw new Error('connection reset');
     });
 
@@ -79,5 +93,42 @@ describe('DefaultJobsRepository.tailLogs', () => {
     new DefaultJobsRepository(client).tailLogs('job-1').cancel();
 
     expect(seen.signal?.aborted).toBe(true);
+  });
+});
+
+describe('DefaultJobsRepository lists', () => {
+  it('reads every page of a pipeline, newest first, then cuts the asked page', async () => {
+    const listPipelineJobs = vi.fn(({ page }: { page: { token: string } }) =>
+      unaryCall(
+        page.token === ''
+          ? { jobs: [job('old', 1)], page: { nextToken: 'n' } }
+          : { jobs: [job('new', 2)], page: { nextToken: '' } },
+      ),
+    );
+    const client = { listPipelineJobs } as unknown as IJobServiceClient;
+
+    const list = await new DefaultJobsRepository(client).getByPipelineId('pipeline-1', {
+      page: 1,
+      pageSize: 1,
+    });
+
+    expect(listPipelineJobs).toHaveBeenCalledTimes(2);
+    expect(list.items.map(item => item.id)).toEqual(['new']);
+    expect(list.pagination).toMatchObject({ totalCount: 2, totalPages: 2, hasNext: true });
+  });
+});
+
+describe('DefaultJobsRepository actions', () => {
+  it('gives the id of the new job of a rerun, and cancels a job', async () => {
+    const client = {
+      rerunJob: vi.fn(() => unaryCall({ job: job('job-2', 3) })),
+      cancelJob: vi.fn(() => unaryCall({ job: job('job-1', 1) })),
+    } as unknown as IJobServiceClient;
+    const repository = new DefaultJobsRepository(client);
+
+    await expect(repository.rerun('job-1')).resolves.toBe('job-2');
+    await repository.cancel('job-1');
+
+    expect(client.cancelJob).toHaveBeenCalledWith({ jobId: { value: 'job-1' } });
   });
 });

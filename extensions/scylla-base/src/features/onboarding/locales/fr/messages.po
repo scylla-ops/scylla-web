@@ -1,0 +1,273 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-09-29 09:01+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: fr\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:9
+msgid "{step}/{total}"
+msgstr "{step}/{total}"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:40
+msgid "A pipeline describes the steps to run. Let's create your first by clicking “New pipeline”."
+msgstr "Un pipeline décrit les étapes à exécuter. Créez le premier en cliquant sur « Nouveau pipeline »."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:34
+msgid "A project groups your pipelines and members. Click “New project”."
+msgstr "Un projet regroupe vos pipelines et vos membres. Cliquez sur « Nouveau projet »."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:44
+msgid "As always, a template is already set up: for now just click “Create”."
+msgstr "Comme toujours, un modèle est déjà prêt : pour l'instant, cliquez simplement sur « Créer »."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:18
+msgid "Click “New app”."
+msgstr "Cliquez sur « Nouvelle app »."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:46
+msgid "Click the “run” triangle to start your pipeline and let your agent pick the job."
+msgstr "Cliquez sur le triangle « Exécuter » pour lancer votre pipeline et laisser votre agent prendre le job."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:43
+msgid "Confirm the template"
+msgstr "Validez le modèle"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:71
+msgid "Continue the tour"
+msgstr "Continuer la visite"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:33
+msgid "Create a project"
+msgstr "Créez un projet"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:17
+msgid "Create your first agent"
+msgstr "Créez votre premier agent"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:39
+msgid "Create your pipeline"
+msgstr "Créez votre pipeline"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:65
+msgctxt "onboarding"
+msgid "Finish"
+msgstr "Terminer"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:54
+msgid "Follow your job"
+msgstr "Suivez votre job"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:25
+msgid "Get help on how to connect your agent to Scylla on our documentation ›"
+msgstr "De l'aide pour connecter votre agent à Scylla dans notre documentation ›"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:36
+msgid "Give it a name and a quick description, then click “Create Project”."
+msgstr "Donnez-lui un nom et une courte description, puis cliquez sur « Créer le projet »."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:20
+msgid "Give it a name, keep “Runs the jobs of the pipelines”, then click “Create”."
+msgstr "Donnez-lui un nom, gardez « Exécute les jobs des pipelines », puis cliquez sur « Créer »."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:58
+msgid "Go back to it"
+msgstr "Y retourner"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:31
+msgid "Go to Projects"
+msgstr "Allez dans Projets"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:30
+msgid "If the code expired, make a new one with “New join code”, and run the commands again."
+msgstr "Si le code a expiré, créez-en un nouveau avec « Nouveau code d'adhésion », puis relancez les commandes."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:28
+msgid "If you ran the command in the previous modal and properly set up the control plane URL, your agent should connect to Scylla: the Next button unlocks once it's connected."
+msgstr "Si vous avez lancé la commande de la fenêtre précédente avec la bonne URL du control plane, votre agent devrait se connecter à Scylla : le bouton Suivant se débloque une fois qu'il est connecté."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:49
+msgid "If your job is not running, make sure you didn't disconnect the agent you created earlier."
+msgstr "Si votre job ne démarre pas, vérifiez que l'agent créé plus tôt est toujours connecté."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:5
+msgid "In a few steps, we'll take you around Scylla and guide you through launching your first pipeline: an agent, a project, a pipeline, then the run. It only takes a couple of minutes, and you can skip it at any time."
+msgstr "En quelques étapes, nous vous faisons faire le tour de Scylla et vous guidons jusqu'au lancement de votre premier pipeline : un agent, un projet, un pipeline, puis l'exécution. Cela ne prend que quelques minutes, et vous pouvez passer la visite à tout moment."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:50
+msgid "Learn why your job isn't running in our documentation ›"
+msgstr "Pourquoi votre job ne démarre pas, dans notre documentation ›"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:19
+msgid "Name and create your agent"
+msgstr "Nommez et créez votre agent"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:35
+msgid "Name and create your project"
+msgstr "Nommez et créez votre projet"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:8
+msgctxt "onboarding"
+msgid "Next"
+msgstr "Suivant"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:52
+msgid "Once the pipeline has run, click the last green square in the history to open the job details."
+msgstr "Une fois le pipeline exécuté, cliquez sur le dernier carré vert de l'historique pour ouvrir le détail du job."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:15
+msgid "Open the Apps and agents tab"
+msgstr "Ouvrez l'onglet Apps et agents"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:64
+msgid "Open the documentation"
+msgstr "Ouvrir la documentation"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:60
+msgid "Open your agent"
+msgstr "Ouvrir votre agent"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:51
+msgid "Open your job"
+msgstr "Ouvrez votre job"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:37
+msgid "Open your project"
+msgstr "Ouvrez votre projet"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:22
+msgid "Run the two commands on the agent machine. The first joins the app with the code and a key pair that the machine makes; the second starts the agent."
+msgstr "Exécutez les deux commandes sur la machine de l'agent. La première rejoint l'app avec le code et une paire de clés que la machine crée ; la seconde démarre l'agent."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:21
+msgid "Run your agent"
+msgstr "Lancez votre agent"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:45
+msgid "Run your pipeline"
+msgstr "Lancez votre pipeline"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:69
+msgid "See the Scylla documentation ›"
+msgstr "Voir la documentation de Scylla ›"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:70
+msgid "Skip the tour"
+msgstr "Passer la visite"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:67
+msgid "Skip the tour?"
+msgstr "Passer la visite ?"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:7
+msgid "Skip tour"
+msgstr "Passer la visite"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:6
+msgctxt "onboarding"
+msgid "Start"
+msgstr "Commencer"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:55
+msgid "Step timeline and live logs: this is where you see whether your pipeline passes, and if not, what went wrong."
+msgstr "Chronologie des étapes et logs en direct : c'est ici que vous voyez si votre pipeline passe, et sinon, ce qui a échoué."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:26
+msgid "The agent dashboard"
+msgstr "Le tableau de bord de l'agent"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:23
+msgid "The code works one time, and only for a short while. The address in the command is the one of Scylla here: change it if the agent reaches Scylla another way."
+msgstr "Le code ne fonctionne qu'une fois, et peu de temps. L'adresse dans la commande est celle de Scylla ici : changez-la si l'agent joint Scylla autrement."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:11
+msgid "The dashboard"
+msgstr "Le tableau de bord"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:13
+msgid "The navbar"
+msgstr "La barre de navigation"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:41
+msgid "The pipeline creation tools"
+msgstr "Les outils de création de pipeline"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:48
+msgid "The pipeline is running: the job is picked up by the agent, executed, then returned. The next step unlocks once the job is done."
+msgstr "Le pipeline tourne : le job est pris par l'agent, exécuté, puis renvoyé. L'étape suivante se débloque une fois le job terminé."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:68
+msgid "The tour runs step by step: skipping it stops it completely. You'll find all the steps in the Scylla documentation."
+msgstr "La visite se suit étape par étape : la passer l'arrête complètement. Vous retrouverez toutes les étapes dans la documentation de Scylla."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:24
+msgid "Then click “Done”."
+msgstr "Puis cliquez sur « Terminé »."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:14
+msgid "This is Scylla's navigation bar; you'll use it to navigate the tool. We're now going to create a new agent that will run your future pipelines."
+msgstr "Voici la barre de navigation de Scylla : c'est elle qui vous fait circuler dans l'outil. Nous allons maintenant créer un agent, qui exécutera vos futurs pipelines."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:27
+msgid "This is the page of your agent: its status, its machine, its keys, its roles and its recent jobs."
+msgstr "Voici la page de votre agent : son état, sa machine, ses clés, ses rôles et ses jobs récents."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:42
+msgid "This is the pipeline creation page. Here, you'll find our low-code tool for easily building your pipelines, or the traditional plain-text scripting format if you prefer that method for creating and editing your pipelines."
+msgstr "Voici la page de création de pipeline. Vous y trouverez notre outil low-code pour construire facilement vos pipelines, ou le format de script en texte brut si vous préférez créer et modifier vos pipelines de cette façon."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:12
+msgid "This is your organization's dashboard. It brings together all the information about your projects, pipelines, and agents at a glance!"
+msgstr "Voici le tableau de bord de votre organisation. Il réunit en un coup d'œil toutes les informations sur vos projets, pipelines et agents !"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:57
+msgid "This step is on another page."
+msgstr "Cette étape se trouve sur une autre page."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:53
+msgid "Tip: you can also click on the square when the job is running to see the live steps and logs."
+msgstr "Astuce : vous pouvez aussi cliquer sur le carré pendant que le job tourne pour voir les étapes et les logs en direct."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:47
+msgid "Wait for the job to finish"
+msgstr "Attendez la fin du job"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:29
+msgid "Waiting for the agent to connect…"
+msgstr "En attente de la connexion de l'agent…"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:4
+msgid "Welcome to Scylla 👋"
+msgstr "Bienvenue sur Scylla 👋"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:16
+msgid "You first need an agent, the machine that runs your jobs. Click “Apps and agents” in the menu."
+msgstr "Il vous faut d'abord un agent, la machine qui exécute vos jobs. Cliquez sur « Apps et agents » dans le menu."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:63
+msgid "You now know how an agent, a project and a pipeline work together, and how to follow a job end to end. To go further (triggers, secrets, roles, agents…), the Scylla documentation has you covered. See you soon!"
+msgstr "Vous savez maintenant comment un agent, un projet et un pipeline fonctionnent ensemble, et comment suivre un job de bout en bout. Pour aller plus loin (triggers, secrets, rôles, agents…), la documentation de Scylla est là. À bientôt !"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:62
+msgid "You've got the basics of Scylla 🎉"
+msgstr "Vous avez les bases de Scylla 🎉"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:32
+msgid "Your agent is connected. Open the “Projects” tab in the menu so you can create your first one."
+msgstr "Votre agent est connecté. Ouvrez l'onglet « Projets » dans le menu pour créer votre premier projet."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:59
+msgid "Your agent is offline, so the job cannot run. Start it again with the command on its page: the tour goes on as soon as it is back."
+msgstr "Votre agent est hors ligne : le job ne peut pas s'exécuter. Relancez-le avec la commande de sa page : la visite reprend dès qu'il est de retour."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:38
+msgid "Your project is ready. Click on it in the list to open it."
+msgstr "Votre projet est prêt. Cliquez dessus dans la liste pour l'ouvrir."

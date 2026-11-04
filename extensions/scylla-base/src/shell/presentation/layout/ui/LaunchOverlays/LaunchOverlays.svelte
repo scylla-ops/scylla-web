@@ -1,9 +1,14 @@
 <script lang="ts">
+  import { loadOnboardingTour } from '@base/features/onboarding';
   import { unseenRelease } from '@base/shell/presentation/layout/whats-new.state.svelte.ts';
   import WhatsNewDialog from '../WhatsNewDialog/WhatsNewDialog.svelte';
 </script>
 
-<!-- The release announcement. The onboarding tour comes back with its feature. -->
+<!-- One window at a time: the release announcement first, then the onboarding tour. -->
 {#if unseenRelease()}
   <WhatsNewDialog />
+{:else}
+  {#await loadOnboardingTour() then { default: OnboardingTour }}
+    <OnboardingTour />
+  {/await}
 {/if}

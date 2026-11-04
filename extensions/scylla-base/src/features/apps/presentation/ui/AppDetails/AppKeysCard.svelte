@@ -40,7 +40,7 @@
   let shown = $state<JoinCode | null>(null);
 </script>
 
-<Card>
+<Card data-tour="agent-run">
   <CardHeader>
     <CardTitle><h2>{t(appsMessages.keys)}</h2></CardTitle>
     <CardDescription>{t(appsMessages.keysDescription)}</CardDescription>

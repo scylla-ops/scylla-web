@@ -18,7 +18,6 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
 
 const webhookSource = {
   kind: 'webhook',
-  signatureHeader: '',
   webhookUrl: 'x',
 } as const;
 

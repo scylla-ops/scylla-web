@@ -21,7 +21,7 @@
   );
 </script>
 
-<div class="flex flex-col gap-3">
+<div class="flex flex-col gap-3" data-tour="app-join-code">
   <p class="text-sm">{t(runner ? appsMessages.joinAgent : appsMessages.joinApp)}</p>
   <CopyBox
     value={runner ? commands : joinCode.code}

@@ -33,8 +33,7 @@ const page = (items: JobEntity[], totalCount = items.length): PaginatedList<JobE
   },
 });
 
-const withData = <TData>(data: TData | undefined) =>
-  ({ state: { data } }) as never;
+const withData = <TData>(data: TData | undefined) => ({ state: { data } }) as never;
 
 let repository: JobsRepository;
 let invalidate: ReturnType<typeof vi.fn>;
@@ -46,7 +45,7 @@ beforeEach(() => {
     getById: vi.fn().mockResolvedValue(job()),
     deleteById: vi.fn().mockResolvedValue(undefined),
     rerun: vi.fn().mockResolvedValue('job-2'),
-    getLogs: vi.fn(),
+    cancel: vi.fn().mockResolvedValue(undefined),
     tailLogs: vi.fn(),
   };
 
@@ -147,7 +146,9 @@ describe('jobQueries.byOrganization', () => {
 
 describe('asJobFeed', () => {
   it('summarizes the window it was handed', () => {
-    const feed = asJobFeed(page([job({ status: 'completed' }), job({ id: 'job-2', status: 'failed' })]));
+    const feed = asJobFeed(
+      page([job({ status: 'completed' }), job({ id: 'job-2', status: 'failed' })]),
+    );
 
     expect(feed.jobs).toHaveLength(2);
     expect(feed.summary.completed).toBe(1);
@@ -205,5 +206,15 @@ describe('jobMutations.rerun', () => {
       '/projects/project-1/pipelines/pipeline-1/jobs/job-2',
     );
     navigator.restore();
+  });
+});
+
+describe('jobMutations.cancel', () => {
+  it("cancels by job id and refreshes the pipeline's list", async () => {
+    await runMutationFn(jobMutations.cancel('pipeline-1'), 'job-1');
+    expect(repository.cancel).toHaveBeenCalledWith('job-1');
+
+    runOnSuccess(jobMutations.cancel('pipeline-1'), undefined, 'job-1');
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: JOBS_QUERY_KEY('pipeline-1') });
   });
 });

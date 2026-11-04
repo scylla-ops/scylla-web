@@ -191,6 +191,16 @@ describe('feature permission conformance', () => {
 
     /** A ratchet. `TRIAGE`: nobody decided yet what the consuming page should show instead. */
     const UNCHECKED_SHARED_HOOKS: Readonly<Record<string, string>> = {
+      'jobs.jobQueries':
+        '`byOrganization`, the read that crosses the barrel, is workspace-scoped and filtered ' +
+        'server-side (ListWorkspaceJobs gives only what the caller may read). The fan-out that ' +
+        '*does* check lives in its own file precisely so its `can(` does not vouch for this one.',
+      'pipeline.pipelineQueries':
+        '`byOrganization` is the one read that crosses the barrel, and ListWorkspacePipelines is ' +
+        'scoped server-side, so there is nothing to gate client-side.',
+      'secret.secretQueries':
+        "Consumed by pipeline's step dialog to offer secret names, on an editor route requiring " +
+        'UPDATE_PIPELINE rather than LIST_SECRETS: the names only, never a value.',
       'organization.organizationQueries':
         '`mine` needs no permission: ListWorkspaces gives the workspaces of the caller. The ' +
         'invitation page reads it after AcceptInvitation, to open the new workspace.',

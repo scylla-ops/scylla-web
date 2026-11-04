@@ -48,11 +48,7 @@ export class DefaultAppsRepository implements AppsRepository {
     };
   }
 
-  public async createApp(
-    workspaceId: string,
-    name: string,
-    runner: boolean,
-  ): Promise<CreatedApp> {
+  public async createApp(workspaceId: string, name: string, runner: boolean): Promise<CreatedApp> {
     const response = await this.client.createApp({
       workspaceId: wrapId(workspaceId),
       name,

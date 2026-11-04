@@ -1,273 +1,177 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import * as grpcJob from '../grpc-job.mapper.ts';
-import { JobOutcome, NodeOutcome } from '@base/generated/scylla/job/v1/job.ts';
-import type { Job, JobNode, JobLogEntry } from '@base/generated/scylla/job/v1/job.ts';
-import { LogStream } from '@base/generated/scylla/common/v1/common.ts';
+import {
+  JobStatus,
+  LogStream,
+  NodeStatus,
+  type Job,
+  type NodeRun,
+} from '@base/generated/scylla/pipelines/v1/job.ts';
+import type { Node } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
+const ISO = '2025-01-01T00:00:00.000Z';
+const LATER = { seconds: 1735689660n, nanos: 0 };
+const LATER_ISO = '2025-01-01T00:01:00.000Z';
+
+const node = (id: string, retries = 0): Node => ({
+  id,
+  needs: [],
+  step: { oneofKind: 'exec', exec: { argv: ['true'] } },
+  env: [],
+  timeoutSeconds: 0,
+  retries,
+  workingDir: '',
+});
+
+const run = (nodeId: string, status: NodeStatus, attempt: number, finished = false): NodeRun => ({
+  nodeId,
+  status,
+  attempt,
+  startedAt: TS,
+  ...(finished && { finishedAt: LATER }),
+  error: '',
+});
 
 const baseJob = (overrides: Partial<Job> = {}): Job => ({
-  jobId: { value: 'job-1' },
+  id: { value: 'job-1' },
   pipelineId: { value: 'pipeline-1' },
-  nodeExecutions: [],
+  status: JobStatus.PENDING,
+  nodes: [],
+  runs: [],
+  error: '',
   createdAt: TS,
-  updatedAt: TS,
-  state: { oneofKind: 'pending', pending: {} },
-  origin: { oneofKind: undefined },
   ...overrides,
 });
 
 describe('grpcJob.toDomain', () => {
-  it('unwraps the ids and formats the timestamps', () => {
+  it('unwraps the ids and formats the times', () => {
     const domain = grpcJob.toDomain(baseJob());
-    expect(domain.id).toBe('job-1');
-    expect(domain.pipelineId).toBe('pipeline-1');
-    expect(domain.createdAt).toBe('2025-01-01T00:00:00.000Z');
-    expect(domain.updatedAt).toBe('2025-01-01T00:00:00.000Z');
-  });
-
-  it('a pending job has no startedAt/finishedAt', () => {
-    const domain = grpcJob.toDomain(baseJob({ state: { oneofKind: 'pending', pending: {} } }));
-    expect(domain.status).toBe('pending');
+    expect(domain).toMatchObject({
+      id: 'job-1',
+      pipelineId: 'pipeline-1',
+      status: 'pending',
+      createdAt: ISO,
+      updatedAt: ISO,
+    });
     expect(domain.startedAt).toBeUndefined();
     expect(domain.finishedAt).toBeUndefined();
   });
 
-  it('a running job surfaces its startedAt, still no finishedAt', () => {
+  it('takes the last time it knows as the time of the last change', () => {
     const domain = grpcJob.toDomain(
-      baseJob({ state: { oneofKind: 'running', running: { startedAt: TS } } }),
+      baseJob({ status: JobStatus.COMPLETED, startedAt: TS, finishedAt: LATER }),
     );
-    expect(domain.status).toBe('running');
-    expect(domain.startedAt).toBe('2025-01-01T00:00:00.000Z');
-    expect(domain.finishedAt).toBeUndefined();
+    expect(domain).toMatchObject({ startedAt: ISO, finishedAt: LATER_ISO, updatedAt: LATER_ISO });
   });
 
   it.each([
-    [JobOutcome.COMPLETED, 'completed'],
-    [JobOutcome.FAILED, 'failed'],
-    [JobOutcome.CANCELLED, 'cancelled'],
-    [JobOutcome.ORPHANED, 'orphaned'],
-  ])('a terminal job with outcome %i maps to status "%s"', (outcome, status) => {
-    const domain = grpcJob.toDomain(
-      baseJob({
-        state: { oneofKind: 'terminal', terminal: { outcome, startedAt: TS, finishedAt: TS } },
-      }),
-    );
-    expect(domain.status).toBe(status);
-    expect(domain.startedAt).toBe('2025-01-01T00:00:00.000Z');
-    expect(domain.finishedAt).toBe('2025-01-01T00:00:00.000Z');
-  });
-
-  it('an UNSPECIFIED outcome, or a state arm newer than this build, maps to "unknown" rather than a guess', () => {
-    expect(
-      grpcJob.toDomain(
-        baseJob({
-          state: { oneofKind: 'terminal', terminal: { outcome: JobOutcome.UNSPECIFIED } },
-        }),
-      ).status,
-    ).toBe('unknown');
-
-    expect(grpcJob.toDomain(baseJob({ state: { oneofKind: undefined } })).status).toBe('unknown');
-  });
-
-  it('a terminal job cancelled before it ever started has no startedAt (only finishedAt)', () => {
-    const domain = grpcJob.toDomain(
-      baseJob({
-        state: {
-          oneofKind: 'terminal',
-          terminal: { outcome: JobOutcome.CANCELLED, finishedAt: TS },
-        },
-      }),
-    );
-    expect(domain.startedAt).toBeUndefined();
-    expect(domain.finishedAt).toBe('2025-01-01T00:00:00.000Z');
+    [JobStatus.PENDING, 'pending'],
+    [JobStatus.RUNNING, 'running'],
+    [JobStatus.COMPLETED, 'completed'],
+    [JobStatus.FAILED, 'failed'],
+    [JobStatus.CANCELLED, 'cancelled'],
+    [JobStatus.ORPHANED, 'orphaned'],
+    [JobStatus.UNSPECIFIED, 'unknown'],
+    [99 as JobStatus, 'unknown'],
+  ])('maps the status %i to "%s"', (status, expected) => {
+    expect(grpcJob.toDomain(baseJob({ status })).status).toBe(expected);
   });
 
   describe('node executions', () => {
-    const node = (
-      execution: JobNode['execution'],
-      nodeId = 'node-1',
-      maxAttempts = 1,
-    ): JobNode => ({
-      nodeId: { value: nodeId },
-      maxAttempts,
-      execution,
-    });
-
-    it('maps a pending node with no timestamps', () => {
-      const [n] = grpcJob.toDomain(
-        baseJob({ nodeExecutions: [node({ oneofKind: 'pending', pending: {} })] }),
-      ).nodeExecutions;
+    it('gives a node with no run yet as pending, with one attempt more than its retries', () => {
+      const [n] = grpcJob.toDomain(baseJob({ nodes: [node('build', 2)] })).nodeExecutions;
       expect(n).toEqual({
-        id: 'node-1',
+        id: 'build',
         state: 'pending',
         startedAt: undefined,
         finishedAt: undefined,
         attempts: 0,
-        maxAttempts: 1,
+        maxAttempts: 3,
       });
     });
 
-    it('carries the current attempt of a running node and its maximum', () => {
+    it('takes the last attempt of a node', () => {
       const [n] = grpcJob.toDomain(
         baseJob({
-          nodeExecutions: [
-            node({ oneofKind: 'running', running: { startedAt: TS, attempt: 2 } }, 'node-1', 3),
-          ],
+          nodes: [node('build', 2)],
+          runs: [run('build', NodeStatus.FAILED, 1, true), run('build', NodeStatus.RUNNING, 2)],
         }),
       ).nodeExecutions;
-      expect(n).toMatchObject({ attempts: 2, maxAttempts: 3 });
-    });
-
-    it('carries the attempts of a finished node', () => {
-      const [n] = grpcJob.toDomain(
-        baseJob({
-          nodeExecutions: [
-            node(
-              {
-                oneofKind: 'finished',
-                finished: {
-                  outcome: NodeOutcome.FAILED,
-                  startedAt: TS,
-                  finishedAt: TS,
-                  attempts: 3,
-                },
-              },
-              'node-1',
-              3,
-            ),
-          ],
-        }),
-      ).nodeExecutions;
-      expect(n).toMatchObject({ state: 'failed', attempts: 3, maxAttempts: 3 });
-    });
-
-    it('maps a running node with its startedAt', () => {
-      const [n] = grpcJob.toDomain(
-        baseJob({
-          nodeExecutions: [node({ oneofKind: 'running', running: { startedAt: TS, attempt: 1 } })],
-        }),
-      ).nodeExecutions;
-      expect(n.state).toBe('running');
-      expect(n.startedAt).toBe('2025-01-01T00:00:00.000Z');
+      expect(n).toMatchObject({ state: 'running', attempts: 2, startedAt: ISO });
+      expect(n.finishedAt).toBeUndefined();
     });
 
     it.each([
-      [NodeOutcome.COMPLETED, 'completed'],
-      [NodeOutcome.FAILED, 'failed'],
-      [NodeOutcome.CANCELLED, 'cancelled'],
-      [NodeOutcome.SKIPPED, 'skipped'],
-    ])('a finished node with outcome %i maps to state "%s"', (outcome, state) => {
+      [NodeStatus.COMPLETED, 'completed'],
+      [NodeStatus.FAILED, 'failed'],
+      [NodeStatus.SKIPPED, 'skipped'],
+      [NodeStatus.CANCELLED, 'cancelled'],
+      [NodeStatus.UNSPECIFIED, 'unknown'],
+    ])('maps the node status %i to "%s"', (status, expected) => {
       const [n] = grpcJob.toDomain(
-        baseJob({
-          nodeExecutions: [
-            node({
-              oneofKind: 'finished',
-              finished: { outcome, startedAt: TS, finishedAt: TS, attempts: 1 },
-            }),
-          ],
-        }),
+        baseJob({ nodes: [node('build')], runs: [run('build', status, 1, true)] }),
       ).nodeExecutions;
-      expect(n.state).toBe(state);
-      expect(n.startedAt).toBe('2025-01-01T00:00:00.000Z');
-      expect(n.finishedAt).toBe('2025-01-01T00:00:00.000Z');
+      expect(n).toMatchObject({ state: expected, finishedAt: LATER_ISO });
     });
 
-    it('an execution arm newer than this build maps to "unknown"', () => {
-      const [n] = grpcJob.toDomain(
-        baseJob({ nodeExecutions: [node({ oneofKind: undefined })] }),
+    it('keeps the order and the count of the nodes of the job', () => {
+      const executions = grpcJob.toDomain(
+        baseJob({ nodes: [node('a'), node('b'), node('c')] }),
       ).nodeExecutions;
-      expect(n.state).toBe('unknown');
-    });
-
-    it('preserves node order and count', () => {
-      const domain = grpcJob.toDomain(
-        baseJob({
-          nodeExecutions: [
-            node({ oneofKind: 'pending', pending: {} }, 'a'),
-            node({ oneofKind: 'pending', pending: {} }, 'b'),
-          ],
-        }),
-      );
-      expect(domain.nodeExecutions.map(n => n.id)).toEqual(['a', 'b']);
+      expect(executions.map(e => e.id)).toEqual(['a', 'b', 'c']);
     });
   });
 });
 
-describe('grpcJob.toDomainList', () => {
-  it('maps every job and carries the pagination metadata through as-is', () => {
-    const pagination = {
-      totalCount: 1,
-      page: 1,
-      pageSize: 10,
-      totalPages: 1,
+describe('grpcJob.toDomainPage', () => {
+  const at = (id: string, seconds: bigint) =>
+    baseJob({ id: { value: id }, createdAt: { seconds, nanos: 0 } });
+
+  it('sorts the jobs newest first and cuts the page', () => {
+    const page = grpcJob.toDomainPage([at('a', 1n), at('c', 3n), at('b', 2n)], {
+      page: 2,
+      pageSize: 2,
+    });
+    expect(page.items.map(item => item.id)).toEqual(['a']);
+    expect(page.pagination).toEqual({
+      totalCount: 3,
+      page: 2,
+      pageSize: 2,
+      totalPages: 2,
       hasNext: false,
-      hasPrevious: false,
-    };
-    const result = grpcJob.toDomainList({ jobs: [baseJob()], pagination });
-    expect(result.items).toHaveLength(1);
-    expect(result.items[0].id).toBe('job-1');
-    expect(result.pagination).toBe(pagination);
+      hasPrevious: true,
+    });
   });
 });
 
-describe('grpcJob.logEntryToDomain', () => {
-  const entry = (overrides: Partial<JobLogEntry> = {}): JobLogEntry => ({
-    jobLogId: { value: 'log-1' },
-    jobId: { value: 'job-1' },
-    nodeId: { value: 'node-1' },
-    stream: LogStream.STDOUT,
-    line: 'hello',
-    timestamp: TS,
-    ...overrides,
-  });
-
-  it('unwraps ids, resolves the stream, and formats the timestamp', () => {
-    const log = grpcJob.logEntryToDomain(entry());
-    expect(log).toEqual({
-      id: 'log-1',
-      jobId: 'job-1',
-      nodeId: 'node-1',
-      stream: 'stdout',
-      line: 'hello',
-      timestamp: '2025-01-01T00:00:00.000Z',
-    });
-  });
-
-  it('maps STDERR to "stderr"', () => {
-    expect(grpcJob.logEntryToDomain(entry({ stream: LogStream.STDERR })).stream).toBe('stderr');
-  });
-
-  it('maps UNSPECIFIED (or a future stream) to an empty string', () => {
-    expect(grpcJob.logEntryToDomain(entry({ stream: LogStream.UNSPECIFIED })).stream).toBe('');
-  });
-});
-
-describe('grpcJob.logsToDomainList', () => {
-  it('maps every log entry and carries the pagination through', () => {
-    const pagination = {
-      totalCount: 1,
-      page: 1,
-      pageSize: 10,
-      totalPages: 1,
-      hasNext: false,
-      hasPrevious: false,
-    };
-    const result = grpcJob.logsToDomainList({
-      logs: [
-        {
-          jobLogId: { value: 'log-1' },
-          jobId: { value: 'job-1' },
-          nodeId: { value: 'node-1' },
-          stream: LogStream.STDOUT,
-          line: 'hello',
-          timestamp: TS,
-        },
-      ],
-      pagination,
-    });
-    expect(result.items).toHaveLength(1);
-    expect(result.pagination).toBe(pagination);
+describe('grpcJob.logLinesToDomain', () => {
+  it('gives each line an id from the cursor and its place', () => {
+    expect(
+      grpcJob.logLinesToDomain('job-1', 'build', 'c-7', [
+        { stream: LogStream.STDOUT, text: 'one', at: TS },
+        { stream: LogStream.STDERR, text: 'two', at: TS },
+        { stream: LogStream.UNSPECIFIED, text: 'three', at: TS },
+      ]),
+    ).toEqual([
+      {
+        id: 'c-7:0',
+        jobId: 'job-1',
+        nodeId: 'build',
+        stream: 'stdout',
+        line: 'one',
+        timestamp: ISO,
+      },
+      {
+        id: 'c-7:1',
+        jobId: 'job-1',
+        nodeId: 'build',
+        stream: 'stderr',
+        line: 'two',
+        timestamp: ISO,
+      },
+      { id: 'c-7:2', jobId: 'job-1', nodeId: 'build', stream: '', line: 'three', timestamp: ISO },
+    ]);
   });
 });

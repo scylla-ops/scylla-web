@@ -44,9 +44,11 @@
   <Skeleton class="h-40 w-full" />
 {:else}
   {@const state = appStateOf(app)}
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-4" data-tour="agent-details">
     <header class="flex flex-wrap items-center gap-3">
-      <AppStateDot {state} class="size-2.5" />
+      <span data-tour="agent-status" data-online={app.connected}>
+        <AppStateDot {state} class="size-2.5" />
+      </span>
       <h1 class="text-xl font-semibold">{app.name}</h1>
       {#if app.runner}<Badge variant="secondary">{t(appsMessages.agentBadge)}</Badge>{/if}
       <span class="text-sm text-muted-foreground">
