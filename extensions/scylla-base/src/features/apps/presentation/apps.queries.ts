@@ -8,6 +8,13 @@ import { appStatsOf } from '../domain/structs/app-stats.struct.ts';
 
 const repository = () => getModuleDomain<typeof AppsModule.domain>('apps').appsRepository;
 
+/** A new app. An agent of some projects gets `runner` on each of them only. */
+export interface NewApp {
+  name: string;
+  runner: boolean;
+  projectIds?: readonly string[];
+}
+
 /** Which apps a list shows. */
 export type AppFilter = 'all' | 'agents' | 'others';
 
@@ -58,6 +65,13 @@ export const appQueries = {
       refetchInterval: 15_000,
     }),
 
+  /** An app that the add dialog waits for: it reads it every 2 s until the agent connects. */
+  waiting: (appId: string, workspaceId: string) =>
+    queryOptions({
+      ...appQueries.byId(appId, workspaceId),
+      refetchInterval: query => (query.state.data?.app.connected ? false : 2_000),
+    }),
+
   jobs: (workspaceId: string, appId: string, enabled = true) =>
     queryOptions({
       queryKey: APP_JOBS_QUERY_KEY(appId),
@@ -81,8 +95,8 @@ export const appMutations = {
   create: (workspaceId: string) =>
     mutationOptions({
       mutationKey: CREATE_APP_MUTATION_KEY,
-      mutationFn: ({ name, runner }: { name: string; runner: boolean }) =>
-        repository().createApp(workspaceId, name.trim(), runner),
+      mutationFn: ({ name, runner, projectIds = [] }: NewApp) =>
+        repository().createApp(workspaceId, name.trim(), runner, projectIds),
       onSuccess: () => invalidateApps(),
     }),
 

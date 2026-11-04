@@ -74,8 +74,18 @@ describe('AppsList', () => {
     expect(repository.listApps).toHaveBeenCalledWith('ws-1', false);
   });
 
-  it('creates an agent and shows the commands that join it', async () => {
+  it('opens the wizard of a new agent on the agents page', async () => {
     setUp([Permission.LIST_APPS_BY_WORKSPACE, Permission.CREATE_APP]);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: /New app/ }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('Add an agent')).toBeInTheDocument();
+  });
+
+  it('creates another app with its join code on the apps page', async () => {
+    setUp([Permission.LIST_APPS_BY_WORKSPACE, Permission.CREATE_APP], 'others');
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: /New app/ }));
@@ -84,8 +94,9 @@ describe('AppsList', () => {
     await user.type(within(dialog).getByLabelText('Name'), 'builder');
     await user.click(within(dialog).getByRole('button', { name: 'Create' }));
 
-    await waitFor(() => expect(repository.createApp).toHaveBeenCalledWith('ws-1', 'builder', true));
-    expect(await screen.findByText('Join the app from its machine')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(repository.createApp).toHaveBeenCalledWith('ws-1', 'builder', false, []),
+    );
   });
 
   it('reads nothing without the right to list the apps', () => {

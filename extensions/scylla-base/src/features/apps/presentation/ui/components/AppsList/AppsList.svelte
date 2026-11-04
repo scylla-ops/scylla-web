@@ -3,7 +3,7 @@
   import { contextStore, scyllaNavigate } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
   import { ErrorState, FeatureHeader, ListSkeleton } from '@scylla/ui';
-  import { Badge, Button, Card } from '@scylla/ui/primitives';
+  import { Badge, Card } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
@@ -11,6 +11,7 @@
   import { appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import AppStateDot from '../AppStateDot/AppStateDot.svelte';
   import CreateAppDialog from '../CreateAppDialog/CreateAppDialog.svelte';
+  import AddAgentDialog from '../AddAgentDialog/AddAgentDialog.svelte';
   import { appsMessages } from '@base/features/apps/presentation/messages/apps.messages.ts';
 
   interface Props {
@@ -90,11 +91,13 @@
   {/if}
 </div>
 
-{#if workspaceId}
+{#if workspaceId && kind === 'agents'}
+  <AddAgentDialog open={createOpen} setOpen={open => (createOpen = open)} {workspaceId} />
+{:else if workspaceId}
   <CreateAppDialog
     open={createOpen}
     setOpen={open => (createOpen = open)}
     {workspaceId}
-    runner={kind === 'agents'}
+    runner={false}
   />
 {/if}

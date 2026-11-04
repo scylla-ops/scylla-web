@@ -21,6 +21,10 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   `features/access`): an agent needs `runner`.
 - The recent jobs of an agent come from `JobService.ListWorkspaceJobs` with its id; its stats are
   computed from them (`app-stats.struct.ts`).
+- "Add agent" is a dialog in three steps (`components/AddAgentDialog/`): name and projects, install,
+  connected. The install step shows one command for each OS (`agent-install.struct.ts`) and
+  `appQueries.waiting` asks for the app each 2 s until it is connected. A `Button` in the form must
+  have `type="button"`, because the primitive has no default type.
 - `appQueries.runners` and `loadNoAgentsBanner` serve the pipelines and the jobs: they warn when
   jobs wait and no agent is connected.
 
