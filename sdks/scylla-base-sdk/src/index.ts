@@ -9,6 +9,7 @@ export * from '@scylla/base/scylla-error';
 export * from '@scylla/base/account-validation';
 export * from '@scylla/base/features/access';
 export * from '@scylla/base/features/extensions';
+export * from '@scylla/base/features/invitation';
 export * from '@scylla/base/features/login';
 export * from '@scylla/base/features/marketplace';
 export * from '@scylla/base/features/membership';

@@ -24,6 +24,7 @@
     membershipPoints,
     type OrganizationMembersContext,
   } from '@base/features/membership/presentation/membership.points.ts';
+  import { loadInviteDialog, loadPendingInvitations } from '@base/features/invitation';
   import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
   import MembersList from '../components/MembersList/MembersList.svelte';
   import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
@@ -71,6 +72,9 @@
   );
 
   let addOpen = $state(false);
+  let inviteOpen = $state(false);
+  /** `create_invitation` and `list_invitations` need the same right as a grant: admin. */
+  const canInvite = $derived(can(Permission.ADD_ORGANIZATION_MEMBER, target));
   let pendingRemoval = $state<{ userId: string; name: string } | null>(null);
 
   /** The members, with the display name and the email of the directory when it is readable. */
@@ -134,6 +138,11 @@
         {t(membershipMessages.addAMember)}
       </GatedButton>
     {/if}
+    {#if canInvite}
+      <GatedButton allowed={canInvite} variant="outline" onclick={() => (inviteOpen = true)}>
+        {t(membershipMessages.inviteByEmail)}
+      </GatedButton>
+    {/if}
   </WidgetZone>
 {/snippet}
 
@@ -181,6 +190,21 @@
       onRemove={member =>
         (pendingRemoval = { userId: member.userId, name: userName(userFor(member.userId)) })}
     />
+
+    {#if organizationId}
+      {#await loadPendingInvitations() then { default: PendingInvitations }}
+        <PendingInvitations workspaceId={organizationId} />
+      {/await}
+      {#if inviteOpen}
+        {#await loadInviteDialog() then { default: InviteDialog }}
+          <InviteDialog
+            open={inviteOpen}
+            setOpen={open => (inviteOpen = open)}
+            workspaceId={organizationId}
+          />
+        {/await}
+      {/if}
+    {/if}
 
     <WidgetZone point={membershipPoints.organizationSection} context={zoneContext} />
 

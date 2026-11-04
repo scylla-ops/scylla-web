@@ -210,7 +210,7 @@ msgstr "L'apparence de Scylla sur cet appareil. Système suit le réglage de vot
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:38
 msgid "Instance admin"
-msgstr ""
+msgstr "Admin de l'instance"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:64
 msgid "Last active {time}"

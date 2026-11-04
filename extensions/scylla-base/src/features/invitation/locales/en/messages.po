@@ -1,0 +1,98 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-11-04 10:34+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:23
+msgid "Create an account"
+msgstr "Create an account"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:7
+msgid "Email"
+msgstr "Email"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:16
+msgid "Expires {date}"
+msgstr "Expires {date}"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:12
+msgid "Invitation revoked"
+msgstr "Invitation revoked"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:11
+msgid "Invitation sent to {email}"
+msgstr "Invitation sent to {email}"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:5
+msgid "Invite a person"
+msgstr "Invite a person"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:4
+msgid "Invite by email"
+msgstr "Invite by email"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:19
+msgid "Join a workspace"
+msgstr "Join a workspace"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:20
+msgid "Joining the workspace…"
+msgstr "Joining the workspace…"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:8
+msgid "name@example.com"
+msgstr "name@example.com"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:15
+msgid "No open invitation."
+msgstr "No open invitation."
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:13
+msgid "Open invitations"
+msgstr "Open invitations"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:18
+msgid "Revoke"
+msgstr "Revoke"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:9
+msgid "Role"
+msgstr "Role"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:17
+msgid "Send again"
+msgstr "Send again"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:10
+msgid "Send the invitation"
+msgstr "Send the invitation"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:22
+msgid "Sign in"
+msgstr "Sign in"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:21
+msgid "Sign in or create an account to accept the invitation."
+msgstr "Sign in or create an account to accept the invitation."
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:14
+msgid "The people who have a link and have not joined yet."
+msgstr "The people who have a link and have not joined yet."
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:24
+msgid "This invitation is not valid any more. Ask for a new one."
+msgstr "This invitation is not valid any more. Ask for a new one."
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:6
+msgid "We send a link to this address. The person joins the workspace with the role."
+msgstr "We send a link to this address. The person joins the workspace with the role."

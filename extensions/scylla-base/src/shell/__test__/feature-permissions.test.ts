@@ -191,6 +191,9 @@ describe('feature permission conformance', () => {
 
     /** A ratchet. `TRIAGE`: nobody decided yet what the consuming page should show instead. */
     const UNCHECKED_SHARED_HOOKS: Readonly<Record<string, string>> = {
+      'organization.organizationQueries':
+        '`mine` needs no permission: ListWorkspaces gives the workspaces of the caller. The ' +
+        'invitation page reads it after AcceptInvitation, to open the new workspace.',
       'access.accessQueries':
         "`list` takes the caller's gate as `enabled`, which is the only place the answer is " +
         'known: a workspace needs LIST_ORGANIZATION_MEMBERS and a project LIST_PROJECT_MEMBERS ' +

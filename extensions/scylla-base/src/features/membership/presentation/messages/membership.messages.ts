@@ -2,6 +2,7 @@ import { msg, plural } from '@lingui/core/macro';
 
 /** Keep the msgids (placeholder names included) or the French is lost. */
 export const membershipMessages = {
+  inviteByEmail: msg`Invite by email`,
   workspaceScope: msg`Workspace`,
   ownerScope: msg`Owners`,
   member: msg`Member`,

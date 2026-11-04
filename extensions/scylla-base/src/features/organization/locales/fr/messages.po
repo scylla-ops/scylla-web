@@ -32,7 +32,7 @@ msgstr "Supprimer"
 
 #: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:8
 msgid "e.g., My Organization"
-msgstr ""
+msgstr "ex. : Mon organisation"
 
 #: extensions/scylla-base/src/features/organization/presentation/presenters/organization-form.presenter.ts:15
 msgid "e.g., my-workspace"

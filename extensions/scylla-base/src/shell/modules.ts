@@ -6,6 +6,7 @@ import { ProjectModule } from '@base/features/project/project.module.ts';
 import { UserModule } from '@base/features/user/user.module.ts';
 import { AccessModule } from '@base/features/access/access.module.ts';
 import { MembershipModule } from '@base/features/membership/membership.module.ts';
+import { InvitationModule } from '@base/features/invitation/invitation.module.ts';
 import { ExtensionsModule } from '@base/features/extensions/extensions.module.ts';
 
 /**
@@ -16,6 +17,7 @@ export const modules = [
   LoginModule,
   ProjectModule,
   MembershipModule,
+  InvitationModule,
   OrganizationModule,
   UserModule,
   AccessModule,
