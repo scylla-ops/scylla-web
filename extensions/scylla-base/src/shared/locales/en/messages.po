@@ -65,7 +65,7 @@ msgstr "An invitation is already pending for this email"
 msgid "An invitation is required to sign up"
 msgstr "An invitation is required to sign up"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:142
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:157
 msgid "An unexpected error occurred"
 msgstr "An unexpected error occurred"
 
@@ -286,7 +286,7 @@ msgstr "Secret updated"
 msgid "Secrets"
 msgstr "Secrets"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:137
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:149
 msgid "Server unreachable"
 msgstr "Server unreachable"
 
@@ -301,6 +301,10 @@ msgstr "Skipped"
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:36
 msgid "Some projects"
 msgstr "Some projects"
+
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:154
+msgid "Someone else changed this item in the meantime. The page now shows the latest version."
+msgstr "Someone else changed this item in the meantime. The page now shows the latest version."
 
 #: extensions/scylla-base/src/shared/utils/status-config.ts:48
 msgid "Success"
@@ -450,6 +454,6 @@ msgstr "You cannot delete your own account."
 msgid "You cannot do this on your own account"
 msgstr "You cannot do this on your own account"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:138
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:150
 msgid "You don't have permission to perform this action"
 msgstr "You don't have permission to perform this action"
