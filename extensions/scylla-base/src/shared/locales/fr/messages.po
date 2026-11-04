@@ -154,8 +154,8 @@ msgid "The password cannot be only spaces."
 msgstr "Le mot de passe ne peut pas contenir que des espaces."
 
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:5
-msgid "The password must have 8 to 255 characters."
-msgstr "Le mot de passe doit contenir de 8 à 255 caractères."
+msgid "The password must have 8 to 128 characters."
+msgstr "Le mot de passe doit contenir de 8 à 128 caractères."
 
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:7
 msgid "The two passwords are not the same."

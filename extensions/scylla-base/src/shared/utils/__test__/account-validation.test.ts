@@ -30,13 +30,13 @@ describe('checkNewPassword', () => {
     expect(checkNewPassword('1234567')).toBe(accountValidationMessages.passwordLength);
   });
 
-  it('accepts 8 and 255 characters', () => {
+  it('accepts 8 and 128 characters', () => {
     expect(checkNewPassword('12345678')).toBeUndefined();
-    expect(checkNewPassword('a'.repeat(255))).toBeUndefined();
+    expect(checkNewPassword('a'.repeat(128))).toBeUndefined();
   });
 
-  it('refuses more than 255 characters', () => {
-    expect(checkNewPassword('a'.repeat(256))).toBe(accountValidationMessages.passwordLength);
+  it('refuses more than 128 characters', () => {
+    expect(checkNewPassword('a'.repeat(129))).toBe(accountValidationMessages.passwordLength);
   });
 
   it('refuses a password of spaces only, whatever its length', () => {

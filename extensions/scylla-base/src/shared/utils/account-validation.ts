@@ -9,7 +9,7 @@ import { accountValidationMessages } from './account-validation.messages.ts';
 
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_MIN_LENGTH = 8;
-const PASSWORD_MAX_LENGTH = 255;
+const PASSWORD_MAX_LENGTH = 128;
 const USERNAME_MAX_BYTES = 255;
 const DISPLAY_NAME_MAX_LENGTH = 100;
 

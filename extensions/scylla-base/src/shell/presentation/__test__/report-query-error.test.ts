@@ -5,6 +5,9 @@ import { reportQueryError } from '../report-query-error.ts';
 const toastError = vi.fn();
 vi.mock('svelte-sonner', () => ({ toast: { error: (message: string) => toastError(message) } }));
 
+const close = vi.hoisted(() => vi.fn(async () => undefined));
+vi.mock('@platform/grpc', () => ({ browserSession: { close } }));
+
 const errorWith = (code: ScyllaErrorCode) => new ScyllaError('boom', { code });
 let location: Location;
 
@@ -22,7 +25,6 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.spyOn(console, 'warn').mockImplementation(() => {});
   vi.spyOn(console, 'error').mockImplementation(() => {});
-  localStorage.setItem('token', 'a-token');
   localStorage.setItem('userId', 'user-1');
   location = window.location;
   at('/acme');
@@ -39,7 +41,7 @@ describe('reportQueryError', () => {
 
     reportQueryError(errorWith('UNAUTHENTICATED'), 'mutation');
 
-    expect(localStorage.getItem('token')).toBeNull();
+    expect(close).toHaveBeenCalledOnce();
     expect(localStorage.getItem('userId')).toBeNull();
     expect(window.location.href.startsWith('/login#')).toBe(true);
     expect(returnPathOf(window.location.href)).toBe('/acme/members?tab=roles');
@@ -82,7 +84,7 @@ describe('reportQueryError', () => {
   it('keeps the user signed in when a mutation cannot reach it, so that they can retry', () => {
     reportQueryError(errorWith('UNAVAILABLE'), 'mutation');
 
-    expect(localStorage.getItem('token')).toBe('a-token');
+    expect(close).not.toHaveBeenCalled();
     expect(toastError).toHaveBeenCalledOnce();
   });
 
@@ -90,7 +92,7 @@ describe('reportQueryError', () => {
     reportQueryError(errorWith('NOT_FOUND'), 'query');
 
     expect(toastError).toHaveBeenCalledOnce();
-    expect(localStorage.getItem('token')).toBe('a-token');
+    expect(close).not.toHaveBeenCalled();
   });
 
   it('gives an error that does not come from Scylla the generic message, not its own text', () => {

@@ -4,3 +4,8 @@ export { closeSession, hasSession, openSession } from './infrastructure/session.
 export { signOut } from './presentation/sign-out.ts';
 export { loginPath, loginPathBackTo } from './presentation/mappers/return-path.mapper.ts';
 export type { PasswordResetDelivery } from './domain/structs/password-reset-delivery.struct.ts';
+export type {
+  SignInMethods,
+  SignInProvider,
+  SignUpMode,
+} from './domain/structs/sign-in-methods.struct.ts';

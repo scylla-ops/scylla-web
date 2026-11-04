@@ -1,37 +1,48 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/svelte';
 import { installTestNavigator } from '@test/navigator.ts';
 import AuthGuardFixture from './AuthGuard.fixture.svelte';
+
+const hasSession = vi.hoisted(() => vi.fn<() => Promise<boolean>>());
+vi.mock('@base/features/login', async (original) => ({
+  ...(await original<typeof import('@base/features/login')>()),
+  hasSession,
+}));
 
 let navigator: ReturnType<typeof installTestNavigator>;
 
 beforeEach(() => {
-  localStorage.clear();
   navigator = installTestNavigator();
 });
 
 afterEach(() => navigator.restore());
 
 describe('AuthGuard', () => {
-  it('redirects to /login when there is no token', () => {
+  it('redirects to the sign-in page when the cookie gives no session', async () => {
+    hasSession.mockResolvedValue(false);
     render(AuthGuardFixture);
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/login', { replace: true });
+    await waitFor(() =>
+      expect(navigator.navigate).toHaveBeenCalledWith(expect.stringMatching(/^\/login/), {
+        replace: true,
+      }),
+    );
     expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
   });
 
-  it('renders the routes when a token is present', () => {
-    localStorage.setItem('token', 'a-real-token');
+  it('renders the routes when the session is valid', async () => {
+    hasSession.mockResolvedValue(true);
     render(AuthGuardFixture);
 
-    expect(screen.getByTestId('outlet')).toBeInTheDocument();
+    expect(await screen.findByTestId('outlet')).toBeInTheDocument();
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
-  it('still redirects for an empty-string token', () => {
-    localStorage.setItem('token', '');
+  it('shows nothing while the session is checked', () => {
+    hasSession.mockReturnValue(new Promise(() => undefined));
     render(AuthGuardFixture);
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/login', { replace: true });
+    expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
+    expect(navigator.navigate).not.toHaveBeenCalled();
   });
 });

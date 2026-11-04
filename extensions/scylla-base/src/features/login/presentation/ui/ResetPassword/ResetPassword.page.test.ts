@@ -94,7 +94,7 @@ describe('ResetPasswordPage', () => {
 
     await choose('short');
 
-    expect(screen.getByText('The password must have 8 to 255 characters.')).toBeInTheDocument();
+    expect(screen.getByText('The password must have 8 to 128 characters.')).toBeInTheDocument();
     expect(resetPassword).not.toHaveBeenCalled();
   });
 

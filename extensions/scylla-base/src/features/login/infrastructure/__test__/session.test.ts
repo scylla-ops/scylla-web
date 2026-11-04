@@ -1,45 +1,54 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { closeSession, hasSession, openSession } from '../session.ts';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { closeSession, hasSession, openSession, resolveUserWith } from '../session.ts';
+
+const browserSession = vi.hoisted(() => ({
+  open: vi.fn(),
+  restore: vi.fn(async () => true),
+  close: vi.fn(async () => undefined),
+}));
+vi.mock('@platform/grpc', () => ({ browserSession }));
 
 beforeEach(() => {
   localStorage.clear();
+  vi.clearAllMocks();
+  browserSession.restore.mockResolvedValue(true);
 });
 
 describe('openSession', () => {
-  it('writes the keys the transport and the auth guard read', () => {
-    openSession('a-token', 'user-1');
+  it('gives the token to the transport and keeps the user id', () => {
+    openSession({ value: 'a-token' }, 'user-1');
 
-    expect(localStorage.getItem('token')).toBe('a-token');
+    expect(browserSession.open).toHaveBeenCalledWith({ value: 'a-token' });
     expect(localStorage.getItem('userId')).toBe('user-1');
   });
 });
 
-describe('closeSession', () => {
-  it('removes the token and the user id, and nothing else', () => {
-    openSession('a-token', 'user-1');
-    localStorage.setItem('scylla-context', '{}');
+describe('hasSession', () => {
+  it('is false when the cookie gives no token, and forgets the user id', async () => {
+    localStorage.setItem('userId', 'user-1');
+    browserSession.restore.mockResolvedValue(false);
 
-    closeSession();
-
-    expect(localStorage.getItem('token')).toBeNull();
+    await expect(hasSession()).resolves.toBe(false);
     expect(localStorage.getItem('userId')).toBeNull();
-    expect(localStorage.getItem('scylla-context')).toBe('{}');
+  });
+
+  it('asks the server who the user is after the redirect of a provider', async () => {
+    resolveUserWith(async () => 'user-7');
+
+    await expect(hasSession()).resolves.toBe(true);
+    expect(localStorage.getItem('userId')).toBe('user-7');
   });
 });
 
-describe('hasSession', () => {
-  it('is false with no token, and with an empty one', () => {
-    expect(hasSession()).toBe(false);
+describe('closeSession', () => {
+  it('closes the session on the server and removes the user id, and nothing else', async () => {
+    openSession({ value: 'a-token' }, 'user-1');
+    localStorage.setItem('scylla-context', '{}');
 
-    localStorage.setItem('token', '');
-    expect(hasSession()).toBe(false);
-  });
+    await closeSession();
 
-  it('is true once a session is open, and false again once it is closed', () => {
-    openSession('a-token', 'user-1');
-    expect(hasSession()).toBe(true);
-
-    closeSession();
-    expect(hasSession()).toBe(false);
+    expect(browserSession.close).toHaveBeenCalledOnce();
+    expect(localStorage.getItem('userId')).toBeNull();
+    expect(localStorage.getItem('scylla-context')).toBe('{}');
   });
 });

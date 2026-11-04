@@ -18,7 +18,7 @@ describe('the account API of @scylla/base-sdk', () => {
   it('gives the account checks of scylla-base, with the same messages', () => {
     expect(checkEmail('ada@example.com')).toBeUndefined();
     expect(checkEmail('ada')?.message).toBe('Enter a valid email address.');
-    expect(checkNewPassword('short')?.message).toBe('The password must have 8 to 255 characters.');
+    expect(checkNewPassword('short')?.message).toBe('The password must have 8 to 128 characters.');
     expect(checkPasswordConfirmation('a', 'b')?.message).toBe(
       'The two passwords are not the same.',
     );

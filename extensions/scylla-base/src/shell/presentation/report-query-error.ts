@@ -8,13 +8,13 @@ import { ScyllaError } from '@shared/utils/scylla-error.ts';
  * "unreachable" and "no longer authenticated" look the same from here.
  */
 const signOut = (): void => {
-  closeSession();
+  void closeSession();
   window.location.href = '/login';
 };
 
 /** The session is gone: after the sign-in, the user comes back to this page. */
 const signOutAndReturn = (): void => {
-  closeSession();
+  void closeSession();
   window.location.href = loginPathBackTo(window.location);
 };
 

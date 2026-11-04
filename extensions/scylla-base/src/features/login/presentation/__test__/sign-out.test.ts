@@ -2,11 +2,13 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { contextStore } from '@platform/context';
 import { signOut } from '../sign-out.ts';
 
-const location = { href: '/acme/dashboard' };
+const close = vi.hoisted(() => vi.fn(async () => undefined));
+vi.mock('@platform/grpc', () => ({ browserSession: { close } }));
+
+const location = { href: '/acme/projects' };
 
 beforeEach(() => {
   vi.stubGlobal('location', location);
-  localStorage.setItem('token', 'a-token');
   localStorage.setItem('userId', 'user-1');
   contextStore.setState({ organization: { id: 'org-1', name: 'Acme' } });
 });
@@ -14,10 +16,10 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('signOut', () => {
-  it('removes the session, clears the context and loads the login page', () => {
-    signOut();
+  it('closes the session on the server, clears the context and loads the login page', async () => {
+    await signOut();
 
-    expect(localStorage.getItem('token')).toBeNull();
+    expect(close).toHaveBeenCalledOnce();
     expect(localStorage.getItem('userId')).toBeNull();
     expect(contextStore.getState().organization).toEqual({ id: null, name: null });
     expect(location.href).toBe('/login');
