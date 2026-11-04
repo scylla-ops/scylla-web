@@ -33,7 +33,7 @@ const token = {
   hint: 'scya_7Hq2…',
   createdBy: 'u-1',
   createdAt: at(-1),
-  expiresAt: at(9.5),
+  expiresAt: at(9.2),
   lastUsedAt: at(-0.1),
   revokedAt: '',
   limits,

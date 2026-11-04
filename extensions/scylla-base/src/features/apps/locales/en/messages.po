@@ -21,6 +21,10 @@ msgstr "{completed} of {total} completed"
 msgid "{count, plural, =0 {Expires today} one {Expires in # day} other {Expires in # days}}"
 msgstr "{count, plural, =0 {Expires today} one {Expires in # day} other {Expires in # days}}"
 
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:44
+msgid "{count, plural, one {# job at once} other {# jobs at once}}"
+msgstr "{count, plural, one {# job at once} other {# jobs at once}}"
+
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:17
 msgid "{count, plural, one {# job} other {# jobs}}"
 msgstr "{count, plural, one {# job} other {# jobs}}"
@@ -29,13 +33,13 @@ msgstr "{count, plural, one {# job} other {# jobs}}"
 msgid "{count, plural, one {# project} other {# projects}}"
 msgstr "{count, plural, one {# project} other {# projects}}"
 
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:42
+msgid "{count, plural, one {It takes jobs from # project.} other {It takes jobs from # projects.}}"
+msgstr "{count, plural, one {It takes jobs from # project.} other {It takes jobs from # projects.}}"
+
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:36
 msgid "{count, plural, one {Running # job} other {Running # jobs}}"
 msgstr "{count, plural, one {Running # job} other {Running # jobs}}"
-
-#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:42
-msgid "{count} jobs at once"
-msgstr "{count} jobs at once"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:49
 msgid "{count} jobs in 30 days"
@@ -352,7 +356,7 @@ msgstr "Connection"
 msgid "Container runtime"
 msgstr "Container runtime"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:44
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:46
 #: extensions/scylla-base/src/features/apps/presentation/messages/credentials.messages.ts:58
 msgid "Copied"
 msgstr "Copied"
@@ -574,10 +578,6 @@ msgstr "It joins with {method} and an Ed25519 public key."
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:79
 msgid "It never said hello."
 msgstr "It never said hello."
-
-#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:41
-msgid "It takes jobs from {count} projects."
-msgstr "It takes jobs from {count} projects."
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:40
 msgid "It takes jobs from all projects."
@@ -872,7 +872,7 @@ msgstr "Only runs of {repository} get a short token. There is no secret to store
 msgid "Only runs of {repository} on {ref} get a short token. There is no secret to store."
 msgstr "Only runs of {repository} on {ref} get a short token. There is no secret to store."
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:43
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:45
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:51
 msgid "Open agent"
 msgstr "Open agent"

@@ -1,4 +1,4 @@
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
 
 export const addAgentMessages = {
   title: msg`Add an agent`,
@@ -38,8 +38,10 @@ export const addAgentMessages = {
   close: msg`Close`,
   connectedFrom: (host: string) => msg`Connected from ${host}`,
   allProjectsDone: msg`It takes jobs from all projects.`,
-  someProjectsDone: (count: number) => msg`It takes jobs from ${count} projects.`,
-  jobsAtOnce: (count: number) => msg`${count} jobs at once`,
+  someProjectsDone: (count: number) =>
+    msg`${plural(count, { one: 'It takes jobs from # project.', other: 'It takes jobs from # projects.' })}`,
+  jobsAtOnce: (count: number) =>
+    msg`${plural(count, { one: '# job at once', other: '# jobs at once' })}`,
   openAgent: msg`Open agent`,
   copied: msg`Copied`,
 };
