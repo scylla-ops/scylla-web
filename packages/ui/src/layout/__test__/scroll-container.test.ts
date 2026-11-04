@@ -16,11 +16,11 @@ const POSITIONED_ELSEWHERE: Record<string, string> = {
 
 const sources = ['apps', 'packages', 'sdks', 'extensions'].flatMap(dir =>
   readdirSync(join(WORKSPACE, dir), { recursive: true, encoding: 'utf8' })
+    .map(path => `${dir}/${path.replaceAll('\\', '/')}`)
     .filter(
       path =>
         /\.(svelte|ts)$/.test(path) && !/node_modules|dist\/|generated\/|\.test\.ts$/.test(path),
-    )
-    .map(path => join(dir, path)),
+    ),
 );
 
 const scrollers = sources.flatMap(path =>
