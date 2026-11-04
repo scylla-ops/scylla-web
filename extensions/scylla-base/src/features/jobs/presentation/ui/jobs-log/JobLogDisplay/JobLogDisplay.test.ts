@@ -69,6 +69,15 @@ describe('JobLogDisplay', () => {
     expect(editor()?.textContent).toContain('second line');
   });
 
+  it('says that no log was written when the stream ends with no line', async () => {
+    install(() => streamOf([]));
+
+    render(JobLogDisplay, { jobId: 'job-1' });
+
+    expect(await screen.findByText('No log was written.')).toBeInTheDocument();
+    expect(editor()).toBeNull();
+  });
+
   it('scopes the stream to the node when the caller names one', async () => {
     const tailLogs = vi.fn(() => streamOf([]));
     install(tailLogs);

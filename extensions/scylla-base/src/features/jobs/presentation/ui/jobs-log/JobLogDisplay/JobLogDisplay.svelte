@@ -43,6 +43,8 @@
   </div>
 {:else if tail.isError}
   <div>{t(jobsMessages.logsError)}</div>
+{:else if tail.isEnded && !tail.text}
+  <p class="px-3 py-2.5 text-sm text-muted-foreground">{t(jobsMessages.noLogs)}</p>
 {:else}
   <div class="min-w-0 w-full overflow-hidden">
     <div {@attach renderCodeMirror(() => ({ extensions, onView: stream.attach }))}></div>

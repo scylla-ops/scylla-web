@@ -14,6 +14,7 @@
   import { calculateExecutionDuration, formatDuration } from '@shared/utils/date-utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
+  import { isActiveStatus } from '@shared/domain/structs/job-status.struct.ts';
   import { attemptOf } from '@base/features/jobs/presentation/presenters/node-attempt.presenter.ts';
   import { nodeIdOf } from '@base/features/jobs/presentation/presenters/job-timeline.presenter.ts';
   import JobLogDisplay from '../jobs-log/JobLogDisplay/JobLogDisplay.svelte';
@@ -82,10 +83,12 @@
         <TerminalIcon class="size-4 text-primary" />
       </div>
       <h2 class="text-lg font-semibold text-foreground">{t(jobsMessages.logs)}</h2>
-      <span class="flex items-center gap-1.5 text-sm text-muted-foreground">
-        <RadioIcon class="size-4 animate-pulse text-green-500" />
-        {t(jobsMessages.streamingLive)}
-      </span>
+      {#if isActiveStatus(job.status)}
+        <span class="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <RadioIcon class="size-4 animate-pulse text-green-500" />
+          {t(jobsMessages.streamingLive)}
+        </span>
+      {/if}
     </div>
 
     <div class="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">

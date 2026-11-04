@@ -10,6 +10,7 @@ export interface TailedLogs {
   readonly text: string;
   readonly isLoading: boolean;
   readonly isError: boolean;
+  readonly isEnded: boolean;
   readonly error: ScyllaError | null;
 }
 
@@ -26,6 +27,7 @@ export const createTailJobLogs = ({ jobId, nodeId }: TailJobLogsOptions): Tailed
   let text = $state('');
   let isLoading = $state(true);
   let isError = $state(false);
+  let isEnded = $state(false);
   let error = $state<ScyllaError | null>(null);
 
   $effect(() => {
@@ -40,6 +42,7 @@ export const createTailJobLogs = ({ jobId, nodeId }: TailJobLogsOptions): Tailed
     text = '';
     isLoading = true;
     isError = false;
+    isEnded = false;
     error = null;
 
     let stream: JobLogStream;
@@ -71,6 +74,7 @@ export const createTailJobLogs = ({ jobId, nodeId }: TailJobLogsOptions): Tailed
           lines.push(log.line);
           dirty = true;
         }
+        if (active) isEnded = true;
       } catch (failure) {
         // After the cleanup, the failure is the cancel itself.
         if (active) ScyllaError.from(failure).log();
@@ -96,6 +100,10 @@ export const createTailJobLogs = ({ jobId, nodeId }: TailJobLogsOptions): Tailed
     },
     get isError() {
       return isError;
+    },
+    /** The stream ended by itself: no more line comes. */
+    get isEnded() {
+      return isEnded;
     },
     get error() {
       return error;

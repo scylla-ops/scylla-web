@@ -64,4 +64,5 @@ export const jobsMessages = {
   expandLogsFor: (label: string) => msg`Expand the logs for ${label}`,
 
   logsError: msg`Error loading logs...`,
+  noLogs: msg`No log was written.`,
 };

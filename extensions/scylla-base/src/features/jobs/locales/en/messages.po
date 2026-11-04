@@ -132,6 +132,10 @@ msgstr "Logs"
 msgid "No jobs found"
 msgstr "No jobs found"
 
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:67
+msgid "No log was written."
+msgstr "No log was written."
+
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:36
 msgid "No nodes"
 msgstr "No nodes"

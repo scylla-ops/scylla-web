@@ -132,6 +132,10 @@ msgstr "Journaux"
 msgid "No jobs found"
 msgstr "Aucun job trouvé"
 
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:67
+msgid "No log was written."
+msgstr "Aucun log n'a été écrit."
+
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:36
 msgid "No nodes"
 msgstr "Aucun nœud"

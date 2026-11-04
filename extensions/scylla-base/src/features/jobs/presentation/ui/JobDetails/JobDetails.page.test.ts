@@ -114,6 +114,16 @@ describe('JobDetailsPage', () => {
     expect(screen.getByText('job-1')).toBeInTheDocument();
   });
 
+  it('says that the logs are live only while the job runs', async () => {
+    await renderPage(job({ status: 'running' }));
+    expect(screen.getByText('Streaming live output')).toBeInTheDocument();
+  });
+
+  it('does not call the logs of a finished job live', async () => {
+    await renderPage(job());
+    expect(screen.queryByText('Streaming live output')).not.toBeInTheDocument();
+  });
+
   it('says why the job failed', async () => {
     await renderPage(job({ status: 'failed', error: 'the node test failed: exit code 2' }));
 
