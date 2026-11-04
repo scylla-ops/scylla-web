@@ -130,7 +130,7 @@
     if (!next) close();
   }}
 >
-  <DialogContent class="max-h-[90vh] gap-5 overflow-y-auto sm:max-w-xl">
+  <DialogContent class="gap-5 sm:max-w-xl">
     <DialogHeader>
       <DialogTitle>{t(messages.addCredential)}</DialogTitle>
     </DialogHeader>

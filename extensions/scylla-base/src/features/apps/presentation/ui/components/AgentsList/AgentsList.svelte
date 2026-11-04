@@ -185,7 +185,7 @@
       </div>
     </div>
 
-    <div class="overflow-x-auto rounded-xl border">
+    <div class="relative overflow-x-auto rounded-xl border">
       <table class="w-full text-sm">
         <TableHeader>
           <TableRow class="hover:bg-transparent">

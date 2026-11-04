@@ -82,7 +82,7 @@
     </Button>
   </div>
   {#if showProjects}
-    <ul class="flex max-h-48 flex-col gap-2 overflow-y-auto" transition:slide={{ duration: 200 }}>
+    <ul class="relative flex max-h-48 flex-col gap-2 overflow-y-auto" transition:slide={{ duration: 200 }}>
       {#each projects.data?.items ?? [] as project (project.id)}
         <li class="flex items-center justify-between gap-3 text-sm">
           <span class="truncate">{project.name}</span>

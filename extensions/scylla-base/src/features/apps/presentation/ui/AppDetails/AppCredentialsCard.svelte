@@ -98,7 +98,7 @@
     {/if}
   </CardHeader>
   <CardContent class="flex flex-col gap-3">
-    <div class="overflow-x-auto rounded-lg border">
+    <div class="relative overflow-x-auto rounded-lg border">
       <table class="w-full text-sm">
         <TableHeader>
           <TableRow class="hover:bg-transparent">

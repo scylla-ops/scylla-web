@@ -236,7 +236,7 @@
           </Label>
         </RadioGroup>
         {#if someProjects}
-          <div class="max-h-40 overflow-y-auto rounded-md border px-3 py-1">
+          <div class="relative max-h-40 overflow-y-auto rounded-md border px-3 py-1">
             {#each projects as project (project.id)}
               <Label class="flex items-center gap-2 py-1.5 font-normal">
                 <Checkbox
