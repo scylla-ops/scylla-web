@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ListSkeleton } from '@scylla/ui';
   import { ErrorState, PaginationSlot } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
@@ -25,7 +26,7 @@
   <!-- The frame renders first: the table area's height decides what to fetch. -->
   <div data-tour="pipelines" data-project-id={projectId} class="flex h-full min-h-0 w-full flex-col gap-4">
     <PipelineDashboardHeader
-      numberOfPipelines={dashboard.totalCount}
+      numberOfPipelines={dashboard.pipelines ? dashboard.totalCount : undefined}
       pipelineIds={dashboard.pipelineIds}
     />
 
@@ -40,7 +41,10 @@
             canListJobs={dashboard.canListJobs}
             {runPipeline}
           />
-        {:else if dashboard.pipelines}
+        {:else if !dashboard.pipelines}
+          <!-- The rows of the pipelines table. -->
+          <ListSkeleton rows={4} rowClass="h-20 w-full" />
+        {:else}
           <div class="flex h-full min-h-100 items-center justify-center">
             <div class="space-y-2 text-center">
               <p class="text-muted-foreground">{t(pipelineMessages.noPipelines)}</p>

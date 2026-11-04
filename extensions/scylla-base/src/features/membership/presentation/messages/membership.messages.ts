@@ -16,7 +16,6 @@ export const membershipMessages = {
   add: msg`Add`,
   you: msg`You`,
   noRole: msg`No role`,
-  loading: msg`Loading…`,
   noRoleGrantable: msg`No role can be granted here.`,
   held: msg`Held`,
   addRolePlaceholder: msg`+ role`,

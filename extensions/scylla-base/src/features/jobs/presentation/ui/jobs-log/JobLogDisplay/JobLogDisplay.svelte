@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Skeleton } from '@scylla/ui/primitives';
   import { EditorState } from '@codemirror/state';
   import { EditorView, lineNumbers } from '@codemirror/view';
   import { renderCodeMirror } from '@scylla/ui';
@@ -34,7 +35,12 @@
 
 <!-- Grows with the log up to `maxHeight`, then scrolls: only the caller knows the room left. -->
 {#if tail.isLoading}
-  <div>{t(jobsMessages.loading)}</div>
+  <!-- A few lines of the log. -->
+  <div class="flex flex-col gap-1.5 p-3" role="status" aria-busy="true">
+    {#each ['w-3/4', 'w-1/2', 'w-2/3', 'w-1/3'] as width (width)}
+      <Skeleton class="h-4 {width}" />
+    {/each}
+  </div>
 {:else if tail.isError}
   <div>{t(jobsMessages.logsError)}</div>
 {:else}

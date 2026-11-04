@@ -45,7 +45,7 @@ msgstr "All"
 msgid "An app gets the roles of the workspace that it needs. An agent needs Runner to run jobs."
 msgstr "An app gets the roles of the workspace that it needs. An agent needs Runner to run jobs."
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:39
+#: extensions/scylla-base/src/features/apps/apps.module.ts:41
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:4
 msgid "App"
 msgstr "App"
@@ -54,12 +54,12 @@ msgstr "App"
 msgid "App deleted"
 msgstr "App deleted"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:27
+#: extensions/scylla-base/src/features/apps/apps.module.ts:29
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:5
 msgid "Apps"
 msgstr "Apps"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:31
+#: extensions/scylla-base/src/features/apps/apps.module.ts:33
 msgid "Apps and agents"
 msgstr "Apps and agents"
 
@@ -99,7 +99,7 @@ msgstr "Delete {name}?"
 msgid "Delete the app"
 msgstr "Delete the app"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:39
+#: extensions/scylla-base/src/features/apps/apps.module.ts:41
 msgid "Detail"
 msgstr "Detail"
 

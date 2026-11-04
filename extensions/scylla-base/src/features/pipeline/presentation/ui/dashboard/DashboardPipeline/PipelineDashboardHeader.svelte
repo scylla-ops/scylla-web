@@ -12,7 +12,8 @@
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
   interface Props {
-    numberOfPipelines: number;
+    /** `undefined` while the list loads: no `0` shows then. */
+    numberOfPipelines: number | undefined;
     pipelineIds: string[];
   }
 

@@ -2,8 +2,8 @@
   import { can, Permission } from '@platform/authz';
   import { contextStore, scyllaNavigate } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
-  import { ErrorState, FeatureHeader } from '@scylla/ui';
-  import { Badge, Button, Card, Skeleton } from '@scylla/ui/primitives';
+  import { ErrorState, FeatureHeader, ListSkeleton } from '@scylla/ui';
+  import { Badge, Button, Card } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
@@ -41,7 +41,7 @@
 
 <div class="flex h-full min-h-0 w-full flex-col gap-4" data-tour="apps">
   <FeatureHeader
-    count={apps.data?.length ?? 0}
+    count={apps.data?.length}
     label={t(appsMessages.app)}
     pluralLabel={t(appsMessages.apps)}
     underLabel={blurb}
@@ -65,12 +65,9 @@
 
   {#if apps.isError}
     <ErrorState message={apps.error?.message} />
-  {:else if apps.isLoading}
-    <div class="flex flex-col gap-2">
-      {#each [0, 1, 2] as index (index)}
-        <Skeleton class="h-14 w-full" />
-      {/each}
-    </div>
+  {:else if apps.isPending}
+    <!-- Pending, not loading: the query waits for the permissions before its first call. -->
+    <ListSkeleton rows={3} rowClass="h-14 w-full rounded-xl" />
   {:else if (apps.data ?? []).length === 0}
     <p class="text-sm text-muted-foreground">{t(appsMessages.empty)}</p>
   {:else}

@@ -17,11 +17,11 @@ msgstr ""
 msgid "A new account page"
 msgstr "Une nouvelle page de compte"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:14
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:13
 msgid "Account"
 msgstr "Compte"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:17
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:16
 msgid "Back"
 msgstr "Retour"
 
@@ -41,19 +41,15 @@ msgstr "Créez et modifiez un rôle ou un déclencheur sur une page entière, av
 msgid "Drag and drop on the blueprint"
 msgstr "Glisser-déposer sur le blueprint"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:21
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:20
 msgid "Got it"
 msgstr "C'est noté"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:20
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:19
 msgid "Here is what landed in this version."
 msgstr "Voici ce qui arrive dans cette version."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:13
-msgid "Loading..."
-msgstr "Chargement…"
-
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:18
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:17
 msgid "New"
 msgstr "Nouveau"
 
@@ -93,11 +89,11 @@ msgstr "Voyez où un nœud se pose pendant que vous le glissez depuis la palette
 msgid "Select Workspace"
 msgstr "Sélectionner un espace de travail"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:15
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:14
 msgid "Sign out"
 msgstr "Se déconnecter"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:16
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:15
 msgid "Signed in as {name}"
 msgstr "Connecté en tant que {name}"
 
@@ -122,7 +118,7 @@ msgid "Welcome to Scylla!"
 msgstr "Bienvenue sur Scylla !"
 
 #. placeholder {0}: String(version)
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:19
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:18
 msgid "What's new in Scylla {0}"
 msgstr "Nouveautés de Scylla {0}"
 

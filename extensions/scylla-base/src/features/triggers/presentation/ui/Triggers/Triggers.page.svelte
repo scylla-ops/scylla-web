@@ -1,7 +1,7 @@
 <script lang="ts">
   import { contextStore } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
-  import { ErrorState } from '@scylla/ui';
+  import { ErrorState, ListSkeleton } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import { t } from '@scylla/ui/i18n';
@@ -35,7 +35,8 @@
 {#if !pipelineId || !projectId}
   <ErrorState message={t(triggersMessages.pipelineIdMissing)} />
 {:else if triggersQuery.isLoading}
-  <!-- Nothing: a skeleton of the list would be the page itself. -->
+  <!-- The header and the rows of the triggers table. -->
+  <ListSkeleton header rows={4} rowClass="h-12 w-full" />
 {:else if triggersQuery.isError}
   <ErrorState message={errorMessage} />
 {:else}

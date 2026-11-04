@@ -12,9 +12,7 @@ export const editSecretMessages = {
   noPipeline: msg`No pipeline uses this secret`,
   usageFailed: msg`Could not load the pipelines that use this secret.`,
   usageDenied: msg`You cannot see which pipelines use this secret.`,
-  andMore: (count: number) =>
-    msg`${plural(count, { one: 'and # more', other: 'and # more' })}`,
-  loading: msg`Loading...`,
+  andMore: (count: number) => msg`${plural(count, { one: 'and # more', other: 'and # more' })}`,
   replaceValue: msg`Replace value`,
   cancel: msg`Cancel`,
 };

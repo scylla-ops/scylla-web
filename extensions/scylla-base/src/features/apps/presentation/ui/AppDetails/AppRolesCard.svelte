@@ -3,6 +3,7 @@
   import {
     Badge,
     Card,
+    Skeleton,
     CardContent,
     CardDescription,
     CardHeader,
@@ -56,7 +57,10 @@
       <CardDescription>{t(appsMessages.rolesDescription)}</CardDescription>
     </CardHeader>
     <CardContent class="flex flex-wrap items-center gap-2">
-      {#if held.length === 0}
+      {#if access.isPending}
+        <Skeleton class="h-6 w-20 rounded-full" />
+        <Skeleton class="h-6 w-24 rounded-full" />
+      {:else if held.length === 0}
         <p class="text-sm text-muted-foreground">{t(appsMessages.noRoles)}</p>
       {/if}
       {#each held as role (role)}

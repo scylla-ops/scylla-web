@@ -1,7 +1,7 @@
 <script lang="ts">
   import { loadNoAgentsBanner } from '@base/features/apps';
   import { createQuery } from '@scylla/core-sdk';
-  import { ErrorState, PaginationSlot } from '@scylla/ui';
+  import { ErrorState, ListSkeleton, PaginationSlot } from '@scylla/ui';
   import { createPagination } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import { ScyllaError } from '@shared/utils/scylla-error.ts';
@@ -48,7 +48,7 @@
   <!-- The frame renders first: the table area's height decides what to fetch. -->
   <div class="flex flex-col gap-4 w-full h-full min-h-0">
     <JobsHeader
-      numberOfJobs={pagination.paginationInfo?.totalCount ?? jobs?.length ?? 0}
+      numberOfJobs={jobs ? (pagination.paginationInfo?.totalCount ?? jobs.length) : undefined}
       jobIds={jobs?.map(job => job.id) ?? []}
       {pipelineId}
       onRefresh={() => void jobsQuery.refetch()}
@@ -64,7 +64,10 @@
       <div class="relative">
         {#if jobs && jobs.length > 0}
           <JobsTable {jobs} {pipelineId} />
-        {:else if jobs}
+        {:else if !jobs}
+          <!-- The rows of the jobs table. -->
+          <ListSkeleton rows={5} rowClass="h-14 w-full" />
+        {:else}
           <div class="flex items-center justify-center h-full min-h-[400px]">
             <div class="text-center space-y-2">
               <p class="text-muted-foreground">{t(jobsMessages.noJobsFound)}</p>

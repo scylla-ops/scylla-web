@@ -46,10 +46,11 @@ afterEach(() => {
 });
 
 describe('NavUser', () => {
-  it('shows a loading label until the account arrives', () => {
+  it('shows the shape of the user until the account arrives', () => {
     setUp(() => new Promise(() => {}));
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(document.querySelectorAll('[data-slot="skeleton"]').length).toBeGreaterThan(0);
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('shows who is signed in, from the account of the session', async () => {

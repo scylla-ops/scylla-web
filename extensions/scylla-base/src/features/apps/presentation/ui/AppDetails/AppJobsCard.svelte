@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createQuery } from '@scylla/core-sdk';
+  import { ListSkeleton } from '@scylla/ui';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { activeWorkspaceSlug } from '@platform/context';
@@ -33,7 +34,9 @@
       {/if}
     </CardHeader>
     <CardContent>
-      {#if (jobs.data ?? []).length === 0}
+      {#if jobs.isPending}
+        <ListSkeleton rows={4} rowClass="h-5 w-full" />
+      {:else if (jobs.data ?? []).length === 0}
         <p class="text-sm text-muted-foreground">{t(appsMessages.noJobs)}</p>
       {:else}
         <ul class="flex flex-col divide-y text-sm">

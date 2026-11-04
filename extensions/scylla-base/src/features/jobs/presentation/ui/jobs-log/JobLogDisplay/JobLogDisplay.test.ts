@@ -44,7 +44,7 @@ describe('JobLogDisplay', () => {
 
     render(JobLogDisplay, { jobId: '' });
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
     expect(tailLogs).not.toHaveBeenCalled();
     expect(editor()).toBeNull();
   });

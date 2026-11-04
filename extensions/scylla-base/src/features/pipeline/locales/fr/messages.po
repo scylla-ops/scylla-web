@@ -27,7 +27,7 @@ msgstr "{id} n'attend plus {deps}."
 msgid "{id} now runs after {target}. The nodes that waited for it wait for what it waited for."
 msgstr "{id} s'exécute maintenant après {target}. Les nœuds qui l'attendaient attendent ce qu'il attendait."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:67
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:66
 msgid "{name}-copy"
 msgstr "{name}-copie"
 
@@ -79,7 +79,7 @@ msgstr "Ajouter une variable"
 msgid "After"
 msgstr "Après"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:50
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:49
 msgid "All changes saved"
 msgstr "Tous les changements enregistrés"
 
@@ -99,7 +99,7 @@ msgstr "Réorganiser"
 msgid "Bash script"
 msgstr "Script bash"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:46
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:45
 msgid "Blueprint"
 msgstr "Blueprint"
 
@@ -169,7 +169,7 @@ msgstr "Créez votre premier pipeline pour commencer"
 msgid "Creation:"
 msgstr "Création :"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:53
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:52
 msgid "Delete edge"
 msgstr "Supprimer la liaison"
 
@@ -185,7 +185,7 @@ msgstr "Dépendances"
 msgid "Detailed"
 msgstr "Détaillé"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:47
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:46
 msgid "Draft: not created yet"
 msgstr "Brouillon : non créé pour le moment"
 
@@ -217,7 +217,7 @@ msgstr "ex. : ./services/api ou /workspace"
 msgid "e.g., cargo build && cargo test"
 msgstr "ex. : cargo build && cargo test"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:57
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:56
 msgid "e.g., my-pipeline"
 msgstr "ex. : my-pipeline"
 
@@ -254,7 +254,7 @@ msgstr "Impossible de charger la pipeline"
 msgid "Finished {time}"
 msgstr "Terminé {time}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:60
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:59
 msgid "Fix the ID of these nodes before you save: {ids}"
 msgstr "Corrigez l'ID de ces nœuds avant d'enregistrer : {ids}"
 
@@ -270,7 +270,7 @@ msgstr "Historique"
 msgid "Insert a node here"
 msgstr "Insérer un nœud ici"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:44
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:43
 msgid "Invalid JSON"
 msgstr "JSON invalide"
 
@@ -293,10 +293,6 @@ msgstr "Dernière exécution"
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:38
 msgid "Literal"
 msgstr "Littéral"
-
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:43
-msgid "Loading..."
-msgstr "Chargement…"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:13
 msgid "Members"
@@ -385,7 +381,7 @@ msgstr "Pipeline"
 msgid "Pipeline actions"
 msgstr "Actions de la pipeline"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:56
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:55
 msgid "Pipeline name"
 msgstr "Nom de la pipeline"
 
@@ -429,7 +425,7 @@ msgstr "Exécution n°{runNumber}"
 msgid "Runs first"
 msgstr "S'exécute en premier"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:63
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:62
 msgid "Same ID as another node"
 msgstr "Même ID qu'un autre nœud"
 
@@ -437,7 +433,7 @@ msgstr "Même ID qu'un autre nœud"
 msgid "Save"
 msgstr "Enregistrer"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:48
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:47
 msgid "Saving…"
 msgstr "Enregistrement…"
 
@@ -449,7 +445,7 @@ msgstr "Script"
 msgid "Script view"
 msgstr "Affichage du script"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:45
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:44
 msgid "Scripting"
 msgstr "Écriture de scripts"
 
@@ -521,7 +517,7 @@ msgstr "Modèles"
 msgid "The line that runs"
 msgstr "La ligne lancée"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:58
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:57
 msgid "The name cannot contain spaces."
 msgstr "Le nom ne peut pas contenir d'espaces."
 
@@ -537,7 +533,7 @@ msgstr "L'ID du nœud ne peut pas contenir {characters}. Utilisez seulement des 
 msgid "The node ID has {length} characters. The maximum is 128."
 msgstr "L'ID du nœud fait {length} caractères. Le maximum est 128."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:59
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:58
 msgid "The pipeline needs a name."
 msgstr "Le pipeline doit avoir un nom."
 
@@ -565,11 +561,11 @@ msgstr "Délai d'expiration (secondes)"
 msgid "Triggers"
 msgstr "Déclencheurs"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:62
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:61
 msgid "Two nodes or more have the ID {ids}. Give each node its own ID before you save."
 msgstr "Plusieurs nœuds ont l'ID {ids}. Donnez à chaque nœud son propre ID avant d'enregistrer."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:64
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:63
 msgid "Two nodes or more have the same ID. Give each node its own ID in the Scripting tab: the blueprint shows them, but cannot change them."
 msgstr "Plusieurs nœuds ont le même ID. Donnez à chaque nœud son propre ID dans l'onglet Scripting : le blueprint les affiche, mais ne peut pas les modifier."
 
@@ -581,11 +577,11 @@ msgstr "Impossible de charger les pipelines"
 msgid "Undo"
 msgstr "Annuler"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:54
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:53
 msgid "Unnamed"
 msgstr "Sans nom"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:49
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:48
 msgid "Unsaved changes"
 msgstr "Modifications non enregistrées"
 
@@ -626,7 +622,7 @@ msgstr "Vous n'avez pas la permission de créer des pipelines."
 msgid "You don't have permission to delete pipelines."
 msgstr "Vous n'avez pas la permission de supprimer des pipelines."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:51
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:50
 msgid "You don't have permission to edit this pipeline."
 msgstr "Vous n'avez pas la permission de modifier cette pipeline."
 

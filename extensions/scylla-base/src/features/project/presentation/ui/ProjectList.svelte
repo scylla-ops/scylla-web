@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createQuery } from '@scylla/core-sdk';
-  import { ErrorState, Pagination } from '@scylla/ui';
+  import { ErrorState, Pagination, ListSkeleton } from '@scylla/ui';
   import { createPagination } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import { projectQueries } from '../project.queries.ts';
@@ -25,7 +25,13 @@
 </script>
 
 {#if projectsQuery.isLoading}
-  <!-- Nothing while loading: the grid would only flash. -->
+  <!-- The header and the grid of the project cards. -->
+  <ListSkeleton
+    header
+    rows={4}
+    class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
+    rowClass="h-36 w-full rounded-xl"
+  />
 {:else if projectsQuery.isError || !projects}
   <ErrorState message={t(projectMessages.loadError)} />
 {:else}

@@ -159,7 +159,7 @@
 {#if projectId}
   <div class="flex h-full min-h-0 w-full flex-col gap-4">
     <FeatureHeader
-      count={members.length}
+      count={(workspaceAccessQuery.isLoading || membership.isLoading) ? undefined : members.length}
       label={t(membershipMessages.member)}
       pluralLabel={t(membershipMessages.members)}
       underLabel={blurb}

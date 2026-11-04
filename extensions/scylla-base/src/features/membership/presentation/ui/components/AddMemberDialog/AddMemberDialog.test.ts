@@ -140,6 +140,6 @@ describe('AddMemberDialog', () => {
   it('says when the role list is still loading', () => {
     render(AddMemberDialog, props({ roles: [], rolesLoading: true }));
 
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(document.querySelector('[data-slot="list-skeleton"]')).not.toBeNull();
   });
 });

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Loader2Icon from '@lucide/svelte/icons/loader-2';
+  import { Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { UserSummary } from '@base/features/user';
   import { userName, type MissingUser } from '@shared/presentation/ui';
@@ -74,8 +74,11 @@
 </script>
 
 {#if isLoading}
-  <div class="{PANEL} border-border">
-    <Loader2Icon role="status" class="size-5 animate-spin text-muted-foreground" />
+  <!-- The member cards, in the same grid. -->
+  <div role="status" aria-busy="true" class="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+    {#each [0, 1, 2] as index (index)}
+      <Skeleton class="h-44 w-full rounded-xl" />
+    {/each}
   </div>
 {:else if members.length === 0}
   <div class="{PANEL} border-border">

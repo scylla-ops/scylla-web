@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ListSkeleton } from '@scylla/ui';
   import { Checkbox, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import {
@@ -41,9 +42,7 @@
 <div class="flex min-w-0 flex-col gap-1.5">
   <Label>{label}</Label>
   {#if isLoading}
-    <p class="py-4 text-center text-sm text-muted-foreground">
-      {t(membershipMessages.loading)}
-    </p>
+    <ListSkeleton rows={3} rowClass="h-9 w-full" />
   {:else if roles.length === 0}
     <p
       class="rounded-lg border border-dashed border-border py-4 text-center text-sm text-muted-foreground"

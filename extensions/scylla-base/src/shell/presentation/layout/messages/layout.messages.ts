@@ -10,7 +10,6 @@ export const layoutMessages = {
   getStarted: msg`To get started, please create your first workspace.`,
   noWorkspace: msg`You are not a member of a workspace yet. Ask an administrator to add you.`,
   create: msg`Create`,
-  loading: msg`Loading...`,
   account: msg`Account`,
   signOut: msg`Sign out`,
   signedInAs: (name: string) => msg`Signed in as ${name}`,

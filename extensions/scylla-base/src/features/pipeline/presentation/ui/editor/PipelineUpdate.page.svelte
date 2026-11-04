@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { ErrorState } from '@scylla/ui';
+  import { Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import {
     pipelineMutations,
@@ -25,7 +26,15 @@
 </script>
 
 {#if pipelineQuery.isLoading}
-  <p>{t(pipelineMessages.loading)}</p>
+  <!-- The bar of the editor, then its canvas. -->
+  <div class="flex h-full w-full flex-col gap-4" role="status" aria-busy="true">
+    <div class="flex items-center gap-3">
+      <Skeleton class="h-9 w-64" />
+      <Skeleton class="h-9 w-44" />
+      <Skeleton class="ml-auto h-9 w-24" />
+    </div>
+    <Skeleton class="min-h-[420px] w-full flex-1 rounded-xl" />
+  </div>
 {:else if pipelineQuery.isError}
   <ErrorState message={t(pipelineMessages.loadPipelineError)} />
 {:else}

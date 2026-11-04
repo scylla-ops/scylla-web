@@ -34,6 +34,9 @@
   --accent: #EFF2E7;
   --accent-foreground: #272921;
 
+  /* The placeholder of a loading part: a neutral grey, not a tint of the brand. */
+  --skeleton: #E6E6E2;
+
   --destructive: #BA4C43;
   --destructive-foreground: #F4F7EB;
   --destructive-subtle: #F3D8D5;
@@ -117,6 +120,8 @@
 
   --accent: #222B24;
   --accent-foreground: #F4F7EC;
+
+  --skeleton: #2A2A28;
 
   --destructive: #BA4C43;
   --destructive-foreground: #F4F7EB;
@@ -263,6 +268,38 @@
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+/* A skeleton waits before it shows: a load that ends sooner shows nothing, so a fast page does
+   not flash. Then it fades in and breathes softly. */
+.skeleton {
+  background-color: var(--skeleton);
+  opacity: 0;
+  animation:
+    skeleton-in 200ms ease-out 250ms forwards,
+    skeleton-breathe 1.8s ease-in-out 450ms infinite;
+}
+
+@keyframes skeleton-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes skeleton-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: skeleton-in 0s linear 250ms forwards;
+  }
 }
 
 @keyframes smooth-pulse {

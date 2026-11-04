@@ -62,6 +62,5 @@ export const jobsMessages = {
   collapseLogsFor: (label: string) => msg`Collapse the logs for ${label}`,
   expandLogsFor: (label: string) => msg`Expand the logs for ${label}`,
 
-  loading: msg`Loading...`,
   logsError: msg`Error loading logs...`,
 };

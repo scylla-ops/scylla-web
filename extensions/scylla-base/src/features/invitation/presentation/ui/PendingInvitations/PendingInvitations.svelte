@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { can, Permission } from '@platform/authz';
+  import { ListSkeleton } from '@scylla/ui';
   import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { roleLabel } from '@base/features/access';
@@ -34,7 +35,9 @@
       <CardDescription>{t(invitationMessages.pendingDescription)}</CardDescription>
     </CardHeader>
     <CardContent>
-      {#if (invitations.data ?? []).length === 0}
+      {#if invitations.isPending}
+        <ListSkeleton rows={2} rowClass="h-10 w-full" />
+      {:else if (invitations.data ?? []).length === 0}
         <p class="text-sm text-muted-foreground">{t(invitationMessages.noPending)}</p>
       {:else}
         <ul class="flex flex-col divide-y" aria-label={t(invitationMessages.pending)}>

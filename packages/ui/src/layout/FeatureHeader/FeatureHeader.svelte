@@ -65,9 +65,12 @@
     phone.current && selectedCount > 0 && (!!onClearSelection || !!onDeleteSelection),
   );
 
-  /** The plural rule of the locale: English says "0 roles", French "0 rôle". */
+  /**
+   * The plural rule of the locale: English says "0 roles", French "0 rôle". With no count yet
+   * (the list still loads), the title names the whole list, so it takes the plural.
+   */
   const displayLabel = $derived(
-    count !== undefined && new Intl.PluralRules(activeLocale()).select(count) !== 'one'
+    count === undefined || new Intl.PluralRules(activeLocale()).select(count) !== 'one'
       ? (pluralLabel ?? label)
       : label,
   );

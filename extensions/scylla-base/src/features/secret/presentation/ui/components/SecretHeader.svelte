@@ -8,7 +8,8 @@
   import { secretMessages } from '@base/features/secret/presentation/messages/secret.messages.ts';
 
   interface Props {
-    activeCount: number;
+    /** `undefined` while the list loads: no `0` shows then. */
+    activeCount: number | undefined;
     secretIds: string[];
     projectId: string;
     onAddSecret?: () => void;

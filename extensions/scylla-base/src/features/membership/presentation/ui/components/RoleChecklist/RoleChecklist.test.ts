@@ -28,7 +28,7 @@ describe('RoleChecklist', () => {
   it('says it is loading rather than claiming there is nothing to grant', () => {
     render(RoleChecklist, props({ roles: [], isLoading: true }));
 
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(document.querySelector('[data-slot="list-skeleton"]')).not.toBeNull();
     expect(screen.queryByText('No role can be granted here.')).not.toBeInTheDocument();
   });
 

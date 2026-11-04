@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createMutation, createQuery } from '@scylla/core-sdk';
+  import { ListSkeleton } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { toast } from '@scylla/ui/utils';
@@ -31,6 +32,10 @@
   );
 </script>
 
+{#if methods.isPending}
+  <!-- The password, then one identity. -->
+  <ListSkeleton rows={2} rowClass="h-10 w-full" />
+{:else}
 <ul class="flex flex-col divide-y text-sm" aria-label={t(userMessages.signInMethods)}>
   <li class="flex items-center gap-3 py-2">
     <span class="flex-1 font-medium">{t(userMessages.passwordMethod)}</span>
@@ -61,6 +66,7 @@
     </li>
   {/each}
 </ul>
+{/if}
 
 {#if linkable.length > 0}
   <div class="mt-3 flex flex-wrap gap-2">

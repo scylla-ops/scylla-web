@@ -82,7 +82,7 @@ msgstr "Duration"
 msgid "Duration: {duration}"
 msgstr "Duration: {duration}"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:66
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:65
 msgid "Error loading logs..."
 msgstr "Error loading logs..."
 
@@ -123,10 +123,6 @@ msgstr "Job not found"
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:10
 msgid "Jobs"
 msgstr "Jobs"
-
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:65
-msgid "Loading..."
-msgstr "Loading..."
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:57
 msgid "Logs"

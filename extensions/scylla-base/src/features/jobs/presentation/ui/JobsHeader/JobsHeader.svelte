@@ -11,7 +11,8 @@
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
-    numberOfJobs: number;
+    /** `undefined` while the list loads: no `0` shows then. */
+    numberOfJobs: number | undefined;
     jobIds: string[];
     pipelineId: string;
     onRefresh: () => void;

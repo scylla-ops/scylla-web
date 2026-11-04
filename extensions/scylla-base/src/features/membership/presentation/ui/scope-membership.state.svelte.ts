@@ -1,5 +1,5 @@
 import { i18n } from '@lingui/core';
-import { PermissionScope } from '@platform/authz';
+import { PermissionScope, authorizationReady } from '@platform/authz';
 import { createMutation, createQuery, getQueryClient } from '@scylla/core-sdk';
 import {
   ACCESS_QUERY_KEY,
@@ -113,8 +113,9 @@ export const createScopeMembership = ({
     get entries() {
       return accessQuery.data ?? [];
     },
+    /** No list yet: the first call runs, or waits for the permissions. Never on a refetch. */
     get isLoading() {
-      return accessQuery.isLoading;
+      return accessQuery.isPending && (canRead() || !authorizationReady());
     },
     get isPending() {
       return grant.isPending || revoke.isPending || removing;

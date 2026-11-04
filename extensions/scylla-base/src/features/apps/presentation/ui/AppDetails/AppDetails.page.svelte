@@ -41,7 +41,15 @@
 {#if details.isError}
   <ErrorState message={details.error?.message} />
 {:else if !app}
-  <Skeleton class="h-40 w-full" />
+  <!-- The header, then the cards of the page. -->
+  <div class="flex flex-col gap-4" aria-busy="true">
+    <Skeleton class="h-8 w-64" />
+    <div class="grid gap-4 lg:grid-cols-2">
+      {#each [0, 1, 2, 3] as index (index)}
+        <Skeleton class="h-44 w-full rounded-xl" />
+      {/each}
+    </div>
+  </div>
 {:else}
   {@const state = appStateOf(app)}
   <div class="flex flex-col gap-4" data-tour="agent-details">

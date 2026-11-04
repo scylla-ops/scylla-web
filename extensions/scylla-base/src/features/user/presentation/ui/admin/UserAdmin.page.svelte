@@ -3,7 +3,7 @@
   import { can, Permission } from '@platform/authz';
   import { scyllaNavigate } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { ErrorState, FeatureHeader } from '@scylla/ui';
+  import { ErrorState, FeatureHeader, ListSkeleton } from '@scylla/ui';
   import { createFeatureSelection } from '@scylla/ui/state';
   import { toast } from '@scylla/ui/utils';
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
@@ -43,7 +43,8 @@
 </script>
 
 {#if usersQuery.isLoading}
-  <!-- Nothing while loading: the table would only flash. -->
+  <!-- The header and the rows of the users table. -->
+  <ListSkeleton header rows={6} rowClass="h-12 w-full" />
 {:else if usersQuery.isError}
   <ErrorState message={t(userMessages.loadError)} />
 {:else}

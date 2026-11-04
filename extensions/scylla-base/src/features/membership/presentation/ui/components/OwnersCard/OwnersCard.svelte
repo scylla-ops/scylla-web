@@ -9,6 +9,7 @@
     CardHeader,
     CardTitle,
     Select,
+    Skeleton,
     SelectContent,
     SelectItem,
     SelectTrigger,
@@ -49,6 +50,9 @@
     <CardDescription>{t(membershipMessages.ownersDescription)}</CardDescription>
   </CardHeader>
   <CardContent class="flex flex-wrap items-center gap-2">
+    {#if owners.isPending}
+      <Skeleton class="h-6 w-28 rounded-full" />
+    {/if}
     {#each owners.data ?? [] as owner (owner.userId)}
       <Badge variant="secondary" class="gap-1">
         {owner.displayName || owner.userId}

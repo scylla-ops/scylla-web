@@ -96,4 +96,13 @@ describe('AppsPage', () => {
 
     expect(repository.listApps).not.toHaveBeenCalled();
   });
+
+  it('shows the rows of the list, not an empty list, until the apps arrive', () => {
+    setUp([Permission.LIST_APPS_BY_WORKSPACE]);
+    repository.listApps.mockReturnValue(new Promise(() => {}));
+
+    expect(document.querySelector('[data-slot="list-skeleton"]')).not.toBeNull();
+    expect(screen.queryByText('No app yet.')).not.toBeInTheDocument();
+    expect(screen.queryByText('0')).not.toBeInTheDocument();
+  });
 });

@@ -15,6 +15,7 @@
     SidebarMenuButton,
     SidebarMenuItem,
     SIDEBAR_FADE,
+    Skeleton,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
@@ -29,7 +30,14 @@
 </script>
 
 {#if meQuery.isLoading}
-  <div>{t(layoutMessages.loading)}</div>
+  <!-- The avatar and the two lines of the user. -->
+  <div class="flex items-center gap-2 rounded-lg border border-border p-2" aria-busy="true">
+    <Skeleton class="size-8 shrink-0 rounded-full" />
+    <div class={cn('flex flex-1 flex-col gap-1.5', SIDEBAR_FADE)}>
+      <Skeleton class="h-3.5 w-24" />
+      <Skeleton class="h-3 w-32" />
+    </div>
+  </div>
 {:else}
   <SidebarMenu>
     <SidebarMenuItem
