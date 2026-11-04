@@ -34,7 +34,7 @@ describe('ScyllaError', () => {
   });
 
   it('is transient for the failures that a second call can pass', () => {
-    for (const code of ['UNAVAILABLE', 'DEADLINE_EXCEEDED', 'ABORTED'] as const) {
+    for (const code of ['UNAVAILABLE', 'DEADLINE_EXCEEDED'] as const) {
       expect(new ScyllaError('boom', { code }).isTransient()).toBe(true);
     }
     for (const code of [
@@ -45,6 +45,15 @@ describe('ScyllaError', () => {
     ] as const) {
       expect(new ScyllaError('boom', { code }).isTransient()).toBe(false);
     }
+  });
+
+  it('recognizes ABORTED as a conflict: the item changed since it was read', () => {
+    expect(new ScyllaError('boom', { code: 'ABORTED' }).isConflict()).toBe(true);
+    expect(new ScyllaError('boom', { code: 'FAILED_PRECONDITION' }).isConflict()).toBe(false);
+  });
+
+  it('is not transient for a conflict: the same write fails again until the item is read again', () => {
+    expect(new ScyllaError('boom', { code: 'ABORTED' }).isTransient()).toBe(false);
   });
 
   describe('from', () => {
@@ -106,6 +115,17 @@ describe('ScyllaError', () => {
       );
     });
 
+    it('tells a conflict in the words of the app, never with the server text', () => {
+      expect(
+        new ScyllaError("Pipeline 'p-1' changed since it was read; read it again and retry", {
+          code: 'ABORTED',
+          raw: true,
+        }).userMessage(),
+      ).toBe(
+        'Someone else changed this item in the meantime. The page now shows the latest version.',
+      );
+    });
+
     it('never shows the raw text of a server fault or of a bug', () => {
       expect(
         new ScyllaError('panic at db.rs:42', { code: 'INTERNAL', raw: true }).userMessage(),
@@ -157,6 +177,17 @@ describe('ScyllaError', () => {
       vi.stubEnv('DEV', true);
       refusal.log();
       expect(warn).toHaveBeenCalledWith('[ScyllaError] NOT_FOUND: gone');
+    });
+
+    it('writes a conflict as a refusal, not as a fault', () => {
+      vi.stubEnv('DEV', false);
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      new ScyllaError('changed', { code: 'ABORTED' }).log();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(warn).not.toHaveBeenCalled();
     });
   });
 });

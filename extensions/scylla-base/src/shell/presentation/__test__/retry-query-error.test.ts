@@ -6,9 +6,13 @@ const errorWith = (code: ScyllaErrorCode) => new ScyllaError('boom', { code });
 
 describe('retryQueryError', () => {
   it('defers to the default policy for a failure that a second call can pass', () => {
-    for (const code of ['UNAVAILABLE', 'DEADLINE_EXCEEDED', 'ABORTED'] as const) {
+    for (const code of ['UNAVAILABLE', 'DEADLINE_EXCEEDED'] as const) {
       expect(retryQueryError(0, errorWith(code))).toBeUndefined();
     }
+  });
+
+  it('vetoes a retry of a conflict: the same write fails again until the item is read again', () => {
+    expect(retryQueryError(0, errorWith('ABORTED'))).toBe(false);
   });
 
   it('vetoes a retry of a refusal, so the error page is not delayed by the backoff', () => {

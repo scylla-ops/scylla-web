@@ -25,7 +25,8 @@ whats-new.ts                            THE release announcement
 __test__/feature-permissions.test.ts    conformance: features gate, shared queries check
 presentation/
   shell-params.ts                       breadcrumbParams, linkParams (from the context store)
-  report-query-error.ts                 the one error toast; on UNAUTHENTICATED `closeSession`, `loginPathBackTo` (login)
+  report-query-error.ts                 the one error toast; on UNAUTHENTICATED `closeSession`, `loginPathBackTo` (login);
+                                        on a conflict of a mutation, a warning toast and `invalidateQueries()`
   router/
     AppLayout.svelte                    layout of the `app` mount: AuthGuard + OrganizationGate
     AuthGuard/                          token present (hasSession)? → the pages, else /login
@@ -104,6 +105,12 @@ changes only for a new mount, a new section or a new part of the shell.
   own `onError` toast.** A *query* that fails on the network signs out (the UI is served by the
   control plane, so "unreachable" and "no longer authenticated" look the same); a *mutation*
   only toasts.
+- A *mutation* that the server refused because the item changed since it was read (`ABORTED`,
+  `isConflict()`) is shown as a conflict, with a warning toast in the words of the app, and
+  `reportQueryError` invalidates every query (`getQueryClient().invalidateQueries()`), so that
+  the screen shows what the server has. The client does not know which item the server
+  refused, and a conflict is rare: one full invalidation is cheap. A page adds nothing of its
+  own for it.
 - On `UNAUTHENTICATED`, `reportQueryError` signs out and loads `loginPathBackTo(window.location)`
   (`features/login`): after the sign-in, the user comes back to the page, with its query and its
   fragment. The return path is in the fragment of `/login`, thus a token of the page (the

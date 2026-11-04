@@ -61,19 +61,24 @@ try {                                                           // a caller that
   (`raw: true`: the text of the server, set by the transport, or of an exception, set by
   `from`) shows only for the codes that the user can act on (`USER_FACING_CODES`). For
   `UNAVAILABLE`, `PERMISSION_DENIED` and every other raw message, it gives a fixed text: a
-  server fault or a bug never shows its text.
+  server fault or a bug never shows its text. For `ABORTED` (a conflict), it gives the sentence
+  of the app: someone else changed the item, and the page shows the latest version.
 - **A `new ScyllaError` is a message for the user**: write it with `` t`…` ``. A broken contract
   of the server (an answer without its entity) is a bug: throw a plain `Error`, and the user
   sees the generic message.
 - `log()` writes a server fault or a bug (`INTERNAL`, `UNKNOWN_ERROR`, …) with `console.error`,
   in production too: it is what a user can send to the support. A refusal of the server
-  (`EXPECTED_CODES`: the user-facing and transient codes, `PERMISSION_DENIED`,
+  (`EXPECTED_CODES`: the user-facing and transient codes, `ABORTED`, `PERMISSION_DENIED`,
   `UNAUTHENTICATED`, `CANCELLED`) is a normal answer: it is written in development only. The line
   names the call (`rpc`, set by the transport): `[ScyllaError] NOT_FOUND
   scylla.secret.v1.SecretService/ListSecrets: no such secret`. Do not write a message of your own
   for the log: the name of the call is exact for every call.
-- `isTransient()` is true for `UNAVAILABLE`, `DEADLINE_EXCEEDED`, `ABORTED`. `retryQueryError`
-  retries only these.
+- `isTransient()` is true for `UNAVAILABLE`, `DEADLINE_EXCEEDED`. `retryQueryError` retries only
+  these.
+- `isConflict()` is true for `ABORTED`: the server refused a write because the item changed
+  since it was read. It is not transient: the same write fails again until the item is read
+  again. The protos do not carry the version, so a page cannot send one: `reportQueryError`
+  tells the conflict and invalidates every query, and the page shows the latest version.
 - When a generic code means something more precise for one call, catch it in the repository,
   and throw a new `ScyllaError` (see [`login`](../features/login/AGENTS.md):
   `UNAUTHENTICATED` → `INVALID_CREDENTIALS`), rather than special-casing it in every consumer.
