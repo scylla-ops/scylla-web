@@ -369,7 +369,7 @@ msgstr "Fermer"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:24
 msgid "Completed"
-msgstr "Terminés"
+msgstr "Terminé"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:78
 msgid "Connect this agent"
