@@ -86,6 +86,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   `ShellContributions` for the logo and a switcher.
 - The language is in the user menu. The crumbs name the section, not the workspace.
 - A page alone in its section declares a `NavGroup`: the group names the section, the link the page.
+- The header of a list shows its count with no "in total".
 - **Breaking:** `ScyllaErrorCode` of `@scylla/base-sdk` has two more members:
   `MALFORMED_RESPONSE` (the server answered without the entity it must carry) and
   `UNSUPPORTED_RESPONSE` (it answered with a value this build cannot read). A map over every

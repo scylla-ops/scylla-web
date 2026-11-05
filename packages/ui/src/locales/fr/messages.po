@@ -99,10 +99,6 @@ msgstr "Aller à la page suivante"
 msgid "Go to previous page"
 msgstr "Aller à la page précédente"
 
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:5
-msgid "in total"
-msgstr "au total"
-
 #: packages/ui/src/primitives/pagination/pagination.messages.ts:16
 msgid "More pages"
 msgstr "Plus de pages"

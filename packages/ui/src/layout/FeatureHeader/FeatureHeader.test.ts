@@ -18,7 +18,6 @@ describe('FeatureHeader', () => {
     render(FeatureHeader, { count: 1, label: 'Secret' });
 
     expect(screen.getByRole('heading')).toHaveTextContent('1 Secret');
-    expect(screen.getByText('in total')).toBeInTheDocument();
   });
 
   it('switches to the plural label once count > 1', () => {
@@ -42,7 +41,7 @@ describe('FeatureHeader', () => {
   it('omits the count block entirely when no count was given', () => {
     render(FeatureHeader, { label: 'Secret' });
 
-    expect(screen.queryByText('in total')).toBeNull();
+    expect(screen.getByRole('heading')).toHaveTextContent(/^Secret$/);
   });
 
   it('omits "Select all" once everything is already selected', () => {
