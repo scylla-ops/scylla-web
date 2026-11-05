@@ -120,6 +120,10 @@ origin spreads the new theme from that point as one circle (View Transitions API
 no origin, no API or a reduced motion setting, the swap is instant. The account page of
 scylla-base is the only place that changes the theme.
 
+`styles.css` removes the default palette of Tailwind (`--color-*: initial`). A color class must
+name a token of the theme (`text-success`, `bg-info/5`). A class such as `text-green-500` or
+`bg-black` gives no CSS and no error. A new color is a new token in `styles.css`.
+
 `motion/` holds the transitions. `prefersReducedMotion()` is not optional decoration: the
 `@media (prefers-reduced-motion: reduce)` block in `styles.css` neutralises CSS animations, but a
 Svelte transition writes inline styles from JavaScript and that query never sees it — every

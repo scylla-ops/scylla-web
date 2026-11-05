@@ -9,8 +9,8 @@
 <div
   class="flex h-full w-full flex-col items-center justify-center gap-3 py-16 text-center text-muted-foreground"
 >
-  <div class="flex size-12 items-center justify-center rounded-xl bg-slate-100">
-    <ShieldOffIcon class="size-6 text-slate-400" />
+  <div class="flex size-12 items-center justify-center rounded-xl bg-muted">
+    <ShieldOffIcon class="size-6 text-muted-foreground" />
   </div>
   <p class="text-sm font-medium text-foreground">{t(permissionDeniedMessages.title)}</p>
   <p class="max-w-sm text-sm">{message ?? t(permissionDeniedMessages.askAdministrator)}</p>

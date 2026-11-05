@@ -25,10 +25,10 @@
   const inFlight = $derived(summary.pending + summary.running);
 
   const outcomes = $derived([
-    { key: 'completed', icon: CheckCircle2Icon, class: 'text-[var(--success)]', label: t(dashboardMessages.completed), value: summary.completed },
+    { key: 'completed', icon: CheckCircle2Icon, class: 'text-success', label: t(dashboardMessages.completed), value: summary.completed },
     { key: 'failed', icon: XCircleIcon, class: 'text-destructive', label: t(dashboardMessages.failed), value: summary.failed },
     { key: 'cancelled', icon: BanIcon, class: 'text-muted-foreground', label: t(dashboardMessages.cancelled), value: summary.cancelled },
-    { key: 'orphaned', icon: UnplugIcon, class: 'text-amber-500', label: t(dashboardMessages.orphaned), value: summary.orphaned },
+    { key: 'orphaned', icon: UnplugIcon, class: 'text-warning', label: t(dashboardMessages.orphaned), value: summary.orphaned },
   ]);
 </script>
 

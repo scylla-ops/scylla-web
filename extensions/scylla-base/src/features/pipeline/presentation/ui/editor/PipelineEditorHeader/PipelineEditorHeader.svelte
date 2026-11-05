@@ -79,15 +79,15 @@
       <div class="flex items-center gap-2 text-sm text-foreground/80">
         <span class="relative flex size-2">
           {#if status === 'dirty'}
-            <span class="absolute inline-flex size-full animate-ping rounded-full bg-amber-500/70"
+            <span class="absolute inline-flex size-full animate-ping rounded-full bg-warning/70"
             ></span>
           {/if}
           <span
             class={cn(
               'relative inline-flex size-2 rounded-full transition-colors duration-300',
               (status === 'draft' || status === 'saving') && 'bg-muted-foreground/60',
-              status === 'dirty' && 'bg-amber-500',
-              status === 'saved' && 'bg-emerald-500',
+              status === 'dirty' && 'bg-warning',
+              status === 'saved' && 'bg-success',
             )}
           ></span>
         </span>
