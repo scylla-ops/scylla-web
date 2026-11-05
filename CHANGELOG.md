@@ -10,6 +10,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+### Fixed
+
+- The UI uses Funnel Sans, the text font of the brand. Before, it used the system font of the browser.
+
 ## [0.6.0] - 2026-11-01
 
 ### Added
