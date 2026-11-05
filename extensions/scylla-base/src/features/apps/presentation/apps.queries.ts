@@ -180,11 +180,11 @@ export const appMutations = {
       onSuccess: () => invalidateApps(),
     }),
 
-  remove: () =>
+  remove: (kind: 'app' | 'agent' = 'app') =>
     mutationOptions({
       mutationFn: (appId: string) => repository().deleteApp(appId),
       onSuccess: (_result, appId) => {
-        toast.success(i18n._(appsMessages.deleted));
+        toast.success(i18n._(kind === 'agent' ? appsMessages.agentDeleted : appsMessages.deleted));
         removeQueriesOfApp(appId);
         return invalidateApps();
       },

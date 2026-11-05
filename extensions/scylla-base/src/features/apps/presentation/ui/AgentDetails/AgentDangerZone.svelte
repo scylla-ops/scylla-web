@@ -32,7 +32,7 @@
   const button = $derived(app ? t(appPageMessages.deleteApp) : t(messages.deleteAgent));
   const dialogBody = $derived(app ? t(appPageMessages.dangerBody) : t(messages.deleteBody));
 
-  const remove = createMutation(() => appMutations.remove());
+  const remove = createMutation(() => appMutations.remove(app ? 'app' : 'agent'));
 
   let open = $state(false);
   let typed = $state('');

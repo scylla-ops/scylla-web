@@ -58,7 +58,7 @@
 
   const disable = createMutation(() => appMutations.disable());
   const enable = createMutation(() => appMutations.enable());
-  const remove = createMutation(() => appMutations.remove());
+  const remove = createMutation(() => appMutations.remove('agent'));
 
   let filter = $state<AgentFilter>('all');
   let search = $state('');

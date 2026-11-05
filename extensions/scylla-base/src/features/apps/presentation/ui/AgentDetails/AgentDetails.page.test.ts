@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { toast } from 'svelte-sonner';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { findFloating, focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
@@ -267,6 +268,7 @@ describe('AgentDetails', () => {
     await user.click(confirm);
 
     await waitFor(() => expect(apps.deleteApp).toHaveBeenCalledWith('01JBX7AAAAAAAAAAAAAAAAK2M'));
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Agent deleted'));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/acme/agents', undefined));
   });
 

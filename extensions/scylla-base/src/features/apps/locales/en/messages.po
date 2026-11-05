@@ -57,11 +57,11 @@ msgstr "{count} project roles"
 msgid "{day}: {count} jobs"
 msgstr "{day}: {count} jobs"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:15
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:16
 msgid "{name} is disabled"
 msgstr "{name} is disabled"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:16
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:17
 msgid "{name} is enabled"
 msgstr "{name} is enabled"
 
@@ -123,7 +123,7 @@ msgstr "A server joined with a new key."
 msgid "Access"
 msgstr "Access"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:14
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:15
 msgid "Access changed"
 msgstr "Access changed"
 
@@ -213,6 +213,10 @@ msgstr "Admins of {workspace} can create apps. Ask an admin for the role \"App c
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:34
 msgid "Agent"
 msgstr "Agent"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:13
+msgid "Agent deleted"
+msgstr "Agent deleted"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:34
 msgid "Agent version"
@@ -643,11 +647,11 @@ msgstr "Its keys and access go. The jobs that it ran stay. You cannot undo this.
 msgid "Its machine cannot sign in any more, and its roles go away. The jobs that it ran stay."
 msgstr "Its machine cannot sign in any more, and its roles go away. The jobs that it ran stay."
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:17
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:18
 msgid "Jobs are waiting and no agent is connected."
 msgstr "Jobs are waiting and no agent is connected."
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:18
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:19
 msgid "Jobs are waiting. Ask an admin whether an agent is connected."
 msgstr "Jobs are waiting. Ask an admin whether an agent is connected."
 
@@ -676,7 +680,7 @@ msgstr "Key"
 msgid "Key pair"
 msgstr "Key pair"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:13
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:14
 msgid "Key renamed"
 msgstr "Key renamed"
 
@@ -1033,7 +1037,7 @@ msgstr "Scylla could not give {name} its access. Give it on the agent page, or i
 msgid "Search by name or host"
 msgstr "Search by name or host"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:19
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:20
 msgid "Set up an agent"
 msgstr "Set up an agent"
 
