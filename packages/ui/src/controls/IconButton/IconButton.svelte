@@ -36,7 +36,7 @@
     {onclick}
     class={cn(
       buttonVariants({ variant: 'ghost', size: 'icon' }),
-      'h-8 w-8 cursor-pointer rounded-full transition-all duration-200 hover:scale-125 hover:bg-primary-subtle hover:text-primary active:scale-95',
+      'h-8 w-8 cursor-pointer rounded-full transition-all duration-200 hover:bg-primary-subtle hover:text-primary active:scale-95',
       className,
     )}
   >

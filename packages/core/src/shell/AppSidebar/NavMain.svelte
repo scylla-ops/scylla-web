@@ -66,9 +66,7 @@
     <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
     <SidebarMenu>
       {#each section.items as node (keyOf(node))}
-        <SidebarMenuItem
-          class="transition-transform duration-200 hover:scale-105 group-data-[collapsible=icon]:hover:scale-100"
-        >
+        <SidebarMenuItem>
           {#if isNavGroup(node) && node.items.length === 1 && node.items[0]}
             <!-- One page has nothing to fold: the link goes by the name of its group. -->
             {@render link({ ...node.items[0], title: node.title, icon: node.icon }, 'default')}

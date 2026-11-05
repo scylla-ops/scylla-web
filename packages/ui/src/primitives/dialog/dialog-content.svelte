@@ -42,7 +42,7 @@
     data-slot="dialog-content"
     class={cn(
       CENTERED_DIALOG_CLASS,
-      'grid w-full max-w-lg gap-4 max-h-[calc(100dvh-2rem)] overflow-y-auto border border-border bg-background p-6 shadow-lg sm:rounded-lg',
+      'grid w-full max-w-lg gap-4 max-h-[calc(100dvh-2rem)] overflow-y-auto border border-border bg-card p-6 shadow-lg sm:rounded-xl',
       className,
     )}
     {...rest}

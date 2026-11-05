@@ -113,7 +113,7 @@
       size="icon"
       variant="destructive"
       onclick={() => (deleteDialogOpen = true)}
-      class={onBar ? 'size-11' : 'h-9 w-9 cursor-pointer transition-all hover:scale-110'}
+      class={onBar ? 'size-11' : 'h-9 w-9 cursor-pointer transition-all'}
     >
       <TrashIcon class="size-4" />
       <span class="sr-only">{t(featureHeaderMessages.delete)}</span>
@@ -121,11 +121,13 @@
   {/if}
 {/snippet}
 
-<div class="flex w-full flex-row flex-wrap items-end justify-between gap-x-4 gap-y-3">
-  <div class="flex min-w-0 flex-col gap-2">
+<div class="flex w-full flex-row flex-wrap items-center justify-between gap-x-4 gap-y-3">
+  <div class="flex min-w-0 flex-col gap-0.75">
     <div class="flex flex-row flex-wrap gap-4">
       <div class="flex min-w-0 items-baseline gap-2">
-        <h1 class="min-w-0 text-2xl font-bold tracking-tight break-words sm:text-3xl">
+        <h1
+          class="min-w-0 font-display text-2xl leading-tight font-medium tracking-[-0.03em] break-words sm:text-[2rem]"
+        >
           {#if count !== undefined}<span class="mr-2 text-primary">{count}</span>{/if}
           <span class="text-foreground">{displayLabel}</span>
         </h1>

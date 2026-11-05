@@ -172,7 +172,7 @@
                   aria-label={collapsed
                     ? t(jobsMessages.expandLogsFor(id))
                     : t(jobsMessages.collapseLogsFor(id))}
-                  class="h-auto min-w-0 flex-1 justify-start gap-3 rounded-none p-3 hover:scale-100 focus-visible:ring-inset"
+                  class="h-auto min-w-0 flex-1 justify-start gap-3 rounded-none p-3 focus-visible:ring-inset"
                 >
                   {#if collapsed}
                     <ChevronRightIcon class="size-4 text-muted-foreground" />

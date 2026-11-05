@@ -12,13 +12,17 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Added
 
+- `pnpm test:file`, `pnpm test:name`, `pnpm test:dir` and `pnpm test:changed` run a part of the tests
+  with no coverage, so a developer does not wait for the whole suite. The tests also run on Node 25
+  with no flag.
 - A double sidebar: a rail of the sections, which opens on hover and does not move the page, and a
   second sidebar with the pages of the selected section. Inside a project, the second sidebar shows
   the pages of the project. On a phone, the sheet stays.
 - The switch of workspace is at the right end of the top bar, after a search (Ctrl K or Cmd K) of
   the projects, the pipelines, the agents and the apps, and a bell with the last failed runs.
-- The colors of the design: a darker dark theme, stronger lines, and a darker green in the light
-  theme.
+- The look of the design: its colors (a darker dark theme, stronger lines, a darker green in the
+  light theme), its fonts (Funnel Sans, Funnel Display, JetBrains Mono), compact buttons and fields
+  of 32 px, cards with a smaller gap and no shadow, and rounder menus and dialogs.
 - A write that the server refused because the item changed in the meantime is shown as such, in
   the words of the app, and the page reloads what the server has. Before, the user saw an
   unexpected error, and a query retried on it.
@@ -27,6 +31,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Changed
 
+- **Breaking:** `MemberRow` of `@scylla/base-sdk` no longer has `isInstanceAdmin` and
+  `fromInstanceOnly`, and the rows of `buildProjectMemberRows` no longer have `changeIn`.
 - **Breaking:** `NavSectionDefinition` of `@scylla/core-sdk` has no `header`. Use `railItem` or
   `within` to place a section in the rail, and the new `brand` and `topBarEnd` of
   `ShellContributions` for the logo and a switcher.
@@ -39,6 +45,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
+- A person who looks at the members of a workspace or of a project no longer sees the instance
+  admins. A member with a role here shows only that role, with no sign of a role of the instance.
+  Instance › Users still shows the instance admins.
+- Buttons no longer zoom on hover. Before, a wide button grew by 27 px and its text became less
+  sharp. Now a hover only changes the color. In the dark theme, a destructive button now also
+  changes color on hover.
+- With reduced motion on, menus, dialogs and the phone sidebar no longer animate.
 - A restart or an outage of the server no longer signs out the open tabs. Before, a query sent
   during the outage ended the session on the server. Now the page stays, with one "Server
   unreachable" toast, and a first load shows a view that tries again by itself. Only the server

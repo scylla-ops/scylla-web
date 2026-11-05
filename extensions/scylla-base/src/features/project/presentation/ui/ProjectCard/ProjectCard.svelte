@@ -71,7 +71,7 @@
               <span {...props} class="mr-2">
                 <Checkbox
                   checked={isSelected}
-                  class="cursor-pointer transition-all hover:scale-125 hover:border-primary"
+                  class="cursor-pointer transition-all hover:border-primary"
                   onclick={event => event.stopPropagation()}
                   onCheckedChange={() => selection.select(project.id)}
                 />

@@ -53,7 +53,7 @@
           variant="outline"
           size="icon"
           onclick={onRefresh}
-          class="h-9 w-9 cursor-pointer transition-all hover:scale-110"
+          class="h-9 w-9 cursor-pointer transition-all"
         >
           <RefreshCwIcon class="size-4" />
           <!-- A closed tooltip gives the button no name. -->

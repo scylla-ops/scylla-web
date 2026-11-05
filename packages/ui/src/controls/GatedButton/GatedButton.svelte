@@ -67,7 +67,7 @@
           : { type: 'button', 'aria-disabled': 'true', 'aria-describedby': reasonId }}
         class={cn(
           className,
-          'aria-disabled:cursor-not-allowed aria-disabled:opacity-50 aria-disabled:hover:scale-100',
+          'aria-disabled:cursor-not-allowed aria-disabled:opacity-50',
         )}
         onclick={guard(props.onclick)}
       >
