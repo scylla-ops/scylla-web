@@ -124,6 +124,7 @@ describe('AccountPage', () => {
       ['Profile', '/acme-corp/account/profile'],
       ['Appearance', '/acme-corp/account/appearance'],
       ['Security', '/acme-corp/account/security'],
+      ['Tokens', '/acme-corp/account/tokens'],
       ['Danger zone', '/acme-corp/account/danger-zone'],
     ]);
     expect(within(nav).getByRole('link', { current: 'page' })).toHaveTextContent('Security');

@@ -2,15 +2,6 @@ import type { CiProvider } from '../entities/ci-identity.entity.ts';
 
 const trim = (server: string) => server.replace(/\/+$/, '');
 
-/** One call of the HTTP/JSON API with an API token, read from `SCYLLA_TOKEN`. */
-export const httpExample = (server: string, workspaceId: string): string =>
-  [
-    `curl -X POST ${trim(server)}/api/scylla.pipelines.v1.PipelineService/ListWorkspacePipelines \\`,
-    `  -H "Authorization: Bearer $SCYLLA_TOKEN" \\`,
-    `  -H "Content-Type: application/json" \\`,
-    `  -d '{"workspaceId": {"value": "${workspaceId}"}}'`,
-  ].join('\n');
-
 const exchange = (server: string, appId: string, idToken: string) =>
   `curl -s -X POST ${trim(server)}/api/scylla.auth.v1.TokenService/ExchangeCiToken ` +
   `-H "Content-Type: application/json" ` +

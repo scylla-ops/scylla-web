@@ -27,7 +27,7 @@
     installCommands,
     secondsLeft,
   } from '@base/features/apps/domain/structs/agent-install.struct.ts';
-  import CopyBox from '../CopyBox/CopyBox.svelte';
+  import { CopyBox } from '@shared/presentation/ui';
   import { addAgentMessages as messages } from '@base/features/apps/presentation/messages/add-agent.messages.ts';
 
   interface Props {

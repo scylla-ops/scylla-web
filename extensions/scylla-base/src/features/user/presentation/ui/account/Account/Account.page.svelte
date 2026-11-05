@@ -8,6 +8,7 @@
   import AccountHeader from './AccountHeader.svelte';
   import AccountNav from './AccountNav.svelte';
   import AccountSecurity from './AccountSecurity.svelte';
+  import PersonalTokensSection from '../PersonalTokens/PersonalTokensSection.svelte';
   import SettingsSection from '@base/features/user/presentation/ui/components/SettingsSection.svelte';
   import ThemePicker from '@base/features/user/presentation/ui/components/ThemePicker/ThemePicker.svelte';
   import UserProfileForm from '@base/features/user/presentation/ui/components/UserProfileForm/UserProfileForm.svelte';
@@ -65,6 +66,8 @@
           </SettingsSection>
         {:else if current.id === 'security'}
           <AccountSecurity {page} />
+        {:else if current.id === 'tokens'}
+          <PersonalTokensSection />
         {:else}
           <SettingsSection
             title={t(userMessages.deleteMyAccount)}

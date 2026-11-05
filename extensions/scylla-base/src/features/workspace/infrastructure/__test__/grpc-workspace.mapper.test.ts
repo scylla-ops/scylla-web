@@ -4,10 +4,13 @@ import { toDomain } from '../grpc-workspace.mapper.ts';
 
 describe('grpcWorkspace.toDomain', () => {
   it('unwraps the id and keeps the name and the slug', () => {
-    expect(toDomain({ id: { value: 'ws-1' }, name: 'Acme', slug: 'acme', personalTokensEnabled: true })).toEqual({
+    expect(
+      toDomain({ id: { value: 'ws-1' }, name: 'Acme', slug: 'acme', personalTokensEnabled: true }),
+    ).toEqual({
       id: 'ws-1',
       name: 'Acme',
       slug: 'acme',
+      personalTokensEnabled: true,
     });
   });
 

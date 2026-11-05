@@ -5,7 +5,7 @@
   import type { JoinCode } from '@base/features/apps/domain/entities/app.entity.ts';
   import { formatCountdown, secondsLeft } from '@base/features/apps/domain/structs/agent-install.struct.ts';
   import { JOIN_METHOD } from '@base/features/apps/domain/structs/app-snippets.struct.ts';
-  import CopyBox from '../CopyBox/CopyBox.svelte';
+  import { CopyBox } from '@shared/presentation/ui';
   import { addAgentMessages } from '@base/features/apps/presentation/messages/add-agent.messages.ts';
   import { credentialsMessages as messages } from '@base/features/apps/presentation/messages/credentials.messages.ts';
 

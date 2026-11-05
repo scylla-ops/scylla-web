@@ -1,4 +1,4 @@
-import { msg, plural } from '@lingui/core/macro';
+import { msg } from '@lingui/core/macro';
 
 export const appPageMessages = {
   appBadge: msg`App`,
@@ -19,20 +19,10 @@ export const appPageMessages = {
   keyPair: msg`Key pair`,
   github: msg`GitHub Actions`,
   gitlab: msg`GitLab CI`,
-  allProjects: msg`all projects`,
-  projectCount: (count: number) => msg`${plural(count, { one: '# project', other: '# projects' })}`,
-  readOnly: msg`Read-only`,
-  deploy: msg`Deploy`,
-  full: msg`Full`,
-  custom: msg`Custom`,
   branch: (name: string) => msg`branch ${name}`,
   environment: (name: string) => msg`environment ${name}`,
   anyRef: msg`any ref`,
   addedOn: (day: string) => msg`added ${day}`,
-  expiresIn: (count: number) =>
-    msg`${plural(count, { 0: 'Expires today', one: 'Expires in # day', other: 'Expires in # days' })}`,
-  expiredOn: (day: string) => msg`Expired on ${day}`,
-  revokedOn: (day: string) => msg`Revoked on ${day}`,
   noSecret: msg`No secret to expire`,
   noExpiry: msg`No expiry`,
   never: msg`Never`,

@@ -63,7 +63,7 @@ export const agentPageMessages = {
   key: msg`Key`,
   added: msg`Added`,
   state: msg`State`,
-  active: msg`Active`,
+  active: msg({ context: 'key', message: 'Active' }),
   revokedOn: (day: string) => msg`Revoked on ${day}`,
   noKey: msg`No machine joined yet.`,
   keysHint: msg`Each machine that joins adds a key, named after its host. The private key never leaves the machine.`,

@@ -118,6 +118,10 @@ other extensions: keep their messages, the msgids are shared.
 
 ## The token form
 
+`CopyBox` (`presentation/ui/data-display/`) shows a value to copy, also a secret that the user can
+reveal. `presenters/token-labels.presenter.ts` gives the words of the limits and of the expiry of a
+token; the apps and the personal tokens use it.
+
 `TokenForm` (`presentation/ui/forms/`) is the form of a new API token: the name, the life (7, 30,
 90 or 365 days), the limits (a preset, or the boxes of `token-actions.struct.ts`: a changed box
 gives the preset `custom` with the methods of the checked boxes) and the projects. The caller

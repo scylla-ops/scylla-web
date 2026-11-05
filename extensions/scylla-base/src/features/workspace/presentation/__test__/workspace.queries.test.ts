@@ -16,7 +16,9 @@ import {
 } from '../workspace.queries.ts';
 
 const toastSuccess = vi.fn();
-vi.mock('svelte-sonner', () => ({ toast: { success: (...args: unknown[]) => toastSuccess(...args) } }));
+vi.mock('svelte-sonner', () => ({
+  toast: { success: (...args: unknown[]) => toastSuccess(...args) },
+}));
 
 const WORKSPACE_ID = 'org-1';
 
@@ -24,6 +26,7 @@ const org = (overrides: Partial<WorkspaceEntity> = {}): WorkspaceEntity => ({
   id: WORKSPACE_ID,
   name: 'Scylla Inc',
   slug: 'scylla-inc',
+  personalTokensEnabled: true,
   ...overrides,
 });
 

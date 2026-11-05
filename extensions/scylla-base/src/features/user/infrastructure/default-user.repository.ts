@@ -12,7 +12,15 @@ import type { User } from '@base/generated/scylla/accounts/v1/user.ts';
 import type { PasswordResetDelivery } from '@base/features/login';
 import type { PaginatedList } from '@scylla/ui/structs';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import { required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { idValue, required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import {
+  apiTokenToDomain,
+  expiryToProto,
+  limitsToProto,
+} from '@shared/infrastructure/grpc/api-token.mapper.ts';
+import type { CreateTokenInput, CreatedToken } from '@shared/domain/structs/api-token.struct.ts';
+import type { IPersonalTokenServiceClient } from '@base/generated/scylla/accounts/v1/personal_token_service.client.ts';
+import type { PersonalTokens } from '@base/features/user/domain/entities/personal-tokens.entity.ts';
 import * as grpcUser from './grpc-user.mapper.ts';
 
 const requireUser = (user: User | undefined): UserEntity =>
@@ -28,9 +36,32 @@ export class DefaultUserRepository implements UserRepository {
   constructor(
     private readonly profiles: IProfileServiceClient,
     private readonly admin: IUserAdminServiceClient,
+    private readonly tokens: IPersonalTokenServiceClient,
     /** The id of the user of the session. */
     private readonly selfId: () => string | null,
   ) {}
+
+  public async listPersonalTokens(): Promise<PersonalTokens> {
+    const response = await this.tokens.listPersonalTokens({}).response;
+    return {
+      tokens: response.tokens.map(apiTokenToDomain),
+      enabled: response.enabled,
+      refusedWorkspaceIds: response.refusedWorkspaceIds.map(id => idValue(id)),
+    };
+  }
+
+  public async createPersonalToken(input: CreateTokenInput): Promise<CreatedToken> {
+    const { token, secret } = await this.tokens.createPersonalToken({
+      name: input.name,
+      expiry: expiryToProto(input.expiry),
+      limits: limitsToProto(input.limits),
+    }).response;
+    return { token: apiTokenToDomain(required(token, 'token')), secret };
+  }
+
+  public async revokePersonalToken(tokenId: string): Promise<void> {
+    await this.tokens.revokePersonalToken({ tokenId: wrapId(tokenId) }).response;
+  }
 
   private isSelf(userId: string): boolean {
     return userId === this.selfId();

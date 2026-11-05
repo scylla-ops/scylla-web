@@ -1,4 +1,6 @@
 // @vitest-environment node
+import { TokenExpiry, TokenPreset } from '@base/generated/scylla/auth/v1/api_token.ts';
+import type { IPersonalTokenServiceClient } from '@base/generated/scylla/accounts/v1/personal_token_service.client.ts';
 import { describe, it, expect, vi } from 'vitest';
 import type { User } from '@base/generated/scylla/accounts/v1/user.ts';
 import type { IProfileServiceClient } from '@base/generated/scylla/accounts/v1/profile_service.client.ts';
@@ -59,10 +61,66 @@ const admin = () =>
     revokeInstanceAdmin: vi.fn(() => unaryCall({})),
   }) as unknown as IUserAdminServiceClient;
 
-const repository = (p = profiles(), a = admin()) =>
-  ({ p, a, repo: new DefaultUserRepository(p, a, () => 'user-1') }) as const;
+const tokens = () =>
+  ({
+    listPersonalTokens: vi.fn(() =>
+      unaryCall({
+        tokens: [
+          {
+            id: { value: 't-1' },
+            name: 'laptop',
+            hint: 'scyp_...x7Q2',
+            limits: { preset: TokenPreset.DEPLOY, actions: [], projectIds: [] },
+          },
+        ],
+        enabled: true,
+        refusedWorkspaceIds: [{ value: 'ws-2' }],
+      }),
+    ),
+    createPersonalToken: vi.fn(() =>
+      unaryCall({ token: { id: { value: 't-2' }, name: 'new' }, secret: 'scyp_SECRET' }),
+    ),
+    revokePersonalToken: vi.fn(() => unaryCall({})),
+  }) as unknown as IPersonalTokenServiceClient;
+
+const repository = (p = profiles(), a = admin(), t = tokens()) =>
+  ({ p, a, t, repo: new DefaultUserRepository(p, a, t, () => 'user-1') }) as const;
 
 describe('DefaultUserRepository', () => {
+  it('reads the personal tokens and where they are refused', async () => {
+    const { repo } = repository();
+
+    const mine = await repo.listPersonalTokens();
+
+    expect(mine.enabled).toBe(true);
+    expect(mine.refusedWorkspaceIds).toEqual(['ws-2']);
+    expect(mine.tokens[0]).toMatchObject({ id: 't-1', name: 'laptop' });
+    expect(mine.tokens[0]?.limits.preset).toBe('deploy');
+  });
+
+  it('makes a personal token and gives its secret', async () => {
+    const { repo, t } = repository();
+
+    const created = await repo.createPersonalToken({
+      name: 'new',
+      expiry: 90,
+      limits: { preset: 'read_only', actions: [], projectIds: [] },
+    });
+
+    expect(created.secret).toBe('scyp_SECRET');
+    expect(t.createPersonalToken).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'new', expiry: TokenExpiry.DAYS_90 }),
+    );
+  });
+
+  it('revokes a personal token by its id', async () => {
+    const { repo, t } = repository();
+
+    await repo.revokePersonalToken('t-1');
+
+    expect(t.revokePersonalToken).toHaveBeenCalledWith({ tokenId: { value: 't-1' } });
+  });
+
   it('reads every page of the users', async () => {
     const { repo, a } = repository();
 

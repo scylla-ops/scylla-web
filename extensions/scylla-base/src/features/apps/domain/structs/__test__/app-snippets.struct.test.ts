@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { ciExample, httpExample } from '../app-snippets.struct.ts';
+import { httpExample } from '@shared/domain/structs/api-token.struct.ts';
+import { ciExample } from '../app-snippets.struct.ts';
 
 describe('app snippets', () => {
   it('calls the JSON gateway of the server with the token', () => {

@@ -7,5 +7,6 @@ export function toDomain(workspace: Workspace): WorkspaceEntity {
     id: idValue(workspace.id),
     name: workspace.name,
     slug: workspace.slug,
+    personalTokensEnabled: workspace.personalTokensEnabled,
   };
 }

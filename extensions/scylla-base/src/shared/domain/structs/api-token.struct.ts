@@ -54,6 +54,19 @@ export const expiryStateOf = (
   return left <= EXPIRY_WARNING_DAYS * DAY_MS ? 'soon' : 'ok';
 };
 
+/** The days before `at`, rounded to the nearest day; negative after it. */
+export const daysUntil = (at: string, now: Date): number =>
+  Math.round((Date.parse(at) - now.getTime()) / DAY_MS);
+
+/** One call of the HTTP/JSON API with an API token, read from `SCYLLA_TOKEN`. */
+export const httpExample = (server: string, workspaceId: string): string =>
+  [
+    `curl -X POST ${server.replace(/\/+$/, '')}/api/scylla.pipelines.v1.PipelineService/ListWorkspacePipelines \\`,
+    '  -H "Authorization: Bearer $SCYLLA_TOKEN" \\',
+    '  -H "Content-Type: application/json" \\',
+    `  -d '{"workspaceId": {"value": "${workspaceId}"}}'`,
+  ].join('\n');
+
 /** A new API token. */
 export interface CreateTokenInput {
   name: string;

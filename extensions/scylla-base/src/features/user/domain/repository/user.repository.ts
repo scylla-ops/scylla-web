@@ -1,3 +1,5 @@
+import type { CreateTokenInput, CreatedToken } from '@shared/domain/structs/api-token.struct.ts';
+import type { PersonalTokens } from '../entities/personal-tokens.entity.ts';
 import type { PasswordResetDelivery } from '@base/features/login';
 import type {
   CreateUserInput,
@@ -9,6 +11,11 @@ import type { UserSessionEntity } from '@base/features/user/domain/entities/user
 import type { SignInMethodsOfUser } from '@base/features/user/domain/entities/identity.entity.ts';
 
 export interface UserRepository {
+  /** The personal tokens of the user of the session, and where they act. */
+  listPersonalTokens(): Promise<PersonalTokens>;
+  /** FAILED_PRECONDITION with PERSONAL_TOKENS_DISABLED when the server refuses them. */
+  createPersonalToken(input: CreateTokenInput): Promise<CreatedToken>;
+  revokePersonalToken(tokenId: string): Promise<void>;
   getAll(): Promise<UserList>;
   getById(id: string): Promise<UserEntity>;
   /** The account of the session. Needs no permission. */

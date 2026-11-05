@@ -2,9 +2,10 @@
   import CircleCheckIcon from '@lucide/svelte/icons/circle-check';
   import { t } from '@scylla/ui/i18n';
   import { formatDay } from '@shared/utils/date-utils.ts';
-  import { ciExample, httpExample } from '@base/features/apps/domain/structs/app-snippets.struct.ts';
+  import { httpExample } from '@shared/domain/structs/api-token.struct.ts';
+  import { ciExample } from '@base/features/apps/domain/structs/app-snippets.struct.ts';
   import type { ReadyApp } from '@base/features/apps/presentation/app-credentials.queries.ts';
-  import CopyBox from '../CopyBox/CopyBox.svelte';
+  import { CopyBox } from '@shared/presentation/ui';
   import { credentialsMessages as messages } from '@base/features/apps/presentation/messages/credentials.messages.ts';
 
   interface Props {

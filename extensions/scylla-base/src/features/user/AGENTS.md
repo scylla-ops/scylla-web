@@ -133,6 +133,12 @@ user who has no workspace.
 
 ## Rules that bite here
 
+- **The section `tokens` of the account page is the personal tokens.** `PersonalTokenService` needs
+  no right: it is the account of the session. A token acts as its user. The server can turn them
+  off (`enabled`), and a workspace can refuse them (`refusedWorkspaceIds`); the section shows a
+  warning for the server, or for the workspace of the page only. The form and the labels are shared
+  with the apps (`TokenForm`, `shared/presentation/presenters/token-labels.presenter.ts`).
+
 - **`user` is system-wide, not org-scoped.** It is the directory of every account in the
   installation — hence the `system` sidebar section. Do not filter it by the current
   workspace; "who is in this org" is [`membership`](../membership/AGENTS.md)'s question.

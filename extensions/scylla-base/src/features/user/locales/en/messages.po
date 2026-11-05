@@ -29,6 +29,10 @@ msgstr "A handle that other people see."
 msgid "A new password signs out your other sessions."
 msgstr "A new password signs out your other sessions."
 
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:15
+msgid "A personal token never gets more than your roles. If you lose a role, the token loses it too."
+msgstr "A personal token never gets more than your roles. If you lose a role, the token loses it too."
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:108
 msgid "A reset link was made."
 msgstr "A reset link was made."
@@ -38,8 +42,8 @@ msgid "A reset link was sent to {email}."
 msgstr "A reset link was sent to {email}."
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:32
-#: extensions/scylla-base/src/features/user/user.module.ts:46
-#: extensions/scylla-base/src/features/user/user.module.ts:53
+#: extensions/scylla-base/src/features/user/user.module.ts:48
+#: extensions/scylla-base/src/features/user/user.module.ts:55
 msgid "Account"
 msgstr "Account"
 
@@ -55,9 +59,14 @@ msgstr "Account reactivated"
 msgid "Account settings"
 msgstr "Account settings"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:12
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:29
 msgid "Actions"
 msgstr "Actions"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:16
+msgid "Actions of {name}"
+msgstr "Actions of {name}"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:26
 msgid "Active"
@@ -66,6 +75,14 @@ msgstr "Active"
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:85
 msgid "Active now"
 msgstr "Active now"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:26
+msgid "An admin of {workspace} turned them off. Your tokens cannot reach its projects, pipelines or secrets. They still work in your other workspaces. For automation in {workspace}, use an app."
+msgstr "An admin of {workspace} turned them off. Your tokens cannot reach its projects, pipelines or secrets. They still work in your other workspaces. For automation in {workspace}, use an app."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:23
+msgid "An instance admin turned them off. Your tokens do not work while it is off. For automation, use an app."
+msgstr "An instance admin turned them off. Your tokens do not work while it is off. For automation, use an app."
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:83
 msgid "API client"
@@ -79,6 +96,15 @@ msgstr "Appearance"
 msgid "Back to your account"
 msgstr "Back to your account"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:40
+msgid "Call the API (HTTP/JSON):"
+msgstr "Call the API (HTTP/JSON):"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:19
+msgid "Calls with this token fail at once. Scripts that use it stop working. You cannot undo this."
+msgstr "Calls with this token fail at once. Scripts that use it stop working. You cannot undo this."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:32
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:96
 msgid "Cancel"
 msgstr "Cancel"
@@ -99,9 +125,25 @@ msgstr "Change your email"
 msgid "Changing your email…"
 msgstr "Changing your email…"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:34
+msgid "Close"
+msgstr "Close"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:23
 msgid "Confirm password"
 msgstr "Confirm password"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:41
+msgid "Copied"
+msgstr "Copied"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:30
+msgid "Copy"
+msgstr "Copy"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:38
+msgid "Copy it now: Scylla keeps only a hash. It acts as you until {day}."
+msgstr "Copy it now: Scylla keeps only a hash. It acts as you until {day}."
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:102
 msgid "Copy the user ID"
@@ -110,6 +152,10 @@ msgstr "Copy the user ID"
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:11
 msgid "Create a new user"
 msgstr "Create a new user"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:33
+msgid "Create token"
+msgstr "Create token"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:13
 msgid "Create User"
@@ -164,7 +210,7 @@ msgstr "Delete this user?"
 msgid "Delete user"
 msgstr "Delete user"
 
-#: extensions/scylla-base/src/features/user/user.module.ts:36
+#: extensions/scylla-base/src/features/user/user.module.ts:38
 msgid "Detail"
 msgstr "Detail"
 
@@ -216,6 +262,10 @@ msgstr "Error loading users"
 msgid "Error loading your account"
 msgstr "Error loading your account"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:10
+msgid "Expiry"
+msgstr "Expiry"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:104
 msgid "Help this user sign in again, or stop the sign-in."
 msgstr "Help this user sign in again, or stop the sign-in."
@@ -240,10 +290,22 @@ msgstr "Instance admin"
 msgid "Last active {time}"
 msgstr "Last active {time}"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:11
+msgid "Last used"
+msgstr "Last used"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:65
 msgctxt "theme"
 msgid "Light"
 msgstr "Light"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:9
+msgid "Limits"
+msgstr "Limits"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:39
+msgid "Limits never go beyond your roles."
+msgstr "Limits never go beyond your roles."
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:57
 msgid "Link {provider}"
@@ -261,6 +323,10 @@ msgstr "Make instance admin"
 msgid "name@example.com"
 msgstr "name@example.com"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:13
+msgid "Never"
+msgstr "Never"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:41
 msgid "New email"
 msgstr "New email"
@@ -268,6 +334,14 @@ msgstr "New email"
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:71
 msgid "New password"
 msgstr "New password"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:27
+msgid "New personal token"
+msgstr "New personal token"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:7
+msgid "New token"
+msgstr "New token"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:6
 msgid "New user"
@@ -281,6 +355,10 @@ msgstr "No active session."
 msgid "No password: you sign in with a provider."
 msgstr "No password: you sign in with a provider."
 
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:14
+msgid "No personal token yet."
+msgstr "No personal token yet."
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:37
 msgid "Only an administrator can change it."
 msgstr "Only an administrator can change it."
@@ -293,6 +371,22 @@ msgstr "Password"
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:73
 msgid "Password changed. Your other sessions are signed out."
 msgstr "Password changed. Your other sessions are signed out."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:35
+msgid "Personal token"
+msgstr "Personal token"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:5
+msgid "Personal tokens"
+msgstr "Personal tokens"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:24
+msgid "Personal tokens are turned off in this workspace"
+msgstr "Personal tokens are turned off in this workspace"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:22
+msgid "Personal tokens are turned off on this server"
+msgstr "Personal tokens are turned off on this server"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:35
 msgid "Profile"
@@ -314,6 +408,14 @@ msgstr "Reactivate this account?"
 msgid "Remove instance admin"
 msgstr "Remove instance admin"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:17
+msgid "Revoke"
+msgstr "Revoke"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:18
+msgid "Revoke {name}?"
+msgstr "Revoke {name}?"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:61
 msgid "Save"
 msgstr "Save"
@@ -334,6 +436,10 @@ msgstr "Send the link"
 msgid "Sessions"
 msgstr "Sessions"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:36
+msgid "Shown once"
+msgstr "Shown once"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:91
 msgid "Sign out"
 msgstr "Sign out"
@@ -353,6 +459,10 @@ msgstr "Sign out everywhere else"
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:25
 msgid "Status"
 msgstr "Status"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:31
+msgid "Step {step} of 2"
+msgstr "Step {step} of 2"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:67
 msgctxt "theme"
@@ -411,6 +521,27 @@ msgstr "This session"
 msgid "This user does not exist."
 msgstr "This user does not exist."
 
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:8
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:29
+msgid "Token"
+msgstr "Token"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:20
+msgid "Token revoked"
+msgstr "Token revoked"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:4
+msgid "Tokens"
+msgstr "Tokens"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:6
+msgid "Tokens that act as you, with your own roles. For your scripts and tools."
+msgstr "Tokens that act as you, with your own roles. For your scripts and tools."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:21
+msgid "Turned off"
+msgstr "Turned off"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:84
 msgid "Unknown device"
 msgstr "Unknown device"
@@ -420,7 +551,7 @@ msgid "Unlink"
 msgstr "Unlink"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:4
-#: extensions/scylla-base/src/features/user/user.module.ts:36
+#: extensions/scylla-base/src/features/user/user.module.ts:38
 msgid "User"
 msgstr "User"
 
@@ -433,8 +564,8 @@ msgid "Username"
 msgstr "Username"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:5
-#: extensions/scylla-base/src/features/user/user.module.ts:28
 #: extensions/scylla-base/src/features/user/user.module.ts:30
+#: extensions/scylla-base/src/features/user/user.module.ts:32
 msgid "Users"
 msgstr "Users"
 
@@ -453,6 +584,10 @@ msgstr "You don't have permission to delete users."
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:48
 msgid "Your email is now {email}."
 msgstr "Your email is now {email}."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:28
+msgid "Your new token"
+msgstr "Your new token"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:42
 msgid "Your password"

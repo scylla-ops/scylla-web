@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { credentialRows, daysUntil, lastUsedOf } from '../app-credentials.struct.ts';
+import { daysUntil } from '@shared/domain/structs/api-token.struct.ts';
+import { credentialRows, lastUsedOf } from '../app-credentials.struct.ts';
 
 const NOW = new Date('2026-11-04T00:00:00.000Z');
 const limits = { preset: 'read_only' as const, actions: [], projectIds: [] };

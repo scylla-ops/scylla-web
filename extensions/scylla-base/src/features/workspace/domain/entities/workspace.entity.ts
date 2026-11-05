@@ -4,6 +4,8 @@ export interface WorkspaceEntity {
   name: string;
   /** Unique and editable: the first segment of the URLs of the workspace. */
   slug: string;
+  /** False: this workspace refuses the personal tokens of its members. */
+  personalTokensEnabled: boolean;
 }
 
 /** An owner of a workspace: it can delete it and change its owners. No role gives that. */

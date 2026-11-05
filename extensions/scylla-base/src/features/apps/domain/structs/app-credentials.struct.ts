@@ -52,7 +52,3 @@ export const lastUsedOf = (rows: readonly CredentialRow[]): CredentialRow | null
       (latest, row) => (!latest || row.lastUsedAt > latest.lastUsedAt ? row : latest),
       null,
     );
-
-/** The days before `at`, rounded to the nearest day; negative after it. */
-export const daysUntil = (at: string, now: Date): number =>
-  Math.round((Date.parse(at) - now.getTime()) / (24 * 60 * 60 * 1000));
