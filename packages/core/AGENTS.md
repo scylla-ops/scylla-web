@@ -46,7 +46,7 @@ src/
     ShellFrame/                                the sidebars + top bar around the pages of a `shell` mount
     AppSidebar/                                the sidebars, built from the nav entries
                                                DoubleSidebar: the brand band, Rail, SecondSidebar
-                                               (nav-rail.ts: the rail of the sections; rail.state.svelte.ts: when it opens)
+                                               (nav-rail.ts: the rail of the sections)
                                                Below `md`, the sheet: NavMain, where a NavGroup folds its links
                                                (nav-groups.state.svelte.ts keeps which groups are open)
     TopBar/                                    the crumbs of the route trail, after the name of the section, and `topBarEnd`
@@ -152,10 +152,12 @@ module gives an access policy.
   parameters. A page alone in its section still gets a `NavGroup`: the group names the section,
   the link names the page.
 - **The rail does not move the page.** It has a fixed slot of 56px and it opens in an absolute
-  layer, by a CSS transition of its width, so the page has no layout work and a pointer that
-  leaves in the middle reverses it from where it is. Keep the rows at a fixed width inside it.
-- **Keep the timing in `RailState`.** It opens 150 ms after the pointer stops, and closes 200 ms
-  after it leaves. A click closes it until the pointer leaves and comes back.
+  layer, by a CSS transition of its width, so the page has no layout work and a second click in
+  the middle reverses it from where it is. Keep the rows at a fixed width inside it.
+- **Only the user opens the rail.** A hover or a focus does not open it. A click on an empty part
+  of the rail or on its separator opens and closes it, and the cursor shows the direction. The
+  separator is the way for the keyboard. A row opens its page and closes the rail. A press outside
+  and Escape close it, except while one of its menus is open.
 - **A folding group never closes by itself** (in the sheet of a phone). It opens when the user goes to a page of its links.
   Only the user closes it, and it stays closed until the user opens it or goes to a page of its
   links. The open state is in memory, out of the sidebar, because a page with no shell unmounts

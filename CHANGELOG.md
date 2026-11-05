@@ -56,7 +56,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - `pnpm test:file`, `pnpm test:name`, `pnpm test:dir` and `pnpm test:changed` run a part of the tests
   with no coverage, so a developer does not wait for the whole suite. The tests also run on Node 25
   with no flag.
-- A double sidebar: a rail of the sections, which opens on hover and does not move the page, and a
+- A double sidebar: a rail of the sections, which opens on a click and does not move the page, and a
   second sidebar with the pages of the selected section. Inside a project, the second sidebar shows
   the pages of the project. On a phone, the sheet stays.
 - The switch of workspace is at the right end of the top bar, after a search (Ctrl K or Cmd K) of

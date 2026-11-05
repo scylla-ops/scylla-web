@@ -10,7 +10,6 @@ import type { ShellConfig } from '../shell-config.ts';
 import Badge from '../__test__/Badge.fixture.svelte';
 import Stub from '../__test__/Stub.fixture.svelte';
 import AppSidebarFixture from './AppSidebar.fixture.svelte';
-import { RAIL_OPEN_DELAY_MS } from './rail.state.svelte.ts';
 
 const LIST_SECRETS = testPermission('LIST_SECRETS');
 
@@ -145,18 +144,84 @@ describe('the rail', () => {
     expect(machines).toHaveAttribute('data-nav-group', 'machines');
   });
 
-  it('opens after the pointer stops on it, and a click closes it', async () => {
+  it('stays closed while the pointer moves on it', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     render(AppSidebarFixture, { config: configWith() });
     const rail = railOf();
-    expect(rail).toHaveAttribute('data-state', 'collapsed');
 
     await fireEvent.pointerMove(rail);
-    await vi.advanceTimersByTimeAsync(RAIL_OPEN_DELAY_MS);
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(rail).toHaveAttribute('data-state', 'collapsed');
+  });
+
+  it('opens and closes on a click on an empty part', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+    const rail = railOf();
+
+    await fireEvent.click(rail);
     expect(rail).toHaveAttribute('data-state', 'expanded');
 
-    await fireEvent.click(within(rail).getByRole('button', { name: /Secrets/ }));
+    await fireEvent.click(rail);
     expect(rail).toHaveAttribute('data-state', 'collapsed');
+  });
+
+  it('opens and closes on a click on its separator, whose cursor shows the direction', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+    const rail = railOf();
+    const separator = within(rail).getByRole('button', { name: 'Toggle Sidebar' });
+    expect(separator).toHaveClass('cursor-e-resize');
+    expect(separator).toHaveAttribute('aria-expanded', 'false');
+
+    await fireEvent.click(separator);
+    expect(rail).toHaveAttribute('data-state', 'expanded');
+    expect(separator).toHaveClass('cursor-w-resize');
+    expect(separator).toHaveAttribute('aria-expanded', 'true');
+
+    await fireEvent.click(separator);
+    expect(rail).toHaveAttribute('data-state', 'collapsed');
+  });
+
+  it('opens the page of a row without opening the rail, and closes an open rail', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+    const rail = railOf();
+    const secrets = within(rail).getByRole('button', { name: /Secrets/ });
+
+    await fireEvent.click(secrets);
+    expect(rail).toHaveAttribute('data-state', 'collapsed');
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/secrets', undefined);
+
+    await fireEvent.click(rail);
+    await fireEvent.click(secrets);
+    expect(rail).toHaveAttribute('data-state', 'collapsed');
+  });
+
+  it('closes on a press outside and on Escape', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+    const rail = railOf();
+
+    await fireEvent.click(rail);
+    await fireEvent.pointerDown(document.body);
+    expect(rail).toHaveAttribute('data-state', 'collapsed');
+
+    await fireEvent.click(rail);
+    await fireEvent.keyDown(window, { key: 'Escape' });
+    expect(rail).toHaveAttribute('data-state', 'collapsed');
+  });
+
+  it('stays open while one of its menus is open', async () => {
+    const contributions: ShellContributions[] = [
+      { linkParams: () => ({ workspaceSlug: 'acme-corp' }), sidebarFooter: [Stub] },
+    ];
+    render(AppSidebarFixture, { config: configWith({ contributions }) });
+    const rail = railOf();
+    within(rail).getByText('stub').setAttribute('data-state', 'open');
+
+    await fireEvent.click(rail);
+    await fireEvent.pointerDown(document.body);
+    await fireEvent.keyDown(window, { key: 'Escape' });
+
+    expect(rail).toHaveAttribute('data-state', 'expanded');
   });
 
   it('shows the footer of an extension at the end', () => {

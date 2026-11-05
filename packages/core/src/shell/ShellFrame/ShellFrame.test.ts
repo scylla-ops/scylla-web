@@ -44,10 +44,13 @@ describe('ShellFrame', () => {
     expect(container.querySelector('[data-slot="sidebar-container"]')).toBeInTheDocument();
   });
 
-  it('opens the rail by hover on a large screen, so it has no toggle', () => {
+  it('has one toggle on a large screen: the separator of the rail', () => {
     render(ShellFrameFixture);
 
-    expect(screen.queryByRole('button', { name: 'Toggle Sidebar' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Toggle Sidebar' })).toHaveAttribute(
+      'data-slot',
+      'sidebar-rail-separator',
+    );
   });
 
   it('keeps the sheet and its toggle on a phone, with no rail', () => {
