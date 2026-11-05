@@ -41,7 +41,21 @@ beforeEach(() => {
   const cache = withQueryClient();
   const restoreRegistry = withRegistry({
     invitation: {
-      invitationRepository: { list: vi.fn().mockResolvedValue([{ id: 'i-1' }]) },
+      invitationRepository: {
+        list: vi
+          .fn()
+          .mockResolvedValue([
+            {
+              id: 'i-1',
+              workspaceId: 'org-1',
+              email: 'lina@acme.dev',
+              role: 'member',
+              invitedBy: 'user-1',
+              expiresAt: '2099-01-01T00:00:00.000Z',
+              sentAt: '2098-12-01T00:00:00.000Z',
+            },
+          ]),
+      },
     },
     user: { userRepository: { getAll: vi.fn().mockResolvedValue({ items: [] }) } },
     access: {
