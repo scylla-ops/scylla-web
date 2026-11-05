@@ -7,6 +7,8 @@ import { t } from '@lingui/core/macro';
 const MESSAGES: Record<string, (metadata: Readonly<Record<string, string>>) => string> = {
   // Accounts.
   EMAIL_IN_USE: () => t`An account already uses this email`,
+  WRONG_PASSWORD: () => t`This password is not valid`,
+  ALREADY_LINKED: () => t`This account already signs in with this provider`,
   HANDLE_IN_USE: () => t`Another account already uses this handle`,
   EMAIL_NOT_VERIFIED: () => t`Verify your email address first`,
   EMAIL_REQUIRED: () => t`The identity provider gives no email address`,

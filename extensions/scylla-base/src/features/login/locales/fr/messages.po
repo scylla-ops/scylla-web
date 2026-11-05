@@ -13,9 +13,17 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:6
+msgid "{email} already has a Scylla account with a password. To add {provider} to it, enter the password of that account once."
+msgstr "{email} a déjà un compte Scylla avec un mot de passe. Pour y ajouter {provider}, saisissez une fois le mot de passe de ce compte."
+
 #: extensions/scylla-base/src/features/login/presentation/messages/login.messages.ts:11
 msgid "••••••••"
 msgstr "••••••••"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:12
+msgid "A provider can send an email that the person does not own. So Scylla does not link by email alone. Scylla sends a mail to the person after the link."
+msgstr "Un fournisseur peut envoyer un email qui n'appartient pas à la personne. Scylla n'associe donc pas sur le seul email. Scylla envoie un mail à la personne après l'association."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:7
 msgid "Ada Lovelace"
@@ -33,11 +41,11 @@ msgstr "Déjà un compte ? Connectez-vous"
 msgid "An account uses this email. Sign in to it, then connect {provider} on the Security page of your account."
 msgstr "Un compte utilise cet email. Connectez-vous à ce compte, puis associez {provider} sur la page Sécurité de votre compte."
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:35
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:38
 msgid "An admin turned it off or removed it. Use another way to sign in."
 msgstr "Un administrateur l’a désactivé ou supprimé. Utilisez un autre moyen de connexion."
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:25
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:28
 msgid "An instance admin turned off your account. Ask them to turn it on again."
 msgstr "Un administrateur de l’instance a désactivé votre compte. Demandez-lui de le réactiver."
 
@@ -127,13 +135,17 @@ msgstr "Si un compte utilise cette adresse e-mail, le serveur a écrit un lien d
 msgid "If an account uses this email, we sent it a link to reset the password. The link expires in one hour."
 msgstr "Si un compte utilise cette adresse e-mail, nous lui avons envoyé un lien pour réinitialiser le mot de passe. Le lien expire dans une heure."
 
-#: extensions/scylla-base/src/features/login/infrastructure/default-login.repository.ts:21
+#: extensions/scylla-base/src/features/login/infrastructure/default-login.repository.ts:22
 msgid "Incorrect credentials"
 msgstr "Identifiants incorrects"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:23
 msgid "It is linked to another Scylla account. Sign in to that account, or disconnect it there first."
 msgstr "Il est associé à un autre compte Scylla. Connectez-vous à ce compte, ou dissociez-le d’abord depuis ce compte."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:10
+msgid "Link {provider} and sign in"
+msgstr "Associer {provider} et se connecter"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:6
 msgid "Name"
@@ -164,7 +176,7 @@ msgstr "Pas encore de compte ? Créez-en un"
 msgid "No verified email from {provider}"
 msgstr "Aucun email vérifié de {provider}"
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:37
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:40
 msgid "Nothing changed. Try again in a few minutes."
 msgstr "Rien n’a changé. Réessayez dans quelques minutes."
 
@@ -177,13 +189,25 @@ msgstr "ou"
 msgid "Password"
 msgstr "Mot de passe"
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:36
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:8
+msgid "Password of {email}"
+msgstr "Mot de passe de {email}"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:7
+msgid "Scylla account"
+msgstr "Compte Scylla"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:39
 msgid "Scylla cannot reach {provider}"
 msgstr "Scylla ne peut pas joindre {provider}"
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:39
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:42
 msgid "Scylla checked the answer and did not accept it. Tell your admin."
 msgstr "Scylla a vérifié la réponse et ne l’a pas acceptée. Prévenez votre administrateur."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:16
+msgid "Scylla does not answer"
+msgstr "Scylla ne répond pas"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:8
 msgid "Send the link"
@@ -196,7 +220,7 @@ msgstr "Envoyer le lien"
 msgid "Sign in"
 msgstr "Se connecter"
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:29
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:32
 msgid "Sign in first"
 msgstr "Connectez-vous d’abord"
 
@@ -204,19 +228,20 @@ msgstr "Connectez-vous d’abord"
 msgid "Sign-in with {provider} is only for people who have an account. Ask an admin to add you first."
 msgstr "La connexion avec {provider} est réservée aux personnes qui ont un compte. Demandez d’abord à un administrateur de vous ajouter."
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:41
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:44
 msgid "Something went wrong on the server. Try again in a few minutes."
 msgstr "Une erreur est survenue sur le serveur. Réessayez dans quelques minutes."
 
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:15
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:6
 msgid "Start again"
 msgstr "Recommencer"
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:28
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:31
 msgid "Tell your admin. The redirect URL of Scylla is not accepted at {provider}."
 msgstr "Prévenez votre administrateur. L’URL de redirection de Scylla n’est pas acceptée chez {provider}."
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:38
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:41
 msgid "The answer from {provider} is not valid"
 msgstr "La réponse de {provider} n’est pas valide"
 
@@ -224,29 +249,35 @@ msgstr "La réponse de {provider} n’est pas valide"
 msgid "the provider"
 msgstr "le fournisseur"
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:26
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:29
 msgid "The provider is not set up correctly"
 msgstr "Le fournisseur n’est pas configuré correctement"
 
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:14
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:12
 msgid "The request is older than 10 minutes, or it started in another browser. Start again from the first page."
 msgstr "La demande date de plus de 10 minutes, ou elle a commencé dans un autre navigateur. Recommencez depuis la première page."
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:40
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:43
 msgid "The sign-in failed"
 msgstr "La connexion a échoué"
 
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:13
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:11
 msgid "The sign-in request expired"
 msgstr "La demande de connexion a expiré"
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:32
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:35
 msgid "The sign-in was refused at {provider}"
 msgstr "La connexion a été refusée chez {provider}"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:22
 msgid "This account at {provider} is used by another person"
 msgstr "Ce compte chez {provider} est utilisé par une autre personne"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:11
+msgid "This is not my account"
+msgstr "Ce n'est pas mon compte"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:21
 msgid "This link is not valid any more. Sign up again to get a new one."
@@ -256,21 +287,26 @@ msgstr "Ce lien n'est plus valide. Inscrivez-vous de nouveau pour en recevoir un
 msgid "This link is not valid or has expired."
 msgstr "Ce lien n'est pas valide ou a expiré."
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:34
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:37
 msgid "This provider is not available"
 msgstr "Ce fournisseur n’est pas disponible"
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:31
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:34
 msgid "To connect {provider}, you must be signed in. Sign in, then start again from your account."
 msgstr "Pour associer {provider}, vous devez être connecté. Connectez-vous, puis recommencez depuis votre compte."
 
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:18
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:5
 msgid "Try again"
 msgstr "Réessayer"
 
-#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:33
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:36
 msgid "Try again. If it happens again, tell your admin."
 msgstr "Réessayez. Si cela se reproduit, prévenez votre administrateur."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:26
+msgid "Use the account at {provider} that you linked, or remove it on the Security page of your account first."
+msgstr "Utilisez le compte chez {provider} que vous avez associé, ou retirez-le d'abord sur la page Sécurité de votre compte."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:18
 msgid "Verify your email"
@@ -284,6 +320,7 @@ msgstr "Vérification de votre adresse e-mail…"
 msgid "We sent a link to this address. Open it to activate your account."
 msgstr "Nous avons envoyé un lien à cette adresse. Ouvrez-le pour activer votre compte."
 
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:4
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:19
 msgid "You already have an account"
 msgstr "Vous avez déjà un compte"
@@ -297,6 +334,10 @@ msgid "You stopped the sign-in"
 msgstr "Vous avez arrêté la connexion"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:24
+msgid "Your account already signs in with {provider}"
+msgstr "Votre compte se connecte déjà avec {provider}"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:27
 msgid "Your account is turned off"
 msgstr "Votre compte est désactivé"
 
@@ -307,3 +348,11 @@ msgstr "Votre adresse e-mail est vérifiée. Vous pouvez vous connecter."
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:19
 msgid "Your password is changed."
 msgstr "Votre mot de passe est changé."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:9
+msgid "Your Scylla password"
+msgstr "Votre mot de passe Scylla"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:17
+msgid "Your sign-in still waits. Try again in a moment."
+msgstr "Votre connexion est toujours en attente. Réessayez dans un instant."

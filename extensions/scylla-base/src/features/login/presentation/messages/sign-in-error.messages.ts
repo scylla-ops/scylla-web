@@ -21,6 +21,9 @@ export const signInErrorMessages = {
     msg`An account uses this email. Sign in to it, then connect ${provider} on the Security page of your account.`,
   identityInUseTitle: (provider: string) => msg`This account at ${provider} is used by another person`,
   identityInUse: msg`It is linked to another Scylla account. Sign in to that account, or disconnect it there first.`,
+  alreadyLinkedTitle: (provider: string) => msg`Your account already signs in with ${provider}`,
+  alreadyLinked: (provider: string) =>
+    msg`Use the account at ${provider} that you linked, or remove it on the Security page of your account first.`,
   accountInactiveTitle: msg`Your account is turned off`,
   accountInactive: msg`An instance admin turned off your account. Ask them to turn it on again.`,
   redirectMismatchTitle: msg`The provider is not set up correctly`,

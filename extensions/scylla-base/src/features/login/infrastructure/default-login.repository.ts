@@ -4,6 +4,7 @@ import type {
   SignUpInput,
 } from '@base/features/login/domain/repository/login.repository.ts';
 import type { PasswordResetDelivery } from '@base/features/login/domain/structs/password-reset-delivery.struct.ts';
+import type { PendingLink } from '@base/features/login/domain/structs/pending-link.struct.ts';
 import type { SignInMethods } from '@base/features/login/domain/structs/sign-in-methods.struct.ts';
 import type { IAccountServiceClient } from '@base/generated/scylla/accounts/v1/account_service.client.ts';
 import type { IProfileServiceClient } from '@base/generated/scylla/accounts/v1/profile_service.client.ts';
@@ -47,6 +48,16 @@ export class DefaultLoginRepository implements LoginRepository {
 
   public async listSignInMethods(): Promise<SignInMethods> {
     return signInMethodsToDomain(await this.accounts.listSignInMethods({}).response);
+  }
+
+  public async pendingLink(): Promise<PendingLink> {
+    const { providerName, email, displayName } = await this.accounts.getPendingLink({}).response;
+    return { providerName, email, displayName };
+  }
+
+  public async linkPendingIdentity(password: string): Promise<string> {
+    const { returnTo } = await this.accounts.linkPendingIdentity({ password }).response;
+    return returnTo;
   }
 
   public async signUp({ email, password, displayName, invitationToken = '' }: SignUpInput) {

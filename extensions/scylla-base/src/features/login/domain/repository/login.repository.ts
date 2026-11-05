@@ -1,4 +1,5 @@
 import type { PasswordResetDelivery } from '@base/features/login/domain/structs/password-reset-delivery.struct.ts';
+import type { PendingLink } from '@base/features/login/domain/structs/pending-link.struct.ts';
 import type { SignInMethods } from '@base/features/login/domain/structs/sign-in-methods.struct.ts';
 
 export interface SignUpInput {
@@ -14,6 +15,10 @@ export interface LoginRepository {
   login(identifier: string, password: string): Promise<void>;
   /** The identity providers and the sign-up mode of the server, for the sign-in page. */
   listSignInMethods(): Promise<SignInMethods>;
+  /** The link that waits in a cookie of this browser. NOT_FOUND: none. */
+  pendingLink(): Promise<PendingLink>;
+  /** Returns the page to go to. FAILED_PRECONDITION with WRONG_PASSWORD: the link still waits. */
+  linkPendingIdentity(password: string): Promise<string>;
   /** The same answer for a new and for a known email: a mail goes to the address. */
   signUp(input: SignUpInput): Promise<void>;
   /** FAILED_PRECONDITION: the link is unknown, used or expired. */

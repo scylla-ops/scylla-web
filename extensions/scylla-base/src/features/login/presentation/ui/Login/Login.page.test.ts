@@ -16,6 +16,8 @@ const makeFakeRepository = (overrides: Partial<LoginRepository> = {}) => {
     resetPassword: vi.fn(),
     listSignInMethods: vi.fn().mockResolvedValue({ providers: [], signUpMode: 'closed' }),
     signUp: vi.fn(),
+    pendingLink: vi.fn(),
+    linkPendingIdentity: vi.fn(),
     verifyEmail: vi.fn(),
     ...overrides,
   };

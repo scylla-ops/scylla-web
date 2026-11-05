@@ -35,6 +35,8 @@ const setUp = () => {
     listSignInMethods: vi.fn().mockResolvedValue({ providers: [], signUpMode: 'closed' }),
     signUp: vi.fn(),
     verifyEmail: vi.fn(),
+    pendingLink: vi.fn(),
+    linkPendingIdentity: vi.fn(),
   };
   const restoreRegistry = withRegistry({ login: { loginRepository } });
   const testNavigator = installTestNavigator();

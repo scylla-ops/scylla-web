@@ -182,7 +182,7 @@ describe('feature permission conformance', () => {
         'reads only whether the server refuses the tokens.',
       'login.loginQueries':
         '`signInMethods` is public: the sign-in page reads it with no session. The account page ' +
-        'reads it to offer the providers to link.',
+        'reads it to offer the providers to link. `pendingLink` reads a cookie of this browser.',
       'workspace.ownerQueries':
         '`list` takes the gate of its caller: ListOwners needs to read the workspace, and the ' +
         'members page that shows it requires LIST_WORKSPACE_MEMBERS.',

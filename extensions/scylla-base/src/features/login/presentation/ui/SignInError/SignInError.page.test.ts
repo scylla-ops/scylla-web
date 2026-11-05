@@ -56,8 +56,8 @@ describe('SignInErrorPage', () => {
   it('shows no text of the URL: not a code, and not a provider', async () => {
     openAt('/sign-in-error?code=call-555&provider=call-555');
 
-    expect(await screen.findByRole('heading', { name: 'The sign-in failed' })).toBeVisible();
-    expect(screen.getByText('sign_in_failed')).toBeInTheDocument();
+    expect(await screen.findByText('sign_in_failed')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'The sign-in failed' })).toBeVisible();
     expect(screen.queryByText(/call-555/)).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Try again' })).not.toBeInTheDocument();
   });

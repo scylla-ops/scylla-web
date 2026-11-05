@@ -54,6 +54,12 @@ const cards = (provider: string): Record<string, Card> => ({
     tone: 'blocked',
     action: 'none',
   },
+  already_linked: {
+    title: m.alreadyLinkedTitle(provider),
+    body: m.alreadyLinked(provider),
+    tone: 'blocked',
+    action: 'none',
+  },
   account_inactive: {
     title: m.accountInactiveTitle,
     body: m.accountInactive,
@@ -108,5 +114,5 @@ const cards = (provider: string): Record<string, Card> => ({
 export const signInErrorCard = (code: string | null, provider: string): SignInErrorCard => {
   const all = cards(provider);
   const known = code !== null && Object.hasOwn(all, code) ? code : 'sign_in_failed';
-  return { code: known, ...all[known] } as SignInErrorCard;
+  return { code: known, ...all[known] };
 };

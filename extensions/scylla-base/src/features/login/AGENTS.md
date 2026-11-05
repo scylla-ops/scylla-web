@@ -37,6 +37,18 @@ for a link. The page shows one card for each code of
 - A failed sign-in is not a lost session: this page does not call `closeSession`. The list of the
   providers has `showsOwnError`, so a network failure gives no toast and the card stays.
 
+## A link that waits for the password
+
+The callback of a provider gives a verified email that an account with a password has. The API keeps
+a link for 10 minutes, with its token in an HttpOnly cookie, and the browser goes to `/sign-in-link`.
+The URL holds no data: the page reads the link with `GetPendingLink`.
+
+- A failure of the network is not a lost link: the page offers to try again, and only an answer of
+  the server gives the card of an expired request.
+- A wrong password stays in the page, and the link still waits. It is `FAILED_PRECONDITION`, so the
+  global handler does not end a session.
+- At the end the page does a full load of `returnTo`: the session is in its cookie.
+
 ## Data contract
 
 `LoginRepository` — `domain/repository/login.repository.ts`:

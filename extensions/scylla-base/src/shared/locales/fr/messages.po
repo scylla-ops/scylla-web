@@ -37,7 +37,7 @@ msgstr "Un nom d'utilisateur ne peut pas contenir \"@\"."
 msgid "Access"
 msgstr "Accès"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:19
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:21
 msgid "Add another sign-in method before you remove this one"
 msgstr "Ajoutez une autre méthode de connexion avant de retirer celle-ci"
 
@@ -69,15 +69,15 @@ msgstr "Tout ce que les rôles permettent."
 msgid "An account already uses this email"
 msgstr "Un compte utilise déjà cet e-mail"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:28
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:30
 msgid "An app gets roles only in its own workspace"
 msgstr "Une app reçoit des rôles seulement dans son propre espace de travail"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:27
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:29
 msgid "An invitation is already pending for this email"
 msgstr "Une invitation est déjà en attente pour cet e-mail"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:15
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:17
 msgid "An invitation is required to sign up"
 msgstr "Une invitation est nécessaire pour s'inscrire"
 
@@ -85,19 +85,19 @@ msgstr "Une invitation est nécessaire pour s'inscrire"
 msgid "An unexpected error occurred"
 msgstr "Une erreur inattendue s'est produite"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:10
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:12
 msgid "Another account already uses this handle"
 msgstr "Un autre compte utilise déjà cet identifiant"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:33
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:35
 msgid "Another secret of the project already uses this name"
 msgstr "Un autre secret du projet utilise déjà ce nom"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:35
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:37
 msgid "Another trigger of the pipeline already uses this name"
 msgstr "Un autre déclencheur du pipeline utilise déjà ce nom"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:24
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:26
 msgid "Another workspace already uses this slug"
 msgstr "Un autre espace de travail utilise déjà cette adresse"
 
@@ -138,7 +138,7 @@ msgstr "Impossible de copier : sélectionnez l'ID manuellement"
 msgid "Custom"
 msgstr "Personnalisé"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:25
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:27
 msgid "Delete the projects and the agents of the workspace first"
 msgstr "Supprimez d'abord les projets et les agents de l'espace de travail"
 
@@ -176,7 +176,7 @@ msgstr "Échoué"
 msgid "Full"
 msgstr "Complet"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:29
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:31
 msgid "Give this person a role in the workspace first"
 msgstr "Donnez d'abord à cette personne un rôle dans l'espace de travail"
 
@@ -200,7 +200,7 @@ msgstr "Limites"
 msgid "Manage"
 msgstr "Gérer"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:17
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:19
 msgid "No account is linked to this identity"
 msgstr "Aucun compte n'est lié à cette identité"
 
@@ -345,7 +345,7 @@ msgstr "Serveur injoignable"
 msgid "Show the secret"
 msgstr "Afficher le secret"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:16
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:18
 msgid "Sign-up is closed on this server"
 msgstr "Les inscriptions sont fermées sur ce serveur"
 
@@ -369,19 +369,19 @@ msgstr "Réussi"
 msgid "The display name must have 100 characters at most."
 msgstr "Le nom affiché doit contenir 100 caractères au maximum."
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:12
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:14
 msgid "The identity provider gives no email address"
 msgstr "Le fournisseur d'identité ne donne pas d'adresse e-mail"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:36
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:38
 msgid "The job has not ended yet"
 msgstr "Le job n'est pas encore terminé"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:31
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:33
 msgid "The limit is reached"
 msgstr "La limite est atteinte"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:31
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:33
 msgid "The limit is reached ({used} of {limit})"
 msgstr "La limite est atteinte ({used} sur {limit})"
 
@@ -393,11 +393,11 @@ msgstr "Le mot de passe ne peut pas contenir que des espaces."
 msgid "The password must have 8 to 128 characters."
 msgstr "Le mot de passe doit contenir de 8 à 128 caractères."
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:34
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:36
 msgid "The server has no key to encrypt secrets"
 msgstr "Le serveur n'a pas de clé pour chiffrer les secrets"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:18
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:20
 msgid "The server needs at least one other administrator"
 msgstr "Le serveur a besoin d'au moins un autre administrateur"
 
@@ -409,21 +409,29 @@ msgstr "Les deux mots de passe ne sont pas identiques."
 msgid "The username is too long: 255 bytes at most."
 msgstr "Le nom d'utilisateur est trop long : 255 octets au maximum."
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:26
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:28
 msgid "The workspace needs at least one other owner"
 msgstr "L'espace de travail a besoin d'au moins un autre propriétaire"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:37
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:11
+msgid "This account already signs in with this provider"
+msgstr "Ce compte se connecte déjà avec ce fournisseur"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:39
 msgid "This app is not a runner"
 msgstr "Cette app n'est pas un runner"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:13
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:15
 msgid "This identity is already linked to another account"
 msgstr "Cette identité est déjà liée à un autre compte"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:14
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:16
 msgid "This invitation is for another email address"
 msgstr "Cette invitation est pour une autre adresse e-mail"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:10
+msgid "This password is not valid"
+msgstr "Ce mot de passe n'est pas valide"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:4
 msgid "Token name"
@@ -477,15 +485,15 @@ msgstr "Utilisateur supprimé"
 msgid "User information updated"
 msgstr "Informations utilisateur mises à jour"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:11
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:13
 msgid "Verify your email address first"
 msgstr "Vérifiez d'abord votre adresse e-mail"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:22
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:24
 msgid "Wait {seconds} seconds before you send it again"
 msgstr "Attendez {seconds} secondes avant de le renvoyer"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:22
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:24
 msgid "Wait before you send it again"
 msgstr "Attendez avant de le renvoyer"
 
@@ -505,7 +513,7 @@ msgstr "Espace de travail mis à jour"
 msgid "You cannot delete your own account."
 msgstr "Vous ne pouvez pas supprimer votre propre compte."
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:20
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:22
 msgid "You cannot do this on your own account"
 msgstr "Vous ne pouvez pas faire cela sur votre propre compte"
 
