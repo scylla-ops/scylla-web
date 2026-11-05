@@ -1,17 +1,17 @@
 <script lang="ts">
   import { MediaQuery } from 'svelte/reactivity';
   import PlugIcon from '@lucide/svelte/icons/plug';
-  import PlusIcon from '@lucide/svelte/icons/plus';
   import { can, Permission } from '@platform/authz';
   import { contextStore, scyllaNavigate } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { ConfirmOperationAlertDialog, ErrorState, FeatureHeader, ListSkeleton } from '@scylla/ui';
-  import { Button, TableBody, TableHead, TableHeader, TableRow } from '@scylla/ui/primitives';
+  import { TableBody, TableHead, TableHeader, TableRow } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import AddAppDialog from '../AddAppDialog/AddAppDialog.svelte';
+  import EmptyList from '../EmptyList/EmptyList.svelte';
   import AppRow from './AppRow.svelte';
   import { appsMessages } from '@base/features/apps/presentation/messages/apps.messages.ts';
   import { appsListMessages as messages } from '@base/features/apps/presentation/messages/apps-list.messages.ts';
@@ -67,28 +67,13 @@
     <!-- Pending, not loading: the query waits for the permissions before its first call. -->
     <ListSkeleton rows={3} rowClass="h-14 w-full rounded-xl" />
   {:else if (apps.data ?? []).length === 0}
-    <section
-      class="flex min-h-80 flex-1 flex-col items-center justify-center gap-3 rounded-xl border p-8 text-center"
-    >
-      <span
-        class="flex size-12 items-center justify-center rounded-full bg-muted text-primary"
-        aria-hidden="true"
-      >
-        <PlugIcon class="size-5" />
-      </span>
-      <h2 class="text-xl">
-        {canCreate ? t(messages.firstTitle) : t(messages.emptyTitle)}
-      </h2>
-      <p class="max-w-md text-sm text-muted-foreground">
-        {canCreate ? t(messages.firstBody) : t(messages.askAdmin(workspaceName))}
-      </p>
-      {#if canCreate}
-        <Button onclick={() => (addOpen = true)}>
-          <PlusIcon class="size-4" aria-hidden="true" />
-          {t(messages.add)}
-        </Button>
-      {/if}
-    </section>
+    <EmptyList
+      icon={PlugIcon}
+      title={canCreate ? t(messages.firstTitle) : t(messages.emptyTitle)}
+      body={canCreate ? t(messages.firstBody) : t(messages.askAdmin(workspaceName))}
+      addLabel={t(messages.add)}
+      onAdd={canCreate ? () => (addOpen = true) : undefined}
+    />
   {:else}
     {#if phone.current}
       <div class="flex flex-col gap-3">

@@ -1,14 +1,12 @@
 <script lang="ts">
   import { MediaQuery } from 'svelte/reactivity';
   import BotIcon from '@lucide/svelte/icons/bot';
-  import PlusIcon from '@lucide/svelte/icons/plus';
   import SearchIcon from '@lucide/svelte/icons/search';
   import { can, Permission } from '@platform/authz';
   import { contextStore, scyllaNavigate } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { ConfirmOperationAlertDialog, ErrorState, FeatureHeader, ListSkeleton } from '@scylla/ui';
   import {
-    Button,
     Input,
     TableBody,
     TableCell,
@@ -34,6 +32,7 @@
   import type { AgentAccess } from '@base/features/apps/domain/structs/agent-access.struct.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import AddAgentDialog from '../AddAgentDialog/AddAgentDialog.svelte';
+  import EmptyList from '../EmptyList/EmptyList.svelte';
   import Sparkline from '../Sparkline/Sparkline.svelte';
   import AgentCard from './AgentCard.svelte';
   import AgentStatCards from './AgentStatCards.svelte';
@@ -133,33 +132,18 @@
   {:else if agents.isPending}
     <ListSkeleton rows={4} rowClass="h-16 w-full rounded-xl" />
   {:else if all.length === 0}
-    <section
-      class="flex min-h-80 flex-1 flex-col items-center justify-center gap-3 rounded-xl border p-8 text-center"
-    >
-      <span
-        class="flex size-12 items-center justify-center rounded-full bg-muted text-primary"
-        aria-hidden="true"
-      >
-        <BotIcon class="size-5" />
-      </span>
-      <h2 class="text-xl">
-        {canCreate ? t(messages.firstTitle) : t(messages.emptyTitle)}
-      </h2>
-      <p class="max-w-md text-sm text-muted-foreground">
-        {canCreate ? t(messages.firstBody) : t(messages.askAdmin)}
-      </p>
-      {#if canCreate}
-        <Button
-          onclick={() => {
+    <EmptyList
+      icon={BotIcon}
+      title={canCreate ? t(messages.firstTitle) : t(messages.emptyTitle)}
+      body={canCreate ? t(messages.firstBody) : t(messages.askAdmin)}
+      addLabel={t(messages.add)}
+      onAdd={canCreate
+        ? () => {
             joining = null;
             addOpen = true;
-          }}
-        >
-          <PlusIcon class="size-4" aria-hidden="true" />
-          {t(messages.add)}
-        </Button>
-      {/if}
-    </section>
+          }
+        : undefined}
+    />
   {:else}
     {#if phone.current}
       <p class="text-xs text-muted-foreground">

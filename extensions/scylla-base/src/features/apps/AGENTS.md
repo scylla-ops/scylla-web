@@ -38,6 +38,10 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   attention first (`mainCredential` in `app-list.struct.ts`). A user may list the apps and not
   read one of them: that query gives `null`, with no error, and the line shows a dash. The access
   column needs `list_workspace_members` (`appQueries.appRoles`).
+- With no item, both pages show `components/EmptyList/`. The icon and the title have their own
+  grid row, between two rows of 2fr and 3fr. The text and the button are in the 3fr row. Thus a
+  longer text does not move the icon or the title, unless the text and the button are taller
+  than this row. Do not center the full group: its height changes with the text.
 - The agent page (`ui/AgentDetails/`, route `/agents/:appId`) shows the header (Disable or
   Enable), a banner when it is disabled, the 30-day stats (`appQueries.agentStatsOf`), the jobs per
   day, the machine, the recent jobs, the access (Change: `runnerChanges` in
