@@ -1,6 +1,7 @@
 <script lang="ts">
   import { i18n } from '@lingui/core';
   import XIcon from '@lucide/svelte/icons/x';
+  import { can, Permission } from '@platform/authz';
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import {
     accessMutations,
@@ -64,8 +65,8 @@
   const options = $derived(
     (rolesQuery.data ?? []).filter(role => role.level === level && role.holder === holder),
   );
-  const held = $derived(roles.filter(role => role.roleKey !== OWNER_KEY));
-  const owner = $derived(roles.some(role => role.roleKey === OWNER_KEY));
+  const held = $derived(roles);
+  const canChangeOwners = $derived(can(Permission.MANAGE_OWNERS, { workspaceId }));
 
   let next = $state('');
   let pending = $state(false);
@@ -109,9 +110,6 @@
   title={t(changeTitle(name))}
 >
   <div class="flex flex-col gap-4">
-    {#if owner}
-      <p class="text-xs text-muted-foreground">{t(membershipMessages.ownerStays)}</p>
-    {/if}
     <ul class="flex flex-col gap-2">
       {#each held as role (role.role)}
         <li class="flex items-center justify-between rounded-md border px-3 py-1.5 text-sm">
@@ -119,7 +117,7 @@
           <Button
             variant="ghost"
             size="icon"
-            disabled={pending}
+            disabled={pending || (role.roleKey === OWNER_KEY && !canChangeOwners)}
             aria-label={t(membershipMessages.removeRow)}
             onclick={() => take(role)}
           >

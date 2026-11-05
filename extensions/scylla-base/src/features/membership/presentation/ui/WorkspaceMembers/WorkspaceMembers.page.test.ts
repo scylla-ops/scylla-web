@@ -25,8 +25,16 @@ const member = (id: string, name: string, roles: MemberRoleEntity[]): MemberEnti
   roles,
 });
 
+const ownerRole = role({
+  role: 'owner',
+  roleKey: 'owner',
+  roleName: 'Workspace owner',
+  grantedAt: new Date('2026-03-03'),
+});
+
 let listMembers: ReturnType<typeof vi.fn>;
 let getAll: ReturnType<typeof vi.fn>;
+let revoke: ReturnType<typeof vi.fn>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
@@ -47,7 +55,7 @@ const grant = (permissions: Permission[] | 'all') =>
 beforeEach(() => {
   listMembers = vi.fn().mockResolvedValue([
     member('user-1', 'Alice', [
-      role({ role: 'owner', roleKey: 'owner', roleName: 'Owner', grantedAt: new Date('2026-03-03') }),
+      ownerRole,
     ]),
     member('user-2', 'Bob', [
       role({}),
@@ -63,6 +71,7 @@ beforeEach(() => {
     { ...member('app-1', 'deploy-bot', [role({ role: 'runner', roleKey: 'agent' })]), actorKind: 'app' },
   ]);
   getAll = vi.fn().mockResolvedValue({ items: [] });
+  revoke = vi.fn().mockResolvedValue(undefined);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -71,7 +80,7 @@ beforeEach(() => {
       accessRepository: {
         listMembers,
         grant: vi.fn().mockResolvedValue(undefined),
-        revoke: vi.fn().mockResolvedValue(undefined),
+        revoke,
         check: vi.fn().mockResolvedValue(new Set()),
       },
     },
@@ -115,7 +124,7 @@ describe('WorkspaceMembersPage', () => {
     render(WorkspaceMembersPage);
 
     const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
-    expect(within(alice).getByText('Owner')).toBeInTheDocument();
+    expect(within(alice).getByText('Workspace owner')).toBeInTheDocument();
     expect(within(alice).getByText('Every project, as admin')).toBeInTheDocument();
     expect(within(alice).queryByText('—')).not.toBeInTheDocument();
   });
@@ -177,6 +186,50 @@ describe('WorkspaceMembersPage', () => {
 
     expect(await screen.findByText('You cannot remove Alice')).toBeInTheDocument();
     expect(screen.getByText(/Alice is the last owner of Acme/)).toBeInTheDocument();
+  });
+
+  it('has no card of the owners', async () => {
+    render(WorkspaceMembersPage);
+
+    await screen.findByText('Alice');
+
+    expect(screen.queryByRole('heading', { name: 'Owners' })).not.toBeInTheDocument();
+  });
+
+  it('takes the role owner with the other roles of a person', async () => {
+    listMembers.mockResolvedValue([
+      member('user-1', 'Alice', [ownerRole]),
+      member('user-3', 'Carol', [ownerRole, role({})]),
+    ]);
+    render(WorkspaceMembersPage);
+    const carol = (await screen.findByText('Carol')).closest('tr') as HTMLElement;
+
+    await userEvent.click(within(carol).getByRole('button', { name: 'Member actions' }));
+    await userEvent.click(await findFloating('menuitem', 'Remove from the workspace'));
+    await userEvent.click(await screen.findByRole('button', { name: 'Remove from the workspace' }));
+
+    const workspace = { kind: 'workspace', id: 'org-1' };
+    await vi.waitFor(() => expect(revoke).toHaveBeenCalledWith(workspace, 'owner', 'user-3'));
+    expect(revoke).toHaveBeenCalledWith(workspace, 'member', 'user-3');
+  });
+
+  it('keeps the role owner for a caller with no right on the owners', async () => {
+    grant([Permission.LIST_WORKSPACE_MEMBERS, Permission.MANAGE_WORKSPACE_GRANTS]);
+    listMembers.mockResolvedValue([
+      member('user-1', 'Alice', [ownerRole]),
+      member('user-3', 'Carol', [ownerRole, role({})]),
+    ]);
+    render(WorkspaceMembersPage);
+    const carol = (await screen.findByText('Carol')).closest('tr') as HTMLElement;
+
+    await userEvent.click(within(carol).getByRole('button', { name: 'Member actions' }));
+    await userEvent.click(await findFloating('menuitem', 'Remove from the workspace'));
+    expect(await screen.findByText(/This role stays/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Remove from the workspace' }));
+
+    const workspace = { kind: 'workspace', id: 'org-1' };
+    await vi.waitFor(() => expect(revoke).toHaveBeenCalledWith(workspace, 'member', 'user-3'));
+    expect(revoke).not.toHaveBeenCalledWith(workspace, 'owner', 'user-3');
   });
 
   it('asks before it removes a person, and names the project roles that go', async () => {

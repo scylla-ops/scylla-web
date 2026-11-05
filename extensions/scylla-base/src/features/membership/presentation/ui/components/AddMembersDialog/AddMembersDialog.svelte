@@ -33,6 +33,7 @@
     addTitle,
     membershipMessages,
   } from '../../../messages/membership.messages.ts';
+  import { OWNER_KEY } from '../../../presenters/member-rows.presenter.ts';
   import RolePicker from '../RolePicker/RolePicker.svelte';
 
   interface Props {
@@ -103,9 +104,12 @@
   );
   const hasEmails = $derived(chips.some(chip => 'email' in chip));
 
-  /** An invitation carries one built-in role of the workspace. */
+  /** An invitation carries one built-in role of the workspace, and not the role owner. */
   const inviteRole = $derived(
-    workspaceRoles.find(role => workspaceOptions.some(o => o.grantName === role && o.builtin)),
+    workspaceRoles.find(
+      role =>
+        role !== OWNER_KEY && workspaceOptions.some(o => o.grantName === role && o.builtin),
+    ),
   );
   /** The server refuses a role with a permission that the caller does not hold. */
   const isLocked = (name: string): boolean => {
@@ -291,6 +295,9 @@
       >
         {t(membershipMessages.addWorkspaceRole)}
       </button>
+      {#if hasEmails && workspaceRoles.includes(OWNER_KEY)}
+        <p class="text-xs text-muted-foreground">{t(membershipMessages.ownerNotInvited)}</p>
+      {/if}
     </div>
 
     <div class="flex flex-col gap-2">

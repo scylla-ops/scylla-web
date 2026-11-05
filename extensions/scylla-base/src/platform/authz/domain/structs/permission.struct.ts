@@ -68,7 +68,7 @@ export enum Permission {
   MANAGE_TRIGGERS = 62,
   MANAGE_WORKSPACE_ROLES = 63,
   UPDATE_SECRET = 64,
-  /** Add and remove the owners of a workspace: its owners only. */
+  /** Give and take back the role owner of a workspace: its owners only. */
   MANAGE_OWNERS = 65,
   MANAGE_INSTANCE_SETTINGS = 66,
   LIST_ROLES = 67,

@@ -6,6 +6,6 @@ export interface AccessEntryEntity {
   displayName: string;
   /** Empty for an actor with no handle. */
   handle: string;
-  /** A fixed role, or `owner` for an owner of a workspace. */
+  /** A fixed role, or the role `owner` of a workspace. */
   role: string;
 }

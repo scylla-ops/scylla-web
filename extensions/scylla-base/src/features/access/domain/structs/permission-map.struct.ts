@@ -24,7 +24,7 @@ const MAP: Partial<Record<Permission, Names>> = {
   [Permission.READ_WORKSPACE]: { workspace: 'get_workspace' },
   [Permission.UPDATE_WORKSPACE]: { workspace: 'update_workspace' },
   [Permission.DELETE_WORKSPACE]: { workspace: 'delete_workspace' },
-  [Permission.MANAGE_OWNERS]: { workspace: 'add_owner' },
+  [Permission.MANAGE_OWNERS]: { workspace: 'manage_owners' },
   [Permission.MANAGE_WORKSPACE_ROLES]: { workspace: 'create_role' },
   [Permission.LIST_WORKSPACE_ROLES]: { workspace: 'list_roles' },
   [Permission.LIST_WORKSPACE_MEMBERS]: { workspace: 'list_access' },

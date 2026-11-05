@@ -8,9 +8,9 @@ export interface MemberRoleEntity {
   scopeKind: MemberScopeKind;
   scopeId: string;
   scopeName: string;
-  /** The name in `Grant` and `Revoke`, or `owner`. */
+  /** The name in `Grant` and `Revoke`. */
   role: string;
-  /** The key in `RoleService`, or `owner`. */
+  /** The key in `RoleService`. */
   roleKey: string;
   roleName: string;
   /** Absent for a grant older than this field. */

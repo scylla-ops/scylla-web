@@ -3,7 +3,7 @@ import type { MemberAccessEntity, MemberEntity } from '../entities/member.entity
 import type { ObjectRef } from '../structs/object-ref.struct.ts';
 
 export interface AccessRepository {
-  /** Every role on the object. For a workspace, its owners too. */
+  /** Every role on the object. */
   listAccess(object: ObjectRef): Promise<AccessEntryEntity[]>;
   /** Each member of a workspace or of a project, with each role and its scope. */
   listMembers(object: ObjectRef): Promise<MemberEntity[]>;

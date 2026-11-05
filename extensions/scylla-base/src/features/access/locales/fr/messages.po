@@ -41,10 +41,6 @@ msgstr "Tout, la suppression de l'espace de travail et ses propriétaires compri
 msgid "Member"
 msgstr "Membre"
 
-#: extensions/scylla-base/src/features/access/presentation/messages/access.messages.ts:6
-msgid "Owner"
-msgstr "Propriétaire"
-
 #: extensions/scylla-base/src/features/access/presentation/messages/access.messages.ts:20
 msgid "Reads only."
 msgstr "Lecture seule."
@@ -60,3 +56,7 @@ msgstr "Exécute les jobs : pour un agent."
 #: extensions/scylla-base/src/features/access/presentation/messages/access.messages.ts:10
 msgid "Viewer"
 msgstr "Lecteur"
+
+#: extensions/scylla-base/src/features/access/presentation/messages/access.messages.ts:6
+msgid "Workspace owner"
+msgstr "Propriétaire d'espace de travail"

@@ -15,8 +15,6 @@ export const WORKSPACES_QUERY_KEY = () => ['workspaces'] as const;
 export const MY_WORKSPACES_QUERY_KEY = () => ['workspaces', 'mine'] as const;
 export const WORKSPACE_MEMBERS_QUERY_KEY = (workspaceId: string) =>
   ['workspaces', workspaceId, 'members'] as const;
-export const WORKSPACE_OWNERS_QUERY_KEY = (workspaceId: string) =>
-  ['workspaces', workspaceId, 'owners'] as const;
 
 export const workspaceQueries = {
   /** Not the global list: non-admins may not read it. */
@@ -33,39 +31,6 @@ export const workspaceQueries = {
       queryKey: WORKSPACE_MEMBERS_QUERY_KEY(workspaceId ?? ''),
       queryFn: () => repository().listMembers(workspaceId!),
       enabled: (options.enabled ?? true) && !!workspaceId,
-    }),
-};
-
-/** The owners of a workspace. A reader of the workspace can list them: the caller gates it. */
-export const ownerQueries = {
-  list: (workspaceId: string | null, options: { enabled?: boolean } = {}) =>
-    queryOptions({
-      queryKey: WORKSPACE_OWNERS_QUERY_KEY(workspaceId ?? ''),
-      queryFn: () => repository().listOwners(workspaceId!),
-      enabled: (options.enabled ?? true) && !!workspaceId,
-    }),
-};
-
-/** An owner change also changes the members list: the owners are in it. */
-const afterOwnerChange = (workspaceId: string) => {
-  const client = getQueryClient();
-  void client.invalidateQueries({ queryKey: WORKSPACE_OWNERS_QUERY_KEY(workspaceId) });
-  void client.invalidateQueries({ queryKey: WORKSPACE_MEMBERS_QUERY_KEY(workspaceId) });
-  void client.invalidateQueries({ queryKey: ['access', 'workspace', workspaceId] });
-};
-
-export const ownerMutations = {
-  add: () =>
-    mutationOptions({
-      mutationFn: ({ workspaceId, userId }: { workspaceId: string; userId: string }) =>
-        repository().addOwner(workspaceId, userId),
-      onSuccess: (_result, { workspaceId }) => afterOwnerChange(workspaceId),
-    }),
-  remove: () =>
-    mutationOptions({
-      mutationFn: ({ workspaceId, userId }: { workspaceId: string; userId: string }) =>
-        repository().removeOwner(workspaceId, userId),
-      onSuccess: (_result, { workspaceId }) => afterOwnerChange(workspaceId),
     }),
 };
 

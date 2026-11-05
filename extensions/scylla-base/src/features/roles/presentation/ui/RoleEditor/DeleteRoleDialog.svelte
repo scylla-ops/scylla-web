@@ -33,14 +33,15 @@
   const rolesQuery = createQuery(() => roleQueries.list(workspaceId, { enabled: open }));
   const remove = createMutation(() => roleMutations.remove());
 
-  /** The same level and the same holders. The role Instance admin is not a target. */
+  /** The same level and the same holders. The roles Instance admin and Workspace owner are not targets. */
   const targets = $derived(
     (rolesQuery.data ?? []).filter(
       other =>
         other.key !== role.key &&
         other.level === role.level &&
         other.holder === role.holder &&
-        other.key !== 'instance-admin',
+        other.key !== 'instance-admin' &&
+        other.key !== 'owner',
     ),
   );
 

@@ -7,10 +7,3 @@ export interface WorkspaceEntity {
   /** False: this workspace refuses the personal tokens of its members. */
   personalTokensEnabled: boolean;
 }
-
-/** An owner of a workspace: it can delete it and change its owners. No role gives that. */
-export interface WorkspaceOwner {
-  userId: string;
-  displayName: string;
-  since: string;
-}

@@ -215,6 +215,10 @@ export const builtinRoleLabels: Record<
     name: msg`Instance admin`,
     hint: msg`Full control of the server, of every workspace and of every project.`,
   },
+  owner: {
+    name: msg`Workspace owner`,
+    hint: msg`Full control of one workspace, also its deletion and its owners.`,
+  },
   'workspace-admin': {
     name: msg`Workspace admin`,
     hint: msg`Manages one workspace and its projects.`,

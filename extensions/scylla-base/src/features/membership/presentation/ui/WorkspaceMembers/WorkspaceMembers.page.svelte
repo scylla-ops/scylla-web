@@ -32,7 +32,6 @@
   import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
   import ChooseActorRow, { type ActorChoice } from '../components/ChooseActorRow/ChooseActorRow.svelte';
   import MembersTable from '../components/MembersTable/MembersTable.svelte';
-  import OwnersCard from '../components/OwnersCard/OwnersCard.svelte';
   import AppOutsideDialog from '../components/RefusalDialogs/AppOutsideDialog.svelte';
   import LastOwnerDialog from '../components/RefusalDialogs/LastOwnerDialog.svelte';
   import RemoveMemberDialog from '../components/RemoveMemberDialog/RemoveMemberDialog.svelte';
@@ -217,14 +216,6 @@
       onRemove={askToRemove}
     />
 
-    <OwnersCard
-      {workspaceId}
-      members={rows
-        .filter(row => row.tab === 'people')
-        .map(row => ({ id: row.actorId, username: row.handle, displayName: row.name }))}
-      canManage={can(Permission.MANAGE_OWNERS, target)}
-      {workspaceName}
-    />
     {#await loadPendingInvitations() then { default: PendingInvitations }}
       <PendingInvitations {workspaceId} />
     {/await}
