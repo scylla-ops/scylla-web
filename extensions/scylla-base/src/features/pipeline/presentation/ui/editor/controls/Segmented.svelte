@@ -14,6 +14,11 @@
   }
 
   let { value, options, label, onChange, class: className, itemClass }: Props = $props();
+
+  const select = (next: string) => {
+    const picked = options.find(option => option.value === next);
+    if (picked) onChange(picked.value);
+  };
 </script>
 
 <!-- One choice out of a few, as segments on a muted track. -->
@@ -21,17 +26,23 @@
   type="single"
   spacing={0.5}
   {value}
-  onValueChange={next => {
-    // A click on the pressed segment empties the group: the choice stays.
-    if (next) onChange(next as T);
-  }}
+  onValueChange={select}
   aria-label={label}
   class={cn('rounded-md bg-muted p-0.5', className)}
 >
   {#each options as option (option.value)}
+    <!-- preventDefault stops bits-ui: it would empty its own value on the pressed segment, and an unchanged `value` does not restore it. -->
     <ToggleGroupItem
       value={option.value}
       size="sm"
+      onclick={event => {
+        if (option.value === value) event.preventDefault();
+      }}
+      onkeydown={event => {
+        if (option.value === value && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+        }
+      }}
       class={cn(
         'h-auto gap-1.5 rounded-[5px] px-2.5 py-1 text-xs font-normal text-muted-foreground hover:bg-transparent hover:text-foreground data-[state=on]:bg-card data-[state=on]:font-medium data-[state=on]:text-foreground data-[state=on]:shadow-xs',
         itemClass,

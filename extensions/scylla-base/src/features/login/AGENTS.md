@@ -11,7 +11,7 @@ come before it.
 - Must never import: `shell/`, `@scylla/core`, another feature's internals.
 - Outside code reaches this module **only** through `index.ts`.
 
-**Presentation is Svelte** (Phase 2 of `refacto_svelte.md`). Domain and infrastructure never had
+**Presentation is Svelte**. Domain and infrastructure never had
 a framework in them.
 
 ## Public API — `index.ts`
