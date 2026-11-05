@@ -26,6 +26,17 @@ type PasswordResetDelivery           // 'mail' | 'server-log' | 'unknown'; `user
 
 Never add: `login.module.ts`, a page. A state calls `getModuleDomain('login')` directly.
 
+## A failed sign-in with a provider
+
+The server sends the browser to `/sign-in-error?code=<code>&provider=<slug>`, with `&link=true`
+for a link. The page shows one card for each code of
+`presentation/presenters/sign-in-error.presenter.ts`, and the general card for any other value.
+
+- Show no text of the URL: the code is a key of the list, and the name of the provider comes from
+  `ListSignInMethods`. Anyone can make this URL.
+- A failed sign-in is not a lost session: this page does not call `closeSession`. The list of the
+  providers has `showsOwnError`, so a network failure gives no toast and the card stays.
+
 ## Data contract
 
 `LoginRepository` — `domain/repository/login.repository.ts`:

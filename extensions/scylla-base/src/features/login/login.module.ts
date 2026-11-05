@@ -28,6 +28,11 @@ export const LoginModule = {
         page: () => import('./presentation/ui/VerifyEmail/VerifyEmail.page.svelte'),
       },
       {
+        // The path of the page that the server goes to when a sign-in fails: keep it.
+        path: 'sign-in-error',
+        page: () => import('./presentation/ui/SignInError/SignInError.page.svelte'),
+      },
+      {
         path: 'forgot-password',
         page: () => import('./presentation/ui/ForgotPassword/ForgotPassword.page.svelte'),
       },

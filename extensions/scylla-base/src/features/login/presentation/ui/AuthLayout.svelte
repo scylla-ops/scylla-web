@@ -10,9 +10,11 @@
     children: Snippet;
     /** Under the card. */
     below?: Snippet;
+    /** Before the title. */
+    icon?: Snippet;
   }
 
-  let { title, description, children, below }: Props = $props();
+  let { title, description, children, below, icon }: Props = $props();
 </script>
 
 <!-- The frame of the public pages: the sign-in and the password reset. -->
@@ -23,7 +25,10 @@
 
   <Card class="w-full max-w-sm">
     <CardHeader>
-      <CardTitle><h1>{title}</h1></CardTitle>
+      <CardTitle class="flex items-center gap-2">
+        {@render icon?.()}
+        <h1>{title}</h1>
+      </CardTitle>
       {#if description}
         <CardDescription>{description}</CardDescription>
       {/if}
