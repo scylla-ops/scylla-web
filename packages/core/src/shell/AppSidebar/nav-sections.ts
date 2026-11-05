@@ -48,7 +48,7 @@ const grouped = (
 
 /**
  * Hides the entries the user cannot open or the current URL cannot fill, then
- * the empty sections. A section with a header stays. The links of one group fold under one item.
+ * the empty sections. The links of one group fold under one item.
  */
 export const navSectionsFor = ({
   entries,
@@ -58,7 +58,7 @@ export const navSectionsFor = ({
   translate,
 }: NavSectionsInput): NavSection[] =>
   sections
-    .map(({ id, title, header }) => {
+    .map(({ id, title, railItem, within }) => {
       const links = entries
         .filter(entry => entry.section === id)
         .filter(entry => entry.permission === undefined || can(entry.permission))
@@ -68,6 +68,6 @@ export const navSectionsFor = ({
           const item = { title: translate(entry.title), href, url: entry.url, icon: entry.icon };
           return [{ entry, item }];
         });
-      return { id, title: translate(title), header, items: grouped(links, translate) };
+      return { id, title: translate(title), railItem, within, items: grouped(links, translate) };
     })
-    .filter(section => section.items.length > 0 || section.header);
+    .filter(section => section.items.length > 0);

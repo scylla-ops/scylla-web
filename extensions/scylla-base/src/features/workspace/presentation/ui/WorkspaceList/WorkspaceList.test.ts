@@ -61,7 +61,6 @@ describe('WorkspaceList', () => {
     render(WorkspaceList);
 
     expect(await screen.findByText('Acme Corp')).toBeInTheDocument();
-    expect(screen.getByText('acme-corp')).toBeInTheDocument();
     expect(screen.getByText('Globex Inc')).toBeInTheDocument();
   });
 

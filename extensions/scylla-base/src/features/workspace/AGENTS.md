@@ -17,7 +17,8 @@ feature runs with `createQuery`.
 
 **`WorkspaceList` is the one list of workspaces.** The workspace selector of the shell
 shows it inside a dropdown menu, and gives it `DropdownMenuItem` as the `row` prop, so each row
-gets the keyboard focus of the menu. Without a `row`, it shows plain rows
+gets the keyboard focus of the menu. A row shows the name, a check on the active workspace, and
+its actions on hover, in place of the check. Without a `row`, it shows plain rows
 (`WorkspaceRow.svelte`). A row component takes `class`, `onSelect` and `children`.
 
 ## Public API — `index.ts`

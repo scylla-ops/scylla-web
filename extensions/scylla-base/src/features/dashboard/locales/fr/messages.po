@@ -46,7 +46,7 @@ msgid "Completed"
 msgstr "Terminé"
 
 #: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:15
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:17
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:22
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:21
 msgid "Dashboard"
 msgstr "Tableau de bord"
@@ -109,6 +109,10 @@ msgstr "sur l'ensemble des {0} exécutions"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:32
 msgid "over the last {0} of {totalRuns} runs"
 msgstr "sur les {0} dernières exécutions parmi {totalRuns}"
+
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:19
+msgid "Overview"
+msgstr "Vue d'ensemble"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:7
 msgid "Pipelines"

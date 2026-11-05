@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { slide } from 'svelte/transition';
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { navigateTo, routePathname, type ShellContributions } from '@scylla/core-sdk';
+  import { prefersReducedMotion } from '@scylla/ui';
   import {
     SidebarGroup,
     SidebarGroupLabel,
@@ -9,7 +11,7 @@
     SidebarMenuItem,
     SIDEBAR_FADE,
   } from '@scylla/ui/primitives';
-  import { NAV_SECTION_CARD_CLASS, NAV_SECTION_DIVIDER_CLASS } from './nav-classes.ts';
+  import { NAV_SECTION_CARD_CLASS } from './nav-classes.ts';
   import { isNavGroupOpen, toggleNavGroup } from './nav-groups.state.svelte.ts';
   import {
     isNavGroup,
@@ -25,6 +27,8 @@
   }
 
   let { sections, contributions }: Props = $props();
+
+  const FOLD_MS = 200;
 
   const pathname = $derived(routePathname());
   const badges = $derived(contributions.flatMap(shell => shell.navBadge ?? []));
@@ -59,21 +63,16 @@
 
 {#each sections as section (section.id)}
   <SidebarGroup class={NAV_SECTION_CARD_CLASS}>
-    {#if section.header}
-      {@const Header = section.header}
-      <Header />
-      <div class={NAV_SECTION_DIVIDER_CLASS}></div>
-    {:else}
-      <SidebarGroupLabel class="group-data-[collapsible=icon]:-mt-9">
-        {section.title}
-      </SidebarGroupLabel>
-    {/if}
+    <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
     <SidebarMenu>
       {#each section.items as node (keyOf(node))}
         <SidebarMenuItem
           class="transition-transform duration-200 hover:scale-105 group-data-[collapsible=icon]:hover:scale-100"
         >
-          {#if isNavGroup(node)}
+          {#if isNavGroup(node) && node.items.length === 1 && node.items[0]}
+            <!-- One page has nothing to fold: the link goes by the name of its group. -->
+            {@render link({ ...node.items[0], title: node.title, icon: node.icon }, 'default')}
+          {:else if isNavGroup(node)}
             {@const expanded = isNavGroupOpen(node.id)}
             <SidebarMenuButton
               tooltip={node.title}
@@ -94,7 +93,8 @@
             </SidebarMenuButton>
             {#if expanded}
               <ul
-                class="border-sidebar-border mt-1 ml-4 flex flex-col gap-1 border-l pl-2 group-data-[collapsible=icon]:hidden"
+                class="border-sidebar-border mt-1 ml-4 flex flex-col gap-1 border-l pl-2"
+                transition:slide={{ duration: prefersReducedMotion() ? 0 : FOLD_MS }}
               >
                 {#each node.items as item (item.href)}
                   <li>{@render link(item, 'sm')}</li>

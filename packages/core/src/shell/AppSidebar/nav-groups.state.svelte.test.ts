@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { flushSync } from 'svelte';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
@@ -21,6 +21,12 @@ import Stub from '../__test__/Stub.fixture.svelte';
 import ShellFrame from '../ShellFrame/ShellFrame.svelte';
 import { setShellConfig } from '../shell-config.ts';
 import { resetNavGroups } from './nav-groups.state.svelte.ts';
+
+vi.mock('svelte/transition', () => ({ slide: () => ({ duration: 0 }) }));
+
+vi.mock('./AppSidebar.svelte', async () => ({
+  default: (await import('./NavGroups.fixture.svelte')).default,
+}));
 
 const MACHINES: NavGroup = { id: 'machines', title: msg`Machines` };
 const LIST_LINKS = testPermission('LIST_LINKS');

@@ -1,5 +1,6 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
+import WorkflowIcon from '@lucide/svelte/icons/workflow';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
 import { PipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
@@ -24,6 +25,7 @@ export const PipelineModule = {
         permission: Permission.LIST_PIPELINES_BY_PROJECT,
         page: () =>
           import('./presentation/ui/dashboard/DashboardPipeline/DashboardPipeline.page.svelte'),
+        nav: { section: 'project', title: msg`Pipelines`, icon: WorkflowIcon, order: 10 },
       },
       {
         path: 'create',

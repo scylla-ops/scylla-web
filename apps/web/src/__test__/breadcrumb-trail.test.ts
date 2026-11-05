@@ -8,8 +8,8 @@ import { extensions } from '../extensions.ts';
 const app = loadExtensions(extensions);
 
 const membersPath = '/acme/projects/project-1/members';
-/** The workspace, the list of the projects, the project, then the page. */
-const TRAIL = ['Acme', 'Projects', 'Scylla', 'Members'];
+/** The list of the projects, the project, then the page. The top bar shows the workspace apart. */
+const TRAIL = ['Projects', 'Scylla', 'Members'];
 
 const trail = () => screen.getAllByRole('listitem').map(item => item.textContent?.trim());
 

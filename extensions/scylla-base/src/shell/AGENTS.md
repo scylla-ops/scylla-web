@@ -40,8 +40,11 @@ presentation/
     whats-new.state.svelte.ts                 seen flags (reactive), markNavSeen
     ui/WorkspaceGate/                loading screen / first workspace / the pages
       FirstWorkspace.svelte          welcome screen when the user has no workspace
-    ui/context-selector/                WorkspaceSelector (+ CurrentContextDisplay): the header of the workspace section
-    ui/NavUser/                         who is signed in (userQueries.me), Account, Sign out (sidebar footer)
+    ui/context-selector/                WorkspaceSelector: the switcher at the right end of the top bar (topBarEnd)
+    ui/ShellBrand/                      the plain logo above the sidebars (brand)
+    ui/GlobalSearch/                    the search of the top bar (Ctrl K): projects, pipelines, agents and apps, on the client
+    ui/NotificationsMenu/               the bell of the top bar: the last failed runs. The server has no notifications
+    ui/NavUser/                         who is signed in (userQueries.me), Account, Language, Sign out (sidebar footer)
     ui/SessionLine/                     "Signed in as … · Account · Sign out", one centered line, outside the sidebar
     ui/NewBadge.svelte                  "New" pill of a sidebar link (navBadge)
     ui/WhatsNewDialog/                  first-launch release announcement
@@ -67,9 +70,9 @@ mounts
   workspace   /:workspaceSlug                       wrapper WorkspaceSyncWrapper
   project        /:workspaceSlug/projects/:projectId   wrapper ContextCleanerWrapper, crumb "Project"
 routes           app: / -> WorkspaceRedirectWrapper · workspace: (its root) -> 'dashboard'
-navSections      workspace (header: WorkspaceSelector), system
+navSections      workspace, project (within projects, title: projectName), instance (railItem)
 access           can / authorizationReady / RequirePermission, from @platform/authz
-shell            sidebarFooter NavUser · overlays LaunchOverlays · navBadge NewBadge ·
+shell            brand ShellBrand · topBarEnd GlobalSearch, NotificationsMenu, WorkspaceSelector · sidebarFooter NavUser · overlays LaunchOverlays · navBadge NewBadge ·
                  onNavOpen markNavSeen · breadcrumbParams · linkParams
 onQueryError     reportQueryError
 onQueryRetry     retryQueryError
@@ -93,7 +96,8 @@ changes only for a new mount, a new section or a new part of the shell.
 ## The shell parts
 
 - `linkParams` gives the sidebar links the slug of the **active workspace** (context store).
-  `breadcrumbParams` gives the crumbs `workspaceName`, `projectName`, and `pipelineName` —
+  The top bar shows the workspace in its switcher, so no crumb names it.
+  `breadcrumbParams` gives the crumbs `projectName`, and `pipelineName` —
   the name of the active pipeline only when it is the one in the URL, else its id, so the crumb
   identifies its pipeline also after a reload.
 - `WorkspaceSelector` shows `WorkspaceList` from `features/workspace` and opens

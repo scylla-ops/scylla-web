@@ -21,19 +21,19 @@ msgstr "Une nouvelle page de compte"
 msgid "Access"
 msgstr "Accès"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:15
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:22
 msgid "Account"
 msgstr "Compte"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:18
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:25
 msgid "Back"
 msgstr "Retour"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:14
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:21
 msgid "Create"
 msgstr "Créer"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:10
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:9
 msgid "Create a workspace"
 msgstr "Créer un espace de travail"
 
@@ -45,11 +45,15 @@ msgstr "Créez et modifiez un rôle ou un déclencheur sur une page entière, av
 msgid "Drag and drop on the blueprint"
 msgstr "Glisser-déposer sur le blueprint"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:25
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:16
+msgid "Failed runs"
+msgstr "Exécutions en échec"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:32
 msgid "Got it"
 msgstr "C'est noté"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:24
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:31
 msgid "Here is what landed in this version."
 msgstr "Voici ce qui arrive dans cette version."
 
@@ -57,13 +61,25 @@ msgstr "Voici ce qui arrive dans cette version."
 msgid "Instance"
 msgstr "Instance"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:8
-msgid "Instance · admins"
-msgstr "Instance · admins"
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:11
+msgid "Language"
+msgstr "Langue"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:22
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:29
 msgid "New"
 msgstr "Nouveau"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:17
+msgid "No failed run. All is well."
+msgstr "Aucune exécution en échec. Tout va bien."
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:14
+msgid "Nothing matches this search."
+msgstr "Rien ne correspond à cette recherche."
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:15
+msgid "Notifications"
+msgstr "Notifications"
 
 #: extensions/scylla-base/src/shell/whats-new.ts:65
 msgid "On a small screen, each row of a table shows as a card."
@@ -93,19 +109,27 @@ msgstr "L'écriture de scripts, nœud par nœud"
 msgid "Scylla on your phone"
 msgstr "Scylla sur votre téléphone"
 
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:12
+msgid "Search"
+msgstr "Rechercher"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:13
+msgid "Search projects, pipelines…"
+msgstr "Rechercher des projets, des pipelines…"
+
 #: extensions/scylla-base/src/shell/whats-new.ts:40
 msgid "See where a node lands while you drag it from the palette. A node that runs a template shows the icon of the template."
 msgstr "Voyez où un nœud se pose pendant que vous le glissez depuis la palette. Un nœud qui exécute un modèle affiche l'icône du modèle."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:9
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:8
 msgid "Select Workspace"
 msgstr "Sélectionner un espace de travail"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:16
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:23
 msgid "Sign out"
 msgstr "Se déconnecter"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:17
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:24
 msgid "Signed in as {name}"
 msgstr "Connecté en tant que {name}"
 
@@ -117,24 +141,24 @@ msgstr "L'éditeur de pipeline vous dit pourquoi il ne peut pas enregistrer, par
 msgid "The scripting tab lists the nodes of a pipeline by stage and shows the script of each node as shell code. Open two nodes side by side."
 msgstr "L'onglet Écriture de scripts liste les nœuds d'un pipeline par étape et affiche le script de chaque nœud comme du code shell. Ouvrez deux nœuds côte à côte."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:19
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:26
 msgid "The server does not answer"
 msgstr "Le serveur ne répond pas"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:12
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:19
 msgid "To get started, please create your first workspace."
 msgstr "Pour commencer, veuillez créer votre premier espace de travail."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:21
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:28
 msgid "Try again"
 msgstr "Réessayer"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:11
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:18
 msgid "Welcome to Scylla!"
 msgstr "Bienvenue sur Scylla !"
 
 #. placeholder {0}: String(version)
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:23
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:30
 msgid "What's new in Scylla {0}"
 msgstr "Nouveautés de Scylla {0}"
 
@@ -142,10 +166,14 @@ msgstr "Nouveautés de Scylla {0}"
 msgid "Workspace"
 msgstr "Espace de travail"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:13
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:10
+msgid "Workspaces"
+msgstr "Espaces de travail"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:20
 msgid "You are not a member of a workspace yet. Ask an administrator to add you."
 msgstr "Vous n'êtes membre d'aucun espace de travail. Demandez à un administrateur de vous ajouter."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:20
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:27
 msgid "You are still signed in. This page tries again by itself."
 msgstr "Vous êtes toujours connecté. Cette page réessaie toute seule."

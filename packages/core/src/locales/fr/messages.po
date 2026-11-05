@@ -17,10 +17,6 @@ msgstr ""
 msgid "An error stopped the page. The rest of the app still works."
 msgstr "Une erreur a arrêté la page. Le reste de l'application fonctionne toujours."
 
-#: packages/core/src/shell/shell.messages.ts:5
-msgid "Language"
-msgstr "Langue"
-
 #: packages/core/src/routing/view/RouterView/route-entry.messages.ts:4
 msgid "This page could not be shown"
 msgstr "Cette page n'a pas pu être affichée"

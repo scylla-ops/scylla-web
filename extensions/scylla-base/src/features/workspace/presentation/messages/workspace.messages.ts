@@ -2,6 +2,7 @@ import { msg } from '@lingui/core/macro';
 
 export const workspaceMessages = {
   members: msg`Members`,
+  current: msg`Current workspace`,
   edit: msg`Edit`,
   delete: msg`Delete`,
 

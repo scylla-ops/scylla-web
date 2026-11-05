@@ -53,6 +53,7 @@ export const RolesModule = {
         nav: {
           section: 'workspace',
           title: msg`Roles`,
+          icon: ShieldCheckIcon,
           order: 31,
           group: ACCESS_NAV,
           permission: Permission.MANAGE_WORKSPACE_ROLES,

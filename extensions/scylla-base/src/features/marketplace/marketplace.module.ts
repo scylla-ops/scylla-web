@@ -1,6 +1,7 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
-import ShoppingCartIcon from '@lucide/svelte/icons/shopping-cart';
+import CompassIcon from '@lucide/svelte/icons/compass';
+import StoreIcon from '@lucide/svelte/icons/store';
 import type { MarketplaceRepository } from '@base/features/marketplace/domain/repository/marketplace.repository.ts';
 import { DefaultMarketplaceRepository } from '@base/features/marketplace/infrastructure/default-marketplace.repository.ts';
 
@@ -18,9 +19,10 @@ export const MarketplaceModule = {
         page: () => import('./presentation/ui/Marketplace.page.svelte'),
         nav: {
           section: 'workspace',
-          title: msg`Marketplace`,
-          icon: ShoppingCartIcon,
+          title: msg`Browse`,
+          icon: CompassIcon,
           order: 50,
+          group: { id: 'marketplace', title: msg`Marketplace`, icon: StoreIcon },
         },
       },
     ],

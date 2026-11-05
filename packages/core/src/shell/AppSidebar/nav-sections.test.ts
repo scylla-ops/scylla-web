@@ -1,6 +1,5 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import type { Component } from 'svelte';
 import { msg } from '@lingui/core/macro';
 import type { NavSectionDefinition, RoutePermission } from '@scylla/core-sdk';
 import { testPermission } from '../../routing/__test__/test-permission.fixture.ts';
@@ -22,10 +21,8 @@ const entry = (overrides: Partial<NavEntry> = {}): NavEntry => ({
   ...overrides,
 });
 
-const header = {} as Component;
-
 const SECTIONS: readonly NavSectionDefinition[] = [
-  { id: 'workspace', title: msg`Workspace`, header },
+  { id: 'workspace', title: msg`Workspace` },
   { id: 'system', title: msg`System` },
 ];
 
@@ -68,12 +65,31 @@ describe('navSectionsFor', () => {
     expect(titles(sectionsFor(entries, [LIST_SECRETS]))).toEqual(['Secrets']);
   });
 
-  it('drops a section left empty, but keeps a section that has a header', () => {
-    const entries = [entry(), entry({ section: 'system', title: msg`Users`, url: 'users' })];
-    const sections = sectionsFor(entries, []);
+  it('drops a section left empty', () => {
+    const entries = [
+      entry({ section: 'system', title: msg`Users`, url: 'users', permission: LIST_USERS }),
+    ];
 
-    expect(sections.map(section => section.title)).toEqual(['Workspace']);
-    expect(sections[0].header).toBe(header);
+    expect(sectionsFor(entries, [])).toEqual([]);
+  });
+
+  it('keeps what says where a section goes in the rail', () => {
+    const sections: NavSectionDefinition[] = [
+      {
+        id: 'workspace',
+        title: msg`Workspace`,
+        within: { railItem: 'parent', titleParam: 'name' },
+      },
+    ];
+    const [section] = navSectionsFor({
+      entries: [entry({ permission: undefined })],
+      sections,
+      hrefOf: () => '/acme/secrets',
+      can: () => true,
+      translate: message => message.message ?? '',
+    });
+
+    expect(section?.within).toEqual({ railItem: 'parent', titleParam: 'name' });
   });
 
   it('keeps the order in which the extensions declare the sections', () => {

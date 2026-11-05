@@ -12,6 +12,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Added
 
+- A double sidebar: a rail of the sections, which opens on hover and does not move the page, and a
+  second sidebar with the pages of the selected section. Inside a project, the second sidebar shows
+  the pages of the project. On a phone, the sheet stays.
+- The switch of workspace is at the right end of the top bar, after a search (Ctrl K or Cmd K) of
+  the projects, the pipelines, the agents and the apps, and a bell with the last failed runs.
+- The colors of the design: a darker dark theme, stronger lines, and a darker green in the light
+  theme.
 - A write that the server refused because the item changed in the meantime is shown as such, in
   the words of the app, and the page reloads what the server has. Before, the user saw an
   unexpected error, and a query retried on it.
@@ -20,6 +27,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Changed
 
+- **Breaking:** `NavSectionDefinition` of `@scylla/core-sdk` has no `header`. Use `railItem` or
+  `within` to place a section in the rail, and the new `brand` and `topBarEnd` of
+  `ShellContributions` for the logo and a switcher.
+- The language is in the user menu. The crumbs name the section, not the workspace.
+- A page alone in its section declares a `NavGroup`: the group names the section, the link the page.
 - **Breaking:** `ScyllaErrorCode` of `@scylla/base-sdk` has two more members:
   `MALFORMED_RESPONSE` (the server answered without the entity it must carry) and
   `UNSUPPORTED_RESPONSE` (it answered with a value this build cannot read). A map over every

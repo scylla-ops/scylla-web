@@ -1,4 +1,3 @@
-import type { Component } from 'svelte';
 import type { LucideIcon } from '@scylla/ui';
 
 export interface NavItem {
@@ -29,6 +28,29 @@ export interface NavSection {
   id: string;
   title: string;
   items: NavNode[];
-  /** Replaces the section label, e.g. a context selector. */
-  header?: Component;
+  /** All the links are one item at the end of the rail. */
+  railItem?: { icon?: LucideIcon };
+  /** The links replace the second sidebar of a rail item. */
+  within?: { railItem: string; titleParam: string };
+}
+
+/** One item of the rail, and the pages that its second sidebar shows. */
+export interface RailItem {
+  id: string;
+  title: string;
+  icon?: LucideIcon;
+  /** The id of the group, when the item comes from one. */
+  group?: string;
+  pages: NavItem[];
+}
+
+export interface Rail {
+  main: RailItem[];
+  end: RailItem[];
+}
+
+export interface SecondSidebarContent {
+  id: string;
+  title: string;
+  pages: NavItem[];
 }

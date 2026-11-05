@@ -1,7 +1,7 @@
 # `@scylla/core` — agent guide
 
 What starts the application: it loads the extensions, compiles their routes, runs the router,
-and renders the shell (sidebar, top bar, breadcrumbs and language). It knows no
+and renders the shell (sidebars, top bar and breadcrumbs). It knows no
 business: no workspace, no permission enum, no backend.
 
 **Package** `packages/core` · entry `@scylla/core` · **no router library**
@@ -43,13 +43,14 @@ src/
     view/RouterView/                           RouterView, RoutePage, RouteEntry (+ the error
                                                boundary of a page, route-entry.messages.ts)
   shell/
-    ShellFrame/                                sidebar + top bar around the pages of a `shell` mount
-    AppSidebar/                                the sidebar, built from the nav entries
-                                               (NavMain, nav-sections.ts, nav-classes.ts; a NavGroup folds its links,
-                                               nav-groups.state.svelte.ts keeps which groups are open)
-    TopBar/                                    SidebarTrigger + the crumbs of the route trail
-                                               (ShellBreadcrumbs, breadcrumbs.ts)
-    LanguageSelector/
+    ShellFrame/                                the sidebars + top bar around the pages of a `shell` mount
+    AppSidebar/                                the sidebars, built from the nav entries
+                                               DoubleSidebar: the brand band, Rail, SecondSidebar
+                                               (nav-rail.ts: the rail of the sections; rail.state.svelte.ts: when it opens)
+                                               Below `md`, the sheet: NavMain, where a NavGroup folds its links
+                                               (nav-groups.state.svelte.ts keeps which groups are open)
+    TopBar/                                    the crumbs of the route trail, after the name of the section, and `topBarEnd`
+                                               (ShellBreadcrumbs, breadcrumbs.ts; SidebarTrigger on a phone only)
     shell-config.ts                            ShellConfig, set once by startCore
   locales/                                     the catalog of the shell (tests excluded)
 ```
@@ -143,8 +144,19 @@ module gives an access policy.
   section from `navSections`, every part of the frame from a module's `shell`. No business
   word appears in `shell/`.
 - A sidebar link carries `data-nav-url` (its path in the mount): code outside the core can point
-  at a link without knowing its title.
-- **A folding group never closes by itself.** It opens when the user goes to a page of its links.
+  at a link without knowing its title. A rail item carries the URL of its first page, and
+  `data-nav-group` when it comes from a group.
+- **The rail shows the sections, the second sidebar shows the pages of one.** Each `NavGroup` and
+  each link without a group is one rail item. A section with `railItem` is one item at the end. A
+  section with `within` has no item: it replaces the pages of that item while the URL fills its
+  parameters. A page alone in its section still gets a `NavGroup`: the group names the section,
+  the link names the page.
+- **The rail does not move the page.** It has a fixed slot of 56px and it opens in an absolute
+  layer, by a CSS transition of its width, so the page has no layout work and a pointer that
+  leaves in the middle reverses it from where it is. Keep the rows at a fixed width inside it.
+- **Keep the timing in `RailState`.** It opens 150 ms after the pointer stops, and closes 200 ms
+  after it leaves. A click closes it until the pointer leaves and comes back.
+- **A folding group never closes by itself** (in the sheet of a phone). It opens when the user goes to a page of its links.
   Only the user closes it, and it stays closed until the user opens it or goes to a page of its
   links. The open state is in memory, out of the sidebar, because a page with no shell unmounts
   the sidebar. A page load resets it. `AppSidebar` watches the pages, not `NavMain`: `NavMain`

@@ -5,14 +5,23 @@
   import { breadcrumbsFor, type BreadcrumbItem } from './breadcrumbs.ts';
   import { mergeParams } from '../shell-config.ts';
 
-  let { contributions }: { contributions: readonly ShellContributions[] } = $props();
+  interface Props {
+    contributions: readonly ShellContributions[];
+    /** Before the crumbs of the route, unless the first one has the same name. */
+    leading?: BreadcrumbItem;
+  }
 
-  const crumbs = $derived(
+  let { contributions, leading }: Props = $props();
+
+  const trail = $derived(
     breadcrumbsFor(
       routeTrail(),
       mergeParams([routeParams, ...contributions.map(shell => shell.breadcrumbParams)]),
       t,
     ),
+  );
+  const crumbs = $derived(
+    leading && trail[0]?.label !== leading.label ? [leading, ...trail] : trail,
   );
 </script>
 
@@ -36,7 +45,7 @@
               role="link"
               aria-disabled="true"
               aria-current="page"
-              class="flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm font-semibold text-foreground"
+              class="flex items-center gap-1 text-sm text-foreground"
             >
               {@render content(crumb)}
             </span>
@@ -44,7 +53,7 @@
             <a
               data-slot="breadcrumb-link"
               href={crumb.pathname}
-              class="flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-primary/10 hover:text-primary"
+              class="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground motion-reduce:transition-none"
             >
               {@render content(crumb)}
             </a>

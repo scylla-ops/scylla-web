@@ -17,6 +17,10 @@ msgstr ""
 msgid "Add a description..."
 msgstr "Add a description..."
 
+#: extensions/scylla-base/src/features/project/project.module.ts:27
+msgid "All projects"
+msgstr "All projects"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:23
 msgid "Create a new project"
 msgstr "Create a new project"
@@ -70,8 +74,8 @@ msgid "Project name"
 msgstr "Project name"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:9
-#: extensions/scylla-base/src/features/project/project.module.ts:27
-#: extensions/scylla-base/src/features/project/project.module.ts:29
+#: extensions/scylla-base/src/features/project/project.module.ts:23
+#: extensions/scylla-base/src/features/project/project.module.ts:30
 msgid "Projects"
 msgstr "Projects"
 
@@ -91,7 +95,7 @@ msgstr "Select"
 msgid "Select a workspace from the sidebar to view its projects"
 msgstr "Select a workspace from the sidebar to view its projects"
 
-#: extensions/scylla-base/src/features/project/infrastructure/default-project.repository.ts:27
+#: extensions/scylla-base/src/features/project/infrastructure/default-project.repository.ts:23
 msgid "This workspace has reached its project limit."
 msgstr "This workspace has reached its project limit."
 

@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/marketplace/marketplace.module.ts:22
+msgid "Browse"
+msgstr "Browse"
+
 #: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:6
 msgid "Download"
 msgstr "Download"
@@ -21,7 +25,7 @@ msgstr "Download"
 msgid "Learn more"
 msgstr "Learn more"
 
-#: extensions/scylla-base/src/features/marketplace/marketplace.module.ts:21
+#: extensions/scylla-base/src/features/marketplace/marketplace.module.ts:25
 msgid "Marketplace"
 msgstr "Marketplace"
 

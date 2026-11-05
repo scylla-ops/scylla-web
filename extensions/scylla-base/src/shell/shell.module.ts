@@ -1,10 +1,14 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { RequirePermission, authorizationReady, can } from '@platform/authz';
+import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 import WorkspaceSelector from './presentation/layout/ui/context-selector/WorkspaceSelector/WorkspaceSelector.svelte';
 import LaunchOverlays from './presentation/layout/ui/LaunchOverlays/LaunchOverlays.svelte';
 import { layoutMessages } from './presentation/layout/messages/layout.messages.ts';
 import NavUser from './presentation/layout/ui/NavUser/NavUser.svelte';
 import NewBadge from './presentation/layout/ui/NewBadge.svelte';
+import GlobalSearch from './presentation/layout/ui/GlobalSearch/GlobalSearch.svelte';
+import NotificationsMenu from './presentation/layout/ui/NotificationsMenu/NotificationsMenu.svelte';
+import ShellBrand from './presentation/layout/ui/ShellBrand/ShellBrand.svelte';
 import { markNavSeen } from './presentation/layout/whats-new.state.svelte.ts';
 import { reportQueryError } from './presentation/report-query-error.ts';
 import { retryQueryError } from './presentation/retry-query-error.ts';
@@ -32,7 +36,6 @@ export const ShellModule = {
       parent: 'app',
       path: ':workspaceSlug',
       wrapper: WorkspaceSyncWrapper,
-      breadcrumb: ({ workspaceName }) => ({ label: workspaceName ?? layoutMessages.workspace }),
     },
     // Members and roles of the workspace.
     access: {
@@ -62,11 +65,22 @@ export const ShellModule = {
     instance: [{ redirect: 'users' }],
   },
   navSections: [
-    { id: 'workspace', title: layoutMessages.workspace, header: WorkspaceSelector },
-    { id: 'instance', title: layoutMessages.instanceAdmins },
+    { id: 'workspace', title: layoutMessages.workspace },
+    {
+      id: 'project',
+      title: layoutMessages.project,
+      within: { railItem: 'projects', titleParam: 'projectName' },
+    },
+    { id: 'instance', title: layoutMessages.instance, railItem: { icon: ShieldCheckIcon } },
   ],
-  access: { can: permission => can(permission), ready: authorizationReady, guard: RequirePermission },
+  access: {
+    can: permission => can(permission),
+    ready: authorizationReady,
+    guard: RequirePermission,
+  },
   shell: {
+    brand: ShellBrand,
+    topBarEnd: [GlobalSearch, NotificationsMenu, WorkspaceSelector],
     sidebarFooter: [NavUser],
     overlays: [LaunchOverlays],
     navBadge: NewBadge,

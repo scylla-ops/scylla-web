@@ -1,8 +1,7 @@
 import type { NavGroup, ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
-import CpuIcon from '@lucide/svelte/icons/cpu';
-import HardDriveIcon from '@lucide/svelte/icons/hard-drive';
-import KeyRoundIcon from '@lucide/svelte/icons/key-round';
+import BlocksIcon from '@lucide/svelte/icons/blocks';
+import ServerIcon from '@lucide/svelte/icons/server';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
 import { AppServiceClient } from '@base/generated/scylla/apps/v1/app_service.client.ts';
@@ -20,7 +19,7 @@ const appsRepository = new DefaultAppsRepository(
 );
 
 /** The agents and the other apps fold under one item of the sidebar. */
-const MACHINES: NavGroup = { id: 'machines', title: msg`Machines`, icon: HardDriveIcon };
+const MACHINES: NavGroup = { id: 'machines', title: msg`Machines`, icon: ServerIcon };
 
 /** The page of an agent, under its list. */
 const agentDetails = {
@@ -54,7 +53,7 @@ export const AppsModule = {
         nav: {
           section: 'workspace',
           title: msg`Agents`,
-          icon: CpuIcon,
+          icon: ServerIcon,
           order: 40,
           group: MACHINES,
         },
@@ -68,7 +67,7 @@ export const AppsModule = {
         nav: {
           section: 'workspace',
           title: msg`Apps`,
-          icon: KeyRoundIcon,
+          icon: BlocksIcon,
           order: 41,
           group: MACHINES,
         },

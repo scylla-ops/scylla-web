@@ -13,9 +13,9 @@
 
 <SidebarProvider class="h-svh w-full">
   <AppSidebar {config} />
-  <SidebarInset class="flex min-w-0 flex-1 flex-col border border-sidebar-border bg-background p-2">
-    <TopBar contributions={config.contributions} />
-    <div class="relative min-h-0 flex-1 overflow-y-auto p-2">
+  <SidebarInset class="flex min-w-0 flex-1 flex-col bg-background">
+    <TopBar {config} />
+    <div class="relative min-h-0 flex-1 overflow-y-auto p-2 md:p-8">
       {@render children()}
     </div>
   </SidebarInset>

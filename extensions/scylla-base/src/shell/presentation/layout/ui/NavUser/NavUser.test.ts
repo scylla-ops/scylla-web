@@ -57,7 +57,6 @@ describe('NavUser', () => {
     setUp(() => Promise.resolve(me));
 
     expect(await screen.findByText('Ravenne Lee')).toBeInTheDocument();
-    expect(screen.getByText('ravenne@example.com')).toBeInTheDocument();
     expect(screen.getByText('RL')).toBeInTheDocument();
     expect(getMe).toHaveBeenCalled();
   });

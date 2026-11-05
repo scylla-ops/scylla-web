@@ -39,6 +39,7 @@ export const MembershipModule = {
         permission: Permission.LIST_PROJECT_MEMBERS,
         breadcrumb: () => ({ label: msg`Members` }),
         page: () => import('./presentation/ui/ProjectMembers/ProjectMembers.page.svelte'),
+        nav: { section: 'project', title: msg`Members`, icon: UsersRound, order: 30 },
       },
     ],
   },
