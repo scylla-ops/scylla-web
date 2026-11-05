@@ -51,7 +51,7 @@
     'group relative flex w-full cursor-pointer items-center gap-4 overflow-hidden rounded-xl border p-4 transition-all duration-200',
     active
       ? 'border-primary/40 bg-primary/6 hover:border-primary/40'
-      : 'hover:border-slate-300 hover:shadow-sm',
+      : 'hover:border-input hover:shadow-sm',
   )}
 >
   <!-- svelte-ignore a11y_no_static_element_interactions -->

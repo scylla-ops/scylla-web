@@ -29,7 +29,7 @@
     {@attach holdPointer}
     d={dimPath(viewport, holes)}
     fill-rule="evenodd"
-    class="pointer-events-auto fill-black/55"
+    class="pointer-events-auto fill-overlay/55"
   />
 </svg>
 
@@ -56,7 +56,7 @@
   {#each connectors as connector, index (index)}
     <path
       d={connector}
-      class="fill-none stroke-white"
+      class="fill-none stroke-primary-foreground"
       stroke-width="1.5"
       stroke-dasharray="5 5"
       stroke-linecap="round"

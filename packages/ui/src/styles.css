@@ -103,6 +103,8 @@
   /* Occurrence + bracket matches: a passive hint, deliberately weaker than the
      selection the user is actively dragging. */
   --code-editor-match-bg: rgba(93, 153, 114, 0.25);
+  /* The dim layer behind a modal: black in both themes. */
+  --overlay: #000000;
 }
 
 .dark {
@@ -186,6 +188,10 @@
 @theme inline {
   --font-sans: 'Funnel Sans', system-ui, sans-serif;
 
+  /* Removes the default palette of Tailwind: a class can use only the colors of this theme. */
+  --color-*: initial;
+
+  --color-overlay: var(--overlay);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

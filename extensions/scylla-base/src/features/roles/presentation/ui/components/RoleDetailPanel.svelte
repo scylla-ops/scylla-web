@@ -21,7 +21,7 @@
     class="flex h-full flex-col items-center justify-center gap-3 text-center text-muted-foreground"
   >
     <div class="flex size-12 items-center justify-center rounded-xl border">
-      <ShieldCheckIcon class="size-6 text-slate-400" />
+      <ShieldCheckIcon class="size-6 text-muted-foreground" />
     </div>
     <p class="text-sm">{t(rolesMessages.selectARole)}</p>
   </div>
