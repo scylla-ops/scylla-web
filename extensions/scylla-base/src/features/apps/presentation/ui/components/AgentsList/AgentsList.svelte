@@ -36,7 +36,7 @@
   import Sparkline from '../Sparkline/Sparkline.svelte';
   import AgentStatCards from './AgentStatCards.svelte';
   import AgentStatusCell from './AgentStatusCell.svelte';
-  import AgentRowMenu from './AgentRowMenu.svelte';
+  import AppRowMenu from '../AppRowMenu/AppRowMenu.svelte';
   import { agentsListMessages as messages } from '@base/features/apps/presentation/messages/agents-list.messages.ts';
 
   const context = toRune(contextStore);
@@ -235,8 +235,9 @@
                 {/if}
               </TableCell>
               <TableCell class="py-3 pr-4 text-right">
-                <AgentRowMenu
-                  {agent}
+                <AppRowMenu
+                  app={agent}
+                  openLabel={t(messages.openAgent)}
                   onOpen={() => openAgent(agent.id)}
                   onNewCode={canCreate ? () => join(agent) : undefined}
                   onDisable={canManage ? () => (disabling = agent) : undefined}

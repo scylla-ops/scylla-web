@@ -41,9 +41,12 @@ export const appPageMessages = {
   remove: msg`Remove`,
   rename: msg`Rename`,
   revokeTokenTitle: (name: string) => msg`Revoke ${name}?`,
-  revokeTokenBody: msg`Calls with this token fail at once. You cannot undo this.`,
-  removeIdentityTitle: msg`Remove this CI identity?`,
-  removeIdentityBody: msg`The jobs of this repository cannot sign in any more.`,
+  revokeTokenBody: msg`Calls with this token fail at once. Scripts that use it stop working. You cannot undo this.`,
+  removeIdentityTitle: (provider: string) => msg`Remove the ${provider} identity?`,
+  removeIdentityBody: (repository: string) =>
+    msg`Runs of ${repository} cannot call Scylla any more.`,
+  removeIdentityBranchBody: (repository: string, branch: string) =>
+    msg`Runs of ${repository} on ${branch} cannot call Scylla any more.`,
   revokeKeyTitle: msg`Revoke this key?`,
   revokeKeyBody: msg`The machine with this key cannot sign in any more.`,
   dangerTitle: msg`Delete this app`,

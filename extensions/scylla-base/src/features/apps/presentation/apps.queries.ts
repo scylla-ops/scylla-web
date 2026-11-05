@@ -6,6 +6,7 @@ import type { AppsModule } from '../apps.module.ts';
 import type { AppDetails } from '../domain/entities/app.entity.ts';
 import { appsMessages } from './messages/apps.messages.ts';
 import { appStatsOf } from '../domain/structs/app-stats.struct.ts';
+import { appRolesOf } from '@base/features/apps/domain/structs/app-list.struct.ts';
 import { agentAccessOf, type RunnerChange } from '../domain/structs/agent-access.struct.ts';
 import { accessQueries, projectRef, workspaceRef, type ObjectRef } from '@base/features/access';
 import { projectQueries } from '@base/features/project';
@@ -48,6 +49,25 @@ const canList = (workspaceId: string) =>
   authorizationReady() &&
   (can(Permission.LIST_AGENTS, { workspaceId: workspaceId }) ||
     can(Permission.LIST_APPS_BY_WORKSPACE, { workspaceId: workspaceId }));
+
+/** The roles on the workspace, and on each of its projects. */
+const rolesInWorkspace = async (workspaceId: string) => {
+  const client = getQueryClient();
+  const roles = (object: ObjectRef) =>
+    client.fetchQuery({ ...accessQueries.list(object), staleTime: 0 });
+  const [workspace, projects] = await Promise.all([
+    roles(workspaceRef(workspaceId)),
+    client.fetchQuery(projectQueries.lookup(workspaceId)),
+  ]);
+  const byProject = await Promise.all(
+    projects.items.map(async project => ({
+      id: project.id,
+      name: project.name,
+      entries: await roles(projectRef(project.id)),
+    })),
+  );
+  return { workspace, byProject };
+};
 
 export const appQueries = {
   list: (workspaceId: string, filter: AppFilter = 'all') =>
@@ -105,23 +125,27 @@ export const appQueries = {
     queryOptions({
       queryKey: [...APPS_QUERY_ROOT, 'access', workspaceId, [...agentIds].sort()] as const,
       queryFn: async () => {
-        const client = getQueryClient();
-        const roles = (object: ObjectRef) =>
-          client.fetchQuery({ ...accessQueries.list(object), staleTime: 0 });
-        const [workspace, projects] = await Promise.all([
-          roles(workspaceRef(workspaceId)),
-          client.fetchQuery(projectQueries.lookup(workspaceId)),
-        ]);
-        const byProject = await Promise.all(
-          projects.items.map(async project => ({
-            id: project.id,
-            name: project.name,
-            entries: await roles(projectRef(project.id)),
-          })),
-        );
+        const { workspace, byProject } = await rolesInWorkspace(workspaceId);
         return new Map(agentIds.map(id => [id, agentAccessOf(id, workspace, byProject)]));
       },
       enabled: enabled && !!workspaceId && agentIds.length > 0,
+    }),
+
+  /** The roles of each app, on the workspace and on each project. */
+  appRoles: (
+    workspaceId: string,
+    workspaceName: string,
+    appIds: readonly string[],
+    enabled: boolean,
+  ) =>
+    queryOptions({
+      queryKey: [...APPS_QUERY_ROOT, 'roles', workspaceId, [...appIds].sort()] as const,
+      queryFn: async () => {
+        const { workspace, byProject } = await rolesInWorkspace(workspaceId);
+        const named = { name: workspaceName, entries: workspace };
+        return new Map(appIds.map(id => [id, appRolesOf(id, named, byProject)]));
+      },
+      enabled: enabled && !!workspaceId && appIds.length > 0,
     }),
 
   /** The 30 days of one agent. */

@@ -20,17 +20,18 @@
   import { agentsListMessages as messages } from '@base/features/apps/presentation/messages/agents-list.messages.ts';
 
   interface Props {
-    agent: AppEntity;
+    app: AppEntity;
+    openLabel: string;
     onOpen: () => void;
     /** Absent: the user may not make a join code. */
     onNewCode?: () => void;
-    /** Absent: the user may not disable, enable or delete the agent. */
+    /** Absent: the user may not disable, enable or delete the app. */
     onDisable?: () => void;
     onEnable?: () => void;
     onDelete?: () => void;
   }
 
-  let { agent, onOpen, onNewCode, onDisable, onEnable, onDelete }: Props = $props();
+  let { app, openLabel, onOpen, onNewCode, onDisable, onEnable, onDelete }: Props = $props();
 </script>
 
 <DropdownMenu>
@@ -38,24 +39,24 @@
     class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'size-8 rounded-full')}
   >
     <EllipsisIcon class="size-4" aria-hidden="true" />
-    <span class="sr-only">{t(messages.actions(agent.name))}</span>
+    <span class="sr-only">{t(messages.actions(app.name))}</span>
   </DropdownMenuTrigger>
   <DropdownMenuContent align="end" class="w-48">
     <DropdownMenuItem onSelect={onOpen}>
       <ArrowRightIcon class="size-4" aria-hidden="true" />
-      {t(messages.openAgent)}
+      {openLabel}
     </DropdownMenuItem>
-    <DropdownMenuItem onSelect={() => copyToClipboard(agent.id, { copied: t(messages.idCopied) })}>
+    <DropdownMenuItem onSelect={() => copyToClipboard(app.id, { copied: t(messages.idCopied) })}>
       <CopyIcon class="size-4" aria-hidden="true" />
       {t(messages.copyId)}
     </DropdownMenuItem>
-    {#if onNewCode && !agent.disabledAt}
+    {#if onNewCode && !app.disabledAt}
       <DropdownMenuItem onSelect={onNewCode}>
         <KeyRoundIcon class="size-4" aria-hidden="true" />
         {t(messages.newJoinCode)}
       </DropdownMenuItem>
     {/if}
-    {#if agent.disabledAt && onEnable}
+    {#if app.disabledAt && onEnable}
       <DropdownMenuItem onSelect={onEnable}>
         <PowerIcon class="size-4" aria-hidden="true" />
         {t(messages.enable)}

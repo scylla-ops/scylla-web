@@ -33,6 +33,11 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   the roles of the workspace and of each project (`agent-access.struct.ts`). The sparkline comes
   from `appQueries.agentStats` (one call for the workspace). Disable and delete need `delete_app`;
   a new join code needs `create_app`. The other apps have their own page (`AppsList`).
+- The apps page (`components/AppsList/`) is a table of the other apps. Each line reads its own
+  credentials (`credentialQueries.allOf`, one query for each line) and shows the one that needs
+  attention first (`mainCredential` in `app-list.struct.ts`). A user may list the apps and not
+  read one of them: that query gives `null`, with no error, and the line shows a dash. The access
+  column needs `list_workspace_members` (`appQueries.appRoles`).
 - The agent page (`ui/AgentDetails/`, route `/agents/:appId`) shows the header (Disable or
   Enable), a banner when it is disabled, the 30-day stats (`appQueries.agentStatsOf`), the jobs per
   day, the machine, the recent jobs, the access (Change: `runnerChanges` in

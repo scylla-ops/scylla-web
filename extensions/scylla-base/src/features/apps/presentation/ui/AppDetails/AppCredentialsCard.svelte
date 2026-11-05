@@ -29,6 +29,8 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
+  import { ciRuleText } from '@base/features/apps/domain/structs/ci-ref.struct.ts';
+  import type { CiIdentityEntity } from '@base/features/apps/domain/entities/ci-identity.entity.ts';
   import type { CredentialRow } from '@base/features/apps/domain/structs/app-credentials.struct.ts';
   import { appMutations } from '@base/features/apps/presentation/apps.queries.ts';
   import { credentialMutations } from '@base/features/apps/presentation/app-credentials.queries.ts';
@@ -58,6 +60,13 @@
   const live = (row: CredentialRow) =>
     row.kind === 'token' ? row.state !== 'revoked' : row.kind === 'key' ? !row.key.revokedAt : true;
 
+  const identityBody = (identity: CiIdentityEntity) => {
+    const rule = ciRuleText(identity);
+    return rule.kind === 'branch'
+      ? messages.removeIdentityBranchBody(identity.repository, rule.value)
+      : messages.removeIdentityBody(identity.repository);
+  };
+
   const confirm = $derived.by(() => {
     if (!ending) return null;
     if (ending.kind === 'token') {
@@ -69,8 +78,12 @@
     }
     if (ending.kind === 'ci') {
       return {
-        title: t(messages.removeIdentityTitle),
-        body: t(messages.removeIdentityBody),
+        title: t(
+          messages.removeIdentityTitle(
+            t(ending.identity.provider === 'github' ? messages.github : messages.gitlab),
+          ),
+        ),
+        body: t(identityBody(ending.identity)),
         label: t(messages.remove),
       };
     }
