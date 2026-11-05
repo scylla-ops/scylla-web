@@ -83,7 +83,7 @@
       </div>
       <h2 class="text-lg font-semibold text-foreground">{t(jobsMessages.logs)}</h2>
       <span class="flex items-center gap-1.5 text-sm text-muted-foreground">
-        <RadioIcon class="size-4 animate-pulse text-green-500" />
+        <RadioIcon class="size-4 animate-pulse text-success" />
         {t(jobsMessages.streamingLive)}
       </span>
     </div>

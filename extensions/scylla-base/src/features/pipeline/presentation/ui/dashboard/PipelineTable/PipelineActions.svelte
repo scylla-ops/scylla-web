@@ -86,7 +86,7 @@
             type="button"
             size="icon"
             variant="ghost"
-            class="h-8 w-8 shrink-0 rounded-full text-slate-400 hover:text-slate-900"
+            class="h-8 w-8 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
           >
             <MoreHorizontalIcon class="h-4 w-4" />
             <!-- An icon-only button: this is its name. -->

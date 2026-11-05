@@ -39,7 +39,7 @@
       <DropdownMenuTrigger
         class={cn(
           buttonVariants({ variant: 'ghost', size: 'icon' }),
-          'h-8 w-8 shrink-0 rounded-full text-slate-400 hover:text-slate-900',
+          'h-8 w-8 shrink-0 rounded-full text-muted-foreground hover:text-foreground',
         )}
         onclick={(event: MouseEvent) => event.stopPropagation()}
       >

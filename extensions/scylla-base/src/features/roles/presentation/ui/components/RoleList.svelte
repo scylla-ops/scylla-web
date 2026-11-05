@@ -31,7 +31,7 @@
 
 {#snippet empty(message: string)}
   <p
-    class="rounded-xl border border-dashed border-slate-200 py-10 text-center text-sm text-muted-foreground"
+    class="rounded-xl border border-dashed border-border py-10 text-center text-sm text-muted-foreground"
   >
     {message}
   </p>

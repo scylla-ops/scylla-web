@@ -15,7 +15,7 @@
 
 <!-- Not mounted: placeholder figures. See AGENTS.md. -->
 <div class="grid gap-4 md:grid-cols-3">
-  <Card class="gap-2 rounded-2xl border-blue-200/40 bg-blue-500/5 py-3">
+  <Card class="gap-2 rounded-2xl border-info/30 bg-info/5 py-3">
     <CardHeader class="pb-1">
       <CardTitle class="flex items-center gap-2 text-sm md:text-base">
         <ShieldCheckIcon class="size-4 text-primary" />
@@ -32,10 +32,10 @@
     </CardContent>
   </Card>
 
-  <Card class="gap-2 rounded-2xl border-emerald-200/40 bg-emerald-500/5 py-3">
+  <Card class="gap-2 rounded-2xl border-success/30 bg-success/5 py-3">
     <CardHeader class="pb-1">
       <CardTitle class="flex items-center gap-2 text-sm md:text-base">
-        <ActivityIcon class="size-4 text-emerald-500" />
+        <ActivityIcon class="size-4 text-success" />
         {t(secretMessages.vaultHealth)}
       </CardTitle>
     </CardHeader>
