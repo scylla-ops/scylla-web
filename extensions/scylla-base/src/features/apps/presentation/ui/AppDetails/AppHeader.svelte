@@ -53,7 +53,8 @@
       >
         <CopyIcon class="size-3.5" aria-hidden="true" />
       </button>
-      · {t(agentPageMessages.createdOn(formatDay(app.createdAt)))}
+      <span class="hidden sm:inline" aria-hidden="true">·</span>
+      {t(agentPageMessages.createdOn(formatDay(app.createdAt)))}
     </p>
   </div>
   {#if app.disabledAt && onEnable}

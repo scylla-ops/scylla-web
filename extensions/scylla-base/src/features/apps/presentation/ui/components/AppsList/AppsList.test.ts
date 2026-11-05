@@ -268,7 +268,16 @@ describe('AppsList on a phone', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
     expect(await screen.findByText('API token · Deploy · expires in 9 days')).toBeInTheDocument();
     expect(screen.getByText('Disabled')).toBeInTheDocument();
-    expect(await screen.findByText(/Member of acme/)).toBeInTheDocument();
+    expect(await screen.findByText(/^Member of acme · Last used /)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Actions of release-bot' })).toBeInTheDocument();
+  });
+
+  it('says so when the app never did a call', async () => {
+    onAPhone();
+    setUp(ALL, [app('release-bot')]);
+    repository.listTokens.mockResolvedValue([token({ lastUsedAt: '' })]);
+    render(AppsList);
+
+    expect(await screen.findByText('Never used')).toBeInTheDocument();
   });
 });

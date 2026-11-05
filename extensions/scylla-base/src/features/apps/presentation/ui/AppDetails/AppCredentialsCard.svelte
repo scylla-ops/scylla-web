@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { MediaQuery } from 'svelte/reactivity';
   import CircleXIcon from '@lucide/svelte/icons/circle-x';
   import ClockIcon from '@lucide/svelte/icons/clock';
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
@@ -52,6 +53,8 @@
   const removeIdentity = createMutation(() => credentialMutations.removeCiIdentity(appId));
   const revokeKey = createMutation(() => appMutations.revokeKey());
 
+  const phone = new MediaQuery('(max-width: 639px)');
+
   let ending = $state<CredentialRow | null>(null);
   const now = new Date();
 
@@ -100,6 +103,44 @@
   };
 </script>
 
+{#snippet expiry(row: CredentialRow, text: string)}
+  {@const state = row.kind === 'token' ? row.state : 'ok'}
+  <span
+    class={cn(
+      'inline-flex items-center gap-1.5 text-xs',
+      state === 'soon' && 'text-warning',
+      (state === 'expired' || state === 'revoked') && 'text-destructive',
+      state === 'ok' && 'text-muted-foreground',
+    )}
+  >
+    {#if row.kind === 'token'}
+      {#if state === 'expired' || state === 'revoked'}
+        <CircleXIcon class="size-3.5" aria-hidden="true" />
+      {:else}
+        <ClockIcon class="size-3.5" aria-hidden="true" />
+      {/if}
+    {/if}
+    {text}
+  </span>
+{/snippet}
+
+{#snippet rowMenu(row: CredentialRow, name: string)}
+  {#if canManage && live(row)}
+    <DropdownMenu>
+      <DropdownMenuTrigger class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'size-8')}>
+        <EllipsisIcon class="size-4" aria-hidden="true" />
+        <span class="sr-only">{t(messages.actionsOf(name))}</span>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" class="w-40">
+        <DropdownMenuItem variant="destructive" onSelect={() => (ending = row)}>
+          <TrashIcon class="size-4" aria-hidden="true" />
+          {row.kind === 'ci' ? t(messages.remove) : t(messages.revoke)}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  {/if}
+{/snippet}
+
 <Card>
   <CardHeader class="flex flex-row items-center justify-between">
     <CardTitle><h2>{t(messages.credentials)}</h2></CardTitle>
@@ -111,6 +152,38 @@
     {/if}
   </CardHeader>
   <CardContent class="flex flex-col gap-3">
+    {#if phone.current}
+      <div class="flex flex-col gap-2">
+        {#each rows as row (`${row.kind}-${row.id}`)}
+          {@const labels = credentialLabels(row, now)}
+          {@const Icon = ICON[row.kind]}
+          <article
+            class={cn(
+              'flex flex-col gap-1 rounded-lg border p-3 text-xs',
+              !live(row) && 'text-muted-foreground',
+            )}
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="flex min-w-0 items-center gap-2 text-sm font-medium">
+                <Icon class="size-4 shrink-0" aria-hidden="true" />
+                <span class="truncate">{labels.name}</span>
+              </span>
+              {@render rowMenu(row, labels.name)}
+            </div>
+            <span class="text-muted-foreground">{labels.kind}</span>
+            <span class="font-mono break-all">{labels.detail}</span>
+            <span class="text-muted-foreground">{labels.sub}</span>
+            {@render expiry(row, labels.expiry)}
+            <span class="text-muted-foreground">
+              {t(messages.lastUsedColumn)}:
+              {row.lastUsedAt ? getRelativeTime(row.lastUsedAt) : t(messages.never)}
+            </span>
+          </article>
+        {:else}
+          <p class="rounded-lg border p-4 text-muted-foreground">{t(messages.noCredential)}</p>
+        {/each}
+      </div>
+    {:else}
     <div class="relative overflow-x-auto rounded-lg border">
       <table class="w-full text-sm">
         <TableHeader>
@@ -126,7 +199,6 @@
           {#each rows as row (`${row.kind}-${row.id}`)}
             {@const labels = credentialLabels(row, now)}
             {@const Icon = ICON[row.kind]}
-            {@const state = row.kind === 'token' ? row.state : 'ok'}
             <TableRow class={live(row) ? '' : 'text-muted-foreground'}>
               <TableCell class="px-6 py-3">
                 <span class="flex items-center gap-2 font-medium">
@@ -140,44 +212,13 @@
                 <span class="text-xs text-muted-foreground">{labels.sub}</span>
               </TableCell>
               <TableCell class="py-3">
-                <span
-                  class={cn(
-                    'inline-flex items-center gap-1.5 text-xs',
-                    state === 'soon' && 'text-warning',
-                    (state === 'expired' || state === 'revoked') && 'text-destructive',
-                    state === 'ok' && 'text-muted-foreground',
-                  )}
-                >
-                  {#if row.kind === 'token'}
-                    {#if state === 'expired' || state === 'revoked'}
-                      <CircleXIcon class="size-3.5" aria-hidden="true" />
-                    {:else}
-                      <ClockIcon class="size-3.5" aria-hidden="true" />
-                    {/if}
-                  {/if}
-                  {labels.expiry}
-                </span>
+                {@render expiry(row, labels.expiry)}
               </TableCell>
               <TableCell class="py-3 text-xs">
                 {row.lastUsedAt ? getRelativeTime(row.lastUsedAt) : t(messages.never)}
               </TableCell>
               <TableCell class="py-3 pr-4 text-right">
-                {#if canManage && live(row)}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'size-8')}
-                    >
-                      <EllipsisIcon class="size-4" aria-hidden="true" />
-                      <span class="sr-only">{t(messages.actionsOf(labels.name))}</span>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" class="w-40">
-                      <DropdownMenuItem variant="destructive" onSelect={() => (ending = row)}>
-                        <TrashIcon class="size-4" aria-hidden="true" />
-                        {row.kind === 'ci' ? t(messages.remove) : t(messages.revoke)}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                {/if}
+                {@render rowMenu(row, labels.name)}
               </TableCell>
             </TableRow>
           {:else}
@@ -190,6 +231,7 @@
         </TableBody>
       </table>
     </div>
+    {/if}
     <p class="text-xs text-muted-foreground">{t(messages.credentialsHint)}</p>
   </CardContent>
 </Card>

@@ -254,6 +254,24 @@ describe('AgentsList on a phone', () => {
 
     expect(await screen.findByRole('button', { name: 'build-linux-01' })).toBeInTheDocument();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
-    expect(screen.getByText(/of 5 online/)).toBeInTheDocument();
+    expect(screen.getByText('2 of 5 online · 2 jobs running')).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /^Never/ })).toHaveTextContent('Never');
+    expect(screen.queryByRole('radio', { name: /Never connected/ })).not.toBeInTheDocument();
+  });
+
+  it('offers the disabled filter only when an agent is disabled', async () => {
+    onAPhone();
+    setUp(ALL, AGENTS.slice(0, 4));
+
+    await screen.findByRole('button', { name: 'build-linux-01' });
+    expect(screen.queryByRole('radio', { name: /Disabled/ })).not.toBeInTheDocument();
+  });
+
+  it('keeps the disabled filter when an agent is disabled', async () => {
+    onAPhone();
+    setUp(ALL);
+
+    await screen.findByRole('button', { name: 'build-linux-01' });
+    expect(screen.getByRole('radio', { name: /Disabled/ })).toBeInTheDocument();
   });
 });

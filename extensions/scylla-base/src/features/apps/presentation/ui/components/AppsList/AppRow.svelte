@@ -69,6 +69,10 @@
   const [firstRole, ...otherRoles] = $derived(
     (roles ?? []).map(role => t(messages.roleOn(roleLabel(role.role), role.on))),
   );
+  const cardLastUse = $derived.by(() => {
+    if (lastUsed) return t(messages.lastUsedWhen(getRelativeTime(lastUsed.lastUsedAt)));
+    return credentials.data ? t(messages.neverUsed) : '';
+  });
 </script>
 
 {#snippet credential()}
@@ -123,9 +127,7 @@
     </div>
     {@render credential()}
     <p class="text-xs text-muted-foreground">
-      {#if firstRole}{firstRole} ·{/if}
-      {t(messages.lastUsedLower)}
-      {@render lastUse()}
+      {[firstRole, cardLastUse].filter(Boolean).join(' · ')}
     </p>
   </article>
 {:else}

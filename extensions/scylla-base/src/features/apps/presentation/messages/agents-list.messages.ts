@@ -14,6 +14,8 @@ export const agentsListMessages = {
   online: msg`Online`,
   onlineOf: (online: number, total: number) => msg`${online} of ${total}`,
   phoneOnline: (online: number, total: number) => msg`${online} of ${total} online`,
+  jobsRunning: (count: number) =>
+    msg`${plural(count, { one: '# job running', other: '# jobs running' })}`,
   runningNow: msg`Running now`,
   jobs: (count: number) => msg`${plural(count, { one: '# job', other: '# jobs' })}`,
   needsAttention: msg`Needs attention`,
@@ -26,6 +28,7 @@ export const agentsListMessages = {
   filterOnline: msg`Online`,
   filterOffline: msg`Offline`,
   filterNever: msg`Never connected`,
+  filterNeverShort: msg`Never`,
   filterDisabled: msg`Disabled`,
   search: msg`Search by name or host`,
   columnAgent: msg`Agent`,

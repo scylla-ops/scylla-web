@@ -216,3 +216,27 @@ describe('AppDetails', () => {
     expect(screen.queryByRole('button', { name: 'Disable' })).not.toBeInTheDocument();
   });
 });
+
+const onAPhone = () => {
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    matches: true,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+};
+
+describe('AppDetails on a phone', () => {
+  it('lists the credentials as cards, with their actions, and no table', async () => {
+    onAPhone();
+    setUp();
+
+    expect(await screen.findByText('Deploy · all projects')).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Actions of deploy-script' })).toBeInTheDocument();
+  });
+});

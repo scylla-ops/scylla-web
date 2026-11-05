@@ -14,7 +14,7 @@
 </script>
 
 <nav aria-label={t(userMessages.accountSettings)} class="md:w-55 md:shrink-0">
-  <ul class="relative -mx-1 flex gap-1 overflow-x-auto px-1 pb-1 md:mx-0 md:flex-col md:overflow-visible md:p-0">
+  <ul class="flex flex-wrap gap-1 md:flex-col">
     {#each ACCOUNT_SECTIONS as section (section.id)}
       <li class={cn(section.danger && 'md:mt-2 md:border-t md:pt-2')}>
         <a

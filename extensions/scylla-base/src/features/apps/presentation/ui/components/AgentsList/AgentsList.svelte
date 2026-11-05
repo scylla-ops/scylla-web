@@ -85,6 +85,16 @@
     disabled: messages.filterDisabled,
   } as const;
 
+  const filters = $derived(
+    phone.current
+      ? AGENT_FILTERS.filter(
+          value => value !== 'disabled' || counts.disabled > 0 || filter === 'disabled',
+        )
+      : AGENT_FILTERS,
+  );
+  const filterLabel = (value: AgentFilter) =>
+    phone.current && value === 'never' ? messages.filterNeverShort : FILTER_LABEL[value];
+
   const accessLabel = (value: AgentAccess | undefined) => {
     if (!value) return '';
     if (value.kind === 'all') return t(messages.allProjects);
@@ -154,7 +164,7 @@
     {#if phone.current}
       <p class="text-xs text-muted-foreground">
         {t(messages.phoneOnline(summary.online, summary.total))} ·
-        {t(messages.running(summary.runningJobs))}
+        {t(messages.jobsRunning(summary.runningJobs))}
       </p>
     {:else}
       <AgentStatCards {summary} {outcomes} />
@@ -168,15 +178,15 @@
           if (next) filter = next as AgentFilter;
         }}
         aria-label={t(messages.filterLabel)}
-        class="max-w-full w-fit overflow-x-auto rounded-lg bg-muted p-1"
+        class="w-fit max-w-full flex-wrap rounded-lg bg-muted p-1"
       >
-        {#each AGENT_FILTERS as value (value)}
+        {#each filters as value (value)}
           <ToggleGroupItem
             {value}
             size="sm"
-            class="h-auto gap-1.5 rounded-md px-3 py-1 text-sm font-normal text-muted-foreground data-[state=on]:bg-card data-[state=on]:font-medium data-[state=on]:text-foreground data-[state=on]:shadow-xs"
+            class="h-auto gap-1.5 rounded-md px-2 py-1 text-sm sm:px-3 font-normal text-muted-foreground data-[state=on]:bg-card data-[state=on]:font-medium data-[state=on]:text-foreground data-[state=on]:shadow-xs"
           >
-            {t(FILTER_LABEL[value])}
+            {t(filterLabel(value))}
             <span class="tabular-nums">{counts[value]}</span>
           </ToggleGroupItem>
         {/each}
