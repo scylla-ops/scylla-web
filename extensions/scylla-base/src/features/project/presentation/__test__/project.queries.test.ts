@@ -5,23 +5,21 @@ import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
-import type {
-  ProjectRepository,
-} from '@base/features/project/domain/repository/project.repository.ts';
+import type { ProjectRepository } from '@base/features/project/domain/repository/project.repository.ts';
 import {
   canListProjects,
-  invalidateProjectMembers,
   projectLookupQueries,
   projectMutations,
   projectQueries,
   PROJECTS_LOOKUP_PAGE,
   PROJECTS_QUERY_KEY,
   PROJECTS_QUERY_ROOT,
-  PROJECT_MEMBERS_QUERY_KEY,
 } from '../project.queries.ts';
 
 const toastSuccess = vi.fn();
-vi.mock('svelte-sonner', () => ({ toast: { success: (...args: unknown[]) => toastSuccess(...args) } }));
+vi.mock('svelte-sonner', () => ({
+  toast: { success: (...args: unknown[]) => toastSuccess(...args) },
+}));
 
 const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
   id: 'project-1',
@@ -32,13 +30,19 @@ const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
 
 const page = (projects: ProjectEntity[]) => ({
   items: projects,
-  pagination: { page: 1, pageSize: 10, totalCount: projects.length, totalPages: 1, hasNext: false, hasPrevious: false },
+  pagination: {
+    page: 1,
+    pageSize: 10,
+    totalCount: projects.length,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false,
+  },
 });
 
 const withRepository = (overrides: Partial<ProjectRepository> = {}) => {
   const repository = {
     getByWorkspaceId: vi.fn().mockResolvedValue(page([project()])),
-    listMembers: vi.fn().mockResolvedValue([]),
     create: vi.fn().mockResolvedValue(project()),
     update: vi.fn().mockResolvedValue(project()),
     delete: vi.fn().mockResolvedValue(undefined),
@@ -204,42 +208,6 @@ describe('projectLookupQueries', () => {
 
     // The indexes follow the readable ids, not the requested ones.
     expect(map.get('p-2')?.workspaceId).toBe('org-2');
-  });
-});
-
-describe('projectQueries.members', () => {
-  it('lists members for the given project', async () => {
-    const repository = withRepository();
-
-    await runQueryFn(projectQueries.members('project-1'));
-
-    expect(repository.listMembers).toHaveBeenCalledWith('project-1');
-  });
-
-  it('is disabled without a project', () => {
-    withRepository();
-    expect(projectQueries.members(null).enabled).toBe(false);
-  });
-
-  it("invalidates exactly this project's members key", () => {
-    withRepository();
-    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
-
-    invalidateProjectMembers('project-1');
-
-    expect(invalidate).toHaveBeenCalledWith({
-      queryKey: PROJECT_MEMBERS_QUERY_KEY('project-1'),
-      exact: true,
-    });
-  });
-
-  it('invalidating without a project is a no-op', () => {
-    withRepository();
-    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
-
-    invalidateProjectMembers(null);
-
-    expect(invalidate).not.toHaveBeenCalled();
   });
 });
 

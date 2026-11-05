@@ -3,7 +3,6 @@ export type { ProjectEntity, ProjectList } from './domain/entities/project.entit
 export {
   CREATE_PROJECT_MUTATION_KEY,
   canListProjects,
-  invalidateProjectMembers,
   projectLookupQueries,
   projectMutations,
   projectQueries,
@@ -11,5 +10,4 @@ export {
   PROJECTS_LOOKUP_PAGE,
   PROJECTS_QUERY_KEY,
   PROJECTS_QUERY_ROOT,
-  PROJECT_MEMBERS_QUERY_KEY,
 } from './presentation/project.queries.ts';

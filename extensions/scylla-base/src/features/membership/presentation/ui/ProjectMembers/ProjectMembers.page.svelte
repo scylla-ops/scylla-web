@@ -5,7 +5,6 @@
   import { createQuery, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
   import { accessQueries, projectRef, type MemberRoleEntity } from '@base/features/access';
   import { appQueries } from '@base/features/apps';
-  import { invalidateProjectMembers } from '@base/features/project';
   import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { Button, Skeleton } from '@scylla/ui/primitives';
@@ -88,7 +87,6 @@
 
   const refresh = () => {
     void membersQuery.refetch();
-    void invalidateProjectMembers(projectId ?? null);
   };
 
   const zoneContext: ProjectMembersContext = $derived({

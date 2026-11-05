@@ -27,7 +27,6 @@ let testNavigator: ReturnType<typeof installTestNavigator>;
 const renderCard = (entity: ProjectEntity = project()) => {
   const repository = {
     getByWorkspaceId: vi.fn(),
-    listMembers: vi.fn(),
     create: vi.fn(),
     update: vi.fn().mockResolvedValue(entity),
     delete: vi.fn(),

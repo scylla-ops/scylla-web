@@ -31,7 +31,6 @@ const install = () => {
   update = vi.fn().mockResolvedValue(project());
   const repository = {
     getByWorkspaceId: vi.fn(),
-    listMembers: vi.fn(),
     create,
     update,
     delete: vi.fn(),

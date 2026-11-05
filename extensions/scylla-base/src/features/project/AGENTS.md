@@ -20,8 +20,8 @@ type ProjectEntity, ProjectList, ProjectLookupEntry
 projectQueries        byWorkspace (paginated) · lookup (org-wide) · members
 projectLookupQueries  the batched fan-out: { queries, combine } for useQueries/createQueries
 projectMutations      create · update · remove
-canListProjects, invalidateProjectMembers
-PROJECTS_QUERY_KEY, PROJECTS_QUERY_ROOT, PROJECTS_LOOKUP_PAGE, PROJECT_MEMBERS_QUERY_KEY
+canListProjects
+PROJECTS_QUERY_KEY, PROJECTS_QUERY_ROOT, PROJECTS_LOOKUP_PAGE
 CREATE_PROJECT_MUTATION_KEY   // the key of projectMutations.create; onboarding follows it
 ```
 
@@ -38,7 +38,6 @@ Never add: `project.module.ts`, pages.
 | Method | Returns |
 |---|---|
 | `getByWorkspaceId(workspaceId, pagination?)` | `ProjectList`: a `PaginatedList<ProjectEntity>` (`items`, `pagination`) |
-| `listMembers(projectId)` | `UserSummary[]` (from `user`): the holders of a project-scoped grant |
 | `create(name, workspaceId, description?)` | `ProjectEntity` |
 | `update(projectId, name?, description?)` | `ProjectEntity` |
 | `delete(projectId)` | `void` |
@@ -56,7 +55,6 @@ domain/
 infrastructure/
   default-project.repository.ts      ProjectServiceClient → ProjectEntity; the project cap
   grpc-project.mapper.ts
-  grpc-project-member.mapper.ts
 presentation/
   project.queries.ts                 every read and write, plus the key factories
   ui/Project.page.svelte             picks the workspace, or says there is none
@@ -89,9 +87,7 @@ project routes (the `project` mount) are declared by the modules that own them
   here too.
 - `projectLookupQueries` gives the options of each workspace to `createQueries`: one batch,
   never a loop of `createQuery`.
-- `listMembers` gives `UserSummary` values of [`user`](../user/AGENTS.md), and the list means
-  *holders of a project-scoped grant*, not a stored roster. The member UI belongs to [`membership`](../membership/AGENTS.md); this module
-  supplies the raw list only.
+- The member UI and its data belong to [`membership`](../membership/AGENTS.md), through `access`.
 - Lists use `DataTable` + `createPagination()`; row keys are project ids.
 - **`data-tour` attributes are anchors of the onboarding tour** (`projects` on the list, `project-card` with
   `data-project-id` on each card). Keep them on the same

@@ -5,15 +5,11 @@ import type {
   ProjectList,
 } from '@base/features/project/domain/entities/project.entity.ts';
 import type { IProjectServiceClient } from '@base/generated/scylla/projects/v1/project_service.client.ts';
-import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
-import type { AccessEntry } from '@base/generated/scylla/access/v1/access_service.ts';
 import type { Project } from '@base/generated/scylla/projects/v1/project.ts';
-import type { UserSummary } from '@base/features/user';
 import { DEFAULT_PAGE_SIZE, type PaginationParams } from '@scylla/ui/structs';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcProject from './grpc-project.mapper.ts';
-import * as grpcProjectMember from './grpc-project-member.mapper.ts';
 
 const PAGE_SIZE = 100;
 
@@ -35,10 +31,7 @@ const requireProject = (project: Project | undefined): ProjectEntity =>
   grpcProject.toDomain(required(project, 'project'));
 
 export class DefaultProjectRepository implements ProjectRepository {
-  constructor(
-    private readonly client: IProjectServiceClient,
-    private readonly access: IAccessServiceClient,
-  ) {}
+  constructor(private readonly client: IProjectServiceClient) {}
 
   public async getByWorkspaceId(
     workspaceId: string,
@@ -58,21 +51,6 @@ export class DefaultProjectRepository implements ProjectRepository {
       projects,
       pagination ?? { page: 1, pageSize: DEFAULT_PAGE_SIZE },
     );
-  }
-
-  /** The roles on the project only: who reaches it through a workspace role is absent. */
-  public async listMembers(projectId: string): Promise<UserSummary[]> {
-    const entries: AccessEntry[] = [];
-    let token = '';
-    do {
-      const response = await this.access.listAccess({
-        object: { kind: 'project', id: wrapId(projectId) },
-        page: { size: PAGE_SIZE, token },
-      }).response;
-      entries.push(...response.entries);
-      token = response.page?.nextToken ?? '';
-    } while (token);
-    return grpcProjectMember.toDomainList(entries);
   }
 
   public async create(

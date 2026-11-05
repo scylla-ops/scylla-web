@@ -1,17 +1,15 @@
 // @vitest-environment node
 import { describe, it, expect, vi } from 'vitest';
 import type { IProjectServiceClient } from '@base/generated/scylla/projects/v1/project_service.client.ts';
-import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import { failedCall, unaryCall } from '@test/grpc.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { DefaultProjectRepository } from '../default-project.repository.ts';
 
 /** The error that `create` throws when the server refuses. */
 const createRefusedWith = (code: string, message: string): Promise<ScyllaError> =>
-  new DefaultProjectRepository(
-    { createProject: vi.fn(() => failedCall(code, message)) } as unknown as IProjectServiceClient,
-    {} as IAccessServiceClient,
-  )
+  new DefaultProjectRepository({
+    createProject: vi.fn(() => failedCall(code, message)),
+  } as unknown as IProjectServiceClient)
     .create('web', 'org-1')
     .then(
       () => {
@@ -49,10 +47,9 @@ describe('DefaultProjectRepository.getByWorkspaceId', () => {
           : { projects: [project('c')], page: { nextToken: '' } },
       ),
     );
-    const repository = new DefaultProjectRepository(
-      { listProjects } as unknown as IProjectServiceClient,
-      {} as IAccessServiceClient,
-    );
+    const repository = new DefaultProjectRepository({
+      listProjects,
+    } as unknown as IProjectServiceClient);
 
     const list = await repository.getByWorkspaceId('ws-1', { page: 2, pageSize: 2 });
 

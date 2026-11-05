@@ -8,13 +8,10 @@ import type { ProjectList } from '../domain/entities/project.entity.ts';
 import type { ProjectModule } from '../project.module.ts';
 
 // Resolved per call: tests swap the registry.
-const repository = () =>
-  getModuleDomain<typeof ProjectModule.domain>('project').projectRepository;
+const repository = () => getModuleDomain<typeof ProjectModule.domain>('project').projectRepository;
 
-export const PROJECTS_QUERY_KEY = (
-  workspaceId: string | null,
-  pagination?: PaginationParams,
-) => ['projects', workspaceId, pagination] as const;
+export const PROJECTS_QUERY_KEY = (workspaceId: string | null, pagination?: PaginationParams) =>
+  ['projects', workspaceId, pagination] as const;
 
 export const PROJECTS_QUERY_ROOT = ['projects'] as const;
 
@@ -22,9 +19,6 @@ export const CREATE_PROJECT_MUTATION_KEY = ['project', 'create'] as const;
 
 /** One request for an workspace's whole list, for the lookups by name. */
 export const PROJECTS_LOOKUP_PAGE: PaginationParams = { page: 1, pageSize: 100 };
-
-export const PROJECT_MEMBERS_QUERY_KEY = (projectId: string) =>
-  ['projects', projectId, 'members'] as const;
 
 const FIRST_PAGE: PaginationParams = { page: 1, pageSize: DEFAULT_PAGE_SIZE };
 
@@ -49,14 +43,6 @@ export const projectQueries = {
       queryFn: () => repository().getByWorkspaceId(workspaceId!, PROJECTS_LOOKUP_PAGE),
       enabled: !!workspaceId,
       staleTime: 30_000,
-    }),
-
-  /** Derived from grants: callers invalidate it with `invalidateProjectMembers`. */
-  members: (projectId: string | null, options: { enabled?: boolean } = {}) =>
-    queryOptions({
-      queryKey: PROJECT_MEMBERS_QUERY_KEY(projectId ?? ''),
-      queryFn: () => repository().listMembers(projectId!),
-      enabled: (options.enabled ?? true) && !!projectId,
     }),
 };
 
@@ -91,14 +77,6 @@ export const projectLookupQueries = (workspaceIds: string[], enabled = true) => 
       return byProjectId;
     },
   };
-};
-
-export const invalidateProjectMembers = (projectId: string | null): void => {
-  if (!projectId) return;
-  void getQueryClient().invalidateQueries({
-    queryKey: PROJECT_MEMBERS_QUERY_KEY(projectId),
-    exact: true,
-  });
 };
 
 const invalidateProjects = () =>

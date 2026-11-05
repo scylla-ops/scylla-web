@@ -57,18 +57,9 @@ They do it by declaring their routes under the `project` mount, and the shell gr
 which is why this module does not need to know they exist, and why adding a project-scoped
 screen never means editing a router file.
 
-## A note on the members
-
-`listMembers` returns `UserSummary` values, the person type of [user](../user/README.md), and it
-is worth reading its meaning carefully: the list says **who holds a grant scoped to this
-project**, not a stored membership row. Scylla has no separate member table: membership is
-derived from grants. This module returns the raw list; `membership` turns it into
-direct-vs-inherited roles with actions.
-
 ## Structure
 
-Standard three layers. Two mappers, because `listMembers` returns member data rather than
-project data.
+Standard three layers.
 
 ## Related modules
 
