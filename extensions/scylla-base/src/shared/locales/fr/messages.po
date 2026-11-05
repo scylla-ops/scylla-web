@@ -101,6 +101,10 @@ msgstr "Un autre déclencheur du pipeline utilise déjà ce nom"
 msgid "Another workspace already uses this slug"
 msgstr "Un autre espace de travail utilise déjà cette adresse"
 
+#: extensions/scylla-base/src/shared/presentation/messages/api-access.messages.ts:4
+msgid "API access"
+msgstr "Accès à l'API"
+
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:36
 msgid "App id copied"
 msgstr "ID d'application copié"

@@ -72,7 +72,9 @@ presentation/
 
 ## Routes & nav
 
-None. The workspaces and roles of a user show on the pages of [`user`](../user/AGENTS.md),
+`settings` (`UPDATE_WORKSPACE`): the switch of the personal tokens in this workspace, locked while
+the server refuses them. It reads this from `personalTokenQueries`, because only an instance admin
+reads the settings of the server. No other page. The workspaces and roles of a user show on the pages of [`user`](../user/AGENTS.md),
 from `ListUserAccess`; that module does not import this one for them.
 
 ## Rules that bite here

@@ -178,6 +178,9 @@ describe('feature permission conformance', () => {
 
     /** A ratchet. `TRIAGE`: nobody decided yet what the consuming page should show instead. */
     const UNCHECKED_SHARED_HOOKS: Readonly<Record<string, string>> = {
+      'user.personalTokenQueries':
+        '`mine` is the account of the session: it needs no right. The workspace settings page '  +
+        'reads only whether the server refuses the tokens.',
       'login.loginQueries':
         '`signInMethods` is public: the sign-in page reads it with no session. The account page ' +
         'reads it to offer the providers to link.',

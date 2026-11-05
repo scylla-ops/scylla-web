@@ -14,6 +14,7 @@ import { UserModule } from '@base/features/user/user.module.ts';
 import { AccessModule } from '@base/features/access/access.module.ts';
 import { MembershipModule } from '@base/features/membership/membership.module.ts';
 import { InvitationModule } from '@base/features/invitation/invitation.module.ts';
+import { InstanceSettingsModule } from '@base/features/instance-settings/instance-settings.module.ts';
 import { ExtensionsModule } from '@base/features/extensions/extensions.module.ts';
 
 /**
@@ -36,5 +37,6 @@ export const modules = [
   AccessModule,
   MarketplaceModule,
   ExtensionsModule,
+  InstanceSettingsModule,
   OnboardingModule,
 ] as const satisfies readonly ScyllaModule[];

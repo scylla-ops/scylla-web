@@ -17,4 +17,7 @@ export {
   USER_SESSIONS_QUERY_KEY,
 } from './presentation/user.queries.ts';
 export type { PersonalTokens } from './domain/entities/personal-tokens.entity.ts';
-export { personalTokenQueries } from './presentation/personal-tokens.queries.ts';
+export {
+  personalTokenQueries,
+  PERSONAL_TOKENS_QUERY_KEY,
+} from './presentation/personal-tokens.queries.ts';

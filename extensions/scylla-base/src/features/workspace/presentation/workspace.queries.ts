@@ -3,7 +3,9 @@ import { contextStore } from '@platform/context';
 import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
+import { PERSONAL_TOKENS_QUERY_KEY } from '@base/features/user';
 import type { WorkspaceModule } from '../workspace.module.ts';
+import { workspaceSettingsMessages } from './messages/workspace-settings.messages.ts';
 
 // Resolved per call: tests swap the registry.
 const repository = () =>
@@ -104,6 +106,19 @@ export const workspaceMutations = {
       }) => repository().update(workspaceId, name, slug),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.WORKSPACE_UPDATE));
+        return invalidateWorkspaces();
+      },
+    }),
+
+  setPersonalTokens: () =>
+    mutationOptions({
+      mutationFn: ({ workspaceId, enabled }: { workspaceId: string; enabled: boolean }) =>
+        repository().setPersonalTokens(workspaceId, enabled),
+      onSuccess: (_workspace, { enabled }) => {
+        toast.success(
+          i18n._(enabled ? workspaceSettingsMessages.turnedOn : workspaceSettingsMessages.turnedOff),
+        );
+        void getQueryClient().invalidateQueries({ queryKey: PERSONAL_TOKENS_QUERY_KEY() });
         return invalidateWorkspaces();
       },
     }),

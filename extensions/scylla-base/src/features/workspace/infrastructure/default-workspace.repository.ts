@@ -75,6 +75,14 @@ export class DefaultWorkspaceRepository implements WorkspaceRepository {
     return requireWorkspace(response.workspace);
   }
 
+  public async setPersonalTokens(workspaceId: string, enabled: boolean): Promise<WorkspaceEntity> {
+    const response = await this.workspaces.updateWorkspace({
+      workspaceId: wrapId(workspaceId),
+      personalTokensEnabled: enabled,
+    }).response;
+    return requireWorkspace(response.workspace);
+  }
+
   public async delete(workspaceId: string): Promise<void> {
     await this.workspaces.deleteWorkspace({ workspaceId: wrapId(workspaceId) }).response;
   }
