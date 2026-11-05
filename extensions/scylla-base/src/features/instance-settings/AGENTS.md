@@ -17,4 +17,5 @@ The settings of the server, for the instance admins (`scylla.platform.v1.Setting
 - When the switch is off, each personal token stops and no one can make a new one. The tokens of
   the apps and the CI identities do not change. The account page shows this state
   (`features/user`), and the switch of a workspace is locked (`features/workspace`).
-- The route uses `MANAGE_ROLES`, as `extensions` does, to mean an instance admin.
+- The route and the switch use `MANAGE_INSTANCE_SETTINGS`, which asks the server for
+  `update_instance_settings` on the platform: an instance admin holds it.

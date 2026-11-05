@@ -73,6 +73,7 @@ export enum Permission {
   UPDATE_SECRET = 64,
   /** Add and remove the owners of a workspace: its owners only. */
   MANAGE_OWNERS = 65,
+  MANAGE_INSTANCE_SETTINGS = 66,
 }
 
 /**
@@ -104,6 +105,7 @@ const SYSTEM_LEVEL = new Set<Permission>([
   Permission.LIST_JOBS,
   Permission.MANAGE_SYSTEM_GRANTS,
   Permission.MANAGE_ROLES,
+  Permission.MANAGE_INSTANCE_SETTINGS,
 ]);
 
 const WORKSPACE_LEVEL = new Set<Permission>([

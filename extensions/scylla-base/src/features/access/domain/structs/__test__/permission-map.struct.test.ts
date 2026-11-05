@@ -19,6 +19,7 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'list_user_sessions',
     'revoke_user_sessions',
     'grant_instance_admin',
+    'update_instance_settings',
     'revoke_instance_admin',
   ],
   workspace: [

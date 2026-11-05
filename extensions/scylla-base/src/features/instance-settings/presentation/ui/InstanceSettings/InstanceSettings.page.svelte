@@ -13,7 +13,7 @@
   const settings = createQuery(() => instanceSettingsQueries.get());
   const update = createMutation(() => instanceSettingsMutations.setPersonalTokens());
 
-  const canManage = $derived(can(Permission.MANAGE_ROLES));
+  const canManage = $derived(can(Permission.MANAGE_INSTANCE_SETTINGS));
 
   let confirming = $state(false);
 

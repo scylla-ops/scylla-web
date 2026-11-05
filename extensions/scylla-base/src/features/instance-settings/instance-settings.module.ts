@@ -16,7 +16,7 @@ export const InstanceSettingsModule = {
   routes: {
     instance: [
       {
-        permission: Permission.MANAGE_ROLES,
+        permission: Permission.MANAGE_INSTANCE_SETTINGS,
         path: 'settings',
         breadcrumb: () => ({ label: msg`Settings` }),
         page: () => import('./presentation/ui/InstanceSettings/InstanceSettings.page.svelte'),
