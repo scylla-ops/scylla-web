@@ -16,6 +16,18 @@ ScyllaGrpcTransport          the class
 grpcTransport                the shared singleton instance
 ```
 
+## The session in an outage
+
+- `refreshSession` gives `null` only when the server refuses the session
+  (`UNAUTHENTICATED`, `PERMISSION_DENIED`). Any other failure rejects: the session can still be
+  valid. Never make a failure of the network look like a lost session.
+- A call goes with no token only after a refusal of the server. In an outage the call rejects and
+  does not go, because the server refuses a call with no token and the handler then ends the
+  session.
+- The server closes a session when it gets an old refresh token. Thus `refreshSession` takes the
+  Web Lock `scylla-session-refresh`, so that the tabs of a browser refresh in turn. A browser
+  with no Web Locks (a page that is not on HTTPS or on localhost) refreshes with no lock.
+
 ## Where it is used
 
 **Only in `<feature>.module.ts` files**, to build that feature's generated client:

@@ -143,7 +143,8 @@ describe('ScyllaGrpcTransport', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(refusal(7, 'not yours')));
 
     const read = async () => {
-      for await (const _ of new JobServiceClient(transport()).tailJobLogs({ nodeId: '', after: '' }).responses) {
+      for await (const _ of new JobServiceClient(transport()).tailJobLogs({ nodeId: '', after: '' })
+        .responses) {
         // no message comes before the failure
       }
     };
@@ -201,6 +202,93 @@ describe('ScyllaGrpcTransport', () => {
 
     const urls = fetch.mock.calls.map(([input]) => urlOf(input));
     expect(urls.filter(url => url.endsWith('SecretService/ListSecrets'))).toHaveLength(1);
+  });
+
+  describe('when the refresh gets no answer about the session', () => {
+    const callsTo = (fetch: ReturnType<typeof vi.fn>, method: string) =>
+      fetch.mock.calls.filter(([input]) => urlOf(input as RequestInfo).endsWith(method)).length;
+
+    it('sends no call with no token, because the server would refuse it', async () => {
+      forgetSession();
+      const fetch = vi.fn((input: RequestInfo | URL) =>
+        urlOf(input).endsWith('TokenService/Refresh')
+          ? Promise.reject(new TypeError('Failed to fetch'))
+          : Promise.resolve(refusal(16, 'a Bearer token is required')),
+      );
+      vi.stubGlobal('fetch', fetch);
+
+      await expect(listSecrets()).rejects.toMatchObject({ code: 'UNAVAILABLE' });
+
+      expect(callsTo(fetch, 'SecretService/ListSecrets')).toBe(0);
+    });
+
+    it('gives the failure of the server, not a lost session', async () => {
+      forgetSession();
+      const fetch = vi.fn((input: RequestInfo | URL) =>
+        Promise.resolve(
+          urlOf(input).endsWith('TokenService/Refresh')
+            ? refusal(13, 'the database is down')
+            : refusal(16, 'a Bearer token is required'),
+        ),
+      );
+      vi.stubGlobal('fetch', fetch);
+
+      await expect(listSecrets()).rejects.toMatchObject({ code: 'INTERNAL' });
+
+      expect(callsTo(fetch, 'SecretService/ListSecrets')).toBe(0);
+    });
+
+    it('gives the outage when the token ends during the outage', async () => {
+      const fetch = vi.fn((input: RequestInfo | URL) =>
+        urlOf(input).endsWith('TokenService/Refresh')
+          ? Promise.reject(new TypeError('Failed to fetch'))
+          : Promise.resolve(refusal(16, 'token ended')),
+      );
+      vi.stubGlobal('fetch', fetch);
+
+      await expect(listSecrets()).rejects.toMatchObject({ code: 'UNAVAILABLE' });
+    });
+
+    it('still has the session when the server answers again', async () => {
+      forgetSession();
+      let down = true;
+      const fetch = vi.fn((input: RequestInfo | URL) => {
+        if (!urlOf(input).endsWith('TokenService/Refresh')) {
+          return Promise.resolve(refusal(5, 'reached the server'));
+        }
+        if (down) return Promise.reject(new TypeError('Failed to fetch'));
+        return Promise.resolve(
+          answer(
+            RefreshResponse.toBinary({
+              token: { value: 'access-2', expiresAt: farFuture },
+              refreshToken: '',
+            }),
+          ),
+        );
+      });
+      vi.stubGlobal('fetch', fetch);
+
+      await expect(listSecrets()).rejects.toMatchObject({ code: 'UNAVAILABLE' });
+      down = false;
+
+      await expect(listSecrets()).rejects.toMatchObject({ code: 'NOT_FOUND' });
+      const sent = fetch.mock.calls.at(-1) as unknown[];
+      expect(headersOf(sent).get('authorization')).toBe('Bearer access-2');
+    });
+  });
+
+  it('makes the tabs refresh in turn: the server closes a session on an old refresh token', async () => {
+    forgetSession();
+    const request = vi.fn((_name: string, run: () => Promise<unknown>) => run());
+    vi.stubGlobal('navigator', { locks: { request } });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve(refusal(16, 'no cookie'))),
+    );
+
+    await expect(listSecrets()).rejects.toMatchObject({ code: 'UNAUTHENTICATED' });
+
+    expect(request).toHaveBeenCalledOnce();
   });
 
   it('sends no token to a public call', async () => {

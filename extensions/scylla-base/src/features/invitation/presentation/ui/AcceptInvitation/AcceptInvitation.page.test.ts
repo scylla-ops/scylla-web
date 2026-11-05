@@ -19,10 +19,15 @@ let navigator: ReturnType<typeof installTestNavigator>;
 
 const openAt = (
   url: string,
-  { signedIn = true, refusal }: { signedIn?: boolean; refusal?: ScyllaError } = {},
+  {
+    signedIn = true,
+    refusal,
+    outage,
+  }: { signedIn?: boolean; refusal?: ScyllaError; outage?: ScyllaError } = {},
 ) => {
   history.replaceState(null, '', url);
-  hasSession.mockResolvedValue(signedIn);
+  if (outage) hasSession.mockRejectedValue(outage);
+  else hasSession.mockResolvedValue(signedIn);
   accept = refusal ? vi.fn().mockRejectedValue(refusal) : vi.fn().mockResolvedValue('ws-2');
   const getMine = vi.fn().mockResolvedValue([{ id: 'ws-2', name: 'Globex', slug: 'globex' }]);
   const cache = withQueryClient();
@@ -56,6 +61,15 @@ describe('AcceptInvitationPage', () => {
       name: 'Globex',
       slug: 'globex',
     });
+  });
+
+  it('does not accept the link while the server does not answer', async () => {
+    openAt('/accept-invitation#token=tok-1', {
+      outage: new ScyllaError('down', { code: 'UNAVAILABLE' }),
+    });
+
+    expect(await screen.findByRole('link', { name: /sign in/i })).toBeInTheDocument();
+    expect(accept).not.toHaveBeenCalled();
   });
 
   it('asks a signed-out person to sign in or to create an account, with the invitation', async () => {

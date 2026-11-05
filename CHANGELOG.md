@@ -27,6 +27,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
+- A restart or an outage of the server no longer signs out the open tabs. Before, a query sent
+  during the outage ended the session on the server. Now the page stays, with one "Server
+  unreachable" toast, and a first load shows a view that tries again by itself. Only the server
+  ends a session. Two tabs that refresh the token at the same time go in turn, so that the server
+  does not close the session.
 - The blueprint of the pipeline editor opens with its nodes in the middle of the canvas. Before,
   they showed on the left. The view frames the nodes again when the canvas changes size, until
   the user moves the view.

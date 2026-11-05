@@ -29,7 +29,7 @@ presentation/
                                         on a conflict of a mutation, a warning toast and `invalidateQueries()`
   router/
     AppLayout.svelte                    layout of the `app` mount: AuthGuard + WorkspaceGate
-    AuthGuard/                          token present (hasSession)? → the pages, else /login
+    AuthGuard/                          hasSession: the pages, or /login; no answer: a retry view, not /login
     PersonalLayout/                     layout of the `personal` mount: AuthGuard + a centered column, no gate
     WorkspaceSync.wrapper.svelte     URL slug → context store (workspace-sync.effect.svelte.ts)
     WorkspaceRedirect.wrapper.svelte `/` → the user's workspace (workspace-redirect.effect.svelte.ts)
@@ -102,9 +102,9 @@ changes only for a new mount, a new section or a new part of the shell.
   the user, and an effect calls `syncMyPermissions` (`features/roles`) when the active
   workspace or project changes. It is the only writer of the permissions store.
 - `reportQueryError` is the app's single error report. **A query or a mutation must not add its
-  own `onError` toast.** A *query* that fails on the network signs out (the UI is served by the
-  control plane, so "unreachable" and "no longer authenticated" look the same); a *mutation*
-  only toasts.
+  own `onError` toast.** A failure on the network never ends the session: only the server ends
+  it, with `UNAUTHENTICATED`. A *query* that fails on the network shows one shared toast and the
+  user stays on the page; a *mutation* only toasts.
 - A *mutation* that the server refused because the item changed since it was read (`ABORTED`,
   `isConflict()`) is shown as a conflict, with a warning toast in the words of the app, and
   `reportQueryError` invalidates every query (`getQueryClient().invalidateQueries()`), so that
@@ -115,8 +115,10 @@ changes only for a new mount, a new section or a new part of the shell.
   (`features/login`): after the sign-in, the user comes back to the page, with its query and its
   fragment. The return path is in the fragment of `/login`, thus a token of the page (the
   `/invite#token=...` page of an extension) never goes into a query. On `/login` itself, and for
-  a path that `safeReturnPath` refuses, it loads the plain `/login`. A network failure loads the
-  plain `/login`.
+  a path that `safeReturnPath` refuses, it loads the plain `/login`.
+- When the server gives no answer about the session, `hasSession` rejects. On a first load, the
+  auth guard shows a retry view and tries again every 5 seconds. With a loaded page, the page
+  stays.
 
 ## `__test__/feature-permissions.test.ts`
 

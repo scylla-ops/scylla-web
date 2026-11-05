@@ -1,4 +1,5 @@
 import { browserSession, type IssuedToken } from '@platform/grpc';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
 /**
  * The only writers of the session. The access token is in memory in `platform/grpc` and the
@@ -27,7 +28,8 @@ export const rememberUser = (userId: string): void => {
 
 /**
  * Whether the browser has a valid session. After a reload, or after the redirect of an identity
- * provider, the cookie gives a new access token, and `GetMe` gives the id of the user.
+ * provider, the cookie gives a new access token, and `GetMe` gives the id of the user. It rejects
+ * when the server gives no answer about the session: the session can still be valid.
  */
 export const hasSession = async (): Promise<boolean> => {
   if (!(await browserSession.restore())) {
@@ -37,8 +39,9 @@ export const hasSession = async (): Promise<boolean> => {
   if (!localStorage.getItem(USER_ID) && whoAmI) {
     try {
       rememberUser(await whoAmI());
-    } catch {
-      return false;
+    } catch (error) {
+      if (ScyllaError.from(error).code === 'UNAUTHENTICATED') return false;
+      throw error;
     }
   }
   return true;

@@ -1,7 +1,9 @@
 import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
+import { RpcError } from '@protobuf-ts/runtime-rpc';
 import { TokenServiceClient } from '@base/generated/scylla/auth/v1/token_service.client.ts';
 import type { IssuedToken } from '@base/generated/scylla/auth/v1/token_service.ts';
 import { Timestamp } from '@base/generated/google/protobuf/timestamp.ts';
+import { fetchOrUnavailable } from './fetch-or-unavailable.ts';
 
 /**
  * The session of the browser. The refresh token is in an HttpOnly cookie that the server sets:
@@ -48,6 +50,7 @@ const tokenClient = () =>
     new GrpcWebFetchTransport({
       baseUrl: apiUrl(),
       format: 'binary',
+      fetch: fetchOrUnavailable,
       fetchInit: { credentials: 'include' },
     }),
   );
@@ -66,18 +69,28 @@ export const forgetSession = (): void => {
   current = null;
 };
 
+/** Only an answer of the server ends a session. Any other failure says nothing about it. */
+const isRefusal = (error: unknown): boolean =>
+  error instanceof RpcError &&
+  (error.code === 'UNAUTHENTICATED' || error.code === 'PERMISSION_DENIED');
+
+/** The server closes a session when it gets an old refresh token, so the tabs go in turn. */
+const oneTabAtATime = <T>(refresh: () => Promise<T>): Promise<T> =>
+  'locks' in navigator ? navigator.locks.request('scylla-session-refresh', refresh) : refresh();
+
 /**
  * Gets a new access token with the cookie. One refresh at a time: the calls that wait for it get
- * the same answer. `null` when the cookie is missing, ended or refused.
+ * the same answer. `null` when the server refuses the session. It rejects when the server gives
+ * no answer about the session: the session can still be valid.
  */
 export const refreshSession = (): Promise<string | null> => {
-  refreshing ??= tokenClient()
-    .refresh({ refreshToken: '' })
-    .response.then(({ token }) => {
+  refreshing ??= oneTabAtATime(() => tokenClient().refresh({ refreshToken: '' }).response)
+    .then(({ token }) => {
       openSession(token);
       return current?.value ?? null;
     })
-    .catch(() => {
+    .catch((error: unknown) => {
+      if (!isRefusal(error)) throw error;
       current = null;
       return null;
     })
@@ -93,7 +106,10 @@ export const accessToken = async (): Promise<string | null> => {
   return refreshSession();
 };
 
-/** Whether the browser has a session: a valid access token, or a cookie that gives one. */
+/**
+ * Whether the browser has a session: a valid access token, or a cookie that gives one. It rejects
+ * when the server gives no answer about the session.
+ */
 export const restoreSession = async (): Promise<boolean> => (await accessToken()) !== null;
 
 /** Closes the session on the server, which clears the cookie. A failure still forgets the token. */

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { closeSession, hasSession, openSession, resolveUserWith } from '../session.ts';
 
 const browserSession = vi.hoisted(() => ({
@@ -37,6 +38,30 @@ describe('hasSession', () => {
 
     await expect(hasSession()).resolves.toBe(true);
     expect(localStorage.getItem('userId')).toBe('user-7');
+  });
+});
+
+describe('hasSession during an outage', () => {
+  const down = new ScyllaError('down', { code: 'UNAVAILABLE' });
+
+  it('cannot tell when the server does not answer, and keeps the user id', async () => {
+    localStorage.setItem('userId', 'user-1');
+    browserSession.restore.mockRejectedValue(down);
+
+    await expect(hasSession()).rejects.toBe(down);
+    expect(localStorage.getItem('userId')).toBe('user-1');
+  });
+
+  it('cannot tell when the server does not say who the user is', async () => {
+    resolveUserWith(() => Promise.reject(down));
+
+    await expect(hasSession()).rejects.toBe(down);
+  });
+
+  it('is false when the server refuses the user', async () => {
+    resolveUserWith(() => Promise.reject(new ScyllaError('gone', { code: 'UNAUTHENTICATED' })));
+
+    await expect(hasSession()).resolves.toBe(false);
   });
 });
 

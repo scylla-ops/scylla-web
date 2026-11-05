@@ -93,10 +93,15 @@ describe('reportQueryError', () => {
     expect(window.location.href).toBe('/login');
   });
 
-  it('signs out when a query cannot reach the control plane', () => {
+  it('keeps the user signed in and on the page when a query cannot reach the server', () => {
+    at('/acme/members');
+
     reportQueryError(errorWith('UNAVAILABLE'), 'query');
 
-    expect(window.location.href).toBe('/login');
+    expect(close).not.toHaveBeenCalled();
+    expect(window.location.href).toBe('/acme/members');
+    expect(localStorage.getItem('userId')).toBe('user-1');
+    expect(toastError).toHaveBeenCalledOnce();
   });
 
   it('keeps the user signed in when a mutation cannot reach it, so that they can retry', () => {

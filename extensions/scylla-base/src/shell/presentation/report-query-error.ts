@@ -3,25 +3,19 @@ import { toast } from '@scylla/ui/utils';
 import { closeSession, loginPathBackTo } from '@base/features/login';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
-/**
- * A network failure also signs out: the UI is served by the control plane, so
- * "unreachable" and "no longer authenticated" look the same from here.
- */
-const signOut = (): void => {
-  void closeSession();
-  window.location.href = '/login';
-};
-
 /** The session is gone: after the sign-in, the user comes back to this page. */
 const signOutAndReturn = (): void => {
   void closeSession();
   window.location.href = loginPathBackTo(window.location);
 };
 
+/** In an outage, each query of the page fails at the same time: they share one toast. */
+const UNREACHABLE_TOAST = 'server-unreachable';
+
 /**
  * The only error toast of the app: never add an `onError` toast in a query or a
- * mutation. A mutation that fails on the network keeps the user signed in, so
- * that they can retry it. A mutation that the server refused because the item
+ * mutation. A failure on the network never ends the session: only the server ends
+ * it, with `UNAUTHENTICATED`. A mutation that the server refused because the item
  * changed since it was read is a conflict: the toast says so, and every query is
  * invalidated so that the screen shows what the server has (the client cannot
  * know which item the server refused). An error that is not a `ScyllaError` is
@@ -41,7 +35,7 @@ export const reportQueryError: QueryErrorHandler = (thrown, source, options) => 
   if (options?.showsOwnError) return;
 
   if (source === 'query' && error.isNetworkError()) {
-    signOut();
+    toast.error(error.userMessage(), { id: UNREACHABLE_TOAST });
     return;
   }
 

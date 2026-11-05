@@ -67,7 +67,7 @@ export class AcceptInvitationState {
   /** Checks the session, then accepts the link one time. */
   start = async (): Promise<void> => {
     if (!this.token) return;
-    this.signedIn = await hasSession();
+    this.signedIn = await hasSession().catch(() => false);
     if (this.signedIn && this.mutation.isIdle) this.mutation.mutate(this.token);
   };
 

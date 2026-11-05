@@ -7,6 +7,7 @@ import {
 } from '@protobuf-ts/runtime-rpc';
 import type { MethodInfo, RpcInterceptor } from '@protobuf-ts/runtime-rpc';
 import { ScyllaError, type ScyllaErrorCode } from '@shared/utils/scylla-error.ts';
+import { fetchOrUnavailable } from './fetch-or-unavailable.ts';
 import { accessToken, apiUrl, isPublicCall, refreshSession } from './session.ts';
 import { statusDetailsOf } from './status-details.ts';
 
@@ -83,17 +84,6 @@ const scyllaErrorInterceptor: RpcInterceptor = {
   },
 };
 
-/**
- * A request that does not get to the server is `UNAVAILABLE`. Without this, the transport gives
- * it `INTERNAL` and the text of the browser, which is different in each browser.
- */
-const fetchOrUnavailable: typeof fetch = (input, init) =>
-  globalThis.fetch(input, init).catch((error: unknown) => {
-    // The transport makes an abort CANCELLED itself.
-    if ((error as { name?: unknown } | null)?.name === 'AbortError') throw error;
-    throw new RpcError(error instanceof Error ? error.message : String(error), 'UNAVAILABLE');
-  });
-
 /** The gRPC code of an answer that has only a status: the server gives it before any message. */
 const UNAUTHENTICATED = '16';
 
@@ -113,7 +103,7 @@ const authorizedFetch: typeof fetch = async (input, init) => {
   if (isPublicCall(url)) return send(input, init, null);
   const sent = await accessToken();
   const response = await send(input, init, sent);
-  // No token: the refresh already failed, a second one fails too.
+  // No token: the server refused the session, and it refuses a second refresh too.
   if (!sent || response.headers.get('grpc-status') !== UNAUTHENTICATED) return response;
   const token = await refreshSession();
   if (!token) return response;
