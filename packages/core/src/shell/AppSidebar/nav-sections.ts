@@ -58,16 +58,29 @@ export const navSectionsFor = ({
   translate,
 }: NavSectionsInput): NavSection[] =>
   sections
-    .map(({ id, title, railItem, within }) => {
+    .map(({ id, title, railItem, within, noRailItem }) => {
       const links = entries
         .filter(entry => entry.section === id)
         .filter(entry => entry.permission === undefined || can(entry.permission))
         .flatMap((entry): Link[] => {
           const href = hrefOf(entry);
           if (href === null) return [];
-          const item = { title: translate(entry.title), href, url: entry.url, icon: entry.icon };
+          const item = {
+            title: translate(entry.title),
+            href,
+            url: entry.url,
+            icon: entry.icon,
+            danger: entry.danger,
+          };
           return [{ entry, item }];
         });
-      return { id, title: translate(title), railItem, within, items: grouped(links, translate) };
+      return {
+        id,
+        title: translate(title),
+        railItem,
+        within,
+        noRailItem,
+        items: grouped(links, translate),
+      };
     })
     .filter(section => section.items.length > 0);

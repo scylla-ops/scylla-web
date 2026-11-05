@@ -115,29 +115,26 @@ describe('AccountPage', () => {
     expect(header.querySelectorAll('[data-slot="badge"]')).toHaveLength(1);
   });
 
-  it('links each entry of the settings nav to its page, and marks the current one', async () => {
+  it('has no nav of its own in a workspace: the second sidebar has the links', async () => {
     setUp('security');
+
+    await screen.findByRole('region', { name: 'Password' });
+    expect(screen.queryByRole('navigation', { name: 'Account settings' })).not.toBeInTheDocument();
+  });
+
+  it('links each entry of the nav to its page outside a workspace, and marks the current one', async () => {
+    setUp('security', {}, null);
 
     const nav = await screen.findByRole('navigation', { name: 'Account settings' });
     const links = within(nav).getAllByRole('link');
     expect(links.map(link => [link.textContent?.trim(), link.getAttribute('href')])).toEqual([
-      ['Profile', '/acme-corp/account/profile'],
-      ['Appearance', '/acme-corp/account/appearance'],
-      ['Security', '/acme-corp/account/security'],
-      ['Tokens', '/acme-corp/account/tokens'],
-      ['Danger zone', '/acme-corp/account/danger-zone'],
+      ['Profile', '/account/profile'],
+      ['Appearance', '/account/appearance'],
+      ['Security', '/account/security'],
+      ['Tokens', '/account/tokens'],
+      ['Danger zone', '/account/danger-zone'],
     ]);
     expect(within(nav).getByRole('link', { current: 'page' })).toHaveTextContent('Security');
-  });
-
-  it('links the nav to /account outside an workspace', async () => {
-    setUp('profile', {}, null);
-
-    const nav = await screen.findByRole('navigation', { name: 'Account settings' });
-    expect(within(nav).getByRole('link', { name: 'Profile' })).toHaveAttribute(
-      'href',
-      '/account/profile',
-    );
   });
 
   it('shows only the sections of the current page', async () => {

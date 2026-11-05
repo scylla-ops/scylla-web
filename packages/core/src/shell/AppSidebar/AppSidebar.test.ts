@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { fireEvent, render, screen, within } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { msg } from '@lingui/core/macro';
 import type { AccessPolicy, RoutePermission, ShellContributions } from '@scylla/core-sdk';
@@ -10,6 +10,7 @@ import type { ShellConfig } from '../shell-config.ts';
 import Badge from '../__test__/Badge.fixture.svelte';
 import Stub from '../__test__/Stub.fixture.svelte';
 import AppSidebarFixture from './AppSidebar.fixture.svelte';
+import AppSidebarSheetFixture from './AppSidebarSheet.fixture.svelte';
 
 const LIST_SECRETS = testPermission('LIST_SECRETS');
 
@@ -308,5 +309,130 @@ describe('the second sidebar', () => {
     render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
 
     expect(within(secondSidebar()).queryByRole('heading')).not.toBeInTheDocument();
+  });
+});
+
+describe('a section with noRailItem', () => {
+  const accountConfig = () =>
+    configWith({
+      sections: [
+        { id: 'workspace', title: msg`Workspace` },
+        { id: 'account', title: msg`Account`, noRailItem: true },
+      ],
+      entries: [
+        entry({ permission: undefined }),
+        entry({
+          section: 'account',
+          title: msg`Profile`,
+          url: 'account/profile',
+          pattern: [':workspaceSlug', 'account', 'profile'],
+          permission: undefined,
+        }),
+        entry({
+          section: 'account',
+          title: msg`Danger zone`,
+          url: 'account/danger-zone',
+          pattern: [':workspaceSlug', 'account', 'danger-zone'],
+          permission: undefined,
+          danger: true,
+        }),
+      ],
+    });
+
+  const openAt = (pathname: string) => {
+    navigator.restore();
+    navigator = installTestNavigator({ pathname });
+    render(AppSidebarFixture, { config: accountConfig() });
+  };
+
+  it('fills the second sidebar on its pages, and selects no row of the rail', () => {
+    openAt('/acme-corp/account/profile');
+
+    const aside = within(secondSidebar());
+    expect(aside.getByRole('heading', { name: 'Account' })).toBeInTheDocument();
+    expect(aside.getByRole('button', { name: 'Profile' })).toHaveAttribute('aria-current', 'page');
+    expect(within(railOf()).queryByRole('button', { name: /Account/ })).not.toBeInTheDocument();
+    expect(
+      within(railOf())
+        .getAllByRole('button')
+        .filter(button => button.getAttribute('aria-current') === 'page'),
+    ).toHaveLength(0);
+  });
+
+  it('opens a page of the section from the second sidebar', async () => {
+    openAt('/acme-corp/account/profile');
+
+    await userEvent.click(within(secondSidebar()).getByRole('button', { name: 'Danger zone' }));
+
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/account/danger-zone', undefined);
+  });
+
+  it('shows a danger link apart and in red, also while it is the current one', () => {
+    openAt('/acme-corp/account/danger-zone');
+
+    const danger = within(secondSidebar()).getByRole('button', { name: 'Danger zone' });
+    expect(danger).toHaveClass('text-destructive');
+    expect(danger).toHaveAttribute('aria-current', 'page');
+    expect(danger.closest('li')).toHaveClass('border-t');
+    expect(within(secondSidebar()).getByRole('button', { name: 'Profile' })).not.toHaveClass(
+      'text-destructive',
+    );
+  });
+
+  describe('in the sheet of a phone', () => {
+    const matchMedia = window.matchMedia;
+
+    beforeEach(() => {
+      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+        matches: true,
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }));
+    });
+
+    afterEach(() => {
+      window.matchMedia = matchMedia;
+    });
+
+    const openSheet = async (pathname: string) => {
+      navigator.restore();
+      navigator = installTestNavigator({ pathname });
+      render(AppSidebarSheetFixture, { config: accountConfig() });
+      await userEvent.click(screen.getByRole('button', { name: 'Toggle Sidebar' }));
+    };
+
+    it('shows its links on its pages, with a danger link in red while it is current', async () => {
+      await openSheet('/acme-corp/account/danger-zone');
+
+      const danger = await screen.findByRole('button', { name: 'Danger zone' });
+      expect(screen.getByRole('button', { name: 'Profile' })).toBeInTheDocument();
+      expect(danger).toHaveAttribute('data-active', 'true');
+      expect(danger).toHaveClass('data-[active=true]:text-destructive');
+      expect(danger).not.toHaveClass('data-[active=true]:text-sidebar-accent-foreground');
+    });
+
+    it('hides its links on the other pages', async () => {
+      await openSheet('/acme-corp/secrets');
+
+      expect(await screen.findByRole('button', { name: 'Secrets' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Profile' })).not.toBeInTheDocument();
+    });
+
+    it('closes after a click on a link, also when the page stays mounted', async () => {
+      await openSheet('/acme-corp/account/profile');
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Danger zone' }));
+
+      expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/account/danger-zone', undefined);
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    });
+  });
+
+  it('leaves the second sidebar to the other sections on their pages', () => {
+    openAt('/acme-corp/secrets');
+
+    expect(within(secondSidebar()).getByRole('heading', { name: 'Secrets' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Profile' })).not.toBeInTheDocument();
   });
 });

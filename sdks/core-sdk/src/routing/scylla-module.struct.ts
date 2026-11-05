@@ -32,6 +32,10 @@ export interface NavLink {
   group?: NavGroup;
   /** For a page that shows its own text to a person with no access: the link hides for them. */
   permission?: RoutePermission;
+  /** The value of a parameter of the route. A route with a list of links has one per value. */
+  params?: RouteParams;
+  /** Apart from the links before it, in red. */
+  danger?: boolean;
 }
 
 /** A folding item of a nav section. The links that name the same `id` go under it. */
@@ -53,8 +57,8 @@ export interface ModuleRoute {
   permission?: RoutePermission;
   /** Shows on this page and on every page below its path. */
   breadcrumb?: BreadcrumbFn;
-  /** A sidebar link to this page. */
-  nav?: NavLink;
+  /** A sidebar link to this page, or one link per value of a parameter (`NavLink.params`). */
+  nav?: NavLink | readonly NavLink[];
   /**
    * The params whose change stays inside the page, e.g. the section of a page of tabs: a new
    * value keeps the page mounted, with no transition. The page reads them with `routeParams()`.

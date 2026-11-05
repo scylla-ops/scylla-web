@@ -4,13 +4,7 @@
   import { ACCOUNT_SECTIONS, type AccountSectionId } from './account-sections.registry.ts';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
-  interface Props {
-    /** The URL of the account page, without the section. */
-    base: string;
-    current: AccountSectionId;
-  }
-
-  let { base, current }: Props = $props();
+  let { current }: { current: AccountSectionId } = $props();
 </script>
 
 <nav aria-label={t(userMessages.accountSettings)} class="md:w-55 md:shrink-0">
@@ -18,7 +12,7 @@
     {#each ACCOUNT_SECTIONS as section (section.id)}
       <li class={cn(section.danger && 'md:mt-2 md:border-t md:pt-2')}>
         <a
-          href="{base}/{section.id}"
+          href="/account/{section.id}"
           aria-current={section.id === current ? 'page' : undefined}
           class={cn(
             'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm whitespace-nowrap transition-colors hover:bg-muted',

@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { NavItem, NavSection } from '../structs/nav-section.struct.ts';
-import { activePageOf, railFor, secondSidebarFor, selectedRailItem } from './nav-rail.ts';
+import {
+  activePageOf,
+  railFor,
+  secondSidebarFor,
+  selectedRailItem,
+  sheetSections,
+} from './nav-rail.ts';
 
 const page = (url: string, href = `/acme/${url}`): NavItem => ({ title: url, href, url });
 
@@ -24,6 +30,12 @@ const sections: NavSection[] = [
     title: 'Instance',
     railItem: {},
     items: [page('users', '/acme/instance/users')],
+  },
+  {
+    id: 'account',
+    title: 'Account',
+    noRailItem: true,
+    items: [page('account/profile'), page('account/tokens')],
   },
 ];
 
@@ -50,6 +62,32 @@ describe('railFor', () => {
     const { main, end } = railFor(sections);
 
     expect([...main, ...end].map(item => item.id)).not.toContain('inner');
+  });
+});
+
+describe('a section with noRailItem', () => {
+  it('has no row on the rail', () => {
+    const { main, end } = railFor(sections);
+
+    expect([...main, ...end].map(item => item.id)).not.toContain('account');
+  });
+
+  it('is selected by a URL of its pages, with all its pages', () => {
+    const selected = selectedRailItem(railFor(sections), '/acme/account/tokens');
+
+    expect(selected?.id).toBe('account');
+    expect(selected && secondSidebarFor(selected, sections, {})).toMatchObject({
+      title: 'Account',
+      pages: [{ url: 'account/profile' }, { url: 'account/tokens' }],
+    });
+  });
+
+  it('shows in the sheet of a phone on its pages only', () => {
+    const idsOn = (pathname: string) => sheetSections(sections, pathname).map(({ id }) => id);
+
+    expect(idsOn('/acme/account/tokens')).toContain('account');
+    expect(idsOn('/acme/dashboard')).not.toContain('account');
+    expect(idsOn('/acme/dashboard')).toEqual(['main', 'inner', 'instance']);
   });
 });
 

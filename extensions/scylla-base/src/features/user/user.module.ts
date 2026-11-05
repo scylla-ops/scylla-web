@@ -7,7 +7,10 @@ import { ProfileServiceClient } from '@base/generated/scylla/accounts/v1/profile
 import { PersonalTokenServiceClient } from '@base/generated/scylla/accounts/v1/personal_token_service.client.ts';
 import { UserAdminServiceClient } from '@base/generated/scylla/accounts/v1/user_admin_service.client.ts';
 import { DefaultUserRepository } from './infrastructure/default-user.repository.ts';
-import { accountSection } from './presentation/ui/account/Account/account-sections.registry.ts';
+import {
+  ACCOUNT_SECTIONS,
+  accountSection,
+} from './presentation/ui/account/Account/account-sections.registry.ts';
 
 const transport = grpcTransport.getTransport();
 const repository = new DefaultUserRepository(
@@ -55,6 +58,13 @@ export const UserModule = {
               label: accountSection(section)?.title ?? msg`Account`,
             }),
             page: () => import('./presentation/ui/account/Account/Account.page.svelte'),
+            nav: ACCOUNT_SECTIONS.map(({ id, title, icon, danger }) => ({
+              section: 'account',
+              title,
+              icon,
+              danger,
+              params: { section: id },
+            })),
           },
         ],
       },

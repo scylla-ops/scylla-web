@@ -29,6 +29,11 @@ export interface NavSectionDefinition {
    * `titleParam` is the breadcrumb parameter with the title, e.g. the name of the open item.
    */
   within?: { railItem: string; titleParam: string };
+  /**
+   * The section has no item on the rail, and another part of the shell opens it. The second
+   * sidebar shows its links while the URL is on one of them.
+   */
+  noRailItem?: boolean;
 }
 
 /** What a module adds to the core's shell. */

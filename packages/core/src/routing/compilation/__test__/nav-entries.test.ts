@@ -18,6 +18,34 @@ const entriesFor = (modules: readonly RouteSource[]) =>
 const LIST_AGENTS = testPermission('LIST_AGENTS');
 
 describe('navEntriesFor', () => {
+  it('makes one link per value of a parameter, in their order, with the parameter filled', () => {
+    const links = ['profile', 'security'].map(section => ({
+      ...nav(),
+      params: { section },
+    }));
+    const entries = entriesFor([
+      moduleWith('account', {
+        workspace: [{ path: 'account/:section', permission: LIST_AGENTS, page, nav: links }],
+      }),
+    ]);
+
+    expect(entries.map(({ url, pattern }) => [url, pattern])).toEqual([
+      ['account/profile', [':workspaceSlug', 'account', 'profile']],
+      ['account/security', [':workspaceSlug', 'account', 'security']],
+    ]);
+    expect(entries.every(entry => entry.permission === LIST_AGENTS)).toBe(true);
+  });
+
+  it('leaves a parameter of the mount for the render', () => {
+    const [entry] = entriesFor([
+      moduleWith('account', {
+        workspace: [{ path: ':section', page, nav: { ...nav(), params: { section: 'profile' } } }],
+      }),
+    ]);
+
+    expect(entry?.pattern).toEqual([':workspaceSlug', 'profile']);
+  });
+
   it('lets a link name its own permission, for a page with its own text for a refusal', () => {
     const OTHER = testPermission('LIST_AGENTS_OTHER');
     const [entry] = entriesFor([

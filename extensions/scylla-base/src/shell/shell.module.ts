@@ -72,6 +72,8 @@ export const ShellModule = {
       within: { railItem: 'projects', titleParam: 'projectName' },
     },
     { id: 'instance', title: layoutMessages.instance, railItem: { icon: ShieldCheckIcon } },
+    // The user menu opens it: the avatar of the rail is its item.
+    { id: 'account', title: layoutMessages.account, noRailItem: true },
   ],
   access: {
     can: permission => can(permission),

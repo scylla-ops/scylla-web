@@ -1,6 +1,12 @@
-import type { NavLink, RouteMount, RoutePermission, RouteSource } from '@scylla/core-sdk';
+import type {
+  NavLink,
+  RouteMount,
+  RouteParams,
+  RoutePermission,
+  RouteSource,
+} from '@scylla/core-sdk';
 import { flattenModuleRoutes } from './flatten-routes.ts';
-import type { RoutePath } from './route-path.ts';
+import { isParam, type RoutePath } from './route-path.ts';
 
 export interface NavEntry extends NavLink {
   mount: RouteMount;
@@ -11,6 +17,9 @@ export interface NavEntry extends NavLink {
   /** The permission of the page. The link hides when the page would deny the user. */
   permission?: RoutePermission;
 }
+
+const withParams = (path: RoutePath, params: RouteParams = {}): RoutePath =>
+  path.map(segment => (isParam(segment) && params[segment.slice(1)]) || segment);
 
 /**
  * Every sidebar link the modules declare, sorted by `order`, then by
@@ -25,12 +34,16 @@ export const navEntriesFor = (
   mountPath: (mount: RouteMount) => RoutePath,
 ): NavEntry[] =>
   flattenModuleRoutes(modules)
-    .filter(route => route.nav)
-    .map(({ mount, path, nav, permission }) => ({
-      ...(nav as NavLink),
-      mount,
-      url: path.join('/'),
-      pattern: [...mountPath(mount), ...path],
-      permission: (nav as NavLink).permission ?? permission,
-    }))
+    .flatMap(({ mount, path, nav, permission }) =>
+      [nav ?? []].flat().map(link => {
+        const linkPath = withParams(path, link.params);
+        return {
+          ...link,
+          mount,
+          url: linkPath.join('/'),
+          pattern: [...mountPath(mount), ...linkPath],
+          permission: link.permission ?? permission,
+        };
+      }),
+    )
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));

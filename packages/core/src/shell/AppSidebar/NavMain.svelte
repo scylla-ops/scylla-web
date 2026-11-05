@@ -4,6 +4,7 @@
   import { navigateTo, routePathname, type ShellContributions } from '@scylla/core-sdk';
   import { prefersReducedMotion } from '@scylla/ui';
   import {
+    getSidebar,
     SidebarGroup,
     SidebarGroupLabel,
     SidebarMenu,
@@ -11,8 +12,10 @@
     SidebarMenuItem,
     SIDEBAR_FADE,
   } from '@scylla/ui/primitives';
-  import { NAV_SECTION_CARD_CLASS } from './nav-classes.ts';
+  import { cn } from '@scylla/ui/utils';
+  import { NAV_DANGER_APART_CLASS, NAV_SECTION_CARD_CLASS } from './nav-classes.ts';
   import { isNavGroupOpen, toggleNavGroup } from './nav-groups.state.svelte.ts';
+  import { sheetSections } from './nav-rail.ts';
   import {
     isNavGroup,
     isNavItemActive,
@@ -30,6 +33,8 @@
 
   const FOLD_MS = 200;
 
+  const sidebar = getSidebar();
+
   const pathname = $derived(routePathname());
   const badges = $derived(contributions.flatMap(shell => shell.navBadge ?? []));
 
@@ -38,6 +43,8 @@
   const open = (item: NavItem) => {
     contributions.forEach(shell => shell.onNavOpen?.(item.url));
     navigateTo(item.href);
+    // A link that changes only an in-page param mounts nothing, and the sheet would stay open.
+    sidebar.openMobile = false;
   };
 
   const keyOf = (node: NavNode) => (isNavGroup(node) ? `group:${node.id}` : node.href);
@@ -49,6 +56,10 @@
     isActive={isActive(item)}
     onclick={() => open(item)}
     data-nav-url={item.url}
+    class={cn(
+      item.danger &&
+        'text-destructive hover:text-destructive active:text-destructive data-[active=true]:text-destructive',
+    )}
     {size}
   >
     {#if item.icon}
@@ -61,12 +72,12 @@
   </SidebarMenuButton>
 {/snippet}
 
-{#each sections as section (section.id)}
+{#each sheetSections(sections, pathname) as section (section.id)}
   <SidebarGroup class={NAV_SECTION_CARD_CLASS}>
     <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
     <SidebarMenu>
       {#each section.items as node (keyOf(node))}
-        <SidebarMenuItem>
+        <SidebarMenuItem class={cn(!isNavGroup(node) && node.danger && NAV_DANGER_APART_CLASS)}>
           {#if isNavGroup(node) && node.items.length === 1 && node.items[0]}
             <!-- One page has nothing to fold: the link goes by the name of its group. -->
             {@render link({ ...node.items[0], title: node.title, icon: node.icon }, 'default')}

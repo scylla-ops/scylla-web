@@ -149,8 +149,16 @@ module gives an access policy.
 - **The rail shows the sections, the second sidebar shows the pages of one.** Each `NavGroup` and
   each link without a group is one rail item. A section with `railItem` is one item at the end. A
   section with `within` has no item: it replaces the pages of that item while the URL fills its
-  parameters. A page alone in its section still gets a `NavGroup`: the group names the section,
-  the link names the page.
+  parameters. A section with `noRailItem` has no row: a part of an extension opens it, and the
+  second sidebar shows its links while the URL is on one of them. A page alone in its section still
+  gets a `NavGroup`: the group names the section, the link names the page.
+- **One route can have several links.** `nav` takes a list, and each link fills a parameter of the
+  route with `params`. The page stays one route: with `inPageParams`, a click on a link keeps it
+  mounted. A link with `danger` is apart from the links before it, and it stays red when it is the
+  current one.
+- **The sheet of a phone shows a section with `noRailItem` on its pages only** (`sheetSections`).
+  A click on a link closes the sheet. `NavMain` does this, because a link that changes only an
+  in-page param mounts nothing.
 - **The rail does not move the page.** It has a fixed slot of 56px and it opens in an absolute
   layer, by a CSS transition of its width, so the page has no layout work and a second click in
   the middle reverses it from where it is. Keep the rows at a fixed width inside it.

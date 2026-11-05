@@ -26,7 +26,6 @@
   const page = createAccountPage();
   // The section changes inside the page (`inPageParams`): read it from the route, not the props.
   const current = $derived(accountSection(routeParams().section ?? section));
-  const base = $derived(workspaceSlug ? `/${workspaceSlug}/account` : '/account');
 </script>
 
 {#if !current}
@@ -41,7 +40,10 @@
     <AccountHeader user={me} systemRole={page.systemRole} />
 
     <div class="flex flex-col gap-6 md:flex-row md:items-start md:gap-10">
-      <AccountNav {base} current={current.id} />
+      <!-- In a workspace, the second sidebar of the shell has these links. -->
+      {#if !workspaceSlug}
+        <AccountNav current={current.id} />
+      {/if}
 
       <div class="flex min-w-0 flex-1 flex-col gap-6">
         {#if current.id === 'profile'}

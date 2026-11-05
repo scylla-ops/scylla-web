@@ -87,6 +87,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The language is in the user menu. The crumbs name the section, not the workspace.
 - A page alone in its section declares a `NavGroup`: the group names the section, the link the page.
 - The header of a list shows its count with no "in total".
+- The sections of the account page are in the second sidebar, not in a menu of the page, and the
+  avatar of the rail is green on this page. With no workspace there is no sidebar, so the page
+  keeps its menu. `nav` of a route can be a list of links, with `NavLink.params` and
+  `NavLink.danger`, and `NavSectionDefinition` has `noRailItem`.
 - **Breaking:** `ScyllaErrorCode` of `@scylla/base-sdk` has two more members:
   `MALFORMED_RESPONSE` (the server answered without the entity it must carry) and
   `UNSUPPORTED_RESPONSE` (it answered with a value this build cannot read). A map over every

@@ -44,7 +44,8 @@ presentation/
     ui/ShellBrand/                      the logo above the sidebars (brand): a link to the dashboard of the active workspace
     ui/GlobalSearch/                    the search of the top bar (Ctrl K): projects, pipelines, agents and apps, on the client
     ui/NotificationsMenu/               the bell of the top bar: the last failed runs. The server has no notifications
-    ui/NavUser/                         who is signed in (userQueries.me), Account, Language, Sign out (sidebar footer)
+    ui/NavUser/                         who is signed in (userQueries.me), Account, Language, Sign out (sidebar footer);
+                                        green on the rail while the URL is on the account of the workspace
     ui/SessionLine/                     "Signed in as … · Account · Sign out", one centered line, outside the sidebar
     ui/NewBadge.svelte                  "New" pill of a sidebar link (navBadge)
     ui/WhatsNewDialog/                  first-launch release announcement
@@ -70,7 +71,8 @@ mounts
   workspace   /:workspaceSlug                       wrapper WorkspaceSyncWrapper
   project        /:workspaceSlug/projects/:projectId   wrapper ContextCleanerWrapper, crumb "Project"
 routes           app: / -> WorkspaceRedirectWrapper · workspace: (its root) -> 'dashboard'
-navSections      workspace, project (within projects, title: projectName), instance (railItem)
+navSections      workspace, project (within projects, title: projectName), instance (railItem),
+                 account (noRailItem: the user menu opens it)
 access           can / authorizationReady / RequirePermission, from @platform/authz
 shell            brand ShellBrand · topBarEnd GlobalSearch, NotificationsMenu, WorkspaceSelector · sidebarFooter NavUser · overlays LaunchOverlays · navBadge NewBadge ·
                  onNavOpen markNavSeen · breadcrumbParams · linkParams

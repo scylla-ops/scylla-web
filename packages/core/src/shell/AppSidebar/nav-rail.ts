@@ -16,23 +16,23 @@ const railItemOfNode = (node: NavNode): RailItem =>
     ? { id: node.id, title: node.title, icon: node.icon, group: node.id, pages: node.items }
     : { id: node.url, title: node.title, icon: node.icon, pages: [node] };
 
-/** A section with `railItem` is one item at the end. A section with `within` has no item. */
+const railItemOfSection = (section: NavSection): RailItem => ({
+  id: section.id,
+  title: section.title,
+  icon: section.railItem?.icon,
+  pages: section.items.flatMap(pagesOfNode),
+});
+
+/**
+ * A section with `railItem` is one item at the end. A section with `within` has no item. A section
+ * with `noRailItem` has no row, but the URL can select it.
+ */
 export const railFor = (sections: readonly NavSection[]): Rail => ({
   main: sections
-    .filter(section => !section.railItem && !section.within)
+    .filter(section => !section.railItem && !section.within && !section.noRailItem)
     .flatMap(section => section.items.map(railItemOfNode)),
-  end: sections.flatMap(section =>
-    section.railItem
-      ? [
-          {
-            id: section.id,
-            title: section.title,
-            icon: section.railItem.icon,
-            pages: section.items.flatMap(pagesOfNode),
-          },
-        ]
-      : [],
-  ),
+  end: sections.filter(section => section.railItem).map(railItemOfSection),
+  hidden: sections.filter(section => section.noRailItem).map(railItemOfSection),
 });
 
 /** The page of the URL: the longest match, because a parent URL is a prefix of its children. */
@@ -47,7 +47,7 @@ export const activePageOf = (pages: readonly NavItem[], pathname: string): NavIt
 export const selectedRailItem = (rail: Rail, pathname: string): RailItem | undefined => {
   let selected: RailItem | undefined;
   let longest = -1;
-  for (const item of [...rail.main, ...rail.end]) {
+  for (const item of [...rail.main, ...rail.end, ...rail.hidden]) {
     const length = activePageOf(item.pages, pathname)?.href.length ?? -1;
     if (length > longest) {
       selected = item;
@@ -56,6 +56,14 @@ export const selectedRailItem = (rail: Rail, pathname: string): RailItem | undef
   }
   return selected;
 };
+
+/** The sections of the phone sheet: a section with `noRailItem` shows only on its pages. */
+export const sheetSections = (sections: readonly NavSection[], pathname: string): NavSection[] =>
+  sections.filter(
+    section =>
+      !section.noRailItem ||
+      activePageOf(section.items.flatMap(pagesOfNode), pathname) !== undefined,
+  );
 
 /**
  * What the second sidebar shows for a rail item. A section `within` this item takes its place

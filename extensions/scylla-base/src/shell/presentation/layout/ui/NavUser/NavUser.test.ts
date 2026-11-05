@@ -46,6 +46,41 @@ afterEach(() => {
 });
 
 describe('NavUser', () => {
+  describe('on the rail', () => {
+    const at = async (pathname: string) => {
+      navigator.restore();
+      navigator = installTestNavigator({ pathname });
+      setUp(() => Promise.resolve(me));
+      return screen.findByRole('button', { name: /Ravenne Lee/ });
+    };
+
+    it('has the state of a selected rail item on the account page', async () => {
+      const button = await at('/acme/account/tokens');
+
+      expect(button).toHaveClass('bg-sidebar-primary', 'text-sidebar-primary-foreground');
+      expect(button).toHaveAttribute('aria-current', 'page');
+    });
+
+    it.each(['/acme/dashboard', '/acme/accounting', '/other/account/profile'])(
+      'has no such state on %s',
+      async pathname => {
+        const button = await at(pathname);
+
+        expect(button).not.toHaveClass('bg-sidebar-primary');
+        expect(button).not.toHaveAttribute('aria-current');
+      },
+    );
+
+    it('still opens the menu on the account page', async () => {
+      const button = await at('/acme/account/profile');
+
+      await userEvent.setup().click(button);
+
+      expect(await findFloating('menuitem', 'Sign out')).toBeInTheDocument();
+      expect(navigator.navigate).not.toHaveBeenCalled();
+    });
+  });
+
   it('shows the shape of the user until the account arrives', () => {
     setUp(() => new Promise(() => {}));
 

@@ -90,10 +90,12 @@ presentation/
   ui/admin/UserAdmin.page.svelte     the directory
   ui/admin/AddUserDialog/            "New user"
   ui/admin/user-table/               UserTable, user-table.columns.ts
-  ui/account/Account/                the account page: AccountHeader, AccountNav, one section per
-                                     page, AccountSecurity (password + sessions), ChangePasswordForm
+  ui/account/Account/                the account page: AccountHeader, one section per page,
+                                     AccountNav (with no workspace only), AccountSecurity
+                                     (password + sessions), ChangePasswordForm
     account-page.state.svelte.ts     createAccountPage: the account of the session
-    account-sections.registry.ts     ACCOUNT_SECTIONS: the entries of the nav, their URL and title
+    account-sections.registry.ts     ACCOUNT_SECTIONS: the one list of the sections: the links of
+                                     the sidebar, AccountNav, the crumb
   ui/account/PersonalAccount/         the account page with no workspace: + the sign-out at the end
   ui/account/DeleteAccountDialog/
   ui/user-detail/UserDetail/         the page of another user, and its parts:
@@ -122,10 +124,14 @@ presentation/
 | `personal`     | `account` (`/account`) | (redirect)                                                     | to `/account/profile`                                                   |
 | `personal`     | `account/:section`     | none (`UNGATED_PAGES`)                                         | `PersonalAccount.page.svelte`: `Account.page.svelte`, then the sign-out |
 
-`:section` is `profile`, `appearance`, `security`, `workspaces` or `danger-zone`
+`:section` is `profile`, `appearance`, `security`, `tokens` or `danger-zone`
 (`ACCOUNT_SECTIONS` in `account-sections.registry.ts`). Another value goes to `profile`.
 
-Sidebar: one entry, section **`system`** (not `workspace`), order `10`, icon `UsersIcon`.
+Sidebar: `users` is one entry, section **`instance`**, order `10`, icon `UsersIcon`.
+`account/:section` of the `workspace` mount has one link per entry of `ACCOUNT_SECTIONS`, section
+**`account`** (`noRailItem`): the second sidebar shows them on the account page, and the sheet of
+a phone shows them there too. The page stays one route, thus a click keeps it mounted
+(`inPageParams`). The `personal` mount has no sidebar and no link.
 The user menu of the shell opens the `account` of the workspace
 (`scyllaNavigate.goToAccount`, which gives `/account` when no workspace is active). The
 first-workspace screen and the `personal` layout link to `/account`: the same page, for a
@@ -197,9 +203,10 @@ user who has no workspace.
   now" shows for less than five minutes, because the server moves the last activity at most
   once every five minutes.
 - **The account page shows one section of the settings at a time.** The header (avatar, name,
-  email, badges) and the nav stay on each page. The nav links are absolute URLs: the page
-  builds them from `workspaceSlug`, or from `/account` when it has none. To add a section, add
-  it to `ACCOUNT_SECTIONS` and to the branches of `Account.page.svelte`. A form in a
+  email, badges) stays on each page. In a workspace, the links are in the second sidebar of the
+  shell. With no workspace there is no sidebar, so the page shows `AccountNav`, with links to
+  `/account/<section>`. To add a section, add it to `ACCOUNT_SECTIONS` and to the branches of
+  `Account.page.svelte`. A form in a
   `SettingsSection` with `actionBar` shows its `data-slot="form-actions"` as a bar at the bottom of
   the card.
 - `getAll()` is paginated (`UserList`). Use `createPagination()` + `DataTable`; do not render

@@ -5,6 +5,7 @@
   import { Skeleton } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import type { NavItem, SecondSidebarContent } from '../structs/nav-section.struct.ts';
+  import { NAV_DANGER_APART_CLASS } from './nav-classes.ts';
   import { activePageOf } from './nav-rail.ts';
 
   interface Props {
@@ -50,12 +51,13 @@
         <ul class="relative flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2">
           {#each content.pages as page (page.href)}
             {@const current = page.href === active?.href}
-            <li>
+            <li class={cn(page.danger && NAV_DANGER_APART_CLASS)}>
               <button
                 type="button"
                 class={cn(
                   'flex h-8 w-full items-center gap-2 rounded-lg px-2 text-left text-sm transition-colors outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-ring motion-reduce:transition-none',
                   current ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-accent',
+                  page.danger && 'text-destructive',
                 )}
                 aria-current={current ? 'page' : undefined}
                 data-nav-url={page.url}

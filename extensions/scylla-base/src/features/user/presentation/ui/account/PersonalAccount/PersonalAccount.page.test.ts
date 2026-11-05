@@ -36,6 +36,16 @@ afterEach(() => {
 });
 
 describe('PersonalAccountPage', () => {
+  it('has its own nav to the sections: no sidebar holds them here', async () => {
+    render(PersonalAccountPage, { section: 'danger-zone' });
+
+    const nav = await screen.findByRole('navigation', { name: 'Account settings' });
+    expect(within(nav).getByRole('link', { current: 'page' })).toHaveAttribute(
+      'href',
+      '/account/danger-zone',
+    );
+  });
+
   it('keeps the sign-out out of the header', async () => {
     render(PersonalAccountPage, { section: 'danger-zone' });
 

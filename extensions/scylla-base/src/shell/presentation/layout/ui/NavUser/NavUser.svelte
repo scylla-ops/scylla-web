@@ -2,8 +2,8 @@
   import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
   import LogOutIcon from '@lucide/svelte/icons/log-out';
   import UserRoundIcon from '@lucide/svelte/icons/user-round';
-  import { scyllaNavigate } from '@platform/context';
-  import { createQuery } from '@scylla/core-sdk';
+  import { scyllaNavigate, workspaceUrl } from '@platform/context';
+  import { createQuery, routePathname } from '@scylla/core-sdk';
   import {
     DropdownMenu,
     DropdownMenuContent,
@@ -26,6 +26,7 @@
   // By path, not the barrel: this file is in the entry chunk, the other components are not.
   import UserAvatar from '@shared/presentation/ui/data-display/UserAvatar.svelte';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
+  import { linkParams } from '@base/shell/presentation/shell-params.ts';
 
   const LOCALES: readonly { locale: SupportedLocale; label: string }[] = [
     { locale: 'en', label: 'English' },
@@ -34,6 +35,12 @@
 
   const sidebar = getSidebar();
   const meQuery = createQuery(() => userQueries.me());
+
+  const slug = $derived(linkParams().workspaceSlug);
+  // The rail only: the sheet of a phone has no green row.
+  const onAccount = $derived(
+    !sidebar.isMobile && !!slug && routePathname().startsWith(`${workspaceUrl(slug, 'account')}/`),
+  );
 </script>
 
 {#if meQuery.isLoading}
@@ -50,13 +57,24 @@
           {...props}
           type="button"
           class={cn(
-            'flex h-8 w-full items-center gap-2 overflow-hidden rounded-lg px-1 text-left text-sm outline-hidden transition-[width,background-color] hover:bg-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring data-[state=open]:bg-accent motion-reduce:transition-none group-data-[collapsible=icon]:w-8',
+            'flex h-8 w-full items-center gap-2 overflow-hidden rounded-lg px-1 text-left text-sm outline-hidden transition-[width,background-color,color] focus-visible:ring-2 focus-visible:ring-sidebar-ring motion-reduce:transition-none group-data-[collapsible=icon]:w-8',
             SIDEBAR_MOTION,
+            onAccount
+              ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+              : 'hover:bg-accent data-[state=open]:bg-accent',
           )}
+          aria-current={onAccount ? 'page' : undefined}
         >
           <!-- A failed read shows the menu all the same: signing out must stay possible. -->
           {#if meQuery.data}
-            <UserAvatar user={meQuery.data} size="sm" class="size-6 text-[10px]" />
+            <UserAvatar
+              user={meQuery.data}
+              size="sm"
+              class={cn(
+                'size-6 text-[10px]',
+                onAccount && 'bg-transparent text-sidebar-primary-foreground',
+              )}
+            />
             <span class={cn('min-w-0 flex-1 truncate', SIDEBAR_FADE)}>
               {userName(meQuery.data, 'deleted')}
             </span>
@@ -64,7 +82,11 @@
             <span class="flex-1"></span>
           {/if}
           <ChevronsUpDownIcon
-            class={cn('ml-auto size-4 shrink-0 text-muted-foreground', SIDEBAR_FADE)}
+            class={cn(
+              'ml-auto size-4 shrink-0',
+              onAccount ? 'text-sidebar-primary-foreground' : 'text-muted-foreground',
+              SIDEBAR_FADE,
+            )}
           />
         </button>
       {/snippet}

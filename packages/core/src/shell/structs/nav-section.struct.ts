@@ -7,6 +7,8 @@ export interface NavItem {
   /** The path of the link in its mount, e.g. `agents`: what `navBadge` and `onNavOpen` receive. */
   url: string;
   icon?: LucideIcon;
+  /** Apart from the links before it, in red. */
+  danger?: boolean;
 }
 
 /** A folding item with the links of one `NavGroup`, e.g. the agents and the apps. */
@@ -32,6 +34,8 @@ export interface NavSection {
   railItem?: { icon?: LucideIcon };
   /** The links replace the second sidebar of a rail item. */
   within?: { railItem: string; titleParam: string };
+  /** No item on the rail: the second sidebar shows the links while the URL is on one of them. */
+  noRailItem?: boolean;
 }
 
 /** One item of the rail, and the pages that its second sidebar shows. */
@@ -47,6 +51,8 @@ export interface RailItem {
 export interface Rail {
   main: RailItem[];
   end: RailItem[];
+  /** The sections with `noRailItem`. They have no row, but the URL can select them. */
+  hidden: RailItem[];
 }
 
 export interface SecondSidebarContent {

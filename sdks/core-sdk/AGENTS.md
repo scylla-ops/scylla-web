@@ -75,7 +75,8 @@ export class AcmeAuthExtension {}
 - Everything else is **in the modules**, with one exception: `widgetInjections` (below) is a
   field of `@Extension` itself, not of a module — it changes another extension's UI, which is
   not what any one module owns. A feature module declares `domain` and `routes`, with its
-  sidebar links in `nav`. The module that builds the frame (scylla-base: `ShellModule`) declares
+  sidebar links in `nav` (one link, or a list with one link per value of a parameter,
+  `NavLink.params`). The module that builds the frame (scylla-base: `ShellModule`) declares
   `mounts`, `navSections`, `access`, `shell`, `onQueryError`, `onQueryRetry` and `fallback`.
 
 ## Widgets — letting one extension change another's UI

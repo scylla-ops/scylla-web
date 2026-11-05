@@ -18,7 +18,7 @@ export interface AccountSection {
   danger?: boolean;
 }
 
-/** The entries of the settings nav of the account page, in their order. */
+/** The links of the account section of the sidebar, in their order. */
 export const ACCOUNT_SECTIONS: readonly AccountSection[] = [
   { id: 'profile', title: userMessages.profile, icon: UserIcon },
   { id: 'appearance', title: userMessages.appearance, icon: SunIcon },
