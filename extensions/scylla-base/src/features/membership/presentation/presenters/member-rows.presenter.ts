@@ -11,7 +11,7 @@ export interface MemberRow {
   tab: MemberTab;
   name: string;
   handle: string;
-  /** The owner and the roles on the workspace. */
+  /** The roles on the workspace. */
   workspaceRoles: MemberRoleEntity[];
   projectRoles: MemberRoleEntity[];
   /** Every project, as admin: an owner, or a Workspace admin. */

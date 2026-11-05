@@ -1,11 +1,8 @@
-export type { WorkspaceEntity, WorkspaceOwner } from './domain/entities/workspace.entity.ts';
+export type { WorkspaceEntity } from './domain/entities/workspace.entity.ts';
 export {
   invalidateWorkspaceMembers,
   workspaceMutations,
   workspaceQueries,
-  ownerMutations,
-  ownerQueries,
-  WORKSPACE_OWNERS_QUERY_KEY,
   MY_WORKSPACES_QUERY_KEY,
   WORKSPACES_QUERY_KEY,
   WORKSPACE_MEMBERS_QUERY_KEY,

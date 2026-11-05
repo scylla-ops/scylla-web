@@ -43,7 +43,7 @@ It composes, through public APIs only:
 - Teams and Check access are not in this module. Do not show them.
 - The server sends no role of the instance here (decision 92 of the backend): an instance admin with no role here is not a member, and a member shows only its roles on the workspace and on its projects. `Instance › Users` shows the instance admins.
 - A person needs a role in the workspace first: the add dialog gives the workspace roles before the project roles. The server takes the project roles with the last workspace role.
-- An owner is not a role that `Revoke` takes back: it changes in `OwnersCard`. A workspace can have no Workspace admin, and it always has an owner. The last owner stays, and a dialog says so before the call.
+- Workspace owner is a built-in role. `Grant` and `Revoke` change it, and they need `manage_owners`: only an owner or an instance admin has it. A workspace can have no Workspace admin, and it always has an owner. The last owner stays, and a dialog says so before the call. An invitation does not carry this role.
 - An invitation carries one built-in workspace role. The project roles come after the person accepts, and the add dialog says so.
 - A name finds a person only with `users.view`. Another caller types an email.
 - An app gets a role from the Apps tab of the members, or on the members of a project. Only the apps of the workspace are in the list. `?addApp=<id>` is a direct link: an app of another workspace gets a dialog that says why not.

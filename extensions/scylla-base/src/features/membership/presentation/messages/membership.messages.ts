@@ -2,9 +2,7 @@ import { msg, plural } from '@lingui/core/macro';
 
 /** Keep the msgids (placeholder names included) or the French is lost. */
 export const membershipMessages = {
-  owner: msg`Owner`,
   ok: msg`OK`,
-  owners: msg`Owners`,
   chooseRole: msg`Choose a role`,
   chooseProject: msg`Choose a project`,
   chooseMember: msg`Choose a member`,
@@ -27,7 +25,8 @@ export const membershipMessages = {
   whatTheyGet: msg`What they get`,
   seeAllPermissions: msg`See all permissions`,
   removeHint: msg`This person loses all of the access in this workspace at once.`,
-  ownerStays: msg`An owner stays an owner. Change that in the owners card.`,
+  ownerStays: msg`Only an owner can take back the role Workspace owner. This role stays.`,
+  ownerNotInvited: msg`An invitation does not carry the role Workspace owner. Give it after the person joins.`,
   removeFromWorkspaceAction: msg`Remove from the workspace`,
   workspaceRolesColumn: msg`Workspace roles`,
   added: msg`Added`,
@@ -57,9 +56,6 @@ export const membershipMessages = {
   legendHere: msg`From a role here`,
   legendAbove: msg`From a role above`,
   noSuchAction: msg`No such action`,
-  ownersDescription: msg`The owners can delete the workspace and change its owners. No role gives that. The last owner stays.`,
-  addOwner: msg`+ owner`,
-  removeOwner: (name: string) => msg`Remove ${name} from the owners`,
   member: msg`Member`,
   members: msg`Members`,
   cancel: msg`Cancel`,

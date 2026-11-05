@@ -119,15 +119,13 @@
             <span class="rounded-full bg-muted px-2 py-0.5 text-xs">{source.scopeName}</span>
             <span class="font-medium">{sourceRoleName(source)}</span>
           </span>
-          {#if source.roleKey !== 'owner'}
-            <button
-              type="button"
-              class="text-xs font-medium text-primary hover:underline"
-              onclick={() => navigateTo(roleUrl(source))}
-            >
-              {t(openRole(sourceRoleName(source)))}
-            </button>
-          {/if}
+          <button
+            type="button"
+            class="text-xs font-medium text-primary hover:underline"
+            onclick={() => navigateTo(roleUrl(source))}
+          >
+            {t(openRole(sourceRoleName(source)))}
+          </button>
         </li>
       {/each}
     </ul>

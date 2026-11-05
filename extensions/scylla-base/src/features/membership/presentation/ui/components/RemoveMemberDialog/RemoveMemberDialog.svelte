@@ -1,5 +1,6 @@
 <script lang="ts">
   import { i18n } from '@lingui/core';
+  import { can, Permission } from '@platform/authz';
   import { createMutation } from '@scylla/core-sdk';
   import { accessMutations, projectRef, workspaceRef } from '@base/features/access';
   import { ScyllaDialog } from '@scylla/ui';
@@ -28,8 +29,11 @@
   const revoke = createMutation(() => accessMutations.revoke());
   let pending = $state(false);
 
-  const given = $derived((row?.workspaceRoles ?? []).filter(role => role.roleKey !== OWNER_KEY));
-  const owner = $derived((row?.workspaceRoles ?? []).some(role => role.roleKey === OWNER_KEY));
+  const canChangeOwners = $derived(can(Permission.MANAGE_OWNERS, { workspaceId }));
+  const given = $derived(
+    (row?.workspaceRoles ?? []).filter(role => role.roleKey !== OWNER_KEY || canChangeOwners),
+  );
+  const ownerStays = $derived(given.length < (row?.workspaceRoles.length ?? 0));
 
   /** The server takes the roles on the projects with the last role in the workspace. */
   const confirm = async () => {
@@ -76,7 +80,7 @@
           <p class="mt-1 text-xs text-muted-foreground">{t(needsWorkspaceRole(workspaceName))}</p>
         </div>
       {/each}
-      {#if owner}
+      {#if ownerStays}
         <p class="text-xs text-muted-foreground">{t(membershipMessages.ownerStays)}</p>
       {/if}
       <div class="flex justify-end gap-2">

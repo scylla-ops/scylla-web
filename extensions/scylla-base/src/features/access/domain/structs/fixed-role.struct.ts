@@ -1,8 +1,8 @@
 import type { ObjectKind } from './object-ref.struct.ts';
 
 /**
- * The roles of the server are fixed, in code. `Grant` gives one, `Revoke` takes it back. The
- * owners of a workspace are not a role: they are a list of their own (`AddOwner`).
+ * The roles of the server are fixed, in code. `Grant` gives one, `Revoke` takes it back. The role
+ * owner of a workspace is not in these lists: it needs `manage_owners`.
  */
 export const WORKSPACE_ROLES = ['admin', 'member', 'viewer', 'runner'] as const;
 export const PROJECT_ROLES = ['admin', 'editor', 'viewer'] as const;

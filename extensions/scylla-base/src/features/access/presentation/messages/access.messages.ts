@@ -1,9 +1,9 @@
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
 
-/** The name of each fixed role, and of the owners of a workspace. */
+/** The name of each fixed role. */
 export const roleMessages: Record<string, MessageDescriptor> = {
-  owner: msg`Owner`,
+  owner: msg`Workspace owner`,
   admin: msg`Admin`,
   member: msg`Member`,
   editor: msg`Editor`,

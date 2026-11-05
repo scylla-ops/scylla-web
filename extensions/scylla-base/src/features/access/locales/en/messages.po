@@ -41,10 +41,6 @@ msgstr "Everything, the deletion of the workspace and its owners included."
 msgid "Member"
 msgstr "Member"
 
-#: extensions/scylla-base/src/features/access/presentation/messages/access.messages.ts:6
-msgid "Owner"
-msgstr "Owner"
-
 #: extensions/scylla-base/src/features/access/presentation/messages/access.messages.ts:20
 msgid "Reads only."
 msgstr "Reads only."
@@ -60,3 +56,7 @@ msgstr "Runs the jobs: for an agent."
 #: extensions/scylla-base/src/features/access/presentation/messages/access.messages.ts:10
 msgid "Viewer"
 msgstr "Viewer"
+
+#: extensions/scylla-base/src/features/access/presentation/messages/access.messages.ts:6
+msgid "Workspace owner"
+msgstr "Workspace owner"

@@ -3,7 +3,7 @@ import { screen } from '@testing-library/svelte';
 import { toast } from 'svelte-sonner';
 import userEvent from '@testing-library/user-event';
 import { PermissionScope, permissionsStore } from '@platform/authz';
-import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import AddMembersDialog from './AddMembersDialog.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
@@ -25,7 +25,11 @@ let grant: ReturnType<typeof vi.fn>;
 let create: ReturnType<typeof vi.fn>;
 let teardown: Array<() => void> = [];
 
-const open = (held: string[], directory: { canBrowse: boolean } | null = null) => {
+const open = (
+  held: string[],
+  directory: { canBrowse: boolean } | null = null,
+  more: ReturnType<typeof role>[] = [],
+) => {
   grant = vi.fn().mockResolvedValue(undefined);
   create = vi.fn().mockResolvedValue({ id: 'i-1' });
   const cache = withQueryClient();
@@ -46,6 +50,7 @@ const open = (held: string[], directory: { canBrowse: boolean } | null = null) =
           .mockResolvedValue([
             role('member', 'Workspace member', ['pipelines.edit']),
             role('viewer', 'Workspace viewer', ['pipelines.view']),
+            ...more,
           ]),
       },
     },
@@ -120,6 +125,43 @@ describe('AddMembersDialog', () => {
 
     await vi.waitFor(() => expect(create).toHaveBeenCalled());
     expect(grant).not.toHaveBeenCalled();
+  });
+
+  it('does not put the role owner in an invitation', async () => {
+    open(['pipelines.edit', 'pipelines.view'], null, [role('owner', 'Workspace owner', [])]);
+    await ready();
+
+    await userEvent.type(screen.getByLabelText('People'), 'new@acme.dev{Enter}');
+    await userEvent.click(screen.getByRole('combobox', { name: 'Workspace role' }));
+    await userEvent.click(
+      await findFloating(
+        'option',
+        'Workspace owner Full control of one workspace, also its deletion and its owners.',
+      ),
+    );
+
+    expect(screen.getByText(/An invitation does not carry the role/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add 1 member' })).toBeDisabled();
+  });
+
+  it('gives the role owner to a person of the directory', async () => {
+    open(['pipelines.edit', 'pipelines.view'], null, [role('owner', 'Workspace owner', [])]);
+    await ready();
+
+    await userEvent.type(screen.getByLabelText('People'), 'lina');
+    await userEvent.click(await screen.findByRole('button', { name: /Lina Moreau/ }));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Workspace role' }));
+    await userEvent.click(
+      await findFloating(
+        'option',
+        'Workspace owner Full control of one workspace, also its deletion and its owners.',
+      ),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Add 1 member' }));
+
+    await vi.waitFor(() =>
+      expect(grant).toHaveBeenCalledWith({ kind: 'workspace', id: 'w-1' }, 'owner', 'u-1'),
+    );
   });
 
   it('starts on a role that the caller can give', async () => {

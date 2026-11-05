@@ -31,7 +31,6 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
   ],
   workspace: [
     'add_app_key',
-    'add_owner',
     'cancel_job',
     'create_app',
     'create_invitation',
@@ -60,7 +59,6 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'list_roles',
     'list_apps',
     'list_invitations',
-    'list_owners',
     'list_pipeline_jobs',
     'list_pipeline_triggers',
     'list_project_pipelines',
@@ -69,8 +67,8 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'list_workspace_jobs',
     'list_workspace_pipelines',
     'list_workspaces',
+    'manage_owners',
 
-    'remove_owner',
     'rerun_job',
     'resend_invitation',
     'revoke',
