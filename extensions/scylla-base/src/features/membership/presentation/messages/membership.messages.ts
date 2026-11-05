@@ -71,7 +71,6 @@ export const membershipMessages = {
   add: msg`Add`,
   noRole: msg`No role`,
 
-
   selectAnWorkspace: msg`Select a workspace to see its members.`,
   workspaceNewDenied: msg`You don't have permission to admit members here.`,
   workspaceEmpty: msg`Nobody belongs to this workspace yet.`,
@@ -88,6 +87,8 @@ export const lockedRole = (names: string) =>
 export const addTitle = (workspace: string) => msg`Add members to ${workspace}`;
 export const addCount = (count: number) =>
   msg`${plural(count, { 0: 'Add members', one: 'Add # member', other: 'Add # members' })}`;
+export const membersAdded = (count: number) =>
+  msg`${plural(count, { one: '# member added', other: '# members added' })}`;
 export const inEveryProject = (role: string, workspace: string, count: number) =>
   msg`${role} in ${workspace}: ${count} permissions in every project.`;
 export const addsInProject = (role: string, count: number, project: string) =>
@@ -116,8 +117,7 @@ export const effectiveHint = (scope: string) =>
   msg`Each permission in ${scope}, from all of the roles`;
 export const projectOption = (project: string) => msg`Project · ${project}`;
 export const workspaceOption = (workspace: string) => msg`Workspace · ${workspace}`;
-export const effectiveCell = (permission: string, scope: string) =>
-  msg`${permission} in ${scope}`;
+export const effectiveCell = (permission: string, scope: string) => msg`${permission} in ${scope}`;
 export const openRole = (role: string) => msg`Open ${role}`;
 export const addTo = (project: string) => msg`Add to ${project}`;
 export const cannotRemove = (name: string) => msg`You cannot remove ${name}`;

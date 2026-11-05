@@ -1,9 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
+import { toast } from 'svelte-sonner';
 import userEvent from '@testing-library/user-event';
 import { PermissionScope, permissionsStore } from '@platform/authz';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import AddMembersDialog from './AddMembersDialog.svelte';
+
+vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 const role = (grantName: string, name: string, permissions: string[], level = 'workspace') => ({
   key: grantName,
@@ -105,6 +108,7 @@ describe('AddMembersDialog', () => {
     await vi.waitFor(() =>
       expect(grant).toHaveBeenCalledWith({ kind: 'workspace', id: 'w-1' }, 'member', 'u-1'),
     );
+    await vi.waitFor(() => expect(toast.success).toHaveBeenCalledWith('1 member added'));
   });
 
   it('makes an invitation from an email', async () => {

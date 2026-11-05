@@ -17,39 +17,43 @@ msgstr ""
 msgid "{count, plural, =0 {Add members} one {Add # member} other {Add # members}}"
 msgstr "{count, plural, =0 {Add members} one {Add # member} other {Add # members}}"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:110
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:92
+msgid "{count, plural, one {# member added} other {# members added}}"
+msgstr "{count, plural, one {# member added} other {# members added}}"
+
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:112
 msgid "{label} {count}"
 msgstr "{label} {count}"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:129
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:131
 msgid "{name} belongs to another workspace. An app gets roles only in its own workspace. Make a new app in {workspace} instead."
 msgstr "{name} belongs to another workspace. An app gets roles only in its own workspace. Make a new app in {workspace} instead."
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:109
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:111
 msgid "{name} is not a member of {workspace}"
 msgstr "{name} is not a member of {workspace}"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:125
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:127
 msgid "{name} is the last owner of {workspace}. A workspace must always have one. Make another person an owner first."
 msgstr "{name} is the last owner of {workspace}. A workspace must always have one. Make another person an owner first."
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:98
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:100
 msgid "{name} removed from {workspace}"
 msgstr "{name} removed from {workspace}"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:120
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:122
 msgid "{permission} in {scope}"
 msgstr "{permission} in {scope}"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:94
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:96
 msgid "{role} adds {count} in {project}."
 msgstr "{role} adds {count} in {project}."
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:96
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:98
 msgid "{role} adds nothing in {project}, because the workspace role covers it."
 msgstr "{role} adds nothing in {project}, because the workspace role covers it."
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:92
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:94
 msgid "{role} in {workspace}: {count} permissions in every project."
 msgstr "{role} in {workspace}: {count} permissions in every project."
 
@@ -65,11 +69,11 @@ msgstr "+ Add another workspace role"
 msgid "+ owner"
 msgstr "+ owner"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:102
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:104
 msgid "A project role needs a role in {workspace}"
 msgstr "A project role needs a role in {workspace}"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:107
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:109
 msgid "A project role needs a role in {workspace} first"
 msgstr "A project role needs a role in {workspace} first"
 
@@ -101,7 +105,7 @@ msgstr "Add members to {workspace}"
 msgid "Add the person in Access › Members, then give the project role. An app gets roles only in the workspace that owns it."
 msgstr "Add the person in Access › Members, then give the project role. An app gets roles only in the workspace that owns it."
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:122
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:124
 msgid "Add to {project}"
 msgstr "Add to {project}"
 
@@ -125,7 +129,7 @@ msgstr "Apps"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:105
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:107
 msgid "Change in {scope}"
 msgstr "Change in {scope}"
 
@@ -133,7 +137,7 @@ msgstr "Change in {scope}"
 msgid "Change roles"
 msgstr "Change roles"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:103
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:105
 msgid "Change the roles of {name}"
 msgstr "Change the roles of {name}"
 
@@ -165,7 +169,7 @@ msgstr "Custom"
 msgid "Direct"
 msgstr "Direct"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:116
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:118
 msgid "Each permission in {scope}, from all of the roles"
 msgstr "Each permission in {scope}, from all of the roles"
 
@@ -229,11 +233,11 @@ msgstr "Member actions"
 msgid "Members"
 msgstr "Members"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:104
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:106
 msgid "Members of {project}"
 msgstr "Members of {project}"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:130
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:132
 msgid "New app in {workspace}"
 msgstr "New app in {workspace}"
 
@@ -269,7 +273,7 @@ msgstr "OK"
 msgid "On the instance, on the workspace and on its projects"
 msgstr "On the instance, on the workspace and on its projects"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:121
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:123
 msgid "Open {role}"
 msgstr "Open {role}"
 
@@ -289,7 +293,7 @@ msgstr "Owners"
 msgid "People"
 msgstr "People"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:112
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:114
 msgid "People and apps with a role in {workspace}. A workspace role covers every project of {again}. A project role adds power on one project."
 msgstr "People and apps with a role in {workspace}. A workspace role covers every project of {again}. A project role adds power on one project."
 
@@ -297,7 +301,7 @@ msgstr "People and apps with a role in {workspace}. A workspace role covers ever
 msgid "Project"
 msgstr "Project"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:117
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:119
 msgid "Project · {project}"
 msgstr "Project · {project}"
 
@@ -309,7 +313,7 @@ msgstr "Project roles"
 msgid "Remove"
 msgstr "Remove"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:100
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:102
 msgid "Remove {name} from {workspace}?"
 msgstr "Remove {name} from {workspace}?"
 
@@ -374,7 +378,7 @@ msgstr "The scope of the access"
 msgid "They get the workspace role, and a role in each project that you choose."
 msgstr "They get the workspace role, and a role in each project that you choose."
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:131
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:133
 msgid "This app"
 msgstr "This app"
 
@@ -390,7 +394,7 @@ msgstr "This member does not have it"
 msgid "This person loses all of the access in this workspace at once."
 msgstr "This person loses all of the access in this workspace at once."
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:114
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:116
 msgid "What {name} can do, and which role gives it. This page is read only. To change this access, change the roles."
 msgstr "What {name} can do, and which role gives it. This page is read only. To change this access, change the roles."
 
@@ -398,7 +402,7 @@ msgstr "What {name} can do, and which role gives it. This page is read only. To 
 msgid "What they get"
 msgstr "What they get"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:118
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:120
 msgid "Workspace · {workspace}"
 msgstr "Workspace · {workspace}"
 
@@ -414,7 +418,7 @@ msgstr "Workspace roles"
 msgid "Yes"
 msgstr "Yes"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:127
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:129
 msgid "You cannot add {name} to {workspace}"
 msgstr "You cannot add {name} to {workspace}"
 
@@ -422,7 +426,7 @@ msgstr "You cannot add {name} to {workspace}"
 msgid "You cannot browse the users of the server. Type an email to send an invitation."
 msgstr "You cannot browse the users of the server. Type an email to send an invitation."
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:123
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:125
 msgid "You cannot remove {name}"
 msgstr "You cannot remove {name}"
 

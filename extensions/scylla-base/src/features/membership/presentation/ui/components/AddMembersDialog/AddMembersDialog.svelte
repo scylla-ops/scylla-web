@@ -29,6 +29,7 @@
   import { summaryLines } from '../../../presenters/add-members.presenter.ts';
   import {
     addCount,
+    membersAdded,
     addTitle,
     membershipMessages,
   } from '../../../messages/membership.messages.ts';
@@ -192,7 +193,8 @@
           await grant.mutateAsync({ object: projectRef(row.projectId), role: row.role, actorId });
         }
       }
-      toast.success(i18n._(addCount(chips.length)));
+      const added = chips.filter(chip => 'user' in chip).length;
+      if (added > 0) toast.success(i18n._(membersAdded(added)));
       reset();
       onAdded();
       onOpenChange(false);
