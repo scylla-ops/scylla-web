@@ -19,8 +19,8 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   card lists the keys and revokes one.
 - The roles of an app are workspace roles, given with `AccessService.Grant` (see
   `features/access`): an agent needs `runner`.
-- The recent jobs of an agent come from `JobService.ListWorkspaceJobs` with its id; its stats are
-  computed from them (`app-stats.struct.ts`).
+- The recent jobs of an agent come from `JobService.ListWorkspaceJobs` with its id. Its stats come
+  from the server (`agent-stats.struct.ts`): 30 days in UTC.
 - "Add agent" is a dialog in three steps (`components/AddAgentDialog/`): name and projects, install,
   connected. The install step shows one command for each OS (`agent-install.struct.ts`) and
   `appQueries.waiting` asks for the app each 2 s until a machine joined with a new key and the

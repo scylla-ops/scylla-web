@@ -26,25 +26,22 @@ const isoDaysAgo = (daysAgo: number): string => {
 
 type Ended = 'completed' | 'failed' | 'cancelled';
 
-/** The jobs of one day: the chart counts them by their end. */
-const day = (daysAgo: number, counts: Partial<Record<Ended, number>> = {}) =>
-  (Object.entries(counts) as [Ended, number][]).flatMap(([status, count]) =>
-    Array.from({ length: count }, (_, index) => ({
-      id: `${daysAgo}-${status}-${index}`,
-      pipelineId: 'p',
-      projectId: 'pr',
-      status,
-      createdAt: isoDaysAgo(daysAgo),
-      startedAt: isoDaysAgo(daysAgo),
-      finishedAt: isoDaysAgo(daysAgo),
-    })),
-  );
+/** The outcomes of one day: the server counts them. */
+const day = (daysAgo: number, counts: Partial<Record<Ended, number>> = {}) => ({
+  day: isoDaysAgo(daysAgo),
+  outcomes: { completed: 0, failed: 0, cancelled: 0, orphaned: 0, ...counts },
+});
 
-/** The jobs of the agent over the days. */
-const stats = (days: ReturnType<typeof day>[]) => days.flat();
+const stats = (agentId: string, days: ReturnType<typeof day>[]) => ({
+  agentId,
+  outcomes: { completed: 0, failed: 0, cancelled: 0, orphaned: 0 },
+  medianMs: null,
+  p95Ms: null,
+  days,
+});
 
 let listAgents: ReturnType<typeof vi.fn>;
-let getAgentStats: Mock<(appId: string) => Promise<unknown>>;
+let listAgentStats: Mock<(workspaceId: string) => Promise<unknown>>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
@@ -53,16 +50,16 @@ const drawnSeries = (container: HTMLElement): string[] =>
 
 beforeEach(() => {
   listAgents = vi.fn().mockResolvedValue([agent()]);
-  getAgentStats = vi
-    .fn<(appId: string) => Promise<unknown>>()
-    .mockResolvedValue(stats([day(1, { completed: 3, failed: 1, cancelled: 2 })]));
+  listAgentStats = vi
+    .fn<(workspaceId: string) => Promise<unknown>>()
+    .mockResolvedValue([stats('agent-1', [day(1, { completed: 3, failed: 1, cancelled: 2 })])]);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
     apps: {
       appsRepository: {
         listApps: listAgents,
-        listJobs: (_workspaceId: string, appId: string) => getAgentStats(appId),
+        listAgentStats,
       },
     },
   });
@@ -79,7 +76,7 @@ beforeEach(() => {
           scopeId: '',
           access: {
             kind: 'restricted',
-            permissions: [Permission.LIST_AGENTS, Permission.READ_APP_STATS],
+            permissions: [Permission.LIST_AGENTS, Permission.LIST_APPS_BY_WORKSPACE],
           },
         },
       ],
@@ -101,14 +98,14 @@ describe('AgentOutcomesChart', () => {
     expect(
       await screen.findByText('No agents found. Connect an agent to see execution history.'),
     ).toBeInTheDocument();
-    expect(getAgentStats).not.toHaveBeenCalled();
   });
 
-  it('reads the first agent’s stats without being asked to pick one', async () => {
+  it('shows the first agent without being asked to pick one, from one call for the workspace', async () => {
     render(AgentOutcomesChart);
 
     await screen.findByRole('img', { name: 'Agent Outcomes' });
-    expect(getAgentStats).toHaveBeenCalledWith('agent-1');
+    expect(listAgentStats).toHaveBeenCalledTimes(1);
+    expect(listAgentStats).toHaveBeenCalledWith('org-1');
   });
 
   it('switches to the agent the reader picks', async () => {
@@ -116,9 +113,10 @@ describe('AgentOutcomesChart', () => {
     listAgents.mockResolvedValue([agent(), agent({ id: 'agent-2', name: 'runner-2' })]);
     render(AgentOutcomesChart);
 
-    await user.click(await screen.findByRole('button', { name: 'runner-2' }));
+    await screen.findByRole('img', { name: 'Agent Outcomes' });
+    await user.click(screen.getByRole('button', { name: 'runner-2' }));
 
-    expect(getAgentStats).toHaveBeenCalledWith('agent-2');
+    expect(await screen.findByText('No finished jobs in this window.')).toBeInTheDocument();
   });
 
   it('draws the three series, with a legend, until a filter narrows it to one', async () => {
@@ -134,7 +132,7 @@ describe('AgentOutcomesChart', () => {
   });
 
   it('says so rather than drawing an empty frame when nothing finished in the window', async () => {
-    getAgentStats.mockResolvedValue(stats([]));
+    listAgentStats.mockResolvedValue([stats('agent-1', [])]);
     render(AgentOutcomesChart);
 
     expect(await screen.findByText('No finished jobs in this window.')).toBeInTheDocument();
@@ -144,7 +142,7 @@ describe('AgentOutcomesChart', () => {
   it('narrows the window to the range picked, which can empty it', async () => {
     const user = userEvent.setup();
     // Only the range button decides.
-    getAgentStats.mockResolvedValue(stats([day(9, { completed: 2 })]));
+    listAgentStats.mockResolvedValue([stats('agent-1', [day(9, { completed: 2 })])]);
     render(AgentOutcomesChart);
 
     await screen.findByRole('img', { name: 'Agent Outcomes' });

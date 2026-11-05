@@ -18,7 +18,7 @@ The apps of a workspace (`scylla.apps.v1.AppService`). An agent is an app that r
   card lists the keys and revokes one.
 - The roles of an app are workspace roles, given with `AccessService.Grant` (see
   `features/access`): an agent needs `runner`.
-- The recent jobs of an agent come from `JobService.ListWorkspaceJobs` with its id; its stats are
-  computed from them (`app-stats.struct.ts`).
+- The recent jobs of an agent come from `JobService.ListWorkspaceJobs` with its id; its stats come
+  from the server (`agent-stats.struct.ts`).
 - `appQueries.runners` and `loadNoAgentsBanner` serve the pipelines and the jobs: they warn when
   jobs wait and no agent is connected.

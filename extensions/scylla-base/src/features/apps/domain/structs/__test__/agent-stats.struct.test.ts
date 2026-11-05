@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { successRate, sumOutcomes } from '../agent-stats.struct.ts';
+import { dailyCountsOf, successRate, sumOutcomes } from '../agent-stats.struct.ts';
 
 const outcomes = (completed: number, failed: number) => ({
   completed,
@@ -17,5 +17,20 @@ describe('agent stats', () => {
 
   it('adds the outcomes of some agents', () => {
     expect(sumOutcomes([outcomes(1, 2), outcomes(3, 0)])).toEqual(outcomes(4, 2));
+  });
+});
+
+describe('dailyCountsOf', () => {
+  const outcomes = { completed: 3, failed: 1, cancelled: 0, orphaned: 0 };
+
+  it('gives one flat entry for each day', () => {
+    const days = [{ day: '2026-11-04T00:00:00.000Z', outcomes }];
+    const stats = { agentId: 'a', outcomes, medianMs: null, p95Ms: null, days };
+
+    expect(dailyCountsOf(stats)).toEqual([{ day: '2026-11-04T00:00:00.000Z', ...outcomes }]);
+  });
+
+  it('gives nothing for an agent with no job', () => {
+    expect(dailyCountsOf(undefined)).toEqual([]);
   });
 });

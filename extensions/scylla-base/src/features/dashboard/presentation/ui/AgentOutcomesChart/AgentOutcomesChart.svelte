@@ -5,7 +5,7 @@
   import { toRune } from '@scylla/ui/stores';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import { appQueries, appStatsQueries } from '@base/features/apps';
+  import { appQueries, dailyCountsOf } from '@base/features/apps';
   import {
     fillBuckets,
     hasActivity,
@@ -53,9 +53,11 @@
   let status = $state<StatusFilter>('all');
   let hover = $state<number | null>(null);
 
-  const statsQuery = createQuery(() => appStatsQueries.of(workspaceId, agentId ?? ''));
+  const statsQuery = createQuery(() => appQueries.agentStats(workspaceId));
 
-  const buckets = $derived(fillBuckets(statsQuery.data?.daily ?? [], RANGE_DAYS[range]));
+  const buckets = $derived(
+    fillBuckets(dailyCountsOf(statsQuery.data?.get(agentId ?? '')), RANGE_DAYS[range]),
+  );
   const shownSeries = $derived(
     status === 'all' ? SERIES : SERIES.filter(series => series.key === status),
   );

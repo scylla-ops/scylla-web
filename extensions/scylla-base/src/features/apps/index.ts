@@ -9,15 +9,9 @@ export type {
   JoinCode,
 } from './domain/entities/app.entity.ts';
 export { appStateOf } from './domain/entities/app.entity.ts';
-export {
-  appStatsOf,
-  dailyOutcomesOf,
-  type AppStats,
-  type DailyOutcome,
-} from './domain/structs/app-stats.struct.ts';
+export { dailyCountsOf, type AgentStats } from './domain/structs/agent-stats.struct.ts';
 export {
   appQueries,
-  appStatsQueries,
   appMutations,
   APPS_QUERY_ROOT,
   APPS_QUERY_KEY,

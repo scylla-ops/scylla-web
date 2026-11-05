@@ -5,7 +5,6 @@ import { toast } from '@scylla/ui/utils';
 import type { AppsModule } from '../apps.module.ts';
 import type { AppDetails } from '../domain/entities/app.entity.ts';
 import { appsMessages } from './messages/apps.messages.ts';
-import { appStatsOf } from '../domain/structs/app-stats.struct.ts';
 import { appRolesOf } from '@base/features/apps/domain/structs/app-list.struct.ts';
 import { agentAccessOf, type RunnerChange } from '../domain/structs/agent-access.struct.ts';
 import { accessQueries, projectRef, workspaceRef, type ObjectRef } from '@base/features/access';
@@ -158,14 +157,6 @@ export const appQueries = {
       refetchInterval: 60_000,
     }),
 };
-
-/** The stats of an agent, from its recent jobs. */
-const statsQuery = (workspaceId: string, appId: string) => ({
-  ...appQueries.jobs(workspaceId, appId, !!appId && canList(workspaceId)),
-  select: appStatsOf,
-});
-
-export const appStatsQueries = { of: statsQuery };
 
 const invalidateApps = () => getQueryClient().invalidateQueries({ queryKey: APPS_QUERY_ROOT });
 

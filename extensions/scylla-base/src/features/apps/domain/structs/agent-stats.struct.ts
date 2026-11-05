@@ -45,3 +45,7 @@ export const sumOutcomes = (all: JobOutcomes[]): JobOutcomes =>
     }),
     { completed: 0, failed: 0, cancelled: 0, orphaned: 0 },
   );
+
+/** The outcomes of each day, flat, for a chart. */
+export const dailyCountsOf = (stats: AgentStats | undefined) =>
+  (stats?.days ?? []).map(({ day, outcomes }) => ({ day, ...outcomes }));
