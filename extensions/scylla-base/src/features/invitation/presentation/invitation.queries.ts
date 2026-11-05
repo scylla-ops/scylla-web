@@ -1,5 +1,6 @@
 import { getModuleDomain, getQueryClient, mutationOptions, queryOptions } from '@scylla/core-sdk';
 import { i18n } from '@lingui/core';
+import { can, Permission } from '@platform/authz';
 import { toast } from '@scylla/ui/utils';
 import type { InvitationModule } from '../invitation.module.ts';
 import { invitationMessages } from './messages/invitation.messages.ts';
@@ -10,12 +11,12 @@ const repository = () =>
 export const INVITATIONS_QUERY_KEY = (workspaceId: string) => ['invitations', workspaceId] as const;
 
 export const invitationQueries = {
-  /** The open invitations. The caller gates it: `list_invitations` is for the managers. */
-  list: (workspaceId: string | null, options: { enabled?: boolean } = {}) =>
+  /** The open invitations: `list_invitations` is for the managers. */
+  list: (workspaceId: string | null) =>
     queryOptions({
       queryKey: INVITATIONS_QUERY_KEY(workspaceId ?? ''),
       queryFn: () => repository().list(workspaceId!),
-      enabled: (options.enabled ?? true) && !!workspaceId,
+      enabled: !!workspaceId && can(Permission.ADD_WORKSPACE_MEMBER, { workspaceId }),
     }),
 };
 

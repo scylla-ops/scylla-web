@@ -21,9 +21,7 @@
   /** `list_invitations` needs the same right as a grant: the admins of the workspace. */
   const canManage = $derived(can(Permission.ADD_WORKSPACE_MEMBER, { workspaceId: workspaceId }));
 
-  const invitations = createQuery(() =>
-    invitationQueries.list(workspaceId, { enabled: canManage }),
-  );
+  const invitations = createQuery(() => invitationQueries.list(workspaceId));
   const resend = createMutation(() => invitationMutations.resend());
   const revoke = createMutation(() => invitationMutations.revoke());
 </script>

@@ -118,9 +118,7 @@
     if (workspaceId) void invalidateWorkspaceMembers(workspaceId);
   };
 
-  const invitationsQuery = createQuery(() =>
-    invitationQueries.list(workspaceId, { enabled: canManage }),
-  );
+  const invitationsQuery = createQuery(() => invitationQueries.list(workspaceId));
 
   const zoneContext: WorkspaceMembersContext = $derived({
     workspaceId: workspaceId ?? '',
