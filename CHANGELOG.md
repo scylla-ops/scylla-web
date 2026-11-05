@@ -12,6 +12,46 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Added
 
+**The port to the new backend**
+
+- The sign-in uses `AccountService`, with a session cookie and its refresh. The errors of the server
+  have typed details.
+- The page of a failed sign-in, with a card for each code, and the page that links a provider with
+  the password of the account.
+- Invitations to a workspace by email.
+- The account page has the owners, the change of an email, the linked identities and the instance
+  admins.
+- The secrets of a project, the pipelines, the jobs, the triggers and the apps run on the new
+  services. The dashboard and the onboarding tour are back.
+- End-to-end tests with Playwright, against a real CE server. Dependabot for npm and GitHub Actions.
+
+**Members and roles**
+
+- The Access group of the sidebar, and the Instance section.
+- The members and the roles of a workspace, the access of a member, the last owner, and the apps of
+  the members.
+- The pages of the roles, and the instance roles on the page of the users.
+- The limit of the workspaces on the settings page of the instance.
+
+**Machines**
+
+- The agents and the apps fold under Machines in the sidebar.
+- A new list of the agents and a new agent page, with empty, no-access and no-key states. A new
+  agent takes three steps, and the install command says what it needs.
+- A new app takes a token, a CI identity or a key pair. The list of the apps shows its credentials,
+  its access and its last use. The page of an app manages its credentials.
+- The stats of an app, its API tokens and its CI identities. The dashboard draws the agent outcomes
+  from the stats of the server.
+
+**Personal tokens and phones**
+
+- The personal tokens on the account page, with a switch on the instance and on each workspace.
+- Agents, apps and personal tokens show as cards on a phone. The screens of an agent, of an app and
+  of the account fit a phone.
+- A skeleton for each loading state.
+
+**The look of the design**
+
 - `pnpm test:file`, `pnpm test:name`, `pnpm test:dir` and `pnpm test:changed` run a part of the tests
   with no coverage, so a developer does not wait for the whole suite. The tests also run on Node 25
   with no flag.
@@ -31,6 +71,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Changed
 
+- **Breaking:** the app runs on the API of the new backend. The protos come from the submodule
+  `protos` (`scylla-protos`), and the code and each text say workspace, not organization.
+- The server holds the build of this app in its binary and serves it on its one port. The build
+  must have no `VITE_API_URL`, so the app calls the origin that serves it. Vite on a second port is
+  for development only.
 - **Breaking:** `MemberRow` of `@scylla/base-sdk` no longer has `isInstanceAdmin` and
   `fromInstanceOnly`, and the rows of `buildProjectMemberRows` no longer have `changeIn`.
 - **Breaking:** `NavSectionDefinition` of `@scylla/core-sdk` has no `header`. Use `railItem` or
@@ -45,6 +90,17 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
+- A job shows why it failed and why a node failed or was skipped, and names its agent. It says when
+  no log was written, and no longer calls a finished job live. The start of a long last line stays
+  in view.
+- A folding group of the sidebar stays open when the page leaves it, and a tab of a page changes
+  with no new mount.
+- The days to an expiry are rounded, and the texts count one job or one project.
+- The delete of an agent says "agent deleted", and the page no longer reads an app after its delete.
+- An added member says that a member was added, and not the label of the button. The list of the
+  invitations has its own permission check. The email hint shows only to a caller who cannot browse
+  the users.
+- French uses one word for a run and one text for Completed.
 - A person who looks at the members of a workspace or of a project no longer sees the instance
   admins. A member with a role here shows only that role, with no sign of a role of the instance.
   Instance › Users still shows the instance admins.
