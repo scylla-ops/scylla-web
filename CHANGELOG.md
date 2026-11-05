@@ -18,6 +18,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the user moves the view.
 - A segmented control of the pipeline editor (node style, node kind, shell) keeps its choice when
   the user presses the selected segment. Before, the segment looked not selected.
+- The connection points of the blueprint nodes are easier to see and to catch. A point becomes
+  larger and takes the primary color when the pointer is near it, and the user can pull a link from
+  that zone.
 
 ## [0.6.0] - 2026-11-01
 

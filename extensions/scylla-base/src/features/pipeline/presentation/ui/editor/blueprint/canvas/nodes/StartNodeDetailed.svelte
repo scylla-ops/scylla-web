@@ -5,6 +5,7 @@
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import PlayIcon from '@lucide/svelte/icons/play';
   import { DETAILED_NODE } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
+  import { START_HANDLE_CLASS } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
   import type { StartNodeViewProps } from './node-appearances.registry.ts';
 
   let { name, selected }: StartNodeViewProps = $props();
@@ -26,5 +27,5 @@
     </p>
     <p class="truncate text-[13px] font-semibold">{name}</p>
   </div>
-  <Handle type="source" position={Position.Right} class="size-2.5! border-[1.5px]! border-primary! bg-card!" />
+  <Handle type="source" position={Position.Right} class={START_HANDLE_CLASS} />
 </div>
