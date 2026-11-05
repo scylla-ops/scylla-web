@@ -22,7 +22,7 @@ let grant: ReturnType<typeof vi.fn>;
 let create: ReturnType<typeof vi.fn>;
 let teardown: Array<() => void> = [];
 
-const open = (held: string[]) => {
+const open = (held: string[], directory: { canBrowse: boolean } | null = null) => {
   grant = vi.fn().mockResolvedValue(undefined);
   create = vi.fn().mockResolvedValue({ id: 'i-1' });
   const cache = withQueryClient();
@@ -54,9 +54,18 @@ const open = (held: string[]) => {
     onOpenChange: vi.fn(),
     workspaceId: 'w-1',
     workspaceName: 'acme',
-    candidates: [{ id: 'u-1', username: 'lina', displayName: 'Lina Moreau' }],
+    candidates: directory ? [] : [{ id: 'u-1', username: 'lina', displayName: 'Lina Moreau' }],
+    canBrowse: directory?.canBrowse ?? true,
     onAdded: vi.fn(),
   });
+};
+
+/** The dialog takes the focus just after it opens: a key sent before that is lost. */
+const ready = async () => {
+  await screen.findByText('Workspace member');
+  await vi.waitFor(() =>
+    expect(screen.getByRole('dialog')).toContainElement(document.activeElement as HTMLElement),
+  );
 };
 
 beforeEach(() => {
@@ -73,9 +82,21 @@ afterEach(() => {
 });
 
 describe('AddMembersDialog', () => {
+  it('says that only an email adds someone to a caller who cannot browse', () => {
+    open(['pipelines.edit'], { canBrowse: false });
+
+    expect(screen.getByText(/You cannot browse the users/)).toBeInTheDocument();
+  });
+
+  it('does not say it to a caller who can browse, with no one left to add', () => {
+    open(['pipelines.edit'], { canBrowse: true });
+
+    expect(screen.queryByText(/You cannot browse the users/)).not.toBeInTheDocument();
+  });
+
   it('gives the workspace role to a person of the directory', async () => {
     open(['pipelines.edit', 'pipelines.view']);
-    await screen.findByText('Workspace member');
+    await ready();
 
     await userEvent.type(screen.getByLabelText('People'), 'lina');
     await userEvent.click(await screen.findByRole('button', { name: /Lina Moreau/ }));
@@ -88,7 +109,7 @@ describe('AddMembersDialog', () => {
 
   it('makes an invitation from an email', async () => {
     open(['pipelines.edit', 'pipelines.view']);
-    await screen.findByText('Workspace member');
+    await ready();
 
     await userEvent.type(screen.getByLabelText('People'), 'new@acme.dev{Enter}');
     await userEvent.click(screen.getByRole('button', { name: 'Add 1 member' }));

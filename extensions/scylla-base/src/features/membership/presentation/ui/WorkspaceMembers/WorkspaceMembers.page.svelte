@@ -253,6 +253,7 @@
       {workspaceId}
       {workspaceName}
       {candidates}
+      canBrowse={canListUsers}
       onAdded={refresh}
     />
 

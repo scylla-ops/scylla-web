@@ -39,12 +39,22 @@
     onOpenChange: (open: boolean) => void;
     workspaceId: string;
     workspaceName: string;
-    /** The people that the caller can browse. Empty: only an email adds someone. */
+    /** The people of the directory that are not in the workspace yet. */
     candidates: readonly UserSummary[];
+    /** Whether the caller can read the directory. Without it, only an email adds someone. */
+    canBrowse: boolean;
     onAdded: () => void;
   }
 
-  let { open, onOpenChange, workspaceId, workspaceName, candidates, onAdded }: Props = $props();
+  let {
+    open,
+    onOpenChange,
+    workspaceId,
+    workspaceName,
+    candidates,
+    canBrowse,
+    onAdded,
+  }: Props = $props();
 
   type Chip = { user: UserSummary } | { email: string };
   interface ProjectRow {
@@ -243,7 +253,7 @@
           {/each}
         </ul>
       {/if}
-      {#if candidates.length === 0}
+      {#if !canBrowse}
         <p class="text-xs text-muted-foreground">{t(membershipMessages.emailOnlyHint)}</p>
       {/if}
     </div>
