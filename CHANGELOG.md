@@ -12,6 +12,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
+- The UI uses Funnel Sans, the text font of the brand. Before, it used the system font of the browser.
 - The blueprint of the pipeline editor opens with its nodes in the middle of the canvas. Before,
   they showed on the left. The view frames the nodes again when the canvas changes size, until
   the user moves the view.

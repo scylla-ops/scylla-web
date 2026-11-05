@@ -7,6 +7,22 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: 'Funnel Sans';
+  src: url('./assets/fonts/FunnelSans-VariableFont_wght.woff2') format('woff2');
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Funnel Sans';
+  src: url('./assets/fonts/FunnelSans-Italic-VariableFont_wght.woff2') format('woff2');
+  font-weight: 300 800;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
   --background: #F4F7EB;
   --foreground: #272921;
@@ -170,6 +186,8 @@
 }
 
 @theme inline {
+  --font-sans: 'Funnel Sans', system-ui, sans-serif;
+
   /* Removes the default palette of Tailwind: a class can use only the colors of this theme. */
   --color-*: initial;
 
