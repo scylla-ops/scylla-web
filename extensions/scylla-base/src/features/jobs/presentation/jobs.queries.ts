@@ -42,6 +42,8 @@ export const jobQueries = {
       queryKey: [...JOBS_QUERY_KEY(pipelineId), pagination],
       enabled: (options.enabled ?? true) && !!pipelineId,
       queryFn: () => repository().getByPipelineId(pipelineId, pagination),
+      placeholderData: previous =>
+        previous?.items[0]?.pipelineId === pipelineId ? previous : undefined,
       staleTime: 0,
       refetchInterval: query => (hasActive(query.state.data?.items ?? []) ? 5000 : false),
     }),

@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { QueryClient } from '@tanstack/query-core';
-import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
+import { QueryClient, QueryObserver } from '@tanstack/query-core';
+import { getQueryClient, setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '@platform/context';
@@ -124,6 +124,31 @@ describe('jobQueries.byPipeline', () => {
     expect(interval(withData(page([job({ status: 'running' })])))).toBe(5000);
     expect(interval(withData(page([job({ status: 'pending' })])))).toBe(5000);
     expect(interval(withData(page([job({ status: 'completed' })])))).toBe(false);
+  });
+
+  describe('while another page of the list loads', () => {
+    const observe = async (pipelineId: string, next: string) => {
+      const observer = new QueryObserver<PaginatedList<JobEntity>>(
+        getQueryClient(),
+        jobQueries.byPipeline(pipelineId, { page: 1, pageSize: 8 }),
+      );
+      const stop = observer.subscribe(() => {});
+      await vi.waitFor(() => expect(observer.getCurrentResult().isSuccess).toBe(true));
+
+      vi.mocked(repository.getByPipelineId).mockReturnValue(new Promise(() => {}));
+      observer.setOptions(jobQueries.byPipeline(next, { page: 1, pageSize: 7 }));
+      const { data } = observer.getCurrentResult();
+      stop();
+      return data;
+    };
+
+    it('keeps the rows: an empty list hides the banner, which changes the page size again', async () => {
+      expect((await observe('pipeline-1', 'pipeline-1'))?.items).toEqual([job()]);
+    });
+
+    it('does not show the rows of another pipeline', async () => {
+      expect(await observe('pipeline-1', 'pipeline-2')).toBeUndefined();
+    });
   });
 });
 
