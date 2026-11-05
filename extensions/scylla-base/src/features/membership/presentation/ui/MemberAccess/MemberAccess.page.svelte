@@ -112,7 +112,7 @@
   {:else}
     <header class="flex items-start justify-between gap-6">
       <div class="flex flex-col gap-2">
-        <h1 class="text-3xl font-semibold tracking-tight">{name}</h1>
+        <h1>{name}</h1>
         <p class="max-w-3xl text-sm text-muted-foreground">{t(whatCanDo(name))}</p>
       </div>
       {#if canManage}
@@ -123,7 +123,7 @@
     <div class="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
       <aside class="rounded-2xl border bg-card">
         <div class="border-b p-5">
-          <h2 class="font-semibold">{t(membershipMessages.theirRoles)}</h2>
+          <h2>{t(membershipMessages.theirRoles)}</h2>
           <p class="mt-1 text-xs text-muted-foreground">{t(membershipMessages.theirRolesHint)}</p>
         </div>
         {#each groups as group (group.key)}
@@ -150,7 +150,7 @@
       <section class="overflow-hidden rounded-2xl border bg-card">
         <div class="flex items-start justify-between gap-4 p-5">
           <div>
-            <h2 class="text-xl font-semibold">{t(membershipMessages.effectiveAccess)}</h2>
+            <h2 class="text-xl">{t(membershipMessages.effectiveAccess)}</h2>
             <p class="mt-1 text-xs text-muted-foreground">
               {t(effectiveHint(scopeName))}
             </p>

@@ -8,6 +8,6 @@
   let { class: className, children, ...rest }: Props = $props();
 </script>
 
-<div data-slot="card-title" class={cn('text-sm leading-5 font-medium', className)} {...rest}>
+<div data-slot="card-title" class={cn('text-sm leading-5', className)} {...rest}>
   {@render children?.()}
 </div>

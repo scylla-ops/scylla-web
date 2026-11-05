@@ -45,7 +45,7 @@
         in:fade={{ duration: prefersReducedMotion() ? 0 : SECTION_FADE_MS }}
       >
         <div class="flex h-12 shrink-0 items-center px-4">
-          <h2 class="truncate text-base font-medium" title={content.title}>{content.title}</h2>
+          <h2 class="truncate text-base" title={content.title}>{content.title}</h2>
         </div>
         <ul class="relative flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2">
           {#each content.pages as page (page.href)}

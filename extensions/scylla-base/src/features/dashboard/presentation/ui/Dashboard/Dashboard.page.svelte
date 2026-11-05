@@ -127,7 +127,7 @@
 
     <section class="flex flex-1 flex-col gap-3">
       <div class="flex shrink-0 items-center justify-between">
-        <h2 class="text-base font-semibold">{t(dashboardMessages.projects)}</h2>
+        <h2 class="text-base">{t(dashboardMessages.projects)}</h2>
         <button
           type="button"
           onclick={() => scyllaNavigate.goToWorkspaceRoute('/projects')}
@@ -168,7 +168,7 @@
                     <div class="rounded-md bg-primary/10 p-1.5 shrink-0">
                       <FolderIcon class="h-3.5 w-3.5 text-primary" />
                     </div>
-                    <CardTitle class="text-sm font-semibold truncate" title={project.name}>
+                    <CardTitle class="text-sm truncate" title={project.name}>
                       {project.name}
                     </CardTitle>
                   </div>
@@ -192,7 +192,7 @@
     <Separator class="shrink-0" />
 
     <section class="flex flex-1 flex-col gap-3">
-      <h2 class="shrink-0 text-base font-semibold">{t(dashboardMessages.allPipelines)}</h2>
+      <h2 class="shrink-0 text-base">{t(dashboardMessages.allPipelines)}</h2>
 
       <div class="relative min-h-[10rem] flex-1 overflow-y-auto">
         {#if overview.projectsLoading || overview.pipelinesLoading}
@@ -264,7 +264,7 @@
       <Separator class="shrink-0" />
 
       <section class="flex shrink-0 flex-col gap-3">
-        <h2 class="text-base font-semibold">{t(dashboardMessages.agentOutcomes)}</h2>
+        <h2 class="text-base">{t(dashboardMessages.agentOutcomes)}</h2>
         <AgentOutcomesChart />
       </section>
     {/if}

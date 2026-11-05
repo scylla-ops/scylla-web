@@ -28,7 +28,7 @@
             <highlight.icon class="size-4 text-primary" />
           </span>
           <div class="min-w-0">
-            <p class="text-sm font-semibold text-foreground">{t(highlight.title)}</p>
+            <h3 class="text-sm text-foreground">{t(highlight.title)}</h3>
             <p class="text-sm text-muted-foreground">{t(highlight.description)}</p>
           </div>
         </li>

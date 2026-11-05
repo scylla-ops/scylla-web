@@ -36,7 +36,7 @@
   </span>
   <div class="flex min-w-0 flex-1 flex-col gap-1">
     <div class="flex flex-wrap items-center gap-3">
-      <h1 class="truncate text-2xl font-medium">{app.name}</h1>
+      <h1 class="truncate">{app.name}</h1>
       <Badge variant="outline">{t(messages.appBadge)}</Badge>
       {#if app.disabledAt}
         <Badge variant="secondary">{t(agentsListMessages.disabled)}</Badge>

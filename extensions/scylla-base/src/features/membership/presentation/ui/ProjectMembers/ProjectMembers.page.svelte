@@ -101,7 +101,7 @@
   <div class="flex w-full flex-col gap-4">
     <header class="flex items-start justify-between gap-6">
       <div class="flex flex-col gap-1">
-        <h2 class="text-xl font-semibold">{t(membersOf(projectName))}</h2>
+        <h2 class="text-xl">{t(membersOf(projectName))}</h2>
         <p class="max-w-3xl text-sm text-muted-foreground">
           {t(membershipMessages.projectBlurb)}
         </p>

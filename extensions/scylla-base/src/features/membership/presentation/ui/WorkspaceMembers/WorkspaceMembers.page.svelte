@@ -154,7 +154,7 @@
   <div class="flex w-full flex-col gap-4">
     <header class="flex items-start justify-between gap-6">
       <div class="flex flex-col gap-2">
-        <h1 class="text-3xl font-semibold tracking-tight">{t(membershipMessages.members)}</h1>
+        <h1>{t(membershipMessages.members)}</h1>
         <p class="max-w-3xl text-sm text-muted-foreground">
           {t(workspaceBlurb(workspaceName, workspaceName))}
         </p>

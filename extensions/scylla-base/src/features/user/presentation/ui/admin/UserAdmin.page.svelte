@@ -47,7 +47,7 @@
   <div class="flex w-full flex-col gap-6">
     <header class="flex items-start justify-between gap-6">
       <div class="flex flex-col gap-2">
-        <h1 class="text-3xl font-semibold tracking-tight">{t(userMessages.users)}</h1>
+        <h1>{t(userMessages.users)}</h1>
         <p class="max-w-3xl text-sm text-muted-foreground">{t(userMessages.usersHint)}</p>
       </div>
       {#if canCreate}

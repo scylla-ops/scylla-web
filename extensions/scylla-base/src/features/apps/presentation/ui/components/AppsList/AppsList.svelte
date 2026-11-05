@@ -76,7 +76,7 @@
       >
         <PlugIcon class="size-5" />
       </span>
-      <h2 class="text-xl font-medium">
+      <h2 class="text-xl">
         {canCreate ? t(messages.firstTitle) : t(messages.emptyTitle)}
       </h2>
       <p class="max-w-md text-sm text-muted-foreground">

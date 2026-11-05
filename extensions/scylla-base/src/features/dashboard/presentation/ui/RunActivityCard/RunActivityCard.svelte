@@ -35,7 +35,7 @@
 <!-- Computed over the latest window (no backend aggregate): the card says when it is partial. -->
 <Card class="py-5">
   <CardHeader class="px-5 pb-0">
-    <CardTitle class="flex items-center justify-between text-base font-semibold">
+    <CardTitle class="flex items-center justify-between text-base">
       <span class="flex items-center gap-2">
         <ActivityIcon class="h-4 w-4 text-primary" />
         {t(dashboardMessages.runActivity)}

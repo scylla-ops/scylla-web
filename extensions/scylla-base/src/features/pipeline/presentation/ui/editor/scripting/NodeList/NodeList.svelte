@@ -67,7 +67,7 @@
       <div role="group" aria-labelledby="{uid}-stage-{index}">
         <h3
           id="{uid}-stage-{index}"
-          class="px-2.5 pt-1 pb-0.5 text-[11px] font-medium tracking-wide text-muted-foreground uppercase"
+          class="px-2.5 pt-1 pb-0.5 text-[11px] tracking-wide text-muted-foreground uppercase"
         >
           {t(scriptingMessages.stage(index + 1))}
         </h3>

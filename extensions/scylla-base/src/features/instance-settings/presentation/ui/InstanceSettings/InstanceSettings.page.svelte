@@ -43,7 +43,7 @@
 
 <div class="mx-auto flex w-full max-w-4xl flex-col gap-4 pb-8">
   <div>
-    <h1 class="text-2xl font-semibold">{t(messages.title)}</h1>
+    <h1>{t(messages.title)}</h1>
     <p class="text-sm text-muted-foreground">{t(messages.description)}</p>
   </div>
 

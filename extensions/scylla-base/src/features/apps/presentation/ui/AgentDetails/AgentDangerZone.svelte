@@ -53,7 +53,7 @@
   class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-destructive/60 p-5"
 >
   <div class="flex flex-col gap-1">
-    <h2 class="text-sm font-medium">{title}</h2>
+    <h2 class="text-sm">{title}</h2>
     <p class="text-xs text-muted-foreground">{body}</p>
   </div>
   <Button

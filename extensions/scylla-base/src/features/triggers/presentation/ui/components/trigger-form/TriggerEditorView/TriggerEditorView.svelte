@@ -45,7 +45,7 @@
       <ZapIcon class="size-5 text-primary" />
     </div>
     <div class="flex min-w-0 flex-col gap-1">
-      <h1 class="text-2xl font-semibold">
+      <h1>
         {editor.isEdit ? t(triggersMessages.editTrigger) : t(triggersMessages.newTrigger)}
       </h1>
       <p class="text-sm text-muted-foreground">{t(triggersMessages.formDescription)}</p>

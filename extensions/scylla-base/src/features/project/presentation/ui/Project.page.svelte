@@ -12,9 +12,9 @@
 {#if !workspaceId}
   <div class="flex h-full items-center justify-center">
     <div class="space-y-2 text-center">
-      <p class="text-lg font-semibold text-muted-foreground">
+      <h2 class="text-lg text-muted-foreground">
         {t(projectMessages.noWorkspace)}
-      </p>
+      </h2>
       <p class="text-sm text-muted-foreground">{t(projectMessages.noWorkspaceHint)}</p>
     </div>
   </div>

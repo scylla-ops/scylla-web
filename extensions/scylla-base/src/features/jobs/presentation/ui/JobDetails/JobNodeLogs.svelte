@@ -82,7 +82,7 @@
       <div class="flex size-8 items-center justify-center rounded-lg bg-primary/10">
         <TerminalIcon class="size-4 text-primary" />
       </div>
-      <h2 class="text-lg font-semibold text-foreground">{t(jobsMessages.logs)}</h2>
+      <h2 class="text-lg text-foreground">{t(jobsMessages.logs)}</h2>
       {#if isActiveStatus(job.status)}
         <span class="flex items-center gap-1.5 text-sm text-muted-foreground">
           <RadioIcon class="size-4 animate-pulse text-green-500" />

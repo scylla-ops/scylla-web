@@ -56,7 +56,7 @@
 
   <header class="flex items-start justify-between gap-6">
     <div class="flex flex-col gap-2">
-      <h1 class="text-3xl font-semibold tracking-tight">{roleName(role)}</h1>
+      <h1>{roleName(role)}</h1>
       <div class="flex items-center gap-2">
         <LevelTag level={role.level} />
         <OriginTag builtin={role.builtin} />
@@ -73,7 +73,7 @@
   <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
     <section class="overflow-hidden rounded-2xl border bg-card">
       <div class="p-5">
-        <h2 class="font-semibold">{t(rolesMessages.permissions)}</h2>
+        <h2>{t(rolesMessages.permissions)}</h2>
         <p class="mt-1 text-xs text-muted-foreground">
           {permissionCount(role, areas)} · {t(rolesMessages.readOnlyHint)}
         </p>
@@ -84,7 +84,7 @@
     </section>
 
     <aside class="rounded-2xl border bg-card">
-      <h2 class="border-b p-5 font-semibold">{t(rolesMessages.about)}</h2>
+      <h2 class="border-b p-5">{t(rolesMessages.about)}</h2>
       <dl class="grid grid-cols-[96px_minmax(0,1fr)] items-center gap-x-4 gap-y-3 p-5 text-sm">
         <dt class="text-xs text-muted-foreground">{t(rolesMessages.level)}</dt>
         <dd><LevelTag level={role.level} /></dd>
@@ -99,7 +99,7 @@
       </dl>
       {#if canSeeHolders && holdersQuery.data}
         <div class="border-t p-5">
-          <h3 class="text-sm font-medium">{t(holdersTotal(holdersQuery.data.total))}</h3>
+          <h3 class="text-sm">{t(holdersTotal(holdersQuery.data.total))}</h3>
           <ul class="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
             {#each shown as holder (`${holder.actorId}-${holder.scopeId}`)}
               <li class="flex justify-between gap-2">

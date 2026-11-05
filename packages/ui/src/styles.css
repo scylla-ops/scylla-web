@@ -257,6 +257,21 @@
     cursor: not-allowed;
   }
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  [role='heading'],
+  [data-slot='card-title'] {
+    @apply font-display font-medium;
+  }
+
+  h1:not([data-slot='card-title'] h1) {
+    @apply text-2xl leading-tight tracking-[-0.03em] sm:text-[2rem];
+  }
+
   /* The canvas is `--sidebar` — the shell's base surface, which the panels sit on
      top of. `index.html` hardcodes the same two hexes on `html` so the first paint
      is not white. Since `html` carries a background of its own, the body's no

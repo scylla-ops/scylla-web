@@ -82,7 +82,7 @@
 {:else}
   <section class="overflow-hidden rounded-2xl border bg-card">
     <div class="p-5">
-      <h2 class="font-semibold">{t(workspaceRolesTitle(workspaceName))}</h2>
+      <h2>{t(workspaceRolesTitle(workspaceName))}</h2>
       <p class="mt-1 text-xs text-muted-foreground">{t(rolesMessages.ownRolesHint)}</p>
     </div>
     {#if own.length > 0}
@@ -99,7 +99,7 @@
 
   <section class="overflow-hidden rounded-2xl border bg-card">
     <div class="p-5">
-      <h2 class="font-semibold">{t(rolesMessages.fromInstance)}</h2>
+      <h2>{t(rolesMessages.fromInstance)}</h2>
       <p class="mt-1 text-xs text-muted-foreground">{t(rolesMessages.fromInstanceHint)}</p>
     </div>
     {@render rows(others)}

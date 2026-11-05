@@ -75,10 +75,10 @@
   style:visibility={height > 0 ? 'visible' : 'hidden'}
 >
   {#if title}
-    <p class="text-base font-semibold">
+    <h2 class="text-base">
       {#if count}{count.step}.{/if}
       {title}
-    </p>
+    </h2>
   {/if}
   {#each body as paragraph, index (index)}
     <p class="text-[13px] leading-snug text-muted-foreground">{paragraph}</p>

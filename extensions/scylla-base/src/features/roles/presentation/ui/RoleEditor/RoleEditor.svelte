@@ -207,7 +207,7 @@
 
   <header class="flex items-start justify-between gap-6">
     <div class="flex flex-col gap-2">
-      <h1 class="text-3xl font-semibold tracking-tight">
+      <h1>
         {role ? roleName(role) : t(rolesMessages.newRole)}
       </h1>
       <p class="max-w-3xl text-sm text-muted-foreground">{t(rolesMessages.newRoleHint)}</p>
@@ -230,7 +230,7 @@
   <div class="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
     <div class="flex flex-col gap-6">
       <section class="flex flex-col gap-5 rounded-2xl border bg-card p-5">
-        <h2 class="text-xl font-semibold">{t(rolesMessages.details)}</h2>
+        <h2 class="text-xl">{t(rolesMessages.details)}</h2>
 
         <div class="flex flex-col gap-2">
           <Label for="role-name">{t(rolesMessages.name)}</Label>
@@ -364,7 +364,7 @@
         </div>
       {/if}
       <div class="p-5">
-        <h2 class="text-xl font-semibold">{t(rolesMessages.permissions)}</h2>
+        <h2 class="text-xl">{t(rolesMessages.permissions)}</h2>
         <p class="mt-1 text-xs text-muted-foreground tabular-nums">
           {t(selectedOf(selected.size, total))}
         </p>

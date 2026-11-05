@@ -15,7 +15,7 @@
 <header class="flex items-center gap-4 border-b pb-6">
   <UserAvatar {user} size="lg" class="size-14 text-xl" />
   <div class="flex min-w-0 flex-col gap-1">
-    <h1 class="truncate text-2xl font-semibold">{userName(user)}</h1>
+    <h1 class="truncate">{userName(user)}</h1>
     <div class="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
       {#if user.email}
         <span class="truncate">{user.email}</span>

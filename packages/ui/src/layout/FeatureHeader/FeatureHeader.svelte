@@ -124,9 +124,7 @@
 <div class="flex w-full flex-row flex-wrap items-center justify-between gap-x-4 gap-y-3">
   <div class="flex min-w-0 flex-col gap-0.75">
     <div class="flex flex-row flex-wrap gap-4">
-      <h1
-        class="min-w-0 font-display text-2xl leading-tight font-medium tracking-[-0.03em] break-words sm:text-[2rem]"
-      >
+      <h1 class="min-w-0 break-words">
         {#if count !== undefined}<span class="mr-2 text-primary">{count}</span>{/if}
         <span class="text-foreground">{displayLabel}</span>
       </h1>

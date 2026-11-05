@@ -56,7 +56,7 @@
 <div class="flex shrink-0 flex-col gap-4">
   <div class="flex flex-wrap items-center justify-between gap-3">
     <div class="flex min-w-0 items-center gap-3">
-      <h1 class="text-xl font-semibold text-foreground">{t(jobsMessages.job)}</h1>
+      <h1 class="text-foreground">{t(jobsMessages.job)}</h1>
       <Badge variant="outline" class="gap-1 pr-1 font-mono text-xs">
         <CopyableText value={job.id} copyLabel={t(jobsMessages.copyJobId)} />
       </Badge>
@@ -123,7 +123,7 @@
   {/if}
 
   <div>
-    <h2 class="mb-2 text-lg font-semibold text-foreground">{t(jobsMessages.timeline)}</h2>
+    <h2 class="mb-2 text-lg text-foreground">{t(jobsMessages.timeline)}</h2>
     <JobTimeline nodeExecutions={job.nodeExecutions} {onSelectNode} />
   </div>
 </div>

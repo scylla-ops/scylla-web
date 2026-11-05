@@ -97,7 +97,7 @@
 <section class="flex flex-col gap-4">
   <div class="flex flex-wrap items-start justify-between gap-3">
     <div>
-      <h2 class="text-xl font-semibold">{t(messages.title)}</h2>
+      <h2 class="text-xl">{t(messages.title)}</h2>
       <p class="text-sm text-muted-foreground">{t(messages.description)}</p>
     </div>
     {#if enabled && mine.data}

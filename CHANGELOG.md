@@ -94,6 +94,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
+- All titles use one font, Funnel Display, and one weight. All page titles have one size. Before,
+  only the title of a list page used this font, and the page titles had four sizes.
 - A job shows why it failed and why a node failed or was skipped, and names its agent. It says when
   no log was written, and no longer calls a finished job live. The start of a long last line stays
   in view.

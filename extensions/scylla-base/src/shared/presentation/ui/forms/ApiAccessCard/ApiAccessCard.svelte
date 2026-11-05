@@ -17,7 +17,7 @@
 
 <Card class="gap-0 py-0">
   <CardHeader class="border-b py-4">
-    <CardTitle><h2 class="text-sm font-medium">{t(messages.title)}</h2></CardTitle>
+    <CardTitle><h2 class="text-sm">{t(messages.title)}</h2></CardTitle>
   </CardHeader>
   <CardContent class="flex items-center justify-between gap-6 py-4">
     <div class="min-w-0">

@@ -23,7 +23,7 @@
 
 <div class="flex flex-col items-center gap-3 rounded-2xl border bg-card p-10 text-center">
   <LockIcon class="size-6 text-muted-foreground" />
-  <h1 class="text-xl font-semibold">{t(noAccessTitle(workspaceName))}</h1>
+  <h1>{t(noAccessTitle(workspaceName))}</h1>
   <p class="max-w-md text-sm text-muted-foreground">{t(rolesMessages.noAccessHint)}</p>
   {#if givers.length > 0}
     <ul class="flex flex-col gap-1 text-sm">

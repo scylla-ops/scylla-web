@@ -38,7 +38,7 @@
   </span>
   <div class="flex min-w-0 flex-1 flex-col gap-1">
     <div class="flex flex-wrap items-center gap-3">
-      <h1 class="truncate text-2xl font-medium">{agent.name}</h1>
+      <h1 class="truncate">{agent.name}</h1>
       <span data-tour="agent-status" data-online={agent.connected}>
         <AgentStatusPill {agent} {noActiveKey} />
       </span>

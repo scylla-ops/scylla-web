@@ -245,6 +245,12 @@ selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of 
 
 ## Rules that bite here
 
+- **All titles use one font, and `styles.css` sets it.** Its `@layer base` gives `font-display`
+  and `font-medium` to `h1` to `h6`, to `[role='heading']` and to `[data-slot='card-title']`, and
+  one size to each `h1` that is not in a card title. A utility replaces a rule of `@layer base`.
+  Thus a title has no font class and no weight class, and an `h1` has no size, `leading-*` or
+  `tracking-*` class. `layout/__test__/title-font.test.ts` fails when it has one. Text that is a
+  title is a heading element: a `p` with a large or bold class keeps Funnel Sans.
 - **A denied `GatedButton` is `aria-disabled`, not `disabled`.** A `disabled` button cannot
   take the focus. Then a keyboard or screen reader user cannot get the reason, and a dialog
   cannot give the focus back to the button. The denied button stays focusable,

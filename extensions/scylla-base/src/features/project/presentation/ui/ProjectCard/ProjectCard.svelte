@@ -48,7 +48,7 @@
         <div class="shrink-0 rounded-lg bg-primary/10 p-2 transition-colors group-hover:bg-primary/20">
           <FolderIcon class="h-5 w-5 text-primary" />
         </div>
-        <CardTitle class="min-w-0 truncate text-base font-semibold" title={project.name}>
+        <CardTitle class="min-w-0 truncate text-base" title={project.name}>
           {project.name}
         </CardTitle>
       </div>

@@ -21,7 +21,7 @@
   <CardContent class="flex flex-col items-center gap-4 text-center">
     <UserAvatar {user} size="lg" />
     <div class="flex max-w-full min-w-0 flex-col gap-1">
-      <svelte:element this={isPageTitle ? 'h1' : 'p'} class="truncate text-xl font-semibold">
+      <svelte:element this={isPageTitle ? 'h1' : 'h2'} class="truncate">
         {userName(user)}
       </svelte:element>
       {#if user.email}
