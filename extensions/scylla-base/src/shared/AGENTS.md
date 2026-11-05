@@ -33,7 +33,7 @@ infrastructure/grpc/api-token.mapper.ts  apiTokenToDomain, limitsToProto, expiry
 presentation/ui/index.ts             `@shared/presentation/ui`
   data-display/                      StatusBar, STATUS_ICONS / getStatusIcon,
                                      UserIdentity, UserAvatar, userName, userSecondaryLine,
-                                     UserIdentityProfile
+                                     UserIdentityProfile, ProviderMark
 locales/                             the catalog of these files
 ```
 

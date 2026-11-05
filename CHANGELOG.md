@@ -18,6 +18,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   have typed details.
 - The page of a failed sign-in, with a card for each code, and the page that links a provider with
   the password of the account.
+- The sign-in buttons and the linked identities show the mark of the provider.
 - Invitations to a workspace by email.
 - The account page has the owners, the change of an email, the linked identities and the instance
   admins.

@@ -6,6 +6,7 @@
   import { toast } from '@scylla/ui/utils';
   import { i18n } from '@lingui/core';
   import { loginQueries, providerStartUrl } from '@base/features/login';
+  import { ProviderMark } from '@shared/presentation/ui';
   import { formatDate } from '@shared/utils/date-utils.ts';
   import {
     myIdentityQueries,
@@ -18,8 +19,9 @@
   const unlink = createMutation(() => userMutations.unlinkIdentity());
 
   const apiUrl: string = import.meta.env.VITE_API_URL ?? '';
-  const nameOf = (slug: string) =>
-    providers.data?.providers.find(provider => provider.slug === slug)?.displayName ?? slug;
+  const providerOf = (slug: string) =>
+    providers.data?.providers.find(provider => provider.slug === slug);
+  const nameOf = (slug: string) => providerOf(slug)?.displayName ?? slug;
 
   /** The providers with no identity of the user yet. */
   const linkable = $derived(
@@ -46,7 +48,10 @@
   {#each methods.data?.identities ?? [] as identity (`${identity.provider}/${identity.subject}`)}
     <li class="flex items-center gap-3 py-2">
       <span class="min-w-0 flex-1">
-        <span class="block font-medium">{nameOf(identity.provider)}</span>
+        <span class="flex items-center gap-1.5 font-medium">
+          <ProviderMark kind={providerOf(identity.provider)?.kind ?? ''} />
+          {nameOf(identity.provider)}
+        </span>
         <span class="block truncate text-xs text-muted-foreground">
           {identity.email || identity.subject} · {t(userMessages.linkedOn(formatDate(identity.linkedAt)))}
         </span>
@@ -78,6 +83,7 @@
           link: true,
         })}
       >
+        <ProviderMark kind={provider.kind} />
         {t(userMessages.linkProvider(provider.displayName))}
       </Button>
     {/each}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
+  import { ProviderMark } from '@shared/presentation/ui';
   import type { SignInProvider } from '@base/features/login/domain/structs/sign-in-methods.struct.ts';
   import { providerStartUrl } from '@base/features/login/presentation/mappers/provider-start.mapper.ts';
   import { signUpMessages } from '@base/features/login/presentation/messages/sign-up.messages.ts';
@@ -30,6 +31,7 @@
         class="w-full"
         href={providerStartUrl(apiUrl, provider.slug, window.location.origin, returnPath)}
       >
+        <ProviderMark kind={provider.kind} />
         {t(signUpMessages.continueWith(provider.displayName))}
       </Button>
     {/each}
