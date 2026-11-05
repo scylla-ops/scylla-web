@@ -108,9 +108,9 @@ changes only for a new mount, a new section or a new part of the shell.
 - A *mutation* that the server refused because the item changed since it was read (`ABORTED`,
   `isConflict()`) is shown as a conflict, with a warning toast in the words of the app, and
   `reportQueryError` invalidates every query (`getQueryClient().invalidateQueries()`), so that
-  the screen shows what the server has. The client does not know which item the server
-  refused, and a conflict is rare: one full invalidation is cheap. A page adds nothing of its
-  own for it.
+  the screen shows what the server has. An open form or an unsaved draft keeps the input of the
+  user. The client does not know which item the server refused, and a conflict is rare: one full
+  invalidation is cheap. A page adds nothing of its own for it.
 - On `UNAUTHENTICATED`, `reportQueryError` signs out and loads `loginPathBackTo(window.location)`
   (`features/login`): after the sign-in, the user comes back to the page, with its query and its
   fragment. The return path is in the fragment of `/login`, thus a token of the page (the

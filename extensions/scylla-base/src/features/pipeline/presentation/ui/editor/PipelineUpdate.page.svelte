@@ -26,7 +26,7 @@
 
 {#if pipelineQuery.isLoading}
   <p>{t(pipelineMessages.loading)}</p>
-{:else if pipelineQuery.isError}
+{:else if pipelineQuery.isLoadingError}
   <ErrorState message={t(pipelineMessages.loadPipelineError)} />
 {:else}
   <div class="flex h-full flex-col gap-4">

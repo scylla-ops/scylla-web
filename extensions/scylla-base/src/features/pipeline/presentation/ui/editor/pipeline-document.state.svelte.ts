@@ -1,3 +1,4 @@
+import { untrack } from 'svelte';
 import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import * as pipelineDocument from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
 import { pipelineIssue } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
@@ -19,8 +20,9 @@ export const createPipelineDocument = (params: PipelineDocumentParams) => {
     const initial = params.initialScript();
     if (initial === undefined) return;
 
+    const isClean = untrack(() => script === baseline);
     baseline = initial;
-    script = initial;
+    if (isClean) script = initial;
   });
 
   const parsed = $derived(pipelineDocument.parseScript(script));

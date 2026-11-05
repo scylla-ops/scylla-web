@@ -99,21 +99,20 @@ describe('reportQueryError', () => {
     reportQueryError(errorWith('ABORTED'), 'mutation');
 
     expect(toastWarning).toHaveBeenCalledWith(
-      'Someone else changed this item in the meantime. The page now shows the latest version.',
+      'Someone else changed this item in the meantime. Check the latest version and try again.',
     );
     expect(toastError).not.toHaveBeenCalled();
-    expect(invalidate).toHaveBeenCalledOnce();
-    expect(invalidate).toHaveBeenCalledWith();
+    expect(invalidate).toHaveBeenCalledExactlyOnceWith();
     expect(localStorage.getItem('token')).toBe('a-token');
   });
 
-  it('does not reload the screen for a query that the server aborted', () => {
+  it('gives a query that the server aborted the generic message, and reloads nothing', () => {
     const invalidate = vi.spyOn(getQueryClient(), 'invalidateQueries').mockResolvedValue();
 
-    reportQueryError(errorWith('ABORTED'), 'query');
+    reportQueryError(new ScyllaError('boom', { code: 'ABORTED', raw: true }), 'query');
 
     expect(toastWarning).not.toHaveBeenCalled();
-    expect(toastError).toHaveBeenCalledOnce();
+    expect(toastError).toHaveBeenCalledExactlyOnceWith('An unexpected error occurred');
     expect(invalidate).not.toHaveBeenCalled();
   });
 

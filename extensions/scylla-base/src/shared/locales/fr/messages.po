@@ -21,7 +21,7 @@ msgstr "Un nom d'utilisateur ne peut pas contenir \"@\"."
 msgid "Agent id copied"
 msgstr "ID d'agent copié"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:121
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:114
 msgid "An unexpected error occurred"
 msgstr "Une erreur inattendue s'est produite"
 
@@ -133,17 +133,13 @@ msgstr "Secret supprimé"
 msgid "Secret updated"
 msgstr "Secret modifié"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:115
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:111
 msgid "Server unreachable"
 msgstr "Serveur injoignable"
 
 #: extensions/scylla-base/src/shared/utils/status-config.ts:66
 msgid "Skipped"
 msgstr "Ignoré"
-
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:118
-msgid "Someone else changed this item in the meantime. The page now shows the latest version."
-msgstr "Quelqu'un d'autre a modifié cet élément entre-temps. La page affiche maintenant la dernière version."
 
 #: extensions/scylla-base/src/shared/utils/status-config.ts:48
 msgid "Success"
@@ -217,6 +213,6 @@ msgstr "Informations utilisateur mises à jour"
 msgid "You cannot delete your own account."
 msgstr "Vous ne pouvez pas supprimer votre propre compte."
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:116
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:112
 msgid "You don't have permission to perform this action"
 msgstr "Vous n'avez pas la permission d'effectuer cette action"

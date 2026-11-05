@@ -11,7 +11,7 @@ describe('retryQueryError', () => {
     }
   });
 
-  it('vetoes a retry of a conflict: the same write fails again until the item is read again', () => {
+  it('does not retry a query that gets ABORTED', () => {
     expect(retryQueryError(0, errorWith('ABORTED'))).toBe(false);
   });
 

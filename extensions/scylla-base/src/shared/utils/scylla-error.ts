@@ -25,20 +25,13 @@ const USER_FACING_CODES: ReadonlySet<ScyllaErrorCode> = new Set<ScyllaErrorCode>
   'INVALID_CREDENTIALS',
 ]);
 
-/**
- * The failures that can pass if the same call is sent again: a network failure, a busy server.
- * Not `ABORTED`: a write that the server refused because the item changed since it was read
- * fails again until the item is read again.
- */
+/** The failures that can pass if the same call is sent again. Not `ABORTED`: see `isConflict`. */
 const TRANSIENT_CODES: ReadonlySet<ScyllaErrorCode> = new Set<ScyllaErrorCode>([
   'UNAVAILABLE',
   'DEADLINE_EXCEEDED',
 ]);
 
-/**
- * The refusals that the server gives on purpose: a normal answer, not a fault. `ABORTED` is a
- * write refused because the item changed since it was read (a conflict).
- */
+/** The refusals that the server gives on purpose: a normal answer, not a fault. */
 const EXPECTED_CODES: ReadonlySet<ScyllaErrorCode> = new Set<ScyllaErrorCode>([
   ...USER_FACING_CODES,
   ...TRANSIENT_CODES,
@@ -93,7 +86,10 @@ export class ScyllaError extends Error {
     return TRANSIENT_CODES.has(this.code);
   }
 
-  /** The server refused a write because the item changed since it was read. */
+  /**
+   * The server refused a write because the item changed since it was read. Sending the same call
+   * again does not resolve it: the user decides.
+   */
   public isConflict(): boolean {
     return this.code === 'ABORTED';
   }
@@ -114,9 +110,6 @@ export class ScyllaError extends Error {
   public userMessage(): string {
     if (this.isNetworkError()) return t`Server unreachable`;
     if (this.isForbidden()) return t`You don't have permission to perform this action`;
-    if (this.isConflict()) {
-      return t`Someone else changed this item in the meantime. The page now shows the latest version.`;
-    }
     if (this.message && (!this.raw || USER_FACING_CODES.has(this.code))) return this.message;
     return t`An unexpected error occurred`;
   }

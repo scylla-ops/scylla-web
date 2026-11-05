@@ -1,3 +1,4 @@
+import { t } from '@lingui/core/macro';
 import { getQueryClient, type QueryErrorHandler } from '@scylla/core-sdk';
 import { toast } from '@scylla/ui/utils';
 import { closeSession, loginPathBackTo } from '@base/features/login';
@@ -21,11 +22,9 @@ const signOutAndReturn = (): void => {
 /**
  * The only error toast of the app: never add an `onError` toast in a query or a
  * mutation. A mutation that fails on the network keeps the user signed in, so
- * that they can retry it. A mutation that the server refused because the item
- * changed since it was read is a conflict: the toast says so, and every query is
- * invalidated so that the screen shows what the server has (the client cannot
- * know which item the server refused). An error that is not a `ScyllaError` is
- * a bug: it gets the generic message.
+ * that they can retry it. A conflict invalidates every query: the client cannot
+ * know which item the server refused. An error that is not a `ScyllaError` is a
+ * bug: it gets the generic message.
  */
 export const reportQueryError: QueryErrorHandler = (thrown, source) => {
   const error = ScyllaError.from(thrown);
@@ -43,7 +42,9 @@ export const reportQueryError: QueryErrorHandler = (thrown, source) => {
   }
 
   if (source === 'mutation' && error.isConflict()) {
-    toast.warning(error.userMessage());
+    toast.warning(
+      t`Someone else changed this item in the meantime. Check the latest version and try again.`,
+    );
     void getQueryClient().invalidateQueries();
     return;
   }

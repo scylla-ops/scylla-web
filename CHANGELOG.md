@@ -13,8 +13,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 ### Added
 
 - A write that the server refused because the item changed in the meantime is shown as such, in
-  the words of the app, and the page reloads what the server has. Before, the user saw an
-  unexpected error, and a query retried on it.
+  the words of the app, and the page reloads what the server has without erasing what the user
+  typed. Before, the user saw an unexpected error, and a query retried on it.
 
 ### Fixed
 
