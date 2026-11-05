@@ -9,19 +9,24 @@ import type { ObjectKind } from './object-ref.struct.ts';
 type Names = Partial<Record<ObjectKind, string>>;
 
 const MAP: Partial<Record<Permission, Names>> = {
-  // The instance: its admins manage the users.
+  // The instance: the users, the workspaces and the roles.
   [Permission.LIST_USERS]: { platform: 'list_users' },
   [Permission.READ_USER]: { platform: 'get_user' },
   [Permission.CREATE_USER]: { platform: 'create_user' },
   [Permission.UPDATE_USER]: { platform: 'update_user' },
   [Permission.DELETE_USER]: { platform: 'delete_user' },
-  [Permission.MANAGE_SYSTEM_GRANTS]: { platform: 'grant_instance_admin' },
+  [Permission.MANAGE_SYSTEM_GRANTS]: { platform: 'grant' },
+  [Permission.MANAGE_INSTANCE_ADMINS]: { platform: 'grant_instance_admin' },
+  [Permission.LIST_ROLES]: { platform: 'list_roles' },
+  [Permission.MANAGE_ROLES]: { platform: 'create_role' },
+  [Permission.CREATE_WORKSPACE]: { platform: 'create_workspace' },
   [Permission.MANAGE_INSTANCE_SETTINGS]: { platform: 'update_instance_settings' },
   // A workspace.
   [Permission.READ_WORKSPACE]: { workspace: 'get_workspace' },
   [Permission.UPDATE_WORKSPACE]: { workspace: 'update_workspace' },
   [Permission.DELETE_WORKSPACE]: { workspace: 'delete_workspace' },
   [Permission.MANAGE_OWNERS]: { workspace: 'add_owner' },
+  [Permission.MANAGE_WORKSPACE_ROLES]: { workspace: 'list_roles' },
   [Permission.LIST_WORKSPACE_MEMBERS]: { workspace: 'list_access' },
   [Permission.ADD_WORKSPACE_MEMBER]: { workspace: 'grant' },
   [Permission.REMOVE_WORKSPACE_MEMBER]: { workspace: 'revoke' },
@@ -83,10 +88,7 @@ const MAP: Partial<Record<Permission, Names>> = {
  * What each signed-in user may do: the server checks these on the caller itself (the `actor`
  * definition), which `CheckPermissions` does not answer.
  */
-export const EVERY_USER: readonly Permission[] = [
-  Permission.CREATE_WORKSPACE,
-  Permission.LIST_WORKSPACES,
-];
+export const EVERY_USER: readonly Permission[] = [Permission.LIST_WORKSPACES];
 
 /** The scope of the UI for each kind of object. */
 export const SCOPE_OF: Record<ObjectKind, PermissionScope> = {

@@ -1,6 +1,7 @@
 import type {
   CreateUserRequest,
   UpdateUserRequest,
+  UserEntry,
 } from '@base/generated/scylla/accounts/v1/user_admin_service.ts';
 import type { Session, User } from '@base/generated/scylla/accounts/v1/user.ts';
 import type { PaginatedList } from '@scylla/ui/structs';
@@ -26,10 +27,22 @@ export function toDomain(user: User): UserEntity {
   };
 }
 
-/** All the users on one page: the console shows them in one table. */
-export function toDomainList(users: User[]): PaginatedList<UserEntity> {
+/** A row of the console: the user, its instance roles, its workspaces and its last sign-in. */
+export function entryToDomain(entry: UserEntry): UserEntity {
+  if (!entry.user) throw new Error('Server returned a row without a user.');
+  const lastSignInAt = timestampToIso(entry.lastSignInAt);
   return {
-    items: users.map(toDomain),
+    ...toDomain(entry.user),
+    instanceRoles: entry.instanceRoles.map(({ key, name, builtin }) => ({ key, name, builtin })),
+    workspaces: entry.workspaces,
+    ...(lastSignInAt ? { lastSignInAt } : {}),
+  };
+}
+
+/** All the users on one page: the console shows them in one table. */
+export function toDomainList(users: UserEntry[]): PaginatedList<UserEntity> {
+  return {
+    items: users.map(entryToDomain),
     pagination: {
       totalCount: users.length,
       page: 1,

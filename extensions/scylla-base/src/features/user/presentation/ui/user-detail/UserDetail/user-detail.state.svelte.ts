@@ -48,7 +48,7 @@ export const createUserDetail = (userId: () => string | undefined) => {
   /** The backend asks for `createUser` at system scope to change an email. */
   const canEditEmail = $derived(canUpdate && can(Permission.CREATE_USER));
   const canDelete = $derived(can(Permission.DELETE_USER));
-  const canChangeAdmin = $derived(can(Permission.MANAGE_SYSTEM_GRANTS));
+  const canChangeAdmin = $derived(can(Permission.MANAGE_INSTANCE_ADMINS));
 
   let confirmStatusChange = $state(false);
   let confirmDelete = $state(false);

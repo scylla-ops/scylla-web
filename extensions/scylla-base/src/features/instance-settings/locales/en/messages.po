@@ -6,6 +6,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
 
 #: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:11
 msgid "{count, plural, =0 {No active token stops.} one {# token stops working at once.} other {# tokens stop working at once.}} Scripts that use them get \"401 Unauthorized\". Users cannot make new tokens. App tokens and CI identities do not change. You can turn them on again: the tokens that did not expire then work again."

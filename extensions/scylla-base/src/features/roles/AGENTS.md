@@ -1,0 +1,30 @@
+# `features/roles` — agent guide
+
+The catalog of the permissions, the built-in roles, and the custom roles.
+
+**Layer** `features/` · **id** `roles` · **DI keys** `roleRepository`
+
+## Import rules
+
+- May import: `@platform/*` barrels, `@shared/*`, other features' `index.ts`.
+- Must never import: `shell/`, `@scylla/core`, another feature's internals.
+- Outside code reaches this module **only** through `index.ts`.
+
+## What it does
+
+- `Instance › Roles`: the list, a new role, a custom role in the editor, a built-in role in read-only mode.
+- `<workspace> › Access › Roles`: the roles offered in a workspace, read only.
+- `changeInstanceRoles`: `Grant` and `Revoke` on the platform, for the dialog of the users page.
+
+## Rules
+
+- The server owns the catalog. `ListPermissionCatalog` gives the areas, the actions and `depends_on`. Do not write a list of permissions here. A label comes from `areaLabels`, and an unknown area shows its id.
+- The level, the holders and the owner of a role do not change after the creation.
+- `PermissionTable` with no `onChange` is the read-only table.
+- A built-in role does not change, so it never opens in the editor.
+- New strings go in `messages/roles.messages.ts`.
+
+## Before done
+
+`pnpm typecheck && pnpm lint && pnpm depcruise && pnpm depcruise:cycles && pnpm i18n:collisions`
+New strings: `pnpm extract && pnpm compile`.

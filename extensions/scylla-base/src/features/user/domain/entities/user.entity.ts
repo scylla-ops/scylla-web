@@ -11,9 +11,21 @@ export interface UserEntity {
   isActive: boolean;
   /** An admin of the instance: it manages the users. */
   instanceAdmin?: boolean;
+  /** On a row of the console of the users. */
+  instanceRoles?: UserInstanceRole[];
+  /** On a row of the console of the users: the names, in name order. */
+  workspaces?: string[];
+  /** On a row of the console of the users. */
+  lastSignInAt?: string;
   createdAt?: string;
   /** The server gives no time of the last change: the creation time. */
   updatedAt: string;
+}
+
+export interface UserInstanceRole {
+  key: string;
+  name: string;
+  builtin: boolean;
 }
 
 /** What it takes to show a person. The member lists carry no more than this. */

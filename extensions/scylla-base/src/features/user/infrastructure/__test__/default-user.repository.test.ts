@@ -47,8 +47,16 @@ const admin = () =>
     listUsers: vi.fn(({ page }: { page: { token: string } }) =>
       unaryCall(
         page.token === ''
-          ? { users: [wireUser], page: { nextToken: 'next' } }
-          : { users: [{ ...wireUser, id: { value: 'user-2' } }], page: { nextToken: '' } },
+          ? {
+              users: [{ user: wireUser, instanceRoles: [], workspaces: [] }],
+              page: { nextToken: 'next' },
+            }
+          : {
+              users: [
+                { user: { ...wireUser, id: { value: 'user-2' } }, instanceRoles: [], workspaces: [] },
+              ],
+              page: { nextToken: '' },
+            },
       ),
     ),
     getUser: vi.fn(() => unaryCall({ user: { ...wireUser, id: { value: 'user-2' } } })),

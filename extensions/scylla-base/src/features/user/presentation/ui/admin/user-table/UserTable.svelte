@@ -1,29 +1,38 @@
 <script lang="ts">
-  import PencilIcon from '@lucide/svelte/icons/pencil';
-  import { DataTable, IconButton } from '@scylla/ui';
-  import { createSelection } from '@scylla/ui/state';
-  import { UserIdentity } from '@shared/presentation/ui';
-  import { formatDate } from '@shared/utils/date-utils.ts';
+  import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+  import { DataTable } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import {
+    Badge,
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+  } from '@scylla/ui/primitives';
+  import { UserIdentity } from '@shared/presentation/ui';
+  import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
-  import UserStatusBadge from '@base/features/user/presentation/ui/components/UserStatusBadge.svelte';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
   import { userColumns } from './user-table.columns.ts';
 
   interface Props {
     data?: UserEntity[];
-    onView: (userId: string) => void;
+    canChangeRoles: boolean;
+    canDelete: (user: UserEntity) => boolean;
+    onChangeRoles: (user: UserEntity) => void;
+    onDelete: (user: UserEntity) => void;
+    onView: (user: UserEntity) => void;
   }
 
-  let { data, onView }: Props = $props();
-
-  const selection = createSelection('users');
+  let { data, canChangeRoles, canDelete, onChangeRoles, onDelete, onView }: Props = $props();
 
   const columns = $derived(
     userColumns({
       identity: identityCell,
-      status: statusCell,
-      creationDate: createdCell,
+      roles: rolesCell,
+      workspaces: workspacesCell,
+      lastSignIn: lastSignInCell,
       actions: actionsCell,
     }),
   );
@@ -33,30 +42,62 @@
   <UserIdentity {user} size="sm" class="w-full" />
 {/snippet}
 
-{#snippet statusCell(user: UserEntity)}
-  <UserStatusBadge isActive={user.isActive} />
+{#snippet rolesCell(user: UserEntity)}
+  {#if user.instanceRoles?.length}
+    <span class="flex flex-wrap gap-1.5">
+      {#each user.instanceRoles as role (role.key)}
+        <Badge variant="secondary" class="rounded-full font-medium">{role.name}</Badge>
+      {/each}
+    </span>
+  {:else}
+    <span class="text-xs text-muted-foreground">{t(userMessages.noInstanceRole)}</span>
+  {/if}
 {/snippet}
 
-{#snippet createdCell(user: UserEntity)}
-  <span class="truncate">{formatDate(user.createdAt)}</span>
+{#snippet workspacesCell(user: UserEntity)}
+  <span class="truncate">{user.workspaces?.join(', ')}</span>
+{/snippet}
+
+{#snippet lastSignInCell(user: UserEntity)}
+  <span class="truncate text-xs text-muted-foreground">
+    {user.lastSignInAt ? getRelativeTime(user.lastSignInAt) : t(userMessages.neverSignedIn)}
+  </span>
 {/snippet}
 
 {#snippet actionsCell(user: UserEntity)}
-  <IconButton
-    icon={PencilIcon}
-    tooltip={t(userMessages.edit)}
-    onclick={event => {
-      event.stopPropagation();
-      onView(user.id);
-    }}
-  />
+  <DropdownMenu>
+    <DropdownMenuTrigger>
+      {#snippet child({ props })}
+        <Button
+          {...props}
+          variant="ghost"
+          size="icon"
+          class="size-8"
+          aria-label={t(userMessages.userActions)}
+        >
+          <EllipsisIcon class="size-4" />
+        </Button>
+      {/snippet}
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="end">
+      {#if canChangeRoles}
+        <DropdownMenuItem onclick={() => onChangeRoles(user)}>
+          {t(userMessages.changeInstanceRoles)}
+        </DropdownMenuItem>
+      {/if}
+      <DropdownMenuItem onclick={() => onView(user)}>{t(userMessages.openUser)}</DropdownMenuItem>
+      {#if canDelete(user)}
+        <DropdownMenuItem onclick={() => onDelete(user)}>
+          {t(userMessages.deleteUser)}
+        </DropdownMenuItem>
+      {/if}
+    </DropdownMenuContent>
+  </DropdownMenu>
 {/snippet}
 
 <DataTable
   {columns}
   data={data ?? []}
-  onRowClick={row => selection.select(row.original.id)}
   getRowId={(user, index) => user.id || index.toString()}
-  isRowSelected={user => selection.selectedIds.includes(user.id)}
   alignRowsCenter
 />

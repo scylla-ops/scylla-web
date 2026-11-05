@@ -7,8 +7,9 @@ import { userMessages } from '@base/features/user/presentation/messages/user.mes
 
 export interface UserCells {
   identity: Snippet<[UserEntity]>;
-  status: Snippet<[UserEntity]>;
-  creationDate: Snippet<[UserEntity]>;
+  roles: Snippet<[UserEntity]>;
+  workspaces: Snippet<[UserEntity]>;
+  lastSignIn: Snippet<[UserEntity]>;
   actions: Snippet<[UserEntity]>;
 }
 
@@ -17,32 +18,39 @@ export const userColumns = (cells: UserCells): DataTableColumn<UserEntity>[] => 
     id: 'identity',
     header: t(userMessages.user),
     cell: ({ row }) => renderSnippet(cells.identity, row.original),
-    size: 280,
+    size: 300,
     minSize: 220,
     meta: { align: 'left', card: 'title' },
   },
   {
-    id: 'status',
-    header: t(userMessages.status),
-    cell: ({ row }) => renderSnippet(cells.status, row.original),
-    size: 140,
-    minSize: 110,
-    meta: { align: 'center' },
+    id: 'roles',
+    header: t(userMessages.instanceRoles),
+    cell: ({ row }) => renderSnippet(cells.roles, row.original),
+    size: 220,
+    minSize: 150,
+    meta: { align: 'left' },
   },
   {
-    id: 'creationDate',
-    header: t(userMessages.createdAt),
-    cell: ({ row }) => renderSnippet(cells.creationDate, row.original),
-    size: 250,
-    minSize: 150,
-    meta: { align: 'center', card: 'meta' },
+    id: 'workspaces',
+    header: t(userMessages.workspaces),
+    cell: ({ row }) => renderSnippet(cells.workspaces, row.original),
+    size: 180,
+    minSize: 120,
+    meta: { align: 'left' },
+  },
+  {
+    id: 'lastSignIn',
+    header: t(userMessages.lastSignIn),
+    cell: ({ row }) => renderSnippet(cells.lastSignIn, row.original),
+    size: 130,
+    minSize: 100,
+    meta: { align: 'left', card: 'meta' },
   },
   {
     id: 'actions',
-    header: t(userMessages.actions),
+    header: '',
     cell: ({ row }) => renderSnippet(cells.actions, row.original),
-    // No minSize: the first column to shrink on a narrow screen.
-    size: 100,
+    size: 60,
     meta: { align: 'center', card: 'actions' },
   },
 ];

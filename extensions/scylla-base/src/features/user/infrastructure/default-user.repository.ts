@@ -8,6 +8,7 @@ import type { UserSessionEntity } from '@base/features/user/domain/entities/user
 import type { SignInMethodsOfUser } from '@base/features/user/domain/entities/identity.entity.ts';
 import type { IProfileServiceClient } from '@base/generated/scylla/accounts/v1/profile_service.client.ts';
 import type { IUserAdminServiceClient } from '@base/generated/scylla/accounts/v1/user_admin_service.client.ts';
+import type { UserEntry } from '@base/generated/scylla/accounts/v1/user_admin_service.ts';
 import type { User } from '@base/generated/scylla/accounts/v1/user.ts';
 import type { PasswordResetDelivery } from '@base/features/login';
 import type { PaginatedList } from '@scylla/ui/structs';
@@ -68,11 +69,14 @@ export class DefaultUserRepository implements UserRepository {
   }
 
   public async getAll(): Promise<PaginatedList<UserEntity>> {
-    const users: User[] = [];
+    const users: UserEntry[] = [];
     let token = '';
     do {
-      const response = await this.admin.listUsers({ query: '', page: { size: PAGE_SIZE, token } })
-        .response;
+      const response = await this.admin.listUsers({
+        query: '',
+        withInstanceRole: false,
+        page: { size: PAGE_SIZE, token },
+      }).response;
       users.push(...response.users);
       token = response.page?.nextToken ?? '';
     } while (token);

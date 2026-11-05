@@ -16,7 +16,7 @@ describe('scyllaNavigate', () => {
   it('opens the page of a user in the active workspace', () => {
     scyllaNavigate.goToUser('user-2');
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/users/user-2', undefined);
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/instance/users/user-2', undefined);
   });
 
   it('opens the account of the session in the active workspace', () => {

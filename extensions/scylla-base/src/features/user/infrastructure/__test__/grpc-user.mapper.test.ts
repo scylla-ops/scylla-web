@@ -52,9 +52,19 @@ describe('grpcUser.toDomain', () => {
 
 describe('grpcUser.toDomainList', () => {
   it('puts every user on one page', () => {
-    const result = grpcUser.toDomainList([baseUser(), baseUser({ id: { value: 'user-2' } })]);
+    const entry = (user: ReturnType<typeof baseUser>) => ({
+      user,
+      instanceRoles: [{ key: 'auditor', name: 'Auditor', builtin: false }],
+      workspaces: ['acme'],
+    });
+    const result = grpcUser.toDomainList([
+      entry(baseUser()),
+      entry(baseUser({ id: { value: 'user-2' } })),
+    ]);
 
     expect(result.items).toHaveLength(2);
+    expect(result.items[0]?.instanceRoles?.[0]?.name).toBe('Auditor');
+    expect(result.items[0]?.workspaces).toEqual(['acme']);
     expect(result.pagination).toMatchObject({ totalCount: 2, page: 1, totalPages: 1 });
   });
 });

@@ -13,6 +13,7 @@ import { AppsModule } from '@base/features/apps/apps.module.ts';
 import { UserModule } from '@base/features/user/user.module.ts';
 import { AccessModule } from '@base/features/access/access.module.ts';
 import { MembershipModule } from '@base/features/membership/membership.module.ts';
+import { RolesModule } from '@base/features/roles/roles.module.ts';
 import { InvitationModule } from '@base/features/invitation/invitation.module.ts';
 import { InstanceSettingsModule } from '@base/features/instance-settings/instance-settings.module.ts';
 import { ExtensionsModule } from '@base/features/extensions/extensions.module.ts';
@@ -31,6 +32,7 @@ export const modules = [
   SecretModule,
   AppsModule,
   MembershipModule,
+  RolesModule,
   InvitationModule,
   WorkspaceModule,
   UserModule,

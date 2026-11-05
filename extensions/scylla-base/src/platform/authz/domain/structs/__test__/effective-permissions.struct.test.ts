@@ -40,26 +40,6 @@ describe('canAccess', () => {
     expect(canAccess(perms, Permission.READ_PROJECT)).toBe(false);
   });
 
-  describe('PERMISSION_IMPLICATIONS (MANAGE_ROLES implies MANAGE_SYSTEM_GRANTS)', () => {
-    it('holding MANAGE_ROLES also confers MANAGE_SYSTEM_GRANTS', () => {
-      const perms = effective({
-        scope: PermissionScope.SYSTEM,
-        scopeId: '',
-        access: { kind: 'restricted', permissions: [Permission.MANAGE_ROLES] },
-      });
-      expect(canAccess(perms, Permission.MANAGE_SYSTEM_GRANTS)).toBe(true);
-    });
-
-    it('the implication is one-directional: holding MANAGE_SYSTEM_GRANTS does not confer MANAGE_ROLES', () => {
-      const perms = effective({
-        scope: PermissionScope.SYSTEM,
-        scopeId: '',
-        access: { kind: 'restricted', permissions: [Permission.MANAGE_SYSTEM_GRANTS] },
-      });
-      expect(canAccess(perms, Permission.MANAGE_ROLES)).toBe(false);
-    });
-  });
-
   describe('WORKSPACE scope', () => {
     const workspaceGrant = (workspaceId: string) =>
       effective({

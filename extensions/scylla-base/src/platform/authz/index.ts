@@ -4,8 +4,6 @@
  */
 export {
   Permission,
-  PERMISSION_IMPLICATIONS,
-  impliersOf,
   permissionLevel,
 } from './domain/structs/permission.struct.ts';
 export {

@@ -1,9 +1,6 @@
 import { PermissionScope } from './permission-scope.struct.ts';
 
-/**
- * The wire vocabulary, value for value. The role editor offers a smaller
- * subset: see `permission-catalog.struct.ts` in `features/roles`.
- */
+/** What the UI asks. `permission-map.struct.ts` in `features/access` gives the names of the server. */
 export enum Permission {
   UNSPECIFIED = 0,
   CREATE_USER = 1,
@@ -74,20 +71,9 @@ export enum Permission {
   /** Add and remove the owners of a workspace: its owners only. */
   MANAGE_OWNERS = 65,
   MANAGE_INSTANCE_SETTINGS = 66,
+  LIST_ROLES = 67,
+  MANAGE_INSTANCE_ADMINS = 68,
 }
-
-/**
- * Holding `by` is holding `permission`, also for the roles made before `permission` existed:
- * who writes roles hands them out. The role editor writes the implied permission too
- * (`permission-catalog.struct.ts` in `features/roles`).
- */
-export const PERMISSION_IMPLICATIONS: readonly { permission: Permission; by: Permission }[] = [
-  { permission: Permission.MANAGE_SYSTEM_GRANTS, by: Permission.MANAGE_ROLES },
-];
-
-/** The permissions that confer `permission` without listing it. */
-export const impliersOf = (permission: Permission): Permission[] =>
-  PERMISSION_IMPLICATIONS.filter(entry => entry.permission === permission).map(entry => entry.by);
 
 const SYSTEM_LEVEL = new Set<Permission>([
   Permission.CREATE_USER,
@@ -106,6 +92,8 @@ const SYSTEM_LEVEL = new Set<Permission>([
   Permission.MANAGE_SYSTEM_GRANTS,
   Permission.MANAGE_ROLES,
   Permission.MANAGE_INSTANCE_SETTINGS,
+  Permission.LIST_ROLES,
+  Permission.MANAGE_INSTANCE_ADMINS,
 ]);
 
 const WORKSPACE_LEVEL = new Set<Permission>([
