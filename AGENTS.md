@@ -59,6 +59,10 @@ Lingui) covers every package. `vite.config.ts` builds `apps/web` into `dist/`.
 | `pnpm typecheck` | `tsc -b && svelte-check` — `tsc` cannot see `.svelte` files, `svelte-check` can |
 | `pnpm test` | Vitest, single run — **must be green** |
 | `pnpm test:watch` | Vitest in watch mode |
+| `pnpm test:file <path>` | Run one test file. The path can be a part of the file name. With no path, this runs all tests |
+| `pnpm test:name "<name>" <path>` | Run the tests with this name in this file. With no path, this loads all test files |
+| `pnpm test:dir <folder>` | Run all tests in one folder or package |
+| `pnpm test:changed [<ref>]` | Run the tests linked to the uncommitted files. With a ref, also the tests linked to the commits after this ref |
 | `pnpm coverage` | Vitest + v8 coverage, enforces the thresholds in `vite.config.ts` |
 | `pnpm lint` | ESLint, `--max-warnings 0` (warnings are errors). Slow (~20 min) and needs an 8 GB heap, which the script sets |
 | `pnpm lint:fix` | ESLint with `--fix` |
@@ -68,6 +72,19 @@ Lingui) covers every package. `vite.config.ts` builds `apps/web` into `dist/`.
 | `pnpm depcruise:cycles` | Module dependency cycles — **must be zero** |
 | `pnpm i18n:collisions` | Same msgid translated differently in two catalogs — **must be zero** |
 | `pnpm check:authors <range>` | No AI agent as author, committer or co-author of a commit in the range — **must be clean** |
+
+**Which tests to run.** While you write code, run one file: `pnpm test:file <path>`. Before a push,
+run the changed tests: `pnpm test:changed origin/main`. CI runs the whole suite.
+
+- These four commands do not measure coverage. They need no Node flag.
+- They keep the transformed modules in `node_modules/.vitest-cache`, so the second run of a file is
+  faster. If you change `svelte.config.js`, `lingui.config.js` or a `tsconfig` file, clear the cache:
+  `pnpm exec vitest --clearCache`.
+- The name of `pnpm test:name` is a regular expression. If no test has this name, all tests are
+  skipped and the exit code is 0. Read the count.
+- A change to a part that many tests use, for example a primitive of `packages/ui`, selects many
+  tests. To run fewer, add a folder: `pnpm test:changed --dir packages/ui`. A change to
+  `test/setup.ts` or `vite.config.ts` selects all tests. A change to a `package.json` selects no test.
 
 > `depcruise:cycles` is **not** redundant with `depcruise`'s `no-circular`. That rule works on the
 > *file* graph; a cycle can exist between two folders with no file in a loop (`a/x.ts → b/index.ts`,
@@ -83,9 +100,10 @@ the alias when TypeScript 7.1 and these tools support the new API.
 
 `prebuild` = `gen-proto` + `extract` + `compile`, and runs before `dev` and `build`. **Do not hand-edit generated proto code or compiled locale `messages.ts` files** — regenerate them.
 
-Before considering work done: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm depcruise`,
+Before considering work done: `pnpm typecheck`, `pnpm test:changed origin/main`, `pnpm lint`, `pnpm depcruise`,
 `pnpm depcruise:cycles` and `pnpm i18n:collisions` must all pass clean (zero warnings, zero
-failures, zero violations, zero cycles, zero collisions). CI runs all six, and also checks that
+failures, zero violations, zero cycles, zero collisions). CI runs all six, with the whole suite of
+tests, and also checks that
 no commit of the branch names an AI agent as author or co-author (`pnpm check:authors`).
 
 **After moving any component between modules**, run `node scripts/restore-translations.mjs` —

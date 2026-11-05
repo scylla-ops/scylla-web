@@ -2,6 +2,12 @@ import '@testing-library/jest-dom/vitest';
 import { i18n } from '@lingui/core';
 import { beforeEach, vi } from 'vitest';
 
+// Node 25 has these globals, and its `localStorage` has no store. Node 22 (CI) has none.
+if (typeof window === 'undefined') {
+  Reflect.deleteProperty(globalThis, 'localStorage');
+  Reflect.deleteProperty(globalThis, 'sessionStorage');
+}
+
 // An empty catalog: lingui falls back to the message id, the English source. `test/i18n.ts` loads a real one.
 i18n.load('en', {});
 i18n.activate('en');

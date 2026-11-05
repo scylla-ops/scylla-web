@@ -190,6 +190,8 @@ export const defineScyllaConfig = ({ workspaceRoot, app, thresholds }: ScyllaCon
       // A host runs its own tests: those of scylla-web run in scylla-web.
       exclude: mountedAt ? [...configDefaults.exclude, `${mountedAt}/**`] : configDefaults.exclude,
       css: false,
+      // The default also has `**/package.json`: one edit there makes `--changed` run all tests.
+      forceRerunTriggers: ['**/{vitest,vite}.config.*'],
       coverage: {
         provider: 'v8',
         // `include` is what makes untested files count: everything matching is
