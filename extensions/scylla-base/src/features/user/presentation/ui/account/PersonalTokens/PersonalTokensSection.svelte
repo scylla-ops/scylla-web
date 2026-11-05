@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { MediaQuery } from 'svelte/reactivity';
   import CircleXIcon from '@lucide/svelte/icons/circle-x';
   import ClockIcon from '@lucide/svelte/icons/clock';
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
@@ -37,6 +38,8 @@
   import { personalTokensMessages as messages } from '@base/features/user/presentation/messages/personal-tokens.messages.ts';
   import NewPersonalTokenDialog from './NewPersonalTokenDialog.svelte';
 
+  const phone = new MediaQuery('(max-width: 639px)');
+
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id ?? '');
   const workspaceName = $derived(context().workspace.name ?? '');
@@ -51,6 +54,45 @@
   const enabled = $derived(mine.data?.enabled ?? true);
   const refusedHere = $derived(mine.data?.refusedWorkspaceIds.includes(workspaceId) ?? false);
 </script>
+
+{#snippet tokenMenu(token: ApiToken)}
+  <DropdownMenu>
+    <DropdownMenuTrigger
+      class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'size-8 rounded-full')}
+    >
+      <EllipsisIcon class="size-4" aria-hidden="true" />
+      <span class="sr-only">{t(messages.actionsOf(token.name))}</span>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="end" class="w-40">
+      <DropdownMenuItem variant="destructive" onSelect={() => (revoking = token)}>
+        <TrashIcon class="size-4" aria-hidden="true" />
+        {t(messages.revoke)}
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+{/snippet}
+
+{#snippet expiry(token: ApiToken)}
+  {@const state = expiryStateOf(token, now)}
+  {#if !enabled}
+    <span class="text-muted-foreground">{t(messages.turnedOff)}</span>
+  {:else}
+    <span
+      class={cn(
+        'flex items-center gap-2',
+        state === 'soon' && 'text-warning',
+        (state === 'expired' || state === 'revoked') && 'text-destructive',
+      )}
+    >
+      {#if state === 'expired' || state === 'revoked'}
+        <CircleXIcon class="size-4 shrink-0" aria-hidden="true" />
+      {:else}
+        <ClockIcon class="size-4 shrink-0" aria-hidden="true" />
+      {/if}
+      {tokenExpiryText(token, state, now)}
+    </span>
+  {/if}
+{/snippet}
 
 <section class="flex flex-col gap-4">
   <div class="flex flex-wrap items-start justify-between gap-3">
@@ -92,6 +134,26 @@
     <p class="rounded-xl border p-6 text-center text-sm text-muted-foreground">
       {t(messages.empty)}
     </p>
+  {:else if phone.current}
+    <div class="flex flex-col gap-3">
+      {#each mine.data.tokens as token (token.id)}
+        <article class="flex flex-col gap-2 rounded-xl border p-4 text-xs">
+          <div class="flex items-center justify-between gap-2">
+            <span class="min-w-0 truncate text-sm font-medium">{token.name}</span>
+            {#if expiryStateOf(token, now) !== 'revoked'}
+              {@render tokenMenu(token)}
+            {/if}
+          </div>
+          <span>{tokenLimitsText(token.limits)}</span>
+          {@render expiry(token)}
+          <span class="text-muted-foreground">
+            {t(messages.columnLastUsed)}:
+            {token.lastUsedAt ? getRelativeTime(token.lastUsedAt) : t(messages.never)}
+          </span>
+        </article>
+      {/each}
+    </div>
+    <p class="text-xs text-muted-foreground">{t(messages.hint)}</p>
   {:else}
     <div class="relative overflow-x-auto rounded-xl border">
       <table class="w-full text-sm">
@@ -116,47 +178,14 @@
               </TableCell>
               <TableCell class="py-3 text-xs">{tokenLimitsText(token.limits)}</TableCell>
               <TableCell class="py-3 text-xs">
-                {#if !enabled}
-                  <span class="text-muted-foreground">{t(messages.turnedOff)}</span>
-                {:else}
-                  <span
-                    class={cn(
-                      'flex items-center gap-2',
-                      state === 'soon' && 'text-warning',
-                      (state === 'expired' || state === 'revoked') && 'text-destructive',
-                    )}
-                  >
-                    {#if state === 'expired' || state === 'revoked'}
-                      <CircleXIcon class="size-4 shrink-0" aria-hidden="true" />
-                    {:else}
-                      <ClockIcon class="size-4 shrink-0" aria-hidden="true" />
-                    {/if}
-                    {tokenExpiryText(token, state, now)}
-                  </span>
-                {/if}
+                {@render expiry(token)}
               </TableCell>
               <TableCell class="py-3 text-xs text-muted-foreground">
                 {token.lastUsedAt ? getRelativeTime(token.lastUsedAt) : t(messages.never)}
               </TableCell>
               <TableCell class="py-3 pr-4 text-right">
                 {#if state !== 'revoked'}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      class={cn(
-                        buttonVariants({ variant: 'ghost', size: 'icon' }),
-                        'size-8 rounded-full',
-                      )}
-                    >
-                      <EllipsisIcon class="size-4" aria-hidden="true" />
-                      <span class="sr-only">{t(messages.actionsOf(token.name))}</span>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" class="w-40">
-                      <DropdownMenuItem variant="destructive" onSelect={() => (revoking = token)}>
-                        <TrashIcon class="size-4" aria-hidden="true" />
-                        {t(messages.revoke)}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {@render tokenMenu(token)}
                 {/if}
               </TableCell>
             </TableRow>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { MediaQuery } from 'svelte/reactivity';
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
   import KeyRoundIcon from '@lucide/svelte/icons/key-round';
   import PencilIcon from '@lucide/svelte/icons/pencil';
@@ -58,6 +59,8 @@
 
   const nameOf = (key: AppKeyEntity) => key.label || t(messages.unnamed);
 
+  const phone = new MediaQuery('(max-width: 639px)');
+
   const startRename = (key: AppKeyEntity) => {
     label = key.label;
     renaming = key;
@@ -73,6 +76,25 @@
   };
 </script>
 
+{#snippet keyMenu(key: AppKeyEntity)}
+  <DropdownMenu>
+    <DropdownMenuTrigger class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'size-8')}>
+      <EllipsisIcon class="size-4" aria-hidden="true" />
+      <span class="sr-only">{t(messages.keyActions(nameOf(key)))}</span>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="end" class="w-40">
+      <DropdownMenuItem onSelect={() => startRename(key)}>
+        <PencilIcon class="size-4" aria-hidden="true" />
+        {t(messages.rename)}
+      </DropdownMenuItem>
+      <DropdownMenuItem variant="destructive" onSelect={() => (revoking = key)}>
+        <TrashIcon class="size-4" aria-hidden="true" />
+        {t(messages.revoke)}
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+{/snippet}
+
 <Card data-tour={tourAnchor ? 'agent-run' : undefined}>
   <CardHeader class="flex flex-row items-center justify-between">
     <CardTitle><h2>{t(messages.keys)}</h2></CardTitle>
@@ -84,6 +106,28 @@
     {/if}
   </CardHeader>
   <CardContent class="flex flex-col gap-3">
+    {#if phone.current}
+      <ul class="flex flex-col gap-3">
+        {#each keys as key (key.id)}
+          <li class="flex items-start justify-between gap-2 text-sm">
+            <div class={cn('min-w-0', key.revokedAt && 'text-muted-foreground')}>
+              <p class="truncate">{nameOf(key)}</p>
+              <p class="text-xs text-muted-foreground">
+                <span class="font-mono">{key.id.slice(-10).toUpperCase()}</span> ·
+                {key.revokedAt
+                  ? t(messages.revokedOn(formatDay(key.revokedAt)))
+                  : `${t(messages.active)} · ${formatDay(key.createdAt)}`}
+              </p>
+            </div>
+            {#if canManage && !key.revokedAt}
+              {@render keyMenu(key)}
+            {/if}
+          </li>
+        {:else}
+          <li class="text-sm text-muted-foreground">{t(messages.noKey)}</li>
+        {/each}
+      </ul>
+    {:else}
     <div class="relative overflow-x-auto rounded-lg border">
       <table class="w-full text-sm">
         <TableHeader>
@@ -117,24 +161,7 @@
               </TableCell>
               <TableCell class="py-3 pr-4 text-right">
                 {#if canManage && !key.revokedAt}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'size-8')}
-                    >
-                      <EllipsisIcon class="size-4" aria-hidden="true" />
-                      <span class="sr-only">{t(messages.keyActions(nameOf(key)))}</span>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" class="w-40">
-                      <DropdownMenuItem onSelect={() => startRename(key)}>
-                        <PencilIcon class="size-4" aria-hidden="true" />
-                        {t(messages.rename)}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem variant="destructive" onSelect={() => (revoking = key)}>
-                        <TrashIcon class="size-4" aria-hidden="true" />
-                        {t(messages.revoke)}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {@render keyMenu(key)}
                 {/if}
               </TableCell>
             </TableRow>
@@ -148,6 +175,7 @@
         </TableBody>
       </table>
     </div>
+    {/if}
     <p class="text-xs text-muted-foreground">{t(messages.keysHint)}</p>
   </CardContent>
 </Card>

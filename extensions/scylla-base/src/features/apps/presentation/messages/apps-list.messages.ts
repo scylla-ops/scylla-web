@@ -14,6 +14,7 @@ export const appsListMessages = {
   columnAccess: msg`Access`,
   columnLastUsed: msg`Last used`,
   columnActions: msg`Actions`,
+  lastUsedLower: msg`last used`,
   disabled: msg`Disabled`,
   noCredential: msg`No credential`,
   noRole: msg`No role`,

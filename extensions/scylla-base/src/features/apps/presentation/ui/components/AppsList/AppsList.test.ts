@@ -242,3 +242,33 @@ describe('AppsList', () => {
     expect(screen.queryByRole('heading', { name: 'No app yet' })).not.toBeInTheDocument();
   });
 });
+
+const onAPhone = () => {
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    matches: true,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+};
+
+describe('AppsList on a phone', () => {
+  it('shows cards, not a table, with the same facts', async () => {
+    onAPhone();
+    setUp(ALL, [app('release-bot', { disabledAt: at(-1) })]);
+    repository.listTokens.mockResolvedValue([token()]);
+    access.listAccess.mockResolvedValue([{ actorId: 'release-bot', role: 'member' }]);
+    render(AppsList);
+
+    expect(await screen.findByRole('button', { name: 'release-bot' })).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(await screen.findByText('API token · Deploy · expires in 9 days')).toBeInTheDocument();
+    expect(screen.getByText('Disabled')).toBeInTheDocument();
+    expect(await screen.findByText(/Member of acme/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Actions of release-bot' })).toBeInTheDocument();
+  });
+});

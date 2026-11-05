@@ -28,13 +28,25 @@
     roles?: readonly HeldRole[];
     showRoles: boolean;
     canReadApp: boolean;
+    /** A card on a phone: no table fits there. */
+    asCard?: boolean;
     onOpen: () => void;
     onDisable?: () => void;
     onEnable?: () => void;
     onDelete?: () => void;
   }
 
-  let { app, roles, showRoles, canReadApp, onOpen, onDisable, onEnable, onDelete }: Props = $props();
+  let {
+    app,
+    roles,
+    showRoles,
+    canReadApp,
+    asCard = false,
+    onOpen,
+    onDisable,
+    onEnable,
+    onDelete,
+  }: Props = $props();
 
   const ICONS = { token: KeyRoundIcon, ci: GitBranchIcon, key: LockIcon } as const;
 
@@ -59,6 +71,64 @@
   );
 </script>
 
+{#snippet credential()}
+  {#if main && summary}
+    {@const Icon = ICONS[main.row.kind]}
+    <span
+      class={cn(
+        'flex items-center gap-2 text-xs',
+        summary.tone === 'warning' && 'text-warning',
+        summary.tone === 'danger' && 'text-destructive',
+      )}
+    >
+      <Icon class="size-4 shrink-0" aria-hidden="true" />
+      <span>{summary.text}</span>
+      {#if main.others > 0}
+        <span class="text-muted-foreground">+{main.others}</span>
+      {/if}
+    </span>
+  {:else if credentials.data}
+    <span class="text-xs text-muted-foreground">{t(messages.noCredential)}</span>
+  {:else if credentials.isPending === false}
+    <span class="text-muted-foreground">–</span>
+  {/if}
+{/snippet}
+
+{#snippet lastUse()}
+  {#if lastUsed}
+    {getRelativeTime(lastUsed.lastUsedAt)}
+  {:else if credentials.data}
+    {t(messages.never)}
+  {:else if credentials.isPending === false}
+    –
+  {/if}
+{/snippet}
+
+{#if asCard}
+  <article class="flex flex-col gap-2 rounded-xl border p-4 text-sm">
+    <div class="flex items-center justify-between gap-2">
+      <button
+        type="button"
+        class="min-w-0 truncate text-left font-mono font-medium hover:underline"
+        onclick={onOpen}
+      >
+        {app.name}
+      </button>
+      <span class="flex shrink-0 items-center gap-1">
+        {#if app.disabledAt}
+          <Badge variant="outline">{t(messages.disabled)}</Badge>
+        {/if}
+        <AppRowMenu {app} openLabel={t(messages.openApp)} {onOpen} {onDisable} {onEnable} {onDelete} />
+      </span>
+    </div>
+    {@render credential()}
+    <p class="text-xs text-muted-foreground">
+      {#if firstRole}{firstRole} ·{/if}
+      {t(messages.lastUsedLower)}
+      {@render lastUse()}
+    </p>
+  </article>
+{:else}
 <TableRow>
   <TableCell class="px-6 py-3">
     <span class="flex items-center gap-2">
@@ -71,26 +141,7 @@
     </span>
   </TableCell>
   <TableCell class="py-3">
-    {#if main && summary}
-      {@const Icon = ICONS[main.row.kind]}
-      <span
-        class={cn(
-          'flex items-center gap-2 text-xs',
-          summary.tone === 'warning' && 'text-warning',
-          summary.tone === 'danger' && 'text-destructive',
-        )}
-      >
-        <Icon class="size-4 shrink-0" aria-hidden="true" />
-        <span>{summary.text}</span>
-        {#if main.others > 0}
-          <span class="text-muted-foreground">+{main.others}</span>
-        {/if}
-      </span>
-    {:else if credentials.data}
-      <span class="text-xs text-muted-foreground">{t(messages.noCredential)}</span>
-    {:else if credentials.isPending === false}
-      <span class="text-muted-foreground">–</span>
-    {/if}
+    {@render credential()}
   </TableCell>
   {#if showRoles}
     <TableCell class="py-3" title={[firstRole, ...otherRoles].filter(Boolean).join(', ')}>
@@ -105,15 +156,10 @@
     </TableCell>
   {/if}
   <TableCell class="py-3 text-xs text-muted-foreground">
-    {#if lastUsed}
-      {getRelativeTime(lastUsed.lastUsedAt)}
-    {:else if credentials.data}
-      {t(messages.never)}
-    {:else if credentials.isPending === false}
-      –
-    {/if}
+    {@render lastUse()}
   </TableCell>
   <TableCell class="py-3 pr-4 text-right">
     <AppRowMenu {app} openLabel={t(messages.openApp)} {onOpen} {onDisable} {onEnable} {onDelete} />
   </TableCell>
 </TableRow>
+{/if}

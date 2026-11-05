@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { MediaQuery } from 'svelte/reactivity';
   import PlugIcon from '@lucide/svelte/icons/plug';
   import PlusIcon from '@lucide/svelte/icons/plus';
   import { can, Permission } from '@platform/authz';
@@ -14,6 +15,8 @@
   import AppRow from './AppRow.svelte';
   import { appsMessages } from '@base/features/apps/presentation/messages/apps.messages.ts';
   import { appsListMessages as messages } from '@base/features/apps/presentation/messages/apps-list.messages.ts';
+
+  const phone = new MediaQuery('(max-width: 639px)');
 
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id ?? '');
@@ -87,6 +90,23 @@
       {/if}
     </section>
   {:else}
+    {#if phone.current}
+      <div class="flex flex-col gap-3">
+        {#each apps.data ?? [] as app (app.id)}
+          <AppRow
+            {app}
+            roles={roles.data?.get(app.id)}
+            showRoles={canReadRoles}
+            {canReadApp}
+            asCard
+            onOpen={() => openApp(app.id)}
+            onDisable={canManage ? () => (disabling = app) : undefined}
+            onEnable={canManage ? () => enable.mutate(app.id) : undefined}
+            onDelete={canManage ? () => (deleting = app) : undefined}
+          />
+        {/each}
+      </div>
+    {:else}
     <div class="relative overflow-x-auto rounded-xl border">
       <table class="w-full text-sm">
         <TableHeader>
@@ -118,6 +138,7 @@
         </TableBody>
       </table>
     </div>
+    {/if}
   {/if}
 </div>
 

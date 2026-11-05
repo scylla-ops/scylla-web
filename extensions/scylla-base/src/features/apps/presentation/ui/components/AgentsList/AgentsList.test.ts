@@ -233,3 +233,27 @@ describe('AgentsList', () => {
     expect(screen.queryByText('Run your first agent')).not.toBeInTheDocument();
   });
 });
+
+const onAPhone = () => {
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    matches: true,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+};
+
+describe('AgentsList on a phone', () => {
+  it('shows a line of numbers and cards, not the stat cards and a table', async () => {
+    onAPhone();
+    setUp(ALL);
+
+    expect(await screen.findByRole('button', { name: 'build-linux-01' })).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getByText(/of 5 online/)).toBeInTheDocument();
+  });
+});

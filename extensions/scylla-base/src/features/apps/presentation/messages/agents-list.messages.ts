@@ -13,6 +13,7 @@ export const agentsListMessages = {
   noMatch: msg`No agent matches.`,
   online: msg`Online`,
   onlineOf: (online: number, total: number) => msg`${online} of ${total}`,
+  phoneOnline: (online: number, total: number) => msg`${online} of ${total} online`,
   runningNow: msg`Running now`,
   jobs: (count: number) => msg`${plural(count, { one: '# job', other: '# jobs' })}`,
   needsAttention: msg`Needs attention`,

@@ -17,7 +17,7 @@ msgstr ""
 msgid "{completed} of {total} completed"
 msgstr "{completed} of {total} completed"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:27
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:28
 msgid "{count, plural, =0 {expires today} one {expires in # day} other {expires in # days}}"
 msgstr "{count, plural, =0 {expires today} one {expires in # day} other {expires in # days}}"
 
@@ -25,7 +25,7 @@ msgstr "{count, plural, =0 {expires today} one {expires in # day} other {expires
 msgid "{count, plural, one {# job at once} other {# jobs at once}}"
 msgstr "{count, plural, one {# job at once} other {# jobs at once}}"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:17
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:18
 msgid "{count, plural, one {# job} other {# jobs}}"
 msgstr "{count, plural, one {# job} other {# jobs}}"
 
@@ -33,11 +33,11 @@ msgstr "{count, plural, one {# job} other {# jobs}}"
 msgid "{count, plural, one {It takes jobs from # project.} other {It takes jobs from # projects.}}"
 msgstr "{count, plural, one {It takes jobs from # project.} other {It takes jobs from # projects.}}"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:36
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:37
 msgid "{count, plural, one {Running # job} other {Running # jobs}}"
 msgstr "{count, plural, one {Running # job} other {Running # jobs}}"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:49
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:50
 msgid "{count} jobs in 30 days"
 msgstr "{count} jobs in 30 days"
 
@@ -69,7 +69,7 @@ msgstr "{name} is online"
 msgid "{name} is ready"
 msgstr "{name} is ready"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:20
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:21
 msgid "{offline} offline · {never} never connected"
 msgstr "{offline} offline · {never} never connected"
 
@@ -77,19 +77,23 @@ msgstr "{offline} offline · {never} never connected"
 msgid "{online} of {total}"
 msgstr "{online} of {total}"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:22
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:16
+msgid "{online} of {total} online"
+msgstr "{online} of {total} online"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:23
 msgid "{percent}% passed"
 msgstr "{percent}% passed"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:29
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:30
 msgid "{repository} on {branch}"
 msgstr "{repository} on {branch}"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:31
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:32
 msgid "{repository}, environment {environment}"
 msgstr "{repository}, environment {environment}"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:22
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:23
 msgid "{role} of {on}"
 msgstr "{role} of {on}"
 
@@ -110,7 +114,7 @@ msgid "A server joined with a new key."
 msgstr "A server joined with a new key."
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:46
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:32
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:33
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:14
 msgid "Access"
 msgstr "Access"
@@ -123,12 +127,12 @@ msgstr "Access changed"
 msgid "acme/release-tools"
 msgstr "acme/release-tools"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:34
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:35
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:16
 msgid "Actions"
 msgstr "Actions"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:50
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:51
 #: extensions/scylla-base/src/features/apps/presentation/messages/app-page.messages.ts:29
 msgid "Actions of {name}"
 msgstr "Actions of {name}"
@@ -202,7 +206,7 @@ msgstr "Admins of {workspace} can create apps. Ask an admin for the role \"App c
 
 #: extensions/scylla-base/src/features/apps/apps.module.ts:29
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:4
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:30
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:31
 msgid "Agent"
 msgstr "Agent"
 
@@ -220,12 +224,12 @@ msgstr "Agents"
 msgid "Agents run your pipeline jobs. Ask an admin to add one."
 msgstr "Agents run your pipeline jobs. Ask an admin to add one."
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:24
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:25
 msgid "All"
 msgstr "All"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:16
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:46
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:47
 msgid "All projects"
 msgstr "All projects"
 
@@ -250,7 +254,7 @@ msgid "any ref"
 msgstr "any ref"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/app-page.messages.ts:17
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:23
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:24
 #: extensions/scylla-base/src/features/apps/presentation/messages/credentials.messages.ts:19
 #: extensions/scylla-base/src/features/apps/presentation/messages/credentials.messages.ts:53
 msgid "API token"
@@ -337,7 +341,7 @@ msgstr "Change access"
 msgid "Checks every 2 s"
 msgstr "Checks every 2 s"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:24
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:25
 msgid "CI identity"
 msgstr "CI identity"
 
@@ -364,7 +368,7 @@ msgid "Connect this agent"
 msgstr "Connect this agent"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:9
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:41
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:42
 msgid "Connected"
 msgstr "Connected"
 
@@ -386,7 +390,7 @@ msgstr "Container runtime"
 msgid "Copied"
 msgstr "Copied"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:52
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:53
 msgid "Copy ID"
 msgstr "Copy ID"
 
@@ -421,14 +425,14 @@ msgid "Credentials"
 msgstr "Credentials"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:86
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:57
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:37
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:58
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:38
 msgid "Delete"
 msgstr "Delete"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:83
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:60
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:35
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:61
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:36
 msgid "Delete {name}?"
 msgstr "Delete {name}?"
 
@@ -458,20 +462,20 @@ msgid "Details"
 msgstr "Details"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:7
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:55
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:34
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:56
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:35
 msgid "Disable"
 msgstr "Disable"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:11
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:58
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:32
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:59
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:33
 msgid "Disable {name}?"
 msgstr "Disable {name}?"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:28
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:39
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:17
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:29
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:40
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:18
 msgid "Disabled"
 msgstr "Disabled"
 
@@ -492,7 +496,7 @@ msgid "Each machine that joins adds a key, named after its host. The private key
 msgstr "Each machine that joins adds a key, named after its host. The private key never leaves the machine."
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:8
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:56
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:57
 msgid "Enable"
 msgstr "Enable"
 
@@ -504,7 +508,7 @@ msgstr "Environment"
 msgid "environment {name}"
 msgstr "environment {name}"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:28
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:29
 msgid "expired on {day}"
 msgstr "expired on {day}"
 
@@ -554,7 +558,7 @@ msgstr "How will it connect?"
 msgid "ID"
 msgstr "ID"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:53
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:54
 msgid "ID copied"
 msgstr "ID copied"
 
@@ -578,11 +582,11 @@ msgstr "It cannot sign in. Its keys and access stay. Enable it to let it take jo
 msgid "It disconnects at once and cannot sign in until you enable it. Jobs that did not start go back to the queue. Its keys and access stay."
 msgstr "It disconnects at once and cannot sign in until you enable it. Jobs that did not start go back to the queue. Its keys and access stay."
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:59
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:60
 msgid "It gets no token and no job until you enable it. Its running jobs stop."
 msgstr "It gets no token and no job until you enable it. Its running jobs stop."
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:33
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:34
 msgid "It gets no token until you enable it. Calls with its tokens fail at once."
 msgstr "It gets no token until you enable it. Calls with its tokens fail at once."
 
@@ -619,7 +623,7 @@ msgid "It takes the pending jobs of these projects only."
 msgstr "It takes the pending jobs of these projects only."
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/app-page.messages.ts:43
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:36
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:37
 msgid "Its credentials and roles go. Calls with its tokens fail at once."
 msgstr "Its credentials and roles go. Calls with its tokens fail at once."
 
@@ -631,7 +635,7 @@ msgstr "Its keys and access go. The jobs that it ran stay."
 msgid "Its keys and access go. The jobs that it ran stay. You cannot undo this."
 msgstr "Its keys and access go. The jobs that it ran stay. You cannot undo this."
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:61
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:62
 msgid "Its machine cannot sign in any more, and its roles go away. The jobs that it ran stay."
 msgstr "Its machine cannot sign in any more, and its roles go away. The jobs that it ran stay."
 
@@ -653,8 +657,8 @@ msgid "Jobs per day"
 msgstr "Jobs per day"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:13
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:21
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:33
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:22
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:34
 msgid "Jobs, last 30 days"
 msgstr "Jobs, last 30 days"
 
@@ -663,7 +667,7 @@ msgid "Key"
 msgstr "Key"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/app-page.messages.ts:19
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:25
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:26
 #: extensions/scylla-base/src/features/apps/presentation/messages/credentials.messages.ts:23
 msgid "Key pair"
 msgstr "Key pair"
@@ -688,9 +692,13 @@ msgstr "Last 30 days"
 msgid "Last run {when}"
 msgstr "Last run {when}"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:42
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:43
 msgid "Last seen {when}"
 msgstr "Last seen {when}"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:17
+msgid "last used"
+msgstr "last used"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/app-page.messages.ts:14
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:15
@@ -752,21 +760,21 @@ msgstr "Name"
 msgid "Name and roles"
 msgstr "Name and roles"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:18
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:19
 msgid "Needs attention"
 msgstr "Needs attention"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/app-page.messages.ts:28
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:20
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:21
 msgid "Never"
 msgstr "Never"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:27
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:38
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:28
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:39
 msgid "Never connected"
 msgstr "Never connected"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:43
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:44
 msgid "Never said hello"
 msgstr "Never said hello"
 
@@ -775,7 +783,7 @@ msgid "New code"
 msgstr "New code"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:61
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:54
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:55
 msgid "New join code"
 msgstr "New join code"
 
@@ -787,7 +795,7 @@ msgstr "Next"
 msgid "No access: this agent takes no job."
 msgstr "No access: this agent takes no job."
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:40
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:41
 msgid "No active key"
 msgstr "No active key"
 
@@ -803,7 +811,7 @@ msgstr "No agent yet"
 msgid "No app yet"
 msgstr "No app yet"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:18
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:19
 msgid "No credential"
 msgstr "No credential"
 
@@ -819,7 +827,7 @@ msgstr "No credential yet. Add one so the app can sign in."
 msgid "No expiry"
 msgstr "No expiry"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:48
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:49
 msgid "No job"
 msgstr "No job"
 
@@ -835,7 +843,7 @@ msgstr "No machine joined yet."
 msgid "No name"
 msgstr "No name"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:47
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:48
 msgid "No project"
 msgstr "No project"
 
@@ -847,7 +855,7 @@ msgstr "No project roles"
 msgid "No project yet."
 msgstr "No project yet."
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:19
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:20
 #: extensions/scylla-base/src/features/apps/presentation/messages/credentials.messages.ts:16
 msgid "No role"
 msgstr "No role"
@@ -872,13 +880,13 @@ msgstr "None"
 msgid "None: no container step"
 msgstr "None: no container step"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:26
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:37
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:27
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:38
 msgid "Offline"
 msgstr "Offline"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:14
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:25
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:26
 msgid "Online"
 msgstr "Online"
 
@@ -895,11 +903,11 @@ msgid "Only runs of {repository} on {ref} get a short token. There is no secret 
 msgstr "Only runs of {repository} on {ref} get a short token. There is no secret to store."
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:47
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:51
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:52
 msgid "Open agent"
 msgstr "Open agent"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:21
+#: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:22
 #: extensions/scylla-base/src/features/apps/presentation/messages/credentials.messages.ts:50
 msgid "Open app"
 msgstr "Open app"
@@ -995,7 +1003,7 @@ msgstr "Run your first agent"
 msgid "Running"
 msgstr "Running"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:16
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:17
 msgid "Running now"
 msgstr "Running now"
 
@@ -1015,7 +1023,7 @@ msgstr "Save"
 msgid "Scylla could not give {name} its access. Give it on the agent page, or it takes no job."
 msgstr "Scylla could not give {name} its access. Give it on the agent page, or it takes no job."
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:29
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:30
 msgid "Search by name or host"
 msgstr "Search by name or host"
 
@@ -1023,11 +1031,11 @@ msgstr "Search by name or host"
 msgid "Set up an agent"
 msgstr "Set up an agent"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:23
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:24
 msgid "Show the agents"
 msgstr "Show the agents"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:44
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:45
 msgid "Show the command"
 msgstr "Show the command"
 
@@ -1035,7 +1043,7 @@ msgstr "Show the command"
 msgid "Shown once"
 msgstr "Shown once"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:45
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:46
 msgid "Since {when}"
 msgstr "Since {when}"
 
@@ -1055,7 +1063,7 @@ msgstr "Started to finished"
 msgid "State"
 msgstr "State"
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:31
+#: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:32
 msgid "Status"
 msgstr "Status"
 

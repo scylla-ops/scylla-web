@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { MediaQuery } from 'svelte/reactivity';
   import BotIcon from '@lucide/svelte/icons/bot';
   import PlusIcon from '@lucide/svelte/icons/plus';
   import SearchIcon from '@lucide/svelte/icons/search';
@@ -34,10 +35,13 @@
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import AddAgentDialog from '../AddAgentDialog/AddAgentDialog.svelte';
   import Sparkline from '../Sparkline/Sparkline.svelte';
+  import AgentCard from './AgentCard.svelte';
   import AgentStatCards from './AgentStatCards.svelte';
   import AgentStatusCell from './AgentStatusCell.svelte';
   import AppRowMenu from '../AppRowMenu/AppRowMenu.svelte';
   import { agentsListMessages as messages } from '@base/features/apps/presentation/messages/agents-list.messages.ts';
+
+  const phone = new MediaQuery('(max-width: 639px)');
 
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id ?? '');
@@ -147,7 +151,14 @@
       {/if}
     </section>
   {:else}
-    <AgentStatCards {summary} {outcomes} />
+    {#if phone.current}
+      <p class="text-xs text-muted-foreground">
+        {t(messages.phoneOnline(summary.online, summary.total))} ·
+        {t(messages.running(summary.runningJobs))}
+      </p>
+    {:else}
+      <AgentStatCards {summary} {outcomes} />
+    {/if}
 
     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <ToggleGroup
@@ -157,7 +168,7 @@
           if (next) filter = next as AgentFilter;
         }}
         aria-label={t(messages.filterLabel)}
-        class="w-fit rounded-lg bg-muted p-1"
+        class="max-w-full w-fit overflow-x-auto rounded-lg bg-muted p-1"
       >
         {#each AGENT_FILTERS as value (value)}
           <ToggleGroupItem
@@ -185,6 +196,23 @@
       </div>
     </div>
 
+    {#if phone.current}
+      <div class="flex flex-col gap-3">
+        {#each shown as agent (agent.id)}
+          {@const agentStats = stats.data?.get(agent.id)}
+          <AgentCard
+            {agent}
+            access={canReadAccess ? accessLabel(access.data?.get(agent.id)) : ''}
+            jobs={agentStats ? dailyJobs(agentStats) : []}
+            total={agentStats ? endedJobs(agentStats.outcomes) : 0}
+            onOpen={() => openAgent(agent.id)}
+            onShowCommand={canCreate ? () => join(agent) : undefined}
+          />
+        {:else}
+          <p class="py-8 text-center text-sm text-muted-foreground">{t(messages.noMatch)}</p>
+        {/each}
+      </div>
+    {:else}
     <div class="relative overflow-x-auto rounded-xl border">
       <table class="w-full text-sm">
         <TableHeader>
@@ -256,6 +284,7 @@
         </TableBody>
       </table>
     </div>
+    {/if}
   {/if}
 </div>
 

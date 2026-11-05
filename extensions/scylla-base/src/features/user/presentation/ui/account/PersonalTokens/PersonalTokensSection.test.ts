@@ -142,7 +142,9 @@ describe('PersonalTokensSection', () => {
   it('says that this workspace turned the tokens off, and keeps the new token', async () => {
     setUp({ refusedWorkspaceIds: ['ws-1'] });
 
-    expect(await screen.findByText('Personal tokens are turned off in this workspace')).toBeVisible();
+    expect(
+      await screen.findByText('Personal tokens are turned off in this workspace'),
+    ).toBeVisible();
     expect(screen.getByText(/An admin of acme turned them off/)).toBeInTheDocument();
     expect(screen.getByText('Expires in 62 days')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'New token' })).toBeInTheDocument();
@@ -161,5 +163,31 @@ describe('PersonalTokensSection', () => {
     setUp({ tokens: [] });
 
     expect(await screen.findByText('No personal token yet.')).toBeInTheDocument();
+  });
+});
+
+const onAPhone = () => {
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    matches: true,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+};
+
+describe('PersonalTokensSection on a phone', () => {
+  it('shows cards, not a table, with the same facts', async () => {
+    onAPhone();
+    setUp();
+
+    expect(await screen.findByText('laptop-cli')).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getByText('Full · all projects')).toBeInTheDocument();
+    expect(screen.getByText('Expires in 5 days').closest('span')).toHaveClass('text-warning');
+    expect(screen.getByRole('button', { name: 'Actions of old-cli' })).toBeInTheDocument();
   });
 });
