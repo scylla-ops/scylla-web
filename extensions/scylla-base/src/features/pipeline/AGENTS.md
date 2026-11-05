@@ -310,6 +310,11 @@ the page.
   `DropSpot` draws the `footprint` of the current node style (`presenters/blueprint-geometry.presenter.ts`) in the
   front `ViewportPortal`, so it follows the zoom and no node hides it. No move transition: it
   must stay under the pointer.
+- **A connection point reacts in a zone around it, with CSS only** (`handleClass`,
+  `START_HANDLE_CLASS`). The `before` box of the handle is that zone. A hover scales the point with
+  the `scale` property, because xyflow centres a handle with `transform`.
+  A link is made by a pull only (`clickConnect={false}`): with this zone, two clicks near two
+  nodes would make a link.
 - **A node id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
   protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`domain/structs/node-id.struct.ts`)
   is that rule; keep both the same. A refused id is shown on the node, in the inspector while it

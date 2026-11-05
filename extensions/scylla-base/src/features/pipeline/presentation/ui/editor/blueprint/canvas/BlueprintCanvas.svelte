@@ -115,6 +115,7 @@
     fitViewOptions={FIT_VIEW_OPTIONS}
     deleteKey={blueprint.readOnly ? null : ['Backspace', 'Delete']}
     nodesConnectable={!blueprint.readOnly}
+    clickConnect={false}
     selectNodesOnDrag={false}
     edgesFocusable
     defaultEdgeOptions={DEFAULT_EDGE_STYLE}

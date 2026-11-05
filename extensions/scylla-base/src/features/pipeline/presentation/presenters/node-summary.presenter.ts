@@ -79,5 +79,11 @@ const problemOf = (node: PipelineNodeEntity): NodeSummary['problem'] => {
   return { label: text, detail: text };
 };
 
+/** The `before` box is the zone around the point: a pointer in it hovers the point, and can pull it. */
+const HANDLE =
+  "size-2.5! border-[1.5px]! bg-card! transition-[scale,background-color,border-color] duration-150 before:absolute before:-inset-2.5 before:rounded-full before:content-[''] hover:scale-140 hover:border-primary! hover:bg-primary!";
+
+export const START_HANDLE_CLASS = cn(HANDLE, 'border-primary!');
+
 export const handleClass = (summary: NodeSummary, selected: boolean) =>
-  cn('size-2.5! border-[1.5px]! bg-card!', selected ? summary.tone.handle : 'border-input!');
+  cn(HANDLE, selected ? summary.tone.handle : 'border-input!');
