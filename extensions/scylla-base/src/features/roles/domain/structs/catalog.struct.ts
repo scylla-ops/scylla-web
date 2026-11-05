@@ -23,16 +23,21 @@ export interface CatalogArea {
 
 const RANK: Record<RoleLevel, number> = { platform: 0, workspace: 1, project: 2 };
 
-/** The ids of the permissions of a role that the caller does not hold, so it cannot give the role. */
+/**
+ * The ids of the permissions of a role that the caller does not hold, so it cannot give the role.
+ * An implicit permission does not count, and so does a permission of a machine: no person holds it.
+ */
 export const missingPermissionIds = (
   role: { permissions: readonly string[] },
   held: ReadonlySet<string>,
   areas: readonly CatalogArea[],
 ): string[] => {
-  const implicit = new Set(
-    areas.flatMap(area => area.permissions.filter(one => one.implicit).map(one => one.id)),
+  const free = new Set(
+    areas.flatMap(area =>
+      area.permissions.filter(one => one.implicit || area.machine).map(one => one.id),
+    ),
   );
-  return role.permissions.filter(id => !held.has(id) && !implicit.has(id));
+  return role.permissions.filter(id => !held.has(id) && !free.has(id));
 };
 
 /** A role holds the areas of its level and of the levels under it. */

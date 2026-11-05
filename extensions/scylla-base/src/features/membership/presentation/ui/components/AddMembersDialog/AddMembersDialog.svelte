@@ -54,10 +54,10 @@
 
   const rolesQuery = createQuery(() => roleQueries.list(workspaceId, { enabled: open }));
   const catalogQuery = createQuery(() => ({ ...roleQueries.catalog(), enabled: open }));
-  const projectsQuery = createQuery(() => {
-    const query = projectQueries.byWorkspace(workspaceId);
-    return { ...query, enabled: query.enabled && open };
-  });
+  const projectsQuery = createQuery(() => ({
+    ...projectQueries.lookup(workspaceId),
+    enabled: open,
+  }));
   const heldQuery = createQuery(() =>
     accessQueries.held(workspaceRef(workspaceId), { enabled: open }),
   );

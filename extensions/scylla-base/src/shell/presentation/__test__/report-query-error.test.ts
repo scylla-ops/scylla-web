@@ -43,6 +43,17 @@ afterEach(() => {
 });
 
 describe('reportQueryError', () => {
+  it('leaves an error to the page that shows it, but still ends a lost session', () => {
+    at('/acme/members', '', '');
+
+    reportQueryError(errorWith('UNAVAILABLE'), 'query', { showsOwnError: true });
+    expect(close).not.toHaveBeenCalled();
+    expect(toastError).not.toHaveBeenCalled();
+
+    reportQueryError(errorWith('UNAUTHENTICATED'), 'query', { showsOwnError: true });
+    expect(close).toHaveBeenCalledOnce();
+  });
+
   it('signs out when the backend no longer knows the user, and comes back after the sign-in', () => {
     at('/acme/members', '', '?tab=roles');
 

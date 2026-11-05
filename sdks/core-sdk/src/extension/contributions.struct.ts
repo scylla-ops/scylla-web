@@ -39,7 +39,12 @@ export interface ShellContributions {
 }
 
 /** Every query and mutation error goes here. Do not add an `onError` toast in a query. */
-export type QueryErrorHandler = (error: unknown, source: 'query' | 'mutation') => void;
+export type QueryErrorHandler = (
+  error: unknown,
+  source: 'query' | 'mutation',
+  /** `showsOwnError`: the page shows this error, from `meta` of the query or the mutation. */
+  options?: { showsOwnError: true },
+) => void;
 
 /** Whether a failing query should retry again. `false` vetoes it; `true`/`undefined` keeps the default (3 attempts). */
 export type QueryRetryPolicy = (failureCount: number, error: unknown) => boolean | undefined;

@@ -24,6 +24,7 @@ const setUp = (owners: { userId: string; displayName: string }[], canManage = tr
       { id: 'bob', username: 'bob', displayName: 'Bob' },
     ],
     canManage,
+    workspaceName: 'Acme',
   });
   return repository;
 };
@@ -31,11 +32,15 @@ const setUp = (owners: { userId: string; displayName: string }[], canManage = tr
 afterEach(() => teardown.forEach(restore => restore()));
 
 describe('OwnersCard', () => {
-  it('lists the owners, and lets no one remove the last one', async () => {
-    setUp([{ userId: 'ada', displayName: 'Ada' }]);
+  it('lists the owners, and says why the last one stays', async () => {
+    const repository = setUp([{ userId: 'ada', displayName: 'Ada' }]);
+    const user = userEvent.setup();
 
-    expect(await screen.findByText('Ada')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Remove Ada from the owners' })).toBeNull();
+    await user.click(await screen.findByRole('button', { name: 'Remove Ada from the owners' }));
+
+    expect(await screen.findByText('You cannot remove Ada')).toBeInTheDocument();
+    expect(screen.getByText(/Ada is the last owner of Acme/)).toBeInTheDocument();
+    expect(repository.removeOwner).not.toHaveBeenCalled();
   });
 
   it('removes an owner when another one stays', async () => {

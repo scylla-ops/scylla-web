@@ -35,13 +35,17 @@ It composes, through public APIs only:
 | `features/project` | the projects of the workspace |
 | `features/invitation` | an email in the add dialog makes an invitation |
 | `features/user` | the directory, for a name in the add dialog and for the emails |
+| `features/apps` | the apps of the workspace, for the Apps tab |
 | `@platform/authz` | `Permission`, `can` |
 
 ## Rules
 
 - Teams and Check access are not in this module. Do not show them.
 - A person needs a role in the workspace first: the add dialog gives the workspace roles before the project roles. The server takes the project roles with the last workspace role.
-- An owner is not a role that `Revoke` takes back: it changes in `OwnersCard`.
+- An owner is not a role that `Revoke` takes back: it changes in `OwnersCard`. A workspace can have no Workspace admin, and it always has an owner. The last owner stays, and a dialog says so before the call.
+- An invitation carries one built-in workspace role. The project roles come after the person accepts, and the add dialog says so.
+- A name finds a person only with `users.view`. Another caller types an email.
+- An app gets a role from the Apps tab of the members, or on the members of a project. Only the apps of the workspace are in the list. `?addApp=<id>` is a direct link: an app of another workspace gets a dialog that says why not.
 
 ## Layout
 

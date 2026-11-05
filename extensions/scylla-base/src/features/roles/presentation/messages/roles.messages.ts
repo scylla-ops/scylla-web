@@ -64,6 +64,7 @@ export const rolesMessages = {
   noAccessHint: msg`You need the permission Manage workspace roles. One of these people can give it to you.`,
   noAccessGivers: msg`A workspace admin or an instance admin.`,
   noAccessLink: msg`The Access menu does not show Roles to you. You opened this page from a link.`,
+  seeMembers: msg`See members`,
   moveHoldersTo: msg`Move the holders to`,
   moveHoldersHint: msg`They keep their other roles. Compare the two roles before you move the holders.`,
   moveAndDelete: msg`Move holders and delete`,

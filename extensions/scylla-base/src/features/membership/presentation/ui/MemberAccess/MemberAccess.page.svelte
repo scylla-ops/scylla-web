@@ -41,7 +41,10 @@
   const listUrl = $derived(routePathname().split('/').slice(0, -1).join('/'));
   const slug = $derived(routePathname().split('/')[1] ?? '');
 
-  const projectsQuery = createQuery(() => projectQueries.byWorkspace(workspaceId));
+  const projectsQuery = createQuery(() => ({
+    ...projectQueries.lookup(workspaceId ?? ''),
+    enabled: !!workspaceId,
+  }));
   const projects = $derived(projectsQuery.data?.items ?? []);
 
   /** Empty: the workspace itself. */

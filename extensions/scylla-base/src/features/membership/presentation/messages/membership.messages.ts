@@ -3,6 +3,7 @@ import { msg, plural } from '@lingui/core/macro';
 /** Keep the msgids (placeholder names included) or the French is lost. */
 export const membershipMessages = {
   owner: msg`Owner`,
+  ok: msg`OK`,
   owners: msg`Owners`,
   chooseRole: msg`Choose a role`,
   chooseProject: msg`Choose a project`,
@@ -22,7 +23,7 @@ export const membershipMessages = {
   optional: msg`optional`,
   project: msg`Project`,
   addProjectRole: msg`+ Add a project role`,
-  inviteHint: msg`An invited person gets one built-in workspace role when they accept. Give the other roles after that.`,
+  inviteHint: msg`An invited person gets one built-in workspace role when they accept. Give the project roles after that.`,
   whatTheyGet: msg`What they get`,
   seeAllPermissions: msg`See all permissions`,
   removeHint: msg`This person loses all of the access in this workspace at once.`,
@@ -119,3 +120,12 @@ export const effectiveCell = (permission: string, scope: string) =>
   msg`${permission} in ${scope}`;
 export const openRole = (role: string) => msg`Open ${role}`;
 export const addTo = (project: string) => msg`Add to ${project}`;
+export const cannotRemove = (name: string) => msg`You cannot remove ${name}`;
+export const lastOwnerBody = (name: string, workspace: string) =>
+  msg`${name} is the last owner of ${workspace}. A workspace must always have one. Make another person an owner first.`;
+export const cannotAdd = (name: string, workspace: string) =>
+  msg`You cannot add ${name} to ${workspace}`;
+export const appOutsideBody = (name: string, workspace: string) =>
+  msg`${name} belongs to another workspace. An app gets roles only in its own workspace. Make a new app in ${workspace} instead.`;
+export const newAppIn = (workspace: string) => msg`New app in ${workspace}`;
+export const linkedApp = msg`This app`;

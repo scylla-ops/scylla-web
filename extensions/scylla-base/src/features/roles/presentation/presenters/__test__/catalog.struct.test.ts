@@ -79,6 +79,21 @@ describe('missingPermissionIds', () => {
     },
   ];
 
+  it('does not count a permission of a machine', () => {
+    const machines = [
+      {
+        id: 'job_execution',
+        level: 'workspace' as const,
+        machine: true,
+        permissions: [{ id: 'job_execution.run', action: 'run', dependsOn: [], implicit: false }],
+      },
+    ];
+
+    expect(missingPermissionIds({ permissions: ['job_execution.run'] }, new Set(), machines)).toEqual(
+      [],
+    );
+  });
+
   it('names what the caller does not hold, with no implicit permission', () => {
     const role = { permissions: ['workspace.view', 'members.manage', 'pipelines.run'] };
 

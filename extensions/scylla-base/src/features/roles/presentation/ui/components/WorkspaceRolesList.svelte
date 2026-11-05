@@ -13,7 +13,11 @@
 
   let { workspaceId, workspaceName }: { workspaceId: string; workspaceName: string } = $props();
 
-  const rolesQuery = createQuery(() => roleQueries.list(workspaceId));
+  const rolesQuery = createQuery(() => ({
+    ...roleQueries.list(workspaceId),
+    meta: { showsOwnError: true },
+    retry: false,
+  }));
   const catalogQuery = createQuery(() => roleQueries.catalog());
 
   const roles = $derived(rolesQuery.data ?? []);

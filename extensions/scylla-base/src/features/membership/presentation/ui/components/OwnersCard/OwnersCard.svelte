@@ -20,6 +20,7 @@
   import type { UserSummary } from '@base/features/user';
   import { userName } from '@shared/presentation/ui';
   import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
+  import LastOwnerDialog from '../RefusalDialogs/LastOwnerDialog.svelte';
 
   interface Props {
     workspaceId: string;
@@ -27,9 +28,10 @@
     members: readonly UserSummary[];
     /** `add_owner` and `remove_owner`: the owners only. */
     canManage: boolean;
+    workspaceName: string;
   }
 
-  let { workspaceId, members, canManage }: Props = $props();
+  let { workspaceId, members, canManage, workspaceName }: Props = $props();
 
   const owners = createQuery(() => ownerQueries.list(workspaceId));
   const add = createMutation(() => ownerMutations.add());
@@ -37,8 +39,9 @@
 
   const ownerIds = $derived(new Set((owners.data ?? []).map(owner => owner.userId)));
   const candidates = $derived(members.filter(member => !ownerIds.has(member.id)));
-  // The last owner stays: the server refuses with LAST_OWNER, the button says so first.
-  const canRemove = $derived(canManage && (owners.data?.length ?? 0) > 1);
+  // The last owner stays: the server refuses with LAST_OWNER, and the dialog says so first.
+  const isLast = $derived((owners.data?.length ?? 0) <= 1);
+  let refused = $state<string | undefined>();
 
   /** Back to the placeholder after each pick. */
   let value = $state('');
@@ -56,12 +59,15 @@
     {#each owners.data ?? [] as owner (owner.userId)}
       <Badge variant="secondary" class="gap-1">
         {owner.displayName || owner.userId}
-        {#if canRemove}
+        {#if canManage}
           <button
             type="button"
             aria-label={t(membershipMessages.removeOwner(owner.displayName || owner.userId))}
             disabled={remove.isPending}
-            onclick={() => remove.mutate({ workspaceId: workspaceId, userId: owner.userId })}
+            onclick={() => {
+              if (isLast) refused = owner.displayName || owner.userId;
+              else remove.mutate({ workspaceId: workspaceId, userId: owner.userId });
+            }}
           >
             <XIcon class="size-3" />
           </button>
@@ -91,3 +97,5 @@
     {/if}
   </CardContent>
 </Card>
+
+<LastOwnerDialog name={refused} {workspaceName} onClose={() => (refused = undefined)} />

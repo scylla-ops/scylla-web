@@ -21,7 +21,11 @@
   import LevelTag from './LevelTag.svelte';
   import OriginTag from './OriginTag.svelte';
 
-  const rolesQuery = createQuery(() => roleQueries.list());
+  const rolesQuery = createQuery(() => ({
+    ...roleQueries.list(),
+    meta: { showsOwnError: true },
+    retry: false,
+  }));
   const catalogQuery = createQuery(() => roleQueries.catalog());
 
   let filter = $state<RoleFilter>('all');

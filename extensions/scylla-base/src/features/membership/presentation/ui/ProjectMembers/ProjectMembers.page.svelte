@@ -4,17 +4,11 @@
   import { contextStore } from '@platform/context';
   import { createQuery, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
   import { accessQueries, projectRef, type MemberRoleEntity } from '@base/features/access';
+  import { appQueries } from '@base/features/apps';
   import { invalidateProjectMembers } from '@base/features/project';
   import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import {
-    Button,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    Skeleton,
-  } from '@scylla/ui/primitives';
+  import { Button, Skeleton } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { UserIdentity } from '@shared/presentation/ui';
   import {
@@ -35,8 +29,16 @@
     type ProjectMemberRow,
   } from '../../presenters/member-rows.presenter.ts';
   import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
+  import ChooseActorRow from '../components/ChooseActorRow/ChooseActorRow.svelte';
 
   let { projectId }: { projectId?: string } = $props();
+
+  interface Changing {
+    actorId: string;
+    name: string;
+    holder: 'people' | 'apps';
+    roles: MemberRoleEntity[];
+  }
 
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id);
@@ -56,13 +58,33 @@
   );
   const rows = $derived(buildProjectMemberRows(membersQuery.data ?? []));
 
-  /** A person with a role in the workspace and no role on the project yet. */
-  const candidates = $derived(rows.filter(row => row.changeIn === 'workspace'));
-
-  let changing = $state<ProjectMemberRow | null>(null);
+  let changing = $state<Changing | null>(null);
   let adding = $state(false);
-  let chosen = $state('');
-  const chosenRow = $derived(candidates.find(row => row.actorId === chosen));
+
+  const appsQuery = createQuery(() => {
+    const query = appQueries.list(workspaceId ?? '');
+    return { ...query, enabled: query.enabled && adding };
+  });
+
+  /** A person with a role in the workspace, or an app of the workspace, with no role here yet. */
+  const candidates = $derived([
+    ...rows
+      .filter(row => row.changeIn === 'workspace')
+      .map(row => ({ id: row.actorId, name: row.name })),
+    ...(appsQuery.data ?? [])
+      .filter(app => !rows.some(row => row.actorId === app.id))
+      .map(app => ({ id: app.id, name: app.name })),
+  ]);
+
+  const startChange = (id: string, name: string) => {
+    const row = rows.find(one => one.actorId === id);
+    changing = {
+      actorId: id,
+      name,
+      holder: row?.tab ?? 'apps',
+      roles: (row?.roles ?? []).filter(role => role.scopeKind === 'project'),
+    };
+  };
 
   const refresh = () => {
     void membersQuery.refetch();
@@ -86,12 +108,10 @@
     else navigateTo(`/${slug}/access/members`);
   };
 
-  const ownRoles = (row: ProjectMemberRow | null) =>
-    (row?.roles ?? []).filter(role => role.scopeKind === 'project');
 </script>
 
 {#if projectId}
-  <div class="flex h-full min-h-0 w-full flex-col gap-4">
+  <div class="flex w-full flex-col gap-4">
     <header class="flex items-start justify-between gap-6">
       <div class="flex flex-col gap-1">
         <h2 class="text-xl font-semibold">{t(membersOf(projectName))}</h2>
@@ -111,31 +131,14 @@
     </header>
 
     {#if adding}
-      <div class="flex items-center gap-2 rounded-xl border p-4">
-        <Select type="single" value={chosen} onValueChange={next => (chosen = next)}>
-          <SelectTrigger class="flex-1" aria-label={t(membershipMessages.member)}>
-            {chosenRow?.name ?? t(membershipMessages.chooseMember)}
-          </SelectTrigger>
-          <SelectContent>
-            {#each candidates as row (row.actorId)}
-              <SelectItem value={row.actorId} label={row.name}>{row.name}</SelectItem>
-            {/each}
-          </SelectContent>
-        </Select>
-        <Button
-          disabled={!chosenRow}
-          onclick={() => {
-            changing = chosenRow ?? null;
-            adding = false;
-            chosen = '';
-          }}
-        >
-          {t(membershipMessages.chooseRole)}
-        </Button>
-        <Button variant="ghost" onclick={() => (adding = false)}>
-          {t(membershipMessages.cancel)}
-        </Button>
-      </div>
+      <ChooseActorRow
+        choices={candidates}
+        onChoose={choice => {
+          startChange(choice.id, choice.name);
+          adding = false;
+        }}
+        onCancel={() => (adding = false)}
+      />
     {/if}
 
     {#if membersQuery.isLoading}
@@ -201,7 +204,7 @@
                       )}
                     </button>
                   {:else if canManage}
-                    <Button variant="ghost" onclick={() => (changing = row)}>
+                    <Button variant="ghost" onclick={() => startChange(row.actorId, row.name)}>
                       {t(membershipMessages.changeRoles)}
                     </Button>
                   {/if}
@@ -225,9 +228,9 @@
 
     {#if object && workspaceId}
       <ChangeRolesDialog
-        {...changing ? { actorId: changing.actorId, holder: changing.tab } : {}}
+        {...changing ? { actorId: changing.actorId, holder: changing.holder } : {}}
         name={changing?.name ?? ''}
-        roles={ownRoles(changing)}
+        roles={changing?.roles ?? []}
         {workspaceId}
         {object}
         onClose={() => (changing = null)}

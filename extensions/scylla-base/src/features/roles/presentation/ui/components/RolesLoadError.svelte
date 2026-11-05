@@ -6,7 +6,7 @@
 
   let { error, onRetry }: { error: unknown; onRetry: () => void } = $props();
 
-  const code = $derived(ScyllaError.from(error).code);
+  const trace = $derived(ScyllaError.from(error).trace());
 </script>
 
 <div class="flex flex-col items-center gap-3 rounded-2xl border bg-card p-10 text-center">
@@ -14,6 +14,6 @@
   <p class="max-w-md text-sm text-muted-foreground">{t(rolesMessages.loadErrorHint)}</p>
   <Button variant="outline" onclick={onRetry}>{t(rolesMessages.retry)}</Button>
   <code class="rounded bg-muted px-2 py-1 font-mono text-xs text-muted-foreground">
-    {code} · ListRoles
+    {trace}
   </code>
 </div>

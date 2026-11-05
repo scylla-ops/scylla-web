@@ -19,6 +19,8 @@ export interface ScyllaErrorOptions extends ErrorOptions {
   code?: ScyllaErrorCode;
   /** The call that failed, e.g. `scylla.secret.v1.SecretService/ListSecrets`. */
   rpc?: string;
+  /** The id that the server gave to the request, to find it in the logs. */
+  requestId?: string;
   /**
    * The message is a text of the server or of an exception, not a text of this app: the user
    * sees it only for a code that they can act on.
@@ -87,6 +89,7 @@ export class ScyllaError extends Error {
   public override readonly name = 'ScyllaError';
   public readonly code: ScyllaErrorCode;
   public readonly rpc?: string;
+  public readonly requestId?: string;
   public readonly raw: boolean;
   public readonly reason?: string;
   public readonly metadata: Readonly<Record<string, string>>;
@@ -97,6 +100,7 @@ export class ScyllaError extends Error {
     {
       code = 'UNKNOWN_ERROR',
       rpc,
+      requestId,
       raw = false,
       reason,
       metadata = {},
@@ -107,10 +111,18 @@ export class ScyllaError extends Error {
     super(message, options);
     this.code = code;
     this.rpc = rpc;
+    this.requestId = requestId;
     this.raw = raw;
     this.reason = reason;
     this.metadata = metadata;
     this.violations = violations;
+  }
+
+  /** "UNAVAILABLE · ListRoles · request 7f3a9c": what a person can tell the admins. */
+  public trace(): string {
+    const rpc = this.rpc?.split('/').pop();
+    const request = this.requestId?.slice(0, 8);
+    return [this.code, rpc, request && `request ${request}`].filter(Boolean).join(' · ');
   }
 
   /** The violation of one field, e.g. to show it under the input. */

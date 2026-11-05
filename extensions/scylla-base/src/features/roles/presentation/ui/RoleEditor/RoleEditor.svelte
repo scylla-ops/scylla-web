@@ -73,6 +73,7 @@
   let confirmSave = $state(false);
   let nameError = $state(false);
   let saveError = $state<string | null>(null);
+  let saveTrace = $state('');
 
   const editing = $derived(role !== undefined);
   const total = $derived(permissionsFor(areas, level, holder).length);
@@ -143,6 +144,7 @@
 
   const onFailed = (thrown: unknown) => {
     const error = ScyllaError.from(thrown);
+    saveTrace = error.trace();
     if (error.reason === 'ROLE_NAME_IN_USE') {
       nameError = true;
     } else if (error.reason === 'ESCALATION' && notHeldIds.length > 0) {
@@ -349,11 +351,16 @@
         <div class="m-5 flex flex-col gap-2 rounded-xl border border-destructive p-4" role="alert">
           <p class="font-medium">{t(rolesMessages.notSaved)}</p>
           <p class="text-sm text-muted-foreground">{saveError}</p>
-          {#if notHeldIds.length > 0}
-            <Button class="w-fit" variant="outline" onclick={dropNotHeld}>
-              {t(removePermission(notHeldIds.map(id => permissionLabel(id, areas)).join(', ')))}
-            </Button>
-          {/if}
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            {#if notHeldIds.length > 0}
+              <Button class="w-fit" variant="outline" onclick={dropNotHeld}>
+                {t(removePermission(notHeldIds.map(id => permissionLabel(id, areas)).join(', ')))}
+              </Button>
+            {/if}
+            <code class="rounded bg-muted px-2 py-1 font-mono text-xs text-muted-foreground">
+              {saveTrace}
+            </code>
+          </div>
         </div>
       {/if}
       <div class="p-5">

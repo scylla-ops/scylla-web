@@ -2,8 +2,9 @@
   import InfoIcon from '@lucide/svelte/icons/info';
   import { can, Permission } from '@platform/authz';
   import { contextStore } from '@platform/context';
-  import { createQuery, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
+  import { createQuery, currentSearch, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
   import { accessQueries, workspaceRef } from '@base/features/access';
+  import { appQueries } from '@base/features/apps';
   import { loadPendingInvitations } from '@base/features/invitation';
   import { userQueries, type UserSummary } from '@base/features/user';
   import { invalidateWorkspaceMembers } from '@base/features/workspace';
@@ -17,6 +18,7 @@
   } from '@base/features/membership/presentation/membership.points.ts';
   import {
     fromInstanceTitle,
+    linkedApp,
     membershipMessages,
     tabCount,
     workspaceBlurb,
@@ -24,13 +26,17 @@
   import {
     buildMemberRows,
     filterMemberRows,
+    OWNER_KEY,
     type MemberRow,
     type MemberTab,
   } from '../../presenters/member-rows.presenter.ts';
   import AddMembersDialog from '../components/AddMembersDialog/AddMembersDialog.svelte';
   import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
+  import ChooseActorRow, { type ActorChoice } from '../components/ChooseActorRow/ChooseActorRow.svelte';
   import MembersTable from '../components/MembersTable/MembersTable.svelte';
   import OwnersCard from '../components/OwnersCard/OwnersCard.svelte';
+  import AppOutsideDialog from '../components/RefusalDialogs/AppOutsideDialog.svelte';
+  import LastOwnerDialog from '../components/RefusalDialogs/LastOwnerDialog.svelte';
   import RemoveMemberDialog from '../components/RemoveMemberDialog/RemoveMemberDialog.svelte';
 
   const context = toRune(contextStore);
@@ -60,6 +66,22 @@
   let addOpen = $state(false);
   let changing = $state<MemberRow | null>(null);
   let removing = $state<MemberRow | null>(null);
+  let lastOwner = $state<string | undefined>();
+  let choosingApp = $state(false);
+  let addingApp = $state<ActorChoice | null>(null);
+  let outside = $state<string | null>(null);
+
+  // A direct link gives a role to an app: `?addApp=<id>`. Another workspace gets a clear refusal.
+  const linked = new URLSearchParams(currentSearch()).get('addApp');
+  if (linked) {
+    tab = 'apps';
+    addingApp = { id: linked, name: t(linkedApp) };
+  }
+
+  const appsQuery = createQuery(() => {
+    const query = appQueries.list(workspaceId ?? '');
+    return { ...query, enabled: query.enabled && choosingApp };
+  });
 
   const rows = $derived(buildMemberRows(membersQuery.data ?? []));
   const shown = $derived(filterMemberRows(rows, tab, search));
@@ -70,6 +92,20 @@
   /** The directory gives the email when the caller can read it. */
   const userFor = (id: string): UserSummary | undefined =>
     usersQuery.data?.items.find(user => user.id === id);
+
+  const appChoices = $derived(
+    (appsQuery.data ?? [])
+      .filter(app => !rows.some(row => row.actorId === app.id))
+      .map(app => ({ id: app.id, name: app.name })),
+  );
+
+  const isOwner = (row: MemberRow) => row.workspaceRoles.some(role => role.roleKey === OWNER_KEY);
+
+  /** The last owner stays: the dialog says so before a call that the server refuses. */
+  const askToRemove = (row: MemberRow) => {
+    if (isOwner(row) && rows.filter(isOwner).length <= 1) lastOwner = row.name;
+    else removing = row;
+  };
 
   const candidates = $derived(
     (usersQuery.data?.items ?? []).filter(
@@ -101,7 +137,10 @@
         allowed={canManage}
         deniedReason={t(membershipMessages.workspaceNewDenied)}
         variant={addAction.variant}
-        onclick={() => (addOpen = true)}
+        onclick={() => {
+          if (tab === 'apps') choosingApp = true;
+          else addOpen = true;
+        }}
       >
         {t(membershipMessages.addMembers)}
       </GatedButton>
@@ -114,7 +153,7 @@
     <p class="text-sm text-muted-foreground">{t(membershipMessages.selectAnWorkspace)}</p>
   </div>
 {:else}
-  <div class="flex h-full min-h-0 w-full flex-col gap-4">
+  <div class="flex w-full flex-col gap-4">
     <header class="flex items-start justify-between gap-6">
       <div class="flex flex-col gap-2">
         <h1 class="text-3xl font-semibold tracking-tight">{t(membershipMessages.members)}</h1>
@@ -159,6 +198,17 @@
       />
     </div>
 
+    {#if choosingApp}
+      <ChooseActorRow
+        choices={appChoices}
+        onChoose={app => {
+          addingApp = app;
+          choosingApp = false;
+        }}
+        onCancel={() => (choosingApp = false)}
+      />
+    {/if}
+
     <MembersTable
       rows={shown}
       isLoading={membersQuery.isLoading}
@@ -166,7 +216,7 @@
       {canManage}
       onOpen={openMember}
       onChangeRoles={row => (changing = row)}
-      onRemove={row => (removing = row)}
+      onRemove={askToRemove}
     />
 
     {#if tab === 'people'}
@@ -189,6 +239,7 @@
         .filter(row => row.tab === 'people' && !row.fromInstanceOnly)
         .map(row => ({ id: row.actorId, username: row.handle, displayName: row.name }))}
       canManage={can(Permission.MANAGE_OWNERS, target)}
+      {workspaceName}
     />
     {#await loadPendingInvitations() then { default: PendingInvitations }}
       <PendingInvitations {workspaceId} />
@@ -214,6 +265,33 @@
       onClose={() => (changing = null)}
       onChanged={refresh}
     />
+
+    <ChangeRolesDialog
+      {...addingApp ? { actorId: addingApp.id } : {}}
+      holder="apps"
+      name={addingApp?.name ?? ''}
+      roles={[]}
+      {workspaceId}
+      object={workspaceRef(workspaceId)}
+      onClose={() => (addingApp = null)}
+      onChanged={() => {
+        addingApp = null;
+        refresh();
+      }}
+      onOutside={() => {
+        outside = addingApp?.name ?? '';
+        addingApp = null;
+      }}
+    />
+
+    <AppOutsideDialog
+      open={outside !== null}
+      name={outside ?? ''}
+      {workspaceName}
+      onClose={() => (outside = null)}
+    />
+
+    <LastOwnerDialog name={lastOwner} {workspaceName} onClose={() => (lastOwner = undefined)} />
 
     <RemoveMemberDialog
       row={removing}

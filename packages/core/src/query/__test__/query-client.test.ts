@@ -9,6 +9,18 @@ const failingQuery = (error: Error) => ({
 });
 
 describe('createAppQueryClient', () => {
+  it('tells a handler that the page shows the error', async () => {
+    const handler = vi.fn();
+    const client = createAppQueryClient([handler]);
+    const error = new Error('boom');
+
+    await client
+      .fetchQuery({ ...failingQuery(error), meta: { showsOwnError: true } })
+      .catch(() => {});
+
+    expect(handler).toHaveBeenCalledWith(error, 'query', { showsOwnError: true });
+  });
+
   it('sends a query error to every handler, with its source', async () => {
     const first = vi.fn();
     const second = vi.fn();

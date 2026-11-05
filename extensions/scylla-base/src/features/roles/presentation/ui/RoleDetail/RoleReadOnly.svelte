@@ -22,6 +22,9 @@
 
   let { role, listUrl, duplicateUrl, workspaceId, canSeeHolders = false }: Props = $props();
 
+  /** The page of the people: the members of a workspace, or the users of the instance. */
+  const peopleUrl = $derived(listUrl.replace(/\/roles$/, workspaceId ? '/members' : '/users'));
+
   const holdersQuery = createQuery(() =>
     roleQueries.holders(role.key, workspaceId, { enabled: canSeeHolders }),
   );
@@ -110,6 +113,13 @@
           {#if more > 0}
             <p class="mt-2 text-xs text-muted-foreground">{t(andMore(more))}</p>
           {/if}
+          <button
+            type="button"
+            class="mt-2 text-xs font-medium text-primary hover:underline"
+            onclick={() => navigateTo(peopleUrl)}
+          >
+            {t(rolesMessages.seeMembers)}
+          </button>
         </div>
       {/if}
     </aside>

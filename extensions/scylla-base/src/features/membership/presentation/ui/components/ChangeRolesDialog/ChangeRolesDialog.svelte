@@ -13,6 +13,7 @@
   import { t } from '@scylla/ui/i18n';
   import { Button, Label } from '@scylla/ui/primitives';
   import { toast } from '@scylla/ui/utils';
+  import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import { changeTitle, membershipMessages } from '../../../messages/membership.messages.ts';
   import { memberRoleName } from '../../../presenters/member-role-name.ts';
   import { OWNER_KEY } from '../../../presenters/member-rows.presenter.ts';
@@ -30,18 +31,35 @@
     object: ObjectRef;
     onClose: () => void;
     onChanged: () => void;
+    /** An app of another workspace: the server gives `ACTOR_OUTSIDE_WORKSPACE`. */
+    onOutside?: () => void;
   }
 
-  let { actorId, holder = 'people', name, roles, workspaceId, object, onClose, onChanged }: Props =
-    $props();
+  let {
+    actorId,
+    holder = 'people',
+    name,
+    roles,
+    workspaceId,
+    object,
+    onClose,
+    onChanged,
+    onOutside,
+  }: Props = $props();
 
   const level = $derived<RoleLevel>(object.kind === 'project' ? 'project' : 'workspace');
   const open = $derived(actorId !== undefined);
   const rolesQuery = createQuery(() => roleQueries.list(workspaceId, { enabled: open }));
   const catalogQuery = createQuery(() => ({ ...roleQueries.catalog(), enabled: open }));
   const heldQuery = createQuery(() => accessQueries.held(object, { enabled: open }));
-  const grant = createMutation(() => accessMutations.grant());
-  const revoke = createMutation(() => accessMutations.revoke());
+  const grant = createMutation(() => ({
+    ...accessMutations.grant(),
+    meta: { showsOwnError: true },
+  }));
+  const revoke = createMutation(() => ({
+    ...accessMutations.revoke(),
+    meta: { showsOwnError: true },
+  }));
 
   const options = $derived(
     (rolesQuery.data ?? []).filter(role => role.level === level && role.holder === holder),
@@ -51,15 +69,19 @@
 
   let next = $state('');
   let pending = $state(false);
+  let failure = $state<string | null>(null);
 
   const change = async (run: () => Promise<unknown>) => {
     pending = true;
+    failure = null;
     try {
       await run();
       toast.success(i18n._(membershipMessages.rolesChanged));
       onChanged();
-    } catch {
-      // The global mutation handler toasts the error.
+    } catch (thrown) {
+      const error = ScyllaError.from(thrown);
+      if (error.reason === 'ACTOR_OUTSIDE_WORKSPACE' && onOutside) onOutside();
+      else failure = error.userMessage();
     } finally {
       pending = false;
     }
@@ -120,6 +142,9 @@
         <Button disabled={!next || pending} onclick={add}>{t(membershipMessages.add)}</Button>
       </div>
     </div>
+    {#if failure}
+      <p class="text-sm text-destructive" role="alert">{failure}</p>
+    {/if}
     <div class="flex justify-end">
       <Button variant="outline" onclick={onClose}>{t(membershipMessages.close)}</Button>
     </div>

@@ -23,12 +23,19 @@ const decode = (message: string): string => {
   }
 };
 
+const requestIdOf = (meta: RpcError['meta']): { requestId?: string } => {
+  const value = meta['x-request-id'];
+  const requestId = Array.isArray(value) ? value[0] : value;
+  return requestId ? { requestId } : {};
+};
+
 const toScyllaError = (error: unknown, method: MethodInfo): ScyllaError =>
   error instanceof RpcError
     ? new ScyllaError(decode(error.message), {
         // A cast: the value comes from the wire. An unknown code matches no branch.
         code: error.code as ScyllaErrorCode,
         rpc: `${method.service.typeName}/${method.name}`,
+        ...requestIdOf(error.meta),
         raw: true,
         cause: error,
         ...statusDetailsOf(error.meta),

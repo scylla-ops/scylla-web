@@ -187,6 +187,28 @@ describe('WorkspaceMembersPage', () => {
     );
   });
 
+  it('says why the last owner stays, and asks the server nothing', async () => {
+    render(WorkspaceMembersPage);
+    const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
+
+    await userEvent.click(within(alice).getByRole('button', { name: 'Member actions' }));
+    await userEvent.click(await findFloating('menuitem', 'Remove from the workspace'));
+
+    expect(await screen.findByText('You cannot remove Alice')).toBeInTheDocument();
+    expect(screen.getByText(/Alice is the last owner of Acme/)).toBeInTheDocument();
+  });
+
+  it('asks before it removes a person, and names the project roles that go', async () => {
+    render(WorkspaceMembersPage);
+    const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
+
+    await userEvent.click(within(bob).getByRole('button', { name: 'Member actions' }));
+    await userEvent.click(await findFloating('menuitem', 'Remove from the workspace'));
+
+    expect(await screen.findByText('Remove Bob from Acme?')).toBeInTheDocument();
+    expect(screen.getByText('A project role needs a role in Acme')).toBeInTheDocument();
+  });
+
   it('hides the actions on the roles from a reader', async () => {
     grant([Permission.LIST_WORKSPACE_MEMBERS]);
     render(WorkspaceMembersPage);

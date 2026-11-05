@@ -25,9 +25,10 @@ const signOutAndReturn = (): void => {
  * changed since it was read is a conflict: the toast says so, and every query is
  * invalidated so that the screen shows what the server has (the client cannot
  * know which item the server refused). An error that is not a `ScyllaError` is
- * a bug: it gets the generic message.
+ * a bug: it gets the generic message. A page that shows the error itself gets no toast and no
+ * sign-out on the network, but a lost session still ends here.
  */
-export const reportQueryError: QueryErrorHandler = (thrown, source) => {
+export const reportQueryError: QueryErrorHandler = (thrown, source, options) => {
   const error = ScyllaError.from(thrown);
 
   if (error.code === 'UNAUTHENTICATED') {
@@ -36,6 +37,8 @@ export const reportQueryError: QueryErrorHandler = (thrown, source) => {
   }
 
   error.log();
+
+  if (options?.showsOwnError) return;
 
   if (source === 'query' && error.isNetworkError()) {
     signOut();

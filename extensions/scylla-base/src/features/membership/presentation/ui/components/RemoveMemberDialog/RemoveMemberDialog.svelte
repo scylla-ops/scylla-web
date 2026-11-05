@@ -81,7 +81,7 @@
       {/if}
       <div class="flex justify-end gap-2">
         <Button variant="outline" onclick={onClose}>{t(membershipMessages.cancel)}</Button>
-        <Button variant="destructive" disabled={pending} onclick={() => void confirm()}>
+        <Button variant="destructive" disabled={pending || given.length + row.projectRoles.length === 0} onclick={() => void confirm()}>
           {t(membershipMessages.removeFromWorkspaceAction)}
         </Button>
       </div>
