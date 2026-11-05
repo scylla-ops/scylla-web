@@ -67,7 +67,7 @@
           {permissionCount(role, areas)} · {t(rolesMessages.readOnlyHint)}
         </p>
       </div>
-      <div class="overflow-x-auto">
+      <div class="relative overflow-x-auto">
         <PermissionTable {areas} level={role.level} holder={role.holder} {selected} />
       </div>
     </section>

@@ -11,7 +11,7 @@ import type {
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
-import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { idValue, required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
 export function toDomain(user: User): UserEntity {
   const createdAt = timestampToIso(user.createdAt);
@@ -29,10 +29,9 @@ export function toDomain(user: User): UserEntity {
 
 /** A row of the console: the user, its instance roles, its workspaces and its last sign-in. */
 export function entryToDomain(entry: UserEntry): UserEntity {
-  if (!entry.user) throw new Error('Server returned a row without a user.');
   const lastSignInAt = timestampToIso(entry.lastSignInAt);
   return {
-    ...toDomain(entry.user),
+    ...toDomain(required(entry.user, 'user')),
     instanceRoles: entry.instanceRoles.map(({ key, name, builtin }) => ({ key, name, builtin })),
     workspaces: entry.workspaces,
     ...(lastSignInAt ? { lastSignInAt } : {}),

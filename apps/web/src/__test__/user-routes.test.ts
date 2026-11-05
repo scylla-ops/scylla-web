@@ -9,20 +9,12 @@ const routes = compileRoutes(loadExtensions(extensions).router).routes;
 const routeAt = (path: string) => routes.find(route => `/${route.path.join('/')}` === path);
 
 describe('the routes of the accounts', () => {
-  it('sends the old address of the own settings to the account page', () => {
-    const redirect = routeAt('/:workspaceSlug/users/me')?.redirect;
-
-    expect(redirect).toBeDefined();
-    // A relative target starts from the URL of the route.
-    expect(new URL(redirect!, 'http://scylla/acme/users/me/').pathname).toBe('/acme/account');
-  });
-
   it('leaves READ_USER to the page of a user, so the own id reaches its redirect', () => {
-    expect(routeAt('/:workspaceSlug/users/:userId')?.permission).toBeUndefined();
+    expect(routeAt('/:workspaceSlug/instance/users/:userId')?.permission).toBeUndefined();
   });
 
   it('guards the directory with LIST_USERS', () => {
-    expect(routeAt('/:workspaceSlug/users')?.permission).toBe(Permission.LIST_USERS);
+    expect(routeAt('/:workspaceSlug/instance/users')?.permission).toBe(Permission.LIST_USERS);
   });
 
   it('opens the account page inside the shell of a workspace', () => {

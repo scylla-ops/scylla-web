@@ -271,7 +271,7 @@
           {t(selectedOf(selected.size, total))}
         </p>
       </div>
-      <div class="overflow-x-auto">
+      <div class="relative overflow-x-auto">
         <PermissionTable
           {areas}
           {level}

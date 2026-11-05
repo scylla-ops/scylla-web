@@ -76,7 +76,7 @@
   {#if groups.length === 0}
     <p class="py-8 text-center text-sm text-muted-foreground">{t(rolesMessages.noMatch)}</p>
   {:else}
-    <div class="overflow-x-auto rounded-xl border bg-card">
+    <div class="relative overflow-x-auto rounded-xl border bg-card">
       <table class="w-full min-w-[720px] border-collapse text-sm">
         <thead>
           <tr class="text-left text-xs text-muted-foreground">
