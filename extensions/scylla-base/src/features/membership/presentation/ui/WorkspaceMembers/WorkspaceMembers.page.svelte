@@ -5,7 +5,7 @@
   import { createQuery, currentSearch, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
   import { accessQueries, workspaceRef } from '@base/features/access';
   import { appQueries } from '@base/features/apps';
-  import { loadPendingInvitations } from '@base/features/invitation';
+  import { invitationQueries, loadPendingInvitations } from '@base/features/invitation';
   import { userQueries, type UserSummary } from '@base/features/user';
   import { invalidateWorkspaceMembers } from '@base/features/workspace';
   import { GatedButton } from '@scylla/ui';
@@ -118,11 +118,16 @@
     if (workspaceId) void invalidateWorkspaceMembers(workspaceId);
   };
 
+  const invitationsQuery = createQuery(() =>
+    invitationQueries.list(workspaceId, { enabled: canManage }),
+  );
+
   const zoneContext: WorkspaceMembersContext = $derived({
     workspaceId: workspaceId ?? '',
     workspaceName,
     canManage,
     memberCount: peopleCount,
+    openInvitationCount: invitationsQuery.data?.length ?? 0,
     refreshMembers: refresh,
   });
 

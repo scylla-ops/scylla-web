@@ -40,6 +40,9 @@ beforeEach(() => {
 
   const cache = withQueryClient();
   const restoreRegistry = withRegistry({
+    invitation: {
+      invitationRepository: { list: vi.fn().mockResolvedValue([{ id: 'i-1' }]) },
+    },
     user: { userRepository: { getAll: vi.fn().mockResolvedValue({ items: [] }) } },
     access: {
       accessRepository: {
@@ -65,6 +68,16 @@ afterEach(() => {
 });
 
 describe('WorkspaceMembers.page with widget injections', () => {
+  it('gives the open invitations to a section: each one takes a seat', async () => {
+    setUp([membershipPoints.workspaceSection.inject({ component: probe })]);
+
+    await vi.waitFor(() =>
+      expect(screen.getByTestId('workspace-members-probe')).toHaveTextContent(
+        'Acme|org-1|2|true|1',
+      ),
+    );
+  });
+
   it('gives the workspace, the right to manage and the member count to a header action', async () => {
     setUp([membershipPoints.workspaceActions.inject({ component: probe })]);
     await screen.findByText('alice');
@@ -76,9 +89,7 @@ describe('WorkspaceMembers.page with widget injections', () => {
   });
 
   it('puts a header action in place of "Add members" with `replace`', async () => {
-    setUp([
-      membershipPoints.workspaceActions.inject({ component: probe, position: 'replace' }),
-    ]);
+    setUp([membershipPoints.workspaceActions.inject({ component: probe, position: 'replace' })]);
     expect(await screen.findByTestId('workspace-members-probe')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Add members' })).not.toBeInTheDocument();
   });

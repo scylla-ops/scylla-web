@@ -8,6 +8,8 @@ export interface WorkspaceMembersContext {
   canManage: boolean;
   /** The people that the page lists. */
   memberCount: number;
+  /** The invitations that nobody accepted yet. */
+  openInvitationCount: number;
   /** Reloads the members and their grants, after a change that a component made. */
   refreshMembers: () => void;
 }

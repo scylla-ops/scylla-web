@@ -7,5 +7,5 @@
 </script>
 
 <button type="button" data-testid="workspace-members-probe" onclick={context.refreshMembers}>
-  {context.workspaceName}|{context.workspaceId}|{context.memberCount}|{context.canManage}
+  {context.workspaceName}|{context.workspaceId}|{context.memberCount}|{context.canManage}|{context.openInvitationCount}
 </button>
