@@ -160,10 +160,6 @@ export const builtinRoleLabels: Record<
     name: msg`Instance admin`,
     hint: msg`Full control of the server, of every workspace and of every project.`,
   },
-  'workspace-creator': {
-    name: msg`Workspace creator`,
-    hint: msg`Creates workspaces. Becomes owner of each workspace that it creates.`,
-  },
   'workspace-admin': {
     name: msg`Workspace admin`,
     hint: msg`Manages one workspace and its projects.`,

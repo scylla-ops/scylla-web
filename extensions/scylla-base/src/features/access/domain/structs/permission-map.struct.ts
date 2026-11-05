@@ -19,7 +19,6 @@ const MAP: Partial<Record<Permission, Names>> = {
   [Permission.MANAGE_INSTANCE_ADMINS]: { platform: 'grant_instance_admin' },
   [Permission.LIST_ROLES]: { platform: 'list_roles' },
   [Permission.MANAGE_ROLES]: { platform: 'create_role' },
-  [Permission.CREATE_WORKSPACE]: { platform: 'create_workspace' },
   [Permission.MANAGE_INSTANCE_SETTINGS]: { platform: 'update_instance_settings' },
   // A workspace.
   [Permission.READ_WORKSPACE]: { workspace: 'get_workspace' },
@@ -88,7 +87,10 @@ const MAP: Partial<Record<Permission, Names>> = {
  * What each signed-in user may do: the server checks these on the caller itself (the `actor`
  * definition), which `CheckPermissions` does not answer.
  */
-export const EVERY_USER: readonly Permission[] = [Permission.LIST_WORKSPACES];
+export const EVERY_USER: readonly Permission[] = [
+  Permission.CREATE_WORKSPACE,
+  Permission.LIST_WORKSPACES,
+];
 
 /** The scope of the UI for each kind of object. */
 export const SCOPE_OF: Record<ObjectKind, PermissionScope> = {

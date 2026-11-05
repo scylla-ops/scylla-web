@@ -31,4 +31,13 @@ export const instanceSettingsMutations = {
         return client.invalidateQueries({ queryKey: PERSONAL_TOKENS_QUERY_KEY() });
       },
     }),
+
+  setWorkspaceLimit: () =>
+    mutationOptions({
+      mutationFn: (limit: number) => repository().setWorkspaceLimit(limit),
+      onSuccess: settings => {
+        toast.success(i18n._(messages.workspaceLimitSaved));
+        getQueryClient().setQueryData(INSTANCE_SETTINGS_QUERY_KEY(), settings);
+      },
+    }),
 };

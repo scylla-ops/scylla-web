@@ -5,8 +5,11 @@ import type { InstanceSettings } from '@base/features/instance-settings/domain/e
 import type { InstanceSettingsRepository } from '@base/features/instance-settings/domain/repository/instance-settings.repository.ts';
 
 const toDomain = (settings: GrpcSettings | undefined): InstanceSettings => {
-  const { personalTokensEnabled, activePersonalTokens } = required(settings, 'settings');
-  return { personalTokensEnabled, activePersonalTokens };
+  const { personalTokensEnabled, activePersonalTokens, workspaceLimit } = required(
+    settings,
+    'settings',
+  );
+  return { personalTokensEnabled, activePersonalTokens, workspaceLimit };
 };
 
 export class DefaultInstanceSettingsRepository implements InstanceSettingsRepository {
@@ -20,6 +23,13 @@ export class DefaultInstanceSettingsRepository implements InstanceSettingsReposi
   public async setPersonalTokens(enabled: boolean): Promise<InstanceSettings> {
     const { settings } = await this.client.updateInstanceSettings({
       personalTokensEnabled: enabled,
+    }).response;
+    return toDomain(settings);
+  }
+
+  public async setWorkspaceLimit(limit: number): Promise<InstanceSettings> {
+    const { settings } = await this.client.updateInstanceSettings({
+      workspaceLimit: limit,
     }).response;
     return toDomain(settings);
   }

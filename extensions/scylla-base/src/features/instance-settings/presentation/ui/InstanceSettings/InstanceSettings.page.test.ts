@@ -21,7 +21,14 @@ const setUp = (
     },
   } as never);
   repository = {
-    get: vi.fn().mockResolvedValue({ personalTokensEnabled, activePersonalTokens }),
+    get: vi.fn().mockResolvedValue({
+      personalTokensEnabled,
+      activePersonalTokens,
+      workspaceLimit: 1,
+    }),
+    setWorkspaceLimit: vi.fn((workspaceLimit: number) =>
+      Promise.resolve({ personalTokensEnabled, activePersonalTokens, workspaceLimit }),
+    ),
     setPersonalTokens: vi.fn((enabled: boolean) =>
       Promise.resolve({ personalTokensEnabled: enabled, activePersonalTokens }),
     ),
@@ -46,6 +53,23 @@ afterEach(() => {
 });
 
 describe('InstanceSettingsPage', () => {
+  it('saves the limit of the workspaces, and only a new valid number', async () => {
+    setUp(true);
+    const user = userEvent.setup();
+
+    const input = await screen.findByLabelText('Workspaces per user');
+    const save = screen.getByRole('button', { name: 'Save' });
+    expect(input).toHaveValue(1);
+    expect(save).toBeDisabled();
+
+    await user.clear(input);
+    await user.type(input, '3');
+    await user.click(save);
+
+    await waitFor(() => expect(repository.setWorkspaceLimit).toHaveBeenCalledWith(3));
+    await waitFor(() => expect(save).toBeDisabled());
+  });
+
   it('shows the state of the personal tokens', async () => {
     setUp(true);
 

@@ -28,7 +28,6 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'delete_role',
     'grant',
     'revoke',
-    'create_workspace',
   ],
   workspace: [
     'add_app_key',

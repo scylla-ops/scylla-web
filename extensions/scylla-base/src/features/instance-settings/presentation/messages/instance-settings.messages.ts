@@ -1,7 +1,11 @@
 import { msg, plural } from '@lingui/core/macro';
 
 export const instanceSettingsMessages = {
-  title: msg`Security`,
+  title: msg`Settings`,
+  workspaceLimit: msg`Workspaces per user`,
+  workspaceLimitBody: msg`The number of workspaces that one user can create. The personal workspace does not count, and an instance admin has no limit. A lower number removes no workspace.`,
+  workspaceLimitSave: msg`Save`,
+  workspaceLimitSaved: msg`The limit of the workspaces is saved`,
   description: msg`Settings of this Scylla server. Only instance admins see this page.`,
   personalTokens: msg`Personal tokens`,
   personalTokensBody: msg`Users can make tokens that act as themselves. When off, every personal token stops working at once. App tokens are not affected.`,

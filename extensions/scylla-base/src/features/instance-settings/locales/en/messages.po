@@ -13,47 +13,60 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:11
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:15
 msgid "{count, plural, =0 {No active token stops.} one {# token stops working at once.} other {# tokens stop working at once.}} Scripts that use them get \"401 Unauthorized\". Users cannot make new tokens. App tokens and CI identities do not change. You can turn them on again: the tokens that did not expire then work again."
 msgstr "{count, plural, =0 {No active token stops.} one {# token stops working at once.} other {# tokens stop working at once.}} Scripts that use them get \"401 Unauthorized\". Users cannot make new tokens. App tokens and CI identities do not change. You can turn them on again: the tokens that did not expire then work again."
 
-#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:6
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:10
 msgid "Personal tokens"
 msgstr "Personal tokens"
 
-#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:18
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:22
 msgid "Personal tokens turned off"
 msgstr "Personal tokens turned off"
 
-#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:17
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:21
 msgid "Personal tokens turned on"
 msgstr "Personal tokens turned on"
 
-#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:4
-msgid "Security"
-msgstr "Security"
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:7
+msgid "Save"
+msgstr "Save"
 
 #: extensions/scylla-base/src/features/instance-settings/instance-settings.module.ts:21
 #: extensions/scylla-base/src/features/instance-settings/instance-settings.module.ts:23
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:4
 msgid "Settings"
 msgstr "Settings"
 
-#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:5
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:9
 msgid "Settings of this Scylla server. Only instance admins see this page."
 msgstr "Settings of this Scylla server. Only instance admins see this page."
 
-#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:16
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:8
+msgid "The limit of the workspaces is saved"
+msgstr "The limit of the workspaces is saved"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:6
+msgid "The number of workspaces that one user can create. The personal workspace does not count, and an instance admin has no limit. A lower number removes no workspace."
+msgstr "The number of workspaces that one user can create. The personal workspace does not count, and an instance admin has no limit. A lower number removes no workspace."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:20
 msgid "Turn off"
 msgstr "Turn off"
 
-#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:9
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:13
 msgid "Turn off personal tokens?"
 msgstr "Turn off personal tokens?"
 
-#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:8
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:12
 msgid "Turning it off asks for a confirmation and shows how many tokens stop. Workspace admins can also turn personal tokens off in their own workspace."
 msgstr "Turning it off asks for a confirmation and shows how many tokens stop. Workspace admins can also turn personal tokens off in their own workspace."
 
-#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:7
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:11
 msgid "Users can make tokens that act as themselves. When off, every personal token stops working at once. App tokens are not affected."
 msgstr "Users can make tokens that act as themselves. When off, every personal token stops working at once. App tokens are not affected."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:5
+msgid "Workspaces per user"
+msgstr "Workspaces per user"
