@@ -56,8 +56,7 @@ describe('feature permission conformance', () => {
   const UNGATED_FEATURES: Readonly<Record<string, string>> = {
     login:
       'Signing in is what establishes identity; there is no permission to hold before holding one.',
-    access:
-      'It has no UI: its Grant and Revoke run from the membership pages, which gate them.',
+    access: 'It has no UI: its Grant and Revoke run from the membership pages, which gate them.',
   };
 
   describe('a feature that mutates gates something in its UI', () => {
@@ -179,7 +178,7 @@ describe('feature permission conformance', () => {
     /** A ratchet. `TRIAGE`: nobody decided yet what the consuming page should show instead. */
     const UNCHECKED_SHARED_HOOKS: Readonly<Record<string, string>> = {
       'user.personalTokenQueries':
-        '`mine` is the account of the session: it needs no right. The workspace settings page '  +
+        '`mine` is the account of the session: it needs no right. The workspace settings page ' +
         'reads only whether the server refuses the tokens.',
       'login.loginQueries':
         '`signInMethods` is public: the sign-in page reads it with no session. The account page ' +

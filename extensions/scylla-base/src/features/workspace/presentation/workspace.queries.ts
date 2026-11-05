@@ -116,7 +116,9 @@ export const workspaceMutations = {
         repository().setPersonalTokens(workspaceId, enabled),
       onSuccess: (_workspace, { enabled }) => {
         toast.success(
-          i18n._(enabled ? workspaceSettingsMessages.turnedOn : workspaceSettingsMessages.turnedOff),
+          i18n._(
+            enabled ? workspaceSettingsMessages.turnedOn : workspaceSettingsMessages.turnedOff,
+          ),
         );
         void getQueryClient().invalidateQueries({ queryKey: PERSONAL_TOKENS_QUERY_KEY() });
         return invalidateWorkspaces();
