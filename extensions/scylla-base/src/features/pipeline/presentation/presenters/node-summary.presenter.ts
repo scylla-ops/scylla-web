@@ -79,9 +79,13 @@ const problemOf = (node: PipelineNodeEntity): NodeSummary['problem'] => {
   return { label: text, detail: text };
 };
 
-/** The `before` box is the zone around the point: a pointer in it hovers the point, and can pull it. */
+/**
+ * The `before` box is the zone around the point: a pointer in it hovers the point, and can pull it.
+ * It goes far out of the node and only a little into it, so that the node can still be dragged.
+ * A hover changes the size, not `scale`: `scale` also scales the `transform` that centres a handle.
+ */
 const HANDLE =
-  "size-2.5! border-[1.5px]! bg-card! transition-[scale,background-color,border-color] duration-150 before:absolute before:-inset-2.5 before:rounded-full before:content-[''] hover:scale-140 hover:border-primary! hover:bg-primary!";
+  "size-2.5! border-[1.5px]! bg-card! transition-[width,height,background-color,border-color] duration-150 before:absolute before:-inset-y-5 before:content-[''] [&.source]:before:-left-1 [&.source]:before:-right-6 [&.target]:before:-right-1 [&.target]:before:-left-6 hover:size-3.5! hover:border-primary! hover:bg-primary!";
 
 export const START_HANDLE_CLASS = cn(HANDLE, 'border-primary!');
 

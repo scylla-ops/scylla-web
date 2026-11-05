@@ -311,8 +311,9 @@ the page.
   front `ViewportPortal`, so it follows the zoom and no node hides it. No move transition: it
   must stay under the pointer.
 - **A connection point reacts in a zone around it, with CSS only** (`handleClass`,
-  `START_HANDLE_CLASS`). The `before` box of the handle is that zone. A hover scales the point with
-  the `scale` property, because xyflow centres a handle with `transform`.
+  `START_HANDLE_CLASS`). The `before` box of the handle is that zone. It goes far out of the node and only
+  a little into it, so that the node can still be dragged. A hover changes the size of the point.
+  Do not use `scale`: it also scales the `transform` with which xyflow centres a handle.
   A link is made by a pull only (`clickConnect={false}`): with this zone, two clicks near two
   nodes would make a link.
 - **A node id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
