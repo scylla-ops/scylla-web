@@ -1,29 +1,43 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen } from '@testing-library/svelte';
-import userEvent from '@testing-library/user-event';
+import { screen, within } from '@testing-library/svelte';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import type { AccessEntryEntity, ObjectRef } from '@base/features/access';
+import type { MemberEntity, MemberRoleEntity } from '@base/features/access';
+import type { WidgetInjection } from '@scylla/core-sdk';
 import { render, withQueryClient, withRegistry, withWidgetInjections } from '@test/render.ts';
 import { membershipPoints } from '@base/features/membership/presentation/membership.points.ts';
 import ProjectMembersPage from './ProjectMembers.page.svelte';
 
-const entry = (actorId: string, handle: string, role: string): AccessEntryEntity => ({
-  actorId,
-  actorKind: 'user',
-  displayName: '',
-  handle,
-  role,
+const probe = () => import('./ProjectMembersProbe.fixture.svelte');
+
+const role = (overrides: Partial<MemberRoleEntity>): MemberRoleEntity => ({
+  scopeKind: 'project',
+  scopeId: 'project-1',
+  scopeName: 'Web',
+  role: 'editor',
+  roleKey: 'project-editor',
+  roleName: 'Project editor',
+  ...overrides,
 });
 
-const project = { kind: 'project', id: 'project-1' };
+const member = (id: string, name: string, roles: MemberRoleEntity[]): MemberEntity => ({
+  actorId: id,
+  actorKind: 'user',
+  displayName: name,
+  handle: name.toLowerCase(),
+  roles,
+});
 
-let projectEntries: AccessEntryEntity[];
-let workspaceEntries: AccessEntryEntity[];
-let listAccess: ReturnType<typeof vi.fn>;
-let revoke: ReturnType<typeof vi.fn>;
-let cache: ReturnType<typeof withQueryClient>;
-let restoreRegistry: () => void;
+const inWorkspace = {
+  scopeKind: 'workspace',
+  scopeId: 'org-1',
+  scopeName: 'Acme',
+  role: 'viewer',
+  roleKey: 'workspace-viewer',
+  roleName: 'Workspace viewer',
+} as const;
+
+let teardown: Array<() => void> = [];
 
 const grant = (permissions: Permission[] | 'all') =>
   permissionsStore.setState({
@@ -39,148 +53,111 @@ const grant = (permissions: Permission[] | 'all') =>
     },
   });
 
-beforeEach(() => {
-  // alice has a role of the project; bob reaches it through his workspace role.
-  projectEntries = [entry('user-1', 'alice', 'editor')];
-  workspaceEntries = [entry('user-2', 'bob', 'admin'), entry('user-1', 'alice', 'viewer')];
-  // The kind of the object decides which list answers.
-  listAccess = vi.fn((object: ObjectRef) =>
-    Promise.resolve(object.kind === 'project' ? projectEntries : workspaceEntries),
-  );
-  revoke = vi.fn().mockResolvedValue(undefined);
+const setUp = (injection?: WidgetInjection) => {
+  if (injection) teardown.push(withWidgetInjections({ 'ee-members': injection }));
+  render(ProjectMembersPage, { projectId: 'project-1' });
+};
 
-  cache = withQueryClient();
-  restoreRegistry = withRegistry({
+beforeEach(() => {
+  const listMembers = vi.fn().mockResolvedValue([
+    member('user-1', 'Alice', [role({}), role(inWorkspace)]),
+    member('user-2', 'Bob', [role(inWorkspace)]),
+    member('user-3', 'Sam', [
+      role({
+        scopeKind: 'platform',
+        scopeId: 'x',
+        scopeName: '',
+        role: 'instance-admin',
+        roleKey: 'instance-admin',
+        roleName: 'Instance admin',
+      }),
+    ]),
+  ]);
+
+  const cache = withQueryClient();
+  const restoreRegistry = withRegistry({
     access: {
       accessRepository: {
-        listAccess,
-        grant: vi.fn().mockResolvedValue(undefined),
-        revoke,
+        listMembers,
+        grant: vi.fn(),
+        revoke: vi.fn(),
         check: vi.fn().mockResolvedValue(new Set()),
       },
     },
   });
+  teardown = [cache.restore, restoreRegistry];
 
   contextStore.setState({
     workspace: { id: 'org-1', name: 'Acme', slug: 'acme' },
     project: { id: 'project-1', name: 'Web' },
   });
-  localStorage.setItem('userId', 'user-9');
   grant('all');
 });
 
 afterEach(() => {
-  cache.restore();
-  restoreRegistry();
-  localStorage.clear();
+  teardown.forEach(restore => restore());
   permissionsStore.setState({ permissions: null });
 });
 
 describe('ProjectMembersPage', () => {
   it('renders nothing without a project id', () => {
-    render(ProjectMembersPage, {});
+    render(ProjectMembersPage);
 
-    expect(listAccess).not.toHaveBeenCalledWith(expect.objectContaining({ kind: 'project' }));
-    expect(screen.queryByRole('button', { name: 'Add a member' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
-  it('lists the holders of a role of the project', async () => {
-    render(ProjectMembersPage, { projectId: 'project-1' });
+  it('shows the roles here and where they come from', async () => {
+    setUp();
 
-    expect(await screen.findByText('alice')).toBeInTheDocument();
-    expect(listAccess).toHaveBeenCalledWith(project);
+    const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
+    expect(within(alice).getByText('Project editor')).toBeInTheDocument();
+    expect(within(alice).getByText('Workspace viewer')).toBeInTheDocument();
+    expect(within(alice).getByText('Web')).toBeInTheDocument();
+    expect(within(alice).getByText('Acme')).toBeInTheDocument();
   });
 
-  it('also lists someone who only reaches the project through a workspace role', async () => {
-    render(ProjectMembersPage, { projectId: 'project-1' });
+  it('sends a role from above to the place where it is given', async () => {
+    setUp();
 
-    expect(await screen.findByText('bob')).toBeInTheDocument();
+    const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
+    const sam = (await screen.findByText('Sam')).closest('tr') as HTMLElement;
+    expect(within(bob).getByRole('button', { name: 'Change in Acme' })).toBeInTheDocument();
+    expect(within(sam).getByRole('button', { name: 'Change in Instance' })).toBeInTheDocument();
   });
 
-  it('lets a manager revoke only the roles of the project', async () => {
-    render(ProjectMembersPage, { projectId: 'project-1' });
-    await screen.findByText('bob');
+  it('lets a manager change only the roles of the project', async () => {
+    setUp();
 
-    expect(screen.getByRole('button', { name: 'Revoke Editor' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Revoke Admin' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Revoke Viewer' })).not.toBeInTheDocument();
+    const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
+    const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
+    expect(within(alice).getByRole('button', { name: 'Change roles' })).toBeInTheDocument();
+    expect(within(bob).queryByRole('button', { name: 'Change roles' })).not.toBeInTheDocument();
   });
 
-  it('explains that inherited roles are visible and managed elsewhere', async () => {
-    render(ProjectMembersPage, { projectId: 'project-1' });
+  it('says that a project role needs a role in the workspace', async () => {
+    setUp();
 
     expect(
-      await screen.findByText(/inherited from the workspace and are managed there/),
+      await screen.findByText('A project role needs a role in Acme first'),
     ).toBeInTheDocument();
   });
 
-  it('says what it cannot show when the workspace roles are out of reach', async () => {
-    grant([Permission.LIST_PROJECT_MEMBERS, Permission.MANAGE_PROJECT_GRANTS]);
-    render(ProjectMembersPage, { projectId: 'project-1' });
+  it('disables adding without MANAGE_PROJECT_GRANTS', async () => {
+    grant([Permission.LIST_PROJECT_MEMBERS]);
+    setUp();
+    await screen.findByText('Alice');
 
-    expect(
-      await screen.findByText(/Their roles are managed at the workspace level/),
-    ).toBeInTheDocument();
-    expect(listAccess).not.toHaveBeenCalledWith(expect.objectContaining({ kind: 'workspace' }));
-  });
-
-  it('says so when nobody has access to the project yet', async () => {
-    projectEntries = [];
-    workspaceEntries = [];
-    render(ProjectMembersPage, { projectId: 'project-1' });
-
-    expect(await screen.findByText('Nobody has access to this project yet.')).toBeInTheDocument();
-  });
-
-  it('disables adding a member without MANAGE_PROJECT_GRANTS', async () => {
-    grant([Permission.LIST_PROJECT_MEMBERS, Permission.LIST_WORKSPACE_MEMBERS]);
-    render(ProjectMembersPage, { projectId: 'project-1' });
-
-    await vi.waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Add a member' })).toHaveAttribute(
-        'aria-disabled',
-        'true',
-      ),
+    expect(screen.getByRole('button', { name: 'Add to Web' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
     );
   });
 
-  it('gives the project, the right to manage and the member count to its zones', async () => {
-    const restoreInjections = withWidgetInjections({
-      'ee-members': [
-        membershipPoints.projectActions.inject({
-          component: () => import('./ProjectMembersProbe.fixture.svelte'),
-        }),
-        membershipPoints.projectSection.inject({
-          component: () => import('./ProjectMembersProbe.fixture.svelte'),
-        }),
-      ],
-    });
-    try {
-      render(ProjectMembersPage, { projectId: 'project-1' });
-      await screen.findByText('bob');
+  it('gives the project, the right to manage and the member count to its zone', async () => {
+    setUp([membershipPoints.projectSection.inject({ component: probe })]);
 
-      await vi.waitFor(() =>
-        expect(
-          screen.getAllByTestId('project-members-probe').map(probe => probe.textContent?.trim()),
-        ).toEqual(['org-1|project-1|2|true', 'org-1|project-1|2|true']),
-      );
-    } finally {
-      restoreInjections();
-    }
-  });
-
-  it('removes only someone who holds a role of the project, and revokes only that role', async () => {
-    render(ProjectMembersPage, { projectId: 'project-1' });
-    await screen.findByText('bob');
-
-    // bob's role is inherited: only alice can be removed from this project.
-    const removals = screen.getAllByRole('button', { name: 'Remove from the project' });
-    expect(removals).toHaveLength(1);
-
-    await userEvent.click(removals[0]);
-    await userEvent.click(await screen.findByRole('button', { name: 'Continue' }));
-
-    await vi.waitFor(() => expect(revoke).toHaveBeenCalledWith(project, 'editor', 'user-1'));
-    expect(revoke).toHaveBeenCalledOnce();
+    expect(await screen.findByTestId('project-members-probe')).toHaveTextContent(
+      'org-1|project-1|3|true',
+    );
   });
 });

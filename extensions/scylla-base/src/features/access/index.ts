@@ -3,6 +3,12 @@
  * `can`) are in `@platform/authz`; this feature loads their store. Exports no component.
  */
 export type { AccessEntryEntity } from './domain/entities/access-entry.entity.ts';
+export type {
+  AccessSourceEntity,
+  MemberAccessEntity,
+  MemberEntity,
+  MemberRoleEntity,
+} from './domain/entities/member.entity.ts';
 export {
   platformRef,
   projectRef,

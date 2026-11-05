@@ -13,7 +13,10 @@ The catalog of the permissions, the built-in roles, and the custom roles.
 ## What it does
 
 - `Instance › Roles`: the list, a new role, a custom role in the editor, a built-in role in read-only mode.
-- `<workspace> › Access › Roles`: the roles offered in a workspace, read only.
+- `<workspace> › Access › Roles`: the custom roles of the workspace, the roles from the instance, a new role and the editor. A reader with no `create_role` sees a text that says who can give the access.
+- A save and a delete use `mutateAsync`: the list reloads first and can unmount the page, and a callback of `mutate` then does not run.
+- A delete of a role with holders moves them first (`DeleteRole` with `move_to`). A save of a role with holders shows the change first.
+- `ListHeldPermissions` locks a cell of the editor and a role in a select. The server checks again.
 - `changeInstanceRoles`: `Grant` and `Revoke` on the platform, for the dialog of the users page.
 
 ## Rules

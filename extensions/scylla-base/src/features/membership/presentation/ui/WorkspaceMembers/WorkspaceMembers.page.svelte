@@ -1,156 +1,112 @@
 <script lang="ts">
-  import { i18n } from '@lingui/core';
-  import { can, Permission, PermissionScope } from '@platform/authz';
-  import type { AccessEntryEntity } from '@base/features/access';
+  import InfoIcon from '@lucide/svelte/icons/info';
+  import { can, Permission } from '@platform/authz';
   import { contextStore } from '@platform/context';
-  import { createQuery, WidgetZone } from '@scylla/core-sdk';
-  import { invalidateWorkspaceMembers } from '@base/features/workspace';
+  import { createQuery, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
+  import { accessQueries, workspaceRef } from '@base/features/access';
+  import { loadPendingInvitations } from '@base/features/invitation';
   import { userQueries, type UserSummary } from '@base/features/user';
-  import { userName } from '@shared/presentation/ui';
-  import { ConfirmOperationAlertDialog, FeatureHeader, GatedButton } from '@scylla/ui';
-  import { toRune } from '@scylla/ui/stores';
-  import { toast } from '@scylla/ui/utils';
+  import { invalidateWorkspaceMembers } from '@base/features/workspace';
+  import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import {
-    buildWorkspaceMembers,
-  } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
-  import {
-    createAssignableRoles,
-  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
-  import {
-    createScopeMembership,
-  } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
+  import { Input, ToggleGroup, ToggleGroupItem } from '@scylla/ui/primitives';
+  import { toRune } from '@scylla/ui/stores';
   import {
     membershipPoints,
     type WorkspaceMembersContext,
   } from '@base/features/membership/presentation/membership.points.ts';
-  import { loadInviteDialog, loadPendingInvitations } from '@base/features/invitation';
-  import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
+  import {
+    fromInstanceTitle,
+    membershipMessages,
+    tabCount,
+    workspaceBlurb,
+  } from '../../messages/membership.messages.ts';
+  import {
+    buildMemberRows,
+    filterMemberRows,
+    type MemberRow,
+    type MemberTab,
+  } from '../../presenters/member-rows.presenter.ts';
+  import AddMembersDialog from '../components/AddMembersDialog/AddMembersDialog.svelte';
+  import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
+  import MembersTable from '../components/MembersTable/MembersTable.svelte';
   import OwnersCard from '../components/OwnersCard/OwnersCard.svelte';
-  import MembersList from '../components/MembersList/MembersList.svelte';
-  import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
-
-  /** The role that only means "works here". */
-  const DEFAULT_ROLE_ID = 'member';
+  import RemoveMemberDialog from '../components/RemoveMemberDialog/RemoveMemberDialog.svelte';
 
   const context = toRune(contextStore);
   const workspace = $derived(context().workspace);
   const workspaceId = $derived(workspace.id);
+  const workspaceName = $derived(workspace.name ?? '');
   const target = $derived({ workspaceId: workspaceId ?? undefined });
 
   const canManage = $derived(can(Permission.MANAGE_WORKSPACE_GRANTS, target));
   const canRead = $derived(can(Permission.LIST_WORKSPACE_MEMBERS, target));
-  // Without LIST_USERS, roles can still be changed among the people already here.
+  // Without LIST_USERS, a name finds nobody: only an email adds someone.
   const canListUsers = $derived(can(Permission.LIST_USERS));
 
   const usersQuery = createQuery(() => userQueries.list({ enabled: canListUsers }));
-
-  const roles = createAssignableRoles(PermissionScope.WORKSPACE);
-
-  const membership = createScopeMembership({
-    scope: PermissionScope.WORKSPACE,
-    scopeId: () => workspaceId,
-    canRead: () => canRead,
-    // The member list of the workspace feature reads the same roles.
-    onMembershipChanged: () => void invalidateWorkspaceMembers(workspaceId),
-  });
-
-  const summaryOf = (entry: AccessEntryEntity): UserSummary => ({
-    id: entry.actorId,
-    username: entry.handle,
-    ...(entry.displayName ? { displayName: entry.displayName } : {}),
-  });
+  const membersQuery = createQuery(() =>
+    accessQueries.members(workspaceId ? workspaceRef(workspaceId) : null, { enabled: canRead }),
+  );
 
   const addAction = membershipPoints.workspaceAddMember.resolve({
     withoutDirectory: 'deny',
     variant: 'default',
   });
   const showAdd = $derived(canListUsers || addAction.withoutDirectory === 'deny');
-  const addDeniedReason = $derived(
-    canManage
-      ? t(membershipMessages.onlySystemAdminCanBrowseUsers)
-      : t(membershipMessages.workspaceNewDenied),
-  );
 
+  let tab = $state<MemberTab>('people');
+  let search = $state('');
   let addOpen = $state(false);
-  let inviteOpen = $state(false);
-  /** `create_invitation` and `list_invitations` need the same right as a grant: admin. */
-  const canInvite = $derived(can(Permission.ADD_WORKSPACE_MEMBER, target));
-  let pendingRemoval = $state<{ userId: string; name: string } | null>(null);
+  let changing = $state<MemberRow | null>(null);
+  let removing = $state<MemberRow | null>(null);
 
-  /** The members, with the display name and the email of the directory when it is readable. */
-  const userById = $derived.by(() => {
-    // Rebuilt whole by the `$derived` and never mutated after it is read.
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const users = new Map<string, UserSummary>(
-      membership.entries.map(entry => [entry.actorId, summaryOf(entry)]),
-    );
-    for (const user of usersQuery.data?.items ?? []) {
-      if (users.has(user.id)) users.set(user.id, user);
-    }
-    return users;
-  });
+  const rows = $derived(buildMemberRows(membersQuery.data ?? []));
+  const shown = $derived(filterMemberRows(rows, tab, search));
+  const peopleCount = $derived(rows.filter(row => row.tab === 'people').length);
+  const appCount = $derived(rows.filter(row => row.tab === 'apps').length);
+  const fromInstance = $derived(rows.filter(row => row.tab === 'people' && row.fromInstanceOnly));
 
-  const userFor = (memberId: string) => userById.get(memberId);
-
-  const scopeMembers = $derived(buildWorkspaceMembers(membership.entries));
+  /** The directory gives the email when the caller can read it. */
+  const userFor = (id: string): UserSummary | undefined =>
+    usersQuery.data?.items.find(user => user.id === id);
 
   const candidates = $derived(
-    (usersQuery.data?.items ?? []).filter(user => !userById.has(user.id)),
+    (usersQuery.data?.items ?? []).filter(
+      user => !rows.some(row => row.actorId === user.id && !row.fromInstanceOnly),
+    ),
   );
 
-  const defaultRoleId = $derived(
-    roles.assignableRoles.find(role => role.roleId === DEFAULT_ROLE_ID)?.roleId,
-  );
+  const refresh = () => {
+    void membersQuery.refetch();
+    if (workspaceId) void invalidateWorkspaceMembers(workspaceId);
+  };
 
   const zoneContext: WorkspaceMembersContext = $derived({
     workspaceId: workspaceId ?? '',
-    workspaceName: workspace.name ?? '',
+    workspaceName,
     canManage,
-    memberCount: scopeMembers.length,
-    refreshMembers: membership.refresh,
+    memberCount: peopleCount,
+    refreshMembers: refresh,
   });
 
-  const currentUserId = localStorage.getItem('userId') ?? '';
-
-  const handleAdd = async (userId: string, roleIds: string[]) => {
-    const granted = await membership.grantRoles(userId, roleIds);
-    if (granted) toast.success(i18n._(membershipMessages.memberAdded(roleIds.length)));
-    return granted;
-  };
-
-  const handleRemove = async () => {
-    if (!pendingRemoval) return;
-    await membership.removeMember(pendingRemoval.userId, pendingRemoval.name);
-    pendingRemoval = null;
-  };
+  const openMember = (row: MemberRow) =>
+    navigateTo(`${routePathname()}/${encodeURIComponent(row.actorId)}`);
 </script>
 
-<!-- Writes need `MANAGE_WORKSPACE_GRANTS` on this workspace. -->
 {#snippet actions()}
   <WidgetZone point={membershipPoints.workspaceActions} context={zoneContext}>
     {#if showAdd}
       <GatedButton
-        allowed={canManage && canListUsers}
-        deniedReason={addDeniedReason}
+        allowed={canManage}
+        deniedReason={t(membershipMessages.workspaceNewDenied)}
         variant={addAction.variant}
         onclick={() => (addOpen = true)}
       >
-        {t(membershipMessages.addAMember)}
-      </GatedButton>
-    {/if}
-    {#if canInvite}
-      <GatedButton allowed={canInvite} variant="outline" onclick={() => (inviteOpen = true)}>
-        {t(membershipMessages.inviteByEmail)}
+        {t(membershipMessages.addMembers)}
       </GatedButton>
     {/if}
   </WidgetZone>
-{/snippet}
-
-{#snippet blurb()}
-  <p class="max-w-3xl text-sm text-muted-foreground">
-    {t(membershipMessages.workspaceBlurb(workspace.name ?? ''))}
-  </p>
 {/snippet}
 
 {#if !workspaceId}
@@ -159,91 +115,112 @@
   </div>
 {:else}
   <div class="flex h-full min-h-0 w-full flex-col gap-4">
-    <FeatureHeader
-      count={membership.isLoading ? undefined : scopeMembers.length}
-      label={t(membershipMessages.member)}
-      pluralLabel={t(membershipMessages.members)}
-      underLabel={blurb}
-      extraActions={actions}
-    />
+    <header class="flex items-start justify-between gap-6">
+      <div class="flex flex-col gap-2">
+        <h1 class="text-3xl font-semibold tracking-tight">{t(membershipMessages.members)}</h1>
+        <p class="max-w-3xl text-sm text-muted-foreground">
+          {t(workspaceBlurb(workspaceName, workspaceName))}
+        </p>
+      </div>
+      {@render actions()}
+    </header>
 
-    <MembersList
-      members={scopeMembers}
-      isLoading={membership.isLoading}
-      emptyMessage={t(membershipMessages.workspaceEmpty)}
-      {userFor}
-      workspaceName={workspace.name ?? ''}
-      labelFor={roles.labelFor}
-      {currentUserId}
-      {canManage}
-      disabled={membership.isPending}
-      onRevokeRole={role => void membership.revokeRole(role)}
-      addableRolesFor={member =>
-        roles.assignableRoles.filter(
-          role => !member.roles.some(held => held.roleId === role.roleId),
-        )}
-      onAddRole={(memberId, roleId) => void membership.addRole(memberId, roleId)}
-      emptyRoles={canManage
-        ? t(membershipMessages.reachedViaProject)
-        : t(membershipMessages.managedByWorkspaceAdmin)}
-      canRemove={() => canManage}
-      removeTooltip={t(membershipMessages.removeFromWorkspace)}
-      onRemove={member =>
-        (pendingRemoval = { userId: member.userId, name: userName(userFor(member.userId)) })}
-    />
-
-    {#if workspaceId}
-      <OwnersCard
-        workspaceId={workspaceId}
-        members={[...userById.values()]}
-        canManage={can(Permission.MANAGE_OWNERS, target)}
+    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <ToggleGroup
+        type="single"
+        value={tab}
+        onValueChange={next => {
+          if (next) tab = next as MemberTab;
+        }}
+        aria-label={t(membershipMessages.memberKind)}
+        class="w-fit rounded-lg bg-muted p-1"
+      >
+        <ToggleGroupItem
+          value="people"
+          size="sm"
+          class="h-auto rounded-md px-3 py-1 text-sm font-normal text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground"
+        >
+          {t(tabCount(t(membershipMessages.people), peopleCount))}
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="apps"
+          size="sm"
+          class="h-auto rounded-md px-3 py-1 text-sm font-normal text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground"
+        >
+          {t(tabCount(t(membershipMessages.apps), appCount))}
+        </ToggleGroupItem>
+      </ToggleGroup>
+      <Input
+        class="md:w-64"
+        placeholder={t(membershipMessages.searchMembers)}
+        aria-label={t(membershipMessages.searchMembers)}
+        value={search}
+        oninput={event => (search = event.currentTarget.value)}
       />
-      {#await loadPendingInvitations() then { default: PendingInvitations }}
-        <PendingInvitations workspaceId={workspaceId} />
-      {/await}
-      {#if inviteOpen}
-        {#await loadInviteDialog() then { default: InviteDialog }}
-          <InviteDialog
-            open={inviteOpen}
-            setOpen={open => (inviteOpen = open)}
-            workspaceId={workspaceId}
-          />
-        {/await}
-      {/if}
+    </div>
+
+    <MembersTable
+      rows={shown}
+      isLoading={membersQuery.isLoading}
+      {userFor}
+      {canManage}
+      onOpen={openMember}
+      onChangeRoles={row => (changing = row)}
+      onRemove={row => (removing = row)}
+    />
+
+    {#if tab === 'people'}
+      {#each fromInstance as row (row.actorId)}
+        <aside class="flex gap-3 rounded-xl border border-primary/40 bg-primary/5 p-4">
+          <InfoIcon class="mt-0.5 size-4 shrink-0 text-primary" />
+          <div>
+            <p class="text-sm font-medium">{t(fromInstanceTitle(row.name, workspaceName))}</p>
+            <p class="mt-1 text-xs text-muted-foreground">
+              {t(membershipMessages.fromInstanceHint)}
+            </p>
+          </div>
+        </aside>
+      {/each}
     {/if}
+
+    <OwnersCard
+      {workspaceId}
+      members={rows
+        .filter(row => row.tab === 'people' && !row.fromInstanceOnly)
+        .map(row => ({ id: row.actorId, username: row.handle, displayName: row.name }))}
+      canManage={can(Permission.MANAGE_OWNERS, target)}
+    />
+    {#await loadPendingInvitations() then { default: PendingInvitations }}
+      <PendingInvitations {workspaceId} />
+    {/await}
 
     <WidgetZone point={membershipPoints.workspaceSection} context={zoneContext} />
 
-    <AddMemberDialog
+    <AddMembersDialog
       open={addOpen}
       onOpenChange={open => (addOpen = open)}
-      title={t(membershipMessages.addToWorkspace(workspace.name ?? ''))}
-      description={t(membershipMessages.addToWorkspaceBody)}
+      {workspaceId}
+      {workspaceName}
       {candidates}
-      emptyCandidatesLabel={t(membershipMessages.everyoneIsMember)}
-      roles={roles.assignableRoles}
-      workspaceName={workspace.name ?? ''}
-      rolesLabel={t(membershipMessages.rolesToGrant)}
-      rolesLoading={roles.isLoading}
-      isPending={membership.isPending}
-      {defaultRoleId}
-      onSubmit={handleAdd}
+      onAdded={refresh}
     />
 
-    <ConfirmOperationAlertDialog
-      open={pendingRemoval !== null}
-      onOpenChange={open => {
-        if (!open) pendingRemoval = null;
-      }}
-      isLoading={membership.isRemoving}
-      title={t(
-        membershipMessages.confirmRemoveFromWorkspace(
-          pendingRemoval?.name ?? '',
-          workspace.name ?? '',
-        ),
-      )}
-      description={t(membershipMessages.confirmRemoveFromWorkspaceBody)}
-      onContinue={() => void handleRemove()}
+    <ChangeRolesDialog
+      {...changing ? { actorId: changing.actorId, holder: changing.tab } : {}}
+      name={changing?.name ?? ''}
+      roles={changing?.workspaceRoles ?? []}
+      {workspaceId}
+      object={workspaceRef(workspaceId)}
+      onClose={() => (changing = null)}
+      onChanged={refresh}
+    />
+
+    <RemoveMemberDialog
+      row={removing}
+      {workspaceId}
+      {workspaceName}
+      onClose={() => (removing = null)}
+      onRemoved={refresh}
     />
   </div>
 {/if}

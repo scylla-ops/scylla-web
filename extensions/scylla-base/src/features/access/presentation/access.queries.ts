@@ -21,7 +21,39 @@ const ACCESS_QUERY_ROOT = 'access';
 export const ACCESS_QUERY_KEY = (object: ObjectRef) =>
   [ACCESS_QUERY_ROOT, object.kind, object.id] as const;
 
+const MEMBERS_QUERY_ROOT = 'members';
+
 export const accessQueries = {
+  /** Each member of a workspace or of a project. */
+  members: (object: ObjectRef | null, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: [MEMBERS_QUERY_ROOT, object?.kind ?? '', object?.id ?? ''] as const,
+      queryFn: () => repository().listMembers(object!),
+      enabled: (options.enabled ?? true) && !!object?.id,
+    }),
+
+  /** What one actor can do on a workspace or on a project. */
+  memberAccess: (actorId: string, object: ObjectRef | null, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: [
+        MEMBERS_QUERY_ROOT,
+        'access',
+        actorId,
+        object?.kind ?? '',
+        object?.id ?? '',
+      ] as const,
+      queryFn: () => repository().memberAccess(actorId, object!),
+      enabled: (options.enabled ?? true) && !!object?.id && actorId.length > 0,
+    }),
+
+  /** The permissions of the catalog that the caller holds on an object. */
+  held: (object: ObjectRef | null, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: [ACCESS_QUERY_ROOT, 'held', object?.kind ?? '', object?.id ?? ''] as const,
+      queryFn: () => repository().heldPermissions(object!),
+      enabled: (options.enabled ?? true) && !!object?.id,
+    }),
+
   /** The roles on an object: its members. */
   list: (object: ObjectRef | null, options: { enabled?: boolean } = {}) =>
     queryOptions({
@@ -95,6 +127,7 @@ export const resetPermissionSync = (): void => {
 /** A role change can change what the caller may do: its permissions reload too. */
 const afterAccessChange = (object: ObjectRef) => {
   void getQueryClient().invalidateQueries({ queryKey: ACCESS_QUERY_KEY(object) });
+  void getQueryClient().invalidateQueries({ queryKey: [MEMBERS_QUERY_ROOT] });
   void refreshMyPermissions();
 };
 

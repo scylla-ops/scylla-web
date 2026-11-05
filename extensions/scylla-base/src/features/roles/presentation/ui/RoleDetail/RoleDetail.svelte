@@ -29,12 +29,18 @@
   const editable = $derived(
     role !== undefined &&
       !role.builtin &&
-      (workspaceId ? role.workspaceId === workspaceId : can(Permission.MANAGE_ROLES)),
+      (workspaceId
+        ? role.workspaceId === workspaceId && can(Permission.MANAGE_WORKSPACE_ROLES, { workspaceId })
+        : can(Permission.MANAGE_ROLES)),
+  );
+  const canManage = $derived(
+    workspaceId ? can(Permission.MANAGE_WORKSPACE_ROLES, { workspaceId }) : can(Permission.MANAGE_ROLES),
   );
   const duplicateUrl = $derived(
-    !workspaceId && can(Permission.MANAGE_ROLES)
-      ? `${listUrl}/new?from=${encodeURIComponent(key)}`
-      : undefined,
+    canManage ? `${listUrl}/new?from=${encodeURIComponent(key)}` : undefined,
+  );
+  const canSeeHolders = $derived(
+    workspaceId ? can(Permission.LIST_WORKSPACE_MEMBERS, { workspaceId }) : can(Permission.LIST_ROLES),
   );
 </script>
 
@@ -44,8 +50,8 @@
   <ErrorState message={t(rolesMessages.notFound)} />
 {:else if editable}
   {#key role.key}
-    <RoleEditor {role} {listUrl} />
+    <RoleEditor {role} {listUrl} {workspaceId} />
   {/key}
 {:else}
-  <RoleReadOnly {role} {listUrl} {duplicateUrl} />
+  <RoleReadOnly {role} {listUrl} {duplicateUrl} {workspaceId} {canSeeHolders} />
 {/if}

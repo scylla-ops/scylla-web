@@ -7,6 +7,7 @@ import type {
   CreateRoleInput,
   RoleEntity,
   RoleHolder,
+  RoleHolders,
   RoleLevel,
   UpdateRoleInput,
 } from '../domain/entities/role.entity.ts';
@@ -85,8 +86,27 @@ export class DefaultRoleRepository implements RoleRepository {
     return roleToDomain(required(role, 'role'));
   }
 
-  public async remove(id: string): Promise<void> {
-    await this.roles.deleteRole({ roleId: wrapId(id) }).response;
+  public async holders(key: string, workspaceId?: string): Promise<RoleHolders> {
+    const { holders, total } = await this.roles.listRoleHolders({
+      key,
+      ...optionalWorkspace(workspaceId),
+    }).response;
+    return {
+      total,
+      holders: holders.map(holder => ({
+        actorId: idValue(holder.actorId),
+        actorKind: holder.actorKind,
+        displayName: holder.displayName,
+        handle: holder.handle,
+        scopeKind: holder.scopeKind as RoleLevel,
+        scopeId: idValue(holder.scopeId),
+        scopeName: holder.scopeName,
+      })),
+    };
+  }
+
+  public async remove(id: string, moveTo = ''): Promise<void> {
+    await this.roles.deleteRole({ roleId: wrapId(id), moveTo }).response;
   }
 
   public async changeInstanceRoles(

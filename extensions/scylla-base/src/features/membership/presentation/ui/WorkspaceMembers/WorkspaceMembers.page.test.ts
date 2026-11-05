@@ -1,27 +1,32 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen } from '@testing-library/svelte';
+import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import type { AccessEntryEntity } from '@base/features/access';
+import type { MemberEntity, MemberRoleEntity } from '@base/features/access';
 import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import WorkspaceMembersPage from './WorkspaceMembers.page.svelte';
 
-const entry = (overrides: Partial<AccessEntryEntity> = {}): AccessEntryEntity => ({
-  actorId: 'user-1',
-  actorKind: 'user',
-  displayName: '',
-  handle: 'alice',
-  role: 'admin',
+const role = (overrides: Partial<MemberRoleEntity>): MemberRoleEntity => ({
+  scopeKind: 'workspace',
+  scopeId: 'org-1',
+  scopeName: 'Acme',
+  role: 'member',
+  roleKey: 'workspace-member',
+  roleName: 'Workspace member',
   ...overrides,
 });
 
-const workspace = { kind: 'workspace', id: 'org-1' };
+const member = (id: string, name: string, roles: MemberRoleEntity[]): MemberEntity => ({
+  actorId: id,
+  actorKind: 'user',
+  displayName: name,
+  handle: name.toLowerCase(),
+  roles,
+});
 
-let listAccess: ReturnType<typeof vi.fn>;
+let listMembers: ReturnType<typeof vi.fn>;
 let getAll: ReturnType<typeof vi.fn>;
-let grantRole: ReturnType<typeof vi.fn>;
-let revoke: ReturnType<typeof vi.fn>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
@@ -40,24 +45,43 @@ const grant = (permissions: Permission[] | 'all') =>
   });
 
 beforeEach(() => {
-  listAccess = vi.fn().mockResolvedValue([entry(), entry({ role: 'viewer' })]);
-  getAll = vi.fn().mockResolvedValue({
-    items: [
-      { id: 'user-1', username: 'alice' },
-      { id: 'user-2', username: 'bob' },
-    ],
-  });
-  grantRole = vi.fn().mockResolvedValue(undefined);
-  revoke = vi.fn().mockResolvedValue(undefined);
+  listMembers = vi.fn().mockResolvedValue([
+    member('user-1', 'Alice', [
+      role({ role: 'owner', roleKey: 'owner', roleName: 'Owner', grantedAt: new Date('2026-03-03') }),
+    ]),
+    member('user-2', 'Bob', [
+      role({}),
+      role({
+        scopeKind: 'project',
+        scopeId: 'p-1',
+        scopeName: 'api',
+        role: 'editor',
+        roleKey: 'project-editor',
+        roleName: 'Project editor',
+      }),
+    ]),
+    member('user-3', 'Sam', [
+      role({
+        scopeKind: 'platform',
+        scopeId: 'x',
+        scopeName: '',
+        role: 'instance-admin',
+        roleKey: 'instance-admin',
+        roleName: 'Instance admin',
+      }),
+    ]),
+    { ...member('app-1', 'deploy-bot', [role({ role: 'runner', roleKey: 'agent' })]), actorKind: 'app' },
+  ]);
+  getAll = vi.fn().mockResolvedValue({ items: [] });
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
     user: { userRepository: { getAll } },
     access: {
       accessRepository: {
-        listAccess,
-        grant: grantRole,
-        revoke,
+        listMembers,
+        grant: vi.fn().mockResolvedValue(undefined),
+        revoke: vi.fn().mockResolvedValue(undefined),
         check: vi.fn().mockResolvedValue(new Set()),
       },
     },
@@ -67,14 +91,12 @@ beforeEach(() => {
     workspace: { id: 'org-1', name: 'Acme', slug: 'acme' },
     project: { id: null, name: null },
   });
-  localStorage.setItem('userId', 'user-9');
   grant('all');
 });
 
 afterEach(() => {
   cache.restore();
   restoreRegistry();
-  localStorage.clear();
   permissionsStore.setState({ permissions: null });
 });
 
@@ -84,107 +106,95 @@ describe('WorkspaceMembersPage', () => {
       workspace: { id: null, name: null, slug: null },
       project: { id: null, name: null },
     });
+
     render(WorkspaceMembersPage);
 
     expect(screen.getByText('Select a workspace to see its members.')).toBeInTheDocument();
-    expect(listAccess).not.toHaveBeenCalled();
+    expect(listMembers).not.toHaveBeenCalled();
   });
 
-  it("lists the workspace's members", async () => {
+  it('shows the workspace roles and the project roles of each person', async () => {
     render(WorkspaceMembersPage);
 
-    expect(await screen.findByText('alice')).toBeInTheDocument();
-    expect(listAccess).toHaveBeenCalledWith(workspace);
+    const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
+    expect(within(bob).getByText('Workspace member')).toBeInTheDocument();
+    expect(within(bob).getByText('api · Project editor')).toBeInTheDocument();
   });
 
-  it('shows an owner locked, with no way to revoke it here', async () => {
-    listAccess.mockResolvedValue([entry({ role: 'owner' })]);
+  it('shows an owner as admin of every project, with the date of the grant', async () => {
     render(WorkspaceMembersPage);
 
-    await screen.findByText('Owner');
-    expect(screen.queryByRole('button', { name: /Revoke Owner/ })).not.toBeInTheDocument();
+    const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
+    expect(within(alice).getByText('Owner')).toBeInTheDocument();
+    expect(within(alice).getByText('Every project, as admin')).toBeInTheDocument();
+    expect(within(alice).queryByText('—')).not.toBeInTheDocument();
   });
 
-  it('says so when nobody belongs to the workspace yet', async () => {
-    listAccess.mockResolvedValue([]);
+  it('says that an instance admin is not a member', async () => {
     render(WorkspaceMembersPage);
 
-    expect(await screen.findByText('Nobody belongs to this workspace yet.')).toBeInTheDocument();
+    const sam = (await screen.findByText('Sam')).closest('tr') as HTMLElement;
+    expect(within(sam).getByText('Instance admin')).toBeInTheDocument();
+    expect(within(sam).getByText('Every project')).toBeInTheDocument();
+    expect(screen.getByText('Sam is not a member of Acme')).toBeInTheDocument();
+  });
+
+  it('shows the apps on their own tab', async () => {
+    render(WorkspaceMembersPage);
+    await screen.findByText('Alice');
+    expect(screen.queryByText('deploy-bot')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Apps 1' }));
+
+    expect(await screen.findByText('deploy-bot')).toBeInTheDocument();
+    expect(screen.queryByText('Alice')).not.toBeInTheDocument();
+  });
+
+  it('filters the list with the search', async () => {
+    render(WorkspaceMembersPage);
+    await screen.findByText('Alice');
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'Search members' }), 'bob');
+
+    expect(screen.getByText('Bob')).toBeInTheDocument();
+    expect(screen.queryByText('Alice')).not.toBeInTheDocument();
   });
 
   it('does not enumerate accounts without LIST_USERS', async () => {
-    grant([Permission.MANAGE_WORKSPACE_GRANTS, Permission.LIST_WORKSPACE_MEMBERS]);
+    grant([Permission.LIST_WORKSPACE_MEMBERS, Permission.MANAGE_WORKSPACE_GRANTS]);
     render(WorkspaceMembersPage);
+    await screen.findByText('Alice');
 
-    await screen.findByText('alice');
     expect(getAll).not.toHaveBeenCalled();
   });
 
-  it('offers to add a member when the caller may manage grants', async () => {
+  it('offers to add members with an email also without LIST_USERS', async () => {
+    grant([Permission.LIST_WORKSPACE_MEMBERS, Permission.MANAGE_WORKSPACE_GRANTS]);
     render(WorkspaceMembersPage);
-    await screen.findByText('alice');
+    await screen.findByText('Alice');
 
-    expect(screen.getByRole('button', { name: 'Add a member' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Add members' })).toBeEnabled();
   });
 
-  it('disables adding a member without MANAGE_WORKSPACE_GRANTS', async () => {
-    grant([Permission.LIST_USERS]);
+  it('disables adding members without MANAGE_WORKSPACE_GRANTS', async () => {
+    grant([Permission.LIST_WORKSPACE_MEMBERS]);
     render(WorkspaceMembersPage);
+    await screen.findByText('Alice');
 
-    await vi.waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Add a member' })).toHaveAttribute(
-        'aria-disabled',
-        'true',
-      ),
+    expect(screen.getByRole('button', { name: 'Add members' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
     );
   });
 
-  it('denies "Add a member" without LIST_USERS, and says who can browse the users', async () => {
-    grant([Permission.MANAGE_WORKSPACE_GRANTS, Permission.LIST_WORKSPACE_MEMBERS]);
+  it('hides the actions on the roles from a reader', async () => {
+    grant([Permission.LIST_WORKSPACE_MEMBERS]);
     render(WorkspaceMembersPage);
-    await screen.findByText('alice');
+    const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
 
-    const add = screen.getByRole('button', { name: 'Add a member' });
-    expect(add).toHaveAttribute('aria-disabled', 'true');
-    expect(add).toHaveAccessibleDescription('Only a system admin can browse the users.');
+    await userEvent.click(within(bob).getByRole('button', { name: 'Member actions' }));
 
-    await userEvent.click(add);
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  it('opens the directory dialog with LIST_USERS', async () => {
-    render(WorkspaceMembersPage);
-    await screen.findByText('alice');
-
-    await userEvent.click(screen.getByRole('button', { name: 'Add a member' }));
-
-    expect(
-      await screen.findByRole('dialog', { name: 'Add a member to “Acme”' }),
-    ).toBeInTheDocument();
-  });
-
-  it('confirms before removing a member, and revokes each of their roles on continue', async () => {
-    render(WorkspaceMembersPage);
-    await screen.findByText('alice');
-
-    await userEvent.click(screen.getByRole('button', { name: 'Remove from the workspace' }));
-    expect(revoke).not.toHaveBeenCalled();
-
-    await userEvent.click(await screen.findByRole('button', { name: 'Continue' }));
-
-    // A role left behind would keep them listed.
-    await vi.waitFor(() => expect(revoke).toHaveBeenCalledTimes(2));
-    expect(revoke).toHaveBeenCalledWith(workspace, 'admin', 'user-1');
-    expect(revoke).toHaveBeenCalledWith(workspace, 'viewer', 'user-1');
-  });
-
-  it('grants a role to somebody already listed, without opening the dialog', async () => {
-    render(WorkspaceMembersPage);
-    await screen.findByText('alice');
-
-    await userEvent.click(screen.getAllByRole('combobox')[0]);
-    await userEvent.click(await findFloating('option', 'Member'));
-
-    await vi.waitFor(() => expect(grantRole).toHaveBeenCalledWith(workspace, 'member', 'user-1'));
+    expect(await findFloating('menuitem', 'See the access')).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Change roles', hidden: true })).not.toBeInTheDocument();
   });
 });

@@ -1,11 +1,9 @@
 /** The pages are not exported: the module loads them lazily. */
 export {
-  type ScopeMember,
-  type MemberRole,
-  MemberRoleOrigin,
-  buildWorkspaceMembers,
-  buildProjectMembers,
-} from './presentation/presenters/scope-members.presenter.ts';
+  type MemberRow,
+  buildMemberRows,
+  buildProjectMemberRows,
+} from './presentation/presenters/member-rows.presenter.ts';
 export {
   membershipPoints,
   type AddMemberAction,

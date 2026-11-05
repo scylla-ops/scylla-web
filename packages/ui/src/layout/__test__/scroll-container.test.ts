@@ -32,7 +32,7 @@ const scrollers = sources.flatMap(path =>
 describe('an element that scrolls', () => {
   it('is searched in every class string, the members list included', () => {
     expect(scrollers.map(scroller => scroller.path)).toContain(
-      'extensions/scylla-base/src/features/membership/presentation/ui/components/MembersList/MembersList.svelte',
+      'extensions/scylla-base/src/features/membership/presentation/ui/components/MembersTable/MembersTable.svelte',
     );
   });
 

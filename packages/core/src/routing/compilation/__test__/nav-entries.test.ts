@@ -18,6 +18,19 @@ const entriesFor = (modules: readonly RouteSource[]) =>
 const LIST_AGENTS = testPermission('LIST_AGENTS');
 
 describe('navEntriesFor', () => {
+  it('lets a link name its own permission, for a page with its own text for a refusal', () => {
+    const OTHER = testPermission('LIST_AGENTS_OTHER');
+    const [entry] = entriesFor([
+      moduleWith('agents', {
+        workspace: [
+          { path: 'agents', permission: LIST_AGENTS, page, nav: { ...nav(), permission: OTHER } },
+        ],
+      }),
+    ]);
+
+    expect(entry?.permission).toBe(OTHER);
+  });
+
   it("takes the URL and the permission of the link's route", () => {
     const [entry] = entriesFor([
       moduleWith('agents', {

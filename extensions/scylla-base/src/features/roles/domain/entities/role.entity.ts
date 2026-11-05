@@ -19,6 +19,23 @@ export interface RoleEntity {
   workspaceId?: string;
 }
 
+/** One grant of a role. */
+export interface RoleHolderEntry {
+  actorId: string;
+  actorKind: string;
+  displayName: string;
+  handle: string;
+  scopeKind: RoleLevel;
+  scopeId: string;
+  scopeName: string;
+}
+
+export interface RoleHolders {
+  holders: RoleHolderEntry[];
+  /** Also the grants that are not in the list. */
+  total: number;
+}
+
 export interface CreateRoleInput {
   name: string;
   description: string;

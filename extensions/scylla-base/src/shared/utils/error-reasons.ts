@@ -26,6 +26,7 @@ const MESSAGES: Record<string, (metadata: Readonly<Record<string, string>>) => s
   LAST_OWNER: () => t`The workspace needs at least one other owner`,
   INVITATION_PENDING: () => t`An invitation is already pending for this email`,
   ACTOR_OUTSIDE_WORKSPACE: () => t`An app gets roles only in its own workspace`,
+  NO_WORKSPACE_ROLE: () => t`Give this person a role in the workspace first`,
   QUOTA_EXCEEDED: ({ used, limit }) =>
     used && limit ? t`The limit is reached (${used} of ${limit})` : t`The limit is reached`,
   // Projects.

@@ -1,9 +1,47 @@
-import { msg } from '@lingui/core/macro';
-import type { MessageDescriptor } from '@lingui/core';
+import { msg, plural } from '@lingui/core/macro';
+import { i18n, type MessageDescriptor } from '@lingui/core';
+import type { CatalogArea } from '../../domain/structs/catalog.struct.ts';
 import type { RoleHolder, RoleLevel } from '../../domain/entities/role.entity.ts';
 import type { RoleFilter, RoleGroupId } from '../presenters/roles-list.presenter.ts';
 
 export const countOf = (count: number, total: number) => msg`${count} of ${total}`;
+
+export const workspaceRolesTitle = (workspace: string) => msg`Roles of ${workspace}`;
+
+export const workspaceRolesHint = (workspace: string, again: string) =>
+  msg`The roles that you can give in ${workspace}. Roles of ${again} are only seen there. Roles from the instance are the same in every workspace.`;
+
+export const noAccessTitle = (workspace: string) => msg`You cannot see the roles of ${workspace}`;
+
+export const deleteTitle = (role: string) => msg`Delete ${role}?`;
+
+export const saveTitle = (role: string) => msg`Save ${role}?`;
+
+export const holdersOnSave = (count: number) =>
+  msg`${plural(count, {
+    one: '# holder has this role. They get the change on their next request.',
+    other: '# holders have this role. They get the change on their next request.',
+  })}`;
+
+export const holdersOnDelete = (count: number) =>
+  msg`${plural(count, {
+    one: '# holder has this role. Choose a role for them. Then the role is deleted.',
+    other: '# holders have this role. Choose a role for them. Then the role is deleted.',
+  })}`;
+
+export const saveForHolders = (count: number) =>
+  msg`${plural(count, { one: 'Save for # holder', other: 'Save for # holders' })}`;
+
+export const holdersTotal = (count: number) => msg`Holders: ${count}`;
+
+export const andMore = (count: number) => msg`and ${count} more`;
+
+export const missingPermissions = (names: string) =>
+  msg`You do not have ${names}, so you cannot give it. Remove it from the role, or ask an admin to save the role.`;
+
+export const removePermission = (names: string) => msg`Remove ${names}`;
+
+export const nameTaken = msg`The owner already has a role with this name. Choose another name.`;
 
 export const selectedOf = (count: number, total: number) =>
   msg`${count} of ${total} selected · Edit, Delete and Run also select View`;
@@ -12,12 +50,28 @@ export const rolesMessages = {
   roles: msg`Roles`,
   role: msg`Role`,
   instanceHint: msg`The roles of this Scylla server. Instance roles act on the whole server. Workspace and project roles here are offered in every workspace. Only instance admins see this page.`,
-  workspaceHint: msg`The roles that you can give in this workspace. Built-in roles do not change.`,
   newRole: msg`New role`,
   search: msg`Search roles`,
   filterLabel: msg`Filter the roles`,
   noMatch: msg`No role fits this search.`,
-  loadError: msg`The roles did not load.`,
+  loadError: msg`The roles did not load`,
+  loadErrorHint: msg`The server did not answer in time. Nothing changed. Try again, or look at the status page.`,
+  ownRolesHint: msg`Admins of this workspace make and change them.`,
+  fromInstance: msg`From the instance`,
+  fromInstanceHint: msg`Instance admins manage these roles. You can give them, but you cannot change them.`,
+  noCustomRoles: msg`No custom roles yet`,
+  noCustomRolesHint: msg`Make a role when the built-in roles give too much or too little. You can start from a built-in role and change its permissions.`,
+  noAccessHint: msg`You need the permission Manage workspace roles. One of these people can give it to you.`,
+  noAccessGivers: msg`A workspace admin or an instance admin.`,
+  noAccessLink: msg`The Access menu does not show Roles to you. You opened this page from a link.`,
+  moveHoldersTo: msg`Move the holders to`,
+  moveHoldersHint: msg`They keep their other roles. Compare the two roles before you move the holders.`,
+  moveAndDelete: msg`Move holders and delete`,
+  chooseRole: msg`Choose a role`,
+  inEveryProject: msg`in every project`,
+  inTheProject: msg`in the project`,
+  notSaved: msg`The role was not saved`,
+  lockedCell: msg`You do not have it, or not at this level`,
   retry: msg`Try again`,
   level: msg`Level`,
   type: msg`Type`,
@@ -184,4 +238,15 @@ export const builtinRoleLabels: Record<
   'project-viewer': { name: msg`Project viewer`, hint: msg`Sees one project, its runs and logs.` },
   agent: { name: msg`Agent`, hint: msg`Takes the jobs of every project of the workspace.` },
   'project-agent': { name: msg`Project agent`, hint: msg`Takes the jobs of one project.` },
+};
+
+/** "Delete secrets": the action and the area of a permission of the catalog. */
+export const permissionLabel = (id: string, areas: readonly CatalogArea[]): string => {
+  const area = areas.find(one => one.permissions.some(permission => permission.id === id));
+  const permission = area?.permissions.find(one => one.id === id);
+  if (!area || !permission) return id;
+  const action = actionLabels[permission.action];
+  const title = areaLabels[area.id]?.title;
+  if (!action || !title) return id;
+  return `${i18n._(action)} ${i18n._(title).toLowerCase()}`;
 };

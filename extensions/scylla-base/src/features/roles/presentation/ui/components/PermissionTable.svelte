@@ -26,9 +26,11 @@
     selected: ReadonlySet<string>;
     /** Absent: the table only shows. */
     onChange?: (selected: Set<string>) => void;
+    /** What the caller holds. A permission that is not here is locked. Absent: nothing locks. */
+    held?: ReadonlySet<string>;
   }
 
-  let { areas, level, holder, selected, onChange }: Props = $props();
+  let { areas, level, holder, selected, onChange, held }: Props = $props();
 
   const SECTIONS: readonly { level: RoleLevel; machine: boolean }[] = [
     { level: 'platform', machine: false },
@@ -50,13 +52,21 @@
   const cellOf = (area: CatalogArea, action: string): CatalogPermission | undefined =>
     area.permissions.find(permission => permission.action === action);
 
-  const isLocked = (area: CatalogArea, permission: CatalogPermission) =>
+  const isImplicit = (area: CatalogArea, permission: CatalogPermission) =>
     permission.implicit && area.level === level;
+
+  const notHeld = (permission: CatalogPermission) =>
+    held !== undefined && !permission.implicit && !held.has(permission.id);
+
+  const isLocked = (area: CatalogArea, permission: CatalogPermission) =>
+    isImplicit(area, permission) || (notHeld(permission) && !selected.has(permission.id));
 
   const selectAll = (inSection: readonly CatalogArea[]) => {
     let next = new Set(selected);
     for (const permission of inSection.flatMap(area => area.permissions)) {
-      if (!next.has(permission.id)) next = togglePermission(next, permission.id, areas);
+      if (!next.has(permission.id) && !notHeld(permission)) {
+        next = togglePermission(next, permission.id, areas);
+      }
     }
     onChange?.(next);
   };
@@ -114,6 +124,7 @@
                   <Checkbox
                     checked={selected.has(permission.id)}
                     disabled={isLocked(area, permission)}
+                    title={notHeld(permission) ? t(rolesMessages.lockedCell) : undefined}
                     aria-label={`${areaTitle(area)} · ${t(actionLabels[action])}`}
                     onCheckedChange={() =>
                       onChange?.(togglePermission(selected, permission.id, areas))}
@@ -142,6 +153,12 @@
     </span>
   {:else}
     <span class="flex items-center gap-1.5">· {t(rolesMessages.legendOff)}</span>
+  {/if}
+  {#if onChange && held}
+    <span class="flex items-center gap-1.5">
+      <Checkbox disabled aria-hidden="true" tabindex={-1} class="size-3.5" />
+      {t(rolesMessages.lockedCell)}
+    </span>
   {/if}
   <span class="flex items-center gap-1.5">— {t(rolesMessages.legendNone)}</span>
 </div>

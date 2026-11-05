@@ -27,8 +27,15 @@ export const roleQueries = {
         (options.enabled ?? true) &&
         authorizationReady() &&
         (workspaceId
-          ? can(Permission.MANAGE_WORKSPACE_ROLES, { workspaceId })
+          ? can(Permission.LIST_WORKSPACE_ROLES, { workspaceId })
           : can(Permission.LIST_ROLES)),
+    }),
+
+  holders: (key: string, workspaceId?: string, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: [ROLES_ROOT, 'holders', key, workspaceId ?? 'instance'] as const,
+      queryFn: () => repository().holders(key, workspaceId),
+      enabled: options.enabled ?? true,
     }),
 
   byKey: (key: string, workspaceId?: string) =>
@@ -43,6 +50,7 @@ const invalidateRoles = () => getQueryClient().invalidateQueries({ queryKey: [RO
 export const roleMutations = {
   create: () =>
     mutationOptions({
+      meta: { showsOwnError: true },
       mutationFn: (input: CreateRoleInput) => repository().create(input),
       onSuccess: () => {
         toast.success(i18n._(rolesMessages.created));
@@ -52,6 +60,7 @@ export const roleMutations = {
 
   update: () =>
     mutationOptions({
+      meta: { showsOwnError: true },
       mutationFn: (input: UpdateRoleInput) => repository().update(input),
       onSuccess: () => {
         toast.success(i18n._(rolesMessages.updated));
@@ -61,7 +70,8 @@ export const roleMutations = {
 
   remove: () =>
     mutationOptions({
-      mutationFn: (id: string) => repository().remove(id),
+      mutationFn: ({ id, moveTo }: { id: string; moveTo?: string }) =>
+        repository().remove(id, moveTo),
       onSuccess: () => {
         toast.success(i18n._(rolesMessages.deleted));
         return invalidateRoles();

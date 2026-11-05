@@ -2,7 +2,7 @@
   import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
   import InfoIcon from '@lucide/svelte/icons/info';
   import { createMutation, createQuery, navigateTo } from '@scylla/core-sdk';
-  import { ConfirmOperationAlertDialog } from '@scylla/ui';
+  import { accessQueries, platformRef, workspaceRef } from '@base/features/access';
   import { t } from '@scylla/ui/i18n';
   import {
     Button,
@@ -14,6 +14,7 @@
     SelectTrigger,
   } from '@scylla/ui/primitives';
   import { untrack } from 'svelte';
+  import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import type { RoleEntity, RoleHolder, RoleLevel } from '../../../domain/entities/role.entity.ts';
   import { fitToRole, permissionsFor, withoutImplicit } from '../../../domain/structs/catalog.struct.ts';
   import {
@@ -21,12 +22,18 @@
     holderLabels,
     levelHints,
     levelLabels,
+    missingPermissions,
+    nameTaken,
+    permissionLabel,
+    removePermission,
     rolesMessages,
     selectedOf,
   } from '../../messages/roles.messages.ts';
   import { roleName } from '../../role-labels.ts';
   import { roleMutations, roleQueries } from '../../roles.queries.ts';
   import PermissionTable from '../components/PermissionTable.svelte';
+  import DeleteRoleDialog from './DeleteRoleDialog.svelte';
+  import SaveRoleDialog from './SaveRoleDialog.svelte';
 
   interface Props {
     /** Absent: a new role. */
@@ -35,18 +42,24 @@
     listUrl: string;
     /** The key of the role to copy, for a new role. */
     startKey?: string;
+    /** The workspace that owns the role. Absent: the instance. */
+    workspaceId?: string;
   }
 
-  let { role, listUrl, startKey }: Props = $props();
+  let { role, listUrl, startKey, workspaceId }: Props = $props();
 
-  const LEVELS: readonly RoleLevel[] = ['platform', 'workspace', 'project'];
+  const LEVELS = $derived<readonly RoleLevel[]>(
+    workspaceId ? ['workspace', 'project'] : ['platform', 'workspace', 'project'],
+  );
   const HOLDERS: readonly RoleHolder[] = ['people', 'apps'];
 
   const catalogQuery = createQuery(() => roleQueries.catalog());
-  const rolesQuery = createQuery(() => roleQueries.list());
+  const rolesQuery = createQuery(() => roleQueries.list(workspaceId));
+  const heldQuery = createQuery(() =>
+    accessQueries.held(workspaceId ? workspaceRef(workspaceId) : platformRef),
+  );
   const createRole = createMutation(() => roleMutations.create());
   const updateRole = createMutation(() => roleMutations.update());
-  const removeRole = createMutation(() => roleMutations.remove());
 
   const areas = $derived(catalogQuery.data ?? []);
 
@@ -57,6 +70,9 @@
   let start = $state(untrack(() => startKey ?? ''));
   let selected = $state<Set<string>>(new Set(untrack(() => role?.permissions ?? [])));
   let confirmDelete = $state(false);
+  let confirmSave = $state(false);
+  let nameError = $state(false);
+  let saveError = $state<string | null>(null);
 
   const editing = $derived(role !== undefined);
   const total = $derived(permissionsFor(areas, level, holder).length);
@@ -64,7 +80,29 @@
     (rolesQuery.data ?? []).filter(other => other.level === level && other.holder === holder),
   );
   const pending = $derived(createRole.isPending || updateRole.isPending);
-  const canSave = $derived(name.trim().length > 0 && !pending);
+  const canSave = $derived(name.trim().length > 0 && !pending && !nameError);
+
+  /** A role name is unique for each owner, in any case. */
+  const nameUsed = (text: string) =>
+    (rolesQuery.data ?? []).some(
+      other =>
+        !other.builtin &&
+        other.key !== role?.key &&
+        other.workspaceId === workspaceId &&
+        other.name.trim().toLowerCase() === text.trim().toLowerCase(),
+    );
+
+  /** What the server refused: the permissions that the caller does not hold. */
+  const notHeldIds = $derived(
+    heldQuery.data
+      ? [...selected].filter(id => {
+          const permission = areas
+            .flatMap(area => area.permissions)
+            .find(one => one.id === id);
+          return permission && !permission.implicit && !heldQuery.data?.has(id);
+        })
+      : [],
+  );
 
   const fit = () => {
     selected = fitToRole(withoutImplicit(selected, areas), areas, level, holder);
@@ -101,19 +139,52 @@
     fit();
   };
 
-  const toList = { onSuccess: () => navigateTo(listUrl) };
+  const toList = () => navigateTo(listUrl);
 
-  const save = () => {
-    const permissions = [...selected];
-    if (role) {
-      updateRole.mutate({ id: role.key, name, description, permissions }, toList);
+  const onFailed = (thrown: unknown) => {
+    const error = ScyllaError.from(thrown);
+    if (error.reason === 'ROLE_NAME_IN_USE') {
+      nameError = true;
+    } else if (error.reason === 'ESCALATION' && notHeldIds.length > 0) {
+      saveError = t(missingPermissions(notHeldIds.map(id => permissionLabel(id, areas)).join(', ')));
     } else {
-      createRole.mutate({ name, description, level, holder, permissions }, toList);
+      saveError = error.userMessage();
     }
   };
 
-  const remove = () => {
-    if (role) removeRole.mutate(role.key, toList);
+  /** The list reloads first and can unmount the page: a callback of `mutate` would not run. */
+  const send = async () => {
+    saveError = null;
+    confirmSave = false;
+    const permissions = [...selected];
+    try {
+      if (role) {
+        await updateRole.mutateAsync({ id: role.key, name, description, permissions });
+      } else {
+        const owner = workspaceId ? { workspaceId } : {};
+        await createRole.mutateAsync({ name, description, level, holder, permissions, ...owner });
+      }
+      toList();
+    } catch (thrown) {
+      onFailed(thrown);
+    }
+  };
+
+  const changed = $derived(
+    role !== undefined &&
+      (role.permissions.length !== selected.size ||
+        role.permissions.some(id => !selected.has(id))),
+  );
+
+  /** A change is live at once for each holder: the dialog shows it before the save. */
+  const save = () => {
+    if (role && role.holderCount > 0 && changed) confirmSave = true;
+    else void send();
+  };
+
+  const dropNotHeld = () => {
+    selected = new Set([...selected].filter(id => !notHeldIds.includes(id)));
+    saveError = null;
   };
 
   const cardClass = (chosen: boolean, disabled: boolean) =>
@@ -166,8 +237,17 @@
             value={name}
             maxlength={100}
             placeholder={t(rolesMessages.namePlaceholder)}
-            oninput={event => (name = event.currentTarget.value)}
+            aria-invalid={nameError}
+            class={nameError ? 'border-destructive' : ''}
+            oninput={event => {
+              name = event.currentTarget.value;
+              nameError = false;
+            }}
+            onblur={() => (nameError = nameUsed(name))}
           />
+          {#if nameError}
+            <p class="text-xs text-destructive">{t(nameTaken)}</p>
+          {/if}
         </div>
 
         <div class="flex flex-col gap-2">
@@ -265,6 +345,17 @@
     </div>
 
     <section class="overflow-hidden rounded-2xl border bg-card">
+      {#if saveError}
+        <div class="m-5 flex flex-col gap-2 rounded-xl border border-destructive p-4" role="alert">
+          <p class="font-medium">{t(rolesMessages.notSaved)}</p>
+          <p class="text-sm text-muted-foreground">{saveError}</p>
+          {#if notHeldIds.length > 0}
+            <Button class="w-fit" variant="outline" onclick={dropNotHeld}>
+              {t(removePermission(notHeldIds.map(id => permissionLabel(id, areas)).join(', ')))}
+            </Button>
+          {/if}
+        </div>
+      {/if}
       <div class="p-5">
         <h2 class="text-xl font-semibold">{t(rolesMessages.permissions)}</h2>
         <p class="mt-1 text-xs text-muted-foreground tabular-nums">
@@ -277,6 +368,7 @@
           {level}
           {holder}
           {selected}
+          held={heldQuery.data}
           onChange={next => (selected = next)}
         />
       </div>
@@ -284,11 +376,21 @@
   </div>
 </div>
 
-<ConfirmOperationAlertDialog
-  open={confirmDelete}
-  onOpenChange={open => (confirmDelete = open)}
-  title={t(rolesMessages.deleteTitle)}
-  description={t(rolesMessages.deleteHint)}
-  onContinue={remove}
-  isLoading={removeRole.isPending}
-/>
+{#if role}
+  <DeleteRoleDialog
+    {role}
+    {workspaceId}
+    open={confirmDelete}
+    onOpenChange={open => (confirmDelete = open)}
+    onDeleted={toList}
+  />
+  <SaveRoleDialog
+    {role}
+    next={selected}
+    {areas}
+    open={confirmSave}
+    pending={pending}
+    onOpenChange={open => (confirmSave = open)}
+    onConfirm={() => void send()}
+  />
+{/if}

@@ -4,7 +4,7 @@
   import { t } from '@scylla/ui/i18n';
   import { Button } from '@scylla/ui/primitives';
   import type { RoleEntity } from '../../../domain/entities/role.entity.ts';
-  import { holderLabels, rolesMessages } from '../../messages/roles.messages.ts';
+  import { andMore, holderLabels, holdersTotal, rolesMessages } from '../../messages/roles.messages.ts';
   import { permissionCount, roleDescription, roleName } from '../../role-labels.ts';
   import { roleQueries } from '../../roles.queries.ts';
   import LevelTag from '../components/LevelTag.svelte';
@@ -16,9 +16,17 @@
     listUrl: string;
     /** Absent: this page cannot make a copy. */
     duplicateUrl?: string;
+    workspaceId?: string;
+    canSeeHolders?: boolean;
   }
 
-  let { role, listUrl, duplicateUrl }: Props = $props();
+  let { role, listUrl, duplicateUrl, workspaceId, canSeeHolders = false }: Props = $props();
+
+  const holdersQuery = createQuery(() =>
+    roleQueries.holders(role.key, workspaceId, { enabled: canSeeHolders }),
+  );
+  const shown = $derived((holdersQuery.data?.holders ?? []).slice(0, 5));
+  const more = $derived((holdersQuery.data?.total ?? 0) - shown.length);
 
   const catalogQuery = createQuery(() => roleQueries.catalog());
   const areas = $derived(catalogQuery.data ?? []);
@@ -86,6 +94,24 @@
         <dt class="text-xs text-muted-foreground">{t(rolesMessages.offeredIn)}</dt>
         <dd>{offeredIn}</dd>
       </dl>
+      {#if canSeeHolders && holdersQuery.data}
+        <div class="border-t p-5">
+          <h3 class="text-sm font-medium">{t(holdersTotal(holdersQuery.data.total))}</h3>
+          <ul class="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
+            {#each shown as holder (`${holder.actorId}-${holder.scopeId}`)}
+              <li class="flex justify-between gap-2">
+                <span class="truncate">{holder.displayName}</span>
+                {#if holder.scopeKind === 'project'}
+                  <span class="truncate text-xs">{holder.scopeName}</span>
+                {/if}
+              </li>
+            {/each}
+          </ul>
+          {#if more > 0}
+            <p class="mt-2 text-xs text-muted-foreground">{t(andMore(more))}</p>
+          {/if}
+        </div>
+      {/if}
     </aside>
   </div>
 </div>

@@ -89,11 +89,11 @@ msgstr "Une erreur inattendue s'est produite"
 msgid "Another account already uses this handle"
 msgstr "Un autre compte utilise déjà cet identifiant"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:32
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:33
 msgid "Another secret of the project already uses this name"
 msgstr "Un autre secret du projet utilise déjà ce nom"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:34
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:35
 msgid "Another trigger of the pipeline already uses this name"
 msgstr "Un autre déclencheur du pipeline utilise déjà ce nom"
 
@@ -175,6 +175,10 @@ msgstr "Échoué"
 #: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:6
 msgid "Full"
 msgstr "Complet"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:29
+msgid "Give this person a role in the workspace first"
+msgstr "Donnez d'abord à cette personne un rôle dans l'espace de travail"
 
 #: extensions/scylla-base/src/shared/presentation/messages/copy-box.messages.ts:7
 msgid "Hidden secret"
@@ -369,15 +373,15 @@ msgstr "Le nom affiché doit contenir 100 caractères au maximum."
 msgid "The identity provider gives no email address"
 msgstr "Le fournisseur d'identité ne donne pas d'adresse e-mail"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:35
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:36
 msgid "The job has not ended yet"
 msgstr "Le job n'est pas encore terminé"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:30
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:31
 msgid "The limit is reached"
 msgstr "La limite est atteinte"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:30
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:31
 msgid "The limit is reached ({used} of {limit})"
 msgstr "La limite est atteinte ({used} sur {limit})"
 
@@ -389,7 +393,7 @@ msgstr "Le mot de passe ne peut pas contenir que des espaces."
 msgid "The password must have 8 to 128 characters."
 msgstr "Le mot de passe doit contenir de 8 à 128 caractères."
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:33
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:34
 msgid "The server has no key to encrypt secrets"
 msgstr "Le serveur n'a pas de clé pour chiffrer les secrets"
 
@@ -409,7 +413,7 @@ msgstr "Le nom d'utilisateur est trop long : 255 octets au maximum."
 msgid "The workspace needs at least one other owner"
 msgstr "L'espace de travail a besoin d'au moins un autre propriétaire"
 
-#: extensions/scylla-base/src/shared/utils/error-reasons.ts:36
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:37
 msgid "This app is not a runner"
 msgstr "Cette app n'est pas un runner"
 

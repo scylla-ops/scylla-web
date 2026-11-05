@@ -6,6 +6,7 @@ import {
   togglePermission,
   type CatalogArea,
 } from '../../../domain/structs/catalog.struct.ts';
+import { missingPermissionIds } from '../../../domain/structs/catalog.struct.ts';
 
 const areas: CatalogArea[] = [
   {
@@ -65,5 +66,22 @@ describe('the catalog', () => {
       'users.view',
       'pipelines.view',
     ]);
+  });
+});
+
+describe('missingPermissionIds', () => {
+  const areas = [
+    {
+      id: 'workspace',
+      level: 'workspace' as const,
+      machine: false,
+      permissions: [{ id: 'workspace.view', action: 'view', dependsOn: [], implicit: true }],
+    },
+  ];
+
+  it('names what the caller does not hold, with no implicit permission', () => {
+    const role = { permissions: ['workspace.view', 'members.manage', 'pipelines.run'] };
+
+    expect(missingPermissionIds(role, new Set(['pipelines.run']), areas)).toEqual(['members.manage']);
   });
 });

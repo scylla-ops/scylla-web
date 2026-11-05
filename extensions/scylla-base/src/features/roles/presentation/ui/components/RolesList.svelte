@@ -2,6 +2,7 @@
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { createQuery, navigateTo, routePathname } from '@scylla/core-sdk';
   import { ErrorState, ListSkeleton } from '@scylla/ui';
+  import RolesLoadError from './RolesLoadError.svelte';
   import { t } from '@scylla/ui/i18n';
   import { Input, ToggleGroup, ToggleGroupItem } from '@scylla/ui/primitives';
   import {
@@ -20,20 +21,12 @@
   import LevelTag from './LevelTag.svelte';
   import OriginTag from './OriginTag.svelte';
 
-  let {
-    workspaceId,
-    showHolders = true,
-  }: { workspaceId?: string; showHolders?: boolean } = $props();
-
-  const rolesQuery = createQuery(() => roleQueries.list(workspaceId));
+  const rolesQuery = createQuery(() => roleQueries.list());
   const catalogQuery = createQuery(() => roleQueries.catalog());
 
   let filter = $state<RoleFilter>('all');
   let search = $state('');
 
-  const filters = $derived(
-    workspaceId ? ROLE_FILTERS.filter(value => value !== 'platform') : ROLE_FILTERS,
-  );
   const groups = $derived(groupRoles(rolesQuery.data ?? [], filter, search));
 
   const open = (key: string) => navigateTo(`${routePathname()}/${encodeURIComponent(key)}`);
@@ -41,7 +34,9 @@
 
 {#if rolesQuery.isLoading || catalogQuery.isLoading}
   <ListSkeleton header rows={8} rowClass="h-14 w-full" />
-{:else if rolesQuery.isError || catalogQuery.isError}
+{:else if rolesQuery.isError}
+  <RolesLoadError error={rolesQuery.error} onRetry={() => void rolesQuery.refetch()} />
+{:else if catalogQuery.isError}
   <ErrorState message={t(rolesMessages.loadError)} />
 {:else}
   <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -54,7 +49,7 @@
       aria-label={t(rolesMessages.filterLabel)}
       class="w-fit rounded-lg bg-muted p-1"
     >
-      {#each filters as value (value)}
+      {#each ROLE_FILTERS as value (value)}
         <ToggleGroupItem
           {value}
           size="sm"
@@ -83,9 +78,7 @@
             <th class="px-6 py-3 font-medium">{t(rolesMessages.role)}</th>
             <th class="w-36 px-3 py-3 font-medium">{t(rolesMessages.level)}</th>
             <th class="w-28 px-3 py-3 font-medium">{t(rolesMessages.type)}</th>
-            {#if showHolders}
-              <th class="w-20 px-3 py-3 font-medium">{t(rolesMessages.holders)}</th>
-            {/if}
+            <th class="w-20 px-3 py-3 font-medium">{t(rolesMessages.holders)}</th>
             <th class="w-32 px-3 py-3 font-medium">{t(rolesMessages.permissions)}</th>
             <th class="w-10"></th>
           </tr>
@@ -93,7 +86,7 @@
         {#each groups as group (group.id)}
           <tbody>
             <tr class="border-t bg-muted/60">
-              <td colspan={showHolders ? 6 : 5} class="px-6 py-2 text-xs">
+              <td colspan="6" class="px-6 py-2 text-xs">
                 <span class="font-semibold text-foreground">{t(groupLabels[group.id])}</span>
                 <span class="ml-2 text-muted-foreground">{t(groupHints[group.id])}</span>
               </td>
@@ -120,9 +113,7 @@
                 </td>
                 <td class="px-3 py-3"><LevelTag level={role.level} /></td>
                 <td class="px-3 py-3"><OriginTag builtin={role.builtin} /></td>
-                {#if showHolders}
-                  <td class="px-3 py-3 tabular-nums">{role.holderCount}</td>
-                {/if}
+                <td class="px-3 py-3 tabular-nums">{role.holderCount}</td>
                 <td class="px-3 py-3 text-muted-foreground tabular-nums">
                   {permissionCount(role, catalogQuery.data ?? [])}
                 </td>

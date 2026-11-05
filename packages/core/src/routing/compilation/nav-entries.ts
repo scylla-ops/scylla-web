@@ -17,7 +17,8 @@ export interface NavEntry extends NavLink {
  * registration order.
  *
  * A link takes its URL and its permission from its route, so a link can never
- * show for a page that would deny the user.
+ * show for a page that would deny the user. A page that shows its own text to a
+ * person with no access names the permission of its link.
  */
 export const navEntriesFor = (
   modules: readonly RouteSource[],
@@ -30,6 +31,6 @@ export const navEntriesFor = (
       mount,
       url: path.join('/'),
       pattern: [...mountPath(mount), ...path],
-      permission,
+      permission: (nav as NavLink).permission ?? permission,
     }))
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));

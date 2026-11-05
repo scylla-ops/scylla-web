@@ -47,14 +47,26 @@ export const RolesModule = {
     access: [
       {
         path: 'roles',
-        permission: Permission.MANAGE_WORKSPACE_ROLES,
+        permission: Permission.LIST_WORKSPACE_ROLES,
         breadcrumb: () => ({ label: msg`Roles` }),
         page: () => import('./presentation/ui/WorkspaceRoles/WorkspaceRoles.page.svelte'),
-        nav: { section: 'workspace', title: msg`Roles`, order: 31, group: ACCESS_NAV },
+        nav: {
+          section: 'workspace',
+          title: msg`Roles`,
+          order: 31,
+          group: ACCESS_NAV,
+          permission: Permission.MANAGE_WORKSPACE_ROLES,
+        },
         children: [
           {
-            path: ':roleKey',
+            path: 'new',
             permission: Permission.MANAGE_WORKSPACE_ROLES,
+            breadcrumb: () => ({ label: msg`New role` }),
+            page: () => import('./presentation/ui/RoleEditor/NewWorkspaceRole.page.svelte'),
+          },
+          {
+            path: ':roleKey',
+            permission: Permission.LIST_WORKSPACE_ROLES,
             breadcrumb: () => ({ label: roleCrumbName() ?? msg`Role` }),
             page: () => import('./presentation/ui/RoleDetail/WorkspaceRole.page.svelte'),
           },

@@ -6,6 +6,5 @@ export {
   INVITATIONS_QUERY_KEY,
   type InviteInput,
 } from './presentation/invitation.queries.ts';
-export const loadInviteDialog = () => import('./presentation/ui/InviteDialog/InviteDialog.svelte');
 export const loadPendingInvitations = () =>
   import('./presentation/ui/PendingInvitations/PendingInvitations.svelte');

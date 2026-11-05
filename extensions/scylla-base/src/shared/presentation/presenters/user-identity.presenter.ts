@@ -25,9 +25,9 @@ export const userName = (
   );
 };
 
-/** The email when it is known, else the handle. */
+/** The email when it is known, else the handle. An account can have neither. */
 export const userSecondaryLine = (user: UserIdentityProfile): string =>
-  user.email || `@${user.username}`;
+  user.email || (user.username ? `@${user.username}` : "");
 
 /** The first letters of the first two words of the name. */
 export const userInitials = (user: UserIdentityProfile): string =>

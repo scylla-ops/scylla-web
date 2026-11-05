@@ -72,6 +72,7 @@ export enum Permission {
   MANAGE_OWNERS = 65,
   MANAGE_INSTANCE_SETTINGS = 66,
   LIST_ROLES = 67,
+  LIST_WORKSPACE_ROLES = 69,
   MANAGE_INSTANCE_ADMINS = 68,
 }
 
@@ -117,6 +118,7 @@ const WORKSPACE_LEVEL = new Set<Permission>([
   Permission.LIST_AGENTS,
   Permission.MANAGE_WORKSPACE_GRANTS,
   Permission.MANAGE_WORKSPACE_ROLES,
+  Permission.LIST_WORKSPACE_ROLES,
 ]);
 
 /**

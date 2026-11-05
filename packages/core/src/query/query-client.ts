@@ -24,7 +24,11 @@ export const createAppQueryClient = (
 
   return new QueryClient({
     queryCache: new QueryCache({ onError: error => report(error, 'query') }),
-    mutationCache: new MutationCache({ onError: error => report(error, 'mutation') }),
+    mutationCache: new MutationCache({
+      onError: (error, _variables, _context, mutation) => {
+        if (!mutation.meta?.showsOwnError) report(error, 'mutation');
+      },
+    }),
     defaultOptions: { queries: { retry: shouldRetry } },
   });
 };

@@ -1,234 +1,238 @@
 <script lang="ts">
-  import { i18n } from '@lingui/core';
-  import { can, Permission, PermissionScope } from '@platform/authz';
+  import InfoIcon from '@lucide/svelte/icons/info';
+  import { can, Permission } from '@platform/authz';
   import { contextStore } from '@platform/context';
-  import { createQuery, WidgetZone } from '@scylla/core-sdk';
-  import { accessQueries, workspaceRef, type AccessEntryEntity } from '@base/features/access';
+  import { createQuery, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
+  import { accessQueries, projectRef, type MemberRoleEntity } from '@base/features/access';
   import { invalidateProjectMembers } from '@base/features/project';
-  import type { UserSummary } from '@base/features/user';
-  import { userName } from '@shared/presentation/ui';
-  import { ConfirmOperationAlertDialog, FeatureHeader, GatedButton } from '@scylla/ui';
-  import { toRune } from '@scylla/ui/stores';
-  import { toast } from '@scylla/ui/utils';
+  import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
-    buildProjectMembers,
-    MemberRoleOrigin,
-    type ScopeMember,
-  } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
-  import {
-    createAssignableRoles,
-  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
-  import {
-    createScopeMembership,
-  } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
+    Button,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    Skeleton,
+  } from '@scylla/ui/primitives';
+  import { toRune } from '@scylla/ui/stores';
+  import { UserIdentity } from '@shared/presentation/ui';
   import {
     membershipPoints,
     type ProjectMembersContext,
   } from '@base/features/membership/presentation/membership.points.ts';
-  import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
-  import MembersHint from '../components/MembersHint/MembersHint.svelte';
-  import MembersList from '../components/MembersList/MembersList.svelte';
-  import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
+  import {
+    addTo,
+    changeIn,
+    membersOf,
+    membershipMessages,
+    projectRuleTitle,
+  } from '../../messages/membership.messages.ts';
+  import { memberRoleName } from '../../presenters/member-role-name.ts';
+  import {
+    buildProjectMemberRows,
+    memberProfile,
+    type ProjectMemberRow,
+  } from '../../presenters/member-rows.presenter.ts';
+  import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
 
-  interface Props {
-    projectId?: string;
-  }
-
-  let { projectId }: Props = $props();
+  let { projectId }: { projectId?: string } = $props();
 
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id);
-  // About this project, not the context's: a direct URL can land here before the two agree.
+  const workspaceName = $derived(context().workspace.name ?? '');
   const target = $derived({
     projectId: projectId ?? undefined,
     workspaceId: workspaceId ?? undefined,
   });
 
   const canManage = $derived(can(Permission.MANAGE_PROJECT_GRANTS, target));
-  const canListWorkspaceMembers = $derived(
-    can(Permission.LIST_WORKSPACE_MEMBERS, target),
+  const object = $derived(projectId ? projectRef(projectId) : null);
+
+  const projectName = $derived(context().project.name ?? '');
+
+  const membersQuery = createQuery(() =>
+    accessQueries.members(object, { enabled: can(Permission.LIST_PROJECT_MEMBERS, target) }),
   );
+  const rows = $derived(buildProjectMemberRows(membersQuery.data ?? []));
 
-  // The roles of the workspace reach its projects: they show here, locked.
-  const workspaceAccessQuery = createQuery(() =>
-    accessQueries.list(workspaceId ? workspaceRef(workspaceId) : null, {
-      enabled: canListWorkspaceMembers,
-    }),
-  );
-  const workspaceEntries = $derived(workspaceAccessQuery.data ?? []);
+  /** A person with a role in the workspace and no role on the project yet. */
+  const candidates = $derived(rows.filter(row => row.changeIn === 'workspace'));
 
-  const roles = createAssignableRoles(PermissionScope.PROJECT);
+  let changing = $state<ProjectMemberRow | null>(null);
+  let adding = $state(false);
+  let chosen = $state('');
+  const chosenRow = $derived(candidates.find(row => row.actorId === chosen));
 
-  const membership = createScopeMembership({
-    scope: PermissionScope.PROJECT,
-    scopeId: () => projectId ?? null,
-    canRead: () => can(Permission.LIST_PROJECT_MEMBERS, target),
-    // The member list of the project feature reads the same roles.
-    onMembershipChanged: () => void invalidateProjectMembers(projectId ?? null),
-  });
-
-  const summaryOf = (entry: AccessEntryEntity): UserSummary => ({
-    id: entry.actorId,
-    username: entry.handle,
-    ...(entry.displayName ? { displayName: entry.displayName } : {}),
-  });
-
-  let addOpen = $state(false);
-  let pendingRemoval = $state<{ userId: string; name: string } | null>(null);
-
-  const userById = $derived.by(() => {
-    // Rebuilt whole by the `$derived` and never mutated after it is read, so a
-    // reactive collection would only make a throwaway object track dependencies.
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const users = new Map<string, UserSummary>();
-    for (const entry of workspaceEntries) users.set(entry.actorId, summaryOf(entry));
-    for (const entry of membership.entries) users.set(entry.actorId, summaryOf(entry));
-    return users;
-  });
-
-  const userFor = (memberId: string) => userById.get(memberId);
-
-  const members = $derived(buildProjectMembers(membership.entries, workspaceEntries));
-
-  /** A person of the workspace with no role of the project's own can get one. */
-  const directMemberIds = $derived(
-    new Set(
-      members
-        .filter(member => member.roles.some(role => role.origin === MemberRoleOrigin.DIRECT))
-        .map(member => member.userId),
-    ),
-  );
-
-  const candidates = $derived(
-    [...userById.values()].filter(user => !directMemberIds.has(user.id)),
-  );
+  const refresh = () => {
+    void membersQuery.refetch();
+    void invalidateProjectMembers(projectId ?? null);
+  };
 
   const zoneContext: ProjectMembersContext = $derived({
     workspaceId: workspaceId ?? '',
     projectId: projectId ?? '',
     canManage,
-    memberCount: members.length,
-    refreshMembers: membership.refresh,
+    memberCount: rows.length,
+    refreshMembers: refresh,
   });
 
-  const currentUserId = localStorage.getItem('userId') ?? '';
+  const slug = $derived(routePathname().split('/')[1] ?? '');
+  const scopeLabel = (scope: Pick<MemberRoleEntity, 'scopeKind' | 'scopeName'>) =>
+    scope.scopeKind === 'platform' ? t(membershipMessages.instance) : scope.scopeName;
 
-  /** The project's own roles: the editable ones. */
-  const directRoleIds = (member: ScopeMember): Set<string> =>
-    new Set(
-      member.roles
-        .filter(role => role.origin === MemberRoleOrigin.DIRECT)
-        .map(role => role.roleId),
-    );
-
-  const handleAdd = async (userId: string, roleIds: string[]) => {
-    const granted = await membership.grantRoles(userId, roleIds);
-    if (granted) toast.success(i18n._(membershipMessages.memberAdded(roleIds.length)));
-    return granted;
+  const openChange = (row: ProjectMemberRow) => {
+    if (row.changeIn === 'platform') navigateTo(`/${slug}/instance/users`);
+    else navigateTo(`/${slug}/access/members`);
   };
 
-  const handleRemove = async () => {
-    if (!pendingRemoval) return;
-    await membership.removeMember(pendingRemoval.userId, pendingRemoval.name);
-    pendingRemoval = null;
-  };
+  const ownRoles = (row: ProjectMemberRow | null) =>
+    (row?.roles ?? []).filter(role => role.scopeKind === 'project');
 </script>
-
-<!--
-  The project's own members plus the workspace roles that reach it, each badged
-  with its scope. Inherited roles are locked: revoking them changes every project.
-  Candidates are the workspace's members (a project grant needs one).
--->
-{#snippet actions()}
-  <WidgetZone point={membershipPoints.projectActions} context={zoneContext}>
-    <GatedButton
-      allowed={canManage}
-      deniedReason={t(membershipMessages.projectNewDenied)}
-      onclick={() => (addOpen = true)}
-    >
-      {t(membershipMessages.addAMember)}
-    </GatedButton>
-  </WidgetZone>
-{/snippet}
-
-{#snippet blurb()}
-  <p class="max-w-3xl text-sm text-muted-foreground">{t(membershipMessages.projectBlurb)}</p>
-{/snippet}
 
 {#if projectId}
   <div class="flex h-full min-h-0 w-full flex-col gap-4">
-    <FeatureHeader
-      count={(workspaceAccessQuery.isLoading || membership.isLoading) ? undefined : members.length}
-      label={t(membershipMessages.member)}
-      pluralLabel={t(membershipMessages.members)}
-      underLabel={blurb}
-      extraActions={actions}
-    />
+    <header class="flex items-start justify-between gap-6">
+      <div class="flex flex-col gap-1">
+        <h2 class="text-xl font-semibold">{t(membersOf(projectName))}</h2>
+        <p class="max-w-3xl text-sm text-muted-foreground">
+          {t(membershipMessages.projectBlurb)}
+        </p>
+      </div>
+      <WidgetZone point={membershipPoints.projectActions} context={zoneContext}>
+        <GatedButton
+          allowed={canManage}
+          deniedReason={t(membershipMessages.projectNewDenied)}
+          onclick={() => (adding = true)}
+        >
+          {t(addTo(projectName))}
+        </GatedButton>
+      </WidgetZone>
+    </header>
 
-    <MembersList
-      {members}
-      isLoading={workspaceAccessQuery.isLoading ||
-        membership.isLoading}
-      emptyMessage={t(membershipMessages.projectEmpty)}
-      {userFor}
-      missing={canListWorkspaceMembers ? 'deleted' : 'unknown'}
-      workspaceName={context().workspace.name ?? ''}
-      labelFor={roles.labelFor}
-      {currentUserId}
-      {canManage}
-      disabled={membership.isPending}
-      onRevokeRole={role => void membership.revokeRole(role)}
-      addableRolesFor={member => {
-        // Only project roles count as held: an inherited role can still be granted here.
-        const held = directRoleIds(member);
-        return roles.assignableRoles.filter(role => !held.has(role.roleId));
-      }}
-      onAddRole={(memberId, roleId) => void membership.addRole(memberId, roleId)}
-      emptyRoles={t(membershipMessages.managedByProjectAdmin)}
-      canRemove={member => canManage && directRoleIds(member).size > 0}
-      removeTooltip={t(membershipMessages.removeFromProject)}
-      onRemove={member =>
-        (pendingRemoval = {
-          userId: member.userId,
-          name: userName(userFor(member.userId), canListWorkspaceMembers ? 'deleted' : 'unknown'),
-        })}
-    />
+    {#if adding}
+      <div class="flex items-center gap-2 rounded-xl border p-4">
+        <Select type="single" value={chosen} onValueChange={next => (chosen = next)}>
+          <SelectTrigger class="flex-1" aria-label={t(membershipMessages.member)}>
+            {chosenRow?.name ?? t(membershipMessages.chooseMember)}
+          </SelectTrigger>
+          <SelectContent>
+            {#each candidates as row (row.actorId)}
+              <SelectItem value={row.actorId} label={row.name}>{row.name}</SelectItem>
+            {/each}
+          </SelectContent>
+        </Select>
+        <Button
+          disabled={!chosenRow}
+          onclick={() => {
+            changing = chosenRow ?? null;
+            adding = false;
+            chosen = '';
+          }}
+        >
+          {t(membershipMessages.chooseRole)}
+        </Button>
+        <Button variant="ghost" onclick={() => (adding = false)}>
+          {t(membershipMessages.cancel)}
+        </Button>
+      </div>
+    {/if}
 
-    <MembersHint>
-      {canListWorkspaceMembers
-        ? t(membershipMessages.inheritedHintVisible)
-        : t(membershipMessages.inheritedHintHidden)}
-    </MembersHint>
+    {#if membersQuery.isLoading}
+      <div role="status" aria-busy="true" class="flex flex-col gap-2">
+        {#each [0, 1, 2] as index (index)}
+          <Skeleton class="h-14 w-full rounded-xl" />
+        {/each}
+      </div>
+    {:else if rows.length === 0}
+      <p class="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+        {t(membershipMessages.projectEmpty)}
+      </p>
+    {:else}
+      <div class="relative overflow-x-auto rounded-xl border bg-card">
+        <table class="w-full min-w-[720px] border-collapse text-sm">
+          <thead>
+            <tr class="text-left text-xs text-muted-foreground">
+              <th class="px-6 py-3 font-medium">{t(membershipMessages.member)}</th>
+              <th class="px-3 py-3 font-medium">{t(membershipMessages.rolesHere)}</th>
+              <th class="px-3 py-3 font-medium">{t(membershipMessages.comesFrom)}</th>
+              <th class="w-40"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each rows as row (row.actorId)}
+              <tr class="border-t {row.inheritedOnly ? 'bg-muted/50' : ''}">
+                <td class="px-6 py-3">
+                  <UserIdentity
+                    user={memberProfile(row)}
+                  />
+                </td>
+                <td class="px-3 py-3">
+                  <div class="flex flex-wrap gap-1.5">
+                    {#each row.roles as role (`${role.scopeKind}-${role.role}`)}
+                      <span class="rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium">
+                        {memberRoleName(role)}
+                      </span>
+                    {/each}
+                  </div>
+                </td>
+                <td class="px-3 py-3">
+                  <div class="flex flex-wrap gap-1.5">
+                    {#each row.scopes as scope (scope.scopeKind)}
+                      <span class="rounded-full bg-muted px-2.5 py-0.5 text-xs">
+                        {scopeLabel(scope)}
+                      </span>
+                    {/each}
+                  </div>
+                </td>
+                <td class="pr-4 text-right">
+                  {#if row.inheritedOnly}
+                    <button
+                      type="button"
+                      class="text-xs font-medium text-primary hover:underline"
+                      onclick={() => openChange(row)}
+                    >
+                      {t(
+                        changeIn(
+                          row.changeIn === 'platform'
+                            ? t(membershipMessages.instance)
+                            : workspaceName,
+                        ),
+                      )}
+                    </button>
+                  {:else if canManage}
+                    <Button variant="ghost" onclick={() => (changing = row)}>
+                      {t(membershipMessages.changeRoles)}
+                    </Button>
+                  {/if}
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+
+      <aside class="flex gap-3 rounded-xl border border-primary/40 bg-primary/5 p-4">
+        <InfoIcon class="mt-0.5 size-4 shrink-0 text-primary" />
+        <div>
+          <p class="text-sm font-medium">{t(projectRuleTitle(workspaceName))}</p>
+          <p class="mt-1 text-xs text-muted-foreground">{t(membershipMessages.projectRuleHint)}</p>
+        </div>
+      </aside>
+    {/if}
 
     <WidgetZone point={membershipPoints.projectSection} context={zoneContext} />
 
-    <AddMemberDialog
-      open={addOpen}
-      onOpenChange={open => (addOpen = open)}
-      title={t(membershipMessages.addToProject)}
-      description={t(membershipMessages.addToProjectBody)}
-      {candidates}
-      emptyCandidatesLabel={canListWorkspaceMembers
-        ? t(membershipMessages.everyWorkspaceMemberHere)
-        : t(membershipMessages.cannotBrowseWorkspaceMembers)}
-      roles={roles.assignableRoles}
-      workspaceName={context().workspace.name ?? ''}
-      rolesLabel={t(membershipMessages.projectRolesToGrant)}
-      rolesLoading={roles.isLoading}
-      isPending={membership.isPending}
-      onSubmit={handleAdd}
-    />
-
-    <ConfirmOperationAlertDialog
-      open={pendingRemoval !== null}
-      onOpenChange={open => {
-        if (!open) pendingRemoval = null;
-      }}
-      isLoading={membership.isRemoving}
-      title={t(membershipMessages.confirmRemoveFromProject(pendingRemoval?.name ?? ''))}
-      description={t(membershipMessages.confirmRemoveFromProjectBody)}
-      onContinue={() => void handleRemove()}
-    />
+    {#if object && workspaceId}
+      <ChangeRolesDialog
+        {...changing ? { actorId: changing.actorId, holder: changing.tab } : {}}
+        name={changing?.name ?? ''}
+        roles={ownRoles(changing)}
+        {workspaceId}
+        {object}
+        onClose={() => (changing = null)}
+        onChanged={refresh}
+      />
+    {/if}
   </div>
 {/if}

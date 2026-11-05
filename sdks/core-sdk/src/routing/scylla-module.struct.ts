@@ -30,6 +30,8 @@ export interface NavLink {
   order?: number;
   /** The links of one group fold under one item of their section, at the place of the first. */
   group?: NavGroup;
+  /** For a page that shows its own text to a person with no access: the link hides for them. */
+  permission?: RoutePermission;
 }
 
 /** A folding item of a nav section. The links that name the same `id` go under it. */

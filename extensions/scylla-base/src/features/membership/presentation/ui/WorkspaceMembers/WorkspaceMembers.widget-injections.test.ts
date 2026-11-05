@@ -10,7 +10,7 @@ import WorkspaceMembersPage from './WorkspaceMembers.page.svelte';
 
 const probe = () => import('./WorkspaceMembersProbe.fixture.svelte');
 
-let listAccess: ReturnType<typeof vi.fn>;
+let listMembers: ReturnType<typeof vi.fn>;
 let teardown: Array<() => void> = [];
 
 const grant = (permissions: Permission[] | 'all') =>
@@ -33,9 +33,9 @@ const setUp = (injection?: WidgetInjection) => {
 };
 
 beforeEach(() => {
-  listAccess = vi.fn().mockResolvedValue([
-    { actorId: 'user-1', actorKind: 'user', displayName: '', handle: 'alice', role: 'admin' },
-    { actorId: 'user-2', actorKind: 'user', displayName: '', handle: 'bob', role: 'member' },
+  listMembers = vi.fn().mockResolvedValue([
+    { actorId: 'user-1', actorKind: 'user', displayName: 'alice', handle: 'alice', roles: [] },
+    { actorId: 'user-2', actorKind: 'user', displayName: 'bob', handle: 'bob', roles: [] },
   ]);
 
   const cache = withQueryClient();
@@ -43,7 +43,7 @@ beforeEach(() => {
     user: { userRepository: { getAll: vi.fn().mockResolvedValue({ items: [] }) } },
     access: {
       accessRepository: {
-        listAccess,
+        listMembers,
         grant: vi.fn(),
         revoke: vi.fn(),
         check: vi.fn().mockResolvedValue(new Set()),
@@ -72,15 +72,15 @@ describe('WorkspaceMembers.page with widget injections', () => {
     expect(await screen.findByTestId('workspace-members-probe')).toHaveTextContent(
       'Acme|org-1|2|true',
     );
-    expect(screen.getByRole('button', { name: 'Add a member' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add members' })).toBeInTheDocument();
   });
 
-  it('puts a header action in place of "Add a member" with `replace`', async () => {
+  it('puts a header action in place of "Add members" with `replace`', async () => {
     setUp([
       membershipPoints.workspaceActions.inject({ component: probe, position: 'replace' }),
     ]);
     expect(await screen.findByTestId('workspace-members-probe')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Add a member' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Add members' })).not.toBeInTheDocument();
   });
 
   it('renders a section under the members list', async () => {
@@ -92,14 +92,14 @@ describe('WorkspaceMembers.page with widget injections', () => {
   it('reloads the roles of the members when a component asks for it', async () => {
     setUp([membershipPoints.workspaceSection.inject({ component: probe })]);
     await screen.findByText('alice');
-    const reads = listAccess.mock.calls.length;
+    const reads = listMembers.mock.calls.length;
 
     await userEvent.click(await screen.findByTestId('workspace-members-probe'));
 
-    await vi.waitFor(() => expect(listAccess.mock.calls.length).toBe(reads + 1));
+    await vi.waitFor(() => expect(listMembers.mock.calls.length).toBe(reads + 1));
   });
 
-  it('hides "Add a member" without LIST_USERS when an extension asks for it', async () => {
+  it('hides "Add members" without LIST_USERS when an extension asks for it', async () => {
     grant([Permission.MANAGE_WORKSPACE_GRANTS, Permission.LIST_WORKSPACE_MEMBERS]);
     setUp([
       membershipPoints.workspaceAddMember.patch(action => ({
@@ -109,10 +109,10 @@ describe('WorkspaceMembers.page with widget injections', () => {
     ]);
     await screen.findByText('alice');
 
-    expect(screen.queryByRole('button', { name: 'Add a member' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Add members' })).not.toBeInTheDocument();
   });
 
-  it('keeps "Add a member" usable with LIST_USERS, as an outline button', async () => {
+  it('keeps "Add members" usable with LIST_USERS, as an outline button', async () => {
     setUp([
       membershipPoints.workspaceAddMember.patch(() => ({
         withoutDirectory: 'hide',
@@ -121,7 +121,7 @@ describe('WorkspaceMembers.page with widget injections', () => {
     ]);
     await screen.findByText('alice');
 
-    const add = screen.getByRole('button', { name: 'Add a member' });
+    const add = screen.getByRole('button', { name: 'Add members' });
     expect(add).not.toHaveAttribute('aria-disabled');
     expect(add).toHaveAttribute('data-variant', 'outline');
   });

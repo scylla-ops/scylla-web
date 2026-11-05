@@ -13,35 +13,35 @@ Who belongs to an workspace or a project, and with which roles.
 ## Public API — `index.ts`
 
 ```typescript
-type ScopeMember, MemberRole
-MemberRoleOrigin                      (enum — a value, not a type)
-buildWorkspaceMembers, buildProjectMembers
+type MemberRow
+buildMemberRows, buildProjectMemberRows
 membershipPoints                      the extension points (see below)
 type WorkspaceMembersContext, ProjectMembersContext, AddMemberAction
 ```
 
-Both pages are **deliberately not exported**: `membership.module.ts` loads them lazily, and a
-barrel that re-exported them would pull them into the chunk of anything importing this module.
+The pages are **deliberately not exported**: `membership.module.ts` loads them lazily.
 Never add: `membership.module.ts`, pages.
 
 ## Data contract
 
 **This module owns no repository.** `domain` is `{}`; it is registered for its routes alone.
-Do not add one: the members are built from the grants of `roles`.
 
 It composes, through public APIs only:
 
 | From | Used for |
 |---|---|
-| `features/roles` | `roleQueries` (`grantable`, `catalog`, `workspaceCatalog`, `scopedGrants`), `grantMutations`, `roleConfers`, `humanizeRoleId`, `scopeLabelOf`, `RoleEntity` |
-| `features/workspace` | workspace member list |
-| `features/project` | project member list |
-| `features/user` | `UserSummary` (the person type) and the directory, for display names and emails |
-| `@shared/presentation/ui` | `UserIdentity`, `userName`: how a person shows |
-| `@platform/authz` | `PrincipalKind`, `PermissionScope`, `Permission`, `can` |
+| `features/access` | `accessQueries` (`members`, `memberAccess`, `held`), `accessMutations` |
+| `features/roles` | `roleQueries` (`list`, `catalog`), `roleName`, `missingPermissionIds`, `permissionLabel` |
+| `features/project` | the projects of the workspace |
+| `features/invitation` | an email in the add dialog makes an invitation |
+| `features/user` | the directory, for a name in the add dialog and for the emails |
+| `@platform/authz` | `Permission`, `can` |
 
-**This module reads the grants through `roleQueries.scopedGrants`**, the same factory that
-`roles` uses — so one resource has exactly one query key.
+## Rules
+
+- Teams and Check access are not in this module. Do not show them.
+- A person needs a role in the workspace first: the add dialog gives the workspace roles before the project roles. The server takes the project roles with the last workspace role.
+- An owner is not a role that `Revoke` takes back: it changes in `OwnersCard`.
 
 ## Layout
 
