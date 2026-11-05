@@ -31,9 +31,6 @@ export const membershipMessages = {
   removeFromWorkspaceAction: msg`Remove from the workspace`,
   workspaceRolesColumn: msg`Workspace roles`,
   added: msg`Added`,
-  instanceAdmin: msg`Instance admin`,
-  instance: msg`Instance`,
-  everyProject: msg`Every project`,
   everyProjectAsAdmin: msg`Every project, as admin`,
   noProjectRole: msg`No project role`,
   memberActions: msg`Member actions`,
@@ -47,11 +44,9 @@ export const membershipMessages = {
   projectRuleHint: msg`Add the person in Access › Members, then give the project role. An app gets roles only in the workspace that owns it.`,
   memberKind: msg`The kind of member`,
   searchMembers: msg`Search members`,
-  fromInstanceHint: msg`Instance admins can act in every workspace. Change it in Instance › Users, not here.`,
   memberNotFound: msg`This member did not load.`,
   theirRoles: msg`Roles`,
-  theirRolesHint: msg`On the instance, on the workspace and on its projects`,
-  noInstanceRole: msg`No instance role`,
+  theirRolesHint: msg`On the workspace and on its projects`,
   direct: msg`Direct`,
   effectiveAccess: msg`Effective access`,
   scope: msg`The scope of the access`,
@@ -106,8 +101,6 @@ export const membersOf = (project: string) => msg`Members of ${project}`;
 export const changeIn = (scope: string) => msg`Change in ${scope}`;
 export const projectRuleTitle = (workspace: string) =>
   msg`A project role needs a role in ${workspace} first`;
-export const fromInstanceTitle = (name: string, workspace: string) =>
-  msg`${name} is not a member of ${workspace}`;
 export const tabCount = (label: string, count: number) => msg`${label} ${count}`;
 export const workspaceBlurb = (workspace: string, again: string) =>
   msg`People and apps with a role in ${workspace}. A workspace role covers every project of ${again}. A project role adds power on one project.`;

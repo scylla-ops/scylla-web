@@ -1,7 +1,6 @@
 import type { MemberEntity, MemberRoleEntity } from '@base/features/access';
 
 export const OWNER_KEY = 'owner';
-export const INSTANCE_ADMIN_KEY = 'instance-admin';
 const WORKSPACE_ADMIN_KEY = 'workspace-admin';
 
 export type MemberTab = 'people' | 'apps';
@@ -15,9 +14,6 @@ export interface MemberRow {
   /** The owner and the roles on the workspace. */
   workspaceRoles: MemberRoleEntity[];
   projectRoles: MemberRoleEntity[];
-  isInstanceAdmin: boolean;
-  /** An instance admin with no role here: not a member, but it can act here. */
-  fromInstanceOnly: boolean;
   /** Every project, as admin: an owner, or a Workspace admin. */
   adminOfEachProject: boolean;
   /** The time of the oldest grant here. */
@@ -40,7 +36,6 @@ export const buildMemberRows = (members: readonly MemberEntity[]): MemberRow[] =
   members.map(member => {
     const workspaceRoles = member.roles.filter(role => role.scopeKind === 'workspace');
     const projectRoles = member.roles.filter(role => role.scopeKind === 'project');
-    const isInstanceAdmin = member.roles.some(role => role.roleKey === INSTANCE_ADMIN_KEY);
     const addedAt = oldest([...workspaceRoles, ...projectRoles]);
     return {
       actorId: member.actorId,
@@ -49,8 +44,6 @@ export const buildMemberRows = (members: readonly MemberEntity[]): MemberRow[] =
       handle: member.handle,
       workspaceRoles,
       projectRoles,
-      isInstanceAdmin,
-      fromInstanceOnly: isInstanceAdmin && workspaceRoles.length + projectRoles.length === 0,
       adminOfEachProject: workspaceRoles.some(
         role => role.roleKey === OWNER_KEY || role.roleKey === WORKSPACE_ADMIN_KEY,
       ),
@@ -82,20 +75,16 @@ export interface ProjectMemberRow {
   scopes: Pick<MemberRoleEntity, 'scopeKind' | 'scopeName'>[];
   /** No role on the project: the row only shows, and it says where to change a role. */
   inheritedOnly: boolean;
-  /** The nearest scope above the project, for "Change in". */
-  changeIn?: 'workspace' | 'platform';
 }
 
-const RANK = { project: 0, workspace: 1, platform: 2 } as const;
+const RANK = { project: 0, workspace: 1 } as const;
 
 export const buildProjectMemberRows = (members: readonly MemberEntity[]): ProjectMemberRow[] =>
   members
     .map(member => {
       const roles = [...member.roles].sort((a, b) => RANK[a.scopeKind] - RANK[b.scopeKind]);
       const kinds = [...new Set(roles.map(role => role.scopeKind))];
-      const inheritedOnly = !kinds.includes('project');
       const tab: MemberTab = member.actorKind === 'user' ? 'people' : 'apps';
-      const above = kinds[0] === 'workspace' || kinds[0] === 'platform' ? kinds[0] : undefined;
       return {
         actorId: member.actorId,
         tab,
@@ -106,8 +95,7 @@ export const buildProjectMemberRows = (members: readonly MemberEntity[]): Projec
           scopeKind: kind,
           scopeName: roles.find(role => role.scopeKind === kind)?.scopeName ?? '',
         })),
-        inheritedOnly,
-        ...(above ? { changeIn: above } : {}),
+        inheritedOnly: !kinds.includes('project'),
       };
     })
     .sort((a, b) => Number(a.inheritedOnly) - Number(b.inheritedOnly));

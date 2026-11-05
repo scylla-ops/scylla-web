@@ -4,11 +4,9 @@ import type {
   AccessSourceEntity,
   MemberAccessEntity,
   MemberEntity,
+  MemberScopeKind,
 } from '@base/features/access/domain/entities/member.entity.ts';
-import type {
-  ObjectKind,
-  ObjectRef,
-} from '@base/features/access/domain/structs/object-ref.struct.ts';
+import type { ObjectRef } from '@base/features/access/domain/structs/object-ref.struct.ts';
 import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import type {
   AccessEntry,
@@ -39,7 +37,7 @@ const memberToDomain = (member: Member): MemberEntity => ({
   displayName: member.displayName,
   handle: member.handle,
   roles: member.roles.map(role => ({
-    scopeKind: role.scopeKind as ObjectKind,
+    scopeKind: role.scopeKind as MemberScopeKind,
     scopeId: idValue(role.scopeId),
     scopeName: role.scopeName,
     role: role.role,
@@ -51,7 +49,7 @@ const memberToDomain = (member: Member): MemberEntity => ({
 });
 
 const sourceToDomain = (source: AccessSource): AccessSourceEntity => ({
-  scopeKind: source.scopeKind as ObjectKind,
+  scopeKind: source.scopeKind as MemberScopeKind,
   scopeId: idValue(source.scopeId),
   scopeName: source.scopeName,
   roleKey: source.roleKey,

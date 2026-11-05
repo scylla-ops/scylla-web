@@ -1,5 +1,4 @@
 <script lang="ts">
-  import InfoIcon from '@lucide/svelte/icons/info';
   import { can, Permission } from '@platform/authz';
   import { contextStore } from '@platform/context';
   import { createQuery, currentSearch, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
@@ -17,7 +16,6 @@
     type WorkspaceMembersContext,
   } from '@base/features/membership/presentation/membership.points.ts';
   import {
-    fromInstanceTitle,
     linkedApp,
     membershipMessages,
     tabCount,
@@ -87,7 +85,6 @@
   const shown = $derived(filterMemberRows(rows, tab, search));
   const peopleCount = $derived(rows.filter(row => row.tab === 'people').length);
   const appCount = $derived(rows.filter(row => row.tab === 'apps').length);
-  const fromInstance = $derived(rows.filter(row => row.tab === 'people' && row.fromInstanceOnly));
 
   /** The directory gives the email when the caller can read it. */
   const userFor = (id: string): UserSummary | undefined =>
@@ -108,9 +105,7 @@
   };
 
   const candidates = $derived(
-    (usersQuery.data?.items ?? []).filter(
-      user => !rows.some(row => row.actorId === user.id && !row.fromInstanceOnly),
-    ),
+    (usersQuery.data?.items ?? []).filter(user => !rows.some(row => row.actorId === user.id)),
   );
 
   const refresh = () => {
@@ -222,24 +217,10 @@
       onRemove={askToRemove}
     />
 
-    {#if tab === 'people'}
-      {#each fromInstance as row (row.actorId)}
-        <aside class="flex gap-3 rounded-xl border border-primary/40 bg-primary/5 p-4">
-          <InfoIcon class="mt-0.5 size-4 shrink-0 text-primary" />
-          <div>
-            <p class="text-sm font-medium">{t(fromInstanceTitle(row.name, workspaceName))}</p>
-            <p class="mt-1 text-xs text-muted-foreground">
-              {t(membershipMessages.fromInstanceHint)}
-            </p>
-          </div>
-        </aside>
-      {/each}
-    {/if}
-
     <OwnersCard
       {workspaceId}
       members={rows
-        .filter(row => row.tab === 'people' && !row.fromInstanceOnly)
+        .filter(row => row.tab === 'people')
         .map(row => ({ id: row.actorId, username: row.handle, displayName: row.name }))}
       canManage={can(Permission.MANAGE_OWNERS, target)}
       {workspaceName}

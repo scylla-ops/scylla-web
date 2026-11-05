@@ -55,7 +55,7 @@
       </thead>
       <tbody>
         {#each rows as row (row.actorId)}
-          <tr class="border-t {row.fromInstanceOnly ? 'bg-muted/50' : ''}">
+          <tr class="border-t">
             <td class="px-6 py-3">
               <button type="button" class="text-left" onclick={() => onOpen(row)}>
                 <UserIdentity
@@ -65,9 +65,6 @@
             </td>
             <td class="px-3 py-3">
               <div class="flex flex-wrap gap-1.5">
-                {#if row.fromInstanceOnly}
-                  <span class={chipClass}>{t(membershipMessages.instanceAdmin)}</span>
-                {/if}
                 {#each row.workspaceRoles as role (role.role)}
                   <span class={chipClass}>{memberRoleName(role)}</span>
                 {/each}
@@ -75,11 +72,7 @@
             </td>
             <td class="px-3 py-3">
               <div class="flex flex-wrap gap-1.5">
-                {#if row.fromInstanceOnly}
-                  <span class="text-xs text-muted-foreground">
-                    {t(membershipMessages.everyProject)}
-                  </span>
-                {:else if row.adminOfEachProject}
+                {#if row.adminOfEachProject}
                   <span class="text-xs text-muted-foreground">
                     {t(membershipMessages.everyProjectAsAdmin)}
                   </span>
@@ -116,7 +109,7 @@
                   <DropdownMenuItem onSelect={() => onOpen(row)}>
                     {t(membershipMessages.seeAccess)}
                   </DropdownMenuItem>
-                  {#if canManage && !row.fromInstanceOnly}
+                  {#if canManage}
                     <DropdownMenuItem onSelect={() => onChangeRoles(row)}>
                       {t(membershipMessages.changeRoles)}
                     </DropdownMenuItem>

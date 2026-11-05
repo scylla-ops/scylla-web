@@ -1,12 +1,14 @@
 import type { ObjectKind } from '../structs/object-ref.struct.ts';
 
+/** The server sends no role of the instance in a read of the members. */
+export type MemberScopeKind = Exclude<ObjectKind, 'platform'>;
+
 /** One role of a member, with the scope where it is given. */
 export interface MemberRoleEntity {
-  scopeKind: ObjectKind;
+  scopeKind: MemberScopeKind;
   scopeId: string;
-  /** Empty for the instance. */
   scopeName: string;
-  /** The name in `Grant` and `Revoke`, `owner`, or `instance-admin`. */
+  /** The name in `Grant` and `Revoke`, or `owner`. */
   role: string;
   /** The key in `RoleService`, or `owner`. */
   roleKey: string;
@@ -27,7 +29,7 @@ export interface MemberEntity {
 
 /** The role that gives a permission. */
 export interface AccessSourceEntity {
-  scopeKind: ObjectKind;
+  scopeKind: MemberScopeKind;
   scopeId: string;
   scopeName: string;
   roleKey: string;

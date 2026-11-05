@@ -62,16 +62,6 @@ beforeEach(() => {
   const listMembers = vi.fn().mockResolvedValue([
     member('user-1', 'Alice', [role({}), role(inWorkspace)]),
     member('user-2', 'Bob', [role(inWorkspace)]),
-    member('user-3', 'Sam', [
-      role({
-        scopeKind: 'platform',
-        scopeId: 'x',
-        scopeName: '',
-        role: 'instance-admin',
-        roleKey: 'instance-admin',
-        roleName: 'Instance admin',
-      }),
-    ]),
   ]);
 
   const cache = withQueryClient();
@@ -120,9 +110,7 @@ describe('ProjectMembersPage', () => {
     setUp();
 
     const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
-    const sam = (await screen.findByText('Sam')).closest('tr') as HTMLElement;
     expect(within(bob).getByRole('button', { name: 'Change in Acme' })).toBeInTheDocument();
-    expect(within(sam).getByRole('button', { name: 'Change in Instance' })).toBeInTheDocument();
   });
 
   it('lets a manager change only the roles of the project', async () => {
@@ -157,7 +145,7 @@ describe('ProjectMembersPage', () => {
     setUp([membershipPoints.projectSection.inject({ component: probe })]);
 
     expect(await screen.findByTestId('project-members-probe')).toHaveTextContent(
-      'org-1|project-1|3|true',
+      'org-1|project-1|2|true',
     );
   });
 });

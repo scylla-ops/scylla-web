@@ -72,15 +72,12 @@
     roles: MemberRoleEntity[];
   }
 
-  /** The instance first, then the workspace, then each project. */
+  /** The workspace first, then each project. */
   const groups = $derived.by((): RoleGroup[] => {
     const roles = member?.roles ?? [];
     const of = (kind: MemberRoleEntity['scopeKind']) =>
       roles.filter(role => role.scopeKind === kind);
-    const list: RoleGroup[] = [
-      { key: 'platform', label: t(membershipMessages.instance), roles: of('platform') },
-      { key: 'workspace', label: workspaceName, roles: of('workspace') },
-    ];
+    const list: RoleGroup[] = [{ key: 'workspace', label: workspaceName, roles: of('workspace') }];
     const byProject = [...new Set(of('project').map(role => role.scopeId))];
     for (const id of byProject) {
       const inProject = of('project').filter(role => role.scopeId === id);
@@ -133,11 +130,7 @@
           <div class="border-b p-5 last:border-b-0">
             <span class="rounded-full bg-muted px-2.5 py-0.5 text-xs">{group.label}</span>
             {#if group.roles.length === 0}
-              <p class="mt-2 text-xs text-muted-foreground">
-                {group.key === 'platform'
-                  ? t(membershipMessages.noInstanceRole)
-                  : t(membershipMessages.noRole)}
-              </p>
+              <p class="mt-2 text-xs text-muted-foreground">{t(membershipMessages.noRole)}</p>
             {:else}
               <ul class="mt-2 flex flex-col gap-1.5">
                 {#each group.roles as role (role.role)}

@@ -22,11 +22,7 @@
     projectRuleTitle,
   } from '../../messages/membership.messages.ts';
   import { memberRoleName } from '../../presenters/member-role-name.ts';
-  import {
-    buildProjectMemberRows,
-    memberProfile,
-    type ProjectMemberRow,
-  } from '../../presenters/member-rows.presenter.ts';
+  import { buildProjectMemberRows, memberProfile } from '../../presenters/member-rows.presenter.ts';
   import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
   import ChooseActorRow from '../components/ChooseActorRow/ChooseActorRow.svelte';
 
@@ -68,7 +64,7 @@
   /** A person with a role in the workspace, or an app of the workspace, with no role here yet. */
   const candidates = $derived([
     ...rows
-      .filter(row => row.changeIn === 'workspace')
+      .filter(row => row.inheritedOnly)
       .map(row => ({ id: row.actorId, name: row.name })),
     ...(appsQuery.data ?? [])
       .filter(app => !rows.some(row => row.actorId === app.id))
@@ -98,14 +94,7 @@
   });
 
   const slug = $derived(routePathname().split('/')[1] ?? '');
-  const scopeLabel = (scope: Pick<MemberRoleEntity, 'scopeKind' | 'scopeName'>) =>
-    scope.scopeKind === 'platform' ? t(membershipMessages.instance) : scope.scopeName;
-
-  const openChange = (row: ProjectMemberRow) => {
-    if (row.changeIn === 'platform') navigateTo(`/${slug}/instance/users`);
-    else navigateTo(`/${slug}/access/members`);
-  };
-
+  const openChange = () => navigateTo(`/${slug}/access/members`);
 </script>
 
 {#if projectId}
@@ -181,7 +170,7 @@
                   <div class="flex flex-wrap gap-1.5">
                     {#each row.scopes as scope (scope.scopeKind)}
                       <span class="rounded-full bg-muted px-2.5 py-0.5 text-xs">
-                        {scopeLabel(scope)}
+                        {scope.scopeName}
                       </span>
                     {/each}
                   </div>
@@ -191,15 +180,9 @@
                     <button
                       type="button"
                       class="text-xs font-medium text-primary hover:underline"
-                      onclick={() => openChange(row)}
+                      onclick={openChange}
                     >
-                      {t(
-                        changeIn(
-                          row.changeIn === 'platform'
-                            ? t(membershipMessages.instance)
-                            : workspaceName,
-                        ),
-                      )}
+                      {t(changeIn(workspaceName))}
                     </button>
                   {:else if canManage}
                     <Button variant="ghost" onclick={() => startChange(row.actorId, row.name)}>

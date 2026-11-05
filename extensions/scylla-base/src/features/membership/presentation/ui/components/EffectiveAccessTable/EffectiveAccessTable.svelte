@@ -47,13 +47,8 @@
 
   const isDirect = (id: string) => (sources.get(id) ?? []).some(one => one.scopeId === scopeId);
 
-  const scopeLabel = (source: AccessSourceEntity) =>
-    source.scopeKind === 'platform' ? t(membershipMessages.instance) : source.scopeName;
-
   const roleUrl = (source: AccessSourceEntity) =>
-    source.scopeKind === 'platform'
-      ? `/${slug}/instance/roles/${encodeURIComponent(source.roleKey)}`
-      : `/${slug}/access/roles/${encodeURIComponent(source.roleKey)}`;
+    `/${slug}/access/roles/${encodeURIComponent(source.roleKey)}`;
 
   const areaTitle = (area: CatalogArea) =>
     areaLabels[area.id] ? t(areaLabels[area.id].title) : area.id;
@@ -121,7 +116,7 @@
       {#each openSources as source (`${source.scopeId}-${source.roleKey}`)}
         <li class="flex items-center justify-between gap-3">
           <span class="flex items-center gap-2">
-            <span class="rounded-full bg-muted px-2 py-0.5 text-xs">{scopeLabel(source)}</span>
+            <span class="rounded-full bg-muted px-2 py-0.5 text-xs">{source.scopeName}</span>
             <span class="font-medium">{sourceRoleName(source)}</span>
           </span>
           {#if source.roleKey !== 'owner'}

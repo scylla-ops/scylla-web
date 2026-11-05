@@ -25,7 +25,6 @@ const member = (roles: MemberRoleEntity[], actorKind = 'user'): MemberEntity => 
   roles,
 });
 
-const admin = role({ scopeKind: 'platform', scopeName: '', roleKey: 'instance-admin' });
 const project = role({ scopeKind: 'project', scopeId: 'p', scopeName: 'api', roleKey: 'project-editor' });
 
 describe('buildMemberRows', () => {
@@ -42,14 +41,6 @@ describe('buildMemberRows', () => {
 
   it('has no date when no grant tells one', () => {
     expect(buildMemberRows([member([role({})])])[0]?.addedAt).toBeUndefined();
-  });
-
-  it('knows an instance admin with no role here', () => {
-    const [alone] = buildMemberRows([member([admin])]);
-    const [both] = buildMemberRows([member([admin, role({})])]);
-
-    expect(alone?.fromInstanceOnly).toBe(true);
-    expect(both?.fromInstanceOnly).toBe(false);
   });
 
   it('knows who is admin of every project', () => {
@@ -83,12 +74,10 @@ describe('buildProjectMemberRows', () => {
 
     expect(row?.scopes.map(scope => scope.scopeKind)).toEqual(['project', 'workspace']);
     expect(row?.inheritedOnly).toBe(false);
-    expect(row?.changeIn).toBeUndefined();
   });
 
-  it('says where to change a role from above', () => {
-    expect(buildProjectMemberRows([member([role({})])])[0]?.changeIn).toBe('workspace');
-    expect(buildProjectMemberRows([member([admin])])[0]?.changeIn).toBe('platform');
+  it('knows a member with only a role from above', () => {
+    expect(buildProjectMemberRows([member([role({})])])[0]?.inheritedOnly).toBe(true);
   });
 
   it('puts the roles of the project before the roles from above', () => {

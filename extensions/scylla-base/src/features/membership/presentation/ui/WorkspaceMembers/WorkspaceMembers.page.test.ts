@@ -60,16 +60,6 @@ beforeEach(() => {
         roleName: 'Project editor',
       }),
     ]),
-    member('user-3', 'Sam', [
-      role({
-        scopeKind: 'platform',
-        scopeId: 'x',
-        scopeName: '',
-        role: 'instance-admin',
-        roleKey: 'instance-admin',
-        roleName: 'Instance admin',
-      }),
-    ]),
     { ...member('app-1', 'deploy-bot', [role({ role: 'runner', roleKey: 'agent' })]), actorKind: 'app' },
   ]);
   getAll = vi.fn().mockResolvedValue({ items: [] });
@@ -128,15 +118,6 @@ describe('WorkspaceMembersPage', () => {
     expect(within(alice).getByText('Owner')).toBeInTheDocument();
     expect(within(alice).getByText('Every project, as admin')).toBeInTheDocument();
     expect(within(alice).queryByText('—')).not.toBeInTheDocument();
-  });
-
-  it('says that an instance admin is not a member', async () => {
-    render(WorkspaceMembersPage);
-
-    const sam = (await screen.findByText('Sam')).closest('tr') as HTMLElement;
-    expect(within(sam).getByText('Instance admin')).toBeInTheDocument();
-    expect(within(sam).getByText('Every project')).toBeInTheDocument();
-    expect(screen.getByText('Sam is not a member of Acme')).toBeInTheDocument();
   });
 
   it('shows the apps on their own tab', async () => {

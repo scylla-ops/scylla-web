@@ -16,9 +16,7 @@
 
   const givers = $derived(
     (membersQuery.data ?? []).filter(member =>
-      member.roles.some(role =>
-        ['owner', 'workspace-admin', 'instance-admin'].includes(role.roleKey),
-      ),
+      member.roles.some(role => ['owner', 'workspace-admin'].includes(role.roleKey)),
     ),
   );
 </script>
