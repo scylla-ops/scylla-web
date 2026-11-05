@@ -63,7 +63,7 @@
   <!-- No role: a touch here opens the rail, as a mouse does by hovering it. -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="absolute inset-x-0 top-0 z-30 flex h-17 items-center border-r border-b border-sidebar-border bg-background pl-4.75"
+    class="absolute inset-x-0 top-0 z-30 flex h-17 items-center justify-center border-r border-b border-sidebar-border bg-background"
     onpointerup={event => {
       if (event.pointerType === 'touch') railState.tapped();
     }}

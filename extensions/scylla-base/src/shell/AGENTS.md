@@ -41,7 +41,7 @@ presentation/
     ui/WorkspaceGate/                loading screen / first workspace / the pages
       FirstWorkspace.svelte          welcome screen when the user has no workspace
     ui/context-selector/                WorkspaceSelector: the switcher at the right end of the top bar (topBarEnd)
-    ui/ShellBrand/                      the plain logo above the sidebars (brand)
+    ui/ShellBrand/                      the logo above the sidebars (brand): a link to the dashboard of the active workspace
     ui/GlobalSearch/                    the search of the top bar (Ctrl K): projects, pipelines, agents and apps, on the client
     ui/NotificationsMenu/               the bell of the top bar: the last failed runs. The server has no notifications
     ui/NavUser/                         who is signed in (userQueries.me), Account, Language, Sign out (sidebar footer)
@@ -100,6 +100,9 @@ changes only for a new mount, a new section or a new part of the shell.
   `breadcrumbParams` gives the crumbs `projectName`, and `pipelineName` —
   the name of the active pipeline only when it is the one in the URL, else its id, so the crumb
   identifies its pipeline also after a reload.
+- `ShellBrand` is a plain link: the router follows it, and a Ctrl click opens a new tab. It reads
+  the slug from `linkParams`, so it follows a change of workspace. With no active workspace it
+  opens `/`, and `/` picks the workspace of the user.
 - `WorkspaceSelector` shows `WorkspaceList` from `features/workspace` and opens
   `AddWorkspaceDialog`, both through the **loaders** of its barrel.
 - `createShell()` is created once, in `WorkspaceGate`. It loads the workspaces of

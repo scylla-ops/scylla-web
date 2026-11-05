@@ -61,6 +61,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the pages of the project. On a phone, the sheet stays.
 - The switch of workspace is at the right end of the top bar, after a search (Ctrl K or Cmd K) of
   the projects, the pipelines, the agents and the apps, and a bell with the last failed runs.
+- The logo is at the center of the band above the sidebars. A click on it opens the dashboard of
+  the current workspace.
 - The look of the design: its colors (a darker dark theme, stronger lines, a darker green in the
   light theme), its fonts (Funnel Sans, Funnel Display, JetBrains Mono), compact buttons and fields
   of 32 px, cards with a smaller gap and no shadow, and rounder menus and dialogs.

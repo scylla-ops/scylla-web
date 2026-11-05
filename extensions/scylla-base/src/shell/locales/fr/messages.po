@@ -109,6 +109,10 @@ msgstr "L'écriture de scripts, nœud par nœud"
 msgid "Scylla on your phone"
 msgstr "Scylla sur votre téléphone"
 
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:33
+msgid "Scylla: open the dashboard"
+msgstr "Scylla : ouvrir le tableau de bord"
+
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:12
 msgid "Search"
 msgstr "Rechercher"

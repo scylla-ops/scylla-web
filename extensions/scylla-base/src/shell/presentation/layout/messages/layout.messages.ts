@@ -30,4 +30,5 @@ export const layoutMessages = {
   whatsNew: (version: string) => msg`What's new in Scylla ${String(version)}`,
   whatsNewDescription: msg`Here is what landed in this version.`,
   gotIt: msg`Got it`,
+  openDashboard: msg`Scylla: open the dashboard`,
 };
