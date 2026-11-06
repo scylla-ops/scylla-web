@@ -89,10 +89,16 @@
   const canManage = $derived(
     workspaceId ? can(Permission.MANAGE_WORKSPACE_GRANTS, { workspaceId }) : false,
   );
-  let changing = $state(false);
+  /** The server gives no member when the last role goes: this keeps the name in the dialog. */
+  let changing = $state<{ name: string; holder: 'people' | 'apps' } | null>(null);
   const workspaceRoles = $derived(
     (member?.roles ?? []).filter(role => role.scopeKind === 'workspace'),
   );
+
+  const closeChange = () => {
+    changing = null;
+    if (!member) navigateTo(listUrl);
+  };
 </script>
 
 <div class="flex w-full flex-col gap-6">
@@ -116,7 +122,12 @@
         <p class="max-w-3xl text-sm text-muted-foreground">{t(whatCanDo(name))}</p>
       </div>
       {#if canManage}
-        <Button onclick={() => (changing = true)}>{t(membershipMessages.changeRoles)}</Button>
+        <Button
+          onclick={() =>
+            (changing = { name, holder: member.actorKind === 'user' ? 'people' : 'apps' })}
+        >
+          {t(membershipMessages.changeRoles)}
+        </Button>
       {/if}
     </header>
 
@@ -183,16 +194,19 @@
       </section>
     </div>
 
-    {#if workspaceId}
-      <ChangeRolesDialog
-        {...changing ? { actorId, holder: member.actorKind === 'user' ? 'people' : 'apps' } : {}}
-        {name}
-        roles={workspaceRoles}
-        {workspaceId}
-        object={workspaceRef(workspaceId)}
-        onClose={() => (changing = false)}
-        onChanged={() => void accessQuery.refetch()}
-      />
-    {/if}
+  {/if}
+
+  {#if workspaceId}
+    <ChangeRolesDialog
+      {...changing ? { actorId, holder: changing.holder } : {}}
+      name={changing?.name ?? ''}
+      scopeName={workspaceName}
+      roles={workspaceRoles}
+      otherRoles={(member?.roles ?? []).filter(role => role.scopeKind === 'project')}
+      {workspaceId}
+      object={workspaceRef(workspaceId)}
+      onClose={closeChange}
+      onChanged={() => accessQuery.refetch()}
+    />
   {/if}
 </div>

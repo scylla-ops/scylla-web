@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { screen, within } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import type { MemberEntity, MemberRoleEntity } from '@base/features/access';
@@ -38,6 +39,8 @@ const inWorkspace = {
 } as const;
 
 let teardown: Array<() => void> = [];
+let listMembers: Mock<() => Promise<MemberEntity[]>>;
+let revokeRole: Mock<() => Promise<void>>;
 
 const grant = (permissions: Permission[] | 'all') =>
   permissionsStore.setState({
@@ -59,10 +62,11 @@ const setUp = (injection?: WidgetInjection) => {
 };
 
 beforeEach(() => {
-  const listMembers = vi.fn().mockResolvedValue([
+  listMembers = vi.fn<() => Promise<MemberEntity[]>>().mockResolvedValue([
     member('user-1', 'Alice', [role({}), role(inWorkspace)]),
     member('user-2', 'Bob', [role(inWorkspace)]),
   ]);
+  revokeRole = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
 
   const cache = withQueryClient();
   const restoreRegistry = withRegistry({
@@ -70,8 +74,15 @@ beforeEach(() => {
       accessRepository: {
         listMembers,
         grant: vi.fn(),
-        revoke: vi.fn(),
+        revoke: revokeRole,
         check: vi.fn().mockResolvedValue(new Set()),
+        heldPermissions: vi.fn().mockResolvedValue(new Set()),
+      },
+    },
+    roles: {
+      roleRepository: {
+        catalog: vi.fn().mockResolvedValue([]),
+        list: vi.fn().mockResolvedValue([]),
       },
     },
   });
@@ -147,5 +158,28 @@ describe('ProjectMembersPage', () => {
     expect(await screen.findByTestId('project-members-probe')).toHaveTextContent(
       'org-1|project-1|2|true',
     );
+  });
+
+  it('shows a removed role at once in the dialog, and shows the roles from above as read only', async () => {
+    let aliceRoles: MemberRoleEntity[] = [role({}), role(inWorkspace)];
+    listMembers.mockImplementation(() => Promise.resolve([member('user-1', 'Alice', aliceRoles)]));
+    revokeRole.mockImplementation(() => {
+      aliceRoles = [role(inWorkspace)];
+      return Promise.resolve();
+    });
+    setUp();
+    const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
+
+    await userEvent.click(within(alice).getByRole('button', { name: 'Change roles' }));
+    const dialog = await screen.findByRole('dialog');
+    const row = await within(dialog).findByRole('checkbox', { name: 'Project editor' });
+    expect(within(dialog).queryByRole('checkbox', { name: 'Workspace viewer' })).not.toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Change in Acme' })).toBeInTheDocument();
+    await userEvent.click(row);
+
+    await vi.waitFor(() =>
+      expect(within(dialog).queryByRole('checkbox', { name: 'Project editor' })).not.toBeInTheDocument(),
+    );
+    expect(screen.getByRole('dialog')).toHaveTextContent('Change the roles of Alice');
   });
 });

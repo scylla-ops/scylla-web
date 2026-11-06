@@ -3,7 +3,7 @@
   import { can, Permission } from '@platform/authz';
   import { contextStore } from '@platform/context';
   import { createQuery, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
-  import { accessQueries, projectRef, type MemberRoleEntity } from '@base/features/access';
+  import { accessQueries, projectRef } from '@base/features/access';
   import { appQueries } from '@base/features/apps';
   import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
@@ -32,7 +32,6 @@
     actorId: string;
     name: string;
     holder: 'people' | 'apps';
-    roles: MemberRoleEntity[];
   }
 
   const context = toRune(contextStore);
@@ -73,13 +72,10 @@
 
   const startChange = (id: string, name: string) => {
     const row = rows.find(one => one.actorId === id);
-    changing = {
-      actorId: id,
-      name,
-      holder: row?.tab ?? 'apps',
-      roles: (row?.roles ?? []).filter(role => role.scopeKind === 'project'),
-    };
+    changing = { actorId: id, name, holder: row?.tab ?? 'apps' };
   };
+
+  const changingRoles = $derived(rows.find(row => row.actorId === changing?.actorId)?.roles ?? []);
 
   const refresh = () => {
     void membersQuery.refetch();
@@ -211,11 +207,13 @@
       <ChangeRolesDialog
         {...changing ? { actorId: changing.actorId, holder: changing.holder } : {}}
         name={changing?.name ?? ''}
-        roles={changing?.roles ?? []}
+        scopeName={projectName}
+        roles={changingRoles.filter(role => role.scopeKind === 'project')}
+        otherRoles={changingRoles.filter(role => role.scopeKind === 'workspace')}
         {workspaceId}
         {object}
         onClose={() => (changing = null)}
-        onChanged={refresh}
+        onChanged={() => membersQuery.refetch()}
       />
     {/if}
   </div>

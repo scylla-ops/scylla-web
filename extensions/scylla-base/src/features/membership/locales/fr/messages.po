@@ -69,11 +69,7 @@ msgstr "Un rôle de projet demande un rôle dans {workspace}"
 msgid "A project role needs a role in {workspace} first"
 msgstr "Un rôle de projet demande d'abord un rôle dans {workspace}"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:62
-msgid "Add"
-msgstr "Ajouter"
-
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:73
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:77
 msgid "Add a member to this project"
 msgstr "Ajouter un membre à ce projet"
 
@@ -81,11 +77,7 @@ msgstr "Ajouter un membre à ce projet"
 msgid "Add a name or an email"
 msgstr "Ajouter un nom ou un e-mail"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:39
-msgid "Add a role"
-msgstr "Ajouter un rôle"
-
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:10
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:12
 msgid "Add members"
 msgstr "Ajouter des membres"
 
@@ -161,7 +153,11 @@ msgstr "Personnalisé"
 msgid "Direct"
 msgstr "Direct"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:106
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:39
+msgid "Each change applies at once."
+msgstr "Chaque changement s'applique immédiatement."
+
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:110
 msgid "Each permission in {scope}, from all of the roles"
 msgstr "Chaque permission dans {scope}, avec tous les rôles"
 
@@ -189,7 +185,11 @@ msgstr "Depuis un rôle au-dessus"
 msgid "From a role here"
 msgstr "Depuis un rôle ici"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:77
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:42
+msgid "Keep"
+msgstr "Garder"
+
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:81
 msgid "Locked. You do not have {names}, so you cannot give it."
 msgstr "Verrouillé. Vous n'avez pas {names}, vous ne pouvez donc pas le donner."
 
@@ -286,8 +286,12 @@ msgstr "Supprimer"
 msgid "Remove {name} from {workspace}?"
 msgstr "Retirer {name} de {workspace} ?"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:30
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:68
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:102
+msgid "Remove from {scope}"
+msgstr "Retirer de {scope}"
+
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:31
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:72
 msgid "Remove from the workspace"
 msgstr "Retirer de l'espace de travail"
 
@@ -304,10 +308,22 @@ msgid "Roles"
 msgstr "Rôles"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:41
+msgid "Roles from the workspace"
+msgstr "Rôles venant de l'espace de travail"
+
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:42
 msgid "Roles here"
 msgstr "Rôles ici"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:45
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:101
+msgid "Roles in {scope}"
+msgstr "Rôles dans {scope}"
+
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:40
+msgid "Roles on projects"
+msgstr "Rôles sur les projets"
+
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:46
 msgid "Search members"
 msgstr "Chercher des membres"
 
@@ -327,11 +343,7 @@ msgstr "Sélectionnez un espace de travail pour voir ses membres."
 msgid "The kind of member"
 msgstr "Le type de membre"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:38
-msgid "The roles changed"
-msgstr "Les rôles ont changé"
-
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:51
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:52
 msgid "The scope of the access"
 msgstr "La portée de l'accès"
 
@@ -343,7 +355,11 @@ msgstr "Ils reçoivent le rôle de l'espace de travail, et un rôle dans chaque 
 msgid "This app"
 msgstr "Cette app"
 
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:46
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:104
+msgid "This is the last role of {name} in {workspace}. This person leaves the workspace and loses the roles on its projects."
+msgstr "C'est le dernier rôle de {name} dans {workspace}. Cette personne quitte l'espace de travail et perd ses rôles sur les projets."
+
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:47
 msgid "This member did not load."
 msgstr "Ce membre n'a pas chargé."
 

@@ -107,10 +107,18 @@
     (usersQuery.data?.items ?? []).filter(user => !rows.some(row => row.actorId === user.id)),
   );
 
-  const refresh = () => {
-    void membersQuery.refetch();
-    if (workspaceId) void invalidateWorkspaceMembers(workspaceId);
+  const reload = () => {
+    if (workspaceId) invalidateWorkspaceMembers(workspaceId);
+    return membersQuery.refetch();
   };
+
+  const refresh = () => {
+    void reload();
+  };
+
+  /** `changing` keeps the name when the last role goes. The roles come from the query. */
+  const changingRow = $derived(rows.find(row => row.actorId === changing?.actorId));
+  const addingRow = $derived(rows.find(row => row.actorId === addingApp?.id));
 
   const invitationsQuery = createQuery(() => invitationQueries.list(workspaceId));
 
@@ -235,25 +243,26 @@
     <ChangeRolesDialog
       {...changing ? { actorId: changing.actorId, holder: changing.tab } : {}}
       name={changing?.name ?? ''}
-      roles={changing?.workspaceRoles ?? []}
+      scopeName={workspaceName}
+      roles={changingRow?.workspaceRoles ?? []}
+      otherRoles={changingRow?.projectRoles ?? []}
       {workspaceId}
       object={workspaceRef(workspaceId)}
       onClose={() => (changing = null)}
-      onChanged={refresh}
+      onChanged={reload}
     />
 
     <ChangeRolesDialog
       {...addingApp ? { actorId: addingApp.id } : {}}
       holder="apps"
       name={addingApp?.name ?? ''}
-      roles={[]}
+      scopeName={workspaceName}
+      roles={addingRow?.workspaceRoles ?? []}
+      otherRoles={addingRow?.projectRoles ?? []}
       {workspaceId}
       object={workspaceRef(workspaceId)}
       onClose={() => (addingApp = null)}
-      onChanged={() => {
-        addingApp = null;
-        refresh();
-      }}
+      onChanged={reload}
       onOutside={() => {
         outside = addingApp?.name ?? '';
         addingApp = null;

@@ -1,24 +1,9 @@
 <script lang="ts">
-  import { i18n } from '@lingui/core';
-  import XIcon from '@lucide/svelte/icons/x';
-  import { can, Permission } from '@platform/authz';
-  import { createMutation, createQuery } from '@scylla/core-sdk';
-  import {
-    accessMutations,
-    accessQueries,
-    type MemberRoleEntity,
-    type ObjectRef,
-  } from '@base/features/access';
-  import { roleQueries, type RoleLevel } from '@base/features/roles';
+  import type { MemberRoleEntity, ObjectRef } from '@base/features/access';
   import { ScyllaDialog } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { Button, Label } from '@scylla/ui/primitives';
-  import { toast } from '@scylla/ui/utils';
-  import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import { changeTitle, membershipMessages } from '../../../messages/membership.messages.ts';
-  import { memberRoleName } from '../../../presenters/member-role-name.ts';
-  import { OWNER_KEY } from '../../../presenters/member-rows.presenter.ts';
-  import RolePicker from '../RolePicker/RolePicker.svelte';
+  import ChangeRolesForm from './ChangeRolesForm.svelte';
 
   interface Props {
     /** Absent: the dialog is closed. */
@@ -26,12 +11,17 @@
     /** `people`, or `apps` for a machine. */
     holder?: 'people' | 'apps';
     name: string;
-    /** The roles that the actor holds on the object. */
+    /** The name of the object. */
+    scopeName: string;
+    /** The roles that the actor holds on the object now: derive them from a query, never a copy. */
     roles: readonly MemberRoleEntity[];
+    /** The roles of the actor in other scopes. They show, and they change on another page. */
+    otherRoles?: readonly MemberRoleEntity[];
     workspaceId: string;
     object: ObjectRef;
     onClose: () => void;
-    onChanged: () => void;
+    /** The checklist ignores a click until a returned promise settles: return the reload. */
+    onChanged: () => unknown;
     /** An app of another workspace: the server gives `ACTOR_OUTSIDE_WORKSPACE`. */
     onOutside?: () => void;
   }
@@ -40,111 +30,36 @@
     actorId,
     holder = 'people',
     name,
+    scopeName,
     roles,
+    otherRoles = [],
     workspaceId,
     object,
     onClose,
     onChanged,
     onOutside,
   }: Props = $props();
-
-  const level = $derived<RoleLevel>(object.kind === 'project' ? 'project' : 'workspace');
-  const open = $derived(actorId !== undefined);
-  const rolesQuery = createQuery(() => roleQueries.list(workspaceId, { enabled: open }));
-  const catalogQuery = createQuery(() => ({ ...roleQueries.catalog(), enabled: open }));
-  const heldQuery = createQuery(() => accessQueries.held(object, { enabled: open }));
-  const grant = createMutation(() => ({
-    ...accessMutations.grant(),
-    meta: { showsOwnError: true },
-  }));
-  const revoke = createMutation(() => ({
-    ...accessMutations.revoke(),
-    meta: { showsOwnError: true },
-  }));
-
-  const options = $derived(
-    (rolesQuery.data ?? []).filter(role => role.level === level && role.holder === holder),
-  );
-  const held = $derived(roles);
-  const canChangeOwners = $derived(can(Permission.MANAGE_OWNERS, { workspaceId }));
-
-  let next = $state('');
-  let pending = $state(false);
-  let failure = $state<string | null>(null);
-
-  const change = async (run: () => Promise<unknown>) => {
-    pending = true;
-    failure = null;
-    try {
-      await run();
-      toast.success(i18n._(membershipMessages.rolesChanged));
-      onChanged();
-    } catch (thrown) {
-      const error = ScyllaError.from(thrown);
-      if (error.reason === 'ACTOR_OUTSIDE_WORKSPACE' && onOutside) onOutside();
-      else failure = error.userMessage();
-    } finally {
-      pending = false;
-    }
-  };
-
-  const add = () => {
-    if (!actorId || !next) return;
-    const [role, actor] = [next, actorId];
-    next = '';
-    void change(() => grant.mutateAsync({ object, role, actorId: actor }));
-  };
-
-  const take = (role: MemberRoleEntity) => {
-    if (!actorId) return;
-    const actor = actorId;
-    void change(() => revoke.mutateAsync({ object, role: role.role, actorId: actor }));
-  };
 </script>
 
 <ScyllaDialog
-  {open}
+  open={actorId !== undefined}
   onOpenChange={value => {
     if (!value) onClose();
   }}
   title={t(changeTitle(name))}
+  description={t(membershipMessages.eachChangeApplies)}
 >
-  <div class="flex flex-col gap-4">
-    <ul class="flex flex-col gap-2">
-      {#each held as role (role.role)}
-        <li class="flex items-center justify-between rounded-md border px-3 py-1.5 text-sm">
-          {memberRoleName(role)}
-          <Button
-            variant="ghost"
-            size="icon"
-            disabled={pending || (role.roleKey === OWNER_KEY && !canChangeOwners)}
-            aria-label={t(membershipMessages.removeRow)}
-            onclick={() => take(role)}
-          >
-            <XIcon class="size-4" />
-          </Button>
-        </li>
-      {/each}
-    </ul>
-    <div class="flex flex-col gap-2">
-      <Label>{t(membershipMessages.addRole)}</Label>
-      <div class="flex items-center gap-2">
-        <RolePicker
-          roles={options.filter(role => !held.some(one => one.role === role.grantName))}
-          value={next}
-          held={heldQuery.data}
-          areas={catalogQuery.data ?? []}
-          label={t(membershipMessages.addRole)}
-          onChange={value => (next = value)}
-        />
-        <Button disabled={!next || pending} onclick={add}>{t(membershipMessages.add)}</Button>
-      </div>
-    </div>
-    {#if failure}
-      <p class="text-sm text-destructive" role="alert">{failure}</p>
-    {/if}
-    <div class="flex justify-end">
-      <Button variant="outline" onclick={onClose}>{t(membershipMessages.close)}</Button>
-    </div>
-  </div>
+  <ChangeRolesForm
+    actorId={actorId ?? ''}
+    {holder}
+    {name}
+    {scopeName}
+    {roles}
+    {otherRoles}
+    {workspaceId}
+    {object}
+    {onClose}
+    {onChanged}
+    {onOutside}
+  />
 </ScyllaDialog>

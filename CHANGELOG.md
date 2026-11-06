@@ -75,6 +75,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Changed
 
+- The dialog that changes the roles of a member is a checklist. Each role shows its description, or
+  why it is locked, and each change applies at once. The dialog asks before the last workspace role
+  of a person goes, and shows the roles of the other scopes with a link to the page that changes
+  them.
 - **Breaking:** the app runs on the API of the new backend. The protos come from the submodule
   `protos` (`scylla-protos`), and the code and each text say workspace, not organization.
 - The server holds the build of this app in its binary and serves it on its one port. The build
@@ -105,6 +109,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
+- The dialog that changes the roles of a member shows each change at once, on the members of a
+  workspace and of a project. A refusal does not stay for the next opening. On the page of a member,
+  the dialog stays open when the last role goes.
 - All titles use one font, Funnel Display, and one weight. All page titles have one size. Before,
   only the title of a list page used this font, and the page titles had four sizes.
 - A job shows why it failed and why a node failed or was skipped, and names its agent. It says when

@@ -35,8 +35,10 @@ export const membershipMessages = {
   memberActions: msg`Member actions`,
   seeAccess: msg`See the access`,
   changeRoles: msg`Change roles`,
-  rolesChanged: msg`The roles changed`,
-  addRole: msg`Add a role`,
+  eachChangeApplies: msg`Each change applies at once.`,
+  rolesOnProjects: msg`Roles on projects`,
+  rolesFromWorkspace: msg`Roles from the workspace`,
+  keep: msg`Keep`,
   close: msg`Close`,
   rolesHere: msg`Roles here`,
   comesFrom: msg`Comes from`,
@@ -59,7 +61,6 @@ export const membershipMessages = {
   member: msg`Member`,
   members: msg`Members`,
   cancel: msg`Cancel`,
-  add: msg`Add`,
   noRole: msg`No role`,
 
   selectAnWorkspace: msg`Select a workspace to see its members.`,
@@ -93,6 +94,10 @@ export const removeTitle = (name: string, workspace: string) =>
 export const needsWorkspaceRole = (workspace: string) =>
   msg`A project role needs a role in ${workspace}`;
 export const changeTitle = (name: string) => msg`Change the roles of ${name}`;
+export const rolesIn = (scope: string) => msg`Roles in ${scope}`;
+export const removeFrom = (scope: string) => msg`Remove from ${scope}`;
+export const lastRoleWarning = (name: string, workspace: string) =>
+  msg`This is the last role of ${name} in ${workspace}. This person leaves the workspace and loses the roles on its projects.`;
 export const membersOf = (project: string) => msg`Members of ${project}`;
 export const changeIn = (scope: string) => msg`Change in ${scope}`;
 export const projectRuleTitle = (workspace: string) =>
