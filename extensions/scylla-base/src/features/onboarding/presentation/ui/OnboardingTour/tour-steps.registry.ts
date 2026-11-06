@@ -182,7 +182,9 @@ const lastDialog: TourAnchor = root => {
   return dialogs.length ? dialogs[dialogs.length - 1] : null;
 };
 
-const projectCards = select('[data-tour="project-card"]');
+/** The grid of the project cards: the user may pick any of them. */
+const projectCards: TourAnchor = root =>
+  root.querySelector('[data-tour="project-card"]')?.parentElement ?? null;
 
 /** Opens the page of a project, or moves on at once when the user is on one already. */
 const pickProject = (id: string, body: MessageDescriptor): TourSpotStep => ({
