@@ -147,7 +147,7 @@
   });
 
   const blockingOptions = $derived({
-    active: blocking,
+    active: blocking && !tour.confirmingSkip,
     allowed: () => allowedAnchor(step)?.(document, tour.subject) ?? null,
   });
 </script>
@@ -167,6 +167,7 @@
     {onPrevious}
     {primary}
     wide={step.wide}
+    hidden={tour.confirmingSkip}
     {x}
     {y}
     bind:width={cardWidth}
@@ -180,6 +181,7 @@
   {@attach trackTourStep(() => tracking)}
   data-onboarding-tour
   class="contents"
+  style:visibility={tour.confirmingSkip ? 'hidden' : undefined}
 >
   {#if card}
     <TourSpotlight {viewport} {holes} {connectors} {blocking} allowed={layout.allowed} />

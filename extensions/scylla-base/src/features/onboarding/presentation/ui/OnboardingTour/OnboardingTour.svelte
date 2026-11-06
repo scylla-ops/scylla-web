@@ -42,9 +42,7 @@
     onFinish={() => tour.finish()}
   />
 {:else if tour.view === 'spot' && tour.step}
-  {#if !tour.confirmingSkip}
-    <TourSpot {tour} step={tour.step} />
-  {/if}
+  <TourSpot {tour} step={tour.step} />
   <SkipTourDialog
     open={tour.confirmingSkip}
     onSkip={() => tour.confirmSkip()}

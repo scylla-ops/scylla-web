@@ -23,6 +23,8 @@
     onPrevious?: () => void;
     primary?: { label: string; disabled: boolean; onClick: () => void };
     wide?: boolean;
+    /** Kept in place but not shown, e.g. under the skip confirmation. */
+    hidden?: boolean;
     x: number;
     y: number;
     width?: number;
@@ -41,6 +43,7 @@
     onPrevious,
     primary,
     wide = false,
+    hidden = false,
     x,
     y,
     width = $bindable(0),
@@ -76,7 +79,8 @@
   )}
   style:left="{x}px"
   style:top="{y}px"
-  style:visibility={height > 0 ? 'visible' : 'hidden'}
+  style:visibility={!hidden && height > 0 ? 'visible' : 'hidden'}
+  style:opacity={hidden ? 0 : undefined}
 >
   <div class="flex items-center gap-2">
     <h2 class="text-base leading-tight">{title}</h2>
