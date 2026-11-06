@@ -170,7 +170,7 @@ describe('OnboardingTour', () => {
 
     await screen.findByText('Add an agent', { selector: 'h2' });
     const card = document.querySelector('[data-tour-focus]') as HTMLElement;
-    const copy = (await within(card).findByText('Add an agent', { selector: 'button' })) as HTMLButtonElement;
+    const copy = await within(card).findByText('Add an agent', { selector: 'button' });
     expect(copy).toBeDisabled();
 
     real.disabled = false;
