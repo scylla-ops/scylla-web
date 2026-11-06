@@ -23,7 +23,7 @@
 -->
 {#if page.isSelf}
   <!-- From `/<workspace>/instance/users/<id>`: a link to the own settings. -->
-  <Redirect to="../../account" />
+  <Redirect to="../../../account" />
 {:else if page.isLoading || page.resolvingSelf}
   <Skeleton class="m-4 h-64 rounded-xl" />
 {:else}

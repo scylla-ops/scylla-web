@@ -113,11 +113,15 @@ describe('UserDetailPage', () => {
     expect(screen.getByText('@grace')).toBeInTheDocument();
   });
 
-  it('sends the own id to the account page', async () => {
+  it('sends the own id to the account page of the workspace, not of the instance', async () => {
     setUp({ userId: 'admin-1' });
 
     await waitFor(() =>
-      expect(navigator.navigate).toHaveBeenCalledWith('../../account', { replace: true }),
+      expect(navigator.navigate).toHaveBeenCalledWith('../../../account', { replace: true }),
+    );
+    const [to] = navigator.navigate.mock.calls[0];
+    expect(new URL(to, 'http://scylla/acme/instance/users/admin-1/').pathname).toBe(
+      '/acme/account',
     );
   });
 
@@ -125,7 +129,7 @@ describe('UserDetailPage', () => {
     setUp({ userId: 'admin-1', permissions: [] });
 
     await waitFor(() =>
-      expect(navigator.navigate).toHaveBeenCalledWith('../../account', { replace: true }),
+      expect(navigator.navigate).toHaveBeenCalledWith('../../../account', { replace: true }),
     );
     expect(screen.queryByText("You don't have the permission")).not.toBeInTheDocument();
   });

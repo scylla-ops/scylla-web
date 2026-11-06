@@ -34,7 +34,8 @@ presentation/
     WorkspaceSync.wrapper.svelte     URL slug → context store (workspace-sync.effect.svelte.ts)
     WorkspaceRedirect.wrapper.svelte `/` → the user's workspace (workspace-redirect.effect.svelte.ts)
     ContextCleaner.wrapper.svelte       drops stale project/pipeline context (context-cleaner.effect.svelte.ts)
-    LoginRedirect.svelte                the fallback for a URL that no route matches
+    NotFound/                           the fallback for a URL that no route matches: a text and a link to /.
+                                        It has no session check: / goes through AuthGuard
   layout/
     shell.state.svelte.ts               workspaces query, permission sync, first workspace
     whats-new.state.svelte.ts                 seen flags (reactive), markNavSeen
@@ -80,7 +81,7 @@ shell            brand ShellBrand · topBarEnd GlobalSearch, NotificationsMenu, 
                  onNavOpen markNavSeen · breadcrumbParams · linkParams
 onQueryError     reportQueryError
 onQueryRetry     retryQueryError
-fallback         LoginRedirect
+fallback         NotFoundPage
 ```
 
 **Never add a page here.** Adding a page is a change to one feature's `*.module.ts`. This file

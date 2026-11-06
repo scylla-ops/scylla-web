@@ -151,7 +151,7 @@ user who has no workspace.
   workspace; "who is in this org" is [`membership`](../membership/AGENTS.md)'s question.
   The user permissions are SYSTEM level: `can(Permission.X)` needs no target.
 - **The own account has its own page.** `account` calls the RPCs on the own id, which need no
-  grant. `users/:userId` sends the own id to `account` (`<Redirect to="../../account">`), and
+  grant. `users/:userId` sends the own id to `account` (`<Redirect to="../../../account">`), and
   the directory opens `account` for the own row. The old path `users/me` redirects there too.
   "Who am I" is `userQueries.me` (`GetMe`), not `localStorage`.
 - **`users/:userId` declares no permission on purpose.** The route guard would deny an old link
