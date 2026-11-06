@@ -110,7 +110,7 @@ Anchors are attributes on the real elements, never CSS classes:
 - `data-tour="…"` in the features: `agents`, `agent-details`, `agent-status` (+ `data-online`),
   `add-agent-dialog`, `app-join-code`, `agent-open` (the "Open agent" button), `projects`,
   `project-card` (+ `data-project-id`), `pipelines` (+ `data-project-id`), `pipeline-editor`,
-  `pipeline-submit`, `pipeline-history` / `pipeline-actions` (+ `data-pipeline-id`,
+  `pipeline-submit`, `pipeline-triggers`, `pipeline-history` / `pipeline-actions` (+ `data-pipeline-id`,
   `data-pipeline-name`, `data-last-status`), `pipeline-run`, `job-details`, `triggers`,
   `trigger-general`, `trigger-when`, `trigger-submit`, `secrets`, `roles-list`, `role-new`,
   `role-details`, `role-permissions`, `role-submit`, `members`, `members-add`. A wrapper with

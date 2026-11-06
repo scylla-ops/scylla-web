@@ -510,8 +510,8 @@ msgid "Tour complete 🎉"
 msgstr "Tour complete 🎉"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:99
-msgid "Triggers belong to a pipeline. Open the menu of the pipeline (⋯), then click “Triggers”."
-msgstr "Triggers belong to a pipeline. Open the menu of the pipeline (⋯), then click “Triggers”."
+msgid "Triggers belong to a pipeline. Click ⚡ in the actions of the pipeline. On a small screen, it is in the ⋯ menu."
+msgstr "Triggers belong to a pipeline. Click ⚡ in the actions of the pipeline. On a small screen, it is in the ⋯ menu."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:23
 msgid "Triggers in the docs ›"

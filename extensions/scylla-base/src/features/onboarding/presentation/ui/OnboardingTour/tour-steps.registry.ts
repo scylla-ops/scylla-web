@@ -142,6 +142,12 @@ const runButton: TourAnchor = (root, subject) => {
   return run?.querySelector('button') ?? run ?? actions;
 };
 
+/** The ⚡ button of the pipeline, or its whole actions while they fold into the ⋯ menu. */
+const triggersButton: TourAnchor = (root, subject) => {
+  const actions = pipelineCell('pipeline-actions')(root, subject);
+  return actions?.querySelector('[data-tour="pipeline-triggers"] button') ?? actions;
+};
+
 const pipelineRow: TourAnchor = (root, subject) => {
   const history = pipelineHistory(root, subject);
   return history?.closest('tr') ?? history;
@@ -398,7 +404,8 @@ const triggersTour: TourDefinition = {
       page: projectPage,
       title: m.openTriggersTitle,
       body: [m.openTriggersBody],
-      targets: [pipelineCell('pipeline-actions')],
+      targets: [triggersButton],
+      action: { anchor: triggersButton },
       advance: { on: 'appear', anchor: select('[data-tour="triggers"]') },
     },
     {

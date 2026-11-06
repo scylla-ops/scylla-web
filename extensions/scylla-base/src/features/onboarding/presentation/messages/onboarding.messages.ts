@@ -96,7 +96,7 @@ export const onboardingMessages = {
   jobDetailsBody: msg`The timeline and the live logs show what passed and what failed.`,
 
   openTriggersTitle: msg`Open the triggers`,
-  openTriggersBody: msg`Triggers belong to a pipeline. Open the menu of the pipeline (⋯), then click “Triggers”.`,
+  openTriggersBody: msg`Triggers belong to a pipeline. Click ⚡ in the actions of the pipeline. On a small screen, it is in the ⋯ menu.`,
   newTriggerTitle: msg`New trigger`,
   newTriggerBody: msg`Click “New trigger”.`,
   triggerKindTitle: msg`Name it, pick a type`,

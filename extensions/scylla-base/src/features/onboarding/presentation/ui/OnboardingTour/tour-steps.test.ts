@@ -82,6 +82,7 @@ describe('TOURS', () => {
       'new-pipeline',
       'create-pipeline',
       'run-pipeline',
+      'open-triggers',
       'new-trigger',
       'trigger-when',
       'new-secret',
