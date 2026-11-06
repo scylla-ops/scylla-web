@@ -163,6 +163,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
+- On the sign-in page, the "or" line is at the same distance from the "Sign in" button and from the
+  provider button. Before, the gap under the "Sign in" button was 24 px.
 - A sign-in with a provider, its "Try again" link and the link of a provider on the account page
   work when the app has the same origin as the API. Before, a click on these links did nothing.
 - The dialog that changes the roles of a member shows each change at once, on the members of a
