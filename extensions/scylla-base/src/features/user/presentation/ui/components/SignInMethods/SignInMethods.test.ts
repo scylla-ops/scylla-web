@@ -45,6 +45,7 @@ describe('SignInMethods', () => {
     expect(await screen.findByText('GitHub')).toBeInTheDocument();
     const link = await screen.findByRole('link', { name: 'Link Corp SSO' });
     expect(link.getAttribute('href')).toMatch(/^\/auth\/corp\/start\?.*link=true/);
+    expect(link).toHaveAttribute('rel', 'external');
     expect(screen.queryByRole('link', { name: 'Link GitHub' })).toBeNull();
   });
 

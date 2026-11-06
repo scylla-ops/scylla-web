@@ -22,6 +22,7 @@ const isInternalLink = (event: MouseEvent, anchor: HTMLAnchorElement): boolean =
   !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) &&
   anchor.hasAttribute('href') &&
   !anchor.hasAttribute('download') &&
+  !anchor.relList.contains('external') &&
   (!anchor.target || anchor.target === '_self') &&
   anchor.origin === window.location.origin;
 

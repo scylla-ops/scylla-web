@@ -34,6 +34,7 @@ describe('SignInErrorPage', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('You chose Cancel at Okta.');
     expect(screen.getByText('access_denied')).toBeInTheDocument();
     expect(hrefOf('Try again').pathname).toBe('/auth/okta/start');
+    expect(screen.getByRole('link', { name: 'Try again' })).toHaveAttribute('rel', 'external');
     expect(hrefOf('Back to sign in').pathname).toBe('/login');
   });
 

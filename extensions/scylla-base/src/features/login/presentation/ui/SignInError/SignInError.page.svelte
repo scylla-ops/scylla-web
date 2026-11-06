@@ -64,7 +64,7 @@
     <p role="alert" class="mb-4 text-sm text-muted-foreground">{t(card.body)}</p>
     <div class="flex flex-wrap items-center gap-2">
       {#if card.action === 'retry' && retry}
-        <Button href={retry} size="sm">{t(signInErrorMessages.tryAgain)}</Button>
+        <Button href={retry} rel="external" size="sm">{t(signInErrorMessages.tryAgain)}</Button>
       {/if}
       {#if card.action === 'start-again'}
         <Button href={back} size="sm">{t(signInErrorMessages.startAgain)}</Button>

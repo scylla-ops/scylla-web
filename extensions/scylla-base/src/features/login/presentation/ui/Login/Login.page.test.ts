@@ -154,6 +154,7 @@ describe('LoginPage', () => {
     const href = new URL(button.getAttribute('href') ?? '', window.location.origin);
     expect(href.pathname).toBe('/auth/github/start');
     expect(href.searchParams.get('return_to')).toBe(`${window.location.origin}/acme/projects`);
+    expect(button).toHaveAttribute('rel', 'external');
   });
 
   it('links to the sign-up page only when the sign-up is open', async () => {

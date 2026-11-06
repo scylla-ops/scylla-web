@@ -332,6 +332,27 @@ describe('the links of the app', () => {
     link.remove();
   });
 
+  it('leaves a link that the server serves to the browser', async () => {
+    await renderAt('/acme/open');
+    const link = document.createElement('a');
+    link.href = '/auth/github/start?return_to=x';
+    link.rel = 'external';
+    document.body.append(link);
+    let prevented: boolean | undefined;
+    const record = (event: MouseEvent) => {
+      prevented = event.defaultPrevented;
+      event.preventDefault();
+    };
+    window.addEventListener('click', record);
+
+    await userEvent.click(link);
+
+    expect(prevented).toBe(false);
+    expect(currentPathname()).toBe('/acme/open');
+    window.removeEventListener('click', record);
+    link.remove();
+  });
+
   it('follows the browser back to the previous page', async () => {
     await renderAt('/acme/open');
     navigateTo('/acme/secrets/secret-3');

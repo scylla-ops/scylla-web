@@ -163,6 +163,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
+- A sign-in with a provider, its "Try again" link and the link of a provider on the account page
+  work when the app has the same origin as the API. Before, a click on these links did nothing.
 - The dialog that changes the roles of a member shows each change at once, on the members of a
   workspace and of a project. A refusal does not stay for the next opening. On the page of a member,
   the dialog stays open when the last role goes.

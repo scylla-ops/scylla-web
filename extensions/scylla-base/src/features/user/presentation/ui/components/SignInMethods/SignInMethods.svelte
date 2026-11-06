@@ -82,6 +82,7 @@
         href={providerStartUrl(apiUrl, provider.slug, window.location.origin, window.location.pathname, {
           link: true,
         })}
+        rel="external"
       >
         <ProviderMark kind={provider.kind} />
         {t(userMessages.linkProvider(provider.displayName))}

@@ -30,6 +30,7 @@
         variant="outline"
         class="w-full"
         href={providerStartUrl(apiUrl, provider.slug, window.location.origin, returnPath)}
+        rel="external"
       >
         <ProviderMark kind={provider.kind} />
         {t(signUpMessages.continueWith(provider.displayName))}
