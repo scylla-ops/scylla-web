@@ -144,12 +144,12 @@ describe('WorkspaceMembersPage', () => {
     expect(within(bob).getByText('api · Project editor')).toBeInTheDocument();
   });
 
-  it('shows an owner as admin of every project, with the date of the grant', async () => {
+  it('shows an owner as Project admin of all projects, with the date of the grant', async () => {
     render(WorkspaceMembersPage);
 
     const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
     expect(within(alice).getByText('Workspace owner')).toBeInTheDocument();
-    expect(within(alice).getByText('Every project, as admin')).toBeInTheDocument();
+    expect(within(alice).getByText('All projects · Project admin')).toBeInTheDocument();
     expect(within(alice).queryByText('—')).not.toBeInTheDocument();
   });
 

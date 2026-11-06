@@ -12,7 +12,7 @@
   import { UserIdentity } from '@shared/presentation/ui';
   import type { UserSummary } from '@base/features/user';
   import { membershipMessages } from '../../../messages/membership.messages.ts';
-  import { memberRoleName } from '../../../presenters/member-role-name.ts';
+  import { allProjectsRoleLabel, memberRoleName } from '../../../presenters/member-role-name.ts';
   import { memberProfile, type MemberRow } from '../../../presenters/member-rows.presenter.ts';
 
   interface Props {
@@ -72,10 +72,8 @@
             </td>
             <td class="px-3 py-3">
               <div class="flex flex-wrap gap-1.5">
-                {#if row.adminOfEachProject}
-                  <span class="text-xs text-muted-foreground">
-                    {t(membershipMessages.everyProjectAsAdmin)}
-                  </span>
+                {#if row.allProjectsRoleKey}
+                  <span class={chipClass}>{allProjectsRoleLabel(row.allProjectsRoleKey)}</span>
                 {:else if row.projectRoles.length === 0}
                   <span class="text-xs text-muted-foreground">
                     {t(membershipMessages.noProjectRole)}

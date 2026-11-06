@@ -92,6 +92,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The language is in the user menu. The crumbs name the section, not the workspace.
 - A page alone in its section declares a `NavGroup`: the group names the section, the link the page.
 - The header of a list shows its count with no "in total".
+- The Project roles column of the members table starts with a pill `All projects · <project role>`.
+  The pill tells the access of each built-in workspace role on the projects, for example Project
+  editor for a Workspace member.
 - The sections of the account page are in the second sidebar, not in a menu of the page, and the
   avatar of the rail is green on this page. With no workspace there is no sidebar, so the page
   keeps its menu. `nav` of a route can be a list of links, with `NavLink.params` and

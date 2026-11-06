@@ -1,7 +1,15 @@
 import type { MemberEntity, MemberRoleEntity } from '@base/features/access';
 
 export const OWNER_KEY = 'owner';
-const WORKSPACE_ADMIN_KEY = 'workspace-admin';
+
+/** A workspace role and the project role with the same power on a project, strongest first. */
+const ALL_PROJECTS_ROLES: readonly (readonly [string, string])[] = [
+  [OWNER_KEY, 'project-admin'],
+  ['workspace-admin', 'project-admin'],
+  ['workspace-member', 'project-editor'],
+  ['workspace-viewer', 'project-viewer'],
+  ['agent', 'project-agent'],
+];
 
 export type MemberTab = 'people' | 'apps';
 
@@ -14,8 +22,8 @@ export interface MemberRow {
   /** The roles on the workspace. */
   workspaceRoles: MemberRoleEntity[];
   projectRoles: MemberRoleEntity[];
-  /** Every project, as admin: an owner, or a Workspace admin. */
-  adminOfEachProject: boolean;
+  /** The key of the project role that the workspace roles equal on every project. */
+  allProjectsRoleKey?: string;
   /** The time of the oldest grant here. */
   addedAt?: Date;
 }
@@ -32,11 +40,15 @@ const oldest = (roles: readonly MemberRoleEntity[]): Date | undefined =>
     .filter((at): at is Date => at !== undefined)
     .sort((a, b) => a.getTime() - b.getTime())[0];
 
+const strongestAllProjectsRole = (workspaceRoles: readonly MemberRoleEntity[]) =>
+  ALL_PROJECTS_ROLES.find(([key]) => workspaceRoles.some(role => role.roleKey === key))?.[1];
+
 export const buildMemberRows = (members: readonly MemberEntity[]): MemberRow[] =>
   members.map(member => {
     const workspaceRoles = member.roles.filter(role => role.scopeKind === 'workspace');
     const projectRoles = member.roles.filter(role => role.scopeKind === 'project');
     const addedAt = oldest([...workspaceRoles, ...projectRoles]);
+    const allProjectsRoleKey = strongestAllProjectsRole(workspaceRoles);
     return {
       actorId: member.actorId,
       tab: member.actorKind === 'user' ? 'people' : 'apps',
@@ -44,9 +56,7 @@ export const buildMemberRows = (members: readonly MemberEntity[]): MemberRow[] =
       handle: member.handle,
       workspaceRoles,
       projectRoles,
-      adminOfEachProject: workspaceRoles.some(
-        role => role.roleKey === OWNER_KEY || role.roleKey === WORKSPACE_ADMIN_KEY,
-      ),
+      ...(allProjectsRoleKey ? { allProjectsRoleKey } : {}),
       ...(addedAt ? { addedAt } : {}),
     };
   });

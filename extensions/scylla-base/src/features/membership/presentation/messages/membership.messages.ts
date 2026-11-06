@@ -30,7 +30,6 @@ export const membershipMessages = {
   removeFromWorkspaceAction: msg`Remove from the workspace`,
   workspaceRolesColumn: msg`Workspace roles`,
   added: msg`Added`,
-  everyProjectAsAdmin: msg`Every project, as admin`,
   noProjectRole: msg`No project role`,
   memberActions: msg`Member actions`,
   seeAccess: msg`See the access`,
@@ -81,6 +80,7 @@ export const addCount = (count: number) =>
   msg`${plural(count, { 0: 'Add members', one: 'Add # member', other: 'Add # members' })}`;
 export const membersAdded = (count: number) =>
   msg`${plural(count, { one: '# member added', other: '# members added' })}`;
+export const allProjectsRole = (role: string) => msg`All projects · ${role}`;
 export const inEveryProject = (role: string, workspace: string, count: number) =>
   msg`${role} in ${workspace}: ${count} permissions in every project.`;
 export const addsInProject = (role: string, count: number, project: string) =>

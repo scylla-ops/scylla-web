@@ -43,13 +43,34 @@ describe('buildMemberRows', () => {
     expect(buildMemberRows([member([role({})])])[0]?.addedAt).toBeUndefined();
   });
 
-  it('knows who is admin of every project', () => {
-    const owner = role({ roleKey: 'owner' });
-    const workspaceAdmin = role({ roleKey: 'workspace-admin' });
+  it.each([
+    ['owner', 'project-admin'],
+    ['workspace-admin', 'project-admin'],
+    ['workspace-member', 'project-editor'],
+    ['workspace-viewer', 'project-viewer'],
+    ['agent', 'project-agent'],
+  ])('gives %s the power of %s on every project', (roleKey, projectRoleKey) => {
+    const [row] = buildMemberRows([member([role({ roleKey })])]);
 
-    expect(buildMemberRows([member([owner])])[0]?.adminOfEachProject).toBe(true);
-    expect(buildMemberRows([member([workspaceAdmin])])[0]?.adminOfEachProject).toBe(true);
-    expect(buildMemberRows([member([role({})])])[0]?.adminOfEachProject).toBe(false);
+    expect(row?.allProjectsRoleKey).toBe(projectRoleKey);
+  });
+
+  it('keeps the strongest workspace role for every project', () => {
+    const [row] = buildMemberRows([member([role({}), role({ roleKey: 'workspace-admin' })])]);
+
+    expect(row?.allProjectsRoleKey).toBe('project-admin');
+  });
+
+  it.each(['app-creator', 'a-custom-role'])('claims no project access for %s', roleKey => {
+    const [row] = buildMemberRows([member([role({ roleKey })])]);
+
+    expect(row?.allProjectsRoleKey).toBeUndefined();
+  });
+
+  it('does not take a role on one project for every project', () => {
+    const [row] = buildMemberRows([member([project])]);
+
+    expect(row?.allProjectsRoleKey).toBeUndefined();
   });
 
   it('puts an app on the tab of the apps', () => {

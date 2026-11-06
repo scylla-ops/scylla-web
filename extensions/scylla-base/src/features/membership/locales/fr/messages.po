@@ -97,6 +97,10 @@ msgstr "Ajouter à {project}"
 msgid "Added"
 msgstr "Ajoutée"
 
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:86
+msgid "All projects · {role}"
+msgstr "Tous les projets · {role}"
+
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:29
 msgid "An invitation does not carry the role Workspace owner. Give it after the person joins."
 msgstr "Une invitation ne porte pas le rôle Propriétaire d'espace de travail. Donnez-le quand la personne a rejoint l'espace."
@@ -164,10 +168,6 @@ msgstr "Chaque permission dans {scope}, avec tous les rôles"
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:50
 msgid "Effective access"
 msgstr "Accès effectif"
-
-#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:33
-msgid "Every project, as admin"
-msgstr "Chaque projet, comme admin"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:70
 msgid "Everyone with access to this project, whether granted here or through a role on the workspace. Only project roles can be changed from this page."
