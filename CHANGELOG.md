@@ -111,6 +111,20 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Changed
 
+**The install of an agent**
+
+- The install step has a tab for Linux, macOS, Windows and Docker, each with its hint. Each command
+  names the server. The Docker command has the image and the version of the server, starts again
+  with the machine, and reaches a server on the same machine. A choice gives it the Docker socket
+  for container steps, with a warning.
+- The install step tells that a machine joined and did not connect yet. After one minute, it gives
+  the command of the logs. The manual path links to the release of the version of the server.
+- The page of an agent that never connected makes a join code only after a click, because a new code
+  stops the previous code. It then checks the agent each 2 seconds.
+- The page of an agent gives the update command when the agent and the server have different
+  versions, and the uninstall command for the system of the agent.
+- A run warns when the job needs a container and no connected agent has a container runtime.
+
 - The dialog that changes the roles of a member is a checklist. Each role shows its description, or
   why it is locked, and each change applies at once. The dialog asks before the last workspace role
   of a person goes, and shows the roles of the other scopes with a link to the page that changes

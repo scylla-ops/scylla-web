@@ -13,7 +13,13 @@
     Label,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
+  import { CopyBox } from '@shared/presentation/ui';
+  import {
+    DOCKER_UNINSTALL_COMMAND,
+    uninstallCommand,
+  } from '@base/features/apps/domain/structs/agent-install.struct.ts';
   import { appMutations } from '@base/features/apps/presentation/apps.queries.ts';
+  import { addAgentMessages } from '@base/features/apps/presentation/messages/add-agent.messages.ts';
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
   import { appPageMessages } from '@base/features/apps/presentation/messages/app-page.messages.ts';
 
@@ -23,9 +29,14 @@
     onDeleted: () => void;
     /** The texts of another app. */
     app?: boolean;
+    /** The system of the machine of an agent. */
+    os?: string;
   }
 
-  let { agentId, agentName, onDeleted, app = false }: Props = $props();
+  let { agentId, agentName, onDeleted, app = false, os }: Props = $props();
+
+  const server: string = import.meta.env.VITE_API_URL || window.location.origin;
+  const uninstall = $derived(os ? uninstallCommand(server, os) : null);
 
   const title = $derived(app ? t(appPageMessages.dangerTitle) : t(messages.dangerTitle));
   const body = $derived(app ? t(appPageMessages.dangerBody) : t(messages.dangerBody));
@@ -66,6 +77,24 @@
     <TrashIcon class="size-4" aria-hidden="true" />
     {button}
   </Button>
+  {#if uninstall}
+    <div class="flex w-full flex-col gap-2">
+      <p class="text-xs text-muted-foreground">{t(messages.uninstallHint)}</p>
+      <CopyBox
+        value={uninstall}
+        caption={t(messages.installedWithScript)}
+        copyToast={t(addAgentMessages.copied)}
+      />
+      {#if os === 'linux'}
+        <CopyBox
+          value={DOCKER_UNINSTALL_COMMAND}
+          caption={t(messages.runsInDocker)}
+          layout="lines"
+          copyToast={t(addAgentMessages.copied)}
+        />
+      {/if}
+    </div>
+  {/if}
 </section>
 
 <Dialog {open} onOpenChange={next => (open = next)}>

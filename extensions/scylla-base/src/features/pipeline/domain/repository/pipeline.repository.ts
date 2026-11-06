@@ -1,5 +1,5 @@
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
-import type { PipelineEntity, PipelineMetadata } from '../entities/pipeline.entity.ts';
+import type { PipelineEntity, PipelineMetadata, PipelineRun } from '../entities/pipeline.entity.ts';
 import type { PipelineNodeEntity } from '../entities/pipeline-node.entity.ts';
 
 export interface PipelineRepository {
@@ -13,7 +13,7 @@ export interface PipelineRepository {
     pagination?: PaginationParams,
   ): Promise<PaginatedList<PipelineMetadata>>;
   deleteById(id: string): Promise<void>;
-  run(id: string): Promise<void>;
+  run(id: string): Promise<PipelineRun>;
   create(pipeline: Omit<PipelineEntity, 'id'>): Promise<void>;
   getById(id: string): Promise<PipelineEntity>;
   edit(id: string, nodes: PipelineNodeEntity[], name?: string): Promise<PipelineEntity>;

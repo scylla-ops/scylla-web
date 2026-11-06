@@ -1,5 +1,9 @@
 import type { PipelineRepository } from '@base/features/pipeline/domain/repository/pipeline.repository.ts';
-import type { PipelineEntity, PipelineMetadata } from '../domain/entities/pipeline.entity.ts';
+import type {
+  PipelineEntity,
+  PipelineMetadata,
+  PipelineRun,
+} from '../domain/entities/pipeline.entity.ts';
 import type { PipelineNodeEntity } from '../domain/entities/pipeline-node.entity.ts';
 import type { IPipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
 import type { Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
@@ -73,9 +77,9 @@ export class DefaultPipelineRepository implements PipelineRepository {
     this.versions.delete(id);
   }
 
-  /** The returned job is not needed: callers refetch the job list. */
-  public async run(id: string): Promise<void> {
-    await this.client.runPipeline({ pipelineId: wrapId(id) }).response;
+  public async run(id: string): Promise<PipelineRun> {
+    const { job } = await this.client.runPipeline({ pipelineId: wrapId(id) }).response;
+    return { needsContainer: (job?.nodes ?? []).some(node => !!node.container?.image) };
   }
 
   public async create(pipeline: Omit<PipelineEntity, 'id'>): Promise<void> {

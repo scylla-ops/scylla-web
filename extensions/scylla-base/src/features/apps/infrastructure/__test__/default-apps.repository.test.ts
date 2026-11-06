@@ -4,6 +4,7 @@ import type { IAppServiceClient } from '@base/generated/scylla/apps/v1/app_servi
 import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
 import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import type { IAgentServiceClient } from '@base/generated/scylla/agents/v1/agent_service.client.ts';
+import type { ICapabilityServiceClient } from '@base/generated/scylla/capabilities/v1/capability_service.client.ts';
 import { type App, CiProvider } from '@base/generated/scylla/apps/v1/app.ts';
 import { TokenExpiry, TokenPreset } from '@base/generated/scylla/auth/v1/api_token.ts';
 import { JobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';
@@ -132,9 +133,30 @@ const clients = () => {
       }),
     ),
   } as unknown as IAgentServiceClient;
-  const repository = new DefaultAppsRepository(apps, jobs, access, agents);
+  const capabilities = {
+    getCapabilities: vi.fn(() =>
+      unaryCall({
+        edition: 'community',
+        capabilities: [],
+        version: '0.7.0',
+        agentImage: 'ghcr.io/scylla-ops/scylla-agent:0.7.0',
+      }),
+    ),
+  } as unknown as ICapabilityServiceClient;
+  const repository = new DefaultAppsRepository(apps, jobs, access, agents, capabilities);
   return { apps, jobs, access, agents, repository, order };
 };
+
+describe('getServerInfo', () => {
+  it('reads the version and the image of the agent from the capabilities', async () => {
+    const { repository } = clients();
+
+    await expect(repository.getServerInfo()).resolves.toEqual({
+      version: '0.7.0',
+      agentImage: 'ghcr.io/scylla-ops/scylla-agent:0.7.0',
+    });
+  });
+});
 
 describe('grpcApp.toDomain', () => {
   it('has no host before the hello of the agent', () => {

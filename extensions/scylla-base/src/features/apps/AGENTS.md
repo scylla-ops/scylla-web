@@ -23,10 +23,16 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
 - The recent jobs of an agent come from `JobService.ListWorkspaceJobs` with its id. Its stats come
   from the server (`agent-stats.struct.ts`): 30 days in UTC.
 - "Add agent" is a dialog in three steps (`components/AddAgentDialog/`): name and projects, install,
-  connected. The install step shows one command for each OS (`agent-install.struct.ts`) and
-  `appQueries.waiting` asks for the app each 2 s until a machine joined with a new key and the
-  agent is connected (`hasJoined`). With an `agent`, the dialog makes a new join code for it and
-  starts at the install step. A `Button` in the form must have `type="button"`, because the
+  connected. The install step has a tab for Linux (the default), macOS, Windows and Docker, with one
+  command and one hint for each (`agent-install.struct.ts`). Linux and macOS have the same command.
+  The commands name the server with `--url` or `-Url`, so the address in the command wins over the
+  address in the script. The Docker tab uses the image of the server (`appQueries.server`, from
+  `GetCapabilities`), replaces a loopback host with `host.docker.internal`, and has no runtime
+  choice. Its choice "Run container steps" gives the socket of the machine and a warning. After one
+  minute, the step shows the command of the logs of the tab. `appQueries.waiting` asks for the app
+  each 2 s until a machine joined with a new key and the agent is connected (`hasJoined`). Between
+  these two events, `isJoining` shows "The machine joined". With an `agent`, the dialog makes a new
+  join code for it and starts at the install step. A `Button` in the form must have `type="button"`, because the
   primitive has no default type.
 - The agents page (`components/AgentsList/`) shows four stat cards, filters by state
   (`agent-list.struct.ts`: a running agent is also online), a search on the name and the host name,
@@ -48,7 +54,11 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   day, the machine, the recent jobs, the access (Change: `runnerChanges` in
   `agent-access.struct.ts` gives the grants before the revokes; `appMutations.changeAccess` sends
   them one by one), the keys (rename, revoke, new join code) and the delete zone (type the name).
-  An agent that never said hello shows a connect card with a join code made on open.
+  An agent that never said hello shows a connect card with a button that makes a join code. Do not
+  make the code on open: a new code stops the code of a machine that installs now. The machine card
+  shows the versions and the update command when the agent and the server have different versions.
+  The delete zone shows the uninstall command for the system of the agent. A Docker agent reports
+  `linux`, so Linux also shows the Docker command.
 - The page of another app (`ui/AppDetails/`, route `/apps/:appId`) shows the header (Disable or
   Enable), the workspace roles, the activity (the latest sign-in of a credential), the credentials
   (`credentialRows` in `app-credentials.struct.ts`: the tokens, the CI identities and the keys,
@@ -69,6 +79,7 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
 
 ## Repository (`appsRepository`)
 
+- Server: `getServerInfo` (the version and the image of the agent). Anyone can read it.
 - Apps: `listApps`, `getApp`, `createApp` (an agent gets `runner` on the workspace, or on each of
   `projectIds`), `deleteApp`, `disableApp`, `enableApp`. The key of a query on one app must end
   with its id: `appMutations.remove` removes these queries, because the server refuses each read

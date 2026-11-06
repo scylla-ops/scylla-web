@@ -8,6 +8,7 @@ import { AppServiceClient } from '@base/generated/scylla/apps/v1/app_service.cli
 import { JobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
 import { AccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import { AgentServiceClient } from '@base/generated/scylla/agents/v1/agent_service.client.ts';
+import { CapabilityServiceClient } from '@base/generated/scylla/capabilities/v1/capability_service.client.ts';
 import { DefaultAppsRepository } from './infrastructure/default-apps.repository.ts';
 import { appsCommands } from './presentation/apps.commands.ts';
 
@@ -17,6 +18,7 @@ const appsRepository = new DefaultAppsRepository(
   new JobServiceClient(transport),
   new AccessServiceClient(transport),
   new AgentServiceClient(transport),
+  new CapabilityServiceClient(transport),
 );
 
 /** The agents and the other apps fold under one item of the sidebar. */

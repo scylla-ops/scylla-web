@@ -21,7 +21,7 @@ All of its data comes from other modules' public APIs:
 | Which projects can I see? | `projectQueries.lookup` — [project](../project/README.md) |
 | Which pipelines exist? | `pipelineQueries.byWorkspace` — [pipeline](../pipeline/README.md) |
 | How did recent runs go? | `jobQueries.byWorkspace` — [jobs](../jobs/README.md) |
-| How did one agent's runs go? | `agentQueries.statsOf` — [agents](../agents/README.md) |
+| How did one agent's runs go? | `appQueries.agentStatsOf` — [apps](../apps/README.md) |
 | What may this user open? | `can()` — [platform/authz](../../platform/authz/README.md) |
 
 `createWorkspaceOverview` stitches those together and hands the page a single ready-to-render shape,
@@ -63,5 +63,5 @@ without a deeper destination.
 
 - [project](../project/README.md), [pipeline](../pipeline/README.md),
   [jobs](../jobs/README.md) — the three data sources.
-- [agents](../agents/README.md) — supplies the per-agent run statistics behind the chart.
+- [apps](../apps/README.md) — supplies the per-agent run statistics behind the chart.
 - [shell](../../shell/README.md) — the shell this page renders inside.

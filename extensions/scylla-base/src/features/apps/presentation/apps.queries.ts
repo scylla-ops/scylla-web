@@ -29,6 +29,10 @@ const runnerOf = (filter: AppFilter): boolean | undefined =>
 export const hasJoined = (details: AppDetails | undefined, keysBefore: number): boolean =>
   !!details && details.keys.length > keysBefore && (!details.app.runner || details.app.connected);
 
+/** A machine joined with a new key, and its agent did not connect yet. */
+export const isJoining = (details: AppDetails | undefined, keysBefore: number): boolean =>
+  !!details && details.keys.length > keysBefore && !details.app.connected;
+
 export const APPS_QUERY_ROOT = ['apps'] as const;
 /** The onboarding tour follows the creation of the first agent. */
 export const CREATE_APP_MUTATION_KEY = ['apps', 'create'] as const;
@@ -69,6 +73,14 @@ const rolesInWorkspace = async (workspaceId: string) => {
 };
 
 export const appQueries = {
+  /** Anyone can read it, and only a new server changes it. */
+  server: () =>
+    queryOptions({
+      queryKey: [...APPS_QUERY_ROOT, 'server'] as const,
+      queryFn: () => repository().getServerInfo(),
+      staleTime: 60 * 60 * 1000,
+    }),
+
   list: (workspaceId: string, filter: AppFilter = 'all') =>
     queryOptions({
       queryKey: APPS_QUERY_KEY(workspaceId, filter),

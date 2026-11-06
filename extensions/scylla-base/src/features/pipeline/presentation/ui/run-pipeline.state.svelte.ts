@@ -1,4 +1,4 @@
-import { i18n } from '@lingui/core';
+import { i18n, type MessageDescriptor } from '@lingui/core';
 import { SvelteSet } from 'svelte/reactivity';
 import { Permission, can } from '@platform/authz';
 import { scyllaNavigate, contextStore } from '@platform/context';
@@ -7,6 +7,7 @@ import { appQueries } from '@base/features/apps';
 import { toRune } from '@scylla/ui/stores';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
+import type { PipelineRun } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import { pipelineMutations } from '../pipeline.queries.ts';
 
 /**
@@ -23,16 +24,24 @@ export const createRunPipeline = () => {
 
   const inFlight = new SvelteSet<string>();
 
-  const announce = () => {
+  const warn = (message: MessageDescriptor) =>
+    toast.warning(i18n._(message), {
+      action: { label: 'Agents', onClick: () => scyllaNavigate.goToWorkspaceRoute('/agents') },
+    });
+
+  const announce = ({ needsContainer }: PipelineRun) => {
     if (!canListAgents) {
       toast.success(i18n._(ToastMessages.PIPELINE_RUN_CHECK_AGENTS));
       return;
     }
 
-    if (!(agentsQuery.data ?? []).some(agent => agent.connected)) {
-      toast.warning(i18n._(ToastMessages.PIPELINE_JOB_QUEUED_WARNING), {
-        action: { label: 'Agents', onClick: () => scyllaNavigate.goToWorkspaceRoute('/agents') },
-      });
+    const connected = (agentsQuery.data ?? []).filter(agent => agent.connected);
+    if (connected.length === 0) {
+      warn(ToastMessages.PIPELINE_JOB_QUEUED_WARNING);
+      return;
+    }
+    if (needsContainer && !connected.some(agent => agent.host?.containerRuntime)) {
+      warn(ToastMessages.PIPELINE_NO_CONTAINER_RUNTIME);
       return;
     }
 
@@ -45,8 +54,7 @@ export const createRunPipeline = () => {
     async run(pipelineId: string): Promise<void> {
       inFlight.add(pipelineId);
       try {
-        await runPipeline.mutateAsync(pipelineId);
-        announce();
+        announce(await runPipeline.mutateAsync(pipelineId));
       } catch {
         // The global mutation handler toasts the error.
       } finally {

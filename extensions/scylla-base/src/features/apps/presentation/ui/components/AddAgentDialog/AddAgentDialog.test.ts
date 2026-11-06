@@ -33,6 +33,8 @@ const app = (connected: boolean) => ({
 
 let teardown: Array<() => void> = [];
 
+const IMAGE = 'ghcr.io/scylla-ops/scylla-agent:0.7.0';
+
 const setUp = () => {
   permissionsStore.setState({
     permissions: {
@@ -49,6 +51,7 @@ const setUp = () => {
     },
   });
   const apps = {
+    getServerInfo: vi.fn().mockResolvedValue({ version: '0.7.0', agentImage: IMAGE }),
     createApp: vi.fn().mockResolvedValue({
       app: app(false),
       joinCode: { code: 'JOIN-42', expiresAt: new Date(Date.now() + 900_000).toISOString() },
@@ -100,12 +103,16 @@ describe('AddAgentDialog', () => {
 
     await waitFor(() => expect(apps.createApp).toHaveBeenCalledWith('ws-1', 'agent-1', true, []));
     expect(await screen.findByText('Install agent-1')).toBeInTheDocument();
-    expect(screen.getByText(/install\.sh \| sh -s -- JOIN-42/)).toBeInTheDocument();
+    expect(screen.getByText(/install\.sh \| sh -s -- JOIN-42 --url http/)).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Linux', selected: true })).toBeInTheDocument();
     expect(screen.getByText('Waiting for the agent…')).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: /Windows/ }));
     expect(screen.getByText(/install\.ps1\)\)\) -JoinCode JOIN-42/)).toBeInTheDocument();
-    expect(screen.getByText(/PowerShell as administrator.*add -NoService/)).toBeInTheDocument();
+    expect(screen.getByText(/PowerShell as administrator.*-NoService/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: /macOS/ }));
+    expect(screen.getByText(/needs no sudo/)).toBeInTheDocument();
 
     expect(await screen.findByText('agent-1 is online', {}, { timeout: 5000 })).toBeInTheDocument();
     expect(screen.getByText('Connected from host-1')).toBeInTheDocument();

@@ -382,7 +382,7 @@ injected, still substitutable in a test. Only the redundant indirection is gone.
   sections, auth gate, context wrappers, access policy, error policy, shell parts).
 - scylla-base `platform/` — `authz` (Permission, `can`, `Can`, `RequirePermission`), `context`
   (current org/project/pipeline + navigation), `grpc`.
-- scylla-base `features/` — `agents`, `apps`, `dashboard`, `extensions`, `jobs`, `login`, `marketplace`,
+- scylla-base `features/` — `apps`, `dashboard`, `extensions`, `jobs`, `login`, `marketplace`,
   `membership`, `workspace`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`.
 - scylla-base `shared/` — shared code with a business meaning. **No feature imports.**
 
@@ -834,7 +834,7 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
   imports.
 - Inside scylla-base, a relative import goes up one level at most (`./x`, `../x`). Above that,
   use the alias: `@platform/` for `platform/`, `@shared/` for `shared/`, `@base/` for the rest
-  (`@base/features/agents/domain/structs/agent-state.struct.ts`, not `../../../../domain/…`).
+  (`@base/features/apps/domain/structs/agent-install.struct.ts`, not `../../../../domain/…`).
 - Prettier: semicolons, single quotes (incl. JSX), 2-space tabs, trailing commas (all), printWidth 100, `arrowParens: avoid`. Match this style; don't reformat unrelated code.
 - Routing: written in the project, in `@scylla/core` (no router library); the declaration
   types are in `@scylla/core-sdk`. The mounts of scylla-base are in `ShellModule`

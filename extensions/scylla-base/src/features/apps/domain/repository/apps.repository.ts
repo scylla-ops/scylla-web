@@ -7,6 +7,7 @@ import type {
   JoinCode,
 } from '../entities/app.entity.ts';
 import type { CiIdentityEntity, CreateCiIdentityInput } from '../entities/ci-identity.entity.ts';
+import type { ServerInfo } from '../structs/agent-install.struct.ts';
 import type { AgentStats } from '../structs/agent-stats.struct.ts';
 import type { RunnerChange } from '../structs/agent-access.struct.ts';
 import type { RoleGrant } from '../structs/app-grants.struct.ts';
@@ -17,6 +18,7 @@ import type {
 } from '@shared/domain/structs/api-token.struct.ts';
 
 export interface AppsRepository {
+  getServerInfo(): Promise<ServerInfo>;
   /** `runner`: only the agents, or only the other apps. Absent: every app. */
   listApps(workspaceId: string, runner?: boolean): Promise<AppEntity[]>;
   getApp(appId: string): Promise<AppDetails>;

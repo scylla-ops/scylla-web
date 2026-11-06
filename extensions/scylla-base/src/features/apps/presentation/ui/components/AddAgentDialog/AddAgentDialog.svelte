@@ -22,6 +22,7 @@
     appMutations,
     appQueries,
     hasJoined,
+    isJoining,
   } from '@base/features/apps/presentation/apps.queries.ts';
   import StepBar from './StepBar.svelte';
   import NameStep from './NameStep.svelte';
@@ -157,7 +158,12 @@
           {#if step === 0}
             <NameStep {workspaceId} bind:name bind:projectIds bind:someProjects />
           {:else if step === 1 && joinCode}
-            <InstallStep {joinCode} onNewCode={newCode} renewing={renew.isPending} />
+            <InstallStep
+              {joinCode}
+              onNewCode={newCode}
+              renewing={renew.isPending}
+              joined={isJoining(watched.data, keysBefore)}
+            />
           {:else if step === 1}
             <Skeleton class="h-40 w-full rounded-lg" />
           {:else if step === 2 && watched.data}

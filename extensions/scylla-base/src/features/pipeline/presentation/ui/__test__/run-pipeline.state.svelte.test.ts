@@ -21,8 +21,8 @@ const grant = (...permissions: Permission[]) =>
     },
   });
 
-const setUp = (agents: { connected: boolean }[]) => {
-  runRepository = vi.fn().mockResolvedValue(undefined);
+const setUp = (agents: { connected: boolean; host?: { containerRuntime: string } }[]) => {
+  runRepository = vi.fn().mockResolvedValue({ needsContainer: false });
   const cache = withQueryClient();
   teardown = [
     cache.restore,
@@ -117,6 +117,33 @@ describe('createRunPipeline with the agent list', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
       await runner.run('pipeline-1');
     });
+
+    expect(toast.success).toHaveBeenCalledTimes(1);
+    expect(toast.warning).not.toHaveBeenCalled();
+  });
+
+  const runContainerJob = async (agents: Parameters<typeof setUp>[0]) => {
+    grant(Permission.LIST_AGENTS, Permission.LIST_APPS_BY_WORKSPACE);
+    setUp(agents);
+    runRepository.mockResolvedValue({ needsContainer: true });
+    await runIn(async runner => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+      await runner.run('pipeline-1');
+    });
+  };
+
+  it('warns that a container job waits when no connected agent has a container runtime', async () => {
+    await runContainerJob([
+      { connected: true, host: { containerRuntime: '' } },
+      { connected: false, host: { containerRuntime: 'docker' } },
+    ]);
+
+    expect(toast.warning).toHaveBeenCalledTimes(1);
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it('confirms a container job when a connected agent has a container runtime', async () => {
+    await runContainerJob([{ connected: true, host: { containerRuntime: 'docker' } }]);
 
     expect(toast.success).toHaveBeenCalledTimes(1);
     expect(toast.warning).not.toHaveBeenCalled();

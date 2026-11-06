@@ -270,13 +270,13 @@ describe('pipelineMutations.run', () => {
     expect(repository.run).toHaveBeenCalledWith('pipeline-1');
 
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
-    runOnSuccess(pipelineMutations.run(), undefined, 'pipeline-1');
+    runOnSuccess(pipelineMutations.run(), { needsContainer: false }, 'pipeline-1');
 
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['jobs', 'pipeline', 'pipeline-1'] });
   });
 
   it('says nothing on its own', () => {
-    runOnSuccess(pipelineMutations.run(), undefined, 'pipeline-1');
+    runOnSuccess(pipelineMutations.run(), { needsContainer: false }, 'pipeline-1');
     expect(toastSuccess).not.toHaveBeenCalled();
   });
 });

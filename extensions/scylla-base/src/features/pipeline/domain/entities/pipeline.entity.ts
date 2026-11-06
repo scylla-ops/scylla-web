@@ -15,6 +15,12 @@ export interface PipelineIdentity {
   name: string;
 }
 
+/** What a new job asks from the agents. */
+export interface PipelineRun {
+  /** A node runs in a container: only an agent with a container runtime takes the job. */
+  needsContainer: boolean;
+}
+
 export interface PipelineMetadata extends PipelineIdentity {
   nodeCount: number;
   createdAt: string;

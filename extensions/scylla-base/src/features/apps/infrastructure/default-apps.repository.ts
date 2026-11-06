@@ -2,6 +2,7 @@ import type { IAppServiceClient } from '@base/generated/scylla/apps/v1/app_servi
 import type { IAgentServiceClient } from '@base/generated/scylla/agents/v1/agent_service.client.ts';
 import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
 import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
+import type { ICapabilityServiceClient } from '@base/generated/scylla/capabilities/v1/capability_service.client.ts';
 import type { App } from '@base/generated/scylla/apps/v1/app.ts';
 import type { ApiToken as GrpcApiToken } from '@base/generated/scylla/auth/v1/api_token.ts';
 import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
@@ -17,6 +18,7 @@ import type {
   CiIdentityEntity,
   CreateCiIdentityInput,
 } from '@base/features/apps/domain/entities/ci-identity.entity.ts';
+import type { ServerInfo } from '@base/features/apps/domain/structs/agent-install.struct.ts';
 import type { AgentStats } from '@base/features/apps/domain/structs/agent-stats.struct.ts';
 import type { RunnerChange } from '@base/features/apps/domain/structs/agent-access.struct.ts';
 import type { RoleGrant } from '@base/features/apps/domain/structs/app-grants.struct.ts';
@@ -51,7 +53,13 @@ export class DefaultAppsRepository implements AppsRepository {
     private readonly jobs: IJobServiceClient,
     private readonly access: IAccessServiceClient,
     private readonly agents: IAgentServiceClient,
+    private readonly capabilities: ICapabilityServiceClient,
   ) {}
+
+  public async getServerInfo(): Promise<ServerInfo> {
+    const { version, agentImage } = await this.capabilities.getCapabilities({}).response;
+    return { version, agentImage };
+  }
 
   public async getAgentStats(appId: string): Promise<AgentStats> {
     const response = await this.agents.getAgentStats({ agentId: wrapId(appId) }).response;

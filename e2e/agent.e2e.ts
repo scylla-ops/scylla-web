@@ -37,21 +37,23 @@ test('an agent joins with its code, runs the job of a pipeline, and its logs sho
   await expect(page.getByText('Pipeline created')).toBeVisible();
 
   // An agent: its code joins the binary, which then opens its stream.
-  await page.goto(`/${slug}/apps`);
-  await page.getByRole('button', { name: /New app/ }).click();
+  await page.goto(`/${slug}/agents`);
+  await page
+    .getByRole('button', { name: /Add an agent/ })
+    .first()
+    .click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Name').fill('runner-1');
-  await dialog.getByRole('button', { name: 'Create' }).click();
-  await dialog.getByRole('button', { name: 'Show the secret' }).click();
-  const code = (await dialog.locator('pre').innerText()).split('\n')[0].trim().split(' ').at(-1)!;
-  await dialog.getByRole('button', { name: 'Done' }).click();
+  await dialog.getByRole('button', { name: 'Add agent' }).click();
+  await expect(dialog.getByRole('tab', { name: 'Linux', selected: true })).toBeVisible();
+  const command = await dialog.locator('pre').first().innerText();
+  const code = /sh -s -- (\S+) --url/.exec(command)![1];
   const config = join(mkdtempSync(join(tmpdir(), 'scylla-agent-')), 'agent.json');
   execFileSync(AGENT!, ['--config', config, 'join', SERVER, code]);
   agent = spawn(AGENT!, ['--config', config, 'run'], { stdio: 'ignore' });
-  await page.getByText('runner-1').click();
-  await expect(page.locator('[data-tour="agent-status"][data-online="true"]')).toBeVisible({
-    timeout: 30_000,
-  });
+  await expect(dialog.getByText('runner-1 is online')).toBeVisible({ timeout: 30_000 });
+  await dialog.getByRole('button', { name: 'Open agent' }).click();
+  await expect(page.locator('[data-tour="agent-status"][data-online="true"]')).toBeVisible();
 
   // The run: the job ends in success, and the log of a node has its line.
   await page.goto(projectPath);

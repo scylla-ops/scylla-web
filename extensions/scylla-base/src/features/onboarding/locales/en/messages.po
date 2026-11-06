@@ -13,6 +13,18 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:28
+msgid "If you ran the command in the previous modal, your agent connects to Scylla, and the Next button unlocks. If you did not, click “Make a join code” here and run the command."
+msgstr "If you ran the command in the previous modal, your agent connects to Scylla, and the Next button unlocks. If you did not, click “Make a join code” here and run the command."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:23
+msgid "The address in the command is the address of Scylla in this browser. If the machine uses another address, change each address in the command."
+msgstr "The address in the command is the address of Scylla in this browser. If the machine uses another address, change each address in the command."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:24
+msgid "When the agent is online, click “Open agent”. You can also click “Close”, and make a new code on the page of the agent later."
+msgstr "When the agent is online, click “Open agent”. You can also click “Close”, and make a new code on the page of the agent later."
+
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:9
 msgid "{step}/{total}"
 msgstr "{step}/{total}"
@@ -89,10 +101,6 @@ msgstr "Go to Projects"
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:30
 msgid "If the code expired, make a new one with “New join code”, and run the commands again."
 msgstr "If the code expired, make a new one with “New join code”, and run the commands again."
-
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:28
-msgid "If you ran the command in the previous modal and properly set up the control plane URL, your agent should connect to Scylla: the Next button unlocks once it's connected."
-msgstr "If you ran the command in the previous modal and properly set up the control plane URL, your agent should connect to Scylla: the Next button unlocks once it's connected."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:49
 msgid "If your job is not running, make sure you didn't disconnect the agent you created earlier."
@@ -184,10 +192,6 @@ msgstr "Step timeline and live logs: this is where you see whether your pipeline
 msgid "The agent dashboard"
 msgstr "The agent dashboard"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:23
-msgid "The code works one time, and only for a short while. The address in the command is the one of Scylla here: change it if the agent reaches Scylla another way."
-msgstr "The code works one time, and only for a short while. The address in the command is the one of Scylla here: change it if the agent reaches Scylla another way."
-
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:11
 msgid "The dashboard"
 msgstr "The dashboard"
@@ -243,10 +247,6 @@ msgstr "Waiting for the agent to connect…"
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:4
 msgid "Welcome to Scylla 👋"
 msgstr "Welcome to Scylla 👋"
-
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:24
-msgid "When the agent is online, click “Open agent”. You can also click “Close” and come back later."
-msgstr "When the agent is online, click “Open agent”. You can also click “Close” and come back later."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:16
 msgid "You first need an agent, the machine that runs your jobs. Open “Machines” in the menu, then click “Agents”."

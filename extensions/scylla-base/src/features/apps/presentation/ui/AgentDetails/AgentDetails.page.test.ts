@@ -83,6 +83,9 @@ const setUp = (details = agent(), permissions = ALL, keys = DEFAULT_KEYS, grante
   });
   contextStore.setState({ workspace: { id: 'ws-1', name: 'acme', slug: 'acme' } });
   apps = {
+    getServerInfo: vi
+      .fn()
+      .mockResolvedValue({ version: '0.7.0', agentImage: 'ghcr.io/scylla-ops/scylla-agent:0.7.0' }),
     getApp: vi.fn().mockResolvedValue({
       app: details,
       keys,
@@ -181,10 +184,67 @@ describe('AgentDetails', () => {
   it('gives a command to connect an agent that never said hello', async () => {
     setUp(agent({ connected: false, lastSeenAt: '', host: null, runningJobs: 0 }));
 
+    const user = userEvent.setup();
+
     expect(await screen.findByText('Connect this agent')).toBeInTheDocument();
+    expect(apps.createJoinCode).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Make a join code' }));
+
     await waitFor(() => expect(apps.createJoinCode).toHaveBeenCalledTimes(1));
     expect(await screen.findByText(/JOIN-99/)).toBeInTheDocument();
     expect(screen.queryByText('Success rate')).not.toBeInTheDocument();
+  });
+
+  it('shows that a machine joined and did not connect yet', async () => {
+    setUp(agent({ connected: false, lastSeenAt: '', host: null, runningJobs: 0 }), ALL, []);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Make a join code' }));
+    expect(await screen.findByText('Waiting for the agent…')).toBeInTheDocument();
+
+    apps.getApp.mockResolvedValue({
+      app: agent({ connected: false, lastSeenAt: '', host: null, runningJobs: 0 }),
+      keys: [key('k-new', 'host-1')],
+    });
+    expect(
+      await screen.findByText(
+        'The machine joined. Waiting for its connection.',
+        {},
+        { timeout: 5000 },
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('gives the command for the system of an agent with another version', async () => {
+    setUp(agent({ host: { ...host, version: '0.6.0' } }));
+
+    expect(
+      await screen.findByText('This agent has version 0.6.0. The server has version 0.7.0.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/install\.sh \| sh -s -- --update/)).toBeInTheDocument();
+    expect(screen.getByText(/scylla-agent:0\.7\.0$/)).toBeInTheDocument();
+  });
+
+  it('gives no update command to an agent with the version of the server', async () => {
+    setUp();
+
+    expect(await screen.findByText('Machine')).toBeInTheDocument();
+    await waitFor(() => expect(apps.getServerInfo).toHaveBeenCalled());
+    expect(screen.queryByText(/sh -s -- --update/)).not.toBeInTheDocument();
+  });
+
+  it('gives the uninstall commands of a Windows agent, with no Docker command', async () => {
+    setUp(agent({ host: { ...host, os: 'windows' } }));
+
+    expect(await screen.findByText(/install\.ps1\)\)\) -Uninstall/)).toBeInTheDocument();
+    expect(screen.queryByText(/docker volume rm/)).not.toBeInTheDocument();
+  });
+
+  it('gives the Docker uninstall command also on Linux, because a container reports Linux', async () => {
+    setUp();
+
+    expect(await screen.findByText(/sh -s -- --uninstall/)).toBeInTheDocument();
+    expect(screen.getByText(/docker volume rm scylla-agent/)).toBeInTheDocument();
   });
 
   it('shows a disabled agent and enables it', async () => {

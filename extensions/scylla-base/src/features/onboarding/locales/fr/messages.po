@@ -13,6 +13,18 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:28
+msgid "If you ran the command in the previous modal, your agent connects to Scylla, and the Next button unlocks. If you did not, click “Make a join code” here and run the command."
+msgstr "Si vous avez lancé la commande dans la fenêtre précédente, votre agent se connecte à Scylla, et le bouton Suivant se débloque. Sinon, cliquez ici sur « Créer un code d'enrôlement » et lancez la commande."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:23
+msgid "The address in the command is the address of Scylla in this browser. If the machine uses another address, change each address in the command."
+msgstr "L'adresse dans la commande est l'adresse de Scylla dans ce navigateur. Si la machine utilise une autre adresse, changez chaque adresse dans la commande."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:24
+msgid "When the agent is online, click “Open agent”. You can also click “Close”, and make a new code on the page of the agent later."
+msgstr "Quand l'agent est en ligne, cliquez sur « Ouvrir l'agent ». Vous pouvez aussi cliquer sur « Fermer », et créer un nouveau code plus tard sur la page de l'agent."
+
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:9
 msgid "{step}/{total}"
 msgstr "{step}/{total}"
@@ -89,10 +101,6 @@ msgstr "Allez dans Projets"
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:30
 msgid "If the code expired, make a new one with “New join code”, and run the commands again."
 msgstr "Si le code a expiré, créez-en un nouveau avec « Nouveau code d'adhésion », puis relancez les commandes."
-
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:28
-msgid "If you ran the command in the previous modal and properly set up the control plane URL, your agent should connect to Scylla: the Next button unlocks once it's connected."
-msgstr "Si vous avez lancé la commande de la fenêtre précédente avec la bonne URL du control plane, votre agent devrait se connecter à Scylla : le bouton Suivant se débloque une fois qu'il est connecté."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:49
 msgid "If your job is not running, make sure you didn't disconnect the agent you created earlier."
@@ -184,10 +192,6 @@ msgstr "Chronologie des étapes et logs en direct : c'est ici que vous voyez si 
 msgid "The agent dashboard"
 msgstr "Le tableau de bord de l'agent"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:23
-msgid "The code works one time, and only for a short while. The address in the command is the one of Scylla here: change it if the agent reaches Scylla another way."
-msgstr "Le code ne fonctionne qu'une fois, et peu de temps. L'adresse dans la commande est celle de Scylla ici : changez-la si l'agent joint Scylla autrement."
-
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:11
 msgid "The dashboard"
 msgstr "Le tableau de bord"
@@ -243,10 +247,6 @@ msgstr "En attente de la connexion de l'agent…"
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:4
 msgid "Welcome to Scylla 👋"
 msgstr "Bienvenue sur Scylla 👋"
-
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:24
-msgid "When the agent is online, click “Open agent”. You can also click “Close” and come back later."
-msgstr "Quand l'agent est en ligne, cliquez sur « Ouvrir l'agent ». Vous pouvez aussi cliquer sur « Fermer » et revenir plus tard."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:16
 msgid "You first need an agent, the machine that runs your jobs. Open “Machines” in the menu, then click “Agents”."

@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:28
+msgid "Job queued: it needs a container, and no connected agent has a container runtime"
+msgstr "Job en attente : il demande un conteneur, et aucun agent connecté n'a de runtime de conteneurs"
+
 #: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:11
 msgid "{count, plural, =0 {Expires today} one {Expires in # day} other {Expires in # days}}"
 msgstr "{count, plural, =0 {Expire aujourd'hui} one {Expire dans # jour} other {Expire dans # jours}}"

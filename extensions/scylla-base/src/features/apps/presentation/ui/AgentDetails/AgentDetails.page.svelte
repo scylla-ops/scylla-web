@@ -90,7 +90,11 @@
     {/if}
 
     {#if never && canCreate}
-      <AgentConnectCard agentId={agent.id} />
+      <AgentConnectCard
+        agentId={agent.id}
+        {workspaceId}
+        keyCount={details.data?.keys.length ?? 0}
+      />
     {:else if !never}
       <AgentStatsRow stats={stats.data} lastRunAt={jobs.data?.[0]?.createdAt} />
       <div class="grid gap-4 lg:grid-cols-3">
@@ -134,6 +138,7 @@
       <AgentDangerZone
         agentId={agent.id}
         agentName={agent.name}
+        os={agent.host?.os}
         onDeleted={() => scyllaNavigate.goToWorkspaceRoute('/agents')}
       />
     {/if}

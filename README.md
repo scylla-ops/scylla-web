@@ -97,8 +97,7 @@ packages/ui                the design system — imports no other package
 
 | Module | What it owns |
 |--------|--------------|
-| [agents](extensions/scylla-base/src/features/agents/README.md) | Build agents — the machines that pick up jobs — and their run statistics |
-| [apps](extensions/scylla-base/src/features/apps/README.md) | Machine identities and the secrets they authenticate with |
+| [apps](extensions/scylla-base/src/features/apps/README.md) | Machine identities, the agents that pick up jobs, their install and their run statistics |
 | [dashboard](extensions/scylla-base/src/features/dashboard/README.md) | The workspace landing page — a composite view owning no data |
 | [extensions](extensions/scylla-base/src/features/extensions/README.md) | The page that lists the extensions the app runs |
 | [jobs](extensions/scylla-base/src/features/jobs/README.md) | Pipeline runs: status, logs, and the live tail of both |

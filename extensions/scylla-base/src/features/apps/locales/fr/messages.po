@@ -13,9 +13,21 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:34
+msgid "A job can then control the Docker of this machine, with root rights. Use this only for pipelines that you trust."
+msgstr "Un job peut alors contrôler le Docker de cette machine, avec les droits root. Utilisez cela seulement pour des pipelines de confiance."
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:37
+msgid "An agent is one machine. Two machines with the same agent stop each other. Add an agent for each machine."
+msgstr "Un agent correspond à une machine. Deux machines avec le même agent s'arrêtent l'une l'autre. Ajoutez un agent pour chaque machine."
+
 #: extensions/scylla-base/src/features/apps/apps.module.ts:73
 msgid "application"
 msgstr "application"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:53
+msgid "Build from source"
+msgstr "Compiler depuis les sources"
 
 #: extensions/scylla-base/src/features/apps/presentation/apps.commands.ts:29
 msgid "create add application machine"
@@ -25,6 +37,38 @@ msgstr "créer ajouter application machine"
 msgid "create add connect runner machine"
 msgstr "créer ajouter connecter runner machine"
 
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:51
+msgid "Download scylla-agent from the release, then join and run. This path installs no service."
+msgstr "Téléchargez scylla-agent depuis la release, puis lancez join et run. Cette méthode n'installe aucun service."
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:42
+msgid "Installed with the script"
+msgstr "Installé avec le script"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:29
+msgid "It asks for your sudo password. It installs the service scylla-agent, which starts again after a restart of the machine. With no sudo, add --no-service."
+msgstr "Elle demande votre mot de passe sudo. Elle installe le service scylla-agent, qui repart après un redémarrage de la machine. Sans sudo, ajoutez --no-service."
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:30
+msgid "It needs no sudo. The agent runs while your user is signed in."
+msgstr "Elle ne demande pas sudo. L'agent tourne tant que votre utilisateur a une session ouverte."
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:25
+msgid "Linux"
+msgstr "Linux"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:26
+msgid "macOS"
+msgstr "macOS"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:85
+msgid "Make a join code"
+msgstr "Créer un code d'enrôlement"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:84
+msgid "Make a join code, then run its command on the machine of the agent."
+msgstr "Créez un code d'enrôlement, puis lancez sa commande sur la machine de l'agent."
+
 #: extensions/scylla-base/src/features/apps/presentation/apps.commands.ts:15
 msgid "New agent"
 msgstr "Nouvel agent"
@@ -33,9 +77,61 @@ msgstr "Nouvel agent"
 msgid "New app"
 msgstr "Nouvelle app"
 
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:39
+msgid "No connection after one minute? Read the logs of the agent:"
+msgstr "Pas de connexion après une minute ? Lisez les journaux de l'agent :"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:35
+msgid "On Linux, replace host.docker.internal with 127.0.0.1 and add --network host."
+msgstr "Sur Linux, remplacez host.docker.internal par 127.0.0.1 et ajoutez --network host."
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:52
+msgid "Open the release"
+msgstr "Ouvrir la release"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:33
+msgid "Run container steps (Linux only)"
+msgstr "Lancer des étapes en conteneur (Linux uniquement)"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:31
+msgid "Run it in PowerShell as administrator. It installs the service ScyllaAgent. A script step needs Git for Windows. With no admin rights, add -NoService."
+msgstr "Lancez-la dans PowerShell en administrateur. Elle installe le service ScyllaAgent. Une étape de script demande Git for Windows. Sans droits d'administrateur, ajoutez -NoService."
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:24
+msgid "Run this command on the machine of the agent:"
+msgstr "Lancez cette commande sur la machine de l'agent :"
+
 #: extensions/scylla-base/src/features/apps/apps.module.ts:58
 msgid "runner machine"
 msgstr "runner machine"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:43
+msgid "Runs in Docker"
+msgstr "Tourne dans Docker"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:44
+msgid "Runs in Docker. Use the options and the volume of your first command."
+msgstr "Tourne dans Docker. Reprenez les options et le volume de votre première commande."
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:38
+msgid "The machine joined. Waiting for its connection."
+msgstr "La machine a rejoint. En attente de sa connexion."
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:41
+msgid "This agent has version {agent}. The server has version {server}."
+msgstr "Cet agent a la version {agent}. Le serveur a la version {server}."
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:32
+msgid "This agent runs shell steps with bash and git. It does not run container steps."
+msgstr "Cet agent lance des étapes shell avec bash et git. Il ne lance pas d'étapes en conteneur."
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:36
+msgid "This code works one time. A new code stops the previous code."
+msgstr "Ce code ne sert qu'une fois. Un nouveau code annule le précédent."
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:89
+msgid "To remove the agent from its machine, run this on the machine:"
+msgstr "Pour retirer l'agent de sa machine, lancez ceci sur la machine :"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:17
 msgid "{completed} of {total} completed"
@@ -627,10 +723,6 @@ msgstr "Il ne reçoit ni token ni job jusqu'à ce que vous l'activiez. Ses jobs 
 msgid "It gets no token until you enable it. Calls with its tokens fail at once."
 msgstr "Elle ne reçoit aucun token tant que vous ne l'activez pas. Les appels avec ses tokens échouent tout de suite."
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:26
-msgid "It installs a service with sudo. Without sudo, add --no-service."
-msgstr "Il installe un service avec sudo. Sans sudo, ajoutez --no-service."
-
 #: extensions/scylla-base/src/features/apps/presentation/messages/credentials.messages.ts:40
 msgid "It joins with {method} and an Ed25519 public key."
 msgstr "Il se rattache avec {method} et une clé publique Ed25519."
@@ -747,10 +839,6 @@ msgstr "Utilisée {when}"
 msgid "Limits never go beyond the roles of the app."
 msgstr "Les limites ne dépassent jamais les rôles de l'app."
 
-#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:23
-msgid "Linux & macOS"
-msgstr "Linux et macOS"
-
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:30
 msgid "Machine"
 msgstr "Machine"
@@ -770,10 +858,6 @@ msgstr "Les machines qui exécutent les jobs de vos pipelines."
 #: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:34
 msgid "Manual commands, run options"
 msgstr "Commandes manuelles, options d'exécution"
-
-#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:39
-msgid "Manual install: download scylla-agent, then join and run. The install script above also installs a service."
-msgstr "Installation manuelle : téléchargez scylla-agent, puis rejoignez et lancez. Le script d'installation ci-dessus installe aussi un service."
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:18
 msgid "Median duration"
@@ -1030,14 +1114,6 @@ msgstr "Rôle dans {workspace}"
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:7
 msgid "Roles"
 msgstr "Rôles"
-
-#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:27
-msgid "Run it in PowerShell as administrator: it installs the service ScyllaAgent. Without admin rights, add -NoService."
-msgstr "Lancez-la dans PowerShell en administrateur : elle installe le service ScyllaAgent. Sans droits d'administrateur, ajoutez -NoService."
-
-#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:22
-msgid "Run this on the machine:"
-msgstr "Lancez ceci sur la machine :"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:8
 msgid "Run your first agent"
