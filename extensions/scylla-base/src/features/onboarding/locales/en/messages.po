@@ -13,177 +13,177 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:171
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:172
 msgid "{done} of {total} done"
 msgstr "{done} of {total} done"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:9
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:10
 msgid "{step}/{total}"
 msgstr "{step}/{total}"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:38
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:39
 msgid "{steps} steps"
 msgstr "{steps} steps"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:37
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:38
 msgid "{steps} steps · {minutes} min"
 msgstr "{steps} steps · {minutes} min"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:36
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:37
 msgid "{steps} steps · about {minutes} min"
 msgstr "{steps} steps · about {minutes} min"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:107
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:108
 msgid "A cron runs on a schedule. A webhook gives you a URL to call from GitHub or a script."
 msgstr "A cron runs on a schedule. A webhook gives you a URL to call from GitHub or a script."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:81
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:82
 msgid "A pipeline lists the steps to run. Click “New pipeline”."
 msgstr "A pipeline lists the steps to run. Click “New pipeline”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:44
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:45
 msgid "A project and its first pipeline."
 msgstr "A project and its first pipeline."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:73
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:74
 msgid "A project groups your pipelines and its members. Click “Projects” in the menu."
 msgstr "A project groups your pipelines and its members. Click “Projects” in the menu."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:58
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:59
 msgid "Add an agent"
 msgstr "Add an agent"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:137
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:138
 msgid "Add members"
 msgstr "Add members"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:54
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:55
 msgid "Add people to the workspace."
 msgstr "Add people to the workspace."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:42
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:43
 msgid "Add the machine that runs your jobs."
 msgstr "Add the machine that runs your jobs."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:67
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:68
 msgctxt "onboarding"
 msgid "Agent"
 msgstr "Agent"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:57
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:58
 msgid "Agents are under Machines in the menu. Open it, then click “Agents”."
 msgstr "Agents are under Machines in the menu. Open it, then click “Agents”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:17
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:18
 msgid "Agents in the docs ›"
 msgstr "Agents in the docs ›"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:59
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:60
 msgid "An agent is a machine that runs your jobs. Click “Add an agent”."
 msgstr "An agent is a machine that runs your jobs. Click “Add an agent”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:16
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:17
 msgid "An agent is a machine that you connect to Scylla: a server, a laptop, a container. It picks the jobs of your pipelines and runs them."
 msgstr "An agent is a machine that you connect to Scylla: a server, a laptop, a container. It picks the jobs of your pipelines and runs them."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:47
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:48
 msgid "Automate a pipeline"
 msgstr "Automate a pipeline"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:18
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:19
 msgid "Build a pipeline your way"
 msgstr "Build a pipeline your way"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:14
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:15
 msgid "Choose a tour"
 msgstr "Choose a tour"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:52
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:53
 msgid "Choose what a person or an app can do."
 msgstr "Choose what a person or an app can do."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:108
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:109
 msgid "Choose when"
 msgstr "Choose when"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:138
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:139
 msgid "Click “Add members”."
 msgstr "Click “Add members”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:75
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:76
 msgid "Click “New project”."
 msgstr "Click “New project”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:128
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:129
 msgid "Click “New role”."
 msgstr "Click “New role”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:116
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:117
 msgid "Click “New secret”."
 msgstr "Click “New secret”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:105
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:106
 msgid "Click “New trigger”."
 msgstr "Click “New trigger”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:86
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:87
 msgid "Click ▶ to run the pipeline. Your agent picks the job."
 msgstr "Click ▶ to run the pipeline. Your agent picks the job."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:94
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:95
 msgid "Click the last run of the pipeline to open its job."
 msgstr "Click the last run of the pipeline to open its job."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:99
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:100
 msgid "Click the project that holds the pipeline to run."
 msgstr "Click the project that holds the pipeline to run."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:41
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:42
 msgid "Connect an agent"
 msgstr "Connect an agent"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:162
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:163
 msgid "Continue the tour"
 msgstr "Continue the tour"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:43
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:44
 msgid "Create a pipeline"
 msgstr "Create a pipeline"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:82
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:83
 msgid "Create your pipeline"
 msgstr "Create your pipeline"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:180
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:181
 msgid "Documentation"
 msgstr "Documentation"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:39
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:40
 msgctxt "onboarding"
 msgid "Done"
 msgstr "Done"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:83
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:84
 msgid "Draw it in Blueprint or write it in Scripting. The template works as is: click “Create”."
 msgstr "Draw it in Blueprint or write it in Scripting. The template works as is: click “Create”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:19
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:20
 msgid "Draw the steps in Blueprint, or write them in Scripting. Templates give you a pipeline that works from the start."
 msgstr "Draw the steps in Blueprint, or write them in Scripting. Templates give you a pipeline that works from the start."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:142
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:143
 msgid "Each member and app of the workspace, with its roles. Instance admins also create accounts under Instance, in “Users”."
 msgstr "Each member and app of the workspace, with its roles. Instance admins also create accounts under Instance, in “Users”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:25
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:26
 msgid "Each run gives a job: its timeline, its live logs and its history, so you see at once what passed and what failed."
 msgstr "Each run gives a job: its timeline, its live logs and its history, so you see at once what passed and what failed."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:29
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:30
 msgid "Each tour is short and uses your own workspace. You can come back to them at any time from Help & tours, in your profile menu."
 msgstr "Each tour is short and uses your own workspace. You can come back to them at any time from Help & tours, in your profile menu."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:35
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:36
 msgid "Explore on my own"
 msgstr "Explore on my own"
 
@@ -192,135 +192,140 @@ msgctxt "onboarding"
 msgid "Finish"
 msgstr "Finish"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:164
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:165
 msgid "First time here?"
 msgstr "First time here?"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:24
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:25
 msgid "Follow every job"
 msgstr "Follow every job"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:77
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:78
 msgid "Give it a name and a short description, then click “Create Project”."
 msgstr "Give it a name and a short description, then click “Create Project”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:61
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:62
 msgid "Give it a name, then click “Add agent”."
 msgstr "Give it a name, then click “Add agent”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:50
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:51
 msgid "Give your pipelines a value nobody can read."
 msgstr "Give your pipelines a value nobody can read."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:145
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:9
+msgctxt "onboarding"
+msgid "Go"
+msgstr "Go"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:146
 msgid "Go back to it"
 msgstr "Go back to it"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:179
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:180
 msgid "Guided tours"
 msgstr "Guided tours"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:169
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:170
 msgid "Guided tours, the welcome screen and the docs."
 msgstr "Guided tours, the welcome screen and the docs."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:176
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:177
 msgid "Guides and references on scylla-ops.com/docs."
 msgstr "Guides and references on scylla-ops.com/docs."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:168
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:169
 msgid "Help"
 msgstr "Help"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:91
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:92
 msgid "If the job does not start, make sure that the agent you connected is still online."
 msgstr "If the job does not start, make sure that the agent you connected is still online."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:68
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:69
 msgid "Install an agent ›"
 msgstr "Install an agent ›"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:53
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:54
 msgid "Invite your team"
 msgstr "Invite your team"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:66
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:67
 msgid "It is connected. Open its page to see it work."
 msgstr "It is connected. Open its page to see it work."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:153
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:154
 msgid "It runs on an agent. Run it and follow its job next."
 msgstr "It runs on an agent. Run it and follow its job next."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:111
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:112
 msgid "It runs the pipeline by itself. Turn it off here at any time."
 msgstr "It runs the pipeline by itself. Turn it off here at any time."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:151
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:152
 msgid "It waits for its first job. Create a pipeline next, then run it."
 msgstr "It waits for its first job. Create a pipeline next, then run it."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:70
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:71
 msgid "Its status, its machine, its keys and its recent jobs."
 msgstr "Its status, its machine, its keys and its recent jobs."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:26
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:27
 msgid "Jobs in the docs ›"
 msgstr "Jobs in the docs ›"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:49
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:50
 msgid "Keep a secret"
 msgstr "Keep a secret"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:34
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:35
 msgid "Later: Triggers, Secrets, Roles and Users from Help & tours"
 msgstr "Later: Triggers, Secrets, Roles and Users from Help & tours"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:51
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:52
 msgid "Make a role"
 msgstr "Make a role"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:129
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:130
 msgid "Name and level"
 msgstr "Name and level"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:117
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:118
 msgid "Name and value"
 msgstr "Name and value"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:106
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:107
 msgid "Name it, pick a type"
 msgstr "Name it, pick a type"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:130
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:131
 msgid "Name it, then choose where it applies: the workspace or one project."
 msgstr "Name it, then choose where it applies: the workspace or one project."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:60
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:61
 msgid "Name your agent"
 msgstr "Name your agent"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:76
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:77
 msgid "Name your project"
 msgstr "Name your project"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:80
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:81
 msgid "New pipeline"
 msgstr "New pipeline"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:74
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:75
 msgid "New project"
 msgstr "New project"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:127
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:128
 msgid "New role"
 msgstr "New role"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:115
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:116
 msgid "New secret"
 msgstr "New secret"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:104
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:105
 msgid "New trigger"
 msgstr "New trigger"
 
@@ -329,79 +334,79 @@ msgctxt "onboarding"
 msgid "Next"
 msgstr "Next"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:165
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:166
 msgid "Not now"
 msgstr "Not now"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:31
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:32
 msgid "Nothing runs without an agent: start here. You add a machine, run one command on it, and see it come online."
 msgstr "Nothing runs without an agent: start here. You add a machine, run one command on it, and see it come online."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:98
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:99
 msgid "Open a project"
 msgstr "Open a project"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:56
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:57
 msgid "Open Agents"
 msgstr "Open Agents"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:135
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:136
 msgid "Open Members"
 msgstr "Open Members"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:72
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:73
 msgid "Open Projects"
 msgstr "Open Projects"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:123
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:124
 msgid "Open Roles"
 msgstr "Open Roles"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:113
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:114
 msgid "Open Secrets"
 msgstr "Open Secrets"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:177
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:178
 msgid "Open the docs"
 msgstr "Open the docs"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:93
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:94
 msgid "Open the job"
 msgstr "Open the job"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:78
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:79
 msgid "Open the project"
 msgstr "Open the project"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:102
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:103
 msgid "Open the triggers"
 msgstr "Open the triggers"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:147
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:148
 msgid "Open your agent"
 msgstr "Open your agent"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:126
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:127
 msgid "Owner, admin, member and viewer often do the job. Make a role only when they give too much or too little."
 msgstr "Owner, admin, member and viewer often do the job. Make a role only when they give too much or too little."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:136
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:137
 msgid "People and apps of the workspace are under Access. Click “Members”."
 msgstr "People and apps of the workspace are under Access. Click “Members”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:139
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:140
 msgid "People and role"
 msgstr "People and role"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:109
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:110
 msgid "Pick a schedule in your local time, then click “Create”."
 msgstr "Pick a schedule in your local time, then click “Create”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:132
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:133
 msgid "Pick the permissions"
 msgstr "Pick the permissions"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:20
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:21
 msgid "Pipelines in the docs ›"
 msgstr "Pipelines in the docs ›"
 
@@ -410,84 +415,84 @@ msgctxt "onboarding"
 msgid "Previous"
 msgstr "Previous"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:10
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:11
 msgid "Read the docs ›"
 msgstr "Read the docs ›"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:95
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:96
 msgid "Read the job"
 msgstr "Read the job"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:30
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:31
 msgid "Recommended"
 msgstr "Recommended"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:172
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:173
 msgid "Restart"
 msgstr "Restart"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:124
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:125
 msgid "Roles are under Access. Click “Roles”."
 msgstr "Roles are under Access. Click “Roles”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:131
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:132
 msgid "Roles in the docs ›"
 msgstr "Roles in the docs ›"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:87
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:88
 msgctxt "onboarding"
 msgid "Run"
 msgstr "Run"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:46
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:47
 msgid "Run a pipeline and read its job."
 msgstr "Run a pipeline and read its job."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:45
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:46
 msgid "Run and follow a job"
 msgstr "Run and follow a job"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:85
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:86
 msgid "Run it"
 msgstr "Run it"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:48
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:49
 msgid "Run it on a schedule or from a webhook."
 msgstr "Run it on a schedule or from a webhook."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:21
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:22
 msgid "Run it when it matters"
 msgstr "Run it when it matters"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:62
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:63
 msgid "Run the command"
 msgstr "Run the command"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:63
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:64
 msgid "Run this command on the machine. The code works once, for 15 minutes."
 msgstr "Run this command on the machine. The code works once, for 15 minutes."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:90
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:91
 msgid "Running…"
 msgstr "Running…"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:101
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:102
 msgid "Secrets belong to a project. Click the project to use."
 msgstr "Secrets belong to a project. Click the project to use."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:114
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:115
 msgid "Secrets belong to the project. Click “Secrets” in its menu."
 msgstr "Secrets belong to the project. Click “Secrets” in its menu."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:119
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:120
 msgid "Secrets in the docs ›"
 msgstr "Secrets in the docs ›"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:170
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:171
 msgid "Short tours that use your own workspace. Start one again at any time."
 msgstr "Short tours that use your own workspace. Start one again at any time."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:175
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:176
 msgid "Show again"
 msgstr "Show again"
 
@@ -496,11 +501,11 @@ msgctxt "onboarding"
 msgid "Skip"
 msgstr "Skip"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:161
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:162
 msgid "Skip the tour"
 msgstr "Skip the tour"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:159
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:160
 msgid "Skip the tour?"
 msgstr "Skip the tour?"
 
@@ -509,159 +514,159 @@ msgctxt "onboarding"
 msgid "Start"
 msgstr "Start"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:33
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:34
 msgid "Start ›"
 msgstr "Start ›"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:22
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:23
 msgid "Start a pipeline by hand, on a schedule or from a webhook."
 msgstr "Start a pipeline by hand, on a schedule or from a webhook."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:125
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:126
 msgid "Start from the built-in roles"
 msgstr "Start from the built-in roles"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:32
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:33
 msgid "Start this tour"
 msgstr "Start this tour"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:28
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:29
 msgid "Start with a guided tour"
 msgstr "Start with a guided tour"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:174
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:175
 msgid "The key features of Scylla and the choice of a tour."
 msgstr "The key features of Scylla and the choice of a tour."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:157
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:158
 msgid "The other tours are in Help & tours, and the docs tell you more."
 msgstr "The other tours are in Help & tours, and the docs tell you more."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:121
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:122
 msgid "The steps of the pipelines of this project can now use the secret."
 msgstr "The steps of the pipelines of this project can now use the secret."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:96
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:97
 msgid "The timeline and the live logs show what passed and what failed."
 msgstr "The timeline and the live logs show what passed and what failed."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:144
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:145
 msgid "This step is on another page."
 msgstr "This step is on another page."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:160
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:161
 msgid "This stops the tour. You can start it again at any time from Help & tours."
 msgstr "This stops the tour. You can start it again at any time from Help & tours."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:133
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:134
 msgid "Tick what the role can do, then click “Create role”. Give it from Members."
 msgstr "Tick what the role can do, then click “Create role”. Give it from Members."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:149
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:150
 msgid "Tour complete"
 msgstr "Tour complete"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:156
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:157
 msgid "Tour complete 🎉"
 msgstr "Tour complete 🎉"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:103
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:104
 msgid "Triggers belong to a pipeline. Click ⚡ in the actions of the pipeline. On a small screen, it is in the ⋯ menu."
 msgstr "Triggers belong to a pipeline. Click ⚡ in the actions of the pipeline. On a small screen, it is in the ⋯ menu."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:100
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:101
 msgid "Triggers belong to the pipelines of a project. Click the project to use."
 msgstr "Triggers belong to the pipelines of a project. Click the project to use."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:23
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:24
 msgid "Triggers in the docs ›"
 msgstr "Triggers in the docs ›"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:140
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:141
 msgid "Type a name or an email, pick their role, then click “Add members”."
 msgstr "Type a name or an email, pick their role, then click “Add members”."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:118
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:119
 msgid "Use a name like DATABASE_URL. Once saved, nobody can read the value again."
 msgstr "Use a name like DATABASE_URL. Once saved, nobody can read the value again."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:120
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:121
 msgid "Use it in a pipeline"
 msgstr "Use it in a pipeline"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:88
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:89
 msgid "Wait for the job"
 msgstr "Wait for the job"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:64
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:65
 msgid "Waiting for the agent…"
 msgstr "Waiting for the agent…"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:173
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:174
 msgid "Welcome screen"
 msgstr "Welcome screen"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:12
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:181
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:13
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:182
 msgid "Welcome to Scylla"
 msgstr "Welcome to Scylla"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:13
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:14
 msgid "Welcome to Scylla · {slide}/{total}"
 msgstr "Welcome to Scylla · {slide}/{total}"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:92
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:93
 msgid "Why a job does not start ›"
 msgstr "Why a job does not start ›"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:166
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:167
 msgid "You can start it later from Help & tours."
 msgstr "You can start it later from Help & tours."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:155
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:156
 msgid "You connected an agent, created a pipeline and followed a job end to end. Triggers, secrets and roles are in Help & tours."
 msgstr "You connected an agent, created a pipeline and followed a job end to end. Triggers, secrets and roles are in Help & tours."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:154
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:155
 msgid "You ran your first job 🎉"
 msgstr "You ran your first job 🎉"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:69
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:70
 msgid "Your agent"
 msgstr "Your agent"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:146
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:147
 msgid "Your agent is offline, so the job cannot run. Start it again with the command on its page: the tour goes on as soon as it is back."
 msgstr "Your agent is offline, so the job cannot run. Start it again with the command on its page: the tour goes on as soon as it is back."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:65
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:66
 msgid "Your agent is online"
 msgstr "Your agent is online"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:150
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:151
 msgid "Your agent is ready 🎉"
 msgstr "Your agent is ready 🎉"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:89
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:90
 msgid "Your agent runs the job. Next unlocks when it ends."
 msgstr "Your agent runs the job. Next unlocks when it ends."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:15
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:16
 msgid "Your machines run the jobs"
 msgstr "Your machines run the jobs"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:152
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:153
 msgid "Your pipeline is ready 🎉"
 msgstr "Your pipeline is ready 🎉"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:79
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:80
 msgid "Your project is ready. Click it to open it."
 msgstr "Your project is ready. Click it to open it."
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:141
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:142
 msgid "Your team"
 msgstr "Your team"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:110
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:111
 msgid "Your trigger is on"
 msgstr "Your trigger is on"

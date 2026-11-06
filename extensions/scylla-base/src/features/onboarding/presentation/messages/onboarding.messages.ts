@@ -6,6 +6,7 @@ export const onboardingMessages = {
   next: msg({ context: 'onboarding', message: 'Next' }),
   previous: msg({ context: 'onboarding', message: 'Previous' }),
   finish: msg({ context: 'onboarding', message: 'Finish' }),
+  go: msg({ context: 'onboarding', message: 'Go' }),
   stepCount: (step: number, total: number) => msg`${step}/${total}`,
   readTheDocs: msg`Read the docs ›`,
 

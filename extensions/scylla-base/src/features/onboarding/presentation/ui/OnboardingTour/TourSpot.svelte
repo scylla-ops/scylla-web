@@ -69,6 +69,9 @@
       const label = step.action.label ? t(step.action.label) : action?.label;
       return label ? { label, disabled: !ready, onClick: press } : undefined;
     }
+    if (step.go) {
+      return { label: t(onboardingMessages.go), disabled: false, onClick: () => tour.go() };
+    }
     if (!showNext) return undefined;
     return {
       label: t(tour.isLastStep ? onboardingMessages.finish : onboardingMessages.next),

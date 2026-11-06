@@ -200,6 +200,28 @@ describe('createOnboardingTour', () => {
     expect(navigator.navigate).toHaveBeenCalledWith('/acme/projects/p-1', undefined);
   });
 
+  it('opens the page of a step in the menu with Go, and moves on', async () => {
+    const { tour, navigator } = setUp({ kind: 'in-progress', tour: 'roles', step: 'open-roles' });
+    await onStep(tour, 'open-roles');
+
+    tour.go();
+
+    await onStep(tour, 'built-in-roles');
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme/access/roles', undefined);
+  });
+
+  it('goes back to the page that the user left, for a step with no page', async () => {
+    const { tour, navigator } = setUp({ kind: 'in-progress', tour: 'roles', step: 'open-roles' });
+    await onStep(tour, 'open-roles');
+    tour.go();
+    await onStep(tour, 'built-in-roles');
+
+    tour.previous();
+
+    await onStep(tour, 'open-roles');
+    expect(navigator.navigate).toHaveBeenLastCalledWith('/acme/agents', undefined);
+  });
+
   it('has no previous step at the start of a tour', async () => {
     const { tour } = setUp({ kind: 'in-progress', tour: 'agent', step: 'open-agents' });
     await onStep(tour, 'open-agents');

@@ -207,7 +207,7 @@ describe('OnboardingTour', () => {
     expect(document.querySelector('[data-tour-blocker]')).toBeNull();
   });
 
-  it('offers only Go back and Skip when the step is on another page', async () => {
+  it('offers only Go back and Skip when the step is on another page, Previous greyed out', async () => {
     setUp({ kind: 'in-progress', tour: 'agent', step: 'agent-page', subject: { agentId: 'a-1' } });
 
     const goBack = await screen.findByText('Go back to it', {}, { timeout: 4000 });
@@ -217,7 +217,7 @@ describe('OnboardingTour', () => {
     expect(screen.getByText('This step is on another page.')).toBeInTheDocument();
     expect(within(card as HTMLElement).getByText('Skip')).toBeInTheDocument();
     expect(within(card as HTMLElement).queryByText('Finish')).not.toBeInTheDocument();
-    expect(within(card as HTMLElement).queryByText('Previous')).not.toBeInTheDocument();
+    expect(within(card as HTMLElement).getByText('Previous', { selector: 'button' })).toBeDisabled();
   });
 
   it('offers the tour of a page on a first visit, and starts it there', async () => {
@@ -260,5 +260,16 @@ describe('OnboardingTour', () => {
 
     expect(await screen.findByText('Your machines run the jobs')).toBeInTheDocument();
     expect(screen.queryByText('First time here?')).not.toBeInTheDocument();
+  });
+
+  it('greys Previous out on the first step, and offers Go on a step in the menu', async () => {
+    setUp({ kind: 'in-progress', tour: 'roles', step: 'open-roles' });
+    pageElement('<a data-nav-url="members">Members</a>', '[data-nav-url="members"]');
+
+    const title = await screen.findByText('Open Roles');
+    const card = title.closest('[data-tour-focus]') as HTMLElement;
+
+    expect(within(card).getByText('Previous', { selector: 'button' })).toBeDisabled();
+    expect(within(card).getByText('Go', { selector: 'button' })).toBeEnabled();
   });
 });

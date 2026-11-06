@@ -59,6 +59,8 @@ export interface TourSpotStep {
   wide?: boolean;
   /** The user types in the targets before Next: they stay usable, only the rest is dimmed. */
   form?: boolean;
+  /** A step that asks for a click in the menu: the card also has Go, which opens this page. */
+  go?: (subject: OnboardingSubject) => string;
 }
 
 export type TourIcon = 'agent' | 'pipeline' | 'run' | 'trigger' | 'secret' | 'role' | 'users';
@@ -244,6 +246,7 @@ const agentTour: TourDefinition = {
       body: [m.openAgentsBody],
       targets: [agentsNav],
       advance: { on: 'click', anchor: navLink('agents') },
+      go: () => '/agents',
     },
     {
       id: 'new-agent',
@@ -309,6 +312,7 @@ const pipelineTour: TourDefinition = {
       body: [m.openProjectsBody],
       targets: [navLink('projects')],
       advance: { on: 'click', anchor: navLink('projects') },
+      go: () => '/projects',
     },
     {
       id: 'new-project',
@@ -527,6 +531,7 @@ const secretsTour: TourDefinition = {
       body: [m.openSecretsBody],
       targets: [navLink('secrets')],
       advance: { on: 'click', anchor: navLink('secrets') },
+      go: projectPart('secrets'),
     },
     {
       id: 'new-secret',
@@ -577,6 +582,7 @@ const rolesTour: TourDefinition = {
       body: [m.openRolesBody],
       targets: [accessNav('roles')],
       advance: { on: 'click', anchor: navLink('roles') },
+      go: () => '/access/roles',
     },
     {
       id: 'built-in-roles',
@@ -638,6 +644,7 @@ const usersTour: TourDefinition = {
       body: [m.openMembersBody],
       targets: [navLink('members')],
       advance: { on: 'appear', anchor: select('[data-tour="members"]') },
+      go: () => '/access/members',
     },
     {
       id: 'add-members',

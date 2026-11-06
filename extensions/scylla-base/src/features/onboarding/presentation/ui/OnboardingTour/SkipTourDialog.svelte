@@ -21,7 +21,7 @@
   onOpenChange={next => {
     if (!next) onContinue();
   }}
-  class="sm:max-w-[440px]"
+  class="z-[210] sm:max-w-[440px]"
   title={t(onboardingMessages.skipTitle)}
   description={t(onboardingMessages.skipBody)}
 >

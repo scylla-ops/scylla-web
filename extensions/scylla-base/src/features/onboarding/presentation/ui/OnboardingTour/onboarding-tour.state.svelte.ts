@@ -1,6 +1,6 @@
 import { createMutation, createQuery, getQueryClient } from '@scylla/core-sdk';
 import { appQueries, CREATE_APP_MUTATION_KEY } from '@base/features/apps';
-import { contextStore, scyllaNavigate } from '@platform/context';
+import { contextStore, currentPathname, navigateTo, scyllaNavigate } from '@platform/context';
 import { toRune } from '@scylla/ui/stores';
 import {
   advanceTour,
@@ -123,12 +123,17 @@ export const createOnboardingTour = (canStart: () => boolean) => {
 
   const canGoNext = $derived(!!step && (!step.nextWhen || unlockedStepId === step.id));
 
+  const left = new Map<string, string>();
+
   const write = (next: OnboardingStatus | null) => {
     if (next) save.mutate(next);
   };
 
   const advanceFrom = (stepId: string, found?: OnboardingSubject) => {
-    if (status) write(advanceTour(status, stepIds, stepId, found));
+    if (!status) return;
+    const next = advanceTour(status, stepIds, stepId, found);
+    if (next) left.set(stepId, currentPathname());
+    write(next);
   };
 
   const followMutations = () =>
@@ -211,7 +216,16 @@ export const createOnboardingTour = (canStart: () => boolean) => {
       const target = tour.steps.find(candidate => candidate.id === to);
       if (!to || !target) return;
       write(rewindTour(status, stepIds, step.id, to));
+      const before = left.get(to);
       if (target.page) scyllaNavigate.goToWorkspaceRoute(target.page(subject));
+      else if (before) navigateTo(before);
+    },
+    /** Opens the page that the click in the menu would open, and moves on. */
+    go() {
+      if (!step?.go) return;
+      const page = step.go(subject);
+      advanceFrom(step.id);
+      scyllaNavigate.goToWorkspaceRoute(page);
     },
     advance(stepId: string, found?: OnboardingSubject) {
       advanceFrom(stepId, found);

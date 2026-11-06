@@ -70,7 +70,7 @@
   tabindex="-1"
   data-tour-focus
   class={cn(
-    'pointer-events-auto fixed z-[60] flex flex-col gap-3 rounded-[14px] border border-border bg-background px-5 pt-4 pb-4 text-foreground shadow-xl outline-none transition-[width] duration-300 ease-out motion-reduce:transition-none',
+    'pointer-events-auto fixed z-[200] flex flex-col gap-3 rounded-[14px] border border-border bg-background px-5 pt-4 pb-4 text-foreground shadow-xl outline-none transition-[width] duration-300 ease-out motion-reduce:transition-none',
     wide ? 'w-[400px]' : 'w-[380px]',
     'max-w-[calc(100vw-2rem)]',
   )}
@@ -132,13 +132,17 @@
       {/if}
     </div>
   {/if}
-  {#if onPrevious || primary}
+  {#if onPrevious || primary || count}
     <div class="flex items-center gap-2 pt-1">
-      {#if onPrevious}
-        <Button variant="outline" size="sm" class="h-[30px] rounded-lg px-3 text-[13px]" onclick={onPrevious}>
-          {t(onboardingMessages.previous)}
-        </Button>
-      {/if}
+      <Button
+        variant="outline"
+        size="sm"
+        class="h-[30px] rounded-lg px-3 text-[13px]"
+        disabled={!onPrevious}
+        onclick={onPrevious}
+      >
+        {t(onboardingMessages.previous)}
+      </Button>
       <span class="flex-1"></span>
       {#if primary}
         <Button

@@ -50,7 +50,7 @@
     role="dialog"
     aria-label={t(tour.title)}
     data-tour-offer={tour.id}
-    class="fixed right-4 bottom-4 z-[60] flex w-[380px] max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-[14px] border border-border bg-background px-5 pt-4 pb-4 text-foreground shadow-xl"
+    class="fixed right-4 bottom-4 z-[200] flex w-[380px] max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-[14px] border border-border bg-background px-5 pt-4 pb-4 text-foreground shadow-xl"
   >
     <div class="flex flex-col gap-1">
       <span class="text-[11px] font-semibold tracking-wide text-primary uppercase">
