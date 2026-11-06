@@ -1,7 +1,8 @@
 # `features/onboarding` — agent guide
 
-The first-pipeline tour: a card that moves across the app and points at the element the user must
-use next (agent → project → pipeline → run → job).
+The welcome dialog and the guided tours. The dialog shows 4 key features, then offers the 3 main
+tours. A tour is a card that moves across the app and points at the element the user must use
+next. Each tour has 6 steps or fewer.
 
 **Layer** `features/` · **id** `onboarding` · **DI key** `onboardingRepository`
 
@@ -15,9 +16,11 @@ use next (agent → project → pipeline → run → job).
 
 ```typescript
 loadOnboardingTour   // loader of OnboardingTour.svelte
+loadTourMenu         // loader of TourMenu.svelte: the tours, the welcome dialog and the docs
 ```
 
-The shell mounts it in `LaunchOverlays`, **after** the "What's new" dialog. Never show both.
+The shell mounts `OnboardingTour` in `LaunchOverlays`, **after** the "What's new" dialog. Never
+show both. The shell part `HelpMenu` (top bar) shows `TourMenu` in its popover.
 Never add: `onboarding.module.ts`, a component.
 
 ## Data contract
@@ -29,8 +32,12 @@ Never add: `onboarding.module.ts`, a component.
 | `getStatus(userId)` | `OnboardingStatus` — `not-started` when nothing is stored |
 | `saveStatus(userId, status)` | `void` |
 
-`OnboardingStatus` (`domain/structs/`): `not-started` · `in-progress` (`step` id, optional
-`subject`: the project and the pipeline the tour created) · `completed` · `skipped`.
+`OnboardingStatus` (`domain/structs/`): `not-started` (the welcome dialog shows) ·
+`in-progress` (`tour` id, `step` id) · `finished` (the end dialog of `tour` shows) · `completed`
+· `skipped`. Every status but `not-started` can hold `subject` (the agent, the project and the
+pipeline that a tour created) and `done` (the ids of the finished tours). Both carry over from
+one tour to the next. A status saved before the tours has no `tour`: the state finds the tour
+that holds its step.
 
 The only implementation today is local: `DefaultOnboardingRepository` reads and writes
 `localStorage` (key `onboarding:<userId>`, the id that `features/login` stores). The backend has
@@ -43,8 +50,9 @@ sources: split it into a local and a remote data source then. Presentation does 
 onboarding.module.ts                 DI wiring (private; registry only)
 index.ts                             public API: the loader
 domain/
-  structs/onboarding-status.struct.ts    the status and its transitions: currentStepId, advanceTour,
-                                         rewindTour, rememberSubject (pure)
+  structs/onboarding-status.struct.ts    the status and its transitions: currentStepId, startTour,
+                                         advanceTour, rewindTour, previousStepId, closeTours,
+                                         doneTours, rememberSubject (pure)
   repository/onboarding.repository.ts
 infrastructure/
   default-onboarding.repository.ts       reads localStorage (any `Storage` in a test)
@@ -52,20 +60,26 @@ infrastructure/
 presentation/
   onboarding.queries.ts              status query + save mutation (optimistic)
   messages/onboarding.messages.ts    every string (tour-steps.registry.ts uses them)
-  presenters/tour.presenter.ts             visibility, step count, offline agent
+  presenters/tour.presenter.ts             what the overlay shows (tourView), step count, offline agent
+  presenters/intro.presenter.ts            the key feature slides, the tours a user can start
   presenters/tour-placement.presenter.ts   card placement, dim path, connector path
   ui/OnboardingTour/                 root (loaded by the shell) + its test, and its parts:
-    tour-steps.registry.ts                    THE step list: text, anchors, what moves each step on
-    tour-tracking.attachments.svelte.ts  trackTourStep (rAF + click listener), blockPage, portalToBody, holdPointer
-    onboarding-tour.state.svelte.ts  ViewModel: status, current step, skip, mutation events
-    TourSpot.svelte                  one spot step: tracking, spotlight, card(s)
-    TourSpotlight.svelte, TourCard.svelte
-    WelcomeDialog.svelte, SkipTourDialog.svelte, FinishTourDialog.svelte
+    tour-steps.registry.ts                    THE tours (TOURS) and their steps: text, anchors,
+                                              the repeated button, what moves each step on
+    tour-tracking.attachments.svelte.ts  trackTourStep (rAF + click listener), readAction, pressable,
+                                         blockPage, portalToBody, holdPointer
+    onboarding-tour.state.svelte.ts  ViewModel: status, tour, current step, previous, skip,
+                                     mutation events; createTourLauncher (used by TourMenu)
+    TourSpot.svelte                  one spot step: tracking, spotlight, card
+    TourSpotlight.svelte, TourCard.svelte, TourIcon.svelte
+    IntroDialog.svelte, IntroIllustration.svelte, TourChooser.svelte   the welcome dialog
+    SkipTourDialog.svelte, FinishTourDialog.svelte
+  ui/TourMenu/TourMenu.svelte        the content of the help menu
 ```
 
 ## How a step moves on
 
-Each spot step in `tour-steps.registry.ts` declares its `targets` (anchors, the card points at the first
+Each step in `tour-steps.registry.ts` declares its `targets` (anchors, the card points at the first
 one) and its `advance`:
 
 | `advance.on` | Fires when |
@@ -74,6 +88,14 @@ one) and its `advance`:
 | `click` | the user clicks inside the anchor (capture listener on `document`) |
 | `appear` | the anchor resolves to an element (checked on each frame) |
 | `mutation` | a mutation with that key succeeds in the query client's mutation cache |
+
+`action` repeats a button of the page in the bottom-right corner of the card. Give it only to a
+step that asks for a click on a real button, never on a card, a row or a run square. The copy
+reads the label (`aria-label`, else the text) and the disabled state of the real button on each
+frame, and a click on it calls `click()` on the real button, so the step moves on as if the user
+clicked the page. `action.label` replaces the label (the agent step says “Agent”).
+`action.ready` replaces the title and the body once the real button is enabled. Without an
+`action`, the card shows Next (Finish on the last step) when the step moves on with Next.
 
 `nextWhen` shows a disabled Next until its condition is met; the user still clicks Next (the
 agent step does not move on by itself when the agent comes online). The step's `waiting` line
@@ -86,16 +108,20 @@ fallback, the card waits in a corner and the page stays usable: the tour never b
 Anchors are attributes on the real elements, never CSS classes:
 
 - `data-tour="…"` in the features: `agents`, `agent-details`, `agent-status` (+ `data-online`),
-  `agent-run`, `agent-secret`, `agent-run-command`, `agent-dialog-actions` (step 2 of the new
-  agent dialog), `projects`, `project-card` (+ `data-project-id`), `pipelines` (+ `data-project-id`), `pipeline-editor`, `pipeline-submit`,
-  `pipeline-history` / `pipeline-actions` (+ `data-pipeline-id`, `data-pipeline-name`,
-  `data-last-status`), `pipeline-run`, `job-details`.
+  `add-agent-dialog`, `app-join-code`, `agent-open` (the "Open agent" button), `projects`,
+  `project-card` (+ `data-project-id`), `pipelines` (+ `data-project-id`), `pipeline-editor`,
+  `pipeline-submit`, `pipeline-history` / `pipeline-actions` (+ `data-pipeline-id`,
+  `data-pipeline-name`, `data-last-status`), `pipeline-run`, `job-details`, `triggers`,
+  `trigger-general`, `trigger-when`, `trigger-submit`, `secrets`, `roles-list`, `role-new`,
+  `role-details`, `role-permissions`, `role-submit`, `members`, `members-add`. A wrapper with
+  `class="contents"` has no box: `measure` takes the union of its children.
 - `data-part="…"` in `@scylla/ui` (generic parts): `feature-header-new`.
 - `data-nav-url` on the core's sidebar links, `data-nav-group` on its folding groups,
   `data-item-id` on `StatusBar` segments, and the `data-slot` of the primitives: the sidebar, the
   inset and the dialogs.
 - The agent steps use the agents page (`/agents`, `data-tour="agents"`) and its "Add an agent"
-  dialog: `app-join-code` (the install command) and `app-dialog-actions` (the footer). The
+  dialog. The run-command step points at the whole dialog: the join code goes away when the
+  agent connects, and a step that points at it gets lost. The
   "Agents" link is in the group "Machines", which can be folded: the step points at the group
   until the link shows.
 
@@ -103,12 +129,13 @@ Removing or renaming one of these breaks a step without a type error. `tour-step
 the anchors that carry logic.
 
 A saved tour can hold the id of a removed step. `REPLACED_STEPS` in `domain/structs/onboarding-status.struct.ts`
-gives the step that took its place (`reveal-secret` to `copy-secret`). When you remove or rename
+gives the step that took its place (`connect-agent` to `agent-page`). When you remove or rename
 a step, add its id there.
 
-The mutation keys come from the barrels: `CREATE_AGENT_MUTATION_KEY` (`agents`),
-`CREATE_PROJECT_MUTATION_KEY` (`project`),
-`CREATE_PIPELINE_MUTATION_KEY` and `RUN_PIPELINE_MUTATION_KEY` (`pipeline`).
+The mutation keys come from the barrels: `CREATE_APP_MUTATION_KEY` (`apps`),
+`CREATE_PROJECT_MUTATION_KEY` (`project`), `CREATE_PIPELINE_MUTATION_KEY` and
+`RUN_PIPELINE_MUTATION_KEY` (`pipeline`), `CREATE_TRIGGER_MUTATION_KEY` (`triggers`),
+`CREATE_SECRET_MUTATION_KEY` (`secret`), `CREATE_ROLE_MUTATION_KEY` (`roles`).
 
 ## Behaviour on the page
 
@@ -138,17 +165,21 @@ The mutation keys come from the barrels: `CREATE_AGENT_MUTATION_KEY` (`agents`),
 ## Rules that bite here
 
 - The tour never navigates by itself: after "Create Project" it points at the new project's card
-  and waits for its page. Every link goes to `SCYLLA_DOCS_URL`.
+  and waits for its page. Only a request of the user opens a page: a start from a menu (the
+  first step's `page`), Previous (the page of the step before) and "Go back to it". Previous
+  closes an open dialog first (Escape). Every link goes to `SCYLLA_DOCS_URL`.
 
 - The dim is at `z-40`, under the page's dialogs (`z-50`); the blocking layer is at `z-[55]`;
   rings, connectors and cards are at `z-[60]`. A target inside a dialog stays usable, and the
   card stays on top.
 - `holdPointer` stops `pointerdown` on the dim and the cards: without it, a click on the card
   closes the dialog the step points at (bits-ui sees a click outside).
-- The automatic start needs `CREATE_AGENT` and `CREATE_PROJECT`. A tour in progress keeps
+- A tour shows only if the user holds its `permissions`. The automatic welcome needs
+  `CREATE_AGENT` and `CREATE_PROJECT`. A tour in progress keeps
   showing while the permissions reload.
-- Every string goes in `onboarding.messages.ts`. `Start`, `Next` and `Finish` carry the
-  `onboarding` context to stay apart from the same words elsewhere.
+- Every string goes in `onboarding.messages.ts`. `Start`, `Skip`, `Next`, `Previous`, `Finish`,
+  `Done`, `Run` and `Agent` carry the `onboarding` context to stay apart from the same words
+  elsewhere.
 
 ## Before done
 

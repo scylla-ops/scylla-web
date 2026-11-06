@@ -45,6 +45,7 @@ presentation/
     language.commands.ts                the commands of the bar for the language
     ui/GlobalSearch/                    the button of the top bar and Ctrl K. It loads the bar at the first use and keeps the form that a command opens
     ui/CommandBar/                      the command bar: see "The command bar"
+    ui/HelpMenu/                        the "?" of the top bar: a popover. The tours and the docs are in features/onboarding
     ui/NotificationsMenu/               the bell of the top bar: the badge and the popover. The panel is in features/notifications
     ui/NavUser/                         who is signed in (userQueries.me), Account, Language, Sign out (sidebar footer);
                                         green on the rail while the URL is on the account of the workspace
@@ -76,7 +77,7 @@ routes           app: / -> WorkspaceRedirectWrapper · workspace: (its root) -> 
 navSections      workspace, project (within projects, title: projectName), instance (railItem),
                  account (noRailItem: the user menu opens it), notifications (noRailItem: the bell opens it)
 access           can / authorizationReady / RequirePermission, from @platform/authz
-shell            brand ShellBrand · topBarEnd GlobalSearch, NotificationsMenu, WorkspaceSelector · sidebarFooter NavUser · overlays LaunchOverlays · navBadge NewBadge ·
+shell            brand ShellBrand · topBarEnd GlobalSearch, HelpMenu, NotificationsMenu, WorkspaceSelector · sidebarFooter NavUser · overlays LaunchOverlays · navBadge NewBadge ·
                  onNavOpen markNavSeen · breadcrumbParams · linkParams
 onQueryError     reportQueryError
 onQueryRetry     retryQueryError
