@@ -20,8 +20,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the password of the account.
 - The sign-in buttons and the linked identities show the mark of the provider.
 - Invitations to a workspace by email.
-- The account page has the owners, the change of an email, the linked identities and the instance
-  admins.
+- The account page has the change of an email, the linked identities and the instance admins.
 - The secrets of a project, the pipelines, the jobs, the triggers and the apps run on the new
   services. The dashboard and the onboarding tour are back.
 - End-to-end tests with Playwright, against a real CE server. Dependabot for npm and GitHub Actions.
