@@ -6,14 +6,17 @@ import {
   contextStore,
   workspaceUrl,
 } from '@platform/context';
-import { createQuery } from '@scylla/core-sdk';
+import { createQuery, routeParams } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
 import { projectQueries } from '@base/features/project';
 
 const isPipelinePath = (pathname: string): boolean =>
   pathname.includes('/edit/') || pathname.includes('/pipelines/');
 
-/** Leaves a project that no longer exists, and clears the pipeline outside the pipeline pages. */
+/**
+ * Keeps the store on the project of the URL, with the name of the server. Leaves a project that no
+ * longer exists, and clears the pipeline outside the pipeline pages.
+ */
 export const cleanContext = (projectId: string | undefined): void => {
   const pathname = currentPathname();
   const context = toRune(contextStore);
@@ -25,9 +28,13 @@ export const cleanContext = (projectId: string | undefined): void => {
     if (projects.isLoading || !list || !projectId) return;
 
     untrack(() => {
-      const store = contextStore.getState();
+      // During the exit animation this wrapper stays mounted: only the new one can write.
+      if (routeParams().projectId !== projectId) return;
 
-      if (!list.some(project => project.id === projectId)) {
+      const store = contextStore.getState();
+      const match = list.find(project => project.id === projectId);
+
+      if (!match) {
         store.setProject(null, null);
         store.setPipeline(null, null);
         const slug = activeWorkspaceSlug();
@@ -35,6 +42,8 @@ export const cleanContext = (projectId: string | undefined): void => {
         return;
       }
 
+      if (store.project.id !== match.id || store.project.name !== match.name)
+        store.setProject(match.id, match.name);
       if (store.pipeline.id && !isPipelinePath(pathname)) store.setPipeline(null, null);
     });
   });

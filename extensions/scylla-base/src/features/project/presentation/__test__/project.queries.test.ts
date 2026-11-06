@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { QueryClient } from '@tanstack/query-core';
 import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
+import { contextStore } from '@platform/context';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
 import type { ProjectRepository } from '@base/features/project/domain/repository/project.repository.ts';
@@ -76,6 +77,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  contextStore.getState().reset();
   setDependencyRegistry(null);
   setQueryClient(null);
   forgetPermissions();
@@ -251,7 +253,7 @@ describe('the mutations', () => {
     expect(invalidate).toHaveBeenCalledWith({ queryKey: PROJECTS_QUERY_ROOT });
   });
 
-  it('update sends only what changed and invalidates the projects root', async () => {
+  it('update sends only what changed and refetches each list, also one that nothing has mounted', async () => {
     const repository = withRepository();
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
 
@@ -260,7 +262,32 @@ describe('the mutations', () => {
 
     expect(repository.update).toHaveBeenCalledWith('project-9', 'renamed', undefined);
     expect(toastSuccess).toHaveBeenCalledWith('Project updated');
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: PROJECTS_QUERY_ROOT });
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: PROJECTS_QUERY_ROOT,
+      refetchType: 'all',
+    });
+  });
+
+  it('update gives the store the new name of the active project', () => {
+    withRepository();
+    contextStore.setState({ project: { id: 'project-1', name: 'web' } });
+
+    runOnSuccess(projectMutations.update(), project({ name: 'renamed' }), {
+      projectId: 'project-1',
+    });
+
+    expect(contextStore.getState().project).toEqual({ id: 'project-1', name: 'renamed' });
+  });
+
+  it('update leaves the store when another project is active', () => {
+    withRepository();
+    contextStore.setState({ project: { id: 'project-2', name: 'api' } });
+
+    runOnSuccess(projectMutations.update(), project({ name: 'renamed' }), {
+      projectId: 'project-1',
+    });
+
+    expect(contextStore.getState().project).toEqual({ id: 'project-2', name: 'api' });
   });
 
   it('remove deletes and invalidates the projects root', async () => {
