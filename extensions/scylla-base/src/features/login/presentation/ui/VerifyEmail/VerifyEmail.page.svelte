@@ -13,12 +13,16 @@
 
 <AuthLayout title={t(signUpMessages.verifyTitle)}>
   {#if state.step === 'done'}
-    <p role="status" class="mb-6 text-sm">{t(signUpMessages.verified)}</p>
+    <p role="status" class="mb-6 text-center text-sm">{t(signUpMessages.verified)}</p>
     <Button href="/login" class="w-full">{t(signUpMessages.signIn)}</Button>
   {:else if state.step === 'invalid-link'}
-    <p role="alert" class="mb-6 text-sm text-destructive">{t(signUpMessages.invalidLink)}</p>
+    <p role="alert" class="mb-6 text-center text-sm text-destructive">
+      {t(signUpMessages.invalidLink)}
+    </p>
     <Button href="/sign-up" variant="outline" class="w-full">{t(signUpMessages.title)}</Button>
   {:else}
-    <p role="status" class="text-sm text-muted-foreground">{t(signUpMessages.verifying)}</p>
+    <p role="status" class="text-center text-sm text-muted-foreground">
+      {t(signUpMessages.verifying)}
+    </p>
   {/if}
 </AuthLayout>

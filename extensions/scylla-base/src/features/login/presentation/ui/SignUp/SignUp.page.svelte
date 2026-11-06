@@ -60,7 +60,7 @@
   description={state.isSent ? undefined : t(signUpMessages.description)}
 >
   {#if state.isSent}
-    <p role="status" class="text-sm">{t(signUpMessages.sent)}</p>
+    <p role="status" class="text-center text-sm">{t(signUpMessages.sent)}</p>
   {:else}
     <ScyllaForm {items} onSubmit={state.submit} isPending={state.isPending}>
       {#snippet footer({ isValid, isPending })}

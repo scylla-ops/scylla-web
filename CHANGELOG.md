@@ -112,6 +112,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Changed
 
+**The public pages**
+
+- The sign-in, the sign-up, the password reset, the sign-in errors, the link of a provider and the
+  check of an email have no card. A panel shows the Scylla mark, and the logo, the title and the
+  texts are on the axis of a centered column. The field labels stay on the left edge of the field.
+  On a small screen, the panel is not shown.
+
 **The install of an agent**
 
 - The install step has a tab for Linux, macOS, Windows and Docker, each with its hint. Each command

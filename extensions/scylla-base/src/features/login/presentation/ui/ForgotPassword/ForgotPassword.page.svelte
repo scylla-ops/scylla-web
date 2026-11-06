@@ -39,7 +39,7 @@
   description={state.delivery ? undefined : t(passwordResetMessages.forgotDescription)}
 >
   {#if state.delivery}
-    <p role="status" class="text-sm">{t(SENT[state.delivery])}</p>
+    <p role="status" class="text-center text-sm">{t(SENT[state.delivery])}</p>
   {:else}
     <ScyllaForm {items} onSubmit={values => state.submit(values.email)} isPending={state.isPending}>
       {#snippet footer({ isValid, isPending })}
