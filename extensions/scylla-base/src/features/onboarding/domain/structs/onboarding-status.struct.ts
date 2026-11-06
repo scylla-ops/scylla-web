@@ -104,12 +104,12 @@ export const advanceTour = (
   if (!next) {
     const done = doneTours(status);
     const tour = status.tour ?? '';
-    const finished = withSubject({ kind: 'finished' as const, tour }, merged);
-    return withHistory(
-      finished,
-      done.includes(tour) ? done : [...done, tour],
-      declinedTours(status),
+    const finished = withSubject(
+      { kind: 'finished' as const, tour, done: done.includes(tour) ? done : [...done, tour] },
+      merged,
     );
+    const declined = declinedTours(status);
+    return declined.length > 0 ? { ...finished, declined } : finished;
   }
   const moved = {
     kind: 'in-progress' as const,
