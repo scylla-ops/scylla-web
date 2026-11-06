@@ -30,13 +30,46 @@ beforeEach(() => vi.clearAllMocks());
 afterEach(() => teardown.forEach(restore => restore()));
 
 describe('EditWorkspaceDialog', () => {
-  it('starts with blank fields — the current values are placeholders — so Save starts disabled', async () => {
+  it('starts with blank fields: the current values are placeholders', async () => {
     setUp({ id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' });
     await focusSettled();
 
     expect(screen.getByLabelText('Workspace name')).toHaveValue('');
     expect(screen.getByLabelText('Workspace name')).toHaveAttribute('placeholder', 'Acme Corp');
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  });
+
+  it('a new name alone leaves the address as it is', async () => {
+    const user = userEvent.setup();
+    setUp({ id: 'org-9', name: 'Acme Corp', slug: 'acme-corp' });
+    await focusSettled();
+
+    await user.type(screen.getByLabelText('Workspace name'), 'New Name');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(update).toHaveBeenCalledWith('org-9', 'New Name', undefined));
+  });
+
+  it('a new address alone leaves the name as it is', async () => {
+    const user = userEvent.setup();
+    setUp({ id: 'org-9', name: 'Acme Corp', slug: 'acme-corp' });
+    await focusSettled();
+
+    await user.type(screen.getByLabelText('Address'), 'new-address');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(update).toHaveBeenCalledWith('org-9', undefined, 'new-address'));
+  });
+
+  it('closes with no call to the server when the two fields stay blank', async () => {
+    const setOpen = vi.fn();
+    const user = userEvent.setup();
+    setUp({ id: 'org-9', name: 'Acme Corp', slug: 'acme-corp' }, setOpen);
+    await focusSettled();
+
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(setOpen).toHaveBeenCalledWith(false));
+    expect(update).not.toHaveBeenCalled();
   });
 
   it('shows the current address as the placeholder of its field', async () => {

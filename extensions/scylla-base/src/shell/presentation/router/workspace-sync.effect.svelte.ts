@@ -1,9 +1,22 @@
 import { untrack } from 'svelte';
-import { navigateTo, contextStore, workspaceUrl } from '@platform/context';
+import {
+  currentPathname,
+  currentSearch,
+  navigateTo,
+  contextStore,
+  workspaceUrl,
+} from '@platform/context';
 import { createQuery } from '@scylla/core-sdk';
 import { workspaceQueries } from '@base/features/workspace';
 
-/** When no workspace matches the slug, goes to the projects of the first workspace. */
+const samePageAt = (oldSlug: string, newSlug: string): string =>
+  `/${newSlug}${currentPathname().slice(oldSlug.length + 1)}${currentSearch()}`;
+
+/**
+ * Keeps the store equal to the list of the server, also when the list changes after the mount: a
+ * rename reaches each reader of the store here. When no workspace matches the slug, goes to the
+ * same page under the new slug of the active workspace, else to the first workspace.
+ */
 export const syncWorkspace = (workspaceSlug: string | undefined): void => {
   const workspaces = createQuery(() => workspaceQueries.mine());
 
@@ -13,12 +26,21 @@ export const syncWorkspace = (workspaceSlug: string | undefined): void => {
 
     untrack(() => {
       const store = contextStore.getState();
-      const match = list.find(workspace => workspace.slug === workspaceSlug);
+      const { workspace } = store;
+      const match = list.find(item => item.slug === workspaceSlug);
 
       if (match) {
-        const { workspace } = store;
-        if (match.id !== workspace.id || match.slug !== workspace.slug)
-          store.setWorkspace(match.id, match.name, match.slug);
+        if (match.id !== workspace.id) store.setWorkspace(match.id, match.name, match.slug);
+        else if (match.name !== workspace.name || match.slug !== workspace.slug)
+          store.renameWorkspace(match.name, match.slug);
+        return;
+      }
+
+      const renamed =
+        workspace.slug === workspaceSlug ? list.find(item => item.id === workspace.id) : undefined;
+      if (renamed) {
+        store.renameWorkspace(renamed.name, renamed.slug);
+        navigateTo(samePageAt(workspaceSlug, renamed.slug), { replace: true });
         return;
       }
 

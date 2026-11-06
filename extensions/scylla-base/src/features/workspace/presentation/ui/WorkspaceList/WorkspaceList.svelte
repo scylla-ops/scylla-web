@@ -6,7 +6,7 @@
   import PencilIcon from '@lucide/svelte/icons/pencil';
   import TrashIcon from '@lucide/svelte/icons/trash';
   import UsersIcon from '@lucide/svelte/icons/users';
-  import { can, Permission } from '@platform/authz';
+  import { Permission } from '@platform/authz';
   import { navigateTo, contextStore, workspaceUrl } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { Input, Skeleton } from '@scylla/ui/primitives';
@@ -21,6 +21,7 @@
   import { workspaceMessages } from '@base/features/workspace/presentation/messages/workspace.messages.ts';
   import EditWorkspaceDialog from '../EditWorkspaceDialog/EditWorkspaceDialog.svelte';
   import WorkspaceRow from './WorkspaceRow.svelte';
+  import { createWorkspacePermissions } from './workspace-permissions.state.svelte.ts';
 
   type RowProps = {
     class?: string;
@@ -32,6 +33,9 @@
 
   const workspacesQuery = createQuery(() => workspaceQueries.mine());
   const workspaces = $derived(workspacesQuery.data);
+  const permissions = createWorkspacePermissions(
+    () => workspaces?.map(workspace => workspace.id) ?? [],
+  );
 
   /** Below this, all the rows show at once. */
   const FILTER_FROM = 6;
@@ -132,7 +136,7 @@
           {/if}
           <!-- The actions of a row are not in the drawing: they show on hover, in place of the check. -->
           <div class="hidden gap-0.5 group-hover:flex">
-            {#if can(Permission.LIST_WORKSPACE_MEMBERS, { workspaceId: workspace.id })}
+            {#if permissions.can(Permission.LIST_WORKSPACE_MEMBERS, workspace.id)}
               <IconButton
                 icon={UsersIcon}
                 tooltip={t(workspaceMessages.members)}
@@ -148,7 +152,7 @@
                 iconClass="size-3.5"
               />
             {/if}
-            {#if can(Permission.UPDATE_WORKSPACE, { workspaceId: workspace.id })}
+            {#if permissions.can(Permission.UPDATE_WORKSPACE, workspace.id)}
               <IconButton
                 icon={PencilIcon}
                 tooltip={t(workspaceMessages.edit)}
@@ -164,7 +168,7 @@
                 iconClass="size-3.5"
               />
             {/if}
-            {#if can(Permission.DELETE_WORKSPACE, { workspaceId: workspace.id })}
+            {#if permissions.can(Permission.DELETE_WORKSPACE, workspace.id)}
               <IconButton
                 icon={TrashIcon}
                 tooltip={t(workspaceMessages.delete)}

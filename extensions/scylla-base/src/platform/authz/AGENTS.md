@@ -37,6 +37,9 @@ permissions arrive or the active project changes. Outside a reactive context it 
 synchronous function. It **denies while the permissions are unknown**; read
 `authorizationReady()` for a loading state.
 
+The store holds only the platform, the active workspace and the active project. For each other
+object, `can()` denies, also when the user holds the permission on it.
+
 That is precisely what lets authz sit below the features: any feature may gate its UI without
 depending on the feature that administers roles.
 
@@ -96,6 +99,7 @@ locales/                             this capability has its own catalog
 | Guard a whole route or section | `<RequirePermission>` |
 | An action the user can see but not perform | `GatedButton` from `@scylla/ui`, with `allowed={can(…)}` |
 | Check in a ViewModel or a query | `can(Permission.X)` |
+| A permission on an object that is not active | `accessQueries.myScope` of `features/access`, then `canAccess` |
 
 Prefer a disabled `GatedButton` over hiding an action outright: a user who cannot tell an
 action exists cannot ask for access to it.

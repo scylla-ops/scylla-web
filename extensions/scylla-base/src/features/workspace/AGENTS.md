@@ -21,6 +21,11 @@ gets the keyboard focus of the menu. A row shows the name, a check on the active
 its actions on hover, in place of the check. Without a `row`, it shows plain rows
 (`WorkspaceRow.svelte`). A row component takes `class`, `onSelect` and `children`.
 
+**A row reads its permissions from `createWorkspacePermissions`, not from `can()`.** A row can be
+any workspace, and the store of `can()` holds only the active one, so `can()` refuses each other row.
+`createWorkspacePermissions` asks the server once for each workspace with
+`accessQueries.myScope`, of [`access`](../access/AGENTS.md), and only while the list is mounted.
+
 From 6 workspaces, a filter field shows above the rows, and it holds the focus. Its `onkeydown` stops
 each key except Escape and Tab, because the type-ahead of the menu moves the focus to a row.
 ArrowDown goes to the first row. Enter opens the first row when the field has text.
@@ -89,6 +94,12 @@ from `ListUserAccess`; that module does not import this one for them.
   module reads. Never hand-write the key.
 - The shell depends on `WorkspaceList` / `AddWorkspaceDialog`. Changing their props is a
   breaking change for `shell/` — update `WorkspaceSelector` in the same commit.
+- `workspaceMutations.update` invalidates all the queries, because members, roles, apps and
+  notifications also hold the name of the workspace. `create` and `remove` invalidate only the
+  list: a full invalidation after a delete refetches the pages of the deleted workspace, and these
+  give error toasts.
+- A blank field of `EditWorkspaceDialog` means no change, so a rename does not need a new address.
+  When both fields are blank, the dialog closes with no call.
 - `AddWorkspaceDialog` does not set the context: `workspaceMutations.create` makes the new
   workspace active, then the dialog lands on its dashboard. The description is optional
   (`optional: true` in `createWorkspaceItems`), on the first-workspace screen too.

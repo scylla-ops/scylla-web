@@ -11,6 +11,7 @@ import {
   invalidateWorkspaceMembers,
   workspaceMutations,
   workspaceQueries,
+  MY_WORKSPACES_QUERY_KEY,
   WORKSPACES_QUERY_KEY,
   WORKSPACE_MEMBERS_QUERY_KEY,
 } from '../workspace.queries.ts';
@@ -148,9 +149,8 @@ describe('workspaceMutations.create', () => {
 });
 
 describe('workspaceMutations.update', () => {
-  it('updates, toasts and invalidates the list', async () => {
+  it('updates and toasts', async () => {
     const repository = withRepository();
-    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
 
     await runMutationFn(workspaceMutations.update(), {
       workspaceId: WORKSPACE_ID,
@@ -160,7 +160,19 @@ describe('workspaceMutations.update', () => {
 
     expect(repository.update).toHaveBeenCalledWith(WORKSPACE_ID, 'Renamed', undefined);
     expect(toastSuccess).toHaveBeenCalledWith('Workspace updated');
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: WORKSPACES_QUERY_KEY() });
+  });
+
+  it('invalidates the list and the data of other features, which also hold the name', () => {
+    withRepository();
+    queryClient.setQueryData(MY_WORKSPACES_QUERY_KEY(), [org()]);
+    queryClient.setQueryData(['members', 'workspace', WORKSPACE_ID], [{ scopeName: 'Scylla Inc' }]);
+
+    runOnSuccess(workspaceMutations.update(), org(), { workspaceId: WORKSPACE_ID });
+
+    expect(queryClient.getQueryState(MY_WORKSPACES_QUERY_KEY())?.isInvalidated).toBe(true);
+    expect(
+      queryClient.getQueryState(['members', 'workspace', WORKSPACE_ID])?.isInvalidated,
+    ).toBe(true);
   });
 });
 

@@ -188,6 +188,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   page with what the user typed. A focus does not replace a draft of a pipeline.
 - On the sign-in page, the "or" line is at the same distance from the "Sign in" button and from the
   provider button. Before, the gap under the "Sign in" button was 24 px.
+- A new name or address of a workspace shows at once in the switcher, the pages and the lists, and
+  after a reload. A new address keeps the same page, the project and the pipeline. Before, the old
+  name stayed, and a new address opened the first workspace.
+- The workspace list shows the members, edit and delete actions on each workspace where the user
+  has the permission, with no switch. Before, the actions showed only on the active workspace.
+- The edit dialog of a workspace can change the name or the address alone. Before, Save stayed
+  disabled until both fields had text.
 - A sign-in with a provider, its "Try again" link and the link of a provider on the account page
   work when the app has the same origin as the API. Before, a click on these links did nothing.
 - A URL with no page shows "Page not found" and a link to the app. Before, it went to the sign-in

@@ -71,7 +71,8 @@ export const workspaceMutations = {
       }) => repository().update(workspaceId, name, slug),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.WORKSPACE_UPDATE));
-        return invalidateWorkspaces();
+        // The data of other features also holds the name: members, roles, apps, notifications.
+        return getQueryClient().invalidateQueries();
       },
     }),
 

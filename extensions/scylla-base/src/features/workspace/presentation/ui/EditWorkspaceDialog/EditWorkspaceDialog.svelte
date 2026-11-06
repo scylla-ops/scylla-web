@@ -29,6 +29,7 @@
       placeholder: workspace.name,
       type: FormItemType.Input,
       inputType: 'text',
+      optional: true,
     },
     {
       id: 'slug',
@@ -36,17 +37,20 @@
       placeholder: workspace.slug,
       type: FormItemType.Input,
       inputType: 'text',
+      optional: true,
     },
   ]);
 
   // Empty means "leave it alone": placeholders, not default values.
   const handleSubmit = ({ name, slug }: FormValues<'name' | 'slug'>) => {
+    const newName = name.trim() || undefined;
+    const newSlug = slug.trim() || undefined;
+    if (!newName && !newSlug) {
+      setOpen(false);
+      return;
+    }
     updateWorkspace.mutate(
-      {
-        workspaceId: workspace.id,
-        name: name.trim() || undefined,
-        slug: slug.trim() || undefined,
-      },
+      { workspaceId: workspace.id, name: newName, slug: newSlug },
       { onSuccess: () => setOpen(false) },
     );
   };

@@ -14,6 +14,8 @@ interface ContextState {
   workspace: WorkspaceItem;
   /** An absent slug: the slug made from the name, for a context saved before the slugs. */
   setWorkspace: (id: string | null, name: string | null, slug?: string | null) => void;
+  /** The same workspace under a new name or slug: the project and the pipeline stay. */
+  renameWorkspace: (name: string, slug: string) => void;
 
   project: ContextItem;
   setProject: (id: string | null, name: string | null) => void;
@@ -40,6 +42,8 @@ export const contextStore = createStore<ContextState>(
         project: { id: null, name: null },
         pipeline: { id: null, name: null },
       }),
+    renameWorkspace: (name, slug) =>
+      set(state => ({ workspace: { ...state.workspace, name, slug } })),
     setProject: (id, name) => set({ project: { id, name } }),
     setPipeline: (id, name) => set({ pipeline: { id, name } }),
     reset: () => set(initialState),

@@ -16,7 +16,9 @@ module owns the entity behind that segment.
 - **Its members**, as `UserSummary` values of [user](../user/README.md) (the RPC carries an id
   and a username only). The rich member view (roles, direct vs inherited,
   granting and revoking) belongs to [membership](../membership/README.md).
-- **The switcher in the app shell.**
+- **The switcher in the app shell.** Each row has its actions, also a row that is not the active
+  workspace. The permissions of the store know only the active workspace, so the list asks the
+  server about each row. The server stays the authority for each call.
 
 ## Two pieces the shell depends on
 

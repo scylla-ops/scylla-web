@@ -133,6 +133,10 @@ Rules:
   not react to the new URL.
 - The effects read the context store with `untrack`, else the old and the new wrapper could set
   the store one after the other.
+- `syncWorkspace` keeps the store equal to the list of workspaces, also when the list changes after
+  the mount. A new name goes to the store with no navigation. A new slug of the active workspace
+  opens the same page under the new slug. This starts from the list of the server, so it is not a
+  store → URL sync.
 - `ContextCleanerWrapper` also handles a project id that no longer exists: it redirects out, and it
   does not render the page of a project that `cleanContext` knows is gone.
 - `cleanContext` reads the project of the URL with `projectQueries.byId`, and keeps the project of

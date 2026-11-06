@@ -19,26 +19,32 @@ const workspaces = [
 let teardown: Array<() => void> = [];
 let navigator: ReturnType<typeof installTestNavigator>;
 let remove: ReturnType<typeof vi.fn>;
+let allowed: Record<string, readonly string[]>;
 
-const grant = (...permissions: Permission[]) =>
-  permissionsStore.setState({
-    permissions: {
-      scopes: [
-        { scope: PermissionScope.SYSTEM, scopeId: '', access: { kind: 'restricted', permissions } },
-      ],
-    },
-  });
+/** The names that the server allows on each workspace. */
+const grant = (byWorkspace: Record<string, readonly string[]>) => {
+  allowed = byWorkspace;
+};
 
 const setUp = (getMine: () => Promise<typeof workspaces>) => {
   remove = vi.fn().mockResolvedValue(undefined);
   const repository = { getMine, delete: remove } as unknown as WorkspaceRepository;
+  const check = (object: { id: string }, names: string[]) =>
+    Promise.resolve(new Set(names.filter(name => allowed[object.id]?.includes(name))));
   const cache = withQueryClient();
-  teardown = [cache.restore, withRegistry({ workspace: { workspaceRepository: repository } })];
+  teardown = [
+    cache.restore,
+    withRegistry({
+      workspace: { workspaceRepository: repository },
+      access: { accessRepository: { check } },
+    }),
+  ];
 };
 
 beforeEach(() => {
   vi.clearAllMocks();
   navigator = installTestNavigator();
+  allowed = {};
   permissionsStore.setState({ permissions: null });
   contextStore.setState({ workspace: { id: 'org-1', name: 'Acme Corp', slug: null } });
 });
@@ -75,18 +81,52 @@ describe('WorkspaceList', () => {
   });
 
   it('hides the row actions that the user may not use', async () => {
-    grant();
     setUp(() => Promise.resolve(workspaces));
     render(WorkspaceList);
     await screen.findByText('Acme Corp');
+    await new Promise(resolve => setTimeout(resolve));
 
     expect(screen.queryByRole('button', { name: 'Members' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
   });
 
+  it('shows the actions on a workspace that is not the active one', async () => {
+    grant({ 'org-2': ['list_access', 'update_workspace', 'delete_workspace'] });
+    setUp(() => Promise.resolve(workspaces));
+    render(WorkspaceList);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Edit' }));
+
+    expect(await screen.findByLabelText('Address')).toHaveAttribute('placeholder', 'globex-inc');
+    expect(screen.getAllByRole('button', { name: 'Delete', hidden: true })).toHaveLength(1);
+  });
+
+  it('does not take the rights of the active workspace for another workspace', async () => {
+    grant({ 'org-1': ['update_workspace'], 'org-2': ['list_access'] });
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.WORKSPACE,
+            scopeId: 'org-1',
+            access: { kind: 'restricted', permissions: [Permission.DELETE_WORKSPACE] },
+          },
+        ],
+      },
+    });
+    setUp(() => Promise.resolve(workspaces));
+    render(WorkspaceList);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Edit' }));
+
+    expect(await screen.findByLabelText('Address')).toHaveAttribute('placeholder', 'acme-corp');
+    expect(screen.queryByRole('button', { name: 'Delete', hidden: true })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Members', hidden: true })).toHaveLength(1);
+  });
+
   it('opens the members of a workspace without also selecting the row', async () => {
-    grant(Permission.LIST_WORKSPACE_MEMBERS);
+    grant({ 'org-1': ['list_access'], 'org-2': ['list_access'] });
     setUp(() => Promise.resolve(workspaces));
     render(WorkspaceList);
 
@@ -99,7 +139,7 @@ describe('WorkspaceList', () => {
   });
 
   it('opens the edit dialog for a workspace', async () => {
-    grant(Permission.UPDATE_WORKSPACE);
+    grant({ 'org-1': ['update_workspace'], 'org-2': ['update_workspace'] });
     setUp(() => Promise.resolve(workspaces));
     render(WorkspaceList);
 
@@ -110,7 +150,7 @@ describe('WorkspaceList', () => {
   });
 
   it('moves to another workspace after deleting the active one', async () => {
-    grant(Permission.DELETE_WORKSPACE);
+    grant({ 'org-1': ['delete_workspace'], 'org-2': ['delete_workspace'] });
     setUp(() => Promise.resolve(workspaces));
     render(WorkspaceList);
 
@@ -126,7 +166,7 @@ describe('WorkspaceList', () => {
   });
 
   it('keeps the active workspace after deleting another one', async () => {
-    grant(Permission.DELETE_WORKSPACE);
+    grant({ 'org-1': ['delete_workspace'], 'org-2': ['delete_workspace'] });
     setUp(() => Promise.resolve(workspaces));
     render(WorkspaceList);
 

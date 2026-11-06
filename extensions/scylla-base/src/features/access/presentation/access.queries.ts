@@ -23,6 +23,16 @@ export const ACCESS_QUERY_KEY = (object: ObjectRef) =>
 
 const MEMBERS_QUERY_ROOT = 'members';
 
+/** The permissions of the caller on one object, as one scope of the store. */
+const scopeOf = async (object: ObjectRef): Promise<EffectiveScope> => {
+  const allowed = await repository().check(object, namesFor(object.kind));
+  return {
+    scope: SCOPE_OF[object.kind],
+    scopeId: object.id === PLATFORM_ID ? '' : object.id,
+    access: { kind: 'restricted', permissions: permissionsFrom(object.kind, allowed) },
+  };
+};
+
 export const accessQueries = {
   /** Each member of a workspace or of a project. */
   members: (object: ObjectRef | null, options: { enabled?: boolean } = {}) =>
@@ -54,6 +64,13 @@ export const accessQueries = {
       enabled: (options.enabled ?? true) && !!object?.id,
     }),
 
+  /** What the caller can do on any object. `can()` knows only the active ones. */
+  myScope: (object: ObjectRef) =>
+    queryOptions({
+      queryKey: [ACCESS_QUERY_ROOT, 'my-scope', object.kind, object.id] as const,
+      queryFn: () => scopeOf(object),
+    }),
+
   /** The roles on an object: its members. */
   list: (object: ObjectRef | null, options: { enabled?: boolean } = {}) =>
     queryOptions({
@@ -61,16 +78,6 @@ export const accessQueries = {
       queryFn: () => repository().listAccess(object!),
       enabled: (options.enabled ?? true) && !!object?.id,
     }),
-};
-
-/** The permissions of the caller on one object, as one scope of the store. */
-const scopeOf = async (object: ObjectRef): Promise<EffectiveScope> => {
-  const allowed = await repository().check(object, namesFor(object.kind));
-  return {
-    scope: SCOPE_OF[object.kind],
-    scopeId: object.id === PLATFORM_ID ? '' : object.id,
-    access: { kind: 'restricted', permissions: permissionsFrom(object.kind, allowed) },
-  };
 };
 
 let current = { workspaceId: null as string | null, projectId: null as string | null };
