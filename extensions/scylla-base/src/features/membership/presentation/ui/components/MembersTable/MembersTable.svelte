@@ -28,7 +28,8 @@
   let { rows, isLoading, userFor, canManage, onOpen, onChangeRoles, onRemove }: Props = $props();
 
   const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
-  const chipClass = 'rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium';
+  const chipClass =
+    'whitespace-nowrap rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium';
 </script>
 
 {#if isLoading}
@@ -80,7 +81,7 @@
                   </span>
                 {/if}
                 {#each row.projectRoles as role (`${role.scopeId}-${role.role}`)}
-                  <span class="rounded-full border px-2.5 py-0.5 text-xs font-medium">
+                  <span class="whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium">
                     {role.scopeName} · {memberRoleName(role)}
                   </span>
                 {/each}
