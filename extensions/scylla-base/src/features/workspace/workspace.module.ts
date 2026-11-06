@@ -6,6 +6,7 @@ import { grpcTransport } from '@platform/grpc';
 import { AccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import { WorkspaceServiceClient } from '@base/generated/scylla/workspaces/v1/workspace_service.client.ts';
 import { DefaultWorkspaceRepository } from './infrastructure/default-workspace.repository.ts';
+import { workspaceCommands } from './presentation/workspace.commands.ts';
 
 const transport = grpcTransport.getTransport();
 const workspaceRepository = new DefaultWorkspaceRepository(
@@ -19,6 +20,7 @@ export const WorkspaceModule = {
   domain: {
     workspaceRepository: workspaceRepository,
   },
+  commands: workspaceCommands,
   routes: {
     workspace: [
       {
@@ -29,6 +31,7 @@ export const WorkspaceModule = {
         nav: {
           section: 'workspace',
           title: msg`General`,
+          keywords: msg`workspace settings name`,
           icon: SettingsIcon,
           order: 60,
           group: { id: 'settings', title: msg`Settings`, icon: SettingsIcon },

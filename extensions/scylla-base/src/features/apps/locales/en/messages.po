@@ -13,6 +13,30 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/apps/apps.module.ts:73
+msgid "application"
+msgstr "application"
+
+#: extensions/scylla-base/src/features/apps/presentation/apps.commands.ts:29
+msgid "create add application machine"
+msgstr "create add application machine"
+
+#: extensions/scylla-base/src/features/apps/presentation/apps.commands.ts:16
+msgid "create add connect runner machine"
+msgstr "create add connect runner machine"
+
+#: extensions/scylla-base/src/features/apps/presentation/apps.commands.ts:15
+msgid "New agent"
+msgstr "New agent"
+
+#: extensions/scylla-base/src/features/apps/presentation/apps.commands.ts:28
+msgid "New app"
+msgstr "New app"
+
+#: extensions/scylla-base/src/features/apps/apps.module.ts:58
+msgid "runner machine"
+msgstr "runner machine"
+
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:17
 msgid "{completed} of {total} completed"
 msgstr "{completed} of {total} completed"

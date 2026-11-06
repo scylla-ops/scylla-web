@@ -60,6 +60,7 @@ infrastructure/
   default-secret.repository.ts       SecretServiceClient → SecretEntity
   grpc-secret.mapper.ts
 presentation/
+  secret.commands.ts                 "Create secret...", for the search bar
   secret.queries.ts                  the reads and the writes, as options objects
   ui/Secret.page.svelte, CreateSecretDialog.svelte
   ui/EditSecretDialog/               EditSecretDialog (the form), ReplaceSecretValueDialog

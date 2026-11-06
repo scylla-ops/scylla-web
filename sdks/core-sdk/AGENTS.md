@@ -22,7 +22,8 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 | Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `QueryErrorHandler`, `QueryRetryPolicy`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
 | Crumbs | `BreadcrumbFn`, `BreadcrumbParams`, `Crumb`, `TrailCrumb` |
 | Permission type | `Register` (augmented by one extension), `RoutePermission` |
-| Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect` |
+| Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect`, `navLinks`, `setNavLinks`, `AppNavLink` |
+| Commands of the bar | `CommandDefinition`, `GoCommand`, `CreateCommand`, `ChoiceCommand`, `ToggleCommand`, `ConfirmCommand`, `CommandBase`, `CommandForm`, `CommandFormProps`, `commandForm` |
 | DI | `getModuleDomain`, `setDependencyRegistry`, `DomainRegistry` |
 | Query | `createQuery`, `createMutation`, `createQueries`, `queryOptions`, `mutationOptions`, `getQueryClient`, `setQueryClient` |
 | Widgets | `point`, `WidgetZone`, `WidgetPoint`, `ZonePoint`, `TextsPoint`, `ValuePoint`, `ZoneComponentOptions`, `ZonePosition`, `WidgetInjection`, `installWidgetInjectionsForTest` |
@@ -37,9 +38,11 @@ src/
               installed-extensions.ts  the manifests the core loaded, for a page that lists them
               contributions.struct.ts  AccessPolicy, NavSectionDefinition, ShellContributions, QueryErrorHandler, QueryRetryPolicy
               register.struct.ts       Register, RoutePermission
+              command.struct.ts        the commands of the search bar, one type per kind
   routing/    scylla-module.struct.ts  ScyllaModule, ModuleRoute, NavLink, NavGroup (links of one group fold under one item)
               mount.struct.ts, route.struct.ts, crumb.struct.ts, Redirect.svelte
   navigation/ navigator.ts             the AppNavigator the core installs, and its readers
+              nav-links.ts             the sidebar links of all extensions, for the search bar
   di/         dependencies.registry.ts
   query/      active-query-client.ts, svelte-query.ts
   widgets/    widget-points.struct.ts        WidgetPoint, ZonePoint, TextsPoint, ValuePoint, WidgetInjectionItem (internal)
@@ -172,9 +175,9 @@ two augmentations with different types do not compile.
 
 ## Runtime API — installed by the core
 
-`setAppNavigator`, `setDependencyRegistry`, `setQueryClient` and `setInstalledExtensions` are
-called by `startCore`, once. Extensions only read: `navigateTo`, `routeParams`,
-`getModuleDomain`, `createQuery`, `installedExtensions`.
+`setAppNavigator`, `setDependencyRegistry`, `setQueryClient`, `setInstalledExtensions` and
+`setNavLinks` are called by `startCore`, once. Extensions only read: `navigateTo`, `routeParams`,
+`getModuleDomain`, `createQuery`, `installedExtensions`, `navLinks`.
 
 - **`DomainRegistry` is untyped per module — on purpose.** If it named each module's domain,
   every feature would depend on every other one. A feature pins the type on its side:

@@ -13,6 +13,18 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/workspace/presentation/workspace.commands.ts:11
+msgid "create add organization"
+msgstr "create add organization"
+
+#: extensions/scylla-base/src/features/workspace/presentation/workspace.commands.ts:10
+msgid "New workspace"
+msgstr "New workspace"
+
+#: extensions/scylla-base/src/features/workspace/workspace.module.ts:34
+msgid "workspace settings name"
+msgstr "workspace settings name"
+
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:14
 msgid "{workspace} refuses them at once: scripts that use them get \"403 Permission denied\" here. They still work in other workspaces. App tokens and CI identities do not change. You can turn them on again at any time."
 msgstr "{workspace} refuses them at once: scripts that use them get \"403 Permission denied\" here. They still work in other workspaces. App tokens and CI identities do not change. You can turn them on again at any time."

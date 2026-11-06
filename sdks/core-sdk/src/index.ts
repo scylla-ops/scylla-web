@@ -29,6 +29,18 @@ export type {
   RouteParams,
   RouteSource,
 } from './routing/scylla-module.struct.ts';
+export { commandForm } from './extension/command.struct.ts';
+export type {
+  ChoiceCommand,
+  CommandDefinition,
+  CommandForm,
+  CommandFormProps,
+  ConfirmCommand,
+  CreateCommand,
+  GoCommand,
+  ToggleCommand,
+} from './extension/command.struct.ts';
+export { navLinks, setNavLinks, type AppNavLink } from './navigation/nav-links.ts';
 export type { BreadcrumbFn, BreadcrumbParams, Crumb, TrailCrumb } from './routing/crumb.struct.ts';
 export type { LayoutComponent, MountDefinition, RouteWrapper } from './routing/mount.struct.ts';
 export { default as Redirect } from './routing/Redirect.svelte';

@@ -9,6 +9,7 @@ import { JobServiceClient } from '@base/generated/scylla/pipelines/v1/job_servic
 import { AccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import { AgentServiceClient } from '@base/generated/scylla/agents/v1/agent_service.client.ts';
 import { DefaultAppsRepository } from './infrastructure/default-apps.repository.ts';
+import { appsCommands } from './presentation/apps.commands.ts';
 
 const transport = grpcTransport.getTransport();
 const appsRepository = new DefaultAppsRepository(
@@ -43,6 +44,7 @@ export const AppsModule = {
   domain: {
     appsRepository,
   },
+  commands: appsCommands,
   routes: {
     workspace: [
       {
@@ -53,6 +55,7 @@ export const AppsModule = {
         nav: {
           section: 'workspace',
           title: msg`Agents`,
+          keywords: msg`runner machine`,
           icon: ServerIcon,
           order: 40,
           group: MACHINES,
@@ -67,6 +70,7 @@ export const AppsModule = {
         nav: {
           section: 'workspace',
           title: msg`Apps`,
+          keywords: msg`application`,
           icon: BlocksIcon,
           order: 41,
           group: MACHINES,

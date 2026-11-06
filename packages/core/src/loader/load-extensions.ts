@@ -99,6 +99,12 @@ export const loadExtensions = (classes: readonly ExtensionClass[]): LoadedApp =>
   const modules = extensions.flatMap(extension => extension.modules);
   uniqueBy(modules, module => module.id, 'module');
 
+  uniqueBy(
+    modules.flatMap(module => module.commands ?? []),
+    command => command.id,
+    'command',
+  );
+
   const mountList = modules.flatMap(module => Object.entries(module.mounts ?? {}));
   uniqueBy(mountList, ([id]) => id, 'mount');
   const mounts: Record<RouteMount, MountDefinition> = Object.fromEntries(mountList);

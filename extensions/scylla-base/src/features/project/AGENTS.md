@@ -56,6 +56,7 @@ infrastructure/
   default-project.repository.ts      ProjectServiceClient → ProjectEntity; the project cap
   grpc-project.mapper.ts
 presentation/
+  project.commands.ts                "Create project...", for the search bar
   project.queries.ts                 every read and write, plus the key factories
   ui/Project.page.svelte             picks the workspace, or says there is none
   ui/ProjectList.svelte              keyed on the workspace — that is the page reset

@@ -4,6 +4,7 @@ import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
 import { TriggerServiceClient } from '@base/generated/scylla/pipelines/v1/trigger_service.client.ts';
 import { DefaultTriggersRepository } from './infrastructure/default-triggers.repository.ts';
+import { triggersCommands } from './presentation/triggers.commands.ts';
 
 const triggersRepository = new DefaultTriggersRepository(
   new TriggerServiceClient(grpcTransport.getTransport()),
@@ -16,6 +17,7 @@ export const TriggersModule = {
   domain: {
     triggersRepository: triggersRepository,
   },
+  commands: triggersCommands,
   routes: {
     project: [
       {

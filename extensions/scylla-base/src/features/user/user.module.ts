@@ -7,6 +7,7 @@ import { ProfileServiceClient } from '@base/generated/scylla/accounts/v1/profile
 import { PersonalTokenServiceClient } from '@base/generated/scylla/accounts/v1/personal_token_service.client.ts';
 import { UserAdminServiceClient } from '@base/generated/scylla/accounts/v1/user_admin_service.client.ts';
 import { DefaultUserRepository } from './infrastructure/default-user.repository.ts';
+import { userCommands } from './presentation/user.commands.ts';
 import {
   ACCOUNT_SECTIONS,
   accountSection,
@@ -25,6 +26,7 @@ export const UserModule = {
   domain: {
     userRepository: repository,
   },
+  commands: userCommands,
   routes: {
     instance: [
       {
@@ -58,11 +60,12 @@ export const UserModule = {
               label: accountSection(section)?.title ?? msg`Account`,
             }),
             page: () => import('./presentation/ui/account/Account/Account.page.svelte'),
-            nav: ACCOUNT_SECTIONS.map(({ id, title, icon, danger }) => ({
+            nav: ACCOUNT_SECTIONS.map(({ id, title, icon, danger, keywords }) => ({
               section: 'account',
               title,
               icon,
               danger,
+              keywords,
               params: { section: id },
             })),
           },

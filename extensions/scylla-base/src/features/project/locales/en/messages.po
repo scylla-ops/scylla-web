@@ -25,6 +25,10 @@ msgstr "All projects"
 msgid "Create a new project"
 msgstr "Create a new project"
 
+#: extensions/scylla-base/src/features/project/presentation/project.commands.ts:11
+msgid "create add"
+msgstr "create add"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:25
 msgid "Create Project"
 msgstr "Create Project"
@@ -54,6 +58,7 @@ msgid "Enter a name for your new project and select the workspace it belongs to.
 msgstr "Enter a name for your new project and select the workspace it belongs to."
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:10
+#: extensions/scylla-base/src/features/project/presentation/project.commands.ts:10
 msgid "New project"
 msgstr "New project"
 

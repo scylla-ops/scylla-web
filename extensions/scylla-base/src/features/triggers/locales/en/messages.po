@@ -13,6 +13,18 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:36
+msgid "create add webhook schedule cron"
+msgstr "create add webhook schedule cron"
+
+#: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:24
+msgid "Triggers of this pipeline"
+msgstr "Triggers of this pipeline"
+
+#: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:25
+msgid "webhook schedule cron"
+msgstr "webhook schedule cron"
+
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:29
 msgid "{days} at {time}"
 msgstr "{days} at {time}"
@@ -222,6 +234,7 @@ msgstr "Never fired"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:15
 #: extensions/scylla-base/src/features/triggers/triggers.module.ts:34
+#: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:35
 msgid "New trigger"
 msgstr "New trigger"
 

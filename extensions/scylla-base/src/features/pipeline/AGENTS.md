@@ -87,6 +87,7 @@ infrastructure/
   default-node-template.repository.ts        BUILT_IN_NODE_TEMPLATES
   grpc-pipeline.mapper.ts
 presentation/
+  pipeline.commands.ts                       create, jobs and edit, for the search bar
   pipeline.queries.ts                        TanStack Query options factories
   pipeline.query-keys.ts                     Query key factories (exported publicly)
   messages/                                  pipeline, blueprint, scripting, node (.messages.ts)

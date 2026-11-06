@@ -13,6 +13,50 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/user/presentation/ui/account/Account/account-sections.registry.ts:29
+msgid "api key personal token"
+msgstr "clé api jeton personnel"
+
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:35
+msgid "auto os device"
+msgstr "auto appareil"
+
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:33
+msgid "bright day white"
+msgstr "clair jour blanc"
+
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:34
+msgid "Dark theme"
+msgstr "Thème sombre"
+
+#: extensions/scylla-base/src/features/user/presentation/ui/account/Account/account-sections.registry.ts:35
+msgid "delete account"
+msgstr "supprimer le compte"
+
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:33
+msgid "Light theme"
+msgstr "Thème clair"
+
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:34
+msgid "night black"
+msgstr "nuit noir"
+
+#: extensions/scylla-base/src/features/user/presentation/ui/account/Account/account-sections.registry.ts:28
+msgid "password 2fa"
+msgstr "mot de passe 2fa"
+
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:35
+msgid "System theme"
+msgstr "Thème du système"
+
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:14
+msgid "Theme"
+msgstr "Thème"
+
+#: extensions/scylla-base/src/features/user/presentation/ui/account/Account/account-sections.registry.ts:27
+msgid "theme look colors"
+msgstr "thème couleurs"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:107
 msgid "{browser} on {system}"
 msgstr "{browser} sur {system}"

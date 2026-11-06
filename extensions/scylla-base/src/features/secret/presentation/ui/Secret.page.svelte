@@ -36,8 +36,8 @@
       {/if}
       <CreateSecretDialog
         {projectId}
-        isOpen={isCreateDialogOpen}
-        setOpen={open => (isCreateDialogOpen = open)}
+        open={isCreateDialogOpen}
+        setOpen={next => (isCreateDialogOpen = next)}
       />
     </div>
   </div>

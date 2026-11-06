@@ -147,6 +147,20 @@ describe('loadExtensions', () => {
     );
   });
 
+  it('refuses two commands with one id, which would be one row of the command bar', () => {
+    const command = {
+      id: 'billing.pay',
+      kind: 'go',
+      title: msg`Pay`,
+      icon: {} as never,
+      path: () => null,
+    } as const;
+
+    expect(() =>
+      loadExtensions([Base, addOn([billing({ commands: [command, command] })])]),
+    ).toThrow(/Two commands have the id "billing.pay"/);
+  });
+
   it('refuses a mount that two modules declare', () => {
     expect(() => loadExtensions([Base, addOn([billing({ mounts: { app: {} } })])])).toThrow(
       /Two mounts have the id "app"/,

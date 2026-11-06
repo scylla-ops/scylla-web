@@ -13,6 +13,26 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:11
+msgid "log out logout disconnect session"
+msgstr "déconnexion déconnecter session"
+
+#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:13
+msgid "Session"
+msgstr "Session"
+
+#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:10
+msgid "Sign out"
+msgstr "Se déconnecter"
+
+#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:15
+msgid "Sign out of Scylla?"
+msgstr "Se déconnecter de Scylla ?"
+
+#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:16
+msgid "The session closes on this device. You go back to the sign-in page."
+msgstr "La session se ferme sur cet appareil. Vous revenez à la page de connexion."
+
 #: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:6
 msgid "{email} already has a Scylla account with a password. To add {provider} to it, enter the password of that account once."
 msgstr "{email} a déjà un compte Scylla avec un mot de passe. Pour y ajouter {provider}, saisissez une fois le mot de passe de ce compte."

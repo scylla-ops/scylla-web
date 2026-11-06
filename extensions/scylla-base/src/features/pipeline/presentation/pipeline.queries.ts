@@ -42,6 +42,8 @@ const currentProject = () => contextStore.getState().project;
 /** One request for a project's whole list, on the overview pages. */
 const PIPELINES_LOOKUP_PAGE: PaginationParams = { page: 1, pageSize: 100 };
 
+const ALL_PIPELINES: PaginationParams = { page: 1, pageSize: Number.MAX_SAFE_INTEGER };
+
 export const pipelineQueries = {
   /** `enabled`: wait until the page size is measured, or the first page is fetched twice. */
   byProject: (
@@ -63,6 +65,15 @@ export const pipelineQueries = {
       enabled: !!workspaceId,
       queryFn: () =>
         repository().getMetadataByWorkspaceId(workspaceId!, PIPELINES_LOOKUP_PAGE),
+      staleTime: 30_000,
+    }),
+
+  /** Every pipeline of a workspace, for a search: `byWorkspace` keeps a window of the list. */
+  allOfWorkspace: (workspaceId: string | null) =>
+    queryOptions<PaginatedList<PipelineMetadata>>({
+      queryKey: WORKSPACE_PIPELINES_QUERY_KEY(workspaceId, ALL_PIPELINES),
+      enabled: !!workspaceId,
+      queryFn: () => repository().getMetadataByWorkspaceId(workspaceId!, ALL_PIPELINES),
       staleTime: 30_000,
     }),
 

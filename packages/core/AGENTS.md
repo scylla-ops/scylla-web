@@ -51,6 +51,7 @@ src/
                                                (nav-groups.state.svelte.ts keeps which groups are open)
     TopBar/                                    the crumbs of the route trail, after the name of the section, and `topBarEnd`
                                                (ShellBreadcrumbs, breadcrumbs.ts; SidebarTrigger on a phone only)
+    nav-links.ts                               the sidebar links for `navLinks` of the SDK
     shell-config.ts                            ShellConfig, set once by startCore
   locales/                                     the catalog of the shell (tests excluded)
 ```

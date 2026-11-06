@@ -10,7 +10,7 @@ export const layoutMessages = {
   workspaces: msg`Workspaces`,
   language: msg`Language`,
   search: msg`Search`,
-  searchPlaceholder: msg`Search projects, pipelines…`,
+  searchPlaceholder: msg`Search pages, actions, projects…`,
   searchNoResult: msg`Nothing matches this search.`,
   notifications: msg`Notifications`,
   failedRuns: msg`Failed runs`,

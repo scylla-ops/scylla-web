@@ -7,6 +7,7 @@ import { AccessServiceClient } from '@base/generated/scylla/access/v1/access_ser
 import { RoleServiceClient } from '@base/generated/scylla/access/v1/role_service.client.ts';
 import { ACCESS_NAV } from '@shared/presentation/access-nav.ts';
 import { DefaultRoleRepository } from './infrastructure/default-role.repository.ts';
+import { rolesCommands } from './presentation/roles.commands.ts';
 import { roleCrumbName } from './presentation/role-crumb.state.svelte.ts';
 
 const transport = grpcTransport.getTransport();
@@ -20,6 +21,7 @@ export const RolesModule = {
   domain: {
     roleRepository,
   },
+  commands: rolesCommands,
   routes: {
     instance: [
       {

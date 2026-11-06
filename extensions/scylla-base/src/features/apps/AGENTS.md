@@ -14,6 +14,7 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
 
 ## What it does
 
+- `presentation/apps.commands.ts`: "Create agent..." and "Create app...", for the search bar.
 - An app has no shared secret. `CreateApp` and `CreateJoinCode` give a join code; the machine
   runs `scylla-agent join <server> <code>`, makes a key pair and sends the public key. The keys
   card lists the keys and revokes one.

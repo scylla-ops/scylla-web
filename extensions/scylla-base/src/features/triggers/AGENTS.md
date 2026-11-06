@@ -76,6 +76,7 @@ infrastructure/
   default-triggers.repository.ts      TriggerServiceClient → TriggerEntity
   grpc-trigger.mapper.ts
 presentation/
+  triggers.commands.ts               the list and "Create trigger...", for the search bar
   triggers.queries.ts                every read and write, as query/mutation options
   ui/Triggers/Triggers.page.svelte
   ui/TriggerEditor/TriggerEditor.page.svelte   creates or edits a trigger of a pipeline

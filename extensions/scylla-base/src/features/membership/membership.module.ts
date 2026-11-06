@@ -19,6 +19,7 @@ export const MembershipModule = {
         nav: {
           section: 'workspace',
           title: msg`Members`,
+          keywords: msg`invite add people`,
           icon: UsersRound,
           order: 30,
           group: ACCESS_NAV,

@@ -68,6 +68,7 @@ infrastructure/
   grpc-workspace.mapper.ts
   grpc-workspace-member.mapper.ts
 presentation/
+  workspace.commands.ts           "Create workspace...", for the search bar
   workspace.queries.ts            every read and write, plus the key factories
   ui/WorkspaceList/               the list; the shell's selector gives it its rows
   ui/AddWorkspaceDialog.svelte, EditWorkspaceDialog.svelte

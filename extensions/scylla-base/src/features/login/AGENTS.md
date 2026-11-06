@@ -79,6 +79,7 @@ infrastructure/
   grpc-password-reset.mapper.ts         proto enum → PasswordResetDelivery
   session.ts                            openSession, closeSession (the writers of token + userId), hasSession
 presentation/
+  login.commands.ts                  "Sign out...", for the search bar
   login.points.ts                    the extension points — see below
   sign-out.ts                        signOut
   mappers/return-path.mapper.ts      loginPath, loginPathBackTo, safeReturnPath, returnPathOf

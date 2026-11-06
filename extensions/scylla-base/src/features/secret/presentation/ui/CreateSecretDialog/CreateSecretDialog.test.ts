@@ -29,7 +29,7 @@ const setUp = (props: { projectId?: string; setOpen?: (open: boolean) => void } 
 
   return render(CreateSecretDialog, {
     projectId: props.projectId ?? 'project-1',
-    isOpen: true,
+    open: true,
     setOpen: props.setOpen ?? vi.fn(),
   });
 };

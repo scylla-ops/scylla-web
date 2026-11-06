@@ -12,4 +12,5 @@ export {
   RUN_PIPELINE_MUTATION_KEY,
 } from './presentation/pipeline.query-keys.ts';
 export { pipelineQueries } from './presentation/pipeline.queries.ts';
+export { createRunPipeline } from './presentation/ui/run-pipeline.state.svelte.ts';
 export { asPipelineFeed } from './presentation/presenters/pipeline-feed.presenter.ts';

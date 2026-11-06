@@ -3,6 +3,7 @@ import { RequirePermission, authorizationReady, can } from '@platform/authz';
 import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 import WorkspaceSelector from './presentation/layout/ui/context-selector/WorkspaceSelector/WorkspaceSelector.svelte';
 import LaunchOverlays from './presentation/layout/ui/LaunchOverlays/LaunchOverlays.svelte';
+import { languageCommands } from './presentation/layout/language.commands.ts';
 import { layoutMessages } from './presentation/layout/messages/layout.messages.ts';
 import NavUser from './presentation/layout/ui/NavUser/NavUser.svelte';
 import NewBadge from './presentation/layout/ui/NewBadge.svelte';
@@ -90,6 +91,7 @@ export const ShellModule = {
     breadcrumbParams,
     linkParams,
   },
+  commands: languageCommands,
   onQueryError: reportQueryError,
   onQueryRetry: retryQueryError,
   fallback: LoginRedirect,

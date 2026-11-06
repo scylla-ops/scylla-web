@@ -42,7 +42,9 @@ presentation/
       FirstWorkspace.svelte          welcome screen when the user has no workspace
     ui/context-selector/                WorkspaceSelector: the switcher at the right end of the top bar (topBarEnd)
     ui/ShellBrand/                      the logo above the sidebars (brand): a link to the dashboard of the active workspace
-    ui/GlobalSearch/                    the search of the top bar (Ctrl K): projects, pipelines, agents and apps, on the client
+    language.commands.ts                the commands of the bar for the language
+    ui/GlobalSearch/                    the button of the top bar and Ctrl K. It loads the bar at the first use and keeps the form that a command opens
+    ui/CommandBar/                      the command bar: see "The command bar"
     ui/NotificationsMenu/               the bell of the top bar: the last failed runs. The server has no notifications
     ui/NavUser/                         who is signed in (userQueries.me), Account, Language, Sign out (sidebar footer);
                                         green on the rail while the URL is on the account of the workspace
@@ -83,6 +85,41 @@ fallback         LoginRedirect
 
 **Never add a page here.** Adding a page is a change to one feature's `*.module.ts`. This file
 changes only for a new mount, a new section or a new part of the shell.
+
+## The command bar
+
+`ui/CommandBar/`:
+
+```
+CommandBar.svelte                the dialog
+CommandBarContent.svelte         the input, the chips, the rows, the status lines, the footer
+command-sources.state.svelte.ts  the lists. Each list reads only with its permission, while the bar is open
+command-rows.presenter.ts        builds a CommandRow from each page, command and entity
+command-results.presenter.ts     prefixes, chips, groups, order, limits
+command-recent.ts                the recent rows of a workspace, in localStorage
+CommandConfirm.svelte            the confirmation in the bar
+RunPipelineConfirm.svelte        the same for a run
+```
+
+Rules:
+
+- A feature adds a command in its `presentation/<feature>.commands.ts`, and declares it in `commands`
+  of its `*.module.ts`. A new page needs no command: the bar reads the sidebar links with `navLinks()`.
+  Add `keywords` to a link when a user can use another word for the page.
+- A command has a kind, and the kind sets the verb: `go` Go to, `create` Create..., `choice` Use, `toggle`
+  Turn on or Turn off, `confirm` the verb of the command. Three dots mean that a step follows. No real
+  command uses `toggle` now. The first one is the on/off of a trigger.
+- A command must make a change that the user can see. `SidebarProvider.open` is not such a change: on a
+  desktop, `DoubleSidebar` does not read it. Do a browser check for a new command: a test of a value does
+  not show this error.
+- A command has a `permission`. `apps/web/src/__test__/module-permissions.test.ts` fails if it has none.
+  A command with no permission goes in `UNGATED_COMMANDS`, with the reason.
+- **The bar never deletes.** Add a delete command only with a new decision.
+- A row must not read the same as another row. `ui/CommandBar/command-bar-labels.test.ts` checks this,
+  and checks the typing errors on the real labels in the two languages. Run it when you add a label.
+- A list of the bar uses `notifyOnChangeProps: 'all'`. TanStack tells only the changes of the fields that
+  were read, and the bar reads the state of a list at the first key.
+- A form stays open after the bar closes, so `GlobalSearch` keeps it, not the bar.
 
 ## The wrappers
 

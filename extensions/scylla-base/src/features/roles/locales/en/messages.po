@@ -13,6 +13,18 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/roles/presentation/roles.commands.ts:16
+msgid "create add permissions"
+msgstr "create add permissions"
+
+#: extensions/scylla-base/src/features/roles/presentation/roles.commands.ts:24
+msgid "New instance role"
+msgstr "New instance role"
+
+#: extensions/scylla-base/src/features/roles/presentation/roles.commands.ts:15
+msgid "New workspace role"
+msgstr "New workspace role"
+
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:27
 msgid "{count, plural, one {# holder has this role. Choose a role for them. Then the role is deleted.} other {# holders have this role. Choose a role for them. Then the role is deleted.}}"
 msgstr "{count, plural, one {# holder has this role. Choose a role for them. Then the role is deleted.} other {# holders have this role. Choose a role for them. Then the role is deleted.}}"

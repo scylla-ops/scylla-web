@@ -4,6 +4,7 @@ import { AccountServiceClient } from '@base/generated/scylla/accounts/v1/account
 import { ProfileServiceClient } from '@base/generated/scylla/accounts/v1/profile_service.client.ts';
 import { DefaultLoginRepository } from './infrastructure/default-login.repository.ts';
 import { resolveUserWith } from './infrastructure/session.ts';
+import { loginCommands } from './presentation/login.commands.ts';
 import { loginPoints } from './presentation/login.points.ts';
 
 const transport = grpcTransport.getTransport();
@@ -49,4 +50,5 @@ export const LoginModule = {
     ],
   },
   points: loginPoints,
+  commands: loginCommands,
 } satisfies ScyllaModule;

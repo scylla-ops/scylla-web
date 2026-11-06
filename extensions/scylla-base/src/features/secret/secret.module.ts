@@ -6,6 +6,7 @@ import { grpcTransport } from '@platform/grpc';
 import { SecretServiceClient } from '@base/generated/scylla/projects/v1/secret_service.client.ts';
 import { PipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
 import { DefaultSecretRepository } from './infrastructure/default-secret.repository.ts';
+import { secretCommands } from './presentation/secret.commands.ts';
 
 const secretRepository = new DefaultSecretRepository(
   new SecretServiceClient(grpcTransport.getTransport()),
@@ -17,6 +18,7 @@ export const SecretModule = {
   domain: {
     secretRepository,
   },
+  commands: secretCommands,
   routes: {
     project: [
       {

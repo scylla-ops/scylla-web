@@ -3,6 +3,7 @@ import {
   setAppNavigator,
   setDependencyRegistry,
   setInstalledExtensions,
+  setNavLinks,
   setQueryClient,
   setWidgetInjectionRegistry,
   type ExtensionClass,
@@ -12,6 +13,7 @@ import App from './App.svelte';
 import { loadExtensions } from './loader/load-extensions.ts';
 import { createAppQueryClient } from './query/query-client.ts';
 import { createAppRouter } from './routing/runtime/app-router.ts';
+import { navLinksFor } from './shell/nav-links.ts';
 import { setShellConfig } from './shell/shell-config.ts';
 
 export interface StartOptions {
@@ -31,6 +33,7 @@ export const startCore = async ({ extensions, target }: StartOptions): Promise<v
   setInstalledExtensions(app.extensions);
   setQueryClient(createAppQueryClient(app.queryErrorHandlers, app.queryRetryPolicies));
   setShellConfig(app.shell);
+  setNavLinks(navLinksFor(app.shell));
 
   // Before the first render, so no frame shows untranslated text.
   await initializeAppLocale();

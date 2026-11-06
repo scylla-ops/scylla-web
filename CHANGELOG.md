@@ -56,6 +56,18 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The stats of an app, its API tokens and its CI identities. The dashboard draws the agent outcomes
   from the stats of the server.
 
+**The search bar**
+
+- The search of the top bar is a command bar. It finds pages, tabs, projects, pipelines, agents, apps,
+  people, roles and secrets. It also changes the theme and the language, opens a form and runs a
+  pipeline.
+- The search accepts typing errors: swapped, missing, extra and wrong letters, with a QWERTY or an
+  AZERTY keyboard, without accents, in English and French.
+- Each row says what it does before the user selects it: the type, the place and a verb. The bar never
+  deletes. A run and a sign-out ask for a confirmation, and a preference has an Undo.
+- `ScyllaModule` of `@scylla/core-sdk` can declare `commands`, and `NavLink` can declare `keywords`.
+  The ids of the commands must be unique.
+
 **Personal tokens and phones**
 
 - The personal tokens on the account page, with a switch on the instance and on each workspace.

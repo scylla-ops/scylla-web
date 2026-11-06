@@ -22,8 +22,8 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 | `@scylla/ui/primitives` | the primitives on bits-ui, adapted from shadcn/ui |
 | `@scylla/ui/state` | rune states: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
-| `@scylla/ui/i18n` | `t`, `activeLocale`, `setAppLocale`, `registerCatalogs` |
-| `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result), `matchesSearch` (case and accents do not count) |
+| `@scylla/ui/i18n` | `t`, `activeLocale`, `setAppLocale`, `registerCatalogs`, `readCatalogs` (the messages of a locale, not activated), `plainMessage` |
+| `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result), `matchesSearch` (case and accents do not count), `fuzzyMatch`, `prepareFuzzyText`, `prepareFuzzyQuery`, `normalizeText` (a search with typing errors) |
 | `@scylla/ui/structs` | `PaginationParams`, `PaginationInfo`, `PaginatedList` — plain shapes, the only part a `domain/` may import |
 | `@scylla/ui/styles.css` | Tailwind, the theme tokens, the `@source` of every package — imported once, by `apps/web` |
 | `@scylla/ui/assets/*` | the logos |
@@ -132,6 +132,10 @@ The primitives, on **`bits-ui`**. They are adapted from the React components of 
 see `primitives/README.md`): the Tailwind class strings were copied, then changed where the design
 needed it. They are our code now, not vendored code: no CLI and no upstream update manage them. Import them from `@scylla/ui/primitives`. A primitive is ported when its
 first consumer needs it — there is no primitive here without a consumer.
+
+**`command`** (`primitives/command/`) is on `Command` of bits-ui. `CommandInput` puts `autofocus` on the
+`<input>` element, because `DialogContent` gives the focus to the `[autofocus]` element, and the bits-ui
+input removes this attribute.
 
 **`resizable`** (`primitives/resizable/`) is on **`paneforge`** (listed in the `vendor-ui` chunk and a
 peer dependency, like bits-ui). `ResizablePaneGroup` and `ResizableHandle` are wrappers;

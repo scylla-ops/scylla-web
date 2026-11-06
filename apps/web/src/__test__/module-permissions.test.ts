@@ -40,6 +40,20 @@ const UNGATED_PAGES: Readonly<Record<string, string>> = {
     'Gate it when the real data layer lands.',
 };
 
+const commands = app.extensions
+  .flatMap(({ modules }) => modules)
+  .flatMap(module => module.commands ?? []);
+
+/** A ratchet too. Each entry says why the command needs no permission. */
+const UNGATED_COMMANDS: Readonly<Record<string, string>> = {
+  'shell.language-en': 'A preference of this device: it calls no backend.',
+  'shell.language-fr': 'A preference of this device: it calls no backend.',
+  'user.theme-light': 'A preference of this device: it calls no backend.',
+  'user.theme-dark': 'A preference of this device: it calls no backend.',
+  'user.theme-system': 'A preference of this device: it calls no backend.',
+  'login.sign-out': 'It ends the own session, which needs no grant.',
+};
+
 describe('module permission declarations', () => {
   // Enumerating nothing would pass: make sure there is something to check.
   it('finds the registry pages it is supposed to check', () => {
@@ -71,5 +85,34 @@ describe('module permission declarations', () => {
     const stale = Object.keys(UNGATED_PAGES).filter(id => !known.has(id));
 
     expect(stale, 'these UNGATED_PAGES entries match no route — delete them').toEqual([]);
+  });
+
+  it('finds the commands it is supposed to check', () => {
+    expect(commands.length).toBeGreaterThan(Object.keys(UNGATED_COMMANDS).length);
+  });
+
+  describe('every command of the bar declares a permission', () => {
+    it.each(commands.map(command => [command.id, command] as const))('%s', (id, command) => {
+      if (id in UNGATED_COMMANDS) {
+        expect(
+          command.permission,
+          `${id} now declares a permission — drop it from UNGATED_COMMANDS, the list only shrinks.`,
+        ).toBeUndefined();
+        return;
+      }
+
+      expect(
+        command.permission,
+        `${id} shows to all users. Declare a \`permission\` on the command. If it genuinely ` +
+          'needs none, add it to UNGATED_COMMANDS with the reason.',
+      ).toBeDefined();
+    });
+  });
+
+  it('the ungated commands still exist', () => {
+    const known = new Set(commands.map(command => command.id));
+    const stale = Object.keys(UNGATED_COMMANDS).filter(id => !known.has(id));
+
+    expect(stale, 'these UNGATED_COMMANDS entries match no command — delete them').toEqual([]);
   });
 });

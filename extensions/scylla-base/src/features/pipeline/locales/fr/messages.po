@@ -11,6 +11,26 @@ msgstr ""
 "Language: \n"
 "Language-Team: \n"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:26
+msgid "create add workflow"
+msgstr "créer ajouter workflow"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:48
+msgid "Edit this pipeline"
+msgstr "Modifier ce pipeline"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:49
+msgid "editor change nodes"
+msgstr "éditeur modifier nœuds"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:37
+msgid "Jobs of this pipeline"
+msgstr "Jobs de ce pipeline"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:38
+msgid "runs history logs"
+msgstr "exécutions historique journaux"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:37
 msgid "{count, plural, one {# secret} other {# secrets}}"
 msgstr "{count, plural, one {# secret} other {# secrets}}"
@@ -307,6 +327,7 @@ msgid "New node"
 msgstr "Nouveau nœud"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:10
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:25
 msgid "New pipeline"
 msgstr "Nouveau pipeline"
 

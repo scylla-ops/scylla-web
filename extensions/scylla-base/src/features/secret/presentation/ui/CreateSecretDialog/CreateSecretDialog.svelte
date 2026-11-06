@@ -10,11 +10,11 @@
 
   interface Props {
     projectId: string;
-    isOpen: boolean;
+    open: boolean;
     setOpen: (open: boolean) => void;
   }
 
-  let { projectId, isOpen, setOpen }: Props = $props();
+  let { projectId, open, setOpen }: Props = $props();
 
   const createSecret = createMutation(() => secretMutations.create(projectId));
 
@@ -31,7 +31,7 @@
 </script>
 
 <FormDialog
-  open={isOpen}
+  {open}
   onOpenChange={setOpen}
   title={t(secretMessages.createSecret)}
   {items}

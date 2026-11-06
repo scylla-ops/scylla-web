@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/membership/membership.module.ts:22
+msgid "invite add people"
+msgstr "invite add people"
+
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:80
 msgid "{count, plural, =0 {Add members} one {Add # member} other {Add # members}}"
 msgstr "{count, plural, =0 {Add members} one {Add # member} other {Add # members}}"

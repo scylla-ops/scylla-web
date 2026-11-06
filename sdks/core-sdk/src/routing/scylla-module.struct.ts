@@ -8,6 +8,7 @@ import type {
   ShellContributions,
 } from '../extension/contributions.struct.ts';
 import type { QueryRetryPolicy } from '../extension/contributions.struct.ts';
+import type { CommandDefinition } from '../extension/command.struct.ts';
 import type { RoutePermission } from '../extension/register.struct.ts';
 import type { WidgetPoint } from '../widgets/widget-points.struct.ts';
 import type { BreadcrumbFn } from './crumb.struct.ts';
@@ -36,6 +37,8 @@ export interface NavLink {
   params?: RouteParams;
   /** Apart from the links before it, in red. */
   danger?: boolean;
+  /** Other words that find this page in the command bar, in one text. */
+  keywords?: MessageDescriptor;
 }
 
 /** A folding item of a nav section. The links that name the same `id` go under it. */
@@ -85,6 +88,8 @@ export interface ScyllaModule<TDomain extends object = object> {
    * `<module id>.<key>`, and finds its owner here: a point no module lists cannot be changed.
    */
   readonly points?: Readonly<Record<string, WidgetPoint>>;
+  /** What this module adds to the command bar, in addition to the sidebar links of its routes. */
+  readonly commands?: readonly CommandDefinition[];
   /** The mounts that routes graft on. Each mount is declared once in the app. */
   readonly mounts?: Readonly<Record<RouteMount, MountDefinition>>;
   /** The sections that sidebar links name in `nav.section`. */

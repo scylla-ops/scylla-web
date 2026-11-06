@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/extensions/extensions.module.ts:22
+msgid "plugin"
+msgstr "plugin"
+
 #: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:12
 msgid "{count, plural, one {# module} other {# modules}}"
 msgstr "{count, plural, one {# module} other {# modules}}"

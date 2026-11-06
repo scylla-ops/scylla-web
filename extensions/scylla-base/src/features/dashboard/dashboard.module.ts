@@ -17,6 +17,7 @@ export const DashboardModule = {
         nav: {
           section: 'workspace',
           title: msg`Overview`,
+          keywords: msg`dashboard home`,
           icon: LayoutDashboard,
           order: 10,
           group: { id: 'dashboard', title: msg`Dashboard`, icon: LayoutDashboard },

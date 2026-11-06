@@ -46,6 +46,19 @@ const grouped = (
   return nodes;
 };
 
+/** The entries of a section that the user can open from the current URL, with their URL. */
+export const openableEntries = (
+  { entries, hrefOf, can }: Pick<NavSectionsInput, 'entries' | 'hrefOf' | 'can'>,
+  sectionId: string,
+): { entry: NavEntry; href: string }[] =>
+  entries
+    .filter(entry => entry.section === sectionId)
+    .filter(entry => entry.permission === undefined || can(entry.permission))
+    .flatMap(entry => {
+      const href = hrefOf(entry);
+      return href === null ? [] : [{ entry, href }];
+    });
+
 /**
  * Hides the entries the user cannot open or the current URL cannot fill, then
  * the empty sections. The links of one group fold under one item.
@@ -59,21 +72,18 @@ export const navSectionsFor = ({
 }: NavSectionsInput): NavSection[] =>
   sections
     .map(({ id, title, railItem, within, noRailItem }) => {
-      const links = entries
-        .filter(entry => entry.section === id)
-        .filter(entry => entry.permission === undefined || can(entry.permission))
-        .flatMap((entry): Link[] => {
-          const href = hrefOf(entry);
-          if (href === null) return [];
-          const item = {
+      const links = openableEntries({ entries, hrefOf, can }, id).map(
+        ({ entry, href }): Link => ({
+          entry,
+          item: {
             title: translate(entry.title),
             href,
             url: entry.url,
             icon: entry.icon,
             danger: entry.danger,
-          };
-          return [{ entry, item }];
-        });
+          },
+        }),
+      );
       return {
         id,
         title: translate(title),

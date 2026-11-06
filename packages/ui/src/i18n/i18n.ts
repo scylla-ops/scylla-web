@@ -26,20 +26,30 @@ export function registerCatalogs(loaders: CatalogLoaders): void {
   loadedLocales.clear();
 }
 
-async function loadCatalogs(locale: SupportedLocale): Promise<void> {
-  if (loadedLocales.has(locale)) return;
-
+/** The messages of all catalogs of a locale. It does not activate them. */
+export async function readCatalogs(locale: SupportedLocale): Promise<Messages> {
   const modules = await Promise.all(
     sources
       .flatMap(loaders => Object.entries(loaders))
       .filter(([path]) => LOCALE_FROM_PATH.exec(path)?.[1] === locale)
       .map(([, load]) => load()),
   );
+  return modules.reduce<Messages>((all, module) => Object.assign(all, module.messages), {});
+}
 
-  i18n.load(
-    locale,
-    modules.reduce<Messages>((all, module) => Object.assign(all, module.messages), {}),
-  );
+/** The plain text of a message in a catalog that `readCatalogs` gave. */
+export function plainMessage(catalog: Messages, id: string | undefined): string | undefined {
+  const message = id ? catalog[id] : undefined;
+  if (message === undefined) return undefined;
+  return typeof message === 'string'
+    ? message
+    : message.filter(part => typeof part === 'string').join('');
+}
+
+async function loadCatalogs(locale: SupportedLocale): Promise<void> {
+  if (loadedLocales.has(locale)) return;
+
+  i18n.load(locale, await readCatalogs(locale));
   loadedLocales.add(locale);
 }
 

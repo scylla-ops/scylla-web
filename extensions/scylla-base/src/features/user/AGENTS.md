@@ -85,6 +85,7 @@ infrastructure/
   default-user.repository.ts         UserServiceClient → UserEntity
   grpc-user.mapper.ts                user, requests, access, session, delivery
 presentation/
+  user.commands.ts                   the theme, for the search bar
   user.queries.ts                    the reads, the writes, `canListUsers`
   messages/user.messages.ts                every string the screens show
   ui/admin/UserAdmin.page.svelte     the directory

@@ -7,6 +7,7 @@ import { PipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipel
 import { DefaultPipelineRepository } from './infrastructure/default-pipeline.repository.ts';
 import { DefaultNodeTemplateRepository } from './infrastructure/default-node-template.repository.ts';
 import { SavePipelineUseCase } from './domain/use-cases/save-pipeline.use-case.ts';
+import { pipelineCommands } from './presentation/pipeline.commands.ts';
 
 const pipelineRepository = new DefaultPipelineRepository(
   new PipelineServiceClient(grpcTransport.getTransport()),
@@ -19,6 +20,7 @@ export const PipelineModule = {
     nodeTemplateRepository: new DefaultNodeTemplateRepository(),
     savePipeline: new SavePipelineUseCase(pipelineRepository),
   },
+  commands: pipelineCommands,
   routes: {
     project: [
       {
