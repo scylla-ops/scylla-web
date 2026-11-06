@@ -47,6 +47,9 @@ src/
     AppSidebar/                                the sidebars, built from the nav entries
                                                DoubleSidebar: the brand band, Rail, SecondSidebar
                                                (nav-rail.ts: the rail of the sections)
+                                               SecondSidebarHandle: the edge that the user moves
+                                               (second-sidebar-width.state.svelte.ts: the width and its limits,
+                                               second-sidebar-handle.attachments.ts: the drag and the keys)
                                                Below `md`, the sheet: NavMain, where a NavGroup folds its links
                                                (nav-groups.state.svelte.ts keeps which groups are open)
     TopBar/                                    the crumbs of the route trail, after the name of the section, and `topBarEnd`
@@ -173,6 +176,23 @@ module gives an access policy.
   of the rail or on its separator opens and closes it, and the cursor shows the direction. The
   separator is the way for the keyboard. A row opens its page and closes the rail. A press outside
   and Escape close it, except while one of its menus is open.
+- **The user sets the width of the second sidebar, not of the rail.** The handle
+  (`SecondSidebarHandle`) is on the right edge of the second sidebar, below the band, and the page
+  follows the width. A drag moves it. The handle has the `separator` role: the arrow keys move it by
+  16 px, Home and End go to the limits. It is not on a page with no second sidebar, not while the
+  access policy is not ready, and not in the sheet of a phone.
+- **The width is in pixels, thus `ResizablePaneGroup` does not fit.** Its sizes are percent of the
+  group, thus a minimum in percent gives a different width for each window, and the group must
+  also hold the page.
+- **The width stays between 200 px and 400 px.** At 200 px the longest link ("Exécutions en échec")
+  has 14 px of free room, and the open rail covers the second sidebar to the same edge as the band.
+  A wider second sidebar stays visible to the right of the open rail. The page keeps 704 px: a table
+  of 640 px (`CARD_LAYOUT_WIDTH_PX`) and the padding of the page, thus a resize never turns a table
+  into cards. A narrow window lowers the maximum, but never below 200 px. It does not change the
+  stored width: a wider window gives this width back.
+- **The width is for this browser only.** `localStorage` keeps it, under
+  `scylla.shell.second-sidebar-width`. A drag writes it at its end, not at each move. A key writes
+  it at each press. A blocked storage only forgets it.
 - **A folding group never closes by itself** (in the sheet of a phone). It opens when the user goes to a page of its links.
   Only the user closes it, and it stays closed until the user opens it or goes to a page of its
   links. The open state is in memory, out of the sidebar, because a page with no shell unmounts
