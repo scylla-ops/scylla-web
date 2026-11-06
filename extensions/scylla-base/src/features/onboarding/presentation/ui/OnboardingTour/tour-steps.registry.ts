@@ -59,6 +59,8 @@ export interface TourSpotStep {
   wide?: boolean;
   /** The user types in the targets before Next: they stay usable, only the rest is dimmed. */
   form?: boolean;
+  /** The page that Previous opens when it differs from `page`, e.g. the list to pick from again. */
+  back?: (subject: OnboardingSubject) => string;
   /** A step that asks for a click in the menu: the card also has Go, which opens this page. */
   go?: (subject: OnboardingSubject) => string;
 }
@@ -205,6 +207,7 @@ const projectCards: TourAnchor = root =>
 const pickProject = (id: string, body: MessageDescriptor): TourSpotStep => ({
   id,
   page: projectPage,
+  back: () => '/projects',
   title: m.pickProjectTitle,
   body: [body],
   targets: [projectCards],

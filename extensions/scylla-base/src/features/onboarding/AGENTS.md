@@ -146,7 +146,10 @@ The mutation keys come from the barrels: `CREATE_APP_MUTATION_KEY` (`apps`),
 - **Go and Previous.** A step that asks for a click in the menu has `go`: the card shows Go,
   which advances the step and opens that page. Previous always shows; it is greyed out on the
   first step and on a lost card. It opens the page of the previous step, or, for a step with no
-  `page`, the page that the user was on when they left it (kept for this visit only).
+  `page`, the page that the user was on when they left it (kept for this visit only). `back`
+  replaces `page` for Previous (the project pick goes back to the list). After Previous, an
+  `appear` step waits until its element is gone once: the page that the user leaves still shows
+  it for a moment, and the step must not move on again at once.
 - **On top.** The card, the ring and the page offer use `z-[200]`, the blocker `z-[195]` and the
   Skip confirmation `z-[210]`: above every dialog of the app (`z-50`).
 - **Page offer.** A tour with `offer` shows a small card in the bottom right corner of its page

@@ -128,6 +128,7 @@
   const tracking = $derived({
     step,
     subject: tour.subject,
+    rewound: tour.rewound,
     onLayout: (next: TourLayout) => {
       layout = next;
     },

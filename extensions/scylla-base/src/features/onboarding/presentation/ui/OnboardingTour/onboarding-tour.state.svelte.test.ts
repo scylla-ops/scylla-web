@@ -198,6 +198,7 @@ describe('createOnboardingTour', () => {
 
     await onStep(tour, 'new-pipeline');
     expect(navigator.navigate).toHaveBeenCalledWith('/acme/projects/p-1', undefined);
+    expect(tour.rewound).toBe(true);
   });
 
   it('opens the page of a step in the menu with Go, and moves on', async () => {

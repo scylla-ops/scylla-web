@@ -95,6 +95,7 @@ export const createOnboardingTour = (canStart: () => boolean) => {
 
   let confirmingSkip = $state(false);
   let unlockedStepId = $state<string | null>(null);
+  let rewoundStepId = $state<string | null>(null);
 
   const status = $derived(statusQuery.data);
   const tour = $derived.by((): TourDefinition | undefined => {
@@ -195,6 +196,9 @@ export const createOnboardingTour = (canStart: () => boolean) => {
     get agentOffline() {
       return agentOffline;
     },
+    get rewound() {
+      return !!step && rewoundStepId === step.id;
+    },
     get canGoBack() {
       return !!step?.page;
     },
@@ -217,8 +221,10 @@ export const createOnboardingTour = (canStart: () => boolean) => {
       const target = tour.steps.find(candidate => candidate.id === to);
       if (!to || !target) return;
       write(rewindTour(status, stepIds, step.id, to));
+      rewoundStepId = to;
       const before = left.get(to);
-      if (target.page) scyllaNavigate.goToWorkspaceRoute(target.page(subject));
+      const page = target.back ?? target.page;
+      if (page) scyllaNavigate.goToWorkspaceRoute(page(subject));
       else if (before) navigateTo(before);
     },
     /** Opens the page that the click in the menu would open, and moves on. */

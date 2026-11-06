@@ -32,6 +32,8 @@ export interface TourTracking {
   onUnlock: () => void;
   onLost: () => void;
   onHint: (shown: boolean) => void;
+  /** The user came back to this step with Previous: an `appear` waits until its element goes. */
+  rewound?: boolean;
 }
 
 /** The layout box: a hover or press `scale` on the element or an ancestor must not move the spotlight. */
@@ -105,6 +107,7 @@ export const trackTourStep =
     let advanced = false;
     let unlocked = false;
     let hintShown = false;
+    let armed = !tracking.rewound;
     let lastAction: string | null = null;
     let shown: readonly (TourRect | null)[] = [];
     let moveFrom: readonly (TourRect | null)[] = [];
@@ -121,6 +124,7 @@ export const trackTourStep =
       advanced = false;
       unlocked = false;
       hintShown = false;
+      armed = !tracking.rewound;
       lastAction = null;
       moveFrom = shown;
       moveStart = null;
@@ -209,7 +213,8 @@ export const trackTourStep =
 
       if (step.advance.on === 'appear') {
         const element = resolve(step.advance.anchor);
-        if (element) advance(step.advance.found?.(element));
+        if (!element) armed = true;
+        else if (armed) advance(step.advance.found?.(element));
       }
       if (appeared(step.nextWhen)) unlock();
 
@@ -228,8 +233,9 @@ export const trackTourStep =
 
     $effect(() => {
       const next = options();
-      if (next.step.id !== untrack(() => tracking.step.id)) reset();
+      const moved = next.step.id !== untrack(() => tracking.step.id);
       tracking = next;
+      if (moved) reset();
     });
 
     document.addEventListener('click', onClick, true);
