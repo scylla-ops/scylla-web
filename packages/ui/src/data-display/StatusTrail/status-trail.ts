@@ -1,4 +1,4 @@
-import type { StatusState } from '../StatusIndicator/status-indicator.ts';
+import type { StatusState } from '../status-state.ts';
 
 export interface StatusTrailItem {
   id: string;

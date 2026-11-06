@@ -59,6 +59,8 @@ beforeEach(() => {
   Element.prototype.scrollIntoView = vi.fn();
   // jsdom logs "Not implemented" for it.
   window.scrollTo = vi.fn();
+  // jsdom has no canvas, and logs "Not implemented": no context, as in a browser without 2D.
+  HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue(null);
   // No media queries in jsdom: report the desktop layout.
   window.matchMedia = vi.fn().mockImplementation((query: string) => ({
     matches: false,
