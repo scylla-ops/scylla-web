@@ -1,0 +1,46 @@
+# Dependency updates, one pull request per group and per week, against the version branch.
+# `target-branch` names the current version branch: the release checklist of CONTRIBUTING.md
+# moves it when the next version branch opens.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    target-branch: v0.6.1
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      # One pull request for the minor and patch updates of the runtime dependencies.
+      runtime:
+        dependency-type: production
+        update-types: [minor, patch]
+      # One for the toolchain (Vite, Vitest, ESLint, TypeScript, Lingui, ...).
+      tooling:
+        dependency-type: development
+        update-types: [minor, patch]
+    ignore:
+      # Bumped by hand, in lockstep: the Svelte binding pins the exact version of its core, and
+      # two copies of the core split the query cache or the table state silently
+      # (sdks/core-sdk/AGENTS.md). A group cannot keep the pair together.
+      - dependency-name: '@tanstack/svelte-query'
+      - dependency-name: '@tanstack/query-core'
+      - dependency-name: '@tanstack/svelte-table'
+      - dependency-name: '@tanstack/table-core'
+      # `typescript` is an alias of TypeScript 6, for the tools that have no TypeScript 7 API yet
+      # (AGENTS.md). Both names of the alias stay put. `@typescript/native` (TypeScript 7) moves.
+      - dependency-name: typescript
+      - dependency-name: '@typescript/typescript6'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    target-branch: v0.6.1
+    commit-message:
+      prefix: chore
+      include: scope

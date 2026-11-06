@@ -126,7 +126,8 @@ a minor version (0.6.0, 0.7.0). A patch version (0.6.1) only fixes a bug of a re
      `CHANGELOG.md`. Add an empty `## [Unreleased]` above it, and update the links at the end
      of the file.
   2. Create the next version branch (`v0.7.0`) from the version branch. Its first pull request
-     sets the new version in all the `package.json` files.
+     sets the new version in all the `package.json` files, and sets `target-branch` in
+     `.github/dependabot.yml` to the new branch.
   3. Open a pull request from the version branch to `main`, and merge it with a merge commit.
   4. Delete the version branch. A branch and a tag with the same name make `git` refs
      ambiguous.
