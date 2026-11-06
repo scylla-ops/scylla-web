@@ -105,6 +105,10 @@ msgstr "Sign out"
 msgid "Signed in as {name}"
 msgstr "Signed in as {name}"
 
+#: extensions/scylla-base/src/shell/presentation/report-query-error.ts:46
+msgid "Someone else changed this item in the meantime. Check the latest version and try again."
+msgstr "Someone else changed this item in the meantime. Check the latest version and try again."
+
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:6
 msgid "System"
 msgstr "System"

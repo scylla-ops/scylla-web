@@ -47,7 +47,10 @@ reads any thrown value. It is in scylla-base `shared/utils/scylla-error.ts`. Oth
 it from `@scylla/base-sdk`.
 
 The shell has the one error toast of the app (`reportQueryError`) and the retry policy
-(`retryQueryError`: only `UNAVAILABLE`, `DEADLINE_EXCEEDED` and `ABORTED` are retried).
+(`retryQueryError`: only `UNAVAILABLE` and `DEADLINE_EXCEEDED` are retried). A mutation that the
+server refused because the item changed since it was read (`ABORTED`, `isConflict`) is told as a
+conflict, and every query is invalidated so that the screen shows what the server has. What the
+user typed stays.
 
 ---
 

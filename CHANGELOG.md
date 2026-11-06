@@ -10,6 +10,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+### Added
+
+- A write that the server refused because the item changed in the meantime is shown as such, in
+  the words of the app, and the page reloads what the server has without erasing what the user
+  typed. Before, the user saw an unexpected error, and a query retried on it.
+
 ### Fixed
 
 - The UI uses Funnel Sans, the text font of the brand. Before, it used the system font of the browser.

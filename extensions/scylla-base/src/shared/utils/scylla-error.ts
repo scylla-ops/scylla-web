@@ -25,17 +25,17 @@ const USER_FACING_CODES: ReadonlySet<ScyllaErrorCode> = new Set<ScyllaErrorCode>
   'INVALID_CREDENTIALS',
 ]);
 
-/** The failures that can pass if the same call is sent again. */
+/** The failures that can pass if the same call is sent again. Not `ABORTED`: see `isConflict`. */
 const TRANSIENT_CODES: ReadonlySet<ScyllaErrorCode> = new Set<ScyllaErrorCode>([
   'UNAVAILABLE',
   'DEADLINE_EXCEEDED',
-  'ABORTED',
 ]);
 
 /** The refusals that the server gives on purpose: a normal answer, not a fault. */
 const EXPECTED_CODES: ReadonlySet<ScyllaErrorCode> = new Set<ScyllaErrorCode>([
   ...USER_FACING_CODES,
   ...TRANSIENT_CODES,
+  'ABORTED',
   'PERMISSION_DENIED',
   'UNAUTHENTICATED',
   'CANCELLED',
@@ -84,6 +84,14 @@ export class ScyllaError extends Error {
 
   public isTransient(): boolean {
     return TRANSIENT_CODES.has(this.code);
+  }
+
+  /**
+   * The server refused a write because the item changed since it was read. Sending the same call
+   * again does not resolve it: the user decides.
+   */
+  public isConflict(): boolean {
+    return this.code === 'ABORTED';
   }
 
   public isNotFound(): boolean {

@@ -21,7 +21,7 @@ msgstr "A username cannot contain \"@\"."
 msgid "Agent id copied"
 msgstr "Agent id copied"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:106
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:114
 msgid "An unexpected error occurred"
 msgstr "An unexpected error occurred"
 
@@ -133,7 +133,7 @@ msgstr "Secret deleted"
 msgid "Secret updated"
 msgstr "Secret updated"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:103
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:111
 msgid "Server unreachable"
 msgstr "Server unreachable"
 
@@ -213,6 +213,6 @@ msgstr "User information updated"
 msgid "You cannot delete your own account."
 msgstr "You cannot delete your own account."
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:104
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:112
 msgid "You don't have permission to perform this action"
 msgstr "You don't have permission to perform this action"

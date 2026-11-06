@@ -1,9 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { getQueryClient } from '@scylla/core-sdk';
 import { ScyllaError, type ScyllaErrorCode } from '@shared/utils/scylla-error.ts';
 import { reportQueryError } from '../report-query-error.ts';
 
 const toastError = vi.fn();
-vi.mock('svelte-sonner', () => ({ toast: { error: (message: string) => toastError(message) } }));
+const toastWarning = vi.fn();
+vi.mock('svelte-sonner', () => ({
+  toast: {
+    error: (message: string) => toastError(message),
+    warning: (message: string) => toastWarning(message),
+  },
+}));
 
 const errorWith = (code: ScyllaErrorCode) => new ScyllaError('boom', { code });
 let location: Location;
@@ -84,6 +91,29 @@ describe('reportQueryError', () => {
 
     expect(localStorage.getItem('token')).toBe('a-token');
     expect(toastError).toHaveBeenCalledOnce();
+  });
+
+  it('shows a mutation refused because the item changed as a conflict, and reloads the screen', () => {
+    const invalidate = vi.spyOn(getQueryClient(), 'invalidateQueries').mockResolvedValue();
+
+    reportQueryError(errorWith('ABORTED'), 'mutation');
+
+    expect(toastWarning).toHaveBeenCalledWith(
+      'Someone else changed this item in the meantime. Check the latest version and try again.',
+    );
+    expect(toastError).not.toHaveBeenCalled();
+    expect(invalidate).toHaveBeenCalledExactlyOnceWith();
+    expect(localStorage.getItem('token')).toBe('a-token');
+  });
+
+  it('gives a query that the server aborted the generic message, and reloads nothing', () => {
+    const invalidate = vi.spyOn(getQueryClient(), 'invalidateQueries').mockResolvedValue();
+
+    reportQueryError(new ScyllaError('boom', { code: 'ABORTED', raw: true }), 'query');
+
+    expect(toastWarning).not.toHaveBeenCalled();
+    expect(toastError).toHaveBeenCalledExactlyOnceWith('An unexpected error occurred');
+    expect(invalidate).not.toHaveBeenCalled();
   });
 
   it('toasts the message of any other Scylla error', () => {

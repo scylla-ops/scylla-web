@@ -67,13 +67,18 @@ try {                                                           // a caller that
   sees the generic message.
 - `log()` writes a server fault or a bug (`INTERNAL`, `UNKNOWN_ERROR`, …) with `console.error`,
   in production too: it is what a user can send to the support. A refusal of the server
-  (`EXPECTED_CODES`: the user-facing and transient codes, `PERMISSION_DENIED`,
+  (`EXPECTED_CODES`: the user-facing and transient codes, `ABORTED`, `PERMISSION_DENIED`,
   `UNAUTHENTICATED`, `CANCELLED`) is a normal answer: it is written in development only. The line
   names the call (`rpc`, set by the transport): `[ScyllaError] NOT_FOUND
   scylla.secret.v1.SecretService/ListSecrets: no such secret`. Do not write a message of your own
   for the log: the name of the call is exact for every call.
-- `isTransient()` is true for `UNAVAILABLE`, `DEADLINE_EXCEEDED`, `ABORTED`. `retryQueryError`
-  retries only these.
+- `isTransient()` is true for `UNAVAILABLE`, `DEADLINE_EXCEEDED`. `retryQueryError` retries only
+  these.
+- `isConflict()` is true for `ABORTED`: the server refused a write because the item changed
+  since it was read. It is not transient: sending the same call again does not resolve it. The
+  protos do not carry the version, so a page cannot send one. On a mutation, `reportQueryError`
+  tells the conflict and invalidates every query. `userMessage()` has no sentence for it: a query
+  that gets the code shows the generic text.
 - When a generic code means something more precise for one call, catch it in the repository,
   and throw a new `ScyllaError` (see [`login`](../features/login/AGENTS.md):
   `UNAUTHENTICATED` → `INVALID_CREDENTIALS`), rather than special-casing it in every consumer.
