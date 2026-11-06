@@ -153,11 +153,8 @@ export { SIDEBAR_FADE, SIDEBAR_MOTION } from './sidebar/sidebar-variants.ts';
 
 export { default as Pagination } from './pagination/pagination.svelte';
 export { default as PaginationContent } from './pagination/pagination-content.svelte';
-export { default as PaginationEllipsis } from './pagination/pagination-ellipsis.svelte';
 export { default as PaginationItem } from './pagination/pagination-item.svelte';
 export { default as PaginationLink } from './pagination/pagination-link.svelte';
-export { default as PaginationNext } from './pagination/pagination-next.svelte';
-export { default as PaginationPrevious } from './pagination/pagination-previous.svelte';
 
 // The pane is paneforge's own, aliased rather than wrapped: only the group and the handle carry
 // styling.

@@ -92,7 +92,7 @@ Anchors are attributes on the real elements, never CSS classes:
   `data-last-status`), `pipeline-run`, `job-details`.
 - `data-part="…"` in `@scylla/ui` (generic parts): `feature-header-new`.
 - `data-nav-url` on the core's sidebar links, `data-nav-group` on its folding groups,
-  `data-item-id` on `StatusBar` segments, and the `data-slot` of the primitives: the sidebar, the
+  `data-item-id` on `StatusBar` segments and on `StatusTrail` dots (the history of the pipelines), and the `data-slot` of the primitives: the sidebar, the
   inset and the dialogs.
 - The agent steps use the agents page (`/agents`, `data-tour="agents"`) and its "Add an agent"
   dialog: `app-join-code` (the install command) and `app-dialog-actions` (the footer). The

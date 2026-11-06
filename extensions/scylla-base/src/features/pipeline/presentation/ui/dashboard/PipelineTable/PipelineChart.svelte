@@ -1,10 +1,11 @@
 <script lang="ts">
   import type { JobEntity } from '@base/features/jobs';
+  import { StatusTrail, type StatusTrailItem } from '@scylla/ui';
   import { Skeleton } from '@scylla/ui/primitives';
-  import { StatusBar, type StatusBarItem } from '@shared/presentation/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { calculateDuration, formatDuration, getRelativeTime } from '@shared/utils/date-utils.ts';
+  import { toStatusState } from '@shared/utils/job-status.utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
@@ -21,14 +22,14 @@
   let { jobs, maxJobs, isLoading = false, isError = false, isForbidden = false, onSelectJob }: Props =
     $props();
 
-  type RunItem = StatusBarItem & { job: JobEntity; runNumber: number };
+  type RunItem = StatusTrailItem & { job: JobEntity; runNumber: number };
 
   const items = $derived.by((): RunItem[] =>
     jobs
       .slice(0, maxJobs)
       .map((job, index) => ({
         id: job.id,
-        status: job.status,
+        state: toStatusState(job.status),
         // Oldest on the left: run numbers count up.
         runNumber: jobs.length - index,
         job,
@@ -61,9 +62,9 @@
 {/snippet}
 
 {#if isLoading}
-  <div class="flex h-10 w-full items-center gap-2 overflow-hidden rounded-md px-1 py-1">
+  <div class="flex h-10 w-full items-center gap-5 px-1">
     {#each { length: maxJobs ?? 0 } as _, index (index)}
-      <Skeleton class="h-full min-w-[4px] flex-1 rounded-sm" />
+      <Skeleton class="size-2.5 shrink-0 rounded-full" />
     {/each}
   </div>
 {:else if isForbidden}
@@ -76,11 +77,7 @@
     <span class="text-xs text-muted-foreground italic">{t(pipelineMessages.jobsError)}</span>
   </div>
 {:else}
-  <StatusBar
-    {items}
-    tooltip={runTooltip}
-    emptyLabel={t(pipelineMessages.noJobsYet)}
-    height="h-10"
-    class="px-1"
-  />
+  <div class="flex h-10 w-full items-center px-1">
+    <StatusTrail {items} tooltip={runTooltip} emptyLabel={t(pipelineMessages.noJobsYet)} />
+  </div>
 {/if}

@@ -9,9 +9,6 @@ import { msg } from '@lingui/core/macro';
  */
 export const paginationMessages = {
   pagination: msg`Pagination`,
-  previous: msg`Previous`,
-  next: msg`Next`,
   goToPrevious: msg`Go to previous page`,
   goToNext: msg`Go to next page`,
-  morePages: msg`More pages`,
 };
