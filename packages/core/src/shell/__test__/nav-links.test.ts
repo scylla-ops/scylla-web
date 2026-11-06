@@ -55,6 +55,13 @@ describe('navLinksFor', () => {
     expect(links[0].group?.id).toBe(msg`Tools`.id);
   });
 
+  it('leaves out a link that stays in the sidebar', () => {
+    const [users, secrets] = config().entries;
+    const links = navLinksFor(config({ entries: [{ ...users, inCommandBar: false }, secrets] }))();
+
+    expect(links.map(link => link.url)).toEqual(['secrets']);
+  });
+
   it('hides a link that the user cannot open', () => {
     const links = navLinksFor(
       config({

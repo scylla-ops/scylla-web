@@ -8,7 +8,7 @@ const TYPE = msg`Notifications`;
 
 const inboxPath = (): string => {
   const { workspaceSlug } = routeParams();
-  return workspaceSlug ? `/${workspaceSlug}/notifications` : '/notifications';
+  return workspaceSlug ? `/${workspaceSlug}/notifications/inbox` : '/notifications/inbox';
 };
 
 export const notificationsCommands: readonly CommandDefinition[] = [

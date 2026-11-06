@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/svelte';
+import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { installTestNavigator } from '@test/navigator.ts';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
+import { contextStore } from '@platform/context';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { NotificationEntity } from '../../../domain/entities/notification.entity.ts';
@@ -17,6 +19,8 @@ const repository = {
   setDone: vi.fn(),
 };
 const invitations = { acceptById: vi.fn(), decline: vi.fn() };
+const jobs = { getByWorkspaceId: vi.fn() };
+const pipelines = { getMetadataByWorkspaceId: vi.fn() };
 
 let teardown: Array<() => void> = [];
 let navigator: ReturnType<typeof installTestNavigator>;
@@ -54,6 +58,8 @@ beforeEach(() => {
       notifications: { notificationRepository: repository },
       invitation: { invitationRepository: invitations },
       workspace: { workspaceRepository: { getMine: vi.fn().mockResolvedValue([]) } },
+      jobs: { jobsRepository: jobs },
+      pipeline: { pipelineRepository: pipelines },
     }),
   ];
 });
@@ -75,16 +81,18 @@ describe('the panel of the bell', () => {
     expect(screen.queryByText(/all is well/i)).toBeNull();
   });
 
-  it('offers to clear a filter that hides the rows', async () => {
-    lists();
+  it('has no filter and no failed runs: it asks for the inbox of all workspaces', async () => {
+    lists(row());
     panel();
-    await screen.findByText('No notifications yet.');
+    await screen.findByText('Your password changed.');
 
-    await userEvent.click(screen.getByRole('radio', { name: 'Unread' }));
-
-    await screen.findByText('No notification matches this filter.');
-    await userEvent.click(screen.getByRole('button', { name: 'Clear filter' }));
-    await screen.findByText('No notifications yet.');
+    expect(screen.queryByRole('radio')).toBeNull();
+    expect(screen.queryByText('Failed runs')).toBeNull();
+    expect(repository.list).toHaveBeenCalledWith(
+      { done: false, unreadOnly: false, needsActionOnly: false, category: '', workspaceId: null },
+      20,
+      '',
+    );
   });
 
   it('shows a load error with a way to try again', async () => {
@@ -110,13 +118,65 @@ describe('the panel of the bell', () => {
   });
 
   it('marks all as read', async () => {
+    repository.summary.mockResolvedValue({ unread: 2, needsAction: 1, pollAfterSeconds: 30 });
+    lists(row());
+    panel();
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Mark all as read' }));
+
+    await waitFor(() => expect(repository.markAllRead).toHaveBeenCalledOnce());
+  });
+
+  it('offers no mark all as read when only rows that wait for an answer are unread', async () => {
+    repository.summary.mockResolvedValue({ unread: 1, needsAction: 1, pollAfterSeconds: 30 });
+    lists(invitedRow());
+    panel();
+    await screen.findByText('Sam invited you to Acme as Member.');
+    await waitFor(() => expect(repository.summary).toHaveBeenCalled());
+
+    expect(screen.queryByRole('button', { name: 'Mark all as read' })).toBeNull();
+  });
+
+  it('labels only the rows that need an action, with no time labels', async () => {
+    lists(invitedRow({ id: 'a' }), row({ id: 'b' }));
+    panel();
+    await screen.findByText('Your password changed.');
+
+    expect(screen.getAllByRole('heading', { level: 3 }).map(el => el.textContent?.trim())).toEqual([
+      'Needs action',
+    ]);
+    expect(screen.getByRole('separator')).toBeInTheDocument();
+  });
+
+  it('has one action on a row, and no read toggle', async () => {
     lists(row());
     panel();
     await screen.findByText('Your password changed.');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Mark all as read' }));
+    expect(screen.getByRole('button', { name: 'Mark as done' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Mark as read' })).toBeNull();
+  });
 
-    await waitFor(() => expect(repository.markAllRead).toHaveBeenCalledOnce());
+  it('marks a row with no link as read on a click', async () => {
+    lists(row({ kind: 'unknown.kind' }));
+    panel();
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'You have a new notification.' }),
+    );
+
+    await waitFor(() => expect(repository.markRead).toHaveBeenCalledWith(['row-1'], true));
+  });
+
+  it('opens the inbox from its footer', async () => {
+    const onNavigate = vi.fn();
+    lists();
+    render(NotificationsPanel, { onNavigate });
+
+    await userEvent.click(await screen.findByRole('link', { name: 'All notifications' }));
+
+    expect(navigator.navigate).toHaveBeenCalledWith('/notifications/inbox', undefined);
+    expect(onNavigate).toHaveBeenCalledOnce();
   });
 
   it('shows no mark as read on a row that waits for an answer', async () => {
@@ -206,10 +266,11 @@ describe('the answer to an invitation', () => {
 
 describe('the full page', () => {
   const press = (key: string) => userEvent.keyboard(key);
+  const inbox = () => render(Notifications, { view: 'inbox' });
 
   it('marks the selected rows as read', async () => {
     lists(row({ id: 'a' }), row({ id: 'b' }));
-    render(Notifications);
+    inbox();
     await screen.findAllByText('Your password changed.');
 
     await userEvent.click(screen.getByRole('checkbox', { name: 'Select all' }));
@@ -225,7 +286,7 @@ describe('the full page', () => {
         nextToken: token ? '' : 'second',
       }),
     );
-    render(Notifications);
+    inbox();
     await screen.findByText('Your password changed.');
 
     await userEvent.click(screen.getByRole('button', { name: 'Next page' }));
@@ -239,9 +300,10 @@ describe('the full page', () => {
   it('acts on the active row with the keys', async () => {
     repository.setDone.mockResolvedValue(undefined);
     lists(row({ id: 'a', read: true }), row({ id: 'b' }));
-    render(Notifications);
+    inbox();
     await screen.findAllByText('Your password changed.');
 
+    await press('j');
     await press('j');
     await press('u');
     await press('e');
@@ -250,12 +312,67 @@ describe('the full page', () => {
     await waitFor(() => expect(repository.setDone).toHaveBeenCalledWith(['b'], true));
   });
 
-  it('asks the server for the done rows on the Done tab', async () => {
-    lists();
-    render(Notifications);
-    await screen.findByText('No notifications yet.');
+  it('has no active row until a key moves to one, so a key acts on no hidden row', async () => {
+    lists(row({ id: 'a' }));
+    inbox();
+    await screen.findByText('Your password changed.');
 
-    await userEvent.click(screen.getByRole('radio', { name: 'Done' }));
+    await press('e');
+
+    expect(repository.setDone).not.toHaveBeenCalled();
+    expect(screen.getByTestId('notification-row')).not.toHaveAttribute('data-active');
+
+    await press('j');
+
+    await waitFor(() =>
+      expect(screen.getByTestId('notification-row')).toHaveAttribute('data-active'),
+    );
+  });
+
+  it('shows the bulk actions only with a selection', async () => {
+    lists(row({ id: 'a' }));
+    inbox();
+    await screen.findByText('Your password changed.');
+    const bar = () => screen.getByRole('checkbox', { name: 'Select all' }).closest('div');
+
+    expect(within(bar()!).queryByRole('button')).toBeNull();
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Select all' }));
+
+    expect(within(bar()!).getByRole('button', { name: 'Mark as done' })).toBeInTheDocument();
+  });
+
+  it('keeps the time labels', async () => {
+    lists(row({ lastAt: new Date().toISOString() }));
+    inbox();
+
+    await screen.findByRole('heading', { name: 'Today' });
+  });
+
+  it.each([
+    ['done', { done: true }],
+    ['unread', { unreadOnly: true }],
+    ['needs-action', { needsActionOnly: true }],
+    ['access', { category: 'access' }],
+    ['security', { category: 'security' }],
+  ])('asks the server for the rows of the view %s', async (view, filter) => {
+    lists();
+    render(Notifications, { view });
+
+    await waitFor(() =>
+      expect(repository.list).toHaveBeenLastCalledWith(
+        expect.objectContaining(filter),
+        25,
+        '',
+      ),
+    );
+  });
+
+  it('reads the view of the route, which changes inside the page', async () => {
+    navigator.restore();
+    navigator = installTestNavigator({ params: { view: 'done' } });
+    lists();
+    render(Notifications, { view: 'inbox' });
 
     await waitFor(() =>
       expect(repository.list).toHaveBeenLastCalledWith(
@@ -264,5 +381,125 @@ describe('the full page', () => {
         '',
       ),
     );
+  });
+
+  it('goes to the inbox from an empty quick filter', async () => {
+    lists();
+    render(Notifications, { view: 'unread' });
+
+    await screen.findByText('No notification matches this filter.');
+    await userEvent.click(screen.getByRole('button', { name: 'Clear filter' }));
+
+    expect(navigator.navigate).toHaveBeenCalledWith('/notifications/inbox', undefined);
+  });
+
+  it('says that the done list is empty, with no filter to clear and nothing to select', async () => {
+    lists();
+    render(Notifications, { view: 'done' });
+
+    await screen.findByText('No notifications yet.');
+    expect(screen.queryByRole('button', { name: 'Clear filter' })).toBeNull();
+    expect(screen.queryByRole('checkbox', { name: 'Select all' })).toBeNull();
+  });
+
+  it('sends a segment that names no view to the inbox', () => {
+    lists();
+    render(Notifications, { view: 'nope' });
+
+    expect(navigator.navigate).toHaveBeenCalledWith('../inbox', { replace: true });
+  });
+
+  it('lists the views in the page outside a workspace, with no failed runs', async () => {
+    lists();
+    inbox();
+
+    const nav = await screen.findByRole('navigation', { name: 'Notifications' });
+    expect(within(nav).getByRole('link', { name: 'Inbox' })).toHaveAttribute('aria-current', 'page');
+    expect(within(nav).getByRole('link', { name: 'Security' })).toBeInTheDocument();
+    expect(within(nav).queryByRole('link', { name: 'Failed runs' })).toBeNull();
+  });
+
+  it('has no sidebar links of its own in a workspace', async () => {
+    lists();
+    render(Notifications, { view: 'inbox', workspaceSlug: 'acme' });
+
+    await screen.findByText('No notifications yet.');
+    expect(screen.queryByRole('navigation', { name: 'Notifications' })).toBeNull();
+  });
+});
+
+describe('the failed runs of the page', () => {
+  const failedRuns = () =>
+    render(Notifications, { view: 'failed-runs', workspaceSlug: 'acme' });
+
+  const allow = (permissions: Permission[]) => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.WORKSPACE,
+            scopeId: 'ws-1',
+            access: { kind: 'restricted', permissions },
+          },
+        ],
+      },
+    });
+    contextStore.setState({ workspace: { id: 'ws-1', name: 'Acme', slug: 'acme' } });
+  };
+
+  afterEach(() => {
+    permissionsStore.setState({ permissions: null });
+    contextStore.setState({ workspace: { id: null, name: null, slug: null } });
+  });
+
+  it('sends the personal page to the inbox: it has no workspace', () => {
+    render(Notifications, { view: 'failed-runs' });
+
+    expect(navigator.navigate).toHaveBeenCalledWith('../inbox', { replace: true });
+  });
+
+  it('denies a person with no access, with no call', async () => {
+    allow([]);
+
+    failedRuns();
+
+    await waitFor(() => expect(jobs.getByWorkspaceId).not.toHaveBeenCalled());
+    expect(screen.queryByText(/No failed run/)).toBeNull();
+  });
+
+  it('opens a failed run, with no limit of five', async () => {
+    allow([Permission.LIST_JOBS_BY_WORKSPACE, Permission.LIST_PIPELINES_BY_WORKSPACE]);
+    jobs.getByWorkspaceId.mockResolvedValue({
+      items: Array.from({ length: 7 }, (_, index) => ({
+        id: `job-${index}`,
+        pipelineId: 'p1',
+        status: 'failed',
+        createdAt: '2026-11-06T10:00:00.000Z',
+      })),
+    });
+    pipelines.getMetadataByWorkspaceId.mockResolvedValue({
+      items: [{ id: 'p1', projectId: 'pr1', name: 'Nightly' }],
+    });
+
+    failedRuns();
+
+    const rows = await screen.findAllByRole('button', { name: /Nightly/ });
+    expect(rows).toHaveLength(7);
+    await userEvent.click(rows[0]);
+    expect(navigator.navigate).toHaveBeenCalledWith(
+      '/acme/projects/pr1/pipelines/p1/jobs/job-0',
+      undefined,
+    );
+  });
+
+  it('never says that no run failed when the read fails', async () => {
+    allow([Permission.LIST_JOBS_BY_WORKSPACE, Permission.LIST_PIPELINES_BY_WORKSPACE]);
+    jobs.getByWorkspaceId.mockRejectedValue(new ScyllaError('down', { code: 'INTERNAL' }));
+    pipelines.getMetadataByWorkspaceId.mockResolvedValue({ items: [] });
+
+    failedRuns();
+
+    await screen.findByText('Cannot load the failed runs.');
+    expect(screen.queryByText(/No failed run/)).toBeNull();
   });
 });

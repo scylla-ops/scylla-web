@@ -1,9 +1,10 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
   import { Button, Skeleton } from '@scylla/ui/primitives';
+  import { cn } from '@scylla/ui/utils';
   import type { NotificationEntity } from '../../../domain/entities/notification.entity.ts';
   import { notificationMessages as messages } from '../../messages/notifications.messages.ts';
-  import { sectionsOf } from '../../presenters/sections.ts';
+  import { compactSectionsOf, sectionsOf } from '../../presenters/sections.ts';
   import NotificationRow from './NotificationRow.svelte';
 
   const SKELETON_ROWS = 4;
@@ -14,10 +15,12 @@
     isError: boolean;
     onRetry: () => void;
     /** `true` if a filter can hide rows. */
-    filtered: boolean;
-    onClearFilter: () => void;
+    filtered?: boolean;
+    onClearFilter?: () => void;
     slug: string | null;
     onNavigate?: () => void;
+    /** In the panel: no time labels, and the short form of a row. */
+    compact?: boolean;
     /** On the full page: the selection of the rows. */
     isSelected?: (id: string) => boolean;
     onToggleSelect?: (id: string) => void;
@@ -30,16 +33,17 @@
     isLoading,
     isError,
     onRetry,
-    filtered,
+    filtered = false,
     onClearFilter,
     slug,
     onNavigate,
+    compact = false,
     isSelected,
     onToggleSelect,
     activeId = null,
   }: Props = $props();
 
-  const sections = $derived(sectionsOf(rows));
+  const sections = $derived(compact ? compactSectionsOf(rows) : sectionsOf(rows));
 </script>
 
 {#if isLoading}
@@ -64,17 +68,27 @@
   </div>
 {:else}
   <div class="flex flex-col gap-2">
-    {#each sections as section (section.id)}
+    {#each sections as section, index (section.id)}
       <section>
-        <h3 class="px-2 py-1 text-xs text-muted-foreground uppercase">
-          {t(section.title)}
-        </h3>
+        {#if section.title}
+          <h3
+            class={cn(
+              'py-1 text-xs text-muted-foreground uppercase',
+              onToggleSelect ? 'pr-2 pl-6' : 'px-2',
+            )}
+          >
+            {t(section.title)}
+          </h3>
+        {:else if index > 0}
+          <hr class="mx-2 mb-1" />
+        {/if}
         <ul class="flex flex-col">
           {#each section.rows as row (row.id)}
             <NotificationRow
               {row}
               {slug}
               {onNavigate}
+              {compact}
               selected={isSelected?.(row.id) ?? false}
               onToggleSelect={onToggleSelect ? () => onToggleSelect(row.id) : undefined}
               active={activeId === row.id}

@@ -276,6 +276,15 @@ describe('the second sidebar', () => {
     expect(aside.getByRole('button', { name: /Apps/ })).toHaveAttribute('aria-current', 'page');
   });
 
+  it('shows the heading of a page above its link', () => {
+    const entries = groupEntries.map((item, index) =>
+      index === 1 ? { ...item, heading: msg`Quick filters` } : item,
+    );
+    render(AppSidebarFixture, { config: configWith({ entries }) });
+
+    expect(within(secondSidebar()).getByText('Quick filters')).toBeInTheDocument();
+  });
+
   it('marks the section as the current one in the rail', () => {
     render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
 

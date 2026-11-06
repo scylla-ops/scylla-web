@@ -7,6 +7,9 @@ The server keeps a kind and its parameters, not a sentence, so a change of langu
 rows too. The answer to an invitation is in the row, with no mail link: a user with the verified
 email of the invitation can accept or decline by its id.
 
+The panel of the bell is short: the rows, and one action in a row. The filters, the time groups and
+the failed runs are on the page, with the views in the second sidebar.
+
 The bell reads only the counts. The list loads when the panel opens, and each read of a list checks
 the access of the reader on the server. So the count can hold a row that the list hides, for a short
 time.

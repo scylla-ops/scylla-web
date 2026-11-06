@@ -18,14 +18,16 @@ export const navLinksFor =
         config.access?.can(permission) ?? true,
     };
     return config.sections.flatMap(section =>
-      openableEntries(input, section.id).map(({ entry, href }) => ({
-        href,
-        url: entry.url,
-        title: entry.title,
-        keywords: entry.keywords,
-        icon: entry.icon,
-        section: { id: section.id, title: section.title },
-        group: entry.group?.title,
-      })),
+      openableEntries(input, section.id)
+        .filter(({ entry }) => entry.inCommandBar !== false)
+        .map(({ entry, href }) => ({
+          href,
+          url: entry.url,
+          title: entry.title,
+          keywords: entry.keywords,
+          icon: entry.icon,
+          section: { id: section.id, title: section.title },
+          group: entry.group?.title,
+        })),
     );
   };

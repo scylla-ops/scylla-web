@@ -130,4 +130,13 @@ describe('navSectionsFor', () => {
       'Apps',
     ]);
   });
+
+  it('translates the heading of a link', () => {
+    const [section] = sectionsFor(
+      [entry({ heading: msg`Quick filters`, permission: undefined })],
+      [],
+    );
+
+    expect(section?.items[0]).toMatchObject({ heading: 'Quick filters' });
+  });
 });

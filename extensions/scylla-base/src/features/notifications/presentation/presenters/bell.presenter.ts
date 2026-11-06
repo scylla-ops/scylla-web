@@ -1,4 +1,5 @@
 import { t } from '@scylla/ui/i18n';
+import type { NotificationSummary } from '../../domain/entities/notification.entity.ts';
 import { notificationMessages } from '../messages/notifications.messages.ts';
 
 /** The highest number that the badge shows. */
@@ -13,3 +14,7 @@ export const badgeText = (unread: number): string => {
   if (unread <= 0) return '';
   return unread > BADGE_MAX ? `${BADGE_MAX}+` : String(unread);
 };
+
+/** "Mark all as read" skips a row that waits for an answer: it needs another unread row. */
+export const canMarkAllRead = ({ unread, needsAction }: NotificationSummary): boolean =>
+  unread > needsAction;

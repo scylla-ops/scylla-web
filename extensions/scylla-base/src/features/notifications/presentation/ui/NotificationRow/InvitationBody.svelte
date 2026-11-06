@@ -3,7 +3,8 @@
   import { navigateTo, workspaceUrl } from '@platform/context';
   import { t } from '@scylla/ui/i18n';
   import { Button } from '@scylla/ui/primitives';
-  import { formatDate } from '@shared/utils/date-utils.ts';
+  import { cn } from '@scylla/ui/utils';
+  import { formatDay } from '@shared/utils/date-utils.ts';
   import type {
     NotificationEntity,
     NotificationInvitation,
@@ -26,6 +27,7 @@
   const workspace = $derived(row.workspaceName || t(messages.aWorkspace));
   const role = $derived(roleLabel(invitation.role));
   const working = $derived(body.accepting || body.declining);
+  const title = $derived(cn('text-sm', !row.read && 'font-medium'));
 
   const go = (href: string) => {
     navigateTo(href);
@@ -34,7 +36,7 @@
 </script>
 
 {#if body.refusal === 'other-email'}
-  <p class="text-sm">{t(messages.invitationOtherEmail)}</p>
+  <p class={title}>{t(messages.invitationOtherEmail)}</p>
   <Button
     variant="outline"
     size="sm"
@@ -46,7 +48,7 @@
 {:else if body.refusal === 'gone'}
   <p class="text-sm text-muted-foreground">{t(messages.invitationGone)}</p>
 {:else if invitation.state.kind === 'accepted'}
-  <p class="text-sm">{t(messages.invitationJoined(workspace, role))}</p>
+  <p class={title}>{t(messages.invitationJoined(workspace, role))}</p>
   {#if row.workspaceSlug}
     <Button
       variant="outline"
@@ -60,9 +62,9 @@
 {:else if invitation.state.kind === 'expired'}
   <p class="text-sm text-muted-foreground">{t(messages.invitationEnded(workspace, actor))}</p>
 {:else}
-  <p class="text-sm">{t(messages.invitationReceived(actor, workspace, role))}</p>
+  <p class={title}>{t(messages.invitationReceived(actor, workspace, role))}</p>
   <p class="text-xs text-muted-foreground">
-    {t(messages.invitationEnds(formatDate(invitation.state.expiresAt)))}
+    {t(messages.invitationEnds(formatDay(invitation.state.expiresAt)))}
   </p>
   <div class="mt-1.5 flex flex-wrap gap-2">
     <Button size="sm" disabled={working} onclick={() => body.accept(invitation.id)}>

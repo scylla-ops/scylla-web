@@ -5,7 +5,7 @@
   import { Skeleton } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import type { NavItem, SecondSidebarContent } from '../structs/nav-section.struct.ts';
-  import { NAV_DANGER_APART_CLASS } from './nav-classes.ts';
+  import { NAV_DANGER_APART_CLASS, NAV_HEADING_CLASS } from './nav-classes.ts';
   import { activePageOf } from './nav-rail.ts';
 
   interface Props {
@@ -52,6 +52,9 @@
           {#each content.pages as page (page.href)}
             {@const current = page.href === active?.href}
             <li class={cn(page.danger && NAV_DANGER_APART_CLASS)}>
+              {#if page.heading}
+                <p class={NAV_HEADING_CLASS}>{page.heading}</p>
+              {/if}
               <button
                 type="button"
                 class={cn(

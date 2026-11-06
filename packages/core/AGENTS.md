@@ -156,7 +156,9 @@ module gives an access policy.
 - **One route can have several links.** `nav` takes a list, and each link fills a parameter of the
   route with `params`. The page stays one route: with `inPageParams`, a click on a link keeps it
   mounted. A link with `danger` is apart from the links before it, and it stays red when it is the
-  current one.
+  current one. A link with `heading` has this title above it, in the second sidebar and in the
+  sheet of a phone. The title also covers the links after it, up to the next heading. A link with
+  `inCommandBar: false` is in the sidebar only: use it for a filter of a list, not for a page.
 - **The sheet of a phone shows a section with `noRailItem` on its pages only** (`sheetSections`).
   A click on a link closes the sheet. `NavMain` does this, because a link that changes only an
   in-page param mounts nothing.

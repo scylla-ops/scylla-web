@@ -74,7 +74,7 @@ mounts
   project        /:workspaceSlug/projects/:projectId   wrapper ContextCleanerWrapper, crumb "Project"
 routes           app: / -> WorkspaceRedirectWrapper · workspace: (its root) -> 'dashboard'
 navSections      workspace, project (within projects, title: projectName), instance (railItem),
-                 account (noRailItem: the user menu opens it)
+                 account (noRailItem: the user menu opens it), notifications (noRailItem: the bell opens it)
 access           can / authorizationReady / RequirePermission, from @platform/authz
 shell            brand ShellBrand · topBarEnd GlobalSearch, NotificationsMenu, WorkspaceSelector · sidebarFooter NavUser · overlays LaunchOverlays · navBadge NewBadge ·
                  onNavOpen markNavSeen · breadcrumbParams · linkParams

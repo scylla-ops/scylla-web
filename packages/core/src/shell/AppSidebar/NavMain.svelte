@@ -13,7 +13,7 @@
     SIDEBAR_FADE,
   } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
-  import { NAV_DANGER_APART_CLASS, NAV_SECTION_CARD_CLASS } from './nav-classes.ts';
+  import { NAV_DANGER_APART_CLASS, NAV_HEADING_CLASS, NAV_SECTION_CARD_CLASS } from './nav-classes.ts';
   import { isNavGroupOpen, toggleNavGroup } from './nav-groups.state.svelte.ts';
   import { sheetSections } from './nav-rail.ts';
   import {
@@ -78,6 +78,9 @@
     <SidebarMenu>
       {#each section.items as node (keyOf(node))}
         <SidebarMenuItem class={cn(!isNavGroup(node) && node.danger && NAV_DANGER_APART_CLASS)}>
+          {#if !isNavGroup(node) && node.heading}
+            <p class={NAV_HEADING_CLASS}>{node.heading}</p>
+          {/if}
           {#if isNavGroup(node) && node.items.length === 1 && node.items[0]}
             <!-- One page has nothing to fold: the link goes by the name of its group. -->
             {@render link({ ...node.items[0], title: node.title, icon: node.icon }, 'default')}

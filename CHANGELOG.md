@@ -27,16 +27,18 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 **Notifications**
 
-- A real inbox: the bell has a badge and a popover, and the page `notifications` has filters, a
-  selection, pages and keys. Both exist in English and in French.
+- A real inbox: the bell has a badge and a short popover, with no filter. The page `notifications`
+  has its views in the second sidebar, a selection, pages and keys. Both exist in English and in
+  French.
 - An invitation can be accepted or declined in its row, with no mail link.
 - The bell is also on the first-workspace screen and on the personal pages, so a user with no
   workspace sees an invitation.
-- The failed runs are a tab of the popover, for a caller who can list the jobs. The false text
+- The failed runs are a view of the page, for a caller who can list the jobs. The false text
   "All is well" is gone.
 - The command bar opens the inbox and marks all notifications as read, after a confirmation.
 - An extension adds the view of a kind with `notifications.kinds`.
 - `@scylla/ui/primitives` has `Popover`, `PopoverTrigger` and `PopoverContent`.
+- `NavLink.heading` of `@scylla/core-sdk` puts a title above a link of the second sidebar.
 
 **Members and roles**
 

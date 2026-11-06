@@ -39,6 +39,10 @@ export interface NavLink {
   danger?: boolean;
   /** Other words that find this page in the command bar, in one text. */
   keywords?: MessageDescriptor;
+  /** A title above this link. It also covers the links after it, up to the next one. */
+  heading?: MessageDescriptor;
+  /** `false`: the link is in the sidebar only, not in the command bar. */
+  inCommandBar?: boolean;
 }
 
 /** A folding item of a nav section. The links that name the same `id` go under it. */

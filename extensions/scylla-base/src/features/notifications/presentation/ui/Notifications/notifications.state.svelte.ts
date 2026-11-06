@@ -11,49 +11,31 @@ import { pageKey } from '../../presenters/page-keys.ts';
 
 const PAGE_SIZE = 25;
 
-/** The value of a select with no filter. */
-export const ALL = 'all';
+/** No row is active until a key moves to one. */
+const NO_ROW = -1;
 
-export type NotificationsTab = 'inbox' | 'done';
-
-export interface PageFilters {
-  tab: NotificationsTab;
-  unreadOnly: boolean;
-  needsActionOnly: boolean;
-  workspaceId: string;
-  category: string;
-}
-
-const NO_FILTERS: Omit<PageFilters, 'tab'> = {
-  unreadOnly: false,
-  needsActionOnly: false,
-  workspaceId: ALL,
-  category: ALL,
-};
-
-/** Construct it during component initialisation: `createQuery` needs an owner. */
+/**
+ * One list, on its pages. A new filter needs a new state: it starts on its first page, with no
+ * selection. Construct it during component initialisation: `createQuery` needs an owner.
+ */
 export class NotificationsPageState {
-  public filters = $state<PageFilters>({ tab: 'inbox', ...NO_FILTERS });
   public readonly selected = new SvelteSet<string>();
-  public activeIndex = $state(0);
+  public activeIndex = $state(NO_ROW);
   /** The token of each page up to the one on the screen. */
   private tokens = $state<string[]>(['']);
 
-  private readonly filter = $derived<NotificationFilter>({
-    done: this.filters.tab === 'done',
-    unreadOnly: this.filters.unreadOnly,
-    needsActionOnly: this.filters.needsActionOnly,
-    workspaceId: this.filters.workspaceId === ALL ? null : this.filters.workspaceId,
-    category: this.filters.category === ALL ? '' : this.filters.category,
-  });
-
-  private readonly list = createQuery(() =>
-    notificationQueries.list(this.filter, PAGE_SIZE, this.tokens.at(-1) ?? ''),
-  );
+  private readonly list;
   private readonly read = createMutation(() => notificationMutations.markRead());
   private readonly done = createMutation(() => notificationMutations.setDone());
 
-  constructor(private readonly slug: () => string | null) {}
+  constructor(
+    filter: () => NotificationFilter,
+    private readonly slug: () => string | null,
+  ) {
+    this.list = createQuery(() =>
+      notificationQueries.list(filter(), PAGE_SIZE, this.tokens.at(-1) ?? ''),
+    );
+  }
 
   get rows(): readonly NotificationEntity[] {
     return this.list.data?.items ?? [];
@@ -65,11 +47,6 @@ export class NotificationsPageState {
 
   get isError(): boolean {
     return this.list.isError;
-  }
-
-  get filtered(): boolean {
-    const { unreadOnly, needsActionOnly, workspaceId, category } = this.filters;
-    return unreadOnly || needsActionOnly || workspaceId !== ALL || category !== ALL;
   }
 
   get hasPrevious(): boolean {
@@ -91,14 +68,6 @@ export class NotificationsPageState {
   retry = (): void => {
     void this.list.refetch();
   };
-
-  /** Changes a filter, and goes back to the first page. */
-  update = (change: Partial<PageFilters>): void => {
-    this.filters = { ...this.filters, ...change };
-    this.toFirstPage();
-  };
-
-  clearFilters = (): void => this.update(NO_FILTERS);
 
   nextPage = (): void => {
     const token = this.list.data?.nextToken;
@@ -164,13 +133,8 @@ export class NotificationsPageState {
     navigateTo(href);
   }
 
-  private toFirstPage(): void {
-    this.tokens = [''];
-    this.resetRows();
-  }
-
   private resetRows(): void {
     this.selected.clear();
-    this.activeIndex = 0;
+    this.activeIndex = NO_ROW;
   }
 }

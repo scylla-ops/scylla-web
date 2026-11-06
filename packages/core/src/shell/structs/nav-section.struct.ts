@@ -9,6 +9,8 @@ export interface NavItem {
   icon?: LucideIcon;
   /** Apart from the links before it, in red. */
   danger?: boolean;
+  /** A title above this link. It also covers the links after it, up to the next one. */
+  heading?: string;
 }
 
 /** A folding item with the links of one `NavGroup`, e.g. the agents and the apps. */

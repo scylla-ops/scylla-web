@@ -15,12 +15,23 @@ The inbox of the signed-in user (`scylla.notifications.v1.NotificationService`).
 - The shell keeps the bell (`NotificationsMenu`): it reads the counts each 30 s (the server gives
   the time) and loads `NotificationsPanel` when it opens. The bell is also on `FirstWorkspace` and
   on the personal layout, so a user with no workspace sees an invitation.
-- The page `/:workspaceSlug/notifications` and the personal page `/notifications` show the same
-  list, with filters, a selection, pages and the keys `J`, `K`, `Enter`, `U`, `E`, `X`.
+- The panel is short: no filter, no time label, and one action in a row. "Mark all as read" shows
+  only when `unread > needsAction`, because the server skips a row that waits for an answer.
+- The page is one route, `notifications/:view`, on the `workspace` and `personal` mounts. The views
+  are in `notification-views.registry.ts`: its links are in the section `notifications` of the
+  second sidebar, and the personal mount has `NotificationsNav` in the page. The list has a
+  selection, pages and the keys `J`, `K`, `Enter`, `U`, `E`, `X`.
+- A view is one link, so two views do not combine: there is no "unread in security". The workspace
+  select is apart, and it stays on a change of view.
+- A category of an edition has no link. Its rows stay in "Inbox".
+- A view with a filter has no row in the command bar (`inCommandBar: false`), because "Unread" or
+  "Security" is no place to go to. The command `notifications.open` opens the inbox, and "Failed
+  runs" keeps its row.
 - A row holds a kind and its parameters. `presentation/presenters/kind-views.ts` makes the text in
   the language of the reader.
-- The panel has a tab "Failed runs" only for a caller with `LIST_JOBS_BY_WORKSPACE`. It goes when
-  the server has a kind for a failed job.
+- The view "Failed runs" is on the page, not in the panel, only for a caller with
+  `LIST_JOBS_BY_WORKSPACE`. It reads the last 100 jobs of the workspace. It goes when the server has
+  a kind for a failed job. Until then, the bell shows no failed run.
 
 ## Rules
 
@@ -32,6 +43,10 @@ The inbox of the signed-in user (`scylla.notifications.v1.NotificationService`).
 - An empty list never says that all is well: the empty list does not prove this.
 - A failed read of the counts keeps the last number, with no toast (`showsOwnError`).
 - A row that waits for an answer has no "Mark as read": the server keeps it unread.
+- In the panel a row has no read toggle, so a click on the row marks it as read, with or without a
+  link.
+- With a mouse, the actions of a row take the cell of the time on hover. A touch screen has no
+  hover: both show, so an invisible button is never pressed by accident.
 - The answers to an invitation are in `features/invitation`: `acceptById` and `decline`.
   `INVITATION_FOR_ANOTHER_EMAIL` keeps the row and shows its own text.
 
@@ -43,8 +58,9 @@ The inbox of the signed-in user (`scylla.notifications.v1.NotificationService`).
 - `presentation/notifications.queries.ts`: the counts, the list, the changes.
 - `presentation/notifications.commands.ts`: the two rows of the command bar: the page, and mark all as read.
 - `presentation/notifications.points.ts`: `KindView`, and the point of the views.
-- `presentation/presenters/`: `kind-views`, `sections` (the time groups), `bell`, `categories`,
-  `page-keys`.
+- `presentation/presenters/`: `kind-views`, `sections` (the groups of the page and of the panel),
+  `bell`, `page-keys`.
 - `presentation/ui/NotificationRow/`: a row, the list with its states, the body of an invitation.
-- `presentation/ui/NotificationsPanel/`: the content of the popover, and the failed runs.
-- `presentation/ui/Notifications/`: the full page and its state.
+- `presentation/ui/NotificationsPanel/`: the content of the popover.
+- `presentation/ui/Notifications/`: the full page, its views, its list and its state, and the failed
+  runs.

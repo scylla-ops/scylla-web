@@ -38,7 +38,7 @@ const catalogs = { en: catalogOf('en'), fr: catalogOf('fr') };
 const linksOf = (routes: readonly ModuleRoute[], parent: readonly string[] = []): AppNavLink[] =>
   routes.flatMap(route => {
     const path = [...parent, ...(route.path ?? '').split('/').filter(Boolean)];
-    const own = [route.nav ?? []].flat().map((link): AppNavLink => {
+    const own = [route.nav ?? []].flat().filter(link => link.inCommandBar !== false).map((link): AppNavLink => {
       const url = path
         .map(part => (part.startsWith(':') && link.params?.[part.slice(1)]) || part)
         .join('/');

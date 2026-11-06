@@ -81,6 +81,7 @@ export const navSectionsFor = ({
             url: entry.url,
             icon: entry.icon,
             danger: entry.danger,
+            heading: entry.heading && translate(entry.heading),
           },
         }),
       );

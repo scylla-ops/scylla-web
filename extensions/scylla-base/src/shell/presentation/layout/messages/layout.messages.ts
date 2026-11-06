@@ -17,6 +17,7 @@ export const layoutMessages = {
   noWorkspace: msg`You are not a member of a workspace yet. Ask an administrator to add you.`,
   create: msg`Create`,
   account: msg`Account`,
+  notifications: msg`Notifications`,
   signOut: msg`Sign out`,
   signedInAs: (name: string) => msg`Signed in as ${name}`,
   back: msg`Back`,
