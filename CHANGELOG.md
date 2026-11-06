@@ -175,6 +175,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
+- A failed list of pipelines or of jobs shows its error once. Before, the page sent the call again
+  about 40 times each second, with one error toast for each call, until the user left the page.
 - On the sign-in page, the "or" line is at the same distance from the "Sign in" button and from the
   provider button. Before, the gap under the "Sign in" button was 24 px.
 - A sign-in with a provider, its "Try again" link and the link of a provider on the account page

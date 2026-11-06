@@ -98,6 +98,23 @@ describe('DashboardPipelinePage', () => {
     expect(screen.queryByText('nightly')).not.toBeInTheDocument();
   });
 
+  it('calls the list once when it fails in a frame taller than the smallest page', async () => {
+    const frame = vi.spyOn(Element.prototype, 'clientHeight', 'get').mockReturnValue(800);
+    let calls = 0;
+    // A loop stops at the 10th call: with no limit, it fills the memory of the worker.
+    const list = () => {
+      calls += 1;
+      return calls < 10 ? Promise.reject(new ScyllaError('down')) : new Promise(() => {});
+    };
+    setUp(list);
+    teardown.push(() => frame.mockRestore());
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    expect(calls).toBe(1);
+    expect(await screen.findByText('Error')).toBeInTheDocument();
+  });
+
   it('opens the last run of a pipeline', async () => {
     setUp(() => Promise.resolve(page(pipelines)));
 

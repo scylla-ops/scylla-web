@@ -98,8 +98,12 @@ language. The checks are the app's, with translated messages:
 
 ## Rune states: `state/`
 
-Three rules bite here:
+Four rules bite here:
 
+- **A measure stays when its element goes away.** `createMeasuredHeight` gives `null` only before
+  the first attach. The page size is part of a query key, and a page can show `ErrorState` in
+  place of the measured element. If the height goes back to `null`, the key changes, the error
+  goes away, the element comes back and the query fetches again. The result is a request loop.
 - **A list that arrives later is passed as a getter, not an array.** `createFeatureSelection`
   takes `() => string[]` and `createFormState` takes `() => items`. Capturing the value once
   freezes the helper on whatever the first, usually empty, render held.
