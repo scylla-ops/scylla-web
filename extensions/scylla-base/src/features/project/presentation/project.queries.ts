@@ -1,5 +1,6 @@
 import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
 import { Permission, authorizationReady, can } from '@platform/authz';
+import { contextStore } from '@platform/context';
 import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
@@ -115,9 +116,16 @@ export const projectMutations = {
         name?: string;
         description?: string;
       }) => repository().update(projectId, name, description),
-      onSuccess: () => {
+      onSuccess: updated => {
         toast.success(i18n._(ToastMessages.PROJECT_UPDATE));
-        return invalidateProjects();
+        // No `cleanContext` is mounted on the list, and the search bar shows the stored name there.
+        const { project, setProject } = contextStore.getState();
+        if (project.id === updated.id) setProject(updated.id, updated.name);
+        // `all`: the dashboard and the menus read a list that nothing has mounted now.
+        return getQueryClient().invalidateQueries({
+          queryKey: PROJECTS_QUERY_ROOT,
+          refetchType: 'all',
+        });
       },
     }),
 

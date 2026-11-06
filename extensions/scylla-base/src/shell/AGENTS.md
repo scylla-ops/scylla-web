@@ -33,7 +33,8 @@ presentation/
     PersonalLayout/                     layout of the `personal` mount: AuthGuard + a centered column, no gate
     WorkspaceSync.wrapper.svelte     URL slug → context store (workspace-sync.effect.svelte.ts)
     WorkspaceRedirect.wrapper.svelte `/` → the user's workspace (workspace-redirect.effect.svelte.ts)
-    ContextCleaner.wrapper.svelte       drops stale project/pipeline context (context-cleaner.effect.svelte.ts)
+    ContextCleaner.wrapper.svelte       URL project → context store, drops stale project/pipeline context
+                                        (context-cleaner.effect.svelte.ts)
     NotFound/                           the fallback for a URL that no route matches: a text and a link to /.
                                         It has no session check: / goes through AuthGuard
   layout/
@@ -133,6 +134,11 @@ Rules:
 - The effects read the context store with `untrack`, else the old and the new wrapper could set
   the store one after the other.
 - `ContextCleanerWrapper` also handles a project id that no longer exists (redirects out).
+- `cleanContext` keeps the project of the store equal to the URL and to the list of projects, also
+  when the list changes after the mount. So a direct link, a search result and a rename in another
+  tab give the correct name. It writes only while the URL still points at its project, because a
+  refetch can end during the exit animation. It reads the first page of the list only: a project
+  past this page counts as gone.
 
 ## The shell parts
 

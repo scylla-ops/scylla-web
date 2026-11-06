@@ -97,6 +97,13 @@ project routes (the `project` mount) are declared by the modules that own them
   and an English server text that names the workspace by id. The repository maps it to
   its own sentence in `create` and keeps the code; the global toast shows it.
 - The description is optional in both dialogs (`optional: true`).
+- **`projectMutations.update` also writes `contextStore`** when the project is the active one. The
+  crumb, the sidebar title, the members page of the project and the search bar read that copy of the
+  name. No effect that follows the list is mounted on the project list, so the mutation must write it.
+  On a project page, [`cleanContext`](../../shell/AGENTS.md) also keeps it equal to the list.
+- **`projectMutations.update` refetches with `refetchType: 'all'`.** The dashboard and the search bar
+  read lists that no component has mounted during the rename. A default refetch skips these lists,
+  and the old name shows for one fetch when the next page opens.
 
 ## Before done
 

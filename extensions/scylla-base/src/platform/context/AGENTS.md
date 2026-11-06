@@ -45,6 +45,9 @@ it below the features that own those entities.
 break the layer. If a component needs more than an id and a name, it reads the id from here and
 runs that feature's query.
 
+The names are a copy of the data of the server, and a reload keeps them. Something must write each
+new name: for a project, `projectMutations.update` and `cleanContext` of the shell.
+
 Persistence: `createStore` (`@scylla/ui/stores`) keeps it in
 `localStorage` under key `scylla-context`, so a reload keeps the user where they were. The stored
 format does not change: a context stored by an earlier version stays valid.

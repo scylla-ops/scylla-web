@@ -219,6 +219,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   longer text moved them up.
 - The lookups of projects read each project. They kept only the first 100, the oldest ones, so the
   dashboard, the menus and the top bar search did not show the newest projects of a large workspace.
+- A new name of a project shows at once in the crumb, the sidebar title, the members page of the
+  project and the top bar search, also after a reload. Before, the old name stayed until a click on
+  the project card. A link to a project that does not come from its card, for example a direct link
+  or a result of the search, shows the name of this project. Before, it showed the last open project.
 
 ## [0.6.0] - 2026-11-01
 
