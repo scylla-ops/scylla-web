@@ -5,7 +5,7 @@
   import { t } from '@scylla/ui/i18n';
   import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
   import { ScyllaError } from '@shared/utils/scylla-error.ts';
-  import AuthLayout from '../AuthLayout.svelte';
+  import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
   import {
     loginMutations,
     loginQueries,

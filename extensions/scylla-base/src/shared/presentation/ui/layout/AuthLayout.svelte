@@ -17,7 +17,7 @@
   let { title, description, children, below, icon }: Props = $props();
 </script>
 
-<!-- The frame of the public pages: the sign-in and the password reset. -->
+<!-- The frame of the public pages: the pages of `login` and the page of an invitation. -->
 <div class="flex min-h-svh">
   <div
     class="hidden w-2/5 shrink-0 items-center justify-center border-r border-sidebar-border bg-sidebar lg:flex"

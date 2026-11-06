@@ -9,7 +9,7 @@
   import {
     ResetPasswordState,
   } from './reset-password.state.svelte.ts';
-  import AuthLayout from '../AuthLayout.svelte';
+  import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
   import { passwordResetMessages } from '@base/features/login/presentation/messages/password-reset.messages.ts';
 
   // Built during initialisation: it reads the token of the link, and its mutation needs an owner.

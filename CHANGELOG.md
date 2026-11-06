@@ -118,6 +118,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   check of an email have no card. A panel shows the Scylla mark, and the logo, the title and the
   texts are on the axis of a centered column. The field labels stay on the left edge of the field.
   On a small screen, the panel is not shown.
+- The page that accepts an invitation has the same frame.
 
 **The install of an agent**
 

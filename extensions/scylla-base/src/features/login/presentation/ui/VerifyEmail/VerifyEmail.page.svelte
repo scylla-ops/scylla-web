@@ -3,7 +3,7 @@
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { VerifyEmailState } from './verify-email.state.svelte.ts';
-  import AuthLayout from '../AuthLayout.svelte';
+  import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
   import { signUpMessages } from '@base/features/login/presentation/messages/sign-up.messages.ts';
 
   // Built during initialisation: it reads the token of the link, and its mutation needs an owner.
