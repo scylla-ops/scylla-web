@@ -6,7 +6,7 @@
   import { loginPoints } from '@base/features/login/presentation/login.points.ts';
   import { loginQueries } from '@base/features/login/presentation/login.queries.ts';
   import { returnPathOf } from '@base/features/login/presentation/mappers/return-path.mapper.ts';
-  import AuthLayout from '../AuthLayout.svelte';
+  import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
   import LoginForm from '../LoginForm/LoginForm.svelte';
   import SignInProviders from '../SignInProviders/SignInProviders.svelte';
   import { loginMessages } from '@base/features/login/presentation/messages/login.messages.ts';
@@ -29,7 +29,7 @@
       {#if methods.data?.signUpMode === 'open'}
         <a
           href="/sign-up"
-          class="mt-6 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          class="mt-6 text-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
         >
           {t(signUpMessages.noAccount)}
         </a>

@@ -13,7 +13,7 @@ import LoginPage from './Login.page.svelte';
 
 /**
  * The reference case of the widget mechanism: a cloud-like extension turns the identifier field
- * into an email field and adds a sign-up link below the card, through the login page's own
+ * into an email field and adds a sign-up link below the form, through the login page's own
  * widget points — with no change to `Login.page.svelte` or `LoginForm.svelte` for this test.
  */
 
@@ -73,7 +73,7 @@ describe('Login.page with widget injections', () => {
     expect(screen.getByText('Enter your email and your password.')).toBeInTheDocument();
   });
 
-  it('renders a component injected into the footer zone, below the card', async () => {
+  it('renders a component injected into the footer zone, below the form', async () => {
     setUp();
     teardown.push(
       withWidgetInjections({

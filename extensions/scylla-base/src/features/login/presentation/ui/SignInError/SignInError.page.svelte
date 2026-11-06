@@ -6,7 +6,7 @@
   import InfoIcon from '@lucide/svelte/icons/info';
   import LockIcon from '@lucide/svelte/icons/lock';
   import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
-  import AuthLayout from '../AuthLayout.svelte';
+  import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
   import { loginQueries } from '@base/features/login/presentation/login.queries.ts';
   import { providerStartUrl } from '@base/features/login/presentation/mappers/provider-start.mapper.ts';
   import { signInErrorMessages } from '@base/features/login/presentation/messages/sign-in-error.messages.ts';
@@ -59,21 +59,24 @@
 {:else}
   <AuthLayout title={t(card.title)}>
     {#snippet icon()}
-      <Icon class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+      <Icon
+        class="size-6 shrink-0 {card.tone === 'warning' ? 'text-warning' : 'text-muted-foreground'}"
+        aria-hidden="true"
+      />
     {/snippet}
-    <p role="alert" class="mb-4 text-sm text-muted-foreground">{t(card.body)}</p>
-    <div class="flex flex-wrap items-center gap-2">
-      {#if card.action === 'retry' && retry}
-        <Button href={retry} rel="external" size="sm">{t(signInErrorMessages.tryAgain)}</Button>
-      {/if}
-      {#if card.action === 'start-again'}
-        <Button href={back} size="sm">{t(signInErrorMessages.startAgain)}</Button>
-      {:else}
-        <Button href={back} size="sm" variant="outline">{t(backLabel)}</Button>
-      {/if}
-      <code class="ml-auto rounded bg-muted px-2 py-1 text-xs text-muted-foreground">
-        {card.code}
-      </code>
+    <p role="alert" class="mb-6 text-center text-sm text-muted-foreground">{t(card.body)}</p>
+    <div class="flex flex-col items-center gap-4">
+      <div class="flex flex-wrap justify-center gap-2">
+        {#if card.action === 'retry' && retry}
+          <Button href={retry} rel="external" size="sm">{t(signInErrorMessages.tryAgain)}</Button>
+        {/if}
+        {#if card.action === 'start-again'}
+          <Button href={back} size="sm">{t(signInErrorMessages.startAgain)}</Button>
+        {:else}
+          <Button href={back} size="sm" variant="outline">{t(backLabel)}</Button>
+        {/if}
+      </div>
+      <code class="rounded bg-muted px-2 py-1 text-xs text-muted-foreground">{card.code}</code>
     </div>
   </AuthLayout>
 {/if}

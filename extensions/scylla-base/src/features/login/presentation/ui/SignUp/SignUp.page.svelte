@@ -9,7 +9,7 @@
     checkPasswordConfirmation,
   } from '@shared/utils/account-validation.ts';
   import { SignUpState } from './sign-up.state.svelte.ts';
-  import AuthLayout from '../AuthLayout.svelte';
+  import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
   import { signUpMessages } from '@base/features/login/presentation/messages/sign-up.messages.ts';
 
   // Built during initialisation: it reads the invitation of the link, and its mutation needs an owner.
@@ -60,7 +60,7 @@
   description={state.isSent ? undefined : t(signUpMessages.description)}
 >
   {#if state.isSent}
-    <p role="status" class="text-sm">{t(signUpMessages.sent)}</p>
+    <p role="status" class="text-center text-sm">{t(signUpMessages.sent)}</p>
   {:else}
     <ScyllaForm {items} onSubmit={state.submit} isPending={state.isPending}>
       {#snippet footer({ isValid, isPending })}

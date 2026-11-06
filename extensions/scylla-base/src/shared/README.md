@@ -45,6 +45,15 @@ recognizable from page to page. A user that no list knows any more shows as "Del
 id means nothing to the reader. It lives here, not in `features/user`, because a feature cannot
 import another feature's components, and four features show people.
 
+## One frame for the public pages
+
+`AuthLayout` is the frame of the pages that come before the session: the pages of
+[login](../features/login/README.md) and the page of an
+[invitation](../features/invitation/README.md). It lives here because a feature cannot import a
+component of another feature, and it shows the Scylla logo, so it is not generic. A public page
+imports it by path, not through the barrel of this folder: the barrel would put the components of
+the signed-in pages in the chunk of the page.
+
 ## The account rules
 
 The forms of [login](../features/login/README.md) and [user](../features/user/README.md) check

@@ -9,7 +9,11 @@
   } from '../structs/nav-section.struct.ts';
   import { railFor, secondSidebarFor, selectedRailItem } from './nav-rail.ts';
   import Rail from './Rail.svelte';
+  import { createSecondSidebarWidth, RAIL_SLOT_PX } from './second-sidebar-width.state.svelte.ts';
   import SecondSidebar from './SecondSidebar.svelte';
+  import SecondSidebarHandle from './SecondSidebarHandle.svelte';
+
+  const SECOND_SIDEBAR_ID = 'second-sidebar';
 
   interface Props {
     sections: NavSection[];
@@ -22,6 +26,8 @@
 
   let root = $state<HTMLElement>();
   let railOpen = $state(false);
+  let viewportWidth = $state(window.innerWidth);
+  const width = createSecondSidebarWidth(() => viewportWidth);
 
   // A menu opened from the rail is in a portal: a press in it is outside the rail.
   const menuIsOpen = () => !!root?.querySelector('[data-state="open"]');
@@ -60,9 +66,18 @@
   };
 </script>
 
-<svelte:window onpointerdown={closeOnOutsidePress} onkeydown={closeOnEscape} />
+<svelte:window
+  bind:innerWidth={viewportWidth}
+  onpointerdown={closeOnOutsidePress}
+  onkeydown={closeOnEscape}
+/>
 
-<div bind:this={root} data-slot="sidebar-container" class="relative h-svh w-64 shrink-0">
+<div
+  bind:this={root}
+  data-slot="sidebar-container"
+  class="relative h-svh shrink-0"
+  style:width="{RAIL_SLOT_PX + width.current}px"
+>
   <div
     class="absolute inset-x-0 top-0 z-30 flex h-17 items-center justify-center border-r border-b border-sidebar-border bg-background"
   >
@@ -81,6 +96,7 @@
     class="absolute top-17 bottom-0 left-0 z-20"
   />
   <SecondSidebar
+    id={SECOND_SIDEBAR_ID}
     {content}
     {pathname}
     {ready}
@@ -88,4 +104,11 @@
     onOpenPage={openPage}
     class="absolute top-17 right-0 bottom-0 left-14"
   />
+  {#if ready && content}
+    <SecondSidebarHandle
+      {width}
+      controls={SECOND_SIDEBAR_ID}
+      class="absolute top-17 -right-1.5 bottom-0 z-10"
+    />
+  {/if}
 </div>

@@ -5,7 +5,7 @@
   import { t } from '@scylla/ui/i18n';
   import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
   import { ScyllaError } from '@shared/utils/scylla-error.ts';
-  import AuthLayout from '../AuthLayout.svelte';
+  import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
   import {
     loginMutations,
     loginQueries,
@@ -55,7 +55,7 @@
     title={t(m.title)}
     description={t(m.description(pending.data.email, pending.data.providerName))}
   >
-    <div class="mb-4 flex items-center gap-3 rounded-md border p-3 text-sm">
+    <div class="mb-4 flex items-center gap-3 rounded-lg border p-3 text-center text-sm">
       <span class="min-w-0 flex-1">
         <span class="block truncate font-medium">
           {pending.data.displayName || pending.data.email}
@@ -77,7 +77,7 @@
     >
       {#snippet footer({ isValid, isPending })}
         {#if link.error}
-          <p role="alert" class="text-sm text-destructive">
+          <p role="alert" class="text-center text-sm text-destructive">
             {ScyllaError.from(link.error).userMessage()}
           </p>
         {/if}
@@ -87,6 +87,6 @@
       {/snippet}
     </ScyllaForm>
     <Button href="/login" variant="outline" class="mt-2 w-full">{t(m.notMine)}</Button>
-    <p class="mt-4 text-xs text-muted-foreground">{t(m.why)}</p>
+    <p class="mt-6 text-center text-xs text-muted-foreground">{t(m.why)}</p>
   </AuthLayout>
 {/if}

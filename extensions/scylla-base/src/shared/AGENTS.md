@@ -34,6 +34,7 @@ presentation/ui/index.ts             `@shared/presentation/ui`
   data-display/                      StatusBar, STATUS_ICONS / getStatusIcon,
                                      UserIdentity, UserAvatar, userName, userSecondaryLine,
                                      UserIdentityProfile, ProviderMark
+presentation/ui/layout/AuthLayout.svelte  the frame of the public pages; import it by path
 locales/                             the catalog of these files
 ```
 
@@ -128,6 +129,15 @@ gives the preset `custom` with the methods of the checked boxes) and the project
 gives the projects and the hint, because `shared/` cannot read the projects. The app tokens use
 it, and the personal tokens must use it too. When the server gets a new method, add it to its
 box in `ACTION_GROUPS`.
+
+## The frame of the public pages
+
+`AuthLayout` (`presentation/ui/layout/`) has a panel with the mark at `lg` and up, then a centered
+column with the logo, the title, the optional description, the content and a `below` snippet. The
+pages of `login` and the page of an invitation use it.
+
+Import it by path. Do not add it to `@shared/presentation/ui`: that barrel holds `CopyBox`,
+`StatusBar` and `TokenForm`, and a public page would load them in its chunk.
 
 ## Rules that bite here
 

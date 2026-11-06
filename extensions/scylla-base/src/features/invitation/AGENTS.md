@@ -17,4 +17,5 @@ The invitations to a workspace, by email (`scylla.workspaces.v1.InvitationServic
   of `membership` loads both with `loadInviteDialog` and `loadPendingInvitations`.
 - The public page `accept-invitation` reads the token of the mail link from the fragment.
   Signed in: `AcceptInvitation`, then the workspace opens. Signed out: a link to the sign-in page
-  that comes back here, and a link to the sign-up page with the invitation.
+  that comes back here, and a link to the sign-up page with the invitation. It uses the frame of
+  the public pages, `@shared/presentation/ui/layout/AuthLayout.svelte`.

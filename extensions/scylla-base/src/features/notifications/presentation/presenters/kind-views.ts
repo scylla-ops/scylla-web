@@ -55,7 +55,7 @@ const accountPage =
     slug ? workspaceUrl(slug, `account/${section}`) : `/account/${section}`;
 
 const membersPage = (row: NotificationEntity): string | null =>
-  row.workspaceSlug ? workspaceUrl(row.workspaceSlug, 'members') : null;
+  row.workspaceSlug ? workspaceUrl(row.workspaceSlug, 'access/members') : null;
 
 const workspacePage = (row: NotificationEntity): string | null =>
   row.workspaceSlug ? workspaceUrl(row.workspaceSlug) : null;

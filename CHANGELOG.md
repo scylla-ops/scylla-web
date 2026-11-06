@@ -97,6 +97,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A double sidebar: a rail of the sections, which opens on a click and does not move the page, and a
   second sidebar with the pages of the selected section. Inside a project, the second sidebar shows
   the pages of the project. On a phone, the sheet stays.
+- The user can move the right edge of the second sidebar, with the pointer or the keyboard, from
+  200 px to 400 px. The page follows the edge and keeps at least 704 px. The browser keeps the width.
 - The switch of workspace is at the right end of the top bar, after a search (Ctrl K or Cmd K) of
   the projects, the pipelines, the agents and the apps, and a bell with the last failed runs.
 - The logo is at the center of the band above the sidebars. A click on it opens the dashboard of
@@ -111,6 +113,14 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   The sidebar, the top bar and the other pages keep working.
 
 ### Changed
+
+**The public pages**
+
+- The sign-in, the sign-up, the password reset, the sign-in errors, the link of a provider and the
+  check of an email have no card. A panel shows the Scylla mark, and the logo, the title and the
+  texts are on the axis of a centered column. The field labels stay on the left edge of the field.
+  On a small screen, the panel is not shown.
+- The page that accepts an invitation has the same frame.
 
 **The install of an agent**
 
@@ -163,8 +173,14 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
+- On the sign-in page, the "or" line is at the same distance from the "Sign in" button and from the
+  provider button. Before, the gap under the "Sign in" button was 24 px.
 - A sign-in with a provider, its "Try again" link and the link of a provider on the account page
   work when the app has the same origin as the API. Before, a click on these links did nothing.
+- A URL with no page shows "Page not found" and a link to the app. Before, it went to the sign-in
+  page with no check of the session, so a signed-in user looked signed out.
+- A notification about an answer to an invitation opens the members of the workspace, and the page
+  of your own user opens your account. Before, both went to the sign-in page.
 - The dialog that changes the roles of a member shows each change at once, on the members of a
   workspace and of a project. A refusal does not stay for the next opening. On the page of a member,
   the dialog stays open when the last role goes.
