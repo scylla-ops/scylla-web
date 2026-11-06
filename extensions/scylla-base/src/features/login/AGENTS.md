@@ -26,6 +26,12 @@ type PasswordResetDelivery           // 'mail' | 'server-log' | 'unknown'; `user
 
 Never add: `login.module.ts`, a page. A state calls `getModuleDomain('login')` directly.
 
+## A link that starts a provider
+
+Each link to `providerStartUrl` has `rel="external"`: the server serves this path, and the router
+takes a link of the same origin that does not have this value. This is also true for the link in
+`SignInMethods` of `features/user`.
+
 ## A failed sign-in with a provider
 
 The server sends the browser to `/sign-in-error?code=<code>&provider=<slug>`, with `&link=true`

@@ -129,6 +129,10 @@ module gives an access policy.
 
 ## Rules that follow from the design
 
+- **The router takes each link of the same origin, with no page load.** A link to a path that the
+  server serves must have `rel="external"`, or the browser never calls the server. The compiled
+  build has the same origin as the API, so this failure does not show on a Vite dev server, where
+  the API has another origin.
 - **`RouteEntry` reads the route once, when it mounts.** The page transition keeps the old page
   on screen for its exit animation; `RoutePage` mounts a new `RouteEntry` for each pathname.
 - **A change of pathname mounts the page again, with its wrappers.** A change of the query
