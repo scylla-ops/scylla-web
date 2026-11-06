@@ -91,7 +91,7 @@ presentation/
   mappers/return-path.mapper.ts      loginPath, loginPathBackTo, safeReturnPath, returnPathOf
   messages/                          login, password-reset
   ui/login.state.svelte.ts           sign-in: the mutation + the redirect
-  ui/AuthLayout.svelte               the frame of the public pages: logo, card, a `below` snippet
+  ui/AuthLayout.svelte               the frame of the public pages: mark panel, centered column, a `below` snippet
   ui/Login/Login.page.svelte, ui/LoginForm/LoginForm.svelte
   ui/ForgotPassword/ForgotPassword.page.svelte
     forgot-password.state.svelte.ts  the request of a reset link
@@ -109,7 +109,7 @@ exported from this barrel and from `@scylla/base-sdk`.
 
 | Point | Kind | Context / type | Notes |
 |---|---|---|---|
-| `login.footer` | zone | `LoginZoneContext` (`{ isPending }`) | Below the card, opened with `<WidgetZone point={loginPoints.footer} context={{ isPending }} />`. No default content: a zone that only ever receives `after` components. **No `permission`** — the user has none yet on this page; see the rule below. |
+| `login.footer` | zone | `LoginZoneContext` (`{ isPending }`) | Below the form, opened with `<WidgetZone point={loginPoints.footer} context={{ isPending }} />`. No default content: a zone that only ever receives `after` components. **No `permission`** — the user has none yet on this page; see the rule below. |
 | `login.texts` | text scope | `typeof loginMessages` | `title`, `description`, `identifier`, `identifierPlaceholder`, `password`, `passwordPlaceholder`, `submit`, `forgotPassword`. The page renders them with `t(loginMessages.x)`, as usual: `t` applies the overrides. Render the descriptor of `loginMessages` itself: a copy (`{ ...loginMessages.title }`) is a different object, and an override would not reach it. |
 | `login.fields` | value | `readonly FormItem<'identifier' \| 'password'>[]` | The `ScyllaForm` fields of `LoginForm.svelte`. Keep the ids: `submit` reads `values.identifier` and `values.password`. |
 

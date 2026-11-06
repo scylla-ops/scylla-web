@@ -29,7 +29,7 @@
       {#if methods.data?.signUpMode === 'open'}
         <a
           href="/sign-up"
-          class="mt-6 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          class="mt-6 text-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
         >
           {t(signUpMessages.noAccount)}
         </a>

@@ -1,16 +1,16 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import LogoMark from '@scylla/ui/assets/logo_mark.svg';
   import LogoScylla from '@scylla/ui/assets/logo_scylla.svg';
   import LogoScyllaDark from '@scylla/ui/assets/logo_scylla_dark.svg';
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/primitives';
 
   interface Props {
     title: string;
     description?: string;
     children: Snippet;
-    /** Under the card. */
+    /** Under the content, on the axis of the column. */
     below?: Snippet;
-    /** Before the title. */
+    /** Above the title. */
     icon?: Snippet;
   }
 
@@ -18,23 +18,35 @@
 </script>
 
 <!-- The frame of the public pages: the sign-in and the password reset. -->
-<div class="flex min-h-svh flex-col items-center justify-center p-6">
-  <!-- A dark variant swapped by CSS: `.dark` is set before the first paint, so no flash. -->
-  <img src={LogoScylla} alt="Scylla" class="mb-8 w-56 dark:hidden" />
-  <img src={LogoScyllaDark} alt="Scylla" class="mb-8 hidden w-56 dark:block" />
+<div class="flex min-h-svh">
+  <div
+    class="hidden w-2/5 shrink-0 items-center justify-center border-r border-sidebar-border bg-sidebar lg:flex"
+  >
+    <img src={LogoMark} alt="" class="size-70 opacity-14" />
+  </div>
 
-  <Card class="w-full max-w-sm">
-    <CardHeader>
-      <CardTitle class="flex items-center gap-2">
+  <div class="flex min-w-0 flex-1 flex-col items-center justify-center p-6">
+    <div class="flex w-full max-w-90 flex-col items-center">
+      <!-- A dark variant swapped by CSS: `.dark` is set before the first paint, so no flash. -->
+      <!-- The badge is on the right of the logo: the shift puts the mark and the wordmark on the axis. -->
+      <img src={LogoScylla} alt="Scylla" class="mb-6 w-40 translate-x-[8.6%] dark:hidden" />
+      <img
+        src={LogoScyllaDark}
+        alt="Scylla"
+        class="mb-6 hidden w-40 translate-x-[8.6%] dark:block"
+      />
+
+      <div class="mb-6 flex w-full flex-col items-center gap-2 text-center">
         {@render icon?.()}
-        <h1>{title}</h1>
-      </CardTitle>
-      {#if description}
-        <CardDescription>{description}</CardDescription>
-      {/if}
-    </CardHeader>
-    <CardContent>{@render children()}</CardContent>
-  </Card>
+        <h1 class="text-2xl">{title}</h1>
+        {#if description}
+          <p class="text-sm text-muted-foreground">{description}</p>
+        {/if}
+      </div>
 
-  {@render below?.()}
+      <div class="w-full">{@render children()}</div>
+
+      {@render below?.()}
+    </div>
+  </div>
 </div>

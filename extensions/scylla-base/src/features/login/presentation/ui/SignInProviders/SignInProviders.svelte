@@ -19,7 +19,7 @@
 
 <!-- One link per identity provider of the server: a full page load to the provider. -->
 {#if providers.length > 0}
-  <div class="mt-6 flex flex-col gap-2">
+  <div class="mt-2 flex flex-col gap-2">
     <div class="flex items-center gap-2 text-xs text-muted-foreground">
       <span class="h-px flex-1 bg-border"></span>
       {t(signUpMessages.orContinueWith)}

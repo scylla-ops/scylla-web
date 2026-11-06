@@ -61,12 +61,12 @@ cannot send the user to another site after the sign-in.
 A SaaS build wants its own flavour of the sign-in page: "Email" instead of "Email or username",
 a link to its own `/register`. Forking the page would mean every later fix to `Login.page.svelte`
 has to land twice. Instead, `presentation/login.points.ts` opens a handful of **extension
-points** — a zone below the card, the page's texts, the credentials form's fields — as plain
+points** — a zone below the form, the page's texts, the credentials form's fields — as plain
 typed values, exported from this feature's barrel like everything else public here. Another
 extension imports them from `@scylla/base-sdk` and changes them with a **widget injection**,
 declared on its own `@Extension`, not on a module of its own (what it changes belongs to no
 module it owns). An extension that changes the label of the identifier also changes its
-placeholder and the description of the card: all three name what the field takes.
+placeholder and the description of the page: all three name what the field takes.
 `openSession` exists for the same reason, one level down: a sign-up flow needs
 to open a session exactly the way sign-in does, without a second place that knows the
 `localStorage` keys. See [`@scylla/core-sdk`](../../../../../sdks/core-sdk/README.md) for the full mechanism, and
@@ -84,7 +84,9 @@ reset grew here without a change to the shell; an SSO flow or a second factor wo
 The domain is small: the repository and one struct, `PasswordResetDelivery`, which
 [user](../user/README.md) reads too (an administrator sends a reset link from there). Its only
 mapper turns the proto enum into that struct. The three public pages share one frame,
-`AuthLayout`: the logo, a card, and a place below the card for the zone of the sign-in page.
+`AuthLayout`: a panel with the Scylla mark, then a centered column with the logo, the title and
+the content, and a place below the content for the zone of the sign-in page. On a small screen the
+panel is not shown, and the logo in the column stays.
 
 ## Related modules
 

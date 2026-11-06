@@ -74,7 +74,7 @@ describe('widget injections of another extension', () => {
     expect(screen.getByText('Enter your email and your password.')).toBeInTheDocument();
   });
 
-  it('add a component below the card', async () => {
+  it('add a component below the form', async () => {
     await openLogin();
 
     expect(await screen.findByRole('button', { name: 'Need help?' })).toBeInTheDocument();

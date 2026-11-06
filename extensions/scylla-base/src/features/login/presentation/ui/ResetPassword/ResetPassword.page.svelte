@@ -44,10 +44,12 @@
   description={state.step === 'form' ? t(passwordResetMessages.resetDescription) : undefined}
 >
   {#if state.step === 'done'}
-    <p role="status" class="mb-6 text-sm">{t(passwordResetMessages.resetDone)}</p>
+    <p role="status" class="mb-6 text-center text-sm">{t(passwordResetMessages.resetDone)}</p>
     <Button href="/login" class="w-full">{t(passwordResetMessages.signIn)}</Button>
   {:else if state.step === 'invalid-link'}
-    <p role="alert" class="mb-6 text-sm text-destructive">{t(passwordResetMessages.invalidLink)}</p>
+    <p role="alert" class="mb-6 text-center text-sm text-destructive">
+      {t(passwordResetMessages.invalidLink)}
+    </p>
     <Button href="/forgot-password" variant="outline" class="w-full">
       {t(passwordResetMessages.newLink)}
     </Button>
