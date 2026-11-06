@@ -35,7 +35,7 @@
     </div>
     <Skeleton class="min-h-[420px] w-full flex-1 rounded-xl" />
   </div>
-{:else if pipelineQuery.isError}
+{:else if pipelineQuery.isLoadingError}
   <ErrorState message={t(pipelineMessages.loadPipelineError)} />
 {:else}
   <div class="flex h-full flex-col gap-4">

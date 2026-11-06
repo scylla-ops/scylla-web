@@ -20,44 +20,42 @@
   const runPipeline = createRunPipeline();
 </script>
 
-{#if dashboard.isError}
-  <ErrorState message={dashboard.errorMessage} />
-{:else}
-  <!-- The frame renders first: the table area's height decides what to fetch. -->
-  <div data-tour="pipelines" data-project-id={projectId} class="flex h-full min-h-0 w-full flex-col gap-4">
-    <PipelineDashboardHeader
-      numberOfPipelines={dashboard.pipelines ? dashboard.totalCount : undefined}
-      pipelineIds={dashboard.pipelineIds}
-    />
+<!-- The frame renders first and stays on an error: the table area's height decides what to fetch. -->
+<div data-tour="pipelines" data-project-id={projectId} class="flex h-full min-h-0 w-full flex-col gap-4">
+  <PipelineDashboardHeader
+    numberOfPipelines={dashboard.pipelines ? dashboard.totalCount : undefined}
+    pipelineIds={dashboard.pipelineIds}
+  />
 
-    <div {@attach dashboard.pagination.measure} class="relative min-h-0 flex-1 overflow-auto">
-      <div class="relative">
-        {#if dashboard.pipelines && dashboard.pipelines.length > 0}
-          <PipelineTable
-            pipelines={dashboard.pipelines}
-            jobsByPipelineId={dashboard.jobsByPipelineId}
-            isJobsLoading={dashboard.isJobsLoading}
-            isJobsError={dashboard.isJobsError}
-            canListJobs={dashboard.canListJobs}
-            {runPipeline}
-          />
-        {:else if !dashboard.pipelines}
-          <!-- The rows of the pipelines table. -->
-          <ListSkeleton rows={4} rowClass="h-20 w-full" />
-        {:else}
-          <div class="flex h-full min-h-100 items-center justify-center">
-            <div class="space-y-2 text-center">
-              <p class="text-muted-foreground">{t(pipelineMessages.noPipelines)}</p>
-              <p class="text-sm text-muted-foreground">{t(pipelineMessages.noPipelinesBody)}</p>
-            </div>
+  <div {@attach dashboard.pagination.measure} class="relative min-h-0 flex-1 overflow-auto">
+    <div class="relative">
+      {#if dashboard.pipelines && dashboard.pipelines.length > 0}
+        <PipelineTable
+          pipelines={dashboard.pipelines}
+          jobsByPipelineId={dashboard.jobsByPipelineId}
+          isJobsLoading={dashboard.isJobsLoading}
+          isJobsError={dashboard.isJobsError}
+          canListJobs={dashboard.canListJobs}
+          {runPipeline}
+        />
+      {:else if dashboard.isError}
+        <ErrorState message={dashboard.errorMessage} />
+      {:else if !dashboard.pipelines}
+        <!-- The rows of the pipelines table. -->
+        <ListSkeleton rows={4} rowClass="h-20 w-full" />
+      {:else}
+        <div class="flex h-full min-h-100 items-center justify-center">
+          <div class="space-y-2 text-center">
+            <p class="text-muted-foreground">{t(pipelineMessages.noPipelines)}</p>
+            <p class="text-sm text-muted-foreground">{t(pipelineMessages.noPipelinesBody)}</p>
           </div>
-        {/if}
-      </div>
+        </div>
+      {/if}
     </div>
-
-    <PaginationSlot
-      paginationInfo={dashboard.pagination.paginationInfo}
-      onPageChange={page => dashboard.pagination.setPage(page)}
-    />
   </div>
-{/if}
+
+  <PaginationSlot
+    paginationInfo={dashboard.pagination.paginationInfo}
+    onPageChange={page => dashboard.pagination.setPage(page)}
+  />
+</div>

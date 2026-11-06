@@ -60,8 +60,11 @@ export interface ShellContributions {
 export type QueryErrorHandler = (
   error: unknown,
   source: 'query' | 'mutation',
-  /** `showsOwnError`: the page shows this error, from `meta` of the query or the mutation. */
-  options?: { showsOwnError: true },
+  /**
+   * `showsOwnError`: the page shows this error, from `meta` of the query or the mutation.
+   * `repeated`: the last fetch of this query failed too, so the user was told already.
+   */
+  options?: { showsOwnError?: true; repeated?: true },
 ) => void;
 
 /** Whether a failing query should retry again. `false` vetoes it; `true`/`undefined` keeps the default (3 attempts). */

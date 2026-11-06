@@ -191,6 +191,8 @@ two augmentations with different types do not compile.
   cache silently.
 - `getQueryClient()` falls back to a plain client until the core installs the app's. A test
   installs its own with `withQueryClient()` (`test/render.ts`, `retry: false`).
+- A `QueryErrorHandler` gets `showsOwnError` when the page shows the error, and `repeated` when the
+  last fetch of this query failed too. A handler that tells the user does not do it for `repeated`.
 - `installedExtensions()` is empty until the core starts. Read it per call, never at import
   time: the modules load before `startCore` installs it.
 - `routeParams()` and `routeTrail()` are empty until a router is installed; `currentPathname()`

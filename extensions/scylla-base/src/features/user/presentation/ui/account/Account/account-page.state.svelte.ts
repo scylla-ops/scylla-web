@@ -35,9 +35,6 @@ export const createAccountPage = () => {
     get isLoading() {
       return meQuery.isLoading;
     },
-    get isError() {
-      return meQuery.isError;
-    },
     /** The role of the first system grant, for the identity card. */
     get systemRole() {
       return systemRole;

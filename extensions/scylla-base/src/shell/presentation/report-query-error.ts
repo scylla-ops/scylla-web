@@ -20,7 +20,8 @@ const UNREACHABLE_TOAST = 'server-unreachable';
  * invalidated so that the screen shows what the server has (the client cannot
  * know which item the server refused). An error that is not a `ScyllaError` is
  * a bug: it gets the generic message. A page that shows the error itself gets no toast and no
- * sign-out on the network, but a lost session still ends here.
+ * sign-out on the network, but a lost session still ends here. A query that failed at its last
+ * fetch too gets no new toast: during an outage, each focus and each poll fails again.
  */
 export const reportQueryError: QueryErrorHandler = (thrown, source, options) => {
   const error = ScyllaError.from(thrown);
@@ -32,7 +33,7 @@ export const reportQueryError: QueryErrorHandler = (thrown, source, options) => 
 
   error.log();
 
-  if (options?.showsOwnError) return;
+  if (options?.showsOwnError || options?.repeated) return;
 
   if (source === 'query' && error.isNetworkError()) {
     toast.error(error.userMessage(), { id: UNREACHABLE_TOAST });

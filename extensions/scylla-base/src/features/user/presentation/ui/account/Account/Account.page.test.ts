@@ -3,6 +3,7 @@ import type * as Login from '@base/features/login';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { toast } from 'svelte-sonner';
+import { getQueryClient } from '@scylla/core-sdk';
 import { installTestNavigator } from '@test/navigator.ts';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
@@ -158,6 +159,20 @@ describe('AccountPage', () => {
     setUp('profile', { getMe: vi.fn().mockRejectedValue(refused('down')) });
 
     expect(await screen.findByText('Error loading your account')).toBeInTheDocument();
+  });
+
+  it('keeps the page and what the user typed when a refetch of the account fails', async () => {
+    setUp('profile');
+    const username = await screen.findByLabelText('Username');
+    await userEvent.clear(username);
+    await userEvent.type(username, 'draft');
+
+    repository.getMe.mockRejectedValue(refused('down'));
+    await getQueryClient().refetchQueries({ type: 'active' });
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    expect(repository.getMe).toHaveBeenCalledTimes(2);
+    expect(screen.getByLabelText('Username')).toHaveValue('draft');
   });
 
   describe('profile', () => {

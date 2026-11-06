@@ -36,7 +36,7 @@ startCore({ extensions, target })
   │
   ├─ loadExtensions      read each @Extension, sort by dependencies, merge all modules,
   │                      and stop with an error if the declarations do not agree
-  ├─ install             i18n catalogs, DI registry, query client, shell config
+  ├─ install             i18n catalogs, DI registry, query client (mounted), shell config
   ├─ compileRoutes       route trees of all modules → one flat table, most specific first
   └─ mount(App)          router + shell frame + toaster
 ```

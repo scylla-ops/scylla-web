@@ -172,7 +172,9 @@ Rules:
 - `reportQueryError` is the app's single error report. **A query or a mutation must not add its
   own `onError` toast.** A failure on the network never ends the session: only the server ends
   it, with `UNAUTHENTICATED`. A *query* that fails on the network shows one shared toast and the
-  user stays on the page; a *mutation* only toasts.
+  user stays on the page; a *mutation* only toasts. A failure with `repeated` shows no new toast:
+  the user was told at the first failure, and a focus or a poll fails again at each turn. It still
+  goes to the console, and `UNAUTHENTICATED` still ends the session.
 - A *mutation* that the server refused because the item changed since it was read (`ABORTED`,
   `isConflict()`) is shown as a conflict, with a warning toast in the words of the app, and
   `reportQueryError` invalidates every query (`getQueryClient().invalidateQueries()`), so that

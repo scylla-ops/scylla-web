@@ -43,6 +43,15 @@ afterEach(() => {
 });
 
 describe('reportQueryError', () => {
+  it('shows no new toast for a repeated failure, but still ends a lost session', () => {
+    reportQueryError(errorWith('INTERNAL'), 'query', { repeated: true });
+    expect(toastError).not.toHaveBeenCalled();
+    expect(close).not.toHaveBeenCalled();
+
+    reportQueryError(errorWith('UNAUTHENTICATED'), 'query', { repeated: true });
+    expect(returnPathOf(window.location.href)).toBe('/acme');
+  });
+
   it('leaves an error to the page that shows it, but still ends a lost session', () => {
     at('/acme/members', '', '');
 

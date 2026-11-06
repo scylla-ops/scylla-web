@@ -46,7 +46,7 @@
 
 {#if roleQuery.isLoading}
   <ListSkeleton header rows={8} rowClass="h-12 w-full" />
-{:else if roleQuery.isError || !role}
+{:else if !role}
   <ErrorState message={t(rolesMessages.notFound)} />
 {:else if editable}
   {#key role.key}

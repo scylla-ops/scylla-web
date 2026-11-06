@@ -177,6 +177,15 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 - A failed list of pipelines or of jobs shows its error once. Before, the page sent the call again
   about 40 times each second, with one error toast for each call, until the user left the page.
+- A change from another tab or from another person shows when the tab shows again and when the
+  browser is online again. Before, it showed only after a navigation or a reload, because the app
+  never called `queryClient.mount()`.
+- A query that keeps failing shows one error toast until it has a success, not one at each focus
+  or poll. A `QueryErrorHandler` gets `repeated` for the next failures.
+- A failed list of pipelines no longer stops the page with "This page could not be shown". The
+  page shows the error in the table area, and a failed refetch keeps the rows.
+- A failed refetch no longer removes the editor of a pipeline, the editor of a role and the account
+  page with what the user typed. A focus does not replace a draft of a pipeline.
 - On the sign-in page, the "or" line is at the same distance from the "Sign in" button and from the
   provider button. Before, the gap under the "Sign in" button was 24 px.
 - A sign-in with a provider, its "Try again" link and the link of a provider on the account page

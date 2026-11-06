@@ -32,7 +32,7 @@
   <Redirect to="../profile" />
 {:else if page.isLoading}
   <Skeleton class="m-4 h-64 rounded-xl" />
-{:else if page.isError || !page.me}
+{:else if !page.me}
   <ErrorState message={t(userMessages.accountLoadError)} />
 {:else}
   {@const me = page.me}
