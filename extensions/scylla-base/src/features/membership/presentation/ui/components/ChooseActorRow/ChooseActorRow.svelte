@@ -1,42 +1,36 @@
 <script lang="ts">
+  import { SearchSelect } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import {
-    Button,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-  } from '@scylla/ui/primitives';
+  import { Button } from '@scylla/ui/primitives';
   import { membershipMessages } from '../../../messages/membership.messages.ts';
-
-  export interface ActorChoice {
-    id: string;
-    name: string;
-  }
+  import type { ActorChoice } from '../../../presenters/actor-choice.presenter.ts';
 
   interface Props {
     choices: readonly ActorChoice[];
+    /** Rows can still arrive. */
+    loading?: boolean;
     onChoose: (choice: ActorChoice) => void;
     onCancel: () => void;
   }
 
-  let { choices, onChoose, onCancel }: Props = $props();
+  let { choices, loading = false, onChoose, onCancel }: Props = $props();
 
   let chosen = $state('');
   const choice = $derived(choices.find(one => one.id === chosen));
+  const options = $derived(choices.map(one => ({ ...one, value: one.id, label: one.name })));
 </script>
 
 <div class="flex items-center gap-2 rounded-xl border p-4">
-  <Select type="single" value={chosen} onValueChange={next => (chosen = next)}>
-    <SelectTrigger class="flex-1" aria-label={t(membershipMessages.member)}>
-      {choice?.name ?? t(membershipMessages.chooseMember)}
-    </SelectTrigger>
-    <SelectContent>
-      {#each choices as one (one.id)}
-        <SelectItem value={one.id} label={one.name}>{one.name}</SelectItem>
-      {/each}
-    </SelectContent>
-  </Select>
+  <SearchSelect
+    class="flex-1"
+    {options}
+    bind:value={chosen}
+    {loading}
+    focusOnMount
+    placeholder={t(membershipMessages.chooseMember)}
+    aria-label={t(membershipMessages.member)}
+    emptyText={t(membershipMessages.noMemberToAdd)}
+  />
   <Button
     disabled={!choice}
     onclick={() => {

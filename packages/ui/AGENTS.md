@@ -23,7 +23,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 | `@scylla/ui/state` | rune states: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
 | `@scylla/ui/i18n` | `t`, `activeLocale`, `setAppLocale`, `registerCatalogs` |
-| `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result) |
+| `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result), `matchesSearch` (case and accents do not count) |
 | `@scylla/ui/structs` | `PaginationParams`, `PaginationInfo`, `PaginatedList` — plain shapes, the only part a `domain/` may import |
 | `@scylla/ui/styles.css` | Tailwind, the theme tokens, the `@source` of every package — imported once, by `apps/web` |
 | `@scylla/ui/assets/*` | the logos |
@@ -67,6 +67,7 @@ catalogs of this package register themselves.
 | How much room the layout left a component | `createMeasuredHeight()` → `{ height, measure }`, and `{@attach measure}` on a container sized by the layout, never by its content |
 | A table | `DataTable` (+ `createPagination`) — row keys are business ids, never indices. Give each column `meta.card` (see "`DataTable` on a phone") |
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
+| A select with a search | `SearchSelect`, with `options` as data. Use `Select` only for a short fixed list |
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
 | Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue" |
 | Show a one-time secret | `SecretRevealDialog` |
@@ -178,6 +179,20 @@ What a port has to get right, all of it invisible to the compiler:
   `aria-haspopup`, `aria-expanded`, `aria-activedescendant` — but no `role="combobox"`. Nothing
   breaks loudly: `aria-describedby` still carries the tooltip text, the button still opens. Check
   the role when you port a primitive, and add it to *our* wrapper when it is missing.
+- **Use `SearchSelect` before the `Combobox` parts.** The people field of `AddMembersDialog` uses
+  the parts, because it holds chips and free text. The parts have these traps:
+  - `Combobox.Input` does not open on a click. Open the list in `onclick`.
+  - The default of `allowDeselect` is `true`. Set it to `false`, or a second pick clears the value.
+  - Enter does not pick an option with an empty value. Give each option a value that is not empty.
+  - bits-ui keeps the typed text after a close, and writes the label after a pick. `ComboboxInput`
+    shows only its `value` prop, so the owner holds the text.
+  - Enter with no highlighted row closes the list. Prevent the default in `onkeydown` to stop this.
+  - bits-ui does not set `aria-controls` or `aria-haspopup`. Set them on the input.
+  - A row of a floating list has no accessible name in jsdom, because the list has no position. A
+    test reads the row with `findFloating`, and a field in the list with its placeholder.
+- **A menu gives the focus to its field marked `autofocus`.** Without this field, the menu takes the
+  focus. If the field mounts after the menu opens, the field must also take the focus when it
+  mounts (`{@attach}`), because Svelte's `autofocus` does nothing while another element has the focus.
 - **CSS variable names change**: `--radix-*-content-transform-origin` becomes
   `--bits-floating-transform-origin`, and the select's available-height/anchor-width variables
   likewise. Nothing fails loudly if you miss one.

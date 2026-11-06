@@ -99,6 +99,10 @@ msgstr "Go to next page"
 msgid "Go to previous page"
 msgstr "Go to previous page"
 
+#: packages/ui/src/controls/SearchSelect/search-select.messages.ts:5
+msgid "Loading…"
+msgstr "Loading…"
+
 #: packages/ui/src/primitives/pagination/pagination.messages.ts:16
 msgid "More pages"
 msgstr "More pages"
@@ -106,6 +110,10 @@ msgstr "More pages"
 #: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:10
 msgid "New {label}"
 msgstr "New {label}"
+
+#: packages/ui/src/controls/SearchSelect/search-select.messages.ts:4
+msgid "No match"
+msgstr "No match"
 
 #: packages/ui/src/primitives/pagination/pagination.messages.ts:13
 msgid "Next"
@@ -150,6 +158,10 @@ msgstr "Showing {start}-{end} of {totalCount}"
 #: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:5
 msgid "shown once"
 msgstr "shown once"
+
+#: packages/ui/src/controls/SearchSelect/search-select.messages.ts:6
+msgid "Show the options"
+msgstr "Show the options"
 
 #: packages/ui/src/primitives/sidebar/sidebar.messages.ts:4
 msgid "Sidebar"

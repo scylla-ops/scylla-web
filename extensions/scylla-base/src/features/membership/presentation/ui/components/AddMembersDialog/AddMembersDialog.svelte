@@ -12,18 +12,17 @@
   import { projectQueries } from '@base/features/project';
   import { missingPermissionIds, roleQueries, roleName } from '@base/features/roles';
   import type { UserSummary } from '@base/features/user';
-  import { ScyllaDialog } from '@scylla/ui';
+  import { ScyllaDialog, SearchSelect } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
     Button,
-    Input,
+    Combobox,
+    ComboboxContent,
+    ComboboxInput,
+    ComboboxItem,
     Label,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
   } from '@scylla/ui/primitives';
-  import { toast } from '@scylla/ui/utils';
+  import { matchesSearch, toast } from '@scylla/ui/utils';
   import { checkEmail } from '@shared/utils/account-validation.ts';
   import { userName } from '@shared/presentation/ui';
   import { summaryLines } from '../../../presenters/add-members.presenter.ts';
@@ -32,6 +31,7 @@
     membersAdded,
     addTitle,
     membershipMessages,
+    morePeople,
   } from '../../../messages/membership.messages.ts';
   import { OWNER_KEY } from '../../../presenters/member-rows.presenter.ts';
   import RolePicker from '../RolePicker/RolePicker.svelte';
@@ -58,6 +58,10 @@
     onAdded,
   }: Props = $props();
 
+  const uid = $props.id();
+  /** A long directory stays quick to open: the text narrows the rest. */
+  const MAX_SUGGESTIONS = 50;
+
   type Chip = { user: UserSummary } | { email: string };
   interface ProjectRow {
     projectId: string;
@@ -81,6 +85,9 @@
   const workspaceOptions = $derived(people.filter(role => role.level === 'workspace'));
   const projectOptions = $derived(people.filter(role => role.level === 'project'));
   const projects = $derived(projectsQuery.data?.items ?? []);
+  const projectChoices = $derived(
+    projects.map(project => ({ value: project.id, label: project.name })),
+  );
 
   let chips = $state<Chip[]>([]);
   let text = $state('');
@@ -89,19 +96,21 @@
   let pending = $state(false);
   let showAll = $state(false);
 
+  const peopleListId = `${uid}-people`;
+  let peopleAnchor = $state<HTMLElement | null>(null);
+  let peopleOpen = $state(false);
+  /** Empty after each pick: the field adds a chip, it does not hold a value. */
+  let pickedPerson = $state('');
+
   const chosen = $derived(new Set(chips.map(chip => ('user' in chip ? chip.user.id : chip.email))));
-  const suggestions = $derived(
-    text.trim().length === 0
-      ? []
-      : candidates
-          .filter(user => !chosen.has(user.id))
-          .filter(user =>
-            `${userName(user)} ${user.username ?? ''} ${user.email ?? ''}`
-              .toLowerCase()
-              .includes(text.trim().toLowerCase()),
-          )
-          .slice(0, 6),
+  const matches = $derived(
+    candidates
+      .filter(user => !chosen.has(user.id))
+      .filter(user => matchesSearch(text, [userName(user), user.username, user.email])),
   );
+  const suggestions = $derived(matches.slice(0, MAX_SUGGESTIONS));
+  const hiddenMatches = $derived(matches.length - suggestions.length);
+  const showSuggestions = $derived(peopleOpen && suggestions.length > 0);
   const hasEmails = $derived(chips.some(chip => 'email' in chip));
 
   /** An invitation carries one built-in role of the workspace, and not the role owner. */
@@ -153,6 +162,7 @@
   const addChip = (chip: Chip) => {
     chips = [...chips, chip];
     text = '';
+    peopleOpen = false;
   };
 
   const addFromText = () => {
@@ -163,8 +173,15 @@
     else if (!checkEmail(value)) addChip({ email: value });
   };
 
+  const pickPerson = (id: string) => {
+    const user = candidates.find(one => one.id === id);
+    if (user) addChip({ user });
+    pickedPerson = '';
+  };
+
+  // Enter on an open list picks the highlighted row: bits-ui does it.
   const onKeydown = (event: KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === ',') {
+    if (event.key === ',' || (event.key === 'Enter' && !showSuggestions)) {
       event.preventDefault();
       addFromText();
     }
@@ -219,46 +236,57 @@
   <div class="flex flex-col gap-5">
     <div class="flex flex-col gap-2">
       <Label for="add-members-people">{t(membershipMessages.people)}</Label>
-      <div class="flex flex-wrap items-center gap-2 rounded-md border p-2">
-        {#each chips as chip, index (index)}
-          <span class="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs">
-            {'user' in chip ? userName(chip.user) : chip.email}
-            <button
-              type="button"
-              aria-label={t(membershipMessages.removeChip)}
-              onclick={() => (chips = chips.filter((_, i) => i !== index))}
-            >
-              <XIcon class="size-3" />
-            </button>
-          </span>
-        {/each}
-        <Input
-          id="add-members-people"
-          class="h-7 min-w-40 flex-1 border-0 p-0 shadow-none focus-visible:ring-0"
-          placeholder={t(membershipMessages.addPeoplePlaceholder)}
-          value={text}
-          oninput={event => (text = event.currentTarget.value)}
-          onkeydown={onKeydown}
-        />
-      </div>
-      {#if suggestions.length > 0}
-        <ul class="rounded-md border p-1 text-sm">
-          {#each suggestions as user (user.id)}
-            <li>
+      <Combobox
+        type="single"
+        allowDeselect={false}
+        bind:value={pickedPerson}
+        onValueChange={pickPerson}
+        bind:open={() => showSuggestions, next => (peopleOpen = next)}
+      >
+        <div bind:this={peopleAnchor} class="flex flex-wrap items-center gap-2 rounded-md border p-2">
+          {#each chips as chip, index (index)}
+            <span class="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs">
+              {'user' in chip ? userName(chip.user) : chip.email}
               <button
                 type="button"
-                class="w-full rounded px-2 py-1 text-left hover:bg-muted"
-                onclick={() => addChip({ user })}
+                aria-label={t(membershipMessages.removeChip)}
+                onclick={() => (chips = chips.filter((_, i) => i !== index))}
               >
-                {userName(user)}
-                {#if user.email}
-                  <span class="ml-2 text-xs text-muted-foreground">{user.email}</span>
-                {/if}
+                <XIcon class="size-3" />
               </button>
-            </li>
+            </span>
           {/each}
-        </ul>
-      {/if}
+          <ComboboxInput
+            id="add-members-people"
+            class="h-7 w-auto min-w-40 flex-1 rounded-none border-0 p-0 shadow-none focus-visible:ring-0"
+            placeholder={t(membershipMessages.addPeoplePlaceholder)}
+            value={text}
+            aria-haspopup="listbox"
+            aria-controls={showSuggestions ? peopleListId : undefined}
+            onclick={() => (peopleOpen = true)}
+            oninput={event => {
+              text = event.currentTarget.value;
+              peopleOpen = true;
+            }}
+            onkeydown={onKeydown}
+          />
+        </div>
+        <ComboboxContent id={peopleListId} customAnchor={peopleAnchor}>
+          {#each suggestions as user (user.id)}
+            <ComboboxItem value={user.id} label={userName(user)}>
+              <span class="flex min-w-0 flex-col">
+                <span class="truncate">{userName(user)}</span>
+                {#if user.email}
+                  <span class="truncate text-xs text-muted-foreground">{user.email}</span>
+                {/if}
+              </span>
+            </ComboboxItem>
+          {/each}
+          {#if hiddenMatches > 0}
+            <p class="px-2 py-1.5 text-xs text-muted-foreground">{t(morePeople(hiddenMatches))}</p>
+          {/if}
+        </ComboboxContent>
+      </Combobox>
       {#if !canBrowse}
         <p class="text-xs text-muted-foreground">{t(membershipMessages.emailOnlyHint)}</p>
       {/if}
@@ -309,22 +337,15 @@
       </Label>
       {#each projectRows as row, index (index)}
         <div class="grid grid-cols-[1fr_1fr_auto] items-center gap-2">
-          <Select
-            type="single"
+          <SearchSelect
+            options={projectChoices}
             value={row.projectId}
             onValueChange={next =>
               (projectRows = projectRows.map((r, i) => (i === index ? { ...r, projectId: next } : r)))}
-          >
-            <SelectTrigger class="w-full" aria-label={t(membershipMessages.project)}>
-              {projects.find(project => project.id === row.projectId)?.name ??
-                t(membershipMessages.chooseProject)}
-            </SelectTrigger>
-            <SelectContent>
-              {#each projects as project (project.id)}
-                <SelectItem value={project.id} label={project.name}>{project.name}</SelectItem>
-              {/each}
-            </SelectContent>
-          </Select>
+            loading={projectsQuery.isLoading}
+            placeholder={t(membershipMessages.chooseProject)}
+            aria-label={t(membershipMessages.project)}
+          />
           <RolePicker
             roles={projectOptions}
             value={row.role}

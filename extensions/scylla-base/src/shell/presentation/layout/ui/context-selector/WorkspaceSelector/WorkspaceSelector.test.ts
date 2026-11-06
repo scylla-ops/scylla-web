@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
-import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 
 const findMenuItem = async (text: string) => {
   let item: HTMLElement | undefined;
@@ -24,6 +24,12 @@ vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } })
 let teardown: Array<() => void> = [];
 let navigator: ReturnType<typeof installTestNavigator>;
 
+const TWO = [
+  { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' },
+  { id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' },
+];
+let mine = TWO;
+
 const grant = (...permissions: Permission[]) =>
   permissionsStore.setState({
     permissions: {
@@ -36,11 +42,8 @@ const grant = (...permissions: Permission[]) =>
 beforeEach(() => {
   navigator = installTestNavigator();
   const cache = withQueryClient();
-  const getMine = () =>
-    Promise.resolve([
-      { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' },
-      { id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' },
-    ]);
+  mine = TWO;
+  const getMine = () => Promise.resolve(mine);
   const create = (name: string) => Promise.resolve({ id: 'org-3', name, slug: name.toLowerCase() });
   teardown = [
     cache.restore,
@@ -56,6 +59,130 @@ afterEach(() => {
 });
 
 describe('WorkspaceSelector', () => {
+  describe('the filter field', () => {
+    const SIX = [
+      ...TWO,
+      ...['Initech', 'Hooli', 'Umbrella', 'Stark Industries'].map((name, index) => ({
+        id: `org-${index + 3}`,
+        name,
+        slug: name.toLowerCase().replace(' ', '-'),
+      })),
+    ];
+    // By its placeholder: the list has no position in jsdom, so its fields have no accessible name.
+    const filterField = () => screen.findByPlaceholderText<HTMLInputElement>('Find a workspace');
+    /** The body takes clicks again just after the menu goes. */
+    const closed = (field: HTMLElement) =>
+      waitFor(() => {
+        expect(field).not.toBeInTheDocument();
+        expect(document.body.style.pointerEvents).not.toBe('none');
+      });
+    const items = () =>
+      screen.getAllByRole('menuitem', { hidden: true }).map(item => item.textContent.trim());
+
+    const open = async () => {
+      const user = userEvent.setup();
+      render(InSidebar, { component: WorkspaceSelector });
+      await user.click(screen.getByRole('button', { name: /Acme Corp/ }));
+      const field = await filterField();
+      await focusSettled();
+      return { user, field };
+    };
+
+    beforeEach(() => {
+      mine = SIX;
+    });
+
+    it('does not show for a short list', async () => {
+      mine = TWO;
+      const user = userEvent.setup();
+      render(InSidebar, { component: WorkspaceSelector });
+
+      await user.click(screen.getByRole('button', { name: /Acme Corp/ }));
+      await findMenuItem('Globex Inc');
+
+      expect(screen.queryByRole('textbox', { hidden: true })).not.toBeInTheDocument();
+    });
+
+    it('holds the focus when the menu opens, also on the next open', async () => {
+      const { user, field } = await open();
+      expect(field).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+      await closed(field);
+      await user.click(screen.getByRole('button', { name: /Acme Corp/ }));
+
+      const again = await filterField();
+      await focusSettled();
+      expect(again).toHaveFocus();
+    });
+
+    it('keeps the letters in the field and narrows the rows', async () => {
+      const { user, field } = await open();
+
+      await user.keyboard('hoo');
+
+      expect(field).toHaveFocus();
+      expect(field.value).toBe('hoo');
+      expect(items()).toEqual(['Hooli']);
+    });
+
+    it('opens the first match on Enter, and the menu closes', async () => {
+      const { user, field } = await open();
+
+      await user.keyboard('umb{Enter}');
+
+      expect(navigator.navigate).toHaveBeenCalledWith('/umbrella/projects', undefined);
+      await closed(field);
+    });
+
+    it('opens no row on Enter with no text', async () => {
+      const { user } = await open();
+
+      await user.keyboard('{Enter}');
+
+      expect(navigator.navigate).not.toHaveBeenCalled();
+    });
+
+    it('goes to the first row on ArrowDown, and the arrows then move in the rows', async () => {
+      const { user } = await open();
+
+      await user.keyboard('{ArrowDown}');
+      expect(document.activeElement).toHaveTextContent('Acme Corp');
+
+      await user.keyboard('{ArrowDown}');
+      expect(document.activeElement).toHaveTextContent('Globex Inc');
+    });
+
+    it('closes the menu on Escape', async () => {
+      const { user, field } = await open();
+
+      await user.keyboard('hoo{Escape}');
+
+      await waitFor(() => expect(field).not.toBeInTheDocument());
+    });
+
+    it('says when no workspace matches', async () => {
+      const { user } = await open();
+
+      await user.keyboard('zzz');
+
+      expect(screen.getByRole('status', { hidden: true })).toHaveTextContent(
+        'No workspace matches this search.',
+      );
+    });
+
+    it('forgets the text when the menu closes', async () => {
+      const { user, field } = await open();
+
+      await user.keyboard('hoo{Escape}');
+      await closed(field);
+      await user.click(screen.getByRole('button', { name: /Acme Corp/ }));
+
+      await findMenuItem('Globex Inc');
+      expect(items()).toHaveLength(SIX.length);
+    });
+  });
+
   it('shows the active workspace', () => {
     render(InSidebar, { component: WorkspaceSelector });
 

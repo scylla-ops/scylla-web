@@ -17,6 +17,8 @@ export const addAgentMessages = {
   someProjects: msg`Some projects`,
   someProjectsHint: msg`It takes the jobs of these projects only, and reads only their secrets.`,
   noProject: msg`No project yet.`,
+  findProject: msg`Find a project`,
+  noProjectMatch: msg`No project matches this search.`,
   cancel: msg`Cancel`,
   add: msg`Add agent`,
   runThis: msg`Run this on the machine:`,

@@ -12,6 +12,7 @@
     SelectTrigger,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
+  import { matchesSearch } from '@scylla/ui/utils';
   import { PROJECT_ROLES, roleLabel, rolesOf } from '@base/features/access';
   import { projectQueries } from '@base/features/project';
   import { credentialsMessages as messages } from '@base/features/apps/presentation/messages/credentials.messages.ts';
@@ -35,6 +36,13 @@
 
   const projects = createQuery(() => projectQueries.lookup(workspaceId));
   const WORKSPACE_CHOICES = rolesOf('workspace');
+  /** Below this, all the rows show at once. */
+  const FILTER_FROM = 8;
+  const allProjects = $derived(projects.data?.items ?? []);
+  let filter = $state('');
+  const shownProjects = $derived(
+    allProjects.filter(project => matchesSearch(filter, [project.name])),
+  );
 
   let showProjects = $state(false);
   const projectCount = $derived(Object.values(projectRoles).filter(Boolean).length);
@@ -82,8 +90,16 @@
     </Button>
   </div>
   {#if showProjects}
+    {#if allProjects.length >= FILTER_FROM}
+      <Input
+        placeholder={t(messages.findProject)}
+        aria-label={t(messages.findProject)}
+        autocomplete="off"
+        bind:value={filter}
+      />
+    {/if}
     <ul class="relative flex max-h-48 flex-col gap-2 overflow-y-auto" transition:slide={{ duration: 200 }}>
-      {#each projects.data?.items ?? [] as project (project.id)}
+      {#each shownProjects as project (project.id)}
         <li class="flex items-center justify-between gap-3 text-sm">
           <span class="truncate">{project.name}</span>
           <Select
@@ -102,6 +118,10 @@
             </SelectContent>
           </Select>
         </li>
+      {:else}
+        {#if allProjects.length > 0}
+          <li role="status" class="text-xs text-muted-foreground">{t(messages.noProjectMatch)}</li>
+        {/if}
       {/each}
     </ul>
   {/if}

@@ -1,12 +1,6 @@
 <script lang="ts">
   import XIcon from '@lucide/svelte/icons/x';
-  import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-  } from '@scylla/ui/primitives';
+  import { SearchSelect } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
   import { nodeMessages } from '@base/features/pipeline/presentation/messages/node.messages.ts';
@@ -23,7 +17,9 @@
 
   let { deps, candidates, dependents, onChange, onOpen }: Props = $props();
 
-  const addable = $derived(candidates.filter(id => !deps.includes(id)));
+  const addable = $derived(
+    candidates.filter(id => !deps.includes(id)).map(id => ({ value: id, label: id })),
+  );
 
   let picked = $state('');
 
@@ -32,6 +28,10 @@
     picked = '';
   };
 </script>
+
+{#snippet nodeId(option: { label: string })}
+  <span class="truncate font-mono">{option.label}</span>
+{/snippet}
 
 <div class="flex flex-col gap-2">
   <span class="text-sm font-medium">{t(scriptingMessages.dependencies)}</span>
@@ -58,16 +58,14 @@
 
   {#if addable.length > 0}
     <!-- Reset after each pick: the select adds, it does not hold a value. -->
-    <Select type="single" bind:value={picked} onValueChange={add}>
-      <SelectTrigger aria-label={t(scriptingMessages.addDependency)} class="w-full">
-        <SelectValue placeholder={t(scriptingMessages.addDependency)} />
-      </SelectTrigger>
-      <SelectContent>
-        {#each addable as id (id)}
-          <SelectItem value={id} label={id} class="font-mono">{id}</SelectItem>
-        {/each}
-      </SelectContent>
-    </Select>
+    <SearchSelect
+      options={addable}
+      bind:value={picked}
+      onValueChange={add}
+      row={nodeId}
+      placeholder={t(scriptingMessages.addDependency)}
+      aria-label={t(scriptingMessages.addDependency)}
+    />
   {/if}
 
   {#if dependents.length > 0}

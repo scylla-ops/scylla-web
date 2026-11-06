@@ -171,6 +171,10 @@ msgstr "Expire dans"
 msgid "Failed"
 msgstr "Échoué"
 
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:38
+msgid "Find a project"
+msgstr "Trouver un projet"
+
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:15
 #: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:6
 msgid "Full"
@@ -207,6 +211,10 @@ msgstr "Aucun compte n'est lié à cette identité"
 #: extensions/scylla-base/src/shared/presentation/messages/status-bar.messages.ts:4
 msgid "No data"
 msgstr "Aucune donnée"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:39
+msgid "No project matches this search."
+msgstr "Aucun projet ne correspond à cette recherche."
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:37
 msgid "No project yet."

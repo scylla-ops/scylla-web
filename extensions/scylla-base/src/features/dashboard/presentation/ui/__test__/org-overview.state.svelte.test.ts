@@ -89,7 +89,7 @@ describe('createWorkspaceOverview', () => {
       expect(overview.workspaceId).toBe('org-1');
 
       await waitFor(() => expect(overview.projects).toHaveLength(1));
-      expect(getProjects).toHaveBeenCalledWith('org-1', { page: 1, pageSize: 100 });
+      expect(getProjects).toHaveBeenCalledWith('org-1', { page: 1, pageSize: Number.MAX_SAFE_INTEGER });
       expect(getPipelines).toHaveBeenCalledWith('org-1', { page: 1, pageSize: 100 });
       expect(getJobs).toHaveBeenCalledWith('org-1', { page: 1, pageSize: 100 });
     });

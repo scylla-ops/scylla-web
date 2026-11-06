@@ -21,6 +21,10 @@ msgstr "{count, plural, =0 {Ajouter des membres} one {Ajouter # membre} other {A
 msgid "{count, plural, one {# member added} other {# members added}}"
 msgstr "{count, plural, one {# membre ajouté} other {# membres ajoutés}}"
 
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:84
+msgid "{count, plural, one {# more person. Type to narrow the list.} other {# more people. Type to narrow the list.}}"
+msgstr "{count, plural, one {# personne de plus. Saisissez du texte pour réduire la liste.} other {# personnes de plus. Saisissez du texte pour réduire la liste.}}"
+
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:100
 msgid "{label} {count}"
 msgstr "{label} {count}"
@@ -217,6 +221,10 @@ msgstr "Membres de {project}"
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:119
 msgid "New app in {workspace}"
 msgstr "Nouvelle app dans {workspace}"
+
+#: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:77
+msgid "No member left to add"
+msgstr "Plus aucun membre à ajouter"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:34
 msgid "No project role"

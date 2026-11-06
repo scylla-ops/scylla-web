@@ -21,6 +21,10 @@ gets the keyboard focus of the menu. A row shows the name, a check on the active
 its actions on hover, in place of the check. Without a `row`, it shows plain rows
 (`WorkspaceRow.svelte`). A row component takes `class`, `onSelect` and `children`.
 
+From 6 workspaces, a filter field shows above the rows, and it holds the focus. Its `onkeydown` stops
+each key except Escape and Tab, because the type-ahead of the menu moves the focus to a row.
+ArrowDown goes to the first row. Enter opens the first row when the field has text.
+
 ## Public API — `index.ts`
 
 ```typescript

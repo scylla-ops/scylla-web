@@ -14,7 +14,7 @@
     ToggleGroupItem,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { cn } from '@scylla/ui/utils';
+  import { cn, matchesSearch } from '@scylla/ui/utils';
   import type { TokenExpiry, TokenPreset } from '@shared/domain/structs/api-token.struct.ts';
   import {
     ACTION_GROUPS,
@@ -59,6 +59,13 @@
 
   let advanced = $state(false);
   let choosingProjects = $state(false);
+
+  /** Below this, all the rows show at once. */
+  const PROJECT_FILTER_FROM = 8;
+  let projectFilter = $state('');
+  const shownProjects = $derived(
+    projects.filter(project => matchesSearch(projectFilter, [project.name])),
+  );
 
   const PRESETS: readonly { value: Exclude<TokenPreset, 'custom'>; title: MessageDescriptor; body: MessageDescriptor }[] = [
     { value: 'read_only', title: messages.readOnly, body: messages.readOnlyBody },
@@ -236,8 +243,16 @@
           </Label>
         </RadioGroup>
         {#if someProjects}
+          {#if projects.length >= PROJECT_FILTER_FROM}
+            <Input
+              placeholder={t(messages.findProject)}
+              aria-label={t(messages.findProject)}
+              autocomplete="off"
+              bind:value={projectFilter}
+            />
+          {/if}
           <div class="relative max-h-40 overflow-y-auto rounded-md border px-3 py-1">
-            {#each projects as project (project.id)}
+            {#each shownProjects as project (project.id)}
               <Label class="flex items-center gap-2 py-1.5 font-normal">
                 <Checkbox
                   checked={projectIds.includes(project.id)}
@@ -246,7 +261,9 @@
                 {project.name}
               </Label>
             {:else}
-              <p class="py-1.5 text-xs text-muted-foreground">{t(messages.noProject)}</p>
+              <p role="status" class="py-1.5 text-xs text-muted-foreground">
+                {projects.length === 0 ? t(messages.noProject) : t(messages.noProjectMatch)}
+              </p>
             {/each}
           </div>
         {/if}

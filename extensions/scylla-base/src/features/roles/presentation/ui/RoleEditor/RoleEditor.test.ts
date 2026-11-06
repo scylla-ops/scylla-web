@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PermissionScope, permissionsStore } from '@platform/authz';
 import { installTestNavigator } from '@test/navigator.ts';
-import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import type { RoleEntity } from '../../../domain/entities/role.entity.ts';
 import type { CatalogArea } from '../../../domain/structs/catalog.struct.ts';
 import RoleEditor from './RoleEditor.svelte';
@@ -48,6 +48,7 @@ const levels = () => ({
 
 let update: ReturnType<typeof vi.fn>;
 let catalog: ReturnType<typeof vi.fn>;
+let list: ReturnType<typeof vi.fn>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 let navigator: ReturnType<typeof installTestNavigator>;
@@ -55,10 +56,11 @@ let navigator: ReturnType<typeof installTestNavigator>;
 beforeEach(() => {
   update = vi.fn().mockResolvedValue(role({}));
   catalog = vi.fn().mockResolvedValue(areas);
+  list = vi.fn().mockResolvedValue([]);
   cache = withQueryClient();
   navigator = installTestNavigator();
   restoreRegistry = withRegistry({
-    roles: { roleRepository: { update, catalog, list: vi.fn().mockResolvedValue([]) } },
+    roles: { roleRepository: { update, catalog, list } },
     access: {
       accessRepository: {
         heldPermissions: vi.fn().mockResolvedValue(new Set(['workspace.edit', 'pipelines.view'])),
@@ -125,5 +127,24 @@ describe('RoleEditor', () => {
     const { instance, project } = levels();
     expect(instance).toBeDisabled();
     expect(project).toBeEnabled();
+  });
+});
+
+describe('RoleEditor: start from', () => {
+  it('starts empty, and finds the role to copy by its name', async () => {
+    list.mockResolvedValue([
+      role({ key: 'qa', name: 'Quality', grantName: 'qa', permissions: [] }),
+      role({ key: 'ops', name: 'Operations', grantName: 'ops', permissions: [] }),
+    ]);
+    render(RoleEditor, { listUrl: '/acme/access/roles', workspaceId: 'w-1' });
+    const field = await screen.findByRole<HTMLInputElement>('combobox', { name: 'Start from' });
+    expect(field).toHaveAttribute('placeholder', 'Empty role');
+
+    await userEvent.type(field, 'oper');
+    await findFloating('option', 'Operations');
+    expect(screen.queryAllByRole('option', { hidden: true })).toHaveLength(1);
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => expect(field.value).toBe('Operations'));
   });
 });

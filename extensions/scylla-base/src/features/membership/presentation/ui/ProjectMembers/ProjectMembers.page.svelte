@@ -5,6 +5,7 @@
   import { createQuery, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
   import { accessQueries, projectRef } from '@base/features/access';
   import { appQueries } from '@base/features/apps';
+  import { userQueries } from '@base/features/user';
   import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { Button, Skeleton } from '@scylla/ui/primitives';
@@ -21,6 +22,7 @@
     membershipMessages,
     projectRuleTitle,
   } from '../../messages/membership.messages.ts';
+  import { memberChoice } from '../../presenters/actor-choice.presenter.ts';
   import { memberRoleName } from '../../presenters/member-role-name.ts';
   import { buildProjectMemberRows, memberProfile } from '../../presenters/member-rows.presenter.ts';
   import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
@@ -60,11 +62,15 @@
     return { ...query, enabled: query.enabled && adding };
   });
 
+  const usersQuery = createQuery(() =>
+    userQueries.list({ enabled: adding && can(Permission.LIST_USERS) }),
+  );
+
   /** A person with a role in the workspace, or an app of the workspace, with no role here yet. */
   const candidates = $derived([
     ...rows
       .filter(row => row.inheritedOnly)
-      .map(row => ({ id: row.actorId, name: row.name })),
+      .map(row => memberChoice(row, usersQuery.data?.items.find(user => user.id === row.actorId))),
     ...(appsQuery.data ?? [])
       .filter(app => !rows.some(row => row.actorId === app.id))
       .map(app => ({ id: app.id, name: app.name })),
@@ -116,6 +122,7 @@
     {#if adding}
       <ChooseActorRow
         choices={candidates}
+        loading={appsQuery.isLoading}
         onChoose={choice => {
           startChange(choice.id, choice.name);
           adding = false;

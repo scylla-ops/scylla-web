@@ -3,6 +3,7 @@
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
   import { createQuery } from '@scylla/core-sdk';
   import { secretQueries } from '@base/features/secret';
+  import { SearchSelect } from '@scylla/ui';
   import {
     Button,
     Input,
@@ -28,6 +29,14 @@
   // Same options object as the `secret` module: one cache entry.
   const secretsQuery = createQuery(() => secretQueries.byProject(projectId ?? ''));
   const secrets = $derived(secretsQuery.data ?? []);
+
+  /** A reference can name a secret that is not there: it stays in the list. */
+  const secretChoices = (reference: string) => [
+    ...(reference && !secrets.some(secret => secret.name === reference)
+      ? [{ value: reference, label: reference }]
+      : []),
+    ...secrets.map(secret => ({ value: secret.name, label: secret.name })),
+  ];
 
   // Below the container's `sm` width the value control moves to its own line.
   const valueClass = 'min-w-0 order-last basis-full @sm:order-none @sm:flex-1';
@@ -64,23 +73,14 @@
       {#if row.kind === 'secret'}
         <!-- A free-text box when there is nothing to pick: writing a reference must still work. -->
         {#if secrets.length > 0 || row.secretRef}
-          <Select
-            type="single"
+          <SearchSelect
+            class={valueClass}
+            options={secretChoices(row.secretRef)}
             value={row.secretRef}
             onValueChange={value => draft.setEnv(index, { secretRef: value })}
-          >
-            <SelectTrigger aria-label={t(nodeMessages.referenceASecret)} class={valueClass}>
-              <SelectValue placeholder={t(nodeMessages.referenceASecret)} />
-            </SelectTrigger>
-            <SelectContent>
-              {#if row.secretRef && !secrets.some(secret => secret.name === row.secretRef)}
-                <SelectItem value={row.secretRef} label={row.secretRef}>{row.secretRef}</SelectItem>
-              {/if}
-              {#each secrets as secret (secret.id)}
-                <SelectItem value={secret.name} label={secret.name}>{secret.name}</SelectItem>
-              {/each}
-            </SelectContent>
-          </Select>
+            placeholder={t(nodeMessages.referenceASecret)}
+            aria-label={t(nodeMessages.referenceASecret)}
+          />
         {:else}
           <Input
             value={row.secretRef}

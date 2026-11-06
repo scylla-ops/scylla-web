@@ -4,14 +4,11 @@
   import { createMutation, createQuery, navigateTo } from '@scylla/core-sdk';
   import { accessQueries, platformRef, workspaceRef } from '@base/features/access';
   import { t } from '@scylla/ui/i18n';
+  import { SearchSelect } from '@scylla/ui';
   import {
     Button,
     Input,
     Label,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
   } from '@scylla/ui/primitives';
   import { untrack } from 'svelte';
   import { ScyllaError } from '@shared/utils/scylla-error.ts';
@@ -82,6 +79,9 @@
   const total = $derived(permissionsFor(areas, level, holder).length);
   const startRoles = $derived(
     (rolesQuery.data ?? []).filter(other => other.level === level && other.holder === holder),
+  );
+  const startChoices = $derived(
+    startRoles.map(other => ({ value: other.key, label: roleName(other) })),
   );
   const pending = $derived(createRole.isPending || updateRole.isPending);
   const canSave = $derived(name.trim().length > 0 && !pending && !nameError);
@@ -326,22 +326,13 @@
         {#if !editing}
           <div class="flex flex-col gap-2">
             <Label>{t(rolesMessages.startFrom)}</Label>
-            <Select type="single" value={start} onValueChange={next => (start = next)}>
-              <SelectTrigger class="w-full" aria-label={t(rolesMessages.startFrom)}>
-                {#if startRoles.find(other => other.key === start)}
-                  {roleName(startRoles.find(other => other.key === start) as RoleEntity)}
-                {:else}
-                  {t(rolesMessages.startFromEmpty)}
-                {/if}
-              </SelectTrigger>
-              <SelectContent>
-                {#each startRoles as other (other.key)}
-                  <SelectItem value={other.key} label={roleName(other)}>
-                    {roleName(other)}
-                  </SelectItem>
-                {/each}
-              </SelectContent>
-            </Select>
+            <SearchSelect
+              options={startChoices}
+              bind:value={start}
+              loading={rolesQuery.isLoading}
+              placeholder={t(rolesMessages.startFromEmpty)}
+              aria-label={t(rolesMessages.startFrom)}
+            />
             <p class="text-xs text-muted-foreground">{t(rolesMessages.startFromHint)}</p>
           </div>
         {/if}

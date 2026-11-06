@@ -1,7 +1,7 @@
 <script lang="ts">
   import LockIcon from '@lucide/svelte/icons/lock';
+  import { SearchSelect, type SearchSelectOption } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { Select, SelectContent, SelectItem, SelectTrigger } from '@scylla/ui/primitives';
   import {
     missingPermissionIds,
     permissionLabel,
@@ -24,38 +24,45 @@
 
   let { roles, value, held, areas, label, onChange }: Props = $props();
 
-  const selected = $derived(roles.find(role => role.grantName === value));
-
   const missingOf = (role: RoleEntity): string[] =>
     held ? missingPermissionIds(role, held, areas) : [];
+
+  const hintOf = (role: RoleEntity, missing: readonly string[]): string => {
+    if (missing.length > 0) return t(lockedRole(missing.map(id => permissionLabel(id, areas)).join(', ')));
+    return role.builtin ? roleDescription(role) : t(membershipMessages.customRole);
+  };
+
+  const options = $derived(
+    roles.map(role => {
+      const missing = missingOf(role);
+      return {
+        value: role.grantName,
+        label: roleName(role),
+        hint: hintOf(role, missing),
+        disabled: missing.length > 0,
+      };
+    }),
+  );
 </script>
 
-<Select type="single" {value} onValueChange={next => onChange(next)}>
-  <SelectTrigger class="w-full" aria-label={label}>
-    {selected ? roleName(selected) : t(membershipMessages.chooseRole)}
-  </SelectTrigger>
-  <SelectContent class="max-w-md">
-    {#each roles as role (role.key)}
-      {@const missing = missingOf(role)}
-      <SelectItem value={role.grantName} label={roleName(role)} disabled={missing.length > 0}>
-        <span class="flex w-full items-start justify-between gap-3">
-          <span class="flex flex-col">
-            <span>{roleName(role)}</span>
-            <span class="text-xs text-muted-foreground">
-              {#if missing.length > 0}
-                {t(lockedRole(missing.map(id => permissionLabel(id, areas)).join(', ')))}
-              {:else if role.builtin}
-                {roleDescription(role)}
-              {:else}
-                {t(membershipMessages.customRole)}
-              {/if}
-            </span>
-          </span>
-          {#if missing.length > 0}
-            <LockIcon class="mt-1 size-3.5 shrink-0 text-muted-foreground" />
-          {/if}
-        </span>
-      </SelectItem>
-    {/each}
-  </SelectContent>
-</Select>
+{#snippet roleRow(option: SearchSelectOption)}
+  <span class="flex w-full items-start justify-between gap-3">
+    <span class="flex flex-col">
+      <span>{option.label}</span>
+      <span class="text-xs text-muted-foreground">{option.hint}</span>
+    </span>
+    {#if option.disabled}
+      <LockIcon class="mt-1 size-3.5 shrink-0 text-muted-foreground" />
+    {/if}
+  </span>
+{/snippet}
+
+<SearchSelect
+  {options}
+  {value}
+  onValueChange={onChange}
+  row={roleRow}
+  contentClass="max-w-md"
+  placeholder={t(membershipMessages.chooseRole)}
+  aria-label={label}
+/>

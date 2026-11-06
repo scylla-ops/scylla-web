@@ -6,6 +6,7 @@
  */
 import {
   AlertDialog as AlertDialogPrimitive,
+  Combobox as ComboboxPrimitive,
   Dialog as DialogPrimitive,
   DropdownMenu as DropdownMenuPrimitive,
   Select as SelectPrimitive,
@@ -85,6 +86,13 @@ export { default as SelectGroupHeading } from './select/select-group-heading.sve
 export { default as SelectItem } from './select/select-item.svelte';
 export { default as SelectTrigger } from './select/select-trigger.svelte';
 export { default as SelectValue } from './select/select-value.svelte';
+
+export const Combobox = ComboboxPrimitive.Root;
+export { default as ComboboxContent } from './combobox/combobox-content.svelte';
+export { default as ComboboxInput } from './combobox/combobox-input.svelte';
+export { default as ComboboxTrigger } from './combobox/combobox-trigger.svelte';
+// bits-ui has one item part for its select and its combobox.
+export { default as ComboboxItem } from './select/select-item.svelte';
 
 export { default as Badge } from './badge/badge.svelte';
 export { badgeVariants, type BadgeVariant } from './badge/badge-variants.ts';

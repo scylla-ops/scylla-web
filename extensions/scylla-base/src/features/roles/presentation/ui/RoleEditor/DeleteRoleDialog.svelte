@@ -1,15 +1,8 @@
 <script lang="ts">
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { ScyllaDialog } from '@scylla/ui';
+  import { ScyllaDialog, SearchSelect } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import {
-    Button,
-    Label,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-  } from '@scylla/ui/primitives';
+  import { Button, Label } from '@scylla/ui/primitives';
   import type { RoleEntity } from '../../../domain/entities/role.entity.ts';
   import { deleteTitle, holdersOnDelete, rolesMessages } from '../../messages/roles.messages.ts';
   import { roleName } from '../../role-labels.ts';
@@ -45,6 +38,10 @@
     ),
   );
 
+  const targetChoices = $derived(
+    targets.map(other => ({ value: other.grantName, label: roleName(other) })),
+  );
+
   let target = $state('');
   const chosen = $derived(targets.find(other => other.grantName === target));
   const names = $derived(
@@ -74,18 +71,13 @@
       </div>
       <div class="flex flex-col gap-2">
         <Label>{t(rolesMessages.moveHoldersTo)}</Label>
-        <Select type="single" value={target} onValueChange={next => (target = next)}>
-          <SelectTrigger class="w-full" aria-label={t(rolesMessages.moveHoldersTo)}>
-            {chosen ? roleName(chosen) : t(rolesMessages.chooseRole)}
-          </SelectTrigger>
-          <SelectContent>
-            {#each targets as other (other.key)}
-              <SelectItem value={other.grantName} label={roleName(other)}>
-                {roleName(other)}
-              </SelectItem>
-            {/each}
-          </SelectContent>
-        </Select>
+        <SearchSelect
+          options={targetChoices}
+          bind:value={target}
+          loading={rolesQuery.isLoading}
+          placeholder={t(rolesMessages.chooseRole)}
+          aria-label={t(rolesMessages.moveHoldersTo)}
+        />
         <p class="text-xs text-muted-foreground">{t(rolesMessages.moveHoldersHint)}</p>
       </div>
     {:else}

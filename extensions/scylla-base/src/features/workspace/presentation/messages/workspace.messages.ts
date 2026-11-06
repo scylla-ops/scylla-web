@@ -16,4 +16,6 @@ export const workspaceMessages = {
   saving: msg`Saving...`,
   workspaceName: msg`Workspace name`,
   slug: msg`Address`,
+  findWorkspace: msg`Find a workspace`,
+  noWorkspaceMatch: msg`No workspace matches this search.`,
 };

@@ -6,6 +6,9 @@ import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
 import type { ProjectRepository } from '@base/features/project/domain/repository/project.repository.ts';
+import { DefaultProjectRepository } from '@base/features/project/infrastructure/default-project.repository.ts';
+import type { IProjectServiceClient } from '@base/generated/scylla/projects/v1/project_service.client.ts';
+import { unaryCall } from '@test/grpc.ts';
 import {
   canListProjects,
   projectLookupQueries,
@@ -128,6 +131,26 @@ describe('projectQueries.byWorkspace', () => {
 });
 
 describe('projectQueries.lookup', () => {
+  it('keeps each project, also after the 100th: a search reads this list', async () => {
+    const projects = Array.from({ length: 150 }, (_, index) => ({
+      id: { value: `project-${index}` },
+      name: `project-${index}`,
+      description: '',
+    }));
+    setDependencyRegistry({
+      project: {
+        projectRepository: new DefaultProjectRepository({
+          listProjects: vi.fn(() => unaryCall({ projects, page: { nextToken: '' } })),
+        } as unknown as IProjectServiceClient),
+      },
+    });
+
+    const list = await runQueryFn(projectQueries.lookup('org-1'));
+
+    expect(list.items).toHaveLength(150);
+    expect(list.pagination.totalPages).toBe(1);
+  });
+
   it('asks for the whole list in one page', async () => {
     const repository = withRepository();
 

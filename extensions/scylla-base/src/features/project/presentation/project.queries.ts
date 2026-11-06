@@ -17,8 +17,11 @@ export const PROJECTS_QUERY_ROOT = ['projects'] as const;
 
 export const CREATE_PROJECT_MUTATION_KEY = ['project', 'create'] as const;
 
-/** One request for an workspace's whole list, for the lookups by name. */
-export const PROJECTS_LOOKUP_PAGE: PaginationParams = { page: 1, pageSize: 100 };
+/** A workspace's whole list: the repository reads each page, then cuts this one from them. */
+export const PROJECTS_LOOKUP_PAGE: PaginationParams = {
+  page: 1,
+  pageSize: Number.MAX_SAFE_INTEGER,
+};
 
 const FIRST_PAGE: PaginationParams = { page: 1, pageSize: DEFAULT_PAGE_SIZE };
 

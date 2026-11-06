@@ -11,6 +11,8 @@ export const credentialsMessages = {
   namePlaceholder: msg`release-bot`,
   roleIn: (workspace: string) => msg`Role in ${workspace}`,
   noProjectRoles: msg`No project roles`,
+  findProject: msg`Find a project`,
+  noProjectMatch: msg`No project matches this search.`,
   someProjectRoles: (count: number) => msg`${count} project roles`,
   addProjectRoles: msg`Add project roles`,
   noRole: msg`No role`,

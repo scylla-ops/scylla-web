@@ -12,15 +12,9 @@
   } from '@base/features/access';
   import { projectQueries } from '@base/features/project';
   import { roleQueries } from '@base/features/roles';
-  import { ErrorState, ListSkeleton } from '@scylla/ui';
+  import { ErrorState, ListSkeleton, SearchSelect } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import {
-    Button,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-  } from '@scylla/ui/primitives';
+  import { Button } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import {
     effectiveHint,
@@ -49,6 +43,12 @@
 
   /** Empty: the workspace itself. */
   let scopeId = $state('');
+  /** Not a project id, and not empty: Enter does not pick an option with an empty value. */
+  const WORKSPACE_SCOPE = 'workspace';
+  const scopeChoices = $derived([
+    { value: WORKSPACE_SCOPE, label: t(workspaceOption(workspaceName)) },
+    ...projects.map(project => ({ value: project.id, label: t(projectOption(project.name)) })),
+  ]);
   const object = $derived<ObjectRef | null>(
     scopeId ? projectRef(scopeId) : workspaceId ? workspaceRef(workspaceId) : null,
   );
@@ -166,21 +166,14 @@
               {t(effectiveHint(scopeName))}
             </p>
           </div>
-          <Select type="single" value={scopeId} onValueChange={next => (scopeId = next)}>
-            <SelectTrigger class="w-56" aria-label={t(membershipMessages.scope)}>
-              {scopeId ? t(projectOption(scopeName)) : t(workspaceOption(workspaceName))}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="" label={t(workspaceOption(workspaceName))}>
-                {t(workspaceOption(workspaceName))}
-              </SelectItem>
-              {#each projects as project (project.id)}
-                <SelectItem value={project.id} label={t(projectOption(project.name))}>
-                  {t(projectOption(project.name))}
-                </SelectItem>
-              {/each}
-            </SelectContent>
-          </Select>
+          <SearchSelect
+            class="w-56"
+            options={scopeChoices}
+            value={scopeId || WORKSPACE_SCOPE}
+            onValueChange={next => (scopeId = next === WORKSPACE_SCOPE ? '' : next)}
+            loading={projectsQuery.isLoading}
+            aria-label={t(membershipMessages.scope)}
+          />
         </div>
         <EffectiveAccessTable
           areas={catalogQuery.data ?? []}

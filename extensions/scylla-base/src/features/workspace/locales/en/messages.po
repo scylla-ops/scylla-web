@@ -62,6 +62,10 @@ msgstr "Edit workspace"
 msgid "Enter a name for your new workspace, and an address if you want to choose it. You can change both later."
 msgstr "Enter a name for your new workspace, and an address if you want to choose it. You can change both later."
 
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:19
+msgid "Find a workspace"
+msgstr "Find a workspace"
+
 #: extensions/scylla-base/src/features/workspace/workspace.module.ts:31
 msgid "General"
 msgstr "General"
@@ -73,6 +77,10 @@ msgstr "Members"
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:9
 msgid "Members can use their personal tokens on the projects, pipelines and secrets of {workspace}. When off, {workspace} refuses every personal token at once. App tokens and CI identities do not change."
 msgstr "Members can use their personal tokens on the projects, pipelines and secrets of {workspace}. When off, {workspace} refuses every personal token at once. App tokens and CI identities do not change."
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:20
+msgid "No workspace matches this search."
+msgstr "No workspace matches this search."
 
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:16
 msgid "Personal tokens allowed in this workspace"

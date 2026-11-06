@@ -21,6 +21,7 @@
     tabCount,
     workspaceBlurb,
   } from '../../messages/membership.messages.ts';
+  import type { ActorChoice } from '../../presenters/actor-choice.presenter.ts';
   import {
     buildMemberRows,
     filterMemberRows,
@@ -30,7 +31,7 @@
   } from '../../presenters/member-rows.presenter.ts';
   import AddMembersDialog from '../components/AddMembersDialog/AddMembersDialog.svelte';
   import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
-  import ChooseActorRow, { type ActorChoice } from '../components/ChooseActorRow/ChooseActorRow.svelte';
+  import ChooseActorRow from '../components/ChooseActorRow/ChooseActorRow.svelte';
   import MembersTable from '../components/MembersTable/MembersTable.svelte';
   import AppOutsideDialog from '../components/RefusalDialogs/AppOutsideDialog.svelte';
   import LastOwnerDialog from '../components/RefusalDialogs/LastOwnerDialog.svelte';
@@ -206,6 +207,7 @@
     {#if choosingApp}
       <ChooseActorRow
         choices={appChoices}
+        loading={appsQuery.isLoading}
         onChoose={app => {
           addingApp = app;
           choosingApp = false;

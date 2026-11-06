@@ -15,12 +15,13 @@
   }: Props = $props();
 
   // As Radix: focus the menu, not its first tabbable control, which would open that control's tooltip.
+  // A field marked `autofocus` is the exception: the user types in it.
   const focusMenu = (event: Event) => {
     onOpenAutoFocus?.(event);
     if (event.defaultPrevented) return;
 
     event.preventDefault();
-    ref?.focus({ preventScroll: true });
+    (ref?.querySelector<HTMLElement>('[autofocus]') ?? ref)?.focus({ preventScroll: true });
   };
 </script>
 

@@ -528,6 +528,11 @@ msgstr "Expiry"
 msgid "Failed"
 msgstr "Failed"
 
+#: extensions/scylla-base/src/features/apps/presentation/messages/credentials.messages.ts:14
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:20
+msgid "Find a project"
+msgstr "Find a project"
+
 #: extensions/scylla-base/src/features/apps/presentation/messages/credentials.messages.ts:24
 msgid "For a long-lived server that keeps its private key. It joins with a one-time code."
 msgstr "For a long-lived server that keeps its private key. It joins with a one-time code."
@@ -856,6 +861,11 @@ msgstr "No name"
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:51
 msgid "No project"
 msgstr "No project"
+
+#: extensions/scylla-base/src/features/apps/presentation/messages/credentials.messages.ts:15
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:21
+msgid "No project matches this search."
+msgstr "No project matches this search."
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/credentials.messages.ts:13
 msgid "No project roles"

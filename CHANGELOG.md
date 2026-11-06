@@ -35,6 +35,17 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The editor of a role changes its level while the role has no holder.
 - The limit of the workspaces on the settings page of the instance.
 
+**Search in the menus**
+
+- A menu with a long list now takes text: the member to add, the project of a role, the scope of a
+  member, a secret, a dependency of a node, the role that takes the holders, the role picker and
+  the role to start from. The search reads the name, the handle, the email and the description.
+  Case and accents do not count.
+- The people field of "Add members" shows the directory on a click, and works with the keyboard. A
+  long list shows 50 rows and says how many more rows there are.
+- A filter field in the workspace switcher from 6 workspaces, and in the lists of projects of an
+  agent, an app and a token from 8 projects.
+
 **Machines**
 
 - The agents and the apps fold under Machines in the sidebar.
@@ -148,6 +159,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   failure in the console only.
 - The icon and the title of the empty Agents and Apps pages have the same position. Before, a
   longer text moved them up.
+- The lookups of projects read each project. They kept only the first 100, the oldest ones, so the
+  dashboard, the menus and the top bar search did not show the newest projects of a large workspace.
 
 ## [0.6.0] - 2026-11-01
 

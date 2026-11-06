@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen } from '@testing-library/svelte';
+import { screen, waitFor } from '@testing-library/svelte';
 import { toast } from 'svelte-sonner';
 import userEvent from '@testing-library/user-event';
 import { PermissionScope, permissionsStore } from '@platform/authz';
@@ -25,9 +25,13 @@ let grant: ReturnType<typeof vi.fn>;
 let create: ReturnType<typeof vi.fn>;
 let teardown: Array<() => void> = [];
 
+const lina = { id: 'u-1', username: 'lina', displayName: 'Lina Moreau', email: 'lina@acme.dev' };
+const omar = { id: 'u-2', username: 'omar', displayName: 'Omar Haddad' };
+
 const open = (
   held: string[],
   directory: { canBrowse: boolean } | null = null,
+  people: readonly (typeof lina | typeof omar)[] = [lina],
   more: ReturnType<typeof role>[] = [],
 ) => {
   grant = vi.fn().mockResolvedValue(undefined);
@@ -55,6 +59,16 @@ const open = (
       },
     },
     invitation: { invitationRepository: { create } },
+    project: {
+      projectRepository: {
+        getByWorkspaceId: vi.fn().mockResolvedValue({
+          items: [
+            { id: 'p-1', name: 'api' },
+            { id: 'p-2', name: 'web' },
+          ],
+        }),
+      },
+    },
   });
   teardown = [cache.restore, restore];
   render(AddMembersDialog, {
@@ -62,7 +76,7 @@ const open = (
     onOpenChange: vi.fn(),
     workspaceId: 'w-1',
     workspaceName: 'acme',
-    candidates: directory ? [] : [{ id: 'u-1', username: 'lina', displayName: 'Lina Moreau' }],
+    candidates: directory ? [] : people,
     canBrowse: directory?.canBrowse ?? true,
     onAdded: vi.fn(),
   });
@@ -70,7 +84,7 @@ const open = (
 
 /** The dialog takes the focus just after it opens: a key sent before that is lost. */
 const ready = async () => {
-  await screen.findByText('Workspace member');
+  await screen.findByDisplayValue('Workspace member');
   await vi.waitFor(() =>
     expect(screen.getByRole('dialog')).toContainElement(document.activeElement as HTMLElement),
   );
@@ -107,7 +121,7 @@ describe('AddMembersDialog', () => {
     await ready();
 
     await userEvent.type(screen.getByLabelText('People'), 'lina');
-    await userEvent.click(await screen.findByRole('button', { name: /Lina Moreau/ }));
+    await userEvent.click(await findFloating('option', 'Lina Moreau lina@acme.dev'));
     await userEvent.click(screen.getByRole('button', { name: 'Add 1 member' }));
 
     await vi.waitFor(() =>
@@ -128,7 +142,12 @@ describe('AddMembersDialog', () => {
   });
 
   it('does not put the role owner in an invitation', async () => {
-    open(['pipelines.edit', 'pipelines.view'], null, [role('owner', 'Workspace owner', [])]);
+    open(
+      ['pipelines.edit', 'pipelines.view'],
+      null,
+      [lina],
+      [role('owner', 'Workspace owner', [])],
+    );
     await ready();
 
     await userEvent.type(screen.getByLabelText('People'), 'new@acme.dev{Enter}');
@@ -145,11 +164,16 @@ describe('AddMembersDialog', () => {
   });
 
   it('gives the role owner to a person of the directory', async () => {
-    open(['pipelines.edit', 'pipelines.view'], null, [role('owner', 'Workspace owner', [])]);
+    open(
+      ['pipelines.edit', 'pipelines.view'],
+      null,
+      [lina],
+      [role('owner', 'Workspace owner', [])],
+    );
     await ready();
 
     await userEvent.type(screen.getByLabelText('People'), 'lina');
-    await userEvent.click(await screen.findByRole('button', { name: /Lina Moreau/ }));
+    await userEvent.click(await findFloating('option', 'Lina Moreau lina@acme.dev'));
     await userEvent.click(screen.getByRole('combobox', { name: 'Workspace role' }));
     await userEvent.click(
       await findFloating(
@@ -167,7 +191,7 @@ describe('AddMembersDialog', () => {
   it('starts on a role that the caller can give', async () => {
     open(['pipelines.view']);
 
-    expect(await screen.findByText('Workspace viewer')).toBeInTheDocument();
+    expect(await screen.findByDisplayValue('Workspace viewer')).toBeInTheDocument();
   });
 
   it('cannot send a role that no one here can give', async () => {
@@ -175,8 +199,146 @@ describe('AddMembersDialog', () => {
     await screen.findByText('Add members to acme');
 
     await userEvent.type(screen.getByLabelText('People'), 'lina');
-    await userEvent.click(await screen.findByRole('button', { name: /Lina Moreau/ }));
+    await userEvent.click(await findFloating('option', 'Lina Moreau lina@acme.dev'));
 
     expect(screen.getByRole('button', { name: 'Add 1 member' })).toBeDisabled();
+  });
+
+  describe('the people field', () => {
+    const people = () => screen.getByRole<HTMLInputElement>('combobox', { name: 'People' });
+    const rows = () =>
+      screen.queryAllByRole('option', { hidden: true }).map(row => row.textContent.trim());
+
+    it('shows the directory on a click, before any text', async () => {
+      open(['pipelines.edit'], null, [lina, omar]);
+      await ready();
+
+      await userEvent.click(people());
+
+      await findFloating('option', 'Lina Moreau lina@acme.dev');
+      expect(rows()).toEqual(['Lina Moreau lina@acme.dev', 'Omar Haddad']);
+    });
+
+    it('finds a person by the handle and by the email, with no accent', async () => {
+      open(['pipelines.edit'], null, [lina, { ...omar, displayName: 'Omár Haddad' }]);
+      await ready();
+
+      await userEvent.type(people(), 'acme');
+      await findFloating('option', 'Lina Moreau lina@acme.dev');
+      expect(rows()).toEqual(['Lina Moreau lina@acme.dev']);
+
+      await userEvent.clear(people());
+      await userEvent.type(people(), 'omar');
+      await findFloating('option', 'Omár Haddad');
+    });
+
+    it('adds the highlighted person on Enter, and clears the text', async () => {
+      open(['pipelines.edit']);
+      await ready();
+
+      await userEvent.type(people(), 'lin{Enter}');
+
+      expect(screen.getByRole('button', { name: 'Add 1 member' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Remove this person' })).toBeInTheDocument();
+      expect(people().value).toBe('');
+      await waitFor(() => expect(people()).toHaveAttribute('aria-expanded', 'false'));
+    });
+
+    it('does not offer a person who has a chip, and offers them again after the chip goes', async () => {
+      open(['pipelines.edit'], null, [lina, omar]);
+      await ready();
+
+      await userEvent.type(people(), 'lin{Enter}');
+      await userEvent.click(people());
+      await findFloating('option', 'Omar Haddad');
+      expect(rows()).toEqual(['Omar Haddad']);
+
+      await userEvent.keyboard('{Escape}');
+      await userEvent.click(screen.getByRole('button', { name: 'Remove this person' }));
+      await userEvent.type(people(), 'lin{Enter}');
+
+      expect(screen.getByRole('button', { name: 'Add 1 member' })).toBeEnabled();
+    });
+
+    it('adds an email with a comma, also while a row matches', async () => {
+      open(['pipelines.edit'], null, [{ ...lina, email: 'lina@acme.dev.fr' }]);
+      await ready();
+
+      await userEvent.type(people(), 'lina@acme.dev,');
+
+      expect(screen.getByText('lina@acme.dev')).toBeInTheDocument();
+      expect(people().value).toBe('');
+    });
+
+    it('keeps the list closed after a comma adds an email, until the next letter', async () => {
+      open(['pipelines.edit']);
+      await ready();
+
+      await userEvent.type(people(), 'new@acme.dev,');
+
+      expect(people()).toHaveAttribute('aria-expanded', 'false');
+
+      await userEvent.keyboard('lin');
+
+      await findFloating('option', 'Lina Moreau lina@acme.dev');
+    });
+
+    it('closes only the list on Escape, and then Enter takes the text', async () => {
+      open(['pipelines.edit'], null, [{ ...lina, email: 'lina@acme.dev.fr' }]);
+      await ready();
+
+      await userEvent.type(people(), 'lina@acme.dev');
+      await findFloating('option', 'Lina Moreau lina@acme.dev.fr');
+      await userEvent.keyboard('{Escape}');
+
+      await waitFor(() => expect(people()).toHaveAttribute('aria-expanded', 'false'));
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      await userEvent.keyboard('{Enter}');
+
+      expect(screen.getByText('lina@acme.dev')).toBeInTheDocument();
+    });
+
+    it('says how many people the list does not show', async () => {
+      const many = Array.from({ length: 53 }, (_, index) => ({
+        id: `u-${index}`,
+        username: `user${index}`,
+        displayName: `User ${index}`,
+        email: `user${index}@acme.dev`,
+      }));
+      open(['pipelines.edit'], null, many);
+      await ready();
+
+      await userEvent.click(people());
+
+      expect(
+        await screen.findByText('3 more people. Type to narrow the list.'),
+      ).toBeInTheDocument();
+      expect(rows()).toHaveLength(50);
+    });
+
+    it('points the field at its list only while the list is open', async () => {
+      open(['pipelines.edit']);
+      await ready();
+      expect(people()).not.toHaveAttribute('aria-controls');
+
+      await userEvent.click(people());
+
+      const list = await findFloating('listbox');
+      expect(people()).toHaveAttribute('aria-controls', list.id);
+    });
+  });
+
+  it('finds a project by its name for a project role', async () => {
+    open(['pipelines.edit']);
+    await ready();
+
+    await userEvent.click(screen.getByRole('button', { name: '+ Add a project role' }));
+    const project = screen.getByRole<HTMLInputElement>('combobox', { name: 'Project' });
+    await userEvent.type(project, 'we');
+    await findFloating('option', 'web');
+    expect(screen.queryAllByRole('option', { hidden: true })).toHaveLength(1);
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => expect(project.value).toBe('web'));
   });
 });

@@ -64,6 +64,7 @@ presentation/
                                      buildWorkspaceMembers / buildProjectMembers (pure)
   presenters/assignable-roles.presenter.ts   grantable → AssignableRole (no apps roles), and
                                      the grouping by owner the pickers render
+  presenters/actor-choice.presenter.ts   a row of ChooseActorRow: the second line and the search text
   ui/WorkspaceMembers.page.svelte, ProjectMembers.page.svelte
   ui/scope-membership.state.svelte.ts   grants → members, plus grant/revoke/refresh (a ViewModel
                                         of both pages)

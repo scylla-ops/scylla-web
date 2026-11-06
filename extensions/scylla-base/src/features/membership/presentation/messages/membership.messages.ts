@@ -70,12 +70,15 @@ export const membershipMessages = {
   projectBlurb: msg`Everyone with access to this project, whether granted here or through a role on the workspace. Only project roles can be changed from this page.`,
   projectNewDenied: msg`You don't have permission to add members to this project.`,
   projectEmpty: msg`Nobody has access to this project yet.`,
+  noMemberToAdd: msg`No member left to add`,
   addToProject: msg`Add a member to this project`,
 };
 
 export const lockedRole = (names: string) =>
   msg`Locked. You do not have ${names}, so you cannot give it.`;
 export const addTitle = (workspace: string) => msg`Add members to ${workspace}`;
+export const morePeople = (count: number) =>
+  msg`${plural(count, { one: '# more person. Type to narrow the list.', other: '# more people. Type to narrow the list.' })}`;
 export const addCount = (count: number) =>
   msg`${plural(count, { 0: 'Add members', one: 'Add # member', other: 'Add # members' })}`;
 export const membersAdded = (count: number) =>

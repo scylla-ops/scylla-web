@@ -35,4 +35,6 @@ export const tokenFormMessages = {
   allProjectsChoice: msg`All projects`,
   someProjectsChoice: msg`Some projects`,
   noProject: msg`No project yet.`,
+  findProject: msg`Find a project`,
+  noProjectMatch: msg`No project matches this search.`,
 };
