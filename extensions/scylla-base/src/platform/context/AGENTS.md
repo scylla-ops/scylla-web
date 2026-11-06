@@ -28,10 +28,11 @@ createResourceError                       NOT_FOUND on a detail page → toast +
 `contextStore` holds **ids and display names, nothing else**:
 
 ```typescript
-workspace: { id, name }
+workspace: { id, name, slug }
 project:      { id, name }
 pipeline:     { id, name }
-setWorkspace(id, name)   // also clears project + pipeline
+setWorkspace(id, name, slug)   // also clears project + pipeline
+renameWorkspace(name, slug)    // the same workspace: project + pipeline stay
 setProject(id, name)
 setPipeline(id, name)
 reset()
@@ -46,7 +47,9 @@ break the layer. If a component needs more than an id and a name, it reads the i
 runs that feature's query.
 
 The names are a copy of the data of the server, and a reload keeps them. Something must write each
-new name: for a project, `projectMutations.update` and `cleanContext` of the shell.
+new name: for a project, `projectMutations.update` and `cleanContext` of the shell. A delete also
+needs a writer: `projectMutations.remove` clears the project and the pipeline when the project is
+the active one.
 
 Persistence: `createStore` (`@scylla/ui/stores`) keeps it in
 `localStorage` under key `scylla-context`, so a reload keeps the user where they were. The stored
@@ -57,6 +60,10 @@ format does not change: a context stored by an earlier version stays valid.
 `setWorkspace` **clears `project` and `pipeline`**. A project id from another workspace is
 meaningless and would produce a broken URL or a cross-tenant query. Preserve that behaviour if
 you touch the store.
+
+`renameWorkspace` does not clear them: the id does not change, so they stay valid. The name and the
+slug in the store are a copy of the data of the server. The shell keeps them equal to the list of
+workspaces in `syncWorkspace`, so do not write them from a mutation.
 
 `reset()` exists for sign-out; the shell also uses `ContextCleaner.wrapper.svelte` to drop
 context when leaving a scope.

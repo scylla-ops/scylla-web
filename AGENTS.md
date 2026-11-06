@@ -603,6 +603,11 @@ its element), and can be conditional (`{@attach enabled && fn}`).
   `@tanstack/svelte-query` (`no-restricted-imports`).
 - Lists go through `DataTable` + `createPagination()`; don't render thousands of unpaginated
   rows. Row keys must be stable business ids, never array indices.
+- **`isError` is also true when a refetch fails and `data` is still there.** A page that holds a
+  draft shows an error only with no data (`!data` or `isLoadingError`), or a failed refetch on a focus
+  removes the form and what the user typed. A query that gives the first value of a draft that
+  follows the query, like the editor of a pipeline, sets `refetchOnWindowFocus: false` and
+  `refetchOnReconnect: false`.
 
 ### Component splitting
 

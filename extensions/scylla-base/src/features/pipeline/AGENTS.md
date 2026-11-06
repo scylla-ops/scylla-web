@@ -176,6 +176,15 @@ the page.
 
 ## Rules that bite here
 
+- **`pipelineQueries.byId` does not refetch on a focus or on a reconnect.** It is the document of
+  the editor. A new document replaces the draft (`pipeline-document.state.svelte.ts`), and a new
+  version in the repository lets a save overwrite the change of another person. A mount or an
+  invalidation still reads it again.
+- **The frame of the pipeline list stays on an error.** The height of the table area gives the page
+  size, and the page size is in the query key. When an error removes the frame, the height goes,
+  the key changes, the error goes, and the frame comes back with the old key. Svelte stops this loop
+  with `effect_update_depth_exceeded`, and `RouteEntry` shows that the page failed. Show the error
+  inside the measured area. A failed refetch keeps the rows.
 - **Query options come from `pipeline.queries.ts`**, and the key factories are exported
   publicly so other modules invalidate what this one reads. After `run()`, also invalidate
   `JOBS_QUERY_KEY(pipelineId)` from `features/jobs` — a run creates a job.

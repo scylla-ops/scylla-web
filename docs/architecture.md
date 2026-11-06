@@ -100,7 +100,7 @@ export const extensions: readonly ExtensionClass[] = [ScyllaBaseExtension];
 1. calls `loadExtensions` to read and merge the extensions (§3.2);
 2. registers the i18n catalogs of the core and of each extension;
 3. installs the DI registry (`setDependencyRegistry`), the query client (`setQueryClient`, with
-   the `onQueryError` handlers of the modules) and the shell config;
+   the `onQueryError` handlers of the modules, after `mount()`) and the shell config;
 4. initializes the locale before the first render, so no frame shows untranslated text;
 5. installs the router as the app navigator (`setAppNavigator`) and mounts `App.svelte`.
 

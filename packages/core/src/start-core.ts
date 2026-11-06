@@ -31,7 +31,10 @@ export const startCore = async ({ extensions, target }: StartOptions): Promise<v
   setDependencyRegistry(app.dependencies);
   setWidgetInjectionRegistry(app.widgetInjections);
   setInstalledExtensions(app.extensions);
-  setQueryClient(createAppQueryClient(app.queryErrorHandlers, app.queryRetryPolicies));
+  const queryClient = createAppQueryClient(app.queryErrorHandlers, app.queryRetryPolicies);
+  // The refetch on focus and on reconnect starts here. No `QueryClientProvider` does it.
+  queryClient.mount();
+  setQueryClient(queryClient);
   setShellConfig(app.shell);
   setNavLinks(navLinksFor(app.shell));
 

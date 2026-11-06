@@ -77,12 +77,15 @@ export const pipelineQueries = {
       staleTime: 30_000,
     }),
 
+  /** The document of the editor: a refetch would replace an unsaved draft. */
   byId: (pipelineId: string) =>
     queryOptions<PipelineEntity>({
       queryKey: PIPELINE_QUERY_KEY(pipelineId),
       enabled: !!pipelineId,
       queryFn: () => repository().getById(pipelineId),
       staleTime: 30_000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     }),
 };
 

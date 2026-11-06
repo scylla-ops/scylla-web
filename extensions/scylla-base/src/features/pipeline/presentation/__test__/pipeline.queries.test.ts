@@ -143,6 +143,13 @@ describe('pipelineQueries.byWorkspace', () => {
 });
 
 describe('pipelineQueries.byId', () => {
+  it('leaves the draft of the editor alone on a focus and on a reconnect', () => {
+    const options = pipelineQueries.byId('pipeline-1');
+
+    expect(options.refetchOnWindowFocus).toBe(false);
+    expect(options.refetchOnReconnect).toBe(false);
+  });
+
   it('fetches the whole pipeline, nodes included', async () => {
     await expect(runQueryFn(pipelineQueries.byId('pipeline-1'))).resolves.toEqual(pipeline());
     expect(repository.getById).toHaveBeenCalledWith('pipeline-1');

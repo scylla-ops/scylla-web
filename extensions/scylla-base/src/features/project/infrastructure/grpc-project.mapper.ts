@@ -9,6 +9,7 @@ import { idValue } from '@shared/infrastructure/grpc/wrappers.ts';
 export function toDomain(grpcProject: Project): ProjectEntity {
   return {
     id: idValue(grpcProject.id),
+    workspaceId: idValue(grpcProject.workspaceId),
     name: grpcProject.name,
     description: grpcProject.description,
   };

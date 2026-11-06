@@ -5,7 +5,9 @@
 
   let { params, children }: { params: RouteParams; children: Snippet } = $props();
 
-  cleanContext(untrack(() => params.projectId));
+  const project = cleanContext(untrack(() => params.projectId));
 </script>
 
-{@render children()}
+{#if !project.gone}
+  {@render children()}
+{/if}

@@ -37,6 +37,42 @@ describe('DefaultProjectRepository.create', () => {
   });
 });
 
+describe('DefaultProjectRepository.getById', () => {
+  const repositoryWith = (getProject: () => unknown) =>
+    new DefaultProjectRepository({ getProject } as unknown as IProjectServiceClient);
+
+  it('asks the server for this one project and tells its workspace', async () => {
+    const getProject = vi.fn(() =>
+      unaryCall({
+        project: { id: { value: 'p-1' }, workspaceId: { value: 'ws-1' }, name: 'web', description: '' },
+      }),
+    );
+
+    await expect(repositoryWith(getProject).getById('p-1')).resolves.toEqual({
+      id: 'p-1',
+      workspaceId: 'ws-1',
+      name: 'web',
+      description: '',
+    });
+    expect(getProject).toHaveBeenCalledWith({ projectId: { value: 'p-1' } });
+  });
+
+  it.each([
+    ['an unknown id, which the server answers as a refusal', 'PERMISSION_DENIED'],
+    ['a text that is not an id', 'INVALID_ARGUMENT'],
+  ])('gives null for %s', async (_, code) => {
+    const repository = repositoryWith(() => failedCall(code, 'no'));
+
+    await expect(repository.getById('nope')).resolves.toBeNull();
+  });
+
+  it('passes any other error through: an outage does not mean that the project is gone', async () => {
+    const repository = repositoryWith(() => failedCall('UNAVAILABLE', 'down'));
+
+    await expect(repository.getById('p-1')).rejects.toMatchObject({ code: 'UNAVAILABLE' });
+  });
+});
+
 describe('DefaultProjectRepository.getByWorkspaceId', () => {
   it('reads every page of the workspace, then cuts the asked page', async () => {
     const project = (id: string) => ({ id: { value: id }, name: id, description: '' });

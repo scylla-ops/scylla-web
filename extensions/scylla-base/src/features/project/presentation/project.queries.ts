@@ -5,7 +5,7 @@ import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import { DEFAULT_PAGE_SIZE, type PaginationParams } from '@scylla/ui/structs';
-import type { ProjectList } from '../domain/entities/project.entity.ts';
+import type { ProjectEntity, ProjectList } from '../domain/entities/project.entity.ts';
 import type { ProjectModule } from '../project.module.ts';
 
 // Resolved per call: tests swap the registry.
@@ -15,6 +15,9 @@ export const PROJECTS_QUERY_KEY = (workspaceId: string | null, pagination?: Pagi
   ['projects', workspaceId, pagination] as const;
 
 export const PROJECTS_QUERY_ROOT = ['projects'] as const;
+
+const PROJECT_QUERY_KEY = (projectId: string | undefined) =>
+  [...PROJECTS_QUERY_ROOT, 'one', projectId] as const;
 
 export const CREATE_PROJECT_MUTATION_KEY = ['project', 'create'] as const;
 
@@ -47,6 +50,14 @@ export const projectQueries = {
       queryFn: () => repository().getByWorkspaceId(workspaceId!, PROJECTS_LOOKUP_PAGE),
       enabled: !!workspaceId,
       staleTime: 30_000,
+    }),
+
+  /** One project, scoped by the backend: no client-side gate. Gives `null`, see the repository. */
+  byId: (projectId: string | undefined) =>
+    queryOptions({
+      queryKey: PROJECT_QUERY_KEY(projectId),
+      queryFn: () => repository().getById(projectId!),
+      enabled: !!projectId,
     }),
 };
 
@@ -86,6 +97,13 @@ export const projectLookupQueries = (workspaceIds: string[], enabled = true) => 
 const invalidateProjects = () =>
   getQueryClient().invalidateQueries({ queryKey: PROJECTS_QUERY_ROOT });
 
+/**
+ * Only an entry that a read made: an entry that this write makes has no `queryFn`, and
+ * `refetchType: 'all'` fails on it.
+ */
+const writeReadOfProject = (projectId: string, project: ProjectEntity | null) =>
+  getQueryClient().setQueriesData({ queryKey: PROJECT_QUERY_KEY(projectId), exact: true }, project);
+
 export const projectMutations = {
   create: () =>
     mutationOptions({
@@ -121,6 +139,7 @@ export const projectMutations = {
         // No `cleanContext` is mounted on the list, and the search bar shows the stored name there.
         const { project, setProject } = contextStore.getState();
         if (project.id === updated.id) setProject(updated.id, updated.name);
+        writeReadOfProject(updated.id, updated);
         // `all`: the dashboard and the menus read a list that nothing has mounted now.
         return getQueryClient().invalidateQueries({
           queryKey: PROJECTS_QUERY_ROOT,
@@ -132,8 +151,16 @@ export const projectMutations = {
   remove: () =>
     mutationOptions({
       mutationFn: (projectId: string) => repository().delete(projectId),
-      onSuccess: () => {
+      onSuccess: (_, projectId) => {
         toast.success(i18n._(ToastMessages.PROJECT_DELETE));
+        // No `cleanContext` is mounted on the list, and the search bar reads the store there.
+        const { project, setProject, setPipeline } = contextStore.getState();
+        if (project.id === projectId) {
+          setProject(null, null);
+          setPipeline(null, null);
+        }
+        // A browser back then has its answer at once, and the page of the project does not mount.
+        writeReadOfProject(projectId, null);
         return invalidateProjects();
       },
     }),

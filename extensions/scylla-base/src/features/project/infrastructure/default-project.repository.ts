@@ -27,11 +27,27 @@ const toCreateProjectError = (thrown: unknown): unknown => {
     : thrown;
 };
 
+/** The server answers an unknown id as a refusal, and a text that is not an id as an invalid argument. */
+const isNoSuchProject = (thrown: unknown): boolean => {
+  const { code } = ScyllaError.from(thrown);
+  return code === 'PERMISSION_DENIED' || code === 'INVALID_ARGUMENT';
+};
+
 const requireProject = (project: Project | undefined): ProjectEntity =>
   grpcProject.toDomain(required(project, 'project'));
 
 export class DefaultProjectRepository implements ProjectRepository {
   constructor(private readonly client: IProjectServiceClient) {}
+
+  public async getById(projectId: string): Promise<ProjectEntity | null> {
+    try {
+      const response = await this.client.getProject({ projectId: wrapId(projectId) }).response;
+      return requireProject(response.project);
+    } catch (error) {
+      if (isNoSuchProject(error)) return null;
+      throw error;
+    }
+  }
 
   public async getByWorkspaceId(
     workspaceId: string,

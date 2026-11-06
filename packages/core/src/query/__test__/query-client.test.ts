@@ -47,6 +47,56 @@ describe('createAppQueryClient', () => {
     expect(handler).toHaveBeenCalledWith(error, 'mutation');
   });
 
+  it('says repeated when the last fetch of the query failed too', async () => {
+    const handler = vi.fn();
+    const client = createAppQueryClient([handler]);
+    const error = new Error('boom');
+
+    await client.fetchQuery(failingQuery(error)).catch(() => {});
+    await client.fetchQuery(failingQuery(error)).catch(() => {});
+
+    expect(handler).toHaveBeenNthCalledWith(1, error, 'query');
+    expect(handler).toHaveBeenNthCalledWith(2, error, 'query', { repeated: true });
+  });
+
+  it('keeps showsOwnError on a repeated failure', async () => {
+    const handler = vi.fn();
+    const client = createAppQueryClient([handler]);
+    const error = new Error('boom');
+    const query = { ...failingQuery(error), meta: { showsOwnError: true } };
+
+    await client.fetchQuery(query).catch(() => {});
+    await client.fetchQuery(query).catch(() => {});
+
+    expect(handler).toHaveBeenLastCalledWith(error, 'query', {
+      showsOwnError: true,
+      repeated: true,
+    });
+  });
+
+  it('reports a failure as new after a success of the query', async () => {
+    const handler = vi.fn();
+    const client = createAppQueryClient([handler]);
+    const error = new Error('boom');
+
+    await client.fetchQuery(failingQuery(error)).catch(() => {});
+    await client.fetchQuery({ queryKey: ['failing'], queryFn: () => 'value' });
+    await client.fetchQuery(failingQuery(error)).catch(() => {});
+
+    expect(handler).toHaveBeenLastCalledWith(error, 'query');
+  });
+
+  it('keeps the failures of two queries apart', async () => {
+    const handler = vi.fn();
+    const client = createAppQueryClient([handler]);
+    const error = new Error('boom');
+
+    await client.fetchQuery(failingQuery(error)).catch(() => {});
+    await client.fetchQuery({ ...failingQuery(error), queryKey: ['other'] }).catch(() => {});
+
+    expect(handler).toHaveBeenLastCalledWith(error, 'query');
+  });
+
   it('logs an error that no module handles, rather than dropping it', async () => {
     const log = vi.spyOn(console, 'error').mockImplementation(() => {});
     const client = createAppQueryClient([]);

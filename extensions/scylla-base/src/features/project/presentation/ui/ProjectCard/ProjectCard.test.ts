@@ -16,6 +16,7 @@ vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn() } }));
 
 const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
   id: 'project-1',
+  workspaceId: 'org-1',
   name: 'web',
   description: 'the web app',
   ...overrides,

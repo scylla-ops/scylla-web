@@ -64,7 +64,8 @@ src/
 1. `loadExtensions` reads the `@Extension` of each class and checks it (below).
 2. The catalogs are registered (the core's, then each extension's), the DI registry, the
    widget injection registry (`setWidgetInjectionRegistry`), the installed extensions
-   (`setInstalledExtensions`), the query client and the shell config are installed.
+   (`setInstalledExtensions`), the query client (after `queryClient.mount()`) and the shell config
+   are installed.
 3. `initializeAppLocale()` — before the first render, so no frame shows untranslated text.
 4. `setAppNavigator(createAppRouter(app.router))`, then `mount(App)`.
 
@@ -132,6 +133,18 @@ module gives an access policy.
 
 ## Rules that follow from the design
 
+- **`startCore` calls `queryClient.mount()`.** The app has no `QueryClientProvider`, the component
+  that makes this call in other apps. Without it, no query refetches on a focus or on a reconnect.
+  One focus refetches each active query that is stale, and most queries have `staleTime` 0.
+- **A focus is a `visibilitychange` event.** A change of tab and a window that shows again are a
+  focus. A click between two visible windows is not, because TanStack Query does not read the
+  `focus` event of the window.
+- **`mount()` also starts `onlineManager`.** After an `offline` event, a query or a mutation pauses
+  and does not fail. It continues after the `online` event. A page with no data stays on its
+  skeleton during this time.
+- **`createAppQueryClient` tells the handlers when a failure is `repeated`.** A query that failed
+  at its last fetch gets `repeated: true` until it has a success. During an outage, each focus and
+  each poll fails again: a handler must not tell the user each time.
 - **The router takes each link of the same origin, with no page load.** A link to a path that the
   server serves must have `rel="external"`, or the browser never calls the server. The compiled
   build has the same origin as the API, so this failure does not show on a Vite dev server, where

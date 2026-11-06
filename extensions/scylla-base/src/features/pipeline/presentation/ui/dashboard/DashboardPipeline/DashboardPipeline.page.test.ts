@@ -5,6 +5,7 @@ import { PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
+import { getQueryClient } from '@scylla/core-sdk';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import DashboardPipelinePage from './DashboardPipeline.page.svelte';
@@ -96,6 +97,64 @@ describe('DashboardPipelinePage', () => {
 
     expect(await screen.findByText('Error')).toBeInTheDocument();
     expect(screen.queryByText('nightly')).not.toBeInTheDocument();
+  });
+
+  it('calls the list once when it fails in a frame taller than the smallest page', async () => {
+    const frame = vi.spyOn(Element.prototype, 'clientHeight', 'get').mockReturnValue(800);
+    let calls = 0;
+    // A loop stops at the 10th call: with no limit, it fills the memory of the worker.
+    const list = () => {
+      calls += 1;
+      return calls < 10 ? Promise.reject(new ScyllaError('down')) : new Promise(() => {});
+    };
+    setUp(list);
+    teardown.push(() => frame.mockRestore());
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    expect(calls).toBe(1);
+    expect(await screen.findByText('Error')).toBeInTheDocument();
+  });
+
+  describe('when the layout gives a height that changes the page size', () => {
+    let height: PropertyDescriptor | undefined;
+
+    beforeEach(() => {
+      height = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight');
+      Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+        configurable: true,
+        get: () => 900,
+      });
+    });
+
+    afterEach(() => {
+      Object.defineProperty(HTMLElement.prototype, 'clientHeight', height ?? { value: 0 });
+    });
+
+    it('asks once and shows the error when the first load fails', async () => {
+      const list = vi.fn(() => Promise.reject(new ScyllaError('backend is down')));
+      setUp(list);
+
+      expect(await screen.findByText('Error')).toBeInTheDocument();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(list).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps the rows when a refetch fails', async () => {
+      const list = vi
+        .fn<() => Promise<unknown>>()
+        .mockResolvedValueOnce(page(pipelines))
+        .mockRejectedValue(new ScyllaError('backend is down'));
+      setUp(list);
+      expect(await screen.findByText('nightly')).toBeInTheDocument();
+
+      await getQueryClient().refetchQueries({ type: 'active' });
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(screen.getByText('nightly')).toBeInTheDocument();
+      expect(screen.queryByText('Error')).not.toBeInTheDocument();
+      expect(list).toHaveBeenCalledTimes(2);
+    });
   });
 
   it('opens the last run of a pipeline', async () => {
