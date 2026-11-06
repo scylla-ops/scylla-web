@@ -5,18 +5,26 @@ export interface OnboardingSubject {
   pipelineId?: string;
 }
 
+/** The tours that the user finished (`done`) and the page offers they turned down (`declined`). */
+export interface TourHistory {
+  done?: readonly string[];
+  declined?: readonly string[];
+}
+
 export type OnboardingStatus =
-  | { kind: 'not-started' }
-  | {
+  | ({ kind: 'not-started' } & TourHistory)
+  | ({
       kind: 'in-progress';
       tour?: string;
       step: string;
       subject?: OnboardingSubject;
-      done?: readonly string[];
-    }
-  | { kind: 'finished'; tour: string; subject?: OnboardingSubject; done: readonly string[] }
-  | { kind: 'completed'; subject?: OnboardingSubject; done?: readonly string[] }
-  | { kind: 'skipped'; subject?: OnboardingSubject; done?: readonly string[] };
+    } & TourHistory)
+  | ({ kind: 'finished'; tour: string; subject?: OnboardingSubject; done: readonly string[] } & Omit<
+      TourHistory,
+      'done'
+    >)
+  | ({ kind: 'completed'; subject?: OnboardingSubject } & TourHistory)
+  | ({ kind: 'skipped'; subject?: OnboardingSubject } & TourHistory);
 
 export const NOT_STARTED: OnboardingStatus = { kind: 'not-started' };
 
@@ -42,8 +50,10 @@ export const currentStepId = (
   return stepIds.includes(step) ? step : (stepIds[0] ?? null);
 };
 
-export const doneTours = (status: OnboardingStatus): readonly string[] =>
-  status.kind === 'not-started' ? [] : (status.done ?? []);
+export const doneTours = (status: OnboardingStatus): readonly string[] => status.done ?? [];
+
+export const declinedTours = (status: OnboardingStatus): readonly string[] =>
+  status.declined ?? [];
 
 const keptSubject = (status: OnboardingStatus): OnboardingSubject | undefined =>
   status.kind === 'not-started' ? undefined : status.subject;
@@ -51,18 +61,33 @@ const keptSubject = (status: OnboardingStatus): OnboardingSubject | undefined =>
 const withSubject = <T extends object>(value: T, subject: OnboardingSubject | undefined) =>
   subject ? { ...value, subject } : value;
 
-const withDone = <T extends object>(value: T, done: readonly string[]) =>
-  done.length > 0 ? { ...value, done } : value;
+const withHistory = <T extends object>(
+  value: T,
+  done: readonly string[],
+  declined: readonly string[],
+) => ({
+  ...value,
+  ...(done.length > 0 ? { done } : {}),
+  ...(declined.length > 0 ? { declined } : {}),
+});
 
+const keptHistory = <T extends object>(value: T, status: OnboardingStatus) =>
+  withHistory(value, doneTours(status), declinedTours(status));
+
+/** `found` is what the page that starts the tour already shows, as its project. */
 export const startTour = (
   status: OnboardingStatus,
   tour: string,
   firstStep: string,
-): OnboardingStatus =>
-  withDone(
-    withSubject({ kind: 'in-progress' as const, tour, step: firstStep }, keptSubject(status)),
-    doneTours(status),
+  found?: OnboardingSubject,
+): OnboardingStatus => {
+  const kept = keptSubject(status);
+  const subject = found && Object.keys(found).length > 0 ? { ...kept, ...found } : kept;
+  return keptHistory(
+    withSubject({ kind: 'in-progress' as const, tour, step: firstStep }, subject),
+    status,
   );
+};
 
 /** `null` when `from` is no longer the current step: a repeated event moves the tour once. */
 export const advanceTour = (
@@ -79,9 +104,11 @@ export const advanceTour = (
   if (!next) {
     const done = doneTours(status);
     const tour = status.tour ?? '';
-    return withSubject(
-      { kind: 'finished' as const, tour, done: done.includes(tour) ? done : [...done, tour] },
-      merged,
+    const finished = withSubject({ kind: 'finished' as const, tour }, merged);
+    return withHistory(
+      finished,
+      done.includes(tour) ? done : [...done, tour],
+      declinedTours(status),
     );
   }
   const moved = {
@@ -89,7 +116,7 @@ export const advanceTour = (
     ...(status.tour === undefined ? {} : { tour: status.tour }),
     step: next,
   };
-  return withDone(withSubject(moved, merged), doneTours(status));
+  return keptHistory(withSubject(moved, merged), status);
 };
 
 export const rewindTour = (
@@ -111,7 +138,20 @@ export const previousStepId = (stepIds: readonly string[], from: string): string
 export const closeTours = (
   status: OnboardingStatus,
   kind: 'completed' | 'skipped',
-): OnboardingStatus => withDone(withSubject({ kind }, keptSubject(status)), doneTours(status));
+): OnboardingStatus => keptHistory(withSubject({ kind }, keptSubject(status)), status);
+
+/** Shows the welcome dialog again, and keeps the tours that are done or turned down. */
+export const reopenIntro = (status: OnboardingStatus): OnboardingStatus =>
+  keptHistory({ kind: 'not-started' as const }, status);
+
+/** The user turned down the offer of a page: it does not come back, the help menu still has it. */
+export const declineTour = (status: OnboardingStatus, tour: string): OnboardingStatus | null => {
+  const declined = declinedTours(status);
+  if (declined.includes(tour) || status.kind === 'in-progress' || status.kind === 'finished') {
+    return null;
+  }
+  return { ...status, declined: [...declined, tour] };
+};
 
 export const rememberSubject = (
   status: OnboardingStatus,

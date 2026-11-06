@@ -6,9 +6,11 @@ import {
   advanceTour,
   closeTours,
   currentStepId,
+  declineTour,
   doneTours,
   previousStepId,
   rememberSubject,
+  reopenIntro,
   rewindTour,
   savedStepId,
   startTour,
@@ -63,17 +65,22 @@ export const createTourLauncher = () => {
       if (status?.kind !== 'in-progress') return undefined;
       return (findTour(status.tour) ?? tourOfStep(savedStepId(status)))?.id;
     },
-    start(tourId: string) {
+    /** From `entry`, the tour starts on the page that offered it, at its step there. */
+    start(tourId: string, entry?: { step: string; subject: OnboardingSubject }) {
       const tour = findTour(tourId);
-      const first = tour?.steps[0];
+      const first = entry ? tour?.steps.find(step => step.id === entry.step) : tour?.steps[0];
       if (!tour || !first) return;
       const status = statusQuery.data ?? { kind: 'not-started' as const };
-      save.mutate(startTour(status, tour.id, first.id));
+      save.mutate(startTour(status, tour.id, first.id, entry?.subject));
       const subject = status.kind === 'not-started' ? {} : (status.subject ?? {});
-      if (first.page) scyllaNavigate.goToWorkspaceRoute(first.page(subject));
+      if (!entry && first.page) scyllaNavigate.goToWorkspaceRoute(first.page(subject));
+    },
+    decline(tourId: string) {
+      const next = statusQuery.data ? declineTour(statusQuery.data, tourId) : null;
+      if (next) save.mutate(next);
     },
     reopenIntro() {
-      save.mutate({ kind: 'not-started' });
+      save.mutate(reopenIntro(statusQuery.data ?? { kind: 'not-started' }));
     },
   };
 };
@@ -161,6 +168,9 @@ export const createOnboardingTour = (canStart: () => boolean) => {
     get done() {
       return status ? doneTours(status) : [];
     },
+    get status() {
+      return status;
+    },
     get confirmingSkip() {
       return confirmingSkip;
     },
@@ -185,6 +195,12 @@ export const createOnboardingTour = (canStart: () => boolean) => {
 
     startTour(tourId: string) {
       launcher.start(tourId);
+    },
+    startOffer(tourId: string, step: string, found: OnboardingSubject) {
+      launcher.start(tourId, { step, subject: found });
+    },
+    declineOffer(tourId: string) {
+      launcher.decline(tourId);
     },
     next() {
       if (step && canGoNext) advanceFrom(step.id);

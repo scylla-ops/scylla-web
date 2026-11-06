@@ -63,6 +63,16 @@ export interface TourSpotStep {
 
 export type TourIcon = 'agent' | 'pipeline' | 'run' | 'trigger' | 'secret' | 'role' | 'users';
 
+/** The page that offers the tour on a first visit, and the step where the tour starts there. */
+export interface TourOffer {
+  /** The path in the workspace, without its slug. */
+  path: RegExp;
+  step: string;
+  subject?: (match: RegExpMatchArray) => OnboardingSubject;
+  /** The page offers the tour only once this element shows. */
+  needs?: TourAnchor;
+}
+
 export interface TourDefinition {
   id: string;
   icon: TourIcon;
@@ -71,6 +81,7 @@ export interface TourDefinition {
   minutes: number;
   permissions: readonly Permission[];
   finish: { title: MessageDescriptor; body: MessageDescriptor };
+  offer?: TourOffer;
   steps: readonly TourSpotStep[];
 }
 
@@ -225,6 +236,7 @@ const agentTour: TourDefinition = {
   minutes: 3,
   permissions: [Permission.CREATE_AGENT],
   finish: { title: m.agentFinishTitle, body: m.agentFinishBody },
+  offer: { path: /^\/agents\/?$/, step: 'new-agent' },
   steps: [
     {
       id: 'open-agents',
@@ -289,6 +301,7 @@ const pipelineTour: TourDefinition = {
   minutes: 2,
   permissions: [Permission.CREATE_PROJECT],
   finish: { title: m.pipelineFinishTitle, body: m.pipelineFinishBody },
+  offer: { path: /^\/projects\/?$/, step: 'new-project' },
   steps: [
     {
       id: 'open-projects',
@@ -368,6 +381,12 @@ const runTour: TourDefinition = {
   minutes: 1,
   permissions: [],
   finish: { title: m.runFinishTitle, body: m.runFinishBody },
+  offer: {
+    path: /^\/projects\/([^/]+)\/?$/,
+    step: 'run-pipeline',
+    subject: ([, projectId]) => (projectId ? { projectId } : {}),
+    needs: select('[data-tour="pipeline-actions"]'),
+  },
   steps: [
     pickProject('run-project', m.pickProjectRunBody),
     {
@@ -431,6 +450,12 @@ const triggersTour: TourDefinition = {
   minutes: 2,
   permissions: [],
   finish: { title: m.otherFinishTitle, body: m.otherFinishBody },
+  offer: {
+    path: /^\/projects\/([^/]+)\/pipelines\/([^/]+)\/triggers\/?$/,
+    step: 'new-trigger',
+    subject: ([, projectId, pipelineId]) =>
+      projectId && pipelineId ? { projectId, pipelineId } : {},
+  },
   steps: [
     pickProject('triggers-project', m.pickProjectTriggersBody),
     {
@@ -488,6 +513,11 @@ const secretsTour: TourDefinition = {
   minutes: 1,
   permissions: [],
   finish: { title: m.otherFinishTitle, body: m.otherFinishBody },
+  offer: {
+    path: /^\/projects\/([^/]+)\/secrets\/?$/,
+    step: 'new-secret',
+    subject: ([, projectId]) => (projectId ? { projectId } : {}),
+  },
   steps: [
     pickProject('secrets-project', m.pickProjectSecretsBody),
     {
@@ -539,6 +569,7 @@ const rolesTour: TourDefinition = {
   minutes: 2,
   permissions: [Permission.MANAGE_WORKSPACE_ROLES],
   finish: { title: m.otherFinishTitle, body: m.otherFinishBody },
+  offer: { path: /^\/access\/roles\/?$/, step: 'built-in-roles' },
   steps: [
     {
       id: 'open-roles',
@@ -599,6 +630,7 @@ const usersTour: TourDefinition = {
   minutes: 1,
   permissions: [Permission.MANAGE_WORKSPACE_GRANTS],
   finish: { title: m.otherFinishTitle, body: m.otherFinishBody },
+  offer: { path: /^\/access\/members\/?$/, step: 'add-members' },
   steps: [
     {
       id: 'open-members',

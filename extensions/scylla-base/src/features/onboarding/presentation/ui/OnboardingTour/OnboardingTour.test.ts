@@ -19,12 +19,15 @@ const grant = (...permissions: Permission[]) =>
     },
   });
 
-const setUp = (stored: OnboardingStatus = { kind: 'not-started' }) => {
+const setUp = (
+  stored: OnboardingStatus = { kind: 'not-started' },
+  pathname = '/acme/dashboard',
+) => {
   const saveStatus = vi.fn((_userId: string, _status: OnboardingStatus) =>
     Promise.resolve(undefined),
   );
   const cache = withQueryClient();
-  const navigator = installTestNavigator({ pathname: '/acme/dashboard' });
+  const navigator = installTestNavigator({ pathname });
   teardown = [
     cache.restore,
     navigator.restore,
@@ -215,5 +218,47 @@ describe('OnboardingTour', () => {
     expect(within(card as HTMLElement).getByText('Skip')).toBeInTheDocument();
     expect(within(card as HTMLElement).queryByText('Finish')).not.toBeInTheDocument();
     expect(within(card as HTMLElement).queryByText('Previous')).not.toBeInTheDocument();
+  });
+
+  it('offers the tour of a page on a first visit, and starts it there', async () => {
+    const { saveStatus } = setUp({ kind: 'skipped', done: ['run'] }, '/acme/agents');
+
+    const offer = await screen.findByRole('dialog', { name: 'Connect an agent' });
+    expect(within(offer).getByText('First time here?')).toBeInTheDocument();
+    await userEvent.click(within(offer).getByRole('button', { name: 'Start' }));
+
+    await waitFor(() =>
+      expect(saveStatus).toHaveBeenCalledWith('anonymous', {
+        kind: 'in-progress',
+        tour: 'agent',
+        step: 'new-agent',
+        done: ['run'],
+      }),
+    );
+  });
+
+  it('does not offer a tour again once the user turns it down', async () => {
+    const { saveStatus } = setUp({ kind: 'completed' }, '/acme/access/roles');
+    grant(Permission.MANAGE_WORKSPACE_ROLES);
+
+    const offer = await screen.findByRole('dialog', { name: 'Make a role' });
+    await userEvent.click(within(offer).getByRole('button', { name: 'Not now' }));
+
+    await waitFor(() =>
+      expect(saveStatus).toHaveBeenCalledWith('anonymous', {
+        kind: 'completed',
+        declined: ['roles'],
+      }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog', { name: 'Make a role' })).not.toBeInTheDocument(),
+    );
+  });
+
+  it('lets the welcome dialog go first on the page of a tour', async () => {
+    setUp({ kind: 'not-started' }, '/acme/agents');
+
+    expect(await screen.findByText('Your machines run the jobs')).toBeInTheDocument();
+    expect(screen.queryByText('First time here?')).not.toBeInTheDocument();
   });
 });

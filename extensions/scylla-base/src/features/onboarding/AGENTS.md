@@ -35,8 +35,9 @@ Never add: `onboarding.module.ts`, a component.
 `OnboardingStatus` (`domain/structs/`): `not-started` (the welcome dialog shows) ·
 `in-progress` (`tour` id, `step` id) · `finished` (the end dialog of `tour` shows) · `completed`
 · `skipped`. Every status but `not-started` can hold `subject` (the agent, the project and the
-pipeline that a tour created) and `done` (the ids of the finished tours). Both carry over from
-one tour to the next. A status saved before the tours has no `tour`: the state finds the tour
+pipeline that a tour created). Every status can hold `done` (the ids of the finished tours) and
+`declined` (the ids of the tours whose page offer the user turned down). All of them carry over
+from one tour to the next. A status saved before the tours has no `tour`: the state finds the tour
 that holds its step.
 
 The only implementation today is local: `DefaultOnboardingRepository` reads and writes
@@ -74,6 +75,7 @@ presentation/
     TourSpotlight.svelte, TourCard.svelte, TourIcon.svelte
     IntroDialog.svelte, IntroIllustration.svelte, TourChooser.svelte   the welcome dialog
     SkipTourDialog.svelte, FinishTourDialog.svelte
+    TourOffer.svelte                 the offer of a tour on the first visit of its page
   ui/TourMenu/TourMenu.svelte        the content of the help menu
 ```
 
@@ -139,6 +141,14 @@ The mutation keys come from the barrels: `CREATE_APP_MUTATION_KEY` (`apps`),
 
 ## Behaviour on the page
 
+- **Page offer.** A tour with `offer` shows a small card in the bottom right corner of its page
+  (`offer.path`, without the workspace slug): "First time here?", Start and Not now. It shows
+  only when no tour runs and no dialog of the tours shows, and only for a tour that the user may
+  start and that is not in `done` or `declined`. Start begins the tour at `offer.step`, with
+  the subject that the path gives (the project, the pipeline). Not now adds the tour to
+  `declined`: the card does not come back, the help menu still starts the tour. `offer.needs`
+  holds the card until an element shows (the run tour needs a pipeline). A global Skip does
+  not stop the page offers.
 - **Blocking.** On a step with a Next button, the page takes no input (except a `form` step,
   whose targets stay usable because the user types in them): `blockPage` makes every
   other child of `<body>` inert (no click, focus or key) and a transparent layer above the

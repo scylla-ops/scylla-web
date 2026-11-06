@@ -161,6 +161,10 @@ export const onboardingMessages = {
   confirmSkip: msg`Skip the tour`,
   continueTour: msg`Continue the tour`,
 
+  offerEyebrow: msg`First time here?`,
+  notNow: msg`Not now`,
+  offerLater: msg`You can start it later from the help menu.`,
+
   guidedTours: msg`Guided tours`,
   documentation: msg`Documentation`,
   welcomeAgain: msg`Welcome to Scylla`,

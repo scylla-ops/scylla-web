@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { isAgentOffline, stepCount, tourView } from '../tour.presenter.ts';
+import { isAgentOffline, offeredTour, stepCount, tourView, workspacePath } from '../tour.presenter.ts';
 
 describe('tourView', () => {
   it('welcomes on its own only a user who may do what the tours ask', () => {
@@ -49,5 +49,54 @@ describe('isAgentOffline', () => {
     expect(isAgentOffline(undefined, 'mine')).toBe(false);
     expect(isAgentOffline([], 'mine')).toBe(false);
     expect(isAgentOffline(agents, 'deleted')).toBe(false);
+  });
+});
+
+describe('offeredTour', () => {
+  const tours = [
+    { id: 'agent', permissions: ['agents'], offer: { path: /^\/agents\/?$/ } },
+    {
+      id: 'secrets',
+      permissions: [],
+      offer: {
+        path: /^\/projects\/([^/]+)\/secrets$/,
+        subject: ([, projectId]: RegExpMatchArray) => ({ projectId }),
+      },
+    },
+    { id: 'run', permissions: [] },
+  ];
+  const all = () => true;
+
+  it('reads the path of the page without the workspace', () => {
+    expect(workspacePath('/acme/projects/p-1')).toBe('/projects/p-1');
+    expect(workspacePath('/acme')).toBe('/');
+  });
+
+  it('offers the tour of the page, with what the page shows', () => {
+    expect(offeredTour(tours, '/acme/agents', { kind: 'skipped' }, all)?.tour.id).toBe('agent');
+    expect(offeredTour(tours, '/acme/projects/p-1/secrets', { kind: 'completed' }, all)).toEqual({
+      tour: tours[1],
+      subject: { projectId: 'p-1' },
+    });
+    expect(offeredTour(tours, '/acme/projects', { kind: 'skipped' }, all)).toBeUndefined();
+  });
+
+  it('offers no tour that is done, turned down or out of reach', () => {
+    expect(
+      offeredTour(tours, '/acme/agents', { kind: 'skipped', done: ['agent'] }, all),
+    ).toBeUndefined();
+    expect(
+      offeredTour(tours, '/acme/agents', { kind: 'skipped', declined: ['agent'] }, all),
+    ).toBeUndefined();
+    expect(offeredTour(tours, '/acme/agents', { kind: 'skipped' }, () => false)).toBeUndefined();
+  });
+
+  it('offers nothing while a tour runs or its end shows', () => {
+    expect(
+      offeredTour(tours, '/acme/agents', { kind: 'in-progress', step: 'new-agent' }, all),
+    ).toBeUndefined();
+    expect(
+      offeredTour(tours, '/acme/agents', { kind: 'finished', tour: 'run', done: ['run'] }, all),
+    ).toBeUndefined();
   });
 });

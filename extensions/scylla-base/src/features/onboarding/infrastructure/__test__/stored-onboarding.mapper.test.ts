@@ -21,6 +21,9 @@ describe('storedOnboarding', () => {
       { kind: 'completed' },
       { kind: 'completed', done: ['agent', 'run'] },
       { kind: 'skipped', subject: { projectId: 'pr-1' } },
+      { kind: 'skipped', declined: ['roles'] },
+      { kind: 'not-started', done: ['agent'], declined: ['users'] },
+      { kind: 'finished', tour: 'run', done: ['run'], declined: ['roles'] },
     ] as const;
 
     for (const status of statuses) {

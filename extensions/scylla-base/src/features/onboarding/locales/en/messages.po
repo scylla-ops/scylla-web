@@ -150,7 +150,7 @@ msgstr "Create a pipeline"
 msgid "Create your pipeline"
 msgstr "Create your pipeline"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:165
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:169
 msgid "Documentation"
 msgstr "Documentation"
 
@@ -188,6 +188,10 @@ msgctxt "onboarding"
 msgid "Finish"
 msgstr "Finish"
 
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:164
+msgid "First time here?"
+msgstr "First time here?"
+
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:24
 msgid "Follow every job"
 msgstr "Follow every job"
@@ -208,7 +212,7 @@ msgstr "Give your pipelines a value nobody can read."
 msgid "Go back to it"
 msgstr "Go back to it"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:164
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:168
 msgid "Guided tours"
 msgstr "Guided tours"
 
@@ -308,6 +312,10 @@ msgstr "New trigger"
 msgctxt "onboarding"
 msgid "Next"
 msgstr "Next"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:165
+msgid "Not now"
+msgstr "Not now"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:31
 msgid "Nothing runs without an agent: start here. You add a machine, run one command on it, and see it come online."
@@ -554,7 +562,7 @@ msgid "Waiting for the agent…"
 msgstr "Waiting for the agent…"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:12
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:166
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:170
 msgid "Welcome to Scylla"
 msgstr "Welcome to Scylla"
 
@@ -565,6 +573,10 @@ msgstr "Welcome to Scylla · {slide}/{total}"
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:92
 msgid "Why a job does not start ›"
 msgstr "Why a job does not start ›"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:166
+msgid "You can start it later from the help menu."
+msgstr "You can start it later from the help menu."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:155
 msgid "You connected an agent, created a pipeline and followed a job end to end. Triggers, secrets and roles are in the help menu."

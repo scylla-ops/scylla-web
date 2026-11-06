@@ -4,9 +4,11 @@ import {
   advanceTour,
   closeTours,
   currentStepId,
+  declineTour,
   doneTours,
   previousStepId,
   rememberSubject,
+  reopenIntro,
   rewindTour,
   startTour,
 } from '../onboarding-status.struct.ts';
@@ -64,6 +66,20 @@ describe('startTour', () => {
       kind: 'in-progress',
       tour: 'agent',
       step: 'open-agents',
+    });
+  });
+});
+
+describe('startTour from a page', () => {
+  it('starts with what the page shows and keeps the turned down tours', () => {
+    const status = { kind: 'skipped', subject: { projectId: 'old' }, declined: ['roles'] } as const;
+
+    expect(startTour(status, 'secrets', 'new-secret', { projectId: 'p-2' })).toEqual({
+      kind: 'in-progress',
+      tour: 'secrets',
+      step: 'new-secret',
+      subject: { projectId: 'p-2' },
+      declined: ['roles'],
     });
   });
 });
@@ -148,6 +164,49 @@ describe('closeTours', () => {
     expect(closeTours(status, 'completed')).toEqual({ kind: 'completed', done: ['agent'] });
     expect(closeTours({ kind: 'not-started' }, 'skipped')).toEqual({ kind: 'skipped' });
     expect(doneTours(closeTours(status, 'skipped'))).toEqual(['agent']);
+  });
+});
+
+describe('declineTour', () => {
+  it('turns down the offer of a page once, outside of a tour', () => {
+    expect(declineTour({ kind: 'skipped', done: ['agent'] }, 'roles')).toEqual({
+      kind: 'skipped',
+      done: ['agent'],
+      declined: ['roles'],
+    });
+    expect(declineTour({ kind: 'not-started' }, 'roles')).toEqual({
+      kind: 'not-started',
+      declined: ['roles'],
+    });
+    expect(declineTour({ kind: 'completed', declined: ['roles'] }, 'roles')).toBeNull();
+    expect(declineTour({ kind: 'in-progress', step: 'new-agent' }, 'roles')).toBeNull();
+  });
+
+  it('keeps the turned down tours through a tour and its end', () => {
+    const started = startTour({ kind: 'skipped', declined: ['roles'] }, 'agent', 'agent-page');
+    const finished = advanceTour(started, STEPS, 'agent-page');
+
+    expect(finished).toEqual({
+      kind: 'finished',
+      tour: 'agent',
+      done: ['agent'],
+      declined: ['roles'],
+    });
+    expect(finished && closeTours(finished, 'completed')).toEqual({
+      kind: 'completed',
+      done: ['agent'],
+      declined: ['roles'],
+    });
+  });
+});
+
+describe('reopenIntro', () => {
+  it('shows the welcome dialog again and keeps the history of the tours', () => {
+    expect(reopenIntro({ kind: 'completed', done: ['agent'], declined: ['roles'] })).toEqual({
+      kind: 'not-started',
+      done: ['agent'],
+      declined: ['roles'],
+    });
   });
 });
 
