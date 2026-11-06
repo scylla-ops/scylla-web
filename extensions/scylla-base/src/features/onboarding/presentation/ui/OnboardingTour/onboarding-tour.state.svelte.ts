@@ -197,8 +197,8 @@ export const createOnboardingTour = (canStart: () => boolean) => {
       write(rewindTour(status, stepIds, step.id, to));
       if (target.page) scyllaNavigate.goToWorkspaceRoute(target.page(subject));
     },
-    advance(stepId: string) {
-      advanceFrom(stepId);
+    advance(stepId: string, found?: OnboardingSubject) {
+      advanceFrom(stepId, found);
     },
     unlock(stepId: string) {
       unlockedStepId = stepId;

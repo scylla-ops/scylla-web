@@ -125,7 +125,7 @@ describe('createOnboardingTour', () => {
 
     tour.startTour('run');
 
-    await onStep(tour, 'run-pipeline');
+    await onStep(tour, 'run-project');
     expect(navigator.navigate).toHaveBeenCalledWith('/acme/projects/p-1', undefined);
   });
 

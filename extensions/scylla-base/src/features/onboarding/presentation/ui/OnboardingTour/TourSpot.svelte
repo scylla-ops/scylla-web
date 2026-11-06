@@ -11,6 +11,7 @@
     placeCard,
     spotlightRect,
   } from '@base/features/onboarding/presentation/presenters/tour-placement.presenter.ts';
+  import type { OnboardingSubject } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
   import type { TourSpotStep } from './tour-steps.registry.ts';
   import {
     allowedAnchor,
@@ -130,7 +131,7 @@
     onAction: (next: TourActionState | null) => {
       actionState = { stepId: step.id, action: next };
     },
-    onAdvance: () => tour.advance(step.id),
+    onAdvance: (found?: OnboardingSubject) => tour.advance(step.id, found),
     onUnlock: () => tour.unlock(step.id),
     onLost: () => {
       lostStepId = step.id;

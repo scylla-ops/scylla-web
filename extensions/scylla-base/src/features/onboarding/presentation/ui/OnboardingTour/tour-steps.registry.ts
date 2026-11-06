@@ -15,7 +15,11 @@ export type TourAnchor = (root: ParentNode, subject: OnboardingSubject) => Eleme
 
 export type TourCondition =
   | { on: 'click'; anchor: TourAnchor }
-  | { on: 'appear'; anchor: TourAnchor };
+  | {
+      on: 'appear';
+      anchor: TourAnchor;
+      found?: (element: Element) => OnboardingSubject | undefined;
+    };
 
 export type TourAdvance =
   | { on: 'next' }
@@ -172,6 +176,30 @@ const jobNotStarted: TourAnchor = (root, subject) => {
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
+
+const lastDialog: TourAnchor = root => {
+  const dialogs = root.querySelectorAll('[data-slot="dialog-content"]');
+  return dialogs.length ? dialogs[dialogs.length - 1] : null;
+};
+
+const projectCards = select('[data-tour="project-card"]');
+
+/** Opens the page of a project, or moves on at once when the user is on one already. */
+const pickProject = (id: string, body: MessageDescriptor): TourSpotStep => ({
+  id,
+  page: projectPage,
+  title: m.pickProjectTitle,
+  body: [body],
+  targets: [projectCards],
+  advance: {
+    on: 'appear',
+    anchor: select('[data-tour="pipelines"][data-project-id]'),
+    found: element =>
+      element instanceof HTMLElement && element.dataset.projectId
+        ? { projectId: element.dataset.projectId }
+        : undefined,
+  },
+});
 
 const createdProject: TourAnchor = (root, subject) =>
   subject.projectId
@@ -337,6 +365,7 @@ const runTour: TourDefinition = {
   permissions: [],
   finish: { title: m.runFinishTitle, body: m.runFinishBody },
   steps: [
+    pickProject('run-project', m.pickProjectRunBody),
     {
       id: 'run-pipeline',
       needsAgent: true,
@@ -399,6 +428,7 @@ const triggersTour: TourDefinition = {
   permissions: [],
   finish: { title: m.otherFinishTitle, body: m.otherFinishBody },
   steps: [
+    pickProject('triggers-project', m.pickProjectTriggersBody),
     {
       id: 'open-triggers',
       page: projectPage,
@@ -454,6 +484,7 @@ const secretsTour: TourDefinition = {
   permissions: [],
   finish: { title: m.otherFinishTitle, body: m.otherFinishBody },
   steps: [
+    pickProject('secrets-project', m.pickProjectSecretsBody),
     {
       id: 'open-secrets',
       page: projectPage,
@@ -586,9 +617,9 @@ const usersTour: TourDefinition = {
       title: m.peopleRoleTitle,
       body: [m.peopleRoleBody],
       link: docs(m.rolesDocs),
-      targets: [formDialog],
-      action: { anchor: formSubmit },
-      advance: { on: 'click', anchor: formSubmit },
+      targets: [lastDialog],
+      action: { anchor: button('members-submit') },
+      advance: { on: 'click', anchor: button('members-submit') },
       fallback: 'add-members',
     },
     {

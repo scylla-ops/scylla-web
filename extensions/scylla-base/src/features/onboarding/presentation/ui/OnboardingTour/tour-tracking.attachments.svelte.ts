@@ -28,7 +28,7 @@ export interface TourTracking {
   subject: OnboardingSubject;
   onLayout: (layout: TourLayout) => void;
   onAction: (action: TourActionState | null) => void;
-  onAdvance: () => void;
+  onAdvance: (found?: OnboardingSubject) => void;
   onUnlock: () => void;
   onLost: () => void;
   onHint: (shown: boolean) => void;
@@ -126,10 +126,10 @@ export const trackTourStep =
       moveStart = null;
     };
 
-    const advance = () => {
+    const advance = (found?: OnboardingSubject) => {
       if (advanced) return;
       advanced = true;
-      tracking.onAdvance();
+      tracking.onAdvance(found);
     };
 
     const unlock = () => {
@@ -207,7 +207,10 @@ export const trackTourStep =
         }
       }
 
-      if (step.advance.on === 'appear' && appeared(step.advance)) advance();
+      if (step.advance.on === 'appear') {
+        const element = resolve(step.advance.anchor);
+        if (element) advance(step.advance.found?.(element));
+      }
       if (appeared(step.nextWhen)) unlock();
 
       frame = requestAnimationFrame(tick);

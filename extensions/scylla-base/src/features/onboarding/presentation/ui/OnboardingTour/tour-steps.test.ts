@@ -45,9 +45,9 @@ describe('TOURS', () => {
     expect(TOURS.map(tour => [tour.id, tour.steps.length])).toEqual([
       ['agent', 5],
       ['pipeline', 6],
-      ['run', 4],
-      ['triggers', 5],
-      ['secrets', 4],
+      ['run', 5],
+      ['triggers', 6],
+      ['secrets', 5],
       ['roles', 5],
       ['users', 4],
     ]);
@@ -190,7 +190,12 @@ describe('the way back from another page', () => {
       .flat()
       .map(step => step.id);
 
-    expect(withoutPage).toEqual(['new-trigger', 'trigger-kind', 'trigger-when', 'trigger-done']);
+    expect(withoutPage).toEqual([
+      'new-trigger',
+      'trigger-kind',
+      'trigger-when',
+      'trigger-done',
+    ]);
   });
 
   it('leads back to the agent and the project the tour created', () => {
@@ -239,6 +244,19 @@ describe('the documentation links', () => {
 
     expect(links.length).toBeGreaterThan(0);
     expect(links.every(link => link?.href === 'https://prelude.scylla-ops.com')).toBe(true);
+  });
+});
+
+describe('the step that picks a project', () => {
+  it('moves on with the project whose page is open', () => {
+    const { advance } = spot('secrets-project');
+    if (advance.on !== 'appear') throw new Error('secrets-project waits for a page');
+
+    document.body.innerHTML = '<div data-tour="pipelines" data-project-id="p-9"></div>';
+    const page = advance.anchor(document, {});
+
+    expect(page).not.toBeNull();
+    expect(advance.found?.(page as Element)).toEqual({ projectId: 'p-9' });
   });
 });
 
