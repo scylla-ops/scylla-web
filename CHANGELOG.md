@@ -32,6 +32,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The members and the roles of a workspace, the access of a member, the last owner, and the apps of
   the members.
 - The pages of the roles, and the instance roles on the page of the users.
+- The editor of a role changes its level while the role has no holder.
 - The limit of the workspaces on the settings page of the instance.
 
 **Machines**

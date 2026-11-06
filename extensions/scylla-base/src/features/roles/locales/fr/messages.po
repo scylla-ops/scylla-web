@@ -689,8 +689,8 @@ msgid "Workspaces"
 msgstr "Espaces de travail"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:97
-msgid "You cannot change the level after you create the role."
-msgstr "Le niveau ne change plus après la création du rôle."
+msgid "You can change the level only while no one holds the role."
+msgstr "Vous pouvez changer le niveau tant qu'aucun détenteur n'a ce rôle."
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:14
 msgid "You cannot see the roles of {workspace}"

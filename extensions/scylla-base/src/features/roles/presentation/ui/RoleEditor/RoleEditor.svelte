@@ -76,6 +76,9 @@
   let saveTrace = $state('');
 
   const editing = $derived(role !== undefined);
+  const levelLocked = $derived((role?.holderCount ?? 0) > 0);
+  const levelOff = (option: RoleLevel) =>
+    levelLocked || (editing && holder === 'apps' && option === 'platform');
   const total = $derived(permissionsFor(areas, level, holder).length);
   const startRoles = $derived(
     (rolesQuery.data ?? []).filter(other => other.level === level && other.holder === holder),
@@ -161,7 +164,13 @@
     const permissions = [...selected];
     try {
       if (role) {
-        await updateRole.mutateAsync({ id: role.key, name, description, permissions });
+        await updateRole.mutateAsync({
+          id: role.key,
+          name,
+          description,
+          permissions,
+          ...(level === role.level ? {} : { level }),
+        });
       } else {
         const owner = workspaceId ? { workspaceId } : {};
         await createRole.mutateAsync({ name, description, level, holder, permissions, ...owner });
@@ -263,15 +272,16 @@
           />
         </div>
 
-        <fieldset class="flex flex-col gap-2" disabled={editing}>
+        <fieldset class="flex flex-col gap-2" disabled={levelLocked}>
           <legend class="mb-2 text-sm font-medium">{t(rolesMessages.level)}</legend>
           {#each LEVELS as option (option)}
+            {@const off = levelOff(option)}
             <button
               type="button"
               role="radio"
               aria-checked={level === option}
-              disabled={editing}
-              class={cardClass(level === option, editing)}
+              disabled={off}
+              class={cardClass(level === option, off)}
               onclick={() => chooseLevel(option)}
             >
               <span
@@ -285,7 +295,7 @@
               </span>
             </button>
           {/each}
-          <p class="text-xs text-muted-foreground">{t(rolesMessages.levelFixed)}</p>
+          <p class="text-xs text-muted-foreground">{t(rolesMessages.levelHint)}</p>
         </fieldset>
 
         <fieldset class="flex flex-col gap-2" disabled={editing}>

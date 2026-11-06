@@ -82,6 +82,7 @@ export class DefaultRoleRepository implements RoleRepository {
       name: input.name,
       description: input.description,
       permissions: input.permissions,
+      ...(input.level ? { level: input.level } : {}),
     }).response;
     return roleToDomain(required(role, 'role'));
   }

@@ -50,4 +50,6 @@ export interface UpdateRoleInput {
   name: string;
   description: string;
   permissions: string[];
+  /** Absent: the level stays. */
+  level?: RoleLevel;
 }

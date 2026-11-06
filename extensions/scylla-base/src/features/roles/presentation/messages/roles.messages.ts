@@ -94,7 +94,7 @@ export const rolesMessages = {
   namePlaceholder: msg`Release manager`,
   description: msg`Description`,
   descriptionPlaceholder: msg`What this role does`,
-  levelFixed: msg`You cannot change the level after you create the role.`,
+  levelHint: msg`You can change the level only while no one holds the role.`,
   whoCanHold: msg`Who can hold it`,
   startFrom: msg`Start from`,
   startFromEmpty: msg`Empty role`,
