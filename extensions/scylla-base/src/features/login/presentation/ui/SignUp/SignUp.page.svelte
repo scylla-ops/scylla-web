@@ -9,7 +9,7 @@
     checkPasswordConfirmation,
   } from '@shared/utils/account-validation.ts';
   import { SignUpState } from './sign-up.state.svelte.ts';
-  import AuthLayout from '../AuthLayout.svelte';
+  import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
   import { signUpMessages } from '@base/features/login/presentation/messages/sign-up.messages.ts';
 
   // Built during initialisation: it reads the invitation of the link, and its mutation needs an owner.

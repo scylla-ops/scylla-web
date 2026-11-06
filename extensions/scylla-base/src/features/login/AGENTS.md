@@ -91,7 +91,6 @@ presentation/
   mappers/return-path.mapper.ts      loginPath, loginPathBackTo, safeReturnPath, returnPathOf
   messages/                          login, password-reset
   ui/login.state.svelte.ts           sign-in: the mutation + the redirect
-  ui/AuthLayout.svelte               the frame of the public pages: mark panel, centered column, a `below` snippet
   ui/Login/Login.page.svelte, ui/LoginForm/LoginForm.svelte
   ui/ForgotPassword/ForgotPassword.page.svelte
     forgot-password.state.svelte.ts  the request of a reset link
@@ -134,6 +133,9 @@ exported from this barrel and from `@scylla/base-sdk`.
 
 The `public` mount puts them **outside** `AuthGuard`. They must stay there: mounting them
 anywhere else makes signing in, or resetting a password, require being signed in.
+
+The frame of these pages is `@shared/presentation/ui/layout/AuthLayout.svelte`. The page of an
+invitation uses it too.
 
 `reset-password` is the path of the link that the server makes
 (`AuthService.RequestPasswordReset`). Do not rename it.

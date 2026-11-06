@@ -83,10 +83,11 @@ reset grew here without a change to the shell; an SSO flow or a second factor wo
 
 The domain is small: the repository and one struct, `PasswordResetDelivery`, which
 [user](../user/README.md) reads too (an administrator sends a reset link from there). Its only
-mapper turns the proto enum into that struct. The three public pages share one frame,
-`AuthLayout`: a panel with the Scylla mark, then a centered column with the logo, the title and
-the content, and a place below the content for the zone of the sign-in page. On a small screen the
-panel is not shown, and the logo in the column stays.
+mapper turns the proto enum into that struct. The public pages share one frame with the page of
+an [invitation](../invitation/README.md): `AuthLayout`, in [shared](../../shared/README.md). It
+has a panel with the Scylla mark, then a centered column with the logo, the title and the content,
+and a place below the content for the zone of the sign-in page. On a small screen the panel is not
+shown, and the logo in the column stays.
 
 ## Related modules
 

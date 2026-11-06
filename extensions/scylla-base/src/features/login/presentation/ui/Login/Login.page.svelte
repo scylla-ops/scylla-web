@@ -6,7 +6,7 @@
   import { loginPoints } from '@base/features/login/presentation/login.points.ts';
   import { loginQueries } from '@base/features/login/presentation/login.queries.ts';
   import { returnPathOf } from '@base/features/login/presentation/mappers/return-path.mapper.ts';
-  import AuthLayout from '../AuthLayout.svelte';
+  import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
   import LoginForm from '../LoginForm/LoginForm.svelte';
   import SignInProviders from '../SignInProviders/SignInProviders.svelte';
   import { loginMessages } from '@base/features/login/presentation/messages/login.messages.ts';

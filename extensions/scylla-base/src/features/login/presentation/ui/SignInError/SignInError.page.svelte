@@ -6,7 +6,7 @@
   import InfoIcon from '@lucide/svelte/icons/info';
   import LockIcon from '@lucide/svelte/icons/lock';
   import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
-  import AuthLayout from '../AuthLayout.svelte';
+  import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
   import { loginQueries } from '@base/features/login/presentation/login.queries.ts';
   import { providerStartUrl } from '@base/features/login/presentation/mappers/provider-start.mapper.ts';
   import { signInErrorMessages } from '@base/features/login/presentation/messages/sign-in-error.messages.ts';
