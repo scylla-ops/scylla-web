@@ -71,7 +71,7 @@
                 {#if page.icon}
                   <page.icon class="size-4 shrink-0" />
                 {/if}
-                <span class="min-w-0 flex-1 truncate">{page.title}</span>
+                <span class="min-w-0 flex-1 truncate" title={page.title}>{page.title}</span>
                 {#each badges as Badge, index (index)}
                   <Badge url={page.url} />
                 {/each}

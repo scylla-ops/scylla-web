@@ -178,18 +178,23 @@ module gives an access policy.
   and Escape close it, except while one of its menus is open.
 - **The user sets the width of the second sidebar, not of the rail.** The handle
   (`SecondSidebarHandle`) is on the right edge of the second sidebar, below the band, and the page
-  follows the width. A drag moves it. The handle has the `separator` role: the arrow keys move it by
-  16 px, Home and End go to the limits. It is not on a page with no second sidebar, not while the
-  access policy is not ready, and not in the sheet of a phone.
+  follows the width. A drag moves it, and a double click gives the default width. The handle has the
+  `separator` role: the arrow keys move it by 16 px, Home and End go to the limits, and Enter gives
+  the default width. It is not on a page with no second sidebar, not while the access policy is not
+  ready, and not in the sheet of a phone.
 - **The width is in pixels, thus `ResizablePaneGroup` does not fit.** Its sizes are percent of the
   group, thus a minimum in percent gives a different width for each window, and the group must
   also hold the page.
-- **The width stays between 200 px and 400 px.** At 200 px the longest link ("Exécutions en échec")
+- **The width stays between 140 px and 400 px, and the default is 200 px.** At 140 px the logo (109 px
+  wide), the section titles and the headings fit on one line, and no English link is cut. Below this,
+  the English links and then the titles are cut. A longer link, for example in French, is cut with an
+  ellipsis, and its `title` gives the full text. At 200 px the longest link ("Exécutions en échec")
   has 14 px of free room, and the open rail covers the second sidebar to the same edge as the band.
-  A wider second sidebar stays visible to the right of the open rail. The page keeps 704 px: a table
-  of 640 px (`CARD_LAYOUT_WIDTH_PX`) and the padding of the page, thus a resize never turns a table
-  into cards. A narrow window lowers the maximum, but never below 200 px. It does not change the
-  stored width: a wider window gives this width back.
+  A wider second sidebar stays visible to the right of the open rail. A narrower one puts the open
+  rail over the page too. A resize above the default keeps 704 px for the page: a table of 640 px
+  (`CARD_LAYOUT_WIDTH_PX`) and the padding of the page, thus it never turns a table into cards. A
+  narrow window lowers the maximum, but never below the default. It does not change the stored
+  width: a wider window gives this width back.
 - **The width is for this browser only.** `localStorage` keeps it, under
   `scylla.shell.second-sidebar-width`. A drag writes it at its end, not at each move. A key writes
   it at each press. A blocked storage only forgets it.

@@ -1,6 +1,7 @@
 export const RAIL_SLOT_PX = 56;
 
-const MIN_WIDTH_PX = 200;
+const MIN_WIDTH_PX = 140;
+const DEFAULT_WIDTH_PX = 200;
 const MAX_WIDTH_PX = 400;
 /** A table of 640 px and the padding of the page: a resize never turns a table into cards. */
 const PAGE_MIN_WIDTH_PX = 704;
@@ -15,10 +16,11 @@ export const createSecondSidebarWidth = (
 ) => {
   const read = (): number => {
     try {
-      const stored = Number(storage()?.getItem(STORAGE_KEY) ?? MIN_WIDTH_PX);
-      return Number.isFinite(stored) ? stored : MIN_WIDTH_PX;
+      const stored = storage()?.getItem(STORAGE_KEY);
+      const width = stored ? Number(stored) : DEFAULT_WIDTH_PX;
+      return Number.isFinite(width) ? width : DEFAULT_WIDTH_PX;
     } catch {
-      return MIN_WIDTH_PX;
+      return DEFAULT_WIDTH_PX;
     }
   };
 
@@ -26,13 +28,14 @@ export const createSecondSidebarWidth = (
 
   const max = $derived(
     Math.max(
-      MIN_WIDTH_PX,
+      DEFAULT_WIDTH_PX,
       Math.min(MAX_WIDTH_PX, viewportWidth() - RAIL_SLOT_PX - PAGE_MIN_WIDTH_PX),
     ),
   );
 
   return {
     min: MIN_WIDTH_PX,
+    default: DEFAULT_WIDTH_PX,
     get max() {
       return max;
     },
