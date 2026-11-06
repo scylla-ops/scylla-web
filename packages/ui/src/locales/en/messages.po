@@ -13,13 +13,17 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:13
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:12
 msgid "{selectedCount, plural, one {# item deleted} other {# items deleted}}"
 msgstr "{selectedCount, plural, one {# item deleted} other {# items deleted}}"
 
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:15
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:14
 msgid "{selectedCount, plural, one {# selected} other {# selected}}"
 msgstr "{selectedCount, plural, one {# selected} other {# selected}}"
+
+#: packages/ui/src/data-display/Pagination/pagination.messages.ts:5
+msgid "{start}–{end} of {totalCount}"
+msgstr "{start}–{end} of {totalCount}"
 
 #: packages/ui/src/feedback/ErrorState/error-state.messages.ts:5
 msgid "An error occurred"
@@ -34,7 +38,7 @@ msgstr "Are you absolutely sure?"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:7
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:6
 msgid "Clear"
 msgstr "Clear"
 
@@ -75,7 +79,7 @@ msgstr "Create"
 msgid "Creating..."
 msgstr "Creating..."
 
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:8
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:7
 msgid "Delete"
 msgstr "Delete"
 
@@ -91,11 +95,11 @@ msgstr "Done"
 msgid "Error"
 msgstr "Error"
 
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:15
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:13
 msgid "Go to next page"
 msgstr "Go to next page"
 
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:14
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:12
 msgid "Go to previous page"
 msgstr "Go to previous page"
 
@@ -103,11 +107,7 @@ msgstr "Go to previous page"
 msgid "Loading…"
 msgstr "Loading…"
 
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:16
-msgid "More pages"
-msgstr "More pages"
-
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:10
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:9
 msgid "New {label}"
 msgstr "New {label}"
 
@@ -115,21 +115,17 @@ msgstr "New {label}"
 msgid "No match"
 msgstr "No match"
 
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:13
-msgid "Next"
-msgstr "Next"
-
 #: packages/ui/src/data-display/DataTable/data-table.messages.ts:4
 msgid "No results."
 msgstr "No results."
 
+#: packages/ui/src/data-display/Pagination/pagination.messages.ts:6
+msgid "Page {page} of {totalPages}"
+msgstr "Page {page} of {totalPages}"
+
 #: packages/ui/src/primitives/pagination/pagination.messages.ts:11
 msgid "Pagination"
 msgstr "Pagination"
-
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:12
-msgid "Previous"
-msgstr "Previous"
 
 #: packages/ui/src/primitives/resizable/resizable.messages.ts:4
 msgid "Resize panel"
@@ -147,21 +143,17 @@ msgstr "Reveal the secret first"
 msgid "Secret copied"
 msgstr "Secret copied"
 
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:6
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:5
 msgid "Select all"
 msgstr "Select all"
-
-#: packages/ui/src/data-display/Pagination/pagination.messages.ts:6
-msgid "Showing {start}-{end} of {totalCount}"
-msgstr "Showing {start}-{end} of {totalCount}"
-
-#: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:5
-msgid "shown once"
-msgstr "shown once"
 
 #: packages/ui/src/controls/SearchSelect/search-select.messages.ts:6
 msgid "Show the options"
 msgstr "Show the options"
+
+#: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:5
+msgid "shown once"
+msgstr "shown once"
 
 #: packages/ui/src/primitives/sidebar/sidebar.messages.ts:4
 msgid "Sidebar"
@@ -176,7 +168,7 @@ msgid "This action cannot be undone."
 msgstr "This action cannot be undone."
 
 #: packages/ui/src/controls/GatedButton/gated-button.messages.ts:4
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:9
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:8
 msgid "You don't have permission to do this."
 msgstr "You don't have permission to do this."
 

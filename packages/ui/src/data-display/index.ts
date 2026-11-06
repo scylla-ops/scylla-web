@@ -12,6 +12,7 @@ export {
 export { getDataTableLayout, type DataTableLayout } from './DataTable/data-table-layout.ts';
 export { default as Pagination } from './Pagination/Pagination.svelte';
 export { default as PaginationSlot } from './Pagination/PaginationSlot.svelte';
-export { generatePageNumbers, type PageItem } from './Pagination/pagination.ts';
 export { default as StatusIndicator } from './StatusIndicator/StatusIndicator.svelte';
+export { default as StatusTrail } from './StatusTrail/StatusTrail.svelte';
+export type { StatusTrailItem } from './StatusTrail/status-trail.ts';
 export type { StatusIndicatorSize, StatusState } from './StatusIndicator/status-indicator.ts';

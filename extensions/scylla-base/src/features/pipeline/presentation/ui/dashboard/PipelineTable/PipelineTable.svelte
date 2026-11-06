@@ -65,7 +65,7 @@
       isLoading={isJobsLoading}
       isError={isJobsError}
       isForbidden={canListJobs === false}
-      maxJobs={10}
+      maxJobs={5}
       onSelectJob={jobId =>
         scyllaNavigate.goToJobDetails(pipeline.id, jobId, { pipelineName: pipeline.name })}
     />
