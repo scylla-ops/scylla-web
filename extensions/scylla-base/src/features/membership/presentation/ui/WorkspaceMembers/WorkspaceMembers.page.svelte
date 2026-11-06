@@ -139,6 +139,7 @@
 {#snippet actions()}
   <WidgetZone point={membershipPoints.workspaceActions} context={zoneContext}>
     {#if showAdd}
+      <span class="contents" data-tour="members-add">
       <GatedButton
         allowed={canManage}
         deniedReason={t(membershipMessages.workspaceNewDenied)}
@@ -150,6 +151,7 @@
       >
         {t(membershipMessages.addMembers)}
       </GatedButton>
+      </span>
     {/if}
   </WidgetZone>
 {/snippet}
@@ -159,7 +161,7 @@
     <p class="text-sm text-muted-foreground">{t(membershipMessages.selectAnWorkspace)}</p>
   </div>
 {:else}
-  <div class="flex w-full flex-col gap-4">
+  <div class="flex w-full flex-col gap-4" data-tour="members">
     <header class="flex items-start justify-between gap-6">
       <div class="flex flex-col gap-2">
         <h1>{t(membershipMessages.members)}</h1>

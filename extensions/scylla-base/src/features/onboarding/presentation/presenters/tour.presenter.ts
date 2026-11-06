@@ -1,14 +1,27 @@
 import type { OnboardingStatus } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
 
-export const isTourVisible = (status: OnboardingStatus, canStart: boolean): boolean =>
-  status.kind === 'in-progress' || (status.kind === 'not-started' && canStart);
+export type TourView = 'none' | 'intro' | 'spot' | 'finish';
+
+/** What the overlay shows: the welcome dialog, a step of a tour, the end of a tour, or nothing. */
+export const tourView = (status: OnboardingStatus, hasStep: boolean, canStart: boolean): TourView => {
+  switch (status.kind) {
+    case 'not-started':
+      return canStart ? 'intro' : 'none';
+    case 'in-progress':
+      return hasStep ? 'spot' : 'none';
+    case 'finished':
+      return 'finish';
+    default:
+      return 'none';
+  }
+};
 
 export const stepCount = (
-  spotStepIds: readonly string[],
+  stepIds: readonly string[],
   stepId: string,
 ): { step: number; total: number } | null => {
-  const index = spotStepIds.indexOf(stepId);
-  return index === -1 ? null : { step: index + 1, total: spotStepIds.length };
+  const index = stepIds.indexOf(stepId);
+  return index === -1 ? null : { step: index + 1, total: stepIds.length };
 };
 
 /** No agent to wait for is not "offline": the step goes on as without the check. */

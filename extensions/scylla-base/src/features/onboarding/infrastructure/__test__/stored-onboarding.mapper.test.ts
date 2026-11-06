@@ -16,8 +16,11 @@ describe('storedOnboarding', () => {
         step: 'wait-job',
         subject: { projectId: 'pr-1', pipelineId: 'p-1', pipelineName: 'ci' },
       },
+      { kind: 'in-progress', tour: 'agent', step: 'new-agent', done: ['run'] },
+      { kind: 'finished', tour: 'agent', done: ['agent'], subject: { agentId: 'a-1' } },
       { kind: 'completed' },
-      { kind: 'skipped' },
+      { kind: 'completed', done: ['agent', 'run'] },
+      { kind: 'skipped', subject: { projectId: 'pr-1' } },
     ] as const;
 
     for (const status of statuses) {
@@ -42,6 +45,19 @@ describe('storedOnboarding', () => {
       kind: 'in-progress',
       step: 'run-pipeline',
       subject: {},
+    });
+  });
+
+  it('keeps only the names of the finished tours', () => {
+    const raw = JSON.stringify({ kind: 'skipped', done: ['agent', 3, null, 'run'] });
+
+    expect(storedOnboarding.toStatus(raw)).toEqual({ kind: 'skipped', done: ['agent', 'run'] });
+  });
+
+  it('closes a finished tour that lost its name', () => {
+    expect(storedOnboarding.toStatus('{"kind":"finished","done":["agent"]}')).toEqual({
+      kind: 'completed',
+      done: ['agent'],
     });
   });
 });

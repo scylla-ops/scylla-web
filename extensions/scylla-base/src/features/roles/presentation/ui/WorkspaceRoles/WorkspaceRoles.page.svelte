@@ -28,10 +28,14 @@
           {t(workspaceRolesHint(workspaceName, workspaceName))}
         </p>
       </div>
-      <Button onclick={() => navigateTo(`${routePathname()}/new`)}>
-        {t(rolesMessages.newRole)}
-      </Button>
+      <span class="contents" data-tour="role-new">
+        <Button onclick={() => navigateTo(`${routePathname()}/new`)}>
+          {t(rolesMessages.newRole)}
+        </Button>
+      </span>
     </header>
-    <WorkspaceRolesList {workspaceId} {workspaceName} />
+    <div class="contents" data-tour="roles-list">
+      <WorkspaceRolesList {workspaceId} {workspaceName} />
+    </div>
   </div>
 {/if}

@@ -8,6 +8,7 @@ import { layoutMessages } from './presentation/layout/messages/layout.messages.t
 import NavUser from './presentation/layout/ui/NavUser/NavUser.svelte';
 import NewBadge from './presentation/layout/ui/NewBadge.svelte';
 import GlobalSearch from './presentation/layout/ui/GlobalSearch/GlobalSearch.svelte';
+import HelpMenu from './presentation/layout/ui/HelpMenu/HelpMenu.svelte';
 import NotificationsMenu from './presentation/layout/ui/NotificationsMenu/NotificationsMenu.svelte';
 import ShellBrand from './presentation/layout/ui/ShellBrand/ShellBrand.svelte';
 import { markNavSeen } from './presentation/layout/whats-new.state.svelte.ts';
@@ -85,7 +86,7 @@ export const ShellModule = {
   },
   shell: {
     brand: ShellBrand,
-    topBarEnd: [GlobalSearch, NotificationsMenu, WorkspaceSelector],
+    topBarEnd: [GlobalSearch, HelpMenu, NotificationsMenu, WorkspaceSelector],
     sidebarFooter: [NavUser],
     overlays: [LaunchOverlays],
     navBadge: NewBadge,

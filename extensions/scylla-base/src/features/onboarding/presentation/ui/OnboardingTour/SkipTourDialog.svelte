@@ -31,7 +31,7 @@
     rel="noreferrer"
     class="text-[13px] font-semibold text-primary hover:underline"
   >
-    {t(onboardingMessages.seeDocumentation)}
+    {t(onboardingMessages.readTheDocs)}
   </a>
   <DialogFooter class="items-center gap-2">
     <Button variant="outline" size="sm" onclick={onSkip}>{t(onboardingMessages.confirmSkip)}</Button>

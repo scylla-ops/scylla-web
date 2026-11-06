@@ -18,10 +18,16 @@ export interface TourLayout {
   allowed: TourRect | null;
 }
 
+export interface TourActionState {
+  label: string;
+  disabled: boolean;
+}
+
 export interface TourTracking {
   step: TourSpotStep;
   subject: OnboardingSubject;
   onLayout: (layout: TourLayout) => void;
+  onAction: (action: TourActionState | null) => void;
   onAdvance: () => void;
   onUnlock: () => void;
   onLost: () => void;
@@ -54,6 +60,27 @@ const rectKey = (rect: TourRect | null) =>
     ? `${Math.round(rect.x)},${Math.round(rect.y)},${Math.round(rect.width)},${Math.round(rect.height)}`
     : '-';
 
+/** What the card shows of the button it repeats: its text and whether it takes a click. */
+export const pressable = (element: Element | null): HTMLElement | null => {
+  if (!(element instanceof HTMLElement)) return null;
+  if (element.matches('button, a[href]')) return element;
+  return element.querySelector<HTMLElement>('button, a[href]') ?? element;
+};
+
+export const readAction = (target: Element | null): TourActionState | null => {
+  const element = pressable(target);
+  if (!element) return null;
+  const label = (element.getAttribute('aria-label') ?? element.textContent ?? '').trim();
+  const disabled =
+    (element instanceof HTMLButtonElement && element.disabled) ||
+    element.getAttribute('aria-disabled') === 'true' ||
+    element.hasAttribute('data-disabled');
+  return { label, disabled };
+};
+
+const actionKey = (action: TourActionState | null) =>
+  action ? `${action.disabled ? 0 : 1}:${action.label}` : '-';
+
 const isOnScreen = (rect: TourRect) =>
   rect.y >= 0 &&
   rect.x >= 0 &&
@@ -78,6 +105,7 @@ export const trackTourStep =
     let advanced = false;
     let unlocked = false;
     let hintShown = false;
+    let lastAction: string | null = null;
     let shown: readonly (TourRect | null)[] = [];
     let moveFrom: readonly (TourRect | null)[] = [];
     let moveStart: number | null = null;
@@ -93,6 +121,7 @@ export const trackTourStep =
       advanced = false;
       unlocked = false;
       hintShown = false;
+      lastAction = null;
       moveFrom = shown;
       moveStart = null;
     };
@@ -142,6 +171,15 @@ export const trackTourStep =
         lastLayout = layout;
         shown = targets;
         tracking.onLayout({ targets, allowed });
+      }
+
+      if (step.action) {
+        const action = readAction(resolve(step.action.anchor));
+        const key = actionKey(action);
+        if (key !== lastAction) {
+          lastAction = key;
+          tracking.onAction(action);
+        }
       }
 
       const [first] = elements;

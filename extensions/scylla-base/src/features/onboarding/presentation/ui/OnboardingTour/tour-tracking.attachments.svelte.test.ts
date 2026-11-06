@@ -18,7 +18,6 @@ const byId =
     root.querySelector(`#${id}`);
 
 const step = (overrides: Partial<TourSpotStep>): TourSpotStep => ({
-  kind: 'spot',
   id: 'step',
   title: { id: 'title' },
   body: [],
@@ -52,6 +51,7 @@ const track = (overrides: Partial<TourSpotStep>) => {
     step: step(overrides),
     subject: {},
     onLayout: vi.fn(),
+    onAction: vi.fn(),
     onAdvance: vi.fn(),
     onUnlock: vi.fn(),
     onLost: vi.fn(),

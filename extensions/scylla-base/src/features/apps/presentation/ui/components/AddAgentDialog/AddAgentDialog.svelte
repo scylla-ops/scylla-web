@@ -191,7 +191,7 @@
           <Button variant="outline" onclick={close}>{t(messages.close)}</Button>
         {:else}
           <Button variant="outline" onclick={close}>{t(messages.close)}</Button>
-          <Button onclick={openAgent}>{t(messages.openAgent)}</Button>
+          <Button onclick={openAgent} data-tour="agent-open">{t(messages.openAgent)}</Button>
         {/if}
       </div>
     </DialogFooter>

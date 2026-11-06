@@ -1,27 +1,31 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { isAgentOffline, isTourVisible, stepCount } from '../tour.presenter.ts';
+import { isAgentOffline, stepCount, tourView } from '../tour.presenter.ts';
 
-describe('isTourVisible', () => {
-  it('starts on its own only for a user who may do what it asks', () => {
-    expect(isTourVisible({ kind: 'not-started' }, true)).toBe(true);
-    expect(isTourVisible({ kind: 'not-started' }, false)).toBe(false);
+describe('tourView', () => {
+  it('welcomes on its own only a user who may do what the tours ask', () => {
+    expect(tourView({ kind: 'not-started' }, false, true)).toBe('intro');
+    expect(tourView({ kind: 'not-started' }, false, false)).toBe('none');
   });
 
   it('keeps a tour in progress on screen even while the permissions reload', () => {
-    expect(isTourVisible({ kind: 'in-progress', step: 'dashboard' }, false)).toBe(true);
+    expect(tourView({ kind: 'in-progress', step: 'new-agent' }, true, false)).toBe('spot');
+    expect(tourView({ kind: 'in-progress', step: 'new-agent' }, false, true)).toBe('none');
   });
 
-  it('never shows again once completed or skipped', () => {
-    expect(isTourVisible({ kind: 'completed' }, true)).toBe(false);
-    expect(isTourVisible({ kind: 'skipped' }, true)).toBe(false);
+  it('shows the end of a finished tour, then nothing once closed', () => {
+    expect(tourView({ kind: 'finished', tour: 'agent', done: ['agent'] }, false, true)).toBe(
+      'finish',
+    );
+    expect(tourView({ kind: 'completed' }, false, true)).toBe('none');
+    expect(tourView({ kind: 'skipped' }, false, true)).toBe('none');
   });
 });
 
 describe('stepCount', () => {
-  it('counts only the steps that point at the page', () => {
-    expect(stepCount(['dashboard', 'new-agent'], 'new-agent')).toEqual({ step: 2, total: 2 });
-    expect(stepCount(['dashboard', 'new-agent'], 'welcome')).toBeNull();
+  it('counts the steps of the tour', () => {
+    expect(stepCount(['open-agents', 'new-agent'], 'new-agent')).toEqual({ step: 2, total: 2 });
+    expect(stepCount(['open-agents', 'new-agent'], 'welcome')).toBeNull();
   });
 });
 

@@ -17,6 +17,19 @@ const toSubject = (value: unknown): OnboardingSubject | undefined => {
   return subject;
 };
 
+const toDone = (value: unknown): readonly string[] =>
+  Array.isArray(value) ? value.filter(tour => typeof tour === 'string') : [];
+
+const withOptional = <T extends object>(
+  value: T,
+  subject: OnboardingSubject | undefined,
+  done: readonly string[],
+) => ({
+  ...value,
+  ...(subject ? { subject } : {}),
+  ...(done.length > 0 ? { done } : {}),
+});
+
 export function toStatus(raw: string | null): OnboardingStatus {
   if (raw === null) return NOT_STARTED;
 
@@ -28,16 +41,19 @@ export function toStatus(raw: string | null): OnboardingStatus {
   }
   if (!isRecord(parsed)) return NOT_STARTED;
 
+  const subject = toSubject(parsed.subject);
+  const done = toDone(parsed.done);
   switch (parsed.kind) {
     case 'completed':
     case 'skipped':
-      return { kind: parsed.kind };
+      return withOptional({ kind: parsed.kind }, subject, done);
+    case 'finished':
+      if (typeof parsed.tour !== 'string') return withOptional({ kind: 'completed' }, subject, done);
+      return { ...withOptional({ kind: 'finished', tour: parsed.tour }, subject, []), done };
     case 'in-progress': {
       if (typeof parsed.step !== 'string') return NOT_STARTED;
-      const subject = toSubject(parsed.subject);
-      return subject
-        ? { kind: 'in-progress', step: parsed.step, subject }
-        : { kind: 'in-progress', step: parsed.step };
+      const tour = typeof parsed.tour === 'string' ? { tour: parsed.tour } : {};
+      return withOptional({ kind: 'in-progress', ...tour, step: parsed.step }, subject, done);
     }
     default:
       return NOT_STARTED;

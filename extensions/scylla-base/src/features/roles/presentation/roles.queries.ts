@@ -10,6 +10,8 @@ const repository = () => getModuleDomain<typeof RolesModule.domain>('roles').rol
 
 const ROLES_ROOT = 'roles';
 
+export const CREATE_ROLE_MUTATION_KEY = ['role', 'create'] as const;
+
 export const roleQueries = {
   catalog: () =>
     queryOptions({
@@ -50,6 +52,7 @@ const invalidateRoles = () => getQueryClient().invalidateQueries({ queryKey: [RO
 export const roleMutations = {
   create: () =>
     mutationOptions({
+      mutationKey: CREATE_ROLE_MUTATION_KEY,
       meta: { showsOwnError: true },
       mutationFn: (input: CreateRoleInput) => repository().create(input),
       onSuccess: () => {

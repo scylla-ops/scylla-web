@@ -1,9 +1,17 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { TOUR_STEPS, type TourAnchor, type TourSpotStep } from './tour-steps.registry.ts';
+import {
+  MAIN_TOUR_IDS,
+  TOURS,
+  tourOfStep,
+  type TourAnchor,
+  type TourSpotStep,
+} from './tour-steps.registry.ts';
+
+const ALL_STEPS = TOURS.flatMap(tour => tour.steps);
 
 const spot = (id: string) => {
-  const step = TOUR_STEPS.find(candidate => candidate.id === id);
-  if (step?.kind !== 'spot') throw new Error(`no spot step ${id}`);
+  const step = ALL_STEPS.find(candidate => candidate.id === id);
+  if (!step) throw new Error(`no step ${id}`);
   return step;
 };
 
@@ -32,35 +40,67 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-describe('TOUR_STEPS', () => {
-  it('opens with the welcome and ends with the final screen', () => {
-    expect(TOUR_STEPS[0].kind).toBe('welcome');
-    expect(TOUR_STEPS.at(-1)?.kind).toBe('finish');
-    expect(TOUR_STEPS.filter(step => step.kind === 'spot')).toHaveLength(19);
+describe('TOURS', () => {
+  it('splits the onboarding into short tours of six steps at most', () => {
+    expect(TOURS.map(tour => [tour.id, tour.steps.length])).toEqual([
+      ['agent', 5],
+      ['pipeline', 6],
+      ['run', 4],
+      ['triggers', 5],
+      ['secrets', 4],
+      ['roles', 5],
+      ['users', 4],
+    ]);
+    expect(MAIN_TOUR_IDS).toEqual(['agent', 'pipeline', 'run']);
   });
 
-  it('gives each step a unique id and falls back only to a known step', () => {
-    const ids = TOUR_STEPS.map(step => step.id);
+  it('gives each step a unique id and falls back only to a step of its own tour', () => {
+    const ids = ALL_STEPS.map(step => step.id);
     expect(new Set(ids).size).toBe(ids.length);
-    for (const step of TOUR_STEPS) {
-      if (step.kind === 'spot' && step.fallback) expect(ids).toContain(step.fallback);
+    for (const tour of TOURS) {
+      const own = tour.steps.map(step => step.id);
+      for (const step of tour.steps) {
+        if (step.fallback) expect(own).toContain(step.fallback);
+      }
     }
   });
 
-  it('shows a Next button only on the steps that the user does not finish with a click', () => {
-    const withNext = TOUR_STEPS.filter(
-      step => step.kind === 'spot' && (step.advance.on === 'next' || step.nextWhen),
-    ).map(step => step.id);
+  it('finds the tour that holds a step', () => {
+    expect(tourOfStep('wait-job')?.id).toBe('run');
+    expect(tourOfStep('unknown')).toBeUndefined();
+  });
 
-    expect(withNext).toEqual([
-      'dashboard',
-      'navbar',
-      'agent-page',
-      'connect-agent',
-      'pipeline-editor',
-      'wait-job',
-      'job-details',
+  it('repeats a button of the page on the card only where the user clicks a button', () => {
+    const withAction = ALL_STEPS.filter(step => step.action).map(step => step.id);
+
+    expect(withAction).toEqual([
+      'new-agent',
+      'create-agent',
+      'run-command',
+      'new-project',
+      'create-project',
+      'new-pipeline',
+      'create-pipeline',
+      'run-pipeline',
+      'new-trigger',
+      'trigger-when',
+      'new-secret',
+      'secret-value',
+      'new-role',
+      'role-permissions',
+      'add-members',
+      'people-role',
     ]);
+  });
+
+  it('labels the button of the agent step “Agent”, and enables it once the agent is online', () => {
+    const { action } = spot('run-command');
+
+    expect(action?.label?.message).toBe('Agent');
+    document.body.innerHTML = '<div data-tour="add-agent-dialog"></div>';
+    expect(action?.anchor(document, {})).toBeNull();
+    document.body.innerHTML = '<button data-tour="agent-open" id="open"></button>';
+    expect(action?.anchor(document, {})?.id).toBe('open');
   });
 });
 
@@ -73,10 +113,8 @@ describe('the anchors of the pipeline steps', () => {
 
     const [runButton] = spot('run-pipeline').targets;
 
-    expect(runButton(document, { pipelineName: 'my-pipeline' })?.querySelector('button')?.id).toBe(
-      'run-new',
-    );
-    expect(runButton(document, {})?.querySelector('button')?.id).toBe('run-old');
+    expect(runButton(document, { pipelineName: 'my-pipeline' })?.id).toBe('run-new');
+    expect(runButton(document, {})?.id).toBe('run-old');
   });
 
   it('spotlight the whole row of the run pipeline', () => {
@@ -109,20 +147,6 @@ describe('the anchors of the pipeline steps', () => {
     const [lastRun] = spot('open-job').targets;
 
     expect(lastRun(document, { pipelineId: 'p' })?.getAttribute('data-item-id')).toBe('job-2');
-  });
-});
-
-describe('the step that waits for the agent', () => {
-  it('enables Next once the agent is online, and never moves on by itself', () => {
-    const step = spot('connect-agent');
-    const online = conditionOf(step);
-
-    expect(step.advance.on).toBe('next');
-    document.body.innerHTML = '<div data-tour="agent-status" data-online="false"></div>';
-    expect(online(document, {})).toBeNull();
-
-    document.body.innerHTML = '<div data-tour="agent-status" data-online="true"></div>';
-    expect(online(document, {})).not.toBeNull();
   });
 });
 
@@ -161,18 +185,19 @@ describe('the anchors of the project steps', () => {
 
 describe('the way back from another page', () => {
   it('knows the page of every step that the user reaches from somewhere else', () => {
-    const withoutPage = TOUR_STEPS.filter(step => step.kind === 'spot' && !step.page).map(
-      step => step.id,
-    );
+    const withoutPage = TOURS.map(tour => tour.steps.slice(1).filter(step => !step.page))
+      .flat()
+      .map(step => step.id);
 
-    expect(withoutPage).toEqual(['open-agents', 'open-projects']);
+    expect(withoutPage).toEqual(['new-trigger', 'trigger-kind', 'trigger-when', 'trigger-done']);
   });
 
   it('leads back to the agent and the project the tour created', () => {
     const subject = { agentId: 'a-1', projectId: 'p-1' };
 
-    expect(spot('connect-agent').page?.(subject)).toBe('/agents/a-1');
-    expect(spot('pipeline-editor').page?.(subject)).toBe('/projects/p-1/create');
+    expect(spot('agent-page').page?.(subject)).toBe('/agents/a-1');
+    expect(spot('create-pipeline').page?.(subject)).toBe('/projects/p-1/create');
+    expect(spot('new-secret').page?.(subject)).toBe('/projects/p-1/secrets');
     expect(spot('wait-job').page?.(subject)).toBe('/projects/p-1');
     expect(spot('wait-job').page?.({})).toBe('/projects');
   });
@@ -185,7 +210,7 @@ describe('the way back from another page', () => {
 describe('the steps that depend on the agent', () => {
   it('are the run and the wait for the job', () => {
     expect(
-      TOUR_STEPS.filter(step => step.kind === 'spot' && step.needsAgent).map(step => step.id),
+      ALL_STEPS.filter(step => step.needsAgent).map(step => step.id),
     ).toEqual(['run-pipeline', 'wait-job']);
   });
 });
@@ -209,11 +234,7 @@ describe('the hint of the wait step', () => {
 
 describe('the documentation links', () => {
   it('all lead to the Scylla documentation', () => {
-    const links = TOUR_STEPS.flatMap(step =>
-      step.kind === 'spot'
-        ? [step.link, step.note?.link, step.hint?.link].filter(link => !!link)
-        : [],
-    );
+    const links = ALL_STEPS.flatMap(step => [step.link, step.hint?.link].filter(link => !!link));
 
     expect(links.length).toBeGreaterThan(0);
     expect(links.every(link => link?.href === 'https://prelude.scylla-ops.com')).toBe(true);
@@ -241,16 +262,24 @@ describe('the anchors of the dialog steps', () => {
     expect(shown(document, {})).not.toBeNull();
   });
 
-  it('point at the run command and move on with an action of the dialog footer', () => {
+  it('point at the whole dialog of the new agent, which stays when the agent comes online', () => {
     document.body.innerHTML = `
-      <div data-tour="app-join-code" id="run"></div>
-      <div data-tour="app-dialog-actions" id="actions"><button>Done</button></div>`;
+      <div data-tour="add-agent-dialog" id="dialog">
+        <div data-tour="app-dialog-actions"><button data-tour="agent-open" id="open"></button></div>
+      </div>`;
 
-    const [run, actions] = spot('run-command').targets;
+    const [dialog] = spot('run-command').targets;
 
-    expect(run(document, {})?.id).toBe('run');
-    expect(actions(document, {})?.id).toBe('actions');
-    expect(conditionOf(spot('run-command'))(document, {})?.id).toBe('actions');
+    expect(dialog(document, {})?.id).toBe('dialog');
+    expect(conditionOf(spot('run-command'))(document, {})?.id).toBe('open');
+  });
+
+  it('repeat the submit button of the form dialog', () => {
+    document.body.innerHTML = `
+      <div data-slot="dialog-content"><p>hello</p></div>
+      <div data-slot="dialog-content"><form></form><button type="submit" id="add"></button></div>`;
+
+    expect(spot('create-agent').action?.anchor(document, {})?.id).toBe('add');
   });
 
   it('points at the folded Machines group until its Agents link shows', () => {
