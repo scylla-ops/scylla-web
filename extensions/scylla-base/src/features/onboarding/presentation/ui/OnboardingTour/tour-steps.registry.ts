@@ -57,6 +57,8 @@ export interface TourSpotStep {
   needsAgent?: boolean;
   hint?: { body: readonly MessageDescriptor[]; link?: TourLink; when: TourAnchor; afterMs: number };
   wide?: boolean;
+  /** The user types in the targets before Next: they stay usable, only the rest is dimmed. */
+  form?: boolean;
 }
 
 export type TourIcon = 'agent' | 'pipeline' | 'run' | 'trigger' | 'secret' | 'role' | 'users';
@@ -456,6 +458,7 @@ const triggersTour: TourDefinition = {
       link: docs(m.triggersDocs),
       targets: [select('[data-tour="trigger-general"]')],
       advance: { on: 'next' },
+      form: true,
       fallback: 'new-trigger',
     },
     {
@@ -571,6 +574,7 @@ const rolesTour: TourDefinition = {
       link: docs(m.rolesDocs),
       targets: [select('[data-tour="role-details"]')],
       advance: { on: 'next' },
+      form: true,
       fallback: 'new-role',
     },
     {

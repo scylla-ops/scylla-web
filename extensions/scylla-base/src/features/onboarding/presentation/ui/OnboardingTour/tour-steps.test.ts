@@ -247,6 +247,15 @@ describe('the documentation links', () => {
   });
 });
 
+describe('the steps with a form', () => {
+  it('are the ones where the user types before Next', () => {
+    expect(ALL_STEPS.filter(step => step.form).map(step => step.id)).toEqual([
+      'trigger-kind',
+      'role-details',
+    ]);
+  });
+});
+
 describe('the step that picks a project', () => {
   it('moves on with the project whose page is open', () => {
     const { advance } = spot('secrets-project');

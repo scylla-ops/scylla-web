@@ -139,7 +139,8 @@ The mutation keys come from the barrels: `CREATE_APP_MUTATION_KEY` (`apps`),
 
 ## Behaviour on the page
 
-- **Blocking.** On a step with a Next button, the page takes no input: `blockPage` makes every
+- **Blocking.** On a step with a Next button, the page takes no input (except a `form` step,
+  whose targets stay usable because the user types in them): `blockPage` makes every
   other child of `<body>` inert (no click, focus or key) and a transparent layer above the
   dialogs stops the pointer. Only the card works, and the element that `nextWhen` waits a click
   on (the copy button). A step that the user finishes with a click keeps its targets usable

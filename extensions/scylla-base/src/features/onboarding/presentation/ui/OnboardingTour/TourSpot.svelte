@@ -52,7 +52,7 @@
   const connectors = $derived(card?.connector ? [card.connector] : []);
   const lost = $derived(!card && lostStepId === step.id);
   const showNext = $derived(step.advance.on === 'next' || !!step.nextWhen);
-  const blocking = $derived(!!card && showNext);
+  const blocking = $derived(!!card && showNext && !step.form);
 
   const action = $derived(actionState?.stepId === step.id ? actionState.action : null);
   const ready = $derived(!!step.action && !!action && !action.disabled);
