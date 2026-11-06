@@ -50,23 +50,28 @@
     role="dialog"
     aria-label={t(tour.title)}
     data-tour-offer={tour.id}
-    class="fixed right-4 bottom-4 z-[60] flex w-[340px] max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-[14px] border border-border bg-background p-4 text-foreground shadow-xl"
+    class="fixed right-4 bottom-4 z-[60] flex w-[380px] max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-[14px] border border-border bg-background px-5 pt-4 pb-4 text-foreground shadow-xl"
   >
-    <div class="flex items-start gap-3">
-      <span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15">
-        <TourIcon icon={tour.icon} class="text-primary" />
+    <div class="flex flex-col gap-1">
+      <span class="text-[11px] font-semibold tracking-wide text-primary uppercase">
+        {t(m.offerEyebrow)}
       </span>
-      <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span class="text-xs font-semibold text-primary">{t(m.offerEyebrow)}</span>
+      <div class="flex items-center gap-2">
+        <TourIcon icon={tour.icon} class="shrink-0 text-primary" />
         <h2 class="text-base leading-tight">{t(tour.title)}</h2>
-        <p class="text-[13px] leading-snug text-muted-foreground">{t(tour.summary)}</p>
+        <span class="flex-1"></span>
+        <span
+          class="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-primary"
+        >
+          {t(m.tourLengthShort(steps, tour.minutes))}
+        </span>
       </div>
     </div>
-    <p class="text-xs text-muted-foreground">
-      {t(m.tourLength(steps, tour.minutes))} · {t(m.offerLater)}
-    </p>
-    <div class="flex items-center gap-2">
-      <span class="flex-1"></span>
+    <div class="flex flex-col gap-1">
+      <p class="text-[13px] leading-snug text-muted-foreground">{t(tour.summary)}</p>
+      <p class="text-xs leading-snug text-muted-foreground">{t(m.offerLater)}</p>
+    </div>
+    <div class="flex items-center gap-2 pt-1">
       <Button
         variant="outline"
         size="sm"
@@ -75,7 +80,12 @@
       >
         {t(m.notNow)}
       </Button>
-      <Button size="sm" class="h-[30px] rounded-lg px-3.5 text-[13px] font-semibold" onclick={onStart}>
+      <span class="flex-1"></span>
+      <Button
+        size="sm"
+        class="h-[30px] rounded-lg px-3.5 text-[13px] font-semibold"
+        onclick={onStart}
+      >
         {t(m.start)}
       </Button>
     </div>
