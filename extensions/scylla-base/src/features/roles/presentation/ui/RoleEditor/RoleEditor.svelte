@@ -230,15 +230,17 @@
       <Button variant="outline" onclick={() => navigateTo(listUrl)}>
         {t(rolesMessages.cancel)}
       </Button>
-      <Button disabled={!canSave} onclick={save}>
-        {editing ? t(rolesMessages.saveRole) : t(rolesMessages.createRole)}
-      </Button>
+      <span class="contents" data-tour="role-submit">
+        <Button disabled={!canSave} onclick={save}>
+          {editing ? t(rolesMessages.saveRole) : t(rolesMessages.createRole)}
+        </Button>
+      </span>
     </div>
   </header>
 
   <div class="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
     <div class="flex flex-col gap-6">
-      <section class="flex flex-col gap-5 rounded-2xl border bg-card p-5">
+      <section class="flex flex-col gap-5 rounded-2xl border bg-card p-5" data-tour="role-details">
         <h2 class="text-xl">{t(rolesMessages.details)}</h2>
 
         <div class="flex flex-col gap-2">
@@ -347,7 +349,7 @@
       </aside>
     </div>
 
-    <section class="overflow-hidden rounded-2xl border bg-card">
+    <section class="overflow-hidden rounded-2xl border bg-card" data-tour="role-permissions">
       {#if saveError}
         <div class="m-5 flex flex-col gap-2 rounded-xl border border-destructive p-4" role="alert">
           <p class="font-medium">{t(rolesMessages.notSaved)}</p>

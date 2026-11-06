@@ -2,6 +2,7 @@ export type { RoleEntity, RoleLevel } from './domain/entities/role.entity.ts';
 export {
   roleMutations,
   roleQueries,
+  CREATE_ROLE_MUTATION_KEY,
   type InstanceRolesChange,
 } from './presentation/roles.queries.ts';
 export { roleDescription, roleName } from './presentation/role-labels.ts';

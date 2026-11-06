@@ -17,6 +17,21 @@ const toSubject = (value: unknown): OnboardingSubject | undefined => {
   return subject;
 };
 
+const toTours = (value: unknown): readonly string[] =>
+  Array.isArray(value) ? value.filter(tour => typeof tour === 'string') : [];
+
+const withOptional = <T extends object>(
+  value: T,
+  subject: OnboardingSubject | undefined,
+  done: readonly string[],
+  declined: readonly string[],
+) => ({
+  ...value,
+  ...(subject ? { subject } : {}),
+  ...(done.length > 0 ? { done } : {}),
+  ...(declined.length > 0 ? { declined } : {}),
+});
+
 export function toStatus(raw: string | null): OnboardingStatus {
   if (raw === null) return NOT_STARTED;
 
@@ -28,16 +43,32 @@ export function toStatus(raw: string | null): OnboardingStatus {
   }
   if (!isRecord(parsed)) return NOT_STARTED;
 
+  const subject = toSubject(parsed.subject);
+  const done = toTours(parsed.done);
+  const declined = toTours(parsed.declined);
   switch (parsed.kind) {
+    case 'not-started':
+      return withOptional({ kind: 'not-started' }, undefined, done, declined);
     case 'completed':
     case 'skipped':
-      return { kind: parsed.kind };
+      return withOptional({ kind: parsed.kind }, subject, done, declined);
+    case 'finished':
+      if (typeof parsed.tour !== 'string') {
+        return withOptional({ kind: 'completed' }, subject, done, declined);
+      }
+      return {
+        ...withOptional({ kind: 'finished', tour: parsed.tour }, subject, [], declined),
+        done,
+      };
     case 'in-progress': {
       if (typeof parsed.step !== 'string') return NOT_STARTED;
-      const subject = toSubject(parsed.subject);
-      return subject
-        ? { kind: 'in-progress', step: parsed.step, subject }
-        : { kind: 'in-progress', step: parsed.step };
+      const tour = typeof parsed.tour === 'string' ? { tour: parsed.tour } : {};
+      return withOptional(
+        { kind: 'in-progress', ...tour, step: parsed.step },
+        subject,
+        done,
+        declined,
+      );
     }
     default:
       return NOT_STARTED;

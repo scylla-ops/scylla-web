@@ -34,6 +34,10 @@ const UNGATED_PAGES: Readonly<Record<string, string>> = {
   '/account/:section':
     'The same account page outside any workspace, for a user who has none yet (a user that ' +
     'an administrator made, a new sign-up). The same reason: every call is on the own id.',
+  '/:workspaceSlug/help/tours':
+    'The guided tours of the signed-in user: the page calls no backend, it reads and writes the ' +
+    'progress of the tours in the browser. It lists only the tours whose permissions the user ' +
+    'holds.',
   '/:workspaceSlug/notifications/:view':
     'The inbox of the signed-in user: each call of the page acts on the caller, which needs no ' +
     'grant, and no route takes a person.',

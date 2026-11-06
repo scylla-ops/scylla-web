@@ -40,7 +40,7 @@
 {:else if triggersQuery.isError}
   <ErrorState message={errorMessage} />
 {:else}
-  <div class="flex flex-col gap-4 w-full min-h-full">
+  <div class="flex flex-col gap-4 w-full min-h-full" data-tour="triggers">
     <TriggersHeader
       count={triggers.length}
       triggerIds={triggers.map(trigger => trigger.id)}

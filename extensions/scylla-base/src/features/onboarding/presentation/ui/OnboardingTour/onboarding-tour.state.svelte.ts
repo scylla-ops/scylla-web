@@ -1,12 +1,20 @@
+import { SvelteMap } from 'svelte/reactivity';
 import { createMutation, createQuery, getQueryClient } from '@scylla/core-sdk';
 import { appQueries, CREATE_APP_MUTATION_KEY } from '@base/features/apps';
-import { contextStore, scyllaNavigate } from '@platform/context';
+import { contextStore, currentPathname, navigateTo, scyllaNavigate } from '@platform/context';
 import { toRune } from '@scylla/ui/stores';
 import {
   advanceTour,
+  closeTours,
   currentStepId,
+  declineTour,
+  doneTours,
+  previousStepId,
   rememberSubject,
+  reopenIntro,
   rewindTour,
+  savedStepId,
+  startTour,
   type OnboardingStatus,
   type OnboardingSubject,
 } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
@@ -16,13 +24,15 @@ import {
 } from '@base/features/onboarding/presentation/onboarding.queries.ts';
 import {
   isAgentOffline,
-  isTourVisible,
   stepCount,
+  tourView,
 } from '@base/features/onboarding/presentation/presenters/tour.presenter.ts';
-import { TOUR_STEPS, type TourStep } from './tour-steps.registry.ts';
-
-const STEP_IDS = TOUR_STEPS.map(step => step.id);
-const SPOT_STEP_IDS = TOUR_STEPS.filter(step => step.kind === 'spot').map(step => step.id);
+import {
+  findTour,
+  tourOfStep,
+  type TourDefinition,
+  type TourSpotStep,
+} from './tour-steps.registry.ts';
 
 const sameMutationKey = (
   key: readonly unknown[] | undefined,
@@ -37,45 +47,95 @@ const createdAgentId = (data: unknown): string | undefined => {
     : undefined;
 };
 
-const currentUserId = () => localStorage.getItem('userId') || 'anonymous';
+const stepIdsOf = (tour: TourDefinition | undefined) => tour?.steps.map(step => step.id) ?? [];
+
+export const currentUserId = () => localStorage.getItem('userId') || 'anonymous';
+
+/** Starts a tour from anywhere in the app (the help page): the overlay reads the same status. */
+export const createTourLauncher = () => {
+  const userId = currentUserId();
+  const statusQuery = createQuery(() => onboardingQueries.status(userId));
+  const save = createMutation(() => onboardingMutations.save(userId));
+
+  return {
+    get done() {
+      return statusQuery.data ? doneTours(statusQuery.data) : [];
+    },
+    get activeTour() {
+      const status = statusQuery.data;
+      if (status?.kind !== 'in-progress') return undefined;
+      return (findTour(status.tour) ?? tourOfStep(savedStepId(status)))?.id;
+    },
+    /** From `entry`, the tour starts on the page that offered it, at its step there. */
+    start(tourId: string, entry?: { step: string; subject: OnboardingSubject }) {
+      const tour = findTour(tourId);
+      const first = entry ? tour?.steps.find(step => step.id === entry.step) : tour?.steps[0];
+      if (!tour || !first) return;
+      const status = statusQuery.data ?? { kind: 'not-started' as const };
+      save.mutate(startTour(status, tour.id, first.id, entry?.subject));
+      const subject = status.kind === 'not-started' ? {} : (status.subject ?? {});
+      if (!entry && first.page) scyllaNavigate.goToWorkspaceRoute(first.page(subject));
+    },
+    decline(tourId: string) {
+      const next = statusQuery.data ? declineTour(statusQuery.data, tourId) : null;
+      if (next) save.mutate(next);
+    },
+    reopenIntro() {
+      save.mutate(reopenIntro(statusQuery.data ?? { kind: 'not-started' }));
+    },
+  };
+};
 
 export const createOnboardingTour = (canStart: () => boolean) => {
   const userId = currentUserId();
 
   const statusQuery = createQuery(() => onboardingQueries.status(userId));
   const save = createMutation(() => onboardingMutations.save(userId));
+  const launcher = createTourLauncher();
 
   let confirmingSkip = $state(false);
   let unlockedStepId = $state<string | null>(null);
+  let rewoundStepId = $state<string | null>(null);
 
   const status = $derived(statusQuery.data);
-  const step = $derived.by((): TourStep | null => {
-    if (!status) return null;
-    const id = currentStepId(status, STEP_IDS);
-    return TOUR_STEPS.find(candidate => candidate.id === id) ?? null;
+  const tour = $derived.by((): TourDefinition | undefined => {
+    if (status?.kind === 'in-progress') {
+      return findTour(status.tour) ?? tourOfStep(savedStepId(status));
+    }
+    if (status?.kind === 'finished') return findTour(status.tour);
+    return undefined;
   });
-  const visible = $derived(!!status && !!step && isTourVisible(status, canStart()));
+  const stepIds = $derived(stepIdsOf(tour));
+  const step = $derived.by((): TourSpotStep | null => {
+    if (!status || !tour) return null;
+    const id = currentStepId(status, stepIds);
+    return tour.steps.find(candidate => candidate.id === id) ?? null;
+  });
+  const view = $derived(status ? tourView(status, !!step, canStart()) : 'none');
   const subject = $derived<OnboardingSubject>(
-    status?.kind === 'in-progress' ? (status.subject ?? {}) : {},
+    status && status.kind !== 'not-started' ? (status.subject ?? {}) : {},
   );
   const context = toRune(contextStore);
-  const needsAgent = $derived(visible && step?.kind === 'spot' && !!step.needsAgent);
+  const needsAgent = $derived(view === 'spot' && !!step?.needsAgent);
   const agentsQuery = createQuery(() => {
     const options = appQueries.runners(context().workspace.id ?? '');
     return { ...options, enabled: options.enabled !== false && needsAgent };
   });
   const agentOffline = $derived(needsAgent && isAgentOffline(agentsQuery.data, subject.agentId));
 
-  const canGoNext = $derived(
-    step?.kind === 'spot' && (!step.nextWhen || unlockedStepId === step.id),
-  );
+  const canGoNext = $derived(!!step && (!step.nextWhen || unlockedStepId === step.id));
+
+  const left = new SvelteMap<string, string>();
 
   const write = (next: OnboardingStatus | null) => {
     if (next) save.mutate(next);
   };
 
   const advanceFrom = (stepId: string, found?: OnboardingSubject) => {
-    if (status) write(advanceTour(status, STEP_IDS, stepId, found));
+    if (!status) return;
+    const next = advanceTour(status, stepIds, stepId, found);
+    if (next) left.set(stepId, currentPathname());
+    write(next);
   };
 
   const followMutations = () =>
@@ -90,7 +150,7 @@ export const createOnboardingTour = (canStart: () => boolean) => {
           return;
         }
         const current = step;
-        if (current?.kind !== 'spot' || current.advance.on !== 'mutation') return;
+        if (current?.advance.on !== 'mutation') return;
 
         if (!sameMutationKey(mutation.options.mutationKey, current.advance.key)) return;
         const found = current.advance.onSuccess?.(mutation.state.data, mutation.state.variables);
@@ -100,8 +160,11 @@ export const createOnboardingTour = (canStart: () => boolean) => {
   $effect(followMutations);
 
   return {
-    get visible() {
-      return visible;
+    get view() {
+      return view;
+    },
+    get tour() {
+      return tour;
     },
     get step() {
       return step;
@@ -109,43 +172,81 @@ export const createOnboardingTour = (canStart: () => boolean) => {
     get subject() {
       return subject;
     },
+    get done() {
+      return status ? doneTours(status) : [];
+    },
+    get status() {
+      return status;
+    },
     get confirmingSkip() {
       return confirmingSkip;
     },
     get count() {
-      return step ? stepCount(SPOT_STEP_IDS, step.id) : null;
+      return step ? stepCount(stepIds, step.id) : null;
+    },
+    get isLastStep() {
+      return !!step && stepIds[stepIds.length - 1] === step.id;
     },
     get canGoNext() {
       return canGoNext;
     },
+    get canGoPrevious() {
+      return !!step && previousStepId(stepIds, step.id) !== null;
+    },
     get agentOffline() {
       return agentOffline;
     },
+    get rewound() {
+      return !!step && rewoundStepId === step.id;
+    },
     get canGoBack() {
-      return step?.kind === 'spot' && !!step.page;
+      return !!step?.page;
     },
 
-    start() {
-      if (step?.kind !== 'welcome') return;
-      advanceFrom(step.id);
-      scyllaNavigate.goToWorkspaceRoute('/dashboard');
+    startTour(tourId: string) {
+      launcher.start(tourId);
+    },
+    startOffer(tourId: string, step: string, found: OnboardingSubject) {
+      launcher.start(tourId, { step, subject: found });
+    },
+    declineOffer(tourId: string) {
+      launcher.decline(tourId);
     },
     next() {
-      if (step?.kind === 'spot' && canGoNext) advanceFrom(step.id);
+      if (step && canGoNext) advanceFrom(step.id);
     },
-    advance(stepId: string) {
-      advanceFrom(stepId);
+    previous() {
+      if (!status || !step || !tour) return;
+      const to = previousStepId(stepIds, step.id);
+      const target = tour.steps.find(candidate => candidate.id === to);
+      if (!to || !target) return;
+      write(rewindTour(status, stepIds, step.id, to));
+      rewoundStepId = to;
+      const before = left.get(to);
+      const page = target.back ?? target.page;
+      if (page) scyllaNavigate.goToWorkspaceRoute(page(subject));
+      else if (before) navigateTo(before);
+    },
+    /** Opens the page that the click in the menu would open, and moves on. */
+    go() {
+      if (!step?.go) return;
+      const page = step.go(subject);
+      advanceFrom(step.id);
+      scyllaNavigate.goToWorkspaceRoute(page);
+    },
+    advance(stepId: string, found?: OnboardingSubject) {
+      advanceFrom(stepId, found);
     },
     unlock(stepId: string) {
       unlockedStepId = stepId;
     },
     recover(stepId: string) {
-      const current = TOUR_STEPS.find(candidate => candidate.id === stepId);
-      if (!status || current?.kind !== 'spot' || !current.fallback) return;
-      write(rewindTour(status, STEP_IDS, stepId, current.fallback));
+      const current = tour?.steps.find(candidate => candidate.id === stepId);
+      if (!status || !current?.fallback) return;
+      write(rewindTour(status, stepIds, stepId, current.fallback));
     },
     goBack() {
-      if (step?.kind !== 'spot' || !step.page) return;
+      if (!step?.page) return;
       scyllaNavigate.goToWorkspaceRoute(step.page(subject));
     },
     openAgent() {
@@ -159,10 +260,13 @@ export const createOnboardingTour = (canStart: () => boolean) => {
     },
     confirmSkip() {
       confirmingSkip = false;
-      write({ kind: 'skipped' });
+      if (status) write(closeTours(status, 'skipped'));
+    },
+    skipIntro() {
+      if (status) write(closeTours(status, 'skipped'));
     },
     finish() {
-      if (step?.kind === 'finish') write({ kind: 'completed' });
+      if (status?.kind === 'finished') write(closeTours(status, 'completed'));
     },
   };
 };

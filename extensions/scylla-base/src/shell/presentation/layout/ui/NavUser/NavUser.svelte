@@ -1,5 +1,6 @@
 <script lang="ts">
   import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
+  import LifeBuoyIcon from '@lucide/svelte/icons/life-buoy';
   import LogOutIcon from '@lucide/svelte/icons/log-out';
   import UserRoundIcon from '@lucide/svelte/icons/user-round';
   import { scyllaNavigate, workspaceUrl } from '@platform/context';
@@ -39,7 +40,9 @@
   const slug = $derived(linkParams().workspaceSlug);
   // The rail only: the sheet of a phone has no green row.
   const onAccount = $derived(
-    !sidebar.isMobile && !!slug && routePathname().startsWith(`${workspaceUrl(slug, 'account')}/`),
+    !sidebar.isMobile &&
+      !!slug &&
+      ['account', 'help'].some(page => routePathname().startsWith(`${workspaceUrl(slug, page)}/`)),
   );
 </script>
 
@@ -103,6 +106,13 @@
       >
         <UserRoundIcon />
         {t(layoutMessages.account)}
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        class="text-foreground hover:bg-accent"
+        onSelect={() => scyllaNavigate.goToWorkspaceRoute('/help')}
+      >
+        <LifeBuoyIcon />
+        {t(layoutMessages.helpAndTours)}
       </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuLabel class="px-2 py-1 text-xs font-normal text-muted-foreground">

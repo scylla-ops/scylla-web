@@ -75,6 +75,8 @@ export const ShellModule = {
     { id: 'instance', title: layoutMessages.instance, railItem: { icon: ShieldCheckIcon } },
     // The user menu opens it: the avatar of the rail is its item.
     { id: 'account', title: layoutMessages.account, noRailItem: true },
+    // The user menu opens it too: the guided tours and the docs.
+    { id: 'help', title: layoutMessages.help, noRailItem: true },
     // The bell opens it.
     { id: 'notifications', title: layoutMessages.notifications, noRailItem: true },
   ],

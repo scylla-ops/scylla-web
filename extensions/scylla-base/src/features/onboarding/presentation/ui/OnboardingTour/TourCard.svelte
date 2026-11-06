@@ -12,15 +12,19 @@
   import { holdPointer } from './tour-tracking.attachments.svelte.ts';
 
   interface Props {
-    title?: string;
+    title: string;
     body: readonly string[];
     link?: TourLink;
     waiting?: string;
     hint?: { body: readonly string[]; link?: TourLink };
     notice?: { text: string; action?: { label: string; onClick: () => void } };
     count?: { step: number; total: number } | null;
-    controls?: { showNext: boolean; canGoNext: boolean; onNext: () => void; onSkip: () => void };
+    onSkip: () => void;
+    onPrevious?: () => void;
+    primary?: { label: string; disabled: boolean; onClick: () => void };
     wide?: boolean;
+    /** Kept in place but not shown, e.g. under the skip confirmation. */
+    hidden?: boolean;
     x: number;
     y: number;
     width?: number;
@@ -35,8 +39,11 @@
     hint,
     notice,
     count,
-    controls,
+    onSkip,
+    onPrevious,
+    primary,
     wide = false,
+    hidden = false,
     x,
     y,
     width = $bindable(0),
@@ -49,7 +56,7 @@
     href={target.href}
     target="_blank"
     rel="noreferrer"
-    class="text-[13px] font-semibold text-primary hover:underline"
+    class="self-start text-[13px] font-semibold text-primary hover:underline"
   >
     {t(target.label)}
   </a>
@@ -62,24 +69,38 @@
   in:fly={{ y: 8, duration: motionDuration(250) }}
   out:fade={{ duration: motionDuration(150) }}
   role="dialog"
-  aria-label={title ?? body[0]}
+  aria-label={title}
   tabindex="-1"
   data-tour-focus
   class={cn(
-    'pointer-events-auto fixed z-[60] flex flex-col gap-3 rounded-[14px] border border-border bg-background px-[22px] pt-4 pb-3.5 text-foreground shadow-xl outline-none transition-[width] duration-300 ease-out motion-reduce:transition-none',
-    wide ? 'w-[400px]' : 'w-[360px]',
+    'pointer-events-auto fixed z-[200] flex flex-col gap-3 rounded-[14px] border border-border bg-background px-5 pt-4 pb-4 text-foreground shadow-xl outline-none transition-[width] duration-300 ease-out motion-reduce:transition-none',
+    wide ? 'w-[400px]' : 'w-[380px]',
     'max-w-[calc(100vw-2rem)]',
   )}
   style:left="{x}px"
   style:top="{y}px"
-  style:visibility={height > 0 ? 'visible' : 'hidden'}
+  style:visibility={!hidden && height > 0 ? 'visible' : 'hidden'}
+  style:opacity={hidden ? 0 : undefined}
 >
-  {#if title}
-    <h2 class="text-base">
-      {#if count}{count.step}.{/if}
-      {title}
-    </h2>
-  {/if}
+  <div class="flex items-center gap-2">
+    <h2 class="text-base leading-tight">{title}</h2>
+    {#if count}
+      <span
+        class="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-primary"
+        data-tour-count
+      >
+        {t(onboardingMessages.stepCount(count.step, count.total))}
+      </span>
+    {/if}
+    <span class="flex-1"></span>
+    <button
+      type="button"
+      onclick={onSkip}
+      class="shrink-0 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+    >
+      {t(onboardingMessages.skip)}
+    </button>
+  </div>
   {#each body as paragraph, index (index)}
     <p class="text-[13px] leading-snug text-muted-foreground">{paragraph}</p>
   {/each}
@@ -115,29 +136,26 @@
       {/if}
     </div>
   {/if}
-  {#if controls}
-    <div class="flex items-center gap-2">
-      {#if count}
-        <span class="text-xs text-muted-foreground">
-          {t(onboardingMessages.stepCount(count.step, count.total))}
-        </span>
-      {/if}
-      <span class="flex-1"></span>
-      <button
-        type="button"
-        onclick={controls.onSkip}
-        class="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+  {#if onPrevious || primary || count}
+    <div class="flex items-center gap-2 pt-1">
+      <Button
+        variant="outline"
+        size="sm"
+        class="h-[30px] rounded-lg px-3 text-[13px]"
+        disabled={!onPrevious}
+        onclick={onPrevious}
       >
-        {t(onboardingMessages.skipTour)}
-      </button>
-      {#if controls.showNext}
+        {t(onboardingMessages.previous)}
+      </Button>
+      <span class="flex-1"></span>
+      {#if primary}
         <Button
           size="sm"
           class="h-[30px] rounded-lg px-3.5 text-[13px] font-semibold"
-          disabled={!controls.canGoNext}
-          onclick={controls.onNext}
+          disabled={primary.disabled}
+          onclick={primary.onClick}
         >
-          {t(onboardingMessages.next)}
+          {primary.label}
         </Button>
       {/if}
     </div>

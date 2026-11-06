@@ -61,6 +61,12 @@ describe('NavUser', () => {
       expect(button).toHaveAttribute('aria-current', 'page');
     });
 
+    it('has the same state on the help page, which its menu opens', async () => {
+      const button = await at('/acme/help/tours');
+
+      expect(button).toHaveAttribute('aria-current', 'page');
+    });
+
     it.each(['/acme/dashboard', '/acme/accounting', '/other/account/profile'])(
       'has no such state on %s',
       async pathname => {
@@ -104,6 +110,16 @@ describe('NavUser', () => {
     await user.click(await findFloating('menuitem', 'Account'));
 
     expect(navigator.navigate).toHaveBeenCalledWith('/acme/account', undefined);
+  });
+
+  it('opens the help page from the menu', async () => {
+    setUp(() => Promise.resolve(me));
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
+    await user.click(await findFloating('menuitem', 'Help & tours'));
+
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme/help', undefined);
   });
 
   it('signs the user out from the menu', async () => {

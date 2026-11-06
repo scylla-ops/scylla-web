@@ -47,8 +47,8 @@ presentation/
     ui/GlobalSearch/                    the button of the top bar and Ctrl K. It loads the bar at the first use and keeps the form that a command opens
     ui/CommandBar/                      the command bar: see "The command bar"
     ui/NotificationsMenu/               the bell of the top bar: the badge and the popover. The panel is in features/notifications
-    ui/NavUser/                         who is signed in (userQueries.me), Account, Language, Sign out (sidebar footer);
-                                        green on the rail while the URL is on the account of the workspace
+    ui/NavUser/                         who is signed in (userQueries.me), Account, Help & tours, Language, Sign out
+                                        (sidebar footer); green on the rail while the URL is on the account or the help page
     ui/SessionLine/                     "Signed in as … · Account · Sign out", one centered line, outside the sidebar
     ui/NewBadge.svelte                  "New" pill of a sidebar link (navBadge)
     ui/WhatsNewDialog/                  first-launch release announcement
@@ -75,7 +75,8 @@ mounts
   project        /:workspaceSlug/projects/:projectId   wrapper ContextCleanerWrapper, crumb "Project"
 routes           app: / -> WorkspaceRedirectWrapper · workspace: (its root) -> 'dashboard'
 navSections      workspace, project (within projects, title: projectName), instance (railItem),
-                 account (noRailItem: the user menu opens it), notifications (noRailItem: the bell opens it)
+                 account and help (noRailItem: the user menu opens them), notifications (noRailItem: the bell
+                 opens it)
 access           can / authorizationReady / RequirePermission, from @platform/authz
 shell            brand ShellBrand · topBarEnd GlobalSearch, NotificationsMenu, WorkspaceSelector · sidebarFooter NavUser · overlays LaunchOverlays · navBadge NewBadge ·
                  onNavOpen markNavSeen · breadcrumbParams · linkParams

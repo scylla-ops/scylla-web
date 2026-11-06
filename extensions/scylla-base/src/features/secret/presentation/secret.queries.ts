@@ -10,6 +10,8 @@ import type { SecretModule } from '../secret.module.ts';
 const repository = () =>
   getModuleDomain<typeof SecretModule.domain>('secret').secretRepository;
 
+export const CREATE_SECRET_MUTATION_KEY = ['secret', 'create'] as const;
+
 export const SECRETS_QUERY_KEY = (projectId: string) => ['secrets', projectId] as const;
 
 const SECRET_USAGE_QUERY_KEY = (projectId: string, secretName: string) =>
@@ -51,6 +53,7 @@ export const secretMutations = {
   /** The value passes through once and is never stored. */
   create: (projectId: string) =>
     mutationOptions({
+      mutationKey: CREATE_SECRET_MUTATION_KEY,
       mutationFn: ({ name, value }: CreateSecretValues) =>
         repository().create({ projectId, name, value }),
       onSuccess: () => {

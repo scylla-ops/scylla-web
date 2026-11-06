@@ -9,6 +9,8 @@ import type { TriggersModule } from '../triggers.module.ts';
 const repository = () =>
   getModuleDomain<typeof TriggersModule.domain>('triggers').triggersRepository;
 
+export const CREATE_TRIGGER_MUTATION_KEY = ['trigger', 'create'] as const;
+
 export const TRIGGERS_QUERY_KEY = (pipelineId: string) =>
   ['triggers', 'pipeline', pipelineId] as const;
 
@@ -39,6 +41,7 @@ const invalidateTriggers = (pipelineId: string) =>
 export const triggerMutations = {
   create: (pipelineId: string) =>
     mutationOptions({
+      mutationKey: CREATE_TRIGGER_MUTATION_KEY,
       mutationFn: (draft: TriggerDraft) => repository().create(pipelineId, draft),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.TRIGGER_CREATE));

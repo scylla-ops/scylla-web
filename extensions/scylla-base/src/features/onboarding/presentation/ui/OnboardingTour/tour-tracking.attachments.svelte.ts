@@ -18,14 +18,22 @@ export interface TourLayout {
   allowed: TourRect | null;
 }
 
+export interface TourActionState {
+  label: string;
+  disabled: boolean;
+}
+
 export interface TourTracking {
   step: TourSpotStep;
   subject: OnboardingSubject;
   onLayout: (layout: TourLayout) => void;
-  onAdvance: () => void;
+  onAction: (action: TourActionState | null) => void;
+  onAdvance: (found?: OnboardingSubject) => void;
   onUnlock: () => void;
   onLost: () => void;
   onHint: (shown: boolean) => void;
+  /** The user came back to this step with Previous: an `appear` waits until its element goes. */
+  rewound?: boolean;
 }
 
 /** The layout box: a hover or press `scale` on the element or an ancestor must not move the spotlight. */
@@ -54,6 +62,27 @@ const rectKey = (rect: TourRect | null) =>
     ? `${Math.round(rect.x)},${Math.round(rect.y)},${Math.round(rect.width)},${Math.round(rect.height)}`
     : '-';
 
+/** What the card shows of the button it repeats: its text and whether it takes a click. */
+export const pressable = (element: Element | null): HTMLElement | null => {
+  if (!(element instanceof HTMLElement)) return null;
+  if (element.matches('button, a[href]')) return element;
+  return element.querySelector<HTMLElement>('button, a[href]') ?? element;
+};
+
+export const readAction = (target: Element | null): TourActionState | null => {
+  const element = pressable(target);
+  if (!element) return null;
+  const label = (element.getAttribute('aria-label') ?? element.textContent ?? '').trim();
+  const disabled =
+    (element instanceof HTMLButtonElement && element.disabled) ||
+    element.getAttribute('aria-disabled') === 'true' ||
+    element.hasAttribute('data-disabled');
+  return { label, disabled };
+};
+
+const actionKey = (action: TourActionState | null) =>
+  action ? `${action.disabled ? 0 : 1}:${action.label}` : '-';
+
 const isOnScreen = (rect: TourRect) =>
   rect.y >= 0 &&
   rect.x >= 0 &&
@@ -78,6 +107,8 @@ export const trackTourStep =
     let advanced = false;
     let unlocked = false;
     let hintShown = false;
+    let armed = !tracking.rewound;
+    let lastAction: string | null = null;
     let shown: readonly (TourRect | null)[] = [];
     let moveFrom: readonly (TourRect | null)[] = [];
     let moveStart: number | null = null;
@@ -93,14 +124,16 @@ export const trackTourStep =
       advanced = false;
       unlocked = false;
       hintShown = false;
+      armed = !tracking.rewound;
+      lastAction = null;
       moveFrom = shown;
       moveStart = null;
     };
 
-    const advance = () => {
+    const advance = (found?: OnboardingSubject) => {
       if (advanced) return;
       advanced = true;
-      tracking.onAdvance();
+      tracking.onAdvance(found);
     };
 
     const unlock = () => {
@@ -144,6 +177,15 @@ export const trackTourStep =
         tracking.onLayout({ targets, allowed });
       }
 
+      if (step.action) {
+        const action = readAction(resolve(step.action.anchor));
+        const key = actionKey(action);
+        if (key !== lastAction) {
+          lastAction = key;
+          tracking.onAction(action);
+        }
+      }
+
       const [first] = elements;
       const [firstRect] = targets;
       if (first && firstRect) {
@@ -169,7 +211,11 @@ export const trackTourStep =
         }
       }
 
-      if (step.advance.on === 'appear' && appeared(step.advance)) advance();
+      if (step.advance.on === 'appear') {
+        const element = resolve(step.advance.anchor);
+        if (!element) armed = true;
+        else if (armed) advance(step.advance.found?.(element));
+      }
       if (appeared(step.nextWhen)) unlock();
 
       frame = requestAnimationFrame(tick);
@@ -187,8 +233,9 @@ export const trackTourStep =
 
     $effect(() => {
       const next = options();
-      if (next.step.id !== untrack(() => tracking.step.id)) reset();
+      const moved = next.step.id !== untrack(() => tracking.step.id);
       tracking = next;
+      if (moved) reset();
     });
 
     document.addEventListener('click', onClick, true);

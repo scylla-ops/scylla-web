@@ -405,9 +405,11 @@
       <Button variant="outline" onclick={() => onOpenChange(false)}>
         {t(membershipMessages.cancel)}
       </Button>
-      <Button disabled={!canSubmit} onclick={() => void submit()}>
-        {t(addCount(chips.length))}
-      </Button>
+      <span class="contents" data-tour="members-submit">
+        <Button disabled={!canSubmit} onclick={() => void submit()}>
+          {t(addCount(chips.length))}
+        </Button>
+      </span>
     </div>
   </div>
 </ScyllaDialog>

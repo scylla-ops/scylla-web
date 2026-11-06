@@ -159,7 +159,9 @@
     {/if}
 
     {#if showTriggers}
-      <IconButton icon={ZapIcon} tooltip={t(pipelineMessages.triggers)} onclick={onViewTriggers} />
+      <span class="contents" data-tour="pipeline-triggers">
+        <IconButton icon={ZapIcon} tooltip={t(pipelineMessages.triggers)} onclick={onViewTriggers} />
+      </span>
     {/if}
   {/if}
 </div>

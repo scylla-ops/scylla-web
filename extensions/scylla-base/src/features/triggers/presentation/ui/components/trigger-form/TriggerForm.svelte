@@ -102,6 +102,7 @@
   <div class="relative -mx-1 min-h-0 flex-1 overflow-y-auto px-1 pr-2 pb-1">
     <div class="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <div class="flex flex-col gap-5">
+        <div class="contents" data-tour="trigger-general">
         <TriggerFormSection
           id="trigger-general-title"
           title={t(triggersMessages.generalSection)}
@@ -153,7 +154,9 @@
             </div>
           {/if}
         </TriggerFormSection>
+        </div>
 
+        <div class="contents" data-tour="trigger-when">
         {#if kind === 'cron'}
           <TriggerFormSection
             id="trigger-schedule-title"
@@ -174,6 +177,7 @@
             <p class="text-xs text-muted-foreground">{t(triggersMessages.signatureHint)}</p>
           </TriggerFormSection>
         {/if}
+        </div>
       </div>
 
       <div class="flex flex-col gap-5">
@@ -196,8 +200,10 @@
     <Button type="button" variant="outline" onclick={onCancel} disabled={isPending}>
       {t(triggersMessages.cancel)}
     </Button>
-    <Button type="button" onclick={() => void handleSubmit()} disabled={!isValid || isPending}>
-      {isEdit ? t(triggersMessages.save) : t(triggersMessages.create)}
-    </Button>
+    <span class="contents" data-tour="trigger-submit">
+      <Button type="button" onclick={() => void handleSubmit()} disabled={!isValid || isPending}>
+        {isEdit ? t(triggersMessages.save) : t(triggersMessages.create)}
+      </Button>
+    </span>
   </div>
 </div>

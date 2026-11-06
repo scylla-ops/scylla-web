@@ -18,7 +18,6 @@ const byId =
     root.querySelector(`#${id}`);
 
 const step = (overrides: Partial<TourSpotStep>): TourSpotStep => ({
-  kind: 'spot',
   id: 'step',
   title: { id: 'title' },
   body: [],
@@ -47,11 +46,13 @@ const attach = <T>(
   };
 };
 
-const track = (overrides: Partial<TourSpotStep>) => {
+const track = (overrides: Partial<TourSpotStep>, rewound = false) => {
   const tracking: TourTracking = {
     step: step(overrides),
     subject: {},
+    rewound,
     onLayout: vi.fn(),
+    onAction: vi.fn(),
     onAdvance: vi.fn(),
     onUnlock: vi.fn(),
     onLost: vi.fn(),
@@ -104,6 +105,21 @@ describe('trackTourStep', () => {
     frames(100);
     expect(tracking.onAdvance).not.toHaveBeenCalled();
 
+    document.body.innerHTML = '<div id="late"></div>';
+    frames(100);
+    expect(tracking.onAdvance).toHaveBeenCalledTimes(1);
+    destroy();
+  });
+
+  it('after Previous, waits for the element to go before it moves on again', () => {
+    document.body.innerHTML = '<div id="late"></div>';
+    const { tracking, destroy } = track({ advance: { on: 'appear', anchor: byId('late') } }, true);
+
+    frames(100);
+    expect(tracking.onAdvance).not.toHaveBeenCalled();
+
+    document.body.innerHTML = '';
+    frames(100);
     document.body.innerHTML = '<div id="late"></div>';
     frames(100);
     expect(tracking.onAdvance).toHaveBeenCalledTimes(1);

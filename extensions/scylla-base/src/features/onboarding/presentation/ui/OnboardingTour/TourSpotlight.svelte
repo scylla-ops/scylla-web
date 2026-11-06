@@ -34,7 +34,7 @@
 </svg>
 
 {#if blocking}
-  <svg class="pointer-events-none fixed inset-0 z-[55] size-full" aria-hidden="true">
+  <svg class="pointer-events-none fixed inset-0 z-[195] size-full" aria-hidden="true">
     <path
       {@attach holdPointer}
       d={dimPath(viewport, allowed ? [allowed] : [])}
@@ -46,7 +46,7 @@
 {/if}
 
 <svg
-  class="pointer-events-none fixed inset-0 z-[60] size-full"
+  class="pointer-events-none fixed inset-0 z-[200] size-full"
   aria-hidden="true"
   transition:fade={{ duration: motionDuration(200) }}
 >
