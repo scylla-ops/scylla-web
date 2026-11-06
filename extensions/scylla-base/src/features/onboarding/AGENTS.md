@@ -143,6 +143,12 @@ The mutation keys come from the barrels: `CREATE_APP_MUTATION_KEY` (`apps`),
 
 ## Behaviour on the page
 
+- **Go and Previous.** A step that asks for a click in the menu has `go`: the card shows Go,
+  which advances the step and opens that page. Previous always shows; it is greyed out on the
+  first step and on a lost card. It opens the page of the previous step, or, for a step with no
+  `page`, the page that the user was on when they left it (kept for this visit only).
+- **On top.** The card, the ring and the page offer use `z-[200]`, the blocker `z-[195]` and the
+  Skip confirmation `z-[210]`: above every dialog of the app (`z-50`).
 - **Page offer.** A tour with `offer` shows a small card in the bottom right corner of its page
   (`offer.path`, without the workspace slug): "First time here?", Start and Not now. It shows
   only when no tour runs and no dialog of the tours shows, and only for a tour that the user may
