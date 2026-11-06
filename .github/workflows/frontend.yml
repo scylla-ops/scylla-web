@@ -5,6 +5,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  merge_group:
   workflow_dispatch:
 
 permissions:
@@ -27,7 +28,7 @@ jobs:
 
       - name: No AI agent in the commit authors
         env:
-          RANGE: ${{ github.event_name == 'pull_request' && format('origin/{0}..{1}', github.base_ref, github.event.pull_request.head.sha) || format('{0}..{1}', github.event.before, github.sha) }}
+          RANGE: ${{ github.event_name == 'pull_request' && format('origin/{0}..{1}', github.base_ref, github.event.pull_request.head.sha) || github.event_name == 'merge_group' && format('{0}..{1}', github.event.merge_group.base_sha, github.event.merge_group.head_sha) || format('{0}..{1}', github.event.before, github.sha) }}
         run: node scripts/check-commit-authors.mjs "$RANGE"
 
   # The suite runs in 3 shards. Each shard writes a blob report with its coverage; the
@@ -80,7 +81,8 @@ jobs:
         run: pnpm exec vitest --merge-reports --coverage
 
   # Typed lint is the slowest check. On a pull request, ESLint reuses its cache of the same
-  # branch. On a push, it runs in full: a cache can miss an error that a changed dependency causes.
+  # branch. On a push or in the merge queue, it runs in full: a cache can miss an error that a
+  # changed dependency causes.
   lint:
     runs-on: ubuntu-latest
     env:
