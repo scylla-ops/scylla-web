@@ -1,9 +1,8 @@
-import { createMutation, getModuleDomain, getQueryClient } from '@scylla/core-sdk';
-import { contextStore, navigateTo, workspaceUrl } from '@platform/context';
+import { createMutation, getModuleDomain } from '@scylla/core-sdk';
 import { hasSession, loginPath } from '@base/features/login';
-import { workspaceQueries, MY_WORKSPACES_QUERY_KEY } from '@base/features/workspace';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { InvitationModule } from '../../../invitation.module.ts';
+import { openJoinedWorkspace } from '../../open-joined-workspace.ts';
 
 /** A used, expired or unknown link, or a link for another email. */
 const REFUSALS = new Set(['FAILED_PRECONDITION', 'NOT_FOUND', 'INVALID_ARGUMENT']);
@@ -40,7 +39,7 @@ export class AcceptInvitationState {
         if (REFUSALS.has(refusal.code)) return refusal.userMessage();
         throw error;
       }
-      await this.open(workspaceId);
+      await openJoinedWorkspace(workspaceId);
       return null;
     },
   }));
@@ -70,18 +69,4 @@ export class AcceptInvitationState {
     this.signedIn = await hasSession().catch(() => false);
     if (this.signedIn && this.mutation.isIdle) this.mutation.mutate(this.token);
   };
-
-  /** Makes the new workspace the active one and opens it. */
-  private async open(workspaceId: string): Promise<void> {
-    const client = getQueryClient();
-    await client.invalidateQueries({ queryKey: MY_WORKSPACES_QUERY_KEY() });
-    const workspaces = await client.fetchQuery(workspaceQueries.mine());
-    const workspace = workspaces.find(item => item.id === workspaceId);
-    if (!workspace) {
-      navigateTo('/', { replace: true });
-      return;
-    }
-    contextStore.getState().setWorkspace(workspace.id, workspace.name, workspace.slug);
-    navigateTo(workspaceUrl(workspace.slug), { replace: true });
-  }
 }

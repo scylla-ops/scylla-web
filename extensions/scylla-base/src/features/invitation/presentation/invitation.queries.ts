@@ -59,4 +59,17 @@ export const invitationMutations = {
         return invalidate(workspaceId);
       },
     }),
+
+  /** The refusal is the state of the row that asks: it must not reach the global toast. */
+  acceptById: () =>
+    mutationOptions({
+      mutationFn: (invitationId: string) => repository().acceptById(invitationId),
+      meta: { showsOwnError: true },
+    }),
+
+  decline: () =>
+    mutationOptions({
+      mutationFn: (invitationId: string) => repository().decline(invitationId),
+      meta: { showsOwnError: true },
+    }),
 };

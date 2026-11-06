@@ -15,6 +15,7 @@ import { AccessModule } from '@base/features/access/access.module.ts';
 import { MembershipModule } from '@base/features/membership/membership.module.ts';
 import { RolesModule } from '@base/features/roles/roles.module.ts';
 import { InvitationModule } from '@base/features/invitation/invitation.module.ts';
+import { NotificationsModule } from '@base/features/notifications/notifications.module.ts';
 import { InstanceSettingsModule } from '@base/features/instance-settings/instance-settings.module.ts';
 import { ExtensionsModule } from '@base/features/extensions/extensions.module.ts';
 
@@ -34,6 +35,7 @@ export const modules = [
   MembershipModule,
   RolesModule,
   InvitationModule,
+  NotificationsModule,
   WorkspaceModule,
   UserModule,
   AccessModule,

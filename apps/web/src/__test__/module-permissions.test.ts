@@ -34,6 +34,12 @@ const UNGATED_PAGES: Readonly<Record<string, string>> = {
   '/account/:section':
     'The same account page outside any workspace, for a user who has none yet (a user that ' +
     'an administrator made, a new sign-up). The same reason: every call is on the own id.',
+  '/:workspaceSlug/notifications':
+    'The inbox of the signed-in user: each call of the page acts on the caller, which needs no ' +
+    'grant, and no route takes a person.',
+  '/notifications':
+    'The same inbox outside any workspace: an invitation reaches a user who has none yet. The ' +
+    'same reason: each call acts on the caller.',
   '/:workspaceSlug/marketplace':
     'TRIAGE: the page reads a hardcoded catalog — DefaultMarketplaceRepository calls no backend, ' +
     'so there is nothing to deny yet, and the enum has no marketplace permission to declare. ' +
@@ -52,6 +58,8 @@ const UNGATED_COMMANDS: Readonly<Record<string, string>> = {
   'user.theme-dark': 'A preference of this device: it calls no backend.',
   'user.theme-system': 'A preference of this device: it calls no backend.',
   'login.sign-out': 'It ends the own session, which needs no grant.',
+  'notifications.open': 'The inbox of the caller, which needs no grant.',
+  'notifications.mark-all-read': 'It acts on the inbox of the caller, which needs no grant.',
 };
 
 describe('module permission declarations', () => {

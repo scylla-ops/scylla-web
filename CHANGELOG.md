@@ -26,6 +26,19 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   services. The dashboard and the onboarding tour are back.
 - End-to-end tests with Playwright, against a real CE server. Dependabot for npm and GitHub Actions.
 
+**Notifications**
+
+- A real inbox: the bell has a badge and a popover, and the page `notifications` has filters, a
+  selection, pages and keys. Both exist in English and in French.
+- An invitation can be accepted or declined in its row, with no mail link.
+- The bell is also on the first-workspace screen and on the personal pages, so a user with no
+  workspace sees an invitation.
+- The failed runs are a tab of the popover, for a caller who can list the jobs. The false text
+  "All is well" is gone.
+- The command bar opens the inbox and marks all notifications as read, after a confirmation.
+- An extension adds the view of a kind with `notifications.kinds`.
+- `@scylla/ui/primitives` has `Popover`, `PopoverTrigger` and `PopoverContent`.
+
 **Members and roles**
 
 - The Access group of the sidebar, and the Instance section.

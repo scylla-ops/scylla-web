@@ -30,6 +30,7 @@ const client = () =>
     revokeInvitation: vi.fn(() => unaryCall({})),
     resendInvitation: vi.fn(() => unaryCall({ invitation: wire('inv-1') })),
     acceptInvitation: vi.fn(() => unaryCall({ workspaceId: { value: 'ws-9' } })),
+    declineInvitation: vi.fn(() => unaryCall({})),
   }) as unknown as IInvitationServiceClient;
 
 describe('toDomain', () => {
@@ -63,6 +64,30 @@ describe('DefaultInvitationRepository', () => {
     const list = await new DefaultInvitationRepository(client()).list('ws-1');
 
     expect(list.map(invitation => invitation.id)).toEqual(['a', 'b']);
+  });
+
+  it('accepts by the token of a link or by the id of an invitation', async () => {
+    const fake = client();
+    const repository = new DefaultInvitationRepository(fake);
+
+    await repository.accept('tok');
+    const joined = await repository.acceptById('inv-1');
+
+    expect(joined).toBe('ws-9');
+    expect(fake.acceptInvitation).toHaveBeenNthCalledWith(1, {
+      target: { oneofKind: 'token', token: 'tok' },
+    });
+    expect(fake.acceptInvitation).toHaveBeenNthCalledWith(2, {
+      target: { oneofKind: 'invitationId', invitationId: { value: 'inv-1' } },
+    });
+  });
+
+  it('declines by the id of an invitation', async () => {
+    const fake = client();
+
+    await new DefaultInvitationRepository(fake).decline('inv-1');
+
+    expect(fake.declineInvitation).toHaveBeenCalledWith({ invitationId: { value: 'inv-1' } });
   });
 
   it('gives the workspace that an accepted link joins', async () => {

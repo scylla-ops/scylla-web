@@ -1,0 +1,358 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-11-06 01:27+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:68
+msgid "{actor} accepted your invitation to {workspace}."
+msgstr "{actor} accepted your invitation to {workspace}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:82
+msgid "{actor} added an instance admin."
+msgstr "{actor} added an instance admin."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:77
+msgid "{actor} added an owner to {workspace}."
+msgstr "{actor} added an owner to {workspace}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:72
+msgid "{actor} changed your roles in {place}."
+msgstr "{actor} changed your roles in {place}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:70
+msgid "{actor} declined your invitation to {workspace}."
+msgstr "{actor} declined your invitation to {workspace}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:58
+msgid "{actor} invited you to {workspace} as {role}."
+msgstr "{actor} invited you to {workspace} as {role}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:83
+msgid "{actor} removed an instance admin."
+msgstr "{actor} removed an instance admin."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:79
+msgid "{actor} removed an owner from {workspace}."
+msgstr "{actor} removed an owner from {workspace}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:45
+msgid "{count, plural, one {# time} other {# times}}"
+msgstr "{count, plural, one {# time} other {# times}}"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:93
+msgid "{provider} can no longer sign in to your account."
+msgstr "{provider} can no longer sign in to your account."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:92
+msgid "{provider} can now sign in to your account."
+msgstr "{provider} can now sign in to your account."
+
+#: extensions/scylla-base/src/features/notifications/presentation/notifications.commands.ts:32
+msgid "A notification that needs an action stays unread."
+msgstr "A notification that needs an action stays unread."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:8
+msgid "a workspace"
+msgstr "a workspace"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:50
+msgid "Accept"
+msgstr "Accept"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:51
+msgid "Accepting…"
+msgstr "Accepting…"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:36
+msgid "Access"
+msgstr "Access"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:73
+msgid "Added: {roles}."
+msgstr "Added: {roles}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:15
+msgctxt "notifications"
+msgid "All"
+msgstr "All"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:35
+msgid "All categories"
+msgstr "All categories"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:14
+msgid "All notifications"
+msgstr "All notifications"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:33
+msgid "All workspaces"
+msgstr "All workspaces"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:28
+msgid "Cannot load notifications."
+msgstr "Cannot load notifications."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:34
+msgid "Category"
+msgstr "Category"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:27
+msgid "Clear filter"
+msgstr "Clear filter"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:52
+msgid "Decline"
+msgstr "Decline"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:53
+msgid "Declining…"
+msgstr "Declining…"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:31
+msgctxt "notifications"
+msgid "Done"
+msgstr "Done"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:24
+msgid "Earlier"
+msgstr "Earlier"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:59
+msgid "Ends on {date}."
+msgstr "Ends on {date}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:19
+msgid "Failed runs"
+msgstr "Failed runs"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:86
+msgid "If you did not do this, reset your password now."
+msgstr "If you did not do this, reset your password now."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:30
+msgid "Inbox"
+msgstr "Inbox"
+
+#: extensions/scylla-base/src/features/notifications/presentation/notifications.commands.ts:28
+msgid "inbox bell clear"
+msgstr "inbox bell clear"
+
+#: extensions/scylla-base/src/features/notifications/presentation/notifications.commands.ts:19
+msgid "inbox bell invitations alerts"
+msgstr "inbox bell invitations alerts"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:9
+msgid "Mark all as read"
+msgstr "Mark all as read"
+
+#: extensions/scylla-base/src/features/notifications/presentation/notifications.commands.ts:27
+msgid "Mark all notifications as read"
+msgstr "Mark all notifications as read"
+
+#: extensions/scylla-base/src/features/notifications/presentation/notifications.commands.ts:31
+msgid "Mark all notifications as read?"
+msgstr "Mark all notifications as read?"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:12
+msgid "Mark as done"
+msgstr "Mark as done"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:10
+#: extensions/scylla-base/src/features/notifications/presentation/notifications.commands.ts:30
+msgid "Mark as read"
+msgstr "Mark as read"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:11
+msgid "Mark as unread"
+msgstr "Mark as unread"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:21
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:39
+msgid "Needs action"
+msgstr "Needs action"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:94
+msgid "New API token: {name}."
+msgstr "New API token: {name}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:43
+msgid "Next page"
+msgstr "Next page"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:20
+msgid "No failed run in the last 100 runs of this workspace."
+msgstr "No failed run in the last 100 runs of this workspace."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:26
+msgid "No notification matches this filter."
+msgstr "No notification matches this filter."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:25
+msgid "No notifications yet."
+msgstr "No notifications yet."
+
+#: extensions/scylla-base/src/features/notifications/notifications.module.ts:26
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:4
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:18
+#: extensions/scylla-base/src/features/notifications/presentation/notifications.commands.ts:7
+#: extensions/scylla-base/src/features/notifications/presentation/notifications.commands.ts:18
+msgid "Notifications"
+msgstr "Notifications"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:6
+msgid "Notifications, {count, plural, one {# unread} other {# unread}}"
+msgstr "Notifications, {count, plural, one {# unread} other {# unread}}"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:55
+msgid "Open {workspace}"
+msgstr "Open {workspace}"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:56
+msgid "Open account"
+msgstr "Open account"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:42
+msgid "Previous page"
+msgstr "Previous page"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:13
+msgid "Put back in the inbox"
+msgstr "Put back in the inbox"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:74
+msgid "Removed: {roles}."
+msgstr "Removed: {roles}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:37
+msgid "Security"
+msgstr "Security"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:40
+msgid "Select all"
+msgstr "Select all"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:41
+msgid "Select this notification"
+msgstr "Select this notification"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:7
+msgid "Someone"
+msgstr "Someone"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:88
+msgid "Someone used an old sign-in token of this session."
+msgstr "Someone used an old sign-in token of this session."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:91
+msgid "The email of your account changed."
+msgstr "The email of your account changed."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:63
+msgid "The invitation to {workspace} ended. Ask {actor} for a new one."
+msgstr "The invitation to {workspace} ended. Ask {actor} for a new one."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:90
+msgid "There were too many failed sign-ins."
+msgstr "There were too many failed sign-ins."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:64
+msgid "This invitation is for another email. Verify this email first."
+msgstr "This invitation is for another email. Verify this email first."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:65
+msgid "This invitation is no longer open."
+msgstr "This invitation is no longer open."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:23
+msgid "This week"
+msgstr "This week"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:17
+msgid "This workspace"
+msgstr "This workspace"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:22
+msgid "Today"
+msgstr "Today"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:29
+msgid "Try again"
+msgstr "Try again"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:16
+msgid "Unread"
+msgstr "Unread"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:38
+msgid "Unread only"
+msgstr "Unread only"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:87
+msgid "We closed one of your sessions."
+msgstr "We closed one of your sessions."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:89
+msgid "We locked your account for a short time."
+msgstr "We locked your account for a short time."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:32
+msgid "Workspace"
+msgstr "Workspace"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:48
+msgid "You are an instance admin."
+msgstr "You are an instance admin."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:81
+msgid "You are no longer an instance admin."
+msgstr "You are no longer an instance admin."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:76
+msgid "You are no longer an owner of {workspace}."
+msgstr "You are no longer an owner of {workspace}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:80
+msgid "You are now an instance admin."
+msgstr "You are now an instance admin."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:75
+msgid "You are now an owner of {workspace}."
+msgstr "You are now an owner of {workspace}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:54
+msgid "You declined the invitation to {workspace}."
+msgstr "You declined the invitation to {workspace}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:44
+msgid "You have a new notification."
+msgstr "You have a new notification."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:61
+msgid "You joined {workspace} as {role}."
+msgstr "You joined {workspace} as {role}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:47
+msgid "You own this workspace."
+msgstr "You own this workspace."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:85
+msgid "Your password changed."
+msgstr "Your password changed."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:71
+msgid "Your roles in {place} changed."
+msgstr "Your roles in {place} changed."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:84
+msgid "Your roles on this instance changed."
+msgstr "Your roles on this instance changed."

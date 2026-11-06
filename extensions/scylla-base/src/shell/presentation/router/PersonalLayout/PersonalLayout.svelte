@@ -5,6 +5,7 @@
   import LogoScyllaDark from '@scylla/ui/assets/logo_scylla_dark.svg';
   import { t } from '@scylla/ui/i18n';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
+  import NotificationsMenu from '../../layout/ui/NotificationsMenu/NotificationsMenu.svelte';
   import AuthGuard from '../AuthGuard/Auth.guard.svelte';
 
   let { children }: { children: Snippet } = $props();
@@ -24,13 +25,16 @@
 
     <div class="flex w-full max-w-5xl flex-col gap-4">
       <!-- `/` opens the workspace of the user, or the first-workspace screen. -->
-      <a
-        href="/"
-        class="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-      >
-        <ArrowLeftIcon class="size-4" />
-        {t(layoutMessages.back)}
-      </a>
+      <div class="flex items-center justify-between gap-2">
+        <a
+          href="/"
+          class="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        >
+          <ArrowLeftIcon class="size-4" />
+          {t(layoutMessages.back)}
+        </a>
+        <NotificationsMenu />
+      </div>
 
       <!-- The page puts the sign-out after its last section: the router places it out of this flow. -->
       {@render children()}

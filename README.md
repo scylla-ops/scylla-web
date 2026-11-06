@@ -104,6 +104,7 @@ packages/ui                the design system — imports no other package
 | [jobs](extensions/scylla-base/src/features/jobs/README.md) | Pipeline runs: status, logs, and the live tail of both |
 | [login](extensions/scylla-base/src/features/login/README.md) | Sign-in, sign-out, the password reset and the session token |
 | [marketplace](extensions/scylla-base/src/features/marketplace/README.md) | Ready-made pipeline templates |
+| [notifications](extensions/scylla-base/src/features/notifications/README.md) | The inbox of the signed-in user: the bell, its panel and the full page |
 | [membership](extensions/scylla-base/src/features/membership/README.md) | Who belongs to an workspace or project, and with which roles |
 | [onboarding](extensions/scylla-base/src/features/onboarding/README.md) | The first-pipeline tour, and where its progress is kept |
 | [workspace](extensions/scylla-base/src/features/workspace/README.md) | The top-level tenant and the switcher in the shell |

@@ -61,7 +61,20 @@ export class DefaultInvitationRepository implements InvitationRepository {
   }
 
   public async accept(token: string): Promise<string> {
-    const response = await this.client.acceptInvitation({ token }).response;
+    const response = await this.client.acceptInvitation({
+      target: { oneofKind: 'token', token },
+    }).response;
     return idValue(response.workspaceId);
+  }
+
+  public async acceptById(invitationId: string): Promise<string> {
+    const response = await this.client.acceptInvitation({
+      target: { oneofKind: 'invitationId', invitationId: wrapId(invitationId) },
+    }).response;
+    return idValue(response.workspaceId);
+  }
+
+  public async decline(invitationId: string): Promise<void> {
+    await this.client.declineInvitation({ invitationId: wrapId(invitationId) }).response;
   }
 }

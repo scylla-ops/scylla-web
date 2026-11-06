@@ -45,7 +45,7 @@ presentation/
     language.commands.ts                the commands of the bar for the language
     ui/GlobalSearch/                    the button of the top bar and Ctrl K. It loads the bar at the first use and keeps the form that a command opens
     ui/CommandBar/                      the command bar: see "The command bar"
-    ui/NotificationsMenu/               the bell of the top bar: the last failed runs. The server has no notifications
+    ui/NotificationsMenu/               the bell of the top bar: the badge and the popover. The panel is in features/notifications
     ui/NavUser/                         who is signed in (userQueries.me), Account, Language, Sign out (sidebar footer);
                                         green on the rail while the URL is on the account of the workspace
     ui/SessionLine/                     "Signed in as … · Account · Sign out", one centered line, outside the sidebar

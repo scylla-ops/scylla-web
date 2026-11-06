@@ -9,4 +9,8 @@ export interface InvitationRepository {
   resend(workspaceId: string, invitationId: string): Promise<InvitationEntity>;
   /** Gives the workspace that the user of the session joins. */
   accept(token: string): Promise<string>;
+  /** Accepts by id, for a user with the verified email of the invitation. Gives the workspace. */
+  acceptById(invitationId: string): Promise<string>;
+  /** Deletes the invitation, and tells the person that sent it. */
+  decline(invitationId: string): Promise<void>;
 }

@@ -8,6 +8,7 @@
   import { activeLocale, t } from '@scylla/ui/i18n';
   import { createWorkspaceItems } from '@base/features/workspace';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
+  import NotificationsMenu from '../NotificationsMenu/NotificationsMenu.svelte';
   import SessionLine from '../SessionLine/SessionLine.svelte';
   import { welcomeIn } from './welcome.transition.ts';
 
@@ -50,8 +51,10 @@
       {/if}
     </Card>
     <!-- The way out of this screen for a user who cannot leave it: the account and the sign-out. -->
-    <div class="mt-6 w-full max-w-md">
+    <div class="mt-6 flex w-full max-w-md items-center justify-center gap-3">
       <SessionLine />
+      <!-- An invitation reaches a user with no workspace here. -->
+      <NotificationsMenu />
     </div>
   </div>
 </main>

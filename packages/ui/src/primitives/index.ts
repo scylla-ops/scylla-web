@@ -9,6 +9,7 @@ import {
   Combobox as ComboboxPrimitive,
   Dialog as DialogPrimitive,
   DropdownMenu as DropdownMenuPrimitive,
+  Popover as PopoverPrimitive,
   Select as SelectPrimitive,
 } from 'bits-ui';
 
@@ -60,6 +61,10 @@ export { default as AlertDialogFooter } from './alert-dialog/alert-dialog-footer
 export { default as AlertDialogHeader } from './alert-dialog/alert-dialog-header.svelte';
 export { default as AlertDialogOverlay } from './alert-dialog/alert-dialog-overlay.svelte';
 export { default as AlertDialogTitle } from './alert-dialog/alert-dialog-title.svelte';
+
+export const Popover = PopoverPrimitive.Root;
+export const PopoverTrigger = PopoverPrimitive.Trigger;
+export { default as PopoverContent } from './popover/popover-content.svelte';
 
 export { default as Checkbox } from './checkbox/checkbox.svelte';
 

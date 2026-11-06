@@ -13,6 +13,30 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:65
+msgid "{count} more"
+msgstr "{count} more"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:66
+msgid "{count} more. Type more letters to find them."
+msgstr "{count} more. Type more letters to find them."
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:56
+msgid "{name} is the current choice."
+msgstr "{name} is the current choice."
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:77
+msgid "{name}: off"
+msgstr "{name}: off"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:76
+msgid "{name}: on"
+msgstr "{name}: on"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:54
+msgid "{name}: you confirm in the next step."
+msgstr "{name}: you confirm in the next step."
+
 #: extensions/scylla-base/src/shell/whats-new.ts:58
 msgid "A new account page"
 msgstr "A new account page"
@@ -25,7 +49,7 @@ msgstr "A new job starts now."
 msgid "Access"
 msgstr "Access"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:22
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:19
 msgid "Account"
 msgstr "Account"
 
@@ -49,7 +73,7 @@ msgstr "All"
 msgid "App"
 msgstr "App"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:25
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:22
 msgid "Back"
 msgstr "Back"
 
@@ -61,7 +85,7 @@ msgstr "Best match"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:21
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:18
 msgid "Create"
 msgstr "Create"
 
@@ -92,10 +116,6 @@ msgstr "English"
 #: extensions/scylla-base/src/shell/presentation/layout/language.commands.ts:24
 msgid "english language"
 msgstr "english language"
-
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:16
-msgid "Failed runs"
-msgstr "Failed runs"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:79
 msgid "Filter"
@@ -145,21 +165,21 @@ msgstr "Go to the role {name}."
 msgid "Go to the secrets page, at {name}. The value stays hidden."
 msgstr "Go to the secrets page, at {name}. The value stays hidden."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:32
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:29
 msgid "Got it"
 msgstr "Got it"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:31
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:28
 msgid "Here is what landed in this version."
 msgstr "Here is what landed in this version."
-
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:6
-msgid "In this project"
-msgstr "In this project"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:71
 msgid "In {name}"
 msgstr "In {name}"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:6
+msgid "In this project"
+msgstr "In this project"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:7
 msgid "Instance"
@@ -177,7 +197,7 @@ msgstr "Machines"
 msgid "Member"
 msgstr "Member"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:29
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:26
 msgid "New"
 msgstr "New"
 
@@ -189,17 +209,9 @@ msgstr "New tab"
 msgid "No exact match. Close results:"
 msgstr "No exact match. Close results:"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:17
-msgid "No failed run. All is well."
-msgstr "No failed run. All is well."
-
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:14
 msgid "Nothing matches this search."
 msgstr "Nothing matches this search."
-
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:15
-msgid "Notifications"
-msgstr "Notifications"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:75
 msgid "Now using: {name}"
@@ -245,8 +257,8 @@ msgstr "Preferences"
 msgid "Profile, appearance, security and organizations: each setting has its own page. Choose your theme in Appearance."
 msgstr "Profile, appearance, security and organizations: each setting has its own page. Choose your theme in Appearance."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:5
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:23
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:5
 msgid "Project"
 msgstr "Project"
 
@@ -278,14 +290,6 @@ msgstr "Roles"
 msgid "Roles and triggers on their own page"
 msgstr "Roles and triggers on their own page"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:60
-msgid "run start launch execute"
-msgstr "run start launch execute"
-
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:55
-msgid "Run the pipeline {name}: you confirm in the next step."
-msgstr "Run the pipeline {name}: you confirm in the next step."
-
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:59
 msgid "Run {name}"
 msgstr "Run {name}"
@@ -293,6 +297,14 @@ msgstr "Run {name}"
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:61
 msgid "Run {name}?"
 msgstr "Run {name}?"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:60
+msgid "run start launch execute"
+msgstr "run start launch execute"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:55
+msgid "Run the pipeline {name}: you confirm in the next step."
+msgstr "Run the pipeline {name}: you confirm in the next step."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:37
 msgid "Run…"
@@ -310,7 +322,7 @@ msgstr "Scripting, node by node"
 msgid "Scylla on your phone"
 msgstr "Scylla on your phone"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:33
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:30
 msgid "Scylla: open the dashboard"
 msgstr "Scylla: open the dashboard"
 
@@ -342,11 +354,11 @@ msgstr "Select Workspace"
 msgid "Show all the results in {group}."
 msgstr "Show all the results in {group}."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:23
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:20
 msgid "Sign out"
 msgstr "Sign out"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:24
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:21
 msgid "Signed in as {name}"
 msgstr "Signed in as {name}"
 
@@ -366,7 +378,7 @@ msgstr "The pipeline editor tells you why it cannot save, for example two nodes 
 msgid "The scripting tab lists the nodes of a pipeline by stage and shows the script of each node as shell code. Open two nodes side by side."
 msgstr "The scripting tab lists the nodes of a pipeline by stage and shows the script of each node as shell code. Open two nodes side by side."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:26
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:23
 msgid "The server does not answer"
 msgstr "The server does not answer"
 
@@ -374,11 +386,11 @@ msgstr "The server does not answer"
 msgid "These lists could not be read: {lists}."
 msgstr "These lists could not be read: {lists}."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:19
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:16
 msgid "To get started, please create your first workspace."
 msgstr "To get started, please create your first workspace."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:28
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:25
 msgid "Try again"
 msgstr "Try again"
 
@@ -410,53 +422,29 @@ msgstr "Use"
 msgid "Use {name}. Now: {now}. This device only."
 msgstr "Use {name}. Now: {now}. This device only."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:18
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:15
 msgid "Welcome to Scylla!"
 msgstr "Welcome to Scylla!"
 
 #. placeholder {0}: String(version)
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:30
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:27
 msgid "What's new in Scylla {0}"
 msgstr "What's new in Scylla {0}"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:4
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:30
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:4
 msgid "Workspace"
 msgstr "Workspace"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:10
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:17
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:10
 msgid "Workspaces"
 msgstr "Workspaces"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:20
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:17
 msgid "You are not a member of a workspace yet. Ask an administrator to add you."
 msgstr "You are not a member of a workspace yet. Ask an administrator to add you."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:27
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:24
 msgid "You are still signed in. This page tries again by itself."
 msgstr "You are still signed in. This page tries again by itself."
-
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:65
-msgid "{count} more"
-msgstr "{count} more"
-
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:66
-msgid "{count} more. Type more letters to find them."
-msgstr "{count} more. Type more letters to find them."
-
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:56
-msgid "{name} is the current choice."
-msgstr "{name} is the current choice."
-
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:77
-msgid "{name}: off"
-msgstr "{name}: off"
-
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:76
-msgid "{name}: on"
-msgstr "{name}: on"
-
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:54
-msgid "{name}: you confirm in the next step."
-msgstr "{name}: you confirm in the next step."

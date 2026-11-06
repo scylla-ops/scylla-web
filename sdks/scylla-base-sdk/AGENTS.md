@@ -39,5 +39,6 @@ module lists is in it.
 |---|---|---|---|
 | `loginPoints` | `LoginModule` | `login.footer` (zone), `login.texts` (text scope), `login.fields` (value) | [`login`](../../extensions/scylla-base/src/features/login/AGENTS.md) |
 | `membershipPoints` | `MembershipModule` | `membership.workspaceActions` (zone), `membership.workspaceSection` (zone), `membership.workspaceAddMember` (value), `membership.projectActions` (zone), `membership.projectSection` (zone) | [`membership`](../../extensions/scylla-base/src/features/membership/AGENTS.md) |
+| `notificationsPoints` | `NotificationsModule` | `notifications.kinds` (value) | [`notifications`](../../extensions/scylla-base/src/features/notifications/AGENTS.md) |
 
 Add a row here in the same change that adds `points` to a feature's module.
