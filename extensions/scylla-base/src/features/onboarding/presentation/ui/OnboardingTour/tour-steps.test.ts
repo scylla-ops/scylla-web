@@ -243,7 +243,7 @@ describe('the documentation links', () => {
     const links = ALL_STEPS.flatMap(step => [step.link, step.hint?.link].filter(link => !!link));
 
     expect(links.length).toBeGreaterThan(0);
-    expect(links.every(link => link?.href === 'https://prelude.scylla-ops.com')).toBe(true);
+    expect(links.every(link => link?.href === 'https://scylla-ops.com/docs')).toBe(true);
   });
 });
 

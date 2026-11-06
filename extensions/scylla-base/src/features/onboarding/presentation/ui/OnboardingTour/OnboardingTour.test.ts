@@ -136,7 +136,7 @@ describe('OnboardingTour', () => {
 
     expect(await screen.findByText('Your agent is ready 🎉')).toBeInTheDocument();
     const docs = screen.getByRole('link', { name: 'Read the docs ›' });
-    expect(docs).toHaveAttribute('href', 'https://prelude.scylla-ops.com');
+    expect(docs).toHaveAttribute('href', 'https://scylla-ops.com/docs');
     expect(docs).toHaveAttribute('target', '_blank');
     expect(screen.getByText('Done')).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: 'Start ›' })).toHaveLength(2);

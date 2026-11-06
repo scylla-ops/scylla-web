@@ -9,7 +9,7 @@ import { Permission } from '@platform/authz';
 import type { OnboardingSubject } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
 import { onboardingMessages as m } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
 
-export const SCYLLA_DOCS_URL = 'https://prelude.scylla-ops.com';
+export const SCYLLA_DOCS_URL = 'https://scylla-ops.com/docs';
 
 export type TourAnchor = (root: ParentNode, subject: OnboardingSubject) => Element | null;
 
