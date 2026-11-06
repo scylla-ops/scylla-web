@@ -38,7 +38,7 @@
 
       <div class="mb-6 flex w-full flex-col items-center gap-2 text-center">
         {@render icon?.()}
-        <h1 class="text-2xl">{title}</h1>
+        <h1>{title}</h1>
         {#if description}
           <p class="text-sm text-muted-foreground">{description}</p>
         {/if}
