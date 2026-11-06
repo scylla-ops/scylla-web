@@ -4,8 +4,11 @@
   import { createMutation } from '@scylla/core-sdk';
   import { DataTable } from '@scylla/ui';
   import { createSelection } from '@scylla/ui/state';
+  import { t } from '@scylla/ui/i18n';
   import { toStatusState } from '@shared/utils/job-status.utils.ts';
+  import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type { PipelineMetadata } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+  import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import { pipelineMutations } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import type { RunPipeline } from '@base/features/pipeline/presentation/ui/run-pipeline.state.svelte.ts';
   import PipelineChart from './PipelineChart.svelte';
@@ -49,7 +52,12 @@
 </script>
 
 {#snippet statusCell(pipeline: PipelineMetadata)}
-  <PipelineStatus {pipeline} status={toStatusState(jobsOf(pipeline.id)[0]?.status)} />
+  {@const lastJob = jobsOf(pipeline.id)[0]}
+  <PipelineStatus
+    {pipeline}
+    status={toStatusState(lastJob?.status)}
+    statusLabel={lastJob ? t(getStatusConfig(lastJob.status).label) : t(pipelineMessages.noJobsYet)}
+  />
 {/snippet}
 
 {#snippet historyCell(pipeline: PipelineMetadata)}
