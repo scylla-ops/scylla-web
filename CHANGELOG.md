@@ -177,6 +177,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   provider button. Before, the gap under the "Sign in" button was 24 px.
 - A sign-in with a provider, its "Try again" link and the link of a provider on the account page
   work when the app has the same origin as the API. Before, a click on these links did nothing.
+- A URL with no page shows "Page not found" and a link to the app. Before, it went to the sign-in
+  page with no check of the session, so a signed-in user looked signed out.
+- A notification about an answer to an invitation opens the members of the workspace, and the page
+  of your own user opens your account. Before, both went to the sign-in page.
 - The dialog that changes the roles of a member shows each change at once, on the members of a
   workspace and of a project. A refusal does not stay for the next opening. On the page of a member,
   the dialog stays open when the last role goes.

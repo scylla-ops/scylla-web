@@ -165,11 +165,11 @@ msgstr "Go to the role {name}."
 msgid "Go to the secrets page, at {name}. The value stays hidden."
 msgstr "Go to the secrets page, at {name}. The value stays hidden."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:30
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:33
 msgid "Got it"
 msgstr "Got it"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:29
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:32
 msgid "Here is what landed in this version."
 msgstr "Here is what landed in this version."
 
@@ -197,7 +197,7 @@ msgstr "Machines"
 msgid "Member"
 msgstr "Member"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:27
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:30
 msgid "New"
 msgstr "New"
 
@@ -229,6 +229,10 @@ msgstr "On a small screen, each row of a table shows as a card."
 msgid "On this pipeline"
 msgstr "On this pipeline"
 
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:29
+msgid "Open Scylla"
+msgstr "Open Scylla"
+
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:53
 msgid "Open the form: {name}. Nothing changes until you submit it."
 msgstr "Open the form: {name}. Nothing changes until you submit it."
@@ -236,6 +240,10 @@ msgstr "Open the form: {name}. Nothing changes until you submit it."
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:21
 msgid "Page"
 msgstr "Page"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:27
+msgid "Page not found"
+msgstr "Page not found"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:8
 msgid "Pages"
@@ -326,7 +334,7 @@ msgstr "Scripting, node by node"
 msgid "Scylla on your phone"
 msgstr "Scylla on your phone"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:31
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:34
 msgid "Scylla: open the dashboard"
 msgstr "Scylla: open the dashboard"
 
@@ -390,6 +398,10 @@ msgstr "The server does not answer"
 msgid "These lists could not be read: {lists}."
 msgstr "These lists could not be read: {lists}."
 
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:28
+msgid "This address has no page. The link can be old or wrong."
+msgstr "This address has no page. The link can be old or wrong."
+
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:16
 msgid "To get started, please create your first workspace."
 msgstr "To get started, please create your first workspace."
@@ -431,7 +443,7 @@ msgid "Welcome to Scylla!"
 msgstr "Welcome to Scylla!"
 
 #. placeholder {0}: String(version)
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:28
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:31
 msgid "What's new in Scylla {0}"
 msgstr "What's new in Scylla {0}"
 

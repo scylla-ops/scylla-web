@@ -95,6 +95,15 @@ describe('viewOfRow', () => {
     expect(other.reason).toBe('You own this workspace.');
   });
 
+  it.each(['invitation.accepted', 'invitation.declined'])(
+    'links %s to the members of the workspace of the row',
+    kind => {
+      const view = viewOfRow(row({ kind, workspaceSlug: 'acme' }), 'other');
+
+      expect(view.href).toBe('/acme/access/members');
+    },
+  );
+
   it('links a security kind in the frame of the workspace, or outside a workspace', () => {
     expect(viewOfRow(row(), 'acme').href).toBe('/acme/account/security');
     expect(viewOfRow(row(), null).href).toBe('/account/security');

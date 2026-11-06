@@ -311,7 +311,7 @@ A barrel must not export:
 
 It also declares the nav sections (`workspace`, `system`), the access policy (`can`,
 `authorizationReady`, `RequirePermission`), the shell parts, the query error handler and the
-fallback page (a redirect to `/login`).
+fallback page (a "page not found" text with a link to `/`).
 
 ---
 

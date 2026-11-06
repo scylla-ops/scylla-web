@@ -15,7 +15,7 @@ import { reportQueryError } from './presentation/report-query-error.ts';
 import { retryQueryError } from './presentation/retry-query-error.ts';
 import AppLayout from './presentation/router/AppLayout.svelte';
 import ContextCleanerWrapper from './presentation/router/ContextCleaner.wrapper.svelte';
-import LoginRedirect from './presentation/router/LoginRedirect.svelte';
+import NotFoundPage from './presentation/router/NotFound/NotFound.page.svelte';
 import WorkspaceSyncWrapper from './presentation/router/WorkspaceSync.wrapper.svelte';
 import PersonalLayout from './presentation/router/PersonalLayout/PersonalLayout.svelte';
 import { breadcrumbParams, linkParams } from './presentation/shell-params.ts';
@@ -96,5 +96,5 @@ export const ShellModule = {
   commands: languageCommands,
   onQueryError: reportQueryError,
   onQueryRetry: retryQueryError,
-  fallback: LoginRedirect,
+  fallback: NotFoundPage,
 } satisfies ScyllaModule;
