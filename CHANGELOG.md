@@ -97,6 +97,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A double sidebar: a rail of the sections, which opens on a click and does not move the page, and a
   second sidebar with the pages of the selected section. Inside a project, the second sidebar shows
   the pages of the project. On a phone, the sheet stays.
+- The user can move the right edge of the second sidebar, with the pointer or the keyboard, from
+  200 px to 400 px. The page follows the edge and keeps at least 704 px. The browser keeps the width.
 - The switch of workspace is at the right end of the top bar, after a search (Ctrl K or Cmd K) of
   the projects, the pipelines, the agents and the apps, and a bell with the last failed runs.
 - The logo is at the center of the band above the sidebars. A click on it opens the dashboard of

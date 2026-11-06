@@ -321,6 +321,169 @@ describe('the second sidebar', () => {
   });
 });
 
+describe('the handle of the second sidebar', () => {
+  const STORAGE_KEY = 'scylla.shell.second-sidebar-width';
+  const viewport = window.innerWidth;
+  const handle = () => screen.getByRole('separator', { name: 'Resize sidebar' });
+  const slot = () => {
+    const container = document.querySelector<HTMLElement>('[data-slot="sidebar-container"]');
+    if (!container) throw new Error('no sidebar container');
+    return container;
+  };
+
+  const renderOnPage = (pathname = '/acme-corp/apps/1') => {
+    navigator.restore();
+    navigator = installTestNavigator({ pathname });
+    return render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
+  };
+
+  const drag = async (from: number, to: number) => {
+    await fireEvent.pointerDown(handle(), { button: 0, isPrimary: true, clientX: from });
+    await fireEvent.pointerMove(handle(), { clientX: to });
+    await fireEvent.pointerUp(handle(), { clientX: to });
+  };
+
+  beforeEach(() => {
+    window.innerWidth = 1920;
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    window.innerWidth = viewport;
+    localStorage.clear();
+  });
+
+  it('is a vertical separator that tells the width and its limits', () => {
+    renderOnPage();
+
+    expect(handle()).toHaveAttribute('aria-orientation', 'vertical');
+    expect(handle()).toHaveAttribute('aria-valuenow', '200');
+    expect(handle()).toHaveAttribute('aria-valuemin', '200');
+    expect(handle()).toHaveAttribute('aria-valuemax', '400');
+    expect(handle()).toHaveAttribute('aria-controls', secondSidebar().id);
+    expect(handle()).toHaveAttribute('tabindex', '0');
+    expect(handle()).toHaveClass('cursor-ew-resize');
+  });
+
+  it('gives the page the room that the rail and the second sidebar leave', () => {
+    renderOnPage();
+
+    expect(slot().style.width).toBe('256px');
+  });
+
+  it('moves with a drag, stores the width at the end, and keeps the cursor during the drag', async () => {
+    renderOnPage();
+
+    await fireEvent.pointerDown(handle(), { button: 0, isPrimary: true, clientX: 256 });
+    expect(handle()).toHaveAttribute('data-active', 'pointer');
+    expect(document.documentElement).toHaveClass('cursor-ew-resize');
+
+    await fireEvent.pointerMove(handle(), { clientX: 316 });
+    expect(slot().style.width).toBe('316px');
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+
+    await fireEvent.pointerUp(handle(), { clientX: 316 });
+    expect(handle()).not.toHaveAttribute('data-active');
+    expect(document.documentElement).not.toHaveClass('cursor-ew-resize');
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('260');
+  });
+
+  it('does not go past the limits with a drag', async () => {
+    renderOnPage();
+
+    await drag(256, 40);
+    expect(handle()).toHaveAttribute('aria-valuenow', '200');
+
+    await drag(256, 1200);
+    expect(handle()).toHaveAttribute('aria-valuenow', '400');
+  });
+
+  it('ignores a press with another button', async () => {
+    renderOnPage();
+
+    await fireEvent.pointerDown(handle(), { button: 2, isPrimary: true, clientX: 256 });
+    await fireEvent.pointerMove(handle(), { clientX: 316 });
+
+    expect(handle()).toHaveAttribute('aria-valuenow', '200');
+  });
+
+  it('moves with the keyboard, and each key stores the width', async () => {
+    renderOnPage();
+    handle().focus();
+
+    await userEvent.keyboard('{ArrowRight}');
+    expect(handle()).toHaveAttribute('aria-valuenow', '216');
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('216');
+
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(handle()).toHaveAttribute('aria-valuenow', '200');
+
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(handle()).toHaveAttribute('aria-valuenow', '200');
+
+    await userEvent.keyboard('{End}');
+    expect(handle()).toHaveAttribute('aria-valuenow', '400');
+
+    await userEvent.keyboard('{ArrowRight}');
+    expect(handle()).toHaveAttribute('aria-valuenow', '400');
+
+    await userEvent.keyboard('{Home}');
+    expect(handle()).toHaveAttribute('aria-valuenow', '200');
+  });
+
+  it('keeps the width after a page load', async () => {
+    const { unmount } = renderOnPage();
+    await drag(256, 356);
+    unmount();
+
+    renderOnPage();
+
+    expect(handle()).toHaveAttribute('aria-valuenow', '300');
+    expect(slot().style.width).toBe('356px');
+  });
+
+  it('gives the room of the page back when the window gets narrow', async () => {
+    localStorage.setItem(STORAGE_KEY, '400');
+    renderOnPage();
+    expect(slot().style.width).toBe('456px');
+
+    window.innerWidth = 1024;
+    await fireEvent(window, new Event('resize'));
+    expect(handle()).toHaveAttribute('aria-valuemax', '264');
+    expect(slot().style.width).toBe('320px');
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('400');
+
+    window.innerWidth = 1920;
+    await fireEvent(window, new Event('resize'));
+    expect(slot().style.width).toBe('456px');
+  });
+
+  it('is not on a page with no second sidebar', () => {
+    renderOnPage('/acme-corp/other');
+
+    expect(screen.queryByRole('separator', { name: 'Resize sidebar' })).not.toBeInTheDocument();
+  });
+
+  it('is not there until the access policy is ready', () => {
+    navigator.restore();
+    navigator = installTestNavigator({ pathname: '/acme-corp/apps/1' });
+    render(AppSidebarFixture, {
+      config: configWith({ entries: groupEntries, access: policy([], false) }),
+    });
+
+    expect(screen.queryByRole('separator', { name: 'Resize sidebar' })).not.toBeInTheDocument();
+  });
+
+  it('does not close the rail with a press', async () => {
+    renderOnPage();
+    await fireEvent.click(railOf());
+
+    await fireEvent.pointerDown(handle(), { button: 0, isPrimary: true, clientX: 256 });
+
+    expect(railOf()).toHaveAttribute('data-state', 'expanded');
+  });
+});
+
 describe('a section with noRailItem', () => {
   const accountConfig = () =>
     configWith({
@@ -410,6 +573,16 @@ describe('a section with noRailItem', () => {
       render(AppSidebarSheetFixture, { config: accountConfig() });
       await userEvent.click(screen.getByRole('button', { name: 'Toggle Sidebar' }));
     };
+
+    it('has no handle to resize, and keeps the sheet of the design', async () => {
+      localStorage.setItem('scylla.shell.second-sidebar-width', '400');
+      await openSheet('/acme-corp/secrets');
+
+      expect(await screen.findByRole('button', { name: 'Secrets' })).toBeInTheDocument();
+      expect(screen.queryByRole('separator', { name: 'Resize sidebar' })).not.toBeInTheDocument();
+      expect(document.querySelector('[data-mobile="true"]')).toHaveStyle('--sidebar-width: 18rem');
+      localStorage.clear();
+    });
 
     it('shows its links on its pages, with a danger link in red while it is current', async () => {
       await openSheet('/acme-corp/account/danger-zone');

@@ -9,6 +9,7 @@
   import { activePageOf } from './nav-rail.ts';
 
   interface Props {
+    id?: string;
     content: SecondSidebarContent | undefined;
     pathname: string;
     ready: boolean;
@@ -17,13 +18,14 @@
     class?: string;
   }
 
-  let { content, pathname, ready, badges, onOpenPage, class: className }: Props = $props();
+  let { id, content, pathname, ready, badges, onOpenPage, class: className }: Props = $props();
 
   const active = $derived(content ? activePageOf(content.pages, pathname) : undefined);
   const SECTION_FADE_MS = 120;
 </script>
 
 <aside
+  {id}
   data-slot="sidebar"
   class={cn('flex flex-col border-r border-sidebar-border bg-background pb-2', className)}
 >
