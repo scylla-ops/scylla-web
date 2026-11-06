@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Badge } from '@scylla/ui/primitives';
-  import { TruncatedText } from '@scylla/ui';
-  import { getStatusIcon } from '@shared/presentation/ui';
+  import { StatusShape, TruncatedText } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
+  import { toStatusState } from '@shared/utils/job-status.utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
@@ -15,11 +15,10 @@
   let { job }: Props = $props();
 
   const config = $derived(getStatusConfig(job.status));
-  const Icon = $derived(getStatusIcon(job.status));
 </script>
 
 <div class="w-full flex items-center gap-2">
-  <Icon class={cn('w-5 h-5 shrink-0', config.iconClassName)} />
+  <StatusShape state={toStatusState(job.status)} label={t(config.label)} size={32} />
   <div class="flex min-w-0 flex-col">
     <Badge variant="outline" class={cn('w-fit', config.badgeClassName)}>
       {t(config.label)}
