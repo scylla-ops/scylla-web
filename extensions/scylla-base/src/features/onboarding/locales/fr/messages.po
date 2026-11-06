@@ -15,7 +15,7 @@ msgstr ""
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:28
 msgid "If you ran the command in the previous modal, your agent connects to Scylla, and the Next button unlocks. If you did not, click “Make a join code” here and run the command."
-msgstr "Si vous avez lancé la commande dans la fenêtre précédente, votre agent se connecte à Scylla, et le bouton Suivant se débloque. Sinon, cliquez ici sur « Créer un code d'enrôlement » et lancez la commande."
+msgstr "Si vous avez lancé la commande dans la fenêtre précédente, votre agent se connecte à Scylla, et le bouton Suivant se débloque. Sinon, cliquez ici sur « Créer un code d'adhésion » et lancez la commande."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:23
 msgid "The address in the command is the address of Scylla in this browser. If the machine uses another address, change each address in the command."

@@ -63,11 +63,11 @@ msgstr "macOS"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:85
 msgid "Make a join code"
-msgstr "Créer un code d'enrôlement"
+msgstr "Créer un code d'adhésion"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:84
 msgid "Make a join code, then run its command on the machine of the agent."
-msgstr "Créez un code d'enrôlement, puis lancez sa commande sur la machine de l'agent."
+msgstr "Créez un code d'adhésion, puis lancez sa commande sur la machine de l'agent."
 
 #: extensions/scylla-base/src/features/apps/presentation/apps.commands.ts:15
 msgid "New agent"
