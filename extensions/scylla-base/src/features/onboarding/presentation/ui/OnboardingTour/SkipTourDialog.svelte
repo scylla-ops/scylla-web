@@ -21,7 +21,7 @@
 {#if open}
   <div
     {@attach portalToBody}
-    transition:fade={{ duration: motionDuration(150) }}
+    out:fade={{ duration: motionDuration(150) }}
     class="fixed inset-0 z-[205] bg-black/80"
     data-tour-skip-backdrop
     aria-hidden="true"
