@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:171
+msgid "{done} of {total} done"
+msgstr "{done} of {total} done"
+
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:9
 msgid "{step}/{total}"
 msgstr "{step}/{total}"
@@ -150,7 +154,7 @@ msgstr "Create a pipeline"
 msgid "Create your pipeline"
 msgstr "Create your pipeline"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:169
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:180
 msgid "Documentation"
 msgstr "Documentation"
 
@@ -176,8 +180,8 @@ msgid "Each run gives a job: its timeline, its live logs and its history, so you
 msgstr "Each run gives a job: its timeline, its live logs and its history, so you see at once what passed and what failed."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:29
-msgid "Each tour is short and uses your own workspace. You can come back to them at any time from the help menu."
-msgstr "Each tour is short and uses your own workspace. You can come back to them at any time from the help menu."
+msgid "Each tour is short and uses your own workspace. You can come back to them at any time from Help & tours, in your profile menu."
+msgstr "Each tour is short and uses your own workspace. You can come back to them at any time from Help & tours, in your profile menu."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:35
 msgid "Explore on my own"
@@ -212,9 +216,21 @@ msgstr "Give your pipelines a value nobody can read."
 msgid "Go back to it"
 msgstr "Go back to it"
 
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:168
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:179
 msgid "Guided tours"
 msgstr "Guided tours"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:169
+msgid "Guided tours, the welcome screen and the docs."
+msgstr "Guided tours, the welcome screen and the docs."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:176
+msgid "Guides and references on scylla-ops.com/docs."
+msgstr "Guides and references on scylla-ops.com/docs."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:168
+msgid "Help"
+msgstr "Help"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:91
 msgid "If the job does not start, make sure that the agent you connected is still online."
@@ -257,8 +273,8 @@ msgid "Keep a secret"
 msgstr "Keep a secret"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:34
-msgid "Later: Triggers, Secrets, Roles and Users from the help menu"
-msgstr "Later: Triggers, Secrets, Roles and Users from the help menu"
+msgid "Later: Triggers, Secrets, Roles and Users from Help & tours"
+msgstr "Later: Triggers, Secrets, Roles and Users from Help & tours"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:51
 msgid "Make a role"
@@ -345,6 +361,10 @@ msgstr "Open Roles"
 msgid "Open Secrets"
 msgstr "Open Secrets"
 
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:177
+msgid "Open the docs"
+msgstr "Open the docs"
+
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:93
 msgid "Open the job"
 msgstr "Open the job"
@@ -401,6 +421,10 @@ msgstr "Read the job"
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:30
 msgid "Recommended"
 msgstr "Recommended"
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:172
+msgid "Restart"
+msgstr "Restart"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:124
 msgid "Roles are under Access. Click “Roles”."
@@ -459,6 +483,14 @@ msgstr "Secrets belong to the project. Click “Secrets” in its menu."
 msgid "Secrets in the docs ›"
 msgstr "Secrets in the docs ›"
 
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:170
+msgid "Short tours that use your own workspace. Start one again at any time."
+msgstr "Short tours that use your own workspace. Start one again at any time."
+
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:175
+msgid "Show again"
+msgstr "Show again"
+
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:5
 msgctxt "onboarding"
 msgid "Skip"
@@ -497,9 +529,13 @@ msgstr "Start this tour"
 msgid "Start with a guided tour"
 msgstr "Start with a guided tour"
 
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:174
+msgid "The key features of Scylla and the choice of a tour."
+msgstr "The key features of Scylla and the choice of a tour."
+
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:157
-msgid "The other tours are in the help menu, and the docs tell you more."
-msgstr "The other tours are in the help menu, and the docs tell you more."
+msgid "The other tours are in Help & tours, and the docs tell you more."
+msgstr "The other tours are in Help & tours, and the docs tell you more."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:121
 msgid "The steps of the pipelines of this project can now use the secret."
@@ -514,8 +550,8 @@ msgid "This step is on another page."
 msgstr "This step is on another page."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:160
-msgid "This stops the tour. You can start it again at any time from the help menu."
-msgstr "This stops the tour. You can start it again at any time from the help menu."
+msgid "This stops the tour. You can start it again at any time from Help & tours."
+msgstr "This stops the tour. You can start it again at any time from Help & tours."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:133
 msgid "Tick what the role can do, then click “Create role”. Give it from Members."
@@ -561,8 +597,12 @@ msgstr "Wait for the job"
 msgid "Waiting for the agent…"
 msgstr "Waiting for the agent…"
 
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:173
+msgid "Welcome screen"
+msgstr "Welcome screen"
+
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:12
-#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:170
+#: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:181
 msgid "Welcome to Scylla"
 msgstr "Welcome to Scylla"
 
@@ -575,12 +615,12 @@ msgid "Why a job does not start ›"
 msgstr "Why a job does not start ›"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:166
-msgid "You can start it later from the help menu."
-msgstr "You can start it later from the help menu."
+msgid "You can start it later from Help & tours."
+msgstr "You can start it later from Help & tours."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:155
-msgid "You connected an agent, created a pipeline and followed a job end to end. Triggers, secrets and roles are in the help menu."
-msgstr "You connected an agent, created a pipeline and followed a job end to end. Triggers, secrets and roles are in the help menu."
+msgid "You connected an agent, created a pipeline and followed a job end to end. Triggers, secrets and roles are in Help & tours."
+msgstr "You connected an agent, created a pipeline and followed a job end to end. Triggers, secrets and roles are in Help & tours."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:154
 msgid "You ran your first job 🎉"

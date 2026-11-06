@@ -16,11 +16,12 @@ next. Each tour has 6 steps or fewer.
 
 ```typescript
 loadOnboardingTour   // loader of OnboardingTour.svelte
-loadTourMenu         // loader of TourMenu.svelte: the tours, the welcome dialog and the docs
 ```
 
 The shell mounts `OnboardingTour` in `LaunchOverlays`, **after** the "What's new" dialog. Never
-show both. The shell part `HelpMenu` (top bar) shows `TourMenu` in its popover.
+show both. The module adds the page `/<workspace>/help/tours` (`HelpPage/Help.page.svelte`): the
+tours, the welcome dialog again and the docs. Its link is in the `help` nav section of the shell,
+and "Help & tours" in the user menu opens it.
 Never add: `onboarding.module.ts`, a component.
 
 ## Data contract
@@ -70,13 +71,14 @@ presentation/
     tour-tracking.attachments.svelte.ts  trackTourStep (rAF + click listener), readAction, pressable,
                                          blockPage, portalToBody, holdPointer
     onboarding-tour.state.svelte.ts  ViewModel: status, tour, current step, previous, skip,
-                                     mutation events; createTourLauncher (used by TourMenu)
+                                     mutation events; createTourLauncher (used by the help page)
     TourSpot.svelte                  one spot step: tracking, spotlight, card
     TourSpotlight.svelte, TourCard.svelte, TourIcon.svelte
     IntroDialog.svelte, IntroIllustration.svelte, TourChooser.svelte   the welcome dialog
     SkipTourDialog.svelte, FinishTourDialog.svelte
     TourOffer.svelte                 the offer of a tour on the first visit of its page
-  ui/TourMenu/TourMenu.svelte        the content of the help menu
+  ui/HelpPage/Help.page.svelte       the help page: every tour (Start / Restart), the welcome
+                                     dialog again, the docs
 ```
 
 ## How a step moves on
@@ -146,7 +148,7 @@ The mutation keys come from the barrels: `CREATE_APP_MUTATION_KEY` (`apps`),
   only when no tour runs and no dialog of the tours shows, and only for a tour that the user may
   start and that is not in `done` or `declined`. Start begins the tour at `offer.step`, with
   the subject that the path gives (the project, the pipeline). Not now adds the tour to
-  `declined`: the card does not come back, the help menu still starts the tour. `offer.needs`
+  `declined`: the card does not come back, the help page still starts the tour. `offer.needs`
   holds the card until an element shows (the run tour needs a pipeline). A global Skip does
   not stop the page offers.
 - **Blocking.** On a step with a Next button, the page takes no input (except a `form` step,

@@ -8,7 +8,6 @@ import { layoutMessages } from './presentation/layout/messages/layout.messages.t
 import NavUser from './presentation/layout/ui/NavUser/NavUser.svelte';
 import NewBadge from './presentation/layout/ui/NewBadge.svelte';
 import GlobalSearch from './presentation/layout/ui/GlobalSearch/GlobalSearch.svelte';
-import HelpMenu from './presentation/layout/ui/HelpMenu/HelpMenu.svelte';
 import NotificationsMenu from './presentation/layout/ui/NotificationsMenu/NotificationsMenu.svelte';
 import ShellBrand from './presentation/layout/ui/ShellBrand/ShellBrand.svelte';
 import { markNavSeen } from './presentation/layout/whats-new.state.svelte.ts';
@@ -76,6 +75,8 @@ export const ShellModule = {
     { id: 'instance', title: layoutMessages.instance, railItem: { icon: ShieldCheckIcon } },
     // The user menu opens it: the avatar of the rail is its item.
     { id: 'account', title: layoutMessages.account, noRailItem: true },
+    // The user menu opens it too: the guided tours and the docs.
+    { id: 'help', title: layoutMessages.help, noRailItem: true },
     // The bell opens it.
     { id: 'notifications', title: layoutMessages.notifications, noRailItem: true },
   ],
@@ -86,7 +87,7 @@ export const ShellModule = {
   },
   shell: {
     brand: ShellBrand,
-    topBarEnd: [GlobalSearch, HelpMenu, NotificationsMenu, WorkspaceSelector],
+    topBarEnd: [GlobalSearch, NotificationsMenu, WorkspaceSelector],
     sidebarFooter: [NavUser],
     overlays: [LaunchOverlays],
     navBadge: NewBadge,

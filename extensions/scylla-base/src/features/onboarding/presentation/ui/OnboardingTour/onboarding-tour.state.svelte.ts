@@ -50,7 +50,7 @@ const stepIdsOf = (tour: TourDefinition | undefined) => tour?.steps.map(step => 
 
 export const currentUserId = () => localStorage.getItem('userId') || 'anonymous';
 
-/** Starts a tour from anywhere in the app (the help menu): the overlay reads the same status. */
+/** Starts a tour from anywhere in the app (the help page): the overlay reads the same status. */
 export const createTourLauncher = () => {
   const userId = currentUserId();
   const statusQuery = createQuery(() => onboardingQueries.status(userId));

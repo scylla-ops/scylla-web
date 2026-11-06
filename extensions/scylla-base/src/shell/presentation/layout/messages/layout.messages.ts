@@ -11,6 +11,7 @@ export const layoutMessages = {
   language: msg`Language`,
   search: msg`Search`,
   help: msg`Help`,
+  helpAndTours: msg`Help & tours`,
   searchPlaceholder: msg`Search pages, actions, projects…`,
   searchNoResult: msg`Nothing matches this search.`,
   welcome: msg`Welcome to Scylla!`,

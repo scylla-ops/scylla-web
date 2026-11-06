@@ -12,7 +12,7 @@ roles and members. The design is the "Onboarding · tutoriel" page of the Scylla
 
 One long tour of 19 steps was too long: users skipped it. Each tour now has 6 steps or fewer and
 does one job. "Connect an agent" is recommended first, because nothing runs without an agent.
-The help menu of the top bar starts any tour again at any time.
+"Help & tours", in the user menu, opens a page that starts any tour again at any time.
 
 A card with a spotlight points at one element; a thin dotted line joins them. The user does the
 real action (a click, a form) and the tour follows: there is no fake data and no shortcut. When
@@ -35,8 +35,8 @@ the presentation.
 
 ## Related modules
 
-- [shell](../../shell/README.md) — mounts the tour after the release announcement, and the help
-  menu in the top bar.
+- [shell](../../shell/README.md) — mounts the tour after the release announcement. Its user menu
+  opens the help page.
 - [apps](../apps/README.md), [project](../project/README.md), [pipeline](../pipeline/README.md),
   [jobs](../jobs/README.md), [triggers](../triggers/README.md), [secret](../secret/README.md),
   roles, [membership](../membership/README.md) — the pages the tours point

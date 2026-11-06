@@ -144,7 +144,7 @@ export const closeTours = (
 export const reopenIntro = (status: OnboardingStatus): OnboardingStatus =>
   keptHistory({ kind: 'not-started' as const }, status);
 
-/** The user turned down the offer of a page: it does not come back, the help menu still has it. */
+/** The user turned down the offer of a page: it does not come back, the help page still has it. */
 export const declineTour = (status: OnboardingStatus, tour: string): OnboardingStatus | null => {
   const declined = declinedTours(status);
   if (declined.includes(tour) || status.kind === 'in-progress' || status.kind === 'finished') {
