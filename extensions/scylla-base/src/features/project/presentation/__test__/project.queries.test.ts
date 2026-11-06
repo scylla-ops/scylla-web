@@ -27,6 +27,7 @@ vi.mock('svelte-sonner', () => ({
 
 const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
   id: 'project-1',
+  workspaceId: 'org-1',
   name: 'web',
   description: 'the web app',
   ...overrides,
@@ -46,6 +47,7 @@ const page = (projects: ProjectEntity[]) => ({
 
 const withRepository = (overrides: Partial<ProjectRepository> = {}) => {
   const repository = {
+    getById: vi.fn().mockResolvedValue(project()),
     getByWorkspaceId: vi.fn().mockResolvedValue(page([project()])),
     create: vi.fn().mockResolvedValue(project()),
     update: vi.fn().mockResolvedValue(project()),
@@ -175,6 +177,36 @@ describe('projectQueries.lookup', () => {
   });
 });
 
+describe('projectQueries.byId', () => {
+  it('reads the one project', async () => {
+    const repository = withRepository();
+
+    await expect(runQueryFn(projectQueries.byId('project-1'))).resolves.toEqual(project());
+
+    expect(repository.getById).toHaveBeenCalledWith('project-1');
+    expect(repository.getByWorkspaceId).not.toHaveBeenCalled();
+  });
+
+  it('is under the projects root, so that each invalidation reaches it', () => {
+    withRepository();
+
+    expect(projectQueries.byId('project-1').queryKey.slice(0, 1)).toEqual([...PROJECTS_QUERY_ROOT]);
+  });
+
+  it('asks no permission of the store: the store gets the project from this answer', () => {
+    grantNothing();
+    withRepository();
+
+    expect(projectQueries.byId('project-1').enabled).toBe(true);
+  });
+
+  it('is disabled without an id', () => {
+    withRepository();
+
+    expect(projectQueries.byId(undefined).enabled).toBe(false);
+  });
+});
+
 describe('projectLookupQueries', () => {
   it('skips the workspaces the caller may not read rather than collecting denials', () => {
     permissionsStore.setState({
@@ -279,6 +311,30 @@ describe('the mutations', () => {
     expect(contextStore.getState().project).toEqual({ id: 'project-1', name: 'renamed' });
   });
 
+  it('update gives the read of the project the new name, so a next page shows no old name', () => {
+    withRepository();
+    queryClient.setQueryData(projectQueries.byId('project-1').queryKey, () => project());
+
+    runOnSuccess(projectMutations.update(), project({ name: 'renamed' }), {
+      projectId: 'project-1',
+    });
+
+    expect(queryClient.getQueryData(projectQueries.byId('project-1').queryKey)).toEqual(
+      project({ name: 'renamed' }),
+    );
+  });
+
+  it('update makes no read of a project that nothing read: a refetch of it could not run', () => {
+    withRepository();
+
+    runOnSuccess(projectMutations.update(), project({ name: 'renamed' }), {
+      projectId: 'project-1',
+    });
+
+    expect(queryClient.getQueryCache().find({ queryKey: projectQueries.byId('project-1').queryKey }))
+      .toBeUndefined();
+  });
+
   it('update leaves the store when another project is active', () => {
     withRepository();
     contextStore.setState({ project: { id: 'project-2', name: 'api' } });
@@ -300,5 +356,49 @@ describe('the mutations', () => {
     expect(repository.delete).toHaveBeenCalledWith('project-9');
     expect(toastSuccess).toHaveBeenCalledWith('Project deleted');
     expect(invalidate).toHaveBeenCalledWith({ queryKey: PROJECTS_QUERY_ROOT });
+  });
+
+  it('remove takes the active project and its pipeline out of the store', () => {
+    withRepository();
+    contextStore.setState({
+      project: { id: 'project-1', name: 'web' },
+      pipeline: { id: 'pipeline-1', name: 'ci' },
+    });
+
+    runOnSuccess(projectMutations.remove(), undefined, 'project-1');
+
+    expect(contextStore.getState().project).toEqual({ id: null, name: null });
+    expect(contextStore.getState().pipeline).toEqual({ id: null, name: null });
+  });
+
+  it('remove leaves the store when another project is active', () => {
+    withRepository();
+    contextStore.setState({
+      project: { id: 'project-2', name: 'api' },
+      pipeline: { id: 'pipeline-1', name: 'ci' },
+    });
+
+    runOnSuccess(projectMutations.remove(), undefined, 'project-1');
+
+    expect(contextStore.getState().project).toEqual({ id: 'project-2', name: 'api' });
+    expect(contextStore.getState().pipeline).toEqual({ id: 'pipeline-1', name: 'ci' });
+  });
+
+  it('remove tells the read of the project that it is gone, for a browser back', () => {
+    withRepository();
+    queryClient.setQueryData(projectQueries.byId('project-1').queryKey, () => project());
+
+    runOnSuccess(projectMutations.remove(), undefined, 'project-1');
+
+    expect(queryClient.getQueryData(projectQueries.byId('project-1').queryKey)).toBeNull();
+  });
+
+  it('remove makes no read of a project that nothing read: a refetch of it could not run', () => {
+    withRepository();
+
+    runOnSuccess(projectMutations.remove(), undefined, 'project-1');
+
+    expect(queryClient.getQueryCache().find({ queryKey: projectQueries.byId('project-1').queryKey }))
+      .toBeUndefined();
   });
 });

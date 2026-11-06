@@ -17,7 +17,7 @@ component or another feature runs with `createQuery`.
 
 ```typescript
 type ProjectEntity, ProjectList, ProjectLookupEntry
-projectQueries        byWorkspace (paginated) · lookup (org-wide) · members
+projectQueries        byWorkspace (paginated) · lookup (org-wide) · byId (one project, or null) · members
 projectLookupQueries  the batched fan-out: { queries, combine } for useQueries/createQueries
 projectMutations      create · update · remove
 canListProjects
@@ -38,6 +38,7 @@ Never add: `project.module.ts`, pages.
 | Method | Returns |
 |---|---|
 | `getByWorkspaceId(workspaceId, pagination?)` | `ProjectList`: a `PaginatedList<ProjectEntity>` (`items`, `pagination`) |
+| `getById(projectId)` | `ProjectEntity`, or `null` when the server refuses the id: see the rules below |
 | `create(name, workspaceId, description?)` | `ProjectEntity` |
 | `update(projectId, name?, description?)` | `ProjectEntity` |
 | `delete(projectId)` | `void` |
@@ -100,10 +101,27 @@ project routes (the `project` mount) are declared by the modules that own them
 - **`projectMutations.update` also writes `contextStore`** when the project is the active one. The
   crumb, the sidebar title, the members page of the project and the search bar read that copy of the
   name. No effect that follows the list is mounted on the project list, so the mutation must write it.
-  On a project page, [`cleanContext`](../../shell/AGENTS.md) also keeps it equal to the list.
+  On a project page, [`cleanContext`](../../shell/AGENTS.md) also keeps it equal to the server.
 - **`projectMutations.update` refetches with `refetchType: 'all'`.** The dashboard and the search bar
   read lists that no component has mounted during the rename. A default refetch skips these lists,
   and the old name shows for one fetch when the next page opens.
+- **To find one project, use `projectQueries.byId`, not a list.** A list is cut into pages, so a
+  project that is not on a page can still exist.
+- **`getById` gives `null` for `PERMISSION_DENIED` and `INVALID_ARGUMENT`.** The server answers an
+  unknown id as a refusal, and a text that is not an id as an invalid argument. `null` thus means
+  "this caller cannot have this project", not "it does not exist". Any other error stays an error.
+  With no other proof, do not read `null` as "gone": see [`cleanContext`](../../shell/AGENTS.md).
+- **`projectMutations.remove` clears the project and the pipeline of `contextStore`** when the project
+  is the active one, for the same reason as `update`: no `cleanContext` is mounted on the list. The
+  search bar reads the store there.
+- **`projectMutations.remove` and `update` write the read of the project only if a read made it**
+  (`setQueriesData`, not `setQueryData`). An entry that a write makes has no `queryFn`, and
+  `refetchType: 'all'` fails on it. After a delete, this `null` lets a browser back leave at once:
+  the page of the project does not mount.
+- **A delete does not refresh the pipelines of the search bar.** `pipelineQueries.allOfWorkspace` keeps
+  a pipeline of the deleted project for up to 30 seconds (`staleTime`). This module cannot invalidate
+  it: `pipeline` reaches `project` through `apps`, so an import makes a module cycle. A click on this
+  row goes to the list.
 
 ## Before done
 

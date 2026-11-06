@@ -39,6 +39,10 @@ one thing — and a mutation invalidating one leaves the other showing stale dat
 So the queries live with the module that owns the resource, and consumers import the factory.
 If a fourth reader appears, its factory belongs here too.
 
+The shell asks another question: does the project of the URL exist? It uses `projectQueries.byId`,
+which reads one project. A list cannot answer: it is cut into pages, and a project that is not on a
+page can still exist.
+
 `projectLookupQueries` is also the codebase's reference for batching: it resolves projects
 across several workspaces with `createQueries` rather than a loop of `createQuery`, which is
 what keeps the grant list from firing one request per row.

@@ -133,12 +133,26 @@ Rules:
   not react to the new URL.
 - The effects read the context store with `untrack`, else the old and the new wrapper could set
   the store one after the other.
-- `ContextCleanerWrapper` also handles a project id that no longer exists (redirects out).
-- `cleanContext` keeps the project of the store equal to the URL and to the list of projects, also
-  when the list changes after the mount. So a direct link, a search result and a rename in another
-  tab give the correct name. It writes only while the URL still points at its project, because a
-  refetch can end during the exit animation. It reads the first page of the list only: a project
-  past this page counts as gone.
+- `ContextCleanerWrapper` also handles a project id that no longer exists: it redirects out, and it
+  does not render the page of a project that `cleanContext` knows is gone.
+- `cleanContext` reads the project of the URL with `projectQueries.byId`, and keeps the project of
+  the store equal to the answer, also when the answer changes after the mount. So a project on any
+  page of the list, a direct link, a search result and a rename in another tab give the correct
+  name. It writes only while the URL still points at its project, because a read can end during the
+  exit animation.
+- **The answer `null` proves "gone" only with `canListProjects`.** The server gives the same code
+  for an unknown project and for a refusal. `project.view` permits the read of one project and the
+  list, so a person who can list the workspace is never refused for a project that exists. A custom
+  role with `pipelines.view` only can be on a project page and be refused: this person stays on the
+  page. A project of another workspace also counts as gone.
+- **`cleanContext` compares only after `syncWorkspace` wrote the workspace of the URL.** It is the
+  child effect, so it runs first. Without this wait, a browser back after a change of workspace
+  counts the project as gone.
+- **`projectQueries.byId` has no `can()` gate here.** The permissions of a project load only for the
+  project of the store, and `cleanContext` writes this project. A gate never opens.
+- A full load of a deleted or unknown URL shows one error toast: the page mounts and its own list
+  fails before the read of the project answers. The wrapper does not hold the page until this
+  answer, because each first entry in a project would then wait for one more call.
 
 ## The shell parts
 

@@ -227,6 +227,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   project and the top bar search, also after a reload. Before, the old name stayed until a click on
   the project card. A link to a project that does not come from its card, for example a direct link
   or a result of the search, shows the name of this project. Before, it showed the last open project.
+- A project that is not on the first page of the list opens and shows its name. Before, the app went
+  back to the list of projects. After a delete of the open project, the top bar search no longer
+  shows this project and its pages, and a browser back to it goes to the list.
 
 ## [0.6.0] - 2026-11-01
 

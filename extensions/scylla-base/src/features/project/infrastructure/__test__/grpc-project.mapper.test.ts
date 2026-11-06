@@ -10,9 +10,10 @@ const project = (id: string) => ({
 });
 
 describe('grpcProject.toDomain', () => {
-  it('unwraps the id and keeps the name and the description', () => {
+  it('unwraps the ids and keeps the name and the description', () => {
     expect(toDomain(project('p-1'))).toEqual({
       id: 'p-1',
+      workspaceId: 'ws-1',
       name: 'Project p-1',
       description: 'about it',
     });

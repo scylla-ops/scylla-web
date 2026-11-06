@@ -10,7 +10,7 @@ import type { ProjectEntity } from '@base/features/project';
 import { createWorkspaceOverview } from '../org-overview.state.svelte.ts';
 
 const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity =>
-  ({ id: 'project-1', name: 'Acme project', ...overrides });
+  ({ id: 'project-1', workspaceId: 'org-1', name: 'Acme project', ...overrides });
 
 const pipeline = (overrides: Partial<PipelineMetadata> = {}): PipelineMetadata => ({
   id: 'pipeline-1',

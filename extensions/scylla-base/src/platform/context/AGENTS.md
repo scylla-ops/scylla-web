@@ -46,7 +46,9 @@ break the layer. If a component needs more than an id and a name, it reads the i
 runs that feature's query.
 
 The names are a copy of the data of the server, and a reload keeps them. Something must write each
-new name: for a project, `projectMutations.update` and `cleanContext` of the shell.
+new name: for a project, `projectMutations.update` and `cleanContext` of the shell. A delete also
+needs a writer: `projectMutations.remove` clears the project and the pipeline when the project is
+the active one.
 
 Persistence: `createStore` (`@scylla/ui/stores`) keeps it in
 `localStorage` under key `scylla-context`, so a reload keeps the user where they were. The stored
