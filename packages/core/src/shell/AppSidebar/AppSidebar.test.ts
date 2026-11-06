@@ -358,7 +358,7 @@ describe('the handle of the second sidebar', () => {
 
     expect(handle()).toHaveAttribute('aria-orientation', 'vertical');
     expect(handle()).toHaveAttribute('aria-valuenow', '200');
-    expect(handle()).toHaveAttribute('aria-valuemin', '200');
+    expect(handle()).toHaveAttribute('aria-valuemin', '140');
     expect(handle()).toHaveAttribute('aria-valuemax', '400');
     expect(handle()).toHaveAttribute('aria-controls', secondSidebar().id);
     expect(handle()).toHaveAttribute('tabindex', '0');
@@ -392,7 +392,7 @@ describe('the handle of the second sidebar', () => {
     renderOnPage();
 
     await drag(256, 40);
-    expect(handle()).toHaveAttribute('aria-valuenow', '200');
+    expect(handle()).toHaveAttribute('aria-valuenow', '140');
 
     await drag(256, 1200);
     expect(handle()).toHaveAttribute('aria-valuenow', '400');
@@ -419,7 +419,7 @@ describe('the handle of the second sidebar', () => {
     expect(handle()).toHaveAttribute('aria-valuenow', '200');
 
     await userEvent.keyboard('{ArrowLeft}');
-    expect(handle()).toHaveAttribute('aria-valuenow', '200');
+    expect(handle()).toHaveAttribute('aria-valuenow', '184');
 
     await userEvent.keyboard('{End}');
     expect(handle()).toHaveAttribute('aria-valuenow', '400');
@@ -428,7 +428,36 @@ describe('the handle of the second sidebar', () => {
     expect(handle()).toHaveAttribute('aria-valuenow', '400');
 
     await userEvent.keyboard('{Home}');
+    expect(handle()).toHaveAttribute('aria-valuenow', '140');
+
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(handle()).toHaveAttribute('aria-valuenow', '140');
+  });
+
+  it.each([
+    ['a double click', () => fireEvent.dblClick(handle())],
+    [
+      'Enter',
+      async () => {
+        handle().focus();
+        await userEvent.keyboard('{Enter}');
+      },
+    ],
+  ])('goes back to the default width with %s, and stores it', async (_name, reset) => {
+    localStorage.setItem(STORAGE_KEY, '320');
+    renderOnPage();
+
+    await reset();
+
     expect(handle()).toHaveAttribute('aria-valuenow', '200');
+    expect(slot().style.width).toBe('256px');
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('200');
+  });
+
+  it('gives the full text of a link in its title, because a narrow second sidebar cuts it', () => {
+    renderOnPage();
+
+    expect(within(secondSidebar()).getByTitle('Agents')).toHaveClass('truncate');
   });
 
   it('keeps the width after a page load', async () => {

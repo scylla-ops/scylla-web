@@ -30,11 +30,12 @@ afterEach(() => {
 });
 
 describe('createSecondSidebarWidth', () => {
-  it('starts at the minimum when the browser has no width', () => {
+  it('starts at the default width when the browser has no width', () => {
     const width = widthIn(() => WIDE_WINDOW);
 
     expect(width.current).toBe(200);
-    expect(width.min).toBe(200);
+    expect(width.default).toBe(200);
+    expect(width.min).toBe(140);
     expect(width.max).toBe(400);
   });
 
@@ -44,7 +45,7 @@ describe('createSecondSidebarWidth', () => {
     expect(widthIn(() => WIDE_WINDOW).current).toBe(312);
   });
 
-  it.each(['wide', '', 'Infinity'])('starts at the minimum for a stored %j', value => {
+  it.each(['wide', '', 'Infinity'])('starts at the default width for a stored %j', value => {
     localStorage.setItem(KEY, value);
 
     expect(widthIn(() => WIDE_WINDOW).current).toBe(200);
@@ -52,18 +53,24 @@ describe('createSecondSidebarWidth', () => {
 
   it('keeps a stored width between the limits', () => {
     localStorage.setItem(KEY, '90');
-    expect(widthIn(() => WIDE_WINDOW).current).toBe(200);
+    expect(widthIn(() => WIDE_WINDOW).current).toBe(140);
 
     cleanup();
     localStorage.setItem(KEY, '5000');
     expect(widthIn(() => WIDE_WINDOW).current).toBe(400);
   });
 
+  it('keeps a stored width below the default width', () => {
+    localStorage.setItem(KEY, '160');
+
+    expect(widthIn(() => WIDE_WINDOW).current).toBe(160);
+  });
+
   it('stops a resize at the minimum and at the maximum', () => {
     const width = widthIn(() => WIDE_WINDOW);
 
-    width.resize(150);
-    expect(width.current).toBe(200);
+    width.resize(100);
+    expect(width.current).toBe(140);
 
     width.resize(900);
     expect(width.current).toBe(400);
@@ -93,11 +100,14 @@ describe('createSecondSidebarWidth', () => {
     expect(width.current).toBe(400);
   });
 
-  it('never lowers the maximum below the minimum', () => {
+  it('never lowers the maximum below the default width, and a resize can still go below it', () => {
     const width = widthIn(() => 800);
 
     expect(width.max).toBe(200);
     expect(width.current).toBe(200);
+
+    width.resize(150);
+    expect(width.current).toBe(150);
   });
 
   it('writes to the browser only on a save', () => {

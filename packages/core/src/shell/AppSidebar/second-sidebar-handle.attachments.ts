@@ -11,6 +11,7 @@ const KEY_TARGETS: Record<string, (width: SecondSidebarWidth) => number> = {
   ArrowRight: width => width.current + KEY_STEP_PX,
   Home: width => width.min,
   End: width => width.max,
+  Enter: width => width.default,
 };
 
 /** The handle captures the pointer, so that a drag follows it over the page. */
@@ -40,12 +41,20 @@ export const resizeSecondSidebar =
       width.save();
     };
 
+    const moveTo = (next: number) => {
+      width.resize(next);
+      width.save();
+    };
+
     const onKeyDown = (event: KeyboardEvent) => {
       const target = KEY_TARGETS[event.key];
       if (!target) return;
       event.preventDefault();
-      width.resize(target(width));
-      width.save();
+      moveTo(target(width));
+    };
+
+    const onDoubleClick = () => {
+      moveTo(width.default);
     };
 
     node.addEventListener('pointerdown', onPointerDown);
@@ -54,6 +63,7 @@ export const resizeSecondSidebar =
     node.addEventListener('pointercancel', onDragEnd);
     node.addEventListener('lostpointercapture', onDragEnd);
     node.addEventListener('keydown', onKeyDown);
+    node.addEventListener('dblclick', onDoubleClick);
 
     return () => {
       onDragEnd();
@@ -63,5 +73,6 @@ export const resizeSecondSidebar =
       node.removeEventListener('pointercancel', onDragEnd);
       node.removeEventListener('lostpointercapture', onDragEnd);
       node.removeEventListener('keydown', onKeyDown);
+      node.removeEventListener('dblclick', onDoubleClick);
     };
   };
