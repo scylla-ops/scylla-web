@@ -1,3 +1,4 @@
+import { SvelteMap } from 'svelte/reactivity';
 import { createMutation, createQuery, getQueryClient } from '@scylla/core-sdk';
 import { appQueries, CREATE_APP_MUTATION_KEY } from '@base/features/apps';
 import { contextStore, currentPathname, navigateTo, scyllaNavigate } from '@platform/context';
@@ -123,7 +124,7 @@ export const createOnboardingTour = (canStart: () => boolean) => {
 
   const canGoNext = $derived(!!step && (!step.nextWhen || unlockedStepId === step.id));
 
-  const left = new Map<string, string>();
+  const left = new SvelteMap<string, string>();
 
   const write = (next: OnboardingStatus | null) => {
     if (next) save.mutate(next);
