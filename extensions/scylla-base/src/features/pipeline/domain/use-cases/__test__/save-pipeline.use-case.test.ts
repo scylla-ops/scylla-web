@@ -82,6 +82,43 @@ describe('SavePipelineUseCase', () => {
     expect(issue).toEqual({ kind: 'node-ids', ids: ['Build', 'déployer'] });
   });
 
+  it('sends the needs with their ports, and the places of the new nodes, in one save', async () => {
+    const { edit, repository } = repositoryWith();
+    const nodes: PipelineNodeEntity[] = [
+      node('test'),
+      { ...node('notify'), deps: [{ node: 'test', port: 'error' }] },
+    ];
+    const layout = { nodes: { notify: { x: 5, y: 6 } } };
+
+    const issue = await issueOf(
+      new SavePipelineUseCase(repository).execute({
+        id: 'p1',
+        projectId: 'proj',
+        name: 'nightly',
+        nodes,
+        layout,
+      }),
+    );
+
+    expect(issue).toBeNull();
+    expect(edit).toHaveBeenCalledWith('p1', nodes, 'nightly', layout);
+  });
+
+  it('sends nothing for a need on a port that its node does not have', async () => {
+    const { create, repository } = repositoryWith();
+
+    const issue = await issueOf(
+      new SavePipelineUseCase(repository).execute({
+        projectId: 'proj',
+        name: 'nightly',
+        nodes: [node('build'), { ...node('deploy'), deps: [{ node: 'build', port: 'true' }] }],
+      }),
+    );
+
+    expect(create).not.toHaveBeenCalled();
+    expect(issue).toEqual({ kind: 'nodes', ids: ['deploy'] });
+  });
+
   it('sends nothing for a name of more than one word', async () => {
     const { create, repository } = repositoryWith();
 

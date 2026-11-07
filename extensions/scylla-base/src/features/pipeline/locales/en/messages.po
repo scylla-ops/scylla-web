@@ -650,3 +650,273 @@ msgstr "You don't have permission to edit this pipeline."
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:30
 msgid "You don't have permission to view this pipeline's jobs"
 msgstr "You don't have permission to view this pipeline's jobs"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:70
+msgid "{node} has no port {port}."
+msgstr "{node} has no port {port}."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:68
+msgid "A merge needs at least one link in."
+msgstr "A merge needs at least one link in."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:114
+msgid "A merge runs when one of its links in or more is open."
+msgstr "A merge runs when one of its links in or more is open."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:113
+msgid "A node linked to the error output runs when this node fails. The job still fails."
+msgstr "A node linked to the error output runs when this node fails. The job still fails."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:52
+msgid "A port has no name."
+msgstr "A port has no name."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:51
+msgid "A switch needs 1 to 16 cases."
+msgstr "A switch needs 1 to 16 cases."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:81
+msgid "Add a case"
+msgstr "Add a case"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:82
+msgid "Add a rule"
+msgstr "Add a rule"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:76
+msgctxt "rules"
+msgid "All"
+msgstr "All"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:77
+msgctxt "rules"
+msgid "Any"
+msgstr "Any"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:72
+msgid "Cases"
+msgstr "Cases"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:101
+msgid "contains"
+msgstr "contains"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:80
+msgid "Delete the case {port}"
+msgstr "Delete the case {port}"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:83
+msgid "Delete the rule"
+msgstr "Delete the rule"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:102
+msgid "does not contain"
+msgstr "does not contain"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:104
+msgid "ends with"
+msgstr "ends with"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:63
+msgid "Fix these nodes before you save: {ids}"
+msgstr "Fix these nodes before you save: {ids}"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:16
+msgid "Flow"
+msgstr "Flow"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:17
+msgid "If"
+msgstr "If"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:65
+msgid "In the case {port}, \"{key}\" is not an output key."
+msgstr "In the case {port}, \"{key}\" is not an output key."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:63
+msgid "In the case {port}, \"{name}\" is not a variable name."
+msgstr "In the case {port}, \"{name}\" is not a variable name."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:59
+msgid "In the case {port}, \"{value}\" is not a number."
+msgstr "In the case {port}, \"{value}\" is not a number."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:67
+msgid "In the case {port}, {node} is not a node that runs a step before this switch."
+msgstr "In the case {port}, {node} is not a node that runs a step before this switch."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:61
+msgid "In the case {port}, a text is longer than 64 KiB or holds a NUL character."
+msgstr "In the case {port}, a text is longer than 64 KiB or holds a NUL character."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:50
+msgid "Invalid link"
+msgstr "Invalid link"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:49
+msgid "Invalid switch"
+msgstr "Invalid switch"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:105
+msgid "is empty"
+msgstr "is empty"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:99
+msgid "is equal to"
+msgstr "is equal to"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:107
+msgid "is greater than"
+msgstr "is greater than"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:108
+msgid "is greater than or equal to"
+msgstr "is greater than or equal to"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:109
+msgid "is less than"
+msgstr "is less than"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:110
+msgid "is less than or equal to"
+msgstr "is less than or equal to"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:106
+msgid "is not empty"
+msgstr "is not empty"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:100
+msgid "is not equal to"
+msgstr "is not equal to"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:22
+msgid "Joins branches again"
+msgstr "Joins branches again"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:96
+msgid "Key of the output"
+msgstr "Key of the output"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:88
+msgid "Kind of the left value"
+msgstr "Kind of the left value"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:89
+msgid "Kind of the right value"
+msgstr "Kind of the right value"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:90
+msgid "Left value"
+msgstr "Left value"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:8
+msgid "merge"
+msgstr "merge"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:21
+msgid "Merge"
+msgstr "Merge"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:79
+msgid "Move the case {port} down"
+msgstr "Move the case {port} down"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:78
+msgid "Move the case {port} up"
+msgstr "Move the case {port} up"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:95
+msgid "Node of the output"
+msgstr "Node of the output"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:98
+msgid "Number"
+msgstr "Number"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:20
+msgid "One way for each case"
+msgstr "One way for each case"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:85
+msgid "Open a port when no case matches"
+msgstr "Open a port when no case matches"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:84
+msgid "Open the port of each case that matches"
+msgstr "Open the port of each case that matches"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:93
+msgid "Output"
+msgstr "Output"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:73
+msgid "Port name"
+msgstr "Port name"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:86
+msgid "Port when no case matches"
+msgstr "Port when no case matches"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:91
+msgid "Right value"
+msgstr "Right value"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:74
+msgid "Rules to match"
+msgstr "Rules to match"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:112
+msgid "Send a failure to an error output"
+msgstr "Send a failure to an error output"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:103
+msgid "starts with"
+msgstr "starts with"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:7
+msgid "switch"
+msgstr "switch"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:19
+msgid "Switch"
+msgstr "Switch"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:97
+msgid "Test"
+msgstr "Test"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:94
+msgid "Text"
+msgstr "Text"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:57
+msgid "The case {port} needs 1 to 32 rules."
+msgstr "The case {port} needs 1 to 32 rules."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:69
+msgid "The link {need} comes two times."
+msgstr "The link {need} comes two times."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:54
+msgid "The port \"{port}\" is not valid. Use 1 to 128 lowercase letters (a-z), digits, - and _."
+msgstr "The port \"{port}\" is not valid. Use 1 to 128 lowercase letters (a-z), digits, - and _."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:56
+msgid "The port name \"error\" is for the error output of a node that runs a step. Use another name."
+msgstr "The port name \"error\" is for the error output of a node that runs a step. Use another name."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:116
+msgid "These nodes no longer wait for {need}: {nodes}."
+msgstr "These nodes no longer wait for {need}: {nodes}."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:55
+msgid "Two ports have the name {port}."
+msgstr "Two ports have the name {port}."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:18
+msgid "Two ways: true or false"
+msgstr "Two ways: true or false"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:92
+msgid "Variable"
+msgstr "Variable"

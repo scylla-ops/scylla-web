@@ -69,6 +69,24 @@ describe('QuickAddMenu', () => {
     );
   });
 
+  it('offers If, Switch and Merge in the group Flow, and links the new node to the port of the link', async () => {
+    const { quickAdd, onPick } = setup();
+    quickAdd.open({
+      client: { x: 5, y: 5 },
+      flow: { x: 0, y: 0 },
+      link: { after: 'is-main', port: 'false' },
+    });
+    flushSync();
+
+    expect(screen.getByRole('group', { name: 'Flow' })).toHaveTextContent(/If.*Switch.*Merge/);
+    await userEvent.click(screen.getByRole('option', { name: /^Merge/ }));
+
+    expect(onPick).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'kind:merge' }),
+      expect.objectContaining({ link: { after: 'is-main', port: 'false' } }),
+    );
+  });
+
   it('closes on Escape and on a click outside, without adding anything', async () => {
     const { quickAdd, onPick } = setup();
     quickAdd.open({ client: { x: 5, y: 5 }, flow: { x: 0, y: 0 }, link: {} });

@@ -3,6 +3,7 @@ import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { findFloating, render, withQueryClient } from '@test/render.ts';
 import type { PipelineDocument } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
+import { dependencyText } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
 import Fixture from './PipelineScripting.fixture.svelte';
 
 const document = JSON.stringify({
@@ -198,7 +199,7 @@ describe('PipelineScripting', () => {
     await user.click(screen.getAllByRole('button', { name: 'New node' })[0]);
 
     expect(screen.getByRole('button', { name: 'node', current: true })).toBeInTheDocument();
-    expect(doc().nodes.find(node => node.id === 'node')?.deps).toEqual(['build']);
+    expect(doc().nodes.find(node => node.id === 'node')?.deps.map(dependencyText)).toEqual(['build']);
   });
 
   it('renames a node from its properties, and the nodes that wait for it follow', async () => {
@@ -210,7 +211,25 @@ describe('PipelineScripting', () => {
     await user.type(id, 'compile{Enter}');
 
     expect(screen.getByRole('button', { name: 'compile', current: true })).toBeInTheDocument();
-    expect(doc().nodes.find(node => node.id === 'test')?.deps).toEqual(['compile']);
+    expect(doc().nodes.find(node => node.id === 'test')?.deps.map(dependencyText)).toEqual(['compile']);
+  });
+
+  it('writes the needs of a node with their ports, a need on error in red', () => {
+    renderScripting(
+      JSON.stringify({
+        name: 'web',
+        nodes: [
+          { id: 'build', deps: [], kind: 'exec', command: 'make', args: [], env: [] },
+          { id: 'deploy', deps: ['build', 'build:error'], kind: 'exec', command: 'x', args: [], env: [] },
+        ],
+      }),
+    );
+    const list = screen.getByRole('navigation', { name: 'Nodes' });
+    const row = within(list).getByRole('button', { name: /^deploy/ });
+
+    expect(row).toHaveTextContent('← Waits for build, build:error');
+    expect(within(row).getByText('build:error')).toHaveClass('text-destructive');
+    expect(within(row).getByText('build')).not.toHaveClass('text-destructive');
   });
 
   describe('the dependency picker', () => {
@@ -230,7 +249,7 @@ describe('PipelineScripting', () => {
       await user.click(await findFloating('option', id));
     };
     const depsOf = (doc: () => PipelineDocument, id: string) =>
-      doc().nodes.find(node => node.id === id)?.deps;
+      doc().nodes.find(node => node.id === id)?.deps.map(dependencyText);
 
     it('offers a dependency again once its chip is removed', async () => {
       const user = userEvent.setup();

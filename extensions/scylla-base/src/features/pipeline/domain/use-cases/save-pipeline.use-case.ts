@@ -23,8 +23,8 @@ export class InvalidPipelineError extends ScyllaError {
 }
 
 /**
- * Applies the rules of the server before it is called: a name of one word, and node ids that it
- * accepts. Then creates the pipeline, or edits it.
+ * Applies the rules of the server before it is called: a name of one word, node ids, switches and
+ * needs that it accepts. Then creates the pipeline, or edits it.
  */
 export class SavePipelineUseCase {
   constructor(private readonly _repository: PipelineRepository) {}

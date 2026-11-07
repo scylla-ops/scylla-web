@@ -2,13 +2,16 @@
 import { describe, it, expect } from 'vitest';
 import * as grpcPipeline from '../grpc-pipeline.mapper.ts';
 import {
+  Combinator,
   Shell,
+  Test,
   type EnvVar,
   type Node,
   type Pipeline,
 } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 import type {
   EnvEntry,
+  ExecPipelineNodeEntity,
   PipelineNodeEntity,
 } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 
@@ -93,7 +96,10 @@ describe('grpcPipeline.toDomain', () => {
     expect(
       nodeOf(
         execNode({
-          needs: ['a', 'b'],
+          needs: [
+            { node: 'a', port: '' },
+            { node: 'b', port: 'error' },
+          ],
           workingDir: 'web',
           timeoutSeconds: 60,
           retries: 2,
@@ -101,7 +107,7 @@ describe('grpcPipeline.toDomain', () => {
         }),
       ),
     ).toMatchObject({
-      deps: ['a', 'b'],
+      deps: [{ node: 'a' }, { node: 'b', port: 'error' }],
       workingDir: 'web',
       timeoutSeconds: 60,
       retries: 2,
@@ -117,7 +123,7 @@ describe('grpcPipeline.toDomain', () => {
   });
 
   describe('env', () => {
-    const withEnv = (env: EnvVar[]) => nodeOf(execNode({ env })).env;
+    const withEnv = (env: EnvVar[]) => (nodeOf(execNode({ env })) as ExecPipelineNodeEntity).env;
 
     it('maps a literal and a secret', () => {
       expect(
@@ -140,7 +146,7 @@ describe('grpcPipeline.toDomain', () => {
 describe('grpcPipeline.nodeFromDomain', () => {
   const exec: PipelineNodeEntity = {
     id: 'build',
-    deps: ['checkout'],
+    deps: [{ node: 'checkout' }],
     env: [],
     kind: 'exec',
     command: 'make',
@@ -150,7 +156,7 @@ describe('grpcPipeline.nodeFromDomain', () => {
   it('builds argv, and sends the defaults of the server for what the node leaves out', () => {
     expect(grpcPipeline.nodeFromDomain(exec)).toEqual({
       id: 'build',
-      needs: ['checkout'],
+      needs: [{ node: 'checkout', port: '' }],
       workingDir: '',
       env: [],
       timeoutSeconds: 0,
@@ -197,6 +203,116 @@ describe('grpcPipeline.nodeFromDomain', () => {
   it('gives back the same node after a round trip', () => {
     const node = { ...exec, workingDir: 'web', image: 'node:22', retries: 2, timeoutSeconds: 9 };
     expect(nodeOf(grpcPipeline.nodeFromDomain(node))).toEqual(node);
+  });
+});
+
+describe('the switch and the merge', () => {
+  const ifNode: PipelineNodeEntity = {
+    id: 'is-main',
+    deps: [{ node: 'build' }],
+    env: [{ key: 'TARGET', kind: 'literal', value: 'main' }],
+    kind: 'switch',
+    cases: [
+      {
+        port: 'true',
+        combinator: 'any',
+        rules: [
+          {
+            left: { kind: 'var', name: 'SCYLLA_BRANCH' },
+            test: 'equals',
+            right: { kind: 'var', name: 'TARGET' },
+          },
+          {
+            left: { kind: 'output', node: 'build', key: 'COUNT' },
+            test: 'number_gt',
+            right: { kind: 'literal', value: '2' },
+          },
+          { left: { kind: 'literal', value: '' }, test: 'not_empty' },
+        ],
+      },
+    ],
+    otherwise: 'false',
+    allMatches: true,
+  };
+
+  it('sends a switch with its cases, its rules and its ports, and no step field', () => {
+    expect(grpcPipeline.nodeFromDomain(ifNode)).toEqual({
+      id: 'is-main',
+      needs: [{ node: 'build', port: '' }],
+      workingDir: '',
+      env: [{ name: 'TARGET', value: { oneofKind: 'literal', literal: 'main' } }],
+      timeoutSeconds: 0,
+      retries: 0,
+      step: {
+        oneofKind: 'switch',
+        switch: {
+          cases: [
+            {
+              port: 'true',
+              combinator: Combinator.ANY,
+              rules: [
+                {
+                  left: { value: { oneofKind: 'var', var: 'SCYLLA_BRANCH' } },
+                  test: Test.EQUALS,
+                  right: { value: { oneofKind: 'var', var: 'TARGET' } },
+                },
+                {
+                  left: { value: { oneofKind: 'output', output: { node: 'build', key: 'COUNT' } } },
+                  test: Test.NUMBER_GT,
+                  right: { value: { oneofKind: 'literal', literal: '2' } },
+                },
+                { left: { value: { oneofKind: 'literal', literal: '' } }, test: Test.NOT_EMPTY },
+              ],
+            },
+          ],
+          otherwise: 'false',
+          allMatches: true,
+        },
+      },
+    });
+  });
+
+  it('gives back the same switch and the same merge after a round trip', () => {
+    const merge: PipelineNodeEntity = {
+      id: 'join',
+      deps: [
+        { node: 'is-main', port: 'true' },
+        { node: 'test', port: 'error' },
+      ],
+      kind: 'merge',
+    };
+    expect(nodeOf(grpcPipeline.nodeFromDomain(ifNode))).toEqual(ifNode);
+    expect(nodeOf(grpcPipeline.nodeFromDomain(merge))).toEqual(merge);
+    expect(
+      nodeOf(grpcPipeline.nodeFromDomain({ ...ifNode, otherwise: undefined })),
+    ).not.toHaveProperty('otherwise');
+  });
+
+  it('reads COMBINATOR_UNSPECIFIED as all, as the server does', () => {
+    const proto = grpcPipeline.nodeFromDomain(ifNode);
+    if (proto.step.oneofKind !== 'switch') throw new Error('not a switch');
+    proto.step.switch.cases[0].combinator = Combinator.UNSPECIFIED;
+    expect(nodeOf(proto)).toMatchObject({ cases: [{ combinator: 'all' }] });
+  });
+
+  it('throws on a test or an operand that this build does not know, rather than drop it', () => {
+    const withRule = (rule: object) =>
+      execNode({
+        step: {
+          oneofKind: 'switch',
+          switch: {
+            cases: [{ port: 'true', combinator: Combinator.ALL, rules: [rule as never] }],
+            otherwise: '',
+            allMatches: false,
+          },
+        },
+      });
+    const left = { value: { oneofKind: 'literal', literal: 'a' } };
+    expect(() => nodeOf(withRule({ left, test: 99 }))).toThrow(/update Scylla/);
+    expect(() => nodeOf(withRule({ left, test: Test.UNSPECIFIED }))).toThrow(/update Scylla/);
+    expect(() =>
+      nodeOf(withRule({ left: { value: { oneofKind: undefined } }, test: Test.EMPTY })),
+    ).toThrow(/update Scylla/);
   });
 });
 

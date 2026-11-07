@@ -10,8 +10,8 @@ them, reading their status, following their logs while they happen, and deleting
 
 - **The jobs table** — runs for a pipeline or across an workspace, paginated, with status,
   timing and the nodes each run touched.
-- **The job details page** — one run: its status, its timing, the nodes it touched and their
-  logs.
+- **The job details page** — one run: its status, its timing, the path it took through the
+  nodes, and their logs.
 - **Status semantics** — what counts as running, what counts as finished, and how a list of
   runs collapses into a single summary.
 - **Logs** — the full log of a finished run, and the **live tail** of one still in flight.
@@ -75,6 +75,23 @@ being made holds it off regardless.
 *list* of query options, so the caller fans them out in one batch rather than looping one call
 per pipeline — which is how the pipeline dashboard shows a "last run" column without an N+1
 storm. `pipeline` and the pages here run them with `createQueries`, sharing one cache.
+
+## The path of a job
+
+A pipeline with a switch, a merge or an error port does not run each node: the job takes a path.
+The details page draws it above the list of the nodes, as a read-only graph of the nodes of the
+pipeline at the start of the job: a closed need is grey and dashed, a node that the path did not
+reach is grey with a dashed border, and the chosen ports of a switch are marked. The list says
+the same in words: the ports that a switch chose, "Not taken" for a node that the path did not
+reach, and the nodes of the error branch of a failure.
+
+The server keeps one status for a node that did not run (`SKIPPED`), whatever the reason, so the
+page finds the reason itself (`job-path.presenter.ts`), with the run rule of the agent. A node is
+skipped because a node failed, or because its path was closed; only the second is "not taken".
+
+The graph has its own types, mapping and layout, apart from the editor in `pipeline`:
+`pipeline` imports this module, and a module cycle is refused, so `jobs` cannot import it back.
+It keeps the rule of the editor for the columns, so a pipeline looks the same in both.
 
 ## Query keys are part of the contract
 

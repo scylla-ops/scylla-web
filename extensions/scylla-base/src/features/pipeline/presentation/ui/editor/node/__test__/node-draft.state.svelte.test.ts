@@ -1,11 +1,15 @@
 import { describe, it, expect, vi } from 'vitest';
 import { flushSync } from 'svelte';
-import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import type {
+  ExecPipelineNodeEntity,
+  PipelineNodeEntity,
+  ScriptPipelineNodeEntity,
+} from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import { createNodeDraft, type NodeDraft } from '../node-draft.state.svelte.ts';
 
-const scriptNode: PipelineNodeEntity = {
+const scriptNode: ScriptPipelineNodeEntity = {
   id: 'test',
-  deps: ['build'],
+  deps: [{ node: 'build' }],
   kind: 'script',
   shell: 'bash',
   script: 'npm test',
@@ -94,7 +98,9 @@ describe('createNodeDraft', () => {
       draft.setEnv(0, { kind: 'literal', value: 'x' });
       draft.setEnv(0, { kind: 'secret' });
 
-      expect(draft.value.env).toEqual([{ key: 'TOKEN', kind: 'secret', secretRef: 'npm-token' }]);
+      expect(draft.value).toMatchObject({
+        env: [{ key: 'TOKEN', kind: 'secret', secretRef: 'npm-token' }],
+      });
     });
   });
 
@@ -184,7 +190,7 @@ describe('createNodeDraft', () => {
 
         expect(draft.timeoutInvalid).toBe(true);
         expect(onChange).not.toHaveBeenCalled();
-        expect(draft.value.timeoutSeconds).toBe(30);
+        expect((draft.value as ExecPipelineNodeEntity).timeoutSeconds).toBe(30);
       });
     },
   );
@@ -198,7 +204,7 @@ describe('createNodeDraft', () => {
 
         expect(draft.retriesInvalid).toBe(true);
         expect(onChange).not.toHaveBeenCalled();
-        expect(draft.value.retries).toBe(2);
+        expect((draft.value as ExecPipelineNodeEntity).retries).toBe(2);
       });
     },
   );

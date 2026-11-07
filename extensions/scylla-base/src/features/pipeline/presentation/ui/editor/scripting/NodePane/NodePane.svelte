@@ -38,7 +38,7 @@
   {#if node}
     <!-- One editor per node: switching tabs does not mix the undo history of two nodes. -->
     {#key node.id}
-      <NodeEditor draft={scripting.draftOf(node)} />
+      <NodeEditor draft={scripting.draftOf(node)} outputNodes={scripting.outputNodesOf(node.id)} />
     {/key}
   {:else}
     <p class="m-auto text-sm text-muted-foreground">{t(scriptingMessages.noNodeOpen)}</p>

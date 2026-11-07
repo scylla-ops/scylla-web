@@ -6,7 +6,10 @@
   import { Button, Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn, copyToClipboard } from '@scylla/ui/utils';
-  import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+  import {
+    runsStep,
+    type PipelineNodeEntity,
+  } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import { nodePreview } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
   import type { NodePane } from '../node-panes.state.svelte.ts';
   import type { PipelineScripting } from '../pipeline-scripting.state.svelte.ts';
@@ -68,7 +71,8 @@
   </div>
 
   <div class="flex shrink-0 items-center gap-0.5 px-1.5">
-    {#if node}
+    <!-- A switch and a merge run nothing to copy. -->
+    {#if node && runsStep(node)}
       <Tooltip>
         <TooltipTrigger>
           {#snippet child({ props })}

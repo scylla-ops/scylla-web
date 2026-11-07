@@ -13,6 +13,7 @@ const node = (overrides: Partial<JobNodeExecution> = {}): JobNodeExecution => ({
   state: 'completed',
   attempts: 1,
   maxAttempts: 1,
+  ports: [],
   ...overrides,
 });
 

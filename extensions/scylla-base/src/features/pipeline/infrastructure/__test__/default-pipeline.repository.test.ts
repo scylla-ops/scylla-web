@@ -129,6 +129,42 @@ describe('DefaultPipelineRepository', () => {
     );
   });
 
+  it('sends the needs with their ports and the places in the same update', async () => {
+    const client = {
+      getPipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 1n) })),
+      updatePipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 2n) })),
+    } as unknown as IPipelineServiceClient;
+
+    await new DefaultPipelineRepository(client).edit(
+      'p',
+      [
+        { id: 'test', deps: [], env: [], kind: 'exec', command: 'make', args: [] },
+        {
+          id: 'notify',
+          deps: [{ node: 'test', port: 'error' }],
+          env: [],
+          kind: 'exec',
+          command: 'x',
+          args: [],
+        },
+      ],
+      'p',
+      { nodes: { notify: { x: 5, y: 6 } } },
+    );
+
+    expect(client.updatePipeline).toHaveBeenCalledWith(
+      expect.objectContaining({
+        nodes: {
+          nodes: [
+            expect.objectContaining({ id: 'test', needs: [] }),
+            expect.objectContaining({ id: 'notify', needs: [{ node: 'test', port: 'error' }] }),
+          ],
+        },
+        layout: { nodes: { notify: { x: 5, y: 6 } } },
+      }),
+    );
+  });
+
   it('sends no layout field with no places', async () => {
     const client = {
       createPipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 1n) })),

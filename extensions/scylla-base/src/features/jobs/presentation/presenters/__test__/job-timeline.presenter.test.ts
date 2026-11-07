@@ -16,6 +16,7 @@ const node = (id: string, state: NodeExecutionState): JobNodeExecution => ({
   state,
   attempts: 1,
   maxAttempts: 1,
+  ports: [],
 });
 
 describe('shouldCollapse', () => {

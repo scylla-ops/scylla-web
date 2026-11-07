@@ -124,6 +124,27 @@ CodeMirror is the clearest legitimate use of Svelte `$effect` in this module: it
 outside the framework that has to be synchronized imperatively. That licence stops at the
 editor's edge: the rest of the module derives during render with Runes.
 
+## Conditional nodes
+
+A pipeline can choose its path at run time, as in n8n. A **switch** checks its cases and opens a
+port; an **If** is a switch with the case `true` and `otherwise: false`. A **merge** joins
+branches again. A node that runs a step can send its failure to an **error** port. The backend
+decides what runs (`DECISIONS.md` of the server, "Conditional nodes"); the editor lets an author
+build them on the canvas, in the inspector and in the JSON tab.
+
+A need names a node and, as an option, one of its ports. On the canvas a port is a handle: an edge
+that leaves from it is a need on that port, so the graph stays the only picture of the needs and
+no list of links lives beside it. The handles of a switch are its ports, in the order of the cases,
+because the order is the order in which the agent checks them.
+
+The error output of a node has no field on the server: a need on `error` is what exists. The
+toggle in the inspector only shows the handle, so that there is something to link from; it lasts
+for the visit. Turned off, it removes the links of the port, with an "Undo", like a case that goes.
+
+The checks of the server on a switch and on the needs are in the domain, as the other rules: the
+canvas, the list and the inspector show them on the node, and a save sends nothing that the
+server refuses for them.
+
 ## The rules live in the domain
 
 The server refuses a whole pipeline for one node id it does not accept. That rule, and the

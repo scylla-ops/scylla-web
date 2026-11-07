@@ -244,3 +244,31 @@ msgstr "Vous n'avez pas la permission d'exécuter cette pipeline."
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:57
 msgid "You don't have permission to view this job's logs"
 msgstr "Vous n'avez pas la permission de voir les journaux de ce job"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:74
+msgid "Graph of the job"
+msgstr "Graphe du job"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:72
+msgid "No case matched: the switch opened no port."
+msgstr "Aucun cas ne correspond : le switch n'a ouvert aucun port."
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:70
+msgid "Not taken"
+msgstr "Non pris"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:69
+msgid "Not taken: the path did not reach it."
+msgstr "Non pris : le chemin ne l'a pas atteint."
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:75
+msgid "Open the logs of {id}"
+msgstr "Ouvrir les journaux de {id}"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:71
+msgid "Ports chosen: {ports}"
+msgstr "Ports choisis : {ports}"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:73
+msgid "The failure went to the error output: {nodes}."
+msgstr "L'échec est allé vers la sortie d'erreur : {nodes}."
