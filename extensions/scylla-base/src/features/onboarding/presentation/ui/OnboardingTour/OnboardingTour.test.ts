@@ -112,11 +112,25 @@ describe('OnboardingTour', () => {
     expect(saveStatus).not.toHaveBeenCalled();
   });
 
-  it('closes the welcome dialog for good on Skip', async () => {
+  it('asks before it closes the welcome dialog for good on Skip', async () => {
     const { saveStatus } = setUp();
     await userEvent.click(await screen.findByRole('button', { name: 'Skip' }));
 
+    expect(await screen.findByText('Skip the tour?')).toBeInTheDocument();
+    expect(saveStatus).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Skip the tour' }));
+
     await waitFor(() => expect(saveStatus).toHaveBeenCalledWith('anonymous', { kind: 'skipped' }));
+  });
+
+  it('goes back to the welcome dialog from the confirmation of Skip', async () => {
+    const { saveStatus } = setUp();
+    await userEvent.click(await screen.findByRole('button', { name: 'Skip' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Continue the tour' }));
+
+    await waitFor(() => expect(screen.queryByText('Skip the tour?')).not.toBeInTheDocument());
+    expect(screen.getByText('Your machines run the jobs')).toBeInTheDocument();
+    expect(saveStatus).not.toHaveBeenCalled();
   });
 
   it('confirms before skipping a tour, and can go back to it', async () => {
@@ -217,7 +231,71 @@ describe('OnboardingTour', () => {
     expect(screen.getByText('This step is on another page.')).toBeInTheDocument();
     expect(within(card as HTMLElement).getByText('Skip')).toBeInTheDocument();
     expect(within(card as HTMLElement).queryByText('Finish')).not.toBeInTheDocument();
-    expect(within(card as HTMLElement).getByText('Previous', { selector: 'button' })).toBeDisabled();
+    expect(
+      within(card as HTMLElement).getByText('Previous', { selector: 'button' }),
+    ).toBeDisabled();
+  });
+
+  it('says what is absent on the page of the step, with Previous and no way to another page', async () => {
+    setUp(
+      { kind: 'in-progress', tour: 'secrets', step: 'use-secret', subject: { projectId: 'p-1' } },
+      '/acme/projects/p-1/secrets',
+    );
+
+    const notice = await screen.findByText(
+      'This page does not show what this step needs. Create it first, or skip the tour.',
+      {},
+      { timeout: 4000 },
+    );
+    const card = notice.closest('[data-onboarding-tour]') as HTMLElement;
+
+    expect(within(card).queryByText('Go back to it')).not.toBeInTheDocument();
+    expect(within(card).getByText('Previous', { selector: 'button' })).toBeEnabled();
+  });
+
+  it('says that the page is another one, with Previous too, for a step with a way back', async () => {
+    setUp(
+      { kind: 'in-progress', tour: 'secrets', step: 'use-secret', subject: { projectId: 'p-1' } },
+      '/acme/dashboard',
+    );
+
+    const goBack = await screen.findByText('Go back to it', {}, { timeout: 4000 });
+    const card = goBack.closest('[data-onboarding-tour]') as HTMLElement;
+
+    expect(within(card).getByText('Previous', { selector: 'button' })).toBeEnabled();
+  });
+
+  it('keeps Go on a lost step of the menu', async () => {
+    setUp({ kind: 'in-progress', tour: 'agent', step: 'open-agents' });
+
+    const go = await screen.findByText('Go', { selector: 'button' }, { timeout: 4000 });
+
+    expect(go).toBeEnabled();
+  });
+
+  it('says that the button folded into the menu, and repeats no button', async () => {
+    setUp(
+      { kind: 'in-progress', tour: 'run', step: 'run-pipeline', subject: { projectId: 'p-1' } },
+      '/acme/projects/p-1',
+    );
+    pageElement('<div data-tour="pipeline-actions"></div>', '[data-tour="pipeline-actions"]');
+
+    expect(
+      await screen.findByText(
+        'Open the ⋯ menu of the pipeline, then click Run. Your agent picks the job.',
+      ),
+    ).toBeInTheDocument();
+    const card = document.querySelector('[data-tour-focus]') as HTMLElement;
+    expect(within(card).queryByText('Run', { selector: 'button' })).not.toBeInTheDocument();
+  });
+
+  it('marks the document while a step shows, for what shares the corner with the card', async () => {
+    setUp({ kind: 'in-progress', tour: 'agent', step: 'agent-page' });
+    pageElement('<div data-tour="agent-details"></div>', '[data-tour="agent-details"]');
+
+    await screen.findByText('Your agent');
+
+    expect(document.documentElement).toHaveAttribute('data-tour-active');
   });
 
   it('offers the tour of a page on a first visit, and starts it there', async () => {

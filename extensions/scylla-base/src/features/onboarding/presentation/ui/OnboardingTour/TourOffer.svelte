@@ -9,6 +9,7 @@
   import type { OnboardingSubject } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
   import TourIcon from './TourIcon.svelte';
   import type { TourDefinition } from './tour-steps.registry.ts';
+  import { markTourActive } from './tour-tracking.attachments.svelte.ts';
 
   interface Props {
     tour: TourDefinition;
@@ -45,12 +46,13 @@
 
 {#if found}
   <div
+    {@attach markTourActive}
     in:fly={{ y: 8, duration: motionDuration(250) }}
     out:fade={{ duration: motionDuration(150) }}
     role="dialog"
     aria-label={t(tour.title)}
     data-tour-offer={tour.id}
-    class="fixed right-4 bottom-4 z-[200] flex w-[380px] max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-[14px] border border-border bg-background px-5 pt-4 pb-4 text-foreground shadow-xl"
+    class="fixed right-4 bottom-4 z-[200] flex w-[380px] max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-[14px] border border-border bg-background px-5 pt-4 pb-4 text-foreground shadow-xl [body:has([data-slot$=dialog-content])_&]:hidden"
   >
     <div class="flex flex-col gap-1">
       <span class="text-[11px] font-semibold tracking-wide text-primary uppercase">

@@ -2,13 +2,18 @@
 import { describe, it, expect } from 'vitest';
 import {
   CARD_GAP,
+  NEAR_GAP,
   VIEWPORT_MARGIN,
   dimPath,
   easeRects,
+  mergeHoles,
   padRect,
   placeCard,
+  presentRects,
+  scrollPlan,
   spotlightRect,
   unionRect,
+  visibleArea,
 } from '../tour-placement.presenter.ts';
 
 const viewport = { width: 1440, height: 900 };
@@ -60,6 +65,78 @@ describe('placeCard', () => {
     expect(placement.y + card.height).toBeLessThanOrEqual(viewport.height - VIEWPORT_MARGIN);
     expect(placement.y).toBeGreaterThanOrEqual(VIEWPORT_MARGIN);
   });
+
+  describe('with something to keep clear of', () => {
+    const covers = (
+      place: { x: number; y: number },
+      rect: { x: number; y: number; width: number; height: number },
+    ) =>
+      place.x < rect.x + rect.width &&
+      place.x + card.width > rect.x &&
+      place.y < rect.y + rect.height &&
+      place.y + card.height > rect.y;
+
+    it('takes the next side when the first one covers it', () => {
+      const target = { x: 16, y: 200, width: 220, height: 36 };
+      const menu = { x: 280, y: 100, width: 400, height: 150 };
+
+      const placement = placeCard(target, card, viewport, [menu]);
+
+      expect(covers(placement, menu)).toBe(false);
+      expect(covers(placement, target)).toBe(false);
+      expect(placement.y).toBe(target.y + target.height + CARD_GAP);
+    });
+
+    it('comes close to the target, with no line, when the far places are taken', () => {
+      const target = { x: 16, y: 300, width: 220, height: 36 };
+      const small = { width: 200, height: 100 };
+      const farRight = {
+        x: target.x + target.width + NEAR_GAP + small.width,
+        y: 0,
+        width: 40,
+        height: 900,
+      };
+      const farBelow = { x: 0, y: 450, width: 1440, height: 450 };
+      const above = { x: 0, y: 0, width: 1440, height: 250 };
+
+      const placement = placeCard(target, small, { width: 1440, height: 900 }, [
+        farRight,
+        farBelow,
+        above,
+      ]);
+
+      expect(placement.connector).toBeNull();
+      expect(placement.x).toBe(target.x + target.width + NEAR_GAP);
+    });
+
+    it('covers the target the least when nothing is free, as on a phone', () => {
+      const phone = { width: 390, height: 844 };
+      const narrow = { width: 358, height: 260 };
+      const dialog = { x: 16, y: 200, width: 358, height: 400 };
+
+      const placement = placeCard(dialog, narrow, phone);
+
+      expect(placement).toMatchObject({ x: VIEWPORT_MARGIN, y: 568, connector: null });
+    });
+
+    it('stays off what must stay in view, even if it covers more of the target', () => {
+      const phone = { width: 390, height: 844 };
+      const narrow = { width: 358, height: 260 };
+      const form = { x: 16, y: 84, width: 358, height: 732 };
+      const name = { x: 40, y: 150, width: 300, height: 40 };
+
+      expect(placeCard(form, narrow, phone).y).toBe(VIEWPORT_MARGIN);
+      expect(placeCard(form, narrow, phone, [name]).y).toBe(568);
+    });
+
+    it('never covers the target to spare another target of the step', () => {
+      const phone = { width: 390, height: 844 };
+      const submit = { x: 308, y: 72, width: 66, height: 32 };
+      const editor = { x: 8, y: 64, width: 374, height: 770 };
+
+      expect(covers(placeCard(submit, card, phone, [], [editor]), submit)).toBe(false);
+    });
+  });
 });
 
 describe('unionRect', () => {
@@ -87,6 +164,76 @@ describe('dimPath', () => {
 
     expect(path.match(/Z/g)).toHaveLength(3);
   });
+
+  it('cuts one hole for a target inside another: the even-odd rule would fill it', () => {
+    const editor = { x: 100, y: 100, width: 800, height: 600 };
+    const create = { x: 700, y: 120, width: 80, height: 32 };
+
+    expect(dimPath(viewport, [create, editor]).match(/Z/g)).toHaveLength(2);
+  });
+});
+
+describe('mergeHoles', () => {
+  const a = { x: 0, y: 0, width: 100, height: 100 };
+
+  it('keeps apart the holes that do not touch', () => {
+    const far = { x: 200, y: 0, width: 50, height: 50 };
+
+    expect(mergeHoles([a, far])).toEqual([a, far]);
+  });
+
+  it('makes one bounding box of two holes that overlap', () => {
+    const b = { x: 50, y: 50, width: 100, height: 100 };
+
+    expect(mergeHoles([a, b])).toEqual([{ x: 0, y: 0, width: 150, height: 150 }]);
+  });
+
+  it('merges again when the new box reaches a third hole', () => {
+    const b = { x: 50, y: 50, width: 100, height: 100 };
+    const c = { x: 140, y: 0, width: 20, height: 20 };
+
+    expect(mergeHoles([a, c, b])).toEqual([{ x: 0, y: 0, width: 160, height: 150 }]);
+  });
+});
+
+describe('presentRects', () => {
+  it('drops an absent target and one that its scroller hides', () => {
+    const shown = { x: 0, y: 0, width: 10, height: 10 };
+
+    expect(presentRects([null, shown, { x: 5, y: 5, width: 0, height: 10 }])).toEqual([shown]);
+  });
+});
+
+describe('scrollPlan', () => {
+  const area = { x: 0, y: 0, width: 1440, height: 900 };
+
+  it('leaves a target that shows', () => {
+    expect(scrollPlan({ x: 10, y: 10, width: 100, height: 100 }, area)).toBeNull();
+  });
+
+  it('centers a target outside the area', () => {
+    expect(scrollPlan({ x: 10, y: 950, width: 100, height: 100 }, area)).toBe('center');
+  });
+
+  it('leaves a target taller than the area while its top shows', () => {
+    expect(scrollPlan({ x: 10, y: 40, width: 100, height: 2000 }, area)).toBeNull();
+  });
+
+  it('brings the top of a target taller than the area into view', () => {
+    expect(scrollPlan({ x: 10, y: -300, width: 100, height: 2000 }, area)).toBe('start');
+    expect(scrollPlan({ x: 10, y: 1000, width: 100, height: 2000 }, area)).toBe('start');
+  });
+});
+
+describe('visibleArea', () => {
+  it('is the viewport cut by the scrollers', () => {
+    expect(visibleArea(viewport, [{ x: 256, y: 64, width: 2000, height: 2000 }])).toEqual({
+      x: 256,
+      y: 64,
+      width: 1184,
+      height: 836,
+    });
+  });
 });
 
 describe('spotlightRect', () => {
@@ -106,6 +253,29 @@ describe('spotlightRect', () => {
       width: 1436,
       height: 896,
     });
+  });
+
+  it('cuts the hole at the edge of the scroller, so that it opens nothing over the top bar', () => {
+    const scroller = { x: 256, y: 64, width: 1184, height: 836 };
+
+    expect(spotlightRect({ x: 300, y: 40, width: 200, height: 100 }, viewport, [scroller])).toEqual(
+      {
+        x: 292,
+        y: 64,
+        width: 216,
+        height: 84,
+      },
+    );
+  });
+
+  it('has no area when the scroller hides the whole target', () => {
+    const scroller = { x: 256, y: 64, width: 1184, height: 836 };
+
+    const hidden = spotlightRect({ x: 300, y: -200, width: 200, height: 100 }, viewport, [
+      scroller,
+    ]);
+
+    expect(hidden.height).toBe(0);
   });
 });
 

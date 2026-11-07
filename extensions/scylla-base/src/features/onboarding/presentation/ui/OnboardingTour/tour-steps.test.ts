@@ -60,7 +60,11 @@ describe('TOURS', () => {
     for (const tour of TOURS) {
       const own = tour.steps.map(step => step.id);
       for (const step of tour.steps) {
-        if (step.fallback) expect(own).toContain(step.fallback);
+        if (typeof step.fallback === 'string') expect(own).toContain(step.fallback);
+        if (typeof step.fallback === 'function') {
+          expect(own).toContain(step.fallback({}));
+          expect(own).toContain(step.fallback({ agentId: 'a-1' }));
+        }
       }
     }
   });
@@ -190,12 +194,7 @@ describe('the way back from another page', () => {
       .flat()
       .map(step => step.id);
 
-    expect(withoutPage).toEqual([
-      'new-trigger',
-      'trigger-kind',
-      'trigger-when',
-      'trigger-done',
-    ]);
+    expect(withoutPage).toEqual(['new-trigger', 'trigger-kind', 'trigger-when', 'trigger-done']);
   });
 
   it('leads back to the agent and the project the tour created', () => {
@@ -215,9 +214,10 @@ describe('the way back from another page', () => {
 
 describe('the steps that depend on the agent', () => {
   it('are the run and the wait for the job', () => {
-    expect(
-      ALL_STEPS.filter(step => step.needsAgent).map(step => step.id),
-    ).toEqual(['run-pipeline', 'wait-job']);
+    expect(ALL_STEPS.filter(step => step.needsAgent).map(step => step.id)).toEqual([
+      'run-pipeline',
+      'wait-job',
+    ]);
   });
 });
 
@@ -310,6 +310,42 @@ describe('the anchors of the dialog steps', () => {
     expect(spot('create-agent').action?.anchor(document, {})?.id).toBe('add');
   });
 
+  it('hold the dialogs of the steps that live in one, with a way back when the dialog is gone', () => {
+    const held = ALL_STEPS.filter(step => step.holdsDialog);
+
+    expect(held.map(step => step.id)).toEqual([
+      'create-agent',
+      'run-command',
+      'create-project',
+      'secret-value',
+      'people-role',
+    ]);
+    for (const step of held) expect(step.fallback).toBeDefined();
+  });
+
+  it('keep the user away from a join code that cannot come back', () => {
+    expect(ALL_STEPS.filter(step => step.noPrevious).map(step => step.id)).toEqual([
+      'run-command',
+      'agent-page',
+    ]);
+  });
+
+  it('send a reload of the install step to the agent that exists, not to a second agent', () => {
+    const { fallback } = spot('run-command');
+    if (typeof fallback !== 'function') throw new Error('no fallback function');
+
+    expect(fallback({ agentId: 'a-1' })).toBe('agent-page');
+    expect(fallback({})).toBe('new-agent');
+  });
+
+  it('move on from the people step only when its dialog closes, which a failed add does not do', () => {
+    const { advance } = spot('people-role');
+    if (advance.on !== 'gone') throw new Error('not a gone step');
+
+    document.body.innerHTML = '<div data-slot="dialog-content" id="dialog"></div>';
+    expect(advance.anchor(document, {})?.id).toBe('dialog');
+  });
+
   it('points at the folded Machines group until its Agents link shows', () => {
     const [agents] = spot('open-agents').targets;
 
@@ -322,5 +358,89 @@ describe('the anchors of the dialog steps', () => {
       <a data-nav-url="agents" id="link"></a>`;
     expect(agents(document, {})?.id).toBe('link');
     expect(conditionOf(spot('open-agents'))(document, {})?.id).toBe('link');
+  });
+});
+
+describe('the last step of a tour', () => {
+  it.each([
+    ['trigger-done', 'triggers'],
+    ['use-secret', 'secrets'],
+  ])('%s finds a row of the table and a card on a phone', (id, page) => {
+    const [row] = spot(id).targets;
+
+    document.body.innerHTML = `<div data-tour="${page}"><div role="rowgroup"><div data-part="data-table-row" id="row"></div></div></div>`;
+    expect(row(document, {})?.id).toBe('row');
+
+    document.body.innerHTML = `<div data-tour="${page}"><div data-slot="data-table-card" data-part="data-table-row" id="card"></div></div>`;
+    expect(row(document, {})?.id).toBe('card');
+  });
+});
+
+describe('the buttons that fold into a menu', () => {
+  const actions = (inner: string) =>
+    `<div data-tour="pipeline-actions" id="actions">${inner}</div>`;
+
+  it.each([
+    ['run-pipeline', 'pipeline-run'],
+    ['open-triggers', 'pipeline-triggers'],
+  ])('%s repeats the real button only, and says so when it folded', (id, part) => {
+    const step = spot(id);
+    const [target] = step.targets;
+
+    document.body.innerHTML = actions(
+      `<span data-tour="${part}"><button id="real"></button></span>`,
+    );
+    expect(target(document, {})?.id).toBe('real');
+    expect(step.action?.anchor(document, {})?.id).toBe('real');
+
+    document.body.innerHTML = actions('<button id="menu"></button>');
+    expect(target(document, {})?.id).toBe('actions');
+    expect(step.action?.anchor(document, {})).toBeNull();
+    expect(step.action?.absent?.body.length).toBe(1);
+  });
+});
+
+describe('the steps that ask for a name', () => {
+  it.each([
+    ['trigger-kind', 'trigger-name'],
+    ['role-details', 'role-name'],
+  ])('%s unlocks Next only with a valid name', (id, field) => {
+    const step = spot(id);
+    const condition = step.nextWhen;
+    if (condition?.on !== 'appear') throw new Error('no condition');
+
+    document.body.innerHTML = `<input id="${field}" />`;
+    const input = document.getElementById(field) as HTMLInputElement;
+    expect(condition.anchor(document, {})).toBeNull();
+
+    input.value = '   ';
+    expect(condition.anchor(document, {})).toBeNull();
+
+    input.value = 'nightly';
+    expect(condition.anchor(document, {})).toBe(input);
+
+    input.setAttribute('aria-invalid', 'true');
+    expect(condition.anchor(document, {})).toBeNull();
+  });
+});
+
+describe('the first step on a phone', () => {
+  it.each(['open-agents', 'open-projects', 'open-secrets', 'open-roles', 'open-members'])(
+    '%s points at the button of the menu while the menu is closed',
+    id => {
+      const [target] = spot(id).targets;
+
+      document.body.innerHTML = '<button data-sidebar="trigger" id="menu"></button>';
+      expect(target(document, {})?.id).toBe('menu');
+    },
+  );
+
+  it('points at the Access group once the menu is open', () => {
+    const [target] = spot('open-roles').targets;
+
+    document.body.innerHTML = `
+      <button data-sidebar="trigger" id="menu"></button>
+      <button data-nav-group="access" id="group"></button>`;
+    expect(target(document, {})?.id).toBe('group');
   });
 });

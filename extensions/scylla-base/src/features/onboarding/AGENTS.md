@@ -69,7 +69,8 @@ presentation/
     tour-steps.registry.ts                    THE tours (TOURS) and their steps: text, anchors,
                                               the repeated button, what moves each step on
     tour-tracking.attachments.svelte.ts  trackTourStep (rAF + click listener), readAction, pressable,
-                                         blockPage, portalToBody, holdPointer
+                                         blockPage, portalToBody, holdPointer, holdDialogs,
+                                         holdKeyboard, markTourActive
     onboarding-tour.state.svelte.ts  ViewModel: status, tour, current step, previous, skip,
                                      mutation events; createTourLauncher (used by the help page)
     TourSpot.svelte                  one spot step: tracking, spotlight, card
@@ -92,20 +93,33 @@ one) and its `advance`:
 | `click` | the user clicks inside the anchor (capture listener on `document`) |
 | `appear` | the anchor resolves to an element (checked on each frame) |
 | `mutation` | a mutation with that key succeeds in the query client's mutation cache |
+| `gone` | the anchor was there and is now gone (checked on each frame) |
 
 `action` repeats a button of the page in the bottom-right corner of the card. Give it only to a
 step that asks for a click on a real button, never on a card, a row or a run square. The copy
 reads the label (`aria-label`, else the text) and the disabled state of the real button on each
 frame, and a click on it calls `click()` on the real button, so the step moves on as if the user
 clicked the page. `action.label` replaces the label (the agent step says “Agent”).
-`action.ready` replaces the title and the body once the real button is enabled. Without an
-`action`, the card shows Next (Finish on the last step) when the step moves on with Next.
+`action.ready` replaces the title and the body once the real button is enabled. `action.absent`
+replaces the body while the real button is not on the page (below 1280 px, Run and Triggers are in
+the actions menu). Without an `action`, the card shows Next (Finish on the last step) when the step
+moves on with Next.
 
 `nextWhen` shows a disabled Next until its condition is met; the user still clicks Next (the
-agent step does not move on by itself when the agent comes online). The step's `waiting` line
-shows only while Next is disabled. `fallback` names the step to go back
-to when the first target stays absent for `LOST_AFTER_MS` (a dialog the user closed). Without a
-fallback, the card waits in a corner and the page stays usable: the tour never blocks.
+agent step does not move on by itself when the agent comes online). An `appear` condition works
+in the two directions: Next goes off again when the element goes (a name that the user clears, with
+`filled(selector)`). The step's `waiting` line shows only while Next is disabled. `fallback` names
+the step to go back to when the first target stays absent (a dialog the user closed). It can be a
+function of the subject. Without a fallback, the card waits in a corner and the page stays usable:
+the tour never blocks.
+
+Three flags change the card and the page:
+
+| Flag | Effect |
+|---|---|
+| `holdsDialog` | the step lives in a dialog: only Skip leaves it (see **Hold**), and Previous lands on the `fallback` of the step before, because no action opens a dialog again |
+| `noPrevious` | Previous is off, because the step before made something that the user must not make again (the agent) |
+| `keepClear` | an anchor inside the target that the user must reach: the card stays off it (the name field, on a phone) |
 
 ## Anchors
 
@@ -119,7 +133,8 @@ Anchors are attributes on the real elements, never CSS classes:
   `trigger-general`, `trigger-when`, `trigger-submit`, `secrets`, `roles-list`, `role-new`,
   `role-details`, `role-permissions`, `role-submit`, `members`, `members-add`. A wrapper with
   `class="contents"` has no box: `measure` takes the union of its children.
-- `data-part="…"` in `@scylla/ui` (generic parts): `feature-header-new`.
+- `data-part="…"` in `@scylla/ui` (generic parts): `feature-header-new`, `data-table-row` (a row in
+  a table and a card below the width of a table).
 - `data-nav-url` on the core's sidebar links, `data-nav-group` on its folding groups,
   `data-item-id` on `StatusBar` segments, and the `data-slot` of the primitives: the sidebar, the
   inset and the dialogs.
@@ -127,7 +142,8 @@ Anchors are attributes on the real elements, never CSS classes:
   dialog. The run-command step points at the whole dialog: the join code goes away when the
   agent connects, and a step that points at it gets lost. The
   "Agents" link is in the group "Machines", which can be folded: the step points at the group
-  until the link shows.
+  until the link shows. On a phone the sidebar is a sheet: the step points at the menu button of
+  the top bar (`data-sidebar="trigger"`) until the sheet shows the group.
 
 Removing or renaming one of these breaks a step without a type error. `tour-steps.test.ts` pins
 the anchors that carry logic.
@@ -145,13 +161,29 @@ The mutation keys come from the barrels: `CREATE_APP_MUTATION_KEY` (`apps`),
 
 - **Go and Previous.** A step that asks for a click in the menu has `go`: the card shows Go,
   which advances the step and opens that page. Previous always shows; it is greyed out on the
-  first step and on a lost card. It opens the page of the previous step, or, for a step with no
+  first step and on a `noPrevious` step. A lost card keeps it. It opens the page of the previous step, or, for a step with no
   `page`, the page that the user was on when they left it (kept for this visit only). `back`
   replaces `page` for Previous (the project pick goes back to the list). After Previous, an
   `appear` step waits until its element is gone once: the page that the user leaves still shows
   it for a moment, and the step must not move on again at once.
 - **On top.** The card, the ring and the page offer use `z-[200]`, the blocker `z-[195]` and the
-  Skip confirmation `z-[210]`: above every dialog of the app (`z-50`).
+  Skip confirmation `z-[210]`: above every dialog of the app (`z-50`). The dim stays at `z-40`,
+  under the dialogs. The page offer hides while a dialog shows.
+- **Hold.** On a `holdsDialog` step, `holdDialogs` sets `dialogHoldStore` of `@scylla/ui`. Every
+  `ScyllaDialog` then keeps open on Escape and on a click outside, hides its close button and each
+  control with `data-dialog-dismiss` (Cancel, Close), and stops its focus trap. `holdKeyboard` loops
+  Tab over the targets and the card, so that the keyboard reaches Skip, and stops the search
+  shortcut (Cmd or Ctrl + K) for the whole tour. The tour clears the hold at its end and before
+  Previous closes the dialog. The Skip confirmation is not a `ScyllaDialog`, so Escape closes only
+  the confirmation. `markTourActive` sets `data-tour-active` on `<body>`: a corner widget of a host
+  build hides with it.
+- **Placement.** `placeCard` takes the first side with room and no overlap. If no side is free, it
+  takes the place that covers `avoid` the least (the open menus and lists, the `keepClear` of the
+  step), then the target, then the other targets of the step. The card moves at once to the place
+  of the final box of the target, and the connector shows only when the ring stops.
+- **Holes.** Each target has a hole in the dim. Two holes that overlap become their bounding box,
+  because the even-odd rule fills a hole inside a hole. A target that a scroller hides has no hole.
+  The ring of a clipped target stops at the edge of its scroller.
 - **Page offer.** A tour with `offer` shows a small card in the bottom right corner of its page
   (`offer.path`, without the workspace slug): "First time here?", Start and Not now. It shows
   only when no tour runs and no dialog of the tours shows, and only for a tour that the user may
@@ -163,8 +195,8 @@ The mutation keys come from the barrels: `CREATE_APP_MUTATION_KEY` (`apps`),
 - **Blocking.** On a step with a Next button, the page takes no input (except a `form` step,
   whose targets stay usable because the user types in them): `blockPage` makes every
   other child of `<body>` inert (no click, focus or key) and a transparent layer above the
-  dialogs stops the pointer. Only the card works, and the element that `nextWhen` waits a click
-  on (the copy button). A step that the user finishes with a click keeps its targets usable
+  dialogs stops the pointer. Only the card works, and the element that `nextWhen` waits for. A step
+  that the user finishes with a click keeps its targets usable
   and dims the rest, as before. The tour renders at the end of `<body>` (`portalToBody`).
 - **Steady spotlight.** `measure` takes the layout box (`offsetWidth`/`offsetHeight` around the
   box centre), so a hover or press `scale` does not move the ring, the connector or the card.
@@ -172,11 +204,14 @@ The mutation keys come from the barrels: `CREATE_APP_MUTATION_KEY` (`apps`),
   (`MOVE_MS`, ease-out), and keeps the old box up to `HOLD_MS` while the next page loads. The
   card flies in and fades out. Scroll and resize follow at once. `motionDuration` makes all of
   it instant under `prefers-reduced-motion`.
-- **Lost.** When the first target stays absent for `LOST_AFTER_MS`, a step with a `fallback`
-  goes back to it (a dialog the user closed). Otherwise the card waits in a corner, without dim
-  nor blocking and without Next, and says "This step is on another page" with a "Go back to it"
-  button that opens `step.page(subject)`. The tour never jumps forward on its own: a step
-  skipped by hand would lose what the next ones need (the agent, the project, the pipeline).
+- **Lost.** The clock counts idle time only: not while the query client fetches or a mutation
+  runs, and at most `LOST_LIMIT_MS` in all, so a slow page does not rewind a tour. On the page of
+  the step, a step with a `fallback` goes back to it (a dialog the user closed). Otherwise the
+  card waits in a corner, without dim nor blocking and without Next. On another page it says "This
+  step is on another page" with a "Go back to it" button that opens `step.page(subject)`. On the
+  page of the step, it says that the page does not show what the step needs. A page change
+  restarts the clock. The tour never jumps forward on its own: a step skipped by hand would lose
+  what the next ones need (the agent, the project, the pipeline).
 - **Agent offline.** `needsAgent` steps (run the pipeline, wait for the job) watch
   `agentQueries.byWorkspace`: the agent that the tour created (`subject.agentId`, from the
   create-agent mutation) or else any agent. While it is offline the card says so and offers to
@@ -189,11 +224,11 @@ The mutation keys come from the barrels: `CREATE_APP_MUTATION_KEY` (`apps`),
 - The tour never navigates by itself: after "Create Project" it points at the new project's card
   and waits for its page. Only a request of the user opens a page: a start from a menu (the
   first step's `page`), Previous (the page of the step before) and "Go back to it". Previous
-  closes an open dialog first (Escape). Every link goes to `SCYLLA_DOCS_URL`.
+  clears the hold and closes an open dialog first (Escape). Every link goes to `SCYLLA_DOCS_URL`.
 
-- The dim is at `z-40`, under the page's dialogs (`z-50`); the blocking layer is at `z-[55]`;
-  rings, connectors and cards are at `z-[60]`. A target inside a dialog stays usable, and the
-  card stays on top.
+- The dim is at `z-40`, under the page's dialogs (`z-50`). The blocker is at `z-[195]`, and the
+  rings, the connectors and the cards are at `z-[200]`. A target inside a dialog stays usable, and
+  the card stays on top.
 - `holdPointer` stops `pointerdown` on the dim and the cards: without it, a click on the card
   closes the dialog the step points at (bits-ui sees a click outside).
 - A tour shows only if the user holds its `permissions`. The automatic welcome needs

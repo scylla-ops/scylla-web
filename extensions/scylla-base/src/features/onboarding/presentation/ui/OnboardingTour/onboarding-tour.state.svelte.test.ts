@@ -276,6 +276,79 @@ describe('createOnboardingTour', () => {
     await onStep(tour, 'new-agent');
   });
 
+  it('does not rewind while the user is only on another page', async () => {
+    const { tour, repository } = setUp({
+      kind: 'in-progress',
+      tour: 'pipeline',
+      step: 'create-project',
+    });
+    await onStep(tour, 'create-project');
+    expect(tour.onStepPage).toBe(false);
+
+    tour.recover('create-project');
+    flushSync();
+
+    expect(tour.step?.id).toBe('create-project');
+    expect(repository.saveStatus).not.toHaveBeenCalled();
+  });
+
+  it('rewinds the install step to the agent that exists', async () => {
+    const { tour } = setUp({
+      kind: 'in-progress',
+      tour: 'agent',
+      step: 'run-command',
+      subject: { agentId: 'a-1' },
+    });
+    await onStep(tour, 'run-command');
+
+    tour.recover('run-command');
+
+    await onStep(tour, 'agent-page');
+  });
+
+  it('has no way back from the install step, whose join code would be lost', async () => {
+    const { tour } = setUp({ kind: 'in-progress', tour: 'agent', step: 'run-command' });
+    await onStep(tour, 'run-command');
+
+    expect(tour.canGoPrevious).toBe(false);
+    tour.previous();
+    flushSync();
+
+    expect(tour.step?.id).toBe('run-command');
+  });
+
+  it('goes back to the step that opens a dialog, not to the dialog that is gone', async () => {
+    const { tour } = setUp({ kind: 'in-progress', tour: 'secrets', step: 'use-secret' });
+    await onStep(tour, 'use-secret');
+
+    tour.previous();
+
+    await onStep(tour, 'new-secret');
+  });
+
+  it('locks Next again when the condition stops holding', async () => {
+    const { tour } = setUp({ kind: 'in-progress', tour: 'roles', step: 'role-details' });
+    await onStep(tour, 'role-details');
+
+    tour.unlock('role-details');
+    flushSync();
+    expect(tour.canGoNext).toBe(true);
+
+    tour.lock('role-details');
+    flushSync();
+    expect(tour.canGoNext).toBe(false);
+  });
+
+  it('reads the status again when another tab changes it', async () => {
+    const { tour, repository } = setUp({ kind: 'in-progress', tour: 'agent', step: 'new-agent' });
+    await onStep(tour, 'new-agent');
+    void repository.saveStatus('ada', { kind: 'in-progress', tour: 'agent', step: 'create-agent' });
+
+    window.dispatchEvent(new StorageEvent('storage', { key: 'onboarding:ada' }));
+
+    await onStep(tour, 'create-agent');
+  });
+
   it('stays on a lost step that has nothing to go back to', async () => {
     const { tour } = setUp({ kind: 'in-progress', tour: 'agent', step: 'agent-page' });
     await onStep(tour, 'agent-page');
@@ -287,7 +360,11 @@ describe('createOnboardingTour', () => {
   });
 
   it('points at the project the user just created instead of opening it', async () => {
-    const { tour, navigator, queryClient } = setUp({ kind: 'in-progress', tour: 'pipeline', step: 'create-project' });
+    const { tour, navigator, queryClient } = setUp({
+      kind: 'in-progress',
+      tour: 'pipeline',
+      step: 'create-project',
+    });
     await onStep(tour, 'create-project');
 
     await queryClient
@@ -304,7 +381,11 @@ describe('createOnboardingTour', () => {
   });
 
   it('ignores the writes that are not the one the step waits for', async () => {
-    const { tour, queryClient } = setUp({ kind: 'in-progress', tour: 'pipeline', step: 'create-project' });
+    const { tour, queryClient } = setUp({
+      kind: 'in-progress',
+      tour: 'pipeline',
+      step: 'create-project',
+    });
     await onStep(tour, 'create-project');
 
     await queryClient
@@ -377,7 +458,11 @@ describe('createOnboardingTour', () => {
   });
 
   it('remembers the agent the user creates, to watch it later', async () => {
-    const { tour, queryClient } = setUp({ kind: 'in-progress', tour: 'agent', step: 'create-agent' });
+    const { tour, queryClient } = setUp({
+      kind: 'in-progress',
+      tour: 'agent',
+      step: 'create-agent',
+    });
     await onStep(tour, 'create-agent');
 
     await queryClient

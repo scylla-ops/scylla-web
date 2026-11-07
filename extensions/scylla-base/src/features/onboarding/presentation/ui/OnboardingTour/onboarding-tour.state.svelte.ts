@@ -19,11 +19,13 @@ import {
   type OnboardingSubject,
 } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
 import {
+  ONBOARDING_QUERY_KEY,
   onboardingMutations,
   onboardingQueries,
 } from '@base/features/onboarding/presentation/onboarding.queries.ts';
 import {
   isAgentOffline,
+  isOnPage,
   stepCount,
   tourView,
 } from '@base/features/onboarding/presentation/presenters/tour.presenter.ts';
@@ -48,6 +50,9 @@ const createdAgentId = (data: unknown): string | undefined => {
 };
 
 const stepIdsOf = (tour: TourDefinition | undefined) => tour?.steps.map(step => step.id) ?? [];
+
+const fallbackOf = (step: TourSpotStep, subject: OnboardingSubject) =>
+  typeof step.fallback === 'function' ? step.fallback(subject) : step.fallback;
 
 export const currentUserId = () => localStorage.getItem('userId') || 'anonymous';
 
@@ -159,6 +164,16 @@ export const createOnboardingTour = (canStart: () => boolean) => {
 
   $effect(followMutations);
 
+  // Only another tab fires it. The read is cheap, so any key of the storage may trigger it.
+  $effect(() => {
+    const reload = () =>
+      void getQueryClient().invalidateQueries({ queryKey: ONBOARDING_QUERY_KEY(userId) });
+    window.addEventListener('storage', reload);
+    return () => window.removeEventListener('storage', reload);
+  });
+
+  const onStepPage = () => !step?.page || isOnPage(currentPathname(), step.page(subject));
+
   return {
     get view() {
       return view;
@@ -191,7 +206,7 @@ export const createOnboardingTour = (canStart: () => boolean) => {
       return canGoNext;
     },
     get canGoPrevious() {
-      return !!step && previousStepId(stepIds, step.id) !== null;
+      return !!step && !step.noPrevious && previousStepId(stepIds, step.id) !== null;
     },
     get agentOffline() {
       return agentOffline;
@@ -201,6 +216,12 @@ export const createOnboardingTour = (canStart: () => boolean) => {
     },
     get canGoBack() {
       return !!step?.page;
+    },
+    get onStepPage() {
+      return onStepPage();
+    },
+    get isLoading() {
+      return getQueryClient().isFetching() > 0;
     },
 
     startTour(tourId: string) {
@@ -217,7 +238,12 @@ export const createOnboardingTour = (canStart: () => boolean) => {
     },
     previous() {
       if (!status || !step || !tour) return;
-      const to = previousStepId(stepIds, step.id);
+      if (step.noPrevious) return;
+      const previous_ = tour.steps.find(
+        candidate => candidate.id === previousStepId(stepIds, step.id),
+      );
+      const opensAgain = previous_?.holdsDialog ? fallbackOf(previous_, subject) : undefined;
+      const to = opensAgain ?? previous_?.id;
       const target = tour.steps.find(candidate => candidate.id === to);
       if (!to || !target) return;
       write(rewindTour(status, stepIds, step.id, to));
@@ -240,10 +266,15 @@ export const createOnboardingTour = (canStart: () => boolean) => {
     unlock(stepId: string) {
       unlockedStepId = stepId;
     },
+    lock(stepId: string) {
+      if (unlockedStepId === stepId) unlockedStepId = null;
+    },
+    /** On another page the target is not lost: the user only has to come back. */
     recover(stepId: string) {
       const current = tour?.steps.find(candidate => candidate.id === stepId);
-      if (!status || !current?.fallback) return;
-      write(rewindTour(status, stepIds, stepId, current.fallback));
+      const fallback = current && fallbackOf(current, subject);
+      if (!status || !fallback || !onStepPage()) return;
+      write(rewindTour(status, stepIds, stepId, fallback));
     },
     goBack() {
       if (!step?.page) return;

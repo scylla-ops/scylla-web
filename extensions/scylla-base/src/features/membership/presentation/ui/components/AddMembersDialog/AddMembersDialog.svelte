@@ -402,7 +402,7 @@
     </div>
 
     <div class="flex justify-end gap-2">
-      <Button variant="outline" onclick={() => onOpenChange(false)}>
+      <Button variant="outline" data-dialog-dismiss onclick={() => onOpenChange(false)}>
         {t(membershipMessages.cancel)}
       </Button>
       <span class="contents" data-tour="members-submit">

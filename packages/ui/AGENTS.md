@@ -68,7 +68,7 @@ catalogs of this package register themselves.
 | A table | `DataTable` (+ `createPagination`) — row keys are business ids, never indices. Give each column `meta.card` (see "`DataTable` on a phone") |
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
 | A select with a search | `SearchSelect`, with `options` as data. Use `Select` only for a short fixed list |
-| A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
+| A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`, and `data-*` attributes, which go on its content). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
 | Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue" |
 | Show a one-time secret | `SecretRevealDialog` |
 | Error state | `ErrorState` |
@@ -309,9 +309,13 @@ selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of 
   that fills a box with `overflow-hidden`, use `focus-visible:ring-inset`.
 - **`selectionStore` is keyed by feature.** `createSelection('jobs')` and
   `createSelection('users')` are independent. Never add a second selection store.
-- It and `contextStore` (scylla-base, `@platform/context`) are the app's **only** two global UI
-  stores (`permissionsStore` in `@platform/authz` holds the permissions). Everything else is TanStack
-  Query (server state) or local `$state`.
+- It, `dialogHoldStore` and `contextStore` (scylla-base, `@platform/context`) are the app's **only**
+  global UI stores (`permissionsStore` in `@platform/authz` holds the permissions). Everything else
+  is TanStack Query (server state) or local `$state`.
+- **`dialogHoldStore`** has one field, `held`. While it is true, every `ScyllaDialog` keeps open on
+  Escape and on a click outside, hides its close button and each control with
+  `data-dialog-dismiss`, and stops its focus trap. A dialog that has a control that closes it (Cancel,
+  Close) marks that control with `data-dialog-dismiss`. The guided tour of scylla-base sets the store.
 - **Never put server state in a shared store.**
 - A component used by ≥ 2 features moves here and gets exported from its group barrel — when
   it passes the test above. A component used by one stays in that feature.
@@ -320,8 +324,9 @@ selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of 
 - Adding to `@scylla/ui` needs a second real usage. One usage stays inline.
 - `data-part` marks the inner parts of a composite that code outside may point at:
   `feature-header-new` and `feature-header-selection-bar` (`FeatureHeader`), `code-snippet-copy` (`CodeSnippet`),
-  `secret-reveal-secret` / `-next-step` / `-confirm` (`SecretRevealChecklist`). The onboarding
-  tour of scylla-base uses only `feature-header-new`. Keep them; do not use `data-slot` for this, a primitive
+  `secret-reveal-secret` / `-next-step` / `-confirm` (`SecretRevealChecklist`), `data-table-row`
+  (`DataTable`, in a table and in cards). The onboarding tour of scylla-base uses
+  `feature-header-new` and `data-table-row`. Keep them; do not use `data-slot` for this, a primitive
   sets its own.
 
 ## Before done

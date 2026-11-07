@@ -55,7 +55,7 @@ export const onboardingMessages = {
   usersTourSummary: msg`Add people to the workspace.`,
 
   openAgentsTitle: msg`Open Agents`,
-  openAgentsBody: msg`Agents are under Machines in the menu. Open it, then click “Agents”.`,
+  openAgentsBody: msg`Agents are under “Machines” in the menu. Click it, or use Go.`,
   newAgentTitle: msg`Add an agent`,
   newAgentBody: msg`An agent is a machine that runs your jobs. Click “Add an agent”.`,
   createAgentTitle: msg`Name your agent`,
@@ -85,6 +85,7 @@ export const onboardingMessages = {
 
   runPipelineTitle: msg`Run it`,
   runPipelineBody: msg`Click ▶ to run the pipeline. Your agent picks the job.`,
+  runPipelineMenuBody: msg`Open the ⋯ menu of the pipeline, then click Run. Your agent picks the job.`,
   runAction: msg({ context: 'onboarding', message: 'Run' }),
   waitJobTitle: msg`Wait for the job`,
   waitJobBody: msg`Your agent runs the job. Next unlocks when it ends.`,
@@ -101,7 +102,9 @@ export const onboardingMessages = {
   pickProjectTriggersBody: msg`Triggers belong to the pipelines of a project. Click the project to use.`,
   pickProjectSecretsBody: msg`Secrets belong to a project. Click the project to use.`,
   openTriggersTitle: msg`Open the triggers`,
-  openTriggersBody: msg`Triggers belong to a pipeline. Click ⚡ in the actions of the pipeline. On a small screen, it is in the ⋯ menu.`,
+  openTriggersBody: msg`Triggers belong to a pipeline. Click ⚡ in the actions of the pipeline.`,
+  openTriggersMenuBody: msg`Triggers belong to a pipeline. Open the ⋯ menu of the pipeline, then click Triggers.`,
+  typeNameWaiting: msg`Type a name to go on.`,
   newTriggerTitle: msg`New trigger`,
   newTriggerBody: msg`Click “New trigger”.`,
   triggerKindTitle: msg`Name it, pick a type`,
@@ -143,6 +146,7 @@ export const onboardingMessages = {
   membersListBody: msg`Each member and app of the workspace, with its roles. Instance admins also create accounts under Instance, in “Users”.`,
 
   lostNotice: msg`This step is on another page.`,
+  lostAbsentNotice: msg`This page does not show what this step needs. Create it first, or skip the tour.`,
   goBack: msg`Go back to it`,
   agentOffline: msg`Your agent is offline, so the job cannot run. Start it again with the command on its page: the tour goes on as soon as it is back.`,
   openAgent: msg`Open your agent`,

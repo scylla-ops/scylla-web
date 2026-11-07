@@ -1,6 +1,13 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { isAgentOffline, offeredTour, stepCount, tourView, workspacePath } from '../tour.presenter.ts';
+import {
+  isAgentOffline,
+  isOnPage,
+  offeredTour,
+  stepCount,
+  tourView,
+  workspacePath,
+} from '../tour.presenter.ts';
 
 describe('tourView', () => {
   it('welcomes on its own only a user who may do what the tours ask', () => {
@@ -49,6 +56,18 @@ describe('isAgentOffline', () => {
     expect(isAgentOffline(undefined, 'mine')).toBe(false);
     expect(isAgentOffline([], 'mine')).toBe(false);
     expect(isAgentOffline(agents, 'deleted')).toBe(false);
+  });
+});
+
+describe('isOnPage', () => {
+  it('compares the path in the workspace, with or without a trailing slash', () => {
+    expect(isOnPage('/acme/agents', '/agents')).toBe(true);
+    expect(isOnPage('/acme/agents/', '/agents')).toBe(true);
+  });
+
+  it('does not take a page below it for the page', () => {
+    expect(isOnPage('/acme/agents/a-1', '/agents')).toBe(false);
+    expect(isOnPage('/acme/projects', '/agents')).toBe(false);
   });
 });
 

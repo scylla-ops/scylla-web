@@ -24,6 +24,8 @@ export type TourCondition =
 export type TourAdvance =
   | { on: 'next' }
   | TourCondition
+  /** The anchor showed, then went away: a dialog that closes when its work succeeds. */
+  | { on: 'gone'; anchor: TourAnchor }
   | {
       on: 'mutation';
       key: readonly unknown[];
@@ -40,6 +42,8 @@ export interface TourAction {
   anchor: TourAnchor;
   label?: MessageDescriptor;
   ready?: { title: MessageDescriptor; body: readonly MessageDescriptor[] };
+  /** The body when the page does not show the button (it folded into a menu): no copy to press. */
+  absent?: { body: readonly MessageDescriptor[] };
 }
 
 export interface TourSpotStep {
@@ -52,7 +56,7 @@ export interface TourSpotStep {
   advance: TourAdvance;
   action?: TourAction;
   nextWhen?: TourCondition;
-  fallback?: string;
+  fallback?: string | ((subject: OnboardingSubject) => string);
   page?: (subject: OnboardingSubject) => string;
   needsAgent?: boolean;
   hint?: { body: readonly MessageDescriptor[]; link?: TourLink; when: TourAnchor; afterMs: number };
@@ -63,6 +67,12 @@ export interface TourSpotStep {
   back?: (subject: OnboardingSubject) => string;
   /** A step that asks for a click in the menu: the card also has Go, which opens this page. */
   go?: (subject: OnboardingSubject) => string;
+  /** The part of the target that the user must reach: the card stays off it. */
+  keepClear?: TourAnchor;
+  /** The step lives in a dialog: only Skip leaves it, and Previous lands on its fallback. */
+  holdsDialog?: boolean;
+  /** What the previous step showed cannot come back, e.g. a join code. */
+  noPrevious?: boolean;
 }
 
 export type TourIcon = 'agent' | 'pipeline' | 'run' | 'trigger' | 'secret' | 'role' | 'users';
@@ -118,11 +128,17 @@ const either =
     return null;
   };
 
+/** Only a phone shows it, and only a phone hides the links: the menu must open first. */
+const menuButton = select('[data-sidebar="trigger"]');
+
+const menuLink = (url: string) => either(navLink(url), menuButton);
+
 /** The link of the agents, or its folded group "Machines" until the user opens it. */
-const agentsNav = either(navLink('agents'), select('[data-nav-group="machines"]'));
+const agentsNav = either(navLink('agents'), select('[data-nav-group="machines"]'), menuButton);
 
 /** The links of Access are shown once the group is open: until then, the group itself. */
-const accessNav = (url: string) => either(navLink(url), navLink('members'));
+const accessNav = (url: string) =>
+  either(navLink(url), navLink('members'), select('[data-nav-group="access"]'), menuButton);
 
 const newButtonOf = (page: string) =>
   select(`[data-tour="${page}"] [data-part="feature-header-new"]`);
@@ -157,17 +173,15 @@ const pipelineCell =
 
 const pipelineHistory = pipelineCell('pipeline-history');
 
-const runButton: TourAnchor = (root, subject) => {
-  const actions = pipelineCell('pipeline-actions')(root, subject);
-  const run = actions?.querySelector('[data-tour="pipeline-run"]');
-  return run?.querySelector('button') ?? run ?? actions;
-};
+const pipelineActions = pipelineCell('pipeline-actions');
 
-/** The ⚡ button of the pipeline, or its whole actions while they fold into the ⋯ menu. */
-const triggersButton: TourAnchor = (root, subject) => {
-  const actions = pipelineCell('pipeline-actions')(root, subject);
-  return actions?.querySelector('[data-tour="pipeline-triggers"] button') ?? actions;
-};
+const actionButton =
+  (part: string): TourAnchor =>
+  (root, subject) =>
+    pipelineActions(root, subject)?.querySelector(`[data-tour="${part}"] button`) ?? null;
+
+const runButton = actionButton('pipeline-run');
+const triggersButton = actionButton('pipeline-triggers');
 
 const pipelineRow: TourAnchor = (root, subject) => {
   const history = pipelineHistory(root, subject);
@@ -193,6 +207,20 @@ const jobNotStarted: TourAnchor = (root, subject) => {
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
+
+/** A name the form takes: the field has text and no error. */
+const filled =
+  (selector: string): TourAnchor =>
+  root => {
+    const field = root.querySelector(selector);
+    return field instanceof HTMLInputElement &&
+      field.value.trim() !== '' &&
+      field.getAttribute('aria-invalid') !== 'true'
+      ? field
+      : null;
+  };
+
+const firstRowOf = (page: string) => select(`[data-tour="${page}"] [data-part="data-table-row"]`);
 
 const lastDialog: TourAnchor = root => {
   const dialogs = root.querySelectorAll('[data-slot="dialog-content"]');
@@ -270,6 +298,7 @@ const agentTour: TourDefinition = {
       action: { anchor: formSubmit },
       advance: { on: 'appear', anchor: select('[data-tour="app-join-code"]') },
       fallback: 'new-agent',
+      holdsDialog: true,
     },
     {
       id: 'run-command',
@@ -285,7 +314,9 @@ const agentTour: TourDefinition = {
         ready: { title: m.agentOnlineTitle, body: [m.agentOnlineBody] },
       },
       advance: { on: 'click', anchor: select('[data-tour="agent-open"]') },
-      fallback: 'new-agent',
+      fallback: ({ agentId }) => (agentId ? 'agent-page' : 'new-agent'),
+      holdsDialog: true,
+      noPrevious: true,
     },
     {
       id: 'agent-page',
@@ -295,6 +326,7 @@ const agentTour: TourDefinition = {
       link: docs(m.agentsDocs),
       targets: [select('[data-tour="agent-details"]')],
       advance: { on: 'next' },
+      noPrevious: true,
     },
   ],
 };
@@ -313,7 +345,7 @@ const pipelineTour: TourDefinition = {
       id: 'open-projects',
       title: m.openProjectsTitle,
       body: [m.openProjectsBody],
-      targets: [navLink('projects')],
+      targets: [menuLink('projects')],
       advance: { on: 'click', anchor: navLink('projects') },
       go: () => '/projects',
     },
@@ -341,6 +373,7 @@ const pipelineTour: TourDefinition = {
           isRecord(data) && typeof data.id === 'string' ? { projectId: data.id } : undefined,
       },
       fallback: 'new-project',
+      holdsDialog: true,
     },
     {
       id: 'open-project',
@@ -402,8 +435,8 @@ const runTour: TourDefinition = {
       page: projectPage,
       title: m.runPipelineTitle,
       body: [m.runPipelineBody],
-      targets: [runButton],
-      action: { anchor: runButton, label: m.runAction },
+      targets: [either(runButton, pipelineActions)],
+      action: { anchor: runButton, label: m.runAction, absent: { body: [m.runPipelineMenuBody] } },
       advance: {
         on: 'mutation',
         key: RUN_PIPELINE_MUTATION_KEY,
@@ -470,8 +503,8 @@ const triggersTour: TourDefinition = {
       page: projectPage,
       title: m.openTriggersTitle,
       body: [m.openTriggersBody],
-      targets: [triggersButton],
-      action: { anchor: triggersButton },
+      targets: [either(triggersButton, pipelineActions)],
+      action: { anchor: triggersButton, absent: { body: [m.openTriggersMenuBody] } },
       advance: { on: 'appear', anchor: select('[data-tour="triggers"]') },
     },
     {
@@ -488,8 +521,11 @@ const triggersTour: TourDefinition = {
       title: m.triggerKindTitle,
       body: [m.triggerKindBody],
       link: docs(m.triggersDocs),
+      waiting: m.typeNameWaiting,
       targets: [select('[data-tour="trigger-general"]')],
       advance: { on: 'next' },
+      nextWhen: { on: 'appear', anchor: filled('#trigger-name') },
+      keepClear: select('#trigger-name'),
       form: true,
       fallback: 'new-trigger',
     },
@@ -506,7 +542,7 @@ const triggersTour: TourDefinition = {
       id: 'trigger-done',
       title: m.triggerDoneTitle,
       body: [m.triggerDoneBody],
-      targets: [select('[data-tour="triggers"] tbody tr')],
+      targets: [firstRowOf('triggers')],
       advance: { on: 'next' },
     },
   ],
@@ -532,7 +568,7 @@ const secretsTour: TourDefinition = {
       page: projectPage,
       title: m.openSecretsTitle,
       body: [m.openSecretsBody],
-      targets: [navLink('secrets')],
+      targets: [menuLink('secrets')],
       advance: { on: 'click', anchor: navLink('secrets') },
       go: projectPart('secrets'),
     },
@@ -556,6 +592,7 @@ const secretsTour: TourDefinition = {
       action: { anchor: formSubmit },
       advance: { on: 'mutation', key: CREATE_SECRET_MUTATION_KEY },
       fallback: 'new-secret',
+      holdsDialog: true,
     },
     {
       id: 'use-secret',
@@ -563,7 +600,7 @@ const secretsTour: TourDefinition = {
       title: m.useSecretTitle,
       body: [m.useSecretBody],
       link: docs(m.secretsDocs),
-      targets: [select('[data-tour="secrets"] tbody tr')],
+      targets: [firstRowOf('secrets')],
       advance: { on: 'next' },
     },
   ],
@@ -612,8 +649,11 @@ const rolesTour: TourDefinition = {
       title: m.roleDetailsTitle,
       body: [m.roleDetailsBody],
       link: docs(m.rolesDocs),
+      waiting: m.typeNameWaiting,
       targets: [select('[data-tour="role-details"]')],
       advance: { on: 'next' },
+      nextWhen: { on: 'appear', anchor: filled('#role-name') },
+      keepClear: select('#role-name'),
       form: true,
       fallback: 'new-role',
     },
@@ -645,7 +685,7 @@ const usersTour: TourDefinition = {
       id: 'open-members',
       title: m.openMembersTitle,
       body: [m.openMembersBody],
-      targets: [navLink('members')],
+      targets: [menuLink('members')],
       advance: { on: 'appear', anchor: select('[data-tour="members"]') },
       go: () => '/access/members',
     },
@@ -667,8 +707,9 @@ const usersTour: TourDefinition = {
       link: docs(m.rolesDocs),
       targets: [lastDialog],
       action: { anchor: button('members-submit') },
-      advance: { on: 'click', anchor: button('members-submit') },
+      advance: { on: 'gone', anchor: lastDialog },
       fallback: 'add-members',
+      holdsDialog: true,
     },
     {
       id: 'members-list',

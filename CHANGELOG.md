@@ -175,6 +175,19 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
+- The guided tours. Only Skip leaves a step that lives in a dialog: Escape, a click outside, the
+  close button and Cancel do nothing or do not show, and Tab reaches Skip. Skip on the welcome dialog
+  asks for a confirmation.
+- The ring of a tour stays on its target: it follows a scroller, stops at its edge, and has one
+  hole when two targets overlap. The real button inside a larger spot takes the click.
+- The card of a tour does not cover the target, an open menu or a field that the user must fill,
+  when a free place exists. On a phone, the first step points at the menu button.
+- A tour does not rewind while a page loads, and it does not show "on another page" on the page of
+  the step. It stays the same in two tabs. A blank name no longer lets the user go on with Next.
+- A reload on the step of the join command opens the page of the agent that the tour created, and
+  the step does not offer Previous, which made a second agent.
+- A step of a tour that adds members stays until the add succeeds. Below 1280 px, the steps of the
+  pipeline actions tell the user to open the menu.
 - A failed list of pipelines or of jobs shows its error once. Before, the page sent the call again
   about 40 times each second, with one error toast for each call, until the user left the page.
 - A change from another tab or from another person shows when the tab shows again and when the
