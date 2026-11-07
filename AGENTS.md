@@ -64,7 +64,7 @@ Lingui) covers every package. `vite.config.ts` builds `apps/web` into `dist/`.
 | `pnpm test:dir <folder>` | Run all tests in one folder or package |
 | `pnpm test:changed [<ref>]` | Run the tests linked to the uncommitted files. With a ref, also the tests linked to the commits after this ref |
 | `pnpm coverage` | Vitest + v8 coverage, enforces the thresholds in `vite.config.ts` |
-| `pnpm lint` | ESLint, `--max-warnings 0` (warnings are errors). Slow (~20 min) and needs an 8 GB heap, which the script sets |
+| `pnpm lint` | ESLint, `--max-warnings 0` (warnings are errors). About 30 s. The script sets an 8 GB heap |
 | `pnpm lint:fix` | ESLint with `--fix` |
 | `pnpm gen-proto` | Generate gRPC/protobuf-ts clients |
 | `pnpm extract` / `pnpm compile` | Lingui: extract messages (`--clean`, drops obsolete entries) / compile catalogs |
@@ -74,7 +74,9 @@ Lingui) covers every package. `vite.config.ts` builds `apps/web` into `dist/`.
 | `pnpm check:authors <range>` | No AI agent as author, committer or co-author of a commit in the range — **must be clean** |
 
 **Which tests to run.** While you write code, run one file: `pnpm test:file <path>`. Before a push,
-run the changed tests: `pnpm test:changed origin/main`. CI runs the whole suite.
+run the changed tests: `pnpm test:changed origin/<base>`, where `<base>` is the target branch of
+the PR. CI runs the whole suite. `test:changed` does not select a test that reads source from the
+disk, for example `title-font.test.ts`, because it has no import edge.
 
 - These four commands do not measure coverage. They need no Node flag.
 - They keep the transformed modules in `node_modules/.vitest-cache`, so the second run of a file is
@@ -100,7 +102,7 @@ the alias when TypeScript 7.1 and these tools support the new API.
 
 `prebuild` = `gen-proto` + `extract` + `compile`, and runs before `dev` and `build`. **Do not hand-edit generated proto code or compiled locale `messages.ts` files** — regenerate them.
 
-Before considering work done: `pnpm typecheck`, `pnpm test:changed origin/main`, `pnpm lint`, `pnpm depcruise`,
+Before considering work done: `pnpm typecheck`, `pnpm test:changed origin/<base>`, `pnpm lint`, `pnpm depcruise`,
 `pnpm depcruise:cycles` and `pnpm i18n:collisions` must all pass clean (zero warnings, zero
 failures, zero violations, zero cycles, zero collisions). CI runs all six, with the whole suite of
 tests, and also checks that
