@@ -1,9 +1,11 @@
 name: Frontend
 
 # Tests, lint, and a static job (typecheck, architecture boundaries, catalogs, build), in parallel.
+# GitHub does not run a PR again when its base moves, so a push to a version branch checks the
+# real tree after each merge.
 on:
   push:
-    branches: [main]
+    branches: [main, 'v*.*.*']
   pull_request:
   merge_group:
   workflow_dispatch:
@@ -26,13 +28,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      # The first push of a new branch has no range. Its commits were checked in their PRs.
       - name: No AI agent in the commit authors
+        if: github.event.before != '0000000000000000000000000000000000000000'
         env:
           RANGE: ${{ github.event_name == 'pull_request' && format('origin/{0}..{1}', github.base_ref, github.event.pull_request.head.sha) || github.event_name == 'merge_group' && format('{0}..{1}', github.event.merge_group.base_sha, github.event.merge_group.head_sha) || format('{0}..{1}', github.event.before, github.sha) }}
         run: node scripts/check-commit-authors.mjs "$RANGE"
 
-  # The suite runs in 6 shards. Each shard writes a blob report with its coverage; the
-  # `coverage` job merges them and applies the thresholds of vite.config.ts.
+  # The suite runs in 6 shards. On a pull request, they only run the tests. Elsewhere, each shard
+  # writes a blob report with its coverage; the `coverage` job merges them and applies the
+  # thresholds of vite.config.ts.
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -46,9 +51,14 @@ jobs:
 
       - uses: ./.github/actions/setup
 
+      - name: Tests
+        if: github.event_name == 'pull_request'
+        run: pnpm exec vitest run --shard=${{ matrix.shard }}/6 --reporter=dot --reporter=github-actions
+
       # The thresholds apply to the merged report, not to a part of the suite.
       # A blob report alone does not name a failed test in the log.
-      - name: Tests
+      - name: Tests with coverage
+        if: github.event_name != 'pull_request'
         run: >-
           pnpm exec vitest run --shard=${{ matrix.shard }}/6
           --reporter=dot --reporter=github-actions --reporter=blob --coverage
@@ -56,6 +66,7 @@ jobs:
           --coverage.thresholds.functions=0 --coverage.thresholds.lines=0
 
       - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
         with:
           name: blob-report-${{ matrix.shard }}
           path: .vitest/blob
@@ -63,6 +74,7 @@ jobs:
 
   coverage:
     needs: test
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -126,3 +138,17 @@ jobs:
       # set-up has run gen-proto. Compile again, because extract can change the .po files.
       - name: Build
         run: pnpm run compile && pnpm exec vite build
+
+  # The required check of the version branch. A job that needs a failed job is skipped, and a
+  # skipped check can pass, so this job always runs and reads the results. A new job goes in `needs`.
+  ci-ok:
+    if: always()
+    needs: [authors, test, coverage, lint, static]
+    runs-on: ubuntu-latest
+    steps:
+      - name: All jobs passed
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "$RESULTS"
+          ! echo "$RESULTS" | grep -qE 'failure|cancelled'
