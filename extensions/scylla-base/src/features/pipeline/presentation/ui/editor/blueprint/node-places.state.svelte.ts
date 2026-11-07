@@ -48,10 +48,10 @@ export const createNodePlaces = (params: NodePlacesParams) => {
     },
 
     moved(flowNodes: readonly Pick<FlowNode, 'id' | 'position'>[]) {
-      const saved = new Set(params.savedIds());
+      const saved = params.savedIds();
       const places = placesOf(flowNodes);
       start = places.start ?? start;
-      for (const [id, place] of places.nodes) if (saved.has(id)) moved.set(id, place);
+      for (const [id, place] of places.nodes) if (saved.includes(id)) moved.set(id, place);
 
       clearTimeout(timer);
       timer = setTimeout(send, SAVE_DELAY_MS);
@@ -62,11 +62,11 @@ export const createNodePlaces = (params: NodePlacesParams) => {
      * yet, so the start node goes too.
      */
     waiting(): PipelineLayout | undefined {
-      const saved = new Set(params.savedIds());
+      const saved = params.savedIds();
       const places = placesOf(current());
       const layout: PipelineLayout = {
-        ...(saved.size === 0 && places.start && { start: places.start }),
-        nodes: withinLimit(places.nodes.filter(([id]) => !saved.has(id))),
+        ...(saved.length === 0 && places.start && { start: places.start }),
+        nodes: withinLimit(places.nodes.filter(([id]) => !saved.includes(id))),
       };
       return isEmptyLayout(layout) ? undefined : layout;
     },

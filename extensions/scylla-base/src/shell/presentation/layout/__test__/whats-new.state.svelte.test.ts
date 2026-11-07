@@ -10,6 +10,7 @@ import {
   markSeen,
   unseenRelease,
 } from '../whats-new.state.svelte.ts';
+import type * as UserStateModule from '@platform/user-state';
 
 const server = vi.hoisted(() => ({
   getUserState: vi.fn(),
@@ -17,8 +18,8 @@ const server = vi.hoisted(() => ({
 }));
 
 vi.mock('@platform/user-state', async original => {
-  const real = await original<typeof import('@platform/user-state')>();
-  return { ...real, userState: real.createUserState(server as never) };
+  const real = await original<typeof UserStateModule>();
+  return { ...real, userState: real.createUserState(server) };
 });
 
 const flush = () => new Promise(resolve => setTimeout(resolve));

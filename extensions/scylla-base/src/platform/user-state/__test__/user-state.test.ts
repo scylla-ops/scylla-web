@@ -232,7 +232,7 @@ describe('a later read of a key', () => {
 describe('a failed read', () => {
   it('resolves whenLoaded and tells that the read failed, so a reader never hangs', async () => {
     const server = fakeServer();
-    server.getUserState.mockReturnValue(failedCall('UNAVAILABLE') as never);
+    server.getUserState.mockReturnValue(failedCall('UNAVAILABLE'));
     const state = createUserState(server.client);
 
     state.load('ada');
@@ -243,14 +243,14 @@ describe('a failed read', () => {
 
   it('reads again at the online event, and sends what stayed marked', async () => {
     const server = fakeServer([]);
-    server.getUserState.mockReturnValueOnce(failedCall('UNAVAILABLE') as never);
+    server.getUserState.mockReturnValueOnce(failedCall('UNAVAILABLE'));
     const state = createUserState(server.client);
     const { slot, definition } = localValue({ upload: false });
     const color = state.define(definition);
 
     state.load('ada');
     await state.whenLoaded();
-    server.putUserStateEntry.mockReturnValueOnce(failedCall('UNAVAILABLE') as never);
+    server.putUserStateEntry.mockReturnValueOnce(failedCall('UNAVAILABLE'));
     slot.value = 'red';
     color.save('red');
     await flush();
@@ -352,7 +352,7 @@ describe('save', () => {
     const color = state.define(localValue().definition);
     state.load('ada');
     await state.whenLoaded();
-    server.putUserStateEntry.mockReturnValue(failedCall('UNAVAILABLE') as never);
+    server.putUserStateEntry.mockReturnValue(failedCall('UNAVAILABLE'));
 
     color.save('red');
     await flush();
@@ -369,8 +369,8 @@ describe('save', () => {
     state.load('ada');
     await state.whenLoaded();
 
-    server.getUserState.mockReturnValue(unaryCall({ entries: [entry('color', 'green', 2n)] }) as never);
-    server.putUserStateEntry.mockReturnValueOnce(failedCall('ABORTED') as never);
+    server.getUserState.mockReturnValue(unaryCall({ entries: [entry('color', 'green', 2n)] }));
+    server.putUserStateEntry.mockReturnValueOnce(failedCall('ABORTED'));
     slot.value = 'red';
     color.save('red');
     await flush();
@@ -391,7 +391,7 @@ describe('save', () => {
     state.load('ada');
     await state.whenLoaded();
 
-    server.putUserStateEntry.mockReturnValue(failedCall('ABORTED') as never);
+    server.putUserStateEntry.mockReturnValue(failedCall('ABORTED'));
     slot.value = 'red';
     color.save('red');
     await flush();

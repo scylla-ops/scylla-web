@@ -6,11 +6,12 @@ import { stubQuery } from '@test/queries.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { withQueryClient } from '@test/render.ts';
 import { redirectToWorkspace } from '../workspace-redirect.effect.svelte.ts';
+import type * as UserStateModule from '@platform/user-state';
 
 const server = vi.hoisted(() => ({ entries: [] as { key: string; valueJson: string; version: bigint }[] }));
 
 vi.mock('@platform/user-state', async original => {
-  const real = await original<typeof import('@platform/user-state')>();
+  const real = await original<typeof UserStateModule>();
   const client = {
     getUserState: () => ({ response: Promise.resolve({ entries: server.entries }) }),
     putUserStateEntry: vi.fn(),

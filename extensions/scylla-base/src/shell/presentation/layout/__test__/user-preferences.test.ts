@@ -3,6 +3,7 @@ import { getCurrentLocale } from '@scylla/ui/i18n';
 import { getThemePreference, setThemePreference } from '@scylla/ui/stores';
 import { userState } from '@platform/user-state';
 import { chooseLocale } from '../user-preferences.ts';
+import type * as UserStateModule from '@platform/user-state';
 
 const server = vi.hoisted(() => ({
   entries: [] as { key: string; valueJson: string; version: bigint }[],
@@ -11,8 +12,8 @@ const server = vi.hoisted(() => ({
 }));
 
 vi.mock('@platform/user-state', async original => {
-  const real = await original<typeof import('@platform/user-state')>();
-  return { ...real, userState: real.createUserState(server as never) };
+  const real = await original<typeof UserStateModule>();
+  return { ...real, userState: real.createUserState(server) };
 });
 
 const flush = () => new Promise(resolve => setTimeout(resolve));

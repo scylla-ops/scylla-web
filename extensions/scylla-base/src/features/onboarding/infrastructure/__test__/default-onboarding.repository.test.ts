@@ -92,7 +92,7 @@ describe('DefaultOnboardingRepository', () => {
 
   it('rejects after a failed read with no local copy: a failure is not a new person', async () => {
     const server = fakeClient();
-    server.getUserState.mockReturnValue(failedCall('UNAVAILABLE') as never);
+    server.getUserState.mockReturnValue(failedCall('UNAVAILABLE'));
     const { state, repository } = repositoryOn(server.client);
 
     state.load('ada');
@@ -103,7 +103,7 @@ describe('DefaultOnboardingRepository', () => {
   it('reads the local copy after a failed read', async () => {
     localStorage.setItem('onboarding:ada', '{"kind":"completed"}');
     const server = fakeClient();
-    server.getUserState.mockReturnValue(failedCall('UNAVAILABLE') as never);
+    server.getUserState.mockReturnValue(failedCall('UNAVAILABLE'));
     const { state, repository } = repositoryOn(server.client);
 
     state.load('ada');

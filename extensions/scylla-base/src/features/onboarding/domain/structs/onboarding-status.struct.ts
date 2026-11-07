@@ -87,7 +87,7 @@ export const mergeStatuses = (server: OnboardingStatus, local: OnboardingStatus)
     server.kind === 'not-started' ? local : server,
     union(doneTours(server), doneTours(local)),
     union(declinedTours(server), declinedTours(local)),
-  ) as OnboardingStatus;
+  );
 
 /** `found` is what the page that starts the tour already shows, as its project. */
 export const startTour = (

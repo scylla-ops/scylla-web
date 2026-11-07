@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import AuthGuardFixture from './AuthGuard.fixture.svelte';
+import type * as UserStateModule from '@platform/user-state';
 
 const hasSession = vi.hoisted(() => vi.fn<() => Promise<boolean>>());
 vi.mock('@base/features/login', async original => ({
@@ -14,7 +15,7 @@ vi.mock('@base/features/login', async original => ({
 
 const load = vi.hoisted(() => vi.fn());
 vi.mock('@platform/user-state', async original => {
-  const real = await original<typeof import('@platform/user-state')>();
+  const real = await original<typeof UserStateModule>();
   return { ...real, userState: { ...real.userState, load } };
 });
 
