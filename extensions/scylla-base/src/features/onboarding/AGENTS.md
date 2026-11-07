@@ -175,7 +175,7 @@ The mutation keys come from the barrels: `CREATE_APP_MUTATION_KEY` (`apps`),
   Tab over the targets and the card, so that the keyboard reaches Skip, and stops the search
   shortcut (Cmd or Ctrl + K) for the whole tour. The tour clears the hold at its end and before
   Previous closes the dialog. The Skip confirmation is not a `ScyllaDialog`, so Escape closes only
-  the confirmation. `markTourActive` sets `data-tour-active` on `<body>`: a corner widget of a host
+  the confirmation. `markTourActive` sets `data-tour-active` on `<html>`: a corner widget of a host
   build hides with it.
 - **Placement.** `placeCard` takes the first side with room and no overlap. If no side is free, it
   takes the place that covers `avoid` the least (the open menus and lists, the `keepClear` of the
