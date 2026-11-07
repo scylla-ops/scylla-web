@@ -164,7 +164,8 @@ export const createOnboardingTour = (canStart: () => boolean) => {
 
   $effect(followMutations);
 
-  // Only another tab fires it. The read is cheap, so any key of the storage may trigger it.
+  // Another tab fires it, and the repository after a merge with the server. The read is cheap, so
+  // any key of the storage may trigger it.
   $effect(() => {
     const reload = () =>
       void getQueryClient().invalidateQueries({ queryKey: ONBOARDING_QUERY_KEY(userId) });

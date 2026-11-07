@@ -39,6 +39,8 @@ const repository = new DefaultXRepository(new XServiceClient(grpcTransport.getTr
 Never import it in a query, a component, a repository or a domain file. A repository takes the
 generated client interface (`IXServiceClient`), never the transport.
 
+One other file uses it: `platform/user-state/index.ts`, because a capability has no module file.
+
 It lives in `platform/` rather than the composition root precisely so a feature can declare its
 own dependencies without importing the app that assembles them — the coupling that previously
 made every feature and the shell mutually dependent.

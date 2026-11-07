@@ -25,6 +25,16 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   services. The dashboard and the onboarding tour are back.
 - End-to-end tests with Playwright, against a real CE server. Dependabot for npm and GitHub Actions.
 
+**The state of a person on the server**
+
+- The theme, the language, the node style, the last workspace, the seen flags of the release and
+  the tour follow the person to a new device. A new device does not show again a dialog that the
+  person closed. `localStorage` stays the read copy, and the app works when the server does not
+  answer. See `platform/user-state`.
+- The places of the nodes are part of the pipeline: all members see the same canvas, and a place
+  stays after a reload. A saved node saves its place at the end of a drag, with no Save button. A
+  new node sends its place with the next save of the pipeline.
+
 **Notifications**
 
 - A real inbox: the bell has a badge and a short popover, with no filter. The page `notifications`

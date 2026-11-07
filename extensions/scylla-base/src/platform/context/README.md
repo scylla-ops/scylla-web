@@ -37,7 +37,7 @@ build a URL pointing at another tenant's resource, or fire a query for a project
 see. Clearing is the correct behaviour, and it is worth knowing about before writing code that
 assumes `project.id` survives an org change.
 
-The store persists to `localStorage` under `scylla-context`, so a reload keeps you where you
+The store persists to `localStorage` under `scylla-workspace-context`, so a reload keeps you where you
 were rather than dumping you at the workspace picker.
 
 ## The URL is the source of truth

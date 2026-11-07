@@ -1,5 +1,6 @@
 import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
 import { Permission, authorizationReady, can } from '@platform/authz';
+import { userState } from '@platform/user-state';
 import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { signOut } from '@base/features/login';
@@ -175,7 +176,11 @@ export const userMutations = {
   deleteAccount: () =>
     mutationOptions({
       mutationFn: async (password: string) => refusalOf(repository().deleteAccount(password)),
-      onSuccess: (refusal: string | null) => (refusal === null ? signOut() : undefined),
+      onSuccess: (refusal: string | null) => {
+        if (refusal !== null) return undefined;
+        userState.forget();
+        return signOut();
+      },
     }),
 
   /** The refusal (wrong password, too soon) is data: the dialog shows it. */

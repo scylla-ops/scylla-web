@@ -41,10 +41,13 @@ pipeline that a tour created). Every status can hold `done` (the ids of the fini
 from one tour to the next. A status saved before the tours has no `tour`: the state finds the tour
 that holds its step.
 
-The only implementation today is local: `DefaultOnboardingRepository` reads and writes
-`localStorage` (key `onboarding:<userId>`, the id that `features/login` stores). The backend has
-no storage for it yet. When it has, and if the local copy must stay, the repository has two
-sources: split it into a local and a remote data source then. Presentation does not change.
+`DefaultOnboardingRepository` reads and writes `localStorage` (key `onboarding:<userId>`, the id
+that `features/login` stores), and the key `onboarding` of `platform/user-state` sends the status to
+the server. `getStatus` waits for `whenLoaded` and then reads only the local copy, so a `storage`
+event cannot move the tour back. A failed read with no local copy rejects with `UNAVAILABLE`: a
+failure is not a new person, so the welcome does not show. A merge of the status writes the local
+copy and dispatches a `storage` event, so the tour reads it again. `mergeStatuses` keeps the union
+of what two devices did.
 
 ## Layout
 
@@ -57,7 +60,7 @@ domain/
                                          doneTours, rememberSubject (pure)
   repository/onboarding.repository.ts
 infrastructure/
-  default-onboarding.repository.ts       reads localStorage (any `Storage` in a test)
+  default-onboarding.repository.ts       the local copy (any `Storage` in a test) and the key of `userState`
   stored-onboarding.mapper.ts            JSON ↔ status, tolerant
 presentation/
   onboarding.queries.ts              status query + save mutation (optimistic)

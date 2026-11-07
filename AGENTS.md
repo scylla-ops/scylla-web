@@ -22,7 +22,7 @@ sdks/core-sdk/AGENTS.md                                  the extension contract:
 sdks/scylla-base-sdk/AGENTS.md                           the public API of scylla-base for other extensions
 extensions/scylla-base/AGENTS.md                         the Scylla extension
 extensions/scylla-base/src/features/<feature>/AGENTS.md  the 15 business modules
-extensions/scylla-base/src/platform/<capability>/AGENTS.md   authz, context, grpc
+extensions/scylla-base/src/platform/<capability>/AGENTS.md   authz, context, grpc, user-state
 extensions/scylla-base/src/shell/AGENTS.md               module list, ShellModule, Scylla shell parts
 extensions/scylla-base/src/shared/AGENTS.md              shared code with a business meaning
 ```
@@ -155,7 +155,8 @@ shell/                    the module list (modules.ts) and ShellModule: mounts, 
 features/                 the business modules.  May import platform + shared, never the shell,
                           and never another feature's internals.
   ↓
-platform/                 cross-cutting capabilities that own a domain: authz, context, grpc.
+platform/                 cross-cutting capabilities that own a domain: authz, context, grpc,
+                          user-state.
                           MUST NEVER import a feature.
   ↓
 shared/                   shared code with a business meaning (ScyllaError, status presentation).
@@ -381,7 +382,8 @@ injected, still substitutable in a test. Only the redundant indirection is gone.
 - scylla-base `shell/` — `modules.ts` (the feature list), `ShellModule` (mounts, sidebar
   sections, auth gate, context wrappers, access policy, error policy, shell parts).
 - scylla-base `platform/` — `authz` (Permission, `can`, `Can`, `RequirePermission`), `context`
-  (current org/project/pipeline + navigation), `grpc`.
+  (current org/project/pipeline + navigation), `grpc`, `user-state` (the interface state of a
+  person on the server, with `localStorage` as its read copy).
 - scylla-base `features/` — `apps`, `dashboard`, `extensions`, `jobs`, `login`, `marketplace`,
   `membership`, `workspace`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`.
 - scylla-base `shared/` — shared code with a business meaning. **No feature imports.**

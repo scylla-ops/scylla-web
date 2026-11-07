@@ -67,3 +67,36 @@ describe('createNodeAppearancePreference', () => {
     });
   });
 });
+
+describe('the node style on the server', () => {
+  it('reads the local copy again when the answer of the server comes after the mount', async () => {
+    const storage = memoryStorage();
+    let preference: ReturnType<typeof createNodeAppearancePreference> | undefined;
+    const cleanup = $effect.root(() => {
+      preference = createNodeAppearancePreference(() => storage);
+      storage.setItem(KEY, 'minimal');
+    });
+    expect(preference?.current).toBe(DEFAULT_NODE_APPEARANCE);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(preference?.current).toBe('minimal');
+    cleanup();
+  });
+
+  it('keeps a choice of the person over a late answer of the server', async () => {
+    const storage = memoryStorage({ [KEY]: 'minimal' });
+    let preference: ReturnType<typeof createNodeAppearancePreference> | undefined;
+    const cleanup = $effect.root(() => {
+      preference = createNodeAppearancePreference(() => storage);
+      preference.set('detailed');
+      storage.setItem(KEY, 'minimal');
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(preference?.current).toBe('detailed');
+    cleanup();
+  });
+});

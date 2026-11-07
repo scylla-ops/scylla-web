@@ -4,7 +4,13 @@ import type {
   Shell as NodeShell,
   PipelineNodeEntity,
 } from '../domain/entities/pipeline-node.entity.ts';
-import type { EnvVar, Node, Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
+import type { PipelineLayout } from '../domain/structs/pipeline-layout.struct.ts';
+import type {
+  EnvVar,
+  Node,
+  Pipeline,
+  PipelineLayout as GrpcPipelineLayout,
+} from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 import { Shell } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 import type { PaginatedList, PaginationParams } from '@scylla/ui/structs';
 import { idValue, timestampToIso } from '@shared/infrastructure/grpc/wrappers.ts';
@@ -89,6 +95,14 @@ export function nodeFromDomain(node: PipelineNodeEntity): Node {
         : { oneofKind: 'exec', exec: { argv: [node.command, ...node.args] } },
   };
 }
+
+export const layoutToDomain = (layout: GrpcPipelineLayout | undefined): PipelineLayout | null =>
+  layout ? { ...(layout.start && { start: layout.start }), nodes: layout.nodes } : null;
+
+export const layoutFromDomain = ({ start, nodes }: PipelineLayout): GrpcPipelineLayout => ({
+  ...(start && { start }),
+  nodes: { ...nodes },
+});
 
 export function toDomain(pipeline: Pipeline): PipelineEntity {
   return {

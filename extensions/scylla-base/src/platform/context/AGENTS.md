@@ -52,7 +52,7 @@ needs a writer: `projectMutations.remove` clears the project and the pipeline wh
 the active one.
 
 Persistence: `createStore` (`@scylla/ui/stores`) keeps it in
-`localStorage` under key `scylla-context`, so a reload keeps the user where they were. The stored
+`localStorage` under key `scylla-workspace-context`, so a reload keeps the user where they were. The stored
 format does not change: a context stored by an earlier version stays valid.
 
 ## Cascade on workspace change

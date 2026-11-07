@@ -123,6 +123,8 @@
     onconnectend={onConnectEnd}
     ondelete={() => blueprint.sync()}
     onnodeclick={({ node }) => blueprint.inspect(node.id)}
+    onnodedragstop={({ nodes }) => blueprint.placesMoved(nodes)}
+    onselectiondragstop={(_, nodes) => blueprint.placesMoved(nodes)}
     onpaneclick={() => blueprint.inspect(null)}
     onmove={event => {
       // A move with no event is the code's own, such as a fit.

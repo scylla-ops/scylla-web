@@ -1,9 +1,10 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
 import SparklesIcon from '@lucide/svelte/icons/sparkles';
+import { userState } from '@platform/user-state';
 import { DefaultOnboardingRepository } from './infrastructure/default-onboarding.repository.ts';
 import { onboardingMessages } from './presentation/messages/onboarding.messages.ts';
 
-const onboardingRepository = new DefaultOnboardingRepository();
+const onboardingRepository = new DefaultOnboardingRepository(userState);
 
 export const OnboardingModule = {
   id: 'onboarding',

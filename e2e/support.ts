@@ -45,8 +45,8 @@ export const dismissOverlays = async (page: Page): Promise<void> => {
   }
 };
 
-/** Signs up, opens the link of the mail, and signs in. Gives the slug of the personal workspace. */
-export const signUpAndIn = async (page: Page, email: string, name = 'Ada Lovelace') => {
+/** Signs up and opens the link of the mail. */
+export const signUp = async (page: Page, email: string, name = 'Ada Lovelace') => {
   await page.goto('/sign-up');
   await page.getByLabel('Name').fill(name);
   await page.getByLabel('Email').fill(email);
@@ -57,16 +57,25 @@ export const signUpAndIn = async (page: Page, email: string, name = 'Ada Lovelac
 
   await page.goto(await mailLink(email, 'verify-email'));
   await expect(page.getByText('Your email address is verified')).toBeVisible();
+};
 
+/** Signs up and signs in. Gives the slug of the personal workspace. */
+export const signUpAndIn = async (page: Page, email: string, name = 'Ada Lovelace') => {
+  await signUp(page, email, name);
   return signIn(page, email);
 };
 
-export const signIn = async (page: Page, email: string): Promise<string> => {
+/** Signs in and leaves the overlays open: a spec can check which of them show. */
+export const openSession = async (page: Page, email: string): Promise<void> => {
   await page.goto('/login');
   await page.getByLabel('Email or username').fill(email);
   await page.getByLabel('Password').fill(PASSWORD);
   await page.getByRole('button', { name: 'Sign in' }).click();
   await page.waitForURL(url => !url.pathname.startsWith('/login'));
+};
+
+export const signIn = async (page: Page, email: string): Promise<string> => {
+  await openSession(page, email);
   await page.waitForTimeout(1000);
   await dismissOverlays(page);
   await dismissOverlays(page);

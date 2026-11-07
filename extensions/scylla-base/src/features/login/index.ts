@@ -1,6 +1,6 @@
 export { LoginState, type Credentials } from './presentation/ui/login.state.svelte.ts';
 export { loginPoints, type LoginZoneContext } from './presentation/login.points.ts';
-export { closeSession, hasSession, openSession } from './infrastructure/session.ts';
+export { closeSession, hasSession, openSession, sessionUserId } from './infrastructure/session.ts';
 export { signOut } from './presentation/sign-out.ts';
 export { loginPath, loginPathBackTo } from './presentation/mappers/return-path.mapper.ts';
 export { providerStartUrl } from './presentation/mappers/provider-start.mapper.ts';

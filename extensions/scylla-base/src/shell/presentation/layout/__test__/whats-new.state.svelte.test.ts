@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { flushSync } from 'svelte';
+import { userState } from '@platform/user-state';
 import { WHATS_NEW } from '@base/shell/whats-new.ts';
 import {
   dismissRelease,
@@ -9,9 +10,26 @@ import {
   markSeen,
   unseenRelease,
 } from '../whats-new.state.svelte.ts';
+import type * as UserStateModule from '@platform/user-state';
+
+const server = vi.hoisted(() => ({
+  getUserState: vi.fn(),
+  putUserStateEntry: vi.fn(),
+}));
+
+vi.mock('@platform/user-state', async original => {
+  const real = await original<typeof UserStateModule>();
+  return { ...real, userState: real.createUserState(server) };
+});
+
+const flush = () => new Promise(resolve => setTimeout(resolve));
 
 beforeEach(() => {
   localStorage.clear();
+  server.putUserStateEntry.mockReset();
+  server.putUserStateEntry.mockReturnValue({
+    response: Promise.resolve({ entry: { version: 2n } }),
+  });
 });
 
 describe('isUnseen', () => {
@@ -79,5 +97,45 @@ describe('the release announcement', () => {
   it('is null after the user dismisses it', () => {
     dismissRelease();
     expect(unseenRelease()).toBeNull();
+  });
+});
+
+describe('the flags on the server', () => {
+  const known = WHATS_NEW.highlights[0]?.id ?? '';
+  const other = WHATS_NEW.highlights[1]?.id ?? '';
+
+  it('merges the flags of the two sides, and tells the readers', async () => {
+    localStorage.setItem(`whats-new-seen:${WHATS_NEW.version}:${other}`, '1');
+    server.getUserState.mockReturnValue({
+      response: Promise.resolve({
+        entries: [
+          {
+            key: 'whats-new-seen',
+            valueJson: JSON.stringify({ version: WHATS_NEW.version, seen: ['release', known] }),
+            version: 1n,
+          },
+        ],
+      }),
+    });
+
+    userState.load('ada');
+    await userState.whenLoaded();
+    await flush();
+
+    expect(isUnseen('release')).toBe(false);
+    expect(isUnseen(known)).toBe(false);
+    expect(server.putUserStateEntry).toHaveBeenCalledWith({
+      key: 'whats-new-seen',
+      valueJson: JSON.stringify({ version: WHATS_NEW.version, seen: ['release', known, other] }),
+      expectedVersion: 1n,
+    });
+  });
+
+  it('writes one time for a flag, because a link marks it at each open', async () => {
+    markSeen('role-and-trigger-pages');
+    markSeen('role-and-trigger-pages');
+    await flush();
+
+    expect(server.putUserStateEntry).toHaveBeenCalledOnce();
   });
 });

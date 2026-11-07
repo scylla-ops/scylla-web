@@ -40,11 +40,10 @@ describe('SavePipelineUseCase', () => {
       }),
     );
 
-    expect(create).toHaveBeenCalledWith({
-      projectId: 'proj',
-      name: 'nightly',
-      nodes: [node('build')],
-    });
+    expect(create).toHaveBeenCalledWith(
+      { projectId: 'proj', name: 'nightly', nodes: [node('build')] },
+      undefined,
+    );
     expect(edit).not.toHaveBeenCalled();
     expect(issue).toBeNull();
   });
@@ -61,7 +60,7 @@ describe('SavePipelineUseCase', () => {
       }),
     );
 
-    expect(edit).toHaveBeenCalledWith('p1', [node('build')], 'nightly');
+    expect(edit).toHaveBeenCalledWith('p1', [node('build')], 'nightly', undefined);
     expect(create).not.toHaveBeenCalled();
     expect(issue).toBeNull();
   });

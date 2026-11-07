@@ -6,7 +6,8 @@ import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import { toast } from '@scylla/ui/utils';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
-import type { PipelineEntity, PipelineMetadata } from '../domain/entities/pipeline.entity.ts';
+import type { PipelineMetadata, PipelineWithLayout } from '../domain/entities/pipeline.entity.ts';
+import { mergeLayouts, type PipelineLayout } from '../domain/structs/pipeline-layout.struct.ts';
 import {
   InvalidPipelineError,
   type SavePipelineInput,
@@ -79,10 +80,10 @@ export const pipelineQueries = {
 
   /** The document of the editor: a refetch would replace an unsaved draft. */
   byId: (pipelineId: string) =>
-    queryOptions<PipelineEntity>({
+    queryOptions<PipelineWithLayout>({
       queryKey: PIPELINE_QUERY_KEY(pipelineId),
       enabled: !!pipelineId,
-      queryFn: () => repository().getById(pipelineId),
+      queryFn: () => repository().getWithLayout(pipelineId),
       staleTime: 30_000,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
@@ -116,6 +117,22 @@ const returnToProject = () => {
 };
 
 export const pipelineMutations = {
+  /**
+   * With no toast: a lost place costs one position, and the Save button is for the nodes. It writes
+   * the cache and does not invalidate it, because a refetch would replace an unsaved draft.
+   */
+  saveLayout: (pipelineId: string) =>
+    mutationOptions({
+      mutationFn: (layout: PipelineLayout) => repository().saveLayout(pipelineId, layout),
+      onMutate: (layout: PipelineLayout) => {
+        getQueryClient().setQueryData<PipelineWithLayout>(
+          PIPELINE_QUERY_KEY(pipelineId),
+          saved => saved && { ...saved, layout: mergeLayouts(saved.layout, layout) },
+        );
+      },
+      meta: { showsOwnError: true },
+    }),
+
   create: () =>
     mutationOptions({
       mutationKey: CREATE_PIPELINE_MUTATION_KEY,
@@ -154,12 +171,13 @@ export const pipelineMutations = {
   duplicate: () =>
     mutationOptions({
       mutationFn: async (pipelineId: string) => {
-        const pipeline = await repository().getById(pipelineId);
+        const { pipeline, layout } = await repository().getWithLayout(pipelineId);
 
         await save({
           projectId: pipeline.projectId,
           name: i18n._(pipelineMessages.copyOf(pipeline.name)),
           nodes: pipeline.nodes,
+          ...(layout && { layout }),
         });
       },
       onSuccess: () => {

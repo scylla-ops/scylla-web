@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { nodesToFlow, flowToNodes, nodeOf, START_NODE_ID } from '../blueprint-flow.mapper.ts';
+import { nodesToFlow, flowToNodes, nodeOf, placesOf, START_NODE_ID } from '../blueprint-flow.mapper.ts';
 import type {
   PipelineNodeEntity,
   ExecPipelineNodeEntity,
@@ -150,5 +150,44 @@ describe('a loop of dependencies', () => {
     expect(flowNodes.map(flowNode => flowNode.id).sort()).toEqual(
       [START_NODE_ID, 'a', 'b', 'root'].sort(),
     );
+  });
+});
+
+describe('saved places', () => {
+  const nodes = [execNode('build'), execNode('test', ['build'])];
+  const placeOf = (flowNodes: ReturnType<typeof nodesToFlow>['flowNodes'], id: string) =>
+    flowNodes.find(flowNode => flowNode.id === id)?.position;
+
+  it('go before the automatic places, for the nodes and for the start node', () => {
+    const { flowNodes } = nodesToFlow(nodes, 'p', {
+      start: { x: -5, y: -6 },
+      nodes: { build: { x: 700, y: 800 } },
+    });
+
+    expect(placeOf(flowNodes, START_NODE_ID)).toEqual({ x: -5, y: -6 });
+    expect(placeOf(flowNodes, 'build')).toEqual({ x: 700, y: 800 });
+  });
+
+  it('leave a node with no saved place on its automatic place', () => {
+    const automatic = nodesToFlow(nodes, 'p').flowNodes;
+    const { flowNodes } = nodesToFlow(nodes, 'p', { nodes: { build: { x: 700, y: 800 } } });
+
+    expect(placeOf(flowNodes, 'test')).toEqual(placeOf(automatic, 'test'));
+  });
+
+  it('give the same graph as no layout when nothing is saved', () => {
+    expect(nodesToFlow(nodes, 'p', null)).toEqual(nodesToFlow(nodes, 'p'));
+  });
+
+  it('read the graph back as whole pixels, with the start node apart', () => {
+    const { flowNodes } = nodesToFlow([execNode('build')], 'p', {
+      start: { x: 1.2, y: 2.7 },
+      nodes: { build: { x: 3.5, y: 4 } },
+    });
+
+    expect(placesOf(flowNodes)).toEqual({
+      start: { x: 1, y: 3 },
+      nodes: [['build', { x: 4, y: 4 }]],
+    });
   });
 });

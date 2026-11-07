@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { flushSync } from 'svelte';
 import type { ExecPipelineNodeEntity, PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import type { PipelineLayout } from '@base/features/pipeline/domain/structs/pipeline-layout.struct.ts';
 import { createBlueprint } from '../blueprint.state.svelte.ts';
 import { START_NODE_ID, flowToNodes } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
 import { createPipelineDocument } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
@@ -301,6 +302,77 @@ describe('the blueprint over the document', () => {
       flushSync();
 
       expect(state.flowNodes.find(flowNode => flowNode.id === 'lint')?.position).toEqual({ x: 640, y: 480 });
+    });
+  });
+});
+
+describe('the places of the canvas', () => {
+  const withPlaces = (
+    nodes: PipelineNodeEntity[],
+    run: (
+      state: ReturnType<typeof createBlueprint>,
+      places: { connect: ReturnType<typeof vi.fn>; moved: ReturnType<typeof vi.fn> },
+    ) => void,
+    savedLayout: PipelineLayout | null = null,
+  ) => {
+    const places = { connect: vi.fn(), moved: vi.fn(), waiting: vi.fn() };
+    const cleanup = $effect.root(() => {
+      const state = createBlueprint({
+        nodes: () => nodes,
+        pipelineName: () => 'nightly',
+        onNodesChange: vi.fn(),
+        savedLayout: () => savedLayout,
+        places,
+      });
+      flushSync();
+      run(state, places);
+    });
+    cleanup();
+  };
+
+  it('opens each node on its saved place', () => {
+    withPlaces(
+      [execNode('build')],
+      state => {
+        expect(state.flowNodes.find(({ id }) => id === 'build')?.position).toEqual({ x: 70, y: 80 });
+        expect(state.flowNodes.find(({ id }) => id === START_NODE_ID)?.position).toEqual({ x: 5, y: 6 });
+      },
+      { start: { x: 5, y: 6 }, nodes: { build: { x: 70, y: 80 } } },
+    );
+  });
+
+  it('reports the nodes of a drag', () => {
+    withPlaces([execNode('build')], (state, places) => {
+      const dragged = state.flowNodes.filter(({ id }) => id === 'build');
+      state.placesMoved(dragged);
+
+      expect(places.moved).toHaveBeenCalledWith(dragged);
+    });
+  });
+
+  it('reports all the places after an arrange', () => {
+    withPlaces([execNode('build')], (state, places) => {
+      state.arrange();
+
+      expect(places.moved).toHaveBeenCalledWith(state.flowNodes);
+    });
+  });
+
+  it('saves nothing on a read-only canvas', () => {
+    withPlaces([execNode('build'), execNode('build')], (state, places) => {
+      expect(state.readOnly).toBe(true);
+      state.placesMoved(state.flowNodes);
+      state.arrange();
+
+      expect(places.moved).not.toHaveBeenCalled();
+    });
+  });
+
+  it('gives the planner the graph that it holds', () => {
+    withPlaces([execNode('build')], (state, places) => {
+      const read = places.connect.mock.calls[0]?.[0] as () => unknown;
+
+      expect(read()).toBe(state.flowNodes);
     });
   });
 });
