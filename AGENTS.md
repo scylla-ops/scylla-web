@@ -793,8 +793,8 @@ entries are open questions, not decisions.
 
 ### Coverage
 
-`pnpm coverage` enforces the thresholds in `vite.config.ts`, and CI runs it in place of
-`pnpm test`. They are a **ratchet**: raise them when a batch of tests lands, never lower them to
+`pnpm coverage` enforces the thresholds in `vite.config.ts`. CI runs it after a merge into `main`
+or a version branch, not on a PR, so a drop goes red there. They are a **ratchet**: raise them when a batch of tests lands, never lower them to
 turn a red run green. Generated proto code, compiled catalogs, `primitives/` (styling wrappers on bits-ui), barrels and
 `*.module.ts` are excluded — covering a re-export measures nothing.
 
