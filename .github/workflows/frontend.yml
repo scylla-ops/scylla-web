@@ -30,7 +30,7 @@ jobs:
 
       # The first push of a new branch has no range. Its commits were checked in their PRs.
       - name: No AI agent in the commit authors
-        if: github.event.before != '0000000000000000000000000000000000000000'
+        if: github.event_name != 'push' || !github.event.created
         env:
           RANGE: ${{ github.event_name == 'pull_request' && format('origin/{0}..{1}', github.base_ref, github.event.pull_request.head.sha) || github.event_name == 'merge_group' && format('{0}..{1}', github.event.merge_group.base_sha, github.event.merge_group.head_sha) || format('{0}..{1}', github.event.before, github.sha) }}
         run: node scripts/check-commit-authors.mjs "$RANGE"
