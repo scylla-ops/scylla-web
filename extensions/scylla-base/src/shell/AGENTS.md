@@ -33,18 +33,20 @@ presentation/
     PersonalLayout/                     layout of the `personal` mount: AuthGuard + a centered column, no gate
     WorkspaceSync.wrapper.svelte     URL slug → context store (workspace-sync.effect.svelte.ts)
     WorkspaceRedirect.wrapper.svelte `/` → the user's workspace (workspace-redirect.effect.svelte.ts)
+    last-workspace.ts                   the key `last-workspace` of `platform/user-state`
     ContextCleaner.wrapper.svelte       URL project → context store, drops stale project/pipeline context
                                         (context-cleaner.effect.svelte.ts)
     NotFound/                           the fallback for a URL that no route matches: a text and a link to /.
                                         It has no session check: / goes through AuthGuard
   layout/
     shell.state.svelte.ts               workspaces query, permission sync, first workspace
-    whats-new.state.svelte.ts                 seen flags (reactive), markNavSeen
+    whats-new.state.svelte.ts                 seen flags (reactive, key `whats-new-seen` of `platform/user-state`), markNavSeen
     ui/WorkspaceGate/                loading screen / first workspace / the pages
       FirstWorkspace.svelte          welcome screen when the user has no workspace
     ui/context-selector/                WorkspaceSelector: the switcher at the right end of the top bar (topBarEnd)
     ui/ShellBrand/                      the logo above the sidebars (brand): a link to the dashboard of the active workspace
     language.commands.ts                the commands of the bar for the language
+    user-preferences.ts                 the keys `theme` and `locale` of `platform/user-state`, chooseLocale
     ui/GlobalSearch/                    the button of the top bar and Ctrl K. It loads the bar at the first use and keeps the form that a command opens
     ui/CommandBar/                      the command bar: see "The command bar"
     ui/NotificationsMenu/               the bell of the top bar: the badge and the popover. The panel is in features/notifications
@@ -230,6 +232,13 @@ page-level rule (every page in the shell declares a `permission`) is in
   every screen: keep that corner empty.
 - `LaunchOverlays` shows one window at a time: the release announcement while it is unseen,
   then the onboarding tour (`loadOnboardingTour`). Do not mount a first-launch window beside it.
+  It waits for `userState.whenLoaded()`, so a new device does not show a window that the person
+  already closed.
+- `/` opens the workspace of the key `last-workspace` when it is on the list of the person, else the
+  local context, else the first workspace. A new device thus opens the last workspace of the person.
+- `locale` and `last-workspace` have `upload: false`: the load of a page writes these local values,
+  so a local value does not prove a choice of the person. Only `chooseLocale` and
+  `rememberWorkspace` send them.
 - **Announcing a new feature is editing `whats-new.ts`, nothing else.** Add a highlight (`id`,
   `title`, `description`, `icon`, and `navUrl` when it is a page); the dialog and the sidebar
   badge follow. Bump `WHATS_NEW.version` at each release: the seen flags are keyed by it.

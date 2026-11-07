@@ -7,6 +7,7 @@ import type {
   PipelineNodeEntity,
   SwitchPipelineNodeEntity,
 } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import type { PipelineLayout } from '@base/features/pipeline/domain/structs/pipeline-layout.struct.ts';
 import { createBlueprint } from '../blueprint.state.svelte.ts';
 import { START_NODE_ID, flowToNodes } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
 import { createPipelineDocument } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
@@ -443,6 +444,106 @@ describe('the blueprint over the document', () => {
       flushSync();
 
       expect(state.flowNodes.find(flowNode => flowNode.id === 'lint')?.position).toEqual({ x: 640, y: 480 });
+    });
+  });
+});
+
+describe('the places of the canvas', () => {
+  const withPlaces = (
+    nodes: PipelineNodeEntity[],
+    run: (
+      state: ReturnType<typeof createBlueprint>,
+      places: { connect: ReturnType<typeof vi.fn>; moved: ReturnType<typeof vi.fn> },
+    ) => void,
+    savedLayout: PipelineLayout | null = null,
+  ) => {
+    const places = { connect: vi.fn(), moved: vi.fn(), waiting: vi.fn() };
+    const cleanup = $effect.root(() => {
+      const state = createBlueprint({
+        nodes: () => nodes,
+        pipelineName: () => 'nightly',
+        onNodesChange: vi.fn(),
+        savedLayout: () => savedLayout,
+        places,
+      });
+      flushSync();
+      run(state, places);
+    });
+    cleanup();
+  };
+
+  it('opens each node on its saved place', () => {
+    withPlaces(
+      [execNode('build')],
+      state => {
+        expect(state.flowNodes.find(({ id }) => id === 'build')?.position).toEqual({ x: 70, y: 80 });
+        expect(state.flowNodes.find(({ id }) => id === START_NODE_ID)?.position).toEqual({ x: 5, y: 6 });
+      },
+      { start: { x: 5, y: 6 }, nodes: { build: { x: 70, y: 80 } } },
+    );
+  });
+
+  it('reports the nodes of a drag', () => {
+    withPlaces([execNode('build')], (state, places) => {
+      const dragged = state.flowNodes.filter(({ id }) => id === 'build');
+      state.placesMoved(dragged);
+
+      expect(places.moved).toHaveBeenCalledWith(dragged);
+    });
+  });
+
+  it('reports all the places after an arrange', () => {
+    withPlaces([execNode('build')], (state, places) => {
+      state.arrange();
+
+      expect(places.moved).toHaveBeenCalledWith(state.flowNodes);
+    });
+  });
+
+  it('saves nothing on a read-only canvas', () => {
+    withPlaces([execNode('build'), execNode('build')], (state, places) => {
+      expect(state.readOnly).toBe(true);
+      state.placesMoved(state.flowNodes);
+      state.arrange();
+
+      expect(places.moved).not.toHaveBeenCalled();
+    });
+  });
+
+  it('keeps the saved place of a switch and its edges when a port is renamed or the error output goes', () => {
+    withPlaces(
+      [execNode('test'), ifNode('is-main', ['test']), execNode('deploy', ['is-main:true', 'test:error'])],
+      state => {
+        const renamed = { ...ifNode('is-main'), cases: [{ ...ifNode('is-main').cases[0], port: 'yes' }] };
+        state.updateNode('is-main', renamed, { from: 'true', to: 'yes' });
+        state.setErrorOutput('test', false);
+
+        expect(state.flowNodes.find(({ id }) => id === 'is-main')?.position).toEqual({ x: 70, y: 80 });
+        expect(state.edges).toContainEqual(expect.objectContaining({ id: 'is-main:yes->deploy', sourceHandle: 'yes' }));
+        expect(state.edges.some(edge => edge.sourceHandle === 'error')).toBe(false);
+      },
+      { nodes: { 'is-main': { x: 70, y: 80 } } },
+    );
+  });
+
+  it('reports a switch and a merge in a drag, with their edges left as they are', () => {
+    const join: PipelineNodeEntity = { id: 'join', deps: needs(['is-main:true', 'is-main:false']), kind: 'merge' };
+    withPlaces([ifNode('is-main'), join], (state, places) => {
+      const edges = state.edges;
+      state.placesMoved(state.flowNodes);
+
+      expect(places.moved).toHaveBeenCalledWith(state.flowNodes);
+      expect(state.edges).toBe(edges);
+      const into = state.edges.filter(edge => edge.target === 'join');
+      expect(into.map(edge => edge.sourceHandle)).toEqual(['true', 'false']);
+    });
+  });
+
+  it('gives the planner the graph that it holds', () => {
+    withPlaces([execNode('build')], (state, places) => {
+      const read = places.connect.mock.calls[0]?.[0] as () => unknown;
+
+      expect(read()).toBe(state.flowNodes);
     });
   });
 });

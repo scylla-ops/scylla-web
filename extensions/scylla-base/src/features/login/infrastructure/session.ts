@@ -22,6 +22,9 @@ export const openSession = (token: IssuedToken | undefined, userId?: string): vo
   if (userId) localStorage.setItem(USER_ID, userId);
 };
 
+/** The id of the user of this browser, also when no query asked for the profile yet. */
+export const sessionUserId = (): string | null => localStorage.getItem(USER_ID);
+
 export const rememberUser = (userId: string): void => {
   localStorage.setItem(USER_ID, userId);
 };

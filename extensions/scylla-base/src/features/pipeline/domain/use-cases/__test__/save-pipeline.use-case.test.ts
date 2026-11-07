@@ -40,11 +40,10 @@ describe('SavePipelineUseCase', () => {
       }),
     );
 
-    expect(create).toHaveBeenCalledWith({
-      projectId: 'proj',
-      name: 'nightly',
-      nodes: [node('build')],
-    });
+    expect(create).toHaveBeenCalledWith(
+      { projectId: 'proj', name: 'nightly', nodes: [node('build')] },
+      undefined,
+    );
     expect(edit).not.toHaveBeenCalled();
     expect(issue).toBeNull();
   });
@@ -61,7 +60,7 @@ describe('SavePipelineUseCase', () => {
       }),
     );
 
-    expect(edit).toHaveBeenCalledWith('p1', [node('build')], 'nightly');
+    expect(edit).toHaveBeenCalledWith('p1', [node('build')], 'nightly', undefined);
     expect(create).not.toHaveBeenCalled();
     expect(issue).toBeNull();
   });
@@ -81,6 +80,28 @@ describe('SavePipelineUseCase', () => {
     expect(create).not.toHaveBeenCalled();
     expect(edit).not.toHaveBeenCalled();
     expect(issue).toEqual({ kind: 'node-ids', ids: ['Build', 'déployer'] });
+  });
+
+  it('sends the needs with their ports, and the places of the new nodes, in one save', async () => {
+    const { edit, repository } = repositoryWith();
+    const nodes: PipelineNodeEntity[] = [
+      node('test'),
+      { ...node('notify'), deps: [{ node: 'test', port: 'error' }] },
+    ];
+    const layout = { nodes: { notify: { x: 5, y: 6 } } };
+
+    const issue = await issueOf(
+      new SavePipelineUseCase(repository).execute({
+        id: 'p1',
+        projectId: 'proj',
+        name: 'nightly',
+        nodes,
+        layout,
+      }),
+    );
+
+    expect(issue).toBeNull();
+    expect(edit).toHaveBeenCalledWith('p1', nodes, 'nightly', layout);
   });
 
   it('sends nothing for a need on a port that its node does not have', async () => {

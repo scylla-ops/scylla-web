@@ -19,7 +19,7 @@
     SIDEBAR_MOTION,
     Skeleton,
   } from '@scylla/ui/primitives';
-  import { activeLocale, setAppLocale, t, type SupportedLocale } from '@scylla/ui/i18n';
+  import { activeLocale, t, type SupportedLocale } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { signOut } from '@base/features/login';
   import { userQueries } from '@base/features/user';
@@ -27,6 +27,7 @@
   // By path, not the barrel: this file is in the entry chunk, the other components are not.
   import UserAvatar from '@shared/presentation/ui/data-display/UserAvatar.svelte';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
+  import { chooseLocale } from '@base/shell/presentation/layout/user-preferences.ts';
   import { linkParams } from '@base/shell/presentation/shell-params.ts';
 
   const LOCALES: readonly { locale: SupportedLocale; label: string }[] = [
@@ -120,7 +121,7 @@
       </DropdownMenuLabel>
       <DropdownMenuRadioGroup
         value={activeLocale()}
-        onValueChange={value => void setAppLocale(value as SupportedLocale)}
+        onValueChange={value => void chooseLocale(value as SupportedLocale)}
       >
         {#each LOCALES as option (option.locale)}
           <DropdownMenuRadioItem value={option.locale}>{option.label}</DropdownMenuRadioItem>

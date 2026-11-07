@@ -73,7 +73,9 @@ beforeEach(() => {
     run: vi.fn().mockResolvedValue(undefined),
     create: vi.fn().mockResolvedValue(undefined),
     getById: vi.fn().mockResolvedValue(pipeline()),
+    getWithLayout: vi.fn().mockResolvedValue({ pipeline: pipeline(), layout: null }),
     edit: vi.fn().mockResolvedValue(pipeline()),
+    saveLayout: vi.fn().mockResolvedValue(undefined),
   };
 
   toastSuccess.mockClear();
@@ -150,14 +152,17 @@ describe('pipelineQueries.byId', () => {
     expect(options.refetchOnReconnect).toBe(false);
   });
 
-  it('fetches the whole pipeline, nodes included', async () => {
-    await expect(runQueryFn(pipelineQueries.byId('pipeline-1'))).resolves.toEqual(pipeline());
-    expect(repository.getById).toHaveBeenCalledWith('pipeline-1');
+  it('fetches the whole pipeline, nodes included, with its saved places', async () => {
+    await expect(runQueryFn(pipelineQueries.byId('pipeline-1'))).resolves.toEqual({
+      pipeline: pipeline(),
+      layout: null,
+    });
+    expect(repository.getWithLayout).toHaveBeenCalledWith('pipeline-1');
   });
 
   it('propagates a repository failure to TanStack Query', async () => {
     const error = new ScyllaError('boom');
-    repository.getById.mockRejectedValue(error);
+    repository.getWithLayout.mockRejectedValue(error);
 
     await expect(runQueryFn(pipelineQueries.byId('pipeline-1'))).rejects.toBe(error);
   });
@@ -199,7 +204,7 @@ describe('pipelineMutations.update', () => {
 
   it('edits by id', async () => {
     await runMutationFn(pipelineMutations.update(), edited);
-    expect(repository.edit).toHaveBeenCalledWith('pipeline-1', [], 'ci');
+    expect(repository.edit).toHaveBeenCalledWith('pipeline-1', [], 'ci', undefined);
   });
 
   it('refuses a node id the server does not accept, in the words of the user, and sends nothing', async () => {
@@ -233,6 +238,35 @@ describe('pipelineMutations.update', () => {
   });
 });
 
+describe('pipelineMutations.saveLayout', () => {
+  const moved = { nodes: { build: { x: 10, y: 20 } } };
+
+  it('saves the places with no toast', async () => {
+    await runMutationFn(pipelineMutations.saveLayout('pipeline-1'), moved);
+
+    expect(repository.saveLayout).toHaveBeenCalledWith('pipeline-1', moved);
+    expect(pipelineMutations.saveLayout('pipeline-1').meta).toEqual({ showsOwnError: true });
+  });
+
+  it('writes the places into the cache and does not refetch, so a draft stays', () => {
+    const saved = pipeline();
+    cache.queryClient.setQueryData(['pipeline', 'pipeline-1'], {
+      pipeline: saved,
+      layout: { start: { x: 1, y: 1 }, nodes: { test: { x: 3, y: 3 } } },
+    });
+    const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
+    const { onMutate } = pipelineMutations.saveLayout('pipeline-1');
+
+    void onMutate?.(moved, {} as never);
+
+    expect(cache.queryClient.getQueryData(['pipeline', 'pipeline-1'])).toEqual({
+      pipeline: saved,
+      layout: { start: { x: 1, y: 1 }, nodes: { test: { x: 3, y: 3 }, build: { x: 10, y: 20 } } },
+    });
+    expect(invalidate).not.toHaveBeenCalled();
+  });
+});
+
 describe('pipelineMutations.remove', () => {
   it('deletes by id, toasts, and invalidates every pipeline scope', async () => {
     await runMutationFn(pipelineMutations.remove(), 'pipeline-1');
@@ -248,23 +282,35 @@ describe('pipelineMutations.remove', () => {
 
 describe('pipelineMutations.duplicate', () => {
   it('reads the pipeline then saves a copy, its name still one word (<name>-copy)', async () => {
-    repository.getById.mockResolvedValue(
-      pipeline({ name: 'ci', projectId: 'project-1', nodes: [] }),
-    );
+    repository.getWithLayout.mockResolvedValue({
+      pipeline: pipeline({ name: 'ci', projectId: 'project-1', nodes: [] }),
+      layout: null,
+    });
 
     await runMutationFn(pipelineMutations.duplicate(), 'pipeline-1');
 
-    expect(repository.getById).toHaveBeenCalledWith('pipeline-1');
-    expect(repository.create).toHaveBeenCalledWith({
-      name: 'ci-copy',
-      projectId: 'project-1',
-      nodes: [],
+    expect(repository.getWithLayout).toHaveBeenCalledWith('pipeline-1');
+    expect(repository.create).toHaveBeenCalledWith(
+      { name: 'ci-copy', projectId: 'project-1', nodes: [] },
+      undefined,
+    );
+  });
+
+  it('gives the copy the places of the pipeline', async () => {
+    const layout = { start: { x: 1, y: 2 }, nodes: {} };
+    repository.getWithLayout.mockResolvedValue({
+      pipeline: pipeline({ name: 'ci', projectId: 'project-1', nodes: [] }),
+      layout,
     });
+
+    await runMutationFn(pipelineMutations.duplicate(), 'pipeline-1');
+
+    expect(repository.create).toHaveBeenCalledWith(expect.anything(), layout);
   });
 
   it('propagates a failure from the read node without ever calling create', async () => {
     const error = new ScyllaError('not found');
-    repository.getById.mockRejectedValue(error);
+    repository.getWithLayout.mockRejectedValue(error);
 
     await expect(runMutationFn(pipelineMutations.duplicate(), 'pipeline-1')).rejects.toBe(error);
     expect(repository.create).not.toHaveBeenCalled();

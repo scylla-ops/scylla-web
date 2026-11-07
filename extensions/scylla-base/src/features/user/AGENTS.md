@@ -183,8 +183,9 @@ user who has no workspace.
   new password has a confirmation field. Every field has its `autocomplete` value.
 - **Appearance is the only theme control of the app.** `ThemePicker` (Light, Dark, System)
   calls `setThemePreference` of `@scylla/ui/stores` with the center of the chosen thumbnail, so
-  the new theme spreads from there. The choice is for the device (`localStorage`), not for the
-  account: no RPC, no query. The thumbnails use fixed colors (`theme-preview.ts`), copied from
+  the new theme spreads from there. The picker has no RPC and no query: `localStorage` is the read
+  copy, and `shell/presentation/layout/user-preferences.ts` sends the choice to the server
+  (`platform/user-state`). The thumbnails use fixed colors (`theme-preview.ts`), copied from
   the tokens of `@scylla/ui/styles.css`: keep them in step.
 - Passwords are write-only: no read returns one. Never log, store or display one.
 - **Sessions.** Both pages show the list in the Sessions section, then "Sign out everywhere

@@ -10,12 +10,14 @@ import {
   type SwitchDefinition,
   type SwitchTest,
 } from '../domain/entities/pipeline-node.entity.ts';
+import type { PipelineLayout } from '../domain/structs/pipeline-layout.struct.ts';
 import type {
   EnvVar,
   Need,
   Node,
   Operand,
   Pipeline,
+  PipelineLayout as GrpcPipelineLayout,
   Switch,
 } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 import { Combinator, Shell, Test } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
@@ -211,6 +213,14 @@ export function nodeFromDomain(node: PipelineNodeEntity): Node {
         : { oneofKind: 'exec', exec: { argv: [node.command, ...node.args] } },
   };
 }
+
+export const layoutToDomain = (layout: GrpcPipelineLayout | undefined): PipelineLayout | null =>
+  layout ? { ...(layout.start && { start: layout.start }), nodes: layout.nodes } : null;
+
+export const layoutFromDomain = ({ start, nodes }: PipelineLayout): GrpcPipelineLayout => ({
+  ...(start && { start }),
+  nodes: { ...nodes },
+});
 
 export function toDomain(pipeline: Pipeline): PipelineEntity {
   return {

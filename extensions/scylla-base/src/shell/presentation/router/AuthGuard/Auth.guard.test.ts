@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import AuthGuardFixture from './AuthGuard.fixture.svelte';
+import type * as UserStateModule from '@platform/user-state';
 
 const hasSession = vi.hoisted(() => vi.fn<() => Promise<boolean>>());
 vi.mock('@base/features/login', async original => ({
@@ -12,10 +13,18 @@ vi.mock('@base/features/login', async original => ({
   hasSession,
 }));
 
+const load = vi.hoisted(() => vi.fn());
+vi.mock('@platform/user-state', async original => {
+  const real = await original<typeof UserStateModule>();
+  return { ...real, userState: { ...real.userState, load } };
+});
+
 let navigator: ReturnType<typeof installTestNavigator>;
 
 beforeEach(() => {
   hasSession.mockReset();
+  load.mockReset();
+  localStorage.clear();
   navigator = installTestNavigator();
 });
 
@@ -32,6 +41,24 @@ describe('AuthGuard', () => {
       }),
     );
     expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
+  });
+
+  it('reads the state of the person before it renders the routes', async () => {
+    localStorage.setItem('userId', 'ada');
+    hasSession.mockResolvedValue(true);
+    render(AuthGuardFixture);
+
+    await screen.findByTestId('outlet');
+    expect(load).toHaveBeenCalledWith('ada');
+  });
+
+  it('reads no state with no session', async () => {
+    localStorage.setItem('userId', 'ada');
+    hasSession.mockResolvedValue(false);
+    render(AuthGuardFixture);
+
+    await waitFor(() => expect(navigator.navigate).toHaveBeenCalled());
+    expect(load).not.toHaveBeenCalled();
   });
 
   it('renders the routes when the session is valid', async () => {

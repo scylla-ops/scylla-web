@@ -1,6 +1,8 @@
 <script lang="ts">
   import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
   import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+  import type { PipelineLayout } from '@base/features/pipeline/domain/structs/pipeline-layout.struct.ts';
+  import { createNodePlaces } from './blueprint/node-places.state.svelte.ts';
   import {
     createPipelineDocument,
   } from './pipeline-document.state.svelte.ts';
@@ -14,7 +16,16 @@
     /** `edit` tracks the unsaved changes; `create` does not. */
     mode: 'create' | 'edit';
     submitLabel: string;
-    onSubmit: (values: { name: string; nodes: PipelineNodeEntity[] }) => void;
+    onSubmit: (values: {
+      name: string;
+      nodes: PipelineNodeEntity[];
+      layout?: PipelineLayout;
+    }) => void;
+    /** The places that the server holds. */
+    savedLayout?: PipelineLayout | null;
+    /** The ids of the nodes that the server holds: their moves go at once, through `onPlacesMoved`. */
+    savedNodeIds?: readonly string[];
+    onPlacesMoved?: (places: PipelineLayout) => void;
     /** A default draft, or a fetched pipeline. */
     initialScript?: string;
     projectId?: string;
@@ -25,6 +36,9 @@
     mode,
     submitLabel,
     onSubmit,
+    savedLayout,
+    savedNodeIds = [],
+    onPlacesMoved,
     initialScript,
     projectId,
     isSubmitPending = false,
@@ -36,8 +50,16 @@
   });
   warnBeforeUnload(() => doc.isDirty);
 
+  const places = createNodePlaces({
+    savedIds: () => savedNodeIds,
+    save: next => onPlacesMoved?.(next),
+  });
+
   const handleSubmit = () => {
-    if (doc.isValid) onSubmit({ name: doc.pipelineName, nodes: doc.nodes });
+    if (doc.isValid) {
+      const layout = places.waiting();
+      onSubmit({ name: doc.pipelineName, nodes: doc.nodes, ...(layout && { layout }) });
+    }
   };
 </script>
 
@@ -72,6 +94,8 @@
         pipelineName={doc.pipelineName}
         {projectId}
         onNodesChange={nodes => doc.setNodes(nodes)}
+        {savedLayout}
+        {places}
       />
     </Card>
   </TabsContent>

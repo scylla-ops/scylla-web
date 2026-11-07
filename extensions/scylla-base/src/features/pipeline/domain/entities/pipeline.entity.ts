@@ -1,6 +1,7 @@
 import { pipelineNameIssue, type PipelineNameIssue } from '../structs/pipeline-name.struct.ts';
 import { nodeIdIssue, type NodeId } from '../structs/node-id.struct.ts';
 import type { PortName } from '../structs/port-name.struct.ts';
+import type { PipelineLayout } from '../structs/pipeline-layout.struct.ts';
 import {
   nodeIssue,
   portsOf,
@@ -26,6 +27,13 @@ export interface PipelineIdentity {
 export interface PipelineRun {
   /** A node runs in a container: only an agent with a container runtime takes the job. */
   needsContainer: boolean;
+}
+
+/** What the editor opens. The layout stays apart: the document and the jobs never see it. */
+export interface PipelineWithLayout {
+  pipeline: PipelineEntity;
+  /** Nothing is saved: the canvas makes an automatic layout. */
+  layout: PipelineLayout | null;
 }
 
 export interface PipelineMetadata extends PipelineIdentity {

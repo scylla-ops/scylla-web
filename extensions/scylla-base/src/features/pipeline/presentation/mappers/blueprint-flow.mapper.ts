@@ -5,6 +5,11 @@ import {
   type PipelineNodeEntity,
 } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import { repeatedNodeIds } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import {
+  toNodePlace,
+  type NodePlace,
+  type PipelineLayout,
+} from '@base/features/pipeline/domain/structs/pipeline-layout.struct.ts';
 import { layoutNodes } from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
 
 /** A node's `data` must be a `Record`: a node travels wrapped, as `{ node }`. */
@@ -55,11 +60,13 @@ const nodeKeys = (nodes: PipelineNodeEntity[]): string[] => {
 /**
  * The graph of the nodes, laid out by stage. A dependency on the node itself or on a node that
  * does not exist is not drawn; a dependency on a repeated id goes to the first node with it. A need
- * on a port that its node does not have is kept: xyflow draws no edge from a missing handle.
+ * on a port that its node does not have is kept: xyflow draws no edge from a missing handle. A
+ * saved place goes before the automatic one.
  */
 export function nodesToFlow(
   nodes: PipelineNodeEntity[],
   pipelineName: string,
+  saved?: PipelineLayout | null,
 ): { flowNodes: FlowNode[]; edges: FlowEdge[] } {
   const keys = nodeKeys(nodes);
   const ids = new Set(nodes.map(node => node.id));
@@ -69,7 +76,7 @@ export function nodesToFlow(
   const startNode: StartFlowNode = {
     id: START_NODE_ID,
     type: 'startNode',
-    position: layout.start,
+    position: saved?.start ?? layout.start,
     data: { name: pipelineName },
     deletable: false,
   };
@@ -77,7 +84,7 @@ export function nodesToFlow(
   const pipelineFlowNodes: PipelineFlowNode[] = nodes.map((node, index) => ({
     id: keys[index],
     type: 'pipelineNode',
-    position: layout.nodes.get(keys[index]) ?? { x: 0, y: 0 },
+    position: saved?.nodes[keys[index]] ?? layout.nodes.get(keys[index]) ?? { x: 0, y: 0 },
     data: repeated.has(node.id) ? { node, repeated: true } : { node },
   }));
 
@@ -90,6 +97,19 @@ export function nodesToFlow(
 
   return { flowNodes: [startNode, ...pipelineFlowNodes], edges };
 }
+
+/** The places of these elements of the graph: the start node apart, the nodes by id. */
+export const placesOf = (
+  flowNodes: readonly Pick<FlowNode, 'id' | 'position'>[],
+): { start?: NodePlace; nodes: (readonly [string, NodePlace])[] } => {
+  const start = flowNodes.find(flowNode => flowNode.id === START_NODE_ID);
+  return {
+    ...(start && { start: toNodePlace(start.position) }),
+    nodes: flowNodes
+      .filter(flowNode => flowNode.id !== START_NODE_ID)
+      .map(flowNode => [flowNode.id, toNodePlace(flowNode.position)] as const),
+  };
+};
 
 export const nodeOf = (flowNode: FlowNode): PipelineNodeEntity | undefined =>
   flowNode.type === 'pipelineNode' ? flowNode.data.node : undefined;

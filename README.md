@@ -121,6 +121,7 @@ packages/ui                the design system — imports no other package
 | [authz](extensions/scylla-base/src/platform/authz/README.md) | `Permission`, `can`, `Can`, `RequirePermission` — the read side of authorization |
 | [context](extensions/scylla-base/src/platform/context/README.md) | The active workspace / project / pipeline, and navigation derived from it |
 | [grpc](extensions/scylla-base/src/platform/grpc/README.md) | The single gRPC-Web transport, with auth attached |
+| [user-state](extensions/scylla-base/src/platform/user-state/README.md) | The interface state of a person on the server, with `localStorage` as its read copy |
 
 ### scylla-base — `shared/`
 

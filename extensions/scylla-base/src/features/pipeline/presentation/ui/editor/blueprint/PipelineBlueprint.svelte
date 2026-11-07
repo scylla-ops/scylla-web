@@ -4,6 +4,8 @@
   import { t } from '@scylla/ui/i18n';
   import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '@scylla/ui/primitives';
   import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+  import type { PipelineLayout } from '@base/features/pipeline/domain/structs/pipeline-layout.struct.ts';
+  import type { NodePlaces } from './node-places.state.svelte.ts';
   import { createBlueprint } from './blueprint.state.svelte.ts';
   import { createNodeAppearancePreference } from './canvas/node-appearance-preference.state.svelte.ts';
   import { nodeTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
@@ -21,15 +23,21 @@
     pipelineName: string;
     projectId?: string;
     onNodesChange: (nodes: PipelineNodeEntity[]) => void;
+    savedLayout?: PipelineLayout | null;
+    places?: NodePlaces;
   }
 
-  let { nodes, pipelineName, projectId, onNodesChange }: Props = $props();
+  let { nodes, pipelineName, projectId, onNodesChange, savedLayout, places }: Props = $props();
 
   const blueprint = createBlueprint({
     nodes: () => nodes,
     pipelineName: () => pipelineName,
     // Read at call time, so a swapped callback is the one called.
     onNodesChange: next => onNodesChange(next),
+    savedLayout: () => savedLayout,
+    get places() {
+      return places;
+    },
   });
 
   const appearance = createNodeAppearancePreference();

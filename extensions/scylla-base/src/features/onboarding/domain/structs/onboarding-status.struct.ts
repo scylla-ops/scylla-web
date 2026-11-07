@@ -74,6 +74,21 @@ const withHistory = <T extends object>(
 const keptHistory = <T extends object>(value: T, status: OnboardingStatus) =>
   withHistory(value, doneTours(status), declinedTours(status));
 
+const union = (left: readonly string[], right: readonly string[]) => [
+  ...new Set([...left, ...right]),
+];
+
+/**
+ * Two devices changed the status. The tours that one finished or turned down stay. The tour of the
+ * server stays, so a stale device cannot bring back a closed tour.
+ */
+export const mergeStatuses = (server: OnboardingStatus, local: OnboardingStatus): OnboardingStatus =>
+  withHistory(
+    server.kind === 'not-started' ? local : server,
+    union(doneTours(server), doneTours(local)),
+    union(declinedTours(server), declinedTours(local)),
+  );
+
 /** `found` is what the page that starts the tour already shows, as its project. */
 export const startTour = (
   status: OnboardingStatus,

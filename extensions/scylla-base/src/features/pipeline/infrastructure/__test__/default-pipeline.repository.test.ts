@@ -67,4 +67,115 @@ describe('DefaultPipelineRepository', () => {
     expect(client.getPipeline).toHaveBeenCalledOnce();
     expect(client.updatePipeline).toHaveBeenCalledWith(expect.objectContaining({ version: 7n }));
   });
+
+  it('gives the saved places beside the pipeline, and no layout when nothing is saved', async () => {
+    const start = { x: 1, y: 2 };
+    const nodes = { build: { x: 3, y: -4 } };
+    const getPipeline = vi
+      .fn()
+      .mockReturnValueOnce(unaryCall({ pipeline: pipeline('p', 1n), layout: { start, nodes } }))
+      .mockReturnValueOnce(unaryCall({ pipeline: pipeline('p', 1n) }));
+    const repository = new DefaultPipelineRepository({
+      getPipeline,
+    } as unknown as IPipelineServiceClient);
+
+    expect((await repository.getWithLayout('p')).layout).toEqual({ start, nodes });
+    expect((await repository.getWithLayout('p')).layout).toBeNull();
+  });
+
+  it('keeps the version of a read with its layout, for the next edit', async () => {
+    const client = {
+      getPipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 4n) })),
+      updatePipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 5n) })),
+    } as unknown as IPipelineServiceClient;
+    const repository = new DefaultPipelineRepository(client);
+
+    await repository.getWithLayout('p');
+    await repository.edit('p', []);
+
+    expect(client.getPipeline).toHaveBeenCalledOnce();
+    expect(client.updatePipeline).toHaveBeenCalledWith(expect.objectContaining({ version: 4n }));
+  });
+
+  it('saves only the places that it gets', async () => {
+    const savePipelineLayout = vi.fn(() => unaryCall({}));
+    const repository = new DefaultPipelineRepository({
+      savePipelineLayout,
+    } as unknown as IPipelineServiceClient);
+
+    await repository.saveLayout('p', { nodes: { build: { x: 3, y: 4 } } });
+
+    expect(savePipelineLayout).toHaveBeenCalledWith({
+      pipelineId: { value: 'p' },
+      layout: { nodes: { build: { x: 3, y: 4 } } },
+    });
+  });
+
+  it('sends the places of new nodes with the create and with the edit', async () => {
+    const layout = { start: { x: 0, y: 0 }, nodes: { lint: { x: 5, y: 6 } } };
+    const client = {
+      getPipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 1n) })),
+      createPipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 1n) })),
+      updatePipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 2n) })),
+    } as unknown as IPipelineServiceClient;
+    const repository = new DefaultPipelineRepository(client);
+
+    await repository.create({ projectId: 'project-1', name: 'p', nodes: [] }, layout);
+    await repository.edit('p', [], 'p', { nodes: layout.nodes });
+
+    expect(client.createPipeline).toHaveBeenCalledWith(expect.objectContaining({ layout }));
+    expect(client.updatePipeline).toHaveBeenCalledWith(
+      expect.objectContaining({ layout: { nodes: layout.nodes } }),
+    );
+  });
+
+  it('sends the needs with their ports and the places in the same update', async () => {
+    const client = {
+      getPipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 1n) })),
+      updatePipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 2n) })),
+    } as unknown as IPipelineServiceClient;
+
+    await new DefaultPipelineRepository(client).edit(
+      'p',
+      [
+        { id: 'test', deps: [], env: [], kind: 'exec', command: 'make', args: [] },
+        {
+          id: 'notify',
+          deps: [{ node: 'test', port: 'error' }],
+          env: [],
+          kind: 'exec',
+          command: 'x',
+          args: [],
+        },
+      ],
+      'p',
+      { nodes: { notify: { x: 5, y: 6 } } },
+    );
+
+    expect(client.updatePipeline).toHaveBeenCalledWith(
+      expect.objectContaining({
+        nodes: {
+          nodes: [
+            expect.objectContaining({ id: 'test', needs: [] }),
+            expect.objectContaining({ id: 'notify', needs: [{ node: 'test', port: 'error' }] }),
+          ],
+        },
+        layout: { nodes: { notify: { x: 5, y: 6 } } },
+      }),
+    );
+  });
+
+  it('sends no layout field with no places', async () => {
+    const client = {
+      createPipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 1n) })),
+    } as unknown as IPipelineServiceClient;
+
+    await new DefaultPipelineRepository(client).create({
+      projectId: 'project-1',
+      name: 'p',
+      nodes: [],
+    });
+
+    expect(vi.mocked(client.createPipeline).mock.calls[0]?.[0]).not.toHaveProperty('layout');
+  });
 });

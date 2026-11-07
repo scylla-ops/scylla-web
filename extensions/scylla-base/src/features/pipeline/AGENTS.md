@@ -33,8 +33,10 @@ not through the barrel.
 | `getMetadataByProjectId(...)` | paginated `PipelineMetadata` |
 | `getMetadataByWorkspaceId(...)` | paginated `PipelineMetadata` |
 | `getById(id)` | `PipelineEntity` (full, with nodes) |
-| `create(pipeline)` | `void` |
-| `edit(id, nodes, name?)` | `PipelineEntity` |
+| `getWithLayout(id)` | `PipelineWithLayout`: the entity and the places of its nodes |
+| `saveLayout(id, layout)` | `void`: the places only, with no new version of the pipeline |
+| `create(pipeline, layout?)` | `void` |
+| `edit(id, nodes, name?, layout?)` | `PipelineEntity` |
 | `deleteById(id)` | `void` |
 | `run(id)` | `void` |
 
@@ -85,6 +87,7 @@ domain/
   structs/node-id.struct.ts                  NodeId: the id rule of the server (nodeIdIssue, toNodeId)
   structs/port-name.struct.ts                PortName, ERROR_PORT: the rule of NodeId, with no trim
   structs/pipeline-name.struct.ts            PipelineNameIssue, pipelineNameIssue
+  structs/pipeline-layout.struct.ts          NodePlace, PipelineLayout, the limits of the server, mergeLayouts
   use-cases/save-pipeline.use-case.ts        SavePipelineUseCase: the rules of the server, then create or edit
   repository/pipeline.repository.ts
   repository/node-template.repository.ts
@@ -111,7 +114,7 @@ presentation/
     pipeline-feed.presenter.ts               asPipelineFeed
   mappers/                                   a view format ↔ the domain, both ways (plain TS, tested)
     pipeline-document.mapper.ts              the JSON text of the editor ↔ the nodes (toDocument writes it)
-    blueprint-flow.mapper.ts                 the nodes ↔ the nodes and edges of xyflow
+    blueprint-flow.mapper.ts                 the nodes ↔ the nodes and edges of xyflow; placesOf
     env-row.mapper.ts                        an env entry ↔ a row of the environment form
   ui/                                        Svelte only
     run-pipeline.state.svelte.ts             the Run action, shared by the dashboard and the jobs page
@@ -152,10 +155,11 @@ presentation/
       blueprint/                             the visual editor, one folder per responsibility
         PipelineBlueprint.svelte             wires the graph, the canvas, the side panel, the drag
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected node, add/insert/rename
+        node-places.state.svelte.ts          where the places go: at once for a saved node, with the save for a new one
         canvas/                              the canvas and what it draws
           BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte, DropSpot.svelte
           blueprint-canvas.context.ts        what the nodes and edges read from the canvas
-          node-appearance-preference.state.svelte.ts   the viewer's node style, kept in localStorage
+          node-appearance-preference.state.svelte.ts   the viewer's node style: the local copy of `platform/user-state`
           nodes/                             one node view and one start view per node style,
                                              node-appearances.registry.ts (style → views), MergeNode
                                              (one small view for each style), follow-handles.effect
@@ -359,7 +363,7 @@ the page.
   the selected edge's `+` opens it too, to insert a node (`link: { replacing }`). Both go
   through `blueprint.addNode(nodeId, definition, placement)`. The menu is a combobox: the focus
   stays in the search, `aria-activedescendant` names the active option, Tab closes the menu.
-- **Node styles are a registry.** `NODE_APPEARANCES` (`canvas/node-appearance-preference.state.svelte.ts`) names them,
+- **Node styles are a registry.** `NODE_APPEARANCES` (`presentation/node-appearance.user-state.ts`) names them,
   `canvas/nodes/node-appearances.registry.ts` maps each to a node view (`PipelineNodeViewProps`), a start view
   (`StartNodeViewProps`), an `anchor`, a label and an icon. A new style is one name, two views
   and one entry: `PipelineNode` and `StartNode` only dispatch. The nodes read the style from the
@@ -385,7 +389,17 @@ the page.
   still equals `nodes`. The gRPC mapper also reads 0 retries as none.
 - `blueprint-flow.mapper.ts` is the single translation between the flow graph and
   `PipelineNodeEntity[]`. Both directions live there; do not inline conversion in a component.
-  The position of each node comes from `blueprint-layout.presenter.ts`.
+  The position of a node comes from the saved layout, else from `blueprint-layout.presenter.ts`.
+- **The pipeline owns the places of its nodes.** All members see the same canvas, so they are not in
+  `platform/user-state`. `byId` reads them with `getWithLayout`.
+- **A saved node saves its place 500 ms after the end of a drag**, with no Save button and no toast
+  (`meta: { showsOwnError: true }`). A node that the server does not hold (new or renamed) sends its
+  place with the next Create or Update, in the same transaction as the node.
+- **`saveLayout` uses `setQueryData`, not an invalidation.** A refetch replaces the draft of the
+  editor. The places do not change the version of the pipeline.
+- **Limits of the server:** 256 places in a request (a longer request is refused whole), 1,000,000
+  at most on each axis, whole numbers. `withinLimit` and `toNodePlace` apply them. A node with no
+  place gets an automatic place. A read-only canvas saves nothing.
 - Largest module in the codebase — respect the ~150-line component rule. New editor UI goes in
   the folder of `ui/editor/blueprint/` that has its responsibility (`canvas/`, `catalog/`,
   `palette-drag/`, `side-panel/`), new list UI in `ui/dashboard/PipelineTable/`. A field of a
@@ -432,6 +446,9 @@ the page.
   server). So `port === ERROR_PORT` means the error port everywhere: the red handles and edges,
   `canConnect`, the path of a job. `PortNameField` says it as it is typed, and the draft keeps the
   old name, as for an empty one. A document typed by hand with it shows the issue and stops the save.
+- **The saved layout holds places only.** A switch and a merge have a place as each node has; the
+  edges and their ports come from the needs, never from the layout (`nodesToFlow`). A save sends
+  the needs with their ports and the places of the new nodes in the same request.
 - **A rename of a node follows into the outputs that a switch reads** (`withRenamedReference`).
 - **The checks of the server are in the domain.** `switchIssue` and `needIssue` check one node,
   `nodeIssues` adds what the pipeline decides (a port that its node does not have, an output of a

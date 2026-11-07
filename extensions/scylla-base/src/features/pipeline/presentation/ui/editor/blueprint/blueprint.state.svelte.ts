@@ -11,6 +11,7 @@ import {
 } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import * as pipeline from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import { ERROR_PORT } from '@base/features/pipeline/domain/structs/port-name.struct.ts';
+import type { PipelineLayout } from '@base/features/pipeline/domain/structs/pipeline-layout.struct.ts';
 import { positionAfter } from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
 import { dependencyText } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
 import { nodeMessages } from '@base/features/pipeline/presentation/messages/node.messages.ts';
@@ -28,12 +29,16 @@ import {
   type FlowNode,
   type PipelineFlowNode,
 } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
+import type { NodePlaces } from './node-places.state.svelte.ts';
 
 export interface BlueprintParams {
   /** Getters: the editor's document changes. */
   nodes: () => PipelineNodeEntity[];
   pipelineName: () => string;
   onNodesChange: (nodes: PipelineNodeEntity[]) => void;
+  /** Read at each build of the graph: a later save of a place does not move a node. */
+  savedLayout?: () => PipelineLayout | null | undefined;
+  places?: NodePlaces;
 }
 
 /** How a new node joins the graph: after a node (by default the start node) or one of its ports, or inside an edge. */
@@ -83,7 +88,7 @@ export const createBlueprint = (params: BlueprintParams) => {
     const name = params.pipelineName();
     if (keyOf(nodes, name) === lastEmitted) return;
 
-    const flow = nodesToFlow(nodes, name);
+    const flow = nodesToFlow(nodes, name, untrack(() => params.savedLayout?.()));
     // A node that is still there keeps its place and its selection: only a new one is laid out.
     // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to this run, never state
     const previous = new Map(untrack(() => flowNodes).map(flowNode => [flowNode.id, flowNode]));
@@ -114,6 +119,8 @@ export const createBlueprint = (params: BlueprintParams) => {
   const hasErrorPort = (id: string) =>
     errorOutputs.has(id) ||
     edges.some(edge => edge.source === id && edge.sourceHandle === ERROR_PORT);
+
+  params.places?.connect(() => flowNodes);
 
   /**
    * Writes back what an operation of the pipeline changed in the nodes. The edges are the
@@ -323,12 +330,18 @@ export const createBlueprint = (params: BlueprintParams) => {
       );
     },
 
+    /** The end of a drag. A read-only canvas saves nothing. */
+    placesMoved(moved: readonly Pick<FlowNode, 'id' | 'position'>[]) {
+      if (!readOnly) params.places?.moved(moved);
+    },
+
     /** Lays the graph out again by depth: the same layout as a freshly opened pipeline. */
     arrange() {
       const flow = nodesToFlow(flowToNodes(flowNodes, edges), params.pipelineName());
       // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to this call, never state
       const positions = new Map(flow.flowNodes.map(flowNode => [flowNode.id, flowNode.position]));
       flowNodes = flowNodes.map(flowNode => ({ ...flowNode, position: positions.get(flowNode.id) ?? flowNode.position }));
+      if (!readOnly) params.places?.moved(flowNodes);
     },
   };
 };
