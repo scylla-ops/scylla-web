@@ -1,39 +1,49 @@
-/** The node styles of the canvas. Adding one: a name here, a view in `nodes/node-appearances.registry.ts`. */
-export const NODE_APPEARANCES = ['detailed', 'minimal'] as const;
-export type NodeAppearance = (typeof NODE_APPEARANCES)[number];
+import { userState } from '@platform/user-state';
+import {
+  isNodeAppearance,
+  NODE_APPEARANCE_KEY,
+  nodeAppearanceState,
+  type NodeAppearance,
+} from '@base/features/pipeline/presentation/node-appearance.user-state.ts';
+
+export { NODE_APPEARANCES, type NodeAppearance } from '@base/features/pipeline/presentation/node-appearance.user-state.ts';
 
 export const DEFAULT_NODE_APPEARANCE: NodeAppearance = 'detailed';
-const STORAGE_KEY = 'scylla.blueprint.node-appearance';
 
-const isAppearance = (value: unknown): value is NodeAppearance =>
-  NODE_APPEARANCES.includes(value as NodeAppearance);
-
-/** The viewer's node style, remembered by the browser. A blocked storage only forgets it. */
+/** The viewer's node style, in the state of the person. A blocked storage only forgets it. */
 export const createNodeAppearancePreference = (
   storage: () => Storage | undefined = () => globalThis.localStorage,
 ) => {
   const read = (): NodeAppearance => {
     try {
-      const stored = storage()?.getItem(STORAGE_KEY);
-      return isAppearance(stored) ? stored : DEFAULT_NODE_APPEARANCE;
+      const stored = storage()?.getItem(NODE_APPEARANCE_KEY);
+      return isNodeAppearance(stored) ? stored : DEFAULT_NODE_APPEARANCE;
     } catch {
       return DEFAULT_NODE_APPEARANCE;
     }
   };
 
   let current = $state<NodeAppearance>(read());
+  let chosen = false;
+
+  // On a direct link to the editor, the answer of the server can come after this read.
+  void userState.whenLoaded().then(() => {
+    if (!chosen) current = read();
+  });
 
   return {
     get current() {
       return current;
     },
     set(next: NodeAppearance) {
+      chosen = true;
       current = next;
       try {
-        storage()?.setItem(STORAGE_KEY, next);
+        storage()?.setItem(NODE_APPEARANCE_KEY, next);
       } catch {
         // The choice still lasts until the page is left.
       }
+      nodeAppearanceState.save(next);
     },
   };
 };

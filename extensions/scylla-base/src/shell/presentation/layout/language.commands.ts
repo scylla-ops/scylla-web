@@ -2,8 +2,9 @@ import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
 import LanguagesIcon from '@lucide/svelte/icons/languages';
 import type { ChoiceCommand } from '@scylla/core-sdk';
-import { activeLocale, setAppLocale, type SupportedLocale } from '@scylla/ui/i18n';
+import { activeLocale, type SupportedLocale } from '@scylla/ui/i18n';
 import { layoutMessages } from './messages/layout.messages.ts';
+import { chooseLocale } from './user-preferences.ts';
 
 const language = (
   locale: SupportedLocale,
@@ -17,7 +18,7 @@ const language = (
   keywords,
   icon: LanguagesIcon,
   current: () => activeLocale() === locale,
-  select: () => setAppLocale(locale),
+  select: () => chooseLocale(locale),
 });
 
 export const languageCommands = [

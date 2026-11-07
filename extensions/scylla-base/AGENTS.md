@@ -23,7 +23,7 @@ src/
   index.ts                       ScyllaBaseExtension — the only export of @scylla/base's root
   scylla-base.extension.ts       @Extension({ id, name, version, modules, catalogs })
   features/<15>/                 the business modules, each with its AGENTS.md
-  platform/authz, context, grpc  cross-cutting capabilities, below the features
+  platform/authz, context, grpc, user-state   cross-cutting capabilities, below the features
   shared/                        shared code with a business meaning
   shell/                         modules.ts, ShellModule, the Scylla shell parts
   generated/                     protobuf-ts clients (`pnpm gen-proto`, never edited)

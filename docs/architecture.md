@@ -269,7 +269,7 @@ extensions/scylla-base/src/
   shell/                       modules.ts (the feature list), ShellModule (the frame)
   features/                    agents, apps, dashboard, jobs, login, marketplace, membership,
                                workspace, pipeline, project, roles, secret, triggers, user
-  platform/                    authz, context, grpc
+  platform/                    authz, context, grpc, user-state
   shared/                      shared code with a business meaning (ScyllaError, status presentation)
 ```
 

@@ -1,11 +1,12 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { navigateTo } from '@platform/context';
+  import { userState } from '@platform/user-state';
   import { routePathname } from '@scylla/core-sdk';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { Button } from '@scylla/ui/primitives';
-  import { hasSession, loginPathBackTo } from '@base/features/login';
+  import { hasSession, loginPathBackTo, sessionUserId } from '@base/features/login';
   import { layoutMessages } from '../../layout/messages/layout.messages.ts';
 
   let { children }: { children: Snippet } = $props();
@@ -27,6 +28,8 @@
       (valid) => {
         if (!current) return;
         unreachable = false;
+        const userId = sessionUserId();
+        if (valid && userId) userState.load(userId);
         authenticated = valid;
         if (!valid) navigateTo(loginPathBackTo(window.location), { replace: true });
       },

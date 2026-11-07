@@ -8,6 +8,7 @@ import {
 } from '@platform/context';
 import { createQuery } from '@scylla/core-sdk';
 import { workspaceQueries } from '@base/features/workspace';
+import { rememberWorkspace } from './last-workspace.ts';
 
 const samePageAt = (oldSlug: string, newSlug: string): string =>
   `/${newSlug}${currentPathname().slice(oldSlug.length + 1)}${currentSearch()}`;
@@ -30,6 +31,7 @@ export const syncWorkspace = (workspaceSlug: string | undefined): void => {
       const match = list.find(item => item.slug === workspaceSlug);
 
       if (match) {
+        rememberWorkspace(match.id);
         if (match.id !== workspace.id) store.setWorkspace(match.id, match.name, match.slug);
         else if (match.name !== workspace.name || match.slug !== workspace.slug)
           store.renameWorkspace(match.name, match.slug);

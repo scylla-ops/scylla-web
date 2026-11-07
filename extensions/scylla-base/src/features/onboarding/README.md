@@ -30,9 +30,9 @@ this".
 
 ## Why a repository for a flag
 
-The backend does not store the tour progress yet, so it lives in `localStorage`, per user. It is
-behind `OnboardingRepository` so that a backend implementation replaces it without a change in
-the presentation.
+The tour progress lives in `localStorage`, per user, and `platform/user-state` keeps it on the
+server, so a new device does not show the welcome again. It is behind `OnboardingRepository`, so
+the presentation does not know where the status comes from.
 
 ## Related modules
 

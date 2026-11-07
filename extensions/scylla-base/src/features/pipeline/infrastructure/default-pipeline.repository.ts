@@ -3,7 +3,9 @@ import type {
   PipelineEntity,
   PipelineMetadata,
   PipelineRun,
+  PipelineWithLayout,
 } from '../domain/entities/pipeline.entity.ts';
+import type { PipelineLayout } from '../domain/structs/pipeline-layout.struct.ts';
 import type { PipelineNodeEntity } from '../domain/entities/pipeline-node.entity.ts';
 import type { IPipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
 import type { Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
@@ -82,11 +84,12 @@ export class DefaultPipelineRepository implements PipelineRepository {
     return { needsContainer: (job?.nodes ?? []).some(node => !!node.container?.image) };
   }
 
-  public async create(pipeline: Omit<PipelineEntity, 'id'>): Promise<void> {
+  public async create(pipeline: Omit<PipelineEntity, 'id'>, layout?: PipelineLayout): Promise<void> {
     const response = await this.client.createPipeline({
       name: pipeline.name,
       projectId: wrapId(pipeline.projectId),
       nodes: pipeline.nodes.map(grpcPipeline.nodeFromDomain),
+      ...(layout && { layout: grpcPipeline.layoutFromDomain(layout) }),
     }).response;
     this.keep(response.pipeline);
   }
@@ -96,10 +99,26 @@ export class DefaultPipelineRepository implements PipelineRepository {
     return this.keep(response.pipeline);
   }
 
+  public async getWithLayout(id: string): Promise<PipelineWithLayout> {
+    const response = await this.client.getPipeline({ pipelineId: wrapId(id) }).response;
+    return {
+      pipeline: this.keep(response.pipeline),
+      layout: grpcPipeline.layoutToDomain(response.layout),
+    };
+  }
+
+  public async saveLayout(id: string, layout: PipelineLayout): Promise<void> {
+    await this.client.savePipelineLayout({
+      pipelineId: wrapId(id),
+      layout: grpcPipeline.layoutFromDomain(layout),
+    }).response;
+  }
+
   public async edit(
     id: string,
     nodes: PipelineNodeEntity[],
     name?: string,
+    layout?: PipelineLayout,
   ): Promise<PipelineEntity> {
     // A pipeline that this client never read: read it first, for its version.
     if (!this.versions.has(id)) await this.getById(id);
@@ -108,6 +127,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
       version: this.versions.get(id) ?? 0n,
       nodes: { nodes: nodes.map(grpcPipeline.nodeFromDomain) },
       ...(name !== undefined && { name }),
+      ...(layout && { layout: grpcPipeline.layoutFromDomain(layout) }),
     }).response;
     return this.keep(response.pipeline);
   }

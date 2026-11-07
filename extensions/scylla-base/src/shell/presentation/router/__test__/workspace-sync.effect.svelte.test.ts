@@ -6,6 +6,10 @@ import { installTestNavigator } from '@test/navigator.ts';
 import { withQueryClient } from '@test/render.ts';
 import { syncWorkspace } from '../workspace-sync.effect.svelte.ts';
 
+const rememberWorkspace = vi.hoisted(() => vi.fn());
+
+vi.mock('../last-workspace.ts', () => ({ rememberWorkspace }));
+
 const workspacesState: { workspaces?: { id: string; name: string; slug: string }[]; isLoading: boolean } = {
   workspaces: undefined,
   isLoading: false,
@@ -39,6 +43,7 @@ beforeEach(() => {
     { id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' },
   ];
   workspacesState.isLoading = false;
+  rememberWorkspace.mockClear();
   contextStore.setState({
     workspace: { id: null, name: null, slug: null },
     project: { id: null, name: null },
@@ -52,6 +57,20 @@ afterEach(() => {
 });
 
 describe('syncWorkspace', () => {
+  it('remembers a workspace of the list, also with no change in the store', () => {
+    contextStore.setState({ workspace: { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' } });
+
+    run('acme-corp')();
+
+    expect(rememberWorkspace).toHaveBeenCalledWith('org-1');
+  });
+
+  it('does not remember a slug that is not on the list of the person', () => {
+    run('someone-else')();
+
+    expect(rememberWorkspace).not.toHaveBeenCalled();
+  });
+
   it('does nothing without a slug', () => {
     run(undefined)();
 

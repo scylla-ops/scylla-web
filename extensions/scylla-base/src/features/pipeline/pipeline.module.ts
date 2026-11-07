@@ -8,6 +8,7 @@ import { DefaultPipelineRepository } from './infrastructure/default-pipeline.rep
 import { DefaultNodeTemplateRepository } from './infrastructure/default-node-template.repository.ts';
 import { SavePipelineUseCase } from './domain/use-cases/save-pipeline.use-case.ts';
 import { pipelineCommands } from './presentation/pipeline.commands.ts';
+import './presentation/node-appearance.user-state.ts';
 
 const pipelineRepository = new DefaultPipelineRepository(
   new PipelineServiceClient(grpcTransport.getTransport()),

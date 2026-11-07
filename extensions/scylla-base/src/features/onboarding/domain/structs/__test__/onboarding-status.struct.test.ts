@@ -6,6 +6,7 @@ import {
   currentStepId,
   declineTour,
   doneTours,
+  mergeStatuses,
   previousStepId,
   rememberSubject,
   reopenIntro,
@@ -224,5 +225,31 @@ describe('rememberSubject', () => {
       subject: { projectId: 'p', agentId: 'a-1' },
     });
     expect(rememberSubject({ kind: 'skipped' }, { agentId: 'a-1' })).toBeNull();
+  });
+});
+
+describe('mergeStatuses', () => {
+  it('keeps the tours that one device finished or turned down', () => {
+    expect(
+      mergeStatuses(
+        { kind: 'completed', done: ['a'], declined: ['x'] },
+        { kind: 'skipped', done: ['b', 'a'], declined: ['y'] },
+      ),
+    ).toEqual({ kind: 'completed', done: ['a', 'b'], declined: ['x', 'y'] });
+  });
+
+  it('keeps the tour of the server, so a stale device cannot bring back a closed tour', () => {
+    expect(
+      mergeStatuses({ kind: 'completed' }, { kind: 'in-progress', tour: 'first', step: 'one' }),
+    ).toEqual({ kind: 'completed' });
+  });
+
+  it('takes the local status when the server has not started', () => {
+    expect(
+      mergeStatuses(
+        { kind: 'not-started', declined: ['x'] },
+        { kind: 'in-progress', tour: 'first', step: 'one' },
+      ),
+    ).toEqual({ kind: 'in-progress', tour: 'first', step: 'one', declined: ['x'] });
   });
 });
