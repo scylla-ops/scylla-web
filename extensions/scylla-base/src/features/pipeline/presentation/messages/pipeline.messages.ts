@@ -60,6 +60,7 @@ export const pipelineMessages = {
   repeatedNodeIds: (ids: string) =>
     msg`Two nodes or more have the ID ${ids}. Give each node its own ID before you save.`,
   repeatedNodeId: msg`Same ID as another node`,
+  invalidNodes: (ids: string) => msg`Fix these nodes before you save: ${ids}`,
   repeatedHint: msg`Two nodes or more have the same ID. Give each node its own ID in the Scripting tab: the blueprint shows them, but cannot change them.`,
 
   /** A pipeline name is one word: the copy keeps it one word. */

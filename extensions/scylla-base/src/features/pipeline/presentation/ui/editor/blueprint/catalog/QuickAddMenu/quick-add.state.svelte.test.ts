@@ -102,7 +102,7 @@ describe('createQuickAdd', () => {
       flushSync();
 
       expect(quickAdd.results.at(-1)).toBe(template);
-      expect(quickAdd.groups.map(({ group }) => group)).toEqual(['nodes', 'templates']);
+      expect(quickAdd.groups.map(({ group }) => group)).toEqual(['nodes', 'flow', 'templates']);
     });
     cleanup();
   });

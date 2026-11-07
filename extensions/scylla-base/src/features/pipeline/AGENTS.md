@@ -67,17 +67,23 @@ index.ts                                     public API
 domain/
   entities/pipeline.entity.ts                PipelineEntity, PipelineIdentity, PipelineMetadata, the
                                              root of its nodes: newPipeline,
-                                             pipelineIssue (can it be saved), repeatedNodeIds, and the
+                                             pipelineIssue (can it be saved), nodeIssues (the issue of
+                                             each node in its pipeline), repeatedNodeIds, and the
                                              graph of the nodes: addNode, updateNode, renameNode,
-                                             removeNode, moveNode, setDependencies, dependentsOf,
-                                             dependencyCandidates, nodeDepths, waitsFor, uniqueNodeId,
-                                             hasRepeats (pure, tested)
-  entities/pipeline-node.entity.ts           PipelineNodeEntity, NodeDefinition, Shell, EnvEntry:
-                                             definitionOf, nodeRunIssue,
-                                             nodeIssue, blankDefinition, withDefinition,
+                                             renamePort, dropPort, removeNode, moveNode,
+                                             setDependencies, dependentsOf, dependencyCandidates,
+                                             outputCandidates, nodeDepths, nodesBefore, waitsFor,
+                                             uniqueNodeId, hasRepeats (pure, tested)
+  entities/pipeline-node.entity.ts           PipelineNodeEntity (exec, script, switch, merge),
+                                             Dependency, NodeDefinition, Shell, EnvEntry, the switch
+                                             (SwitchCase, SwitchRule, Operand, SwitchTest): runsStep,
+                                             portsOf, definitionOf, nodeRunIssue, switchIssue,
+                                             needIssue, nodeIssue, blankDefinition, blankCase,
+                                             blankRule, blankOperand, withDefinition,
                                              withDependencies, withoutDependency, withRenamedReference
   entities/node-template.entity.ts           NodeTemplateEntity: a ready-made node of the palette
   structs/node-id.struct.ts                  NodeId: the id rule of the server (nodeIdIssue, toNodeId)
+  structs/port-name.struct.ts                PortName, ERROR_PORT: the rule of NodeId, with no trim
   structs/pipeline-name.struct.ts            PipelineNameIssue, pipelineNameIssue
   use-cases/save-pipeline.use-case.ts        SavePipelineUseCase: the rules of the server, then create or edit
   repository/pipeline.repository.ts
@@ -94,10 +100,12 @@ presentation/
   presenters/                                domain data → what a view shows (plain TS, tested)
     node-summary.presenter.ts                summarize (what a node shows), nodePreview, envCounts
     node-kind.presenter.ts                   icon and colours of each kind of node
-    node-issue.presenter.ts                  the text of what stops a node (nodeIdIssueText)
+    node-issue.presenter.ts                  the text of what stops a node (nodeIdIssueText, nodeIssueText)
+    switch-form.presenter.ts                 the tests in two groups, the kinds of a value
     node-list.presenter.ts                   the rows, stages and links of the node list
     catalog.presenter.ts                     blank nodes, template entries, search, groups, templateFor
-    blueprint-layout.presenter.ts            the position of each node: one column per stage, positionAfter
+    blueprint-layout.presenter.ts            the position of each node: one column per stage (the
+                                             targets of a switch in the order of its ports), positionAfter
     blueprint-geometry.presenter.ts          the sizes, anchors and footprints of the nodes, linkDropPoint
     pipeline-issue.presenter.ts              the text of what stops a save (pipelineIssueText)
     pipeline-feed.presenter.ts               asPipelineFeed
@@ -122,9 +130,13 @@ presentation/
                                              code-editor.effect.svelte.ts (CodeMirror ↔ a string)
       node/                                  the fields of one node, for every view that edits a node
         node-draft.state.svelte.ts           createNodeDraft: the draft of a node, applied at each edit
+        switch-draft.state.svelte.ts         createSwitchDraft: the cases of a switch in the draft,
+                                             PortChange (a port that an edit renamed or removed)
         NodeIdField, NodeKindPicker, NodeScriptField, NodeCommandFields, NodeWorkingDirField,
-        NodeTimeoutRetriesFields, NodeEnvFields
+        NodeTimeoutRetriesFields, NodeEnvFields, NodeErrorOutputField
                                              one field (or one group of fields) each, on a NodeDraft
+        NodeSwitchFields/                    the form of a switch: SwitchCase, SwitchRule,
+                                             SwitchOperand, PortNameField (and its test, its fixture)
       scripting/                             the scripting tab: the nodes one by one, or the full document
         PipelineScripting/                   the two views as tabs (and its test, its fixture)
         pipeline-scripting.state.svelte.ts   ViewModel: mode, add/remove/rename, deps, moveNode
@@ -143,17 +155,19 @@ presentation/
         canvas/                              the canvas and what it draws
           BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte, DropSpot.svelte
           blueprint-canvas.context.ts        what the nodes and edges read from the canvas
-          keep-fitted.attachments.ts         keepFitted: fits the view again when the canvas resizes
           node-appearance-preference.state.svelte.ts   the viewer's node style, kept in localStorage
           nodes/                             one node view and one start view per node style,
-                                             node-appearances.registry.ts (style → views)
+                                             node-appearances.registry.ts (style → views), MergeNode
+                                             (one small view for each style), follow-handles.effect
+                                             (xyflow measures the handles again when the ports change)
         catalog/                             CatalogIcon, CatalogItem, QuickAddMenu/ (quick-add.state.svelte.ts)
         palette-drag/                        a palette entry dragged to the canvas with the pointer
           palette-drag.state.svelte.ts       entry, pointer, spot, the canvas as a drop target
           palette-drag.attachments.ts        dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
           PaletteDragGhost.svelte            the dragged icon, in place of the pointer
         side-panel/                          palette (nothing inspected) / inspector of the inspected node
-          NodeInspector/                     the inspector: the fields of node/, in two tabs
+          NodeInspector/                     the inspector: the fields of node/ for the kind of the
+                                             node (NodeKindFields): two tabs, the switch form, or none
 ```
 
 ## Routes & nav
@@ -286,7 +300,9 @@ the page.
   called before the document changes). Each pane mounts one editor per node (`{#key node.id}`),
   so two nodes do not share an undo history.
 - **The dependency picker offers `dependencyCandidates` only**: the rule of `canConnect` (see
-  "No loop of dependencies"), so a pick cannot make a loop.
+  "No loop of dependencies"), so a pick cannot make a loop. A candidate comes with no port and
+  with each of its ports (`<switch>:<port>`, `<node>:error`); a drop in the list sets a need
+  with no port.
 - **The pipeline name is edited in the header** (`PipelineNameField`), never in the panel: it is
   the name of the whole document. The start node opens nothing.
 - **The side panel of the blueprint is a paneforge pane** (`ResizablePane`), right of the
@@ -296,7 +312,7 @@ the page.
   inspector holds code, so it is wider than the palette.
 - **The view frames the nodes until the user moves it.** paneforge gives the panes their sizes
   after the first `fitView`, and animates them, so a single fit frames the nodes in a narrow
-  canvas: they show on the left. `keepFitted` fits again at each resize of the canvas while
+  canvas: they show on the left. `keepFitted` (`@scylla/ui`) fits again at each resize of the canvas while
   `fitted` is true. A pan or a zoom by the user (`onmove` with an event, or a zoom button) sets
   it to false; the fit button sets it to true. Use `onmove`, not `onmovestart`: a click on the
   pane starts a move with no change of the view.
@@ -381,6 +397,55 @@ the page.
   `pipeline-history` / `pipeline-actions` / `pipeline-run` with `data-pipeline-id`,
   `data-pipeline-name`, `data-last-status`). Keep them on the same
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
+
+## Conditional nodes: the rules that bite
+
+- **A need is a node and a port** (`Dependency = { node, port? }`, the field keeps the name `deps`).
+  No port opens when the node completed; a port of a switch when the switch chose it; `error`
+  when a node that runs a step failed after its last attempt. Compare two needs with
+  `sameDependency`, never with `===`. A node can need one node on two ports (`test` and
+  `test:error`: always after `test`), never on the same pair two times (`hasRepeats`).
+- **A switch and a merge run no step.** `workingDir`, `timeoutSeconds`, `retries` and `image` are
+  on `exec` and `script` only; a merge has no env either. Narrow with `runsStep(node)` before you
+  read them. `NodeKindPicker` moves a node between a command and a script only: a switch or a
+  merge comes from the palette (the group "Flow": If, Switch, Merge) and stays what it is.
+- **The edges are the needs, and a port is a handle.** An edge from a port has
+  `sourceHandle = port` and the id `<source>:<port>-><target>` (`edgeBetween`, `edgeId`);
+  `flowToNodes` reads the handle back into the port. A switch has one source handle for each
+  case, in order, then `otherwise`, and no plain one: xyflow draws an edge with no port from the
+  first handle. A node that runs a step draws its plain handle first in the DOM for the same
+  reason, then the red `error` one. When the ports of a node change, `followHandles` calls
+  `updateNodeInternals`: xyflow measures the handles only at a resize, and a renamed handle
+  leaves its edges with no start. A need on a port that its node does not have is kept, not
+  drawn, and shown as an issue.
+- **The error toggle is not saved** (`NodeErrorOutputField`): the server has no field for it.
+  The handle shows while the toggle is on (a set in the blueprint and in the scripting
+  ViewModel, for the visit) or while a need names the port. Off, it removes the needs on
+  `error`, with the "Undo" toast.
+- **A port is renamed on blur or Enter, as an id is** (`PortNameField`, `renameCase`): an empty
+  name keeps the old one, a taken one gets a suffix. The draft says which port an edit renamed or
+  removed (`PortChange`), and the ViewModels move the needs on it (`renamePort`) or remove them
+  (`dropPort`) with an "Undo" that puts back the switch as it was and its needs. The blueprint
+  bumps `revision` on that undo: the inspector is keyed by it and builds its draft again.
+- **`error` is a reserved port name.** It is the error port of a node that runs a step, and
+  nothing else: no case and no `otherwise` has it (`reserved-port`, as `ReservedName` on the
+  server). So `port === ERROR_PORT` means the error port everywhere: the red handles and edges,
+  `canConnect`, the path of a job. `PortNameField` says it as it is typed, and the draft keeps the
+  old name, as for an empty one. A document typed by hand with it shows the issue and stops the save.
+- **A rename of a node follows into the outputs that a switch reads** (`withRenamedReference`).
+- **The checks of the server are in the domain.** `switchIssue` and `needIssue` check one node,
+  `nodeIssues` adds what the pipeline decides (a port that its node does not have, an output of a
+  node that does not run a step before the switch). `pipelineIssue` refuses the switch and need
+  issues (`nodes`), so `SavePipelineUseCase` sends nothing. It does not refuse a node that cannot
+  run yet (no command, empty script), as before: the server says it. The canvas, the list and the
+  properties read the issue from `nodeIssues` of the document (`issueOf`), not of the node alone.
+- **The JSON tab writes a need as a text** (`dependencyText`, `parseDependency`): `build`, or
+  `is-main:true`. A node id and a port never hold a `:`; an empty port reads as no port. A switch
+  is `kind: 'switch', switch: { cases, otherwise, allMatches }` (`otherwise: null` for none), a
+  merge `kind: 'merge', merge: {}`. A rule gets the right value its test needs, so it reads back
+  what it writes.
+- **The literals of a number test follow `f64::from_str`**, once trimmed: `1e3`, `-.5` and `5.`
+  are numbers; `0x10`, `inf` and an empty text are not.
 
 ## Before done
 

@@ -1,13 +1,34 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
-import type { ExecPipelineNodeEntity, PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import type * as Utils from '@scylla/ui/utils';
+import type {
+  Dependency,
+  ExecPipelineNodeEntity,
+  PipelineNodeEntity,
+  SwitchPipelineNodeEntity,
+} from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import { createBlueprint } from '../blueprint.state.svelte.ts';
 import { START_NODE_ID, flowToNodes } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
 import { createPipelineDocument } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
 
+const toast = vi.hoisted(() => vi.fn());
+vi.mock('@scylla/ui/utils', async importOriginal => ({
+  ...(await importOriginal<typeof Utils>()),
+  toast,
+}));
+
+/** `is-main:true` is a need on the port `true` of `is-main`. */
+const needs = (texts: string[]): Dependency[] =>
+  texts.map(text => {
+    const [node, port] = text.split(':');
+    return port ? { node, port } : { node };
+  });
+const textsOf = (deps: Dependency[] | undefined) =>
+  deps?.map(({ node, port }) => (port ? `${node}:${port}` : node));
+
 const execNode = (id: string, deps: string[] = []): ExecPipelineNodeEntity => ({
   id,
-  deps,
+  deps: needs(deps),
   kind: 'exec',
   command: 'echo',
   args: [id],
@@ -102,7 +123,7 @@ describe('createBlueprint', () => {
 
       const published = onNodesChange.mock.lastCall?.[0] as PipelineNodeEntity[];
       expect(published.find(node => node.id === 'compile')).toMatchObject({ command: 'make' });
-      expect(published.find(node => node.id === 'test')?.deps).toEqual(['compile']);
+      expect(textsOf(published.find(node => node.id === 'test')?.deps)).toEqual(['compile']);
       expect(state.edges.some(edge => edge.source === 'compile' && edge.target === 'test')).toBe(true);
     });
   });
@@ -143,7 +164,7 @@ describe('createBlueprint', () => {
       expect(state.inspected?.id).toBe('build');
       expect(state.flowNodes.filter(flowNode => flowNode.selected).map(flowNode => flowNode.id)).toEqual(['build']);
       const published = onNodesChange.mock.lastCall?.[0] as PipelineNodeEntity[];
-      expect(published.find(node => node.id === 'test')?.deps).toEqual(['build']);
+      expect(textsOf(published.find(node => node.id === 'test')?.deps)).toEqual(['build']);
     });
   });
 
@@ -173,8 +194,8 @@ describe('createBlueprint', () => {
 
       expect(state.edges.some(edge => edge.id === 'build->test')).toBe(false);
       const published = onNodesChange.mock.lastCall?.[0] as PipelineNodeEntity[];
-      expect(published.find(node => node.id === 'lint')?.deps).toEqual(['build']);
-      expect(published.find(node => node.id === 'test')?.deps).toEqual(['lint']);
+      expect(textsOf(published.find(node => node.id === 'lint')?.deps)).toEqual(['build']);
+      expect(textsOf(published.find(node => node.id === 'test')?.deps)).toEqual(['lint']);
     });
   });
 
@@ -241,7 +262,7 @@ describe('createBlueprint', () => {
 
   it('lists the dependencies of a node, without the start node', () => {
     withState([execNode('build'), execNode('test', ['build'])], state => {
-      expect(state.dependenciesOf('test')).toEqual(['build']);
+      expect(textsOf(state.dependenciesOf('test'))).toEqual(['build']);
       expect(state.dependenciesOf('build')).toEqual([]);
     });
   });
@@ -253,6 +274,127 @@ describe('createBlueprint', () => {
 
       const x = (id: string) => state.flowNodes.find(flowNode => flowNode.id === id)!.position.x;
       expect(x('build')).toBeLessThan(x('test'));
+    });
+  });
+});
+
+const ifNode = (id: string, deps: string[] = []): SwitchPipelineNodeEntity => ({
+  id,
+  deps: needs(deps),
+  env: [],
+  kind: 'switch',
+  cases: [{ port: 'true', combinator: 'all', rules: [{ left: { kind: 'var', name: 'A' }, test: 'not_empty' }] }],
+  otherwise: 'false',
+  allMatches: false,
+});
+
+describe('the ports', () => {
+  afterEach(() => toast.mockClear());
+
+  const undo = () => (toast.mock.lastCall?.[1] as { action: { onClick: () => void } }).action.onClick();
+  const published = (onNodesChange: ReturnType<typeof vi.fn>, id: string) =>
+    (onNodesChange.mock.lastCall?.[0] as PipelineNodeEntity[]).find(node => node.id === id);
+  const pipeline = () => [execNode('build'), ifNode('is-main', ['build']), execNode('deploy', ['build', 'is-main:true'])];
+
+  it('draws a need on a port from the handle of the port', () => {
+    withState(pipeline(), state => {
+      expect(state.edges).toContainEqual(
+        expect.objectContaining({ id: 'is-main:true->deploy', source: 'is-main', sourceHandle: 'true', target: 'deploy' }),
+      );
+    });
+  });
+
+  it('saves a link from a port handle as a need with that port', () => {
+    withState(pipeline(), (state, onNodesChange) => {
+      state.edges = [...state.edges, { id: 'xy', source: 'is-main', sourceHandle: 'false', target: 'build' }].filter(
+        edge => edge.target !== 'build' || edge.source !== START_NODE_ID,
+      );
+      state.sync();
+      expect(textsOf(published(onNodesChange, 'build')?.deps)).toEqual(['is-main:false']);
+    });
+  });
+
+  it('links a node added from a port to that port', () => {
+    withState(pipeline(), (state, onNodesChange) => {
+      state.addNode('cleanup', definition, { after: 'is-main', port: 'false' });
+      expect(textsOf(published(onNodesChange, 'cleanup')?.deps)).toEqual(['is-main:false']);
+    });
+  });
+
+  it('keeps the port when a node is inserted in an edge from a port', () => {
+    withState(pipeline(), (state, onNodesChange) => {
+      state.addNode('check', definition, { replacing: 'is-main:true->deploy' });
+      expect(textsOf(published(onNodesChange, 'check')?.deps)).toEqual(['is-main:true']);
+      expect(textsOf(published(onNodesChange, 'deploy')?.deps)).toEqual(['build', 'check']);
+    });
+  });
+
+  it('keeps the port of each edge when a node is renamed', () => {
+    withState(pipeline(), (state, onNodesChange) => {
+      state.renameNode('is-main', 'on-main');
+      expect(textsOf(published(onNodesChange, 'deploy')?.deps)).toEqual(['build', 'on-main:true']);
+      expect(state.edges.some(edge => edge.id === 'on-main:true->deploy')).toBe(true);
+    });
+  });
+
+  it('moves the edges of a renamed port to its new name', () => {
+    withState(pipeline(), (state, onNodesChange) => {
+      const renamed = { ...ifNode('is-main'), cases: [{ ...ifNode('is-main').cases[0], port: 'yes' }] };
+      state.updateNode('is-main', renamed, { from: 'true', to: 'yes' });
+      expect(textsOf(published(onNodesChange, 'deploy')?.deps)).toEqual(['build', 'is-main:yes']);
+      expect(state.edges).toContainEqual(expect.objectContaining({ id: 'is-main:yes->deploy', sourceHandle: 'yes' }));
+    });
+  });
+
+  it('removes the edges of a deleted case, and puts back the case and its edges on undo', () => {
+    withState(pipeline(), (state, onNodesChange) => {
+      const { env, kind, otherwise, allMatches } = ifNode('is-main');
+      state.updateNode('is-main', { env, kind, cases: [], otherwise, allMatches }, { from: 'true', to: null });
+
+      expect(textsOf(published(onNodesChange, 'deploy')?.deps)).toEqual(['build']);
+      expect(toast).toHaveBeenCalledWith('These nodes no longer wait for is-main:true: deploy.', expect.anything());
+
+      const revision = state.revision;
+      undo();
+      expect(textsOf(published(onNodesChange, 'deploy')?.deps)).toEqual(['build', 'is-main:true']);
+      expect(published(onNodesChange, 'is-main')).toMatchObject({ cases: [{ port: 'true' }] });
+      expect(state.revision).toBe(revision + 1);
+    });
+  });
+
+  it('shows the error output while its toggle is on, or while an edge leaves from it', () => {
+    withState([execNode('test'), execNode('notify', ['test:error'])], state => {
+      expect(state.hasErrorPort('test')).toBe(true);
+      expect(state.hasErrorPort('notify')).toBe(false);
+
+      state.setErrorOutput('notify', true);
+      expect(state.hasErrorPort('notify')).toBe(true);
+    });
+  });
+
+  it('removes the error edges when the toggle goes off, and puts them back on undo', () => {
+    withState([execNode('test'), execNode('notify', ['test:error'])], (state, onNodesChange) => {
+      state.setErrorOutput('test', false);
+      expect(published(onNodesChange, 'notify')?.deps).toEqual([]);
+      expect(state.hasErrorPort('test')).toBe(false);
+
+      undo();
+      expect(textsOf(published(onNodesChange, 'notify')?.deps)).toEqual(['test:error']);
+      expect(state.hasErrorPort('test')).toBe(true);
+    });
+  });
+
+  it('refuses a link from an error output of a node that runs no step', () => {
+    withState(pipeline(), state => {
+      expect(state.canConnect({ source: 'is-main', sourceHandle: 'error', target: 'deploy' } as never)).toBe(false);
+      expect(state.canConnect({ source: 'build', sourceHandle: 'error', target: 'is-main' } as never)).toBe(true);
+    });
+  });
+
+  it('gives the issue of a node in its pipeline', () => {
+    withState([execNode('build'), execNode('deploy', ['build:true'])], state => {
+      expect(state.issueOf('deploy')).toMatchObject({ kind: 'need', issue: { kind: 'unknown-port' } });
+      expect(state.issueOf('build')).toBeNull();
     });
   });
 });

@@ -1,7 +1,8 @@
-import type {
-  Shell,
-  PipelineNodeEntity,
-  NodeDefinition,
+import {
+  runsStep,
+  type Shell,
+  type PipelineNodeEntity,
+  type NodeDefinition,
 } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import {
   toEnvEntry,
@@ -10,6 +11,7 @@ import {
 } from '@base/features/pipeline/presentation/mappers/env-row.mapper.ts';
 import { nodeIdIssue, toNodeId } from '@base/features/pipeline/domain/structs/node-id.struct.ts';
 import { nodeRunIssue } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import { createSwitchDraft, type PortChange } from './switch-draft.state.svelte.ts';
 
 export const MAX_TIMEOUT_SECONDS = 604_800;
 export const MAX_RETRIES = 10;
@@ -32,8 +34,8 @@ const retriesOf = (raw: string): number | null => {
 export interface NodeDraftParams {
   /** Read once: a draft is built again for another node. */
   node: PipelineNodeEntity;
-  /** Called after each edit. */
-  onChange: (value: NodeDefinition) => void;
+  /** Called after each edit. `port`: the port of the switch that the edit renamed or removed. */
+  onChange: (value: NodeDefinition, port?: PortChange) => void;
   /** Returns the id the node really got: a taken id gets a suffix, an empty one is refused. */
   onRename: (id: string) => string;
 }
@@ -41,28 +43,37 @@ export interface NodeDraftParams {
 /**
  * The draft of one node, edited by the blueprint's inspector and by the scripting view. Every
  * edit is applied to the pipeline at once, so all the views and the document show the same
- * node; `issue` says why it cannot run yet. The id is applied on `rename()` only.
+ * node; `issue` says why it cannot run yet. The id is applied on `rename()` only. The kind moves
+ * between a command and a script only: a switch and a merge stay what they are.
  */
 export const createNodeDraft = ({ node, onChange, onRename }: NodeDraftParams) => {
+  const step = runsStep(node) ? node : undefined;
   let id = $state(node.id);
   let mode = $state<PipelineNodeEntity['kind']>(node.kind);
   let script = $state(node.kind === 'script' ? node.script : '');
   let shell = $state<Shell>(node.kind === 'script' ? node.shell : 'bash');
   let command = $state(node.kind === 'exec' ? node.command : '');
   let args = $state<string[]>(node.kind === 'exec' ? [...node.args] : []);
-  let workingDir = $state(node.workingDir ?? '');
-  let envRows = $state<EnvRow[]>(node.env.map(toEnvRow));
-  let timeoutSeconds = $state(node.timeoutSeconds?.toString() ?? '');
-  let retries = $state(String(node.retries ?? 0));
+  let workingDir = $state(step?.workingDir ?? '');
+  let envRows = $state<EnvRow[]>(node.kind === 'merge' ? [] : node.env.map(toEnvRow));
+  let timeoutSeconds = $state(step?.timeoutSeconds?.toString() ?? '');
+  let retries = $state(String(step?.retries ?? 0));
   // The last values in range: a value out of range is shown, never applied.
-  let timeout = $state(node.timeoutSeconds);
-  let retryCount = $state(node.retries ?? 0);
+  let timeout = $state(step?.timeoutSeconds);
+  let retryCount = $state(step?.retries ?? 0);
+
+  const switchDraft = createSwitchDraft(node.kind === 'switch' ? node : undefined, port =>
+    onChange(value, port),
+  );
 
   const value = $derived.by((): NodeDefinition => {
     // A row with no key is an empty line.
     const env = envRows
       .filter(row => row.key.trim())
       .map(row => toEnvEntry({ ...row, key: row.key.trim() }));
+    if (mode === 'merge') return { kind: 'merge' };
+    if (mode === 'switch') return { env, kind: 'switch', ...switchDraft.value };
+
     const base = {
       workingDir: workingDir.trim() || undefined,
       env,
@@ -86,6 +97,8 @@ export const createNodeDraft = ({ node, onChange, onRename }: NodeDraftParams) =
     get value() {
       return value;
     },
+    /** The cases of a switch node. */
+    switch: switchDraft,
     get issue() {
       return issue;
     },

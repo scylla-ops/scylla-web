@@ -1,6 +1,7 @@
 import type { Edge, Node } from '@xyflow/svelte';
 import {
   definitionOf,
+  type Dependency,
   type PipelineNodeEntity,
 } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import { repeatedNodeIds } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
@@ -25,10 +26,16 @@ export const DEFAULT_EDGE_STYLE = {
   markerEnd: { type: 'arrowclosed', color: EDGE_COLOR, width: 16, height: 16 },
 } satisfies Partial<FlowEdge>;
 
-export const edgeBetween = (source: string, target: string): FlowEdge => ({
-  id: `${source}->${target}`,
+/** `build->deploy`, or `is-main:true->deploy` for an edge from a port. */
+export const edgeId = (source: string, target: string, port?: string | null): string =>
+  port ? `${source}:${port}->${target}` : `${source}->${target}`;
+
+/** An edge from a port leaves from its handle: `sourceHandle` is the port. */
+export const edgeBetween = (source: string, target: string, port?: string | null): FlowEdge => ({
+  id: edgeId(source, target, port),
   source,
   target,
+  ...(port ? { sourceHandle: port } : {}),
   ...DEFAULT_EDGE_STYLE,
 });
 
@@ -47,7 +54,8 @@ const nodeKeys = (nodes: PipelineNodeEntity[]): string[] => {
 
 /**
  * The graph of the nodes, laid out by stage. A dependency on the node itself or on a node that
- * does not exist is not drawn; a dependency on a repeated id goes to the first node with it.
+ * does not exist is not drawn; a dependency on a repeated id goes to the first node with it. A need
+ * on a port that its node does not have is kept: xyflow draws no edge from a missing handle.
  */
 export function nodesToFlow(
   nodes: PipelineNodeEntity[],
@@ -74,9 +82,9 @@ export function nodesToFlow(
   }));
 
   const edges = nodes.flatMap((node, index) => {
-    const deps = node.deps.filter(dep => dep !== node.id && ids.has(dep));
+    const deps = node.deps.filter(dep => dep.node !== node.id && ids.has(dep.node));
     return deps.length
-      ? deps.map(dep => edgeBetween(dep, keys[index]))
+      ? deps.map(dep => edgeBetween(dep.node, keys[index], dep.port))
       : [edgeBetween(START_NODE_ID, keys[index])];
   });
 
@@ -86,11 +94,13 @@ export function nodesToFlow(
 export const nodeOf = (flowNode: FlowNode): PipelineNodeEntity | undefined =>
   flowNode.type === 'pipelineNode' ? flowNode.data.node : undefined;
 
-/** The ids of the nodes a node waits for: the start node is not a node. */
-export const depsOf = (edges: FlowEdge[], id: string): string[] =>
+/** The needs of a node, with the port of each edge's handle: the start node is not a node. */
+export const depsOf = (edges: FlowEdge[], id: string): Dependency[] =>
   edges
     .filter(edge => edge.target === id && edge.source !== START_NODE_ID)
-    .map(edge => edge.source);
+    .map(edge =>
+      edge.sourceHandle ? { node: edge.source, port: edge.sourceHandle } : { node: edge.source },
+    );
 
 export function flowToNodes(flowNodes: FlowNode[], edges: FlowEdge[]): PipelineNodeEntity[] {
   return flowNodes.flatMap(flowNode => {

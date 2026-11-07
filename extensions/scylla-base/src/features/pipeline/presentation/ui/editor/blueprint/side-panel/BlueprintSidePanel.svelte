@@ -45,15 +45,20 @@
   >
     <aside class="flex h-full flex-col bg-card">
       {#if node}
-        {#key node.id}
+        <!-- A new draft for each node, and when an "Undo" puts the node back. -->
+        {#key `${node.id}#${blueprint.revision}`}
           <NodeInspector
             {node}
             dependencies={blueprint.dependenciesOf(node.id)}
             detached={blueprint.isDetached(node.id)}
+            issue={blueprint.issueOf(node.id)}
+            errorOutput={blueprint.hasErrorPort(node.id)}
+            outputNodes={blueprint.outputNodesOf(node.id)}
             iconHintOf={definition => templateFor(entries, definition)?.icon}
             {projectId}
-            onChange={value => blueprint.updateNode(node.id, value)}
+            onChange={(value, port) => blueprint.updateNode(node.id, value, port)}
             onRename={id => blueprint.renameNode(node.id, id)}
+            onErrorOutputChange={on => blueprint.setErrorOutput(node.id, on)}
             onDelete={() => blueprint.removeNode(node.id)}
             onClose={close}
           />

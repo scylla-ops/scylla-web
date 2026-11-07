@@ -5,6 +5,7 @@ import { pipelineMessages } from '../messages/pipeline.messages.ts';
 /** Says why the pipeline cannot be saved. */
 export const pipelineIssueText = (issue: PipelineIssue): string => {
   if (issue.kind === 'node-ids') return t(pipelineMessages.invalidNodeIds(issue.ids.join(', ')));
+  if (issue.kind === 'nodes') return t(pipelineMessages.invalidNodes(issue.ids.join(', ')));
   if (issue.kind === 'repeated-ids')
     return t(pipelineMessages.repeatedNodeIds(issue.ids.join(', ')));
   return t(issue.issue === 'empty' ? pipelineMessages.nameRequired : pipelineMessages.noSpaces);

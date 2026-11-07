@@ -1,5 +1,6 @@
 import type {
   JobEntity,
+  JobNode,
   JobNodeExecution,
   JobLog,
   NodeExecutionState,
@@ -13,6 +14,7 @@ import {
   NodeStatus,
   type NodeRun,
 } from '@base/generated/scylla/pipelines/v1/job.ts';
+import type { Node } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 import type { PaginatedList, PaginationParams } from '@scylla/ui/structs';
 import {
   idValue,
@@ -90,8 +92,20 @@ function nodeExecutionsOf(job: Job): JobNodeExecution[] {
       finishedAt: timestampToIsoOpt(run?.finishedAt),
       attempts: run?.attempt ?? 0,
       maxAttempts: node.retries + 1,
+      ports: run?.ports ?? [],
     };
   });
+}
+
+/** The graph of a node of the snapshot. A step newer than this build is drawn as a run node. */
+function jobNodeOf({ id, needs, step }: Node): JobNode {
+  const deps = needs.map(({ node, port }) => (port ? { node, port } : { node }));
+  if (step.oneofKind === 'switch') {
+    const { cases, otherwise } = step.switch;
+    const ports = [...cases.map(({ port }) => port), ...(otherwise ? [otherwise] : [])];
+    return { id, kind: 'switch', deps, ports };
+  }
+  return { id, kind: step.oneofKind === 'merge' ? 'merge' : 'run', deps, ports: [] };
 }
 
 export function toDomain(job: Job): JobEntity {
@@ -102,6 +116,7 @@ export function toDomain(job: Job): JobEntity {
     id: idValue(job.id),
     pipelineId: idValue(job.pipelineId),
     status: jobStatusToDomain(job.status),
+    nodes: job.nodes.map(jobNodeOf),
     nodeExecutions: nodeExecutionsOf(job),
     createdAt,
     // The server has no time of the last change: the last time it knows.

@@ -13,11 +13,15 @@
     type XYPosition,
   } from '@xyflow/svelte';
   import '@xyflow/svelte/dist/style.css';
+  import { keepFitted } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { Blueprint } from '../blueprint.state.svelte.ts';
   import type { NodeAppearancePreference } from './node-appearance-preference.state.svelte.ts';
   import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
-  import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
+  import {
+    DEFAULT_EDGE_STYLE,
+    edgeBetween,
+  } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
   import { templateFor, type CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import { setBlueprintCanvas } from './blueprint-canvas.context.ts';
@@ -26,7 +30,6 @@
   import { linkDropPoint } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import DropSpot from './DropSpot.svelte';
   import { acceptPaletteDrop } from '../palette-drag/palette-drag.attachments.ts';
-  import { keepFitted } from './keep-fitted.attachments.ts';
   import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';
   import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.registry.ts';
   import StartNode from './nodes/StartNode.svelte';
@@ -61,6 +64,8 @@
   setBlueprintCanvas({
     appearance: () => appearance.current,
     isDetached: nodeId => blueprint.isDetached(nodeId),
+    issueOf: nodeId => blueprint.issueOf(nodeId),
+    hasErrorPort: nodeId => blueprint.hasErrorPort(nodeId),
     iconHintOf: definition => templateFor(entries, definition)?.icon,
     insertOnEdge: (edgeId, at) => quickAdd.open({ ...at, link: { replacing: edgeId } }),
   });
@@ -70,14 +75,15 @@
     return { x: point.clientX, y: point.clientY };
   };
 
-  /** A link dropped on empty canvas asks which node to create there. */
+  /** A link dropped on empty canvas asks which node to create there; the new node waits for the port of the link. */
   const onConnectEnd: OnConnectEnd = (event, connection) => {
     const from = connection.fromNode;
     const droppedOnEmpty = !connection.isValid && !connection.toNode;
     if (!from || !droppedOnEmpty || connection.fromHandle?.type !== 'source') return;
 
     const client = clientPoint(event);
-    quickAdd.open({ client, flow: screenToFlowPosition(client), link: { after: from.id } });
+    const port = connection.fromHandle.id ?? undefined;
+    quickAdd.open({ client, flow: screenToFlowPosition(client), link: { after: from.id, port } });
   };
 
   const connection = useConnection();
@@ -118,7 +124,10 @@
     selectNodesOnDrag={false}
     edgesFocusable
     defaultEdgeOptions={DEFAULT_EDGE_STYLE}
-    onbeforeconnect={connection => (blueprint.canConnect(connection) ? connection : false)}
+    onbeforeconnect={connection =>
+      blueprint.canConnect(connection)
+        ? edgeBetween(connection.source, connection.target, connection.sourceHandle)
+        : false}
     onconnect={() => blueprint.sync()}
     onconnectend={onConnectEnd}
     ondelete={() => blueprint.sync()}

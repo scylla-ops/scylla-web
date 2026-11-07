@@ -7,7 +7,7 @@ import NodeInspector from './NodeInspector.svelte';
 
 const node: PipelineNodeEntity = {
   id: 'test',
-  deps: ['build'],
+  deps: [{ node: 'build' }],
   kind: 'script',
   shell: 'bash',
   script: 'npm test',
@@ -17,6 +17,7 @@ const node: PipelineNodeEntity = {
 let restore: () => void;
 const handlers = {
   onChange: vi.fn(),
+  onErrorOutputChange: vi.fn(),
   // The blueprint keeps the id when the new one is empty.
   onRename: vi.fn((id: string) => id.trim() || node.id),
   onDelete: vi.fn(),
@@ -30,13 +31,40 @@ beforeEach(() => {
 
 afterEach(() => restore());
 
-const renderInspector = (overrides: Partial<PipelineNodeEntity> = {}, detached = false) =>
+const renderInspector = (
+  overrides: Partial<PipelineNodeEntity> = {},
+  detached = false,
+  props: Record<string, unknown> = {},
+) =>
   render(NodeInspector, {
     node: { ...node, ...overrides } as PipelineNodeEntity,
-    dependencies: ['build'],
+    dependencies: [{ node: 'build' }],
     detached,
     ...handlers,
+    ...props,
   });
+
+const ifNode: PipelineNodeEntity = {
+  id: 'is-main',
+  deps: [],
+  env: [{ key: 'TARGET', kind: 'literal', value: 'main' }],
+  kind: 'switch',
+  cases: [
+    {
+      port: 'true',
+      combinator: 'all',
+      rules: [
+        {
+          left: { kind: 'literal', value: '' },
+          test: 'equals',
+          right: { kind: 'literal', value: '' },
+        },
+      ],
+    },
+  ],
+  otherwise: 'false',
+  allMatches: false,
+};
 
 describe('NodeInspector', () => {
   it('shows what the node waits for', () => {
@@ -161,5 +189,60 @@ describe('NodeInspector', () => {
     await user.click(screen.getByRole('button', { name: 'Use run-tests' }));
 
     expect(handlers.onRename).toHaveBeenLastCalledWith('run-tests');
+  });
+
+  it('turns the error output of a node that runs a step on and off', async () => {
+    const user = userEvent.setup();
+    renderInspector({}, false, { errorOutput: true });
+
+    const toggle = screen.getByRole('switch', { name: 'Send a failure to an error output' });
+    expect(toggle).toBeChecked();
+    await user.click(toggle);
+
+    expect(handlers.onErrorOutputChange).toHaveBeenCalledWith(false);
+  });
+
+  it('shows a need on the error output in red', () => {
+    renderInspector({}, false, { dependencies: [{ node: 'build', port: 'error' }] });
+    expect(screen.getByText('build:error')).toHaveClass('text-destructive');
+  });
+
+  it('shows the form of a switch, its environment, and no kind and no error output', () => {
+    render(NodeInspector, { node: ifNode, dependencies: [], detached: false, ...handlers });
+
+    expect(screen.getByRole('region', { name: 'true' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Port when no case matches' })).toHaveValue('false');
+    expect(screen.getByDisplayValue('TARGET')).toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: 'Command' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('switch', { name: 'Send a failure to an error output' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('says what the pipeline refuses in the node', () => {
+    render(NodeInspector, {
+      node: ifNode,
+      dependencies: [],
+      detached: false,
+      issue: { kind: 'switch', issue: { kind: 'output-node', port: 'true', node: 'later' } },
+      ...handlers,
+    });
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'In the case true, later is not a node that runs a step before this switch.',
+    );
+  });
+
+  it('shows a merge with its id and its needs only', () => {
+    render(NodeInspector, {
+      node: { id: 'join', deps: [{ node: 'a' }, { node: 'b' }], kind: 'merge' },
+      dependencies: [{ node: 'a' }, { node: 'b' }],
+      detached: false,
+      ...handlers,
+    });
+
+    expect(screen.getByRole('textbox', { name: 'Node ID' })).toHaveValue('join');
+    expect(screen.getByText('a')).toBeInTheDocument();
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
   });
 });

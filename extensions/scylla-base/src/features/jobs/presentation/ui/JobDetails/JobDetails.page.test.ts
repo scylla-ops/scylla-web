@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/svelte';
+import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { flushSync } from 'svelte';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
@@ -42,9 +42,10 @@ const job = (overrides: Partial<JobEntity> = {}): JobEntity => ({
   id: 'job-1',
   pipelineId: 'pipeline-1',
   status: 'completed',
+  nodes: [],
   nodeExecutions: [
-    { id: 'build', state: 'completed', attempts: 1, maxAttempts: 1 },
-    { id: 'test', state: 'failed', attempts: 3, maxAttempts: 3 },
+    { id: 'build', state: 'completed', attempts: 1, maxAttempts: 1, ports: [] },
+    { id: 'test', state: 'failed', attempts: 3, maxAttempts: 3, ports: [] },
   ],
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:01:00.000Z',
@@ -142,7 +143,7 @@ describe('JobDetailsPage', () => {
     await renderPage(
       job({
         status: 'failed',
-        nodeExecutions: [{ id: 'deploy', state: 'skipped', attempts: 0, maxAttempts: 1 }],
+        nodeExecutions: [{ id: 'deploy', state: 'skipped', attempts: 0, maxAttempts: 1, ports: [] }],
       }),
       '?nodes=deploy',
     );
@@ -321,7 +322,7 @@ describe('JobDetailsPage', () => {
 
   it('shows a skipped node as skipped, with no attempt when it did not start', async () => {
     await renderPage(
-      job({ nodeExecutions: [{ id: 'test', state: 'skipped', attempts: 0, maxAttempts: 3 }] }),
+      job({ nodeExecutions: [{ id: 'test', state: 'skipped', attempts: 0, maxAttempts: 3, ports: [] }] }),
       '?nodes=test',
     );
 
@@ -392,5 +393,80 @@ describe('JobDetailsPage', () => {
 
     expect(await screen.findByText('Job ID is missing')).toBeInTheDocument();
     expect(getById).not.toHaveBeenCalled();
+  });
+
+  describe('the graph of the job', () => {
+    // `deploy` waits for `build` and `is-main:true`; `notify` takes the failure of `test`.
+    const conditional = (overrides: Partial<JobEntity> = {}) =>
+      job({
+        status: 'failed',
+        nodes: [
+          { id: 'build', kind: 'run', deps: [], ports: [] },
+          { id: 'is-main', kind: 'switch', deps: [{ node: 'build' }], ports: ['true', 'false'] },
+          {
+            id: 'deploy',
+            kind: 'run',
+            deps: [{ node: 'build' }, { node: 'is-main', port: 'true' }],
+            ports: [],
+          },
+          { id: 'test', kind: 'run', deps: [{ node: 'build' }], ports: [] },
+          { id: 'notify', kind: 'run', deps: [{ node: 'test', port: 'error' }], ports: [] },
+        ],
+        nodeExecutions: [
+          { id: 'build', state: 'completed', attempts: 1, maxAttempts: 1, ports: [] },
+          { id: 'is-main', state: 'completed', attempts: 1, maxAttempts: 1, ports: ['false'] },
+          { id: 'deploy', state: 'skipped', attempts: 0, maxAttempts: 1, ports: [] },
+          { id: 'test', state: 'failed', attempts: 1, maxAttempts: 1, ports: [] },
+          { id: 'notify', state: 'completed', attempts: 1, maxAttempts: 1, ports: [] },
+        ],
+        ...overrides,
+      });
+
+    const graphNode = (id: string) =>
+      within(screen.getByRole('region', { name: 'Graph of the job' })).getByRole('button', {
+        name: `Open the logs of ${id}`,
+      });
+
+    it('draws the nodes above the list, and a node not taken grey and dashed', async () => {
+      await renderPage(conditional());
+
+      // The button is the content of the node: the frame around it is dashed.
+      expect(graphNode('deploy').parentElement).toHaveClass('border-dashed');
+      expect(graphNode('deploy')).toHaveTextContent('Not taken');
+      expect(graphNode('build').parentElement).not.toHaveClass('border-dashed');
+    });
+
+    it('says in the list that a node was not taken, and names the error branch of a failure', async () => {
+      await renderPage(conditional(), '?nodes=deploy,test,is-main');
+
+      expect(screen.getByRole('region', { name: 'deploy' })).toHaveTextContent(
+        'Not taken: the path did not reach it.',
+      );
+      expect(screen.getByRole('region', { name: 'test' })).toHaveTextContent(
+        'The failure went to the error output: notify.',
+      );
+      expect(screen.getByRole('region', { name: 'is-main' })).toHaveTextContent(
+        'Ports chosen: false',
+      );
+    });
+
+    it('opens the logs of a node clicked in the graph, and scrolls to them', async () => {
+      await renderPage(conditional());
+
+      await userEvent.click(graphNode('test'));
+
+      await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/test']));
+      await waitFor(() =>
+        expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith(
+          expect.objectContaining({ block: 'nearest' }),
+        ),
+      );
+    });
+
+    it('draws no graph for a job from before the snapshot of the nodes', async () => {
+      await renderPage(job());
+
+      expect(screen.queryByRole('region', { name: 'Graph of the job' })).not.toBeInTheDocument();
+    });
   });
 });

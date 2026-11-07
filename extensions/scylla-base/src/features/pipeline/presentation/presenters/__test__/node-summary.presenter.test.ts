@@ -12,7 +12,7 @@ const script = (body: string): NodeDefinition => ({
   script: body,
   env: [],
 });
-const exec = (command: string, args: string[] = []): NodeDefinition => ({
+const exec = (command: string, args: string[] = []): Extract<NodeDefinition, { kind: 'exec' }> => ({
   kind: 'exec',
   command,
   args,
@@ -47,10 +47,70 @@ describe('summarize', () => {
   });
 
   it('shows the icon of the template whose code the node runs', () => {
-    expect(summarize(node('checkout', 'git clone x .'), 'git').icon).toBe(
+    expect(summarize(node('checkout', 'git clone x .'), { iconHint: 'git' }).icon).toBe(
       nodeIcon('script', 'git'),
     );
     expect(summarize(node('checkout', 'git clone x .')).icon).toBe(nodeIcon('script'));
+  });
+});
+
+describe('summarize: the conditional nodes', () => {
+  const ifNode: PipelineNodeEntity = {
+    id: 'is-main',
+    deps: [],
+    env: [],
+    kind: 'switch',
+    cases: [{ port: 'true', combinator: 'all', rules: [] }],
+    otherwise: 'false',
+    allMatches: false,
+  };
+
+  it('gives a switch one output for each port, in order', () => {
+    expect(summarize(ifNode).outputs).toEqual([{ port: 'true' }, { port: 'false' }]);
+  });
+
+  it('adds the red error output to a node that runs a step, when it shows it', () => {
+    expect(summarize(node('test', 'make')).outputs).toEqual([{}]);
+    expect(summarize(node('test', 'make'), { errorPort: true }).outputs).toEqual([
+      {},
+      { port: 'error', error: true },
+    ]);
+  });
+
+  it('shows the issue of a switch with a short label and the whole reason', () => {
+    expect(summarize(ifNode).problem).toEqual({
+      label: 'Invalid switch',
+      detail: 'The case true needs 1 to 32 rules.',
+    });
+  });
+
+  it('shows a switch port named error as the issue of the switch', () => {
+    expect(summarize({ ...ifNode, otherwise: 'error' }).problem).toEqual({
+      label: 'Invalid switch',
+      detail:
+        'The port name "error" is for the error output of a node that runs a step. Use another name.',
+    });
+  });
+
+  it('shows the issue that the pipeline finds, in place of its own', () => {
+    expect(
+      summarize(node('deploy', 'make'), {
+        issue: {
+          kind: 'need',
+          issue: { kind: 'unknown-port', need: { node: 'is-main', port: 'maybe' } },
+        },
+      }).problem,
+    ).toEqual({ label: 'Invalid link', detail: 'is-main has no port maybe.' });
+  });
+
+  it('names the kind of a switch and of a merge, which run nothing', () => {
+    const merge: PipelineNodeEntity = { id: 'join', deps: [], kind: 'merge' };
+    expect(summarize(ifNode, { issue: null })).toMatchObject({ kind: 'switch', preview: '' });
+    expect(summarize(merge, { issue: null })).toMatchObject({
+      kind: 'merge',
+      variables: 0,
+      outputs: [{}],
+    });
   });
 });
 

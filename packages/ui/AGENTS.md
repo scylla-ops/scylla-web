@@ -38,7 +38,8 @@ src/
                            CopyableText, TruncatedText
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
-  layout/                  FeatureHeader, ContextItem, PageTransition, ScyllaLoadingScreen
+  layout/                  FeatureHeader, ContextItem, PageTransition, ScyllaLoadingScreen,
+                           keepFitted (an attachment: fits a view again at each resize)
   motion/                  page transitions, reduced motion
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
                            frame, for an editor that fills a pane with its own borders)
