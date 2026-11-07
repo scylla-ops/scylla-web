@@ -53,6 +53,10 @@ interface OfferableTour<P> {
 /** The path in the workspace: the URL without the slug of the workspace. */
 export const workspacePath = (pathname: string): string => pathname.replace(/^\/[^/]+/, '') || '/';
 
+/** `page` is a path in the workspace. A trailing slash does not count. */
+export const isOnPage = (pathname: string, page: string): boolean =>
+  workspacePath(pathname).replace(/\/$/, '') === page.replace(/\/$/, '');
+
 /**
  * The tour that the current page offers on a first visit: one the user may start, has not done
  * and has not turned down. Nothing while a tour runs or its end shows.

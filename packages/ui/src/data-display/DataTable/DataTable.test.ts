@@ -27,6 +27,12 @@ describe('DataTable', () => {
     expect(screen.getByText('deploy')).toBeInTheDocument();
   });
 
+  it('marks each row for code outside, not the header', () => {
+    const { container } = render(DataTable, { columns, data });
+
+    expect(container.querySelectorAll('[data-part="data-table-row"]')).toHaveLength(data.length);
+  });
+
   it('shows a single "No results." row for an empty dataset, not an empty body', () => {
     render(DataTable, { columns, data: [] });
 

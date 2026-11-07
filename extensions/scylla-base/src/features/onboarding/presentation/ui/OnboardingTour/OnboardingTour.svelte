@@ -31,7 +31,8 @@
     tours={mainTours}
     done={tour.done}
     onStart={id => tour.startTour(id)}
-    onSkip={() => tour.skipIntro()}
+    onSkip={() => tour.requestSkip()}
+    onExplore={() => tour.skipIntro()}
   />
 {:else if tour.view === 'finish' && tour.tour}
   <FinishTourDialog
@@ -43,6 +44,8 @@
   />
 {:else if tour.view === 'spot' && tour.step}
   <TourSpot {tour} step={tour.step} />
+{/if}
+{#if tour.view === 'intro' || tour.view === 'spot'}
   <SkipTourDialog
     open={tour.confirmingSkip}
     onSkip={() => tour.confirmSkip()}

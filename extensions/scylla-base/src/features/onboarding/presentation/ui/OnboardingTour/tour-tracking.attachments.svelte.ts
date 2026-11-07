@@ -1,21 +1,34 @@
 import { untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
 import { motionDuration } from '@scylla/ui';
+import { dialogHoldStore } from '@scylla/ui/stores';
 import type { OnboardingSubject } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
 import {
   easeRects,
+  presentRects,
+  scrollPlan,
+  spotlightRect,
   unionRect,
+  visibleArea,
   type TourRect,
 } from '@base/features/onboarding/presentation/presenters/tour-placement.presenter.ts';
 import type { TourAnchor, TourCondition, TourSpotStep } from './tour-steps.registry.ts';
 
 export const LOST_AFTER_MS = 2000;
+/** A request that hangs must not hold the card away for ever. */
+export const LOST_LIMIT_MS = 10000;
 export const MOVE_MS = 300;
 export const HOLD_MS = 700;
 
 export interface TourLayout {
+  /** The boxes of the ring, eased between two steps. */
   targets: readonly (TourRect | null)[];
+  /** Where the targets end: the card goes there at once and does not follow the ease. */
+  final: readonly (TourRect | null)[];
   allowed: TourRect | null;
+  /** The open menus and lists, and the `keepClear` of the step: the card must not cover them. */
+  avoid: readonly TourRect[];
+  moving: boolean;
 }
 
 export interface TourActionState {
@@ -30,8 +43,13 @@ export interface TourTracking {
   onAction: (action: TourActionState | null) => void;
   onAdvance: (found?: OnboardingSubject) => void;
   onUnlock: () => void;
+  onLock: () => void;
   onLost: () => void;
+  /** The target came back, or the page changed: the step is not lost any more. */
+  onFound: () => void;
   onHint: (shown: boolean) => void;
+  /** While it is true, an absent target does not count as lost: the page still loads. */
+  isLoading: () => boolean;
   /** The user came back to this step with Previous: an `appear` waits until its element goes. */
   rewound?: boolean;
 }
@@ -83,11 +101,19 @@ export const readAction = (target: Element | null): TourActionState | null => {
 const actionKey = (action: TourActionState | null) =>
   action ? `${action.disabled ? 0 : 1}:${action.label}` : '-';
 
-const isOnScreen = (rect: TourRect) =>
-  rect.y >= 0 &&
-  rect.x >= 0 &&
-  rect.y + rect.height <= window.innerHeight &&
-  rect.x + rect.width <= window.innerWidth;
+const scrollersOf = (element: Element): Element[] => {
+  const scrollers: Element[] = [];
+  const { body } = element.ownerDocument;
+  for (
+    let parent = element.parentElement;
+    parent && parent !== body;
+    parent = parent.parentElement
+  ) {
+    const { display, overflowX, overflowY } = getComputedStyle(parent);
+    if (display !== 'contents' && /auto|scroll/.test(overflowX + overflowY)) scrollers.push(parent);
+  }
+  return scrollers;
+};
 
 export const allowedAnchor = (step: TourSpotStep): TourAnchor | null =>
   step.nextWhen?.on === 'click' ? step.nextWhen.anchor : null;
@@ -101,49 +127,82 @@ export const trackTourStep =
     let frame = 0;
     let lastLayout = '';
     let startedAt: number | null = null;
-    let missingSince: number | null = null;
+    let missingAt: number | null = null;
+    let missingIdle = 0;
+    let missingTotal = 0;
     let lost = false;
     let scrolled = false;
     let advanced = false;
     let unlocked = false;
+    let locked = false;
+    let seen = false;
     let hintShown = false;
     let armed = !tracking.rewound;
     let lastAction: string | null = null;
+    let lastPathname = document.location.pathname;
     let shown: readonly (TourRect | null)[] = [];
     let moveFrom: readonly (TourRect | null)[] = [];
     let moveStart: number | null = null;
+    let scrollers = new WeakMap<Element, Element[]>();
 
     const resolve = (anchor: TourAnchor) => anchor(document, tracking.subject);
+
+    const clearMissing = () => {
+      missingAt = null;
+      missingIdle = 0;
+      missingTotal = 0;
+    };
+
+    const found = () => {
+      clearMissing();
+      if (!lost) return;
+      lost = false;
+      tracking.onFound();
+    };
 
     const reset = () => {
       lastLayout = '';
       startedAt = null;
-      missingSince = null;
+      clearMissing();
       lost = false;
       scrolled = false;
       advanced = false;
       unlocked = false;
+      locked = false;
+      seen = false;
       hintShown = false;
       armed = !tracking.rewound;
       lastAction = null;
       moveFrom = shown;
       moveStart = null;
+      scrollers = new WeakMap();
     };
 
-    const advance = (found?: OnboardingSubject) => {
+    const advance = (next?: OnboardingSubject) => {
       if (advanced) return;
       advanced = true;
-      tracking.onAdvance(found);
+      tracking.onAdvance(next);
     };
 
     const unlock = () => {
       if (unlocked) return;
       unlocked = true;
+      locked = false;
       tracking.onUnlock();
     };
 
-    const appeared = (condition: TourCondition | undefined) =>
-      condition?.on === 'appear' && resolve(condition.anchor) !== null;
+    const lock = () => {
+      if (locked) return;
+      locked = true;
+      unlocked = false;
+      tracking.onLock();
+    };
+
+    const boundsOf = (element: Element): TourRect[] => {
+      const known = scrollers.get(element) ?? scrollersOf(element);
+      scrollers.set(element, known);
+      return presentRects(known.map(scroller => measure(scroller)));
+    };
 
     const ease = (targets: readonly (TourRect | null)[], now: number) => {
       if (!moveFrom.some(Boolean) || !targets[0]) return targets;
@@ -157,24 +216,45 @@ export const trackTourStep =
       return easeRects(moveFrom, targets, progress);
     };
 
+    const countMissing = (now: number) => {
+      const elapsed = missingAt === null ? 0 : now - missingAt;
+      missingAt = now;
+      missingTotal += elapsed;
+      if (!tracking.isLoading()) missingIdle += elapsed;
+      if (!lost && (missingIdle >= LOST_AFTER_MS || missingTotal >= LOST_LIMIT_MS)) {
+        lost = true;
+        tracking.onLost();
+      }
+    };
+
     const tick = (now: number) => {
       startedAt ??= now;
       const { step } = tracking;
+      const view = { width: window.innerWidth, height: window.innerHeight };
       const elements = step.targets.map(resolve);
-      const targets = ease(
-        elements.map(element => (element ? measure(element) : null)),
-        now,
-      );
+      const final = elements.map(element => {
+        const box = element && measure(element);
+        return element && box ? spotlightRect(box, view, boundsOf(element)) : null;
+      });
+      const targets = ease(final, now);
       const allowedElement = allowedAnchor(step);
       const allowedTarget = allowedElement ? resolve(allowedElement) : null;
       const allowed = allowedTarget ? measure(allowedTarget) : null;
+      const keepClear = step.keepClear ? resolve(step.keepClear) : null;
+      const avoid = presentRects(
+        [
+          ...document.querySelectorAll('[role="menu"], [role="listbox"]'),
+          ...(keepClear ? [keepClear] : []),
+        ].map(measure),
+      );
+      const moving = moveFrom.some(Boolean) && !!final[0];
 
-      const holding = !targets[0] && moveFrom.some(Boolean) && now - startedAt < HOLD_MS;
-      const layout = [...targets, allowed].map(rectKey).join(';');
+      const holding = !final[0] && moveFrom.some(Boolean) && now - startedAt < HOLD_MS;
+      const layout = [...targets, ...final, allowed, ...avoid].map(rectKey).join(';') + moving;
       if (!holding && layout !== lastLayout) {
         lastLayout = layout;
         shown = targets;
-        tracking.onLayout({ targets, allowed });
+        tracking.onLayout({ targets, final, allowed, avoid, moving });
       }
 
       if (step.action) {
@@ -186,21 +266,23 @@ export const trackTourStep =
         }
       }
 
+      const { pathname } = document.location;
+      if (pathname !== lastPathname) {
+        lastPathname = pathname;
+        found();
+      }
+
       const [first] = elements;
-      const [firstRect] = targets;
-      if (first && firstRect) {
-        missingSince = null;
-        lost = false;
+      const box = first && measure(first);
+      if (first && box) {
+        found();
         if (!scrolled) {
           scrolled = true;
-          if (!isOnScreen(firstRect)) first.scrollIntoView({ block: 'center', inline: 'nearest' });
+          const block = scrollPlan(box, visibleArea(view, boundsOf(first)));
+          if (block) first.scrollIntoView({ block, inline: 'nearest' });
         }
       } else {
-        missingSince ??= now;
-        if (!lost && now - missingSince >= LOST_AFTER_MS) {
-          lost = true;
-          tracking.onLost();
-        }
+        countMissing(now);
       }
 
       if (step.hint) {
@@ -216,7 +298,14 @@ export const trackTourStep =
         if (!element) armed = true;
         else if (armed) advance(step.advance.found?.(element));
       }
-      if (appeared(step.nextWhen)) unlock();
+      if (step.advance.on === 'gone') {
+        if (resolve(step.advance.anchor)) seen = true;
+        else if (seen) advance();
+      }
+      if (step.nextWhen?.on === 'appear') {
+        if (resolve(step.nextWhen.anchor)) unlock();
+        else lock();
+      }
 
       frame = requestAnimationFrame(tick);
     };
@@ -246,6 +335,79 @@ export const trackTourStep =
       document.removeEventListener('click', onClick, true);
     };
   };
+
+/** Only Skip leaves a step that holds a dialog: no Escape, outside click or close button. */
+export const holdDialogs =
+  (held: () => boolean): Attachment<HTMLElement> =>
+  () => {
+    $effect(() => {
+      dialogHoldStore.setState({ held: held() });
+    });
+    return () => dialogHoldStore.setState({ held: false });
+  };
+
+/** Tells what lies outside the tour, such as a launcher in the same corner, to stay out of it. */
+export const markTourActive: Attachment<HTMLElement> = node => {
+  const root = node.ownerDocument.documentElement;
+  root.setAttribute('data-tour-active', '');
+  return () => root.removeAttribute('data-tour-active');
+};
+
+export interface TourKeyboard {
+  /** Stops the search shortcut, which opens over the step. */
+  holdSearch: boolean;
+  /** Tab goes around the targets and the card, and not into the page behind the dim. */
+  loopTab: boolean;
+  targets: () => readonly (Element | null)[];
+}
+
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+const canTakeFocus = (element: Element) =>
+  !element.closest('[inert]') &&
+  element.getClientRects().length > 0 &&
+  getComputedStyle(element).visibility !== 'hidden';
+
+export const tourFocusables = (roots: readonly Element[]): HTMLElement[] => {
+  const all = roots.flatMap(root => [
+    ...(root.matches(FOCUSABLE) ? [root] : []),
+    ...root.querySelectorAll(FOCUSABLE),
+  ]);
+  return all.filter(
+    (element, at): element is HTMLElement =>
+      all.indexOf(element) === at && element instanceof HTMLElement && canTakeFocus(element),
+  );
+};
+
+export const holdKeyboard =
+  (options: () => TourKeyboard): Attachment<HTMLElement> =>
+  node => {
+    const view = node.ownerDocument.defaultView;
+    const onKeydown = (event: KeyboardEvent) => {
+      const { holdSearch, loopTab, targets } = options();
+      if (holdSearch && (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+      if (!loopTab || event.key !== 'Tab') return;
+      const active = node.ownerDocument.activeElement;
+      if (active?.closest('[role="menu"], [role="listbox"], [contenteditable="true"]')) return;
+      const card = node.querySelector('[data-tour-focus]');
+      const list = tourFocusables(presentElements([...targets(), card]));
+      event.preventDefault();
+      if (list.length === 0) return;
+      const at = list.findIndex(element => element === active);
+      const next = event.shiftKey ? (at <= 0 ? list.length - 1 : at - 1) : (at + 1) % list.length;
+      list[next]?.focus();
+    };
+    view?.addEventListener('keydown', onKeydown, true);
+    return () => view?.removeEventListener('keydown', onKeydown, true);
+  };
+
+const presentElements = (elements: readonly (Element | null)[]): Element[] =>
+  elements.filter((element): element is Element => !!element);
 
 /** Keeps an open dialog of the page from taking a press on the tour as a click outside. */
 export const holdPointer: Attachment<Element> = node => {

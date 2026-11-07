@@ -7,6 +7,7 @@
     DialogHeader,
     DialogTitle,
   } from '../../primitives/index.ts';
+  import { dialogHoldStore, toRune } from '../../stores/index.ts';
   import { cn } from '../../utils/index.ts';
 
   interface Props {
@@ -24,6 +25,7 @@
     class?: string;
     /** Built again at each opening, so a form in it starts empty. */
     children: Snippet;
+    [dataAttribute: `data-${string}`]: unknown;
   }
 
   let {
@@ -35,19 +37,29 @@
     dismissible = true,
     class: className,
     children,
+    ...rest
   }: Props = $props();
 
   let openings = 0;
   const opening = $derived(open ? ++openings : openings);
 
+  const hold = toRune(dialogHoldStore);
+  const held = $derived(hold().held);
+
   const keepOpen = (event: Event) => {
-    if (dismissible !== true) event.preventDefault();
+    if (dialogHoldStore.getState().held || dismissible !== true) event.preventDefault();
   };
 </script>
 
 <Dialog {open} {onOpenChange}>
   <DialogContent
-    class={cn(dismissible === false && '[&>button]:hidden', className)}
+    {...rest}
+    class={cn(
+      (held || dismissible === false) && '[&>button]:hidden',
+      held && '[&_[data-dialog-dismiss]]:hidden',
+      className,
+    )}
+    trapFocus={!held}
     onEscapeKeydown={keepOpen}
     onInteractOutside={keepOpen}
   >

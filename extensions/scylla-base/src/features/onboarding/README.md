@@ -3,7 +3,7 @@
 > [Scylla frontend](../../../../../README.md) › `features/` › **onboarding** ·
 > [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
 
-A new user lands on an empty dashboard. The welcome dialog shows what Scylla does in 4 key
+A new user lands on the projects page. The welcome dialog shows what Scylla does in 4 key
 features, then offers a guided tour. The tours take the user to a first green run: connect an
 agent, create a project and a pipeline, run it, open the job. Other tours cover triggers, secrets,
 roles and members. The design is the "Onboarding · tutoriel" page of the Scylla Figma file.
@@ -18,7 +18,8 @@ A card with a spotlight points at one element; a thin dotted line joins them. Th
 real action (a click, a form) and the tour follows: there is no fake data and no shortcut. When
 the action is a click on a button, the card repeats that button, so the next move is always in the
 same corner of the card. Steps that only explain something have a Next button. "Skip" asks for a
-confirmation. A dialog at the end of each tour shows the tours that are done and offers the next.
+confirmation, and it is the only way out of a step that lives in a dialog: if the dialog can close,
+the tour loses what the user just created. A dialog at the end of each tour shows the tours that are done and offers the next.
 
 ## Why anchors and not selectors
 

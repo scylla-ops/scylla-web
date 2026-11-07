@@ -95,6 +95,7 @@
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     data-slot="data-table-card"
+    data-part="data-table-row"
     data-state={selected ? 'selected' : undefined}
     onclick={() => onRowClick?.(row)}
     class={cn(
@@ -204,6 +205,7 @@
             {@const selected = isRowSelected?.(row.original) ?? false}
             <TableRow
               role="row"
+              data-part="data-table-row"
               data-state={selected ? 'selected' : undefined}
               onclick={() => onRowClick?.(row)}
               style={rowStyle}

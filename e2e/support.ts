@@ -38,8 +38,9 @@ export const mailLink = async (email: string, page: string): Promise<string> => 
 
 /** Closes the release notes and the onboarding tour, which a new browser shows once. */
 export const dismissOverlays = async (page: Page): Promise<void> => {
-  for (const name of ['Got it', 'Skip tour', 'Skip the tour']) {
+  for (const name of ['Got it', 'Skip', 'Skip the tour']) {
     const button = page.getByRole('button', { name, exact: true }).first();
+    await button.waitFor({ timeout: 1000 }).catch(() => undefined);
     if (await button.isVisible().catch(() => false)) await button.click();
   }
 };

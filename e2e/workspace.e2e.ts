@@ -18,7 +18,7 @@ test('a project gets a secret and a pipeline', async ({ page }) => {
   await expect(page.getByRole('heading', { name: /Pipelines/ })).toBeVisible();
   const projectPath = new URL(page.url()).pathname;
 
-  await page.getByRole('button', { name: 'Secrets' }).click();
+  await page.locator('[data-nav-url="secrets"]').click();
   await page
     .getByRole('button', { name: /New secret|Create secret|Add/ })
     .first()

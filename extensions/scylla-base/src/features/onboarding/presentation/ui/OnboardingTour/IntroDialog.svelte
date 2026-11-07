@@ -23,9 +23,10 @@
     done: readonly string[];
     onStart: (tourId: string) => void;
     onSkip: () => void;
+    onExplore: () => void;
   }
 
-  let { open, tours, done, onStart, onSkip }: Props = $props();
+  let { open, tours, done, onStart, onSkip, onExplore }: Props = $props();
 
   let index = $state(0);
   const total = introSlides.length;
@@ -99,7 +100,7 @@
         >
           {t(m.readTheDocs)}
         </a>
-        <Button variant="outline" size="sm" onclick={onSkip}>{t(m.exploreAlone)}</Button>
+        <Button variant="outline" size="sm" onclick={onExplore}>{t(m.exploreAlone)}</Button>
       {:else}
         <Button size="sm" onclick={() => (index += 1)}>
           {index === total - 1 ? t(m.chooseTour) : t(m.next)}

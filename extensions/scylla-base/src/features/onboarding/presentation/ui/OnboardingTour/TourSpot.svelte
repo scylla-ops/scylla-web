@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
+  import { dialogHoldStore } from '@scylla/ui/stores';
   import {
     onboardingMessages,
   } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
@@ -9,13 +10,16 @@
   import {
     VIEWPORT_MARGIN,
     placeCard,
-    spotlightRect,
+    presentRects,
   } from '@base/features/onboarding/presentation/presenters/tour-placement.presenter.ts';
   import type { OnboardingSubject } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
   import type { TourSpotStep } from './tour-steps.registry.ts';
   import {
     allowedAnchor,
     blockPage,
+    holdDialogs,
+    holdKeyboard,
+    markTourActive,
     portalToBody,
     pressable,
     trackTourStep,
@@ -32,8 +36,8 @@
 
   let { tour, step }: Props = $props();
 
-  let layout = $state<TourLayout>({ targets: [], allowed: null });
-  let lostStepId = $state<string | null>(null);
+  let layout = $state<TourLayout>({ targets: [], final: [], allowed: null, avoid: [], moving: false });
+  let lostAt = $state<{ stepId: string; onPage: boolean } | null>(null);
   let hintStepId = $state<string | null>(null);
   let actionState = $state<{ stepId: string; action: TourActionState | null } | null>(null);
   let cardWidth = $state(0);
@@ -42,21 +46,27 @@
   let viewportHeight = $state(0);
 
   const viewport = $derived({ width: viewportWidth, height: viewportHeight });
-  const holes = $derived(
-    layout.targets.filter(rect => rect !== null).map(rect => spotlightRect(rect, viewport)),
-  );
-  const target = $derived(layout.targets[0] ? spotlightRect(layout.targets[0], viewport) : null);
+  const holes = $derived(presentRects(layout.targets));
+  const target = $derived(layout.final[0] ?? null);
+  const others = $derived(presentRects(layout.final.slice(1)));
+  const cardSize = $derived({ width: cardWidth, height: cardHeight });
   const card = $derived(
-    target ? placeCard(target, { width: cardWidth, height: cardHeight }, viewport) : null,
+    target ? placeCard(target, cardSize, viewport, layout.avoid, others) : null,
   );
-  const connectors = $derived(card?.connector ? [card.connector] : []);
-  const lost = $derived(!card && lostStepId === step.id);
+  const connectors = $derived(card?.connector && !layout.moving ? [card.connector] : []);
+  const lost = $derived(!card && lostAt?.stepId === step.id);
   const showNext = $derived(step.advance.on === 'next' || !!step.nextWhen);
   const blocking = $derived(!!card && showNext && !step.form);
 
   const action = $derived(actionState?.stepId === step.id ? actionState.action : null);
   const ready = $derived(!!step.action && !!action && !action.disabled);
-  const shown = $derived(ready && step.action?.ready ? step.action.ready : step);
+  const absent = $derived(
+    actionState?.stepId === step.id && !action ? step.action?.absent : undefined,
+  );
+  const shown = $derived.by(() => {
+    if (ready && step.action?.ready) return step.action.ready;
+    return absent ? { title: step.title, body: absent.body } : step;
+  });
 
   const press = () => {
     if (!step.action) return;
@@ -64,7 +74,7 @@
   };
 
   const primary = $derived.by(() => {
-    if (lost) return undefined;
+    if ((lost && !step.go) || absent) return undefined;
     if (step.action) {
       const label = step.action.label ? t(step.action.label) : action?.label;
       return label ? { label, disabled: !ready, onClick: press } : undefined;
@@ -81,7 +91,7 @@
   });
 
   const waiting = $derived.by(() => {
-    if (!step.waiting) return undefined;
+    if (!step.waiting || tour.agentOffline) return undefined;
     const pending = step.action ? !ready : !tour.canGoNext;
     return pending ? t(step.waiting) : undefined;
   });
@@ -93,8 +103,9 @@
   };
 
   const onPrevious = $derived(
-    tour.canGoPrevious && !lost
+    tour.canGoPrevious
       ? () => {
+          dialogHoldStore.setState({ held: false });
           closeOpenDialog();
           tour.previous();
         }
@@ -102,7 +113,8 @@
   );
 
   const notice = $derived.by(() => {
-    if (lost) {
+    if (lost && !step.go) {
+      if (lostAt?.onPage) return { text: t(onboardingMessages.lostAbsentNotice) };
       return {
         text: t(onboardingMessages.lostNotice),
         action: tour.canGoBack
@@ -137,18 +149,31 @@
     },
     onAdvance: (found?: OnboardingSubject) => tour.advance(step.id, found),
     onUnlock: () => tour.unlock(step.id),
+    onLock: () => tour.lock(step.id),
     onLost: () => {
-      lostStepId = step.id;
+      lostAt = { stepId: step.id, onPage: tour.onStepPage };
       tour.recover(step.id);
+    },
+    onFound: () => {
+      lostAt = null;
     },
     onHint: (visible: boolean) => {
       hintStepId = visible ? step.id : null;
     },
+    isLoading: () => tour.isLoading,
   });
 
   const blockingOptions = $derived({
     active: blocking && !tour.confirmingSkip,
     allowed: () => allowedAnchor(step)?.(document, tour.subject) ?? null,
+  });
+
+  const holdingDialogs = $derived(!!step.holdsDialog && !lost && !tour.confirmingSkip);
+
+  const keyboard = $derived({
+    holdSearch: !lost,
+    loopTab: !!card && !tour.confirmingSkip,
+    targets: () => step.targets.map(anchor => anchor(document, tour.subject)),
   });
 </script>
 
@@ -168,6 +193,7 @@
     {primary}
     wide={step.wide}
     hidden={tour.confirmingSkip}
+    gliding={layout.moving}
     {x}
     {y}
     bind:width={cardWidth}
@@ -179,6 +205,9 @@
   {@attach portalToBody}
   {@attach blockPage(() => blockingOptions)}
   {@attach trackTourStep(() => tracking)}
+  {@attach holdDialogs(() => holdingDialogs)}
+  {@attach holdKeyboard(() => keyboard)}
+  {@attach markTourActive}
   data-onboarding-tour
   class="contents"
   style:visibility={tour.confirmingSkip ? 'hidden' : undefined}

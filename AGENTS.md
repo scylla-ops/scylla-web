@@ -501,8 +501,9 @@ The components and helpers below are in `@scylla/ui` (entry points `@scylla/ui`,
 - **Navigation**: `scyllaNavigate` and `navigateTo` from `@platform/context` inside scylla-base
   (`navigateTo` comes from `@scylla/core-sdk`, which another extension imports). Never import
   the router.
-- **Global state**: only `contextStore` (current org/project) and `selectionStore` are app-wide,
-  plus `permissionsStore` in `@platform/authz`. Everything else = TanStack Query (server) or local
+- **Global state**: only `contextStore` (current org/project), `selectionStore` and
+  `dialogHoldStore` (the guided tour holds the dialogs open) are app-wide, plus `permissionsStore` in
+  `@platform/authz`. Everything else = TanStack Query (server) or local
   `$state`.
 - **Batch loads**: use `createQueries` to avoid N+1 (see jobs-per-pipeline).
 

@@ -25,6 +25,8 @@
     wide?: boolean;
     /** Kept in place but not shown, e.g. under the skip confirmation. */
     hidden?: boolean;
+    /** The card glides to its new place while the ring moves to the next step. */
+    gliding?: boolean;
     x: number;
     y: number;
     width?: number;
@@ -44,6 +46,7 @@
     primary,
     wide = false,
     hidden = false,
+    gliding = false,
     x,
     y,
     width = $bindable(0),
@@ -73,7 +76,8 @@
   tabindex="-1"
   data-tour-focus
   class={cn(
-    'pointer-events-auto fixed z-[200] flex flex-col gap-3 rounded-[14px] border border-border bg-background px-5 pt-4 pb-4 text-foreground shadow-xl outline-none transition-[width] duration-300 ease-out motion-reduce:transition-none',
+    'pointer-events-auto fixed z-[200] flex flex-col gap-3 rounded-[14px] border border-border bg-background px-5 pt-4 pb-4 text-foreground shadow-xl outline-none duration-300 ease-out motion-reduce:transition-none',
+    gliding ? 'transition-[left,top,width]' : 'transition-[width]',
     wide ? 'w-[400px]' : 'w-[380px]',
     'max-w-[calc(100vw-2rem)]',
   )}
