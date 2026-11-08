@@ -159,6 +159,16 @@ describe('AgentsList', () => {
     expect(within(row('gpu-runner-01')).getByText('ml-training')).toBeInTheDocument();
   });
 
+  it('grows with its list, so the last row scrolls above a floating button at the bottom right', async () => {
+    setUp(ALL);
+
+    await screen.findByText('build-linux-01');
+
+    const page = document.querySelector('[data-tour="agents"]');
+    expect(page).toHaveClass('min-h-full', 'shrink-0', 'pb-20');
+    expect(page).not.toHaveClass('h-full');
+  });
+
   it('filters the agents by state and finds them by host name', async () => {
     setUp(ALL);
     const user = userEvent.setup();

@@ -110,7 +110,7 @@
 </script>
 
 {#if projectId}
-  <div class="flex w-full flex-col gap-4">
+  <div class="flex w-full flex-col gap-4 pb-20">
     <header class="flex items-start justify-between gap-6">
       <div class="flex flex-col gap-1">
         <h2 class="text-xl">{t(membersOf(projectName))}</h2>

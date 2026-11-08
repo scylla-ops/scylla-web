@@ -116,6 +116,21 @@ describe('AccountPage', () => {
     expect(header.querySelectorAll('[data-slot="badge"]')).toHaveLength(1);
   });
 
+  it('ends with a space above a floating button at the bottom right, in a workspace', async () => {
+    setUp('profile');
+
+    const header = (await screen.findByRole('heading', { level: 1 })).closest('header')!;
+    expect(header.parentElement).toHaveClass('pb-20');
+  });
+
+  it('keeps a short space before the sign-out that follows it with no workspace', async () => {
+    setUp('profile', {}, null);
+
+    const header = (await screen.findByRole('heading', { level: 1 })).closest('header')!;
+    expect(header.parentElement).toHaveClass('pb-8');
+    expect(header.parentElement).not.toHaveClass('pb-20');
+  });
+
   it('has no nav of its own in a workspace: the second sidebar has the links', async () => {
     setUp('security');
 

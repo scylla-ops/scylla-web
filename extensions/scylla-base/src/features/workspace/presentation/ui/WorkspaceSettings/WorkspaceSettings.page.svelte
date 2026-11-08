@@ -32,7 +32,7 @@
   };
 </script>
 
-<div class="mx-auto flex w-full max-w-4xl flex-col gap-4 pb-8">
+<div class="mx-auto flex w-full max-w-4xl flex-col gap-4 pb-20">
   <div>
     <h1>{t(messages.title)}</h1>
     <p class="text-sm text-muted-foreground">{t(messages.description(name))}</p>

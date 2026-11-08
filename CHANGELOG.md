@@ -285,6 +285,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   such links with `ShellContributions.secondSidebarLinks`.
 - The page of an agent and the page of an app have a space under the last card. Before, the last
   card touched the bottom of the window, and a floating button at the bottom right covered it.
+- The pages that scroll have a space under their last element: the lists of agents, apps, members,
+  roles, users, secrets and triggers, the page of a role, of a user and of the access of a member,
+  the settings, the account, the help and the notifications. Before, the last element touched the
+  bottom of the window, and a floating button at the bottom right covered it.
 
 ## [0.6.0] - 2026-11-01
 

@@ -204,7 +204,7 @@
     } ${disabled ? 'cursor-not-allowed opacity-60' : 'hover:bg-muted/40'}`;
 </script>
 
-<div class="flex w-full flex-col gap-6">
+<div class="flex w-full flex-col gap-6 pb-20">
   <button
     type="button"
     class="flex w-fit items-center gap-1 text-xs text-muted-foreground hover:text-foreground"

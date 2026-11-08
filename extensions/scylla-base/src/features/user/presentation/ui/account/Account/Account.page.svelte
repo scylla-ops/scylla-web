@@ -3,6 +3,7 @@
   import { Button, Skeleton } from '@scylla/ui/primitives';
   import { ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import { createAccountPage } from './account-page.state.svelte.ts';
   import { accountSection } from './account-sections.registry.ts';
   import AccountHeader from './AccountHeader.svelte';
@@ -36,7 +37,7 @@
   <ErrorState message={t(userMessages.accountLoadError)} />
 {:else}
   {@const me = page.me}
-  <div class="mx-auto flex w-full max-w-5xl flex-col gap-6 pb-8">
+  <div class={cn('mx-auto flex w-full max-w-5xl flex-col gap-6', workspaceSlug ? 'pb-20' : 'pb-8')}>
     <AccountHeader user={me} systemRole={page.systemRole} />
 
     <div class="flex flex-col gap-6 md:flex-row md:items-start md:gap-10">

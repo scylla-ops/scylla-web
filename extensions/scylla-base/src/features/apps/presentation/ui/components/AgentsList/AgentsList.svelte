@@ -114,7 +114,7 @@
   <p class="text-sm text-muted-foreground">{t(messages.blurb)}</p>
 {/snippet}
 
-<div class="flex h-full min-h-0 w-full flex-col gap-6" data-tour="agents">
+<div class="flex min-h-full w-full shrink-0 flex-col gap-6 pb-20" data-tour="agents">
   <FeatureHeader
     label={t(messages.agent)}
     pluralLabel={t(messages.agents)}

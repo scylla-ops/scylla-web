@@ -20,7 +20,7 @@
 </script>
 
 {#if projectId}
-  <div class="flex min-h-full w-full flex-col gap-4" data-tour="secrets">
+  <div class="flex min-h-full w-full shrink-0 flex-col gap-4 pb-20" data-tour="secrets">
     <SecretHeader
       {projectId}
       activeCount={secretsQuery.isLoading ? undefined : secrets.length}

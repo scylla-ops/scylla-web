@@ -37,7 +37,7 @@
   const progress = $derived(tours.length ? (doneCount / tours.length) * 100 : 0);
 </script>
 
-<div class="mx-auto flex w-full max-w-5xl flex-col gap-6 pb-8" data-tour="help-page">
+<div class="mx-auto flex w-full max-w-5xl flex-col gap-6 pb-20" data-tour="help-page">
   <header class="flex items-center gap-4 border-b pb-6">
     <span class="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary/15">
       <LifeBuoyIcon class="size-7 text-primary" aria-hidden="true" />
