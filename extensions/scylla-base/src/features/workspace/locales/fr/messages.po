@@ -13,18 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/workspace/presentation/workspace.commands.ts:11
-msgid "create add organization"
-msgstr "créer ajouter organisation"
-
-#: extensions/scylla-base/src/features/workspace/presentation/workspace.commands.ts:10
-msgid "New workspace"
-msgstr "Nouvel espace de travail"
-
-#: extensions/scylla-base/src/features/workspace/workspace.module.ts:34
-msgid "workspace settings name"
-msgstr "paramètres espace de travail nom"
-
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:14
 msgid "{workspace} refuses them at once: scripts that use them get \"403 Permission denied\" here. They still work in other workspaces. App tokens and CI identities do not change. You can turn them on again at any time."
 msgstr "{workspace} les refuse tout de suite : les scripts qui les utilisent reçoivent « 403 Permission denied » ici. Ils marchent encore dans les autres espaces de travail. Les tokens des apps et les identités CI ne changent pas. Vous pouvez les réactiver à tout moment."
@@ -41,6 +29,10 @@ msgstr "Un admin de l'instance a désactivé les tokens personnels sur ce serveu
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:9
 msgid "Create a new workspace"
 msgstr "Créer un nouvel espace de travail"
+
+#: extensions/scylla-base/src/features/workspace/presentation/workspace.commands.ts:11
+msgid "create add organization"
+msgstr "créer ajouter organisation"
 
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:11
 msgid "Create Workspace"
@@ -78,7 +70,7 @@ msgstr "Entrez un nom pour votre nouvel espace de travail, et une adresse si vou
 msgid "Find a workspace"
 msgstr "Trouver un espace de travail"
 
-#: extensions/scylla-base/src/features/workspace/workspace.module.ts:31
+#: extensions/scylla-base/src/features/workspace/workspace.module.ts:33
 msgid "General"
 msgstr "Général"
 
@@ -89,6 +81,10 @@ msgstr "Membres"
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:9
 msgid "Members can use their personal tokens on the projects, pipelines and secrets of {workspace}. When off, {workspace} refuses every personal token at once. App tokens and CI identities do not change."
 msgstr "Les membres peuvent utiliser leurs tokens personnels sur les projets, pipelines et secrets de {workspace}. Une fois désactivés, {workspace} refuse tout de suite tous les tokens personnels. Les tokens des apps et les identités CI ne changent pas."
+
+#: extensions/scylla-base/src/features/workspace/presentation/workspace.commands.ts:10
+msgid "New workspace"
+msgstr "Nouvel espace de travail"
 
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:20
 msgid "No workspace matches this search."
@@ -118,8 +114,8 @@ msgstr "Enregistrement..."
 msgid "Security"
 msgstr "Sécurité"
 
-#: extensions/scylla-base/src/features/workspace/workspace.module.ts:27
-#: extensions/scylla-base/src/features/workspace/workspace.module.ts:34
+#: extensions/scylla-base/src/features/workspace/workspace.module.ts:29
+#: extensions/scylla-base/src/features/workspace/workspace.module.ts:37
 msgid "Settings"
 msgstr "Paramètres"
 
@@ -147,3 +143,7 @@ msgstr "Mettez à jour le nom et l'adresse de l'espace de travail."
 #: extensions/scylla-base/src/features/workspace/presentation/presenters/workspace-form.presenter.ts:7
 msgid "Workspace name"
 msgstr "Nom de l'espace de travail"
+
+#: extensions/scylla-base/src/features/workspace/workspace.module.ts:34
+msgid "workspace settings name"
+msgstr "paramètres espace de travail nom"

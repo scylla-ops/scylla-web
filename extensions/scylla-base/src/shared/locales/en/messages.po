@@ -13,10 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:28
-msgid "Job queued: it needs a container, and no connected agent has a container runtime"
-msgstr "Job queued: it needs a container, and no connected agent has a container runtime"
-
 #: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:11
 msgid "{count, plural, =0 {Expires today} one {Expires in # day} other {Expires in # days}}"
 msgstr "{count, plural, =0 {Expires today} one {Expires in # day} other {Expires in # days}}"
@@ -53,7 +49,7 @@ msgstr "Advanced: choose the actions"
 msgid "Advanced: custom actions (no preset)"
 msgstr "Advanced: custom actions (no preset)"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:32
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:33
 msgid "Agent id copied"
 msgstr "Agent id copied"
 
@@ -109,7 +105,7 @@ msgstr "Another workspace already uses this slug"
 msgid "API access"
 msgstr "API access"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:36
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:37
 msgid "App id copied"
 msgstr "App id copied"
 
@@ -121,7 +117,7 @@ msgstr "Apps"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:84
+#: extensions/scylla-base/src/shared/utils/status-config.ts:69
 msgid "Cancelled"
 msgstr "Cancelled"
 
@@ -134,7 +130,7 @@ msgstr "Change"
 msgid "Copy"
 msgstr "Copy"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:33
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:34
 msgid "Could not copy: select the id manually"
 msgstr "Could not copy: select the id manually"
 
@@ -171,7 +167,7 @@ msgstr "Expired on {day}"
 msgid "Expires in"
 msgstr "Expires in"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:57
+#: extensions/scylla-base/src/shared/utils/status-config.ts:48
 msgid "Failed"
 msgstr "Failed"
 
@@ -191,6 +187,10 @@ msgstr "Give this person a role in the workspace first"
 #: extensions/scylla-base/src/shared/presentation/messages/copy-box.messages.ts:7
 msgid "Hidden secret"
 msgstr "Hidden secret"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:28
+msgid "Job queued: it needs a container, and no connected agent has a container runtime"
+msgstr "Job queued: it needs a container, and no connected agent has a container runtime"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:27
 msgid "Job queued: no agent connected"
@@ -228,11 +228,11 @@ msgstr "No project yet."
 msgid "On {day}. A token never lasts forever."
 msgstr "On {day}. A token never lasts forever."
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:75
+#: extensions/scylla-base/src/shared/utils/status-config.ts:62
 msgid "Orphaned"
 msgstr "Orphaned"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:39
+#: extensions/scylla-base/src/shared/utils/status-config.ts:34
 msgid "Pending"
 msgstr "Pending"
 
@@ -244,7 +244,7 @@ msgstr "Pipeline created"
 msgid "Pipeline deleted"
 msgstr "Pipeline deleted"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:29
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:30
 msgid "Pipeline duplicated successfully"
 msgstr "Pipeline duplicated successfully"
 
@@ -256,7 +256,7 @@ msgstr "Pipeline edited"
 msgid "Pipeline ran"
 msgstr "Pipeline ran"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:28
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:29
 msgid "Pipeline ran: check that your agents are connected"
 msgstr "Pipeline ran: check that your agents are connected"
 
@@ -321,7 +321,7 @@ msgstr "Revoked on {day}"
 msgid "Run"
 msgstr "Run"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:29
+#: extensions/scylla-base/src/shared/utils/status-config.ts:26
 msgid "Running"
 msgstr "Running"
 
@@ -333,15 +333,15 @@ msgstr "Runs pipelines. Reads jobs and logs."
 msgid "Scylla could not copy it. Select the text instead."
 msgstr "Scylla could not copy it. Select the text instead."
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:39
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:40
 msgid "Secret created"
 msgstr "Secret created"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:41
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:42
 msgid "Secret deleted"
 msgstr "Secret deleted"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:40
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:41
 msgid "Secret updated"
 msgstr "Secret updated"
 
@@ -361,7 +361,7 @@ msgstr "Show the secret"
 msgid "Sign-up is closed on this server"
 msgstr "Sign-up is closed on this server"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:66
+#: extensions/scylla-base/src/shared/utils/status-config.ts:55
 msgid "Skipped"
 msgstr "Skipped"
 
@@ -373,7 +373,7 @@ msgstr "Some projects"
 msgid "Someone else changed this item in the meantime. The page now shows the latest version."
 msgstr "Someone else changed this item in the meantime. The page now shows the latest version."
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:48
+#: extensions/scylla-base/src/shared/utils/status-config.ts:41
 msgid "Success"
 msgstr "Success"
 
@@ -449,27 +449,27 @@ msgstr "This password is not valid"
 msgid "Token name"
 msgstr "Token name"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:44
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:45
 msgid "Trigger created"
 msgstr "Trigger created"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:46
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:47
 msgid "Trigger deleted"
 msgstr "Trigger deleted"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:48
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:49
 msgid "Trigger disabled"
 msgstr "Trigger disabled"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:47
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:48
 msgid "Trigger enabled"
 msgstr "Trigger enabled"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:49
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:50
 msgid "Trigger fired: run started"
 msgstr "Trigger fired: run started"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:45
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:46
 msgid "Trigger updated"
 msgstr "Trigger updated"
 
@@ -477,7 +477,7 @@ msgstr "Trigger updated"
 msgid "Triggers"
 msgstr "Triggers"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:94
+#: extensions/scylla-base/src/shared/utils/status-config.ts:77
 msgid "Unknown"
 msgstr "Unknown"
 

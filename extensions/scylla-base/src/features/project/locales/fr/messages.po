@@ -17,7 +17,7 @@ msgstr ""
 msgid "Add a description..."
 msgstr "Ajouter une description..."
 
-#: extensions/scylla-base/src/features/project/project.module.ts:27
+#: extensions/scylla-base/src/features/project/project.module.ts:29
 msgid "All projects"
 msgstr "Tous les projets"
 
@@ -79,8 +79,8 @@ msgid "Project name"
 msgstr "Nom du projet"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:9
-#: extensions/scylla-base/src/features/project/project.module.ts:23
-#: extensions/scylla-base/src/features/project/project.module.ts:30
+#: extensions/scylla-base/src/features/project/project.module.ts:25
+#: extensions/scylla-base/src/features/project/project.module.ts:32
 msgid "Projects"
 msgstr "Projets"
 

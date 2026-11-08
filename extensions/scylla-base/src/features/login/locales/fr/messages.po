@@ -13,26 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:11
-msgid "log out logout disconnect session"
-msgstr "déconnexion déconnecter session"
-
-#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:13
-msgid "Session"
-msgstr "Session"
-
-#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:10
-msgid "Sign out"
-msgstr "Se déconnecter"
-
-#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:15
-msgid "Sign out of Scylla?"
-msgstr "Se déconnecter de Scylla ?"
-
-#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:16
-msgid "The session closes on this device. You go back to the sign-in page."
-msgstr "La session se ferme sur cet appareil. Vous revenez à la page de connexion."
-
 #: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:6
 msgid "{email} already has a Scylla account with a password. To add {provider} to it, enter the password of that account once."
 msgstr "{email} a déjà un compte Scylla avec un mot de passe. Pour y ajouter {provider}, saisissez une fois le mot de passe de ce compte."
@@ -167,6 +147,10 @@ msgstr "Il est associé à un autre compte Scylla. Connectez-vous à ce compte, 
 msgid "Link {provider} and sign in"
 msgstr "Associer {provider} et se connecter"
 
+#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:11
+msgid "log out logout disconnect session"
+msgstr "déconnexion déconnecter session"
+
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:6
 msgid "Name"
 msgstr "Nom"
@@ -233,6 +217,10 @@ msgstr "Scylla ne répond pas"
 msgid "Send the link"
 msgstr "Envoyer le lien"
 
+#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:13
+msgid "Session"
+msgstr "Session"
+
 #: extensions/scylla-base/src/features/login/presentation/messages/login.messages.ts:4
 #: extensions/scylla-base/src/features/login/presentation/messages/login.messages.ts:12
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:20
@@ -243,6 +231,15 @@ msgstr "Se connecter"
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:32
 msgid "Sign in first"
 msgstr "Connectez-vous d’abord"
+
+#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:10
+#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:14
+msgid "Sign out"
+msgstr "Se déconnecter"
+
+#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:15
+msgid "Sign out of Scylla?"
+msgstr "Se déconnecter de Scylla ?"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:18
 msgid "Sign-in with {provider} is only for people who have an account. Ask an admin to add you first."
@@ -277,6 +274,10 @@ msgstr "Le fournisseur n’est pas configuré correctement"
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:12
 msgid "The request is older than 10 minutes, or it started in another browser. Start again from the first page."
 msgstr "La demande date de plus de 10 minutes, ou elle a commencé dans un autre navigateur. Recommencez depuis la première page."
+
+#: extensions/scylla-base/src/features/login/presentation/login.commands.ts:16
+msgid "The session closes on this device. You go back to the sign-in page."
+msgstr "La session se ferme sur cet appareil. Vous revenez à la page de connexion."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:43
 msgid "The sign-in failed"
