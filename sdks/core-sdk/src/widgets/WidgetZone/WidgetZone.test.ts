@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
+import { describe, it, expect, afterEach, beforeAll, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { point } from '../point.ts';
 import { installWidgetInjectionsForTest } from '../install-widget-injections-for-test.ts';
@@ -9,6 +9,16 @@ import { counts, resetCounts } from './widget-zone.fixtures.ts';
 interface Ctx {
   show: boolean;
 }
+
+beforeAll(async () => {
+  await Promise.all([
+    import('./ContextReader.fixture.svelte'),
+    import('./CountingInjected.fixture.svelte'),
+    import('./InjectedA.fixture.svelte'),
+    import('./InjectedB.fixture.svelte'),
+    import('./ThrowingInjected.fixture.svelte'),
+  ]);
+});
 
 beforeEach(() => {
   resetCounts();

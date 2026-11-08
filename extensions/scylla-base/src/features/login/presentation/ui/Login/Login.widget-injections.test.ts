@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import {
   render,
@@ -17,7 +17,13 @@ import LoginPage from './Login.page.svelte';
  * widget points — with no change to `Login.page.svelte` or `LoginForm.svelte` for this test.
  */
 
+const probe = () => import('./SignUpLinkProbe.fixture.svelte');
+
 let teardown: Array<() => void> = [];
+
+beforeAll(async () => {
+  await probe();
+});
 
 beforeEach(() => {
   teardown = [];
@@ -76,11 +82,7 @@ describe('Login.page with widget injections', () => {
   it('renders a component injected into the footer zone, below the form', async () => {
     setUp();
     teardown.push(
-      withWidgetInjections({
-        'sign-up-link': [
-          loginPoints.footer.inject({ component: () => import('./SignUpLinkProbe.fixture.svelte') }),
-        ],
-      }),
+      withWidgetInjections({ 'sign-up-link': [loginPoints.footer.inject({ component: probe })] }),
     );
 
     render(LoginPage);

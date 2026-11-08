@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
+import { fakePollTimers } from '@test/queries.ts';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import AddAgentDialog from './AddAgentDialog.svelte';
 
@@ -89,10 +90,12 @@ const setUp = () => {
 afterEach(() => {
   teardown.forEach(restore => restore());
   permissionsStore.setState({ permissions: null });
+  vi.useRealTimers();
 });
 
 describe('AddAgentDialog', () => {
   it('names the agent, shows its install command, and waits for its connection', async () => {
+    fakePollTimers();
     const { apps } = setUp();
     const user = userEvent.setup();
     const dialog = await screen.findByRole('dialog');
@@ -114,7 +117,9 @@ describe('AddAgentDialog', () => {
     await user.click(screen.getByRole('tab', { name: /macOS/ }));
     expect(screen.getByText(/needs no sudo/)).toBeInTheDocument();
 
-    expect(await screen.findByText('agent-1 is online', {}, { timeout: 5000 })).toBeInTheDocument();
+    await vi.advanceTimersByTimeAsync(2_000);
+
+    expect(await screen.findByText('agent-1 is online')).toBeInTheDocument();
     expect(screen.getByText('Connected from host-1')).toBeInTheDocument();
     expect(
       screen.getByText(/linux\/x86_64 · 8 CPU · 16 GB · 2 jobs at once · docker/),

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
@@ -16,6 +16,7 @@ const findMenuItem = async (text: string) => {
   });
   return item as HTMLElement;
 };
+import { loadAddWorkspaceDialog, loadWorkspaceList } from '@base/features/workspace';
 import InSidebar from '@base/shell/presentation/layout/ui/__test__/InSidebar.fixture.svelte';
 import WorkspaceSelector from './WorkspaceSelector.svelte';
 
@@ -38,6 +39,10 @@ const grant = (...permissions: Permission[]) =>
       ],
     },
   });
+
+beforeAll(async () => {
+  await Promise.all([loadWorkspaceList(), loadAddWorkspaceDialog()]);
+});
 
 beforeEach(() => {
   navigator = installTestNavigator();

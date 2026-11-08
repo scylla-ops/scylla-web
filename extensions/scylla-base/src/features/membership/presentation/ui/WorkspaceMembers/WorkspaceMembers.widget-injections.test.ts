@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
@@ -9,6 +9,10 @@ import { membershipPoints } from '@base/features/membership/presentation/members
 import WorkspaceMembersPage from './WorkspaceMembers.page.svelte';
 
 const probe = () => import('./WorkspaceMembersProbe.fixture.svelte');
+
+beforeAll(async () => {
+  await probe();
+});
 
 let listMembers: ReturnType<typeof vi.fn>;
 let teardown: Array<() => void> = [];

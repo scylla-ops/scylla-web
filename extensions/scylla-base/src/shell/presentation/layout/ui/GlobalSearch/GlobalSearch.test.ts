@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { PermissionScope, permissionsStore } from '@platform/authz';
@@ -11,6 +11,10 @@ import GlobalSearch from './GlobalSearch.svelte';
 let teardown: (() => void)[] = [];
 
 const setUp = () => render(InSidebar, { component: GlobalSearch });
+
+beforeAll(async () => {
+  await import('../CommandBar/CommandBar.svelte');
+});
 
 beforeEach(() => {
   setAppNavigator({

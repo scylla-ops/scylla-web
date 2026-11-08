@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach, type Mock } from 'vitest';
 import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
@@ -10,6 +10,10 @@ import { membershipPoints } from '@base/features/membership/presentation/members
 import ProjectMembersPage from './ProjectMembers.page.svelte';
 
 const probe = () => import('./ProjectMembersProbe.fixture.svelte');
+
+beforeAll(async () => {
+  await probe();
+});
 
 const role = (overrides: Partial<MemberRoleEntity>): MemberRoleEntity => ({
   scopeKind: 'project',
