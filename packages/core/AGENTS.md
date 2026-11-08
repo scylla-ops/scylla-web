@@ -184,7 +184,9 @@ module gives an access policy.
   in-page param mounts nothing.
 - **The rail does not move the page.** It has a fixed slot of 56px and it opens in an absolute
   layer, by a CSS transition of its width, so the page has no layout work and a second click in
-  the middle reverses it from where it is. Keep the rows at a fixed width inside it.
+  the middle reverses it from where it is. The open rail has the width of the slot and the second
+  sidebar, to the same edge as the band: at each width it covers all the second sidebar, and
+  never the page. Inside it, the rows keep the width of the open rail while it moves.
 - **A closed rail shows only the icons, thus a row has a tooltip with its title.** The tooltip
   shows on a hover and on a focus. The open rail shows the title in the row, thus it shows no
   tooltip.
@@ -205,9 +207,7 @@ module gives an access policy.
   wide), the section titles and the headings fit on one line, and no English link is cut. Below this,
   the English links and then the titles are cut. A longer link, for example in French, is cut with an
   ellipsis, and its `title` gives the full text. At 200 px the longest link ("Exécutions en échec")
-  has 14 px of free room, and the open rail covers the second sidebar to the same edge as the band.
-  A wider second sidebar stays visible to the right of the open rail. A narrower one puts the open
-  rail over the page too. A resize above the default keeps 704 px for the page: a table of 640 px
+  has 14 px of free room. A resize above the default keeps 704 px for the page: a table of 640 px
   (`CARD_LAYOUT_WIDTH_PX`) and the padding of the page, thus it never turns a table into cards. A
   narrow window lowers the maximum, but never below the default. It does not change the stored
   width: a wider window gives this width back.

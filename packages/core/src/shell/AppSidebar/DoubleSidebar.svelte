@@ -28,6 +28,7 @@
   let railOpen = $state(false);
   let viewportWidth = $state(window.innerWidth);
   const width = createSecondSidebarWidth(() => viewportWidth);
+  const sidebarWidth = $derived(RAIL_SLOT_PX + width.current);
 
   // A menu opened from the rail is in a portal: a press in it is outside the rail.
   const menuIsOpen = () => !!root?.querySelector('[data-state="open"]');
@@ -76,7 +77,7 @@
   bind:this={root}
   data-slot="sidebar-container"
   class="relative h-svh shrink-0"
-  style:width="{RAIL_SLOT_PX + width.current}px"
+  style:width="{sidebarWidth}px"
 >
   <div
     class="absolute inset-x-0 top-0 z-30 flex h-17 items-center justify-center border-r border-b border-sidebar-border bg-background"
@@ -91,6 +92,7 @@
     {ready}
     {footers}
     open={railOpen}
+    openWidth={sidebarWidth}
     onToggle={() => (railOpen = !railOpen)}
     onOpenItem={openItem}
     class="absolute top-17 bottom-0 left-0 z-20"

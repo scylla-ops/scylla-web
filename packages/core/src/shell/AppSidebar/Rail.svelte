@@ -19,6 +19,7 @@
     ready: boolean;
     footers: readonly Component[];
     open: boolean;
+    openWidth: number;
     onToggle: () => void;
     onOpenItem: (item: RailItem) => void;
     class?: string;
@@ -30,13 +31,14 @@
     ready,
     footers,
     open,
+    openWidth,
     onToggle,
     onOpenItem,
     class: className,
   }: Props = $props();
 
   const rowWidth = cn(
-    'w-8 transition-[width,background-color,color] group-data-[state=expanded]:w-58',
+    'w-8 transition-[width,background-color,color] group-data-[state=expanded]:w-full',
     SIDEBAR_MOTION,
     'motion-reduce:transition-none',
   );
@@ -82,17 +84,18 @@
   data-collapsible={open ? '' : 'icon'}
   class={cn(
     'group border-r border-sidebar-border bg-background text-sidebar-foreground transition-[width]',
-    open ? 'w-64' : 'w-14',
+    !open && 'w-14',
     cursor,
     SIDEBAR_MOTION,
     'motion-reduce:transition-none',
     className,
   )}
+  style:width={open ? `${openWidth}px` : undefined}
   onclick={toggleOnEmptyPart}
 >
   <div class="h-full overflow-hidden">
-    <!-- A fixed width: the rows never reflow while the panel moves. -->
-    <div class="flex h-full w-64 flex-col px-3 pt-2 pb-3">
+    <!-- The width of the open rail: the rows never reflow while the panel moves. -->
+    <div class="flex h-full flex-col px-3 pt-2 pb-3" style:width="{openWidth}px">
       <div class="relative flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto">
         {#if ready}
           {#each rail.main as item (item.id)}

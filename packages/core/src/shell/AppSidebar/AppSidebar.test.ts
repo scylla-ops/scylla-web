@@ -522,6 +522,19 @@ describe('the handle of the second sidebar', () => {
     expect(screen.queryByRole('separator', { name: 'Resize sidebar' })).not.toBeInTheDocument();
   });
 
+  it('gives its width to the open rail, which covers all the second sidebar', async () => {
+    renderOnPage();
+    await drag(256, 356);
+
+    await fireEvent.click(railOf());
+    expect(railOf().style.width).toBe('356px');
+
+    handle().focus();
+    await userEvent.keyboard('{Home}');
+    expect(slot().style.width).toBe('196px');
+    expect(railOf().style.width).toBe('196px');
+  });
+
   it('does not close the rail with a press', async () => {
     renderOnPage();
     await fireEvent.click(railOf());

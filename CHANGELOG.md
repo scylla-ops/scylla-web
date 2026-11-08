@@ -274,6 +274,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   shows this project and its pages, and a browser back to it goes to the list.
 - Each icon of the closed rail shows its title in a tooltip on a hover and on a focus. The items of
   a menu, of a select and of the command bar show the pointer, as a button does.
+- The open rail covers all the second sidebar, to the same edge as the logo band. Before, it kept a
+  fixed width: after a resize, a part of a wider second sidebar stayed visible to its right, and a
+  narrower one put the rail over the page.
 
 ## [0.6.0] - 2026-11-01
 
