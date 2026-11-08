@@ -13,10 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:20
-msgid "dashboard home"
-msgstr "dashboard home"
-
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:24
 msgid "{inFlight} in progress"
 msgstr "{inFlight} in progress"
@@ -50,10 +46,14 @@ msgid "Completed"
 msgstr "Completed"
 
 #: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:15
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:22
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:23
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:21
 msgid "Dashboard"
 msgstr "Dashboard"
+
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:20
+msgid "dashboard home"
+msgstr "dashboard home"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:38
 msgid "failed"

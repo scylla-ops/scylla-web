@@ -78,8 +78,10 @@ export { default as Avatar } from './avatar/avatar.svelte';
 export { default as AvatarFallback } from './avatar/avatar-fallback.svelte';
 export { default as AvatarImage } from './avatar/avatar-image.svelte';
 
+export { default as Table } from './table/table.svelte';
 export { default as TableBody } from './table/table-body.svelte';
 export { default as TableCell } from './table/table-cell.svelte';
+export { default as TableFrame } from './table/table-frame.svelte';
 export { default as TableHead } from './table/table-head.svelte';
 export { default as TableHeader } from './table/table-header.svelte';
 export { default as TableRow } from './table/table-row.svelte';

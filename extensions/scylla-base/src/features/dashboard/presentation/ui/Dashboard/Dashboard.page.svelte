@@ -15,6 +15,13 @@
     CardTitle,
     Separator,
     Skeleton,
+    Table,
+    TableBody,
+    TableCell,
+    TableFrame,
+    TableHead,
+    TableHeader,
+    TableRow,
   } from '@scylla/ui/primitives';
   import { ErrorState, FeatureHeader } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
@@ -204,57 +211,43 @@
         {:else if sortedPipelines.length === 0}
           <p class="text-sm text-muted-foreground">{t(dashboardMessages.noPipelines)}</p>
         {:else}
-          <div class="overflow-clip rounded-xl border bg-card">
-            <table class="w-full text-sm">
-              <!-- Sticky: needs an opaque background. -->
-              <thead class="sticky top-0 z-10 border-b bg-card">
-                <tr>
-                  <th class="h-10 px-4 text-left text-xs font-medium text-muted-foreground">
-                    {t(dashboardMessages.name)}
-                  </th>
-                  <th
-                    class="hidden h-10 px-4 text-left text-xs font-medium text-muted-foreground sm:table-cell"
-                  >
+          <TableFrame class="overflow-clip">
+            <Table>
+              <!-- Sticky: needs an opaque background. A hidden last column leaves no `last:`. -->
+              <TableHeader class="sticky top-0 z-10 bg-card">
+                <TableRow>
+                  <TableHead class="max-sm:rounded-r-[10px]">{t(dashboardMessages.name)}</TableHead>
+                  <TableHead class="hidden max-md:rounded-r-[10px] sm:table-cell">
                     {t(dashboardMessages.project)}
-                  </th>
-                  <th
-                    class="hidden h-10 px-4 text-left text-xs font-medium text-muted-foreground md:table-cell"
-                  >
-                    {t(dashboardMessages.nodes)}
-                  </th>
-                  <th
-                    class="hidden h-10 px-4 text-left text-xs font-medium text-muted-foreground md:table-cell"
-                  >
-                    {t(dashboardMessages.updated)}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {#each sortedPipelines as pipeline, index (pipeline.id)}
+                  </TableHead>
+                  <TableHead class="hidden md:table-cell">{t(dashboardMessages.nodes)}</TableHead>
+                  <TableHead class="hidden md:table-cell">{t(dashboardMessages.updated)}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {#each sortedPipelines as pipeline (pipeline.id)}
                   {@const openable = overview.canOpenProject(pipeline.projectId)}
-                  <tr
+                  <TableRow
                     onclick={() => openPipelineRow(pipeline.projectId)}
-                    class={cn(
-                      'transition-colors hover:bg-muted/40',
-                      openable && 'cursor-pointer',
-                      index > 0 && 'border-t',
-                    )}
+                    class={cn(!openable && 'cursor-default')}
                   >
-                    <td class="px-4 py-3 font-medium">{pipeline.name}</td>
-                    <td class="hidden px-4 py-3 sm:table-cell">
+                    <TableCell class="font-medium whitespace-normal max-sm:rounded-r-[10px]">
+                      {pipeline.name}
+                    </TableCell>
+                    <TableCell class="hidden max-md:rounded-r-[10px] sm:table-cell">
                       <Badge variant="secondary">{pipeline.projectName}</Badge>
-                    </td>
-                    <td class="hidden px-4 py-3 text-muted-foreground md:table-cell">
+                    </TableCell>
+                    <TableCell class="hidden text-muted-foreground md:table-cell">
                       {pipeline.nodeCount}
-                    </td>
-                    <td class="hidden px-4 py-3 text-muted-foreground md:table-cell">
+                    </TableCell>
+                    <TableCell class="hidden text-muted-foreground md:table-cell">
                       {getRelativeTime(pipeline.updatedAt)}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 {/each}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
+          </TableFrame>
         {/if}
       </div>
     </section>

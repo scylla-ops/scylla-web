@@ -5,7 +5,14 @@
   import { contextStore, scyllaNavigate } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { ConfirmOperationAlertDialog, ErrorState, FeatureHeader, ListSkeleton } from '@scylla/ui';
-  import { TableBody, TableHead, TableHeader, TableRow } from '@scylla/ui/primitives';
+  import {
+    Table,
+    TableBody,
+    TableFrame,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
@@ -92,11 +99,11 @@
         {/each}
       </div>
     {:else}
-    <div class="relative overflow-x-auto rounded-xl border">
-      <table class="w-full text-sm">
+    <TableFrame>
+      <Table>
         <TableHeader>
-          <TableRow class="hover:bg-transparent">
-            <TableHead class="px-6">{t(messages.columnApp)}</TableHead>
+          <TableRow>
+            <TableHead>{t(messages.columnApp)}</TableHead>
             <TableHead>{t(messages.columnCredentials)}</TableHead>
             {#if canReadRoles}
               <TableHead>{t(messages.columnAccess)}</TableHead>
@@ -121,8 +128,8 @@
             />
           {/each}
         </TableBody>
-      </table>
-    </div>
+      </Table>
+    </TableFrame>
     {/if}
   {/if}
 </div>

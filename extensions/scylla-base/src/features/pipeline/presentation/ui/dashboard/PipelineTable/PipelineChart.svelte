@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { JobEntity } from '@base/features/jobs';
-  import { StatusTrail, type StatusTrailItem } from '@scylla/ui';
+  import { StatusShape, StatusTrail, type StatusTrailItem } from '@scylla/ui';
   import { Skeleton } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
@@ -49,7 +49,7 @@
       <span class="font-mono text-[10px] text-muted-foreground">{item.job.id.slice(0, 8)}...</span>
     </div>
     <div class="flex items-center gap-2">
-      <div class={cn('h-2 w-2 rounded-full', config.dotClassName)}></div>
+      <StatusShape state={toStatusState(item.job.status)} label={t(config.label)} size={16} />
       <span class={cn('font-semibold', config.textClassName)}>{t(config.label)}</span>
     </div>
     <span class="mt-1 border-t pt-1 text-[10px] text-muted-foreground italic">

@@ -72,9 +72,9 @@ describe('PersonalTokensSection', () => {
     expect(screen.getByText('Full · all projects')).toBeInTheDocument();
     expect(screen.getByText('Expires in 62 days')).toBeInTheDocument();
     const soon = screen.getByText('Expires in 5 days');
-    expect(soon.closest('span')).toHaveClass('text-warning');
+    expect(soon.parentElement).toHaveClass('text-warning');
     const expired = screen.getByText(/Expired on/);
-    expect(expired.closest('span')).toHaveClass('text-destructive');
+    expect(expired.parentElement).toHaveClass('text-destructive');
     expect(screen.getAllByText('Never').length).toBe(3);
   });
 
@@ -187,7 +187,7 @@ describe('PersonalTokensSection on a phone', () => {
     expect(await screen.findByText('laptop-cli')).toBeInTheDocument();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
     expect(screen.getByText('Full · all projects')).toBeInTheDocument();
-    expect(screen.getByText('Expires in 5 days').closest('span')).toHaveClass('text-warning');
+    expect(screen.getByText('Expires in 5 days').parentElement).toHaveClass('text-warning');
     expect(screen.getByRole('button', { name: 'Actions of old-cli' })).toBeInTheDocument();
   });
 });

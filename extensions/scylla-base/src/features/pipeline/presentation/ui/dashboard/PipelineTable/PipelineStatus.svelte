@@ -1,9 +1,5 @@
 <script lang="ts">
-  import {
-    CopyableText,
-    StatusIndicator,
-    type StatusState,
-  } from '@scylla/ui';
+  import { CopyableText, StatusShape, type StatusState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { formatDay } from '@shared/utils/date-utils.ts';
   import type { PipelineMetadata } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
@@ -11,15 +7,18 @@
 
   interface Props {
     pipeline: PipelineMetadata;
+    /** The state of the last run. */
     status: StatusState;
+    /** The state of the last run, in words. */
+    statusLabel: string;
   }
 
-  let { pipeline, status }: Props = $props();
+  let { pipeline, status, statusLabel }: Props = $props();
 </script>
 
 <div class="flex w-full flex-row items-center justify-start gap-2">
   <div class="shrink-0">
-    <StatusIndicator state={status} />
+    <StatusShape state={status} label={statusLabel} size={40} />
   </div>
 
   <!-- Stretched, not `items-start`, or `truncate` has nothing to cut. -->

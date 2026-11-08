@@ -1,18 +1,13 @@
 <script lang="ts">
   import type { MessageDescriptor } from '@lingui/core';
-  import CircleCheckIcon from '@lucide/svelte/icons/circle-check';
-  import CircleXIcon from '@lucide/svelte/icons/circle-x';
-  import CircleSlashIcon from '@lucide/svelte/icons/circle-slash';
-  import ClockIcon from '@lucide/svelte/icons/clock';
-  import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
   import { activeWorkspaceSlug } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
-  import { ListSkeleton } from '@scylla/ui';
+  import { ListSkeleton, StatusShape } from '@scylla/ui';
   import { Card, CardContent, CardHeader, CardTitle } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { cn } from '@scylla/ui/utils';
   import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
+  import { toStatusState } from '@shared/utils/job-status.utils.ts';
   import { projectQueries } from '@base/features/project';
   import type { AppJob } from '@base/features/apps/domain/entities/app.entity.ts';
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
@@ -31,14 +26,14 @@
   const projectName = (id: string) =>
     projects.data?.items.find(project => project.id === id)?.name ?? '';
 
-  const STATUS: Record<JobStatus, { label: MessageDescriptor; icon: typeof ClockIcon; tone: string }> = {
-    pending: { label: messages.pending, icon: ClockIcon, tone: 'text-muted-foreground' },
-    running: { label: messages.running, icon: LoaderCircleIcon, tone: 'text-warning' },
-    completed: { label: messages.passed, icon: CircleCheckIcon, tone: 'text-primary' },
-    failed: { label: messages.failed, icon: CircleXIcon, tone: 'text-destructive' },
-    cancelled: { label: messages.cancelled, icon: CircleSlashIcon, tone: 'text-muted-foreground' },
-    orphaned: { label: messages.orphaned, icon: CircleSlashIcon, tone: 'text-chart-2' },
-    unknown: { label: messages.unknown, icon: ClockIcon, tone: 'text-muted-foreground' },
+  const STATUS_LABEL: Record<JobStatus, MessageDescriptor> = {
+    pending: messages.pending,
+    running: messages.running,
+    completed: messages.passed,
+    failed: messages.failed,
+    cancelled: messages.cancelled,
+    orphaned: messages.orphaned,
+    unknown: messages.unknown,
   };
 
   const jobHref = (job: AppJob) =>
@@ -57,11 +52,11 @@
     {:else}
       <ul class="flex flex-col gap-3 text-sm">
         {#each jobs.slice(0, SHOWN) as job (job.id)}
-          {@const status = STATUS[job.status]}
+          {@const label = t(STATUS_LABEL[job.status])}
           <li class="flex items-center gap-3">
-            <span class="inline-flex items-center gap-1.5 rounded-full bg-muted px-2 py-0.5 text-xs">
-              <status.icon class={cn('size-3.5', status.tone)} aria-hidden="true" />
-              {t(status.label)}
+            <span class="inline-flex items-center gap-1.5 text-xs">
+              <StatusShape state={toStatusState(job.status)} {label} size={20} />
+              <span aria-hidden="true">{label}</span>
             </span>
             <a class="min-w-0 flex-1 truncate hover:underline" href={jobHref(job)}>
               {projectName(job.projectId)}

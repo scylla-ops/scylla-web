@@ -132,7 +132,7 @@
   </article>
 {:else}
 <TableRow>
-  <TableCell class="px-6 py-3">
+  <TableCell>
     <span class="flex items-center gap-2">
       <button type="button" class="font-mono font-medium hover:underline" onclick={onOpen}>
         {app.name}
@@ -142,11 +142,11 @@
       {/if}
     </span>
   </TableCell>
-  <TableCell class="py-3">
+  <TableCell>
     {@render credential()}
   </TableCell>
   {#if showRoles}
-    <TableCell class="py-3" title={[firstRole, ...otherRoles].filter(Boolean).join(', ')}>
+    <TableCell title={[firstRole, ...otherRoles].filter(Boolean).join(', ')}>
       {#if firstRole}
         {firstRole}
         {#if otherRoles.length > 0}
@@ -157,10 +157,10 @@
       {/if}
     </TableCell>
   {/if}
-  <TableCell class="py-3 text-xs text-muted-foreground">
+  <TableCell class="text-xs text-muted-foreground">
     {@render lastUse()}
   </TableCell>
-  <TableCell class="py-3 pr-4 text-right">
+  <TableCell class="text-right">
     <AppRowMenu {app} openLabel={t(messages.openApp)} {onOpen} {onDisable} {onEnable} {onDelete} />
   </TableCell>
 </TableRow>

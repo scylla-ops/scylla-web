@@ -8,8 +8,10 @@
   import { ConfirmOperationAlertDialog, ErrorState, FeatureHeader, ListSkeleton } from '@scylla/ui';
   import {
     Input,
+    Table,
     TableBody,
     TableCell,
+    TableFrame,
     TableHead,
     TableHeader,
     TableRow,
@@ -207,11 +209,11 @@
         {/each}
       </div>
     {:else}
-    <div class="relative overflow-x-auto rounded-xl border">
-      <table class="w-full text-sm">
+    <TableFrame>
+      <Table>
         <TableHeader>
-          <TableRow class="hover:bg-transparent">
-            <TableHead class="px-6">{t(messages.columnAgent)}</TableHead>
+          <TableRow>
+            <TableHead>{t(messages.columnAgent)}</TableHead>
             <TableHead>{t(messages.columnStatus)}</TableHead>
             {#if canReadAccess}
               <TableHead>{t(messages.columnAccess)}</TableHead>
@@ -225,7 +227,7 @@
             {@const agentStats = stats.data?.get(agent.id)}
             {@const total = agentStats ? endedJobs(agentStats.outcomes) : 0}
             <TableRow>
-              <TableCell class="px-6 py-3">
+              <TableCell>
                 <button
                   type="button"
                   class="flex flex-col items-start text-left"
@@ -237,16 +239,16 @@
                   </span>
                 </button>
               </TableCell>
-              <TableCell class="py-3">
+              <TableCell>
                 <AgentStatusCell
                   {agent}
                   onShowCommand={canCreate ? () => join(agent) : undefined}
                 />
               </TableCell>
               {#if canReadAccess}
-                <TableCell class="py-3">{accessLabel(access.data?.get(agent.id))}</TableCell>
+                <TableCell>{accessLabel(access.data?.get(agent.id))}</TableCell>
               {/if}
-              <TableCell class="py-3">
+              <TableCell>
                 {#if agentStats && total > 0}
                   <span class="flex items-center gap-3">
                     <Sparkline values={dailyJobs(agentStats)} label={t(messages.jobsTotal(total))} />
@@ -256,7 +258,7 @@
                   <span class="text-muted-foreground" title={t(messages.noJob)}>–</span>
                 {/if}
               </TableCell>
-              <TableCell class="py-3 pr-4 text-right">
+              <TableCell class="text-right">
                 <AppRowMenu
                   app={agent}
                   openLabel={t(messages.openAgent)}
@@ -269,15 +271,15 @@
               </TableCell>
             </TableRow>
           {:else}
-            <TableRow class="hover:bg-transparent">
+            <TableRow>
               <TableCell colspan={canReadAccess ? 5 : 4} class="px-6 py-8 text-center text-muted-foreground">
                 {t(messages.noMatch)}
               </TableCell>
             </TableRow>
           {/each}
         </TableBody>
-      </table>
-    </div>
+      </Table>
+    </TableFrame>
     {/if}
   {/if}
 </div>

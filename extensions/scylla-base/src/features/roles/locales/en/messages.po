@@ -13,18 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/roles/presentation/roles.commands.ts:16
-msgid "create add permissions"
-msgstr "create add permissions"
-
-#: extensions/scylla-base/src/features/roles/presentation/roles.commands.ts:24
-msgid "New instance role"
-msgstr "New instance role"
-
-#: extensions/scylla-base/src/features/roles/presentation/roles.commands.ts:15
-msgid "New workspace role"
-msgstr "New workspace role"
-
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:27
 msgid "{count, plural, one {# holder has this role. Choose a role for them. Then the role is deleted.} other {# holders have this role. Choose a role for them. Then the role is deleted.}}"
 msgstr "{count, plural, one {# holder has this role. Choose a role for them. Then the role is deleted.} other {# holders have this role. Choose a role for them. Then the role is deleted.}}"
@@ -117,6 +105,11 @@ msgstr "Copies its permissions. Then change them in the table."
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:180
 msgid "Create"
 msgstr "Create"
+
+#: extensions/scylla-base/src/features/roles/presentation/roles.commands.ts:16
+#: extensions/scylla-base/src/features/roles/presentation/roles.commands.ts:25
+msgid "create add permissions"
+msgstr "create add permissions"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:86
 msgid "Create role"
@@ -358,15 +351,23 @@ msgstr "Name and settings. Every member sees it"
 msgid "Names only. Nobody sees a value"
 msgstr "Names only. Nobody sees a value"
 
+#: extensions/scylla-base/src/features/roles/presentation/roles.commands.ts:24
+msgid "New instance role"
+msgstr "New instance role"
+
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:198
 msgid "New projects in the workspace"
 msgstr "New projects in the workspace"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:53
-#: extensions/scylla-base/src/features/roles/roles.module.ts:35
-#: extensions/scylla-base/src/features/roles/roles.module.ts:65
+#: extensions/scylla-base/src/features/roles/roles.module.ts:37
+#: extensions/scylla-base/src/features/roles/roles.module.ts:67
 msgid "New role"
 msgstr "New role"
+
+#: extensions/scylla-base/src/features/roles/presentation/roles.commands.ts:15
+msgid "New workspace role"
+msgstr "New workspace role"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:62
 msgid "No custom roles yet"
@@ -479,17 +480,17 @@ msgid "Resource"
 msgstr "Resource"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:51
-#: extensions/scylla-base/src/features/roles/roles.module.ts:41
-#: extensions/scylla-base/src/features/roles/roles.module.ts:71
+#: extensions/scylla-base/src/features/roles/roles.module.ts:43
+#: extensions/scylla-base/src/features/roles/roles.module.ts:73
 msgid "Role"
 msgstr "Role"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:50
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:84
-#: extensions/scylla-base/src/features/roles/roles.module.ts:28
 #: extensions/scylla-base/src/features/roles/roles.module.ts:30
-#: extensions/scylla-base/src/features/roles/roles.module.ts:51
-#: extensions/scylla-base/src/features/roles/roles.module.ts:55
+#: extensions/scylla-base/src/features/roles/roles.module.ts:32
+#: extensions/scylla-base/src/features/roles/roles.module.ts:53
+#: extensions/scylla-base/src/features/roles/roles.module.ts:57
 msgid "Roles"
 msgstr "Roles"
 

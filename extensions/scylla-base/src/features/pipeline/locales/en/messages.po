@@ -11,26 +11,6 @@ msgstr ""
 "Language: \n"
 "Language-Team: \n"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:26
-msgid "create add workflow"
-msgstr "create add workflow"
-
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:48
-msgid "Edit this pipeline"
-msgstr "Edit this pipeline"
-
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:49
-msgid "editor change nodes"
-msgstr "editor change nodes"
-
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:37
-msgid "Jobs of this pipeline"
-msgstr "Jobs of this pipeline"
-
-#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:38
-msgid "runs history logs"
-msgstr "runs history logs"
-
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:37
 msgid "{count, plural, one {# secret} other {# secrets}}"
 msgstr "{count, plural, one {# secret} other {# secrets}}"
@@ -176,10 +156,14 @@ msgstr "Copy all"
 msgid "Copy the node"
 msgstr "Copy the node"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:31
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:36
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:40
 msgid "Create"
 msgstr "Create"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:26
+msgid "create add workflow"
+msgstr "create add workflow"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:6
 msgid "Create your first pipeline to get started"
@@ -241,7 +225,7 @@ msgstr "e.g., cargo build && cargo test"
 msgid "e.g., my-pipeline"
 msgstr "e.g., my-pipeline"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:40
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:45
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:23
 msgid "Edit"
 msgstr "Edit"
@@ -249,6 +233,14 @@ msgstr "Edit"
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:24
 msgid "Edit pipeline"
 msgstr "Edit pipeline"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:48
+msgid "Edit this pipeline"
+msgstr "Edit this pipeline"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:49
+msgid "editor change nodes"
+msgstr "editor change nodes"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:35
 msgid "Enter a whole number from 0 to 10."
@@ -298,9 +290,13 @@ msgstr "Invalid JSON"
 msgid "Invalid node ID"
 msgstr "Invalid node ID"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:51
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:56
 msgid "Jobs"
 msgstr "Jobs"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:37
+msgid "Jobs of this pipeline"
+msgstr "Jobs of this pipeline"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:36
 msgid "KEY"
@@ -392,8 +388,8 @@ msgstr "Open the last run"
 msgid "Open to the side"
 msgstr "Open to the side"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:38
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:49
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:43
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:54
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:8
 msgid "Pipeline"
 msgstr "Pipeline"
@@ -406,6 +402,7 @@ msgstr "Pipeline actions"
 msgid "Pipeline name"
 msgstr "Pipeline name"
 
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:31
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:9
 msgid "Pipelines"
 msgstr "Pipelines"
@@ -445,6 +442,10 @@ msgstr "Run #{runNumber}"
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:7
 msgid "Runs first"
 msgstr "Runs first"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:38
+msgid "runs history logs"
+msgstr "runs history logs"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:62
 msgid "Same ID as another node"

@@ -21,10 +21,8 @@ describe('getStatusConfig', () => {
   it('every entry carries a full, non-empty set of style fields (no accidental gaps)', () => {
     for (const [key, config] of Object.entries(STATUS_CONFIG)) {
       expect(config.badgeClassName, `${key}.badgeClassName`).not.toBe('');
-      expect(config.iconClassName, `${key}.iconClassName`).not.toBe('');
       expect(config.barClassName, `${key}.barClassName`).not.toBe('');
       expect(config.barHoverClassName, `${key}.barHoverClassName`).not.toBe('');
-      expect(config.dotClassName, `${key}.dotClassName`).not.toBe('');
       expect(config.textClassName, `${key}.textClassName`).not.toBe('');
       expect(config.label.id).toBeTruthy();
     }

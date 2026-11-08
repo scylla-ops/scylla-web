@@ -4,7 +4,18 @@
   import { ErrorState, ListSkeleton } from '@scylla/ui';
   import RolesLoadError from './RolesLoadError.svelte';
   import { t } from '@scylla/ui/i18n';
-  import { Input, ToggleGroup, ToggleGroupItem } from '@scylla/ui/primitives';
+  import {
+    Input,
+    Table,
+    TableBody,
+    TableCell,
+    TableFrame,
+    TableHead,
+    TableHeader,
+    TableRow,
+    ToggleGroup,
+    ToggleGroupItem,
+  } from '@scylla/ui/primitives';
   import {
     filterLabels,
     groupHints,
@@ -75,32 +86,31 @@
   {#if groups.length === 0}
     <p class="py-8 text-center text-sm text-muted-foreground">{t(rolesMessages.noMatch)}</p>
   {:else}
-    <div class="relative overflow-x-auto rounded-xl border bg-card">
-      <table class="w-full min-w-[720px] border-collapse text-sm">
-        <thead>
-          <tr class="text-left text-xs text-muted-foreground">
-            <th class="px-6 py-3 font-medium">{t(rolesMessages.role)}</th>
-            <th class="w-36 px-3 py-3 font-medium">{t(rolesMessages.level)}</th>
-            <th class="w-28 px-3 py-3 font-medium">{t(rolesMessages.type)}</th>
-            <th class="w-20 px-3 py-3 font-medium">{t(rolesMessages.holders)}</th>
-            <th class="w-32 px-3 py-3 font-medium">{t(rolesMessages.permissions)}</th>
-            <th class="w-10"></th>
-          </tr>
-        </thead>
+    <TableFrame>
+      <Table class="min-w-[720px]">
+        <TableHeader>
+          <TableRow>
+            <TableHead>{t(rolesMessages.role)}</TableHead>
+            <TableHead class="w-36">{t(rolesMessages.level)}</TableHead>
+            <TableHead class="w-28">{t(rolesMessages.type)}</TableHead>
+            <TableHead class="w-20">{t(rolesMessages.holders)}</TableHead>
+            <TableHead class="w-32">{t(rolesMessages.permissions)}</TableHead>
+            <TableHead class="w-10"></TableHead>
+          </TableRow>
+        </TableHeader>
         {#each groups as group (group.id)}
-          <tbody>
-            <tr class="border-t bg-muted/60">
-              <td colspan="6" class="px-6 py-2 text-xs">
+          <TableBody>
+            <TableRow>
+              <TableCell class="text-xs whitespace-normal" colspan={6}>
                 <span class="font-semibold text-foreground">{t(groupLabels[group.id])}</span>
                 <span class="ml-2 text-muted-foreground">{t(groupHints[group.id])}</span>
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
             {#each group.roles as role (role.key)}
-              <tr
-                class="cursor-pointer border-t transition-colors hover:bg-muted/40"
+              <TableRow
                 onclick={() => open(role.key)}
               >
-                <td class="px-6 py-3">
+                <TableCell class="whitespace-normal">
                   <button
                     type="button"
                     class="block text-left font-medium text-foreground hover:underline"
@@ -114,19 +124,19 @@
                   <span class="mt-0.5 block text-xs text-muted-foreground">
                     {roleDescription(role)}
                   </span>
-                </td>
-                <td class="px-3 py-3"><LevelTag level={role.level} /></td>
-                <td class="px-3 py-3"><OriginTag builtin={role.builtin} /></td>
-                <td class="px-3 py-3 tabular-nums">{role.holderCount}</td>
-                <td class="px-3 py-3 text-muted-foreground tabular-nums">
+                </TableCell>
+                <TableCell><LevelTag level={role.level} /></TableCell>
+                <TableCell><OriginTag builtin={role.builtin} /></TableCell>
+                <TableCell class="tabular-nums">{role.holderCount}</TableCell>
+                <TableCell class="text-muted-foreground tabular-nums">
                   {permissionCount(role, catalogQuery.data ?? [])}
-                </td>
-                <td class="pr-4 text-muted-foreground"><ChevronRightIcon class="size-4" /></td>
-              </tr>
+                </TableCell>
+                <TableCell class="text-muted-foreground"><ChevronRightIcon class="size-4" /></TableCell>
+              </TableRow>
             {/each}
-          </tbody>
+          </TableBody>
         {/each}
-      </table>
-    </div>
+      </Table>
+    </TableFrame>
   {/if}
 {/if}

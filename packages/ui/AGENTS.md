@@ -34,7 +34,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 src/
   index.ts                 `@scylla/ui` — re-exports the groups below
   controls/                IconButton, GatedButton
-  data-display/            DataTable, Pagination, PaginationSlot, StatusIndicator, StatusTrail,
+  data-display/            DataTable, Pagination, PaginationSlot, StatusShape, StatusTrail,
                            CopyableText, TruncatedText
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
@@ -66,7 +66,9 @@ catalogs of this package register themselves.
 | Pagination | `createPagination(options)` — local page merged with server `totalCount`/`totalPages`; `responsive: true` sizes the page to the container |
 | How much room the layout left a component | `createMeasuredHeight()` → `{ height, measure }`, and `{@attach measure}` on a container sized by the layout, never by its content |
 | A table | `DataTable` (+ `createPagination`) — row keys are business ids, never indices. Give each column `meta.card` (see "`DataTable` on a phone") |
+| A table that `DataTable` cannot express (rows of groups, a matrix) | `TableFrame` + `Table` + `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`. Never a `<table>` by hand. Inside a card that has its own border: no `TableFrame`, a `relative overflow-x-auto p-1.5` box |
 | The pages of a table | `PaginationSlot` under the table, outside its frame: the range on the left, `‹ page / pages ›` on the right |
+| The status of one run | `StatusShape` (`state`, `label`, `size`): the four dots of the logo take the form of the state. See "`StatusShape`" |
 | A row of statuses in time (the last runs) | `StatusTrail`: one dot per item, oldest first, linked by lines; the last dot is a little bigger. Each dot has `data-item-id`; with `onSelect` it is a button |
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
 | A select with a search | `SearchSelect`, with `options` as data. Use `Select` only for a short fixed list |
@@ -241,14 +243,46 @@ In `vite.config.ts`, `vendor-ui` holds bits-ui and everything it pulls (`@floati
 `vendor-svelte`, because the Svelte runtime imports it too: in `vendor-ui` it made a circular
 chunk.
 
-## `DataTable` in a table
+## The design of a table
 
-The rows are **inset**: the frame (`rounded-2xl`, `border`, `bg-card`) keeps a 6 px margin around
-the header and the rows. The header is a grey pill (`bg-muted`, 32 px, the labels in `text-xs`,
-not uppercase), and it sticks. The rows are rounded (10 px) and 2 px apart: there is no line
-between them. A hovered row is `bg-muted/40`; a selected row is `bg-primary/[0.07]` with an inset
-3 px bar of `--primary`, which follows the rounded corner. `computePageSize` counts a row as 58 px
-and the frame as 48 px (`state/responsive-page-size.ts`): keep them in step with these classes.
+The primitives `primitives/table/` hold the one design of a table; `DataTable` is built on them.
+The rows are **inset**: `TableFrame` (`rounded-2xl`, `border`, `bg-card`) keeps a 6 px margin
+around the header and the rows. The header is a grey pill (`bg-muted`, 32 px, the labels in
+`text-xs`, not uppercase). The rows are rounded (10 px) and 2 px apart: there is no line between
+them. A row with `onclick` is `bg-muted/40` on hover; a selected row (`data-state="selected"`) is
+`bg-primary/[0.07]` with an inset 3 px bar of `--primary`, which follows the rounded corner.
+
+- The background goes on the **cells**: a `tr` does not clip it to the rounded corners. A row
+  that has its own color writes `[&>td]:bg-…`.
+- A cell does not wrap (`whitespace-nowrap`). A cell with long text writes `whitespace-normal`.
+- A column that hides at a breakpoint leaves the row without its `last:` corner: the cell before
+  it writes `max-md:rounded-r-[10px]`.
+- The header of `DataTable` sticks. `computePageSize` counts a row as 58 px and the frame as 48 px
+  (`state/responsive-page-size.ts`): keep them in step with these classes.
+
+## `StatusShape`
+
+The four dots of the logo, drawn on a canvas, take a form per state (`StatusState`, in
+`data-display/status-state.ts`): `pending` / `idle` the 2 × 2 grid, breathing; `running` the
+marbles run round a circle (as the old Windows spinner: slow at the top, fast below, so they
+catch up and part); `success` one disc; `failed` and `orphaned` a ×; `skipped` and `cancelled` a
+slash. Its accessible name is `label`; `data-state` gives the state to a test.
+
+- **A change of state is a move, never a jump.** Leaving running, the marbles go on from where
+  they are, at their speed, and the way out depends on the new state (a spiral into the disc, a
+  shot into the cross, a line that shrinks into the slash). Joining running, each form has its
+  own way in. `status-shape.engine.test.ts` fails when a dot moves more than 10 units (of 400)
+  in a frame.
+- **Five files, five roles**: `status-shape.forms.ts` the forms and the colors of each state
+  (theme tokens `--status-*`), `status-shape.raster.ts` the metaballs into pixels,
+  `status-shape.engine.ts` the springs and the moves (plain TypeScript, no DOM),
+  `status-shape.loop.ts` one animation loop for every shape of the page, and
+  `status-shape.attachments.svelte.ts` the canvas, the colors of the theme, and no drawing off
+  screen.
+- **The raster is the hot path**: typed arrays and plain loops, run for each pixel of the box
+  around the dots, each frame. Keep it so.
+- `prefers-reduced-motion`: every change is instant, nothing breathes or runs.
+- jsdom has no canvas: `test/setup.ts` gives no 2D context, and the shape keeps its name only.
 
 ## `DataTable` on a phone
 

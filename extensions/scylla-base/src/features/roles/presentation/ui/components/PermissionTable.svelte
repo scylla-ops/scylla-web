@@ -1,7 +1,15 @@
 <script lang="ts">
   import CheckIcon from '@lucide/svelte/icons/check';
   import { t } from '@scylla/ui/i18n';
-  import { Checkbox } from '@scylla/ui/primitives';
+  import {
+    Checkbox,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from '@scylla/ui/primitives';
   import type { RoleHolder, RoleLevel } from '../../../domain/entities/role.entity.ts';
   import {
     ACTIONS,
@@ -76,19 +84,19 @@
   const areaHint = (area: CatalogArea) => (areaLabels[area.id] ? t(areaLabels[area.id].hint) : '');
 </script>
 
-<table class="w-full min-w-[640px] border-collapse text-sm">
-  <thead>
-    <tr class="bg-muted/60 text-xs text-muted-foreground">
-      <th class="px-4 py-2.5 text-left font-medium">{t(rolesMessages.resource)}</th>
+<Table class="min-w-[640px]">
+  <TableHeader>
+    <TableRow>
+      <TableHead>{t(rolesMessages.resource)}</TableHead>
       {#each ACTIONS as action (action)}
-        <th class="w-[72px] px-2 py-2.5 text-center font-medium">{t(actionLabels[action])}</th>
+        <TableHead class="w-[72px] px-2 text-center">{t(actionLabels[action])}</TableHead>
       {/each}
-    </tr>
-  </thead>
+    </TableRow>
+  </TableHeader>
   {#each sections as section (`${section.level}-${section.machine}`)}
-    <tbody>
-      <tr class="border-t">
-        <td colspan={ACTIONS.length + 1} class="px-4 py-2.5">
+    <TableBody>
+      <TableRow>
+        <TableCell colspan={ACTIONS.length + 1} class="whitespace-normal">
           <div class="flex items-center gap-2.5">
             <LevelTag level={section.level} />
             <span class="text-xs text-muted-foreground">
@@ -106,18 +114,18 @@
               </button>
             {/if}
           </div>
-        </td>
-      </tr>
+        </TableCell>
+      </TableRow>
       {#if section.open}
         {#each section.areas as area (area.id)}
-          <tr class="border-t">
-            <td class="px-4 py-2">
+          <TableRow>
+            <TableCell class="whitespace-normal">
               <span class="block font-medium">{areaTitle(area)}</span>
               <span class="block text-xs text-muted-foreground">{areaHint(area)}</span>
-            </td>
+            </TableCell>
             {#each ACTIONS as action (action)}
               {@const permission = cellOf(area, action)}
-              <td class="px-2 py-2 text-center align-middle">
+              <TableCell class="px-2 text-center">
                 {#if !permission}
                   <span class="text-muted-foreground/60" aria-hidden="true">—</span>
                 {:else if onChange}
@@ -137,14 +145,14 @@
                 {:else}
                   <span class="text-muted-foreground/60" title={t(rolesMessages.legendOff)}>·</span>
                 {/if}
-              </td>
+              </TableCell>
             {/each}
-          </tr>
+          </TableRow>
         {/each}
       {/if}
-    </tbody>
+    </TableBody>
   {/each}
-</table>
+</Table>
 <div class="flex flex-wrap gap-5 border-t bg-muted/60 px-4 py-2.5 text-xs text-muted-foreground">
   {#if onChange}
     <span class="flex items-center gap-1.5">

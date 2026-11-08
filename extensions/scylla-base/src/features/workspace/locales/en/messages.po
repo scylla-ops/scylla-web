@@ -13,18 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/workspace/presentation/workspace.commands.ts:11
-msgid "create add organization"
-msgstr "create add organization"
-
-#: extensions/scylla-base/src/features/workspace/presentation/workspace.commands.ts:10
-msgid "New workspace"
-msgstr "New workspace"
-
-#: extensions/scylla-base/src/features/workspace/workspace.module.ts:34
-msgid "workspace settings name"
-msgstr "workspace settings name"
-
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:14
 msgid "{workspace} refuses them at once: scripts that use them get \"403 Permission denied\" here. They still work in other workspaces. App tokens and CI identities do not change. You can turn them on again at any time."
 msgstr "{workspace} refuses them at once: scripts that use them get \"403 Permission denied\" here. They still work in other workspaces. App tokens and CI identities do not change. You can turn them on again at any time."
@@ -41,6 +29,10 @@ msgstr "An instance admin turned personal tokens off on this server, so this swi
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:9
 msgid "Create a new workspace"
 msgstr "Create a new workspace"
+
+#: extensions/scylla-base/src/features/workspace/presentation/workspace.commands.ts:11
+msgid "create add organization"
+msgstr "create add organization"
 
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:11
 msgid "Create Workspace"
@@ -78,7 +70,7 @@ msgstr "Enter a name for your new workspace, and an address if you want to choos
 msgid "Find a workspace"
 msgstr "Find a workspace"
 
-#: extensions/scylla-base/src/features/workspace/workspace.module.ts:31
+#: extensions/scylla-base/src/features/workspace/workspace.module.ts:33
 msgid "General"
 msgstr "General"
 
@@ -89,6 +81,10 @@ msgstr "Members"
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:9
 msgid "Members can use their personal tokens on the projects, pipelines and secrets of {workspace}. When off, {workspace} refuses every personal token at once. App tokens and CI identities do not change."
 msgstr "Members can use their personal tokens on the projects, pipelines and secrets of {workspace}. When off, {workspace} refuses every personal token at once. App tokens and CI identities do not change."
+
+#: extensions/scylla-base/src/features/workspace/presentation/workspace.commands.ts:10
+msgid "New workspace"
+msgstr "New workspace"
 
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:20
 msgid "No workspace matches this search."
@@ -118,8 +114,8 @@ msgstr "Saving..."
 msgid "Security"
 msgstr "Security"
 
-#: extensions/scylla-base/src/features/workspace/workspace.module.ts:27
-#: extensions/scylla-base/src/features/workspace/workspace.module.ts:34
+#: extensions/scylla-base/src/features/workspace/workspace.module.ts:29
+#: extensions/scylla-base/src/features/workspace/workspace.module.ts:37
 msgid "Settings"
 msgstr "Settings"
 
@@ -147,3 +143,7 @@ msgstr "Update the name and the address of the workspace."
 #: extensions/scylla-base/src/features/workspace/presentation/presenters/workspace-form.presenter.ts:7
 msgid "Workspace name"
 msgstr "Workspace name"
+
+#: extensions/scylla-base/src/features/workspace/workspace.module.ts:34
+msgid "workspace settings name"
+msgstr "workspace settings name"

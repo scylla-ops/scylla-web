@@ -13,18 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:36
-msgid "create add webhook schedule cron"
-msgstr "créer ajouter webhook planification cron"
-
-#: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:24
-msgid "Triggers of this pipeline"
-msgstr "Déclencheurs de ce pipeline"
-
-#: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:25
-msgid "webhook schedule cron"
-msgstr "webhook planification cron"
-
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:29
 msgid "{days} at {time}"
 msgstr "{days} à {time}"
@@ -85,6 +73,10 @@ msgstr "Copier l'URL"
 msgid "Create"
 msgstr "Créer"
 
+#: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:36
+msgid "create add webhook schedule cron"
+msgstr "créer ajouter webhook planification cron"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:77
 msgid "Custom"
 msgstr "Personnalisé"
@@ -127,7 +119,7 @@ msgid "Edit"
 msgstr "Modifier"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:45
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:40
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:42
 msgid "Edit trigger"
 msgstr "Modifier le déclencheur"
 
@@ -233,8 +225,8 @@ msgid "Never fired"
 msgstr "Jamais déclenché"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:15
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:34
 #: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:35
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:36
 msgid "New trigger"
 msgstr "Nouveau déclencheur"
 
@@ -274,7 +266,7 @@ msgstr "Valeurs facultatives injectées dans l'exécution en tant que variables 
 msgid "Pick at least one day"
 msgstr "Choisissez au moins un jour"
 
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:25
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:27
 msgid "Pipeline"
 msgstr "Pipeline"
 
@@ -343,9 +335,13 @@ msgid "Trigger actions"
 msgstr "Actions du déclencheur"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:14
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:27
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:29
 msgid "Triggers"
 msgstr "Déclencheurs"
+
+#: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:24
+msgid "Triggers of this pipeline"
+msgstr "Déclencheurs de ce pipeline"
 
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:8
 msgid "Tue"
@@ -374,6 +370,10 @@ msgstr "Webhook"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:21
 msgid "webhook endpoints"
 msgstr "points de terminaison webhook"
+
+#: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:25
+msgid "webhook schedule cron"
+msgstr "webhook planification cron"
 
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:9
 msgid "Wed"

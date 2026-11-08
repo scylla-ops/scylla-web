@@ -3,6 +3,14 @@
   import { createQuery, navigateTo, routePathname } from '@scylla/core-sdk';
   import { ListSkeleton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from '@scylla/ui/primitives';
   import type { RoleEntity } from '../../../domain/entities/role.entity.ts';
   import { rolesMessages, workspaceRolesTitle } from '../../messages/roles.messages.ts';
   import { permissionCount, roleDescription, roleName } from '../../role-labels.ts';
@@ -28,25 +36,24 @@
 </script>
 
 {#snippet rows(list: readonly RoleEntity[])}
-  <div class="relative overflow-x-auto">
-    <table class="w-full min-w-[720px] border-collapse text-sm">
-      <thead>
-        <tr class="border-t text-left text-xs text-muted-foreground">
-          <th class="px-6 py-3 font-medium">{t(rolesMessages.role)}</th>
-          <th class="w-36 px-3 py-3 font-medium">{t(rolesMessages.level)}</th>
-          <th class="w-28 px-3 py-3 font-medium">{t(rolesMessages.type)}</th>
-          <th class="w-20 px-3 py-3 font-medium">{t(rolesMessages.holders)}</th>
-          <th class="w-32 px-3 py-3 font-medium">{t(rolesMessages.permissions)}</th>
-          <th class="w-10"></th>
-        </tr>
-      </thead>
-      <tbody>
+  <div class="relative overflow-x-auto p-1.5">
+    <Table class="min-w-[720px]">
+      <TableHeader>
+        <TableRow>
+          <TableHead>{t(rolesMessages.role)}</TableHead>
+          <TableHead class="w-36">{t(rolesMessages.level)}</TableHead>
+          <TableHead class="w-28">{t(rolesMessages.type)}</TableHead>
+          <TableHead class="w-20">{t(rolesMessages.holders)}</TableHead>
+          <TableHead class="w-32">{t(rolesMessages.permissions)}</TableHead>
+          <TableHead class="w-10"></TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {#each list as role (role.key)}
-          <tr
-            class="cursor-pointer border-t transition-colors hover:bg-muted/40"
+          <TableRow
             onclick={() => open(role.key)}
           >
-            <td class="px-6 py-3">
+            <TableCell class="whitespace-normal">
               <button
                 type="button"
                 class="block text-left font-medium text-foreground hover:underline"
@@ -60,18 +67,18 @@
               <span class="mt-0.5 block text-xs text-muted-foreground">
                 {roleDescription(role)}
               </span>
-            </td>
-            <td class="px-3 py-3"><LevelTag level={role.level} /></td>
-            <td class="px-3 py-3"><OriginTag builtin={role.builtin} /></td>
-            <td class="px-3 py-3 tabular-nums">{role.holderCount}</td>
-            <td class="px-3 py-3 text-muted-foreground tabular-nums">
+            </TableCell>
+            <TableCell><LevelTag level={role.level} /></TableCell>
+            <TableCell><OriginTag builtin={role.builtin} /></TableCell>
+            <TableCell class="tabular-nums">{role.holderCount}</TableCell>
+            <TableCell class="text-muted-foreground tabular-nums">
               {permissionCount(role, catalogQuery.data ?? [])}
-            </td>
-            <td class="pr-4 text-muted-foreground"><ChevronRightIcon class="size-4" /></td>
-          </tr>
+            </TableCell>
+            <TableCell class="text-muted-foreground"><ChevronRightIcon class="size-4" /></TableCell>
+          </TableRow>
         {/each}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   </div>
 {/snippet}
 

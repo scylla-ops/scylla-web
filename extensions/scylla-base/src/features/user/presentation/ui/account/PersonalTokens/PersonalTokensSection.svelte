@@ -1,14 +1,12 @@
 <script lang="ts">
   import { MediaQuery } from 'svelte/reactivity';
-  import CircleXIcon from '@lucide/svelte/icons/circle-x';
-  import ClockIcon from '@lucide/svelte/icons/clock';
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
   import PlusIcon from '@lucide/svelte/icons/plus';
   import TrashIcon from '@lucide/svelte/icons/trash';
   import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
   import { contextStore } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { ConfirmOperationAlertDialog, ErrorState, ListSkeleton } from '@scylla/ui';
+  import { ConfirmOperationAlertDialog, ErrorState, ListSkeleton, StatusShape } from '@scylla/ui';
   import {
     Button,
     buttonVariants,
@@ -16,8 +14,10 @@
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    Table,
     TableBody,
     TableCell,
+    TableFrame,
     TableHead,
     TableHeader,
     TableRow,
@@ -27,6 +27,7 @@
   import { cn } from '@scylla/ui/utils';
   import { expiryStateOf, type ApiToken } from '@shared/domain/structs/api-token.struct.ts';
   import {
+    tokenExpiryShape,
     tokenExpiryText,
     tokenLimitsText,
   } from '@shared/presentation/presenters/token-labels.presenter.ts';
@@ -84,12 +85,12 @@
         (state === 'expired' || state === 'revoked') && 'text-destructive',
       )}
     >
-      {#if state === 'expired' || state === 'revoked'}
-        <CircleXIcon class="size-4 shrink-0" aria-hidden="true" />
-      {:else}
-        <ClockIcon class="size-4 shrink-0" aria-hidden="true" />
-      {/if}
-      {tokenExpiryText(token, state, now)}
+      <StatusShape
+        state={tokenExpiryShape(state)}
+        label={tokenExpiryText(token, state, now)}
+        size={18}
+      />
+      <span aria-hidden="true">{tokenExpiryText(token, state, now)}</span>
     </span>
   {/if}
 {/snippet}
@@ -155,11 +156,11 @@
     </div>
     <p class="text-xs text-muted-foreground">{t(messages.hint)}</p>
   {:else}
-    <div class="relative overflow-x-auto rounded-xl border">
-      <table class="w-full text-sm">
+    <TableFrame>
+      <Table>
         <TableHeader>
-          <TableRow class="hover:bg-transparent">
-            <TableHead class="px-4">{t(messages.columnToken)}</TableHead>
+          <TableRow>
+            <TableHead>{t(messages.columnToken)}</TableHead>
             <TableHead>{t(messages.columnLimits)}</TableHead>
             <TableHead>{t(messages.columnExpiry)}</TableHead>
             <TableHead>{t(messages.columnLastUsed)}</TableHead>
@@ -172,18 +173,18 @@
           {#each mine.data.tokens as token (token.id)}
             {@const state = expiryStateOf(token, now)}
             <TableRow>
-              <TableCell class="px-4 py-3">
+              <TableCell>
                 <span class="block font-medium">{token.name}</span>
                 <span class="block font-mono text-xs text-muted-foreground">{token.hint}</span>
               </TableCell>
-              <TableCell class="py-3 text-xs">{tokenLimitsText(token.limits)}</TableCell>
-              <TableCell class="py-3 text-xs">
+              <TableCell class="text-xs">{tokenLimitsText(token.limits)}</TableCell>
+              <TableCell class="text-xs">
                 {@render expiry(token)}
               </TableCell>
-              <TableCell class="py-3 text-xs text-muted-foreground">
+              <TableCell class="text-xs text-muted-foreground">
                 {token.lastUsedAt ? getRelativeTime(token.lastUsedAt) : t(messages.never)}
               </TableCell>
-              <TableCell class="py-3 pr-4 text-right">
+              <TableCell class="text-right">
                 {#if state !== 'revoked'}
                   {@render tokenMenu(token)}
                 {/if}
@@ -191,8 +192,8 @@
             </TableRow>
           {/each}
         </TableBody>
-      </table>
-    </div>
+      </Table>
+    </TableFrame>
     <p class="text-xs text-muted-foreground">{t(messages.hint)}</p>
   {/if}
 </section>

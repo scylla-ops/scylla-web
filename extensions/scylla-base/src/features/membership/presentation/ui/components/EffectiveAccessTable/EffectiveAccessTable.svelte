@@ -12,6 +12,14 @@
   } from '@base/features/roles';
   import { t } from '@scylla/ui/i18n';
   import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from '@scylla/ui/primitives';
+  import {
     effectiveCell,
     membershipMessages,
     openRole,
@@ -55,26 +63,26 @@
   const areaHint = (area: CatalogArea) => (areaLabels[area.id] ? t(areaLabels[area.id].hint) : '');
 </script>
 
-<div class="relative overflow-x-auto">
-  <table class="w-full min-w-[640px] border-collapse text-sm">
-    <thead>
-      <tr class="bg-muted/60 text-xs text-muted-foreground">
-        <th class="px-4 py-2.5 text-left font-medium">{t(membershipMessages.resource)}</th>
+<div class="relative overflow-x-auto p-1.5">
+  <Table class="min-w-[640px]">
+    <TableHeader>
+      <TableRow>
+        <TableHead>{t(membershipMessages.resource)}</TableHead>
         {#each ACTIONS as action (action)}
-          <th class="w-[72px] px-2 py-2.5 text-center font-medium">{t(actionLabels[action])}</th>
+          <TableHead class="w-[72px] px-2 text-center">{t(actionLabels[action])}</TableHead>
         {/each}
-      </tr>
-    </thead>
-    <tbody>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
       {#each shown as area (area.id)}
-        <tr class="border-t">
-          <td class="px-4 py-2">
+        <TableRow>
+          <TableCell class="whitespace-normal">
             <span class="block font-medium">{areaTitle(area)}</span>
             <span class="block text-xs text-muted-foreground">{areaHint(area)}</span>
-          </td>
+          </TableCell>
           {#each ACTIONS as action (action)}
             {@const permission = cellOf(area, action)}
-            <td class="px-2 py-2 text-center align-middle">
+            <TableCell class="px-2 text-center">
               {#if !permission}
                 <span class="text-muted-foreground/60" aria-hidden="true">—</span>
               {:else if sources.has(permission.id)}
@@ -95,12 +103,12 @@
                   ·
                 </span>
               {/if}
-            </td>
+            </TableCell>
           {/each}
-        </tr>
+        </TableRow>
       {/each}
-    </tbody>
-  </table>
+    </TableBody>
+  </Table>
 </div>
 
 {#if open}
