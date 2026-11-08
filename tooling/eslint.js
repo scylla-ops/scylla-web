@@ -131,13 +131,16 @@ export const scyllaEslintConfig = rootDir => {
     // after it for exactly that reason. Here we only need the parser and the
     // plugin's own rules.
     ...svelte.configs.recommended,
-    // `.svelte` and `.svelte.ts` (rune) files skip type-aware linting on
-    // purpose: svelte-eslint-parser's bridge to the TypeScript program is known
-    // to scale badly on large projects (sveltejs/eslint-plugin-svelte#1084 —
-    // minutes per run, sometimes far worse, versus seconds for plain `.ts`).
-    // `svelte-check` (run separately in `typecheck`) already covers full type
-    // correctness for both file kinds, so the only real loss here is
-    // `no-floating-promises` on their script content.
+    // `.svelte` files skip type-aware linting on purpose: svelte-eslint-parser's
+    // bridge to the TypeScript program is known to scale badly on large projects
+    // (sveltejs/eslint-plugin-svelte#1084 — minutes per run, sometimes far worse,
+    // versus seconds for plain `.ts`). `svelte-check` (run separately in
+    // `typecheck`) covers their type correctness. `.svelte.ts` files also match the
+    // `**/*.ts` block, so they keep the type-aware rules.
+    //
+    // Do not set `extraFileExtensions` here: with `projectService`, each change of
+    // this list between two files reloads the TypeScript server. A full lint goes
+    // from 30 s to 4 minutes, with the same messages.
     {
       // `.svelte.ts` (rune files, no template) still need this parser: runes
       // syntax (`$state`, `$derived`...) is not valid plain TypeScript.
@@ -149,7 +152,6 @@ export const scyllaEslintConfig = rootDir => {
         parserOptions: {
           parser: tseslint.parser,
           tsconfigRootDir: rootDir,
-          extraFileExtensions: ['.svelte'],
         },
       },
       rules: {

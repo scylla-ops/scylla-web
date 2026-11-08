@@ -31,14 +31,14 @@ jobs:
           RANGE: ${{ github.event_name == 'pull_request' && format('origin/{0}..{1}', github.base_ref, github.event.pull_request.head.sha) || github.event_name == 'merge_group' && format('{0}..{1}', github.event.merge_group.base_sha, github.event.merge_group.head_sha) || format('{0}..{1}', github.event.before, github.sha) }}
         run: node scripts/check-commit-authors.mjs "$RANGE"
 
-  # The suite runs in 3 shards. Each shard writes a blob report with its coverage; the
+  # The suite runs in 6 shards. Each shard writes a blob report with its coverage; the
   # `coverage` job merges them and applies the thresholds of vite.config.ts.
   test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        shard: [1, 2, 3, 4, 5, 6]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,10 +46,12 @@ jobs:
 
       - uses: ./.github/actions/setup
 
-      # The thresholds apply to the merged report, not to a third of the suite.
+      # The thresholds apply to the merged report, not to a part of the suite.
+      # A blob report alone does not name a failed test in the log.
       - name: Tests
         run: >-
-          pnpm exec vitest run --shard=${{ matrix.shard }}/3 --reporter=blob --coverage
+          pnpm exec vitest run --shard=${{ matrix.shard }}/6
+          --reporter=dot --reporter=github-actions --reporter=blob --coverage
           --coverage.thresholds.statements=0 --coverage.thresholds.branches=0
           --coverage.thresholds.functions=0 --coverage.thresholds.lines=0
 
@@ -80,13 +82,10 @@ jobs:
       - name: Coverage thresholds
         run: pnpm exec vitest --merge-reports --coverage
 
-  # Typed lint is the slowest check. On a pull request, ESLint reuses its cache of the same
-  # branch. On a push or in the merge queue, it runs in full: a cache can miss an error that a
-  # changed dependency causes.
+  # No ESLint cache: a checkout sets new file times, so each file misses, and a cached result can
+  # miss an error that a changed dependency causes.
   lint:
     runs-on: ubuntu-latest
-    env:
-      ESLINT_CACHE_PATH: node_modules/.cache/eslint
     steps:
       - uses: actions/checkout@v4
         with:
@@ -94,22 +93,7 @@ jobs:
 
       - uses: ./.github/actions/setup
 
-      - name: Restore the ESLint cache
-        if: github.event_name == 'pull_request'
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.ESLINT_CACHE_PATH }}
-          key: eslint-${{ hashFiles('pnpm-lock.yaml', 'eslint.config.js', 'tooling/eslint.js') }}-${{ github.head_ref }}-${{ github.run_id }}
-          restore-keys: |
-            eslint-${{ hashFiles('pnpm-lock.yaml', 'eslint.config.js', 'tooling/eslint.js') }}-${{ github.head_ref }}-
-            eslint-${{ hashFiles('pnpm-lock.yaml', 'eslint.config.js', 'tooling/eslint.js') }}-${{ github.base_ref }}-
-
-      - name: Lint (cached)
-        if: github.event_name == 'pull_request'
-        run: pnpm run lint --cache --cache-location ${{ env.ESLINT_CACHE_PATH }}/
-
       - name: Lint
-        if: github.event_name != 'pull_request'
         run: pnpm run lint
 
   static:
@@ -138,5 +122,7 @@ jobs:
       - name: Catalog collisions
         run: (pnpm run extract || true) && pnpm run i18n:collisions
 
+      # Not `pnpm run build`: the steps above have run typecheck and extract, and the
+      # set-up has run gen-proto. Compile again, because extract can change the .po files.
       - name: Build
-        run: pnpm run build
+        run: pnpm run compile && pnpm exec vite build

@@ -185,6 +185,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Fixed
 
+- A full lint no longer reloads the TypeScript server each time it passes from a `.ts` file to a
+  `.svelte.ts` file. It takes 30 s in place of 4 minutes, also in a host repo that uses
+  `tooling/eslint.js`.
 - The guided tours. Only Skip leaves a step that lives in a dialog: Escape, a click outside, the
   close button and Cancel do nothing or do not show, and Tab reaches Skip. Skip on the welcome dialog
   asks for a confirmation.
