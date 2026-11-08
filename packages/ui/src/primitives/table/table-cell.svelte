@@ -11,7 +11,7 @@
 <td
   data-slot="table-cell"
   class={cn(
-    'border-b border-border px-4 py-3 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+    'px-4 py-2.5 align-middle whitespace-nowrap transition-colors duration-150 first:rounded-l-[10px] last:rounded-r-[10px] [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
     className,
   )}
   {...rest}

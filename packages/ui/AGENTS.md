@@ -66,6 +66,7 @@ catalogs of this package register themselves.
 | Pagination | `createPagination(options)` — local page merged with server `totalCount`/`totalPages`; `responsive: true` sizes the page to the container |
 | How much room the layout left a component | `createMeasuredHeight()` → `{ height, measure }`, and `{@attach measure}` on a container sized by the layout, never by its content |
 | A table | `DataTable` (+ `createPagination`) — row keys are business ids, never indices. Give each column `meta.card` (see "`DataTable` on a phone") |
+| A table that `DataTable` cannot express (rows of groups, a matrix) | `TableFrame` + `Table` + `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`. Never a `<table>` by hand. Inside a card that has its own border: no `TableFrame`, a `relative overflow-x-auto p-1.5` box |
 | The pages of a table | `PaginationSlot` under the table, outside its frame: the range on the left, `‹ page / pages ›` on the right |
 | The status of one run | `StatusShape` (`state`, `label`, `size`): the four dots of the logo take the form of the state. See "`StatusShape`" |
 | A row of statuses in time (the last runs) | `StatusTrail`: one dot per item, oldest first, linked by lines; the last dot is a little bigger. Each dot has `data-item-id`; with `onSelect` it is a button |
@@ -242,14 +243,22 @@ In `vite.config.ts`, `vendor-ui` holds bits-ui and everything it pulls (`@floati
 `vendor-svelte`, because the Svelte runtime imports it too: in `vendor-ui` it made a circular
 chunk.
 
-## `DataTable` in a table
+## The design of a table
 
-The rows are **inset**: the frame (`rounded-2xl`, `border`, `bg-card`) keeps a 6 px margin around
-the header and the rows. The header is a grey pill (`bg-muted`, 32 px, the labels in `text-xs`,
-not uppercase), and it sticks. The rows are rounded (10 px) and 2 px apart: there is no line
-between them. A hovered row is `bg-muted/40`; a selected row is `bg-primary/[0.07]` with an inset
-3 px bar of `--primary`, which follows the rounded corner. `computePageSize` counts a row as 58 px
-and the frame as 48 px (`state/responsive-page-size.ts`): keep them in step with these classes.
+The primitives `primitives/table/` hold the one design of a table; `DataTable` is built on them.
+The rows are **inset**: `TableFrame` (`rounded-2xl`, `border`, `bg-card`) keeps a 6 px margin
+around the header and the rows. The header is a grey pill (`bg-muted`, 32 px, the labels in
+`text-xs`, not uppercase). The rows are rounded (10 px) and 2 px apart: there is no line between
+them. A row with `onclick` is `bg-muted/40` on hover; a selected row (`data-state="selected"`) is
+`bg-primary/[0.07]` with an inset 3 px bar of `--primary`, which follows the rounded corner.
+
+- The background goes on the **cells**: a `tr` does not clip it to the rounded corners. A row
+  that has its own color writes `[&>td]:bg-…`.
+- A cell does not wrap (`whitespace-nowrap`). A cell with long text writes `whitespace-normal`.
+- A column that hides at a breakpoint leaves the row without its `last:` corner: the cell before
+  it writes `max-md:rounded-r-[10px]`.
+- The header of `DataTable` sticks. `computePageSize` counts a row as 58 px and the frame as 48 px
+  (`state/responsive-page-size.ts`): keep them in step with these classes.
 
 ## `StatusShape`
 

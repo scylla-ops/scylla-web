@@ -1,9 +1,5 @@
 <script lang="ts">
-  import CheckCircle2Icon from '@lucide/svelte/icons/check-circle-2';
-  import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
-  import MinusCircleIcon from '@lucide/svelte/icons/minus-circle';
-  import XCircleIcon from '@lucide/svelte/icons/x-circle';
-  import { Badge } from '@scylla/ui/primitives';
+  import { StatusShape, type StatusState } from '@scylla/ui';
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { t } from '@scylla/ui/i18n';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
@@ -19,29 +15,24 @@
   const hasFired = $derived(!!result || !!trigger.lastFiredAt);
 </script>
 
-<!-- Last run badge, and the next fire or why it is off. -->
+{#snippet outcome(state: StatusState, label: string, title?: string)}
+  <span class="inline-flex items-center gap-1.5 text-xs" {title}>
+    <StatusShape {state} {label} size={20} />
+    <span aria-hidden="true">{label}</span>
+  </span>
+{/snippet}
+
+<!-- Last run, and the next fire or why it is off. -->
 <div class="flex flex-col items-center justify-center gap-1">
   {#if !hasFired}
-    <Badge variant="outline" class="gap-1">
-      <MinusCircleIcon class="size-3" />
-      {t(triggersMessages.neverFired)}
-    </Badge>
+    {@render outcome('idle', t(triggersMessages.neverFired))}
   {:else if result?.kind === 'failed'}
-    <Badge variant="destructive" class="gap-1" title={result.error}>
-      <XCircleIcon class="size-3" />
-      {t(triggersMessages.error)}
-    </Badge>
+    {@render outcome('failed', t(triggersMessages.error), result.error)}
   {:else if result?.kind === 'succeeded'}
-    <Badge variant="default" class="gap-1">
-      <CheckCircle2Icon class="size-3" />
-      {t(triggersMessages.ok)}
-    </Badge>
+    {@render outcome('success', t(triggersMessages.ok))}
   {:else}
     <!-- An outcome arm newer than this build: do not claim success. -->
-    <Badge variant="outline" class="gap-1">
-      <HelpCircleIcon class="size-3" />
-      {t(triggersMessages.unknown)}
-    </Badge>
+    {@render outcome('idle', t(triggersMessages.unknown))}
   {/if}
 
   {#if !trigger.enabled}

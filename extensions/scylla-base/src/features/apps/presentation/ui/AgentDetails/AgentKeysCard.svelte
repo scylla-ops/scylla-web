@@ -5,7 +5,7 @@
   import PencilIcon from '@lucide/svelte/icons/pencil';
   import TrashIcon from '@lucide/svelte/icons/trash';
   import { createMutation } from '@scylla/core-sdk';
-  import { ConfirmOperationAlertDialog } from '@scylla/ui';
+  import { ConfirmOperationAlertDialog, StatusShape } from '@scylla/ui';
   import {
     Button,
     buttonVariants,
@@ -24,8 +24,10 @@
     DropdownMenuTrigger,
     Input,
     Label,
+    Table,
     TableBody,
     TableCell,
+    TableFrame,
     TableHead,
     TableHeader,
     TableRow,
@@ -128,11 +130,11 @@
         {/each}
       </ul>
     {:else}
-    <div class="relative overflow-x-auto rounded-lg border">
-      <table class="w-full text-sm">
+    <TableFrame>
+      <Table>
         <TableHeader>
-          <TableRow class="hover:bg-transparent">
-            <TableHead class="px-6">{t(messages.keyName)}</TableHead>
+          <TableRow>
+            <TableHead>{t(messages.keyName)}</TableHead>
             <TableHead>{t(messages.key)}</TableHead>
             <TableHead>{t(messages.added)}</TableHead>
             <TableHead>{t(messages.state)}</TableHead>
@@ -142,39 +144,38 @@
         <TableBody>
           {#each keys as key (key.id)}
             <TableRow class={key.revokedAt ? 'text-muted-foreground' : ''}>
-              <TableCell class="px-6 py-3">{nameOf(key)}</TableCell>
-              <TableCell class="py-3 font-mono text-xs">{key.id.slice(-10).toUpperCase()}</TableCell>
-              <TableCell class="py-3">{formatDay(key.createdAt)}</TableCell>
-              <TableCell class="py-3">
-                <span class="inline-flex items-center gap-2">
-                  <span
-                    class={cn(
-                      'size-2 rounded-full',
-                      key.revokedAt ? 'bg-muted-foreground' : 'bg-primary',
-                    )}
-                    aria-hidden="true"
-                  ></span>
-                  {key.revokedAt
-                    ? t(messages.revokedOn(formatDay(key.revokedAt)))
-                    : t(messages.active)}
+              <TableCell>{nameOf(key)}</TableCell>
+              <TableCell class="font-mono text-xs">{key.id.slice(-10).toUpperCase()}</TableCell>
+              <TableCell>{formatDay(key.createdAt)}</TableCell>
+              <TableCell>
+                {@const keyState = key.revokedAt
+                  ? t(messages.revokedOn(formatDay(key.revokedAt)))
+                  : t(messages.active)}
+                <span class="inline-flex items-center gap-1.5">
+                  <StatusShape
+                    state={key.revokedAt ? 'cancelled' : 'success'}
+                    label={keyState}
+                    size={20}
+                  />
+                  <span aria-hidden="true">{keyState}</span>
                 </span>
               </TableCell>
-              <TableCell class="py-3 pr-4 text-right">
+              <TableCell class="text-right">
                 {#if canManage && !key.revokedAt}
                   {@render keyMenu(key)}
                 {/if}
               </TableCell>
             </TableRow>
           {:else}
-            <TableRow class="hover:bg-transparent">
+            <TableRow>
               <TableCell colspan={5} class="px-6 py-6 text-muted-foreground">
                 {t(messages.noKey)}
               </TableCell>
             </TableRow>
           {/each}
         </TableBody>
-      </table>
-    </div>
+      </Table>
+    </TableFrame>
     {/if}
     <p class="text-xs text-muted-foreground">{t(messages.keysHint)}</p>
   </CardContent>

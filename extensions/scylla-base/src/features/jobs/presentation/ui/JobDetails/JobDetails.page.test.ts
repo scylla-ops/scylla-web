@@ -185,7 +185,7 @@ describe('JobDetailsPage', () => {
   it('replaces the whole job with the first node picked, rather than adding to it', async () => {
     await renderPage(job());
 
-    await userEvent.click(screen.getByRole('button', { name: /^build/ }));
+    await userEvent.click(screen.getByRole('button', { name: /^(?!Node )\w+ build/ }));
 
     await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/build']));
   });
@@ -193,7 +193,7 @@ describe('JobDetailsPage', () => {
   it('opens a second node without closing the first', async () => {
     await renderPage(job(), '?nodes=build');
 
-    await userEvent.click(screen.getByRole('button', { name: /^test/ }));
+    await userEvent.click(screen.getByRole('button', { name: /^(?!Node )\w+ test/ }));
 
     await waitFor(() =>
       expect(openPanels()).toEqual(['logs for job-1/build', 'logs for job-1/test']),
@@ -203,7 +203,7 @@ describe('JobDetailsPage', () => {
   it("closes a node's logs when its entry is picked again, unmounting that view", async () => {
     await renderPage(job(), '?nodes=build,test');
 
-    await userEvent.click(screen.getByRole('button', { name: /^build/ }));
+    await userEvent.click(screen.getByRole('button', { name: /^(?!Node )\w+ build/ }));
 
     await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/test']));
   });
@@ -252,8 +252,8 @@ describe('JobDetailsPage', () => {
   it('marks the entries of the panels that are open', async () => {
     await renderPage(job(), '?nodes=build');
 
-    expect(screen.getByRole('button', { name: /^build/ })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('button', { name: /^test/ })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: /^(?!Node )\w+ build/ })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /^(?!Node )\w+ test/ })).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('opens the node picked in the timeline alone, dropping the panels open beside it', async () => {

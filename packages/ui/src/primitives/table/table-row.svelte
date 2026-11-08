@@ -11,7 +11,11 @@
 <tr
   data-slot="table-row"
   class={cn(
-    'transition-colors duration-150 hover:bg-muted/40 has-aria-expanded:bg-muted/40 data-[state=selected]:bg-primary/[0.06]',
+    // On the cells: a `tr` does not clip its background to the rounded corners.
+    // An inset shadow for the bar: it does not shift the first column.
+    'has-aria-expanded:[&>td]:bg-muted/40 data-[state=selected]:[&>td]:bg-primary/[0.07] data-[state=selected]:[&>td:first-child]:shadow-[inset_3px_0_0_0_var(--primary)]',
+    rest.onclick &&
+      'cursor-pointer hover:[&>td]:bg-muted/40 data-[state=selected]:hover:[&>td]:bg-primary/[0.1]',
     className,
   )}
   {...rest}

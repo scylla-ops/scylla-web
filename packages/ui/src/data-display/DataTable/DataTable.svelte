@@ -2,7 +2,14 @@
   import type { Snippet } from 'svelte';
   import { createTable, FlexRender } from '@tanstack/svelte-table';
   import type { Row, RowData } from '@tanstack/table-core';
-  import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../primitives/index.ts';
+  import {
+    TableBody,
+    TableCell,
+    TableFrame,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
   import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import { dataTableMessages } from './data-table.messages.ts';
@@ -166,7 +173,7 @@
 {:else}
     <!-- Inset rows: the frame keeps a 6 px margin around the header and the rows, which are
       rounded and spaced instead of divided by lines. -->
-    <div class="relative h-full w-full overflow-auto rounded-2xl border border-border bg-card p-1.5">
+    <TableFrame class="relative h-full overflow-auto">
       <!-- Rows are CSS grids (see `buildGridTemplate`); table, thead and tbody stay blocks so
         the header can stick. They lose their implicit ARIA roles: restate them. -->
       <!-- svelte-ignore a11y_no_redundant_roles -->
@@ -178,13 +185,13 @@
         <!-- The card behind the sticky header hides the rows that scroll under it. -->
         <TableHeader role="rowgroup" class="sticky top-0 z-10 block bg-card pb-0.5">
           {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
-            <TableRow role="row" class="grid rounded-[10px] bg-muted hover:bg-muted" style={rowStyle}>
+            <TableRow role="row" class="grid" style={rowStyle}>
               {#each headerGroup.headers as header (header.id)}
                 {@const align = header.column.columnDef.meta?.align ?? defaultAlign(alignColumnsCenter)}
                 <TableHead
                   role="columnheader"
                   class={cn(
-                    'flex h-8 min-w-0 items-center overflow-hidden px-4 text-xs font-normal tracking-normal text-muted-foreground normal-case',
+                    'flex min-w-0 items-center overflow-hidden',
                     alignClass[align],
                     headAlignClass[align],
                   )}
@@ -205,24 +212,16 @@
               role="row"
               data-part="data-table-row"
               data-state={selected ? 'selected' : undefined}
-              onclick={() => onRowClick?.(row)}
+              onclick={onRowClick && (() => onRowClick(row))}
               style={rowStyle}
-              class={cn(
-                'grid rounded-[10px] transition-colors duration-150 hover:bg-transparent',
-                onRowClick && 'cursor-pointer',
-                onRowClick && !selected && 'hover:bg-muted/40',
-                // An inset shadow, not a border: the accent bar does not shift the first column,
-                // and it follows the rounded corner of the row.
-                selected &&
-                  'bg-primary/[0.07] shadow-[inset_3px_0_0_0_var(--primary)] hover:bg-primary/[0.1]',
-              )}
+              class="grid"
             >
               {#each row.getAllCells() as cell (cell.id)}
                 {@const align = cell.column.columnDef.meta?.align ?? defaultAlign(alignRowsCenter)}
                 <TableCell
                   role="cell"
                   class={cn(
-                    'flex min-w-0 items-center overflow-hidden border-b-0 px-4 py-2.5',
+                    'flex min-w-0 items-center overflow-hidden',
                     alignClass[align],
                   )}
                 >
@@ -234,17 +233,17 @@
             </TableRow>
 
             {#if (isRowExpanded?.(row.original) ?? false) && expandedContent}
-              <TableRow role="row" class="grid grid-cols-[minmax(0,1fr)] hover:bg-transparent">
-                <TableCell role="cell" class="min-w-0 overflow-hidden rounded-[10px] border-b-0 bg-muted/30 p-0">
+              <TableRow role="row" class="grid grid-cols-[minmax(0,1fr)]">
+                <TableCell role="cell" class="min-w-0 overflow-hidden bg-muted/30 p-0">
                   {@render expandedContent(row)}
                 </TableCell>
               </TableRow>
             {/if}
           {:else}
-            <TableRow role="row" class="grid grid-cols-[minmax(0,1fr)] hover:bg-transparent">
+            <TableRow role="row" class="grid grid-cols-[minmax(0,1fr)]">
               <TableCell
                 role="cell"
-                class="flex h-28 items-center justify-center border-b-0 text-sm text-muted-foreground"
+                class="flex h-28 items-center justify-center text-sm text-muted-foreground"
               >
                 {t(dataTableMessages.noResults)}
               </TableCell>
@@ -252,6 +251,6 @@
           {/each}
         </TableBody>
       </table>
-    </div>
+    </TableFrame>
   {/if}
 </div>

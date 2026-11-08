@@ -11,7 +11,7 @@
 <th
   data-slot="table-head"
   class={cn(
-    'h-10 px-4 text-left align-middle text-[0.6875rem] font-semibold tracking-[0.08em] whitespace-nowrap text-muted-foreground uppercase [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+    'h-8 bg-muted px-4 text-left align-middle text-xs font-normal whitespace-nowrap text-muted-foreground first:rounded-l-[10px] last:rounded-r-[10px] [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
     className,
   )}
   {...rest}

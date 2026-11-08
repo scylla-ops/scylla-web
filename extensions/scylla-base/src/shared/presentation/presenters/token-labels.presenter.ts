@@ -1,4 +1,5 @@
 import { i18n } from '@lingui/core';
+import type { StatusState } from '@scylla/ui';
 import {
   daysUntil,
   type ApiToken,
@@ -25,6 +26,15 @@ export const tokenLimitsText = (limits: TokenLimits): string =>
       ? i18n._(messages.projectCount(limits.projectIds.length))
       : i18n._(messages.allProjects)
   }`;
+
+const EXPIRY_SHAPE: Record<ExpiryState, StatusState> = {
+  ok: 'success',
+  soon: 'pending',
+  expired: 'failed',
+  revoked: 'cancelled',
+};
+
+export const tokenExpiryShape = (state: ExpiryState): StatusState => EXPIRY_SHAPE[state];
 
 /** `Expires in 9 days`, `Expired on 3 Oct` or `Revoked on 3 Oct`. */
 export const tokenExpiryText = (

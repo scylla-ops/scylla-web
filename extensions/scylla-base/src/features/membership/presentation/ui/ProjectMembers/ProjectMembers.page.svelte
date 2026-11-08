@@ -8,7 +8,17 @@
   import { userQueries } from '@base/features/user';
   import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { Button, Skeleton } from '@scylla/ui/primitives';
+  import {
+    Button,
+    Skeleton,
+    Table,
+    TableBody,
+    TableCell,
+    TableFrame,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { UserIdentity } from '@shared/presentation/ui';
   import {
@@ -142,25 +152,25 @@
         {t(membershipMessages.projectEmpty)}
       </p>
     {:else}
-      <div class="relative overflow-x-auto rounded-xl border bg-card">
-        <table class="w-full min-w-[720px] border-collapse text-sm">
-          <thead>
-            <tr class="text-left text-xs text-muted-foreground">
-              <th class="px-6 py-3 font-medium">{t(membershipMessages.member)}</th>
-              <th class="px-3 py-3 font-medium">{t(membershipMessages.rolesHere)}</th>
-              <th class="px-3 py-3 font-medium">{t(membershipMessages.comesFrom)}</th>
-              <th class="w-40"></th>
-            </tr>
-          </thead>
-          <tbody>
+      <TableFrame>
+        <Table class="min-w-[720px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t(membershipMessages.member)}</TableHead>
+              <TableHead>{t(membershipMessages.rolesHere)}</TableHead>
+              <TableHead>{t(membershipMessages.comesFrom)}</TableHead>
+              <TableHead class="w-40"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {#each rows as row (row.actorId)}
-              <tr class="border-t {row.inheritedOnly ? 'bg-muted/50' : ''}">
-                <td class="px-6 py-3">
+              <TableRow class={row.inheritedOnly ? '[&>td]:bg-muted/50' : ''}>
+                <TableCell>
                   <UserIdentity
                     user={memberProfile(row)}
                   />
-                </td>
-                <td class="px-3 py-3">
+                </TableCell>
+                <TableCell class="whitespace-normal">
                   <div class="flex flex-wrap gap-1.5">
                     {#each row.roles as role (`${role.scopeKind}-${role.role}`)}
                       <span class="rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium">
@@ -168,8 +178,8 @@
                       </span>
                     {/each}
                   </div>
-                </td>
-                <td class="px-3 py-3">
+                </TableCell>
+                <TableCell class="whitespace-normal">
                   <div class="flex flex-wrap gap-1.5">
                     {#each row.scopes as scope (scope.scopeKind)}
                       <span class="rounded-full bg-muted px-2.5 py-0.5 text-xs">
@@ -177,8 +187,8 @@
                       </span>
                     {/each}
                   </div>
-                </td>
-                <td class="pr-4 text-right">
+                </TableCell>
+                <TableCell class="text-right">
                   {#if row.inheritedOnly}
                     <button
                       type="button"
@@ -192,12 +202,12 @@
                       {t(membershipMessages.changeRoles)}
                     </Button>
                   {/if}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             {/each}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </TableFrame>
 
       <aside class="flex gap-3 rounded-xl border border-primary/40 bg-primary/5 p-4">
         <InfoIcon class="mt-0.5 size-4 shrink-0 text-primary" />

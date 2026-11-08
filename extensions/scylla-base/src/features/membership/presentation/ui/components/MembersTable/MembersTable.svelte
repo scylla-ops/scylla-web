@@ -8,6 +8,13 @@
     DropdownMenuItem,
     DropdownMenuTrigger,
     Skeleton,
+    Table,
+    TableBody,
+    TableCell,
+    TableFrame,
+    TableHead,
+    TableHeader,
+    TableRow,
   } from '@scylla/ui/primitives';
   import { UserIdentity } from '@shared/presentation/ui';
   import type { UserSummary } from '@base/features/user';
@@ -43,35 +50,35 @@
     {t(membershipMessages.workspaceEmpty)}
   </p>
 {:else}
-  <div class="relative overflow-x-auto rounded-xl border bg-card">
-    <table class="w-full min-w-[840px] border-collapse text-sm">
-      <thead>
-        <tr class="text-left text-xs text-muted-foreground">
-          <th class="px-6 py-3 font-medium">{t(membershipMessages.member)}</th>
-          <th class="px-3 py-3 font-medium">{t(membershipMessages.workspaceRolesColumn)}</th>
-          <th class="px-3 py-3 font-medium">{t(membershipMessages.projectRoles)}</th>
-          <th class="w-24 px-3 py-3 font-medium">{t(membershipMessages.added)}</th>
-          <th class="w-12"></th>
-        </tr>
-      </thead>
-      <tbody>
+  <TableFrame>
+    <Table class="min-w-[840px]">
+      <TableHeader>
+        <TableRow>
+          <TableHead>{t(membershipMessages.member)}</TableHead>
+          <TableHead>{t(membershipMessages.workspaceRolesColumn)}</TableHead>
+          <TableHead>{t(membershipMessages.projectRoles)}</TableHead>
+          <TableHead class="w-24">{t(membershipMessages.added)}</TableHead>
+          <TableHead class="w-12"></TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {#each rows as row (row.actorId)}
-          <tr class="border-t">
-            <td class="px-6 py-3">
+          <TableRow>
+            <TableCell>
               <button type="button" class="text-left" onclick={() => onOpen(row)}>
                 <UserIdentity
                   user={userFor(row.actorId) ?? memberProfile(row)}
                 />
               </button>
-            </td>
-            <td class="px-3 py-3">
+            </TableCell>
+            <TableCell class="whitespace-normal">
               <div class="flex flex-wrap gap-1.5">
                 {#each row.workspaceRoles as role (role.role)}
                   <span class={chipClass}>{memberRoleName(role)}</span>
                 {/each}
               </div>
-            </td>
-            <td class="px-3 py-3">
+            </TableCell>
+            <TableCell class="whitespace-normal">
               <div class="flex flex-wrap gap-1.5">
                 {#if row.allProjectsRoleKey}
                   <span class={chipClass}>{allProjectsRoleLabel(row.allProjectsRoleKey)}</span>
@@ -86,11 +93,11 @@
                   </span>
                 {/each}
               </div>
-            </td>
-            <td class="px-3 py-3 text-xs text-muted-foreground">
+            </TableCell>
+            <TableCell class="text-xs text-muted-foreground">
               {row.addedAt ? dateFormat.format(row.addedAt) : '—'}
-            </td>
-            <td class="pr-3">
+            </TableCell>
+            <TableCell>
               <DropdownMenu>
                 <DropdownMenuTrigger>
                   {#snippet child({ props })}
@@ -118,10 +125,10 @@
                   {/if}
                 </DropdownMenuContent>
               </DropdownMenu>
-            </td>
-          </tr>
+            </TableCell>
+          </TableRow>
         {/each}
-      </tbody>
-    </table>
-  </div>
+      </TableBody>
+    </Table>
+  </TableFrame>
 {/if}
