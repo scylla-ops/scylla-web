@@ -27,7 +27,7 @@
 <aside
   {id}
   data-slot="sidebar"
-  class={cn('flex flex-col border-r border-sidebar-border bg-second-sidebar pb-2', className)}
+  class={cn('flex flex-col border-r border-input bg-second-sidebar pb-2', className)}
 >
   {#if !ready}
     <div class="flex h-12 shrink-0 items-center px-4">

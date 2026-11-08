@@ -289,6 +289,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   roles, users, secrets and triggers, the page of a role, of a user and of the access of a member,
   the settings, the account, the help and the notifications. Before, the last element touched the
   bottom of the window, and a floating button at the bottom right covered it.
+- The logo band has one color, the color of the top bar, in the light and in the dark theme. Before,
+  it had the colors of the two columns below it. A stronger line marks the right edge of the double
+  sidebar, from the top to the bottom, also when the rail is open.
 
 ## [0.6.0] - 2026-11-01
 

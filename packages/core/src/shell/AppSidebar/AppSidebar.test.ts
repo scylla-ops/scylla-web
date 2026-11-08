@@ -401,6 +401,40 @@ describe('the second sidebar', () => {
   });
 });
 
+describe('the band of the brand', () => {
+  const band = () => {
+    const element = document.querySelector<HTMLElement>('[data-slot="sidebar-brand"]');
+    if (!element) throw new Error('no brand band');
+    return element;
+  };
+
+  it('has one color, the color of the page, above the two columns', () => {
+    render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
+
+    expect(band()).toHaveClass('bg-background');
+    expect(band().className).not.toMatch(/gradient/);
+    expect(band()).toHaveClass('border-b-sidebar-border');
+  });
+
+  it('starts the input line on the right edge, which the second sidebar continues', () => {
+    render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
+
+    expect(band()).toHaveClass('border-r-input');
+    expect(secondSidebar()).toHaveClass('border-input');
+    expect(railOf()).toHaveClass('border-sidebar-border');
+    expect(railOf()).not.toHaveClass('border-input');
+  });
+
+  it('gives the input line to the open rail, which covers the second sidebar', async () => {
+    render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
+
+    await fireEvent.click(railOf());
+
+    expect(railOf()).toHaveClass('border-input');
+    expect(railOf()).not.toHaveClass('border-sidebar-border');
+  });
+});
+
 describe('the handle of the second sidebar', () => {
   const STORAGE_KEY = 'scylla.shell.second-sidebar-width';
   const viewport = window.innerWidth;
