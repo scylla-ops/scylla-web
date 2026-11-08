@@ -105,12 +105,15 @@ pass with zero warnings, zero failures, zero violations, zero cycles and zero co
 | Command | What it checks |
 |---|---|
 | `pnpm typecheck` | TypeScript, `.svelte` files included |
-| `pnpm test` (`pnpm coverage` in CI) | The Vitest suite, and the coverage thresholds |
+| `pnpm test` | The Vitest suite. CI applies the coverage thresholds (`pnpm coverage`) after a merge, not on a pull request |
 | `pnpm lint` | ESLint, warnings are errors |
 | `pnpm depcruise` | The architecture: layer direction and public APIs |
 | `pnpm depcruise:cycles` | No dependency cycle between modules |
 | `pnpm i18n:collisions` | No message translated in two different ways |
 | `pnpm check:authors <range>` | No AI agent as author, committer or co-author of a commit |
+
+The job `ci-ok` sums these checks, and it is the required check of the version branch. CI runs again
+after each merge. If this run is red on a version branch, fix or revert the merge first.
 
 ## Changelog and releases
 
