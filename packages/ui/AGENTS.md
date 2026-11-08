@@ -34,7 +34,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 src/
   index.ts                 `@scylla/ui` — re-exports the groups below
   controls/                IconButton, GatedButton
-  data-display/            DataTable, Pagination, PaginationSlot, StatusIndicator,
+  data-display/            DataTable, Pagination, PaginationSlot, StatusIndicator, StatusTrail,
                            CopyableText, TruncatedText
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
@@ -66,6 +66,8 @@ catalogs of this package register themselves.
 | Pagination | `createPagination(options)` — local page merged with server `totalCount`/`totalPages`; `responsive: true` sizes the page to the container |
 | How much room the layout left a component | `createMeasuredHeight()` → `{ height, measure }`, and `{@attach measure}` on a container sized by the layout, never by its content |
 | A table | `DataTable` (+ `createPagination`) — row keys are business ids, never indices. Give each column `meta.card` (see "`DataTable` on a phone") |
+| The pages of a table | `PaginationSlot` under the table, outside its frame: the range on the left, `‹ page / pages ›` on the right |
+| A row of statuses in time (the last runs) | `StatusTrail`: one dot per item, oldest first, linked by lines; the last dot is a little bigger. Each dot has `data-item-id`; with `onSelect` it is a button |
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
 | A select with a search | `SearchSelect`, with `options` as data. Use `Select` only for a short fixed list |
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`, and `data-*` attributes, which go on its content). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
@@ -238,6 +240,15 @@ In `vite.config.ts`, `vendor-ui` holds bits-ui and everything it pulls (`@floati
 `tabbable`, `runed`, `svelte-toolbelt`), lucide and `svelte-sonner`. `clsx` goes in
 `vendor-svelte`, because the Svelte runtime imports it too: in `vendor-ui` it made a circular
 chunk.
+
+## `DataTable` in a table
+
+The rows are **inset**: the frame (`rounded-2xl`, `border`, `bg-card`) keeps a 6 px margin around
+the header and the rows. The header is a grey pill (`bg-muted`, 32 px, the labels in `text-xs`,
+not uppercase), and it sticks. The rows are rounded (10 px) and 2 px apart: there is no line
+between them. A hovered row is `bg-muted/40`; a selected row is `bg-primary/[0.07]` with an inset
+3 px bar of `--primary`, which follows the rounded corner. `computePageSize` counts a row as 58 px
+and the frame as 48 px (`state/responsive-page-size.ts`): keep them in step with these classes.
 
 ## `DataTable` on a phone
 

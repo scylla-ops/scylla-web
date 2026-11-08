@@ -29,6 +29,10 @@ and behave alike:
 
 - **`DataTable`** with **`createPagination()`** — local page state merged with the server's
   `totalCount` and `totalPages`. Row keys are business ids, never array indices.
+- **Inset rows, not ruled rows.** The rows of a table are rounded and spaced inside a framed
+  card, with a grey header pill and no line between them: the eye follows a row by its own
+  shape, and a soft green tint with a 3 px bar marks the selection without a hard outline. The
+  pages sit under the table, outside its frame, so the table stays one calm block.
 - **`createSelection(key)`** over a single `selectionStore`. Selection is keyed by feature, so
   `createSelection('jobs')` and `createSelection('users')` are independent — which is why there is
   no per-feature selection store anywhere in the codebase.

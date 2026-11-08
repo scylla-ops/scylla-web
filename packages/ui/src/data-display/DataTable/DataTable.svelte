@@ -164,9 +164,9 @@
     {/each}
   </ul>
 {:else}
-    <div
-      class="relative h-full w-full overflow-auto rounded-2xl border border-border/70 bg-card shadow-[0_1px_2px_oklch(0_0_0/0.04),0_12px_32px_-16px_oklch(0_0_0/0.18)]"
-    >
+    <!-- Inset rows: the frame keeps a 6 px margin around the header and the rows, which are
+      rounded and spaced instead of divided by lines. -->
+    <div class="relative h-full w-full overflow-auto rounded-2xl border border-border bg-card p-1.5">
       <!-- Rows are CSS grids (see `buildGridTemplate`); table, thead and tbody stay blocks so
         the header can stick. They lose their implicit ARIA roles: restate them. -->
       <!-- svelte-ignore a11y_no_redundant_roles -->
@@ -175,18 +175,16 @@
         class="block w-full text-sm"
         style:min-width={minTableWidth > 0 ? `${minTableWidth}px` : undefined}
       >
-        <TableHeader
-          role="rowgroup"
-          class="sticky top-0 z-10 block bg-card/80 shadow-[inset_0_-1px_0_0_var(--border)] backdrop-blur-xl"
-        >
+        <!-- The card behind the sticky header hides the rows that scroll under it. -->
+        <TableHeader role="rowgroup" class="sticky top-0 z-10 block bg-card pb-0.5">
           {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
-            <TableRow role="row" class="grid hover:bg-transparent" style={rowStyle}>
+            <TableRow role="row" class="grid rounded-[10px] bg-muted hover:bg-muted" style={rowStyle}>
               {#each headerGroup.headers as header (header.id)}
                 {@const align = header.column.columnDef.meta?.align ?? defaultAlign(alignColumnsCenter)}
                 <TableHead
                   role="columnheader"
                   class={cn(
-                    'flex h-11 min-w-0 items-center overflow-hidden px-5 text-[0.6875rem] font-semibold tracking-[0.08em] text-muted-foreground/90 uppercase',
+                    'flex h-8 min-w-0 items-center overflow-hidden px-4 text-xs font-normal tracking-normal text-muted-foreground normal-case',
                     alignClass[align],
                     headAlignClass[align],
                   )}
@@ -200,7 +198,7 @@
           {/each}
         </TableHeader>
 
-        <TableBody role="rowgroup" class="block">
+        <TableBody role="rowgroup" class="flex flex-col gap-0.5">
           {#each table.getRowModel().rows as row (row.id)}
             {@const selected = isRowSelected?.(row.original) ?? false}
             <TableRow
@@ -210,19 +208,23 @@
               onclick={() => onRowClick?.(row)}
               style={rowStyle}
               class={cn(
-                'grid transition-colors duration-150',
+                'grid rounded-[10px] transition-colors duration-150 hover:bg-transparent',
                 onRowClick && 'cursor-pointer',
                 onRowClick && !selected && 'hover:bg-muted/40',
-                // An inset shadow, not a border: the accent bar does not shift the first column.
+                // An inset shadow, not a border: the accent bar does not shift the first column,
+                // and it follows the rounded corner of the row.
                 selected &&
-                  '[&>td]:bg-primary/[0.07] [&>td:first-child]:shadow-[inset_3px_0_0_0_var(--primary)] hover:[&>td]:bg-primary/[0.1]',
+                  'bg-primary/[0.07] shadow-[inset_3px_0_0_0_var(--primary)] hover:bg-primary/[0.1]',
               )}
             >
               {#each row.getAllCells() as cell (cell.id)}
                 {@const align = cell.column.columnDef.meta?.align ?? defaultAlign(alignRowsCenter)}
                 <TableCell
                   role="cell"
-                  class={cn('flex min-w-0 items-center overflow-hidden px-5 py-3.5', alignClass[align])}
+                  class={cn(
+                    'flex min-w-0 items-center overflow-hidden border-b-0 px-4 py-2.5',
+                    alignClass[align],
+                  )}
                 >
                   <div class={cn('w-full min-w-0', cellAlignClass[align])}>
                     <FlexRender {cell} />
@@ -233,7 +235,7 @@
 
             {#if (isRowExpanded?.(row.original) ?? false) && expandedContent}
               <TableRow role="row" class="grid grid-cols-[minmax(0,1fr)] hover:bg-transparent">
-                <TableCell role="cell" class="min-w-0 overflow-hidden bg-muted/30 p-0">
+                <TableCell role="cell" class="min-w-0 overflow-hidden rounded-[10px] border-b-0 bg-muted/30 p-0">
                   {@render expandedContent(row)}
                 </TableCell>
               </TableRow>
@@ -242,7 +244,7 @@
             <TableRow role="row" class="grid grid-cols-[minmax(0,1fr)] hover:bg-transparent">
               <TableCell
                 role="cell"
-                class="flex h-28 items-center justify-center text-sm text-muted-foreground"
+                class="flex h-28 items-center justify-center border-b-0 text-sm text-muted-foreground"
               >
                 {t(dataTableMessages.noResults)}
               </TableCell>
