@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { msg } from '@lingui/core/macro';
 import type { AccessPolicy, RoutePermission, ShellContributions } from '@scylla/core-sdk';
 import { installTestNavigator } from '@test/navigator.ts';
+import { findTooltip, queryTooltip } from '@test/render.ts';
 import { testPermission } from '../../routing/__test__/test-permission.fixture.ts';
 import type { NavEntry } from '../../routing/compilation/nav-entries.ts';
 import type { ShellConfig } from '../shell-config.ts';
@@ -183,6 +184,24 @@ describe('the rail', () => {
     expect(rail).toHaveAttribute('data-state', 'collapsed');
   });
 
+  it('names a row in a tooltip while the closed rail shows only the icons', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+
+    await userEvent.hover(within(railOf()).getByRole('button', { name: /Secrets/ }));
+
+    expect(await findTooltip()).toHaveTextContent('Secrets');
+  });
+
+  it('gives a row no tooltip while the open rail shows its title', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+    const rail = railOf();
+    await fireEvent.click(rail);
+
+    await userEvent.hover(within(rail).getByRole('button', { name: /Secrets/ }));
+
+    expect(queryTooltip()).toBeNull();
+  });
+
   it('opens the page of a row without opening the rail, and closes an open rail', async () => {
     render(AppSidebarFixture, { config: configWith() });
     const rail = railOf();
@@ -318,6 +337,67 @@ describe('the second sidebar', () => {
     render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
 
     expect(within(secondSidebar()).queryByRole('heading')).not.toBeInTheDocument();
+  });
+
+  it('sits on its own surface, between the rail and the page', () => {
+    render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
+
+    expect(railOf()).toHaveClass('bg-rail');
+    expect(secondSidebar()).toHaveClass('bg-second-sidebar');
+  });
+
+  describe('the links of a module', () => {
+    const machineLinks =
+      (shown: () => string | undefined) => (): { title: string; href: string }[] =>
+        shown() === 'machines'
+          ? [
+              { title: 'runner-1', href: '/acme-corp/agents/1' },
+              { title: 'runner-2', href: '/acme-corp/agents/2' },
+            ]
+          : [];
+
+    const withMachineLinks = (): ShellContributions[] => [
+      { linkParams: () => ({ workspaceSlug: 'acme-corp' }), secondSidebarLinks: machineLinks },
+    ];
+
+    it('shows them after the pages, apart from them', () => {
+      render(AppSidebarFixture, {
+        config: configWith({ entries: groupEntries, contributions: withMachineLinks() }),
+      });
+
+      const names = within(secondSidebar())
+        .getAllByRole('button')
+        .map(button => button.textContent?.trim());
+      expect(names).toEqual(['Agents', 'Apps', 'runner-1', 'runner-2']);
+      const first = within(secondSidebar()).getByRole('button', { name: 'runner-1' });
+      expect(first.closest('li')).toHaveClass('border-t');
+      expect(
+        within(secondSidebar()).getByRole('button', { name: 'runner-2' }).closest('li'),
+      ).not.toHaveClass('border-t');
+    });
+
+    it('opens the URL of a link', async () => {
+      render(AppSidebarFixture, {
+        config: configWith({ entries: groupEntries, contributions: withMachineLinks() }),
+      });
+
+      await userEvent.click(within(secondSidebar()).getByRole('button', { name: 'runner-2' }));
+
+      expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/agents/2', undefined);
+    });
+
+    it('shows none for another item', () => {
+      navigator.restore();
+      navigator = installTestNavigator({ pathname: '/acme-corp/secrets' });
+      render(AppSidebarFixture, {
+        config: configWith({
+          entries: [entry(), ...groupEntries],
+          contributions: withMachineLinks(),
+        }),
+      });
+
+      expect(within(secondSidebar()).queryByRole('button', { name: /runner/ })).toBeNull();
+    });
   });
 });
 
@@ -501,6 +581,19 @@ describe('the handle of the second sidebar', () => {
     });
 
     expect(screen.queryByRole('separator', { name: 'Resize sidebar' })).not.toBeInTheDocument();
+  });
+
+  it('gives its width to the open rail, which covers all the second sidebar', async () => {
+    renderOnPage();
+    await drag(256, 356);
+
+    await fireEvent.click(railOf());
+    expect(railOf().style.width).toBe('356px');
+
+    handle().focus();
+    await userEvent.keyboard('{Home}');
+    expect(slot().style.width).toBe('196px');
+    expect(railOf().style.width).toBe('196px');
   });
 
   it('does not close the rail with a press', async () => {

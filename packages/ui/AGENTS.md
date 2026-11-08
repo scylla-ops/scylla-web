@@ -215,6 +215,9 @@ What a port has to get right, all of it invisible to the compiler:
   `dialog/centered-dialog.test.ts` fails when a source file has a centering translate and a slide.
 - **Radix's `Indicator` parts become an `{#if}` in a children snippet** (checkbox, select item),
   because bits-ui hands the state to the snippet instead of mounting a separate node.
+- **An item that the user picks shows the pointer, as a button does** (`styles.css`). The shadcn
+  classes give `cursor-default` to the items of a menu, a select and a command list: we use
+  `cursor-pointer`. A disabled item does not show the pointer.
 - **Highlight styles need `data-highlighted:`, not just `focus:`.** bits-ui never moves DOM focus
   into a listbox; it tracks the active option with `aria-activedescendant`.
 - Composed primitives are driven from a `*.fixture.svelte`: their parts are components, so a
@@ -340,6 +343,18 @@ selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of 
   of that test, with the reason. `dialog-content.svelte` is the only one: it is `fixed` through
   `CENTERED_DIALOG_CLASS`. Do not add `relative` to it: `cn()` keeps the last position class,
   thus `relative` replaces `fixed`.
+- **A page that scrolls with the frame ends with `pb-20` on its root.** The `main` of
+  `PageTransition` is `absolute` and has the height of the view. A page that is taller goes out
+  of this `main`, and the padding of the frame does not go below an absolute box. Thus, without
+  its own padding, the last element of the page touches the bottom edge of the window. An
+  overlay of the shell (`shell.overlays`) can also float in the last 56 px of the view, at the
+  right: the Feedback launcher of the Enterprise build. 80 px holds this zone and a gap. A root
+  with `min-h-full` also gets `shrink-0`: else the flex column of the `main` shrinks it to the
+  height of the view, and the content goes out below its padding. A page that fills the view
+  (`h-full`, with its own scroll area: an editor, the logs, the list of jobs) does not get it,
+  because the padding takes height from its content. The frame cannot add this space for all
+  pages: a page with its own scroll area has the same content height as a page that is taller
+  than the view, thus only the page knows which of the two it is.
 - **Between a `sticky` element and its scroller, use `overflow-clip`, not `overflow-hidden`.**
   `overflow-hidden` makes a scroll container. The `sticky` element then sticks in that box,
   which does not scroll, and it moves away with the content. `overflow-clip` clips the same

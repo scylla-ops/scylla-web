@@ -116,7 +116,7 @@ const setUp = (permissions = ALL) => {
       project: { projectRepository: projects },
     }),
   ];
-  render(AppDetails, { appId: app.id });
+  return render(AppDetails, { appId: app.id });
 };
 
 beforeEach(() => vi.clearAllMocks());
@@ -139,6 +139,14 @@ describe('AppDetails', () => {
     expect(screen.getByText('backup-01.acme.lan')).toBeInTheDocument();
     expect(screen.getByText('No expiry')).toBeInTheDocument();
     expect(screen.getByText('With CI identity (OIDC) GitHub Actions.')).toBeInTheDocument();
+  });
+
+  it('ends with a space under the last card, above a floating button at the bottom right', async () => {
+    const { container } = setUp();
+
+    await screen.findByRole('heading', { name: 'release-bot' });
+
+    expect(container.firstElementChild).toHaveClass('pb-20');
   });
 
   it('revokes a token after a confirmation', async () => {

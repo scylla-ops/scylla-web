@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { toast } from 'svelte-sonner';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
+import { fakePollTimers } from '@test/queries.ts';
 import { findFloating, focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import AgentDetails from './AgentDetails.page.svelte';
@@ -150,13 +151,14 @@ const setUp = (details = agent(), permissions = ALL, keys = DEFAULT_KEYS, grante
       project: { projectRepository: projects },
     }),
   ];
-  render(AgentDetails, { appId: details.id });
+  return render(AgentDetails, { appId: details.id });
 };
 
 beforeEach(() => vi.clearAllMocks());
 afterEach(() => {
   teardown.forEach(restore => restore());
   permissionsStore.setState({ permissions: null });
+  vi.useRealTimers();
 });
 
 describe('AgentDetails', () => {
@@ -181,6 +183,14 @@ describe('AgentDetails', () => {
     expect(screen.getByText(/Revoked on/)).toBeInTheDocument();
   });
 
+  it('ends with a space under the last card, above a floating button at the bottom right', async () => {
+    const { container } = setUp();
+
+    await screen.findByRole('heading', { name: 'build-linux-01' });
+
+    expect(container.firstElementChild).toHaveClass('pb-20');
+  });
+
   it('gives a command to connect an agent that never said hello', async () => {
     setUp(agent({ connected: false, lastSeenAt: '', host: null, runningJobs: 0 }));
 
@@ -196,6 +206,7 @@ describe('AgentDetails', () => {
   });
 
   it('shows that a machine joined and did not connect yet', async () => {
+    fakePollTimers();
     setUp(agent({ connected: false, lastSeenAt: '', host: null, runningJobs: 0 }), ALL, []);
     const user = userEvent.setup();
 
@@ -206,12 +217,10 @@ describe('AgentDetails', () => {
       app: agent({ connected: false, lastSeenAt: '', host: null, runningJobs: 0 }),
       keys: [key('k-new', 'host-1')],
     });
+    await vi.advanceTimersByTimeAsync(2_000);
+
     expect(
-      await screen.findByText(
-        'The machine joined. Waiting for its connection.',
-        {},
-        { timeout: 5000 },
-      ),
+      await screen.findByText('The machine joined. Waiting for its connection.'),
     ).toBeInTheDocument();
   });
 

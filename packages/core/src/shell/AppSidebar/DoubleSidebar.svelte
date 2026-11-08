@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Component } from 'svelte';
+  import { untrack, type Component } from 'svelte';
   import { navigateTo, routePathname, type ShellContributions } from '@scylla/core-sdk';
   import type {
     NavItem,
@@ -7,7 +7,7 @@
     RailItem,
     SecondSidebarContent,
   } from '../structs/nav-section.struct.ts';
-  import { railFor, secondSidebarFor, selectedRailItem } from './nav-rail.ts';
+  import { railFor, secondSidebarFor, selectedRailItem, withModuleLinks } from './nav-rail.ts';
   import Rail from './Rail.svelte';
   import { createSecondSidebarWidth, RAIL_SLOT_PX } from './second-sidebar-width.state.svelte.ts';
   import SecondSidebar from './SecondSidebar.svelte';
@@ -28,6 +28,7 @@
   let railOpen = $state(false);
   let viewportWidth = $state(window.innerWidth);
   const width = createSecondSidebarWidth(() => viewportWidth);
+  const sidebarWidth = $derived(RAIL_SLOT_PX + width.current);
 
   // A menu opened from the rail is in a portal: a press in it is outside the rail.
   const menuIsOpen = () => !!root?.querySelector('[data-state="open"]');
@@ -37,6 +38,13 @@
   const selected = $derived(selectedRailItem(rail, pathname));
   const content = $derived<SecondSidebarContent | undefined>(
     selected && secondSidebarFor(selected, sections, params),
+  );
+  // Once, in this component: a source can create a query.
+  const linkSources = untrack(() =>
+    contributions.flatMap(shell => shell.secondSidebarLinks?.(() => content?.id) ?? []),
+  );
+  const shown = $derived(
+    content && withModuleLinks(content, linkSources.flatMap(links => links())),
   );
 
   const footers = $derived<readonly Component[]>(
@@ -76,10 +84,10 @@
   bind:this={root}
   data-slot="sidebar-container"
   class="relative h-svh shrink-0"
-  style:width="{RAIL_SLOT_PX + width.current}px"
+  style:width="{sidebarWidth}px"
 >
   <div
-    class="absolute inset-x-0 top-0 z-30 flex h-17 items-center justify-center border-r border-b border-sidebar-border bg-background"
+    class="absolute inset-x-0 top-0 z-30 flex h-17 items-center justify-center border-r border-b border-sidebar-border bg-[linear-gradient(to_right,var(--rail)_--spacing(14),var(--second-sidebar)_--spacing(14))]"
   >
     {#if Brand}
       <Brand />
@@ -91,13 +99,14 @@
     {ready}
     {footers}
     open={railOpen}
+    openWidth={sidebarWidth}
     onToggle={() => (railOpen = !railOpen)}
     onOpenItem={openItem}
     class="absolute top-17 bottom-0 left-0 z-20"
   />
   <SecondSidebar
     id={SECOND_SIDEBAR_ID}
-    {content}
+    content={shown}
     {pathname}
     {ready}
     {badges}

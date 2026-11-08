@@ -14,7 +14,7 @@
   let { page, user }: { page: UserDetail; user: UserEntity } = $props();
 </script>
 
-<div class="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8">
+<div class="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-20">
   <UserDetailHeader {user} />
 
   <SettingsSection title={t(userMessages.profile)} description={t(userMessages.profileDescription)}>

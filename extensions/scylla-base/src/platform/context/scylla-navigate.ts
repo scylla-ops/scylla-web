@@ -72,8 +72,8 @@ const goToAccount = () => {
   navigateTo(`${getWorkspacePrefix()}/account`);
 };
 
-/** The URL of a page of any workspace, the active one or not, from its slug. */
-export const workspaceUrl = (slug: string, path = 'projects'): string => `/${slug}/${path}`;
+/** The URL of a page of any workspace, the active one or not, from its slug. With no path, its dashboard. */
+export const workspaceUrl = (slug: string, path = 'dashboard'): string => `/${slug}/${path}`;
 
 const goToAgentDetails = (agentId: string) => {
   navigateTo(`${getWorkspacePrefix()}/agents/${agentId}`);

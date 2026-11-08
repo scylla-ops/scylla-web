@@ -8,7 +8,7 @@
 <CommandPrimitive.Item
   data-slot="command-item"
   class={cn(
-    'flex cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:opacity-60 data-[selected]:bg-accent data-[selected]:text-accent-foreground',
+    'flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:cursor-default data-[disabled]:opacity-60 data-[selected]:bg-accent data-[selected]:text-accent-foreground',
     className,
   )}
   {...rest}

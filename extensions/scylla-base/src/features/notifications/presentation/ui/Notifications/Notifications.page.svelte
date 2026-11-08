@@ -57,7 +57,7 @@
 {#if !known}
   <Redirect to="../inbox" />
 {:else}
-  <div class="flex w-full max-w-4xl flex-col gap-6 md:flex-row md:items-start md:gap-10">
+  <div class="flex w-full max-w-4xl flex-col gap-6 pb-20 md:flex-row md:items-start md:gap-10">
     <!-- In a workspace, the second sidebar of the shell has these links. -->
     {#if !workspaceSlug}
       <NotificationsNav current={known.id} />

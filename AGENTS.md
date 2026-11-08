@@ -423,7 +423,8 @@ Rules that matter:
   re-exported UI would drag every page back into the entry chunk.
 - The **frame** is declared by modules too, with optional fields: `mounts` (where routes graft),
   `navSections` (the sections a `nav.section` names), `access` (`can`, `ready`, `guard` — at most
-  one module), `shell` (sidebar footer, overlays, nav badge, breadcrumb and link parameters),
+  one module), `shell` (sidebar footer, overlays, nav badge, breadcrumb and link parameters, links
+  of data in the second sidebar),
   `onQueryError`, `fallback` (exactly one module). In scylla-base they are all in `ShellModule`.
 - A route's `permission` has the type that one extension registers on `Register`
   (scylla-base: `Permission`). The core only passes it to the access policy.
@@ -733,7 +734,7 @@ shared test code of the workspace:
 | `test/setup.ts` | Runs before every file. Activates an empty `en` catalog, and stubs the browser APIs jsdom lacks (`ResizeObserver`, `Element.animate`, pointer capture, `scrollIntoView`, `scrollTo`, `matchMedia`, the canvas `getContext`). **Never re-stub these per file.** |
 | `test/render.ts` | `render`, `withRegistry` (stub DI registry), `withQueryClient` (fresh cache, `retry: false`), `focusSettled`, `textSnippet`, `findFloating` / `findTooltip`. |
 | `test/navigator.ts` | `installTestNavigator` — a fake navigator, for a test that navigates. |
-| `test/queries.ts` | `runQueryFn`, `runMutationFn`, `runOnSuccess`, `stubQuery`. |
+| `test/queries.ts` | `runQueryFn`, `runMutationFn`, `runOnSuccess`, `stubQuery`, `fakePollTimers`. |
 | `test/i18n.ts` | `withLocale(locale, messages)` — for the handful of tests that assert on a real translation. |
 | `test/grpc.ts` | `unaryCall`, `failedCall` — the calls a fake `I…ServiceClient` returns, to test a repository. |
 
@@ -762,6 +763,10 @@ shared test code of the workspace:
 - **Name a test after the rule it pins**, not the action it performs: "still redirects for an
   empty-string token" beats "test token". The suite output is the spec.
 - **No snapshots.** None exist; keep it that way.
+- **Do not wait for real time.** A `findBy*` or a `waitFor` stops after 1 s. Under load, a cold
+  `import()` can take more time: a test of a component that loads a part with `import()` loads
+  that part in `beforeAll`. A test of a poll (`refetchInterval`) calls `fakePollTimers()` and moves
+  the poll with `vi.advanceTimersByTimeAsync`.
 
 ### Permission conformance — the one test that enumerates
 

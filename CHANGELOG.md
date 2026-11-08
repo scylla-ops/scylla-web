@@ -272,6 +272,23 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A project that is not on the first page of the list opens and shows its name. Before, the app went
   back to the list of projects. After a delete of the open project, the top bar search no longer
   shows this project and its pages, and a browser back to it goes to the list.
+- Each icon of the closed rail shows its title in a tooltip on a hover and on a focus. The items of
+  a menu, of a select and of the command bar show the pointer, as a button does.
+- The open rail covers all the second sidebar, to the same edge as the logo band. Before, it kept a
+  fixed width: after a resize, a part of a wider second sidebar stayed visible to its right, and a
+  narrower one put the rail over the page.
+- The double sidebar is darker than the page, in the light and in the dark theme. The rail is the
+  darkest, then the second sidebar. The thumbnails of the theme picker show the same colors.
+- A workspace opens on its dashboard, not on the list of projects: from `/`, after a change of
+  workspace, after a project that is gone and from the not-found page. The second sidebar of the
+  projects shows each project of the workspace after "All projects", apart from it. A module adds
+  such links with `ShellContributions.secondSidebarLinks`.
+- The page of an agent and the page of an app have a space under the last card. Before, the last
+  card touched the bottom of the window, and a floating button at the bottom right covered it.
+- The pages that scroll have a space under their last element: the lists of agents, apps, members,
+  roles, users, secrets and triggers, the page of a role, of a user and of the access of a member,
+  the settings, the account, the help and the notifications. Before, the last element touched the
+  bottom of the window, and a floating button at the bottom right covered it.
 
 ## [0.6.0] - 2026-11-01
 

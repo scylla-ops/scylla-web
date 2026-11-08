@@ -161,7 +161,7 @@
     <p class="text-sm text-muted-foreground">{t(membershipMessages.selectAnWorkspace)}</p>
   </div>
 {:else}
-  <div class="flex w-full flex-col gap-4" data-tour="members">
+  <div class="flex w-full flex-col gap-4 pb-20" data-tour="members">
     <header class="flex items-start justify-between gap-6">
       <div class="flex flex-col gap-2">
         <h1>{t(membershipMessages.members)}</h1>

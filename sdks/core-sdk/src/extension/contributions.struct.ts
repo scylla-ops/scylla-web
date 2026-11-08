@@ -36,6 +36,14 @@ export interface NavSectionDefinition {
   noRailItem?: boolean;
 }
 
+/** A link that a module makes from data, e.g. one item of a list. */
+export interface SecondSidebarLink {
+  title: string;
+  /** The URL that the link opens. */
+  href: string;
+  icon?: LucideIcon;
+}
+
 /** What a module adds to the core's shell. */
 export interface ShellContributions {
   /** Below the sidebar links, e.g. the user menu. */
@@ -50,6 +58,12 @@ export interface ShellContributions {
   navBadge?: Component<{ url: string }>;
   /** Called when the user opens a sidebar link. */
   onNavOpen?: (url: string) => void;
+  /**
+   * Links after the pages of the second sidebar, apart from them, e.g. the items of a list. The
+   * sidebar calls it once, when it mounts, thus it can create a query. `shown` is reactive: the
+   * id of what the second sidebar shows, a `NavGroup`, a section or the path of a link.
+   */
+  secondSidebarLinks?: (shown: () => string | undefined) => () => readonly SecondSidebarLink[];
   /** Reactive. Values for the breadcrumbs, in addition to the route parameters. */
   breadcrumbParams?: () => BreadcrumbParams;
   /** Reactive. Parameters of the mount paths in sidebar links, in addition to the route's. */

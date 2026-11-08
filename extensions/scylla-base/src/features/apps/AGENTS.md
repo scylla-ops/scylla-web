@@ -65,6 +65,9 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   with the expiry states of `@shared/domain/structs/api-token.struct.ts`), "Add a credential" and
   the delete zone. The labels of a credential come from
   `presenters/credential-labels.presenter.ts`.
+- Both detail pages end with `pb-20` (80 px). The `main` of `PageTransition` is `absolute`, thus
+  the shell adds no space under a page that is taller than the view. A shell overlay can float in
+  the last 56 px of the view, at the right. With less space, it covers the last card.
 - "Add an app" (`components/AddAppDialog/`) has three steps: name and roles (`grantsOf`), the
   connection (API token, CI identity or key pair), and the credential.
   `credentialMutations.createApp` makes the app, gives its roles, then makes the credential; a

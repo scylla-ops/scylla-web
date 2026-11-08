@@ -349,7 +349,7 @@ describe('CommandBar', () => {
       ));
 
     it('switches the workspace', async () => {
-      await go('globex', 'Switch to the workspace Globex.', '/globex/projects');
+      await go('globex', 'Switch to the workspace Globex.', '/globex/dashboard');
 
       expect(contextStore.getState().workspace).toMatchObject({ id: 'w2', slug: 'globex' });
     });
@@ -411,6 +411,13 @@ describe('CommandBar', () => {
       expect(current).toHaveAttribute('aria-disabled', 'true');
       expect(within(current).getByText('Current')).toBeInTheDocument();
     });
+  });
+
+  it('shows a pointer on a row', async () => {
+    const input = await open();
+    await user().type(input, 'agents');
+
+    expect(await option('Go to the page Agents (Machines).')).toHaveClass('cursor-pointer');
   });
 
   describe('an action with a confirmation', () => {

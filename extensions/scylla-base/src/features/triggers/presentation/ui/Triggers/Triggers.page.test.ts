@@ -81,6 +81,14 @@ describe('TriggersPage', () => {
     expect(listByPipelineId).toHaveBeenCalledWith('pipeline-1');
   });
 
+  it('grows with its table, so the last row scrolls above a floating button at the bottom right', async () => {
+    render(TriggersPage, props);
+
+    await screen.findByText('nightly');
+
+    expect(document.querySelector('[data-tour="triggers"]')).toHaveClass('shrink-0', 'pb-20');
+  });
+
   it('summarises the triggers above the table', async () => {
     render(TriggersPage, props);
 

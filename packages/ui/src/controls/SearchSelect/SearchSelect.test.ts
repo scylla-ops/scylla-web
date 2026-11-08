@@ -35,6 +35,14 @@ describe('SearchSelect', () => {
     ]);
   });
 
+  it('shows a pointer on a row that the user can pick', async () => {
+    render(SearchSelectFixture, { options });
+
+    await userEvent.click(field());
+
+    expect(await findFloating('option', 'test')).toHaveClass('cursor-pointer');
+  });
+
   it('shows only the rows that match the text', async () => {
     render(SearchSelectFixture, { options });
 

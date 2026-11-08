@@ -91,6 +91,14 @@ afterEach(() => {
 });
 
 describe('MemberAccessPage', () => {
+  it('ends with a space under the last card, above a floating button at the bottom right', async () => {
+    const { container } = render(MemberAccessPage);
+
+    await screen.findByRole('button', { name: 'Change roles' });
+
+    expect(container.firstElementChild).toHaveClass('pb-20');
+  });
+
   it('keeps the dialog open when the last role goes, and goes to the list on close', async () => {
     render(MemberAccessPage);
 

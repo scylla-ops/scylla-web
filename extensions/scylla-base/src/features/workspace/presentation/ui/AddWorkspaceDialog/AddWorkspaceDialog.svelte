@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { navigateTo } from '@platform/context';
+  import { navigateTo, workspaceUrl } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
   import { FormDialog, type FormValues } from '@scylla/ui';
   import {
@@ -36,7 +36,7 @@
         // The mutation already made it active; where to land is the caller's choice.
         onSuccess: workspace => {
           setOpen(false);
-          navigateTo(`/${workspace.slug}/projects`);
+          navigateTo(workspaceUrl(workspace.slug));
         },
       },
     );

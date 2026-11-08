@@ -70,14 +70,14 @@ describe('WorkspaceList', () => {
     expect(screen.getByText('Globex Inc')).toBeInTheDocument();
   });
 
-  it('makes a selected workspace active and opens its projects', async () => {
+  it('makes a selected workspace active and opens its dashboard', async () => {
     setUp(() => Promise.resolve(workspaces));
     render(WorkspaceList);
 
     await fireEvent.click(await screen.findByText('Globex Inc'));
 
     expect(contextStore.getState().workspace).toEqual({ id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' });
-    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', undefined);
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/dashboard', undefined);
   });
 
   it('hides the row actions that the user may not use', async () => {
@@ -162,7 +162,7 @@ describe('WorkspaceList', () => {
     await waitFor(() =>
       expect(contextStore.getState().workspace).toEqual({ id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' }),
     );
-    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', undefined);
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/dashboard', undefined);
   });
 
   it('keeps the active workspace after deleting another one', async () => {
@@ -187,6 +187,6 @@ describe('WorkspaceList', () => {
     expect(screen.getAllByTestId('custom-row')).toHaveLength(2);
 
     await userEvent.click(screen.getAllByRole('button', { name: 'pick' })[1]);
-    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', undefined);
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/dashboard', undefined);
   });
 });

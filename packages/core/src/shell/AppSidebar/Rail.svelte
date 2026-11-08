@@ -1,7 +1,14 @@
 <script lang="ts">
   import type { Component } from 'svelte';
   import { t } from '@scylla/ui/i18n';
-  import { SIDEBAR_FADE, SIDEBAR_MOTION, Skeleton } from '@scylla/ui/primitives';
+  import {
+    SIDEBAR_FADE,
+    SIDEBAR_MOTION,
+    Skeleton,
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+  } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import { shellMessages } from '../shell.messages.ts';
   import type { Rail, RailItem } from '../structs/nav-section.struct.ts';
@@ -12,6 +19,7 @@
     ready: boolean;
     footers: readonly Component[];
     open: boolean;
+    openWidth: number;
     onToggle: () => void;
     onOpenItem: (item: RailItem) => void;
     class?: string;
@@ -23,13 +31,14 @@
     ready,
     footers,
     open,
+    openWidth,
     onToggle,
     onOpenItem,
     class: className,
   }: Props = $props();
 
   const rowWidth = cn(
-    'w-8 transition-[width,background-color,color] group-data-[state=expanded]:w-58',
+    'w-8 transition-[width,background-color,color] group-data-[state=expanded]:w-full',
     SIDEBAR_MOTION,
     'motion-reduce:transition-none',
   );
@@ -43,23 +52,27 @@
 
 {#snippet row(item: RailItem)}
   {@const active = item.id === selected?.id}
-  <button
-    type="button"
-    class={cn(
-      'flex h-8 shrink-0 items-center gap-2 overflow-hidden rounded-lg px-2 text-left text-sm outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-ring',
-      rowWidth,
-      active ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'hover:bg-accent',
-    )}
-    aria-current={active ? 'page' : undefined}
-    data-nav-url={item.pages[0]?.url}
-    data-nav-group={item.group}
-    onclick={() => onOpenItem(item)}
-  >
-    {#if item.icon}
-      <item.icon class="size-4 shrink-0" />
+  <Tooltip>
+    <TooltipTrigger
+      class={cn(
+        'flex h-8 shrink-0 items-center gap-2 overflow-hidden rounded-lg px-2 text-left text-sm outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+        rowWidth,
+        active ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'hover:bg-accent',
+      )}
+      aria-current={active ? 'page' : undefined}
+      data-nav-url={item.pages[0]?.url}
+      data-nav-group={item.group}
+      onclick={() => onOpenItem(item)}
+    >
+      {#if item.icon}
+        <item.icon class="size-4 shrink-0" />
+      {/if}
+      <span class={cn('truncate', SIDEBAR_FADE)}>{item.title}</span>
+    </TooltipTrigger>
+    {#if !open}
+      <TooltipContent side="right" sideOffset={12}>{item.title}</TooltipContent>
     {/if}
-    <span class={cn('truncate', SIDEBAR_FADE)}>{item.title}</span>
-  </button>
+  </Tooltip>
 {/snippet}
 
 <!-- A click on an empty part is a shortcut for the pointer: the keyboard has the separator. -->
@@ -70,18 +83,19 @@
   data-state={open ? 'expanded' : 'collapsed'}
   data-collapsible={open ? '' : 'icon'}
   class={cn(
-    'group border-r border-sidebar-border bg-background text-sidebar-foreground transition-[width]',
-    open ? 'w-64' : 'w-14',
+    'group border-r border-sidebar-border bg-rail text-sidebar-foreground transition-[width]',
+    !open && 'w-14',
     cursor,
     SIDEBAR_MOTION,
     'motion-reduce:transition-none',
     className,
   )}
+  style:width={open ? `${openWidth}px` : undefined}
   onclick={toggleOnEmptyPart}
 >
   <div class="h-full overflow-hidden">
-    <!-- A fixed width: the rows never reflow while the panel moves. -->
-    <div class="flex h-full w-64 flex-col px-3 pt-2 pb-3">
+    <!-- The width of the open rail: the rows never reflow while the panel moves. -->
+    <div class="flex h-full flex-col px-3 pt-2 pb-3" style:width="{openWidth}px">
       <div class="relative flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto">
         {#if ready}
           {#each rail.main as item (item.id)}

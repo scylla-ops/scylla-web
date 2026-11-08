@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeAll } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { msg } from '@lingui/core/macro';
 import { Extension, setAppNavigator, setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
@@ -6,6 +6,7 @@ import { loadExtensions, setShellConfig, startCore } from '@scylla/core';
 import { ScyllaBaseExtension } from '@scylla/base';
 import { loginPoints } from '@scylla/base-sdk';
 import { FormItemType } from '@scylla/ui';
+import { loadPages } from './pages.fixture.ts';
 
 /**
  * The widget injections of an extension that this repo does not ship, applied to the real login
@@ -29,9 +30,9 @@ const EmailLoginWidgetInjection = [
   ),
 ];
 
-const HelpLinkWidgetInjection = [
-  loginPoints.footer.inject({ component: () => import('./ExampleFooter.fixture.svelte') }),
-];
+const footer = () => import('./ExampleFooter.fixture.svelte');
+
+const HelpLinkWidgetInjection = [loginPoints.footer.inject({ component: footer })];
 
 @Extension({
   id: 'example-login',
@@ -44,6 +45,10 @@ const HelpLinkWidgetInjection = [
 class ExampleLoginExtension {}
 
 const extensions = [ScyllaBaseExtension, ExampleLoginExtension];
+
+beforeAll(async () => {
+  await Promise.all([loadPages(extensions, '/login'), footer()]);
+});
 
 afterEach(() => {
   setAppNavigator(null);

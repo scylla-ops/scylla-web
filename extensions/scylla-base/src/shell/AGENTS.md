@@ -40,6 +40,8 @@ presentation/
                                         It has no session check: / goes through AuthGuard
   layout/
     shell.state.svelte.ts               workspaces query, permission sync, first workspace
+    project-links.state.svelte.ts       projectLinks: the projects of the workspace after "All projects"
+                                        (secondSidebarLinks); it reads them only while they show
     whats-new.state.svelte.ts                 seen flags (reactive, key `whats-new-seen` of `platform/user-state`), markNavSeen
     ui/WorkspaceGate/                loading screen / first workspace / the pages
       FirstWorkspace.svelte          welcome screen when the user has no workspace
@@ -82,7 +84,7 @@ navSections      workspace, project (within projects, title: projectName), insta
                  opens it)
 access           can / authorizationReady / RequirePermission, from @platform/authz
 shell            brand ShellBrand · topBarEnd GlobalSearch, NotificationsMenu, WorkspaceSelector · sidebarFooter NavUser · overlays LaunchOverlays · navBadge NewBadge ·
-                 onNavOpen markNavSeen · breadcrumbParams · linkParams
+                 onNavOpen markNavSeen · secondSidebarLinks projectLinks · breadcrumbParams · linkParams
 onQueryError     reportQueryError
 onQueryRetry     retryQueryError
 fallback         NotFoundPage
@@ -236,6 +238,9 @@ page-level rule (every page in the shell declares a `permission`) is in
   already closed.
 - `/` opens the workspace of the key `last-workspace` when it is on the list of the person, else the
   local context, else the first workspace. A new device thus opens the last workspace of the person.
+- **The dashboard is the default page of a workspace.** `workspaceUrl(slug)` with no path gives it:
+  `/`, a change of workspace, a project that is gone and the link of the not-found page all land
+  there. Give a path only for another page.
 - `locale` and `last-workspace` have `upload: false`: the load of a page writes these local values,
   so a local value does not prove a choice of the person. Only `chooseLocale` and
   `rememberWorkspace` send them.

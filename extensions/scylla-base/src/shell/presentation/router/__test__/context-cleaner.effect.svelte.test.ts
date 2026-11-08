@@ -172,7 +172,7 @@ describe('cleanContext', () => {
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
-  it('clears the project and the pipeline and goes to the project list when the project is gone', async () => {
+  it('clears the project and the pipeline and goes to the dashboard when the project is gone', async () => {
     repository.getById.mockResolvedValue(null);
     contextStore.setState({ pipeline: { id: 'pipeline-1', name: 'ci' } });
 
@@ -180,7 +180,7 @@ describe('cleanContext', () => {
 
     expect(contextStore.getState().project).toEqual({ id: null, name: null });
     expect(contextStore.getState().pipeline).toEqual({ id: null, name: null });
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
     expect(cleaner.gone).toBe(true);
   });
 
@@ -191,7 +191,7 @@ describe('cleanContext', () => {
     const cleaner = mount('deleted-project');
 
     expect(cleaner.gone).toBe(true);
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
   });
 
   it('goes to "/" when there is no workspace name to make a slug from', async () => {
@@ -210,7 +210,7 @@ describe('cleanContext', () => {
 
     expect(cleaner.gone).toBe(true);
     expect(contextStore.getState().project).toEqual({ id: null, name: null });
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
   });
 
   it('stays when a person who cannot list the workspace is refused: it proves nothing', async () => {
@@ -234,7 +234,7 @@ describe('cleanContext', () => {
     grantProjectList();
     flushSync();
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
   });
 
   it('waits for the workspace of the URL before it compares', async () => {

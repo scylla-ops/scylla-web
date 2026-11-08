@@ -176,7 +176,7 @@ export const UserModule = {
 
 The **frame** is also declared by modules, with optional fields: `mounts`, `navSections`,
 `access` (`can`, `ready`, `guard`), `shell` (sidebar footer, overlays, nav badge, breadcrumb and
-link parameters), `onQueryError` and `fallback`. In scylla-base, `ShellModule` declares all of
+link parameters, links of data in the second sidebar), `onQueryError` and `fallback`. In scylla-base, `ShellModule` declares all of
 them.
 
 A route's `permission` has the type that one extension registers on `Register` (scylla-base
