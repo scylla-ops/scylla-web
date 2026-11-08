@@ -301,6 +301,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   unread notification, and its height changes smoothly.
 - On a large screen, the line below the band of the logo and the top bar has the same color as the
   line on the right edge of the sidebar. Before, the right line looked thicker.
+- The tooltip of a row of the closed rail shows only while the pointer is on the row, or on a focus
+  from the keyboard. Before, a row that the pointer crossed on the open rail showed its tooltip when
+  the rail closed, and a row that the user clicked showed its tooltip again when the window got the
+  focus back.
 
 ## [0.6.0] - 2026-11-01
 

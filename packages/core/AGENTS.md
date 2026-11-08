@@ -208,8 +208,13 @@ module gives an access policy.
   sidebar, to the same edge as the band: at each width it covers all the second sidebar, and
   never the page. Inside it, the rows keep the width of the open rail while it moves.
 - **A closed rail shows only the icons, thus a row has a tooltip with its title.** The tooltip
-  shows on a hover and on a focus. The open rail shows the title in the row, thus it shows no
-  tooltip.
+  shows while the pointer is on the row, and on a focus from the keyboard (`:focus-visible`,
+  `ignoreNonKeyboardFocus`). A focus from a click does not open it, also when the window gives
+  this focus back. The open rail shows the title in the row, thus it shows no tooltip: the
+  tooltip is `disabled` while the rail is open. Only the content of a tooltip closes it when the
+  pointer goes out, and the open rail has no content. Without `disabled`, each row that the
+  pointer crosses on the open rail keeps its tooltip open, and the tooltip shows when the rail
+  closes.
 - **Only the user opens the rail.** A hover or a focus does not open it. A click on an empty part
   of the rail or on its separator opens and closes it, and the cursor shows the direction. The
   separator is the way for the keyboard. A row opens its page and closes the rail. A press outside

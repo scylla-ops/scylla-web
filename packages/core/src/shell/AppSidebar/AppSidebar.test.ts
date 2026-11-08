@@ -202,6 +202,45 @@ describe('the rail', () => {
     expect(queryTooltip()).toBeNull();
   });
 
+  it('shows no tooltip, when the rail closes, for a row that the pointer crossed on the open rail', async () => {
+    const members = entry({
+      title: msg`Members`,
+      url: 'members',
+      pattern: [':workspaceSlug', 'members'],
+    });
+    render(AppSidebarFixture, { config: configWith({ entries: [entry(), members] }) });
+    const rail = railOf();
+    await fireEvent.click(rail);
+
+    await userEvent.hover(within(rail).getByRole('button', { name: /Secrets/ }));
+    await userEvent.click(within(rail).getByRole('button', { name: /Members/ }));
+
+    expect(rail).toHaveAttribute('data-state', 'collapsed');
+    expect(queryTooltip()).toBeNull();
+  });
+
+  it('names a row on a focus from the keyboard', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+
+    await userEvent.tab();
+
+    expect(within(railOf()).getByRole('button', { name: /Secrets/ })).toHaveFocus();
+    expect(await findTooltip()).toHaveTextContent('Secrets');
+  });
+
+  it('does not name a row again when the window gives back the focus that a click gave', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+    const secrets = within(railOf()).getByRole('button', { name: /Secrets/ });
+    await userEvent.click(secrets);
+    await userEvent.unhover(secrets);
+
+    await fireEvent.blur(secrets);
+    await fireEvent.focus(secrets);
+
+    expect(secrets).toHaveFocus();
+    expect(queryTooltip()).toBeNull();
+  });
+
   it('opens the page of a row without opening the rail, and closes an open rail', async () => {
     render(AppSidebarFixture, { config: configWith() });
     const rail = railOf();
