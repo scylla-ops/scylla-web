@@ -179,6 +179,11 @@ module gives an access policy.
   current one. A link with `heading` has this title above it, in the second sidebar and in the
   sheet of a phone. The title also covers the links after it, up to the next heading. A link with
   `inCommandBar: false` is in the sidebar only: use it for a filter of a list, not for a page.
+- **A module can add links of data to the second sidebar** (`shell.secondSidebarLinks`, e.g. the
+  projects under "All projects"). They come after the pages, apart from them, and they look and
+  open like the pages (`withModuleLinks`). `DoubleSidebar` calls each source once, when it mounts,
+  thus a source can create a query: read it only while `shown` is the id of its item. The sheet of a
+  phone does not show them.
 - **The sheet of a phone shows a section with `noRailItem` on its pages only** (`sheetSections`).
   A click on a link closes the sheet. `NavMain` does this, because a link that changes only an
   in-page param mounts nothing.

@@ -131,7 +131,7 @@ describe('WorkspaceSelector', () => {
 
       await user.keyboard('umb{Enter}');
 
-      expect(navigator.navigate).toHaveBeenCalledWith('/umbrella/projects', undefined);
+      expect(navigator.navigate).toHaveBeenCalledWith('/umbrella/dashboard', undefined);
       await closed(field);
     });
 
@@ -203,7 +203,7 @@ describe('WorkspaceSelector', () => {
     await user.click(screen.getByRole('button', { name: /Acme Corp/ }));
     await user.click(await findMenuItem('Globex Inc'));
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', undefined);
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/dashboard', undefined);
     expect(contextStore.getState().workspace.id).toBe('org-2');
   });
 
@@ -230,7 +230,7 @@ describe('WorkspaceSelector', () => {
     ).toBeInTheDocument();
   });
 
-  it('creates a workspace from the menu, makes it active and opens its projects', async () => {
+  it('creates a workspace from the menu, makes it active and opens its dashboard', async () => {
     grant(Permission.CREATE_WORKSPACE);
     render(InSidebar, { component: WorkspaceSelector });
     const user = userEvent.setup();
@@ -242,7 +242,7 @@ describe('WorkspaceSelector', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Create Workspace' }));
 
     await waitFor(() =>
-      expect(navigator.navigate).toHaveBeenCalledWith('/initech/projects', undefined),
+      expect(navigator.navigate).toHaveBeenCalledWith('/initech/dashboard', undefined),
     );
     expect(contextStore.getState().workspace).toEqual({ id: 'org-3', name: 'Initech', slug: 'initech' });
   });

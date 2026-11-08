@@ -14,6 +14,7 @@ export type {
   NavSectionDefinition,
   QueryErrorHandler,
   QueryRetryPolicy,
+  SecondSidebarLink,
   ShellContributions,
 } from './extension/contributions.struct.ts';
 

@@ -1,3 +1,4 @@
+import type { SecondSidebarLink } from '@scylla/core-sdk';
 import {
   isNavGroup,
   isNavItemActive,
@@ -82,3 +83,24 @@ export const secondSidebarFor = (
     pages: nested.items.flatMap(pagesOfNode),
   };
 };
+
+/** The pages, then the links of the modules, apart from them. Such a link has its URL as `url`. */
+export const withModuleLinks = (
+  content: SecondSidebarContent,
+  links: readonly SecondSidebarLink[],
+): SecondSidebarContent =>
+  links.length === 0
+    ? content
+    : {
+        ...content,
+        pages: [
+          ...content.pages,
+          ...links.map(({ title, href, icon }, index) => ({
+            title,
+            href,
+            url: href,
+            icon,
+            apart: index === 0,
+          })),
+        ],
+      };

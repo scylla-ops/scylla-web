@@ -54,7 +54,7 @@ describe('AcceptInvitationPage', () => {
 
     await waitFor(() => expect(accept).toHaveBeenCalledWith('tok-1'));
     await waitFor(() =>
-      expect(navigator.navigate).toHaveBeenCalledWith('/globex/projects', { replace: true }),
+      expect(navigator.navigate).toHaveBeenCalledWith('/globex/dashboard', { replace: true }),
     );
     expect(contextStore.getState().workspace).toEqual({
       id: 'ws-2',

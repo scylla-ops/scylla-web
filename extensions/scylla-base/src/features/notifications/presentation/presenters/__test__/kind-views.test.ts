@@ -62,7 +62,7 @@ describe('viewOfRow', () => {
 
     expect(view.text).toBe('Sam changed your roles in Acme.');
     expect(view.detail).toBe('Added: Member, QA team. Removed: Viewer.');
-    expect(view.href).toBe('/acme/projects');
+    expect(view.href).toBe('/acme/dashboard');
   });
 
   it('gives a role.revoked the same view, and no link when the person only lost a role', () => {

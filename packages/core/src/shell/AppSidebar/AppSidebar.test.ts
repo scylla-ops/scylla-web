@@ -345,6 +345,60 @@ describe('the second sidebar', () => {
     expect(railOf()).toHaveClass('bg-rail');
     expect(secondSidebar()).toHaveClass('bg-second-sidebar');
   });
+
+  describe('the links of a module', () => {
+    const machineLinks =
+      (shown: () => string | undefined) => (): { title: string; href: string }[] =>
+        shown() === 'machines'
+          ? [
+              { title: 'runner-1', href: '/acme-corp/agents/1' },
+              { title: 'runner-2', href: '/acme-corp/agents/2' },
+            ]
+          : [];
+
+    const withMachineLinks = (): ShellContributions[] => [
+      { linkParams: () => ({ workspaceSlug: 'acme-corp' }), secondSidebarLinks: machineLinks },
+    ];
+
+    it('shows them after the pages, apart from them', () => {
+      render(AppSidebarFixture, {
+        config: configWith({ entries: groupEntries, contributions: withMachineLinks() }),
+      });
+
+      const names = within(secondSidebar())
+        .getAllByRole('button')
+        .map(button => button.textContent?.trim());
+      expect(names).toEqual(['Agents', 'Apps', 'runner-1', 'runner-2']);
+      const first = within(secondSidebar()).getByRole('button', { name: 'runner-1' });
+      expect(first.closest('li')).toHaveClass('border-t');
+      expect(
+        within(secondSidebar()).getByRole('button', { name: 'runner-2' }).closest('li'),
+      ).not.toHaveClass('border-t');
+    });
+
+    it('opens the URL of a link', async () => {
+      render(AppSidebarFixture, {
+        config: configWith({ entries: groupEntries, contributions: withMachineLinks() }),
+      });
+
+      await userEvent.click(within(secondSidebar()).getByRole('button', { name: 'runner-2' }));
+
+      expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/agents/2', undefined);
+    });
+
+    it('shows none for another item', () => {
+      navigator.restore();
+      navigator = installTestNavigator({ pathname: '/acme-corp/secrets' });
+      render(AppSidebarFixture, {
+        config: configWith({
+          entries: [entry(), ...groupEntries],
+          contributions: withMachineLinks(),
+        }),
+      });
+
+      expect(within(secondSidebar()).queryByRole('button', { name: /runner/ })).toBeNull();
+    });
+  });
 });
 
 describe('the handle of the second sidebar', () => {

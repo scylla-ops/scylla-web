@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Component } from 'svelte';
+  import { untrack, type Component } from 'svelte';
   import { navigateTo, routePathname, type ShellContributions } from '@scylla/core-sdk';
   import type {
     NavItem,
@@ -7,7 +7,7 @@
     RailItem,
     SecondSidebarContent,
   } from '../structs/nav-section.struct.ts';
-  import { railFor, secondSidebarFor, selectedRailItem } from './nav-rail.ts';
+  import { railFor, secondSidebarFor, selectedRailItem, withModuleLinks } from './nav-rail.ts';
   import Rail from './Rail.svelte';
   import { createSecondSidebarWidth, RAIL_SLOT_PX } from './second-sidebar-width.state.svelte.ts';
   import SecondSidebar from './SecondSidebar.svelte';
@@ -38,6 +38,13 @@
   const selected = $derived(selectedRailItem(rail, pathname));
   const content = $derived<SecondSidebarContent | undefined>(
     selected && secondSidebarFor(selected, sections, params),
+  );
+  // Once, in this component: a source can create a query.
+  const linkSources = untrack(() =>
+    contributions.flatMap(shell => shell.secondSidebarLinks?.(() => content?.id) ?? []),
+  );
+  const shown = $derived(
+    content && withModuleLinks(content, linkSources.flatMap(links => links())),
   );
 
   const footers = $derived<readonly Component[]>(
@@ -99,7 +106,7 @@
   />
   <SecondSidebar
     id={SECOND_SIDEBAR_ID}
-    {content}
+    content={shown}
     {pathname}
     {ready}
     {badges}

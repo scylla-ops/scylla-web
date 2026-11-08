@@ -73,7 +73,7 @@ describe('AddWorkspaceDialog', () => {
     await waitFor(() => expect(create).toHaveBeenCalledWith('Acme Corp', 'a real one'));
     await waitFor(() => expect(setOpen).toHaveBeenCalledWith(false));
     expect(contextStore.getState().workspace).toEqual({ id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' });
-    expect(testNavigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', undefined);
+    expect(testNavigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', undefined);
   });
 
   it('sends a trimmed, non-empty address', async () => {

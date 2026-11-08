@@ -97,7 +97,7 @@ describe('WorkspaceGate', () => {
     expect(screen.queryByText('page content')).not.toBeInTheDocument();
   });
 
-  it('creates the first workspace and opens its projects', async () => {
+  it('creates the first workspace and opens its dashboard', async () => {
     holding([Permission.CREATE_WORKSPACE]);
     setUp(() => Promise.resolve([]));
     await screen.findByText('Welcome to Scylla!');
@@ -110,7 +110,7 @@ describe('WorkspaceGate', () => {
 
     await waitFor(() => expect(create).toHaveBeenCalledWith('My Org', 'my-org'));
     await waitFor(() =>
-      expect(navigator.navigate).toHaveBeenCalledWith('/my-org/projects', undefined),
+      expect(navigator.navigate).toHaveBeenCalledWith('/my-org/dashboard', undefined),
     );
   });
 

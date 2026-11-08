@@ -349,7 +349,7 @@ describe('CommandBar', () => {
       ));
 
     it('switches the workspace', async () => {
-      await go('globex', 'Switch to the workspace Globex.', '/globex/projects');
+      await go('globex', 'Switch to the workspace Globex.', '/globex/dashboard');
 
       expect(contextStore.getState().workspace).toMatchObject({ id: 'w2', slug: 'globex' });
     });

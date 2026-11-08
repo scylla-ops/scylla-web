@@ -68,12 +68,12 @@ describe('redirectToWorkspace', () => {
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
-  it('goes to the projects of the active workspace', async () => {
+  it('goes to the dashboard of the active workspace', async () => {
     contextStore.setState({ workspace: { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' } });
     workspacesState.workspaces = [{ id: 'org-2', name: 'Other Co', slug: 'other-co' }];
     await run();
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
   });
 
   it('goes to the first workspace when none is active', async () => {
@@ -83,7 +83,7 @@ describe('redirectToWorkspace', () => {
     ];
     await run();
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/dashboard', { replace: true });
   });
 
   it('stays when there is no workspace at all', async () => {
@@ -102,13 +102,13 @@ describe('redirectToWorkspace', () => {
     ];
     await run();
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/other-co/projects', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/other-co/dashboard', { replace: true });
   });
 
   it('ignores a last workspace that is not on the list of the person', async () => {
     workspacesState.workspaces = [{ id: 'org-1', name: 'Globex Inc', slug: 'globex-inc' }];
     await run();
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/dashboard', { replace: true });
   });
 });

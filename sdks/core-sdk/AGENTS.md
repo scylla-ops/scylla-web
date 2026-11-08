@@ -19,7 +19,7 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 |---|---|
 | Extension | `Extension` (the class decorator), `extensionOf`, `ExtensionManifest`, `ExtensionClass`, `installedExtensions`, `setInstalledExtensions` |
 | Module | `ScyllaModule`, `ModuleRoute`, `ModuleRoutes`, `NavLink`, `NavGroup`, `PageLoader`, `PageComponent`, `RouteMount`, `RouteParams`, `RouteSource` |
-| Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `QueryErrorHandler`, `QueryRetryPolicy`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
+| Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `SecondSidebarLink`, `QueryErrorHandler`, `QueryRetryPolicy`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
 | Crumbs | `BreadcrumbFn`, `BreadcrumbParams`, `Crumb`, `TrailCrumb` |
 | Permission type | `Register` (augmented by one extension), `RoutePermission` |
 | Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect`, `navLinks`, `setNavLinks`, `AppNavLink` |
@@ -36,7 +36,7 @@ src/
   index.ts
   extension/  extension.decorator.ts   @Extension, extensionOf, ExtensionManifest
               installed-extensions.ts  the manifests the core loaded, for a page that lists them
-              contributions.struct.ts  AccessPolicy, NavSectionDefinition, ShellContributions, QueryErrorHandler, QueryRetryPolicy
+              contributions.struct.ts  AccessPolicy, NavSectionDefinition, ShellContributions, SecondSidebarLink, QueryErrorHandler, QueryRetryPolicy
               register.struct.ts       Register, RoutePermission
               command.struct.ts        the commands of the search bar, one type per kind
   routing/    scylla-module.struct.ts  ScyllaModule, ModuleRoute, NavLink, NavGroup (links of one group fold under one item)

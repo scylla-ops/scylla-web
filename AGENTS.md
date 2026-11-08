@@ -423,7 +423,8 @@ Rules that matter:
   re-exported UI would drag every page back into the entry chunk.
 - The **frame** is declared by modules too, with optional fields: `mounts` (where routes graft),
   `navSections` (the sections a `nav.section` names), `access` (`can`, `ready`, `guard` — at most
-  one module), `shell` (sidebar footer, overlays, nav badge, breadcrumb and link parameters),
+  one module), `shell` (sidebar footer, overlays, nav badge, breadcrumb and link parameters, links
+  of data in the second sidebar),
   `onQueryError`, `fallback` (exactly one module). In scylla-base they are all in `ShellModule`.
 - A route's `permission` has the type that one extension registers on `Register`
   (scylla-base: `Permission`). The core only passes it to the access policy.

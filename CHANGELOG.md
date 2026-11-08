@@ -279,6 +279,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   narrower one put the rail over the page.
 - The double sidebar is darker than the page, in the light and in the dark theme. The rail is the
   darkest, then the second sidebar. The thumbnails of the theme picker show the same colors.
+- A workspace opens on its dashboard, not on the list of projects: from `/`, after a change of
+  workspace, after a project that is gone and from the not-found page. The second sidebar of the
+  projects shows each project of the workspace after "All projects", apart from it. A module adds
+  such links with `ShellContributions.secondSidebarLinks`.
 
 ## [0.6.0] - 2026-11-01
 

@@ -53,7 +53,7 @@
         <ul class="relative flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2">
           {#each content.pages as page (page.href)}
             {@const current = page.href === active?.href}
-            <li class={cn(page.danger && NAV_DANGER_APART_CLASS)}>
+            <li class={cn((page.danger || page.apart) && NAV_DANGER_APART_CLASS)}>
               {#if page.heading}
                 <p class={NAV_HEADING_CLASS}>{page.heading}</p>
               {/if}
