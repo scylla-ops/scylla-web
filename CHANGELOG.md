@@ -182,6 +182,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   `MALFORMED_RESPONSE` (the server answered without the entity it must carry) and
   `UNSUPPORTED_RESPONSE` (it answered with a value this build cannot read). A map over every
   code must list them. `required` of the shared gRPC wrappers gives the first.
+- The filters of the agents, the users, the members and the roles, the CI provider, the life of a
+  token and the switches of the pipeline editor use one segmented control. A thumb moves under the
+  selected item, and a count rolls when it changes. The filter of the agents shows the color of each
+  state. With a reduced motion setting, the thumb moves in 150 ms and the counts do not roll.
 
 ### Fixed
 

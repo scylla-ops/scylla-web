@@ -1,10 +1,10 @@
 <script lang="ts">
+  import { SegmentedControl } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { Shell } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import type { NodeDraft } from './node-draft.state.svelte.ts';
   import { nodeMessages } from '@base/features/pipeline/presentation/messages/node.messages.ts';
-  import Segmented from '@base/features/pipeline/presentation/ui/editor/controls/Segmented.svelte';
 
   interface Props {
     draft: NodeDraft;
@@ -23,18 +23,20 @@
 
 <div class={cn('flex items-center gap-2', className)}>
   <!-- A script or a command, not both. -->
-  <Segmented
+  <SegmentedControl
     value={draft.mode}
     options={modes}
-    label={t(nodeMessages.nodeKind)}
+    aria-label={t(nodeMessages.nodeKind)}
     onChange={mode => (draft.mode = mode)}
+    size="sm"
   />
   {#if draft.mode === 'script'}
-    <Segmented
+    <SegmentedControl
       value={draft.shell}
       options={SHELLS}
-      label={t(nodeMessages.shell)}
+      aria-label={t(nodeMessages.shell)}
       onChange={shell => (draft.shell = shell)}
+      size="sm"
       class="ml-auto"
       itemClass="font-mono"
     />

@@ -5,7 +5,14 @@
   import { can, Permission } from '@platform/authz';
   import { contextStore, scyllaNavigate } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { ConfirmOperationAlertDialog, ErrorState, FeatureHeader, ListSkeleton } from '@scylla/ui';
+  import {
+    ConfirmOperationAlertDialog,
+    ErrorState,
+    FeatureHeader,
+    ListSkeleton,
+    SegmentedControl,
+    type SegmentedDot,
+  } from '@scylla/ui';
   import {
     Input,
     Table,
@@ -15,8 +22,6 @@
     TableHead,
     TableHeader,
     TableRow,
-    ToggleGroup,
-    ToggleGroupItem,
   } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
@@ -96,6 +101,21 @@
   const filterLabel = (value: AgentFilter) =>
     phone.current && value === 'never' ? messages.filterNeverShort : FILTER_LABEL[value];
 
+  const FILTER_DOT: Record<Exclude<AgentFilter, 'all'>, SegmentedDot> = {
+    online: { color: 'text-success', pulse: true },
+    offline: { color: 'text-muted-foreground' },
+    never: { color: 'text-info', hollow: true },
+    disabled: { color: 'text-muted-foreground', hollow: true },
+  };
+  const filterOptions = $derived(
+    filters.map(value => ({
+      value,
+      label: t(filterLabel(value)),
+      count: counts[value],
+      dot: value === 'all' ? undefined : FILTER_DOT[value],
+    })),
+  );
+
   const accessLabel = (value: AgentAccess | undefined) => {
     if (!value) return '';
     if (value.kind === 'all') return t(messages.allProjects);
@@ -157,26 +177,13 @@
     {/if}
 
     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <ToggleGroup
-        type="single"
+      <SegmentedControl
         value={filter}
-        onValueChange={next => {
-          if (next) filter = next as AgentFilter;
-        }}
+        options={filterOptions}
+        onChange={next => (filter = next)}
         aria-label={t(messages.filterLabel)}
-        class="w-fit max-w-full flex-wrap rounded-lg bg-muted p-1"
-      >
-        {#each filters as value (value)}
-          <ToggleGroupItem
-            {value}
-            size="sm"
-            class="h-auto gap-1.5 rounded-md px-2 py-1 text-sm sm:px-3 font-normal text-muted-foreground data-[state=on]:bg-card data-[state=on]:font-medium data-[state=on]:text-foreground data-[state=on]:shadow-xs"
-          >
-            {t(filterLabel(value))}
-            <span class="tabular-nums">{counts[value]}</span>
-          </ToggleGroupItem>
-        {/each}
-      </ToggleGroup>
+        class="max-w-full flex-wrap"
+      />
       <div class="relative md:w-72">
         <SearchIcon
           class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"

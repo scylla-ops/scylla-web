@@ -3,9 +3,14 @@
   import { can, Permission } from '@platform/authz';
   import { scyllaNavigate } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { ConfirmOperationAlertDialog, ErrorState, ListSkeleton } from '@scylla/ui';
+  import {
+    ConfirmOperationAlertDialog,
+    ErrorState,
+    ListSkeleton,
+    SegmentedControl,
+  } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { Button, Input, ToggleGroup, ToggleGroupItem } from '@scylla/ui/primitives';
+  import { Button, Input } from '@scylla/ui/primitives';
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
   import { userMutations, userQueries } from '@base/features/user/presentation/user.queries.ts';
@@ -28,7 +33,14 @@
   let toDelete = $state<UserEntity | null>(null);
 
   const shown = $derived(filterUsers(users, filter, search));
-  const counts = $derived({ all: users.length, roles: users.filter(holdsInstanceRole).length });
+  const filterOptions = $derived([
+    { value: 'all' as const, label: t(userMessages.filterAll), count: users.length },
+    {
+      value: 'roles' as const,
+      label: t(userMessages.filterWithRole),
+      count: users.filter(holdsInstanceRole).length,
+    },
+  ]);
 
   const canCreate = $derived(can(Permission.CREATE_USER));
   const canDelete = $derived(can(Permission.DELETE_USER));
@@ -56,32 +68,12 @@
     </header>
 
     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <ToggleGroup
-        type="single"
+      <SegmentedControl
         value={filter}
-        onValueChange={next => {
-          if (next) filter = next as UserFilter;
-        }}
+        options={filterOptions}
+        onChange={next => (filter = next)}
         aria-label={t(userMessages.filterLabel)}
-        class="w-fit rounded-lg bg-muted p-1"
-      >
-        <ToggleGroupItem
-          value="all"
-          size="sm"
-          class="h-auto gap-1.5 rounded-md px-3 py-1 text-sm font-normal text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground"
-        >
-          {t(userMessages.filterAll)}
-          <span class="tabular-nums">{counts.all}</span>
-        </ToggleGroupItem>
-        <ToggleGroupItem
-          value="roles"
-          size="sm"
-          class="h-auto gap-1.5 rounded-md px-3 py-1 text-sm font-normal text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground"
-        >
-          {t(userMessages.filterWithRole)}
-          <span class="tabular-nums">{counts.roles}</span>
-        </ToggleGroupItem>
-      </ToggleGroup>
+      />
       <Input
         class="md:w-64"
         placeholder={t(userMessages.searchUsers)}

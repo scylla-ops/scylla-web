@@ -3,6 +3,7 @@
   import { slide } from 'svelte/transition';
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import FolderIcon from '@lucide/svelte/icons/folder';
+  import { SegmentedControl } from '@scylla/ui';
   import {
     Button,
     Checkbox,
@@ -10,8 +11,6 @@
     Label,
     RadioGroup,
     RadioGroupItem,
-    ToggleGroup,
-    ToggleGroupItem,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn, matchesSearch } from '@scylla/ui/utils';
@@ -88,6 +87,13 @@
     return { change: messages.change, run: messages.run, cancel: messages.cancel, manage: messages.manage }[action];
   };
 
+  const expiries = $derived(
+    TOKEN_EXPIRIES.map(days => ({
+      value: String(days),
+      label: days === 365 ? t(messages.oneYear) : t(messages.days(days)),
+    })),
+  );
+
   const checked = $derived(preset === 'custom' ? keys : presetKeys(preset));
 
   const choosePreset = (value: Exclude<TokenPreset, 'custom'>) => {
@@ -132,25 +138,13 @@
 
   <div class="flex flex-col gap-1.5">
     <span class="text-sm font-medium" id="{idPrefix}-expiry">{t(messages.expiresIn)}</span>
-    <ToggleGroup
-      type="single"
+    <SegmentedControl
       value={String(expiry)}
-      onValueChange={next => {
-        if (next) expiry = Number(next) as TokenExpiry;
-      }}
+      options={expiries}
+      onChange={next => (expiry = Number(next) as TokenExpiry)}
       aria-labelledby="{idPrefix}-expiry"
-      class="grid w-full grid-cols-4 rounded-lg bg-muted p-1"
-    >
-      {#each TOKEN_EXPIRIES as days (days)}
-        <ToggleGroupItem
-          value={String(days)}
-          size="sm"
-          class="rounded-md text-sm font-normal text-muted-foreground data-[state=on]:bg-card data-[state=on]:font-medium data-[state=on]:text-foreground"
-        >
-          {days === 365 ? t(messages.oneYear) : t(messages.days(days))}
-        </ToggleGroupItem>
-      {/each}
-    </ToggleGroup>
+      fill
+    />
     <p class="text-xs text-muted-foreground">
       {t(messages.expiresOn(formatDay(expiryDateOf(expiry, new Date()).toISOString())))}
     </p>

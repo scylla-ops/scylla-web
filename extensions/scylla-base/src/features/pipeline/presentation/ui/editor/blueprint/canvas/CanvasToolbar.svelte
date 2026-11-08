@@ -1,6 +1,7 @@
 <script lang="ts">
   import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
   import { Panel } from '@xyflow/svelte';
+  import { SegmentedControl } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import {
@@ -9,7 +10,6 @@
   } from './node-appearance-preference.state.svelte.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
   import { NODE_APPEARANCE_VIEWS } from './nodes/node-appearances.registry.ts';
-  import Segmented from '@base/features/pipeline/presentation/ui/editor/controls/Segmented.svelte';
 
   interface Props {
     appearance: NodeAppearance;
@@ -32,11 +32,12 @@
   position="top-right"
   class="m-3! flex items-center gap-1 rounded-[10px] border bg-card p-1 shadow-xs"
 >
-  <Segmented
+  <SegmentedControl
     value={appearance}
     {options}
-    label={t(blueprintMessages.nodeStyle)}
+    aria-label={t(blueprintMessages.nodeStyle)}
     onChange={onAppearanceChange}
+    size="sm"
   />
   <div class="mx-0.5 h-5 w-px bg-border"></div>
   <Button variant="ghost" size="sm" class="h-7" onclick={onArrange}>
