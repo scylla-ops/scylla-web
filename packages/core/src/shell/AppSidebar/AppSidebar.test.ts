@@ -338,6 +338,13 @@ describe('the second sidebar', () => {
 
     expect(within(secondSidebar()).queryByRole('heading')).not.toBeInTheDocument();
   });
+
+  it('sits on its own surface, between the rail and the page', () => {
+    render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
+
+    expect(railOf()).toHaveClass('bg-rail');
+    expect(secondSidebar()).toHaveClass('bg-second-sidebar');
+  });
 });
 
 describe('the handle of the second sidebar', () => {

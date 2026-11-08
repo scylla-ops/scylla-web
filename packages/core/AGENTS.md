@@ -182,6 +182,9 @@ module gives an access policy.
 - **The sheet of a phone shows a section with `noRailItem` on its pages only** (`sheetSections`).
   A click on a link closes the sheet. `NavMain` does this, because a link that changes only an
   in-page param mounts nothing.
+- **The double sidebar is darker than the page.** The rail has `bg-rail`, the second sidebar
+  `bg-second-sidebar`, and the band of the brand has the two colors, each above its column. The
+  tokens are in `@scylla/ui/styles.css`, for each theme. Do not give them `bg-background`.
 - **The rail does not move the page.** It has a fixed slot of 56px and it opens in an absolute
   layer, by a CSS transition of its width, so the page has no layout work and a second click in
   the middle reverses it from where it is. The open rail has the width of the slot and the second

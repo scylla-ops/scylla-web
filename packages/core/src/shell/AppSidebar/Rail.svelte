@@ -83,7 +83,7 @@
   data-state={open ? 'expanded' : 'collapsed'}
   data-collapsible={open ? '' : 'icon'}
   class={cn(
-    'group border-r border-sidebar-border bg-background text-sidebar-foreground transition-[width]',
+    'group border-r border-sidebar-border bg-rail text-sidebar-foreground transition-[width]',
     !open && 'w-14',
     cursor,
     SIDEBAR_MOTION,

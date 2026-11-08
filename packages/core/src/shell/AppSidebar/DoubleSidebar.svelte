@@ -80,7 +80,7 @@
   style:width="{sidebarWidth}px"
 >
   <div
-    class="absolute inset-x-0 top-0 z-30 flex h-17 items-center justify-center border-r border-b border-sidebar-border bg-background"
+    class="absolute inset-x-0 top-0 z-30 flex h-17 items-center justify-center border-r border-b border-sidebar-border bg-[linear-gradient(to_right,var(--rail)_--spacing(14),var(--second-sidebar)_--spacing(14))]"
   >
     {#if Brand}
       <Brand />

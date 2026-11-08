@@ -277,6 +277,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The open rail covers all the second sidebar, to the same edge as the logo band. Before, it kept a
   fixed width: after a resize, a part of a wider second sidebar stayed visible to its right, and a
   narrower one put the rail over the page.
+- The double sidebar is darker than the page, in the light and in the dark theme. The rail is the
+  darkest, then the second sidebar. The thumbnails of the theme picker show the same colors.
 
 ## [0.6.0] - 2026-11-01
 
