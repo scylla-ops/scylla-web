@@ -299,6 +299,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The notifications panel opens at the size of its list. Before, it opened large and then became
   smaller when the list loaded. While the list loads, the panel shows one skeleton row for each
   unread notification, and its height changes smoothly.
+- On a large screen, the line below the band of the logo and the top bar has the same color as the
+  line on the right edge of the sidebar. Before, the right line looked thicker.
 
 ## [0.6.0] - 2026-11-01
 

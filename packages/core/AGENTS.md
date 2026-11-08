@@ -193,10 +193,15 @@ module gives an access policy.
   (`data-slot="sidebar-brand"`) has one color above the two columns: `bg-background`, the color
   of the top bar.
 - **One `input` line marks the right edge of the double sidebar**, from the top to the bottom: on
-  the band, then on the second sidebar, or on the open rail that covers it. The other lines keep
-  `sidebar-border` or `border`: the bottom of the band and of the top bar, and the line between
-  the closed rail and the second sidebar. The rail changes the color of its line with its width.
-  The handle shows its line only on a hover, a focus or a drag, thus it does not hide this line.
+  the band, then on the second sidebar, or on the open rail that covers it. The rail changes the
+  color of its line with its width. The handle shows its line only on a hover, a focus or a drag,
+  thus it does not hide this line.
+- **One `input` line goes below the band and the top bar**, across the full width, and it meets the
+  line of the right edge at one corner. The two are at the same height (`h-17`), thus they make one
+  straight line. Both lines are 1 px, thus the two directions look the same. On a phone, the top
+  bar has no band and no right edge beside it, and the page below has `border` lines, thus its
+  bottom keeps `border`. The other lines keep `sidebar-border` or `border`: the line between the
+  closed rail and the second sidebar, the separators of the rail, and the lines in the page.
 - **The rail does not move the page.** It has a fixed slot of 56px and it opens in an absolute
   layer, by a CSS transition of its width, so the page has no layout work and a second click in
   the middle reverses it from where it is. The open rail has the width of the slot and the second

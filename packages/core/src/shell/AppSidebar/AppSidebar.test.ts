@@ -413,13 +413,19 @@ describe('the band of the brand', () => {
 
     expect(band()).toHaveClass('bg-background');
     expect(band().className).not.toMatch(/gradient/);
-    expect(band()).toHaveClass('border-b-sidebar-border');
+  });
+
+  it('has the input line on its bottom, as on its right edge', () => {
+    render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
+
+    expect(band()).toHaveClass('border-b', 'border-r', 'border-input');
+    expect(band().className).not.toMatch(/sidebar-border/);
   });
 
   it('starts the input line on the right edge, which the second sidebar continues', () => {
     render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
 
-    expect(band()).toHaveClass('border-r-input');
+    expect(band()).toHaveClass('border-r', 'border-input');
     expect(secondSidebar()).toHaveClass('border-input');
     expect(railOf()).toHaveClass('border-sidebar-border');
     expect(railOf()).not.toHaveClass('border-input');
