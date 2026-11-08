@@ -283,6 +283,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   workspace, after a project that is gone and from the not-found page. The second sidebar of the
   projects shows each project of the workspace after "All projects", apart from it. A module adds
   such links with `ShellContributions.secondSidebarLinks`.
+- The page of an agent and the page of an app have a space under the last card. Before, the last
+  card touched the bottom of the window, and a floating button at the bottom right covered it.
 
 ## [0.6.0] - 2026-11-01
 

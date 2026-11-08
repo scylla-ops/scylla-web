@@ -151,7 +151,7 @@ const setUp = (details = agent(), permissions = ALL, keys = DEFAULT_KEYS, grante
       project: { projectRepository: projects },
     }),
   ];
-  render(AgentDetails, { appId: details.id });
+  return render(AgentDetails, { appId: details.id });
 };
 
 beforeEach(() => vi.clearAllMocks());
@@ -181,6 +181,14 @@ describe('AgentDetails', () => {
     expect(await screen.findByText('api')).toBeInTheDocument();
     expect(screen.getByText('Active')).toBeInTheDocument();
     expect(screen.getByText(/Revoked on/)).toBeInTheDocument();
+  });
+
+  it('ends with a space under the last card, above a floating button at the bottom right', async () => {
+    const { container } = setUp();
+
+    await screen.findByRole('heading', { name: 'build-linux-01' });
+
+    expect(container.firstElementChild).toHaveClass('pb-20');
   });
 
   it('gives a command to connect an agent that never said hello', async () => {

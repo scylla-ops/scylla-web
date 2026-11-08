@@ -59,7 +59,7 @@
     <Skeleton class="h-64 w-full rounded-xl" />
   </div>
 {:else}
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-6 pb-20">
     <AppHeader
       {app}
       onDisable={canManage ? () => (disabling = true) : undefined}

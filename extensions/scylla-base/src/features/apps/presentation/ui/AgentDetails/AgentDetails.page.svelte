@@ -67,7 +67,7 @@
     </div>
   </div>
 {:else}
-  <div class="flex flex-col gap-6" data-tour="agent-details">
+  <div class="flex flex-col gap-6 pb-20" data-tour="agent-details">
     <AgentHeader
       {agent}
       noActiveKey={hasNoActiveKey(details.data?.keys ?? [])}
