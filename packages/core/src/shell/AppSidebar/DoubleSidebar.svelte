@@ -88,7 +88,7 @@
 >
   <div
     data-slot="sidebar-brand"
-    class="absolute inset-x-0 top-0 z-30 flex h-17 items-center justify-center border-r border-b border-r-input border-b-sidebar-border bg-background"
+    class="absolute inset-x-0 top-0 z-30 flex h-17 items-center justify-center border-r border-b border-input bg-background"
   >
     {#if Brand}
       <Brand />

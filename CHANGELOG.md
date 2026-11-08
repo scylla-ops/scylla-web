@@ -182,6 +182,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   `MALFORMED_RESPONSE` (the server answered without the entity it must carry) and
   `UNSUPPORTED_RESPONSE` (it answered with a value this build cannot read). A map over every
   code must list them. `required` of the shared gRPC wrappers gives the first.
+- The filters of the agents, the users, the members and the roles, the CI provider, the life of a
+  token and the switches of the pipeline editor use one segmented control. A thumb moves under the
+  selected item, and a count rolls when it changes. The filter of the agents shows the color of each
+  state. With a reduced motion setting, the thumb moves in 150 ms and the counts do not roll.
 
 ### Fixed
 
@@ -292,6 +296,15 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The logo band has one color, the color of the top bar, in the light and in the dark theme. Before,
   it had the colors of the two columns below it. A stronger line marks the right edge of the double
   sidebar, from the top to the bottom, also when the rail is open.
+- The notifications panel opens at the size of its list. Before, it opened large and then became
+  smaller when the list loaded. While the list loads, the panel shows one skeleton row for each
+  unread notification, and its height changes smoothly.
+- On a large screen, the line below the band of the logo and the top bar has the same color as the
+  line on the right edge of the sidebar. Before, the right line looked thicker.
+- The tooltip of a row of the closed rail shows only while the pointer is on the row, or on a focus
+  from the keyboard. Before, a row that the pointer crossed on the open rail showed its tooltip when
+  the rail closed, and a row that the user clicked showed its tooltip again when the window got the
+  focus back.
 
 ## [0.6.0] - 2026-11-01
 

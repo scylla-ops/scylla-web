@@ -1,7 +1,7 @@
 <script lang="ts">
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { createQuery, navigateTo, routePathname } from '@scylla/core-sdk';
-  import { ErrorState, ListSkeleton } from '@scylla/ui';
+  import { ErrorState, ListSkeleton, SegmentedControl } from '@scylla/ui';
   import RolesLoadError from './RolesLoadError.svelte';
   import { t } from '@scylla/ui/i18n';
   import {
@@ -13,8 +13,6 @@
     TableHead,
     TableHeader,
     TableRow,
-    ToggleGroup,
-    ToggleGroupItem,
   } from '@scylla/ui/primitives';
   import {
     filterLabels,
@@ -43,6 +41,9 @@
   let search = $state('');
 
   const groups = $derived(groupRoles(rolesQuery.data ?? [], filter, search));
+  const filterOptions = $derived(
+    ROLE_FILTERS.map(value => ({ value, label: t(filterLabels[value]) })),
+  );
 
   const open = (key: string) => navigateTo(`${routePathname()}/${encodeURIComponent(key)}`);
 </script>
@@ -55,25 +56,12 @@
   <ErrorState message={t(rolesMessages.loadError)} />
 {:else}
   <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-    <ToggleGroup
-      type="single"
+    <SegmentedControl
       value={filter}
-      onValueChange={next => {
-        if (next) filter = next as RoleFilter;
-      }}
+      options={filterOptions}
+      onChange={next => (filter = next)}
       aria-label={t(rolesMessages.filterLabel)}
-      class="w-fit rounded-lg bg-muted p-1"
-    >
-      {#each ROLE_FILTERS as value (value)}
-        <ToggleGroupItem
-          {value}
-          size="sm"
-          class="h-auto rounded-md px-3 py-1 text-sm font-normal text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground"
-        >
-          {t(filterLabels[value])}
-        </ToggleGroupItem>
-      {/each}
-    </ToggleGroup>
+    />
     <Input
       class="md:w-64"
       placeholder={t(rolesMessages.search)}

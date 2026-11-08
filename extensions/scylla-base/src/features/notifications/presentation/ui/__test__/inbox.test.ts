@@ -81,6 +81,15 @@ describe('the panel of the bell', () => {
     expect(screen.queryByText(/all is well/i)).toBeNull();
   });
 
+  it('opens with one skeleton row per unread row, so it does not open large and then shrink', async () => {
+    repository.summary.mockResolvedValue({ unread: 2, needsAction: 0, pollAfterSeconds: 30 });
+    repository.list.mockReturnValue(new Promise(() => {}));
+
+    panel();
+
+    await waitFor(() => expect(screen.getAllByTestId('notification-skeleton')).toHaveLength(2));
+  });
+
   it('has no filter and no failed runs: it asks for the inbox of all workspaces', async () => {
     lists(row());
     panel();

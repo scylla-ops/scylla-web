@@ -105,7 +105,6 @@ export const membersOf = (project: string) => msg`Members of ${project}`;
 export const changeIn = (scope: string) => msg`Change in ${scope}`;
 export const projectRuleTitle = (workspace: string) =>
   msg`A project role needs a role in ${workspace} first`;
-export const tabCount = (label: string, count: number) => msg`${label} ${count}`;
 export const workspaceBlurb = (workspace: string, again: string) =>
   msg`People and apps with a role in ${workspace}. A workspace role covers every project of ${again}. A project role adds power on one project.`;
 export const whatCanDo = (name: string) =>

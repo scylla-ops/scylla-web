@@ -7,9 +7,9 @@
   import { invitationQueries, loadPendingInvitations } from '@base/features/invitation';
   import { userQueries, type UserSummary } from '@base/features/user';
   import { invalidateWorkspaceMembers } from '@base/features/workspace';
-  import { GatedButton } from '@scylla/ui';
+  import { GatedButton, SegmentedControl } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { Input, ToggleGroup, ToggleGroupItem } from '@scylla/ui/primitives';
+  import { Input } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import {
     membershipPoints,
@@ -18,7 +18,6 @@
   import {
     linkedApp,
     membershipMessages,
-    tabCount,
     workspaceBlurb,
   } from '../../messages/membership.messages.ts';
   import type { ActorChoice } from '../../presenters/actor-choice.presenter.ts';
@@ -85,6 +84,10 @@
   const shown = $derived(filterMemberRows(rows, tab, search));
   const peopleCount = $derived(rows.filter(row => row.tab === 'people').length);
   const appCount = $derived(rows.filter(row => row.tab === 'apps').length);
+  const tabOptions = $derived([
+    { value: 'people' as const, label: t(membershipMessages.people), count: peopleCount },
+    { value: 'apps' as const, label: t(membershipMessages.apps), count: appCount },
+  ]);
 
   /** The directory gives the email when the caller can read it. */
   const userFor = (id: string): UserSummary | undefined =>
@@ -173,30 +176,12 @@
     </header>
 
     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <ToggleGroup
-        type="single"
+      <SegmentedControl
         value={tab}
-        onValueChange={next => {
-          if (next) tab = next as MemberTab;
-        }}
+        options={tabOptions}
+        onChange={next => (tab = next)}
         aria-label={t(membershipMessages.memberKind)}
-        class="w-fit rounded-lg bg-muted p-1"
-      >
-        <ToggleGroupItem
-          value="people"
-          size="sm"
-          class="h-auto rounded-md px-3 py-1 text-sm font-normal text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground"
-        >
-          {t(tabCount(t(membershipMessages.people), peopleCount))}
-        </ToggleGroupItem>
-        <ToggleGroupItem
-          value="apps"
-          size="sm"
-          class="h-auto rounded-md px-3 py-1 text-sm font-normal text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground"
-        >
-          {t(tabCount(t(membershipMessages.apps), appCount))}
-        </ToggleGroupItem>
-      </ToggleGroup>
+      />
       <Input
         class="md:w-64"
         placeholder={t(membershipMessages.searchMembers)}

@@ -33,13 +33,13 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 ```
 src/
   index.ts                 `@scylla/ui` — re-exports the groups below
-  controls/                IconButton, GatedButton
+  controls/                IconButton, GatedButton, SearchSelect, SegmentedControl
   data-display/            DataTable, Pagination, PaginationSlot, StatusShape, StatusTrail,
                            CopyableText, TruncatedText
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
   layout/                  FeatureHeader, ContextItem, PageTransition, ScyllaLoadingScreen
-  motion/                  page transitions, reduced motion
+  motion/                  page transitions, reduced motion, a spring easing
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
                            frame, for an editor that fills a pane with its own borders)
   icon.ts                  LucideIcon (the prop type of an icon)
@@ -72,6 +72,7 @@ catalogs of this package register themselves.
 | A row of statuses in time (the last runs) | `StatusTrail`: one dot per item, oldest first, linked by lines; the last dot is a little bigger. Each dot has `data-item-id`; with `onSelect` it is a button |
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
 | A select with a search | `SearchSelect`, with `options` as data. Use `Select` only for a short fixed list |
+| One choice out of a few: a filter, a mode, a period | `SegmentedControl`, with `options` as data (a count, a dot, an icon). `fill` for equal columns over the full width, `size="sm"` in a toolbar. See "`SegmentedControl`". Not for real tabs (`Tabs`) or for a choice of several (`ToggleGroup type="multiple"`) |
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`, and `data-*` attributes, which go on its content). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
 | Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue" |
 | Show a one-time secret | `SecretRevealDialog` |
@@ -286,6 +287,30 @@ slash. Its accessible name is `label`; `data-state` gives the state to a test.
   around the dots, each frame. Keep it so.
 - `prefers-reduced-motion`: every change is instant, nothing breathes or runs.
 - jsdom has no canvas: `test/setup.ts` gives no 2D context, and the shape keeps its name only.
+
+## `SegmentedControl`
+
+A toggle group of one choice (`ToggleGroup` of bits-ui: the radios, the arrow keys, Enter and
+Space). The selected background is not on the segment: it is one thumb under the segments
+(`data-part="segmented-thumb"`), which moves to the new segment.
+
+- **The thumb measures the segments** (`thumb.attachments.svelte.ts`, `offsetLeft` and
+  `offsetWidth`, not `getBoundingClientRect`, which a transform of the page changes). A
+  ResizeObserver on the track and the segments makes it follow a new label or count. A new
+  value stretches it: the leading edge goes first, then both edges settle on a spring
+  (`thumb-motion.ts`, plain TypeScript, tested in node). A resize in the middle of a move
+  settles from where the thumb is.
+- **The value is bound with a function binding** on `ToggleGroup`. A click on the selected
+  segment makes bits-ui clear its value; the setter ignores it, thus the segment stays selected.
+  With a plain `value` prop and `onValueChange`, bits-ui keeps the cleared value and shows no
+  selection.
+- **A count rolls** (`count-roll.transition.ts`): the old number leaves and the new one enters,
+  up when the count grows. The chip is `aria-hidden` and an `sr-only` copy gives the current
+  count to the name of the radio: the leaving number stays in the DOM during its transition (and
+  in jsdom, where the animation never ends), and must not go into the name.
+- **A dot with `pulse`** grows a ring when its count grows.
+- `prefers-reduced-motion`: no stretch, no bounce, no roll and no pulse. The thumb slides in
+  150 ms and the colors change in 150 ms.
 
 ## `DataTable` on a phone
 

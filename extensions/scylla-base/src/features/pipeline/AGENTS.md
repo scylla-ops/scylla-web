@@ -121,7 +121,7 @@ presentation/
                                              check, and the issue that stops the save
       unsaved-changes.effect.svelte.ts       warnBeforeUnload: the browser's prompt while unsaved
       PipelineEditorHeader/                  the header, with the name field
-      controls/                              what the tabs share: Segmented, SearchField, and
+      controls/                              what the tabs share: SearchField and
                                              code-editor.effect.svelte.ts (CodeMirror ↔ a string)
       node/                                  the fields of one node, for every view that edits a node
         node-draft.state.svelte.ts           createNodeDraft: the draft of a node, applied at each edit

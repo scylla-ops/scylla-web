@@ -52,7 +52,8 @@
 
 {#snippet row(item: RailItem)}
   {@const active = item.id === selected?.id}
-  <Tooltip>
+  <!-- Only the content closes a tooltip that the pointer leaves, and the open rail has none. -->
+  <Tooltip disabled={open} ignoreNonKeyboardFocus>
     <TooltipTrigger
       class={cn(
         'flex h-8 shrink-0 items-center gap-2 overflow-hidden rounded-lg px-2 text-left text-sm outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-ring',

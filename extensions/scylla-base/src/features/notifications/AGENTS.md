@@ -17,6 +17,11 @@ The inbox of the signed-in user (`scylla.notifications.v1.NotificationService`).
   on the personal layout, so a user with no workspace sees an invitation.
 - The panel is short: no filter, no time label, and one action in a row. "Mark all as read" shows
   only when `unread > needsAction`, because the server skips a row that waits for an answer.
+- While the list loads, the panel shows one skeleton row for each unread row, from 1 to 8
+  (`panelSkeletonRows`). Each unread row is in the list, thus the panel does not open large and
+  then shrink. The panel follows the height of its content with a 200 ms transition
+  (`followContentHeight`), and the skeleton and the list cross-fade. A reduced motion stops the
+  height transition. The fade stays, because it moves nothing.
 - The page is one route, `notifications/:view`, on the `workspace` and `personal` mounts. The views
   are in `notification-views.registry.ts`: its links are in the section `notifications` of the
   second sidebar, and the personal mount has `NotificationsNav` in the page. The list has a
@@ -61,6 +66,7 @@ The inbox of the signed-in user (`scylla.notifications.v1.NotificationService`).
 - `presentation/presenters/`: `kind-views`, `sections` (the groups of the page and of the panel),
   `bell`, `page-keys`.
 - `presentation/ui/NotificationRow/`: a row, the list with its states, the body of an invitation.
-- `presentation/ui/NotificationsPanel/`: the content of the popover.
+- `presentation/ui/NotificationsPanel/`: the content of the popover, and the attachment that gives
+  it the height of its content.
 - `presentation/ui/Notifications/`: the full page, its views, its list and its state, and the failed
   runs.

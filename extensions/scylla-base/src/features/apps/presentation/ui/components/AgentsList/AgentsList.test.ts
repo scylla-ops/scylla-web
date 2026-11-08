@@ -184,6 +184,20 @@ describe('AgentsList', () => {
     expect(screen.queryByText('mac-mini-office')).not.toBeInTheDocument();
   });
 
+  it('counts the agents of each state in the filter, a running agent as online', async () => {
+    setUp(ALL);
+    await screen.findByText('build-linux-01');
+
+    const filter = screen.getByRole('group', { name: 'Show the agents' });
+
+    expect(within(filter).getAllByRole('radio')).toHaveLength(5);
+    expect(within(filter).getByRole('radio', { name: 'All 5' })).toBeChecked();
+    expect(within(filter).getByRole('radio', { name: 'Online 2' })).toBeInTheDocument();
+    expect(within(filter).getByRole('radio', { name: 'Offline 1' })).toBeInTheDocument();
+    expect(within(filter).getByRole('radio', { name: 'Never connected 1' })).toBeInTheDocument();
+    expect(within(filter).getByRole('radio', { name: 'Disabled 1' })).toBeInTheDocument();
+  });
+
   it('disables an agent after a confirmation', async () => {
     setUp(ALL);
     const user = userEvent.setup();
