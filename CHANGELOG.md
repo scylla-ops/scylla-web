@@ -292,6 +292,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The logo band has one color, the color of the top bar, in the light and in the dark theme. Before,
   it had the colors of the two columns below it. A stronger line marks the right edge of the double
   sidebar, from the top to the bottom, also when the rail is open.
+- The notifications panel opens at the size of its list. Before, it opened large and then became
+  smaller when the list loaded. While the list loads, the panel shows one skeleton row for each
+  unread notification, and its height changes smoothly.
 
 ## [0.6.0] - 2026-11-01
 
