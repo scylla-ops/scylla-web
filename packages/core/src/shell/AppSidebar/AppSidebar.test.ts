@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { msg } from '@lingui/core/macro';
 import type { AccessPolicy, RoutePermission, ShellContributions } from '@scylla/core-sdk';
 import { installTestNavigator } from '@test/navigator.ts';
+import { findTooltip, queryTooltip } from '@test/render.ts';
 import { testPermission } from '../../routing/__test__/test-permission.fixture.ts';
 import type { NavEntry } from '../../routing/compilation/nav-entries.ts';
 import type { ShellConfig } from '../shell-config.ts';
@@ -181,6 +182,24 @@ describe('the rail', () => {
 
     await fireEvent.click(separator);
     expect(rail).toHaveAttribute('data-state', 'collapsed');
+  });
+
+  it('names a row in a tooltip while the closed rail shows only the icons', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+
+    await userEvent.hover(within(railOf()).getByRole('button', { name: /Secrets/ }));
+
+    expect(await findTooltip()).toHaveTextContent('Secrets');
+  });
+
+  it('gives a row no tooltip while the open rail shows its title', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+    const rail = railOf();
+    await fireEvent.click(rail);
+
+    await userEvent.hover(within(rail).getByRole('button', { name: /Secrets/ }));
+
+    expect(queryTooltip()).toBeNull();
   });
 
   it('opens the page of a row without opening the rail, and closes an open rail', async () => {

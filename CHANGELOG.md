@@ -272,6 +272,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A project that is not on the first page of the list opens and shows its name. Before, the app went
   back to the list of projects. After a delete of the open project, the top bar search no longer
   shows this project and its pages, and a browser back to it goes to the list.
+- Each icon of the closed rail shows its title in a tooltip on a hover and on a focus. The items of
+  a menu, of a select and of the command bar show the pointer, as a button does.
 
 ## [0.6.0] - 2026-11-01
 

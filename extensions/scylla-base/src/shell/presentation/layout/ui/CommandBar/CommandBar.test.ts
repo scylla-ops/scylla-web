@@ -413,6 +413,13 @@ describe('CommandBar', () => {
     });
   });
 
+  it('shows a pointer on a row', async () => {
+    const input = await open();
+    await user().type(input, 'agents');
+
+    expect(await option('Go to the page Agents (Machines).')).toHaveClass('cursor-pointer');
+  });
+
   describe('an action with a confirmation', () => {
     const toConfirm = async (text: string, name: RegExp) => {
       const input = await open();

@@ -122,6 +122,25 @@ describe('NavUser', () => {
     expect(navigator.navigate).toHaveBeenCalledWith('/acme/help', undefined);
   });
 
+  it('shows a pointer on each choice of the menu, as on a button', async () => {
+    setUp(() => Promise.resolve(me));
+
+    await userEvent.setup().click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
+
+    const choices = [
+      ...(await screen.findAllByRole('menuitem', { hidden: true })),
+      ...screen.getAllByRole('menuitemradio', { hidden: true }),
+    ];
+    expect(choices.map(choice => choice.textContent.trim())).toEqual([
+      'Account',
+      'Help & tours',
+      'Sign out',
+      'English',
+      'Français',
+    ]);
+    choices.forEach(choice => expect(choice).toHaveClass('cursor-pointer'));
+  });
+
   it('signs the user out from the menu', async () => {
     setUp(() => Promise.resolve(me));
     const user = userEvent.setup();

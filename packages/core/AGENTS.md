@@ -185,6 +185,9 @@ module gives an access policy.
 - **The rail does not move the page.** It has a fixed slot of 56px and it opens in an absolute
   layer, by a CSS transition of its width, so the page has no layout work and a second click in
   the middle reverses it from where it is. Keep the rows at a fixed width inside it.
+- **A closed rail shows only the icons, thus a row has a tooltip with its title.** The tooltip
+  shows on a hover and on a focus. The open rail shows the title in the row, thus it shows no
+  tooltip.
 - **Only the user opens the rail.** A hover or a focus does not open it. A click on an empty part
   of the rail or on its separator opens and closes it, and the cursor shows the direction. The
   separator is the way for the keyboard. A row opens its page and closes the rail. A press outside

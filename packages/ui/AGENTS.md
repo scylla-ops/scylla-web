@@ -215,6 +215,9 @@ What a port has to get right, all of it invisible to the compiler:
   `dialog/centered-dialog.test.ts` fails when a source file has a centering translate and a slide.
 - **Radix's `Indicator` parts become an `{#if}` in a children snippet** (checkbox, select item),
   because bits-ui hands the state to the snippet instead of mounting a separate node.
+- **An item that the user picks shows the pointer, as a button does** (`styles.css`). The shadcn
+  classes give `cursor-default` to the items of a menu, a select and a command list: we use
+  `cursor-pointer`. A disabled item does not show the pointer.
 - **Highlight styles need `data-highlighted:`, not just `focus:`.** bits-ui never moves DOM focus
   into a listbox; it tracks the active option with `aria-activedescendant`.
 - Composed primitives are driven from a `*.fixture.svelte`: their parts are components, so a
