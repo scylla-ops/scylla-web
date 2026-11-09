@@ -12,6 +12,7 @@
   import { cn } from '@scylla/ui/utils';
   import { shellMessages } from '../shell.messages.ts';
   import type { Rail, RailItem } from '../structs/nav-section.struct.ts';
+  import { animateTile } from './rail-tile.attachments.svelte.ts';
 
   interface Props {
     rail: Rail;
@@ -38,7 +39,7 @@
   }: Props = $props();
 
   const rowWidth = cn(
-    'w-8 transition-[width,background-color,color] group-data-[state=expanded]:w-full',
+    'w-8 transition-[width,color] group-data-[state=expanded]:w-full',
     SIDEBAR_MOTION,
     'motion-reduce:transition-none',
   );
@@ -56,15 +57,30 @@
   <Tooltip disabled={open} ignoreNonKeyboardFocus>
     <TooltipTrigger
       class={cn(
-        'flex h-8 shrink-0 items-center gap-2 overflow-hidden rounded-lg px-2 text-left text-sm outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+        'group/row relative isolate flex h-8 shrink-0 items-center gap-2 rounded-lg px-2 text-left text-sm outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-ring',
         rowWidth,
-        active ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'hover:bg-accent',
+        'motion-reduce:transition-[color] motion-reduce:duration-150 motion-reduce:ease-out',
+        active && 'text-sidebar-primary-foreground',
       )}
       aria-current={active ? 'page' : undefined}
       data-nav-url={item.pages[0]?.url}
       data-nav-group={item.group}
       onclick={() => onOpenItem(item)}
     >
+      <!-- The hover stays under the new tile while it grows. -->
+      <span
+        aria-hidden="true"
+        class={cn(
+          'absolute inset-0 -z-10 rounded-lg bg-accent opacity-0 transition-opacity duration-150 ease-out',
+          active ? 'delay-200' : 'group-hover/row:opacity-100 group-hover/row:duration-100',
+        )}
+      ></span>
+      <span
+        aria-hidden="true"
+        data-slot="sidebar-rail-tile"
+        class={cn('absolute inset-0 -z-10 rounded-lg bg-sidebar-primary', !active && 'opacity-0')}
+        {@attach animateTile(() => active)}
+      ></span>
       {#if item.icon}
         <item.icon class="size-4 shrink-0" />
       {/if}
@@ -84,8 +100,8 @@
   data-state={open ? 'expanded' : 'collapsed'}
   data-collapsible={open ? '' : 'icon'}
   class={cn(
-    'group border-r bg-rail text-sidebar-foreground transition-[width,border-color]',
-    open ? 'border-input' : 'w-14 border-sidebar-border',
+    'group border-r border-sidebar-border bg-rail text-sidebar-foreground transition-[width]',
+    !open && 'w-14',
     cursor,
     SIDEBAR_MOTION,
     'motion-reduce:transition-none',

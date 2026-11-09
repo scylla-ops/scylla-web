@@ -70,7 +70,13 @@ const DEFAULT_KEYS = [
   key('k-old', 'build-old-01', '2026-11-04T00:00:00.000Z'),
 ];
 
-const setUp = (details = agent(), permissions = ALL, keys = DEFAULT_KEYS, granted = true) => {
+const setUp = (
+  details = agent(),
+  permissions = ALL,
+  keys = DEFAULT_KEYS,
+  granted = true,
+  search = '',
+) => {
   permissionsStore.setState({
     permissions: {
       scopes: [
@@ -140,7 +146,7 @@ const setUp = (details = agent(), permissions = ALL, keys = DEFAULT_KEYS, grante
     }),
   };
   const cache = withQueryClient();
-  const navigator = installTestNavigator({ pathname: '/acme/agents/a1' });
+  const navigator = installTestNavigator({ pathname: '/acme/agents/a1', search });
   navigate = navigator.navigate;
   teardown = [
     cache.restore,
@@ -154,6 +160,14 @@ const setUp = (details = agent(), permissions = ALL, keys = DEFAULT_KEYS, grante
   return render(AgentDetails, { appId: details.id });
 };
 
+/** Today is 4 Nov 2026 for the stats: only `Date` is fake, the timers are real. */
+const onNovember4 = () => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-11-04T15:00:00Z'));
+};
+
+const periodsAsked = () => apps.getAgentStats.mock.calls.map(([, period]) => period);
+
 beforeEach(() => vi.clearAllMocks());
 afterEach(() => {
   teardown.forEach(restore => restore());
@@ -163,6 +177,7 @@ afterEach(() => {
 
 describe('AgentDetails', () => {
   it('shows the state, the stats, the machine, the jobs, the access and the keys', async () => {
+    onNovember4();
     setUp();
 
     expect(await screen.findByRole('heading', { name: 'build-linux-01' })).toBeInTheDocument();
@@ -172,8 +187,10 @@ describe('AgentDetails', () => {
     expect(screen.getByText('396 of 412 completed')).toBeInTheDocument();
     expect(screen.getByText('3m 12s')).toBeInTheDocument();
     expect(screen.getByText('8m 40s')).toBeInTheDocument();
+    expect(screen.getByText('Jobs, Oct 12 – Today')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: '412 jobs, Oct 12 – Today' })).toBeInTheDocument();
     expect(
-      screen.getByRole('img', { name: '412 jobs in the last 30 days, by day' }),
+      screen.getByRole('img', { name: '412 jobs since the agent joined, by day' }),
     ).toBeInTheDocument();
     expect(screen.getByText('build-linux-01.acme.lan', { selector: 'dd' })).toBeInTheDocument();
     expect(screen.getByText('16 GB')).toBeInTheDocument();
@@ -181,6 +198,84 @@ describe('AgentDetails', () => {
     expect(await screen.findByText('api')).toBeInTheDocument();
     expect(screen.getByText('Active')).toBeInTheDocument();
     expect(screen.getByText(/Revoked on/)).toBeInTheDocument();
+  });
+
+  it('changes the period with a preset, and the stats follow', async () => {
+    onNovember4();
+    setUp();
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('radio', { name: '7D' }));
+
+    expect(navigate).toHaveBeenCalledWith('/acme/agents/a1?period=7d', { replace: true });
+    expect(await screen.findByText('Jobs, Oct 29 – Today')).toBeInTheDocument();
+    expect(periodsAsked()).toContainEqual({ from: '2026-10-29', to: '2026-11-04' });
+  });
+
+  it('moves an edge of the window with the arrows: a day, or a week with Shift', async () => {
+    onNovember4();
+    setUp(agent(), ALL, DEFAULT_KEYS, true, '?from=2026-10-20&to=2026-10-30');
+    const user = userEvent.setup();
+
+    const start = await screen.findByRole('slider', { name: 'Start of the period, Oct 20' });
+    start.focus();
+    await user.keyboard('{ArrowRight}');
+
+    expect(navigate).toHaveBeenLastCalledWith('/acme/agents/a1?from=2026-10-21&to=2026-10-30', {
+      replace: true,
+    });
+
+    const end = screen.getByRole('slider', { name: 'End of the period, Oct 30' });
+    end.focus();
+    await user.keyboard('{Shift>}{ArrowRight}{/Shift}');
+
+    expect(navigate).toHaveBeenLastCalledWith('/acme/agents/a1?from=2026-10-21&to=2026-11-04', {
+      replace: true,
+    });
+    expect(screen.getByText('Jobs, Oct 21 – Today')).toBeInTheDocument();
+  });
+
+  it('keeps the period of a link, and gives its number of days', async () => {
+    onNovember4();
+    setUp(agent(), ALL, DEFAULT_KEYS, true, '?from=2026-10-20&to=2026-10-30');
+
+    expect(await screen.findByText('Jobs, Oct 20 – Oct 30')).toBeInTheDocument();
+    expect(screen.getByText('11 days')).toBeInTheDocument();
+    expect(periodsAsked()).toContainEqual({ from: '2026-10-20', to: '2026-10-30' });
+  });
+
+  it('shows the last 30 days of a new agent with no timeline, and hatches the days before it joined', async () => {
+    onNovember4();
+    setUp(agent({ createdAt: '2026-11-02T08:00:00.000Z' }));
+
+    expect(await screen.findByRole('img', { name: '412 jobs, Oct 6 – Today' })).toBeInTheDocument();
+    expect(screen.getByText('Not joined yet')).toBeInTheDocument();
+    expect(screen.queryByText('Timeline')).not.toBeInTheDocument();
+    expect(periodsAsked()).toEqual([{ from: '2026-10-06', to: '2026-11-04' }]);
+  });
+
+  it('tells where the jobs of a disabled agent are when its period has none', async () => {
+    onNovember4();
+    const disabled = agent({ disabledAt: '2026-10-25T10:00:00.000Z', connected: false });
+    setUp(disabled, ALL, DEFAULT_KEYS, true, '?period=7d');
+    apps.getAgentStats = vi.fn((_id: string, period: { from: string }) =>
+      Promise.resolve({
+        agentId: disabled.id,
+        outcomes: period.from === '2026-10-12' ? outcomes(20, 2) : outcomes(0, 0),
+        medianMs: null,
+        p95Ms: null,
+        days: [],
+      }),
+    );
+
+    expect(
+      await screen.findByText(
+        'No job in this period. Drag the timeline window before Oct 25 to see the jobs.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Oct 29 – Today · disabled since Oct 25')).toBeInTheDocument();
+    expect(screen.getByText('No ended job')).toBeInTheDocument();
+    expect(screen.getAllByText('Disabled since Oct 25')).toHaveLength(2);
   });
 
   it('ends with a space under the last card, above a floating button at the bottom right', async () => {

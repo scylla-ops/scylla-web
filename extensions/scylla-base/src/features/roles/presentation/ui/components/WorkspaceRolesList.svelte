@@ -1,23 +1,16 @@
 <script lang="ts">
-  import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { createQuery, navigateTo, routePathname } from '@scylla/core-sdk';
   import { ListSkeleton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-  } from '@scylla/ui/primitives';
+  import { Table, TableBody } from '@scylla/ui/primitives';
   import type { RoleEntity } from '../../../domain/entities/role.entity.ts';
   import { rolesMessages, workspaceRolesTitle } from '../../messages/roles.messages.ts';
-  import { permissionCount, roleDescription, roleName } from '../../role-labels.ts';
+  import { sortRoles, type RoleSort } from '../../presenters/roles-list.presenter.ts';
+  import { roleName } from '../../role-labels.ts';
   import { roleQueries } from '../../roles.queries.ts';
-  import LevelTag from './LevelTag.svelte';
-  import OriginTag from './OriginTag.svelte';
+  import RoleRow from './RoleRow.svelte';
   import RolesLoadError from './RolesLoadError.svelte';
+  import RolesTableHeader from './RolesTableHeader.svelte';
 
   let { workspaceId, workspaceName }: { workspaceId: string; workspaceName: string } = $props();
 
@@ -28,9 +21,24 @@
   }));
   const catalogQuery = createQuery(() => roleQueries.catalog());
 
+  let sort = $state<RoleSort>('none');
+
   const roles = $derived(rolesQuery.data ?? []);
-  const own = $derived(roles.filter(role => role.workspaceId === workspaceId));
-  const others = $derived(roles.filter(role => role.workspaceId !== workspaceId));
+  const areas = $derived(catalogQuery.data ?? []);
+  const own = $derived(
+    sortRoles(
+      roles.filter(role => role.workspaceId === workspaceId),
+      sort,
+      roleName,
+    ),
+  );
+  const others = $derived(
+    sortRoles(
+      roles.filter(role => role.workspaceId !== workspaceId),
+      sort,
+      roleName,
+    ),
+  );
 
   const open = (key: string) => navigateTo(`${routePathname()}/${encodeURIComponent(key)}`);
 </script>
@@ -38,44 +46,10 @@
 {#snippet rows(list: readonly RoleEntity[])}
   <div class="relative overflow-x-auto p-1.5">
     <Table class="min-w-[720px]">
-      <TableHeader>
-        <TableRow>
-          <TableHead>{t(rolesMessages.role)}</TableHead>
-          <TableHead class="w-36">{t(rolesMessages.level)}</TableHead>
-          <TableHead class="w-28">{t(rolesMessages.type)}</TableHead>
-          <TableHead class="w-20">{t(rolesMessages.holders)}</TableHead>
-          <TableHead class="w-32">{t(rolesMessages.permissions)}</TableHead>
-          <TableHead class="w-10"></TableHead>
-        </TableRow>
-      </TableHeader>
+      <RolesTableHeader {sort} onSortChange={next => (sort = next)} />
       <TableBody>
         {#each list as role (role.key)}
-          <TableRow
-            onclick={() => open(role.key)}
-          >
-            <TableCell class="whitespace-normal">
-              <button
-                type="button"
-                class="block text-left font-medium text-foreground hover:underline"
-                onclick={event => {
-                  event.stopPropagation();
-                  open(role.key);
-                }}
-              >
-                {roleName(role)}
-              </button>
-              <span class="mt-0.5 block text-xs text-muted-foreground">
-                {roleDescription(role)}
-              </span>
-            </TableCell>
-            <TableCell><LevelTag level={role.level} /></TableCell>
-            <TableCell><OriginTag builtin={role.builtin} /></TableCell>
-            <TableCell class="tabular-nums">{role.holderCount}</TableCell>
-            <TableCell class="text-muted-foreground tabular-nums">
-              {permissionCount(role, catalogQuery.data ?? [])}
-            </TableCell>
-            <TableCell class="text-muted-foreground"><ChevronRightIcon class="size-4" /></TableCell>
-          </TableRow>
+          <RoleRow {role} {areas} onOpen={open} />
         {/each}
       </TableBody>
     </Table>

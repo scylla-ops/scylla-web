@@ -283,6 +283,24 @@ describe('DefaultAppsRepository, the stats and the credentials', () => {
     ]);
   });
 
+  it('asks for no period by default, and for the start of each UTC day of a period', async () => {
+    const { agents, repository } = clients();
+
+    await repository.getAgentStats('app-1');
+    await repository.getAgentStats('app-1', { from: '2026-10-11', to: '2026-11-09' });
+
+    expect(agents.getAgentStats).toHaveBeenNthCalledWith(1, {
+      agentId: { value: 'app-1' },
+      from: undefined,
+      to: undefined,
+    });
+    expect(agents.getAgentStats).toHaveBeenNthCalledWith(2, {
+      agentId: { value: 'app-1' },
+      from: { seconds: BigInt(Date.UTC(2026, 9, 11) / 1000), nanos: 0 },
+      to: { seconds: BigInt(Date.UTC(2026, 10, 9) / 1000), nanos: 0 },
+    });
+  });
+
   it('gives an agent of some projects the runner role on each project', async () => {
     const { access, repository } = clients();
 

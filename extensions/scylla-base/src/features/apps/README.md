@@ -20,6 +20,9 @@ The apps of a workspace (`scylla.apps.v1.AppService`). An agent is an app that r
   `features/access`): an agent needs `runner`.
 - The recent jobs of an agent come from `JobService.ListWorkspaceJobs` with its id; its stats come
   from the server (`agent-stats.struct.ts`).
+- The agent page keeps the period of its stats in the URL, so that a reload or a link shows the
+  same days. A drag of the timeline window changes the URL only at its end: one entry in the
+  history, and one request to the server.
 - The install step has one tab for each of Linux, macOS, Windows and Docker. The command holds the
   address of the server in this browser, because the machine must reach the same address. The
   server gives the image of the agent and its version with `GetCapabilities`, so that the Docker

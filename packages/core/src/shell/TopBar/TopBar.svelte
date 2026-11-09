@@ -20,7 +20,7 @@
 </script>
 
 <header
-  class="flex h-14 shrink-0 flex-row items-center gap-3 border-b border-border px-2 md:h-17 md:border-input md:px-8"
+  class="flex h-14 shrink-0 flex-row items-center gap-3 border-b border-border px-2 md:h-17 md:px-8"
 >
   {#if sidebar.isMobile}
     <SidebarTrigger />

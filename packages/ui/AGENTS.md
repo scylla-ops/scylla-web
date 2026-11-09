@@ -133,7 +133,9 @@ scylla-base is the only place that changes the theme.
 `motion/` holds the transitions. `prefersReducedMotion()` is not optional decoration: the
 `@media (prefers-reduced-motion: reduce)` block in `styles.css` neutralises CSS animations, but a
 Svelte transition writes inline styles from JavaScript and that query never sees it — every
-transition here asks and collapses its duration to zero.
+transition here asks and collapses its duration to zero. `springEasing({ bounce, duration })`
+gives a spring as an easing, with the parameters of the design tools: the thumb of
+`SegmentedControl` and the rail tile of the core use it.
 
 ### `primitives/` — the primitives
 
@@ -215,7 +217,8 @@ What a port has to get right, all of it invisible to the compiler:
   `CENTERED_DIALOG_CLASS` (`dialog/dialog-variants.ts`): fade and zoom only.
   `dialog/centered-dialog.test.ts` fails when a source file has a centering translate and a slide.
 - **Radix's `Indicator` parts become an `{#if}` in a children snippet** (checkbox, select item),
-  because bits-ui hands the state to the snippet instead of mounting a separate node.
+  because bits-ui hands the state to the snippet instead of mounting a separate node. The
+  checkbox takes `indeterminate`: it then shows a dash and has `aria-checked="mixed"`.
 - **An item that the user picks shows the pointer, as a button does** (`styles.css`). The shadcn
   classes give `cursor-default` to the items of a menu, a select and a command list: we use
   `cursor-pointer`. A disabled item does not show the pointer.

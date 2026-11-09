@@ -9,6 +9,7 @@ import type {
 import type { CiIdentityEntity, CreateCiIdentityInput } from '../entities/ci-identity.entity.ts';
 import type { ServerInfo } from '../structs/agent-install.struct.ts';
 import type { AgentStats } from '../structs/agent-stats.struct.ts';
+import type { StatsPeriod } from '../structs/stats-period.struct.ts';
 import type { RunnerChange } from '../structs/agent-access.struct.ts';
 import type { RoleGrant } from '../structs/app-grants.struct.ts';
 import type {
@@ -42,8 +43,11 @@ export interface AppsRepository {
   revokeKey(appId: string, keyId: string): Promise<void>;
   /** The latest jobs that the server placed on the agent, newest first. */
   listJobs(workspaceId: string, appId: string, limit: number): Promise<AppJob[]>;
-  /** The job stats of the last 30 days of an agent, from the server. */
-  getAgentStats(appId: string): Promise<AgentStats>;
+  /**
+   * The job stats of an agent for a period, from the server: by default the last 30 days. The
+   * server starts the period at the creation of the agent, and refuses a period that ends before.
+   */
+  getAgentStats(appId: string, period?: StatsPeriod): Promise<AgentStats>;
   /** The job stats of each agent of a workspace with a job in the last 30 days. */
   listAgentStats(workspaceId: string): Promise<AgentStats[]>;
   renameKey(appId: string, keyId: string, label: string): Promise<AppKeyEntity>;

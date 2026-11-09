@@ -21,7 +21,9 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
 - The roles of an app are workspace roles, given with `AccessService.Grant` (see
   `features/access`): an agent needs `runner`.
 - The recent jobs of an agent come from `JobService.ListWorkspaceJobs` with its id. Its stats come
-  from the server (`agent-stats.struct.ts`): 30 days in UTC.
+  from the server (`agent-stats.struct.ts`), for days in UTC: by default the last 30 days, or a
+  period (`stats-period.struct.ts`). The server starts a period at the creation of the agent and
+  keeps at most 366 days. The web uses the same limits (`periodBounds`).
 - "Add agent" is a dialog in three steps (`components/AddAgentDialog/`): name and projects, install,
   connected. The install step has a tab for Linux (the default), macOS, Windows and Docker, with one
   command and one hint for each (`agent-install.struct.ts`). Linux and macOS have the same command.
@@ -50,8 +52,8 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   longer text does not move the icon or the title, unless the text and the button are taller
   than this row. Do not center the full group: its height changes with the text.
 - The agent page (`ui/AgentDetails/`, route `/agents/:appId`) shows the header (Disable or
-  Enable), a banner when it is disabled, the 30-day stats (`appQueries.agentStatsOf`), the jobs per
-  day, the machine, the recent jobs, the access (Change: `runnerChanges` in
+  Enable), a banner when it is disabled, the timeline, the stats of the period, the jobs per day,
+  the machine, the recent jobs, the access (Change: `runnerChanges` in
   `agent-access.struct.ts` gives the grants before the revokes; `appMutations.changeAccess` sends
   them one by one), the keys (rename, revoke, new join code) and the delete zone (type the name).
   An agent that never said hello shows a connect card with a button that makes a join code. Do not
@@ -59,6 +61,17 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   shows the versions and the update command when the agent and the server have different versions.
   The delete zone shows the uninstall command for the system of the agent. A Docker agent reports
   `linux`, so Linux also shows the Docker command.
+- The timeline and the period: `agent-stats.state.svelte.ts` asks for two periods with
+  `appQueries.agentStatsOf`: the days since the creation of the agent (the strip of
+  `AgentTimeline/`), and the chosen period (the stats row and `JobsPerDayCard/`). The URL keeps the
+  period: `?period=7d|90d|all`, or `?from=YYYY-MM-DD&to=YYYY-MM-DD` after a drag
+  (`mappers/period-search.mapper.ts`). The default, 30 days, writes nothing. A drag changes the URL
+  only at its end (`timeline-window.state.svelte.ts`). The edges of the window are sliders: an
+  arrow moves one day, Shift and an arrow move 7 days. An agent younger than 7 days, or with no job,
+  shows no timeline: the card shows the last 30 days and hatches the days before the creation of
+  the agent. A disabled agent gets a hatched zone after the day that it was disabled. More than 90
+  days show one bar for each week, aligned on the last day (`presenters/jobs-chart.presenter.ts`).
+  A day with 3 failed or orphaned jobs or more is an incident: a red dot on the strip.
 - The page of another app (`ui/AppDetails/`, route `/apps/:appId`) shows the header (Disable or
   Enable), the workspace roles, the activity (the latest sign-in of a credential), the credentials
   (`credentialRows` in `app-credentials.struct.ts`: the tokens, the CI identities and the keys,
@@ -89,8 +102,8 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   on a deleted app and the refusal shows a toast.
 - Keys and join codes: `createJoinCode`, `revokeKey`, `renameKey` (the agent names its key after
   its machine at the join).
-- Agents: `listJobs`, `getAgentStats`, `listAgentStats` (the server counts 30 days in UTC:
-  `domain/structs/agent-stats.struct.ts`).
+- Agents: `listJobs`, `getAgentStats` (the last 30 days, or a period), `listAgentStats` (30 days
+  for each agent). The server counts days in UTC: `domain/structs/agent-stats.struct.ts`.
 - Credentials: `createToken` (the secret comes one time), `listTokens`, `revokeToken`;
   `addCiIdentity`, `listCiIdentities`, `removeCiIdentity` (`domain/entities/ci-identity.entity.ts`).
   The token types are shared with the personal tokens: `@shared/domain/structs/api-token.struct.ts`

@@ -14,7 +14,8 @@
   import AddAgentDialog from '../components/AddAgentDialog/AddAgentDialog.svelte';
   import AgentHeader from './AgentHeader.svelte';
   import AgentStatsRow from './AgentStatsRow.svelte';
-  import JobsPerDayCard from './JobsPerDayCard.svelte';
+  import AgentTimeline from './AgentTimeline/AgentTimeline.svelte';
+  import JobsPerDayCard from './JobsPerDayCard/JobsPerDayCard.svelte';
   import AgentMachineCard from './AgentMachineCard.svelte';
   import AgentRecentJobsCard from './AgentRecentJobsCard.svelte';
   import AgentAccessCard from './AgentAccessCard.svelte';
@@ -22,6 +23,7 @@
   import AgentConnectCard from './AgentConnectCard.svelte';
   import AgentDangerZone from './AgentDangerZone.svelte';
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
+  import { createAgentStats } from './agent-stats.state.svelte.ts';
 
   let { appId = '' }: { appId?: string } = $props();
 
@@ -39,7 +41,6 @@
   const canReadJobs = $derived(can(Permission.LIST_JOBS_BY_WORKSPACE, target));
 
   const details = createQuery(() => appQueries.byId(appId, workspaceId));
-  const stats = createQuery(() => appQueries.agentStatsOf(appId, workspaceId));
   const jobs = createQuery(() => appQueries.jobs(workspaceId, appId, canReadJobs));
   const access = createQuery(() =>
     appQueries.agentAccess(workspaceId, appId ? [appId] : [], canReadAccess),
@@ -50,6 +51,7 @@
 
   const agent = $derived(details.data?.app);
   const never = $derived(!!agent && appStateOf(agent) === 'never' && !agent.disabledAt);
+  const stats = createAgentStats(() => ({ appId, workspaceId, agent }));
 
   let disabling = $state(false);
   let joining = $state(false);
@@ -95,15 +97,37 @@
         {workspaceId}
         keyCount={details.data?.keys.length ?? 0}
       />
-    {:else if !never}
-      <AgentStatsRow stats={stats.data} lastRunAt={jobs.data?.[0]?.createdAt} />
+    {:else}
+      {#if stats.timeline?.stats}
+        <AgentTimeline
+          bounds={stats.timeline.bounds}
+          stats={stats.timeline.stats}
+          period={stats.period}
+          preset={stats.timeline.preset}
+          today={stats.today}
+          disabled={stats.disabled}
+          onChoose={stats.choose}
+        />
+      {:else if stats.timeline}
+        <Skeleton class="h-[134px] w-full rounded-xl" />
+      {/if}
+      <AgentStatsRow
+        stats={stats.stats}
+        lastRunAt={jobs.data?.[0]?.createdAt}
+        period={stats.period}
+        today={stats.today}
+      />
       <div class="grid gap-4 lg:grid-cols-3">
         <div class="lg:col-span-2">
-          {#if stats.data}
-            <JobsPerDayCard stats={stats.data} />
-          {:else}
-            <Skeleton class="h-64 w-full rounded-xl" />
-          {/if}
+          <JobsPerDayCard
+            stats={stats.stats}
+            period={stats.period}
+            today={stats.today}
+            joined={stats.joined}
+            disabled={stats.disabled}
+            never={stats.never}
+            withTimeline={!!stats.timeline}
+          />
         </div>
         <AgentMachineCard {agent} />
       </div>

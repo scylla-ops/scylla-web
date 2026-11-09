@@ -186,6 +186,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   token and the switches of the pipeline editor use one segmented control. A thumb moves under the
   selected item, and a count rolls when it changes. The filter of the agents shows the color of each
   state. With a reduced motion setting, the thumb moves in 150 ms and the counts do not roll.
+- The roles lists show a tile of the level and the type (Custom or Built-in) beside the name of each
+  role. The Permissions column shows the resources of the role and their actions on one line, and a
+  "+N" pill opens a card with the other resources. A click on the Role header sorts the roles by
+  name. The Level and Type columns are removed.
 
 ### Fixed
 
@@ -294,17 +298,28 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the settings, the account, the help and the notifications. Before, the last element touched the
   bottom of the window, and a floating button at the bottom right covered it.
 - The logo band has one color, the color of the top bar, in the light and in the dark theme. Before,
-  it had the colors of the two columns below it. A stronger line marks the right edge of the double
-  sidebar, from the top to the bottom, also when the rail is open.
+  it had the colors of the two columns below it.
 - The notifications panel opens at the size of its list. Before, it opened large and then became
   smaller when the list loaded. While the list loads, the panel shows one skeleton row for each
   unread notification, and its height changes smoothly.
-- On a large screen, the line below the band of the logo and the top bar has the same color as the
-  line on the right edge of the sidebar. Before, the right line looked thicker.
 - The tooltip of a row of the closed rail shows only while the pointer is on the row, or on a focus
   from the keyboard. Before, a row that the pointer crossed on the open rail showed its tooltip when
   the rail closed, and a row that the user clicked showed its tooltip again when the window got the
   focus back.
+- The line on the right edge of the sidebar and the line below the band of the logo and the top bar
+  are light again, in the light and in the dark theme. Before, they had the strong color of the
+  inputs and looked thick.
+- When the user opens another page from the rail, the green tile of the old row shrinks and fades
+  out, and the tile of the new row grows in its row with a small bounce. Before, the tile jumped
+  from one row to the other with no transition. With a reduced motion setting, the tile only fades.
+  A page load shows the tile with no motion.
+- The jobs chart of the agent page fills its card, with a scale, the dates and a mark for each day
+  with no job. A timeline above the stats shows the jobs since the agent joined: drag its window, or
+  use 7D, 30D, 90D or All, to choose the period of the stats and of the chart.
+- The New role page shows one tab for each level of the role, so a workspace role has no Instance
+  permissions. A box in the header, on each row and on each action header selects or clears the
+  permissions of the tab, the row or the column. "Copy from a role" copies the permissions of a
+  role, and "Undo" puts back the permissions from before the copy.
 
 ## [0.6.0] - 2026-11-01
 

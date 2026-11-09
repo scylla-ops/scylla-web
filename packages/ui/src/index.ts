@@ -7,4 +7,5 @@ export * from './forms';
 export * from './layout';
 export * from './motion/page-transition.ts';
 export * from './motion/reduced-motion.ts';
+export * from './motion/spring.ts';
 export type { LucideIcon } from './icon.ts';
