@@ -1,24 +1,20 @@
 <script lang="ts">
+  import BotIcon from '@lucide/svelte/icons/bot';
   import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
-  import InfoIcon from '@lucide/svelte/icons/info';
+  import UserRoundIcon from '@lucide/svelte/icons/user-round';
   import { createMutation, createQuery, navigateTo } from '@scylla/core-sdk';
   import { accessQueries, platformRef, workspaceRef } from '@base/features/access';
   import { t } from '@scylla/ui/i18n';
-  import { SearchSelect } from '@scylla/ui';
-  import {
-    Button,
-    Input,
-    Label,
-  } from '@scylla/ui/primitives';
+  import { SegmentedControl } from '@scylla/ui';
+  import { Button, Input, Label } from '@scylla/ui/primitives';
   import { untrack } from 'svelte';
   import { ScyllaError } from '@shared/utils/scylla-error.ts';
-  import type { RoleEntity, RoleHolder, RoleLevel } from '../../../domain/entities/role.entity.ts';
-  import { fitToRole, permissionsFor, withoutImplicit } from '../../../domain/structs/catalog.struct.ts';
+  import type { RoleEntity, RoleLevel } from '../../../domain/entities/role.entity.ts';
+  import { permissionsFor } from '../../../domain/structs/catalog.struct.ts';
   import {
+    copiedFrom,
     holderHints,
     holderLabels,
-    levelHints,
-    levelLabels,
     missingPermissions,
     nameTaken,
     permissionLabel,
@@ -26,10 +22,14 @@
     rolesMessages,
     selectedOf,
   } from '../../messages/roles.messages.ts';
+  import { copySources } from '../../presenters/role-copy.presenter.ts';
   import { roleName } from '../../role-labels.ts';
   import { roleMutations, roleQueries } from '../../roles.queries.ts';
-  import PermissionTable from '../components/PermissionTable.svelte';
+  import PermissionTable from '../components/PermissionTable/PermissionTable.svelte';
+  import CopyFromRole from './CopyFromRole.svelte';
   import DeleteRoleDialog from './DeleteRoleDialog.svelte';
+  import LevelChoice from './LevelChoice.svelte';
+  import { createRoleDraft } from './role-draft.state.svelte.ts';
   import SaveRoleDialog from './SaveRoleDialog.svelte';
 
   interface Props {
@@ -48,7 +48,14 @@
   const LEVELS = $derived<readonly RoleLevel[]>(
     workspaceId ? ['workspace', 'project'] : ['platform', 'workspace', 'project'],
   );
-  const HOLDERS: readonly RoleHolder[] = ['people', 'apps'];
+  const HOLDER_ICONS = { people: UserRoundIcon, apps: BotIcon };
+  const holderOptions = $derived(
+    (['people', 'apps'] as const).map(value => ({
+      value,
+      label: t(holderLabels[value]),
+      icon: HOLDER_ICONS[value],
+    })),
+  );
 
   const catalogQuery = createQuery(() => roleQueries.catalog());
   const rolesQuery = createQuery(() => roleQueries.list(workspaceId));
@@ -60,12 +67,9 @@
 
   const areas = $derived(catalogQuery.data ?? []);
 
+  const draft = createRoleDraft(untrack(() => role), () => areas);
   let name = $state(untrack(() => role?.name ?? ''));
   let description = $state(untrack(() => role?.description ?? ''));
-  let level = $state<RoleLevel>(untrack(() => role?.level ?? 'workspace'));
-  let holder = $state<RoleHolder>(untrack(() => role?.holder ?? 'people'));
-  let start = $state(untrack(() => startKey ?? ''));
-  let selected = $state<Set<string>>(new Set(untrack(() => role?.permissions ?? [])));
   let confirmDelete = $state(false);
   let confirmSave = $state(false);
   let nameError = $state(false);
@@ -75,13 +79,22 @@
   const editing = $derived(role !== undefined);
   const levelLocked = $derived((role?.holderCount ?? 0) > 0);
   const levelOff = (option: RoleLevel) =>
-    levelLocked || (editing && holder === 'apps' && option === 'platform');
-  const total = $derived(permissionsFor(areas, level, holder).length);
-  const startRoles = $derived(
-    (rolesQuery.data ?? []).filter(other => other.level === level && other.holder === holder),
+    levelLocked || (editing && draft.holder === 'apps' && option === 'platform');
+  const total = $derived(permissionsFor(areas, draft.level, draft.holder).length);
+  const sources = $derived(
+    copySources(rolesQuery.data ?? [], {
+      role,
+      level: draft.level,
+      holder: draft.holder,
+      levels: LEVELS,
+    }),
   );
-  const startChoices = $derived(
-    startRoles.map(other => ({ value: other.key, label: roleName(other) })),
+  const sourceName = $derived(
+    draft.source === 'empty'
+      ? t(rolesMessages.emptyRole)
+      : draft.source
+        ? roleName(draft.source)
+        : null,
   );
   const pending = $derived(createRole.isPending || updateRole.isPending);
   const canSave = $derived(name.trim().length > 0 && !pending && !nameError);
@@ -99,7 +112,7 @@
   /** What the server refused: the permissions that the caller does not hold. */
   const notHeldIds = $derived(
     heldQuery.data
-      ? [...selected].filter(id => {
+      ? [...draft.selected].filter(id => {
           const permission = areas
             .flatMap(area => area.permissions)
             .find(one => one.id === id);
@@ -108,40 +121,19 @@
       : [],
   );
 
-  const fit = () => {
-    selected = fitToRole(withoutImplicit(selected, areas), areas, level, holder);
-  };
-
   // The server adds the implicit permissions, but the table must show them from the start.
   $effect(() => {
-    if (areas.length > 0) untrack(fit);
+    if (areas.length > 0) untrack(draft.fit);
   });
 
-  // A copy of a role: a link with `from`, or the select of the form.
-  let copied = $state('');
+  // A link with `from` starts from a copy of that role.
+  let linkCopied = false;
   $effect(() => {
-    const source = (rolesQuery.data ?? []).find(other => other.key === start);
-    if (!source || copied === source.key || editing) return;
-    copied = source.key;
-    untrack(() => {
-      level = source.level;
-      holder = source.holder;
-      selected = fitToRole(new Set(source.permissions), areas, source.level, source.holder);
-    });
+    const source = (rolesQuery.data ?? []).find(other => other.key === startKey);
+    if (!source || areas.length === 0 || linkCopied || editing) return;
+    linkCopied = true;
+    untrack(() => draft.copy(source));
   });
-
-  const chooseLevel = (next: RoleLevel) => {
-    level = next;
-    if (next === 'platform') holder = 'people';
-    start = '';
-    fit();
-  };
-
-  const chooseHolder = (next: RoleHolder) => {
-    holder = next;
-    start = '';
-    fit();
-  };
 
   const toList = () => navigateTo(listUrl);
 
@@ -161,7 +153,8 @@
   const send = async () => {
     saveError = null;
     confirmSave = false;
-    const permissions = [...selected];
+    const permissions = [...draft.selected];
+    const { level, holder } = draft;
     try {
       if (role) {
         await updateRole.mutateAsync({
@@ -183,8 +176,8 @@
 
   const changed = $derived(
     role !== undefined &&
-      (role.permissions.length !== selected.size ||
-        role.permissions.some(id => !selected.has(id))),
+      (role.permissions.length !== draft.selected.size ||
+        role.permissions.some(id => !draft.selected.has(id))),
   );
 
   /** A change is live at once for each holder: the dialog shows it before the save. */
@@ -194,14 +187,9 @@
   };
 
   const dropNotHeld = () => {
-    selected = new Set([...selected].filter(id => !notHeldIds.includes(id)));
+    draft.change(new Set([...draft.selected].filter(id => !notHeldIds.includes(id))));
     saveError = null;
   };
-
-  const cardClass = (chosen: boolean, disabled: boolean) =>
-    `flex w-full gap-3 rounded-xl border p-3 text-left transition-colors ${
-      chosen ? 'border-primary' : ''
-    } ${disabled ? 'cursor-not-allowed opacity-60' : 'hover:bg-muted/40'}`;
 </script>
 
 <div class="flex w-full flex-col gap-6 pb-20">
@@ -238,9 +226,8 @@
     </div>
   </header>
 
-  <div class="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-    <div class="flex flex-col gap-6">
-      <section class="flex flex-col gap-5 rounded-2xl border bg-card p-5" data-tour="role-details">
+  <div class="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+    <section class="flex flex-col gap-5 rounded-2xl border bg-card p-5" data-tour="role-details">
         <h2 class="text-xl">{t(rolesMessages.details)}</h2>
 
         <div class="flex flex-col gap-2">
@@ -274,80 +261,26 @@
           />
         </div>
 
-        <fieldset class="flex flex-col gap-2" disabled={levelLocked}>
-          <legend class="mb-2 text-sm font-medium">{t(rolesMessages.level)}</legend>
-          {#each LEVELS as option (option)}
-            {@const off = levelOff(option)}
-            <button
-              type="button"
-              role="radio"
-              aria-checked={level === option}
-              disabled={off}
-              class={cardClass(level === option, off)}
-              onclick={() => chooseLevel(option)}
-            >
-              <span
-                class="mt-0.5 size-4 shrink-0 rounded-full border {level === option
-                  ? 'border-4 border-primary'
-                  : ''}"
-              ></span>
-              <span>
-                <span class="block text-sm font-medium">{t(levelLabels[option])}</span>
-                <span class="block text-xs text-muted-foreground">{t(levelHints[option])}</span>
-              </span>
-            </button>
-          {/each}
-          <p class="text-xs text-muted-foreground">{t(rolesMessages.levelHint)}</p>
-        </fieldset>
+        <LevelChoice
+          levels={LEVELS}
+          value={draft.level}
+          locked={levelLocked}
+          isOff={levelOff}
+          onChoose={draft.chooseLevel}
+        />
 
-        <fieldset class="flex flex-col gap-2" disabled={editing}>
+        <fieldset class="flex flex-col gap-2" disabled={editing || draft.level === 'platform'}>
           <legend class="mb-2 text-sm font-medium">{t(rolesMessages.whoCanHold)}</legend>
-          {#each HOLDERS as option (option)}
-            {@const off = editing || (level === 'platform' && option === 'apps')}
-            <button
-              type="button"
-              role="radio"
-              aria-checked={holder === option}
-              disabled={off}
-              class={cardClass(holder === option, off)}
-              onclick={() => chooseHolder(option)}
-            >
-              <span
-                class="mt-0.5 size-4 shrink-0 rounded-full border {holder === option
-                  ? 'border-4 border-primary'
-                  : ''}"
-              ></span>
-              <span>
-                <span class="block text-sm font-medium">{t(holderLabels[option])}</span>
-                <span class="block text-xs text-muted-foreground">{t(holderHints[option])}</span>
-              </span>
-            </button>
-          {/each}
+          <SegmentedControl
+            value={draft.holder}
+            options={holderOptions}
+            onChange={draft.chooseHolder}
+            aria-label={t(rolesMessages.whoCanHold)}
+            fill
+          />
+          <p class="text-xs text-muted-foreground">{t(holderHints[draft.holder])}</p>
         </fieldset>
-
-        {#if !editing}
-          <div class="flex flex-col gap-2">
-            <Label>{t(rolesMessages.startFrom)}</Label>
-            <SearchSelect
-              options={startChoices}
-              bind:value={start}
-              loading={rolesQuery.isLoading}
-              placeholder={t(rolesMessages.startFromEmpty)}
-              aria-label={t(rolesMessages.startFrom)}
-            />
-            <p class="text-xs text-muted-foreground">{t(rolesMessages.startFromHint)}</p>
-          </div>
-        {/if}
-      </section>
-
-      <aside class="flex gap-3 rounded-2xl border border-primary/40 bg-primary/5 p-4">
-        <InfoIcon class="mt-0.5 size-4 shrink-0 text-primary" />
-        <div>
-          <p class="text-sm font-medium">{t(rolesMessages.liveTitle)}</p>
-          <p class="mt-1 text-xs text-muted-foreground">{t(rolesMessages.liveHint)}</p>
-        </div>
-      </aside>
-    </div>
+    </section>
 
     <section class="overflow-hidden rounded-2xl border bg-card" data-tour="role-permissions">
       {#if saveError}
@@ -366,22 +299,33 @@
           </div>
         </div>
       {/if}
-      <div class="p-5">
-        <h2 class="text-xl">{t(rolesMessages.permissions)}</h2>
-        <p class="mt-1 text-xs text-muted-foreground tabular-nums">
-          {t(selectedOf(selected.size, total))}
-        </p>
+      <div class="flex items-center gap-3 px-5 pt-5 pb-3.5">
+        <div class="min-w-0 flex-1">
+          <h2 class="text-xl">{t(rolesMessages.permissions)}</h2>
+          <p class="mt-1 text-xs text-muted-foreground tabular-nums">
+            {t(selectedOf(draft.selected.size, total))}
+            {#if sourceName}
+              · {t(copiedFrom(sourceName))} ·
+              <button
+                type="button"
+                class="font-medium text-primary hover:underline"
+                onclick={draft.undo}
+              >
+                {t(rolesMessages.undo)}
+              </button>
+            {/if}
+          </p>
+        </div>
+        <CopyFromRole roles={sources} current={draft.source} onPick={draft.copy} />
       </div>
-      <div class="relative overflow-x-auto p-1.5">
-        <PermissionTable
-          {areas}
-          {level}
-          {holder}
-          {selected}
-          held={heldQuery.data}
-          onChange={next => (selected = next)}
-        />
-      </div>
+      <PermissionTable
+        {areas}
+        level={draft.level}
+        holder={draft.holder}
+        selected={draft.selected}
+        held={heldQuery.data}
+        onChange={draft.change}
+      />
     </section>
   </div>
 </div>
@@ -396,7 +340,7 @@
   />
   <SaveRoleDialog
     {role}
-    next={selected}
+    next={draft.selected}
     {areas}
     open={confirmSave}
     pending={pending}

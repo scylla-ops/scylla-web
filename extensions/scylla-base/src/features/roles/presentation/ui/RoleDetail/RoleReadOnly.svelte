@@ -9,7 +9,7 @@
   import { roleQueries } from '../../roles.queries.ts';
   import LevelTag from '../components/LevelTag.svelte';
   import OriginTag from '../components/OriginTag.svelte';
-  import PermissionTable from '../components/PermissionTable.svelte';
+  import PermissionTable from '../components/PermissionTable/PermissionTable.svelte';
 
   interface Props {
     role: RoleEntity;
@@ -78,9 +78,7 @@
           {permissionCount(role, areas)} · {t(rolesMessages.readOnlyHint)}
         </p>
       </div>
-      <div class="relative overflow-x-auto p-1.5">
-        <PermissionTable {areas} level={role.level} holder={role.holder} {selected} />
-      </div>
+      <PermissionTable {areas} level={role.level} holder={role.holder} {selected} />
     </section>
 
     <aside class="rounded-2xl border bg-card">

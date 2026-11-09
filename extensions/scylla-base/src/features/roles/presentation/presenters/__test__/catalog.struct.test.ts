@@ -1,9 +1,11 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import {
+  checkPermissions,
   fitToRole,
   permissionsFor,
   togglePermission,
+  uncheckPermissions,
   type CatalogArea,
 } from '../../../domain/structs/catalog.struct.ts';
 import { missingPermissionIds } from '../../../domain/structs/catalog.struct.ts';
@@ -69,6 +71,43 @@ describe('the catalog', () => {
   });
 });
 
+describe('a bulk check', () => {
+  const clickEach = (selected: Set<string>, ids: string[]) =>
+    ids.reduce((next, id) => togglePermission(next, id, areas), selected);
+
+  it('checks each permission with what it depends on, as clicks one by one do', () => {
+    const checked = checkPermissions(new Set(), ['pipelines.edit'], areas);
+
+    expect([...checked].sort()).toEqual(['pipelines.edit', 'pipelines.view']);
+    expect(checked).toEqual(clickEach(new Set(), ['pipelines.edit']));
+  });
+
+  it('does not uncheck a permission that is already checked', () => {
+    const selected = new Set(['pipelines.view']);
+
+    expect(
+      [...checkPermissions(selected, ['pipelines.view', 'pipelines.edit'], areas)].sort(),
+    ).toEqual(['pipelines.edit', 'pipelines.view']);
+  });
+
+  it('unchecks each permission with what needs it, as clicks one by one do', () => {
+    const selected = new Set(['users.view', 'pipelines.view', 'pipelines.edit']);
+
+    expect([...uncheckPermissions(selected, ['pipelines.view'], areas)]).toEqual(['users.view']);
+    expect(uncheckPermissions(selected, ['pipelines.view', 'pipelines.edit'], areas)).toEqual(
+      clickEach(new Set(selected), ['pipelines.view']),
+    );
+  });
+
+  it('keeps the selection it was given', () => {
+    const selected = new Set(['pipelines.view']);
+    checkPermissions(selected, ['pipelines.edit'], areas);
+    uncheckPermissions(selected, ['pipelines.view'], areas);
+
+    expect([...selected]).toEqual(['pipelines.view']);
+  });
+});
+
 describe('missingPermissionIds', () => {
   const areas = [
     {
@@ -89,14 +128,16 @@ describe('missingPermissionIds', () => {
       },
     ];
 
-    expect(missingPermissionIds({ permissions: ['job_execution.run'] }, new Set(), machines)).toEqual(
-      [],
-    );
+    expect(
+      missingPermissionIds({ permissions: ['job_execution.run'] }, new Set(), machines),
+    ).toEqual([]);
   });
 
   it('names what the caller does not hold, with no implicit permission', () => {
     const role = { permissions: ['workspace.view', 'members.manage', 'pipelines.run'] };
 
-    expect(missingPermissionIds(role, new Set(['pipelines.run']), areas)).toEqual(['members.manage']);
+    expect(missingPermissionIds(role, new Set(['pipelines.run']), areas)).toEqual([
+      'members.manage',
+    ]);
   });
 });

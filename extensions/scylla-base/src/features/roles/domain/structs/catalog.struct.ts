@@ -117,3 +117,25 @@ export const togglePermission = (
   for (const added of closure([id], needs)) result.add(added);
   return result;
 };
+
+/** Checks each permission as one click on its cell does. */
+export const checkPermissions = (
+  selected: ReadonlySet<string>,
+  ids: readonly string[],
+  areas: readonly CatalogArea[],
+): Set<string> =>
+  ids.reduce(
+    (next, id) => (next.has(id) ? next : togglePermission(next, id, areas)),
+    new Set(selected),
+  );
+
+/** Unchecks each permission as one click on its cell does. */
+export const uncheckPermissions = (
+  selected: ReadonlySet<string>,
+  ids: readonly string[],
+  areas: readonly CatalogArea[],
+): Set<string> =>
+  ids.reduce(
+    (next, id) => (next.has(id) ? togglePermission(next, id, areas) : next),
+    new Set(selected),
+  );

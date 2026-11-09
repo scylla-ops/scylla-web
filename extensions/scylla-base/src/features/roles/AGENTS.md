@@ -15,6 +15,8 @@ The catalog of the permissions, the built-in roles, and the custom roles.
 - `Instance › Roles`: the list, a new role, a custom role in the editor, a built-in role in read-only mode.
 - `<workspace> › Access › Roles`: the custom roles of the workspace, the roles from the instance, a new role and the editor. A reader with no `create_role` sees a text that says who can give the access.
 - The two lists share `RoleRow` and `RolesTableHeader`. A row shows the level tile (`LevelTile`, colours and icons in `presenters/role-level.presenter.ts`), the type, and `RolePermissions`: one chip per resource on one line, and a "+N" pill with a hover card for the chips that do not fit. `presenters/role-permissions.presenter.ts` makes the chips. A click on the Role header sorts each section by name: A → Z, Z → A, then the order of the server. The sort is component state.
+- The editor (`RoleEditor`) keeps the level, the holder, the permissions and the last copy in `role-draft.state.svelte.ts`. `LevelChoice` shows the levels as cards with the level tile. `CopyFromRole` is the "Copy from a role" menu: the empty role, then the roles that `presenters/role-copy.presenter.ts` gives, grouped by level. A copy takes the level, the holder and the permissions of the source. "Undo" puts back the draft from before the last copy.
+- `components/PermissionTable/` shows one tab for each level that the role covers (`levelTabs` in `presenters/permission-table.presenter.ts`). Thus a workspace role has no Instance tab. Only the active tab has a table. The box in the header selects or clears the whole tab, the box of a row selects or clears the row, and an action header selects or clears its column. A box is mixed (`aria-checked="mixed"`) when only a part is selected. These boxes count only the cells that the user can change: a cell that is always on or locked does not change.
 - A save and a delete use `mutateAsync`: the list reloads first and can unmount the page, and a callback of `mutate` then does not run.
 - A delete of a role with holders moves them first (`DeleteRole` with `move_to`). A save of a role with holders shows the change first.
 - `ListHeldPermissions` locks a cell of the editor and a role in a select. The server checks again.
@@ -26,6 +28,7 @@ The catalog of the permissions, the built-in roles, and the custom roles.
 - The server owns the catalog. `ListPermissionCatalog` gives the areas, the actions and `depends_on`. Do not write a list of permissions here. A label comes from `areaLabels`, and an unknown area shows its id.
 - The holders and the owner of a role do not change after the creation. The level changes only while the role has no holder, and the server checks it again (`ROLE_IN_USE`). A change of the level fits the permissions to the new level.
 - `PermissionTable` with no `onChange` is the read-only table.
+- A bulk select or clear uses `checkPermissions` and `uncheckPermissions` (`catalog.struct.ts`). They apply `togglePermission` to each cell, so the result is the same as one click on each cell, with the `depends_on` rules.
 - A built-in role does not change, so it never opens in the editor.
 - New strings go in `messages/roles.messages.ts`.
 

@@ -46,8 +46,19 @@ export const removePermission = (names: string) => msg`Remove ${names}`;
 
 export const nameTaken = msg`The owner already has a role with this name. Choose another name.`;
 
-export const selectedOf = (count: number, total: number) =>
-  msg`${count} of ${total} selected · Edit, Delete and Run also select View`;
+export const selectedOf = (count: number, total: number) => msg`${count} of ${total} selected`;
+
+export const copiedFrom = (role: string) => msg`Copied from ${role}`;
+
+export const selectTab = (count: number) => msg`Select all ${count} on this tab`;
+
+export const clearTab = (count: number) => msg`Clear all ${count} on this tab`;
+
+export const selectColumn = (action: string) => msg`Select the whole ${action} column`;
+
+export const clearColumn = (action: string) => msg`Clear the whole ${action} column`;
+
+export const allOf = (area: string) => msg`${area} · All actions`;
 
 export const rolesMessages = {
   roles: msg`Roles`,
@@ -101,15 +112,14 @@ export const rolesMessages = {
   descriptionPlaceholder: msg`What this role does`,
   levelHint: msg`You can change the level only while no one holds the role.`,
   whoCanHold: msg`Who can hold it`,
-  startFrom: msg`Start from`,
-  startFromEmpty: msg`Empty role`,
-  startFromHint: msg`Copies its permissions. Then change them in the table.`,
-  liveTitle: msg`Live at once`,
-  liveHint: msg`When you save, every holder of the role gets the new permissions on the next request.`,
+  copyFromRole: msg`Copy from a role`,
+  emptyRole: msg`Empty role`,
+  emptyRoleHint: msg`Clears every permission`,
+  undo: msg`Undo`,
+  levelTabs: msg`Permission levels`,
+  allOnTab: msg`All on this tab`,
   resource: msg`Resource`,
-  selectAll: msg`Select all`,
   onlyInInstance: msg`Only in instance roles`,
-  notInLevel: msg`Not at this level`,
   legendOn: msg`Always on`,
   legendNone: msg`No such action`,
   legendOff: msg`The role does not have it`,
@@ -148,11 +158,22 @@ export const levelHints: Record<RoleLevel, MessageDescriptor> = {
   project: msg`Granted on one project.`,
 };
 
-export const sectionHints: Record<RoleLevel, MessageDescriptor> = {
-  platform: msg`Users, workspaces, instance roles and settings`,
-  workspace: msg`On the workspace where the role is granted`,
-  project: msg`In every project of the workspace`,
-};
+const scopeHints = {
+  platform: { platform: msg`On the whole server.` },
+  workspace: {
+    platform: msg`In every workspace of the server.`,
+    workspace: msg`On the workspace where the role is granted. The Project tab covers every project of the workspace.`,
+  },
+  project: {
+    platform: msg`In every project of the server.`,
+    workspace: msg`In every project of the workspace where the role is granted.`,
+    project: msg`On the project where the role is granted.`,
+  },
+} satisfies Record<RoleLevel, Partial<Record<RoleLevel, MessageDescriptor>>>;
+
+/** Where the permissions of a tab apply, for a role of this level. */
+export const scopeHint = (tab: RoleLevel, level: RoleLevel): MessageDescriptor | undefined =>
+  (scopeHints[tab] as Partial<Record<RoleLevel, MessageDescriptor>>)[level];
 
 export const holderLabels: Record<RoleHolder, MessageDescriptor> = {
   people: msg`People`,

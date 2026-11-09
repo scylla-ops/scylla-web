@@ -316,6 +316,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The jobs chart of the agent page fills its card, with a scale, the dates and a mark for each day
   with no job. A timeline above the stats shows the jobs since the agent joined: drag its window, or
   use 7D, 30D, 90D or All, to choose the period of the stats and of the chart.
+- The New role page shows one tab for each level of the role, so a workspace role has no Instance
+  permissions. A box in the header, on each row and on each action header selects or clears the
+  permissions of the tab, the row or the column. "Copy from a role" copies the permissions of a
+  role, and "Undo" puts back the permissions from before the copy.
 
 ## [0.6.0] - 2026-11-01
 

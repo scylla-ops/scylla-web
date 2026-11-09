@@ -217,7 +217,8 @@ What a port has to get right, all of it invisible to the compiler:
   `CENTERED_DIALOG_CLASS` (`dialog/dialog-variants.ts`): fade and zoom only.
   `dialog/centered-dialog.test.ts` fails when a source file has a centering translate and a slide.
 - **Radix's `Indicator` parts become an `{#if}` in a children snippet** (checkbox, select item),
-  because bits-ui hands the state to the snippet instead of mounting a separate node.
+  because bits-ui hands the state to the snippet instead of mounting a separate node. The
+  checkbox takes `indeterminate`: it then shows a dash and has `aria-checked="mixed"`.
 - **An item that the user picks shows the pointer, as a button does** (`styles.css`). The shadcn
   classes give `cursor-default` to the items of a menu, a select and a command list: we use
   `cursor-pointer`. A disabled item does not show the pointer.
