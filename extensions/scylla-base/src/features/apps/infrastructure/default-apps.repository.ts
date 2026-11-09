@@ -20,6 +20,7 @@ import type {
 } from '@base/features/apps/domain/entities/ci-identity.entity.ts';
 import type { ServerInfo } from '@base/features/apps/domain/structs/agent-install.struct.ts';
 import type { AgentStats } from '@base/features/apps/domain/structs/agent-stats.struct.ts';
+import type { StatsPeriod } from '@base/features/apps/domain/structs/stats-period.struct.ts';
 import type { RunnerChange } from '@base/features/apps/domain/structs/agent-access.struct.ts';
 import type { RoleGrant } from '@base/features/apps/domain/structs/app-grants.struct.ts';
 import type {
@@ -61,8 +62,13 @@ export class DefaultAppsRepository implements AppsRepository {
     return { version, agentImage };
   }
 
-  public async getAgentStats(appId: string): Promise<AgentStats> {
-    const response = await this.agents.getAgentStats({ agentId: wrapId(appId) }).response;
+  public async getAgentStats(appId: string, period?: StatsPeriod): Promise<AgentStats> {
+    const request = {
+      agentId: wrapId(appId),
+      from: period && grpcApp.dayToProto(period.from),
+      to: period && grpcApp.dayToProto(period.to),
+    };
+    const response = await this.agents.getAgentStats(request).response;
     return grpcApp.statsToDomain(required(response.stats, 'stats'));
   }
 

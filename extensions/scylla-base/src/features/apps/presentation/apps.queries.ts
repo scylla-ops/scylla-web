@@ -7,6 +7,8 @@ import type { AppDetails } from '../domain/entities/app.entity.ts';
 import { appsMessages } from './messages/apps.messages.ts';
 import { appRolesOf } from '@base/features/apps/domain/structs/app-list.struct.ts';
 import { agentAccessOf, type RunnerChange } from '../domain/structs/agent-access.struct.ts';
+import type { AgentStats } from '../domain/structs/agent-stats.struct.ts';
+import type { StatsPeriod } from '../domain/structs/stats-period.struct.ts';
 import { accessQueries, projectRef, workspaceRef, type ObjectRef } from '@base/features/access';
 import { projectQueries } from '@base/features/project';
 
@@ -159,13 +161,21 @@ export const appQueries = {
       enabled: enabled && !!workspaceId && appIds.length > 0,
     }),
 
-  /** The 30 days of one agent. */
-  agentStatsOf: (appId: string, workspaceId: string) =>
+  /**
+   * The days of a period of one agent. A new period keeps the stats of the last one on the screen
+   * until its own stats come.
+   */
+  agentStatsOf: (appId: string, workspaceId: string, period: StatsPeriod | null) =>
     queryOptions({
-      queryKey: [...APPS_QUERY_ROOT, 'stats', 'one', appId] as const,
-      queryFn: () => repository().getAgentStats(appId),
+      queryKey: [...APPS_QUERY_ROOT, 'stats', 'one', period?.from, period?.to, appId] as const,
+      queryFn: () => repository().getAgentStats(appId, period ?? undefined),
       enabled:
-        !!appId && authorizationReady() && can(Permission.READ_APP, { workspaceId: workspaceId }),
+        !!appId &&
+        !!period &&
+        authorizationReady() &&
+        can(Permission.READ_APP, { workspaceId: workspaceId }),
+      placeholderData: (previous: AgentStats | undefined) =>
+        previous?.agentId === appId ? previous : undefined,
       refetchInterval: 60_000,
     }),
 };

@@ -13,20 +13,30 @@ export interface DayOutcomes {
   outcomes: JobOutcomes;
 }
 
-/** The job stats of an agent for the last 30 days, from the server. */
+/** The job stats of an agent for a period of days (by default the last 30), from the server. */
 export interface AgentStats {
   agentId: string;
   outcomes: JobOutcomes;
   /** `null` when no job started and ended. */
   medianMs: number | null;
   p95Ms: number | null;
-  /** The 30 days, oldest first, also the days with no job. */
+  /**
+   * Each day of the period, oldest first, also the days with no job. The server starts a period at
+   * the creation of the agent.
+   */
   days: DayOutcomes[];
 }
+
+/** The jobs that failed or that their agent left, from which a day is an incident. */
+const INCIDENT_JOBS = 3;
 
 /** The jobs that ended. */
 export const endedJobs = (outcomes: JobOutcomes): number =>
   outcomes.completed + outcomes.failed + outcomes.cancelled + outcomes.orphaned;
+
+/** A day with many failed or orphaned jobs. */
+export const isIncident = (outcomes: JobOutcomes): boolean =>
+  outcomes.failed + outcomes.orphaned >= INCIDENT_JOBS;
 
 /** The part of the ended jobs that completed, from 0 to 1, or `null` with no ended job. */
 export const successRate = (outcomes: JobOutcomes): number | null => {

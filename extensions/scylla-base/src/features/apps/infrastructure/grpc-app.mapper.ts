@@ -7,6 +7,7 @@ import {
 } from '@base/generated/scylla/apps/v1/app.ts';
 import type { AgentStats as GrpcAgentStats, JobOutcomes as GrpcJobOutcomes } from '@base/generated/scylla/agents/v1/agent_stats.ts';
 import type { Duration } from '@base/generated/google/protobuf/duration.ts';
+import type { Timestamp } from '@base/generated/google/protobuf/timestamp.ts';
 import { type Job, JobStatus as GrpcJobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';
 import type {
   AppEntity,
@@ -22,6 +23,7 @@ import type {
   AgentStats,
   JobOutcomes,
 } from '@base/features/apps/domain/structs/agent-stats.struct.ts';
+import type { Day } from '@base/features/apps/domain/structs/stats-period.struct.ts';
 import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
 import { limitsToDomain } from '@shared/infrastructure/grpc/api-token.mapper.ts';
 import {
@@ -104,6 +106,12 @@ const outcomesToDomain = (outcomes: GrpcJobOutcomes | undefined): JobOutcomes =>
 /** `null` for an absent duration: no job started and ended. */
 const durationMs = (duration: Duration | undefined): number | null =>
   duration ? Number(duration.seconds) * 1000 + Math.round(duration.nanos / 1e6) : null;
+
+/** The start of a day of the server, 00:00 UTC. */
+export const dayToProto = (day: Day): Timestamp => ({
+  seconds: BigInt(Date.parse(day) / 1000),
+  nanos: 0,
+});
 
 export function statsToDomain(stats: GrpcAgentStats): AgentStats {
   return {

@@ -3,9 +3,10 @@
   import { Tooltip as TooltipPrimitive } from 'bits-ui';
   import { cn } from '../../utils/index.ts';
 
-  type Props = TooltipPrimitive.ContentProps & { children?: Snippet };
+  /** `arrow: false` for a content with its own surface, such as a card. */
+  type Props = TooltipPrimitive.ContentProps & { children?: Snippet; arrow?: boolean };
 
-  let { class: className, sideOffset = 0, children, ...rest }: Props = $props();
+  let { class: className, sideOffset = 0, arrow = true, children, ...rest }: Props = $props();
 </script>
 
 <TooltipPrimitive.Portal>
@@ -30,11 +31,13 @@
     {...rest}
   >
     {@render children?.()}
-    <!-- bits-ui places the wrapper with an inline transform: the rotated square goes inside it, as in Radix. -->
-    <TooltipPrimitive.Arrow class="z-50">
-      <span
-        class="bg-foreground block size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]"
-      ></span>
-    </TooltipPrimitive.Arrow>
+    {#if arrow}
+      <!-- bits-ui places the wrapper with an inline transform: the rotated square goes inside it, as in Radix. -->
+      <TooltipPrimitive.Arrow class="z-50">
+        <span
+          class="bg-foreground block size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]"
+        ></span>
+      </TooltipPrimitive.Arrow>
+    {/if}
   </TooltipPrimitive.Content>
 </TooltipPrimitive.Portal>

@@ -309,6 +309,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   out, and the tile of the new row grows in its row with a small bounce. Before, the tile jumped
   from one row to the other with no transition. With a reduced motion setting, the tile only fades.
   A page load shows the tile with no motion.
+- The jobs chart of the agent page fills its card, with a scale, the dates and a mark for each day
+  with no job. A timeline above the stats shows the jobs since the agent joined: drag its window, or
+  use 7D, 30D, 90D or All, to choose the period of the stats and of the chart.
 
 ## [0.6.0] - 2026-11-01
 

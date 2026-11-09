@@ -8,6 +8,7 @@ import {
   formatDate,
   formatDay,
   formatTime,
+  formatUtcDay,
 } from '../date-utils';
 
 describe('calculateDuration', () => {
@@ -36,15 +37,15 @@ describe('calculateExecutionDuration', () => {
   });
 
   it('uses finishedAt once the node is done', () => {
-    expect(
-      calculateExecutionDuration('2026-01-01T00:00:00.000Z', '2026-01-01T00:00:45.000Z'),
-    ).toBe(45);
+    expect(calculateExecutionDuration('2026-01-01T00:00:00.000Z', '2026-01-01T00:00:45.000Z')).toBe(
+      45,
+    );
   });
 
   it('never goes negative if the clock is off (finishedAt before startedAt)', () => {
-    expect(
-      calculateExecutionDuration('2026-01-01T00:00:45.000Z', '2026-01-01T00:00:00.000Z'),
-    ).toBe(0);
+    expect(calculateExecutionDuration('2026-01-01T00:00:45.000Z', '2026-01-01T00:00:00.000Z')).toBe(
+      0,
+    );
   });
 });
 
@@ -152,5 +153,13 @@ describe('formatTime', () => {
     const result = formatTime('2026-01-01T12:34:56.000Z');
     expect(result).not.toBe('-');
     expect(result.length).toBeGreaterThan(0);
+  });
+});
+
+describe('formatUtcDay', () => {
+  it('formats the UTC day, also where the local day is another one', () => {
+    expect(formatUtcDay('2026-07-14')).toBe('Jul 14');
+    expect(formatUtcDay('2026-08-01', 'month')).toBe('Aug');
+    expect(formatUtcDay('2026-09-22', 'weekday')).toBe('Tue, Sep 22');
   });
 });
