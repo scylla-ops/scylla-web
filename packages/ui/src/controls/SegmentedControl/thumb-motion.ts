@@ -18,11 +18,11 @@ interface Edges {
 
 export type ThumbMove = 'stretch' | 'settle';
 
-export const STRETCH_MS = 140;
+export const STRETCH_MS = 80;
 /** How far each edge goes during the stretch: the leading edge first. */
 export const TRAILING_REACH = 0.15;
 export const LEADING_REACH = 0.7;
-export const SETTLE = { bounce: 0.2, duration: 450 };
+export const SETTLE = { bounce: 0.2, duration: 300 };
 export const REDUCED_MS = 150;
 
 const FRAME_MS = 1000 / 60;

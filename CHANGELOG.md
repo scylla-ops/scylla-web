@@ -323,6 +323,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The roles lists no longer scroll sideways when a role has many permissions. Before, the hidden
   copy of the permission chips made the table wider, and the "From the instance" table of a
   workspace scrolled out of the Role column.
+- The thumb of the segmented control moves faster to the selected item. It is on the item in about
+  200 ms, and the full move takes 380 ms in place of 590 ms.
 
 ## [0.6.0] - 2026-11-01
 
