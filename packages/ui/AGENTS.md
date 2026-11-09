@@ -407,6 +407,13 @@ the app: red, and the red comes from a variant.
   because the padding takes height from its content. The frame cannot add this space for all
   pages: a page with its own scroll area has the same content height as a page that is taller
   than the view, thus only the page knows which of the two it is.
+- **The frame keeps the band of the overlays free below a page that fills the view.** A module
+  gives the height of this band in `shell.bottomInset` (the Feedback launcher: 56 px). The frame
+  sets it in `--shell-bottom-inset` on its scroll area (`0px` with no such overlay), and its
+  bottom padding is at least this value. Thus the last row of a page that fills the view (the
+  pagination of the jobs, the buttons of an editor) stays above the launcher. An element of a
+  page that is `fixed` to the bottom of the view adds `var(--shell-bottom-inset,0px)` to its
+  `bottom`, as the selection bar of `FeatureHeader` on a phone.
 - **Between a `sticky` element and its scroller, use `overflow-clip`, not `overflow-hidden`.**
   `overflow-hidden` makes a scroll container. The `sticky` element then sticks in that box,
   which does not scroll, and it moves away with the content. `overflow-clip` clips the same

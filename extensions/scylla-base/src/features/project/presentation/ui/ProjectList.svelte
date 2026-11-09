@@ -35,7 +35,7 @@
 {:else if projectsQuery.isError || !projects}
   <ErrorState message={t(projectMessages.loadError)} />
 {:else}
-  <div data-tour="projects" class="flex min-h-full w-full flex-col gap-4">
+  <div data-tour="projects" class="flex min-h-full w-full shrink-0 flex-col gap-4 pb-20">
     <ProjectHeader
       numberOfProjects={paginationInfo?.totalCount ?? projects.length}
       projectIds={projects.map(project => project.id)}
@@ -47,7 +47,7 @@
       {/each}
     </div>
     {#if paginationInfo && paginationInfo.totalPages > 1}
-      <Pagination {paginationInfo} onPageChange={page => pagination.setPage(page)} class="pb-2" />
+      <Pagination {paginationInfo} onPageChange={page => pagination.setPage(page)} />
     {/if}
   </div>
 {/if}

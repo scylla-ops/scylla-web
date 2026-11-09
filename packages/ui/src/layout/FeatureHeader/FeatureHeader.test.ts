@@ -255,6 +255,12 @@ describe('FeatureHeader on a phone', () => {
     expect(screen.getAllByRole('button', { name: 'Clear' })).toHaveLength(1);
   });
 
+  it('floats the bar above the band that an overlay of the shell covers', () => {
+    render(FeatureHeader, { label: 'Secret', selectedCount: 2, onClearSelection: vi.fn() });
+
+    expect(selectionBar()).toHaveClass('bottom-[calc(1rem+var(--shell-bottom-inset,0px))]');
+  });
+
   it('still confirms before a delete started from the bar', async () => {
     const onDeleteSelection = vi.fn().mockResolvedValue(undefined);
     render(FeatureHeader, { label: 'Secret', selectedCount: 2, onDeleteSelection });

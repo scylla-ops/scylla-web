@@ -351,6 +351,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   have the same look.
 - The tabs Linux, macOS, Windows and Docker of the install of an agent have the same space under
   them as above them. Before, the selected tab touched the bottom edge of the tab list.
+- The pagination of the jobs and of the pipelines, the end of the project list and the selection bar
+  on a phone stay above a button that floats at the bottom right. A module gives the height of this
+  button in `ShellContributions.bottomInset` of `@scylla/core-sdk`.
 
 ## [0.6.0] - 2026-11-01
 
