@@ -365,6 +365,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The Windows hint of the install of an agent tells that the command needs no admin rights, and how
   the install for the user and the service are different. The Windows command of the logs reads the
   log of the agent of the user, or else the logs of the service.
+- The pipeline editor opens on a still canvas. Before, the view moved and zoomed while it centred on
+  the nodes. Now the Scylla logo shows until the graph is in place, then the graph and the side
+  panel fade in. A failed load shows in the canvas, with Try again.
 
 ## [0.6.0] - 2026-11-01
 

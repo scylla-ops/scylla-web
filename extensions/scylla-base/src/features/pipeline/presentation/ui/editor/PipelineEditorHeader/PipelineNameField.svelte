@@ -1,5 +1,6 @@
 <script lang="ts">
   import WorkflowIcon from '@lucide/svelte/icons/workflow';
+  import { Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
@@ -10,9 +11,11 @@
     name: string;
     onNameChange: (name: string) => void;
     disabled?: boolean;
+    /** The name is on its way: a placeholder takes its place, with no shift when it comes. */
+    loading?: boolean;
   }
 
-  let { name, onNameChange, disabled = false }: Props = $props();
+  let { name, onNameChange, disabled = false, loading = false }: Props = $props();
 
   const uid = $props.id();
 
@@ -45,22 +48,26 @@
       <WorkflowIcon class="size-3.5" />
       {t(pipelineMessages.pipelineName)}
     </span>
-    <input
-      class="field-sizing-content h-full max-w-120 min-w-32 shrink bg-transparent px-2.5 font-mono text-sm outline-none placeholder:text-muted-foreground"
-      bind:value={draft}
-      {disabled}
-      placeholder={t(pipelineMessages.namePlaceholder)}
-      aria-invalid={issue === 'spaces'}
-      aria-describedby={issue === 'spaces' ? `${uid}-issue` : undefined}
-      onblur={apply}
-      onkeydown={event => {
-        if (event.key === 'Enter') event.currentTarget.blur();
-        if (event.key === 'Escape') {
-          draft = name;
-          event.currentTarget.blur();
-        }
-      }}
-    />
+    {#if loading}
+      <Skeleton class="mx-2.5 h-2.5 w-30 rounded-full" />
+    {:else}
+      <input
+        class="field-sizing-content h-full max-w-120 min-w-32 shrink bg-transparent px-2.5 font-mono text-sm outline-none placeholder:text-muted-foreground"
+        bind:value={draft}
+        {disabled}
+        placeholder={t(pipelineMessages.namePlaceholder)}
+        aria-invalid={issue === 'spaces'}
+        aria-describedby={issue === 'spaces' ? `${uid}-issue` : undefined}
+        onblur={apply}
+        onkeydown={event => {
+          if (event.key === 'Enter') event.currentTarget.blur();
+          if (event.key === 'Escape') {
+            draft = name;
+            event.currentTarget.blur();
+          }
+        }}
+      />
+    {/if}
   </label>
   {#if issue === 'spaces'}
     <p

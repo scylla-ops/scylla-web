@@ -39,9 +39,11 @@
     quickAdd: QuickAdd;
     drag: PaletteDrag;
     entries: readonly CatalogEntry[];
+    /** Called once: the nodes are measured and the view frames them. */
+    onReady?: () => void;
   }
 
-  let { blueprint, appearance, quickAdd, drag, entries }: Props = $props();
+  let { blueprint, appearance, quickAdd, drag, entries, onReady }: Props = $props();
 
   const nodeTypes: NodeTypes = { pipelineNode: PipelineNode, startNode: StartNode };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
@@ -126,6 +128,7 @@
     onnodedragstop={({ nodes }) => blueprint.placesMoved(nodes)}
     onselectiondragstop={(_, nodes) => blueprint.placesMoved(nodes)}
     onpaneclick={() => blueprint.inspect(null)}
+    oninit={() => void fitView(FIT_VIEW_OPTIONS).then(() => onReady?.())}
     onmove={event => {
       // A move with no event is the code's own, such as a fit.
       if (event) fitted = false;

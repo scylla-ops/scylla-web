@@ -44,7 +44,7 @@ export const PipelineModule = {
           highlight: pipelineName,
           detail: msg`Edit`,
         }),
-        page: () => import('./presentation/ui/editor/PipelineUpdate.page.svelte'),
+        page: () => import('./presentation/ui/editor/PipelineUpdate/PipelineUpdate.page.svelte'),
       },
       {
         // Here, not in `jobs`: the page has a Run action. The job page from `jobs` shows this crumb too.

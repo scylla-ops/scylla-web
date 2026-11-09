@@ -3,6 +3,7 @@
   import { createQuery } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '@scylla/ui/primitives';
+  import { cn } from '@scylla/ui/utils';
   import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import type { PipelineLayout } from '@base/features/pipeline/domain/structs/pipeline-layout.struct.ts';
   import type { NodePlaces } from './node-places.state.svelte.ts';
@@ -25,9 +26,17 @@
     onNodesChange: (nodes: PipelineNodeEntity[]) => void;
     savedLayout?: PipelineLayout | null;
     places?: NodePlaces;
+    /** Called once: the graph is fitted in the canvas at its final size. */
+    onReady?: () => void;
   }
 
-  let { nodes, pipelineName, projectId, onNodesChange, savedLayout, places }: Props = $props();
+  let { nodes, pipelineName, projectId, onNodesChange, savedLayout, places, onReady }: Props =
+    $props();
+
+  /** The panes have their sizes: the canvas mounts at its final width, and fits only once. */
+  let laidOut = $state(false);
+  /** The view is fitted: from now on, a change of the panes is animated. */
+  let ready = $state(false);
 
   const blueprint = createBlueprint({
     nodes: () => nodes,
@@ -65,10 +74,25 @@
   <ResizablePaneGroup
     direction="horizontal"
     autoSaveId="scylla.blueprint.side-panel"
-    class="overflow-hidden"
+    onLayoutChange={() => {
+      laidOut = true;
+    }}
+    class={cn('overflow-hidden', !ready && '[&>[data-pane]]:transition-none')}
   >
     <ResizablePane id="blueprint-canvas" order={1} class="relative">
-      <BlueprintCanvas {blueprint} {appearance} {quickAdd} {drag} {entries} />
+      {#if laidOut}
+        <BlueprintCanvas
+          {blueprint}
+          {appearance}
+          {quickAdd}
+          {drag}
+          {entries}
+          onReady={() => {
+            ready = true;
+            onReady?.();
+          }}
+        />
+      {/if}
       {#if blueprint.readOnly}
         <p
           role="alert"

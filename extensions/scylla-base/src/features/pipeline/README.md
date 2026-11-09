@@ -84,6 +84,16 @@ what will happen, and you can still connect it to the node you meant.
   is applied too, and the inspector and the node both say why: holding the edit back would show
   one node in the panel and another on the canvas, and lose the edit when the panel closes.
 
+### The canvas opens on a still view
+
+Svelte Flow measures the nodes before it can frame them, and the panes take their width after
+they mount. When the user saw these steps, the view jumped and zoomed while it centred on the
+nodes. Now a curtain with the look of an empty canvas covers the blueprint, the side panel too,
+until the view is fitted at its final width. A load that ends within 300 ms shows nothing more;
+a longer one shows the Scylla logo, its four dots lit in turn; a load that fails says so in the
+canvas, with Try again. Then the graph and the panel fade in, already in place. The header is
+there from the start, so the page does not change its shape when the pipeline comes.
+
 ### Node styles
 
 The viewer picks how nodes look: **detailed** (a card: icon, id, what it runs, folder,

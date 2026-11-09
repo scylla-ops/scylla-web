@@ -81,6 +81,25 @@ describe('PipelineEditorHeader', () => {
     expect(screen.getByRole('tab', { name: 'Blueprint' })).toBeDisabled();
   });
 
+  it('waits for the pipeline with no name, no status and nothing to save', () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ missing: 'loading', pipelineName: '' });
+
+    expect(screen.queryByRole('textbox', { name: 'Pipeline name' })).not.toBeInTheDocument();
+    expect(screen.queryByText('All changes saved')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'Scripting' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'Blueprint' })).toBeEnabled();
+  });
+
+  it('disables the name of a pipeline that failed to load', () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ missing: 'failed', pipelineName: '' });
+
+    expect(screen.getByRole('textbox', { name: 'Pipeline name' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  });
+
   it('renames the pipeline in place, on Enter', async () => {
     grantOnly(Permission.UPDATE_PIPELINE);
     renderHeader();
