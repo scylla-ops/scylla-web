@@ -320,6 +320,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   permissions. A box in the header, on each row and on each action header selects or clears the
   permissions of the tab, the row or the column. "Copy from a role" copies the permissions of a
   role, and "Undo" puts back the permissions from before the copy.
+- The roles lists no longer scroll sideways when a role has many permissions. Before, the hidden
+  copy of the permission chips made the table wider, and the "From the instance" table of a
+  workspace scrolled out of the Role column.
 
 ## [0.6.0] - 2026-11-01
 

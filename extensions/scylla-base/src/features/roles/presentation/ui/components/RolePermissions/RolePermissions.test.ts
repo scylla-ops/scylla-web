@@ -95,6 +95,12 @@ describe('RolePermissions', () => {
     );
   });
 
+  it('clips the hidden copy of all the chips, so that it does not widen the scroll of the table', () => {
+    const { container } = render(RolePermissions, { role: role(), areas });
+
+    expect(container.querySelector('[data-measure]')?.parentElement).toHaveClass('overflow-hidden');
+  });
+
   it('shows no "+N" when every chip fits', () => {
     render(RolePermissions, {
       role: role({ permissions: ['pipelines.edit', 'triggers.manage'] }),

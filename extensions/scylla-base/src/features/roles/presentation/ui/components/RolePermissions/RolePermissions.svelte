@@ -75,7 +75,7 @@
   {:else if summary.kind === 'chips'}
     {@const shown = summary.chips.slice(0, fitting ?? summary.chips.length)}
     {@const hidden = summary.chips.slice(shown.length)}
-    <div class="relative" {@attach fitChips(GAP, count => (fitting = count))}>
+    <div class="relative overflow-hidden" {@attach fitChips(GAP, count => (fitting = count))}>
       <div
         data-measure
         aria-hidden="true"
