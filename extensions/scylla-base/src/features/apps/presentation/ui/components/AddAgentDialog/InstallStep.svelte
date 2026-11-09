@@ -78,7 +78,7 @@
 <div class="flex flex-col gap-4">
   <p class="text-sm">{t(messages.runThis)}</p>
   <Tabs value={way} onValueChange={value => (way = value as InstallWay)}>
-    <TabsList class="grid w-full grid-cols-4">
+    <TabsList class="w-full">
       {#each WAYS as [value, label, Icon] (value)}
         <TabsTrigger {value} class="gap-2">
           <Icon class="hidden size-4 sm:block" aria-hidden="true" />

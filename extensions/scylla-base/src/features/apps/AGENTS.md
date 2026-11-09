@@ -27,6 +27,8 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
 - "Add agent" is a dialog in three steps (`components/AddAgentDialog/`): name and projects, install,
   connected. The install step has a tab for Linux (the default), macOS, Windows and Docker, with one
   command and one hint for each (`agent-install.struct.ts`). Linux and macOS have the same command.
+  The tabs list is a flex row, not a grid: in a grid row, a tab gets the height of its content and
+  touches the bottom of the list.
   The commands name the server with `--url` or `-Url`, so the address in the command wins over the
   address in the script. The Docker tab uses the image of the server (`appQueries.server`, from
   `GetCapabilities`), replaces a loopback host with `host.docker.internal`, and has no runtime

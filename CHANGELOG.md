@@ -349,6 +349,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   of tables and lists, in headers and in the confirmation dialogs. In a menu, they are the last
   items, after a separator. The danger zones of the account, of a user, of an agent and of an app
   have the same look.
+- The tabs Linux, macOS, Windows and Docker of the install of an agent have the same space under
+  them as above them. Before, the selected tab touched the bottom edge of the tab list.
 
 ## [0.6.0] - 2026-11-01
 
