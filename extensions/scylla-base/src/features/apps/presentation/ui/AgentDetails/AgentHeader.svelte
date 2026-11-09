@@ -1,11 +1,11 @@
 <script lang="ts">
-  import BotIcon from '@lucide/svelte/icons/bot';
   import CopyIcon from '@lucide/svelte/icons/copy';
   import PowerIcon from '@lucide/svelte/icons/power';
   import PowerOffIcon from '@lucide/svelte/icons/power-off';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { copyToClipboard } from '@scylla/ui/utils';
+  import { IdentityAvatar } from '@shared/presentation/ui';
   import { formatDay } from '@shared/utils/date-utils.ts';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
   import AgentStatusPill from '../components/AgentStatusPill/AgentStatusPill.svelte';
@@ -30,12 +30,12 @@
 </script>
 
 <header class="flex flex-wrap items-start gap-4">
-  <span
-    class="flex size-12 shrink-0 items-center justify-center rounded-full bg-muted"
-    aria-hidden="true"
-  >
-    <BotIcon class="size-5" />
-  </span>
+  <IdentityAvatar
+    profile={{ username: '', displayName: agent.name }}
+    kind="agent"
+    online={agent.connected}
+    size={48}
+  />
   <div class="flex min-w-0 flex-1 flex-col gap-1">
     <div class="flex flex-wrap items-center gap-3">
       <h1 class="truncate">{agent.name}</h1>

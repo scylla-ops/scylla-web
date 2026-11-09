@@ -20,7 +20,7 @@
     TableRow,
   } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
-  import { UserIdentity } from '@shared/presentation/ui';
+  import { Identity } from '@shared/presentation/ui';
   import {
     membershipPoints,
     type ProjectMembersContext,
@@ -166,9 +166,7 @@
             {#each rows as row (row.actorId)}
               <TableRow class={row.inheritedOnly ? '[&>td]:bg-muted/50' : ''}>
                 <TableCell>
-                  <UserIdentity
-                    user={memberProfile(row)}
-                  />
+                  <Identity profile={memberProfile(row)} kind={row.kind} />
                 </TableCell>
                 <TableCell class="whitespace-normal">
                   <div class="flex flex-wrap gap-1.5">

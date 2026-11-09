@@ -328,6 +328,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - Between and beside the icons of the rail, a click does nothing and the cursor does not change.
   Before, a click that missed an icon by a few pixels opened the rail. A drag on the edge of the
   open rail sets the width of the sidebar. Before, only the closed rail let the user set it.
+- A member and a holder of a role show if they are a person, an agent or another app. One component,
+  `Identity`, shows each actor with its own avatar: a circle with initials for a person, a square
+  with a bot for an agent, a square with blocks for another app. The card "About this role" no
+  longer shows a holder as a plain name.
 
 ## [0.6.0] - 2026-11-01
 

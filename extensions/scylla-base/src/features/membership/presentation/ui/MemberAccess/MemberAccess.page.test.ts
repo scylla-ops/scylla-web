@@ -13,6 +13,7 @@ const bob: MemberEntity = {
   actorKind: 'user',
   displayName: 'Bob',
   handle: 'bob',
+  runner: false,
   roles: [
     {
       scopeKind: 'workspace',

@@ -25,7 +25,7 @@
   import { userQueries } from '@base/features/user';
   import { userName } from '@base/shared/presentation/presenters/user-identity.presenter.ts';
   // By path, not the barrel: this file is in the entry chunk, the other components are not.
-  import UserAvatar from '@shared/presentation/ui/data-display/UserAvatar.svelte';
+  import IdentityAvatar from '@shared/presentation/ui/data-display/IdentityAvatar/IdentityAvatar.svelte';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
   import { chooseLocale } from '@base/shell/presentation/layout/user-preferences.ts';
   import { linkParams } from '@base/shell/presentation/shell-params.ts';
@@ -71,13 +71,10 @@
         >
           <!-- A failed read shows the menu all the same: signing out must stay possible. -->
           {#if meQuery.data}
-            <UserAvatar
-              user={meQuery.data}
-              size="sm"
-              class={cn(
-                'size-6 text-[10px]',
-                onAccount && 'bg-transparent text-sidebar-primary-foreground',
-              )}
+            <IdentityAvatar
+              profile={meQuery.data}
+              size={24}
+              class={cn(onAccount && 'bg-transparent text-sidebar-primary-foreground')}
             />
             <span class={cn('min-w-0 flex-1 truncate', SIDEBAR_FADE)}>
               {userName(meQuery.data, 'deleted')}

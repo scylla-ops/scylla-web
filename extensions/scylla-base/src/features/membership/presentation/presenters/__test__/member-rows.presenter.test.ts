@@ -22,6 +22,7 @@ const member = (roles: MemberRoleEntity[], actorKind = 'user'): MemberEntity => 
   actorKind,
   displayName: 'Lina',
   handle: 'lina',
+  runner: false,
   roles,
 });
 
@@ -41,6 +42,20 @@ describe('buildMemberRows', () => {
 
   it('has no date when no grant tells one', () => {
     expect(buildMemberRows([member([role({})])])[0]?.addedAt).toBeUndefined();
+  });
+
+  it('tells a person, an agent and another app apart', () => {
+    const rows = buildMemberRows([
+      member([]),
+      { ...member([], 'app'), runner: true },
+      member([], 'app'),
+    ]);
+
+    expect(rows.map(row => [row.tab, row.kind])).toEqual([
+      ['people', 'person'],
+      ['apps', 'agent'],
+      ['apps', 'app'],
+    ]);
   });
 
   it.each([

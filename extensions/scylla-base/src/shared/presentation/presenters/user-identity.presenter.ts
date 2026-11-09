@@ -38,3 +38,22 @@ export const userInitials = (user: UserIdentityProfile): string =>
     .map(word => [...word][0])
     .join('')
     .toUpperCase();
+
+/** How an actor shows: a person, an App that runs jobs (an agent), or another App. */
+export type IdentityKind = 'person' | 'agent' | 'app';
+
+/** The server names a person `user`. Any other actor is an App, and `runner` makes it an agent. */
+export const identityKindOf = (actor: { actorKind: string; runner: boolean }): IdentityKind => {
+  if (actor.actorKind === 'user') return 'person';
+  return actor.runner ? 'agent' : 'app';
+};
+
+/** The word that names a machine. A person has none: the name tells it. */
+export const identityKindLabel = (kind: IdentityKind): string | undefined => {
+  if (kind === 'person') return undefined;
+  return t(kind === 'agent' ? userIdentityMessages.agent : userIdentityMessages.app);
+};
+
+/** The second line of a row: the email or the handle of a person, the kind of a machine. */
+export const identitySecondaryLine = (profile: UserIdentityProfile, kind: IdentityKind): string =>
+  identityKindLabel(kind) ?? userSecondaryLine(profile);

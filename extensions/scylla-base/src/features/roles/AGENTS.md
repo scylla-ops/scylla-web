@@ -20,6 +20,7 @@ The catalog of the permissions, the built-in roles, and the custom roles.
 - A save and a delete use `mutateAsync`: the list reloads first and can unmount the page, and a callback of `mutate` then does not run.
 - A delete of a role with holders moves them first (`DeleteRole` with `move_to`). A save of a role with holders shows the change first.
 - `ListHeldPermissions` locks a cell of the editor and a role in a select. The server checks again.
+- The card "About this role" of a read-only role lists the first five holders (`ListRoleHolders`) with `Identity format="cell"`. `identityKindOf(holder)` reads `actorKind` and `runner`, so the reader sees if a holder is a person, an agent or another app.
 - `presentation/roles.commands.ts`: "Create role...", for the search bar, one command per level.
 - `changeInstanceRoles`: `Grant` and `Revoke` on the platform, for the dialog of the users page.
 

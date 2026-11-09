@@ -48,6 +48,7 @@
   const canListUsers = $derived(can(Permission.LIST_USERS));
 
   const usersQuery = createQuery(() => userQueries.list({ enabled: canListUsers }));
+  const meQuery = createQuery(() => userQueries.me());
   const membersQuery = createQuery(() =>
     accessQueries.members(workspaceId ? workspaceRef(workspaceId) : null, { enabled: canRead }),
   );
@@ -207,6 +208,7 @@
       rows={shown}
       isLoading={membersQuery.isLoading}
       {userFor}
+      selfId={meQuery.data?.id}
       {canManage}
       onOpen={openMember}
       onChangeRoles={row => (changing = row)}

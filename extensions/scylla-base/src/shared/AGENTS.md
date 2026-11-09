@@ -32,8 +32,9 @@ infrastructure/grpc/wrappers.ts      proto helpers, and `required`: the entity a
 infrastructure/grpc/api-token.mapper.ts  apiTokenToDomain, limitsToProto, expiryToProto
 presentation/ui/index.ts             `@shared/presentation/ui`
   data-display/                      StatusBar, STATUS_ICONS / getStatusIcon,
-                                     UserIdentity, UserAvatar, userName, userSecondaryLine,
-                                     UserIdentityProfile, ProviderMark
+                                     Identity, IdentityAvatar, identityKindOf, userName,
+                                     userSecondaryLine, IdentityKind, UserIdentityProfile,
+                                     ProviderMark
 presentation/ui/layout/AuthLayout.svelte  the frame of the public pages; import it by path
 locales/                             the catalog of these files
 ```
@@ -93,19 +94,33 @@ try {                                                           // a caller that
   (`shell/presentation/report-query-error.ts`, the `onQueryError` of `ShellModule`) already
   toasts every error, and you would double it.
 
-## `UserIdentity`: one way to show a person
+## `Identity`: one way to show a person, an agent or an app
 
-`UserIdentity` shows a person everywhere: the user menu, the users list, the member lists, the
-grant list, the pages of a user. Initials in the avatar; the display name, else the username;
-then the email when it is known, else `@username`. `user={undefined}` is a user that no list
-knows any more: it shows "Deleted user", never an id. `missing="unknown"` shows "Unknown user"
-instead, for a list that cannot name the user (a grant never outlives its user, so a holder that
-the page cannot look up is not deleted). `userName(user)` gives the same first line
-as a string, for a sentence or a select. `UserAvatar` is the avatar of `UserIdentity` alone
-(`sm`, `default`, `lg` = 72 px), for a layout that puts the name under it (the identity card of
-`features/user`). The prop type of both, `UserIdentityProfile`, is structural:
-`shared/` cannot import `features/user`, and a `UserSummary` or a `UserEntity` of that module fits
-it.
+`Identity` shows an actor everywhere: the users list, the member lists, the holders of a role,
+the pages of a user. The `kind` (`IdentityKind`) shows in the avatar, so the reader sees who it
+is before the name:
+
+| `kind` | Avatar | Second line (`row`) or label (`cell`) |
+|---|---|---|
+| `person` (the default) | circle, initials, primary tint | the email, else `@username` |
+| `person` with `self` | solid primary circle, and a "You" badge | the email, else `@username` |
+| `agent` | rounded square, bot icon, info tint | "Agent" |
+| `app` | rounded square, blocks icon, border | "App" |
+| `profile={undefined}` | dashed circle with "?" | none |
+
+`identityKindOf({ actorKind, runner })` gives the kind from the server: `user` is a person, an
+App with `runner` is an agent, and another App is an app. The name is the display name, else the
+username. `profile={undefined}` is an actor that no list knows any more: it shows "Deleted user",
+never an id. `missing="unknown"` shows "Unknown user" instead, for a list that cannot name the
+user (a grant never outlives its user, so a holder that the page cannot look up is not deleted).
+`userName(user)` gives the same name as a string, for a sentence or a select.
+
+`format="row"` (the default) is the 32 px avatar and two lines, for a table. `format="cell"` is
+the 24 px avatar and one line, for a short list such as the holders of a role. `IdentityAvatar`
+is the avatar alone, at 24, 32, 48 (the header of a page) or 72 px (a card). `online` puts a dot
+on an agent. The prop type, `UserIdentityProfile`, is structural: `shared/` cannot import
+`features/user`, and a `UserSummary` or a `UserEntity` of that module fits it. An app gives its
+name as `displayName` and an empty `username`.
 
 ## The account checks
 

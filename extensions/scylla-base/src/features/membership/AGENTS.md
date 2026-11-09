@@ -135,7 +135,7 @@ Sidebar: one entry only — section `workspace`, order `30`, icon `UsersRound`, 
 - **A member is a derived view of grants, not a stored list.** `buildWorkspaceMembers` and
   `buildProjectMembers` fold grants + identities into `ScopeMember[]`. They are pure functions
   in `domain/` — put membership logic there, not in a component or a `useMemo`.
-- **A member shows with `UserIdentity`** (`@shared/presentation/ui`), never with a local avatar
+- **A member shows with `Identity`** (`@shared/presentation/ui`), never with a local avatar
   and name. The pages build one `userId → UserSummary` map: the members lists, and on the
   workspace page the user directory over them when `LIST_USERS` allows it (display name and
   email). A member that no list knows shows as "Deleted user", never by its id; on the project
@@ -143,6 +143,9 @@ Sidebar: one entry only — section `workspace`, order `30`, icon `UsersRound`, 
   through the workspace is then simply not named. The project page waits for the
   workspace members and grants before it lists anyone, so no name flashes. A name in a
   sentence (a confirmation, a toast, a select) is `userName(user)`.
+- **A row gives its `kind` to `Identity`**: `identityKindOf(member)` makes the `actorKind` and
+  the `runner` flag of the server into a person, an agent or another app. The workspace page
+  marks the reader with "You" (`selfId`, from `userQueries.me`).
 - **`MemberRoleOrigin` is the load-bearing distinction.** `DIRECT` = granted at this scope;
   `INHERITED` = granted at the workspace and visible on the project. Only `DIRECT` roles are
   revocable here — revoking an inherited role means going to the workspace. Never render the
