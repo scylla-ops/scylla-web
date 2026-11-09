@@ -454,29 +454,29 @@ describe('the band of the brand', () => {
     expect(band().className).not.toMatch(/gradient/);
   });
 
-  it('has the input line on its bottom, as on its right edge', () => {
+  it('has the light sidebar line on its bottom, as on its right edge', () => {
     render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
 
-    expect(band()).toHaveClass('border-b', 'border-r', 'border-input');
-    expect(band().className).not.toMatch(/sidebar-border/);
+    expect(band()).toHaveClass('border-b', 'border-r', 'border-sidebar-border');
+    expect(band()).not.toHaveClass('border-input');
   });
 
-  it('starts the input line on the right edge, which the second sidebar continues', () => {
+  it('continues the light line of its right edge on the second sidebar', () => {
     render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
 
-    expect(band()).toHaveClass('border-r', 'border-input');
-    expect(secondSidebar()).toHaveClass('border-input');
-    expect(railOf()).toHaveClass('border-sidebar-border');
-    expect(railOf()).not.toHaveClass('border-input');
+    expect(secondSidebar()).toHaveClass('border-r', 'border-sidebar-border');
+    expect(secondSidebar()).not.toHaveClass('border-input');
+    expect(railOf()).toHaveClass('border-r', 'border-sidebar-border');
   });
 
-  it('gives the input line to the open rail, which covers the second sidebar', async () => {
+  it('keeps the light line on the open rail, which covers the second sidebar', async () => {
     render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
 
     await fireEvent.click(railOf());
 
-    expect(railOf()).toHaveClass('border-input');
-    expect(railOf()).not.toHaveClass('border-sidebar-border');
+    expect(railOf()).toHaveAttribute('data-state', 'expanded');
+    expect(railOf()).toHaveClass('border-r', 'border-sidebar-border');
+    expect(railOf()).not.toHaveClass('border-input');
   });
 });
 

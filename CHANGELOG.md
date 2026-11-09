@@ -294,17 +294,17 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the settings, the account, the help and the notifications. Before, the last element touched the
   bottom of the window, and a floating button at the bottom right covered it.
 - The logo band has one color, the color of the top bar, in the light and in the dark theme. Before,
-  it had the colors of the two columns below it. A stronger line marks the right edge of the double
-  sidebar, from the top to the bottom, also when the rail is open.
+  it had the colors of the two columns below it.
 - The notifications panel opens at the size of its list. Before, it opened large and then became
   smaller when the list loaded. While the list loads, the panel shows one skeleton row for each
   unread notification, and its height changes smoothly.
-- On a large screen, the line below the band of the logo and the top bar has the same color as the
-  line on the right edge of the sidebar. Before, the right line looked thicker.
 - The tooltip of a row of the closed rail shows only while the pointer is on the row, or on a focus
   from the keyboard. Before, a row that the pointer crossed on the open rail showed its tooltip when
   the rail closed, and a row that the user clicked showed its tooltip again when the window got the
   focus back.
+- The line on the right edge of the sidebar and the line below the band of the logo and the top bar
+  are light again, in the light and in the dark theme. Before, they had the strong color of the
+  inputs and looked thick.
 
 ## [0.6.0] - 2026-11-01
 

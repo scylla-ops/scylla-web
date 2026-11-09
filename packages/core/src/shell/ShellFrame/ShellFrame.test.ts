@@ -61,15 +61,16 @@ describe('ShellFrame', () => {
     expect(container.querySelector('[data-slot="sidebar-container"]')).not.toBeInTheDocument();
   });
 
-  it('draws one input line below the band and the top bar on a large screen', () => {
+  it('draws one light line below the band and the top bar on a large screen', () => {
     const { container } = render(ShellFrameFixture);
 
     expect(container.querySelector('[data-slot="sidebar-brand"]')).toHaveClass(
       'h-17',
       'border-b',
-      'border-input',
+      'border-sidebar-border',
     );
-    expect(screen.getByRole('banner')).toHaveClass('md:h-17', 'border-b', 'md:border-input');
+    expect(screen.getByRole('banner')).toHaveClass('md:h-17', 'border-b', 'border-border');
+    expect(screen.getByRole('banner').className).not.toMatch(/border-input/);
   });
 
   it('keeps the border line below the top bar on a phone, which has no band', () => {
