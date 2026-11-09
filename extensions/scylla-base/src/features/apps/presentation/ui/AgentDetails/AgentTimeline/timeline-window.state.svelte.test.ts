@@ -6,13 +6,17 @@ import { createTimelineWindow, type TimelineWindow } from './timeline-window.sta
 const BOUNDS = { from: '2026-07-14', to: '2026-11-09' };
 const PERIOD = { from: '2026-10-11', to: '2026-11-09' };
 
-const withWindow = (body: (window: TimelineWindow, onChange: ReturnType<typeof vi.fn>) => void) => {
+const withWindow = (
+  body: (window: TimelineWindow, onChange: ReturnType<typeof vi.fn>) => void,
+  bounds: StatsPeriod = BOUNDS,
+  first: StatsPeriod = PERIOD,
+) => {
   const onChange = vi.fn();
   const cleanup = $effect.root(() => {
-    let period = $state<StatsPeriod>(PERIOD);
+    let period = $state<StatsPeriod>(first);
     const window = createTimelineWindow(() => ({
       period,
-      bounds: BOUNDS,
+      bounds,
       onChange: (next: StatsPeriod) => {
         onChange(next);
         period = next;
@@ -71,5 +75,32 @@ describe('createTimelineWindow', () => {
 
       expect(onChange).toHaveBeenCalledExactlyOnceWith({ from: '2026-10-18', to: '2026-11-09' });
     });
+  });
+
+  it('keeps the one day of a strip of one day, for a drag and for the keyboard', () => {
+    const today = { from: '2026-11-09', to: '2026-11-09' };
+
+    withWindow(
+      (window, onChange) => {
+        window.begin();
+        window.drag('move', -3);
+        window.drag('start', -2);
+        window.drag('end', 2);
+        flushSync();
+
+        expect(window.shown).toEqual(today);
+
+        window.end();
+        window.step('start', -1);
+        window.step('start', 7);
+        window.step('end', 1);
+        window.step('end', -7);
+
+        expect(onChange).not.toHaveBeenCalled();
+        expect(window.shown).toEqual(today);
+      },
+      today,
+      today,
+    );
   });
 });

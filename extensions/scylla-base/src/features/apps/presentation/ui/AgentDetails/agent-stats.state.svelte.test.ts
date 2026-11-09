@@ -9,6 +9,7 @@ import type { StatsPeriod } from '@base/features/apps/domain/structs/stats-perio
 import { createAgentStats } from './agent-stats.state.svelte.ts';
 
 const NOW = new Date('2026-11-09T10:00:00Z');
+const TODAY = { from: '2026-11-09', to: '2026-11-09' };
 
 const agent = (patch: Partial<AppEntity> = {}): AppEntity =>
   ({
@@ -129,23 +130,46 @@ describe('createAgentStats', () => {
     });
   });
 
-  it('shows no timeline for an agent younger than a week, but its last 30 days', async () => {
-    await withStats(agent({ createdAt: '2026-11-04T08:00:00.000Z' }), async view => {
-      await waitFor(() => expect(view.stats).toBeDefined());
+  it('shows the timeline of an agent with jobs from the day that it joined', async () => {
+    await withStats(agent({ createdAt: '2026-11-09T08:00:00.000Z' }), async view => {
+      await waitFor(() => expect(view.timeline?.stats).toBeDefined());
 
-      expect(view.timeline).toBeNull();
-      expect(view.joined).toBe('2026-11-04');
-      expect(view.period).toEqual({ from: '2026-10-11', to: '2026-11-09' });
-      expect(asked()).toEqual([{ from: '2026-10-11', to: '2026-11-09' }]);
+      expect(view.timeline).toMatchObject({ bounds: TODAY, preset: '30d' });
+      expect(view.period).toEqual(TODAY);
+      expect(asked()).toEqual([TODAY]);
     });
   });
 
-  it('shows no timeline for an agent with no job', async () => {
+  it('shows the timeline of an agent of one day, and keeps the preset that the user chose', async () => {
+    const life = { from: '2026-11-08', to: '2026-11-09' };
+
+    await withStats(agent({ createdAt: '2026-11-08T22:00:00.000Z' }), async view => {
+      await waitFor(() => expect(view.timeline?.stats).toBeDefined());
+
+      expect(view.timeline?.bounds).toEqual(life);
+      expect(view.period).toEqual(life);
+
+      view.choose('7d');
+      flushSync();
+
+      expect(view.period).toEqual(life);
+      expect(view.timeline?.preset).toBe('7d');
+
+      view.choose('all');
+      flushSync();
+
+      expect(view.period).toEqual(life);
+      expect(view.timeline?.preset).toBe('all');
+    });
+  });
+
+  it('shows no timeline for an agent with no ended job, but its last 30 days', async () => {
     openedWith('?period=7d', 0);
 
-    await withStats(agent(), async view => {
+    await withStats(agent({ createdAt: '2026-11-08T22:00:00.000Z' }), async view => {
       await waitFor(() => expect(view.timeline).toBeNull());
 
+      expect(view.joined).toBe('2026-11-08');
       expect(view.period).toEqual({ from: '2026-10-11', to: '2026-11-09' });
     });
   });

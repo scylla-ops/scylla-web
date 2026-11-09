@@ -67,10 +67,16 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   period: `?period=7d|90d|all`, or `?from=YYYY-MM-DD&to=YYYY-MM-DD` after a drag
   (`mappers/period-search.mapper.ts`). The default, 30 days, writes nothing. A drag changes the URL
   only at its end (`timeline-window.state.svelte.ts`). The edges of the window are sliders: an
-  arrow moves one day, Shift and an arrow move 7 days. An agent younger than 7 days, or with no job,
-  shows no timeline: the card shows the last 30 days and hatches the days before the creation of
-  the agent. A disabled agent gets a hatched zone after the day that it was disabled. More than 90
-  days show one bar for each week, aligned on the last day (`presenters/jobs-chart.presenter.ts`).
+  arrow moves one day, Shift and an arrow move 7 days. The timeline shows from the day that the
+  agent joined. An agent with no ended job shows no timeline: the card shows the last 30 days and
+  hatches the days before the creation of the agent. When two presets give the same period (a
+  young agent), the selected preset stays the one that the user chose. A bar of the strip is
+  7 px wide at most, with a gap of 2 px, as in the design: a strip with few days puts its days in
+  the last columns, at the right (`stripColumns` in `presenters/agent-timeline.presenter.ts`). The
+  first day and "Today" are in one row that grows to the left, so they do not overlap. The window
+  is at least 28 px wide (`windowBox`), so its two handles do not cover each other. A disabled
+  agent gets a hatched zone after the day that it was disabled. More than 90 days show one bar for
+  each week, aligned on the last day (`presenters/jobs-chart.presenter.ts`).
   A day with 3 failed or orphaned jobs or more is an incident: a red dot on the strip.
 - The page of another app (`ui/AppDetails/`, route `/apps/:appId`) shows the header (Disable or
   Enable), the workspace roles, the activity (the latest sign-in of a credential), the credentials

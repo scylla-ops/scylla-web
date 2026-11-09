@@ -244,14 +244,50 @@ describe('AgentDetails', () => {
     expect(periodsAsked()).toContainEqual({ from: '2026-10-20', to: '2026-10-30' });
   });
 
-  it('shows the last 30 days of a new agent with no timeline, and hatches the days before it joined', async () => {
+  it('shows the timeline of an agent that joined today, with a window of one day', async () => {
+    onNovember4();
+    setUp(agent({ createdAt: '2026-11-04T08:00:00.000Z' }));
+    const user = userEvent.setup();
+
+    expect(
+      await screen.findByRole('img', { name: '412 jobs since the agent joined, by day' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: '412 jobs, Today' })).toBeInTheDocument();
+    expect(screen.getByText('Jobs, Today')).toBeInTheDocument();
+    expect(periodsAsked()).toEqual([{ from: '2026-11-04', to: '2026-11-04' }]);
+
+    const start = screen.getByRole('slider', { name: 'Start of the period, Nov 4' });
+    const end = screen.getByRole('slider', { name: 'End of the period, Nov 4' });
+    expect(start).toHaveAttribute('aria-valuemax', '0');
+    start.focus();
+    await user.keyboard('{ArrowLeft}{Shift>}{ArrowRight}{/Shift}');
+    end.focus();
+    await user.keyboard('{ArrowRight}{ArrowLeft}');
+
+    expect(navigate).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('radio', { name: '7D' }));
+
+    expect(navigate).toHaveBeenCalledWith('/acme/agents/a1?period=7d', { replace: true });
+    expect(screen.getByRole('radio', { name: '7D' })).toBeChecked();
+    expect(screen.getByText('Jobs, Today')).toBeInTheDocument();
+  });
+
+  it('shows the last 30 days of a new agent with no job, and hatches the days before it joined', async () => {
     onNovember4();
     setUp(agent({ createdAt: '2026-11-02T08:00:00.000Z' }));
+    apps.getAgentStats.mockResolvedValue({
+      agentId: agent().id,
+      outcomes: outcomes(0, 0),
+      medianMs: null,
+      p95Ms: null,
+      days: [],
+    });
 
-    expect(await screen.findByRole('img', { name: '412 jobs, Oct 6 – Today' })).toBeInTheDocument();
+    expect(await screen.findByRole('img', { name: '0 jobs, Oct 6 – Today' })).toBeInTheDocument();
     expect(screen.getByText('Not joined yet')).toBeInTheDocument();
     expect(screen.queryByText('Timeline')).not.toBeInTheDocument();
-    expect(periodsAsked()).toEqual([{ from: '2026-10-06', to: '2026-11-04' }]);
+    expect(periodsAsked()).toContainEqual({ from: '2026-10-06', to: '2026-11-04' });
   });
 
   it('tells where the jobs of a disabled agent are when its period has none', async () => {
