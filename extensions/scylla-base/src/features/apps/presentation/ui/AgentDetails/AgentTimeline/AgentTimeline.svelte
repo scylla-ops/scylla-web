@@ -16,8 +16,10 @@
   import type { PeriodChoice } from '@base/features/apps/presentation/mappers/period-search.mapper.ts';
   import {
     daysForPixels,
+    labelShift,
     spanOf,
     timelineStrip,
+    windowBox,
   } from '@base/features/apps/presentation/presenters/agent-timeline.presenter.ts';
   import { periodRange } from '@base/features/apps/presentation/presenters/period-range.presenter.ts';
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
@@ -47,7 +49,8 @@
     all: messages.presetAll,
   };
 
-  const strip = $derived(timelineStrip({ bounds, days: stats.days, disabled }));
+  let width = $state(0);
+  const strip = $derived(timelineStrip({ bounds, days: stats.days, disabled, width }));
   const total = $derived(endedJobs(stats.outcomes));
   const presets = $derived(
     PERIOD_PRESETS.map(
@@ -56,10 +59,8 @@
   );
 
   const timeline = createTimelineWindow(() => ({ period, bounds, onChange: onChoose }));
-  const span = $derived(spanOf(timeline.shown, bounds));
-
-  let width = $state(0);
-  const daysFor = (pixels: number) => daysForPixels(pixels, width, bounds);
+  const box = $derived(windowBox(spanOf(timeline.shown, bounds, strip.columns), width));
+  const daysFor = (pixels: number) => daysForPixels(pixels, width, strip.columns);
 </script>
 
 {#snippet handle(part: WindowPart, day: Day)}
@@ -107,21 +108,22 @@
       {total}
       disabledLabel={disabled ? t(messages.disabledSince(formatUtcDay(disabled))) : ''}
     />
-    <div class="absolute inset-y-0 left-0 bg-card/60" style:width="{span.left * 100}%"></div>
+    <div class="absolute inset-y-0 left-0 bg-card/60" style:width="{box.left * 100}%"></div>
     <div
       class="absolute inset-y-0 right-0 bg-card/60"
-      style:width="{(1 - span.left - span.width) * 100}%"
+      style:width="{(1 - box.left - box.width) * 100}%"
     ></div>
     <div
       class="absolute inset-y-0 cursor-grab touch-none rounded-md border-[1.5px] border-primary bg-primary/7 active:cursor-grabbing"
-      style:left="{span.left * 100}%"
-      style:width="{span.width * 100}%"
+      style:left="{box.left * 100}%"
+      style:width="{box.width * 100}%"
       data-part="timeline-window"
       {@attach dragWindow('move', timeline, daysFor)}
     >
       {#if timeline.dragging}
         <span
-          class="absolute -top-8 left-1/2 z-30 -translate-x-1/2 rounded-md bg-foreground px-2 py-1 text-xs font-medium whitespace-nowrap text-background"
+          class="absolute -top-8 left-1/2 z-30 rounded-md bg-foreground px-2 py-1 text-xs font-medium whitespace-nowrap text-background"
+          style:translate={labelShift(box, width)}
           role="status"
         >
           {t(messages.periodDays(periodRange(timeline.shown, today), periodDays(timeline.shown)))}

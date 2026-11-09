@@ -8,7 +8,6 @@ import {
 import {
   clampPeriod,
   dayOf,
-  daysBetween,
   periodBounds,
   presetPeriod,
   recentPeriod,
@@ -23,9 +22,6 @@ import {
 } from '@base/features/apps/presentation/mappers/period-search.mapper.ts';
 import { appQueries } from '@base/features/apps/presentation/apps.queries.ts';
 
-/** A younger agent shows no timeline. */
-const MIN_TIMELINE_DAYS = 7;
-
 export interface AgentTimelineData {
   /** From the creation of the agent to today, at most a year. */
   bounds: StatsPeriod;
@@ -36,7 +32,7 @@ export interface AgentTimelineData {
 }
 
 export interface AgentStatsView {
-  /** `null` for an agent younger than a week or with no job: the chart then shows the last 30 days. */
+  /** `null` for an agent with no ended job: the chart then shows the last 30 days. */
   readonly timeline: AgentTimelineData | null;
   readonly period: StatsPeriod;
   readonly stats: AgentStats | undefined;
@@ -75,9 +71,7 @@ export const createAgentStats = (
     return parsePeriodSearch(currentSearch());
   });
 
-  const canHaveTimeline = $derived(
-    !!agent && !never && daysBetween(joined, today) >= MIN_TIMELINE_DAYS,
-  );
+  const canHaveTimeline = $derived(!!agent && !never);
   const timelineQuery = createQuery(() =>
     appQueries.agentStatsOf(props().appId, props().workspaceId, canHaveTimeline ? bounds : null),
   );

@@ -336,6 +336,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   avatar and its kind. A picked member is a chip with a remove button. The Holders column of the
   roles shows the first holders as a stack of avatars. `Identity` has the formats `mention`, `chip`
   and `header`, and `SearchSelect` has a `chip` snippet for the chosen option.
+- The agent page shows the timeline from the day that the agent joined, when the agent has a job
+  that ended. Before, an agent younger than 7 days had no timeline. A strip with few days keeps thin
+  bars at the right, the first day and "Today" do not overlap, and the window of one day keeps room
+  for its two handles.
 
 ## [0.6.0] - 2026-11-01
 
