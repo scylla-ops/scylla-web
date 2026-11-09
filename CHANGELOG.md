@@ -339,6 +339,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A click on the logo, between the rows or on the footer of the open rail closes the rail. Only a
   click on the handle, or a click that opens a menu of the rail, keeps it open. Before, a click on
   the logo or between the rows did not close it.
+- The "+N" card of the permissions in the roles list keeps all its chips inside the card. The card
+  becomes wider to fit the longest row, and the actions that do not fit go under the name of the
+  resource.
 
 ## [0.6.0] - 2026-11-01
 

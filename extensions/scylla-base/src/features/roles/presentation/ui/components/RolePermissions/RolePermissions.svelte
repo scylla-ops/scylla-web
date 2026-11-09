@@ -40,11 +40,15 @@
   </p>
   <ul class="flex flex-col rounded-md bg-muted py-1">
     {#each hidden as item (item.area)}
-      <li class="flex items-center justify-between gap-3 py-[5px] pr-1.5 pl-2.5">
-        <span class="text-xs font-medium whitespace-nowrap text-foreground">{item.title}</span>
-        <span class="flex gap-1">
+      <li
+        class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 py-[5px] pr-1.5 pl-2.5"
+      >
+        <span class="min-w-0 text-xs font-medium wrap-anywhere text-foreground">{item.title}</span>
+        <span class="flex flex-wrap gap-1">
           {#each item.actions as action (action)}
-            <span class="rounded-[4px] border bg-card px-1.5 py-px text-xs text-muted-foreground">
+            <span
+              class="rounded-[4px] border bg-card px-1.5 py-px text-xs whitespace-nowrap text-muted-foreground"
+            >
               {action}
             </span>
           {/each}
@@ -109,8 +113,9 @@
             <TooltipContent
               side="top"
               sideOffset={6}
+              collisionPadding={8}
               arrow={false}
-              class="flex w-[232px] flex-col gap-1.5 rounded-[10px] border bg-card px-1.5 pt-2.5 pb-1.5 text-card-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.06),0_4px_12px_-2px_rgba(0,0,0,0.08)]"
+              class="flex w-max max-w-[min(320px,var(--bits-tooltip-content-available-width))] min-w-[232px] flex-col gap-1.5 rounded-[10px] border bg-card px-1.5 pt-2.5 pb-1.5 text-card-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.06),0_4px_12px_-2px_rgba(0,0,0,0.08)]"
             >
               {@render moreCard(hidden)}
             </TooltipContent>
