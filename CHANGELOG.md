@@ -325,6 +325,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   workspace scrolled out of the Role column.
 - The thumb of the segmented control moves faster to the selected item. It is on the item in about
   200 ms, and the full move takes 380 ms in place of 590 ms.
+- Between and beside the icons of the rail, a click does nothing and the cursor does not change.
+  Before, a click that missed an icon by a few pixels opened the rail. A drag on the edge of the
+  open rail sets the width of the sidebar. Before, only the closed rail let the user set it.
 
 ## [0.6.0] - 2026-11-01
 

@@ -67,6 +67,14 @@ const railOf = () => {
   return rail;
 };
 
+const freeRoomOf = () => {
+  const space = railOf().querySelector<HTMLElement>('[data-slot="sidebar-rail-space"]');
+  if (!space) throw new Error('no free room in the rail');
+  return space;
+};
+
+const layerOf = (element: HTMLElement) => Number(/(?:^|\s)z-(\d+)/.exec(element.className)?.[1]);
+
 const secondSidebar = () => {
   const aside = document.querySelector<HTMLElement>('aside[data-slot="sidebar"]');
   if (!aside) throw new Error('no second sidebar');
@@ -157,15 +165,45 @@ describe('the rail', () => {
     expect(rail).toHaveAttribute('data-state', 'collapsed');
   });
 
-  it('opens and closes on a click on an empty part', async () => {
+  it('opens and closes on a click on the free room below its rows, whose cursor shows the direction', async () => {
     render(AppSidebarFixture, { config: configWith() });
     const rail = railOf();
+    expect(freeRoomOf()).toHaveClass('cursor-e-resize');
 
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
     expect(rail).toHaveAttribute('data-state', 'expanded');
+    expect(freeRoomOf()).toHaveClass('cursor-w-resize');
 
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
     expect(rail).toHaveAttribute('data-state', 'collapsed');
+  });
+
+  it('does nothing on a click between or beside its rows, where the cursor does not change', async () => {
+    const members = entry({
+      title: msg`Members`,
+      url: 'members',
+      pattern: [':workspaceSlug', 'members'],
+    });
+    render(AppSidebarFixture, { config: configWith({ entries: [entry(), members] }) });
+    const rail = railOf();
+    const rows = within(rail).getByRole('button', { name: /Secrets/ }).parentElement;
+    const column = rows?.parentElement;
+    if (!rows || !column) throw new Error('no column of rows');
+    const resizeCursors = () =>
+      [rail, ...rail.querySelectorAll('*')].filter(element =>
+        element.matches('.cursor-e-resize, .cursor-w-resize'),
+      );
+
+    for (const neutral of [rows, column, rail]) await fireEvent.click(neutral);
+    expect(rail).toHaveAttribute('data-state', 'collapsed');
+    expect(resizeCursors()).toEqual([
+      freeRoomOf(),
+      within(rail).getByRole('button', { name: 'Toggle Sidebar' }),
+    ]);
+
+    await fireEvent.click(freeRoomOf());
+    for (const neutral of [rows, column, rail]) await fireEvent.click(neutral);
+    expect(rail).toHaveAttribute('data-state', 'expanded');
   });
 
   it('opens and closes on a click on its separator, whose cursor shows the direction', async () => {
@@ -195,7 +233,7 @@ describe('the rail', () => {
   it('gives a row no tooltip while the open rail shows its title', async () => {
     render(AppSidebarFixture, { config: configWith() });
     const rail = railOf();
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
 
     await userEvent.hover(within(rail).getByRole('button', { name: /Secrets/ }));
 
@@ -210,7 +248,7 @@ describe('the rail', () => {
     });
     render(AppSidebarFixture, { config: configWith({ entries: [entry(), members] }) });
     const rail = railOf();
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
 
     await userEvent.hover(within(rail).getByRole('button', { name: /Secrets/ }));
     await userEvent.click(within(rail).getByRole('button', { name: /Members/ }));
@@ -250,7 +288,7 @@ describe('the rail', () => {
     expect(rail).toHaveAttribute('data-state', 'collapsed');
     expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/secrets', undefined);
 
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
     await fireEvent.click(secrets);
     expect(rail).toHaveAttribute('data-state', 'collapsed');
   });
@@ -259,11 +297,11 @@ describe('the rail', () => {
     render(AppSidebarFixture, { config: configWith() });
     const rail = railOf();
 
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
     await fireEvent.pointerDown(document.body);
     expect(rail).toHaveAttribute('data-state', 'collapsed');
 
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
     await fireEvent.keyDown(window, { key: 'Escape' });
     expect(rail).toHaveAttribute('data-state', 'collapsed');
   });
@@ -276,7 +314,7 @@ describe('the rail', () => {
     const rail = railOf();
     within(rail).getByText('stub').setAttribute('data-state', 'open');
 
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
     await fireEvent.pointerDown(document.body);
     await fireEvent.keyDown(window, { key: 'Escape' });
 
@@ -472,7 +510,7 @@ describe('the band of the brand', () => {
   it('keeps the light line on the open rail, which covers the second sidebar', async () => {
     render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
 
-    await fireEvent.click(railOf());
+    await fireEvent.click(freeRoomOf());
 
     expect(railOf()).toHaveAttribute('data-state', 'expanded');
     expect(railOf()).toHaveClass('border-r', 'border-sidebar-border');
@@ -666,7 +704,7 @@ describe('the handle of the second sidebar', () => {
     renderOnPage();
     await drag(256, 356);
 
-    await fireEvent.click(railOf());
+    await fireEvent.click(freeRoomOf());
     expect(railOf().style.width).toBe('356px');
 
     handle().focus();
@@ -677,11 +715,36 @@ describe('the handle of the second sidebar', () => {
 
   it('does not close the rail with a press', async () => {
     renderOnPage();
-    await fireEvent.click(railOf());
+    await fireEvent.click(freeRoomOf());
 
     await fireEvent.pointerDown(handle(), { button: 0, isPrimary: true, clientX: 256 });
 
     expect(railOf()).toHaveAttribute('data-state', 'expanded');
+  });
+
+  it('lies above the open rail, thus a drag on its edge sets the width while the rail is open', async () => {
+    renderOnPage();
+    await fireEvent.click(freeRoomOf());
+
+    expect(layerOf(handle())).toBeGreaterThan(layerOf(railOf()));
+    await drag(256, 316);
+
+    expect(railOf()).toHaveAttribute('data-state', 'expanded');
+    expect(railOf().style.width).toBe('316px');
+  });
+
+  it('moves the edge of the open rail with the pointer, with no transition until the drag ends', async () => {
+    renderOnPage();
+    await fireEvent.click(freeRoomOf());
+
+    await fireEvent.pointerDown(handle(), { button: 0, isPrimary: true, clientX: 256 });
+    await fireEvent.pointerMove(handle(), { clientX: 316 });
+    expect(railOf()).toHaveClass('transition-none');
+    expect(railOf()).not.toHaveClass('transition-[width]');
+
+    await fireEvent.pointerUp(handle(), { clientX: 316 });
+    expect(railOf()).toHaveClass('transition-[width]');
+    expect(railOf()).not.toHaveClass('transition-none');
   });
 });
 

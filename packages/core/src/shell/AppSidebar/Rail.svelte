@@ -45,10 +45,6 @@
   );
   const cursor = $derived(open ? 'cursor-w-resize' : 'cursor-e-resize');
   const label = $derived(t(shellMessages.toggleSidebar));
-
-  const toggleOnEmptyPart = (event: MouseEvent) => {
-    if (!(event.target as Element).closest('button, a')) onToggle();
-  };
 </script>
 
 {#snippet row(item: RailItem)}
@@ -92,8 +88,6 @@
   </Tooltip>
 {/snippet}
 
-<!-- A click on an empty part is a shortcut for the pointer: the keyboard has the separator. -->
-<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
 <nav
   data-sidebar="sidebar"
   data-slot="sidebar-rail-panel"
@@ -102,18 +96,16 @@
   class={cn(
     'group border-r border-sidebar-border bg-rail text-sidebar-foreground transition-[width]',
     !open && 'w-14',
-    cursor,
     SIDEBAR_MOTION,
     'motion-reduce:transition-none',
     className,
   )}
   style:width={open ? `${openWidth}px` : undefined}
-  onclick={toggleOnEmptyPart}
 >
   <div class="h-full overflow-hidden">
     <!-- The width of the open rail: the rows never reflow while the panel moves. -->
     <div class="flex h-full flex-col px-3 pt-2 pb-3" style:width="{openWidth}px">
-      <div class="relative flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto">
+      <div class="relative flex min-h-0 flex-col gap-2 overflow-x-hidden overflow-y-auto">
         {#if ready}
           {#each rail.main as item (item.id)}
             {@render row(item)}
@@ -126,6 +118,14 @@
           {/each}
         {/if}
       </div>
+
+      <!-- A shortcut for the pointer, away from the rows: the keyboard has the separator. -->
+      <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+      <div
+        data-slot="sidebar-rail-space"
+        class={cn('-mx-3 mt-2 flex-1', cursor)}
+        onclick={onToggle}
+      ></div>
 
       {#if ready && rail.end.length > 0}
         <div class="mt-2 flex flex-col gap-2">
