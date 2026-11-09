@@ -61,7 +61,12 @@ beforeEach(() => {
           ]),
       },
     },
-    user: { userRepository: { getAll: vi.fn().mockResolvedValue({ items: [] }) } },
+    user: {
+      userRepository: {
+        getAll: vi.fn().mockResolvedValue({ items: [] }),
+        getMe: vi.fn().mockResolvedValue({ id: 'user-1', username: 'alice' }),
+      },
+    },
     access: {
       accessRepository: {
         listMembers,

@@ -30,6 +30,7 @@ const member = (id: string, name: string, roles: MemberRoleEntity[]): MemberEnti
   actorKind: 'user',
   displayName: name,
   handle: name.toLowerCase(),
+  runner: false,
   roles,
 });
 

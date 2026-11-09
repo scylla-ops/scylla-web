@@ -12,6 +12,7 @@ import {
 
 const LEFT: Box = { x: 3, y: 3, width: 40, height: 28 };
 const RIGHT: Box = { x: 103, y: 3, width: 60, height: 28 };
+const LANDED_MS = 250;
 
 const px = (value: unknown) => parseFloat(String(value));
 const edges = (frame: Keyframe) => ({
@@ -55,6 +56,19 @@ describe('thumbKeyframes', () => {
 
     expect(furthest).toBeGreaterThan(163);
     expect(furthest).toBeLessThan(165);
+  });
+
+  it('is on the new segment after a quarter of a second: only the bounce moves it after that', () => {
+    const { keyframes, duration } = thumbKeyframes(LEFT, RIGHT, { move: 'stretch', reduced: false });
+
+    const late = keyframes.filter(frame => (frame.offset ?? 0) * duration >= LANDED_MS);
+
+    expect(late.length).toBeGreaterThan(1);
+    for (const frame of late) {
+      const { left, right } = edges(frame);
+      expect(Math.abs(left - 103)).toBeLessThan(2);
+      expect(Math.abs(right - 163)).toBeLessThan(2);
+    }
   });
 
   it('only settles when it follows a change of size', () => {

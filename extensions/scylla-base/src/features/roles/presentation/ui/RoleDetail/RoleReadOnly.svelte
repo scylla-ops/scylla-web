@@ -3,6 +3,7 @@
   import { createQuery, navigateTo } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import { Button } from '@scylla/ui/primitives';
+  import { Identity, identityKindOf } from '@shared/presentation/ui';
   import type { RoleEntity } from '../../../domain/entities/role.entity.ts';
   import { andMore, holderLabels, holdersTotal, rolesMessages } from '../../messages/roles.messages.ts';
   import { permissionCount, roleDescription, roleName } from '../../role-labels.ts';
@@ -98,12 +99,16 @@
       {#if canSeeHolders && holdersQuery.data}
         <div class="border-t p-5">
           <h3 class="text-sm">{t(holdersTotal(holdersQuery.data.total))}</h3>
-          <ul class="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
+          <ul class="mt-3 flex flex-col gap-2">
             {#each shown as holder (`${holder.actorId}-${holder.scopeId}`)}
-              <li class="flex justify-between gap-2">
-                <span class="truncate">{holder.displayName}</span>
+              <li class="flex items-center justify-between gap-2">
+                <Identity
+                  format="cell"
+                  profile={{ displayName: holder.displayName, username: holder.handle }}
+                  kind={identityKindOf(holder)}
+                />
                 {#if holder.scopeKind === 'project'}
-                  <span class="truncate text-xs">{holder.scopeName}</span>
+                  <span class="truncate text-xs text-muted-foreground">{holder.scopeName}</span>
                 {/if}
               </li>
             {/each}

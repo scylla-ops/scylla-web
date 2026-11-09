@@ -28,7 +28,7 @@
       </button>
     </TableHead>
     <TableHead class="h-10 w-[356px] pl-0 text-sm">{t(rolesMessages.permissions)}</TableHead>
-    <TableHead class="h-10 w-[72px] pl-0 text-sm">{t(rolesMessages.holders)}</TableHead>
+    <TableHead class="h-10 w-[184px] pl-0 text-sm">{t(rolesMessages.holders)}</TableHead>
     <TableHead class="h-10 w-8 pl-0"></TableHead>
   </TableRow>
 </TableHeader>

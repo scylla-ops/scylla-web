@@ -24,6 +24,8 @@ export interface MemberEntity {
   actorKind: string;
   displayName: string;
   handle: string;
+  /** An app that runs jobs: an agent. */
+  runner: boolean;
   roles: MemberRoleEntity[];
 }
 

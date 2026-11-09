@@ -214,4 +214,40 @@ describe('SearchSelect', () => {
     await userEvent.click(chevron);
     await expectClosed();
   });
+
+  it('shows the choice as a chip, with an empty field for the next search', async () => {
+    render(SearchSelectFixture, { options, chips: true });
+    expect(screen.queryByTestId('chip')).not.toBeInTheDocument();
+    expect(field()).toHaveAttribute('placeholder', 'Choose');
+
+    await userEvent.type(field(), 'tes{Enter}');
+
+    await expectClosed();
+    expect(screen.getByTestId('chip')).toHaveTextContent('test');
+    expect(field().value).toBe('');
+    expect(field()).not.toHaveAttribute('placeholder');
+    expect(field()).toHaveFocus();
+  });
+
+  it('puts the next pick in the chip', async () => {
+    render(SearchSelectFixture, { options, chips: true, initial: 'c' });
+
+    await userEvent.type(field(), 'adm');
+    expect(field().value).toBe('adm');
+    expect(await rows()).toEqual(['Local Admin @local-admin']);
+    await userEvent.keyboard('{Enter}');
+
+    await expectClosed();
+    expect(screen.getByTestId('chip')).toHaveTextContent('Local Admin');
+    expect(screen.getByTestId('value')).toHaveTextContent('a');
+  });
+
+  it('drops the chip when the owner clears its value', async () => {
+    render(SearchSelectFixture, { options, chips: true, initial: 'c' });
+
+    await userEvent.click(screen.getByRole('button', { name: 'clear' }));
+
+    expect(screen.queryByTestId('chip')).not.toBeInTheDocument();
+    expect(field()).toHaveAttribute('placeholder', 'Choose');
+  });
 });

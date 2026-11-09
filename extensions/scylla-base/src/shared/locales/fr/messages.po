@@ -49,6 +49,10 @@ msgstr "Avancé : choisir les actions"
 msgid "Advanced: custom actions (no preset)"
 msgstr "Avancé : actions personnalisées (sans préréglage)"
 
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:6
+msgid "Agent"
+msgstr "Agent"
+
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:33
 msgid "Agent id copied"
 msgstr "ID d'agent copié"
@@ -104,6 +108,10 @@ msgstr "Un autre espace de travail utilise déjà cette adresse"
 #: extensions/scylla-base/src/shared/presentation/messages/api-access.messages.ts:4
 msgid "API access"
 msgstr "Accès à l'API"
+
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:7
+msgid "App"
+msgstr "App"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:37
 msgid "App id copied"
@@ -313,6 +321,10 @@ msgstr "Lecture seule"
 msgid "Reads projects, pipelines, jobs and logs."
 msgstr "Lit les projets, pipelines, jobs et logs."
 
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:11
+msgid "Remove {name}"
+msgstr "Retirer {name}"
+
 #: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:13
 msgid "Revoked on {day}"
 msgstr "Révoquée le {day}"
@@ -520,6 +532,10 @@ msgstr "Espace de travail supprimé"
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:14
 msgid "Workspace updated"
 msgstr "Espace de travail mis à jour"
+
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:8
+msgid "You"
+msgstr "Vous"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:9
 msgid "You cannot delete your own account."

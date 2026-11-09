@@ -33,7 +33,7 @@ needs `READ_USER`.
 
 **`UserSummary` is the one type for a person** (`id`, `username`, `email?`,
 `displayName?`): a `Pick` of `UserEntity`. The member lists of `workspace` and `project`
-return it, because their RPCs carry no more. Show it with `UserIdentity` from
+return it, because their RPCs carry no more. Show it with `Identity` from
 `@shared/presentation/ui`, never with a local avatar and name.
 
 Never add: `user.module.ts`, a page or a component (export a loader if another module ever needs

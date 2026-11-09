@@ -7,7 +7,7 @@
   import { rolesMessages, workspaceRolesTitle } from '../../messages/roles.messages.ts';
   import { sortRoles, type RoleSort } from '../../presenters/roles-list.presenter.ts';
   import { roleName } from '../../role-labels.ts';
-  import { roleQueries } from '../../roles.queries.ts';
+  import { canSeeRoleHolders, roleQueries } from '../../roles.queries.ts';
   import RoleRow from './RoleRow.svelte';
   import RolesLoadError from './RolesLoadError.svelte';
   import RolesTableHeader from './RolesTableHeader.svelte';
@@ -25,6 +25,7 @@
 
   const roles = $derived(rolesQuery.data ?? []);
   const areas = $derived(catalogQuery.data ?? []);
+  const canSeeHolders = $derived(canSeeRoleHolders(workspaceId));
   const own = $derived(
     sortRoles(
       roles.filter(role => role.workspaceId === workspaceId),
@@ -49,7 +50,7 @@
       <RolesTableHeader {sort} onSortChange={next => (sort = next)} />
       <TableBody>
         {#each list as role (role.key)}
-          <RoleRow {role} {areas} onOpen={open} />
+          <RoleRow {role} {areas} {workspaceId} {canSeeHolders} onOpen={open} />
         {/each}
       </TableBody>
     </Table>

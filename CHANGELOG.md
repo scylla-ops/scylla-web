@@ -320,6 +320,22 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   permissions. A box in the header, on each row and on each action header selects or clears the
   permissions of the tab, the row or the column. "Copy from a role" copies the permissions of a
   role, and "Undo" puts back the permissions from before the copy.
+- The roles lists no longer scroll sideways when a role has many permissions. Before, the hidden
+  copy of the permission chips made the table wider, and the "From the instance" table of a
+  workspace scrolled out of the Role column.
+- The thumb of the segmented control moves faster to the selected item. It is on the item in about
+  200 ms, and the full move takes 380 ms in place of 590 ms.
+- Between and beside the icons of the rail, a click does nothing and the cursor does not change.
+  Before, a click that missed an icon by a few pixels opened the rail. A drag on the edge of the
+  open rail sets the width of the sidebar. Before, only the closed rail let the user set it.
+- A member and a holder of a role show if they are a person, an agent or another app. One component,
+  `Identity`, shows each actor with its own avatar: a circle with initials for a person, a square
+  with a bot for an agent, a square with blocks for another app. The card "About this role" no
+  longer shows a holder as a plain name.
+- The pickers of a member, the page of a member and the list of the roles show each actor with its
+  avatar and its kind. A picked member is a chip with a remove button. The Holders column of the
+  roles shows the first holders as a stack of avatars. `Identity` has the formats `mention`, `chip`
+  and `header`, and `SearchSelect` has a `chip` snippet for the chosen option.
 
 ## [0.6.0] - 2026-11-01
 

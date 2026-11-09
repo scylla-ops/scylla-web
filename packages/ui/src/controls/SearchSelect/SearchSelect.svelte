@@ -32,6 +32,8 @@
     contentClass?: string;
     /** A row that is more than a label and a hint. */
     row?: Snippet<[SearchSelectOption]>;
+    /** The chosen option as a chip in the field. The text of the field is then the search only. */
+    chip?: Snippet<[SearchSelectOption]>;
   }
 
   let {
@@ -48,6 +50,7 @@
     class: className,
     contentClass,
     row,
+    chip,
   }: Props = $props();
 
   const uid = $props.id();
@@ -63,7 +66,10 @@
       matchesSearch(search ?? '', [option.label, option.hint, ...(option.keywords ?? [])]),
     ),
   );
-  const text = $derived((open ? search : null) ?? selected?.label ?? '');
+  const chipped = $derived(chip !== undefined && selected !== undefined);
+  const text = $derived(
+    chipped ? (open ? (search ?? '') : '') : ((open ? search : null) ?? selected?.label ?? ''),
+  );
   const emptyLine = $derived.by(() => {
     if (loading) return t(messages.loading);
     return options.length === 0 && emptyText ? emptyText : t(messages.noMatch);
@@ -93,13 +99,27 @@
 </script>
 
 <Combobox type="single" allowDeselect={false} bind:value {onValueChange} bind:open {onOpenChange} {disabled}>
-  <div data-slot="search-select" class={cn('relative w-full', className)}>
+  <div
+    data-slot="search-select"
+    class={cn(
+      'relative w-full',
+      chipped &&
+        'flex items-center gap-1 rounded-lg border border-border pl-1 shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50',
+      className,
+    )}
+  >
+    {#if chip && selected}
+      {@render chip(selected)}
+    {/if}
     <ComboboxInput
       {id}
       value={text}
-      class="pr-8"
+      class={cn(
+        'pr-8',
+        chipped && 'h-[30px] min-w-16 flex-1 rounded-none border-0 pl-1 shadow-none focus-visible:ring-0',
+      )}
       {focusOnMount}
-      {placeholder}
+      placeholder={chipped ? undefined : placeholder}
       aria-label={ariaLabel}
       aria-haspopup="listbox"
       aria-controls={open ? listId : undefined}

@@ -2,23 +2,25 @@
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import LockIcon from '@lucide/svelte/icons/lock';
   import PencilIcon from '@lucide/svelte/icons/pencil';
-  import UserRoundIcon from '@lucide/svelte/icons/user-round';
   import { t } from '@scylla/ui/i18n';
   import { TableCell, TableRow } from '@scylla/ui/primitives';
   import type { RoleEntity } from '../../../domain/entities/role.entity.ts';
   import type { CatalogArea } from '../../../domain/structs/catalog.struct.ts';
   import { levelLabels, rolesMessages } from '../../messages/roles.messages.ts';
   import { roleDescription, roleName } from '../../role-labels.ts';
+  import HolderStack from './HolderStack.svelte';
   import LevelTile from './LevelTile.svelte';
   import RolePermissions from './RolePermissions/RolePermissions.svelte';
 
   interface Props {
     role: RoleEntity;
     areas: readonly CatalogArea[];
+    workspaceId?: string;
+    canSeeHolders: boolean;
     onOpen: (key: string) => void;
   }
 
-  let { role, areas, onOpen }: Props = $props();
+  let { role, areas, workspaceId, canSeeHolders, onOpen }: Props = $props();
 
   const description = $derived(roleDescription(role));
 </script>
@@ -65,10 +67,7 @@
   </TableCell>
   <TableCell class="py-3 pl-0"><RolePermissions {role} {areas} /></TableCell>
   <TableCell class="py-3 pl-0">
-    <span class="flex items-center gap-[5px] text-muted-foreground tabular-nums">
-      <UserRoundIcon class="size-3.5" />
-      {role.holderCount}
-    </span>
+    <HolderStack {role} {workspaceId} {canSeeHolders} />
   </TableCell>
   <TableCell class="py-3 pl-0 text-muted-foreground">
     <ChevronRightIcon class="size-4" />

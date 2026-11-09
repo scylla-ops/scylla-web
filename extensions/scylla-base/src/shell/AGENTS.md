@@ -217,8 +217,8 @@ page-level rule (every page in the shell declares a `permission`) is in
   reads it for the auth header, `AuthGuard` reads it to redirect. Change all three at once.
   The shell never writes the session: the menu calls `signOut` and the error report calls
   `closeSession`, both from `features/login`.
-- `NavUser` shows the person with `UserIdentity`, imported **by path**
-  (`@shared/presentation/ui/data-display/UserIdentity/UserIdentity.svelte`): the barrel of
+- `NavUser` shows the person with `IdentityAvatar`, imported **by path**
+  (`@shared/presentation/ui/data-display/IdentityAvatar/IdentityAvatar.svelte`): the barrel of
   `@shared/presentation/ui` re-exports the other shared components, and this file is in the entry
   chunk. "Who am I" is `userQueries.me`, never `localStorage.userId`.
 - After the first workspace, the shell opens its dashboard (`workspaceUrl(name)`).

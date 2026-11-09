@@ -22,6 +22,7 @@ const member = (id: string, name: string, roles: MemberRoleEntity[]): MemberEnti
   actorKind: 'user',
   displayName: name,
   handle: name.toLowerCase(),
+  runner: false,
   roles,
 });
 
@@ -84,7 +85,11 @@ beforeEach(() => {
         roleName: 'Project editor',
       }),
     ]),
-    { ...member('app-1', 'deploy-bot', [role({ role: 'runner', roleKey: 'agent' })]), actorKind: 'app' },
+    {
+      ...member('app-1', 'deploy-bot', [role({ role: 'runner', roleKey: 'agent' })]),
+      actorKind: 'app',
+      runner: true,
+    },
   ]);
   getAll = vi.fn().mockResolvedValue({ items: [] });
   grantRole = vi.fn<RoleChange>().mockResolvedValue(undefined);
@@ -92,7 +97,12 @@ beforeEach(() => {
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
-    user: { userRepository: { getAll } },
+    user: {
+      userRepository: {
+        getAll,
+        getMe: vi.fn().mockResolvedValue({ id: 'user-1', username: 'alice' }),
+      },
+    },
     access: {
       accessRepository: {
         listMembers,
@@ -162,6 +172,20 @@ describe('WorkspaceMembersPage', () => {
 
     expect(await screen.findByText('deploy-bot')).toBeInTheDocument();
     expect(screen.queryByText('Alice')).not.toBeInTheDocument();
+  });
+
+  it('names an agent as an agent, and marks the reader with You', async () => {
+    render(WorkspaceMembersPage);
+
+    const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
+    expect(await within(alice).findByText('You')).toBeInTheDocument();
+    const bob = screen.getByText('Bob').closest('tr') as HTMLElement;
+    expect(within(bob).queryByText('You')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Apps 1' }));
+
+    const bot = (await screen.findByText('deploy-bot')).closest('td') as HTMLElement;
+    expect(within(bot).getByText('Agent')).toBeInTheDocument();
   });
 
   it('filters the list with the search', async () => {

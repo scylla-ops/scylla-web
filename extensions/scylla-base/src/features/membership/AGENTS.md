@@ -64,7 +64,8 @@ presentation/
                                      buildWorkspaceMembers / buildProjectMembers (pure)
   presenters/assignable-roles.presenter.ts   grantable → AssignableRole (no apps roles), and
                                      the grouping by owner the pickers render
-  presenters/actor-choice.presenter.ts   a row of ChooseActorRow: the second line and the search text
+  presenters/actor-choice.presenter.ts   a row of ChooseActorRow: the kind, the second line and the
+                                     search text (`memberChoice`, `appChoice`)
   ui/WorkspaceMembers.page.svelte, ProjectMembers.page.svelte
   ui/scope-membership.state.svelte.ts   grants → members, plus grant/revoke/refresh (a ViewModel
                                         of both pages)
@@ -135,7 +136,7 @@ Sidebar: one entry only — section `workspace`, order `30`, icon `UsersRound`, 
 - **A member is a derived view of grants, not a stored list.** `buildWorkspaceMembers` and
   `buildProjectMembers` fold grants + identities into `ScopeMember[]`. They are pure functions
   in `domain/` — put membership logic there, not in a component or a `useMemo`.
-- **A member shows with `UserIdentity`** (`@shared/presentation/ui`), never with a local avatar
+- **A member shows with `Identity`** (`@shared/presentation/ui`), never with a local avatar
   and name. The pages build one `userId → UserSummary` map: the members lists, and on the
   workspace page the user directory over them when `LIST_USERS` allows it (display name and
   email). A member that no list knows shows as "Deleted user", never by its id; on the project
@@ -143,6 +144,16 @@ Sidebar: one entry only — section `workspace`, order `30`, icon `UsersRound`, 
   through the workspace is then simply not named. The project page waits for the
   workspace members and grants before it lists anyone, so no name flashes. A name in a
   sentence (a confirmation, a toast, a select) is `userName(user)`.
+- **A row gives its `kind` to `Identity`**: `identityKindOf(member)` makes the `actorKind` and
+  the `runner` flag of the server into a person, an agent or another app. The workspace page
+  marks the reader with "You" (`selfId`, from `userQueries.me`).
+- **The page of a member starts with `Identity format="header"`**: the name is its `h1`, and
+  the badge tells "You", "Agent", "App" or the handle.
+- **A picker shows the identity too.** `ChooseActorRow` gives `SearchSelect` a `row` (an
+  `Identity format="cell"`, then the email or the handle of a person) and a `chip` (the choice,
+  as `Identity format="chip"` with its "x"). An app choice is `appChoice(app)`: `runner` makes
+  it an agent. The people field of `AddMembersDialog` shows a person of the directory the same
+  way. An email chip has no avatar: it is an invitation, not an actor yet.
 - **`MemberRoleOrigin` is the load-bearing distinction.** `DIRECT` = granted at this scope;
   `INHERITED` = granted at the workspace and visible on the project. Only `DIRECT` roles are
   revocable here — revoking an inherited role means going to the workspace. Never render the

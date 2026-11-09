@@ -20,7 +20,7 @@
     TableRow,
   } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
-  import { UserIdentity } from '@shared/presentation/ui';
+  import { Identity } from '@shared/presentation/ui';
   import {
     membershipPoints,
     type ProjectMembersContext,
@@ -32,7 +32,7 @@
     membershipMessages,
     projectRuleTitle,
   } from '../../messages/membership.messages.ts';
-  import { memberChoice } from '../../presenters/actor-choice.presenter.ts';
+  import { appChoice, memberChoice } from '../../presenters/actor-choice.presenter.ts';
   import { memberRoleName } from '../../presenters/member-role-name.ts';
   import { buildProjectMemberRows, memberProfile } from '../../presenters/member-rows.presenter.ts';
   import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
@@ -83,7 +83,7 @@
       .map(row => memberChoice(row, usersQuery.data?.items.find(user => user.id === row.actorId))),
     ...(appsQuery.data ?? [])
       .filter(app => !rows.some(row => row.actorId === app.id))
-      .map(app => ({ id: app.id, name: app.name })),
+      .map(appChoice),
   ]);
 
   const startChange = (id: string, name: string) => {
@@ -166,9 +166,7 @@
             {#each rows as row (row.actorId)}
               <TableRow class={row.inheritedOnly ? '[&>td]:bg-muted/50' : ''}>
                 <TableCell>
-                  <UserIdentity
-                    user={memberProfile(row)}
-                  />
+                  <Identity profile={memberProfile(row)} kind={row.kind} />
                 </TableCell>
                 <TableCell class="whitespace-normal">
                   <div class="flex flex-wrap gap-1.5">

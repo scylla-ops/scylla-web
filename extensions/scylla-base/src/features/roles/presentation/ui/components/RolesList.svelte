@@ -25,7 +25,7 @@
     type RoleSort,
   } from '../../presenters/roles-list.presenter.ts';
   import { roleName } from '../../role-labels.ts';
-  import { roleQueries } from '../../roles.queries.ts';
+  import { canSeeRoleHolders, roleQueries } from '../../roles.queries.ts';
   import RoleRow from './RoleRow.svelte';
   import RolesTableHeader from './RolesTableHeader.svelte';
 
@@ -41,6 +41,7 @@
   let sort = $state<RoleSort>('none');
 
   const areas = $derived(catalogQuery.data ?? []);
+  const canSeeHolders = $derived(canSeeRoleHolders());
   const groups = $derived(
     groupRoles(rolesQuery.data ?? [], filter, search).map(group => ({
       ...group,
@@ -92,7 +93,7 @@
               </TableCell>
             </TableRow>
             {#each group.roles as role (role.key)}
-              <RoleRow {role} {areas} onOpen={open} />
+              <RoleRow {role} {areas} {canSeeHolders} onOpen={open} />
             {/each}
           </TableBody>
         {/each}

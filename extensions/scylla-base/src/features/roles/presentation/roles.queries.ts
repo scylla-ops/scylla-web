@@ -33,6 +33,7 @@ export const roleQueries = {
           : can(Permission.LIST_ROLES)),
     }),
 
+  /** The caller gives `enabled`: read `canSeeRoleHolders`. */
   holders: (key: string, workspaceId?: string, options: { enabled?: boolean } = {}) =>
     queryOptions({
       queryKey: [ROLES_ROOT, 'holders', key, workspaceId ?? 'instance'] as const,
@@ -46,6 +47,12 @@ export const roleQueries = {
       queryFn: () => repository().get(key, workspaceId),
     }),
 };
+
+/** The holders of a role: a reader of the members of the workspace, or of the instance roles. */
+export const canSeeRoleHolders = (workspaceId?: string): boolean =>
+  workspaceId
+    ? can(Permission.LIST_WORKSPACE_MEMBERS, { workspaceId })
+    : can(Permission.LIST_ROLES);
 
 const invalidateRoles = () => getQueryClient().invalidateQueries({ queryKey: [ROLES_ROOT] });
 

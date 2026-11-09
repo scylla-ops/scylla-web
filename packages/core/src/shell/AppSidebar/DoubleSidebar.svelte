@@ -1,6 +1,7 @@
 <script lang="ts">
   import { untrack, type Component } from 'svelte';
   import { navigateTo, routePathname, type ShellContributions } from '@scylla/core-sdk';
+  import { cn } from '@scylla/ui/utils';
   import type {
     NavItem,
     NavSection,
@@ -103,7 +104,7 @@
     openWidth={sidebarWidth}
     onToggle={() => (railOpen = !railOpen)}
     onOpenItem={openItem}
-    class="absolute top-17 bottom-0 left-0 z-20"
+    class={cn('absolute top-17 bottom-0 left-0 z-20', width.dragging && 'transition-none')}
   />
   <SecondSidebar
     id={SECOND_SIDEBAR_ID}
@@ -118,7 +119,7 @@
     <SecondSidebarHandle
       {width}
       controls={SECOND_SIDEBAR_ID}
-      class="absolute top-17 -right-1.5 bottom-0 z-10"
+      class="absolute top-17 -right-1.5 bottom-0 z-30"
     />
   {/if}
 </div>

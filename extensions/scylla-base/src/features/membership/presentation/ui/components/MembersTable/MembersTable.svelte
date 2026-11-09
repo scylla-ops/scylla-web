@@ -16,7 +16,7 @@
     TableHeader,
     TableRow,
   } from '@scylla/ui/primitives';
-  import { UserIdentity } from '@shared/presentation/ui';
+  import { Identity } from '@shared/presentation/ui';
   import type { UserSummary } from '@base/features/user';
   import { membershipMessages } from '../../../messages/membership.messages.ts';
   import { allProjectsRoleLabel, memberRoleName } from '../../../presenters/member-role-name.ts';
@@ -26,13 +26,16 @@
     rows: readonly MemberRow[];
     isLoading: boolean;
     userFor: (id: string) => UserSummary | undefined;
+    /** The person who reads the page. */
+    selfId?: string;
     canManage: boolean;
     onOpen: (row: MemberRow) => void;
     onChangeRoles: (row: MemberRow) => void;
     onRemove: (row: MemberRow) => void;
   }
 
-  let { rows, isLoading, userFor, canManage, onOpen, onChangeRoles, onRemove }: Props = $props();
+  let { rows, isLoading, userFor, selfId, canManage, onOpen, onChangeRoles, onRemove }: Props =
+    $props();
 
   const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
   const chipClass =
@@ -66,8 +69,10 @@
           <TableRow>
             <TableCell>
               <button type="button" class="text-left" onclick={() => onOpen(row)}>
-                <UserIdentity
-                  user={userFor(row.actorId) ?? memberProfile(row)}
+                <Identity
+                  profile={userFor(row.actorId) ?? memberProfile(row)}
+                  kind={row.kind}
+                  self={row.actorId === selfId}
                 />
               </button>
             </TableCell>
