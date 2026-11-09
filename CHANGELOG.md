@@ -332,6 +332,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   `Identity`, shows each actor with its own avatar: a circle with initials for a person, a square
   with a bot for an agent, a square with blocks for another app. The card "About this role" no
   longer shows a holder as a plain name.
+- The pickers of a member, the page of a member and the list of the roles show each actor with its
+  avatar and its kind. A picked member is a chip with a remove button. The Holders column of the
+  roles shows the first holders as a stack of avatars. `Identity` has the formats `mention`, `chip`
+  and `header`, and `SearchSelect` has a `chip` snippet for the chosen option.
 
 ## [0.6.0] - 2026-11-01
 

@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
 import { render } from '@test/render.ts';
 import Identity from './Identity.svelte';
 
@@ -77,5 +78,90 @@ describe('Identity', () => {
 
     expect(screen.getByText('You')).toBeInTheDocument();
     expect(avatarOf(container)).toHaveAttribute('data-kind', 'self');
+  });
+});
+
+describe('Identity in a sentence and in a chip', () => {
+  it('names the reader "You" in a sentence, with the small avatar of a person', () => {
+    const { container } = render(Identity, {
+      profile: { username: 'seb', displayName: 'Sébastien Martin' },
+      self: true,
+      format: 'mention',
+    });
+
+    expect(screen.getByText('You')).toBeInTheDocument();
+    expect(screen.queryByText('Sébastien Martin')).not.toBeInTheDocument();
+    expect(avatarOf(container)).toHaveAttribute('data-kind', 'self');
+    expect(avatarOf(container)).toHaveTextContent(/^S$/);
+  });
+
+  it('shows the machine in a sentence with its own avatar', () => {
+    const { container } = render(Identity, {
+      profile: { username: '', displayName: 'build-agent-01' },
+      kind: 'agent',
+      format: 'mention',
+    });
+
+    expect(screen.getByText('build-agent-01')).toBeInTheDocument();
+    expect(avatarOf(container)).toHaveAttribute('data-kind', 'agent');
+  });
+
+  it('removes a chip with its button, named after the actor', async () => {
+    const onRemove = vi.fn();
+    const { container } = render(Identity, {
+      profile: { username: '', displayName: 'build-agent-01' },
+      kind: 'agent',
+      format: 'chip',
+      onRemove,
+    });
+
+    expect(avatarOf(container)).toHaveAttribute('data-kind', 'agent');
+    await userEvent.click(screen.getByRole('button', { name: 'Remove build-agent-01' }));
+
+    expect(onRemove).toHaveBeenCalledOnce();
+  });
+
+  it('has no remove button on a chip that cannot go', () => {
+    render(Identity, { profile: { username: 'ada' }, format: 'chip' });
+
+    expect(screen.getByText('ada')).toBeInTheDocument();
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+});
+
+describe('Identity as the header of a page', () => {
+  it('gives the page its title, the handle and the email of a person', () => {
+    const { container } = render(Identity, {
+      profile: { username: 'marie', displayName: 'Marie Dupont', email: 'marie@acme.io' },
+      format: 'header',
+    });
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Marie Dupont' })).toBeInTheDocument();
+    expect(screen.getByText('@marie')).toBeInTheDocument();
+    expect(screen.getByText('marie@acme.io')).toBeInTheDocument();
+    expect(avatarOf(container)).toHaveClass('size-12');
+  });
+
+  it('names an agent as an agent in its badge', () => {
+    const { container } = render(Identity, {
+      profile: { username: '', displayName: 'build-agent-01' },
+      kind: 'agent',
+      format: 'header',
+    });
+
+    expect(screen.getByRole('heading', { level: 1, name: 'build-agent-01' })).toBeInTheDocument();
+    expect(screen.getByText('Agent')).toBeInTheDocument();
+    expect(avatarOf(container)).toHaveAttribute('data-kind', 'agent');
+  });
+
+  it('marks the reader with "You" in place of the handle', () => {
+    render(Identity, {
+      profile: { username: 'seb', displayName: 'Sébastien Martin' },
+      self: true,
+      format: 'header',
+    });
+
+    expect(screen.getByText('You')).toBeInTheDocument();
+    expect(screen.queryByText('@seb')).not.toBeInTheDocument();
   });
 });

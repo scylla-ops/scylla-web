@@ -16,7 +16,7 @@
     self?: boolean;
     /** An agent with an open stream: a dot on the corner. */
     online?: boolean;
-    size?: 24 | 32 | 48 | 72;
+    size?: 16 | 24 | 32 | 48 | 72;
     class?: string;
   }
 
@@ -30,6 +30,7 @@
   }: Props = $props();
 
   const SIZES = {
+    16: { box: 'size-4 text-[8px]', icon: 'size-2.5', dot: 'size-1.5' },
     24: { box: 'size-6 text-[10px]', icon: 'size-3.5', dot: 'size-2' },
     32: { box: 'size-8 text-xs', icon: 'size-4', dot: 'size-2.5' },
     48: { box: 'size-12 text-base', icon: 'size-6', dot: 'size-3' },
@@ -46,6 +47,10 @@
   };
 
   const look = $derived(!profile ? 'missing' : kind === 'person' && self ? 'self' : kind);
+  /** A 16 px avatar has room for one letter. */
+  const initials = $derived(
+    profile ? [...userInitials(profile)].slice(0, size === 16 ? 1 : 2).join('') : '',
+  );
 </script>
 
 <span
@@ -72,7 +77,7 @@
   {:else if look === 'app'}
     <BlocksIcon class={SIZES[size].icon} />
   {:else if profile}
-    {userInitials(profile)}
+    {initials}
   {:else}
     ?
   {/if}

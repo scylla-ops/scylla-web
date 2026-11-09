@@ -20,7 +20,7 @@
     membershipMessages,
     workspaceBlurb,
   } from '../../messages/membership.messages.ts';
-  import type { ActorChoice } from '../../presenters/actor-choice.presenter.ts';
+  import { appChoice, type ActorChoice } from '../../presenters/actor-choice.presenter.ts';
   import {
     buildMemberRows,
     filterMemberRows,
@@ -73,7 +73,7 @@
   const linked = new URLSearchParams(currentSearch()).get('addApp');
   if (linked) {
     tab = 'apps';
-    addingApp = { id: linked, name: t(linkedApp) };
+    addingApp = { id: linked, name: t(linkedApp), kind: 'app' };
   }
 
   const appsQuery = createQuery(() => {
@@ -97,7 +97,7 @@
   const appChoices = $derived(
     (appsQuery.data ?? [])
       .filter(app => !rows.some(row => row.actorId === app.id))
-      .map(app => ({ id: app.id, name: app.name })),
+      .map(appChoice),
   );
 
   const isOwner = (row: MemberRow) => row.workspaceRoles.some(role => role.roleKey === OWNER_KEY);

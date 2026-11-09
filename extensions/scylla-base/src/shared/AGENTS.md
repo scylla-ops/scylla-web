@@ -115,10 +115,16 @@ never an id. `missing="unknown"` shows "Unknown user" instead, for a list that c
 user (a grant never outlives its user, so a holder that the page cannot look up is not deleted).
 `userName(user)` gives the same name as a string, for a sentence or a select.
 
-`format="row"` (the default) is the 32 px avatar and two lines, for a table. `format="cell"` is
-the 24 px avatar and one line, for a short list such as the holders of a role. `IdentityAvatar`
-is the avatar alone, at 24, 32, 48 (the header of a page) or 72 px (a card). `online` puts a dot
-on an agent. The prop type, `UserIdentityProfile`, is structural: `shared/` cannot import
+| `format` | Avatar | For |
+|---|---|---|
+| `mention` | 16 px | A name in a sentence. The reader is "You". |
+| `chip` | 16 px, in a pill | A picked actor in a field. With `onRemove`, an "x" button named "Remove <name>". The reader is "You". |
+| `cell` | 24 px | One line: a short list (the holders of a role) or an option of a picker. |
+| `row` (the default) | 32 px | Two lines, for a table. |
+| `header` | 48 px | The `h1` of a detail page, with a badge: "You", the kind of a machine, else `@username`. The email of a person under it. |
+
+`IdentityAvatar` is the avatar alone, at 16 (one letter), 24 (a stack of avatars), 32, 48 or
+72 px (a card). `online` puts a dot on an agent. The prop type, `UserIdentityProfile`, is structural: `shared/` cannot import
 `features/user`, and a `UserSummary` or a `UserEntity` of that module fits it. An app gives its
 name as `displayName` and an empty `username`.
 

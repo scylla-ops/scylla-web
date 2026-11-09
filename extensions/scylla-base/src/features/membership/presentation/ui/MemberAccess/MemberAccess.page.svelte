@@ -12,10 +12,12 @@
   } from '@base/features/access';
   import { projectQueries } from '@base/features/project';
   import { roleQueries } from '@base/features/roles';
+  import { userQueries } from '@base/features/user';
   import { ErrorState, ListSkeleton, SearchSelect } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { Button } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
+  import { Identity, identityKindOf } from '@shared/presentation/ui';
   import {
     effectiveHint,
     membershipMessages,
@@ -24,6 +26,7 @@
     workspaceOption,
   } from '../../messages/membership.messages.ts';
   import { memberRoleName } from '../../presenters/member-role-name.ts';
+  import { memberProfile } from '../../presenters/member-rows.presenter.ts';
   import { setMemberCrumbName } from '../../member-crumb.state.svelte.ts';
   import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
   import EffectiveAccessTable from '../components/EffectiveAccessTable/EffectiveAccessTable.svelte';
@@ -58,6 +61,7 @@
 
   const accessQuery = createQuery(() => accessQueries.memberAccess(actorId, object));
   const catalogQuery = createQuery(() => roleQueries.catalog());
+  const meQuery = createQuery(() => userQueries.me());
   const member = $derived(accessQuery.data?.member);
 
   const name = $derived(member?.displayName ?? '');
@@ -117,8 +121,13 @@
     <ErrorState message={t(membershipMessages.memberNotFound)} />
   {:else}
     <header class="flex items-start justify-between gap-6">
-      <div class="flex flex-col gap-2">
-        <h1>{name}</h1>
+      <div class="flex min-w-0 flex-col gap-3">
+        <Identity
+          format="header"
+          profile={memberProfile({ name, handle: member.handle })}
+          kind={identityKindOf(member)}
+          self={member.actorId === meQuery.data?.id}
+        />
         <p class="max-w-3xl text-sm text-muted-foreground">{t(whatCanDo(name))}</p>
       </div>
       {#if canManage}

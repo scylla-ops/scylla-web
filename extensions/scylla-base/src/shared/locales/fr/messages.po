@@ -321,6 +321,10 @@ msgstr "Lecture seule"
 msgid "Reads projects, pipelines, jobs and logs."
 msgstr "Lit les projets, pipelines, jobs et logs."
 
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:11
+msgid "Remove {name}"
+msgstr "Retirer {name}"
+
 #: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:13
 msgid "Revoked on {day}"
 msgstr "Révoquée le {day}"

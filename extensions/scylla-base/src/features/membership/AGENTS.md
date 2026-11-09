@@ -64,7 +64,8 @@ presentation/
                                      buildWorkspaceMembers / buildProjectMembers (pure)
   presenters/assignable-roles.presenter.ts   grantable → AssignableRole (no apps roles), and
                                      the grouping by owner the pickers render
-  presenters/actor-choice.presenter.ts   a row of ChooseActorRow: the second line and the search text
+  presenters/actor-choice.presenter.ts   a row of ChooseActorRow: the kind, the second line and the
+                                     search text (`memberChoice`, `appChoice`)
   ui/WorkspaceMembers.page.svelte, ProjectMembers.page.svelte
   ui/scope-membership.state.svelte.ts   grants → members, plus grant/revoke/refresh (a ViewModel
                                         of both pages)
@@ -146,6 +147,13 @@ Sidebar: one entry only — section `workspace`, order `30`, icon `UsersRound`, 
 - **A row gives its `kind` to `Identity`**: `identityKindOf(member)` makes the `actorKind` and
   the `runner` flag of the server into a person, an agent or another app. The workspace page
   marks the reader with "You" (`selfId`, from `userQueries.me`).
+- **The page of a member starts with `Identity format="header"`**: the name is its `h1`, and
+  the badge tells "You", "Agent", "App" or the handle.
+- **A picker shows the identity too.** `ChooseActorRow` gives `SearchSelect` a `row` (an
+  `Identity format="cell"`, then the email or the handle of a person) and a `chip` (the choice,
+  as `Identity format="chip"` with its "x"). An app choice is `appChoice(app)`: `runner` makes
+  it an agent. The people field of `AddMembersDialog` shows a person of the directory the same
+  way. An email chip has no avatar: it is an invitation, not an actor yet.
 - **`MemberRoleOrigin` is the load-bearing distinction.** `DIRECT` = granted at this scope;
   `INHERITED` = granted at the workspace and visible on the project. Only `DIRECT` roles are
   revocable here — revoking an inherited role means going to the workspace. Never render the

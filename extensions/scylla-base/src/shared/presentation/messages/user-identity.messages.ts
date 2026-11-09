@@ -7,3 +7,5 @@ export const userIdentityMessages = {
   app: msg`App`,
   you: msg`You`,
 };
+
+export const removeIdentity = (name: string) => msg`Remove ${name}`;

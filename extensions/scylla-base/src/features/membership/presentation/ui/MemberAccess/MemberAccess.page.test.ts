@@ -29,9 +29,12 @@ const bob: MemberEntity = {
 let teardown: Array<() => void> = [];
 let navigate: ReturnType<typeof installTestNavigator>['navigate'];
 let memberAccess: ReturnType<typeof vi.fn>;
+let current: MemberEntity | undefined;
+let me: { id: string; username: string };
 
 beforeEach(() => {
-  let current: MemberEntity | undefined = bob;
+  current = bob;
+  me = { id: 'user-1', username: 'alice' };
   const navigator = installTestNavigator({
     pathname: '/acme/access/members/user-2',
     params: { actorId: 'user-2' },
@@ -61,6 +64,7 @@ beforeEach(() => {
         list: vi.fn().mockResolvedValue([]),
       },
     },
+    user: { userRepository: { getMe: vi.fn(() => Promise.resolve(me)) } },
     project: {
       projectRepository: {
         lookup: vi.fn().mockResolvedValue({ items: [] }),
@@ -121,6 +125,32 @@ describe('MemberAccessPage', () => {
     await userEvent.keyboard('{Escape}');
 
     expect(navigate).toHaveBeenCalledWith('/acme/access/members', undefined);
+  });
+});
+
+describe('MemberAccess header', () => {
+  it('shows a person as the title of the page, with the handle', async () => {
+    render(MemberAccessPage);
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Bob' })).toBeInTheDocument();
+    expect(screen.getByText('@bob')).toBeInTheDocument();
+  });
+
+  it('shows an agent with the avatar and the badge of an agent', async () => {
+    current = { ...bob, actorKind: 'app', displayName: 'build-agent-01', handle: '', runner: true };
+    const { container } = render(MemberAccessPage);
+
+    const title = await screen.findByRole('heading', { level: 1, name: 'build-agent-01' });
+    expect(title.parentElement).toHaveTextContent('Agent');
+    expect(container.querySelector('header [data-kind]')).toHaveAttribute('data-kind', 'agent');
+  });
+
+  it('marks the reader with "You"', async () => {
+    me = { id: 'user-2', username: 'bob' };
+    render(MemberAccessPage);
+
+    await screen.findByRole('heading', { level: 1, name: 'Bob' });
+    expect(await screen.findByText('You')).toBeInTheDocument();
   });
 });
 

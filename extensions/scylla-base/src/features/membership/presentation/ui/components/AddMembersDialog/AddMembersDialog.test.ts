@@ -90,6 +90,21 @@ const ready = async () => {
   );
 };
 
+/** What a screen reader reads in a row of the list: the avatar is hidden. */
+const spokenText = (row: HTMLElement) => {
+  const copy = row.cloneNode(true) as HTMLElement;
+  copy.querySelectorAll('[aria-hidden="true"]').forEach(node => node.remove());
+  return copy.textContent.replace(/\s+/g, ' ').trim();
+};
+
+const findPerson = async (text: string) => {
+  const matches = (await screen.findAllByRole('option', { hidden: true })).filter(
+    row => spokenText(row) === text,
+  );
+  expect(matches).toHaveLength(1);
+  return matches[0];
+};
+
 beforeEach(() => {
   permissionsStore.setState({
     permissions: {
@@ -121,7 +136,7 @@ describe('AddMembersDialog', () => {
     await ready();
 
     await userEvent.type(screen.getByLabelText('People'), 'lina');
-    await userEvent.click(await findFloating('option', 'Lina Moreau lina@acme.dev'));
+    await userEvent.click(await findPerson('Lina Moreau lina@acme.dev'));
     await userEvent.click(screen.getByRole('button', { name: 'Add 1 member' }));
 
     await vi.waitFor(() =>
@@ -173,7 +188,7 @@ describe('AddMembersDialog', () => {
     await ready();
 
     await userEvent.type(screen.getByLabelText('People'), 'lina');
-    await userEvent.click(await findFloating('option', 'Lina Moreau lina@acme.dev'));
+    await userEvent.click(await findPerson('Lina Moreau lina@acme.dev'));
     await userEvent.click(screen.getByRole('combobox', { name: 'Workspace role' }));
     await userEvent.click(
       await findFloating(
@@ -199,7 +214,7 @@ describe('AddMembersDialog', () => {
     await screen.findByText('Add members to acme');
 
     await userEvent.type(screen.getByLabelText('People'), 'lina');
-    await userEvent.click(await findFloating('option', 'Lina Moreau lina@acme.dev'));
+    await userEvent.click(await findPerson('Lina Moreau lina@acme.dev'));
 
     expect(screen.getByRole('button', { name: 'Add 1 member' })).toBeDisabled();
   });
@@ -207,7 +222,7 @@ describe('AddMembersDialog', () => {
   describe('the people field', () => {
     const people = () => screen.getByRole<HTMLInputElement>('combobox', { name: 'People' });
     const rows = () =>
-      screen.queryAllByRole('option', { hidden: true }).map(row => row.textContent.trim());
+      screen.queryAllByRole('option', { hidden: true }).map(spokenText);
 
     it('shows the directory on a click, before any text', async () => {
       open(['pipelines.edit'], null, [lina, omar]);
@@ -215,7 +230,7 @@ describe('AddMembersDialog', () => {
 
       await userEvent.click(people());
 
-      await findFloating('option', 'Lina Moreau lina@acme.dev');
+      await findPerson('Lina Moreau lina@acme.dev');
       expect(rows()).toEqual(['Lina Moreau lina@acme.dev', 'Omar Haddad']);
     });
 
@@ -224,12 +239,25 @@ describe('AddMembersDialog', () => {
       await ready();
 
       await userEvent.type(people(), 'acme');
-      await findFloating('option', 'Lina Moreau lina@acme.dev');
+      await findPerson('Lina Moreau lina@acme.dev');
       expect(rows()).toEqual(['Lina Moreau lina@acme.dev']);
 
       await userEvent.clear(people());
       await userEvent.type(people(), 'omar');
-      await findFloating('option', 'Omár Haddad');
+      await findPerson('Omár Haddad');
+    });
+
+    it('shows a person of the list and of a chip with the avatar of a person', async () => {
+      open(['pipelines.edit']);
+      await ready();
+
+      await userEvent.click(people());
+      const row = await findPerson('Lina Moreau lina@acme.dev');
+      expect(row.querySelector('[data-kind]')).toHaveAttribute('data-kind', 'person');
+      await userEvent.click(row);
+
+      const remove = screen.getByRole('button', { name: 'Remove Lina Moreau' });
+      expect(remove.parentElement?.querySelector('[data-kind]')).toHaveTextContent(/^L$/);
     });
 
     it('adds the highlighted person on Enter, and clears the text', async () => {
@@ -239,7 +267,7 @@ describe('AddMembersDialog', () => {
       await userEvent.type(people(), 'lin{Enter}');
 
       expect(screen.getByRole('button', { name: 'Add 1 member' })).toBeEnabled();
-      expect(screen.getByRole('button', { name: 'Remove this person' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Remove Lina Moreau' })).toBeInTheDocument();
       expect(people().value).toBe('');
       await waitFor(() => expect(people()).toHaveAttribute('aria-expanded', 'false'));
     });
@@ -250,11 +278,11 @@ describe('AddMembersDialog', () => {
 
       await userEvent.type(people(), 'lin{Enter}');
       await userEvent.click(people());
-      await findFloating('option', 'Omar Haddad');
+      await findPerson('Omar Haddad');
       expect(rows()).toEqual(['Omar Haddad']);
 
       await userEvent.keyboard('{Escape}');
-      await userEvent.click(screen.getByRole('button', { name: 'Remove this person' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Remove Lina Moreau' }));
       await userEvent.type(people(), 'lin{Enter}');
 
       expect(screen.getByRole('button', { name: 'Add 1 member' })).toBeEnabled();
@@ -280,7 +308,7 @@ describe('AddMembersDialog', () => {
 
       await userEvent.keyboard('lin');
 
-      await findFloating('option', 'Lina Moreau lina@acme.dev');
+      await findPerson('Lina Moreau lina@acme.dev');
     });
 
     it('closes only the list on Escape, and then Enter takes the text', async () => {
@@ -288,7 +316,7 @@ describe('AddMembersDialog', () => {
       await ready();
 
       await userEvent.type(people(), 'lina@acme.dev');
-      await findFloating('option', 'Lina Moreau lina@acme.dev.fr');
+      await findPerson('Lina Moreau lina@acme.dev.fr');
       await userEvent.keyboard('{Escape}');
 
       await waitFor(() => expect(people()).toHaveAttribute('aria-expanded', 'false'));

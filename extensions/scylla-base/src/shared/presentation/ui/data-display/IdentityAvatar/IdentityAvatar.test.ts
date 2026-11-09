@@ -30,3 +30,17 @@ describe('IdentityAvatar', () => {
     expect(container.querySelector('[data-kind]')).toHaveAttribute('data-kind', 'app');
   });
 });
+
+describe('IdentityAvatar at 16 px', () => {
+  it('keeps one letter of a person, and the icon of a machine', () => {
+    const person = render(IdentityAvatar, {
+      profile: { username: 'ada', displayName: 'Ada Lovelace' },
+      size: 16,
+    });
+    const agent = render(IdentityAvatar, { profile: machine, kind: 'agent', size: 16 });
+
+    expect(person.container.querySelector('[data-kind]')).toHaveTextContent(/^A$/);
+    expect(person.container.querySelector('[data-kind]')).toHaveClass('size-4');
+    expect(agent.container.querySelector('svg')).toBeInTheDocument();
+  });
+});

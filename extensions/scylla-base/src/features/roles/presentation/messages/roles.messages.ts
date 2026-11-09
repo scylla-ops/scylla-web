@@ -36,6 +36,9 @@ export const holdersTotal = (count: number) => msg`Holders: ${count}`;
 
 export const andMore = (count: number) => msg`and ${count} more`;
 
+export const holderCount = (count: number) =>
+  msg`${plural(count, { one: '# holder', other: '# holders' })}`;
+
 export const morePermissions = (count: number) =>
   msg`${plural(count, { one: '# more permission', other: '# more permissions' })}`;
 
