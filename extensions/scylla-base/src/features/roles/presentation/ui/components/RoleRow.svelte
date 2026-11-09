@@ -8,7 +8,7 @@
   import type { CatalogArea } from '../../../domain/structs/catalog.struct.ts';
   import { levelLabels, rolesMessages } from '../../messages/roles.messages.ts';
   import { roleDescription, roleName } from '../../role-labels.ts';
-  import HolderStack from './HolderStack.svelte';
+  import HolderStack from './HolderStack/HolderStack.svelte';
   import LevelTile from './LevelTile.svelte';
   import RolePermissions from './RolePermissions/RolePermissions.svelte';
 

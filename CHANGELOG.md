@@ -358,6 +358,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   that the role cannot open. The dashboard hides the pipelines and the runs, the agents hide their
   stats, and the editor of a pipeline asks for the secrets only with their permission. A cell of the
   role editor tells on hover what a click on it also checks.
+- In the roles list, the Holders cell opens a card on hover and on keyboard focus. The card gives
+  the number of people, agents and apps, and at most six holders, each with the workspace or the
+  projects where it has the role. A holder and "See all members" open the page of the members. A
+  reader who cannot see the members sees only the count, as before.
 
 ## [0.6.0] - 2026-11-01
 

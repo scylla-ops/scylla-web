@@ -87,6 +87,7 @@ catalogs of this package register themselves.
 | Translating | `t()` from `@scylla/ui/i18n`, over a `*.messages.ts` |
 | A page transition | `PageTransition` — the core's router already wraps every page in it |
 | Panels the user can resize | `ResizablePaneGroup`, `ResizablePane`, `ResizableHandle` (`@scylla/ui/primitives`, on paneforge). See "`resizable`" below |
+| A card that opens on hover and holds links | `HoverCard`, `HoverCardTrigger`, `HoverCardContent` (bits-ui `LinkPreview`). A `Tooltip` holds text only: it must not hold a link. See "`hover-card`" below |
 
 ## Forms: the app checks the values, not the browser
 
@@ -172,6 +173,17 @@ peer dependency, like bits-ui). `ResizablePaneGroup` and `ResizableHandle` are w
   (200 ms) when it collapses, expands or changes size, but not while a pointer drags a handle
   (`data-active="pointer"` on the handle, read with `:has()`), so the drag follows the pointer.
   A pane that collapses during a drag still shrinks smoothly. `motion-reduce` removes it.
+
+**`hover-card`** (`primitives/hover-card/`) is on `LinkPreview` of bits-ui, the name that bits-ui
+gives to the hover card of Radix. `HoverCard` and `HoverCardTrigger` are aliased, `HoverCardContent`
+is a wrapper in a portal.
+
+- The trigger is an `<a>`. Give it your element with the `child` snippet, for example a `<button>`.
+  The trigger has `aria-expanded` and `data-state="open"` while the card is open.
+- The card opens on hover and on a focus from the keyboard, after `openDelay` (700 ms by default).
+- As in Radix, the card is for a pointer. It is at the end of `<body>`, so Tab from the trigger
+  does not go into it, and it closes when the trigger loses the focus. A keyboard reads the card,
+  but does not use its links: put each link also on a page that a keyboard can open.
 
 The sidebar (`Sidebar*`, `setSidebar` / `getSidebar`) keeps its open state in a Svelte context
 that `SidebarProvider` creates. `sidebar.state.svelte.ts` holds it; the mobile layout uses the

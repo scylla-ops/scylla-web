@@ -9,6 +9,7 @@ import {
   Combobox as ComboboxPrimitive,
   Dialog as DialogPrimitive,
   DropdownMenu as DropdownMenuPrimitive,
+  LinkPreview as HoverCardPrimitive,
   Popover as PopoverPrimitive,
   Select as SelectPrimitive,
 } from 'bits-ui';
@@ -65,6 +66,11 @@ export { default as AlertDialogTitle } from './alert-dialog/alert-dialog-title.s
 export const Popover = PopoverPrimitive.Root;
 export const PopoverTrigger = PopoverPrimitive.Trigger;
 export { default as PopoverContent } from './popover/popover-content.svelte';
+
+// shadcn/ui's hover card is Radix's; bits-ui names it `LinkPreview`.
+export const HoverCard = HoverCardPrimitive.Root;
+export const HoverCardTrigger = HoverCardPrimitive.Trigger;
+export { default as HoverCardContent } from './hover-card/hover-card-content.svelte';
 
 export { default as Checkbox } from './checkbox/checkbox.svelte';
 
