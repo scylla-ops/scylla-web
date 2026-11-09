@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { msg } from '@lingui/core/macro';
 import type { AccessPolicy, RoutePermission, ShellContributions } from '@scylla/core-sdk';
 import { installTestNavigator } from '@test/navigator.ts';
-import { findTooltip, queryTooltip } from '@test/render.ts';
+import { findFloating, findTooltip, queryTooltip } from '@test/render.ts';
 import { testPermission } from '../../routing/__test__/test-permission.fixture.ts';
 import type { NavEntry } from '../../routing/compilation/nav-entries.ts';
 import type { ShellConfig } from '../shell-config.ts';
@@ -12,6 +12,7 @@ import Badge from '../__test__/Badge.fixture.svelte';
 import Stub from '../__test__/Stub.fixture.svelte';
 import AppSidebarFixture from './AppSidebar.fixture.svelte';
 import AppSidebarSheetFixture from './AppSidebarSheet.fixture.svelte';
+import RailMenu from './RailMenu.fixture.svelte';
 
 const LIST_SECRETS = testPermission('LIST_SECRETS');
 
@@ -178,7 +179,7 @@ describe('the rail', () => {
     expect(rail).toHaveAttribute('data-state', 'collapsed');
   });
 
-  it('does nothing on a click between or beside its rows, where the cursor does not change', async () => {
+  it('does not open on a click between or beside its rows, where the cursor does not change', async () => {
     const members = entry({
       title: msg`Members`,
       url: 'members',
@@ -200,10 +201,28 @@ describe('the rail', () => {
       freeRoomOf(),
       within(rail).getByRole('button', { name: 'Toggle Sidebar' }),
     ]);
+  });
 
-    await fireEvent.click(freeRoomOf());
-    for (const neutral of [rows, column, rail]) await fireEvent.click(neutral);
-    expect(rail).toHaveAttribute('data-state', 'expanded');
+  it('closes on a click anywhere but its free room and its separator, also on the logo or between its rows', async () => {
+    const contributions: ShellContributions[] = [
+      { linkParams: () => ({ workspaceSlug: 'acme-corp' }), brand: Stub, sidebarFooter: [Stub] },
+    ];
+    render(AppSidebarFixture, { config: configWith({ contributions }) });
+    const rail = railOf();
+    const rows = within(rail).getByRole('button', { name: /Secrets/ }).parentElement;
+    const column = rows?.parentElement;
+    const band = document.querySelector<HTMLElement>('[data-slot="sidebar-brand"]');
+    if (!rows || !column || !band) throw new Error('no column of rows or no brand band');
+    const logo = within(band).getByText('stub');
+    const footer = within(rail).getByText('stub');
+
+    for (const elsewhere of [logo, rows, column, rail, footer, document.body]) {
+      await fireEvent.click(freeRoomOf());
+      expect(rail).toHaveAttribute('data-state', 'expanded');
+
+      await fireEvent.click(elsewhere);
+      expect(rail).toHaveAttribute('data-state', 'collapsed');
+    }
   });
 
   it('opens and closes on a click on its separator, whose cursor shows the direction', async () => {
@@ -316,9 +335,26 @@ describe('the rail', () => {
 
     await fireEvent.click(freeRoomOf());
     await fireEvent.pointerDown(document.body);
+    await fireEvent.click(document.body);
     await fireEvent.keyDown(window, { key: 'Escape' });
 
     expect(rail).toHaveAttribute('data-state', 'expanded');
+  });
+
+  it('stays open on the click that opens one of its menus, and closes on a choice in it', async () => {
+    const contributions: ShellContributions[] = [
+      { linkParams: () => ({ workspaceSlug: 'acme-corp' }), sidebarFooter: [RailMenu] },
+    ];
+    render(AppSidebarFixture, { config: configWith({ contributions }) });
+    const rail = railOf();
+    const user = userEvent.setup();
+    await user.click(freeRoomOf());
+
+    await user.click(within(rail).getByRole('button', { name: 'Menu' }));
+    expect(rail).toHaveAttribute('data-state', 'expanded');
+
+    await user.click(await findFloating('menuitem', 'Choice'));
+    expect(rail).toHaveAttribute('data-state', 'collapsed');
   });
 
   it('shows the footer of an extension at the end', () => {
@@ -713,11 +749,14 @@ describe('the handle of the second sidebar', () => {
     expect(railOf().style.width).toBe('196px');
   });
 
-  it('does not close the rail with a press', async () => {
+  it('does not close the rail with a press or a click', async () => {
     renderOnPage();
     await fireEvent.click(freeRoomOf());
 
     await fireEvent.pointerDown(handle(), { button: 0, isPrimary: true, clientX: 256 });
+    await fireEvent.pointerUp(handle(), { clientX: 256 });
+    await fireEvent.click(handle());
+    await fireEvent.dblClick(handle());
 
     expect(railOf()).toHaveAttribute('data-state', 'expanded');
   });

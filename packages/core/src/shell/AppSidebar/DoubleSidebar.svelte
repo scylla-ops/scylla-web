@@ -15,6 +15,9 @@
   import SecondSidebarHandle from './SecondSidebarHandle.svelte';
 
   const SECOND_SIDEBAR_ID = 'second-sidebar';
+  // The bar: the free room and the separator toggle the rail, the handle on its edge resizes it.
+  const RAIL_BAR =
+    '[data-slot="sidebar-rail-space"], [data-slot="sidebar-rail-separator"], [data-slot="second-sidebar-handle"]';
 
   interface Props {
     sections: NavSection[];
@@ -70,6 +73,17 @@
     railOpen = false;
   };
 
+  const onBar = (target: EventTarget | null) =>
+    target instanceof Element && !!target.closest(RAIL_BAR);
+
+  // After the handlers of the click: a choice in a menu of the rail closes the menu first.
+  const closeOnClick = (event: MouseEvent) => {
+    if (onBar(event.target)) return;
+    queueMicrotask(() => {
+      if (!menuIsOpen()) railOpen = false;
+    });
+  };
+
   const closeOnEscape = (event: KeyboardEvent) => {
     if (event.key === 'Escape' && !menuIsOpen()) railOpen = false;
   };
@@ -78,6 +92,7 @@
 <svelte:window
   bind:innerWidth={viewportWidth}
   onpointerdown={closeOnOutsidePress}
+  onclick={closeOnClick}
   onkeydown={closeOnEscape}
 />
 

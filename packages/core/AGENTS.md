@@ -225,13 +225,17 @@ module gives an access policy.
   under the tile that grows, then fades out. The row has no `overflow-hidden`, because it must
   not cut the spring. With `prefers-reduced-motion`, the tile only fades in 150 ms, and the
   color of the icon changes in 150 ms.
-- **Only the user opens the rail.** A hover or a focus does not open it. A click on the free room
-  below the rows (`data-slot="sidebar-rail-space"`) or on the separator opens and closes it, and
-  their cursor shows the direction. Between the rows, beside them, and at least 8 px above and
-  below them, a click does nothing and the cursor does not change: a click that misses a row by a
-  few pixels does not move the rail. The separator is the way for the keyboard. A row opens its
-  page and closes the rail. A press outside and Escape close it, except while one of its menus is
-  open.
+- **Only the user opens the rail, and each other action closes it.** A hover or a focus does not
+  open it. A click on the free room below the rows (`data-slot="sidebar-rail-space"`) or on the
+  separator opens and closes it, and their cursor shows the direction: these two are "the bar".
+  On the closed rail, a click between the rows, beside them, and at least 8 px above and below
+  them does nothing and the cursor does not change: a click that misses a row by a few pixels does
+  not open the rail. The separator is the way for the keyboard. On the open rail, each click that
+  is not on the bar or on the handle closes it: a row (it also opens its page), a gap between the
+  rows, the logo of the band, a footer, the page. A press outside and Escape also close it. While
+  one of its menus is open, the rail stays open: the click that opens the menu does not close it,
+  and a choice in the menu closes the menu, then the rail. Thus `closeOnClick` reads the menus
+  after the handlers of the click, in a microtask.
 - **The user sets the width of the second sidebar, not of the rail.** The handle
   (`SecondSidebarHandle`) is on the right edge of the second sidebar, below the band, and the page
   follows the width. A drag moves it, and a double click gives the default width. The handle has the
@@ -239,8 +243,9 @@ module gives an access policy.
   the default width. It is not on a page with no second sidebar, not while the access policy is not
   ready, and not in the sheet of a phone.
 - **The handle is above the rail (`z-30` over `z-20`).** On the open rail, it covers the separator,
-  thus a drag on the edge also sets the width while the rail is open. During a drag, the open rail
-  has no transition (`width.dragging`), thus its edge stays on the pointer.
+  thus a drag on the edge also sets the width while the rail is open, and a press or a click on
+  it does not close the rail. During a drag, the open rail has no transition (`width.dragging`),
+  thus its edge stays on the pointer.
 - **The width is in pixels, thus `ResizablePaneGroup` does not fit.** Its sizes are percent of the
   group, thus a minimum in percent gives a different width for each window, and the group must
   also hold the page.

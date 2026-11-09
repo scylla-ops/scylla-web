@@ -336,6 +336,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   avatar and its kind. A picked member is a chip with a remove button. The Holders column of the
   roles shows the first holders as a stack of avatars. `Identity` has the formats `mention`, `chip`
   and `header`, and `SearchSelect` has a `chip` snippet for the chosen option.
+- A click on the logo, between the rows or on the footer of the open rail closes the rail. Only a
+  click on the handle, or a click that opens a menu of the rail, keeps it open. Before, a click on
+  the logo or between the rows did not close it.
 
 ## [0.6.0] - 2026-11-01
 
