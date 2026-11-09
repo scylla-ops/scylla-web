@@ -186,6 +186,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   token and the switches of the pipeline editor use one segmented control. A thumb moves under the
   selected item, and a count rolls when it changes. The filter of the agents shows the color of each
   state. With a reduced motion setting, the thumb moves in 150 ms and the counts do not roll.
+- The roles lists show a tile of the level and the type (Custom or Built-in) beside the name of each
+  role. The Permissions column shows the resources of the role and their actions on one line, and a
+  "+N" pill opens a card with the other resources. A click on the Role header sorts the roles by
+  name. The Level and Type columns are removed.
 
 ### Fixed
 

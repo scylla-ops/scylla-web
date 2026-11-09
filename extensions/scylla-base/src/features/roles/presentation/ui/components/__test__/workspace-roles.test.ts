@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen } from '@testing-library/svelte';
+import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { PermissionScope, permissionsStore } from '@platform/authz';
 import type { RoleEntity } from '../../../../domain/entities/role.entity.ts';
@@ -92,6 +92,46 @@ describe('WorkspaceRolesList', () => {
     render(WorkspaceRolesList, { workspaceId: 'w-1', workspaceName: 'acme' });
 
     expect(await screen.findByText('No custom roles yet')).toBeInTheDocument();
+  });
+
+  it('sorts the rows by name on a click on Role: A to Z, Z to A, then the default order', async () => {
+    list.mockResolvedValue([
+      role({ key: 'workspace-viewer', name: 'Workspace viewer' }),
+      role({ key: 'r-2', name: 'auditor', grantName: 'r-2', builtin: false }),
+      role({ key: 'project-editor', name: 'Project editor', level: 'project' }),
+    ]);
+    render(WorkspaceRolesList, { workspaceId: 'w-1', workspaceName: 'acme' });
+    const header = await screen.findByRole('columnheader', { name: 'Role' });
+    const names = () =>
+      screen
+        .getAllByRole('button')
+        .map(button => button.textContent?.trim())
+        .filter(name => name !== 'Role');
+
+    expect(header).toHaveAttribute('aria-sort', 'none');
+    expect(names()).toEqual(['Workspace viewer', 'auditor', 'Project editor']);
+
+    await userEvent.click(within(header).getByRole('button'));
+    expect(header).toHaveAttribute('aria-sort', 'ascending');
+    expect(names()).toEqual(['auditor', 'Project editor', 'Workspace viewer']);
+
+    await userEvent.click(within(header).getByRole('button'));
+    expect(header).toHaveAttribute('aria-sort', 'descending');
+    expect(names()).toEqual(['Workspace viewer', 'Project editor', 'auditor']);
+
+    await userEvent.click(within(header).getByRole('button'));
+    expect(header).toHaveAttribute('aria-sort', 'none');
+    expect(names()).toEqual(['Workspace viewer', 'auditor', 'Project editor']);
+  });
+
+  it('shows the type beside the name and the level under it', async () => {
+    render(WorkspaceRolesList, { workspaceId: 'w-1', workspaceName: 'acme' });
+
+    const custom = (await screen.findByRole('button', { name: 'Release manager' })).parentElement;
+    expect(within(custom as HTMLElement).getByText('Custom')).toBeInTheDocument();
+    const builtin = screen.getByRole('button', { name: 'Workspace member' }).parentElement;
+    expect(within(builtin as HTMLElement).getByText('Built-in')).toBeInTheDocument();
+    expect(screen.getAllByText('Workspace')).toHaveLength(2);
   });
 });
 

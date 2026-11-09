@@ -1,5 +1,4 @@
 <script lang="ts">
-  import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { createQuery, navigateTo, routePathname } from '@scylla/core-sdk';
   import { ErrorState, ListSkeleton, SegmentedControl } from '@scylla/ui';
   import RolesLoadError from './RolesLoadError.svelte';
@@ -10,8 +9,6 @@
     TableBody,
     TableCell,
     TableFrame,
-    TableHead,
-    TableHeader,
     TableRow,
   } from '@scylla/ui/primitives';
   import {
@@ -23,12 +20,14 @@
   import {
     groupRoles,
     ROLE_FILTERS,
+    sortRoles,
     type RoleFilter,
+    type RoleSort,
   } from '../../presenters/roles-list.presenter.ts';
-  import { permissionCount, roleDescription, roleName } from '../../role-labels.ts';
+  import { roleName } from '../../role-labels.ts';
   import { roleQueries } from '../../roles.queries.ts';
-  import LevelTag from './LevelTag.svelte';
-  import OriginTag from './OriginTag.svelte';
+  import RoleRow from './RoleRow.svelte';
+  import RolesTableHeader from './RolesTableHeader.svelte';
 
   const rolesQuery = createQuery(() => ({
     ...roleQueries.list(),
@@ -39,8 +38,15 @@
 
   let filter = $state<RoleFilter>('all');
   let search = $state('');
+  let sort = $state<RoleSort>('none');
 
-  const groups = $derived(groupRoles(rolesQuery.data ?? [], filter, search));
+  const areas = $derived(catalogQuery.data ?? []);
+  const groups = $derived(
+    groupRoles(rolesQuery.data ?? [], filter, search).map(group => ({
+      ...group,
+      roles: sortRoles(group.roles, sort, roleName),
+    })),
+  );
   const filterOptions = $derived(
     ROLE_FILTERS.map(value => ({ value, label: t(filterLabels[value]) })),
   );
@@ -76,51 +82,17 @@
   {:else}
     <TableFrame>
       <Table class="min-w-[720px]">
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t(rolesMessages.role)}</TableHead>
-            <TableHead class="w-36">{t(rolesMessages.level)}</TableHead>
-            <TableHead class="w-28">{t(rolesMessages.type)}</TableHead>
-            <TableHead class="w-20">{t(rolesMessages.holders)}</TableHead>
-            <TableHead class="w-32">{t(rolesMessages.permissions)}</TableHead>
-            <TableHead class="w-10"></TableHead>
-          </TableRow>
-        </TableHeader>
+        <RolesTableHeader {sort} onSortChange={next => (sort = next)} />
         {#each groups as group (group.id)}
           <TableBody>
             <TableRow>
-              <TableCell class="text-xs whitespace-normal" colspan={6}>
+              <TableCell class="text-xs whitespace-normal" colspan={4}>
                 <span class="font-semibold text-foreground">{t(groupLabels[group.id])}</span>
                 <span class="ml-2 text-muted-foreground">{t(groupHints[group.id])}</span>
               </TableCell>
             </TableRow>
             {#each group.roles as role (role.key)}
-              <TableRow
-                onclick={() => open(role.key)}
-              >
-                <TableCell class="whitespace-normal">
-                  <button
-                    type="button"
-                    class="block text-left font-medium text-foreground hover:underline"
-                    onclick={event => {
-                      event.stopPropagation();
-                      open(role.key);
-                    }}
-                  >
-                    {roleName(role)}
-                  </button>
-                  <span class="mt-0.5 block text-xs text-muted-foreground">
-                    {roleDescription(role)}
-                  </span>
-                </TableCell>
-                <TableCell><LevelTag level={role.level} /></TableCell>
-                <TableCell><OriginTag builtin={role.builtin} /></TableCell>
-                <TableCell class="tabular-nums">{role.holderCount}</TableCell>
-                <TableCell class="text-muted-foreground tabular-nums">
-                  {permissionCount(role, catalogQuery.data ?? [])}
-                </TableCell>
-                <TableCell class="text-muted-foreground"><ChevronRightIcon class="size-4" /></TableCell>
-              </TableRow>
+              <RoleRow {role} {areas} onOpen={open} />
             {/each}
           </TableBody>
         {/each}

@@ -36,6 +36,9 @@ export const holdersTotal = (count: number) => msg`Holders: ${count}`;
 
 export const andMore = (count: number) => msg`and ${count} more`;
 
+export const morePermissions = (count: number) =>
+  msg`${plural(count, { one: '# more permission', other: '# more permissions' })}`;
+
 export const missingPermissions = (names: string) =>
   msg`You do not have ${names}, so you cannot give it. Remove it from the role, or ask an admin to save the role.`;
 
@@ -75,12 +78,14 @@ export const rolesMessages = {
   lockedCell: msg`You do not have it, or not at this level`,
   retry: msg`Try again`,
   level: msg`Level`,
-  type: msg`Type`,
   holders: msg`Holders`,
   permissions: msg`Permissions`,
   builtIn: msg`Built-in`,
   custom: msg`Custom`,
   fullControl: msg`Full control`,
+  viewOnly: msg`View only`,
+  openToChange: msg`Open the role to change them.`,
+  openToSee: msg`Open the role to see them all.`,
   back: msg`Roles`,
   cancel: msg`Cancel`,
   createRole: msg`Create role`,
@@ -129,6 +134,12 @@ export const levelLabels: Record<RoleLevel, MessageDescriptor> = {
   platform: msg`Instance`,
   workspace: msg`Workspace`,
   project: msg`Project`,
+};
+
+export const fullControlHints: Record<RoleLevel, MessageDescriptor> = {
+  platform: msg`the whole instance`,
+  workspace: msg`also delete the workspace`,
+  project: msg`also delete the project`,
 };
 
 export const levelHints: Record<RoleLevel, MessageDescriptor> = {

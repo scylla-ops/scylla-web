@@ -14,6 +14,7 @@ The catalog of the permissions, the built-in roles, and the custom roles.
 
 - `Instance › Roles`: the list, a new role, a custom role in the editor, a built-in role in read-only mode.
 - `<workspace> › Access › Roles`: the custom roles of the workspace, the roles from the instance, a new role and the editor. A reader with no `create_role` sees a text that says who can give the access.
+- The two lists share `RoleRow` and `RolesTableHeader`. A row shows the level tile (`LevelTile`, colours and icons in `presenters/role-level.presenter.ts`), the type, and `RolePermissions`: one chip per resource on one line, and a "+N" pill with a hover card for the chips that do not fit. `presenters/role-permissions.presenter.ts` makes the chips. A click on the Role header sorts each section by name: A → Z, Z → A, then the order of the server. The sort is component state.
 - A save and a delete use `mutateAsync`: the list reloads first and can unmount the page, and a callback of `mutate` then does not run.
 - A delete of a role with holders moves them first (`DeleteRole` with `move_to`). A save of a role with holders shows the change first.
 - `ListHeldPermissions` locks a cell of the editor and a role in a select. The server checks again.
