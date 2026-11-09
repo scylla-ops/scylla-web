@@ -688,6 +688,10 @@ msgstr "Elle ne reçoit aucun token tant que vous ne l'activez pas. Les appels a
 msgid "It joins with {method} and an Ed25519 public key."
 msgstr "Il se rattache avec {method} et une clé publique Ed25519."
 
+#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:31
+msgid "It needs no admin rights. In PowerShell, it installs the agent for your user, and the agent starts at each sign-in. In PowerShell as administrator, it installs the service ScyllaAgent, which starts with the machine. A script step needs Git for Windows."
+msgstr "Elle ne demande pas de droits d'administrateur. Dans PowerShell, elle installe l'agent pour votre utilisateur, et l'agent démarre à chaque ouverture de session. Dans PowerShell en administrateur, elle installe le service ScyllaAgent, qui démarre avec la machine. Une étape de script demande Git for Windows."
+
 #: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:30
 msgid "It needs no sudo. The agent runs while your user is signed in."
 msgstr "Elle ne demande pas sudo. L'agent tourne tant que votre utilisateur a une session ouverte."
@@ -1142,10 +1146,6 @@ msgstr "Rôles"
 #: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:33
 msgid "Run container steps (Linux only)"
 msgstr "Lancer des étapes en conteneur (Linux uniquement)"
-
-#: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:31
-msgid "Run it in PowerShell as administrator. It installs the service ScyllaAgent. A script step needs Git for Windows. With no admin rights, add -NoService."
-msgstr "Lancez-la dans PowerShell en administrateur. Elle installe le service ScyllaAgent. Une étape de script demande Git for Windows. Sans droits d'administrateur, ajoutez -NoService."
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:24
 msgid "Run this command on the machine of the agent:"

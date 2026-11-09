@@ -112,7 +112,9 @@ describe('AddAgentDialog', () => {
 
     await user.click(screen.getByRole('tab', { name: /Windows/ }));
     expect(screen.getByText(/install\.ps1\)\)\) -JoinCode JOIN-42/)).toBeInTheDocument();
-    expect(screen.getByText(/PowerShell as administrator.*-NoService/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/needs no admin rights.*PowerShell as administrator/),
+    ).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: /macOS/ }));
     expect(screen.getByText(/needs no sudo/)).toBeInTheDocument();

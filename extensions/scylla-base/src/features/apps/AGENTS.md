@@ -33,7 +33,8 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   address in the script. The Docker tab uses the image of the server (`appQueries.server`, from
   `GetCapabilities`), replaces a loopback host with `host.docker.internal`, and has no runtime
   choice. Its choice "Run container steps" gives the socket of the machine and a warning. After one
-  minute, the step shows the command of the logs of the tab. `appQueries.waiting` asks for the app
+  minute, the step shows the command of the logs of the tab. The Windows command reads the log of
+  the agent of the user (the install with no admin rights), or else the logs of the service. `appQueries.waiting` asks for the app
   each 2 s until a machine joined with a new key and the agent is connected (`hasJoined`). Between
   these two events, `isJoining` shows "The machine joined". With an `agent`, the dialog makes a new
   join code for it and starts at the install step. A `Button` in the form must have `type="button"`, because the

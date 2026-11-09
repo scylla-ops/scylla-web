@@ -49,6 +49,7 @@ describe('InstallStep', () => {
 
     await user.click(screen.getByRole('tab', { name: 'Windows' }));
     expect(screen.getByText(/-JoinCode JOIN-42 -Url/)).toBeInTheDocument();
+    expect(screen.getByText(/needs no admin rights/)).toBeInTheDocument();
     expect(screen.getByText(/needs Git for Windows/)).toBeInTheDocument();
   });
 

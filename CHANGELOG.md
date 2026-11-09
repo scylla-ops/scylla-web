@@ -362,6 +362,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the number of people, agents and apps, and at most six holders, each with the workspace or the
   projects where it has the role. A holder and "See all members" open the page of the members. A
   reader who cannot see the members sees only the count, as before.
+- The Windows hint of the install of an agent tells that the command needs no admin rights, and how
+  the install for the user and the service are different. The Windows command of the logs reads the
+  log of the agent of the user, or else the logs of the service.
 
 ## [0.6.0] - 2026-11-01
 
