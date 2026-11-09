@@ -342,6 +342,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The "+N" card of the permissions in the roles list keeps all its chips inside the card. The card
   becomes wider to fit the longest row, and the actions that do not fit go under the name of the
   resource.
+- The Roles card of a member shows the workspace as a header with its icon and its kind, not as one
+  more role. The projects are inside the workspace. In Effective access, Change roles, the remove
+  dialog and the members of a project, a scope is an icon and a name, not a pill.
 
 ## [0.6.0] - 2026-11-01
 

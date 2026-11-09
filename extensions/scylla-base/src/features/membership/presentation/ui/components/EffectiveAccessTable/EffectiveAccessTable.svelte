@@ -1,5 +1,6 @@
 <script lang="ts">
   import CheckIcon from '@lucide/svelte/icons/check';
+  import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { navigateTo } from '@scylla/core-sdk';
   import type { AccessSourceEntity } from '@base/features/access';
   import {
@@ -25,6 +26,7 @@
     openRole,
   } from '../../../messages/membership.messages.ts';
   import { sourceRoleName } from '../../../presenters/member-role-name.ts';
+  import ScopeLabel from '../ScopeLabel.svelte';
 
   interface Props {
     areas: readonly CatalogArea[];
@@ -123,8 +125,9 @@
     <ul class="mt-1 flex flex-col gap-2">
       {#each openSources as source (`${source.scopeId}-${source.roleKey}`)}
         <li class="flex items-center justify-between gap-3">
-          <span class="flex items-center gap-2">
-            <span class="rounded-full bg-muted px-2 py-0.5 text-xs">{source.scopeName}</span>
+          <span class="flex min-w-0 items-center gap-2">
+            <ScopeLabel kind={source.scopeKind} name={source.scopeName} />
+            <ChevronRightIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span class="font-medium">{sourceRoleName(source)}</span>
           </span>
           <button

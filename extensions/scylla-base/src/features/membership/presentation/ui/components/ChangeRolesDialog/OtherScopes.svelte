@@ -1,9 +1,11 @@
 <script lang="ts">
+  import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { activeWorkspaceSlug, contextStore, workspaceUrl } from '@platform/context';
   import { navigateTo } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import { changeIn } from '../../../messages/membership.messages.ts';
   import type { OtherScope } from '../../../presenters/role-choices.presenter.ts';
+  import ScopeLabel from '../ScopeLabel.svelte';
 
   interface Props {
     title: string;
@@ -31,7 +33,8 @@
     {#each scopes as scope (scope.id)}
       <li class="flex items-center justify-between gap-3 text-sm">
         <span class="flex min-w-0 items-center gap-2">
-          <span class="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs">{scope.name}</span>
+          <ScopeLabel kind={scope.kind} name={scope.name} />
+          <ChevronRightIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
           <span class="truncate">{scope.roles.join(', ')}</span>
         </span>
         <button

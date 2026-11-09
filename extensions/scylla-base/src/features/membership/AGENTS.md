@@ -51,6 +51,7 @@ It composes, through public APIs only:
 - `ChangeRolesDialog` is a checklist (`RoleChoiceRow`, `role-choices.presenter.ts`). Each click applies at once, and the row shows the result: there is no success toast. The order of the rows does not change when a role changes. Only a role to give can lock: `Revoke` has no escalation check, so a held role does not lock. A refusal shows on its row, and the box goes back. If the dialog closed during the save, the refusal goes to a toast.
 - The dialog asks before the last workspace role of a person goes, because the server also takes the project roles (decision 88 of the backend). It does not ask for an app, because the server keeps the project roles of an app. It does not ask for a person who is also an owner, because that person stays.
 - `otherRoles` shows the roles of the other scopes as read only, with a link to the page that changes them. `can()` reads only the active scopes, so it cannot gate a link to another project: the route guard decides.
+- Only a role is a pill. A scope (the workspace or a project) is never a pill: `ScopeLabel` shows it as an icon and a name. The Roles card of a member (`MemberRolesCard`) gives each scope a header with its kind, and shows the projects inside the workspace, because a workspace role also applies in each project.
 - An app gets a role from the Apps tab of the members, or on the members of a project. Only the apps of the workspace are in the list. `?addApp=<id>` is a direct link: an app of another workspace gets a dialog that says why not.
 
 ## Layout

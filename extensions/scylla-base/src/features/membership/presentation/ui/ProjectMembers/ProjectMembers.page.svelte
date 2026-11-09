@@ -37,6 +37,7 @@
   import { buildProjectMemberRows, memberProfile } from '../../presenters/member-rows.presenter.ts';
   import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
   import ChooseActorRow from '../components/ChooseActorRow/ChooseActorRow.svelte';
+  import ScopeLabel from '../components/ScopeLabel.svelte';
 
   let { projectId }: { projectId?: string } = $props();
 
@@ -178,11 +179,9 @@
                   </div>
                 </TableCell>
                 <TableCell class="whitespace-normal">
-                  <div class="flex flex-wrap gap-1.5">
+                  <div class="flex flex-wrap gap-x-3 gap-y-1.5">
                     {#each row.scopes as scope (scope.scopeKind)}
-                      <span class="rounded-full bg-muted px-2.5 py-0.5 text-xs">
-                        {scope.scopeName}
-                      </span>
+                      <ScopeLabel kind={scope.scopeKind} name={scope.scopeName} />
                     {/each}
                   </div>
                 </TableCell>

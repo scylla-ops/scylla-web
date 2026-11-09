@@ -20,6 +20,7 @@ export const membershipMessages = {
   projectRoles: msg`Project roles`,
   optional: msg`optional`,
   project: msg`Project`,
+  workspace: msg`Workspace`,
   addProjectRole: msg`+ Add a project role`,
   inviteHint: msg`An invited person gets one built-in workspace role when they accept. Give the project roles after that.`,
   whatTheyGet: msg`What they get`,

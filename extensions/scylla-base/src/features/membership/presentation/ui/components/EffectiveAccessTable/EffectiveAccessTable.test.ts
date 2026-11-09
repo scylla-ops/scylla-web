@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { screen } from '@testing-library/svelte';
+import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import type { AccessSourceEntity } from '@base/features/access';
 import type { CatalogArea } from '@base/features/roles';
@@ -65,5 +65,26 @@ describe('EffectiveAccessTable', () => {
     expect(screen.getByText('Workspace member')).toBeInTheDocument();
     expect(screen.getByText('acme')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Open Workspace member' })).toBeInTheDocument();
+  });
+
+  it('tells the kind of the scope of the role, so the scope is not read as a role', async () => {
+    const fromProject: AccessSourceEntity = {
+      ...fromWorkspace,
+      scopeKind: 'project',
+      scopeId: 'p',
+      scopeName: 'api',
+      roleKey: 'project-editor',
+      roleName: 'Project editor',
+    };
+    render(EffectiveAccessTable, {
+      ...props,
+      sources: new Map([['pipelines.run', [fromWorkspace, fromProject]]]),
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Run pipelines in api' }));
+
+    const [workspace, project] = within(screen.getByRole('status')).getAllByRole('listitem');
+    expect(workspace).toHaveTextContent('Workspace acme Workspace member');
+    expect(project).toHaveTextContent('Project api Project editor');
   });
 });
