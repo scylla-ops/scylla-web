@@ -42,7 +42,9 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   (`agent-list.struct.ts`: a running agent is also online), a search on the name and the host name,
   and a table. The access column needs `list_workspace_members`: `appQueries.agentAccess` reads
   the roles of the workspace and of each project (`agent-access.struct.ts`). The sparkline comes
-  from `appQueries.agentStats` (one call for the workspace). Disable and delete need `delete_app`;
+  from `appQueries.agentStats` (one call for the workspace). The stats of the agents need
+  `READ_APP_STATS` (`list_agent_stats`), not only `list_apps`: without it, the list and the agent
+  page show no stats and ask for none. Disable and delete need `delete_app`;
   a new join code needs `create_app`. The other apps have their own page (`AppsList`).
 - The apps page (`components/AppsList/`) is a table of the other apps. Each line reads its own
   credentials (`credentialQueries.allOf`, one query for each line) and shows the one that needs

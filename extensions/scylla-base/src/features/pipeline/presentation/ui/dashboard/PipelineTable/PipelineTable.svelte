@@ -109,10 +109,12 @@
         event.stopPropagation();
         duplicatePipeline.mutate(pipeline.id);
       }}
-      onViewJobs={event => {
-        event.stopPropagation();
-        scyllaNavigate.goToJobs(pipeline.id, pipeline.name);
-      }}
+      onViewJobs={canListJobs
+        ? event => {
+            event.stopPropagation();
+            scyllaNavigate.goToJobs(pipeline.id, pipeline.name);
+          }
+        : undefined}
       onViewTriggers={event => {
         event.stopPropagation();
         scyllaNavigate.goToTriggers(pipeline.id, pipeline.name);

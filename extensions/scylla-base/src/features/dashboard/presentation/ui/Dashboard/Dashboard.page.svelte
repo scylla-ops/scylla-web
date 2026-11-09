@@ -39,6 +39,7 @@
   const stats = $derived([
     {
       key: 'projects',
+      shown: true,
       icon: FolderIcon as Component,
       label: t(dashboardMessages.projects),
       value: String(overview.projects.length),
@@ -46,6 +47,7 @@
     },
     {
       key: 'pipelines',
+      shown: overview.canListPipelines,
       icon: WorkflowIcon as Component,
       label: t(dashboardMessages.pipelines),
       value: String(overview.allPipelines.length),
@@ -53,6 +55,7 @@
     },
     {
       key: 'runs',
+      shown: overview.canListRuns,
       icon: PlayCircleIcon as Component,
       label: t(dashboardMessages.runs),
       value: String(overview.totalRuns),
@@ -60,6 +63,7 @@
     },
     {
       key: 'success',
+      shown: overview.canListRuns,
       icon: GaugeIcon as Component,
       label: overview.runsTruncated
         ? t(dashboardMessages.successRateRecent)
@@ -71,7 +75,7 @@
           : `${Math.round(overview.runs.successRate * 100)}%`,
       loading: overview.runsLoading,
     },
-  ]);
+  ].filter(stat => stat.shown));
 
   const sortedPipelines = $derived(
     [...overview.allPipelines].sort(
@@ -121,14 +125,16 @@
       {/each}
     </div>
 
-    <div class="shrink-0">
-      <RunActivityCard
-        summary={overview.runs}
-        totalRuns={overview.totalRuns}
-        truncated={overview.runsTruncated}
-        loading={overview.runsLoading}
-      />
-    </div>
+    {#if overview.canListRuns}
+      <div class="shrink-0">
+        <RunActivityCard
+          summary={overview.runs}
+          totalRuns={overview.totalRuns}
+          truncated={overview.runsTruncated}
+          loading={overview.runsLoading}
+        />
+      </div>
+    {/if}
 
     <Separator class="shrink-0" />
 
@@ -196,61 +202,63 @@
       </div>
     </section>
 
-    <Separator class="shrink-0" />
+    {#if overview.canListPipelines}
+      <Separator class="shrink-0" />
 
-    <section class="flex flex-1 flex-col gap-3">
-      <h2 class="shrink-0 text-base">{t(dashboardMessages.allPipelines)}</h2>
+      <section class="flex flex-1 flex-col gap-3">
+        <h2 class="shrink-0 text-base">{t(dashboardMessages.allPipelines)}</h2>
 
-      <div class="relative min-h-[10rem] flex-1 overflow-y-auto">
-        {#if overview.projectsLoading || overview.pipelinesLoading}
-          <div class="flex flex-col gap-2">
-            {#each { length: 5 } as _, index (index)}
-              <Skeleton class="h-12 w-full rounded-xl" />
-            {/each}
-          </div>
-        {:else if sortedPipelines.length === 0}
-          <p class="text-sm text-muted-foreground">{t(dashboardMessages.noPipelines)}</p>
-        {:else}
-          <TableFrame class="overflow-clip">
-            <Table>
-              <!-- Sticky: needs an opaque background. A hidden last column leaves no `last:`. -->
-              <TableHeader class="sticky top-0 z-10 bg-card">
-                <TableRow>
-                  <TableHead class="max-sm:rounded-r-[10px]">{t(dashboardMessages.name)}</TableHead>
-                  <TableHead class="hidden max-md:rounded-r-[10px] sm:table-cell">
-                    {t(dashboardMessages.project)}
-                  </TableHead>
-                  <TableHead class="hidden md:table-cell">{t(dashboardMessages.nodes)}</TableHead>
-                  <TableHead class="hidden md:table-cell">{t(dashboardMessages.updated)}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {#each sortedPipelines as pipeline (pipeline.id)}
-                  {@const openable = overview.canOpenProject(pipeline.projectId)}
-                  <TableRow
-                    onclick={() => openPipelineRow(pipeline.projectId)}
-                    class={cn(!openable && 'cursor-default')}
-                  >
-                    <TableCell class="font-medium whitespace-normal max-sm:rounded-r-[10px]">
-                      {pipeline.name}
-                    </TableCell>
-                    <TableCell class="hidden max-md:rounded-r-[10px] sm:table-cell">
-                      <Badge variant="secondary">{pipeline.projectName}</Badge>
-                    </TableCell>
-                    <TableCell class="hidden text-muted-foreground md:table-cell">
-                      {pipeline.nodeCount}
-                    </TableCell>
-                    <TableCell class="hidden text-muted-foreground md:table-cell">
-                      {getRelativeTime(pipeline.updatedAt)}
-                    </TableCell>
+        <div class="relative min-h-[10rem] flex-1 overflow-y-auto">
+          {#if overview.projectsLoading || overview.pipelinesLoading}
+            <div class="flex flex-col gap-2">
+              {#each { length: 5 } as _, index (index)}
+                <Skeleton class="h-12 w-full rounded-xl" />
+              {/each}
+            </div>
+          {:else if sortedPipelines.length === 0}
+            <p class="text-sm text-muted-foreground">{t(dashboardMessages.noPipelines)}</p>
+          {:else}
+            <TableFrame class="overflow-clip">
+              <Table>
+                <!-- Sticky: needs an opaque background. A hidden last column leaves no `last:`. -->
+                <TableHeader class="sticky top-0 z-10 bg-card">
+                  <TableRow>
+                    <TableHead class="max-sm:rounded-r-[10px]">{t(dashboardMessages.name)}</TableHead>
+                    <TableHead class="hidden max-md:rounded-r-[10px] sm:table-cell">
+                      {t(dashboardMessages.project)}
+                    </TableHead>
+                    <TableHead class="hidden md:table-cell">{t(dashboardMessages.nodes)}</TableHead>
+                    <TableHead class="hidden md:table-cell">{t(dashboardMessages.updated)}</TableHead>
                   </TableRow>
-                {/each}
-              </TableBody>
-            </Table>
-          </TableFrame>
-        {/if}
-      </div>
-    </section>
+                </TableHeader>
+                <TableBody>
+                  {#each sortedPipelines as pipeline (pipeline.id)}
+                    {@const openable = overview.canOpenProject(pipeline.projectId)}
+                    <TableRow
+                      onclick={() => openPipelineRow(pipeline.projectId)}
+                      class={cn(!openable && 'cursor-default')}
+                    >
+                      <TableCell class="font-medium whitespace-normal max-sm:rounded-r-[10px]">
+                        {pipeline.name}
+                      </TableCell>
+                      <TableCell class="hidden max-md:rounded-r-[10px] sm:table-cell">
+                        <Badge variant="secondary">{pipeline.projectName}</Badge>
+                      </TableCell>
+                      <TableCell class="hidden text-muted-foreground md:table-cell">
+                        {pipeline.nodeCount}
+                      </TableCell>
+                      <TableCell class="hidden text-muted-foreground md:table-cell">
+                        {getRelativeTime(pipeline.updatedAt)}
+                      </TableCell>
+                    </TableRow>
+                  {/each}
+                </TableBody>
+              </Table>
+            </TableFrame>
+          {/if}
+        </div>
+      </section>
+    {/if}
 
     <!-- Hidden without the permission: the chart could only fail. -->
     {#if can(Permission.READ_APP_STATS)}

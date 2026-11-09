@@ -31,6 +31,8 @@ The catalog of the permissions, the built-in roles, and the custom roles.
 - The holders and the owner of a role do not change after the creation. The level changes only while the role has no holder, and the server checks it again (`ROLE_IN_USE`). A change of the level fits the permissions to the new level.
 - `PermissionTable` with no `onChange` is the read-only table.
 - A bulk select or clear uses `checkPermissions` and `uncheckPermissions` (`catalog.struct.ts`). They apply `togglePermission` to each cell, so the result is the same as one click on each cell, with the `depends_on` rules.
+- `depends_on` can name a permission of another area, and a dependency can have its own dependencies. `togglePermission` follows them all, as the server does. A cell tells on hover what a click on it also checks (`cellTitle` in `presenters/permission-table.presenter.ts`).
+- The holders of an instance role need `MANAGE_ROLES`: on the instance, `list_role_holders` comes with `create_role`, not with `list_roles`. "See members" shows only when the user can open the page of the people (`canSeePeople`).
 - A built-in role does not change, so it never opens in the editor.
 - New strings go in `messages/roles.messages.ts`.
 

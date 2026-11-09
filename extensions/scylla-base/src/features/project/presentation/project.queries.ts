@@ -36,11 +36,12 @@ export const canListProjects = (workspaceId: string | null): boolean =>
   can(Permission.LIST_PROJECTS_BY_WORKSPACE, { workspaceId });
 
 export const projectQueries = {
+  /** Scoped by the backend: a reader of the workspace with no right on the projects gets the projects of its project roles. */
   byWorkspace: (workspaceId: string | null, pagination: PaginationParams = FIRST_PAGE) =>
     queryOptions({
       queryKey: PROJECTS_QUERY_KEY(workspaceId, pagination),
       queryFn: () => repository().getByWorkspaceId(workspaceId!, pagination),
-      enabled: canListProjects(workspaceId),
+      enabled: !!workspaceId,
     }),
 
   /** The whole list, scoped by the backend: no client-side gate. */

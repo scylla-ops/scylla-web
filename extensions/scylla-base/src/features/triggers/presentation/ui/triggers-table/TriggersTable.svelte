@@ -3,6 +3,7 @@
   import ClockIcon from '@lucide/svelte/icons/clock';
   import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
   import WebhookIcon from '@lucide/svelte/icons/webhook';
+  import { Permission, can } from '@platform/authz';
   import { scyllaNavigate } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
   import { Switch } from '@scylla/ui/primitives';
@@ -49,8 +50,10 @@
 
     fireNow
       .mutateAsync(trigger.id)
-      // Go to the run just created.
-      .then(() => scyllaNavigate.goToJobs(pipelineId, pipelineName))
+      // Go to the run just created, when the user may list the jobs.
+      .then(() => {
+        if (can(Permission.LIST_JOBS_BY_PIPELINE)) scyllaNavigate.goToJobs(pipelineId, pipelineName);
+      })
       .catch(() => {
         // The global mutation handler toasts the error.
       })

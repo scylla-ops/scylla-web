@@ -114,10 +114,10 @@ describe('projectQueries.byWorkspace', () => {
     expect(result.items).toHaveLength(1);
   });
 
-  it('never asks for a list it may not read', () => {
+  it('asks with no right on the projects: the server gives those of the project roles', () => {
     grantNothing();
     withRepository();
-    expect(projectQueries.byWorkspace('org-1').enabled).toBe(false);
+    expect(projectQueries.byWorkspace('org-1').enabled).toBe(true);
   });
 
   it('is disabled without a workspace', () => {

@@ -88,7 +88,6 @@ const SYSTEM_LEVEL = new Set<Permission>([
   Permission.LIST_WORKSPACES,
   Permission.LIST_PROJECTS,
   Permission.LIST_PIPELINES,
-  Permission.CREATE_JOB,
   Permission.LIST_JOBS,
   Permission.MANAGE_SYSTEM_GRANTS,
   Permission.MANAGE_ROLES,

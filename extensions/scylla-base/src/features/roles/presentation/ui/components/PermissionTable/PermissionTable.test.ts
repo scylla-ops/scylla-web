@@ -150,6 +150,16 @@ describe('PermissionTable: select all and clear all', () => {
     expect(rowBox('audit')).toBeNull();
   });
 
+  it('tells on a cell what a click on it also checks', () => {
+    open({});
+
+    expect(screen.getByRole('checkbox', { name: 'Members · Manage' })).toHaveAttribute(
+      'title',
+      'Needs Members · View',
+    );
+    expect(screen.getByRole('checkbox', { name: 'Members · View' })).not.toHaveAttribute('title');
+  });
+
   it('leaves out a cell that the caller does not hold', async () => {
     const { last } = open({
       held: new Set(['workspace.edit', 'workspace.delete', 'members.view']),

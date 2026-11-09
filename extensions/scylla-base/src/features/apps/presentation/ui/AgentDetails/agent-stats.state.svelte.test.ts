@@ -71,7 +71,10 @@ beforeEach(() => {
         {
           scope: PermissionScope.WORKSPACE,
           scopeId: 'ws-1',
-          access: { kind: 'restricted', permissions: [Permission.READ_APP] },
+          access: {
+            kind: 'restricted',
+            permissions: [Permission.READ_APP, Permission.READ_APP_STATS],
+          },
         },
       ],
     },

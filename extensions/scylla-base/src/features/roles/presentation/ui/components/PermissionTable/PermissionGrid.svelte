@@ -29,6 +29,7 @@
     selectTab,
   } from '../../../messages/roles.messages.ts';
   import {
+    cellTitle,
     flipAll,
     markOf,
     openInColumn,
@@ -136,7 +137,7 @@
                 checked={cell.checked}
                 disabled={cell.kind !== 'open'}
                 class={cell.kind === 'always' ? ALWAYS_ON_CLASS : undefined}
-                title={cell.notHeld ? t(rolesMessages.lockedCell) : undefined}
+                title={cellTitle(cell, areas)}
                 aria-label={name}
                 onCheckedChange={() => onChange?.(togglePermission(selected, cell.id, areas))}
               />

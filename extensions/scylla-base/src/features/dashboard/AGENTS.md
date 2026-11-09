@@ -70,6 +70,10 @@ narrower permission without moving that redirect target too.
 
 ## Rules that bite here
 
+- **Each role of the workspace opens this page, so it reads only what the role can read.** The
+  pipelines and the runs of the workspace need `LIST_PIPELINES_BY_WORKSPACE` and
+  `LIST_JOBS_BY_WORKSPACE`. Without one, `createWorkspaceOverview` does not ask for it, and the
+  page hides its numbers, its card and its section. The agent chart needs `READ_APP_STATS`.
 - **Never add a repository.** If the dashboard needs a new figure, add the query to the module
   that *owns* the resource and export the options factory from its `index.ts`. A
   `pipelineRepository` call made from here would fork the query cache into two keys for one

@@ -63,6 +63,8 @@ export const clearColumn = (action: string) => msg`Clear the whole ${action} col
 
 export const allOf = (area: string) => msg`${area} · All actions`;
 
+export const needsOthers = (names: string) => msg`Needs ${names}`;
+
 export const rolesMessages = {
   roles: msg`Roles`,
   role: msg`Role`,

@@ -129,6 +129,15 @@ describe('ProjectMembersPage', () => {
     expect(within(bob).getByRole('button', { name: 'Change in Acme' })).toBeInTheDocument();
   });
 
+  it('gives no link to the workspace members to a user who may not open them', async () => {
+    grant([Permission.LIST_PROJECT_MEMBERS, Permission.MANAGE_PROJECT_GRANTS]);
+    setUp();
+
+    const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
+    expect(within(bob).queryByRole('button', { name: 'Change in Acme' })).not.toBeInTheDocument();
+    expect(within(bob).queryByRole('button', { name: 'Change roles' })).not.toBeInTheDocument();
+  });
+
   it('lets a manager change only the roles of the project', async () => {
     setUp();
 

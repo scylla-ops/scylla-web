@@ -48,11 +48,21 @@ export const roleQueries = {
     }),
 };
 
-/** The holders of a role: a reader of the members of the workspace, or of the instance roles. */
+/**
+ * The holders of a role: a reader of the members of the workspace, or a manager of the instance
+ * roles. On the instance, `list_role_holders` comes with `create_role` only: a giver of the roles
+ * reads the roles, not their holders.
+ */
 export const canSeeRoleHolders = (workspaceId?: string): boolean =>
   workspaceId
     ? can(Permission.LIST_WORKSPACE_MEMBERS, { workspaceId })
-    : can(Permission.LIST_ROLES);
+    : can(Permission.MANAGE_ROLES);
+
+/** The page of the people: the members of the workspace, or the users of the instance. */
+export const canSeePeople = (workspaceId?: string): boolean =>
+  workspaceId
+    ? can(Permission.LIST_WORKSPACE_MEMBERS, { workspaceId })
+    : can(Permission.LIST_USERS);
 
 const invalidateRoles = () => getQueryClient().invalidateQueries({ queryKey: [ROLES_ROOT] });
 

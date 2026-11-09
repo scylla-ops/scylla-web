@@ -7,7 +7,7 @@
   import type { RoleEntity } from '../../../domain/entities/role.entity.ts';
   import { andMore, holderLabels, holdersTotal, rolesMessages } from '../../messages/roles.messages.ts';
   import { permissionCount, roleDescription, roleName } from '../../role-labels.ts';
-  import { roleQueries } from '../../roles.queries.ts';
+  import { canSeePeople, roleQueries } from '../../roles.queries.ts';
   import LevelTag from '../components/LevelTag.svelte';
   import OriginTag from '../components/OriginTag.svelte';
   import PermissionTable from '../components/PermissionTable/PermissionTable.svelte';
@@ -25,6 +25,7 @@
 
   /** The page of the people: the members of a workspace, or the users of the instance. */
   const peopleUrl = $derived(listUrl.replace(/\/roles$/, workspaceId ? '/members' : '/users'));
+  const peopleShown = $derived(canSeePeople(workspaceId));
 
   const holdersQuery = createQuery(() =>
     roleQueries.holders(role.key, workspaceId, { enabled: canSeeHolders }),
@@ -116,13 +117,15 @@
           {#if more > 0}
             <p class="mt-2 text-xs text-muted-foreground">{t(andMore(more))}</p>
           {/if}
-          <button
-            type="button"
-            class="mt-2 text-xs font-medium text-primary hover:underline"
-            onclick={() => navigateTo(peopleUrl)}
-          >
-            {t(rolesMessages.seeMembers)}
-          </button>
+          {#if peopleShown}
+            <button
+              type="button"
+              class="mt-2 text-xs font-medium text-primary hover:underline"
+              onclick={() => navigateTo(peopleUrl)}
+            >
+              {t(rolesMessages.seeMembers)}
+            </button>
+          {/if}
         </div>
       {/if}
     </aside>

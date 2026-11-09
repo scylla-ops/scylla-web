@@ -121,6 +121,7 @@ const setUp = (permissions: Permission[], agents: unknown[] = AGENTS) => {
 };
 
 const ALL = [
+  Permission.READ_APP_STATS,
   Permission.LIST_APPS_BY_WORKSPACE,
   Permission.CREATE_APP,
   Permission.READ_APP,
@@ -234,6 +235,13 @@ describe('AgentsList', () => {
     await user.click(screen.getByRole('button', { name: 'Actions of gpu-runner-01' }));
     const items = await screen.findAllByRole('menuitem', { hidden: true });
     expect(items.map(item => item.textContent?.trim())).toEqual(['Open agent', 'Copy ID']);
+  });
+
+  it('lists the agents with no stats for a reader of the apps who may not read the stats', async () => {
+    setUp([Permission.LIST_APPS_BY_WORKSPACE]);
+
+    expect(await screen.findByText('build-linux-01')).toBeInTheDocument();
+    expect(apps.listAgentStats).not.toHaveBeenCalled();
   });
 
   it('asks an admin to add the first agent to open the wizard', async () => {

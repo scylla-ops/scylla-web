@@ -13,15 +13,21 @@ export type ProjectAccess = (projectId: string) => boolean;
 
 /**
  * Projects, pipelines and recent runs of the workspace, each from the module
- * that owns it. Scoped by the backend: no permission gate on the data.
+ * that owns it. The backend scopes the projects. The pipelines and the runs of
+ * the whole workspace need their own permission: without it, the page hides them.
  */
 export const createWorkspaceOverview = () => {
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id);
+  const canListPipelines = $derived(can(Permission.LIST_PIPELINES_BY_WORKSPACE));
+  const canListRuns = $derived(can(Permission.LIST_JOBS_BY_WORKSPACE));
 
   const projectsQuery = createQuery(() => projectQueries.lookup(workspaceId));
-  const pipelinesQuery = createQuery(() => pipelineQueries.byWorkspace(workspaceId));
-  const jobsQuery = createQuery(() => jobQueries.byWorkspace(workspaceId));
+  const pipelinesQuery = createQuery(() => ({
+    ...pipelineQueries.byWorkspace(workspaceId),
+    enabled: !!workspaceId && canListPipelines,
+  }));
+  const jobsQuery = createQuery(() => jobQueries.byWorkspace(workspaceId, canListRuns));
 
   const projects = $derived(projectsQuery.data?.items ?? []);
   const pipelineFeed = $derived(asPipelineFeed(pipelinesQuery.data));
@@ -53,6 +59,12 @@ export const createWorkspaceOverview = () => {
     },
     get projectsError() {
       return projectsQuery.isError;
+    },
+    get canListPipelines() {
+      return canListPipelines;
+    },
+    get canListRuns() {
+      return canListRuns;
     },
     get allPipelines() {
       return allPipelines;

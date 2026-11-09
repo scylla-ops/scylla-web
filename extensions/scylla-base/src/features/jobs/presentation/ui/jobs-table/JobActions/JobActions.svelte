@@ -39,7 +39,7 @@
   }: Props = $props();
 
   const canDelete = $derived(can(Permission.DELETE_JOB));
-  const canRerun = $derived(!!onRerun && can(Permission.RUN_PIPELINE));
+  const canRerun = $derived(!!onRerun && can(Permission.CREATE_JOB));
   const canCancel = $derived(!!onCancel && can(Permission.UPDATE_JOB));
 
   const container = createCompactContainer();

@@ -1,6 +1,7 @@
 <script lang="ts">
   import CircleAlertIcon from '@lucide/svelte/icons/circle-alert';
   import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
+  import { Permission, can } from '@platform/authz';
   import { activeWorkspaceSlug, contextStore } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
   import { appQueries } from '@base/features/apps';
@@ -39,6 +40,9 @@
     ...appQueries.byId(job.agentId ?? '', workspaceId),
     refetchInterval: false,
   }));
+
+  // The agent page needs READ_APP: without it, the id stays plain text.
+  const canOpenAgent = $derived(can(Permission.READ_APP, { workspaceId }));
 
   const duration = $derived.by(() => {
     void now.value;
@@ -99,12 +103,16 @@
         <span class="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
           {t(jobsMessages.agent)}
         </span>
-        <a
-          class="font-mono text-xs text-foreground hover:underline"
-          href="/{activeWorkspaceSlug() ?? ''}/agents/{job.agentId}"
-        >
-          {agent.data?.app.name ?? job.agentId}
-        </a>
+        {#if canOpenAgent}
+          <a
+            class="font-mono text-xs text-foreground hover:underline"
+            href="/{activeWorkspaceSlug() ?? ''}/agents/{job.agentId}"
+          >
+            {agent.data?.app.name ?? job.agentId}
+          </a>
+        {:else}
+          <span class="font-mono text-xs text-foreground">{job.agentId}</span>
+        {/if}
       </span>
     {/if}
   </div>

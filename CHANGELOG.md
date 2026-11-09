@@ -354,6 +354,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The pagination of the jobs and of the pipelines, the end of the project list and the selection bar
   on a phone stay above a button that floats at the bottom right. A module gives the height of this
   button in `ShellContributions.bottomInset` of `@scylla/core-sdk`.
+- A page that a role opens does not ask for what the role cannot read, and does not link to a page
+  that the role cannot open. The dashboard hides the pipelines and the runs, the agents hide their
+  stats, and the editor of a pipeline asks for the secrets only with their permission. A cell of the
+  role editor tells on hover what a click on it also checks.
 
 ## [0.6.0] - 2026-11-01
 

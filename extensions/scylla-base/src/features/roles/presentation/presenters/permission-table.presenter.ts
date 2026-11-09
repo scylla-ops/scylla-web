@@ -7,6 +7,13 @@ import {
   type CatalogAction,
   type CatalogArea,
 } from '../../domain/structs/catalog.struct.ts';
+import { t } from '@scylla/ui/i18n';
+import {
+  actionLabels,
+  areaLabels,
+  needsOthers,
+  rolesMessages,
+} from '../messages/roles.messages.ts';
 
 const LEVELS: readonly RoleLevel[] = ['platform', 'workspace', 'project'];
 
@@ -46,7 +53,31 @@ export type PermissionCell =
       id: string;
       checked: boolean;
       notHeld: boolean;
+      /** The ids of the permissions that a click also checks. */
+      needs: readonly string[];
     };
+
+/** The name of a permission in the table: its area, then its action. */
+export const permissionLabel = (id: string, areas: readonly CatalogArea[]): string => {
+  for (const area of areas) {
+    const permission = area.permissions.find(one => one.id === id);
+    if (!permission) continue;
+    const title = areaLabels[area.id] ? t(areaLabels[area.id].title) : area.id;
+    const action = actionLabels[permission.action];
+    return `${title} · ${action ? t(action) : permission.action}`;
+  }
+  return id;
+};
+
+/** What a cell tells on hover: why it is locked, or what a click on it also checks. */
+export const cellTitle = (
+  cell: Extract<PermissionCell, { id: string }>,
+  areas: readonly CatalogArea[],
+): string | undefined => {
+  if (cell.notHeld) return t(rolesMessages.lockedCell);
+  if (cell.needs.length === 0) return undefined;
+  return t(needsOthers(cell.needs.map(id => permissionLabel(id, areas)).join(', ')));
+};
 
 export interface PermissionRow {
   area: CatalogArea;
@@ -72,7 +103,7 @@ const cellOf = (
       : notHeld && !checked
         ? 'locked'
         : 'open';
-  return { action, kind, id: permission.id, checked, notHeld };
+  return { action, kind, id: permission.id, checked, notHeld, needs: permission.dependsOn };
 };
 
 export const permissionRows = (

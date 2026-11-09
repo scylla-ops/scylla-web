@@ -37,6 +37,19 @@ const page = <T>(items: T[], totalCount = items.length) => ({
   pagination: { totalCount, page: 1, pageSize: 100, totalPages: 1, hasNext: false, hasPrevious: false },
 });
 
+const grantWorkspace = (permissions: Permission[]) =>
+  permissionsStore.setState({
+    permissions: {
+      scopes: [
+        {
+          scope: PermissionScope.WORKSPACE,
+          scopeId: 'org-1',
+          access: { kind: 'restricted', permissions },
+        },
+      ],
+    },
+  });
+
 let getProjects: ReturnType<typeof vi.fn>;
 let getPipelines: ReturnType<typeof vi.fn>;
 let getJobs: ReturnType<typeof vi.fn>;
@@ -59,7 +72,7 @@ beforeEach(() => {
     workspace: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: null, name: null },
   });
-  permissionsStore.setState({ permissions: null });
+  grantWorkspace([Permission.LIST_PIPELINES_BY_WORKSPACE, Permission.LIST_JOBS_BY_WORKSPACE]);
 });
 
 afterEach(() => {
@@ -134,6 +147,18 @@ describe('createWorkspaceOverview', () => {
     });
   });
 
+  it('asks for no pipeline and no run of the workspace without their permissions', async () => {
+    grantWorkspace([]);
+
+    await withOverview(async overview => {
+      await waitFor(() => expect(overview.projects).toHaveLength(1));
+      expect(overview.canListPipelines).toBe(false);
+      expect(overview.canListRuns).toBe(false);
+      expect(getPipelines).not.toHaveBeenCalled();
+      expect(getJobs).not.toHaveBeenCalled();
+    });
+  });
+
   it('surfaces the projects failure, since it is the one the page refuses to render without', async () => {
     getProjects.mockRejectedValue(new ScyllaError('boom'));
 
@@ -144,6 +169,8 @@ describe('createWorkspaceOverview', () => {
 
   describe('canOpenProject', () => {
     it('denies while permissions are unknown', async () => {
+      permissionsStore.setState({ permissions: null });
+
       await withOverview(overview => {
         expect(overview.canOpenProject('project-1')).toBe(false);
       });

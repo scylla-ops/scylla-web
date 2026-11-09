@@ -76,7 +76,11 @@ beforeEach(() => {
           scopeId: '',
           access: {
             kind: 'restricted',
-            permissions: [Permission.LIST_AGENTS, Permission.LIST_APPS_BY_WORKSPACE],
+            permissions: [
+              Permission.LIST_AGENTS,
+              Permission.LIST_APPS_BY_WORKSPACE,
+              Permission.READ_APP_STATS,
+            ],
           },
         },
       ],

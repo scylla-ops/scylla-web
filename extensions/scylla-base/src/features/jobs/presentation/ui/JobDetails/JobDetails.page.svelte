@@ -24,7 +24,7 @@
 
   const rerun = createMutation(() => jobMutations.rerun(job?.pipelineId ?? ''));
   const canRerun = $derived(
-    !!job && isFinishedStatus(job.status) && can(Permission.RUN_PIPELINE),
+    !!job && isFinishedStatus(job.status) && can(Permission.CREATE_JOB),
   );
 
   // A getter: the nodes arrive with the job.

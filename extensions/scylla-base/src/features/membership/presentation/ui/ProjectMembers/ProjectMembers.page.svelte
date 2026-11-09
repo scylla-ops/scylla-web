@@ -107,6 +107,8 @@
   });
 
   const slug = $derived(routePathname().split('/')[1] ?? '');
+  // The members of the workspace need their own permission: without it, the row has no link.
+  const canSeeWorkspace = $derived(can(Permission.LIST_WORKSPACE_MEMBERS));
   const openChange = () => navigateTo(`/${slug}/access/members`);
 </script>
 
@@ -186,7 +188,7 @@
                   </div>
                 </TableCell>
                 <TableCell class="text-right">
-                  {#if row.inheritedOnly}
+                  {#if row.inheritedOnly && canSeeWorkspace}
                     <button
                       type="button"
                       class="text-xs font-medium text-primary hover:underline"
@@ -194,7 +196,7 @@
                     >
                       {t(changeIn(workspaceName))}
                     </button>
-                  {:else if canManage}
+                  {:else if canManage && !row.inheritedOnly}
                     <Button variant="ghost" onclick={() => startChange(row.actorId, row.name)}>
                       {t(membershipMessages.changeRoles)}
                     </Button>

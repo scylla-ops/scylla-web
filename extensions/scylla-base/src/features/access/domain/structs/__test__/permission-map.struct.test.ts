@@ -56,6 +56,7 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'grant',
     'create_role',
     'list_access',
+    'list_agent_stats',
     'list_roles',
     'list_apps',
     'list_invitations',

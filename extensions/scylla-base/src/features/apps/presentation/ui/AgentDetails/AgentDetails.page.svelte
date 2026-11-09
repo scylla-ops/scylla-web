@@ -39,6 +39,7 @@
     can(Permission.MANAGE_WORKSPACE_GRANTS, target) && can(Permission.MANAGE_PROJECT_GRANTS, target),
   );
   const canReadJobs = $derived(can(Permission.LIST_JOBS_BY_WORKSPACE, target));
+  const canReadStats = $derived(can(Permission.READ_APP_STATS, target));
 
   const details = createQuery(() => appQueries.byId(appId, workspaceId));
   const jobs = createQuery(() => appQueries.jobs(workspaceId, appId, canReadJobs));
@@ -98,36 +99,41 @@
         keyCount={details.data?.keys.length ?? 0}
       />
     {:else}
-      {#if stats.timeline?.stats}
-        <AgentTimeline
-          bounds={stats.timeline.bounds}
-          stats={stats.timeline.stats}
+      <!-- The stats need their own permission: a reader of the apps can miss it. -->
+      {#if canReadStats}
+        {#if stats.timeline?.stats}
+          <AgentTimeline
+            bounds={stats.timeline.bounds}
+            stats={stats.timeline.stats}
+            period={stats.period}
+            preset={stats.timeline.preset}
+            today={stats.today}
+            disabled={stats.disabled}
+            onChoose={stats.choose}
+          />
+        {:else if stats.timeline}
+          <Skeleton class="h-[134px] w-full rounded-xl" />
+        {/if}
+        <AgentStatsRow
+          stats={stats.stats}
+          lastRunAt={jobs.data?.[0]?.createdAt}
           period={stats.period}
-          preset={stats.timeline.preset}
           today={stats.today}
-          disabled={stats.disabled}
-          onChoose={stats.choose}
         />
-      {:else if stats.timeline}
-        <Skeleton class="h-[134px] w-full rounded-xl" />
       {/if}
-      <AgentStatsRow
-        stats={stats.stats}
-        lastRunAt={jobs.data?.[0]?.createdAt}
-        period={stats.period}
-        today={stats.today}
-      />
       <div class="grid gap-4 lg:grid-cols-3">
         <div class="lg:col-span-2">
-          <JobsPerDayCard
-            stats={stats.stats}
-            period={stats.period}
-            today={stats.today}
-            joined={stats.joined}
-            disabled={stats.disabled}
-            never={stats.never}
-            withTimeline={!!stats.timeline}
-          />
+          {#if canReadStats}
+            <JobsPerDayCard
+              stats={stats.stats}
+              period={stats.period}
+              today={stats.today}
+              joined={stats.joined}
+              disabled={stats.disabled}
+              never={stats.never}
+              withTimeline={!!stats.timeline}
+            />
+          {/if}
         </div>
         <AgentMachineCard {agent} />
       </div>

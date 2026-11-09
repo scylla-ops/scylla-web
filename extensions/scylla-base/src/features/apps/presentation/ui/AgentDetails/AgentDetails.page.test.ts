@@ -52,6 +52,7 @@ const outcomes = (completed: number, failed: number) => ({
 });
 
 const ALL = [
+  Permission.READ_APP_STATS,
   Permission.READ_APP,
   Permission.CREATE_APP,
   Permission.DELETE_APP,
@@ -464,6 +465,15 @@ describe('AgentDetails', () => {
     expect(screen.queryByRole('button', { name: 'New join code' })).not.toBeInTheDocument();
     expect(screen.queryByText('Access')).not.toBeInTheDocument();
     expect(screen.queryByText('Recent jobs')).not.toBeInTheDocument();
+  });
+
+  it('shows the agent with no stats to a reader of the apps who may not read the stats', async () => {
+    setUp(agent(), [Permission.READ_APP]);
+
+    expect(await screen.findByRole('heading', { name: 'build-linux-01' })).toBeInTheDocument();
+    expect(screen.queryByText('Jobs per day')).not.toBeInTheDocument();
+    expect(screen.queryByText('Success rate')).not.toBeInTheDocument();
+    expect(apps.getAgentStats).not.toHaveBeenCalled();
   });
 
   it('says so when each key is revoked', async () => {

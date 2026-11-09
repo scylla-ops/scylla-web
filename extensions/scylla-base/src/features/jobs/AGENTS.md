@@ -142,8 +142,8 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
   replaced — do not put one back.
 - Lists go through `DataTable` + pagination. Row keys are job ids, never indices.
 - **Re-run is on an ended job only** (`isFinishedStatus`), in the jobs table and in the job
-  details header, and only with `RUN_PIPELINE`. The new job runs the nodes and the inputs of the
-  old job, not the pipeline as it is now. `jobMutations.rerun` refreshes the list and opens the
+  details header, and only with `CREATE_JOB` (`rerun_job` on the server, not `run_pipeline`).
+  The new job runs the nodes and the inputs of the old job, not the pipeline as it is now. `jobMutations.rerun` refreshes the list and opens the
   new job. The action is disabled while the mutation is pending, so a double click makes one job.
 - **A node shows `Attempt N/M` only when it can retry and it started** (`attemptOf`: `M > 1` and
   `N > 0`), in the node list and in the node panel header.
