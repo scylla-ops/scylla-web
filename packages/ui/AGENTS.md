@@ -133,7 +133,9 @@ scylla-base is the only place that changes the theme.
 `motion/` holds the transitions. `prefersReducedMotion()` is not optional decoration: the
 `@media (prefers-reduced-motion: reduce)` block in `styles.css` neutralises CSS animations, but a
 Svelte transition writes inline styles from JavaScript and that query never sees it — every
-transition here asks and collapses its duration to zero.
+transition here asks and collapses its duration to zero. `springEasing({ bounce, duration })`
+gives a spring as an easing, with the parameters of the design tools: the thumb of
+`SegmentedControl` and the rail tile of the core use it.
 
 ### `primitives/` — the primitives
 

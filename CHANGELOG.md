@@ -305,6 +305,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The line on the right edge of the sidebar and the line below the band of the logo and the top bar
   are light again, in the light and in the dark theme. Before, they had the strong color of the
   inputs and looked thick.
+- When the user opens another page from the rail, the green tile of the old row shrinks and fades
+  out, and the tile of the new row grows in its row with a small bounce. Before, the tile jumped
+  from one row to the other with no transition. With a reduced motion setting, the tile only fades.
+  A page load shows the tile with no motion.
 
 ## [0.6.0] - 2026-11-01
 

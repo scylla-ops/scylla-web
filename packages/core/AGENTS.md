@@ -46,7 +46,8 @@ src/
     ShellFrame/                                the sidebars + top bar around the pages of a `shell` mount
     AppSidebar/                                the sidebars, built from the nav entries
                                                DoubleSidebar: the brand band, Rail, SecondSidebar
-                                               (nav-rail.ts: the rail of the sections)
+                                               (nav-rail.ts: the rail of the sections,
+                                               rail-tile.attachments.svelte.ts: the tile of the active row)
                                                SecondSidebarHandle: the edge that the user moves
                                                (second-sidebar-width.state.svelte.ts: the width and its limits,
                                                second-sidebar-handle.attachments.ts: the drag and the keys)
@@ -215,6 +216,15 @@ module gives an access policy.
   pointer goes out, and the open rail has no content. Without `disabled`, each row that the
   pointer crosses on the open rail keeps its tooltip open, and the tooltip shows when the rail
   closes.
+- **The tile of the active row fades and pops, it does not move along the rail.** Each row has
+  its own tile (`data-slot="sidebar-rail-tile"`) on a hover layer, under the icon and the title.
+  When the active row changes, the old tile shrinks to 75 % and fades out in 160 ms. The new tile
+  starts at 56 %, fades in in 100 ms and grows on a spring (bounce 0.4, 500 ms) that goes a
+  little past its size (`animateTile`, Web Animations). The class of the tile gives its end
+  state, thus the first render has no motion. The hover layer stays 200 ms after the click,
+  under the tile that grows, then fades out. The row has no `overflow-hidden`, because it must
+  not cut the spring. With `prefers-reduced-motion`, the tile only fades in 150 ms, and the
+  color of the icon changes in 150 ms.
 - **Only the user opens the rail.** A hover or a focus does not open it. A click on an empty part
   of the rail or on its separator opens and closes it, and the cursor shows the direction. The
   separator is the way for the keyboard. A row opens its page and closes the rail. A press outside
