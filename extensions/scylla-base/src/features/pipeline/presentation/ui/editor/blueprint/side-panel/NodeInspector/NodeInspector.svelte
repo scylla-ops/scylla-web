@@ -132,12 +132,7 @@
   {/if}
 
   <div class="flex items-center gap-2 border-t px-4 py-3">
-    <Button
-      variant="ghost"
-      size="sm"
-      class="-ml-2 text-destructive hover:text-destructive"
-      onclick={onDelete}
-    >
+    <Button variant="ghost-destructive" size="sm" class="-ml-2" onclick={onDelete}>
       <Trash2Icon class="size-4" />
       {t(nodeMessages.deleteNode)}
     </Button>

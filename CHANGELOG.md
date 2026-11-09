@@ -345,6 +345,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The Roles card of a member shows the workspace as a header with its icon and its kind, not as one
   more role. The projects are inside the workspace. In Effective access, Change roles, the remove
   dialog and the members of a project, a scope is an icon and a name, not a pill.
+- All the actions that delete, remove, revoke, disable or deactivate are red: in menus, in the rows
+  of tables and lists, in headers and in the confirmation dialogs. In a menu, they are the last
+  items, after a separator. The danger zones of the account, of a user, of an agent and of an app
+  have the same look.
 
 ## [0.6.0] - 2026-11-01
 

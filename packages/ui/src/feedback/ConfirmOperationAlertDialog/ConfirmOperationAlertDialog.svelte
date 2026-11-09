@@ -20,6 +20,8 @@
     description?: string;
     /** Says what the action does, e.g. "Deactivate". Default: "Continue". */
     continueLabel?: string;
+    /** `default`: an action that takes nothing away, e.g. "Reactivate". */
+    variant?: 'destructive' | 'default';
     isLoading?: boolean;
   }
 
@@ -30,6 +32,7 @@
     title,
     description,
     continueLabel,
+    variant = 'destructive',
     isLoading = false,
   }: Props = $props();
 </script>
@@ -47,7 +50,7 @@
       <AlertDialogCancel onclick={() => onOpenChange(false)} disabled={isLoading}>
         {t(confirmOperationMessages.cancel)}
       </AlertDialogCancel>
-      <AlertDialogAction onclick={onContinue} disabled={isLoading}>
+      <AlertDialogAction {variant} onclick={onContinue} disabled={isLoading}>
         {continueLabel ?? t(confirmOperationMessages.continue)}
       </AlertDialogAction>
     </AlertDialogFooter>

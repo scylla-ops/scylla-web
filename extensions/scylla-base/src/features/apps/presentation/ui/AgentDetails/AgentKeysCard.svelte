@@ -21,6 +21,7 @@
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
     Input,
     Label,
@@ -89,6 +90,7 @@
         <PencilIcon class="size-4" aria-hidden="true" />
         {t(messages.rename)}
       </DropdownMenuItem>
+      <DropdownMenuSeparator />
       <DropdownMenuItem variant="destructive" onSelect={() => (revoking = key)}>
         <TrashIcon class="size-4" aria-hidden="true" />
         {t(messages.revoke)}

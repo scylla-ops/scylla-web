@@ -6,6 +6,7 @@
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
     buttonVariants,
   } from '@scylla/ui/primitives';
@@ -99,7 +100,8 @@
       <DropdownMenuItem onSelect={() => onOpenToSide(row.node.id)}>
         {t(scriptingMessages.openToSide)}
       </DropdownMenuItem>
-      <DropdownMenuItem onSelect={() => onRemove(row.node.id)} class="text-destructive">
+      <DropdownMenuSeparator />
+      <DropdownMenuItem variant="destructive" onSelect={() => onRemove(row.node.id)}>
         {t(nodeMessages.deleteNode)}
       </DropdownMenuItem>
     </DropdownMenuContent>

@@ -10,6 +10,7 @@
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from '@scylla/ui/primitives';
   import { IconButton } from '@scylla/ui';
@@ -76,7 +77,8 @@
           </DropdownMenuItem>
         {/if}
         {#if canDelete}
-          <DropdownMenuItem onSelect={onDelete} class="text-destructive">
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive" onSelect={onDelete}>
             <TrashIcon class="w-4 h-4 mr-2" />
             {t(jobsMessages.delete)}
           </DropdownMenuItem>
@@ -109,7 +111,7 @@
         icon={TrashIcon}
         tooltip={t(jobsMessages.delete)}
         onclick={onDelete}
-        class="hover:text-destructive hover:bg-destructive-subtle"
+        variant="destructive"
       />
     {/if}
   {/if}

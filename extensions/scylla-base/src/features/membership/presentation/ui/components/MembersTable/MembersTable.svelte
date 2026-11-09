@@ -6,6 +6,7 @@
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
     Skeleton,
     Table,
@@ -124,7 +125,8 @@
                     <DropdownMenuItem onSelect={() => onChangeRoles(row)}>
                       {t(membershipMessages.changeRoles)}
                     </DropdownMenuItem>
-                    <DropdownMenuItem onSelect={() => onRemove(row)}>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem variant="destructive" onSelect={() => onRemove(row)}>
                       {t(membershipMessages.removeFromWorkspace)}
                     </DropdownMenuItem>
                   {/if}

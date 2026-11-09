@@ -211,7 +211,7 @@
     </div>
     <div class="flex shrink-0 gap-2">
       {#if role}
-        <Button variant="outline" onclick={() => (confirmDelete = true)}>
+        <Button variant="destructive" onclick={() => (confirmDelete = true)}>
           {t(rolesMessages.deleteRole)}
         </Button>
       {/if}

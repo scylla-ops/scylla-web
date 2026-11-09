@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button } from '@scylla/ui/primitives';
-  import { ConfirmOperationAlertDialog } from '@scylla/ui';
+  import { ConfirmOperationAlertDialog, DangerZone } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
   import type { UserDetail } from './user-detail.state.svelte.ts';
@@ -64,21 +64,20 @@
   {/if}
 
   {#if page.canDelete}
-    <SettingsSection
-      title={t(userMessages.dangerZone)}
-      description={t(userMessages.deleteUserBody)}
-      tone="danger"
-    >
-      <Button variant="destructive" onclick={() => page.askDelete()}>
-        {t(userMessages.deleteUser)}
-      </Button>
-    </SettingsSection>
+    <DangerZone title={t(userMessages.dangerZone)} description={t(userMessages.deleteUserBody)}>
+      {#snippet action()}
+        <Button variant="destructive" onclick={() => page.askDelete()}>
+          {t(userMessages.deleteUser)}
+        </Button>
+      {/snippet}
+    </DangerZone>
   {/if}
 
   <ConfirmOperationAlertDialog
     open={page.confirmStatusChange}
     onOpenChange={page.askStatusChange}
     isLoading={page.isChangingStatus}
+    variant={user.isActive ? 'destructive' : 'default'}
     title={user.isActive ? t(userMessages.deactivateTitle) : t(userMessages.reactivateTitle)}
     description={user.isActive ? t(userMessages.deactivateBody) : t(userMessages.reactivateBody)}
     continueLabel={user.isActive

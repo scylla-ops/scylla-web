@@ -38,7 +38,8 @@ src/
                            CopyableText, TruncatedText
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
-  layout/                  FeatureHeader, ContextItem, PageTransition, ScyllaLoadingScreen
+  layout/                  FeatureHeader, ContextItem, DangerZone, PageTransition,
+                           ScyllaLoadingScreen
   motion/                  page transitions, reduced motion, a spring easing
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
                            frame, for an editor that fills a pane with its own borders)
@@ -74,7 +75,9 @@ catalogs of this package register themselves.
 | A select with a search | `SearchSelect`, with `options` as data. `row` draws a richer option. `chip` shows the choice as a chip in the field: the text of the field is then the search only, and the owner clears its value to remove the chip. Use `Select` only for a short fixed list |
 | One choice out of a few: a filter, a mode, a period | `SegmentedControl`, with `options` as data (a count, a dot, an icon). `fill` for equal columns over the full width, `size="sm"` in a toolbar. See "`SegmentedControl`". Not for real tabs (`Tabs`) or for a choice of several (`ToggleGroup type="multiple"`) |
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`, and `data-*` attributes, which go on its content). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
-| Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue" |
+| Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue". Its button is destructive; `variant="default"` for an action that takes nothing away ("Reactivate") |
+| An action that deletes, removes, revokes, disables or deactivates | The destructive variant, never a red class. See "Destructive actions" |
+| The section of a settings page with the actions that cannot be undone | `DangerZone` (`title`, `description`, `action`: the destructive button, `children`) |
 | Show a one-time secret | `SecretRevealDialog` |
 | Error state | `ErrorState` |
 | Class names | `cn()` |
@@ -341,6 +344,27 @@ The same cell snippets render in both layouts. Each column says where it goes in
 icon (`newIcon`, `Plus` by default) with its label for screen readers only, and when something is
 selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of the screen
 (`data-part="feature-header-selection-bar"`). Without a selection there is no bar.
+
+## Destructive actions
+
+An action that deletes, removes, revokes, disables or deactivates something has one look in all
+the app: red, and the red comes from a variant.
+
+| Where | Use |
+|---|---|
+| A menu | `DropdownMenuItem variant="destructive"`. The destructive items are the last items, after a `DropdownMenuSeparator` |
+| A button that stands alone: in a header, a settings section, a `DangerZone`, the footer of a dialog | `Button variant="destructive"` |
+| An action on each row of a table or a list, or in a side panel | `IconButton variant="destructive"`, or `Button variant="ghost-destructive"` |
+| The confirmation | `ConfirmOperationAlertDialog`: its button is destructive |
+
+- Do not make an action red with a class (`text-destructive`, `hover:bg-destructive-subtle`).
+  Use the variant.
+- A control that removes a row or a value of a form that is not saved yet (an argument, a chip)
+  is not destructive.
+- `extensions/scylla-base/src/shell/__test__/destructive-actions.test.ts` reads the labels of the
+  actions of scylla-base. It fails when an action with a destructive label has no destructive
+  variant, when a class makes an action red, or when a destructive menu item is not at the end
+  after a separator.
 
 ## Rules that bite here
 

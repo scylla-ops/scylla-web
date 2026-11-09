@@ -8,6 +8,7 @@
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from '@scylla/ui/primitives';
   import { Identity } from '@shared/presentation/ui';
@@ -87,7 +88,8 @@
       {/if}
       <DropdownMenuItem onclick={() => onView(user)}>{t(userMessages.openUser)}</DropdownMenuItem>
       {#if canDelete(user)}
-        <DropdownMenuItem onclick={() => onDelete(user)}>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive" onclick={() => onDelete(user)}>
           {t(userMessages.deleteUser)}
         </DropdownMenuItem>
       {/if}

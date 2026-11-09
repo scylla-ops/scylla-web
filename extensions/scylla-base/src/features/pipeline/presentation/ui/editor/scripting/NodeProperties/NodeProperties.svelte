@@ -74,9 +74,9 @@
 
   <div class="border-t px-4 py-3">
     <Button
-      variant="ghost"
+      variant="ghost-destructive"
       size="sm"
-      class="-ml-2 text-destructive hover:text-destructive"
+      class="-ml-2"
       onclick={() => scripting.remove(node.id)}
     >
       <Trash2Icon class="size-4" />

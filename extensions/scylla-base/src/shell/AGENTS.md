@@ -23,6 +23,8 @@ shell.module.ts                         ShellModule: mounts, routes of the shell
                                         access, shell parts, onQueryError, onQueryRetry, fallback
 whats-new.ts                            THE release announcement
 __test__/feature-permissions.test.ts    conformance: features gate, shared queries check
+__test__/destructive-actions.test.ts    conformance: an action that deletes, removes, revokes or
+                                        disables has the destructive variant (`@scylla/ui`, "Destructive actions")
 presentation/
   shell-params.ts                       breadcrumbParams, linkParams (from the context store)
   report-query-error.ts                 the one error toast; on UNAUTHENTICATED `closeSession`, `loginPathBackTo` (login);

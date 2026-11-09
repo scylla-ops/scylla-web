@@ -85,7 +85,7 @@
   {/if}
   <Button
     type="button"
-    variant="ghost"
+    variant="ghost-destructive"
     size="icon"
     class="size-8"
     onclick={event => {
@@ -94,7 +94,7 @@
       pendingDeletion = secret.id;
     }}
   >
-    <Trash2Icon class="size-4 text-destructive" />
+    <Trash2Icon class="size-4" />
     <span class="sr-only">{t(secretMessages.deleteSecret)}</span>
   </Button>
 {/snippet}
