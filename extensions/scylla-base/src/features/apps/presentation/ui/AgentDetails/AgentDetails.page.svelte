@@ -32,7 +32,6 @@
   const workspaceName = $derived(context().workspace.name ?? '');
   const target = $derived({ workspaceId });
 
-  const canCreate = $derived(can(Permission.CREATE_APP, target));
   const canManage = $derived(can(Permission.DELETE_APP, target));
   const canReadAccess = $derived(can(Permission.LIST_WORKSPACE_MEMBERS, target));
   const canChangeAccess = $derived(
@@ -52,6 +51,13 @@
 
   const agent = $derived(details.data?.app);
   const never = $derived(!!agent && appStateOf(agent) === 'never' && !agent.disabledAt);
+
+  const userId = localStorage.getItem('userId') ?? '';
+  const created = $derived(!!userId && agent?.createdBy === userId);
+  const canNewCode = $derived(created || can(Permission.CREATE_JOIN_CODE, target));
+  const canRename = $derived(created || can(Permission.RENAME_APP_KEY, target));
+  const canRevoke = $derived(created || can(Permission.REVOKE_APP_KEY, target));
+
   const stats = createAgentStats(() => ({ appId, workspaceId, agent }));
 
   let disabling = $state(false);
@@ -92,7 +98,7 @@
       </div>
     {/if}
 
-    {#if never && canCreate}
+    {#if never && canNewCode}
       <AgentConnectCard
         agentId={agent.id}
         {workspaceId}
@@ -159,9 +165,10 @@
     <AgentKeysCard
       agentId={agent.id}
       keys={details.data?.keys ?? []}
-      onNewCode={canCreate && !agent.disabledAt ? () => (joining = true) : undefined}
-      canManage={canCreate}
-      tourAnchor={!never || !canCreate}
+      onNewCode={canNewCode && !agent.disabledAt ? () => (joining = true) : undefined}
+      {canRename}
+      {canRevoke}
+      tourAnchor={!never || !canNewCode}
     />
 
     {#if canManage}

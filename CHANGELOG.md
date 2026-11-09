@@ -368,6 +368,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The pipeline editor opens on a still canvas. Before, the view moved and zoomed while it centred on
   the nodes. Now the Scylla logo shows until the graph is in place, then the graph and the side
   panel fade in. A failed load shows in the canvas, with Try again.
+- The role editor checks the view of all the workspaces with a permission of a workspace or of a
+  project in a role of the instance, as the server does. On the page of an agent, the rename and the
+  revoke of a key and a new join code need the permissions of their routes, and the creator of the
+  agent also gets them. On the dashboard, a person with only roles on projects opens each project
+  that the person can see.
 
 ## [0.6.0] - 2026-11-01
 

@@ -45,13 +45,15 @@
     keys: AppKeyEntity[];
     /** Absent: the user may not make a join code. */
     onNewCode?: () => void;
-    /** `create_app`: rename and revoke. */
-    canManage: boolean;
+    /** `rename_app_key`, or the creator of the agent. */
+    canRename: boolean;
+    /** `revoke_app_key`, or the creator of the agent. */
+    canRevoke: boolean;
     /** The tour points here to run the agent when no connect card shows. */
     tourAnchor?: boolean;
   }
 
-  let { agentId, keys, onNewCode, canManage, tourAnchor = false }: Props = $props();
+  let { agentId, keys, onNewCode, canRename, canRevoke, tourAnchor = false }: Props = $props();
 
   const rename = createMutation(() => appMutations.renameKey());
   const revoke = createMutation(() => appMutations.revokeKey());
@@ -86,15 +88,21 @@
       <span class="sr-only">{t(messages.keyActions(nameOf(key)))}</span>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-40">
-      <DropdownMenuItem onSelect={() => startRename(key)}>
-        <PencilIcon class="size-4" aria-hidden="true" />
-        {t(messages.rename)}
-      </DropdownMenuItem>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem variant="destructive" onSelect={() => (revoking = key)}>
-        <TrashIcon class="size-4" aria-hidden="true" />
-        {t(messages.revoke)}
-      </DropdownMenuItem>
+      {#if canRename}
+        <DropdownMenuItem onSelect={() => startRename(key)}>
+          <PencilIcon class="size-4" aria-hidden="true" />
+          {t(messages.rename)}
+        </DropdownMenuItem>
+      {/if}
+      {#if canRename && canRevoke}
+        <DropdownMenuSeparator />
+      {/if}
+      {#if canRevoke}
+        <DropdownMenuItem variant="destructive" onSelect={() => (revoking = key)}>
+          <TrashIcon class="size-4" aria-hidden="true" />
+          {t(messages.revoke)}
+        </DropdownMenuItem>
+      {/if}
     </DropdownMenuContent>
   </DropdownMenu>
 {/snippet}
@@ -123,7 +131,7 @@
                   : `${t(messages.active)} · ${formatDay(key.createdAt)}`}
               </p>
             </div>
-            {#if canManage && !key.revokedAt}
+            {#if (canRename || canRevoke) && !key.revokedAt}
               {@render keyMenu(key)}
             {/if}
           </li>
@@ -163,7 +171,7 @@
                 </span>
               </TableCell>
               <TableCell class="text-right">
-                {#if canManage && !key.revokedAt}
+                {#if (canRename || canRevoke) && !key.revokedAt}
                   {@render keyMenu(key)}
                 {/if}
               </TableCell>

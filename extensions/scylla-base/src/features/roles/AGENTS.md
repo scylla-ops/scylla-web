@@ -33,6 +33,7 @@ The catalog of the permissions, the built-in roles, and the custom roles.
 - `PermissionTable` with no `onChange` is the read-only table.
 - A bulk select or clear uses `checkPermissions` and `uncheckPermissions` (`catalog.struct.ts`). They apply `togglePermission` to each cell, so the result is the same as one click on each cell, with the `depends_on` rules.
 - `depends_on` can name a permission of another area, and a dependency can have its own dependencies. `togglePermission` follows them all, as the server does. A cell tells on hover what a click on it also checks (`cellTitle` in `presenters/permission-table.presenter.ts`).
+- In a role of the platform, a permission of a workspace or of a project also needs `workspaces.view` (`needsOf` in `catalog.struct.ts`), because the server adds it: the holder must find the workspaces where it acts. The cell tells it on hover, `togglePermission` checks it, and `fitToRole` adds it when the level becomes the platform.
 - The holders of an instance role need `MANAGE_ROLES`: on the instance, `list_role_holders` comes with `create_role`, not with `list_roles`. "See members" shows only when the user can open the page of the people (`canSeePeople`).
 - A built-in role does not change, so it never opens in the editor.
 - New strings go in `messages/roles.messages.ts`.

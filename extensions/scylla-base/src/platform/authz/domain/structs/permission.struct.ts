@@ -74,6 +74,9 @@ export enum Permission {
   LIST_ROLES = 67,
   LIST_WORKSPACE_ROLES = 69,
   MANAGE_INSTANCE_ADMINS = 68,
+  CREATE_JOIN_CODE = 70,
+  RENAME_APP_KEY = 71,
+  REVOKE_APP_KEY = 72,
 }
 
 const SYSTEM_LEVEL = new Set<Permission>([
@@ -112,6 +115,9 @@ const WORKSPACE_LEVEL = new Set<Permission>([
   Permission.READ_APP,
   Permission.READ_APP_STATS,
   Permission.DELETE_APP,
+  Permission.CREATE_JOIN_CODE,
+  Permission.RENAME_APP_KEY,
+  Permission.REVOKE_APP_KEY,
   Permission.LIST_APPS_BY_WORKSPACE,
   Permission.CREATE_AGENT,
   Permission.LIST_AGENTS,

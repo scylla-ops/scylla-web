@@ -45,8 +45,11 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   the roles of the workspace and of each project (`agent-access.struct.ts`). The sparkline comes
   from `appQueries.agentStats` (one call for the workspace). The stats of the agents need
   `READ_APP_STATS` (`list_agent_stats`), not only `list_apps`: without it, the list and the agent
-  page show no stats and ask for none. Disable and delete need `delete_app`;
-  a new join code needs `create_app`. The other apps have their own page (`AppsList`).
+  page show no stats and ask for none. Disable and delete need `delete_app`. A new join code
+  needs `create_join_code`, and the rename and the revoke of a key need `rename_app_key` and
+  `revoke_app_key`, as the routes of the server. The server also gives these three to the creator
+  of the agent: the page gives them when `createdBy` is the user of the session. The other apps
+  have their own page (`AppsList`).
 - The apps page (`components/AppsList/`) is a table of the other apps. Each line reads its own
   credentials (`credentialQueries.allOf`, one query for each line) and shows the one that needs
   attention first (`mainCredential` in `app-list.struct.ts`). A user may list the apps and not

@@ -3,6 +3,7 @@ import {
   ACTIONS,
   canHoldArea,
   checkPermissions,
+  needsOf,
   uncheckPermissions,
   type CatalogAction,
   type CatalogArea,
@@ -88,6 +89,7 @@ export interface PermissionRow {
 
 const cellOf = (
   area: CatalogArea,
+  catalog: readonly CatalogArea[],
   action: CatalogAction,
   level: RoleLevel,
   selected: ReadonlySet<string>,
@@ -103,17 +105,23 @@ const cellOf = (
       : notHeld && !checked
         ? 'locked'
         : 'open';
-  return { action, kind, id: permission.id, checked, notHeld, needs: permission.dependsOn };
+  const needs = needsOf(permission.id, catalog, level);
+  return { action, kind, id: permission.id, checked, notHeld, needs };
 };
 
+/**
+ * The rows of the areas of a tab. `catalog` is the whole catalog: a permission can need a
+ * permission of another tab.
+ */
 export const permissionRows = (
   areas: readonly CatalogArea[],
+  catalog: readonly CatalogArea[],
   level: RoleLevel,
   selected: ReadonlySet<string>,
   held?: ReadonlySet<string>,
 ): PermissionRow[] =>
   areas.map(area => {
-    const cells = ACTIONS.map(action => cellOf(area, action, level, selected, held));
+    const cells = ACTIONS.map(action => cellOf(area, catalog, action, level, selected, held));
     return { area, cells, open: cells.flatMap(cell => (cell.kind === 'open' ? [cell.id] : [])) };
   });
 
@@ -138,7 +146,8 @@ export const flipAll = (
   ids: readonly string[],
   selected: ReadonlySet<string>,
   areas: readonly CatalogArea[],
+  level: RoleLevel,
 ): Set<string> =>
   markOf(ids, selected) === 'all'
-    ? uncheckPermissions(selected, ids, areas)
-    : checkPermissions(selected, ids, areas);
+    ? uncheckPermissions(selected, ids, areas, level)
+    : checkPermissions(selected, ids, areas, level);

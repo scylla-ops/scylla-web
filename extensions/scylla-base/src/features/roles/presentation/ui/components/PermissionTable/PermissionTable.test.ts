@@ -217,6 +217,35 @@ describe('PermissionTable: a column', () => {
   });
 });
 
+describe('PermissionTable: a role of the instance', () => {
+  const catalog: CatalogArea[] = [
+    {
+      id: 'workspaces',
+      level: 'platform',
+      machine: false,
+      permissions: [
+        { id: 'workspaces.view', action: 'view', dependsOn: ['workspace.view'], implicit: false },
+      ],
+    },
+    ...areas,
+  ];
+
+  it('checks the view of each workspace with a permission of a workspace, and tells it', async () => {
+    const onChange = vi.fn<(selected: Set<string>) => void>();
+    render(PermissionTableFixture, { areas: catalog, level: 'platform', initial: [], onChange });
+    await userEvent.click(screen.getByRole('tab', { name: /Workspace/ }));
+    const cell = screen.getByRole('checkbox', { name: 'Members · View' });
+
+    expect(cell).toHaveAttribute('title', 'Needs Workspaces · View');
+    await userEvent.click(cell);
+    expect([...(onChange.mock.calls.at(-1)?.[0] ?? [])].sort()).toEqual([
+      'members.view',
+      'workspace.view',
+      'workspaces.view',
+    ]);
+  });
+});
+
 describe('PermissionTable: read only', () => {
   it('shows the tabs with no checkbox and no button', () => {
     render(PermissionTable, {

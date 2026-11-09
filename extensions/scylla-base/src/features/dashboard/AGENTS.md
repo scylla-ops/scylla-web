@@ -31,13 +31,14 @@ wrong.
 | From | Read |
 |---|---|
 | `@platform/context` | `contextStore` — the current workspace |
-| `@platform/authz` | `can`, `Permission` — per-project access |
+| `@platform/authz` | `can`, `canAccess`, `Permission` — per-project access |
+| `features/access` | `accessQueries.myScope`, for each project that the workspace does not open |
 | `features/project` | `projectQueries.lookup` |
 | `features/pipeline` | `pipelineQueries.byWorkspace` + `asPipelineFeed` |
 | `features/jobs` | `jobQueries.byWorkspace` + `asJobFeed` |
 | `features/agents` | `agentQueries.byWorkspace`, `agentQueries.statsOf` (in the chart) |
 
-All four reads are `queryOptions` objects, so this module shares one cache entry per resource
+All these reads are `queryOptions` objects, so this module shares one cache entry per resource
 with whoever else reads it.
 
 ## Layout
@@ -74,6 +75,11 @@ narrower permission without moving that redirect target too.
   pipelines and the runs of the workspace need `LIST_PIPELINES_BY_WORKSPACE` and
   `LIST_JOBS_BY_WORKSPACE`. Without one, `createWorkspaceOverview` does not ask for it, and the
   page hides its numbers, its card and its section. The agent chart needs `READ_APP_STATS`.
+- **A project card opens when the user can open the project.** `can()` knows only the active
+  project, so a person with only project roles gets no answer from the workspace.
+  `createWorkspaceOverview` asks `CheckPermissions` on each project that the workspace does not
+  open, and only these. A card stays inert only when the project also refuses
+  `LIST_PIPELINES_BY_PROJECT`.
 - **Never add a repository.** If the dashboard needs a new figure, add the query to the module
   that *owns* the resource and export the options factory from its `index.ts`. A
   `pipelineRepository` call made from here would fork the query cache into two keys for one

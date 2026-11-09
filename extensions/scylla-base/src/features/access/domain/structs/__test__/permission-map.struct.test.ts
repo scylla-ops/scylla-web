@@ -73,6 +73,7 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'rerun_job',
     'resend_invitation',
     'revoke',
+    'rename_app_key',
     'revoke_app_key',
     'revoke_invitation',
     'run_jobs',

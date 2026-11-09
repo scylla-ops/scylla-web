@@ -14,6 +14,7 @@
     TooltipTrigger,
   } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
+  import type { RoleLevel } from '../../../../domain/entities/role.entity.ts';
   import {
     ACTIONS,
     togglePermission,
@@ -43,12 +44,14 @@
     rows: readonly PermissionRow[];
     /** The whole catalog: a dependency can be in another area. */
     areas: readonly CatalogArea[];
+    /** The level of the role: a role of the platform needs more for a permission of a workspace. */
+    level: RoleLevel;
     selected: ReadonlySet<string>;
     /** Absent: the table only shows. */
     onChange?: (selected: Set<string>) => void;
   }
 
-  let { rows, areas, selected, onChange }: Props = $props();
+  let { rows, areas, level, selected, onChange }: Props = $props();
 
   let hovered = $state<CatalogAction | null>(null);
 
@@ -58,7 +61,7 @@
     t(tabMark === 'all' ? clearTab(tabIds.length) : selectTab(tabIds.length)),
   );
 
-  const flip = (ids: readonly string[]) => onChange?.(flipAll(ids, selected, areas));
+  const flip = (ids: readonly string[]) => onChange?.(flipAll(ids, selected, areas, level));
 
   const areaTitle = (area: CatalogArea) =>
     areaLabels[area.id] ? t(areaLabels[area.id].title) : area.id;
@@ -139,7 +142,7 @@
                 class={cell.kind === 'always' ? ALWAYS_ON_CLASS : undefined}
                 title={cellTitle(cell, areas)}
                 aria-label={name}
-                onCheckedChange={() => onChange?.(togglePermission(selected, cell.id, areas))}
+                onCheckedChange={() => onChange?.(togglePermission(selected, cell.id, areas, level))}
               />
             {:else if cell.checked}
               <CheckIcon class="mx-auto size-4 text-primary" aria-label={name} />

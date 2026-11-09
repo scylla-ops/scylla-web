@@ -53,6 +53,8 @@ const grantWorkspace = (permissions: Permission[]) =>
 let getProjects: ReturnType<typeof vi.fn>;
 let getPipelines: ReturnType<typeof vi.fn>;
 let getJobs: ReturnType<typeof vi.fn>;
+type Check = (object: { id: string }) => Promise<Set<string>>;
+let checkAccess: ReturnType<typeof vi.fn<Check>>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
@@ -60,12 +62,14 @@ beforeEach(() => {
   getProjects = vi.fn().mockResolvedValue({ items: [project()] });
   getPipelines = vi.fn().mockResolvedValue(page([pipeline()]));
   getJobs = vi.fn().mockResolvedValue(page([job()]));
+  checkAccess = vi.fn<Check>().mockResolvedValue(new Set());
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
     project: { projectRepository: { getByWorkspaceId: getProjects } },
     pipeline: { pipelineRepository: { getMetadataByWorkspaceId: getPipelines } },
     jobs: { jobsRepository: { getByWorkspaceId: getJobs } },
+    access: { accessRepository: { check: checkAccess } },
   });
 
   contextStore.setState({
@@ -192,6 +196,31 @@ describe('createWorkspaceOverview', () => {
       await withOverview(overview => {
         expect(overview.canOpenProject('project-1')).toBe(true);
         expect(overview.canOpenProject('project-2')).toBe(false);
+      });
+    });
+
+    it('asks a project that the workspace does not open what the user can do on it', async () => {
+      getProjects.mockResolvedValue({
+        items: [project(), project({ id: 'project-2', name: 'Other' })],
+      });
+      checkAccess.mockImplementation(({ id }: { id: string }) =>
+        Promise.resolve(new Set(id === 'project-1' ? ['list_project_pipelines'] : [])),
+      );
+
+      await withOverview(async overview => {
+        await waitFor(() => expect(overview.canOpenProject('project-1')).toBe(true));
+        expect(overview.canOpenProject('project-2')).toBe(false);
+        expect(checkAccess).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    it('asks no project that the workspace opens', async () => {
+      grantWorkspace([Permission.LIST_PIPELINES_BY_PROJECT]);
+
+      await withOverview(async overview => {
+        await waitFor(() => expect(overview.projects).toHaveLength(1));
+        expect(overview.canOpenProject('project-1')).toBe(true);
+        expect(checkAccess).not.toHaveBeenCalled();
       });
     });
   });
