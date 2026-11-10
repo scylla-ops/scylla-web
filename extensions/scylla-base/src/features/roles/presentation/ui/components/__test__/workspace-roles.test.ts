@@ -111,7 +111,6 @@ describe('WorkspaceRolesList', () => {
     expect(
       [...(stack?.querySelectorAll('[data-kind]') ?? [])].map(one => one.getAttribute('data-kind')),
     ).toEqual(['person', 'agent', 'app']);
-    expect(stack).toHaveAttribute('title', 'Lina, build-agent-01, github-ci');
     expect(screen.getByText('5 holders')).toBeInTheDocument();
     expect(holders).toHaveBeenCalledWith('workspace-member', 'w-1');
   });
@@ -152,6 +151,7 @@ describe('WorkspaceRolesList', () => {
     const names = () =>
       screen
         .getAllByRole('button')
+        .filter(button => !button.hasAttribute('aria-haspopup'))
         .map(button => button.textContent?.trim())
         .filter(name => name !== 'Role');
 

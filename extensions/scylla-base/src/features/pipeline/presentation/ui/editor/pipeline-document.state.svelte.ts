@@ -2,6 +2,9 @@ import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities
 import * as pipelineDocument from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
 import { pipelineIssue } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
+/** Why the editor has no document yet: the pipeline loads, or its load failed. */
+export type MissingDocument = 'loading' | 'failed';
+
 export interface PipelineDocumentParams {
   projectId: () => string;
   /** A default draft, or a fetched pipeline. */

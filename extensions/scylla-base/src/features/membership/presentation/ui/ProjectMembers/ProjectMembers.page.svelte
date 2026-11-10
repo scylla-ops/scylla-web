@@ -37,6 +37,7 @@
   import { buildProjectMemberRows, memberProfile } from '../../presenters/member-rows.presenter.ts';
   import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
   import ChooseActorRow from '../components/ChooseActorRow/ChooseActorRow.svelte';
+  import ScopeLabel from '../components/ScopeLabel.svelte';
 
   let { projectId }: { projectId?: string } = $props();
 
@@ -106,6 +107,8 @@
   });
 
   const slug = $derived(routePathname().split('/')[1] ?? '');
+  // The members of the workspace need their own permission: without it, the row has no link.
+  const canSeeWorkspace = $derived(can(Permission.LIST_WORKSPACE_MEMBERS));
   const openChange = () => navigateTo(`/${slug}/access/members`);
 </script>
 
@@ -178,16 +181,14 @@
                   </div>
                 </TableCell>
                 <TableCell class="whitespace-normal">
-                  <div class="flex flex-wrap gap-1.5">
+                  <div class="flex flex-wrap gap-x-3 gap-y-1.5">
                     {#each row.scopes as scope (scope.scopeKind)}
-                      <span class="rounded-full bg-muted px-2.5 py-0.5 text-xs">
-                        {scope.scopeName}
-                      </span>
+                      <ScopeLabel kind={scope.scopeKind} name={scope.scopeName} />
                     {/each}
                   </div>
                 </TableCell>
                 <TableCell class="text-right">
-                  {#if row.inheritedOnly}
+                  {#if row.inheritedOnly && canSeeWorkspace}
                     <button
                       type="button"
                       class="text-xs font-medium text-primary hover:underline"
@@ -195,7 +196,7 @@
                     >
                       {t(changeIn(workspaceName))}
                     </button>
-                  {:else if canManage}
+                  {:else if canManage && !row.inheritedOnly}
                     <Button variant="ghost" onclick={() => startChange(row.actorId, row.name)}>
                       {t(membershipMessages.changeRoles)}
                     </Button>

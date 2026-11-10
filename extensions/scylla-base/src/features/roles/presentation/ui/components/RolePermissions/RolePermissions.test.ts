@@ -85,6 +85,23 @@ describe('RolePermissions', () => {
     expect(card.getByText('Open the role to change them.')).toBeInTheDocument();
   });
 
+  it('widens the card to its longest row up to the viewport, and wraps the actions that do not fit under the resource', async () => {
+    render(RolePermissions, { role: role(), areas });
+
+    await userEvent.hover(screen.getByRole('button', { name: '+2' }));
+
+    const card = await findTooltip();
+    expect(card).toHaveClass(
+      'w-max',
+      'max-w-[min(320px,var(--bits-tooltip-content-available-width))]',
+    );
+    const [jobs] = within(card).getAllByRole('listitem', { hidden: true });
+    const edit = within(jobs).getByText('Edit');
+    expect(jobs).toHaveClass('flex-wrap');
+    expect(edit.parentElement).toHaveClass('flex-wrap');
+    expect(edit).toHaveClass('whitespace-nowrap');
+  });
+
   it('opens the card from the keyboard too', async () => {
     render(RolePermissions, { role: role({ builtin: true }), areas });
 

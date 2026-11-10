@@ -111,14 +111,17 @@ describe('JobActions', () => {
     expect(onRerun).not.toHaveBeenCalled();
   });
 
-  it('hides the re-run action without RUN_PIPELINE', () => {
+  it('hides the re-run action from a runner of the pipeline without CREATE_JOB', () => {
     permissionsStore.setState({
       permissions: {
         scopes: [
           {
             scope: PermissionScope.SYSTEM,
             scopeId: '',
-            access: { kind: 'restricted', permissions: [Permission.DELETE_JOB] },
+            access: {
+              kind: 'restricted',
+              permissions: [Permission.DELETE_JOB, Permission.RUN_PIPELINE],
+            },
           },
         ],
       },

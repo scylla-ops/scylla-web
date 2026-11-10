@@ -54,6 +54,11 @@ export interface ShellContributions {
   topBarEnd?: readonly Component[];
   /** Rendered once over the shell, e.g. a dialog. */
   overlays?: readonly Component[];
+  /**
+   * The height in px of the band at the bottom of the view that an overlay always covers, e.g. a
+   * launcher. The frame keeps this band free below its pages. The largest value wins.
+   */
+  bottomInset?: number;
   /** After the title of every sidebar link. `url` is the link's path in its mount. */
   navBadge?: Component<{ url: string }>;
   /** Called when the user opens a sidebar link. */

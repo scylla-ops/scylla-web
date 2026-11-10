@@ -10,6 +10,7 @@
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from '@scylla/ui/primitives';
   import { IconButton } from '@scylla/ui';
@@ -38,7 +39,7 @@
   }: Props = $props();
 
   const canDelete = $derived(can(Permission.DELETE_JOB));
-  const canRerun = $derived(!!onRerun && can(Permission.RUN_PIPELINE));
+  const canRerun = $derived(!!onRerun && can(Permission.CREATE_JOB));
   const canCancel = $derived(!!onCancel && can(Permission.UPDATE_JOB));
 
   const container = createCompactContainer();
@@ -76,7 +77,8 @@
           </DropdownMenuItem>
         {/if}
         {#if canDelete}
-          <DropdownMenuItem onSelect={onDelete} class="text-destructive">
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive" onSelect={onDelete}>
             <TrashIcon class="w-4 h-4 mr-2" />
             {t(jobsMessages.delete)}
           </DropdownMenuItem>
@@ -109,7 +111,7 @@
         icon={TrashIcon}
         tooltip={t(jobsMessages.delete)}
         onclick={onDelete}
-        class="hover:text-destructive hover:bg-destructive-subtle"
+        variant="destructive"
       />
     {/if}
   {/if}

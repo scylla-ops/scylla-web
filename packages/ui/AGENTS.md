@@ -38,7 +38,8 @@ src/
                            CopyableText, TruncatedText
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
-  layout/                  FeatureHeader, ContextItem, PageTransition, ScyllaLoadingScreen
+  layout/                  FeatureHeader, ContextItem, DangerZone, PageTransition,
+                           ScyllaLoadingScreen
   motion/                  page transitions, reduced motion, a spring easing
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
                            frame, for an editor that fills a pane with its own borders)
@@ -74,7 +75,9 @@ catalogs of this package register themselves.
 | A select with a search | `SearchSelect`, with `options` as data. `row` draws a richer option. `chip` shows the choice as a chip in the field: the text of the field is then the search only, and the owner clears its value to remove the chip. Use `Select` only for a short fixed list |
 | One choice out of a few: a filter, a mode, a period | `SegmentedControl`, with `options` as data (a count, a dot, an icon). `fill` for equal columns over the full width, `size="sm"` in a toolbar. See "`SegmentedControl`". Not for real tabs (`Tabs`) or for a choice of several (`ToggleGroup type="multiple"`) |
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`, and `data-*` attributes, which go on its content). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
-| Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue" |
+| Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue". Its button is destructive; `variant="default"` for an action that takes nothing away ("Reactivate") |
+| An action that deletes, removes, revokes, disables or deactivates | The destructive variant, never a red class. See "Destructive actions" |
+| The section of a settings page with the actions that cannot be undone | `DangerZone` (`title`, `description`, `action`: the destructive button, `children`) |
 | Show a one-time secret | `SecretRevealDialog` |
 | Error state | `ErrorState` |
 | Class names | `cn()` |
@@ -84,6 +87,7 @@ catalogs of this package register themselves.
 | Translating | `t()` from `@scylla/ui/i18n`, over a `*.messages.ts` |
 | A page transition | `PageTransition` — the core's router already wraps every page in it |
 | Panels the user can resize | `ResizablePaneGroup`, `ResizablePane`, `ResizableHandle` (`@scylla/ui/primitives`, on paneforge). See "`resizable`" below |
+| A card that opens on hover and holds links | `HoverCard`, `HoverCardTrigger`, `HoverCardContent` (bits-ui `LinkPreview`). A `Tooltip` holds text only: it must not hold a link. See "`hover-card`" below |
 
 ## Forms: the app checks the values, not the browser
 
@@ -169,6 +173,17 @@ peer dependency, like bits-ui). `ResizablePaneGroup` and `ResizableHandle` are w
   (200 ms) when it collapses, expands or changes size, but not while a pointer drags a handle
   (`data-active="pointer"` on the handle, read with `:has()`), so the drag follows the pointer.
   A pane that collapses during a drag still shrinks smoothly. `motion-reduce` removes it.
+
+**`hover-card`** (`primitives/hover-card/`) is on `LinkPreview` of bits-ui, the name that bits-ui
+gives to the hover card of Radix. `HoverCard` and `HoverCardTrigger` are aliased, `HoverCardContent`
+is a wrapper in a portal.
+
+- The trigger is an `<a>`. Give it your element with the `child` snippet, for example a `<button>`.
+  The trigger has `aria-expanded` and `data-state="open"` while the card is open.
+- The card opens on hover and on a focus from the keyboard, after `openDelay` (700 ms by default).
+- As in Radix, the card is for a pointer. It is at the end of `<body>`, so Tab from the trigger
+  does not go into it, and it closes when the trigger loses the focus. A keyboard reads the card,
+  but does not use its links: put each link also on a page that a keyboard can open.
 
 The sidebar (`Sidebar*`, `setSidebar` / `getSidebar`) keeps its open state in a Svelte context
 that `SidebarProvider` creates. `sidebar.state.svelte.ts` holds it; the mobile layout uses the
@@ -342,6 +357,27 @@ icon (`newIcon`, `Plus` by default) with its label for screen readers only, and 
 selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of the screen
 (`data-part="feature-header-selection-bar"`). Without a selection there is no bar.
 
+## Destructive actions
+
+An action that deletes, removes, revokes, disables or deactivates something has one look in all
+the app: red, and the red comes from a variant.
+
+| Where | Use |
+|---|---|
+| A menu | `DropdownMenuItem variant="destructive"`. The destructive items are the last items, after a `DropdownMenuSeparator` |
+| A button that stands alone: in a header, a settings section, a `DangerZone`, the footer of a dialog | `Button variant="destructive"` |
+| An action on each row of a table or a list, or in a side panel | `IconButton variant="destructive"`, or `Button variant="ghost-destructive"` |
+| The confirmation | `ConfirmOperationAlertDialog`: its button is destructive |
+
+- Do not make an action red with a class (`text-destructive`, `hover:bg-destructive-subtle`).
+  Use the variant.
+- A control that removes a row or a value of a form that is not saved yet (an argument, a chip)
+  is not destructive.
+- `extensions/scylla-base/src/shell/__test__/destructive-actions.test.ts` reads the labels of the
+  actions of scylla-base. It fails when an action with a destructive label has no destructive
+  variant, when a class makes an action red, or when a destructive menu item is not at the end
+  after a separator.
+
 ## Rules that bite here
 
 - **All titles use one font, and `styles.css` sets it.** Its `@layer base` gives `font-display`
@@ -383,6 +419,13 @@ selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of 
   because the padding takes height from its content. The frame cannot add this space for all
   pages: a page with its own scroll area has the same content height as a page that is taller
   than the view, thus only the page knows which of the two it is.
+- **The frame keeps the band of the overlays free below a page that fills the view.** A module
+  gives the height of this band in `shell.bottomInset` (the Feedback launcher: 56 px). The frame
+  sets it in `--shell-bottom-inset` on its scroll area (`0px` with no such overlay), and its
+  bottom padding is at least this value. Thus the last row of a page that fills the view (the
+  pagination of the jobs, the buttons of an editor) stays above the launcher. An element of a
+  page that is `fixed` to the bottom of the view adds `var(--shell-bottom-inset,0px)` to its
+  `bottom`, as the selection bar of `FeatureHeader` on a phone.
 - **Between a `sticky` element and its scroller, use `overflow-clip`, not `overflow-hidden`.**
   `overflow-hidden` makes a scroll container. The `sticky` element then sticks in that box,
   which does not scroll, and it moves away with the content. `overflow-clip` clips the same

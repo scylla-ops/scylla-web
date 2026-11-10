@@ -140,12 +140,17 @@ export const dockerUpdateCommand = (image: string): string =>
 
 export const DOCKER_UNINSTALL_COMMAND = 'docker rm -f scylla-agent\ndocker volume rm scylla-agent';
 
-/** The command that shows the logs of an agent, for each way. */
+/**
+ * The command that shows the logs of an agent, for each way. On Windows, the logs of the agent of
+ * the user, or the logs of the service when the user has no agent.
+ */
 export const LOG_COMMANDS: Record<InstallWay, string> = {
   linux: 'journalctl -u scylla-agent -f',
   macos: 'tail -f ~/.scylla-agent/agent.log',
   windows:
-    'Get-Content -Wait "$env:ProgramData\\scylla-agent\\agent.$(Get-Date -Format yyyy-MM-dd).log"',
+    '$log = "$env:LOCALAPPDATA\\scylla-agent\\agent.log"\n' +
+    'if (-not (Test-Path $log)) { $log = "$env:ProgramData\\scylla-agent\\agent.$(Get-Date -Format yyyy-MM-dd).log" }\n' +
+    'Get-Content -Wait $log',
   docker: 'docker logs -f scylla-agent',
 };
 

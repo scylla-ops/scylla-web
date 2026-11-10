@@ -7,6 +7,7 @@ import {
   formatCountdown,
   installCommands,
   isLoopback,
+  LOG_COMMANDS,
   releaseUrl,
   secondsLeft,
   uninstallCommand,
@@ -157,5 +158,17 @@ describe('the expiry of a join code', () => {
     expect(secondsLeft('2026-11-04T11:59:00.000Z', now)).toBe(0);
     expect(formatCountdown(861)).toBe('14:21');
     expect(formatCountdown(5)).toBe('0:05');
+  });
+});
+
+describe('the logs of an agent', () => {
+  it('reads the file of the agent of the user on Windows, or else the files of the service', () => {
+    const [user, service, read] = LOG_COMMANDS.windows.split('\n');
+
+    expect(user).toBe(String.raw`$log = "$env:LOCALAPPDATA\scylla-agent\agent.log"`);
+    expect(service).toContain(
+      String.raw`if (-not (Test-Path $log)) { $log = "$env:ProgramData\scylla-agent\agent.`,
+    );
+    expect(read).toBe('Get-Content -Wait $log');
   });
 });

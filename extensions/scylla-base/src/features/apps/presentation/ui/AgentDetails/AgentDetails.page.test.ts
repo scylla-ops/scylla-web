@@ -30,6 +30,7 @@ const agent = (patch: Record<string, unknown> = {}) => ({
   connected: true,
   lastSeenAt: '2026-11-04T14:03:00.000Z',
   host,
+  createdBy: 'u-admin',
   createdAt: '2026-10-12T00:00:00.000Z',
   runningJobs: 2,
   disabledAt: '',
@@ -52,9 +53,13 @@ const outcomes = (completed: number, failed: number) => ({
 });
 
 const ALL = [
+  Permission.READ_APP_STATS,
   Permission.READ_APP,
   Permission.CREATE_APP,
   Permission.DELETE_APP,
+  Permission.CREATE_JOIN_CODE,
+  Permission.RENAME_APP_KEY,
+  Permission.REVOKE_APP_KEY,
   Permission.LIST_WORKSPACE_MEMBERS,
   Permission.MANAGE_WORKSPACE_GRANTS,
   Permission.MANAGE_PROJECT_GRANTS,
@@ -171,6 +176,7 @@ const periodsAsked = () => apps.getAgentStats.mock.calls.map(([, period]) => per
 beforeEach(() => vi.clearAllMocks());
 afterEach(() => {
   teardown.forEach(restore => restore());
+  localStorage.removeItem('userId');
   permissionsStore.setState({ permissions: null });
   vi.useRealTimers();
 });
@@ -500,6 +506,38 @@ describe('AgentDetails', () => {
     expect(screen.queryByRole('button', { name: 'New join code' })).not.toBeInTheDocument();
     expect(screen.queryByText('Access')).not.toBeInTheDocument();
     expect(screen.queryByText('Recent jobs')).not.toBeInTheDocument();
+  });
+
+  it('gives the keys and a new join code only to who may manage the apps, as the server does', async () => {
+    setUp(agent(), [Permission.READ_APP, Permission.CREATE_APP]);
+
+    expect(await screen.findByRole('heading', { name: 'build-linux-01' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'New join code' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Actions of the key build-linux-01.acme.lan' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('gives the keys and a new join code to the creator of the agent with no other right', async () => {
+    localStorage.setItem('userId', 'u-maker');
+    setUp(agent({ createdBy: 'u-maker' }), [Permission.READ_APP]);
+    const user = userEvent.setup();
+
+    expect(await screen.findByRole('button', { name: 'New join code' })).toBeInTheDocument();
+    await user.click(
+      screen.getByRole('button', { name: 'Actions of the key build-linux-01.acme.lan' }),
+    );
+    expect(await findFloating('menuitem', 'Rename')).toBeInTheDocument();
+    expect(await findFloating('menuitem', 'Revoke')).toBeInTheDocument();
+  });
+
+  it('shows the agent with no stats to a reader of the apps who may not read the stats', async () => {
+    setUp(agent(), [Permission.READ_APP]);
+
+    expect(await screen.findByRole('heading', { name: 'build-linux-01' })).toBeInTheDocument();
+    expect(screen.queryByText('Jobs per day')).not.toBeInTheDocument();
+    expect(screen.queryByText('Success rate')).not.toBeInTheDocument();
+    expect(apps.getAgentStats).not.toHaveBeenCalled();
   });
 
   it('says so when each key is revoked', async () => {

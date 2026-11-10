@@ -28,7 +28,7 @@ export const addAgentMessages = {
   docker: msg`Docker`,
   linuxHint: msg`It asks for your sudo password. It installs the service scylla-agent, which starts again after a restart of the machine. With no sudo, add --no-service.`,
   macosHint: msg`It needs no sudo. The agent runs while your user is signed in.`,
-  windowsHint: msg`Run it in PowerShell as administrator. It installs the service ScyllaAgent. A script step needs Git for Windows. With no admin rights, add -NoService.`,
+  windowsHint: msg`It needs no admin rights. In PowerShell, it installs the agent for your user, and the agent starts at each sign-in. In PowerShell as administrator, it installs the service ScyllaAgent, which starts with the machine. A script step needs Git for Windows.`,
   dockerHint: msg`This agent runs shell steps with bash and git. It does not run container steps.`,
   dockerContainers: msg`Run container steps (Linux only)`,
   dockerSocketWarning: msg`A job can then control the Docker of this machine, with root rights. Use this only for pipelines that you trust.`,

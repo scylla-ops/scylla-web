@@ -32,6 +32,7 @@
   let editing = $state<SecretEntity | null>(null);
 
   const canUpdate = $derived(can(Permission.UPDATE_SECRET, { projectId }));
+  const canDelete = $derived(can(Permission.DELETE_SECRET, { projectId }));
 
   const confirmDelete = () => {
     const secretId = pendingDeletion;
@@ -83,20 +84,22 @@
       <span class="sr-only">{t(secretMessages.editSecret)}</span>
     </Button>
   {/if}
-  <Button
-    type="button"
-    variant="ghost"
-    size="icon"
-    class="size-8"
-    onclick={event => {
-      // A click on the row toggles its selection; deleting must not.
-      event.stopPropagation();
-      pendingDeletion = secret.id;
-    }}
-  >
-    <Trash2Icon class="size-4 text-destructive" />
-    <span class="sr-only">{t(secretMessages.deleteSecret)}</span>
-  </Button>
+  {#if canDelete}
+    <Button
+      type="button"
+      variant="ghost-destructive"
+      size="icon"
+      class="size-8"
+      onclick={event => {
+        // A click on the row toggles its selection; deleting must not.
+        event.stopPropagation();
+        pendingDeletion = secret.id;
+      }}
+    >
+      <Trash2Icon class="size-4" />
+      <span class="sr-only">{t(secretMessages.deleteSecret)}</span>
+    </Button>
+  {/if}
 {/snippet}
 
 <DataTable

@@ -77,8 +77,11 @@ const MAP: Partial<Record<Permission, Names>> = {
   // The apps of a workspace; an agent is an app that runs jobs.
   [Permission.CREATE_APP]: { workspace: 'create_app' },
   [Permission.READ_APP]: { workspace: 'get_app' },
-  [Permission.READ_APP_STATS]: { workspace: 'get_app' },
+  [Permission.READ_APP_STATS]: { workspace: 'list_agent_stats' },
   [Permission.DELETE_APP]: { workspace: 'delete_app' },
+  [Permission.CREATE_JOIN_CODE]: { workspace: 'create_join_code' },
+  [Permission.RENAME_APP_KEY]: { workspace: 'rename_app_key' },
+  [Permission.REVOKE_APP_KEY]: { workspace: 'revoke_app_key' },
   [Permission.LIST_APPS_BY_WORKSPACE]: { workspace: 'list_apps' },
   [Permission.CREATE_AGENT]: { workspace: 'create_app' },
   [Permission.LIST_AGENTS]: { workspace: 'list_apps' },

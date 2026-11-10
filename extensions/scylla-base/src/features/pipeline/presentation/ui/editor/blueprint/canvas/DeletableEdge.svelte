@@ -9,6 +9,7 @@
     type EdgeProps,
   } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
+  import { Button } from '@scylla/ui/primitives';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import { EDGE_COLOR } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
   import { getBlueprintCanvas } from './blueprint-canvas.context.ts';
@@ -70,17 +71,19 @@
       >
         <PlusIcon class="size-3.5" />
       </button>
-      <button
+      <Button
         type="button"
+        variant="ghost-destructive"
+        size="icon-xs"
         aria-label={t(pipelineMessages.deleteEdge)}
-        class="flex size-6 items-center justify-center rounded-full text-destructive transition-colors hover:bg-destructive-subtle"
+        class="rounded-full"
         onclick={event => {
           event.stopPropagation();
           void deleteElements({ edges: [{ id }] });
         }}
       >
         <Trash2Icon class="size-3.5" />
-      </button>
+      </Button>
     </div>
   </EdgeLabel>
 {/if}

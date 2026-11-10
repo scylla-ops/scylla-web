@@ -39,7 +39,6 @@ export const pipelineMessages = {
   selectProjectFirst: msg`Select a project first`,
   create: msg`Create`,
   save: msg`Save`,
-  loadPipelineError: msg`Failed to load pipeline`,
   invalidJson: msg`Invalid JSON`,
   scripting: msg`Scripting`,
   blueprint: msg`Blueprint`,

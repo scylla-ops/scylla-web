@@ -58,6 +58,7 @@ export function toDomain(app: App): AppEntity {
     connected: app.connected,
     lastSeenAt: timestampToIso(app.lastSeenAt),
     host: hostToDomain(app.host),
+    createdBy: idValue(app.createdBy),
     createdAt: timestampToIso(app.createdAt),
     runningJobs: app.runningJobs,
     disabledAt: timestampToIso(app.disabledAt),

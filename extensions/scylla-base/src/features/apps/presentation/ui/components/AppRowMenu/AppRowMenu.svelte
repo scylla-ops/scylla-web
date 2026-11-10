@@ -32,6 +32,9 @@
   }
 
   let { app, openLabel, onOpen, onNewCode, onDisable, onEnable, onDelete }: Props = $props();
+
+  const enableShown = $derived(!!app.disabledAt && !!onEnable);
+  const disableShown = $derived(!enableShown && !!onDisable);
 </script>
 
 <DropdownMenu>
@@ -56,19 +59,22 @@
         {t(messages.newJoinCode)}
       </DropdownMenuItem>
     {/if}
-    {#if app.disabledAt && onEnable}
+    {#if enableShown}
       <DropdownMenuItem onSelect={onEnable}>
         <PowerIcon class="size-4" aria-hidden="true" />
         {t(messages.enable)}
       </DropdownMenuItem>
-    {:else if onDisable}
-      <DropdownMenuItem onSelect={onDisable}>
+    {/if}
+    {#if disableShown || onDelete}
+      <DropdownMenuSeparator />
+    {/if}
+    {#if disableShown}
+      <DropdownMenuItem variant="destructive" onSelect={onDisable}>
         <PowerOffIcon class="size-4" aria-hidden="true" />
         {t(messages.disable)}
       </DropdownMenuItem>
     {/if}
     {#if onDelete}
-      <DropdownMenuSeparator />
       <DropdownMenuItem variant="destructive" onSelect={onDelete}>
         <TrashIcon class="size-4" aria-hidden="true" />
         {t(messages.delete)}

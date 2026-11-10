@@ -1,7 +1,14 @@
-import { Permission, can } from '@platform/authz';
+import {
+  Permission,
+  authorizationReady,
+  can,
+  canAccess,
+  type EffectiveScope,
+} from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { createQuery } from '@scylla/core-sdk';
+import { createQueries, createQuery } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
+import { accessQueries, projectRef } from '@base/features/access';
 import { projectQueries } from '@base/features/project';
 import { asPipelineFeed, pipelineQueries, type PipelineMetadata } from '@base/features/pipeline';
 import { asJobFeed, jobQueries } from '@base/features/jobs';
@@ -11,19 +18,43 @@ export type PipelineWithProject = PipelineMetadata & { projectName: string };
 /** Whether the user may open the project (the project route needs the same permission). */
 export type ProjectAccess = (projectId: string) => boolean;
 
+type ScopeResult = { data?: EffectiveScope };
+
+const OPENS = Permission.LIST_PIPELINES_BY_PROJECT;
+
 /**
  * Projects, pipelines and recent runs of the workspace, each from the module
- * that owns it. Scoped by the backend: no permission gate on the data.
+ * that owns it. The backend scopes the projects. The pipelines and the runs of
+ * the whole workspace need their own permission: without it, the page hides them.
  */
 export const createWorkspaceOverview = () => {
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id);
+  const canListPipelines = $derived(can(Permission.LIST_PIPELINES_BY_WORKSPACE));
+  const canListRuns = $derived(can(Permission.LIST_JOBS_BY_WORKSPACE));
 
   const projectsQuery = createQuery(() => projectQueries.lookup(workspaceId));
-  const pipelinesQuery = createQuery(() => pipelineQueries.byWorkspace(workspaceId));
-  const jobsQuery = createQuery(() => jobQueries.byWorkspace(workspaceId));
+  const pipelinesQuery = createQuery(() => ({
+    ...pipelineQueries.byWorkspace(workspaceId),
+    enabled: !!workspaceId && canListPipelines,
+  }));
+  const jobsQuery = createQuery(() => jobQueries.byWorkspace(workspaceId, canListRuns));
 
   const projects = $derived(projectsQuery.data?.items ?? []);
+
+  // `can()` knows only the active project: ask the projects that the workspace does not open.
+  const unknownIds = $derived(
+    authorizationReady()
+      ? projects.map(project => project.id).filter(id => !can(OPENS, { projectId: id }))
+      : [],
+  );
+  const projectScopes = createQueries(() => ({
+    queries: unknownIds.map(id => accessQueries.myScope(projectRef(id))),
+  }));
+  const fromProjects = $derived({
+    scopes: ([...projectScopes] as ScopeResult[]).flatMap(({ data }) => (data ? [data] : [])),
+  });
+
   const pipelineFeed = $derived(asPipelineFeed(pipelinesQuery.data));
   const jobFeed = $derived(asJobFeed(jobsQuery.data));
 
@@ -54,6 +85,12 @@ export const createWorkspaceOverview = () => {
     get projectsError() {
       return projectsQuery.isError;
     },
+    get canListPipelines() {
+      return canListPipelines;
+    },
+    get canListRuns() {
+      return canListRuns;
+    },
     get allPipelines() {
       return allPipelines;
     },
@@ -82,7 +119,8 @@ export const createWorkspaceOverview = () => {
     },
     /** Reactive: a row becomes clickable once the permissions load. */
     canOpenProject: ((projectId: string) =>
-      can(Permission.LIST_PIPELINES_BY_PROJECT, { projectId })) satisfies ProjectAccess,
+      can(OPENS, { projectId }) ||
+      canAccess(fromProjects, OPENS, { projectId })) satisfies ProjectAccess,
   };
 };
 

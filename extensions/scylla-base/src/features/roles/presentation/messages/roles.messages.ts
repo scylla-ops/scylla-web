@@ -39,6 +39,24 @@ export const andMore = (count: number) => msg`and ${count} more`;
 export const holderCount = (count: number) =>
   msg`${plural(count, { one: '# holder', other: '# holders' })}`;
 
+export const peopleCount = (count: number) =>
+  msg`${plural(count, { one: '# person', other: '# people' })}`;
+
+export const agentsCount = (count: number) =>
+  msg`${plural(count, { one: '# agent', other: '# agents' })}`;
+
+export const appsCount = (count: number) =>
+  msg`${plural(count, { one: '# app', other: '# apps' })}`;
+
+export const projectsCount = (count: number) =>
+  msg`${plural(count, { one: '# project', other: '# projects' })}`;
+
+export const workspacesCount = (count: number) =>
+  msg`${plural(count, { one: '# workspace', other: '# workspaces' })}`;
+
+export const moreHolders = (count: number) =>
+  msg`${plural(count, { one: '+# more', other: '+# more' })}`;
+
 export const morePermissions = (count: number) =>
   msg`${plural(count, { one: '# more permission', other: '# more permissions' })}`;
 
@@ -63,6 +81,8 @@ export const clearColumn = (action: string) => msg`Clear the whole ${action} col
 
 export const allOf = (area: string) => msg`${area} · All actions`;
 
+export const needsOthers = (names: string) => msg`Needs ${names}`;
+
 export const rolesMessages = {
   roles: msg`Roles`,
   role: msg`Role`,
@@ -82,6 +102,7 @@ export const rolesMessages = {
   noAccessGivers: msg`A workspace admin or an instance admin.`,
   noAccessLink: msg`The Access menu does not show Roles to you. You opened this page from a link.`,
   seeMembers: msg`See members`,
+  seeAllMembers: msg`See all members`,
   moveHoldersTo: msg`Move the holders to`,
   moveHoldersHint: msg`They keep their other roles. Compare the two roles before you move the holders.`,
   moveAndDelete: msg`Move holders and delete`,

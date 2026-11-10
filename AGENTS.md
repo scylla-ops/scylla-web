@@ -497,6 +497,10 @@ The components and helpers below are in `@scylla/ui` (entry points `@scylla/ui`,
 - **List headers**: `FeatureHeader` (count, clear/delete selection, new button).
 - **Modals**: `ScyllaDialog` for every modal, never `Dialog` + `DialogContent` directly — a
   `{#key}` around `DialogContent` leaves the modal impossible to close.
+- **Destructive actions** (delete, remove, revoke, disable, deactivate): the destructive variant
+  of the menu item, the button or `IconButton`, never a red class; in a menu, at the end after a
+  separator; confirmed by `ConfirmOperationAlertDialog`; on a settings page, in a `DangerZone`.
+  See `packages/ui/AGENTS.md`, "Destructive actions". A conformance test enforces it.
 - **Forms**: declarative `ScyllaForm` from `FormItem[]`; `FormDialog` wraps it in a dialog;
   `createFormState(() => items)` manages values/changes/reset/validation. Both are generic over
   the item ids — type the items `readonly FormItem<'a' | 'b'>[]` and `onSubmit` hands back a typed

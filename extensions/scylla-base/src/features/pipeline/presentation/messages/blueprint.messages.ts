@@ -21,6 +21,12 @@ export const blueprintMessages = {
   keyCancel: msg`cancel`,
   closeMenu: msg`Close the menu`,
 
+  loadingPipeline: msg`Loading the pipeline…`,
+  slowLoad: msg`Taking longer than usual…`,
+  loadFailed: msg`Couldn't load the pipeline`,
+  loadFailedHint: msg`Check your connection, then try again.`,
+  retry: msg`Try again`,
+
   arrange: msg`Arrange`,
   nodeStyle: msg`Node style`,
   styleDetailed: msg`Detailed`,

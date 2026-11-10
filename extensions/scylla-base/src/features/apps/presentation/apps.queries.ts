@@ -55,6 +55,10 @@ const canList = (workspaceId: string) =>
   (can(Permission.LIST_AGENTS, { workspaceId: workspaceId }) ||
     can(Permission.LIST_APPS_BY_WORKSPACE, { workspaceId: workspaceId }));
 
+/** The stats of the agents need their own right: a reader of the apps can miss it. */
+const canReadStats = (workspaceId: string) =>
+  authorizationReady() && can(Permission.READ_APP_STATS, { workspaceId: workspaceId });
+
 /** The roles on the workspace, and on each of its projects. */
 const rolesInWorkspace = async (workspaceId: string) => {
   const client = getQueryClient();
@@ -129,7 +133,7 @@ export const appQueries = {
         new Map(
           (await repository().listAgentStats(workspaceId)).map(stats => [stats.agentId, stats]),
         ),
-      enabled: !!workspaceId && canList(workspaceId),
+      enabled: !!workspaceId && canReadStats(workspaceId),
       refetchInterval: 60_000,
     }),
 
@@ -169,11 +173,7 @@ export const appQueries = {
     queryOptions({
       queryKey: [...APPS_QUERY_ROOT, 'stats', 'one', period?.from, period?.to, appId] as const,
       queryFn: () => repository().getAgentStats(appId, period ?? undefined),
-      enabled:
-        !!appId &&
-        !!period &&
-        authorizationReady() &&
-        can(Permission.READ_APP, { workspaceId: workspaceId }),
+      enabled: !!appId && !!period && canReadStats(workspaceId),
       placeholderData: (previous: AgentStats | undefined) =>
         previous?.agentId === appId ? previous : undefined,
       refetchInterval: 60_000,

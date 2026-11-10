@@ -116,9 +116,10 @@ presentation/
       PipelineTable/                         the table, pipeline-table.columns.ts, and the cells only it
                                              renders (PipelineActions, PipelineChart, PipelineLastJob, PipelineStatus)
     editor/
-      PipelineCreation.page.svelte, PipelineUpdate.page.svelte, PipelineEditor.svelte
+      PipelineCreation.page.svelte, PipelineEditor.svelte
+      PipelineUpdate/                        the edit page (and its test)
       pipeline-document.state.svelte.ts      the document of both tabs: script text, baseline, dirty
-                                             check, and the issue that stops the save
+                                             check, the issue that stops the save; MissingDocument
       unsaved-changes.effect.svelte.ts       warnBeforeUnload: the browser's prompt while unsaved
       PipelineEditorHeader/                  the header, with the name field
       controls/                              what the tabs share: SearchField and
@@ -148,6 +149,8 @@ presentation/
           BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte, DropSpot.svelte
           blueprint-canvas.context.ts        what the nodes and edges read from the canvas
           keep-fitted.attachments.ts         keepFitted: fits the view again when the canvas resizes
+          CanvasCurtain/                     what covers the blueprint until it is ready: the animated
+                                             logo, the slow line, the load error (canvas-curtain.state.svelte.ts)
           node-appearance-preference.state.svelte.ts   the viewer's node style: the local copy of `platform/user-state`
           nodes/                             one node view and one start view per node style,
                                              node-appearances.registry.ts (style → views)
@@ -298,12 +301,23 @@ the page.
   keyed by the mode (`{#key mode}`) and each mode has its own `SIDE_PANEL_SIZES` (percent), so
   the group saves one width per mode: the layout is keyed by the constraints of the panes. The
   inspector holds code, so it is wider than the palette.
-- **The view frames the nodes until the user moves it.** paneforge gives the panes their sizes
-  after the first `fitView`, and animates them, so a single fit frames the nodes in a narrow
-  canvas: they show on the left. `keepFitted` fits again at each resize of the canvas while
-  `fitted` is true. A pan or a zoom by the user (`onmove` with an event, or a zoom button) sets
-  it to false; the fit button sets it to true. Use `onmove`, not `onmovestart`: a click on the
-  pane starts a move with no change of the view.
+- **The user never sees the first fit.** The edit page shows the editor at once: the header has
+  a skeleton in the name field, no status, and Save and the Scripting tab are disabled until the
+  pipeline comes (`missing`, `MissingDocument`). `PipelineBlueprint` mounts with the document
+  only: a graph built before keeps the places of an empty one. In it, the canvas mounts after the
+  first layout of the panes (`onLayoutChange`), and the panes have no transition until the canvas
+  is ready, so the first fit is at the final width. The canvas is ready when Svelte Flow is
+  initialised and the `fitView` promise resolves (the nodes are measured, the view is fitted).
+  Until then, `CanvasCurtain` covers the canvas and the side panel with the look of an empty
+  canvas, and the blueprint is `inert`: the user does not see the side panel or the view move.
+  The times are in `CURTAIN_TIMES`: nothing for 300 ms, then the logo for 400 ms at least, a
+  line after 4 s; the logo fades out in 120 ms, then the curtain in 200 ms. With reduced motion,
+  the dots do not move and a line says that the pipeline loads. A failed load shows in the
+  curtain, with Try again (`refetch`), never as a page of its own.
+- **The view frames the nodes until the user moves it.** `keepFitted` fits again at each resize
+  of the canvas while `fitted` is true. A pan or a zoom by the user (`onmove` with an event, or a
+  zoom button) sets it to false; the fit button sets it to true. Use `onmove`, not `onmovestart`:
+  a click on the pane starts a move with no change of the view.
 - **A rebuild from the document keeps the canvas state.** When the document changes from outside
   (the script tab), the graph is built again: a node that is still there keeps its position and
   its selection, and only a new one is laid out. The document must also read back what it

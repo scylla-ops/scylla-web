@@ -150,6 +150,16 @@ describe('PermissionTable: select all and clear all', () => {
     expect(rowBox('audit')).toBeNull();
   });
 
+  it('tells on a cell what a click on it also checks', () => {
+    open({});
+
+    expect(screen.getByRole('checkbox', { name: 'Members · Manage' })).toHaveAttribute(
+      'title',
+      'Needs Members · View',
+    );
+    expect(screen.getByRole('checkbox', { name: 'Members · View' })).not.toHaveAttribute('title');
+  });
+
   it('leaves out a cell that the caller does not hold', async () => {
     const { last } = open({
       held: new Set(['workspace.edit', 'workspace.delete', 'members.view']),
@@ -204,6 +214,35 @@ describe('PermissionTable: a column', () => {
 
     expect(screen.getByRole('columnheader', { name: 'Run' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Run column/ })).toBeNull();
+  });
+});
+
+describe('PermissionTable: a role of the instance', () => {
+  const catalog: CatalogArea[] = [
+    {
+      id: 'workspaces',
+      level: 'platform',
+      machine: false,
+      permissions: [
+        { id: 'workspaces.view', action: 'view', dependsOn: ['workspace.view'], implicit: false },
+      ],
+    },
+    ...areas,
+  ];
+
+  it('checks the view of each workspace with a permission of a workspace, and tells it', async () => {
+    const onChange = vi.fn<(selected: Set<string>) => void>();
+    render(PermissionTableFixture, { areas: catalog, level: 'platform', initial: [], onChange });
+    await userEvent.click(screen.getByRole('tab', { name: /Workspace/ }));
+    const cell = screen.getByRole('checkbox', { name: 'Members · View' });
+
+    expect(cell).toHaveAttribute('title', 'Needs Workspaces · View');
+    await userEvent.click(cell);
+    expect([...(onChange.mock.calls.at(-1)?.[0] ?? [])].sort()).toEqual([
+      'members.view',
+      'workspace.view',
+      'workspaces.view',
+    ]);
   });
 });
 

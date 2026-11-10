@@ -71,8 +71,9 @@
           {/if}
           <div class="relative overflow-x-auto p-1.5">
             <PermissionGrid
-              rows={permissionRows(tab.areas, level, selected, held)}
+              rows={permissionRows(tab.areas, areas, level, selected, held)}
               {areas}
+              {level}
               {selected}
               {onChange}
             />

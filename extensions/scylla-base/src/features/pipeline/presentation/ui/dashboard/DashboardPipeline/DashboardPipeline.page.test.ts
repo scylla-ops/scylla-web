@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { PermissionScope, permissionsStore } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
@@ -198,6 +198,24 @@ describe('DashboardPipelinePage', () => {
       '/acme/projects/project-1/pipelines/pipeline-1/triggers',
       undefined,
     );
+  });
+
+  it('offers no jobs page to a reader of the pipelines who may not list the jobs', async () => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.PROJECT,
+            scopeId: 'project-1',
+            access: { kind: 'restricted', permissions: [Permission.LIST_PIPELINES_BY_PROJECT] },
+          },
+        ],
+      },
+    });
+    setUp(() => Promise.resolve(page(pipelines)));
+    await screen.findByText('nightly');
+
+    expect(screen.queryByRole('button', { name: 'View Jobs' })).not.toBeInTheDocument();
   });
 
   it('opens the members and the secrets of the project from the header', async () => {

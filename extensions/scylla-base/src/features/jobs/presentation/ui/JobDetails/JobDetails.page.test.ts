@@ -162,6 +162,25 @@ describe('JobDetailsPage', () => {
     );
   });
 
+  it('shows the agent of the job with no link to a user who may not read the apps', async () => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.SYSTEM,
+            scopeId: '',
+            access: { kind: 'restricted', permissions: [Permission.READ_JOB] },
+          },
+        ],
+      },
+    });
+
+    await renderPage(job({ agentId: 'agent-1' }));
+
+    expect(screen.getByText('agent-1')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'agent-1' })).not.toBeInTheDocument();
+  });
+
   it('defaults to the whole job when the URL names no node', async () => {
     await renderPage(job());
     expect(openPanels()).toEqual(['logs for job-1/whole job']);
@@ -348,14 +367,17 @@ describe('JobDetailsPage', () => {
     expect(screen.queryByRole('button', { name: 'Re-run' })).not.toBeInTheDocument();
   });
 
-  it('offers no re-run without RUN_PIPELINE', async () => {
+  it('offers no re-run to a runner of the pipeline without the re-run of a job (CREATE_JOB)', async () => {
     permissionsStore.setState({
       permissions: {
         scopes: [
           {
             scope: PermissionScope.SYSTEM,
             scopeId: '',
-            access: { kind: 'restricted', permissions: [Permission.READ_JOB] },
+            access: {
+              kind: 'restricted',
+              permissions: [Permission.READ_JOB, Permission.RUN_PIPELINE],
+            },
           },
         ],
       },

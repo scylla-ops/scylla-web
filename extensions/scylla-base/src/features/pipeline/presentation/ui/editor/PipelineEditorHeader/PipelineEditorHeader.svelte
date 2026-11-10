@@ -7,6 +7,7 @@
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import type { MissingDocument } from '../pipeline-document.state.svelte.ts';
   import PipelineNameField from './PipelineNameField.svelte';
 
   interface Props {
@@ -14,6 +15,8 @@
     submitLabel: string;
     /** `edit` tracks the unsaved changes; `create` does not. */
     mode: 'create' | 'edit';
+    /** No document to name, to edit or to save: no status, and Save is disabled. */
+    missing?: MissingDocument;
     submitDisabled?: boolean;
     /** Why the pipeline cannot be saved: shown in place of the save status, and Save is disabled. */
     issue?: string;
@@ -29,6 +32,7 @@
     onSubmit,
     submitLabel,
     mode,
+    missing,
     submitDisabled = false,
     issue,
     blueprintDisabled = false,
@@ -61,11 +65,18 @@
   <div class="flex min-w-0 flex-1 items-center gap-3">
     <!-- An invalid script has no name to edit: `blueprintDisabled` says so. -->
     {#key pipelineName}
-      <PipelineNameField name={pipelineName} {onNameChange} disabled={blueprintDisabled} />
+      <PipelineNameField
+        name={pipelineName}
+        {onNameChange}
+        loading={missing === 'loading'}
+        disabled={blueprintDisabled || missing === 'failed'}
+      />
     {/key}
 
     <TabsList class="shrink-0">
-      <TabsTrigger value="scripting">{t(pipelineMessages.scripting)}</TabsTrigger>
+      <TabsTrigger value="scripting" disabled={!!missing}>
+        {t(pipelineMessages.scripting)}
+      </TabsTrigger>
       <TabsTrigger value="blueprint" disabled={blueprintDisabled}>
         {t(pipelineMessages.blueprint)}
       </TabsTrigger>
@@ -73,7 +84,9 @@
   </div>
 
   <div class="flex shrink-0 items-center gap-3">
-    {#if issue}
+    {#if missing}
+      <!-- No status for a document that is not here. -->
+    {:else if issue}
       <p role="alert" class="max-w-md text-sm text-destructive">{issue}</p>
     {:else}
       <div class="flex items-center gap-2 text-sm text-foreground/80">
@@ -108,7 +121,7 @@
         ? t(pipelineMessages.createDenied)
         : t(pipelineMessages.editDenied)}
       onclick={onSubmit}
-      disabled={submitDisabled || !!issue || isSaving}
+      disabled={submitDisabled || !!missing || !!issue || isSaving}
       data-tour="pipeline-submit"
     >
       {#if isSaving}<Loader2Icon class="mr-2 size-4 animate-spin" />{/if}

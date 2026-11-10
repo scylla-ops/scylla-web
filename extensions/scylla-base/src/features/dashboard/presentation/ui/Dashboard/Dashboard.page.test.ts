@@ -43,6 +43,7 @@ let getProjects: ReturnType<typeof vi.fn>;
 let getPipelines: ReturnType<typeof vi.fn>;
 let getJobs: ReturnType<typeof vi.fn>;
 let listAgents: ReturnType<typeof vi.fn>;
+let checkAccess: ReturnType<typeof vi.fn>;
 let navigate: ReturnType<typeof vi.fn<(to: string, options?: unknown) => void>>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
@@ -65,6 +66,7 @@ beforeEach(() => {
   getPipelines = vi.fn().mockResolvedValue(page([pipeline()]));
   getJobs = vi.fn().mockResolvedValue(page([job()]));
   listAgents = vi.fn().mockResolvedValue([]);
+  checkAccess = vi.fn().mockResolvedValue(new Set());
   navigate = vi.fn();
 
   cache = withQueryClient();
@@ -73,6 +75,7 @@ beforeEach(() => {
     pipeline: { pipelineRepository: { getMetadataByWorkspaceId: getPipelines } },
     jobs: { jobsRepository: { getByWorkspaceId: getJobs } },
     agents: { agentsRepository: { listAgents, getAgentStats: vi.fn() } },
+    access: { accessRepository: { check: checkAccess } },
   });
 
   setAppNavigator({
@@ -87,7 +90,11 @@ beforeEach(() => {
     workspace: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: null, name: null },
   });
-  grant([Permission.LIST_PIPELINES_BY_PROJECT]);
+  grant([
+    Permission.LIST_PIPELINES_BY_PROJECT,
+    Permission.LIST_PIPELINES_BY_WORKSPACE,
+    Permission.LIST_JOBS_BY_WORKSPACE,
+  ]);
 });
 
 afterEach(() => {
@@ -150,6 +157,23 @@ describe('DashboardPage', () => {
     expect(navigate).toHaveBeenCalled();
   });
 
+  it('opens a project of a person with only a role on that project', async () => {
+    const user = userEvent.setup();
+    grant([]);
+    checkAccess.mockResolvedValue(new Set(['list_project_pipelines']));
+    render(DashboardPage);
+
+    const card = await cardContaining('Acme project');
+    await vi.waitFor(() => expect(card).not.toHaveAttribute('title'));
+    await user.click(card);
+
+    expect(checkAccess).toHaveBeenCalledWith(
+      { kind: 'project', id: 'project-1' },
+      expect.arrayContaining(['list_project_pipelines']),
+    );
+    expect(navigate).toHaveBeenCalled();
+  });
+
   it('leaves a project the user may see but not open inert, and says why', async () => {
     const user = userEvent.setup();
     grant([]);
@@ -168,6 +192,17 @@ describe('DashboardPage', () => {
     const row = (await screen.findByText('ci')).closest('tr');
     expect(within(row!).getByText('Acme project')).toBeInTheDocument();
     expect(within(row!).getByText('3')).toBeInTheDocument();
+  });
+
+  it('shows the projects alone to a reader of the workspace, and asks for no pipeline and no run', async () => {
+    grant([]);
+    render(DashboardPage);
+
+    expect(await cardContaining('Acme project')).toBeInTheDocument();
+    expect(screen.queryByText('All Pipelines')).not.toBeInTheDocument();
+    expect(screen.queryByText('Runs')).not.toBeInTheDocument();
+    expect(getPipelines).not.toHaveBeenCalled();
+    expect(getJobs).not.toHaveBeenCalled();
   });
 
   it('hides the agent chart whole from a user without READ_APP_STATS', async () => {

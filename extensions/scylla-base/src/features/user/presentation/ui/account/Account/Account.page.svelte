@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Redirect, routeParams } from '@scylla/core-sdk';
   import { Button, Skeleton } from '@scylla/ui/primitives';
-  import { ErrorState } from '@scylla/ui';
+  import { DangerZone, ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { createAccountPage } from './account-page.state.svelte.ts';
@@ -72,17 +72,16 @@
         {:else if current.id === 'tokens'}
           <PersonalTokensSection />
         {:else}
-          <SettingsSection
+          <DangerZone
             title={t(userMessages.deleteMyAccount)}
             description={t(userMessages.deleteMyAccountDescription)}
-            tone="danger"
           >
             {#snippet action()}
-              <Button variant="destructive" size="sm" onclick={page.openDelete}>
+              <Button variant="destructive" onclick={page.openDelete}>
                 {t(userMessages.deleteMyAccount)}
               </Button>
             {/snippet}
-          </SettingsSection>
+          </DangerZone>
         {/if}
       </div>
     </div>

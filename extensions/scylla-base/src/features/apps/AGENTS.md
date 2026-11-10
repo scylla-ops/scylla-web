@@ -27,11 +27,14 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
 - "Add agent" is a dialog in three steps (`components/AddAgentDialog/`): name and projects, install,
   connected. The install step has a tab for Linux (the default), macOS, Windows and Docker, with one
   command and one hint for each (`agent-install.struct.ts`). Linux and macOS have the same command.
+  The tabs list is a flex row, not a grid: in a grid row, a tab gets the height of its content and
+  touches the bottom of the list.
   The commands name the server with `--url` or `-Url`, so the address in the command wins over the
   address in the script. The Docker tab uses the image of the server (`appQueries.server`, from
   `GetCapabilities`), replaces a loopback host with `host.docker.internal`, and has no runtime
   choice. Its choice "Run container steps" gives the socket of the machine and a warning. After one
-  minute, the step shows the command of the logs of the tab. `appQueries.waiting` asks for the app
+  minute, the step shows the command of the logs of the tab. The Windows command reads the log of
+  the agent of the user (the install with no admin rights), or else the logs of the service. `appQueries.waiting` asks for the app
   each 2 s until a machine joined with a new key and the agent is connected (`hasJoined`). Between
   these two events, `isJoining` shows "The machine joined". With an `agent`, the dialog makes a new
   join code for it and starts at the install step. A `Button` in the form must have `type="button"`, because the
@@ -40,8 +43,13 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   (`agent-list.struct.ts`: a running agent is also online), a search on the name and the host name,
   and a table. The access column needs `list_workspace_members`: `appQueries.agentAccess` reads
   the roles of the workspace and of each project (`agent-access.struct.ts`). The sparkline comes
-  from `appQueries.agentStats` (one call for the workspace). Disable and delete need `delete_app`;
-  a new join code needs `create_app`. The other apps have their own page (`AppsList`).
+  from `appQueries.agentStats` (one call for the workspace). The stats of the agents need
+  `READ_APP_STATS` (`list_agent_stats`), not only `list_apps`: without it, the list and the agent
+  page show no stats and ask for none. Disable and delete need `delete_app`. A new join code
+  needs `create_join_code`, and the rename and the revoke of a key need `rename_app_key` and
+  `revoke_app_key`, as the routes of the server. The server also gives these three to the creator
+  of the agent: the page gives them when `createdBy` is the user of the session. The other apps
+  have their own page (`AppsList`).
 - The apps page (`components/AppsList/`) is a table of the other apps. Each line reads its own
   credentials (`credentialQueries.allOf`, one query for each line) and shows the one that needs
   attention first (`mainCredential` in `app-list.struct.ts`). A user may list the apps and not

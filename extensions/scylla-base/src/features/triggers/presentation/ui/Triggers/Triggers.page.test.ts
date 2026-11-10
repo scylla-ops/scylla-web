@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { PermissionScope, permissionsStore } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
@@ -87,6 +87,51 @@ describe('TriggersPage', () => {
     await screen.findByText('nightly');
 
     expect(document.querySelector('[data-tour="triggers"]')).toHaveClass('shrink-0', 'pb-20');
+  });
+
+  it('opens the jobs of the pipeline after a fire', async () => {
+    render(TriggersPage, props);
+    await screen.findByText('nightly');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Fire now' }));
+
+    await vi.waitFor(() =>
+      expect(navigator.navigate).toHaveBeenCalledWith(
+        '/acme/projects/project-1/pipelines/pipeline-1/jobs',
+        undefined,
+      ),
+    );
+  });
+
+  it('stays on the triggers after a fire when the user may not list the jobs', async () => {
+    const fireNow = vi.fn().mockResolvedValue('job-1');
+    restoreRegistry();
+    restoreRegistry = withRegistry({
+      triggers: {
+        triggersRepository: { listByPipelineId, fireNow } as unknown as TriggersRepository,
+      },
+    });
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.SYSTEM,
+            scopeId: '',
+            access: { kind: 'restricted', permissions: [Permission.MANAGE_TRIGGERS] },
+          },
+        ],
+      },
+    });
+    render(TriggersPage, props);
+    await screen.findByText('nightly');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Fire now' }));
+
+    await vi.waitFor(() => expect(fireNow).toHaveBeenCalledWith('trigger-1'));
+    await vi.waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Fire now' })).not.toHaveAttribute('aria-busy'),
+    );
+    expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
   it('summarises the triggers above the table', async () => {

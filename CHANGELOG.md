@@ -336,6 +336,43 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   avatar and its kind. A picked member is a chip with a remove button. The Holders column of the
   roles shows the first holders as a stack of avatars. `Identity` has the formats `mention`, `chip`
   and `header`, and `SearchSelect` has a `chip` snippet for the chosen option.
+- A click on the logo, between the rows or on the footer of the open rail closes the rail. Only a
+  click on the handle, or a click that opens a menu of the rail, keeps it open. Before, a click on
+  the logo or between the rows did not close it.
+- The "+N" card of the permissions in the roles list keeps all its chips inside the card. The card
+  becomes wider to fit the longest row, and the actions that do not fit go under the name of the
+  resource.
+- The Roles card of a member shows the workspace as a header with its icon and its kind, not as one
+  more role. The projects are inside the workspace. In Effective access, Change roles, the remove
+  dialog and the members of a project, a scope is an icon and a name, not a pill.
+- All the actions that delete, remove, revoke, disable or deactivate are red: in menus, in the rows
+  of tables and lists, in headers and in the confirmation dialogs. In a menu, they are the last
+  items, after a separator. The danger zones of the account, of a user, of an agent and of an app
+  have the same look.
+- The tabs Linux, macOS, Windows and Docker of the install of an agent have the same space under
+  them as above them. Before, the selected tab touched the bottom edge of the tab list.
+- The pagination of the jobs and of the pipelines, the end of the project list and the selection bar
+  on a phone stay above a button that floats at the bottom right. A module gives the height of this
+  button in `ShellContributions.bottomInset` of `@scylla/core-sdk`.
+- A page that a role opens does not ask for what the role cannot read, and does not link to a page
+  that the role cannot open. The dashboard hides the pipelines and the runs, the agents hide their
+  stats, and the editor of a pipeline asks for the secrets only with their permission. A cell of the
+  role editor tells on hover what a click on it also checks.
+- In the roles list, the Holders cell opens a card on hover and on keyboard focus. The card gives
+  the number of people, agents and apps, and at most six holders, each with the workspace or the
+  projects where it has the role. A holder and "See all members" open the page of the members. A
+  reader who cannot see the members sees only the count, as before.
+- The Windows hint of the install of an agent tells that the command needs no admin rights, and how
+  the install for the user and the service are different. The Windows command of the logs reads the
+  log of the agent of the user, or else the logs of the service.
+- The pipeline editor opens on a still canvas. Before, the view moved and zoomed while it centred on
+  the nodes. Now the Scylla logo shows until the graph is in place, then the graph and the side
+  panel fade in. A failed load shows in the canvas, with Try again.
+- The role editor checks the view of all the workspaces with a permission of a workspace or of a
+  project in a role of the instance, as the server does. On the page of an agent, the rename and the
+  revoke of a key and a new join code need the permissions of their routes, and the creator of the
+  agent also gets them. On the dashboard, a person with only roles on projects opens each project
+  that the person can see.
 - The agent page shows the timeline from the day that the agent joined, when the agent has a job
   that ended. Before, an agent younger than 7 days had no timeline. A strip with few days keeps thin
   bars at the right, the first day and "Today" do not overlap, and the window of one day keeps room

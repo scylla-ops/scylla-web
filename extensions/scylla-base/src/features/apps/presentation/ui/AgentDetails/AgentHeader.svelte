@@ -64,7 +64,7 @@
       {t(messages.enable)}
     </Button>
   {:else if !agent.disabledAt && onDisable}
-    <Button variant="outline" onclick={onDisable}>
+    <Button variant="destructive" onclick={onDisable}>
       <PowerOffIcon class="size-4" aria-hidden="true" />
       {t(messages.disable)}
     </Button>

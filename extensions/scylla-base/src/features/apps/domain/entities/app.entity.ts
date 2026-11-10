@@ -17,6 +17,8 @@ export interface AppEntity {
   lastSeenAt: string;
   /** `null` until an agent said hello. */
   host: AppHost | null;
+  /** The actor that created the app. The server lets it manage the app with no other role. */
+  createdBy: string;
   createdAt: string;
   /** The jobs that the agent holds now: taken and not ended. */
   runningJobs: number;

@@ -32,13 +32,13 @@
   const workspaceName = $derived(context().workspace.name ?? '');
   const target = $derived({ workspaceId });
 
-  const canCreate = $derived(can(Permission.CREATE_APP, target));
   const canManage = $derived(can(Permission.DELETE_APP, target));
   const canReadAccess = $derived(can(Permission.LIST_WORKSPACE_MEMBERS, target));
   const canChangeAccess = $derived(
     can(Permission.MANAGE_WORKSPACE_GRANTS, target) && can(Permission.MANAGE_PROJECT_GRANTS, target),
   );
   const canReadJobs = $derived(can(Permission.LIST_JOBS_BY_WORKSPACE, target));
+  const canReadStats = $derived(can(Permission.READ_APP_STATS, target));
 
   const details = createQuery(() => appQueries.byId(appId, workspaceId));
   const jobs = createQuery(() => appQueries.jobs(workspaceId, appId, canReadJobs));
@@ -51,6 +51,13 @@
 
   const agent = $derived(details.data?.app);
   const never = $derived(!!agent && appStateOf(agent) === 'never' && !agent.disabledAt);
+
+  const userId = localStorage.getItem('userId') ?? '';
+  const created = $derived(!!userId && agent?.createdBy === userId);
+  const canNewCode = $derived(created || can(Permission.CREATE_JOIN_CODE, target));
+  const canRename = $derived(created || can(Permission.RENAME_APP_KEY, target));
+  const canRevoke = $derived(created || can(Permission.REVOKE_APP_KEY, target));
+
   const stats = createAgentStats(() => ({ appId, workspaceId, agent }));
 
   let disabling = $state(false);
@@ -91,43 +98,48 @@
       </div>
     {/if}
 
-    {#if never && canCreate}
+    {#if never && canNewCode}
       <AgentConnectCard
         agentId={agent.id}
         {workspaceId}
         keyCount={details.data?.keys.length ?? 0}
       />
     {:else}
-      {#if stats.timeline?.stats}
-        <AgentTimeline
-          bounds={stats.timeline.bounds}
-          stats={stats.timeline.stats}
+      <!-- The stats need their own permission: a reader of the apps can miss it. -->
+      {#if canReadStats}
+        {#if stats.timeline?.stats}
+          <AgentTimeline
+            bounds={stats.timeline.bounds}
+            stats={stats.timeline.stats}
+            period={stats.period}
+            preset={stats.timeline.preset}
+            today={stats.today}
+            disabled={stats.disabled}
+            onChoose={stats.choose}
+          />
+        {:else if stats.timeline}
+          <Skeleton class="h-[134px] w-full rounded-xl" />
+        {/if}
+        <AgentStatsRow
+          stats={stats.stats}
+          lastRunAt={jobs.data?.[0]?.createdAt}
           period={stats.period}
-          preset={stats.timeline.preset}
           today={stats.today}
-          disabled={stats.disabled}
-          onChoose={stats.choose}
         />
-      {:else if stats.timeline}
-        <Skeleton class="h-[134px] w-full rounded-xl" />
       {/if}
-      <AgentStatsRow
-        stats={stats.stats}
-        lastRunAt={jobs.data?.[0]?.createdAt}
-        period={stats.period}
-        today={stats.today}
-      />
       <div class="grid gap-4 lg:grid-cols-3">
         <div class="lg:col-span-2">
-          <JobsPerDayCard
-            stats={stats.stats}
-            period={stats.period}
-            today={stats.today}
-            joined={stats.joined}
-            disabled={stats.disabled}
-            never={stats.never}
-            withTimeline={!!stats.timeline}
-          />
+          {#if canReadStats}
+            <JobsPerDayCard
+              stats={stats.stats}
+              period={stats.period}
+              today={stats.today}
+              joined={stats.joined}
+              disabled={stats.disabled}
+              never={stats.never}
+              withTimeline={!!stats.timeline}
+            />
+          {/if}
         </div>
         <AgentMachineCard {agent} />
       </div>
@@ -153,9 +165,10 @@
     <AgentKeysCard
       agentId={agent.id}
       keys={details.data?.keys ?? []}
-      onNewCode={canCreate && !agent.disabledAt ? () => (joining = true) : undefined}
-      canManage={canCreate}
-      tourAnchor={!never || !canCreate}
+      onNewCode={canNewCode && !agent.disabledAt ? () => (joining = true) : undefined}
+      {canRename}
+      {canRevoke}
+      tourAnchor={!never || !canNewCode}
     />
 
     {#if canManage}

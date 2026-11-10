@@ -49,7 +49,16 @@ describe('InstallStep', () => {
 
     await user.click(screen.getByRole('tab', { name: 'Windows' }));
     expect(screen.getByText(/-JoinCode JOIN-42 -Url/)).toBeInTheDocument();
+    expect(screen.getByText(/needs no admin rights/)).toBeInTheDocument();
     expect(screen.getByText(/needs Git for Windows/)).toBeInTheDocument();
+  });
+
+  it('keeps the OS tabs in a flex row: in a grid row, a tab is taller than the list and touches its bottom', () => {
+    setUp();
+    const tabs = screen.getByRole('tablist');
+
+    expect(tabs).toHaveClass('w-full');
+    expect(tabs).not.toHaveClass('grid');
   });
 
   it('runs a Docker agent with the image of the server, and reaches a local server', async () => {
