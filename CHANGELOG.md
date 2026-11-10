@@ -123,6 +123,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   unexpected error, and a query retried on it.
 - A page that fails to load or to render shows an error in its place, with a "Try again" button.
   The sidebar, the top bar and the other pages keep working.
+- `pnpm tokens:export` writes the design tokens of `styles.css` to `packages/ui/tokens/`, in the
+  format that Figma imports. A CI step and a test fail when these files are not up to date.
+  `packages/ui/DESIGN-SYSTEM.md` tells how the code and the Figma library stay the same.
 
 ### Changed
 

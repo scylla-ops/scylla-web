@@ -117,6 +117,10 @@ jobs:
 
       - uses: ./.github/actions/setup
 
+      # Figma imports packages/ui/tokens/: the files must be the export of styles.css.
+      - name: Design tokens
+        run: pnpm run tokens:check
+
       - name: Typecheck
         run: pnpm run typecheck
 

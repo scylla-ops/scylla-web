@@ -49,11 +49,13 @@ The app will be available at `http://localhost:5173`. All commands run from the 
 | `pnpm gen-proto` | Regenerate gRPC TypeScript clients from proto files |
 | `pnpm extract` | Extract i18n translation strings |
 | `pnpm compile` | Compile i18n translations |
+| `pnpm tokens:export` | Write the design tokens of `styles.css` for Figma (`packages/ui/DESIGN-SYSTEM.md`) |
 
 ## Documentation
 
 - [Architecture](docs/architecture.md) — Module structure, data flow, shared patterns, tech stack
 - [Naming Conventions](docs/naming-conventions.md) — File, folder, TypeScript & Svelte naming rules
+- [Design system](packages/ui/DESIGN-SYSTEM.md) — The code is the source of truth: how the tokens and the components go to the Figma library
 - [CONTRIBUTING.md](CONTRIBUTING.md) — How to contribute: workflow, commits, pull requests, checks
 - [AGENTS.md](AGENTS.md) — The working contract for this codebase (rules, checklists, conventions), for humans and AI coding agents
 

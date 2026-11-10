@@ -72,6 +72,8 @@ Lingui) covers every package. `vite.config.ts` builds `apps/web` into `dist/`.
 | `pnpm depcruise:cycles` | Module dependency cycles — **must be zero** |
 | `pnpm i18n:collisions` | Same msgid translated differently in two catalogs — **must be zero** |
 | `pnpm check:authors <range>` | No AI agent as author, committer or co-author of a commit in the range — **must be clean** |
+| `pnpm tokens:export` | Write `packages/ui/tokens/` (the design tokens for Figma) from `styles.css`. Run it after a change of a token |
+| `pnpm tokens:check` | The token files are the export of `styles.css` — **must be clean** |
 
 **Which tests to run.** While you write code, run one file: `pnpm test:file <path>`. Before a push,
 run the changed tests: `pnpm test:changed origin/<base>`, where `<base>` is the target branch of

@@ -1,0 +1,7 @@
+{
+  "family": {
+    "sans": {"$type":"fontFamily","$value":"Funnel Sans"},
+    "display": {"$type":"fontFamily","$value":"Funnel Display"},
+    "mono": {"$type":"fontFamily","$value":"JetBrains Mono"}
+  }
+}

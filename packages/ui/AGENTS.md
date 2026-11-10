@@ -50,6 +50,14 @@ src/
   locales/                 the catalog of these components
 ```
 
+## Design tokens and Figma
+
+The code is the source of truth, and the Figma library "scylla :: ui" follows it. After a change
+of a token in `styles.css` (`:root`, `.dark`, `@theme inline`), run `pnpm tokens:export` and
+commit `tokens/` with it. `pnpm tokens:check`, the CI step "Design tokens" and
+`scripts/__test__/design-tokens.test.mjs` fail when `tokens/` is not the export. The full process
+(the token files, Figma, a new component, the fleet) is in [`DESIGN-SYSTEM.md`](./DESIGN-SYSTEM.md).
+
 ## i18n: `registerCatalogs`
 
 `@scylla/ui/i18n` holds the Lingui runtime of the app. The core registers its own catalog and
