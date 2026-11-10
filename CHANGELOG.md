@@ -373,6 +373,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   revoke of a key and a new join code need the permissions of their routes, and the creator of the
   agent also gets them. On the dashboard, a person with only roles on projects opens each project
   that the person can see.
+- The agent page shows the timeline from the day that the agent joined, when the agent has a job
+  that ended. Before, an agent younger than 7 days had no timeline. A strip with few days keeps thin
+  bars at the right, the first day and "Today" do not overlap, and the window of one day keeps room
+  for its two handles.
 
 ## [0.6.0] - 2026-11-01
 
