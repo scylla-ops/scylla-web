@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { screen, within } from '@testing-library/svelte';
+import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { findFloating, render, withQueryClient } from '@test/render.ts';
 import type { PipelineDocument } from '@base/features/pipeline/presentation/ui/editor/pipeline-document.state.svelte.ts';
@@ -178,6 +178,8 @@ describe('PipelineScripting', () => {
     renderScripting();
     await user.click(screen.getByRole('button', { name: 'Actions of test' }));
     await user.click(await findFloating('menuitem', 'Open to the side'));
+    // The menu blocks the pointer on the body until its exit animation ends.
+    await waitFor(() => expect(screen.queryByRole('menu', { hidden: true })).toBeNull());
     await user.click(screen.getByRole('button', { name: 'Show or hide the nodes' }));
     expect(screen.queryByRole('navigation', { name: 'Nodes' })).not.toBeInTheDocument();
 

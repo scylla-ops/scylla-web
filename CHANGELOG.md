@@ -123,6 +123,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   unexpected error, and a query retried on it.
 - A page that fails to load or to render shows an error in its place, with a "Try again" button.
   The sidebar, the top bar and the other pages keep working.
+- `pnpm tokens:export` writes the design tokens of `styles.css` to `packages/ui/tokens/`, in the
+  format that Figma imports. A CI step and a test fail when these files are not up to date.
+  `packages/ui/DESIGN-SYSTEM.md` tells how the code and the Figma library stay the same.
+- `pnpm ui:catalog` opens a visual catalog of `@scylla/ui` (Storybook): each component with its
+  variants, sizes and states, in the light and the dark theme. A test fails when a component has no
+  entry, and a CI step type-checks and builds the catalog. `packages/ui/DESIGN-SYSTEM.md` tells how
+  to add an entry.
 
 ### Changed
 
@@ -190,6 +197,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   role. The Permissions column shows the resources of the role and their actions on one line, and a
   "+N" pill opens a card with the other resources. A click on the Role header sorts the roles by
   name. The Level and Type columns are removed.
+- The libraries of the front are at their latest versions: Vite 8 (Rolldown), Lingui 6, ESLint 10,
+  Babel 8 and the new minor versions of Svelte, bits-ui, TanStack and CodeMirror.
 
 ### Fixed
 

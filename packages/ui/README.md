@@ -1,7 +1,8 @@
 # `@scylla/ui`
 
 > [Scylla frontend](../../README.md) › `packages/ui` ·
-> [agent guide](./AGENTS.md) · [architecture](../../docs/architecture.md)
+> [agent guide](./AGENTS.md) · [design system](./DESIGN-SYSTEM.md) ·
+> [architecture](../../docs/architecture.md)
 
 The design system: generic components, state helpers and utilities with **no business meaning**.
 Tables, forms, dialogs, pagination, the primitives (adapted from shadcn/ui), the theme tokens and the i18n

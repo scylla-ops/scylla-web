@@ -290,6 +290,8 @@ describe('the rail', () => {
     const secrets = within(railOf()).getByRole('button', { name: /Secrets/ });
     await userEvent.click(secrets);
     await userEvent.unhover(secrets);
+    // bits-ui keeps a closed tooltip in the document until its exit animation ends.
+    await waitFor(() => expect(queryTooltip()).toBeNull());
 
     await fireEvent.blur(secrets);
     await fireEvent.focus(secrets);

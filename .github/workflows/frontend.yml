@@ -117,6 +117,10 @@ jobs:
 
       - uses: ./.github/actions/setup
 
+      # Figma imports packages/ui/tokens/: the files must be the export of styles.css.
+      - name: Design tokens
+        run: pnpm run tokens:check
+
       - name: Typecheck
         run: pnpm run typecheck
 
@@ -138,6 +142,10 @@ jobs:
       # set-up has run gen-proto. Compile again, because extract can change the .po files.
       - name: Build
         run: pnpm run compile && pnpm exec vite build
+
+      # The catalog of @scylla/ui (catalog/): its stories type-check and build. About 20 s.
+      - name: Catalog of @scylla/ui
+        run: pnpm --filter @scylla/catalog check && pnpm --filter @scylla/catalog build
 
   # The required check of the version branch. A job that needs a failed job is skipped, and a
   # skipped check can pass, so this job always runs and reads the results. A new job goes in `needs`.

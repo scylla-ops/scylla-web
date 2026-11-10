@@ -1,0 +1,20 @@
+{
+  "name": "@scylla/catalog",
+  "private": true,
+  "version": "0.6.0",
+  "type": "module",
+  "scripts": {
+    "dev": "storybook dev --port 6006",
+    "check": "svelte-check --tsconfig ./tsconfig.json --threshold warning",
+    "build": "storybook build --output-dir storybook-static --quiet"
+  },
+  "dependencies": {
+    "@scylla/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@storybook/addon-svelte-csf": "5.1.6",
+    "@storybook/svelte-vite": "10.6.7",
+    "storybook": "10.6.7",
+    "storybook-addon-pseudo-states": "10.6.7"
+  }
+}

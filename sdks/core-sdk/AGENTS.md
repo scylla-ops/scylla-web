@@ -73,8 +73,9 @@ export class AcmeAuthExtension {}
 
 - The decorator puts the manifest on the class. `apps/web` lists the classes; the core reads
   them with `extensionOf`. Nothing registers itself as a side effect of an import.
-- It is a **standard** decorator (no `experimentalDecorators`). `vite.config.ts` sets
-  `esbuild.target` so that the dev server lowers it, and the Lingui Babel pass parses it.
+- It is a **standard** decorator (no `experimentalDecorators`). Oxc, the transformer of Vite,
+  does not lower it: the Babel pass of `tooling/vite.ts` (`babelTransforms`) does, for the dev
+  server, the build and the tests.
 - Everything else is **in the modules**, with one exception: `widgetInjections` (below) is a
   field of `@Extension` itself, not of a module — it changes another extension's UI, which is
   not what any one module owns. A feature module declares `domain` and `routes`, with its

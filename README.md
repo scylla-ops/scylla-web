@@ -49,11 +49,14 @@ The app will be available at `http://localhost:5173`. All commands run from the 
 | `pnpm gen-proto` | Regenerate gRPC TypeScript clients from proto files |
 | `pnpm extract` | Extract i18n translation strings |
 | `pnpm compile` | Compile i18n translations |
+| `pnpm tokens:export` | Write the design tokens of `styles.css` for Figma (`packages/ui/DESIGN-SYSTEM.md`) |
+| `pnpm ui:catalog` | Open the visual catalog of `@scylla/ui` (Storybook) on port 6006 |
 
 ## Documentation
 
 - [Architecture](docs/architecture.md) — Module structure, data flow, shared patterns, tech stack
 - [Naming Conventions](docs/naming-conventions.md) — File, folder, TypeScript & Svelte naming rules
+- [Design system](packages/ui/DESIGN-SYSTEM.md) — The code is the source of truth: how the tokens and the components go to the Figma library
 - [CONTRIBUTING.md](CONTRIBUTING.md) — How to contribute: workflow, commits, pull requests, checks
 - [AGENTS.md](AGENTS.md) — The working contract for this codebase (rules, checklists, conventions), for humans and AI coding agents
 
@@ -84,6 +87,7 @@ packages/ui                the design system — imports no other package
 | [@scylla/core](packages/core/README.md) | Extension loader, route compilation and router (no router library), the shell frame |
 | [@scylla/core-sdk](sdks/core-sdk/README.md) | `@Extension`, `ScyllaModule`, the navigation, DI and query API the core installs |
 | [@scylla/ui](packages/ui/README.md) | primitives (adapted from shadcn/ui), generic composites, rune states, stores, i18n runtime, theme |
+| [catalog](catalog/README.md) | The visual catalog of `@scylla/ui` (Storybook): each component, its variants and states, light and dark |
 | [@scylla/base-sdk](sdks/scylla-base-sdk/README.md) | What other extensions may use of scylla-base |
 | [scylla-base](extensions/scylla-base/README.md) | The Scylla product — the modules below |
 
