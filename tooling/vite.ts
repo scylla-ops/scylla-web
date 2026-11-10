@@ -48,8 +48,9 @@ const VENDOR_CHUNKS: Record<string, string[]> = {
  *
  * Only the files that import `@lingui/core/macro` go through Babel. Babel parses
  * TypeScript and does not remove the types: Vite does that after this plugin.
+ * The catalog of `@scylla/ui` (`catalog/.storybook/main.ts`) uses it too.
  */
-const linguiMacros = (): Plugin => ({
+export const linguiMacros = (): Plugin => ({
   name: 'scylla:lingui-macros',
   enforce: 'pre',
   async transform(code, id) {

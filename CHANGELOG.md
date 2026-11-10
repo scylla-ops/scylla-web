@@ -126,6 +126,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - `pnpm tokens:export` writes the design tokens of `styles.css` to `packages/ui/tokens/`, in the
   format that Figma imports. A CI step and a test fail when these files are not up to date.
   `packages/ui/DESIGN-SYSTEM.md` tells how the code and the Figma library stay the same.
+- `pnpm ui:catalog` opens a visual catalog of `@scylla/ui` (Storybook): each component with its
+  variants, sizes and states, in the light and the dark theme. A test fails when a component has no
+  entry, and a CI step type-checks and builds the catalog. `packages/ui/DESIGN-SYSTEM.md` tells how
+  to add an entry.
 
 ### Changed
 

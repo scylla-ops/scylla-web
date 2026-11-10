@@ -29,6 +29,9 @@ export const scyllaEslintConfig = rootDir => {
       'coverage/**',
       // The first prototype of the extension layout, kept for reference. Not part of the workspace.
       'extension-poc/**',
+      // The catalog of @scylla/ui: Storybook stories, in no tsconfig of the app. `svelte-check`
+      // and the build of the catalog check them (`pnpm ui:catalog:build`).
+      'catalog/**',
       ...(mountedAt ? [`${mountedAt}/**`] : []),
     ]),
 

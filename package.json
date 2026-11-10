@@ -32,7 +32,9 @@
     "tokens:export": "node scripts/export-tokens.mjs",
     "tokens:check": "node scripts/export-tokens.mjs --check",
     "depcruise:graph": "depcruise apps packages sdks extensions --config .dependency-cruiser.cjs --output-type archi | dot -T svg > dependency-graph.svg",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "ui:catalog": "pnpm run compile && pnpm --filter @scylla/catalog dev",
+    "ui:catalog:build": "pnpm run compile && pnpm --filter @scylla/catalog check && pnpm --filter @scylla/catalog build"
   },
   "dependencies": {
     "@codemirror/lang-json": "^6.0.2",

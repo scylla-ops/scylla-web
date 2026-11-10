@@ -18,6 +18,7 @@ specific mistakes that module invites.
 apps/web/AGENTS.md                                       the build: the list of extensions
 packages/core/AGENTS.md                                  loader, router, shell frame
 packages/ui/AGENTS.md                                    design system: primitives, composites, stores, i18n
+catalog/AGENTS.md                                        the visual catalog of @scylla/ui (Storybook)
 sdks/core-sdk/AGENTS.md                                  the extension contract: @Extension, ScyllaModule, DI, query
 sdks/scylla-base-sdk/AGENTS.md                           the public API of scylla-base for other extensions
 extensions/scylla-base/AGENTS.md                         the Scylla extension
@@ -74,6 +75,8 @@ Lingui) covers every package. `vite.config.ts` builds `apps/web` into `dist/`.
 | `pnpm check:authors <range>` | No AI agent as author, committer or co-author of a commit in the range — **must be clean** |
 | `pnpm tokens:export` | Write `packages/ui/tokens/` (the design tokens for Figma) from `styles.css`. Run it after a change of a token |
 | `pnpm tokens:check` | The token files are the export of `styles.css` — **must be clean** |
+| `pnpm ui:catalog` | The visual catalog of `@scylla/ui` (Storybook) on <http://localhost:6006> |
+| `pnpm ui:catalog:build` | Type-check and build the catalog, as CI does. Not part of the gates above |
 
 **Which tests to run.** While you write code, run one file: `pnpm test:file <path>`. Before a push,
 run the changed tests: `pnpm test:changed origin/<base>`, where `<base>` is the target branch of
@@ -723,8 +726,9 @@ Where a test goes:
 - **A tested Svelte component has its own folder**, with its test and its fixtures:
   `PipelineScripting/PipelineScripting.svelte`, `PipelineScripting/PipelineScripting.test.ts`, `PipelineScripting/PipelineScripting.fixture.svelte`.
   A page drops `.page` from the folder name: `Login/Login.page.svelte`. This keeps a component
-  and what describes it in one place (Storybook stories will go there too). See "Component
-  folders" for the other reasons a component gets a folder.
+  and what describes it in one place. The Storybook stories of `@scylla/ui` are the exception:
+  they are in `catalog/`, out of the gates (`catalog/README.md` gives the reasons). See
+  "Component folders" for the other reasons a component gets a folder.
 - **The test of a file in a component folder goes in that folder too**, without `__test__/`:
   `DataTable/data-table.ts` → `DataTable/data-table.test.ts`.
 - **Every other test goes in the `__test__/` folder of the directory it covers**:
@@ -880,7 +884,7 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
 - Lint rules worth knowing (see `eslint.config.js`): `no-floating-promises` and `no-misused-promises` are errors — never fire-and-forget a promise; unused bindings must be prefixed `_` to be tolerated. The `no-unsafe-*` rules are off only because of the generated proto layer — that is not a licence to spread `any`. `no-restricted-imports` forbids `@tanstack/svelte-query` (use `@scylla/core-sdk`).
 
 ### Stack
-Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@tanstack/svelte-query`) · TanStack Table 9 · Lingui 5 · gRPC-Web (protobuf-ts) · bits-ui (primitives adapted from shadcn/ui) · lucide (`@lucide/svelte`) · svelte-sonner · `@xyflow/svelte` · CodeMirror 6 · Tailwind CSS 4 · Vite 7 · Vitest + Testing Library.
+Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@tanstack/svelte-query`) · TanStack Table 9 · Lingui 5 · gRPC-Web (protobuf-ts) · bits-ui (primitives adapted from shadcn/ui) · lucide (`@lucide/svelte`) · svelte-sonner · `@xyflow/svelte` · CodeMirror 6 · Tailwind CSS 4 · Vite 7 · Vitest + Testing Library · Storybook 10 (the catalog of `@scylla/ui` only).
 
 ---
 

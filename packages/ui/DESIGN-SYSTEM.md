@@ -48,10 +48,31 @@ Use one of these methods:
 An import replaces an alias with the value of the file. Keep a Figma token in your shell. Never
 write it in a file of the repository.
 
+## The catalog
+
+The catalog (Storybook) shows each component of `@scylla/ui` with its variants, sizes and
+states, in the light and the dark theme, with the tokens of `styles.css`. Compare the library
+with it.
+
+- Run it: `pnpm ui:catalog`, then open <http://localhost:6006>. The toolbar changes the theme
+  and the language.
+- Build it as CI does: `pnpm ui:catalog:build`.
+
+Add an entry:
+
+1. Make `catalog/src/<group>/<Component>.stories.svelte`. Copy a neighbour.
+2. Import the component from `@scylla/ui` or `@scylla/ui/primitives`.
+3. Write one story for each axis: variants, sizes, states. Put each case in a `Specimen` with
+   its name. `state="hover"` or `state="focus"` shows the case hovered or focused.
+4. Run `pnpm ui:catalog`. Look at the entry in the two themes.
+
+The rules of the stories: [`catalog/AGENTS.md`](../../catalog/AGENTS.md).
+
 ## Add or change a component
 
 1. Write the component in `@scylla/ui` first. Follow [`AGENTS.md`](./AGENTS.md).
-2. Add or update its entry in the catalog of `@scylla/ui`.
+2. Add or update its entry in `catalog/src/` (see "The catalog"). Look at it with
+   `pnpm ui:catalog`.
 3. Make or change the component in the library. Use only the variables of the library, never
    a raw value.
 4. Connect the Figma component to its code with Code Connect: the Svelte file and its import
@@ -67,6 +88,8 @@ write it in a file of the repository.
 ## How the fleet does it
 
 - A fix that changes `styles.css` runs `pnpm tokens:export` and commits `tokens/`.
+- A fix that adds or changes a component of `@scylla/ui` adds or changes its catalog entry in
+  the same commit.
 - After a fix that changes `packages/ui`, the coordinator starts a design task. The design agent
   updates the library (variables, components, Code Connect), then publishes it.
 
@@ -75,3 +98,6 @@ write it in a file of the repository.
 - `pnpm tokens:check` fails when `tokens/` is not the export of `styles.css`. The CI step
   "Design tokens" of `.github/workflows/frontend.yml` runs it.
 - The test `scripts/__test__/design-tokens.test.mjs` does the same check in `pnpm test`.
+- The test `src/__test__/catalog.test.ts` fails in `pnpm test` when a component of `@scylla/ui`
+  or `@scylla/ui/primitives` has no entry in the catalog.
+- The CI step "Catalog of @scylla/ui" type-checks and builds the catalog.
