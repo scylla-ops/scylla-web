@@ -197,6 +197,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   role. The Permissions column shows the resources of the role and their actions on one line, and a
   "+N" pill opens a card with the other resources. A click on the Role header sorts the roles by
   name. The Level and Type columns are removed.
+- The libraries of the front are at their latest versions: Vite 8 (Rolldown), Lingui 6, ESLint 10,
+  Babel 8 and the new minor versions of Svelte, bits-ui, TanStack and CodeMirror.
 
 ### Fixed
 

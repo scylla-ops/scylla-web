@@ -827,7 +827,7 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
 - A message with a placeholder is a function: `` newEntity: (label: string) => msg`New ${label}` ``.
   **When you port a message, keep its placeholder names**: they are part of the msgid.
 - The `msg`, `t` and `plural` macros of `@lingui/core/macro` compile in `.ts` files only, through
-  Babel (`linguiMacros` in `tooling/vite.ts`).
+  Babel (`babelTransforms` in `tooling/vite.ts`).
 - Catalogs live in `locales/{en,fr}/messages.po` per module. `lingui.config.js` finds them: each
   `locales/` folder under a package's `src/` is one catalog (`tooling/lingui.js`). Run `pnpm extract` after adding strings, `pnpm compile` to build catalogs. Don't edit `messages.ts` by hand.
 - At runtime, each package registers its catalogs with `registerCatalogs` (`@scylla/ui/i18n`):
@@ -865,8 +865,9 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
   types are in `@scylla/core-sdk`. The mounts of scylla-base are in `ShellModule`
   (`shell/shell.module.ts`); the routes of the `app` mount and below are wrapped by `AppLayout`
   (`AuthGuard` + `WorkspaceGate`) and the core's shell frame.
-- `@Extension` is a standard decorator (no `experimentalDecorators`). `vite.config.ts` sets
-  `esbuild.target` so that the dev server lowers it, and the Lingui Babel pass parses it.
+- `@Extension` is a standard decorator (no `experimentalDecorators`). Oxc, the transformer of
+  Vite, does not lower it: the Babel pass of `tooling/vite.ts` (`babelTransforms`) does, for the
+  dev server, the build and the tests.
 - Backend comms: gRPC-Web via protobuf-ts through `CoreGrpcTransport`.
 - Comments: **few, short, and only where the code cannot speak for itself.**
   - Write one when the logic is hard to follow, or when the role of a function, component or
@@ -884,7 +885,7 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
 - Lint rules worth knowing (see `eslint.config.js`): `no-floating-promises` and `no-misused-promises` are errors — never fire-and-forget a promise; unused bindings must be prefixed `_` to be tolerated. The `no-unsafe-*` rules are off only because of the generated proto layer — that is not a licence to spread `any`. `no-restricted-imports` forbids `@tanstack/svelte-query` (use `@scylla/core-sdk`).
 
 ### Stack
-Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@tanstack/svelte-query`) · TanStack Table 9 · Lingui 5 · gRPC-Web (protobuf-ts) · bits-ui (primitives adapted from shadcn/ui) · lucide (`@lucide/svelte`) · svelte-sonner · `@xyflow/svelte` · CodeMirror 6 · Tailwind CSS 4 · Vite 7 · Vitest + Testing Library · Storybook 10 (the catalog of `@scylla/ui` only).
+Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@tanstack/svelte-query`) · TanStack Table 9 · Lingui 6 · gRPC-Web (protobuf-ts) · bits-ui (primitives adapted from shadcn/ui) · lucide (`@lucide/svelte`) · svelte-sonner · `@xyflow/svelte` · CodeMirror 6 · Tailwind CSS 4 · Vite 8 · Vitest + Testing Library · Storybook 10 (the catalog of `@scylla/ui` only).
 
 ---
 

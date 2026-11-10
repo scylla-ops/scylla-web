@@ -57,8 +57,8 @@ src/<group>/<Component>.stories.svelte
   that the entry shows it without a click.
 - **`.storybook/main.ts` puts the Svelte plugin before the plugins of Storybook**: the stories
   plugin of the addon reads the code that Svelte compiled. It also keeps the Svelte libraries out
-  of the prebundle of the dev server: vite-plugin-svelte 7 prebundles them on Vite 8 only, as in
-  `tooling/vite.ts`. A new Svelte library that a story imports goes in `SVELTE_LIBRARIES`.
+  of the prebundle of the dev server, as `tooling/vite.ts` does. A new Svelte library that a story
+  imports goes in `SVELTE_LIBRARIES`.
 - **The gates of the root do not read `catalog/`.** ESLint ignores it, and `tsc`, depcruise and
   Vitest do not include it. `svelte-check` and the build of the catalog check the stories:
   `pnpm ui:catalog:build`, and the step "Catalog of @scylla/ui" of CI.

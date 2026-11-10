@@ -16,7 +16,7 @@ Lingui.
 ## Why it is built this way
 
 - **Storybook, not Histoire.** Storybook 10 runs Svelte 5 with runes through Svelte CSF 5, on
-  Vite 7, and it is stable. Histoire 1.0 is still a beta.
+  Vite 8, and it is stable. Histoire 1.0 is still a beta.
 - **A folder at the root, not `apps/`.** A host repo (the Enterprise front) mounts this repo and
   includes its `packages/`, `sdks/` and `extensions/` in its workspace: Storybook must not get
   into it. The tests that read the source of `apps/` and `packages/` do not walk the

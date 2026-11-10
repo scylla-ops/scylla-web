@@ -2,11 +2,10 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 import type { StorybookConfig } from '@storybook/svelte-vite';
 import tailwindcss from '@tailwindcss/vite';
 import type { Plugin } from 'vite';
-import { linguiMacros } from '../../tooling/vite.ts';
+import { babelTransforms } from '../../tooling/vite.ts';
 
 /**
- * Libraries with `.svelte` files. On Vite 7 the Svelte plugin cannot prebundle them, so the dev
- * server serves them as they are, as in `tooling/vite.ts`.
+ * Libraries with `.svelte` files. The dev server serves them as they are, as in `tooling/vite.ts`.
  */
 const SVELTE_LIBRARIES = [
   '@storybook/svelte',
@@ -41,7 +40,7 @@ const config: StorybookConfig = {
     ...config,
     // First: the stories plugin of the addon reads the code that Svelte compiled.
     plugins: [
-      linguiMacros(),
+      babelTransforms(),
       svelte(),
       tailwindcss(),
       ...(config.plugins ?? []),

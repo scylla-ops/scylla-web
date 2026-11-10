@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { configDefaults } from 'vitest/config';
 import { defineConfig, type Plugin } from 'vite';
 import { transformAsync } from '@babel/core';
+import decoratorsPlugin from '@babel/plugin-proposal-decorators';
 import linguiMacroPlugin from '@lingui/babel-plugin-lingui-macro';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
@@ -21,6 +22,10 @@ import { lingui } from '@lingui/vite-plugin';
  * An entry matches a package when it is the exact name (`svelte`), a scope
  * (`@codemirror` matches `@codemirror/view`), or a name prefix written with a
  * trailing dash (`d3-` would match `d3-scale`).
+ *
+ * The order matters: each chunk also takes the dependencies of its packages that
+ * no chunk above it took. `vendor-svelte` comes first, or the first library that
+ * uses Svelte takes its runtime.
  */
 const VENDOR_CHUNKS: Record<string, string[]> = {
   'vendor-svelte': ['svelte', 'esm-env', 'clsx'],
@@ -43,31 +48,38 @@ const VENDOR_CHUNKS: Record<string, string[]> = {
   'vendor-grpc': ['@protobuf-ts'],
 };
 
+/** A line that starts with a decorator: `@Extension({ … })`. */
+const DECORATOR = /^\s*@[A-Za-z_$]/m;
+
 /**
- * Compiles the Lingui macros (`msg`, `t`, `plural`) in TypeScript files.
+ * Compiles with Babel what Oxc, the transformer of Vite, does not: the Lingui macros
+ * (`msg`, `t`, `plural`) and the standard decorators (`@Extension`), which no browser
+ * runs yet.
  *
- * Only the files that import `@lingui/core/macro` go through Babel. Babel parses
- * TypeScript and does not remove the types: Vite does that after this plugin.
- * The catalog of `@scylla/ui` (`catalog/.storybook/main.ts`) uses it too.
+ * Only the TypeScript files that import `@lingui/core/macro` or hold a decorator go
+ * through Babel. Babel parses TypeScript and does not remove the types: Vite does that
+ * after this plugin. The catalog of `@scylla/ui` (`catalog/.storybook/main.ts`) uses it too.
  */
-export const linguiMacros = (): Plugin => ({
-  name: 'scylla:lingui-macros',
+export const babelTransforms = (): Plugin => ({
+  name: 'scylla:babel',
   enforce: 'pre',
   async transform(code, id) {
     const path = id.split('?')[0];
     if (!/\.(ts|js)$/.test(path) || path.includes('/node_modules/')) return null;
-    if (!code.includes('@lingui/core/macro')) return null;
+    if (!code.includes('@lingui/core/macro') && !DECORATOR.test(code)) return null;
 
     const result = await transformAsync(code, {
       filename: path,
       babelrc: false,
       configFile: false,
       sourceMaps: true,
-      parserOpts: { plugins: ['typescript', 'decorators'] },
-      plugins: [linguiMacroPlugin],
+      parserOpts: { plugins: ['typescript'] },
+      plugins: [linguiMacroPlugin, [decoratorsPlugin, { version: '2023-11' }]],
     });
 
-    return result?.code ? { code: result.code, map: result.map } : null;
+    if (!result?.code) return null;
+    // The map of Babel has read-only arrays, which the type of Rolldown rejects.
+    return { code: result.code, map: result.map ? JSON.stringify(result.map) : null };
   },
 });
 
@@ -133,7 +145,7 @@ export const defineScyllaConfig = ({ workspaceRoot, app, thresholds }: ScyllaCon
     plugins: [
       appVersion(resolve(root, app)),
       lingui(),
-      linguiMacros(),
+      babelTransforms(),
       svelte(),
       tailwindcss(),
       // `loose` is what makes `@platform/…` resolve from a `.svelte` file: by
@@ -141,10 +153,6 @@ export const defineScyllaConfig = ({ workspaceRoot, app, thresholds }: ScyllaCon
       // every alias inside a component silently failed to resolve.
       tsconfigPaths({ root, loose: true }),
     ],
-    // `@Extension` is a standard decorator, which no browser runs yet. The build
-    // lowers it through its target; the dev server needs the same, or it serves
-    // the syntax as it is.
-    esbuild: { target: 'es2022' },
     optimizeDeps: {
       exclude: [
         '@lucide/svelte',
@@ -159,24 +167,26 @@ export const defineScyllaConfig = ({ workspaceRoot, app, thresholds }: ScyllaCon
     build: {
       outDir: resolve(root, 'dist'),
       emptyOutDir: true,
-      rollupOptions: {
+      rolldownOptions: {
         output: {
-          manualChunks(id) {
-            // One chunk per locale rather than one per module's catalog: the
-            // catalogs are loaded together for the active locale, so ~17 tiny
-            // requests would buy nothing.
-            const locale = /\/locales\/([^/]+)\/messages\.ts$/.exec(id)?.[1];
-            if (locale) return `locale-${locale}`;
-
-            if (!id.includes('node_modules')) return undefined;
-
-            const packageName = packageNameOf(id);
-
-            for (const [chunk, packages] of Object.entries(VENDOR_CHUNKS)) {
-              if (packages.some(entry => matches(packageName, entry))) return chunk;
-            }
-
-            return undefined;
+          codeSplitting: {
+            groups: [
+              {
+                // One chunk per locale rather than one per module's catalog: the
+                // catalogs are loaded together for the active locale, so ~17 tiny
+                // requests would buy nothing.
+                name(id) {
+                  const locale = /\/locales\/([^/]+)\/messages\.ts$/.exec(id)?.[1];
+                  return locale ? `locale-${locale}` : null;
+                },
+              },
+              ...Object.entries(VENDOR_CHUNKS).map(([name, packages]) => ({
+                name,
+                test: (id: string) =>
+                  id.includes('node_modules') &&
+                  packages.some(entry => matches(packageNameOf(id), entry)),
+              })),
+            ],
           },
         },
       },
