@@ -2,6 +2,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import type { IPipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
 import type { Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
+import { PipelineSource } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import { unaryCall } from '@test/grpc.ts';
 import { DefaultPipelineRepository } from '../default-pipeline.repository.ts';
 
@@ -11,6 +12,10 @@ const pipeline = (id: string, version: bigint): Pipeline => ({
   name: id,
   nodes: [],
   version,
+  source: PipelineSource.EDITOR,
+  fileKey: '',
+  filePath: '',
+  fileErrorCount: 0,
 });
 
 describe('DefaultPipelineRepository', () => {

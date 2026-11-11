@@ -42,6 +42,8 @@ const baseJob = (overrides: Partial<Job> = {}): Job => ({
   runs: [],
   error: '',
   createdAt: TS,
+  fileErrors: [],
+  waitingReason: '',
   ...overrides,
 });
 

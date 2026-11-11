@@ -117,5 +117,6 @@ export function draftToUpdateRequest(triggerId: string, draft: TriggerDraft): Up
     name: draft.name,
     ...(draft.source.kind === 'cron' && { schedule: draft.source.expression }),
     inputs: { inputs: draft.inputs.map(inputToProto) },
+    rules: { oneofKind: undefined },
   };
 }

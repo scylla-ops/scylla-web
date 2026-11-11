@@ -43,6 +43,8 @@ const job = (id: string, seconds: number): Job => ({
   runs: [],
   error: '',
   createdAt: { seconds: BigInt(seconds), nanos: 0 },
+  fileErrors: [],
+  waitingReason: '',
 });
 
 describe('DefaultJobsRepository.tailLogs', () => {

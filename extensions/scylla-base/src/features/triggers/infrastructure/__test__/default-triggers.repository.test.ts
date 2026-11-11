@@ -14,6 +14,7 @@ const trigger = (id: string): Trigger => ({
   enabled: true,
   lastStatus: FireStatus.UNSPECIFIED,
   lastError: '',
+  fromFile: false,
 });
 
 describe('DefaultTriggersRepository', () => {

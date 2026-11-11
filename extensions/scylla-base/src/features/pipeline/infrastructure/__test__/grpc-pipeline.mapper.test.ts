@@ -7,6 +7,7 @@ import {
   type Node,
   type Pipeline,
 } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
+import { PipelineSource } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import type {
   EnvEntry,
   PipelineNodeEntity,
@@ -34,6 +35,10 @@ const basePipeline = (overrides: Partial<Pipeline> = {}): Pipeline => ({
   version: 3n,
   createdAt: TS,
   updatedAt: TS,
+  source: PipelineSource.EDITOR,
+  fileKey: '',
+  filePath: '',
+  fileErrorCount: 0,
   ...overrides,
 });
 

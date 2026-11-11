@@ -19,6 +19,7 @@ const baseTrigger = (overrides: Partial<Trigger> = {}): Trigger => ({
   lastError: '',
   createdAt: TS,
   updatedAt: TS,
+  fromFile: false,
   ...overrides,
 });
 
@@ -201,6 +202,7 @@ describe('grpcTrigger draft -> proto', () => {
       name: 'nightly',
       schedule: '0 3 * * *',
       inputs: { inputs: protoInputs },
+      rules: { oneofKind: undefined },
     });
   });
 
