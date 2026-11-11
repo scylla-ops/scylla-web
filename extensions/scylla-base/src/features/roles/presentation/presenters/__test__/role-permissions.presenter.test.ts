@@ -81,6 +81,18 @@ describe('permissionSummary', () => {
     expect(summary.kind === 'chips' && summary.chips[0]?.actions).toEqual(['Edit', 'Run']);
   });
 
+  it('puts Approve after Run and before Manage', () => {
+    const summary = permissionSummary(
+      role({ permissions: ['jobs.manage', 'jobs.approve', 'jobs.run'] }),
+      [...areas, area('jobs', ['view', 'run', 'approve', 'manage'])],
+    );
+    expect(summary.kind === 'chips' && summary.chips[0]?.actions).toEqual([
+      'Run',
+      'Approve',
+      'Manage',
+    ]);
+  });
+
   it('shows a permission that the catalog does not know with its id', () => {
     const summary = permissionSummary(role({ permissions: ['reports.export'] }), areas);
     expect(summary).toEqual({

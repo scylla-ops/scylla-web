@@ -1,12 +1,11 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
   import { TableHead, Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
-  import type { CatalogAction } from '../../../../domain/structs/catalog.struct.ts';
-  import { actionLabels, clearColumn, selectColumn } from '../../../messages/roles.messages.ts';
-  import type { Mark } from '../../../presenters/permission-table.presenter.ts';
+  import { clearColumn, selectColumn } from '../../../messages/roles.messages.ts';
+  import { actionLabel, type Mark } from '../../../presenters/permission-table.presenter.ts';
 
   interface Props {
-    action: CatalogAction;
+    action: string;
     /** Absent: the column has no cell to change. */
     mark?: Mark;
     onFlip: () => void;
@@ -15,7 +14,7 @@
 
   let { action, mark, onFlip, onHover }: Props = $props();
 
-  const label = $derived(t(actionLabels[action]));
+  const label = $derived(actionLabel(action));
   const tip = $derived(t(mark === 'all' ? clearColumn(label) : selectColumn(label)));
 </script>
 

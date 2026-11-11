@@ -246,6 +246,112 @@ describe('PermissionTable: a role of the instance', () => {
   });
 });
 
+describe('PermissionTable: the Approve column', () => {
+  const catalog: CatalogArea[] = [
+    ...areas,
+    {
+      id: 'integrations',
+      level: 'workspace',
+      machine: false,
+      permissions: [
+        { id: 'integrations.view', action: 'view', dependsOn: [], implicit: false },
+        {
+          id: 'integrations.manage',
+          action: 'manage',
+          dependsOn: ['integrations.view'],
+          implicit: false,
+        },
+      ],
+    },
+    {
+      id: 'repository',
+      level: 'project',
+      machine: false,
+      permissions: [
+        { id: 'repository.view', action: 'view', dependsOn: [], implicit: false },
+        { id: 'repository.edit', action: 'edit', dependsOn: ['repository.view'], implicit: false },
+      ],
+    },
+    {
+      id: 'jobs',
+      level: 'project',
+      machine: false,
+      permissions: [
+        { id: 'jobs.view', action: 'view', dependsOn: [], implicit: false },
+        { id: 'jobs.approve', action: 'approve', dependsOn: ['jobs.view'], implicit: false },
+      ],
+    },
+  ];
+
+  const headers = () =>
+    screen.getAllByRole('columnheader').map(header => header.textContent?.trim());
+
+  const openProject = async (initial: string[] = ALWAYS_ON) => {
+    const onChange = vi.fn<(selected: Set<string>) => void>();
+    render(PermissionTableFixture, { areas: catalog, level: 'workspace', initial, onChange });
+    await userEvent.click(screen.getByRole('tab', { name: /Project/ }));
+    return () => [...(onChange.mock.calls.at(-1)?.[0] ?? [])].sort();
+  };
+
+  it('shows the new areas with their names and descriptions, not their ids', async () => {
+    render(PermissionTableFixture, { areas: catalog, level: 'workspace', initial: ALWAYS_ON });
+
+    expect(screen.getByText('Integrations')).toBeInTheDocument();
+    expect(screen.getByText('Connections to GitHub and GitLab')).toBeInTheDocument();
+    expect(screen.queryByText('integrations')).toBeNull();
+
+    await userEvent.click(screen.getByRole('tab', { name: /Project/ }));
+
+    expect(screen.getByText('Repository')).toBeInTheDocument();
+    expect(
+      screen.getByText('The linked Git repository and the source of the pipelines'),
+    ).toBeInTheDocument();
+  });
+
+  it('has no Approve column on a tab where no area can approve', () => {
+    render(PermissionTableFixture, { areas: catalog, level: 'workspace', initial: ALWAYS_ON });
+
+    expect(headers()).toEqual(['Resource', 'View', 'Create', 'Edit', 'Delete', 'Run', 'Manage']);
+  });
+
+  it('adds the Approve column before Manage on the tab of the jobs', async () => {
+    await openProject();
+
+    expect(headers()).toEqual([
+      'Resource',
+      'View',
+      'Create',
+      'Edit',
+      'Delete',
+      'Run',
+      'Approve',
+      'Manage',
+    ]);
+  });
+
+  it('sets the approval of a fork run with the view of the jobs, and tells what it does', async () => {
+    const last = await openProject();
+    const cell = screen.getByRole('checkbox', { name: 'Approve fork runs' });
+
+    expect(cell).toHaveAttribute(
+      'title',
+      'Approve or reject a run of a pull request from a fork. Such a run never gets the secrets.\nNeeds Jobs · View',
+    );
+    await userEvent.click(cell);
+
+    expect(last()).toEqual([...ALWAYS_ON, 'jobs.approve', 'jobs.view'].sort());
+    expect(cell).toBeChecked();
+  });
+
+  it('selects the whole Approve column', async () => {
+    const last = await openProject();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Select the whole Approve column' }));
+
+    expect(last()).toEqual([...ALWAYS_ON, 'jobs.approve', 'jobs.view'].sort());
+  });
+});
+
 describe('PermissionTable: read only', () => {
   it('shows the tabs with no checkbox and no button', () => {
     render(PermissionTable, {

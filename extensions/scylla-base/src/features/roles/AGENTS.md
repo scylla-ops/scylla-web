@@ -29,6 +29,8 @@ The catalog of the permissions, the built-in roles, and the custom roles.
 ## Rules
 
 - The server owns the catalog. `ListPermissionCatalog` gives the areas, the actions and `depends_on`. Do not write a list of permissions here. A label comes from `areaLabels`, and an unknown area shows its id.
+- A table of the permissions shows the six columns of `ACTIONS`, and each other action that an area of the tab has (`tableActions` in `presenters/permission-table.presenter.ts`), in the order of `ACTION_ORDER`. Thus only the Project tab has the Approve column (`jobs.approve`). An unknown action shows its id.
+- `cellLabels` gives the full name of a permission that its area and its action do not name well (`jobs.approve` is "Approve fork runs"). Its hint shows on the hover of the cell, before what the cell needs.
 - The holders and the owner of a role do not change after the creation. The level changes only while the role has no holder, and the server checks it again (`ROLE_IN_USE`). A change of the level fits the permissions to the new level.
 - `PermissionTable` with no `onChange` is the read-only table.
 - A bulk select or clear uses `checkPermissions` and `uncheckPermissions` (`catalog.struct.ts`). They apply `togglePermission` to each cell, so the result is the same as one click on each cell, with the `depends_on` rules.

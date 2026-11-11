@@ -130,6 +130,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   variants, sizes and states, in the light and the dark theme. A test fails when a component has no
   entry, and a CI step type-checks and builds the catalog. `packages/ui/DESIGN-SYSTEM.md` tells how
   to add an entry.
+- The role editor names the permissions of the Git integration: Integrations (workspace), Repository
+  (project) and Git providers (instance). The Project tab has an Approve column for "Approve fork
+  runs", and its box tells on hover that a run from a fork never gets the secrets. A checkbox of the
+  table is centered in its cell.
 
 ### Changed
 

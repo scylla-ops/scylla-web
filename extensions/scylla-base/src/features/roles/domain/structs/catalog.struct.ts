@@ -1,8 +1,18 @@
 import type { RoleHolder, RoleLevel } from '../entities/role.entity.ts';
 
+/** The actions that each table of the permissions shows. */
 export const ACTIONS = ['view', 'create', 'edit', 'delete', 'run', 'manage'] as const;
 
-export type CatalogAction = (typeof ACTIONS)[number];
+/** The order of the actions. An action that is not in `ACTIONS` shows only where an area has it. */
+export const ACTION_ORDER: readonly string[] = [
+  'view',
+  'create',
+  'edit',
+  'delete',
+  'run',
+  'approve',
+  'manage',
+];
 
 export interface CatalogPermission {
   /** `<area>.<action>`. */

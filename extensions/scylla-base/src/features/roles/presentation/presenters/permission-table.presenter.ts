@@ -1,17 +1,18 @@
 import type { RoleHolder, RoleLevel } from '../../domain/entities/role.entity.ts';
 import {
+  ACTION_ORDER,
   ACTIONS,
   canHoldArea,
   checkPermissions,
   needsOf,
   uncheckPermissions,
-  type CatalogAction,
   type CatalogArea,
 } from '../../domain/structs/catalog.struct.ts';
 import { t } from '@scylla/ui/i18n';
 import {
   actionLabels,
   areaLabels,
+  cellLabels,
   needsOthers,
   rolesMessages,
 } from '../messages/roles.messages.ts';
@@ -45,11 +46,28 @@ export const levelTabs = (
     };
   }).filter(tab => tab.areas.length > 0);
 
+const rank = (action: string) => {
+  const at = ACTION_ORDER.indexOf(action);
+  return at === -1 ? ACTION_ORDER.length : at;
+};
+
+/** The columns of a tab: each action of `ACTIONS`, and each other action that its areas have. */
+export const tableActions = (areas: readonly CatalogArea[]): string[] =>
+  [
+    ...new Set<string>([
+      ...ACTIONS,
+      ...areas.flatMap(area => area.permissions.map(permission => permission.action)),
+    ]),
+  ].sort((a, b) => rank(a) - rank(b));
+
+export const actionLabel = (action: string): string =>
+  actionLabels[action] ? t(actionLabels[action]) : action;
+
 /** `always`: on at this level, no one changes it. `locked`: the caller cannot give it. */
 export type PermissionCell =
-  | { action: CatalogAction; kind: 'none' }
+  | { action: string; kind: 'none' }
   | {
-      action: CatalogAction;
+      action: string;
       kind: 'always' | 'locked' | 'open';
       id: string;
       checked: boolean;
@@ -58,26 +76,35 @@ export type PermissionCell =
       needs: readonly string[];
     };
 
-/** The name of a permission in the table: its area, then its action. */
+/** The name of a permission in the table: its full name, else its area, then its action. */
 export const permissionLabel = (id: string, areas: readonly CatalogArea[]): string => {
   for (const area of areas) {
     const permission = area.permissions.find(one => one.id === id);
     if (!permission) continue;
+    if (cellLabels[id]) return t(cellLabels[id].title);
     const title = areaLabels[area.id] ? t(areaLabels[area.id].title) : area.id;
-    const action = actionLabels[permission.action];
-    return `${title} · ${action ? t(action) : permission.action}`;
+    return `${title} · ${actionLabel(permission.action)}`;
   }
   return id;
 };
 
-/** What a cell tells on hover: why it is locked, or what a click on it also checks. */
+const whyOf = (cell: Extract<PermissionCell, { id: string }>, areas: readonly CatalogArea[]) => {
+  if (cell.notHeld) return t(rolesMessages.lockedCell);
+  if (cell.needs.length === 0) return undefined;
+  return t(needsOthers(cell.needs.map(id => permissionLabel(id, areas)).join(', ')));
+};
+
+/**
+ * What a cell tells on hover: what the permission does when its name does not say it, then why it
+ * is locked or what a click on it also checks.
+ */
 export const cellTitle = (
   cell: Extract<PermissionCell, { id: string }>,
   areas: readonly CatalogArea[],
 ): string | undefined => {
-  if (cell.notHeld) return t(rolesMessages.lockedCell);
-  if (cell.needs.length === 0) return undefined;
-  return t(needsOthers(cell.needs.map(id => permissionLabel(id, areas)).join(', ')));
+  const hint = cellLabels[cell.id]?.hint;
+  const lines = [hint && t(hint), whyOf(cell, areas)].filter(line => line !== undefined);
+  return lines.length > 0 ? lines.join('\n') : undefined;
 };
 
 export interface PermissionRow {
@@ -90,7 +117,7 @@ export interface PermissionRow {
 const cellOf = (
   area: CatalogArea,
   catalog: readonly CatalogArea[],
-  action: CatalogAction,
+  action: string,
   level: RoleLevel,
   selected: ReadonlySet<string>,
   held: ReadonlySet<string> | undefined,
@@ -119,13 +146,15 @@ export const permissionRows = (
   level: RoleLevel,
   selected: ReadonlySet<string>,
   held?: ReadonlySet<string>,
-): PermissionRow[] =>
-  areas.map(area => {
-    const cells = ACTIONS.map(action => cellOf(area, catalog, action, level, selected, held));
+): PermissionRow[] => {
+  const actions = tableActions(areas);
+  return areas.map(area => {
+    const cells = actions.map(action => cellOf(area, catalog, action, level, selected, held));
     return { area, cells, open: cells.flatMap(cell => (cell.kind === 'open' ? [cell.id] : [])) };
   });
+};
 
-export const openInColumn = (rows: readonly PermissionRow[], action: CatalogAction): string[] =>
+export const openInColumn = (rows: readonly PermissionRow[], action: string): string[] =>
   rows.flatMap(row =>
     row.cells.flatMap(cell => (cell.kind === 'open' && cell.action === action ? [cell.id] : [])),
   );
