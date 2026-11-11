@@ -93,7 +93,7 @@ catalogs of this package register themselves.
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`, and `data-*` attributes, which go on its content). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
 | Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue". Its button is destructive; `variant="default"` for an action that takes nothing away ("Reactivate") |
 | An action that deletes, removes, revokes, disables or deactivates | The destructive variant, never a red class. See "Destructive actions" |
-| The section of a settings page with the actions that cannot be undone | `DangerZone` (`title`, `description`, `action`: the destructive button, `children`) |
+| The section of a settings page with the actions that cannot be undone | `DangerZone` (`title`, `description`, `action`: the destructive button, centered on the text or under it in a narrow card, `children`) |
 | Show a one-time secret | `SecretRevealDialog` |
 | Error state | `ErrorState` |
 | Class names | `cn()` |
@@ -407,7 +407,15 @@ the app: red, and the red comes from a variant.
   the line of the title: `items-center` on the label, and no `items-start`, `items-baseline`,
   `self-start` or top margin between the label and the control.
   `extensions/scylla-base/src/shell/__test__/choice-cards.test.ts` fails when a label of
-  scylla-base does not obey this rule.
+  scylla-base or of `@scylla/ui` does not obey this rule. It also reads each class of these two
+  packages that places a control by a selector (`[role=checkbox]`, `data-slot=field-content`),
+  for example the variants of a `Field`, and fails when this class puts the control on the
+  first line.
+- **A card header centers its action.** `CardAction` is centered vertically on the title and
+  the description (`self-center`), not on the line of the title. `DangerZone` and the
+  `SettingsSection` of scylla-base put the action beside the text, or under it when the card is
+  too narrow for both (a phone): the header is `flex flex-wrap items-center`, and the text is a
+  block with `grow basis-64`.
 - **A denied `GatedButton` is `aria-disabled`, not `disabled`.** A `disabled` button cannot
   take the focus. Then a keyboard or screen reader user cannot get the reason, and a dialog
   cannot give the focus back to the button. The denied button stays focusable,

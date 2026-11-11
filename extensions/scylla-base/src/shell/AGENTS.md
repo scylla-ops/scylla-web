@@ -26,7 +26,7 @@ __test__/feature-permissions.test.ts    conformance: features gate, shared queri
 __test__/destructive-actions.test.ts    conformance: an action that deletes, removes, revokes or
                                         disables has the destructive variant (`@scylla/ui`, "Destructive actions")
 __test__/choice-cards.test.ts           conformance: a radio, a checkbox or a switch in a label is centered
-                                        on the label (`@scylla/ui`, "Rules that bite here")
+                                        on the label, here and in `@scylla/ui` (`@scylla/ui`, "Rules that bite here")
 presentation/
   shell-params.ts                       breadcrumbParams, linkParams (from the context store)
   report-query-error.ts                 the one error toast; on UNAUTHENTICATED `closeSession`, `loginPathBackTo` (login);

@@ -13,7 +13,7 @@
     title: string;
     description?: string;
     class?: string;
-    /** The destructive button, at the end of the header. */
+    /** The destructive button, beside the title and the description, or under them in a narrow card. */
     action: Snippet;
     /** Shown under the header. */
     children?: Snippet;
@@ -26,13 +26,15 @@
 
 <section aria-labelledby={headingId} class={className}>
   <Card class="h-full gap-4 border-destructive/50">
-    <CardHeader>
-      <CardTitle>
-        <h2 id={headingId} class="text-base text-destructive">{title}</h2>
-      </CardTitle>
-      {#if description}
-        <CardDescription>{description}</CardDescription>
-      {/if}
+    <CardHeader class="flex flex-wrap items-center gap-4">
+      <div class="flex min-w-0 grow basis-64 flex-col gap-2">
+        <CardTitle>
+          <h2 id={headingId} class="text-base text-destructive">{title}</h2>
+        </CardTitle>
+        {#if description}
+          <CardDescription>{description}</CardDescription>
+        {/if}
+      </div>
       <CardAction>{@render action()}</CardAction>
     </CardHeader>
     {#if children}

@@ -396,6 +396,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   presets, the cron frequencies, the role levels, the role boxes and the warning banners. The copy
   button of a command is centered on the command, and "No log was written." is centered in its log
   panel.
+- The button of a danger zone and of a settings section is centered vertically on the title and the
+  description, not on the line of the title. On a phone, the button goes under the description, and
+  the text keeps the full width of the card.
 
 ## [0.6.0] - 2026-11-01
 
