@@ -103,10 +103,10 @@
         <div class="flex flex-col gap-4">
           {#if !page.accessGranted}
             <div
-              class="flex items-start gap-3 rounded-lg border border-warning/60 bg-warning/10 p-3"
+              class="flex items-center gap-3 rounded-lg border border-warning/60 bg-warning/10 p-3"
               role="alert"
             >
-              <TriangleAlertIcon class="mt-0.5 size-4 shrink-0 text-warning" aria-hidden="true" />
+              <TriangleAlertIcon class="size-4 shrink-0 text-warning" aria-hidden="true" />
               <div class="flex flex-col gap-1">
                 <p class="text-sm font-medium">{t(pageMessages.addedWithoutAccess)}</p>
                 <p class="text-xs text-muted-foreground">

@@ -160,15 +160,15 @@
       {#each PRESETS as item (item.value)}
         <Label
           class={cn(
-            'flex cursor-pointer flex-col items-start gap-1 rounded-lg border p-3 font-normal',
+            'flex cursor-pointer items-center gap-2.5 rounded-lg border p-3 font-normal',
             preset === item.value && 'border-primary',
           )}
         >
-          <span class="flex items-center gap-2 text-sm font-medium">
-            <RadioGroupItem value={item.value} />
-            {t(item.title)}
+          <RadioGroupItem value={item.value} />
+          <span class="flex flex-col gap-1">
+            <span class="text-sm font-medium">{t(item.title)}</span>
+            <span class="text-xs text-muted-foreground">{t(item.body)}</span>
           </span>
-          <span class="text-xs text-muted-foreground">{t(item.body)}</span>
         </Label>
       {/each}
     </RadioGroup>

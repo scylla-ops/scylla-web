@@ -402,6 +402,12 @@ the app: red, and the red comes from a variant.
   Thus a title has no font class and no weight class, and an `h1` has no size, `leading-*` or
   `tracking-*` class. `layout/__test__/title-font.test.ts` fails when it has one. Text that is a
   title is a heading element: a `p` with a large or bold class keeps Funnel Sans.
+- **A choice card centers its control.** A radio, a checkbox or a switch in a `Label` (a card
+  with a title and a description, or a row) is centered vertically on the whole label, not on
+  the line of the title: `items-center` on the label, and no `items-start`, `items-baseline`,
+  `self-start` or top margin between the label and the control.
+  `extensions/scylla-base/src/shell/__test__/choice-cards.test.ts` fails when a label of
+  scylla-base does not obey this rule.
 - **A denied `GatedButton` is `aria-disabled`, not `disabled`.** A `disabled` button cannot
   take the focus. Then a keyboard or screen reader user cannot get the reason, and a dialog
   cannot give the focus back to the button. The denied button stays focusable,

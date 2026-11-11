@@ -142,7 +142,9 @@ other extensions: keep their messages, the msgids are shared.
 
 `CopyBox` (`presentation/ui/data-display/`) shows a value to copy, also a secret that the user can
 reveal. `footer` adds a row under the value, `faded` shows a value that no longer works (no
-copy), and `overlay` puts an action over the value (the expired join code of a new agent). `presenters/token-labels.presenter.ts` gives the words of the limits and of the expiry of a
+copy), and `overlay` puts an action over the value (the expired join code of a new agent). The
+copy and eye buttons are centered vertically on the value, not on its first line, and not on the
+footer. `presenters/token-labels.presenter.ts` gives the words of the limits and of the expiry of a
 token; the apps and the personal tokens use it.
 
 `TokenForm` (`presentation/ui/forms/`) is the form of a new API token: the name, the life (7, 30,

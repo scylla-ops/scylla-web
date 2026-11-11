@@ -201,7 +201,7 @@
               <!-- Collapsing only hides the log: the stream stays open. -->
               <div class={cn(collapsed && 'hidden')}>
                 {#if node.state === 'skipped'}
-                  <p class="px-3 py-2.5 text-sm text-muted-foreground">
+                  <p class="px-3 py-2.5 text-center text-sm text-muted-foreground">
                     {t(jobsMessages.nodeSkipped)}
                   </p>
                 {:else}

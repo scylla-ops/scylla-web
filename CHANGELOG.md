@@ -391,6 +391,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   that ended. Before, an agent younger than 7 days had no timeline. A strip with few days keeps thin
   bars at the right, the first day and "Today" do not overlap, and the window of one day keeps room
   for its two handles.
+- A radio, a checkbox or the icon of an alert in a card is centered vertically on the whole card,
+  not on the line of the title: the project cards and the info card of the add agent page, the token
+  presets, the cron frequencies, the role levels, the role boxes and the warning banners. The copy
+  button of a command is centered on the command, and "No log was written." is centered in its log
+  panel.
 
 ## [0.6.0] - 2026-11-01
 

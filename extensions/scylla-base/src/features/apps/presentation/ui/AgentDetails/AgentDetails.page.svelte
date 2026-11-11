@@ -88,10 +88,10 @@
 
     {#if agent.disabledAt}
       <div
-        class="flex items-start gap-3 rounded-xl border border-warning/60 bg-warning/10 p-4"
+        class="flex items-center gap-3 rounded-xl border border-warning/60 bg-warning/10 p-4"
         role="status"
       >
-        <TriangleAlertIcon class="mt-0.5 size-4 text-warning" aria-hidden="true" />
+        <TriangleAlertIcon class="size-4 shrink-0 text-warning" aria-hidden="true" />
         <div class="flex flex-col gap-1">
           <p class="text-sm font-medium">{t(messages.disabledSince(formatDay(agent.disabledAt)))}</p>
           <p class="text-xs text-muted-foreground">{t(messages.disabledBody)}</p>

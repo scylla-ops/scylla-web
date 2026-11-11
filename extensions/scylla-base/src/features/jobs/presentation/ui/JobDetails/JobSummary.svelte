@@ -120,9 +120,9 @@
   {#if job.error}
     <div
       role="alert"
-      class="flex items-start gap-2.5 rounded-md border border-destructive/40 bg-destructive-subtle px-3.5 py-2.5"
+      class="flex items-center gap-2.5 rounded-md border border-destructive/40 bg-destructive-subtle px-3.5 py-2.5"
     >
-      <CircleAlertIcon class="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
+      <CircleAlertIcon class="size-4 shrink-0 text-destructive" aria-hidden="true" />
       <div class="min-w-0">
         <p class="text-sm font-medium text-foreground">{t(jobsMessages.jobFailed)}</p>
         <p class="mt-0.5 font-mono text-xs break-words text-foreground">{job.error}</p>
