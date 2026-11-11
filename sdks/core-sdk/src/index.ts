@@ -58,6 +58,7 @@ export {
   type AppNavigator,
   type NavigateOptions,
 } from './navigation/navigator.ts';
+export { guardLeave, holdsLeave, type LeaveGuard } from './navigation/leave-guard.ts';
 
 export {
   getModuleDomain,

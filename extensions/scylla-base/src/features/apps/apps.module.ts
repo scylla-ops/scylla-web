@@ -32,6 +32,24 @@ const agentDetails = {
   page: () => import('./presentation/ui/AgentDetails/AgentDetails.page.svelte'),
 };
 
+/** The page of a new agent: name and access, install, connected. */
+const newAgentPage = () => import('./presentation/ui/NewAgent/NewAgent.page.svelte');
+
+const newAgent = {
+  path: 'new',
+  permission: Permission.CREATE_APP,
+  breadcrumb: () => ({ label: msg`New agent` }),
+  page: newAgentPage,
+};
+
+/** The same page at its install step, for an agent that exists: a reload, or "Finish setup". */
+const connectAgent = {
+  path: ':appId/connect',
+  permission: Permission.READ_APP,
+  breadcrumb: () => ({ label: msg`New agent` }),
+  page: newAgentPage,
+};
+
 /** The page of another app, under its list. */
 const appDetails = {
   path: ':appId',
@@ -62,7 +80,7 @@ export const AppsModule = {
           order: 40,
           group: MACHINES,
         },
-        children: [agentDetails],
+        children: [newAgent, agentDetails, connectAgent],
       },
       {
         path: 'apps',

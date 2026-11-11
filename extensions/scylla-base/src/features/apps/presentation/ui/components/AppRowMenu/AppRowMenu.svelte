@@ -5,6 +5,7 @@
   import KeyRoundIcon from '@lucide/svelte/icons/key-round';
   import PowerIcon from '@lucide/svelte/icons/power';
   import PowerOffIcon from '@lucide/svelte/icons/power-off';
+  import TerminalIcon from '@lucide/svelte/icons/terminal';
   import TrashIcon from '@lucide/svelte/icons/trash';
   import {
     buttonVariants,
@@ -16,22 +17,22 @@
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn, copyToClipboard } from '@scylla/ui/utils';
-  import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
+  import { appStateOf, type AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
   import { agentsListMessages as messages } from '@base/features/apps/presentation/messages/agents-list.messages.ts';
 
   interface Props {
     app: AppEntity;
     openLabel: string;
     onOpen: () => void;
-    /** Absent: the user may not make a join code. */
-    onNewCode?: () => void;
+    /** A new join code on the page of a new agent. Absent: the user may not make one. */
+    onConnect?: () => void;
     /** Absent: the user may not disable, enable or delete the app. */
     onDisable?: () => void;
     onEnable?: () => void;
     onDelete?: () => void;
   }
 
-  let { app, openLabel, onOpen, onNewCode, onDisable, onEnable, onDelete }: Props = $props();
+  let { app, openLabel, onOpen, onConnect, onDisable, onEnable, onDelete }: Props = $props();
 
   const enableShown = $derived(!!app.disabledAt && !!onEnable);
   const disableShown = $derived(!enableShown && !!onDisable);
@@ -53,10 +54,16 @@
       <CopyIcon class="size-4" aria-hidden="true" />
       {t(messages.copyId)}
     </DropdownMenuItem>
-    {#if onNewCode && !app.disabledAt}
-      <DropdownMenuItem onSelect={onNewCode}>
-        <KeyRoundIcon class="size-4" aria-hidden="true" />
-        {t(messages.newJoinCode)}
+    {#if onConnect && !app.disabledAt}
+      {@const never = appStateOf(app) === 'never'}
+      <DropdownMenuItem onSelect={onConnect}>
+        {#if never}
+          <TerminalIcon class="size-4" aria-hidden="true" />
+          {t(messages.finishSetup)}
+        {:else}
+          <KeyRoundIcon class="size-4" aria-hidden="true" />
+          {t(messages.newJoinCode)}
+        {/if}
       </DropdownMenuItem>
     {/if}
     {#if enableShown}

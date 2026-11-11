@@ -102,7 +102,7 @@ describe('TOURS', () => {
     const { action } = spot('run-command');
 
     expect(action?.label?.message).toBe('Agent');
-    document.body.innerHTML = '<div data-tour="add-agent-dialog"></div>';
+    document.body.innerHTML = '<div data-tour="add-agent-page"></div>';
     expect(action?.anchor(document, {})).toBeNull();
     document.body.innerHTML = '<button data-tour="agent-open" id="open"></button>';
     expect(action?.anchor(document, {})?.id).toBe('open');
@@ -201,6 +201,8 @@ describe('the way back from another page', () => {
     const subject = { agentId: 'a-1', projectId: 'p-1' };
 
     expect(spot('agent-page').page?.(subject)).toBe('/agents/a-1');
+    expect(spot('run-command').page?.(subject)).toBe('/agents/a-1/connect');
+    expect(spot('run-command').page?.({})).toBe('/agents/new');
     expect(spot('create-pipeline').page?.(subject)).toBe('/projects/p-1/create');
     expect(spot('new-secret').page?.(subject)).toBe('/projects/p-1/secrets');
     expect(spot('wait-job').page?.(subject)).toBe('/projects/p-1');
@@ -275,31 +277,9 @@ describe('the anchors of the dialog steps', () => {
       <div data-slot="dialog-content" id="other"><p>hello</p></div>
       <div data-slot="dialog-content" id="create"><form></form></div>`;
 
-    const [dialog] = spot('create-agent').targets;
+    const [dialog] = spot('create-project').targets;
 
     expect(dialog(document, {})?.id).toBe('create');
-  });
-
-  it('move on once the new agent shows its join code', () => {
-    const shown = conditionOf(spot('create-agent'));
-
-    document.body.innerHTML = '<div data-slot="dialog-content"><form></form></div>';
-    expect(shown(document, {})).toBeNull();
-
-    document.body.innerHTML = '<div data-tour="app-join-code"><button>Copy</button></div>';
-    expect(shown(document, {})).not.toBeNull();
-  });
-
-  it('point at the whole dialog of the new agent, which stays when the agent comes online', () => {
-    document.body.innerHTML = `
-      <div data-tour="add-agent-dialog" id="dialog">
-        <div data-tour="app-dialog-actions"><button data-tour="agent-open" id="open"></button></div>
-      </div>`;
-
-    const [dialog] = spot('run-command').targets;
-
-    expect(dialog(document, {})?.id).toBe('dialog');
-    expect(conditionOf(spot('run-command'))(document, {})?.id).toBe('open');
   });
 
   it('repeat the submit button of the form dialog', () => {
@@ -307,19 +287,13 @@ describe('the anchors of the dialog steps', () => {
       <div data-slot="dialog-content"><p>hello</p></div>
       <div data-slot="dialog-content"><form></form><button type="submit" id="add"></button></div>`;
 
-    expect(spot('create-agent').action?.anchor(document, {})?.id).toBe('add');
+    expect(spot('create-project').action?.anchor(document, {})?.id).toBe('add');
   });
 
   it('hold the dialogs of the steps that live in one, with a way back when the dialog is gone', () => {
     const held = ALL_STEPS.filter(step => step.holdsDialog);
 
-    expect(held.map(step => step.id)).toEqual([
-      'create-agent',
-      'run-command',
-      'create-project',
-      'secret-value',
-      'people-role',
-    ]);
+    expect(held.map(step => step.id)).toEqual(['create-project', 'secret-value', 'people-role']);
     for (const step of held) expect(step.fallback).toBeDefined();
   });
 
@@ -442,5 +416,40 @@ describe('the first step on a phone', () => {
       <button data-sidebar="trigger" id="menu"></button>
       <button data-nav-group="access" id="group"></button>`;
     expect(target(document, {})?.id).toBe('group');
+  });
+});
+
+describe('the anchors of the page of a new agent', () => {
+  it('point at its form, and repeat its submit button', () => {
+    document.body.innerHTML = `
+      <div data-slot="dialog-content"><form><button type="submit" id="other"></button></form></div>
+      <form data-tour="add-agent-form" id="form"><button type="submit" id="add"></button></form>`;
+
+    const [form] = spot('create-agent').targets;
+
+    expect(form(document, {})?.id).toBe('form');
+    expect(spot('create-agent').action?.anchor(document, {})?.id).toBe('add');
+  });
+
+  it('move on once the new agent shows its join code', () => {
+    const shown = conditionOf(spot('create-agent'));
+
+    document.body.innerHTML = '<form data-tour="add-agent-form"></form>';
+    expect(shown(document, {})).toBeNull();
+
+    document.body.innerHTML = '<div data-tour="app-join-code"><button>Copy</button></div>';
+    expect(shown(document, {})).not.toBeNull();
+  });
+
+  it('point at the whole page, which stays when the agent comes online', () => {
+    document.body.innerHTML = `
+      <div data-tour="add-agent-page" id="page">
+        <button data-tour="agent-open" id="open"></button>
+      </div>`;
+
+    const [page] = spot('run-command').targets;
+
+    expect(page(document, {})?.id).toBe('page');
+    expect(conditionOf(spot('run-command'))(document, {})?.id).toBe('open');
   });
 });

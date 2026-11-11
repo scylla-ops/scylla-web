@@ -29,5 +29,10 @@ The apps of a workspace (`scylla.apps.v1.AppService`). An agent is an app that r
   command and the update command match the server.
 - The connect card makes a join code only after a click. A new code stops the previous code, so a
   page that opens must not stop the install of a machine.
+- "Add an agent" is a page, not a dialog: the install command is long, and the user goes to a
+  terminal and back. The URL changes to `/agents/<id>/connect` once the agent exists, so a reload
+  shows the install step of this agent, not a second agent. A user who leaves before a machine
+  joins gets a choice (stay, keep, delete): an agent with no machine is not deleted in the
+  background, because a close of the tab is not a choice.
 - `appQueries.runners` and `loadNoAgentsBanner` serve the pipelines and the jobs: they warn when
   jobs wait and no agent is connected.

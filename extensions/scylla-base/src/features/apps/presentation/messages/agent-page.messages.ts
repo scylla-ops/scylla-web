@@ -106,7 +106,6 @@ export const agentPageMessages = {
   revokeBody: msg`The machine with this key cannot sign in any more. If it is the last key, the agent stops.`,
   connect: msg`Connect this agent`,
   connectBody: msg`Make a join code, then run its command on the machine of the agent.`,
-  makeCode: msg`Make a join code`,
   neverSaidHello: msg`It never said hello.`,
   dangerTitle: msg`Delete this agent`,
   dangerBody: msg`Its keys and access go. The jobs that it ran stay.`,

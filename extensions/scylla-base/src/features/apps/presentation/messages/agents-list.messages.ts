@@ -45,7 +45,7 @@ export const agentsListMessages = {
   connected: msg`Connected`,
   lastSeen: (when: string) => msg`Last seen ${when}`,
   neverSaidHello: msg`Never said hello`,
-  showCommand: msg`Show the command`,
+  finishSetup: msg`Finish setup`,
   disabledSince: (when: string) => msg`Since ${when}`,
   allProjects: msg`All projects`,
   noProject: msg`No project`,

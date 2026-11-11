@@ -3,6 +3,7 @@ import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
+import { installTestNavigator } from '@test/navigator.ts';
 import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import AgentsList from './AgentsList.svelte';
 
@@ -46,6 +47,7 @@ const day = (completed: number, failed: number) => ({
   outcomes: { completed, failed, cancelled: 0, orphaned: 0 },
 });
 
+let navigate: ReturnType<typeof installTestNavigator>['navigate'];
 let teardown: Array<() => void> = [];
 let apps: Record<string, ReturnType<typeof vi.fn>>;
 
@@ -109,8 +111,11 @@ const setUp = (permissions: Permission[], agents: unknown[] = AGENTS) => {
     }),
   };
   const cache = withQueryClient();
+  const navigator = installTestNavigator({ pathname: '/acme/agents' });
+  navigate = navigator.navigate;
   teardown = [
     cache.restore,
+    navigator.restore,
     withRegistry({
       apps: { appsRepository: apps },
       access: { accessRepository: access },
@@ -213,16 +218,33 @@ describe('AgentsList', () => {
     await waitFor(() => expect(apps.disableApp).toHaveBeenCalledWith('a3'));
   });
 
-  it('shows the install command of an agent that never connected', async () => {
+  it('opens the install step of an agent that never connected, with "Finish setup"', async () => {
     setUp(ALL);
     const user = userEvent.setup();
     await screen.findByText('gpu-runner-01');
 
-    await user.click(screen.getByRole('button', { name: 'Show the command' }));
+    await user.click(screen.getByRole('button', { name: 'Finish setup' }));
 
-    expect(await screen.findByText('Install gpu-runner-01')).toBeInTheDocument();
-    await waitFor(() => expect(apps.createJoinCode).toHaveBeenCalledWith('a4'));
-    expect(await screen.findByText(/JOIN-77/)).toBeInTheDocument();
+    expect(navigate).toHaveBeenCalledWith('/acme/agents/a4/connect', undefined);
+    expect(apps.createJoinCode).not.toHaveBeenCalled();
+  });
+
+  it('gives "Finish setup" in the menu of an agent that never connected, and a new join code to the others', async () => {
+    setUp(ALL);
+    const user = userEvent.setup();
+    await screen.findByText('gpu-runner-01');
+
+    await user.click(screen.getByRole('button', { name: 'Actions of gpu-runner-01' }));
+    expect(await findFloating('menuitem', 'Finish setup')).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'New join code', hidden: true })).toBeNull();
+    await user.click(await findFloating('menuitem', 'Finish setup'));
+    expect(navigate).toHaveBeenCalledWith('/acme/agents/a4/connect', undefined);
+    // The menu blocks the pointer on the body until its exit animation ends.
+    await waitFor(() => expect(screen.queryByRole('menu', { hidden: true })).toBeNull());
+
+    await user.click(screen.getByRole('button', { name: 'Actions of build-linux-01' }));
+    await user.click(await findFloating('menuitem', 'New join code'));
+    expect(navigate).toHaveBeenCalledWith('/acme/agents/a1/connect', undefined);
   });
 
   it('hides the projects and the actions that the user may not use', async () => {
@@ -231,7 +253,7 @@ describe('AgentsList', () => {
     await screen.findByText('gpu-runner-01');
 
     expect(screen.queryByText('Access')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Show the command' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Finish setup' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Actions of gpu-runner-01' }));
     const items = await screen.findAllByRole('menuitem', { hidden: true });
     expect(items.map(item => item.textContent?.trim())).toEqual(['Open agent', 'Copy ID']);
@@ -244,15 +266,19 @@ describe('AgentsList', () => {
     expect(apps.listAgentStats).not.toHaveBeenCalled();
   });
 
-  it('asks an admin to add the first agent to open the wizard', async () => {
+  it('opens the page of a new agent from the header and from the empty list', async () => {
     setUp(ALL, []);
     const user = userEvent.setup();
 
     expect(await screen.findByText('Run your first agent')).toBeInTheDocument();
     const adds = screen.getAllByRole('button', { name: /Add an agent/ });
-    await user.click(adds[adds.length - 1]);
+    expect(adds).toHaveLength(2);
+    for (const add of adds) await user.click(add);
 
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    expect(navigate).toHaveBeenCalledTimes(2);
+    expect(navigate).toHaveBeenNthCalledWith(1, '/acme/agents/new', undefined);
+    expect(navigate).toHaveBeenNthCalledWith(2, '/acme/agents/new', undefined);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('tells a member with no right to add one to ask an admin', async () => {

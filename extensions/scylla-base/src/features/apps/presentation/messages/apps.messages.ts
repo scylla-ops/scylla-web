@@ -11,6 +11,7 @@ export const appsMessages = {
   removeRole: (role: string) => msg`Take back ${role}`,
   deleted: msg`App deleted`,
   agentDeleted: msg`Agent deleted`,
+  namedDeleted: (name: string) => msg`${name} is deleted.`,
   keyRenamed: msg`Key renamed`,
   accessChanged: msg`Access changed`,
   disabledToast: (name: string) => msg`${name} is disabled`,

@@ -9,10 +9,10 @@
   interface Props {
     agent: AppEntity;
     /** Absent: the user may not make a join code. */
-    onShowCommand?: () => void;
+    onFinishSetup?: () => void;
   }
 
-  let { agent, onShowCommand }: Props = $props();
+  let { agent, onFinishSetup }: Props = $props();
 
   const status = $derived(agentStatusOf(agent));
 </script>
@@ -26,9 +26,9 @@
       {t(messages.lastSeen(getRelativeTime(agent.lastSeenAt)))}
     {:else if status === 'disabled'}
       {t(messages.disabledSince(formatDay(agent.disabledAt)))}
-    {:else if onShowCommand}
-      <button type="button" class="text-primary hover:underline" onclick={onShowCommand}>
-        {t(messages.showCommand)}
+    {:else if onFinishSetup}
+      <button type="button" class="text-primary hover:underline" onclick={onFinishSetup}>
+        {t(messages.finishSetup)}
       </button>
     {/if}
   </span>

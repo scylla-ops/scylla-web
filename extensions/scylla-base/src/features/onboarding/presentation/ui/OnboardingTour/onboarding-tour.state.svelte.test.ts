@@ -14,7 +14,11 @@ let teardown: Array<() => void> = [];
 let agents: { id: string; connected: boolean }[] = [];
 const listAgents = vi.fn(() => Promise.resolve(agents));
 
-const setUp = (stored: OnboardingStatus = { kind: 'not-started' }, canStart = true) => {
+const setUp = (
+  stored: OnboardingStatus = { kind: 'not-started' },
+  canStart = true,
+  pathname = '/acme/agents',
+) => {
   let current = stored;
   const repository = {
     getStatus: vi.fn(() => Promise.resolve(current)),
@@ -24,7 +28,7 @@ const setUp = (stored: OnboardingStatus = { kind: 'not-started' }, canStart = tr
     }),
   };
   const cache = withQueryClient();
-  const navigator = installTestNavigator({ pathname: '/acme/agents' });
+  const navigator = installTestNavigator({ pathname });
   const restoreRegistry = withRegistry({
     onboarding: { onboardingRepository: repository },
     apps: { appsRepository: { listApps: listAgents } },
@@ -267,8 +271,12 @@ describe('createOnboardingTour', () => {
     expect(repository.saveStatus).toHaveBeenCalledWith('ada', { kind: 'skipped' });
   });
 
-  it('goes back to the step that opens the dialog the user closed', async () => {
-    const { tour } = setUp({ kind: 'in-progress', tour: 'agent', step: 'create-agent' });
+  it('goes back to the step that opens the form when the form is gone from its page', async () => {
+    const { tour } = setUp(
+      { kind: 'in-progress', tour: 'agent', step: 'create-agent' },
+      true,
+      '/acme/agents/new',
+    );
     await onStep(tour, 'create-agent');
 
     tour.recover('create-agent');
@@ -293,12 +301,11 @@ describe('createOnboardingTour', () => {
   });
 
   it('rewinds the install step to the agent that exists', async () => {
-    const { tour } = setUp({
-      kind: 'in-progress',
-      tour: 'agent',
-      step: 'run-command',
-      subject: { agentId: 'a-1' },
-    });
+    const { tour } = setUp(
+      { kind: 'in-progress', tour: 'agent', step: 'run-command', subject: { agentId: 'a-1' } },
+      true,
+      '/acme/agents/a-1/connect',
+    );
     await onStep(tour, 'run-command');
 
     tour.recover('run-command');

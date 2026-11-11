@@ -1,4 +1,4 @@
-import type { AppNavigator, NavigateOptions } from '@scylla/core-sdk';
+import { holdsLeave, type AppNavigator, type NavigateOptions } from '@scylla/core-sdk';
 import { compileRoutes, type AppRouterConfig } from '../compilation/compile-routes.ts';
 import { changeLocation, location, syncLocation } from './location.state.svelte.ts';
 import { resolveTarget } from './resolve-target.ts';
@@ -12,7 +12,9 @@ export const createAppRouter = (config: AppRouterConfig): AppNavigator => {
   return {
     navigate: (to: string, options?: NavigateOptions) => {
       const { pathname, search, hash } = resolveTarget(to, location.pathname);
-      changeLocation(pathname + search + hash, options);
+      const go = () => changeLocation(pathname + search + hash, options);
+      // A redirect is not a choice of the user, and a new query keeps the page.
+      if (options?.replace || pathname === location.pathname || !holdsLeave(go)) go();
     },
     back: () => history.back(),
     pathname: () => location.pathname,

@@ -3,10 +3,15 @@ import BlocksIcon from '@lucide/svelte/icons/blocks';
 import ServerIcon from '@lucide/svelte/icons/server';
 import { Permission } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { commandForm, type CreateCommand } from '@scylla/core-sdk';
+import { commandForm, routeParams, type CreateCommand } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
 
 const context = toRune(contextStore);
+
+const inWorkspace = (path: string): string | null => {
+  const { workspaceSlug } = routeParams();
+  return workspaceSlug ? `/${workspaceSlug}/${path}` : null;
+};
 
 export const appsCommands: readonly CreateCommand[] = [
   {
@@ -17,10 +22,7 @@ export const appsCommands: readonly CreateCommand[] = [
     icon: ServerIcon,
     permission: Permission.CREATE_APP,
     available: () => !!context().workspace.id,
-    form: commandForm({
-      load: () => import('./ui/components/AddAgentDialog/AddAgentDialog.svelte'),
-      props: () => ({ workspaceId: context().workspace.id ?? '' }),
-    }),
+    form: { path: () => inWorkspace('agents/new') },
   },
   {
     id: 'apps.create-app',
