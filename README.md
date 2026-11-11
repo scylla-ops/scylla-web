@@ -104,6 +104,7 @@ packages/ui                the design system — imports no other package
 | [apps](extensions/scylla-base/src/features/apps/README.md) | Machine identities, the agents that pick up jobs, their install and their run statistics |
 | [dashboard](extensions/scylla-base/src/features/dashboard/README.md) | The workspace landing page — a composite view owning no data |
 | [extensions](extensions/scylla-base/src/features/extensions/README.md) | The page that lists the extensions the app runs |
+| [integrations](extensions/scylla-base/src/features/integrations/README.md) | The connections of a workspace to GitHub and GitLab, and the data layer of the Git integration |
 | [jobs](extensions/scylla-base/src/features/jobs/README.md) | Pipeline runs: status, logs, and the live tail of both |
 | [login](extensions/scylla-base/src/features/login/README.md) | Sign-in, sign-out, the password reset and the session token |
 | [marketplace](extensions/scylla-base/src/features/marketplace/README.md) | Ready-made pipeline templates |

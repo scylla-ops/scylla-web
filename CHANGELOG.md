@@ -136,6 +136,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   table is centered in its cell.
 - The editor of a saved pipeline has an Export action: the pipeline as a TOML, YAML or JSON file for
   the repository, to copy or to download.
+- The settings of a workspace have an Integrations page. An admin connects GitHub (with the Scylla
+  GitHub App) or GitLab.com (with the token of a service account), and sees the state, the event
+  mode and the token expiry of each connection.
 
 ### Changed
 
