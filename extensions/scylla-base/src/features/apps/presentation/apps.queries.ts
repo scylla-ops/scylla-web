@@ -193,7 +193,7 @@ const removeQueriesOfApp = (appId: string) =>
   });
 
 export const appMutations = {
-  /** Gives the first join code: the dialog shows it once. */
+  /** Gives the first join code: the page shows it once. */
   create: (workspaceId: string) =>
     mutationOptions({
       mutationKey: CREATE_APP_MUTATION_KEY,
@@ -202,11 +202,13 @@ export const appMutations = {
       onSuccess: () => invalidateApps(),
     }),
 
-  remove: (kind: 'app' | 'agent' = 'app') =>
+  /** With a `name`, the toast names the app. */
+  remove: (kind: 'app' | 'agent' = 'app', name?: string) =>
     mutationOptions({
       mutationFn: (appId: string) => repository().deleteApp(appId),
       onSuccess: (_result, appId) => {
-        toast.success(i18n._(kind === 'agent' ? appsMessages.agentDeleted : appsMessages.deleted));
+        const deleted = kind === 'agent' ? appsMessages.agentDeleted : appsMessages.deleted;
+        toast.success(i18n._(name ? appsMessages.namedDeleted(name) : deleted));
         removeQueriesOfApp(appId);
         return invalidateApps();
       },

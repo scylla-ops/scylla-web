@@ -11,7 +11,6 @@
   import { appStateOf } from '@base/features/apps/domain/entities/app.entity.ts';
   import { hasNoActiveKey } from '@base/features/apps/domain/structs/agent-list.struct.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
-  import AddAgentDialog from '../components/AddAgentDialog/AddAgentDialog.svelte';
   import AgentHeader from './AgentHeader.svelte';
   import AgentStatsRow from './AgentStatsRow.svelte';
   import AgentTimeline from './AgentTimeline/AgentTimeline.svelte';
@@ -61,7 +60,9 @@
   const stats = createAgentStats(() => ({ appId, workspaceId, agent }));
 
   let disabling = $state(false);
-  let joining = $state(false);
+
+  /** A new join code on the page of a new agent, at its install step. */
+  const connect = () => scyllaNavigate.goToWorkspaceRoute(`/agents/${appId}/connect`);
 </script>
 
 {#if details.isError}
@@ -99,11 +100,7 @@
     {/if}
 
     {#if never && canNewCode}
-      <AgentConnectCard
-        agentId={agent.id}
-        {workspaceId}
-        keyCount={details.data?.keys.length ?? 0}
-      />
+      <AgentConnectCard onConnect={connect} />
     {:else}
       <!-- The stats need their own permission: a reader of the apps can miss it. -->
       {#if canReadStats}
@@ -165,7 +162,7 @@
     <AgentKeysCard
       agentId={agent.id}
       keys={details.data?.keys ?? []}
-      onNewCode={canNewCode && !agent.disabledAt ? () => (joining = true) : undefined}
+      onNewCode={canNewCode && !agent.disabledAt ? connect : undefined}
       {canRename}
       {canRevoke}
       tourAnchor={!never || !canNewCode}
@@ -180,13 +177,6 @@
       />
     {/if}
   </div>
-
-  <AddAgentDialog
-    open={joining}
-    setOpen={open => (joining = open)}
-    {workspaceId}
-    agent={joining ? agent : null}
-  />
 
   <ConfirmOperationAlertDialog
     open={disabling}

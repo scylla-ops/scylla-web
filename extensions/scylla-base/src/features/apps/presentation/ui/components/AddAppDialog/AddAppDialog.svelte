@@ -35,7 +35,7 @@
     type NewCredential,
     type ReadyApp,
   } from '@base/features/apps/presentation/app-credentials.queries.ts';
-  import StepBar from '../AddAgentDialog/StepBar.svelte';
+  import StepBar from './StepBar.svelte';
   import CiForm from '../CiForm/CiForm.svelte';
   import RolesStep from './RolesStep.svelte';
   import ConnectionStep from './ConnectionStep.svelte';

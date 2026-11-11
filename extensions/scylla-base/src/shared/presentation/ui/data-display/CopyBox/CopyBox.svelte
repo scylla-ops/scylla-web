@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import CheckIcon from '@lucide/svelte/icons/check';
   import CopyIcon from '@lucide/svelte/icons/copy';
   import EyeIcon from '@lucide/svelte/icons/eye';
@@ -22,6 +23,12 @@
     layout?: 'wrap' | 'lines';
     /** Focuses the copy button on mount, without a scroll. */
     focusOnMount?: boolean;
+    /** A value that no longer works: faded, and no copy. */
+    faded?: boolean;
+    /** Centered over the value, e.g. the action that gives a new value. */
+    overlay?: Snippet;
+    /** A row under the value, inside the box. */
+    footer?: Snippet;
     class?: string;
   }
 
@@ -34,6 +41,9 @@
     copyToast,
     layout = 'wrap',
     focusOnMount = false,
+    faded = false,
+    overlay,
+    footer,
     class: className,
   }: Props = $props();
 
@@ -68,21 +78,31 @@
   {#if caption}
     <p class={cn('px-3.5 pt-3 text-xs text-muted-foreground', inset)}>{caption}</p>
   {/if}
-  <pre
-    class={cn(
-      'px-3.5 py-3 font-mono text-[13px] leading-relaxed text-foreground',
-      inset,
-      layout === 'wrap'
-        ? 'break-all whitespace-pre-wrap'
-        : 'relative overflow-x-auto whitespace-pre contain-inline-size',
-    )}>{#each parts as part, index (index)}{#if index > 0}{@render masked()}{/if}{part}{/each}</pre>
+  <div class="relative">
+    <pre
+      class={cn(
+        'px-3.5 py-3 font-mono text-[13px] leading-relaxed text-foreground',
+        inset,
+        layout === 'wrap'
+          ? 'break-all whitespace-pre-wrap'
+          : 'relative overflow-x-auto whitespace-pre contain-inline-size',
+        faded && 'opacity-40 select-none',
+      )}>{#each parts as part, index (index)}{#if index > 0}{@render masked()}{/if}{part}{/each}</pre>
+    {#if overlay}
+      <div class="absolute inset-0 flex items-center justify-center">{@render overlay()}</div>
+    {/if}
+  </div>
+  {#if footer}
+    <div class="border-t px-3.5 py-2">{@render footer()}</div>
+  {/if}
   <div class="absolute top-2 right-2 flex gap-0.5">
     <button
       type="button"
       onclick={() => void copy()}
       aria-label={t(messages.copy)}
+      disabled={faded}
       {@attach focusOnMount && focusWithoutScroll}
-      class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
+      class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
     >
       {#if copied}
         <CheckIcon class="size-4" />

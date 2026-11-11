@@ -1,4 +1,4 @@
-import { currentPathname, navigateBack, navigateTo } from '@scylla/core-sdk';
+import { currentPathname, navigateBack, navigateTo, type NavigateOptions } from '@scylla/core-sdk';
 import { contextStore } from './context.store.ts';
 import { slugifyWorkspaceName } from '@shared/utils/slug.ts';
 
@@ -79,8 +79,8 @@ const goToAgentDetails = (agentId: string) => {
   navigateTo(`${getWorkspacePrefix()}/agents/${agentId}`);
 };
 
-const goToWorkspaceRoute = (path: string) => {
-  navigateTo(`${getWorkspacePrefix()}${path.startsWith('/') ? path : `/${path}`}`);
+const goToWorkspaceRoute = (path: string, options?: NavigateOptions) => {
+  navigateTo(`${getWorkspacePrefix()}${path.startsWith('/') ? path : `/${path}`}`, options);
 };
 
 export const scyllaNavigate = {

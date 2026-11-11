@@ -22,7 +22,7 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 | Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `SecondSidebarLink`, `QueryErrorHandler`, `QueryRetryPolicy`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
 | Crumbs | `BreadcrumbFn`, `BreadcrumbParams`, `Crumb`, `TrailCrumb` |
 | Permission type | `Register` (augmented by one extension), `RoutePermission` |
-| Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect`, `navLinks`, `setNavLinks`, `AppNavLink` |
+| Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect`, `navLinks`, `setNavLinks`, `AppNavLink`, `guardLeave`, `holdsLeave`, `LeaveGuard` |
 | Commands of the bar | `CommandDefinition`, `GoCommand`, `CreateCommand`, `ChoiceCommand`, `ToggleCommand`, `ConfirmCommand`, `CommandBase`, `CommandForm`, `CommandFormProps`, `commandForm` |
 | DI | `getModuleDomain`, `setDependencyRegistry`, `DomainRegistry` |
 | Query | `createQuery`, `createMutation`, `createQueries`, `queryOptions`, `mutationOptions`, `getQueryClient`, `setQueryClient` |
@@ -42,6 +42,7 @@ src/
   routing/    scylla-module.struct.ts  ScyllaModule, ModuleRoute, NavLink, NavGroup (links of one group fold under one item)
               mount.struct.ts, route.struct.ts, crumb.struct.ts, Redirect.svelte
   navigation/ navigator.ts             the AppNavigator the core installs, and its readers
+              leave-guard.ts           guardLeave (a page asks before the user leaves it), holdsLeave (the router)
               nav-links.ts             the sidebar links of all extensions, for the search bar
   di/         dependencies.registry.ts
   query/      active-query-client.ts, svelte-query.ts
@@ -180,6 +181,11 @@ two augmentations with different types do not compile.
 `setNavLinks` are called by `startCore`, once. Extensions only read: `navigateTo`, `routeParams`,
 `getModuleDomain`, `createQuery`, `installedExtensions`, `navLinks`.
 
+- **`guardLeave(guard)` lets a page ask before the user leaves it.** One guard at a time; it
+  returns the function that removes it. The guard gets `leave` and returns `true` to hold the
+  navigation, then calls `leave` to go on, or never. Only the router calls `holdsLeave`. Install
+  the guard only while the page needs it (in an `$effect`), and remove it in the cleanup: a guard
+  that stays holds every navigation of the app.
 - **`DomainRegistry` is untyped per module — on purpose.** If it named each module's domain,
   every feature would depend on every other one. A feature pins the type on its side:
   `getModuleDomain<typeof XModule.domain>('x').xRepository`. **Only a `*.queries.ts` or a

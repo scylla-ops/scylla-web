@@ -199,6 +199,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   name. The Level and Type columns are removed.
 - The libraries of the front are at their latest versions: Vite 8 (Rolldown), Lingui 6, ESLint 10,
   Babel 8 and the new minor versions of Svelte, bits-ui, TanStack and CodeMirror.
+- "Add an agent" is a page (`/agents/new`), not a dialog: name and access, install, connected. The
+  projects are two cards and a list in one step. The Windows install has an "i" card that shows its
+  two ways apart. A reload goes back to the install step of the agent (`/agents/<id>/connect`). A
+  user who leaves before a machine joins chooses to stay, keep the agent or delete it. The list
+  shows "Finish setup" for an agent that never connected.
 
 ### Fixed
 

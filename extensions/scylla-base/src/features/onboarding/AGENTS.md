@@ -129,7 +129,7 @@ Three flags change the card and the page:
 Anchors are attributes on the real elements, never CSS classes:
 
 - `data-tour="…"` in the features: `agents`, `agent-details`, `agent-status` (+ `data-online`),
-  `add-agent-dialog`, `app-join-code`, `agent-open` (the "Open agent" button), `projects`,
+  `add-agent-page`, `add-agent-form`, `app-join-code`, `agent-open` (the "Open agent" button), `projects`,
   `project-card` (+ `data-project-id`), `pipelines` (+ `data-project-id`), `pipeline-editor`,
   `pipeline-submit`, `pipeline-triggers`, `pipeline-history` / `pipeline-actions` (+ `data-pipeline-id`,
   `data-pipeline-name`, `data-last-status`), `pipeline-run`, `job-details`, `triggers`,
@@ -141,9 +141,11 @@ Anchors are attributes on the real elements, never CSS classes:
 - `data-nav-url` on the core's sidebar links, `data-nav-group` on its folding groups,
   `data-item-id` on `StatusBar` segments and on `StatusTrail` dots (the history of the pipelines), and the `data-slot` of the primitives: the sidebar, the
   inset and the dialogs.
-- The agent steps use the agents page (`/agents`, `data-tour="agents"`) and its "Add an agent"
-  dialog. The run-command step points at the whole dialog: the join code goes away when the
-  agent connects, and a step that points at it gets lost. The
+- The agent steps use the agents page (`/agents`, `data-tour="agents"`) and the page of a new
+  agent (`/agents/new`: its form `add-agent-form`, then `/agents/<id>/connect`). The run-command
+  step points at the whole page (`add-agent-page`): the join code goes away when the agent
+  connects, and a step that points at it gets lost. While no machine joined, a navigation away
+  asks to keep or delete the agent (`features/apps`). The
   "Agents" link is in the group "Machines", which can be folded: the step points at the group
   until the link shows. On a phone the sidebar is a sheet: the step points at the menu button of
   the top bar (`data-sidebar="trigger"`) until the sheet shows the group.

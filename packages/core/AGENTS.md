@@ -150,6 +150,11 @@ module gives an access policy.
   server serves must have `rel="external"`, or the browser never calls the server. The compiled
   build has the same origin as the API, so this failure does not show on a Vite dev server, where
   the API has another origin.
+- **A page can hold a leave** (`guardLeave` of the SDK). The router asks the guard before a
+  navigation of the user: `navigate`, a click on a link, back and forward. A redirect (`replace`)
+  and a change of the query only are never held. Back and forward change the URL before the
+  router knows: a held one puts the URL of the page back, and the guard's `leave` opens the target
+  as a new entry. Tests: `runtime/__test__/leave-guard.test.ts`.
 - **`RouteEntry` reads the route once, when it mounts.** The page transition keeps the old page
   on screen for its exit animation; `RoutePage` mounts a new `RouteEntry` for each pathname.
 - **A change of pathname mounts the page again, with its wrappers.** A change of the query

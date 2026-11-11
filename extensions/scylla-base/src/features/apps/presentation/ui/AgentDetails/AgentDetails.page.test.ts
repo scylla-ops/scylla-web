@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { toast } from 'svelte-sonner';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { fakePollTimers } from '@test/queries.ts';
 import { findFloating, focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import AgentDetails from './AgentDetails.page.svelte';
@@ -328,37 +327,31 @@ describe('AgentDetails', () => {
     expect(container.firstElementChild).toHaveClass('pb-20');
   });
 
-  it('gives a command to connect an agent that never said hello', async () => {
+  it('opens the install step to connect an agent that never said hello, with no code on open', async () => {
     setUp(agent({ connected: false, lastSeenAt: '', host: null, runningJobs: 0 }));
-
     const user = userEvent.setup();
 
     expect(await screen.findByText('Connect this agent')).toBeInTheDocument();
-    expect(apps.createJoinCode).not.toHaveBeenCalled();
-    await user.click(screen.getByRole('button', { name: 'Make a join code' }));
+    await user.click(screen.getByRole('button', { name: 'Finish setup' }));
 
-    await waitFor(() => expect(apps.createJoinCode).toHaveBeenCalledTimes(1));
-    expect(await screen.findByText(/JOIN-99/)).toBeInTheDocument();
+    expect(navigate).toHaveBeenCalledWith(
+      '/acme/agents/01JBX7AAAAAAAAAAAAAAAAK2M/connect',
+      undefined,
+    );
+    expect(apps.createJoinCode).not.toHaveBeenCalled();
     expect(screen.queryByText('Success rate')).not.toBeInTheDocument();
   });
 
-  it('shows that a machine joined and did not connect yet', async () => {
-    fakePollTimers();
-    setUp(agent({ connected: false, lastSeenAt: '', host: null, runningJobs: 0 }), ALL, []);
+  it('opens the install step for a new join code of an agent that has a machine', async () => {
+    setUp();
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: 'Make a join code' }));
-    expect(await screen.findByText('Waiting for the agent…')).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'New join code' }));
 
-    apps.getApp.mockResolvedValue({
-      app: agent({ connected: false, lastSeenAt: '', host: null, runningJobs: 0 }),
-      keys: [key('k-new', 'host-1')],
-    });
-    await vi.advanceTimersByTimeAsync(2_000);
-
-    expect(
-      await screen.findByText('The machine joined. Waiting for its connection.'),
-    ).toBeInTheDocument();
+    expect(navigate).toHaveBeenCalledWith(
+      '/acme/agents/01JBX7AAAAAAAAAAAAAAAAK2M/connect',
+      undefined,
+    );
   });
 
   it('gives the command for the system of an agent with another version', async () => {
@@ -479,6 +472,7 @@ describe('AgentDetails', () => {
   });
 
   it('asks nothing more about the agent after its delete: the server would refuse', async () => {
+    onNovember4();
     setUp();
     const user = userEvent.setup();
 

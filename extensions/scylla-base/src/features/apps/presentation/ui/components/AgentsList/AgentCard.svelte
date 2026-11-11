@@ -17,10 +17,10 @@
     total: number;
     onOpen: () => void;
     /** Absent: the user may not make a join code. */
-    onShowCommand?: () => void;
+    onFinishSetup?: () => void;
   }
 
-  let { agent, access, jobs, total, onOpen, onShowCommand }: Props = $props();
+  let { agent, access, jobs, total, onOpen, onFinishSetup }: Props = $props();
 
   const status = $derived(agentStatusOf(agent));
   const place = $derived(
@@ -41,13 +41,13 @@
     </button>
     <AgentStatusPill {agent} />
   </div>
-  {#if status === 'never' && onShowCommand}
+  {#if status === 'never' && onFinishSetup}
     <button
       type="button"
       class="self-start text-xs text-primary hover:underline"
-      onclick={onShowCommand}
+      onclick={onFinishSetup}
     >
-      {t(messages.showCommand)}
+      {t(messages.finishSetup)}
     </button>
   {:else if place}
     <span class="text-xs text-muted-foreground">{place}</span>

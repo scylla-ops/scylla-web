@@ -1,4 +1,5 @@
 import { on } from 'svelte/events';
+import { holdsLeave } from '@scylla/core-sdk';
 
 /** Written only by the router. */
 export const location = $state({ pathname: '/', search: '', hash: '' });
@@ -35,13 +36,30 @@ const followLink = (event: MouseEvent): void => {
   if (samePage && anchor.hash) return;
 
   event.preventDefault();
-  changeLocation(anchor.pathname + anchor.search + anchor.hash);
-  if (!samePage) window.scrollTo(0, 0);
+  const go = () => {
+    changeLocation(anchor.pathname + anchor.search + anchor.hash);
+    if (!samePage) window.scrollTo(0, 0);
+  };
+  if (samePage || !holdsLeave(go)) go();
+};
+
+/**
+ * Back and forward. The browser has changed the URL already: a guard that holds the navigation
+ * gets the page URL back, and `leave` opens the target as a new entry.
+ */
+const followHistory = (): void => {
+  const from = location.pathname + location.search + location.hash;
+  const to = window.location.pathname + window.location.search + window.location.hash;
+  if (window.location.pathname !== location.pathname && holdsLeave(() => changeLocation(to))) {
+    history.pushState(null, '', from);
+    return;
+  }
+  syncLocation();
 };
 
 /** Follows back/forward and the clicks on the app's links. Returns the function that stops it. */
 export const listenToLocation = (): (() => void) => {
   syncLocation();
-  const stops = [on(window, 'popstate', syncLocation), on(window, 'click', followLink)];
+  const stops = [on(window, 'popstate', followHistory), on(window, 'click', followLink)];
   return () => stops.forEach(stop => stop());
 };

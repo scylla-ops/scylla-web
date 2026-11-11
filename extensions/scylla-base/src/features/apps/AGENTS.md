@@ -24,29 +24,49 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   from the server (`agent-stats.struct.ts`), for days in UTC: by default the last 30 days, or a
   period (`stats-period.struct.ts`). The server starts a period at the creation of the agent and
   keeps at most 366 days. The web uses the same limits (`periodBounds`).
-- "Add agent" is a dialog in three steps (`components/AddAgentDialog/`): name and projects, install,
-  connected. The install step has a tab for Linux (the default), macOS, Windows and Docker, with one
-  command and one hint for each (`agent-install.struct.ts`). Linux and macOS have the same command.
-  The tabs list is a flex row, not a grid: in a grid row, a tab gets the height of its content and
-  touches the bottom of the list.
+- "Add an agent" is a page (`ui/NewAgent/`, route `/agents/new`, `CREATE_APP`) in three steps on
+  a rail (`AgentStep`): name and access, install, connected. Every entry opens it: the header and
+  the empty state of the list, `NoAgentsBanner`, the command bar, the tour. Step 1 chooses the
+  projects in one step (`ProjectChooser`: two radio cards, the list shows at once; "Some
+  projects" is disabled in a workspace with no project). After "Add agent", the page replaces
+  its URL with `/agents/<id>/connect` (`READ_APP`): the same page, at step 2. The route changes,
+  so the page mounts again: `new-agent.state.svelte.ts` hands the code of the creation to it (one
+  slot), and a new code would stop it. With no hand-over (a reload, "Finish setup", a new join
+  code), the page reads the agent, keeps its count of keys, and makes a new code. A user who is
+  not the creator and has no `create_join_code` goes back to the agent page.
+- The install step (`NewAgent/InstallStep/`) has four tiles (Linux, the default, macOS, Windows,
+  Docker) and one command in a `CopyBox` with a footer: the short line of the system and an "i"
+  `HoverCard` (`InstallInfo`), the countdown and "New code". The short lines are true for the
+  scripts of the server (`install.sh` asks for sudo on Linux only, `install.ps1` needs no admin
+  rights). The Windows card shows the two ways to open PowerShell apart. An expired code is faded,
+  with "New code" over it. The options row has the jobs at once, the runtime (or, for Docker, the
+  socket of the machine) and "Install by hand". Linux and macOS have the same command.
   The commands name the server with `--url` or `-Url`, so the address in the command wins over the
-  address in the script. The Docker tab uses the image of the server (`appQueries.server`, from
+  address in the script. The Docker tile uses the image of the server (`appQueries.server`, from
   `GetCapabilities`), replaces a loopback host with `host.docker.internal`, and has no runtime
   choice. Its choice "Run container steps" gives the socket of the machine and a warning. After one
-  minute, the step shows the command of the logs of the tab. The Windows command reads the log of
-  the agent of the user (the install with no admin rights), or else the logs of the service. `appQueries.waiting` asks for the app
-  each 2 s until a machine joined with a new key and the agent is connected (`hasJoined`). Between
-  these two events, `isJoining` shows "The machine joined". With an `agent`, the dialog makes a new
-  join code for it and starts at the install step. A `Button` in the form must have `type="button"`, because the
-  primitive has no default type.
+  minute, step 3 shows the command of the logs of the tile. The Windows command reads the log of
+  the agent of the user (the install with no admin rights), or else the logs of the service.
+  `appQueries.waiting` asks for the app each 2 s until a machine joined with a new key and the
+  agent is connected (`hasJoined`). Between these two events, `isJoining` shows "The machine
+  joined". A `Button` in a form must have `type="button"`, because the primitive has no default
+  type.
+- The leave prompt (`leave-prompt.state.svelte.ts`, `LeaveAgentDialog`): at step 2 of an agent
+  that never had a machine, while no machine joined (waiting or expired code), a navigation in the
+  app (`guardLeave` of `@scylla/core-sdk`: the router, the "Cancel" of the header, back and
+  forward) opens a dialog: Stay, Keep agent (the navigation goes on, and a toast offers "Finish
+  setup"), Delete agent (`appMutations.remove`, then the navigation goes on). A reload or a closed
+  tab shows only the prompt of the browser: nothing is deleted in the background. No prompt at
+  step 1, after a machine joined, or for an agent that had a machine.
 - The agents page (`components/AgentsList/`) shows four stat cards, filters by state
   (`agent-list.struct.ts`: a running agent is also online), a search on the name and the host name,
   and a table. The access column needs `list_workspace_members`: `appQueries.agentAccess` reads
   the roles of the workspace and of each project (`agent-access.struct.ts`). The sparkline comes
   from `appQueries.agentStats` (one call for the workspace). The stats of the agents need
   `READ_APP_STATS` (`list_agent_stats`), not only `list_apps`: without it, the list and the agent
-  page show no stats and ask for none. Disable and delete need `delete_app`. A new join code
-  needs `create_join_code`, and the rename and the revoke of a key need `rename_app_key` and
+  page show no stats and ask for none. Disable and delete need `delete_app`. An agent that never
+  connected shows "Finish setup" in its status and in its menu; the others show "New join code".
+  Both open `/agents/<id>/connect`. A new join code needs `create_join_code`, and the rename and the revoke of a key need `rename_app_key` and
   `revoke_app_key`, as the routes of the server. The server also gives these three to the creator
   of the agent: the page gives them when `createdBy` is the user of the session. The other apps
   have their own page (`AppsList`).
@@ -64,8 +84,9 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   the machine, the recent jobs, the access (Change: `runnerChanges` in
   `agent-access.struct.ts` gives the grants before the revokes; `appMutations.changeAccess` sends
   them one by one), the keys (rename, revoke, new join code) and the delete zone (type the name).
-  An agent that never said hello shows a connect card with a button that makes a join code. Do not
-  make the code on open: a new code stops the code of a machine that installs now. The machine card
+  An agent that never said hello shows a connect card with "Finish setup", which opens
+  `/agents/<id>/connect`; "New join code" of the keys card opens it too. Do not make the code on
+  the open of the agent page: a new code stops the code of a machine that installs now. The machine card
   shows the versions and the update command when the agent and the server have different versions.
   The delete zone shows the uninstall command for the system of the agent. A Docker agent reports
   `linux`, so Linux also shows the Docker command.

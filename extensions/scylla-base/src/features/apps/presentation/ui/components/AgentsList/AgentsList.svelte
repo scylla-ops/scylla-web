@@ -38,7 +38,6 @@
   import { endedJobs, sumOutcomes } from '@base/features/apps/domain/structs/agent-stats.struct.ts';
   import type { AgentAccess } from '@base/features/apps/domain/structs/agent-access.struct.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
-  import AddAgentDialog from '../AddAgentDialog/AddAgentDialog.svelte';
   import EmptyList from '../EmptyList/EmptyList.svelte';
   import Sparkline from '../Sparkline/Sparkline.svelte';
   import AgentCard from './AgentCard.svelte';
@@ -68,8 +67,6 @@
 
   let filter = $state<AgentFilter>('all');
   let search = $state('');
-  let addOpen = $state(false);
-  let joining = $state<AppEntity | null>(null);
   let disabling = $state<AppEntity | null>(null);
   let deleting = $state<AppEntity | null>(null);
 
@@ -124,10 +121,10 @@
   };
 
   const openAgent = (id: string) => scyllaNavigate.goToWorkspaceRoute(`/agents/${id}`);
-  const join = (agent: AppEntity) => {
-    joining = agent;
-    addOpen = true;
-  };
+  const addAgent = () => scyllaNavigate.goToWorkspaceRoute('/agents/new');
+  /** A new join code, and the install step of the page of a new agent. */
+  const connect = (agent: AppEntity) =>
+    scyllaNavigate.goToWorkspaceRoute(`/agents/${agent.id}/connect`);
 </script>
 
 {#snippet blurb()}
@@ -140,10 +137,7 @@
     pluralLabel={t(messages.agents)}
     count={agents.data?.length}
     underLabel={blurb}
-    onNew={() => {
-      joining = null;
-      addOpen = true;
-    }}
+    onNew={addAgent}
     newLabel={t(messages.add)}
     canNew={canCreate}
     newDeniedReason={t(messages.onlyAdmins)}
@@ -159,12 +153,7 @@
       title={canCreate ? t(messages.firstTitle) : t(messages.emptyTitle)}
       body={canCreate ? t(messages.firstBody) : t(messages.askAdmin)}
       addLabel={t(messages.add)}
-      onAdd={canCreate
-        ? () => {
-            joining = null;
-            addOpen = true;
-          }
-        : undefined}
+      onAdd={canCreate ? addAgent : undefined}
     />
   {:else}
     {#if phone.current}
@@ -209,7 +198,7 @@
             jobs={agentStats ? dailyJobs(agentStats) : []}
             total={agentStats ? endedJobs(agentStats.outcomes) : 0}
             onOpen={() => openAgent(agent.id)}
-            onShowCommand={canCreate ? () => join(agent) : undefined}
+            onFinishSetup={canCreate ? () => connect(agent) : undefined}
           />
         {:else}
           <p class="py-8 text-center text-sm text-muted-foreground">{t(messages.noMatch)}</p>
@@ -249,7 +238,7 @@
               <TableCell>
                 <AgentStatusCell
                   {agent}
-                  onShowCommand={canCreate ? () => join(agent) : undefined}
+                  onFinishSetup={canCreate ? () => connect(agent) : undefined}
                 />
               </TableCell>
               {#if canReadAccess}
@@ -270,7 +259,7 @@
                   app={agent}
                   openLabel={t(messages.openAgent)}
                   onOpen={() => openAgent(agent.id)}
-                  onNewCode={canCreate ? () => join(agent) : undefined}
+                  onConnect={canCreate ? () => connect(agent) : undefined}
                   onDisable={canManage ? () => (disabling = agent) : undefined}
                   onEnable={canManage ? () => enable.mutate(agent.id) : undefined}
                   onDelete={canManage ? () => (deleting = agent) : undefined}
@@ -290,18 +279,6 @@
     {/if}
   {/if}
 </div>
-
-{#if workspaceId}
-  <AddAgentDialog
-    open={addOpen}
-    setOpen={open => {
-      addOpen = open;
-      if (!open) joining = null;
-    }}
-    {workspaceId}
-    agent={joining}
-  />
-{/if}
 
 <ConfirmOperationAlertDialog
   open={!!disabling}
