@@ -1,10 +1,12 @@
 import type { PipelineRepository } from '@base/features/pipeline/domain/repository/pipeline.repository.ts';
 import type {
   PipelineEntity,
+  PipelineFileExport,
   PipelineMetadata,
   PipelineRun,
   PipelineWithLayout,
 } from '../domain/entities/pipeline.entity.ts';
+import type { PipelineFileFormat } from '../domain/structs/pipeline-file-format.struct.ts';
 import type { PipelineLayout } from '../domain/structs/pipeline-layout.struct.ts';
 import type { PipelineNodeEntity } from '../domain/entities/pipeline-node.entity.ts';
 import type { IPipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
@@ -112,6 +114,14 @@ export class DefaultPipelineRepository implements PipelineRepository {
       pipelineId: wrapId(id),
       layout: grpcPipeline.layoutFromDomain(layout),
     }).response;
+  }
+
+  public async exportFile(id: string, format: PipelineFileFormat): Promise<PipelineFileExport> {
+    const { content, path } = await this.client.exportPipeline({
+      pipelineId: wrapId(id),
+      format: grpcPipeline.fileFormatToProto(format),
+    }).response;
+    return { content, path };
   }
 
   public async edit(

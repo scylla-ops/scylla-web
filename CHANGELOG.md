@@ -134,6 +134,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   (project) and Git providers (instance). The Project tab has an Approve column for "Approve fork
   runs", and its box tells on hover that a run from a fork never gets the secrets. A checkbox of the
   table is centered in its cell.
+- The editor of a saved pipeline has an Export action: the pipeline as a TOML, YAML or JSON file for
+  the repository, to copy or to download.
 
 ### Changed
 

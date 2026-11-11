@@ -1,10 +1,12 @@
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import type {
   PipelineEntity,
+  PipelineFileExport,
   PipelineMetadata,
   PipelineRun,
   PipelineWithLayout,
 } from '../entities/pipeline.entity.ts';
+import type { PipelineFileFormat } from '../structs/pipeline-file-format.struct.ts';
 import type { PipelineLayout } from '../structs/pipeline-layout.struct.ts';
 import type { PipelineNodeEntity } from '../entities/pipeline-node.entity.ts';
 
@@ -31,4 +33,6 @@ export interface PipelineRepository {
   ): Promise<PipelineEntity>;
   /** Only the places that changed: the others stay. The version of the pipeline does not change. */
   saveLayout(id: string, layout: PipelineLayout): Promise<void>;
+  /** The saved version, as a file to put in the repository. */
+  exportFile(id: string, format: PipelineFileFormat): Promise<PipelineFileExport>;
 }

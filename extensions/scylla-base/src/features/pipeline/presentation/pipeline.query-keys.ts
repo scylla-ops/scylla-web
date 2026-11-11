@@ -1,3 +1,4 @@
+import type { PipelineFileFormat } from '../domain/structs/pipeline-file-format.struct.ts';
 import type { PaginationParams } from '@scylla/ui/structs';
 
 export const PIPELINES_QUERY_KEY = (projectId: string, pagination?: PaginationParams) =>
@@ -15,6 +16,10 @@ export const PROJECT_PIPELINES_QUERY_ROOT = (projectId: string) =>
 export const PIPELINES_QUERY_ROOT = ['pipelines'] as const;
 
 export const PIPELINE_QUERY_KEY = (pipelineId: string) => ['pipeline', pipelineId] as const;
+
+/** Under the key of the pipeline: a save refreshes the files too. */
+export const PIPELINE_EXPORT_QUERY_KEY = (pipelineId: string, format: PipelineFileFormat) =>
+  ['pipeline', pipelineId, 'export', format] as const;
 
 /** The templates do not depend on the project, nor on a pipeline: a root of their own. */
 export const NODE_TEMPLATES_QUERY_KEY = () => ['node-templates'] as const;

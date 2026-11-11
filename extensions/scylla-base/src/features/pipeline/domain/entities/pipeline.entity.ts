@@ -22,6 +22,13 @@ export interface PipelineRun {
   needsContainer: boolean;
 }
 
+/** A pipeline written as a file of the repository, from its saved version. */
+export interface PipelineFileExport {
+  content: string;
+  /** Where the file goes, for example `.scylla/pipelines/build.toml`. */
+  path: string;
+}
+
 /** What the editor opens. The layout stays apart: the document and the jobs never see it. */
 export interface PipelineWithLayout {
   pipeline: PipelineEntity;

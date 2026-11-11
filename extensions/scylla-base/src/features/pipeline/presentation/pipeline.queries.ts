@@ -6,7 +6,12 @@ import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import { toast } from '@scylla/ui/utils';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
-import type { PipelineMetadata, PipelineWithLayout } from '../domain/entities/pipeline.entity.ts';
+import type {
+  PipelineFileExport,
+  PipelineMetadata,
+  PipelineWithLayout,
+} from '../domain/entities/pipeline.entity.ts';
+import type { PipelineFileFormat } from '../domain/structs/pipeline-file-format.struct.ts';
 import { mergeLayouts, type PipelineLayout } from '../domain/structs/pipeline-layout.struct.ts';
 import {
   InvalidPipelineError,
@@ -21,6 +26,7 @@ import {
   WORKSPACE_PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_ROOT,
+  PIPELINE_EXPORT_QUERY_KEY,
   PIPELINE_QUERY_KEY,
   PROJECT_PIPELINES_QUERY_ROOT,
   RUN_PIPELINE_MUTATION_KEY,
@@ -87,6 +93,15 @@ export const pipelineQueries = {
       staleTime: 30_000,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
+    }),
+
+  /** Opened from the editor only, behind its own route guard and its own button check. */
+  fileExport: (pipelineId: string, format: PipelineFileFormat) =>
+    queryOptions<PipelineFileExport>({
+      queryKey: PIPELINE_EXPORT_QUERY_KEY(pipelineId, format),
+      enabled: !!pipelineId,
+      queryFn: () => repository().exportFile(pipelineId, format),
+      staleTime: 30_000,
     }),
 };
 

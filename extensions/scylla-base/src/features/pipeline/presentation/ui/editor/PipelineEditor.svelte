@@ -13,6 +13,7 @@
   import CanvasCurtain from './blueprint/canvas/CanvasCurtain/CanvasCurtain.svelte';
   import PipelineBlueprint from './blueprint/PipelineBlueprint.svelte';
   import PipelineEditorHeader from './PipelineEditorHeader/PipelineEditorHeader.svelte';
+  import ExportPipelineDialog from './ExportPipelineDialog/ExportPipelineDialog.svelte';
   import PipelineScripting from './scripting/PipelineScripting/PipelineScripting.svelte';
 
   interface Props {
@@ -32,6 +33,8 @@
     /** A default draft, or a fetched pipeline. */
     initialScript?: string;
     projectId?: string;
+    /** A saved pipeline: the header can export it as a file. */
+    pipelineId?: string;
     isSubmitPending?: boolean;
     /** The pipeline is not here yet: the editor shows its frame, and the canvas waits or fails. */
     missing?: MissingDocument;
@@ -47,6 +50,7 @@
     onPlacesMoved,
     initialScript,
     projectId,
+    pipelineId,
     isSubmitPending = false,
     missing,
     onRetry,
@@ -64,6 +68,7 @@
   });
 
   let canvasReady = $state(false);
+  let exporting = $state(false);
   const curtain = createCanvasCurtain({
     ready: () => !missing && canvasReady,
     failed: () => missing === 'failed',
@@ -96,6 +101,7 @@
       isSaving={isSubmitPending}
       pipelineName={doc.pipelineName}
       onNameChange={name => doc.setName(name)}
+      onExport={pipelineId ? () => (exporting = true) : undefined}
     />
   </div>
 
@@ -125,3 +131,13 @@
     </Card>
   </TabsContent>
 </Tabs>
+
+{#if pipelineId}
+  <ExportPipelineDialog
+    open={exporting}
+    onOpenChange={open => (exporting = open)}
+    {pipelineId}
+    pipelineName={doc.pipelineName}
+    dirty={doc.isDirty}
+  />
+{/if}

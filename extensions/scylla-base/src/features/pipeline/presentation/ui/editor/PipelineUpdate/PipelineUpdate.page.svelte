@@ -35,6 +35,7 @@
     mode="edit"
     submitLabel={t(pipelineMessages.save)}
     projectId={pipeline?.projectId}
+    {pipelineId}
     {initialScript}
     {missing}
     onRetry={() => void pipelineQuery.refetch()}

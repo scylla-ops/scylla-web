@@ -39,6 +39,7 @@ not through the barrel.
 | `edit(id, nodes, name?, layout?)` | `PipelineEntity` |
 | `deleteById(id)` | `void` |
 | `run(id)` | `void` |
+| `exportFile(id, format)` | `PipelineFileExport`: the saved version as a file of the repository, and its path |
 
 `NodeTemplateRepository` — `domain/repository/node-template.repository.ts`:
 
@@ -82,6 +83,7 @@ domain/
   structs/node-id.struct.ts                  NodeId: the id rule of the server (nodeIdIssue, toNodeId)
   structs/pipeline-name.struct.ts            PipelineNameIssue, pipelineNameIssue
   structs/pipeline-layout.struct.ts          NodePlace, PipelineLayout, the limits of the server, mergeLayouts
+  structs/pipeline-file-format.struct.ts     PipelineFileFormat (toml, yaml, json), PIPELINE_FILE_FORMATS
   use-cases/save-pipeline.use-case.ts        SavePipelineUseCase: the rules of the server, then create or edit
   repository/pipeline.repository.ts
   repository/node-template.repository.ts
@@ -93,7 +95,7 @@ presentation/
   pipeline.commands.ts                       create, jobs and edit, for the search bar
   pipeline.queries.ts                        TanStack Query options factories
   pipeline.query-keys.ts                     Query key factories (exported publicly)
-  messages/                                  pipeline, blueprint, scripting, node (.messages.ts)
+  messages/                                  pipeline, blueprint, scripting, node, export (.messages.ts)
   presenters/                                domain data → what a view shows (plain TS, tested)
     node-summary.presenter.ts                summarize (what a node shows), nodePreview, envCounts
     node-kind.presenter.ts                   icon and colours of each kind of node
@@ -121,7 +123,9 @@ presentation/
       pipeline-document.state.svelte.ts      the document of both tabs: script text, baseline, dirty
                                              check, the issue that stops the save; MissingDocument
       unsaved-changes.effect.svelte.ts       warnBeforeUnload: the browser's prompt while unsaved
-      PipelineEditorHeader/                  the header, with the name field
+      PipelineEditorHeader/                  the header, with the name field and Export
+      ExportPipelineDialog/                  the export as a file: one tab per format, copy, download
+                                             (export-pipeline.state.svelte.ts)
       controls/                              what the tabs share: SearchField and
                                              code-editor.effect.svelte.ts (CodeMirror ↔ a string)
       node/                                  the fields of one node, for every view that edits a node
@@ -409,6 +413,12 @@ the page.
   `pipeline-history` / `pipeline-actions` / `pipeline-run` with `data-pipeline-id`,
   `data-pipeline-name`, `data-last-status`). Keep them on the same
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
+- **Export writes the saved version as a file of the repository** (`ExportPipeline`). Only the
+  edit page has it (`PipelineEditor` gets `pipelineId`). The button checks `READ_PIPELINE`: the
+  route `export_pipeline` is in the same catalog cell as `get_pipeline`. The dialog reads the file
+  of the selected format only while it is open (`pipelineQueries.fileExport`). Its key is under
+  `PIPELINE_QUERY_KEY`, so a save refreshes it. With unsaved changes, the dialog says that the file
+  has the saved version. The path comes from the server: do not build it in the client.
 
 ## Before done
 

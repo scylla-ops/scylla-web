@@ -152,6 +152,10 @@ msgstr "commande"
 msgid "Command"
 msgstr "Commande"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:13
+msgid "Copy"
+msgstr "Copier"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/scripting.messages.ts:33
 msgid "Copy all"
 msgstr "Tout copier"
@@ -196,6 +200,10 @@ msgstr "Dépendances"
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:32
 msgid "Detailed"
 msgstr "Détaillé"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:14
+msgid "Download"
+msgstr "Télécharger"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:45
 msgid "Draft: not created yet"
@@ -265,6 +273,26 @@ msgstr "Environnement"
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:31
 msgid "Error loading jobs"
 msgstr "Erreur lors du chargement des jobs"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:4
+msgid "Export"
+msgstr "Exporter"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:6
+msgid "Export {name}"
+msgstr "Exporter {name}"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:7
+msgid "Export the pipeline"
+msgstr "Exporter le pipeline"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:15
+msgid "File copied"
+msgstr "Fichier copié"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:9
+msgid "File format"
+msgstr "Format du fichier"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:36
 msgid "Finished {time}"
@@ -479,6 +507,10 @@ msgstr "Affichage du script"
 msgid "Scripting"
 msgstr "Écriture de scripts"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:11
+msgid "Scylla could not write the file."
+msgstr "Scylla n'a pas pu écrire le fichier."
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:4
 msgid "Search a node"
 msgstr "Rechercher un nœud"
@@ -547,6 +579,10 @@ msgstr "C'est plus long que d'habitude…"
 msgid "Templates"
 msgstr "Modèles"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:10
+msgid "The file has the saved version. Save the pipeline to export your changes."
+msgstr "Le fichier contient la version enregistrée. Enregistrez le pipeline pour exporter vos modifications."
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/scripting.messages.ts:32
 msgid "The line that runs"
 msgstr "La ligne lancée"
@@ -566,6 +602,10 @@ msgstr "L'ID du nœud ne peut pas contenir {characters}. Utilisez seulement des 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:16
 msgid "The node ID has {length} characters. The maximum is 128."
 msgstr "L'ID du nœud fait {length} caractères. Le maximum est 128."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:8
+msgid "The pipeline as a file for the repository: put it at this path, then use the repository files as the source of the project."
+msgstr "Le pipeline sous forme de fichier pour le dépôt : placez-le à cet emplacement, puis utilisez les fichiers du dépôt comme source du projet."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:57
 msgid "The pipeline needs a name."
@@ -596,6 +636,7 @@ msgid "Triggers"
 msgstr "Déclencheurs"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:28
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:12
 msgid "Try again"
 msgstr "Réessayer"
 
@@ -663,6 +704,10 @@ msgstr "Vous n'avez pas la permission de supprimer des pipelines."
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:49
 msgid "You don't have permission to edit this pipeline."
 msgstr "Vous n'avez pas la permission de modifier cette pipeline."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:5
+msgid "You don't have permission to read this pipeline."
+msgstr "Vous n'avez pas la permission de lire ce pipeline."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:30
 msgid "You don't have permission to view this pipeline's jobs"

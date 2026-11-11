@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import type { IPipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
 import type { Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 import { PipelineSource } from '@base/generated/scylla/integrations/v1/vcs.ts';
+import { PipelineFileFormat } from '@base/generated/scylla/pipelines/v1/pipeline_file.ts';
 import { unaryCall } from '@test/grpc.ts';
 import { DefaultPipelineRepository } from '../default-pipeline.repository.ts';
 
@@ -146,5 +147,22 @@ describe('DefaultPipelineRepository', () => {
     });
 
     expect(vi.mocked(client.createPipeline).mock.calls[0]?.[0]).not.toHaveProperty('layout');
+  });
+
+  it('exports a pipeline in the format of the proto, and gives the file and its path', async () => {
+    const exportPipeline = vi.fn(() =>
+      unaryCall({ content: 'version: 1\n', path: '.scylla/pipelines/ci.yaml' }),
+    );
+    const repository = new DefaultPipelineRepository({
+      exportPipeline,
+    } as unknown as IPipelineServiceClient);
+
+    const file = await repository.exportFile('p', 'yaml');
+
+    expect(exportPipeline).toHaveBeenCalledWith({
+      pipelineId: { value: 'p' },
+      format: PipelineFileFormat.YAML,
+    });
+    expect(file).toEqual({ content: 'version: 1\n', path: '.scylla/pipelines/ci.yaml' });
   });
 });

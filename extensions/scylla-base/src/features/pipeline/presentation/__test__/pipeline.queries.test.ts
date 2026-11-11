@@ -76,6 +76,10 @@ beforeEach(() => {
     getWithLayout: vi.fn().mockResolvedValue({ pipeline: pipeline(), layout: null }),
     edit: vi.fn().mockResolvedValue(pipeline()),
     saveLayout: vi.fn().mockResolvedValue(undefined),
+    exportFile: vi.fn().mockResolvedValue({
+      content: 'version = 1\n',
+      path: '.scylla/pipelines/ci.toml',
+    }),
   };
 
   toastSuccess.mockClear();
@@ -165,6 +169,23 @@ describe('pipelineQueries.byId', () => {
     repository.getWithLayout.mockRejectedValue(error);
 
     await expect(runQueryFn(pipelineQueries.byId('pipeline-1'))).rejects.toBe(error);
+  });
+});
+
+describe('pipelineQueries.fileExport', () => {
+  it('reads the file of the pipeline in the format, under the key of the pipeline', async () => {
+    const options = pipelineQueries.fileExport('pipeline-1', 'yaml');
+
+    await expect(runQueryFn(options)).resolves.toEqual({
+      content: 'version = 1\n',
+      path: '.scylla/pipelines/ci.toml',
+    });
+    expect(repository.exportFile).toHaveBeenCalledWith('pipeline-1', 'yaml');
+    expect(options.queryKey.slice(0, 2)).toEqual(['pipeline', 'pipeline-1']);
+  });
+
+  it('does not query without a pipeline', () => {
+    expect(pipelineQueries.fileExport('', 'toml').enabled).toBe(false);
   });
 });
 
