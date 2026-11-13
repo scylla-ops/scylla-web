@@ -1,3 +1,4 @@
+import { Permission, can } from '@platform/authz';
 import { getModuleDomain, getQueryClient, mutationOptions, queryOptions } from '@scylla/core-sdk';
 import type { RetryJobReportInput } from '../domain/entities/vcs-report.entity.ts';
 import type { IntegrationsModule } from '../integrations.module.ts';
@@ -12,13 +13,16 @@ export const MAX_JOBS_PER_REPORT_CALL = 100;
 const VCS_REPORTS_QUERY_KEY = ['vcs-reports'] as const;
 
 export const vcsReportQueries = {
-  /** The ids are sorted in the key: the same jobs in another order share one entry. */
+  /**
+   * The ids are sorted in the key: the same jobs in another order share one entry. The pages of
+   * `jobs` read it: `list_job_reports` is in the cell `jobs.view` of the current project.
+   */
   byJobs: (jobIds: readonly string[], enabled = true) => {
     const ids = [...jobIds].sort().slice(0, MAX_JOBS_PER_REPORT_CALL);
     return queryOptions({
       queryKey: [...VCS_REPORTS_QUERY_KEY, ids] as const,
       queryFn: () => repository().listByJobs(ids),
-      enabled: enabled && ids.length > 0,
+      enabled: enabled && ids.length > 0 && can(Permission.READ_JOB),
       staleTime: 10 * 1000,
     });
   },

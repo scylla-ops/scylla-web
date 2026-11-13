@@ -1,15 +1,30 @@
 import type {
+  ApprovalState,
+  JobApproval,
+  JobCheckout,
   JobEntity,
   JobEvent,
   JobFilter,
   JobNodeExecution,
   JobLog,
+  JobSource,
   NodeExecutionState,
+  PipelineFileError,
+  PipelineFileRef,
 } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { JobFilter as GrpcJobFilter } from '@base/generated/scylla/pipelines/v1/job_service.ts';
-import { SourceEvent } from '@base/generated/scylla/pipelines/v1/source.ts';
+import {
+  ApprovalState as GrpcApprovalState,
+  type FileError as GrpcFileError,
+  type JobApproval as GrpcJobApproval,
+  type JobSource as GrpcJobSource,
+  type PipelineFileRef as GrpcPipelineFileRef,
+  SourceEvent,
+} from '@base/generated/scylla/pipelines/v1/source.ts';
+import { VcsProvider } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
 import {
+  type CheckoutRun,
   type Job,
   JobStatus as GrpcJobStatus,
   type LogLine,
@@ -31,6 +46,16 @@ const SOURCE_EVENTS: Record<JobEvent, SourceEvent> = {
   manual: SourceEvent.MANUAL,
   provider_rerun: SourceEvent.PROVIDER_RERUN,
   trigger: SourceEvent.TRIGGER,
+};
+
+const EVENTS: Partial<Record<SourceEvent, JobEvent>> = Object.fromEntries(
+  Object.entries(SOURCE_EVENTS).map(([event, value]) => [value, event as JobEvent]),
+);
+
+const APPROVAL_STATES: Partial<Record<GrpcApprovalState, ApprovalState>> = {
+  [GrpcApprovalState.WAITING]: 'waiting',
+  [GrpcApprovalState.APPROVED]: 'approved',
+  [GrpcApprovalState.REJECTED]: 'rejected',
 };
 
 /** A field that is not set gives each job: an empty text, no event, 0. */
@@ -56,6 +81,8 @@ function jobStatusToDomain(status: GrpcJobStatus): JobStatus {
       return 'cancelled';
     case GrpcJobStatus.ORPHANED:
       return 'orphaned';
+    case GrpcJobStatus.AWAITING_APPROVAL:
+      return 'awaiting_approval';
     default:
       return 'unknown';
   }
@@ -115,6 +142,70 @@ function nodeExecutionsOf(job: Job): JobNodeExecution[] {
   });
 }
 
+/** A provider that this build does not know: the job shows no source. */
+function sourceToDomain(source: GrpcJobSource | undefined): JobSource | undefined {
+  if (!source) return undefined;
+  const provider =
+    source.provider === VcsProvider.GITHUB
+      ? 'github'
+      : source.provider === VcsProvider.GITLAB
+        ? 'gitlab'
+        : undefined;
+  if (!provider) return undefined;
+  const event = EVENTS[source.event];
+  return {
+    provider,
+    repository: source.repository,
+    repositoryUrl: source.repositoryUrl,
+    sha: source.sha,
+    commitUrl: source.commitUrl,
+    branch: source.branch,
+    tag: source.tag,
+    pullRequests: source.pullRequests.map(({ number, title, url }) => ({ number, title, url })),
+    fromFork: source.fromFork,
+    forkRepository: source.forkRepository,
+    authorLogin: source.authorLogin,
+    authorAvatarUrl: source.authorAvatarUrl,
+    title: source.messageTitle,
+    ...(event && { event }),
+  };
+}
+
+/** A state newer than this build: the job is not known to be decided, so it waits. */
+function approvalToDomain(approval: GrpcJobApproval | undefined): JobApproval | undefined {
+  if (!approval) return undefined;
+  const decidedAt = timestampToIsoOpt(approval.decidedAt);
+  return {
+    state: APPROVAL_STATES[approval.state] ?? 'waiting',
+    ...(approval.decidedBy?.value && { decidedBy: approval.decidedBy.value }),
+    ...(decidedAt && { decidedAt }),
+    changesPipelineFiles: approval.changesPipelineFiles,
+    changesUrl: approval.changesUrl,
+  };
+}
+
+const pipelineFileToDomain = (file?: GrpcPipelineFileRef): PipelineFileRef | undefined =>
+  file ? { path: file.path, commitSha: file.commitSha, url: file.url } : undefined;
+
+const fileErrorToDomain = (error: GrpcFileError): PipelineFileError => ({
+  path: error.path,
+  line: error.line,
+  column: error.column,
+  field: error.field,
+  message: error.message,
+  warning: error.warning,
+});
+
+function checkoutToDomain(checkout: CheckoutRun | undefined): JobCheckout | undefined {
+  if (!checkout) return undefined;
+  return {
+    state: nodeStatusToDomain(checkout.status),
+    startedAt: timestampToIsoOpt(checkout.startedAt),
+    finishedAt: timestampToIsoOpt(checkout.finishedAt),
+    error: checkout.error || undefined,
+  };
+}
+
 export function toDomain(job: Job): JobEntity {
   const createdAt = timestampToIso(job.createdAt);
   const startedAt = timestampToIsoOpt(job.startedAt);
@@ -131,6 +222,12 @@ export function toDomain(job: Job): JobEntity {
     finishedAt,
     error: job.error || undefined,
     agentId: job.agentId ? idValue(job.agentId) : undefined,
+    source: sourceToDomain(job.source),
+    approval: approvalToDomain(job.approval),
+    pipelineFile: pipelineFileToDomain(job.pipelineFile),
+    fileErrors: job.fileErrors.length > 0 ? job.fileErrors.map(fileErrorToDomain) : undefined,
+    checkout: checkoutToDomain(job.checkout),
+    waitingReason: job.waitingReason || undefined,
   };
 }
 

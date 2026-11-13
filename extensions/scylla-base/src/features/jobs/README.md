@@ -16,6 +16,9 @@ them, reading their status, following their logs while they happen, and deleting
   runs collapses into a single summary.
 - **Logs** — the full log of a finished run, and the **live tail** of one still in flight.
 - **Cleanup** — deleting selected runs.
+- **The Git context** — the commit of a run and the event that started it, the approval of a
+  run from a fork, the pipeline file it read (or its errors), the built-in checkout step, and the
+  reports of the run to GitHub or GitLab.
 
 ## Where it appears
 

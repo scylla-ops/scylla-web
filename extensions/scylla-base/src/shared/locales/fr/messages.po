@@ -125,7 +125,7 @@ msgstr "Apps"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:69
+#: extensions/scylla-base/src/shared/utils/status-config.ts:70
 msgid "Cancelled"
 msgstr "Annulé"
 
@@ -175,7 +175,7 @@ msgstr "Expiré le {day}"
 msgid "Expires in"
 msgstr "Expire dans"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:48
+#: extensions/scylla-base/src/shared/utils/status-config.ts:49
 msgid "Failed"
 msgstr "Échoué"
 
@@ -236,11 +236,11 @@ msgstr "Aucun projet pour l'instant."
 msgid "On {day}. A token never lasts forever."
 msgstr "Le {day}. Un token ne dure jamais pour toujours."
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:62
+#: extensions/scylla-base/src/shared/utils/status-config.ts:63
 msgid "Orphaned"
 msgstr "Orphelin"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:34
+#: extensions/scylla-base/src/shared/utils/status-config.ts:35
 msgid "Pending"
 msgstr "En attente"
 
@@ -333,7 +333,7 @@ msgstr "Révoquée le {day}"
 msgid "Run"
 msgstr "Exécuter"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:26
+#: extensions/scylla-base/src/shared/utils/status-config.ts:27
 msgid "Running"
 msgstr "En cours"
 
@@ -373,7 +373,7 @@ msgstr "Afficher le secret"
 msgid "Sign-up is closed on this server"
 msgstr "Les inscriptions sont fermées sur ce serveur"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:55
+#: extensions/scylla-base/src/shared/utils/status-config.ts:56
 msgid "Skipped"
 msgstr "Ignoré"
 
@@ -385,7 +385,7 @@ msgstr "Certains projets"
 msgid "Someone else changed this item in the meantime. The page now shows the latest version."
 msgstr "Quelqu'un d'autre a modifié cet élément entre-temps. La page affiche maintenant la dernière version."
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:41
+#: extensions/scylla-base/src/shared/utils/status-config.ts:42
 msgid "Success"
 msgstr "Réussi"
 
@@ -489,7 +489,7 @@ msgstr "Déclencheur mis à jour"
 msgid "Triggers"
 msgstr "Déclencheurs"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:77
+#: extensions/scylla-base/src/shared/utils/status-config.ts:85
 msgid "Unknown"
 msgstr "Inconnu"
 
@@ -520,6 +520,10 @@ msgstr "Attendez {seconds} secondes avant de le renvoyer"
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:24
 msgid "Wait before you send it again"
 msgstr "Attendez avant de le renvoyer"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:77
+msgid "Waiting for approval"
+msgstr "En attente d'approbation"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:12
 msgid "Workspace created"

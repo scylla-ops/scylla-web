@@ -9,7 +9,12 @@ import {
   type NodeRun,
 } from '@base/generated/scylla/pipelines/v1/job.ts';
 import type { Node } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
-import { SourceEvent } from '@base/generated/scylla/pipelines/v1/source.ts';
+import {
+  ApprovalState,
+  SourceEvent,
+  type JobSource,
+} from '@base/generated/scylla/pipelines/v1/source.ts';
+import { VcsProvider } from '@base/generated/scylla/integrations/v1/vcs.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
 const ISO = '2025-01-01T00:00:00.000Z';
@@ -91,10 +96,171 @@ describe('grpcJob.toDomain', () => {
     [JobStatus.FAILED, 'failed'],
     [JobStatus.CANCELLED, 'cancelled'],
     [JobStatus.ORPHANED, 'orphaned'],
+    [JobStatus.AWAITING_APPROVAL, 'awaiting_approval'],
     [JobStatus.UNSPECIFIED, 'unknown'],
     [99 as JobStatus, 'unknown'],
   ])('maps the status %i to "%s"', (status, expected) => {
     expect(grpcJob.toDomain(baseJob({ status })).status).toBe(expected);
+  });
+
+  describe('the Git context', () => {
+    const source = (overrides: Partial<JobSource> = {}): JobSource => ({
+      provider: VcsProvider.GITHUB,
+      repository: 'acme/api',
+      repositoryUrl: 'https://github.com/acme/api',
+      sha: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
+      commitUrl: 'https://github.com/acme/api/commit/a1b2c3d',
+      ref: 'refs/heads/feature/login',
+      branch: 'feature/login',
+      tag: '',
+      pullRequests: [
+        {
+          number: 42,
+          title: 'Add login form',
+          url: 'https://github.com/acme/api/pull/42',
+          sourceBranch: 'feature/login',
+          targetBranch: 'main',
+        },
+      ],
+      fromFork: false,
+      forkRepository: '',
+      authorLogin: 'lea-martin',
+      authorAvatarUrl: '',
+      messageTitle: 'Add login form validation',
+      event: SourceEvent.PULL_REQUEST,
+      ...overrides,
+    });
+
+    it('keeps the commit, the pull requests and the event of the job', () => {
+      const domain = grpcJob.toDomain(baseJob({ source: source() }));
+
+      expect(domain.source).toEqual({
+        provider: 'github',
+        repository: 'acme/api',
+        repositoryUrl: 'https://github.com/acme/api',
+        sha: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
+        commitUrl: 'https://github.com/acme/api/commit/a1b2c3d',
+        branch: 'feature/login',
+        tag: '',
+        pullRequests: [
+          { number: 42, title: 'Add login form', url: 'https://github.com/acme/api/pull/42' },
+        ],
+        fromFork: false,
+        forkRepository: '',
+        authorLogin: 'lea-martin',
+        authorAvatarUrl: '',
+        title: 'Add login form validation',
+        event: 'pull_request',
+      });
+    });
+
+    it('gives no source for a job with no commit, or of a provider newer than this build', () => {
+      expect(grpcJob.toDomain(baseJob()).source).toBeUndefined();
+      expect(
+        grpcJob.toDomain(baseJob({ source: source({ provider: 9 as VcsProvider }) })).source,
+      ).toBeUndefined();
+    });
+
+    it('keeps the source of an event newer than this build, with no event', () => {
+      const domain = grpcJob.toDomain(baseJob({ source: source({ event: 99 as SourceEvent }) }));
+
+      expect(domain.source?.repository).toBe('acme/api');
+      expect(domain.source?.event).toBeUndefined();
+    });
+
+    it('keeps the approval of a job from a fork, and who decided it', () => {
+      const waiting = grpcJob.toDomain(
+        baseJob({
+          status: JobStatus.AWAITING_APPROVAL,
+          approval: {
+            state: ApprovalState.WAITING,
+            changesPipelineFiles: true,
+            changesUrl: 'https://github.com/acme/api/pull/57/files',
+          },
+        }),
+      );
+      const approved = grpcJob.toDomain(
+        baseJob({
+          approval: {
+            state: ApprovalState.APPROVED,
+            decidedBy: { value: 'user-1' },
+            decidedAt: TS,
+            changesPipelineFiles: false,
+            changesUrl: '',
+          },
+        }),
+      );
+
+      expect(waiting.approval).toEqual({
+        state: 'waiting',
+        changesPipelineFiles: true,
+        changesUrl: 'https://github.com/acme/api/pull/57/files',
+      });
+      expect(approved.approval).toMatchObject({
+        state: 'approved',
+        decidedBy: 'user-1',
+        decidedAt: ISO,
+      });
+      expect(grpcJob.toDomain(baseJob()).approval).toBeUndefined();
+    });
+
+    it('keeps the pipeline file, its errors and the checkout', () => {
+      const domain = grpcJob.toDomain(
+        baseJob({
+          status: JobStatus.FAILED,
+          pipelineFile: {
+            path: '.scylla/pipelines/build.toml',
+            blobSha: 'b1',
+            commitSha: '3a4b5c6',
+            url: 'https://github.com/acme/api/blob/3a4b5c6/.scylla/pipelines/build.toml',
+          },
+          fileErrors: [
+            {
+              path: '.scylla/pipelines/build.toml',
+              line: 14,
+              column: 12,
+              field: 'nodes[2].needs[0]',
+              message: '"tset" is not a node',
+              warning: false,
+            },
+          ],
+          checkout: { status: NodeStatus.COMPLETED, startedAt: TS, finishedAt: LATER, error: '' },
+        }),
+      );
+
+      expect(domain.pipelineFile).toEqual({
+        path: '.scylla/pipelines/build.toml',
+        commitSha: '3a4b5c6',
+        url: 'https://github.com/acme/api/blob/3a4b5c6/.scylla/pipelines/build.toml',
+      });
+      expect(domain.fileErrors).toEqual([
+        {
+          path: '.scylla/pipelines/build.toml',
+          line: 14,
+          column: 12,
+          field: 'nodes[2].needs[0]',
+          message: '"tset" is not a node',
+          warning: false,
+        },
+      ]);
+      expect(domain.checkout).toEqual({
+        state: 'completed',
+        startedAt: ISO,
+        finishedAt: LATER_ISO,
+        error: undefined,
+      });
+    });
+
+    it('gives no file errors, no checkout and no waiting reason when the server sends none', () => {
+      const domain = grpcJob.toDomain(baseJob());
+
+      expect(domain.fileErrors).toBeUndefined();
+      expect(domain.checkout).toBeUndefined();
+      expect(domain.waitingReason).toBeUndefined();
+      expect(
+        grpcJob.toDomain(baseJob({ waitingReason: 'NO_AGENT_WITH_CHECKOUT' })).waitingReason,
+      ).toBe('NO_AGENT_WITH_CHECKOUT');
+    });
   });
 
   describe('node executions', () => {

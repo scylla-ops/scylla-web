@@ -20,6 +20,12 @@
   import JobStatus from '../jobs-table/JobStatus/JobStatus.svelte';
   import JobTimeline from '../jobs-table/JobTimeline/JobTimeline.svelte';
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
+  import { stepsOf } from '@base/features/jobs/presentation/presenters/job-steps.presenter.ts';
+  import { hasInvalidFile } from '@base/features/jobs/presentation/presenters/job-status.presenter.ts';
+  import InvalidFileAlert from './InvalidFileAlert.svelte';
+  import JobApprovalBlock from './JobApprovalBlock.svelte';
+  import JobReportsBand from './JobReportsBand.svelte';
+  import JobSourceFacts from './JobSourceFacts.svelte';
 
   interface Props {
     job: JobEntity;
@@ -27,9 +33,21 @@
     onSelectNode: (nodeId?: string) => void;
     onRerun?: () => void;
     isRerunning?: boolean;
+    /** Unset without `APPROVE_JOB`. */
+    onApprove?: () => void;
+    onReject?: () => void;
+    isDeciding?: boolean;
   }
 
-  let { job, onSelectNode, onRerun, isRerunning = false }: Props = $props();
+  let {
+    job,
+    onSelectNode,
+    onRerun,
+    isRerunning = false,
+    onApprove,
+    onReject,
+    isDeciding = false,
+  }: Props = $props();
 
   // Ticks only while the job runs.
   const now = createNow(() => isActiveStatus(job.status));
@@ -117,7 +135,25 @@
     {/if}
   </div>
 
-  {#if job.error}
+  {#if job.source}
+    <JobSourceFacts {job} source={job.source} />
+  {/if}
+
+  <JobReportsBand {job} />
+
+  {#if job.status === 'awaiting_approval' && job.approval}
+    <JobApprovalBlock
+      approval={job.approval}
+      provider={job.source?.provider}
+      {onApprove}
+      {onReject}
+      deciding={isDeciding}
+    />
+  {/if}
+
+  {#if hasInvalidFile(job) && job.fileErrors}
+    <InvalidFileAlert errors={job.fileErrors} file={job.pipelineFile} />
+  {:else if job.error}
     <div
       role="alert"
       class="flex items-center gap-2.5 rounded-md border border-destructive/40 bg-destructive-subtle px-3.5 py-2.5"
@@ -132,6 +168,6 @@
 
   <div>
     <h2 class="mb-2 text-lg text-foreground">{t(jobsMessages.timeline)}</h2>
-    <JobTimeline nodeExecutions={job.nodeExecutions} {onSelectNode} />
+    <JobTimeline nodeExecutions={stepsOf(job)} {onSelectNode} />
   </div>
 </div>

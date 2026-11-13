@@ -78,6 +78,16 @@ export class DefaultJobsRepository implements JobsRepository {
     await this.client.cancelJob({ jobId: wrapId(jobId) }).response;
   }
 
+  public async approve(jobId: string): Promise<JobEntity> {
+    const { job } = await this.client.approveJob({ jobId: wrapId(jobId) }).response;
+    return grpcJob.toDomain(required(job, 'job'));
+  }
+
+  public async reject(jobId: string): Promise<JobEntity> {
+    const { job } = await this.client.rejectJob({ jobId: wrapId(jobId) }).response;
+    return grpcJob.toDomain(required(job, 'job'));
+  }
+
   /** A failure ends `logs` with a throw; `cancel` aborts the call. */
   public tailLogs(jobId: string, nodeId?: string): JobLogStream {
     const abortController = new AbortController();

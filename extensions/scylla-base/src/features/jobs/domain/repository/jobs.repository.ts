@@ -21,6 +21,10 @@ export interface JobsRepository {
   rerun(jobId: string): Promise<string>;
   /** A pending or running job stops; a job that ended stays as it is. */
   cancel(jobId: string): Promise<void>;
+  /** A job from a fork that waits runs, with no secret value. Gives the job after the change. */
+  approve(jobId: string): Promise<JobEntity>;
+  /** A job from a fork that waits is cancelled. Gives the job after the change. */
+  reject(jobId: string): Promise<JobEntity>;
   /** The lines since the start, then the live lines until the job ends. */
   tailLogs(jobId: string, nodeId?: string): JobLogStream;
 }

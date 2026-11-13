@@ -165,6 +165,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The instance pages have a Git providers page. An instance admin creates the GitHub App of a
   self-hosted server with the GitHub manifest flow, sees its webhook URL and its last webhook, and
   removes it. On a server with the App of the settings, the page shows that App with no change.
+- The page of a job shows its commit: the repository, the branch or the tag, the SHA, the pull
+  requests, the author, the event and the pipeline file. A job from a fork shows the fork and that
+  it gets no secrets, and an editor can approve or reject it. The page shows the errors of an
+  invalid pipeline file, the checkout as the first step with its log, and the reports to GitHub or
+  GitLab with Retry now and Fix the connection. The jobs table has a Source column and the states
+  Waiting for approval and Invalid pipeline file.
 
 ### Changed
 

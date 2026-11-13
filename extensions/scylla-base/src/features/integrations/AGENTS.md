@@ -33,14 +33,16 @@ type MergeBlock, MergeBlockState, VcsReport, ReportState, JobReports
 integrationsUrl(workspaceSlug, connectedId?)
 repositoryLinkQueries                 the link of a project and its refs, for the pipeline and
                                       trigger pages
+vcsReportQueries, vcsReportMutations  the reports of jobs and their retry, for the pages of `jobs`
 ```
 
 `repositoryLinkQueries` crosses the barrel: the pages of `pipeline` (the Run dialog, the filters
 of the jobs, the page of a file pipeline) read the link and its refs, and the trigger pages of
 `triggers` read the link (the Git kinds need one, and the provider names the pull request). They run outside the route
 guard of this module, so `byProject` and `refs` check `READ_REPOSITORY_LINK` on the project with
-`can(...)` (`shell/__test__/feature-permissions.test.ts`). A later page that reads
-`vcsReportQueries` from another module adds the export the same way.
+`can(...)` (`shell/__test__/feature-permissions.test.ts`). The pages of `jobs` read
+`vcsReportQueries` (the reports of the jobs it shows, under its `READ_JOB` routes) and retry a
+report with `vcsReportMutations` (`UPDATE_JOB`: `retry_job_report` is in the cell `jobs.edit`).
 
 Never add: `integrations.module.ts`, pages, components.
 

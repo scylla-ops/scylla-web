@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { QueryClient } from '@tanstack/query-core';
-import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
+import { getQueryClient, setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '@platform/context';
@@ -46,6 +46,8 @@ beforeEach(() => {
     deleteById: vi.fn().mockResolvedValue(undefined),
     rerun: vi.fn().mockResolvedValue('job-2'),
     cancel: vi.fn().mockResolvedValue(undefined),
+    approve: vi.fn().mockResolvedValue(job({ status: 'pending' })),
+    reject: vi.fn().mockResolvedValue(job({ status: 'cancelled' })),
     tailLogs: vi.fn(),
   };
 
@@ -226,6 +228,29 @@ describe('jobMutations.cancel', () => {
     expect(repository.cancel).toHaveBeenCalledWith('job-1');
 
     runOnSuccess(jobMutations.cancel('pipeline-1'), undefined, 'job-1');
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: JOBS_QUERY_KEY('pipeline-1') });
+  });
+});
+
+describe('jobMutations.approve and reject', () => {
+  it('decide on the job by its id', async () => {
+    await expect(runMutationFn(jobMutations.approve('pipeline-1'), 'job-1')).resolves.toMatchObject(
+      { status: 'pending' },
+    );
+    await expect(runMutationFn(jobMutations.reject('pipeline-1'), 'job-1')).resolves.toMatchObject({
+      status: 'cancelled',
+    });
+
+    expect(repository.approve).toHaveBeenCalledWith('job-1');
+    expect(repository.reject).toHaveBeenCalledWith('job-1');
+  });
+
+  it("show the job of the answer at once, and refresh the pipeline's list", () => {
+    const approved = job({ status: 'pending' });
+
+    runOnSuccess(jobMutations.approve('pipeline-1'), approved, 'job-1');
+
+    expect(getQueryClient().getQueryData(JOB_QUERY_KEY('job-1'))).toEqual(approved);
     expect(invalidate).toHaveBeenCalledWith({ queryKey: JOBS_QUERY_KEY('pipeline-1') });
   });
 });

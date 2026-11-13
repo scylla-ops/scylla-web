@@ -149,4 +149,18 @@ describe('DefaultJobsRepository actions', () => {
 
     expect(client.cancelJob).toHaveBeenCalledWith({ jobId: { value: 'job-1' } });
   });
+
+  it('approves and rejects a job from a fork, and gives the job after the change', async () => {
+    const client = {
+      approveJob: vi.fn(() => unaryCall({ job: { ...job('job-1', 1), status: JobStatus.PENDING } })),
+      rejectJob: vi.fn(() => unaryCall({ job: { ...job('job-1', 1), status: JobStatus.CANCELLED } })),
+    } as unknown as IJobServiceClient;
+    const repository = new DefaultJobsRepository(client);
+
+    await expect(repository.approve('job-1')).resolves.toMatchObject({ status: 'pending' });
+    await expect(repository.reject('job-1')).resolves.toMatchObject({ status: 'cancelled' });
+
+    expect(client.approveJob).toHaveBeenCalledWith({ jobId: { value: 'job-1' } });
+    expect(client.rejectJob).toHaveBeenCalledWith({ jobId: { value: 'job-1' } });
+  });
 });

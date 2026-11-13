@@ -15,3 +15,4 @@ export type { MergeBlock, MergeBlockState } from './domain/entities/merge-block.
 export type { JobReports, ReportState, VcsReport } from './domain/entities/vcs-report.entity.ts';
 export { integrationsUrl } from './presentation/presenters/integrations-url.presenter.ts';
 export { repositoryLinkQueries } from './presentation/repository-link.queries.ts';
+export { vcsReportMutations, vcsReportQueries } from './presentation/vcs-report.queries.ts';

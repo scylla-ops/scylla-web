@@ -5,13 +5,14 @@ import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.t
 import type { JobStatus as Status } from '@shared/domain/structs/job-status.struct.ts';
 import JobStatus from './JobStatus.svelte';
 
-const job = (status: Status): JobEntity => ({
+const job = (status: Status, overrides: Partial<JobEntity> = {}): JobEntity => ({
   id: 'job-1',
   pipelineId: 'pipeline-1',
   status,
   nodeExecutions: [],
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:01:00.000Z',
+  ...overrides,
 });
 
 describe('JobStatus', () => {
@@ -47,5 +48,36 @@ describe('JobStatus', () => {
 
     expect(screen.getByText('Unknown')).toBeInTheDocument();
     expect(screen.queryByText('queued: waiting for an agent')).not.toBeInTheDocument();
+  });
+
+  it('shows a job from a fork that waits, and who it waits for', () => {
+    render(JobStatus, { job: job('awaiting_approval') });
+
+    expect(screen.getByText('Waiting for approval')).toBeInTheDocument();
+    expect(screen.getByText('waiting for a project editor')).toBeInTheDocument();
+  });
+
+  it('says that no agent can get the code of a job that waits for one', () => {
+    render(JobStatus, { job: job('pending', { waitingReason: 'NO_AGENT_WITH_CHECKOUT' }) });
+
+    expect(
+      screen.getByText('no agent with Git and checkout support is online'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('queued: waiting for an agent')).not.toBeInTheDocument();
+  });
+
+  it('shows a job that failed on its pipeline file as an invalid pipeline file', () => {
+    const fileError = {
+      path: '.scylla/pipelines/build.toml',
+      line: 14,
+      column: 12,
+      field: 'nodes[2].needs[0]',
+      message: '"tset" is not a node',
+      warning: false,
+    };
+    render(JobStatus, { job: job('failed', { fileErrors: [fileError] }) });
+
+    expect(screen.getByText('Invalid pipeline file')).toBeInTheDocument();
+    expect(screen.queryByText('Failed')).not.toBeInTheDocument();
   });
 });

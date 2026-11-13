@@ -210,3 +210,23 @@ describe('the link queries that the pipeline pages read', () => {
     expect(repositoryLinkQueries.refs({ projectId: 'p-1' }, false).enabled).toBe(false);
   });
 });
+
+describe('the reports that the pages of the jobs read', () => {
+  afterEach(() => permissionsStore.setState({ permissions: null }));
+
+  it('read the reports only with READ_JOB: they run outside the route guard', () => {
+    const grant = (permissions: Permission[]) =>
+      permissionsStore.setState({
+        permissions: {
+          scopes: [{ scope: PermissionScope.SYSTEM, scopeId: '', access: { kind: 'restricted', permissions } }],
+        },
+      });
+
+    grant([Permission.READ_REPOSITORY_LINK]);
+    expect(vcsReportQueries.byJobs(['j-1']).enabled).toBe(false);
+
+    grant([Permission.READ_JOB]);
+    expect(vcsReportQueries.byJobs(['j-1']).enabled).toBe(true);
+    expect(vcsReportQueries.byJobs(['j-1'], false).enabled).toBe(false);
+  });
+});

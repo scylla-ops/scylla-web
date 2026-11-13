@@ -89,6 +89,12 @@ export const asJobFeed = (data: PaginatedList<JobEntity> | undefined) => {
   };
 };
 
+/** The answer of an approval is the job after it: no read is needed to show it. */
+const decided = (pipelineId: string, job: JobEntity) => {
+  getQueryClient().setQueryData(JOB_QUERY_KEY(job.id), job);
+  void getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId) });
+};
+
 export const jobMutations = {
   /** Invalidates the pipeline's list, or every job list when the pipeline is not known. */
   remove: (pipelineId?: string) =>
@@ -108,6 +114,20 @@ export const jobMutations = {
       onSuccess: () => {
         void getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId) });
       },
+    }),
+
+  /** Runs a job from a fork that waits. The page shows the answer, and the list reads it again. */
+  approve: (pipelineId: string) =>
+    mutationOptions({
+      mutationFn: (jobId: string) => repository().approve(jobId),
+      onSuccess: (job: JobEntity) => decided(pipelineId, job),
+    }),
+
+  /** Cancels a job from a fork that waits. */
+  reject: (pipelineId: string) =>
+    mutationOptions({
+      mutationFn: (jobId: string) => repository().reject(jobId),
+      onSuccess: (job: JobEntity) => decided(pipelineId, job),
     }),
 
   rerun: (pipelineId: string) =>
