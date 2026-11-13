@@ -151,6 +151,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   trigger of a pipeline file is read only.
 - The inbox shows the notices of the Git connections: a connection that needs attention, with its
   cause, and a GitLab token that expires soon. Each notice opens the integrations of the workspace.
+- A project has a Settings page for its repository. An editor links a repository of a connection of
+  the workspace, sees how Scylla gets the new commits (webhooks, or polling with the reason) and
+  sends a test webhook, turns the reports on or off, picks a check run or a commit status on GitHub,
+  and unlinks the repository. The unlink dialog lists what stops. The card tells why a link stopped
+  and where to repair it.
 
 ### Changed
 

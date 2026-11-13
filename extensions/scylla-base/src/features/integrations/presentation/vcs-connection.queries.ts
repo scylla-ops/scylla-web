@@ -38,20 +38,23 @@ export const vcsConnectionQueries = {
       staleTime: 5 * 60 * 1000,
     }),
 
-  byWorkspace: (workspaceId: string) =>
+  byWorkspace: (workspaceId: string, enabled = true) =>
     queryOptions({
       queryKey: [...VCS_CONNECTIONS_QUERY_KEY(workspaceId), 'list'] as const,
       queryFn: () => repository().listByWorkspace(workspaceId),
-      enabled: !!workspaceId,
+      enabled: enabled && !!workspaceId,
       staleTime: 30 * 1000,
     }),
 
+  /** A new search keeps the rows of the last one on screen until its answer comes. */
   repositories: (input: ListProviderRepositoriesInput, enabled = true) =>
     queryOptions({
       queryKey: PROVIDER_REPOSITORIES_QUERY_KEY(input),
       queryFn: () => repository().listRepositories(input),
       enabled: enabled && !!input.projectId && !!input.connectionId,
       staleTime: 30 * 1000,
+      placeholderData: (previous, previousQuery) =>
+        previousQuery?.queryKey[2] === input.connectionId ? previous : undefined,
     }),
 };
 

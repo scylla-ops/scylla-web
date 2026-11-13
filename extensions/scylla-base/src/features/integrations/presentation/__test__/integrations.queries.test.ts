@@ -3,6 +3,7 @@ import { getQueryClient } from '@scylla/core-sdk';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { withQueryClient, withRegistry } from '@test/render.ts';
+import type { ProviderRepositoryPage } from '@base/features/integrations/domain/entities/vcs-connection.entity.ts';
 import { mergeBlockMutations, mergeBlockQueries } from '../merge-block.queries.ts';
 import { repositoryLinkMutations, repositoryLinkQueries } from '../repository-link.queries.ts';
 import { vcsConnectionMutations, vcsConnectionQueries } from '../vcs-connection.queries.ts';
@@ -76,6 +77,32 @@ describe('integrations queries', () => {
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['merge-blocks', 'p-1'] });
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['vcs-connections'] });
     expect(repositoryLinkQueries.byProject('').enabled).toBe(false);
+  });
+
+  it('lets the repository page show the refusal of a link and the result of a test webhook', () => {
+    expect(repositoryLinkMutations.link().meta).toEqual({ showsOwnError: true });
+    expect(repositoryLinkMutations.testDelivery().meta).toEqual({ showsOwnError: true });
+    expect(repositoryLinkMutations.update().meta).toBeUndefined();
+    expect(mergeBlockQueries.byProject('p-1', false).enabled).toBe(false);
+    expect(vcsConnectionQueries.byWorkspace('ws-1', false).enabled).toBe(false);
+  });
+
+  it('keeps the rows of the last search of the same connection, not of another one', () => {
+    const page: ProviderRepositoryPage = { repositories: [], nextPageToken: '' };
+    const options = vcsConnectionQueries.repositories({
+      projectId: 'p-1',
+      connectionId: 'c-1',
+      search: 'api',
+    });
+    const placeholder = options.placeholderData as unknown as (
+      previous: ProviderRepositoryPage,
+      query: { queryKey: readonly unknown[] },
+    ) => ProviderRepositoryPage | undefined;
+    const keyOf = (connectionId: string) =>
+      vcsConnectionQueries.repositories({ projectId: 'p-1', connectionId }).queryKey;
+
+    expect(placeholder(page, { queryKey: keyOf('c-1') })).toBe(page);
+    expect(placeholder(page, { queryKey: keyOf('c-2') })).toBeUndefined();
   });
 
   it('refreshes the merge rules of the project after a change', async () => {

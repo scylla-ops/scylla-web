@@ -9,11 +9,11 @@ const repository = () =>
 export const MERGE_BLOCKS_QUERY_KEY = (projectId: string) => ['merge-blocks', projectId] as const;
 
 export const mergeBlockQueries = {
-  byProject: (projectId: string) =>
+  byProject: (projectId: string, enabled = true) =>
     queryOptions({
       queryKey: MERGE_BLOCKS_QUERY_KEY(projectId),
       queryFn: () => repository().listByProject(projectId),
-      enabled: !!projectId,
+      enabled: enabled && !!projectId,
       staleTime: 30 * 1000,
     }),
 };

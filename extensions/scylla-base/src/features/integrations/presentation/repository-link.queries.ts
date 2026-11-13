@@ -56,10 +56,12 @@ export const repositoryLinkQueries = {
 };
 
 export const repositoryLinkMutations = {
+  /** The dialog shows a refusal under the list of the repositories. */
   link: () =>
     mutationOptions({
       mutationFn: (input: LinkRepositoryInput) => repository().link(input),
       onSuccess: link => invalidate(link.projectId),
+      meta: { showsOwnError: true },
     }),
 
   update: () =>
@@ -74,9 +76,11 @@ export const repositoryLinkMutations = {
       onSuccess: (_result, projectId) => invalidate(projectId),
     }),
 
+  /** The card shows the result beside the events line, also UNIMPLEMENTED of an older server. */
   testDelivery: () =>
     mutationOptions({
       mutationFn: (projectId: string) => repository().testDelivery(projectId),
       onSuccess: (_result, projectId) => invalidate(projectId),
+      meta: { showsOwnError: true },
     }),
 };

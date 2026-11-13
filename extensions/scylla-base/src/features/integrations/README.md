@@ -33,9 +33,28 @@ words and the one action that repairs it: install the App again, configure it on
 replace the GitLab token. A connection that stopped also shows in a banner at the top of the
 page, with the number of projects whose reports, triggers and checkouts stopped.
 
+## The repository of a project
+
+A project has one repository (user decision 6). The page is at
+`/:workspace/projects/:project/settings/repository`, behind `READ_REPOSITORY_LINK`, and the
+editors of the project (`MANAGE_REPOSITORY_LINK`) change it.
+
+- **No link:** the empty state and "Link a repository". The picker takes an active connection of
+  the workspace, searches its repositories on the provider, and links one.
+- **A link:** the repository card gives the repository, the connection, the default branch and
+  how Scylla learns about the new commits: webhooks with the time of the last event, or polling
+  with the reason (the provider cannot reach the server, the GitLab role is too low, GitLab
+  disabled the webhook). "Test webhook" asks the provider for a test delivery. When the link
+  stopped, the card says why and where to repair it.
+- **Reports:** a switch, and on GitHub the choice between a check run and a commit status. The
+  names of the reports are the names of the merge rules of the pipelines.
+- **Unlink:** a danger zone. The dialog lists what stops: the Git triggers, the checkout, the
+  reports, the merge rules, the file pipelines and the GitLab webhook.
+
+The pipeline source and the merge rules of the project come in a later change, on the same page.
+
 ## Why one module holds the four services
 
-The repository page of a project, the merge rules and the reports of a run come in later
-changes. They use the same connections, links and provider states, so their data layer is here
-from the start: one repository and one mapper for each gRPC service, so that the later pages add
-only their views.
+The repository page of a project, the merge rules and the reports of a run use the same
+connections, links and provider states, so their data layer was here from the start: one
+repository and one mapper for each gRPC service, so that each page adds only its views.

@@ -58,8 +58,13 @@ export const stateTone = (
   return 'muted';
 };
 
-/** Why the connection is not active, in words. Empty for an active connection. */
-export const stateReasonText = (connection: VcsConnectionEntity): string => {
+/**
+ * Why the connection is not active, in words. Empty for an active connection. A repository link
+ * takes the state and the reason of its connection.
+ */
+export const stateReasonText = (
+  connection: Pick<VcsConnectionEntity, 'state' | 'stateReason' | 'account'>,
+): string => {
   if (connection.state === 'active') return '';
   switch (connection.stateReason) {
     case 'APP_UNINSTALLED':

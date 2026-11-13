@@ -45,6 +45,22 @@ export const IntegrationsModule = {
         },
       },
     ],
+    // The settings of a project: the repository is the only part today.
+    project: [
+      {
+        path: 'settings/repository',
+        permission: Permission.READ_REPOSITORY_LINK,
+        breadcrumb: () => ({ label: msg`Settings` }),
+        page: () => import('./presentation/ui/Repository/Repository.page.svelte'),
+        nav: {
+          section: 'project',
+          title: msg`Settings`,
+          keywords: msg`repository github gitlab git webhook reports`,
+          icon: SettingsIcon,
+          order: 90,
+        },
+      },
+    ],
     // The Setup URL of the GitHub App: GitHub sends the browser back here, out of any workspace.
     personal: [
       {

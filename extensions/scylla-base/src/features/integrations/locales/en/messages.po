@@ -7,16 +7,20 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:85
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:70
+msgid "{account} · {host}"
+msgstr "{account} · {host}"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:84
 msgid "{account} is disconnected"
 msgstr "{account} is disconnected"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:78
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:77
 msgid "{count, plural, =0 {No project uses this connection.} one {# project uses this connection. Reports, triggers and checkouts stop for it.} other {# projects use this connection. Reports, triggers and checkouts stop for them.}}"
 msgstr "{count, plural, =0 {No project uses this connection.} one {# project uses this connection. Reports, triggers and checkouts stop for it.} other {# projects use this connection. Reports, triggers and checkouts stop for them.}}"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:34
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:44
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:33
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:43
 msgid "{count, plural, one {# project} other {# projects}}"
 msgstr "{count, plural, one {# project} other {# projects}}"
 
@@ -24,7 +28,7 @@ msgstr "{count, plural, one {# project} other {# projects}}"
 msgid "{count, plural, one {# repository} other {# repositories}}"
 msgstr "{count, plural, one {# repository} other {# repositories}}"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:65
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:64
 msgid "{count, plural, one {Reports, triggers and checkouts stopped for # project.} other {Reports, triggers and checkouts stopped for # projects.}}"
 msgstr "{count, plural, one {Reports, triggers and checkouts stopped for # project.} other {Reports, triggers and checkouts stopped for # projects.}}"
 
@@ -32,19 +36,63 @@ msgstr "{count, plural, one {Reports, triggers and checkouts stopped for # proje
 msgid "{date} · {days, plural, one {in # day} other {in # days}}"
 msgstr "{date} · {days, plural, one {in # day} other {in # days}}"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:39
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:38
 msgid "{days, plural, one {The token expires in # day.} other {The token expires in # days.}}"
 msgstr "{days, plural, one {The token expires in # day.} other {The token expires in # days.}}"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:75
+msgid "{details} · {role}"
+msgstr "{details} · {role}"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:77
+msgid "{details} · linked to another project"
+msgstr "{details} · linked to another project"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:76
+msgid "{details} · linked to the project {project}"
+msgstr "{details} · linked to the project {project}"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:39
 msgid "{kind} · connected {when}"
 msgstr "{kind} · connected {when}"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:47
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:46
 msgid "{minutes, plural, one {Polling every minute} other {Polling every # min}}"
 msgstr "{minutes, plural, one {Polling every minute} other {Polling every # min}}"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:59
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:89
+msgid "{name} is linked"
+msgstr "{name} is linked"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:65
+msgid "{name} is unlinked"
+msgstr "{name} is unlinked"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:23
+msgid "{provider} cannot reach this Scylla server."
+msgstr "{provider} cannot reach this Scylla server."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:17
+msgid "{visibility} · connection {account} · {host}"
+msgstr "{visibility} · connection {account} · {host}"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:74
+msgid "{visibility} · default branch {branch}"
+msgstr "{visibility} · default branch {branch}"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:45
+msgid "A dot and one line on the commit and in the pull request."
+msgstr "A dot and one line on the commit and in the pull request."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:43
+msgid "A page in the Checks tab: the nodes, the durations, the last log lines, Re-run."
+msgstr "A page in the Checks tab: the nodes, the durations, the last log lines, Re-run."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:68
+msgid "A project has one repository. Its pipelines run on its commits, and Scylla reports to it."
+msgstr "A project has one repository. Its pipelines run on its commits, and Scylla reports to it."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:58
 msgid "Accept the new permissions of the Scylla App on GitHub."
 msgstr "Accept the new permissions of the Scylla App on GitHub."
 
@@ -61,7 +109,7 @@ msgstr "Actions"
 msgid "Actions for {account}"
 msgstr "Actions for {account}"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:51
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:50
 msgctxt "connection"
 msgid "Active"
 msgstr "Active"
@@ -86,7 +134,7 @@ msgstr "All repositories"
 msgid "An organization owner must approve the request on GitHub."
 msgstr "An organization owner must approve the request on GitHub."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:58
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:57
 msgid "An owner suspended the Scylla App on {account}."
 msgstr "An owner suspended the Scylla App on {account}."
 
@@ -100,14 +148,23 @@ msgstr "Before you start"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:12
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:21
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:64
 msgid "Cancel"
 msgstr "Cancel"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:41
+msgid "Check run"
+msgstr "Check run"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:16
 msgid "Coming in a later release"
 msgstr "Coming in a later release"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:72
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:44
+msgid "Commit status"
+msgstr "Commit status"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:71
 msgid "Configure on GitHub"
 msgstr "Configure on GitHub"
 
@@ -136,13 +193,18 @@ msgstr "Connect GitLab"
 msgid "Connect GitLab.com"
 msgstr "Connect GitLab.com"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:88
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:87
 msgid "Connected to {account} ({repositories})"
 msgstr "Connected to {account} ({repositories})"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:15
 msgid "Connecting to GitHub…"
 msgstr "Connecting to GitHub…"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:69
+msgctxt "git"
+msgid "Connection"
+msgstr "Connection"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:7
 msgid "Connections"
@@ -156,28 +218,45 @@ msgstr "Create a service account in your top-level group."
 msgid "Create a token for it with the scope api."
 msgstr "Create a token for it with the scope api."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:74
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:19
+msgid "Default branch"
+msgstr "Default branch"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:78
+msgid "Developer"
+msgstr "Developer"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:73
 msgid "Disconnect"
 msgstr "Disconnect"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:76
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:75
 msgid "Disconnect {account}?"
 msgstr "Disconnect {account}?"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:54
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:53
 msgctxt "connection"
 msgid "Disconnected"
 msgstr "Disconnected"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:91
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:90
 msgid "Dismiss"
 msgstr "Dismiss"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:35
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:34
 msgid "Done"
 msgstr "Done"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:27
+msgid "Enable again"
+msgstr "Enable again"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:31
+msgid "Events"
+msgstr "Events"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:20
+msgctxt "repository"
 msgid "Events"
 msgstr "Events"
 
@@ -188,6 +267,10 @@ msgstr "Events: push, pull request, check run, check suite, installation. Scylla
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:28
 msgid "Expires"
 msgstr "Expires"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:72
+msgid "Find a repository"
+msgstr "Find a repository"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:9
 msgid "GitHub"
@@ -213,19 +296,23 @@ msgstr "GitLab"
 msgid "GitLab accepted the token. Scylla saved it."
 msgstr "GitLab accepted the token. Scylla saved it."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:47
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:25
+msgid "GitLab disabled the webhook after failures."
+msgstr "GitLab disabled the webhook after failures."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:46
 msgid "GitLab does not answer. Try again later."
 msgstr "GitLab does not answer. Try again later."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:63
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:62
 msgid "GitLab or GitHub refused a call. Look at the connection on the provider."
 msgstr "GitLab or GitHub refused a call. Look at the connection on the provider."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:61
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:60
 msgid "GitLab refused the token. Reports, triggers and checkouts stopped."
 msgstr "GitLab refused the token. Reports, triggers and checkouts stopped."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:42
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:41
 msgid "GitLab refused this token."
 msgstr "GitLab refused this token."
 
@@ -253,7 +340,7 @@ msgstr "Give a new token of the same account. Scylla checks it, then uses it in 
 msgid "Host"
 msgstr "Host"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:70
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:69
 msgid "Install again"
 msgstr "Install again"
 
@@ -273,16 +360,33 @@ msgctxt "release"
 msgid "Later"
 msgstr "Later"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:10
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:67
+msgid "Link a repository"
+msgstr "Link a repository"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:9
+msgid "Link a repository to run pipelines on commits, check out the code and report the results on GitHub or GitLab."
+msgstr "Link a repository to run pipelines on commits, check out the code and report the results on GitHub or GitLab."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:86
+msgid "Link repository"
+msgstr "Link repository"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:79
+msgid "Maintainer"
+msgstr "Maintainer"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:10
 msgid "Manage branch rules, only for \"Block the merge\""
 msgstr "Manage branch rules, only for \"Block the merge\""
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:53
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:52
 msgctxt "connection"
 msgid "Needs attention"
 msgstr "Needs attention"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:89
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:88
 msgid "Next: link a repository to a project, in Project › Settings › Repository."
 msgstr "Next: link a repository to a project, in Project › Settings › Repository."
 
@@ -294,25 +398,87 @@ msgstr "No expiry"
 msgid "No Git provider connected"
 msgstr "No Git provider connected"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:71
+msgid "No Git provider is connected to this workspace. An admin of the workspace connects GitHub or GitLab in Integrations."
+msgstr "No Git provider is connected to this workspace. An admin of the workspace connects GitHub or GitLab in Integrations."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:49
+msgid "No pipeline yet."
+msgstr "No pipeline yet."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:8
+msgid "No repository linked"
+msgstr "No repository linked"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:82
+msgid "No repository matches."
+msgstr "No repository matches."
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:17
 msgid "Not available yet"
 msgstr "Not available yet"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:84
+msgid "Not in the list? Add the repository to the installation on GitHub."
+msgstr "Not in the list? Add the repository to the installation on GitHub."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:85
+msgid "Not in the list? Add the service account to the project on GitLab, with the role Developer or more."
+msgstr "Not in the list? Add the service account to the project on GitLab, with the role Developer or more."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:46
+msgid "One job per Scylla pipeline in the stage external of the GitLab pipeline of the commit."
+msgstr "One job per Scylla pipeline in the stage external of the GitLab pipeline of the commit."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:48
+msgid "One report per pipeline, with the name scylla/ and the key of the pipeline."
+msgstr "One report per pipeline, with the name scylla/ and the key of the pipeline."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:47
+msgid "One report per pipeline:"
+msgstr "One report per pipeline:"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:50
+msgid "One run per commit: a push and a pull request on the same commit share one run and one report."
+msgstr "One run per commit: a push and a pull request on the same commit share one run and one report."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:22
 msgid "Only the admins of the workspace can connect a Git provider."
 msgstr "Only the admins of the workspace can connect a Git provider."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:73
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:11
+msgid "Only the editors of the project can change the repository."
+msgstr "Only the editors of the project can change the repository."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:18
+msgid "Open {name} on the provider"
+msgstr "Open {name} on the provider"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:37
+msgid "Open Integrations"
+msgstr "Open Integrations"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:72
 msgid "Open on GitLab"
 msgstr "Open on GitLab"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:90
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:89
 msgid "Open projects"
 msgstr "Open projects"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:36
 msgid "Organization"
 msgstr "Organization"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:80
+msgctxt "gitlab-role"
+msgid "Owner"
+msgstr "Owner"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:14
+msgctxt "repository"
+msgid "Private"
+msgstr "Private"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:32
 msgid "Projects"
@@ -321,6 +487,11 @@ msgstr "Projects"
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:6
 msgid "Providers"
 msgstr "Providers"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:15
+msgctxt "repository"
+msgid "Public"
+msgstr "Public"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:18
 msgid "Read how to create a service account on GitLab"
@@ -334,26 +505,54 @@ msgstr "Read pull requests"
 msgid "Read your code, for the checkout and the pipeline files"
 msgstr "Read your code, for the checkout and the pipeline files"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:42
+msgid "Recommended"
+msgstr "Recommended"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:5
 msgid "Replace the token of {account}"
 msgstr "Replace the token of {account}"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:23
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:71
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:70
 msgid "Replace token"
 msgstr "Replace token"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:40
+msgid "Report results to {provider}"
+msgstr "Report results to {provider}"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:39
+msgid "Reports"
+msgstr "Reports"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:30
 msgid "Repositories"
 msgstr "Repositories"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:40
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:13
+msgid "Repository"
+msgstr "Repository"
+
+#: extensions/scylla-base/src/features/integrations/integrations.module.ts:58
+msgid "repository github gitlab git webhook reports"
+msgstr "repository github gitlab git webhook reports"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:39
 msgid "Role Developer: Scylla can report, but cannot create the webhook or block merges."
 msgstr "Role Developer: Scylla can report, but cannot create the webhook or block merges."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:27
 msgid "Scopes"
 msgstr "Scopes"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:34
+msgid "Scylla cannot see {name}. Add it to the installation on GitHub."
+msgstr "Scylla cannot see {name}. Add it to the installation on GitHub."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:36
+msgid "Scylla cannot see {name}. Add the service account to the project on GitLab."
+msgstr "Scylla cannot see {name}. Add the service account to the project on GitLab."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:20
 msgid "Scylla checks the token with GitLab before it saves it. Jobs never get this token."
@@ -363,7 +562,11 @@ msgstr "Scylla checks the token with GitLab before it saves it. Jobs never get t
 msgid "Scylla could not connect GitHub"
 msgstr "Scylla could not connect GitHub"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:84
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:63
+msgid "Scylla deletes the webhook of the project on GitLab."
+msgstr "Scylla deletes the webhook of the project on GitLab."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:83
 msgid "Scylla deletes the webhooks that it made. The token stays on GitLab: revoke it there."
 msgstr "Scylla deletes the webhooks that it made. The token stays on GitLab: revoke it there."
 
@@ -384,27 +587,50 @@ msgid "Service account"
 msgstr "Service account"
 
 #: extensions/scylla-base/src/features/integrations/integrations.module.ts:44
+#: extensions/scylla-base/src/features/integrations/integrations.module.ts:53
+#: extensions/scylla-base/src/features/integrations/integrations.module.ts:57
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:4
 msgid "Settings"
 msgstr "Settings"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:5
+msgid "Settings of the project {project}."
+msgstr "Settings of the project {project}."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:32
 msgid "State"
 msgstr "State"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:52
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:51
 msgctxt "connection"
 msgid "Suspended"
 msgstr "Suspended"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:83
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:26
+msgid "Test webhook"
+msgstr "Test webhook"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:82
 msgid "The App stays installed on GitHub: uninstall it there."
 msgstr "The App stays installed on GitHub: uninstall it there."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:57
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:58
+msgid "The checkout of the code before the first node."
+msgstr "The checkout of the code before the first node."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:81
+msgid "The connection cannot see a repository."
+msgstr "The connection cannot see a repository."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:88
+msgid "The connection cannot see this repository."
+msgstr "The connection cannot see this repository."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:56
 msgid "The GitHub App was uninstalled from {account}. Reports, triggers and checkouts stopped."
 msgstr "The GitHub App was uninstalled from {account}. Reports, triggers and checkouts stopped."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:60
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:59
 msgid "The GitLab token expired. Reports, triggers and checkouts stopped."
 msgstr "The GitLab token expired. Reports, triggers and checkouts stopped."
 
@@ -416,47 +642,119 @@ msgstr "The install was cancelled."
 msgid "The link expired. Start again."
 msgstr "The link expired. Start again."
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:53
+msgid "The pipelines and the jobs stay. The Git triggers, the reports and the checkout stop."
+msgstr "The pipelines and the jobs stay. The Git triggers, the reports and the checkout stop."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:56
+msgid "The pipelines and the jobs stay. These stop:"
+msgstr "The pipelines and the jobs stay. These stop:"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:62
+msgid "The pipelines from the files of the repository."
+msgstr "The pipelines from the files of the repository."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:57
+msgid "The push, pull request and tag triggers of the pipelines."
+msgstr "The push, pull request and tag triggers of the pipelines."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:59
+msgid "The reports to {provider}."
+msgstr "The reports to {provider}."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:61
+msgid "The rule \"Pipelines must succeed\" of the project."
+msgstr "The rule \"Pipelines must succeed\" of the project."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:60
+msgid "The rules that block the merge: {contexts}."
+msgstr "The rules that block the merge: {contexts}."
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:6
 msgid "The Scylla App asks for"
 msgstr "The Scylla App asks for"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:44
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:43
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:24
 msgid "The server has no key to encrypt the token."
 msgstr "The server has no key to encrypt the token."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:49
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:24
+msgid "The service account is Developer. Give it Maintainer to create the webhook and block merges."
+msgstr "The service account is Developer. Give it Maintainer to create the webhook and block merges."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:28
+msgid "The test webhook arrived."
+msgstr "The test webhook arrived."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:29
+msgid "The test webhook did not arrive: {error}"
+msgstr "The test webhook did not arrive: {error}"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:30
+msgid "The test webhook did not arrive."
+msgstr "The test webhook did not arrive."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:48
 msgid "The token expired on {date}."
 msgstr "The token expired on {date}."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:48
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:47
 msgid "The token expires on {date}."
 msgstr "The token expires on {date}."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:43
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:62
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:42
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:61
 msgid "The token has no api scope."
 msgstr "The token has no api scope."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:45
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:44
 msgid "This account already has a connection in this workspace. Replace its token."
 msgstr "This account already has a connection in this workspace. Replace its token."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:37
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:36
 msgid "This is not a service account or a bot. Reports stop when the person leaves the group."
 msgstr "This is not a service account or a bot. Reports stop when the person leaves the group."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:6
+msgid "this project"
+msgstr "this project"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:87
+msgid "This project already has a repository. Unlink it first."
+msgstr "This project already has a repository. Unlink it first."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:31
+msgid "This server cannot test the webhook yet."
+msgstr "This server cannot test the webhook yet."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:23
 msgid "This server has no GitHub App. An admin of the instance must create it."
 msgstr "This server has no GitHub App. An admin of the instance must create it."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:46
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:45
 msgid "This token is for another account. Give a token of the same account."
 msgstr "This token is for another account. Give a token of the same account."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:19
 msgid "Token"
 msgstr "Token"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:83
+msgid "Type a name to find the other repositories."
+msgstr "Type a name to find the other repositories."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:55
+msgid "Unlink {name}?"
+msgstr "Unlink {name}?"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:54
+msgid "Unlink repository"
+msgstr "Unlink repository"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:52
+msgid "Unlink the repository"
+msgstr "Unlink the repository"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:37
 msgctxt "git-account"
@@ -467,9 +765,17 @@ msgstr "User"
 msgid "Valid"
 msgstr "Valid"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:45
+#: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:44
 msgid "Webhooks"
 msgstr "Webhooks"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:21
+msgid "Webhooks · last event {when}"
+msgstr "Webhooks · last event {when}"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:22
+msgid "Webhooks · no event yet"
+msgstr "Webhooks · no event yet"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:8
 msgid "Write checks and commit statuses"
