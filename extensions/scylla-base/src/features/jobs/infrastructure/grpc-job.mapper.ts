@@ -1,9 +1,13 @@
 import type {
   JobEntity,
+  JobEvent,
+  JobFilter,
   JobNodeExecution,
   JobLog,
   NodeExecutionState,
 } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type { JobFilter as GrpcJobFilter } from '@base/generated/scylla/pipelines/v1/job_service.ts';
+import { SourceEvent } from '@base/generated/scylla/pipelines/v1/source.ts';
 import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
 import {
   type Job,
@@ -19,6 +23,23 @@ import {
   timestampToIso,
   timestampToIsoOpt,
 } from '@shared/infrastructure/grpc/wrappers.ts';
+
+const SOURCE_EVENTS: Record<JobEvent, SourceEvent> = {
+  push: SourceEvent.PUSH,
+  pull_request: SourceEvent.PULL_REQUEST,
+  tag: SourceEvent.TAG,
+  manual: SourceEvent.MANUAL,
+  provider_rerun: SourceEvent.PROVIDER_RERUN,
+  trigger: SourceEvent.TRIGGER,
+};
+
+/** A field that is not set gives each job: an empty text, no event, 0. */
+export const filterToProto = (filter: JobFilter): GrpcJobFilter => ({
+  branch: filter.branch?.trim() ?? '',
+  event: filter.event ? SOURCE_EVENTS[filter.event] : SourceEvent.UNSPECIFIED,
+  authorLogin: filter.authorLogin?.trim() ?? '',
+  pullRequest: filter.pullRequest ?? 0,
+});
 
 /** UNSPECIFIED or a status newer than this build: `unknown`, never a success. */
 function jobStatusToDomain(status: GrpcJobStatus): JobStatus {

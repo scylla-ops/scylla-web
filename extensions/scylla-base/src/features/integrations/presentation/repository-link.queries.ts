@@ -1,3 +1,4 @@
+import { Permission, can } from '@platform/authz';
 import { getModuleDomain, getQueryClient, mutationOptions, queryOptions } from '@scylla/core-sdk';
 import type {
   LinkRepositoryInput,
@@ -31,13 +32,17 @@ const invalidate = (projectId: string) =>
     getQueryClient().invalidateQueries({ queryKey: ALL_VCS_CONNECTIONS_QUERY_KEY }),
   ]);
 
+/** The pipeline pages read the link and its refs: each read checks its permission itself. */
+const canRead = (projectId: string) =>
+  !!projectId && can(Permission.READ_REPOSITORY_LINK, { projectId });
+
 export const repositoryLinkQueries = {
   /** `null`: the project has no link. */
   byProject: (projectId: string) =>
     queryOptions({
       queryKey: REPOSITORY_LINK_QUERY_KEY(projectId),
       queryFn: () => repository().getByProject(projectId),
-      enabled: !!projectId,
+      enabled: canRead(projectId),
       staleTime: 30 * 1000,
     }),
 
@@ -45,7 +50,7 @@ export const repositoryLinkQueries = {
     queryOptions({
       queryKey: GIT_REFS_QUERY_KEY(input),
       queryFn: () => repository().listRefs(input),
-      enabled: enabled && !!input.projectId,
+      enabled: enabled && canRead(input.projectId),
       staleTime: 30 * 1000,
     }),
 };

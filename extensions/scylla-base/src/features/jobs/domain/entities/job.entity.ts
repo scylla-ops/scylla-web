@@ -16,6 +16,18 @@ export interface JobEntity {
   agentId?: string;
 }
 
+/** The event that started a job with a commit. */
+export type JobEvent = 'push' | 'pull_request' | 'tag' | 'manual' | 'provider_rerun' | 'trigger';
+
+/** A job must match each field that is set. A job with no commit matches no filter. */
+export interface JobFilter {
+  branch?: string;
+  event?: JobEvent;
+  /** The login of the author of the commit on the provider. */
+  authorLogin?: string;
+  pullRequest?: number;
+}
+
 /** `unknown`: an outcome newer than this build. */
 export type NodeExecutionState =
   | 'pending'

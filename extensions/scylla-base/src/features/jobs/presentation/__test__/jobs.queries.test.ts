@@ -103,7 +103,18 @@ describe('jobQueries.byPipeline', () => {
 
   it('asks the repository for exactly the page it was given', async () => {
     await runQueryFn(jobQueries.byPipeline('pipeline-1', pagination));
-    expect(repository.getByPipelineId).toHaveBeenCalledWith('pipeline-1', pagination);
+    expect(repository.getByPipelineId).toHaveBeenCalledWith('pipeline-1', pagination, undefined);
+  });
+
+  it('asks for the jobs that match the filter, under a key of their own', async () => {
+    const filter = { branch: 'main', pullRequest: 51 };
+    const filtered = jobQueries.byPipeline('pipeline-1', pagination, { filter });
+
+    await runQueryFn(filtered);
+
+    expect(repository.getByPipelineId).toHaveBeenCalledWith('pipeline-1', pagination, filter);
+    expect(filtered.queryKey).not.toEqual(jobQueries.byPipeline('pipeline-1', pagination).queryKey);
+    expect(filtered.queryKey.slice(0, 3)).toEqual([...JOBS_QUERY_KEY('pipeline-1')]);
   });
 
   it('stays idle until the caller says the page size is known', () => {

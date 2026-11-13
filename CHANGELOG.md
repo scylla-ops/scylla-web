@@ -139,6 +139,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The settings of a workspace have an Integrations page. An admin connects GitHub (with the Scylla
   GitHub App) or GitLab.com (with the token of a service account), and sees the state, the event
   mode and the token expiry of each connection.
+- A pipeline that comes from a file of the linked repository has a read-only page: the graph, the
+  text of the file, its triggers from `on`, its checkout and its errors, at the branch or the tag
+  that the user picks. The list of the pipelines tells which file has errors on the default branch
+  or left it. With a linked repository, Run asks for a branch, a tag or a commit SHA, and the jobs
+  of a pipeline can be filtered by branch, event, author and pull request.
 
 ### Changed
 

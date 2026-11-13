@@ -36,6 +36,7 @@ const metadata = (overrides: Partial<PipelineMetadata> = {}): PipelineMetadata =
   nodeCount: 2,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
+  origin: { source: 'editor', filePath: '', fileErrorCount: 0 },
   ...overrides,
 });
 
@@ -80,6 +81,7 @@ beforeEach(() => {
       content: 'version = 1\n',
       path: '.scylla/pipelines/ci.toml',
     }),
+    getFile: vi.fn().mockResolvedValue({ key: 'ci', content: 'version = 1' }),
   };
 
   toastSuccess.mockClear();
@@ -186,6 +188,30 @@ describe('pipelineQueries.fileExport', () => {
 
   it('does not query without a pipeline', () => {
     expect(pipelineQueries.fileExport('', 'toml').enabled).toBe(false);
+  });
+});
+
+describe('pipelineQueries.file', () => {
+  it('reads the file at the ref, under the key of the pipeline: a save of the pipeline refreshes it', async () => {
+    const ref = { kind: 'branch', name: 'feature/login' } as const;
+    const options = pipelineQueries.file('pipeline-1', ref);
+
+    await runQueryFn(options);
+
+    expect(repository.getFile).toHaveBeenCalledWith('pipeline-1', ref);
+    expect(options.queryKey.slice(0, 2)).toEqual(['pipeline', 'pipeline-1']);
+  });
+
+  it('gives each ref its own key, and no ref the key of the default branch', () => {
+    const main = pipelineQueries.file('pipeline-1').queryKey;
+    const tag = pipelineQueries.file('pipeline-1', { kind: 'tag', name: 'main' }).queryKey;
+    const branch = pipelineQueries.file('pipeline-1', { kind: 'branch', name: 'main' }).queryKey;
+
+    expect(new Set([main, tag, branch].map(key => JSON.stringify(key))).size).toBe(3);
+  });
+
+  it('does not query without a pipeline', () => {
+    expect(pipelineQueries.file('').enabled).toBe(false);
   });
 });
 
@@ -340,17 +366,23 @@ describe('pipelineMutations.duplicate', () => {
 
 describe('pipelineMutations.run', () => {
   it('runs the pipeline and invalidates its jobs — the run creates one', async () => {
-    await runMutationFn(pipelineMutations.run(), 'pipeline-1');
-    expect(repository.run).toHaveBeenCalledWith('pipeline-1');
+    await runMutationFn(pipelineMutations.run(), { pipelineId: 'pipeline-1' });
+    expect(repository.run).toHaveBeenCalledWith('pipeline-1', undefined);
 
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
-    runOnSuccess(pipelineMutations.run(), { needsContainer: false }, 'pipeline-1');
+    runOnSuccess(pipelineMutations.run(), { needsContainer: false }, { pipelineId: 'pipeline-1' });
 
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['jobs', 'pipeline', 'pipeline-1'] });
   });
 
+  it('runs at the ref that the user chose', async () => {
+    const ref = { kind: 'sha', sha: 'a1b2c3d' } as const;
+    await runMutationFn(pipelineMutations.run(), { pipelineId: 'pipeline-1', ref });
+    expect(repository.run).toHaveBeenCalledWith('pipeline-1', ref);
+  });
+
   it('says nothing on its own', () => {
-    runOnSuccess(pipelineMutations.run(), { needsContainer: false }, 'pipeline-1');
+    runOnSuccess(pipelineMutations.run(), { needsContainer: false }, { pipelineId: 'pipeline-1' });
     expect(toastSuccess).not.toHaveBeenCalled();
   });
 });

@@ -8,9 +8,11 @@
   import { toStatusState } from '@shared/utils/job-status.utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type { PipelineMetadata } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+  import { originNote } from '@base/features/pipeline/presentation/presenters/pipeline-file.presenter.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import { pipelineMutations } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import type { RunPipeline } from '@base/features/pipeline/presentation/ui/run-pipeline.state.svelte.ts';
+  import type { RunRequest } from '@base/features/pipeline/presentation/ui/RunPipelineDialog/run-request.state.svelte.ts';
   import PipelineChart from './PipelineChart.svelte';
   import PipelineActions from './PipelineActions.svelte';
   import PipelineLastJob from './PipelineLastJob.svelte';
@@ -25,6 +27,8 @@
     canListJobs?: boolean;
     /** Shared with the header: one agent subscription, one set of running ids. */
     runPipeline: RunPipeline;
+    /** Asks for a commit first when the project has a linked repository. */
+    runRequest: RunRequest;
   }
 
   let {
@@ -34,6 +38,7 @@
     isJobsError = false,
     canListJobs = true,
     runPipeline,
+    runRequest,
   }: Props = $props();
 
   const selection = createSelection('pipelines');
@@ -55,6 +60,7 @@
   {@const lastJob = jobsOf(pipeline.id)[0]}
   <PipelineStatus
     {pipeline}
+    note={originNote(pipeline.origin, runRequest.link?.defaultBranch)}
     status={toStatusState(lastJob?.status)}
     statusLabel={lastJob ? t(getStatusConfig(lastJob.status).label) : t(pipelineMessages.noJobsYet)}
   />
@@ -99,11 +105,16 @@
       onRun={event => {
         // The row is a selection target: an action is not a selection.
         event.stopPropagation();
-        void runPipeline.run(pipeline.id);
+        void runRequest.start(pipeline);
       }}
+      fromFile={pipeline.origin.source === 'file'}
       onEdit={event => {
         event.stopPropagation();
-        scyllaNavigate.goToEditPipeline(pipeline.id, pipeline.name);
+        if (pipeline.origin.source === 'file') {
+          scyllaNavigate.goToFilePipeline(pipeline.id, pipeline.name);
+        } else {
+          scyllaNavigate.goToEditPipeline(pipeline.id, pipeline.name);
+        }
       }}
       onDuplicate={event => {
         event.stopPropagation();

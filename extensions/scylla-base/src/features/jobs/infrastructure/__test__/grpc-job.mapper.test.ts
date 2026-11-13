@@ -9,6 +9,7 @@ import {
   type NodeRun,
 } from '@base/generated/scylla/pipelines/v1/job.ts';
 import type { Node } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
+import { SourceEvent } from '@base/generated/scylla/pipelines/v1/source.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
 const ISO = '2025-01-01T00:00:00.000Z';
@@ -190,5 +191,32 @@ describe('grpcJob.logLinesToDomain', () => {
       },
       { id: 'c-7:2', jobId: 'job-1', nodeId: 'build', stream: '', line: 'three', timestamp: ISO },
     ]);
+  });
+});
+
+describe('grpcJob.filterToProto', () => {
+  it('sends each field that is set, with a trimmed branch and login', () => {
+    expect(
+      grpcJob.filterToProto({
+        branch: ' main ',
+        event: 'pull_request',
+        authorLogin: ' lea-martin',
+        pullRequest: 51,
+      }),
+    ).toEqual({
+      branch: 'main',
+      event: SourceEvent.PULL_REQUEST,
+      authorLogin: 'lea-martin',
+      pullRequest: 51,
+    });
+  });
+
+  it('sends the values that the server reads as each job for the fields that are not set', () => {
+    expect(grpcJob.filterToProto({})).toEqual({
+      branch: '',
+      event: SourceEvent.UNSPECIFIED,
+      authorLogin: '',
+      pullRequest: 0,
+    });
   });
 });

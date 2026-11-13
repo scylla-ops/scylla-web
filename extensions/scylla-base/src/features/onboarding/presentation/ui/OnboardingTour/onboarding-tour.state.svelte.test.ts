@@ -422,7 +422,7 @@ describe('createOnboardingTour', () => {
         mutationKey: ['pipeline', 'run'],
         mutationFn: () => Promise.resolve(undefined),
       })
-      .execute('pipeline-7');
+      .execute({ pipelineId: 'pipeline-7' });
 
     await onStep(tour, 'wait-job');
     expect(tour.subject).toEqual({ pipelineName: 'my-pipeline', pipelineId: 'pipeline-7' });

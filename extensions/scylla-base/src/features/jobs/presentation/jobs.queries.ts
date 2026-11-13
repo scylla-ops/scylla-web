@@ -1,7 +1,7 @@
 import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
 import { scyllaNavigate } from '@platform/context';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
-import type { JobEntity } from '../domain/entities/job.entity.ts';
+import type { JobEntity, JobFilter } from '../domain/entities/job.entity.ts';
 import { isActiveStatus } from '@shared/domain/structs/job-status.struct.ts';
 import { summarizeJobs } from './presenters/jobs-summary.presenter.ts';
 import type { JobsModule } from '../jobs.module.ts';
@@ -37,11 +37,15 @@ export const jobQueries = {
     }),
 
   /** `enabled`: wait until the page size is measured, or the first page is fetched twice. */
-  byPipeline: (pipelineId: string, pagination: PaginationParams, options: { enabled?: boolean } = {}) =>
+  byPipeline: (
+    pipelineId: string,
+    pagination: PaginationParams,
+    options: { enabled?: boolean; filter?: JobFilter } = {},
+  ) =>
     queryOptions<PaginatedList<JobEntity>>({
-      queryKey: [...JOBS_QUERY_KEY(pipelineId), pagination],
+      queryKey: [...JOBS_QUERY_KEY(pipelineId), pagination, options.filter ?? null],
       enabled: (options.enabled ?? true) && !!pipelineId,
-      queryFn: () => repository().getByPipelineId(pipelineId, pagination),
+      queryFn: () => repository().getByPipelineId(pipelineId, pagination, options.filter),
       staleTime: 0,
       refetchInterval: query => (hasActive(query.state.data?.items ?? []) ? 5000 : false),
     }),

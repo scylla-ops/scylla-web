@@ -11,6 +11,8 @@ import type {
   PipelineMetadata,
   PipelineWithLayout,
 } from '../domain/entities/pipeline.entity.ts';
+import type { CommitRef } from '../domain/structs/commit-ref.struct.ts';
+import type { PipelineFile } from '../domain/structs/pipeline-file.struct.ts';
 import type { PipelineFileFormat } from '../domain/structs/pipeline-file-format.struct.ts';
 import { mergeLayouts, type PipelineLayout } from '../domain/structs/pipeline-layout.struct.ts';
 import {
@@ -27,6 +29,7 @@ import {
   PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_ROOT,
   PIPELINE_EXPORT_QUERY_KEY,
+  PIPELINE_FILE_QUERY_KEY,
   PIPELINE_QUERY_KEY,
   PROJECT_PIPELINES_QUERY_ROOT,
   RUN_PIPELINE_MUTATION_KEY,
@@ -103,7 +106,28 @@ export const pipelineQueries = {
       queryFn: () => repository().exportFile(pipelineId, format),
       staleTime: 30_000,
     }),
+
+  /**
+   * The page of a file pipeline reads it, behind its own route guard. No ref: the default branch.
+   * The page says why a file cannot be read (no file on the branch): no toast.
+   */
+  file: (pipelineId: string, ref?: CommitRef) =>
+    queryOptions<PipelineFile>({
+      queryKey: PIPELINE_FILE_QUERY_KEY(pipelineId, ref),
+      enabled: !!pipelineId,
+      queryFn: () => repository().getFile(pipelineId, ref),
+      staleTime: 30_000,
+      meta: { showsOwnError: true },
+      // Another branch keeps the graph of the last one until its file comes.
+      placeholderData: (previous: PipelineFile | undefined) => previous,
+    }),
 };
+
+/** No ref: an editor pipeline runs with no commit, a file pipeline at the head of the default branch. */
+export interface RunPipelineInput {
+  pipelineId: string;
+  ref?: CommitRef;
+}
 
 /** Read by the editor only, behind its own route guard: nothing to gate here. */
 export const nodeTemplateQueries = {
@@ -206,8 +230,8 @@ export const pipelineMutations = {
   run: () =>
     mutationOptions({
       mutationKey: RUN_PIPELINE_MUTATION_KEY,
-      mutationFn: (pipelineId: string) => repository().run(pipelineId),
-      onSuccess: (_data, pipelineId) => {
+      mutationFn: ({ pipelineId, ref }: RunPipelineInput) => repository().run(pipelineId, ref),
+      onSuccess: (_data, { pipelineId }) => {
         void getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId) });
       },
     }),

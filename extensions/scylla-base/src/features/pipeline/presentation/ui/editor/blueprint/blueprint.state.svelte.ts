@@ -25,6 +25,8 @@ export interface BlueprintParams {
   /** Read at each build of the graph: a later save of a place does not move a node. */
   savedLayout?: () => PipelineLayout | null | undefined;
   places?: NodePlaces;
+  /** A pipeline that the server does not let change, such as a file pipeline: the graph only shows it. */
+  locked?: () => boolean;
 }
 
 /** How a new node joins the graph: after a node (by default the start node), or inside an edge. */
@@ -84,7 +86,8 @@ export const createBlueprint = (params: BlueprintParams) => {
    * Two nodes share an id: the graph shows them, marked, but cannot edit them, as an edit goes
    * through the ids. The document is never rewritten to remove the repeat.
    */
-  const readOnly = $derived(pipeline.repeatedNodeIds(params.nodes()).length > 0);
+  const repeated = $derived(pipeline.repeatedNodeIds(params.nodes()).length > 0);
+  const readOnly = $derived(repeated || (params.locked?.() ?? false));
 
   const inspected = $derived(
     flowNodes.find((flowNode): flowNode is PipelineFlowNode => flowNode.id === inspectedId && !!nodeOf(flowNode)),
@@ -144,6 +147,10 @@ export const createBlueprint = (params: BlueprintParams) => {
     },
     get readOnly() {
       return readOnly;
+    },
+    /** Read only because two nodes share an id: the user can fix it in the Scripting tab. */
+    get repeated() {
+      return repeated;
     },
 
     /**

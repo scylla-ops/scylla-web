@@ -30,15 +30,16 @@ not through the barrel.
 
 | Method | Returns |
 |---|---|
-| `getMetadataByProjectId(...)` | paginated `PipelineMetadata` |
-| `getMetadataByWorkspaceId(...)` | paginated `PipelineMetadata` |
+| `getMetadataByProjectId(...)` | paginated `PipelineMetadata`, each with its `origin` |
+| `getMetadataByWorkspaceId(...)` | paginated `PipelineMetadata`, each with its `origin` |
 | `getById(id)` | `PipelineEntity` (full, with nodes) |
-| `getWithLayout(id)` | `PipelineWithLayout`: the entity and the places of its nodes |
+| `getWithLayout(id)` | `PipelineWithLayout`: the entity, the places of its nodes and its `origin` |
 | `saveLayout(id, layout)` | `void`: the places only, with no new version of the pipeline |
 | `create(pipeline, layout?)` | `void` |
 | `edit(id, nodes, name?, layout?)` | `PipelineEntity` |
 | `deleteById(id)` | `void` |
-| `run(id)` | `void` |
+| `run(id, ref?)` | `PipelineRun`. A `CommitRef` (branch, tag or SHA) of the linked repository; none: an editor pipeline runs with no commit, a file pipeline at the head of the default branch |
+| `getFile(id, ref?)` | `PipelineFile`: the file of a file pipeline at the ref (none: the default branch), its nodes, its rules of `on`, its checkout and its errors |
 | `exportFile(id, format)` | `PipelineFileExport`: the saved version as a file of the repository, and its path |
 
 `NodeTemplateRepository` — `domain/repository/node-template.repository.ts`:
@@ -84,18 +85,23 @@ domain/
   structs/pipeline-name.struct.ts            PipelineNameIssue, pipelineNameIssue
   structs/pipeline-layout.struct.ts          NodePlace, PipelineLayout, the limits of the server, mergeLayouts
   structs/pipeline-file-format.struct.ts     PipelineFileFormat (toml, yaml, json), PIPELINE_FILE_FORMATS
+  structs/pipeline-file.struct.ts            PipelineFile, FileError, FileRules, CheckoutSettings,
+                                             blockingErrors (a warning keeps a file valid)
+  structs/commit-ref.struct.ts               CommitRef (branch, tag, SHA), commitShaIssue (7 to 40 hex)
   use-cases/save-pipeline.use-case.ts        SavePipelineUseCase: the rules of the server, then create or edit
   repository/pipeline.repository.ts
   repository/node-template.repository.ts
 infrastructure/
   default-pipeline.repository.ts             PipelineServiceClient → PipelineEntity
   default-node-template.repository.ts        BUILT_IN_NODE_TEMPLATES
-  grpc-pipeline.mapper.ts
+  grpc-pipeline.mapper.ts                    also originOf: the source, the file and its state
+  grpc-pipeline-file.mapper.ts               PipelineFile ↔ the proto, refToProto
 presentation/
   pipeline.commands.ts                       create, jobs and edit, for the search bar
   pipeline.queries.ts                        TanStack Query options factories
   pipeline.query-keys.ts                     Query key factories (exported publicly)
-  messages/                                  pipeline, blueprint, scripting, node, export (.messages.ts)
+  messages/                                  pipeline, blueprint, scripting, node, export, file, run
+                                             (.messages.ts)
   presenters/                                domain data → what a view shows (plain TS, tested)
     node-summary.presenter.ts                summarize (what a node shows), nodePreview, envCounts
     node-kind.presenter.ts                   icon and colours of each kind of node
@@ -106,13 +112,27 @@ presentation/
     blueprint-geometry.presenter.ts          the sizes, anchors and footprints of the nodes, linkDropPoint
     pipeline-issue.presenter.ts              the text of what stops a save (pipelineIssueText)
     pipeline-feed.presenter.ts               asPipelineFeed
+    pipeline-file.presenter.ts               a file pipeline: the rows of `on` and of the checkout,
+                                             the place of an error, the note of a row of the list
+                                             (originNote), the notice of its page (fileNotice)
+    ref-options.presenter.ts                 the rows of a branch or tag picker, and of the Run dialog
+    job-filter.presenter.ts                  the rows of the branch filter, the names of the events
   mappers/                                   a view format ↔ the domain, both ways (plain TS, tested)
     pipeline-document.mapper.ts              the JSON text of the editor ↔ the nodes (toDocument writes it)
     blueprint-flow.mapper.ts                 the nodes ↔ the nodes and edges of xyflow; placesOf
     env-row.mapper.ts                        an env entry ↔ a row of the environment form
+    commit-ref.mapper.ts                     a CommitRef ↔ the value of a row of a picker
   ui/                                        Svelte only
     run-pipeline.state.svelte.ts             the Run action, shared by the dashboard and the jobs page
-    PipelineJobs.page.svelte                 the jobs page of a pipeline: JobsPage + the Run action
+    RunPipelineDialog/                       the commit to run, for a project with a linked repository
+                                             (run-request.state: dialog or direct run; run-target.state:
+                                             the picked ref or the typed SHA)
+    PipelineJobs/                            the jobs page of a pipeline: JobsPage + the Run action +
+                                             the filters (and its test)
+    JobFilters/                              branch, event, author, PR (job-filters.state.svelte.ts)
+    file/FilePipeline/                       the page of a file pipeline: the editor page, read only
+                                             (file-pipeline.state.svelte.ts, the header with the
+                                             branch picker, the notice, the locked panel, the text)
     dashboard/
       DashboardPipeline/                     the page, its header, pipeline-dashboard.state.svelte.ts
       PipelineTable/                         the table, pipeline-table.columns.ts, and the cells only it
@@ -174,6 +194,7 @@ presentation/
 | `project` | (the mount's own path) | `LIST_PIPELINES_BY_PROJECT` | `DashboardPipelinePage` |
 | `project` | `create` | `CREATE_PIPELINE` | `PipelineCreationPage` |
 | `project` | `edit/:pipelineId` | `UPDATE_PIPELINE` | `PipelineUpdatePage` |
+| `project` | `pipelines/:pipelineId` | `READ_PIPELINE` | `FilePipelinePage` |
 | `project` | `pipelines/:pipelineId/jobs` | `LIST_JOBS_BY_PIPELINE` | `PipelineJobsPage` |
 
 **No nav entry** — pipelines are the project index, reached by entering a project.
@@ -419,6 +440,32 @@ the page.
   of the selected format only while it is open (`pipelineQueries.fileExport`). Its key is under
   `PIPELINE_QUERY_KEY`, so a save refreshes it. With unsaved changes, the dialog says that the file
   has the saved version. The path comes from the server: do not build it in the client.
+
+- **A file pipeline is read only, on a page of its own** (`pipelines/:pipelineId`, `READ_PIPELINE`:
+  the route `get_file_pipeline` is in the catalog cell of `get_pipeline`). The list opens it
+  with View (`goToFilePipeline`), and the edit page of a file pipeline redirects to it. The page
+  is the editor page with no edit: `PipelineBlueprint` gets `locked` (the blueprint is
+  `readOnly` and saves no place), a `notice` in place of the notice of the repeated ids, and a
+  `sidePanel` in place of the palette (`FilePanel`: the rules of `on` and the checkout, or the
+  errors of the file). The Scripting tab shows the text of the file with the colors of its
+  format, read only. The branch picker reads the file at another ref
+  (`pipelineQueries.file`, keyed under `PIPELINE_QUERY_KEY`). When the file has errors (not
+  warnings) or cannot be read (none on the branch: `NOT_FOUND`), the graph shows the saved
+  pipeline, faded (`dimmed`): the server keeps the last valid version of the default branch. The
+  file query shows its own error (`showsOwnError`). A Schedule or a webhook of Scylla stays in
+  the triggers page.
+- **The list says the state of a file** under the name of a row (`originNote`): the number of
+  errors on the default branch, a file that left the default branch, an archived editor
+  pipeline. The default branch comes from the link of the project (`repositoryLinkQueries` of
+  `integrations`, which checks `READ_REPOSITORY_LINK`); without it, the text says "the default
+  branch".
+- **Run asks for a commit only with a linked repository** (`createRunRequest`). Without a link, or
+  while the link loads, Run runs at once, as before. The dialog offers the branches and the tags
+  (`ListRefs`, the default branch first and chosen) and a row to type a SHA (7 to 40 hex). The
+  command bar runs with no ref. The input of `pipelineMutations.run` is `{ pipelineId, ref? }`:
+  the guided tour reads `pipelineId` from it (`features/onboarding`).
+- **The filters of the jobs show only with a linked repository**: a job with no commit matches
+  no filter. A text field (author, PR number) applies its value on change or Enter, not per key.
 
 ## Before done
 

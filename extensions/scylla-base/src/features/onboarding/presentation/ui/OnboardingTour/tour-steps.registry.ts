@@ -442,7 +442,9 @@ const runTour: TourDefinition = {
         on: 'mutation',
         key: RUN_PIPELINE_MUTATION_KEY,
         onSuccess: (_data, variables) =>
-          typeof variables === 'string' ? { pipelineId: variables } : undefined,
+          isRecord(variables) && typeof variables.pipelineId === 'string'
+            ? { pipelineId: variables.pipelineId }
+            : undefined,
       },
     },
     {

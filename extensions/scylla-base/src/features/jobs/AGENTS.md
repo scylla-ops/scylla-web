@@ -14,6 +14,7 @@ Pipeline runs: their status, their logs, and the live tail of both.
 
 ```typescript
 type JobEntity
+type JobEvent, JobFilter              ← the filters of a list of jobs
 type JobLog, JobLogStream
 type JobsSummary, JobStatus
 summarizeJobs, isActiveStatus, isFinishedStatus
@@ -46,7 +47,7 @@ Never add: `jobs.module.ts`, and never export a `.svelte` component from this ba
 
 | Method | Returns |
 |---|---|
-| `getByPipelineId(...)` | paginated `JobEntity` list |
+| `getByPipelineId(id, pagination?, filter?)` | paginated `JobEntity` list, only the jobs that match the filter |
 | `getByWorkspaceId(...)` | paginated `JobEntity` list |
 | `getById(jobId)` | `JobEntity` |
 | `deleteById(jobId)` | `void` |
@@ -70,8 +71,8 @@ Each method rejects with a `ScyllaError` on failure. Reach it from `jobs.queries
 jobs.module.ts                       DI wiring + the job details route (no nav)
 index.ts                             public API
 domain/
-  entities/job.entity.ts             JobEntity, JobNodeExecution, NodeExecutionState, JobLog,
-                                     JobLogStream
+  entities/job.entity.ts             JobEntity, JobFilter, JobEvent, JobNodeExecution,
+                                     NodeExecutionState, JobLog, JobLogStream
   repository/jobs.repository.ts
 infrastructure/
   default-jobs.repository.ts       JobServiceClient → JobEntity; tailLogs maps the stream
@@ -102,7 +103,10 @@ presentation/
 No nav entry. The jobs **list** is not declared here: it is mounted by
 [`pipeline`](../pipeline/AGENTS.md) at `project` → `pipelines/:pipelineId/jobs`, gated on
 `LIST_JOBS_BY_PIPELINE`, via `PipelineJobsRoute`, because that page needs a Run action. If you
-change `JobsPage`'s props, that is the call site to update.
+change `JobsPage`'s props, that is the call site to update. `pipeline` also gives the page a
+`filter` (a `JobFilter`: branch, event, author login, pull request) and a `toolbar` snippet with
+the controls of the filter, rendered under the header. A job with no commit matches no filter.
+With a filter that matches no job, the empty list does not tell the user to run the pipeline.
 
 One job needs nothing from `pipeline`, so its route lives here, with its full path. Its page
 shows the "Pipeline · Jobs" crumb of the list, because its path starts with the list's path.

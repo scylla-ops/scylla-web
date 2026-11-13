@@ -21,11 +21,14 @@ type VcsProvider, VcsProviderInfo, VcsConnectionEntity, ConnectionState, Deliver
 type RepositoryLink, ReportMode, PipelineSource, GitRef, GitRefKind
 type MergeBlock, MergeBlockState, VcsReport, ReportState, JobReports
 integrationsUrl(workspaceSlug, connectedId?)
+repositoryLinkQueries                 the link of a project and its refs, for the pipeline pages
 ```
 
-No query crosses the barrel yet. A later page in another module (the job page) that reads
-`vcsReportQueries` adds the export, and its options check the permission with `can(...)`
-(`shell/__test__/feature-permissions.test.ts`).
+`repositoryLinkQueries` crosses the barrel: the pages of `pipeline` (the Run dialog, the filters
+of the jobs, the page of a file pipeline) read the link and its refs. They run outside the route
+guard of this module, so `byProject` and `refs` check `READ_REPOSITORY_LINK` on the project with
+`can(...)` (`shell/__test__/feature-permissions.test.ts`). A later page that reads
+`vcsReportQueries` from another module adds the export the same way.
 
 Never add: `integrations.module.ts`, pages, components.
 

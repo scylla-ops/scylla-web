@@ -6,6 +6,8 @@
     createPipelineDashboard,
   } from './pipeline-dashboard.state.svelte.ts';
   import { createRunPipeline } from '@base/features/pipeline/presentation/ui/run-pipeline.state.svelte.ts';
+  import { createRunRequest } from '@base/features/pipeline/presentation/ui/RunPipelineDialog/run-request.state.svelte.ts';
+  import RunPipelineDialog from '@base/features/pipeline/presentation/ui/RunPipelineDialog/RunPipelineDialog.svelte';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import PipelineDashboardHeader from './PipelineDashboardHeader.svelte';
   import PipelineTable from '../PipelineTable/PipelineTable.svelte';
@@ -18,6 +20,7 @@
 
   const dashboard = createPipelineDashboard(() => projectId ?? '');
   const runPipeline = createRunPipeline();
+  const runRequest = createRunRequest({ projectId: () => projectId ?? '', runPipeline });
 </script>
 
 <!-- The frame renders first and stays on an error: the table area's height decides what to fetch. -->
@@ -37,6 +40,7 @@
           isJobsError={dashboard.isJobsError}
           canListJobs={dashboard.canListJobs}
           {runPipeline}
+          {runRequest}
         />
       {:else if dashboard.isError}
         <ErrorState message={dashboard.errorMessage} />
@@ -59,3 +63,5 @@
     onPageChange={page => dashboard.pagination.setPage(page)}
   />
 </div>
+
+<RunPipelineDialog request={runRequest} />

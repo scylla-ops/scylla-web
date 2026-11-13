@@ -6,6 +6,8 @@ import type {
   PipelineRun,
   PipelineWithLayout,
 } from '../domain/entities/pipeline.entity.ts';
+import type { CommitRef } from '../domain/structs/commit-ref.struct.ts';
+import type { PipelineFile } from '../domain/structs/pipeline-file.struct.ts';
 import type { PipelineFileFormat } from '../domain/structs/pipeline-file-format.struct.ts';
 import type { PipelineLayout } from '../domain/structs/pipeline-layout.struct.ts';
 import type { PipelineNodeEntity } from '../domain/entities/pipeline-node.entity.ts';
@@ -14,6 +16,7 @@ import type { Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 import { DEFAULT_PAGE_SIZE, type PaginatedList, type PaginationParams } from '@scylla/ui/structs';
 import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcPipeline from './grpc-pipeline.mapper.ts';
+import * as grpcPipelineFile from './grpc-pipeline-file.mapper.ts';
 
 const PAGE_SIZE = 100;
 const FIRST_PAGE: PaginationParams = { page: 1, pageSize: DEFAULT_PAGE_SIZE };
@@ -81,9 +84,20 @@ export class DefaultPipelineRepository implements PipelineRepository {
     this.versions.delete(id);
   }
 
-  public async run(id: string): Promise<PipelineRun> {
-    const { job } = await this.client.runPipeline({ pipelineId: wrapId(id) }).response;
+  public async run(id: string, ref?: CommitRef): Promise<PipelineRun> {
+    const { job } = await this.client.runPipeline({
+      pipelineId: wrapId(id),
+      ...(ref && { ref: grpcPipelineFile.refToProto(ref) }),
+    }).response;
     return { needsContainer: (job?.nodes ?? []).some(node => !!node.container?.image) };
+  }
+
+  public async getFile(id: string, ref?: CommitRef): Promise<PipelineFile> {
+    const { file } = await this.client.getFilePipeline({
+      pipelineId: wrapId(id),
+      ...(ref && { ref: grpcPipelineFile.refToProto(ref) }),
+    }).response;
+    return grpcPipelineFile.fileToDomain(required(file, 'pipeline file'));
   }
 
   public async create(pipeline: Omit<PipelineEntity, 'id'>, layout?: PipelineLayout): Promise<void> {
@@ -103,9 +117,11 @@ export class DefaultPipelineRepository implements PipelineRepository {
 
   public async getWithLayout(id: string): Promise<PipelineWithLayout> {
     const response = await this.client.getPipeline({ pipelineId: wrapId(id) }).response;
+    const pipeline = required(response.pipeline, 'pipeline');
     return {
-      pipeline: this.keep(response.pipeline),
+      pipeline: this.keep(pipeline),
       layout: grpcPipeline.layoutToDomain(response.layout),
+      origin: grpcPipeline.originOf(pipeline),
     };
   }
 

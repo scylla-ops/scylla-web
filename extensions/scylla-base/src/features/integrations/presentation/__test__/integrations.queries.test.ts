@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { getQueryClient } from '@scylla/core-sdk';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { withQueryClient, withRegistry } from '@test/render.ts';
 import { mergeBlockMutations, mergeBlockQueries } from '../merge-block.queries.ts';
@@ -101,5 +102,33 @@ describe('integrations queries', () => {
     expect(vcsReportQueries.byJobs([]).enabled).toBe(false);
     await runQueryFn(vcsReportQueries.byJobs(ids));
     expect(listByJobs.mock.calls[0][0]).toHaveLength(MAX_JOBS_PER_REPORT_CALL);
+  });
+});
+
+describe('the link queries that the pipeline pages read', () => {
+  const grant = (permissions: Permission[]) =>
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.PROJECT,
+            scopeId: 'p-1',
+            access: { kind: 'restricted', permissions },
+          },
+        ],
+      },
+    });
+
+  afterEach(() => permissionsStore.setState({ permissions: null }));
+
+  it('read the link and its refs only with READ_REPOSITORY_LINK on the project: they run outside the route guard', () => {
+    grant([Permission.LIST_JOBS_BY_PIPELINE]);
+    expect(repositoryLinkQueries.byProject('p-1').enabled).toBe(false);
+    expect(repositoryLinkQueries.refs({ projectId: 'p-1' }).enabled).toBe(false);
+
+    grant([Permission.READ_REPOSITORY_LINK]);
+    expect(repositoryLinkQueries.byProject('p-1').enabled).toBe(true);
+    expect(repositoryLinkQueries.refs({ projectId: 'p-1' }).enabled).toBe(true);
+    expect(repositoryLinkQueries.refs({ projectId: 'p-1' }, false).enabled).toBe(false);
   });
 });

@@ -1,5 +1,9 @@
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
-import type { JobEntity, JobLogStream } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type {
+  JobEntity,
+  JobFilter,
+  JobLogStream,
+} from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
 import type { Job } from '@base/generated/scylla/pipelines/v1/job.ts';
 import { idValue, required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
@@ -29,11 +33,13 @@ export class DefaultJobsRepository implements JobsRepository {
   public async getByPipelineId(
     pipelineId: string,
     pagination: PaginationParams = FIRST_PAGE,
+    filter?: JobFilter,
   ): Promise<PaginatedList<JobEntity>> {
     const jobs = await allPages(async token => {
       const response = await this.client.listPipelineJobs({
         pipelineId: wrapId(pipelineId),
         page: { size: PAGE_SIZE, token },
+        ...(filter && { filter: grpcJob.filterToProto(filter) }),
       }).response;
       return { jobs: response.jobs, next: response.page?.nextToken ?? '' };
     });

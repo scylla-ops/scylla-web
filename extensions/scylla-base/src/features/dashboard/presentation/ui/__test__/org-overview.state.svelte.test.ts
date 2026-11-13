@@ -19,6 +19,7 @@ const pipeline = (overrides: Partial<PipelineMetadata> = {}): PipelineMetadata =
   nodeCount: 1,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
+  origin: { source: 'editor', filePath: '', fileErrorCount: 0 },
   ...overrides,
 });
 
