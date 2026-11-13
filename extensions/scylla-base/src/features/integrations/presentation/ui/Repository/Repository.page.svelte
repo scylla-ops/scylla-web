@@ -6,6 +6,9 @@
   import { t } from '@scylla/ui/i18n';
   import { repositoryMessages as messages } from '@base/features/integrations/presentation/messages/repository.messages.ts';
   import LinkRepositoryDialog from '../LinkRepositoryDialog/LinkRepositoryDialog.svelte';
+  import MergeBlockCard from './MergeBlockCard.svelte';
+  import PipelineSourceCard from './PipelineSourceCard.svelte';
+  import PipelineSourceDialog from './PipelineSourceDialog.svelte';
   import RepositoryCard from './RepositoryCard.svelte';
   import ReportsCard from './ReportsCard.svelte';
   import UnlinkDialog from './UnlinkDialog.svelte';
@@ -38,9 +41,16 @@
     <ListSkeleton rows={2} rowClass="h-48 w-full rounded-xl" />
   {:else if page.link}
     {@const link = page.link}
+    <!-- Two columns on a wide screen; on a phone, the cards follow the order of the columns. -->
     <div class="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
-      <RepositoryCard {page} {link} />
-      <ReportsCard {page} {link} />
+      <div class="flex min-w-0 flex-col gap-4">
+        <RepositoryCard {page} {link} />
+        <PipelineSourceCard {page} {link} />
+      </div>
+      <div class="flex min-w-0 flex-col gap-4">
+        <ReportsCard {page} {link} />
+        <MergeBlockCard {page} {link} />
+      </div>
     </div>
     {#snippet unlinkButton()}
       <GatedButton
@@ -91,6 +101,8 @@
   workspaceSlug={page.workspaceSlug}
   canViewIntegrations={page.canViewIntegrations}
 />
+
+<PipelineSourceDialog source={page.source} branch={page.link?.defaultBranch ?? ''} />
 
 <UnlinkDialog
   open={page.dialog === 'unlink'}

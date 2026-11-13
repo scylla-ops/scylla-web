@@ -51,7 +51,17 @@ editors of the project (`MANAGE_REPOSITORY_LINK`) change it.
 - **Unlink:** a danger zone. The dialog lists what stops: the Git triggers, the checkout, the
   reports, the merge rules, the file pipelines and the GitLab webhook.
 
-The pipeline source and the merge rules of the project come in a later change, on the same page.
+- **Pipeline source:** the Scylla editor or the files of the repository (user decision 7, one
+  source for each project). With the files, the card lists the files found on the default branch
+  with "Valid" or the count of their errors. A move goes through a dialog: before a move to the
+  files, it lists the files and their errors, because the editor pipelines become archived (read
+  only, triggers stopped, runs kept). A move back restores them and hides the file pipelines.
+- **Block the merge:** GitHub has one switch for each pipeline (a check `scylla/<key>` in the
+  ruleset "Scylla required checks"), GitLab one for the project ("Pipelines must succeed"). A
+  switch shows what is on the provider. Each state tells what to do: grant the permission on
+  GitHub or give the Maintainer role on GitLab (with the steps by hand), apply again a rule that
+  someone changed, or try again after a failure. GitHub Free allows no rule on a private
+  repository.
 
 ## Why one module holds the four services
 

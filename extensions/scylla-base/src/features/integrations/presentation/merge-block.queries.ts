@@ -1,5 +1,5 @@
 import { getModuleDomain, getQueryClient, mutationOptions, queryOptions } from '@scylla/core-sdk';
-import type { SetMergeBlockInput } from '../domain/entities/merge-block.entity.ts';
+import type { MergeBlock, SetMergeBlockInput } from '../domain/entities/merge-block.entity.ts';
 import type { IntegrationsModule } from '../integrations.module.ts';
 
 // Resolved per call: tests swap the registry.
@@ -19,10 +19,17 @@ export const mergeBlockQueries = {
 };
 
 export const mergeBlockMutations = {
+  /** The rule of the answer replaces its row at once: the list reads the provider again, slowly. */
   set: () =>
     mutationOptions({
       mutationFn: (input: SetMergeBlockInput) => repository().set(input),
-      onSuccess: block =>
-        getQueryClient().invalidateQueries({ queryKey: MERGE_BLOCKS_QUERY_KEY(block.projectId) }),
+      onSuccess: block => {
+        const client = getQueryClient();
+        const key = MERGE_BLOCKS_QUERY_KEY(block.projectId);
+        client.setQueryData<MergeBlock[]>(key, blocks =>
+          blocks?.map(item => (item.pipelineId === block.pipelineId ? block : item)),
+        );
+        return client.invalidateQueries({ queryKey: key });
+      },
     }),
 };

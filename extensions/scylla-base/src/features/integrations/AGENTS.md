@@ -5,7 +5,8 @@ repository page of a project, and the data layer of the Git integration: the con
 repository links, the merge rules and the commit reports.
 
 **Layer** `features/` · **id** `integrations` · **DI keys** `vcsConnectionRepository`,
-`repositoryLinkRepository`, `mergeBlockRepository`, `vcsReportRepository`
+`repositoryLinkRepository`, `mergeBlockRepository`, `vcsReportRepository`,
+`pipelineSourceRepository`
 
 ## Import rules
 
@@ -14,7 +15,11 @@ repository links, the merge rules and the commit reports.
   of `project` to name the project that has a repository in the link picker).
 - Must never import `pipeline` or `triggers`: they import this module, and the module graph has
   no cycle. The names of the reports come from the merge rules (`ListMergeBlocks` gives one row
-  with its context for each pipeline on GitHub), not from the pipelines.
+  with its context for each pipeline on GitHub), not from the pipelines. The pipeline files and
+  the source of a project come from a client of `PipelineService` of its own
+  (`pipelineSourceRepository`). A move of the source refreshes the queries of `pipeline` and
+  `triggers` by their roots (`['pipelines']`, `['pipeline']`, `['triggers']`), written in
+  `pipeline-source.queries.ts`: change them there when those keys change.
 - Must never import: `shell/`, `@scylla/core`, another feature's internals.
 - Outside code reaches this module **only** through `index.ts`.
 
@@ -59,7 +64,9 @@ One repository for each gRPC service of `scylla/integrations/v1`.
 `RepositoryLinkRepository` — `getByProject` (`null` with no link), `link`, `update` (sends only
 the fields that are set), `unlink`, `testDelivery`, `listRefs` (one page).
 `MergeBlockRepository` — `listByProject`, `set`. `VcsReportRepository` — `listByJobs` (at most
-100 jobs, no call for none), `retry`.
+100 jobs, no call for none), `retry`. `PipelineSourceRepository` — on `PipelineService`:
+`listFiles` (the files of the head of the default branch, with no text: their errors and the
+sections of `on`), `setSource`.
 
 The inputs and the result types are in the entity files of `domain/entities/`. A value of the
 wire that this build does not know: a connection of an unknown provider is not in a list, and one
@@ -78,25 +85,34 @@ domain/
   entities/repository-link.entity.ts   RepositoryLink, its inputs, GitRef
   entities/merge-block.entity.ts       MergeBlock, SetMergeBlockInput
   entities/vcs-report.entity.ts        VcsReport, JobReports
+  structs/pipeline-files.struct.ts     PipelineFiles, FoundPipelineFile, PipelineFileIssue,
+                                       blockingIssues
   repository/                          one interface for each service
-infrastructure/                        Default*Repository and grpc-*.mapper.ts, one for each service
+infrastructure/                        Default*Repository and grpc-*.mapper.ts, one for each service,
+                                       and the pipeline source on PipelineService
 presentation/
   vcs-connection.queries.ts            the connections: reads and writes
   repository-link.queries.ts           the link of a project, its refs
   merge-block.queries.ts               the merge rules of a project
+  pipeline-source.queries.ts           the pipeline files of a project, the move of its source
   vcs-report.queries.ts                the reports of jobs
-  messages/                            integrations, connect-github, connect-gitlab, repository
+  messages/                            integrations, connect-github, connect-gitlab, repository,
+                                       merge-block, pipeline-source
   presenters/connection.presenter.ts   the texts of a connection row: kind, count, events, state
   presenters/connection-errors.presenter.ts   the refusal codes and the warnings, in words
   presenters/integrations-url.presenter.ts    the URL of the page, the `connected` parameter
   presenters/repository-link.presenter.ts     the texts of the repository page: events line,
                                               state of the link, what an unlink stops, refusals
+  presenters/merge-block.presenter.ts  a merge rule: its switch, state, page, steps by hand
+  presenters/pipeline-files.presenter.ts      the files of a branch: heading, state of each
   ui/Integrations/                     the page, its ViewModel, the provider cards, the table
   ui/ConnectGitHubDialog/              the permissions of the App, then the install on GitHub
   ui/ConnectGitLabDialog/              the guide, the token field, the result of the check
   ui/GitHubCallback/                   the page where GitHub sends the browser back
   ui/Repository/                       the repository page of a project, its ViewModel, the
-                                       repository card, the reports card, the unlink dialog
+                                       repository card, the reports card, the pipeline source
+                                       (card, file list, move dialog, its state), the merge
+                                       rules (card, row), the unlink dialog
   ui/LinkRepositoryDialog/             the picker: connection, search, repositories
   ui/ProviderTile.svelte               the mark of a provider in a square
 ```
@@ -138,6 +154,18 @@ started the install. The repository page is the link "Settings" of the project s
   `UNIMPLEMENTED`, and the card says "This server cannot test the webhook yet."
 - **"Enable again" is the test webhook.** GitLab turns a disabled webhook on again when a test
   delivery passes, and the server goes back to webhook mode when the test arrives.
+- **The pipeline source changes only after the dialog.** The radio keeps the current source; a
+  choice opens the move dialog, which lists the files of the default branch with their errors
+  before a move to the files. A refusal shows in the dialog (`meta.showsOwnError`). The files
+  are read only for a project on files, or while that dialog is open.
+- **The switch of a merge rule is the rule on the provider, not the wanted value.** A rule that
+  needs a permission or is not possible shows off; a failed change keeps the value before it
+  (decision 110 of the core: a refusal changes nothing on the provider). A click sends the
+  value again, so it is also the retry after a grant. One change at a time: the other switches
+  wait, and the answer replaces its row before the list reads the provider again.
+- **GitHub has one rule for each pipeline, GitLab one for the project** (no `pipelineId`).
+  "Needs permission" gives the page of the grant (GitHub installation, GitLab members) and the
+  steps by hand, with the check to copy on GitHub.
 - **The link has no "change" and no default branch to set.** `UpdateRepositoryLink` changes only
   the reports and the polling. To use another repository, a person unlinks, then links.
 - **The picker lists only the active connections.** A connection that stopped cannot list its

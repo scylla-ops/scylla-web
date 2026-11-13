@@ -156,6 +156,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   sends a test webhook, turns the reports on or off, picks a check run or a commit status on GitHub,
   and unlinks the repository. The unlink dialog lists what stops. The card tells why a link stopped
   and where to repair it.
+- The repository page of a project has a Pipeline source card and a Block the merge card. An editor
+  moves the pipelines from the Scylla editor to the files of the repository, or back. Before a move
+  to the files, a dialog lists the files of the default branch and their errors. On GitHub each
+  pipeline has a switch that blocks the merge into the default branch when it fails, and on GitLab
+  the project has one switch. A switch shows the state on the provider. When a permission is
+  missing, it gives the link to grant it and the steps to do it by hand.
 
 ### Changed
 

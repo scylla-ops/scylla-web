@@ -5,6 +5,7 @@ import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { withQueryClient, withRegistry } from '@test/render.ts';
 import type { ProviderRepositoryPage } from '@base/features/integrations/domain/entities/vcs-connection.entity.ts';
 import { mergeBlockMutations, mergeBlockQueries } from '../merge-block.queries.ts';
+import { pipelineSourceMutations, pipelineSourceQueries } from '../pipeline-source.queries.ts';
 import { repositoryLinkMutations, repositoryLinkQueries } from '../repository-link.queries.ts';
 import { vcsConnectionMutations, vcsConnectionQueries } from '../vcs-connection.queries.ts';
 import { MAX_JOBS_PER_REPORT_CALL, vcsReportQueries } from '../vcs-report.queries.ts';
@@ -116,6 +117,56 @@ describe('integrations queries', () => {
 
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['merge-blocks', 'p-1'] });
     expect(mergeBlockQueries.byProject('p-1').queryKey).toEqual(['merge-blocks', 'p-1']);
+  });
+
+  it('puts the rule of the answer in its row at once, and keeps the other rows', async () => {
+    const answer = { projectId: 'p-1', pipelineId: 'pl-2', enabled: true, state: 'on' };
+    const set = vi.fn().mockResolvedValue(answer);
+    install({ mergeBlockRepository: { set } });
+    const rows = [
+      { projectId: 'p-1', pipelineId: 'pl-1', enabled: false, state: 'off' },
+      { projectId: 'p-1', pipelineId: 'pl-2', enabled: false, state: 'off' },
+    ];
+    getQueryClient().setQueryData(['merge-blocks', 'p-1'], rows);
+    const options = mergeBlockMutations.set();
+    const input = { projectId: 'p-1', pipelineId: 'pl-2', enabled: true };
+
+    runOnSuccess(options, await runMutationFn(options, input), input);
+
+    expect(getQueryClient().getQueryData(['merge-blocks', 'p-1'])).toEqual([rows[0], answer]);
+  });
+
+  it('refreshes the link, the merge rules, the pipelines and the triggers after a move', async () => {
+    const setSource = vi.fn().mockResolvedValue(undefined);
+    install({ pipelineSourceRepository: { setSource } });
+    const invalidate = vi.spyOn(getQueryClient(), 'invalidateQueries');
+    const options = pipelineSourceMutations.set();
+    const input = { projectId: 'p-1', source: 'file' as const };
+
+    runOnSuccess(options, await runMutationFn(options, input), input);
+
+    expect(setSource).toHaveBeenCalledWith(input);
+    expect(options.meta).toEqual({ showsOwnError: true });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['repository-link', 'p-1'] });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['merge-blocks', 'p-1'] });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipelines'] });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipeline'] });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['triggers'] });
+  });
+
+  it('reads the files under the key of the link, and waits for a project', async () => {
+    const listFiles = vi.fn().mockResolvedValue({ commitSha: '', files: [], issues: [] });
+    install({ pipelineSourceRepository: { listFiles } });
+
+    expect(pipelineSourceQueries.files('').enabled).toBe(false);
+    expect(pipelineSourceQueries.files('p-1', false).enabled).toBe(false);
+    expect(pipelineSourceQueries.files('p-1').queryKey).toEqual([
+      'repository-link',
+      'p-1',
+      'pipeline-files',
+    ]);
+    await runQueryFn(pipelineSourceQueries.files('p-1'));
+    expect(listFiles).toHaveBeenCalledWith('p-1');
   });
 
   it('shares one entry for the same jobs in another order, and asks for at most 100 jobs', async () => {

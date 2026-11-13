@@ -8,7 +8,9 @@ import { MergeBlockServiceClient } from '@base/generated/scylla/integrations/v1/
 import { RepositoryServiceClient } from '@base/generated/scylla/integrations/v1/repository_service.client.ts';
 import { VcsConnectionServiceClient } from '@base/generated/scylla/integrations/v1/vcs_connection_service.client.ts';
 import { VcsReportServiceClient } from '@base/generated/scylla/integrations/v1/vcs_report_service.client.ts';
+import { PipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
 import { DefaultMergeBlockRepository } from './infrastructure/default-merge-block.repository.ts';
+import { DefaultPipelineSourceRepository } from './infrastructure/default-pipeline-source.repository.ts';
 import { DefaultRepositoryLinkRepository } from './infrastructure/default-repository-link.repository.ts';
 import { DefaultVcsConnectionRepository } from './infrastructure/default-vcs-connection.repository.ts';
 import { DefaultVcsReportRepository } from './infrastructure/default-vcs-report.repository.ts';
@@ -27,6 +29,11 @@ export const IntegrationsModule = {
     ),
     mergeBlockRepository: new DefaultMergeBlockRepository(new MergeBlockServiceClient(transport)),
     vcsReportRepository: new DefaultVcsReportRepository(new VcsReportServiceClient(transport)),
+    // The pipeline files and the source of a project: two RPCs of the pipelines, read here
+    // because `pipeline` imports this module.
+    pipelineSourceRepository: new DefaultPipelineSourceRepository(
+      new PipelineServiceClient(transport),
+    ),
   },
   routes: {
     workspace: [

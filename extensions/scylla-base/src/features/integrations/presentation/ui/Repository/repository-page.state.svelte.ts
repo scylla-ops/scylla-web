@@ -4,8 +4,12 @@ import { createMutation, createQuery } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
 import { t } from '@scylla/ui/i18n';
 import { toast } from '@scylla/ui/utils';
+import type { MergeBlock } from '@base/features/integrations/domain/entities/merge-block.entity.ts';
 import type { ReportMode } from '@base/features/integrations/domain/entities/repository-link.entity.ts';
-import { mergeBlockQueries } from '@base/features/integrations/presentation/merge-block.queries.ts';
+import {
+  mergeBlockMutations,
+  mergeBlockQueries,
+} from '@base/features/integrations/presentation/merge-block.queries.ts';
 import { repositoryMessages as messages } from '@base/features/integrations/presentation/messages/repository.messages.ts';
 import {
   deliveryErrorText,
@@ -19,6 +23,7 @@ import {
   repositoryLinkQueries,
 } from '@base/features/integrations/presentation/repository-link.queries.ts';
 import { vcsConnectionQueries } from '@base/features/integrations/presentation/vcs-connection.queries.ts';
+import { createPipelineSource } from './pipeline-source.state.svelte.ts';
 
 export type RepositoryDialog = 'link' | 'unlink' | null;
 
@@ -48,6 +53,8 @@ export const createRepositoryPage = (projectId: () => string) => {
   const update = createMutation(() => repositoryLinkMutations.update());
   const remove = createMutation(() => repositoryLinkMutations.unlink());
   const test = createMutation(() => repositoryLinkMutations.testDelivery());
+  const blockChange = createMutation(() => mergeBlockMutations.set());
+  const source = createPipelineSource(projectId, () => link);
 
   let dialog = $state<RepositoryDialog>(null);
 
@@ -97,6 +104,28 @@ export const createRepositoryPage = (projectId: () => string) => {
     get contexts(): string[] | null {
       return blocksQuery.data ? reportContexts(blocksQuery.data) : null;
     },
+
+    blocksQuery,
+    get blocks() {
+      return blocks;
+    },
+    /** One change of a merge rule at a time: the server applies them in turn. */
+    get settingBlock() {
+      return blockChange.isPending;
+    },
+    /** The value that a rule goes to while its change is sent, else `undefined`. */
+    sendingFor: (block: MergeBlock): boolean | undefined =>
+      blockChange.isPending && blockChange.variables.pipelineId === block.pipelineId
+        ? blockChange.variables.enabled
+        : undefined,
+    setBlock: (block: MergeBlock, enabled: boolean) =>
+      blockChange.mutate({
+        projectId: projectId(),
+        ...(block.pipelineId ? { pipelineId: block.pipelineId } : {}),
+        enabled,
+      }),
+
+    source,
 
     get testing() {
       return test.isPending;

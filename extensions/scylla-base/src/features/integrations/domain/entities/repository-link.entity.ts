@@ -53,6 +53,15 @@ export interface UpdateRepositoryLinkInput {
   pollIntervalSeconds?: number;
 }
 
+/**
+ * To the files, the editor pipelines become archived and the files of the default branch become
+ * pipelines. To the editor, the archived pipelines come back and the file pipelines are hidden.
+ */
+export interface SetPipelineSourceInput {
+  projectId: string;
+  source: PipelineSource;
+}
+
 /** The result of a test webhook. */
 export interface DeliveryTest {
   delivered: boolean;
