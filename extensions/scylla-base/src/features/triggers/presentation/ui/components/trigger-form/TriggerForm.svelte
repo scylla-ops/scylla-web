@@ -1,23 +1,13 @@
 <script lang="ts">
-  import {
-    Badge,
-    Button,
-    Input,
-    Label,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-  } from '@scylla/ui/primitives';
+  import { Badge, Button, Input, Label } from '@scylla/ui/primitives';
   import { createMutation } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
+  import type { RepositoryLink } from '@base/features/integrations';
   import type {
     CreatedTrigger,
+    GitSource,
+    TriggerDraftKind,
     TriggerEntity,
-  } from '@base/features/triggers/domain/entities/trigger.entity.ts';
-  import {
-    type TriggerDraftKind,
   } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggerMutations } from '@base/features/triggers/presentation/triggers.queries.ts';
   import { convertCronToLocal } from '@base/features/triggers/presentation/mappers/cron-timezone.mapper.ts';
@@ -25,21 +15,43 @@
   import {
     buildTriggerDraft,
     triggerToDraftInputs,
+    triggerToGitRules,
     type DraftInput,
+    type GitRulesDraft,
   } from '@base/features/triggers/presentation/mappers/trigger-form.mapper.ts';
+  import {
+    gitKindHint,
+    triggerKindLabel,
+  } from '@base/features/triggers/presentation/presenters/trigger-source.presenter.ts';
   import CronScheduleBuilder from './CronScheduleBuilder/CronScheduleBuilder.svelte';
+  import GitRulesFields from './GitRulesFields/GitRulesFields.svelte';
+  import GitVariables from './GitVariables/GitVariables.svelte';
   import TriggerFormSection from './TriggerFormSection.svelte';
   import TriggerInputsEditor from './TriggerInputsEditor/TriggerInputsEditor.svelte';
+  import TriggerKindSelect from './TriggerKindSelect/TriggerKindSelect.svelte';
   import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     pipelineId: string;
     trigger?: TriggerEntity;
+    /** The link of the project: `null` with no link, absent while unknown. */
+    link?: RepositoryLink | null;
+    /** A file pipeline: the `on` table of its file gives its Git triggers. */
+    isFilePipeline?: boolean;
     onCancel: () => void;
     onSaved: (created?: CreatedTrigger) => void;
+    onLinkRepository: () => void;
   }
 
-  let { pipelineId, trigger, onCancel, onSaved }: Props = $props();
+  let {
+    pipelineId,
+    trigger,
+    link,
+    isFilePipeline = false,
+    onCancel,
+    onSaved,
+    onLinkRepository,
+  }: Props = $props();
 
   const createTrigger = createMutation(() => triggerMutations.create(pipelineId));
   const updateTrigger = createMutation(() => triggerMutations.update(pipelineId));
@@ -51,12 +63,11 @@
   // Seeded once: the page mounts the form again for another trigger.
   const DEFAULT_CRON = '0 9 * * *';
 
-   
   // svelte-ignore state_referenced_locally
   let name = $state(trigger?.name ?? '');
   // svelte-ignore state_referenced_locally
   let kind = $state<TriggerDraftKind>(
-    trigger?.source.kind === 'webhook' ? 'webhook' : 'cron',
+    !trigger || trigger.source.kind === 'unknown' ? 'cron' : trigger.source.kind,
   );
   // svelte-ignore state_referenced_locally
   let cronExpression = $state(
@@ -64,15 +75,22 @@
   );
   // svelte-ignore state_referenced_locally
   let inputs = $state<DraftInput[]>(triggerToDraftInputs(trigger));
+  // svelte-ignore state_referenced_locally
+  let rules = $state<GitRulesDraft>(triggerToGitRules(trigger));
 
   /** An unknown source arm cannot be rendered, so it cannot be sent again. */
   // svelte-ignore state_referenced_locally
   const isUnknownSource = trigger?.source.kind === 'unknown';
 
+  const gitSource = $derived<GitSource | null>(
+    kind === 'cron' || kind === 'webhook' ? null : rules[kind],
+  );
+
   const isValid = $derived(
     !isUnknownSource &&
       name.trim().length > 0 &&
-      (kind === 'cron' ? isCronExpressionValid(cronExpression) : true),
+      (kind === 'cron' ? isCronExpressionValid(cronExpression) : true) &&
+      (kind === 'pullRequest' ? rules.pullRequest.events.length > 0 : true),
   );
 
   const initialCron = $derived(
@@ -81,8 +99,22 @@
       : DEFAULT_CRON,
   );
 
+  const changeRules = (source: GitSource) => {
+    switch (source.kind) {
+      case 'push':
+        rules.push = source;
+        break;
+      case 'pullRequest':
+        rules.pullRequest = source;
+        break;
+      case 'tag':
+        rules.tag = source;
+        break;
+    }
+  };
+
   const handleSubmit = async () => {
-    const draft = buildTriggerDraft({ name, kind, cronExpression, inputs });
+    const draft = buildTriggerDraft({ name, kind, cronExpression, inputs, rules });
 
     try {
       if (isEdit && trigger) {
@@ -125,39 +157,39 @@
               <Label>{t(triggersMessages.type)}</Label>
               <div class="flex items-center gap-2">
                 <Badge variant="secondary">
-                  {isUnknownSource
-                    ? t(triggersMessages.unknown)
-                    : kind === 'cron'
-                      ? 'Cron'
-                      : 'Webhook'}
+                  {triggerKindLabel(isUnknownSource ? 'unknown' : kind, link?.provider)}
                 </Badge>
                 <span class="text-xs text-muted-foreground">{t(triggersMessages.typeLocked)}</span>
               </div>
             </div>
           {:else}
-            <div class="flex flex-col gap-1.5">
-              <Label for="trigger-kind">{t(triggersMessages.type)}</Label>
-              <Select
-                type="single"
-                value={kind}
-                disabled={isPending}
-                onValueChange={value => (kind = value as TriggerDraftKind)}
-              >
-                <SelectTrigger id="trigger-kind" class="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cron" label="Cron">Cron</SelectItem>
-                  <SelectItem value="webhook" label="Webhook">Webhook</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <TriggerKindSelect
+              value={kind}
+              gitOff={isFilePipeline ? 'fromFile' : link === null ? 'noLink' : undefined}
+              provider={link?.provider}
+              disabled={isPending}
+              onChange={next => (kind = next)}
+              {onLinkRepository}
+            />
           {/if}
         </TriggerFormSection>
         </div>
 
         <div class="contents" data-tour="trigger-when">
-        {#if kind === 'cron'}
+        {#if gitSource}
+          <TriggerFormSection
+            id="trigger-when-title"
+            title={t(triggersMessages.whenSection)}
+            hint={gitKindHint(gitSource.kind, link)}
+          >
+            <GitRulesFields
+              source={gitSource}
+              provider={link?.provider}
+              disabled={isPending}
+              onChange={changeRules}
+            />
+          </TriggerFormSection>
+        {:else if kind === 'cron'}
           <TriggerFormSection
             id="trigger-schedule-title"
             title={t(triggersMessages.schedule)}
@@ -181,6 +213,15 @@
       </div>
 
       <div class="flex flex-col gap-5">
+        {#if gitSource}
+          <TriggerFormSection
+            id="trigger-variables-title"
+            title={t(triggersMessages.variablesSection)}
+            hint={t(triggersMessages.variablesHint)}
+          >
+            <GitVariables kind={gitSource.kind} {link} />
+          </TriggerFormSection>
+        {/if}
         <TriggerFormSection
           id="trigger-inputs-title"
           title={t(triggersMessages.inputs)}

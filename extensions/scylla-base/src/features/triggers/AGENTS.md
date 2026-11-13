@@ -1,12 +1,15 @@
 # `features/triggers` — agent guide
 
-What starts a pipeline without a human: schedules and webhooks.
+What starts a pipeline without a human: schedules, webhooks, and the push, pull request and tag
+events of the linked repository.
 
 **Layer** `features/` · **id** `triggers` · **DI key** `triggersRepository`
 
 ## Import rules
 
-- May import: `@platform/*` barrels, `@shared/*`, other features' `index.ts`.
+- May import: `@platform/*` barrels, `@shared/*`, other features' `index.ts` (it reads
+  `repositoryLinkQueries` and the `RepositoryLink` type of `integrations`, and
+  `pipelineQueries.byId` of `pipeline` for the origin of the pipeline).
 - Must never import: `shell/`, `@scylla/core`, another feature's internals.
 - Outside code reaches this module **only** through `index.ts`.
 
@@ -47,8 +50,9 @@ Each method rejects with a `ScyllaError` on failure. Reach it from `triggers.que
 `domain/entities/trigger.entity.ts` holds the heart of the module:
 
 ```typescript
-TriggerSource = CronSource | WebhookSource | UnknownSource   // discriminated on `kind`
-TriggerKind = TriggerSource['kind']                           // 'cron' | 'webhook' | 'unknown'
+TriggerSource = CronSource | WebhookSource | GitSource | UnknownSource   // discriminated on `kind`
+GitSource = PushSource | PullRequestSource | TagSource                   // need a linked repository
+TriggerKind = TriggerSource['kind']   // 'cron' | 'webhook' | 'push' | 'pullRequest' | 'tag' | 'unknown'
 ```
 
 - **Always narrow on `kind`**; never read `.cron` off a bare `TriggerSource`.
@@ -56,7 +60,12 @@ TriggerKind = TriggerSource['kind']                           // 'cron' | 'webho
   crash this UI. Every `switch` needs an `'unknown'` branch rendering a graceful "unsupported
   trigger type" — do not `throw`, do not fall through, do not assume exhaustiveness.
 - `TriggerDraft` / `TriggerSourceDraft` are the *write* shapes (what a form produces); the
-  entity is the *read* shape. Keep them distinct.
+  entity is the *read* shape. Keep them distinct. A Git source has no read-only field, so its
+  draft is the source itself.
+- **`fromFile` is a trigger of the `on` table of a pipeline file.** It has no row on the server: no
+  switch, no action, no selection in the list, and its edit page shows a message, not the form.
+- An empty list of globs is each branch or each tag. A pull request rule with no event is each
+  event on the server, so the form asks for one event at least.
 - **`TriggerInput` is a word of the product**, as in the protos and the "Inputs" of the form: a
   value that the trigger gives to the run. It is not the input of a repository call; the write
   shape of a trigger is `TriggerDraft`.
@@ -71,6 +80,7 @@ domain/
                                      TriggerInput
   structs/cron-expression.struct.ts  CronExpression, and the 5-field rule of the server:
                                      isCronExpressionValid
+  structs/git-glob.struct.ts         GitGlob, MAX_GLOBS (32), gitGlobIssue
   repository/triggers.repository.ts
 infrastructure/
   default-triggers.repository.ts      TriggerServiceClient → TriggerEntity
@@ -83,7 +93,12 @@ presentation/
   messages/triggers.messages.ts      every string — `lingui extract` cannot read `.svelte`
   ui/components/TriggersHeader/, TriggersOverview/, index.ts (local barrel)
   ui/components/trigger-form/        TriggerForm, TriggerFormSection,
-                                     CronScheduleBuilder/, TriggerInputsEditor/
+                                     CronScheduleBuilder/, TriggerInputsEditor/,
+                                     TriggerKindSelect/ (the Git kinds off with no link),
+                                     GitRulesFields/, GlobChipsInput/, GitVariables/
+  ui/components/GitTriggerNotes/     the two fixed rules: forks, one run per commit
+  ui/trigger-kind-icons.registry.ts  the icon of each kind
+  ui/pipeline-origin.state.svelte.ts a file pipeline and the path of its file (READ_PIPELINE)
     TriggerEditorView/               the body of the editor page
       trigger-editor-view.state.svelte.ts   the trigger to edit (from the list), and the way back
   ui/triggers-table/                 TriggersTable + triggers-table.columns.ts + cells
@@ -92,6 +107,8 @@ presentation/
   mappers/trigger-form.mapper.ts     the form ↔ the draft of a trigger
   mappers/triggers-navigation.mapper.ts   a pipeline and a trigger → the list and editor pages
   presenters/cron.presenter.ts       WEEKDAYS, describeCron
+  presenters/trigger-source.presenter.ts   the labels of the kinds ("Merge request" on GitLab),
+                                     the summary of a Git row, the hints, the variables, the notes
 ```
 
 ## Routes & nav
@@ -101,8 +118,10 @@ presentation/
 | `project` | `pipelines/:pipelineId/triggers` | `MANAGE_TRIGGERS` | `Triggers.page.svelte` |
 | `project` | `pipelines/:pipelineId/triggers/new`, `pipelines/:pipelineId/triggers/:triggerId/edit` | `MANAGE_TRIGGERS` | `TriggerEditor.page.svelte` |
 
-`mappers/triggers-navigation.mapper.ts` builds every URL between the list and the editor. Import
-it as a namespace: `triggersNavigation.toEdit(pipelineId, triggerId)`.
+`mappers/triggers-navigation.mapper.ts` builds every URL between the list and the editor, and
+`toRepository(projectId)`: the project route `settings/repository` of `integrations`, where a
+person links a repository. Import it as a namespace: `triggersNavigation.toEdit(pipelineId,
+triggerId)`.
 
 **No nav entry** — reached from a pipeline. Breadcrumb highlights `pipelineName`.
 
@@ -145,6 +164,15 @@ holding it that they are not split.
   from the same string, so a mount-time emit only re-sends what the parent already has.
 - **The form is seeded once.** `TriggerForm` reads its `$state` initializers when it mounts, and
   the page mounts it again for another trigger. Do not add an effect that watches `trigger`.
+- **The Git kinds need a linked repository.** The editor and the list read
+  `repositoryLinkQueries.byProject` of `integrations`. It runs only with `READ_REPOSITORY_LINK`:
+  without it, or while it loads, the link is unknown and the Git kinds stay on (the server answers
+  `NO_REPOSITORY_LINK`). Only a known absent link (`null`) turns them off, with "Link a repository
+  first". The provider of the link names the pull request ("Merge request" on GitLab).
+- **A file pipeline takes its Git triggers from the `on` table of its file.** The type picker turns
+  the Git kinds off there, and the list names the file of a trigger from the file.
+- **The notes about the forks and one run per commit are fixed rules, not options.** They show in
+  the Git form and under a list with a Git trigger.
 - **New strings go in `messages/triggers.messages.ts`, never inside a `.svelte`.** Extraction does not
   read components, so a message declared there vanishes from the catalogs without failing a gate.
 - **A bits-ui select or menu lives in a floating layer**, which floating-ui leaves

@@ -21,11 +21,13 @@ type VcsProvider, VcsProviderInfo, VcsConnectionEntity, ConnectionState, Deliver
 type RepositoryLink, ReportMode, PipelineSource, GitRef, GitRefKind
 type MergeBlock, MergeBlockState, VcsReport, ReportState, JobReports
 integrationsUrl(workspaceSlug, connectedId?)
-repositoryLinkQueries                 the link of a project and its refs, for the pipeline pages
+repositoryLinkQueries                 the link of a project and its refs, for the pipeline and
+                                      trigger pages
 ```
 
 `repositoryLinkQueries` crosses the barrel: the pages of `pipeline` (the Run dialog, the filters
-of the jobs, the page of a file pipeline) read the link and its refs. They run outside the route
+of the jobs, the page of a file pipeline) read the link and its refs, and the trigger pages of
+`triggers` read the link (the Git kinds need one, and the provider names the pull request). They run outside the route
 guard of this module, so `byProject` and `refs` check `READ_REPOSITORY_LINK` on the project with
 `can(...)` (`shell/__test__/feature-permissions.test.ts`). A later page that reads
 `vcsReportQueries` from another module adds the export the same way.

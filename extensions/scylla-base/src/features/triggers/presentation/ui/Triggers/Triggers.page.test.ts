@@ -22,10 +22,24 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   enabled: true,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
+  fromFile: false,
   ...overrides,
 });
 
 let listByPipelineId: ReturnType<typeof vi.fn>;
+let getByProject: ReturnType<typeof vi.fn>;
+let getWithLayout: ReturnType<typeof vi.fn>;
+
+const withOrigin = (source: 'editor' | 'file') => ({
+  pipeline: { id: 'pipeline-1', name: 'build', nodes: [] },
+  layout: null,
+  origin: {
+    source,
+    filePath: source === 'file' ? '.scylla/pipelines/build.toml' : '',
+    fileErrorCount: 0,
+  },
+});
+
 let navigator: ReturnType<typeof installTestNavigator>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
@@ -34,6 +48,8 @@ const props = { pipelineId: 'pipeline-1', projectId: 'project-1' };
 
 beforeEach(() => {
   listByPipelineId = vi.fn().mockResolvedValue([trigger()]);
+  getByProject = vi.fn().mockResolvedValue(null);
+  getWithLayout = vi.fn().mockResolvedValue(withOrigin('editor'));
   navigator = installTestNavigator({
     pathname: '/acme/projects/project-1/pipelines/pipeline-1/triggers',
   });
@@ -51,6 +67,8 @@ beforeEach(() => {
         getById: vi.fn(),
       } as unknown as TriggersRepository,
     },
+    integrations: { repositoryLinkRepository: { getByProject } },
+    pipeline: { pipelineRepository: { getWithLayout } },
   });
 
   contextStore.setState({
@@ -110,6 +128,8 @@ describe('TriggersPage', () => {
       triggers: {
         triggersRepository: { listByPipelineId, fireNow } as unknown as TriggersRepository,
       },
+      integrations: { repositoryLinkRepository: { getByProject } },
+      pipeline: { pipelineRepository: { getWithLayout } },
     });
     permissionsStore.setState({
       permissions: {
@@ -187,5 +207,50 @@ describe('TriggersPage', () => {
       undefined,
     );
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('sums up a Git trigger as its kind and its rules, under the fixed rules of the forks', async () => {
+    getByProject.mockResolvedValue({ projectId: 'project-1', provider: 'gitlab' });
+    listByPipelineId.mockResolvedValue([
+      trigger({
+        name: 'mr-into-main',
+        source: { kind: 'pullRequest', branches: ['main'], events: [], drafts: false },
+      }),
+    ]);
+    render(TriggersPage, props);
+
+    expect(await screen.findByText('into main · drafts skipped')).toBeInTheDocument();
+    expect(await screen.findByText('Merge request')).toBeInTheDocument();
+    expect(
+      screen.getByText(/^One run per commit: a push and a merge request/),
+    ).toBeInTheDocument();
+  });
+
+  it('shows no fixed rules of the forks with no Git trigger', async () => {
+    render(TriggersPage, props);
+    await screen.findByText('nightly');
+
+    expect(screen.queryByText(/wait for approval/)).not.toBeInTheDocument();
+  });
+
+  it('shows a trigger of a pipeline file as read only: no action, a switch that does not move', async () => {
+    getWithLayout.mockResolvedValue(withOrigin('file'));
+    listByPipelineId.mockResolvedValue([
+      trigger({
+        id: 'file-push',
+        name: 'on.push',
+        fromFile: true,
+        source: { kind: 'push', branches: ['main'], excludeBranches: [], skipCi: true },
+      }),
+    ]);
+    render(TriggersPage, props);
+
+    expect(
+      await screen.findByText('Defined in .scylla/pipelines/build.toml'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('main')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'Enable on.push' })).toBeDisabled();
   });
 });

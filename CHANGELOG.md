@@ -144,6 +144,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   that the user picks. The list of the pipelines tells which file has errors on the default branch
   or left it. With a linked repository, Run asks for a branch, a tag or a commit SHA, and the jobs
   of a pipeline can be filtered by branch, event, author and pull request.
+- The trigger editor has the types Push, Pull request (Merge request on GitLab) and Tag: the
+  branches to include and to exclude, `[skip ci]`, the target branches, the events and the drafts of
+  a pull request, the tag patterns, and the variables of a run. With no linked repository these
+  types are off, with a link to link a repository. The list shows the rules of a Git trigger, and a
+  trigger of a pipeline file is read only.
 
 ### Changed
 
