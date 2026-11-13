@@ -149,6 +149,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   a pull request, the tag patterns, and the variables of a run. With no linked repository these
   types are off, with a link to link a repository. The list shows the rules of a Git trigger, and a
   trigger of a pipeline file is read only.
+- The inbox shows the notices of the Git connections: a connection that needs attention, with its
+  cause, and a GitLab token that expires soon. Each notice opens the integrations of the workspace.
 
 ### Changed
 

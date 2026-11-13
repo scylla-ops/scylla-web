@@ -26,7 +26,62 @@ describe('the kinds of the core', () => {
       'security.password_changed',
       'security.session_reuse',
       'token.created',
+      'vcs.connection_broken',
+      'vcs.token_expiring',
     ]);
+  });
+});
+
+describe('the notices of the Git connections', () => {
+  it('tells the provider, the account and the cause of a broken connection, with the page of the connections', () => {
+    const view = viewOfRow(
+      row({
+        kind: 'vcs.connection_broken',
+        category: 'integrations',
+        reason: 'owner',
+        workspaceSlug: 'acme',
+        params: { provider: 'github', account: 'octo', reason: 'APP_UNINSTALLED' },
+      }),
+      null,
+    );
+
+    expect(view.text).toBe('The GitHub connection octo needs attention.');
+    expect(view.detail).toBe(
+      'The GitHub App was uninstalled. Reports, triggers and checkouts stopped.',
+    );
+    expect(view.reason).toBe('You own this workspace.');
+    expect(view.href).toBe('/acme/settings/integrations');
+  });
+
+  it('gives a general detail for an unknown cause', () => {
+    const view = viewOfRow(
+      row({
+        kind: 'vcs.connection_broken',
+        params: { provider: 'gitlab', account: 'scylla-bot', reason: 'SOMETHING_NEW' },
+      }),
+      null,
+    );
+
+    expect(view.text).toBe('The GitLab connection scylla-bot needs attention.');
+    expect(view.detail).toBe('Reports, triggers and checkouts stopped.');
+    expect(view.href).toBeNull();
+  });
+
+  it('tells the day of the expiry of a GitLab token, for an admin of the workspace', () => {
+    const view = viewOfRow(
+      row({
+        kind: 'vcs.token_expiring',
+        reason: 'workspace_admin',
+        workspaceSlug: 'acme',
+        params: { provider: 'gitlab', account: 'scylla-bot', expires_at: '2026-11-20' },
+      }),
+      null,
+    );
+
+    expect(view.text).toBe('The GitLab token of scylla-bot expires on 2026-11-20.');
+    expect(view.detail).toBe('Replace the token before this date.');
+    expect(view.reason).toBe('You are an admin of this workspace.');
+    expect(view.href).toBe('/acme/settings/integrations');
   });
 });
 

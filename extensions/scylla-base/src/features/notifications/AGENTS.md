@@ -34,6 +34,10 @@ The inbox of the signed-in user (`scylla.notifications.v1.NotificationService`).
   runs" keeps its row.
 - A row holds a kind and its parameters. `presentation/presenters/kind-views.ts` makes the text in
   the language of the reader.
+- The notices of the Git connections (`vcs.connection_broken` with a `reason` code, and
+  `vcs.token_expiring` with the day `expires_at`) are in the category `integrations`. This category
+  has no link, so their rows stay in "Inbox". Their link opens `settings/integrations`. An admin
+  of the workspace gets them with the reason `workspace_admin`.
 - The view "Failed runs" is on the page, not in the panel, only for a caller with
   `LIST_JOBS_BY_WORKSPACE`. It reads the last 100 jobs of the workspace. It goes when the server has
   a kind for a failed job. Until then, the bell shows no failed run.

@@ -42,6 +42,7 @@ export const notificationMessages = {
 
   reasonOwner: msg`You own this workspace.`,
   reasonAdmin: msg`You are an instance admin.`,
+  reasonWorkspaceAdmin: msg`You are an admin of this workspace.`,
 
   accept: msg`Accept`,
   accepting: msg`Accepting…`,
@@ -88,4 +89,16 @@ export const notificationMessages = {
   identityLinked: (provider: string) => msg`${provider} can now sign in to your account.`,
   identityUnlinked: (provider: string) => msg`${provider} can no longer sign in to your account.`,
   tokenCreated: (name: string) => msg`New API token: ${name}.`,
+  connectionBroken: (provider: string, account: string) =>
+    msg`The ${provider} connection ${account} needs attention.`,
+  connectionUninstalled: msg`The GitHub App was uninstalled. Reports, triggers and checkouts stopped.`,
+  connectionSuspended: msg`An owner suspended the Scylla App on GitHub.`,
+  connectionPermissions: msg`Accept the new permissions of the Scylla App on GitHub.`,
+  connectionTokenExpired: msg`The GitLab token expired. Replace the token.`,
+  connectionTokenRevoked: msg`GitLab refused the token. Replace the token.`,
+  connectionTokenScope: msg`The GitLab token cannot send reports. Replace the token.`,
+  connectionStopped: msg`Reports, triggers and checkouts stopped.`,
+  tokenExpiring: (account: string, date: string) =>
+    msg`The GitLab token of ${account} expires on ${date}.`,
+  tokenExpiringDetail: msg`Replace the token before this date.`,
 };
