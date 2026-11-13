@@ -80,25 +80,33 @@ msgstr "{name} est lié"
 msgid "{name} is unlinked"
 msgstr "{name} est dissocié"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:21
+msgid "{page} · App ID {appId}"
+msgstr "{page} · ID de l'App {appId}"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:23
 msgid "{provider} cannot reach this Scylla server."
 msgstr "{provider} ne peut pas joindre ce serveur Scylla."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:55
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:54
 msgid "{provider} did not answer."
 msgstr "{provider} n'a pas répondu."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:45
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:44
 msgid "{provider} does not allow this rule on this repository."
 msgstr "{provider} n'autorise pas cette règle sur ce dépôt."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:52
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:51
 msgid "{provider} limit reached. Try again in some minutes."
 msgstr "Limite de {provider} atteinte. Réessayez dans quelques minutes."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:54
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:53
 msgid "{provider} refused the change. Check the connection in Integrations."
 msgstr "{provider} a refusé le changement. Vérifiez la connexion dans Intégrations."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:27
+msgid "{status} · {when}"
+msgstr "{status} · {when}"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:17
 msgid "{visibility} · connection {account} · {host}"
@@ -128,6 +136,10 @@ msgstr "Un pipeline de fichier sans section on démarre seulement par une exécu
 msgid "A file with errors gives a pipeline whose runs fail with \"Invalid pipeline file\" until you correct the file."
 msgstr "Un fichier avec des erreurs donne un pipeline dont les exécutions échouent avec \"Invalid pipeline file\" tant que vous ne corrigez pas le fichier."
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:13
+msgid "A login has letters, digits and hyphens, at most 39 characters."
+msgstr "Un identifiant contient des lettres, des chiffres et des tirets, 39 caractères au plus."
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:43
 msgid "A page in the Checks tab: the nodes, the durations, the last log lines, Re-run."
 msgstr "Une page dans l'onglet Checks : les nœuds, les durées, les dernières lignes de log, Re-run."
@@ -153,12 +165,17 @@ msgstr "Actions"
 msgid "Actions for {account}"
 msgstr "Actions pour {account}"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:20
+msgctxt "app"
+msgid "Active"
+msgstr "Active"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:50
 msgctxt "connection"
 msgid "Active"
 msgstr "Active"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:37
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:36
 msgid "Add \"Require status checks to pass\" with this check, source \"Scylla\":"
 msgstr "Ajoutez \"Require status checks to pass\" avec ce check, source \"Scylla\" :"
 
@@ -186,9 +203,13 @@ msgstr "Un propriétaire de l'organisation doit approuver la demande sur GitHub.
 msgid "An owner suspended the Scylla App on {account}."
 msgstr "Un propriétaire a suspendu l'App Scylla sur {account}."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:49
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:48
 msgid "Apply again"
 msgstr "Appliquer à nouveau"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:43
+msgid "Back to Git providers"
+msgstr "Retour aux services Git"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:21
 msgid "Back to Integrations"
@@ -274,6 +295,10 @@ msgstr "Connexion"
 msgid "Connections"
 msgstr "Connexions"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:29
+msgid "Contents: read · Checks: write · Commit statuses: write · Pull requests: read · Administration: write · Metadata: read"
+msgstr "Contents : lecture · Checks : écriture · Commit statuses : écriture · Pull requests : lecture · Administration : écriture · Metadata : lecture"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:32
 msgid "Copy {context}"
 msgstr "Copier {context}"
@@ -285,6 +310,14 @@ msgstr "Créez un compte de service dans votre groupe de premier niveau."
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:17
 msgid "Create a token for it with the scope api."
 msgstr "Créez-lui un token avec le scope api."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:16
+msgid "Create GitHub App"
+msgstr "Créer l'App GitHub"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:36
+msgid "Creating the GitHub App…"
+msgstr "Création de l'App GitHub…"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:19
 msgid "Default branch"
@@ -323,6 +356,10 @@ msgstr "Terminé"
 msgid "Draw the pipelines in Scylla. Triggers are set in Scylla."
 msgstr "Dessinez les pipelines dans Scylla. Les déclencheurs se règlent dans Scylla."
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:33
+msgid "Each GitHub connection of this App becomes disconnected in its workspace. Reports, triggers and checkouts stop. The App stays on GitHub: delete it there."
+msgstr "Chaque connexion GitHub de cette App est déconnectée dans son espace. Les rapports, les déclencheurs et les checkouts s'arrêtent. L'App reste sur GitHub : supprimez-la là-bas."
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:27
 msgid "Enable again"
 msgstr "Réactiver"
@@ -352,25 +389,50 @@ msgstr "Chercher un dépôt"
 msgid "Found on {branch} at {sha}"
 msgstr "Trouvés sur {branch} à {sha}"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:4
+msgctxt "instance"
+msgid "Git providers"
+msgstr "Services Git"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:9
 msgid "GitHub"
 msgstr "GitHub"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:6
+msgid "GitHub App"
+msgstr "App GitHub"
+
+#: extensions/scylla-base/src/features/integrations/integrations.module.ts:89
+msgid "github app manifest webhook git"
+msgstr "github app manifeste webhook git"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:42
+msgid "GitHub did not answer. Try again."
+msgstr "GitHub n'a pas répondu. Réessayez."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:13
 msgid "GitHub Enterprise Server"
 msgstr "GitHub Enterprise Server"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:44
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:43
 msgid "GitHub Free does not allow rules on private repositories."
 msgstr "GitHub Free n'autorise pas de règles sur les dépôts privés."
 
-#: extensions/scylla-base/src/features/integrations/integrations.module.ts:48
+#: extensions/scylla-base/src/features/integrations/integrations.module.ts:56
 msgid "github gitlab git repository connection"
 msgstr "github gitlab git dépôt connexion intégration"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:15
+msgid "GitHub sends the webhooks to this URL. If GitHub cannot reach it, Scylla polls the repositories every 2 minutes."
+msgstr "GitHub envoie les webhooks à cette URL. Si GitHub ne peut pas l'atteindre, Scylla interroge les dépôts toutes les 2 minutes."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:10
 msgid "github.com · checks, statuses, triggers, checkout"
 msgstr "github.com · checks, statuts, déclencheurs, checkout"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:17
+msgid "github.com only in this release."
+msgstr "github.com seulement dans cette version."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:11
 msgid "GitLab"
@@ -444,11 +506,15 @@ msgstr "Installer à nouveau"
 msgid "Install on GitHub"
 msgstr "Installer sur GitHub"
 
-#: extensions/scylla-base/src/features/integrations/integrations.module.ts:43
-#: extensions/scylla-base/src/features/integrations/integrations.module.ts:47
+#: extensions/scylla-base/src/features/integrations/integrations.module.ts:51
+#: extensions/scylla-base/src/features/integrations/integrations.module.ts:55
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:4
 msgid "Integrations"
 msgstr "Intégrations"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:25
+msgid "Last webhook delivery"
+msgstr "Dernier webhook reçu"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:13
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:15
@@ -481,6 +547,10 @@ msgstr "Maintainer"
 msgid "Manage branch rules, only for \"Block the merge\""
 msgstr "Gérer les règles de branche, seulement pour \"Bloquer le merge\""
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:10
+msgid "My GitHub account"
+msgstr "Mon compte GitHub"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:52
 msgctxt "connection"
 msgid "Needs attention"
@@ -489,6 +559,10 @@ msgstr "À vérifier"
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:88
 msgid "Next: link a repository to a project, in Project › Settings › Repository."
 msgstr "Ensuite : liez un dépôt à un projet, dans Projet › Paramètres › Dépôt."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:7
+msgid "No App yet. Scylla creates one for this server with the GitHub manifest flow: you confirm on GitHub, and Scylla gets and seals the keys."
+msgstr "Pas encore d'App. Scylla en crée une pour ce serveur avec le flux manifeste de GitHub : vous confirmez sur GitHub, puis Scylla reçoit les clés et les scelle."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:31
 msgid "No expiry"
@@ -526,11 +600,15 @@ msgstr "Aucun dépôt lié"
 msgid "No repository matches."
 msgstr "Aucun dépôt ne correspond."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:51
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:26
+msgid "No webhook yet"
+msgstr "Aucun webhook pour l'instant"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:50
 msgid "Not applied"
 msgstr "Non appliquée"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:43
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:42
 msgid "Not available"
 msgstr "Non disponible"
 
@@ -550,7 +628,7 @@ msgstr "Absent de la liste ? Ajoutez le compte de service au projet sur GitLab, 
 msgid "On GitHub, open {repository} › Settings › Rules › Rulesets › New branch ruleset."
 msgstr "Sur GitHub, ouvrez {repository} › Settings › Rules › Rulesets › New branch ruleset."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:39
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:38
 msgid "On GitLab, open {repository} › Settings › Merge requests."
 msgstr "Sur GitLab, ouvrez {repository} › Settings › Merge requests."
 
@@ -574,6 +652,10 @@ msgstr "Un rapport par pipeline :"
 msgid "One run per commit: a push and a pull request on the same commit share one run and one report."
 msgstr "Une exécution par commit : un push et une pull request sur le même commit partagent une exécution et un rapport."
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:18
+msgid "Only an instance admin can change the GitHub App."
+msgstr "Seul un admin de l'instance peut modifier l'App GitHub."
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:22
 msgid "Only the admins of the workspace can connect a Git provider."
 msgstr "Seuls les admins de l'espace peuvent connecter un fournisseur Git."
@@ -590,6 +672,10 @@ msgstr "Ouvrir {name} chez le fournisseur"
 msgid "Open Integrations"
 msgstr "Ouvrir Intégrations"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:30
+msgid "Open on GitHub"
+msgstr "Ouvrir sur GitHub"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:72
 msgid "Open on GitLab"
 msgstr "Ouvrir sur GitLab"
@@ -598,11 +684,13 @@ msgstr "Ouvrir sur GitLab"
 msgid "Open projects"
 msgstr "Ouvrir les projets"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:9
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:11
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:36
 msgid "Organization"
 msgstr "Organisation"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:47
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:46
 msgid "Out of sync"
 msgstr "Désynchronisée"
 
@@ -611,9 +699,21 @@ msgctxt "gitlab-role"
 msgid "Owner"
 msgstr "Owner"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:22
+msgid "owner {owner}"
+msgstr "propriétaire {owner}"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:8
+msgid "Owner of the App"
+msgstr "Propriétaire de l'App"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:26
 msgid "Permission needed"
 msgstr "Permission nécessaire"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:28
+msgid "Permissions"
+msgstr "Permissions"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/pipeline-source.messages.ts:4
 msgid "Pipeline source"
@@ -637,6 +737,10 @@ msgctxt "repository"
 msgid "Public"
 msgstr "Public"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:14
+msgid "Public URL of Scylla"
+msgstr "URL publique de Scylla"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:18
 msgid "Read how to create a service account on GitLab"
 msgstr "Lire comment créer un compte de service sur GitLab"
@@ -652,6 +756,18 @@ msgstr "Lire votre code, pour le checkout et les fichiers de pipeline"
 #: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:42
 msgid "Recommended"
 msgstr "Conseillé"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:31
+msgid "Remove"
+msgstr "Supprimer"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:34
+msgid "Remove the App"
+msgstr "Supprimer l'App"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:32
+msgid "Remove the GitHub App?"
+msgstr "Supprimer l'App GitHub ?"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:5
 msgid "Replace the token of {account}"
@@ -682,7 +798,7 @@ msgstr "Dépôt"
 msgid "Repository files"
 msgstr "Fichiers du dépôt"
 
-#: extensions/scylla-base/src/features/integrations/integrations.module.ts:65
+#: extensions/scylla-base/src/features/integrations/integrations.module.ts:73
 msgid "repository github gitlab git webhook reports"
 msgstr "dépôt github gitlab git webhook rapports"
 
@@ -698,7 +814,7 @@ msgstr "Rôle Developer : Scylla peut publier les rapports, mais ne peut pas cr�
 msgid "Ruleset \"Scylla required checks\" on {repository}."
 msgstr "Ruleset \"Scylla required checks\" sur {repository}."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:41
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:40
 msgid "Save the changes."
 msgstr "Enregistrez les changements."
 
@@ -729,6 +845,10 @@ msgstr "Scylla vérifie le token auprès de GitLab avant de l'enregistrer. Les j
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:16
 msgid "Scylla could not connect GitHub"
 msgstr "Scylla n'a pas pu connecter GitHub"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:37
+msgid "Scylla could not create the GitHub App"
+msgstr "Scylla n'a pas pu créer l'App GitHub"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:63
 msgid "Scylla deletes the webhook of the project on GitLab."
@@ -770,9 +890,9 @@ msgstr "Self-managed"
 msgid "Service account"
 msgstr "Compte de service"
 
-#: extensions/scylla-base/src/features/integrations/integrations.module.ts:51
-#: extensions/scylla-base/src/features/integrations/integrations.module.ts:60
-#: extensions/scylla-base/src/features/integrations/integrations.module.ts:64
+#: extensions/scylla-base/src/features/integrations/integrations.module.ts:59
+#: extensions/scylla-base/src/features/integrations/integrations.module.ts:68
+#: extensions/scylla-base/src/features/integrations/integrations.module.ts:72
 #: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:4
 msgid "Settings"
 msgstr "Paramètres"
@@ -781,7 +901,7 @@ msgstr "Paramètres"
 msgid "Settings of the project {project}."
 msgstr "Paramètres du projet {project}."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:48
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:47
 msgid "Someone changed the rule on {provider}."
 msgstr "Quelqu'un a changé la règle sur {provider}."
 
@@ -794,7 +914,7 @@ msgctxt "connection"
 msgid "Suspended"
 msgstr "Suspendue"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:36
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:35
 msgid "Target the default branch ({branch}), enforcement Active."
 msgstr "Ciblez la branche par défaut ({branch}), enforcement Active."
 
@@ -822,6 +942,14 @@ msgstr "La connexion ne voit aucun dépôt."
 msgid "The connection cannot see this repository."
 msgstr "La connexion ne voit pas ce dépôt."
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:41
+msgid "The GitHub App comes from the settings of the server."
+msgstr "L'App GitHub vient des paramètres du serveur."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:5
+msgid "The GitHub App of this Scylla server. The workspaces connect GitHub with it. GitLab.com needs no App: each workspace gives the token of a service account."
+msgstr "L'App GitHub de ce serveur Scylla. Les espaces connectent GitHub avec elle. GitLab.com n'a pas besoin d'App : chaque espace donne le token d'un compte de service."
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:56
 msgid "The GitHub App was uninstalled from {account}. Reports, triggers and checkouts stopped."
 msgstr "L'App GitHub a été désinstallée de {account}. Les rapports, les déclencheurs et les checkouts se sont arrêtés."
@@ -837,6 +965,10 @@ msgstr "L'installation a été annulée."
 #: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:28
 msgid "The installation on {account} did not accept the new permission Administration: write."
 msgstr "L'installation sur {account} n'a pas accepté la nouvelle permission Administration: write."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:38
+msgid "The link expired. Create the App again."
+msgstr "Le lien a expiré. Créez l'App à nouveau."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:17
 msgid "The link expired. Start again."
@@ -870,7 +1002,7 @@ msgstr "Les déclencheurs push, pull request et tag des pipelines."
 msgid "The reports to {provider}."
 msgstr "Les rapports vers {provider}."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:56
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:55
 msgid "The repository cannot be used now. Repair the link first."
 msgstr "Le dépôt n'est pas utilisable maintenant. Réparez d'abord le lien."
 
@@ -878,7 +1010,7 @@ msgstr "Le dépôt n'est pas utilisable maintenant. Réparez d'abord le lien."
 msgid "The rule \"Pipelines must succeed\" of the project."
 msgstr "La règle \"Pipelines must succeed\" du projet."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:57
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:56
 msgid "The rule did not change on {provider}."
 msgstr "La règle n'a pas changé sur {provider}."
 
@@ -889,6 +1021,10 @@ msgstr "Les règles qui bloquent le merge : {contexts}."
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:6
 msgid "The Scylla App asks for"
 msgstr "L'App Scylla demande"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:40
+msgid "The server has no key for the secrets. Set SCYLLA_SECRET_KEY, then try again."
+msgstr "Le serveur n'a pas de clé pour les secrets. Définissez SCYLLA_SECRET_KEY, puis réessayez."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:43
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:24
@@ -928,6 +1064,10 @@ msgstr "Le token n'a pas le scope api."
 msgid "This account already has a connection in this workspace. Replace its token."
 msgstr "Ce compte a déjà une connexion dans cet espace. Remplacez son token."
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:23
+msgid "This App comes from the settings of the server (SCYLLA_GITHUB_APP_*). Change it there."
+msgstr "Cette App vient des paramètres du serveur (SCYLLA_GITHUB_APP_*). Modifiez-la là-bas."
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:36
 msgid "This is not a service account or a bot. Reports stop when the person leaves the group."
 msgstr "Ce n'est pas un compte de service ni un bot. Les rapports s'arrêtent quand la personne quitte le groupe."
@@ -943,6 +1083,10 @@ msgstr "Ce projet a déjà un dépôt. Dissociez-le d'abord."
 #: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:31
 msgid "This server cannot test the webhook yet."
 msgstr "Ce serveur ne peut pas encore tester le webhook."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:39
+msgid "This server has a GitHub App. Remove it first."
+msgstr "Ce serveur a déjà une App GitHub. Supprimez-la d'abord."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:23
 msgid "This server has no GitHub App. An admin of the instance must create it."
@@ -960,7 +1104,7 @@ msgstr "Token"
 msgid "TOML · YAML · JSON"
 msgstr "TOML · YAML · JSON"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:58
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:57
 msgid "Try again"
 msgstr "Réessayer"
 
@@ -968,7 +1112,11 @@ msgstr "Réessayer"
 msgid "Type a name to find the other repositories."
 msgstr "Tapez un nom pour trouver les autres dépôts."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:40
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:12
+msgid "Type the login of the organization."
+msgstr "Saisissez l'identifiant de l'organisation."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:39
 msgid "Under Merge checks, select \"Pipelines must succeed\"."
 msgstr "Sous Merge checks, cochez \"Pipelines must succeed\"."
 
@@ -1013,6 +1161,10 @@ msgstr "Valide"
 #: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:22
 msgid "View on {provider}"
 msgstr "Voir sur {provider}"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:24
+msgid "Webhook URL"
+msgstr "URL du webhook"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:44
 msgid "Webhooks"

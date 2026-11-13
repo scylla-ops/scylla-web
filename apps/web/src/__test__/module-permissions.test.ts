@@ -48,6 +48,10 @@ const UNGATED_PAGES: Readonly<Record<string, string>> = {
     'GitHub sends the browser back here after the install of the App, out of any workspace. The ' +
     'server checks the state of the install: it is bound to the workspace and to the user that ' +
     'started it, and only an admin of that workspace can start it.',
+  '/integrations/github/manifest':
+    'GitHub sends the browser back here after the creation of the App of the server, out of any ' +
+    'workspace, where the permissions of the platform are not loaded. The server checks ' +
+    'complete_git_hub_manifest and the state, which is bound to the admin that started the flow.',
   '/:workspaceSlug/marketplace':
     'TRIAGE: the page reads a hardcoded catalog — DefaultMarketplaceRepository calls no backend, ' +
     'so there is nothing to deny yet, and the enum has no marketplace permission to declare. ' +

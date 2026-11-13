@@ -162,6 +162,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   pipeline has a switch that blocks the merge into the default branch when it fails, and on GitLab
   the project has one switch. A switch shows the state on the provider. When a permission is
   missing, it gives the link to grant it and the steps to do it by hand.
+- The instance pages have a Git providers page. An instance admin creates the GitHub App of a
+  self-hosted server with the GitHub manifest flow, sees its webhook URL and its last webhook, and
+  removes it. On a server with the App of the settings, the page shows that App with no change.
 
 ### Changed
 

@@ -26,6 +26,17 @@ disconnect the providers.
 GitHub Enterprise Server and GitLab self-managed come in a later release. Their cards are on the
 page, disabled, so that a user of these hosts knows that they are planned.
 
+## The GitHub App of a self-hosted server
+
+The cloud has one public App, from the settings of the server. A self-hosted server makes its own
+App: an instance admin opens Instance › Git providers (`MANAGE_GIT_PROVIDERS`), picks the owner on
+GitHub (an organization or the own account), and clicks "Create GitHub App". The page posts the
+manifest of Scylla to GitHub, where the admin confirms. GitHub sends the browser back to
+`/integrations/github/manifest`, and the server gets the key and the secrets of the new App and
+seals them. Nobody copies a key by hand. The page then shows the webhook URL, the last webhook,
+and "Remove": the App goes, and each of its connections stops until a new install. On the cloud
+the page shows the App of the settings, read only.
+
 ## The state of a connection
 
 A connection is Active, Suspended, Needs attention or Disconnected. The row gives the reason in
@@ -63,7 +74,7 @@ editors of the project (`MANAGE_REPOSITORY_LINK`) change it.
   someone changed, or try again after a failure. GitHub Free allows no rule on a private
   repository.
 
-## Why one module holds the four services
+## Why one module holds the five services
 
 The repository page of a project, the merge rules and the reports of a run use the same
 connections, links and provider states, so their data layer was here from the start: one

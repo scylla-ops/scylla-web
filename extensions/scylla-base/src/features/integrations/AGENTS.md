@@ -1,12 +1,13 @@
 # `features/integrations` — agent guide
 
 The connections of a workspace to GitHub and GitLab, the callback of the GitHub install, the
-repository page of a project, and the data layer of the Git integration: the connections, the
-repository links, the merge rules and the commit reports.
+repository page of a project, the GitHub App of a self-hosted server (the instance page "Git
+providers" and the callback of the manifest flow), and the data layer of the Git integration:
+the connections, the repository links, the merge rules, the commit reports and the App.
 
 **Layer** `features/` · **id** `integrations` · **DI keys** `vcsConnectionRepository`,
 `repositoryLinkRepository`, `mergeBlockRepository`, `vcsReportRepository`,
-`pipelineSourceRepository`
+`pipelineSourceRepository`, `vcsAppRepository`
 
 ## Import rules
 
@@ -45,7 +46,8 @@ Never add: `integrations.module.ts`, pages, components.
 
 ## Data contract
 
-One repository for each gRPC service of `scylla/integrations/v1`.
+One repository for each gRPC service of `scylla/integrations/v1`, and one for `VcsAppService` of
+`scylla/platform/v1`.
 
 `VcsConnectionRepository` — `domain/repository/vcs-connection.repository.ts`:
 
@@ -68,6 +70,10 @@ the fields that are set), `unlink`, `testDelivery`, `listRefs` (one page).
 `listFiles` (the files of the head of the default branch, with no text: their errors and the
 sections of `on`), `setSource`.
 
+`VcsAppRepository` — `domain/repository/vcs-app.repository.ts`: `get` (`null` with no App),
+`startGitHubManifest(organization)` (the page of GitHub and the manifest, with a state of one
+hour; an empty organization is the account of the person), `completeGitHubManifest`, `remove`.
+
 The inputs and the result types are in the entity files of `domain/entities/`. A value of the
 wire that this build does not know: a connection of an unknown provider is not in a list, and one
 connection of an unknown provider is `UNSUPPORTED_RESPONSE`. An unknown connection state reads as
@@ -85,6 +91,8 @@ domain/
   entities/repository-link.entity.ts   RepositoryLink, its inputs, GitRef
   entities/merge-block.entity.ts       MergeBlock, SetMergeBlockInput
   entities/vcs-report.entity.ts        VcsReport, JobReports
+  entities/vcs-app.entity.ts           VcsAppEntity, GitHubManifest, CompleteGitHubManifestInput
+  structs/github-organization.struct.ts   the login of a GitHub organization and its issue
   structs/pipeline-files.struct.ts     PipelineFiles, FoundPipelineFile, PipelineFileIssue,
                                        blockingIssues
   repository/                          one interface for each service
@@ -96,8 +104,9 @@ presentation/
   merge-block.queries.ts               the merge rules of a project
   pipeline-source.queries.ts           the pipeline files of a project, the move of its source
   vcs-report.queries.ts                the reports of jobs
+  vcs-app.queries.ts                   the GitHub App of the server: read, manifest flow, remove
   messages/                            integrations, connect-github, connect-gitlab, repository,
-                                       merge-block, pipeline-source
+                                       merge-block, pipeline-source, git-providers
   presenters/connection.presenter.ts   the texts of a connection row: kind, count, events, state
   presenters/connection-errors.presenter.ts   the refusal codes and the warnings, in words
   presenters/integrations-url.presenter.ts    the URL of the page, the `connected` parameter
@@ -105,6 +114,8 @@ presentation/
                                               state of the link, what an unlink stops, refusals
   presenters/merge-block.presenter.ts  a merge rule: its switch, state, page, steps by hand
   presenters/pipeline-files.presenter.ts      the files of a branch: heading, state of each
+  presenters/vcs-app.presenter.ts      the App: its line, its last webhook, the refusals of the
+                                       manifest flow
   ui/Integrations/                     the page, its ViewModel, the provider cards, the table
   ui/ConnectGitHubDialog/              the permissions of the App, then the install on GitHub
   ui/ConnectGitLabDialog/              the guide, the token field, the result of the check
@@ -114,6 +125,9 @@ presentation/
                                        (card, file list, move dialog, its state), the merge
                                        rules (card, row), the unlink dialog
   ui/LinkRepositoryDialog/             the picker: connection, search, repositories
+  ui/GitProviders/                     the instance page: the creation form, the App block, the
+                                       remove dialog, the post of the manifest to GitHub
+  ui/GitHubManifestCallback/           the page where GitHub sends the browser after the creation
   ui/ProviderTile.svelte               the mark of a provider in a square
 ```
 
@@ -124,11 +138,16 @@ presentation/
 | `workspace` | `settings/integrations` | `VIEW_INTEGRATIONS` | `IntegrationsPage` |
 | `personal` | `integrations/github/callback` | none (`UNGATED_PAGES`) | `GitHubCallbackPage` |
 | `project` | `settings/repository` | `READ_REPOSITORY_LINK` | `RepositoryPage` |
+| `instance` | `git-providers` | `MANAGE_GIT_PROVIDERS` | `GitProvidersPage` |
+| `personal` | `integrations/github/manifest` | none (`UNGATED_PAGES`) | `GitHubManifestCallbackPage` |
 
 Nav: section `workspace`, group `settings`, order 61 (after General). The callback has no
 permission: the server checks the state, which is bound to the workspace and to the user that
 started the install. The repository page is the link "Settings" of the project section, order 90
-(the last one). The trigger editor of `triggers` sends "Link a repository first" to it.
+(the last one). The trigger editor of `triggers` sends "Link a repository first" to it. The
+Git providers page is in the section `instance`, order 60 (after Settings). The manifest callback
+has no permission for the same reason as the install callback: the server checks
+`complete_git_hub_manifest` and the state, which is bound to the admin that started the flow.
 
 ## Rules that bite here
 
@@ -170,6 +189,14 @@ started the install. The repository page is the link "Settings" of the project s
   the reports and the polling. To use another repository, a person unlinks, then links.
 - **The picker lists only the active connections.** A connection that stopped cannot list its
   repositories. A repository of another project shows, but cannot be picked.
+- **The manifest goes to GitHub in a form post.** `StartGitHubManifest` gives the page of GitHub
+  and the manifest; the page renders a hidden form with the field `manifest`, and its attachment
+  posts it. GitHub sends the browser to `/integrations/github/manifest?code=…&state=…`, and the
+  callback sends the values one time, then opens the Git providers page of the active workspace
+  (else of the first workspace).
+- **The App of the settings is read only.** On a server with `SCYLLA_GITHUB_APP_*` (the cloud),
+  `GetVcsApp` gives the App with `managedBySettings`: the page shows it with no form and no
+  Remove. The nav link cannot hide by data: only the instance admins see it.
 - **The ProviderMark of `@shared` draws the marks** (`github`, `gitlab`). Lucide has no brand
   icon.
 
