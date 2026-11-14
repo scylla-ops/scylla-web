@@ -16,7 +16,10 @@ export interface JobCells {
   actions: Snippet<[JobEntity]>;
 }
 
-/** `withSource`: at least one job has a commit. A pipeline with no repository has no Source column. */
+/**
+ * `withSource`: at least one job has a commit. A pipeline with no repository has no Source column.
+ * Each column has a size: the free width goes to the columns in proportion to it.
+ */
 export const jobColumns = (
   cells: JobCells,
   { withSource }: { withSource: boolean },
@@ -25,16 +28,16 @@ export const jobColumns = (
     accessorKey: 'status',
     header: t(jobsMessages.status),
     cell: ({ row }) => renderSnippet(cells.status, row.original),
-    size: 200,
-    minSize: 150,
+    size: 150,
+    minSize: 140,
     meta: { card: 'title' },
   },
   {
     accessorKey: 'id',
     header: t(jobsMessages.jobId),
     cell: ({ row }) => renderSnippet(cells.id, row.original),
-    size: 200,
-    minSize: 180,
+    size: 180,
+    minSize: 160,
     meta: { card: 'title' },
   },
   ...(withSource
@@ -43,8 +46,8 @@ export const jobColumns = (
           id: 'source',
           header: t(jobGitMessages.source),
           cell: ({ row }) => renderSnippet(cells.source, row.original),
-          size: 320,
-          minSize: 220,
+          size: 360,
+          minSize: 200,
           meta: { card: 'body' },
         } satisfies DataTableColumn<JobEntity>,
       ]
@@ -53,16 +56,16 @@ export const jobColumns = (
     id: 'timeline',
     header: t(jobsMessages.timeline),
     cell: ({ row }) => renderSnippet(cells.timeline, row.original),
-    // No size: takes the space left, down to 200px.
-    minSize: 200,
+    size: 200,
+    minSize: 120,
     meta: { card: 'body' },
   },
   {
     id: 'duration',
     header: t(jobsMessages.duration),
     cell: ({ row }) => renderSnippet(cells.duration, row.original),
-    size: 100,
-    minSize: 80,
+    size: 80,
+    minSize: 72,
     meta: { card: 'meta' },
   },
   {
@@ -70,15 +73,15 @@ export const jobColumns = (
     header: t(jobsMessages.created),
     cell: ({ row }) => renderSnippet(cells.created, row.original),
     size: 100,
-    minSize: 80,
+    minSize: 96,
     meta: { card: 'meta' },
   },
   {
     id: 'actions',
     header: t(jobsMessages.actions),
     cell: ({ row }) => renderSnippet(cells.actions, row.original),
-    minSize: 100,
-    size: 130,
+    size: 112,
+    minSize: 72,
     meta: { card: 'actions' },
   },
 ];

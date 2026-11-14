@@ -447,6 +447,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The pipeline item of the breadcrumb on the jobs, job and triggers pages opens the editor of an
   editor pipeline. Before, it opened the read-only page of a file pipeline, with the error "Scylla
   could not read the file".
+- The jobs table of a pipeline fits in a container of 900 px or more and does not scroll to the
+  side. The Source cell shows the commit on two lines: the author and the title, then the SHA with
+  the state of the report, the ref and the pull requests. The actions of a job go into a menu when
+  their column is too narrow for the buttons.
 
 ## [0.6.0] - 2026-11-01
 

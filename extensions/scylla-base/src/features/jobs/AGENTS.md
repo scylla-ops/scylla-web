@@ -95,7 +95,8 @@ presentation/
     JobApprovalBlock.svelte                Approve and run / Reject of a job from a fork
     InvalidFileAlert.svelte                the errors of an invalid pipeline file
     open-log-panels.state.svelte.ts        which node panels are open, mirrored in the URL
-  ui/jobs-table/JobSource/           the Source cell: SHA, title, ref, PRs, author, report icon
+  ui/jobs-table/JobSource/           the Source cell, two lines: author and title, then SHA with
+                                     the report icon, ref, PRs
   messages/jobs.messages.ts                every string — `lingui extract` cannot read `.svelte`
   messages/job-git.messages.ts             the strings of the Git context of a job
   presenters/job-source.presenter.ts     the ref, the event and the PR numbers of a commit
@@ -210,6 +211,9 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
   commit: no call for a job or a page with none. "Retry now" needs `UPDATE_JOB` (`retry_job_report`
   is in `jobs.edit`); "Fix the connection" opens the Integrations page with `VIEW_INTEGRATIONS`.
 - **The Source column shows only when a job of the page has a commit.**
+- **Every column of the jobs table has a size**: the free width goes to the columns in proportion
+  to it, and Source and Timeline get the most. The sum of the `minSize` values is the width under
+  which the table scrolls: keep it under 900 px.
 
 ## Before done
 

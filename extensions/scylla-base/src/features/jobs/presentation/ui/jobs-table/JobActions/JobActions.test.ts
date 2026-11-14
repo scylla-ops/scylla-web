@@ -66,6 +66,15 @@ describe('JobActions', () => {
     expect(screen.getByRole('button', { name: 'Job actions' })).toBeInTheDocument();
   });
 
+  it('collapses into the menu while the column is narrower than three buttons, so no button is cut', () => {
+    render(JobActions, { onView: vi.fn(), onDelete: vi.fn(), onRerun: vi.fn() });
+
+    ResizeObserverMock.instances[0].fire(100);
+
+    expect(screen.getAllByRole('button')).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Job actions' })).toBeInTheDocument();
+  });
+
   it('the collapsed menu forwards a pick to the matching handler and no other', async () => {
     const onView = vi.fn();
     const onDelete = vi.fn();
