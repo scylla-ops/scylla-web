@@ -6,8 +6,10 @@ import {
   contextStore,
   workspaceUrl,
 } from '@platform/context';
+import { Permission, can } from '@platform/authz';
 import { createQuery, routeParams } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
+import { pipelineQueries } from '@base/features/pipeline';
 import { canListProjects, projectQueries } from '@base/features/project';
 
 const isPipelinePath = (pathname: string): boolean =>
@@ -64,4 +66,31 @@ export const cleanContext = (projectId: string | undefined): { readonly gone: bo
       return project === null;
     },
   };
+};
+
+/**
+ * Gives the store the name of the pipeline of the URL, for the crumbs. It reads the pipeline only
+ * when the store does not name it (a link, a reload), and follows the answer in the cache.
+ */
+export const namePipeline = (pipelineId: string | undefined): void => {
+  const context = toRune(contextStore);
+  const named = $derived(context().pipeline.id === pipelineId && !!context().pipeline.name);
+  const read = createQuery(() => ({
+    ...pipelineQueries.byId(pipelineId ?? ''),
+    enabled: !!pipelineId && !named && can(Permission.READ_PIPELINE),
+  }));
+
+  $effect(() => {
+    const pipeline = read.data?.pipeline;
+    if (!pipeline) return;
+
+    untrack(() => {
+      // During the exit animation this wrapper stays mounted: only the new one can write.
+      if (routeParams().pipelineId !== pipelineId) return;
+
+      const store = contextStore.getState();
+      if (store.pipeline.id !== pipeline.id || store.pipeline.name !== pipeline.name)
+        store.setPipeline(pipeline.id, pipeline.name);
+    });
+  });
 };

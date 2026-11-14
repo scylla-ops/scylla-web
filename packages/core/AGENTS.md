@@ -174,6 +174,13 @@ module gives an access policy.
   `shell.bottomInset` in `--shell-bottom-inset` on its scroll area, and the bottom padding of
   this area is at least that value. With no such overlay, it stays 8 px (32 px from `md`). The
   rule for the pages is in `packages/ui/AGENTS.md`.
+- **The crumbs stay on one line in the top bar.** The top bar has a fixed height, so a second
+  line goes out of the window. Only the highlight of the current crumb shrinks (`line-clamp-1`
+  and `break-all`), down to one character and the ellipsis. The crumbs before it do not shrink:
+  a label is at most `max-w-48` and a highlight at most `max-w-40`, with an ellipsis. When the
+  bar is too narrow for them, the list stays at its `min-content` width and goes out at the left
+  edge, in a fade of 12 px (`justify-end` on the `nav`). The current crumb thus stays visible.
+  Each text that can be cut has a `title` with the full text.
 - A sidebar link carries `data-nav-url` (its path in the mount): code outside the core can point
   at a link without knowing its title. A rail item carries the URL of its first page, and
   `data-nav-group` when it comes from a group.

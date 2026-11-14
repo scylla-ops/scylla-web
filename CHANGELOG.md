@@ -173,6 +173,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   Waiting for approval and Invalid pipeline file.
 - `docs/git-providers.md` tells how to set up GitHub and GitLab for a server: the GitHub App by hand
   or with the manifest flow, its permissions, events and URLs, and the GitLab service account.
+- A page for a new project replaces the dialog. You choose a regular project or a project linked to
+  GitHub. For GitHub, you pick a repository, and the page names the project from it and sets the
+  pipeline source and the reports. If the link fails after the creation, the page keeps the project
+  and you can try again.
 
 ### Changed
 
@@ -247,6 +251,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   two ways apart. A reload goes back to the install step of the agent (`/agents/<id>/connect`). A
   user who leaves before a machine joins chooses to stay, keep the agent or delete it. The list
   shows "Finish setup" for an agent that never connected.
+
+### Removed
+
+- The Reports card of a GitHub repository has no choice between a check run and a commit status.
+  Scylla reports to GitHub only with a check run.
 
 ### Fixed
 
@@ -444,6 +453,16 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the text keeps the full width of the card.
 - The repository page says "The GitHub App has no webhook." for a link that polls for this reason,
   and the test webhook says it with no raw error of GitHub.
+- The pipeline item of the breadcrumb on the jobs, job and triggers pages opens the editor of an
+  editor pipeline. Before, it opened the read-only page of a file pipeline, with the error "Scylla
+  could not read the file".
+- The jobs table of a pipeline fits in a container of 900 px or more and does not scroll to the
+  side. The Source cell shows the commit on two lines: the author and the title, then the SHA with
+  the state of the report, the ref and the pull requests. The actions of a job go into a menu when
+  their column is too narrow for the buttons.
+- The breadcrumb of the top bar stays on one line. Before, a long id put it on three lines, and the
+  window cut the first line. Only the id of the current page gets shorter, with an ellipsis. A job
+  page names its pipeline one time, with its name, also after a link or a reload.
 
 ## [0.6.0] - 2026-11-01
 

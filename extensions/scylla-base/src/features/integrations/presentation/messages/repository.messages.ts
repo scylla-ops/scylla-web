@@ -40,11 +40,7 @@ export const repositoryMessages = {
 
   reports: msg`Reports`,
   reportTo: (provider: string) => msg`Report results to ${provider}`,
-  checkRun: msg`Check run`,
-  recommended: msg`Recommended`,
-  checkRunBody: msg`A page in the Checks tab: the nodes, the durations, the last log lines, Re-run.`,
-  commitStatus: msg`Commit status`,
-  commitStatusBody: msg`A dot and one line on the commit and in the pull request.`,
+  gitHubReports: msg`One check run per Scylla pipeline in the Checks tab of the commit: the nodes, the durations, the last log lines, Re-run.`,
   gitLabReports: msg`One job per Scylla pipeline in the stage external of the GitLab pipeline of the commit.`,
   onePerPipeline: msg`One report per pipeline:`,
   contextPattern: msg`One report per pipeline, with the name scylla/ and the key of the pipeline.`,

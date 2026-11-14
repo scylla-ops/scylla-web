@@ -130,7 +130,8 @@ Anchors are attributes on the real elements, never CSS classes:
 
 - `data-tour="…"` in the features: `agents`, `agent-details`, `agent-status` (+ `data-online`),
   `add-agent-page`, `add-agent-form`, `app-join-code`, `agent-open` (the "Open agent" button), `projects`,
-  `project-card` (+ `data-project-id`), `pipelines` (+ `data-project-id`), `pipeline-editor`,
+  `regular-project` (the card of a regular project on `/projects/new`), `add-project-form` (the form
+  of `/projects/new/regular`), `project-card` (+ `data-project-id`), `pipelines` (+ `data-project-id`), `pipeline-editor`,
   `pipeline-submit`, `pipeline-triggers`, `pipeline-history` / `pipeline-actions` (+ `data-pipeline-id`,
   `data-pipeline-name`, `data-last-status`), `pipeline-run`, `job-details`, `triggers`,
   `trigger-general`, `trigger-when`, `trigger-submit`, `secrets`, `roles-list`, `role-new`,
@@ -141,6 +142,9 @@ Anchors are attributes on the real elements, never CSS classes:
 - `data-nav-url` on the core's sidebar links, `data-nav-group` on its folding groups,
   `data-item-id` on `StatusBar` segments and on `StatusTrail` dots (the history of the pipelines), and the `data-slot` of the primitives: the sidebar, the
   inset and the dialogs.
+- The step "Name your project" points at the card of a regular project on `/projects/new`, then at
+  the form of `/projects/new/regular`: one step for the two pages keeps the tour at six steps. While
+  the card shows, `action.absent` tells the user to click it.
 - The agent steps use the agents page (`/agents`, `data-tour="agents"`) and the page of a new
   agent (`/agents/new`: its form `add-agent-form`, then `/agents/<id>/connect`). The run-command
   step points at the whole page (`add-agent-page`): the join code goes away when the agent
@@ -227,7 +231,7 @@ the run is `{ pipelineId, ref? }`: the step reads `pipelineId` from it.
 
 ## Rules that bite here
 
-- The tour never navigates by itself: after "Create Project" it points at the new project's card
+- The tour never navigates by itself: after "Create project" it points at the new project's card
   and waits for its page. Only a request of the user opens a page: a start from a menu (the
   first step's `page`), Previous (the page of the step before) and "Go back to it". Previous
   clears the hold and closes an open dialog first (Escape). Every link goes to `SCYLLA_DOCS_URL`.

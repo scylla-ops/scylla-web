@@ -1,16 +1,20 @@
 import {
+  ReportMode as GrpcReportMode,
   ReportState as GrpcReportState,
   type VcsReport as GrpcVcsReport,
 } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import type { JobReports as GrpcJobReports } from '@base/generated/scylla/integrations/v1/vcs_report_service.ts';
 import type {
   JobReports,
+  ReportMode,
   ReportState,
   VcsReport,
 } from '@base/features/integrations/domain/entities/vcs-report.entity.ts';
 import { idValue, timestampToIsoOpt } from '@shared/infrastructure/grpc/wrappers.ts';
 import { knownProvider } from './grpc-vcs-connection.mapper.ts';
-import { reportModeToDomain } from './grpc-repository-link.mapper.ts';
+
+const reportModeToDomain = (mode: GrpcReportMode): ReportMode =>
+  mode === GrpcReportMode.CHECK_RUN ? 'check_run' : 'commit_status';
 
 const STATES: Partial<Record<GrpcReportState, ReportState>> = {
   [GrpcReportState.SENDING]: 'sending',

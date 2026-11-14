@@ -199,7 +199,7 @@ msgid "Edit"
 msgstr "Edit"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:45
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:42
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:39
 msgid "Edit trigger"
 msgstr "Edit trigger"
 
@@ -342,7 +342,7 @@ msgstr "New commits"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:15
 #: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:35
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:36
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:33
 msgid "New trigger"
 msgstr "New trigger"
 
@@ -405,10 +405,6 @@ msgstr "owner/repository"
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:25
 msgid "Pick at least one day"
 msgstr "Pick at least one day"
-
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:27
-msgid "Pipeline"
-msgstr "Pipeline"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:5
 msgid "Pipeline ID is missing"
@@ -552,7 +548,7 @@ msgid "Trigger actions"
 msgstr "Trigger actions"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:14
-#: extensions/scylla-base/src/features/triggers/triggers.module.ts:29
+#: extensions/scylla-base/src/features/triggers/triggers.module.ts:27
 msgid "Triggers"
 msgstr "Triggers"
 

@@ -67,6 +67,10 @@ export const createFilePipeline = (params: FilePipelineParams) => {
   );
 
   return {
+    /** The pipeline has no file: its page is the editor. */
+    get fromEditor() {
+      return pipelineQuery.data?.origin.source === 'editor';
+    },
     get missing() {
       return missing;
     },

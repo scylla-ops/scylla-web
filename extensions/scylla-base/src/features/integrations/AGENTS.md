@@ -1,7 +1,7 @@
 # `features/integrations` — agent guide
 
 The connections of a workspace to GitHub and GitLab, the callback of the GitHub install, the
-repository page of a project, the GitHub App of a self-hosted server (the instance page "Git
+repository page of a project, the new project page linked to a GitHub repository, the GitHub App of a self-hosted server (the instance page "Git
 providers" and the callback of the manifest flow), and the data layer of the Git integration:
 the connections, the repository links, the merge rules, the commit reports and the App.
 
@@ -63,7 +63,7 @@ One repository for each gRPC service of `scylla/integrations/v1`, and one for `V
 | `connectGitLab(ConnectGitLabInput)` | `CheckedGitLabConnection` — the connection and the warnings |
 | `replaceGitLabToken(ReplaceGitLabTokenInput)` | `CheckedGitLabConnection` |
 | `deleteById(id)` | `void` |
-| `listRepositories(ListProviderRepositoriesInput)` | `ProviderRepositoryPage` — one page |
+| `listRepositories(ListProviderRepositoriesInput)` | `ProviderRepositoryPage` — one page, for a `projectId` or, before the project exists, a `workspaceId` |
 
 `RepositoryLinkRepository` — `getByProject` (`null` with no link), `link`, `update` (sends only
 the fields that are set), `unlink`, `testDelivery`, `listRefs` (one page).
@@ -108,10 +108,11 @@ presentation/
   vcs-report.queries.ts                the reports of jobs
   vcs-app.queries.ts                   the GitHub App of the server: read, manifest flow, remove
   messages/                            integrations, connect-github, connect-gitlab, repository,
-                                       merge-block, pipeline-source, git-providers
+                                       merge-block, pipeline-source, git-providers, new-project
   presenters/connection.presenter.ts   the texts of a connection row: kind, count, events, state
   presenters/connection-errors.presenter.ts   the refusal codes and the warnings, in words
-  presenters/integrations-url.presenter.ts    the URL of the page, the `connected` parameter
+  presenters/integrations-url.presenter.ts    the URL of the page, the `connected` parameter, the
+                                              URLs of the new GitHub project and its `connection`
   presenters/repository-link.presenter.ts     the texts of the repository page: events line,
                                               state of the link, what an unlink stops, refusals
   presenters/merge-block.presenter.ts  a merge rule: its switch, state, page, steps by hand
@@ -126,7 +127,12 @@ presentation/
                                        repository card, the reports card, the pipeline source
                                        (card, file list, move dialog, its state), the merge
                                        rules (card, row), the unlink dialog
-  ui/LinkRepositoryDialog/             the picker: connection, search, repositories
+  ui/LinkRepositoryDialog/             the link dialog of a project, on the picker
+  ui/NewGitHubProject/                 the page projects/new/github: the repository step, the
+                                       details step, their state (create, link, source, reports)
+  ui/repository-picker.state.svelte.ts the picker: connection, search, repositories, choice
+  ui/RepositorySearch.svelte           the connection select and the search field of the picker
+  ui/RepositoryOptions.svelte          the radio list of the repositories of the picker
   ui/GitProviders/                     the instance page: the creation form, the App block, the
                                        remove dialog, the post of the manifest to GitHub
   ui/GitHubManifestCallback/           the page where GitHub sends the browser after the creation
@@ -140,6 +146,7 @@ presentation/
 | `workspace` | `settings/integrations` | `VIEW_INTEGRATIONS` | `IntegrationsPage` |
 | `personal` | `integrations/github/callback` | none (`UNGATED_PAGES`) | `GitHubCallbackPage` |
 | `project` | `settings/repository` | `READ_REPOSITORY_LINK` | `RepositoryPage` |
+| `workspace` | `projects/new/github` | `CREATE_PROJECT` | `NewGitHubProjectPage` |
 | `instance` | `git-providers` | `MANAGE_GIT_PROVIDERS` | `GitProvidersPage` |
 | `personal` | `integrations/github/manifest` | none (`UNGATED_PAGES`) | `GitHubManifestCallbackPage` |
 
@@ -150,6 +157,8 @@ started the install. The repository page is the link "Settings" of the project s
 Git providers page is in the section `instance`, order 60 (after Settings). The manifest callback
 has no permission for the same reason as the install callback: the server checks
 `complete_git_hub_manifest` and the state, which is bound to the admin that started the flow.
+The new GitHub project page is a step of `projects/new` of [project](../project/AGENTS.md),
+which links to it by its path: that module cannot import this one.
 
 ## Rules that bite here
 
@@ -177,8 +186,10 @@ has no permission for the same reason as the install callback: the server checks
 - **GitHub Enterprise Server and GitLab self-managed come later** (user decision 4): their cards
   and the self-managed choice of the GitLab dialog are disabled, with "Later".
 - **The buttons and the controls of the repository page need `MANAGE_REPOSITORY_LINK`** on the
-  project: link, unlink, the test webhook, the reports switch and the report mode. A reader sees
-  the link, the events and the reports, with the controls inert.
+  project: link, unlink, the test webhook and the reports switch. A reader sees the link, the
+  events and the reports, with the controls inert.
+- **A link has no report mode.** The provider sets it: a check run on GitHub, a commit status on
+  GitLab. The reports card tells how the provider shows the reports, with no choice.
 - **A test webhook is not an error toast.** `testDelivery` has `meta.showsOwnError`: the card
   shows the result beside the events line. A server that does not serve TestDelivery yet answers
   `UNIMPLEMENTED`, and the card says "This server cannot test the webhook yet."
@@ -198,6 +209,20 @@ has no permission for the same reason as the install callback: the server checks
   steps by hand, with the check to copy on GitHub.
 - **The link has no "change" and no default branch to set.** `UpdateRepositoryLink` changes only
   the reports and the polling. To use another repository, a person unlinks, then links.
+- **A new GitHub project creates, then links.** The server has no call that does the two. The
+  page sends `CreateProject`, `LinkRepository`, then `SetPipelineSource` only for the files and
+  `UpdateRepositoryLink` only when the reports are off: the link starts on the editor with the
+  reports on. The page keeps the id of the project, so after a failed step "Try again" sends only
+  the steps that did not pass, and makes no second project. The error shows beside "Try again",
+  with a link to the repository page of the project.
+- **The repositories of a project to create are listed by the workspace.**
+  `ListConnectionRepositories` takes a `workspaceId` in place of a `projectId`; the server then
+  checks the permission on the workspace. The list refetches when the tab gets the focus again,
+  so a repository added on GitHub shows when the person comes back.
+- **The GitHub install comes back to the page that started it.** `startGitHubInstall` with a
+  `returnTo` keeps the path in `sessionStorage`; the callback takes it one time and opens it with
+  `?connection=<id>`, and the new GitHub project page shows this connection first. With no
+  `returnTo`, the callback opens Integrations.
 - **The picker lists only the active connections.** A connection that stopped cannot list its
   repositories. A repository of another project shows, but cannot be picked.
 - **The manifest goes to GitHub in a form post.** `StartGitHubManifest` gives the page of GitHub
