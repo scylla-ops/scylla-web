@@ -451,6 +451,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   side. The Source cell shows the commit on two lines: the author and the title, then the SHA with
   the state of the report, the ref and the pull requests. The actions of a job go into a menu when
   their column is too narrow for the buttons.
+- The breadcrumb of the top bar stays on one line. Before, a long id put it on three lines, and the
+  window cut the first line. Only the id of the current page gets shorter, with an ellipsis. A job
+  page names its pipeline one time, with its name, also after a link or a reload.
 
 ## [0.6.0] - 2026-11-01
 

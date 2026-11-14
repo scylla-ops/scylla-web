@@ -58,13 +58,10 @@ export const PipelineModule = {
       },
       {
         // Here, not in `jobs`: the page has a Run action. The job page from `jobs` shows this crumb too.
+        // The crumb of `pipelines/:pipelineId` names the pipeline before it.
         path: 'pipelines/:pipelineId/jobs',
         permission: Permission.LIST_JOBS_BY_PIPELINE,
-        breadcrumb: ({ pipelineName }) => ({
-          label: msg`Pipeline`,
-          highlight: pipelineName,
-          detail: msg`Jobs`,
-        }),
+        breadcrumb: () => ({ label: msg`Jobs` }),
         page: () => import('./presentation/ui/PipelineJobs/PipelineJobs.page.svelte'),
       },
     ],

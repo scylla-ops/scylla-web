@@ -21,13 +21,10 @@ export const TriggersModule = {
   routes: {
     project: [
       {
+        // The crumb of `pipelines/:pipelineId` names the pipeline before it.
         path: 'pipelines/:pipelineId/triggers',
         permission: Permission.MANAGE_TRIGGERS,
-        breadcrumb: ({ pipelineName }) => ({
-          label: msg`Pipeline`,
-          highlight: pipelineName,
-          detail: msg`Triggers`,
-        }),
+        breadcrumb: () => ({ label: msg`Triggers` }),
         page: () => import('./presentation/ui/Triggers/Triggers.page.svelte'),
         children: [
           {

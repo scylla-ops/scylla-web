@@ -129,7 +129,8 @@ the controls of the filter, rendered under the header. A job with no commit matc
 With a filter that matches no job, the empty list does not tell the user to run the pipeline.
 
 One job needs nothing from `pipeline`, so its route lives here, with its full path. Its page
-shows the "Pipeline · Jobs" crumb of the list, because its path starts with the list's path.
+shows the crumbs "Pipeline #name" and "Jobs" of `pipeline`, because its path starts with their
+paths.
 
 ## Rules that bite here
 

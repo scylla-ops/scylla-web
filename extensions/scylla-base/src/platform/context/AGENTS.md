@@ -47,7 +47,8 @@ break the layer. If a component needs more than an id and a name, it reads the i
 runs that feature's query.
 
 The names are a copy of the data of the server, and a reload keeps them. Something must write each
-new name: for a project, `projectMutations.update` and `cleanContext` of the shell. A delete also
+new name: for a project, `projectMutations.update` and `cleanContext` of the shell; for a
+pipeline, the navigation functions that take a name and `namePipeline` of the shell. A delete also
 needs a writer: `projectMutations.remove` clears the project and the pipeline when the project is
 the active one.
 
