@@ -248,6 +248,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   user who leaves before a machine joins chooses to stay, keep the agent or delete it. The list
   shows "Finish setup" for an agent that never connected.
 
+### Removed
+
+- The Reports card of a GitHub repository has no choice between a check run and a commit status.
+  Scylla reports to GitHub only with a check run.
+
 ### Fixed
 
 - A full lint no longer reloads the TypeScript server each time it passes from a `.ts` file to a

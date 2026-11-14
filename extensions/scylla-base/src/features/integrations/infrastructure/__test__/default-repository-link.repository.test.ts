@@ -6,7 +6,6 @@ import {
   DeliveryMode,
   GitRefKind,
   PipelineSource,
-  ReportMode,
   VcsProvider,
   type RepositoryLink,
 } from '@base/generated/scylla/integrations/v1/vcs.ts';
@@ -29,7 +28,6 @@ const wire = (patch: Partial<RepositoryLink> = {}): RepositoryLink => ({
   private: true,
   pipelineSource: PipelineSource.EDITOR,
   reportsEnabled: true,
-  reportMode: ReportMode.CHECK_RUN,
   deliveryMode: DeliveryMode.WEBHOOK,
   pollIntervalSeconds: 120,
   lastEventAt: TS,
@@ -66,7 +64,6 @@ describe('DefaultRepositoryLinkRepository', () => {
       private: true,
       pipelineSource: 'editor',
       reportsEnabled: true,
-      reportMode: 'check_run',
       deliveryMode: 'webhook',
       pollIntervalSeconds: 120,
       lastEventAt: ISO,
@@ -79,24 +76,22 @@ describe('DefaultRepositoryLinkRepository', () => {
 
   it('sends only the fields of an update that change', async () => {
     const updateRepositoryLink = vi.fn(() =>
-      unaryCall({ link: wire({ reportMode: ReportMode.COMMIT_STATUS }) }),
+      unaryCall({ link: wire({ reportsEnabled: false }) }),
     );
     const repository = repositoryWith({ updateRepositoryLink });
 
-    const link = await repository.update({ projectId: 'p-1', reportMode: 'commit_status' });
-    await repository.update({ projectId: 'p-1', reportsEnabled: false, pollIntervalSeconds: 300 });
+    const link = await repository.update({ projectId: 'p-1', reportsEnabled: false });
+    await repository.update({ projectId: 'p-1', pollIntervalSeconds: 300 });
 
-    expect(link.reportMode).toBe('commit_status');
+    expect(link.reportsEnabled).toBe(false);
     expect(updateRepositoryLink).toHaveBeenNthCalledWith(1, {
       projectId: { value: 'p-1' },
-      reportsEnabled: undefined,
-      reportMode: ReportMode.COMMIT_STATUS,
+      reportsEnabled: false,
       pollIntervalSeconds: undefined,
     });
     expect(updateRepositoryLink).toHaveBeenNthCalledWith(2, {
       projectId: { value: 'p-1' },
-      reportsEnabled: false,
-      reportMode: ReportMode.UNSPECIFIED,
+      reportsEnabled: undefined,
       pollIntervalSeconds: 300,
     });
   });

@@ -177,8 +177,10 @@ has no permission for the same reason as the install callback: the server checks
 - **GitHub Enterprise Server and GitLab self-managed come later** (user decision 4): their cards
   and the self-managed choice of the GitLab dialog are disabled, with "Later".
 - **The buttons and the controls of the repository page need `MANAGE_REPOSITORY_LINK`** on the
-  project: link, unlink, the test webhook, the reports switch and the report mode. A reader sees
-  the link, the events and the reports, with the controls inert.
+  project: link, unlink, the test webhook and the reports switch. A reader sees the link, the
+  events and the reports, with the controls inert.
+- **A link has no report mode.** The provider sets it: a check run on GitHub, a commit status on
+  GitLab. The reports card tells how the provider shows the reports, with no choice.
 - **A test webhook is not an error toast.** `testDelivery` has `meta.showsOwnError`: the card
   shows the result beside the events line. A server that does not serve TestDelivery yet answers
   `UNIMPLEMENTED`, and the card says "This server cannot test the webhook yet."

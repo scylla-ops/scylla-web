@@ -29,7 +29,6 @@ const link = (patch: Partial<RepositoryLink> = {}): RepositoryLink => ({
   private: true,
   pipelineSource: 'editor',
   reportsEnabled: true,
-  reportMode: 'check_run',
   deliveryMode: 'webhook',
   pollIntervalSeconds: 120,
   state: 'active',

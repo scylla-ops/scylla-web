@@ -5,7 +5,6 @@ import { toRune } from '@scylla/ui/stores';
 import { t } from '@scylla/ui/i18n';
 import { toast } from '@scylla/ui/utils';
 import type { MergeBlock } from '@base/features/integrations/domain/entities/merge-block.entity.ts';
-import type { ReportMode } from '@base/features/integrations/domain/entities/repository-link.entity.ts';
 import {
   mergeBlockMutations,
   mergeBlockQueries,
@@ -90,16 +89,11 @@ export const createRepositoryPage = (projectId: () => string) => {
     get reportsEnabled() {
       return sending?.reportsEnabled ?? link?.reportsEnabled ?? false;
     },
-    get reportMode(): ReportMode {
-      return sending?.reportMode ?? link?.reportMode ?? 'commit_status';
-    },
     get updating() {
       return update.isPending;
     },
     setReportsEnabled: (reportsEnabled: boolean) =>
       update.mutate({ projectId: projectId(), reportsEnabled }),
-    setReportMode: (reportMode: ReportMode) =>
-      update.mutate({ projectId: projectId(), reportMode }),
     /** `null` until the merge rules come: the names of the reports are the names of the rules. */
     get contexts(): string[] | null {
       return blocksQuery.data ? reportContexts(blocksQuery.data) : null;
