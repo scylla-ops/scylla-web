@@ -70,7 +70,8 @@ export const vcsConnectionMutations = {
   completeGitHubInstall: () =>
     mutationOptions({
       mutationFn: (input: CompleteGitHubInstallInput) => repository().completeGitHubInstall(input),
-      onSuccess: connection => invalidate(connection.workspaceId),
+      onSuccess: completed =>
+        completed.kind === 'connected' ? invalidate(completed.connection.workspaceId) : undefined,
       meta: { showsOwnError: true },
     }),
 

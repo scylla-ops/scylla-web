@@ -69,6 +69,8 @@ export const eventsLine = (link: RepositoryLink): EventsLine => {
       return { ...polling, reason: t(messages.roleTooLow), action: null };
     case 'WEBHOOK_DISABLED':
       return { ...polling, reason: t(messages.webhookDisabled), action: 'enable_again' };
+    case 'APP_HAS_NO_WEBHOOK':
+      return { ...polling, reason: t(messages.appHasNoWebhook), action: usable ? 'test' : null };
     default:
       return usable
         ? { ...polling, reason: t(messages.cannotReach(providerName(link.provider))), action: 'test' }
@@ -131,14 +133,17 @@ export interface DeliveryResult {
   text: string;
 }
 
-export const deliveryResult = (test: DeliveryTest): DeliveryResult => ({
-  delivered: test.delivered,
-  text: test.delivered
-    ? t(messages.delivered)
-    : test.error
-      ? t(messages.notDelivered(test.error))
-      : t(messages.notDeliveredNoReason),
-});
+/** A GitHub App with no webhook is said in words, not with the text of the server. */
+export const deliveryResult = (test: DeliveryTest): DeliveryResult => {
+  if (test.delivered) return { delivered: true, text: t(messages.delivered) };
+  if (test.link.stateReason === 'APP_HAS_NO_WEBHOOK') {
+    return { delivered: false, text: t(messages.appHasNoWebhookPolls) };
+  }
+  return {
+    delivered: false,
+    text: test.error ? t(messages.notDelivered(test.error)) : t(messages.notDeliveredNoReason),
+  };
+};
 
 /** A server without the test of the webhooks answers UNIMPLEMENTED: that is not a fault. */
 export const deliveryErrorText = (error: unknown): string => {

@@ -442,6 +442,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The button of a danger zone and of a settings section is centered vertically on the title and the
   description, not on the line of the title. On a phone, the button goes under the description, and
   the text keeps the full width of the card.
+- The repository page says "The GitHub App has no webhook." for a link that polls for this reason,
+  and the test webhook says it with no raw error of GitHub.
 
 ## [0.6.0] - 2026-11-01
 

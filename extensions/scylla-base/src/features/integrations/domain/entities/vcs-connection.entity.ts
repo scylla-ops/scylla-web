@@ -50,15 +50,29 @@ export interface GitHubInstall {
   expiresAt: string;
 }
 
-/** The values of the redirect of GitHub, after the install. */
+/**
+ * The values of the redirect of GitHub: after the install, after the authorize page (the state
+ * carries the installation, with no `installationId`), or after a change of the installation on
+ * GitHub (no state).
+ */
 export interface CompleteGitHubInstallInput {
+  /** Empty after a change of the installation on GitHub. */
   state: string;
-  /** Empty when the install was cancelled. */
+  /** Empty when the install was cancelled, and after the authorize page. */
   installationId: string;
+  /** Empty when the App was already installed on the account: the user authorizes it first. */
   code: string;
-  /** `install`, `update` or `request`. */
+  /** `install`, `update` or `request`. Empty after the authorize page. */
   setupAction: string;
 }
+
+/**
+ * What the server did with the values of the redirect: the new or refreshed connection, or the
+ * authorize page of GitHub, where the user goes first when GitHub sent no code.
+ */
+export type CompletedGitHubInstall =
+  | { kind: 'connected'; connection: VcsConnectionEntity }
+  | { kind: 'authorize'; authorizeUrl: string };
 
 export interface ConnectGitLabInput {
   workspaceId: string;

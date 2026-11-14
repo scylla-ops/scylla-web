@@ -3,6 +3,7 @@ import type { VcsConnection } from '@base/generated/scylla/integrations/v1/vcs.t
 import type {
   CheckedGitLabConnection,
   CompleteGitHubInstallInput,
+  CompletedGitHubInstall,
   ConnectGitLabInput,
   GitHubInstall,
   ProviderRepositoryPage,
@@ -15,6 +16,7 @@ import type {
 } from '@base/features/integrations/domain/repository/vcs-connection.repository.ts';
 import type { VcsProviderInfo } from '@base/features/integrations/domain/structs/vcs-provider.struct.ts';
 import { required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import * as grpcVcsConnection from './grpc-vcs-connection.mapper.ts';
 
 const PAGE_SIZE = 100;
@@ -26,6 +28,12 @@ const checked = (response: {
   connection: grpcVcsConnection.toDomain(required(response.connection, 'connection')),
   warnings: response.warnings,
 });
+
+/** The authorize page of GitHub in a refusal `AUTHORIZATION_REQUIRED`, else an empty text. */
+const authorizePage = (error: unknown): string => {
+  const refusal = ScyllaError.from(error);
+  return refusal.reason === 'AUTHORIZATION_REQUIRED' ? (refusal.metadata.authorize_url ?? '') : '';
+};
 
 export class DefaultVcsConnectionRepository implements VcsConnectionRepository {
   constructor(private readonly client: IVcsConnectionServiceClient) {}
@@ -66,9 +74,16 @@ export class DefaultVcsConnectionRepository implements VcsConnectionRepository {
 
   public async completeGitHubInstall(
     input: CompleteGitHubInstallInput,
-  ): Promise<VcsConnectionEntity> {
-    const response = await this.client.completeGitHubInstall(input).response;
-    return grpcVcsConnection.toDomain(required(response.connection, 'connection'));
+  ): Promise<CompletedGitHubInstall> {
+    try {
+      const response = await this.client.completeGitHubInstall(input).response;
+      const connection = grpcVcsConnection.toDomain(required(response.connection, 'connection'));
+      return { kind: 'connected', connection };
+    } catch (error) {
+      const authorizeUrl = authorizePage(error);
+      if (authorizeUrl) return { kind: 'authorize', authorizeUrl };
+      throw error;
+    }
   }
 
   public async connectGitLab(input: ConnectGitLabInput): Promise<CheckedGitLabConnection> {

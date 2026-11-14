@@ -59,7 +59,7 @@ One repository for each gRPC service of `scylla/integrations/v1`, and one for `V
 | `listByWorkspace(workspaceId)` | `VcsConnectionEntity[]` — every page, oldest first |
 | `getById(id)` | `VcsConnectionEntity` |
 | `startGitHubInstall(workspaceId)` | `GitHubInstall` — the install URL with a state of 10 minutes |
-| `completeGitHubInstall(CompleteGitHubInstallInput)` | `VcsConnectionEntity` |
+| `completeGitHubInstall(CompleteGitHubInstallInput)` | `CompletedGitHubInstall` — the connection, or the authorize page of GitHub (`AUTHORIZATION_REQUIRED`) |
 | `connectGitLab(ConnectGitLabInput)` | `CheckedGitLabConnection` — the connection and the warnings |
 | `replaceGitLabToken(ReplaceGitLabTokenInput)` | `CheckedGitLabConnection` |
 | `deleteById(id)` | `void` |
@@ -165,6 +165,15 @@ has no permission for the same reason as the install callback: the server checks
   the query string, sends them one time (a used state is refused), then opens the page of the
   workspace of the new connection with `?connected=<id>`. The page shows the next step for this
   connection until the user dismisses it.
+- **The callback has three cases.** An install on an account where the App is installed comes
+  back with no code: the server gives the authorize page of GitHub, and the browser goes there;
+  GitHub comes back with a code and a state that carries the installation (`<state>.<id>`). A
+  change of the installation on GitHub comes back with no state: the page sends the code and the
+  installation, and the server refreshes the connection, then the page opens Integrations with
+  no `connected`. Any refusal of that refresh, or no code, shows "Your changes on GitHub are
+  saved", never an error: the change is saved on GitHub.
+- **A GitHub App with no webhook polls.** The link has the reason `APP_HAS_NO_WEBHOOK`: the
+  events line says it, and the test webhook says it in words, not with the text of the server.
 - **GitHub Enterprise Server and GitLab self-managed come later** (user decision 4): their cards
   and the self-managed choice of the GitLab dialog are disabled, with "Later".
 - **The buttons and the controls of the repository page need `MANAGE_REPOSITORY_LINK`** on the

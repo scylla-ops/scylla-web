@@ -23,6 +23,8 @@ export const repositoryMessages = {
   cannotReach: (provider: string) => msg`${provider} cannot reach this Scylla server.`,
   roleTooLow: msg`The service account is Developer. Give it Maintainer to create the webhook and block merges.`,
   webhookDisabled: msg`GitLab disabled the webhook after failures.`,
+  appHasNoWebhook: msg`The GitHub App has no webhook.`,
+  appHasNoWebhookPolls: msg`The GitHub App has no webhook. Scylla polls the repository.`,
   testWebhook: msg`Test webhook`,
   enableAgain: msg`Enable again`,
   delivered: msg`The test webhook arrived.`,

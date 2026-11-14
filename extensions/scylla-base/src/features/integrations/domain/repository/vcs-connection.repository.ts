@@ -1,6 +1,7 @@
 import type {
   CheckedGitLabConnection,
   CompleteGitHubInstallInput,
+  CompletedGitHubInstall,
   ConnectGitLabInput,
   GitHubInstall,
   ProviderRepositoryPage,
@@ -24,7 +25,8 @@ export interface VcsConnectionRepository {
   listByWorkspace(workspaceId: string): Promise<VcsConnectionEntity[]>;
   getById(id: string): Promise<VcsConnectionEntity>;
   startGitHubInstall(workspaceId: string): Promise<GitHubInstall>;
-  completeGitHubInstall(input: CompleteGitHubInstallInput): Promise<VcsConnectionEntity>;
+  /** The authorize page when the server refuses with `AUTHORIZATION_REQUIRED`. */
+  completeGitHubInstall(input: CompleteGitHubInstallInput): Promise<CompletedGitHubInstall>;
   connectGitLab(input: ConnectGitLabInput): Promise<CheckedGitLabConnection>;
   replaceGitLabToken(input: ReplaceGitLabTokenInput): Promise<CheckedGitLabConnection>;
   deleteById(id: string): Promise<void>;

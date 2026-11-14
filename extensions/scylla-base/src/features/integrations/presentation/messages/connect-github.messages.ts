@@ -19,4 +19,8 @@ export const connectGitHubMessages = {
   installCancelled: msg`The install was cancelled.`,
   pendingApproval: msg`An organization owner must approve the request on GitHub.`,
   backToIntegrations: msg`Back to Integrations`,
+
+  savedTitle: msg`Your changes on GitHub are saved`,
+  savedBody: msg`Scylla uses the new settings of the installation.`,
+  openIntegrations: msg`Open Integrations`,
 };

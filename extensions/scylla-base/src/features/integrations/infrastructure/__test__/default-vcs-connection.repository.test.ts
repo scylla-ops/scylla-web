@@ -9,7 +9,8 @@ import {
   VcsProvider,
   type VcsConnection,
 } from '@base/generated/scylla/integrations/v1/vcs.ts';
-import { unaryCall } from '@test/grpc.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import { failedCall, unaryCall } from '@test/grpc.ts';
 import { DefaultVcsConnectionRepository } from '../default-vcs-connection.repository.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
@@ -169,8 +170,34 @@ describe('DefaultVcsConnectionRepository', () => {
       expiresAt: ISO,
     });
     const input = { state: 's', installationId: '42', code: 'code', setupAction: 'install' };
-    expect((await repository.completeGitHubInstall(input)).id).toBe('c-1');
+    const completed = await repository.completeGitHubInstall(input);
+    expect(completed.kind === 'connected' && completed.connection.id).toBe('c-1');
     expect(completeGitHubInstall).toHaveBeenCalledWith(input);
+  });
+
+  it('gives the authorize page of GitHub for an install with no code, and other refusals as they are', async () => {
+    const page = 'https://github.com/login/oauth/authorize?client_id=Iv1&state=s.42';
+    const authorize = new ScyllaError('authorize', {
+      code: 'FAILED_PRECONDITION',
+      reason: 'AUTHORIZATION_REQUIRED',
+      metadata: { authorize_url: page },
+    });
+    const response = Promise.reject(authorize);
+    response.catch(() => undefined);
+    const completeGitHubInstall = vi
+      .fn()
+      .mockReturnValueOnce({ response })
+      .mockReturnValueOnce(failedCall('PERMISSION_DENIED'));
+    const repository = repositoryWith({ completeGitHubInstall });
+    const input = { state: 's', installationId: '42', code: '', setupAction: 'update' };
+
+    expect(await repository.completeGitHubInstall(input)).toEqual({
+      kind: 'authorize',
+      authorizeUrl: page,
+    });
+    await expect(repository.completeGitHubInstall(input)).rejects.toMatchObject({
+      code: 'PERMISSION_DENIED',
+    });
   });
 
   it('sends a GitLab token once, and gives the warnings of the check', async () => {

@@ -101,6 +101,18 @@ describe('repository link presenter', () => {
     });
   });
 
+  it('says that the GitHub App has no webhook, and offers the test to check it again', () => {
+    const noWebhook = link({ deliveryMode: 'polling', stateReason: 'APP_HAS_NO_WEBHOOK' });
+
+    expect(eventsLine(noWebhook)).toEqual({
+      mode: 'polling',
+      text: 'Polling every 2 min',
+      reason: 'The GitHub App has no webhook.',
+      action: 'test',
+    });
+    expect(eventsLine({ ...noWebhook, state: 'suspended' }).action).toBeNull();
+  });
+
   it('offers no test on a link that stopped: the card says why instead', () => {
     const stopped = link({ state: 'disconnected', stateReason: 'APP_UNINSTALLED' });
 
@@ -168,6 +180,12 @@ describe('repository link presenter', () => {
     expect(deliveryResult({ delivered: false, error: 'timeout', link: link() }).text).toBe(
       'The test webhook did not arrive: timeout',
     );
+    const polls = link({ deliveryMode: 'polling', stateReason: 'APP_HAS_NO_WEBHOOK' });
+    const error = 'the GitHub App has no webhook: Scylla polls the repository';
+    expect(deliveryResult({ delivered: false, error, link: polls })).toEqual({
+      delivered: false,
+      text: 'The GitHub App has no webhook. Scylla polls the repository.',
+    });
     expect(
       deliveryErrorText(new ScyllaError('TestDelivery is not served', { code: 'UNIMPLEMENTED' })),
     ).toBe('This server cannot test the webhook yet.');
