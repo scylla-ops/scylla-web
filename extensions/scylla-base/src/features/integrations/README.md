@@ -1,7 +1,8 @@
 # Integrations
 
 > [Scylla frontend](../../../../../README.md) › `features/` › **integrations** ·
-> [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
+> [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md) ·
+> [setup of the Git providers](../../../../../docs/git-providers.md)
 
 A workspace connects GitHub or GitLab one time. Then all the projects of the workspace can use
 the connection: Scylla starts pipelines on pushes and pull requests, checks out the code, and

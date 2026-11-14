@@ -171,6 +171,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   invalid pipeline file, the checkout as the first step with its log, and the reports to GitHub or
   GitLab with Retry now and Fix the connection. The jobs table has a Source column and the states
   Waiting for approval and Invalid pipeline file.
+- `docs/git-providers.md` tells how to set up GitHub and GitLab for a server: the GitHub App by hand
+  or with the manifest flow, its permissions, events and URLs, and the GitLab service account.
 
 ### Changed
 

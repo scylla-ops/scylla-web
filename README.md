@@ -56,6 +56,7 @@ The app will be available at `http://localhost:5173`. All commands run from the 
 
 - [Architecture](docs/architecture.md) — Module structure, data flow, shared patterns, tech stack
 - [Naming Conventions](docs/naming-conventions.md) — File, folder, TypeScript & Svelte naming rules
+- [Git providers](docs/git-providers.md) — Set up GitHub and GitLab for a Scylla server: the GitHub App, the manifest flow, the GitLab service account
 - [Design system](packages/ui/DESIGN-SYSTEM.md) — The code is the source of truth: how the tokens and the components go to the Figma library
 - [CONTRIBUTING.md](CONTRIBUTING.md) — How to contribute: workflow, commits, pull requests, checks
 - [AGENTS.md](AGENTS.md) — The working contract for this codebase (rules, checklists, conventions), for humans and AI coding agents
