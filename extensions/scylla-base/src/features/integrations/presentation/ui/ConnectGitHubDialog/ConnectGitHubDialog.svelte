@@ -26,11 +26,7 @@
   // The names of the permissions on GitHub: not translated.
   const permissions = $derived([
     { icon: FileCodeIcon, title: t(messages.readCode), scopes: 'Contents: read' },
-    {
-      icon: ListChecksIcon,
-      title: t(messages.writeChecks),
-      scopes: 'Checks: write · Commit statuses: write',
-    },
+    { icon: ListChecksIcon, title: t(messages.writeChecks), scopes: 'Checks: write' },
     {
       icon: GitPullRequestIcon,
       title: t(messages.readPullRequests),

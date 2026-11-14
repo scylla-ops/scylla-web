@@ -463,6 +463,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The breadcrumb of the top bar stays on one line. Before, a long id put it on three lines, and the
   window cut the first line. Only the id of the current page gets shorter, with an ellipsis. A job
   page names its pipeline one time, with its name, also after a link or a reload.
+- The "Connect GitHub" dialog, the Git providers page and the GitHub card do not show the Commit
+  statuses permission: the GitHub App does not ask for it.
 
 ## [0.6.0] - 2026-11-01
 

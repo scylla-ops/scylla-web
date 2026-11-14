@@ -296,8 +296,8 @@ msgid "Connections"
 msgstr "Connexions"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:29
-msgid "Contents: read · Checks: write · Commit statuses: write · Pull requests: read · Administration: write · Metadata: read"
-msgstr "Contents : lecture · Checks : écriture · Commit statuses : écriture · Pull requests : lecture · Administration : écriture · Metadata : lecture"
+msgid "Contents: read · Checks: write · Pull requests: read · Administration: write · Metadata: read"
+msgstr "Contents : lecture · Checks : écriture · Pull requests : lecture · Administration : écriture · Metadata : lecture"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/new-project.messages.ts:23
 msgid "Continue"
@@ -451,8 +451,8 @@ msgid "GitHub sends the webhooks to this URL. If GitHub cannot reach it, Scylla 
 msgstr "GitHub envoie les webhooks à cette URL. Si GitHub ne peut pas l'atteindre, Scylla interroge les dépôts toutes les 2 minutes."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:10
-msgid "github.com · checks, statuses, triggers, checkout"
-msgstr "github.com · checks, statuts, déclencheurs, checkout"
+msgid "github.com · checks, triggers, checkout"
+msgstr "github.com · checks, déclencheurs, checkout"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:17
 msgid "github.com only in this release."
@@ -1261,8 +1261,8 @@ msgid "With no file, the project has no pipeline until you add one to the reposi
 msgstr "Sans fichier, le projet n'a pas de pipeline tant que vous n'en ajoutez pas un au dépôt."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:8
-msgid "Write checks and commit statuses"
-msgstr "Écrire les checks et les statuts de commit"
+msgid "Write checks on your commits"
+msgstr "Écrire les checks de vos commits"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/new-project.messages.ts:12
 msgid "You cannot link a repository in this workspace."

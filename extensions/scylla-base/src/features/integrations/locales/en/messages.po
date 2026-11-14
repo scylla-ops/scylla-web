@@ -296,8 +296,8 @@ msgid "Connections"
 msgstr "Connections"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:29
-msgid "Contents: read · Checks: write · Commit statuses: write · Pull requests: read · Administration: write · Metadata: read"
-msgstr "Contents: read · Checks: write · Commit statuses: write · Pull requests: read · Administration: write · Metadata: read"
+msgid "Contents: read · Checks: write · Pull requests: read · Administration: write · Metadata: read"
+msgstr "Contents: read · Checks: write · Pull requests: read · Administration: write · Metadata: read"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/new-project.messages.ts:23
 msgid "Continue"
@@ -451,8 +451,8 @@ msgid "GitHub sends the webhooks to this URL. If GitHub cannot reach it, Scylla 
 msgstr "GitHub sends the webhooks to this URL. If GitHub cannot reach it, Scylla polls the repositories every 2 minutes."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:10
-msgid "github.com · checks, statuses, triggers, checkout"
-msgstr "github.com · checks, statuses, triggers, checkout"
+msgid "github.com · checks, triggers, checkout"
+msgstr "github.com · checks, triggers, checkout"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:17
 msgid "github.com only in this release."
@@ -1261,8 +1261,8 @@ msgid "With no file, the project has no pipeline until you add one to the reposi
 msgstr "With no file, the project has no pipeline until you add one to the repository."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:8
-msgid "Write checks and commit statuses"
-msgstr "Write checks and commit statuses"
+msgid "Write checks on your commits"
+msgstr "Write checks on your commits"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/new-project.messages.ts:12
 msgid "You cannot link a repository in this workspace."

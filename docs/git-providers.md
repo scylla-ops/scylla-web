@@ -30,7 +30,6 @@ them by hand when you register the App yourself.
 | Repository permission | Access | Why |
 |---|---|---|
 | Checks | Read and write | The check run of each pipeline |
-| Commit statuses | Read and write | The commit status of each pipeline |
 | Contents | Read-only | The checkout, the pipeline files, the heads of the branches for the polling, the `push` events |
 | Pull requests | Read-only | The `pull_request` events, the open pull requests for the polling |
 | Metadata | Read-only | Mandatory for each App |
@@ -38,6 +37,10 @@ them by hand when you register the App yourself.
 
 Events: **Push**, **Pull request**, **Check run** and **Check suite**. GitHub always sends the
 `installation` and `installation_repositories` events.
+
+Scylla does not ask for the Commit statuses permission: on GitHub, a report is a check run. An
+App or an installation that still has this permission works with no change. To remove it, open
+the App on GitHub, then **Permissions & events**.
 
 An organization can refuse the Administration permission. Scylla then works with no merge
 block: the "Block the merge" switch shows "Grant the permission on GitHub" and the steps to

@@ -58,8 +58,8 @@ editors of the project (`MANAGE_REPOSITORY_LINK`) change it.
   with the reason (the provider cannot reach the server, the GitLab role is too low, GitLab
   disabled the webhook). "Test webhook" asks the provider for a test delivery. When the link
   stopped, the card says why and where to repair it.
-- **Reports:** a switch, and on GitHub the choice between a check run and a commit status. The
-  names of the reports are the names of the merge rules of the pipelines.
+- **Reports:** a switch. The provider sets the mode: a check run on GitHub, a commit status on
+  GitLab. The names of the reports are the names of the merge rules of the pipelines.
 - **Unlink:** a danger zone. The dialog lists what stops: the Git triggers, the checkout, the
   reports, the merge rules, the file pipelines and the GitLab webhook.
 
