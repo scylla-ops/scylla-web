@@ -444,6 +444,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the text keeps the full width of the card.
 - The repository page says "The GitHub App has no webhook." for a link that polls for this reason,
   and the test webhook says it with no raw error of GitHub.
+- The pipeline item of the breadcrumb on the jobs, job and triggers pages opens the editor of an
+  editor pipeline. Before, it opened the read-only page of a file pipeline, with the error "Scylla
+  could not read the file".
 
 ## [0.6.0] - 2026-11-01
 

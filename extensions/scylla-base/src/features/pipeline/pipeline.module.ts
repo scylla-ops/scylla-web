@@ -47,7 +47,7 @@ export const PipelineModule = {
         page: () => import('./presentation/ui/editor/PipelineUpdate/PipelineUpdate.page.svelte'),
       },
       {
-        // A file pipeline: the editor page, read only. An editor pipeline opens in `edit/:pipelineId`.
+        // A file pipeline: the editor page, read only. An editor pipeline redirects to `edit/:pipelineId`.
         path: 'pipelines/:pipelineId',
         permission: Permission.READ_PIPELINE,
         breadcrumb: ({ pipelineName }) => ({
