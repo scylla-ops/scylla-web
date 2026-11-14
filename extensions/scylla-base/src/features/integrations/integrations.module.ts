@@ -59,6 +59,12 @@ export const IntegrationsModule = {
           group: { id: 'settings', title: msg`Settings`, icon: SettingsIcon },
         },
       },
+      // The second way of the page "New project" of `project`: the crumb of `projects/new` shows.
+      {
+        path: 'projects/new/github',
+        permission: Permission.CREATE_PROJECT,
+        page: () => import('./presentation/ui/NewGitHubProject/NewGitHubProject.page.svelte'),
+      },
     ],
     // The settings of a project: the repository is the only part today.
     project: [

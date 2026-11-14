@@ -12,6 +12,7 @@ import {
   linkErrorText,
   linkSubtitle,
   reportContexts,
+  repositoryName,
   repositoryOptionDetails,
   unlinkStops,
 } from '../repository-link.presenter.ts';
@@ -219,5 +220,11 @@ describe('repository link presenter', () => {
     expect(repositoryOptionDetails({ ...repository, role: '' })).toBe(
       'Public · default branch main · linked to another project',
     );
+  });
+
+  it('names a new project after its repository, without the owner', () => {
+    expect(repositoryName('acme/api')).toBe('api');
+    expect(repositoryName('group/sub/payments')).toBe('payments');
+    expect(repositoryName('solo')).toBe('solo');
   });
 });

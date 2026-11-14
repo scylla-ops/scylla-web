@@ -173,6 +173,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   Waiting for approval and Invalid pipeline file.
 - `docs/git-providers.md` tells how to set up GitHub and GitLab for a server: the GitHub App by hand
   or with the manifest flow, its permissions, events and URLs, and the GitLab service account.
+- A page for a new project replaces the dialog. You choose a regular project or a project linked to
+  GitHub. For GitHub, you pick a repository, and the page names the project from it and sets the
+  pipeline source and the reports. If the link fails after the creation, the page keeps the project
+  and you can try again.
 
 ### Changed
 

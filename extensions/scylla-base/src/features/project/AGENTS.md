@@ -57,12 +57,14 @@ infrastructure/
   default-project.repository.ts      ProjectServiceClient → ProjectEntity; the project cap
   grpc-project.mapper.ts
 presentation/
-  project.commands.ts                "Create project...", for the search bar
+  project.commands.ts                "Create project...", for the search bar: it opens projects/new
   project.queries.ts                 every read and write, plus the key factories
   ui/Project.page.svelte             picks the workspace, or says there is none
   ui/ProjectList.svelte              keyed on the workspace — that is the page reset
   ui/ProjectHeader.svelte, ProjectCard.svelte
-  ui/AddProjectDialog.svelte, EditProjectDialog.svelte
+  ui/EditProjectDialog.svelte
+  ui/NewProject/                     the choice of the kind of project: ProjectKindCard per way
+  ui/NewRegularProject/              the name and the description of a regular project
   messages/project.messages.ts
 ```
 
@@ -71,6 +73,8 @@ presentation/
 | Mount | Path | Permission | Component |
 |---|---|---|---|
 | `workspace` | `projects` | `READ_WORKSPACE` | `ProjectPage` |
+| `workspace` | `projects/new` | `CREATE_PROJECT` | `NewProjectPage` |
+| `workspace` | `projects/new/regular` | `CREATE_PROJECT` | `NewRegularProjectPage` |
 
 Sidebar: section `workspace`, order `20`, icon `WorkflowIcon`. The route also declares the
 "Projects" crumb, which shows on every project page.
@@ -79,6 +83,10 @@ Sidebar: section `workspace`, order `20`, icon `WorkflowIcon`. The route also de
 project routes (the `project` mount) are declared by the modules that own them
 ([pipeline](../pipeline/AGENTS.md), [secret](../secret/AGENTS.md),
 [membership](../membership/AGENTS.md)), not here.
+
+`projects/new/github`, the project linked to a GitHub repository, is a page of
+[integrations](../integrations/AGENTS.md): this module cannot import `integrations`. The
+choice card links to it by its path only.
 
 ## Rules that bite here
 
@@ -92,12 +100,16 @@ project routes (the `project` mount) are declared by the modules that own them
 - The member UI and its data belong to [`membership`](../membership/AGENTS.md), through `access`.
 - Lists use `DataTable` + `createPagination()`; row keys are project ids.
 - **`data-tour` attributes are anchors of the onboarding tour** (`projects` on the list, `project-card` with
-  `data-project-id` on each card). Keep them on the same
+  `data-project-id` on each card, `regular-project` on the card of a regular project,
+  `add-project-form` around the form of `projects/new/regular`). Keep them on the same
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
 - **A project cap comes from an extension.** `CreateProject` can fail with `RESOURCE_EXHAUSTED`
   and an English server text that names the workspace by id. The repository maps it to
   its own sentence in `create` and keeps the code; the global toast shows it.
-- The description is optional in both dialogs (`optional: true`).
+- The description is optional in the edit dialog and on the new project page (`optional: true`).
+- **A new project is a page, not a dialog.** "New project" in the header and the command of the
+  search bar open `projects/new`. The GitHub card stays inert, with its reason, for a person
+  without `MANAGE_REPOSITORY_LINK` on the workspace.
 - **`projectMutations.update` also writes `contextStore`** when the project is the active one. The
   crumb, the sidebar title, the members page of the project and the search bar read that copy of the
   name. No effect that follows the list is mounted on the project list, so the mutation must write it.

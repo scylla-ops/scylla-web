@@ -277,7 +277,7 @@ describe('the anchors of the dialog steps', () => {
       <div data-slot="dialog-content" id="other"><p>hello</p></div>
       <div data-slot="dialog-content" id="create"><form></form></div>`;
 
-    const [dialog] = spot('create-project').targets;
+    const [dialog] = spot('secret-value').targets;
 
     expect(dialog(document, {})?.id).toBe('create');
   });
@@ -287,13 +287,13 @@ describe('the anchors of the dialog steps', () => {
       <div data-slot="dialog-content"><p>hello</p></div>
       <div data-slot="dialog-content"><form></form><button type="submit" id="add"></button></div>`;
 
-    expect(spot('create-project').action?.anchor(document, {})?.id).toBe('add');
+    expect(spot('secret-value').action?.anchor(document, {})?.id).toBe('add');
   });
 
   it('hold the dialogs of the steps that live in one, with a way back when the dialog is gone', () => {
     const held = ALL_STEPS.filter(step => step.holdsDialog);
 
-    expect(held.map(step => step.id)).toEqual(['create-project', 'secret-value', 'people-role']);
+    expect(held.map(step => step.id)).toEqual(['secret-value', 'people-role']);
     for (const step of held) expect(step.fallback).toBeDefined();
   });
 
@@ -416,6 +416,24 @@ describe('the first step on a phone', () => {
       <button data-sidebar="trigger" id="menu"></button>
       <button data-nav-group="access" id="group"></button>`;
     expect(target(document, {})?.id).toBe('group');
+  });
+});
+
+describe('the anchors of the page of a new project', () => {
+  it('point at the card of a regular project, then at its form, and repeat its submit button', () => {
+    const step = spot('create-project');
+    const [target] = step.targets;
+
+    document.body.innerHTML = '<a data-tour="regular-project" id="regular" href="/new"></a>';
+    expect(target(document, {})?.id).toBe('regular');
+    expect(step.action?.anchor(document, {})).toBeNull();
+    expect(step.action?.absent?.body.length).toBe(1);
+
+    document.body.innerHTML = `
+      <div data-tour="add-project-form" id="form"><button type="submit" id="add"></button></div>`;
+    expect(target(document, {})?.id).toBe('form');
+    expect(step.action?.anchor(document, {})?.id).toBe('add');
+    expect(step.holdsDialog).toBeUndefined();
   });
 });
 

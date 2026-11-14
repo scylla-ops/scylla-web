@@ -8,8 +8,14 @@ import type {
 } from '@base/features/integrations/domain/entities/vcs-connection.entity.ts';
 import { connectGitHubMessages as messages } from '@base/features/integrations/presentation/messages/connect-github.messages.ts';
 import { installErrorText } from '@base/features/integrations/presentation/presenters/connection-errors.presenter.ts';
-import { integrationsUrl } from '@base/features/integrations/presentation/presenters/integrations-url.presenter.ts';
-import { vcsConnectionMutations } from '@base/features/integrations/presentation/vcs-connection.queries.ts';
+import {
+  integrationsUrl,
+  withConnection,
+} from '@base/features/integrations/presentation/presenters/integrations-url.presenter.ts';
+import {
+  takeGitHubReturn,
+  vcsConnectionMutations,
+} from '@base/features/integrations/presentation/vcs-connection.queries.ts';
 
 /** The values of the redirect of GitHub. Each one can be empty. */
 const readRedirect = () => {
@@ -24,7 +30,8 @@ const readRedirect = () => {
 
 /**
  * The page of the workspace of the connection; the active workspace when the list fails. A new
- * connection shows its next step (`connected`), a refreshed one does not.
+ * connection shows its next step (`connected`), a refreshed one does not. A new connection made
+ * from another page, such as a new project, goes back to that page.
  */
 const openIntegrations = async (
   connection: VcsConnectionEntity,
@@ -36,6 +43,11 @@ const openIntegrations = async (
   const workspace = workspaces.find(item => item.id === connection.workspaceId);
   if (workspace) contextStore.getState().setWorkspace(workspace.id, workspace.name, workspace.slug);
   const slug = workspace?.slug ?? contextStore.getState().workspace.slug;
+  const back = takeGitHubReturn();
+  if (back && connected) {
+    navigateTo(withConnection(back, connection.id), { replace: true });
+    return;
+  }
   const page = slug ? integrationsUrl(slug, connected ? connection.id : undefined) : '/';
   navigateTo(page, { replace: true });
 };

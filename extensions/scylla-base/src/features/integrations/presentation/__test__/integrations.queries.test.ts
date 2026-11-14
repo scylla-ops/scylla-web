@@ -7,7 +7,11 @@ import type { ProviderRepositoryPage } from '@base/features/integrations/domain/
 import { mergeBlockMutations, mergeBlockQueries } from '../merge-block.queries.ts';
 import { pipelineSourceMutations, pipelineSourceQueries } from '../pipeline-source.queries.ts';
 import { repositoryLinkMutations, repositoryLinkQueries } from '../repository-link.queries.ts';
-import { vcsConnectionMutations, vcsConnectionQueries } from '../vcs-connection.queries.ts';
+import {
+  takeGitHubReturn,
+  vcsConnectionMutations,
+  vcsConnectionQueries,
+} from '../vcs-connection.queries.ts';
 import { MAX_JOBS_PER_REPORT_CALL, vcsReportQueries } from '../vcs-report.queries.ts';
 
 let teardown: Array<() => void> = [];
@@ -58,11 +62,35 @@ describe('integrations queries', () => {
       });
     install({ vcsConnectionRepository: { startGitHubInstall } });
     const options = vcsConnectionMutations.startGitHubInstall();
+    sessionStorage.setItem('scylla.github-install.return', '/acme/old');
 
-    const result = await runMutationFn(options, 'ws-1');
-    runOnSuccess(options, result, 'ws-1');
+    const result = await runMutationFn(options, { workspaceId: 'ws-1' });
+    runOnSuccess(options, result, { workspaceId: 'ws-1' });
 
+    expect(startGitHubInstall).toHaveBeenCalledWith('ws-1');
     expect(assign).toHaveBeenCalledWith('https://github.com/apps/scylla/installations/new');
+    expect(takeGitHubReturn()).toBe('');
+  });
+
+  it('keeps the page that started a GitHub install for the callback, one time', async () => {
+    vi.stubGlobal('location', { ...window.location, assign: vi.fn() });
+    const startGitHubInstall = vi.fn().mockResolvedValue({ installUrl: 'https://github.com/x' });
+    install({ vcsConnectionRepository: { startGitHubInstall } });
+    const options = vcsConnectionMutations.startGitHubInstall();
+    const input = { workspaceId: 'ws-1', returnTo: '/acme/projects/new/github' };
+
+    runOnSuccess(options, await runMutationFn(options, input), input);
+
+    expect(takeGitHubReturn()).toBe('/acme/projects/new/github');
+    expect(takeGitHubReturn()).toBe('');
+  });
+
+  it('reads the repositories again when the tab gets the focus back', () => {
+    const options = vcsConnectionQueries.repositories({ workspaceId: 'ws-1', connectionId: 'c-1' });
+
+    expect(options.enabled).toBe(true);
+    expect(options.refetchOnWindowFocus).toBe('always');
+    expect(vcsConnectionQueries.repositories({ connectionId: 'c-1' }).enabled).toBe(false);
   });
 
   it('refreshes the link, the merge rules and the connections after a link', async () => {
