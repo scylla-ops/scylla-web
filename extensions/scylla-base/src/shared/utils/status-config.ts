@@ -9,6 +9,7 @@ export type StatusKey =
   | 'skipped'
   | 'cancelled'
   | 'orphaned'
+  | 'awaiting_approval'
   | 'unknown';
 
 export interface StatusConfig {
@@ -71,6 +72,13 @@ export const STATUS_CONFIG: Record<StatusKey, StatusConfig> = {
     barClassName: 'bg-status-canceled/60',
     barHoverClassName: 'hover:bg-status-canceled/90 hover:scale-y-110',
     textClassName: 'text-status-canceled',
+  },
+  awaiting_approval: {
+    label: msg`Waiting for approval`,
+    badgeClassName: 'bg-status-queued/15 border-status-queued/30 text-status-queued',
+    barClassName: 'bg-status-queued/40',
+    barHoverClassName: 'hover:bg-status-queued/70 hover:scale-y-110',
+    textClassName: 'text-status-queued',
   },
   // A state this build does not know: shown as it is.
   unknown: {

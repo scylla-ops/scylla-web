@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { SvelteFlowProvider } from '@xyflow/svelte';
   import { createQuery } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
@@ -28,10 +29,29 @@
     places?: NodePlaces;
     /** Called once: the graph is fitted in the canvas at its final size. */
     onReady?: () => void;
+    /** The graph only shows the pipeline: no edit, no place saved. */
+    locked?: boolean;
+    /** The nodes are an older version than the one the page talks about: they are faded. */
+    dimmed?: boolean;
+    /** Over the canvas, in place of the notice of the repeated ids. */
+    notice?: Snippet;
+    /** A `ResizablePane` of order 2, in place of the palette and the inspector. */
+    sidePanel?: Snippet;
   }
 
-  let { nodes, pipelineName, projectId, onNodesChange, savedLayout, places, onReady }: Props =
-    $props();
+  let {
+    nodes,
+    pipelineName,
+    projectId,
+    onNodesChange,
+    savedLayout,
+    places,
+    onReady,
+    locked = false,
+    dimmed = false,
+    notice,
+    sidePanel,
+  }: Props = $props();
 
   /** The panes have their sizes: the canvas mounts at its final width, and fits only once. */
   let laidOut = $state(false);
@@ -47,6 +67,7 @@
     get places() {
       return places;
     },
+    locked: () => locked,
   });
 
   const appearance = createNodeAppearancePreference();
@@ -79,7 +100,8 @@
     }}
     class={cn('overflow-hidden', !ready && '[&>[data-pane]]:transition-none')}
   >
-    <ResizablePane id="blueprint-canvas" order={1} class="relative">
+    <!-- A container: a notice sits beside the toolbar of the canvas only when both fit. -->
+    <ResizablePane id="blueprint-canvas" order={1} class="@container relative">
       {#if laidOut}
         <BlueprintCanvas
           {blueprint}
@@ -87,13 +109,16 @@
           {quickAdd}
           {drag}
           {entries}
+          {dimmed}
           onReady={() => {
             ready = true;
             onReady?.();
           }}
         />
       {/if}
-      {#if blueprint.readOnly}
+      {#if notice}
+        {@render notice()}
+      {:else if blueprint.repeated}
         <p
           role="alert"
           class="absolute inset-x-4 top-4 z-10 rounded-md border border-destructive/40 bg-card px-3 py-2 text-sm text-destructive shadow-xs"
@@ -103,13 +128,17 @@
       {/if}
     </ResizablePane>
     <ResizableHandle />
-    <BlueprintSidePanel
-      {blueprint}
-      {entries}
-      {projectId}
-      {drag}
-      onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
-    />
+    {#if sidePanel}
+      {@render sidePanel()}
+    {:else}
+      <BlueprintSidePanel
+        {blueprint}
+        {entries}
+        {projectId}
+        {drag}
+        onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
+      />
+    {/if}
   </ResizablePaneGroup>
   <PaletteDragGhost {drag} />
 </SvelteFlowProvider>

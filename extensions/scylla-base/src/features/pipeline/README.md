@@ -14,7 +14,12 @@ lifecycle — authoring a pipeline and watching it run.
   cell, opens that job's details page in [jobs](../jobs/README.md); "View jobs" still opens the
   full, unclipped list.
 - **The editor** — creating and updating a pipeline, in two coordinated views.
-- **Running** — the Run action, and the jobs page that follows it.
+- **File pipelines** — a pipeline that comes from a file of the linked repository. Its page is
+  the editor page, read only: the change goes in the repository, so Scylla shows the file and
+  its errors, at the branch or the tag that the user picks.
+- **Running** — the Run action, and the jobs page that follows it. With a linked repository,
+  Run asks for the commit to run, and the jobs page can filter the jobs by branch, event, author
+  and pull request.
 - **Workspace-wide reads** — pipeline metadata across every project, for the
   [dashboard](../dashboard/README.md).
 
@@ -179,6 +184,7 @@ export their key factories instead of writing arrays inline.
 | project index | `LIST_PIPELINES_BY_PROJECT` | the pipeline dashboard |
 | `create` | `CREATE_PIPELINE` | new pipeline |
 | `edit/:pipelineId` | `UPDATE_PIPELINE` | editor |
+| `pipelines/:pipelineId` | `READ_PIPELINE` | a file pipeline, read only |
 | `pipelines/:pipelineId/jobs` | `LIST_JOBS_BY_PIPELINE` | runs, with Run |
 
 No sidebar entry: pipelines *are* the project, reached by entering one.

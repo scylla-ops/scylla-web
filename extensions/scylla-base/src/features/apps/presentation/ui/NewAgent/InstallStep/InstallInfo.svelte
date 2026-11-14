@@ -63,7 +63,7 @@
       <p class="text-xs text-muted-foreground">{t(view.hint)}</p>
     {/if}
     <Separator />
-    <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
+    <dl class="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-1.5 text-xs">
       {#each notes as [term, note] (term.id)}
         <dt class="font-medium">{t(term)}</dt>
         <dd class="text-muted-foreground">{t(note)}</dd>

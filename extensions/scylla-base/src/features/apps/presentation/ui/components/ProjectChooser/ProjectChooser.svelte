@@ -59,21 +59,19 @@
       {@const checked = (choice.value === 'some') === someProjects}
       <Label
         class={cn(
-          'flex items-start gap-3 rounded-lg border p-3 font-normal transition-colors',
+          'flex items-center gap-3 rounded-lg border p-3 font-normal transition-colors',
           checked ? 'border-primary bg-primary-subtle' : 'hover:bg-muted/50',
           choice.disabled
             ? 'cursor-not-allowed opacity-60 hover:bg-transparent'
             : 'cursor-pointer',
         )}
       >
-        <span class="flex h-5 items-center">
-          <RadioGroupItem
-            value={choice.value}
-            disabled={choice.disabled}
-            aria-labelledby="{id}-{choice.value}"
-            aria-describedby="{id}-{choice.value}-body"
-          />
-        </span>
+        <RadioGroupItem
+          value={choice.value}
+          disabled={choice.disabled}
+          aria-labelledby="{id}-{choice.value}"
+          aria-describedby="{id}-{choice.value}-body"
+        />
         <span class="flex flex-col gap-0.5">
           <span id="{id}-{choice.value}" class="text-sm leading-5 font-medium">
             {t(choice.title)}

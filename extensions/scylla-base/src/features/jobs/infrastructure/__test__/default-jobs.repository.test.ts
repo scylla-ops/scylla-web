@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
 import type { TailJobLogsResponse } from '@base/generated/scylla/pipelines/v1/job_service.ts';
 import { JobStatus, LogStream, type Job } from '@base/generated/scylla/pipelines/v1/job.ts';
+import { SourceEvent } from '@base/generated/scylla/pipelines/v1/source.ts';
 import { unaryCall } from '@test/grpc.ts';
 import { DefaultJobsRepository } from '../default-jobs.repository.ts';
 
@@ -43,6 +44,8 @@ const job = (id: string, seconds: number): Job => ({
   runs: [],
   error: '',
   createdAt: { seconds: BigInt(seconds), nanos: 0 },
+  fileErrors: [],
+  waitingReason: '',
 });
 
 describe('DefaultJobsRepository.tailLogs', () => {
@@ -116,6 +119,21 @@ describe('DefaultJobsRepository lists', () => {
     expect(list.items.map(item => item.id)).toEqual(['new']);
     expect(list.pagination).toMatchObject({ totalCount: 2, totalPages: 2, hasNext: true });
   });
+
+  it('sends the filter with each page, and no filter when it has none', async () => {
+    const listPipelineJobs = vi.fn((_request: { filter?: unknown }) =>
+      unaryCall({ jobs: [], page: { nextToken: '' } }),
+    );
+    const repository = new DefaultJobsRepository({ listPipelineJobs } as unknown as IJobServiceClient);
+
+    await repository.getByPipelineId('pipeline-1', { page: 1, pageSize: 10 });
+    await repository.getByPipelineId('pipeline-1', { page: 1, pageSize: 10 }, { event: 'tag' });
+
+    expect(listPipelineJobs.mock.calls.map(([request]) => request.filter)).toEqual([
+      undefined,
+      { branch: '', event: SourceEvent.TAG, authorLogin: '', pullRequest: 0 },
+    ]);
+  });
 });
 
 describe('DefaultJobsRepository actions', () => {
@@ -130,5 +148,19 @@ describe('DefaultJobsRepository actions', () => {
     await repository.cancel('job-1');
 
     expect(client.cancelJob).toHaveBeenCalledWith({ jobId: { value: 'job-1' } });
+  });
+
+  it('approves and rejects a job from a fork, and gives the job after the change', async () => {
+    const client = {
+      approveJob: vi.fn(() => unaryCall({ job: { ...job('job-1', 1), status: JobStatus.PENDING } })),
+      rejectJob: vi.fn(() => unaryCall({ job: { ...job('job-1', 1), status: JobStatus.CANCELLED } })),
+    } as unknown as IJobServiceClient;
+    const repository = new DefaultJobsRepository(client);
+
+    await expect(repository.approve('job-1')).resolves.toMatchObject({ status: 'pending' });
+    await expect(repository.reject('job-1')).resolves.toMatchObject({ status: 'cancelled' });
+
+    expect(client.approveJob).toHaveBeenCalledWith({ jobId: { value: 'job-1' } });
+    expect(client.rejectJob).toHaveBeenCalledWith({ jobId: { value: 'job-1' } });
   });
 });

@@ -110,16 +110,22 @@
   </div>
 
   {#if !enabled}
-    <div class="flex gap-3 rounded-lg border border-warning/60 bg-warning/10 p-3" role="status">
-      <TriangleAlertIcon class="mt-0.5 size-4 shrink-0 text-warning" aria-hidden="true" />
+    <div
+      class="flex items-center gap-3 rounded-lg border border-warning/60 bg-warning/10 p-3"
+      role="status"
+    >
+      <TriangleAlertIcon class="size-4 shrink-0 text-warning" aria-hidden="true" />
       <div>
         <p class="text-sm font-medium">{t(messages.offServerTitle)}</p>
         <p class="text-xs text-muted-foreground">{t(messages.offServerBody)}</p>
       </div>
     </div>
   {:else if refusedHere}
-    <div class="flex gap-3 rounded-lg border border-warning/60 bg-warning/10 p-3" role="status">
-      <TriangleAlertIcon class="mt-0.5 size-4 shrink-0 text-warning" aria-hidden="true" />
+    <div
+      class="flex items-center gap-3 rounded-lg border border-warning/60 bg-warning/10 p-3"
+      role="status"
+    >
+      <TriangleAlertIcon class="size-4 shrink-0 text-warning" aria-hidden="true" />
       <div>
         <p class="text-sm font-medium">{t(messages.offWorkspaceTitle)}</p>
         <p class="text-xs text-muted-foreground">{t(messages.offWorkspaceBody(workspaceName))}</p>

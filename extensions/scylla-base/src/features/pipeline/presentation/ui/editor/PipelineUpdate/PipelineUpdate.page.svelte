@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createMutation, createQuery } from '@scylla/core-sdk';
+  import { Redirect, createMutation, createQuery } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import {
     pipelineMutations,
@@ -24,10 +24,17 @@
 
   const initialScript = $derived(pipeline ? toDocument(pipeline) : undefined);
 
+  // A file pipeline changes in its repository: it has a read-only page of its own.
+  const fromFile = $derived(pipelineQuery.data?.origin.source === 'file');
+
   const missing = $derived<MissingDocument | undefined>(
     pipelineQuery.isLoading ? 'loading' : pipelineQuery.isLoadingError ? 'failed' : undefined,
   );
 </script>
+
+{#if fromFile}
+  <Redirect to="../../pipelines/{pipelineId}" />
+{/if}
 
 <!-- The editor shows its frame at once: the canvas waits for the pipeline, or says it failed. -->
 <div class="flex h-full flex-col gap-4">
@@ -35,6 +42,7 @@
     mode="edit"
     submitLabel={t(pipelineMessages.save)}
     projectId={pipeline?.projectId}
+    {pipelineId}
     {initialScript}
     {missing}
     onRetry={() => void pipelineQuery.refetch()}

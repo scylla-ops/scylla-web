@@ -17,6 +17,9 @@ The fixed roles of the server and the permissions of the caller.
   active project. `domain/structs/permission-map.struct.ts` maps each `Permission` of the UI to
   the permission names of the server, for each kind of object. A name that the definition of a
   kind does not have is refused by the server: keep each list exact.
+- One `CheckPermissions` call takes at most 50 names, and a test checks `namesFor` of each kind.
+  A new `Permission` asks one name for each cell of the catalog of the server: a cell gives all
+  its routes.
 - `accessQueries.myScope(object)` gives what the caller can do on any object, active or not. It
   does not change the store of `@platform/authz`: give its result to `canAccess`.
 - `accessQueries.list(object)` lists the roles on an object (`ListAccess`); `accessMutations`

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { loadNoAgentsBanner } from '@base/features/apps';
   import { createQuery } from '@scylla/core-sdk';
   import { ErrorState, ListSkeleton, PaginationSlot } from '@scylla/ui';
@@ -9,22 +10,30 @@
   import JobsHeader from './JobsHeader/JobsHeader.svelte';
   import JobsTable from './jobs-table/JobsTable.svelte';
   import { jobsMessages } from '../messages/jobs.messages.ts';
+  import type { JobFilter } from '../../domain/entities/job.entity.ts';
 
   interface Props {
     /** Passed by `PipelineJobsRoute`: `pipeline` owns this route (the Run action). */
     pipelineId?: string;
     onRun?: () => Promise<void>;
+    /** Only the jobs that match. */
+    filter?: JobFilter;
+    /** Under the header: the controls of the filter, given by the owner of the route. */
+    toolbar?: Snippet;
   }
 
-  let { pipelineId, onRun }: Props = $props();
+  let { pipelineId, onRun, filter, toolbar }: Props = $props();
 
   const pagination = createPagination({ responsive: true });
 
   const jobsQuery = createQuery(() =>
     jobQueries.byPipeline(pipelineId ?? '', pagination.paginationParams, {
       enabled: pagination.isPageSizeReady,
+      filter,
     }),
   );
+
+  const filtered = $derived(!!filter && Object.values(filter).some(value => value !== undefined));
 
   const jobs = $derived(jobsQuery.data?.items);
 
@@ -55,6 +64,8 @@
       {onRun}
     />
 
+    {@render toolbar?.()}
+
     <!-- A loader from the barrel. Nothing shows until it loads: the banner is advisory. -->
     {#await loadNoAgentsBanner() then banner}
       <banner.default hasPendingJobs={jobs?.some(job => job.status === 'pending') ?? false} />
@@ -71,7 +82,9 @@
           <div class="flex items-center justify-center h-full min-h-[400px]">
             <div class="text-center space-y-2">
               <p class="text-muted-foreground">{t(jobsMessages.noJobsFound)}</p>
-              <p class="text-sm text-muted-foreground">{t(jobsMessages.noJobsBody)}</p>
+              {#if !filtered}
+                <p class="text-sm text-muted-foreground">{t(jobsMessages.noJobsBody)}</p>
+              {/if}
             </div>
           </div>
         {/if}

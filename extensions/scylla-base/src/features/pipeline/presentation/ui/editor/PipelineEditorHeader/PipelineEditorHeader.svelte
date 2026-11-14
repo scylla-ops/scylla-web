@@ -1,11 +1,13 @@
 <script lang="ts">
   import type { MessageDescriptor } from '@lingui/core';
+  import FileDownIcon from '@lucide/svelte/icons/file-down';
   import Loader2Icon from '@lucide/svelte/icons/loader-2';
   import { Permission, can } from '@platform/authz';
   import { TabsList, TabsTrigger } from '@scylla/ui/primitives';
   import { GatedButton } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
+  import { exportMessages } from '@base/features/pipeline/presentation/messages/export.messages.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import type { MissingDocument } from '../pipeline-document.state.svelte.ts';
   import PipelineNameField from './PipelineNameField.svelte';
@@ -26,6 +28,8 @@
     isSaving?: boolean;
     pipelineName: string;
     onNameChange: (name: string) => void;
+    /** A saved pipeline: the header shows Export, which writes it as a file of the repository. */
+    onExport?: () => void;
   }
 
   let {
@@ -40,6 +44,7 @@
     isSaving = false,
     pipelineName,
     onNameChange,
+    onExport,
   }: Props = $props();
 
   type SaveStatus = 'draft' | 'saving' | 'dirty' | 'saved';
@@ -54,6 +59,8 @@
   const status = $derived<SaveStatus>(
     isSaving ? 'saving' : mode === 'create' ? 'draft' : isDirty ? 'dirty' : 'saved',
   );
+
+  const canExport = $derived(can(Permission.READ_PIPELINE));
 
   const canSubmit = $derived(
     can(mode === 'create' ? Permission.CREATE_PIPELINE : Permission.UPDATE_PIPELINE),
@@ -113,6 +120,20 @@
           </span>
         {/key}
       </div>
+    {/if}
+
+    {#if onExport}
+      <GatedButton
+        variant="outline"
+        allowed={canExport}
+        deniedReason={t(exportMessages.exportDenied)}
+        onclick={onExport}
+        disabled={!!missing}
+      >
+        <FileDownIcon />
+        <!-- A narrow header shows the icon only; the name stays for a screen reader. -->
+        <span class="max-md:sr-only">{t(exportMessages.export)}</span>
+      </GatedButton>
     {/if}
 
     <GatedButton

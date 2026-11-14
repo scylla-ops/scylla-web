@@ -16,7 +16,7 @@
     /** True: the `form-actions` slot of a form in the card is a bar at the bottom of the card. */
     actionBar?: boolean;
     class?: string;
-    /** Shown at the end of the header, e.g. a button. */
+    /** A button, beside the title and the description, or under them in a narrow card. */
     action?: Snippet;
     children?: Snippet;
   }
@@ -41,13 +41,15 @@
         'overflow-hidden pb-0 [&_[data-slot=form-actions]]:-mx-6 [&_[data-slot=form-actions]]:mt-6 [&_[data-slot=form-actions]]:border-t [&_[data-slot=form-actions]]:bg-muted/50 [&_[data-slot=form-actions]]:px-6 [&_[data-slot=form-actions]]:py-4',
     )}
   >
-    <CardHeader>
-      <CardTitle>
-        <h2 id={headingId} class="text-base">{title}</h2>
-      </CardTitle>
-      {#if description}
-        <CardDescription>{description}</CardDescription>
-      {/if}
+    <CardHeader class="flex flex-wrap items-center gap-4">
+      <div class="flex min-w-0 grow basis-64 flex-col gap-2">
+        <CardTitle>
+          <h2 id={headingId} class="text-base">{title}</h2>
+        </CardTitle>
+        {#if description}
+          <CardDescription>{description}</CardDescription>
+        {/if}
+      </div>
       {#if action}
         <CardAction>{@render action()}</CardAction>
       {/if}

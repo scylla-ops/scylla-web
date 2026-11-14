@@ -50,7 +50,7 @@
     {#if facts.length}
       <ul class="flex flex-wrap gap-2">
         {#each facts as fact (fact)}
-          <li><Badge variant="secondary" class="font-normal">{fact}</Badge></li>
+          <li class="flex"><Badge variant="secondary" class="font-normal">{fact}</Badge></li>
         {/each}
       </ul>
     {/if}

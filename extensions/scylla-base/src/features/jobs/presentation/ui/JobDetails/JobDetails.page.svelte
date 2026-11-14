@@ -11,6 +11,7 @@
   import JobNodeLogs from './JobNodeLogs.svelte';
   import JobSummary from './JobSummary.svelte';
   import { nodeIdOf } from '@base/features/jobs/presentation/presenters/job-timeline.presenter.ts';
+  import { stepsOf } from '@base/features/jobs/presentation/presenters/job-steps.presenter.ts';
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
@@ -27,8 +28,12 @@
     !!job && isFinishedStatus(job.status) && can(Permission.CREATE_JOB),
   );
 
-  // A getter: the nodes arrive with the job.
-  const panels = createOpenLogPanels(() => job?.nodeExecutions.map(nodeIdOf) ?? []);
+  const approve = createMutation(() => jobMutations.approve(job?.pipelineId ?? ''));
+  const reject = createMutation(() => jobMutations.reject(job?.pipelineId ?? ''));
+  const canApprove = $derived(!!job && can(Permission.APPROVE_JOB));
+
+  // A getter: the nodes arrive with the job. The checkout is a step before them.
+  const panels = createOpenLogPanels(() => (job ? stepsOf(job).map(nodeIdOf) : []));
 
   const resourceError = createResourceError({
     error: () => jobQuery.error,
@@ -53,6 +58,9 @@
       onSelectNode={panels.selectNode}
       onRerun={canRerun ? () => rerun.mutate(job.id) : undefined}
       isRerunning={rerun.isPending}
+      onApprove={canApprove ? () => approve.mutate(job.id) : undefined}
+      onReject={canApprove ? () => reject.mutate(job.id) : undefined}
+      isDeciding={approve.isPending || reject.isPending}
     />
     <JobNodeLogs
       {job}

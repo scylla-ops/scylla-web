@@ -9,6 +9,8 @@ export type JobStatus =
   | 'failed'
   | 'cancelled'
   | 'orphaned'
+  /** A job from a fork waits for an editor of the project. No agent gets it. */
+  | 'awaiting_approval'
   | 'unknown';
 
 /** Still running: worth polling, and excluded from the success rate. */

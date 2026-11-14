@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, screen } from '@testing-library/svelte';
-import { render } from '@test/render.ts';
+import { render, textSnippet } from '@test/render.ts';
 import CopyBox from './CopyBox.svelte';
 
 const SECRET = '7f3a9c0e5b2d4f6a8c1e3b5d7f9a2c4e6b8d0f1a3c5e7b9d2f4a6c8e0b1d3f5a';
@@ -51,6 +51,20 @@ describe('CopyBox', () => {
     render(CopyBox, { value: COMMAND, copyToast: 'Copied', layout: 'lines', caption: 'Run it' });
 
     expect(valueBox().contains(screen.getByRole('button', { name: 'Copy' }))).toBe(false);
+  });
+
+  it('centers its buttons on the value, not on its first line, and not on the footer', () => {
+    render(CopyBox, {
+      value: COMMAND,
+      copyToast: 'Copied',
+      layout: 'lines',
+      footer: textSnippet('Expires in 14:58'),
+    });
+    const buttons = screen.getByRole('button', { name: 'Copy' }).parentElement;
+
+    expect(buttons?.parentElement).toBe(valueBox().parentElement);
+    expect(buttons).toHaveClass('top-1/2', '-translate-y-1/2');
+    expect(buttons?.parentElement).not.toHaveTextContent('Expires in 14:58');
   });
 
   it('focuses the copy button on mount without a scroll, only when asked', () => {

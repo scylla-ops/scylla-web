@@ -1,7 +1,7 @@
 import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
 import { scyllaNavigate } from '@platform/context';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
-import type { JobEntity } from '../domain/entities/job.entity.ts';
+import type { JobEntity, JobFilter } from '../domain/entities/job.entity.ts';
 import { isActiveStatus } from '@shared/domain/structs/job-status.struct.ts';
 import { summarizeJobs } from './presenters/jobs-summary.presenter.ts';
 import type { JobsModule } from '../jobs.module.ts';
@@ -37,11 +37,15 @@ export const jobQueries = {
     }),
 
   /** `enabled`: wait until the page size is measured, or the first page is fetched twice. */
-  byPipeline: (pipelineId: string, pagination: PaginationParams, options: { enabled?: boolean } = {}) =>
+  byPipeline: (
+    pipelineId: string,
+    pagination: PaginationParams,
+    options: { enabled?: boolean; filter?: JobFilter } = {},
+  ) =>
     queryOptions<PaginatedList<JobEntity>>({
-      queryKey: [...JOBS_QUERY_KEY(pipelineId), pagination],
+      queryKey: [...JOBS_QUERY_KEY(pipelineId), pagination, options.filter ?? null],
       enabled: (options.enabled ?? true) && !!pipelineId,
-      queryFn: () => repository().getByPipelineId(pipelineId, pagination),
+      queryFn: () => repository().getByPipelineId(pipelineId, pagination, options.filter),
       staleTime: 0,
       refetchInterval: query => (hasActive(query.state.data?.items ?? []) ? 5000 : false),
     }),
@@ -85,6 +89,12 @@ export const asJobFeed = (data: PaginatedList<JobEntity> | undefined) => {
   };
 };
 
+/** The answer of an approval is the job after it: no read is needed to show it. */
+const decided = (pipelineId: string, job: JobEntity) => {
+  getQueryClient().setQueryData(JOB_QUERY_KEY(job.id), job);
+  void getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId) });
+};
+
 export const jobMutations = {
   /** Invalidates the pipeline's list, or every job list when the pipeline is not known. */
   remove: (pipelineId?: string) =>
@@ -104,6 +114,20 @@ export const jobMutations = {
       onSuccess: () => {
         void getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId) });
       },
+    }),
+
+  /** Runs a job from a fork that waits. The page shows the answer, and the list reads it again. */
+  approve: (pipelineId: string) =>
+    mutationOptions({
+      mutationFn: (jobId: string) => repository().approve(jobId),
+      onSuccess: (job: JobEntity) => decided(pipelineId, job),
+    }),
+
+  /** Cancels a job from a fork that waits. */
+  reject: (pipelineId: string) =>
+    mutationOptions({
+      mutationFn: (jobId: string) => repository().reject(jobId),
+      onSuccess: (job: JobEntity) => decided(pipelineId, job),
     }),
 
   rerun: (pipelineId: string) =>

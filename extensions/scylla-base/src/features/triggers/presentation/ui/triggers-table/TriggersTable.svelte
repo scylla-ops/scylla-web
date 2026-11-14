@@ -1,8 +1,5 @@
 <script lang="ts">
   import { SvelteSet } from 'svelte/reactivity';
-  import ClockIcon from '@lucide/svelte/icons/clock';
-  import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
-  import WebhookIcon from '@lucide/svelte/icons/webhook';
   import { Permission, can } from '@platform/authz';
   import { scyllaNavigate } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
@@ -14,6 +11,7 @@
   } from '@scylla/ui';
   import { createSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
+  import type { VcsProvider } from '@base/features/integrations';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggerMutations } from '@base/features/triggers/presentation/triggers.queries.ts';
   import * as triggersNavigation from '@base/features/triggers/presentation/mappers/triggers-navigation.mapper.ts';
@@ -21,21 +19,20 @@
   import TriggerSourceCell from './TriggerSourceCell/TriggerSourceCell.svelte';
   import TriggerStatusCell from './TriggerStatusCell/TriggerStatusCell.svelte';
   import { triggerColumns } from './triggers-table.columns.ts';
+  import { KIND_ICONS } from '../trigger-kind-icons.registry.ts';
   import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
     triggers: TriggerEntity[];
     pipelineId: string;
     pipelineName: string;
+    /** The provider of the linked repository: GitLab names a pull request "merge request". */
+    provider?: VcsProvider;
+    /** The file of a file pipeline, which defines its Git triggers. */
+    filePath?: string;
   }
 
-  let { triggers, pipelineId, pipelineName }: Props = $props();
-
-  const SOURCE_ICON = {
-    ['cron']: ClockIcon,
-    ['webhook']: WebhookIcon,
-    ['unknown']: HelpCircleIcon,
-  } as const;
+  let { triggers, pipelineId, pipelineName, provider, filePath = '' }: Props = $props();
 
   const selection = createSelection('triggers');
   const deleteTrigger = createMutation(() => triggerMutations.remove(pipelineId));
@@ -74,7 +71,7 @@
 </script>
 
 {#snippet nameCell(trigger: TriggerEntity)}
-  {@const Icon = SOURCE_ICON[trigger.source.kind]}
+  {@const Icon = KIND_ICONS[trigger.source.kind]}
   <div class="flex w-full min-w-0 flex-row items-center gap-3">
     <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
       <Icon class="size-4 text-primary" />
@@ -91,7 +88,7 @@
 {/snippet}
 
 {#snippet sourceCell(trigger: TriggerEntity)}
-  <TriggerSourceCell {trigger} />
+  <TriggerSourceCell {trigger} {provider} {filePath} />
 {/snippet}
 
 {#snippet statusCell(trigger: TriggerEntity)}
@@ -103,8 +100,10 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div class="flex justify-center" onclick={event => event.stopPropagation()}>
+    <!-- A trigger of a pipeline file follows its pipeline: only the file changes it. -->
     <Switch
       checked={trigger.enabled}
+      disabled={trigger.fromFile}
       onCheckedChange={checked => setEnabled.mutate({ triggerId: trigger.id, enabled: checked })}
       aria-label={t(triggersMessages.toggleEnabled(trigger.name))}
     />
@@ -112,27 +111,31 @@
 {/snippet}
 
 {#snippet actionsCell(trigger: TriggerEntity)}
-  <TriggerActions
-    isFiring={firingIds.has(trigger.id)}
-    onFire={event => {
-      event.stopPropagation();
-      handleFire(trigger);
-    }}
-    onEdit={event => {
-      event.stopPropagation();
-      triggersNavigation.toEdit(pipelineId, trigger.id);
-    }}
-    onDelete={event => {
-      event.stopPropagation();
-      deleteTargetId = trigger.id;
-    }}
-  />
+  {#if !trigger.fromFile}
+    <TriggerActions
+      isFiring={firingIds.has(trigger.id)}
+      onFire={event => {
+        event.stopPropagation();
+        handleFire(trigger);
+      }}
+      onEdit={event => {
+        event.stopPropagation();
+        triggersNavigation.toEdit(pipelineId, trigger.id);
+      }}
+      onDelete={event => {
+        event.stopPropagation();
+        deleteTargetId = trigger.id;
+      }}
+    />
+  {/if}
 {/snippet}
 
 <DataTable
   {columns}
   data={triggers}
-  onRowClick={row => selection.select(row.original.id)}
+  onRowClick={row => {
+    if (!row.original.fromFile) selection.select(row.original.id);
+  }}
   getRowId={trigger => trigger.id}
   isRowSelected={trigger => selection.selectedIds.includes(trigger.id)}
   alignColumnsCenter

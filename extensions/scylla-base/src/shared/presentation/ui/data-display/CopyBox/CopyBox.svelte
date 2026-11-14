@@ -91,39 +91,39 @@
     {#if overlay}
       <div class="absolute inset-0 flex items-center justify-center">{@render overlay()}</div>
     {/if}
+    <div class="absolute top-1/2 right-2 flex -translate-y-1/2 gap-0.5">
+      <button
+        type="button"
+        onclick={() => void copy()}
+        aria-label={t(messages.copy)}
+        disabled={faded}
+        {@attach focusOnMount && focusWithoutScroll}
+        class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+      >
+        {#if copied}
+          <CheckIcon class="size-4" />
+        {:else}
+          <CopyIcon class="size-4" />
+        {/if}
+      </button>
+      {#if hasToggle}
+        <button
+          type="button"
+          onclick={() => (revealed = !revealed)}
+          aria-pressed={revealed}
+          aria-label={t(messages.show)}
+          class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
+        >
+          {#if revealed}
+            <EyeOffIcon class="size-4" />
+          {:else}
+            <EyeIcon class="size-4" />
+          {/if}
+        </button>
+      {/if}
+    </div>
   </div>
   {#if footer}
     <div class="border-t px-3.5 py-2">{@render footer()}</div>
   {/if}
-  <div class="absolute top-2 right-2 flex gap-0.5">
-    <button
-      type="button"
-      onclick={() => void copy()}
-      aria-label={t(messages.copy)}
-      disabled={faded}
-      {@attach focusOnMount && focusWithoutScroll}
-      class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
-    >
-      {#if copied}
-        <CheckIcon class="size-4" />
-      {:else}
-        <CopyIcon class="size-4" />
-      {/if}
-    </button>
-    {#if hasToggle}
-      <button
-        type="button"
-        onclick={() => (revealed = !revealed)}
-        aria-pressed={revealed}
-        aria-label={t(messages.show)}
-        class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
-      >
-        {#if revealed}
-          <EyeOffIcon class="size-4" />
-        {:else}
-          <EyeIcon class="size-4" />
-        {/if}
-      </button>
-    {/if}
-  </div>
 </div>

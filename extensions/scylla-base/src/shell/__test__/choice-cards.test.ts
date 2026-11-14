@@ -1,0 +1,144 @@
+// @vitest-environment node
+import { describe, it, expect } from 'vitest';
+import { readFileSync, readdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+import { parse, type AST } from 'svelte/compiler';
+
+/**
+ * Reads the markup of each component: a layout has no type. A radio, a checkbox or a switch in
+ * a label is a choice. In a card with a title and a description, it is centered vertically on
+ * the whole card, not on the line of the title. The classes of `@scylla/ui` that place a control
+ * by a selector (the variants of a field) obey the same rule.
+ */
+
+const WORKSPACE = join(dirname(fileURLToPath(import.meta.url)), '../../../../..');
+const ROOTS = ['extensions/scylla-base/src', 'packages/ui/src'];
+
+const CONTROLS = new Set(['RadioGroupItem', 'Checkbox', 'Switch']);
+const HAS_CONTROL = /<(?:RadioGroupItem|Checkbox|Switch)\b/;
+const CENTERED = /(?:^|[\s'"`])items-center(?=[\s'"`]|$)/;
+const ON_FIRST_LINE =
+  /(?:^|[\s'"`])(?:[\w-]+:)*(?:items-start|items-baseline|self-start|-?mt-[\w.[\]-]+)(?=[\s'"`]|$)/;
+const CONTROL_SELECTOR =
+  /role=(?:checkbox|radio|switch)|data-slot=(?:checkbox|radio-group-item|switch|field-content)/;
+const FIRST_LINE_UTILITY = /^!?(?:items-start|items-baseline|self-start|-?mt-[\w.[\]-]+)!?$/;
+
+const sources = new Map(
+  ROOTS.flatMap(root =>
+    readdirSync(join(WORKSPACE, root), { recursive: true, encoding: 'utf8' })
+      .map(path => `${root}/${path.replaceAll('\\', '/')}`)
+      .filter(path => /\.(svelte|ts)$/.test(path) && !path.endsWith('.test.ts'))
+      .map(path => [path, readFileSync(join(WORKSPACE, path), 'utf8')] as const),
+  ),
+);
+
+type Element = AST.Component | AST.RegularElement;
+
+const isLabel = (node: Element) =>
+  (node.type === 'Component' && node.name === 'Label') ||
+  (node.type === 'RegularElement' && node.name === 'label');
+
+const childrenOf = (node: object): Element[] =>
+  Object.values(node).flatMap(value => {
+    const fragment = value as AST.Fragment | null;
+    if (fragment?.type !== 'Fragment') return [];
+    return fragment.nodes.flatMap(child =>
+      child.type === 'Component' || child.type === 'RegularElement' ? [child] : childrenOf(child),
+    );
+  });
+
+interface Choice {
+  at: string;
+  /** The class of the label, of each element between them, and of the control. */
+  classes: string[];
+}
+
+const choices: Choice[] = [...sources]
+  .filter(([path, source]) => path.endsWith('.svelte') && HAS_CONTROL.test(source))
+  .flatMap(([path, source]) => {
+    const classOf = (element: Element) => {
+      const found = element.attributes.find(
+        attr => attr.type === 'Attribute' && attr.name === 'class',
+      );
+      return found ? source.slice(found.start, found.end) : '';
+    };
+    const found: Choice[] = [];
+    const visit = (elements: Element[], chain: Element[] | null) =>
+      elements.forEach(element => {
+        const next = isLabel(element) ? [element] : chain && [...chain, element];
+        if (next && element.type === 'Component' && CONTROLS.has(element.name)) {
+          found.push({
+            at: `${path}: <${element.name}> at ${element.start}`,
+            classes: next.map(classOf),
+          });
+        }
+        visit(childrenOf(element), next);
+      });
+    visit(childrenOf(parse(source, { modern: true, filename: path })), null);
+    return found;
+  });
+
+/** `a:[b:c]:d` → `a`, `[b:c]`, `d`: the variants, then the utility. */
+const segmentsOf = (token: string) => {
+  const segments = [''];
+  let depth = 0;
+  for (const char of token) {
+    if (char === '[') depth++;
+    if (char === ']') depth--;
+    if (char === ':' && depth === 0) segments.push('');
+    else segments[segments.length - 1] += char;
+  }
+  return segments;
+};
+
+const placedOnFirstLine = [...sources].flatMap(([path, source]) =>
+  (source.match(/[^\s'"`]+/g) ?? [])
+    .filter(token => {
+      const segments = segmentsOf(token);
+      const utility = segments.pop() ?? '';
+      return (
+        segments.some(variant => CONTROL_SELECTOR.test(variant)) &&
+        FIRST_LINE_UTILITY.test(utility)
+      );
+    })
+    .map(token => `${path}: ${token}`),
+);
+
+describe('a choice in a label', () => {
+  it('is searched in every component, the cards of the projects of a new agent included', () => {
+    expect(choices.map(choice => choice.at).join('\n')).toContain('ProjectChooser.svelte');
+  });
+
+  it('is centered on the whole label: the label has `items-center`', () => {
+    const offCenter = choices
+      .filter(choice => !CENTERED.test(choice.classes[0] ?? ''))
+      .map(choice => choice.at);
+
+    expect(offCenter, 'add `items-center` to the label').toEqual([]);
+  });
+
+  it('is not put on the first line of the text by an element between them or by itself', () => {
+    const onFirstLine = choices
+      .filter(choice => choice.classes.some(classes => ON_FIRST_LINE.test(classes)))
+      .map(choice => choice.at);
+
+    expect(
+      onFirstLine,
+      'remove `items-start`, `items-baseline`, `self-start` or the top margin',
+    ).toEqual([]);
+  });
+});
+
+describe('a class that places a control by a selector', () => {
+  it('is searched in the sources of `@scylla/ui` too, the variants of a field included', () => {
+    expect([...sources.keys()]).toContain('packages/ui/src/primitives/field/field-variants.ts');
+  });
+
+  it('does not put the control, or the content of a field beside it, on the first line', () => {
+    expect(
+      placedOnFirstLine,
+      'remove `items-start`, `items-baseline`, `self-start` or the top margin',
+    ).toEqual([]);
+  });
+});

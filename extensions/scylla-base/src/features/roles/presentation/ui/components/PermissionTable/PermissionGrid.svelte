@@ -16,13 +16,10 @@
   import { cn } from '@scylla/ui/utils';
   import type { RoleLevel } from '../../../../domain/entities/role.entity.ts';
   import {
-    ACTIONS,
     togglePermission,
-    type CatalogAction,
     type CatalogArea,
   } from '../../../../domain/structs/catalog.struct.ts';
   import {
-    actionLabels,
     allOf,
     areaLabels,
     clearTab,
@@ -35,6 +32,8 @@
     markOf,
     openInColumn,
     openInTab,
+    permissionLabel,
+    tableActions,
     type PermissionRow,
   } from '../../../presenters/permission-table.presenter.ts';
   import ActionHead from './ActionHead.svelte';
@@ -53,7 +52,9 @@
 
   let { rows, areas, level, selected, onChange }: Props = $props();
 
-  let hovered = $state<CatalogAction | null>(null);
+  let hovered = $state<string | null>(null);
+
+  const actions = $derived(tableActions(rows.map(row => row.area)));
 
   const tabIds = $derived(openInTab(rows));
   const tabMark = $derived(markOf(tabIds, selected));
@@ -101,7 +102,7 @@
           {t(rolesMessages.resource)}
         </span>
       </TableHead>
-      {#each ACTIONS as action (action)}
+      {#each actions as action (action)}
         {@const ids = onChange ? openInColumn(rows, action) : []}
         <ActionHead
           {action}
@@ -131,8 +132,13 @@
           </span>
         </TableCell>
         {#each row.cells as cell (cell.action)}
-          {@const name = `${areaTitle(row.area)} · ${t(actionLabels[cell.action])}`}
-          <TableCell class={cn('px-2 text-center', hovered === cell.action && 'bg-primary/6')}>
+          {@const name = cell.kind === 'none' ? '' : permissionLabel(cell.id, areas)}
+          <TableCell
+            class={cn(
+              'px-2 text-center [&:has([role=checkbox])]:pr-2',
+              hovered === cell.action && 'bg-primary/6',
+            )}
+          >
             {#if cell.kind === 'none'}
               <span class="mx-auto block h-[1.5px] w-2 bg-input" aria-hidden="true"></span>
             {:else if onChange}

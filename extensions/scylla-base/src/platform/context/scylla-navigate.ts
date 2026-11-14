@@ -36,6 +36,13 @@ const goToEditPipeline = (id: string, name: string) => {
   contextStore.getState().setPipeline(id, name);
 };
 
+/** The read-only page of a pipeline that comes from a file of the repository. */
+const goToFilePipeline = (id: string, name: string) => {
+  const projectId = contextStore.getState().project.id;
+  navigateTo(`${getWorkspacePrefix()}/projects/${projectId}/pipelines/${id}`);
+  contextStore.getState().setPipeline(id, name);
+};
+
 // No `name`: the caller is already inside this pipeline.
 const goToJobs = (id: string, name?: string) => {
   const projectId = contextStore.getState().project.id;
@@ -86,6 +93,7 @@ const goToWorkspaceRoute = (path: string, options?: NavigateOptions) => {
 export const scyllaNavigate = {
   navigate: navigateTo,
   goToEditPipeline,
+  goToFilePipeline,
   goToUser,
   goToAccount,
   goToSubRoute,

@@ -77,6 +77,12 @@ export enum Permission {
   CREATE_JOIN_CODE = 70,
   RENAME_APP_KEY = 71,
   REVOKE_APP_KEY = 72,
+  VIEW_INTEGRATIONS = 73,
+  MANAGE_VCS_CONNECTIONS = 74,
+  READ_REPOSITORY_LINK = 75,
+  MANAGE_REPOSITORY_LINK = 76,
+  APPROVE_JOB = 77,
+  MANAGE_GIT_PROVIDERS = 78,
 }
 
 const SYSTEM_LEVEL = new Set<Permission>([
@@ -97,6 +103,7 @@ const SYSTEM_LEVEL = new Set<Permission>([
   Permission.MANAGE_INSTANCE_SETTINGS,
   Permission.LIST_ROLES,
   Permission.MANAGE_INSTANCE_ADMINS,
+  Permission.MANAGE_GIT_PROVIDERS,
 ]);
 
 const WORKSPACE_LEVEL = new Set<Permission>([
@@ -124,6 +131,8 @@ const WORKSPACE_LEVEL = new Set<Permission>([
   Permission.MANAGE_WORKSPACE_GRANTS,
   Permission.MANAGE_WORKSPACE_ROLES,
   Permission.LIST_WORKSPACE_ROLES,
+  Permission.VIEW_INTEGRATIONS,
+  Permission.MANAGE_VCS_CONNECTIONS,
 ]);
 
 /**

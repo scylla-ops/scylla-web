@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { PermissionScope, permissionsStore } from '@platform/authz';
+import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import PipelineUpdatePage from './PipelineUpdate.page.svelte';
@@ -14,6 +15,7 @@ const loaded = {
     nodes: [{ id: 'build', deps: [], env: [], kind: 'script', shell: 'bash', script: 'make' }],
   },
   layout: null,
+  origin: { source: 'editor', filePath: '', fileErrorCount: 0 },
 };
 
 let teardown: Array<() => void> = [];
@@ -90,5 +92,22 @@ describe('PipelineUpdatePage', () => {
     expect(isInert(palette)).toBe(true);
     expect(isInert(canvas)).toBe(true);
     expect(document.querySelector('[data-slot="canvas-curtain"]')).toBeInTheDocument();
+  });
+
+  it('sends a file pipeline to its read-only page: its file changes in the repository', async () => {
+    const navigator = installTestNavigator({ pathname: '/acme/projects/project-1/edit/pipeline-1' });
+    teardown.push(navigator.restore);
+    renderPage(() =>
+      Promise.resolve({
+        ...loaded,
+        origin: { source: 'file', filePath: '.scylla/pipeline.toml', fileErrorCount: 0 },
+      }),
+    );
+
+    await vi.waitFor(() =>
+      expect(navigator.navigate).toHaveBeenCalledWith('../../pipelines/pipeline-1', {
+        replace: true,
+      }),
+    );
   });
 });

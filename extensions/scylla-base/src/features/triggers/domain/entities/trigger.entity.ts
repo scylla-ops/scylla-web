@@ -15,12 +15,45 @@ export interface WebhookSource {
   webhookUrl: string;
 }
 
+/** An action on a pull request (a merge request on GitLab) that starts a run. */
+export type PullRequestEvent = 'opened' | 'newCommits' | 'reopened' | 'readyForReview';
+
+/** A push to a branch of the linked repository. An empty list of branches is each branch. */
+export interface PushSource {
+  kind: 'push';
+  branches: string[];
+  /** They win over `branches`. */
+  excludeBranches: string[];
+  /** Skips a commit with [skip ci] in its message. */
+  skipCi: boolean;
+}
+
+/** A pull request into a target branch. No event is each event. */
+export interface PullRequestSource {
+  kind: 'pullRequest';
+  branches: string[];
+  events: PullRequestEvent[];
+  /** Also runs the draft pull requests. */
+  drafts: boolean;
+}
+
+/** A new tag of the linked repository. No pattern is each tag. */
+export interface TagSource {
+  kind: 'tag';
+  patterns: string[];
+}
+
+/** The sources that need a linked repository. */
+export type GitSource = PushSource | PullRequestSource | TagSource;
+
+export type GitKind = GitSource['kind'];
+
 /** A source arm this build does not know: rendered as it is, never edited, it cannot round-trip. */
 export interface UnknownSource {
   kind: 'unknown';
 }
 
-export type TriggerSource = CronSource | WebhookSource | UnknownSource;
+export type TriggerSource = CronSource | WebhookSource | GitSource | UnknownSource;
 
 export type TriggerKind = TriggerSource['kind'];
 
@@ -41,7 +74,8 @@ export interface TriggerInput {
 /** Without the read-only `webhookUrl`. */
 export type TriggerSourceDraft =
   | { kind: 'cron'; expression: CronExpression }
-  | { kind: 'webhook' };
+  | { kind: 'webhook' }
+  | GitSource;
 
 export type TriggerDraftKind = TriggerSourceDraft['kind'];
 
@@ -65,7 +99,14 @@ export interface TriggerEntity {
   lastResult?: TriggerFireResult;
   createdAt: string;
   updatedAt: string;
+  /** From the `on` table of a pipeline file: read only, change the file. */
+  fromFile: boolean;
 }
+
+export const GIT_KINDS: readonly GitKind[] = ['push', 'pullRequest', 'tag'];
+
+export const isGitSource = (source: TriggerSource | TriggerSourceDraft): source is GitSource =>
+  (GIT_KINDS as readonly string[]).includes(source.kind);
 
 export interface TriggerDraft {
   name: string;

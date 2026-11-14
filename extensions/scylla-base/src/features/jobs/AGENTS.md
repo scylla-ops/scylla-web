@@ -6,7 +6,9 @@ Pipeline runs: their status, their logs, and the live tail of both.
 
 ## Import rules
 
-- May import: `@platform/*` barrels, `@shared/*`, other features' `index.ts`.
+- May import: `@platform/*` barrels, `@shared/*`, other features' `index.ts` (`apps` for the
+  agent of a job, `integrations` for the reports of a job and the Integrations URL, `user` for
+  the name of the person who approved a job).
 - Must never import: `shell/`, `@scylla/core`, another feature's internals.
 - Outside code reaches this module **only** through `index.ts`.
 
@@ -14,6 +16,7 @@ Pipeline runs: their status, their logs, and the live tail of both.
 
 ```typescript
 type JobEntity
+type JobEvent, JobFilter              ← the filters of a list of jobs
 type JobLog, JobLogStream
 type JobsSummary, JobStatus
 summarizeJobs, isActiveStatus, isFinishedStatus
@@ -46,11 +49,13 @@ Never add: `jobs.module.ts`, and never export a `.svelte` component from this ba
 
 | Method | Returns |
 |---|---|
-| `getByPipelineId(...)` | paginated `JobEntity` list |
+| `getByPipelineId(id, pagination?, filter?)` | paginated `JobEntity` list, only the jobs that match the filter |
 | `getByWorkspaceId(...)` | paginated `JobEntity` list |
 | `getById(jobId)` | `JobEntity` |
 | `deleteById(jobId)` | `void` |
 | `rerun(jobId)` | `string` — the id of the new job |
+| `cancel(jobId)` | `void` |
+| `approve(jobId)` / `reject(jobId)` | `JobEntity` — the job from a fork after the decision |
 | `getLogs(...)` | `JobLog[]` |
 | `tailLogs(jobId, nodeId?)` | **`JobLogStream` — synchronous, not a Promise** |
 
@@ -70,8 +75,10 @@ Each method rejects with a `ScyllaError` on failure. Reach it from `jobs.queries
 jobs.module.ts                       DI wiring + the job details route (no nav)
 index.ts                             public API
 domain/
-  entities/job.entity.ts             JobEntity, JobNodeExecution, NodeExecutionState, JobLog,
-                                     JobLogStream
+  entities/job.entity.ts             JobEntity, JobFilter, JobEvent, JobNodeExecution,
+                                     NodeExecutionState, JobLog, JobLogStream, and the Git
+                                     context: JobSource, JobApproval, PipelineFileRef,
+                                     PipelineFileError, JobCheckout
   repository/jobs.repository.ts
 infrastructure/
   default-jobs.repository.ts       JobServiceClient → JobEntity; tailLogs maps the stream
@@ -82,8 +89,21 @@ presentation/
   jobs-by-pipelines.queries.ts       the fan-out across pipelines, avoids N+1
   ui/Jobs.page.svelte, JobsHeader.svelte
   ui/JobDetails/                     one job: info + per-node logs (JobSummary, JobNodeLogs)
+    JobSourceFacts.svelte                  the commit band: repo, ref, SHA, PRs, author, fork,
+                                           event, pipeline file, approval decision
+    JobReportsBand.svelte                  one row for each report to the provider, its retry
+    JobApprovalBlock.svelte                Approve and run / Reject of a job from a fork
+    InvalidFileAlert.svelte                the errors of an invalid pipeline file
     open-log-panels.state.svelte.ts        which node panels are open, mirrored in the URL
+  ui/jobs-table/JobSource/           the Source cell: SHA, title, ref, PRs, author, report icon
   messages/jobs.messages.ts                every string — `lingui extract` cannot read `.svelte`
+  messages/job-git.messages.ts             the strings of the Git context of a job
+  presenters/job-source.presenter.ts     the ref, the event and the PR numbers of a commit
+  presenters/job-report.presenter.ts     the row and the tone of a report, the no-report reason
+  presenters/job-status.presenter.ts     the label and the hint of a status (invalid file,
+                                         waiting reason, approval)
+  presenters/job-steps.presenter.ts      the steps of the page: the checkout, then the nodes
+  presenters/job-file.presenter.ts       `path:line:column` of a file error
   presenters/jobs-summary.presenter.ts   JobsSummary, summarizeJobs
   presenters/job-timeline.presenter.ts   segment geometry, pure and tested in node
   presenters/node-attempt.presenter.ts   attemptOf: the `Attempt N/M` of a node
@@ -102,7 +122,10 @@ presentation/
 No nav entry. The jobs **list** is not declared here: it is mounted by
 [`pipeline`](../pipeline/AGENTS.md) at `project` → `pipelines/:pipelineId/jobs`, gated on
 `LIST_JOBS_BY_PIPELINE`, via `PipelineJobsRoute`, because that page needs a Run action. If you
-change `JobsPage`'s props, that is the call site to update.
+change `JobsPage`'s props, that is the call site to update. `pipeline` also gives the page a
+`filter` (a `JobFilter`: branch, event, author login, pull request) and a `toolbar` snippet with
+the controls of the filter, rendered under the header. A job with no commit matches no filter.
+With a filter that matches no job, the empty list does not tell the user to run the pipeline.
 
 One job needs nothing from `pipeline`, so its route lives here, with its full path. Its page
 shows the "Pipeline · Jobs" crumb of the list, because its path starts with the list's path.
@@ -169,6 +192,24 @@ shows the "Pipeline · Jobs" crumb of the list, because its path starts with the
   components, so a message declared there vanishes from the catalogs without failing a gate.
 - **`data-tour` attributes are anchors of the onboarding tour** (`job-details` on the job page). Keep them on the same
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
+
+## The Git context of a job
+
+- **The page stays as it was; the Git context only adds blocks** (decision 19 of the Git integration): under the
+  facts, the Source band (only for a job with a commit), the Report band, then the approval
+  block or the invalid-file block at the place of the error box.
+- **The checkout is a step, not a node.** `stepsOf` puts it first in the timeline and the log
+  nav, with "built in". Its log lines have the node id `.checkout`, so `?nodes=.checkout` opens
+  it. `job.nodeExecutions` stays the nodes of the pipeline: the lists and the dashboard read it.
+- **`awaiting_approval` is a status of `@shared`**: neither active nor finished. "Approve and
+  run" and "Reject" need `APPROVE_JOB`; a reader sees who can decide. The answer of the server
+  replaces the job in the cache.
+- **A failed job with `fileErrors` is an invalid pipeline file**: its own status label, and the
+  errors with their place replace the reason of the failure.
+- **The reports come from `integrations`** (`vcsReportQueries.byJobs`), only for the jobs with a
+  commit: no call for a job or a page with none. "Retry now" needs `UPDATE_JOB` (`retry_job_report`
+  is in `jobs.edit`); "Fix the connection" opens the Integrations page with `VIEW_INTEGRATIONS`.
+- **The Source column shows only when a job of the page has a commit.**
 
 ## Before done
 

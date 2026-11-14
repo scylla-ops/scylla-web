@@ -188,6 +188,7 @@ describe('grpcApp.toDomain', () => {
           memoryBytes: 2n * 1024n * 1024n * 1024n,
           capacity: 2,
           containerRuntime: 'docker',
+          features: [],
         },
       }),
     );

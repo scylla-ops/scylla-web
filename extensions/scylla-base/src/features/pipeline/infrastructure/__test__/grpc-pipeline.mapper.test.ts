@@ -7,6 +7,7 @@ import {
   type Node,
   type Pipeline,
 } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
+import { PipelineSource } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import type {
   EnvEntry,
   PipelineNodeEntity,
@@ -34,6 +35,10 @@ const basePipeline = (overrides: Partial<Pipeline> = {}): Pipeline => ({
   version: 3n,
   createdAt: TS,
   updatedAt: TS,
+  source: PipelineSource.EDITOR,
+  fileKey: '',
+  filePath: '',
+  fileErrorCount: 0,
   ...overrides,
 });
 
@@ -216,6 +221,7 @@ describe('grpcPipeline.toMetadataPage', () => {
         nodeCount: 2,
         createdAt: ISO,
         updatedAt: ISO,
+        origin: { source: 'editor', filePath: '', fileErrorCount: 0 },
       },
     ]);
     expect(page.pagination).toEqual({
@@ -226,5 +232,41 @@ describe('grpcPipeline.toMetadataPage', () => {
       hasNext: false,
       hasPrevious: true,
     });
+  });
+});
+
+describe('grpcPipeline.originOf', () => {
+  it('reads a file pipeline: its path, the errors of its file and the time its file left the branch', () => {
+    const origin = grpcPipeline.originOf(
+      basePipeline({
+        source: PipelineSource.FILE,
+        fileKey: 'build',
+        filePath: '.scylla/pipelines/build.toml',
+        fileErrorCount: 3,
+        removedAt: TS,
+      }),
+    );
+
+    expect(origin).toEqual({
+      source: 'file',
+      filePath: '.scylla/pipelines/build.toml',
+      fileErrorCount: 3,
+      removedAt: ISO,
+    });
+  });
+
+  it('keeps the time an editor pipeline was archived', () => {
+    expect(grpcPipeline.originOf(basePipeline({ archivedAt: TS }))).toEqual({
+      source: 'editor',
+      filePath: '',
+      fileErrorCount: 0,
+      archivedAt: ISO,
+    });
+  });
+
+  it('reads a source newer than this build as the editor: the server stays the judge of a change', () => {
+    expect(grpcPipeline.originOf(basePipeline({ source: 99 as PipelineSource })).source).toBe(
+      'editor',
+    );
   });
 });

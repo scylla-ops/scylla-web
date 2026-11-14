@@ -1,9 +1,14 @@
-import type { PipelineMetadata, PipelineEntity } from '../domain/entities/pipeline.entity.ts';
+import type {
+  PipelineEntity,
+  PipelineMetadata,
+  PipelineOrigin,
+} from '../domain/entities/pipeline.entity.ts';
 import type {
   EnvEntry,
   Shell as NodeShell,
   PipelineNodeEntity,
 } from '../domain/entities/pipeline-node.entity.ts';
+import type { PipelineFileFormat } from '../domain/structs/pipeline-file-format.struct.ts';
 import type { PipelineLayout } from '../domain/structs/pipeline-layout.struct.ts';
 import type {
   EnvVar,
@@ -12,8 +17,14 @@ import type {
   PipelineLayout as GrpcPipelineLayout,
 } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 import { Shell } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
+import { PipelineFileFormat as GrpcPipelineFileFormat } from '@base/generated/scylla/pipelines/v1/pipeline_file.ts';
+import { PipelineSource } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import type { PaginatedList, PaginationParams } from '@scylla/ui/structs';
-import { idValue, timestampToIso } from '@shared/infrastructure/grpc/wrappers.ts';
+import {
+  idValue,
+  timestampToIso,
+  timestampToIsoOpt,
+} from '@shared/infrastructure/grpc/wrappers.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 
 function shellFromProto(s: Shell): NodeShell {
@@ -22,6 +33,16 @@ function shellFromProto(s: Shell): NodeShell {
 
 function shellToProto(s: NodeShell): Shell {
   return s === 'bash' ? Shell.BASH : Shell.SH;
+}
+
+const FILE_FORMATS: Record<PipelineFileFormat, GrpcPipelineFileFormat> = {
+  toml: GrpcPipelineFileFormat.TOML,
+  yaml: GrpcPipelineFileFormat.YAML,
+  json: GrpcPipelineFileFormat.JSON,
+};
+
+export function fileFormatToProto(format: PipelineFileFormat): GrpcPipelineFileFormat {
+  return FILE_FORMATS[format];
 }
 
 /** A oneof arm this build does not know: refuse the pipeline, or saving it would erase the arm on the server. */
@@ -52,7 +73,7 @@ function envVarFromDomain(entry: EnvEntry): EnvVar {
   return { name: entry.key, value: { oneofKind: 'literal', literal: entry.value } };
 }
 
-function nodeToDomain(node: Node): PipelineNodeEntity {
+export function nodeToDomain(node: Node): PipelineNodeEntity {
   const base = {
     id: node.id,
     deps: node.needs,
@@ -113,6 +134,19 @@ export function toDomain(pipeline: Pipeline): PipelineEntity {
   };
 }
 
+/** A source this build does not know reads as the editor: its pipeline stays editable on the server's word. */
+export function originOf(pipeline: Pipeline): PipelineOrigin {
+  const archivedAt = timestampToIsoOpt(pipeline.archivedAt);
+  const removedAt = timestampToIsoOpt(pipeline.removedAt);
+  return {
+    source: pipeline.source === PipelineSource.FILE ? 'file' : 'editor',
+    filePath: pipeline.filePath,
+    fileErrorCount: pipeline.fileErrorCount,
+    ...(archivedAt && { archivedAt }),
+    ...(removedAt && { removedAt }),
+  };
+}
+
 export function toMetadata(pipeline: Pipeline): PipelineMetadata {
   return {
     id: idValue(pipeline.id),
@@ -121,6 +155,7 @@ export function toMetadata(pipeline: Pipeline): PipelineMetadata {
     nodeCount: pipeline.nodes.length,
     createdAt: timestampToIso(pipeline.createdAt),
     updatedAt: timestampToIso(pipeline.updatedAt),
+    origin: originOf(pipeline),
   };
 }
 

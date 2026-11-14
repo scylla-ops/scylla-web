@@ -26,4 +26,27 @@ describe('DangerZone', () => {
     expect(zone).toHaveTextContent('Delete');
     expect(zone).toHaveTextContent('Uninstall first.');
   });
+
+  it('centers its action on the title and the description, not on the line of the title', () => {
+    render(DangerZone, {
+      title: 'Danger zone',
+      description: 'This cannot be undone.',
+      action: textSnippet('Delete'),
+    });
+
+    const action = screen.getByText('Delete').closest('[data-slot=card-action]');
+    const header = action?.closest('[data-slot=card-header]');
+    expect(header).toHaveClass('flex', 'items-center');
+    expect(action).toHaveClass('self-center');
+    expect(action).not.toHaveClass('self-start');
+  });
+
+  it('puts its action under the title and the description when the card is narrow', () => {
+    render(DangerZone, { title: 'Danger zone', action: textSnippet('Delete') });
+
+    const header = screen.getByText('Delete').closest('[data-slot=card-header]');
+    expect(header).toHaveClass('flex-wrap');
+    expect(header?.firstElementChild).toContainElement(screen.getByRole('heading'));
+    expect(header?.firstElementChild).toHaveClass('grow', 'basis-64');
+  });
 });

@@ -134,4 +134,23 @@ describe('PipelineEditorHeader', () => {
     expect(onNameChange).not.toHaveBeenCalled();
     expect(name).toHaveValue('nightly');
   });
+
+  it('shows Export for a saved pipeline only, to a user who may read it', async () => {
+    const onExport = vi.fn();
+    grantOnly(Permission.UPDATE_PIPELINE, Permission.READ_PIPELINE);
+    const { rerender } = renderHeader();
+    expect(screen.queryByRole('button', { name: 'Export' })).not.toBeInTheDocument();
+
+    await rerender({ onExport });
+    await userEvent.click(screen.getByRole('button', { name: 'Export' }));
+
+    expect(onExport).toHaveBeenCalled();
+  });
+
+  it('keeps Export inert for a user who may not read the pipeline', () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ onExport: vi.fn() });
+
+    expect(screen.getByRole('button', { name: 'Export' })).toHaveAttribute('aria-disabled', 'true');
+  });
 });

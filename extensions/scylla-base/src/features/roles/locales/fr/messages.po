@@ -85,15 +85,15 @@ msgstr "À propos de ce rôle"
 msgid "Admins of this workspace make and change them."
 msgstr "Les admins de cet espace de travail les créent et les changent."
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:300
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:316
 msgid "Agent"
 msgstr "Agent"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:253
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:255
 msgid "Agents"
 msgstr "Agents"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:253
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:255
 msgid "Agents that run the jobs"
 msgstr "Agents qui exécutent les jobs"
 
@@ -121,12 +121,24 @@ msgstr "Toujours actif"
 msgid "and {count} more"
 msgstr "et {count} de plus"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:291
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:307
 msgid "App creator"
 msgstr "Créateur d'apps"
 
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:240
+msgid "Approve"
+msgstr "Approuver"
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:276
+msgid "Approve fork runs"
+msgstr "Approuver les exécutions de forks"
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:277
+msgid "Approve or reject a run of a pull request from a fork. Such a run never gets the secrets."
+msgstr "Approuver ou refuser l'exécution d'une pull request venant d'un fork. Cette exécution ne reçoit jamais les secrets."
+
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:204
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:252
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:254
 msgid "Apps"
 msgstr "Apps"
 
@@ -158,6 +170,10 @@ msgstr "Décocher toute la colonne {action}"
 msgid "Clears every permission"
 msgstr "Retire toutes les permissions"
 
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:257
+msgid "Connections to GitHub and GitLab"
+msgstr "Connexions à GitHub et GitLab"
+
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:72
 msgid "Copied from {role}"
 msgstr "Copié depuis {role}"
@@ -179,7 +195,7 @@ msgstr "créer ajouter permissions"
 msgid "Create role"
 msgstr "Créer le rôle"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:292
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:308
 msgid "Creates apps and agents. Give it with another role."
 msgstr "Crée des apps et des agents. À donner avec un autre rôle."
 
@@ -187,7 +203,7 @@ msgstr "Crée des apps et des agents. À donner avec un autre rôle."
 msgid "Custom"
 msgstr "Personnalisé"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:258
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:265
 msgid "Definitions and runs"
 msgstr "Définitions et exécutions"
 
@@ -220,11 +236,11 @@ msgstr "Dupliquer"
 msgid "Edit"
 msgstr "Modifier"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:260
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:267
 msgid "Edit is cancel and retry"
 msgstr "Modifier veut dire annuler et relancer"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:297
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:313
 msgid "Edits and runs pipelines of one project. Cannot manage its secrets."
 msgstr "Modifie et lance les pipelines d'un projet. Ne peut pas gérer ses secrets."
 
@@ -248,19 +264,23 @@ msgstr "Depuis l'instance"
 msgid "Full control"
 msgstr "Contrôle total"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:294
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:310
 msgid "Full control of one project."
 msgstr "Contrôle total d'un projet."
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:276
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:292
 msgid "Full control of one workspace, also its deletion and its owners."
 msgstr "Contrôle total d'un espace de travail, y compris sa suppression et ses propriétaires."
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:272
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:288
 msgid "Full control of the server, of every workspace and of every project."
 msgstr "Contrôle total du serveur, de chaque espace de travail et de chaque projet."
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:247
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:250
+msgid "Git providers"
+msgstr "Fournisseurs Git"
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:248
 msgid "Give instance roles"
 msgstr "Donner des rôles d'instance"
 
@@ -314,11 +334,11 @@ msgstr "dans le projet"
 msgid "Instance"
 msgstr "Instance"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:247
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:248
 msgid "Instance access"
 msgstr "Accès à l'instance"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:271
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:287
 msgid "Instance admin"
 msgstr "Admin de l'instance"
 
@@ -327,23 +347,27 @@ msgid "Instance admins manage these roles. You can give them, but you cannot cha
 msgstr "Les admins de l'instance gèrent ces rôles. Vous pouvez les donner, mais pas les changer."
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:221
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:246
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:247
 msgid "Instance roles"
 msgstr "Rôles d'instance"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:248
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:249
 msgid "Instance settings"
 msgstr "Réglages de l'instance"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:255
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:257
+msgid "Integrations"
+msgstr "Intégrations"
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:258
 msgid "Job execution"
 msgstr "Exécution des jobs"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:261
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:268
 msgid "Job logs"
 msgstr "Journaux des jobs"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:260
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:267
 msgid "Jobs"
 msgstr "Jobs"
 
@@ -355,7 +379,7 @@ msgstr "Clé"
 msgid "Level"
 msgstr "Niveau"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:252
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:254
 msgid "Machine identities and their credentials"
 msgstr "Identités de machines et leurs identifiants"
 
@@ -375,19 +399,23 @@ msgstr "Machines"
 msgid "Make a role when the built-in roles give too much or too little. You can start from a built-in role and change its permissions."
 msgstr "Créez un rôle quand les rôles intégrés donnent trop ou trop peu. Vous pouvez partir d'un rôle intégré et changer ses permissions."
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:246
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:247
 msgid "Make and change roles"
 msgstr "Créer et modifier des rôles"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:240
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:241
 msgid "Manage"
 msgstr "Gérer"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:280
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:274
+msgid "Manage Git providers"
+msgstr "Gérer les fournisseurs Git"
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:296
 msgid "Manages one workspace and its projects."
 msgstr "Gère un espace de travail et ses projets."
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:250
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:252
 msgid "Members"
 msgstr "Membres"
 
@@ -407,15 +435,15 @@ msgstr "Déplacer les détenteurs vers"
 msgid "Name"
 msgstr "Nom"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:256
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:259
 msgid "Name and settings"
 msgstr "Nom et réglages"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:249
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:251
 msgid "Name and settings. Every member sees it"
 msgstr "Nom et réglages. Chaque membre le voit"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:262
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:269
 msgid "Names only. Nobody sees a value"
 msgstr "Noms uniquement. Personne ne voit une valeur"
 
@@ -427,7 +455,7 @@ msgstr "Nécessite {names}"
 msgid "New instance role"
 msgstr "Nouveau rôle d'instance"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:254
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:256
 msgid "New projects in the workspace"
 msgstr "Nouveaux projets dans l'espace de travail"
 
@@ -501,7 +529,7 @@ msgstr "Origine"
 msgid "People"
 msgstr "Personnes"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:250
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:252
 msgid "People and apps of the workspace"
 msgstr "Personnes et apps de l'espace de travail"
 
@@ -513,33 +541,33 @@ msgstr "Niveaux de permissions"
 msgid "Permissions"
 msgstr "Permissions"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:244
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:245
 msgid "Persons of the instance"
 msgstr "Personnes de l'instance"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:258
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:265
 msgid "Pipelines"
 msgstr "Pipelines"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:170
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:216
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:256
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:259
 msgid "Project"
 msgstr "Projet"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:294
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:310
 msgid "Project admin"
 msgstr "Administrateur de projet"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:301
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:317
 msgid "Project agent"
 msgstr "Agent de projet"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:296
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:312
 msgid "Project editor"
 msgstr "Éditeur de projet"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:257
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:260
 msgid "Project members"
 msgstr "Membres du projet"
 
@@ -547,11 +575,11 @@ msgstr "Membres du projet"
 msgid "Project roles"
 msgstr "Rôles de projet"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:299
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:315
 msgid "Project viewer"
 msgstr "Lecteur de projet"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:254
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:256
 msgid "Projects"
 msgstr "Projets"
 
@@ -562,6 +590,10 @@ msgstr "Responsable des versions"
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:66
 msgid "Remove {names}"
 msgstr "Retirer {names}"
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:262
+msgid "Repository"
+msgstr "Dépôt"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:145
 msgid "Resource"
@@ -586,7 +618,7 @@ msgstr "Rôles"
 msgid "Roles of {workspace}"
 msgstr "Rôles de {workspace}"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:251
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:253
 msgid "Roles that the workspace owns"
 msgstr "Rôles propres à l'espace de travail"
 
@@ -594,7 +626,7 @@ msgstr "Rôles propres à l'espace de travail"
 msgid "Run"
 msgstr "Exécuter"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:255
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:258
 msgid "Run takes a job. Edit reports its state"
 msgstr "Exécuter prend un job. Modifier rapporte son état"
 
@@ -606,7 +638,7 @@ msgstr "Enregistrer"
 msgid "Save {role}?"
 msgstr "Enregistrer {role} ?"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:259
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:266
 msgid "Schedules and webhooks that start runs"
 msgstr "Planifications et webhooks qui lancent des exécutions"
 
@@ -614,7 +646,7 @@ msgstr "Planifications et webhooks qui lancent des exécutions"
 msgid "Search roles"
 msgstr "Rechercher un rôle"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:262
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:269
 msgid "Secrets"
 msgstr "Secrets"
 
@@ -626,11 +658,11 @@ msgstr "Voir tous les membres"
 msgid "See members"
 msgstr "Voir les membres"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:299
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:315
 msgid "Sees one project, its runs and logs."
 msgstr "Voit un projet, ses exécutions et ses journaux."
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:288
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:304
 msgid "Sees the workspace, its projects, runs and logs. Changes nothing."
 msgstr "Voit l'espace de travail, ses projets, exécutions et journaux. Ne change rien."
 
@@ -642,15 +674,15 @@ msgstr "Tout cocher sur cet onglet ({count})"
 msgid "Select the whole {action} column"
 msgstr "Cocher toute la colonne {action}"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:248
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:249
 msgid "Sign-in, security"
 msgstr "Connexion, sécurité"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:300
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:316
 msgid "Takes the jobs of every project of the workspace."
 msgstr "Prend les jobs de chaque projet de l'espace de travail."
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:301
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:317
 msgid "Takes the jobs of one project."
 msgstr "Prend les jobs d'un projet."
 
@@ -658,11 +690,19 @@ msgstr "Prend les jobs d'un projet."
 msgid "The Access menu does not show Roles to you. You opened this page from a link."
 msgstr "Le menu Accès ne vous montre pas Rôles. Vous avez ouvert cette page depuis un lien."
 
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:250
+msgid "The GitHub App of the instance"
+msgstr "L'app GitHub de l'instance"
+
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:164
 msgid "The instance roles are saved."
 msgstr "Les rôles d'instance sont enregistrés."
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:261
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:263
+msgid "The linked Git repository and the source of the pipelines"
+msgstr "Le dépôt Git lié et la source des pipelines"
+
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:268
 msgid "The output of the jobs"
 msgstr "La sortie des jobs"
 
@@ -726,7 +766,7 @@ msgstr "Ce rôle n'existe pas."
 msgid "This workspace"
 msgstr "Cet espace de travail"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:259
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:266
 msgid "Triggers"
 msgstr "Déclencheurs"
 
@@ -738,7 +778,7 @@ msgstr "Réessayer"
 msgid "Undo"
 msgstr "Annuler"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:244
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:245
 msgid "Users"
 msgstr "Utilisateurs"
 
@@ -746,7 +786,7 @@ msgstr "Utilisateurs"
 msgid "View"
 msgstr "Voir"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:245
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:246
 msgid "View is all workspaces"
 msgstr "Voir concerne tous les espaces de travail"
 
@@ -762,42 +802,42 @@ msgstr "Ce que fait ce rôle"
 msgid "Who can hold it"
 msgstr "Qui peut le détenir"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:257
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:260
 msgid "Who has a role on the project"
 msgstr "Qui a un rôle sur le projet"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:284
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:300
 msgid "Works in every project of the workspace. Cannot manage members or roles."
 msgstr "Travaille dans chaque projet de l'espace de travail. Ne peut pas gérer les membres ni les rôles."
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:169
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:215
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:249
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:251
 msgid "Workspace"
 msgstr "Espace de travail"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:279
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:295
 msgid "Workspace admin"
 msgstr "Administrateur d'espace de travail"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:283
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:299
 msgid "Workspace member"
 msgstr "Membre d'espace de travail"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:275
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:291
 msgid "Workspace owner"
 msgstr "Propriétaire d'espace de travail"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:222
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:251
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:253
 msgid "Workspace roles"
 msgstr "Rôles d'espace de travail"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:287
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:303
 msgid "Workspace viewer"
 msgstr "Lecteur d'espace de travail"
 
-#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:245
+#: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:246
 msgid "Workspaces"
 msgstr "Espaces de travail"
 

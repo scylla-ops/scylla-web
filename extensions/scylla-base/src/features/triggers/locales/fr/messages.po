@@ -29,6 +29,34 @@ msgstr "Cron en 5 champs (min heure jour mois jour de semaine), évalué selon v
 msgid "A call to the webhook starts a run. The secret shows once, after you create the trigger."
 msgstr "Un appel au webhook lance une exécution. Le secret s'affiche une seule fois, après la création du déclencheur."
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:114
+msgid "A glob has at most 255 characters."
+msgstr "Un glob a au plus 255 caractères."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:116
+msgid "A list has at most 32 globs."
+msgstr "Une liste a au plus 32 globs."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:103
+msgid "A merge request into a matching branch starts a run, on its head commit."
+msgstr "Une merge request vers une branche correspondante lance une exécution, sur son dernier commit."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:104
+msgid "A new tag that matches a pattern starts a run."
+msgstr "Un nouveau tag qui correspond à un motif lance une exécution."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:102
+msgid "A pull request into a matching branch starts a run, on its head commit."
+msgstr "Une pull request vers une branche correspondante lance une exécution, sur son dernier commit."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:101
+msgid "A push to a matching branch of {repository} starts a run."
+msgstr "Un push sur une branche correspondante de {repository} lance une exécution."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:100
+msgid "A push to a matching branch starts a run."
+msgstr "Un push sur une branche correspondante lance une exécution."
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:46
 msgid "A trigger starts a run of this pipeline automatically."
 msgstr "Un déclencheur lance automatiquement une exécution de ce pipeline."
@@ -37,9 +65,17 @@ msgstr "Un déclencheur lance automatiquement une exécution de ce pipeline."
 msgid "Actions"
 msgstr "Actions"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:109
+msgid "Add a branch or a glob"
+msgstr "Ajouter une branche ou un glob"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:8
 msgid "Add a cron schedule or webhook to start runs automatically."
 msgstr "Ajoutez une planification cron ou un webhook pour démarrer des exécutions automatiquement."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:110
+msgid "Add a tag or a glob"
+msgstr "Ajouter un tag ou un glob"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:63
 msgid "Add input"
@@ -57,9 +93,29 @@ msgstr "à"
 msgid "at minute"
 msgstr "à la minute"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:136
+msgid "Branch name"
+msgstr "Nom de la branche"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:106
+msgid "Branches to exclude"
+msgstr "Branches à exclure"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:105
+msgid "Branches to include"
+msgstr "Branches à inclure"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:58
 msgid "Cancel"
 msgstr "Annuler"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:123
+msgid "Choose at least one event."
+msgstr "Choisissez au moins un événement."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:134
+msgid "Commit SHA"
+msgstr "SHA du commit"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:10
 msgid "Copy the secret below. It is shown only once."
@@ -102,6 +158,14 @@ msgstr "Jour du mois"
 msgid "Days of the week"
 msgstr "Jours de la semaine"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:150
+msgid "Defined in {path}"
+msgstr "Défini dans {path}"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:149
+msgid "Defined in the pipeline file"
+msgstr "Défini dans le fichier du pipeline"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:43
 msgid "Delete"
 msgstr "Supprimer"
@@ -114,6 +178,22 @@ msgstr "désactivé"
 msgid "disabled: URL returns 404"
 msgstr "désactivé : l'URL renvoie 404"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:148
+msgid "drafts skipped"
+msgstr "brouillons ignorés"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:145
+msgid "each branch"
+msgstr "chaque branche"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:133
+msgid "Each node gets these values. Read only."
+msgstr "Chaque nœud reçoit ces valeurs. Lecture seule."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:146
+msgid "each tag"
+msgstr "chaque tag"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:42
 msgid "Edit"
 msgstr "Modifier"
@@ -122,6 +202,14 @@ msgstr "Modifier"
 #: extensions/scylla-base/src/features/triggers/triggers.module.ts:42
 msgid "Edit trigger"
 msgstr "Modifier le déclencheur"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:111
+msgid "Empty: each branch."
+msgstr "Vide : chaque branche."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:112
+msgid "Empty: each tag."
+msgstr "Vide : chaque tag."
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:29
 msgid "Enable {name}"
@@ -138,6 +226,10 @@ msgstr "Activé"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:33
 msgid "Error"
 msgstr "Erreur"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:118
+msgid "Events"
+msgstr "Événements"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:72
 msgid "Every day"
@@ -168,6 +260,10 @@ msgstr "Fréquence"
 msgid "Fri"
 msgstr "Ven"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:135
+msgid "Full ref, refs/heads/main"
+msgstr "Ref complète, refs/heads/main"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:48
 msgid "General"
 msgstr "Général"
@@ -188,6 +284,10 @@ msgstr "Planification incomplète"
 msgid "Inputs"
 msgstr "Entrées"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:147
+msgid "into {branches}"
+msgstr "vers {branches}"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:66
 msgid "JSON pointer"
 msgstr "Pointeur JSON"
@@ -196,6 +296,10 @@ msgstr "Pointeur JSON"
 msgid "last"
 msgstr "dernier"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:97
+msgid "Link a repository first"
+msgstr "Lier d'abord un dépôt"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:65
 msgid "Literal"
 msgstr "Littéral"
@@ -203,6 +307,14 @@ msgstr "Littéral"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:80
 msgid "local time"
 msgstr "heure locale"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:94
+msgid "Merge request"
+msgstr "Merge request"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:128
+msgid "Merge requests from forks wait for approval by a project editor. Fork runs never get secrets."
+msgstr "Les merge requests venant de forks attendent l'approbation d'un éditeur du projet. Les exécutions de forks ne reçoivent jamais les secrets."
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:85
 msgid "Minute"
@@ -224,6 +336,10 @@ msgstr "Nom"
 msgid "Never fired"
 msgstr "Jamais déclenché"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:120
+msgid "New commits"
+msgstr "Nouveaux commits"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:15
 #: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:35
 #: extensions/scylla-base/src/features/triggers/triggers.module.ts:36
@@ -242,6 +358,14 @@ msgstr "prochaine exécution planifiée (heure locale)"
 msgid "No triggers yet"
 msgstr "Aucun déclencheur pour l'instant"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:139
+msgid "Number, on a merge request"
+msgstr "Numéro, sur une merge request"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:138
+msgid "Number, on a pull request"
+msgstr "Numéro, sur une pull request"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:34
 msgid "OK"
 msgstr "OK"
@@ -258,9 +382,25 @@ msgstr "Les jours choisis"
 msgid "on day"
 msgstr "le jour"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:130
+msgid "One run per commit: a push and a merge request on the same commit share one run."
+msgstr "Une exécution par commit : un push et une merge request sur le même commit partagent une exécution."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:129
+msgid "One run per commit: a push and a pull request on the same commit share one run."
+msgstr "Une exécution par commit : un push et une pull request sur le même commit partagent une exécution."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:119
+msgid "Opened"
+msgstr "Ouverte"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:64
 msgid "Optional values injected into the run as environment variables."
 msgstr "Valeurs facultatives injectées dans l'exécution en tant que variables d'environnement."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:140
+msgid "owner/repository"
+msgstr "propriétaire/dépôt"
 
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:25
 msgid "Pick at least one day"
@@ -278,9 +418,41 @@ msgstr "L'identifiant de pipeline est manquant"
 msgid "Pipeline ID:"
 msgstr "ID de pipeline :"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:93
+msgid "Pull request"
+msgstr "Pull request"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:127
+msgid "Pull requests from forks wait for approval by a project editor. Fork runs never get secrets."
+msgstr "Les pull requests venant de forks attendent l'approbation d'un éditeur du projet. Les exécutions de forks ne reçoivent jamais les secrets."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:92
+msgid "Push"
+msgstr "Push"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:96
+msgid "Push, pull request and tag need a repository."
+msgstr "Push, pull request et tag ont besoin d'un dépôt."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:142
+msgid "push, pull_request, tag, manual"
+msgstr "push, pull_request, tag, manual"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:122
+msgid "Ready for review"
+msgstr "Prête pour la revue"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:113
+msgid "Remove {glob}"
+msgstr "Retirer {glob}"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:67
 msgid "Remove input"
 msgstr "Supprimer l'entrée"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:121
+msgid "Reopened"
+msgstr "Rouverte"
 
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:12
 msgid "Sat"
@@ -291,8 +463,21 @@ msgid "Save"
 msgstr "Enregistrer"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:56
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:90
 msgid "Schedule"
 msgstr "Planification"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:125
+msgid "Skip draft merge requests"
+msgstr "Ignorer les merge requests en brouillon"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:124
+msgid "Skip draft pull requests"
+msgstr "Ignorer les pull requests en brouillon"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:117
+msgid "Skip when the commit message has [skip ci]"
+msgstr "Ignorer quand le message du commit contient [skip ci]"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:24
 msgid "Source"
@@ -306,9 +491,33 @@ msgstr "Statut"
 msgid "Sun"
 msgstr "Dim"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:95
+msgid "Tag"
+msgstr "Tag"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:137
+msgid "Tag name, on a tag"
+msgstr "Nom du tag, sur un tag"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:108
+msgid "Tag patterns"
+msgstr "Motifs de tag"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:107
+msgid "Target branches"
+msgstr "Branches cibles"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:141
+msgid "The address of the repository"
+msgstr "L'adresse du dépôt"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:49
 msgid "The name of the trigger and the way it starts a run."
 msgstr "Le nom du déclencheur et la façon dont il lance une exécution."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:151
+msgid "The on table of the pipeline file gives its push, pull request and tag triggers."
+msgstr "La table on du fichier du pipeline donne ses déclencheurs push, pull request et tag."
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:57
 msgid "The sender signs the body with HMAC-SHA256 and the secret of the trigger, in the header X-Scylla-Signature-256 or X-Hub-Signature-256."
@@ -317,6 +526,14 @@ msgstr "L'expéditeur signe le corps avec HMAC-SHA256 et le secret du déclenche
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:53
 msgid "The values that each run receives."
 msgstr "Les valeurs que reçoit chaque exécution."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:115
+msgid "This glob is already in the list."
+msgstr "Ce glob est déjà dans la liste."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:152
+msgid "This trigger comes from the pipeline file. Change the file to change it."
+msgstr "Ce déclencheur vient du fichier du pipeline. Modifiez le fichier pour le modifier."
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:47
 msgid "This trigger does not exist."
@@ -343,6 +560,10 @@ msgstr "Déclencheurs"
 msgid "Triggers of this pipeline"
 msgstr "Déclencheurs de ce pipeline"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:143
+msgid "true for a fork run"
+msgstr "true pour une exécution de fork"
+
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:8
 msgid "Tue"
 msgstr "Mar"
@@ -363,7 +584,12 @@ msgstr "Impossible de charger les déclencheurs"
 msgid "Unknown"
 msgstr "Inconnu"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:132
+msgid "Variables"
+msgstr "Variables"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:51
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:91
 msgid "Webhook"
 msgstr "Webhook"
 
@@ -382,6 +608,10 @@ msgstr "Mer"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:73
 msgid "Weekly"
 msgstr "Hebdomadaire"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:99
+msgid "When"
+msgstr "Quand"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:50
 msgid "When the pipeline runs, in your local time."

@@ -39,11 +39,13 @@
     quickAdd: QuickAdd;
     drag: PaletteDrag;
     entries: readonly CatalogEntry[];
+    /** The nodes and the edges are faded: an older version than the one the page talks about. */
+    dimmed?: boolean;
     /** Called once: the nodes are measured and the view frames them. */
     onReady?: () => void;
   }
 
-  let { blueprint, appearance, quickAdd, drag, entries, onReady }: Props = $props();
+  let { blueprint, appearance, quickAdd, drag, entries, dimmed = false, onReady }: Props = $props();
 
   const nodeTypes: NodeTypes = { pipelineNode: PipelineNode, startNode: StartNode };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
@@ -96,6 +98,7 @@
   role="application"
   aria-label={t(pipelineMessages.blueprint)}
   class="canvas relative h-full min-w-0 flex-1"
+  class:dimmed
   {@attach acceptPaletteDrop(() => ({
     drag,
     // The middle of the node lands on the pointer: the dragged icon is in the middle of the outline.
@@ -118,7 +121,8 @@
     deleteKey={blueprint.readOnly ? null : ['Backspace', 'Delete']}
     nodesConnectable={!blueprint.readOnly}
     selectNodesOnDrag={false}
-    edgesFocusable
+    edgesFocusable={!blueprint.readOnly}
+    elementsSelectable={!blueprint.readOnly}
     defaultEdgeOptions={DEFAULT_EDGE_STYLE}
     onbeforeconnect={connection => (blueprint.canConnect(connection) ? connection : false)}
     onconnect={() => blueprint.sync()}
@@ -182,6 +186,10 @@
     --xy-controls-button-color: var(--foreground);
     --xy-controls-button-color-hover: var(--foreground);
     --xy-controls-button-border-color: var(--border);
+  }
+
+  .canvas.dimmed :global(.svelte-flow__viewport) {
+    opacity: 0.4;
   }
 
   :global(.svelte-flow__attribution) {

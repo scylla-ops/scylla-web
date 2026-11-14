@@ -22,17 +22,42 @@ export interface PipelineRun {
   needsContainer: boolean;
 }
 
+/** A pipeline written as a file of the repository, from its saved version. */
+export interface PipelineFileExport {
+  content: string;
+  /** Where the file goes, for example `.scylla/pipelines/build.toml`. */
+  path: string;
+}
+
+/** The editor of Scylla, or a file of the linked repository. */
+export type PipelineSource = 'editor' | 'file';
+
+/** Where a pipeline comes from, and the state of its file on the default branch. */
+export interface PipelineOrigin {
+  source: PipelineSource;
+  /** For example `.scylla/pipelines/build.toml`. Empty for an editor pipeline. */
+  filePath: string;
+  /** The errors of the file on the default branch. */
+  fileErrorCount: number;
+  /** The project moved to the repository files: the editor pipeline is read only. */
+  archivedAt?: string;
+  /** The file left the default branch. Its jobs stay. */
+  removedAt?: string;
+}
+
 /** What the editor opens. The layout stays apart: the document and the jobs never see it. */
 export interface PipelineWithLayout {
   pipeline: PipelineEntity;
   /** Nothing is saved: the canvas makes an automatic layout. */
   layout: PipelineLayout | null;
+  origin: PipelineOrigin;
 }
 
 export interface PipelineMetadata extends PipelineIdentity {
   nodeCount: number;
   createdAt: string;
   updatedAt: string;
+  origin: PipelineOrigin;
 }
 
 /**

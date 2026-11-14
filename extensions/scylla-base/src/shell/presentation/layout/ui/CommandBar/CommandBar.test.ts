@@ -487,7 +487,8 @@ describe('CommandBar', () => {
       await waitFor(() => expect(confirm).toHaveFocus());
       await typing.keyboard('{Enter}');
 
-      await waitFor(() => expect(fakes.run).toHaveBeenCalledWith('l1'));
+      // The command bar asks for no commit: the server picks it.
+      await waitFor(() => expect(fakes.run).toHaveBeenCalledWith('l1', undefined));
     });
 
     it('hides the run without the permission', async () => {

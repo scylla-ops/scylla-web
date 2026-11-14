@@ -28,6 +28,10 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'delete_role',
     'grant',
     'revoke',
+    'get_vcs_app',
+    'start_git_hub_manifest',
+    'complete_git_hub_manifest',
+    'delete_vcs_app',
   ],
   workspace: [
     'add_app_key',
@@ -85,6 +89,18 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'update_secret',
     'update_trigger',
     'update_workspace',
+    'get_vcs_providers',
+    'list_vcs_connections',
+    'get_vcs_connection',
+    'start_git_hub_install',
+    'complete_git_hub_install',
+    'connect_git_lab',
+    'replace_git_lab_token',
+    'delete_vcs_connection',
+    'get_repository_link',
+    'link_repository',
+    'approve_job',
+    'reject_job',
   ],
   project: [
     'cancel_job',
@@ -117,8 +133,15 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'update_project',
     'update_secret',
     'update_trigger',
+    'get_repository_link',
+    'link_repository',
+    'approve_job',
+    'reject_job',
   ],
 };
+
+/** The server answers at most 50 names in one `CheckPermissions` call (`MAX_CHECKS`). */
+const MAX_CHECKS = 50;
 
 describe('the permission map', () => {
   it.each(['platform', 'workspace', 'project'] as const)(
@@ -127,6 +150,27 @@ describe('the permission map', () => {
       expect(namesFor(kind).filter(name => !SERVER[kind].includes(name))).toEqual([]);
     },
   );
+
+  it.each(['platform', 'workspace', 'project'] as const)(
+    'asks the server at most 50 names on the definition %s',
+    kind => {
+      expect(namesFor(kind).length).toBeLessThanOrEqual(MAX_CHECKS);
+    },
+  );
+
+  it('gives the repository and the approval on a project and on its workspace', () => {
+    const allowed = new Set(['get_repository_link', 'link_repository', 'approve_job']);
+
+    for (const kind of ['workspace', 'project'] as const) {
+      expect(permissionsFrom(kind, allowed)).toEqual(
+        expect.arrayContaining([
+          Permission.READ_REPOSITORY_LINK,
+          Permission.MANAGE_REPOSITORY_LINK,
+          Permission.APPROVE_JOB,
+        ]),
+      );
+    }
+  });
 
   it('gives a workspace permission from its name, and nothing for another kind', () => {
     const allowed = new Set(['create_project']);

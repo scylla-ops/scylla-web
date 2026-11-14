@@ -1,7 +1,11 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import * as grpcTrigger from '../grpc-trigger.mapper.ts';
-import { FireStatus, type Trigger } from '@base/generated/scylla/pipelines/v1/trigger.ts';
+import {
+  FireStatus,
+  PullRequestEvent,
+  type Trigger,
+} from '@base/generated/scylla/pipelines/v1/trigger.ts';
 import type { TriggerDraft } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
@@ -19,6 +23,7 @@ const baseTrigger = (overrides: Partial<Trigger> = {}): Trigger => ({
   lastError: '',
   createdAt: TS,
   updatedAt: TS,
+  fromFile: false,
   ...overrides,
 });
 
@@ -47,6 +52,66 @@ describe('grpcTrigger.toDomain', () => {
         kind: 'webhook',
         webhookUrl: 'https://api.example.com/webhooks/trigger-1',
       });
+    });
+
+    it('maps the rules of a push, a pull request and a tag', () => {
+      const push = grpcTrigger.toDomain(
+        baseTrigger({
+          kind: {
+            oneofKind: 'push',
+            push: { branches: ['main'], excludeBranches: ['wip/*'], skipCi: true },
+          },
+        }),
+      );
+      const pullRequest = grpcTrigger.toDomain(
+        baseTrigger({
+          kind: {
+            oneofKind: 'pullRequest',
+            pullRequest: {
+              branches: ['main'],
+              events: [PullRequestEvent.OPENED, PullRequestEvent.SYNCHRONIZED],
+              drafts: false,
+            },
+          },
+        }),
+      );
+      const tag = grpcTrigger.toDomain(
+        baseTrigger({ kind: { oneofKind: 'tag', tag: { patterns: ['v*'] } } }),
+      );
+
+      expect(push.source).toEqual({
+        kind: 'push',
+        branches: ['main'],
+        excludeBranches: ['wip/*'],
+        skipCi: true,
+      });
+      expect(pullRequest.source).toEqual({
+        kind: 'pullRequest',
+        branches: ['main'],
+        events: ['opened', 'newCommits'],
+        drafts: false,
+      });
+      expect(tag.source).toEqual({ kind: 'tag', patterns: ['v*'] });
+    });
+
+    it('drops a pull request event newer than this build, and keeps the known ones', () => {
+      const domain = grpcTrigger.toDomain(
+        baseTrigger({
+          kind: {
+            oneofKind: 'pullRequest',
+            pullRequest: {
+              branches: [],
+              events: [99 as PullRequestEvent, PullRequestEvent.REOPENED],
+              drafts: true,
+            },
+          },
+        }),
+      );
+      expect(domain.source).toMatchObject({ events: ['reopened'] });
+    });
+
+    it('marks a trigger of a pipeline file', () => {
+      expect(grpcTrigger.toDomain(baseTrigger({ fromFile: true })).fromFile).toBe(true);
     });
 
     it('maps a kind arm newer than this build to unknown rather than a guess', () => {
@@ -201,7 +266,50 @@ describe('grpcTrigger draft -> proto', () => {
       name: 'nightly',
       schedule: '0 3 * * *',
       inputs: { inputs: protoInputs },
+      rules: { oneofKind: undefined },
     });
+  });
+
+  it('builds a CreateTriggerRequest for a push, a pull request and a tag', () => {
+    const kindOf = (source: TriggerDraft['source']) =>
+      grpcTrigger.draftToCreateRequest('pipeline-1', { name: 'git', source, inputs: [] }).kind;
+
+    expect(
+      kindOf({ kind: 'push', branches: ['main'], excludeBranches: [], skipCi: true }),
+    ).toEqual({
+      oneofKind: 'push',
+      push: { branches: ['main'], excludeBranches: [], skipCi: true },
+    });
+    expect(
+      kindOf({
+        kind: 'pullRequest',
+        branches: ['main'],
+        events: ['newCommits', 'readyForReview'],
+        drafts: false,
+      }),
+    ).toEqual({
+      oneofKind: 'pullRequest',
+      pullRequest: {
+        branches: ['main'],
+        events: [PullRequestEvent.SYNCHRONIZED, PullRequestEvent.READY_FOR_REVIEW],
+        drafts: false,
+      },
+    });
+    expect(kindOf({ kind: 'tag', patterns: ['v*'] })).toEqual({
+      oneofKind: 'tag',
+      tag: { patterns: ['v*'] },
+    });
+  });
+
+  it('sends the rules of a Git trigger in an update, and no schedule', () => {
+    const request = grpcTrigger.draftToUpdateRequest('trigger-1', {
+      name: 'tags',
+      source: { kind: 'tag', patterns: ['v*', 'release-*'] },
+      inputs: [],
+    });
+
+    expect(request.rules).toEqual({ oneofKind: 'tag', tag: { patterns: ['v*', 'release-*'] } });
+    expect(request).not.toHaveProperty('schedule');
   });
 
   it('sends no schedule in the update of a webhook', () => {

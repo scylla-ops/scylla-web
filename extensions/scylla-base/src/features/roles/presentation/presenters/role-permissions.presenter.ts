@@ -1,6 +1,10 @@
 import { t } from '@scylla/ui/i18n';
 import type { RoleEntity } from '../../domain/entities/role.entity.ts';
-import { ACTIONS, permissionsFor, type CatalogArea } from '../../domain/structs/catalog.struct.ts';
+import {
+  ACTION_ORDER,
+  permissionsFor,
+  type CatalogArea,
+} from '../../domain/structs/catalog.struct.ts';
 import { actionLabels, areaLabels, fullControlHints } from '../messages/roles.messages.ts';
 
 /** One resource of a role and its actions: "Pipelines Edit · Run". */
@@ -72,7 +76,7 @@ export const permissionSummary = (
     .map(([area, actions]) => ({
       area,
       actions: (actions.length > 1 ? actions.filter(one => one !== 'view') : actions).sort(
-        (a, b) => rankIn(ACTIONS, a) - rankIn(ACTIONS, b),
+        (a, b) => rankIn(ACTION_ORDER, a) - rankIn(ACTION_ORDER, b),
       ),
     }));
 

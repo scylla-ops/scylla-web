@@ -26,3 +26,12 @@
 <Story name="Header only" asChild>
   <DangerZone title="Archive the workspace" action={archive} class="max-w-2xl" />
 </Story>
+
+<Story name="Narrow card" asChild>
+  <DangerZone
+    title="Danger zone"
+    description="These actions cannot be undone."
+    action={deleteProject}
+    class="max-w-xs"
+  />
+</Story>

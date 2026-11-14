@@ -48,6 +48,8 @@ beforeEach(() => {
     deleteById: vi.fn(),
     rerun: vi.fn(),
     cancel: vi.fn(),
+    approve: vi.fn(),
+    reject: vi.fn(),
     tailLogs: vi.fn(),
   };
   setDependencyRegistry({ jobs: { jobsRepository: repository } });

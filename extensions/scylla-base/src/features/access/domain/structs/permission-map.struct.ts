@@ -20,6 +20,7 @@ const MAP: Partial<Record<Permission, Names>> = {
   [Permission.LIST_ROLES]: { platform: 'list_roles' },
   [Permission.MANAGE_ROLES]: { platform: 'create_role' },
   [Permission.MANAGE_INSTANCE_SETTINGS]: { platform: 'update_instance_settings' },
+  [Permission.MANAGE_GIT_PROVIDERS]: { platform: 'start_git_hub_manifest' },
   // A workspace.
   [Permission.READ_WORKSPACE]: { workspace: 'get_workspace' },
   [Permission.UPDATE_WORKSPACE]: { workspace: 'update_workspace' },
@@ -33,6 +34,9 @@ const MAP: Partial<Record<Permission, Names>> = {
   [Permission.MANAGE_WORKSPACE_GRANTS]: { workspace: 'grant' },
   [Permission.CREATE_PROJECT]: { workspace: 'create_project' },
   [Permission.LIST_PROJECTS_BY_WORKSPACE]: { workspace: 'list_projects' },
+  // The connections of a workspace to GitHub and GitLab: one name for each cell of the catalog.
+  [Permission.VIEW_INTEGRATIONS]: { workspace: 'get_vcs_providers' },
+  [Permission.MANAGE_VCS_CONNECTIONS]: { workspace: 'start_git_hub_install' },
   // A project, or each project of a workspace.
   [Permission.READ_PROJECT]: { workspace: 'get_project', project: 'get_project' },
   [Permission.UPDATE_PROJECT]: { workspace: 'update_project', project: 'update_project' },
@@ -41,6 +45,12 @@ const MAP: Partial<Record<Permission, Names>> = {
   [Permission.ADD_PROJECT_MEMBER]: { project: 'grant' },
   [Permission.REMOVE_PROJECT_MEMBER]: { project: 'revoke' },
   [Permission.MANAGE_PROJECT_GRANTS]: { project: 'grant' },
+  // The repository of a project.
+  [Permission.READ_REPOSITORY_LINK]: {
+    workspace: 'get_repository_link',
+    project: 'get_repository_link',
+  },
+  [Permission.MANAGE_REPOSITORY_LINK]: { workspace: 'link_repository', project: 'link_repository' },
   // The secrets of a project.
   [Permission.CREATE_SECRET]: { workspace: 'create_secret', project: 'create_secret' },
   [Permission.UPDATE_SECRET]: { workspace: 'update_secret', project: 'update_secret' },
@@ -72,6 +82,7 @@ const MAP: Partial<Record<Permission, Names>> = {
   },
   [Permission.LIST_JOBS_BY_WORKSPACE]: { workspace: 'list_workspace_jobs' },
   [Permission.READ_JOB_LOGS]: { workspace: 'tail_job_logs', project: 'tail_job_logs' },
+  [Permission.APPROVE_JOB]: { workspace: 'approve_job', project: 'approve_job' },
   // The triggers of a pipeline.
   [Permission.MANAGE_TRIGGERS]: { workspace: 'create_trigger', project: 'create_trigger' },
   // The apps of a workspace; an agent is an app that runs jobs.

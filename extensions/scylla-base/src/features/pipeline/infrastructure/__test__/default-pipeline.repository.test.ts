@@ -2,6 +2,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import type { IPipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
 import type { Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
+import { PipelineSource } from '@base/generated/scylla/integrations/v1/vcs.ts';
+import { PipelineFileFormat } from '@base/generated/scylla/pipelines/v1/pipeline_file.ts';
 import { unaryCall } from '@test/grpc.ts';
 import { DefaultPipelineRepository } from '../default-pipeline.repository.ts';
 
@@ -11,6 +13,10 @@ const pipeline = (id: string, version: bigint): Pipeline => ({
   name: id,
   nodes: [],
   version,
+  source: PipelineSource.EDITOR,
+  fileKey: '',
+  filePath: '',
+  fileErrorCount: 0,
 });
 
 describe('DefaultPipelineRepository', () => {
@@ -141,5 +147,116 @@ describe('DefaultPipelineRepository', () => {
     });
 
     expect(vi.mocked(client.createPipeline).mock.calls[0]?.[0]).not.toHaveProperty('layout');
+  });
+
+  it('exports a pipeline in the format of the proto, and gives the file and its path', async () => {
+    const exportPipeline = vi.fn(() =>
+      unaryCall({ content: 'version: 1\n', path: '.scylla/pipelines/ci.yaml' }),
+    );
+    const repository = new DefaultPipelineRepository({
+      exportPipeline,
+    } as unknown as IPipelineServiceClient);
+
+    const file = await repository.exportFile('p', 'yaml');
+
+    expect(exportPipeline).toHaveBeenCalledWith({
+      pipelineId: { value: 'p' },
+      format: PipelineFileFormat.YAML,
+    });
+    expect(file).toEqual({ content: 'version: 1\n', path: '.scylla/pipelines/ci.yaml' });
+  });
+
+  it('runs with no ref when none is given: the server picks the commit', async () => {
+    const runPipeline = vi.fn(() => unaryCall({ job: { nodes: [] } }));
+    const repository = new DefaultPipelineRepository({
+      runPipeline,
+    } as unknown as IPipelineServiceClient);
+
+    await repository.run('p');
+
+    expect(runPipeline).toHaveBeenCalledWith({ pipelineId: { value: 'p' } });
+  });
+
+  it('runs at a branch, a tag or a trimmed SHA', async () => {
+    const runPipeline = vi.fn((_request: { ref?: unknown }) => unaryCall({ job: { nodes: [] } }));
+    const repository = new DefaultPipelineRepository({
+      runPipeline,
+    } as unknown as IPipelineServiceClient);
+
+    await repository.run('p', { kind: 'branch', name: 'main' });
+    await repository.run('p', { kind: 'tag', name: 'v1.2.0' });
+    await repository.run('p', { kind: 'sha', sha: ' a1b2c3d ' });
+
+    expect(runPipeline.mock.calls.map(([request]) => request.ref)).toEqual([
+      { kind: { oneofKind: 'branch', branch: 'main' } },
+      { kind: { oneofKind: 'tag', tag: 'v1.2.0' } },
+      { kind: { oneofKind: 'sha', sha: 'a1b2c3d' } },
+    ]);
+  });
+
+  it('reads the file of a file pipeline at a ref, with its nodes and its errors', async () => {
+    const getFilePipeline = vi.fn(() =>
+      unaryCall({
+        file: {
+          key: 'build',
+          file: {
+            path: '.scylla/pipelines/build.toml',
+            blobSha: 'b',
+            commitSha: 'a1b2c3d4',
+            url: 'https://github.com/acme/api/blob/a1b2c3d4/.scylla/pipelines/build.toml',
+          },
+          format: PipelineFileFormat.TOML,
+          content: 'version = 1\n',
+          name: '',
+          nodes: [],
+          errors: [
+            { path: '.scylla/pipelines/build.toml', line: 12, column: 5, field: '', message: 'expected "="', warning: false },
+          ],
+        },
+      }),
+    );
+    const repository = new DefaultPipelineRepository({
+      getFilePipeline,
+    } as unknown as IPipelineServiceClient);
+
+    const file = await repository.getFile('p', { kind: 'branch', name: 'main' });
+
+    expect(getFilePipeline).toHaveBeenCalledWith({
+      pipelineId: { value: 'p' },
+      ref: { kind: { oneofKind: 'branch', branch: 'main' } },
+    });
+    expect(file).toMatchObject({
+      key: 'build',
+      name: 'build',
+      path: '.scylla/pipelines/build.toml',
+      commitSha: 'a1b2c3d4',
+      format: 'toml',
+      rules: {},
+      errors: [{ line: 12, column: 5, message: 'expected "="', warning: false }],
+    });
+    expect(file.checkout).toBeUndefined();
+  });
+
+  it('gives the origin of a pipeline beside its layout', async () => {
+    const client = {
+      getPipeline: vi.fn(() =>
+        unaryCall({
+          pipeline: {
+            ...pipeline('p', 1n),
+            source: PipelineSource.FILE,
+            filePath: '.scylla/pipeline.toml',
+            fileErrorCount: 2,
+          },
+        }),
+      ),
+    } as unknown as IPipelineServiceClient;
+
+    const { origin } = await new DefaultPipelineRepository(client).getWithLayout('p');
+
+    expect(origin).toEqual({
+      source: 'file',
+      filePath: '.scylla/pipeline.toml',
+      fileErrorCount: 2,
+    });
   });
 });

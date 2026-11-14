@@ -3,11 +3,12 @@
 > [Scylla frontend](../../../../../README.md) › `features/` › **triggers** ·
 > [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
 
-A trigger is what starts a pipeline when nobody clicks Run: a schedule, or an inbound webhook.
+A trigger is what starts a pipeline when nobody clicks Run: a schedule, an inbound webhook, or a
+push, a pull request or a tag in the linked repository.
 Triggers belong to a pipeline, and the page lives at
 `/:org/projects/:projectId/pipelines/:pipelineId/triggers`, behind `MANAGE_TRIGGERS`.
 
-## Two kinds, one union
+## Five kinds, one union
 
 The domain models trigger sources as a discriminated union on `kind`:
 
@@ -15,6 +16,12 @@ The domain models trigger sources as a discriminated union on `kind`:
   `*/15 * * * *` from memory, and `mappers/cron.mapper.ts` handles parsing and human-readable formatting.
 - **Webhook** — an inbound URL. Calling it starts a run. It carries a signing secret and a
   header for the HMAC signature, so Scylla can verify the caller.
+- **Push, pull request, tag** — an event of the repository linked to the project. Each one has
+  rules: globs of branches or of tags, the events of a pull request, `[skip ci]`, the drafts. They
+  need a linked repository, so the type picker turns them off when the project has none and
+  offers to link one. GitLab calls a pull request a merge request, and the labels follow the
+  provider of the link. A pipeline file can also declare these triggers in its `on` table: they
+  show in the list, read only, and only the file changes them.
 - **Unknown** — the forward-compatibility branch.
 
 That third case is worth explaining. When the backend adds a trigger type this frontend has

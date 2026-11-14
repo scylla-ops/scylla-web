@@ -130,6 +130,49 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   variants, sizes and states, in the light and the dark theme. A test fails when a component has no
   entry, and a CI step type-checks and builds the catalog. `packages/ui/DESIGN-SYSTEM.md` tells how
   to add an entry.
+- The role editor names the permissions of the Git integration: Integrations (workspace), Repository
+  (project) and Git providers (instance). The Project tab has an Approve column for "Approve fork
+  runs", and its box tells on hover that a run from a fork never gets the secrets. A checkbox of the
+  table is centered in its cell.
+- The editor of a saved pipeline has an Export action: the pipeline as a TOML, YAML or JSON file for
+  the repository, to copy or to download.
+- The settings of a workspace have an Integrations page. An admin connects GitHub (with the Scylla
+  GitHub App) or GitLab.com (with the token of a service account), and sees the state, the event
+  mode and the token expiry of each connection.
+- A pipeline that comes from a file of the linked repository has a read-only page: the graph, the
+  text of the file, its triggers from `on`, its checkout and its errors, at the branch or the tag
+  that the user picks. The list of the pipelines tells which file has errors on the default branch
+  or left it. With a linked repository, Run asks for a branch, a tag or a commit SHA, and the jobs
+  of a pipeline can be filtered by branch, event, author and pull request.
+- The trigger editor has the types Push, Pull request (Merge request on GitLab) and Tag: the
+  branches to include and to exclude, `[skip ci]`, the target branches, the events and the drafts of
+  a pull request, the tag patterns, and the variables of a run. With no linked repository these
+  types are off, with a link to link a repository. The list shows the rules of a Git trigger, and a
+  trigger of a pipeline file is read only.
+- The inbox shows the notices of the Git connections: a connection that needs attention, with its
+  cause, and a GitLab token that expires soon. Each notice opens the integrations of the workspace.
+- A project has a Settings page for its repository. An editor links a repository of a connection of
+  the workspace, sees how Scylla gets the new commits (webhooks, or polling with the reason) and
+  sends a test webhook, turns the reports on or off, picks a check run or a commit status on GitHub,
+  and unlinks the repository. The unlink dialog lists what stops. The card tells why a link stopped
+  and where to repair it.
+- The repository page of a project has a Pipeline source card and a Block the merge card. An editor
+  moves the pipelines from the Scylla editor to the files of the repository, or back. Before a move
+  to the files, a dialog lists the files of the default branch and their errors. On GitHub each
+  pipeline has a switch that blocks the merge into the default branch when it fails, and on GitLab
+  the project has one switch. A switch shows the state on the provider. When a permission is
+  missing, it gives the link to grant it and the steps to do it by hand.
+- The instance pages have a Git providers page. An instance admin creates the GitHub App of a
+  self-hosted server with the GitHub manifest flow, sees its webhook URL and its last webhook, and
+  removes it. On a server with the App of the settings, the page shows that App with no change.
+- The page of a job shows its commit: the repository, the branch or the tag, the SHA, the pull
+  requests, the author, the event and the pipeline file. A job from a fork shows the fork and that
+  it gets no secrets, and an editor can approve or reject it. The page shows the errors of an
+  invalid pipeline file, the checkout as the first step with its log, and the reports to GitHub or
+  GitLab with Retry now and Fix the connection. The jobs table has a Source column and the states
+  Waiting for approval and Invalid pipeline file.
+- `docs/git-providers.md` tells how to set up GitHub and GitLab for a server: the GitHub App by hand
+  or with the manifest flow, its permissions, events and URLs, and the GitLab service account.
 
 ### Changed
 
@@ -391,6 +434,16 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   that ended. Before, an agent younger than 7 days had no timeline. A strip with few days keeps thin
   bars at the right, the first day and "Today" do not overlap, and the window of one day keeps room
   for its two handles.
+- A radio, a checkbox or the icon of an alert in a card is centered vertically on the whole card,
+  not on the line of the title: the project cards and the info card of the add agent page, the token
+  presets, the cron frequencies, the role levels, the role boxes and the warning banners. The copy
+  button of a command is centered on the command, and "No log was written." is centered in its log
+  panel.
+- The button of a danger zone and of a settings section is centered vertically on the title and the
+  description, not on the line of the title. On a phone, the button goes under the description, and
+  the text keeps the full width of the card.
+- The repository page says "The GitHub App has no webhook." for a link that polls for this reason,
+  and the test webhook says it with no raw error of GitHub.
 
 ## [0.6.0] - 2026-11-01
 

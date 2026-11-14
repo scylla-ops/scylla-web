@@ -30,7 +30,7 @@
       aria-checked={chosen}
       disabled={off}
       class={cn(
-        'flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-colors',
+        'flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors',
         chosen && ['border-[1.5px] p-[11.5px]', tone.border, tone.tint],
         off ? 'cursor-not-allowed opacity-60' : !chosen && 'hover:bg-muted/40',
       )}
@@ -43,7 +43,7 @@
       </span>
       <span
         class={cn(
-          'mt-0.5 grid size-4 shrink-0 place-items-center rounded-full border',
+          'grid size-4 shrink-0 place-items-center rounded-full border',
           chosen ? ['border-[1.5px]', tone.border] : 'border-input',
         )}
       >

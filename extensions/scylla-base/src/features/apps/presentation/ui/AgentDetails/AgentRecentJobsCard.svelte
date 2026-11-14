@@ -8,6 +8,7 @@
   import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import { toStatusState } from '@shared/utils/job-status.utils.ts';
+  import { getStatusConfig } from '@shared/utils/status-config.ts';
   import { projectQueries } from '@base/features/project';
   import type { AppJob } from '@base/features/apps/domain/entities/app.entity.ts';
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
@@ -33,6 +34,7 @@
     failed: messages.failed,
     cancelled: messages.cancelled,
     orphaned: messages.orphaned,
+    awaiting_approval: getStatusConfig('awaiting_approval').label,
     unknown: messages.unknown,
   };
 

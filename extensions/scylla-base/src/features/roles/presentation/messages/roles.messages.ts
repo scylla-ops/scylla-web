@@ -237,6 +237,7 @@ export const actionLabels: Record<string, MessageDescriptor> = {
   edit: msg`Edit`,
   delete: msg`Delete`,
   run: msg`Run`,
+  approve: msg`Approve`,
   manage: msg`Manage`,
 };
 
@@ -246,20 +247,35 @@ export const areaLabels: Record<string, { title: MessageDescriptor; hint: Messag
   instance_roles: { title: msg`Instance roles`, hint: msg`Make and change roles` },
   instance_access: { title: msg`Instance access`, hint: msg`Give instance roles` },
   instance_settings: { title: msg`Instance settings`, hint: msg`Sign-in, security` },
+  git_providers: { title: msg`Git providers`, hint: msg`The GitHub App of the instance` },
   workspace: { title: msg`Workspace`, hint: msg`Name and settings. Every member sees it` },
   members: { title: msg`Members`, hint: msg`People and apps of the workspace` },
   workspace_roles: { title: msg`Workspace roles`, hint: msg`Roles that the workspace owns` },
   apps: { title: msg`Apps`, hint: msg`Machine identities and their credentials` },
   agents: { title: msg`Agents`, hint: msg`Agents that run the jobs` },
   projects: { title: msg`Projects`, hint: msg`New projects in the workspace` },
+  integrations: { title: msg`Integrations`, hint: msg`Connections to GitHub and GitLab` },
   job_execution: { title: msg`Job execution`, hint: msg`Run takes a job. Edit reports its state` },
   project: { title: msg`Project`, hint: msg`Name and settings` },
   project_members: { title: msg`Project members`, hint: msg`Who has a role on the project` },
+  repository: {
+    title: msg`Repository`,
+    hint: msg`The linked Git repository and the source of the pipelines`,
+  },
   pipelines: { title: msg`Pipelines`, hint: msg`Definitions and runs` },
   triggers: { title: msg`Triggers`, hint: msg`Schedules and webhooks that start runs` },
   jobs: { title: msg`Jobs`, hint: msg`Edit is cancel and retry` },
   job_logs: { title: msg`Job logs`, hint: msg`The output of the jobs` },
   secrets: { title: msg`Secrets`, hint: msg`Names only. Nobody sees a value` },
+};
+
+/** The full names of the permissions that their area and their action do not name well. */
+export const cellLabels: Record<string, { title: MessageDescriptor; hint?: MessageDescriptor }> = {
+  'git_providers.manage': { title: msg`Manage Git providers` },
+  'jobs.approve': {
+    title: msg`Approve fork runs`,
+    hint: msg`Approve or reject a run of a pull request from a fork. Such a run never gets the secrets.`,
+  },
 };
 
 /** The translated names and descriptions of the built-in roles. The server sends the English text. */
@@ -306,6 +322,8 @@ export const permissionLabel = (id: string, areas: readonly CatalogArea[]): stri
   const area = areas.find(one => one.permissions.some(permission => permission.id === id));
   const permission = area?.permissions.find(one => one.id === id);
   if (!area || !permission) return id;
+  const cell = cellLabels[id];
+  if (cell) return i18n._(cell.title);
   const action = actionLabels[permission.action];
   const title = areaLabels[area.id]?.title;
   if (!action || !title) return id;

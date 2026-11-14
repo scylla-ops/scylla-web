@@ -160,7 +160,8 @@ a step, add its id there.
 The mutation keys come from the barrels: `CREATE_APP_MUTATION_KEY` (`apps`),
 `CREATE_PROJECT_MUTATION_KEY` (`project`), `CREATE_PIPELINE_MUTATION_KEY` and
 `RUN_PIPELINE_MUTATION_KEY` (`pipeline`), `CREATE_TRIGGER_MUTATION_KEY` (`triggers`),
-`CREATE_SECRET_MUTATION_KEY` (`secret`), `CREATE_ROLE_MUTATION_KEY` (`roles`).
+`CREATE_SECRET_MUTATION_KEY` (`secret`), `CREATE_ROLE_MUTATION_KEY` (`roles`). The input of
+the run is `{ pipelineId, ref? }`: the step reads `pipelineId` from it.
 
 ## Behaviour on the page
 

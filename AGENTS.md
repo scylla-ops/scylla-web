@@ -391,7 +391,7 @@ injected, still substitutable in a test. Only the redundant indirection is gone.
 - scylla-base `platform/` — `authz` (Permission, `can`, `Can`, `RequirePermission`), `context`
   (current org/project/pipeline + navigation), `grpc`, `user-state` (the interface state of a
   person on the server, with `localStorage` as its read copy).
-- scylla-base `features/` — `apps`, `dashboard`, `extensions`, `jobs`, `login`, `marketplace`,
+- scylla-base `features/` — `apps`, `dashboard`, `extensions`, `integrations`, `jobs`, `login`, `marketplace`,
   `membership`, `workspace`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`.
 - scylla-base `shared/` — shared code with a business meaning. **No feature imports.**
 

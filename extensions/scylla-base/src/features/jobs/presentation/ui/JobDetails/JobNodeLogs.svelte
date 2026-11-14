@@ -20,6 +20,11 @@
   import { nodeIdOf } from '@base/features/jobs/presentation/presenters/job-timeline.presenter.ts';
   import JobLogDisplay from '../jobs-log/JobLogDisplay/JobLogDisplay.svelte';
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
+  import { jobGitMessages } from '@base/features/jobs/presentation/messages/job-git.messages.ts';
+  import {
+    isCheckoutStep,
+    stepsOf,
+  } from '@base/features/jobs/presentation/presenters/job-steps.presenter.ts';
 
   const PANEL_HEADER_HEIGHT = 36;
   const PANEL_BORDER_HEIGHT = 2;
@@ -52,8 +57,13 @@
     else collapsedIds.add(nodeId);
   };
 
+  // The built-in checkout is the first step: its log lines have the node id `.checkout`.
   const nodes = $derived(
-    job.nodeExecutions.map((node, index) => ({ node, id: nodeIdOf(node, index) })),
+    stepsOf(job).map((node, index) => {
+      const id = nodeIdOf(node, index);
+      const builtIn = isCheckoutStep(id);
+      return { node, id, builtIn, name: builtIn ? t(jobGitMessages.checkout) : id };
+    }),
   );
   const openNodes = $derived(nodes.filter(({ id }) => openNodeIds.includes(id)));
 
@@ -109,7 +119,7 @@
         <span aria-hidden="true" class="w-px shrink-0 self-stretch bg-border lg:h-px lg:w-auto"
         ></span>
 
-        {#each nodes as { node, id } (id)}
+        {#each nodes as { node, id, builtIn, name } (id)}
           {@const config = getStatusConfig(node.state)}
           {@const duration = calculateExecutionDuration(node.startedAt, node.finishedAt)}
           {@const attempt = attemptOf(node)}
@@ -120,7 +130,12 @@
             class={cn('flex items-center gap-2', navButtonClass(openNodeIds.includes(id)))}
           >
             <StatusShape state={toStatusState(node.state)} label={t(config.label)} size={18} />
-            <span class="min-w-0 flex-1 truncate text-sm font-medium">{id}</span>
+            <span class="min-w-0 flex-1 truncate text-sm font-medium">{name}</span>
+            {#if builtIn}
+              <span class="shrink-0 text-xs text-muted-foreground">
+                {t(jobGitMessages.builtIn)}
+              </span>
+            {/if}
             {#if attempt}
               <span class="shrink-0 text-xs text-muted-foreground">
                 {t(jobsMessages.attempt(attempt.attempt, attempt.maxAttempts))}
@@ -152,12 +167,12 @@
             <JobLogDisplay jobId={job.id} maxHeight={wholeJobLogHeight} />
           </section>
         {:else}
-          {#each openNodes as { node, id } (id)}
+          {#each openNodes as { node, id, name } (id)}
             {@const config = getStatusConfig(node.state)}
             {@const collapsed = collapsedIds.has(id)}
             {@const attempt = attemptOf(node)}
             <section
-              aria-label={id}
+              aria-label={name}
               class="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-border shadow-sm"
             >
               <header
@@ -169,8 +184,8 @@
                   onclick={() => toggleCollapse(id)}
                   aria-expanded={!collapsed}
                   aria-label={collapsed
-                    ? t(jobsMessages.expandLogsFor(id))
-                    : t(jobsMessages.collapseLogsFor(id))}
+                    ? t(jobsMessages.expandLogsFor(name))
+                    : t(jobsMessages.collapseLogsFor(name))}
                   class="h-auto min-w-0 flex-1 justify-start gap-3 rounded-none p-3 focus-visible:ring-inset"
                 >
                   {#if collapsed}
@@ -179,7 +194,7 @@
                     <ChevronDownIcon class="size-4 text-muted-foreground" />
                   {/if}
                   <StatusShape state={toStatusState(node.state)} label={t(config.label)} size={22} />
-                  <p class="min-w-0 truncate text-sm font-medium text-foreground">{id}</p>
+                  <p class="min-w-0 truncate text-sm font-medium text-foreground">{name}</p>
                   <Badge variant="outline" class={config.badgeClassName}>
                     {t(config.label)}
                   </Badge>
@@ -192,7 +207,7 @@
                 <button
                   type="button"
                   onclick={() => onToggleNode(id)}
-                  aria-label={t(jobsMessages.closeLogsFor(id))}
+                  aria-label={t(jobsMessages.closeLogsFor(name))}
                   class="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
                   <XIcon class="size-4" />
@@ -201,7 +216,7 @@
               <!-- Collapsing only hides the log: the stream stays open. -->
               <div class={cn(collapsed && 'hidden')}>
                 {#if node.state === 'skipped'}
-                  <p class="px-3 py-2.5 text-sm text-muted-foreground">
+                  <p class="px-3 py-2.5 text-center text-sm text-muted-foreground">
                     {t(jobsMessages.nodeSkipped)}
                   </p>
                 {:else}

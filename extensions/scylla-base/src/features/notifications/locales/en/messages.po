@@ -13,35 +13,35 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:64
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:65
 msgid "{actor} accepted your invitation to {workspace}."
 msgstr "{actor} accepted your invitation to {workspace}."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:78
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:79
 msgid "{actor} added an instance admin."
 msgstr "{actor} added an instance admin."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:73
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:74
 msgid "{actor} added an owner to {workspace}."
 msgstr "{actor} added an owner to {workspace}."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:68
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:69
 msgid "{actor} changed your roles in {place}."
 msgstr "{actor} changed your roles in {place}."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:66
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:67
 msgid "{actor} declined your invitation to {workspace}."
 msgstr "{actor} declined your invitation to {workspace}."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:54
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:55
 msgid "{actor} invited you to {workspace} as {role}."
 msgstr "{actor} invited you to {workspace} as {role}."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:79
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:80
 msgid "{actor} removed an instance admin."
 msgstr "{actor} removed an instance admin."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:75
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:76
 msgid "{actor} removed an owner from {workspace}."
 msgstr "{actor} removed an owner from {workspace}."
 
@@ -49,11 +49,11 @@ msgstr "{actor} removed an owner from {workspace}."
 msgid "{count, plural, one {# time} other {# times}}"
 msgstr "{count, plural, one {# time} other {# times}}"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:89
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:90
 msgid "{provider} can no longer sign in to your account."
 msgstr "{provider} can no longer sign in to your account."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:88
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:89
 msgid "{provider} can now sign in to your account."
 msgstr "{provider} can now sign in to your account."
 
@@ -65,11 +65,15 @@ msgstr "A notification that needs an action stays unread."
 msgid "a workspace"
 msgstr "a workspace"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:46
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:47
 msgid "Accept"
 msgstr "Accept"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:47
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:96
+msgid "Accept the new permissions of the Scylla App on GitHub."
+msgstr "Accept the new permissions of the Scylla App on GitHub."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:48
 msgid "Accepting…"
 msgstr "Accepting…"
 
@@ -77,7 +81,7 @@ msgstr "Accepting…"
 msgid "Access"
 msgstr "Access"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:69
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:70
 msgid "Added: {roles}."
 msgstr "Added: {roles}."
 
@@ -88,6 +92,10 @@ msgstr "All notifications"
 #: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:31
 msgid "All workspaces"
 msgstr "All workspaces"
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:95
+msgid "An owner suspended the Scylla App on GitHub."
+msgstr "An owner suspended the Scylla App on GitHub."
 
 #: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:26
 msgid "Cannot load notifications."
@@ -105,11 +113,11 @@ msgstr "Category"
 msgid "Clear filter"
 msgstr "Clear filter"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:48
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:49
 msgid "Decline"
 msgstr "Decline"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:49
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:50
 msgid "Declining…"
 msgstr "Declining…"
 
@@ -122,7 +130,7 @@ msgstr "Done"
 msgid "Earlier"
 msgstr "Earlier"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:55
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:56
 msgid "Ends on {date}."
 msgstr "Ends on {date}."
 
@@ -130,7 +138,11 @@ msgstr "Ends on {date}."
 msgid "Failed runs"
 msgstr "Failed runs"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:82
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:98
+msgid "GitLab refused the token. Replace the token."
+msgstr "GitLab refused the token. Replace the token."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:83
 msgid "If you did not do this, reset your password now."
 msgstr "If you did not do this, reset your password now."
 
@@ -175,7 +187,7 @@ msgstr "Mark as unread"
 msgid "Needs action"
 msgstr "Needs action"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:90
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:91
 msgid "New API token: {name}."
 msgstr "New API token: {name}."
 
@@ -206,11 +218,11 @@ msgstr "Notifications"
 msgid "Notifications, {count, plural, one {# unread} other {# unread}}"
 msgstr "Notifications, {count, plural, one {# unread} other {# unread}}"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:51
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:52
 msgid "Open {workspace}"
 msgstr "Open {workspace}"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:52
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:53
 msgid "Open account"
 msgstr "Open account"
 
@@ -226,9 +238,17 @@ msgstr "Put back in the inbox"
 msgid "Quick filters"
 msgstr "Quick filters"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:70
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:71
 msgid "Removed: {roles}."
 msgstr "Removed: {roles}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:103
+msgid "Replace the token before this date."
+msgstr "Replace the token before this date."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:100
+msgid "Reports, triggers and checkouts stopped."
+msgstr "Reports, triggers and checkouts stopped."
 
 #: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:35
 msgid "Security"
@@ -246,27 +266,47 @@ msgstr "Select this notification"
 msgid "Someone"
 msgstr "Someone"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:84
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:85
 msgid "Someone used an old sign-in token of this session."
 msgstr "Someone used an old sign-in token of this session."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:87
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:93
+msgid "The {provider} connection {account} needs attention."
+msgstr "The {provider} connection {account} needs attention."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:88
 msgid "The email of your account changed."
 msgstr "The email of your account changed."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:59
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:94
+msgid "The GitHub App was uninstalled. Reports, triggers and checkouts stopped."
+msgstr "The GitHub App was uninstalled. Reports, triggers and checkouts stopped."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:99
+msgid "The GitLab token cannot send reports. Replace the token."
+msgstr "The GitLab token cannot send reports. Replace the token."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:97
+msgid "The GitLab token expired. Replace the token."
+msgstr "The GitLab token expired. Replace the token."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:102
+msgid "The GitLab token of {account} expires on {date}."
+msgstr "The GitLab token of {account} expires on {date}."
+
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:60
 msgid "The invitation to {workspace} ended. Ask {actor} for a new one."
 msgstr "The invitation to {workspace} ended. Ask {actor} for a new one."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:86
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:87
 msgid "There were too many failed sign-ins."
 msgstr "There were too many failed sign-ins."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:60
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:61
 msgid "This invitation is for another email. Verify this email first."
 msgstr "This invitation is for another email. Verify this email first."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:61
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:62
 msgid "This invitation is no longer open."
 msgstr "This invitation is no longer open."
 
@@ -286,11 +326,11 @@ msgstr "Try again"
 msgid "Unread"
 msgstr "Unread"
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:83
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:84
 msgid "We closed one of your sessions."
 msgstr "We closed one of your sessions."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:85
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:86
 msgid "We locked your account for a short time."
 msgstr "We locked your account for a short time."
 
@@ -298,27 +338,31 @@ msgstr "We locked your account for a short time."
 msgid "Workspace"
 msgstr "Workspace"
 
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:45
+msgid "You are an admin of this workspace."
+msgstr "You are an admin of this workspace."
+
 #: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:44
 msgid "You are an instance admin."
 msgstr "You are an instance admin."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:77
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:78
 msgid "You are no longer an instance admin."
 msgstr "You are no longer an instance admin."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:72
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:73
 msgid "You are no longer an owner of {workspace}."
 msgstr "You are no longer an owner of {workspace}."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:76
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:77
 msgid "You are now an instance admin."
 msgstr "You are now an instance admin."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:71
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:72
 msgid "You are now an owner of {workspace}."
 msgstr "You are now an owner of {workspace}."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:50
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:51
 msgid "You declined the invitation to {workspace}."
 msgstr "You declined the invitation to {workspace}."
 
@@ -326,7 +370,7 @@ msgstr "You declined the invitation to {workspace}."
 msgid "You have a new notification."
 msgstr "You have a new notification."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:57
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:58
 msgid "You joined {workspace} as {role}."
 msgstr "You joined {workspace} as {role}."
 
@@ -334,14 +378,14 @@ msgstr "You joined {workspace} as {role}."
 msgid "You own this workspace."
 msgstr "You own this workspace."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:81
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:82
 msgid "Your password changed."
 msgstr "Your password changed."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:67
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:68
 msgid "Your roles in {place} changed."
 msgstr "Your roles in {place} changed."
 
-#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:80
+#: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:81
 msgid "Your roles on this instance changed."
 msgstr "Your roles on this instance changed."
