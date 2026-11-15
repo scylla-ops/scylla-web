@@ -465,6 +465,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   page names its pipeline one time, with its name, also after a link or a reload.
 - The "Connect GitHub" dialog, the Git providers page and the GitHub card do not show the Commit
   statuses permission: the GitHub App does not ask for it.
+- A long line of a job log wraps in the log panel, so the log no longer scrolls sideways. A wrapped
+  line keeps one line number and its spaces, and a finished log opens on the last row of its last
+  line.
 
 ## [0.6.0] - 2026-11-01
 
