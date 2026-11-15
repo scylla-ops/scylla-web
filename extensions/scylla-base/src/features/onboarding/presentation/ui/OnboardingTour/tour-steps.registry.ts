@@ -158,6 +158,11 @@ const newAgentPage = select('[data-tour="add-agent-page"]');
 const newAgentForm = select('[data-tour="add-agent-form"]');
 const newAgentSubmit = select('[data-tour="add-agent-form"] button[type="submit"]');
 
+/** The page of a new project: the card of a regular project, then its form. */
+const regularProject = select('[data-tour="regular-project"]');
+const newProjectForm = select('[data-tour="add-project-form"]');
+const newProjectSubmit = select('[data-tour="add-project-form"] button[type="submit"]');
+
 const pipelineCell =
   (cell: string): TourAnchor =>
   (root, subject) => {
@@ -362,11 +367,11 @@ const pipelineTour: TourDefinition = {
     },
     {
       id: 'create-project',
-      page: () => '/projects',
+      page: () => '/projects/new/regular',
       title: m.createProjectTitle,
       body: [m.createProjectBody],
-      targets: [formDialog],
-      action: { anchor: formSubmit },
+      targets: [either(newProjectForm, regularProject)],
+      action: { anchor: newProjectSubmit, absent: { body: [m.regularProjectBody] } },
       advance: {
         on: 'mutation',
         key: CREATE_PROJECT_MUTATION_KEY,
@@ -374,7 +379,6 @@ const pipelineTour: TourDefinition = {
           isRecord(data) && typeof data.id === 'string' ? { projectId: data.id } : undefined,
       },
       fallback: 'new-project',
-      holdsDialog: true,
     },
     {
       id: 'open-project',

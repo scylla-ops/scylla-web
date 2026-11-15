@@ -21,21 +21,33 @@ msgstr "Ajouter une description..."
 msgid "All projects"
 msgstr "Tous les projets"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:23
-msgid "Create a new project"
-msgstr "Créer un nouveau projet"
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:41
+msgid "Back"
+msgstr "Retour"
 
-#: extensions/scylla-base/src/features/project/presentation/project.commands.ts:11
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:29
+msgid "Choose how the pipelines of the project start. You can link a repository later to a regular project."
+msgstr "Choisissez comment les pipelines du projet démarrent. Vous pouvez lier un dépôt plus tard à un projet standard."
+
+#: extensions/scylla-base/src/features/project/presentation/project.commands.ts:16
 msgid "create add"
 msgstr "créer ajouter"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:25
-msgid "Create Project"
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:23
+msgid "Create project"
 msgstr "Créer le projet"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:20
 msgid "Description"
 msgstr "Description"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:40
+msgid "Draw its pipelines in the Scylla editor. Link a repository later in Settings."
+msgstr "Dessinez ses pipelines dans l'éditeur Scylla. Liez un dépôt plus tard dans les Paramètres."
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:31
+msgid "Draw the pipelines in the Scylla editor. Run them by hand, on a schedule or on a webhook."
+msgstr "Dessinez les pipelines dans l'éditeur Scylla. Lancez-les à la main, selon un horaire ou depuis un webhook."
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:21
 msgid "e.g., A short description of the project"
@@ -49,18 +61,27 @@ msgstr "ex. Mon projet"
 msgid "Edit"
 msgstr "Modifier"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:26
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:24
 msgid "Edit project"
 msgstr "Modifier le projet"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:24
-msgid "Enter a name for your new project and select the workspace it belongs to."
-msgstr "Entrez un nom pour votre nouveau projet et sélectionnez l'espace de travail auquel il appartient."
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:35
+msgid "Link a GitHub repository"
+msgstr "Lier un dépôt GitHub"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:39
+msgid "Name the project"
+msgstr "Nommez le projet"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:10
-#: extensions/scylla-base/src/features/project/presentation/project.commands.ts:10
+#: extensions/scylla-base/src/features/project/presentation/project.commands.ts:15
+#: extensions/scylla-base/src/features/project/project.module.ts:38
 msgid "New project"
 msgstr "Nouveau projet"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:38
+msgid "New project · Regular project"
+msgstr "Nouveau projet · Projet standard"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:16
 msgid "No description"
@@ -70,9 +91,17 @@ msgstr "Aucune description"
 msgid "No workspace selected"
 msgstr "Aucun espace de travail sélectionné"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:34
+msgid "Pick a repository. Its pipelines run on its commits, and Scylla reports the results on GitHub."
+msgstr "Choisissez un dépôt. Ses pipelines se lancent sur ses commits, et Scylla envoie les résultats sur GitHub."
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:8
 msgid "Project"
 msgstr "Projet"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:33
+msgid "Project linked to GitHub"
+msgstr "Projet lié à GitHub"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:18
 msgid "Project name"
@@ -84,11 +113,15 @@ msgstr "Nom du projet"
 msgid "Projects"
 msgstr "Projets"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:28
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:30
+msgid "Regular project"
+msgstr "Projet standard"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:26
 msgid "Save"
 msgstr "Enregistrer"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:29
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:27
 msgid "Saving..."
 msgstr "Enregistrement..."
 
@@ -100,6 +133,10 @@ msgstr "Sélectionner"
 msgid "Select a workspace from the sidebar to view its projects"
 msgstr "Sélectionnez un espace de travail dans la barre latérale pour voir ses projets"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:32
+msgid "Start a regular project"
+msgstr "Créer un projet standard"
+
 #: extensions/scylla-base/src/features/project/infrastructure/default-project.repository.ts:23
 msgid "This workspace has reached its project limit."
 msgstr "Cet espace de travail a atteint sa limite de projets."
@@ -108,9 +145,13 @@ msgstr "Cet espace de travail a atteint sa limite de projets."
 msgid "Unable to load projects"
 msgstr "Impossible de charger les projets"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:27
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:25
 msgid "Update the project name and description."
 msgstr "Mettez à jour le nom du projet et sa description."
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:36
+msgid "You cannot link a repository in this workspace."
+msgstr "Vous ne pouvez pas lier un dépôt dans cet espace."
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:11
 msgid "You don't have permission to create projects."

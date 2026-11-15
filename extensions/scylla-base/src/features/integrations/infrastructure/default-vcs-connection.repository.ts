@@ -15,7 +15,12 @@ import type {
   VcsConnectionRepository,
 } from '@base/features/integrations/domain/repository/vcs-connection.repository.ts';
 import type { VcsProviderInfo } from '@base/features/integrations/domain/structs/vcs-provider.struct.ts';
-import { required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import {
+  required,
+  timestampToIso,
+  wrapId,
+  wrapIdOpt,
+} from '@shared/infrastructure/grpc/wrappers.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import * as grpcVcsConnection from './grpc-vcs-connection.mapper.ts';
 
@@ -112,7 +117,8 @@ export class DefaultVcsConnectionRepository implements VcsConnectionRepository {
     input: ListProviderRepositoriesInput,
   ): Promise<ProviderRepositoryPage> {
     const response = await this.client.listConnectionRepositories({
-      projectId: wrapId(input.projectId),
+      projectId: wrapIdOpt(input.projectId),
+      workspaceId: wrapIdOpt(input.workspaceId),
       connectionId: wrapId(input.connectionId),
       search: input.search ?? '',
       page: { size: PAGE_SIZE, token: input.pageToken ?? '' },

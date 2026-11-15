@@ -5,7 +5,7 @@ export const connectGitHubMessages = {
   description: msg`Scylla installs its GitHub App on one account or organization. You choose the repositories on GitHub, and you can change them later.`,
   asksFor: msg`The Scylla App asks for`,
   readCode: msg`Read your code, for the checkout and the pipeline files`,
-  writeChecks: msg`Write checks and commit statuses`,
+  writeChecks: msg`Write checks on your commits`,
   readPullRequests: msg`Read pull requests`,
   manageRules: msg`Manage branch rules, only for "Block the merge"`,
   events: msg`Events: push, pull request, check run, check suite, installation. Scylla never pushes code and never writes to your repositories.`,

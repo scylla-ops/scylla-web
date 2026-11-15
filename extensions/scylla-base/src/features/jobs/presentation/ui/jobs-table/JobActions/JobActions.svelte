@@ -13,7 +13,7 @@
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from '@scylla/ui/primitives';
-  import { IconButton } from '@scylla/ui';
+  import { IconButton, getDataTableLayout } from '@scylla/ui';
   import { createCompactContainer } from '@scylla/ui/state';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
@@ -42,12 +42,15 @@
   const canRerun = $derived(!!onRerun && can(Permission.CREATE_JOB));
   const canCancel = $derived(!!onCancel && can(Permission.UPDATE_JOB));
 
-  const container = createCompactContainer();
+  // Three 32 px buttons and their two 8 px gaps. A card gives the buttons the width they need.
+  const container = createCompactContainer(3 * 32 + 2 * 8);
+  const layout = getDataTableLayout();
+  const asMenu = $derived(container.isCompact && !layout.isCard);
 </script>
 
 <!-- Falls back to a menu when the column is too narrow. -->
 <div {@attach container.measure} class="flex w-full items-center justify-center gap-2 shrink-0">
-  {#if container.isCompact}
+  {#if asMenu}
     <DropdownMenu>
       <DropdownMenuTrigger
         class={cn(

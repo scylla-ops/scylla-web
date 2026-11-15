@@ -26,7 +26,7 @@ export const gitProvidersMessages = {
   noDelivery: msg`No webhook yet`,
   delivery: (status: number, when: string) => msg`${status} · ${when}`,
   permissions: msg`Permissions`,
-  permissionList: msg`Contents: read · Checks: write · Commit statuses: write · Pull requests: read · Administration: write · Metadata: read`,
+  permissionList: msg`Contents: read · Checks: write · Pull requests: read · Administration: write · Metadata: read`,
   openOnGitHub: msg`Open on GitHub`,
   removeApp: msg`Remove`,
   removeTitle: msg`Remove the GitHub App?`,

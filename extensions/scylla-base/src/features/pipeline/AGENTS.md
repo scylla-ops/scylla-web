@@ -443,7 +443,10 @@ the page.
 
 - **A file pipeline is read only, on a page of its own** (`pipelines/:pipelineId`, `READ_PIPELINE`:
   the route `get_file_pipeline` is in the catalog cell of `get_pipeline`). The list opens it
-  with View (`goToFilePipeline`), and the edit page of a file pipeline redirects to it. The page
+  with View (`goToFilePipeline`), and the edit page of a file pipeline redirects to it. For an
+  editor pipeline, this page redirects to the edit page: the crumb of the pipeline on the pages
+  under `pipelines/:pipelineId` (jobs, a job, triggers) links here for each source. It is the
+  only crumb that names the pipeline there: the crumb of the jobs is "Jobs" only. The page
   is the editor page with no edit: `PipelineBlueprint` gets `locked` (the blueprint is
   `readOnly` and saves no place), a `notice` in place of the notice of the repeated ids, and a
   `sidePanel` in place of the palette (`FilePanel`: the rules of `on` and the checkout, or the

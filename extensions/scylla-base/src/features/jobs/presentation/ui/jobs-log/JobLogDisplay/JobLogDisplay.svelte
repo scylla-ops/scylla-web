@@ -22,11 +22,12 @@
   const stream = createStreamedLogView(() => tail.text);
 
   /**
-   * Only line numbers and read-only. No `drawSelection`: a drag leaves a native
+   * Only line numbers, wrapped lines and read-only. No `drawSelection`: a drag leaves a native
    * selection, which `createStreamedLogView` reads.
    */
   const extensions = $derived([
     lineNumbers(),
+    EditorView.lineWrapping,
     EditorState.readOnly.of(true),
     EditorView.editable.of(false),
     EditorView.theme({ '&': { maxHeight: `${maxHeight ?? DEFAULT_MAX_HEIGHT}px` } }),

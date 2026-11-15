@@ -219,7 +219,9 @@ describe('Integrations page', () => {
     expect(
       within(dialog).getByText('Read your code, for the checkout and the pipeline files'),
     ).toBeInTheDocument();
-    expect(within(dialog).getByText('Write checks and commit statuses')).toBeInTheDocument();
+    expect(within(dialog).getByText('Write checks on your commits')).toBeInTheDocument();
+    expect(within(dialog).getByText('Checks: write')).toBeInTheDocument();
+    expect(within(dialog).queryByText(/statuses/i)).not.toBeInTheDocument();
     expect(within(dialog).getByText('Read pull requests')).toBeInTheDocument();
     expect(
       within(dialog).getByText('Manage branch rules, only for "Block the merge"'),

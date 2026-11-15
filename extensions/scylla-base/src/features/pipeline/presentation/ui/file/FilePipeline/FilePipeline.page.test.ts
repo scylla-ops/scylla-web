@@ -3,6 +3,7 @@ import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
+import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { PipelineFile } from '@base/features/pipeline/domain/structs/pipeline-file.struct.ts';
@@ -54,14 +55,17 @@ const refs = [
 let teardown: Array<() => void> = [];
 let getFile: ReturnType<typeof vi.fn>;
 
-const setUp = (read: (id: string, ref?: unknown) => Promise<PipelineFile>) => {
+const setUp = (
+  read: (id: string, ref?: unknown) => Promise<PipelineFile>,
+  pipeline: typeof saved = saved,
+) => {
   getFile = vi.fn(read);
   const cache = withQueryClient();
   teardown = [
     cache.restore,
     withRegistry({
       pipeline: {
-        pipelineRepository: { getWithLayout: () => Promise.resolve(saved), getFile },
+        pipelineRepository: { getWithLayout: () => Promise.resolve(pipeline), getFile },
         nodeTemplateRepository: { list: () => Promise.resolve([]) },
       },
       integrations: {
@@ -177,5 +181,22 @@ describe('FilePipelinePage', () => {
       'This pipeline has no file on main. The graph shows the last valid version.',
     );
     expect(screen.getByRole('tab', { name: 'Scripting' })).toBeDisabled();
+  });
+
+  it('sends an editor pipeline to its editor: it has no file to show', async () => {
+    const navigator = installTestNavigator({
+      pathname: '/acme/projects/project-1/pipelines/pipeline-1',
+    });
+    teardown.push(navigator.restore);
+    setUp(() => Promise.reject(new ScyllaError('no file', { code: 'FAILED_PRECONDITION' })), {
+      ...saved,
+      origin: { source: 'editor', filePath: '', fileErrorCount: 0 },
+    });
+
+    await vi.waitFor(() =>
+      expect(navigator.navigate).toHaveBeenCalledWith('../../edit/pipeline-1', { replace: true }),
+    );
+    expect(screen.queryByText('From file')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

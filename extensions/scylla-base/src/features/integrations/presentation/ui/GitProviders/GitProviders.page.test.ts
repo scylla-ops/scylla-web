@@ -137,6 +137,11 @@ describe('Git providers page', () => {
       screen.getByText('https://ci.acme.dev/integrations/github/app-1/webhook'),
     ).toBeInTheDocument();
     expect(screen.getByText(/^202 · 2 min/)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Contents: read · Checks: write · Pull requests: read · Administration: write · Metadata: read',
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Open on GitHub' })).toHaveAttribute(
       'href',
       'https://github.com/apps/scylla-acme',

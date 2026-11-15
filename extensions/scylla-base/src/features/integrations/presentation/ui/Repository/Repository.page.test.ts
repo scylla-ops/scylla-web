@@ -26,7 +26,6 @@ const link = (patch: Partial<RepositoryLink> = {}): RepositoryLink => ({
   private: true,
   pipelineSource: 'editor',
   reportsEnabled: true,
-  reportMode: 'check_run',
   deliveryMode: 'webhook',
   pollIntervalSeconds: 120,
   lastEventAt: new Date(Date.now() - 180_000).toISOString(),
@@ -193,7 +192,6 @@ describe('Repository page', () => {
     expect(screen.getByText('main')).toBeInTheDocument();
     expect(screen.getByText('Webhooks · last event 3 min. ago')).toBeInTheDocument();
     expect(screen.getByRole('switch', { name: 'Report results to GitHub' })).toBeChecked();
-    expect(screen.getByRole('radio', { name: /Check run/ })).toBeChecked();
     expect(await screen.findByText('scylla/build')).toBeInTheDocument();
     expect(screen.getByText('scylla/deploy')).toBeInTheDocument();
     expect(blocks.listByProject).toHaveBeenCalledWith('p-1');
@@ -230,7 +228,6 @@ describe('Repository page', () => {
         provider: 'gitlab',
         fullName: 'bank/payments',
         webUrl: 'https://gitlab.com/bank/payments',
-        reportMode: 'commit_status',
         deliveryMode: 'polling',
         lastEventAt: undefined,
         stateReason: 'WEBHOOK_DISABLED',
@@ -242,7 +239,6 @@ describe('Repository page', () => {
     expect(
       await screen.findByText('Polling every 2 min · GitLab disabled the webhook after failures.'),
     ).toBeInTheDocument();
-    expect(screen.queryByRole('radio', { name: /Check run/ })).not.toBeInTheDocument();
     expect(
       screen.getByText(
         'One job per Scylla pipeline in the stage external of the GitLab pipeline of the commit.',
@@ -254,21 +250,20 @@ describe('Repository page', () => {
     expect(await screen.findByRole('status')).toHaveTextContent('The test webhook arrived.');
   });
 
-  it('turns the reports off and changes the report mode', async () => {
+  it('reports to GitHub with check runs only, and turns the reports off', async () => {
     setUp(EDITOR, { current: link() });
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('switch', { name: 'Report results to GitHub' }));
+    expect(
+      await screen.findByText(
+        'One check run per Scylla pipeline in the Checks tab of the commit: the nodes, the durations, the last log lines, Re-run.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: /Check run|Commit status/ })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('switch', { name: 'Report results to GitHub' }));
     await waitFor(() =>
       expect(links.update).toHaveBeenCalledWith({ projectId: 'p-1', reportsEnabled: false }),
-    );
-
-    await waitFor(() =>
-      expect(screen.getByRole('switch', { name: 'Report results to GitHub' })).toBeChecked(),
-    );
-    await user.click(screen.getByRole('radio', { name: /Commit status/ }));
-    await waitFor(() =>
-      expect(links.update).toHaveBeenCalledWith({ projectId: 'p-1', reportMode: 'commit_status' }),
     );
   });
 
@@ -535,7 +530,6 @@ describe('Repository page', () => {
           provider: 'gitlab',
           fullName: 'bank/payments',
           webUrl: 'https://gitlab.com/bank/payments',
-          reportMode: 'commit_status',
         }),
         rules: [block({ pipelineId: undefined, context: '' })],
       });

@@ -1,5 +1,7 @@
 import type { VcsProvider } from '../structs/vcs-provider.struct.ts';
-import type { ReportMode } from './repository-link.entity.ts';
+
+/** The provider sets it: a check run on GitHub, a commit status on GitLab. */
+export type ReportMode = 'check_run' | 'commit_status';
 
 export type ReportState = 'sending' | 'sent' | 'retrying' | 'not_sent';
 

@@ -1,9 +1,6 @@
 import type { VcsProvider } from '../structs/vcs-provider.struct.ts';
 import type { ConnectionState, DeliveryMode } from './vcs-connection.entity.ts';
 
-/** A check run (GitHub only, the default there) or a commit status (the only mode on GitLab). */
-export type ReportMode = 'check_run' | 'commit_status';
-
 /** The editor of Scylla, or the files `.scylla/` of the linked repository. */
 export type PipelineSource = 'editor' | 'file';
 
@@ -26,7 +23,6 @@ export interface RepositoryLink {
   private: boolean;
   pipelineSource: PipelineSource;
   reportsEnabled: boolean;
-  reportMode: ReportMode;
   deliveryMode: DeliveryMode;
   /** 60 to 900. */
   pollIntervalSeconds: number;
@@ -49,7 +45,6 @@ export interface LinkRepositoryInput {
 export interface UpdateRepositoryLinkInput {
   projectId: string;
   reportsEnabled?: boolean;
-  reportMode?: ReportMode;
   pollIntervalSeconds?: number;
 }
 

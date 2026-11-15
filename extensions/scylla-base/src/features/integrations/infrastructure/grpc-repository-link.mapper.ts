@@ -1,7 +1,6 @@
 import {
   GitRefKind as GrpcGitRefKind,
   PipelineSource as GrpcPipelineSource,
-  ReportMode as GrpcReportMode,
   type GitRefInfo,
   type RepositoryLink as GrpcRepositoryLink,
 } from '@base/generated/scylla/integrations/v1/vcs.ts';
@@ -9,7 +8,6 @@ import type {
   GitRef,
   GitRefKind,
   RepositoryLink,
-  ReportMode,
 } from '@base/features/integrations/domain/entities/repository-link.entity.ts';
 import {
   idValue,
@@ -21,12 +19,6 @@ import {
   knownProvider,
   stateToDomain,
 } from './grpc-vcs-connection.mapper.ts';
-
-export const reportModeToDomain = (mode: GrpcReportMode): ReportMode =>
-  mode === GrpcReportMode.CHECK_RUN ? 'check_run' : 'commit_status';
-
-export const reportModeToProto = (mode: ReportMode): GrpcReportMode =>
-  mode === 'check_run' ? GrpcReportMode.CHECK_RUN : GrpcReportMode.COMMIT_STATUS;
 
 export const refKindToProto = (kind: GitRefKind | undefined): GrpcGitRefKind => {
   if (kind === 'branch') return GrpcGitRefKind.BRANCH;
@@ -49,7 +41,6 @@ export function toDomain(link: GrpcRepositoryLink): RepositoryLink {
     private: link.private,
     pipelineSource: link.pipelineSource === GrpcPipelineSource.FILE ? 'file' : 'editor',
     reportsEnabled: link.reportsEnabled,
-    reportMode: reportModeToDomain(link.reportMode),
     deliveryMode: deliveryModeToDomain(link.deliveryMode),
     pollIntervalSeconds: link.pollIntervalSeconds,
     ...(lastEventAt ? { lastEventAt } : {}),

@@ -192,3 +192,7 @@ export const repositoryOptionDetails = (
     ? t(messages.linkedTo(withRole, projectName))
     : t(messages.linkedElsewhere(withRole));
 };
+
+/** The name of a repository without its owner: api for acme/api. */
+export const repositoryName = (fullName: string): string =>
+  fullName.slice(fullName.lastIndexOf('/') + 1);

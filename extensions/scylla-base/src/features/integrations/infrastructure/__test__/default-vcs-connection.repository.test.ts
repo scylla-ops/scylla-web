@@ -269,4 +269,23 @@ describe('DefaultVcsConnectionRepository', () => {
     expect(page.repositories[0]).toMatchObject({ fullName: 'acme/api', linkedProjectId: 'p-1' });
     expect(page.repositories[1]).not.toHaveProperty('linkedProjectId');
   });
+
+  it('lists the repositories for a project to create with the workspace in place of a project', async () => {
+    const listConnectionRepositories = vi.fn(() =>
+      unaryCall({ repositories: [], page: { nextToken: '' } }),
+    );
+
+    await repositoryWith({ listConnectionRepositories }).listRepositories({
+      workspaceId: 'ws-1',
+      connectionId: 'c-1',
+    });
+
+    expect(listConnectionRepositories).toHaveBeenCalledWith({
+      projectId: undefined,
+      workspaceId: { value: 'ws-1' },
+      connectionId: { value: 'c-1' },
+      search: '',
+      page: { size: 100, token: '' },
+    });
+  });
 });

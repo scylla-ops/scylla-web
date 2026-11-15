@@ -10,9 +10,12 @@ import type {
 } from '../entities/vcs-connection.entity.ts';
 import type { VcsProviderInfo } from '../structs/vcs-provider.struct.ts';
 
+/** Set `projectId` or `workspaceId`: the server checks the permission on it. */
 export interface ListProviderRepositoriesInput {
-  /** The project to link: the server checks the permission on it. */
-  projectId: string;
+  /** The project to link. */
+  projectId?: string;
+  /** The workspace of a project to create. */
+  workspaceId?: string;
   connectionId: string;
   search?: string;
   pageToken?: string;

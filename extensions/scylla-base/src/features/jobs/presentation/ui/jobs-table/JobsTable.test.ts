@@ -94,6 +94,23 @@ describe('JobsTable', () => {
     expect(listByJobs).toHaveBeenCalledWith(['job-1']);
   });
 
+  it('puts the commit on two lines: the title, then the SHA with the state of its report, the ref and the PRs', async () => {
+    render(JobsTable, { jobs: [job('job-1', { source: source() })], pipelineId: 'pipeline-1' });
+
+    expect(screen.getByText('Refactor session store')).toHaveAttribute('title', 'Refactor session store');
+    const sha = screen.getByText('9f8e7d6');
+    expect(await within(sha).findByRole('img', { name: 'Report not sent' })).toBeInTheDocument();
+    const line = sha.parentElement as HTMLElement;
+    expect(within(line).getByText('feature/login')).toBeInTheDocument();
+    expect(within(line).getByText('#42')).toBeInTheDocument();
+  });
+
+  it('fits a 900 px container with the Source column, so the page does not scroll sideways', () => {
+    render(JobsTable, { jobs: [job('job-1', { source: source() })], pipelineId: 'pipeline-1' });
+
+    expect(parseFloat(screen.getByRole('table').style.minWidth)).toBeLessThanOrEqual(900);
+  });
+
   it('shows the branch of a fork with the owner of the fork', () => {
     render(JobsTable, {
       jobs: [

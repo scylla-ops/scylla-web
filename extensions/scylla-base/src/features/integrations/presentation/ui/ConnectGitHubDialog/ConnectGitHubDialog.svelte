@@ -15,20 +15,18 @@
     open: boolean;
     onOpenChange: (open: boolean) => void;
     workspaceId: string;
+    /** The page that the callback opens after the install, in place of Integrations. */
+    returnTo?: string;
   }
 
-  let { open, onOpenChange, workspaceId }: Props = $props();
+  let { open, onOpenChange, workspaceId, returnTo }: Props = $props();
 
   const install = createMutation(() => vcsConnectionMutations.startGitHubInstall());
 
   // The names of the permissions on GitHub: not translated.
   const permissions = $derived([
     { icon: FileCodeIcon, title: t(messages.readCode), scopes: 'Contents: read' },
-    {
-      icon: ListChecksIcon,
-      title: t(messages.writeChecks),
-      scopes: 'Checks: write · Commit statuses: write',
-    },
+    { icon: ListChecksIcon, title: t(messages.writeChecks), scopes: 'Checks: write' },
     {
       icon: GitPullRequestIcon,
       title: t(messages.readPullRequests),
@@ -71,7 +69,7 @@
     </Button>
     <Button
       disabled={install.isPending || install.isSuccess}
-      onclick={() => install.mutate(workspaceId)}
+      onclick={() => install.mutate({ workspaceId, returnTo })}
     >
       {t(messages.install)}
       <ExternalLinkIcon class="size-4" aria-hidden="true" />

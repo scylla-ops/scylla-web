@@ -3,16 +3,25 @@ import { flushSync } from 'svelte';
 import { render, screen } from '@testing-library/svelte';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
+import { pipelineQueries } from '@base/features/pipeline';
 import { projectQueries, type ProjectEntity } from '@base/features/project';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { textSnippet, withQueryClient, withRegistry } from '@test/render.ts';
-import { cleanContext } from '../context-cleaner.effect.svelte.ts';
+import { cleanContext, namePipeline } from '../context-cleaner.effect.svelte.ts';
 import ContextCleaner from '../ContextCleaner.wrapper.svelte';
 
 const web: ProjectEntity = { id: 'project-1', workspaceId: 'org-1', name: 'web' };
 
 const repository = { getById: vi.fn(), getByWorkspaceId: vi.fn() };
+
+const lint = {
+  pipeline: { id: 'pipeline-1', projectId: 'project-1', name: 'lint', nodes: [] },
+  layout: null,
+  origin: { source: 'file' as const, filePath: '.scylla/pipelines/lint.yaml', fileErrorCount: 0 },
+};
+
+const pipelineRepository = { getWithLayout: vi.fn() };
 
 let navigator: ReturnType<typeof installTestNavigator>;
 let cache: ReturnType<typeof withQueryClient>;
@@ -48,18 +57,20 @@ const run = async (...args: Parameters<typeof mount>) => {
   return cleaner;
 };
 
-const grantProjectList = () =>
+const grantInWorkspace = (...permissions: Permission[]) =>
   permissionsStore.setState({
     permissions: {
       scopes: [
         {
           scope: PermissionScope.WORKSPACE,
           scopeId: 'org-1',
-          access: { kind: 'restricted', permissions: [Permission.LIST_PROJECTS_BY_WORKSPACE] },
+          access: { kind: 'restricted', permissions },
         },
       ],
     },
   });
+
+const grantProjectList = () => grantInWorkspace(Permission.LIST_PROJECTS_BY_WORKSPACE);
 
 beforeEach(() => {
   navigator = installTestNavigator();
@@ -67,7 +78,11 @@ beforeEach(() => {
   cleanups = [];
   repository.getById.mockReset().mockResolvedValue(web);
   repository.getByWorkspaceId.mockReset();
-  restoreRegistry = withRegistry({ project: { projectRepository: repository } });
+  pipelineRepository.getWithLayout.mockReset().mockResolvedValue(lint);
+  restoreRegistry = withRegistry({
+    project: { projectRepository: repository },
+    pipeline: { pipelineRepository },
+  });
   grantProjectList();
   contextStore.setState({
     workspace: { id: 'org-1', name: 'Acme Corp', slug: null },
@@ -290,6 +305,80 @@ describe('cleanContext', () => {
     await run('project-1', '/acme/projects/project-1/pipelines/pipeline-1/jobs');
 
     expect(contextStore.getState().pipeline).toEqual({ id: 'pipeline-1', name: 'ci' });
+  });
+});
+
+describe('namePipeline', () => {
+  const jobPage = '/acme/projects/project-1/pipelines/pipeline-1/jobs/job-1';
+  const inJobPage = { projectId: 'project-1', pipelineId: 'pipeline-1', jobId: 'job-1' };
+
+  const runNamer = async (
+    pipelineId: string | undefined,
+    params: Record<string, string> = inJobPage,
+  ) => {
+    navigator.restore();
+    navigator = installTestNavigator({ pathname: jobPage, params });
+    cleanups.push($effect.root(() => namePipeline(pipelineId)));
+    flushSync();
+    await settled();
+  };
+
+  beforeEach(() => grantInWorkspace(Permission.READ_PIPELINE));
+
+  it('names the pipeline of a direct link, so the crumbs do not show its id', async () => {
+    await runNamer('pipeline-1');
+
+    expect(pipelineRepository.getWithLayout).toHaveBeenCalledWith('pipeline-1');
+    expect(contextStore.getState().pipeline).toEqual({ id: 'pipeline-1', name: 'lint' });
+  });
+
+  it('replaces another pipeline that the store kept from an earlier page', async () => {
+    contextStore.setState({ pipeline: { id: 'pipeline-2', name: 'build' } });
+
+    await runNamer('pipeline-1');
+
+    expect(contextStore.getState().pipeline).toEqual({ id: 'pipeline-1', name: 'lint' });
+  });
+
+  it('reads nothing when the store already names the pipeline', async () => {
+    contextStore.setState({ pipeline: { id: 'pipeline-1', name: 'lint' } });
+
+    await runNamer('pipeline-1');
+
+    expect(pipelineRepository.getWithLayout).not.toHaveBeenCalled();
+  });
+
+  it('follows a rename in the cache', async () => {
+    contextStore.setState({ pipeline: { id: 'pipeline-1', name: 'lint' } });
+    await runNamer('pipeline-1');
+
+    cache.queryClient.setQueryData(pipelineQueries.byId('pipeline-1').queryKey, {
+      ...lint,
+      pipeline: { ...lint.pipeline, name: 'checks' },
+    });
+
+    await vi.waitFor(() => expect(contextStore.getState().pipeline.name).toBe('checks'));
+  });
+
+  it('reads nothing without the right to read the pipeline: the crumbs keep its id', async () => {
+    grantProjectList();
+
+    await runNamer('pipeline-1');
+
+    expect(pipelineRepository.getWithLayout).not.toHaveBeenCalled();
+    expect(contextStore.getState().pipeline).toEqual({ id: null, name: null });
+  });
+
+  it('reads nothing on a page with no pipeline', async () => {
+    await runNamer(undefined, { projectId: 'project-1' });
+
+    expect(pipelineRepository.getWithLayout).not.toHaveBeenCalled();
+  });
+
+  it('writes nothing during the exit animation, when the URL left its pipeline', async () => {
+    await runNamer('pipeline-1', { ...inJobPage, pipelineId: 'pipeline-2' });
+
+    expect(contextStore.getState().pipeline).toEqual({ id: null, name: null });
   });
 });
 

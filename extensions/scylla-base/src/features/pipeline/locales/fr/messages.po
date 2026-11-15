@@ -455,7 +455,7 @@ msgstr "JSON invalide"
 msgid "Invalid node ID"
 msgstr "ID de nœud invalide"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:66
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:64
 msgid "Jobs"
 msgstr "Jobs"
 
@@ -591,7 +591,6 @@ msgstr "Ouvrir à côté"
 
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:43
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:54
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:64
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:8
 msgid "Pipeline"
 msgstr "Pipeline"

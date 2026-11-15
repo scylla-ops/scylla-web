@@ -21,7 +21,8 @@ const PROVIDER_REPOSITORIES_QUERY_KEY = (input: ListProviderRepositoriesInput) =
     ...ALL_VCS_CONNECTIONS_QUERY_KEY,
     'repositories',
     input.connectionId,
-    input.projectId,
+    input.projectId ?? '',
+    input.workspaceId ?? '',
     input.search ?? '',
     input.pageToken ?? '',
   ] as const;
@@ -46,24 +47,61 @@ export const vcsConnectionQueries = {
       staleTime: 30 * 1000,
     }),
 
-  /** A new search keeps the rows of the last one on screen until its answer comes. */
+  /**
+   * A new search keeps the rows of the last one on screen until its answer comes. The list reads
+   * the provider again when the tab gets the focus: the person adds a repository on GitHub there.
+   */
   repositories: (input: ListProviderRepositoriesInput, enabled = true) =>
     queryOptions({
       queryKey: PROVIDER_REPOSITORIES_QUERY_KEY(input),
       queryFn: () => repository().listRepositories(input),
-      enabled: enabled && !!input.projectId && !!input.connectionId,
+      enabled: enabled && !!(input.projectId || input.workspaceId) && !!input.connectionId,
       staleTime: 30 * 1000,
+      refetchOnWindowFocus: 'always',
       placeholderData: (previous, previousQuery) =>
         previousQuery?.queryKey[2] === input.connectionId ? previous : undefined,
     }),
 };
 
+/** The page that started a GitHub install. The tab keeps it while the browser is on GitHub. */
+const GITHUB_RETURN_KEY = 'scylla.github-install.return';
+
+const keepGitHubReturn = (path: string | undefined): void => {
+  try {
+    if (path) sessionStorage.setItem(GITHUB_RETURN_KEY, path);
+    else sessionStorage.removeItem(GITHUB_RETURN_KEY);
+  } catch {
+    // With no storage, the callback opens Integrations.
+  }
+};
+
+/** The page that started the install, one time. Empty when Integrations started it. */
+export const takeGitHubReturn = (): string => {
+  try {
+    const path = sessionStorage.getItem(GITHUB_RETURN_KEY) ?? '';
+    sessionStorage.removeItem(GITHUB_RETURN_KEY);
+    return path.startsWith('/') && !path.startsWith('//') ? path : '';
+  } catch {
+    return '';
+  }
+};
+
+export interface StartGitHubInstallInput {
+  workspaceId: string;
+  /** The page that the callback opens after a new connection, in place of Integrations. */
+  returnTo?: string;
+}
+
 export const vcsConnectionMutations = {
   /** The browser leaves for GitHub, which sends it back to the callback page. */
   startGitHubInstall: () =>
     mutationOptions({
-      mutationFn: (workspaceId: string) => repository().startGitHubInstall(workspaceId),
-      onSuccess: install => window.location.assign(install.installUrl),
+      mutationFn: ({ workspaceId }: StartGitHubInstallInput) =>
+        repository().startGitHubInstall(workspaceId),
+      onSuccess: (install, { returnTo }) => {
+        keepGitHubReturn(returnTo);
+        window.location.assign(install.installUrl);
+      },
     }),
 
   /** The callback page shows the refusal itself, with the words of the flow. */

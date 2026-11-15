@@ -1,5 +1,4 @@
 import type { IRepositoryServiceClient } from '@base/generated/scylla/integrations/v1/repository_service.client.ts';
-import { ReportMode as GrpcReportMode } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import type {
   DeliveryTest,
   GitRefPage,
@@ -35,10 +34,6 @@ export class DefaultRepositoryLinkRepository implements RepositoryLinkRepository
     const response = await this.client.updateRepositoryLink({
       projectId: wrapId(input.projectId),
       reportsEnabled: input.reportsEnabled,
-      // UNSPECIFIED keeps the mode.
-      reportMode: input.reportMode
-        ? grpcRepositoryLink.reportModeToProto(input.reportMode)
-        : GrpcReportMode.UNSPECIFIED,
       pollIntervalSeconds: input.pollIntervalSeconds,
     }).response;
     return grpcRepositoryLink.toDomain(required(response.link, 'link'));

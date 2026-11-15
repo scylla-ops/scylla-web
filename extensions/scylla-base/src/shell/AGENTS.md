@@ -38,8 +38,8 @@ presentation/
     WorkspaceSync.wrapper.svelte     URL slug → context store (workspace-sync.effect.svelte.ts)
     WorkspaceRedirect.wrapper.svelte `/` → the user's workspace (workspace-redirect.effect.svelte.ts)
     last-workspace.ts                   the key `last-workspace` of `platform/user-state`
-    ContextCleaner.wrapper.svelte       URL project → context store, drops stale project/pipeline context
-                                        (context-cleaner.effect.svelte.ts)
+    ContextCleaner.wrapper.svelte       URL project → context store, drops stale project/pipeline context,
+                                        names the pipeline of the URL (context-cleaner.effect.svelte.ts)
     NotFound/                           the fallback for a URL that no route matches: a text and a link to /.
                                         It has no session check: / goes through AuthGuard
   layout/
@@ -162,6 +162,12 @@ Rules:
   counts the project as gone.
 - **`projectQueries.byId` has no `can()` gate here.** The permissions of a project load only for the
   project of the store, and `cleanContext` writes this project. A gate never opens.
+- `namePipeline` gives the store the name of the pipeline of the URL (`pipelineQueries.byId`, with
+  `READ_PIPELINE` in `enabled`). A link, a reload or a search result opens a pipeline page with no
+  name in the store, and the crumbs then show the id. It reads only when the store does not name
+  this pipeline, because the editor page reads the same key, and a refetch replaces its draft. It
+  follows the answer in the cache, thus a saved rename goes to the crumbs. Like `cleanContext`, it
+  writes only while the URL still points at its pipeline.
 - A full load of a deleted or unknown URL shows one error toast: the page mounts and its own list
   fails before the read of the project answers. The wrapper does not hold the page until this
   answer, because each first entry in a project would then wait for one more call.
@@ -172,7 +178,8 @@ Rules:
   The top bar shows the workspace in its switcher, so no crumb names it.
   `breadcrumbParams` gives the crumbs `projectName`, and `pipelineName` —
   the name of the active pipeline only when it is the one in the URL, else its id, so the crumb
-  identifies its pipeline also after a reload.
+  identifies its pipeline before `namePipeline` has the name, and for a person without
+  `READ_PIPELINE`.
 - `ShellBrand` is a plain link: the router follows it, and a Ctrl click opens a new tab. It reads
   the slug from `linkParams`, so it follows a change of workspace. With no active workspace it
   opens `/`, and `/` picks the workspace of the user.

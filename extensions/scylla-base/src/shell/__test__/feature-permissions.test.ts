@@ -189,8 +189,8 @@ describe('feature permission conformance', () => {
         '*does* check lives in its own file precisely so its `can(` does not vouch for this one.',
       'pipeline.pipelineQueries':
         '`byWorkspace` needs LIST_PIPELINES_BY_WORKSPACE, which each consumer adds to ' +
-        '`enabled`. The trigger pages read `byId` for the file of a file pipeline, and add ' +
-        'READ_PIPELINE to `enabled` in the same way.',
+        '`enabled`. The trigger pages read `byId` for the file of a file pipeline, and the ' +
+        "shell's `namePipeline` for the name in the crumbs: both add READ_PIPELINE to `enabled`.",
       'secret.secretQueries':
         "Consumed by pipeline's step dialog to offer secret names, on an editor route requiring " +
         'UPDATE_PIPELINE: the dialog adds LIST_SECRETS to `enabled`, and takes a typed name.',

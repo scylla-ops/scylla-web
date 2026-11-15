@@ -68,6 +68,19 @@ describe('GitHubCallbackPage', () => {
     expect(contextStore.getState().workspace.slug).toBe('labs');
   });
 
+  it('goes back to the page that started the install, with the new connection, one time', async () => {
+    sessionStorage.setItem('scylla.github-install.return', '/acme/projects/new/github');
+    const completeGitHubInstall = vi.fn().mockResolvedValue(connected('c-9', 'ws-1'));
+    const { navigate } = open(completeGitHubInstall);
+
+    await waitFor(() =>
+      expect(navigate).toHaveBeenCalledWith('/acme/projects/new/github?connection=c-9', {
+        replace: true,
+      }),
+    );
+    expect(sessionStorage.getItem('scylla.github-install.return')).toBeNull();
+  });
+
   it('sends an install with no code to the authorize page of GitHub, and stays on the wait', async () => {
     const assign = vi.fn();
     vi.stubGlobal('location', { ...window.location, assign });

@@ -123,7 +123,8 @@ presentation/
 person links a repository. Import it as a namespace: `triggersNavigation.toEdit(pipelineId,
 triggerId)`.
 
-**No nav entry** — reached from a pipeline. Breadcrumb highlights `pipelineName`.
+**No nav entry** — reached from a pipeline. Its crumb is "Triggers" only: the crumb of
+`pipelines/:pipelineId` (`pipeline`) names the pipeline before it.
 
 One permission covers read and write: seeing a webhook's configuration is close enough to
 holding it that they are not split.

@@ -7,7 +7,7 @@ export const integrationsMessages = {
   connections: msg`Connections`,
 
   github: msg`GitHub`,
-  githubBlurb: msg`github.com · checks, statuses, triggers, checkout`,
+  githubBlurb: msg`github.com · checks, triggers, checkout`,
   gitlab: msg`GitLab`,
   gitlabBlurb: msg`gitlab.com · service account token`,
   githubServer: msg`GitHub Enterprise Server`,
