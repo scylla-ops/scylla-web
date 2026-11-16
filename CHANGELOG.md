@@ -470,6 +470,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A long line of a job log wraps in the log panel, so the log no longer scrolls sideways. A wrapped
   line keeps one line number and its spaces, and a finished log opens on the last row of its last
   line.
+- The list of pipelines shows up to 30 jobs of each pipeline as bars, as many as the History column
+  can hold, in place of 5. The height of a bar shows the duration of its job. A click on a bar opens
+  the job. The Last Run column is removed. The pipeline name shows the last run, and its notes are
+  badges with the full text in a tooltip. A hover on the name shows the pass rate, the median
+  duration and the failures.
 
 ## [0.6.0] - 2026-11-01
 

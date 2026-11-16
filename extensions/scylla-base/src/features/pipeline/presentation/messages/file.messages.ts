@@ -51,4 +51,7 @@ export const fileMessages = {
   removedFrom: (branch: string) => msg`Removed from ${branch}`,
   defaultBranch: msg`the default branch`,
   archived: msg`Archived: the project uses the repository files`,
+  errorsBadge: (count: number) => msg`${plural(count, { one: '# error', other: '# errors' })}`,
+  removedBadge: msg`Removed`,
+  archivedBadge: msg`Archived`,
 };

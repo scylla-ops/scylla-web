@@ -114,7 +114,10 @@ presentation/
     pipeline-feed.presenter.ts               asPipelineFeed
     pipeline-file.presenter.ts               a file pipeline: the rows of `on` and of the checkout,
                                              the place of an error, the note of a row of the list
-                                             (originNote), the notice of its page (fileNotice)
+                                             (originNote: a badge, its full text in a tooltip),
+                                             the notice of its page (fileNotice)
+    pipeline-history.presenter.ts            the bars of a row of the list (historyBars, barCapacity),
+                                             the figures of its stats card (historyStats)
     ref-options.presenter.ts                 the rows of a branch or tag picker, and of the Run dialog
     job-filter.presenter.ts                  the rows of the branch filter, the names of the events
   mappers/                                   a view format ↔ the domain, both ways (plain TS, tested)
@@ -135,8 +138,9 @@ presentation/
                                              branch picker, the notice, the locked panel, the text)
     dashboard/
       DashboardPipeline/                     the page, its header, pipeline-dashboard.state.svelte.ts
-      PipelineTable/                         the table, pipeline-table.columns.ts, and the cells only it
-                                             renders (PipelineActions, PipelineChart, PipelineLastJob, PipelineStatus)
+      PipelineTable/                         the table, pipeline-table.columns.ts, bar-capacity.state.svelte.ts,
+                                             and the cells only it renders (PipelineActions, PipelineChart,
+                                             PipelineStatus, PipelineStatsCard)
     editor/
       PipelineCreation.page.svelte, PipelineEditor.svelte
       PipelineUpdate/                        the edit page (and its test)
@@ -433,7 +437,7 @@ the page.
 - **`data-tour` attributes are anchors of the onboarding tour** (`pipelines` with `data-project-id`, `pipeline-editor`, `pipeline-submit`, and on each row
   `pipeline-history` / `pipeline-actions` / `pipeline-run` with `data-pipeline-id`,
   `data-pipeline-name`, `data-last-status`). Keep them on the same
-  element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
+  element when you move markup. The bars of `pipeline-history` have `data-item-id`, the newest bar last. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
 - **Export writes the saved version as a file of the repository** (`ExportPipeline`). Only the
   edit page has it (`PipelineEditor` gets `pipelineId`). The button checks `READ_PIPELINE`: the
   route `export_pipeline` is in the same catalog cell as `get_pipeline`. The dialog reads the file

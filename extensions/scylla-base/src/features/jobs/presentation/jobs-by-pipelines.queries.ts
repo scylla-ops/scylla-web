@@ -2,8 +2,14 @@ import { Permission, authorizationReady, can } from '@platform/authz';
 import type { JobEntity } from '../domain/entities/job.entity.ts';
 import { jobQueries } from './jobs.queries.ts';
 
+/** The latest jobs of a pipeline, newest first, and the number of all its jobs. */
+export interface PipelineHistory {
+  jobs: JobEntity[];
+  totalCount: number;
+}
+
 interface HistoryResult {
-  data?: { pipelineId: string; jobs: JobEntity[] };
+  data?: PipelineHistory & { pipelineId: string };
   isLoading: boolean;
   isError: boolean;
 }
@@ -24,9 +30,11 @@ export const jobsByPipelinesQueries = (pipelineIds: string[]) => {
     queries: pipelineIds.map(pipelineId => jobQueries.historyOf(pipelineId, canListJobs)),
     // Folded here so TanStack Query memoizes it on the results.
     combine: (results: HistoryResult[]) => ({
-      jobsByPipelineId: new Map(
-        results.flatMap(result =>
-          result.data ? [[result.data.pipelineId, result.data.jobs] as const] : [],
+      historyByPipelineId: new Map<string, PipelineHistory>(
+        results.flatMap(({ data }) =>
+          data
+            ? [[data.pipelineId, { jobs: data.jobs, totalCount: data.totalCount }] as const]
+            : [],
         ),
       ),
       // Permissions unknown: keep the skeletons.

@@ -79,7 +79,7 @@ describe('jobsByPipelinesQueries', () => {
     expect(combine([{ isLoading: false, isError: false }]).isJobsLoading).toBe(true);
   });
 
-  it('asks for each pipeline once permitted, capped at a history strip rather than the whole log', async () => {
+  it('asks for each pipeline once permitted, capped at the 30 bars of the history, with the total count', async () => {
     grantEverything();
     const { queries } = jobsByPipelinesQueries(['pipeline-1']);
 
@@ -87,10 +87,11 @@ describe('jobsByPipelinesQueries', () => {
     await expect(runQueryFn(queries[0])).resolves.toEqual({
       pipelineId: 'pipeline-1',
       jobs: [job('job-1')],
+      totalCount: 1,
     });
     expect(repository.getByPipelineId).toHaveBeenCalledWith('pipeline-1', {
       page: 1,
-      pageSize: 10,
+      pageSize: 30,
     });
   });
 
@@ -98,17 +99,20 @@ describe('jobsByPipelinesQueries', () => {
     grantEverything();
     const { combine } = jobsByPipelinesQueries(['pipeline-1', 'pipeline-2']);
 
-    const { jobsByPipelineId } = combine([
+    const { historyByPipelineId } = combine([
       {
-        data: { pipelineId: 'pipeline-1', jobs: [job('job-1')] },
+        data: { pipelineId: 'pipeline-1', jobs: [job('job-1')], totalCount: 128 },
         isLoading: false,
         isError: false,
       },
       { isLoading: false, isError: false },
     ]);
 
-    expect([...jobsByPipelineId.keys()]).toEqual(['pipeline-1']);
-    expect(jobsByPipelineId.get('pipeline-1')).toEqual([job('job-1')]);
+    expect([...historyByPipelineId.keys()]).toEqual(['pipeline-1']);
+    expect(historyByPipelineId.get('pipeline-1')).toEqual({
+      jobs: [job('job-1')],
+      totalCount: 128,
+    });
   });
 
   it('reports the fan-out as failed when any one pipeline failed', () => {

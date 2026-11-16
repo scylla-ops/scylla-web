@@ -34,6 +34,8 @@ declare module '@tanstack/table-core' {
   > {
     align?: ColumnAlign;
     card?: CardSlot;
+    /** The classes of the header and of the cells of the column in a table, e.g. their padding. */
+    class?: string;
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */
 }

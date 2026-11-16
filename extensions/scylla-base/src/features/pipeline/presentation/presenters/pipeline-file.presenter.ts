@@ -106,21 +106,35 @@ export interface OriginNote {
   text: string;
 }
 
+/** The note of a row: a short badge, and the full text in its tooltip. */
+export interface RowNote extends OriginNote {
+  badge: string;
+}
+
 /** What a row of the pipeline list says about the file of a pipeline, or `null`. */
-export const originNote = (origin: PipelineOrigin, defaultBranch?: string): OriginNote | null => {
+export const originNote = (origin: PipelineOrigin, defaultBranch?: string): RowNote | null => {
   const branch = branchLabel(defaultBranch ?? '');
   if (origin.source === 'file') {
-    if (origin.removedAt) return { tone: 'muted', text: t(fileMessages.removedFrom(branch)) };
+    if (origin.removedAt) {
+      return {
+        tone: 'muted',
+        badge: t(fileMessages.removedBadge),
+        text: t(fileMessages.removedFrom(branch)),
+      };
+    }
     if (origin.fileErrorCount > 0) {
       const file = fileName(origin.filePath);
       return {
         tone: 'error',
+        badge: t(fileMessages.errorsBadge(origin.fileErrorCount)),
         text: t(fileMessages.errorsOnBranch(file, origin.fileErrorCount, branch)),
       };
     }
     return null;
   }
-  return origin.archivedAt ? { tone: 'muted', text: t(fileMessages.archived) } : null;
+  return origin.archivedAt
+    ? { tone: 'muted', badge: t(fileMessages.archivedBadge), text: t(fileMessages.archived) }
+    : null;
 };
 
 export interface FileNoticeInput {

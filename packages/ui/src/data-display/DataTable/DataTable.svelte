@@ -194,6 +194,7 @@
                     'flex min-w-0 items-center overflow-hidden',
                     alignClass[align],
                     headAlignClass[align],
+                    header.column.columnDef.meta?.class,
                   )}
                 >
                   {#if !header.isPlaceholder}
@@ -223,6 +224,7 @@
                   class={cn(
                     'flex min-w-0 items-center overflow-hidden',
                     alignClass[align],
+                    cell.column.columnDef.meta?.class,
                   )}
                 >
                   <div class={cn('w-full min-w-0', cellAlignClass[align])}>
