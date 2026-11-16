@@ -12,12 +12,13 @@ let workspaces: Record<string, ReturnType<typeof vi.fn>>;
 
 const setUp = (personalTokensEnabled: boolean, serverEnabled = true) => {
   contextStore.setState({ workspace: { id: 'ws-1', name: 'acme', slug: 'acme' } });
-  const entity = { id: 'ws-1', name: 'acme', slug: 'acme', personalTokensEnabled };
+  const entity = { id: 'ws-1', name: 'acme', slug: 'acme', personalTokensEnabled, timeZone: 'UTC' };
   workspaces = {
     getMine: vi.fn().mockResolvedValue([entity]),
     setPersonalTokens: vi.fn((_id: string, enabled: boolean) =>
       Promise.resolve({ ...entity, personalTokensEnabled: enabled }),
     ),
+    setTimeZone: vi.fn((_id: string, timeZone: string) => Promise.resolve({ ...entity, timeZone })),
   };
   const users = {
     listPersonalTokens: vi
@@ -36,6 +37,8 @@ const setUp = (personalTokensEnabled: boolean, serverEnabled = true) => {
 };
 
 const theSwitch = () => screen.findByRole('switch', { name: 'Personal tokens in acme' });
+const theZone = () =>
+  screen.findByRole<HTMLInputElement>('combobox', { name: 'Time zone of acme' });
 
 beforeEach(() => vi.clearAllMocks());
 afterEach(() => teardown.forEach(restore => restore()));
@@ -76,5 +79,33 @@ describe('WorkspaceSettingsPage', () => {
 
     await user.click(await theSwitch());
     expect(workspaces.setPersonalTokens).not.toHaveBeenCalled();
+  });
+
+  it('shows the zone of the workspace, and the zone of the browser as a hint', async () => {
+    setUp(true);
+    const browser = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const user = userEvent.setup();
+
+    expect((await theZone()).value).toBe('UTC');
+    const body = `The stats of acme count their days and hours in this zone. This browser is in ${browser}.`;
+    expect(screen.getByText(body)).toBeInTheDocument();
+
+    await user.click(await theZone());
+    const first = (await screen.findAllByRole('option', { hidden: true }))[0];
+    expect(first?.textContent.trim()).toBe(`${browser} This browser`);
+  });
+
+  it('saves the zone that the user picks', async () => {
+    setUp(true);
+    const user = userEvent.setup();
+
+    await user.type(await theZone(), 'europe/paris');
+    const rows = await screen.findAllByRole('option', { hidden: true });
+    expect(rows).toHaveLength(1);
+    await user.click(rows[0]);
+
+    await waitFor(() =>
+      expect(workspaces.setTimeZone).toHaveBeenCalledWith('ws-1', 'Europe/Paris'),
+    );
   });
 });

@@ -177,6 +177,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   GitHub. For GitHub, you pick a repository, and the page names the project from it and sets the
   pipeline source and the reports. If the link fails after the creation, the page keeps the project
   and you can try again.
+- The General page of the workspace settings has a time zone field: a search in the IANA names, with
+  the zone of the browser first. The title of the page is now General, as its link in the sidebar.
 
 ### Changed
 

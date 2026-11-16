@@ -12,6 +12,8 @@ export interface WorkspaceRepository {
   update: (workspaceId: string, name?: string, slug?: string) => Promise<WorkspaceEntity>;
   /** Allows or refuses the personal tokens of the users in this workspace. */
   setPersonalTokens: (workspaceId: string, enabled: boolean) => Promise<WorkspaceEntity>;
+  /** An IANA name. INVALID_ARGUMENT on `time_zone` for an unknown name. */
+  setTimeZone: (workspaceId: string, timeZone: string) => Promise<WorkspaceEntity>;
   /** FAILED_PRECONDITION with WORKSPACE_NOT_EMPTY while it holds projects or agents. */
   delete: (workspaceId: string) => Promise<void>;
 }

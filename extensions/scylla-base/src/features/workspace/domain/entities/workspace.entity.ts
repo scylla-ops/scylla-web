@@ -6,4 +6,6 @@ export interface WorkspaceEntity {
   slug: string;
   /** False: this workspace refuses the personal tokens of its members. */
   personalTokensEnabled: boolean;
+  /** An IANA name, `UTC` for a new workspace: the days and the hours of the workspace. */
+  timeZone: string;
 }

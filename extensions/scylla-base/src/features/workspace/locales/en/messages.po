@@ -66,10 +66,15 @@ msgstr "Edit workspace"
 msgid "Enter a name for your new workspace, and an address if you want to choose it. You can change both later."
 msgstr "Enter a name for your new workspace, and an address if you want to choose it. You can change both later."
 
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:23
+msgid "Find a time zone"
+msgstr "Find a time zone"
+
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:19
 msgid "Find a workspace"
 msgstr "Find a workspace"
 
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:4
 #: extensions/scylla-base/src/features/workspace/workspace.module.ts:33
 msgid "General"
 msgstr "General"
@@ -110,10 +115,6 @@ msgstr "Save"
 msgid "Saving..."
 msgstr "Saving..."
 
-#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:4
-msgid "Security"
-msgstr "Security"
-
 #: extensions/scylla-base/src/features/workspace/workspace.module.ts:29
 #: extensions/scylla-base/src/features/workspace/workspace.module.ts:37
 msgid "Settings"
@@ -122,6 +123,26 @@ msgstr "Settings"
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:6
 msgid "Settings of the workspace {workspace}. Only admins of {workspace} see this page."
 msgstr "Settings of the workspace {workspace}. Only admins of {workspace} see this page."
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:21
+msgid "The stats of {workspace} count their days and hours in this zone. This browser is in {browser}."
+msgstr "The stats of {workspace} count their days and hours in this zone. This browser is in {browser}."
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:22
+msgid "This browser"
+msgstr "This browser"
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:18
+msgid "Time zone"
+msgstr "Time zone"
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:19
+msgid "Time zone of {workspace}"
+msgstr "Time zone of {workspace}"
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:24
+msgid "Time zone saved"
+msgstr "Time zone saved"
 
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:15
 msgid "Turn off"

@@ -28,6 +28,7 @@ const org = (overrides: Partial<WorkspaceEntity> = {}): WorkspaceEntity => ({
   name: 'Scylla Inc',
   slug: 'scylla-inc',
   personalTokensEnabled: true,
+  timeZone: 'UTC',
   ...overrides,
 });
 
@@ -37,6 +38,7 @@ const withRepository = (overrides: Partial<WorkspaceRepository> = {}) => {
     listMembers: vi.fn().mockResolvedValue([{ id: 'user-1', username: 'ravenne' }]),
     create: vi.fn().mockResolvedValue(org()),
     update: vi.fn().mockResolvedValue(org()),
+    setTimeZone: vi.fn().mockResolvedValue(org({ timeZone: 'Europe/Paris' })),
     delete: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
@@ -173,6 +175,21 @@ describe('workspaceMutations.update', () => {
     expect(
       queryClient.getQueryState(['members', 'workspace', WORKSPACE_ID])?.isInvalidated,
     ).toBe(true);
+  });
+});
+
+describe('workspaceMutations.setTimeZone', () => {
+  it('sends the zone, toasts and invalidates the list', async () => {
+    const repository = withRepository();
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    const variables = { workspaceId: WORKSPACE_ID, timeZone: 'Europe/Paris' };
+
+    await runMutationFn(workspaceMutations.setTimeZone(), variables);
+    runOnSuccess(workspaceMutations.setTimeZone(), org({ timeZone: 'Europe/Paris' }), variables);
+
+    expect(repository.setTimeZone).toHaveBeenCalledWith(WORKSPACE_ID, 'Europe/Paris');
+    expect(toastSuccess).toHaveBeenCalledWith('Time zone saved');
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: WORKSPACES_QUERY_KEY() });
   });
 });
 
