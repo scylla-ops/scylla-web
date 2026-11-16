@@ -255,7 +255,10 @@ describe('DefaultAppsRepository', () => {
     expect(jobs.listWorkspaceJobs).toHaveBeenCalledWith({
       workspaceId: { value: 'ws-1' },
       agentId: { value: 'app-1' },
+      projectIds: [],
+      pipelineIds: [],
       page: { size: 50, token: '' },
+      view: 0,
     });
     expect(list.map(job => job.id)).toEqual(['new', 'old']);
     expect(list[0].status).toBe('running');

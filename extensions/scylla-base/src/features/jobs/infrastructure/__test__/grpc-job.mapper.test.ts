@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import * as grpcJob from '../grpc-job.mapper.ts';
 import {
+  JobOrigin,
   JobStatus,
   LogStream,
   NodeStatus,
@@ -38,6 +39,7 @@ const run = (nodeId: string, status: NodeStatus, attempt: number, finished = fal
   startedAt: TS,
   ...(finished && { finishedAt: LATER }),
   error: '',
+  maxAttempts: 1,
 });
 
 const baseJob = (overrides: Partial<Job> = {}): Job => ({
@@ -50,6 +52,7 @@ const baseJob = (overrides: Partial<Job> = {}): Job => ({
   createdAt: TS,
   fileErrors: [],
   waitingReason: '',
+  origin: JobOrigin.UNSPECIFIED,
   ...overrides,
 });
 
@@ -374,6 +377,8 @@ describe('grpcJob.filterToProto', () => {
       event: SourceEvent.PULL_REQUEST,
       authorLogin: 'lea-martin',
       pullRequest: 51,
+      statuses: [],
+      origins: [],
     });
   });
 
@@ -383,6 +388,8 @@ describe('grpcJob.filterToProto', () => {
       event: SourceEvent.UNSPECIFIED,
       authorLogin: '',
       pullRequest: 0,
+      statuses: [],
+      origins: [],
     });
   });
 });

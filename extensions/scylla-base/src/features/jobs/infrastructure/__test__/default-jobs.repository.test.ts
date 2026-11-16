@@ -2,7 +2,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
 import type { TailJobLogsResponse } from '@base/generated/scylla/pipelines/v1/job_service.ts';
-import { JobStatus, LogStream, type Job } from '@base/generated/scylla/pipelines/v1/job.ts';
+import { JobOrigin, JobStatus, LogStream, type Job } from '@base/generated/scylla/pipelines/v1/job.ts';
 import { SourceEvent } from '@base/generated/scylla/pipelines/v1/source.ts';
 import { unaryCall } from '@test/grpc.ts';
 import { DefaultJobsRepository } from '../default-jobs.repository.ts';
@@ -46,6 +46,7 @@ const job = (id: string, seconds: number): Job => ({
   createdAt: { seconds: BigInt(seconds), nanos: 0 },
   fileErrors: [],
   waitingReason: '',
+  origin: JobOrigin.UNSPECIFIED,
 });
 
 describe('DefaultJobsRepository.tailLogs', () => {
@@ -131,7 +132,7 @@ describe('DefaultJobsRepository lists', () => {
 
     expect(listPipelineJobs.mock.calls.map(([request]) => request.filter)).toEqual([
       undefined,
-      { branch: '', event: SourceEvent.TAG, authorLogin: '', pullRequest: 0 },
+      { branch: '', event: SourceEvent.TAG, authorLogin: '', pullRequest: 0, statuses: [], origins: [] },
     ]);
   });
 });
