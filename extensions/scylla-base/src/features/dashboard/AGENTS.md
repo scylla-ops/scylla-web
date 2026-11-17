@@ -77,11 +77,12 @@ presentation/
 | Mount | Path | Permission | Component |
 |---|---|---|---|
 | `workspace` | `dashboard` | `READ_WORKSPACE` | `Dashboard.page.svelte` (the default dashboard) |
-| `workspace` | `dashboard/:dashboardId` | `READ_WORKSPACE` | `Dashboard.page.svelte` |
+| `workspace` | `dashboards/:dashboardId` | `READ_WORKSPACE` | `Dashboard.page.svelte` |
 
 Sidebar: section `workspace`, order `10`, icon `LayoutDashboard`, group `dashboard`
 ("Dashboards"). The route `dashboard` is the link "Overview". `dashboardLinks` adds the other
-dashboards after it, then "New dashboard" (`dashboard/new`), apart.
+dashboards after it, then "New dashboard" (`dashboards/new`), apart. The crumb of a dashboard is its name
+(`breadcrumbParams.dashboardName`, from `shownDashboard`).
 
 `READ_WORKSPACE` is intentionally the same gate as the projects list: the overview is a read
 of the workspace, and it is where every org-level redirect lands. Do not tighten it to a
@@ -135,7 +136,7 @@ narrower permission without moving that redirect target too.
   layout of a size to a widget, add the size to `WIDGET_SIZES`.
 - **The default dashboard always exists.** It has the id `default`, no name of its own
   (the page shows "Overview") and it cannot be deleted. A dashboard id of the URL that does
-  not exist opens the default dashboard. `dashboard/new` makes a dashboard with no widget,
+  not exist opens the default dashboard. `dashboards/new` makes a dashboard with no widget,
   opens it and starts the edit mode.
 - **The edit mode is one state for the page** (`dashboardEditMode`). In it, each widget shows
   `WidgetEditTools` over its card (`editing` of `Widget`): the sizes and Remove. The bar under

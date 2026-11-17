@@ -123,8 +123,7 @@ msgctxt "period"
 msgid "Custom"
 msgstr "Custom"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:21
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:35
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:36
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:4
 msgid "Dashboard"
 msgstr "Dashboard"
@@ -133,11 +132,11 @@ msgstr "Dashboard"
 msgid "Dashboard {count}"
 msgstr "Dashboard {count}"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:26
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:27
 msgid "dashboard home"
 msgstr "dashboard home"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:29
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:30
 msgid "Dashboards"
 msgstr "Dashboards"
 
@@ -265,7 +264,8 @@ msgstr "orphaned"
 msgid "Orphaned"
 msgstr "Orphaned"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:25
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:22
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:26
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:5
 msgid "Overview"
 msgstr "Overview"

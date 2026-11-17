@@ -4,6 +4,7 @@ import { Permission } from '@platform/authz';
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { LocalDashboardLayoutRepository } from './infrastructure/local-dashboard-layout.repository.ts';
 import { dashboardLinks } from './presentation/ui/dashboard-links.state.svelte.ts';
+import { shownDashboard } from './presentation/ui/dashboard-layout.state.svelte.ts';
 
 const dashboardLayoutRepository = new LocalDashboardLayoutRepository();
 
@@ -18,7 +19,7 @@ export const DashboardModule = {
         path: 'dashboard',
         // The overview reads the workspace; every workspace redirect lands here.
         permission: Permission.READ_WORKSPACE,
-        breadcrumb: () => ({ label: msg`Dashboard` }),
+        breadcrumb: () => ({ label: msg`Overview` }),
         page: () => import('./presentation/ui/Dashboard/Dashboard.page.svelte'),
         nav: {
           section: 'workspace',
@@ -30,14 +31,15 @@ export const DashboardModule = {
         },
       },
       {
-        path: 'dashboard/:dashboardId',
+        path: 'dashboards/:dashboardId',
         permission: Permission.READ_WORKSPACE,
-        breadcrumb: () => ({ label: msg`Dashboard` }),
+        breadcrumb: ({ dashboardName }) => ({ label: dashboardName ?? msg`Dashboard` }),
         page: () => import('./presentation/ui/Dashboard/Dashboard.page.svelte'),
       },
     ],
   },
   shell: {
     secondSidebarLinks: dashboardLinks,
+    breadcrumbParams: () => ({ dashboardName: shownDashboard.name }),
   },
 } satisfies ScyllaModule;

@@ -23,6 +23,7 @@
   import {
     createDashboardLayout,
     dashboardEditMode,
+    shownDashboard,
   } from '@base/features/dashboard/presentation/ui/dashboard-layout.state.svelte.ts';
   import { createDashboardWidgets } from '@base/features/dashboard/presentation/ui/widgets/dashboard-widgets.state.svelte.ts';
   import { utcOffsetLabel } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
@@ -60,6 +61,10 @@
       return;
     }
     open(DEFAULT_DASHBOARD_ID);
+  });
+
+  $effect(() => {
+    shownDashboard.name = current?.name ?? undefined;
   });
 
   const deleteDashboard = () => {

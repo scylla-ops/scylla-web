@@ -20,6 +20,9 @@ import {
 
 let editing = $state(false);
 
+/** The name of the dashboard on the page, for the breadcrumbs. */
+export const shownDashboard = $state<{ name: string | undefined }>({ name: undefined });
+
 /** The edit mode. It stays on when the user opens a new dashboard. */
 export const dashboardEditMode = {
   get on() {

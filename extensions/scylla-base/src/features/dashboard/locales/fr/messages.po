@@ -123,8 +123,7 @@ msgctxt "period"
 msgid "Custom"
 msgstr "Personnalisée"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:21
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:35
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:36
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:4
 msgid "Dashboard"
 msgstr "Tableau de bord"
@@ -133,11 +132,11 @@ msgstr "Tableau de bord"
 msgid "Dashboard {count}"
 msgstr "Tableau de bord {count}"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:26
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:27
 msgid "dashboard home"
 msgstr "tableau de bord accueil"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:29
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:30
 msgid "Dashboards"
 msgstr "Tableaux de bord"
 
@@ -265,7 +264,8 @@ msgstr "orphelin"
 msgid "Orphaned"
 msgstr "Orphelin"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:25
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:22
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:26
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:5
 msgid "Overview"
 msgstr "Vue d'ensemble"
