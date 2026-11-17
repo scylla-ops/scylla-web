@@ -38,6 +38,8 @@ wrong.
 | `features/jobs` | `jobQueries.byWorkspace` + `asJobFeed` |
 | `features/agents` | `agentQueries.byWorkspace`, `agentQueries.statsOf` (in the chart) |
 | `features/workspace` | `workspaceQueries.mine` — the time zone of the current workspace (`createDashboardPeriod`) |
+| `features/jobs` | `jobQueries.stats` (GetJobStats), `jobQueries.newest` (the live jobs, the job ends of the period), `successRate`, `successRateChange` |
+| `features/pipeline` | `pipelineQueries.summaries` (ListPipelineSummaries), `createRunPipeline` (Quick actions) |
 
 All these reads are `queryOptions` objects, so this module shares one cache entry per resource
 with whoever else reads it.
@@ -53,11 +55,20 @@ presentation/
   presenters/zoned-day.presenter.ts     days and midnights in an IANA zone — pure, node-tested
   presenters/period.presenter.ts        the periods, their instants and their bucket — pure, node-tested
   presenters/period-options.presenter.ts   the texts of the period picker
+  presenters/job-figures.presenter.ts   rate, change, durations, bars and axis of the widgets — pure, tested
+  presenters/widget-rows.presenter.ts   the rows of Right now, Needs you, Activity and Pipelines — pure, tested
+  mappers/period-search.mapper.ts       the period ↔ the query string (`?period=7d`, `?from=…&to=…`)
+  messages/widgets.messages.ts          every string of the widgets
   ui/org-overview.state.svelte.ts       the composition ViewModel (exported: other modules read it)
   ui/dashboard-period.state.svelte.ts   the period of the page and the time zone of the workspace
   ui/Dashboard/Dashboard.page.svelte    the page
   ui/PeriodPicker/                      24 h, 7 d, 14 d, 30 d, Custom; the form of a custom period
-  ui/RunActivityCard/                   recent run activity
+  ui/widgets/dashboard-widgets.state.svelte.ts   the queries of the widgets, with the period
+  ui/widgets/<Name>Widget/              Success rate, Run duration, Right now, Needs you, Pipelines,
+                                        Activity, Quick actions
+  ui/widgets/parts/                     WidgetBody (the states), BucketAxis, ChangeBadge
+  ui/widgets/widget-navigation.ts       opens a job or the jobs of a pipeline from a widget
+  ui/RunActivityCard/                   recent run activity (no longer on the page: the widgets replace it)
   ui/AgentOutcomesChart/                run outcomes over time, in plain SVG
 ```
 
@@ -120,8 +131,28 @@ narrower permission without moving that redirect target too.
 - **`periodRange` gives what `GetJobStats` needs**: `from`, `to` (`null` is now) and the bucket
   (`hour` for 24 h and for a custom day, `week` above 92 days, else `day`). Presets count whole
   days, today included, from midnight of the zone.
-- **The period picker changes no figure yet.** The figures of today are not of a period. The
-  widgets of the next changes read the period.
+- **The period is in the URL**: `?period=24h|7d|30d`, or `?from=YYYY-MM-DD&to=YYYY-MM-DD` for
+  custom days. The default (14 d) writes no parameter. A choice replaces the current history
+  entry. A custom period of the URL that ends in the future or is longer than one year gives the
+  default.
+- **The widgets of a period get it from `createDashboardWidgets`.** `PeriodScope.scope` is
+  `[period, zone]`, and `range()` calls `rangeAt()` when a query runs. Success rate and Run
+  duration share one `GetJobStats` call (`compare: true`): one cache entry. Activity reads the
+  job ends created in the period. Right now, Needs you and Pipelines show the state of now and
+  do not read the period.
+- **The widgets use only the routes that exist.** Needs you is partial: the red pipelines of
+  `ListPipelineSummaries` (last ended job failed or orphaned) and the jobs that wait for an
+  approval. It has no "new" mark and no error text: these need `ListAttentionItems` (D1).
+  Activity is partial: the job ends only (no G1). Quick actions has no "Fire a trigger" (C1)
+  and no "Add a secret" (a secret belongs to a project).
+- **Each widget has one size on this page** (Pipelines `l`, the others `m`). The other sizes of
+  the design come with the edit mode of the layout.
+- **A widget that the user cannot read shows Locked.** Success rate, Run duration, Right now
+  and Activity need `LIST_JOBS_BY_WORKSPACE`, Pipelines needs `LIST_PIPELINES_BY_WORKSPACE`,
+  Needs you needs both. The server gives `GetJobStats` and `ListPipelineSummaries` with the same
+  role as these lists.
+- **The success rate is completed / (completed + failed + orphaned).** The cancelled jobs show
+  apart. Its change is in points; the change of a duration is in percent, and down is good.
 
 ## Before done
 
