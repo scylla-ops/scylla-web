@@ -27,7 +27,7 @@
 
   const KINDS: Readonly<Record<AttentionKind, { tone: ChartTone; label: MessageDescriptor }>> = {
     failed: { tone: 'failed', label: messages.failedLower },
-    orphaned: { tone: 'skipped', label: messages.orphanedLower },
+    orphaned: { tone: 'canceled', label: messages.orphanedLower },
     approval: { tone: 'queued', label: messages.approval },
   };
 

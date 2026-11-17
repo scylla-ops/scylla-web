@@ -41,7 +41,7 @@ const signed = (value: number, digits: number): string =>
 const STATUS_TONES: Readonly<Record<JobStatus, ChartTone>> = {
   completed: 'passed',
   failed: 'failed',
-  orphaned: 'skipped',
+  orphaned: 'canceled',
   cancelled: 'canceled',
   running: 'running',
   pending: 'queued',

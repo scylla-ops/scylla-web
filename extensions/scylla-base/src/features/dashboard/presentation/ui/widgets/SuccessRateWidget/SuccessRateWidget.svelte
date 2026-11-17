@@ -66,7 +66,7 @@
               arcs={[
                 { value: outcomes.completed, tone: 'passed' },
                 { value: outcomes.failed, tone: 'failed' },
-                { value: outcomes.orphaned, tone: 'skipped' },
+                { value: outcomes.orphaned, tone: 'canceled' },
               ]}
               total={decidedJobs(outcomes)}
               value={rateText(rate)}
@@ -75,7 +75,7 @@
             <div class="flex flex-col gap-1">
               <ChartLegendItem tone="passed" label={t(messages.completed)} value={outcomes.completed} />
               <ChartLegendItem tone="failed" label={t(messages.failed)} value={outcomes.failed} />
-              <ChartLegendItem tone="skipped" label={t(messages.orphaned)} value={outcomes.orphaned} />
+              <ChartLegendItem tone="canceled" label={t(messages.orphaned)} value={outcomes.orphaned} />
               <span class="text-xs text-muted-foreground">
                 {t(messages.cancelledApart(outcomes.cancelled))}
               </span>
@@ -94,7 +94,7 @@
               <div class="flex h-full min-w-0 flex-1 flex-col-reverse gap-px">
                 <ChartSegment tone="passed" style="height: {bar.completed}%" />
                 <ChartSegment tone="failed" style="height: {bar.failed}%" />
-                <ChartSegment tone="skipped" style="height: {bar.orphaned}%" />
+                <ChartSegment tone="canceled" style="height: {bar.orphaned}%" />
               </div>
             {/each}
           </div>
