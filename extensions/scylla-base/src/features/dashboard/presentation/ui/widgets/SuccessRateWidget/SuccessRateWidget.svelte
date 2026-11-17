@@ -95,9 +95,9 @@
             {#each bars as bar, index (bar.start)}
               {@const figures = stats?.buckets[index]?.figures.outcomes}
               <BarTip class="flex h-full min-w-0 flex-1 flex-col-reverse gap-px">
-                <ChartSegment tone="passed" style="height: {bar.completed}%" />
-                <ChartSegment tone="failed" style="height: {bar.failed}%" />
-                <ChartSegment tone="canceled" style="height: {bar.orphaned}%" />
+                {#if bar.completed > 0}<ChartSegment tone="passed" style="height: {bar.completed}%" />{/if}
+                {#if bar.failed > 0}<ChartSegment tone="failed" style="height: {bar.failed}%" />{/if}
+                {#if bar.orphaned > 0}<ChartSegment tone="canceled" style="height: {bar.orphaned}%" />{/if}
                 {#snippet tip()}
                   <span class="font-medium">{bucketLabel(bar.start, period.rangeAt().bucket, period.timeZone ?? 'UTC')}</span>
                   {#if figures}
