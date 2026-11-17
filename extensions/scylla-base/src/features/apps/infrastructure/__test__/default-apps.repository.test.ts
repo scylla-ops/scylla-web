@@ -5,7 +5,7 @@ import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_
 import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import type { IAgentServiceClient } from '@base/generated/scylla/agents/v1/agent_service.client.ts';
 import type { ICapabilityServiceClient } from '@base/generated/scylla/capabilities/v1/capability_service.client.ts';
-import { type App, CiProvider } from '@base/generated/scylla/apps/v1/app.ts';
+import { AgentCompatibility, type App, CiProvider } from '@base/generated/scylla/apps/v1/app.ts';
 import { TokenExpiry, TokenPreset } from '@base/generated/scylla/auth/v1/api_token.ts';
 import { JobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';
 import { unaryCall } from '@test/grpc.ts';
@@ -24,6 +24,8 @@ const wireApp = (overrides: Partial<App> = {}): App => ({
   createdBy: { value: 'u-1' },
   createdAt: TS,
   runningJobs: 0,
+  compatibility: AgentCompatibility.UNSPECIFIED,
+  missingFeatures: [],
   ...overrides,
 });
 
@@ -141,6 +143,7 @@ const clients = () => {
         capabilities: [],
         version: '0.7.0',
         agentImage: 'ghcr.io/scylla-ops/scylla-agent:0.7.0',
+        agentProtocol: { min: 0, current: 2 },
       }),
     ),
   } as unknown as ICapabilityServiceClient;
@@ -149,12 +152,13 @@ const clients = () => {
 };
 
 describe('getServerInfo', () => {
-  it('reads the version and the image of the agent from the capabilities', async () => {
+  it('reads the version, the image and the agent protocols from the capabilities', async () => {
     const { repository } = clients();
 
     await expect(repository.getServerInfo()).resolves.toEqual({
       version: '0.7.0',
       agentImage: 'ghcr.io/scylla-ops/scylla-agent:0.7.0',
+      agentProtocol: { min: 0, current: 2 },
     });
   });
 });
@@ -173,7 +177,35 @@ describe('grpcApp.toDomain', () => {
       createdAt: ISO,
       runningJobs: 0,
       disabledAt: '',
+      compatibility: 'unknown',
+      missingFeatures: [],
     });
+  });
+
+  it('gives the protocol, the features and the compatibility of an agent', () => {
+    const app = toDomain(
+      wireApp({
+        host: {
+          version: '0.7.0-rc.1',
+          os: 'linux',
+          arch: 'x86_64',
+          hostname: 'ci-1',
+          cpuCount: 2,
+          memoryBytes: 0n,
+          capacity: 1,
+          containerRuntime: '',
+          features: [],
+          protocol: 0,
+          build: '',
+        },
+        compatibility: AgentCompatibility.OUTDATED,
+        missingFeatures: ['checkout'],
+      }),
+    );
+
+    expect(app.host).toMatchObject({ protocol: 0, build: '', features: [] });
+    expect(app.compatibility).toBe('outdated');
+    expect(app.missingFeatures).toEqual(['checkout']);
   });
 
   it('gives the memory in megabytes, and no count for a zero', () => {
@@ -189,6 +221,8 @@ describe('grpcApp.toDomain', () => {
           capacity: 2,
           containerRuntime: 'docker',
           features: [],
+          protocol: 2,
+          build: '',
         },
       }),
     );

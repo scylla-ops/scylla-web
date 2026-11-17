@@ -468,6 +468,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A long line of a job log wraps in the log panel, so the log no longer scrolls sideways. A wrapped
   line keeps one line number and its spaces, and a finished log opens on the last row of its last
   line.
+- The agents show "Update needed" or "Incompatible" from the agent protocol, not only from the
+  version. The machine card shows the protocol, the features, the missing features and the update
+  command. A job that waits for an agent with checkout names the online agents that cannot get its
+  code, with a link to each one.
 
 ## [0.6.0] - 2026-11-01
 

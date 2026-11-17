@@ -12,6 +12,10 @@ export const agentsListMessages = {
   onlyAdmins: msg`Only admins can add agents`,
   noMatch: msg`No agent matches.`,
   online: msg`Online`,
+  updateNeeded: msg`Update needed`,
+  updateNeededHint: msg`This agent is older than the server. It runs only the jobs that it can run.`,
+  incompatible: msg`Incompatible`,
+  incompatibleHint: msg`This agent is too old for the server. The server refuses it until you update it.`,
   onlineOf: (online: number, total: number) => msg`${online} of ${total}`,
   phoneOnline: (online: number, total: number) => msg`${online} of ${total} online`,
   jobsRunning: (count: number) =>
