@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { formatUtcDay } from '@shared/utils/date-utils.ts';
 import type { JobEntity } from '@base/features/jobs';
 import type { PipelineSummary } from '@base/features/pipeline';
 import {
@@ -161,7 +162,7 @@ describe('whenText', () => {
   });
 
   it('gives the day for an instant of another day of the zone', () => {
-    expect(whenText('2026-11-16T22:30:00Z', now, 'UTC')).toBe('16 Nov');
+    expect(whenText('2026-11-16T22:30:00Z', now, 'UTC')).toBe(formatUtcDay('2026-11-16'));
     expect(whenText('2026-11-16T23:30:00Z', now, 'Europe/Paris')).toBe('00:30');
   });
 });

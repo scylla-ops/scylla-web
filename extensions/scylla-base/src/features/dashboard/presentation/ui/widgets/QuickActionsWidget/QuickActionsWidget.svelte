@@ -52,7 +52,7 @@
           </PopoverTrigger>
           <PopoverContent align="start" class="w-64 p-1">
             <p class="px-2 py-1.5 text-xs text-muted-foreground">{t(messages.choosePipeline)}</p>
-            <ul class="max-h-64 overflow-y-auto">
+            <ul class="relative max-h-64 overflow-y-auto">
               {#each pipelines as pipeline (pipeline.id)}
                 <li>
                   <button

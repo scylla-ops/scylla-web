@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { formatUtcDay } from '@shared/utils/date-utils.ts';
 import type { JobBucket, JobFigures } from '@base/features/jobs';
 import {
   bucketAxis,
@@ -118,11 +119,17 @@ describe('bucketAxis', () => {
   );
 
   it('names the first day, the middle day and today, in the zone of the workspace', () => {
-    expect(bucketAxis(days, 'day', 'Europe/Paris', true)).toEqual(['2 Nov', '3 Nov', 'today']);
+    expect(bucketAxis(days, 'day', 'Europe/Paris', true)).toEqual([
+      formatUtcDay('2026-11-02'),
+      formatUtcDay('2026-11-03'),
+      'today',
+    ]);
   });
 
   it('names the last day when the period ended before today', () => {
-    expect(bucketAxis(days, 'day', 'Europe/Paris', false)).toEqual(['2 Nov', '3 Nov', '4 Nov']);
+    expect(bucketAxis(days, 'day', 'Europe/Paris', false)).toEqual(
+      ['2026-11-02', '2026-11-03', '2026-11-04'].map(day => formatUtcDay(day)),
+    );
   });
 
   it('names the hours of a period by hour, and now at the end', () => {
@@ -141,7 +148,10 @@ describe('periodMeta', () => {
     [{ kind: '24h' } as const, '24 hours'],
     [{ kind: '7d' } as const, '7 days'],
     [{ kind: '30d' } as const, '30 days'],
-    [{ kind: 'custom', from: '2026-11-02', to: '2026-11-15' } as const, '2 Nov – 15 Nov'],
+    [
+      { kind: 'custom', from: '2026-11-02', to: '2026-11-15' } as const,
+      `${formatUtcDay('2026-11-02')} – ${formatUtcDay('2026-11-15')}`,
+    ],
   ])('names %j', (period, text) => {
     expect(periodMeta(period)).toBe(text);
   });
