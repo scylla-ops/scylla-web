@@ -143,7 +143,7 @@
         </DropdownMenuContent>
       </DropdownMenu>
       {#if !layout.isDefault}
-        <Button variant="ghost" size="sm" class="ml-auto text-destructive" onclick={deleteDashboard}>
+        <Button variant="ghost-destructive" size="sm" class="ml-auto" onclick={deleteDashboard}>
           <Trash2Icon aria-hidden="true" />
           {t(dashboardMessages.deleteDashboard)}
         </Button>

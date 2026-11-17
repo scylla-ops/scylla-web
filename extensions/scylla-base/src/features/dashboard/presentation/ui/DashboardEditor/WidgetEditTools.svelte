@@ -35,8 +35,9 @@
   />
 {/if}
 <Button
-  variant="outline"
+  variant="ghost-destructive"
   size="icon-sm"
+  class="bg-background"
   aria-label={t(messages.removeWidget(title))}
   title={t(messages.removeWidget(title))}
   onclick={onRemove}
