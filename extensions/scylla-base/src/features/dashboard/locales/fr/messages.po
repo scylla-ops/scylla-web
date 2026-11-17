@@ -13,6 +13,26 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:25
+msgid "{change} pts"
+msgstr "{change} pts"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:24
+msgid "{count} cancelled, not counted"
+msgstr "{count} annulés, non comptés"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:14
+msgid "{days} days"
+msgstr "{days} jours"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:57
+msgid "{factor}× the median"
+msgstr "{factor}× la médiane"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:34
+msgid "{green} of {total} green"
+msgstr "{green} sur {total} au vert"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:24
 msgid "{inFlight} in progress"
 msgstr "{inFlight} en cours"
@@ -25,6 +45,10 @@ msgstr "14 j"
 msgid "24 h"
 msgstr "24 h"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:13
+msgid "24 hours"
+msgstr "24 heures"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:48
 msgid "30 d"
 msgstr "30 j"
@@ -32,6 +56,18 @@ msgstr "30 j"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:46
 msgid "7 d"
 msgstr "7 j"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:10
+msgid "Activity"
+msgstr "Activité"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:75
+msgid "Add an agent"
+msgstr "Ajouter un agent"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:55
+msgid "agent"
+msgstr "agent"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:35
 msgid "Agent Outcomes"
@@ -41,6 +77,10 @@ msgstr "Résultats des agents"
 msgid "all"
 msgstr "tous"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:62
+msgid "All clear"
+msgstr "Tout va bien"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:15
 msgid "All Pipelines"
 msgstr "Tous les pipelines"
@@ -49,13 +89,23 @@ msgstr "Tous les pipelines"
 msgid "Apply"
 msgstr "Appliquer"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:56
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:64
+msgid "approval"
+msgstr "approbation"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:39
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:69
 msgid "cancelled"
 msgstr "annulés"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:28
 msgid "Cancelled"
 msgstr "Annulé"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:77
+msgid "Choose a pipeline"
+msgstr "Choisir un pipeline"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:56
 msgid "Choose one year or less."
@@ -66,12 +116,22 @@ msgid "Choose the days"
 msgstr "Choisir les jours"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:37
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:72
 msgid "completed"
 msgstr "terminés"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:26
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:21
 msgid "Completed"
 msgstr "Terminé"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:43
+msgid "Create a pipeline in a project to see its runs here."
+msgstr "Créez un pipeline dans un projet pour voir ses exécutions ici."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:47
+msgid "cron"
+msgstr "cron"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:49
 msgctxt "period"
@@ -88,17 +148,43 @@ msgstr "Tableau de bord"
 msgid "dashboard home"
 msgstr "tableau de bord accueil"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:53
+msgid "elapsed · median"
+msgstr "écoulé · médiane"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:38
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:70
 msgid "failed"
 msgstr "échoués"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:27
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:22
 msgid "Failed"
 msgstr "Échoué"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:33
+msgid "failing first"
+msgstr "en échec d’abord"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:51
 msgid "First day"
 msgstr "Premier jour"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:39
+msgid "green"
+msgstr "vert"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:76
+msgid "Invite a member"
+msgstr "Inviter un membre"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:68
+msgid "job ends"
+msgstr "fins de jobs"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:36
+msgid "Last {count} runs"
+msgstr "{count} dernières exécutions"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:52
 msgid "Last day"
@@ -109,9 +195,29 @@ msgstr "Dernier jour"
 msgid "Last run {0}"
 msgstr "Dernière exécution {0}"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:50
+msgid "live"
+msgstr "en direct"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:65
+msgid "Logs"
+msgstr "Journaux"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:44
+msgid "manual"
+msgstr "manuel"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:38
+msgid "Median"
+msgstr "Médiane"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:17
 msgid "Name"
 msgstr "Nom"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:9
+msgid "Needs you"
+msgstr "Vous attend"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:41
 msgid "No agents found. Connect an agent to see execution history."
@@ -121,13 +227,37 @@ msgstr "Aucun agent trouvé. Connectez un agent pour voir l'historique des exéc
 msgid "No description"
 msgstr "Aucune description"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:19
+msgid "No ended jobs in this period"
+msgstr "Aucun job terminé sur cette période"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:40
 msgid "No finished jobs in this window."
 msgstr "Aucun job terminé sur cette période."
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:59
+msgid "No job runs or waits now."
+msgstr "Aucun job ne tourne ni n’attend."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:18
+msgid "No job started in this period. Choose a longer period."
+msgstr "Aucun job sur cette période. Choisissez une période plus longue."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:17
+msgid "No jobs in this period"
+msgstr "Aucun job sur cette période"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:25
 msgid "No pipeline has run yet."
 msgstr "Aucun pipeline n'a encore été exécuté."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:63
+msgid "No pipeline is red and no job waits for an approval."
+msgstr "Aucun pipeline en échec et aucun job en attente d’approbation."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:42
+msgid "No pipelines yet"
+msgstr "Aucun pipeline pour l’instant"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:16
 msgid "No pipelines yet."
@@ -141,7 +271,24 @@ msgstr "Aucun projet pour le moment."
 msgid "Nodes"
 msgstr "Nœuds"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:58
+msgid "Nothing runs"
+msgstr "Rien ne tourne"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:16
+msgid "now"
+msgstr "maintenant"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:61
+msgid "open now"
+msgstr "ouverts"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:71
+msgid "orphaned"
+msgstr "orphelin"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:29
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:23
 msgid "Orphaned"
 msgstr "Orphelin"
 
@@ -159,11 +306,28 @@ msgstr "sur les {0} dernières exécutions parmi {totalRuns}"
 msgid "Overview"
 msgstr "Vue d'ensemble"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:30
+msgid "p50 · median"
+msgstr "p50 · médiane"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:29
+msgid "p50 and p95"
+msgstr "p50 et p95"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:31
+msgid "p95"
+msgstr "p95"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:44
 msgid "Period"
 msgstr "Période"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:35
+msgid "Pipeline"
+msgstr "Pipeline"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:7
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:7
 msgid "Pipelines"
 msgstr "Pipelines"
 
@@ -175,9 +339,53 @@ msgstr "Projet"
 msgid "Projects"
 msgstr "Projets"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:46
+msgid "pull request"
+msgstr "pull request"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:45
+msgid "push"
+msgstr "push"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:11
+msgid "Quick actions"
+msgstr "Actions rapides"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:40
+msgid "red"
+msgstr "rouge"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:80
+msgid "Retry"
+msgstr "Réessayer"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:66
+msgid "Review"
+msgstr "Examiner"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:8
+msgid "Right now"
+msgstr "En ce moment"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:23
 msgid "Run activity"
 msgstr "Activité d'exécution"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:6
+msgid "Run duration"
+msgstr "Durée des exécutions"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:74
+msgid "Run pipeline"
+msgstr "Lancer un pipeline"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:51
+msgid "Running · {count}"
+msgstr "En cours · {count}"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:41
+msgid "running now"
+msgstr "en cours"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:8
 msgid "Runs"
@@ -187,13 +395,23 @@ msgstr "Exécutions"
 msgid "See all"
 msgstr "Voir tout"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:37
+msgctxt "column"
+msgid "Success"
+msgstr "Réussite"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:9
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:5
 msgid "Success rate"
 msgstr "Taux de réussite"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:10
 msgid "Success rate (recent)"
 msgstr "Taux de réussite (récent)"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:27
+msgid "Success rate {rate}"
+msgstr "Taux de réussite {rate}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:54
 msgid "The first day is after the last day."
@@ -207,6 +425,10 @@ msgstr "Le dernier jour est dans le futur."
 msgid "Times in {timeZone} ({offset})"
 msgstr "Heures en {timeZone} ({offset})"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:15
+msgid "today"
+msgstr "aujourd’hui"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:5
 msgid "Unable to load dashboard"
 msgstr "Impossible de charger le tableau de bord"
@@ -215,6 +437,30 @@ msgstr "Impossible de charger le tableau de bord"
 msgid "Updated"
 msgstr "Mis à jour"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:26
+msgid "vs the previous period"
+msgstr "par rapport à la période précédente"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:52
+msgid "Waiting · {count}"
+msgstr "En attente · {count}"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:54
+msgid "waits"
+msgstr "attente"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:48
+msgid "webhook"
+msgstr "webhook"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:79
+msgid "You do not have the permission to read this data."
+msgstr "Vous n’avez pas la permission de lire ces données."
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:14
 msgid "You don't have access to this project's pipelines"
 msgstr "Vous n'avez pas accès aux pipelines de ce projet"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:78
+msgid "You have no permission for these actions."
+msgstr "Vous n’avez la permission pour aucune de ces actions."

@@ -1,9 +1,6 @@
 <script lang="ts">
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import FolderIcon from '@lucide/svelte/icons/folder';
-  import GaugeIcon from '@lucide/svelte/icons/gauge';
-  import PlayCircleIcon from '@lucide/svelte/icons/play-circle';
-  import WorkflowIcon from '@lucide/svelte/icons/workflow';
   import { can, Permission } from '@platform/authz';
   import { scyllaNavigate } from '@platform/context';
   import {
@@ -22,7 +19,7 @@
     TableHeader,
     TableRow,
   } from '@scylla/ui/primitives';
-  import { ErrorState, FeatureHeader, Widget, WidgetGrid, type LucideIcon } from '@scylla/ui';
+  import { ErrorState, FeatureHeader, WidgetGrid } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
@@ -30,55 +27,22 @@
     createWorkspaceOverview,
   } from '@base/features/dashboard/presentation/ui/org-overview.state.svelte.ts';
   import { createDashboardPeriod } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
+  import { createDashboardWidgets } from '@base/features/dashboard/presentation/ui/widgets/dashboard-widgets.state.svelte.ts';
   import { utcOffsetLabel } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import AgentOutcomesChart from '../AgentOutcomesChart/AgentOutcomesChart.svelte';
   import PeriodPicker from '../PeriodPicker/PeriodPicker.svelte';
-  import RunActivityCard from '../RunActivityCard/RunActivityCard.svelte';
+  import ActivityWidget from '../widgets/ActivityWidget/ActivityWidget.svelte';
+  import NeedsYouWidget from '../widgets/NeedsYouWidget/NeedsYouWidget.svelte';
+  import PipelinesWidget from '../widgets/PipelinesWidget/PipelinesWidget.svelte';
+  import QuickActionsWidget from '../widgets/QuickActionsWidget/QuickActionsWidget.svelte';
+  import RightNowWidget from '../widgets/RightNowWidget/RightNowWidget.svelte';
+  import RunDurationWidget from '../widgets/RunDurationWidget/RunDurationWidget.svelte';
+  import SuccessRateWidget from '../widgets/SuccessRateWidget/SuccessRateWidget.svelte';
   import { dashboardMessages } from '@base/features/dashboard/presentation/messages/dashboard.messages.ts';
 
   const overview = createWorkspaceOverview();
   const dashboardPeriod = createDashboardPeriod();
-
-  const stats = $derived([
-    {
-      key: 'projects',
-      shown: true,
-      icon: FolderIcon as LucideIcon,
-      label: t(dashboardMessages.projects),
-      value: String(overview.projects.length),
-      loading: overview.projectsLoading,
-    },
-    {
-      key: 'pipelines',
-      shown: overview.canListPipelines,
-      icon: WorkflowIcon as LucideIcon,
-      label: t(dashboardMessages.pipelines),
-      value: String(overview.allPipelines.length),
-      loading: overview.pipelinesLoading || overview.projectsLoading,
-    },
-    {
-      key: 'runs',
-      shown: overview.canListRuns,
-      icon: PlayCircleIcon as LucideIcon,
-      label: t(dashboardMessages.runs),
-      value: String(overview.totalRuns),
-      loading: overview.runsLoading,
-    },
-    {
-      key: 'success',
-      shown: overview.canListRuns,
-      icon: GaugeIcon as LucideIcon,
-      label: overview.runsTruncated
-        ? t(dashboardMessages.successRateRecent)
-        : t(dashboardMessages.successRate),
-      // `null`: nothing finished yet, which is not 0 %.
-      value:
-        overview.runs.successRate === null
-          ? '—'
-          : `${Math.round(overview.runs.successRate * 100)}%`,
-      loading: overview.runsLoading,
-    },
-  ].filter(stat => stat.shown));
+  const widgets = createDashboardWidgets(dashboardPeriod);
 
   const sortedPipelines = $derived(
     [...overview.allPipelines].sort(
@@ -128,27 +92,14 @@
     <FeatureHeader label={t(dashboardMessages.dashboard)} {underLabel} {extraActions} />
 
     <WidgetGrid class="shrink-0">
-      {#each stats as stat (stat.key)}
-        <Widget size="xs" title={stat.label} icon={stat.icon}>
-          {#if stat.loading}
-            <Skeleton class="h-7 w-10" />
-          {:else}
-            <p class="text-2xl leading-7 font-bold tabular-nums">{stat.value}</p>
-          {/if}
-        </Widget>
-      {/each}
+      <SuccessRateWidget {widgets} period={dashboardPeriod} />
+      <RunDurationWidget {widgets} period={dashboardPeriod} />
+      <RightNowWidget {widgets} />
+      <NeedsYouWidget {widgets} period={dashboardPeriod} />
+      <PipelinesWidget {widgets} />
+      <ActivityWidget {widgets} period={dashboardPeriod} />
+      <QuickActionsWidget {widgets} />
     </WidgetGrid>
-
-    {#if overview.canListRuns}
-      <div class="shrink-0">
-        <RunActivityCard
-          summary={overview.runs}
-          totalRuns={overview.totalRuns}
-          truncated={overview.runsTruncated}
-          loading={overview.runsLoading}
-        />
-      </div>
-    {/if}
 
     <Separator class="shrink-0" />
 
