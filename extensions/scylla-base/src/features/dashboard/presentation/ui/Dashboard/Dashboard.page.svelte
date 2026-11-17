@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { Component } from 'svelte';
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import FolderIcon from '@lucide/svelte/icons/folder';
   import GaugeIcon from '@lucide/svelte/icons/gauge';
@@ -23,24 +22,28 @@
     TableHeader,
     TableRow,
   } from '@scylla/ui/primitives';
-  import { ErrorState, FeatureHeader } from '@scylla/ui';
+  import { ErrorState, FeatureHeader, Widget, WidgetGrid, type LucideIcon } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import {
     createWorkspaceOverview,
   } from '@base/features/dashboard/presentation/ui/org-overview.state.svelte.ts';
+  import { createDashboardPeriod } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
+  import { utcOffsetLabel } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import AgentOutcomesChart from '../AgentOutcomesChart/AgentOutcomesChart.svelte';
+  import PeriodPicker from '../PeriodPicker/PeriodPicker.svelte';
   import RunActivityCard from '../RunActivityCard/RunActivityCard.svelte';
   import { dashboardMessages } from '@base/features/dashboard/presentation/messages/dashboard.messages.ts';
 
   const overview = createWorkspaceOverview();
+  const dashboardPeriod = createDashboardPeriod();
 
   const stats = $derived([
     {
       key: 'projects',
       shown: true,
-      icon: FolderIcon as Component,
+      icon: FolderIcon as LucideIcon,
       label: t(dashboardMessages.projects),
       value: String(overview.projects.length),
       loading: overview.projectsLoading,
@@ -48,7 +51,7 @@
     {
       key: 'pipelines',
       shown: overview.canListPipelines,
-      icon: WorkflowIcon as Component,
+      icon: WorkflowIcon as LucideIcon,
       label: t(dashboardMessages.pipelines),
       value: String(overview.allPipelines.length),
       loading: overview.pipelinesLoading || overview.projectsLoading,
@@ -56,7 +59,7 @@
     {
       key: 'runs',
       shown: overview.canListRuns,
-      icon: PlayCircleIcon as Component,
+      icon: PlayCircleIcon as LucideIcon,
       label: t(dashboardMessages.runs),
       value: String(overview.totalRuns),
       loading: overview.runsLoading,
@@ -64,7 +67,7 @@
     {
       key: 'success',
       shown: overview.canListRuns,
-      icon: GaugeIcon as Component,
+      icon: GaugeIcon as LucideIcon,
       label: overview.runsTruncated
         ? t(dashboardMessages.successRateRecent)
         : t(dashboardMessages.successRate),
@@ -96,34 +99,45 @@
   Header, stats and chart keep their height; the two lists share the rest and
   scroll inside their box, with a minimum height (the frame scrolls below that).
 -->
+{#snippet underLabel()}
+  {#if dashboardPeriod.timeZone}
+    <p class="text-sm text-muted-foreground">
+      {t(
+        dashboardMessages.timesIn(
+          dashboardPeriod.timeZone,
+          utcOffsetLabel(dashboardPeriod.timeZone, new Date()),
+        ),
+      )}
+    </p>
+  {/if}
+{/snippet}
+
+{#snippet extraActions()}
+  <PeriodPicker
+    period={dashboardPeriod.period}
+    today={dashboardPeriod.today}
+    onSelect={dashboardPeriod.select}
+    onApplyCustom={dashboardPeriod.applyCustom}
+  />
+{/snippet}
+
 {#if overview.projectsError}
   <ErrorState message={t(dashboardMessages.loadError)} />
 {:else}
   <div class="flex h-full min-h-0 w-full flex-col gap-4">
-    <FeatureHeader label={t(dashboardMessages.dashboard)} />
+    <FeatureHeader label={t(dashboardMessages.dashboard)} {underLabel} {extraActions} />
 
-    <div class="grid shrink-0 grid-cols-2 gap-4 md:grid-cols-4">
+    <WidgetGrid class="shrink-0">
       {#each stats as stat (stat.key)}
-        {@const Icon = stat.icon}
-        <Card class="py-5">
-          <CardContent class="px-5 pb-0">
-            <div class="flex items-center gap-3">
-              <div class="rounded-lg bg-primary/10 p-2 shrink-0">
-                <Icon class="h-4 w-4 text-primary" />
-              </div>
-              <div>
-                {#if stat.loading}
-                  <Skeleton class="h-7 w-10 mb-1" />
-                {:else}
-                  <p class="text-2xl font-bold leading-none">{stat.value}</p>
-                {/if}
-                <p class="text-xs text-muted-foreground mt-1">{stat.label}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <Widget size="xs" title={stat.label} icon={stat.icon}>
+          {#if stat.loading}
+            <Skeleton class="h-7 w-10" />
+          {:else}
+            <p class="text-2xl leading-7 font-bold tabular-nums">{stat.value}</p>
+          {/if}
+        </Widget>
       {/each}
-    </div>
+    </WidgetGrid>
 
     {#if overview.canListRuns}
       <div class="shrink-0">

@@ -17,6 +17,22 @@ msgstr ""
 msgid "{inFlight} in progress"
 msgstr "{inFlight} in progress"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:47
+msgid "14 d"
+msgstr "14 d"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:45
+msgid "24 h"
+msgstr "24 h"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:48
+msgid "30 d"
+msgstr "30 d"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:46
+msgid "7 d"
+msgstr "7 d"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:35
 msgid "Agent Outcomes"
 msgstr "Agent Outcomes"
@@ -29,6 +45,10 @@ msgstr "all"
 msgid "All Pipelines"
 msgstr "All Pipelines"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:53
+msgid "Apply"
+msgstr "Apply"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:39
 msgid "cancelled"
 msgstr "cancelled"
@@ -37,6 +57,14 @@ msgstr "cancelled"
 msgid "Cancelled"
 msgstr "Cancelled"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:56
+msgid "Choose one year or less."
+msgstr "Choose one year or less."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:50
+msgid "Choose the days"
+msgstr "Choose the days"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:37
 msgid "completed"
 msgstr "completed"
@@ -44,6 +72,11 @@ msgstr "completed"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:26
 msgid "Completed"
 msgstr "Completed"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:49
+msgctxt "period"
+msgid "Custom"
+msgstr "Custom"
 
 #: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:15
 #: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:23
@@ -62,6 +95,14 @@ msgstr "failed"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:27
 msgid "Failed"
 msgstr "Failed"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:51
+msgid "First day"
+msgstr "First day"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:52
+msgid "Last day"
+msgstr "Last day"
 
 #. placeholder {0}: String(relative)
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:30
@@ -118,6 +159,10 @@ msgstr "over the last {0} of {totalRuns} runs"
 msgid "Overview"
 msgstr "Overview"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:44
+msgid "Period"
+msgstr "Period"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:7
 msgid "Pipelines"
 msgstr "Pipelines"
@@ -149,6 +194,18 @@ msgstr "Success rate"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:10
 msgid "Success rate (recent)"
 msgstr "Success rate (recent)"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:54
+msgid "The first day is after the last day."
+msgstr "The first day is after the last day."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:55
+msgid "The last day is in the future."
+msgstr "The last day is in the future."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:43
+msgid "Times in {timeZone} ({offset})"
+msgstr "Times in {timeZone} ({offset})"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:5
 msgid "Unable to load dashboard"
