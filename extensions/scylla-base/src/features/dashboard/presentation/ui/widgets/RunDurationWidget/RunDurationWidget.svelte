@@ -1,6 +1,7 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import TimerIcon from '@lucide/svelte/icons/timer';
-  import { ChartSegment, Widget, type LucideIcon } from '@scylla/ui';
+  import { ChartSegment, Widget, type WidgetSize, type LucideIcon } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { widgetMessages as messages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
   import {
@@ -21,9 +22,12 @@
   interface Props {
     widgets: DashboardWidgets;
     period: DashboardPeriodState;
+    size?: WidgetSize;
+    /** The controls of the edit mode, over the card. */
+    editing?: Snippet;
   }
 
-  let { widgets, period }: Props = $props();
+  let { widgets, period, size = 'm', editing }: Props = $props();
 
   const stats = $derived(widgets.stats.data);
   const totals = $derived(stats?.totals);
@@ -40,13 +44,14 @@
 </script>
 
 <Widget
-  size="m"
+  {size}
+  {editing}
   title={t(messages.runDuration)}
   icon={TimerIcon as LucideIcon}
   meta={`${t(messages.p50AndP95)} · ${periodMeta(period.period)}`}
 >
   <WidgetBody
-    size="m"
+    {size}
     locked={!widgets.canReadJobs}
     loading={widgets.stats.isPending}
     error={widgets.stats.isError}

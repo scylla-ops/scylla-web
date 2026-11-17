@@ -2,10 +2,16 @@ import { msg } from '@lingui/core/macro';
 import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
 import { Permission } from '@platform/authz';
 import type { ScyllaModule } from '@scylla/core-sdk';
+import { LocalDashboardLayoutRepository } from './infrastructure/local-dashboard-layout.repository.ts';
+import { dashboardLinks } from './presentation/ui/dashboard-links.state.svelte.ts';
+
+const dashboardLayoutRepository = new LocalDashboardLayoutRepository();
 
 export const DashboardModule = {
   id: 'dashboard',
-  domain: {},
+  domain: {
+    dashboardLayoutRepository,
+  },
   routes: {
     workspace: [
       {
@@ -20,9 +26,18 @@ export const DashboardModule = {
           keywords: msg`dashboard home`,
           icon: LayoutDashboard,
           order: 10,
-          group: { id: 'dashboard', title: msg`Dashboard`, icon: LayoutDashboard },
+          group: { id: 'dashboard', title: msg`Dashboards`, icon: LayoutDashboard },
         },
       },
+      {
+        path: 'dashboard/:dashboardId',
+        permission: Permission.READ_WORKSPACE,
+        breadcrumb: () => ({ label: msg`Dashboard` }),
+        page: () => import('./presentation/ui/Dashboard/Dashboard.page.svelte'),
+      },
     ],
+  },
+  shell: {
+    secondSidebarLinks: dashboardLinks,
   },
 } satisfies ScyllaModule;

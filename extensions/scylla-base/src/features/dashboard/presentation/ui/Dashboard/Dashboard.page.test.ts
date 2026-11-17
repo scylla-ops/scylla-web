@@ -4,7 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { setAppNavigator, contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
-import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
+import { LocalDashboardLayoutRepository } from '@base/features/dashboard/infrastructure/local-dashboard-layout.repository.ts';
+import { dashboardEditMode } from '@base/features/dashboard/presentation/ui/dashboard-layout.state.svelte.ts';
 import DashboardPage from './Dashboard.page.svelte';
 
 const figures = (outcomes: { completed: number; failed: number; cancelled: number; orphaned: number }) => ({
@@ -45,6 +47,7 @@ let getStats: ReturnType<typeof vi.fn>;
 let getNewest: ReturnType<typeof vi.fn>;
 let getSummaries: ReturnType<typeof vi.fn>;
 let getWorkspaces: ReturnType<typeof vi.fn>;
+let stored: Map<string, string>;
 let navigate: ReturnType<typeof installTestNavigator>['navigate'];
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
@@ -70,8 +73,15 @@ beforeEach(() => {
     { id: 'org-1', name: 'Acme', slug: 'acme', personalTokensEnabled: true, timeZone: 'Asia/Kolkata' },
   ]);
 
+  stored = new Map();
+  const storage = {
+    getItem: (key: string) => stored.get(key) ?? null,
+    setItem: (key: string, value: string) => void stored.set(key, value),
+  };
+
   cache = withQueryClient();
   restoreRegistry = withRegistry({
+    dashboard: { dashboardLayoutRepository: new LocalDashboardLayoutRepository(() => storage) },
     pipeline: {
       pipelineRepository: { getSummaries },
     },
@@ -100,6 +110,7 @@ afterEach(() => {
   restoreRegistry();
   setAppNavigator(null);
   permissionsStore.setState({ permissions: null });
+  dashboardEditMode.set(false);
 });
 
 describe('DashboardPage', () => {
@@ -196,5 +207,45 @@ describe('DashboardPage', () => {
     expect(getStats).not.toHaveBeenCalled();
     expect(getSummaries).not.toHaveBeenCalled();
     expect(getNewest).not.toHaveBeenCalled();
+  });
+
+  it('shows the widgets of the stored layout, at their size', async () => {
+    stored.set(
+      'dashboards:org-1',
+      JSON.stringify([{ id: 'default', name: null, widgets: [{ widget: 'needs-you', size: 'l' }] }]),
+    );
+    render(DashboardPage);
+
+    expect(await screen.findByRole('region', { name: 'Needs you' })).toHaveAttribute('data-size', 'l');
+    expect(screen.queryByRole('region', { name: 'Success rate' })).not.toBeInTheDocument();
+  });
+
+  it('removes a widget, adds it back and saves the layout in the edit mode', async () => {
+    const user = userEvent.setup();
+    render(DashboardPage);
+
+    await user.click(await screen.findByRole('button', { name: 'Edit' }));
+    await user.click(screen.getByRole('button', { name: 'Remove Success rate' }));
+
+    expect(screen.queryByRole('region', { name: 'Success rate' })).not.toBeInTheDocument();
+    await vi.waitFor(() => expect(stored.get('dashboards:org-1')).toContain('run-duration'));
+    expect(stored.get('dashboards:org-1')).not.toContain('success-rate');
+
+    await user.click(screen.getByRole('button', { name: 'Add a widget' }));
+    await user.click(await findFloating('menuitem', 'Success rate'));
+
+    expect(await screen.findByRole('region', { name: 'Success rate' })).toBeInTheDocument();
+  });
+
+  it('changes the size of a widget in the edit mode', async () => {
+    const user = userEvent.setup();
+    render(DashboardPage);
+
+    await user.click(await screen.findByRole('button', { name: 'Edit' }));
+    const sizes = screen.getByRole('group', { name: 'Size of Needs you' });
+    await user.click(within(sizes).getByRole('radio', { name: 'L' }));
+
+    expect(screen.getByRole('region', { name: 'Needs you' })).toHaveAttribute('data-size', 'l');
+    expect(screen.queryByRole('group', { name: 'Size of Success rate' })).not.toBeInTheDocument();
   });
 });

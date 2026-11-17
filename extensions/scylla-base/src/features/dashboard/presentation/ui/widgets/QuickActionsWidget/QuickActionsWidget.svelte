@@ -1,11 +1,12 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import PlayIcon from '@lucide/svelte/icons/play';
   import ServerIcon from '@lucide/svelte/icons/server';
   import UserPlusIcon from '@lucide/svelte/icons/user-plus';
   import ZapIcon from '@lucide/svelte/icons/zap';
   import { Permission, can } from '@platform/authz';
   import { scyllaNavigate } from '@platform/context';
-  import { Widget, WidgetState, type LucideIcon } from '@scylla/ui';
+  import { Widget, type WidgetSize, WidgetState, type LucideIcon } from '@scylla/ui';
   import { Button, Popover, PopoverContent, PopoverTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { createRunPipeline } from '@base/features/pipeline';
@@ -14,9 +15,12 @@
 
   interface Props {
     widgets: DashboardWidgets;
+    size?: WidgetSize;
+    /** The controls of the edit mode, over the card. */
+    editing?: Snippet;
   }
 
-  let { widgets }: Props = $props();
+  let { widgets, size = 'm', editing }: Props = $props();
 
   const runner = createRunPipeline();
 
@@ -35,9 +39,9 @@
   };
 </script>
 
-<Widget size="m" title={t(messages.quickActions)} icon={ZapIcon as LucideIcon}>
+<Widget {size} {editing} title={t(messages.quickActions)} icon={ZapIcon as LucideIcon}>
   {#if !canRun && !canAddAgent && !canInvite}
-    <WidgetState state="locked" size="m" description={t(messages.noActionAllowed)} />
+    <WidgetState state="locked" {size} description={t(messages.noActionAllowed)} />
   {:else}
     <div class="flex flex-1 flex-wrap content-center justify-center gap-2">
       {#if canRun}

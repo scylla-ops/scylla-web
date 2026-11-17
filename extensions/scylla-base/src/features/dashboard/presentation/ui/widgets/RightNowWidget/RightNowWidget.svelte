@@ -1,6 +1,7 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import ActivityIcon from '@lucide/svelte/icons/activity';
-  import { ChartDot, ChartSegment, Widget, type LucideIcon } from '@scylla/ui';
+  import { ChartDot, ChartSegment, Widget, type WidgetSize, type LucideIcon } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { widgetMessages as messages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
   import { liveJobs } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
@@ -11,11 +12,14 @@
   interface Props {
     widgets: DashboardWidgets;
     now?: () => number;
+    size?: WidgetSize;
+    /** The controls of the edit mode, over the card. */
+    editing?: Snippet;
   }
 
-  let { widgets, now = Date.now }: Props = $props();
+  let { widgets, now = Date.now, size = 'm', editing }: Props = $props();
 
-  const MAX_ROWS = 3;
+  const maxRows = $derived(size === 'l' ? 8 : 3);
 
   const live = $derived(liveJobs(widgets.live.data ?? [], widgets.pipelines, now()));
 </script>
@@ -24,9 +28,9 @@
   <span>{t(messages.live)}</span>
 {/snippet}
 
-<Widget size="m" title={t(messages.rightNow)} icon={ActivityIcon as LucideIcon} {aside}>
+<Widget {size} {editing} title={t(messages.rightNow)} icon={ActivityIcon as LucideIcon} {aside}>
   <WidgetBody
-    size="m"
+    {size}
     locked={!widgets.canReadJobs}
     loading={widgets.live.isPending}
     error={widgets.live.isError}
@@ -41,7 +45,7 @@
           <span>{t(messages.runningCount(live.running.length))}</span>
           <span>{t(messages.elapsedMedian)}</span>
         </header>
-        {#each live.running.slice(0, MAX_ROWS) as row (row.jobId)}
+        {#each live.running.slice(0, maxRows) as row (row.jobId)}
           <button
             type="button"
             class="flex flex-col gap-1 text-left"
@@ -67,7 +71,7 @@
           <span>{t(messages.waitingCount(live.waiting.length))}</span>
           <span>{t(messages.waits)}</span>
         </header>
-        {#each live.waiting.slice(0, MAX_ROWS) as row (row.jobId)}
+        {#each live.waiting.slice(0, maxRows) as row (row.jobId)}
           <button
             type="button"
             class="flex min-w-0 items-center gap-2 text-left text-sm"

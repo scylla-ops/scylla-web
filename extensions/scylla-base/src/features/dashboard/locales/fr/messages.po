@@ -33,11 +33,11 @@ msgstr "{factor}× la médiane"
 msgid "{green} of {total} green"
 msgstr "{green} sur {total} au vert"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:9
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:23
 msgid "14 d"
 msgstr "14 j"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:7
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:21
 msgid "24 h"
 msgstr "24 h"
 
@@ -45,17 +45,21 @@ msgstr "24 h"
 msgid "24 hours"
 msgstr "24 heures"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:10
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:24
 msgid "30 d"
 msgstr "30 j"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:8
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:22
 msgid "7 d"
 msgstr "7 j"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:10
 msgid "Activity"
 msgstr "Activité"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:12
+msgid "Add a widget"
+msgstr "Ajouter un widget"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:75
 msgid "Add an agent"
@@ -69,7 +73,11 @@ msgstr "agent"
 msgid "All clear"
 msgstr "Tout va bien"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:15
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:13
+msgid "All the widgets are on the dashboard."
+msgstr "Tous les widgets sont sur le tableau de bord."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:29
 msgid "Apply"
 msgstr "Appliquer"
 
@@ -86,11 +94,11 @@ msgstr "annulés"
 msgid "Choose a pipeline"
 msgstr "Choisir un pipeline"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:18
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:32
 msgid "Choose one year or less."
 msgstr "Choisissez un an ou moins."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:12
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:26
 msgid "Choose the days"
 msgstr "Choisir les jours"
 
@@ -110,20 +118,40 @@ msgstr "Créez un pipeline dans un projet pour voir ses exécutions ici."
 msgid "cron"
 msgstr "cron"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:11
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:25
 msgctxt "period"
 msgid "Custom"
 msgstr "Personnalisée"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:15
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:23
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:21
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:35
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:4
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:20
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:7
+msgid "Dashboard {count}"
+msgstr "Tableau de bord {count}"
+
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:26
 msgid "dashboard home"
 msgstr "tableau de bord accueil"
+
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:29
+msgid "Dashboards"
+msgstr "Tableaux de bord"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:9
+msgid "Delete the dashboard"
+msgstr "Supprimer le tableau de bord"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:11
+msgid "Done"
+msgstr "Terminé"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:10
+msgid "Edit"
+msgstr "Modifier"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:53
 msgid "elapsed · median"
@@ -141,7 +169,7 @@ msgstr "Échoué"
 msgid "failing first"
 msgstr "en échec d’abord"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:13
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:27
 msgid "First day"
 msgstr "Premier jour"
 
@@ -161,7 +189,7 @@ msgstr "fins de jobs"
 msgid "Last {count} runs"
 msgstr "{count} dernières exécutions"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:14
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:28
 msgid "Last day"
 msgstr "Dernier jour"
 
@@ -181,9 +209,17 @@ msgstr "manuel"
 msgid "Median"
 msgstr "Médiane"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:8
+msgid "Name of the dashboard"
+msgstr "Nom du tableau de bord"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:9
 msgid "Needs you"
 msgstr "Vous attend"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:6
+msgid "New dashboard"
+msgstr "Nouveau tableau de bord"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:19
 msgid "No ended jobs in this period"
@@ -229,7 +265,8 @@ msgstr "orphelin"
 msgid "Orphaned"
 msgstr "Orphelin"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:19
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:25
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:5
 msgid "Overview"
 msgstr "Vue d'ensemble"
 
@@ -245,7 +282,7 @@ msgstr "p50 et p95"
 msgid "p95"
 msgstr "p95"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:6
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:20
 msgid "Period"
 msgstr "Période"
 
@@ -272,6 +309,10 @@ msgstr "Actions rapides"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:40
 msgid "red"
 msgstr "rouge"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:14
+msgid "Remove {title}"
+msgstr "Retirer {title}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:80
 msgid "Retry"
@@ -301,6 +342,18 @@ msgstr "En cours · {count}"
 msgid "running now"
 msgstr "en cours"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:18
+msgid "Select Add a widget."
+msgstr "Choisissez Ajouter un widget."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:17
+msgid "Select Edit to add widgets."
+msgstr "Choisissez Modifier pour ajouter des widgets."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:15
+msgid "Size of {title}"
+msgstr "Taille de {title}"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:37
 msgctxt "column"
 msgid "Success"
@@ -314,15 +367,19 @@ msgstr "Taux de réussite"
 msgid "Success rate {rate}"
 msgstr "Taux de réussite {rate}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:16
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:30
 msgid "The first day is after the last day."
 msgstr "Le premier jour est après le dernier jour."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:17
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:31
 msgid "The last day is in the future."
 msgstr "Le dernier jour est dans le futur."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:5
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:16
+msgid "This dashboard has no widget."
+msgstr "Ce tableau de bord n'a aucun widget."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:19
 msgid "Times in {timeZone} ({offset})"
 msgstr "Heures en {timeZone} ({offset})"
 

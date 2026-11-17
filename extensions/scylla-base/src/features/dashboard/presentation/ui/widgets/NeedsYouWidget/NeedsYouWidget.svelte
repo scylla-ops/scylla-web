@@ -1,6 +1,7 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import InboxIcon from '@lucide/svelte/icons/inbox';
-  import { ChartDot, ChartLegendItem, ChartSegment, Widget, type ChartTone, type LucideIcon } from '@scylla/ui';
+  import { ChartDot, ChartLegendItem, ChartSegment, Widget, type WidgetSize, type ChartTone, type LucideIcon } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { MessageDescriptor } from '@lingui/core';
@@ -19,11 +20,14 @@
   interface Props {
     widgets: DashboardWidgets;
     period: DashboardPeriodState;
+    size?: WidgetSize;
+    /** The controls of the edit mode, over the card. */
+    editing?: Snippet;
   }
 
-  let { widgets, period }: Props = $props();
+  let { widgets, period, size = 'm', editing }: Props = $props();
 
-  const MAX_ROWS = 3;
+  const maxRows = $derived(size === 'l' ? 8 : 3);
 
   const KINDS: Readonly<Record<AttentionKind, { tone: ChartTone; label: MessageDescriptor }>> = {
     failed: { tone: 'failed', label: messages.failedLower },
@@ -41,9 +45,9 @@
   {/if}
 {/snippet}
 
-<Widget size="m" title={t(messages.needsYou)} icon={InboxIcon as LucideIcon} {aside}>
+<Widget {size} {editing} title={t(messages.needsYou)} icon={InboxIcon as LucideIcon} {aside}>
   <WidgetBody
-    size="m"
+    {size}
     locked={!widgets.canReadPipelines || !widgets.canReadJobs}
     loading={widgets.summaries.isPending || widgets.live.isPending}
     error={widgets.summaries.isError || widgets.live.isError}
@@ -69,7 +73,7 @@
       </div>
     </div>
     <ul class="mt-2 flex min-h-0 flex-col gap-1.5">
-      {#each items.slice(0, MAX_ROWS) as item (item.jobId)}
+      {#each items.slice(0, maxRows) as item (item.jobId)}
         <li class="flex min-w-0 items-center gap-2 text-sm">
           <ChartDot tone={KINDS[item.kind].tone} />
           <span class="truncate font-medium">{item.pipelineName}</span>

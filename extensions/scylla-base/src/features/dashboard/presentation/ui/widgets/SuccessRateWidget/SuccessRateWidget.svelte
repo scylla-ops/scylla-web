@@ -1,6 +1,7 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import GaugeIcon from '@lucide/svelte/icons/gauge';
-  import { ChartLegendItem, ChartRing, ChartSegment, Widget, type LucideIcon } from '@scylla/ui';
+  import { ChartLegendItem, ChartRing, ChartSegment, Widget, type WidgetSize, type LucideIcon } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { decidedJobs, successRate, successRateChange } from '@base/features/jobs';
   import { widgetMessages as messages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
@@ -22,9 +23,12 @@
   interface Props {
     widgets: DashboardWidgets;
     period: DashboardPeriodState;
+    size?: WidgetSize;
+    /** The controls of the edit mode, over the card. */
+    editing?: Snippet;
   }
 
-  let { widgets, period }: Props = $props();
+  let { widgets, period, size = 'm', editing }: Props = $props();
 
   const stats = $derived(widgets.stats.data);
   const outcomes = $derived(stats?.totals.outcomes);
@@ -45,13 +49,14 @@
 </script>
 
 <Widget
-  size="m"
+  {size}
+  {editing}
   title={t(messages.successRate)}
   icon={GaugeIcon as LucideIcon}
   meta={periodMeta(period.period)}
 >
   <WidgetBody
-    size="m"
+    {size}
     locked={!widgets.canReadJobs}
     loading={widgets.stats.isPending}
     error={widgets.stats.isError}

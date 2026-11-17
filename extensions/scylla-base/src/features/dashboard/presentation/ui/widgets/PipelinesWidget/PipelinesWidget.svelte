@@ -1,6 +1,7 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import GitBranchIcon from '@lucide/svelte/icons/git-branch';
-  import { ChartDot, ChartLegendItem, ChartSegment, Widget, type LucideIcon } from '@scylla/ui';
+  import { ChartDot, ChartLegendItem, ChartSegment, Widget, type WidgetSize, type LucideIcon } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { widgetMessages as messages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
   import { pipelineRows } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
@@ -12,14 +13,17 @@
   interface Props {
     widgets: DashboardWidgets;
     timeZone?: string;
+    size?: WidgetSize;
+    /** The controls of the edit mode, over the card. */
+    editing?: Snippet;
   }
 
-  let { widgets, timeZone = 'UTC' }: Props = $props();
+  let { widgets, timeZone = 'UTC', size = 'l', editing }: Props = $props();
 
-  const MAX_ROWS = 10;
+  const maxRows = $derived(size === 'l' ? 10 : 4);
 
   const list = $derived(widgets.summaries.data);
-  const rows = $derived(pipelineRows(list?.items.slice(0, MAX_ROWS) ?? [], PIPELINE_RUNS, timeZone));
+  const rows = $derived(pipelineRows(list?.items.slice(0, maxRows) ?? [], PIPELINE_RUNS, timeZone));
 </script>
 
 {#snippet aside()}
@@ -29,14 +33,15 @@
 {/snippet}
 
 <Widget
-  size="l"
+  {size}
+  {editing}
   title={t(messages.pipelines)}
   icon={GitBranchIcon as LucideIcon}
   meta={t(messages.failingFirst)}
   {aside}
 >
   <WidgetBody
-    size="l"
+    {size}
     locked={!widgets.canReadPipelines}
     loading={widgets.summaries.isPending}
     error={widgets.summaries.isError}
