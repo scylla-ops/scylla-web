@@ -69,6 +69,12 @@ export const dayIn = (instant: Date, timeZone: string): Day => {
   ].join('-');
 };
 
+/** The time of this instant in the zone, on 24 hours: `09:05`. */
+export const clockIn = (instant: Date, timeZone: string): string => {
+  const clock = wallClockOf(instant, timeZone);
+  return `${String(clock.hour).padStart(2, '0')}:${String(clock.minute).padStart(2, '0')}`;
+};
+
 /**
  * The instant at which the day starts in the zone. A change of the clock at midnight makes the
  * day start at 01:00: this is the first instant of the day.

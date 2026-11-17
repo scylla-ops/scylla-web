@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   addDays,
+  clockIn,
   dayIn,
   daysBetween,
   knownTimeZone,
@@ -64,5 +65,16 @@ describe('knownTimeZone', () => {
   it('keeps a zone of the browser and falls back to UTC for an unknown one', () => {
     expect(knownTimeZone('Europe/Paris')).toBe('Europe/Paris');
     expect(knownTimeZone('Mars/Olympus')).toBe('UTC');
+  });
+});
+
+describe('clockIn', () => {
+  it('gives the time of the zone on 24 hours', () => {
+    expect(clockIn(new Date('2026-11-17T08:05:00Z'), 'Europe/Paris')).toBe('09:05');
+    expect(clockIn(new Date('2026-11-17T23:30:00Z'), 'Asia/Kolkata')).toBe('05:00');
+  });
+
+  it('gives 00:00 at midnight, not 24:00', () => {
+    expect(clockIn(new Date('2026-11-16T23:00:00Z'), 'Europe/Paris')).toBe('00:00');
   });
 });
