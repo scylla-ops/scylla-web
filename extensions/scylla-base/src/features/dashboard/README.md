@@ -4,7 +4,7 @@
 > [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
 
 The landing page for an workspace, at `/:org/dashboard`. It answers "what is going on right
-now" in one screen: which projects exist, which pipelines they hold, and how recent runs went.
+now" in one screen: how the jobs of a period went, which pipelines are red, and what runs now.
 Every workspace-level redirect in the app ends here.
 
 ## A composite view, by design
@@ -18,24 +18,22 @@ All of its data comes from other modules' public APIs:
 | Question | Answered by |
 |---|---|
 | Which workspace am I in? | `contextStore` — [platform/context](../../platform/context/README.md) |
-| Which projects can I see? | `projectQueries.lookup` — [project](../project/README.md) |
-| Which pipelines exist? | `pipelineQueries.byWorkspace` — [pipeline](../pipeline/README.md) |
-| How did recent runs go? | `jobQueries.byWorkspace` — [jobs](../jobs/README.md) |
-| How did one agent's runs go? | `appQueries.agentStatsOf` — [apps](../apps/README.md) |
-| What may this user open? | `can()` — [platform/authz](../../platform/authz/README.md) |
+| How did the jobs of the period go? | `jobQueries.stats`, `jobQueries.newest` — [jobs](../jobs/README.md) |
+| How are the pipelines? | `pipelineQueries.summaries` — [pipeline](../pipeline/README.md) |
+| Which time zone counts the days? | `workspaceQueries.mine` — [workspace](../workspace/README.md) |
+| What may this user read? | `can()` — [platform/authz](../../platform/authz/README.md) |
 
-`createWorkspaceOverview` stitches those together and hands the page a single ready-to-render shape,
-including a `ProjectAccess` predicate the UI uses to grey out projects the user cannot enter.
+`createDashboardWidgets` stitches those together with the period of the page.
 
 ## Why the queries live elsewhere
 
-It would be shorter to call `pipelineRepository.getMetadataByWorkspaceId()` from here. It
+It would be shorter to call `pipelineRepository.getSummaries()` from here. It
 would also be wrong, and the rule exists because of a real failure: two modules querying the
 same resource through different repositories produce two cache keys for one thing, and a
 mutation invalidating one leaves the other stale on screen.
 
 So the org-wide reads live in the modules that own the resource — `pipelineQueries` in
-`pipeline`, `jobQueries` in `jobs` — even though the dashboard is currently their only consumer.
+`pipeline`, `jobQueries` in `jobs` — even when the dashboard is their only consumer.
 The dashboard composes; it does not fetch.
 
 The same reasoning explains the empty `domain`. A module's `domain` is its *data surface*; a
@@ -50,15 +48,6 @@ would only give the next contributor somewhere wrong to put a query.
 - **The widgets** — Success rate, Run duration, Right now, Needs you, Pipelines, Activity and
   Quick actions, on the widget grid of `@scylla/ui`. The figures of a period follow the period
   picker, and the period stays in the URL, so a link shows the same figures.
-- **Agent outcomes** (`AgentOutcomesChart`) — success/failure trend over time, drawn in plain
-  SVG. It used to be `recharts`, whose 119 kB gzip (plus `d3-*` and `victory-vendor`) served
-  exactly this one chart; it is replaced by
-  `presenters/outcomes-chart.presenter.ts` — scales, monotone curves and whole-number ticks, ~150 lines of
-  arithmetic tested with no DOM — and markup around it. The curve is still monotone
-  (Fritsch–Carlson) because a plain spline through run counts dips below zero between two empty
-  days and draws negative jobs.
-- **Projects and pipelines** — the overview list, with inaccessible projects visibly gated
-  rather than hidden, so a user can tell that something exists and they lack access to it.
 
 Access is gated on `READ_WORKSPACE` — the same permission as the projects list, because both
 are reads of the workspace and this page is the redirect target for anyone landing on an org
@@ -66,7 +55,6 @@ without a deeper destination.
 
 ## Related modules
 
-- [project](../project/README.md), [pipeline](../pipeline/README.md),
-  [jobs](../jobs/README.md) — the three data sources.
-- [apps](../apps/README.md) — supplies the per-agent run statistics behind the chart.
+- [pipeline](../pipeline/README.md), [jobs](../jobs/README.md),
+  [workspace](../workspace/README.md) — the data sources.
 - [shell](../../shell/README.md) — the shell this page renders inside.

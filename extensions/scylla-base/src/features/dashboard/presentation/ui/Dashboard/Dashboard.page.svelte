@@ -1,35 +1,9 @@
 <script lang="ts">
-  import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
-  import FolderIcon from '@lucide/svelte/icons/folder';
-  import { can, Permission } from '@platform/authz';
-  import { scyllaNavigate } from '@platform/context';
-  import {
-    Badge,
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    Separator,
-    Skeleton,
-    Table,
-    TableBody,
-    TableCell,
-    TableFrame,
-    TableHead,
-    TableHeader,
-    TableRow,
-  } from '@scylla/ui/primitives';
-  import { ErrorState, FeatureHeader, WidgetGrid } from '@scylla/ui';
-  import { cn } from '@scylla/ui/utils';
+  import { FeatureHeader, WidgetGrid } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { getRelativeTime } from '@shared/utils/date-utils.ts';
-  import {
-    createWorkspaceOverview,
-  } from '@base/features/dashboard/presentation/ui/org-overview.state.svelte.ts';
   import { createDashboardPeriod } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import { createDashboardWidgets } from '@base/features/dashboard/presentation/ui/widgets/dashboard-widgets.state.svelte.ts';
   import { utcOffsetLabel } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
-  import AgentOutcomesChart from '../AgentOutcomesChart/AgentOutcomesChart.svelte';
   import PeriodPicker from '../PeriodPicker/PeriodPicker.svelte';
   import ActivityWidget from '../widgets/ActivityWidget/ActivityWidget.svelte';
   import NeedsYouWidget from '../widgets/NeedsYouWidget/NeedsYouWidget.svelte';
@@ -40,29 +14,10 @@
   import SuccessRateWidget from '../widgets/SuccessRateWidget/SuccessRateWidget.svelte';
   import { dashboardMessages } from '@base/features/dashboard/presentation/messages/dashboard.messages.ts';
 
-  const overview = createWorkspaceOverview();
   const dashboardPeriod = createDashboardPeriod();
   const widgets = createDashboardWidgets(dashboardPeriod);
-
-  const sortedPipelines = $derived(
-    [...overview.allPipelines].sort(
-      (a, b) => a.projectName.localeCompare(b.projectName) || a.name.localeCompare(b.name),
-    ),
-  );
-
-  /** A project the user may see but not open: the row stays inert. */
-  const openPipelineRow = (projectId: string) => {
-    const project = overview.projects.find(candidate => candidate.id === projectId);
-    if (project && overview.canOpenProject(project.id)) {
-      scyllaNavigate.goToProject(project.id, project.name);
-    }
-  };
 </script>
 
-<!--
-  Header, stats and chart keep their height; the two lists share the rest and
-  scroll inside their box, with a minimum height (the frame scrolls below that).
--->
 {#snippet underLabel()}
   {#if dashboardPeriod.timeZone}
     <p class="text-sm text-muted-foreground">
@@ -85,154 +40,16 @@
   />
 {/snippet}
 
-{#if overview.projectsError}
-  <ErrorState message={t(dashboardMessages.loadError)} />
-{:else}
-  <div class="flex h-full min-h-0 w-full flex-col gap-4">
-    <FeatureHeader label={t(dashboardMessages.dashboard)} {underLabel} {extraActions} />
+<div class="flex h-full min-h-0 w-full flex-col gap-4">
+  <FeatureHeader label={t(dashboardMessages.dashboard)} {underLabel} {extraActions} />
 
-    <WidgetGrid class="shrink-0">
-      <SuccessRateWidget {widgets} period={dashboardPeriod} />
-      <RunDurationWidget {widgets} period={dashboardPeriod} />
-      <RightNowWidget {widgets} />
-      <NeedsYouWidget {widgets} period={dashboardPeriod} />
-      <PipelinesWidget {widgets} timeZone={dashboardPeriod.timeZone ?? 'UTC'} />
-      <ActivityWidget {widgets} period={dashboardPeriod} />
-      <QuickActionsWidget {widgets} />
-    </WidgetGrid>
-
-    <Separator class="shrink-0" />
-
-    <section class="flex flex-1 flex-col gap-3">
-      <div class="flex shrink-0 items-center justify-between">
-        <h2 class="text-base">{t(dashboardMessages.projects)}</h2>
-        <button
-          type="button"
-          onclick={() => scyllaNavigate.goToWorkspaceRoute('/projects')}
-          class="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          {t(dashboardMessages.seeAll)}
-          <ChevronRightIcon class="h-3.5 w-3.5" />
-        </button>
-      </div>
-
-      <div class="relative min-h-[8rem] flex-1 overflow-y-auto">
-        {#if overview.projectsLoading}
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {#each { length: 4 } as _, index (index)}
-              <Skeleton class="h-20 w-full rounded-xl" />
-            {/each}
-          </div>
-        {:else if overview.projects.length === 0}
-          <p class="text-sm text-muted-foreground">{t(dashboardMessages.noProjects)}</p>
-        {:else}
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {#each overview.projects as project (project.id)}
-              {@const openable = overview.canOpenProject(project.id)}
-              <Card
-                onclick={openable
-                  ? () => scyllaNavigate.goToProject(project.id, project.name)
-                  : undefined}
-                title={openable ? undefined : t(dashboardMessages.noProjectAccess)}
-                class={cn(
-                  'py-4 gap-2 transition-all',
-                  openable
-                    ? 'cursor-pointer hover:shadow-md hover:border-primary/50 active:scale-[0.98]'
-                    : 'opacity-60',
-                )}
-              >
-                <CardHeader class="px-4 pb-0">
-                  <div class="flex items-center gap-2">
-                    <div class="rounded-md bg-primary/10 p-1.5 shrink-0">
-                      <FolderIcon class="h-3.5 w-3.5 text-primary" />
-                    </div>
-                    <CardTitle class="text-sm truncate" title={project.name}>
-                      {project.name}
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent class="px-4 pb-0">
-                  <p class="text-xs text-muted-foreground truncate">
-                    {#if project.description}
-                      {project.description}
-                    {:else}
-                      <span class="italic">{t(dashboardMessages.noDescription)}</span>
-                    {/if}
-                  </p>
-                </CardContent>
-              </Card>
-            {/each}
-          </div>
-        {/if}
-      </div>
-    </section>
-
-    {#if overview.canListPipelines}
-      <Separator class="shrink-0" />
-
-      <section class="flex flex-1 flex-col gap-3">
-        <h2 class="shrink-0 text-base">{t(dashboardMessages.allPipelines)}</h2>
-
-        <div class="relative min-h-[10rem] flex-1 overflow-y-auto">
-          {#if overview.projectsLoading || overview.pipelinesLoading}
-            <div class="flex flex-col gap-2">
-              {#each { length: 5 } as _, index (index)}
-                <Skeleton class="h-12 w-full rounded-xl" />
-              {/each}
-            </div>
-          {:else if sortedPipelines.length === 0}
-            <p class="text-sm text-muted-foreground">{t(dashboardMessages.noPipelines)}</p>
-          {:else}
-            <TableFrame class="overflow-clip">
-              <Table>
-                <!-- Sticky: needs an opaque background. A hidden last column leaves no `last:`. -->
-                <TableHeader class="sticky top-0 z-10 bg-card">
-                  <TableRow>
-                    <TableHead class="max-sm:rounded-r-[10px]">{t(dashboardMessages.name)}</TableHead>
-                    <TableHead class="hidden max-md:rounded-r-[10px] sm:table-cell">
-                      {t(dashboardMessages.project)}
-                    </TableHead>
-                    <TableHead class="hidden md:table-cell">{t(dashboardMessages.nodes)}</TableHead>
-                    <TableHead class="hidden md:table-cell">{t(dashboardMessages.updated)}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {#each sortedPipelines as pipeline (pipeline.id)}
-                    {@const openable = overview.canOpenProject(pipeline.projectId)}
-                    <TableRow
-                      onclick={() => openPipelineRow(pipeline.projectId)}
-                      class={cn(!openable && 'cursor-default')}
-                    >
-                      <TableCell class="font-medium whitespace-normal max-sm:rounded-r-[10px]">
-                        {pipeline.name}
-                      </TableCell>
-                      <TableCell class="hidden max-md:rounded-r-[10px] sm:table-cell">
-                        <Badge variant="secondary">{pipeline.projectName}</Badge>
-                      </TableCell>
-                      <TableCell class="hidden text-muted-foreground md:table-cell">
-                        {pipeline.nodeCount}
-                      </TableCell>
-                      <TableCell class="hidden text-muted-foreground md:table-cell">
-                        {getRelativeTime(pipeline.updatedAt)}
-                      </TableCell>
-                    </TableRow>
-                  {/each}
-                </TableBody>
-              </Table>
-            </TableFrame>
-          {/if}
-        </div>
-      </section>
-    {/if}
-
-    <!-- Hidden without the permission: the chart could only fail. -->
-    {#if can(Permission.READ_APP_STATS)}
-      <Separator class="shrink-0" />
-
-      <section class="flex shrink-0 flex-col gap-3">
-        <h2 class="text-base">{t(dashboardMessages.agentOutcomes)}</h2>
-        <AgentOutcomesChart />
-      </section>
-    {/if}
-  </div>
-{/if}
+  <WidgetGrid class="shrink-0">
+    <SuccessRateWidget {widgets} period={dashboardPeriod} />
+    <RunDurationWidget {widgets} period={dashboardPeriod} />
+    <RightNowWidget {widgets} />
+    <NeedsYouWidget {widgets} period={dashboardPeriod} />
+    <PipelinesWidget {widgets} timeZone={dashboardPeriod.timeZone ?? 'UTC'} />
+    <ActivityWidget {widgets} period={dashboardPeriod} />
+    <QuickActionsWidget {widgets} />
+  </WidgetGrid>
+</div>

@@ -5,35 +5,7 @@ import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { setAppNavigator, contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
-import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import DashboardPage from './Dashboard.page.svelte';
-
-const project = (overrides: Record<string, unknown> = {}) => ({
-  id: 'project-1',
-  name: 'Acme project',
-  description: 'The main one',
-  ...overrides,
-});
-
-const pipeline = (overrides: Record<string, unknown> = {}) => ({
-  id: 'pipeline-1',
-  projectId: 'project-1',
-  name: 'ci',
-  nodeCount: 3,
-  createdAt: '2026-01-01T00:00:00.000Z',
-  updatedAt: '2026-01-01T00:00:00.000Z',
-  ...overrides,
-});
-
-const job = (overrides: Record<string, unknown> = {}) => ({
-  id: 'job-1',
-  pipelineId: 'pipeline-1',
-  status: 'completed',
-  nodeExecutions: [],
-  createdAt: '2026-01-01T00:00:00.000Z',
-  updatedAt: '2026-01-01T00:01:00.000Z',
-  ...overrides,
-});
 
 const figures = (outcomes: { completed: number; failed: number; cancelled: number; orphaned: number }) => ({
   created: outcomes.completed + outcomes.failed + outcomes.cancelled + outcomes.orphaned,
@@ -69,19 +41,9 @@ const summary = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-const page = (items: unknown[], totalCount = items.length) => ({
-  items,
-  pagination: { totalCount, page: 1, pageSize: 100, totalPages: 1, hasNext: false, hasPrevious: false },
-});
-
-let getProjects: ReturnType<typeof vi.fn>;
-let getPipelines: ReturnType<typeof vi.fn>;
-let getJobs: ReturnType<typeof vi.fn>;
 let getStats: ReturnType<typeof vi.fn>;
 let getNewest: ReturnType<typeof vi.fn>;
 let getSummaries: ReturnType<typeof vi.fn>;
-let listAgents: ReturnType<typeof vi.fn>;
-let checkAccess: ReturnType<typeof vi.fn>;
 let getWorkspaces: ReturnType<typeof vi.fn>;
 let navigate: ReturnType<typeof installTestNavigator>['navigate'];
 let cache: ReturnType<typeof withQueryClient>;
@@ -101,33 +63,24 @@ const grant = (permissions: Permission[]) =>
   });
 
 beforeEach(() => {
-  getProjects = vi.fn().mockResolvedValue({ items: [project()] });
-  getPipelines = vi.fn().mockResolvedValue(page([pipeline()]));
-  getJobs = vi.fn().mockResolvedValue(page([job()]));
   getStats = vi.fn().mockResolvedValue(stats());
   getNewest = vi.fn().mockResolvedValue([]);
   getSummaries = vi.fn().mockResolvedValue({ items: [summary()], total: 1, green: 0 });
-  listAgents = vi.fn().mockResolvedValue([]);
-  checkAccess = vi.fn().mockResolvedValue(new Set());
   getWorkspaces = vi.fn().mockResolvedValue([
     { id: 'org-1', name: 'Acme', slug: 'acme', personalTokensEnabled: true, timeZone: 'Asia/Kolkata' },
   ]);
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
-    project: { projectRepository: { getByWorkspaceId: getProjects } },
     pipeline: {
-      pipelineRepository: { getMetadataByWorkspaceId: getPipelines, getSummaries },
+      pipelineRepository: { getSummaries },
     },
     jobs: {
       jobsRepository: {
-        getByWorkspaceId: getJobs,
         getStats,
         getNewestByWorkspaceId: getNewest,
       },
     },
-    agents: { agentsRepository: { listAgents, getAgentStats: vi.fn() } },
-    access: { accessRepository: { check: checkAccess } },
     workspace: { workspaceRepository: { getMine: getWorkspaces } },
   });
 
@@ -137,7 +90,6 @@ beforeEach(() => {
     project: { id: null, name: null },
   });
   grant([
-    Permission.LIST_PIPELINES_BY_PROJECT,
     Permission.LIST_PIPELINES_BY_WORKSPACE,
     Permission.LIST_JOBS_BY_WORKSPACE,
   ]);
@@ -149,14 +101,6 @@ afterEach(() => {
   setAppNavigator(null);
   permissionsStore.setState({ permissions: null });
 });
-
-/** The card holding a text: the same string can appear twice on the page. */
-const cardContaining = async (text: string): Promise<HTMLElement> => {
-  const matches = await screen.findAllByText(text);
-  const card = matches.map(node => node.closest('[data-slot="card"]')).find(Boolean);
-  if (!card) throw new Error(`No card contains "${text}"`);
-  return card as HTMLElement;
-};
 
 describe('DashboardPage', () => {
   it('says in the header which time zone the times use', async () => {
@@ -244,106 +188,13 @@ describe('DashboardPage', () => {
     expect(getStats).not.toHaveBeenCalled();
   });
 
-  it('opens a project the user may enter', async () => {
-    const user = userEvent.setup();
-    grant([]);
-    permissionsStore.setState({
-      permissions: {
-        scopes: [
-          {
-            scope: PermissionScope.PROJECT,
-            scopeId: 'project-1',
-            access: { kind: 'restricted', permissions: [Permission.LIST_PIPELINES_BY_PROJECT] },
-          },
-        ],
-      },
-    });
-    render(DashboardPage);
-
-    await user.click(await cardContaining('Acme project'));
-
-    expect(navigate).toHaveBeenCalled();
-  });
-
-  it('opens a project of a person with only a role on that project', async () => {
-    const user = userEvent.setup();
-    grant([]);
-    checkAccess.mockResolvedValue(new Set(['list_project_pipelines']));
-    render(DashboardPage);
-
-    const card = await cardContaining('Acme project');
-    await vi.waitFor(() => expect(card).not.toHaveAttribute('title'));
-    await user.click(card);
-
-    expect(checkAccess).toHaveBeenCalledWith(
-      { kind: 'project', id: 'project-1' },
-      expect.arrayContaining(['list_project_pipelines']),
-    );
-    expect(navigate).toHaveBeenCalled();
-  });
-
-  it('leaves a project the user may see but not open inert, and says why', async () => {
-    const user = userEvent.setup();
+  it('asks for no figure, no pipeline and no run for a reader of the workspace', async () => {
     grant([]);
     render(DashboardPage);
 
-    const card = await cardContaining('Acme project');
-    expect(card).toHaveAttribute('title', "You don't have access to this project's pipelines");
-
-    await user.click(card);
-    expect(navigate).not.toHaveBeenCalled();
-  });
-
-  it('joins each pipeline row with the name of its project', async () => {
-    render(DashboardPage);
-
-    const row = (await screen.findByText('ci')).closest('tr');
-    expect(within(row!).getByText('Acme project')).toBeInTheDocument();
-    expect(within(row!).getByText('3')).toBeInTheDocument();
-  });
-
-  it('shows the projects alone to a reader of the workspace, and asks for no pipeline and no run', async () => {
-    grant([]);
-    render(DashboardPage);
-
-    expect(await cardContaining('Acme project')).toBeInTheDocument();
-    expect(screen.queryByText('All Pipelines')).not.toBeInTheDocument();
-    expect(screen.queryByText('Runs')).not.toBeInTheDocument();
-    expect(getPipelines).not.toHaveBeenCalled();
-    expect(getJobs).not.toHaveBeenCalled();
+    expect(await screen.findByRole('region', { name: 'Success rate' })).toBeInTheDocument();
     expect(getStats).not.toHaveBeenCalled();
     expect(getSummaries).not.toHaveBeenCalled();
     expect(getNewest).not.toHaveBeenCalled();
-  });
-
-  it('hides the agent chart whole from a user without READ_APP_STATS', async () => {
-    render(DashboardPage);
-
-    expect(await screen.findByText('ci')).toBeInTheDocument();
-    expect(screen.queryByText('Agent Outcomes')).not.toBeInTheDocument();
-  });
-
-  it('shows the agent chart once READ_APP_STATS is held', async () => {
-    grant([Permission.READ_APP_STATS, Permission.LIST_AGENTS]);
-    render(DashboardPage);
-
-    expect(await screen.findByText('Agent Outcomes')).toBeInTheDocument();
-  });
-
-  it('replaces the whole page with an error state when the project list fails', async () => {
-    getProjects.mockRejectedValue(new ScyllaError('boom'));
-    render(DashboardPage);
-
-    expect(await screen.findByText('Unable to load dashboard')).toBeInTheDocument();
-    expect(screen.queryByText('All Pipelines')).not.toBeInTheDocument();
-  });
-
-  it('sends "See all" to the workspace project list', async () => {
-    const user = userEvent.setup();
-    render(DashboardPage);
-
-    await user.click(await screen.findByText('See all'));
-
-    expect(navigate).toHaveBeenCalledWith(expect.stringContaining('/projects'), undefined);
   });
 });
