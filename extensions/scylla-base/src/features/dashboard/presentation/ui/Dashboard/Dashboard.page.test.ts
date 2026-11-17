@@ -3,6 +3,7 @@ import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { setAppNavigator, contextStore } from '@platform/context';
+import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import DashboardPage from './Dashboard.page.svelte';
@@ -45,7 +46,7 @@ let getJobs: ReturnType<typeof vi.fn>;
 let listAgents: ReturnType<typeof vi.fn>;
 let checkAccess: ReturnType<typeof vi.fn>;
 let getWorkspaces: ReturnType<typeof vi.fn>;
-let navigate: ReturnType<typeof vi.fn<(to: string, options?: unknown) => void>>;
+let navigate: ReturnType<typeof installTestNavigator>['navigate'];
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
@@ -71,7 +72,6 @@ beforeEach(() => {
   getWorkspaces = vi.fn().mockResolvedValue([
     { id: 'org-1', name: 'Acme', slug: 'acme', personalTokensEnabled: true, timeZone: 'Asia/Kolkata' },
   ]);
-  navigate = vi.fn();
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
@@ -83,14 +83,7 @@ beforeEach(() => {
     workspace: { workspaceRepository: { getMine: getWorkspaces } },
   });
 
-  setAppNavigator({
-    navigate,
-    back: vi.fn(),
-    pathname: () => '/',
-    search: () => '',
-    params: () => ({}),
-    trail: () => [],
-  });
+  navigate = installTestNavigator().navigate;
   contextStore.setState({
     workspace: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: null, name: null },
