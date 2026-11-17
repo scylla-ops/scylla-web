@@ -6,6 +6,7 @@
   import { widgetMessages as messages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
   import {
     bucketAxis,
+    bucketLabel,
     outcomeBars,
     periodMeta,
     rateChange,
@@ -13,6 +14,7 @@
   } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
+  import BarTip from '../parts/BarTip.svelte';
   import BucketAxis from '../parts/BucketAxis.svelte';
   import ChangeBadge from '../parts/ChangeBadge.svelte';
   import WidgetBody from '../parts/WidgetBody.svelte';
@@ -90,12 +92,24 @@
         </div>
         <div class="hidden min-w-0 flex-1 flex-col gap-1 @3xl:flex">
           <div class="flex min-h-0 flex-1 items-end gap-0.5">
-            {#each bars as bar (bar.start)}
-              <div class="flex h-full min-w-0 flex-1 flex-col-reverse gap-px">
+            {#each bars as bar, index (bar.start)}
+              {@const figures = stats?.buckets[index]?.figures.outcomes}
+              <BarTip class="flex h-full min-w-0 flex-1 flex-col-reverse gap-px">
                 <ChartSegment tone="passed" style="height: {bar.completed}%" />
                 <ChartSegment tone="failed" style="height: {bar.failed}%" />
                 <ChartSegment tone="canceled" style="height: {bar.orphaned}%" />
-              </div>
+                {#snippet tip()}
+                  <span class="font-medium">{bucketLabel(bar.start, period.rangeAt().bucket, period.timeZone ?? 'UTC')}</span>
+                  {#if figures}
+                    <ChartLegendItem tone="passed" label={t(messages.completed)} value={figures.completed} />
+                    <ChartLegendItem tone="failed" label={t(messages.failed)} value={figures.failed} />
+                    <ChartLegendItem tone="canceled" label={t(messages.orphaned)} value={figures.orphaned} />
+                    {#if figures.cancelled}
+                      <span class="text-muted-foreground">{t(messages.cancelledApart(figures.cancelled))}</span>
+                    {/if}
+                  {/if}
+                {/snippet}
+              </BarTip>
             {/each}
           </div>
           {#if axis}

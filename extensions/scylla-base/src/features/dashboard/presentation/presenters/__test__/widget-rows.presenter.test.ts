@@ -216,6 +216,40 @@ describe('pipelineRows', () => {
     });
   });
 
+  it('gives each run of the strip its short id, status, branch, duration and time for the tooltip', () => {
+    const [row] = pipelineRows(
+      [
+        summary({
+          recent: [
+            {
+              id: 'job-0000abcdef12',
+              status: 'failed',
+              branch: 'main',
+              createdAt: '2026-11-17T09:00:00Z',
+              startedAt: '2026-11-17T09:00:00Z',
+              finishedAt: '2026-11-17T09:01:30Z',
+            },
+            { id: 'job-00001234abcd', status: 'running', branch: '', createdAt: '2026-11-16T09:00:00Z' },
+          ],
+        }),
+      ],
+      20,
+      'UTC',
+      new Date('2026-11-17T12:00:00Z'),
+    );
+
+    expect(row.runs).toHaveLength(2);
+    expect(row.runs[1]).toMatchObject({
+      shortId: 'abcdef12',
+      status: 'failed',
+      tone: 'failed',
+      branch: 'main',
+      duration: '1m 30s',
+      when: '09:00',
+    });
+    expect(row.runs[0]).toMatchObject({ shortId: '1234abcd', duration: '—' });
+  });
+
   it('shows a pipeline that runs now in the color of a running job, and a pipeline with no trigger as manual', () => {
     const [row] = pipelineRows([summary({ active: true, health: 'green' })], 20);
 

@@ -102,7 +102,8 @@ export const durationBars = (buckets: readonly JobBucket[]): DurationBar[] => {
   }));
 };
 
-const bucketLabel = (start: string, bucket: PeriodBucket, timeZone: string): string => {
+/** The time of a bucket in the zone: the clock for an hour, else the day. */
+export const bucketLabel = (start: string, bucket: PeriodBucket, timeZone: string): string => {
   const instant = new Date(start);
   return bucket === 'hour' ? clockIn(instant, timeZone) : formatUtcDay(dayIn(instant, timeZone));
 };

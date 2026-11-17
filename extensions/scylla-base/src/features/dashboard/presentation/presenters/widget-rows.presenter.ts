@@ -56,6 +56,21 @@ export interface ActivityRow extends JobPlace {
   when: string;
 }
 
+/** One run of the strip of a pipeline. */
+export interface StripRun {
+  shortId: string;
+  status: JobStatus;
+  tone: ChartTone;
+  branch: string;
+  duration: string;
+  when: string;
+}
+
+const runSeconds = (run: { startedAt?: string; finishedAt?: string }): number | null =>
+  run.startedAt && run.finishedAt
+    ? Math.max(0, (Date.parse(run.finishedAt) - Date.parse(run.startedAt)) / 1000)
+    : null;
+
 export interface PipelineRow {
   id: string;
   projectId: string;
@@ -66,6 +81,8 @@ export interface PipelineRow {
   trigger: string;
   /** The last runs, oldest first: the newest is at the right. */
   strip: ChartTone[];
+  /** The same runs as `strip`, with what a tooltip shows. */
+  runs: StripRun[];
   rate: string;
   median: string;
 }
@@ -206,7 +223,12 @@ export const activityRows = (
     }));
 
 /** A row for each pipeline, in the order of the server. */
-export const pipelineRows = (summaries: readonly PipelineSummary[], runs: number): PipelineRow[] =>
+export const pipelineRows = (
+  summaries: readonly PipelineSummary[],
+  runs: number,
+  timeZone = 'UTC',
+  now: Date = new Date(),
+): PipelineRow[] =>
   summaries.map(summary => ({
     id: summary.id,
     projectId: summary.projectId,
@@ -226,6 +248,17 @@ export const pipelineRows = (summaries: readonly PipelineSummary[], runs: number
       .slice(0, runs)
       .reverse()
       .map(run => statusTone(run.status)),
+    runs: summary.recent
+      .slice(0, runs)
+      .reverse()
+      .map(run => ({
+        shortId: shortJobId(run.id),
+        status: run.status,
+        tone: statusTone(run.status),
+        branch: run.branch,
+        duration: durationText(runSeconds(run)),
+        when: run.createdAt ? whenText(run.createdAt, now, timeZone) : '—',
+      })),
     rate: rateText(recentSuccessRate(summary)),
     median: durationText(summary.medianDuration),
   }));

@@ -5,6 +5,7 @@
   import { widgetMessages as messages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
   import {
     bucketAxis,
+    bucketLabel,
     durationBars,
     durationChange,
     durationText,
@@ -12,6 +13,7 @@
   } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
+  import BarTip from '../parts/BarTip.svelte';
   import BucketAxis from '../parts/BucketAxis.svelte';
   import ChangeBadge from '../parts/ChangeBadge.svelte';
   import WidgetBody from '../parts/WidgetBody.svelte';
@@ -75,11 +77,17 @@
         </div>
         <div class="hidden min-w-0 flex-1 flex-col gap-1 @3xl:flex">
           <div class="flex min-h-0 flex-1 items-end gap-0.5">
-            {#each bars as bar (bar.start)}
-              <div class="relative flex h-full min-w-0 flex-1 flex-col justify-end">
+            {#each bars as bar, index (bar.start)}
+              {@const figures = stats?.buckets[index]?.figures}
+              <BarTip class="relative flex h-full min-w-0 flex-1 flex-col justify-end">
                 <ChartSegment tone="muted" class="absolute inset-x-0 bottom-0" style="height: {bar.p95}%" />
                 <ChartSegment tone="info" class="relative" style="height: {bar.p50}%" />
-              </div>
+                {#snippet tip()}
+                  <span class="font-medium">{bucketLabel(bar.start, period.rangeAt().bucket, period.timeZone ?? 'UTC')}</span>
+                  <span>{t(messages.p50Median)} {durationText(figures?.p50Duration ?? null)}</span>
+                  <span class="text-muted-foreground">{t(messages.p95)} {durationText(figures?.p95Duration ?? null)}</span>
+                {/snippet}
+              </BarTip>
             {/each}
           </div>
           {#if axis}

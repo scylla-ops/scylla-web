@@ -96,7 +96,7 @@
       <RunDurationWidget {widgets} period={dashboardPeriod} />
       <RightNowWidget {widgets} />
       <NeedsYouWidget {widgets} period={dashboardPeriod} />
-      <PipelinesWidget {widgets} />
+      <PipelinesWidget {widgets} timeZone={dashboardPeriod.timeZone ?? 'UTC'} />
       <ActivityWidget {widgets} period={dashboardPeriod} />
       <QuickActionsWidget {widgets} />
     </WidgetGrid>

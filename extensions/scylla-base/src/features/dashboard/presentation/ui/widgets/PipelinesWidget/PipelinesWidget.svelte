@@ -6,18 +6,20 @@
   import { pipelineRows } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import { PIPELINE_RUNS, type DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { openPipelineJobs } from '../widget-navigation.ts';
+  import BarTip from '../parts/BarTip.svelte';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
     widgets: DashboardWidgets;
+    timeZone?: string;
   }
 
-  let { widgets }: Props = $props();
+  let { widgets, timeZone = 'UTC' }: Props = $props();
 
   const MAX_ROWS = 10;
 
   const list = $derived(widgets.summaries.data);
-  const rows = $derived(pipelineRows(list?.items.slice(0, MAX_ROWS) ?? [], PIPELINE_RUNS));
+  const rows = $derived(pipelineRows(list?.items.slice(0, MAX_ROWS) ?? [], PIPELINE_RUNS, timeZone));
 </script>
 
 {#snippet aside()}
@@ -69,8 +71,19 @@
             </td>
             <td class="hidden @3xl:table-cell">
               <span class="flex h-3.5 items-stretch gap-px">
-                {#each row.strip as tone, index (index)}
-                  <ChartSegment {tone} class="w-1.5" />
+                {#each row.runs as run, index (index)}
+                  <BarTip class="flex">
+                    <ChartSegment tone={run.tone} class="w-1.5" />
+                    {#snippet tip()}
+                      <span class="inline-flex items-center gap-1.5">
+                        <ChartDot tone={run.tone} />
+                        <span class="font-mono">{run.shortId}</span>
+                        <span class="text-muted-foreground">{run.status}</span>
+                      </span>
+                      {#if run.branch}<span class="text-muted-foreground">{run.branch}</span>{/if}
+                      <span>{run.duration} · {run.when}</span>
+                    {/snippet}
+                  </BarTip>
                 {/each}
               </span>
             </td>
