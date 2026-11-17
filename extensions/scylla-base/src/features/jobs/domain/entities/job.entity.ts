@@ -112,6 +112,19 @@ export interface JobFilter {
   pullRequest?: number;
 }
 
+/** The newest jobs of a workspace that match each field that is set. */
+export interface NewestJobsQuery {
+  workspaceId: string;
+  /** Empty or unset: each status. */
+  statuses?: Exclude<JobStatus, 'unknown'>[];
+  /** Only the jobs created at this time or later. */
+  createdAfter?: Date;
+  /** Only the jobs created before this time. */
+  createdBefore?: Date;
+  /** At most 100. */
+  limit: number;
+}
+
 /** `unknown`: an outcome newer than this build. */
 export type NodeExecutionState =
   | 'pending'

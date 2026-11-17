@@ -3,13 +3,17 @@ import type {
   JobEntity,
   JobFilter,
   JobLogStream,
+  NewestJobsQuery,
 } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type { JobStats, JobStatsQuery } from '@base/features/jobs/domain/structs/job-stats.struct.ts';
+import { Timestamp } from '@base/generated/google/protobuf/timestamp.ts';
 import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
 import { JobView } from '@base/generated/scylla/pipelines/v1/job_service.ts';
 import type { Job } from '@base/generated/scylla/pipelines/v1/job.ts';
 import { idValue, required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import { DEFAULT_PAGE_SIZE, type PaginationParams, type PaginatedList } from '@scylla/ui/structs';
 import * as grpcJob from './grpc-job.mapper.ts';
+import * as grpcJobStats from './grpc-job-stats.mapper.ts';
 
 const PAGE_SIZE = 100;
 const FIRST_PAGE: PaginationParams = { page: 1, pageSize: DEFAULT_PAGE_SIZE };
@@ -62,6 +66,28 @@ export class DefaultJobsRepository implements JobsRepository {
       return { jobs: response.jobs, next: response.page?.nextToken ?? '' };
     });
     return grpcJob.toDomainPage(jobs, pagination);
+  }
+
+  public async getNewestByWorkspaceId(query: NewestJobsQuery): Promise<JobEntity[]> {
+    const response = await this.client.listWorkspaceJobs({
+      workspaceId: wrapId(query.workspaceId),
+      projectIds: [],
+      pipelineIds: [],
+      page: { size: query.limit, token: '' },
+      filter: {
+        ...grpcJob.filterToProto({}),
+        statuses: (query.statuses ?? []).map(grpcJob.statusToProto),
+        ...(query.createdAfter && { createdAfter: Timestamp.fromDate(query.createdAfter) }),
+        ...(query.createdBefore && { createdBefore: Timestamp.fromDate(query.createdBefore) }),
+      },
+      view: JobView.SUMMARY,
+    }).response;
+    return response.jobs.map(grpcJob.toDomain);
+  }
+
+  public async getStats(query: JobStatsQuery): Promise<JobStats> {
+    const response = await this.client.getJobStats(grpcJobStats.queryToProto(query)).response;
+    return grpcJobStats.toDomain(response);
   }
 
   public async getById(jobId: string): Promise<JobEntity> {

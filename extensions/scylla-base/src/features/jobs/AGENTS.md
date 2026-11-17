@@ -17,11 +17,16 @@ Pipeline runs: their status, their logs, and the live tail of both.
 ```typescript
 type JobEntity
 type JobEvent, JobFilter              ← the filters of a list of jobs
+type NewestJobsQuery                  ← the newest jobs of a workspace, by status and period
+type JobStats, JobFigures, JobOutcomes, JobBucket, JobGroup, JobStatsQuery,
+     JobStatsBucketSize, JobStatsGroupBy, JobStatsOrder   ← the figures of GetJobStats
+decidedJobs, successRate, successRateChange               ← the rules of the success rate
 type JobLog, JobLogStream
 type JobsSummary, JobStatus
 summarizeJobs, isActiveStatus, isFinishedStatus
 JOBS_QUERY_KEY, WORKSPACE_JOBS_QUERY_KEY, JOBS_QUERY_ROOT
 jobQueries, asJobFeed, WORKSPACE_JOBS_WINDOW
+type PeriodScope, JobStatsShape, NewestJobsShape   ← the inputs of jobQueries.stats / .newest
 jobsByPipelinesQueries, type PipelineHistory   ← the history of the pipelines list (30 jobs each)
 loadJobsPage                          ← a loader, not the page
 ```
@@ -51,6 +56,8 @@ Never add: `jobs.module.ts`, and never export a `.svelte` component from this ba
 |---|---|
 | `getByPipelineId(id, pagination?, filter?)` | paginated `JobEntity` list, only the jobs that match the filter |
 | `getByWorkspaceId(...)` | paginated `JobEntity` list |
+| `getNewestByWorkspaceId(query)` | `JobEntity[]` — one page, newest first, `JOB_VIEW_SUMMARY` (no node) |
+| `getStats(query)` | `JobStats` — `GetJobStats`: totals, buckets, groups, previous period |
 | `getById(jobId)` | `JobEntity` |
 | `deleteById(jobId)` | `void` |
 | `rerun(jobId)` | `string` — the id of the new job |
@@ -75,7 +82,9 @@ Each method rejects with a `ScyllaError` on failure. Reach it from `jobs.queries
 jobs.module.ts                       DI wiring + the job details route (no nav)
 index.ts                             public API
 domain/
-  entities/job.entity.ts             JobEntity, JobFilter, JobEvent, JobNodeExecution,
+  structs/job-stats.struct.ts        JobStats and its parts, JobStatsQuery, successRate,
+                                     successRateChange (pure, tested)
+  entities/job.entity.ts             JobEntity, JobFilter, NewestJobsQuery, JobEvent, JobNodeExecution,
                                      NodeExecutionState, JobLog, JobLogStream, and the Git
                                      context: JobSource, JobApproval, PipelineFileRef,
                                      PipelineFileError, JobCheckout
@@ -83,6 +92,7 @@ domain/
 infrastructure/
   default-jobs.repository.ts       JobServiceClient → JobEntity; tailLogs maps the stream
   grpc-job.mapper.ts
+  grpc-job-stats.mapper.ts         JobStatsQuery → GetJobStatsRequest, the figures → JobStats
 presentation/
   jobs.query-keys.ts                 key factories — import these, never inline a key
   jobs.queries.ts                    every read and write, as query/mutation options
@@ -194,6 +204,20 @@ paths.
   components, so a message declared there vanishes from the catalogs without failing a gate.
 - **`data-tour` attributes are anchors of the onboarding tour** (`job-details` on the job page). Keep them on the same
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
+
+## The figures of the jobs (`GetJobStats`)
+
+- **The success rate is completed / (completed + failed + orphaned).** A cancelled job does not
+  count. No such job gives `null`, not 0 %. `successRateChange` gives the change in points.
+- **`jobQueries.stats` and `jobQueries.newest` read a period when they run.** The caller gives a
+  `PeriodScope`: `scope` goes in the key (the name of the period), `range()` gives the instants
+  in `queryFn`. The instants of a preset move with the clock: in a key, they make a new cache
+  entry for each render.
+- **The keys are under `['jobs', 'workspace', id]`**, thus a run or a cancel that invalidates
+  `JOBS_QUERY_ROOT` also refreshes the figures.
+- **A group by origin has no id.** The domain does not ask for it, and the mapper drops it.
+- The server needs the same permission as the jobs of the workspace: gate on
+  `LIST_JOBS_BY_WORKSPACE`.
 
 ## The Git context of a job
 

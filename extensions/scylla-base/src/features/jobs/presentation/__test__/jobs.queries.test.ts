@@ -42,6 +42,8 @@ beforeEach(() => {
   repository = {
     getByPipelineId: vi.fn().mockResolvedValue(page([job()])),
     getByWorkspaceId: vi.fn().mockResolvedValue(page([job()])),
+    getNewestByWorkspaceId: vi.fn().mockResolvedValue([job()]),
+    getStats: vi.fn().mockResolvedValue({ totals: {}, buckets: [], groups: [], previous: null }),
     getById: vi.fn().mockResolvedValue(job()),
     deleteById: vi.fn().mockResolvedValue(undefined),
     rerun: vi.fn().mockResolvedValue('job-2'),
@@ -154,6 +156,81 @@ describe('jobQueries.byWorkspace', () => {
 
   it('stays idle when the caller disables it, valid workspace or not', () => {
     expect(jobQueries.byWorkspace('org-1', false).enabled).toBe(false);
+  });
+});
+
+describe('jobQueries.stats', () => {
+  const FROM = new Date('2026-11-03T23:00:00Z');
+
+  it('puts the name of the period in the key, and reads its instants when it runs', async () => {
+    const range = vi.fn(() => ({ from: FROM, to: null, bucket: 'day' as const }));
+    const options = jobQueries.stats('org-1', { scope: ['14d', 'Europe/Paris'], range }, {
+      compare: true,
+    });
+
+    expect(options.queryKey).toEqual([
+      'jobs',
+      'workspace',
+      'org-1',
+      'stats',
+      '14d',
+      'Europe/Paris',
+      { compare: true },
+    ]);
+    expect(range).not.toHaveBeenCalled();
+
+    await runQueryFn(options);
+
+    expect(repository.getStats).toHaveBeenCalledWith({
+      workspaceId: 'org-1',
+      from: FROM,
+      to: null,
+      bucket: 'day',
+      compare: true,
+    });
+  });
+
+  it('sits under the jobs root, so that a run refreshes the figures', () => {
+    const options = jobQueries.stats('org-1', { scope: ['7d'], range: () => ({ from: FROM, to: null }) });
+
+    expect(options.queryKey.slice(0, JOBS_QUERY_ROOT.length)).toEqual([...JOBS_QUERY_ROOT]);
+  });
+
+  it('stays idle with no workspace', () => {
+    expect(
+      jobQueries.stats(null, { scope: [], range: () => ({ from: FROM, to: null }) }).enabled,
+    ).toBe(false);
+  });
+});
+
+describe('jobQueries.newest', () => {
+  it('reads the jobs of the statuses, in the period when it has one', async () => {
+    const to = new Date('2026-11-10T00:00:00Z');
+    await runQueryFn(
+      jobQueries.newest(
+        'org-1',
+        { statuses: ['failed'], limit: 10 },
+        { period: { scope: ['custom'], range: () => ({ from: new Date(0), to }) } },
+      ),
+    );
+
+    expect(repository.getNewestByWorkspaceId).toHaveBeenCalledWith({
+      workspaceId: 'org-1',
+      statuses: ['failed'],
+      limit: 10,
+      createdAfter: new Date(0),
+      createdBefore: to,
+    });
+  });
+
+  it('reads all the jobs with no period', async () => {
+    await runQueryFn(jobQueries.newest('org-1', { statuses: ['running'], limit: 5 }));
+
+    expect(repository.getNewestByWorkspaceId).toHaveBeenCalledWith({
+      workspaceId: 'org-1',
+      statuses: ['running'],
+      limit: 5,
+    });
   });
 });
 

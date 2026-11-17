@@ -2,7 +2,9 @@ import type {
   JobEntity,
   JobFilter,
   JobLogStream,
+  NewestJobsQuery,
 } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type { JobStats, JobStatsQuery } from '@base/features/jobs/domain/structs/job-stats.struct.ts';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 
 export interface JobsRepository {
@@ -16,6 +18,10 @@ export interface JobsRepository {
     workspaceId: string,
     pagination?: PaginationParams,
   ): Promise<PaginatedList<JobEntity>>;
+  /** One page, newest first, with no node: the state of the runs only. */
+  getNewestByWorkspaceId(query: NewestJobsQuery): Promise<JobEntity[]>;
+  /** The figures of the jobs of a period, computed by the server. */
+  getStats(query: JobStatsQuery): Promise<JobStats>;
   getById(jobId: string): Promise<JobEntity>;
   deleteById(jobId: string): Promise<void>;
   rerun(jobId: string): Promise<string>;
