@@ -25,6 +25,10 @@ msgstr "{selectedCount, plural, one {# selected} other {# selected}}"
 msgid "{start}–{end} of {totalCount}"
 msgstr "{start}–{end} of {totalCount}"
 
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:9
+msgid "All clear"
+msgstr "All clear"
+
 #: packages/ui/src/feedback/ErrorState/error-state.messages.ts:5
 msgid "An error occurred"
 msgstr "An error occurred"
@@ -32,6 +36,10 @@ msgstr "An error occurred"
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:4
 msgid "Are you absolutely sure?"
 msgstr "Are you absolutely sure?"
+
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:12
+msgid "Ask an admin for access."
+msgstr "Ask an admin for access."
 
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:6
 #: packages/ui/src/forms/FormDialog/form-dialog.messages.ts:4
@@ -71,6 +79,10 @@ msgstr "Copy"
 msgid "Copy your secret"
 msgstr "Copy your secret"
 
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:5
+msgid "Could not load"
+msgstr "Could not load"
+
 #: packages/ui/src/forms/FormDialog/form-dialog.messages.ts:5
 msgid "Create"
 msgstr "Create"
@@ -103,6 +115,14 @@ msgstr "Go to next page"
 msgid "Go to previous page"
 msgstr "Go to previous page"
 
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:14
+msgid "It was deleted, or you cannot see it any more."
+msgstr "It was deleted, or you cannot see it any more."
+
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:4
+msgid "Loading"
+msgstr "Loading"
+
 #: packages/ui/src/controls/SearchSelect/search-select.messages.ts:5
 msgid "Loading…"
 msgstr "Loading…"
@@ -111,6 +131,10 @@ msgstr "Loading…"
 msgid "New {label}"
 msgstr "New {label}"
 
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:8
+msgid "No data matches the period or the scope of this widget."
+msgstr "No data matches the period or the scope of this widget."
+
 #: packages/ui/src/controls/SearchSelect/search-select.messages.ts:4
 msgid "No match"
 msgstr "No match"
@@ -118,6 +142,14 @@ msgstr "No match"
 #: packages/ui/src/data-display/DataTable/data-table.messages.ts:4
 msgid "No results."
 msgstr "No results."
+
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:10
+msgid "Nothing needs you now."
+msgstr "Nothing needs you now."
+
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:7
+msgid "Nothing to show"
+msgstr "Nothing to show"
 
 #: packages/ui/src/data-display/Pagination/pagination.messages.ts:6
 msgid "Page {page} of {totalPages}"
@@ -163,9 +195,21 @@ msgstr "Sidebar"
 msgid "The browser did not let the page write to the clipboard."
 msgstr "The browser did not let the page write to the clipboard."
 
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:6
+msgid "The server did not answer."
+msgstr "The server did not answer."
+
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:5
 msgid "This action cannot be undone."
 msgstr "This action cannot be undone."
+
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:13
+msgid "This item is gone"
+msgstr "This item is gone"
+
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:11
+msgid "You cannot see this data"
+msgstr "You cannot see this data"
 
 #: packages/ui/src/controls/GatedButton/gated-button.messages.ts:4
 #: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:8

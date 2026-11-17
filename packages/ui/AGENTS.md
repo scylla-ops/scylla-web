@@ -18,7 +18,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 
 | Import | What |
 |---|---|
-| `@scylla/ui` | the composites (`DataTable`, `ScyllaDialog`, `FeatureHeader`, `ScyllaForm`, …) and `LucideIcon` |
+| `@scylla/ui` | the composites (`DataTable`, `ScyllaDialog`, `FeatureHeader`, `ScyllaForm`, `Widget`, `Chart*`, …) and `LucideIcon` |
 | `@scylla/ui/primitives` | the primitives on bits-ui, adapted from shadcn/ui |
 | `@scylla/ui/state` | rune states: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
@@ -33,6 +33,8 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 ```
 src/
   index.ts                 `@scylla/ui` — re-exports the groups below
+  chart/                   ChartSegment, ChartDot, ChartLegendItem, ChartDelta, ChartHeatCell,
+                           ChartSlot, ChartRing: the marks of the charts of a widget
   controls/                IconButton, GatedButton, SearchSelect, SegmentedControl
   data-display/            DataTable, Pagination, PaginationSlot, StatusShape, StatusTrail,
                            CopyableText, TruncatedText
@@ -40,6 +42,7 @@ src/
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
   layout/                  FeatureHeader, ContextItem, DangerZone, PageTransition,
                            ScyllaLoadingScreen
+  widget/                  Widget, WidgetGrid, WidgetState: the frame of a dashboard widget
   motion/                  page transitions, reduced motion, a spring easing
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
                            frame, for an editor that fills a pane with its own borders)
@@ -102,6 +105,9 @@ catalogs of this package register themselves.
 | A store | `createStore` from `@scylla/ui/stores`; rune code reads it with `toRune(store)` |
 | Translating | `t()` from `@scylla/ui/i18n`, over a `*.messages.ts` |
 | A page transition | `PageTransition` — the core's router already wraps every page in it |
+| A dashboard: a grid of widgets | `WidgetGrid` around `Widget`s (`size`: `xs`, `s`, `m`, `l`). See "Widgets" |
+| A widget with no data to draw (loading, error, empty, all clear, locked, missing) | `WidgetState` inside the `Widget`, with the same `size` |
+| A mark of a chart: a bar, a legend, a change, a ring | The `Chart*` parts. See "Charts" |
 | Panels the user can resize | `ResizablePaneGroup`, `ResizablePane`, `ResizableHandle` (`@scylla/ui/primitives`, on paneforge). See "`resizable`" below |
 | A card that opens on hover and holds links | `HoverCard`, `HoverCardTrigger`, `HoverCardContent` (bits-ui `LinkPreview`). A `Tooltip` holds text only: it must not hold a link. See "`hover-card`" below |
 
@@ -345,6 +351,49 @@ Space). The selected background is not on the segment: it is one thumb under the
 - **A dot with `pulse`** grows a ring when its count grows.
 - `prefers-reduced-motion`: no stretch, no bounce, no roll and no pulse. The thumb slides in
   150 ms and the colors change in 150 ms.
+
+## Widgets
+
+The design is the page "Dashboard · widget set (proposal)" of the design file (node `1686:339`).
+The Figma copies of `Widget`, `WidgetState` and `Chart/*` are local copies there, until the
+library "scylla :: ui" publishes its page Widget.
+
+- **The grid has 8 columns, or 2 columns below 768 px of its own width.** `WidgetGrid` is a
+  container (`@container`), and the classes use the container variant `@3xl:`, not the viewport.
+  The sidebar takes part of the screen, thus the viewport does not tell the room of the grid.
+- **The numbers are in `widget-size.ts`, in one place.** `WIDGET_GRID` gives the columns, the
+  row height and the gap of each layout: 98 px rows and 16 px gaps (wide), 80 px rows and 12 px
+  gaps (narrow). `WIDGET_SPANS` gives the cells of each size. The components read them through
+  CSS variables (`widgetGridStyle`, `widgetSpanStyle`) and the classes `col-span-(--…)`. Do not
+  write a span or a row height as a literal class.
+- **A widget places itself.** `Widget` sets its own span from its `size`. `grid-flow-row-dense`
+  fills a hole with a later small widget.
+- **A widget has a border and no fill**: no `bg-card`, no shadow. It is a limit, not a card.
+- **The header is one line of 20 px**: the icon, the title (an `h3`), `meta` and `aside` at the
+  end. `aside` holds a count, a state or actions. In the size `xs` the header is small (12 px
+  text), and the content is centered under it.
+- **The size of a phone is not the size of the design for `l`.** The design draws `l` 370 px
+  high on a phone. Four rows of 80 px and three gaps give 356 px.
+- **`WidgetState` replaces the content, not the widget.** The header stays: the user still sees
+  which widget it is. Each state has a generic title and description; a widget gives its own
+  texts (`title`, `description`). The action (Retry, Choose data) does not show in the size
+  `xs`. `loading` is a `status` with a skeleton for each size.
+
+## Charts
+
+The `Chart*` parts are marks, not charts: the widget draws its chart with them.
+
+- **`ChartTone`** names a color: the states of a run (`passed`, `failed`, `running`, `queued`,
+  `canceled`, `skipped`) and `primary`, `info`, `warning`, `muted`. `chart-tone.ts` maps it to
+  the theme tokens. Do not give a mark a color class of its own.
+- **`ChartSegment` takes its size from the caller** (`class`): a bar, a part of a stacked bar,
+  the fill of a meter, a cell of a strip.
+- **`ChartDelta` does not compute.** The widget gives the text ("+3.4 pts"), the direction and
+  the tone. `deltaTrend(change, better)` gives the direction and the tone from a change.
+- **`ChartRing` holds at most 3 arcs** over a muted track. `ringArcs` (plain TypeScript, tested
+  in node) places them: a gap after each arc when there are several, a minimum length so that a
+  small part stays visible. The value in the middle is HTML over the SVG, not an SVG `text`.
+  `label` is the accessible name of the ring.
 
 ## `DataTable` on a phone
 
