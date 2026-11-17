@@ -18,6 +18,9 @@ type PipelineMetadata, PipelineNodeEntity, PipelineIdentity
 PIPELINES_QUERY_KEY, WORKSPACE_PIPELINES_QUERY_KEY, PIPELINES_QUERY_ROOT
 CREATE_PIPELINE_MUTATION_KEY, RUN_PIPELINE_MUTATION_KEY   // onboarding follows these writes
 pipelineQueries                // Query options factories
+type PipelineSummary, PipelineSummaryList, PipelineHealth, PipelineSummaryOrder,
+     PipelineTriggerKind, RecentRun    // ListPipelineSummaries, for the dashboard
+recentSuccessRate              // completed / (completed + failed) of the recent jobs
 asPipelineFeed                 // a page of metadata → the list, and whether it is partial
 ```
 
@@ -32,6 +35,7 @@ not through the barrel.
 |---|---|
 | `getMetadataByProjectId(...)` | paginated `PipelineMetadata`, each with its `origin` |
 | `getMetadataByWorkspaceId(...)` | paginated `PipelineMetadata`, each with its `origin` |
+| `getSummaries(query)` | `PipelineSummaryList`: one page of `ListPipelineSummaries`, with the counts of all the pages |
 | `getById(id)` | `PipelineEntity` (full, with nodes) |
 | `getWithLayout(id)` | `PipelineWithLayout`: the entity, the places of its nodes and its `origin` |
 | `saveLayout(id, layout)` | `void`: the places only, with no new version of the pipeline |
@@ -84,6 +88,8 @@ domain/
   structs/node-id.struct.ts                  NodeId: the id rule of the server (nodeIdIssue, toNodeId)
   structs/pipeline-name.struct.ts            PipelineNameIssue, pipelineNameIssue
   structs/pipeline-layout.struct.ts          NodePlace, PipelineLayout, the limits of the server, mergeLayouts
+  structs/pipeline-summary.struct.ts         PipelineSummary (the server computes it), PipelineSummaryQuery,
+                                             recentSuccessRate
   structs/pipeline-file-format.struct.ts     PipelineFileFormat (toml, yaml, json), PIPELINE_FILE_FORMATS
   structs/pipeline-file.struct.ts            PipelineFile, FileError, FileRules, CheckoutSettings,
                                              blockingErrors (a warning keeps a file valid)
@@ -96,6 +102,7 @@ infrastructure/
   default-node-template.repository.ts        BUILT_IN_NODE_TEMPLATES
   grpc-pipeline.mapper.ts                    also originOf: the source, the file and its state
   grpc-pipeline-file.mapper.ts               PipelineFile ↔ the proto, refToProto
+  grpc-pipeline-summary.mapper.ts            ListPipelineSummaries → PipelineSummaryList, healthOf
 presentation/
   pipeline.commands.ts                       create, jobs and edit, for the search bar
   pipeline.queries.ts                        TanStack Query options factories
@@ -211,6 +218,12 @@ and this module links to it with `scyllaNavigate.goToJobDetails(...)`, never by 
 the page.
 
 ## Rules that bite here
+
+- **`pipelineQueries.summaries` is one call for the dashboard**, in place of one
+  `ListPipelineJobs` call for each pipeline. Its key is under `['pipelines', 'workspace', id]`.
+  The server needs the same permission as the list of the workspace pipelines: gate on
+  `LIST_PIPELINES_BY_WORKSPACE`. The health is the last ended job of the default branch:
+  `green` when it completed, `red` for another end, `none` when no job ended.
 
 - **`pipelineQueries.byId` does not refetch on a focus or on a reconnect.** It is the document of
   the editor. A new document replaces the draft (`pipeline-document.state.svelte.ts`), and a new
