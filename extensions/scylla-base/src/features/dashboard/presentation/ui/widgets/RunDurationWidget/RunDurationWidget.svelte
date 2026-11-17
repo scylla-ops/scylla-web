@@ -79,7 +79,7 @@
           <div class="flex min-h-0 flex-1 items-end gap-0.5">
             {#each bars as bar, index (bar.start)}
               {@const figures = stats?.buckets[index]?.figures}
-              <BarTip class="relative flex h-full min-w-0 flex-1 flex-col justify-end">
+              <BarTip class="flex h-full min-w-0 flex-1 flex-col justify-end" top={Math.max(bar.p95, bar.p50)}>
                 {#if bar.p95 > 0}<ChartSegment tone="muted" class="absolute inset-x-0 bottom-0" style="height: {bar.p95}%" />{/if}
                 {#if bar.p50 > 0}<ChartSegment tone="info" class="relative" style="height: {bar.p50}%" />{/if}
                 {#snippet tip()}

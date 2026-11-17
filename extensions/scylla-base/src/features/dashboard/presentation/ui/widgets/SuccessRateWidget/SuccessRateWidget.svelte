@@ -94,7 +94,7 @@
           <div class="flex min-h-0 flex-1 items-end gap-0.5">
             {#each bars as bar, index (bar.start)}
               {@const figures = stats?.buckets[index]?.figures.outcomes}
-              <BarTip class="flex h-full min-w-0 flex-1 flex-col-reverse gap-px">
+              <BarTip class="flex h-full min-w-0 flex-1 flex-col-reverse gap-px" top={bar.completed + bar.failed + bar.orphaned}>
                 {#if bar.completed > 0}<ChartSegment tone="passed" style="height: {bar.completed}%" />{/if}
                 {#if bar.failed > 0}<ChartSegment tone="failed" style="height: {bar.failed}%" />{/if}
                 {#if bar.orphaned > 0}<ChartSegment tone="canceled" style="height: {bar.orphaned}%" />{/if}
