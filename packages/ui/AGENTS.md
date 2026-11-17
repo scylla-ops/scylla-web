@@ -372,6 +372,8 @@ library "scylla :: ui" publishes its page Widget.
 - **The header is one line of 20 px**: the icon, the title (an `h3`), `meta` and `aside` at the
   end. `aside` holds a count, a state or actions. In the size `xs` the header is small (12 px
   text), and the content is centered under it.
+- **`editing` puts the controls of the edit mode over the card** (sizes, Remove). The card
+  keeps its size and content under a veil, so the user sees what he changes.
 - **The size of a phone is not the size of the design for `l`.** The design draws `l` 370 px
   high on a phone. Four rows of 80 px and three gaps give 356 px.
 - **`WidgetState` replaces the content, not the widget.** The header stays: the user still sees
