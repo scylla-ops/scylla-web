@@ -205,6 +205,8 @@ describe('DashboardPage', () => {
 });
 
 describe('DashboardPanel', () => {
+  const panel = () => within(document.querySelector('[data-slot="dashboard-panel"]') as HTMLElement);
+
   it('says which time zone the times use', async () => {
     render(DashboardWithPanel);
 
@@ -215,28 +217,29 @@ describe('DashboardPanel', () => {
     const user = userEvent.setup();
     render(DashboardWithPanel);
 
-    expect(await screen.findByRole('radio', { name: '14 d' })).toHaveAttribute('aria-checked', 'true');
+    expect(await panel().findByRole('radio', { name: '14 d' })).toHaveAttribute('aria-checked', 'true');
     await vi.waitFor(() => expect(getStats).toHaveBeenCalled());
 
-    await user.click(screen.getByRole('radio', { name: '24 h' }));
+    await user.click(panel().getByRole('radio', { name: '24 h' }));
 
     await vi.waitFor(() =>
       expect(getStats).toHaveBeenLastCalledWith(expect.objectContaining({ bucket: 'hour' })),
     );
     expect(navigate).toHaveBeenLastCalledWith('/?period=24h', { replace: true });
-    expect(screen.getByRole('radio', { name: '24 h' })).toHaveAttribute('aria-checked', 'true');
+    expect(panel().getByRole('radio', { name: '24 h' })).toHaveAttribute('aria-checked', 'true');
   });
 
   it('lists the dashboard with its Default mark, and the scope', async () => {
     render(DashboardWithPanel);
 
-    expect(await screen.findByText('Ops overview')).toBeInTheDocument();
-    expect(screen.getByText('Default')).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: 'Scope' })).toHaveTextContent('All projects');
+    expect(await panel().findByText('Ops overview')).toBeInTheDocument();
+    expect(panel().getByText('Default')).toBeInTheDocument();
+    expect(panel().getByRole('combobox', { name: 'Scope' })).toHaveTextContent('All projects');
   });
 });
 
 describe('The edit mode', () => {
+  const panel = () => within(document.querySelector('[data-slot="dashboard-panel"]') as HTMLElement);
   const storedSet = () => JSON.parse(stored.get('dashboards:org-1') ?? 'null') as {
     defaultId: string;
     dashboards: { id: string; name: string; widgets: { data: string; size: string }[] }[];
@@ -246,31 +249,31 @@ describe('The edit mode', () => {
     const user = userEvent.setup();
     render(DashboardWithPanel);
 
-    await user.click(await screen.findByRole('button', { name: 'Edit dashboard' }));
+    await user.click(await panel().findByRole('button', { name: 'Edit dashboard' }));
     await user.click(screen.getByRole('button', { name: 'Remove Success rate' }));
 
     expect(screen.queryByRole('region', { name: 'Success rate' })).not.toBeInTheDocument();
     expect(screen.getByText('1 change · not saved')).toBeInTheDocument();
     expect(storedSet()).toBeNull();
 
-    await user.click(screen.getByRole('button', { name: 'Save layout' }));
+    await user.click(panel().getByRole('button', { name: 'Save layout' }));
 
     await vi.waitFor(() => expect(storedSet()?.dashboards[0].widgets).toHaveLength(11));
     expect(storedSet()?.dashboards[0].widgets.some(widget => widget.data === 'success-rate')).toBe(false);
-    expect(screen.getByRole('button', { name: 'Edit dashboard' })).toBeInTheDocument();
+    expect(panel().getByRole('button', { name: 'Edit dashboard' })).toBeInTheDocument();
   });
 
   it('drops the draft on Cancel, and Undo takes back one change', async () => {
     const user = userEvent.setup();
     render(DashboardWithPanel);
 
-    await user.click(await screen.findByRole('button', { name: 'Edit dashboard' }));
+    await user.click(await panel().findByRole('button', { name: 'Edit dashboard' }));
     await user.click(screen.getByRole('button', { name: 'Remove Success rate' }));
-    await user.click(screen.getByRole('button', { name: 'Undo the last change' }));
+    await user.click(panel().getByRole('button', { name: 'Undo the last change' }));
     expect(screen.getByRole('region', { name: 'Success rate' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Remove Pipelines' }));
-    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    await user.click(panel().getByRole('button', { name: 'Cancel' }));
 
     expect(screen.getByRole('region', { name: 'Pipelines' })).toBeInTheDocument();
     expect(storedSet()).toBeNull();
@@ -280,7 +283,7 @@ describe('The edit mode', () => {
     const user = userEvent.setup();
     render(DashboardWithPanel);
 
-    await user.click(await screen.findByRole('button', { name: 'Edit dashboard' }));
+    await user.click(await panel().findByRole('button', { name: 'Edit dashboard' }));
     await user.click(screen.getByRole('button', { name: 'Success rate', pressed: false }));
     const sizes = screen.getByRole('radiogroup', { name: 'Size of Success rate' });
     expect(within(sizes).getByRole('radio', { name: 'L' })).toBeDisabled();
@@ -293,10 +296,10 @@ describe('The edit mode', () => {
     const user = userEvent.setup();
     render(DashboardWithPanel);
 
-    await user.click(await screen.findByRole('button', { name: 'Edit dashboard' }));
+    await user.click(await panel().findByRole('button', { name: 'Edit dashboard' }));
     await user.click(screen.getByRole('button', { name: 'Remove Pipelines' }));
-    await user.click(screen.getByRole('button', { name: 'Health' }));
-    await user.click(await findFloating('button', 'Add widget'));
+    await user.click(panel().getByRole('button', { name: 'Health' }));
+    await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Add widget' }));
 
     expect(await screen.findByRole('region', { name: 'Pipelines' })).toBeInTheDocument();
     expect(screen.getByText('2 changes · not saved')).toBeInTheDocument();
@@ -306,7 +309,7 @@ describe('The edit mode', () => {
     const user = userEvent.setup();
     render(DashboardWithPanel);
 
-    await user.click(await screen.findByRole('button', { name: 'New dashboard' }));
+    await user.click(await panel().findByRole('button', { name: 'New dashboard' }));
     await user.type(await screen.findByLabelText('Name'), 'Release day');
     await user.click(await findFloating('button', 'Create dashboard'));
 
@@ -317,6 +320,6 @@ describe('The edit mode', () => {
       'needs-you',
       'activity',
     ]);
-    expect(screen.getByRole('button', { name: 'Save layout' })).toBeInTheDocument();
+    expect(panel().getByRole('button', { name: 'Save layout' })).toBeInTheDocument();
   });
 });

@@ -9,7 +9,7 @@
     item: Pick<LayoutWidget, 'data' | 'size'>;
     widgets: DashboardWidgets;
     period: DashboardPeriodState;
-    /** The width of the box, in px: the widget scales down to it. */
+    /** The width of the box, in px, until the box is measured: the widget scales down to it. */
     width: number;
   }
 
@@ -17,12 +17,15 @@
 
   const PX = { xs: [268, 98], s: [268, 212], m: [552, 212], l: [552, 440] } as const;
 
+  let measured = $state(0);
+
   const box = $derived(PX[shownSize(item.data, item.size)]);
-  const scale = $derived(Math.min(1, (width - 48) / box[0]));
+  const scale = $derived(Math.min(1, ((measured || width) - 48) / box[0]));
 </script>
 
 <div
   data-slot="widget-preview"
+  bind:clientWidth={measured}
   class="flex items-center justify-center overflow-hidden rounded-xl bg-muted/60 p-6"
   style="height: {Math.round(box[1] * scale) + 48}px"
 >

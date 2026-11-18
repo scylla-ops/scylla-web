@@ -24,6 +24,7 @@
   import EditableWidget from '../DashboardEditor/EditableWidget.svelte';
   import NewDashboardDialog from '../DashboardEditor/NewDashboardDialog.svelte';
   import WidgetDrawer from '../DashboardEditor/WidgetDrawer.svelte';
+  import MobileBar from './MobileBar.svelte';
 
   const period = createDashboardPeriod();
   const widgets = createDashboardWidgets(period, () => dashboardView.projectId);
@@ -78,6 +79,10 @@
 
 <div class="flex w-full flex-col" data-editing={editing || undefined}>
   <h1 class="sr-only">{t(dashboardMessages.dashboard)}</h1>
+
+  {#if dashboard}
+    <MobileBar {dashboard} {dashboards} {period} {editing} />
+  {/if}
 
   {#if dashboard && items.length === 0 && !editing}
     <div class="flex flex-col items-center gap-1 rounded-2xl border border-dashed border-border px-4 py-16 text-center">

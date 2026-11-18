@@ -59,6 +59,7 @@ presentation/
   ui/dashboard-editor.state.svelte.ts   the edit mode: the draft, the undo, the selection, the drag
   ui/DashboardPanel/                    ViewPanel (dashboards, period, scope, Edit dashboard) and
                                         EditPanel (the palette, the changes, Cancel, Save layout)
+  ui/Dashboard/MobileBar.svelte         the controls of the page on a phone
   ui/DashboardEditor/                   DashboardWidget (data → component), EditableWidget (handles,
                                         toolbar, resize), AddWidgetDialog, WidgetDrawer,
                                         NewDashboardDialog, RenameDialog, previews and thumbnails
@@ -179,6 +180,9 @@ a widget), `1527:8165` (widget data), `1529:8782` (layouts), `1529:9001` (new la
   the others. A stored size that the widget cannot show becomes its first size.
 - **A new dashboard** starts from a template (Calm, Bento, Blank) or a copy of the open one,
   and opens in the edit mode.
+- **On a phone, the shell hides the panel.** `MobileBar` (under 768 px) gives the dashboard, the
+  period and Edit; in the edit mode, Cancel, the changes, Save layout and a floating "Add
+  widget". The design draws bottom sheets for the dialogs: they are centred dialogs today.
 - **Not done yet:** sharing a dashboard (the section "Shared", "Who can see it"), a period or a
   scope for one widget, the filters, the thresholds, and the keyboard shortcuts.
 
