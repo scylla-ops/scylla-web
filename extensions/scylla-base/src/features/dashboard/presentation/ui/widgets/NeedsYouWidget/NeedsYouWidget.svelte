@@ -115,7 +115,7 @@
         {@render more()}
       </div>
     {:else if size === 'm'}
-      <ul data-part="needs-you" class="grid min-h-0 flex-1 grid-cols-2">
+      <ul data-part="needs-you" class="grid grid-cols-2">
         {#each shown as item (item.jobId)}
           <li class="flex min-w-0 flex-col gap-0.5 border-l border-border px-5 first:border-l-0 first:pl-0 last:pr-0">
             {@render status(item, true)}
