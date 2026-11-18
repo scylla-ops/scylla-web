@@ -210,7 +210,7 @@ describe('DashboardPage', () => {
     expect(widget).toHaveAttribute('data-size', 's');
     expect(widget.closest('[data-slot="widget-grid"]')).not.toBeNull();
     expect(await within(widget).findByText('89%')).toBeInTheDocument();
-    expect(within(widget).getByText('14 d')).toBeInTheDocument();
+    expect(within(widget).getByText('14 days')).toBeInTheDocument();
   });
 
   it('counts what needs the user in the sentence', async () => {
