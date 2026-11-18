@@ -47,6 +47,12 @@ export const viewMessages = {
   approvalSince: (when: string) => msg`Waits for an approval · ${when}`,
   jobOf: (id: string) => msg`Job ${id}`,
   approvalText: msg`A job from a fork waits for a review before it runs.`,
+  failedSentence: (name: string, when: string) =>
+    msg({ context: 'attention', message: `${name} failed ${when}` }),
+  orphanedSentence: (name: string, when: string) =>
+    msg({ context: 'attention', message: `${name} lost its agent ${when}` }),
+  approvalSentence: (name: string) =>
+    msg({ context: 'attention', message: `${name} waits for an approval` }),
   perDay: (value: string) => msg`${value} per day`,
   perHour: (value: string) => msg`${value} per hour`,
   perWeek: (value: string) => msg`${value} per week`,

@@ -46,6 +46,13 @@
     return t(messages.approvalSince(when));
   };
 
+  const sentence = (item: AttentionItem): string => {
+    const when = getRelativeTime(item.at);
+    if (item.kind === 'failed') return t(messages.failedSentence(item.pipelineName, when));
+    if (item.kind === 'orphaned') return t(messages.orphanedSentence(item.pipelineName, when));
+    return t(messages.approvalSentence(item.pipelineName));
+  };
+
   const reason = (item: AttentionItem): string =>
     item.kind === 'approval'
       ? t(messages.approvalText)
@@ -103,7 +110,7 @@
         </p>
         <div class="min-w-0">
           <p class="text-sm font-medium">{t(widgetMessages.needsYou)}</p>
-          <p class="truncate text-xs text-muted-foreground">{shown[0].pipelineName} · {statusLine(shown[0])}</p>
+          <p class="truncate text-xs text-muted-foreground">{sentence(shown[0])}</p>
         </div>
       </div>
     {:else if size === 's'}
