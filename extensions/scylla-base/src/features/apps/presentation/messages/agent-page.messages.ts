@@ -56,6 +56,7 @@ export const agentPageMessages = {
   hostname: msg`Hostname`,
   system: msg`System`,
   agentVersion: msg`Agent version`,
+  serverVersion: msg`Server version`,
   cpus: msg`CPUs`,
   memory: msg`Memory`,
   jobsAtOnce: msg`Jobs at once`,
@@ -63,16 +64,10 @@ export const agentPageMessages = {
   noRuntime: msg`None`,
   newVersion: (agent: string, server: string) =>
     msg`This agent has version ${agent}. The server has version ${server}.`,
-  protocol: msg`Agent protocol`,
   features: msg`Features`,
   noFeature: msg`None`,
-  missingFeatures: msg`Missing features`,
   installGit: msg`Install Git on this machine`,
   updateForFeature: msg`Update the agent`,
-  protocolOutdated: (agent: number, server: number) =>
-    msg`This agent has the protocol ${agent}. The server has the protocol ${server}. The agent runs only the jobs that it can run until you update it.`,
-  protocolRefused: (agent: number, min: number) =>
-    msg`This agent has the protocol ${agent}. The server needs at least the protocol ${min} and refuses the agent until you update it.`,
   installedWithScript: msg`Installed with the script`,
   runsInDocker: msg`Runs in Docker`,
   updateInDocker: msg`Runs in Docker. Use the options and the volume of your first command.`,

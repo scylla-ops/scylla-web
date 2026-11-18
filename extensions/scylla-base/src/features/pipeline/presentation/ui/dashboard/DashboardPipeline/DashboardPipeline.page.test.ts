@@ -198,6 +198,19 @@ describe('DashboardPipelinePage', () => {
     expect(screen.getByText('No run yet')).toBeInTheDocument();
   });
 
+  it('starts the bars of the history at the left edge, and centers the notice of no run', async () => {
+    setUp(() => Promise.resolve(page(pipelines)));
+
+    const bar = await screen.findByRole('button', { name: 'Job job-7: Success' });
+
+    expect(bar.parentElement).toHaveClass('justify-start');
+    expect(bar.parentElement).not.toHaveClass('justify-center');
+    expect(screen.getByText('No run yet').parentElement).toHaveClass(
+      'items-center',
+      'justify-center',
+    );
+  });
+
   it('opens a job from its bar in the history', async () => {
     setUp(() => Promise.resolve(page(pipelines)));
 

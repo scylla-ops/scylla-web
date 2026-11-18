@@ -87,7 +87,10 @@
 <div class="w-full rounded-md border px-2 py-1.5">
   <div
     {@attach measure}
-    class={cn('flex h-12 justify-center gap-1', notice ? 'items-center' : 'items-end')}
+    class={cn(
+      'flex h-12 gap-1',
+      notice ? 'items-center justify-center' : 'items-end justify-start',
+    )}
   >
     {#if notice}
       <span class="text-xs text-muted-foreground [text-box:trim-both_cap_alphabetic]">{notice}</span>
