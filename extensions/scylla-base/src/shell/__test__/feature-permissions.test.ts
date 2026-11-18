@@ -185,7 +185,7 @@ describe('feature permission conformance', () => {
         'reads it to offer the providers to link. `pendingLink` reads a cookie of this browser.',
       'jobs.jobQueries':
         '`byWorkspace`, the read that crosses the barrel, needs LIST_JOBS_BY_WORKSPACE: the ' +
-        'dashboard passes it as `enabled`, and the failed runs sit behind it. The fan-out that ' +
+        'failed runs sit behind it. The fan-out that ' +
         '*does* check lives in its own file precisely so its `can(` does not vouch for this one.',
       'pipeline.pipelineQueries':
         '`byWorkspace` needs LIST_PIPELINES_BY_WORKSPACE, which each consumer adds to ' +

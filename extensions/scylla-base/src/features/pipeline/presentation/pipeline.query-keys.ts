@@ -11,6 +11,10 @@ export const WORKSPACE_PIPELINES_QUERY_KEY = (
   pagination?: PaginationParams,
 ) => ['pipelines', 'workspace', workspaceId, pagination] as const;
 
+/** Under the `'pipelines'` root: a create, an edit or a delete refreshes it. */
+export const WORKSPACE_PIPELINE_SUMMARIES_QUERY_KEY = (workspaceId: string | null, shape: object) =>
+  ['pipelines', 'workspace', workspaceId, 'summaries', shape] as const;
+
 export const PROJECT_PIPELINES_QUERY_ROOT = (projectId: string) =>
   ['pipelines', projectId] as const;
 

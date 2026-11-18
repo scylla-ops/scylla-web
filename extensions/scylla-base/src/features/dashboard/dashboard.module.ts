@@ -2,6 +2,7 @@ import { msg } from '@lingui/core/macro';
 import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
 import { Permission } from '@platform/authz';
 import type { ScyllaModule } from '@scylla/core-sdk';
+import DashboardPanel from './presentation/ui/DashboardPanel/DashboardPanel.svelte';
 
 export const DashboardModule = {
   id: 'dashboard',
@@ -24,5 +25,8 @@ export const DashboardModule = {
         },
       },
     ],
+  },
+  shell: {
+    secondSidebarPanels: { dashboard: DashboardPanel },
   },
 } satisfies ScyllaModule;

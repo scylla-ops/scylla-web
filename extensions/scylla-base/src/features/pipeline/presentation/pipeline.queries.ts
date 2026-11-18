@@ -34,7 +34,12 @@ import {
   PROJECT_PIPELINES_QUERY_ROOT,
   RUN_PIPELINE_MUTATION_KEY,
   NODE_TEMPLATES_QUERY_KEY,
+  WORKSPACE_PIPELINE_SUMMARIES_QUERY_KEY,
 } from './pipeline.query-keys.ts';
+import type {
+  PipelineSummaryList,
+  PipelineSummaryQuery,
+} from '../domain/structs/pipeline-summary.struct.ts';
 
 //todo: check about split this file into multiple .queries to improve readability
 
@@ -66,6 +71,23 @@ export const pipelineQueries = {
       enabled: (options.enabled ?? true) && !!projectId,
       queryFn: () => repository().getMetadataByProjectId(projectId, pagination),
       staleTime: 5_000,
+    }),
+
+  /**
+   * The pipelines of the workspace with their last jobs, failing first by default. Read again
+   * each 30 s, as the design of the dashboard asks.
+   */
+  summaries: (
+    workspaceId: string | null,
+    shape: Omit<PipelineSummaryQuery, 'workspaceId'> = { runs: 20, order: 'failing-first', limit: 100 },
+    enabled = true,
+  ) =>
+    queryOptions<PipelineSummaryList>({
+      queryKey: WORKSPACE_PIPELINE_SUMMARIES_QUERY_KEY(workspaceId, shape),
+      enabled: enabled && !!workspaceId,
+      queryFn: () => repository().getSummaries({ workspaceId: workspaceId!, ...shape }),
+      staleTime: 10_000,
+      refetchInterval: 30_000,
     }),
 
   /** One call, scoped by the backend: nothing to gate here. */

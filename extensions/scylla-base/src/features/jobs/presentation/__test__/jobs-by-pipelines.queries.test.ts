@@ -44,6 +44,8 @@ beforeEach(() => {
   repository = {
     getByPipelineId: vi.fn().mockResolvedValue(listOf([job('job-1')])),
     getByWorkspaceId: vi.fn(),
+    getNewestByWorkspaceId: vi.fn(),
+    getStats: vi.fn(),
     getById: vi.fn(),
     deleteById: vi.fn(),
     rerun: vi.fn(),

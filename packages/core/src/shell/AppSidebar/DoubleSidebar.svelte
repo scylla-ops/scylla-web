@@ -51,6 +51,10 @@
     content && withModuleLinks(content, linkSources.flatMap(links => links())),
   );
 
+  const panel = $derived<Component | undefined>(
+    content && contributions.map(shell => shell.secondSidebarPanels?.[content.id]).find(Boolean),
+  );
+
   const footers = $derived<readonly Component[]>(
     contributions.flatMap(shell => shell.sidebarFooter ?? []),
   );
@@ -124,6 +128,7 @@
   <SecondSidebar
     id={SECOND_SIDEBAR_ID}
     content={shown}
+    {panel}
     {pathname}
     {ready}
     {badges}

@@ -4,6 +4,15 @@ export type {
   PipelineIdentity,
 } from './domain/entities/pipeline.entity.ts';
 export type { PipelineNodeEntity } from './domain/entities/pipeline-node.entity.ts';
+export type {
+  PipelineHealth,
+  PipelineSummary,
+  PipelineSummaryList,
+  PipelineSummaryOrder,
+  PipelineTriggerKind,
+  RecentRun,
+} from './domain/structs/pipeline-summary.struct.ts';
+export { recentSuccessRate } from './domain/structs/pipeline-summary.struct.ts';
 export {
   PIPELINES_QUERY_KEY,
   WORKSPACE_PIPELINES_QUERY_KEY,

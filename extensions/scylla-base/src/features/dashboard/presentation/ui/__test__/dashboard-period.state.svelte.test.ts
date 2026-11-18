@@ -1,11 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { waitFor } from '@testing-library/svelte';
 import { contextStore } from '@platform/context';
+import { installTestNavigator } from '@test/navigator.ts';
 import { withQueryClient, withRegistry } from '@test/render.ts';
 import type { WorkspaceEntity } from '@base/features/workspace';
 import { createDashboardPeriod } from '../dashboard-period.state.svelte.ts';
 
 const NOW = new Date('2026-11-16T23:30:00Z');
+const PATHNAME = '/acme/dashboard';
 
 const workspace = (overrides: Partial<WorkspaceEntity> = {}): WorkspaceEntity => ({
   id: 'org-1',
@@ -19,11 +21,18 @@ const workspace = (overrides: Partial<WorkspaceEntity> = {}): WorkspaceEntity =>
 let getMine: ReturnType<typeof vi.fn>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
+let navigator: ReturnType<typeof installTestNavigator>;
+
+const openedWith = (search: string) => {
+  navigator.restore();
+  navigator = installTestNavigator({ pathname: PATHNAME, search });
+};
 
 beforeEach(() => {
   getMine = vi.fn().mockResolvedValue([workspace({ id: 'org-2', timeZone: 'Asia/Tokyo' }), workspace()]);
   cache = withQueryClient();
   restoreRegistry = withRegistry({ workspace: { workspaceRepository: { getMine } } });
+  navigator = installTestNavigator({ pathname: PATHNAME });
   contextStore.setState({
     workspace: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: null, name: null },
@@ -33,6 +42,7 @@ beforeEach(() => {
 afterEach(() => {
   cache.restore();
   restoreRegistry();
+  navigator.restore();
 });
 
 const withPeriod = async (
@@ -109,6 +119,49 @@ describe('createDashboardPeriod', () => {
 
     await withPeriod(async state => {
       await waitFor(() => expect(state.timeZone).toBe('UTC'));
+    });
+  });
+
+  it('reads the period of the URL', async () => {
+    openedWith('?period=30d');
+
+    await withPeriod(state => {
+      expect(state.period).toEqual({ kind: '30d' });
+    });
+  });
+
+  it('reads the days of a custom period of the URL', async () => {
+    openedWith('?from=2026-11-01&to=2026-11-08');
+
+    await withPeriod(state => {
+      expect(state.period).toEqual({ kind: 'custom', from: '2026-11-01', to: '2026-11-08' });
+    });
+  });
+
+  it('ignores a custom period of the URL that ends in the future', async () => {
+    openedWith('?from=2026-11-01&to=2026-12-01');
+
+    await withPeriod(state => {
+      expect(state.period).toEqual({ kind: '14d' });
+    });
+  });
+
+  it('writes the choice in the URL, in place of the current entry', async () => {
+    await withPeriod(state => {
+      state.select('24h');
+      expect(navigator.navigate).toHaveBeenLastCalledWith(`${PATHNAME}?period=24h`, {
+        replace: true,
+      });
+
+      state.applyCustom('2026-11-01', '2026-11-08');
+      expect(navigator.navigate).toHaveBeenLastCalledWith(
+        `${PATHNAME}?from=2026-11-01&to=2026-11-08`,
+        { replace: true },
+      );
+
+      state.select('14d');
+      expect(navigator.navigate).toHaveBeenLastCalledWith(PATHNAME, { replace: true });
+      expect(state.period).toEqual({ kind: '14d' });
     });
   });
 });

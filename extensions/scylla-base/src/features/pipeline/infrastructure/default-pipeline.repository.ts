@@ -17,6 +17,11 @@ import { DEFAULT_PAGE_SIZE, type PaginatedList, type PaginationParams } from '@s
 import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcPipeline from './grpc-pipeline.mapper.ts';
 import * as grpcPipelineFile from './grpc-pipeline-file.mapper.ts';
+import type {
+  PipelineSummaryList,
+  PipelineSummaryQuery,
+} from '../domain/structs/pipeline-summary.struct.ts';
+import * as grpcPipelineSummary from './grpc-pipeline-summary.mapper.ts';
 
 const PAGE_SIZE = 100;
 const FIRST_PAGE: PaginationParams = { page: 1, pageSize: DEFAULT_PAGE_SIZE };
@@ -77,6 +82,18 @@ export class DefaultPipelineRepository implements PipelineRepository {
       return { pipelines: response.pipelines, next: response.page?.nextToken ?? '' };
     });
     return grpcPipeline.toMetadataPage(pipelines, pagination);
+  }
+
+  public async getSummaries(query: PipelineSummaryQuery): Promise<PipelineSummaryList> {
+    const response = await this.client.listPipelineSummaries({
+      workspaceId: wrapId(query.workspaceId),
+      projectIds: [],
+      pipelineIds: [],
+      runs: query.runs,
+      order: grpcPipelineSummary.orderToProto(query.order),
+      page: { size: query.limit, token: '' },
+    }).response;
+    return grpcPipelineSummary.listToDomain(response);
   }
 
   public async deleteById(id: string): Promise<void> {

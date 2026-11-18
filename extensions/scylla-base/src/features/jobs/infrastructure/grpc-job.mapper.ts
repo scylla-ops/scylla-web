@@ -71,6 +71,20 @@ export const filterToProto = (filter: JobFilter): GrpcJobFilter => ({
   origins: [],
 });
 
+const STATUSES: Record<Exclude<JobStatus, 'unknown'>, GrpcJobStatus> = {
+  pending: GrpcJobStatus.PENDING,
+  running: GrpcJobStatus.RUNNING,
+  completed: GrpcJobStatus.COMPLETED,
+  failed: GrpcJobStatus.FAILED,
+  cancelled: GrpcJobStatus.CANCELLED,
+  orphaned: GrpcJobStatus.ORPHANED,
+  awaiting_approval: GrpcJobStatus.AWAITING_APPROVAL,
+};
+
+/** The status of a filter. `unknown` is no status of the server: it cannot filter. */
+export const statusToProto = (status: Exclude<JobStatus, 'unknown'>): GrpcJobStatus =>
+  STATUSES[status];
+
 /** UNSPECIFIED or a status newer than this build: `unknown`, never a success. */
 function jobStatusToDomain(status: GrpcJobStatus): JobStatus {
   switch (status) {

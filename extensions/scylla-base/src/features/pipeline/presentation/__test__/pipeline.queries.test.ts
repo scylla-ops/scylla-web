@@ -70,6 +70,7 @@ beforeEach(() => {
   repository = {
     getMetadataByProjectId: vi.fn().mockResolvedValue(paginated([metadata()])),
     getMetadataByWorkspaceId: vi.fn().mockResolvedValue(paginated([metadata()])),
+    getSummaries: vi.fn().mockResolvedValue({ items: [], total: 0, green: 0 }),
     deleteById: vi.fn().mockResolvedValue(undefined),
     run: vi.fn().mockResolvedValue(undefined),
     create: vi.fn().mockResolvedValue(undefined),
@@ -147,6 +148,31 @@ describe('pipelineQueries.byWorkspace', () => {
 
   it('does not query for a null workspaceId', () => {
     expect(pipelineQueries.byWorkspace(null).enabled).toBe(false);
+  });
+});
+
+describe('pipelineQueries.summaries', () => {
+  it('reads the last 20 jobs of each pipeline, failing first, by default', async () => {
+    await runQueryFn(pipelineQueries.summaries('org-1'));
+
+    expect(repository.getSummaries).toHaveBeenCalledWith({
+      workspaceId: 'org-1',
+      runs: 20,
+      order: 'failing-first',
+      limit: 100,
+    });
+  });
+
+  it('sits under the pipelines of the workspace, so that a change refreshes it', () => {
+    expect(pipelineQueries.summaries('org-1').queryKey.slice(0, 3)).toEqual([
+      'pipelines',
+      'workspace',
+      'org-1',
+    ]);
+  });
+
+  it('stays idle with no workspace', () => {
+    expect(pipelineQueries.summaries(null).enabled).toBe(false);
   });
 });
 
