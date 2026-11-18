@@ -454,6 +454,7 @@ msgid "finished runs that completed"
 msgstr "finished runs that completed"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:67
+msgctxt "attention"
 msgid "Fire now"
 msgstr "Fire now"
 
