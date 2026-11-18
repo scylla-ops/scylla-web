@@ -6,6 +6,7 @@
   import { cn } from '@scylla/ui/utils';
   import { createAccountPage } from './account-page.state.svelte.ts';
   import { accountSection } from './account-sections.registry.ts';
+  import AccountAbout from './AccountAbout.svelte';
   import AccountHeader from './AccountHeader.svelte';
   import AccountNav from './AccountNav.svelte';
   import AccountSecurity from './AccountSecurity.svelte';
@@ -71,6 +72,8 @@
           <AccountSecurity {page} />
         {:else if current.id === 'tokens'}
           <PersonalTokensSection />
+        {:else if current.id === 'about'}
+          <AccountAbout />
         {:else}
           <DangerZone
             title={t(userMessages.deleteMyAccount)}

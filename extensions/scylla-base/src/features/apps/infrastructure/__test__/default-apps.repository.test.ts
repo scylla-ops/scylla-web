@@ -152,10 +152,11 @@ const clients = () => {
 };
 
 describe('getServerInfo', () => {
-  it('reads the version, the image and the agent protocols from the capabilities', async () => {
+  it('reads the edition, the version, the image and the agent protocols from the capabilities', async () => {
     const { repository } = clients();
 
     await expect(repository.getServerInfo()).resolves.toEqual({
+      edition: 'community',
       version: '0.7.0',
       agentImage: 'ghcr.io/scylla-ops/scylla-agent:0.7.0',
       agentProtocol: { min: 0, current: 2 },

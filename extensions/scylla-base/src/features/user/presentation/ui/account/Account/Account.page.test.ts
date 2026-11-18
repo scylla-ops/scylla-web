@@ -52,8 +52,16 @@ const sessions: UserSessionEntity[] = [
 
 const refused = (message: string) => new ScyllaError(message, { code: 'FAILED_PRECONDITION' });
 
+const serverInfo = {
+  edition: 'enterprise',
+  version: '0.7.0-rc.1+240da00',
+  agentImage: 'ghcr.io/scylla-ops/scylla-agent:0.7.0-rc.1',
+  agentProtocol: { min: 1, current: 2 },
+};
+
 let teardown: Array<() => void> = [];
 let repository: Record<string, ReturnType<typeof vi.fn>>;
+let getServerInfo: ReturnType<typeof vi.fn>;
 let navigator: ReturnType<typeof installTestNavigator>;
 
 const setUp = (
@@ -72,7 +80,13 @@ const setUp = (
     ...overrides,
   };
   const cache = withQueryClient();
-  teardown = [cache.restore, withRegistry({ user: { userRepository: repository } })];
+  teardown = [
+    cache.restore,
+    withRegistry({
+      user: { userRepository: repository },
+      apps: { appsRepository: { getServerInfo } },
+    }),
+  ];
   render(AccountPage, { workspaceSlug: workspaceSlug ?? undefined, section });
 };
 
@@ -80,6 +94,7 @@ const section = (name: string) => screen.getByRole('region', { name });
 
 beforeEach(() => {
   vi.clearAllMocks();
+  getServerInfo = vi.fn().mockResolvedValue(serverInfo);
   localStorage.setItem('userId', 'user-1');
   navigator = installTestNavigator({ pathname: '/acme-corp/account/profile' });
 });
@@ -87,6 +102,7 @@ beforeEach(() => {
 afterEach(() => {
   teardown.forEach(restore => restore());
   navigator.restore();
+  vi.unstubAllEnvs();
   localStorage.clear();
 });
 
@@ -148,6 +164,7 @@ describe('AccountPage', () => {
       ['Appearance', '/account/appearance'],
       ['Security', '/account/security'],
       ['Tokens', '/account/tokens'],
+      ['About', '/account/about'],
       ['Danger zone', '/account/danger-zone'],
     ]);
     expect(within(nav).getByRole('link', { current: 'page' })).toHaveTextContent('Security');
@@ -351,6 +368,44 @@ describe('AccountPage', () => {
 
       const list = await screen.findByRole('region', { name: 'Sessions' });
       expect(await within(list).findByText('Error loading the sessions')).toBeInTheDocument();
+    });
+  });
+
+  describe('about', () => {
+    /** Each fact of the card: its label, and the text of its badge. */
+    const facts = (region: HTMLElement) =>
+      within(region)
+        .getAllByRole('term')
+        .map(term => {
+          const badge = term.nextElementSibling?.querySelector('[data-slot="badge"]');
+          return [term.textContent?.trim(), badge?.textContent?.trim()];
+        });
+
+    it('shows the edition, the version of the web app and the version of the server', async () => {
+      vi.stubEnv('SCYLLA_WEB_VERSION', '0.7.0-rc.1+9c4e2b7');
+      setUp('about');
+
+      const versions = await screen.findByRole('region', { name: 'Versions' });
+      await within(versions).findByText('0.7.0-rc.1+240da00');
+      expect(facts(versions)).toEqual([
+        ['Edition', 'enterprise'],
+        ['Web app', '0.7.0-rc.1+9c4e2b7'],
+        ['Server', '0.7.0-rc.1+240da00'],
+      ]);
+    });
+
+    it('shows a dash for what the server does not tell', async () => {
+      vi.stubEnv('SCYLLA_WEB_VERSION', '0.7.0-rc.1+dev');
+      getServerInfo.mockRejectedValue(new ScyllaError('down', { code: 'UNAVAILABLE' }));
+      setUp('about');
+
+      const versions = await screen.findByRole('region', { name: 'Versions' });
+      await waitFor(() => expect(getServerInfo).toHaveBeenCalled());
+      expect(facts(versions)).toEqual([
+        ['Edition', '–'],
+        ['Web app', '0.7.0-rc.1+dev'],
+        ['Server', '–'],
+      ]);
     });
   });
 

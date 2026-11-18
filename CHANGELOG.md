@@ -179,6 +179,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   and you can try again.
 - The General page of the workspace settings has a time zone field: a search in the IANA names, with
   the zone of the browser first. The title of the page is now General, as its link in the sidebar.
+- The account settings have an About section. Its card shows the edition, the version of the web app
+  and the version of the server, for a report of a problem. The build of the web app writes its
+  version in the format of the server: `SCYLLA_BUILD` adds the commit, `+dev` shows a build with no
+  commit, and `SCYLLA_RELEASE=true` keeps the bare version.
 
 ### Changed
 
