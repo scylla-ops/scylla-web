@@ -145,7 +145,7 @@ msgstr "A job from a fork waits for a review before it runs."
 msgid "Activity"
 msgstr "Activity"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:77
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:78
 msgid "Add an agent"
 msgstr "Add an agent"
 
@@ -190,7 +190,12 @@ msgstr "approval"
 msgid "cancelled"
 msgstr "cancelled"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:79
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:72
+msgctxt "legend"
+msgid "Cancelled"
+msgstr "Cancelled"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:80
 msgid "Choose a pipeline"
 msgstr "Choose a pipeline"
 
@@ -202,7 +207,7 @@ msgstr "Choose one year or less."
 msgid "Choose the days"
 msgstr "Choose the days"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:74
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:75
 msgid "completed"
 msgstr "completed"
 
@@ -250,7 +255,7 @@ msgstr "Default"
 msgid "elapsed · median"
 msgstr "elapsed · median"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:72
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:73
 msgid "failed"
 msgstr "failed"
 
@@ -274,7 +279,7 @@ msgstr "First day"
 msgid "green"
 msgstr "green"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:78
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:79
 msgid "Invite a member"
 msgstr "Invite a member"
 
@@ -408,7 +413,7 @@ msgstr "open now"
 msgid "Ops overview"
 msgstr "Ops overview"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:73
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:74
 msgid "orphaned"
 msgstr "orphaned"
 
@@ -501,7 +506,7 @@ msgstr "red"
 msgid "Rerun"
 msgstr "Rerun"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:82
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:83
 msgid "Retry"
 msgstr "Retry"
 
@@ -521,7 +526,7 @@ msgstr "Run duration"
 msgid "Run minutes"
 msgstr "Run minutes"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:76
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:77
 msgid "Run pipeline"
 msgstr "Run pipeline"
 
@@ -616,10 +621,10 @@ msgstr "Waits for an approval · {when}"
 msgid "webhook"
 msgstr "webhook"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:81
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:82
 msgid "You do not have the permission to read this data."
 msgstr "You do not have the permission to read this data."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:80
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:81
 msgid "You have no permission for these actions."
 msgstr "You have no permission for these actions."

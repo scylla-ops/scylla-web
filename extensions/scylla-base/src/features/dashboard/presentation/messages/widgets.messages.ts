@@ -69,6 +69,7 @@ export const widgetMessages = {
 
   jobEnds: msg`job ends`,
   cancelled: msg`cancelled`,
+  cancelledLegend: msg({ context: 'legend', message: 'Cancelled' }),
   failedLower: msg`failed`,
   orphanedLower: msg`orphaned`,
   completedLower: msg`completed`,
