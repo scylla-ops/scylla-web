@@ -37,6 +37,32 @@ msgstr "{count} cancelled, not counted"
 msgid "{count} changes · not saved"
 msgstr "{count} changes · not saved"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:31
+msgctxt "ago"
+msgid "{count} d"
+msgstr "{count} d"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:29
+msgctxt "ago"
+msgid "{count} h"
+msgstr "{count} h"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:28
+msgctxt "ago"
+msgid "{count} min"
+msgstr "{count} min"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:8
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:12
+msgctxt "attention"
+msgid "{count} new"
+msgstr "{count} new"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:11
+msgctxt "attention"
+msgid "{count} new since your visit at {time}"
+msgstr "{count} new since your visit at {time}"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:21
 msgid "{count} running"
 msgstr "{count} running"
@@ -69,6 +95,11 @@ msgstr "{green} of {total} green"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:76
 msgid "{hours} h"
 msgstr "{hours} h"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:30
+msgctxt "ago"
+msgid "{hours} h {minutes}"
+msgstr "{hours} h {minutes}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:75
 msgid "{hours} h ago"
@@ -153,6 +184,11 @@ msgid "{value} per week"
 msgstr "{value} per week"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:87
+msgid "+ {count} more"
+msgstr "+ {count} more"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:13
+msgctxt "attention"
 msgid "+ {count} more"
 msgstr "+ {count} more"
 
@@ -246,6 +282,16 @@ msgstr "agent"
 msgid "Agent"
 msgstr "Agent"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:33
+msgctxt "attention"
+msgid "Agent"
+msgstr "Agent"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:26
+msgctxt "attention"
+msgid "agent offline"
+msgstr "agent offline"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:79
 msgid "Agent offline · {when}"
 msgstr "Agent offline · {when}"
@@ -263,6 +309,11 @@ msgid "Agents online"
 msgstr "Agents online"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:63
+msgid "All clear"
+msgstr "All clear"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:16
+msgctxt "attention"
 msgid "All clear"
 msgstr "All clear"
 
@@ -285,6 +336,11 @@ msgstr "Apply"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:57
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:65
+msgid "approval"
+msgstr "approval"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:27
+msgctxt "attention"
 msgid "approval"
 msgstr "approval"
 
@@ -472,6 +528,11 @@ msgstr "Extra small"
 msgid "failed"
 msgstr "failed"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:22
+msgctxt "attention"
+msgid "failed"
+msgstr "failed"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:22
 msgid "Failed"
 msgstr "Failed"
@@ -487,6 +548,11 @@ msgstr "failing first"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:47
 msgid "finished runs that completed"
 msgstr "finished runs that completed"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:23
+msgctxt "attention"
+msgid "fire failed"
+msgstr "fire failed"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:68
 msgctxt "attention"
@@ -603,6 +669,11 @@ msgstr "Live counters"
 msgid "Logs"
 msgstr "Logs"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:32
+msgctxt "attention"
+msgid "Logs"
+msgstr "Logs"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:26
 msgid "longest {duration}"
 msgstr "longest {duration}"
@@ -653,6 +724,7 @@ msgstr "Needs you"
 msgid "needs you."
 msgstr "needs you."
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:9
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:84
 msgctxt "attention"
 msgid "new"
@@ -707,9 +779,19 @@ msgstr "No pipeline is red and no job waits for an approval."
 msgid "No pipelines yet"
 msgstr "No pipelines yet"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:17
+msgctxt "attention"
+msgid "Nothing needs you now. An item shows here when a job fails, a fire fails or a time is missed, and goes away when it is fixed."
+msgstr "Nothing needs you now. An item shows here when a job fails, a fire fails or a time is missed, and goes away when it is fixed."
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:19
 msgid "Nothing needs you: {running} jobs run now, {waiting} wait for an agent, and {green} of {total} pipelines are green."
 msgstr "Nothing needs you: {running} jobs run now, {waiting} wait for an agent, and {green} of {total} pipelines are green."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:6
+msgctxt "attention"
+msgid "nothing open"
+msgstr "nothing open"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:29
 msgid "nothing runs"
@@ -751,7 +833,17 @@ msgstr "One pipeline"
 msgid "One result per entity"
 msgstr "One result per entity"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:7
+msgctxt "attention"
+msgid "open"
+msgstr "open"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:62
+msgid "open now"
+msgstr "open now"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:5
+msgctxt "attention"
 msgid "open now"
 msgstr "open now"
 
@@ -760,6 +852,11 @@ msgid "Ops overview"
 msgstr "Ops overview"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:77
+msgid "orphaned"
+msgstr "orphaned"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:24
+msgctxt "attention"
 msgid "orphaned"
 msgstr "orphaned"
 
@@ -984,6 +1081,16 @@ msgstr "Search kinds or data…"
 msgid "Search widgets…"
 msgstr "Search widgets…"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:14
+msgctxt "attention"
+msgid "See all"
+msgstr "See all"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:15
+msgctxt "attention"
+msgid "See all {count}"
+msgstr "See all {count}"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:34
 msgid "Select Edit dashboard, then drag a kind from the list."
 msgstr "Select Edit dashboard, then drag a kind from the list."
@@ -1143,6 +1250,11 @@ msgstr "This dashboard has no widget yet."
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:51
 msgid "This widget has no layout in this size yet."
 msgstr "This widget has no layout in this size yet."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:25
+msgctxt "attention"
+msgid "time missed"
+msgstr "time missed"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:78
 msgid "Time missed · {when}"

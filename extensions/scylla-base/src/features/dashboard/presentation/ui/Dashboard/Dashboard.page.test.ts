@@ -307,12 +307,14 @@ describe('Needs you', () => {
     render(DashboardPage);
 
     const widget = await screen.findByRole('region', { name: 'Needs you' });
-    expect(await within(widget).findByText('5 open · 1 new')).toBeInTheDocument();
+    expect((await within(widget).findAllByText('1 new')).length).toBeGreaterThan(0);
+    expect(within(widget).getByText('5')).toBeInTheDocument();
     expect(within(widget).getByText('push-image: denied')).toBeInTheDocument();
     expect(within(widget).getByText('nightly-backup')).toBeInTheDocument();
+    expect(within(widget).getByText('time missed')).toBeInTheDocument();
     expect(within(widget).getByText('The trigger nightly made no job.')).toBeInTheDocument();
-    expect(within(widget).getByText('· 3 times')).toBeInTheDocument();
     expect(within(widget).getByText('runner-us-1')).toBeInTheDocument();
+    expect(within(widget).getByText('The agent is not connected.')).toBeInTheDocument();
     expect(screen.getByText('5 things')).toBeInTheDocument();
   });
 

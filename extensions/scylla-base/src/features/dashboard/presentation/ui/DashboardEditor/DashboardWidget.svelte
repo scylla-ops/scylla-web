@@ -34,7 +34,7 @@
 {:else if item.data === 'right-now'}
   <RightNowWidget {widgets} {size} />
 {:else if item.data === 'needs-you'}
-  <NeedsYouWidget {widgets} {size} />
+  <NeedsYouWidget {widgets} {size} timeZone={period.timeZone ?? 'UTC'} />
 {:else if item.data === 'success-rate'}
   <SuccessRateWidget {widgets} {period} {size} />
 {:else if item.data === 'agents'}

@@ -119,6 +119,10 @@ export const createDashboardWidgets = (
     summaries,
     /** The items of "Needs you" (ListAttentionItems), of the scope. */
     attention,
+    /** The last visit before this one, for "new". */
+    get since() {
+      return since;
+    },
     get attentionLocked() {
       return attentionLocked;
     },
