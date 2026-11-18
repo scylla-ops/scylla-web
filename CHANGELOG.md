@@ -177,6 +177,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   GitHub. For GitHub, you pick a repository, and the page names the project from it and sets the
   pipeline source and the reports. If the link fails after the creation, the page keeps the project
   and you can try again.
+- The General page of the workspace settings has a time zone field: a search in the IANA names, with
+  the zone of the browser first. The title of the page is now General, as its link in the sidebar.
 
 ### Changed
 
@@ -472,6 +474,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   version. The machine card shows the protocol, the features, the missing features and the update
   command. A job that waits for an agent with checkout names the online agents that cannot get its
   code, with a link to each one.
+- The list of pipelines shows up to 30 jobs of each pipeline as bars, as many as the History column
+  can hold, in place of 5. The height of a bar shows the duration of its job. A click on a bar opens
+  the job. The Last Run column is removed. The pipeline name shows the last run, and its notes are
+  badges with the full text in a tooltip. A hover on the name shows the pass rate, the median
+  duration and the failures.
 
 ## [0.6.0] - 2026-11-01
 

@@ -5,6 +5,7 @@ import type {
   JobLogStream,
 } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
+import { JobView } from '@base/generated/scylla/pipelines/v1/job_service.ts';
 import type { Job } from '@base/generated/scylla/pipelines/v1/job.ts';
 import { idValue, required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import { DEFAULT_PAGE_SIZE, type PaginationParams, type PaginatedList } from '@scylla/ui/structs';
@@ -53,7 +54,10 @@ export class DefaultJobsRepository implements JobsRepository {
     const jobs = await allPages(async token => {
       const response = await this.client.listWorkspaceJobs({
         workspaceId: wrapId(workspaceId),
+        projectIds: [],
+        pipelineIds: [],
         page: { size: PAGE_SIZE, token },
+        view: JobView.UNSPECIFIED,
       }).response;
       return { jobs: response.jobs, next: response.page?.nextToken ?? '' };
     });

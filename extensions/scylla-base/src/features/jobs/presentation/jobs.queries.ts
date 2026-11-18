@@ -15,7 +15,8 @@ import {
 // Resolved per call: tests swap the registry.
 const repository = () => getModuleDomain<typeof JobsModule.domain>('jobs').jobsRepository;
 
-const MAX_JOBS_PER_PIPELINE = 10;
+/** The most bars of the history of a pipeline in the pipelines list. */
+const MAX_JOBS_PER_PIPELINE = 30;
 
 /** The dashboard's figures are computed over this window: the backend does not aggregate. */
 export const WORKSPACE_JOBS_WINDOW: PaginationParams = { page: 1, pageSize: 100 };
@@ -69,7 +70,7 @@ export const jobQueries = {
           page: 1,
           pageSize: MAX_JOBS_PER_PIPELINE,
         });
-        return { pipelineId, jobs: list.items };
+        return { pipelineId, jobs: list.items, totalCount: list.pagination.totalCount };
       },
       staleTime: 0,
       refetchInterval: query => (hasActive(query.state.data?.jobs ?? []) ? 2000 : false),

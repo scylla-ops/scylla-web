@@ -35,7 +35,7 @@
       {#if dashboard.pipelines && dashboard.pipelines.length > 0}
         <PipelineTable
           pipelines={dashboard.pipelines}
-          jobsByPipelineId={dashboard.jobsByPipelineId}
+          historyByPipelineId={dashboard.historyByPipelineId}
           isJobsLoading={dashboard.isJobsLoading}
           isJobsError={dashboard.isJobsError}
           canListJobs={dashboard.canListJobs}

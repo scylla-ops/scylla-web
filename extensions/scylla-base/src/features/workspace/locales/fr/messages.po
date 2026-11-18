@@ -66,10 +66,15 @@ msgstr "Modifier l'espace de travail"
 msgid "Enter a name for your new workspace, and an address if you want to choose it. You can change both later."
 msgstr "Entrez un nom pour votre nouvel espace de travail, et une adresse si vous voulez la choisir. Vous pourrez modifier les deux plus tard."
 
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:23
+msgid "Find a time zone"
+msgstr "Trouver un fuseau horaire"
+
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:19
 msgid "Find a workspace"
 msgstr "Trouver un espace de travail"
 
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:4
 #: extensions/scylla-base/src/features/workspace/workspace.module.ts:33
 msgid "General"
 msgstr "Général"
@@ -110,10 +115,6 @@ msgstr "Enregistrer"
 msgid "Saving..."
 msgstr "Enregistrement..."
 
-#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:4
-msgid "Security"
-msgstr "Sécurité"
-
 #: extensions/scylla-base/src/features/workspace/workspace.module.ts:29
 #: extensions/scylla-base/src/features/workspace/workspace.module.ts:37
 msgid "Settings"
@@ -122,6 +123,26 @@ msgstr "Paramètres"
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:6
 msgid "Settings of the workspace {workspace}. Only admins of {workspace} see this page."
 msgstr "Les paramètres de l'espace de travail {workspace}. Seuls ses admins voient cette page."
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:21
+msgid "The stats of {workspace} count their days and hours in this zone. This browser is in {browser}."
+msgstr "Les statistiques de {workspace} comptent leurs jours et leurs heures dans ce fuseau. Ce navigateur utilise {browser}."
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:22
+msgid "This browser"
+msgstr "Ce navigateur"
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:18
+msgid "Time zone"
+msgstr "Fuseau horaire"
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:19
+msgid "Time zone of {workspace}"
+msgstr "Fuseau horaire de {workspace}"
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:24
+msgid "Time zone saved"
+msgstr "Fuseau horaire enregistré"
 
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:15
 msgid "Turn off"

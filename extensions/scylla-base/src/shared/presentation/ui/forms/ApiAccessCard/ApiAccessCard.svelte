@@ -16,7 +16,7 @@
 </script>
 
 <Card class="gap-0 py-0">
-  <CardHeader class="border-b py-4">
+  <CardHeader class="flex items-center border-b py-4 [.border-b]:pb-4">
     <CardTitle><h2 class="text-sm">{t(messages.title)}</h2></CardTitle>
   </CardHeader>
   <CardContent class="flex items-center justify-between gap-6 py-4">

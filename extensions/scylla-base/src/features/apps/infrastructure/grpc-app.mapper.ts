@@ -6,7 +6,8 @@ import {
   CiProvider as GrpcCiProvider,
   type Host,
 } from '@base/generated/scylla/apps/v1/app.ts';
-import type { AgentStats as GrpcAgentStats, JobOutcomes as GrpcJobOutcomes } from '@base/generated/scylla/agents/v1/agent_stats.ts';
+import type { AgentStats as GrpcAgentStats } from '@base/generated/scylla/agents/v1/agent_stats.ts';
+import type { JobOutcomes as GrpcJobOutcomes } from '@base/generated/scylla/pipelines/v1/job_stats.ts';
 import type { Duration } from '@base/generated/google/protobuf/duration.ts';
 import type { Timestamp } from '@base/generated/google/protobuf/timestamp.ts';
 import { type Job, JobStatus as GrpcJobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';

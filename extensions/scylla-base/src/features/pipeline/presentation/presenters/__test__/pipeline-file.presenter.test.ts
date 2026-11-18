@@ -97,6 +97,7 @@ describe('originNote', () => {
   it('says how many errors the file has on the default branch', () => {
     expect(originNote({ ...file, fileErrorCount: 3 }, 'main')).toEqual({
       tone: 'error',
+      badge: '3 errors',
       text: 'build.toml has 3 errors on main',
     });
   });
@@ -106,6 +107,7 @@ describe('originNote', () => {
       originNote({ ...file, fileErrorCount: 1, removedAt: '2026-11-12T10:00:00Z' }, 'main'),
     ).toEqual({
       tone: 'muted',
+      badge: 'Removed',
       text: 'Removed from main',
     });
   });
@@ -127,7 +129,11 @@ describe('originNote', () => {
         { source: 'editor', filePath: '', fileErrorCount: 0, archivedAt: '2026-11-12T10:00:00Z' },
         'main',
       ),
-    ).toEqual({ tone: 'muted', text: 'Archived: the project uses the repository files' });
+    ).toEqual({
+      tone: 'muted',
+      badge: 'Archived',
+      text: 'Archived: the project uses the repository files',
+    });
   });
 });
 

@@ -35,7 +35,7 @@ ArrowDown goes to the first row. Enter opens the first row when the field has te
 ```typescript
 type WorkspaceEntity
 workspaceQueries        mine · members
-workspaceMutations      create · update · remove
+workspaceMutations      create · update · setPersonalTokens · setTimeZone · remove
 invalidateWorkspaceMembers
 WORKSPACES_QUERY_KEY, MY_WORKSPACES_QUERY_KEY, WORKSPACE_MEMBERS_QUERY_KEY
 createWorkspaceItems
@@ -79,12 +79,16 @@ presentation/
   ui/AddWorkspaceDialog.svelte, EditWorkspaceDialog.svelte
   messages/workspace.messages.ts
   presenters/workspace-form.presenter.ts   the items of the form
+  presenters/time-zone.presenter.ts        the rows of the time zone field
 ```
 
 ## Routes & nav
 
-`settings` (`UPDATE_WORKSPACE`): the switch of the personal tokens in this workspace, locked while
-the server refuses them. It reads this from `personalTokenQueries`, because only an instance admin
+`settings` (`UPDATE_WORKSPACE`): the time zone of the workspace, and the switch of the personal
+tokens in this workspace, locked while the server refuses them. The time zone field lists the IANA
+names of the browser (`Intl.supportedValuesOf`). The zone of the browser is the first row, with a
+hint. The current zone and `UTC` are rows also when the browser does not list them. A pick saves
+at once, and the field shows the zone of the server until the save ends. It reads this from `personalTokenQueries`, because only an instance admin
 reads the settings of the server. No other page. The workspaces and roles of a user show on the pages of [`user`](../user/AGENTS.md),
 from `ListUserAccess`; that module does not import this one for them.
 

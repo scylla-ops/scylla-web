@@ -6,7 +6,7 @@ import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
 import { getQueryClient } from '@scylla/core-sdk';
-import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { findTooltip, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import DashboardPipelinePage from './DashboardPipeline.page.svelte';
 
@@ -35,7 +35,7 @@ const link = {
 const job = {
   id: 'job-7',
   pipelineId: 'pipeline-1',
-  status: 'success',
+  status: 'completed',
   nodeExecutions: [],
   createdAt: '2026-09-03T10:00:00Z',
   updatedAt: '2026-09-03T10:05:00Z',
@@ -88,7 +88,7 @@ const setUp = (getMetadataByProjectId: () => Promise<unknown>, linked: unknown =
       jobs: {
         jobsRepository: {
           getByPipelineId: (pipelineId: string) =>
-            Promise.resolve({ items: pipelineId === 'pipeline-1' ? [job] : [] }),
+            Promise.resolve(page(pipelineId === 'pipeline-1' ? [job] : [])),
         },
       },
       apps: { appsRepository: { listApps: () => Promise.resolve([]) } },
@@ -191,10 +191,17 @@ describe('DashboardPipelinePage', () => {
     });
   });
 
-  it('opens the last run of a pipeline', async () => {
+  it('shows the history of each pipeline as bars, and says so when a pipeline has no run', async () => {
     setUp(() => Promise.resolve(page(pipelines)));
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Open the last run' }));
+    expect(await screen.findByRole('button', { name: 'Job job-7: Success' })).toBeInTheDocument();
+    expect(screen.getByText('No run yet')).toBeInTheDocument();
+  });
+
+  it('opens a job from its bar in the history', async () => {
+    setUp(() => Promise.resolve(page(pipelines)));
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Job job-7: Success' }));
 
     expect(navigator.navigate).toHaveBeenCalledWith(
       '/acme/projects/project-1/pipelines/pipeline-1/jobs/job-7',
@@ -262,9 +269,10 @@ describe('DashboardPipelinePage', () => {
     setUp(() => Promise.resolve(page(filePipelines)), link);
     await screen.findByText('build');
 
-    expect(await screen.findByText('build.toml has 3 errors on main')).toBeInTheDocument();
-    expect(screen.getByText('Removed from main')).toBeInTheDocument();
+    expect(screen.getByText('Removed')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Edit pipeline' })).not.toBeInTheDocument();
+    await userEvent.hover(await screen.findByText('3 errors'));
+    expect(await findTooltip()).toHaveTextContent('build.toml has 3 errors on main');
 
     await userEvent.click(screen.getAllByRole('button', { name: 'View pipeline' })[0]);
 

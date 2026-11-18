@@ -1,6 +1,7 @@
 import type { IAppServiceClient } from '@base/generated/scylla/apps/v1/app_service.client.ts';
 import type { IAgentServiceClient } from '@base/generated/scylla/agents/v1/agent_service.client.ts';
 import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
+import { JobView } from '@base/generated/scylla/pipelines/v1/job_service.ts';
 import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import type { ICapabilityServiceClient } from '@base/generated/scylla/capabilities/v1/capability_service.client.ts';
 import type { App } from '@base/generated/scylla/apps/v1/app.ts';
@@ -251,7 +252,10 @@ export class DefaultAppsRepository implements AppsRepository {
     const response = await this.jobs.listWorkspaceJobs({
       workspaceId: wrapId(workspaceId),
       agentId: wrapId(appId),
+      projectIds: [],
+      pipelineIds: [],
       page: { size: limit, token: '' },
+      view: JobView.UNSPECIFIED,
     }).response;
     return response.jobs
       .map(grpcApp.jobToDomain)

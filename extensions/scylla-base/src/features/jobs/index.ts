@@ -16,6 +16,9 @@ export {
   JOBS_QUERY_ROOT,
 } from './presentation/jobs.query-keys.ts';
 export { jobQueries, asJobFeed, WORKSPACE_JOBS_WINDOW } from './presentation/jobs.queries.ts';
-export { jobsByPipelinesQueries } from './presentation/jobs-by-pipelines.queries.ts';
+export {
+  jobsByPipelinesQueries,
+  type PipelineHistory,
+} from './presentation/jobs-by-pipelines.queries.ts';
 
 export const loadJobsPage = () => import('./presentation/ui/Jobs.page.svelte');

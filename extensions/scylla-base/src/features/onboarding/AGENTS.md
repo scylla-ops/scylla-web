@@ -140,7 +140,7 @@ Anchors are attributes on the real elements, never CSS classes:
 - `data-part="…"` in `@scylla/ui` (generic parts): `feature-header-new`, `data-table-row` (a row in
   a table and a card below the width of a table).
 - `data-nav-url` on the core's sidebar links, `data-nav-group` on its folding groups,
-  `data-item-id` on `StatusBar` segments and on `StatusTrail` dots (the history of the pipelines), and the `data-slot` of the primitives: the sidebar, the
+  `data-item-id` on `StatusBar` segments and on the bars of `PipelineChart` (the history of the pipelines), and the `data-slot` of the primitives: the sidebar, the
   inset and the dialogs.
 - The step "Name your project" points at the card of a regular project on `/projects/new`, then at
   the form of `/projects/new/regular`: one step for the two pages keeps the tour at six steps. While

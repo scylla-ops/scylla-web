@@ -4,7 +4,13 @@
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import Specimen from '../Specimen.svelte';
 
-  const VARIANTS = ['default', 'secondary', 'outline', 'destructive'] as const satisfies BadgeVariant[];
+  const VARIANTS = [
+    'default',
+    'secondary',
+    'outline',
+    'destructive',
+    'warning',
+  ] as const satisfies BadgeVariant[];
 
   const { Story } = defineMeta({
     title: 'Primitives/Badge',

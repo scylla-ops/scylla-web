@@ -61,12 +61,14 @@ const APPROVAL_STATES: Partial<Record<GrpcApprovalState, ApprovalState>> = {
   [GrpcApprovalState.REJECTED]: 'rejected',
 };
 
-/** A field that is not set gives each job: an empty text, no event, 0. */
+/** A field that is not set gives each job: an empty text, no event, 0, an empty list. */
 export const filterToProto = (filter: JobFilter): GrpcJobFilter => ({
   branch: filter.branch?.trim() ?? '',
   event: filter.event ? SOURCE_EVENTS[filter.event] : SourceEvent.UNSPECIFIED,
   authorLogin: filter.authorLogin?.trim() ?? '',
   pullRequest: filter.pullRequest ?? 0,
+  statuses: [],
+  origins: [],
 });
 
 /** UNSPECIFIED or a status newer than this build: `unknown`, never a success. */

@@ -22,7 +22,7 @@ type JobsSummary, JobStatus
 summarizeJobs, isActiveStatus, isFinishedStatus
 JOBS_QUERY_KEY, WORKSPACE_JOBS_QUERY_KEY, JOBS_QUERY_ROOT
 jobQueries, asJobFeed, WORKSPACE_JOBS_WINDOW
-jobsByPipelinesQueries
+jobsByPipelinesQueries, type PipelineHistory   ← the history of the pipelines list (30 jobs each)
 loadJobsPage                          ← a loader, not the page
 ```
 
@@ -174,7 +174,7 @@ paths.
 - **A node shows `Attempt N/M` only when it can retry and it started** (`attemptOf`: `M > 1` and
   `N > 0`), in the node list and in the node panel header.
 - **The details page is the one place a job's logs are read.** Everywhere a job is displayed —
-  the jobs table's view action and timeline, the pipeline dashboard's history and last run —
+  the jobs table's view action and timeline, the bars of the pipeline dashboard's history —
   links there through `scyllaNavigate.goToJobDetails(...)` from `@platform/context`, which is an
   object. Which log panels are open is the `nodes` search param, not component
   state (`open-log-panels.state.svelte.ts` owns it), so those links can open straight onto one node's
