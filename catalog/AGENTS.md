@@ -25,7 +25,8 @@ Run them from the repository root.
 src/Specimen.svelte       one case of a component, with its name. `state` shows it hovered or focused
 src/<group>/<Component>.stories.svelte
                           one entry per component. The groups are those of @scylla/ui:
-                          primitives, controls, data-display, feedback, forms, layout
+                          primitives, chart, controls, data-display, feedback, forms, layout,
+                          widget
 ```
 
 ## Add an entry

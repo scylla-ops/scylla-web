@@ -44,6 +44,7 @@ let getPipelines: ReturnType<typeof vi.fn>;
 let getJobs: ReturnType<typeof vi.fn>;
 let listAgents: ReturnType<typeof vi.fn>;
 let checkAccess: ReturnType<typeof vi.fn>;
+let getWorkspaces: ReturnType<typeof vi.fn>;
 let navigate: ReturnType<typeof vi.fn<(to: string, options?: unknown) => void>>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
@@ -67,6 +68,9 @@ beforeEach(() => {
   getJobs = vi.fn().mockResolvedValue(page([job()]));
   listAgents = vi.fn().mockResolvedValue([]);
   checkAccess = vi.fn().mockResolvedValue(new Set());
+  getWorkspaces = vi.fn().mockResolvedValue([
+    { id: 'org-1', name: 'Acme', slug: 'acme', personalTokensEnabled: true, timeZone: 'Asia/Kolkata' },
+  ]);
   navigate = vi.fn();
 
   cache = withQueryClient();
@@ -76,6 +80,7 @@ beforeEach(() => {
     jobs: { jobsRepository: { getByWorkspaceId: getJobs } },
     agents: { agentsRepository: { listAgents, getAgentStats: vi.fn() } },
     access: { accessRepository: { check: checkAccess } },
+    workspace: { workspaceRepository: { getMine: getWorkspaces } },
   });
 
   setAppNavigator({
@@ -118,8 +123,34 @@ describe('DashboardPage', () => {
 
     expect(await screen.findByText('ci')).toBeInTheDocument();
     for (const label of ['Projects', 'Pipelines', 'Runs']) {
-      expect(within(await cardContaining(label)).getByText('1')).toBeInTheDocument();
+      const widget = await screen.findByRole('region', { name: label });
+      expect(within(widget).getByText('1')).toBeInTheDocument();
     }
+  });
+
+  it('puts the figures on the widget grid, one small widget each', async () => {
+    render(DashboardPage);
+
+    const widget = await screen.findByRole('region', { name: 'Success rate' });
+    expect(widget).toHaveAttribute('data-size', 'xs');
+    expect(widget.closest('[data-slot="widget-grid"]')).not.toBeNull();
+  });
+
+  it('says in the header which time zone the times use', async () => {
+    render(DashboardPage);
+
+    expect(await screen.findByText('Times in Asia/Kolkata (UTC+5:30)')).toBeInTheDocument();
+  });
+
+  it('offers the period of the dashboard in the header, the last 14 days first', async () => {
+    const user = userEvent.setup();
+    render(DashboardPage);
+
+    expect(screen.getByRole('radio', { name: '14 d' })).toHaveAttribute('aria-checked', 'true');
+
+    await user.click(screen.getByRole('radio', { name: '30 d' }));
+
+    expect(screen.getByRole('radio', { name: '30 d' })).toHaveAttribute('aria-checked', 'true');
   });
 
   it('shows an em dash rather than 0% when nothing has finished yet', async () => {

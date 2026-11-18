@@ -196,7 +196,8 @@ describe('feature permission conformance', () => {
         'UPDATE_PIPELINE: the dialog adds LIST_SECRETS to `enabled`, and takes a typed name.',
       'workspace.workspaceQueries':
         '`mine` needs no permission: ListWorkspaces gives the workspaces of the caller. The ' +
-        'invitation page reads it after AcceptInvitation, to open the new workspace.',
+        'invitation page reads it after AcceptInvitation, to open the new workspace. The ' +
+        'dashboard reads it for the time zone of the workspace.',
       'access.accessQueries':
         "`list` takes the caller's gate as `enabled`, which is the only place the answer is " +
         'known: a workspace needs LIST_WORKSPACE_MEMBERS and a project LIST_PROJECT_MEMBERS ' +

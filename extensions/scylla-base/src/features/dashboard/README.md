@@ -44,6 +44,11 @@ would only give the next contributor somewhere wrong to put a query.
 
 ## What is on the page
 
+- **The header** — the period of the dashboard (24 h, 7 d, 14 d, 30 d or custom days) and the
+  time zone of the workspace. The days of a period are the days of the workspace, so that two
+  people in two countries see the same bars.
+- **The figures** — four small widgets on the widget grid of `@scylla/ui`. The grid and the
+  widget frame come first; the widgets of the new design come in the next changes.
 - **Run activity** (`RunActivityCard`) — recent job volume and outcomes across the workspace.
 - **Agent outcomes** (`AgentOutcomesChart`) — success/failure trend over time, drawn in plain
   SVG. It used to be `recharts`, whose 119 kB gzip (plus `d3-*` and `victory-vendor`) served

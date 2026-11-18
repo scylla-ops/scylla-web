@@ -37,6 +37,7 @@ wrong.
 | `features/pipeline` | `pipelineQueries.byWorkspace` + `asPipelineFeed` |
 | `features/jobs` | `jobQueries.byWorkspace` + `asJobFeed` |
 | `features/agents` | `agentQueries.byWorkspace`, `agentQueries.statsOf` (in the chart) |
+| `features/workspace` | `workspaceQueries.mine` — the time zone of the current workspace (`createDashboardPeriod`) |
 
 All these reads are `queryOptions` objects, so this module shares one cache entry per resource
 with whoever else reads it.
@@ -49,8 +50,13 @@ index.ts                                public API
 presentation/
   messages/dashboard.messages.ts        every string on the page
   presenters/outcomes-chart.presenter.ts   the chart's geometry — pure, node-tested
+  presenters/zoned-day.presenter.ts     days and midnights in an IANA zone — pure, node-tested
+  presenters/period.presenter.ts        the periods, their instants and their bucket — pure, node-tested
+  presenters/period-options.presenter.ts   the texts of the period picker
   ui/org-overview.state.svelte.ts       the composition ViewModel (exported: other modules read it)
+  ui/dashboard-period.state.svelte.ts   the period of the page and the time zone of the workspace
   ui/Dashboard/Dashboard.page.svelte    the page
+  ui/PeriodPicker/                      24 h, 7 d, 14 d, 30 d, Custom; the form of a custom period
   ui/RunActivityCard/                   recent run activity
   ui/AgentOutcomesChart/                run outcomes over time, in plain SVG
 ```
@@ -100,6 +106,22 @@ narrower permission without moving that redirect target too.
   expression, and an expression is numbered rather than named; `String(…)` / `Number(…)` in
   `dashboard.messages.ts` is what keeps the msgid — and therefore the French — intact.
   `RunActivityCard.fr.test.ts` is the only thing that would notice if it broke.
+
+- **The page is a `WidgetGrid` of `@scylla/ui`.** The figures are `xs` widgets. A new widget is
+  a `Widget` of a size, with a `WidgetState` while it has no data. `packages/ui/AGENTS.md`,
+  "Widgets", gives the grid.
+- **The days of the dashboard are the days of the workspace, not of the browser.**
+  `createDashboardPeriod` reads the zone from `workspaceQueries.mine`. Until it loads, the days
+  count in UTC, and the header does not name a zone. A zone that the browser does not know
+  counts as UTC.
+- **A query reads the instants of the period when it runs, not in its key.** Put
+  `period` (and the zone) in the key, and call `rangeAt()` in `queryFn`. The instants of a preset
+  move with the clock: in a key, they make a new cache entry for each render.
+- **`periodRange` gives what `GetJobStats` needs**: `from`, `to` (`null` is now) and the bucket
+  (`hour` for 24 h and for a custom day, `week` above 92 days, else `day`). Presets count whole
+  days, today included, from midnight of the zone.
+- **The period picker changes no figure yet.** The figures of today are not of a period. The
+  widgets of the next changes read the period.
 
 ## Before done
 
