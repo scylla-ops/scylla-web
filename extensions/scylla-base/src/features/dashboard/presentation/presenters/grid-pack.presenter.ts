@@ -51,7 +51,9 @@ export const packGrid = (spans: readonly Span[], columns: number): Placed[] => {
 
 /**
  * The index of the placed span under the pointer, from the cells: the whole cell counts, the
- * gaps go to the nearest span. `null` out of the grid by more than `margin` px.
+ * gaps go to the nearest span. `null` out of the grid by more than `margin` px. `keep` stays the
+ * answer while the pointer is less than `stickiness` cells away from it: a pointer on a boundary
+ * does not swing between two spans.
  */
 export const placedIndexAt = (
   x: number,
@@ -59,6 +61,8 @@ export const placedIndexAt = (
   placed: readonly Placed[],
   grid: GridGeometry,
   margin = 24,
+  keep: number | null = null,
+  stickiness = 0.25,
 ): number | null => {
   if (placed.length === 0) return null;
   const bottom = Math.max(...placed.map(item => item.row + item.rows));
@@ -73,6 +77,7 @@ export const placedIndexAt = (
     const dy = Math.max(item.row - row, 0, row - (item.row + item.rows));
     return Math.hypot(dx, dy);
   };
+  if (keep !== null && placed[keep] && distance(placed[keep]) <= stickiness) return keep;
   let best = 0;
   placed.forEach((item, index) => {
     if (distance(item) < distance(placed[best])) best = index;

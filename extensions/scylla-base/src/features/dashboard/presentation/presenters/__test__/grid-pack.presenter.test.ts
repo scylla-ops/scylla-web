@@ -36,6 +36,12 @@ describe('placedIndexAt', () => {
     expect(placedIndexAt(5, 460, placed, grid)).toBe(3);
   });
 
+  it('keeps the current span near its edge, and leaves it further away', () => {
+    expect(placedIndexAt(561, 210, placed, grid)).toBe(1);
+    expect(placedIndexAt(561, 232, placed, grid, 24, 1)).toBe(1);
+    expect(placedIndexAt(561, 300, placed, grid, 24, 1)).toBe(2);
+  });
+
   it('gives a gap to the nearest span, and nothing far out of the grid', () => {
     expect(placedIndexAt(552, 100, placed, grid)).toBe(0);
     expect(placedIndexAt(2000, 100, placed, grid)).toBeNull();

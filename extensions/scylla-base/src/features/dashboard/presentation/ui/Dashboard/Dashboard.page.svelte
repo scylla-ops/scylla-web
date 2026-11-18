@@ -110,6 +110,7 @@
   };
 
   const DWELL_MS = 120;
+  const AREA_MARGIN_PX = 24;
   const NEW_WIDGET_ID = 'new-widget';
   const NARROW = { columns: 2, rowHeight: 80, gap: 12 };
   const WIDE = { columns: 8, rowHeight: 98, gap: 16 };
@@ -147,7 +148,14 @@
       }),
       { columns: metrics.columns, rows: 1 },
     ];
-    return placedIndexAt(x, y, packGrid(spans, metrics.columns), { left: box.left, top: box.top, width: box.width, ...metrics });
+    return placedIndexAt(
+      x,
+      y,
+      packGrid(spans, metrics.columns),
+      { left: box.left, top: box.top, width: box.width, ...metrics },
+      AREA_MARGIN_PX,
+      over,
+    );
   };
 
   let pending: { at: number; timer: ReturnType<typeof setTimeout> } | null = null;
