@@ -972,13 +972,43 @@ msgstr "Orphaned · {when}"
 msgid "Overview"
 msgstr "Overview"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/duration.messages.ts:5
+msgctxt "duration"
+msgid "p50"
+msgstr "p50"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/duration.messages.ts:13
+msgctxt "duration"
+msgid "p50 · change"
+msgstr "p50 · change"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:31
 msgid "p50 · median"
 msgstr "p50 · median"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/duration.messages.ts:7
+msgctxt "duration"
+msgid "p50 · median"
+msgstr "p50 · median"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/duration.messages.ts:9
+msgctxt "duration"
+msgid "p50 · p95 {p95}"
+msgstr "p50 · p95 {p95}"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/duration.messages.ts:10
+msgctxt "duration"
+msgid "p50 (median)"
+msgstr "p50 (median)"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:30
 msgid "p50 and p95"
 msgstr "p50 and p95"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/duration.messages.ts:8
+msgctxt "duration"
+msgid "p50 and p95 · {period}"
+msgstr "p50 and p95 · {period}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:53
 msgid "p50 and p95 of the jobs"
@@ -989,6 +1019,11 @@ msgid "p50 run duration"
 msgstr "p50 run duration"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:32
+msgid "p95"
+msgstr "p95"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/duration.messages.ts:6
+msgctxt "duration"
 msgid "p95"
 msgstr "p95"
 
@@ -1274,6 +1309,11 @@ msgstr "Size"
 msgid "Size of {title}"
 msgstr "Size of {title}"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/duration.messages.ts:12
+msgctxt "duration"
+msgid "Slowest pipelines"
+msgstr "Slowest pipelines"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:48
 msgid "Small"
 msgstr "Small"
@@ -1427,6 +1467,11 @@ msgstr "Undo the last change"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:18
 msgid "Units that fill up"
 msgstr "Units that fill up"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/duration.messages.ts:11
+msgctxt "duration"
+msgid "up to p95"
+msgstr "up to p95"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/rate.messages.ts:6
 msgctxt "rate"

@@ -81,7 +81,7 @@ export const DATA: Readonly<Record<WidgetData, DataEntry>> = {
   'success-rate': { data: 'success-rate', kind: 'ratio', title: m.successRate, hint: m.successRateHint, sizes: ['s', 'xs', 'm', 'l'] },
   runs: { data: 'runs', kind: 'bars', title: m.runs, hint: m.runsHint, sizes: ['m', 'l'] },
   'run-minutes': { data: 'run-minutes', kind: 'bars', title: m.runMinutes, hint: m.runMinutesHint, sizes: ['xs'] },
-  'run-duration': { data: 'run-duration', kind: 'line', title: m.runDuration, hint: m.runDurationHint, sizes: ['m', 'xs'] },
+  'run-duration': { data: 'run-duration', kind: 'line', title: m.runDuration, hint: m.runDurationHint, sizes: ['m', 'xs', 's', 'l'] },
   'right-now': { data: 'right-now', kind: 'status-band', title: m.rightNow, hint: m.rightNowHint, sizes: ['m', 'xs', 's', 'l'] },
   agents: { data: 'agents', kind: 'capacity', title: m.agents, hint: m.agentsHint, sizes: ['s', 'xs'] },
   pipelines: { data: 'pipelines', kind: 'health', title: m.pipelines, hint: m.pipelinesHint, sizes: ['m', 'l', 's', 'xs'] },
