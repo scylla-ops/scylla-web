@@ -202,7 +202,7 @@ msgstr "Ajouter un widget"
 msgid "Add a widget, or drop one here"
 msgstr "Ajoutez un widget, ou déposez-en un ici"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:77
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:78
 msgid "Add an agent"
 msgstr "Ajouter un agent"
 
@@ -288,11 +288,16 @@ msgstr "Annuler"
 msgid "cancelled"
 msgstr "annulés"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:72
+msgctxt "legend"
+msgid "Cancelled"
+msgstr "Annulés"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:17
 msgid "Capacity"
 msgstr "Capacité"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:79
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:80
 msgid "Choose a pipeline"
 msgstr "Choisir un pipeline"
 
@@ -308,7 +313,7 @@ msgstr "Choisir les jours"
 msgid "Close"
 msgstr "Fermer"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:74
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:75
 msgid "completed"
 msgstr "terminés"
 
@@ -427,7 +432,7 @@ msgstr "Des événements sur un axe du temps"
 msgid "Extra small"
 msgstr "Très petit"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:72
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:73
 msgid "failed"
 msgstr "échoués"
 
@@ -467,7 +472,7 @@ msgstr "Carte de chaleur"
 msgid "Integrations"
 msgstr "Intégrations"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:78
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:79
 msgid "Invite a member"
 msgstr "Inviter un membre"
 
@@ -700,7 +705,7 @@ msgstr "ouverts"
 msgid "Ops overview"
 msgstr "Vue des opérations"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:73
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:74
 msgid "orphaned"
 msgstr "orphelin"
 
@@ -836,7 +841,7 @@ msgstr "Relancer"
 msgid "Resize {title}"
 msgstr "Redimensionner {title}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:82
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:83
 msgid "Retry"
 msgstr "Réessayer"
 
@@ -859,7 +864,7 @@ msgstr "Durée des exécutions"
 msgid "Run minutes"
 msgstr "Minutes d'exécution"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:76
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:77
 msgid "Run pipeline"
 msgstr "Lancer un pipeline"
 
@@ -1104,11 +1109,11 @@ msgstr "Ce qui vous attend"
 msgid "What should it show?"
 msgstr "Que doit-il afficher ?"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:81
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:82
 msgid "You do not have the permission to read this data."
 msgstr "Vous n’avez pas la permission de lire ces données."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:80
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:81
 msgid "You have no permission for these actions."
 msgstr "Vous n’avez la permission pour aucune de ces actions."
 

@@ -149,7 +149,7 @@
             <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
               <ChartLegendItem tone="passed" label={t(widgetMessages.completed)} value={outcomes.completed} />
               <ChartLegendItem tone="failed" label={t(widgetMessages.failed)} value={outcomes.failed} />
-              <ChartLegendItem tone="canceled" label={t(widgetMessages.cancelled)} value={outcomes.cancelled + outcomes.orphaned} />
+              <ChartLegendItem tone="canceled" label={t(widgetMessages.cancelledLegend)} value={outcomes.cancelled + outcomes.orphaned} />
             </div>
           {/if}
         </div>
