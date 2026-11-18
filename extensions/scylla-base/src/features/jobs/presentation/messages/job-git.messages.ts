@@ -53,6 +53,10 @@ export const jobGitMessages = {
 
   waitingForEditor: msg`waiting for a project editor`,
   noAgentWithCheckout: msg`no agent with Git and checkout support is online`,
+  unfitTitle: msg`These online agents cannot get the code of this job`,
+  unfitUpdate: msg`Update the agent`,
+  unfitInstallGit: msg`Install Git on its machine`,
+  unfitUnknown: msg`Cannot run this job`,
 
   report: msg`Report`,
   gitHubCheck: (context: string) => msg`GitHub check ${context}`,

@@ -8,6 +8,7 @@
   import { IdentityAvatar } from '@shared/presentation/ui';
   import { formatDay } from '@shared/utils/date-utils.ts';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
+  import AgentCompatibilityBadge from '../components/AgentCompatibilityBadge/AgentCompatibilityBadge.svelte';
   import AgentStatusPill from '../components/AgentStatusPill/AgentStatusPill.svelte';
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
   import { agentsListMessages } from '@base/features/apps/presentation/messages/agents-list.messages.ts';
@@ -42,6 +43,7 @@
       <span data-tour="agent-status" data-online={agent.connected}>
         <AgentStatusPill {agent} {noActiveKey} />
       </span>
+      <AgentCompatibilityBadge {agent} />
     </div>
     <p class="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
       {t(messages.id)}

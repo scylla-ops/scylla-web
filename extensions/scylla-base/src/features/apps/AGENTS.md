@@ -87,7 +87,16 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   An agent that never said hello shows a connect card with "Finish setup", which opens
   `/agents/<id>/connect`; "New join code" of the keys card opens it too. Do not make the code on
   the open of the agent page: a new code stops the code of a machine that installs now. The machine card
-  shows the versions and the update command when the agent and the server have different versions.
+  (`AgentMachineCard/`) shows the versions of the agent and of the server as text. When the agent
+  is `outdated` or `unsupported` (`needsUpdate`: the server compares the protocols), they are
+  badges: warning, or destructive when the server refuses the agent, with the hint in a tooltip.
+  Each feature is a badge (`FeatureBadges`): a check for a feature of the agent, a warning with
+  the fix in a tooltip for a missing feature (`featureFixOf`: `checkout` on an agent with the
+  protocol 2 needs Git, else a new agent). It shows the update commands (`UpdateCommands`) when the
+  agent needs an update, or when the releases of the two versions differ (`releaseOf`: a build
+  that is not a release adds its commit as build metadata, `0.7.0-rc.1+240da00` or
+  `0.7.0-rc.1+dev`, and downloads the same release).
+  `AgentCompatibilityBadge` shows "Update needed" or "Incompatible" in the list and in the header.
   The delete zone shows the uninstall command for the system of the agent. A Docker agent reports
   `linux`, so Linux also shows the Docker command.
 - The timeline and the period: `agent-stats.state.svelte.ts` asks for two periods with

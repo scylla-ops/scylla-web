@@ -31,6 +31,8 @@ const agent = (id: string, name: string, patch: Record<string, unknown> = {}) =>
   createdAt: '2026-01-01T00:00:00.000Z',
   runningJobs: 0,
   disabledAt: '',
+  compatibility: 'compatible',
+  missingFeatures: [],
   ...patch,
 });
 
@@ -163,6 +165,20 @@ describe('AgentsList', () => {
     );
     expect(within(row('build-linux-01')).getByText('All projects')).toBeInTheDocument();
     expect(within(row('gpu-runner-01')).getByText('ml-training')).toBeInTheDocument();
+  });
+
+  it('marks an outdated agent and an incompatible agent', async () => {
+    setUp(ALL, [
+      agent('a1', 'build-old', { compatibility: 'outdated' }),
+      agent('a2', 'build-older', { compatibility: 'unsupported' }),
+      agent('a3', 'build-new'),
+    ]);
+
+    const row = async (name: string) =>
+      (await screen.findByText(name)).closest('tr') as HTMLElement;
+    expect(within(await row('build-old')).getByText('Update needed')).toBeInTheDocument();
+    expect(within(await row('build-older')).getByText('Incompatible')).toBeInTheDocument();
+    expect(within(await row('build-new')).queryByText('Update needed')).not.toBeInTheDocument();
   });
 
   it('grows with its list, so the last row scrolls above a floating button at the bottom right', async () => {

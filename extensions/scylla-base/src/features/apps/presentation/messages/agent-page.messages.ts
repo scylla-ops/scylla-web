@@ -56,6 +56,7 @@ export const agentPageMessages = {
   hostname: msg`Hostname`,
   system: msg`System`,
   agentVersion: msg`Agent version`,
+  serverVersion: msg`Server version`,
   cpus: msg`CPUs`,
   memory: msg`Memory`,
   jobsAtOnce: msg`Jobs at once`,
@@ -63,6 +64,10 @@ export const agentPageMessages = {
   noRuntime: msg`None`,
   newVersion: (agent: string, server: string) =>
     msg`This agent has version ${agent}. The server has version ${server}.`,
+  features: msg`Features`,
+  noFeature: msg`None`,
+  installGit: msg`Install Git on this machine`,
+  updateForFeature: msg`Update the agent`,
   installedWithScript: msg`Installed with the script`,
   runsInDocker: msg`Runs in Docker`,
   updateInDocker: msg`Runs in Docker. Use the options and the volume of your first command.`,

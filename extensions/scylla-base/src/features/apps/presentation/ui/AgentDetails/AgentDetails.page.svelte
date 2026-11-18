@@ -15,7 +15,7 @@
   import AgentStatsRow from './AgentStatsRow.svelte';
   import AgentTimeline from './AgentTimeline/AgentTimeline.svelte';
   import JobsPerDayCard from './JobsPerDayCard/JobsPerDayCard.svelte';
-  import AgentMachineCard from './AgentMachineCard.svelte';
+  import AgentMachineCard from './AgentMachineCard/AgentMachineCard.svelte';
   import AgentRecentJobsCard from './AgentRecentJobsCard.svelte';
   import AgentAccessCard from './AgentAccessCard.svelte';
   import AgentKeysCard from './AgentKeysCard.svelte';
