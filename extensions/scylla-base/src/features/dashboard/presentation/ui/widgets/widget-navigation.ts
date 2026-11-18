@@ -20,3 +20,20 @@ export const openPipelineJobs = (pipeline: {
   contextStore.getState().setProject(pipeline.projectId, pipeline.projectName);
   scyllaNavigate.goToJobs(pipeline.id, pipeline.name);
 };
+
+/** Opens the triggers of a pipeline. */
+export const openTriggers = (place: {
+  pipelineId: string;
+  pipelineName: string;
+  projectId: string;
+  projectName: string;
+}) => {
+  if (!place.projectId) return;
+  contextStore.getState().setProject(place.projectId, place.projectName);
+  scyllaNavigate.goToTriggers(place.pipelineId, place.pipelineName);
+};
+
+/** Opens the page of an agent. */
+export const openAgent = (agentId: string) => {
+  scyllaNavigate.goToAgentDetails(agentId);
+};

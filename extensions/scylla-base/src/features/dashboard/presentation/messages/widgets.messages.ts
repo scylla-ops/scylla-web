@@ -63,6 +63,10 @@ export const widgetMessages = {
   allClearText: msg`No pipeline is red and no job waits for an approval.`,
   approval: msg`approval`,
   logs: msg`Logs`,
+  rerun: msg`Rerun`,
+  fireNow: msg`Fire now`,
+  trigger: msg`Trigger`,
+  agent: msg`Agent`,
   review: msg`Review`,
 
   jobEnds: msg`job ends`,
