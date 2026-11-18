@@ -4,7 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { setAppNavigator, contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
-import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
+import { LocalDashboardLayoutRepository } from '@base/features/dashboard/infrastructure/local-dashboard-layout.repository.ts';
+import { dashboardEditor } from '@base/features/dashboard/presentation/ui/dashboard-editor.state.svelte.ts';
 import { dashboardView } from '@base/features/dashboard/presentation/ui/dashboard-view.state.svelte.ts';
 import DashboardPage from './Dashboard.page.svelte';
 import DashboardWithPanel from './__test__/DashboardWithPanel.fixture.svelte';
@@ -48,6 +50,7 @@ let getNewest: ReturnType<typeof vi.fn>;
 let getSummaries: ReturnType<typeof vi.fn>;
 let getWorkspaces: ReturnType<typeof vi.fn>;
 let getProjects: ReturnType<typeof vi.fn>;
+let stored: Map<string, string>;
 let navigate: ReturnType<typeof installTestNavigator>['navigate'];
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
@@ -75,8 +78,15 @@ beforeEach(() => {
 
   getProjects = vi.fn().mockResolvedValue({ items: [{ id: 'project-1', workspaceId: 'org-1', name: 'Acme project' }] });
 
+  stored = new Map();
+  const storage = {
+    getItem: (key: string) => stored.get(key) ?? null,
+    setItem: (key: string, value: string) => void stored.set(key, value),
+  };
+
   cache = withQueryClient();
   restoreRegistry = withRegistry({
+    dashboard: { dashboardLayoutRepository: new LocalDashboardLayoutRepository(() => storage) },
     pipeline: {
       pipelineRepository: { getSummaries },
     },
@@ -107,6 +117,9 @@ afterEach(() => {
   setAppNavigator(null);
   permissionsStore.setState({ permissions: null });
   dashboardView.setProject(null);
+  dashboardEditor.stop();
+  dashboardView.closeAdd();
+  dashboardView.setCreating(false);
 });
 
 describe('DashboardPage', () => {
@@ -220,5 +233,90 @@ describe('DashboardPanel', () => {
     expect(await screen.findByText('Ops overview')).toBeInTheDocument();
     expect(screen.getByText('Default')).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Scope' })).toHaveTextContent('All projects');
+  });
+});
+
+describe('The edit mode', () => {
+  const storedSet = () => JSON.parse(stored.get('dashboards:org-1') ?? 'null') as {
+    defaultId: string;
+    dashboards: { id: string; name: string; widgets: { data: string; size: string }[] }[];
+  } | null;
+
+  it('removes a widget in a draft, and stores the layout on Save layout', async () => {
+    const user = userEvent.setup();
+    render(DashboardWithPanel);
+
+    await user.click(await screen.findByRole('button', { name: 'Edit dashboard' }));
+    await user.click(screen.getByRole('button', { name: 'Remove Success rate' }));
+
+    expect(screen.queryByRole('region', { name: 'Success rate' })).not.toBeInTheDocument();
+    expect(screen.getByText('1 change · not saved')).toBeInTheDocument();
+    expect(storedSet()).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Save layout' }));
+
+    await vi.waitFor(() => expect(storedSet()?.dashboards[0].widgets).toHaveLength(11));
+    expect(storedSet()?.dashboards[0].widgets.some(widget => widget.data === 'success-rate')).toBe(false);
+    expect(screen.getByRole('button', { name: 'Edit dashboard' })).toBeInTheDocument();
+  });
+
+  it('drops the draft on Cancel, and Undo takes back one change', async () => {
+    const user = userEvent.setup();
+    render(DashboardWithPanel);
+
+    await user.click(await screen.findByRole('button', { name: 'Edit dashboard' }));
+    await user.click(screen.getByRole('button', { name: 'Remove Success rate' }));
+    await user.click(screen.getByRole('button', { name: 'Undo the last change' }));
+    expect(screen.getByRole('region', { name: 'Success rate' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Remove Pipelines' }));
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.getByRole('region', { name: 'Pipelines' })).toBeInTheDocument();
+    expect(storedSet()).toBeNull();
+  });
+
+  it('changes the size of the selected widget from its toolbar', async () => {
+    const user = userEvent.setup();
+    render(DashboardWithPanel);
+
+    await user.click(await screen.findByRole('button', { name: 'Edit dashboard' }));
+    await user.click(screen.getByRole('button', { name: 'Success rate', pressed: false }));
+    const sizes = screen.getByRole('radiogroup', { name: 'Size of Success rate' });
+    expect(within(sizes).getByRole('radio', { name: 'L' })).toBeDisabled();
+    await user.click(within(sizes).getByRole('radio', { name: 'XS' }));
+
+    expect(screen.getByRole('region', { name: 'Success rate' })).toHaveAttribute('data-size', 'xs');
+  });
+
+  it('adds a widget of a kind from the palette', async () => {
+    const user = userEvent.setup();
+    render(DashboardWithPanel);
+
+    await user.click(await screen.findByRole('button', { name: 'Edit dashboard' }));
+    await user.click(screen.getByRole('button', { name: 'Remove Pipelines' }));
+    await user.click(screen.getByRole('button', { name: 'Health' }));
+    await user.click(await findFloating('button', 'Add widget'));
+
+    expect(await screen.findByRole('region', { name: 'Pipelines' })).toBeInTheDocument();
+    expect(screen.getByText('2 changes · not saved')).toBeInTheDocument();
+  });
+
+  it('creates a dashboard from a template, and opens it in the edit mode', async () => {
+    const user = userEvent.setup();
+    render(DashboardWithPanel);
+
+    await user.click(await screen.findByRole('button', { name: 'New dashboard' }));
+    await user.type(await screen.findByLabelText('Name'), 'Release day');
+    await user.click(await findFloating('button', 'Create dashboard'));
+
+    await vi.waitFor(() => expect(storedSet()?.dashboards.map(item => item.name)).toEqual(['Ops overview', 'Release day']));
+    expect(storedSet()?.dashboards[1].widgets.map(widget => widget.data)).toEqual([
+      'summary',
+      'last-24-hours',
+      'needs-you',
+      'activity',
+    ]);
+    expect(screen.getByRole('button', { name: 'Save layout' })).toBeInTheDocument();
   });
 });

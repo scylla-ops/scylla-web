@@ -1,36 +1,39 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_WIDGETS } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
-import { toDashboards, toStored } from '../stored-dashboards.mapper.ts';
+import { firstDashboardSet } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
+import { toDashboardSet, toStored } from '../stored-dashboards.mapper.ts';
 
 describe('stored dashboards', () => {
-  it('gives the default dashboard when nothing is stored or the copy does not parse', () => {
-    expect(toDashboards(null)).toEqual([{ id: 'default', name: null, widgets: DEFAULT_WIDGETS }]);
-    expect(toDashboards('{')).toEqual(toDashboards(null));
+  it('gives nothing when nothing is stored, or the copy does not parse', () => {
+    expect(toDashboardSet(null)).toBeNull();
+    expect(toDashboardSet('{')).toBeNull();
+    expect(toDashboardSet(JSON.stringify([{ id: 'a' }]))).toBeNull();
   });
 
-  it('drops the unknown widgets, the unknown sizes and the second copy of a widget', () => {
-    const raw = JSON.stringify([
-      {
-        id: 'abc',
-        name: 'Release day',
-        widgets: [
-          { widget: 'pipelines', size: 'l' },
-          { widget: 'pipelines', size: 'm' },
-          { widget: 'heatmap', size: 'm' },
-          { widget: 'activity', size: 'xxl' },
-        ],
-      },
-    ]);
-    expect(toDashboards(raw)[1]).toEqual({
-      id: 'abc',
-      name: 'Release day',
-      widgets: [{ widget: 'pipelines', size: 'l' }],
+  it('drops the unknown data, the unknown sizes and a second widget of one id', () => {
+    const raw = JSON.stringify({
+      defaultId: 'gone',
+      dashboards: [
+        {
+          id: 'a',
+          name: 'Release day',
+          widgets: [
+            { id: 'w1', data: 'pipelines', size: 'l' },
+            { id: 'w1', data: 'runs', size: 'm' },
+            { id: 'w2', data: 'heatmap', size: 'm' },
+            { id: 'w3', data: 'runs', size: 'xxl' },
+          ],
+        },
+      ],
+    });
+    expect(toDashboardSet(raw)).toEqual({
+      defaultId: 'a',
+      dashboards: [{ id: 'a', name: 'Release day', widgets: [{ id: 'w1', data: 'pipelines', size: 'l' }] }],
     });
   });
 
   it('reads back what it stores', () => {
-    const dashboards = toDashboards(null);
-    expect(toDashboards(toStored(dashboards))).toEqual(dashboards);
+    const set = firstDashboardSet('Ops overview');
+    expect(toDashboardSet(toStored(set))).toEqual(set);
   });
 });

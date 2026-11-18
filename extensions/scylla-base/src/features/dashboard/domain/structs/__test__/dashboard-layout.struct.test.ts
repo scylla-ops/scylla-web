@@ -2,47 +2,45 @@
 import { describe, expect, it } from 'vitest';
 import {
   addWidget,
-  defaultDashboard,
+  changeWidget,
+  dashboardOf,
   deleteDashboard,
-  DEFAULT_DASHBOARD_ID,
-  missingWidgets,
+  firstDashboardSet,
+  moveWidget,
   removeWidget,
-  resizeWidget,
+  TEMPLATES,
   upsertDashboard,
-  withDefaultDashboard,
+  type LayoutWidget,
 } from '../dashboard-layout.struct.ts';
 
-const other = { id: 'abc', name: 'Release day', widgets: [] };
+const widget = (id: string): LayoutWidget => ({ id, data: 'runs', size: 'm' });
 
 describe('dashboard layout', () => {
-  it('puts the default dashboard first, also when the list does not hold it', () => {
-    expect(withDefaultDashboard([other]).map(dashboard => dashboard.id)).toEqual([
-      DEFAULT_DASHBOARD_ID,
-      'abc',
-    ]);
+  it('starts a workspace with the default layout of the design', () => {
+    const set = firstDashboardSet('Ops overview');
+    expect(set.dashboards).toHaveLength(1);
+    expect(dashboardOf(set, null)?.widgets).toEqual(TEMPLATES.bento);
+    expect(TEMPLATES.bento.map(item => item.size)).toEqual(['l', 'm', 'm', 'l', 's', 's', 'm', 'm', 'xs', 'xs', 'xs', 'xs']);
   });
 
-  it('adds a widget once, at the end', () => {
-    const layout = addWidget(other, 'pipelines', 'l');
-    expect(layout.widgets).toEqual([{ widget: 'pipelines', size: 'l' }]);
-    expect(addWidget(layout, 'pipelines', 'm')).toBe(layout);
+  it('adds, removes, changes and moves a widget', () => {
+    const list = addWidget([widget('a'), widget('b')], widget('c'), 1);
+    expect(list.map(item => item.id)).toEqual(['a', 'c', 'b']);
+    expect(removeWidget(list, 'c').map(item => item.id)).toEqual(['a', 'b']);
+    expect(changeWidget(list, 'b', { size: 'l' })[2].size).toBe('l');
+    expect(moveWidget(list, 'a', 2).map(item => item.id)).toEqual(['c', 'b', 'a']);
   });
 
-  it('removes and resizes a widget', () => {
-    const layout = resizeWidget(defaultDashboard(), 'activity', 'l');
-    expect(layout.widgets.find(item => item.widget === 'activity')?.size).toBe('l');
-    expect(missingWidgets(removeWidget(layout, 'activity'))).toEqual(['activity']);
+  it('opens the default dashboard with no id, and nothing for an unknown id', () => {
+    const set = upsertDashboard(firstDashboardSet('Ops'), { id: 'b', name: 'Release day', widgets: [] });
+    expect(dashboardOf({ ...set, defaultId: 'b' }, null)?.name).toBe('Release day');
+    expect(dashboardOf(set, 'nope')).toBeUndefined();
   });
 
-  it('replaces a dashboard of the same id, or adds it', () => {
-    const renamed = { ...other, name: 'Deploys' };
-    expect(upsertDashboard([other], renamed)).toEqual([renamed]);
-    expect(upsertDashboard([], other)).toEqual([other]);
-  });
-
-  it('never deletes the default dashboard', () => {
-    const list = withDefaultDashboard([other]);
-    expect(deleteDashboard(list, DEFAULT_DASHBOARD_ID)).toHaveLength(2);
-    expect(deleteDashboard(list, 'abc')).toHaveLength(1);
+  it('keeps the last dashboard, and moves the default when it goes', () => {
+    const one = firstDashboardSet('Ops');
+    expect(deleteDashboard(one, 'default')).toBe(one);
+    const two = upsertDashboard(one, { id: 'b', name: 'B', widgets: [] });
+    expect(deleteDashboard(two, 'default')).toEqual({ defaultId: 'b', dashboards: [two.dashboards[1]] });
   });
 });
