@@ -14,6 +14,7 @@ import { deliveryStatsQueries } from '@base/features/dashboard/presentation/deli
 import { vcsConnectionQueries } from '@base/features/integrations';
 import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
 import type { PeriodRange } from '@base/features/dashboard/presentation/presenters/period.presenter.ts';
+import { currentInstant, dayIn, startOfDayIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
 import { pipelinesById } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
 
 /** The last jobs of each pipeline that the Pipelines widget shows. */
@@ -74,6 +75,22 @@ export const createDashboardWidgets = (
       workspaceId,
       scope,
       { compare: true, groupBy: 'pipeline', groupOrder: 'p50-duration', groupLimit: GROUP_LIMIT, ...scopedProjects() },
+      canReadJobs,
+    ),
+  );
+  const monthScope = $derived<PeriodScope<PeriodRange>>({
+    scope: ['month', period.timeZone ?? 'UTC'],
+    range: () => {
+      const zone = period.timeZone ?? 'UTC';
+      const first = `${dayIn(currentInstant(), zone).slice(0, 8)}01`;
+      return { from: startOfDayIn(first, zone), to: null, bucket: 'day' };
+    },
+  });
+  const monthMinutes = createQuery(() =>
+    jobQueries.stats(
+      workspaceId,
+      monthScope,
+      { groupBy: 'project', groupOrder: 'run-time', groupLimit: GROUP_LIMIT, ...scopedProjects() },
       canReadJobs,
     ),
   );
@@ -153,6 +170,8 @@ export const createDashboardWidgets = (
       return !agents.isPending || agents.fetchStatus !== 'idle';
     },
     stats,
+    /** The run time of the calendar month by day, and by project. */
+    monthMinutes,
     /** The stats by pipeline, the most failures first. */
     failingPipelines,
     /** The stats by pipeline, the slowest median first, with the previous period. */

@@ -57,6 +57,11 @@ msgctxt "ago"
 msgid "{count} d"
 msgstr "{count} d"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/minutes.messages.ts:8
+msgctxt "minutes"
+msgid "{count} days left"
+msgstr "{count} days left"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/activity.messages.ts:10
 msgctxt "activity"
 msgid "{count} events"
@@ -74,6 +79,11 @@ msgstr "{count} h"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:28
 msgctxt "ago"
+msgid "{count} min"
+msgstr "{count} min"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/minutes.messages.ts:6
+msgctxt "minutes"
 msgid "{count} min"
 msgstr "{count} min"
 
@@ -464,6 +474,16 @@ msgctxt "live"
 msgid "approval"
 msgstr "approval"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/minutes.messages.ts:10
+msgctxt "minutes"
+msgid "At this pace: ~{minutes} min"
+msgstr "At this pace: ~{minutes} min"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/minutes.messages.ts:9
+msgctxt "minutes"
+msgid "At this pace: about {minutes} min by {day}"
+msgstr "At this pace: about {minutes} min by {day}"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:17
 msgctxt "live"
 msgid "attempt {attempt}"
@@ -509,6 +529,11 @@ msgstr "Busy slots · last 24 h"
 msgctxt "activity"
 msgid "by {name}"
 msgstr "by {name}"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/minutes.messages.ts:11
+msgctxt "minutes"
+msgid "By project"
+msgstr "By project"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:67
 msgid "Calm · needs you"
@@ -1028,6 +1053,11 @@ msgstr "Median"
 msgid "Medium"
 msgstr "Medium"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/minutes.messages.ts:12
+msgctxt "minutes"
+msgid "minutes"
+msgstr "minutes"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/rate.messages.ts:7
 msgctxt "rate"
 msgid "Most failures"
@@ -1148,6 +1178,11 @@ msgstr "No pipeline is red and no job waits for an approval."
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:43
 msgid "No pipelines yet"
 msgstr "No pipelines yet"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/minutes.messages.ts:13
+msgctxt "minutes"
+msgid "No run this month"
+msgstr "No run this month"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:17
 msgctxt "attention"
@@ -1475,6 +1510,11 @@ msgstr "Run duration"
 msgid "Run minutes"
 msgstr "Run minutes"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/minutes.messages.ts:5
+msgctxt "minutes"
+msgid "Run minutes"
+msgstr "Run minutes"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:80
 msgid "Run pipeline"
 msgstr "Run pipeline"
@@ -1791,6 +1831,11 @@ msgstr "This dashboard changed in another tab or for another person. The page sh
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:33
 msgid "This dashboard has no widget yet."
 msgstr "This dashboard has no widget yet."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/minutes.messages.ts:7
+msgctxt "minutes"
+msgid "this month"
+msgstr "this month"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:51
 msgid "This widget has no layout in this size yet."
