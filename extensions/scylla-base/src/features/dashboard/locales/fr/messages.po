@@ -343,6 +343,11 @@ msgctxt "schedules"
 msgid "Add a cron trigger to a pipeline to see its next fires here."
 msgstr "Ajoutez un déclencheur cron à un pipeline pour voir ici ses prochains déclenchements."
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/quick-actions.messages.ts:6
+msgctxt "quick actions"
+msgid "Add a secret"
+msgstr "Ajouter un secret"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:36
 msgid "Add a widget"
 msgstr "Ajouter un widget"
@@ -824,6 +829,11 @@ msgctxt "schedules"
 msgid "Fire {name} now"
 msgstr "Déclencher {name}"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/quick-actions.messages.ts:5
+msgctxt "quick actions"
+msgid "Fire a trigger"
+msgstr "Lancer un déclencheur"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/activity.messages.ts:16
 msgctxt "activity"
 msgid "fire failed"
@@ -1140,6 +1150,11 @@ msgstr "sans moteur de conteneurs"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:18
 msgctxt "schedules"
 msgid "No cron trigger"
+msgstr "Aucun déclencheur cron"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/quick-actions.messages.ts:7
+msgctxt "quick actions"
+msgid "No cron trigger yet"
 msgstr "Aucun déclencheur cron"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:19

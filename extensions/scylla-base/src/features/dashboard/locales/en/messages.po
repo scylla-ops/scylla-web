@@ -343,6 +343,11 @@ msgctxt "schedules"
 msgid "Add a cron trigger to a pipeline to see its next fires here."
 msgstr "Add a cron trigger to a pipeline to see its next fires here."
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/quick-actions.messages.ts:6
+msgctxt "quick actions"
+msgid "Add a secret"
+msgstr "Add a secret"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:36
 msgid "Add a widget"
 msgstr "Add a widget"
@@ -824,6 +829,11 @@ msgctxt "schedules"
 msgid "Fire {name} now"
 msgstr "Fire {name} now"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/quick-actions.messages.ts:5
+msgctxt "quick actions"
+msgid "Fire a trigger"
+msgstr "Fire a trigger"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/activity.messages.ts:16
 msgctxt "activity"
 msgid "fire failed"
@@ -1141,6 +1151,11 @@ msgstr "no container runtime"
 msgctxt "schedules"
 msgid "No cron trigger"
 msgstr "No cron trigger"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/quick-actions.messages.ts:7
+msgctxt "quick actions"
+msgid "No cron trigger yet"
+msgstr "No cron trigger yet"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:19
 msgid "No ended jobs in this period"

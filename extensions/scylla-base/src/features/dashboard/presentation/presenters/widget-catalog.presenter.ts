@@ -90,7 +90,7 @@ export const DATA: Readonly<Record<WidgetData, DataEntry>> = {
   activity: { data: 'activity', kind: 'activity', title: m.activity, hint: m.activityText, sizes: ['m', 'l', 's', 'xs'] },
   schedules: { data: 'schedules', kind: 'triggers', title: scheduleMessages.title, hint: scheduleMessages.catalogHint, sizes: ['m', 'xs', 's', 'l'] },
   webhooks: { data: 'webhooks', kind: 'integrations', title: webhookMessages.title, hint: webhookMessages.catalogHint, sizes: ['m', 'xs', 's', 'l'] },
-  'quick-actions': { data: 'quick-actions', kind: 'quick-actions', title: m.actions, hint: m.actionsHint, sizes: ['m'] },
+  'quick-actions': { data: 'quick-actions', kind: 'quick-actions', title: m.actions, hint: m.actionsHint, sizes: ['m', 'xs', 's'] },
 };
 
 export const kindOf = (kind: WidgetKind): KindEntry =>
