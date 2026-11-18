@@ -97,6 +97,11 @@ msgstr "{factor}× the median"
 msgid "{green} of {total} green"
 msgstr "{green} of {total} green"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:6
+msgctxt "pipelines"
+msgid "{green} of {total} green"
+msgstr "{green} of {total} green"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:76
 msgid "{hours} h"
 msgstr "{hours} h"
@@ -590,6 +595,11 @@ msgstr "failed + orphaned"
 msgid "failing first"
 msgstr "failing first"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:5
+msgctxt "pipelines"
+msgid "failing first"
+msgstr "failing first"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:47
 msgid "finished runs that completed"
 msgstr "finished runs that completed"
@@ -609,6 +619,11 @@ msgid "First day"
 msgstr "First day"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:40
+msgid "green"
+msgstr "green"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:8
+msgctxt "pipelines"
 msgid "green"
 msgstr "green"
 
@@ -674,6 +689,11 @@ msgid "last {count} runs"
 msgstr "last {count} runs"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:37
+msgid "Last {count} runs"
+msgstr "Last {count} runs"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:12
+msgctxt "pipelines"
 msgid "Last {count} runs"
 msgstr "Last {count} runs"
 
@@ -746,6 +766,11 @@ msgstr "Median"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:72
 msgctxt "health"
+msgid "Median"
+msgstr "Median"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:14
+msgctxt "pipelines"
 msgid "Median"
 msgstr "Median"
 
@@ -826,6 +851,11 @@ msgstr "No job, fire or agent needs you now."
 msgid "No jobs in this period"
 msgstr "No jobs in this period"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:16
+msgctxt "pipelines"
+msgid "No pipeline fails."
+msgstr "No pipeline fails."
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:64
 msgid "No pipeline is red and no job waits for an approval."
 msgstr "No pipeline is red and no job waits for an approval."
@@ -881,6 +911,11 @@ msgstr "Number + bars"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:72
 msgid "numbers and charts"
 msgstr "numbers and charts"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:7
+msgctxt "pipelines"
+msgid "of {total} green"
+msgstr "of {total} green"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:27
 msgid "of finished runs"
@@ -999,6 +1034,11 @@ msgctxt "health"
 msgid "Pipeline"
 msgstr "Pipeline"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:11
+msgctxt "pipelines"
+msgid "Pipeline"
+msgstr "Pipeline"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:58
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:7
 msgid "Pipelines"
@@ -1026,6 +1066,11 @@ msgid "Ratio"
 msgstr "Ratio"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:41
+msgid "red"
+msgstr "red"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:9
+msgctxt "pipelines"
 msgid "red"
 msgstr "red"
 
@@ -1111,6 +1156,11 @@ msgstr "Running · {count}"
 msgid "running now"
 msgstr "running now"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:10
+msgctxt "pipelines"
+msgid "running now"
+msgstr "running now"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:55
 msgid "running, waiting, agents online"
 msgstr "running, waiting, agents online"
@@ -1168,6 +1218,11 @@ msgstr "See all"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:15
 msgctxt "attention"
+msgid "See all {count}"
+msgstr "See all {count}"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:15
+msgctxt "pipelines"
 msgid "See all {count}"
 msgstr "See all {count}"
 
@@ -1246,6 +1301,11 @@ msgstr "Success"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:71
 msgctxt "health"
+msgid "Success"
+msgstr "Success"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:13
+msgctxt "pipelines"
 msgid "Success"
 msgstr "Success"
 

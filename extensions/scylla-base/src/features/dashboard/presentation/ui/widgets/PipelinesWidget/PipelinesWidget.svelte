@@ -1,15 +1,17 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import HeartPulseIcon from '@lucide/svelte/icons/heart-pulse';
-  import { ChartDot, ChartSegment, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
-  import { cn } from '@scylla/ui/utils';
+  import GitBranchIcon from '@lucide/svelte/icons/git-branch';
+  import { ChartDot, ChartLegendItem, ChartSegment, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
+  import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { widgetMessages as messages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
-  import { viewMessages } from '@base/features/dashboard/presentation/messages/widgets-view.messages.ts';
-  import { pipelineRows } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
+  import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
+  import { pipelinesMessages as messages } from '@base/features/dashboard/presentation/messages/pipelines.messages.ts';
+  import { pipelineRows, type PipelineRow } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import { PIPELINE_RUNS, type DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { openPipelineJobs } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import PipelineTable from './PipelineTable.svelte';
+  import PipelinesSheet from './PipelinesSheet.svelte';
 
   interface Props {
     widgets: DashboardWidgets;
@@ -21,30 +23,31 @@
 
   let { widgets, timeZone = 'UTC', size = 'm', editing }: Props = $props();
 
-  const TABLE_ROWS = 6;
-  const LOW_RATE = 75;
+  const ROWS: Readonly<Record<WidgetSize, number>> = { xs: 0, s: 3, m: 5, l: 10 };
+  const DOTS = 12;
+  const SMALL_RUNS = 10;
 
-  const maxChips = $derived(size === 'm' ? 12 : 6);
   const rows = $derived(pipelineRows(widgets.pipelineItems, PIPELINE_RUNS, timeZone));
-  const shown = $derived(rows.slice(0, size === 'l' ? TABLE_ROWS : maxChips));
-  const padded = (strip: readonly string[]) => Array.from({ length: PIPELINE_RUNS - strip.length }, () => null);
-  const lowRate = (rate: string) => Number.parseInt(rate, 10) < LOW_RATE;
   const green = $derived(widgets.pipelineItems.filter(item => item.health === 'green').length);
+  const failing = $derived(rows.filter(row => row.tone === 'failed').slice(0, ROWS.s));
+  const shown = $derived(rows.slice(0, ROWS[size]));
+
+  let sheetOpen = $state(false);
+
+  const dotTone = (row: PipelineRow) => (row.tone === 'running' ? 'warning' : row.tone);
 </script>
 
 {#snippet aside()}
-  {#if rows.length > 0}
-    <span>{t(viewMessages.pipelinesGreen(green, rows.length))}</span>
-  {/if}
+  {#if rows.length > 0}<span>{t(messages.greenOf(green, rows.length))}</span>{/if}
 {/snippet}
 
 <Widget
   {size}
   {editing}
-  title={t(messages.pipelines)}
-  icon={HeartPulseIcon as LucideIcon}
-  meta={size === 'l' ? `${t(viewMessages.lastRuns(PIPELINE_RUNS))} · ${t(messages.failingFirst)}` : t(messages.failingFirst)}
-  {aside}
+  title={t(widgetMessages.pipelines)}
+  icon={GitBranchIcon as LucideIcon}
+  meta={size === 'xs' ? undefined : t(messages.failingFirst)}
+  aside={size === 'm' || size === 'l' ? aside : undefined}
 >
   <WidgetBody
     {size}
@@ -53,66 +56,60 @@
     error={widgets.summaries.isError}
     onRetry={() => void widgets.summaries.refetch()}
     empty={rows.length === 0}
-    emptyTitle={t(messages.noPipelinesYet)}
-    emptyText={t(messages.noPipelinesYetText)}
+    emptyTitle={t(widgetMessages.noPipelinesYet)}
+    emptyText={t(widgetMessages.noPipelinesYetText)}
   >
-    {#if size === 'l'}
-      <table data-part="health-table" class="w-full table-fixed text-left">
-        <thead>
-          <tr class="text-xs text-muted-foreground">
-            <th class="pb-3 font-normal">{t(viewMessages.pipelineColumn)}</th>
-            <th class="w-[188px] pb-3 text-right font-normal">{t(viewMessages.lastRuns(PIPELINE_RUNS))}</th>
-            <th class="w-16 pb-3 text-right font-normal">{t(viewMessages.successColumn)}</th>
-            <th class="w-16 pb-3 text-right font-normal">{t(viewMessages.medianColumn)}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each shown as row (row.id)}
-            <tr class="hover:bg-accent/50">
-              <td class="py-2 pr-3">
-                <button type="button" class="block w-full min-w-0 text-left" onclick={() => openPipelineJobs(row)}>
-                  <span class="block truncate text-sm font-medium">{row.name}</span>
-                  <span class="block truncate text-xs text-muted-foreground">{row.projectName} · {row.trigger}</span>
-                </button>
-              </td>
-              <td class="py-2">
-                <div class="flex h-[18px] justify-end gap-0.5" role="img" aria-label={t(viewMessages.lastRuns(PIPELINE_RUNS))}>
-                  {#each padded(row.strip) as _, index (index)}
-                    <span class="w-[7px] rounded-[2px] bg-muted"></span>
-                  {/each}
-                  {#each row.strip as tone, index (index)}
-                    <ChartSegment {tone} class="w-[7px] rounded-[2px]" />
-                  {/each}
-                </div>
-              </td>
-              <td class={cn('py-2 text-right text-sm font-medium tabular-nums', lowRate(row.rate) && 'text-status-failed')}>
-                {row.rate}
-              </td>
-              <td class="py-2 text-right font-mono text-sm whitespace-nowrap text-muted-foreground">{row.median}</td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    {:else}
-      <ul class="flex flex-wrap content-start gap-2 pt-2">
-        {#each shown as row (row.id)}
-          <li>
-            <button
-              type="button"
-              class="inline-flex h-7 max-w-48 items-center gap-1.5 rounded-full border border-border px-2.5 text-xs transition-colors hover:bg-accent"
-              onclick={() => openPipelineJobs(row)}
-            >
-              <ChartDot tone={row.tone === 'running' ? 'warning' : row.tone} class="size-1.5" />
-              <span class="truncate">{row.name}</span>
-            </button>
-          </li>
-        {/each}
-      </ul>
-      {#if rows.length > shown.length}
-        <p class="mt-auto text-xs text-muted-foreground">
-          {t(viewMessages.moreItems(rows.length - shown.length))}
+    {#if size === 'xs'}
+      <div data-part="pipelines" class="flex h-7 min-w-0 items-center gap-1.5">
+        <span class="font-display text-xl font-medium tabular-nums">{green}/{rows.length}</span>
+        <span class="text-xs text-muted-foreground">{t(messages.green)}</span>
+        <span class="ml-auto flex shrink-0 items-center gap-1" aria-hidden="true">
+          {#each rows.slice(0, DOTS) as row (row.id)}<ChartDot tone={dotTone(row)} />{/each}
+        </span>
+      </div>
+    {:else if size === 's'}
+      <div data-part="pipelines" class="flex min-h-0 flex-col gap-2">
+        <p class="flex items-baseline gap-1.5">
+          <span class="font-display text-[34px] leading-10 font-medium tabular-nums">{green}</span>
+          <span class="text-[15px] text-muted-foreground">{t(messages.ofGreen(rows.length))}</span>
         </p>
-      {/if}
+        <ul class="flex flex-col gap-1.5">
+          {#each failing as row (row.id)}
+            <li class="flex h-5 min-w-0 items-center gap-2">
+              <ChartDot tone={dotTone(row)} />
+              <button type="button" class="min-w-0 flex-1 truncate text-left text-sm font-medium hover:underline" onclick={() => openPipelineJobs(row)}>
+                {row.name}
+              </button>
+              <span class="flex h-3 shrink-0 gap-0.5" aria-hidden="true">
+                {#each row.strip.slice(-SMALL_RUNS) as tone, index (index)}
+                  <ChartSegment {tone} class="h-full w-[5px] rounded-[1px]" />
+                {/each}
+              </span>
+              <span class="w-10 shrink-0 text-right text-xs font-medium tabular-nums">{row.rate}</span>
+            </li>
+          {:else}
+            <li class="text-xs text-muted-foreground">{t(messages.allGreen)}</li>
+          {/each}
+        </ul>
+      </div>
+    {:else}
+      <div data-part="pipelines" class="flex min-h-0 flex-1 flex-col">
+        <PipelineTable rows={shown} />
+        {#if size === 'l'}
+          <div class="mt-auto flex items-center gap-3 pt-2">
+            <ChartLegendItem tone="passed" label={t(messages.green)} />
+            <ChartLegendItem tone="failed" label={t(messages.red)} />
+            <ChartLegendItem tone="warning" label={t(messages.runningNow)} />
+            {#if rows.length > shown.length}
+              <Button variant="ghost" size="xs" class="ml-auto text-primary" onclick={() => (sheetOpen = true)}>
+                {t(messages.seeAll(rows.length))}
+              </Button>
+            {/if}
+          </div>
+        {/if}
+      </div>
     {/if}
   </WidgetBody>
 </Widget>
+
+<PipelinesSheet open={sheetOpen} {rows} {green} onClose={() => (sheetOpen = false)} />
