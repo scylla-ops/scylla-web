@@ -30,7 +30,14 @@
   let { item, title, onOpenData, children }: Props = $props();
 
   let frame = $state<HTMLElement | null>(null);
-  let resizing = $state<{ x: number; y: number; width: number; height: number; grid: number } | null>(null);
+  let resizing = $state<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    grid: number;
+    drawn: { width: number; height: number };
+  } | null>(null);
 
   const size = $derived(shownSize(item.data, item.size));
   const sizes = $derived(DATA[item.data].sizes);
@@ -43,13 +50,21 @@
     const box = frame.getBoundingClientRect();
     (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
     const grid = frame.closest('[data-slot="widget-grid"]')?.clientWidth ?? box.width;
-    resizing = { x: event.clientX, y: event.clientY, width: box.width, height: box.height, grid };
+    resizing = {
+      x: event.clientX,
+      y: event.clientY,
+      width: box.width,
+      height: box.height,
+      grid,
+      drawn: { width: box.width, height: box.height },
+    };
   };
 
   const moveResize = (event: PointerEvent) => {
     if (!resizing) return;
-    const width = resizing.width + event.clientX - resizing.x;
-    const height = resizing.height + event.clientY - resizing.y;
+    const width = Math.max(24, resizing.width + event.clientX - resizing.x);
+    const height = Math.max(24, resizing.height + event.clientY - resizing.y);
+    resizing = { ...resizing, drawn: { width, height } };
     const next = sizeAt(width, height, resizing.grid, sizes);
     if (next !== size) dashboardEditor.resizeLive(item.id, next);
   };
@@ -142,6 +157,12 @@
   {/if}
 
   {#if resizing}
+    <div
+      data-slot="resize-outline"
+      aria-hidden="true"
+      class="pointer-events-none absolute top-0 left-0 z-30 rounded-2xl border-2 border-dashed border-primary bg-primary/5"
+      style="width: {resizing.drawn.width}px; height: {resizing.drawn.height}px"
+    ></div>
     <span
       data-slot="resize-size"
       class="pointer-events-none absolute -right-2 -bottom-9 z-20 rounded-md bg-foreground px-2 py-1 font-mono text-[11px] whitespace-nowrap text-background shadow"
