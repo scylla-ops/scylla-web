@@ -76,7 +76,7 @@ export const KINDS: readonly KindEntry[] = [
 
 export const DATA: Readonly<Record<WidgetData, DataEntry>> = {
   summary: { data: 'summary', kind: 'sentence', title: m.summary, hint: m.summaryHint, sizes: ['l', 'm'] },
-  'needs-you': { data: 'needs-you', kind: 'list', title: m.needsYou, hint: m.needsYouHint, sizes: ['l', 'm'] },
+  'needs-you': { data: 'needs-you', kind: 'list', title: m.needsYou, hint: m.needsYouHint, sizes: ['l', 'm', 's', 'xs'] },
   'last-24-hours': { data: 'last-24-hours', kind: 'timeline', title: m.lastDay, hint: m.lastDayHint, sizes: ['m', 'l'] },
   'success-rate': { data: 'success-rate', kind: 'ratio', title: m.successRate, hint: m.successRateHint, sizes: ['s', 'xs', 'm'] },
   runs: { data: 'runs', kind: 'bars', title: m.runs, hint: m.runsHint, sizes: ['m', 'l'] },
