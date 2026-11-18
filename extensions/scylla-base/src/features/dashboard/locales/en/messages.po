@@ -330,14 +330,14 @@ msgstr "Custom"
 msgid "Custom range"
 msgstr "Custom range"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:23
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:31
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:37
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:30
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:38
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:44
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:4
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:28
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:35
 msgid "dashboard home"
 msgstr "dashboard home"
 
@@ -371,7 +371,7 @@ msgstr "Delete"
 msgid "Delete dashboard"
 msgstr "Delete dashboard"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:82
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:89
 msgid "Discard and leave"
 msgstr "Discard and leave"
 
@@ -407,6 +407,10 @@ msgstr "elapsed · median"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:10
 msgid "Events on a time axis"
 msgstr "Events on a time axis"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:82
+msgid "everyone can view"
+msgstr "everyone can view"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:47
 msgid "Extra small"
@@ -513,7 +517,7 @@ msgstr "Last 30 days"
 msgid "Last day"
 msgstr "Last day"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:80
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:87
 msgid "Leave with unsaved changes?"
 msgstr "Leave with unsaved changes?"
 
@@ -544,6 +548,10 @@ msgstr "longest {duration}"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:75
 msgid "Make it my default dashboard"
 msgstr "Make it my default dashboard"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:83
+msgid "Make private"
+msgstr "Make private"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:44
 msgid "manual"
@@ -683,7 +691,7 @@ msgstr "Orphaned"
 msgid "Orphaned · {when}"
 msgstr "Orphaned · {when}"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:27
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:34
 msgid "Overview"
 msgstr "Overview"
 
@@ -878,6 +886,18 @@ msgstr "sentence, timeline, list"
 msgid "Set as my default"
 msgstr "Set as my default"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:84
+msgid "Set as team default"
+msgstr "Set as team default"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:81
+msgid "Share with workspace"
+msgstr "Share with workspace"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:86
+msgid "Shared with the workspace"
+msgstr "Shared with the workspace"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:30
 msgid "Shortcuts to the actions"
 msgstr "Shortcuts to the actions"
@@ -910,7 +930,7 @@ msgstr "Start from"
 msgid "Status band"
 msgstr "Status band"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:83
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:90
 msgid "Stay"
 msgstr "Stay"
 
@@ -932,6 +952,11 @@ msgstr "Success rate {rate}"
 msgid "Summary"
 msgstr "Summary"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:85
+msgctxt "dashboard"
+msgid "Team"
+msgstr "Team"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:23
 msgid "The first day is after the last day."
 msgstr "The first day is after the last day."
@@ -948,7 +973,7 @@ msgstr "The last events"
 msgid "the last result of each pipeline"
 msgstr "the last result of each pipeline"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:81
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:88
 msgid "The layout has {count} changes that are not saved. They go away when you leave."
 msgstr "The layout has {count} changes that are not saved. They go away when you leave."
 
@@ -975,6 +1000,10 @@ msgstr "the run time of the period"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:24
 msgid "The top items with a bar"
 msgstr "The top items with a bar"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:80
+msgid "This dashboard changed in another tab or for another person. The page shows the new version now."
+msgstr "This dashboard changed in another tab or for another person. The page shows the new version now."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:33
 msgid "This dashboard has no widget yet."

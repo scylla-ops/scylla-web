@@ -45,7 +45,15 @@ export interface DashboardLayout {
   id: string;
   name: string;
   widgets: readonly LayoutWidget[];
+  /** The version on the server. Not set for a layout that the server does not have. */
+  version?: number;
+  visibility?: DashboardVisibility;
+  /** The team default of the workspace. */
+  teamDefault?: boolean;
 }
+
+/** Who sees a dashboard: its creator only, or each member of the workspace. */
+export type DashboardVisibility = 'private' | 'workspace';
 
 /** The dashboards of a workspace, and the one that `/dashboard` opens. */
 export interface DashboardSet {

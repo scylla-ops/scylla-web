@@ -346,8 +346,8 @@
 {#if dashboardView.creating}
   <NewDashboardDialog
     current={dashboard ? { id: dashboard.id, name: dashboard.name } : null}
-    onCreate={(name, start, makeDefault) => {
-      const created = dashboards.create(name, start, makeDefault);
+    onCreate={async (name, start, makeDefault) => {
+      const created = await dashboards.create(name, start, makeDefault);
       dashboardView.setCreating(false);
       dashboardEditor.start(created.id, created.widgets);
       scyllaNavigate.goToWorkspaceRoute(`/${dashboardPath(created.id, makeDefault)}`);
