@@ -21,7 +21,7 @@ msgstr "{busy} créneaux occupés sur {total}"
 msgid "{change} pts"
 msgstr "{change} pts"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:58
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:62
 msgid "{change} vs previous"
 msgstr "{change} vs période précédente"
 
@@ -54,11 +54,11 @@ msgstr "{factor}× la médiane"
 msgid "{green} of {total} green"
 msgstr "{green} sur {total} au vert"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:60
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:64
 msgid "{hours} h"
 msgstr "{hours} h"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:59
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:63
 msgid "{hours} h ago"
 msgstr "il y a {hours} h"
 
@@ -94,7 +94,7 @@ msgstr "{value} par heure"
 msgid "{value} per week"
 msgstr "{value} par semaine"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:61
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:65
 msgid "+ {count} more"
 msgstr "+ {count} de plus"
 
@@ -271,6 +271,11 @@ msgstr "Job {id}"
 msgid "job ends"
 msgstr "fins de jobs"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:57
+msgctxt "health"
+msgid "last {count} runs"
+msgstr "{count} dernières exécutions"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:37
 msgid "Last {count} runs"
 msgstr "{count} dernières exécutions"
@@ -304,6 +309,11 @@ msgid "manual"
 msgstr "manuel"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:39
+msgid "Median"
+msgstr "Médiane"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:60
+msgctxt "health"
 msgid "Median"
 msgstr "Médiane"
 
@@ -419,7 +429,7 @@ msgstr "p95"
 msgid "passed"
 msgstr "réussis"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:57
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:61
 msgctxt "bars"
 msgid "peak · {count} runs"
 msgstr "pic · {count} exécutions"
@@ -444,6 +454,11 @@ msgid "Period"
 msgstr "Période"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:36
+msgid "Pipeline"
+msgstr "Pipeline"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:58
+msgctxt "health"
 msgid "Pipeline"
 msgstr "Pipeline"
 
@@ -528,6 +543,11 @@ msgstr "Périmètre"
 msgctxt "column"
 msgid "Success"
 msgstr "Réussite"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:59
+msgctxt "health"
+msgid "Success"
+msgstr "Succès"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:5
 msgid "Success rate"
