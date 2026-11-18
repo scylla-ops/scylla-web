@@ -470,11 +470,22 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A long line of a job log wraps in the log panel, so the log no longer scrolls sideways. A wrapped
   line keeps one line number and its spaces, and a finished log opens on the last row of its last
   line.
+- The agents show "Update needed" or "Incompatible" from the agent protocol, not only from the
+  version. The machine card shows the protocol, the features, the missing features and the update
+  command. A job that waits for an agent with checkout names the online agents that cannot get its
+  code, with a link to each one.
 - The list of pipelines shows up to 30 jobs of each pipeline as bars, as many as the History column
   can hold, in place of 5. The height of a bar shows the duration of its job. A click on a bar opens
   the job. The Last Run column is removed. The pipeline name shows the last run, and its notes are
   badges with the full text in a tooltip. A hover on the name shows the pass rate, the median
   duration and the failures.
+- The bars of the job history in the list of pipelines start at the left edge, with the oldest job
+  on the left. With few jobs, the free space is on the right. "No run yet" stays at the center.
+- The Machine card of an agent shows the server version, and no longer shows the protocol. When the
+  agent must be updated, its version is a warning badge with a hint, and the server version is a
+  badge. The container runtime and the features are badges, and a missing feature has a warning
+  badge with its fix in a tooltip. The card compares the versions without the build metadata
+  (`+240da00`), and the release link uses the bare version.
 
 ## [0.6.0] - 2026-11-01
 

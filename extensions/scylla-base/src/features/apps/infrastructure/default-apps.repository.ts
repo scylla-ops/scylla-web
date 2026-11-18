@@ -59,8 +59,13 @@ export class DefaultAppsRepository implements AppsRepository {
   ) {}
 
   public async getServerInfo(): Promise<ServerInfo> {
-    const { version, agentImage } = await this.capabilities.getCapabilities({}).response;
-    return { version, agentImage };
+    const response = await this.capabilities.getCapabilities({}).response;
+    const { version, agentImage, agentProtocol } = response;
+    return {
+      version,
+      agentImage,
+      agentProtocol: agentProtocol ? { min: agentProtocol.min, current: agentProtocol.current } : null,
+    };
   }
 
   public async getAgentStats(appId: string, period?: StatsPeriod): Promise<AgentStats> {

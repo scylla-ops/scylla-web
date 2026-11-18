@@ -21,9 +21,12 @@ export const DEFAULT_INSTALL_OPTIONS: InstallOptions = {
 
 /** What the server tells about an agent that it can use. */
 export interface ServerInfo {
+  /** The version text of the build of the server, for example `0.7.0-rc.1+240da00`. */
   version: string;
   /** The image of the agent, with its tag. */
   agentImage: string;
+  /** The agent protocols that the server takes. `null` for a server that does not tell them. */
+  agentProtocol: { min: number; current: number } | null;
 }
 
 /** The image of the agent until the answer of the server comes. */
@@ -31,9 +34,15 @@ export const AGENT_IMAGE = 'ghcr.io/scylla-ops/scylla-agent';
 
 const RELEASES = 'https://github.com/scylla-ops/scylla-ce/releases';
 
+/**
+ * The release of a version text: a build that is not a release adds its commit as build
+ * metadata (`0.7.0-rc.1+240da00`, `0.7.0-rc.1+dev`), and downloads the binaries of its release.
+ */
+export const releaseOf = (version: string): string => version.split('+')[0] ?? version;
+
 /** The page of the downloads of `version`. */
 export const releaseUrl = (version: string | undefined): string =>
-  version ? `${RELEASES}/tag/v${version}` : RELEASES;
+  version ? `${RELEASES}/tag/v${releaseOf(version)}` : RELEASES;
 
 /** The part of the README that tells how to build the agent from source. */
 export const SOURCE_URL = 'https://github.com/scylla-ops/scylla-ce#run-an-agent';

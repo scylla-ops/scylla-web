@@ -11,6 +11,7 @@ import type {
   NodeExecutionState,
   PipelineFileError,
   PipelineFileRef,
+  UnfitAgent,
 } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { JobFilter as GrpcJobFilter } from '@base/generated/scylla/pipelines/v1/job_service.ts';
 import {
@@ -31,6 +32,8 @@ import {
   LogStream,
   NodeStatus,
   type NodeRun,
+  type UnfitAgent as GrpcUnfitAgent,
+  UnfitReason,
 } from '@base/generated/scylla/pipelines/v1/job.ts';
 import type { PaginatedList, PaginationParams } from '@scylla/ui/structs';
 import {
@@ -222,6 +225,19 @@ function checkoutToDomain(checkout: CheckoutRun | undefined): JobCheckout | unde
   };
 }
 
+/** A reason newer than this build: `unknown`. */
+const UNFIT_REASONS: Partial<Record<UnfitReason, UnfitAgent['reason']>> = {
+  [UnfitReason.UPDATE_AGENT]: 'update-agent',
+  [UnfitReason.INSTALL_GIT]: 'install-git',
+};
+
+const unfitAgentToDomain = (agent: GrpcUnfitAgent): UnfitAgent => ({
+  id: idValue(agent.id),
+  name: agent.name,
+  version: agent.version,
+  reason: UNFIT_REASONS[agent.reason] ?? 'unknown',
+});
+
 export function toDomain(job: Job): JobEntity {
   const createdAt = timestampToIso(job.createdAt);
   const startedAt = timestampToIsoOpt(job.startedAt);
@@ -244,6 +260,7 @@ export function toDomain(job: Job): JobEntity {
     fileErrors: job.fileErrors.length > 0 ? job.fileErrors.map(fileErrorToDomain) : undefined,
     checkout: checkoutToDomain(job.checkout),
     waitingReason: job.waitingReason || undefined,
+    unfitAgents: job.unfitAgents.length > 0 ? job.unfitAgents.map(unfitAgentToDomain) : undefined,
   };
 }
 
