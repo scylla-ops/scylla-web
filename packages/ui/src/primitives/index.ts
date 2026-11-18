@@ -50,6 +50,8 @@ export { default as DialogFooter } from './dialog/dialog-footer.svelte';
 export { default as DialogHeader } from './dialog/dialog-header.svelte';
 export { default as DialogOverlay } from './dialog/dialog-overlay.svelte';
 export { default as DialogTitle } from './dialog/dialog-title.svelte';
+/** A dialog on an edge of the screen: open it with `Dialog`, it slides in from its side. */
+export { default as SheetContent } from './sheet/sheet-content.svelte';
 
 export const AlertDialog = AlertDialogPrimitive.Root;
 export const AlertDialogPortal = AlertDialogPrimitive.Portal;
