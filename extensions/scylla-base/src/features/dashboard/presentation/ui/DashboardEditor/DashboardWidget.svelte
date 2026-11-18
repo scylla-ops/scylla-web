@@ -38,7 +38,7 @@
 {:else if item.data === 'success-rate'}
   <SuccessRateWidget {widgets} {period} {size} />
 {:else if item.data === 'agents'}
-  <AgentsWidget {widgets} {size} />
+  <AgentsWidget {widgets} {size} timeZone={period.timeZone ?? 'UTC'} />
 {:else if item.data === 'pipelines'}
   <PipelinesWidget {widgets} timeZone={period.timeZone ?? 'UTC'} {size} />
 {:else if item.data === 'runs'}

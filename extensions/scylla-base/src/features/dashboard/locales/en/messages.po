@@ -42,6 +42,11 @@ msgstr "{count} cancelled, not counted"
 msgid "{count} changes · not saved"
 msgstr "{count} changes · not saved"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:17
+msgctxt "capacity"
+msgid "{count} CPU"
+msgstr "{count} CPU"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:31
 msgctxt "ago"
 msgid "{count} d"
@@ -165,9 +170,19 @@ msgstr "{name} went offline {when}"
 msgid "{online} of {total} agents"
 msgstr "{online} of {total} agents"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:7
+msgctxt "capacity"
+msgid "{online} of {total} agents"
+msgstr "{online} of {total} agents"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:23
 msgid "{online} of {total} agents online"
 msgstr "{online} of {total} agents online"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:8
+msgctxt "capacity"
+msgid "{online} of {total} online"
+msgstr "{online} of {total} online"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:82
 msgid "{open} open · {fresh} new"
@@ -302,6 +317,11 @@ msgctxt "attention"
 msgid "Agent"
 msgstr "Agent"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:13
+msgctxt "capacity"
+msgid "Agent"
+msgstr "Agent"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:26
 msgctxt "attention"
 msgid "agent offline"
@@ -311,11 +331,21 @@ msgstr "agent offline"
 msgid "Agent offline · {when}"
 msgstr "Agent offline · {when}"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:6
+msgctxt "capacity"
+msgid "agents"
+msgstr "agents"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:33
 msgid "Agents"
 msgstr "Agents"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:35
+msgid "agents online"
+msgstr "agents online"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:11
+msgctxt "capacity"
 msgid "agents online"
 msgstr "agents online"
 
@@ -374,6 +404,11 @@ msgctxt "live"
 msgid "attempt {attempt} of {max}"
 msgstr "attempt {attempt} of {max}"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:22
+msgctxt "capacity"
+msgid "average per hour · capacity {capacity}"
+msgstr "average per hour · capacity {capacity}"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:44
 msgid "Back"
 msgstr "Back"
@@ -389,6 +424,11 @@ msgstr "Blank"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:57
 msgid "busy job slots on all agents"
 msgstr "busy job slots on all agents"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:20
+msgctxt "capacity"
+msgid "Busy slots · last 24 h"
+msgstr "Busy slots · last 24 h"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:67
 msgid "Calm · needs you"
@@ -413,6 +453,11 @@ msgid "Cancelled"
 msgstr "Cancelled"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:17
+msgid "Capacity"
+msgstr "Capacity"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:5
+msgctxt "capacity"
 msgid "Capacity"
 msgstr "Capacity"
 
@@ -444,6 +489,11 @@ msgstr "Completed"
 msgid "copy of {name}"
 msgstr "copy of {name}"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:15
+msgctxt "capacity"
+msgid "CPU"
+msgstr "CPU"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:44
 msgid "Create a pipeline in a project to see its runs here."
 msgstr "Create a pipeline in a project to see its runs here."
@@ -469,14 +519,14 @@ msgstr "Custom"
 msgid "Custom range"
 msgstr "Custom range"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:32
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:40
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:46
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:36
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:44
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:50
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:4
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:37
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:41
 msgid "dashboard home"
 msgstr "dashboard home"
 
@@ -823,9 +873,19 @@ msgstr "New dashboard"
 msgid "No agent"
 msgstr "No agent"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:23
+msgctxt "capacity"
+msgid "No agent"
+msgstr "No agent"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:13
 msgid "No change"
 msgstr "No change"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:18
+msgctxt "capacity"
+msgid "no container runtime"
+msgstr "no container runtime"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:19
 msgid "No ended jobs in this period"
@@ -912,6 +972,11 @@ msgstr "Number + bars"
 msgid "numbers and charts"
 msgstr "numbers and charts"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:10
+msgctxt "capacity"
+msgid "of {slots} slots busy"
+msgstr "of {slots} slots busy"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:7
 msgctxt "pipelines"
 msgid "of {total} green"
@@ -920,6 +985,11 @@ msgstr "of {total} green"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:27
 msgid "of finished runs"
 msgstr "of finished runs"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:19
+msgctxt "capacity"
+msgid "offline for {time}"
+msgstr "offline for {time}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:32
 msgid "One agent of the fleet"
@@ -968,7 +1038,7 @@ msgstr "Orphaned"
 msgid "Orphaned · {when}"
 msgstr "Orphaned · {when}"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:36
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:40
 msgid "Overview"
 msgstr "Overview"
 
@@ -1091,6 +1161,11 @@ msgstr "push"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:11
 msgid "Quick actions"
 msgstr "Quick actions"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:16
+msgctxt "capacity"
+msgid "RAM"
+msgstr "RAM"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:23
 msgid "Ranking"
@@ -1309,6 +1384,16 @@ msgstr "Size"
 msgid "Size of {title}"
 msgstr "Size of {title}"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:14
+msgctxt "capacity"
+msgid "Slots"
+msgstr "Slots"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:9
+msgctxt "capacity"
+msgid "slots busy"
+msgstr "slots busy"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/duration.messages.ts:12
 msgctxt "duration"
 msgid "Slowest pipelines"
@@ -1481,6 +1566,11 @@ msgstr "vs the previous {period}"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:26
 msgid "vs the previous period"
 msgstr "vs the previous period"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:12
+msgctxt "capacity"
+msgid "wait for an agent (p50)"
+msgstr "wait for an agent (p50)"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:7
 msgctxt "live"
