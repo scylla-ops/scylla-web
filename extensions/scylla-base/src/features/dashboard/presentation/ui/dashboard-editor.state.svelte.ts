@@ -9,9 +9,13 @@ import {
 } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
 
 /** What the user drags: a widget of the grid, or a kind of the palette. */
-export type DragSource =
+export type DragSource = (
   | { from: 'grid'; id: string; size: LayoutSize }
-  | { from: 'palette'; data: WidgetData; size: LayoutSize };
+  | { from: 'palette'; data: WidgetData; size: LayoutSize }
+) & { label: string };
+
+/** A drag starts once the pointer moved this far with the button down: less is a click. */
+const DRAG_THRESHOLD_PX = 4;
 
 interface Draft {
   dashboardId: string;
@@ -22,7 +26,10 @@ interface Draft {
 let draft = $state.raw<Draft | null>(null);
 let selected = $state<string | null>(null);
 let drag = $state.raw<DragSource | null>(null);
+let pressed = $state.raw<{ source: DragSource; x: number; y: number } | null>(null);
+let pointer = $state.raw<{ x: number; y: number } | null>(null);
 let over = $state<number | null>(null);
+let dropped = false;
 
 const newId = (): string => crypto.randomUUID().slice(0, 8);
 
@@ -67,6 +74,8 @@ export const dashboardEditor = {
     draft = null;
     selected = null;
     drag = null;
+    pressed = null;
+    pointer = null;
     over = null;
   },
   undo: () => {
@@ -104,13 +113,34 @@ export const dashboardEditor = {
     change(addWidget(widgets, copy, index + 1));
     selected = copy.id;
   },
-  startDrag: (source: DragSource) => {
-    drag = source;
+  /** The pointer of an active drag, for the label that follows it. */
+  get pointer() {
+    return pointer;
   },
-  dragOver: (index: number) => {
-    over = index;
+  /** The button went down on a handle or a kind: a move past the threshold starts the drag. */
+  press: (source: DragSource, x: number, y: number) => {
+    pressed = { source, x, y };
   },
-  /** Moves or adds the dragged widget at the index of `over`. */
+  /** `at` is the index under the pointer, `null` out of the grid. */
+  move: (x: number, y: number, at: number | null) => {
+    if (!drag && pressed) {
+      if (Math.hypot(x - pressed.x, y - pressed.y) < DRAG_THRESHOLD_PX) return;
+      drag = pressed.source;
+    }
+    if (!drag) return;
+    pointer = { x, y };
+    over = at;
+  },
+  /** Ends a press. Returns `true` when it was a drag: the click that follows does nothing. */
+  release: (): boolean => {
+    const dragged = drag !== null;
+    pressed = null;
+    pointer = null;
+    if (dragged) dashboardEditor.drop();
+    dropped = dragged;
+    return dragged;
+  },
+  /** The dragged widget takes the place of the index of `over`: the widgets from there move down. */
   drop: () => {
     const source = drag;
     const at = over;
@@ -122,11 +152,20 @@ export const dashboardEditor = {
       return;
     }
     const from = draft.widgets.findIndex(item => item.id === source.id);
-    if (from < 0 || from === at || from + 1 === at) return;
-    change(moveWidget(draft.widgets, source.id, at > from ? at - 1 : at));
+    if (from < 0 || from === at) return;
+    change(moveWidget(draft.widgets, source.id, Math.min(at, draft.widgets.length - 1)));
   },
-  endDrag: () => {
+  /** `true` once after a drag: the click that ends it does nothing. */
+  takeDropClick: (): boolean => {
+    const was = dropped;
+    dropped = false;
+    return was;
+  },
+  /** Escape, or the pointer went away: nothing moves. */
+  cancelDrag: () => {
     drag = null;
+    pressed = null;
+    pointer = null;
     over = null;
   },
 };

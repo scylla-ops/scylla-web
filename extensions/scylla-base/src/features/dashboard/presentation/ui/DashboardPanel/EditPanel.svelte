@@ -1,8 +1,11 @@
 <script lang="ts">
+  import CheckIcon from '@lucide/svelte/icons/check';
   import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
+  import XIcon from '@lucide/svelte/icons/x';
+  import type { LucideIcon } from '@scylla/ui';
   import SearchIcon from '@lucide/svelte/icons/search';
   import Undo2Icon from '@lucide/svelte/icons/undo-2';
-  import { Button, Input } from '@scylla/ui/primitives';
+  import { Input } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { editorMessages as messages } from '@base/features/dashboard/presentation/messages/editor.messages.ts';
@@ -15,6 +18,7 @@
   import { dashboardView } from '@base/features/dashboard/presentation/ui/dashboard-view.state.svelte.ts';
   import { createDashboards } from '@base/features/dashboard/presentation/ui/dashboards.state.svelte.ts';
   import KindThumb from '../DashboardEditor/KindThumb.svelte';
+  import PanelAction from './PanelAction.svelte';
 
   const dashboards = createDashboards();
 
@@ -34,12 +38,19 @@
     dashboardEditor.stop();
   };
 
-  const startDrag = (event: DragEvent, item: KindEntry) => {
+  const press = (event: PointerEvent, item: KindEntry) => {
     const data = item.data[0];
-    if (!data) return;
-    event.dataTransfer?.setData('text/plain', item.kind);
-    dashboardEditor.startDrag({ from: 'palette', data, size: DATA[data].sizes[0] });
+    if (!data || event.button !== 0) return;
+    dashboardEditor.press(
+      { from: 'palette', data, size: DATA[data].sizes[0], label: t(item.title) },
+      event.clientX,
+      event.clientY,
+    );
   };
+
+  let footerWidth = $state(200);
+  const compactCancel = $derived(footerWidth < 196);
+  const compactSave = $derived(footerWidth < 150);
 </script>
 
 <div class="flex shrink-0 flex-col justify-center px-4 pt-4 pb-3">
@@ -66,16 +77,16 @@
           <li>
             <button
               type="button"
-              draggable={ready}
               disabled={!ready}
               title={ready ? t(item.text) : t(messages.soon)}
               class={cn(
                 'group/kind relative flex w-full items-center gap-3 rounded-lg border border-transparent p-1 text-left text-sm',
-                ready ? 'cursor-grab hover:border-primary/50 hover:bg-background' : 'opacity-45',
+                ready ? 'cursor-grab touch-none hover:border-primary/50 hover:bg-background' : 'opacity-45',
               )}
-              ondragstart={event => startDrag(event, item)}
-              ondragend={() => dashboardEditor.endDrag()}
-              onclick={() => dashboardView.openAdd(item.kind)}
+              onpointerdown={event => press(event, item)}
+              onclick={() => {
+                if (!dashboardEditor.takeDropClick()) dashboardView.openAdd(item.kind);
+              }}
             >
               <KindThumb kind={item.kind} />
               <span class="min-w-0 flex-1 truncate">{t(item.title)}</span>
@@ -92,9 +103,9 @@
   {/each}
 </div>
 
-<div class="shrink-0 border-t border-sidebar-border px-4 py-3">
-  <div class="flex items-center justify-between pb-3 text-xs text-muted-foreground">
-    <span>
+<div class="shrink-0 border-t border-sidebar-border px-4 py-3" bind:clientWidth={footerWidth}>
+  <div class="flex items-center justify-between gap-2 pb-3 text-xs text-muted-foreground">
+    <span class="min-w-0 truncate">
       {changes === 0
         ? t(messages.noChange)
         : changes === 1
@@ -103,7 +114,7 @@
     </span>
     <button
       type="button"
-      class="flex size-6 items-center justify-center rounded-md hover:bg-accent disabled:opacity-40"
+      class="flex size-6 shrink-0 items-center justify-center rounded-md hover:bg-accent disabled:opacity-40"
       aria-label={t(messages.undo)}
       title={t(messages.undo)}
       disabled={changes === 0}
@@ -113,7 +124,13 @@
     </button>
   </div>
   <div class="flex items-center justify-between gap-2">
-    <Button variant="ghost" size="sm" onclick={() => dashboardEditor.stop()}>{t(messages.cancel)}</Button>
-    <Button size="sm" onclick={save}>{t(messages.saveLayout)}</Button>
+    <PanelAction
+      variant="ghost"
+      icon={XIcon as LucideIcon}
+      label={t(messages.cancel)}
+      compact={compactCancel}
+      onclick={() => dashboardEditor.stop()}
+    />
+    <PanelAction icon={CheckIcon as LucideIcon} label={t(messages.saveLayout)} compact={compactSave} onclick={save} />
   </div>
 </div>

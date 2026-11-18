@@ -3,6 +3,7 @@ import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { setAppNavigator, contextStore } from '@platform/context';
+import { holdsLeave } from '@scylla/core-sdk';
 import { installTestNavigator } from '@test/navigator.ts';
 import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { LocalDashboardLayoutRepository } from '@base/features/dashboard/infrastructure/local-dashboard-layout.repository.ts';
@@ -321,5 +322,29 @@ describe('The edit mode', () => {
       'activity',
     ]);
     expect(panel().getByRole('button', { name: 'Save layout' })).toBeInTheDocument();
+  });
+
+  it('asks before it leaves a layout with unsaved changes: Stay keeps the draft', async () => {
+    const user = userEvent.setup();
+    render(DashboardWithPanel);
+
+    await user.click(await panel().findByRole('button', { name: 'Edit dashboard' }));
+    await user.click(screen.getByRole('button', { name: 'Remove Success rate' }));
+    const go = vi.fn();
+    expect(holdsLeave(go)).toBe(true);
+
+    const dialog = await screen.findByRole('alertdialog');
+    expect(within(dialog).getByText('Leave with unsaved changes?')).toBeInTheDocument();
+    expect(go).not.toHaveBeenCalled();
+
+    await user.click(within(dialog).getByRole('button', { name: 'Stay' }));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(panel().getByText('1 change · not saved')).toBeInTheDocument();
+
+    expect(holdsLeave(go)).toBe(true);
+    await user.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Discard and leave' }));
+    expect(go).toHaveBeenCalledOnce();
+    expect(storedSet()).toBeNull();
+    expect(holdsLeave(vi.fn())).toBe(false);
   });
 });

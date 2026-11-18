@@ -9,9 +9,8 @@
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
   import { contextStore, scyllaNavigate } from '@platform/context';
   import { createQuery, routeParams } from '@scylla/core-sdk';
-  import { SegmentedControl } from '@scylla/ui';
+  import { SegmentedControl, type LucideIcon } from '@scylla/ui';
   import {
-    Button,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
@@ -44,6 +43,7 @@
   import { createDashboards } from '@base/features/dashboard/presentation/ui/dashboards.state.svelte.ts';
   import RenameDialog from '../DashboardEditor/RenameDialog.svelte';
   import CustomPeriodForm from '../PeriodPicker/CustomPeriodForm.svelte';
+  import PanelAction from './PanelAction.svelte';
 
   const ALL = 'all';
   const PRESETS: readonly PresetPeriodKind[] = ['24h', '7d', '14d'];
@@ -75,6 +75,10 @@
   );
 
   let customOpen = $state(false);
+  let listWidth = $state(200);
+  let footerWidth = $state(200);
+  const compactNew = $derived(listWidth < 160);
+  const compactEdit = $derived(footerWidth < 176);
   let renaming = $state<{ id: string; name: string } | null>(null);
 
   const open = (id: string) =>
@@ -100,7 +104,7 @@
   <h2 class="truncate text-base">{t(messages.dashboard)}</h2>
 </div>
 
-<div class="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
+<div class="relative flex min-h-0 flex-1 flex-col overflow-y-auto" bind:clientWidth={listWidth}>
   <p class={section}>{t(messages.dashboards)}</p>
   <ul class="flex flex-col gap-0.5 px-2">
     {#each dashboards.set.dashboards as dashboard (dashboard.id)}
@@ -161,10 +165,20 @@
       </li>
     {/each}
     <li>
-      <button type="button" class={cn(row, 'hover:bg-accent')} onclick={() => dashboardView.setCreating(true)}>
-        <PlusIcon class="size-4 shrink-0" aria-hidden="true" />
-        <span>{t(editorMessages.newDashboard)}</span>
-      </button>
+      {#if compactNew}
+        <PanelAction
+          variant="ghost"
+          icon={PlusIcon as LucideIcon}
+          label={t(editorMessages.newDashboard)}
+          compact
+          onclick={() => dashboardView.setCreating(true)}
+        />
+      {:else}
+        <button type="button" class={cn(row, 'hover:bg-accent')} onclick={() => dashboardView.setCreating(true)}>
+          <PlusIcon class="size-4 shrink-0" aria-hidden="true" />
+          <span class="truncate">{t(editorMessages.newDashboard)}</span>
+        </button>
+      {/if}
     </li>
   </ul>
 
@@ -253,11 +267,16 @@
 </div>
 
 {#if period}
-  <div class="shrink-0 border-t border-sidebar-border p-4">
-    <Button variant="outline" class="w-full" onclick={startEdit}>
-      <PencilIcon aria-hidden="true" />
-      {t(editorMessages.editDashboard)}
-    </Button>
+  <div class="flex shrink-0 justify-center border-t border-sidebar-border p-4" bind:clientWidth={footerWidth}>
+    <PanelAction
+      variant="outline"
+      size="default"
+      class={compactEdit ? undefined : 'w-full'}
+      icon={PencilIcon as LucideIcon}
+      label={t(editorMessages.editDashboard)}
+      compact={compactEdit}
+      onclick={startEdit}
+    />
   </div>
 {/if}
 

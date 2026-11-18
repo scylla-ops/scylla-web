@@ -2,8 +2,8 @@
   import PlusIcon from '@lucide/svelte/icons/plus';
   import { onDestroy } from 'svelte';
   import { scyllaNavigate } from '@platform/context';
-  import { routeParams } from '@scylla/core-sdk';
-  import { WidgetGrid, widgetSpanStyle } from '@scylla/ui';
+  import { guardLeave, routeParams } from '@scylla/core-sdk';
+  import { ConfirmOperationAlertDialog, WidgetGrid } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { LayoutWidget } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
@@ -24,6 +24,7 @@
   import EditableWidget from '../DashboardEditor/EditableWidget.svelte';
   import NewDashboardDialog from '../DashboardEditor/NewDashboardDialog.svelte';
   import WidgetDrawer from '../DashboardEditor/WidgetDrawer.svelte';
+  import { dropIndexAt, type DropSlot } from '@base/features/dashboard/presentation/presenters/drop-target.presenter.ts';
   import MobileBar from './MobileBar.svelte';
 
   const period = createDashboardPeriod();
@@ -40,7 +41,17 @@
   const over = $derived(dashboardEditor.over);
 
   let drawerId = $state<string | null>(null);
+  let drawerOpen = $state(false);
   const drawerItem = $derived(items.find(item => item.id === drawerId) ?? null);
+  const openDrawer = (id: string) => {
+    drawerId = id;
+    drawerOpen = true;
+  };
+
+  let gridArea = $state<HTMLElement | null>(null);
+  let leaving = $state<(() => void) | null>(null);
+  const unsaved = $derived(editing && dashboardEditor.changes > 0);
+  const AREA_MARGIN_PX = 24;
 
   const titleOf = (item: LayoutWidget) => t(DATA[item.data].title);
 
@@ -50,32 +61,47 @@
     }
   });
 
-  const onDrop = (event: DragEvent) => {
-    event.preventDefault();
-    dashboardEditor.drop();
+  $effect(() => {
+    if (!unsaved) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', warn);
+    const stop = guardLeave(leave => {
+      leaving = leave;
+      return true;
+    });
+    return () => {
+      stop();
+      window.removeEventListener('beforeunload', warn);
+    };
+  });
+
+  const discardAndLeave = () => {
+    const leave = leaving;
+    leaving = null;
+    dashboardEditor.stop();
+    leave?.();
   };
 
-  const onGridDragOver = (event: DragEvent) => {
-    if (!drag) return;
-    event.preventDefault();
-    if (event.target === event.currentTarget) dashboardEditor.dragOver(items.length);
+  /** The index under the pointer: every slot of the grid counts whole, the end row too. */
+  const indexAt = (x: number, y: number): number | null => {
+    if (!gridArea) return null;
+    const slots: DropSlot[] = [...gridArea.querySelectorAll<HTMLElement>('[data-drop-index]')].map(element => {
+      const box = element.getBoundingClientRect();
+      return { index: Number(element.dataset.dropIndex), left: box.left, top: box.top, right: box.right, bottom: box.bottom };
+    });
+    const area = gridArea.getBoundingClientRect();
+    return dropIndexAt(x, y, slots, {
+      left: area.left - AREA_MARGIN_PX,
+      top: area.top - AREA_MARGIN_PX,
+      right: area.right + AREA_MARGIN_PX,
+      bottom: area.bottom + AREA_MARGIN_PX,
+    });
   };
 </script>
 
-{#snippet placeholder()}
-  {#if drag}
-    <div
-      data-slot="drop-here"
-      role="presentation"
-      style={widgetSpanStyle(drag.size)}
-      class="col-span-(--widget-columns) row-span-(--widget-rows) flex flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-primary/60 bg-primary/10 text-center @3xl:col-span-(--widget-columns-wide) @3xl:row-span-(--widget-rows-wide)"
-      ondragover={event => event.preventDefault()}
-    >
-      <span class="text-sm text-primary">{t(editorMessages.dropHere)}</span>
-      <span class="text-xs text-muted-foreground">{t(editorMessages.dropHint(cellsText(drag.size)))}</span>
-    </div>
-  {/if}
-{/snippet}
 
 <div class="flex w-full flex-col pb-12" data-editing={editing || undefined}>
   <h1 class="sr-only">{t(dashboardMessages.dashboard)}</h1>
@@ -90,23 +116,23 @@
       <p class="text-sm text-muted-foreground">{t(editorMessages.emptyDashboardHint)}</p>
     </div>
   {:else if dashboard}
+    <div bind:this={gridArea}>
     <WidgetGrid aria-label={dashboard.name} class={cn(editing && 'pt-3')}>
       {#if editing}
         {#each items as item, index (item.id)}
-          {#if over === index}{@render placeholder()}{/if}
-          <EditableWidget {item} {index} title={titleOf(item)} onOpenData={() => (drawerId = item.id)}>
+          <EditableWidget {item} {index} title={titleOf(item)} onOpenData={() => openDrawer(item.id)}>
             <DashboardWidget {item} {widgets} {period} />
           </EditableWidget>
         {/each}
-        {#if over === items.length}{@render placeholder()}{/if}
         <div
-          role="presentation"
+          data-drop-index={items.length}
           class="relative col-span-full row-span-1 grid grid-cols-8 gap-(--widget-grid-gap-wide)"
-          ondragover={onGridDragOver}
-          ondrop={onDrop}
         >
           {#each { length: 8 } as _, index (index)}
-            <span class="rounded-xl bg-muted/50" aria-hidden="true"></span>
+            <span
+              class={cn('rounded-xl', drag && over === items.length ? 'border-2 border-dashed border-primary/60 bg-primary/15' : 'bg-muted/50')}
+              aria-hidden="true"
+            ></span>
           {/each}
           <button
             type="button"
@@ -123,15 +149,31 @@
         {/each}
       {/if}
     </WidgetGrid>
+    </div>
   {/if}
 </div>
 
+{#if drag && dashboardEditor.pointer}
+  <div
+    data-slot="drag-label"
+    aria-hidden="true"
+    class="pointer-events-none fixed z-50 rounded-lg bg-foreground px-2.5 py-1.5 text-xs text-background shadow-lg"
+    style="left: {dashboardEditor.pointer.x + 12}px; top: {dashboardEditor.pointer.y + 12}px"
+  >
+    {drag.label} · {cellsText(drag.size)}
+  </div>
+{/if}
+
 <svelte:window
-  ondrop={event => {
-    if (editing && drag) onDrop(event);
+  onpointermove={event => {
+    if (editing) dashboardEditor.move(event.clientX, event.clientY, indexAt(event.clientX, event.clientY));
   }}
-  ondragover={event => {
-    if (editing && drag) event.preventDefault();
+  onpointerup={() => {
+    if (editing) dashboardEditor.release();
+  }}
+  onpointercancel={() => dashboardEditor.cancelDrag()}
+  onkeydown={event => {
+    if (event.key === 'Escape' && drag) dashboardEditor.cancelDrag();
   }}
 />
 
@@ -149,21 +191,36 @@
 {/if}
 
 {#if drawerItem && editing}
+  {#key drawerItem.id}
   <WidgetDrawer
+    open={drawerOpen}
     item={drawerItem}
     {widgets}
     {period}
     onApply={change => {
       dashboardEditor.update(drawerItem.id, change);
-      drawerId = null;
+      drawerOpen = false;
     }}
     onRemove={() => {
       dashboardEditor.remove(drawerItem.id);
-      drawerId = null;
+      drawerOpen = false;
     }}
-    onClose={() => (drawerId = null)}
+    onClose={() => (drawerOpen = false)}
   />
+  {/key}
 {/if}
+
+<ConfirmOperationAlertDialog
+  open={leaving !== null}
+  onOpenChange={open => {
+    if (!open) leaving = null;
+  }}
+  onContinue={discardAndLeave}
+  title={t(editorMessages.leaveTitle)}
+  description={t(editorMessages.leaveText(dashboardEditor.changes))}
+  continueLabel={t(editorMessages.discardAndLeave)}
+  cancelLabel={t(editorMessages.stay)}
+/>
 
 {#if dashboardView.creating}
   <NewDashboardDialog

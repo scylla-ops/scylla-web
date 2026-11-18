@@ -73,4 +73,8 @@ export const editorMessages = {
   createDashboard: msg`Create dashboard`,
   copyName: (name: string) => msg`${name} (copy)`,
   close: msg`Close`,
+  leaveTitle: msg`Leave with unsaved changes?`,
+  leaveText: (count: number) => msg`The layout has ${count} changes that are not saved. They go away when you leave.`,
+  discardAndLeave: msg`Discard and leave`,
+  stay: msg`Stay`,
 };

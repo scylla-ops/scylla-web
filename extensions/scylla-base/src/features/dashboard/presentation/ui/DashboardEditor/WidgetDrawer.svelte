@@ -4,7 +4,6 @@
   import {
     Button,
     Dialog,
-    DialogContent,
     DialogDescription,
     DialogTitle,
     Select,
@@ -12,6 +11,7 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
+    SheetContent,
     Tabs,
     TabsContent,
     TabsList,
@@ -38,6 +38,7 @@
   import WidgetPreview from './WidgetPreview.svelte';
 
   interface Props {
+    open: boolean;
     item: LayoutWidget;
     widgets: DashboardWidgets;
     period: DashboardPeriodState;
@@ -46,7 +47,7 @@
     onClose: () => void;
   }
 
-  let { item, widgets, period, onApply, onRemove, onClose }: Props = $props();
+  let { open, item, widgets, period, onApply, onRemove, onClose }: Props = $props();
 
   let data = $state<WidgetData>(untrack(() => item.data));
   let size = $state<LayoutSize>(untrack(() => shownSize(item.data, item.size)));
@@ -67,10 +68,8 @@
   };
 </script>
 
-<Dialog open onOpenChange={open => !open && onClose()}>
-  <DialogContent
-    class="top-0 right-0 left-auto flex h-dvh max-h-dvh w-full max-w-[384px] translate-x-0 translate-y-0 flex-col gap-0 rounded-none p-0 sm:max-w-[384px] sm:rounded-none"
-  >
+<Dialog {open} onOpenChange={next => !next && onClose()}>
+  <SheetContent side="right" overlayClass="bg-black/25" class="w-full gap-0 p-0 sm:max-w-[384px]">
     <header class="flex flex-col gap-0.5 px-5 pt-5 pb-4 pr-12">
       <DialogTitle>{t(DATA[data].title)}</DialogTitle>
       <DialogDescription class="text-xs">
@@ -123,5 +122,5 @@
       <Button variant="ghost" size="sm" onclick={onClose}>{t(messages.cancel)}</Button>
       <Button size="sm" onclick={() => onApply({ data, size })}>{t(messages.apply)}</Button>
     </footer>
-  </DialogContent>
+  </SheetContent>
 </Dialog>

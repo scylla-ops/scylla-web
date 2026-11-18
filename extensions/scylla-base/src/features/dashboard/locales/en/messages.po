@@ -371,6 +371,10 @@ msgstr "Delete"
 msgid "Delete dashboard"
 msgstr "Delete dashboard"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:78
+msgid "Discard and leave"
+msgstr "Discard and leave"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:50
 msgid "Display"
 msgstr "Display"
@@ -503,6 +507,10 @@ msgstr "Last 30 days"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:21
 msgid "Last day"
 msgstr "Last day"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:76
+msgid "Leave with unsaved changes?"
+msgstr "Leave with unsaved changes?"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:21
 msgid "Line"
@@ -887,6 +895,10 @@ msgstr "Start from"
 msgid "Status band"
 msgstr "Status band"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:79
+msgid "Stay"
+msgstr "Stay"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:37
 msgctxt "column"
 msgid "Success"
@@ -920,6 +932,10 @@ msgstr "The last events"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:59
 msgid "the last result of each pipeline"
 msgstr "the last result of each pipeline"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:77
+msgid "The layout has {count} changes that are not saved. They go away when you leave."
+msgstr "The layout has {count} changes that are not saved. They go away when you leave."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:61
 msgid "the newest ends of the period"

@@ -46,13 +46,7 @@
     dashboardEditor.drag?.from === 'grid' && dashboardEditor.drag.id === item.id,
   );
 
-  const onDragOver = (event: DragEvent) => {
-    if (!dashboardEditor.drag || !frame) return;
-    event.preventDefault();
-    const box = frame.getBoundingClientRect();
-    const after = event.clientX > box.left + box.width / 2;
-    dashboardEditor.dragOver(after ? index + 1 : index);
-  };
+  const target = $derived(dashboardEditor.drag !== null && dashboardEditor.over === index && !dragged);
 
   const startResize = (event: PointerEvent) => {
     if (!frame) return;
@@ -82,13 +76,13 @@
   aria-label={title}
   data-slot="editable-widget"
   data-selected={selected || undefined}
+  data-drop-index={index}
   style={widgetSpanStyle(size)}
   class={cn(
     'group/edit relative col-span-(--widget-columns) row-span-(--widget-rows) @3xl:col-span-(--widget-columns-wide) @3xl:row-span-(--widget-rows-wide)',
     '[&>[data-slot=widget]]:h-full [&>[data-slot=widget]]:pointer-events-none',
     dragged && 'opacity-40',
   )}
-  ondragover={onDragOver}
 >
   {@render children()}
 
@@ -123,16 +117,14 @@
 
   <button
     type="button"
-    draggable="true"
-    class="absolute -top-2 left-1/2 z-10 flex h-4 w-8 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-border bg-background text-muted-foreground active:cursor-grabbing"
+    class="absolute -top-2 left-1/2 z-10 flex h-4 w-8 -translate-x-1/2 cursor-grab touch-none items-center justify-center rounded-full border border-border bg-background text-muted-foreground active:cursor-grabbing"
     aria-label={t(messages.move(title))}
     title={t(messages.move(title))}
-    ondragstart={event => {
-      dashboardEditor.startDrag({ from: 'grid', id: item.id, size });
-      event.dataTransfer?.setData('text/plain', item.id);
-      if (event.dataTransfer && frame) event.dataTransfer.setDragImage(frame, 24, 24);
+    onpointerdown={event => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      dashboardEditor.press({ from: 'grid', id: item.id, size, label: title }, event.clientX, event.clientY);
     }}
-    ondragend={() => dashboardEditor.endDrag()}
   >
     <GripHorizontalIcon class="size-3" aria-hidden="true" />
   </button>
@@ -148,6 +140,16 @@
       onpointerup={endResize}
       onpointercancel={() => (resizing = null)}
     ></button>
+  {/if}
+
+  {#if target && dashboardEditor.drag}
+    <div
+      data-slot="drop-here"
+      class="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-primary/60 bg-primary/15 text-center backdrop-blur-[1px]"
+    >
+      <span class="text-sm text-primary">{t(messages.dropHere)}</span>
+      <span class="text-xs text-muted-foreground">{t(messages.dropHint(cellsText(dashboardEditor.drag.size)))}</span>
+    </div>
   {/if}
 
   {#if resizing}
