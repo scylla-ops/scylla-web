@@ -168,9 +168,6 @@ beforeEach(() => {
         lastDay: vi.fn().mockResolvedValue({ capacity: 0, average: 0, peak: 0, buckets: [] }),
       },
     },
-    integrations: {
-      vcsConnectionRepository: { listByWorkspace: vi.fn().mockResolvedValue([]) },
-    },
     pipeline: {
       pipelineRepository: { getSummaries },
     },

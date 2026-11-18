@@ -22,7 +22,7 @@
       <DialogTitle>{t(widgetMessages.pipelines)}</DialogTitle>
       <DialogDescription class="text-xs">{t(messages.greenOf(green, rows.length))}</DialogDescription>
     </header>
-    <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+    <div class="relative min-h-0 flex-1 overflow-y-auto px-5 py-4">
       <PipelineTable {rows} />
     </div>
   </SheetContent>

@@ -23,7 +23,7 @@
       <DialogTitle>{t(widgetMessages.needsYou)}</DialogTitle>
       <DialogDescription class="text-xs">{openCount} {t(messages.openNow)}</DialogDescription>
     </header>
-    <ul class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
+    <ul class="relative flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
       {#each items as item, index (`${item.kind}-${item.job?.id ?? item.fire?.id ?? item.agent?.id ?? index}`)}
         <AttentionRow {item} {timeZone} actions />
       {/each}

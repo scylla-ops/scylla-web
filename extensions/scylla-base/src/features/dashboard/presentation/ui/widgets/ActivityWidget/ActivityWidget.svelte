@@ -109,7 +109,7 @@
       <DialogTitle>{t(widgetMessages.activity)}</DialogTitle>
       <DialogDescription class="text-xs">{t(messages.readable)}</DialogDescription>
     </header>
-    <ul class="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-5 py-4">
+    <ul class="relative flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-5 py-4">
       {#each lines as line (line.id)}<ActivityRow {line} {timeZone} wide />{/each}
     </ul>
   </SheetContent>

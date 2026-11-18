@@ -8,7 +8,7 @@
   import { toRune } from '@scylla/ui/stores';
   import { ProviderMark } from '@shared/presentation/ui';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
-  import { integrationsUrl, type VcsConnectionEntity } from '@base/features/integrations';
+  import { integrationsUrl } from '@base/features/integrations';
   import { webhookMessages as messages } from '@base/features/dashboard/presentation/messages/webhooks.messages.ts';
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
   import { clockIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
@@ -29,7 +29,6 @@
 
   const context = toRune(contextStore);
   const stats = $derived(widgets.deliveries.data);
-  const entities = $derived(new Map((widgets.connections.data ?? []).map(item => [item.id, item])));
 
   interface Row {
     id: string;
@@ -41,17 +40,14 @@
   }
 
   const rows = $derived<Row[]>([
-    ...(stats?.connections ?? []).map(item => {
-      const entity: VcsConnectionEntity | undefined = entities.get(item.id);
-      return {
-        id: item.id,
-        kind: entity?.provider ?? 'webhook',
-        name: entity ? (entity.provider === 'github' ? 'GitHub' : 'GitLab') : item.id.slice(-8),
-        detail: entity ? t(messages.repositories(entity.account, entity.repositoryCount)) : '',
-        delivered: item.delivered,
-        failed: item.failed,
-      };
-    }),
+    ...(stats?.connections ?? []).map(item => ({
+      id: item.id,
+      kind: item.provider || 'webhook',
+      name: item.provider === 'github' ? 'GitHub' : item.provider === 'gitlab' ? 'GitLab' : item.id.slice(-8),
+      detail: item.account ? t(messages.repositories(item.account, item.repositoryCount)) : '',
+      delivered: item.delivered,
+      failed: item.failed,
+    })),
     ...(stats?.triggers ?? []).map(item => ({
       id: item.id,
       kind: 'webhook',

@@ -11,7 +11,6 @@ import { slotUsageQueries } from '@base/features/dashboard/presentation/slot-usa
 import { schedulesQueries } from '@base/features/dashboard/presentation/schedules.queries.ts';
 import { activityQueries } from '@base/features/dashboard/presentation/activity.queries.ts';
 import { deliveryStatsQueries } from '@base/features/dashboard/presentation/delivery-stats.queries.ts';
-import { vcsConnectionQueries } from '@base/features/integrations';
 import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
 import type { PeriodRange } from '@base/features/dashboard/presentation/presenters/period.presenter.ts';
 import { currentInstant, dayIn, startOfDayIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
@@ -131,7 +130,6 @@ export const createDashboardWidgets = (
   const deliveriesLocked = $derived(
     deliveries.isError && ScyllaError.from(deliveries.error).code === 'PERMISSION_DENIED',
   );
-  const connections = createQuery(() => vcsConnectionQueries.byWorkspace(workspaceId ?? '', !!workspaceId));
   const activityFeed = createQuery(() => activityQueries.feed(workspaceId, since));
   const activityLocked = $derived(
     activityFeed.isError && ScyllaError.from(activityFeed.error).code === 'PERMISSION_DENIED',
@@ -195,8 +193,6 @@ export const createDashboardWidgets = (
     get deliveriesLocked() {
       return deliveriesLocked;
     },
-    /** The Git connections of the workspace: their provider and account. */
-    connections,
     /** The activity feed of the workspace (ActivityService.ListActivity). */
     activityFeed,
     get activityLocked() {

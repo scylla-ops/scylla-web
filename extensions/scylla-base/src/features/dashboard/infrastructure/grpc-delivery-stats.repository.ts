@@ -2,12 +2,17 @@ import type { IVcsConnectionServiceClient } from '@base/generated/scylla/integra
 import { DeliveryStatsBucket } from '@base/generated/scylla/integrations/v1/delivery_stats.ts';
 import type { ITriggerServiceClient } from '@base/generated/scylla/pipelines/v1/trigger_service.client.ts';
 import { TriggerKind } from '@base/generated/scylla/pipelines/v1/trigger.ts';
+import { VcsProvider } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import type { DeliveryStatsRepository } from '@base/features/dashboard/domain/repository/delivery-stats.repository.ts';
 import type { DeliveryStats } from '@base/features/dashboard/domain/structs/delivery.struct.ts';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const TRIGGER_LIMIT = 100;
+const CONNECTION_LIMIT = 50;
+
+const providerOf = (provider: VcsProvider): string =>
+  provider === VcsProvider.GITHUB ? 'github' : provider === VcsProvider.GITLAB ? 'gitlab' : '';
 
 export class GrpcDeliveryStatsRepository implements DeliveryStatsRepository {
   constructor(
@@ -17,7 +22,7 @@ export class GrpcDeliveryStatsRepository implements DeliveryStatsRepository {
 
   public async lastDay(workspaceId: string): Promise<DeliveryStats> {
     const from = Date.now() - DAY_MS;
-    const [stats, webhooks] = await Promise.all([
+    const [stats, webhooks, connections] = await Promise.all([
       this.connections.getDeliveryStats({
         workspaceId: wrapId(workspaceId),
         from: { seconds: BigInt(Math.floor(from / 1000)), nanos: 0 },
@@ -32,7 +37,12 @@ export class GrpcDeliveryStatsRepository implements DeliveryStatsRepository {
         order: 0,
         page: { size: TRIGGER_LIMIT, token: '' },
       }).response,
+      this.connections.listVcsConnections({
+        workspaceId: wrapId(workspaceId),
+        page: { size: CONNECTION_LIMIT, token: '' },
+      }).response,
     ]);
+    const known = new Map(connections.connections.map(item => [idValue(item.id), item]));
     const names = new Map(
       webhooks.triggers.map(summary => [idValue(summary.trigger?.id), { name: summary.trigger?.name ?? '', pipelineName: summary.pipelineName }]),
     );
@@ -41,6 +51,9 @@ export class GrpcDeliveryStatsRepository implements DeliveryStatsRepository {
       failed: stats.totals?.failed ?? 0,
       connections: stats.connections.map(item => ({
         id: idValue(item.connectionId),
+        provider: providerOf(known.get(idValue(item.connectionId))?.provider ?? VcsProvider.UNSPECIFIED),
+        account: known.get(idValue(item.connectionId))?.account ?? '',
+        repositoryCount: known.get(idValue(item.connectionId))?.repositoryCount ?? 0,
         delivered: item.figures?.delivered ?? 0,
         failed: item.figures?.failed ?? 0,
         lastReceivedAt: timestampToIso(item.lastReceivedAt),
@@ -52,6 +65,9 @@ export class GrpcDeliveryStatsRepository implements DeliveryStatsRepository {
         const id = idValue(item.triggerId);
         return {
           id,
+          provider: 'webhook',
+          account: '',
+          repositoryCount: 0,
           name: names.get(id)?.name ?? id.slice(-8),
           pipelineName: names.get(id)?.pipelineName ?? '',
           delivered: item.figures?.delivered ?? 0,
