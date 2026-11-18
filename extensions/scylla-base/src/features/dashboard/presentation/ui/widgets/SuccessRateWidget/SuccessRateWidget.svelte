@@ -1,23 +1,18 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import GaugeIcon from '@lucide/svelte/icons/gauge';
-  import { ChartLegendItem, ChartRing, ChartSegment, Widget, type WidgetSize, type LucideIcon } from '@scylla/ui';
+  import ChartPieIcon from '@lucide/svelte/icons/chart-pie';
+  import { ChartDot, ChartRing, ChartSegment, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { decidedJobs, successRate, successRateChange } from '@base/features/jobs';
+  import { decidedJobs, successRate } from '@base/features/jobs';
   import { widgetMessages as messages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
+  import { rateText } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
   import {
-    bucketAxis,
-    bucketLabel,
-    outcomeBars,
-    periodMeta,
-    rateChange,
-    rateText,
-  } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
+    countText,
+    outcomeShares,
+    shortPeriod,
+  } from '@base/features/dashboard/presentation/presenters/view-figures.presenter.ts';
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
-  import BarTip from '../parts/BarTip.svelte';
-  import BucketAxis from '../parts/BucketAxis.svelte';
-  import ChangeBadge from '../parts/ChangeBadge.svelte';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
@@ -28,32 +23,25 @@
     editing?: Snippet;
   }
 
-  let { widgets, period, size = 'm', editing }: Props = $props();
+  let { widgets, period, size = 's', editing }: Props = $props();
 
-  const stats = $derived(widgets.stats.data);
-  const outcomes = $derived(stats?.totals.outcomes);
+  const outcomes = $derived(widgets.stats.data?.totals.outcomes);
   const rate = $derived(outcomes ? successRate(outcomes) : null);
-  const change = $derived(
-    outcomes && stats?.previous ? rateChange(successRateChange(outcomes, stats.previous.outcomes)) : null,
-  );
-  const bars = $derived(outcomeBars(stats?.buckets ?? []));
-  const axis = $derived(
-    bucketAxis(
-      stats?.buckets ?? [],
-      period.rangeAt().bucket,
-      period.timeZone ?? 'UTC',
-      period.rangeAt().to === null,
-    ),
-  );
+  const shares = $derived(outcomes ? outcomeShares(outcomes) : null);
   const empty = $derived(!outcomes || (decidedJobs(outcomes) === 0 && outcomes.cancelled === 0));
 </script>
+
+{#snippet aside()}
+  <span>{shortPeriod(period.period)}</span>
+{/snippet}
 
 <Widget
   {size}
   {editing}
+  bare={size === 'xs'}
   title={t(messages.successRate)}
-  icon={GaugeIcon as LucideIcon}
-  meta={periodMeta(period.period)}
+  icon={ChartPieIcon as LucideIcon}
+  {aside}
 >
   <WidgetBody
     {size}
@@ -65,63 +53,43 @@
     emptyTitle={t(messages.noJobsInPeriod)}
     emptyText={t(messages.noJobsInPeriodText)}
   >
-    {#if outcomes}
-      <div class="flex min-h-0 flex-1 gap-4">
-        <div class="flex shrink-0 flex-col justify-between gap-2">
-          <div class="flex items-center gap-3">
-            <ChartRing
-              arcs={[
-                { value: outcomes.completed, tone: 'passed' },
-                { value: outcomes.failed, tone: 'failed' },
-                { value: outcomes.orphaned, tone: 'canceled' },
-              ]}
-              total={decidedJobs(outcomes)}
-              value={rateText(rate)}
-              label={t(messages.successRateLabel(rateText(rate)))}
-            />
-            <div class="flex flex-col gap-1">
-              <ChartLegendItem tone="passed" label={t(messages.completed)} value={outcomes.completed} />
-              <ChartLegendItem tone="failed" label={t(messages.failed)} value={outcomes.failed} />
-              <ChartLegendItem tone="canceled" label={t(messages.orphaned)} value={outcomes.orphaned} />
-              <span class="text-xs text-muted-foreground">
-                {t(messages.cancelledApart(outcomes.cancelled))}
-              </span>
-            </div>
+    {#if outcomes && shares}
+      {#if size === 'xs'}
+        <div class="flex min-w-0 items-center gap-3">
+          <ChartRing
+            arcs={[
+              { value: outcomes.completed, tone: 'passed' },
+              { value: outcomes.failed, tone: 'failed' },
+              { value: outcomes.orphaned, tone: 'canceled' },
+            ]}
+            total={decidedJobs(outcomes)}
+            label={t(messages.successRateLabel(rateText(rate)))}
+            size="sm"
+            class="size-12"
+          />
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm">{t(messages.successRate)}</p>
+            <p class="font-mono text-xs text-muted-foreground">
+              {countText(outcomes.completed)} / {countText(decidedJobs(outcomes))}
+            </p>
           </div>
-          {#if change}
-            <div class="flex items-center gap-2 text-xs text-muted-foreground">
-              <ChangeBadge {change} />
-              <span>{t(messages.vsPreviousPeriod)}</span>
-            </div>
-          {/if}
+          <p class="text-3xl font-medium tracking-tight tabular-nums">{rateText(rate)}</p>
         </div>
-        <div class="hidden min-w-0 flex-1 flex-col gap-1 @3xl:flex">
-          <div class="flex min-h-0 flex-1 items-end gap-0.5">
-            {#each bars as bar, index (bar.start)}
-              {@const figures = stats?.buckets[index]?.figures.outcomes}
-              <BarTip class="flex h-full min-w-0 flex-1 flex-col-reverse gap-px" top={bar.completed + bar.failed + bar.orphaned}>
-                {#if bar.completed > 0}<ChartSegment tone="passed" style="height: {bar.completed}%" />{/if}
-                {#if bar.failed > 0}<ChartSegment tone="failed" style="height: {bar.failed}%" />{/if}
-                {#if bar.orphaned > 0}<ChartSegment tone="canceled" style="height: {bar.orphaned}%" />{/if}
-                {#snippet tip()}
-                  <span class="font-medium">{bucketLabel(bar.start, period.rangeAt().bucket, period.timeZone ?? 'UTC')}</span>
-                  {#if figures}
-                    <ChartLegendItem tone="passed" label={t(messages.completed)} value={figures.completed} />
-                    <ChartLegendItem tone="failed" label={t(messages.failed)} value={figures.failed} />
-                    <ChartLegendItem tone="canceled" label={t(messages.orphaned)} value={figures.orphaned} />
-                    {#if figures.cancelled}
-                      <span class="text-muted-foreground">{t(messages.cancelledApart(figures.cancelled))}</span>
-                    {/if}
-                  {/if}
-                {/snippet}
-              </BarTip>
-            {/each}
+      {:else}
+        <div class="mt-auto flex flex-col gap-3">
+          <p class="text-6xl font-medium tracking-tight tabular-nums">{rateText(rate)}</p>
+          <div class="flex h-1.5 w-full gap-0.5" aria-label={t(messages.successRateLabel(rateText(rate)))} role="img">
+            {#if shares.completed > 0}<ChartSegment tone="passed" class="rounded-full" style="width: {shares.completed}%" />{/if}
+            {#if shares.failed > 0}<ChartSegment tone="failed" class="rounded-full" style="width: {shares.failed}%" />{/if}
+            {#if shares.orphaned > 0}<ChartSegment tone="canceled" class="rounded-full" style="width: {shares.orphaned}%" />{/if}
           </div>
-          {#if axis}
-            <BucketAxis labels={axis} />
-          {/if}
+          <div class="flex items-center gap-4 text-xs tabular-nums">
+            <span class="flex items-center gap-1.5" title={t(messages.completed)}><ChartDot tone="passed" />{outcomes.completed}</span>
+            <span class="flex items-center gap-1.5" title={t(messages.failed)}><ChartDot tone="failed" />{outcomes.failed}</span>
+            <span class="flex items-center gap-1.5" title={t(messages.orphaned)}><ChartDot tone="canceled" />{outcomes.orphaned}</span>
+          </div>
         </div>
-      </div>
+      {/if}
     {/if}
   </WidgetBody>
 </Widget>

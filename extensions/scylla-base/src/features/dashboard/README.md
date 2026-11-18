@@ -9,11 +9,11 @@ Every workspace-level redirect in the app ends here.
 
 ## A composite view, by design
 
-The dashboard owns one thing: the **layouts** of the dashboards of a workspace. A layout is a
-name and the widgets, in order, each at a size. The browser keeps the layouts
-(`localStorage`) behind `DashboardLayoutRepository`, until a route of the server can hold them.
+The dashboard is the clearest example of a module that **owns nothing**. Its `domain` is empty,
+it has no `domain/` or `infrastructure/` folder, and it is registered in the DI container purely
+so its route and sidebar entry get composed with everyone else's.
 
-All the figures come from other modules' public APIs:
+All of its data comes from other modules' public APIs:
 
 | Question | Answered by |
 |---|---|
@@ -36,21 +36,20 @@ So the org-wide reads live in the modules that own the resource — `pipelineQue
 `pipeline`, `jobQueries` in `jobs` — even when the dashboard is their only consumer.
 The dashboard composes; it does not fetch.
 
-The same reasoning limits the `domain`. The layout repository holds the layouts and nothing
-else: a figure never goes through it.
+The same reasoning explains the empty `domain`. A module's `domain` is its *data surface*; a
+module with no data has no surface, and inventing a `dashboardRepository` to look symmetrical
+would only give the next contributor somewhere wrong to put a query.
 
 ## What is on the page
 
-- **The header** — the period of the dashboard (24 h, 7 d, 14 d, 30 d or custom days) and the
-  time zone of the workspace. The days of a period are the days of the workspace, so that two
-  people in two countries see the same bars.
-- **The widgets** — Success rate, Run duration, Right now, Needs you, Pipelines, Activity and
-  Quick actions, on the widget grid of `@scylla/ui`. The figures of a period follow the period
-  picker, and the period stays in the URL, so a link shows the same figures.
-- **The edit mode** — "Edit" in the header. Each widget shows its sizes and Remove; the bar
-  under the header adds a widget, renames or deletes the dashboard.
-
-The second sidebar lists the dashboards ("Overview" first) and "New dashboard".
+- **No header.** The panel of the second sidebar holds the dashboards, the period (24 h, 7 d,
+  14 d, or a custom range), the time zone of the workspace and the scope (all projects or
+  one). The days of a period are the days of the workspace, so that two people in two
+  countries see the same bars.
+- **The widgets** — a sentence of what needs you, the last 24 hours, Right now, Needs you,
+  Success rate, Agents, Pipelines, Runs per day and four small figures, on the grid of 8
+  columns of `@scylla/ui`. The figures of a period follow the panel, and the period stays in
+  the URL, so a link shows the same figures.
 
 Access is gated on `READ_WORKSPACE` — the same permission as the projects list, because both
 are reads of the workspace and this page is the redirect target for anyone landing on an org

@@ -4,10 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { setAppNavigator, contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
-import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
-import { LocalDashboardLayoutRepository } from '@base/features/dashboard/infrastructure/local-dashboard-layout.repository.ts';
-import { dashboardEditMode } from '@base/features/dashboard/presentation/ui/dashboard-layout.state.svelte.ts';
+import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { dashboardView } from '@base/features/dashboard/presentation/ui/dashboard-view.state.svelte.ts';
 import DashboardPage from './Dashboard.page.svelte';
+import DashboardWithPanel from './__test__/DashboardWithPanel.fixture.svelte';
 
 const figures = (outcomes: { completed: number; failed: number; cancelled: number; orphaned: number }) => ({
   created: outcomes.completed + outcomes.failed + outcomes.cancelled + outcomes.orphaned,
@@ -47,7 +47,7 @@ let getStats: ReturnType<typeof vi.fn>;
 let getNewest: ReturnType<typeof vi.fn>;
 let getSummaries: ReturnType<typeof vi.fn>;
 let getWorkspaces: ReturnType<typeof vi.fn>;
-let stored: Map<string, string>;
+let getProjects: ReturnType<typeof vi.fn>;
 let navigate: ReturnType<typeof installTestNavigator>['navigate'];
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
@@ -73,15 +73,10 @@ beforeEach(() => {
     { id: 'org-1', name: 'Acme', slug: 'acme', personalTokensEnabled: true, timeZone: 'Asia/Kolkata' },
   ]);
 
-  stored = new Map();
-  const storage = {
-    getItem: (key: string) => stored.get(key) ?? null,
-    setItem: (key: string, value: string) => void stored.set(key, value),
-  };
+  getProjects = vi.fn().mockResolvedValue({ items: [{ id: 'project-1', workspaceId: 'org-1', name: 'Acme project' }] });
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
-    dashboard: { dashboardLayoutRepository: new LocalDashboardLayoutRepository(() => storage) },
     pipeline: {
       pipelineRepository: { getSummaries },
     },
@@ -92,6 +87,7 @@ beforeEach(() => {
       },
     },
     workspace: { workspaceRepository: { getMine: getWorkspaces } },
+    project: { projectRepository: { getByWorkspaceId: getProjects } },
   });
 
   navigate = installTestNavigator().navigate;
@@ -110,73 +106,32 @@ afterEach(() => {
   restoreRegistry();
   setAppNavigator(null);
   permissionsStore.setState({ permissions: null });
-  dashboardEditMode.set(false);
+  dashboardView.setProject(null);
 });
 
 describe('DashboardPage', () => {
-  it('says in the header which time zone the times use', async () => {
+  it('has no page header: the widgets start at the top', async () => {
     render(DashboardPage);
 
-    expect(await screen.findByText('Times in Asia/Kolkata (UTC+5:30)')).toBeInTheDocument();
+    expect(await screen.findByRole('region', { name: 'Success rate' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Dashboard' })).toHaveClass('sr-only');
   });
 
-  it('offers the period of the dashboard in the header, the last 14 days first', async () => {
-    const user = userEvent.setup();
-    render(DashboardPage);
-
-    expect(screen.getByRole('radio', { name: '14 d' })).toHaveAttribute('aria-checked', 'true');
-
-    await user.click(screen.getByRole('radio', { name: '30 d' }));
-
-    expect(screen.getByRole('radio', { name: '30 d' })).toHaveAttribute('aria-checked', 'true');
-  });
-
-  it('shows the success rate of the period, with the cancelled jobs apart and the change', async () => {
+  it('shows the success rate of the period with its parts', async () => {
     render(DashboardPage);
 
     const widget = await screen.findByRole('region', { name: 'Success rate' });
-    expect(widget).toHaveAttribute('data-size', 'm');
+    expect(widget).toHaveAttribute('data-size', 's');
     expect(widget.closest('[data-slot="widget-grid"]')).not.toBeNull();
-    expect(await within(widget).findByRole('img', { name: 'Success rate 89%' })).toBeInTheDocument();
-    expect(within(widget).getByText('2 cancelled, not counted')).toBeInTheDocument();
-    expect(within(widget).getByText('+13.9 pts')).toBeInTheDocument();
+    expect(await within(widget).findByText('89%')).toBeInTheDocument();
+    expect(within(widget).getByText('14 d')).toBeInTheDocument();
   });
 
-  it('asks the figures of the period, and asks again when the user picks another period', async () => {
-    const user = userEvent.setup();
+  it('counts what needs the user in the sentence', async () => {
     render(DashboardPage);
 
-    await vi.waitFor(() => expect(getStats).toHaveBeenCalled());
-    expect(getStats).toHaveBeenLastCalledWith(
-      expect.objectContaining({ workspaceId: 'org-1', bucket: 'day', to: null, compare: true }),
-    );
-    const firstFrom = (getStats.mock.lastCall![0] as { from: Date }).from;
-
-    await user.click(screen.getByRole('radio', { name: '24 h' }));
-
-    await vi.waitFor(() =>
-      expect(getStats).toHaveBeenLastCalledWith(expect.objectContaining({ bucket: 'hour' })),
-    );
-    expect((getStats.mock.lastCall![0] as { from: Date }).from).not.toEqual(firstFrom);
-    expect(navigate).toHaveBeenLastCalledWith('/?period=24h', { replace: true });
-  });
-
-  it('gives the period to the activity, and no period to the jobs that run now', async () => {
-    render(DashboardPage);
-
-    await vi.waitFor(() => expect(getNewest.mock.calls.length).toBeGreaterThanOrEqual(2));
-    expect(getNewest).toHaveBeenCalledWith(
-      expect.objectContaining({ statuses: ['running', 'pending', 'awaiting_approval'] }),
-    );
-    expect(getNewest).toHaveBeenCalledWith(
-      expect.objectContaining({
-        statuses: ['completed', 'failed', 'cancelled', 'orphaned'],
-        createdAfter: expect.any(Date),
-      }),
-    );
-    expect(getNewest).not.toHaveBeenCalledWith(
-      expect.objectContaining({ statuses: ['running', 'pending', 'awaiting_approval'], createdAfter: expect.any(Date) }),
-    );
+    expect(await screen.findByText('1 thing')).toBeInTheDocument();
+    expect(screen.getByText('needs you.', { exact: false })).toBeInTheDocument();
   });
 
   it('lists a red pipeline in Needs you and in Pipelines', async () => {
@@ -184,10 +139,27 @@ describe('DashboardPage', () => {
 
     const needsYou = await screen.findByRole('region', { name: 'Needs you' });
     expect(await within(needsYou).findByText('deploy-web')).toBeInTheDocument();
-    expect(within(needsYou).getByText('0000failed'.slice(-8))).toBeInTheDocument();
 
     const pipelines = screen.getByRole('region', { name: 'Pipelines' });
     expect(await within(pipelines).findByText('0 of 1 green')).toBeInTheDocument();
+  });
+
+  it('asks the live jobs with no period, and the job ends of the period', async () => {
+    render(DashboardPage);
+
+    await vi.waitFor(() => expect(getNewest.mock.calls.length).toBeGreaterThanOrEqual(3));
+    expect(getNewest).toHaveBeenCalledWith(
+      expect.objectContaining({ statuses: ['running', 'pending', 'awaiting_approval'] }),
+    );
+    expect(getNewest).not.toHaveBeenCalledWith(
+      expect.objectContaining({ statuses: ['running', 'pending', 'awaiting_approval'], createdAfter: expect.any(Date) }),
+    );
+    expect(getNewest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statuses: ['completed', 'failed', 'cancelled', 'orphaned'],
+        createdAfter: expect.any(Date),
+      }),
+    );
   });
 
   it('locks the widgets of the jobs for a user who cannot read them', async () => {
@@ -209,43 +181,44 @@ describe('DashboardPage', () => {
     expect(getNewest).not.toHaveBeenCalled();
   });
 
-  it('shows the widgets of the stored layout, at their size', async () => {
-    stored.set(
-      'dashboards:org-1',
-      JSON.stringify([{ id: 'default', name: null, widgets: [{ widget: 'needs-you', size: 'l' }] }]),
+  it('asks the figures of one project when the scope is a project', async () => {
+    dashboardView.setProject('project-1');
+    render(DashboardPage);
+
+    await vi.waitFor(() =>
+      expect(getStats).toHaveBeenLastCalledWith(expect.objectContaining({ projectIds: ['project-1'] })),
     );
-    render(DashboardPage);
+  });
+});
 
-    expect(await screen.findByRole('region', { name: 'Needs you' })).toHaveAttribute('data-size', 'l');
-    expect(screen.queryByRole('region', { name: 'Success rate' })).not.toBeInTheDocument();
+describe('DashboardPanel', () => {
+  it('says which time zone the times use', async () => {
+    render(DashboardWithPanel);
+
+    expect(await screen.findByText('Times in Asia/Kolkata (UTC+5:30)')).toBeInTheDocument();
   });
 
-  it('removes a widget, adds it back and saves the layout in the edit mode', async () => {
+  it('offers the period, the last 14 days first, and asks again for another period', async () => {
     const user = userEvent.setup();
-    render(DashboardPage);
+    render(DashboardWithPanel);
 
-    await user.click(await screen.findByRole('button', { name: 'Edit' }));
-    await user.click(screen.getByRole('button', { name: 'Remove Success rate' }));
+    expect(await screen.findByRole('radio', { name: '14 d' })).toHaveAttribute('aria-checked', 'true');
+    await vi.waitFor(() => expect(getStats).toHaveBeenCalled());
 
-    expect(screen.queryByRole('region', { name: 'Success rate' })).not.toBeInTheDocument();
-    await vi.waitFor(() => expect(stored.get('dashboards:org-1')).toContain('run-duration'));
-    expect(stored.get('dashboards:org-1')).not.toContain('success-rate');
+    await user.click(screen.getByRole('radio', { name: '24 h' }));
 
-    await user.click(screen.getByRole('button', { name: 'Add a widget' }));
-    await user.click(await findFloating('menuitem', 'Success rate'));
-
-    expect(await screen.findByRole('region', { name: 'Success rate' })).toBeInTheDocument();
+    await vi.waitFor(() =>
+      expect(getStats).toHaveBeenLastCalledWith(expect.objectContaining({ bucket: 'hour' })),
+    );
+    expect(navigate).toHaveBeenLastCalledWith('/?period=24h', { replace: true });
+    expect(screen.getByRole('radio', { name: '24 h' })).toHaveAttribute('aria-checked', 'true');
   });
 
-  it('changes the size of a widget in the edit mode', async () => {
-    const user = userEvent.setup();
-    render(DashboardPage);
+  it('lists the dashboard with its Default mark, and the scope', async () => {
+    render(DashboardWithPanel);
 
-    await user.click(await screen.findByRole('button', { name: 'Edit' }));
-    const sizes = screen.getByRole('group', { name: 'Size of Needs you' });
-    await user.click(within(sizes).getByRole('radio', { name: 'L' }));
-
-    expect(screen.getByRole('region', { name: 'Needs you' })).toHaveAttribute('data-size', 'l');
-    expect(screen.queryByRole('group', { name: 'Size of Success rate' })).not.toBeInTheDocument();
+    expect(await screen.findByText('Ops overview')).toBeInTheDocument();
+    expect(screen.getByText('Default')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Scope' })).toHaveTextContent('All projects');
   });
 });

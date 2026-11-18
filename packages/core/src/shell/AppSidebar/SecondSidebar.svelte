@@ -11,6 +11,8 @@
   interface Props {
     id?: string;
     content: SecondSidebarContent | undefined;
+    /** Replaces the title and the links of `content`. */
+    panel?: Component;
     pathname: string;
     ready: boolean;
     badges: readonly Component<{ url: string }>[];
@@ -18,7 +20,7 @@
     class?: string;
   }
 
-  let { id, content, pathname, ready, badges, onOpenPage, class: className }: Props = $props();
+  let { id, content, pathname, ready, badges, onOpenPage, panel: Panel, class: className }: Props = $props();
 
   const active = $derived(content ? activePageOf(content.pages, pathname) : undefined);
   const SECTION_FADE_MS = 120;
@@ -41,6 +43,10 @@
         </div>
       {/each}
     </div>
+  {:else if Panel && content}
+    {#key content.id}
+      <Panel />
+    {/key}
   {:else if content}
     {#key content.id}
       <div

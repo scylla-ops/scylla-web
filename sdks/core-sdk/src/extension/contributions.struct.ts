@@ -71,6 +71,11 @@ export interface ShellContributions {
    * id of what the second sidebar shows, a `NavGroup`, a section or the path of a link.
    */
   secondSidebarLinks?: (shown: () => string | undefined) => () => readonly SecondSidebarLink[];
+  /**
+   * Replace the second sidebar while it shows a rail item, e.g. with the controls of a page. The
+   * key is the id of the rail item: a `NavGroup`, a section or the path of a link.
+   */
+  secondSidebarPanels?: Readonly<Record<string, Component>>;
   /** Reactive. Values for the breadcrumbs, in addition to the route parameters. */
   breadcrumbParams?: () => BreadcrumbParams;
   /** Reactive. Parameters of the mount paths in sidebar links, in addition to the route's. */

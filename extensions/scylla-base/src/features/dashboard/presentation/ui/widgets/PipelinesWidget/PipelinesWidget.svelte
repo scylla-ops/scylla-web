@@ -1,13 +1,13 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import GitBranchIcon from '@lucide/svelte/icons/git-branch';
-  import { ChartDot, ChartLegendItem, ChartSegment, Widget, type WidgetSize, type LucideIcon } from '@scylla/ui';
+  import HeartPulseIcon from '@lucide/svelte/icons/heart-pulse';
+  import { ChartDot, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { widgetMessages as messages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
+  import { viewMessages } from '@base/features/dashboard/presentation/messages/widgets-view.messages.ts';
   import { pipelineRows } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import { PIPELINE_RUNS, type DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { openPipelineJobs } from '../widget-navigation.ts';
-  import BarTip from '../parts/BarTip.svelte';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
@@ -18,17 +18,17 @@
     editing?: Snippet;
   }
 
-  let { widgets, timeZone = 'UTC', size = 'l', editing }: Props = $props();
+  let { widgets, timeZone = 'UTC', size = 'm', editing }: Props = $props();
 
-  const maxRows = $derived(size === 'l' ? 10 : 4);
-
-  const list = $derived(widgets.summaries.data);
-  const rows = $derived(pipelineRows(list?.items.slice(0, maxRows) ?? [], PIPELINE_RUNS, timeZone));
+  const maxChips = $derived(size === 'l' ? 40 : size === 'm' ? 12 : 6);
+  const rows = $derived(pipelineRows(widgets.pipelineItems, PIPELINE_RUNS, timeZone));
+  const shown = $derived(rows.slice(0, maxChips));
+  const green = $derived(widgets.pipelineItems.filter(item => item.health === 'green').length);
 </script>
 
 {#snippet aside()}
-  {#if list && list.total > 0}
-    <span class="tabular-nums">{t(messages.greenOfTotal(list.green, list.total))}</span>
+  {#if rows.length > 0}
+    <span>{t(viewMessages.pipelinesGreen(green, rows.length))}</span>
   {/if}
 {/snippet}
 
@@ -36,7 +36,7 @@
   {size}
   {editing}
   title={t(messages.pipelines)}
-  icon={GitBranchIcon as LucideIcon}
+  icon={HeartPulseIcon as LucideIcon}
   meta={t(messages.failingFirst)}
   {aside}
 >
@@ -46,62 +46,28 @@
     loading={widgets.summaries.isPending}
     error={widgets.summaries.isError}
     onRetry={() => void widgets.summaries.refetch()}
-    empty={!list || list.total === 0}
+    empty={rows.length === 0}
     emptyTitle={t(messages.noPipelinesYet)}
     emptyText={t(messages.noPipelinesYetText)}
   >
-    <table class="w-full table-fixed text-xs">
-      <thead class="text-muted-foreground">
-        <tr class="h-6">
-          <th class="text-left font-normal">{t(messages.pipelineColumn)}</th>
-          <th class="hidden w-36 text-left font-normal @3xl:table-cell">
-            {t(messages.lastRuns(PIPELINE_RUNS))}
-          </th>
-          <th class="w-14 text-right font-normal">{t(messages.successColumn)}</th>
-          <th class="w-16 text-right font-normal">{t(messages.medianColumn)}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each rows as row (row.id)}
-          <tr
-            class="h-7 cursor-pointer hover:bg-muted/50"
+    <ul class="flex flex-wrap content-start gap-2 pt-2">
+      {#each shown as row (row.id)}
+        <li>
+          <button
+            type="button"
+            class="inline-flex h-7 max-w-48 items-center gap-1.5 rounded-full border border-border px-2.5 text-xs transition-colors hover:bg-accent"
             onclick={() => openPipelineJobs(row)}
           >
-            <td class="truncate">
-              <span class="inline-flex min-w-0 items-center gap-2">
-                <ChartDot tone={row.tone} />
-                <span class="truncate text-sm font-medium">{row.name}</span>
-                <span class="truncate text-muted-foreground">{row.projectName} · {row.trigger}</span>
-              </span>
-            </td>
-            <td class="hidden @3xl:table-cell">
-              <span class="flex h-3.5 items-stretch gap-px">
-                {#each row.runs as run, index (index)}
-                  <BarTip class="flex">
-                    <ChartSegment tone={run.tone} class="w-1.5" />
-                    {#snippet tip()}
-                      <span class="inline-flex items-center gap-1.5">
-                        <ChartDot tone={run.tone} />
-                        <span class="font-mono">{run.shortId}</span>
-                        <span class="text-muted-foreground">{run.status}</span>
-                      </span>
-                      {#if run.branch}<span class="text-muted-foreground">{run.branch}</span>{/if}
-                      <span>{run.duration} · {run.when}</span>
-                    {/snippet}
-                  </BarTip>
-                {/each}
-              </span>
-            </td>
-            <td class="text-right tabular-nums">{row.rate}</td>
-            <td class="text-right text-muted-foreground tabular-nums">{row.median}</td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-    <div class="mt-auto flex items-center gap-3 pt-2">
-      <ChartLegendItem tone="passed" label={t(messages.green)} />
-      <ChartLegendItem tone="failed" label={t(messages.red)} />
-      <ChartLegendItem tone="running" label={t(messages.runningNow)} />
-    </div>
+            <ChartDot tone={row.tone === 'running' ? 'warning' : row.tone} class="size-1.5" />
+            <span class="truncate">{row.name}</span>
+          </button>
+        </li>
+      {/each}
+    </ul>
+    {#if rows.length > shown.length}
+      <p class="mt-auto text-xs text-muted-foreground">
+        {t(viewMessages.moreItems(rows.length - shown.length))}
+      </p>
+    {/if}
   </WidgetBody>
 </Widget>

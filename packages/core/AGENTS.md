@@ -202,6 +202,9 @@ module gives an access policy.
   (the dashboards set `false`, and `true` on "New dashboard"). `DoubleSidebar` calls each source once, when it mounts,
   thus a source can create a query: read it only while `shown` is the id of its item. The sheet of a
   phone does not show them.
+- **A module can replace the second sidebar of a rail item** (`shell.secondSidebarPanels`, keyed
+  by the id of the rail item, e.g. the controls of the dashboard). The panel replaces the title
+  and the links. The sheet of a phone still shows the links.
 - **The sheet of a phone shows a section with `noRailItem` on its pages only** (`sheetSections`).
   A click on a link closes the sheet. `NavMain` does this, because a link that changes only an
   in-page param mounts nothing.
