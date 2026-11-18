@@ -121,13 +121,12 @@
     if (gridWidth > 0) dashboardEditor.setColumns(gridWidth >= WIDE_GRID_PX ? WIDE.columns : NARROW.columns);
   });
 
-  /** The widgets as the grid shows them: the live size of a resize, the drag at its place. */
+  /**
+   * The widgets as the grid shows them, with the drag at its place. A resize does not change the
+   * grid until the release: only the card of the widget shows its new size, over the others.
+   */
   const shown = $derived.by((): LayoutWidget[] => {
-    const resized = dashboardEditor.liveResize;
-    const target = resized && items.find(item => item.id === resized.id);
-    const sized = target
-      ? insertAt(items.filter(item => item.id !== target.id), { ...target, size: resized.size }, resized.at)
-      : [...items];
+    const sized = [...items];
     if (!drag || over === null) return sized;
     if (drag.from === 'palette') {
       return insertAt(sized, { id: NEW_WIDGET_ID, data: drag.data, size: drag.size }, over);
@@ -223,13 +222,15 @@
             animate:reflow
             data-slot="grid-item"
             style={widgetSpanStyle(shownSize(item.data, item.size))}
-            class="relative col-span-(--widget-columns) row-span-(--widget-rows) @3xl:col-span-(--widget-columns-wide) @3xl:row-span-(--widget-rows-wide)"
+            class="relative col-span-(--widget-columns) row-span-(--widget-rows) has-[[data-resizing]]:z-30 @3xl:col-span-(--widget-columns-wide) @3xl:row-span-(--widget-rows-wide)"
           >
             {#if item.id === slotId}
               <DropSlot size={shownSize(item.data, item.size)} />
             {:else}
-              <EditableWidget {item} title={titleOf(item)} onOpenData={() => openDrawer(item.id)}>
-                <DashboardWidget {item} {widgets} {period} />
+              {@const live = dashboardEditor.liveResize}
+              {@const resized = live?.id === item.id ? { ...item, size: live.size } : item}
+              <EditableWidget item={resized} title={titleOf(item)} onOpenData={() => openDrawer(item.id)}>
+                <DashboardWidget item={resized} {widgets} {period} />
               </EditableWidget>
             {/if}
           </div>

@@ -42,6 +42,7 @@
   } | null>(null);
 
   const size = $derived(shownSize(item.data, item.size));
+  const liveBox = $derived(resizing ? sizeBox(size, resizing.grid) : null);
   const options = $derived(
     resizing
       ? SIZE_ORDER.filter(option => DATA[item.data].sizes.includes(option)).map(option => {
@@ -106,6 +107,12 @@
   onpointerup={() => {
     if (resizing) endResize();
   }}
+  onkeydown={event => {
+    if (event.key !== 'Escape' || !resizing) return;
+    event.stopPropagation();
+    resizing = null;
+    dashboardEditor.cancelResize();
+  }}
   onpointercancel={() => {
     if (!resizing) return;
     resizing = null;
@@ -120,9 +127,11 @@
   data-slot="editable-widget"
   data-selected={selected || undefined}
   data-resizing={resizing ? true : undefined}
+  style={liveBox ? `--live-width: ${liveBox.width}px; --live-height: ${liveBox.height}px` : undefined}
   class={cn(
     'group/edit relative size-full [&>[data-slot=widget]]:pointer-events-none [&>[data-slot=widget]]:size-full',
-    resizing && '[&>[data-slot=widget]]:z-10 [&>[data-slot=widget]]:bg-background',
+    resizing &&
+      '[&>[data-slot=widget]]:absolute [&>[data-slot=widget]]:top-0 [&>[data-slot=widget]]:left-0 [&>[data-slot=widget]]:z-10 [&>[data-slot=widget]]:h-(--live-height) [&>[data-slot=widget]]:w-(--live-width) [&>[data-slot=widget]]:bg-background [&>[data-slot=widget]]:shadow-xl',
   )}
 >
   {@render children()}
