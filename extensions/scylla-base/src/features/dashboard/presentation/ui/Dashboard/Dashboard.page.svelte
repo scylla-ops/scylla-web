@@ -52,6 +52,9 @@
   let leaving = $state<(() => void) | null>(null);
   const unsaved = $derived(editing && dashboardEditor.changes > 0);
   const AREA_MARGIN_PX = 24;
+  /** A press in these keeps the selection: the widget and its toolbar, the drawer, a dialog or a menu. */
+  const KEEPS_SELECTION =
+    '[data-slot="editable-widget"], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [data-slot$="overlay"], [data-slot$="-content"]';
   let viewportWidth = $state(1440);
 
   const titleOf = (item: LayoutWidget) => t(DATA[item.data].title);
@@ -174,6 +177,11 @@
     if (editing) dashboardEditor.release();
   }}
   onpointercancel={() => dashboardEditor.cancelDrag()}
+  onpointerdown={event => {
+    if (!editing || !dashboardEditor.selected) return;
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target?.closest(KEEPS_SELECTION)) dashboardEditor.select(null);
+  }}
   onkeydown={event => {
     if (event.key === 'Escape' && drag) dashboardEditor.cancelDrag();
   }}

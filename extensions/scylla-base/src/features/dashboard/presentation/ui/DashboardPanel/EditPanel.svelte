@@ -18,7 +18,7 @@
   import { dashboardView } from '@base/features/dashboard/presentation/ui/dashboard-view.state.svelte.ts';
   import { createDashboards } from '@base/features/dashboard/presentation/ui/dashboards.state.svelte.ts';
   import KindThumb from '../DashboardEditor/KindThumb.svelte';
-  import PanelAction from './PanelAction.svelte';
+  import FitButtons from './FitButtons.svelte';
 
   const dashboards = createDashboards();
 
@@ -48,9 +48,6 @@
     );
   };
 
-  let footerWidth = $state(200);
-  const compactCancel = $derived(footerWidth < 196);
-  const compactSave = $derived(footerWidth < 150);
 </script>
 
 <div class="flex shrink-0 flex-col justify-center px-4 pt-4 pb-3">
@@ -103,7 +100,7 @@
   {/each}
 </div>
 
-<div class="shrink-0 border-t border-sidebar-border px-4 py-3" bind:clientWidth={footerWidth}>
+<div class="shrink-0 border-t border-sidebar-border px-4 py-3">
   <div class="flex items-center justify-between gap-2 pb-3 text-xs text-muted-foreground">
     <span class="min-w-0 truncate">
       {changes === 0
@@ -123,14 +120,24 @@
       <Undo2Icon class="size-3.5" aria-hidden="true" />
     </button>
   </div>
-  <div class="flex items-center justify-between gap-2">
-    <PanelAction
-      variant="ghost"
-      icon={XIcon as LucideIcon}
-      label={t(messages.cancel)}
-      compact={compactCancel}
-      onclick={() => dashboardEditor.stop()}
-    />
-    <PanelAction icon={CheckIcon as LucideIcon} label={t(messages.saveLayout)} compact={compactSave} onclick={save} />
-  </div>
+  <FitButtons
+    collapseOrder={['save', 'cancel']}
+    actions={[
+      {
+        key: 'cancel',
+        label: t(messages.cancel),
+        short: t(messages.cancel),
+        icon: XIcon as LucideIcon,
+        variant: 'ghost',
+        onclick: () => dashboardEditor.stop(),
+      },
+      {
+        key: 'save',
+        label: t(messages.saveLayout),
+        short: t(messages.saveShort),
+        icon: CheckIcon as LucideIcon,
+        onclick: save,
+      },
+    ]}
+  />
 </div>

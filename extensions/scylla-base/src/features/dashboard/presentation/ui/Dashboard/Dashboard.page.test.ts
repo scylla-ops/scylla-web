@@ -347,4 +347,20 @@ describe('The edit mode', () => {
     expect(storedSet()).toBeNull();
     expect(holdsLeave(vi.fn())).toBe(false);
   });
+
+  it('keeps the selection on a press in the toolbar, and drops it on a press on the background', async () => {
+    const user = userEvent.setup();
+    render(DashboardWithPanel);
+
+    await user.click(await panel().findByRole('button', { name: 'Edit dashboard' }));
+    await user.click(screen.getByRole('button', { name: 'Success rate', pressed: false }));
+    const sizes = screen.getByRole('radiogroup', { name: 'Size of Success rate' });
+    await user.click(within(sizes).getByRole('radio', { name: 'M' }));
+    expect(screen.getByRole('radiogroup', { name: 'Size of Success rate' })).toBeInTheDocument();
+
+    await user.click(document.body);
+
+    expect(screen.queryByRole('radiogroup', { name: 'Size of Success rate' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Success rate', pressed: false })).toBeInTheDocument();
+  });
 });

@@ -14,6 +14,9 @@ export const editorMessages = {
   undo: msg`Undo the last change`,
   cancel: msg`Cancel`,
   saveLayout: msg`Save layout`,
+  saveShort: msg`Save`,
+  editShort: msg`Edit`,
+  newShort: msg`New`,
   /** Takes the widget out of the draft: the saved layout keeps it until Save layout. */
   takeOut: (title: string) => msg`Remove ${title}`,
   move: (title: string) => msg`Move ${title}`,

@@ -24,6 +24,9 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { toRune } from '@scylla/ui/stores';
@@ -36,6 +39,7 @@
     customPeriodFrom,
     type PresetPeriodKind,
   } from '@base/features/dashboard/presentation/presenters/period.presenter.ts';
+  import { fitLevels } from '@base/features/dashboard/presentation/presenters/fit-labels.presenter.ts';
   import { dashboardPath } from '@base/features/dashboard/presentation/presenters/dashboard-paths.presenter.ts';
   import { utcOffsetLabel } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import { dashboardEditor } from '@base/features/dashboard/presentation/ui/dashboard-editor.state.svelte.ts';
@@ -43,7 +47,7 @@
   import { createDashboards } from '@base/features/dashboard/presentation/ui/dashboards.state.svelte.ts';
   import RenameDialog from '../DashboardEditor/RenameDialog.svelte';
   import CustomPeriodForm from '../PeriodPicker/CustomPeriodForm.svelte';
-  import PanelAction from './PanelAction.svelte';
+  import FitButtons from './FitButtons.svelte';
 
   const ALL = 'all';
   const PRESETS: readonly PresetPeriodKind[] = ['24h', '7d', '14d'];
@@ -75,10 +79,13 @@
   );
 
   let customOpen = $state(false);
-  let listWidth = $state(200);
-  let footerWidth = $state(200);
-  const compactNew = $derived(listWidth < 160);
-  const compactEdit = $derived(footerWidth < 176);
+  const ROW_CHROME_PX = 40;
+  let newRowWidth = $state(0);
+  let newFullWidth = $state(0);
+  let newShortWidth = $state(0);
+  const newLevel = $derived(
+    fitLevels(newRowWidth - ROW_CHROME_PX, 0, [{ full: newFullWidth, short: newShortWidth, icon: 0 }], [0])[0],
+  );
   let renaming = $state<{ id: string; name: string } | null>(null);
 
   const open = (id: string) =>
@@ -104,7 +111,7 @@
   <h2 class="truncate text-base">{t(messages.dashboard)}</h2>
 </div>
 
-<div class="relative flex min-h-0 flex-1 flex-col overflow-y-auto" bind:clientWidth={listWidth}>
+<div class="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
   <p class={section}>{t(messages.dashboards)}</p>
   <ul class="flex flex-col gap-0.5 px-2">
     {#each dashboards.set.dashboards as dashboard (dashboard.id)}
@@ -165,20 +172,35 @@
       </li>
     {/each}
     <li>
-      {#if compactNew}
-        <PanelAction
-          variant="ghost"
-          icon={PlusIcon as LucideIcon}
-          label={t(editorMessages.newDashboard)}
-          compact
-          onclick={() => dashboardView.setCreating(true)}
-        />
-      {:else}
-        <button type="button" class={cn(row, 'hover:bg-accent')} onclick={() => dashboardView.setCreating(true)}>
-          <PlusIcon class="size-4 shrink-0" aria-hidden="true" />
-          <span class="truncate">{t(editorMessages.newDashboard)}</span>
-        </button>
-      {/if}
+      <Tooltip delayDuration={200}>
+        <TooltipTrigger>
+          {#snippet child({ props })}
+            <button
+              {...props}
+              type="button"
+              class={cn(row, 'relative hover:bg-accent')}
+              aria-label={newLevel === 'full' ? undefined : t(editorMessages.newDashboard)}
+              data-level={newLevel}
+              bind:clientWidth={newRowWidth}
+              onclick={() => dashboardView.setCreating(true)}
+            >
+              <PlusIcon class="size-4 shrink-0" aria-hidden="true" />
+              {#if newLevel !== 'icon'}
+                <span class="truncate">
+                  {newLevel === 'full' ? t(editorMessages.newDashboard) : t(editorMessages.newShort)}
+                </span>
+              {/if}
+              <span aria-hidden="true" class="pointer-events-none invisible absolute top-0 left-0 flex h-0 w-max overflow-hidden whitespace-nowrap">
+                <span bind:offsetWidth={newFullWidth}>{t(editorMessages.newDashboard)}</span>
+                <span bind:offsetWidth={newShortWidth}>{t(editorMessages.newShort)}</span>
+              </span>
+            </button>
+          {/snippet}
+        </TooltipTrigger>
+        {#if newLevel !== 'full'}
+          <TooltipContent side="right">{t(editorMessages.newDashboard)}</TooltipContent>
+        {/if}
+      </Tooltip>
     </li>
   </ul>
 
@@ -267,16 +289,22 @@
 </div>
 
 {#if period}
-  <div class="flex shrink-0 justify-center border-t border-sidebar-border p-4" bind:clientWidth={footerWidth}>
-    <PanelAction
-      variant="outline"
+  <div class="shrink-0 border-t border-sidebar-border p-4">
+    <FitButtons
+      stretch
       size="default"
-      class={compactEdit ? undefined : 'w-full'}
-      icon={PencilIcon as LucideIcon}
-      label={t(editorMessages.editDashboard)}
-      compact={compactEdit}
-      labeledIcon
-      onclick={startEdit}
+      collapseOrder={['edit']}
+      actions={[
+        {
+          key: 'edit',
+          label: t(editorMessages.editDashboard),
+          short: t(editorMessages.editShort),
+          icon: PencilIcon as LucideIcon,
+          variant: 'outline',
+          labeledIcon: true,
+          onclick: startEdit,
+        },
+      ]}
     />
   </div>
 {/if}
