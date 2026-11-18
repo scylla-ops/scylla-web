@@ -61,8 +61,10 @@
 </script>
 
 <Dialog open onOpenChange={open => !open && onClose()}>
-  <DialogContent class="max-w-[944px] gap-0 overflow-hidden p-0 sm:max-w-[944px]">
-    <header class="flex items-center gap-4 border-b border-border px-6 py-5 pr-14">
+  <DialogContent
+    class="flex h-[min(780px,calc(100dvh-2rem))] max-h-none max-w-[944px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[944px]"
+  >
+    <header class="flex shrink-0 items-center gap-4 border-b border-border px-6 py-5 pr-14">
       <DialogTitle>{t(messages.addWidget)}</DialogTitle>
       <ol class="ml-auto hidden items-center gap-2 text-xs sm:flex">
         {#each STEPS as step, index (index)}
@@ -82,8 +84,8 @@
       </ol>
     </header>
 
-    <div class="grid min-h-0 grid-cols-1 md:grid-cols-[220px_1fr_220px]">
-      <div class="flex max-h-48 flex-col gap-2 border-b border-border p-3 md:max-h-[460px] md:border-r md:border-b-0">
+    <div class="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_minmax(0,1fr)_auto] md:grid-cols-[220px_minmax(0,1fr)_220px] md:grid-rows-1">
+      <div class="flex max-h-36 min-h-0 flex-col gap-2 border-b border-border p-3 md:max-h-none md:border-r md:border-b-0">
         <label class="relative block">
           <SearchIcon class="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input class="h-8 pl-8 text-xs" placeholder={t(messages.searchKinds)} aria-label={t(messages.searchKinds)} bind:value={query} />
@@ -116,15 +118,17 @@
         </ul>
       </div>
 
-      <div class="flex min-w-0 flex-col gap-4 p-5">
-        <p class="text-base">
+      <div class="flex min-h-0 min-w-0 flex-col gap-4 p-5">
+        <p class="shrink-0 text-base">
           <span class="font-medium">{t(entry.title)}</span>
           <span class="text-sm text-muted-foreground"> · {t(messages.pickSize)}</span>
         </p>
-        {#if data}
-          <WidgetPreview item={{ data, size }} {widgets} {period} width={430} />
-        {/if}
-        <div role="radiogroup" aria-label={t(messages.stepSize)} class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div class="relative min-h-24 flex-1">
+          {#if data}
+            <WidgetPreview item={{ data, size }} {widgets} {period} width={430} fill />
+          {/if}
+        </div>
+        <div role="radiogroup" aria-label={t(messages.stepSize)} class="grid shrink-0 grid-cols-4 gap-2">
           {#each SIZE_ORDER as option (option)}
             {@const allowed = sizes.includes(option)}
             <button
@@ -148,10 +152,10 @@
             </button>
           {/each}
         </div>
-        <p class="text-xs text-muted-foreground">{t(messages.sameDataEverySize)}</p>
+        <p class="shrink-0 text-xs text-muted-foreground">{t(messages.sameDataEverySize)}</p>
       </div>
 
-      <div class="flex flex-col gap-3 border-t border-border p-5 md:border-t-0 md:border-l">
+      <div class="relative flex max-h-40 min-h-0 flex-col gap-3 overflow-y-auto border-t border-border p-5 md:max-h-none md:border-t-0 md:border-l">
         <p class="text-sm font-medium">{t(messages.whatShouldItShow)}</p>
         <div role="radiogroup" aria-label={t(messages.whatShouldItShow)} class="flex flex-col gap-1">
           {#each entry.data as option (option)}
@@ -182,7 +186,7 @@
       </div>
     </div>
 
-    <footer class="flex items-center gap-3 border-t border-border px-6 py-3">
+    <footer class="flex shrink-0 items-center gap-3 border-t border-border px-6 py-3">
       <p class="mr-auto text-xs text-muted-foreground">{t(messages.landsFirstFreeSpot)}</p>
       <Button variant="ghost" size="sm" onclick={onClose}>{t(messages.back)}</Button>
       <Button size="sm" disabled={!data} onclick={() => data && onAdd(data, size)}>

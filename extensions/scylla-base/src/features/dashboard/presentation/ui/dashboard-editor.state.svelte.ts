@@ -35,6 +35,7 @@ let drag = $state.raw<DragSource | null>(null);
 let pressed = $state.raw<{ source: DragSource; x: number; y: number } | null>(null);
 let pointer = $state.raw<{ x: number; y: number } | null>(null);
 let over = $state<number | null>(null);
+let live = $state.raw<{ id: string; size: LayoutSize } | null>(null);
 let dropped = false;
 
 const newId = (): string => crypto.randomUUID().slice(0, 8);
@@ -77,6 +78,7 @@ export const dashboardEditor = {
     selected = null;
   },
   stop: () => {
+    live = null;
     draft = null;
     selected = null;
     drag = null;
@@ -127,15 +129,38 @@ export const dashboardEditor = {
   press: (source: DragSource, x: number, y: number) => {
     pressed = { source, x, y };
   },
-  /** `at` is the index under the pointer, `null` out of the grid. */
-  move: (x: number, y: number, at: number | null) => {
+  /** Starts the drag once the pointer moved past the threshold, then follows the pointer. */
+  move: (x: number, y: number) => {
     if (!drag && pressed) {
       if (Math.hypot(x - pressed.x, y - pressed.y) < DRAG_THRESHOLD_PX) return;
       drag = pressed.source;
+      const source = drag;
+      over = source.from === 'grid' ? (draft?.widgets.findIndex(item => item.id === source.id) ?? null) : null;
     }
-    if (!drag) return;
-    pointer = { x, y };
-    over = at;
+    if (drag) pointer = { x, y };
+  },
+  /**
+   * Where the drag lands: an index in the widgets without the dragged one (a move), or in all the
+   * widgets (a kind of the palette). The page shows the widgets in this order while it drags.
+   */
+  setOver: (at: number | null) => {
+    if (drag) over = at;
+  },
+  /** The size of a widget while its corner is dragged: the grid shows it at once. */
+  get liveResize() {
+    return live;
+  },
+  resizeLive: (id: string, size: LayoutSize) => {
+    live = { id, size };
+  },
+  /** The size at the end of the drag of the corner becomes one change. */
+  commitResize: () => {
+    const done = live;
+    live = null;
+    if (done) dashboardEditor.resize(done.id, done.size);
+  },
+  cancelResize: () => {
+    live = null;
   },
   /** Ends a press. Returns `true` when it was a drag: the click that follows does nothing. */
   release: (): boolean => {
@@ -146,7 +171,7 @@ export const dashboardEditor = {
     dropped = dragged;
     return dragged;
   },
-  /** The dragged widget takes the place of the index of `over`: the widgets from there move down. */
+  /** The dragged widget goes to the index of `over`: the widgets from there move down. */
   drop: () => {
     const source = drag;
     const at = over;
@@ -158,8 +183,8 @@ export const dashboardEditor = {
       return;
     }
     const from = draft.widgets.findIndex(item => item.id === source.id);
-    if (from < 0 || from === at) return;
-    change(moveWidget(draft.widgets, source.id, Math.min(at, draft.widgets.length - 1)));
+    if (from < 0 || from === Math.min(at, draft.widgets.length - 1)) return;
+    change(moveWidget(draft.widgets, source.id, at));
   },
   /** `true` once after a drag: the click that ends it does nothing. */
   takeDropClick: (): boolean => {

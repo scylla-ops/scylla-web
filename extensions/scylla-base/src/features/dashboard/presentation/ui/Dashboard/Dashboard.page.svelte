@@ -3,7 +3,7 @@
   import { onDestroy } from 'svelte';
   import { scyllaNavigate } from '@platform/context';
   import { guardLeave, routeParams } from '@scylla/core-sdk';
-  import { ConfirmOperationAlertDialog, WidgetGrid } from '@scylla/ui';
+  import { ConfirmOperationAlertDialog, WidgetGrid, widgetSpanStyle } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { LayoutSize, LayoutWidget } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
@@ -13,6 +13,7 @@
   import {
     DATA,
     SIZE_CELLS,
+    shownSize,
   } from '@base/features/dashboard/presentation/presenters/widget-catalog.presenter.ts';
   import { dashboardEditor } from '@base/features/dashboard/presentation/ui/dashboard-editor.state.svelte.ts';
   import { createDashboardPeriod } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
@@ -24,7 +25,14 @@
   import EditableWidget from '../DashboardEditor/EditableWidget.svelte';
   import NewDashboardDialog from '../DashboardEditor/NewDashboardDialog.svelte';
   import WidgetDrawer from '../DashboardEditor/WidgetDrawer.svelte';
-  import { dropIndexAt, type DropSlot } from '@base/features/dashboard/presentation/presenters/drop-target.presenter.ts';
+  import {
+    insertAt,
+    packGrid,
+    placedIndexAt,
+    type Span,
+  } from '@base/features/dashboard/presentation/presenters/grid-pack.presenter.ts';
+  import DropSlot from '../DashboardEditor/DropSlot.svelte';
+  import { reflow } from './reflow.animation.ts';
   import MobileBar from './MobileBar.svelte';
 
   const period = createDashboardPeriod();
@@ -51,7 +59,6 @@
   let gridArea = $state<HTMLElement | null>(null);
   let leaving = $state<(() => void) | null>(null);
   const unsaved = $derived(editing && dashboardEditor.changes > 0);
-  const AREA_MARGIN_PX = 24;
   /** A press in these keeps the selection: the widget and its toolbar, the drawer, a dialog or a menu. */
   const KEEPS_SELECTION =
     '[data-slot="editable-widget"], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [data-slot$="overlay"], [data-slot$="-content"]';
@@ -102,20 +109,77 @@
     leave?.();
   };
 
-  /** The index under the pointer: every slot of the grid counts whole, the end row too. */
+  const DWELL_MS = 120;
+  const NEW_WIDGET_ID = 'new-widget';
+  const NARROW = { columns: 2, rowHeight: 80, gap: 12 };
+  const WIDE = { columns: 8, rowHeight: 98, gap: 16 };
+  const NARROW_SPANS = { xs: { columns: 1, rows: 1 }, s: { columns: 1, rows: 2 }, m: { columns: 2, rows: 2 }, l: { columns: 2, rows: 4 } };
+  const WIDE_GRID_PX = 768;
+
+  /** The widgets as the grid shows them: the live size of a resize, the drag at its place. */
+  const shown = $derived.by((): LayoutWidget[] => {
+    const resized = dashboardEditor.liveResize;
+    const sized = items.map(item => (resized?.id === item.id ? { ...item, size: resized.size } : item));
+    if (!drag || over === null) return sized;
+    if (drag.from === 'palette') {
+      return insertAt(sized, { id: NEW_WIDGET_ID, data: drag.data, size: drag.size }, over);
+    }
+    const moved = sized.find(item => item.id === drag.id);
+    return moved ? insertAt(sized.filter(item => item.id !== drag.id), moved, over) : sized;
+  });
+  const slotId = $derived(drag ? (drag.from === 'grid' ? drag.id : NEW_WIDGET_ID) : null);
+
+  /**
+   * The index where the drag lands, from the cells of a layout without the dragged widget: the
+   * widgets that move out of the way do not change it, so it does not swing.
+   */
   const indexAt = (x: number, y: number): number | null => {
-    if (!gridArea) return null;
-    const slots: DropSlot[] = [...gridArea.querySelectorAll<HTMLElement>('[data-drop-index]')].map(element => {
-      const box = element.getBoundingClientRect();
-      return { index: Number(element.dataset.dropIndex), left: box.left, top: box.top, right: box.right, bottom: box.bottom };
-    });
-    const area = gridArea.getBoundingClientRect();
-    return dropIndexAt(x, y, slots, {
-      left: area.left - AREA_MARGIN_PX,
-      top: area.top - AREA_MARGIN_PX,
-      right: area.right + AREA_MARGIN_PX,
-      bottom: area.bottom + AREA_MARGIN_PX,
-    });
+    const element = gridArea?.querySelector<HTMLElement>('[data-slot="widget-grid"]');
+    if (!element || !drag) return null;
+    const box = element.getBoundingClientRect();
+    const wide = box.width >= WIDE_GRID_PX;
+    const metrics = wide ? WIDE : NARROW;
+    const base = drag.from === 'grid' ? items.filter(item => item.id !== drag.id) : items;
+    const spans: Span[] = [
+      ...base.map(item => {
+        const size = shownSize(item.data, item.size);
+        return wide ? SIZE_CELLS[size] : NARROW_SPANS[size];
+      }),
+      { columns: metrics.columns, rows: 1 },
+    ];
+    return placedIndexAt(x, y, packGrid(spans, metrics.columns), { left: box.left, top: box.top, width: box.width, ...metrics });
+  };
+
+  let pending: { at: number; timer: ReturnType<typeof setTimeout> } | null = null;
+
+  /** A new target waits a short time under the pointer before the grid moves to it. */
+  const aim = (at: number | null) => {
+    if (at === null || at === over) {
+      if (pending) clearTimeout(pending.timer);
+      pending = null;
+      return;
+    }
+    if (pending?.at === at) return;
+    if (pending) clearTimeout(pending.timer);
+    if (over === null) {
+      pending = null;
+      dashboardEditor.setOver(at);
+      return;
+    }
+    pending = {
+      at,
+      timer: setTimeout(() => {
+        pending = null;
+        dashboardEditor.setOver(at);
+      }, DWELL_MS),
+    };
+  };
+
+  const settle = () => {
+    if (!pending) return;
+    clearTimeout(pending.timer);
+    dashboardEditor.setOver(pending.at);
+    pending = null;
   };
 </script>
 
@@ -136,18 +200,28 @@
     <div bind:this={gridArea}>
     <WidgetGrid aria-label={dashboard.name} class={cn(editing && 'pt-3')}>
       {#if editing}
-        {#each items as item, index (item.id)}
-          <EditableWidget {item} {index} title={titleOf(item)} onOpenData={() => openDrawer(item.id)}>
-            <DashboardWidget {item} {widgets} {period} />
-          </EditableWidget>
+        {#each shown as item (item.id)}
+          <div
+            animate:reflow
+            data-slot="grid-item"
+            style={widgetSpanStyle(shownSize(item.data, item.size))}
+            class="relative col-span-(--widget-columns) row-span-(--widget-rows) @3xl:col-span-(--widget-columns-wide) @3xl:row-span-(--widget-rows-wide)"
+          >
+            {#if item.id === slotId}
+              <DropSlot size={shownSize(item.data, item.size)} />
+            {:else}
+              <EditableWidget {item} title={titleOf(item)} onOpenData={() => openDrawer(item.id)}>
+                <DashboardWidget {item} {widgets} {period} />
+              </EditableWidget>
+            {/if}
+          </div>
         {/each}
         <div
-          data-drop-index={items.length}
           class="relative col-span-full row-span-1 grid grid-cols-8 gap-(--widget-grid-gap-wide)"
         >
           {#each { length: 8 } as _, index (index)}
             <span
-              class={cn('rounded-xl', drag && over === items.length ? 'border-2 border-dashed border-primary/60 bg-primary/15' : 'bg-muted/50')}
+              class={cn('rounded-xl', drag && over === (drag.from === 'grid' ? items.length - 1 : items.length) && slotId === null ? 'border-2 border-dashed border-primary/60 bg-primary/15' : 'bg-muted/50')}
               aria-hidden="true"
             ></span>
           {/each}
@@ -185,10 +259,14 @@
 
 <svelte:window
   onpointermove={event => {
-    if (editing) dashboardEditor.move(event.clientX, event.clientY, indexAt(event.clientX, event.clientY));
+    if (!editing) return;
+    dashboardEditor.move(event.clientX, event.clientY);
+    if (dashboardEditor.drag) aim(indexAt(event.clientX, event.clientY));
   }}
   onpointerup={() => {
-    if (editing) dashboardEditor.release();
+    if (!editing) return;
+    settle();
+    dashboardEditor.release();
   }}
   onpointercancel={() => dashboardEditor.cancelDrag()}
   onpointerdown={event => {

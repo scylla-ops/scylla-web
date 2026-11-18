@@ -12,6 +12,8 @@ import { dashboardView } from '@base/features/dashboard/presentation/ui/dashboar
 import DashboardPage from './Dashboard.page.svelte';
 import DashboardWithPanel from './__test__/DashboardWithPanel.fixture.svelte';
 
+Element.prototype.getAnimations ??= () => [];
+
 const figures = (outcomes: { completed: number; failed: number; cancelled: number; orphaned: number }) => ({
   created: outcomes.completed + outcomes.failed + outcomes.cancelled + outcomes.orphaned,
   outcomes,

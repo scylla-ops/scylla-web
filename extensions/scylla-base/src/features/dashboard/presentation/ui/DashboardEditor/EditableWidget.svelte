@@ -4,13 +4,9 @@
   import MinusIcon from '@lucide/svelte/icons/minus';
   import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
-  import { widgetSpanStyle } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type {
-    LayoutSize,
-    LayoutWidget,
-  } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
+  import type { LayoutWidget } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
   import { editorMessages as messages } from '@base/features/dashboard/presentation/messages/editor.messages.ts';
   import {
     cellsText,
@@ -26,27 +22,19 @@
 
   interface Props {
     item: LayoutWidget;
-    index: number;
     title: string;
     onOpenData: () => void;
     children: Snippet;
   }
 
-  let { item, index, title, onOpenData, children }: Props = $props();
+  let { item, title, onOpenData, children }: Props = $props();
 
   let frame = $state<HTMLElement | null>(null);
-  let resizing = $state<{ x: number; y: number; width: number; height: number; to: LayoutSize } | null>(
-    null,
-  );
+  let resizing = $state<{ x: number; y: number; width: number; height: number; grid: number } | null>(null);
 
   const size = $derived(shownSize(item.data, item.size));
   const sizes = $derived(DATA[item.data].sizes);
   const selected = $derived(dashboardEditor.selected === item.id);
-  const dragged = $derived(
-    dashboardEditor.drag?.from === 'grid' && dashboardEditor.drag.id === item.id,
-  );
-
-  const target = $derived(dashboardEditor.drag !== null && dashboardEditor.over === index && !dragged);
 
   const startResize = (event: PointerEvent) => {
     if (!frame) return;
@@ -54,19 +42,21 @@
     event.stopPropagation();
     const box = frame.getBoundingClientRect();
     (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-    resizing = { x: event.clientX, y: event.clientY, width: box.width, height: box.height, to: size };
+    const grid = frame.closest('[data-slot="widget-grid"]')?.clientWidth ?? box.width;
+    resizing = { x: event.clientX, y: event.clientY, width: box.width, height: box.height, grid };
   };
 
   const moveResize = (event: PointerEvent) => {
-    if (!resizing || !frame?.parentElement) return;
+    if (!resizing) return;
     const width = resizing.width + event.clientX - resizing.x;
     const height = resizing.height + event.clientY - resizing.y;
-    resizing = { ...resizing, to: sizeAt(width, height, frame.parentElement.clientWidth, sizes) };
+    const next = sizeAt(width, height, resizing.grid, sizes);
+    if (next !== size) dashboardEditor.resizeLive(item.id, next);
   };
 
   const endResize = () => {
-    if (resizing) dashboardEditor.resize(item.id, resizing.to);
     resizing = null;
+    dashboardEditor.commitResize();
   };
 </script>
 
@@ -76,13 +66,7 @@
   aria-label={title}
   data-slot="editable-widget"
   data-selected={selected || undefined}
-  data-drop-index={index}
-  style={widgetSpanStyle(size)}
-  class={cn(
-    'group/edit relative col-span-(--widget-columns) row-span-(--widget-rows) @3xl:col-span-(--widget-columns-wide) @3xl:row-span-(--widget-rows-wide)',
-    '[&>[data-slot=widget]]:h-full [&>[data-slot=widget]]:pointer-events-none',
-    dragged && '[&>*]:invisible',
-  )}
+  class="group/edit relative size-full [&>[data-slot=widget]]:pointer-events-none [&>[data-slot=widget]]:size-full"
 >
   {@render children()}
 
@@ -150,32 +134,19 @@
       onpointerdown={startResize}
       onpointermove={moveResize}
       onpointerup={endResize}
-      onpointercancel={() => (resizing = null)}
+      onpointercancel={() => {
+        resizing = null;
+        dashboardEditor.cancelResize();
+      }}
     ></button>
-  {/if}
-
-  {#if dragged}
-    <div
-      data-slot="drag-origin"
-      class="pointer-events-none absolute inset-0 visible! rounded-2xl border-2 border-dashed border-primary/40 bg-muted/40"
-    ></div>
-  {/if}
-
-  {#if target && dashboardEditor.drag}
-    <div
-      data-slot="drop-here"
-      class="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-primary/60 bg-primary/15 text-center backdrop-blur-[1px]"
-    >
-      <span class="text-sm text-primary">{t(messages.dropHere)}</span>
-      <span class="text-xs text-muted-foreground">{t(messages.dropHint(cellsText(dashboardEditor.drag.size)))}</span>
-    </div>
   {/if}
 
   {#if resizing}
     <span
-      class="absolute right-2 bottom-2 z-20 rounded-md bg-foreground px-2 py-1 font-mono text-[11px] text-background"
+      data-slot="resize-size"
+      class="pointer-events-none absolute -right-2 -bottom-9 z-20 rounded-md bg-foreground px-2 py-1 font-mono text-[11px] whitespace-nowrap text-background shadow"
     >
-      {cellsText(size)} → {cellsText(resizing.to)} · {sizeLabel(resizing.to)}
+      {cellsText(size)} · {sizeLabel(size)}
     </span>
   {/if}
 
