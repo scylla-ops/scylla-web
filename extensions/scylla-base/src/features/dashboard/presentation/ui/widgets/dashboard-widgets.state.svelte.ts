@@ -20,6 +20,7 @@ const ACTIVITY_LIMIT = 20;
 const LIVE_LIMIT = 50;
 const DAY_LIMIT = 100;
 const DAY_MS = 24 * 60 * 60 * 1000;
+const GROUP_LIMIT = 5;
 
 const lastDayRange = () => ({ from: new Date(Date.now() - DAY_MS), to: null });
 
@@ -51,6 +52,23 @@ export const createDashboardWidgets = (
       workspaceId,
       scope,
       { compare: true, ...(projectId() ? { projectIds: [projectId()!] } : {}) },
+      canReadJobs,
+    ),
+  );
+  const scopedProjects = () => (projectId() ? { projectIds: [projectId()!] } : {});
+  const failingPipelines = createQuery(() =>
+    jobQueries.stats(
+      workspaceId,
+      scope,
+      { groupBy: 'pipeline', groupOrder: 'failed', groupLimit: GROUP_LIMIT, ...scopedProjects() },
+      canReadJobs,
+    ),
+  );
+  const slowPipelines = createQuery(() =>
+    jobQueries.stats(
+      workspaceId,
+      scope,
+      { compare: true, groupBy: 'pipeline', groupOrder: 'p50-duration', groupLimit: GROUP_LIMIT, ...scopedProjects() },
       canReadJobs,
     ),
   );
@@ -116,6 +134,10 @@ export const createDashboardWidgets = (
       return !agents.isPending || agents.fetchStatus !== 'idle';
     },
     stats,
+    /** The stats by pipeline, the most failures first. */
+    failingPipelines,
+    /** The stats by pipeline, the slowest median first, with the previous period. */
+    slowPipelines,
     summaries,
     /** The items of "Needs you" (ListAttentionItems), of the scope. */
     attention,

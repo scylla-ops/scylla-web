@@ -33,6 +33,11 @@ msgstr "{columns} × {rows} cases"
 msgid "{count} cancelled, not counted"
 msgstr "{count} annulés, non comptés"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/rate.messages.ts:5
+msgctxt "rate"
+msgid "{count} cancelled, not counted"
+msgstr "{count} annulés, non comptés"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:11
 msgid "{count} changes · not saved"
 msgstr "{count} modifications · non enregistrées"
@@ -576,6 +581,11 @@ msgstr "Échoué"
 msgid "Failed · {when}"
 msgstr "Échec · {when}"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/rate.messages.ts:8
+msgctxt "rate"
+msgid "failed + orphaned"
+msgstr "échecs + orphelins"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:34
 msgid "failing first"
 msgstr "en échec d’abord"
@@ -742,6 +752,11 @@ msgstr "Médiane"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:49
 msgid "Medium"
 msgstr "Moyen"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/rate.messages.ts:7
+msgctxt "rate"
+msgid "Most failures"
+msgstr "Le plus d’échecs"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:23
 msgid "Move {title}"
@@ -1352,6 +1367,11 @@ msgstr "Annuler la dernière modification"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:18
 msgid "Units that fill up"
 msgstr "Des unités qui se remplissent"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/rate.messages.ts:6
+msgctxt "rate"
+msgid "vs the previous {period}"
+msgstr "par rapport aux {period} précédents"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:26
 msgid "vs the previous period"
