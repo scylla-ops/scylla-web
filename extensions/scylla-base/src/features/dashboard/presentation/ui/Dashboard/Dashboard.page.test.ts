@@ -338,7 +338,7 @@ describe('The edit mode', () => {
     expect(go).not.toHaveBeenCalled();
 
     await user.click(within(dialog).getByRole('button', { name: 'Stay' }));
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    await vi.waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
     expect(panel().getByText('1 change · not saved')).toBeInTheDocument();
 
     expect(holdsLeave(go)).toBe(true);
