@@ -17,6 +17,7 @@ const job = (id: string): Job => ({
   fileErrors: [],
   waitingReason: '',
   origin: JobOrigin.UNSPECIFIED,
+  unfitAgents: [],
 });
 
 describe('DefaultJobsRepository.getNewestByWorkspaceId', () => {
