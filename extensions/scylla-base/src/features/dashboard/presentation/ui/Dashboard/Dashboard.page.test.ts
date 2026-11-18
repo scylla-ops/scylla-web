@@ -161,9 +161,15 @@ beforeEach(() => {
       attentionRepository: { list: listAttention },
       schedulesRepository: { list: vi.fn().mockResolvedValue({ triggers: [], fires: [] }) },
       activityRepository: { list: vi.fn().mockResolvedValue({ events: [], sinceCount: 0 }) },
+      deliveryStatsRepository: {
+        lastDay: vi.fn().mockResolvedValue({ delivered: 0, failed: 0, connections: [], triggers: [], hours: [] }),
+      },
       slotUsageRepository: {
         lastDay: vi.fn().mockResolvedValue({ capacity: 0, average: 0, peak: 0, buckets: [] }),
       },
+    },
+    integrations: {
+      vcsConnectionRepository: { listByWorkspace: vi.fn().mockResolvedValue([]) },
     },
     pipeline: {
       pipelineRepository: { getSummaries },

@@ -7,6 +7,7 @@ import type {
 import { catalogMessages as m } from '@base/features/dashboard/presentation/messages/catalog.messages.ts';
 import { editorMessages } from '@base/features/dashboard/presentation/messages/editor.messages.ts';
 import { scheduleMessages } from '@base/features/dashboard/presentation/messages/schedules.messages.ts';
+import { webhookMessages } from '@base/features/dashboard/presentation/messages/webhooks.messages.ts';
 
 /** A way to show data, as the palette lists it. */
 export type WidgetKind =
@@ -72,7 +73,7 @@ export const KINDS: readonly KindEntry[] = [
   entry('agent', 'dedicated', m.agent, m.agentText),
   entry('pipeline', 'dedicated', m.pipeline, m.pipelineText),
   entry('triggers', 'dedicated', m.triggers, m.triggersText, ['schedules']),
-  entry('integrations', 'dedicated', m.integrations, m.integrationsText),
+  entry('integrations', 'dedicated', m.integrations, m.integrationsText, ['webhooks']),
 ];
 
 export const DATA: Readonly<Record<WidgetData, DataEntry>> = {
@@ -88,6 +89,7 @@ export const DATA: Readonly<Record<WidgetData, DataEntry>> = {
   pipelines: { data: 'pipelines', kind: 'health', title: m.pipelines, hint: m.pipelinesHint, sizes: ['m', 'l', 's', 'xs'] },
   activity: { data: 'activity', kind: 'activity', title: m.activity, hint: m.activityText, sizes: ['m', 'l', 's', 'xs'] },
   schedules: { data: 'schedules', kind: 'triggers', title: scheduleMessages.title, hint: scheduleMessages.catalogHint, sizes: ['m', 'xs', 's', 'l'] },
+  webhooks: { data: 'webhooks', kind: 'integrations', title: webhookMessages.title, hint: webhookMessages.catalogHint, sizes: ['m', 'xs', 's', 'l'] },
   'quick-actions': { data: 'quick-actions', kind: 'quick-actions', title: m.actions, hint: m.actionsHint, sizes: ['m'] },
 };
 

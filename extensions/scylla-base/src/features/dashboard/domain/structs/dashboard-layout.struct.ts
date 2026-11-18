@@ -12,7 +12,8 @@ export type WidgetData =
   | 'run-duration'
   | 'activity'
   | 'quick-actions'
-  | 'schedules';
+  | 'schedules'
+  | 'webhooks';
 
 /** The four sizes of a widget on the grid. */
 export type LayoutSize = 'xs' | 's' | 'm' | 'l';
@@ -31,6 +32,7 @@ export const WIDGET_DATA: readonly WidgetData[] = [
   'activity',
   'quick-actions',
   'schedules',
+  'webhooks',
 ];
 
 export const LAYOUT_SIZES: readonly LayoutSize[] = ['xs', 's', 'm', 'l'];

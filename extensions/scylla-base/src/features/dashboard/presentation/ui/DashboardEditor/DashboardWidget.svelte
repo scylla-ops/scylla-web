@@ -14,6 +14,7 @@
   import RunsWidget from '../widgets/RunsWidget/RunsWidget.svelte';
   import SchedulesWidget from '../widgets/SchedulesWidget/SchedulesWidget.svelte';
   import SentenceWidget from '../widgets/SentenceWidget/SentenceWidget.svelte';
+  import WebhooksWidget from '../widgets/WebhooksWidget/WebhooksWidget.svelte';
   import SuccessRateWidget from '../widgets/SuccessRateWidget/SuccessRateWidget.svelte';
   import TimelineWidget from '../widgets/TimelineWidget/TimelineWidget.svelte';
 
@@ -52,6 +53,8 @@
   <ActivityWidget {widgets} {size} timeZone={period.timeZone ?? 'UTC'} />
 {:else if item.data === 'schedules'}
   <SchedulesWidget {widgets} {size} timeZone={period.timeZone ?? 'UTC'} />
+{:else if item.data === 'webhooks'}
+  <WebhooksWidget {widgets} {size} timeZone={period.timeZone ?? 'UTC'} />
 {:else if item.data === 'quick-actions'}
   <QuickActionsWidget {widgets} {size} />
 {/if}

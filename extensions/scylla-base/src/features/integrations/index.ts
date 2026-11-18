@@ -18,5 +18,6 @@ export type {
   VcsReport,
 } from './domain/entities/vcs-report.entity.ts';
 export { integrationsUrl } from './presentation/presenters/integrations-url.presenter.ts';
+export { vcsConnectionQueries } from './presentation/vcs-connection.queries.ts';
 export { repositoryLinkQueries } from './presentation/repository-link.queries.ts';
 export { vcsReportMutations, vcsReportQueries } from './presentation/vcs-report.queries.ts';

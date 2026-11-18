@@ -10,6 +10,8 @@ import { attentionQueries, visitSince } from '@base/features/dashboard/presentat
 import { slotUsageQueries } from '@base/features/dashboard/presentation/slot-usage.queries.ts';
 import { schedulesQueries } from '@base/features/dashboard/presentation/schedules.queries.ts';
 import { activityQueries } from '@base/features/dashboard/presentation/activity.queries.ts';
+import { deliveryStatsQueries } from '@base/features/dashboard/presentation/delivery-stats.queries.ts';
+import { vcsConnectionQueries } from '@base/features/integrations';
 import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
 import type { PeriodRange } from '@base/features/dashboard/presentation/presenters/period.presenter.ts';
 import { pipelinesById } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
@@ -108,6 +110,11 @@ export const createDashboardWidgets = (
   const since = $derived(workspaceId ? visitSince(workspaceId) : null);
   const attention = createQuery(() => attentionQueries.list(workspaceId, projectId(), since));
   const schedules = createQuery(() => schedulesQueries.list(workspaceId, projectId(), since, canReadPipelines));
+  const deliveries = createQuery(() => deliveryStatsQueries.lastDay(workspaceId));
+  const deliveriesLocked = $derived(
+    deliveries.isError && ScyllaError.from(deliveries.error).code === 'PERMISSION_DENIED',
+  );
+  const connections = createQuery(() => vcsConnectionQueries.byWorkspace(workspaceId ?? '', !!workspaceId));
   const activityFeed = createQuery(() => activityQueries.feed(workspaceId, since));
   const activityLocked = $derived(
     activityFeed.isError && ScyllaError.from(activityFeed.error).code === 'PERMISSION_DENIED',
@@ -164,6 +171,13 @@ export const createDashboardWidgets = (
     ended,
     day,
     agents,
+    /** The webhook deliveries of the last 24 hours (GetDeliveryStats). */
+    deliveries,
+    get deliveriesLocked() {
+      return deliveriesLocked;
+    },
+    /** The Git connections of the workspace: their provider and account. */
+    connections,
     /** The activity feed of the workspace (ActivityService.ListActivity). */
     activityFeed,
     get activityLocked() {
