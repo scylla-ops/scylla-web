@@ -124,20 +124,28 @@
           onclick={() => open(dashboard.id)}
         >
           <LayoutDashboardIcon class="size-4 shrink-0" aria-hidden="true" />
-          <span class="min-w-0 flex-1 truncate">{dashboard.name}</span>
-          {#if dashboard.visibility === 'workspace'}
-            <UsersIcon class="size-3.5 shrink-0 text-muted-foreground" aria-label={t(editorMessages.shared)} />
-          {/if}
-          {#if dashboard.teamDefault && !dashboards.isDefault(dashboard.id)}
-            <span class="shrink-0 rounded-md bg-background px-1.5 py-0.5 text-[11px] text-muted-foreground group-hover/row:invisible">
-              {t(editorMessages.teamBadge)}
-            </span>
-          {/if}
-          {#if dashboards.isDefault(dashboard.id)}
-            <span class="shrink-0 rounded-md bg-background px-1.5 py-0.5 text-[11px] font-medium group-hover/row:invisible">
-              {t(messages.defaultBadge)}
-            </span>
-          {/if}
+          <span class="min-w-0 flex-1 truncate" title={dashboard.name}>{dashboard.name}</span>
+          <span
+            data-slot="row-end"
+            class={cn(
+              'flex min-w-6 shrink-0 items-center justify-end gap-1.5 transition-opacity duration-150 motion-reduce:transition-none',
+              'group-hover/row:opacity-0 group-has-[:focus-visible]/row:opacity-0 group-has-[[data-state=open]]/row:opacity-0',
+            )}
+          >
+            {#if dashboard.visibility === 'workspace'}
+              <UsersIcon class="size-3.5 shrink-0 text-muted-foreground" aria-label={t(editorMessages.shared)} />
+            {/if}
+            {#if dashboard.teamDefault && !dashboards.isDefault(dashboard.id)}
+              <span class="shrink-0 rounded-md bg-background px-1.5 py-0.5 text-[11px] text-muted-foreground">
+                {t(editorMessages.teamBadge)}
+              </span>
+            {/if}
+            {#if dashboards.isDefault(dashboard.id)}
+              <span class="shrink-0 rounded-md bg-background px-1.5 py-0.5 text-[11px] font-medium">
+                {t(messages.defaultBadge)}
+              </span>
+            {/if}
+          </span>
         </button>
         <DropdownMenu>
           <DropdownMenuTrigger>
@@ -145,7 +153,7 @@
               <button
                 type="button"
                 {...props}
-                class="absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center rounded-md opacity-0 group-hover/row:opacity-100 hover:bg-background focus-visible:opacity-100 data-[state=open]:opacity-100"
+                class="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded-md opacity-0 transition-opacity duration-150 group-hover/row:opacity-100 hover:bg-background focus-visible:opacity-100 data-[state=open]:opacity-100 motion-reduce:transition-none"
                 aria-label={t(editorMessages.dashboardActions(dashboard.name))}
               >
                 <EllipsisIcon class="size-4" aria-hidden="true" />
