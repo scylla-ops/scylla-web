@@ -18,6 +18,7 @@
     SIZE_CELLS,
     SIZE_ORDER,
     sizeLabel,
+    sizeShort,
     type WidgetKind,
   } from '@base/features/dashboard/presentation/presenters/widget-catalog.presenter.ts';
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
@@ -85,30 +86,30 @@
     </header>
 
     <div class="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_minmax(0,1fr)_auto] md:grid-cols-[220px_minmax(0,1fr)_220px] md:grid-rows-1">
-      <div class="flex max-h-36 min-h-0 flex-col gap-2 border-b border-border p-3 md:max-h-none md:border-r md:border-b-0">
-        <label class="relative block">
+      <div class="flex min-h-0 flex-col gap-2 border-b border-border p-2 md:border-r md:border-b-0 md:p-3">
+        <label class="relative hidden md:block">
           <SearchIcon class="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input class="h-8 pl-8 text-xs" placeholder={t(messages.searchKinds)} aria-label={t(messages.searchKinds)} bind:value={query} />
         </label>
-        <p class="px-1 pt-1 text-[11px] text-muted-foreground uppercase">{t(messages.kinds)}</p>
-        <ul class="relative flex min-h-0 flex-col gap-1 overflow-y-auto">
+        <p class="hidden px-1 pt-1 text-[11px] text-muted-foreground uppercase md:block">{t(messages.kinds)}</p>
+        <ul class="relative flex min-h-0 gap-1.5 overflow-x-auto md:flex-col md:gap-1 md:overflow-x-visible md:overflow-y-auto">
           {#each kinds as item (item.kind)}
-            <li>
+            <li class={cn('shrink-0', item.data.length === 0 && 'max-md:hidden')}>
               <button
                 type="button"
                 disabled={item.data.length === 0}
                 aria-pressed={item.kind === kind}
                 class={cn(
-                  'flex w-full items-center gap-3 rounded-lg p-1.5 text-left',
+                  'flex items-center gap-3 rounded-full border px-3 py-1 text-left md:w-full md:rounded-lg md:border-0 md:p-1.5',
                   item.kind === kind ? 'bg-primary/10' : 'hover:bg-accent',
                   item.data.length === 0 && 'opacity-50',
                 )}
                 onclick={() => pickKind(item.kind)}
               >
-                <KindThumb kind={item.kind} />
+                <KindThumb kind={item.kind} class="hidden md:flex" />
                 <span class="min-w-0">
                   <span class={cn('block truncate text-sm', item.kind === kind && 'text-primary')}>{t(item.title)}</span>
-                  <span class="block truncate text-[11px] text-muted-foreground">
+                  <span class="hidden truncate text-[11px] text-muted-foreground md:block">
                     {item.data.length === 0 ? t(messages.soon) : t(item.text)}
                   </span>
                 </span>
@@ -118,7 +119,7 @@
         </ul>
       </div>
 
-      <div class="flex min-h-0 min-w-0 flex-col gap-4 p-5">
+      <div class="flex min-h-0 min-w-0 flex-col gap-3 p-3 md:gap-4 md:p-5">
         <p class="shrink-0 text-base">
           <span class="font-medium">{t(entry.title)}</span>
           <span class="text-sm text-muted-foreground"> · {t(messages.pickSize)}</span>
@@ -138,24 +139,25 @@
               disabled={!allowed}
               title={allowed ? undefined : t(messages.notInThisSize)}
               class={cn(
-                'flex flex-col items-center gap-2 rounded-xl border p-3 text-center',
+                'flex flex-col items-center gap-2 rounded-xl border p-2 text-center md:p-3',
                 option === size ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-accent',
                 !allowed && 'opacity-40',
               )}
               onclick={() => (size = option)}
             >
-              <SizeGlyph size={option} />
-              <span class="text-sm">{sizeLabel(option)}</span>
-              <span class="font-mono text-[11px] text-muted-foreground">
+              <SizeGlyph size={option} class="hidden md:grid" />
+              <span class="text-sm md:hidden">{sizeShort(option)}</span>
+              <span class="hidden text-sm md:inline">{sizeLabel(option)}</span>
+              <span class="hidden font-mono text-[11px] text-muted-foreground md:inline">
                 {t(messages.cells(SIZE_CELLS[option].columns, SIZE_CELLS[option].rows))}
               </span>
             </button>
           {/each}
         </div>
-        <p class="shrink-0 text-xs text-muted-foreground">{t(messages.sameDataEverySize)}</p>
+        <p class="hidden shrink-0 text-xs text-muted-foreground md:block">{t(messages.sameDataEverySize)}</p>
       </div>
 
-      <div class="relative flex max-h-40 min-h-0 flex-col gap-3 overflow-y-auto border-t border-border p-5 md:max-h-none md:border-t-0 md:border-l">
+      <div class="relative flex max-h-28 min-h-0 flex-col gap-2 overflow-y-auto border-t border-border p-3 md:max-h-none md:gap-3 md:border-t-0 md:border-l md:p-5">
         <p class="text-sm font-medium">{t(messages.whatShouldItShow)}</p>
         <div role="radiogroup" aria-label={t(messages.whatShouldItShow)} class="flex flex-col gap-1">
           {#each entry.data as option (option)}
