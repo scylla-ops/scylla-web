@@ -1,87 +1,91 @@
 <script lang="ts">
-  import ActivityIcon from '@lucide/svelte/icons/activity';
-  import { ChartDot, ChartSegment, Widget, type LucideIcon } from '@scylla/ui';
+  import type { Snippet } from 'svelte';
+  import RadioIcon from '@lucide/svelte/icons/radio';
+  import { ChartDot, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { widgetMessages as messages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
+  import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
+  import { viewMessages as messages } from '@base/features/dashboard/presentation/messages/widgets-view.messages.ts';
   import { liveJobs } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
+  import { capacityOf } from '@base/features/dashboard/presentation/presenters/view-figures.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
-  import { openJob } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
     widgets: DashboardWidgets;
+    size?: WidgetSize;
+    /** The controls of the edit mode, over the card. */
+    editing?: Snippet;
     now?: () => number;
   }
 
-  let { widgets, now = Date.now }: Props = $props();
+  let { widgets, size = 'm', editing, now = Date.now }: Props = $props();
 
-  const MAX_ROWS = 3;
+  const DOTS = 3;
 
-  const live = $derived(liveJobs(widgets.live.data ?? [], widgets.pipelines, now()));
+  const live = $derived(liveJobs(widgets.liveJobs, widgets.pipelines, now()));
+  const capacity = $derived(capacityOf(widgets.agents.data ?? []));
+  const names = $derived([...new Set(live.running.map(row => row.pipelineName))].join(' · '));
+  const dots = (count: number) => Math.min(count, DOTS);
 </script>
 
-{#snippet aside()}
-  <span>{t(messages.live)}</span>
+{#snippet running()}
+  <div class="flex h-2 items-center gap-1">
+    {#each { length: dots(live.running.length) } as _, index (index)}
+      <ChartDot tone="running" />
+    {/each}
+  </div>
 {/snippet}
 
-<Widget size="m" title={t(messages.rightNow)} icon={ActivityIcon as LucideIcon} {aside}>
+<Widget {size} {editing} bare={size === 'xs'} title={t(widgetMessages.rightNow)} icon={RadioIcon as LucideIcon}>
   <WidgetBody
-    size="m"
+    {size}
     locked={!widgets.canReadJobs}
     loading={widgets.live.isPending}
     error={widgets.live.isError}
     onRetry={() => void widgets.live.refetch()}
-    empty={live.running.length === 0 && live.waiting.length === 0}
-    emptyTitle={t(messages.nothingRuns)}
-    emptyText={t(messages.nothingRunsText)}
   >
-    <div class="grid min-h-0 flex-1 grid-cols-1 gap-4 @3xl:grid-cols-2">
-      <section class="flex min-w-0 flex-col gap-2">
-        <header class="flex justify-between text-xs text-muted-foreground">
-          <span>{t(messages.runningCount(live.running.length))}</span>
-          <span>{t(messages.elapsedMedian)}</span>
-        </header>
-        {#each live.running.slice(0, MAX_ROWS) as row (row.jobId)}
-          <button
-            type="button"
-            class="flex flex-col gap-1 text-left"
-            onclick={() => openJob(row)}
-          >
-            <span class="flex min-w-0 items-center gap-2 text-sm">
-              <ChartDot tone="running" />
-              <span class="truncate font-medium">{row.pipelineName}</span>
-              <span class="ml-auto shrink-0 text-xs text-muted-foreground tabular-nums">
-                {row.elapsed}{#if row.overrun}&nbsp;· {row.overrun}{:else if row.expected}&nbsp;· ~{row.expected}{/if}
-              </span>
-            </span>
-            {#if row.progress !== null}
-              <span class="block h-1 w-full rounded-full bg-muted">
-                <ChartSegment tone="running" class="h-1" style="width: {row.progress * 100}%" />
-              </span>
-            {/if}
-          </button>
-        {/each}
-      </section>
-      <section class="flex min-w-0 flex-col gap-2 @3xl:border-l @3xl:pl-4">
-        <header class="flex justify-between text-xs text-muted-foreground">
-          <span>{t(messages.waitingCount(live.waiting.length))}</span>
-          <span>{t(messages.waits)}</span>
-        </header>
-        {#each live.waiting.slice(0, MAX_ROWS) as row (row.jobId)}
-          <button
-            type="button"
-            class="flex min-w-0 items-center gap-2 text-left text-sm"
-            onclick={() => openJob(row)}
-          >
-            <ChartDot tone="queued" />
-            <span class="truncate font-medium">{row.pipelineName}</span>
-            <span class="truncate text-xs text-muted-foreground">
-              {t(row.reason === 'approval' ? messages.waitsForApproval : messages.waitsForAgent)}
-            </span>
-            <span class="ml-auto shrink-0 text-xs text-muted-foreground tabular-nums">{row.waited}</span>
-          </button>
-        {/each}
-      </section>
-    </div>
+    {#if size === 'xs'}
+      <div class="flex min-w-0 items-center gap-4">
+        {@render running()}
+        <div class="min-w-0">
+          <p class="text-sm font-medium">{t(messages.running(live.running.length))}</p>
+          <p class="truncate text-xs text-muted-foreground">
+            {t(messages.waiting(live.waiting.length))}
+          </p>
+        </div>
+      </div>
+    {:else}
+      <div data-part="status-band" class="mt-auto mb-auto grid grid-cols-3">
+        <div class="flex min-w-0 flex-col gap-2 pr-4">
+          {@render running()}
+          <p class="text-2xl font-medium tracking-tight">{t(messages.running(live.running.length))}</p>
+          <p class="truncate text-xs text-muted-foreground">{names || t(messages.nothingRuns)}</p>
+        </div>
+        <div class="flex min-w-0 flex-col gap-2 border-l border-border px-4">
+          <div class="flex h-2 items-center gap-1">
+            {#each { length: dots(live.waiting.length) } as _, index (index)}
+              <span class="size-2 rounded-full border border-foreground/60"></span>
+            {/each}
+          </div>
+          <p class="text-2xl font-medium tracking-tight">{t(messages.waiting(live.waiting.length))}</p>
+          <p class="truncate text-xs text-muted-foreground">
+            {live.waiting[0] ? t(messages.longest(live.waiting[0].waited)) : t(messages.nothingWaits)}
+          </p>
+        </div>
+        <div class="flex min-w-0 flex-col gap-2 border-l border-border pl-4">
+          <div class="flex h-2 items-center gap-1">
+            {#each { length: dots(capacity.online) } as _, index (index)}
+              <ChartDot tone="passed" />
+            {/each}
+          </div>
+          <p class="text-2xl font-medium tracking-tight">
+            {capacity.total > 0 ? t(messages.agentsOf(capacity.online, capacity.total)) : t(messages.noAgent)}
+          </p>
+          <p class="truncate text-xs text-muted-foreground">
+            {capacity.offline ? t(messages.offline(capacity.offline)) : t(messages.allOnline)}
+          </p>
+        </div>
+      </div>
+    {/if}
   </WidgetBody>
 </Widget>

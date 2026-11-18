@@ -1,89 +1,103 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import InboxIcon from '@lucide/svelte/icons/inbox';
-  import { ChartDot, ChartLegendItem, ChartSegment, Widget, type ChartTone, type LucideIcon } from '@scylla/ui';
+  import { ChartDot, Widget, type ChartTone, type LucideIcon, type WidgetSize } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type { MessageDescriptor } from '@lingui/core';
-  import { widgetMessages as messages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
+  import { getRelativeTime } from '@shared/utils/date-utils.ts';
+  import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
+  import { viewMessages as messages } from '@base/features/dashboard/presentation/messages/widgets-view.messages.ts';
   import {
-    attentionCounts,
     attentionItems,
-    whenText,
+    type AttentionItem,
     type AttentionKind,
   } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
-  import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { openJob } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
     widgets: DashboardWidgets;
-    period: DashboardPeriodState;
+    size?: WidgetSize;
+    /** The controls of the edit mode, over the card. */
+    editing?: Snippet;
   }
 
-  let { widgets, period }: Props = $props();
+  let { widgets, size = 'l', editing }: Props = $props();
 
-  const MAX_ROWS = 3;
-
-  const KINDS: Readonly<Record<AttentionKind, { tone: ChartTone; label: MessageDescriptor }>> = {
-    failed: { tone: 'failed', label: messages.failedLower },
-    orphaned: { tone: 'canceled', label: messages.orphanedLower },
-    approval: { tone: 'queued', label: messages.approval },
+  const TONES: Readonly<Record<AttentionKind, ChartTone>> = {
+    failed: 'failed',
+    orphaned: 'running',
+    approval: 'queued',
   };
 
-  const items = $derived(attentionItems(widgets.summaries.data?.items ?? [], widgets.live.data ?? []));
-  const counts = $derived(attentionCounts(items));
+  const items = $derived(attentionItems(widgets.pipelineItems, widgets.liveJobs));
+  const maxRows = $derived(size === 'l' ? 4 : size === 'm' ? 1 : 2);
+  const shown = $derived(items.slice(0, maxRows));
+  const errors = $derived(
+    new Map([...widgets.endedJobs, ...widgets.liveJobs].map(job => [job.id, job.error])),
+  );
+
+  const statusLine = (item: AttentionItem): string => {
+    const when = getRelativeTime(item.at);
+    if (item.kind === 'failed') return t(messages.failedAt(when));
+    if (item.kind === 'orphaned') return t(messages.orphanedAt(when));
+    return t(messages.approvalSince(when));
+  };
+
+  const reason = (item: AttentionItem): string =>
+    item.kind === 'approval'
+      ? t(messages.approvalText)
+      : errors.get(item.jobId) || t(messages.jobOf(item.shortId));
 </script>
 
 {#snippet aside()}
   {#if items.length > 0}
-    <span class="tabular-nums">{items.length} {t(messages.openNow)}</span>
+    <span class="font-medium text-foreground tabular-nums">{items.length}</span>
   {/if}
 {/snippet}
 
-<Widget size="m" title={t(messages.needsYou)} icon={InboxIcon as LucideIcon} {aside}>
+<Widget
+  {size}
+  {editing}
+  title={t(widgetMessages.needsYou)}
+  icon={InboxIcon as LucideIcon}
+  meta={t(widgetMessages.openNow)}
+  {aside}
+>
   <WidgetBody
-    size="m"
+    {size}
     locked={!widgets.canReadPipelines || !widgets.canReadJobs}
     loading={widgets.summaries.isPending || widgets.live.isPending}
     error={widgets.summaries.isError || widgets.live.isError}
-    onRetry={() => {
-      void widgets.summaries.refetch();
-      void widgets.live.refetch();
-    }}
+    onRetry={() => void widgets.summaries.refetch()}
     empty={items.length === 0}
     emptyKind="all-clear"
-    emptyTitle={t(messages.allClear)}
-    emptyText={t(messages.allClearText)}
+    emptyTitle={t(widgetMessages.allClear)}
+    emptyText={t(widgetMessages.allClearText)}
   >
-    <div class="flex flex-col gap-1.5">
-      <div class="flex h-1.5 gap-0.5">
-        {#each counts as entry (entry.kind)}
-          <ChartSegment tone={KINDS[entry.kind].tone} class="h-1.5" style="flex: {entry.count}" />
-        {/each}
-      </div>
-      <div class="flex flex-wrap gap-x-3 gap-y-1">
-        {#each counts as entry (entry.kind)}
-          <ChartLegendItem tone={KINDS[entry.kind].tone} label={t(KINDS[entry.kind].label)} value={entry.count} />
-        {/each}
-      </div>
-    </div>
-    <ul class="mt-2 flex min-h-0 flex-col gap-1.5">
-      {#each items.slice(0, MAX_ROWS) as item (item.jobId)}
-        <li class="flex min-w-0 items-center gap-2 text-sm">
-          <ChartDot tone={KINDS[item.kind].tone} />
-          <span class="truncate font-medium">{item.pipelineName}</span>
-          <span class="truncate text-xs text-muted-foreground">{item.projectName}</span>
-          <span class="shrink-0 text-xs">{t(KINDS[item.kind].label)}</span>
-          <span class="shrink-0 font-mono text-xs text-muted-foreground">{item.shortId}</span>
-          <span class="ml-auto shrink-0 text-xs text-muted-foreground tabular-nums">
-            {whenText(item.at, new Date(), period.timeZone ?? 'UTC')}
-          </span>
-          <Button variant="outline" size="xs" onclick={() => openJob(item)}>
-            {t(item.kind === 'approval' ? messages.review : messages.logs)}
+    <ul class="flex min-h-0 flex-col">
+      {#each shown as item (item.jobId)}
+        <li class="flex items-start gap-3 border-b border-border py-3 first:pt-0 last:border-0">
+          <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+            <p class="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+              <ChartDot tone={TONES[item.kind]} />
+              <span class="truncate">{statusLine(item)}</span>
+              <span class="shrink-0">· {item.projectName}</span>
+            </p>
+            <p class="truncate text-base font-medium">{item.pipelineName}</p>
+            <p class="truncate text-xs text-muted-foreground">{reason(item)}</p>
+          </div>
+          <Button variant="outline" size="xs" class="mt-4" onclick={() => openJob(item)}>
+            {t(item.kind === 'approval' ? widgetMessages.review : widgetMessages.logs)}
           </Button>
         </li>
       {/each}
     </ul>
+    {#if items.length > shown.length}
+      <p class="mt-auto text-xs text-muted-foreground">
+        {t(messages.moreItems(items.length - shown.length))}
+      </p>
+    {/if}
   </WidgetBody>
 </Widget>

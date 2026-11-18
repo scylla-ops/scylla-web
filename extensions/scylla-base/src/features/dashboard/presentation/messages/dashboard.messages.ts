@@ -2,6 +2,13 @@ import { msg } from '@lingui/core/macro';
 
 export const dashboardMessages = {
   dashboard: msg`Dashboard`,
+  dashboards: msg`Dashboards`,
+  opsOverview: msg`Ops overview`,
+  defaultBadge: msg({ context: 'dashboard', message: 'Default' }),
+  customRange: msg`Custom range`,
+  last30DaysLong: msg`Last 30 days`,
+  scope: msg`Scope`,
+  allProjects: msg`All projects`,
   timesIn: (timeZone: string, offset: string) => msg`Times in ${timeZone} (${offset})`,
   period: msg`Period`,
   last24Hours: msg`24 h`,

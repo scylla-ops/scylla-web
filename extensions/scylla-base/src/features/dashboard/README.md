@@ -42,12 +42,14 @@ would only give the next contributor somewhere wrong to put a query.
 
 ## What is on the page
 
-- **The header** — the period of the dashboard (24 h, 7 d, 14 d, 30 d or custom days) and the
-  time zone of the workspace. The days of a period are the days of the workspace, so that two
-  people in two countries see the same bars.
-- **The widgets** — Success rate, Run duration, Right now, Needs you, Pipelines, Activity and
-  Quick actions, on the widget grid of `@scylla/ui`. The figures of a period follow the period
-  picker, and the period stays in the URL, so a link shows the same figures.
+- **No header.** The panel of the second sidebar holds the dashboards, the period (24 h, 7 d,
+  14 d, or a custom range), the time zone of the workspace and the scope (all projects or
+  one). The days of a period are the days of the workspace, so that two people in two
+  countries see the same bars.
+- **The widgets** — a sentence of what needs you, the last 24 hours, Right now, Needs you,
+  Success rate, Agents, Pipelines, Runs per day and four small figures, on the grid of 8
+  columns of `@scylla/ui`. The figures of a period follow the panel, and the period stays in
+  the URL, so a link shows the same figures.
 
 Access is gated on `READ_WORKSPACE` — the same permission as the projects list, because both
 are reads of the workspace and this page is the redirect target for anyone landing on an org

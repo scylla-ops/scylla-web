@@ -51,10 +51,15 @@ presentation/
   messages/widgets.messages.ts          every string of the widgets
   ui/dashboard-period.state.svelte.ts   the period of the page and the time zone of the workspace
   ui/Dashboard/Dashboard.page.svelte    the page
-  ui/PeriodPicker/                      24 h, 7 d, 14 d, 30 d, Custom; the form of a custom period
+  ui/PeriodPicker/CustomPeriodForm.svelte   the form of a custom period
+  ui/DashboardPanel/                    the panel of the second sidebar: dashboards, period, scope
+  ui/dashboard-view.state.svelte.ts     what the page and the panel share: the period, the project
+  presenters/view-figures.presenter.ts  capacity, ticks of 24 h, shares, counts — pure, node-tested
+  messages/widgets-view.messages.ts     the strings of the widgets of the view mode
   ui/widgets/dashboard-widgets.state.svelte.ts   the queries of the widgets, with the period
-  ui/widgets/<Name>Widget/              Success rate, Run duration, Right now, Needs you, Pipelines,
-                                        Activity, Quick actions
+  ui/widgets/<Name>Widget/              Sentence, Timeline (last 24 h), Right now, Needs you,
+                                        Success rate, Agents, Pipelines, Runs, Run minutes,
+                                        Run duration, Activity, Quick actions
   ui/widgets/parts/                     WidgetBody (the states), BucketAxis, ChangeBadge
   ui/widgets/widget-navigation.ts       opens a job or the jobs of a pipeline from a widget
 ```
@@ -113,8 +118,18 @@ narrower permission without moving that redirect target too.
   approval. It has no "new" mark and no error text: these need `ListAttentionItems` (D1).
   Activity is partial: the job ends only (no G1). Quick actions has no "Fire a trigger" (C1)
   and no "Add a secret" (a secret belongs to a project).
-- **Each widget has one size on this page** (Pipelines `l`, the others `m`). The other sizes of
-  the design come with the edit mode of the layout.
+- **The page has no header.** The Figma page "Dashboard" (`695:13437`, frame `1524:6327`) puts
+  the list of dashboards, the period, the time zone and the scope in the second sidebar. The
+  module gives `DashboardPanel` in `shell.secondSidebarPanels` for the rail item `dashboard`.
+- **The page and the panel share one period.** The page creates it and attaches it to
+  `dashboardView`; the panel reads it there. Never create a second `createDashboardPeriod`: it
+  would not see the writes of the other one.
+- **The scope is one project or all.** `GetJobStats` gets `projectIds`. The other widgets keep
+  the pipelines and the jobs of the project (by `PipelineSummary.projectId`).
+- **Each widget takes `size`.** The default layout of the design: Sentence `l`, Timeline `m`,
+  Right now `m`, Needs you `l`, Success rate `s`, Agents `s`, Pipelines `m`, Runs `m`, then four
+  `xs` (Run minutes, Run duration, Right now, Agents). An `xs` widget with its own title in the
+  content sets `bare`.
 - **A widget that the user cannot read shows Locked.** Success rate, Run duration, Right now
   and Activity need `LIST_JOBS_BY_WORKSPACE`, Pipelines needs `LIST_PIPELINES_BY_WORKSPACE`,
   Needs you needs both. The server gives `GetJobStats` and `ListPipelineSummaries` with the same
