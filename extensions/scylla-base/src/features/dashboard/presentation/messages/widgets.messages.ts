@@ -65,6 +65,9 @@ export const widgetMessages = {
   approval: msg`approval`,
   logs: msg`Logs`,
   rerun: msg`Rerun`,
+  fireNow: msg({ context: 'attention', message: 'Fire now' }),
+  trigger: msg`Trigger`,
+  agent: msg`Agent`,
   review: msg`Review`,
 
   jobEnds: msg`job ends`,

@@ -21,7 +21,7 @@ msgstr "{busy} of {total} job slots busy"
 msgid "{change} pts"
 msgstr "{change} pts"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:68
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:74
 msgid "{change} vs previous"
 msgstr "{change} vs previous"
 
@@ -45,6 +45,10 @@ msgstr "{count} running"
 msgid "{count} things"
 msgstr "{count} things"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:83
+msgid "{count} times"
+msgstr "{count} times"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:22
 msgid "{count} waiting"
 msgstr "{count} waiting"
@@ -62,11 +66,11 @@ msgstr "{factor}× the median"
 msgid "{green} of {total} green"
 msgstr "{green} of {total} green"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:70
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:76
 msgid "{hours} h"
 msgstr "{hours} h"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:69
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:75
 msgid "{hours} h ago"
 msgstr "{hours} h ago"
 
@@ -82,6 +86,11 @@ msgstr "{kind} · {size} · {cells}"
 msgid "{name} (copy)"
 msgstr "{name} (copy)"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:57
+msgctxt "attention"
+msgid "{name} did not fire {when}"
+msgstr "{name} did not fire {when}"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:51
 msgctxt "attention"
 msgid "{name} failed {when}"
@@ -92,6 +101,11 @@ msgctxt "attention"
 msgid "{name} lost its agent {when}"
 msgstr "{name} lost its agent {when}"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:59
+msgctxt "attention"
+msgid "{name} missed a fire {when}"
+msgstr "{name} missed a fire {when}"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:27
 msgid "{name} offline"
 msgstr "{name} offline"
@@ -101,6 +115,11 @@ msgctxt "attention"
 msgid "{name} waits for an approval"
 msgstr "{name} waits for an approval"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:61
+msgctxt "attention"
+msgid "{name} went offline {when}"
+msgstr "{name} went offline {when}"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:24
 msgid "{online} of {total} agents"
 msgstr "{online} of {total} agents"
@@ -108,6 +127,10 @@ msgstr "{online} of {total} agents"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:23
 msgid "{online} of {total} agents online"
 msgstr "{online} of {total} agents online"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:82
+msgid "{open} open · {fresh} new"
+msgstr "{open} open · {fresh} new"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:25
 msgid "{part} of {total}"
@@ -117,19 +140,19 @@ msgstr "{part} of {total}"
 msgid "{size} · neighbours move down"
 msgstr "{size} · neighbours move down"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:56
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:62
 msgid "{value} per day"
 msgstr "{value} per day"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:57
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:63
 msgid "{value} per hour"
 msgstr "{value} per hour"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:58
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:64
 msgid "{value} per week"
 msgstr "{value} per week"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:71
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:87
 msgid "+ {count} more"
 msgstr "+ {count} more"
 
@@ -202,7 +225,7 @@ msgstr "Add a widget"
 msgid "Add a widget, or drop one here"
 msgstr "Add a widget, or drop one here"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:78
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:81
 msgid "Add an agent"
 msgstr "Add an agent"
 
@@ -219,8 +242,13 @@ msgid "agent"
 msgstr "agent"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:31
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:70
 msgid "Agent"
 msgstr "Agent"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:79
+msgid "Agent offline · {when}"
+msgstr "Agent offline · {when}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:33
 msgid "Agents"
@@ -284,11 +312,11 @@ msgstr "Calm · needs you"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:71
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:74
 msgid "cancelled"
 msgstr "cancelled"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:72
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:75
 msgctxt "legend"
 msgid "Cancelled"
 msgstr "Cancelled"
@@ -297,7 +325,7 @@ msgstr "Cancelled"
 msgid "Capacity"
 msgstr "Capacity"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:80
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:83
 msgid "Choose a pipeline"
 msgstr "Choose a pipeline"
 
@@ -313,7 +341,7 @@ msgstr "Choose the days"
 msgid "Close"
 msgstr "Close"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:75
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:78
 msgid "completed"
 msgstr "completed"
 
@@ -350,14 +378,14 @@ msgstr "Custom"
 msgid "Custom range"
 msgstr "Custom range"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:23
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:31
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:37
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:32
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:40
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:46
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:4
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:28
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:37
 msgid "dashboard home"
 msgstr "dashboard home"
 
@@ -391,7 +419,11 @@ msgstr "Delete"
 msgid "Delete dashboard"
 msgstr "Delete dashboard"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:82
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:77
+msgid "Did not fire · {when}"
+msgstr "Did not fire · {when}"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:89
 msgid "Discard and leave"
 msgstr "Discard and leave"
 
@@ -428,11 +460,15 @@ msgstr "elapsed · median"
 msgid "Events on a time axis"
 msgstr "Events on a time axis"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:82
+msgid "everyone can view"
+msgstr "everyone can view"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:47
 msgid "Extra small"
 msgstr "Extra small"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:73
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:76
 msgid "failed"
 msgstr "failed"
 
@@ -451,6 +487,11 @@ msgstr "failing first"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:47
 msgid "finished runs that completed"
 msgstr "finished runs that completed"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:68
+msgctxt "attention"
+msgid "Fire now"
+msgstr "Fire now"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:20
 msgid "First day"
@@ -472,7 +513,7 @@ msgstr "Heatmap"
 msgid "Integrations"
 msgstr "Integrations"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:79
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:82
 msgid "Invite a member"
 msgstr "Invite a member"
 
@@ -492,7 +533,7 @@ msgstr "Items with actions"
 msgid "Job {id}"
 msgstr "Job {id}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:70
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:73
 msgid "job ends"
 msgstr "job ends"
 
@@ -516,7 +557,7 @@ msgstr "Kinds"
 msgid "Large"
 msgstr "Large"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:63
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:69
 msgctxt "health"
 msgid "last {count} runs"
 msgstr "last {count} runs"
@@ -538,7 +579,7 @@ msgstr "Last 30 days"
 msgid "Last day"
 msgstr "Last day"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:80
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:87
 msgid "Leave with unsaved changes?"
 msgstr "Leave with unsaved changes?"
 
@@ -570,6 +611,10 @@ msgstr "longest {duration}"
 msgid "Make it my default dashboard"
 msgstr "Make it my default dashboard"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:83
+msgid "Make private"
+msgstr "Make private"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:45
 msgid "manual"
 msgstr "manual"
@@ -578,7 +623,7 @@ msgstr "manual"
 msgid "Median"
 msgstr "Median"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:66
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:72
 msgctxt "health"
 msgid "Median"
 msgstr "Median"
@@ -607,6 +652,11 @@ msgstr "Needs you"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:13
 msgid "needs you."
 msgstr "needs you."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:84
+msgctxt "attention"
+msgid "new"
+msgstr "new"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:20
 msgctxt "dashboard panel"
@@ -640,6 +690,10 @@ msgstr "No job runs or waits now."
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:18
 msgid "No job started in this period. Choose a longer period."
 msgstr "No job started in this period. Choose a longer period."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:86
+msgid "No job, fire or agent needs you now."
+msgstr "No job, fire or agent needs you now."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:17
 msgid "No jobs in this period"
@@ -705,7 +759,7 @@ msgstr "open now"
 msgid "Ops overview"
 msgstr "Ops overview"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:74
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:77
 msgid "orphaned"
 msgstr "orphaned"
 
@@ -717,7 +771,7 @@ msgstr "Orphaned"
 msgid "Orphaned · {when}"
 msgstr "Orphaned · {when}"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:27
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:36
 msgid "Overview"
 msgstr "Overview"
 
@@ -745,22 +799,22 @@ msgstr "p95"
 msgid "passed"
 msgstr "passed"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:67
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:73
 msgctxt "bars"
 msgid "peak · {count} runs"
 msgstr "peak · {count} runs"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:60
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:66
 msgctxt "bars"
 msgid "per day"
 msgstr "per day"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:59
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:65
 msgctxt "bars"
 msgid "per hour"
 msgstr "per hour"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:61
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:67
 msgctxt "bars"
 msgid "per week"
 msgstr "per week"
@@ -778,7 +832,7 @@ msgstr "pick a size"
 msgid "Pipeline"
 msgstr "Pipeline"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:64
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:70
 msgctxt "health"
 msgid "Pipeline"
 msgstr "Pipeline"
@@ -841,11 +895,11 @@ msgstr "Rerun"
 msgid "Resize {title}"
 msgstr "Resize {title}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:83
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:86
 msgid "Retry"
 msgstr "Retry"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:68
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:71
 msgid "Review"
 msgstr "Review"
 
@@ -864,7 +918,7 @@ msgstr "Run duration"
 msgid "Run minutes"
 msgstr "Run minutes"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:77
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:80
 msgid "Run pipeline"
 msgstr "Run pipeline"
 
@@ -884,7 +938,7 @@ msgstr "running now"
 msgid "running, waiting, agents online"
 msgstr "running, waiting, agents online"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:62
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:68
 msgctxt "bars"
 msgid "runs"
 msgstr "runs"
@@ -946,6 +1000,18 @@ msgstr "sentence, timeline, list"
 msgid "Set as my default"
 msgstr "Set as my default"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:84
+msgid "Set as team default"
+msgstr "Set as team default"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:81
+msgid "Share with workspace"
+msgstr "Share with workspace"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:86
+msgid "Shared with the workspace"
+msgstr "Shared with the workspace"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:30
 msgid "Shortcuts to the actions"
 msgstr "Shortcuts to the actions"
@@ -953,6 +1019,10 @@ msgstr "Shortcuts to the actions"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:55
 msgid "Show"
 msgstr "Show"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:85
+msgid "since your last visit"
+msgstr "since your last visit"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:38
 msgid "Size"
@@ -978,7 +1048,7 @@ msgstr "Start from"
 msgid "Status band"
 msgstr "Status band"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:83
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:90
 msgid "Stay"
 msgstr "Stay"
 
@@ -987,7 +1057,7 @@ msgctxt "column"
 msgid "Success"
 msgstr "Success"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:65
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:71
 msgctxt "health"
 msgid "Success"
 msgstr "Success"
@@ -1005,6 +1075,15 @@ msgstr "Success rate {rate}"
 msgid "Summary"
 msgstr "Summary"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:85
+msgctxt "dashboard"
+msgid "Team"
+msgstr "Team"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:81
+msgid "The agent is not connected."
+msgstr "The agent is not connected."
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:23
 msgid "The first day is after the last day."
 msgstr "The first day is after the last day."
@@ -1021,7 +1100,7 @@ msgstr "The last events"
 msgid "the last result of each pipeline"
 msgstr "the last result of each pipeline"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:81
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:88
 msgid "The layout has {count} changes that are not saved. They go away when you leave."
 msgstr "The layout has {count} changes that are not saved. They go away when you leave."
 
@@ -1049,6 +1128,14 @@ msgstr "the run time of the period"
 msgid "The top items with a bar"
 msgstr "The top items with a bar"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:80
+msgid "The trigger {trigger} made no job."
+msgstr "The trigger {trigger} made no job."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:80
+msgid "This dashboard changed in another tab or for another person. The page shows the new version now."
+msgstr "This dashboard changed in another tab or for another person. The page shows the new version now."
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:33
 msgid "This dashboard has no widget yet."
 msgstr "This dashboard has no widget yet."
@@ -1056,6 +1143,10 @@ msgstr "This dashboard has no widget yet."
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:51
 msgid "This widget has no layout in this size yet."
 msgstr "This widget has no layout in this size yet."
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:78
+msgid "Time missed · {when}"
+msgstr "Time missed · {when}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:9
 msgid "Timeline"
@@ -1068,6 +1159,10 @@ msgstr "Times in {timeZone} ({offset})"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:15
 msgid "today"
 msgstr "today"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:69
+msgid "Trigger"
+msgstr "Trigger"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:35
 msgid "Triggers"
@@ -1109,11 +1204,11 @@ msgstr "What needs you"
 msgid "What should it show?"
 msgstr "What should it show?"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:82
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:85
 msgid "You do not have the permission to read this data."
 msgstr "You do not have the permission to read this data."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:81
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:84
 msgid "You have no permission for these actions."
 msgstr "You have no permission for these actions."
 

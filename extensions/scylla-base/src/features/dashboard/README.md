@@ -9,9 +9,10 @@ Every workspace-level redirect in the app ends here.
 
 ## A composite view, by design
 
-The dashboard owns one thing: the **layouts** of the dashboards of a workspace. A layout is a
-name and the widgets, in order, each at a size. The browser keeps them (`localStorage`) behind
-`DashboardLayoutRepository`, until a route of the server can hold them.
+The dashboard owns two things of DashboardService: the **dashboards** of a workspace and the
+items of **Needs you**. A dashboard is a name, a visibility and the widgets, in order, each at a
+size. Each change sends the version that the page read, so two tabs never write over each other:
+the second one says so and shows the new version.
 
 All of its data comes from other modules' public APIs:
 

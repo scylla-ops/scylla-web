@@ -14,7 +14,8 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const isData = (value: unknown): value is WidgetData => WIDGET_DATA.includes(value as WidgetData);
 const isSize = (value: unknown): value is LayoutSize => LAYOUT_SIZES.includes(value as LayoutSize);
 
-const toWidgets = (value: unknown): LayoutWidget[] => {
+/** The widgets of a stored layout: unknown data, unknown sizes and a second id are dropped. */
+export const toWidgetList = (value: unknown): LayoutWidget[] => {
   if (!Array.isArray(value)) return [];
   const widgets: LayoutWidget[] = [];
   for (const item of value) {
@@ -30,7 +31,7 @@ const toWidgets = (value: unknown): LayoutWidget[] => {
 const toDashboard = (value: unknown): DashboardLayout | undefined => {
   if (!isRecord(value) || typeof value.id !== 'string' || value.id === '') return undefined;
   if (typeof value.name !== 'string') return undefined;
-  return { id: value.id, name: value.name, widgets: toWidgets(value.widgets) };
+  return { id: value.id, name: value.name, widgets: toWidgetList(value.widgets) };
 };
 
 /** `null` when nothing is stored, or the copy has no dashboard that parses. */

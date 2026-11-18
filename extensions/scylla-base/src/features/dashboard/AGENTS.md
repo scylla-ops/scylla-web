@@ -2,7 +2,7 @@
 
 The workspace landing page: a grid of widgets that shows the jobs and the pipelines of a period.
 
-**Layer** `features/` · **id** `dashboard` · **DI key** `dashboard` (`dashboardLayoutRepository`)
+**Layer** `features/` · **id** `dashboard` · **DI key** `dashboard` (`dashboardLayoutRepository`, `dashboardPreferences`, `attentionRepository`)
 
 ## Import rules
 
@@ -18,13 +18,32 @@ would pull bits-ui into the chunk of the importer.
 
 ## Data contract
 
-**This module owns one resource: the layouts of the dashboards.** A `DashboardSet` is the
-dashboards of a workspace and the id of the default one. A dashboard is a name and an ordered
-list of `{ id, data, size }` (`domain/structs/dashboard-layout.struct.ts`).
-`DashboardLayoutRepository` reads and saves the set. `LocalDashboardLayoutRepository` keeps it in
-`localStorage` at the key `dashboards:<workspace id>`. A route of the server can replace it:
-change only `dashboard.module.ts`. With nothing stored, the workspace gets "Ops overview" with
-the default layout of the design (`TEMPLATES.bento`).
+**This module owns two resources of DashboardService: the dashboards and the items of "Needs
+you".**
+
+- A dashboard is a name, a visibility (`private` or `workspace`), the team default mark, a
+  `version`, and an ordered list of `{ id, data, size }` (`domain/structs/dashboard-layout.struct.ts`).
+- `DashboardLayoutRepository` (port) has `list`, `create`, `update`, `remove` and
+  `setTeamDefault`. `GrpcDashboardLayoutRepository` implements it. The widgets go in
+  `widgets_json` with `schema_version` 1 (`grpc-dashboard.mapper.ts`). A widget list of another
+  schema version reads as no widget. When you change the format, increase
+  `WIDGETS_SCHEMA_VERSION` and read the old format too.
+- **Each change sends the `version` that the page read.** The server refuses a stale version with
+  `ABORTED`. The mutations then show "This dashboard changed in another tab or for another
+  person" and read the dashboards again. Never retry the write with the new version: the change
+  of the other person would be lost.
+- `DashboardPreferences` stays in the browser (`LocalDashboardPreferences`): the default dashboard
+  of the person (`dashboards-default:<workspace id>`), the last visit
+  (`dashboards-visit:<workspace id>`), and the layouts of an older build
+  (`dashboards:<workspace id>`).
+- **First load of a workspace with no dashboard on the server:** the layouts of an older build go
+  to the server, then the browser forgets them. With none, the page creates "Ops overview" with
+  `TEMPLATES.bento`. When the person cannot create a dashboard, the page shows that layout and
+  saves nothing.
+- The default dashboard: the choice of the person, else the team default, else the first one.
+- `AttentionRepository` reads `ListAttentionItems` (`attention.queries.ts`, each 30 s), for the
+  scope of the panel. `since` is the last visit before this page load: the items after it are
+  new.
 
 The ViewModels of the page read, through public APIs only:
 
@@ -46,10 +65,15 @@ dashboard.module.ts                     routes, nav, the layout repository, the 
 index.ts                                public API
 domain/structs/dashboard-layout.struct.ts   the set, the layout, the templates, their changes — tested
 domain/repository/dashboard-layout.repository.ts   the port of the set
-infrastructure/local-dashboard-layout.repository.ts   the set in `localStorage`
-infrastructure/stored-dashboards.mapper.ts  the stored JSON ↔ the set — tested
+infrastructure/grpc-dashboard-layout.repository.ts  the dashboards on DashboardService
+infrastructure/grpc-dashboard.mapper.ts     Dashboard ↔ the layout, `widgets_json`, the visibility
+infrastructure/local-dashboard-preferences.ts   the default of the person, the last visit, the old layouts
+infrastructure/grpc-attention.repository.ts + grpc-attention.mapper.ts   ListAttentionItems
+domain/structs/attention.struct.ts          an item of Needs you, its kinds and its counts
+infrastructure/stored-dashboards.mapper.ts  the JSON of the old layouts, the widget list — tested
 presentation/
-  dashboard-layout.queries.ts           the query and the mutation of the set
+  dashboard-layout.queries.ts           the query of the set, the mutations, the conflict message
+  attention.queries.ts                  the items of Needs you, the last visit
   messages/editor.messages.ts           the strings of the edit mode, the dialogs and the drawer
   messages/catalog.messages.ts          the names of the kinds and of the data
   presenters/widget-catalog.presenter.ts   the kinds of the palette, the data, their sizes
@@ -139,10 +163,11 @@ narrower permission without moving that redirect target too.
   duration share one `GetJobStats` call (`compare: true`): one cache entry. Activity reads the
   job ends created in the period. Right now, Needs you and Pipelines show the state of now and
   do not read the period.
-- **The widgets use only the routes that exist.** Needs you is partial: the red pipelines of
-  `ListPipelineSummaries` (last ended job failed or orphaned) and the jobs that wait for an
-  approval. It has no "new" mark and no error text: these need `ListAttentionItems` (D1).
-  Activity is partial: the job ends only (no G1). Quick actions has no "Fire a trigger" (C1)
+- **Needs you reads `ListAttentionItems`**: all the kinds (failed or orphaned job, approval,
+  failed fire, missed time, offline agent), the open and the new counts, and the error of the
+  node or of the job. A `PERMISSION_DENIED` shows Locked. The summary sentence counts the open
+  items of the server.
+- Activity is partial: the job ends only (no G1). Quick actions has no "Fire a trigger" (C1)
   and no "Add a secret" (a secret belongs to a project).
 - **The page has no header.** The Figma page "Dashboard" (`695:13437`, frame `1524:6327`) puts
   the list of dashboards, the period, the time zone and the scope in the second sidebar. The

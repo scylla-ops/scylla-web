@@ -6,7 +6,14 @@ import { setAppNavigator, contextStore } from '@platform/context';
 import { holdsLeave } from '@scylla/core-sdk';
 import { installTestNavigator } from '@test/navigator.ts';
 import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
-import { LocalDashboardLayoutRepository } from '@base/features/dashboard/infrastructure/local-dashboard-layout.repository.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type {
+  DashboardChange,
+  DashboardDraft,
+  DashboardLayoutRepository,
+  StoredDashboard,
+} from '@base/features/dashboard/domain/repository/dashboard-layout.repository.ts';
+import { LocalDashboardPreferences } from '@base/features/dashboard/infrastructure/local-dashboard-preferences.ts';
 import { dashboardEditor } from '@base/features/dashboard/presentation/ui/dashboard-editor.state.svelte.ts';
 import { dashboardView } from '@base/features/dashboard/presentation/ui/dashboard-view.state.svelte.ts';
 import DashboardPage from './Dashboard.page.svelte';
@@ -54,6 +61,57 @@ let getSummaries: ReturnType<typeof vi.fn>;
 let getWorkspaces: ReturnType<typeof vi.fn>;
 let getProjects: ReturnType<typeof vi.fn>;
 let stored: Map<string, string>;
+let server: MemoryDashboards;
+let listAttention: ReturnType<typeof vi.fn>;
+
+const attentionItem = (overrides: Record<string, unknown> = {}) => ({
+  kind: 'job-failed',
+  at: '2026-01-01T00:05:00.000Z',
+  isNew: true,
+  count: 1,
+  projectId: 'project-1',
+  projectName: 'Acme project',
+  pipelineId: 'pipeline-1',
+  pipelineName: 'deploy-web',
+  job: { id: 'job-0000failed', error: 'push-image: denied', branch: 'main', agentName: '', nodeId: 'push', nodeError: '' },
+  ...overrides,
+});
+
+/** DashboardService in memory: a stale version gives `ABORTED`, as the server does. */
+class MemoryDashboards implements DashboardLayoutRepository {
+  dashboards: StoredDashboard[] = [];
+
+  list() {
+    return Promise.resolve(this.dashboards.map(dashboard => ({ ...dashboard })));
+  }
+
+  create(_workspaceId: string, draft: DashboardDraft) {
+    const dashboard = { id: `dashboard-${this.dashboards.length + 1}`, version: 1, teamDefault: false, ...draft };
+    this.dashboards.push(dashboard);
+    return Promise.resolve({ ...dashboard });
+  }
+
+  update(change: DashboardChange) {
+    const index = this.dashboards.findIndex(dashboard => dashboard.id === change.id);
+    const current = this.dashboards[index];
+    if (!current) return Promise.reject(new ScyllaError('gone', { code: 'NOT_FOUND' }));
+    if (current.version !== change.version) return Promise.reject(new ScyllaError('changed', { code: 'ABORTED' }));
+    const { id: _id, version: _version, ...fields } = change;
+    const next = { ...current, ...fields, version: current.version + 1 };
+    this.dashboards[index] = next;
+    return Promise.resolve({ ...next });
+  }
+
+  remove(id: string) {
+    this.dashboards = this.dashboards.filter(dashboard => dashboard.id !== id);
+    return Promise.resolve();
+  }
+
+  setTeamDefault(_workspaceId: string, id: string) {
+    this.dashboards = this.dashboards.map(dashboard => ({ ...dashboard, teamDefault: dashboard.id === id }));
+    return Promise.resolve({ ...this.dashboards.find(dashboard => dashboard.id === id)! });
+  }
+}
 let navigate: ReturnType<typeof installTestNavigator>['navigate'];
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
@@ -85,11 +143,23 @@ beforeEach(() => {
   const storage = {
     getItem: (key: string) => stored.get(key) ?? null,
     setItem: (key: string, value: string) => void stored.set(key, value),
+    removeItem: (key: string) => void stored.delete(key),
   };
+  server = new MemoryDashboards();
+  listAttention = vi.fn().mockResolvedValue({
+    items: [attentionItem()],
+    openCount: 1,
+    newCount: 1,
+    counts: [{ kind: 'job-failed', open: 1 }],
+  });
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
-    dashboard: { dashboardLayoutRepository: new LocalDashboardLayoutRepository(() => storage) },
+    dashboard: {
+      dashboardLayoutRepository: server,
+      dashboardPreferences: new LocalDashboardPreferences(() => storage),
+      attentionRepository: { list: listAttention },
+    },
     pipeline: {
       pipelineRepository: { getSummaries },
     },
@@ -207,6 +277,58 @@ describe('DashboardPage', () => {
   });
 });
 
+describe('Needs you', () => {
+  it('shows each kind of open item of the server, with the open and new counts', async () => {
+    listAttention.mockResolvedValue({
+      items: [
+        attentionItem(),
+        attentionItem({
+          kind: 'fire-missed',
+          isNew: false,
+          count: 3,
+          pipelineName: 'nightly-backup',
+          job: undefined,
+          fire: { id: 'fire-1', triggerId: 'trigger-1', triggerName: 'nightly', schedule: '0 2 * * *', error: '' },
+        }),
+        attentionItem({
+          kind: 'agent-offline',
+          projectId: '',
+          projectName: '',
+          pipelineId: '',
+          pipelineName: '',
+          job: undefined,
+          agent: { id: 'agent-1', name: 'runner-us-1', lastSeenAt: '2026-01-01T00:00:00.000Z' },
+        }),
+      ],
+      openCount: 5,
+      newCount: 1,
+      counts: [],
+    });
+    render(DashboardPage);
+
+    const widget = await screen.findByRole('region', { name: 'Needs you' });
+    expect(await within(widget).findByText('5 open · 1 new')).toBeInTheDocument();
+    expect(within(widget).getByText('push-image: denied')).toBeInTheDocument();
+    expect(within(widget).getByText('nightly-backup')).toBeInTheDocument();
+    expect(within(widget).getByText('The trigger nightly made no job.')).toBeInTheDocument();
+    expect(within(widget).getByText('· 3 times')).toBeInTheDocument();
+    expect(within(widget).getByText('runner-us-1')).toBeInTheDocument();
+    expect(screen.getByText('5 things')).toBeInTheDocument();
+  });
+
+  it('asks the items of the scope, since the last visit', async () => {
+    stored.set('dashboards-visit:org-1', '2026-01-01T00:00:00.000Z');
+    dashboardView.setProject('project-1');
+    render(DashboardPage);
+
+    await vi.waitFor(() =>
+      expect(listAttention).toHaveBeenCalledWith(
+        expect.objectContaining({ workspaceId: 'org-1', projectIds: ['project-1'] }),
+      ),
+    );
+  });
+});
+
 describe('DashboardPanel', () => {
   const panel = () => within(document.querySelector('[data-slot="dashboard-panel"]') as HTMLElement);
 
@@ -243,10 +365,8 @@ describe('DashboardPanel', () => {
 
 describe('The edit mode', () => {
   const panel = () => within(document.querySelector('[data-slot="dashboard-panel"]') as HTMLElement);
-  const storedSet = () => JSON.parse(stored.get('dashboards:org-1') ?? 'null') as {
-    defaultId: string;
-    dashboards: { id: string; name: string; widgets: { data: string; size: string }[] }[];
-  } | null;
+  const storedSet = () => ({ dashboards: server.dashboards });
+  const firstWidgets = () => server.dashboards[0]?.widgets.length;
 
   it('removes a widget in a draft, and stores the layout on Save layout', async () => {
     const user = userEvent.setup();
@@ -257,7 +377,7 @@ describe('The edit mode', () => {
 
     expect(screen.queryByRole('region', { name: 'Success rate' })).not.toBeInTheDocument();
     expect(screen.getByText('1 change · not saved')).toBeInTheDocument();
-    expect(storedSet()).toBeNull();
+    expect(firstWidgets()).toBe(12);
 
     await user.click(panel().getByRole('button', { name: 'Save layout' }));
 
@@ -279,7 +399,7 @@ describe('The edit mode', () => {
     await user.click(panel().getByRole('button', { name: 'Cancel' }));
 
     expect(screen.getByRole('region', { name: 'Pipelines' })).toBeInTheDocument();
-    expect(storedSet()).toBeNull();
+    expect(firstWidgets()).toBe(12);
   });
 
   it('changes the size of the selected widget from its toolbar', async () => {
@@ -349,7 +469,7 @@ describe('The edit mode', () => {
     expect(holdsLeave(go)).toBe(true);
     await user.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Discard and leave' }));
     expect(go).toHaveBeenCalledOnce();
-    expect(storedSet()).toBeNull();
+    expect(firstWidgets()).toBe(12);
     expect(holdsLeave(vi.fn())).toBe(false);
   });
 
@@ -367,5 +487,32 @@ describe('The edit mode', () => {
 
     expect(screen.queryByRole('radiogroup', { name: 'Size of Success rate' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Success rate', pressed: false })).toBeInTheDocument();
+  });
+
+  it('imports the layouts of an older build once, when the server has none', async () => {
+    stored.set(
+      'dashboards:org-1',
+      JSON.stringify({ defaultId: 'b', dashboards: [{ id: 'b', name: 'Release day', widgets: [{ id: 'w1', data: 'pipelines', size: 'l' }] }] }),
+    );
+    render(DashboardWithPanel);
+
+    await vi.waitFor(() => expect(server.dashboards.map(item => item.name)).toEqual(['Release day']));
+    expect(stored.has('dashboards:org-1')).toBe(false);
+    expect(stored.get('dashboards-default:org-1')).toBe(server.dashboards[0].id);
+  });
+
+  it('reads the dashboards again on a conflict of version, and writes over nothing', async () => {
+    const user = userEvent.setup();
+    render(DashboardWithPanel);
+
+    await user.click(await panel().findByRole('button', { name: 'Edit dashboard' }));
+    await vi.waitFor(() => expect(server.dashboards).toHaveLength(1));
+    server.dashboards[0] = { ...server.dashboards[0], version: 7, name: 'Changed elsewhere' };
+    await user.click(screen.getByRole('button', { name: 'Remove Success rate' }));
+    await user.click(panel().getByRole('button', { name: 'Save layout' }));
+
+    await vi.waitFor(() => expect(panel().getByText('Changed elsewhere')).toBeInTheDocument());
+    expect(server.dashboards[0].widgets).toHaveLength(12);
+    expect(server.dashboards[0].version).toBe(7);
   });
 });

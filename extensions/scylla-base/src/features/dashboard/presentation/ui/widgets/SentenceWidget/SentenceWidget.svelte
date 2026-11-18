@@ -5,10 +5,7 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { viewMessages as messages } from '@base/features/dashboard/presentation/messages/widgets-view.messages.ts';
-  import {
-    attentionItems,
-    liveJobs,
-  } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
+  import { liveJobs } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import {
     capacityOf,
     dateLine,
@@ -28,12 +25,12 @@
 
   let { widgets, period, size = 'l', editing, now = Date.now }: Props = $props();
 
-  const items = $derived(attentionItems(widgets.pipelineItems, widgets.liveJobs));
+
   const live = $derived(liveJobs(widgets.liveJobs, widgets.pipelines, now()));
   const capacity = $derived(capacityOf(widgets.agents.data ?? []));
   const green = $derived(widgets.pipelineItems.filter(item => item.health === 'green').length);
   const total = $derived(widgets.pipelineItems.length);
-  const count = $derived(items.length);
+  const count = $derived(widgets.attention.data?.openCount ?? 0);
   const waitingForAgent = $derived(live.waiting.filter(row => row.reason === 'agent'));
   const large = $derived(size === 'l');
   const names = (rows: readonly { pipelineName: string }[]) =>
@@ -44,7 +41,7 @@
   <WidgetBody
     {size}
     locked={!widgets.canReadPipelines || !widgets.canReadJobs}
-    loading={widgets.summaries.isPending || widgets.live.isPending}
+    loading={widgets.summaries.isPending || widgets.live.isPending || widgets.attention.isPending}
     error={widgets.summaries.isError || widgets.live.isError}
     onRetry={() => void widgets.summaries.refetch()}
   >

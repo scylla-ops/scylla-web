@@ -53,6 +53,12 @@ export const viewMessages = {
     msg({ context: 'attention', message: `${name} lost its agent ${when}` }),
   approvalSentence: (name: string) =>
     msg({ context: 'attention', message: `${name} waits for an approval` }),
+  fireFailedSentence: (name: string, when: string) =>
+    msg({ context: 'attention', message: `${name} did not fire ${when}` }),
+  fireMissedSentence: (name: string, when: string) =>
+    msg({ context: 'attention', message: `${name} missed a fire ${when}` }),
+  agentOfflineSentence: (name: string, when: string) =>
+    msg({ context: 'attention', message: `${name} went offline ${when}` }),
   perDay: (value: string) => msg`${value} per day`,
   perHour: (value: string) => msg`${value} per hour`,
   perWeek: (value: string) => msg`${value} per week`,
@@ -68,5 +74,15 @@ export const viewMessages = {
   vsPrevious: (change: string) => msg`${change} vs previous`,
   hoursAgo: (hours: number) => msg`${hours} h ago`,
   hours: (hours: number) => msg`${hours} h`,
+  fireFailedAt: (when: string) => msg`Did not fire · ${when}`,
+  timeMissedAt: (when: string) => msg`Time missed · ${when}`,
+  agentOfflineAt: (when: string) => msg`Agent offline · ${when}`,
+  fireOf: (trigger: string) => msg`The trigger ${trigger} made no job.`,
+  agentAway: msg`The agent is not connected.`,
+  openAndNew: (open: number, fresh: number) => msg`${open} open · ${fresh} new`,
+  times: (count: number) => msg`${count} times`,
+  newMark: msg({ context: 'attention', message: 'new' }),
+  sinceLastVisit: msg`since your last visit`,
+  allClearText: msg`No job, fire or agent needs you now.`,
   moreItems: (count: number) => msg`+ ${count} more`,
 };
