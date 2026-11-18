@@ -200,16 +200,21 @@
           !option.fits && 'opacity-30',
         )}
         style="width: {option.width}px; height: {option.height}px"
+      ></div>
+    {/each}
+    {#each options as option (option.size)}
+      <span
+        data-slot={option.size === size ? 'resize-size' : 'resize-option-label'}
+        aria-hidden="true"
+        class={cn(
+          'pointer-events-none absolute z-40 -translate-x-full -translate-y-full rounded-md px-1.5 py-0.5 font-mono text-[10px] whitespace-nowrap shadow-sm',
+          option.size === size ? 'bg-primary text-primary-foreground' : 'border border-primary/30 bg-background/95 text-muted-foreground',
+          !option.fits && 'opacity-40',
+        )}
+        style="left: {option.width - 6}px; top: {option.height - 6}px"
       >
-        <span
-          class={cn(
-            'absolute right-1.5 bottom-1.5 rounded bg-background/90 px-1.5 py-0.5 font-mono text-[10px] whitespace-nowrap',
-            option.size === size ? 'text-primary' : 'text-muted-foreground',
-          )}
-        >
-          {cellsText(option.size)} · {sizeLabel(option.size)}
-        </span>
-      </div>
+        {cellsText(option.size)} · {sizeLabel(option.size)}
+      </span>
     {/each}
     <div
       data-slot="resize-outline"
@@ -217,12 +222,6 @@
       class="pointer-events-none absolute top-0 left-0 z-30 rounded-2xl border-2 border-dashed border-primary bg-primary/5"
       style="width: {resizing.drawn.width}px; height: {resizing.drawn.height}px"
     ></div>
-    <span
-      data-slot="resize-size"
-      class="pointer-events-none absolute -right-2 -bottom-9 z-20 rounded-md bg-foreground px-2 py-1 font-mono text-[11px] whitespace-nowrap text-background shadow"
-    >
-      {cellsText(size)} · {sizeLabel(size)}
-    </span>
   {/if}
 
   {#if selected}
