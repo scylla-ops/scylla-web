@@ -470,6 +470,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A long line of a job log wraps in the log panel, so the log no longer scrolls sideways. A wrapped
   line keeps one line number and its spaces, and a finished log opens on the last row of its last
   line.
+- The agents show "Update needed" or "Incompatible" from the agent protocol, not only from the
+  version. The machine card shows the protocol, the features, the missing features and the update
+  command. A job that waits for an agent with checkout names the online agents that cannot get its
+  code, with a link to each one.
 - The list of pipelines shows up to 30 jobs of each pipeline as bars, as many as the History column
   can hold, in place of 5. The height of a bar shows the duration of its job. A click on a bar opens
   the job. The Last Run column is removed. The pipeline name shows the last run, and its notes are
