@@ -49,7 +49,7 @@
 {:else if item.data === 'run-duration'}
   <RunDurationWidget {widgets} {period} {size} />
 {:else if item.data === 'activity'}
-  <ActivityWidget {widgets} {period} {size} />
+  <ActivityWidget {widgets} {size} timeZone={period.timeZone ?? 'UTC'} />
 {:else if item.data === 'schedules'}
   <SchedulesWidget {widgets} {size} timeZone={period.timeZone ?? 'UTC'} />
 {:else if item.data === 'quick-actions'}

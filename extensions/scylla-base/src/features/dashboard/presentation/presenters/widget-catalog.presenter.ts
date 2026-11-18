@@ -86,7 +86,7 @@ export const DATA: Readonly<Record<WidgetData, DataEntry>> = {
   'right-now': { data: 'right-now', kind: 'status-band', title: m.rightNow, hint: m.rightNowHint, sizes: ['m', 'xs', 's', 'l'] },
   agents: { data: 'agents', kind: 'capacity', title: m.agents, hint: m.agentsHint, sizes: ['s', 'xs', 'm', 'l'] },
   pipelines: { data: 'pipelines', kind: 'health', title: m.pipelines, hint: m.pipelinesHint, sizes: ['m', 'l', 's', 'xs'] },
-  activity: { data: 'activity', kind: 'activity', title: m.jobEnds, hint: m.jobEndsHint, sizes: ['m', 'l'] },
+  activity: { data: 'activity', kind: 'activity', title: m.activity, hint: m.activityText, sizes: ['m', 'l', 's', 'xs'] },
   schedules: { data: 'schedules', kind: 'triggers', title: scheduleMessages.title, hint: scheduleMessages.catalogHint, sizes: ['m', 'xs', 's', 'l'] },
   'quick-actions': { data: 'quick-actions', kind: 'quick-actions', title: m.actions, hint: m.actionsHint, sizes: ['m'] },
 };

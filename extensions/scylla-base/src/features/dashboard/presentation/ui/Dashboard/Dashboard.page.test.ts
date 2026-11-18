@@ -160,6 +160,7 @@ beforeEach(() => {
       dashboardPreferences: new LocalDashboardPreferences(() => storage),
       attentionRepository: { list: listAttention },
       schedulesRepository: { list: vi.fn().mockResolvedValue({ triggers: [], fires: [] }) },
+      activityRepository: { list: vi.fn().mockResolvedValue({ events: [], sinceCount: 0 }) },
       slotUsageRepository: {
         lastDay: vi.fn().mockResolvedValue({ capacity: 0, average: 0, peak: 0, buckets: [] }),
       },

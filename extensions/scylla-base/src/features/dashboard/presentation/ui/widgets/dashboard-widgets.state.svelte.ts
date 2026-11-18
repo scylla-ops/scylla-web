@@ -9,6 +9,7 @@ import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { attentionQueries, visitSince } from '@base/features/dashboard/presentation/attention.queries.ts';
 import { slotUsageQueries } from '@base/features/dashboard/presentation/slot-usage.queries.ts';
 import { schedulesQueries } from '@base/features/dashboard/presentation/schedules.queries.ts';
+import { activityQueries } from '@base/features/dashboard/presentation/activity.queries.ts';
 import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
 import type { PeriodRange } from '@base/features/dashboard/presentation/presenters/period.presenter.ts';
 import { pipelinesById } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
@@ -107,6 +108,10 @@ export const createDashboardWidgets = (
   const since = $derived(workspaceId ? visitSince(workspaceId) : null);
   const attention = createQuery(() => attentionQueries.list(workspaceId, projectId(), since));
   const schedules = createQuery(() => schedulesQueries.list(workspaceId, projectId(), since, canReadPipelines));
+  const activityFeed = createQuery(() => activityQueries.feed(workspaceId, since));
+  const activityLocked = $derived(
+    activityFeed.isError && ScyllaError.from(activityFeed.error).code === 'PERMISSION_DENIED',
+  );
   const schedulesLocked = $derived(
     schedules.isError && ScyllaError.from(schedules.error).code === 'PERMISSION_DENIED',
   );
@@ -159,6 +164,11 @@ export const createDashboardWidgets = (
     ended,
     day,
     agents,
+    /** The activity feed of the workspace (ActivityService.ListActivity). */
+    activityFeed,
+    get activityLocked() {
+      return activityLocked;
+    },
     /** The cron triggers, their next fires and their last fires. */
     schedules,
     get schedulesLocked() {
