@@ -8,6 +8,7 @@ import {
   NodeStatus,
   type Job,
   type NodeRun,
+  UnfitReason,
 } from '@base/generated/scylla/pipelines/v1/job.ts';
 import type { Node } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 import {
@@ -52,6 +53,7 @@ const baseJob = (overrides: Partial<Job> = {}): Job => ({
   createdAt: TS,
   fileErrors: [],
   waitingReason: '',
+  unfitAgents: [],
   origin: JobOrigin.UNSPECIFIED,
   ...overrides,
 });
@@ -263,6 +265,26 @@ describe('grpcJob.toDomain', () => {
       expect(
         grpcJob.toDomain(baseJob({ waitingReason: 'NO_AGENT_WITH_CHECKOUT' })).waitingReason,
       ).toBe('NO_AGENT_WITH_CHECKOUT');
+    });
+
+    it('names the online agents that cannot get the code, and why', () => {
+      const domain = grpcJob.toDomain(
+        baseJob({
+          waitingReason: 'NO_AGENT_WITH_CHECKOUT',
+          unfitAgents: [
+            { id: { value: 'a-1' }, name: 'old', version: '0.7.0-rc.1', reason: UnfitReason.UPDATE_AGENT },
+            { id: { value: 'a-2' }, name: 'no-git', version: '0.7.0', reason: UnfitReason.INSTALL_GIT },
+            { id: { value: 'a-3' }, name: 'next', version: '0.8.0', reason: 99 as UnfitReason },
+          ],
+        }),
+      );
+
+      expect(domain.unfitAgents).toEqual([
+        { id: 'a-1', name: 'old', version: '0.7.0-rc.1', reason: 'update-agent' },
+        { id: 'a-2', name: 'no-git', version: '0.7.0', reason: 'install-git' },
+        { id: 'a-3', name: 'next', version: '0.8.0', reason: 'unknown' },
+      ]);
+      expect(grpcJob.toDomain(baseJob()).unfitAgents).toBeUndefined();
     });
   });
 

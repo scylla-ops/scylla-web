@@ -8,6 +8,7 @@ import {
   installCommands,
   isLoopback,
   LOG_COMMANDS,
+  releaseOf,
   releaseUrl,
   secondsLeft,
   uninstallCommand,
@@ -147,6 +148,23 @@ describe('releaseUrl', () => {
   it('goes to the release of the version, or to all releases with no version', () => {
     expect(releaseUrl('0.7.0')).toBe('https://github.com/scylla-ops/scylla-ce/releases/tag/v0.7.0');
     expect(releaseUrl(undefined)).toBe('https://github.com/scylla-ops/scylla-ce/releases');
+  });
+
+  it('goes to the release of a build that is not a release', () => {
+    expect(releaseUrl('0.7.0-rc.1+240da00')).toBe(
+      'https://github.com/scylla-ops/scylla-ce/releases/tag/v0.7.0-rc.1',
+    );
+    expect(releaseUrl('0.7.0-rc.1+dev')).toBe(
+      'https://github.com/scylla-ops/scylla-ce/releases/tag/v0.7.0-rc.1',
+    );
+  });
+});
+
+describe('releaseOf', () => {
+  it('removes the build metadata, and keeps a release version', () => {
+    expect(releaseOf('0.7.0-rc.1+240da00')).toBe('0.7.0-rc.1');
+    expect(releaseOf('0.7.0-rc.1+dev')).toBe('0.7.0-rc.1');
+    expect(releaseOf('0.7.0-rc.1')).toBe('0.7.0-rc.1');
   });
 });
 

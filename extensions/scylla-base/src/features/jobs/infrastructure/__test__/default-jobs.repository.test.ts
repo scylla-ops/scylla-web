@@ -46,6 +46,7 @@ const job = (id: string, seconds: number): Job => ({
   createdAt: { seconds: BigInt(seconds), nanos: 0 },
   fileErrors: [],
   waitingReason: '',
+  unfitAgents: [],
   origin: JobOrigin.UNSPECIFIED,
 });
 

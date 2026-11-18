@@ -1,4 +1,5 @@
 import {
+  AgentCompatibility as GrpcAgentCompatibility,
   type App,
   type AppKey,
   type CiIdentity,
@@ -11,6 +12,7 @@ import type { Duration } from '@base/generated/google/protobuf/duration.ts';
 import type { Timestamp } from '@base/generated/google/protobuf/timestamp.ts';
 import { type Job, JobStatus as GrpcJobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';
 import type {
+  AgentCompatibility,
   AppEntity,
   AppHost,
   AppJob,
@@ -47,8 +49,18 @@ function hostToDomain(host: Host | undefined): AppHost | null {
     totalMemoryMb: host.memoryBytes ? Math.round(Number(host.memoryBytes) / MB) : null,
     capacity: host.capacity,
     containerRuntime: host.containerRuntime,
+    protocol: host.protocol,
+    build: host.build,
+    features: [...host.features],
   };
 }
+
+/** UNSPECIFIED or a value newer than this build: `unknown`. */
+const COMPATIBILITY: Partial<Record<GrpcAgentCompatibility, AgentCompatibility>> = {
+  [GrpcAgentCompatibility.COMPATIBLE]: 'compatible',
+  [GrpcAgentCompatibility.OUTDATED]: 'outdated',
+  [GrpcAgentCompatibility.UNSUPPORTED]: 'unsupported',
+};
 
 export function toDomain(app: App): AppEntity {
   return {
@@ -63,6 +75,8 @@ export function toDomain(app: App): AppEntity {
     createdAt: timestampToIso(app.createdAt),
     runningJobs: app.runningJobs,
     disabledAt: timestampToIso(app.disabledAt),
+    compatibility: COMPATIBILITY[app.compatibility] ?? 'unknown',
+    missingFeatures: [...app.missingFeatures],
   };
 }
 

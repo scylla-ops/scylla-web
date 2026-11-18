@@ -24,7 +24,34 @@ export interface AppEntity {
   runningJobs: number;
   /** Empty while the app is enabled. A disabled app gets no token and no job. */
   disabledAt: string;
+  /** How the agent fits the server, from the protocol of its last hello. */
+  compatibility: AgentCompatibility;
+  /** The features that the server can need and that the agent does not tell, e.g. `checkout`. */
+  missingFeatures: string[];
 }
+
+/**
+ * `outdated`: the agent connects and gets only the jobs that it can run. `unsupported`: the
+ * server refuses it. `unknown`: not an agent, no hello yet, or a value newer than this build.
+ */
+export type AgentCompatibility = 'compatible' | 'outdated' | 'unsupported' | 'unknown';
+
+/** The first agent protocol that gets the code of a job. */
+export const CHECKOUT_PROTOCOL = 2;
+
+/** The agent must be updated to run each job of the server. */
+export const needsUpdate = (app: Pick<AppEntity, 'compatibility'>): boolean =>
+  app.compatibility === 'outdated' || app.compatibility === 'unsupported';
+
+/**
+ * What gives a missing feature to the agent: a new agent, or, for `checkout` on an agent with
+ * the protocol, git on its machine.
+ */
+export const featureFixOf = (
+  host: Pick<AppHost, 'protocol'>,
+  feature: string,
+): 'update-agent' | 'install-git' =>
+  feature === 'checkout' && host.protocol >= CHECKOUT_PROTOCOL ? 'install-git' : 'update-agent';
 
 export interface AppHost {
   version: string;
@@ -38,6 +65,12 @@ export interface AppHost {
   capacity: number;
   /** `docker` or `podman`, or empty: then the nodes with a container do not go to it. */
   containerRuntime: string;
+  /** The protocol level of the agent, separate from its version. 0 for an agent before it. */
+  protocol: number;
+  /** The commit of the build of the agent. Empty when the build has none. */
+  build: string;
+  /** What the agent can do, e.g. `checkout`. */
+  features: string[];
 }
 
 /** A public key of an app. A revoked key signs nothing any more. */

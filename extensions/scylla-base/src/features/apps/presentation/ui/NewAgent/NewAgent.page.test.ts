@@ -31,12 +31,17 @@ const app = (connected: boolean, patch: Partial<AppEntity> = {}): AppEntity => (
         totalMemoryMb: 16384,
         capacity: 2,
         containerRuntime: 'docker',
+        protocol: 2,
+        build: '',
+        features: ['checkout'],
       }
     : null,
   createdBy: 'u-1',
   createdAt: '2026-01-01T00:00:00.000Z',
   runningJobs: 0,
   disabledAt: '',
+  compatibility: connected ? 'compatible' : 'unknown',
+  missingFeatures: [],
   ...patch,
 });
 

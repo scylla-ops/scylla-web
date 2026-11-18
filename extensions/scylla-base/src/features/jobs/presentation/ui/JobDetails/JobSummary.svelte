@@ -26,6 +26,7 @@
   import JobApprovalBlock from './JobApprovalBlock.svelte';
   import JobReportsBand from './JobReportsBand.svelte';
   import JobSourceFacts from './JobSourceFacts.svelte';
+  import UnfitAgentsAlert from './UnfitAgentsAlert.svelte';
 
   interface Props {
     job: JobEntity;
@@ -148,6 +149,15 @@
       {onApprove}
       {onReject}
       deciding={isDeciding}
+    />
+  {/if}
+
+  {#if job.status === 'pending' && job.unfitAgents}
+    <UnfitAgentsAlert
+      agents={job.unfitAgents}
+      agentHref={canOpenAgent
+        ? (id: string) => `/${activeWorkspaceSlug() ?? ''}/agents/${id}`
+        : undefined}
     />
   {/if}
 

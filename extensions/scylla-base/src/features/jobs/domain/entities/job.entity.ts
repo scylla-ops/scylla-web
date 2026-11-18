@@ -26,6 +26,19 @@ export interface JobEntity {
   checkout?: JobCheckout;
   /** Why a pending job waits, as a stable code: `NO_AGENT_WITH_CHECKOUT`. */
   waitingReason?: string;
+  /** With `NO_AGENT_WITH_CHECKOUT`: the online agents that cannot get the code. Unset if none. */
+  unfitAgents?: UnfitAgent[];
+}
+
+/**
+ * An online agent that cannot run a pending job. `update-agent`: its protocol is too old.
+ * `install-git`: git does not run on its machine. `unknown`: a reason newer than this build.
+ */
+export interface UnfitAgent {
+  id: string;
+  name: string;
+  version: string;
+  reason: 'update-agent' | 'install-git' | 'unknown';
 }
 
 export type GitProvider = 'github' | 'gitlab';
