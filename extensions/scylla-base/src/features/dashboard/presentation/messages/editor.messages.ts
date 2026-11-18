@@ -14,9 +14,10 @@ export const editorMessages = {
   undo: msg`Undo the last change`,
   cancel: msg`Cancel`,
   saveLayout: msg`Save layout`,
-  saveShort: msg`Save`,
-  editShort: msg`Edit`,
-  newShort: msg`New`,
+  /** The short labels of a narrow panel: a context of their own keeps them apart from the same words elsewhere. */
+  saveShort: msg({ context: 'dashboard panel', message: 'Save' }),
+  editShort: msg({ context: 'dashboard panel', message: 'Edit' }),
+  newShort: msg({ context: 'dashboard panel', message: 'New' }),
   /** Takes the widget out of the draft: the saved layout keeps it until Save layout. */
   takeOut: (title: string) => msg`Remove ${title}`,
   move: (title: string) => msg`Move ${title}`,
