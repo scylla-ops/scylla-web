@@ -77,7 +77,7 @@
   {/if}
 {/snippet}
 
-<div class="flex w-full flex-col" data-editing={editing || undefined}>
+<div class="flex w-full flex-col pb-12" data-editing={editing || undefined}>
   <h1 class="sr-only">{t(dashboardMessages.dashboard)}</h1>
 
   {#if dashboard}
