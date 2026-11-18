@@ -22,7 +22,7 @@
   onDestroy(dashboardView.attach(period));
 </script>
 
-<div class="flex w-full flex-col">
+<div class="flex w-full flex-col pb-12">
   <h1 class="sr-only">{t(dashboardMessages.dashboard)}</h1>
   <WidgetGrid aria-label={t(dashboardMessages.dashboard)}>
     <SentenceWidget {widgets} {period} size="l" />
