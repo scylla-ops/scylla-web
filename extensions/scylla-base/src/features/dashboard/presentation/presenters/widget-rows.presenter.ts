@@ -34,6 +34,11 @@ export interface RunningRow extends JobPlace {
   progress: number | null;
   /** "2× the median", when the job runs longer than the median. */
   overrun: string | null;
+  agentId?: string;
+  /** The node that runs now. */
+  step?: string;
+  attempt?: number;
+  maxAttempts?: number;
 }
 
 export interface WaitingRow extends JobPlace {
@@ -138,8 +143,13 @@ export const liveJobs = (
       const elapsed = secondsBetween(job.startedAt ?? job.createdAt, now);
       const median = pipelines.get(job.pipelineId)?.medianDuration ?? null;
       const factor = median ? elapsed / median : null;
+      const node = job.nodeExecutions.find(item => item.state === 'running') ?? job.nodeExecutions.at(-1);
       return {
         ...placeOf(job, pipelines),
+        agentId: job.agentId,
+        step: node?.id,
+        attempt: node?.attempts,
+        maxAttempts: node?.maxAttempts,
         elapsed: durationText(elapsed),
         expected: median === null ? null : durationText(median),
         progress: factor === null ? null : Math.min(1, factor),

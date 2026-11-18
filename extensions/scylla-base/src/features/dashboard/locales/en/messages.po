@@ -277,6 +277,11 @@ msgstr "add widgets yourself"
 msgid "agent"
 msgstr "agent"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:13
+msgctxt "live"
+msgid "agent"
+msgstr "agent"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:31
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:70
 msgid "Agent"
@@ -344,6 +349,21 @@ msgctxt "attention"
 msgid "approval"
 msgstr "approval"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:14
+msgctxt "live"
+msgid "approval"
+msgstr "approval"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:17
+msgctxt "live"
+msgid "attempt {attempt}"
+msgstr "attempt {attempt}"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:18
+msgctxt "live"
+msgid "attempt {attempt} of {max}"
+msgstr "attempt {attempt} of {max}"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:44
 msgid "Back"
 msgstr "Back"
@@ -365,6 +385,11 @@ msgid "Calm · needs you"
 msgstr "Calm · needs you"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:15
+msgid "Cancel"
+msgstr "Cancel"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:19
+msgctxt "live"
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -511,6 +536,16 @@ msgstr "Edit dashboard"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:54
 msgid "elapsed · median"
 msgstr "elapsed · median"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:10
+msgctxt "live"
+msgid "elapsed · median"
+msgstr "elapsed · median"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:11
+msgctxt "live"
+msgid "elapsed · median of the pipeline"
+msgstr "elapsed · median of the pipeline"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:10
 msgid "Events on a time axis"
@@ -661,6 +696,11 @@ msgstr "List"
 msgid "live"
 msgstr "live"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:5
+msgctxt "live"
+msgid "live"
+msgstr "live"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:16
 msgid "Live counters"
 msgstr "Live counters"
@@ -801,9 +841,19 @@ msgstr "nothing runs"
 msgid "Nothing runs"
 msgstr "Nothing runs"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:21
+msgctxt "live"
+msgid "Nothing runs now."
+msgstr "Nothing runs now."
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:30
 msgid "nothing waits"
 msgstr "nothing waits"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:22
+msgctxt "live"
+msgid "Nothing waits."
+msgstr "Nothing waits."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:16
 msgid "now"
@@ -1000,6 +1050,11 @@ msgstr "Retry"
 msgid "Review"
 msgstr "Review"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:20
+msgctxt "live"
+msgid "Review"
+msgstr "Review"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:54
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:8
 msgid "Right now"
@@ -1023,7 +1078,17 @@ msgstr "Run pipeline"
 msgid "run, add an agent, invite"
 msgstr "run, add an agent, invite"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:6
+msgctxt "live"
+msgid "running"
+msgstr "running"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:52
+msgid "Running · {count}"
+msgstr "Running · {count}"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:8
+msgctxt "live"
 msgid "Running · {count}"
 msgstr "Running · {count}"
 
@@ -1292,13 +1357,38 @@ msgstr "Units that fill up"
 msgid "vs the previous period"
 msgstr "vs the previous period"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:7
+msgctxt "live"
+msgid "waiting"
+msgstr "waiting"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:53
+msgid "Waiting · {count}"
+msgstr "Waiting · {count}"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:9
+msgctxt "live"
 msgid "Waiting · {count}"
 msgstr "Waiting · {count}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:55
 msgid "waits"
 msgstr "waits"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:12
+msgctxt "live"
+msgid "waits"
+msgstr "waits"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:15
+msgctxt "live"
+msgid "waits for a free agent"
+msgstr "waits for a free agent"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:16
+msgctxt "live"
+msgid "waits for an approval"
+msgstr "waits for an approval"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:47
 msgid "Waits for an approval · {when}"

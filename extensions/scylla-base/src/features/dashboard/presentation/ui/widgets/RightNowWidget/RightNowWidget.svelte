@@ -1,15 +1,18 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import RadioIcon from '@lucide/svelte/icons/radio';
-  import { ChartDot, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
+  import ActivityIcon from '@lucide/svelte/icons/activity';
+  import { ChartDot, ChartSegment, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { cn } from '@scylla/ui/utils';
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
-  import { viewMessages as messages } from '@base/features/dashboard/presentation/messages/widgets-view.messages.ts';
-  import { liveJobs } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
-  import { capacityOf } from '@base/features/dashboard/presentation/presenters/view-figures.presenter.ts';
+  import { liveMessages as messages } from '@base/features/dashboard/presentation/messages/live.messages.ts';
+  import {
+    liveJobs,
+    type RunningRow,
+    type WaitingRow,
+  } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import LiveWaitingActions from './LiveWaitingActions.svelte';
 
   interface Props {
     widgets: DashboardWidgets;
@@ -21,29 +24,78 @@
 
   let { widgets, size = 'm', editing, now = Date.now }: Props = $props();
 
-  const DOTS = 3;
+  const ROWS: Readonly<Record<WidgetSize, number>> = { xs: 0, s: 4, m: 3, l: 3 };
 
+  const agentNames = $derived(new Map((widgets.agents.data ?? []).map(agent => [agent.id, agent.name])));
   const live = $derived(liveJobs(widgets.liveJobs, widgets.pipelines, now()));
-  const capacity = $derived(capacityOf(widgets.agents.data ?? []));
-  const names = $derived([...new Set(live.running.map(row => row.pipelineName))].join(' · '));
-  const dots = (count: number) => Math.min(count, DOTS);
+  const running = $derived(live.running.slice(0, ROWS[size]));
+  const waiting = $derived(live.waiting.slice(0, ROWS[size]));
+  const firstJobs = $derived([...live.running, ...live.waiting].slice(0, ROWS.s));
+
+  const times = (row: RunningRow) =>
+    row.overrun ? `${row.elapsed} · ${row.overrun}` : row.expected ? `${row.elapsed} · ~${row.expected}` : row.elapsed;
+
+  const detail = (row: RunningRow) =>
+    [
+      row.agentId ? agentNames.get(row.agentId) : undefined,
+      row.step,
+      row.attempt
+        ? row.maxAttempts && row.maxAttempts > 1
+          ? t(messages.attemptOf(row.attempt, row.maxAttempts))
+          : t(messages.attempt(row.attempt))
+        : undefined,
+    ]
+      .filter(Boolean)
+      .join(' · ');
+
+  const isRunning = (row: RunningRow | WaitingRow): row is RunningRow => 'elapsed' in row;
 </script>
 
-{#snippet marks(count: number, kind: 'running' | 'waiting' | 'online')}
-  <div data-part="status-marks" aria-hidden="true" class="flex h-2 items-center gap-1">
-    {#each { length: Math.max(1, dots(count)) } as _, index (index)}
-      {#if kind === 'waiting'}
-        <span class={cn('size-2 rounded-full border', count > 0 ? 'border-foreground/60' : 'border-muted-foreground/40')}></span>
-      {:else if count > 0}
-        <ChartDot tone={kind === 'running' ? 'running' : 'passed'} />
-      {:else}
-        <span class="size-2 rounded-full bg-muted-foreground/30"></span>
-      {/if}
-    {/each}
+{#snippet counts()}
+  <div class="flex h-7 items-center gap-4">
+    <span class="flex items-center gap-1.5">
+      <ChartDot tone="running" />
+      <span class="font-display text-xl font-medium tabular-nums">{live.running.length}</span>
+      <span class="text-xs text-muted-foreground">{t(messages.running)}</span>
+    </span>
+    <span class="flex items-center gap-1.5">
+      <ChartDot tone="queued" />
+      <span class="font-display text-xl font-medium tabular-nums">{live.waiting.length}</span>
+      <span class="text-xs text-muted-foreground">{t(messages.waiting)}</span>
+    </span>
   </div>
 {/snippet}
 
-<Widget {size} {editing} bare={size === 'xs'} title={t(widgetMessages.rightNow)} icon={RadioIcon as LucideIcon}>
+{#snippet meter(row: RunningRow)}
+  {#if row.progress !== null}
+    <div class="flex h-1 w-full gap-0.5" aria-hidden="true">
+      <ChartSegment tone="running" class="h-full rounded-full" style="flex: {row.progress} 1 0" />
+      {#if row.progress < 1}
+        <ChartSegment tone="muted" class="h-full rounded-full" style="flex: {1 - row.progress} 1 0" />
+      {/if}
+    </div>
+  {/if}
+{/snippet}
+
+{#snippet section(label: string, hint: string)}
+  <p class="flex items-center gap-2 text-xs text-muted-foreground">
+    <span>{label}</span>
+    <span class="ml-auto truncate">{hint}</span>
+  </p>
+{/snippet}
+
+{#snippet aside()}
+  <span>{t(messages.live)}</span>
+{/snippet}
+
+<Widget
+  {size}
+  {editing}
+  title={t(widgetMessages.rightNow)}
+  icon={ActivityIcon as LucideIcon}
+  meta={size === 'xs' ? undefined : t(messages.live)}
+  aside={size === 'xs' ? aside : undefined}
+>
   <WidgetBody
     {size}
     locked={!widgets.canReadJobs}
@@ -52,37 +104,104 @@
     onRetry={() => void widgets.live.refetch()}
   >
     {#if size === 'xs'}
-      <div class="flex min-w-0 items-center gap-4">
-        {@render marks(live.running.length, 'running')}
-        <div class="min-w-0">
-          <p class="text-sm font-medium">{t(messages.running(live.running.length))}</p>
-          <p class="truncate text-xs text-muted-foreground">
-            {t(messages.waiting(live.waiting.length))}
-          </p>
+      <div data-part="right-now">{@render counts()}</div>
+    {:else if size === 's'}
+      <div data-part="right-now" class="flex min-h-0 flex-col gap-2">
+        {@render counts()}
+        <ul class="flex flex-col gap-1.5">
+          {#each firstJobs as row (row.jobId)}
+            <li class="flex h-5 min-w-0 items-center gap-1.5">
+              <ChartDot tone={isRunning(row) ? 'running' : 'queued'} />
+              <span class="truncate text-sm font-medium">{row.pipelineName}</span>
+              <span class="ml-auto shrink-0 pl-2 text-xs text-muted-foreground tabular-nums">
+                {isRunning(row) ? row.elapsed : row.waited}
+              </span>
+            </li>
+          {:else}
+            <li class="text-xs text-muted-foreground">{t(messages.nothingRuns)}</li>
+          {/each}
+        </ul>
+      </div>
+    {:else if size === 'm'}
+      <div data-part="right-now" class="flex min-h-0 flex-1 gap-4">
+        <div class="flex min-w-0 flex-1 flex-col gap-2">
+          {@render section(t(messages.runningSection(live.running.length)), t(messages.elapsedMedian))}
+          <ul class="flex flex-col gap-2">
+            {#each running as row (row.jobId)}
+              <li class="flex flex-col gap-1">
+                <p class="flex h-5 min-w-0 items-center gap-1.5">
+                  <ChartDot tone="running" />
+                  <span class="truncate text-sm font-medium">{row.pipelineName}</span>
+                  <span class="ml-auto shrink-0 pl-2 text-xs text-muted-foreground tabular-nums">{times(row)}</span>
+                </p>
+                {@render meter(row)}
+              </li>
+            {:else}
+              <li class="text-xs text-muted-foreground">{t(messages.nothingRuns)}</li>
+            {/each}
+          </ul>
+        </div>
+        <span class="w-px self-stretch bg-border" aria-hidden="true"></span>
+        <div class="flex min-w-0 flex-1 flex-col gap-2">
+          {@render section(t(messages.waitingSection(live.waiting.length)), t(messages.waits))}
+          <ul class="flex flex-col gap-2">
+            {#each waiting as row (row.jobId)}
+              <li class="flex h-5 min-w-0 items-center gap-1.5">
+                <ChartDot tone="queued" />
+                <span class="truncate text-sm font-medium">{row.pipelineName}</span>
+                <span class="shrink-0 text-xs text-muted-foreground">
+                  {t(row.reason === 'approval' ? messages.reasonApproval : messages.reasonAgent)}
+                </span>
+                <span class="ml-auto shrink-0 pl-2 text-xs text-muted-foreground tabular-nums">{row.waited}</span>
+              </li>
+            {:else}
+              <li class="text-xs text-muted-foreground">{t(messages.nothingWaits)}</li>
+            {/each}
+          </ul>
         </div>
       </div>
     {:else}
-      <div data-part="status-band" class="mt-auto mb-auto grid grid-cols-3">
-        <div class="flex min-w-0 flex-col gap-2 pr-4">
-          {@render marks(live.running.length, 'running')}
-          <p class="text-2xl font-medium tracking-tight">{t(messages.running(live.running.length))}</p>
-          <p class="truncate text-xs text-muted-foreground">{names || t(messages.nothingRuns)}</p>
+      <div data-part="right-now" class="flex min-h-0 flex-1 flex-col gap-4">
+        <div class="flex flex-col gap-3">
+          {@render section(t(messages.runningSection(live.running.length)), t(messages.elapsedMedianLong))}
+          <ul class="flex flex-col gap-3">
+            {#each running as row (row.jobId)}
+              <li class="flex flex-col gap-1">
+                <p class="flex h-5 min-w-0 items-center gap-1.5">
+                  <ChartDot tone="running" />
+                  <span class="truncate text-sm font-medium">{row.pipelineName}</span>
+                  <span class="shrink-0 text-xs text-muted-foreground">{row.projectName}</span>
+                  <span class="ml-auto shrink-0 pl-2 text-xs text-muted-foreground tabular-nums">{times(row)}</span>
+                </p>
+                <p class="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                  <span class="shrink-0 font-mono">{row.shortId}</span>
+                  <span class="truncate">{detail(row)}</span>
+                </p>
+                {@render meter(row)}
+              </li>
+            {:else}
+              <li class="text-xs text-muted-foreground">{t(messages.nothingRuns)}</li>
+            {/each}
+          </ul>
         </div>
-        <div class="flex min-w-0 flex-col gap-2 border-l border-border px-4">
-          {@render marks(live.waiting.length, 'waiting')}
-          <p class="text-2xl font-medium tracking-tight">{t(messages.waiting(live.waiting.length))}</p>
-          <p class="truncate text-xs text-muted-foreground">
-            {live.waiting[0] ? t(messages.longest(live.waiting[0].waited)) : t(messages.nothingWaits)}
-          </p>
-        </div>
-        <div class="flex min-w-0 flex-col gap-2 border-l border-border pl-4">
-          {@render marks(capacity.online, 'online')}
-          <p class="text-2xl font-medium tracking-tight">
-            {capacity.total > 0 ? t(messages.agentsOf(capacity.online, capacity.total)) : t(messages.noAgent)}
-          </p>
-          <p class="truncate text-xs text-muted-foreground">
-            {capacity.offline ? t(messages.offline(capacity.offline)) : t(messages.allOnline)}
-          </p>
+        <div class="flex flex-col gap-2">
+          {@render section(t(messages.waitingSection(live.waiting.length)), t(messages.waits))}
+          <ul class="flex flex-col gap-2">
+            {#each waiting as row (row.jobId)}
+              <li class="flex h-6 min-w-0 items-center gap-1.5">
+                <ChartDot tone="queued" />
+                <span class="truncate text-sm font-medium">{row.pipelineName}</span>
+                <span class="shrink-0 text-xs text-muted-foreground">{row.projectName}</span>
+                <span class="truncate text-xs text-muted-foreground">
+                  {t(row.reason === 'approval' ? messages.waitsForApproval : messages.waitsForAgent)}
+                </span>
+                <span class="ml-auto shrink-0 pl-2 text-xs text-muted-foreground tabular-nums">{row.waited}</span>
+                <LiveWaitingActions {row} />
+              </li>
+            {:else}
+              <li class="text-xs text-muted-foreground">{t(messages.nothingWaits)}</li>
+            {/each}
+          </ul>
         </div>
       </div>
     {/if}
