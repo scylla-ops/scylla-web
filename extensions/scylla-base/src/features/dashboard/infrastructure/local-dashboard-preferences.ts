@@ -4,6 +4,7 @@ import * as storedDashboards from './stored-dashboards.mapper.ts';
 
 const legacyKey = (workspaceId: string) => `dashboards:${workspaceId}`;
 const defaultKey = (workspaceId: string) => `dashboards-default:${workspaceId}`;
+const visitKey = (workspaceId: string) => `dashboards-visit:${workspaceId}`;
 
 type PreferenceStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
@@ -25,5 +26,13 @@ export class LocalDashboardPreferences implements DashboardPreferences {
 
   public forgetLegacy(workspaceId: string): void {
     this.storage().removeItem(legacyKey(workspaceId));
+  }
+
+  public lastVisit(workspaceId: string): string | null {
+    return this.storage().getItem(visitKey(workspaceId));
+  }
+
+  public setLastVisit(workspaceId: string, at: string): void {
+    this.storage().setItem(visitKey(workspaceId), at);
   }
 }

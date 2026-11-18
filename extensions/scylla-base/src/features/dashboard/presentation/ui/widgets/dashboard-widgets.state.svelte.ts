@@ -5,6 +5,8 @@ import { toRune } from '@scylla/ui/stores';
 import { appQueries } from '@base/features/apps';
 import { jobQueries, type JobEntity, type PeriodScope } from '@base/features/jobs';
 import { pipelineQueries } from '@base/features/pipeline';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import { attentionQueries, visitSince } from '@base/features/dashboard/presentation/attention.queries.ts';
 import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
 import type { PeriodRange } from '@base/features/dashboard/presentation/presenters/period.presenter.ts';
 import { pipelinesById } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
@@ -81,6 +83,11 @@ export const createDashboardWidgets = (
     ),
   );
   const agents = createQuery(() => appQueries.runners(workspaceId ?? ''));
+  const since = $derived(workspaceId ? visitSince(workspaceId) : null);
+  const attention = createQuery(() => attentionQueries.list(workspaceId, projectId(), since));
+  const attentionLocked = $derived(
+    attention.isError && ScyllaError.from(attention.error).code === 'PERMISSION_DENIED',
+  );
 
   const allPipelines = $derived(pipelinesById(summaries.data?.items ?? []));
   const inScope = (pipelineId: string) => {
@@ -110,6 +117,11 @@ export const createDashboardWidgets = (
     },
     stats,
     summaries,
+    /** The items of "Needs you" (ListAttentionItems), of the scope. */
+    attention,
+    get attentionLocked() {
+      return attentionLocked;
+    },
     live,
     ended,
     day,

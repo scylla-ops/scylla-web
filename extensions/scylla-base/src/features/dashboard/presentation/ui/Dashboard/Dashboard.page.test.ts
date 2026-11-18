@@ -62,6 +62,20 @@ let getWorkspaces: ReturnType<typeof vi.fn>;
 let getProjects: ReturnType<typeof vi.fn>;
 let stored: Map<string, string>;
 let server: MemoryDashboards;
+let listAttention: ReturnType<typeof vi.fn>;
+
+const attentionItem = (overrides: Record<string, unknown> = {}) => ({
+  kind: 'job-failed',
+  at: '2026-01-01T00:05:00.000Z',
+  isNew: true,
+  count: 1,
+  projectId: 'project-1',
+  projectName: 'Acme project',
+  pipelineId: 'pipeline-1',
+  pipelineName: 'deploy-web',
+  job: { id: 'job-0000failed', error: 'push-image: denied', branch: 'main', agentName: '', nodeId: 'push', nodeError: '' },
+  ...overrides,
+});
 
 /** DashboardService in memory: a stale version gives `ABORTED`, as the server does. */
 class MemoryDashboards implements DashboardLayoutRepository {
@@ -132,12 +146,19 @@ beforeEach(() => {
     removeItem: (key: string) => void stored.delete(key),
   };
   server = new MemoryDashboards();
+  listAttention = vi.fn().mockResolvedValue({
+    items: [attentionItem()],
+    openCount: 1,
+    newCount: 1,
+    counts: [{ kind: 'job-failed', open: 1 }],
+  });
 
   cache = withQueryClient();
   restoreRegistry = withRegistry({
     dashboard: {
       dashboardLayoutRepository: server,
       dashboardPreferences: new LocalDashboardPreferences(() => storage),
+      attentionRepository: { list: listAttention },
     },
     pipeline: {
       pipelineRepository: { getSummaries },
@@ -252,6 +273,58 @@ describe('DashboardPage', () => {
 
     await vi.waitFor(() =>
       expect(getStats).toHaveBeenLastCalledWith(expect.objectContaining({ projectIds: ['project-1'] })),
+    );
+  });
+});
+
+describe('Needs you', () => {
+  it('shows each kind of open item of the server, with the open and new counts', async () => {
+    listAttention.mockResolvedValue({
+      items: [
+        attentionItem(),
+        attentionItem({
+          kind: 'fire-missed',
+          isNew: false,
+          count: 3,
+          pipelineName: 'nightly-backup',
+          job: undefined,
+          fire: { id: 'fire-1', triggerId: 'trigger-1', triggerName: 'nightly', schedule: '0 2 * * *', error: '' },
+        }),
+        attentionItem({
+          kind: 'agent-offline',
+          projectId: '',
+          projectName: '',
+          pipelineId: '',
+          pipelineName: '',
+          job: undefined,
+          agent: { id: 'agent-1', name: 'runner-us-1', lastSeenAt: '2026-01-01T00:00:00.000Z' },
+        }),
+      ],
+      openCount: 5,
+      newCount: 1,
+      counts: [],
+    });
+    render(DashboardPage);
+
+    const widget = await screen.findByRole('region', { name: 'Needs you' });
+    expect(await within(widget).findByText('5 open · 1 new')).toBeInTheDocument();
+    expect(within(widget).getByText('push-image: denied')).toBeInTheDocument();
+    expect(within(widget).getByText('nightly-backup')).toBeInTheDocument();
+    expect(within(widget).getByText('The trigger nightly made no job.')).toBeInTheDocument();
+    expect(within(widget).getByText('· 3 times')).toBeInTheDocument();
+    expect(within(widget).getByText('runner-us-1')).toBeInTheDocument();
+    expect(screen.getByText('5 things')).toBeInTheDocument();
+  });
+
+  it('asks the items of the scope, since the last visit', async () => {
+    stored.set('dashboards-visit:org-1', '2026-01-01T00:00:00.000Z');
+    dashboardView.setProject('project-1');
+    render(DashboardPage);
+
+    await vi.waitFor(() =>
+      expect(listAttention).toHaveBeenCalledWith(
+        expect.objectContaining({ workspaceId: 'org-1', projectIds: ['project-1'] }),
+      ),
     );
   });
 });

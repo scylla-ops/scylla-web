@@ -5,13 +5,13 @@
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
+  import { shortJobId } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
+  import type {
+    AttentionItem,
+    AttentionKind,
+  } from '@base/features/dashboard/domain/structs/attention.struct.ts';
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
   import { viewMessages as messages } from '@base/features/dashboard/presentation/messages/widgets-view.messages.ts';
-  import {
-    attentionItems,
-    type AttentionItem,
-    type AttentionKind,
-  } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { openJob } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
@@ -26,34 +26,65 @@
   let { widgets, size = 'l', editing }: Props = $props();
 
   const TONES: Readonly<Record<AttentionKind, ChartTone>> = {
-    failed: 'failed',
-    orphaned: 'running',
-    approval: 'queued',
+    'job-failed': 'failed',
+    'job-orphaned': 'running',
+    'fire-failed': 'failed',
+    'fire-missed': 'warning',
+    'agent-offline': 'muted',
+    'approval-waiting': 'queued',
   };
 
-  const items = $derived(attentionItems(widgets.pipelineItems, widgets.liveJobs));
+  const list = $derived(widgets.attention.data);
+  const items = $derived(list?.items ?? []);
   const maxRows = $derived(size === 'l' ? 4 : size === 'm' ? 1 : 2);
   const shown = $derived(items.slice(0, maxRows));
-  const errors = $derived(
-    new Map([...widgets.endedJobs, ...widgets.liveJobs].map(job => [job.id, job.error])),
-  );
+  const more = $derived(Math.max(0, (list?.openCount ?? 0) - shown.length));
 
   const statusLine = (item: AttentionItem): string => {
     const when = getRelativeTime(item.at);
-    if (item.kind === 'failed') return t(messages.failedAt(when));
-    if (item.kind === 'orphaned') return t(messages.orphanedAt(when));
-    return t(messages.approvalSince(when));
+    switch (item.kind) {
+      case 'job-failed':
+        return t(messages.failedAt(when));
+      case 'job-orphaned':
+        return t(messages.orphanedAt(when));
+      case 'approval-waiting':
+        return t(messages.approvalSince(when));
+      case 'fire-failed':
+        return t(messages.fireFailedAt(when));
+      case 'fire-missed':
+        return t(messages.timeMissedAt(when));
+      case 'agent-offline':
+        return t(messages.agentOfflineAt(when));
+    }
   };
 
-  const reason = (item: AttentionItem): string =>
-    item.kind === 'approval'
-      ? t(messages.approvalText)
-      : errors.get(item.jobId) || t(messages.jobOf(item.shortId));
+  const title = (item: AttentionItem): string => item.agent?.name || item.pipelineName;
+
+  const reason = (item: AttentionItem): string => {
+    if (item.job) {
+      const error = item.job.nodeError || item.job.error;
+      if (item.kind === 'approval-waiting') return t(messages.approvalText);
+      return error || t(messages.jobOf(shortJobId(item.job.id)));
+    }
+    if (item.fire) return item.fire.error || t(messages.fireOf(item.fire.triggerName));
+    return t(messages.agentAway);
+  };
+
+  const place = (item: AttentionItem) => ({
+    jobId: item.job?.id ?? '',
+    shortId: shortJobId(item.job?.id ?? ''),
+    pipelineId: item.pipelineId,
+    pipelineName: item.pipelineName,
+    projectId: item.projectId,
+    projectName: item.projectName,
+  });
 </script>
 
 {#snippet aside()}
-  {#if items.length > 0}
-    <span class="font-medium text-foreground tabular-nums">{items.length}</span>
+  {#if list && list.openCount > 0}
+    <span class="font-medium text-foreground tabular-nums">
+      {t(messages.openAndNew(list.openCount, list.newCount))}
+    </span>
   {/if}
 {/snippet}
 
@@ -62,42 +93,44 @@
   {editing}
   title={t(widgetMessages.needsYou)}
   icon={InboxIcon as LucideIcon}
-  meta={t(widgetMessages.openNow)}
+  meta={t(messages.sinceLastVisit)}
   {aside}
 >
   <WidgetBody
     {size}
-    locked={!widgets.canReadPipelines || !widgets.canReadJobs}
-    loading={widgets.summaries.isPending || widgets.live.isPending}
-    error={widgets.summaries.isError || widgets.live.isError}
-    onRetry={() => void widgets.summaries.refetch()}
+    locked={widgets.attentionLocked}
+    loading={widgets.attention.isPending && !widgets.attentionLocked}
+    error={widgets.attention.isError && !widgets.attentionLocked}
+    onRetry={() => void widgets.attention.refetch()}
     empty={items.length === 0}
     emptyKind="all-clear"
     emptyTitle={t(widgetMessages.allClear)}
-    emptyText={t(widgetMessages.allClearText)}
+    emptyText={t(messages.allClearText)}
   >
     <ul class="flex min-h-0 flex-col">
-      {#each shown as item (item.jobId)}
+      {#each shown as item, index (`${item.kind}-${item.job?.id ?? item.fire?.id ?? item.agent?.id ?? index}`)}
         <li class="flex items-start gap-3 border-b border-border py-3 first:pt-0 last:border-0">
           <div class="flex min-w-0 flex-1 flex-col gap-0.5">
             <p class="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
               <ChartDot tone={TONES[item.kind]} />
               <span class="truncate">{statusLine(item)}</span>
-              <span class="shrink-0">· {item.projectName}</span>
+              {#if item.projectName}<span class="shrink-0">· {item.projectName}</span>{/if}
+              {#if item.count > 1}<span class="shrink-0">· {t(messages.times(item.count))}</span>{/if}
+              {#if item.isNew}<span class="shrink-0 font-medium text-primary">{t(messages.newMark)}</span>{/if}
             </p>
-            <p class="truncate text-base font-medium">{item.pipelineName}</p>
+            <p class="truncate text-base font-medium">{title(item)}</p>
             <p class="truncate text-xs text-muted-foreground">{reason(item)}</p>
           </div>
-          <Button variant="outline" size="xs" class="mt-4" onclick={() => openJob(item)}>
-            {t(item.kind === 'approval' ? widgetMessages.review : widgetMessages.logs)}
-          </Button>
+          {#if item.job && item.projectId}
+            <Button variant="outline" size="xs" class="mt-4" onclick={() => openJob(place(item))}>
+              {t(item.kind === 'approval-waiting' ? widgetMessages.review : widgetMessages.logs)}
+            </Button>
+          {/if}
         </li>
       {/each}
     </ul>
-    {#if items.length > shown.length}
-      <p class="mt-auto text-xs text-muted-foreground">
-        {t(messages.moreItems(items.length - shown.length))}
-      </p>
+    {#if more > 0}
+      <p class="mt-auto text-xs text-muted-foreground">{t(messages.moreItems(more))}</p>
     {/if}
   </WidgetBody>
 </Widget>

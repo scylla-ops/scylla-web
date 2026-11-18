@@ -48,4 +48,7 @@ export interface DashboardPreferences {
   legacy(workspaceId: string): DashboardSet | null;
   /** Called after the import: the layouts are not imported a second time. */
   forgetLegacy(workspaceId: string): void;
+  /** The last visit of the dashboard: "Needs you" marks the items after it as new. */
+  lastVisit(workspaceId: string): string | null;
+  setLastVisit(workspaceId: string, at: string): void;
 }
