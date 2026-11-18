@@ -24,6 +24,8 @@ export interface ServerInfo {
   version: string;
   /** The image of the agent, with its tag. */
   agentImage: string;
+  /** The agent protocols that the server takes. `null` for a server that does not tell them. */
+  agentProtocol: { min: number; current: number } | null;
 }
 
 /** The image of the agent until the answer of the server comes. */

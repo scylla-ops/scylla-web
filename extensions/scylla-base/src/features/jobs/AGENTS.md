@@ -94,6 +94,7 @@ presentation/
     JobReportsBand.svelte                  one row for each report to the provider, its retry
     JobApprovalBlock.svelte                Approve and run / Reject of a job from a fork
     InvalidFileAlert.svelte                the errors of an invalid pipeline file
+    UnfitAgentsAlert.svelte                the online agents that cannot get the code of a waiting job
     open-log-panels.state.svelte.ts        which node panels are open, mirrored in the URL
   ui/jobs-table/JobSource/           the Source cell, two lines: author and title, then SHA with
                                      the report icon, ref, PRs

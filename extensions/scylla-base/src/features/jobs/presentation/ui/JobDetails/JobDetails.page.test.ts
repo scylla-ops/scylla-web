@@ -181,6 +181,29 @@ describe('JobDetailsPage', () => {
     expect(screen.queryByRole('link', { name: 'agent-1' })).not.toBeInTheDocument();
   });
 
+  it('names the online agents that cannot get the code of a waiting job, with a link', async () => {
+    await renderPage(
+      job({
+        status: 'pending',
+        startedAt: undefined,
+        finishedAt: undefined,
+        waitingReason: 'NO_AGENT_WITH_CHECKOUT',
+        unfitAgents: [
+          { id: 'a-old', name: 'build-old', version: '0.7.0-rc.1', reason: 'update-agent' },
+          { id: 'a-nogit', name: 'build-nogit', version: '0.7.0', reason: 'install-git' },
+        ],
+      }),
+    );
+
+    expect(screen.getByText('These online agents cannot get the code of this job')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'build-old' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('/agents/a-old'),
+    );
+    expect(screen.getByText('Update the agent')).toBeInTheDocument();
+    expect(screen.getByText('Install Git on its machine')).toBeInTheDocument();
+  });
+
   it('defaults to the whole job when the URL names no node', async () => {
     await renderPage(job());
     expect(openPanels()).toEqual(['logs for job-1/whole job']);

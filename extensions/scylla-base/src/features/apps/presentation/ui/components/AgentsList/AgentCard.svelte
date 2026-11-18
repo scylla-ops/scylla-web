@@ -4,6 +4,7 @@
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
   import { agentStatusOf } from '@base/features/apps/domain/structs/agent-list.struct.ts';
+  import AgentCompatibilityBadge from '../AgentCompatibilityBadge/AgentCompatibilityBadge.svelte';
   import AgentStatusPill from '../AgentStatusPill/AgentStatusPill.svelte';
   import Sparkline from '../Sparkline/Sparkline.svelte';
   import { agentsListMessages as messages } from '@base/features/apps/presentation/messages/agents-list.messages.ts';
@@ -39,7 +40,10 @@
     >
       {agent.name}
     </button>
-    <AgentStatusPill {agent} />
+    <span class="flex shrink-0 items-center gap-2">
+      <AgentCompatibilityBadge {agent} />
+      <AgentStatusPill {agent} />
+    </span>
   </div>
   {#if status === 'never' && onFinishSetup}
     <button

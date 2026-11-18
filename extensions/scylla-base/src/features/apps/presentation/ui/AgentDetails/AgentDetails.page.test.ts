@@ -19,6 +19,9 @@ const host = {
   totalMemoryMb: 16384,
   capacity: 2,
   containerRuntime: 'docker',
+  protocol: 2,
+  build: '0123abcdef',
+  features: ['checkout'],
 };
 
 const agent = (patch: Record<string, unknown> = {}) => ({
@@ -33,6 +36,8 @@ const agent = (patch: Record<string, unknown> = {}) => ({
   createdAt: '2026-10-12T00:00:00.000Z',
   runningJobs: 2,
   disabledAt: '',
+  compatibility: 'compatible',
+  missingFeatures: [],
   ...patch,
 });
 
@@ -96,7 +101,11 @@ const setUp = (
   apps = {
     getServerInfo: vi
       .fn()
-      .mockResolvedValue({ version: '0.7.0', agentImage: 'ghcr.io/scylla-ops/scylla-agent:0.7.0' }),
+      .mockResolvedValue({
+        version: '0.7.0',
+        agentImage: 'ghcr.io/scylla-ops/scylla-agent:0.7.0',
+        agentProtocol: { min: 0, current: 2 },
+      }),
     getApp: vi.fn().mockResolvedValue({
       app: details,
       keys,
@@ -362,6 +371,32 @@ describe('AgentDetails', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/install\.sh \| sh -s -- --update/)).toBeInTheDocument();
     expect(screen.getByText(/scylla-agent:0\.7\.0$/)).toBeInTheDocument();
+  });
+
+  it('asks to update an agent with an old protocol and the version of the server', async () => {
+    setUp(
+      agent({
+        host: { ...host, protocol: 0, build: '', features: [] },
+        compatibility: 'outdated',
+        missingFeatures: ['checkout'],
+      }),
+    );
+
+    expect(
+      await screen.findByText(
+        'This agent has the protocol 0. The server has the protocol 2. The agent runs only the jobs that it can run until you update it.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/install\.sh \| sh -s -- --update/)).toBeInTheDocument();
+    expect(screen.getByText('Missing features')).toBeInTheDocument();
+    expect(screen.getAllByText('Update needed').length).toBeGreaterThan(0);
+  });
+
+  it('asks for git on an agent with the protocol and no checkout', async () => {
+    setUp(agent({ host: { ...host, features: [] }, missingFeatures: ['checkout'] }));
+
+    expect(await screen.findByText('Install Git on this machine')).toBeInTheDocument();
+    expect(screen.queryByText(/sh -s -- --update/)).not.toBeInTheDocument();
   });
 
   it('gives no update command to an agent with the version of the server', async () => {
