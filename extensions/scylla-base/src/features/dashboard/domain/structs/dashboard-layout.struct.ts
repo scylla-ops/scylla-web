@@ -11,7 +11,8 @@ export type WidgetData =
   | 'run-minutes'
   | 'run-duration'
   | 'activity'
-  | 'quick-actions';
+  | 'quick-actions'
+  | 'schedules';
 
 /** The four sizes of a widget on the grid. */
 export type LayoutSize = 'xs' | 's' | 'm' | 'l';
@@ -29,6 +30,7 @@ export const WIDGET_DATA: readonly WidgetData[] = [
   'run-duration',
   'activity',
   'quick-actions',
+  'schedules',
 ];
 
 export const LAYOUT_SIZES: readonly LayoutSize[] = ['xs', 's', 'm', 'l'];

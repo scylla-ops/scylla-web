@@ -6,6 +6,7 @@ import type {
 } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
 import { catalogMessages as m } from '@base/features/dashboard/presentation/messages/catalog.messages.ts';
 import { editorMessages } from '@base/features/dashboard/presentation/messages/editor.messages.ts';
+import { scheduleMessages } from '@base/features/dashboard/presentation/messages/schedules.messages.ts';
 
 /** A way to show data, as the palette lists it. */
 export type WidgetKind =
@@ -70,7 +71,7 @@ export const KINDS: readonly KindEntry[] = [
   entry('quick-actions', 'kinds', m.quickActions, m.quickActionsText, ['quick-actions']),
   entry('agent', 'dedicated', m.agent, m.agentText),
   entry('pipeline', 'dedicated', m.pipeline, m.pipelineText),
-  entry('triggers', 'dedicated', m.triggers, m.triggersText),
+  entry('triggers', 'dedicated', m.triggers, m.triggersText, ['schedules']),
   entry('integrations', 'dedicated', m.integrations, m.integrationsText),
 ];
 
@@ -86,6 +87,7 @@ export const DATA: Readonly<Record<WidgetData, DataEntry>> = {
   agents: { data: 'agents', kind: 'capacity', title: m.agents, hint: m.agentsHint, sizes: ['s', 'xs', 'm', 'l'] },
   pipelines: { data: 'pipelines', kind: 'health', title: m.pipelines, hint: m.pipelinesHint, sizes: ['m', 'l', 's', 'xs'] },
   activity: { data: 'activity', kind: 'activity', title: m.jobEnds, hint: m.jobEndsHint, sizes: ['m', 'l'] },
+  schedules: { data: 'schedules', kind: 'triggers', title: scheduleMessages.title, hint: scheduleMessages.catalogHint, sizes: ['m', 'xs', 's', 'l'] },
   'quick-actions': { data: 'quick-actions', kind: 'quick-actions', title: m.actions, hint: m.actionsHint, sizes: ['m'] },
 };
 

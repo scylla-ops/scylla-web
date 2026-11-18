@@ -12,6 +12,7 @@
   import RunDurationWidget from '../widgets/RunDurationWidget/RunDurationWidget.svelte';
   import RunMinutesWidget from '../widgets/RunMinutesWidget/RunMinutesWidget.svelte';
   import RunsWidget from '../widgets/RunsWidget/RunsWidget.svelte';
+  import SchedulesWidget from '../widgets/SchedulesWidget/SchedulesWidget.svelte';
   import SentenceWidget from '../widgets/SentenceWidget/SentenceWidget.svelte';
   import SuccessRateWidget from '../widgets/SuccessRateWidget/SuccessRateWidget.svelte';
   import TimelineWidget from '../widgets/TimelineWidget/TimelineWidget.svelte';
@@ -49,6 +50,8 @@
   <RunDurationWidget {widgets} {period} {size} />
 {:else if item.data === 'activity'}
   <ActivityWidget {widgets} {period} {size} />
+{:else if item.data === 'schedules'}
+  <SchedulesWidget {widgets} {size} timeZone={period.timeZone ?? 'UTC'} />
 {:else if item.data === 'quick-actions'}
   <QuickActionsWidget {widgets} {size} />
 {/if}

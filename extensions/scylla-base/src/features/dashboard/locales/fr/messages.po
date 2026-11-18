@@ -73,6 +73,11 @@ msgctxt "attention"
 msgid "{count} new since your visit at {time}"
 msgstr "{count} nouveaux depuis votre visite à {time}"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:8
+msgctxt "schedules"
+msgid "{count} problems"
+msgstr "{count} problèmes"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:21
 msgid "{count} running"
 msgstr "{count} en cours"
@@ -221,6 +226,11 @@ msgstr "+ {count} autres"
 msgid "1 change · not saved"
 msgstr "1 modification · non enregistrée"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:9
+msgctxt "schedules"
+msgid "1 problem"
+msgstr "1 problème"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:11
 msgid "1 thing"
 msgstr "1 chose"
@@ -277,6 +287,11 @@ msgstr "Actions de {name}"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:10
 msgid "Activity"
 msgstr "Activité"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:19
+msgctxt "schedules"
+msgid "Add a cron trigger to a pipeline to see its next fires here."
+msgstr "Ajoutez un déclencheur cron à un pipeline pour voir ici ses prochains déclenchements."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:36
 msgid "Add a widget"
@@ -519,14 +534,14 @@ msgstr "Personnalisée"
 msgid "Custom range"
 msgstr "Période personnalisée"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:36
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:44
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:50
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:40
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:48
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:54
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:4
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:41
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:45
 msgid "dashboard home"
 msgstr "tableau de bord accueil"
 
@@ -654,8 +669,18 @@ msgstr "en échec d’abord"
 msgid "finished runs that completed"
 msgstr "exécutions terminées avec succès"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:17
+msgctxt "schedules"
+msgid "Fire {name} now"
+msgstr "Déclencher {name}"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:23
 msgctxt "attention"
+msgid "fire failed"
+msgstr "déclenchement en échec"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:15
+msgctxt "schedules"
 msgid "fire failed"
 msgstr "déclenchement en échec"
 
@@ -663,6 +688,11 @@ msgstr "déclenchement en échec"
 msgctxt "attention"
 msgid "Fire now"
 msgstr "Déclencher"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:14
+msgctxt "schedules"
+msgid "fired"
+msgstr "déclenché"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:20
 msgid "First day"
@@ -684,6 +714,11 @@ msgstr "Santé"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:25
 msgid "Heatmap"
 msgstr "Carte de chaleur"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:10
+msgctxt "schedules"
+msgid "in {time}"
+msgstr "dans {time}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:37
 msgid "Integrations"
@@ -759,6 +794,11 @@ msgstr "30 derniers jours"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:21
 msgid "Last day"
 msgstr "Dernier jour"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:12
+msgctxt "schedules"
+msgid "Last fires"
+msgstr "Derniers déclenchements"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:87
 msgid "Leave with unsaved changes?"
@@ -869,6 +909,16 @@ msgstr "Nouveau"
 msgid "New dashboard"
 msgstr "Nouveau tableau de bord"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:7
+msgctxt "schedules"
+msgid "next 24 h"
+msgstr "prochaines 24 h"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:6
+msgctxt "schedules"
+msgid "Next fire"
+msgstr "Prochain déclenchement"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:31
 msgid "No agent"
 msgstr "Aucun agent"
@@ -886,6 +936,11 @@ msgstr "Aucune modification"
 msgctxt "capacity"
 msgid "no container runtime"
 msgstr "sans moteur de conteneurs"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:18
+msgctxt "schedules"
+msgid "No cron trigger"
+msgstr "Aucun déclencheur cron"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:19
 msgid "No ended jobs in this period"
@@ -964,6 +1019,11 @@ msgstr "Rien n’attend."
 msgid "now"
 msgstr "maintenant"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:11
+msgctxt "schedules"
+msgid "now"
+msgstr "maintenant"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:13
 msgid "Number + bars"
 msgstr "Nombre + barres"
@@ -1038,7 +1098,7 @@ msgstr "Orphelin"
 msgid "Orphaned · {when}"
 msgstr "Orphelin · {when}"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:40
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:44
 msgid "Overview"
 msgstr "Vue d'ensemble"
 
@@ -1309,6 +1369,11 @@ msgstr "Enregistrer"
 msgid "Save layout"
 msgstr "Enregistrer la disposition"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:5
+msgctxt "schedules"
+msgid "Schedules"
+msgstr "Planifications"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:10
 msgid "Scope"
 msgstr "Périmètre"
@@ -1371,6 +1436,11 @@ msgstr "Raccourcis vers les actions"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:55
 msgid "Show"
 msgstr "Afficher"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:13
+msgctxt "schedules"
+msgid "since {time}"
+msgstr "depuis {time}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:85
 msgid "since your last visit"
@@ -1484,6 +1554,11 @@ msgstr "les fins les plus récentes de la période"
 msgid "The next fires"
 msgstr "Les prochains déclenchements"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:20
+msgctxt "schedules"
+msgid "the next fires and the failed ones"
+msgstr "les prochains déclenchements et les échecs"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:41
 msgid "the open items, then the rest"
 msgstr "les points ouverts, puis le reste"
@@ -1518,6 +1593,11 @@ msgstr "Ce widget n'a pas encore de mise en page dans cette taille."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:25
 msgctxt "attention"
+msgid "time missed"
+msgstr "heure manquée"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:16
+msgctxt "schedules"
 msgid "time missed"
 msgstr "heure manquée"
 
