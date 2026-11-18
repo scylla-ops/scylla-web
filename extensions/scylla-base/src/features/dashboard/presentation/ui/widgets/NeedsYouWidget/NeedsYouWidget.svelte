@@ -61,6 +61,25 @@
 
   const title = (item: AttentionItem): string => item.agent?.name || item.pipelineName;
 
+  const sentence = (item: AttentionItem): string => {
+    const when = getRelativeTime(item.at);
+    const name = title(item);
+    switch (item.kind) {
+      case 'job-failed':
+        return t(messages.failedSentence(name, when));
+      case 'job-orphaned':
+        return t(messages.orphanedSentence(name, when));
+      case 'approval-waiting':
+        return t(messages.approvalSentence(name));
+      case 'fire-failed':
+        return t(messages.fireFailedSentence(name, when));
+      case 'fire-missed':
+        return t(messages.fireMissedSentence(name, when));
+      case 'agent-offline':
+        return t(messages.agentOfflineSentence(name, when));
+    }
+  };
+
   const reason = (item: AttentionItem): string => {
     if (item.job) {
       const error = item.job.nodeError || item.job.error;
@@ -132,7 +151,7 @@
         </p>
         <div class="min-w-0">
           <p class="text-sm font-medium">{t(widgetMessages.needsYou)}</p>
-          <p class="truncate text-xs text-muted-foreground">{title(shown[0])} · {statusLine(shown[0])}</p>
+          <p class="truncate text-xs text-muted-foreground">{sentence(shown[0])}</p>
         </div>
       </div>
     {:else if size === 's'}

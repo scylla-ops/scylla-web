@@ -47,9 +47,30 @@ export const viewMessages = {
   approvalSince: (when: string) => msg`Waits for an approval · ${when}`,
   jobOf: (id: string) => msg`Job ${id}`,
   approvalText: msg`A job from a fork waits for a review before it runs.`,
+  failedSentence: (name: string, when: string) =>
+    msg({ context: 'attention', message: `${name} failed ${when}` }),
+  orphanedSentence: (name: string, when: string) =>
+    msg({ context: 'attention', message: `${name} lost its agent ${when}` }),
+  approvalSentence: (name: string) =>
+    msg({ context: 'attention', message: `${name} waits for an approval` }),
+  fireFailedSentence: (name: string, when: string) =>
+    msg({ context: 'attention', message: `${name} did not fire ${when}` }),
+  fireMissedSentence: (name: string, when: string) =>
+    msg({ context: 'attention', message: `${name} missed a fire ${when}` }),
+  agentOfflineSentence: (name: string, when: string) =>
+    msg({ context: 'attention', message: `${name} went offline ${when}` }),
   perDay: (value: string) => msg`${value} per day`,
   perHour: (value: string) => msg`${value} per hour`,
   perWeek: (value: string) => msg`${value} per week`,
+  perHourUnit: msg({ context: 'bars', message: 'per hour' }),
+  perDayUnit: msg({ context: 'bars', message: 'per day' }),
+  perWeekUnit: msg({ context: 'bars', message: 'per week' }),
+  runsUnit: msg({ context: 'bars', message: 'runs' }),
+  lastRuns: (count: number) => msg({ context: 'health', message: `last ${count} runs` }),
+  pipelineColumn: msg({ context: 'health', message: 'Pipeline' }),
+  successColumn: msg({ context: 'health', message: 'Success' }),
+  medianColumn: msg({ context: 'health', message: 'Median' }),
+  peakRuns: (count: number) => msg({ context: 'bars', message: `peak · ${count} runs` }),
   vsPrevious: (change: string) => msg`${change} vs previous`,
   hoursAgo: (hours: number) => msg`${hours} h ago`,
   hours: (hours: number) => msg`${hours} h`,

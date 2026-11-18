@@ -407,9 +407,12 @@ describe('The edit mode', () => {
     render(DashboardWithPanel);
 
     await user.click(await panel().findByRole('button', { name: 'Edit dashboard' }));
+    await user.click(screen.getByRole('button', { name: 'Run duration', pressed: false }));
+    const durationSizes = screen.getByRole('radiogroup', { name: 'Size of Run duration' });
+    expect(within(durationSizes).getByRole('radio', { name: 'L' })).toBeDisabled();
     await user.click(screen.getByRole('button', { name: 'Success rate', pressed: false }));
     const sizes = screen.getByRole('radiogroup', { name: 'Size of Success rate' });
-    expect(within(sizes).getByRole('radio', { name: 'L' })).toBeDisabled();
+    expect(within(sizes).getByRole('radio', { name: 'L' })).toBeEnabled();
     await user.click(within(sizes).getByRole('radio', { name: 'XS' }));
 
     expect(screen.getByRole('region', { name: 'Success rate' })).toHaveAttribute('data-size', 'xs');

@@ -24,6 +24,7 @@ export const widgetMessages = {
   cancelledApart: (count: number) => msg`${count} cancelled, not counted`,
   pointsChange: (change: string) => msg`${change} pts`,
   vsPreviousPeriod: msg`vs the previous period`,
+  ofFinishedRuns: msg`of finished runs`,
   successRateLabel: (rate: string) => msg`Success rate ${rate}`,
 
   p50AndP95: msg`p50 and p95`,
