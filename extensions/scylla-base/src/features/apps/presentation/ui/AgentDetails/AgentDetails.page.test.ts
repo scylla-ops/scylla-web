@@ -4,7 +4,14 @@ import userEvent from '@testing-library/user-event';
 import { toast } from 'svelte-sonner';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { findFloating, focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
+import {
+  findFloating,
+  findTooltip,
+  focusSettled,
+  render,
+  withQueryClient,
+  withRegistry,
+} from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import AgentDetails from './AgentDetails.page.svelte';
 
@@ -85,6 +92,7 @@ const setUp = (
   keys = DEFAULT_KEYS,
   granted = true,
   search = '',
+  serverVersion = '0.7.0',
 ) => {
   permissionsStore.setState({
     permissions: {
@@ -102,7 +110,7 @@ const setUp = (
     getServerInfo: vi
       .fn()
       .mockResolvedValue({
-        version: '0.7.0',
+        version: serverVersion,
         agentImage: 'ghcr.io/scylla-ops/scylla-agent:0.7.0',
         agentProtocol: { min: 0, current: 2 },
       }),
@@ -178,6 +186,10 @@ const onNovember4 = () => {
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date('2026-11-04T15:00:00Z'));
 };
+
+/** The value of a row of the machine card. */
+const machineValue = (label: string) =>
+  screen.getByText(label, { selector: 'dt' }).nextElementSibling as HTMLElement;
 
 const periodsAsked = () => apps.getAgentStats.mock.calls.map(([, period]) => period);
 
@@ -373,30 +385,69 @@ describe('AgentDetails', () => {
     expect(screen.getByText(/scylla-agent:0\.7\.0$/)).toBeInTheDocument();
   });
 
-  it('asks to update an agent with an old protocol and the version of the server', async () => {
+  it('shows an outdated agent with the version of the server in badges, and its update command', async () => {
+    setUp(agent({ host: { ...host, protocol: 0, build: '' }, compatibility: 'outdated' }));
+
+    await screen.findByText('Agent version');
+    await userEvent.hover(within(machineValue('Agent version')).getByText('0.7.0'));
+
+    expect(await findTooltip()).toHaveTextContent(
+      'This agent is older than the server. It runs only the jobs that it can run.',
+    );
+    await waitFor(() => expect(machineValue('Server version')).toHaveTextContent('0.7.0'));
+    expect(screen.getByText(/install\.sh \| sh -s -- --update/)).toBeInTheDocument();
+    expect(screen.queryByText(/protocol/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/This agent has version/)).not.toBeInTheDocument();
+  });
+
+  it('tells in the badge of its version that the server refuses the agent', async () => {
+    setUp(agent({ host: { ...host, protocol: 0 }, compatibility: 'unsupported' }));
+
+    await screen.findByText('Agent version');
+    await userEvent.hover(within(machineValue('Agent version')).getByText('0.7.0'));
+
+    expect(await findTooltip()).toHaveTextContent(
+      'This agent is too old for the server. The server refuses it until you update it.',
+    );
+  });
+
+  it('asks for a new agent for a feature that its protocol does not have', async () => {
     setUp(
       agent({
-        host: { ...host, protocol: 0, build: '', features: [] },
+        host: { ...host, protocol: 0, features: [] },
         compatibility: 'outdated',
         missingFeatures: ['checkout'],
       }),
     );
 
-    expect(
-      await screen.findByText(
-        'This agent has the protocol 0. The server has the protocol 2. The agent runs only the jobs that it can run until you update it.',
-      ),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/install\.sh \| sh -s -- --update/)).toBeInTheDocument();
-    expect(screen.getByText('Missing features')).toBeInTheDocument();
-    expect(screen.getAllByText('Update needed').length).toBeGreaterThan(0);
+    await userEvent.hover(await screen.findByText('checkout'));
+
+    expect(await findTooltip()).toHaveTextContent('Update the agent');
   });
 
   it('asks for git on an agent with the protocol and no checkout', async () => {
     setUp(agent({ host: { ...host, features: [] }, missingFeatures: ['checkout'] }));
 
-    expect(await screen.findByText('Install Git on this machine')).toBeInTheDocument();
+    await userEvent.hover(await screen.findByText('checkout'));
+
+    expect(await findTooltip()).toHaveTextContent('Install Git on this machine');
     expect(screen.queryByText(/sh -s -- --update/)).not.toBeInTheDocument();
+  });
+
+  it('asks no update of an agent of the release of a server build with its commit', async () => {
+    setUp(agent(), ALL, DEFAULT_KEYS, true, '', '0.7.0+240da00');
+
+    await waitFor(() => expect(machineValue('Server version')).toHaveTextContent('0.7.0+240da00'));
+    expect(machineValue('Agent version')).toHaveTextContent('0.7.0');
+    expect(screen.queryByText(/sh -s -- --update/)).not.toBeInTheDocument();
+  });
+
+  it('shows None for an agent with no container runtime and no feature', async () => {
+    setUp(agent({ host: { ...host, containerRuntime: '', features: [] } }));
+
+    expect(await screen.findByText('Container runtime')).toBeInTheDocument();
+    expect(machineValue('Container runtime')).toHaveTextContent('None');
+    expect(machineValue('Features')).toHaveTextContent('None');
   });
 
   it('gives no update command to an agent with the version of the server', async () => {

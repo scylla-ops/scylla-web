@@ -481,6 +481,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   duration and the failures.
 - The bars of the job history in the list of pipelines start at the left edge, with the oldest job
   on the left. With few jobs, the free space is on the right. "No run yet" stays at the center.
+- The Machine card of an agent shows the server version, and no longer shows the protocol. When the
+  agent must be updated, its version is a warning badge with a hint, and the server version is a
+  badge. The container runtime and the features are badges, and a missing feature has a warning
+  badge with its fix in a tooltip. The card compares the versions without the build metadata
+  (`+240da00`), and the release link uses the bare version.
 
 ## [0.6.0] - 2026-11-01
 
