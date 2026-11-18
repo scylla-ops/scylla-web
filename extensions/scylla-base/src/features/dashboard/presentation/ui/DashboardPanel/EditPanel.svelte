@@ -42,7 +42,7 @@
     const data = item.data[0];
     if (!data || event.button !== 0) return;
     dashboardEditor.press(
-      { from: 'palette', data, size: DATA[data].sizes[0], label: t(item.title) },
+      { from: 'palette', data, size: DATA[data].sizes[0], label: t(item.title), grab: { x: 32, y: 24 } },
       event.clientX,
       event.clientY,
     );

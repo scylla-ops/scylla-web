@@ -81,7 +81,7 @@
   class={cn(
     'group/edit relative col-span-(--widget-columns) row-span-(--widget-rows) @3xl:col-span-(--widget-columns-wide) @3xl:row-span-(--widget-rows-wide)',
     '[&>[data-slot=widget]]:h-full [&>[data-slot=widget]]:pointer-events-none',
-    dragged && 'opacity-40',
+    dragged && '[&>*]:invisible',
   )}
 >
   {@render children()}
@@ -123,7 +123,19 @@
     onpointerdown={event => {
       if (event.button !== 0) return;
       event.preventDefault();
-      dashboardEditor.press({ from: 'grid', id: item.id, size, label: title }, event.clientX, event.clientY);
+      const box = frame?.getBoundingClientRect();
+      dashboardEditor.press(
+        {
+          from: 'grid',
+          id: item.id,
+          data: item.data,
+          size,
+          label: title,
+          grab: { x: event.clientX - (box?.left ?? 0), y: event.clientY - (box?.top ?? 0) },
+        },
+        event.clientX,
+        event.clientY,
+      );
     }}
   >
     <GripHorizontalIcon class="size-3" aria-hidden="true" />
@@ -140,6 +152,13 @@
       onpointerup={endResize}
       onpointercancel={() => (resizing = null)}
     ></button>
+  {/if}
+
+  {#if dragged}
+    <div
+      data-slot="drag-origin"
+      class="pointer-events-none absolute inset-0 visible! rounded-2xl border-2 border-dashed border-primary/40 bg-muted/40"
+    ></div>
   {/if}
 
   {#if target && dashboardEditor.drag}

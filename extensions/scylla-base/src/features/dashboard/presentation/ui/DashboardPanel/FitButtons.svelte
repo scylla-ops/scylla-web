@@ -1,12 +1,13 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import { Button, Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
+  import { Button } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import {
     fitLevels,
     type FitAction,
     type FitWidths,
   } from '@base/features/dashboard/presentation/presenters/fit-labels.presenter.ts';
+  import GatedTooltip from './GatedTooltip.svelte';
 
   interface Props {
     actions: readonly FitAction[];
@@ -61,26 +62,21 @@
 
   {#each actions as action, index (action.key)}
     {@const level = levels[index] ?? 'full'}
-    <Tooltip delayDuration={200}>
-      <TooltipTrigger>
-        {#snippet child({ props })}
-          <Button
-            {...props}
-            variant={action.variant ?? 'default'}
-            size={level === 'icon' && !stretch ? iconSize : size}
-            class={cn('min-w-0', stretch ? 'w-full' : 'shrink-0')}
-            aria-label={level === 'full' ? undefined : action.label}
-            data-level={level}
-            onclick={action.onclick}
-          >
-            {#if level === 'icon' || action.labeledIcon}<action.icon aria-hidden="true" />{/if}
-            {#if level !== 'icon'}<span class="truncate">{level === 'full' ? action.label : action.short}</span>{/if}
-          </Button>
-        {/snippet}
-      </TooltipTrigger>
-      {#if level !== 'full'}
-        <TooltipContent side="top">{action.label}</TooltipContent>
-      {/if}
-    </Tooltip>
+    <GatedTooltip label={action.label} enabled={level !== 'full'} resetKey={level}>
+      {#snippet trigger({ props })}
+        <Button
+          {...props}
+          variant={action.variant ?? 'default'}
+          size={level === 'icon' && !stretch ? iconSize : size}
+          class={cn('min-w-0', stretch ? 'w-full' : 'shrink-0')}
+          aria-label={level === 'full' ? undefined : action.label}
+          data-level={level}
+          onclick={action.onclick}
+        >
+          {#if level === 'icon' || action.labeledIcon}<action.icon aria-hidden="true" />{/if}
+          {#if level !== 'icon'}<span class="truncate">{level === 'full' ? action.label : action.short}</span>{/if}
+        </Button>
+      {/snippet}
+    </GatedTooltip>
   {/each}
 </div>

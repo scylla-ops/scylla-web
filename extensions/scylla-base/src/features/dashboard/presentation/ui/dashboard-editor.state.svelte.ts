@@ -10,9 +10,15 @@ import {
 
 /** What the user drags: a widget of the grid, or a kind of the palette. */
 export type DragSource = (
-  | { from: 'grid'; id: string; size: LayoutSize }
-  | { from: 'palette'; data: WidgetData; size: LayoutSize }
-) & { label: string };
+  | { from: 'grid'; id: string }
+  | { from: 'palette' }
+) & {
+  data: WidgetData;
+  size: LayoutSize;
+  label: string;
+  /** Where the pointer holds the ghost, from its top left corner, in px. */
+  grab: { x: number; y: number };
+};
 
 /** A drag starts once the pointer moved this far with the button down: less is a click. */
 const DRAG_THRESHOLD_PX = 4;

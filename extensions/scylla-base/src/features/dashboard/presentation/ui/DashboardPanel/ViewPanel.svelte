@@ -24,9 +24,6 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { toRune } from '@scylla/ui/stores';
@@ -48,6 +45,7 @@
   import RenameDialog from '../DashboardEditor/RenameDialog.svelte';
   import CustomPeriodForm from '../PeriodPicker/CustomPeriodForm.svelte';
   import FitButtons from './FitButtons.svelte';
+  import GatedTooltip from './GatedTooltip.svelte';
 
   const ALL = 'all';
   const PRESETS: readonly PresetPeriodKind[] = ['24h', '7d', '14d'];
@@ -172,9 +170,8 @@
       </li>
     {/each}
     <li>
-      <Tooltip delayDuration={200}>
-        <TooltipTrigger>
-          {#snippet child({ props })}
+      <GatedTooltip label={t(editorMessages.newDashboard)} enabled={newLevel !== 'full'} resetKey={newLevel} side="right">
+        {#snippet trigger({ props })}
             <button
               {...props}
               type="button"
@@ -195,12 +192,8 @@
                 <span bind:offsetWidth={newShortWidth}>{t(editorMessages.newShort)}</span>
               </span>
             </button>
-          {/snippet}
-        </TooltipTrigger>
-        {#if newLevel !== 'full'}
-          <TooltipContent side="right">{t(editorMessages.newDashboard)}</TooltipContent>
-        {/if}
-      </Tooltip>
+        {/snippet}
+      </GatedTooltip>
     </li>
   </ul>
 

@@ -6,13 +6,13 @@
   import { ConfirmOperationAlertDialog, WidgetGrid } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { LayoutWidget } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
+  import type { LayoutSize, LayoutWidget } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
   import { dashboardMessages } from '@base/features/dashboard/presentation/messages/dashboard.messages.ts';
   import { editorMessages } from '@base/features/dashboard/presentation/messages/editor.messages.ts';
   import { dashboardPath } from '@base/features/dashboard/presentation/presenters/dashboard-paths.presenter.ts';
   import {
-    cellsText,
     DATA,
+    SIZE_CELLS,
   } from '@base/features/dashboard/presentation/presenters/widget-catalog.presenter.ts';
   import { dashboardEditor } from '@base/features/dashboard/presentation/ui/dashboard-editor.state.svelte.ts';
   import { createDashboardPeriod } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
@@ -55,7 +55,20 @@
   /** A press in these keeps the selection: the widget and its toolbar, the drawer, a dialog or a menu. */
   const KEEPS_SELECTION =
     '[data-slot="editable-widget"], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [data-slot$="overlay"], [data-slot$="-content"]';
-  let viewportWidth = $state(1440);
+  const GRID_COLUMNS = 8;
+  const GRID_GAP_PX = 16;
+  const GRID_ROW_PX = 98;
+
+  /** The size in px of a widget of `size` on the grid of the page: the ghost of a drag has it. */
+  const ghostBox = (size: LayoutSize) => {
+    const width = gridArea?.clientWidth ?? 1104;
+    const column = (width - GRID_GAP_PX * (GRID_COLUMNS - 1)) / GRID_COLUMNS;
+    const cells = SIZE_CELLS[size];
+    return {
+      width: cells.columns * column + (cells.columns - 1) * GRID_GAP_PX,
+      height: cells.rows * GRID_ROW_PX + (cells.rows - 1) * GRID_GAP_PX,
+    };
+  };
 
   const titleOf = (item: LayoutWidget) => t(DATA[item.data].title);
 
@@ -158,18 +171,19 @@
 </div>
 
 {#if drag && dashboardEditor.pointer}
+  {@const box = ghostBox(drag.size)}
   <div
-    data-slot="drag-label"
+    data-slot="drag-ghost"
     aria-hidden="true"
-    class="pointer-events-none fixed z-50 rounded-lg bg-foreground px-2.5 py-1.5 text-xs text-background shadow-lg"
-    style="left: {Math.min(dashboardEditor.pointer.x + 12, viewportWidth - 200)}px; top: {dashboardEditor.pointer.y + 12}px"
+    inert
+    class="pointer-events-none fixed z-50 flex rotate-[1.5deg] rounded-2xl bg-background opacity-95 shadow-2xl ring-2 ring-primary/70 [&>[data-slot=widget]]:size-full"
+    style="left: {dashboardEditor.pointer.x - drag.grab.x}px; top: {dashboardEditor.pointer.y - drag.grab.y}px; width: {box.width}px; height: {box.height}px"
   >
-    {drag.label} · {cellsText(drag.size)}
+    <DashboardWidget item={{ data: drag.data, size: drag.size }} {widgets} {period} />
   </div>
 {/if}
 
 <svelte:window
-  bind:innerWidth={viewportWidth}
   onpointermove={event => {
     if (editing) dashboardEditor.move(event.clientX, event.clientY, indexAt(event.clientX, event.clientY));
   }}
