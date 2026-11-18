@@ -7,6 +7,8 @@ import {
   type LayoutWidget,
   type WidgetData,
 } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
+import { anchoredIndex, packGrid } from '@base/features/dashboard/presentation/presenters/grid-pack.presenter.ts';
+import { cellsOf, shownSize } from '@base/features/dashboard/presentation/presenters/widget-catalog.presenter.ts';
 
 /** What the user drags: a widget of the grid, or a kind of the palette. */
 export type DragSource = (
@@ -35,7 +37,8 @@ let drag = $state.raw<DragSource | null>(null);
 let pressed = $state.raw<{ source: DragSource; x: number; y: number } | null>(null);
 let pointer = $state.raw<{ x: number; y: number } | null>(null);
 let over = $state<number | null>(null);
-let live = $state.raw<{ id: string; size: LayoutSize } | null>(null);
+let live = $state.raw<{ id: string; size: LayoutSize; at: number } | null>(null);
+let columns = $state(8);
 let dropped = false;
 
 const newId = (): string => crypto.randomUUID().slice(0, 8);
@@ -150,14 +153,27 @@ export const dashboardEditor = {
   get liveResize() {
     return live;
   },
+  /** The columns of the grid on the screen: a widget that grows keeps its place on it. */
+  setColumns: (count: number) => {
+    columns = count;
+  },
   resizeLive: (id: string, size: LayoutSize) => {
-    live = { id, size };
+    const widgets = draft?.widgets ?? [];
+    const index = widgets.findIndex(item => item.id === id);
+    if (index < 0) return;
+    const spans = widgets.map(item => cellsOf(shownSize(item.data, item.size), columns));
+    const anchor = packGrid(spans, columns)[index];
+    const others = spans.filter((_, position) => position !== index);
+    live = { id, size, at: anchoredIndex(others, cellsOf(size, columns), anchor, columns, index) };
   },
   /** The size at the end of the drag of the corner becomes one change. */
   commitResize: () => {
     const done = live;
     live = null;
-    if (done) dashboardEditor.resize(done.id, done.size);
+    if (!done || !draft) return;
+    const widget = draft.widgets.find(item => item.id === done.id);
+    if (!widget || widget.size === done.size) return;
+    change(moveWidget(changeWidget(draft.widgets, done.id, { size: done.size }), done.id, done.at));
   },
   cancelResize: () => {
     live = null;

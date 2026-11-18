@@ -14,6 +14,7 @@
     DATA,
     SIZE_CELLS,
     shownSize,
+    cellsOf,
   } from '@base/features/dashboard/presentation/presenters/widget-catalog.presenter.ts';
   import { dashboardEditor } from '@base/features/dashboard/presentation/ui/dashboard-editor.state.svelte.ts';
   import { createDashboardPeriod } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
@@ -114,13 +115,19 @@
   const NEW_WIDGET_ID = 'new-widget';
   const NARROW = { columns: 2, rowHeight: 80, gap: 12 };
   const WIDE = { columns: 8, rowHeight: 98, gap: 16 };
-  const NARROW_SPANS = { xs: { columns: 1, rows: 1 }, s: { columns: 1, rows: 2 }, m: { columns: 2, rows: 2 }, l: { columns: 2, rows: 4 } };
   const WIDE_GRID_PX = 768;
+  let gridWidth = $state(0);
+  $effect(() => {
+    if (gridWidth > 0) dashboardEditor.setColumns(gridWidth >= WIDE_GRID_PX ? WIDE.columns : NARROW.columns);
+  });
 
   /** The widgets as the grid shows them: the live size of a resize, the drag at its place. */
   const shown = $derived.by((): LayoutWidget[] => {
     const resized = dashboardEditor.liveResize;
-    const sized = items.map(item => (resized?.id === item.id ? { ...item, size: resized.size } : item));
+    const target = resized && items.find(item => item.id === resized.id);
+    const sized = target
+      ? insertAt(items.filter(item => item.id !== target.id), { ...target, size: resized.size }, resized.at)
+      : [...items];
     if (!drag || over === null) return sized;
     if (drag.from === 'palette') {
       return insertAt(sized, { id: NEW_WIDGET_ID, data: drag.data, size: drag.size }, over);
@@ -143,8 +150,7 @@
     const base = drag.from === 'grid' ? items.filter(item => item.id !== drag.id) : items;
     const spans: Span[] = [
       ...base.map(item => {
-        const size = shownSize(item.data, item.size);
-        return wide ? SIZE_CELLS[size] : NARROW_SPANS[size];
+        return cellsOf(shownSize(item.data, item.size), metrics.columns);
       }),
       { columns: metrics.columns, rows: 1 },
     ];
@@ -205,7 +211,7 @@
       <p class="text-sm text-muted-foreground">{t(editorMessages.emptyDashboardHint)}</p>
     </div>
   {:else if dashboard}
-    <div bind:this={gridArea}>
+    <div bind:this={gridArea} bind:clientWidth={gridWidth}>
     <WidgetGrid aria-label={dashboard.name} class={cn(editing && 'pt-3')}>
       {#if editing}
         {#each shown as item (item.id)}

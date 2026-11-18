@@ -90,3 +90,29 @@ export const insertAt = <T>(list: readonly T[], moved: T, at: number): T[] => {
   const index = Math.max(0, Math.min(at, list.length));
   return [...list.slice(0, index), moved, ...list.slice(index)];
 };
+
+/**
+ * The index in `others` where a span goes so that the grid places it the nearest to `anchor`:
+ * its row first, then its column. The widgets after it move on. A tie goes to the index nearest
+ * to `prefer`. A widget that grows stays where it was, and pushes the widgets in its way.
+ */
+export const anchoredIndex = (
+  others: readonly Span[],
+  span: Span,
+  anchor: { column: number; row: number },
+  columns: number,
+  prefer: number,
+): number => {
+  let best = Math.min(prefer, others.length);
+  let bestScore = Number.POSITIVE_INFINITY;
+  for (let at = 0; at <= others.length; at += 1) {
+    const placed = packGrid(insertAt(others, span, at), columns)[at];
+    const score =
+      Math.abs(placed.row - anchor.row) * 1000 + Math.abs(placed.column - anchor.column) * 10 + Math.abs(at - prefer);
+    if (score < bestScore) {
+      bestScore = score;
+      best = at;
+    }
+  }
+  return best;
+};

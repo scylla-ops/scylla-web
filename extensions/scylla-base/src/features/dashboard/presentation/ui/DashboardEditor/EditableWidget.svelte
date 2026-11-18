@@ -16,7 +16,7 @@
     sizeLabel,
     sizeShort,
   } from '@base/features/dashboard/presentation/presenters/widget-catalog.presenter.ts';
-  import { sizeAt } from '@base/features/dashboard/presentation/presenters/widget-resize.presenter.ts';
+  import { sizeAt, sizeBox } from '@base/features/dashboard/presentation/presenters/widget-resize.presenter.ts';
   import { dashboardEditor } from '@base/features/dashboard/presentation/ui/dashboard-editor.state.svelte.ts';
   import type { Snippet } from 'svelte';
 
@@ -37,18 +37,35 @@
     height: number;
     grid: number;
     drawn: { width: number; height: number };
+    /** From the left of the grid to the left of the widget, in px. */
+    left: number;
   } | null>(null);
 
   const size = $derived(shownSize(item.data, item.size));
+  const options = $derived(
+    resizing
+      ? SIZE_ORDER.filter(option => DATA[item.data].sizes.includes(option)).map(option => {
+          const box = sizeBox(option, resizing!.grid);
+          return { size: option, ...box, fits: resizing!.left + box.width <= resizing!.grid + 1 };
+        })
+      : [],
+  );
   const sizes = $derived(DATA[item.data].sizes);
   const selected = $derived(dashboardEditor.selected === item.id);
+
+  /** The left of the cell of the widget in the grid, without the transform of a move in progress. */
+  const leftInGrid = (): number | null => {
+    const cell = frame?.parentElement;
+    const grid = frame?.closest<HTMLElement>('[data-slot="widget-grid"]');
+    if (!cell || !grid) return null;
+    return cell.offsetParent === grid.offsetParent ? cell.offsetLeft - grid.offsetLeft : cell.offsetLeft;
+  };
 
   const startResize = (event: PointerEvent) => {
     if (!frame) return;
     event.preventDefault();
     event.stopPropagation();
     const box = frame.getBoundingClientRect();
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
     const grid = frame.closest('[data-slot="widget-grid"]')?.clientWidth ?? box.width;
     resizing = {
       x: event.clientX,
@@ -57,6 +74,7 @@
       height: box.height,
       grid,
       drawn: { width: box.width, height: box.height },
+      left: leftInGrid() ?? 0,
     };
   };
 
@@ -64,7 +82,7 @@
     if (!resizing) return;
     const width = Math.max(24, resizing.width + event.clientX - resizing.x);
     const height = Math.max(24, resizing.height + event.clientY - resizing.y);
-    resizing = { ...resizing, drawn: { width, height } };
+    resizing = { ...resizing, drawn: { width, height }, left: leftInGrid() ?? resizing.left };
     const next = sizeAt(width, height, resizing.grid, sizes);
     if (next !== size) dashboardEditor.resizeLive(item.id, next);
   };
@@ -75,13 +93,31 @@
   };
 </script>
 
+<svelte:window
+  onpointermove={event => {
+    if (resizing) moveResize(event);
+  }}
+  onpointerup={() => {
+    if (resizing) endResize();
+  }}
+  onpointercancel={() => {
+    if (!resizing) return;
+    resizing = null;
+    dashboardEditor.cancelResize();
+  }}
+/>
+
 <div
   bind:this={frame}
   role="group"
   aria-label={title}
   data-slot="editable-widget"
   data-selected={selected || undefined}
-  class="group/edit relative size-full [&>[data-slot=widget]]:pointer-events-none [&>[data-slot=widget]]:size-full"
+  data-resizing={resizing ? true : undefined}
+  class={cn(
+    'group/edit relative size-full [&>[data-slot=widget]]:pointer-events-none [&>[data-slot=widget]]:size-full',
+    resizing && '[&>[data-slot=widget]]:z-10 [&>[data-slot=widget]]:bg-background',
+  )}
 >
   {@render children()}
 
@@ -147,16 +183,34 @@
       aria-label={t(messages.resize(title))}
       title={t(messages.resize(title))}
       onpointerdown={startResize}
-      onpointermove={moveResize}
-      onpointerup={endResize}
-      onpointercancel={() => {
-        resizing = null;
-        dashboardEditor.cancelResize();
-      }}
     ></button>
   {/if}
 
   {#if resizing}
+    {#each options as option (option.size)}
+      <div
+        data-slot="resize-option"
+        data-size={option.size}
+        data-chosen={option.size === size || undefined}
+        data-fits={option.fits}
+        aria-hidden="true"
+        class={cn(
+          'pointer-events-none absolute top-0 left-0 z-0 rounded-2xl',
+          option.size === size ? 'border-2 border-primary bg-primary/5' : 'border border-dashed border-primary/45',
+          !option.fits && 'opacity-30',
+        )}
+        style="width: {option.width}px; height: {option.height}px"
+      >
+        <span
+          class={cn(
+            'absolute right-1.5 bottom-1.5 rounded bg-background/90 px-1.5 py-0.5 font-mono text-[10px] whitespace-nowrap',
+            option.size === size ? 'text-primary' : 'text-muted-foreground',
+          )}
+        >
+          {cellsText(option.size)} · {sizeLabel(option.size)}
+        </span>
+      </div>
+    {/each}
     <div
       data-slot="resize-outline"
       aria-hidden="true"

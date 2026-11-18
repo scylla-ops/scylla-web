@@ -7,8 +7,8 @@ import {
 const COLUMNS = 8;
 const GAP_PX = 16;
 const ROW_PX = 98;
-/** A box may pass the drawn rectangle by this much and still fit. */
-export const RESIZE_TOLERANCE = 0.05;
+/** The part of the box of a size that the drawn rectangle must cover for the size to win. */
+export const RESIZE_COVERAGE = 0.75;
 
 /** The box in px of a size on a grid `gridWidth` px wide. */
 export const sizeBox = (size: LayoutSize, gridWidth: number): { width: number; height: number } => {
@@ -20,10 +20,21 @@ export const sizeBox = (size: LayoutSize, gridWidth: number): { width: number; h
   };
 };
 
+/** The part of the box of `size` that a rectangle drawn from the same top left corner covers. */
+export const coverageOf = (
+  size: LayoutSize,
+  width: number,
+  height: number,
+  gridWidth: number,
+): number => {
+  const box = sizeBox(size, gridWidth);
+  return (Math.min(width, box.width) * Math.min(height, box.height)) / (box.width * box.height);
+};
+
 /**
  * The size of a widget drawn to `width` × `height` px from its top left corner: the largest size
- * it can show whose box fits in the drawing, give or take `RESIZE_TOLERANCE`. When none fits, its
- * smallest size. It never rounds up to a size that the drawing does not cover.
+ * it can show whose box the drawing covers by `RESIZE_COVERAGE` at least. When none is covered,
+ * its smallest size.
  */
 export const sizeAt = (
   width: number,
@@ -32,9 +43,6 @@ export const sizeAt = (
   sizes: readonly LayoutSize[],
 ): LayoutSize => {
   const allowed = SIZE_ORDER.filter(size => sizes.includes(size));
-  const fits = allowed.filter(size => {
-    const box = sizeBox(size, gridWidth);
-    return box.width <= width * (1 + RESIZE_TOLERANCE) && box.height <= height * (1 + RESIZE_TOLERANCE);
-  });
-  return fits.at(-1) ?? allowed[0] ?? 'm';
+  const covered = allowed.filter(size => coverageOf(size, width, height, gridWidth) >= RESIZE_COVERAGE);
+  return covered.at(-1) ?? allowed[0] ?? 'm';
 };

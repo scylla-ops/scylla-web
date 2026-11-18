@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { insertAt, packGrid, placedIndexAt } from '../grid-pack.presenter.ts';
+import { anchoredIndex, insertAt, packGrid, placedIndexAt } from '../grid-pack.presenter.ts';
 
 const L = { columns: 4, rows: 4 };
 const M = { columns: 4, rows: 2 };
@@ -52,5 +52,22 @@ describe('insertAt', () => {
   it('inserts, and puts an index out of range at the end', () => {
     expect(insertAt(['a', 'b'], 'x', 1)).toEqual(['a', 'x', 'b']);
     expect(insertAt(['a', 'b'], 'x', 9)).toEqual(['a', 'b', 'x']);
+  });
+});
+
+describe('anchoredIndex', () => {
+  const layout = [L, M, M, L, S, S, M, M, XS, XS, XS, XS];
+
+  it('keeps a widget that grows on its row, and pushes the widgets in its way', () => {
+    const others = layout.filter((_, index) => index !== 9);
+    const at = anchoredIndex(others, M, { column: 6, row: 8 }, 8, 9);
+    const placed = packGrid(insertAt(others, M, at), 8);
+    expect(placed[at].row).toBe(8);
+    expect(placed[at].column).toBe(4);
+  });
+
+  it('leaves a widget where it is when its new size fits there', () => {
+    const others = layout.filter((_, index) => index !== 4);
+    expect(anchoredIndex(others, M, { column: 4, row: 4 }, 8, 4)).toBe(4);
   });
 });

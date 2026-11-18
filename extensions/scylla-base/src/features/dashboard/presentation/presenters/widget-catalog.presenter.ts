@@ -124,6 +124,18 @@ export const SIZE_CELLS: Readonly<Record<LayoutSize, { columns: number; rows: nu
   l: { columns: 4, rows: 4 },
 };
 
+/** The cells of a size on the grid of 2 columns of a narrow screen. */
+export const NARROW_SIZE_CELLS: Readonly<Record<LayoutSize, { columns: number; rows: number }>> = {
+  xs: { columns: 1, rows: 1 },
+  s: { columns: 1, rows: 2 },
+  m: { columns: 2, rows: 2 },
+  l: { columns: 2, rows: 4 },
+};
+
+/** The cells of a size on a grid of `columns` columns: 8 is the wide grid, else the narrow one. */
+export const cellsOf = (size: LayoutSize, columns: number) =>
+  columns >= 8 ? SIZE_CELLS[size] : NARROW_SIZE_CELLS[size];
+
 export const sizeLabel = (size: LayoutSize): string => t(SIZE_LABELS[size]);
 
 /** "2 × 2" */
