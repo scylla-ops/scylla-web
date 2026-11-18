@@ -136,10 +136,13 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   gateway `POST /api/<package>.<Service>/<Method>`.
 - `appQueries.runners` and `loadNoAgentsBanner` serve the pipelines and the jobs: they warn when
   jobs wait and no agent is connected.
+- `appQueries.server` serves the About section of the account (`user`): the edition and the
+  version of the server.
 
 ## Repository (`appsRepository`)
 
-- Server: `getServerInfo` (the version and the image of the agent). Anyone can read it.
+- Server: `getServerInfo` (the edition, the version and the image of the agent). Anyone can read
+  it.
 - Apps: `listApps`, `getApp`, `createApp` (an agent gets `runner` on the workspace, or on each of
   `projectIds`), `deleteApp`, `disableApp`, `enableApp`. The key of a query on one app must end
   with its id: `appMutations.remove` removes these queries, because the server refuses each read

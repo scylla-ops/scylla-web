@@ -1,5 +1,6 @@
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
+import InfoIcon from '@lucide/svelte/icons/info';
 import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 import SunIcon from '@lucide/svelte/icons/sun';
@@ -9,7 +10,13 @@ import type { LucideIcon } from '@scylla/ui';
 import { personalTokensMessages } from '@base/features/user/presentation/messages/personal-tokens.messages.ts';
 import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
-export type AccountSectionId = 'profile' | 'appearance' | 'security' | 'tokens' | 'danger-zone';
+export type AccountSectionId =
+  | 'profile'
+  | 'appearance'
+  | 'security'
+  | 'tokens'
+  | 'about'
+  | 'danger-zone';
 
 export interface AccountSection {
   /** The last segment of the URL: `account/<id>`. */
@@ -27,6 +34,7 @@ export const ACCOUNT_SECTIONS: readonly AccountSection[] = [
   { id: 'appearance', title: userMessages.appearance, icon: SunIcon, keywords: msg`theme look colors` },
   { id: 'security', title: userMessages.security, icon: ShieldCheckIcon, keywords: msg`password 2fa` },
   { id: 'tokens', title: personalTokensMessages.navTitle, icon: KeyRoundIcon, keywords: msg`api key personal token` },
+  { id: 'about', title: userMessages.about, icon: InfoIcon, keywords: msg`version edition server` },
   {
     id: 'danger-zone',
     title: userMessages.dangerZone,

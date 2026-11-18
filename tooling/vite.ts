@@ -10,6 +10,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { lingui } from '@lingui/vite-plugin';
+import { versionText } from './version.ts';
 
 /**
  * Third-party code pinned to stable, separately cacheable chunks.
@@ -83,19 +84,20 @@ export const babelTransforms = (): Plugin => ({
   },
 });
 
+/** The version of the `package.json` of the app. */
+const versionOf = (appDir: string): string =>
+  (JSON.parse(readFileSync(resolve(appDir, 'package.json'), 'utf8')) as { version: string })
+    .version;
+
 /**
- * Writes the version of the app into its `index.html`: `%SCYLLA_VERSION%` becomes the
- * `major.minor` of the app's `package.json`, so the tab title follows each release. An
- * `index.html` without the token is left as it is.
+ * Writes the version of the app into its `index.html`: `%SCYLLA_VERSION%` becomes its
+ * `major.minor`, so the tab title follows each release. An `index.html` without the token is
+ * left as it is.
  */
-const appVersion = (appDir: string): Plugin => ({
+const appVersion = (version: string): Plugin => ({
   name: 'scylla:app-version',
-  transformIndexHtml(html) {
-    const { version } = JSON.parse(readFileSync(resolve(appDir, 'package.json'), 'utf8')) as {
-      version: string;
-    };
-    return html.replaceAll('%SCYLLA_VERSION%', version.split('.').slice(0, 2).join('.'));
-  },
+  transformIndexHtml: html =>
+    html.replaceAll('%SCYLLA_VERSION%', version.split('.').slice(0, 2).join('.')),
 });
 
 /** `…/node_modules/@scope/name/dist/x.js` -> `@scope/name`. */
@@ -130,6 +132,7 @@ export const defineScyllaConfig = ({ workspaceRoot, app, thresholds }: ScyllaCon
   const root = resolve(workspaceRoot);
   // `scylla/` in a host repo, empty in scylla-web itself.
   const mountedAt = relative(root, scyllaRoot).split('\\').join('/');
+  const version = versionOf(resolve(root, app));
 
   return defineConfig({
     // Vite serves the app. Vitest keeps the workspace root, so that it finds the
@@ -142,8 +145,12 @@ export const defineScyllaConfig = ({ workspaceRoot, app, thresholds }: ScyllaCon
     // forcing `browser` for the production build would change how every dependency
     // resolves, not just Svelte.
     resolve: process.env.VITEST ? { conditions: ['browser'] } : {},
+    // The version text of this build: the About section of the account shows it.
+    define: {
+      'import.meta.env.SCYLLA_WEB_VERSION': JSON.stringify(versionText(version, process.env)),
+    },
     plugins: [
-      appVersion(resolve(root, app)),
+      appVersion(version),
       lingui(),
       babelTransforms(),
       svelte(),

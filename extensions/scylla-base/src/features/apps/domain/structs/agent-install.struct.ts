@@ -19,8 +19,10 @@ export const DEFAULT_INSTALL_OPTIONS: InstallOptions = {
   dockerContainers: false,
 };
 
-/** What the server tells about an agent that it can use. */
+/** What the server tells about itself, and about an agent that it can use. */
 export interface ServerInfo {
+  /** The edition of the server, as it reports it: `community` or `enterprise`. */
+  edition: string;
   /** The version text of the build of the server, for example `0.7.0-rc.1+240da00`. */
   version: string;
   /** The image of the agent, with its tag. */

@@ -93,7 +93,8 @@ presentation/
   ui/admin/user-table/               UserTable, user-table.columns.ts
   ui/account/Account/                the account page: AccountHeader, one section per page,
                                      AccountNav (with no workspace only), AccountSecurity
-                                     (password + sessions), ChangePasswordForm
+                                     (password + sessions), ChangePasswordForm, AccountAbout
+                                     (the edition and the versions)
     account-page.state.svelte.ts     createAccountPage: the account of the session
     account-sections.registry.ts     ACCOUNT_SECTIONS: the one list of the sections: the links of
                                      the sidebar, AccountNav, the crumb
@@ -125,7 +126,7 @@ presentation/
 | `personal`     | `account` (`/account`) | (redirect)                                                     | to `/account/profile`                                                   |
 | `personal`     | `account/:section`     | none (`UNGATED_PAGES`)                                         | `PersonalAccount.page.svelte`: `Account.page.svelte`, then the sign-out |
 
-`:section` is `profile`, `appearance`, `security`, `tokens` or `danger-zone`
+`:section` is `profile`, `appearance`, `security`, `tokens`, `about` or `danger-zone`
 (`ACCOUNT_SECTIONS` in `account-sections.registry.ts`). Another value goes to `profile`.
 
 Sidebar: `users` is one entry, section **`instance`**, order `10`, icon `UsersIcon`.
@@ -211,6 +212,11 @@ user who has no workspace.
   `Account.page.svelte`. A form in a
   `SettingsSection` with `actionBar` shows its `data-slot="form-actions"` as a bar at the bottom of
   the card.
+- **The section `about` shows the versions** that a user gives in a report of a problem. The
+  edition and the version of the server come from `GetCapabilities` (`appQueries.server` of
+  `apps`). The version of the web app is `import.meta.env.SCYLLA_WEB_VERSION`, that
+  `tooling/vite.ts` writes at the build in the format of the server. A value that is not known
+  shows "–".
 - `getAll()` is paginated (`UserList`). Use `createPagination()` + `DataTable`; do not render
   an unpaginated directory.
 - Users are principals in the authz model: deleting one removes their grants. Confirm through
