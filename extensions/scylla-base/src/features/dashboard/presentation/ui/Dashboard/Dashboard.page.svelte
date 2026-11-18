@@ -166,11 +166,15 @@
 
   let pending: { at: number; timer: ReturnType<typeof setTimeout> } | null = null;
 
-  /** A new target waits a short time under the pointer before the grid moves to it. */
+  /**
+   * A new target waits a short time under the pointer before the grid moves to it. Out of the grid,
+   * on the panel for example, the drag lands nowhere at once: a moved widget goes back to its place.
+   */
   const aim = (at: number | null) => {
     if (at === null || at === over) {
       if (pending) clearTimeout(pending.timer);
       pending = null;
+      if (at === null && drag) dashboardEditor.setOver(drag.from === 'grid' ? items.findIndex(item => item.id === drag.id) : null);
       return;
     }
     if (pending?.at === at) return;

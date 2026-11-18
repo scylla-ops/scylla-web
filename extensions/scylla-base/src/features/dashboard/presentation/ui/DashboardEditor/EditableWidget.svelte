@@ -196,8 +196,10 @@
         aria-hidden="true"
         class={cn(
           'pointer-events-none absolute top-0 left-0 z-0 rounded-2xl',
-          option.size === size ? 'border-2 border-primary bg-primary/5' : 'border border-dashed border-primary/45',
-          !option.fits && 'opacity-30',
+          option.size === size
+            ? 'border-[3px] border-primary bg-primary/10'
+            : 'border-2 border-dashed border-primary/85 dark:border-primary',
+          !option.fits && 'border-muted-foreground/60 opacity-50',
         )}
         style="width: {option.width}px; height: {option.height}px"
       ></div>
@@ -208,7 +210,7 @@
         aria-hidden="true"
         class={cn(
           'pointer-events-none absolute z-40 -translate-x-full -translate-y-full rounded-md px-1.5 py-0.5 font-mono text-[10px] whitespace-nowrap shadow-sm',
-          option.size === size ? 'bg-primary text-primary-foreground' : 'border border-primary/30 bg-background/95 text-muted-foreground',
+          option.size === size ? 'bg-primary text-primary-foreground' : 'border border-primary/70 bg-background text-foreground',
           !option.fits && 'opacity-40',
         )}
         style="left: {option.width - 6}px; top: {option.height - 6}px"
