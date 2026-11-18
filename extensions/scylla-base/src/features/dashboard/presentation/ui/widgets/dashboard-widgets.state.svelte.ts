@@ -7,6 +7,7 @@ import { jobQueries, type JobEntity, type PeriodScope } from '@base/features/job
 import { pipelineQueries } from '@base/features/pipeline';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { attentionQueries, visitSince } from '@base/features/dashboard/presentation/attention.queries.ts';
+import { slotUsageQueries } from '@base/features/dashboard/presentation/slot-usage.queries.ts';
 import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
 import type { PeriodRange } from '@base/features/dashboard/presentation/presenters/period.presenter.ts';
 import { pipelinesById } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
@@ -101,6 +102,7 @@ export const createDashboardWidgets = (
     ),
   );
   const agents = createQuery(() => appQueries.runners(workspaceId ?? ''));
+  const slotUsage = createQuery(() => slotUsageQueries.lastDay(workspaceId, can(Permission.LIST_AGENTS)));
   const since = $derived(workspaceId ? visitSince(workspaceId) : null);
   const attention = createQuery(() => attentionQueries.list(workspaceId, projectId(), since));
   const attentionLocked = $derived(
@@ -152,6 +154,8 @@ export const createDashboardWidgets = (
     ended,
     day,
     agents,
+    /** The busy job slots of the last 24 hours, by hour. */
+    slotUsage,
     /** The summaries of the scope, failing first. */
     get pipelineItems() {
       return pipelineItems;

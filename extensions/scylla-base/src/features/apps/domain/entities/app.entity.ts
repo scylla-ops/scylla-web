@@ -17,6 +17,8 @@ export interface AppEntity {
   lastSeenAt: string;
   /** `null` until an agent said hello. */
   host: AppHost | null;
+  /** The last use of the machine of the agent. `null` before its first sample. */
+  lastSample?: AppSample | null;
   /** The actor that created the app. The server lets it manage the app with no other role. */
   createdBy: string;
   createdAt: string;
@@ -52,6 +54,14 @@ export const featureFixOf = (
   feature: string,
 ): 'update-agent' | 'install-git' =>
   feature === 'checkout' && host.protocol >= CHECKOUT_PROTOCOL ? 'install-git' : 'update-agent';
+
+/** A sample of the use of the machine of an agent. */
+export interface AppSample {
+  at: string;
+  /** 0 to 100, for all the CPUs of the machine. */
+  cpuPercent: number;
+  memoryUsedBytes: number;
+}
 
 export interface AppHost {
   version: string;

@@ -4,8 +4,10 @@ import { Permission } from '@platform/authz';
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { grpcTransport } from '@platform/grpc';
 import { DashboardServiceClient } from '@base/generated/scylla/dashboards/v1/dashboard_service.client.ts';
+import { AgentServiceClient } from '@base/generated/scylla/agents/v1/agent_service.client.ts';
 import { GrpcAttentionRepository } from './infrastructure/grpc-attention.repository.ts';
 import { GrpcDashboardLayoutRepository } from './infrastructure/grpc-dashboard-layout.repository.ts';
+import { GrpcSlotUsageRepository } from './infrastructure/grpc-slot-usage.repository.ts';
 import { LocalDashboardPreferences } from './infrastructure/local-dashboard-preferences.ts';
 import DashboardPanel from './presentation/ui/DashboardPanel/DashboardPanel.svelte';
 
@@ -13,6 +15,7 @@ const dashboardClient = new DashboardServiceClient(grpcTransport.getTransport())
 const dashboardLayoutRepository = new GrpcDashboardLayoutRepository(dashboardClient);
 const attentionRepository = new GrpcAttentionRepository(dashboardClient);
 const dashboardPreferences = new LocalDashboardPreferences();
+const slotUsageRepository = new GrpcSlotUsageRepository(new AgentServiceClient(grpcTransport.getTransport()));
 
 const page = () => import('./presentation/ui/Dashboard/Dashboard.page.svelte');
 
@@ -22,6 +25,7 @@ export const DashboardModule = {
     dashboardLayoutRepository,
     dashboardPreferences,
     attentionRepository,
+    slotUsageRepository,
   },
   routes: {
     workspace: [
