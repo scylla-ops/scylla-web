@@ -21,7 +21,7 @@ msgstr "{busy} of {total} job slots busy"
 msgid "{change} pts"
 msgstr "{change} pts"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:53
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:58
 msgid "{change} vs previous"
 msgstr "{change} vs previous"
 
@@ -54,11 +54,11 @@ msgstr "{factor}× the median"
 msgid "{green} of {total} green"
 msgstr "{green} of {total} green"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:55
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:60
 msgid "{hours} h"
 msgstr "{hours} h"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:54
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:59
 msgid "{hours} h ago"
 msgstr "{hours} h ago"
 
@@ -94,7 +94,7 @@ msgstr "{value} per hour"
 msgid "{value} per week"
 msgstr "{value} per week"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:56
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:61
 msgid "+ {count} more"
 msgstr "+ {count} more"
 
@@ -419,6 +419,26 @@ msgstr "p95"
 msgid "passed"
 msgstr "passed"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:57
+msgctxt "bars"
+msgid "peak · {count} runs"
+msgstr "peak · {count} runs"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:54
+msgctxt "bars"
+msgid "per day"
+msgstr "per day"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:53
+msgctxt "bars"
+msgid "per hour"
+msgstr "per hour"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:55
+msgctxt "bars"
+msgid "per week"
+msgstr "per week"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:13
 msgid "Period"
 msgstr "Period"
@@ -482,6 +502,11 @@ msgstr "Running · {count}"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:42
 msgid "running now"
 msgstr "running now"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:56
+msgctxt "bars"
+msgid "runs"
+msgstr "runs"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:39
 msgid "Runs per day"
