@@ -63,7 +63,7 @@
 <Dialog open onOpenChange={open => !open && onClose()}>
   <DialogContent class="max-w-[944px] gap-0 overflow-hidden p-0 sm:max-w-[944px]">
     <header class="flex items-center gap-4 border-b border-border px-6 py-5 pr-14">
-      <DialogTitle class="text-xl font-medium">{t(messages.addWidget)}</DialogTitle>
+      <DialogTitle>{t(messages.addWidget)}</DialogTitle>
       <ol class="ml-auto flex items-center gap-2 text-xs">
         {#each STEPS as step, index (index)}
           <li class="flex items-center gap-2">
@@ -89,7 +89,7 @@
           <Input class="h-8 pl-8 text-xs" placeholder={t(messages.searchKinds)} aria-label={t(messages.searchKinds)} bind:value={query} />
         </label>
         <p class="px-1 pt-1 text-[11px] text-muted-foreground uppercase">{t(messages.kinds)}</p>
-        <ul class="flex min-h-0 flex-col gap-1 overflow-y-auto">
+        <ul class="relative flex min-h-0 flex-col gap-1 overflow-y-auto">
           {#each kinds as item (item.kind)}
             <li>
               <button

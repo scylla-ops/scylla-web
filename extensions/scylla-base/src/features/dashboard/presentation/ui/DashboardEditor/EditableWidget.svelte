@@ -111,8 +111,8 @@
   <button
     type="button"
     class="absolute -top-2.5 -left-2.5 z-10 flex size-5 items-center justify-center rounded-full bg-foreground text-background shadow"
-    aria-label={t(messages.remove(title))}
-    title={t(messages.remove(title))}
+    aria-label={t(messages.takeOut(title))}
+    title={t(messages.takeOut(title))}
     onclick={event => {
       event.stopPropagation();
       dashboardEditor.remove(item.id);
@@ -128,9 +128,9 @@
     aria-label={t(messages.move(title))}
     title={t(messages.move(title))}
     ondragstart={event => {
+      dashboardEditor.startDrag({ from: 'grid', id: item.id, size });
       event.dataTransfer?.setData('text/plain', item.id);
       if (event.dataTransfer && frame) event.dataTransfer.setDragImage(frame, 24, 24);
-      dashboardEditor.startDrag({ from: 'grid', id: item.id, size });
     }}
     ondragend={() => dashboardEditor.endDrag()}
   >
@@ -203,8 +203,8 @@
       <button
         type="button"
         class="flex size-7 items-center justify-center rounded-md hover:bg-background/15"
-        aria-label={t(messages.delete)}
-        title={t(messages.delete)}
+        aria-label={t(messages.takeOutSelected)}
+        title={t(messages.takeOutSelected)}
         onclick={() => dashboardEditor.remove(item.id)}
       >
         <Trash2Icon class="size-3.5" aria-hidden="true" />

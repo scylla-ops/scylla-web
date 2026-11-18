@@ -50,7 +50,7 @@
       }}
     >
       <header class="border-b border-border px-6 py-5">
-        <DialogTitle class="text-2xl font-medium">{t(messages.newDashboard)}</DialogTitle>
+        <DialogTitle>{t(messages.newDashboard)}</DialogTitle>
       </header>
       <div class="flex flex-col gap-5 px-6 py-5">
         <div class="flex flex-col gap-1.5">

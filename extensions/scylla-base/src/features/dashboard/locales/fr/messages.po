@@ -25,7 +25,7 @@ msgstr "{change} pts"
 msgid "{change} vs previous"
 msgstr "{change} vs période précédente"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:40
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:42
 msgid "{columns} × {rows} cells"
 msgstr "{columns} × {rows} cases"
 
@@ -74,11 +74,11 @@ msgstr "il y a {hours} h"
 msgid "{jobs} jobs · {failed} failed"
 msgstr "{jobs} jobs · {failed} en échec"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:50
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:52
 msgid "{kind} · {size} · {cells}"
 msgstr "{kind} · {size} · {cells}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:72
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:74
 msgid "{name} (copy)"
 msgstr "{name} (copie)"
 
@@ -98,7 +98,7 @@ msgstr "{online} agents en ligne sur {total}"
 msgid "{part} of {total}"
 msgstr "{part} sur {total}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:25
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:27
 msgid "{size} · neighbours move down"
 msgstr "{size} · les voisins descendent"
 
@@ -170,7 +170,7 @@ msgstr "Une valeur dans le temps"
 msgid "Actions"
 msgstr "Actions"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:57
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:59
 msgid "Actions of {name}"
 msgstr "Actions de {name}"
 
@@ -179,11 +179,11 @@ msgstr "Actions de {name}"
 msgid "Activity"
 msgstr "Activité"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:30
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:32
 msgid "Add a widget"
 msgstr "Ajouter un widget"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:26
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:28
 msgid "Add a widget, or drop one here"
 msgstr "Ajoutez un widget, ou déposez-en un ici"
 
@@ -191,11 +191,11 @@ msgstr "Ajoutez un widget, ou déposez-en un ici"
 msgid "Add an agent"
 msgstr "Ajouter un agent"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:39
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:41
 msgid "Add widget"
 msgstr "Ajouter le widget"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:68
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:70
 msgid "add widgets yourself"
 msgstr "ajoutez vous-même les widgets"
 
@@ -236,7 +236,7 @@ msgid "All projects"
 msgstr "Tous les projets"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:22
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:51
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:53
 msgid "Apply"
 msgstr "Appliquer"
 
@@ -245,15 +245,15 @@ msgstr "Appliquer"
 msgid "approval"
 msgstr "approbation"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:38
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:40
 msgid "Back"
 msgstr "Retour"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:65
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:67
 msgid "Bento overview"
 msgstr "Vue bento"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:67
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:69
 msgid "Blank"
 msgstr "Vide"
 
@@ -261,7 +261,7 @@ msgstr "Vide"
 msgid "busy job slots on all agents"
 msgstr "créneaux occupés sur tous les agents"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:61
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:63
 msgid "Calm · needs you"
 msgstr "Calme · ce qui vous attend"
 
@@ -289,7 +289,7 @@ msgstr "Choisissez un an ou moins."
 msgid "Choose the days"
 msgstr "Choisir les jours"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:73
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:75
 msgid "Close"
 msgstr "Fermer"
 
@@ -301,7 +301,7 @@ msgstr "terminés"
 msgid "Completed"
 msgstr "Terminé"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:64
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:66
 msgid "copy of {name}"
 msgstr "copie de {name}"
 
@@ -309,7 +309,7 @@ msgstr "copie de {name}"
 msgid "Create a pipeline in a project to see its runs here."
 msgstr "Créez un pipeline dans un projet pour voir ses exécutions ici."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:71
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:73
 msgid "Create dashboard"
 msgstr "Créer le tableau de bord"
 
@@ -317,7 +317,7 @@ msgstr "Créer le tableau de bord"
 msgid "cron"
 msgstr "cron"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:63
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:65
 msgid "Current dashboard"
 msgstr "Tableau de bord actuel"
 
@@ -345,8 +345,8 @@ msgstr "tableau de bord accueil"
 msgid "Dashboards"
 msgstr "Tableaux de bord"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:21
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:33
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:22
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:35
 msgid "Data"
 msgstr "Données"
 
@@ -363,23 +363,23 @@ msgctxt "dashboard"
 msgid "Default"
 msgstr "Par défaut"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:23
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:25
 msgid "Delete"
 msgstr "Supprimer"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:56
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:58
 msgid "Delete dashboard"
 msgstr "Supprimer le tableau de bord"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:48
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:50
 msgid "Display"
 msgstr "Affichage"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:24
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:26
 msgid "Drop here"
 msgstr "Déposer ici"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:22
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:23
 msgid "Duplicate"
 msgstr "Dupliquer"
 
@@ -399,7 +399,7 @@ msgstr "écoulé · médiane"
 msgid "Events on a time axis"
 msgstr "Des événements sur un axe du temps"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:41
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:43
 msgid "Extra small"
 msgstr "Très petit"
 
@@ -447,11 +447,11 @@ msgstr "Intégrations"
 msgid "Invite a member"
 msgstr "Inviter un membre"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:46
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:48
 msgid "It follows the period and the scope of the dashboard."
 msgstr "Il suit la période et le périmètre du tableau de bord."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:37
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:39
 msgid "It lands in the first free spot. Drag it where you want after."
 msgstr "Il se place au premier emplacement libre. Faites-le glisser où vous voulez ensuite."
 
@@ -475,7 +475,7 @@ msgstr "Fins de jobs"
 msgid "jobs per bucket, by end"
 msgstr "jobs par période, par issue"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:31
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:33
 msgid "Kind"
 msgstr "Type"
 
@@ -483,7 +483,7 @@ msgstr "Type"
 msgid "Kinds"
 msgstr "Types"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:44
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:46
 msgid "Large"
 msgstr "Grand"
 
@@ -528,7 +528,7 @@ msgstr "Journaux"
 msgid "longest {duration}"
 msgstr "la plus longue {duration}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:69
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:71
 msgid "Make it my default dashboard"
 msgstr "En faire mon tableau de bord par défaut"
 
@@ -540,15 +540,15 @@ msgstr "manuel"
 msgid "Median"
 msgstr "Médiane"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:43
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:45
 msgid "Medium"
 msgstr "Moyen"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:18
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:19
 msgid "Move {title}"
 msgstr "Déplacer {title}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:59
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:61
 msgid "Name"
 msgstr "Nom"
 
@@ -565,7 +565,7 @@ msgstr "Vous attend"
 msgid "needs you."
 msgstr "vous attend."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:58
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:60
 msgid "New dashboard"
 msgstr "Nouveau tableau de bord"
 
@@ -629,7 +629,7 @@ msgstr "maintenant"
 msgid "Number + bars"
 msgstr "Nombre + barres"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:66
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:68
 msgid "numbers and charts"
 msgstr "chiffres et graphiques"
 
@@ -697,7 +697,7 @@ msgstr "réussis"
 msgid "Period"
 msgstr "Période"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:34
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:36
 msgid "pick a size"
 msgstr "choisissez une taille"
 
@@ -740,15 +740,15 @@ msgstr "rouge"
 msgid "red pipelines and approvals"
 msgstr "pipelines en rouge et validations"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:52
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:54
 msgid "Remove"
 msgstr "Supprimer"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:17
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:18
 msgid "Remove {title}"
 msgstr "Retirer {title}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:54
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:56
 msgid "Rename"
 msgstr "Renommer"
 
@@ -756,7 +756,7 @@ msgstr "Renommer"
 msgid "Repositories and webhooks"
 msgstr "Dépôts et webhooks"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:19
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:20
 msgid "Resize {title}"
 msgstr "Redimensionner {title}"
 
@@ -819,7 +819,7 @@ msgstr "Exécutions par heure"
 msgid "Runs per week"
 msgstr "Exécutions par semaine"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:36
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:38
 msgid "Same data in every size. You can switch size later from the widget toolbar."
 msgstr "Les mêmes données dans chaque taille. Vous pourrez changer de taille depuis la barre du widget."
 
@@ -839,7 +839,7 @@ msgstr "Chercher un type ou une donnée…"
 msgid "Search widgets…"
 msgstr "Chercher un widget…"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:28
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:30
 msgid "Select Edit dashboard, then drag a kind from the list."
 msgstr "Choisissez Modifier le tableau de bord, puis faites glisser un type de la liste."
 
@@ -847,11 +847,11 @@ msgstr "Choisissez Modifier le tableau de bord, puis faites glisser un type de l
 msgid "Sentence"
 msgstr "Phrase"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:62
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:64
 msgid "sentence, timeline, list"
 msgstr "phrase, chronologie, liste"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:55
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:57
 msgid "Set as my default"
 msgstr "Définir par défaut"
 
@@ -859,19 +859,19 @@ msgstr "Définir par défaut"
 msgid "Shortcuts to the actions"
 msgstr "Raccourcis vers les actions"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:49
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:51
 msgid "Show"
 msgstr "Afficher"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:32
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:34
 msgid "Size"
 msgstr "Taille"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:20
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:21
 msgid "Size of {title}"
 msgstr "Taille de {title}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:42
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:44
 msgid "Small"
 msgstr "Petit"
 
@@ -879,7 +879,7 @@ msgstr "Petit"
 msgid "soon"
 msgstr "bientôt"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:60
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:62
 msgid "Start from"
 msgstr "Partir de"
 
@@ -945,11 +945,11 @@ msgstr "le temps d'exécution de la période"
 msgid "The top items with a bar"
 msgstr "Les premiers éléments avec une barre"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:27
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:29
 msgid "This dashboard has no widget yet."
 msgstr "Ce tableau de bord n'a encore aucun widget."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:45
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:47
 msgid "This widget has no layout in this size yet."
 msgstr "Ce widget n'a pas encore de mise en page dans cette taille."
 
@@ -1001,7 +1001,7 @@ msgstr "webhook"
 msgid "What needs you"
 msgstr "Ce qui vous attend"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:35
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:37
 msgid "What should it show?"
 msgstr "Que doit-il afficher ?"
 
@@ -1013,6 +1013,6 @@ msgstr "Vous n’avez pas la permission de lire ces données."
 msgid "You have no permission for these actions."
 msgstr "Vous n’avez la permission pour aucune de ces actions."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:70
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:72
 msgid "You land in edit mode right after."
 msgstr "Vous arrivez ensuite en mode modification."

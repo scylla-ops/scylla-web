@@ -72,13 +72,13 @@
     class="top-0 right-0 left-auto flex h-dvh max-h-dvh w-full max-w-[384px] translate-x-0 translate-y-0 flex-col gap-0 rounded-none p-0 sm:max-w-[384px] sm:rounded-none"
   >
     <header class="flex flex-col gap-0.5 px-5 pt-5 pb-4 pr-12">
-      <DialogTitle class="text-xl font-medium">{t(DATA[data].title)}</DialogTitle>
+      <DialogTitle>{t(DATA[data].title)}</DialogTitle>
       <DialogDescription class="text-xs">
         {t(messages.kindAndSize(t(entry.title), sizeLabel(size), cellsText(size)))}
       </DialogDescription>
     </header>
 
-    <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5">
+    <div class="relative flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5">
       <WidgetPreview item={{ data, size }} {widgets} {period} width={344} />
 
       <Tabs value="data" class="gap-4">

@@ -14,13 +14,15 @@ export const editorMessages = {
   undo: msg`Undo the last change`,
   cancel: msg`Cancel`,
   saveLayout: msg`Save layout`,
-  remove: (title: string) => msg`Remove ${title}`,
+  /** Takes the widget out of the draft: the saved layout keeps it until Save layout. */
+  takeOut: (title: string) => msg`Remove ${title}`,
   move: (title: string) => msg`Move ${title}`,
   resize: (title: string) => msg`Resize ${title}`,
   sizeOf: (title: string) => msg`Size of ${title}`,
   data: msg`Data`,
   duplicate: msg`Duplicate`,
-  delete: msg`Delete`,
+  /** Takes the selected widget out of the draft. */
+  takeOutSelected: msg`Delete`,
   dropHere: msg`Drop here`,
   dropHint: (size: string) => msg`${size} · neighbours move down`,
   addOrDrop: msg`Add a widget, or drop one here`,
