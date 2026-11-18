@@ -3,6 +3,7 @@
   import RadioIcon from '@lucide/svelte/icons/radio';
   import { ChartDot, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
   import { viewMessages as messages } from '@base/features/dashboard/presentation/messages/widgets-view.messages.ts';
   import { liveJobs } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
@@ -28,10 +29,16 @@
   const dots = (count: number) => Math.min(count, DOTS);
 </script>
 
-{#snippet running()}
-  <div class="flex h-2 items-center gap-1">
-    {#each { length: dots(live.running.length) } as _, index (index)}
-      <ChartDot tone="running" />
+{#snippet marks(count: number, kind: 'running' | 'waiting' | 'online')}
+  <div data-part="status-marks" aria-hidden="true" class="flex h-2 items-center gap-1">
+    {#each { length: Math.max(1, dots(count)) } as _, index (index)}
+      {#if kind === 'waiting'}
+        <span class={cn('size-2 rounded-full border', count > 0 ? 'border-foreground/60' : 'border-muted-foreground/40')}></span>
+      {:else if count > 0}
+        <ChartDot tone={kind === 'running' ? 'running' : 'passed'} />
+      {:else}
+        <span class="size-2 rounded-full bg-muted-foreground/30"></span>
+      {/if}
     {/each}
   </div>
 {/snippet}
@@ -46,7 +53,7 @@
   >
     {#if size === 'xs'}
       <div class="flex min-w-0 items-center gap-4">
-        {@render running()}
+        {@render marks(live.running.length, 'running')}
         <div class="min-w-0">
           <p class="text-sm font-medium">{t(messages.running(live.running.length))}</p>
           <p class="truncate text-xs text-muted-foreground">
@@ -57,27 +64,19 @@
     {:else}
       <div data-part="status-band" class="mt-auto mb-auto grid grid-cols-3">
         <div class="flex min-w-0 flex-col gap-2 pr-4">
-          {@render running()}
+          {@render marks(live.running.length, 'running')}
           <p class="text-2xl font-medium tracking-tight">{t(messages.running(live.running.length))}</p>
           <p class="truncate text-xs text-muted-foreground">{names || t(messages.nothingRuns)}</p>
         </div>
         <div class="flex min-w-0 flex-col gap-2 border-l border-border px-4">
-          <div class="flex h-2 items-center gap-1">
-            {#each { length: dots(live.waiting.length) } as _, index (index)}
-              <span class="size-2 rounded-full border border-foreground/60"></span>
-            {/each}
-          </div>
+          {@render marks(live.waiting.length, 'waiting')}
           <p class="text-2xl font-medium tracking-tight">{t(messages.waiting(live.waiting.length))}</p>
           <p class="truncate text-xs text-muted-foreground">
             {live.waiting[0] ? t(messages.longest(live.waiting[0].waited)) : t(messages.nothingWaits)}
           </p>
         </div>
         <div class="flex min-w-0 flex-col gap-2 border-l border-border pl-4">
-          <div class="flex h-2 items-center gap-1">
-            {#each { length: dots(capacity.online) } as _, index (index)}
-              <ChartDot tone="passed" />
-            {/each}
-          </div>
+          {@render marks(capacity.online, 'online')}
           <p class="text-2xl font-medium tracking-tight">
             {capacity.total > 0 ? t(messages.agentsOf(capacity.online, capacity.total)) : t(messages.noAgent)}
           </p>
