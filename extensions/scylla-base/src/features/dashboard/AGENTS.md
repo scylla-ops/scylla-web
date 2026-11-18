@@ -2,7 +2,7 @@
 
 The workspace landing page: a grid of widgets that shows the jobs and the pipelines of a period.
 
-**Layer** `features/` · **id** `dashboard` · **DI key** none (`domain: {}`)
+**Layer** `features/` · **id** `dashboard` · **DI key** `dashboard` (`dashboardLayoutRepository`)
 
 ## Import rules
 
@@ -18,9 +18,13 @@ would pull bits-ui into the chunk of the importer.
 
 ## Data contract
 
-**This module owns no data and has no repository.** `domain` is `{}` and it is registered in
-`shell/modules.ts` for its route alone. There is no domain accessor, and adding one would be
-wrong.
+**This module owns one resource: the layouts of the dashboards.** A `DashboardSet` is the
+dashboards of a workspace and the id of the default one. A dashboard is a name and an ordered
+list of `{ id, data, size }` (`domain/structs/dashboard-layout.struct.ts`).
+`DashboardLayoutRepository` reads and saves the set. `LocalDashboardLayoutRepository` keeps it in
+`localStorage` at the key `dashboards:<workspace id>`. A route of the server can replace it:
+change only `dashboard.module.ts`. With nothing stored, the workspace gets "Ops overview" with
+the default layout of the design (`TEMPLATES.bento`).
 
 The ViewModels of the page read, through public APIs only:
 
@@ -38,9 +42,27 @@ with whoever else reads it.
 ## Layout
 
 ```
-dashboard.module.ts                     route + nav, empty domain
+dashboard.module.ts                     routes, nav, the layout repository, the panel of the sidebar
 index.ts                                public API
+domain/structs/dashboard-layout.struct.ts   the set, the layout, the templates, their changes — tested
+domain/repository/dashboard-layout.repository.ts   the port of the set
+infrastructure/local-dashboard-layout.repository.ts   the set in `localStorage`
+infrastructure/stored-dashboards.mapper.ts  the stored JSON ↔ the set — tested
 presentation/
+  dashboard-layout.queries.ts           the query and the mutation of the set
+  messages/editor.messages.ts           the strings of the edit mode, the dialogs and the drawer
+  messages/catalog.messages.ts          the names of the kinds and of the data
+  presenters/widget-catalog.presenter.ts   the kinds of the palette, the data, their sizes
+  presenters/widget-resize.presenter.ts    the size under a resize drag — pure
+  presenters/dashboard-paths.presenter.ts  `dashboard` or `dashboards/<id>`
+  ui/dashboards.state.svelte.ts         the set and its changes (create, rename, default, delete)
+  ui/dashboard-editor.state.svelte.ts   the edit mode: the draft, the undo, the selection, the drag
+  ui/DashboardPanel/                    ViewPanel (dashboards, period, scope, Edit dashboard) and
+                                        EditPanel (the palette, the changes, Cancel, Save layout)
+  ui/Dashboard/MobileBar.svelte         the controls of the page on a phone
+  ui/DashboardEditor/                   DashboardWidget (data → component), EditableWidget (handles,
+                                        toolbar, resize), AddWidgetDialog, WidgetDrawer,
+                                        NewDashboardDialog, RenameDialog, previews and thumbnails
   messages/dashboard.messages.ts        every string on the page
   presenters/zoned-day.presenter.ts     days and midnights in an IANA zone — pure, node-tested
   presenters/period.presenter.ts        the periods, their instants and their bucket — pure, node-tested
@@ -70,9 +92,12 @@ No `domain/`, no `infrastructure/` — correct for this module, do not add them.
 
 | Mount | Path | Permission | Component |
 |---|---|---|---|
-| `workspace` | `dashboard` | `READ_WORKSPACE` | `Dashboard.page.svelte` |
+| `workspace` | `dashboard` | `READ_WORKSPACE` | `Dashboard.page.svelte` (the default dashboard) |
+| `workspace` | `dashboards/:dashboardId` | `READ_WORKSPACE` | `Dashboard.page.svelte` |
 
-Sidebar: section `workspace`, order `10`, icon `LayoutDashboard`.
+Sidebar: section `workspace`, order `10`, icon `LayoutDashboard`. The rail item `dashboard`
+shows `DashboardPanel` (`shell.secondSidebarPanels`), not links. An unknown id opens
+`/dashboard`.
 
 `READ_WORKSPACE` is intentionally the same gate as the projects list: the overview is a read
 of the workspace, and it is where every org-level redirect lands. Do not tighten it to a
@@ -82,7 +107,8 @@ narrower permission without moving that redirect target too.
 
 - **Each role of the workspace opens this page, so a widget reads only what the role can read.**
   A widget that the role cannot read shows Locked and sends no request.
-- **Never add a repository.** If the dashboard needs a new figure, add the query to the module
+- **Never add a repository for the data of another module.** The layout repository holds only
+  the layouts. If the dashboard needs a new figure, add the query to the module
   that *owns* the resource and export the options factory from its `index.ts`. A
   `pipelineRepository` call made from here would fork the query cache into two keys for one
   resource.
@@ -136,6 +162,29 @@ narrower permission without moving that redirect target too.
   role as these lists.
 - **The success rate is completed / (completed + failed + orphaned).** The cancelled jobs show
   apart. Its change is in points; the change of a duration is in percent, and down is good.
+
+## Edit mode
+
+The Figma page "Dashboard" (`695:13437`) draws it: frames `1525:6879` (edit), `1526:7446` (add
+a widget), `1527:8165` (widget data), `1529:8782` (layouts), `1529:9001` (new layout).
+
+- **"Edit dashboard" starts a draft** (`dashboardEditor`). Each change goes to the draft and to
+  its undo list. "Save layout" stores the draft in the set; "Cancel" drops it. The page and the
+  panel read the same module state.
+- **The palette replaces the panel.** A kind with data opens "Add a widget", or drags onto the
+  grid. A kind with no data yet (Ranking, Heatmap, the dedicated kinds) shows "soon".
+- **A widget in the grid** has Remove (top left), a handle to drag it (top), a corner to resize
+  it, and a toolbar when selected: the sizes, Data (the drawer), Duplicate, Delete. A drag shows
+  "Drop here" where the widget lands; the grid packs the rest (`grid-flow-row-dense`).
+- **A widget shows only the sizes of `DATA[data].sizes`.** The toolbar and the dialogs disable
+  the others. A stored size that the widget cannot show becomes its first size.
+- **A new dashboard** starts from a template (Calm, Bento, Blank) or a copy of the open one,
+  and opens in the edit mode.
+- **On a phone, the shell hides the panel.** `MobileBar` (under 768 px) gives the dashboard, the
+  period and Edit; in the edit mode, Cancel, the changes, Save layout and a floating "Add
+  widget". The design draws bottom sheets for the dialogs: they are centred dialogs today.
+- **Not done yet:** sharing a dashboard (the section "Shared", "Who can see it"), a period or a
+  scope for one widget, the filters, the thresholds, and the keyboard shortcuts.
 
 ## Before done
 

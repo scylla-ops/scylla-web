@@ -1,6 +1,7 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import HistoryIcon from '@lucide/svelte/icons/history';
-  import { ChartDot, Widget, type LucideIcon } from '@scylla/ui';
+  import { ChartDot, Widget, type WidgetSize, type LucideIcon } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { MessageDescriptor } from '@lingui/core';
   import type { JobStatus } from '@base/features/jobs';
@@ -15,11 +16,14 @@
   interface Props {
     widgets: DashboardWidgets;
     period: DashboardPeriodState;
+    size?: WidgetSize;
+    /** The controls of the edit mode, over the card. */
+    editing?: Snippet;
   }
 
-  let { widgets, period }: Props = $props();
+  let { widgets, period, size = 'm', editing }: Props = $props();
 
-  const MAX_ROWS = 5;
+  const maxRows = $derived(size === 'l' ? 12 : 5);
 
   const ENDS: Partial<Record<JobStatus, MessageDescriptor>> = {
     completed: messages.completedLower,
@@ -34,13 +38,14 @@
 </script>
 
 <Widget
-  size="m"
+  {size}
+  {editing}
   title={t(messages.activity)}
   icon={HistoryIcon as LucideIcon}
   meta={`${t(messages.jobEnds)} · ${periodMeta(period.period)}`}
 >
   <WidgetBody
-    size="m"
+    {size}
     locked={!widgets.canReadJobs}
     loading={widgets.ended.isPending}
     error={widgets.ended.isError}
@@ -50,7 +55,7 @@
     emptyText={t(messages.noJobsInPeriodText)}
   >
     <ul class="flex min-h-0 flex-col gap-1.5">
-      {#each rows.slice(0, MAX_ROWS) as row (row.jobId)}
+      {#each rows.slice(0, maxRows) as row (row.jobId)}
         {@const end = ENDS[row.status]}
         <li>
           <button

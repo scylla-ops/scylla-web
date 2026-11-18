@@ -198,7 +198,8 @@ module gives an access policy.
   `inCommandBar: false` is in the sidebar only: use it for a filter of a list, not for a page.
 - **A module can add links of data to the second sidebar** (`shell.secondSidebarLinks`, e.g. the
   projects under "All projects"). They come after the pages, apart from them, and they look and
-  open like the pages (`withModuleLinks`). `DoubleSidebar` calls each source once, when it mounts,
+  open like the pages (`withModuleLinks`). Only the first link is apart, unless a link sets `apart`
+  (the dashboards set `false`, and `true` on "New dashboard"). `DoubleSidebar` calls each source once, when it mounts,
   thus a source can create a query: read it only while `shown` is the id of its item. The sheet of a
   phone does not show them.
 - **A module can replace the second sidebar of a rail item** (`shell.secondSidebarPanels`, keyed

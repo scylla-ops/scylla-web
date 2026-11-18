@@ -9,9 +9,9 @@ Every workspace-level redirect in the app ends here.
 
 ## A composite view, by design
 
-The dashboard is the clearest example of a module that **owns nothing**. Its `domain` is empty,
-it has no `domain/` or `infrastructure/` folder, and it is registered in the DI container purely
-so its route and sidebar entry get composed with everyone else's.
+The dashboard owns one thing: the **layouts** of the dashboards of a workspace. A layout is a
+name and the widgets, in order, each at a size. The browser keeps them (`localStorage`) behind
+`DashboardLayoutRepository`, until a route of the server can hold them.
 
 All of its data comes from other modules' public APIs:
 
@@ -36,9 +36,8 @@ So the org-wide reads live in the modules that own the resource — `pipelineQue
 `pipeline`, `jobQueries` in `jobs` — even when the dashboard is their only consumer.
 The dashboard composes; it does not fetch.
 
-The same reasoning explains the empty `domain`. A module's `domain` is its *data surface*; a
-module with no data has no surface, and inventing a `dashboardRepository` to look symmetrical
-would only give the next contributor somewhere wrong to put a query.
+The same reasoning limits the `domain`. The layout repository holds the layouts and nothing
+else: a figure never goes through it.
 
 ## What is on the page
 

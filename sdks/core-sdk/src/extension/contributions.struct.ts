@@ -42,6 +42,8 @@ export interface SecondSidebarLink {
   /** The URL that the link opens. */
   href: string;
   icon?: LucideIcon;
+  /** Apart from the links before it. By default, only the first link of a module is apart. */
+  apart?: boolean;
 }
 
 /** What a module adds to the core's shell. */
