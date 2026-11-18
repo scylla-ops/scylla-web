@@ -275,6 +275,7 @@
       icon={PencilIcon as LucideIcon}
       label={t(editorMessages.editDashboard)}
       compact={compactEdit}
+      labeledIcon
       onclick={startEdit}
     />
   </div>

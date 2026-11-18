@@ -52,6 +52,7 @@
   let leaving = $state<(() => void) | null>(null);
   const unsaved = $derived(editing && dashboardEditor.changes > 0);
   const AREA_MARGIN_PX = 24;
+  let viewportWidth = $state(1440);
 
   const titleOf = (item: LayoutWidget) => t(DATA[item.data].title);
 
@@ -158,13 +159,14 @@
     data-slot="drag-label"
     aria-hidden="true"
     class="pointer-events-none fixed z-50 rounded-lg bg-foreground px-2.5 py-1.5 text-xs text-background shadow-lg"
-    style="left: {dashboardEditor.pointer.x + 12}px; top: {dashboardEditor.pointer.y + 12}px"
+    style="left: {Math.min(dashboardEditor.pointer.x + 12, viewportWidth - 200)}px; top: {dashboardEditor.pointer.y + 12}px"
   >
     {drag.label} · {cellsText(drag.size)}
   </div>
 {/if}
 
 <svelte:window
+  bind:innerWidth={viewportWidth}
   onpointermove={event => {
     if (editing) dashboardEditor.move(event.clientX, event.clientY, indexAt(event.clientX, event.clientY));
   }}

@@ -8,13 +8,24 @@
     icon: LucideIcon;
     /** Only the icon, with the label in a tooltip and in `aria-label`. */
     compact: boolean;
+    /** The icon also shows beside the label, not only when compact. */
+    labeledIcon?: boolean;
     variant?: 'default' | 'outline' | 'ghost';
     size?: 'sm' | 'default';
     class?: string;
     onclick: () => void;
   }
 
-  let { label, icon: Icon, compact, variant = 'default', size = 'sm', class: className, onclick }: Props = $props();
+  let {
+    label,
+    icon: Icon,
+    compact,
+    labeledIcon = false,
+    variant = 'default',
+    size = 'sm',
+    class: className,
+    onclick,
+  }: Props = $props();
 </script>
 
 {#if compact}
@@ -38,7 +49,7 @@
   </Tooltip>
 {:else}
   <Button {variant} {size} class={cn('min-w-0', className)} {onclick}>
-    <Icon aria-hidden="true" />
+    {#if labeledIcon}<Icon aria-hidden="true" />{/if}
     <span class="truncate">{label}</span>
   </Button>
 {/if}
