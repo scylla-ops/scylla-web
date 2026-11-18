@@ -46,7 +46,13 @@
     resizing
       ? SIZE_ORDER.filter(option => DATA[item.data].sizes.includes(option)).map(option => {
           const box = sizeBox(option, resizing!.grid);
-          return { size: option, ...box, fits: resizing!.left + box.width <= resizing!.grid + 1 };
+          const current = sizeBox(size, resizing!.grid);
+          return {
+            size: option,
+            ...box,
+            fits: resizing!.left + box.width <= resizing!.grid + 1,
+            inside: box.width <= current.width + 1 && box.height <= current.height + 1,
+          };
         })
       : [],
   );
@@ -193,11 +199,13 @@
         data-size={option.size}
         data-chosen={option.size === size || undefined}
         data-fits={option.fits}
+        data-inside={option.inside || undefined}
         aria-hidden="true"
         class={cn(
-          'pointer-events-none absolute top-0 left-0 z-0 rounded-2xl',
+          'pointer-events-none absolute top-0 left-0 rounded-2xl',
+          option.inside ? 'z-30 shadow-[0_0_0_1px_var(--background),inset_0_0_0_1px_var(--background)]' : 'z-0',
           option.size === size
-            ? 'border-[3px] border-primary bg-primary/10'
+            ? cn('border-[3px] border-primary', !option.inside && 'bg-primary/10')
             : 'border-2 border-dashed border-primary/85 dark:border-primary',
           !option.fits && 'border-muted-foreground/60 opacity-50',
         )}
