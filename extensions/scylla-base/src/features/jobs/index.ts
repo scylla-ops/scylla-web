@@ -34,6 +34,7 @@ export {
 } from './presentation/jobs.query-keys.ts';
 export {
   jobQueries,
+  jobMutations,
   asJobFeed,
   WORKSPACE_JOBS_WINDOW,
   type JobStatsShape,

@@ -130,7 +130,7 @@ msgstr "Un job venu d'un fork attend une relecture avant de tourner."
 msgid "Activity"
 msgstr "Activité"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:75
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:76
 msgid "Add an agent"
 msgstr "Ajouter un agent"
 
@@ -171,11 +171,11 @@ msgstr "Appliquer"
 msgid "approval"
 msgstr "approbation"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:69
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:70
 msgid "cancelled"
 msgstr "annulés"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:77
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:78
 msgid "Choose a pipeline"
 msgstr "Choisir un pipeline"
 
@@ -187,7 +187,7 @@ msgstr "Choisissez un an ou moins."
 msgid "Choose the days"
 msgstr "Choisir les jours"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:72
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:73
 msgid "completed"
 msgstr "terminés"
 
@@ -235,7 +235,7 @@ msgstr "Par défaut"
 msgid "elapsed · median"
 msgstr "écoulé · médiane"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:70
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:71
 msgid "failed"
 msgstr "échoués"
 
@@ -259,7 +259,7 @@ msgstr "Premier jour"
 msgid "green"
 msgstr "vert"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:76
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:77
 msgid "Invite a member"
 msgstr "Inviter un membre"
 
@@ -267,7 +267,7 @@ msgstr "Inviter un membre"
 msgid "Job {id}"
 msgstr "Job {id}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:68
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:69
 msgid "job ends"
 msgstr "fins de jobs"
 
@@ -379,7 +379,7 @@ msgstr "ouverts"
 msgid "Ops overview"
 msgstr "Vue des opérations"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:71
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:72
 msgid "orphaned"
 msgstr "orphelin"
 
@@ -443,11 +443,15 @@ msgstr "Actions rapides"
 msgid "red"
 msgstr "rouge"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:80
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:66
+msgid "Rerun"
+msgstr "Relancer"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:81
 msgid "Retry"
 msgstr "Réessayer"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:66
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:67
 msgid "Review"
 msgstr "Examiner"
 
@@ -463,7 +467,7 @@ msgstr "Durée des exécutions"
 msgid "Run minutes"
 msgstr "Minutes d'exécution"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:74
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:75
 msgid "Run pipeline"
 msgstr "Lancer un pipeline"
 
@@ -548,10 +552,10 @@ msgstr "Attend une validation · {when}"
 msgid "webhook"
 msgstr "webhook"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:79
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:80
 msgid "You do not have the permission to read this data."
 msgstr "Vous n’avez pas la permission de lire ces données."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:78
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:79
 msgid "You have no permission for these actions."
 msgstr "Vous n’avez la permission pour aucune de ces actions."
