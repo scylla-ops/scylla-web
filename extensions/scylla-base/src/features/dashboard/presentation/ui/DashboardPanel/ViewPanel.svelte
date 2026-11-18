@@ -116,7 +116,7 @@
   <ul class="flex flex-col gap-0.5 px-2">
     {#each dashboards.set.dashboards as dashboard (dashboard.id)}
       {@const current = dashboard.id === openId}
-      <li class="group/row relative">
+      <li class="group/row @container/row relative">
         <button
           type="button"
           class={cn(row, current ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-accent')}
@@ -124,7 +124,12 @@
           onclick={() => open(dashboard.id)}
         >
           <LayoutDashboardIcon class="size-4 shrink-0" aria-hidden="true" />
-          <span class="min-w-0 flex-1 truncate" title={dashboard.name}>{dashboard.name}</span>
+          <span
+            class="min-w-0 flex-1 truncate"
+            title={dashboards.isDefault(dashboard.id) ? `${dashboard.name} · ${t(messages.defaultBadge)}` : dashboard.name}
+          >
+            {dashboard.name}
+          </span>
           <span
             data-slot="row-end"
             class={cn(
@@ -141,8 +146,17 @@
               </span>
             {/if}
             {#if dashboards.isDefault(dashboard.id)}
-              <span class="shrink-0 rounded-md bg-background px-1.5 py-0.5 text-[11px] font-medium">
+              <span class="shrink-0 rounded-md bg-background px-1.5 py-0.5 text-[11px] font-medium @max-[200px]/row:hidden">
                 {t(messages.defaultBadge)}
+              </span>
+              <span
+                role="img"
+                aria-label={t(messages.defaultBadge)}
+                title={t(messages.defaultBadge)}
+                data-part="default-star"
+                class="hidden shrink-0 @max-[200px]/row:inline-flex"
+              >
+                <StarIcon aria-hidden="true" class="size-3.5 fill-current text-muted-foreground" />
               </span>
             {/if}
           </span>
