@@ -68,7 +68,7 @@
     <h2 class="truncate text-base">{t(messages.dashboard)}</h2>
   </div>
 
-  <div class="flex min-h-0 flex-1 flex-col overflow-y-auto">
+  <div class="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
     <p class={section}>{t(messages.dashboards)}</p>
     <ul class="flex flex-col gap-0.5 px-2">
       <li>
