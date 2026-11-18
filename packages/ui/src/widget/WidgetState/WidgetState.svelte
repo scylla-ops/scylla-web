@@ -52,14 +52,14 @@
       aria-hidden="true"
       class={cn(
         'flex shrink-0 items-center justify-center rounded-full',
-        compact ? 'size-6' : 'mb-1 size-7',
+        compact ? 'size-6' : 'mb-1 size-8',
         appearance.tone,
       )}
     >
-      <Icon class="size-3.5" />
+      <Icon class={compact ? 'size-3.5' : 'size-4'} />
     </span>
     <div class={cn('min-w-0', compact ? 'flex flex-col' : 'flex max-w-72 flex-col items-center')}>
-      <p class={cn('font-medium', compact ? 'truncate text-xs' : 'text-sm')}>
+      <p class={cn('font-medium', compact ? 'truncate text-xs' : 'font-display text-[15px]')}>
         {title ?? t(appearance.title)}
       </p>
       <p class={cn('text-xs text-muted-foreground', compact ? 'truncate' : 'line-clamp-3')}>
