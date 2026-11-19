@@ -16,6 +16,7 @@
   import { attentionMessages } from '@base/features/dashboard/presentation/messages/attention.messages.ts';
   import { clockIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
+  import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
@@ -130,6 +131,8 @@
 >
   <WidgetBody
     {size}
+    retrySeconds={30}
+    permission={viewPermissionName('triggers')}
     locked={widgets.schedulesLocked}
     loading={widgets.schedules.isPending && !widgets.schedulesLocked}
     error={widgets.schedules.isError && !widgets.schedulesLocked}

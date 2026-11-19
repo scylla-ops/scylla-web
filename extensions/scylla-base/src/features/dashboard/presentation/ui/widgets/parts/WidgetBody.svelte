@@ -11,6 +11,10 @@
     loading?: boolean;
     error?: boolean;
     onRetry?: () => void;
+    /** The seconds between two reads of the data: the error says when the widget tries again. */
+    retrySeconds?: number;
+    /** The read permission that a locked widget needs. */
+    permission?: string;
     empty?: boolean;
     /** `all-clear` is a good state, not an empty one. */
     emptyKind?: 'empty' | 'all-clear';
@@ -25,6 +29,8 @@
     loading = false,
     error = false,
     onRetry,
+    retrySeconds,
+    permission,
     empty = false,
     emptyKind = 'empty',
     emptyTitle,
@@ -34,13 +40,14 @@
 </script>
 
 {#if locked}
-  <WidgetState state="locked" {size} description={t(widgetMessages.locked)} />
+  <WidgetState state="locked" {size} {permission} description={permission ? undefined : t(widgetMessages.locked)} />
 {:else if loading}
   <WidgetState state="loading" {size} />
 {:else if error}
   <WidgetState
     state="error"
     {size}
+    {retrySeconds}
     action={onRetry ? { label: t(widgetMessages.retry), onSelect: onRetry } : undefined}
   />
 {:else if empty}

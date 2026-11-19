@@ -8,6 +8,7 @@
   import { dayIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
+  import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
@@ -97,6 +98,8 @@
 >
   <WidgetBody
     {size}
+    retrySeconds={60}
+    permission={viewPermissionName('jobs')}
     locked={!widgets.canReadJobs}
     loading={widgets.monthMinutes.isPending}
     error={widgets.monthMinutes.isError}

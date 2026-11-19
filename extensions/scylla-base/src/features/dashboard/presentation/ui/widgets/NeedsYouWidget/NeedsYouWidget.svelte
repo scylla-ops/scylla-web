@@ -17,6 +17,7 @@
   } from '@base/features/dashboard/presentation/presenters/attention.presenter.ts';
   import { clockIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
+  import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
   import AttentionRow from './AttentionRow.svelte';
   import NeedsYouSheet from './NeedsYouSheet.svelte';
@@ -77,6 +78,8 @@
 >
   <WidgetBody
     {size}
+    retrySeconds={30}
+    permission={viewPermissionName('jobs')}
     locked={widgets.attentionLocked}
     loading={widgets.attention.isPending && !widgets.attentionLocked}
     error={widgets.attention.isError && !widgets.attentionLocked}

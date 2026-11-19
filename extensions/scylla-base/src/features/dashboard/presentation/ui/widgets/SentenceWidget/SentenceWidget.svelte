@@ -12,6 +12,7 @@
   } from '@base/features/dashboard/presentation/presenters/view-figures.presenter.ts';
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
+  import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
@@ -40,6 +41,8 @@
 <Widget {size} {editing} bare title={t(messages.summary)} icon={InboxIcon as LucideIcon}>
   <WidgetBody
     {size}
+    retrySeconds={30}
+    permission={viewPermissionName('pipelines')}
     locked={!widgets.canReadPipelines || !widgets.canReadJobs}
     loading={widgets.summaries.isPending || widgets.live.isPending || widgets.attention.isPending}
     error={widgets.summaries.isError || widgets.live.isError}
