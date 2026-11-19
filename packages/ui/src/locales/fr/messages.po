@@ -204,8 +204,8 @@ msgid "The server did not answer."
 msgstr "Le serveur n'a pas répondu."
 
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:7
-msgid "The server did not answer. Scylla tries again in {seconds} s."
-msgstr "Le serveur n'a pas répondu. Scylla réessaie dans {seconds} s."
+msgid "The server did not answer. Scylla tries again in {seconds} s."
+msgstr "Le serveur n'a pas répondu. Scylla réessaie dans {seconds} s."
 
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:5
 msgid "This action cannot be undone."
