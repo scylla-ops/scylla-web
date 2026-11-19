@@ -832,7 +832,7 @@ msgstr "Déclencher {name}"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/quick-actions.messages.ts:5
 msgctxt "quick actions"
 msgid "Fire a trigger"
-msgstr "Lancer un déclencheur"
+msgstr "Déclencher"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/activity.messages.ts:16
 msgctxt "activity"

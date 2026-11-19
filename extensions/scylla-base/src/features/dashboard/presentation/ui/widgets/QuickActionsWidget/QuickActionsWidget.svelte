@@ -86,9 +86,18 @@
       <Icon aria-hidden="true" />
     </Button>
   {:else}
-    <Button variant="outline" size={size === 's' ? 'sm' : 'default'} class={cn(size === 's' ? 'h-7 w-full text-xs' : 'w-[166px]')} {...props}>
+    <Button
+      variant="outline"
+      size="sm"
+      title={action.label}
+      class={cn(
+        'min-w-0 gap-1.5 px-2.5',
+        size === 's' ? 'h-7 w-full text-xs' : 'h-9 w-[calc((100%-16px)/3)] text-[13px]',
+      )}
+      {...props}
+    >
       <Icon aria-hidden="true" />
-      {action.label}
+      <span class="truncate">{action.label}</span>
     </Button>
   {/if}
 {/snippet}
