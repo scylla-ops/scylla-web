@@ -35,6 +35,16 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   stays after a reload. A saved node saves its place at the end of a drag, with no Save button. A
   new node sends its place with the next save of the pipeline.
 
+**The library of pipelines**
+
+- In the blueprint, a box selection of nodes is saved to the library of the workspace, with a name,
+  tags and parameters, and becomes one linked block.
+- The Library tab of the palette inserts a fragment on a link or in empty space. A block links a
+  version: a new version is proposed, never forced, and a block can be detached as an editable copy.
+- The Library page of the workspace, with a search, the tags and the favorites, and the page of a
+  fragment with its nodes, parameters, versions and usages. The community library is shown as Soon.
+- The server has no library yet: the library is kept in the browser, with demo fragments.
+
 **Notifications**
 
 - A real inbox: the bell has a badge and a short popover, with no filter. The page `notifications`
