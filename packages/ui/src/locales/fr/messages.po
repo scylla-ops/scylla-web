@@ -25,7 +25,7 @@ msgstr "{selectedCount, plural, one {# sélectionné} other {# sélectionnés}}"
 msgid "{start}–{end} of {totalCount}"
 msgstr "{start}–{end} sur {totalCount}"
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:10
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:11
 msgid "All clear"
 msgstr "Tout va bien"
 
@@ -37,7 +37,7 @@ msgstr "Une erreur s'est produite"
 msgid "Are you absolutely sure?"
 msgstr "Êtes-vous absolument sûr ?"
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:13
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:14
 msgid "Ask an admin for access."
 msgstr "Demandez l'accès à un admin."
 
@@ -115,11 +115,11 @@ msgstr "Aller à la page suivante"
 msgid "Go to previous page"
 msgstr "Aller à la page précédente"
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:14
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:15
 msgid "It needs {permission}. Ask a workspace admin."
 msgstr "Il faut {permission}. Demandez-le à un admin du workspace."
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:16
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:17
 msgid "It was deleted, or you cannot see it any more."
 msgstr "Il a été supprimé, ou vous ne pouvez plus le voir."
 
@@ -135,7 +135,7 @@ msgstr "Chargement…"
 msgid "New {label}"
 msgstr "Nouveau {label}"
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:9
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:10
 msgid "No data matches the period or the scope of this widget."
 msgstr "Aucune donnée pour la période ou le périmètre de ce widget."
 
@@ -147,11 +147,11 @@ msgstr "Aucun résultat"
 msgid "No results."
 msgstr "Aucun résultat."
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:11
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:12
 msgid "Nothing needs you now."
 msgstr "Rien ne demande votre attention."
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:8
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:9
 msgid "Nothing to show"
 msgstr "Rien à afficher"
 
@@ -203,19 +203,19 @@ msgstr "Le navigateur n'a pas autorisé la page à écrire dans le presse-papier
 msgid "The server did not answer."
 msgstr "Le serveur n'a pas répondu."
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:7
-msgid "The server did not answer. Scylla tries again in {seconds} s."
-msgstr "Le serveur n'a pas répondu. Scylla réessaie dans {seconds} s."
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:8
+msgid "The server did not answer. Scylla tries again in {time}."
+msgstr "Le serveur n'a pas répondu. Scylla réessaie dans {time}."
 
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:5
 msgid "This action cannot be undone."
 msgstr "Cette action ne peut pas être annulée."
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:15
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:16
 msgid "This item is gone"
 msgstr "Cet élément n'existe plus"
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:12
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:13
 msgid "You cannot see this data"
 msgstr "Vous ne pouvez pas voir ces données"
 

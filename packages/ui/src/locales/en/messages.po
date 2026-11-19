@@ -25,7 +25,7 @@ msgstr "{selectedCount, plural, one {# selected} other {# selected}}"
 msgid "{start}–{end} of {totalCount}"
 msgstr "{start}–{end} of {totalCount}"
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:10
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:11
 msgid "All clear"
 msgstr "All clear"
 
@@ -37,7 +37,7 @@ msgstr "An error occurred"
 msgid "Are you absolutely sure?"
 msgstr "Are you absolutely sure?"
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:13
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:14
 msgid "Ask an admin for access."
 msgstr "Ask an admin for access."
 
@@ -115,11 +115,11 @@ msgstr "Go to next page"
 msgid "Go to previous page"
 msgstr "Go to previous page"
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:14
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:15
 msgid "It needs {permission}. Ask a workspace admin."
 msgstr "It needs {permission}. Ask a workspace admin."
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:16
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:17
 msgid "It was deleted, or you cannot see it any more."
 msgstr "It was deleted, or you cannot see it any more."
 
@@ -135,7 +135,7 @@ msgstr "Loading…"
 msgid "New {label}"
 msgstr "New {label}"
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:9
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:10
 msgid "No data matches the period or the scope of this widget."
 msgstr "No data matches the period or the scope of this widget."
 
@@ -147,11 +147,11 @@ msgstr "No match"
 msgid "No results."
 msgstr "No results."
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:11
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:12
 msgid "Nothing needs you now."
 msgstr "Nothing needs you now."
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:8
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:9
 msgid "Nothing to show"
 msgstr "Nothing to show"
 
@@ -203,19 +203,19 @@ msgstr "The browser did not let the page write to the clipboard."
 msgid "The server did not answer."
 msgstr "The server did not answer."
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:7
-msgid "The server did not answer. Scylla tries again in {seconds} s."
-msgstr "The server did not answer. Scylla tries again in {seconds} s."
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:8
+msgid "The server did not answer. Scylla tries again in {time}."
+msgstr "The server did not answer. Scylla tries again in {time}."
 
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:5
 msgid "This action cannot be undone."
 msgstr "This action cannot be undone."
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:15
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:16
 msgid "This item is gone"
 msgstr "This item is gone"
 
-#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:12
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:13
 msgid "You cannot see this data"
 msgstr "You cannot see this data"
 

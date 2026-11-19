@@ -29,7 +29,7 @@
 
   const fallback = $derived(
     state === 'error' && retrySeconds !== undefined
-      ? t(widgetStateMessages.errorRetryIn(retrySeconds))
+      ? t(widgetStateMessages.errorRetryIn(`${retrySeconds}\u00a0s`))
       : state === 'locked' && permission
         ? t(widgetStateMessages.lockedNeeds(permission))
         : undefined,
