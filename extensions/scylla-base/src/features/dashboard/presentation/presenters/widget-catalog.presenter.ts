@@ -68,12 +68,12 @@ export const KINDS: readonly KindEntry[] = [
   entry('line', 'kinds', m.line, m.lineText, ['run-duration']),
   entry('ranking', 'kinds', m.ranking, m.rankingText),
   entry('heatmap', 'kinds', m.heatmap, m.heatmapText),
+  entry('triggers', 'kinds', scheduleMessages.title, scheduleMessages.catalogHint, ['schedules']),
   entry('activity', 'kinds', m.activity, m.activityText, ['activity']),
+  entry('integrations', 'kinds', webhookMessages.title, webhookMessages.catalogHint, ['webhooks']),
   entry('quick-actions', 'kinds', m.quickActions, m.quickActionsText, ['quick-actions']),
   entry('agent', 'dedicated', m.agent, m.agentText),
   entry('pipeline', 'dedicated', m.pipeline, m.pipelineText),
-  entry('triggers', 'dedicated', m.triggers, m.triggersText, ['schedules']),
-  entry('integrations', 'dedicated', m.integrations, m.integrationsText, ['webhooks']),
 ];
 
 export const DATA: Readonly<Record<WidgetData, DataEntry>> = {
