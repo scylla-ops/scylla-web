@@ -1,5 +1,6 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
+import LibraryBigIcon from '@lucide/svelte/icons/library-big';
 import WorkflowIcon from '@lucide/svelte/icons/workflow';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
@@ -25,6 +26,24 @@ export const PipelineModule = {
   },
   commands: pipelineCommands,
   routes: {
+    // The library of the workspace: the fragments that its pipelines share.
+    workspace: [
+      {
+        path: 'library',
+        permission: Permission.LIST_PIPELINES_BY_WORKSPACE,
+        breadcrumb: () => ({ label: msg`Library` }),
+        page: () => import('./presentation/ui/library/FragmentLibrary/FragmentLibrary.page.svelte'),
+        nav: { section: 'workspace', title: msg`Library`, icon: LibraryBigIcon, order: 25 },
+        children: [
+          {
+            path: ':fragmentId',
+            permission: Permission.LIST_PIPELINES_BY_WORKSPACE,
+            breadcrumb: () => ({ label: msg`Fragment`, detail: msg`Detail` }),
+            page: () => import('./presentation/ui/library/FragmentDetail/FragmentDetail.page.svelte'),
+          },
+        ],
+      },
+    ],
     project: [
       {
         permission: Permission.LIST_PIPELINES_BY_PROJECT,
