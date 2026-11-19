@@ -18,9 +18,7 @@
     description?: string;
     /** Not shown in the size `xs`: the widget has no room for it. */
     action?: WidgetStateAction;
-    /** `error`: the seconds until the next read. The description says when the widget tries again. */
     retrySeconds?: number;
-    /** `locked`: the name of the permission that the person does not have. The description names it. */
     permission?: string;
     class?: string;
   }

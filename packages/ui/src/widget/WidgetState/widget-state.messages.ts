@@ -4,7 +4,6 @@ export const widgetStateMessages = {
   loading: msg`Loading`,
   errorTitle: msg`Could not load`,
   errorDescription: msg`The server did not answer.`,
-  /** `time`: the seconds and their unit, with a space that does not break: "60\u00a0s". */
   errorRetryIn: (time: string) => msg`The server did not answer. Scylla tries again in ${time}.`,
   emptyTitle: msg`Nothing to show`,
   emptyDescription: msg`No data matches the period or the scope of this widget.`,

@@ -11,9 +11,7 @@
     loading?: boolean;
     error?: boolean;
     onRetry?: () => void;
-    /** The seconds between two reads of the data: the error says when the widget tries again. */
     retrySeconds?: number;
-    /** The read permission that a locked widget needs. */
     permission?: string;
     empty?: boolean;
     /** `all-clear` is a good state, not an empty one. */
