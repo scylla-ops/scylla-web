@@ -18,10 +18,22 @@
     description?: string;
     /** Not shown in the size `xs`: the widget has no room for it. */
     action?: WidgetStateAction;
+    /** `error`: the seconds until the next read. The description says when the widget tries again. */
+    retrySeconds?: number;
+    /** `locked`: the name of the permission that the person does not have. The description names it. */
+    permission?: string;
     class?: string;
   }
 
-  let { state, size, title, description, action, class: className }: Props = $props();
+  let { state, size, title, description, action, retrySeconds, permission, class: className }: Props = $props();
+
+  const fallback = $derived(
+    state === 'error' && retrySeconds !== undefined
+      ? t(widgetStateMessages.errorRetryIn(retrySeconds))
+      : state === 'locked' && permission
+        ? t(widgetStateMessages.lockedNeeds(permission))
+        : undefined,
+  );
 
   const compact = $derived(size === 'xs');
 </script>
@@ -63,7 +75,7 @@
         {title ?? t(appearance.title)}
       </p>
       <p class={cn('text-xs text-muted-foreground', compact ? 'truncate' : 'line-clamp-3')}>
-        {description ?? t(appearance.description)}
+        {description ?? fallback ?? t(appearance.description)}
       </p>
     </div>
     {#if action && !compact}
