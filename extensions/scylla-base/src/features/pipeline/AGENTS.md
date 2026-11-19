@@ -2,7 +2,7 @@
 
 Pipelines: their definition, their editor, and the metadata the overviews read.
 
-**Layer** `features/` · **id** `pipeline` · **DI keys** `pipelineRepository`, `nodeTemplateRepository`, `savePipeline`
+**Layer** `features/` · **id** `pipeline` · **DI keys** `pipelineRepository`, `nodeTemplateRepository`, `fragmentRepository`, `savePipeline`
 
 ## Import rules
 
@@ -61,6 +61,22 @@ kind's icon. A node that runs exactly the code of a template (the same script, o
 command and arguments; its env, folder and shell do not count) shows the template's icon on its
 node and in the inspector (`templateFor`, `presenters/catalog.presenter.ts`).
 
+`FragmentRepository` — `domain/repository/fragment.repository.ts`, the library of the workspace:
+
+| Method | Returns |
+|---|---|
+| `list(workspaceId)` | `FragmentEntity[]`, each with its versions, the favorite of the reader and its usages |
+| `getById(workspaceId, id)` | `FragmentEntity` |
+| `create(input)` | `FragmentEntity` at version 1. A name taken in the workspace is `ALREADY_EXISTS` |
+| `publishVersion(input)` | `FragmentEntity` with one more version |
+| `setFavorite(id, favorite)` | `void` |
+| `linksOf(pipelineId)` | `FragmentLink[]`: the blocks of the pipeline |
+| `saveLinks(pipeline, links)` | `void`: sent by `pipelineMutations.update`, with the nodes |
+
+`DefaultFragmentRepository` keeps the library in `localStorage`, with demo fragments in each
+workspace: the server has no library yet. A gRPC implementation replaces it in
+`pipeline.module.ts`; `fragmentQueries` and the domain do not change.
+
 **`PipelineMetadata` vs `PipelineEntity` is the split that matters**: lists fetch metadata (no
 nodes), the editor fetches the entity. Do not make a list page call `getById`.
 
@@ -70,7 +86,7 @@ Reach a repository with `getModuleDomain<typeof PipelineModule.domain>('pipeline
 ## Layout
 
 ```
-pipeline.module.ts                           4 routes + DI wiring (private; registry only)
+pipeline.module.ts                           the routes + DI wiring (private; registry only)
 index.ts                                     public API
 domain/
   entities/pipeline.entity.ts                PipelineEntity, PipelineIdentity, PipelineMetadata, the
@@ -91,6 +107,10 @@ domain/
                                              blankRule, blankOperand, withDefinition,
                                              withDependencies, withoutDependency, withRenamedReference
   entities/node-template.entity.ts           NodeTemplateEntity: a ready-made node of the palette
+  entities/fragment.entity.ts                FragmentEntity, FragmentVersion, FragmentParameter,
+                                             FragmentLink: the versions (proposedVersion,
+                                             canPublishVersion), the parameters (detectParameters,
+                                             missingParameters, carryValues), instantiate (pure, tested)
   structs/node-id.struct.ts                  NodeId: the id rule of the server (nodeIdIssue, toNodeId)
   structs/port-name.struct.ts                PortName, ERROR_PORT: the rule of NodeId, with no trim
   structs/pipeline-name.struct.ts            PipelineNameIssue, pipelineNameIssue
@@ -104,15 +124,20 @@ domain/
   use-cases/save-pipeline.use-case.ts        SavePipelineUseCase: the rules of the server, then create or edit
   repository/pipeline.repository.ts
   repository/node-template.repository.ts
+  repository/fragment.repository.ts
 infrastructure/
   default-pipeline.repository.ts             PipelineServiceClient → PipelineEntity
   default-node-template.repository.ts        BUILT_IN_NODE_TEMPLATES
+  default-fragment.repository.ts             the library in localStorage, until the server has one
+  fragment-seeds.ts                          the demo fragments of a workspace
   grpc-pipeline.mapper.ts                    also originOf: the source, the file and its state
   grpc-pipeline-file.mapper.ts               PipelineFile ↔ the proto, refToProto
   grpc-pipeline-summary.mapper.ts            ListPipelineSummaries → PipelineSummaryList, healthOf
 presentation/
   pipeline.commands.ts                       create, jobs and edit, for the search bar
   pipeline.queries.ts                        TanStack Query options factories
+  fragment.queries.ts                        the library: fragmentQueries, fragmentMutations,
+                                             saveFragmentLinks (called by pipelineMutations.update)
   pipeline.query-keys.ts                     Query key factories (exported publicly)
   messages/                                  pipeline, blueprint, scripting, node, export, file, run
                                              (.messages.ts)
@@ -136,6 +161,8 @@ presentation/
                                              the figures of its stats card (historyStats)
     ref-options.presenter.ts                 the rows of a branch or tag picker, and of the Run dialog
     job-filter.presenter.ts                  the rows of the branch filter, the names of the events
+    fragment.presenter.ts                    a block (blockSummary, firstProposal), the search, the
+                                             tags and the order of the library
   mappers/                                   a view format ↔ the domain, both ways (plain TS, tested)
     pipeline-document.mapper.ts              the JSON text of the editor ↔ the nodes (toDocument writes it)
     blueprint-flow.mapper.ts                 the nodes ↔ the nodes and edges of xyflow; placesOf
@@ -164,6 +191,7 @@ presentation/
       pipeline-document.state.svelte.ts      the document of both tabs: script text, baseline, dirty
                                              check, the issue that stops the save; MissingDocument
       unsaved-changes.effect.svelte.ts       warnBeforeUnload: the browser's prompt while unsaved
+      fragment-links.state.svelte.ts         the links of the edited pipeline, and their dirty check
       PipelineEditorHeader/                  the header, with the name field and Export
       ExportPipelineDialog/                  the export as a file: one tab per format, copy, download
                                              (export-pipeline.state.svelte.ts)
@@ -194,8 +222,11 @@ presentation/
         PipelineBlueprint.svelte             wires the graph, the canvas, the side panel, the drag
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected node, add/insert/rename
         node-places.state.svelte.ts          where the places go: at once for a saved node, with the save for a new one
+        editor-library.state.svelte.ts       the library as the editor sees it: the fragments, add a block
+        SaveFragmentDialog/                  Save to library: the draft of a fragment (save-fragment.state)
         canvas/                              the canvas and what it draws
           BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte, DropSpot.svelte
+          SelectionBar.svelte, UpdateNotice.svelte   the box selection; a newer version of a block
           blueprint-canvas.context.ts        what the nodes and edges read from the canvas
           CanvasCurtain/                     what covers the blueprint until it is ready: the animated
                                              logo, the slow line, the load error (canvas-curtain.state.svelte.ts)
@@ -204,14 +235,23 @@ presentation/
                                              node-appearances.registry.ts (style → views), MergeNode
                                              (one small view for each style), follow-handles.effect
                                              (xyflow measures the handles again when the ports change)
-        catalog/                             CatalogIcon, CatalogItem, QuickAddMenu/ (quick-add.state.svelte.ts)
+        catalog/                             CatalogIcon, CatalogItem, FragmentIcon, QuickAddMenu/ (quick-add.state.svelte.ts)
         palette-drag/                        a palette entry dragged to the canvas with the pointer
           palette-drag.state.svelte.ts       entry, pointer, spot, the canvas as a drop target
           palette-drag.attachments.ts        dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
           PaletteDragGhost.svelte            the dragged icon, in place of the pointer
         side-panel/                          palette (nothing inspected) / inspector of the inspected node
+                                             or block / the box selection
+          PalettePanel.svelte                the tabs Nodes and Library (LibraryPalette/)
+          FragmentInspector/                 a block: version, parameters, update, detach
+                                             (block-inspector.state.svelte.ts)
+          SelectionPanel/                    the selected nodes and their parameters
           NodeInspector/                     the inspector: the fields of node/ for the kind of the
                                              node (NodeKindFields): two tabs, the switch form, or none
+    library/                                 the library pages, and what they share with the editor
+      FragmentLibrary/                       the grid: search, tabs, tags (fragment-library.state.svelte.ts)
+      FragmentDetail/                        one fragment: nodes, parameters, versions, usages
+      VersionBadge, VersionHistory, ParameterKey, FavoriteButton
 ```
 
 ## Routes & nav
@@ -223,8 +263,11 @@ presentation/
 | `project` | `edit/:pipelineId` | `UPDATE_PIPELINE` | `PipelineUpdatePage` |
 | `project` | `pipelines/:pipelineId` | `READ_PIPELINE` | `FilePipelinePage` |
 | `project` | `pipelines/:pipelineId/jobs` | `LIST_JOBS_BY_PIPELINE` | `PipelineJobsPage` |
+| `workspace` | `library` | `LIST_PIPELINES_BY_WORKSPACE` | `FragmentLibraryPage` |
+| `workspace` | `library/:fragmentId` | `LIST_PIPELINES_BY_WORKSPACE` | `FragmentDetailPage` |
 
-**No nav entry** — pipelines are the project index, reached by entering a project.
+**One nav entry**, Library, in the workspace section. Pipelines are the project index, reached
+by entering a project.
 
 The jobs **list** route is owned here, not by [`jobs`](../jobs/AGENTS.md): the page needs a
 **Run** action, which is a pipeline operation. `PipelineJobsPage` renders `JobsPage` (imported
@@ -234,6 +277,16 @@ and this module links to it with `scyllaNavigate.goToJobDetails(...)`, never by 
 the page.
 
 ## Rules that bite here
+
+- **A block of the library is drawn, never saved.** The document always holds the nodes of a
+  linked fragment, with the prefix of their block (`instantiate`), so the server runs them as any
+  node. The `FragmentLink`s are kept apart and sent with the save. `nodesToFlow` folds the nodes
+  of a link into one `fragmentNode`, and `flowToNodes` unfolds it: a dependency on a block is a
+  dependency on its last nodes. A link whose nodes changed in the Scripting tab is drawn as its
+  nodes. Only a saved pipeline links a fragment (`linkable`).
+- **A new version is proposed, never applied.** `proposedVersion` is the latest one, unless the
+  pipeline skipped it. Only the author and the workspace admins publish a version
+  (`canPublishVersion`).
 
 - **`pipelineQueries.summaries` is one call for the dashboard**, in place of one
   `ListPipelineJobs` call for each pipeline. Its key is under `['pipelines', 'workspace', id]`.

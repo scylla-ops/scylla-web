@@ -114,7 +114,7 @@ packages/ui                the design system — imports no other package
 | [membership](extensions/scylla-base/src/features/membership/README.md) | Who belongs to an workspace or project, and with which roles |
 | [onboarding](extensions/scylla-base/src/features/onboarding/README.md) | The first-pipeline tour, and where its progress is kept |
 | [workspace](extensions/scylla-base/src/features/workspace/README.md) | The top-level tenant and the switcher in the shell |
-| [pipeline](extensions/scylla-base/src/features/pipeline/README.md) | Pipeline definitions, the visual + script editor, and running them |
+| [pipeline](extensions/scylla-base/src/features/pipeline/README.md) | Pipeline definitions, the visual + script editor, the library of fragments, and running them |
 | [project](extensions/scylla-base/src/features/project/README.md) | The unit that owns pipelines, secrets and members |
 | [roles](extensions/scylla-base/src/features/roles/README.md) | Role catalog and grants |
 | [secret](extensions/scylla-base/src/features/secret/README.md) | Project-scoped secrets injected into runs |

@@ -20,6 +20,7 @@ lifecycle — authoring a pipeline and watching it run.
 - **Running** — the Run action, and the jobs page that follows it. With a linked repository,
   Run asks for the commit to run, and the jobs page can filter the jobs by branch, event, author
   and pull request.
+- **The library** — nodes saved once and used by many pipelines of the workspace. See below.
 - **Workspace-wide reads** — pipeline metadata across every project, for the
   [dashboard](../dashboard/README.md).
 
@@ -139,6 +140,25 @@ CodeMirror is the clearest legitimate use of Svelte `$effect` in this module: it
 outside the framework that has to be synchronized imperatively. That licence stops at the
 editor's edge: the rest of the module derives during render with Runes.
 
+## The library of fragments
+
+A fragment is some nodes of a pipeline, saved in the library of the workspace. In the blueprint,
+a box selection of nodes is saved with **Save to library**: the dialog detects the variables of
+the nodes, which become the parameters of the fragment, and puts one block in place of the nodes.
+The **Library** tab of the palette inserts a fragment on a link or in empty space, and asks for a
+secret that has no value.
+
+A pipeline links one version of a fragment. A new version is proposed on the canvas and in the
+side panel, never forced: the pipeline takes it or stays. A block can also be detached, and its
+nodes become the pipeline's own. Only the author and the admins publish a version. The library
+page lists the fragments, with a search, the tags and the favorites; the page of a fragment shows
+its nodes, its parameters, its versions and the pipelines that use it. The community library is a
+later step: its tab says "Soon".
+
+The server has no library yet, so `DefaultFragmentRepository` keeps it in the browser, with demo
+fragments. The document of a pipeline stays plain nodes: what makes a block is a `FragmentLink`,
+stored beside it.
+
 ## Conditional nodes
 
 A pipeline can choose its path at run time, as in n8n. A **switch** checks its cases and opens a
@@ -207,8 +227,10 @@ export their key factories instead of writing arrays inline.
 | `edit/:pipelineId` | `UPDATE_PIPELINE` | editor |
 | `pipelines/:pipelineId` | `READ_PIPELINE` | a file pipeline, read only |
 | `pipelines/:pipelineId/jobs` | `LIST_JOBS_BY_PIPELINE` | runs, with Run |
+| `library` (workspace) | `LIST_PIPELINES_BY_WORKSPACE` | the fragments of the workspace |
+| `library/:fragmentId` (workspace) | `LIST_PIPELINES_BY_WORKSPACE` | one fragment |
 
-No sidebar entry: pipelines *are* the project, reached by entering one.
+One sidebar entry, Library. Pipelines *are* the project, reached by entering one.
 
 ## Related modules
 
