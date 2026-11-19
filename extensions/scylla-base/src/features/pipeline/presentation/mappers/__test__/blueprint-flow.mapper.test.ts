@@ -191,3 +191,47 @@ describe('saved places', () => {
     });
   });
 });
+
+describe('nodesToFlow and flowToNodes: the blocks of the linked fragments', () => {
+  // build → rust-ci (fmt → test) → deploy
+  const nodes: PipelineNodeEntity[] = [
+    execNode('build'),
+    execNode('rust-ci-fmt', ['build']),
+    execNode('rust-ci-test', ['rust-ci-fmt']),
+    execNode('deploy', ['rust-ci-test']),
+  ];
+  const link = {
+    blockId: 'rust-ci',
+    fragmentId: 'f1',
+    version: 2,
+    values: {},
+    nodeIds: ['rust-ci-fmt', 'rust-ci-test'],
+  };
+
+  it('draws the nodes of a link as one block, with the edges of the nodes outside it', () => {
+    const { flowNodes, edges } = nodesToFlow(nodes, 'p', null, [link]);
+
+    expect(flowNodes.map(flowNode => flowNode.id).sort()).toEqual([START_NODE_ID, 'build', 'deploy', 'rust-ci'].sort());
+    expect(edges).toContainEqual(expect.objectContaining({ source: 'build', target: 'rust-ci' }));
+    expect(edges).toContainEqual(expect.objectContaining({ source: 'rust-ci', target: 'deploy' }));
+  });
+
+  it('gives back the same nodes: the document never holds a block', () => {
+    const { flowNodes, edges } = nodesToFlow(nodes, 'p', null, [link]);
+
+    expect(flowToNodes(flowNodes, edges)).toEqual(nodes);
+  });
+
+  it('draws a link as its nodes once one of them is gone from the document', () => {
+    const { flowNodes } = nodesToFlow(nodes.filter(node => node.id !== 'rust-ci-test'), 'p', null, [link]);
+
+    expect(flowNodes.map(flowNode => flowNode.id)).not.toContain('rust-ci');
+    expect(flowNodes.map(flowNode => flowNode.id)).toContain('rust-ci-fmt');
+  });
+
+  it('places a block at the saved place of its first node', () => {
+    const { flowNodes } = nodesToFlow(nodes, 'p', { nodes: { 'rust-ci-fmt': { x: 40, y: 80 } } }, [link]);
+
+    expect(flowNodes.find(flowNode => flowNode.id === 'rust-ci')?.position).toEqual({ x: 40, y: 80 });
+  });
+});

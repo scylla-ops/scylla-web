@@ -20,6 +20,8 @@ import {
   type SavePipelineInput,
 } from '../domain/use-cases/save-pipeline.use-case.ts';
 import type { NodeTemplateEntity } from '../domain/entities/node-template.entity.ts';
+import type { FragmentLink } from '../domain/entities/fragment.entity.ts';
+import { saveFragmentLinks } from './fragment.queries.ts';
 import type { PipelineModule } from '../pipeline.module.ts';
 import { pipelineMessages } from './messages/pipeline.messages.ts';
 import { pipelineIssueText } from './presenters/pipeline-issue.presenter.ts';
@@ -145,6 +147,11 @@ export const pipelineQueries = {
     }),
 };
 
+export interface UpdatePipelineInput extends SavePipelineInput {
+  id: string;
+  links?: FragmentLink[];
+}
+
 /** No ref: an editor pipeline runs with no commit, a file pipeline at the head of the default branch. */
 export interface RunPipelineInput {
   pipelineId: string;
@@ -207,9 +214,23 @@ export const pipelineMutations = {
       },
     }),
 
+  /** With `links`, the fragments that the pipeline links are saved after its nodes. */
   update: () =>
     mutationOptions({
-      mutationFn: (pipeline: SavePipelineInput & { id: string }) => save(pipeline),
+      mutationFn: async ({ links, ...pipeline }: UpdatePipelineInput) => {
+        await save(pipeline);
+        if (links) {
+          await saveFragmentLinks(
+            {
+              pipelineId: pipeline.id,
+              pipelineName: pipeline.name,
+              projectId: pipeline.projectId,
+              projectName: currentProject().name ?? '',
+            },
+            links,
+          );
+        }
+      },
       onSuccess: (_, { id, projectId }) => {
         const queryClient = getQueryClient();
         void queryClient.invalidateQueries({ queryKey: PROJECT_PIPELINES_QUERY_ROOT(projectId) });

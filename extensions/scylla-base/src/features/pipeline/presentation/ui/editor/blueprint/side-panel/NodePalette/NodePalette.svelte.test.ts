@@ -91,10 +91,11 @@ describe('NodePalette', () => {
       await release(row, 800);
       await fireEvent.click(row);
 
-      expect(drop).toHaveBeenCalledWith(expect.objectContaining({ id: 'kind:bash' }), {
-        x: 800,
-        y: 0,
-      });
+      expect(drop).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'kind:bash' }),
+        { x: 800, y: 0 },
+        { x: 800, y: 0 },
+      );
       expect(onAdd).not.toHaveBeenCalled();
     });
 
