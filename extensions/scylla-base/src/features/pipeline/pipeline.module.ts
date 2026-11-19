@@ -6,6 +6,7 @@ import { grpcTransport } from '@platform/grpc';
 import { PipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
 import { DefaultPipelineRepository } from './infrastructure/default-pipeline.repository.ts';
 import { DefaultNodeTemplateRepository } from './infrastructure/default-node-template.repository.ts';
+import { DefaultFragmentRepository } from './infrastructure/default-fragment.repository.ts';
 import { SavePipelineUseCase } from './domain/use-cases/save-pipeline.use-case.ts';
 import { pipelineCommands } from './presentation/pipeline.commands.ts';
 import './presentation/node-appearance.user-state.ts';
@@ -19,6 +20,7 @@ export const PipelineModule = {
   domain: {
     pipelineRepository: pipelineRepository,
     nodeTemplateRepository: new DefaultNodeTemplateRepository(),
+    fragmentRepository: new DefaultFragmentRepository(),
     savePipeline: new SavePipelineUseCase(pipelineRepository),
   },
   commands: pipelineCommands,
