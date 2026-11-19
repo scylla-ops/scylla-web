@@ -4,36 +4,50 @@
   import { nodeOf } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
   import { templateFor, type CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';
-  import NodePalette from './NodePalette/NodePalette.svelte';
+  import type { EditorLibrary } from '../editor-library.state.svelte.ts';
+  import PalettePanel from './PalettePanel.svelte';
   import NodeInspector from './NodeInspector/NodeInspector.svelte';
+  import FragmentInspector from './FragmentInspector/FragmentInspector.svelte';
+  import SelectionPanel from './SelectionPanel/SelectionPanel.svelte';
 
-  type Mode = 'palette' | 'inspector';
+  type Mode = 'palette' | 'inspector' | 'block' | 'selection';
 
   // In percent of the blueprint. The inspector holds code: it is wider than the palette.
   const SIDE_PANEL_SIZES = {
     palette: { default: 24, min: 18, max: 40 },
     inspector: { default: 40, min: 28, max: 70 },
+    block: { default: 26, min: 20, max: 45 },
+    selection: { default: 24, min: 18, max: 41 },
   } as const satisfies Record<Mode, { default: number; min: number; max: number }>;
 
   interface Props {
     blueprint: Blueprint;
     entries: readonly CatalogEntry[];
+    library: EditorLibrary;
+    /** `false`: the pipeline cannot link a fragment yet. */
+    linkable: boolean;
     projectId?: string;
     drag: PaletteDrag;
     onAdd: (entry: CatalogEntry) => void;
+    onSaveSelection?: () => void;
   }
 
-  let { blueprint, entries, projectId, drag, onAdd }: Props = $props();
+  let { blueprint, entries, library, linkable, projectId, drag, onAdd, onSaveSelection }: Props =
+    $props();
 
   const node = $derived(blueprint.inspected ? nodeOf(blueprint.inspected) : undefined);
-  const mode = $derived<Mode>(node ? 'inspector' : 'palette');
+  const block = $derived(blueprint.inspectedBlock);
+  const mode = $derived<Mode>(
+    node ? 'inspector' : block ? 'block' : blueprint.selectedNodes.length > 1 ? 'selection' : 'palette',
+  );
   const close = () => blueprint.inspect(null);
 </script>
 
 <!--
-  One panel, two modes: the palette, or the inspector of the node a click opened. paneforge saves a
-  layout per set of panes, keyed by their order and constraints (not their ids): the two modes keep
-  their own width only while their constraints differ (SIDE_PANEL_SIZES).
+  One panel, four modes: the palette, the inspector of the node or of the block a click opened, or
+  the nodes that a box selected. paneforge saves a layout per set of panes, keyed by their order
+  and constraints (not their ids): each mode keeps its own width only while their constraints
+  differ (SIDE_PANEL_SIZES).
 -->
 {#key mode}
   <ResizablePane
@@ -63,8 +77,31 @@
             onClose={close}
           />
         {/key}
+      {:else if block}
+        {#key block.id}
+          <FragmentInspector
+            blockId={block.id}
+            block={block.data}
+            fragment={library.fragmentOf(block.data.link.fragmentId)}
+            workspaceName={library.workspaceName}
+            {projectId}
+            onChange={(content, skipped) => blueprint.updateBlock(block.id, content, skipped)}
+            onDetach={() => blueprint.detachBlock(block.id)}
+            onClose={close}
+          />
+        {/key}
+      {:else if mode === 'selection'}
+        <SelectionPanel nodes={blueprint.selectedNodes} onSave={onSaveSelection} />
       {:else}
-        <NodePalette {entries} {onAdd} {drag} />
+        <PalettePanel
+          {entries}
+          fragments={library.fragments}
+          workspaceName={library.workspaceName}
+          {linkable}
+          {drag}
+          {onAdd}
+          onAddFragment={fragment => library.add(fragment)}
+        />
       {/if}
     </aside>
   </ResizablePane>

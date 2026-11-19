@@ -15,7 +15,8 @@
   import '@xyflow/svelte/dist/style.css';
   import { keepFitted } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import type { Blueprint } from '../blueprint.state.svelte.ts';
+  import type { Blueprint, NodePlacement } from '../blueprint.state.svelte.ts';
+  import type { FragmentEntity } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
   import type { NodeAppearancePreference } from './node-appearance-preference.state.svelte.ts';
   import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
   import {
@@ -30,10 +31,12 @@
   import { linkDropPoint } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import DropSpot from './DropSpot.svelte';
   import { acceptPaletteDrop } from '../palette-drag/palette-drag.attachments.ts';
-  import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';
+  import { isFragment, type PaletteDrag, type PaletteEntry } from '../palette-drag/palette-drag.state.svelte.ts';
   import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.registry.ts';
   import StartNode from './nodes/StartNode.svelte';
   import PipelineNode from './nodes/PipelineNode.svelte';
+  import FragmentNode from './nodes/FragmentNode.svelte';
+  import SelectionBar from './SelectionBar.svelte';
   import QuickAddMenu from '../catalog/QuickAddMenu/QuickAddMenu.svelte';
 
   interface Props {
@@ -46,11 +49,30 @@
     dimmed?: boolean;
     /** Called once: the nodes are measured and the view frames them. */
     onReady?: () => void;
+    fragmentOf: (fragmentId: string) => FragmentEntity | undefined;
+    onAddFragment: (fragment: FragmentEntity, placement: NodePlacement) => void;
+    /** No callback: the selection cannot become a fragment, such as in a new pipeline. */
+    onSaveSelection?: () => void;
   }
 
-  let { blueprint, appearance, quickAdd, drag, entries, dimmed = false, onReady }: Props = $props();
+  let {
+    blueprint,
+    appearance,
+    quickAdd,
+    drag,
+    entries,
+    dimmed = false,
+    onReady,
+    fragmentOf,
+    onAddFragment,
+    onSaveSelection,
+  }: Props = $props();
 
-  const nodeTypes: NodeTypes = { pipelineNode: PipelineNode, startNode: StartNode };
+  const nodeTypes: NodeTypes = {
+    pipelineNode: PipelineNode,
+    fragmentNode: FragmentNode,
+    startNode: StartNode,
+  };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
 
   const FIT_VIEW_OPTIONS: FitViewOptions = { padding: 0.25, maxZoom: 1 };
@@ -72,7 +94,15 @@
     hasErrorPort: nodeId => blueprint.hasErrorPort(nodeId),
     iconHintOf: definition => templateFor(entries, definition)?.icon,
     insertOnEdge: (edgeId, at) => quickAdd.open({ ...at, link: { replacing: edgeId } }),
+    fragmentOf: fragmentId => fragmentOf(fragmentId),
   });
+
+  /** Dropped on an edge, the entry goes inside it; anywhere else, it waits for the start node. */
+  const dropEntry = (entry: PaletteEntry, position: XYPosition, edgeId: string | undefined) => {
+    const placement: NodePlacement = edgeId ? { replacing: edgeId, position } : { position };
+    if (isFragment(entry)) onAddFragment(entry, placement);
+    else blueprint.addNode(entry.nodeId, entry.definition, placement);
+  };
 
   const clientPoint = (event: MouseEvent | TouchEvent): XYPosition => {
     const point = 'changedTouches' in event ? event.changedTouches[0] : event;
@@ -109,7 +139,7 @@
     drag,
     // The middle of the node lands on the pointer: the dragged icon is in the middle of the outline.
     positionAt: client => nodePositionAt(appearance.current, screenToFlowPosition(client)),
-    drop: (entry, position) => blueprint.addNode(entry.nodeId, entry.definition, { position }),
+    drop: dropEntry,
   }))}
   {@attach keepFitted(() => ({ fitted, fit: () => void fitView(FIT_VIEW_OPTIONS) }))}
 >
@@ -168,6 +198,13 @@
   </SvelteFlow>
 
   <QuickAddMenu {quickAdd} />
+  {#if blueprint.selectedNodes.length > 1 && !blueprint.readOnly}
+    <SelectionBar
+      count={blueprint.selectedNodes.length}
+      onSave={onSaveSelection}
+      onDelete={() => blueprint.removeNodes(blueprint.selectedNodes.map(node => node.id))}
+    />
+  {/if}
 </div>
 
 <style>

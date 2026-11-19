@@ -1,8 +1,7 @@
 import { untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
 import type { XYPosition } from '@xyflow/svelte';
-import type { CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
-import type { DropTarget, PaletteDrag } from './palette-drag.state.svelte.ts';
+import type { DropTarget, PaletteDrag, PaletteEntry } from './palette-drag.state.svelte.ts';
 
 /** How far the pointer moves before a press on a row becomes a drag, not a click. */
 const DRAG_THRESHOLD = 4;
@@ -17,7 +16,7 @@ const pointOf = (event: PointerEvent): XYPosition => ({ x: event.clientX, y: eve
  * canvas. The click that ends a drag, and a drag that Escape cancels, add nothing.
  */
 export const dragToCanvas =
-  (options: () => { entry: CatalogEntry; drag: PaletteDrag }): Attachment<HTMLElement> =>
+  (options: () => { entry: PaletteEntry; drag: PaletteDrag }): Attachment<HTMLElement> =>
   node => {
     const { entry, drag } = untrack(options);
     const root = node.ownerDocument.documentElement;
@@ -98,9 +97,20 @@ export const dragToCanvas =
     };
   };
 
+/** The edge of xyflow under a screen point, if any: a drop there inserts the entry into it. */
+const edgeIdAt = (root: Document, { x, y }: XYPosition): string | undefined =>
+  root
+    .elementsFromPoint(x, y)
+    .map(element => element.closest<SVGElement>('.svelte-flow__edge'))
+    .find(edge => edge)?.dataset.id;
+
 /** Makes an element the place where a palette drag drops: its box is the canvas. */
 export const acceptPaletteDrop =
-  (options: () => { drag: PaletteDrag } & Omit<DropTarget, 'contains'>): Attachment<HTMLElement> =>
+  (
+    options: () => { drag: PaletteDrag } & Pick<DropTarget, 'positionAt'> & {
+        drop: (entry: PaletteEntry, position: XYPosition, edgeId: string | undefined) => void;
+      },
+  ): Attachment<HTMLElement> =>
   node => {
     const { drag } = untrack(options);
     return drag.setTarget({
@@ -110,6 +120,7 @@ export const acceptPaletteDrop =
       },
       // Read at call time: the canvas's callbacks may change.
       positionAt: client => options().positionAt(client),
-      drop: (entry, position) => options().drop(entry, position),
+      drop: (entry, position, client) =>
+        options().drop(entry, position, edgeIdAt(node.ownerDocument, client)),
     });
   };

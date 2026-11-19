@@ -5,6 +5,7 @@
     pipelineMutations,
     pipelineQueries,
   } from '@base/features/pipeline/presentation/pipeline.queries.ts';
+  import { fragmentQueries } from '@base/features/pipeline/presentation/fragment.queries.ts';
   import { toDocument } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
   import PipelineEditor from '../PipelineEditor.svelte';
   import type { MissingDocument } from '../pipeline-document.state.svelte.ts';
@@ -19,6 +20,7 @@
   let { pipelineId }: Props = $props();
 
   const pipelineQuery = createQuery(() => pipelineQueries.byId(pipelineId ?? ''));
+  const linksQuery = createQuery(() => fragmentQueries.links(pipelineId ?? ''));
   const updatePipeline = createMutation(() => pipelineMutations.update());
   const saveLayout = createMutation(() => pipelineMutations.saveLayout(pipelineId ?? ''));
 
@@ -30,7 +32,11 @@
   const fromFile = $derived(pipelineQuery.data?.origin.source === 'file');
 
   const missing = $derived<MissingDocument | undefined>(
-    pipelineQuery.isLoading ? 'loading' : pipelineQuery.isLoadingError ? 'failed' : undefined,
+    pipelineQuery.isLoadingError
+      ? 'failed'
+      : pipelineQuery.isLoading || linksQuery.isLoading
+        ? 'loading'
+        : undefined,
   );
 </script>
 
@@ -49,6 +55,7 @@
       ? t(exportMessages.conditionalNodes)
       : undefined}
     {initialScript}
+    initialLinks={linksQuery.data}
     {missing}
     onRetry={() => void pipelineQuery.refetch()}
     savedLayout={pipelineQuery.data?.layout}
