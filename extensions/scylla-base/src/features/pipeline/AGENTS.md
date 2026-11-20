@@ -35,7 +35,7 @@ not through the barrel.
 |---|---|
 | `getMetadataByProjectId(...)` | paginated `PipelineMetadata`, each with its `origin` |
 | `getMetadataByWorkspaceId(...)` | paginated `PipelineMetadata`, each with its `origin` |
-| `getSummaries(query)` | `PipelineSummaryList`: one page of `ListPipelineSummaries`, with the counts of all the pages |
+| `getSummaries(query)` | `PipelineSummaryList`: one page of `ListPipelineSummaries`, with the counts of all the pages. `pipelineIds` limits the page to these pipelines |
 | `getById(id)` | `PipelineEntity` (full, with nodes) |
 | `getWithLayout(id)` | `PipelineWithLayout`: the entity, the places of its nodes and its `origin` |
 | `saveLayout(id, layout)` | `void`: the places only, with no new version of the pipeline |
