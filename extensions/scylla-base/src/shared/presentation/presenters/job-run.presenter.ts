@@ -1,10 +1,8 @@
 import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
 
-/** A job that a run mark shows: the job it opens, and what its tooltip tells. */
 export interface JobRun {
   id: string;
   status: JobStatus;
-  /** The branch or the tag. */
   ref?: string;
   title?: string;
   createdAt: string;

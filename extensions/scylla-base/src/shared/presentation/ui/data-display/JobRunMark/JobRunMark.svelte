@@ -16,7 +16,6 @@
     /** In seconds. `null` before the start. */
     duration: number | null;
     onSelect: () => void;
-    /** The fill of the mark, when its class gives no color. */
     children?: Snippet;
   };
 

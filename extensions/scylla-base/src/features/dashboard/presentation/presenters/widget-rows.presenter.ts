@@ -62,11 +62,9 @@ export interface ActivityRow extends JobPlace {
   when: string;
 }
 
-/** A mark of a strip of runs: the job that a click opens, and what its tooltip tells. */
 export interface RunMark extends JobPlace {
   tone: ChartTone;
   run: JobRun;
-  /** `null` while the job has not ended. */
   seconds: number | null;
 }
 
@@ -83,7 +81,6 @@ const runSeconds = (run: { startedAt?: string; finishedAt?: string }): number | 
     ? Math.max(0, (Date.parse(run.finishedAt) - Date.parse(run.startedAt)) / 1000)
     : null;
 
-/** The mark of one job of a pipeline. */
 export const runMark = (
   job: Omit<JobRun, 'ref' | 'title'>,
   pipeline: { id: string; name: string; projectId: string; projectName: string },
