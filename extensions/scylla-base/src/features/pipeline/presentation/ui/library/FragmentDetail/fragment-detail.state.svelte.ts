@@ -14,7 +14,10 @@ import {
   pendingUpstream,
 } from '@base/features/pipeline/domain/structs/fragment-upstream.struct.ts';
 import { canPublishToMarketplace } from '@base/features/pipeline/domain/structs/fragment-publication.struct.ts';
-import { fragmentMutations, fragmentQueries } from '@base/features/pipeline/presentation/fragment.queries.ts';
+import {
+  fragmentMutations,
+  fragmentQueries,
+} from '@base/features/pipeline/presentation/fragment.queries.ts';
 
 const context = toRune(contextStore);
 
@@ -45,7 +48,10 @@ export const createFragmentDetail = (fragmentId: () => string) => {
 
   const fragment = $derived(fragmentQuery.data);
   const me = $derived<FragmentAuthor | undefined>(
-    meQuery.data && { id: meQuery.data.id, name: meQuery.data.displayName || meQuery.data.username },
+    meQuery.data && {
+      id: meQuery.data.id,
+      name: meQuery.data.displayName || meQuery.data.username,
+    },
   );
   const person = $derived({ id: me?.id ?? '', admin: can(Permission.UPDATE_WORKSPACE) });
   const pending = $derived(fragment ? pendingUpstream(fragment) : null);
@@ -84,7 +90,13 @@ export const createFragmentDetail = (fragmentId: () => string) => {
       return canDecideUpstream(person);
     },
     get busy() {
-      return accept.isPending || skip.isPending || dismiss.isPending || detach.isPending || fork.isPending;
+      return (
+        accept.isPending ||
+        skip.isPending ||
+        dismiss.isPending ||
+        detach.isPending ||
+        fork.isPending
+      );
     },
 
     /** The version that the publish dialog makes public. `null`: the dialog is closed. */

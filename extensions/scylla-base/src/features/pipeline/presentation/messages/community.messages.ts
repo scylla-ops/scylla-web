@@ -1,6 +1,6 @@
 import { msg, plural } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
-import type { MarketplaceCategory } from '@base/features/pipeline/domain/structs/fragment-publication.struct.ts';
+import type { MarketplaceCategory } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
 
 /** The library and the marketplace: linked and forked fragments, and the public ones. */
 export const communityMessages = {
@@ -109,12 +109,11 @@ export const communityMessages = {
   category: msg`Category`,
   tags: msg`Tags`,
   categories: {
+    ci: msg`CI`,
     build: msg`Build`,
-    test: msg`Test`,
-    security: msg`Security`,
     deploy: msg`Deploy`,
+    security: msg`Security`,
     release: msg`Release`,
-    quality: msg`Quality`,
   } satisfies Record<MarketplaceCategory, MessageDescriptor>,
   beforePublishing: msg`Before publishing`,
   checksPassed: (passed: number, total: number) => msg`${passed} of ${total} passed`,

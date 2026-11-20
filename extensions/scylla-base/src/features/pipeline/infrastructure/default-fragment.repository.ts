@@ -181,14 +181,13 @@ export class DefaultFragmentRepository implements FragmentRepository {
 
   public publishToMarketplace({
     id,
-    scope,
     ...input
   }: PublishToMarketplaceInput): Promise<FragmentEntity> {
     return this.update(id, fragment => ({
       tags: input.tags,
       publication: withPublication(
         fragment.publication,
-        publicName(scope, fragment.name),
+        fragment.name,
         input,
         new Date().toISOString(),
       ),

@@ -9,6 +9,7 @@ import type {
   ParameterValues,
 } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
 import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import { marketplacePackageId } from '@base/features/pipeline/domain/structs/fragment-publication.struct.ts';
 
 /** A fragment as the library stores it: the favorites and the links are kept apart. */
 export interface StoredFragment {
@@ -151,6 +152,24 @@ export const seedFragments = (workspaceId: string): StoredFragment[] => [
         publishedAt: daysAgo(2),
       },
     ],
+    // Public since its v3: the marketplace lists it under the scope of the workspace.
+    publication: {
+      name: 'rust-ci',
+      license: 'MIT',
+      category: 'ci',
+      versions: [3],
+      autoPublish: false,
+      deprecated: [],
+      publishedAt: daysAgo(2),
+      publishedBy: REM,
+      stats: {
+        installs: 46,
+        organizations: 9,
+        stars: 12,
+        forks: 1,
+        adoption: [{ version: 3, organizations: 9 }],
+      },
+    },
     seededUsages: [
       usage('billing-api', 'payments', 3),
       usage('ingest', 'data-platform', 1),
@@ -236,7 +255,7 @@ const SECOPS: FragmentAuthor = { id: 'secops', name: '@secops' };
 const SCYLLA: FragmentAuthor = { id: 'scylla', name: '@scylla' };
 
 const packageRef = (publisher: string, name: string, verified = true): PackageRef => ({
-  packageId: `${publisher}.${name}`,
+  packageId: marketplacePackageId(publisher, name),
   publisher,
   name,
   verified,

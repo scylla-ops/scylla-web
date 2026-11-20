@@ -151,7 +151,7 @@ describe('FragmentDetailPage', () => {
 
     await userEvent.click(within(dialog).getByRole('button', { name: 'Publish v1' }));
     expect(repository.publishToMarketplace).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'f1', scope: 'acme', version: 1, author: REM }),
+      expect.objectContaining({ id: 'f1', version: 1, author: REM }),
     );
   });
 });

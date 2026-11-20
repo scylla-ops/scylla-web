@@ -6,6 +6,10 @@
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { latestVersion } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
+  import {
+    marketplacePackageId,
+    publicName,
+  } from '@base/features/pipeline/domain/structs/fragment-publication.struct.ts';
   import { communityMessages } from '@base/features/pipeline/presentation/messages/community.messages.ts';
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
   import { sourceReference } from '@base/features/pipeline/presentation/presenters/fragment-community.presenter.ts';
@@ -22,14 +26,17 @@
 
   const fragment = $derived(detail.fragment!);
   const source = $derived(fragment.source);
+  // A public fragment has its own page; a fork that is not public points to its publisher.
   const packageId = $derived(
-    source?.package.packageId ?? (fragment.publication ? `${detail.scope}.${fragment.name}` : null),
+    fragment.publication
+      ? marketplacePackageId(detail.scope, fragment.publication.name)
+      : (source?.package.packageId ?? null),
   );
 
   const badge = $derived.by(() => {
     if (source?.kind === 'linked') return communityMessages.linkedBadge(source.package.publisher);
     if (source?.kind === 'forked') return communityMessages.forkBadge(sourceReference(fragment), source.baseVersion);
-    if (fragment.publication) return communityMessages.publicBadge(fragment.publication.name);
+    if (fragment.publication) return communityMessages.publicBadge(publicName(detail.scope, fragment.publication.name));
     return communityMessages.organizationBadge;
   });
   const byline = $derived(

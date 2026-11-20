@@ -183,15 +183,14 @@ describe('DefaultFragmentRepository', () => {
     expect(detached.source).toEqual(expect.objectContaining({ kind: 'forked', baseVersion: 8 }));
   });
 
-  it('publishes a fragment under the scope of the workspace, then deprecates a version', async () => {
+  it('publishes a fragment under its own name, then deprecates a version', async () => {
     const repository = repositoryOn();
     const created = await repository.create(input);
     const publish = {
       id: created.id,
-      scope: 'acme',
       version: 1,
       license: 'MIT',
-      category: 'quality',
+      category: 'ci' as const,
       tags: ['ci'],
       autoPublish: false,
       author,
@@ -200,7 +199,7 @@ describe('DefaultFragmentRepository', () => {
     await expect(repository.deprecateVersion(created.id, 1)).rejects.toThrow(ScyllaError);
     const published = await repository.publishToMarketplace(publish);
     expect(published.publication).toEqual(
-      expect.objectContaining({ name: '@acme/lint-all', versions: [1], deprecated: [] }),
+      expect.objectContaining({ name: 'lint-all', versions: [1], deprecated: [] }),
     );
 
     const deprecated = await repository.deprecateVersion(created.id, 1);
