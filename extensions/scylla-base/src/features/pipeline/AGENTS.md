@@ -72,9 +72,16 @@ node and in the inspector (`templateFor`, `presenters/catalog.presenter.ts`).
 | `setFavorite(id, favorite)` | `void` |
 | `linksOf(pipelineId)` | `FragmentLink[]`: the blocks of the pipeline |
 | `saveLinks(pipeline, links)` | `void`: sent by `pipelineMutations.update`, with the nodes |
+| `addFromMarketplace(input)` | `FragmentEntity`: a package of the marketplace, linked or forked |
+| `acceptUpstream(id, version)` / `skipUpstream(id, version)` | `FragmentEntity`: a linked fragment takes or leaves a version of its publisher |
+| `dismissUpstream(id)` | `FragmentEntity`: a fork stops showing the release of its publisher |
+| `detachAsFork(id)` | `FragmentEntity`: a linked fragment becomes a fork of the workspace |
+| `publishToMarketplace(input)` | `FragmentEntity` public, under `@workspace/name` |
+| `deprecateVersion(id, version)` | `FragmentEntity`. A fragment that is not public is a `ScyllaError` |
 
 `DefaultFragmentRepository` keeps the library in `localStorage`, with demo fragments in each
-workspace: the server has no library yet. A gRPC implementation replaces it in
+workspace: the server has no library yet. The demo links and forks packages of the demo
+marketplace by their ids (`kube-tools.helm-deploy`, `pnpm.node-ci`, …). A gRPC implementation replaces it in
 `pipeline.module.ts`; `fragmentQueries` and the domain do not change.
 
 **`PipelineMetadata` vs `PipelineEntity` is the split that matters**: lists fetch metadata (no
@@ -233,9 +240,12 @@ presentation/
           SelectionPanel/                    the selected nodes and their parameters
           NodeInspector/                     the inspector: the fields of node/, in two tabs
     library/                                 the library pages, and what they share with the editor
-      FragmentLibrary/                       the grid: search, tabs, tags (fragment-library.state.svelte.ts)
-      FragmentDetail/                        one fragment: nodes, parameters, versions, usages
-      VersionBadge, VersionHistory, ParameterKey, FavoriteButton
+      FragmentLibrary/                       the grid: search, tabs (Organization, Favorites, Community),
+                                             tags or sources, the upstream strip (fragment-library.state)
+      FragmentDetail/                        one fragment: nodes, parameters, versions, usages; the
+                                             upstream cards, publish, compare and pipeline picker
+                                             dialogs (fragment-detail.state, publish-form.state)
+      VersionBadge, VersionHistory, ParameterKey, FavoriteButton, SourceLine
 ```
 
 ## Routes & nav
@@ -271,6 +281,16 @@ the page.
 - **A new version is proposed, never applied.** `proposedVersion` is the latest one, unless the
   pipeline skipped it. Only the author and the workspace admins publish a version
   (`canPublishVersion`).
+- **The marketplace reaches the library, never the reverse.** A fragment knows its `source`:
+  `linked` keeps the numbers of the publisher, and its `upstream` versions wait for an admin
+  (`pendingUpstream`, `acceptUpstream`, `skipUpstream`) before pipelines are proposed them; a
+  linked fragment never publishes a version. `forked` starts at v1 and shows the next release of
+  the publisher, never applies it. The [marketplace](../marketplace/AGENTS.md) feature imports
+  the barrel to add a package; nothing here imports it.
+- **Going public is checked, then chosen version by version.** `publicationChecks` stops a
+  secret default and a node that names the workspace, and warns on the rest. `publication.name`
+  holds the name without its scope: `publicName(slug, name)` makes `@slug/name`. A new version is
+  public only with `autoPublish` (`withNewVersion`).
 
 - **`pipelineQueries.summaries` is one call for the dashboard**, in place of one
   `ListPipelineJobs` call for each pipeline. Its key is under `['pipelines', 'workspace', id]`.

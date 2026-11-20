@@ -42,8 +42,24 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The Library tab of the palette inserts a fragment on a link or in empty space. A block links a
   version: a new version is proposed, never forced, and a block can be detached as an editable copy.
 - The Library page of the workspace, with a search, the tags and the favorites, and the page of a
-  fragment with its nodes, parameters, versions and usages. The community library is shown as Soon.
+  fragment with its nodes, parameters, versions and usages, and Use in a pipeline.
 - The server has no library yet: the library is kept in the browser, with demo fragments.
+
+**The marketplace of pipelines**
+
+- The Marketplace page lists the fragments that organizations share, with a search, a sort, and
+  filters on the publisher, the category and the stack. The page of a package shows its steps,
+  parameters, versions and what it needs before it is added.
+- A package is added to the library linked, to receive the versions of its publisher, or as a
+  fork that the workspace owns. The Community tab of the library lists them by source.
+- A new version of the publisher waits on the linked fragment: its page shows what changes and
+  which pipelines keep their own values, and an admin accepts or skips it. A fork shows the next
+  release, compares it, or starts a new fork from it.
+- A fragment of the workspace goes public as `@workspace/name`, after checks on its secrets,
+  descriptions, private addresses and references to the workspace. Its page follows its installs
+  and the versions in use, and deprecates a version.
+- The server has no marketplace yet: the packages are demo data, and the stars are kept in the
+  browser.
 
 **Notifications**
 
