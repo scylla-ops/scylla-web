@@ -152,8 +152,16 @@ A pipeline links one version of a fragment. A new version is proposed on the can
 side panel, never forced: the pipeline takes it or stays. A block can also be detached, and its
 nodes become the pipeline's own. Only the author and the admins publish a version. The library
 page lists the fragments, with a search, the tags and the favorites; the page of a fragment shows
-its nodes, its parameters, its versions and the pipelines that use it. The community library is a
-later step: its tab says "Soon".
+its nodes, its parameters, its versions and the pipelines that use it, and **Use in a pipeline**
+opens one.
+
+The **Community** tab holds the fragments taken from the [marketplace](../marketplace/README.md).
+A **linked** fragment is read only: a new version of its publisher shows what it changes and
+which pipelines keep their own values, and an admin accepts it into the library or skips it.
+A **fork** belongs to the workspace and only shows the next release of its publisher. The other
+way, a fragment of the workspace goes public from its page, as `@workspace/name`, after checks on
+its defaults and nodes; its page then follows its installs and the versions other organizations
+use.
 
 The server has no library yet, so `DefaultFragmentRepository` keeps it in the browser, with demo
 fragments. The document of a pipeline stays plain nodes: what makes a block is a `FragmentLink`,
