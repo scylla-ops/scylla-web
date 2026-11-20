@@ -303,8 +303,8 @@
     kind={dashboardView.adding.kind}
     {widgets}
     {period}
-    onAdd={(data, size) => {
-      dashboardEditor.add(data, size);
+    onAdd={(data, size, target) => {
+      dashboardEditor.add(data, size, undefined, target);
       dashboardView.closeAdd();
     }}
     onClose={() => dashboardView.closeAdd()}

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import FileTextIcon from '@lucide/svelte/icons/file-text';
+  import PlayIcon from '@lucide/svelte/icons/play';
   import RotateCwIcon from '@lucide/svelte/icons/rotate-cw';
   import { Permission, can } from '@platform/authz';
   import { contextStore } from '@platform/context';
@@ -10,8 +12,9 @@
   import { triggerMutations } from '@base/features/triggers';
   import type { AttentionItem } from '@base/features/dashboard/domain/structs/attention.struct.ts';
   import { shortJobId } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
+  import { attentionMessages } from '@base/features/dashboard/presentation/messages/attention.messages.ts';
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
-  import { openAgent, openJob, openTriggers } from '../widget-navigation.ts';
+  import { openAgent, openJob } from '../widget-navigation.ts';
 
   interface Props {
     item: AttentionItem;
@@ -26,7 +29,7 @@
   const job = $derived(item.job && item.projectId ? item.job : null);
   const fire = $derived(item.fire && item.projectId ? item.fire : null);
   const canRerun = $derived(
-    !!job && item.kind !== 'approval-waiting' && can(Permission.CREATE_JOB),
+    !!job && (item.kind === 'job-failed' || item.kind === 'job-orphaned') && can(Permission.CREATE_JOB),
   );
   const canFire = $derived(!!fire && can(Permission.MANAGE_TRIGGERS));
 
@@ -42,7 +45,7 @@
   });
 </script>
 
-<div class={cn('flex shrink-0 items-center gap-1.5', className)}>
+<div class={cn('flex shrink-0 items-center gap-1', className)}>
   {#if job}
     {#if canRerun}
       <Button
@@ -58,30 +61,33 @@
         {t(widgetMessages.rerun)}
       </Button>
     {/if}
-    <Button variant="outline" size="xs" onclick={() => openJob(place(job.id))}>
-      {t(item.kind === 'approval-waiting' ? widgetMessages.review : widgetMessages.logs)}
-    </Button>
-  {:else if fire}
-    {#if canFire}
-      <Button
-        variant="outline"
-        size="xs"
-        disabled={fireNow.isPending}
-        onclick={() => {
-          enterProject();
-          fireNow.mutate(fire.triggerId);
-        }}
-      >
-        {t(widgetMessages.fireNow)}
+    {#if item.kind !== 'job-orphaned'}
+      <Button variant="outline" size="xs" onclick={() => openJob(place(job.id))}>
+        {#if item.kind === 'approval-waiting'}
+          {t(widgetMessages.review)}
+        {:else}
+          <FileTextIcon aria-hidden="true" />
+          {t(attentionMessages.logs)}
+        {/if}
       </Button>
     {/if}
-    <Button variant="outline" size="xs" onclick={() => openTriggers(item)}>
-      {t(widgetMessages.trigger)}
+  {:else if fire && canFire}
+    <Button
+      variant="outline"
+      size="xs"
+      disabled={fireNow.isPending}
+      onclick={() => {
+        enterProject();
+        fireNow.mutate(fire.triggerId);
+      }}
+    >
+      <PlayIcon aria-hidden="true" />
+      {t(widgetMessages.fireNow)}
     </Button>
   {:else if item.agent}
     {@const agentId = item.agent.id}
     <Button variant="outline" size="xs" onclick={() => openAgent(agentId)}>
-      {t(widgetMessages.agent)}
+      {t(attentionMessages.agent)}
     </Button>
   {/if}
 </div>

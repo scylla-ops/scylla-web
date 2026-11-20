@@ -163,6 +163,10 @@ msgstr "Deploy"
 msgid "deploy-script"
 msgstr "deploy-script"
 
+#: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:7
+msgid "Duration: {duration}"
+msgstr "Duration: {duration}"
+
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:4
 msgid "Enter a valid email address."
 msgstr "Enter a valid email address."
@@ -183,6 +187,10 @@ msgstr "Failed"
 msgid "Find a project"
 msgstr "Find a project"
 
+#: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:6
+msgid "Finished {time}"
+msgstr "Finished {time}"
+
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:15
 #: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:6
 msgid "Full"
@@ -195,6 +203,10 @@ msgstr "Give this person a role in the workspace first"
 #: extensions/scylla-base/src/shared/presentation/messages/copy-box.messages.ts:7
 msgid "Hidden secret"
 msgstr "Hidden secret"
+
+#: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:4
+msgid "Job {id}: {status}"
+msgstr "Job {id}: {status}"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:28
 msgid "Job queued: it needs a container, and no connected agent has a container runtime"
@@ -384,6 +396,10 @@ msgstr "Some projects"
 #: extensions/scylla-base/src/shared/utils/scylla-error.ts:176
 msgid "Someone else changed this item in the meantime. The page now shows the latest version."
 msgstr "Someone else changed this item in the meantime. The page now shows the latest version."
+
+#: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:5
+msgid "Started {time}"
+msgstr "Started {time}"
 
 #: extensions/scylla-base/src/shared/utils/status-config.ts:42
 msgid "Success"

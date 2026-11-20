@@ -22,7 +22,10 @@ would pull bits-ui into the chunk of the importer.
 you".**
 
 - A dashboard is a name, a visibility (`private` or `workspace`), the team default mark, a
-  `version`, and an ordered list of `{ id, data, size }` (`domain/structs/dashboard-layout.struct.ts`).
+  `version`, and an ordered list of `{ id, data, size, target? }`
+  (`domain/structs/dashboard-layout.struct.ts`). `target` is the id of the agent or of the
+  pipeline of a dedicated widget. It is optional, so the format stays schema version 1:
+  `toWidgetList` keeps a text target, and `toWidgets` writes it only when it is set.
 - `DashboardLayoutRepository` (port) has `list`, `create`, `update`, `remove` and
   `setTeamDefault`. `GrpcDashboardLayoutRepository` implements it. The widgets go in
   `widgets_json` with `schema_version` 1 (`grpc-dashboard.mapper.ts`). A widget list of another
@@ -53,7 +56,9 @@ The ViewModels of the page read, through public APIs only:
 | `@platform/authz` | `can`, `Permission` — the Locked state of a widget |
 | `features/workspace` | `workspaceQueries.mine` — the time zone of the current workspace (`createDashboardPeriod`) |
 | `features/jobs` | `jobQueries.stats` (GetJobStats), `jobQueries.newest` (the live jobs, the job ends of the period), `successRate`, `successRateChange` |
-| `features/pipeline` | `pipelineQueries.summaries` (ListPipelineSummaries), `createRunPipeline` (Quick actions) |
+| `features/pipeline` | `pipelineQueries.summaries` (ListPipelineSummaries; with `pipelineIds` for the Pipeline widget), `createRunPipeline` (Quick actions, Pipeline) |
+| `features/jobs` (Pipeline) | `jobQueries.byPipeline` (ListPipelineJobs): the nodes of the newest job |
+| `features/apps` | `appQueries.runners` (the agents, the picker), `appQueries.agentStatsOf` (GetAgentStats), `appQueries.jobs` (the last jobs of one agent) |
 
 All these reads are `queryOptions` objects, so this module shares one cache entry per resource
 with whoever else reads it.
@@ -71,6 +76,7 @@ infrastructure/local-dashboard-preferences.ts   the default of the person, the l
 infrastructure/grpc-attention.repository.ts + grpc-attention.mapper.ts   ListAttentionItems
 domain/structs/attention.struct.ts          an item of Needs you, its kinds and its counts
 infrastructure/stored-dashboards.mapper.ts  the JSON of the old layouts, the widget list — tested
+infrastructure/grpc-agent-metrics.repository.ts  GetAgentMetrics: the CPU and the memory of one agent by hour
 presentation/
   dashboard-layout.queries.ts           the query of the set, the mutations, the conflict message
   attention.queries.ts                  the items of Needs you, the last visit
@@ -105,7 +111,13 @@ presentation/
   ui/widgets/dashboard-widgets.state.svelte.ts   the queries of the widgets, with the period
   ui/widgets/<Name>Widget/              Sentence, Timeline (last 24 h), Right now, Needs you,
                                         Success rate, Agents, Pipelines, Runs, Run minutes,
-                                        Run duration, Activity, Quick actions
+                                        Run duration, Activity, Quick actions, Ranking, Heatmap,
+                                        Agent, Pipeline (each new one with its state)
+  presenters/ranking.presenter.ts       the rows of a ranking — pure, tested
+  presenters/heatmap.presenter.ts       the days of the heatmap, the week grid, the levels — pure, tested
+  presenters/agent-widget.presenter.ts  the slots, the load and the strip of one agent — pure, tested
+  presenters/pipeline-widget.presenter.ts   the last run, the state and the nodes of one pipeline — pure, tested
+  ui/DashboardEditor/TargetPicker.svelte    the agent or the pipeline of a dedicated widget
   ui/widgets/parts/                     WidgetBody (the states), BucketAxis, ChangeBadge
   ui/widgets/widget-navigation.ts       opens a job or the jobs of a pipeline from a widget
 ```
@@ -185,6 +197,30 @@ narrower permission without moving that redirect target too.
   and Activity need `LIST_JOBS_BY_WORKSPACE`, Pipelines needs `LIST_PIPELINES_BY_WORKSPACE`,
   Needs you needs both. The server gives `GetJobStats` and `ListPipelineSummaries` with the same
   role as these lists.
+- **Ranking reads `GetJobStats` by pipeline** (`groupOrder` `p50-duration` or `failed`, 10
+  groups, `compare`), for the period and the scope. "Most failures" counts the failed and the
+  orphaned jobs; a pipeline with none is not in the list. Up is bad for both.
+- **Heatmap reads `GetJobStats` with buckets of one hour**, and adds them by weekday and hour of
+  the zone of the workspace (`weekGrid`). The server refuses more than 1000 buckets, so the grid
+  counts the days of the period, at least the last 7 and at most the last 41
+  (`heatmapRange`). Its key is `['heatmap', period, zone]`.
+- **Agent** reads the agent in `appQueries.runners`, `GetAgentStats` for the UTC days of the
+  period, its last jobs, its running jobs in `live`, and `GetAgentMetrics` for 24 hours. It shows
+  Locked when the list of the agents does not run (`canReadAgents`). With no `READ_APP_STATS`,
+  its figures show an em dash.
+- **Pipeline** reads `ListPipelineSummaries` with `pipelineIds: [target]`, `GetJobStats` with
+  `pipelineIds` for the runs of the period, and the newest job for its nodes. It needs
+  `LIST_PIPELINES_BY_WORKSPACE` (Locked). "Run" shows with `RUN_PIPELINE` only.
+- **A bar of Success rate (`DayBars`) and of the load of Agent (`LoadBars`) is a gauge.** Each bar
+  has a track of the full height (`bg-muted/70`), and the value fills it from the bottom. A day
+  bar fills against the highest day (`dayBars`); a load bar fills against 100 % (`loadFill`), at
+  least 2 % above 0. A bucket with no run, or an hour with no sample, shows a dashed track and no
+  fill: it is not a real 0 %. The tooltip of a day with no run says "No run".
+- **A mark of a strip of runs opens its job**, as on the pipelines list: Pipelines (`s`, `m`,
+  `l` and the sheet), Pipeline (each size) and the recent jobs of Agent. Each mark is a
+  `JobRunMark` of `@shared/presentation/ui`, with a `RunMark` of `widget-rows.presenter.ts`
+  (`runMark`, `recentRuns`), and `openJob` sets the project first. Never draw a mark with no click
+  for a job: use `JobRunMark`.
 - **The success rate is completed / (completed + failed + orphaned).** The cancelled jobs show
   apart. Its change is in points; the change of a duration is in percent, and down is good.
 
@@ -197,7 +233,11 @@ a widget), `1527:8165` (widget data), `1529:8782` (layouts), `1529:9001` (new la
   its undo list. "Save layout" stores the draft in the set; "Cancel" drops it. The page and the
   panel read the same module state.
 - **The palette replaces the panel.** A kind with data opens "Add a widget", or drags onto the
-  grid. A kind with no data yet (Ranking, Heatmap, the dedicated kinds) shows "soon".
+  grid. A kind with no data shows "soon". Each kind has data now.
+- **A dedicated widget (`DATA[data].target`) shows one agent or one pipeline.** "Add a widget"
+  and the drawer show `TargetPicker`. "Add a widget" takes the first choice when the user picks
+  none. A widget that a drag of the palette adds has no target: it asks for one. A target that
+  the list does not have any more shows "This agent is gone" or "This pipeline is gone".
 - **A widget in the grid** has Remove (top left), a handle to drag it (top), a corner to resize
   it, and a toolbar when selected: the sizes, Data (the drawer), Duplicate, Delete. A drag shows
   "Drop here" where the widget lands; the grid packs the rest (`grid-flow-row-dense`).
@@ -208,7 +248,9 @@ a widget), `1527:8165` (widget data), `1529:8782` (layouts), `1529:9001` (new la
 - **On a phone, the shell hides the panel.** `MobileBar` (under 768 px) gives the dashboard, the
   period and Edit; in the edit mode, Cancel, the changes, Save layout and a floating "Add
   widget". The design draws bottom sheets for the dialogs: they are centred dialogs today.
-- **Not done yet:** sharing a dashboard (the section "Shared", "Who can see it"), a period or a
+- **Not done yet:** "See all" of a ranking, the labels of an agent (the server has none: the
+  widget shows the facts of the host), "up since restart" of an agent (no data: the large size
+  shows the p95), a heatmap of the failures, sharing a dashboard (the section "Shared", "Who can see it"), a period or a
   scope for one widget, the filters, the thresholds, and the keyboard shortcuts.
 
 ## Before done
