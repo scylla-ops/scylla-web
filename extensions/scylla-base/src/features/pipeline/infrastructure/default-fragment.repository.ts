@@ -2,13 +2,27 @@ import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { FragmentRepository } from '@base/features/pipeline/domain/repository/fragment.repository.ts';
 import {
   latestVersion,
+  type AddCommunityFragmentInput,
   type CreateFragmentInput,
   type FragmentEntity,
   type FragmentLink,
   type FragmentUsage,
   type LinkingPipeline,
   type PublishFragmentVersionInput,
+  type PublishToMarketplaceInput,
 } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
+import {
+  acceptUpstream,
+  detachAsFork,
+  dismissUpstream,
+  skipUpstream,
+} from '@base/features/pipeline/domain/structs/fragment-upstream.struct.ts';
+import {
+  publicName,
+  withDeprecated,
+  withNewVersion,
+  withPublication,
+} from '@base/features/pipeline/domain/structs/fragment-publication.struct.ts';
 import { seedFragments, type StoredFragment } from './fragment-seeds.ts';
 
 const STORAGE_KEY = 'scylla.fragment-library';
@@ -63,39 +77,63 @@ export class DefaultFragmentRepository implements FragmentRepository {
   }
 
   public create(input: CreateFragmentInput): Promise<FragmentEntity> {
-    return this.run(stored => {
-      // Seeded first: a name of the demo library is taken too.
-      const library = this.withSeeds(stored, input.workspaceId);
-      const taken = library.fragments.some(
-        fragment => fragment.workspaceId === input.workspaceId && fragment.name === input.name,
-      );
-      if (taken) {
-        throw new ScyllaError(`A fragment is already named ${input.name}`, {
-          code: 'ALREADY_EXISTS',
-        });
-      }
+    return this.add(input.workspaceId, {
+      name: input.name,
+      description: input.description,
+      tags: input.tags,
+      author: input.author,
+      versions: [
+        {
+          number: 1,
+          nodes: input.nodes,
+          parameters: input.parameters,
+          changes: [`First version, saved from ${input.sourcePipeline}.`],
+          author: input.author,
+          publishedAt: new Date().toISOString(),
+        },
+      ],
+    });
+  }
 
-      const fragment: StoredFragment = {
-        id: crypto.randomUUID(),
-        workspaceId: input.workspaceId,
-        name: input.name,
-        description: input.description,
-        tags: input.tags,
-        author: input.author,
-        versions: [
-          {
-            number: 1,
-            nodes: input.nodes,
-            parameters: input.parameters,
-            changes: [`First version, saved from ${input.sourcePipeline}.`],
-            author: input.author,
-            publishedAt: new Date().toISOString(),
+  /**
+   * A linked fragment keeps the numbers of the publisher, and gets the newer versions as
+   * upstream. A fork starts at its own version 1.
+   */
+  public addFromMarketplace(input: AddCommunityFragmentInput): Promise<FragmentEntity> {
+    const reference = publicName(input.package.publisher, input.package.name);
+    const linked = input.mode === 'linked';
+    const now = new Date().toISOString();
+    return this.add(input.workspaceId, {
+      name: input.name,
+      description: input.description,
+      tags: input.tags,
+      author: input.author,
+      versions: [
+        linked
+          ? input.version
+          : {
+              ...input.version,
+              number: 1,
+              changes: [`Forked from ${reference} v${input.version.number}.`],
+              author: input.author,
+              publishedAt: now,
+            },
+      ],
+      source: linked
+        ? {
+            kind: 'linked',
+            package: input.package,
+            addedAt: now,
+            upstream: input.newer,
+            skipped: [],
+          }
+        : {
+            kind: 'forked',
+            package: input.package,
+            addedAt: now,
+            baseVersion: input.version.number,
+            upstream: input.newer.at(-1) ?? null,
           },
-        ],
-        seededUsages: [],
-      };
-      const next = { ...library, fragments: [...library.fragments, fragment] };
-      return { next, result: this.toEntity(next, fragment) };
     });
   }
 
@@ -115,12 +153,52 @@ export class DefaultFragmentRepository implements FragmentRepository {
             publishedAt: new Date().toISOString(),
           },
         ],
+        publication: withNewVersion(fragment.publication, latestVersion(fragment).number + 1),
       };
       const next = {
         ...library,
         fragments: library.fragments.map(stored => (stored.id === input.id ? published : stored)),
       };
       return { next, result: this.toEntity(next, published) };
+    });
+  }
+
+  public acceptUpstream(id: string, version: number): Promise<FragmentEntity> {
+    return this.update(id, fragment => acceptUpstream(fragment, version));
+  }
+
+  public skipUpstream(id: string, version: number): Promise<FragmentEntity> {
+    return this.update(id, fragment => skipUpstream(fragment, version));
+  }
+
+  public dismissUpstream(id: string): Promise<FragmentEntity> {
+    return this.update(id, fragment => dismissUpstream(fragment));
+  }
+
+  public detachAsFork(id: string): Promise<FragmentEntity> {
+    return this.update(id, fragment => detachAsFork(fragment));
+  }
+
+  public publishToMarketplace({
+    id,
+    scope,
+    ...input
+  }: PublishToMarketplaceInput): Promise<FragmentEntity> {
+    return this.update(id, fragment => ({
+      tags: input.tags,
+      publication: withPublication(
+        fragment.publication,
+        publicName(scope, fragment.name),
+        input,
+        new Date().toISOString(),
+      ),
+    }));
+  }
+
+  public deprecateVersion(id: string, version: number): Promise<FragmentEntity> {
+    return this.update(id, fragment => {
+      if (!fragment.publication) throw new ScyllaError(`${fragment.name} is not public`);
+      return { publication: withDeprecated(fragment.publication, version) };
     });
   }
 
@@ -148,6 +226,50 @@ export class DefaultFragmentRepository implements FragmentRepository {
     });
   }
 
+  /** Adds a fragment to the library of the workspace, under a name that no other fragment has. */
+  private add(
+    workspaceId: string,
+    fragment: Omit<StoredFragment, 'id' | 'workspaceId' | 'seededUsages'>,
+  ): Promise<FragmentEntity> {
+    return this.run(stored => {
+      // Seeded first: a name of the demo library is taken too.
+      const library = this.withSeeds(stored, workspaceId);
+      const taken = library.fragments.some(
+        other => other.workspaceId === workspaceId && other.name === fragment.name,
+      );
+      if (taken) {
+        throw new ScyllaError(`A fragment is already named ${fragment.name}`, {
+          code: 'ALREADY_EXISTS',
+        });
+      }
+
+      const added: StoredFragment = {
+        ...fragment,
+        id: crypto.randomUUID(),
+        workspaceId,
+        seededUsages: [],
+      };
+      const next = { ...library, fragments: [...library.fragments, added] };
+      return { next, result: this.toEntity(next, added) };
+    });
+  }
+
+  /** Changes one fragment, and gives it back as the library now holds it. */
+  private update(
+    id: string,
+    change: (fragment: StoredFragment) => Partial<StoredFragment>,
+  ): Promise<FragmentEntity> {
+    return this.run(library => {
+      const fragment = this.find(library, id);
+      const changed: StoredFragment = { ...fragment, ...change(fragment) };
+      const next = {
+        ...library,
+        fragments: library.fragments.map(stored => (stored.id === id ? changed : stored)),
+      };
+      return { next, result: this.toEntity(next, changed) };
+    });
+  }
+
   private withSeeds(library: StoredLibrary, workspaceId: string): StoredLibrary {
     if (library.seeded.includes(workspaceId)) return library;
     return {
@@ -171,7 +293,7 @@ export class DefaultFragmentRepository implements FragmentRepository {
       ({ pipeline, links }) =>
         links
           .filter(link => link.fragmentId === fragment.id)
-          .map(link => ({ ...pipeline, version: link.version })),
+          .map(link => ({ ...pipeline, version: link.version, values: link.values })),
     );
     return {
       ...fragment,

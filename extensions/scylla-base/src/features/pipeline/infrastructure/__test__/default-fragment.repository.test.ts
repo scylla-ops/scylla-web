@@ -1,7 +1,10 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import type { FragmentLink } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
+import type {
+  FragmentLink,
+  FragmentVersion,
+} from '@base/features/pipeline/domain/entities/fragment.entity.ts';
 import { DefaultFragmentRepository } from '../default-fragment.repository.ts';
 
 const memoryStorage = () => {
@@ -35,6 +38,29 @@ const pipeline = {
   projectId: 'pr1',
   projectName: 'storefront',
 };
+
+const PACKAGE = { packageId: 'pnpm.node-ci', publisher: 'pnpm', name: 'node-ci', verified: true };
+
+const release = (number: number): FragmentVersion => ({
+  number,
+  nodes: input.nodes,
+  parameters: [],
+  changes: [`Release ${number}.`],
+  author: { id: 'pnpm', name: 'pnpm' },
+  publishedAt: '2026-10-01T10:00:00Z',
+});
+
+const community = (mode: 'linked' | 'forked') => ({
+  workspaceId: 'acme',
+  mode,
+  name: 'pnpm-ci',
+  description: 'Install, lint and test.',
+  tags: ['node'],
+  package: PACKAGE,
+  version: release(8),
+  newer: [release(9)],
+  author,
+});
 
 describe('DefaultFragmentRepository', () => {
   it('gives each workspace the demo library once', async () => {
@@ -95,7 +121,7 @@ describe('DefaultFragmentRepository', () => {
 
     await repository.saveLinks(pipeline, [link]);
     expect((await repository.getById('acme', created.id)).usages).toEqual([
-      { ...pipeline, version: 1 },
+      { ...pipeline, version: 1, values: link.values },
     ]);
     expect(await repository.linksOf('p1')).toEqual([link]);
 
@@ -112,6 +138,73 @@ describe('DefaultFragmentRepository', () => {
 
     await repository.setFavorite(created.id, false);
     expect((await repository.getById('acme', created.id)).favorite).toBe(false);
+  });
+
+  it('adds a linked fragment with the versions of its publisher, as they are', async () => {
+    const repository = repositoryOn();
+
+    const added = await repository.addFromMarketplace(community('linked'));
+
+    expect(added.versions.map(version => version.number)).toEqual([8]);
+    expect(added.source).toEqual(
+      expect.objectContaining({ kind: 'linked', upstream: [release(9)], skipped: [] }),
+    );
+  });
+
+  it('starts a fork at its own v1, with the release of the publisher to look at', async () => {
+    const repository = repositoryOn();
+
+    const forked = await repository.addFromMarketplace(community('forked'));
+
+    expect(forked.versions.map(version => version.number)).toEqual([1]);
+    expect(forked.versions[0].changes).toEqual(['Forked from @pnpm/node-ci v8.']);
+    expect(forked.source).toEqual(
+      expect.objectContaining({ kind: 'forked', baseVersion: 8, upstream: release(9) }),
+    );
+  });
+
+  it('takes an upstream version into the library, or keeps it out', async () => {
+    const repository = repositoryOn();
+    const added = await repository.addFromMarketplace(community('linked'));
+
+    const skipped = await repository.skipUpstream(added.id, 9);
+    expect(skipped.versions.map(version => version.number)).toEqual([8]);
+
+    const accepted = await repository.acceptUpstream(added.id, 9);
+    expect(accepted.versions.map(version => version.number)).toEqual([8, 9]);
+  });
+
+  it('turns a linked fragment into a fork that the workspace owns', async () => {
+    const repository = repositoryOn();
+    const added = await repository.addFromMarketplace(community('linked'));
+
+    const detached = await repository.detachAsFork(added.id);
+
+    expect(detached.source).toEqual(expect.objectContaining({ kind: 'forked', baseVersion: 8 }));
+  });
+
+  it('publishes a fragment under the scope of the workspace, then deprecates a version', async () => {
+    const repository = repositoryOn();
+    const created = await repository.create(input);
+    const publish = {
+      id: created.id,
+      scope: 'acme',
+      version: 1,
+      license: 'MIT',
+      category: 'quality',
+      tags: ['ci'],
+      autoPublish: false,
+      author,
+    };
+
+    await expect(repository.deprecateVersion(created.id, 1)).rejects.toThrow(ScyllaError);
+    const published = await repository.publishToMarketplace(publish);
+    expect(published.publication).toEqual(
+      expect.objectContaining({ name: '@acme/lint-all', versions: [1], deprecated: [] }),
+    );
+
+    const deprecated = await repository.deprecateVersion(created.id, 1);
+    expect(deprecated.publication?.deprecated).toEqual([1]);
   });
 
   it('starts again from an empty library when the storage holds something unreadable', async () => {
