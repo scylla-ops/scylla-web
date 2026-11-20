@@ -80,7 +80,7 @@ describe('fragment community presenter', () => {
       versions: [version(1), version(2), version(3)],
       source: { kind: 'forked', package: PACKAGE, addedAt: '', baseVersion: 4, upstream: null },
       publication: {
-        name: '@acme/node-ci',
+        name: 'node-ci',
         license: 'MIT',
         category: 'build',
         versions: [1, 2],

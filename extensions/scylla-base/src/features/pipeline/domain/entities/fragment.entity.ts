@@ -104,12 +104,20 @@ export interface PublicationStats {
   adoption: { version: number; organizations: number }[];
 }
 
+/** The shelves of the marketplace: a public fragment sits on one. */
+export const MARKETPLACE_CATEGORIES = ['ci', 'build', 'deploy', 'security', 'release'] as const;
+
+export type MarketplaceCategory = (typeof MARKETPLACE_CATEGORIES)[number];
+
 /** A fragment of the workspace made public. Only the versions in `versions` are public. */
 export interface FragmentPublication {
-  /** `@workspace/name`. It stays the same across versions. */
+  /**
+   * The name in the marketplace, without its scope: the slug of the workspace makes it
+   * `@workspace/name` (see `publicName`). It stays the same across versions.
+   */
   name: string;
   license: string;
-  category: string;
+  category: MarketplaceCategory;
   versions: number[];
   /** A new version of the library is public at once. */
   autoPublish: boolean;
@@ -167,11 +175,9 @@ export interface AddCommunityFragmentInput {
 
 export interface PublishToMarketplaceInput {
   id: string;
-  /** The slug of the workspace: the scope of the public name. */
-  scope: string;
   version: number;
   license: string;
-  category: string;
+  category: MarketplaceCategory;
   tags: string[];
   autoPublish: boolean;
   author: FragmentAuthor;

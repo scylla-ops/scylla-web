@@ -2,11 +2,15 @@ import type { MessageDescriptor } from '@lingui/core';
 import type {
   FragmentAuthor,
   FragmentEntity,
+  MarketplaceCategory,
 } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
 import { publicName } from '@base/features/pipeline/domain/structs/fragment-publication.struct.ts';
 import type { PublicationCheck } from '@base/features/pipeline/domain/structs/publication-check.struct.ts';
 import type { VersionChange } from '@base/features/pipeline/domain/structs/version-diff.struct.ts';
 import { communityMessages } from '@base/features/pipeline/presentation/messages/community.messages.ts';
+
+export const categoryName = (category: MarketplaceCategory): MessageDescriptor =>
+  communityMessages.categories[category];
 
 /** `@scylla/docker-buildx`: how the pages name a fragment of the marketplace. */
 export const sourceReference = (fragment: Pick<FragmentEntity, 'source'>): string =>

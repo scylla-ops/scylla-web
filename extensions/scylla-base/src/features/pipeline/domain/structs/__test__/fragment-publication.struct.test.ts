@@ -12,7 +12,7 @@ const author = { id: 'ines', name: 'Inès' };
 const input = {
   version: 1,
   license: 'MIT',
-  category: 'build',
+  category: 'build' as const,
   tags: ['docker'],
   autoPublish: false,
   author,
@@ -44,17 +44,17 @@ describe('fragment publication', () => {
   });
 
   it('keeps the first name and date when one more version goes public', () => {
-    const first = withPublication(undefined, '@acme/docker-build', input, NOW);
-    const next = withPublication(first, '@acme/renamed', { ...input, version: 2 }, 'later');
+    const first = withPublication(undefined, 'docker-build', input, NOW);
+    const next = withPublication(first, 'renamed', { ...input, version: 2 }, 'later');
 
     expect(next).toEqual(
-      expect.objectContaining({ name: '@acme/docker-build', versions: [1, 2], publishedAt: NOW }),
+      expect.objectContaining({ name: 'docker-build', versions: [1, 2], publishedAt: NOW }),
     );
   });
 
   it('makes a new version public on its own only with automatic publishing', () => {
-    const manual = withPublication(undefined, '@acme/x', input, NOW);
-    const automatic = withPublication(undefined, '@acme/x', { ...input, autoPublish: true }, NOW);
+    const manual = withPublication(undefined, 'x', input, NOW);
+    const automatic = withPublication(undefined, 'x', { ...input, autoPublish: true }, NOW);
 
     expect(withNewVersion(manual, 2)?.versions).toEqual([1]);
     expect(withNewVersion(automatic, 2)?.versions).toEqual([1, 2]);
@@ -62,7 +62,7 @@ describe('fragment publication', () => {
   });
 
   it('deprecates a version once', () => {
-    const publication = withPublication(undefined, '@acme/x', input, NOW);
+    const publication = withPublication(undefined, 'x', input, NOW);
 
     expect(withDeprecated(withDeprecated(publication, 1), 1).deprecated).toEqual([1]);
   });

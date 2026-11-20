@@ -1,9 +1,10 @@
-import type {
-  FragmentEntity,
-  PublishToMarketplaceInput,
-} from '@base/features/pipeline/domain/entities/fragment.entity.ts';
 import {
   MARKETPLACE_CATEGORIES,
+  type FragmentEntity,
+  type MarketplaceCategory,
+  type PublishToMarketplaceInput,
+} from '@base/features/pipeline/domain/entities/fragment.entity.ts';
+import {
   PUBLICATION_LICENSES,
   publicName,
 } from '@base/features/pipeline/domain/structs/fragment-publication.struct.ts';
@@ -24,7 +25,7 @@ export const createPublishForm = (
   const publication = fragment.publication;
   let version = $state(initialVersion);
   let license = $state(publication?.license ?? PUBLICATION_LICENSES[0]);
-  let category = $state(publication?.category ?? MARKETPLACE_CATEGORIES[0]);
+  let category = $state<MarketplaceCategory>(publication?.category ?? MARKETPLACE_CATEGORIES[0]);
   let autoPublish = $state(publication?.autoPublish ?? false);
 
   const chosen = $derived(fragment.versions.find(entry => entry.number === version));
@@ -39,7 +40,7 @@ export const createPublishForm = (
         .reverse();
     },
     get name() {
-      return publication?.name ?? publicName(scope, fragment.name);
+      return publicName(scope, publication?.name ?? fragment.name);
     },
     get version() {
       return version;
@@ -56,7 +57,7 @@ export const createPublishForm = (
     get category() {
       return category;
     },
-    set category(next: string) {
+    set category(next: MarketplaceCategory) {
       category = next;
     },
     get autoPublish() {
@@ -70,7 +71,9 @@ export const createPublishForm = (
     },
     /** The secret parameters: they stay to fill by whoever adds the fragment. */
     get secrets() {
-      return (chosen?.parameters ?? []).filter(entry => entry.kind === 'secret').map(entry => entry.key);
+      return (chosen?.parameters ?? [])
+        .filter(entry => entry.kind === 'secret')
+        .map(entry => entry.key);
     },
     get ready() {
       return !!chosen && canGoPublic(checks);
@@ -80,7 +83,6 @@ export const createPublishForm = (
     input(): Omit<PublishToMarketplaceInput, 'author'> {
       return {
         id: fragment.id,
-        scope,
         version,
         license,
         category,

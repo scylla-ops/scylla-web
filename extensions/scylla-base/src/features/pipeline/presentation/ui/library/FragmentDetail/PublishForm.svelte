@@ -14,19 +14,20 @@
     SelectValue,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import type {
-    FragmentEntity,
-    PublishToMarketplaceInput,
-  } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
   import {
     MARKETPLACE_CATEGORIES,
-    PUBLICATION_LICENSES,
+    type FragmentEntity,
     type MarketplaceCategory,
-  } from '@base/features/pipeline/domain/structs/fragment-publication.struct.ts';
+    type PublishToMarketplaceInput,
+  } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
+  import { PUBLICATION_LICENSES } from '@base/features/pipeline/domain/structs/fragment-publication.struct.ts';
   import type { PublicationCheck } from '@base/features/pipeline/domain/structs/publication-check.struct.ts';
   import { communityMessages } from '@base/features/pipeline/presentation/messages/community.messages.ts';
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
-  import { publicationCheckText } from '@base/features/pipeline/presentation/presenters/fragment-community.presenter.ts';
+  import {
+    categoryName,
+    publicationCheckText,
+  } from '@base/features/pipeline/presentation/presenters/fragment-community.presenter.ts';
   import { createPublishForm } from './publish-form.state.svelte.ts';
 
   interface Props {
@@ -53,10 +54,6 @@
   const toneOf = (check: PublicationCheck) =>
     check.passed ? 'text-primary' : check.severity === 'error' ? 'text-destructive' : 'text-warning';
 
-  const categoryLabel = (category: string) =>
-    category in communityMessages.categories
-      ? t(communityMessages.categories[category as MarketplaceCategory])
-      : category;
 
 </script>
 
@@ -100,12 +97,12 @@
     </div>
     <div class="flex flex-col gap-1.5">
       <Label>{t(communityMessages.category)}</Label>
-      <Select type="single" value={form.category} onValueChange={value => (form.category = value)}>
+      <Select type="single" value={form.category} onValueChange={value => (form.category = value as MarketplaceCategory)}>
         <SelectTrigger aria-label={t(communityMessages.category)}><SelectValue /></SelectTrigger>
         <SelectContent>
           {#each MARKETPLACE_CATEGORIES as category (category)}
-            <SelectItem value={category} label={categoryLabel(category)}>
-              {categoryLabel(category)}
+            <SelectItem value={category} label={t(categoryName(category))}>
+              {t(categoryName(category))}
             </SelectItem>
           {/each}
         </SelectContent>
