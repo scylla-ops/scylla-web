@@ -9,8 +9,8 @@
   import { pipelinesMessages as messages } from '@base/features/dashboard/presentation/messages/pipelines.messages.ts';
   import { pipelineRows, type PipelineRow } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import { PIPELINE_RUNS, type DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
-  import { openJob, openPipelineJobs } from ../widget-navigation.ts;
-  import { viewPermissionName } from @base/features/dashboard/presentation/presenters/permission-name.presenter.ts;
+  import { openJob, openPipelineJobs } from '../widget-navigation.ts';
+  import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
   import PipelineTable from './PipelineTable.svelte';
   import PipelinesSheet from './PipelinesSheet.svelte';
