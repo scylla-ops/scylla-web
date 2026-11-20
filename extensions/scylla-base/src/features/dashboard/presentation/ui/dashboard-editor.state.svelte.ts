@@ -100,9 +100,9 @@ export const dashboardEditor = {
   select: (id: string | null) => {
     selected = id;
   },
-  add: (data: WidgetData, size: LayoutSize, at?: number): string => {
+  add: (data: WidgetData, size: LayoutSize, at?: number, target?: string): string => {
     const id = newId();
-    change(addWidget(draft?.widgets ?? [], { id, data, size }, at));
+    change(addWidget(draft?.widgets ?? [], { id, data, size, ...(target && { target }) }, at));
     selected = id;
     return id;
   },

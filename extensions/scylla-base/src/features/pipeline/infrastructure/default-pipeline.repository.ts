@@ -88,7 +88,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
     const response = await this.client.listPipelineSummaries({
       workspaceId: wrapId(query.workspaceId),
       projectIds: [],
-      pipelineIds: [],
+      pipelineIds: (query.pipelineIds ?? []).map(wrapId),
       runs: query.runs,
       order: grpcPipelineSummary.orderToProto(query.order),
       page: { size: query.limit, token: '' },

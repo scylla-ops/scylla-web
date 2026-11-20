@@ -13,7 +13,12 @@ export type WidgetData =
   | 'activity'
   | 'quick-actions'
   | 'schedules'
-  | 'webhooks';
+  | 'webhooks'
+  | 'slowest-pipelines'
+  | 'failing-pipelines'
+  | 'runs-by-hour'
+  | 'agent'
+  | 'pipeline';
 
 /** The four sizes of a widget on the grid. */
 export type LayoutSize = 'xs' | 's' | 'm' | 'l';
@@ -33,6 +38,11 @@ export const WIDGET_DATA: readonly WidgetData[] = [
   'quick-actions',
   'schedules',
   'webhooks',
+  'slowest-pipelines',
+  'failing-pipelines',
+  'runs-by-hour',
+  'agent',
+  'pipeline',
 ];
 
 export const LAYOUT_SIZES: readonly LayoutSize[] = ['xs', 's', 'm', 'l'];
@@ -42,6 +52,8 @@ export interface LayoutWidget {
   id: string;
   data: WidgetData;
   size: LayoutSize;
+  /** The id of the agent or of the pipeline that a dedicated widget shows. */
+  target?: string;
 }
 
 /** A dashboard: a name and its widgets, in the order of the grid. */

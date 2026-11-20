@@ -23,7 +23,8 @@ export const toWidgetList = (value: unknown): LayoutWidget[] => {
       continue;
     }
     if (widgets.some(widget => widget.id === item.id)) continue;
-    widgets.push({ id: item.id, data: item.data, size: item.size });
+    const target = typeof item.target === 'string' && item.target !== '' ? item.target : undefined;
+    widgets.push({ id: item.id, data: item.data, size: item.size, ...(target && { target }) });
   }
   return widgets;
 };

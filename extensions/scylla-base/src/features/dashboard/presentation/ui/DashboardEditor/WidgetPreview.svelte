@@ -6,7 +6,7 @@
   import DashboardWidget from './DashboardWidget.svelte';
 
   interface Props {
-    item: Pick<LayoutWidget, 'data' | 'size'>;
+    item: Pick<LayoutWidget, 'data' | 'size' | 'target'>;
     widgets: DashboardWidgets;
     period: DashboardPeriodState;
     /** The width of the box, in px, until the box is measured: the widget scales down to it. */

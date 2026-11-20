@@ -1,5 +1,6 @@
 import type { ChartTone } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
+import type { JobRun } from '@shared/presentation/presenters/job-run.presenter.ts';
 import { formatUtcDay } from '@shared/utils/date-utils.ts';
 import { isFinishedStatus, type JobEntity, type JobStatus } from '@base/features/jobs';
 import {
@@ -61,11 +62,15 @@ export interface ActivityRow extends JobPlace {
   when: string;
 }
 
-/** One run of the strip of a pipeline. */
-export interface StripRun {
-  shortId: string;
-  status: JobStatus;
+export interface RunMark extends JobPlace {
   tone: ChartTone;
+  run: JobRun;
+  seconds: number | null;
+}
+
+/** One run of the strip of a pipeline. */
+export interface StripRun extends RunMark {
+  status: JobStatus;
   branch: string;
   duration: string;
   when: string;
@@ -75,6 +80,29 @@ const runSeconds = (run: { startedAt?: string; finishedAt?: string }): number | 
   run.startedAt && run.finishedAt
     ? Math.max(0, (Date.parse(run.finishedAt) - Date.parse(run.startedAt)) / 1000)
     : null;
+
+export const runMark = (
+  job: Omit<JobRun, 'ref' | 'title'>,
+  pipeline: { id: string; name: string; projectId: string; projectName: string },
+  ref = '',
+): RunMark => ({
+  jobId: job.id,
+  shortId: shortJobId(job.id),
+  pipelineId: pipeline.id,
+  pipelineName: pipeline.name,
+  projectId: pipeline.projectId,
+  projectName: pipeline.projectName,
+  tone: statusTone(job.status),
+  run: {
+    id: job.id,
+    status: job.status,
+    ref: ref || undefined,
+    createdAt: job.createdAt,
+    startedAt: job.startedAt,
+    finishedAt: job.finishedAt,
+  },
+  seconds: runSeconds(job),
+});
 
 export interface PipelineRow {
   id: string;
@@ -262,9 +290,8 @@ export const pipelineRows = (
       .slice(0, runs)
       .reverse()
       .map(run => ({
-        shortId: shortJobId(run.id),
+        ...runMark(run, summary, run.branch),
         status: run.status,
-        tone: statusTone(run.status),
         branch: run.branch,
         duration: durationText(runSeconds(run)),
         when: run.createdAt ? whenText(run.createdAt, now, timeZone) : '—',

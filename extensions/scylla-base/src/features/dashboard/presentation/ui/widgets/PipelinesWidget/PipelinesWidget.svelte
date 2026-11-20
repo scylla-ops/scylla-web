@@ -4,12 +4,13 @@
   import { ChartDot, ChartLegendItem, ChartSegment, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
+  import { JobRunMark } from '@shared/presentation/ui';
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
   import { pipelinesMessages as messages } from '@base/features/dashboard/presentation/messages/pipelines.messages.ts';
   import { pipelineRows, type PipelineRow } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import { PIPELINE_RUNS, type DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
-  import { openPipelineJobs } from '../widget-navigation.ts';
-  import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
+  import { openJob, openPipelineJobs } from ../widget-navigation.ts;
+  import { viewPermissionName } from @base/features/dashboard/presentation/presenters/permission-name.presenter.ts;
   import WidgetBody from '../parts/WidgetBody.svelte';
   import PipelineTable from './PipelineTable.svelte';
   import PipelinesSheet from './PipelinesSheet.svelte';
@@ -83,9 +84,11 @@
               <button type="button" class="min-w-0 flex-1 truncate text-left text-sm font-medium hover:underline" onclick={() => openPipelineJobs(row)}>
                 {row.name}
               </button>
-              <span class="flex h-3 shrink-0 gap-0.5" aria-hidden="true">
-                {#each row.strip.slice(-SMALL_RUNS) as tone, index (index)}
-                  <ChartSegment {tone} class="h-full w-[5px] rounded-[1px]" />
+              <span class="flex h-3 shrink-0 gap-0.5" role="group" aria-label={t(messages.lastRuns(SMALL_RUNS))}>
+                {#each row.runs.slice(-SMALL_RUNS) as mark (mark.jobId)}
+                  <JobRunMark run={mark.run} duration={mark.seconds} class="h-full w-[5px] rounded-[1px]" onSelect={() => openJob(mark)}>
+                    <ChartSegment tone={mark.tone} class="size-full rounded-[1px]" />
+                  </JobRunMark>
                 {/each}
               </span>
               <span class="w-10 shrink-0 text-right text-xs font-medium tabular-nums">{row.rate}</span>

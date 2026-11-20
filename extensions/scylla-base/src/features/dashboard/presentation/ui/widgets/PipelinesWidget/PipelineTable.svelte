@@ -1,10 +1,11 @@
 <script lang="ts">
   import { ChartDot, ChartSegment } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { JobRunMark } from '@shared/presentation/ui';
   import { pipelinesMessages as messages } from '@base/features/dashboard/presentation/messages/pipelines.messages.ts';
   import type { PipelineRow } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import { PIPELINE_RUNS } from '../dashboard-widgets.state.svelte.ts';
-  import { openPipelineJobs } from '../widget-navigation.ts';
+  import { openJob, openPipelineJobs } from '../widget-navigation.ts';
 
   interface Props {
     rows: readonly PipelineRow[];
@@ -36,9 +37,11 @@
           </button>
         </td>
         <td>
-          <span class="flex h-3 gap-0.5" role="img" aria-label={t(messages.lastRuns(PIPELINE_RUNS))}>
-            {#each row.strip as tone, index (index)}
-              <ChartSegment {tone} class="h-full w-[5px] shrink-0 rounded-[1px]" />
+          <span class="flex h-3 gap-0.5" role="group" aria-label={t(messages.lastRuns(PIPELINE_RUNS))}>
+            {#each row.runs as mark (mark.jobId)}
+              <JobRunMark run={mark.run} duration={mark.seconds} class="h-full w-[5px] rounded-[1px]" onSelect={() => openJob(mark)}>
+                <ChartSegment tone={mark.tone} class="size-full rounded-[1px]" />
+              </JobRunMark>
             {/each}
           </span>
         </td>

@@ -11,6 +11,7 @@ import { VcsConnectionServiceClient } from '@base/generated/scylla/integrations/
 import { GrpcAttentionRepository } from './infrastructure/grpc-attention.repository.ts';
 import { GrpcDashboardLayoutRepository } from './infrastructure/grpc-dashboard-layout.repository.ts';
 import { GrpcSlotUsageRepository } from './infrastructure/grpc-slot-usage.repository.ts';
+import { GrpcAgentMetricsRepository } from './infrastructure/grpc-agent-metrics.repository.ts';
 import { GrpcSchedulesRepository } from './infrastructure/grpc-schedules.repository.ts';
 import { GrpcActivityRepository } from './infrastructure/grpc-activity.repository.ts';
 import { GrpcDeliveryStatsRepository } from './infrastructure/grpc-delivery-stats.repository.ts';
@@ -28,7 +29,9 @@ const deliveryStatsRepository = new GrpcDeliveryStatsRepository(
   new VcsConnectionServiceClient(grpcTransport.getTransport()),
   triggerClient,
 );
-const slotUsageRepository = new GrpcSlotUsageRepository(new AgentServiceClient(grpcTransport.getTransport()));
+const agentClient = new AgentServiceClient(grpcTransport.getTransport());
+const slotUsageRepository = new GrpcSlotUsageRepository(agentClient);
+const agentMetricsRepository = new GrpcAgentMetricsRepository(agentClient);
 
 const page = () => import('./presentation/ui/Dashboard/Dashboard.page.svelte');
 
@@ -39,6 +42,7 @@ export const DashboardModule = {
     dashboardPreferences,
     attentionRepository,
     slotUsageRepository,
+    agentMetricsRepository,
     schedulesRepository,
     activityRepository,
     deliveryStatsRepository,

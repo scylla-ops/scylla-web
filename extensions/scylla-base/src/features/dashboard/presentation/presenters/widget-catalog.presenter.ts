@@ -1,5 +1,7 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { t } from '@scylla/ui/i18n';
+import type { AppEntity } from '@base/features/apps';
+import type { PipelineSummary } from '@base/features/pipeline';
 import type {
   LayoutSize,
   WidgetData,
@@ -45,7 +47,11 @@ export interface DataEntry {
   hint: MessageDescriptor;
   /** The sizes that the widget can show, the default first. */
   sizes: readonly LayoutSize[];
+  /** A dedicated widget shows one agent or one pipeline: the user picks it. */
+  target?: WidgetTarget;
 }
+
+export type WidgetTarget = 'agent' | 'pipeline';
 
 const entry = (
   kind: WidgetKind,
@@ -66,14 +72,14 @@ export const KINDS: readonly KindEntry[] = [
   entry('capacity', 'kinds', m.capacity, m.capacityText, ['agents']),
   entry('health', 'kinds', m.health, m.healthText, ['pipelines']),
   entry('line', 'kinds', m.line, m.lineText, ['run-duration']),
-  entry('ranking', 'kinds', m.ranking, m.rankingText),
-  entry('heatmap', 'kinds', m.heatmap, m.heatmapText),
+  entry('ranking', 'kinds', m.ranking, m.rankingText, ['slowest-pipelines', 'failing-pipelines']),
+  entry('heatmap', 'kinds', m.heatmap, m.heatmapText, ['runs-by-hour']),
   entry('triggers', 'kinds', scheduleMessages.title, scheduleMessages.catalogHint, ['schedules']),
   entry('activity', 'kinds', m.activity, m.activityText, ['activity']),
   entry('integrations', 'kinds', webhookMessages.title, webhookMessages.catalogHint, ['webhooks']),
   entry('quick-actions', 'kinds', m.quickActions, m.quickActionsText, ['quick-actions']),
-  entry('agent', 'dedicated', m.agent, m.agentText),
-  entry('pipeline', 'dedicated', m.pipeline, m.pipelineText),
+  entry('agent', 'dedicated', m.agent, m.agentText, ['agent']),
+  entry('pipeline', 'dedicated', m.pipeline, m.pipelineText, ['pipeline']),
 ];
 
 export const DATA: Readonly<Record<WidgetData, DataEntry>> = {
@@ -91,6 +97,11 @@ export const DATA: Readonly<Record<WidgetData, DataEntry>> = {
   schedules: { data: 'schedules', kind: 'triggers', title: scheduleMessages.title, hint: scheduleMessages.catalogHint, sizes: ['m', 'xs', 's', 'l'] },
   webhooks: { data: 'webhooks', kind: 'integrations', title: webhookMessages.title, hint: webhookMessages.catalogHint, sizes: ['m', 'xs', 's', 'l'] },
   'quick-actions': { data: 'quick-actions', kind: 'quick-actions', title: m.actions, hint: m.actionsHint, sizes: ['m', 'xs', 's'] },
+  'slowest-pipelines': { data: 'slowest-pipelines', kind: 'ranking', title: m.slowestPipelines, hint: m.slowestPipelinesHint, sizes: ['m', 's', 'xs', 'l'] },
+  'failing-pipelines': { data: 'failing-pipelines', kind: 'ranking', title: m.failingPipelines, hint: m.failingPipelinesHint, sizes: ['m', 's', 'xs', 'l'] },
+  'runs-by-hour': { data: 'runs-by-hour', kind: 'heatmap', title: m.runsByHour, hint: m.runsByHourHint, sizes: ['m', 's', 'xs', 'l'] },
+  agent: { data: 'agent', kind: 'agent', title: m.agent, hint: m.oneAgentHint, sizes: ['s', 'xs', 'm', 'l'], target: 'agent' },
+  pipeline: { data: 'pipeline', kind: 'pipeline', title: m.pipeline, hint: m.onePipelineHint, sizes: ['m', 's', 'xs', 'l'], target: 'pipeline' },
 };
 
 export const kindOf = (kind: WidgetKind): KindEntry =>
@@ -148,3 +159,21 @@ export const cellsText = (size: LayoutSize): string =>
 
 /** "XS" */
 export const sizeShort = (size: LayoutSize): string => size.toUpperCase();
+
+export interface TargetOption {
+  id: string;
+  label: string;
+  detail: string;
+}
+
+export const targetOptions = (
+  kind: WidgetTarget,
+  agents: readonly AppEntity[],
+  pipelines: readonly PipelineSummary[],
+): TargetOption[] => {
+  const options =
+    kind === 'agent'
+      ? agents.filter(agent => !agent.disabledAt).map(agent => ({ id: agent.id, label: agent.name, detail: '' }))
+      : pipelines.map(pipeline => ({ id: pipeline.id, label: pipeline.name, detail: pipeline.projectName }));
+  return options.sort((a, b) => a.label.localeCompare(b.label) || a.detail.localeCompare(b.detail));
+};

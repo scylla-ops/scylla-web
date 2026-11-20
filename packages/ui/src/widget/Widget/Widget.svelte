@@ -45,7 +45,7 @@
   aria-labelledby={titleId}
   style={widgetSpanStyle(size)}
   class={cn(
-    'relative flex min-h-0 min-w-0 overflow-clip rounded-2xl border p-3 text-foreground @3xl:p-4',
+    'relative flex min-h-0 min-w-0 overflow-clip rounded-2xl border bg-muted/30 p-3 text-foreground @3xl:p-4',
     'col-span-(--widget-columns) row-span-(--widget-rows) @3xl:col-span-(--widget-columns-wide) @3xl:row-span-(--widget-rows-wide)',
     compact ? 'flex-row items-center gap-3' : 'flex-col gap-2 @3xl:gap-3',
     className,
