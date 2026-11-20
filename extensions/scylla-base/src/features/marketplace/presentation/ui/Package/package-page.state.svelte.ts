@@ -1,0 +1,83 @@
+import { createMutation, createQuery } from '@scylla/core-sdk';
+import { toRune } from '@scylla/ui/stores';
+import { Permission, can } from '@platform/authz';
+import { contextStore, scyllaNavigate } from '@platform/context';
+import { fragmentQueries } from '@base/features/pipeline';
+import {
+  marketplaceMutations,
+  marketplaceQueries,
+} from '@base/features/marketplace/presentation/marketplace.queries.ts';
+import {
+  libraryStatus,
+  ownPackages,
+} from '@base/features/marketplace/presentation/presenters/library-status.presenter.ts';
+
+const context = toRune(contextStore);
+
+/** How the add dialog opens: on the linked choice, or on the fork. */
+export type AddMode = 'linked' | 'forked';
+
+/**
+ * The page of a package: the package, where it stands in the library, the star of the reader,
+ * and the add dialog. A package of the workspace comes from its library.
+ */
+export const createPackagePage = (packageId: () => string) => {
+  const workspace = $derived(context().workspace);
+  const scope = $derived(workspace.slug ?? '');
+  const fragmentsQuery = createQuery(() => fragmentQueries.list(workspace.id));
+  const fragments = $derived(fragmentsQuery.data ?? []);
+  const own = $derived(ownPackages(fragments, scope).find(pkg => pkg.id === packageId()));
+
+  const packageQuery = createQuery(() => ({
+    ...marketplaceQueries.byId(packageId()),
+    enabled: !!packageId() && fragmentsQuery.isSuccess && !own,
+  }));
+  const star = createMutation(() => marketplaceMutations.setStar());
+
+  const pkg = $derived(own ?? packageQuery.data);
+  const status = $derived(pkg ? libraryStatus(pkg, fragments, scope) : { kind: 'none' as const });
+
+  let adding = $state<AddMode | null>(null);
+
+  return {
+    get isLoading() {
+      return fragmentsQuery.isLoading || packageQuery.isLoading;
+    },
+    get pkg() {
+      return pkg;
+    },
+    get status() {
+      return status;
+    },
+    get workspaceName() {
+      return workspace.name ?? '';
+    },
+    get fragmentNames() {
+      return fragments.map(fragment => fragment.name);
+    },
+    /** A fragment in the library is in every pipeline editor: as saving one from the editor. */
+    get canAdd() {
+      return status.kind === 'none' && can(Permission.UPDATE_PIPELINE);
+    },
+    /** A package of the workspace is starred by the others only. */
+    get canStar() {
+      return status.kind !== 'own' && !star.isPending;
+    },
+    get adding() {
+      return adding;
+    },
+    set adding(next: AddMode | null) {
+      adding = next;
+    },
+
+    toggleStar() {
+      if (pkg && status.kind !== 'own') star.mutate({ id: pkg.id, starred: !pkg.starred });
+    },
+    openInLibrary() {
+      if (status.kind !== 'none')
+        scyllaNavigate.goToWorkspaceRoute(`library/${status.fragment.id}`);
+    },
+  };
+};
+
+export type PackagePage = ReturnType<typeof createPackagePage>;
