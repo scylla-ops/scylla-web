@@ -191,6 +191,9 @@ describe('feature permission conformance', () => {
         '`byWorkspace` needs LIST_PIPELINES_BY_WORKSPACE, which each consumer adds to ' +
         '`enabled`. The trigger pages read `byId` for the file of a file pipeline, and the ' +
         "shell's `namePipeline` for the name in the crumbs: both add READ_PIPELINE to `enabled`.",
+      'pipeline.fragmentQueries':
+        'The marketplace reads `list` to tell which packages are in the library, on routes that ' +
+        'require LIST_PIPELINES_BY_WORKSPACE, as the library itself does.',
       'secret.secretQueries':
         "Consumed by pipeline's step dialog to offer secret names, on an editor route requiring " +
         'UPDATE_PIPELINE: the dialog adds LIST_SECRETS to `enabled`, and takes a typed name.',

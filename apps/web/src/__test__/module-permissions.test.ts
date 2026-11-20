@@ -52,10 +52,6 @@ const UNGATED_PAGES: Readonly<Record<string, string>> = {
     'GitHub sends the browser back here after the creation of the App of the server, out of any ' +
     'workspace, where the permissions of the platform are not loaded. The server checks ' +
     'complete_git_hub_manifest and the state, which is bound to the admin that started the flow.',
-  '/:workspaceSlug/marketplace':
-    'TRIAGE: the page reads a hardcoded catalog — DefaultMarketplaceRepository calls no backend, ' +
-    'so there is nothing to deny yet, and the enum has no marketplace permission to declare. ' +
-    'Gate it when the real data layer lands.',
 };
 
 const commands = app.extensions
