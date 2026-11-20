@@ -19,19 +19,21 @@
     SIZE_ORDER,
     sizeLabel,
     sizeShort,
+    targetOptions,
     type WidgetKind,
   } from '@base/features/dashboard/presentation/presenters/widget-catalog.presenter.ts';
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '@base/features/dashboard/presentation/ui/widgets/dashboard-widgets.state.svelte.ts';
   import KindThumb from './KindThumb.svelte';
   import SizeGlyph from './SizeGlyph.svelte';
+  import TargetPicker from './TargetPicker.svelte';
   import WidgetPreview from './WidgetPreview.svelte';
 
   interface Props {
     kind: WidgetKind;
     widgets: DashboardWidgets;
     period: DashboardPeriodState;
-    onAdd: (data: WidgetData, size: LayoutSize) => void;
+    onAdd: (data: WidgetData, size: LayoutSize, target?: string) => void;
     onClose: () => void;
   }
 
@@ -42,6 +44,14 @@
   const entry = $derived(kindOf(kind));
   let data = $state<WidgetData | null>(untrack(() => kindOf(firstKind).data[0] ?? null));
   let size = $state<LayoutSize>(untrack(() => (kindOf(firstKind).data[0] ? DATA[kindOf(firstKind).data[0]].sizes[0] : 'm')));
+
+  let picked = $state<string | undefined>();
+  const targetKind = $derived(data ? DATA[data].target : undefined);
+  const target = $derived.by(() => {
+    if (!targetKind) return undefined;
+    const options = targetOptions(targetKind, widgets.agents.data ?? [], widgets.summaries.data?.items ?? []);
+    return options.some(option => option.id === picked) ? picked : options[0]?.id;
+  });
 
   const kinds = $derived(searchKinds(query));
   const sizes = $derived(data ? DATA[data].sizes : []);
@@ -126,7 +136,7 @@
         </p>
         <div class="relative min-h-24 flex-1">
           {#if data}
-            <WidgetPreview item={{ data, size }} {widgets} {period} width={430} fill />
+            <WidgetPreview item={{ data, size, target }} {widgets} {period} width={430} fill />
           {/if}
         </div>
         <div role="radiogroup" aria-label={t(messages.stepSize)} class="grid shrink-0 grid-cols-4 gap-2">
@@ -184,6 +194,9 @@
             </button>
           {/each}
         </div>
+        {#if targetKind}
+          <TargetPicker kind={targetKind} value={target} {widgets} onChange={value => (picked = value)} />
+        {/if}
         <p class="mt-2 text-xs text-muted-foreground">{t(messages.followsDashboard)}</p>
       </div>
     </div>
@@ -191,7 +204,7 @@
     <footer class="flex shrink-0 items-center gap-3 border-t border-border px-6 py-3">
       <p class="mr-auto text-xs text-muted-foreground">{t(messages.landsFirstFreeSpot)}</p>
       <Button variant="ghost" size="sm" onclick={onClose}>{t(messages.back)}</Button>
-      <Button size="sm" disabled={!data} onclick={() => data && onAdd(data, size)}>
+      <Button size="sm" disabled={!data} onclick={() => data && onAdd(data, size, target)}>
         <PlusIcon aria-hidden="true" />
         {t(messages.addWidgetAction)}
       </Button>

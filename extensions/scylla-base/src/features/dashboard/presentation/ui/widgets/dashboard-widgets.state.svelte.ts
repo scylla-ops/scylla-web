@@ -157,6 +157,15 @@ export const createDashboardWidgets = (
   const dayJobs = $derived(scoped(day.data));
 
   return {
+    get workspaceId() {
+      return workspaceId;
+    },
+    get projectIds(): string[] {
+      return projectId() ? [projectId()!] : [];
+    },
+    get periodScope() {
+      return scope;
+    },
     get canReadJobs() {
       return canReadJobs;
     },
