@@ -56,6 +56,7 @@
 >
   <WidgetBody
     {size}
+    retrySeconds={10}
     locked={widgets.activityLocked}
     loading={widgets.activityFeed.isPending && !widgets.activityLocked}
     error={widgets.activityFeed.isError && !widgets.activityLocked}

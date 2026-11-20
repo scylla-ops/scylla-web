@@ -20,6 +20,7 @@
   import BarTip from '../parts/BarTip.svelte';
   import BucketAxis from '../parts/BucketAxis.svelte';
   import ChangeBadge from '../parts/ChangeBadge.svelte';
+  import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
@@ -111,6 +112,8 @@
 >
   <WidgetBody
     {size}
+    retrySeconds={60}
+    permission={viewPermissionName('jobs')}
     locked={!widgets.canReadJobs}
     loading={widgets.stats.isPending}
     error={widgets.stats.isError}

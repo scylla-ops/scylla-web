@@ -13,6 +13,7 @@
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
   import { clockIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
+  import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
@@ -135,6 +136,8 @@
 >
   <WidgetBody
     {size}
+    retrySeconds={60}
+    permission={viewPermissionName('integrations')}
     locked={widgets.deliveriesLocked}
     loading={widgets.deliveries.isPending && !widgets.deliveriesLocked}
     error={widgets.deliveries.isError && !widgets.deliveriesLocked}

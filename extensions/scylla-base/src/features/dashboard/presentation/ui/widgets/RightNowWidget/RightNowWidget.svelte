@@ -11,6 +11,7 @@
     type WaitingRow,
   } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
+  import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
   import LiveWaitingActions from './LiveWaitingActions.svelte';
 
@@ -98,6 +99,8 @@
 >
   <WidgetBody
     {size}
+    retrySeconds={5}
+    permission={viewPermissionName('jobs')}
     locked={!widgets.canReadJobs}
     loading={widgets.live.isPending}
     error={widgets.live.isError}

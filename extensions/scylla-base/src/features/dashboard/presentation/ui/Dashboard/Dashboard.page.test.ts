@@ -261,7 +261,7 @@ describe('DashboardPage', () => {
     render(DashboardPage);
 
     const widget = await screen.findByRole('region', { name: 'Success rate' });
-    expect(within(widget).getByText('You do not have the permission to read this data.')).toBeInTheDocument();
+    expect(within(widget).getByText('It needs Jobs · View. Ask a workspace admin.')).toBeInTheDocument();
     expect(getStats).not.toHaveBeenCalled();
   });
 

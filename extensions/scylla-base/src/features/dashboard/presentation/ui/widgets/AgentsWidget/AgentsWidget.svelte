@@ -13,6 +13,7 @@
   import { clockIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
+  import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
@@ -143,6 +144,8 @@
 >
   <WidgetBody
     {size}
+    retrySeconds={15}
+    permission={viewPermissionName('agents')}
     locked={!widgets.canReadAgents}
     loading={widgets.agents.isPending && widgets.canReadAgents}
     error={widgets.agents.isError}
