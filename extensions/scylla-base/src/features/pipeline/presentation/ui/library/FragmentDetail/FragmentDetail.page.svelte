@@ -1,18 +1,23 @@
 <script lang="ts">
-  import { createQuery } from '@scylla/core-sdk';
   import { ErrorState } from '@scylla/ui';
   import { Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { toRune } from '@scylla/ui/stores';
-  import { contextStore } from '@platform/context';
   import { latestVersion } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
-  import { fragmentQueries } from '@base/features/pipeline/presentation/fragment.queries.ts';
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
+  import { sourceReference } from '@base/features/pipeline/presentation/presenters/fragment-community.presenter.ts';
+  import CompareDialog from './CompareDialog.svelte';
+  import ForkUpstreamCard from './ForkUpstreamCard.svelte';
   import FragmentHeader from './FragmentHeader.svelte';
   import FragmentNodes from './FragmentNodes.svelte';
   import FragmentParameters from './FragmentParameters.svelte';
   import FragmentUsages from './FragmentUsages.svelte';
   import FragmentVersions from './FragmentVersions.svelte';
+  import PipelinePickerDialog from './PipelinePickerDialog.svelte';
+  import PublicationCard from './PublicationCard.svelte';
+  import PublishDialog from './PublishDialog.svelte';
+  import SourceNotice from './SourceNotice.svelte';
+  import UpstreamUpdateCard from './UpstreamUpdateCard.svelte';
+  import { createFragmentDetail } from './fragment-detail.state.svelte.ts';
 
   interface Props {
     fragmentId?: string;
@@ -20,30 +25,52 @@
 
   let { fragmentId }: Props = $props();
 
-  const context = toRune(contextStore);
-  const fragmentQuery = createQuery(() =>
-    fragmentQueries.byId(context().workspace.id, fragmentId ?? ''),
-  );
-  const fragment = $derived(fragmentQuery.data);
+  const detail = createFragmentDetail(() => fragmentId ?? '');
+  const fragment = $derived(detail.fragment);
   const latest = $derived(fragment && latestVersion(fragment));
+  const source = $derived(fragment?.source);
 </script>
 
-{#if fragmentQuery.isLoading}
+{#if detail.query.isLoading}
   <Skeleton class="h-72 w-full rounded-xl" />
 {:else if !fragment || !latest}
   <ErrorState message={t(libraryMessages.notFound)} />
 {:else}
   <div class="flex min-h-full w-full flex-col gap-6 pb-20">
-    <FragmentHeader {fragment} />
+    <FragmentHeader {detail} />
     <div class="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
       <div class="flex min-w-0 flex-col gap-4">
+        {#if detail.pending && source?.kind === 'linked'}
+          <UpstreamUpdateCard
+            {detail}
+            pending={detail.pending}
+            publisher={source.package.publisher}
+          />
+        {:else if detail.pending && source?.kind === 'forked'}
+          <ForkUpstreamCard
+            {detail}
+            release={detail.pending}
+            reference={sourceReference(fragment)}
+            baseVersion={source.baseVersion}
+          />
+        {/if}
         <FragmentNodes nodes={latest.nodes} />
         <FragmentParameters parameters={latest.parameters} />
+        {#if fragment.publication}
+          <PublicationCard {detail} publication={fragment.publication} />
+        {/if}
       </div>
       <div class="flex flex-col gap-4">
-        <FragmentVersions {fragment} />
+        {#if source?.kind === 'linked'}
+          <SourceNotice reference={sourceReference(fragment)} workspace={detail.workspaceName} />
+        {/if}
+        <FragmentVersions {detail} />
         <FragmentUsages {fragment} />
       </div>
     </div>
   </div>
+
+  <PublishDialog {detail} />
+  <CompareDialog {detail} />
+  <PipelinePickerDialog {detail} />
 {/if}

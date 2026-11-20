@@ -27,9 +27,41 @@ const fragment = (id: string, name: string, tags: string[], favorite = false): F
   usages: [],
 });
 
+const PACKAGE = { packageId: 'pnpm.node-ci', publisher: 'pnpm', name: 'node-ci', verified: true };
+
+/** Linked, with v2 of the publisher waiting. */
+const linked: FragmentEntity = {
+  ...fragment('f3', 'node-ci', ['node']),
+  source: {
+    kind: 'linked',
+    package: PACKAGE,
+    addedAt: '2026-01-01T10:00:00Z',
+    upstream: [{ ...fragment('f3', 'node-ci', []).versions[0], number: 2 }],
+    skipped: [],
+  },
+};
+
+const forked: FragmentEntity = {
+  ...fragment('f4', 'docker-build', ['docker']),
+  source: {
+    kind: 'forked',
+    package: {
+      ...PACKAGE,
+      packageId: 'scylla.docker-buildx',
+      publisher: 'scylla',
+      name: 'docker-buildx',
+    },
+    addedAt: '2026-01-01T10:00:00Z',
+    baseVersion: 4,
+    upstream: null,
+  },
+};
+
 const LIBRARY = [
   fragment('f1', 'rust-ci', ['rust', 'ci'], true),
   fragment('f2', 'docker-publish', ['docker']),
+  linked,
+  forked,
 ];
 
 let teardown: Array<() => void> = [];
@@ -73,14 +105,26 @@ describe('FragmentLibraryPage', () => {
     expect(cardNames()).toEqual(['rust-ci']);
   });
 
-  it('keeps the favorites in their tab, and the community tab for later', async () => {
+  it('keeps the favorites in their tab', async () => {
     renderPage(LIBRARY);
     await screen.findByRole('link', { name: 'rust-ci' });
 
-    await userEvent.click(screen.getByRole('tab', { name: 'Favorites' }));
+    await userEvent.click(screen.getByRole('tab', { name: /Favorites/ }));
 
     expect(cardNames()).toEqual(['rust-ci']);
-    expect(screen.getByRole('tab', { name: /Community/ })).toBeDisabled();
+  });
+
+  it('shows the fragments of the marketplace in the community tab, by source', async () => {
+    renderPage(LIBRARY);
+    await screen.findByRole('link', { name: 'rust-ci' });
+
+    await userEvent.click(screen.getByRole('tab', { name: /Community/ }));
+    expect(cardNames()).toEqual(['docker-build', 'node-ci']);
+    expect(screen.getByText('v2 available on the marketplace')).toBeInTheDocument();
+
+    const sources = screen.getByRole('group', { name: 'Source' });
+    await userEvent.click(within(sources).getByRole('button', { name: /Update available/ }));
+    expect(cardNames()).toEqual(['node-ci']);
   });
 
   it('tells how to fill an empty library', async () => {

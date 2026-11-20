@@ -1,14 +1,18 @@
 import { i18n } from '@lingui/core';
 import { getModuleDomain, getQueryClient, mutationOptions, queryOptions } from '@scylla/core-sdk';
 import { toast } from '@scylla/ui/utils';
-import type {
-  CreateFragmentInput,
-  FragmentEntity,
-  FragmentLink,
-  LinkingPipeline,
-  PublishFragmentVersionInput,
+import {
+  latestVersion,
+  type AddCommunityFragmentInput,
+  type CreateFragmentInput,
+  type FragmentEntity,
+  type FragmentLink,
+  type LinkingPipeline,
+  type PublishFragmentVersionInput,
+  type PublishToMarketplaceInput,
 } from '../domain/entities/fragment.entity.ts';
 import type { PipelineModule } from '../pipeline.module.ts';
+import { communityMessages } from './messages/community.messages.ts';
 import { libraryMessages } from './messages/library.messages.ts';
 import {
   FRAGMENTS_QUERY_KEY,
@@ -54,6 +58,13 @@ export const fragmentQueries = {
 const refreshLibrary = (workspaceId: string) =>
   void getQueryClient().invalidateQueries({ queryKey: FRAGMENTS_QUERY_KEY(workspaceId) });
 
+/** A change of one fragment: the library is read again, and the page shows the change. */
+const libraryChange = <Input>(change: (input: Input) => Promise<FragmentEntity>) =>
+  mutationOptions({
+    mutationFn: change,
+    onSuccess: (fragment: FragmentEntity) => refreshLibrary(fragment.workspaceId),
+  });
+
 export const fragmentMutations = {
   create: () =>
     mutationOptions({
@@ -72,7 +83,9 @@ export const fragmentMutations = {
       onSuccess: (fragment: FragmentEntity) => {
         refreshLibrary(fragment.workspaceId);
         toast.success(i18n._(libraryMessages.publishedTitle), {
-          description: i18n._(libraryMessages.savedDetail(fragment.name, fragment.versions.length)),
+          description: i18n._(
+            libraryMessages.savedDetail(fragment.name, latestVersion(fragment).number),
+          ),
         });
       },
     }),
@@ -83,6 +96,47 @@ export const fragmentMutations = {
         repository().setFavorite(id, favorite),
       onSuccess: () => refreshLibrary(workspaceId),
     }),
+
+  addFromMarketplace: () =>
+    mutationOptions({
+      mutationFn: (input: AddCommunityFragmentInput) => repository().addFromMarketplace(input),
+      onSuccess: (fragment: FragmentEntity) => {
+        refreshLibrary(fragment.workspaceId);
+        toast.success(i18n._(communityMessages.addedTitle), {
+          description: i18n._(communityMessages.addedDetail(fragment.name)),
+        });
+      },
+    }),
+
+  acceptUpstream: () =>
+    libraryChange(({ id, version }: { id: string; version: number }) =>
+      repository().acceptUpstream(id, version),
+    ),
+
+  skipUpstream: () =>
+    libraryChange(({ id, version }: { id: string; version: number }) =>
+      repository().skipUpstream(id, version),
+    ),
+
+  dismissUpstream: () => libraryChange((id: string) => repository().dismissUpstream(id)),
+
+  detachAsFork: () => libraryChange((id: string) => repository().detachAsFork(id)),
+
+  publishToMarketplace: () =>
+    mutationOptions({
+      mutationFn: (input: PublishToMarketplaceInput) => repository().publishToMarketplace(input),
+      onSuccess: (fragment: FragmentEntity) => {
+        refreshLibrary(fragment.workspaceId);
+        toast.success(i18n._(communityMessages.publishedTitle), {
+          description: fragment.publication?.name,
+        });
+      },
+    }),
+
+  deprecateVersion: () =>
+    libraryChange(({ id, version }: { id: string; version: number }) =>
+      repository().deprecateVersion(id, version),
+    ),
 };
 
 /** For `pipelineMutations.update`: the links go with the nodes, in the same save. */
