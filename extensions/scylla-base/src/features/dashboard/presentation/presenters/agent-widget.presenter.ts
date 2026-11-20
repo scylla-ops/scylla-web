@@ -1,9 +1,10 @@
-import type { ChartTone } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
 import type { AppEntity, AppHost, AppJob } from '@base/features/apps';
+import type { PipelineSummary } from '@base/features/pipeline';
 import type { AgentMetricsBucket } from '@base/features/dashboard/domain/structs/agent-metrics.struct.ts';
 import { agentWidgetMessages as messages } from '@base/features/dashboard/presentation/messages/agent-widget.messages.ts';
-import { statusTone } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
+import { shortJobId } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
+import { runMark, type RunMark } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
 
 export type SlotState = 'busy' | 'free' | 'offline';
 
@@ -53,9 +54,22 @@ export const hostFacts = (host: AppHost | null): string[] =>
       ].filter(Boolean)
     : [];
 
-export const recentTones = (jobs: readonly AppJob[], count: number): ChartTone[] =>
+/** The last ended jobs, oldest first. A pipeline that the dashboard does not list keeps the project of the job. */
+export const recentRuns = (
+  jobs: readonly AppJob[],
+  count: number,
+  pipelines: ReadonlyMap<string, PipelineSummary>,
+): RunMark[] =>
   jobs
     .filter(job => job.finishedAt)
     .slice(0, count)
     .reverse()
-    .map(job => statusTone(job.status));
+    .map(job => {
+      const pipeline = pipelines.get(job.pipelineId);
+      return runMark(job, {
+        id: job.pipelineId,
+        name: pipeline?.name ?? shortJobId(job.pipelineId),
+        projectId: job.projectId,
+        projectName: pipeline?.projectName ?? '',
+      });
+    });

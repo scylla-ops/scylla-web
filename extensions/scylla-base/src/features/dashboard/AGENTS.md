@@ -211,6 +211,11 @@ narrower permission without moving that redirect target too.
 - **Pipeline** reads `ListPipelineSummaries` with `pipelineIds: [target]`, `GetJobStats` with
   `pipelineIds` for the runs of the period, and the newest job for its nodes. It needs
   `LIST_PIPELINES_BY_WORKSPACE` (Locked). "Run" shows with `RUN_PIPELINE` only.
+- **A mark of a strip of runs opens its job**, as on the pipelines list: Pipelines (`s`, `m`,
+  `l` and the sheet), Pipeline (each size) and the recent jobs of Agent. Each mark is a
+  `JobRunMark` of `@shared/presentation/ui`, with a `RunMark` of `widget-rows.presenter.ts`
+  (`runMark`, `recentRuns`), and `openJob` sets the project first. Never draw a mark with no click
+  for a job: use `JobRunMark`.
 - **The success rate is completed / (completed + failed + orphaned).** The cancelled jobs show
   apart. Its change is in points; the change of a duration is in percent, and down is good.
 

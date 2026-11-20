@@ -7,7 +7,7 @@ import {
   agentSlots,
   hostFacts,
   loadBars,
-  recentTones,
+  recentRuns,
 } from '@base/features/dashboard/presentation/presenters/agent-widget.presenter.ts';
 import { durationText, rateText } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
 import { currentInstant } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
@@ -87,7 +87,7 @@ export const createAgentWidget = (
       return hostFacts(agent?.host ?? null);
     },
     get recent() {
-      return recentTones(jobs.data ?? [], RECENT_JOBS);
+      return recentRuns(jobs.data ?? [], RECENT_JOBS, widgets().pipelines);
     },
   };
 };

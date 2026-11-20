@@ -147,7 +147,8 @@ presentation/
       DashboardPipeline/                     the page, its header, pipeline-dashboard.state.svelte.ts
       PipelineTable/                         the table, pipeline-table.columns.ts, bar-capacity.state.svelte.ts,
                                              and the cells only it renders (PipelineActions, PipelineChart,
-                                             PipelineStatus, PipelineStatsCard)
+                                             PipelineStatus, PipelineStatsCard). Each bar of
+                                             PipelineChart is a JobRunMark of `@shared/presentation/ui`
     editor/
       PipelineCreation.page.svelte, PipelineEditor.svelte
       PipelineUpdate/                        the edit page (and its test)

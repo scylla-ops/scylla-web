@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { AppEntity, AppJob } from '@base/features/apps';
 import type { PipelineSummary } from '@base/features/pipeline';
-import { agentLoad, agentSlots, loadBars, recentTones } from '../agent-widget.presenter.ts';
+import { agentLoad, agentSlots, loadBars, recentRuns } from '../agent-widget.presenter.ts';
 import { DATA, targetOptions } from '../widget-catalog.presenter.ts';
 
 const MB = 1024 * 1024;
@@ -47,11 +47,32 @@ describe('the widget of one agent', () => {
 
   it('shows the last ended jobs, oldest first', () => {
     const jobs = [
-      { id: '3', status: 'running', createdAt: '' },
-      { id: '2', status: 'failed', createdAt: '', finishedAt: 'x' },
-      { id: '1', status: 'completed', createdAt: '', finishedAt: 'x' },
+      { id: '3', pipelineId: 'p', projectId: 'project', status: 'running', createdAt: '' },
+      { id: '2', pipelineId: 'p', projectId: 'project', status: 'failed', createdAt: '', finishedAt: 'x' },
+      { id: '1', pipelineId: 'p', projectId: 'project', status: 'completed', createdAt: '', finishedAt: 'x' },
     ] as AppJob[];
-    expect(recentTones(jobs, 20)).toEqual(['passed', 'failed']);
+    expect(recentRuns(jobs, 20, new Map()).map(run => run.tone)).toEqual(['passed', 'failed']);
+  });
+
+  it('opens each recent job in its pipeline and its project', () => {
+    const jobs = [
+      { id: 'job-0000abcdef12', pipelineId: 'p-1', projectId: 'project-1', status: 'failed', createdAt: '', finishedAt: 'x' },
+      { id: 'job-00001234abcd', pipelineId: 'p-gone', projectId: 'project-2', status: 'completed', createdAt: '', finishedAt: 'x' },
+    ] as AppJob[];
+    const pipelines = new Map([['p-1', { id: 'p-1', name: 'deploy-web', projectName: 'frontend' } as PipelineSummary]]);
+
+    expect(recentRuns(jobs, 20, pipelines)).toMatchObject([
+      { jobId: 'job-00001234abcd', pipelineId: 'p-gone', projectId: 'project-2', projectName: '' },
+      {
+        jobId: 'job-0000abcdef12',
+        shortId: 'abcdef12',
+        pipelineId: 'p-1',
+        pipelineName: 'deploy-web',
+        projectId: 'project-1',
+        projectName: 'frontend',
+        run: { id: 'job-0000abcdef12', status: 'failed' },
+      },
+    ]);
   });
 });
 

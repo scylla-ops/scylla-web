@@ -6,6 +6,7 @@
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
+  import { JobRunMark } from '@shared/presentation/ui';
   import { agentWidgetMessages as messages } from '@base/features/dashboard/presentation/messages/agent-widget.messages.ts';
   import { shortAgo } from '@base/features/dashboard/presentation/presenters/attention.presenter.ts';
   import { periodMeta } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
@@ -95,8 +96,12 @@
 {#snippet strip(label: string)}
   <span class="flex min-w-0 items-center gap-2">
     <span class="shrink-0 text-xs text-muted-foreground">{label}</span>
-    <span class="flex h-4 gap-0.5" aria-hidden="true">
-      {#each view.recent as tone, index (index)}<ChartSegment {tone} class="h-full w-[7px] rounded-[2px]" />{/each}
+    <span class="flex h-4 gap-0.5" role="group" aria-label={label}>
+      {#each view.recent as mark (mark.jobId)}
+        <JobRunMark run={mark.run} duration={mark.seconds} class="h-full w-[7px] rounded-[2px]" onSelect={() => openJob(mark)}>
+          <ChartSegment tone={mark.tone} class="size-full rounded-[2px]" />
+        </JobRunMark>
+      {/each}
     </span>
   </span>
 {/snippet}

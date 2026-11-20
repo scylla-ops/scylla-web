@@ -10,12 +10,13 @@
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
+  import { JobRunMark } from '@shared/presentation/ui';
   import { pipelineWidgetMessages as messages } from '@base/features/dashboard/presentation/messages/pipeline-widget.messages.ts';
   import { shortAgo } from '@base/features/dashboard/presentation/presenters/attention.presenter.ts';
   import { periodMeta } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
-  import { openPipelineJobs } from '../widget-navigation.ts';
+  import { openJob, openPipelineJobs } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
   import { createPipelineWidget } from './pipeline-widget.state.svelte.ts';
 
@@ -79,8 +80,12 @@
 {/snippet}
 
 {#snippet strip(className: string, count: number)}
-  <span class={cn('flex gap-1', className)} aria-hidden="true">
-    {#each (row?.strip ?? []).slice(-count) as tone, index (index)}<ChartSegment {tone} class="h-full min-w-0 flex-1 rounded-[3px]" />{/each}
+  <span class={cn('flex gap-1', className)} role="group" aria-label={t(messages.lastRuns(count))}>
+    {#each (row?.runs ?? []).slice(-count) as mark (mark.jobId)}
+      <JobRunMark run={mark.run} duration={mark.seconds} class="h-full min-w-0 flex-1 rounded-[3px]" onSelect={() => openJob(mark)}>
+        <ChartSegment tone={mark.tone} class="size-full rounded-[3px]" />
+      </JobRunMark>
+    {/each}
   </span>
 {/snippet}
 
@@ -92,8 +97,12 @@
 {/snippet}
 
 {#snippet side()}
-  <span class="flex h-[34px] w-[60px] items-end gap-0.5" aria-hidden="true">
-    {#each (row?.strip ?? []).slice(-XS_RUNS) as tone, index (index)}<ChartSegment {tone} class="h-3/5 min-w-0 flex-1 rounded-[1px]" />{/each}
+  <span class="flex h-[34px] w-[60px] items-end gap-0.5" role="group" aria-label={t(messages.lastRuns(XS_RUNS))}>
+    {#each (row?.runs ?? []).slice(-XS_RUNS) as mark (mark.jobId)}
+      <JobRunMark run={mark.run} duration={mark.seconds} class="h-3/5 min-w-0 flex-1 rounded-[1px]" onSelect={() => openJob(mark)}>
+        <ChartSegment tone={mark.tone} class="size-full rounded-[1px]" />
+      </JobRunMark>
+    {/each}
   </span>
 {/snippet}
 
