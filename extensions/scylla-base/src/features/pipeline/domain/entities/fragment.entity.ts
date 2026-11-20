@@ -19,6 +19,10 @@ export interface FragmentEntity {
   /** Of the person who reads the library. */
   favorite: boolean;
   usages: FragmentUsage[];
+  /** A fragment of the marketplace. None: the workspace made it. */
+  source?: FragmentSource;
+  /** The workspace made the fragment public on the marketplace. */
+  publication?: FragmentPublication;
 }
 
 export interface FragmentAuthor {
@@ -54,6 +58,66 @@ export interface FragmentUsage {
   projectId: string;
   projectName: string;
   version: number;
+  /** The values that the pipeline gives to the parameters. */
+  values: ParameterValues;
+}
+
+/** A fragment of the marketplace, by its public name `@publisher/name`. */
+export interface PackageRef {
+  packageId: string;
+  publisher: string;
+  name: string;
+  verified: boolean;
+}
+
+/**
+ * Where a fragment of the marketplace comes from.
+ * - `linked`: read only in the workspace. A version of the publisher comes in `upstream`, and an
+ *   admin accepts it into the library or skips it.
+ * - `forked`: a copy that the workspace owns and edits. `upstream` is a release of the publisher
+ *   after `baseVersion`, shown for information until it is dismissed.
+ */
+export type FragmentSource =
+  | {
+      kind: 'linked';
+      package: PackageRef;
+      /** When the workspace added it. */
+      addedAt: string;
+      upstream: FragmentVersion[];
+      skipped: number[];
+    }
+  | {
+      kind: 'forked';
+      package: PackageRef;
+      addedAt: string;
+      baseVersion: number;
+      upstream: FragmentVersion | null;
+    };
+
+/** What the marketplace tells the publisher about a public fragment. */
+export interface PublicationStats {
+  installs: number;
+  organizations: number;
+  stars: number;
+  forks: number;
+  /** How many organizations use each public version. */
+  adoption: { version: number; organizations: number }[];
+}
+
+/** A fragment of the workspace made public. Only the versions in `versions` are public. */
+export interface FragmentPublication {
+  /** `@workspace/name`. It stays the same across versions. */
+  name: string;
+  license: string;
+  category: string;
+  versions: number[];
+  /** A new version of the library is public at once. */
+  autoPublish: boolean;
+  /** No new organization can add them. */
+  deprecated: number[];
+  publishedAt: string;
+  publishedBy: FragmentAuthor;
+  stats: PublicationStats;
 }
 
 /** The value of each parameter in one pipeline: a literal, or the name of a project secret. */
@@ -84,6 +148,33 @@ export interface CreateFragmentInput {
   author: FragmentAuthor;
   /** The name of the pipeline the nodes come from. */
   sourcePipeline: string;
+}
+
+/** A fragment of the marketplace, added to the library linked or as a fork. */
+export interface AddCommunityFragmentInput {
+  workspaceId: string;
+  mode: 'linked' | 'forked';
+  /** The name in the library. */
+  name: string;
+  description: string;
+  tags: string[];
+  package: PackageRef;
+  version: FragmentVersion;
+  /** The versions of the publisher after `version`. */
+  newer: FragmentVersion[];
+  author: FragmentAuthor;
+}
+
+export interface PublishToMarketplaceInput {
+  id: string;
+  /** The slug of the workspace: the scope of the public name. */
+  scope: string;
+  version: number;
+  license: string;
+  category: string;
+  tags: string[];
+  autoPublish: boolean;
+  author: FragmentAuthor;
 }
 
 export interface PublishFragmentVersionInput {
@@ -122,11 +213,15 @@ export const proposedVersion = (
   return latest.number === link.skippedVersion ? null : latest;
 };
 
-/** Only the author of the fragment and the admins of the workspace publish a new version. */
+/**
+ * Only the author of the fragment and the admins of the workspace publish a new version. A
+ * linked fragment gets its versions from its publisher only.
+ */
 export const canPublishVersion = (
-  fragment: Pick<FragmentEntity, 'author'>,
+  fragment: Pick<FragmentEntity, 'author' | 'source'>,
   person: { id: string; admin: boolean },
-): boolean => person.admin || fragment.author.id === person.id;
+): boolean =>
+  fragment.source?.kind !== 'linked' && (person.admin || fragment.author.id === person.id);
 
 /**
  * The nodes as a fragment holds them: a dependency on a node outside the selection is dropped,
@@ -236,7 +331,3 @@ export const instantiate = (
   }));
   return withValues(nodes, version.parameters, values);
 };
-
-/** The reference to paste in a document or a message, such as `rust-ci@v3`. */
-export const fragmentReference = (fragment: FragmentEntity): string =>
-  `${fragment.name}@v${latestVersion(fragment).number}`;

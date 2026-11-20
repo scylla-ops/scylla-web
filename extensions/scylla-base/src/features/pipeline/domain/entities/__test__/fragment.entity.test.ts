@@ -5,7 +5,6 @@ import {
   carryValues,
   detectParameters,
   fragmentNodesOf,
-  fragmentReference,
   instantiate,
   missingParameters,
   proposedVersion,
@@ -89,10 +88,6 @@ describe('fragment versions', () => {
     expect(canPublishVersion(rustCi, { id: 'rem', admin: false })).toBe(true);
     expect(canPublishVersion(rustCi, { id: 'ines', admin: true })).toBe(true);
     expect(canPublishVersion(rustCi, { id: 'ines', admin: false })).toBe(false);
-  });
-
-  it('names the latest version in its reference', () => {
-    expect(fragmentReference(fragment([version(1), version(2)]))).toBe('rust-ci@v2');
   });
 });
 

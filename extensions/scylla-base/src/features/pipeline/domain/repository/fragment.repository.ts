@@ -1,9 +1,11 @@
 import type {
+  AddCommunityFragmentInput,
   CreateFragmentInput,
   FragmentEntity,
   FragmentLink,
   LinkingPipeline,
   PublishFragmentVersionInput,
+  PublishToMarketplaceInput,
 } from '../entities/fragment.entity.ts';
 
 /** The library of the workspace, and the fragments that each pipeline links. */
@@ -18,4 +20,13 @@ export interface FragmentRepository {
   linksOf(pipelineId: string): Promise<FragmentLink[]>;
   /** Replaces all the links of the pipeline. */
   saveLinks(pipeline: LinkingPipeline, links: FragmentLink[]): Promise<void>;
+
+  /** Rejects with `ALREADY_EXISTS` when the workspace has a fragment of this name. */
+  addFromMarketplace(input: AddCommunityFragmentInput): Promise<FragmentEntity>;
+  acceptUpstream(id: string, version: number): Promise<FragmentEntity>;
+  skipUpstream(id: string, version: number): Promise<FragmentEntity>;
+  dismissUpstream(id: string): Promise<FragmentEntity>;
+  detachAsFork(id: string): Promise<FragmentEntity>;
+  publishToMarketplace(input: PublishToMarketplaceInput): Promise<FragmentEntity>;
+  deprecateVersion(id: string, version: number): Promise<FragmentEntity>;
 }
