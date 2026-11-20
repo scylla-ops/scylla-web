@@ -130,12 +130,13 @@ describe('NodeSwitchFields', () => {
 
     await user.click(within(block).getByRole('combobox', { name: 'Kind of the left value' }));
     await user.click(await findFloating('option', 'Output'));
-    await user.click(within(block).getByRole('combobox', { name: 'Node of the output' }));
-    // The options of the hints of a variable have no text.
-    const names = screen
+    const nodeField = within(block).getByRole('combobox', { name: 'Node of the output' });
+    await user.click(nodeField);
+    const list = document.getElementById(nodeField.getAttribute('aria-controls') ?? '');
+    const names = within(list!)
       .getAllByRole('option', { hidden: true })
       .map(option => option.textContent?.trim());
-    expect(names.filter(Boolean)).toEqual(['build', 'test']);
+    expect(names).toEqual(['build', 'test']);
     await user.click(await findFloating('option', 'test'));
     await user.type(within(block).getByRole('textbox', { name: 'Key of the output' }), 'TAG');
 

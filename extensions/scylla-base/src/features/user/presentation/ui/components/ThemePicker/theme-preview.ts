@@ -17,7 +17,7 @@ export interface PreviewPalette {
 export const PREVIEW_PALETTES: Record<Theme, PreviewPalette> = {
   light: {
     canvas: '#F4F7EB',
-    sidebar: '#F4F7EB',
+    sidebar: '#EBEEE2',
     card: '#F4F7EB',
     border: '#E1E3D9',
     foreground: '#171715',
@@ -26,7 +26,7 @@ export const PREVIEW_PALETTES: Record<Theme, PreviewPalette> = {
   },
   dark: {
     canvas: '#171715',
-    sidebar: '#171715',
+    sidebar: '#0F0F0E',
     card: '#1E1E1C',
     border: '#41413F',
     foreground: '#F4F7EC',

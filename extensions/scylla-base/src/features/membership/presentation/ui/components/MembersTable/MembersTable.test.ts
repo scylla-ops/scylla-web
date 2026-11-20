@@ -25,7 +25,7 @@ const projectRole = (roleKey: string, roleName: string): MemberRoleEntity => ({
 
 const projectRolesCell = (...roles: MemberRoleEntity[]) => {
   const rows = buildMemberRows([
-    { actorId: 'a', actorKind: 'user', displayName: 'Lina', handle: 'lina', roles },
+    { actorId: 'a', actorKind: 'user', displayName: 'Lina', handle: 'lina', runner: false, roles },
   ]);
   render(MembersTable, {
     rows,

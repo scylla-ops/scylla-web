@@ -36,6 +36,16 @@ export interface NavSectionDefinition {
   noRailItem?: boolean;
 }
 
+/** A link that a module makes from data, e.g. one item of a list. */
+export interface SecondSidebarLink {
+  title: string;
+  /** The URL that the link opens. */
+  href: string;
+  icon?: LucideIcon;
+  /** Apart from the links before it. By default, only the first link of a module is apart. */
+  apart?: boolean;
+}
+
 /** What a module adds to the core's shell. */
 export interface ShellContributions {
   /** Below the sidebar links, e.g. the user menu. */
@@ -46,10 +56,26 @@ export interface ShellContributions {
   topBarEnd?: readonly Component[];
   /** Rendered once over the shell, e.g. a dialog. */
   overlays?: readonly Component[];
+  /**
+   * The height in px of the band at the bottom of the view that an overlay always covers, e.g. a
+   * launcher. The frame keeps this band free below its pages. The largest value wins.
+   */
+  bottomInset?: number;
   /** After the title of every sidebar link. `url` is the link's path in its mount. */
   navBadge?: Component<{ url: string }>;
   /** Called when the user opens a sidebar link. */
   onNavOpen?: (url: string) => void;
+  /**
+   * Links after the pages of the second sidebar, apart from them, e.g. the items of a list. The
+   * sidebar calls it once, when it mounts, thus it can create a query. `shown` is reactive: the
+   * id of what the second sidebar shows, a `NavGroup`, a section or the path of a link.
+   */
+  secondSidebarLinks?: (shown: () => string | undefined) => () => readonly SecondSidebarLink[];
+  /**
+   * Replace the second sidebar while it shows a rail item, e.g. with the controls of a page. The
+   * key is the id of the rail item: a `NavGroup`, a section or the path of a link.
+   */
+  secondSidebarPanels?: Readonly<Record<string, Component>>;
   /** Reactive. Values for the breadcrumbs, in addition to the route parameters. */
   breadcrumbParams?: () => BreadcrumbParams;
   /** Reactive. Parameters of the mount paths in sidebar links, in addition to the route's. */

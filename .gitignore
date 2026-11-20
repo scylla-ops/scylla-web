@@ -29,6 +29,7 @@ bun.lockb
 **/locales/*/messages.ts
 extensions/*/src/generated
 coverage
+storybook-static
 
 .env
 .vitest

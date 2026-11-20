@@ -1,6 +1,7 @@
 <script lang="ts">
   import PlusIcon from '@lucide/svelte/icons/plus';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
+  import { Permission, can } from '@platform/authz';
   import { createQuery } from '@scylla/core-sdk';
   import { secretQueries } from '@base/features/secret';
   import { SearchSelect } from '@scylla/ui';
@@ -26,8 +27,12 @@
 
   let { draft, projectId }: Props = $props();
 
-  // Same options object as the `secret` module: one cache entry.
-  const secretsQuery = createQuery(() => secretQueries.byProject(projectId ?? ''));
+  // Same options object as the `secret` module: one cache entry. Without LIST_SECRETS, the list is
+  // empty and the field takes a typed name.
+  const secretsQuery = createQuery(() => ({
+    ...secretQueries.byProject(projectId ?? ''),
+    enabled: !!projectId && can(Permission.LIST_SECRETS, { projectId }),
+  }));
   const secrets = $derived(secretsQuery.data ?? []);
 
   /** A reference can name a secret that is not there: it stays in the list. */

@@ -59,7 +59,7 @@
 
     {#if canCreate}
       <DropdownMenuSeparator class="bg-border" />
-      <DropdownMenuItem class="h-7 cursor-pointer gap-2 px-2 py-0" onSelect={() => (addOpen = true)}>
+      <DropdownMenuItem class="h-7 gap-2 px-2 py-0" onSelect={() => (addOpen = true)}>
         <PlusIcon class="size-4 text-muted-foreground" />
         {t(layoutMessages.createWorkspace)}
       </DropdownMenuItem>

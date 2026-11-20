@@ -25,6 +25,8 @@ export interface RoleHolderEntry {
   actorKind: string;
   displayName: string;
   handle: string;
+  /** An app that runs jobs: an agent. */
+  runner: boolean;
   scopeKind: RoleLevel;
   scopeId: string;
   scopeName: string;

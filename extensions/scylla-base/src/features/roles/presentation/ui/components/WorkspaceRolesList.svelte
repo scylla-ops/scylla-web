@@ -1,15 +1,16 @@
 <script lang="ts">
-  import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { createQuery, navigateTo, routePathname } from '@scylla/core-sdk';
   import { ListSkeleton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { Table, TableBody } from '@scylla/ui/primitives';
   import type { RoleEntity } from '../../../domain/entities/role.entity.ts';
   import { rolesMessages, workspaceRolesTitle } from '../../messages/roles.messages.ts';
-  import { permissionCount, roleDescription, roleName } from '../../role-labels.ts';
-  import { roleQueries } from '../../roles.queries.ts';
-  import LevelTag from './LevelTag.svelte';
-  import OriginTag from './OriginTag.svelte';
+  import { sortRoles, type RoleSort } from '../../presenters/roles-list.presenter.ts';
+  import { roleName } from '../../role-labels.ts';
+  import { canSeeRoleHolders, roleQueries } from '../../roles.queries.ts';
+  import RoleRow from './RoleRow.svelte';
   import RolesLoadError from './RolesLoadError.svelte';
+  import RolesTableHeader from './RolesTableHeader.svelte';
 
   let { workspaceId, workspaceName }: { workspaceId: string; workspaceName: string } = $props();
 
@@ -20,58 +21,39 @@
   }));
   const catalogQuery = createQuery(() => roleQueries.catalog());
 
+  let sort = $state<RoleSort>('none');
+
   const roles = $derived(rolesQuery.data ?? []);
-  const own = $derived(roles.filter(role => role.workspaceId === workspaceId));
-  const others = $derived(roles.filter(role => role.workspaceId !== workspaceId));
+  const areas = $derived(catalogQuery.data ?? []);
+  const canSeeHolders = $derived(canSeeRoleHolders(workspaceId));
+  const own = $derived(
+    sortRoles(
+      roles.filter(role => role.workspaceId === workspaceId),
+      sort,
+      roleName,
+    ),
+  );
+  const others = $derived(
+    sortRoles(
+      roles.filter(role => role.workspaceId !== workspaceId),
+      sort,
+      roleName,
+    ),
+  );
 
   const open = (key: string) => navigateTo(`${routePathname()}/${encodeURIComponent(key)}`);
 </script>
 
 {#snippet rows(list: readonly RoleEntity[])}
-  <div class="relative overflow-x-auto">
-    <table class="w-full min-w-[720px] border-collapse text-sm">
-      <thead>
-        <tr class="border-t text-left text-xs text-muted-foreground">
-          <th class="px-6 py-3 font-medium">{t(rolesMessages.role)}</th>
-          <th class="w-36 px-3 py-3 font-medium">{t(rolesMessages.level)}</th>
-          <th class="w-28 px-3 py-3 font-medium">{t(rolesMessages.type)}</th>
-          <th class="w-20 px-3 py-3 font-medium">{t(rolesMessages.holders)}</th>
-          <th class="w-32 px-3 py-3 font-medium">{t(rolesMessages.permissions)}</th>
-          <th class="w-10"></th>
-        </tr>
-      </thead>
-      <tbody>
+  <div class="relative overflow-x-auto p-1.5">
+    <Table class="min-w-[720px]">
+      <RolesTableHeader {sort} onSortChange={next => (sort = next)} />
+      <TableBody>
         {#each list as role (role.key)}
-          <tr
-            class="cursor-pointer border-t transition-colors hover:bg-muted/40"
-            onclick={() => open(role.key)}
-          >
-            <td class="px-6 py-3">
-              <button
-                type="button"
-                class="block text-left font-medium text-foreground hover:underline"
-                onclick={event => {
-                  event.stopPropagation();
-                  open(role.key);
-                }}
-              >
-                {roleName(role)}
-              </button>
-              <span class="mt-0.5 block text-xs text-muted-foreground">
-                {roleDescription(role)}
-              </span>
-            </td>
-            <td class="px-3 py-3"><LevelTag level={role.level} /></td>
-            <td class="px-3 py-3"><OriginTag builtin={role.builtin} /></td>
-            <td class="px-3 py-3 tabular-nums">{role.holderCount}</td>
-            <td class="px-3 py-3 text-muted-foreground tabular-nums">
-              {permissionCount(role, catalogQuery.data ?? [])}
-            </td>
-            <td class="pr-4 text-muted-foreground"><ChevronRightIcon class="size-4" /></td>
-          </tr>
+          <RoleRow {role} {areas} {workspaceId} {canSeeHolders} onOpen={open} />
         {/each}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   </div>
 {/snippet}
 

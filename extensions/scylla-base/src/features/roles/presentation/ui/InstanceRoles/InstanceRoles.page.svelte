@@ -7,7 +7,7 @@
   import RolesList from '../components/RolesList.svelte';
 </script>
 
-<div class="flex w-full flex-col gap-6">
+<div class="flex w-full flex-col gap-6 pb-20">
   <header class="flex items-start justify-between gap-6">
     <div class="flex flex-col gap-2">
       <h1>{t(rolesMessages.roles)}</h1>

@@ -1,5 +1,5 @@
 import { createQueries, createQuery } from '@scylla/core-sdk';
-import { jobsByPipelinesQueries, type JobEntity } from '@base/features/jobs';
+import { jobsByPipelinesQueries, type PipelineHistory } from '@base/features/jobs';
 import { createPagination } from '@scylla/ui/state';
 import { t } from '@scylla/ui/i18n';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
@@ -7,14 +7,15 @@ import { pipelineMessages } from '@base/features/pipeline/presentation/messages/
 import { pipelineQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
 
 type HistoryResult = {
-  data?: { pipelineId: string; jobs: JobEntity[] };
+  data?: PipelineHistory & { pipelineId: string };
   isLoading: boolean;
   isError: boolean;
 };
 
 /** One page of pipelines, each with its recent runs. The history needs `LIST_JOBS_BY_PIPELINE`: read `canListJobs`. */
 export const createPipelineDashboard = (projectId: () => string) => {
-  const pagination = createPagination({ responsive: true });
+  // A row is 80 px high, and 2 px from the next one.
+  const pagination = createPagination({ responsive: true, rowHeight: 82 });
 
   const pipelinesQuery = createQuery(() =>
     pipelineQueries.byProject(projectId(), pagination.paginationParams, {
@@ -55,8 +56,8 @@ export const createPipelineDashboard = (projectId: () => string) => {
         ? pipelinesQuery.error.userMessage()
         : t(pipelineMessages.loadError);
     },
-    get jobsByPipelineId() {
-      return jobs.jobsByPipelineId;
+    get historyByPipelineId() {
+      return jobs.historyByPipelineId;
     },
     get isJobsLoading() {
       return jobs.isJobsLoading;

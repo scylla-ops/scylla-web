@@ -9,6 +9,12 @@ describe('ProviderMark', () => {
     expect(container.querySelector('[data-provider-mark="github"]')).toBeInTheDocument();
   });
 
+  it('shows the mark of a GitLab provider', () => {
+    const { container } = render(ProviderMark, { kind: 'gitlab' });
+
+    expect(container.querySelector('[data-provider-mark="gitlab"]')).toBeInTheDocument();
+  });
+
   it('shows nothing for a kind with no mark', () => {
     const { container } = render(ProviderMark, { kind: 'oidc' });
 

@@ -11,6 +11,7 @@ export * from '@scylla/base/features/access';
 export * from '@scylla/base/features/apps';
 export * from '@scylla/base/features/dashboard';
 export * from '@scylla/base/features/extensions';
+export * from '@scylla/base/features/integrations';
 export * from '@scylla/base/features/invitation';
 export * from '@scylla/base/features/jobs';
 export * from '@scylla/base/features/login';

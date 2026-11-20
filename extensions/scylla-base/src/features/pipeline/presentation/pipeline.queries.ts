@@ -6,7 +6,14 @@ import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import { toast } from '@scylla/ui/utils';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
-import type { PipelineMetadata, PipelineWithLayout } from '../domain/entities/pipeline.entity.ts';
+import type {
+  PipelineFileExport,
+  PipelineMetadata,
+  PipelineWithLayout,
+} from '../domain/entities/pipeline.entity.ts';
+import type { CommitRef } from '../domain/structs/commit-ref.struct.ts';
+import type { PipelineFile } from '../domain/structs/pipeline-file.struct.ts';
+import type { PipelineFileFormat } from '../domain/structs/pipeline-file-format.struct.ts';
 import { mergeLayouts, type PipelineLayout } from '../domain/structs/pipeline-layout.struct.ts';
 import {
   InvalidPipelineError,
@@ -21,11 +28,18 @@ import {
   WORKSPACE_PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_ROOT,
+  PIPELINE_EXPORT_QUERY_KEY,
+  PIPELINE_FILE_QUERY_KEY,
   PIPELINE_QUERY_KEY,
   PROJECT_PIPELINES_QUERY_ROOT,
   RUN_PIPELINE_MUTATION_KEY,
   NODE_TEMPLATES_QUERY_KEY,
+  WORKSPACE_PIPELINE_SUMMARIES_QUERY_KEY,
 } from './pipeline.query-keys.ts';
+import type {
+  PipelineSummaryList,
+  PipelineSummaryQuery,
+} from '../domain/structs/pipeline-summary.struct.ts';
 
 //todo: check about split this file into multiple .queries to improve readability
 
@@ -59,6 +73,23 @@ export const pipelineQueries = {
       staleTime: 5_000,
     }),
 
+  /**
+   * The pipelines of the workspace with their last jobs, failing first by default. Read again
+   * each 30 s, as the design of the dashboard asks.
+   */
+  summaries: (
+    workspaceId: string | null,
+    shape: Omit<PipelineSummaryQuery, 'workspaceId'> = { runs: 20, order: 'failing-first', limit: 100 },
+    enabled = true,
+  ) =>
+    queryOptions<PipelineSummaryList>({
+      queryKey: WORKSPACE_PIPELINE_SUMMARIES_QUERY_KEY(workspaceId, shape),
+      enabled: enabled && !!workspaceId,
+      queryFn: () => repository().getSummaries({ workspaceId: workspaceId!, ...shape }),
+      staleTime: 10_000,
+      refetchInterval: 30_000,
+    }),
+
   /** One call, scoped by the backend: nothing to gate here. */
   byWorkspace: (workspaceId: string | null) =>
     queryOptions<PaginatedList<PipelineMetadata>>({
@@ -88,7 +119,37 @@ export const pipelineQueries = {
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
     }),
+
+  /** Opened from the editor only, behind its own route guard and its own button check. */
+  fileExport: (pipelineId: string, format: PipelineFileFormat) =>
+    queryOptions<PipelineFileExport>({
+      queryKey: PIPELINE_EXPORT_QUERY_KEY(pipelineId, format),
+      enabled: !!pipelineId,
+      queryFn: () => repository().exportFile(pipelineId, format),
+      staleTime: 30_000,
+    }),
+
+  /**
+   * The page of a file pipeline reads it, behind its own route guard. No ref: the default branch.
+   * The page says why a file cannot be read (no file on the branch): no toast.
+   */
+  file: (pipelineId: string, ref?: CommitRef) =>
+    queryOptions<PipelineFile>({
+      queryKey: PIPELINE_FILE_QUERY_KEY(pipelineId, ref),
+      enabled: !!pipelineId,
+      queryFn: () => repository().getFile(pipelineId, ref),
+      staleTime: 30_000,
+      meta: { showsOwnError: true },
+      // Another branch keeps the graph of the last one until its file comes.
+      placeholderData: (previous: PipelineFile | undefined) => previous,
+    }),
 };
+
+/** No ref: an editor pipeline runs with no commit, a file pipeline at the head of the default branch. */
+export interface RunPipelineInput {
+  pipelineId: string;
+  ref?: CommitRef;
+}
 
 /** Read by the editor only, behind its own route guard: nothing to gate here. */
 export const nodeTemplateQueries = {
@@ -191,8 +252,8 @@ export const pipelineMutations = {
   run: () =>
     mutationOptions({
       mutationKey: RUN_PIPELINE_MUTATION_KEY,
-      mutationFn: (pipelineId: string) => repository().run(pipelineId),
-      onSuccess: (_data, pipelineId) => {
+      mutationFn: ({ pipelineId, ref }: RunPipelineInput) => repository().run(pipelineId, ref),
+      onSuccess: (_data, { pipelineId }) => {
         void getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId) });
       },
     }),

@@ -9,14 +9,16 @@
   import { createTriggerEditorView } from './trigger-editor-view.state.svelte.ts';
 
   interface Props {
+    projectId: string;
     pipelineId: string;
     /** Absent when creating. */
     triggerId?: string;
   }
 
-  let { pipelineId, triggerId }: Props = $props();
+  let { projectId, pipelineId, triggerId }: Props = $props();
 
   const editor = createTriggerEditorView(
+    () => projectId,
     () => pipelineId,
     () => triggerId,
   );
@@ -56,12 +58,17 @@
     <Skeleton class="h-96 w-full rounded-xl" />
   {:else if editor.isUnavailable}
     <ErrorState message={t(triggersMessages.triggerNotFound)} />
+  {:else if editor.isFromFile}
+    <ErrorState message={t(triggersMessages.fileTriggerReadOnly)} />
   {:else}
     <TriggerForm
       {pipelineId}
       trigger={editor.trigger ?? undefined}
+      link={editor.link}
+      isFilePipeline={editor.isFilePipeline}
       onCancel={editor.leave}
       onSaved={handleSaved}
+      onLinkRepository={editor.toRepository}
     />
   {/if}
 

@@ -1,8 +1,14 @@
 <script lang="ts">
+  import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { i18n } from '@lingui/core';
   import { can, Permission } from '@platform/authz';
   import { createMutation } from '@scylla/core-sdk';
-  import { accessMutations, projectRef, workspaceRef } from '@base/features/access';
+  import {
+    accessMutations,
+    projectRef,
+    workspaceRef,
+    type MemberRoleEntity,
+  } from '@base/features/access';
   import { ScyllaDialog } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { Button } from '@scylla/ui/primitives';
@@ -15,6 +21,7 @@
     removedFrom,
     removeTitle,
   } from '../../../messages/membership.messages.ts';
+  import ScopeLabel from '../ScopeLabel.svelte';
 
   interface Props {
     row: MemberRow | null;
@@ -59,6 +66,14 @@
   };
 </script>
 
+{#snippet scopedRoles(kind: MemberRoleEntity['scopeKind'], scope: string, roles: string)}
+  <div class="flex min-w-0 items-center gap-2">
+    <ScopeLabel {kind} name={scope} />
+    <ChevronRightIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+    <span>{roles}</span>
+  </div>
+{/snippet}
+
 <ScyllaDialog
   open={row !== null}
   onOpenChange={open => {
@@ -70,13 +85,11 @@
   {#if row}
     <div class="flex flex-col gap-3">
       <div class="rounded-xl border p-3 text-sm">
-        <span class="mr-2 rounded-full bg-muted px-2 py-0.5 text-xs">{workspaceName}</span>
-        {given.map(memberRoleName).join(', ')}
+        {@render scopedRoles('workspace', workspaceName, given.map(memberRoleName).join(', '))}
       </div>
       {#each row.projectRoles as role (`${role.scopeId}-${role.role}`)}
         <div class="rounded-xl border p-3 text-sm">
-          <span class="mr-2 rounded-full bg-muted px-2 py-0.5 text-xs">{role.scopeName}</span>
-          {memberRoleName(role)}
+          {@render scopedRoles('project', role.scopeName, memberRoleName(role))}
           <p class="mt-1 text-xs text-muted-foreground">{t(needsWorkspaceRole(workspaceName))}</p>
         </div>
       {/each}

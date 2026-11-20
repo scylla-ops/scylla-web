@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { Badge, Card, CardContent, Separator } from '@scylla/ui/primitives';
-  import { UserAvatar, userName } from '@shared/presentation/ui';
+  import { IdentityAvatar, userName } from '@shared/presentation/ui';
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
 
   interface Props {
@@ -19,7 +19,7 @@
 
 <Card>
   <CardContent class="flex flex-col items-center gap-4 text-center">
-    <UserAvatar {user} size="lg" />
+    <IdentityAvatar profile={user} size={72} />
     <div class="flex max-w-full min-w-0 flex-col gap-1">
       <svelte:element this={isPageTitle ? 'h1' : 'h2'} class="truncate">
         {userName(user)}

@@ -1,4 +1,4 @@
-import { currentPathname, navigateBack, navigateTo } from '@scylla/core-sdk';
+import { currentPathname, navigateBack, navigateTo, type NavigateOptions } from '@scylla/core-sdk';
 import { contextStore } from './context.store.ts';
 import { slugifyWorkspaceName } from '@shared/utils/slug.ts';
 
@@ -33,6 +33,13 @@ const goToCreatePipeline = () => {
 
 const goToEditPipeline = (id: string, name: string) => {
   navigateTo(`${getWorkspacePrefix()}/projects/${contextStore.getState().project.id}/edit/${id}`);
+  contextStore.getState().setPipeline(id, name);
+};
+
+/** The read-only page of a pipeline that comes from a file of the repository. */
+const goToFilePipeline = (id: string, name: string) => {
+  const projectId = contextStore.getState().project.id;
+  navigateTo(`${getWorkspacePrefix()}/projects/${projectId}/pipelines/${id}`);
   contextStore.getState().setPipeline(id, name);
 };
 
@@ -72,20 +79,21 @@ const goToAccount = () => {
   navigateTo(`${getWorkspacePrefix()}/account`);
 };
 
-/** The URL of a page of any workspace, the active one or not, from its slug. */
-export const workspaceUrl = (slug: string, path = 'projects'): string => `/${slug}/${path}`;
+/** The URL of a page of any workspace, the active one or not, from its slug. With no path, its dashboard. */
+export const workspaceUrl = (slug: string, path = 'dashboard'): string => `/${slug}/${path}`;
 
 const goToAgentDetails = (agentId: string) => {
   navigateTo(`${getWorkspacePrefix()}/agents/${agentId}`);
 };
 
-const goToWorkspaceRoute = (path: string) => {
-  navigateTo(`${getWorkspacePrefix()}${path.startsWith('/') ? path : `/${path}`}`);
+const goToWorkspaceRoute = (path: string, options?: NavigateOptions) => {
+  navigateTo(`${getWorkspacePrefix()}${path.startsWith('/') ? path : `/${path}`}`, options);
 };
 
 export const scyllaNavigate = {
   navigate: navigateTo,
   goToEditPipeline,
+  goToFilePipeline,
   goToUser,
   goToAccount,
   goToSubRoute,

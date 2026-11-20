@@ -1,8 +1,18 @@
 import type { RoleHolder, RoleLevel } from '../entities/role.entity.ts';
 
+/** The actions that each table of the permissions shows. */
 export const ACTIONS = ['view', 'create', 'edit', 'delete', 'run', 'manage'] as const;
 
-export type CatalogAction = (typeof ACTIONS)[number];
+/** The order of the actions. An action that is not in `ACTIONS` shows only where an area has it. */
+export const ACTION_ORDER: readonly string[] = [
+  'view',
+  'create',
+  'edit',
+  'delete',
+  'run',
+  'approve',
+  'manage',
+];
 
 export interface CatalogPermission {
   /** `<area>.<action>`. */
@@ -69,22 +79,27 @@ export const withoutImplicit = (
   return new Set([...selected].filter(id => !implicit.includes(id)));
 };
 
-/** Keeps what a role of this level can hold, and adds what is always on. */
-export const fitToRole = (
-  selected: ReadonlySet<string>,
+/** The permission that shows each workspace of the instance in the list of the workspaces. */
+export const VIEW_ALL_WORKSPACES = 'workspaces.view';
+
+/**
+ * What a permission needs in a role of a level: its `dependsOn`, and, in a role of the platform,
+ * the view of each workspace for a permission of a workspace or of a project. The server adds the
+ * same permissions.
+ */
+export const needsOf = (
+  id: string,
   areas: readonly CatalogArea[],
   level: RoleLevel,
-  holder: RoleHolder,
-): Set<string> => {
-  const fitted = new Set<string>();
-  for (const area of areas.filter(area => canHoldArea(area, level, holder))) {
-    for (const permission of area.permissions) {
-      if (selected.has(permission.id) || isImplicitFor(area, permission, level)) {
-        fitted.add(permission.id);
-      }
-    }
-  }
-  return fitted;
+): readonly string[] => {
+  const area = areas.find(one => one.permissions.some(permission => permission.id === id));
+  const permission = area?.permissions.find(one => one.id === id);
+  if (!area || !permission) return [];
+  const viewsAll =
+    level === 'platform' &&
+    area.level !== 'platform' &&
+    areas.some(one => one.permissions.some(other => other.id === VIEW_ALL_WORKSPACES));
+  return viewsAll ? [...permission.dependsOn, VIEW_ALL_WORKSPACES] : permission.dependsOn;
 };
 
 const closure = (ids: Iterable<string>, next: (id: string) => readonly string[]): Set<string> => {
@@ -99,21 +114,69 @@ const closure = (ids: Iterable<string>, next: (id: string) => readonly string[])
   return seen;
 };
 
-/** Checking a permission also checks what it depends on. Unchecking it also unchecks what needs it. */
+/** Keeps what a role of this level can hold, and adds what it needs and what is always on. */
+export const fitToRole = (
+  selected: ReadonlySet<string>,
+  areas: readonly CatalogArea[],
+  level: RoleLevel,
+  holder: RoleHolder,
+): Set<string> => {
+  const holdable = areas.filter(area => canHoldArea(area, level, holder));
+  const kept = holdable.flatMap(area =>
+    area.permissions.filter(permission => selected.has(permission.id)).map(one => one.id),
+  );
+  const wanted = closure(kept, id => needsOf(id, areas, level));
+  const fitted = new Set<string>();
+  for (const area of holdable) {
+    for (const permission of area.permissions) {
+      if (wanted.has(permission.id) || isImplicitFor(area, permission, level)) {
+        fitted.add(permission.id);
+      }
+    }
+  }
+  return fitted;
+};
+
+/** Checking a permission also checks what it needs. Unchecking it also unchecks what needs it. */
 export const togglePermission = (
   selected: ReadonlySet<string>,
   id: string,
   areas: readonly CatalogArea[],
+  level: RoleLevel,
 ): Set<string> => {
   const all = areas.flatMap(area => area.permissions);
+  const needs = (of: string) => needsOf(of, areas, level);
   const result = new Set(selected);
   if (selected.has(id)) {
     const needers = (of: string) =>
-      all.filter(permission => permission.dependsOn.includes(of)).map(permission => permission.id);
+      all.filter(permission => needs(permission.id).includes(of)).map(permission => permission.id);
     for (const removed of closure([id], needers)) result.delete(removed);
     return result;
   }
-  const needs = (of: string) => all.find(permission => permission.id === of)?.dependsOn ?? [];
   for (const added of closure([id], needs)) result.add(added);
   return result;
 };
+
+/** Checks each permission as one click on its cell does. */
+export const checkPermissions = (
+  selected: ReadonlySet<string>,
+  ids: readonly string[],
+  areas: readonly CatalogArea[],
+  level: RoleLevel,
+): Set<string> =>
+  ids.reduce(
+    (next, id) => (next.has(id) ? next : togglePermission(next, id, areas, level)),
+    new Set(selected),
+  );
+
+/** Unchecks each permission as one click on its cell does. */
+export const uncheckPermissions = (
+  selected: ReadonlySet<string>,
+  ids: readonly string[],
+  areas: readonly CatalogArea[],
+  level: RoleLevel,
+): Set<string> =>
+  ids.reduce(
+    (next, id) => (next.has(id) ? togglePermission(next, id, areas, level) : next),
+    new Set(selected),
+  );

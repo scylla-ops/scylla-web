@@ -1,5 +1,6 @@
 <script lang="ts">
   import CheckIcon from '@lucide/svelte/icons/check';
+  import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { navigateTo } from '@scylla/core-sdk';
   import type { AccessSourceEntity } from '@base/features/access';
   import {
@@ -12,11 +13,20 @@
   } from '@base/features/roles';
   import { t } from '@scylla/ui/i18n';
   import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from '@scylla/ui/primitives';
+  import {
     effectiveCell,
     membershipMessages,
     openRole,
   } from '../../../messages/membership.messages.ts';
   import { sourceRoleName } from '../../../presenters/member-role-name.ts';
+  import ScopeLabel from '../ScopeLabel.svelte';
 
   interface Props {
     areas: readonly CatalogArea[];
@@ -55,26 +65,26 @@
   const areaHint = (area: CatalogArea) => (areaLabels[area.id] ? t(areaLabels[area.id].hint) : '');
 </script>
 
-<div class="relative overflow-x-auto">
-  <table class="w-full min-w-[640px] border-collapse text-sm">
-    <thead>
-      <tr class="bg-muted/60 text-xs text-muted-foreground">
-        <th class="px-4 py-2.5 text-left font-medium">{t(membershipMessages.resource)}</th>
+<div class="relative overflow-x-auto p-1.5">
+  <Table class="min-w-[640px]">
+    <TableHeader>
+      <TableRow>
+        <TableHead>{t(membershipMessages.resource)}</TableHead>
         {#each ACTIONS as action (action)}
-          <th class="w-[72px] px-2 py-2.5 text-center font-medium">{t(actionLabels[action])}</th>
+          <TableHead class="w-[72px] px-2 text-center">{t(actionLabels[action])}</TableHead>
         {/each}
-      </tr>
-    </thead>
-    <tbody>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
       {#each shown as area (area.id)}
-        <tr class="border-t">
-          <td class="px-4 py-2">
+        <TableRow>
+          <TableCell class="whitespace-normal">
             <span class="block font-medium">{areaTitle(area)}</span>
             <span class="block text-xs text-muted-foreground">{areaHint(area)}</span>
-          </td>
+          </TableCell>
           {#each ACTIONS as action (action)}
             {@const permission = cellOf(area, action)}
-            <td class="px-2 py-2 text-center align-middle">
+            <TableCell class="px-2 text-center">
               {#if !permission}
                 <span class="text-muted-foreground/60" aria-hidden="true">—</span>
               {:else if sources.has(permission.id)}
@@ -95,12 +105,12 @@
                   ·
                 </span>
               {/if}
-            </td>
+            </TableCell>
           {/each}
-        </tr>
+        </TableRow>
       {/each}
-    </tbody>
-  </table>
+    </TableBody>
+  </Table>
 </div>
 
 {#if open}
@@ -115,8 +125,9 @@
     <ul class="mt-1 flex flex-col gap-2">
       {#each openSources as source (`${source.scopeId}-${source.roleKey}`)}
         <li class="flex items-center justify-between gap-3">
-          <span class="flex items-center gap-2">
-            <span class="rounded-full bg-muted px-2 py-0.5 text-xs">{source.scopeName}</span>
+          <span class="flex min-w-0 items-center gap-2">
+            <ScopeLabel kind={source.scopeKind} name={source.scopeName} />
+            <ChevronRightIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span class="font-medium">{sourceRoleName(source)}</span>
           </span>
           <button

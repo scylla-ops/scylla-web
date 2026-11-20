@@ -1,8 +1,9 @@
 <script lang="ts">
   import { Handle, Position, type NodeProps } from '@xyflow/svelte';
-  import { getStatusIcon } from '@shared/presentation/ui';
+  import { StatusShape } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
+  import { toStatusState } from '@shared/utils/job-status.utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import {
     JOB_NODE,
@@ -16,7 +17,6 @@
   const graph = getJobGraph();
   const state = $derived(data.execution?.state ?? 'pending');
   const config = $derived(getStatusConfig(state));
-  const Icon = $derived(getStatusIcon(state));
   const notTaken = $derived(data.reason === 'not-taken');
   const ports = $derived(data.outputs.filter(output => output.port));
   const handle = 'size-2! border-[1.5px]! border-muted-foreground/60! bg-card!';
@@ -48,9 +48,7 @@
     onclick={() => graph.select(id)}
   >
     <span class="flex items-center gap-2 px-2.5" style="height: {JOB_NODE.height}px;">
-      <Icon
-        class={cn('size-4 shrink-0', notTaken ? 'text-muted-foreground' : config.iconClassName)}
-      />
+      <StatusShape state={toStatusState(state)} label={t(config.label)} size={16} />
       <span class="min-w-0 flex-1 truncate font-mono text-[12.5px] font-medium text-foreground">
         {id}
       </span>

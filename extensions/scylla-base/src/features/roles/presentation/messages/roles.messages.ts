@@ -36,6 +36,30 @@ export const holdersTotal = (count: number) => msg`Holders: ${count}`;
 
 export const andMore = (count: number) => msg`and ${count} more`;
 
+export const holderCount = (count: number) =>
+  msg`${plural(count, { one: '# holder', other: '# holders' })}`;
+
+export const peopleCount = (count: number) =>
+  msg`${plural(count, { one: '# person', other: '# people' })}`;
+
+export const agentsCount = (count: number) =>
+  msg`${plural(count, { one: '# agent', other: '# agents' })}`;
+
+export const appsCount = (count: number) =>
+  msg`${plural(count, { one: '# app', other: '# apps' })}`;
+
+export const projectsCount = (count: number) =>
+  msg`${plural(count, { one: '# project', other: '# projects' })}`;
+
+export const workspacesCount = (count: number) =>
+  msg`${plural(count, { one: '# workspace', other: '# workspaces' })}`;
+
+export const moreHolders = (count: number) =>
+  msg`${plural(count, { one: '+# more', other: '+# more' })}`;
+
+export const morePermissions = (count: number) =>
+  msg`${plural(count, { one: '# more permission', other: '# more permissions' })}`;
+
 export const missingPermissions = (names: string) =>
   msg`You do not have ${names}, so you cannot give it. Remove it from the role, or ask an admin to save the role.`;
 
@@ -43,8 +67,21 @@ export const removePermission = (names: string) => msg`Remove ${names}`;
 
 export const nameTaken = msg`The owner already has a role with this name. Choose another name.`;
 
-export const selectedOf = (count: number, total: number) =>
-  msg`${count} of ${total} selected · Edit, Delete and Run also select View`;
+export const selectedOf = (count: number, total: number) => msg`${count} of ${total} selected`;
+
+export const copiedFrom = (role: string) => msg`Copied from ${role}`;
+
+export const selectTab = (count: number) => msg`Select all ${count} on this tab`;
+
+export const clearTab = (count: number) => msg`Clear all ${count} on this tab`;
+
+export const selectColumn = (action: string) => msg`Select the whole ${action} column`;
+
+export const clearColumn = (action: string) => msg`Clear the whole ${action} column`;
+
+export const allOf = (area: string) => msg`${area} · All actions`;
+
+export const needsOthers = (names: string) => msg`Needs ${names}`;
 
 export const rolesMessages = {
   roles: msg`Roles`,
@@ -65,6 +102,7 @@ export const rolesMessages = {
   noAccessGivers: msg`A workspace admin or an instance admin.`,
   noAccessLink: msg`The Access menu does not show Roles to you. You opened this page from a link.`,
   seeMembers: msg`See members`,
+  seeAllMembers: msg`See all members`,
   moveHoldersTo: msg`Move the holders to`,
   moveHoldersHint: msg`They keep their other roles. Compare the two roles before you move the holders.`,
   moveAndDelete: msg`Move holders and delete`,
@@ -75,12 +113,14 @@ export const rolesMessages = {
   lockedCell: msg`You do not have it, or not at this level`,
   retry: msg`Try again`,
   level: msg`Level`,
-  type: msg`Type`,
   holders: msg`Holders`,
   permissions: msg`Permissions`,
   builtIn: msg`Built-in`,
   custom: msg`Custom`,
   fullControl: msg`Full control`,
+  viewOnly: msg`View only`,
+  openToChange: msg`Open the role to change them.`,
+  openToSee: msg`Open the role to see them all.`,
   back: msg`Roles`,
   cancel: msg`Cancel`,
   createRole: msg`Create role`,
@@ -96,15 +136,14 @@ export const rolesMessages = {
   descriptionPlaceholder: msg`What this role does`,
   levelHint: msg`You can change the level only while no one holds the role.`,
   whoCanHold: msg`Who can hold it`,
-  startFrom: msg`Start from`,
-  startFromEmpty: msg`Empty role`,
-  startFromHint: msg`Copies its permissions. Then change them in the table.`,
-  liveTitle: msg`Live at once`,
-  liveHint: msg`When you save, every holder of the role gets the new permissions on the next request.`,
+  copyFromRole: msg`Copy from a role`,
+  emptyRole: msg`Empty role`,
+  emptyRoleHint: msg`Clears every permission`,
+  undo: msg`Undo`,
+  levelTabs: msg`Permission levels`,
+  allOnTab: msg`All on this tab`,
   resource: msg`Resource`,
-  selectAll: msg`Select all`,
   onlyInInstance: msg`Only in instance roles`,
-  notInLevel: msg`Not at this level`,
   legendOn: msg`Always on`,
   legendNone: msg`No such action`,
   legendOff: msg`The role does not have it`,
@@ -131,17 +170,34 @@ export const levelLabels: Record<RoleLevel, MessageDescriptor> = {
   project: msg`Project`,
 };
 
+export const fullControlHints: Record<RoleLevel, MessageDescriptor> = {
+  platform: msg`the whole instance`,
+  workspace: msg`also delete the workspace`,
+  project: msg`also delete the project`,
+};
+
 export const levelHints: Record<RoleLevel, MessageDescriptor> = {
   platform: msg`Granted on the whole server. Only instance admins give it.`,
   workspace: msg`Granted on one workspace. Covers all of its projects.`,
   project: msg`Granted on one project.`,
 };
 
-export const sectionHints: Record<RoleLevel, MessageDescriptor> = {
-  platform: msg`Users, workspaces, instance roles and settings`,
-  workspace: msg`On the workspace where the role is granted`,
-  project: msg`In every project of the workspace`,
-};
+const scopeHints = {
+  platform: { platform: msg`On the whole server.` },
+  workspace: {
+    platform: msg`In every workspace of the server.`,
+    workspace: msg`On the workspace where the role is granted. The Project tab covers every project of the workspace.`,
+  },
+  project: {
+    platform: msg`In every project of the server.`,
+    workspace: msg`In every project of the workspace where the role is granted.`,
+    project: msg`On the project where the role is granted.`,
+  },
+} satisfies Record<RoleLevel, Partial<Record<RoleLevel, MessageDescriptor>>>;
+
+/** Where the permissions of a tab apply, for a role of this level. */
+export const scopeHint = (tab: RoleLevel, level: RoleLevel): MessageDescriptor | undefined =>
+  (scopeHints[tab] as Partial<Record<RoleLevel, MessageDescriptor>>)[level];
 
 export const holderLabels: Record<RoleHolder, MessageDescriptor> = {
   people: msg`People`,
@@ -181,6 +237,7 @@ export const actionLabels: Record<string, MessageDescriptor> = {
   edit: msg`Edit`,
   delete: msg`Delete`,
   run: msg`Run`,
+  approve: msg`Approve`,
   manage: msg`Manage`,
 };
 
@@ -190,20 +247,35 @@ export const areaLabels: Record<string, { title: MessageDescriptor; hint: Messag
   instance_roles: { title: msg`Instance roles`, hint: msg`Make and change roles` },
   instance_access: { title: msg`Instance access`, hint: msg`Give instance roles` },
   instance_settings: { title: msg`Instance settings`, hint: msg`Sign-in, security` },
+  git_providers: { title: msg`Git providers`, hint: msg`The GitHub App of the instance` },
   workspace: { title: msg`Workspace`, hint: msg`Name and settings. Every member sees it` },
   members: { title: msg`Members`, hint: msg`People and apps of the workspace` },
   workspace_roles: { title: msg`Workspace roles`, hint: msg`Roles that the workspace owns` },
   apps: { title: msg`Apps`, hint: msg`Machine identities and their credentials` },
   agents: { title: msg`Agents`, hint: msg`Agents that run the jobs` },
   projects: { title: msg`Projects`, hint: msg`New projects in the workspace` },
+  integrations: { title: msg`Integrations`, hint: msg`Connections to GitHub and GitLab` },
   job_execution: { title: msg`Job execution`, hint: msg`Run takes a job. Edit reports its state` },
   project: { title: msg`Project`, hint: msg`Name and settings` },
   project_members: { title: msg`Project members`, hint: msg`Who has a role on the project` },
+  repository: {
+    title: msg`Repository`,
+    hint: msg`The linked Git repository and the source of the pipelines`,
+  },
   pipelines: { title: msg`Pipelines`, hint: msg`Definitions and runs` },
   triggers: { title: msg`Triggers`, hint: msg`Schedules and webhooks that start runs` },
   jobs: { title: msg`Jobs`, hint: msg`Edit is cancel and retry` },
   job_logs: { title: msg`Job logs`, hint: msg`The output of the jobs` },
   secrets: { title: msg`Secrets`, hint: msg`Names only. Nobody sees a value` },
+};
+
+/** The full names of the permissions that their area and their action do not name well. */
+export const cellLabels: Record<string, { title: MessageDescriptor; hint?: MessageDescriptor }> = {
+  'git_providers.manage': { title: msg`Manage Git providers` },
+  'jobs.approve': {
+    title: msg`Approve fork runs`,
+    hint: msg`Approve or reject a run of a pull request from a fork. Such a run never gets the secrets.`,
+  },
 };
 
 /** The translated names and descriptions of the built-in roles. The server sends the English text. */
@@ -250,6 +322,8 @@ export const permissionLabel = (id: string, areas: readonly CatalogArea[]): stri
   const area = areas.find(one => one.permissions.some(permission => permission.id === id));
   const permission = area?.permissions.find(one => one.id === id);
   if (!area || !permission) return id;
+  const cell = cellLabels[id];
+  if (cell) return i18n._(cell.title);
   const action = actionLabels[permission.action];
   const title = areaLabels[area.id]?.title;
   if (!action || !title) return id;

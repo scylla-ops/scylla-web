@@ -1,8 +1,9 @@
-import { describe, it, expect, afterEach, vi } from 'vitest';
+import { describe, it, expect, afterEach, beforeAll, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import { setAppNavigator, setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { setShellConfig, startCore } from '@scylla/core';
 import { extensions } from '../extensions.ts';
+import { loadPages } from './pages.fixture.ts';
 
 /** The server answers that the cookie gives no session. Every other call fails on the network. */
 const serverWithNoSession = () =>
@@ -20,6 +21,8 @@ const serverWithNoSession = () =>
         )
       : Promise.reject(new TypeError('Failed to fetch')),
   );
+
+beforeAll(() => loadPages(extensions, '/login', '/forgot-password'));
 
 afterEach(() => {
   vi.unstubAllGlobals();

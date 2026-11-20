@@ -70,7 +70,7 @@
     {#each roles as role (role.key)}
       {@const checked = isChecked(role.key)}
       <label
-        class="flex cursor-pointer gap-3 rounded-xl border p-3 transition-colors hover:bg-muted/40 {checked
+        class="flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-colors hover:bg-muted/40 {checked
           ? 'border-primary'
           : ''}"
       >
@@ -78,7 +78,6 @@
           {checked}
           aria-label={roleName(role)}
           onCheckedChange={() => flip(role.key)}
-          class="mt-0.5"
         />
         <span class="flex min-w-0 flex-col gap-1">
           <span class="flex items-center gap-2 text-sm font-medium">

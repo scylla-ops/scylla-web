@@ -14,6 +14,7 @@ export type {
   NavSectionDefinition,
   QueryErrorHandler,
   QueryRetryPolicy,
+  SecondSidebarLink,
   ShellContributions,
 } from './extension/contributions.struct.ts';
 
@@ -57,6 +58,7 @@ export {
   type AppNavigator,
   type NavigateOptions,
 } from './navigation/navigator.ts';
+export { guardLeave, holdsLeave, type LeaveGuard } from './navigation/leave-guard.ts';
 
 export {
   getModuleDomain,

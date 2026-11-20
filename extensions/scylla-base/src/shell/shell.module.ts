@@ -10,6 +10,7 @@ import NewBadge from './presentation/layout/ui/NewBadge.svelte';
 import GlobalSearch from './presentation/layout/ui/GlobalSearch/GlobalSearch.svelte';
 import NotificationsMenu from './presentation/layout/ui/NotificationsMenu/NotificationsMenu.svelte';
 import ShellBrand from './presentation/layout/ui/ShellBrand/ShellBrand.svelte';
+import { projectLinks } from './presentation/layout/project-links.state.svelte.ts';
 import { markNavSeen } from './presentation/layout/whats-new.state.svelte.ts';
 import { reportQueryError } from './presentation/report-query-error.ts';
 import { retryQueryError } from './presentation/retry-query-error.ts';
@@ -92,6 +93,7 @@ export const ShellModule = {
     overlays: [LaunchOverlays],
     navBadge: NewBadge,
     onNavOpen: markNavSeen,
+    secondSidebarLinks: projectLinks,
     breadcrumbParams,
     linkParams,
   },

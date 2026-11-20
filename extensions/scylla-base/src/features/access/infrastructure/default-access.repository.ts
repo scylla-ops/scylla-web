@@ -36,6 +36,7 @@ const memberToDomain = (member: Member): MemberEntity => ({
   actorKind: member.actorKind,
   displayName: member.displayName,
   handle: member.handle,
+  runner: member.runner,
   roles: member.roles.map(role => ({
     scopeKind: role.scopeKind as MemberScopeKind,
     scopeId: idValue(role.scopeId),

@@ -1,86 +1,139 @@
 <script lang="ts">
+  import type { Attachment } from 'svelte/attachments';
   import type { JobEntity } from '@base/features/jobs';
-  import { Skeleton } from '@scylla/ui/primitives';
-  import { StatusBar, type StatusBarItem } from '@shared/presentation/ui';
+  import { StatusShape } from '@scylla/ui';
+  import { Skeleton, Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
+  import { createNow } from '@scylla/ui/state';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
-  import { calculateDuration, formatDuration, getRelativeTime } from '@shared/utils/date-utils.ts';
+  import { formatDuration, getRelativeTime } from '@shared/utils/date-utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import {
+    historyBars,
+    shortId,
+    type HistoryBar,
+  } from '@base/features/pipeline/presentation/presenters/pipeline-history.presenter.ts';
 
   interface Props {
+    /** Newest first. */
     jobs: JobEntity[];
-    maxJobs?: number;
+    /** The bars that the column holds. */
+    count: number;
+    /** On the box of the bars: it gives `count`. */
+    measure: Attachment<HTMLElement>;
     isLoading?: boolean;
     isError?: boolean;
     /** The history was not fetched: the user may not list this project's jobs. */
     isForbidden?: boolean;
-    onSelectJob?: (jobId: string) => void;
+    onSelectJob: (jobId: string) => void;
   }
 
-  let { jobs, maxJobs, isLoading = false, isError = false, isForbidden = false, onSelectJob }: Props =
-    $props();
+  let {
+    jobs,
+    count,
+    measure,
+    isLoading = false,
+    isError = false,
+    isForbidden = false,
+    onSelectJob,
+  }: Props = $props();
 
-  type RunItem = StatusBarItem & { job: JobEntity; runNumber: number };
+  // A running job has no end: its bar grows each second, and stops when it finishes.
+  const isLive = $derived(jobs.slice(0, count).some(job => job.status === 'running'));
+  const now = createNow(() => isLive);
+  const bars = $derived(historyBars(jobs, count, now.value));
 
-  const items = $derived.by((): RunItem[] =>
-    jobs
-      .slice(0, maxJobs)
-      .map((job, index) => ({
-        id: job.id,
-        status: job.status,
-        // Oldest on the left: run numbers count up.
-        runNumber: jobs.length - index,
-        job,
-        label: t(pipelineMessages.runNumber(jobs.length - index)),
-        onSelect: onSelectJob ? () => onSelectJob(job.id) : undefined,
-      }))
-      .reverse(),
+  /** Shown in place of the bars, centered in the same block. */
+  const notice = $derived(
+    isForbidden
+      ? t(pipelineMessages.jobsForbidden)
+      : isError
+        ? t(pipelineMessages.jobsError)
+        : !isLoading && bars.length === 0
+          ? t(pipelineMessages.noRunYet)
+          : null,
   );
 </script>
 
-{#snippet runTooltip(item: RunItem)}
-  {@const config = getStatusConfig(item.job.status)}
-  {@const duration = calculateDuration(item.job.createdAt, item.job.updatedAt)}
+{#snippet jobTooltip(bar: HistoryBar)}
+  {@const config = getStatusConfig(bar.job.status)}
+  {@const ref = bar.job.source?.branch || bar.job.source?.tag}
   <div class="flex flex-col gap-1.5">
     <div class="flex items-center justify-between gap-4">
-      <span class="font-bold text-muted-foreground">{t(pipelineMessages.runNumber(item.runNumber))}</span>
-      <span class="font-mono text-[10px] text-muted-foreground">{item.job.id.slice(0, 8)}...</span>
+      <span class="font-mono font-medium text-foreground">{shortId(bar.job.id)}</span>
+      {#if ref}
+        <span class="max-w-30 truncate font-mono text-[10px] text-muted-foreground">{ref}</span>
+      {/if}
     </div>
     <div class="flex items-center gap-2">
-      <div class={cn('h-2 w-2 rounded-full', config.dotClassName)}></div>
+      <StatusShape state={bar.state} label={t(config.label)} size={16} />
       <span class={cn('font-semibold', config.textClassName)}>{t(config.label)}</span>
     </div>
+    {#if bar.job.source?.title}
+      <span class="truncate text-muted-foreground">{bar.job.source.title}</span>
+    {/if}
     <span class="mt-1 border-t pt-1 text-[10px] text-muted-foreground italic">
-      {item.job.status === 'running' || item.job.status === 'pending'
-        ? t(pipelineMessages.startedAt(getRelativeTime(item.job.createdAt)))
-        : t(pipelineMessages.finishedAt(getRelativeTime(item.job.updatedAt)))}
-      • {t(pipelineMessages.durationOf(formatDuration(duration)))}
+      {bar.job.finishedAt
+        ? t(pipelineMessages.finishedAt(getRelativeTime(bar.job.finishedAt)))
+        : t(pipelineMessages.startedAt(getRelativeTime(bar.job.startedAt ?? bar.job.createdAt)))}
+      {#if bar.duration !== null}
+        • {t(pipelineMessages.durationOf(formatDuration(bar.duration)))}
+      {/if}
     </span>
   </div>
 {/snippet}
 
-{#if isLoading}
-  <div class="flex h-10 w-full items-center gap-2 overflow-hidden rounded-md px-1 py-1">
-    {#each { length: maxJobs ?? 0 } as _, index (index)}
-      <Skeleton class="h-full min-w-[4px] flex-1 rounded-sm" />
-    {/each}
+<div class="w-full rounded-md border px-2 py-1.5">
+  <div
+    {@attach measure}
+    class={cn(
+      'flex h-12 gap-1',
+      notice ? 'items-center justify-center' : 'items-end justify-start',
+    )}
+  >
+    {#if notice}
+      <span class="text-xs text-muted-foreground [text-box:trim-both_cap_alphabetic]">{notice}</span>
+    {:else if isLoading}
+      {#each { length: count } as _, index (index)}
+        <Skeleton class="h-10 w-5 shrink-0 rounded-sm" />
+      {/each}
+    {:else}
+      {#each bars as bar (bar.job.id)}
+        {@const status = t(getStatusConfig(bar.job.status).label)}
+        <Tooltip delayDuration={100}>
+          <TooltipTrigger>
+            {#snippet child({ props })}
+              <button
+                {...props}
+                type="button"
+                aria-label={t(pipelineMessages.jobBar(shortId(bar.job.id), status))}
+                data-item-id={bar.job.id}
+                data-state={bar.state}
+                style:height="{bar.height}px"
+                onclick={event => {
+                  // The trigger's handler closes the tooltip; the row must not take the click.
+                  (props.onclick as ((event: MouseEvent) => void) | undefined)?.(event);
+                  event.stopPropagation();
+                  onSelectJob(bar.job.id);
+                }}
+                class={cn(
+                  'w-5 shrink-0 origin-bottom cursor-pointer rounded-sm transition-[height,scale] duration-150 outline-none hover:scale-y-110 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-card',
+                  bar.className,
+                )}
+              ></button>
+            {/snippet}
+          </TooltipTrigger>
+          <TooltipContent
+            side="top"
+            sideOffset={4}
+            arrow={false}
+            class="w-62 border border-border bg-popover p-3 text-popover-foreground shadow-lg"
+          >
+            {@render jobTooltip(bar)}
+          </TooltipContent>
+        </Tooltip>
+      {/each}
+    {/if}
   </div>
-{:else if isForbidden}
-  <!-- Before the error state: nothing was asked, so nothing failed. -->
-  <div class="flex h-10 w-full items-center justify-center py-1">
-    <span class="text-xs text-muted-foreground italic">{t(pipelineMessages.jobsForbidden)}</span>
-  </div>
-{:else if isError}
-  <div class="flex h-10 w-full items-center justify-center py-1">
-    <span class="text-xs text-muted-foreground italic">{t(pipelineMessages.jobsError)}</span>
-  </div>
-{:else}
-  <StatusBar
-    {items}
-    tooltip={runTooltip}
-    emptyLabel={t(pipelineMessages.noJobsYet)}
-    height="h-10"
-    class="px-1"
-  />
-{/if}
+</div>

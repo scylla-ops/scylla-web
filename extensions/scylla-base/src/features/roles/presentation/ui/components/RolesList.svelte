@@ -1,10 +1,16 @@
 <script lang="ts">
-  import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { createQuery, navigateTo, routePathname } from '@scylla/core-sdk';
-  import { ErrorState, ListSkeleton } from '@scylla/ui';
+  import { ErrorState, ListSkeleton, SegmentedControl } from '@scylla/ui';
   import RolesLoadError from './RolesLoadError.svelte';
   import { t } from '@scylla/ui/i18n';
-  import { Input, ToggleGroup, ToggleGroupItem } from '@scylla/ui/primitives';
+  import {
+    Input,
+    Table,
+    TableBody,
+    TableCell,
+    TableFrame,
+    TableRow,
+  } from '@scylla/ui/primitives';
   import {
     filterLabels,
     groupHints,
@@ -14,12 +20,14 @@
   import {
     groupRoles,
     ROLE_FILTERS,
+    sortRoles,
     type RoleFilter,
+    type RoleSort,
   } from '../../presenters/roles-list.presenter.ts';
-  import { permissionCount, roleDescription, roleName } from '../../role-labels.ts';
-  import { roleQueries } from '../../roles.queries.ts';
-  import LevelTag from './LevelTag.svelte';
-  import OriginTag from './OriginTag.svelte';
+  import { roleName } from '../../role-labels.ts';
+  import { canSeeRoleHolders, roleQueries } from '../../roles.queries.ts';
+  import RoleRow from './RoleRow.svelte';
+  import RolesTableHeader from './RolesTableHeader.svelte';
 
   const rolesQuery = createQuery(() => ({
     ...roleQueries.list(),
@@ -30,8 +38,19 @@
 
   let filter = $state<RoleFilter>('all');
   let search = $state('');
+  let sort = $state<RoleSort>('none');
 
-  const groups = $derived(groupRoles(rolesQuery.data ?? [], filter, search));
+  const areas = $derived(catalogQuery.data ?? []);
+  const canSeeHolders = $derived(canSeeRoleHolders());
+  const groups = $derived(
+    groupRoles(rolesQuery.data ?? [], filter, search).map(group => ({
+      ...group,
+      roles: sortRoles(group.roles, sort, roleName),
+    })),
+  );
+  const filterOptions = $derived(
+    ROLE_FILTERS.map(value => ({ value, label: t(filterLabels[value]) })),
+  );
 
   const open = (key: string) => navigateTo(`${routePathname()}/${encodeURIComponent(key)}`);
 </script>
@@ -44,25 +63,12 @@
   <ErrorState message={t(rolesMessages.loadError)} />
 {:else}
   <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-    <ToggleGroup
-      type="single"
+    <SegmentedControl
       value={filter}
-      onValueChange={next => {
-        if (next) filter = next as RoleFilter;
-      }}
+      options={filterOptions}
+      onChange={next => (filter = next)}
       aria-label={t(rolesMessages.filterLabel)}
-      class="w-fit rounded-lg bg-muted p-1"
-    >
-      {#each ROLE_FILTERS as value (value)}
-        <ToggleGroupItem
-          {value}
-          size="sm"
-          class="h-auto rounded-md px-3 py-1 text-sm font-normal text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground"
-        >
-          {t(filterLabels[value])}
-        </ToggleGroupItem>
-      {/each}
-    </ToggleGroup>
+    />
     <Input
       class="md:w-64"
       placeholder={t(rolesMessages.search)}
@@ -75,58 +81,23 @@
   {#if groups.length === 0}
     <p class="py-8 text-center text-sm text-muted-foreground">{t(rolesMessages.noMatch)}</p>
   {:else}
-    <div class="relative overflow-x-auto rounded-xl border bg-card">
-      <table class="w-full min-w-[720px] border-collapse text-sm">
-        <thead>
-          <tr class="text-left text-xs text-muted-foreground">
-            <th class="px-6 py-3 font-medium">{t(rolesMessages.role)}</th>
-            <th class="w-36 px-3 py-3 font-medium">{t(rolesMessages.level)}</th>
-            <th class="w-28 px-3 py-3 font-medium">{t(rolesMessages.type)}</th>
-            <th class="w-20 px-3 py-3 font-medium">{t(rolesMessages.holders)}</th>
-            <th class="w-32 px-3 py-3 font-medium">{t(rolesMessages.permissions)}</th>
-            <th class="w-10"></th>
-          </tr>
-        </thead>
+    <TableFrame>
+      <Table class="min-w-[720px]">
+        <RolesTableHeader {sort} onSortChange={next => (sort = next)} />
         {#each groups as group (group.id)}
-          <tbody>
-            <tr class="border-t bg-muted/60">
-              <td colspan="6" class="px-6 py-2 text-xs">
+          <TableBody>
+            <TableRow>
+              <TableCell class="text-xs whitespace-normal" colspan={4}>
                 <span class="font-semibold text-foreground">{t(groupLabels[group.id])}</span>
                 <span class="ml-2 text-muted-foreground">{t(groupHints[group.id])}</span>
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
             {#each group.roles as role (role.key)}
-              <tr
-                class="cursor-pointer border-t transition-colors hover:bg-muted/40"
-                onclick={() => open(role.key)}
-              >
-                <td class="px-6 py-3">
-                  <button
-                    type="button"
-                    class="block text-left font-medium text-foreground hover:underline"
-                    onclick={event => {
-                      event.stopPropagation();
-                      open(role.key);
-                    }}
-                  >
-                    {roleName(role)}
-                  </button>
-                  <span class="mt-0.5 block text-xs text-muted-foreground">
-                    {roleDescription(role)}
-                  </span>
-                </td>
-                <td class="px-3 py-3"><LevelTag level={role.level} /></td>
-                <td class="px-3 py-3"><OriginTag builtin={role.builtin} /></td>
-                <td class="px-3 py-3 tabular-nums">{role.holderCount}</td>
-                <td class="px-3 py-3 text-muted-foreground tabular-nums">
-                  {permissionCount(role, catalogQuery.data ?? [])}
-                </td>
-                <td class="pr-4 text-muted-foreground"><ChevronRightIcon class="size-4" /></td>
-              </tr>
+              <RoleRow {role} {areas} {canSeeHolders} onOpen={open} />
             {/each}
-          </tbody>
+          </TableBody>
         {/each}
-      </table>
-    </div>
+      </Table>
+    </TableFrame>
   {/if}
 {/if}

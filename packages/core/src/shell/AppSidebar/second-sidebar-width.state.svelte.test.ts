@@ -120,6 +120,17 @@ describe('createSecondSidebarWidth', () => {
     expect(stored()).toBe('280');
   });
 
+  it('is dragging from a resize to the save that ends the drag', () => {
+    const width = widthIn(() => WIDE_WINDOW);
+    expect(width.dragging).toBe(false);
+
+    width.resize(280);
+    expect(width.dragging).toBe(true);
+
+    width.save();
+    expect(width.dragging).toBe(false);
+  });
+
   it('only forgets the width when the storage is blocked', () => {
     const blocked = {
       getItem: () => {

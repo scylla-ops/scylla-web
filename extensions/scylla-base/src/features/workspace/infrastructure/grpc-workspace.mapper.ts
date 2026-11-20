@@ -8,5 +8,6 @@ export function toDomain(workspace: Workspace): WorkspaceEntity {
     name: workspace.name,
     slug: workspace.slug,
     personalTokensEnabled: workspace.personalTokensEnabled,
+    timeZone: workspace.timeZone,
   };
 }

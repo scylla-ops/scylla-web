@@ -30,7 +30,7 @@
 
 <li class="rounded-xl border {checked ? 'border-primary' : ''}">
   <label
-    class="flex gap-3 rounded-xl p-3 transition-colors {choice.locked
+    class="flex items-center gap-3 rounded-xl p-3 transition-colors {choice.locked
       ? 'cursor-not-allowed'
       : 'cursor-pointer hover:bg-muted/40'}"
   >
@@ -40,7 +40,7 @@
       disabled={choice.locked}
       aria-label={choice.name}
       aria-describedby={choice.hint ? hintId : undefined}
-      class="mt-0.5 transition-opacity data-readonly:opacity-50 data-readonly:delay-150"
+      class="transition-opacity data-readonly:opacity-50 data-readonly:delay-150"
     />
     <span class="flex min-w-0 flex-1 flex-col gap-1">
       <span class="flex items-center gap-2 text-sm font-medium">
@@ -48,14 +48,14 @@
         {#if choice.custom}
           <OriginTag builtin={false} />
         {/if}
-        {#if choice.locked}
-          <LockIcon class="ml-auto size-3.5 shrink-0 text-muted-foreground" />
-        {/if}
       </span>
       {#if choice.hint}
         <span id={hintId} class="text-xs text-muted-foreground">{choice.hint}</span>
       {/if}
     </span>
+    {#if choice.locked}
+      <LockIcon class="size-3.5 shrink-0 text-muted-foreground" />
+    {/if}
   </label>
   {#if warning}
     <div class="flex flex-col gap-2 border-t p-3">

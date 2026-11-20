@@ -77,6 +77,14 @@ export class DefaultWorkspaceRepository implements WorkspaceRepository {
     return requireWorkspace(response.workspace);
   }
 
+  public async setTimeZone(workspaceId: string, timeZone: string): Promise<WorkspaceEntity> {
+    const response = await this.workspaces.updateWorkspace({
+      workspaceId: wrapId(workspaceId),
+      timeZone,
+    }).response;
+    return requireWorkspace(response.workspace);
+  }
+
   public async delete(workspaceId: string): Promise<void> {
     await this.workspaces.deleteWorkspace({ workspaceId: wrapId(workspaceId) }).response;
   }

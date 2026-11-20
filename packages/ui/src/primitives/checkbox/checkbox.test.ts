@@ -31,6 +31,15 @@ describe('Checkbox', () => {
     expect(screen.getByRole('checkbox', { name: 'Select row' })).toBeChecked();
   });
 
+  it('is mixed and shows a dash when indeterminate', () => {
+    render(Checkbox, { 'aria-label': 'Select rows', indeterminate: true });
+
+    const box = screen.getByRole('checkbox', { name: 'Select rows' });
+    expect(box).toHaveAttribute('aria-checked', 'mixed');
+    expect(box).toHaveAttribute('data-state', 'indeterminate');
+    expect(box.querySelector('[data-slot="checkbox-indicator"] svg')).toBeInTheDocument();
+  });
+
   it('does not toggle when disabled', async () => {
     const onCheckedChange = vi.fn();
     render(Checkbox, { 'aria-label': 'Select row', disabled: true, onCheckedChange });

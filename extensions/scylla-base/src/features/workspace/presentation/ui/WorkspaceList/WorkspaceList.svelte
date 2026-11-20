@@ -176,7 +176,8 @@
                   event.stopPropagation();
                   deleteWorkspaceId = workspace.id;
                 }}
-                class="size-6 hover:bg-destructive-subtle hover:text-destructive"
+                variant="destructive"
+                class="size-6"
                 iconClass="size-3.5"
               />
             {/if}

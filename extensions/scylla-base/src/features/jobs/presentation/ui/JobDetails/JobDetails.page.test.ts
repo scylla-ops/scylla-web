@@ -163,6 +163,48 @@ describe('JobDetailsPage', () => {
     );
   });
 
+  it('shows the agent of the job with no link to a user who may not read the apps', async () => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.SYSTEM,
+            scopeId: '',
+            access: { kind: 'restricted', permissions: [Permission.READ_JOB] },
+          },
+        ],
+      },
+    });
+
+    await renderPage(job({ agentId: 'agent-1' }));
+
+    expect(screen.getByText('agent-1')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'agent-1' })).not.toBeInTheDocument();
+  });
+
+  it('names the online agents that cannot get the code of a waiting job, with a link', async () => {
+    await renderPage(
+      job({
+        status: 'pending',
+        startedAt: undefined,
+        finishedAt: undefined,
+        waitingReason: 'NO_AGENT_WITH_CHECKOUT',
+        unfitAgents: [
+          { id: 'a-old', name: 'build-old', version: '0.7.0-rc.1', reason: 'update-agent' },
+          { id: 'a-nogit', name: 'build-nogit', version: '0.7.0', reason: 'install-git' },
+        ],
+      }),
+    );
+
+    expect(screen.getByText('These online agents cannot get the code of this job')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'build-old' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('/agents/a-old'),
+    );
+    expect(screen.getByText('Update the agent')).toBeInTheDocument();
+    expect(screen.getByText('Install Git on its machine')).toBeInTheDocument();
+  });
+
   it('defaults to the whole job when the URL names no node', async () => {
     await renderPage(job());
     expect(openPanels()).toEqual(['logs for job-1/whole job']);
@@ -186,7 +228,7 @@ describe('JobDetailsPage', () => {
   it('replaces the whole job with the first node picked, rather than adding to it', async () => {
     await renderPage(job());
 
-    await userEvent.click(screen.getByRole('button', { name: /^build/ }));
+    await userEvent.click(screen.getByRole('button', { name: /^(?!Node )\w+ build/ }));
 
     await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/build']));
   });
@@ -194,7 +236,7 @@ describe('JobDetailsPage', () => {
   it('opens a second node without closing the first', async () => {
     await renderPage(job(), '?nodes=build');
 
-    await userEvent.click(screen.getByRole('button', { name: /^test/ }));
+    await userEvent.click(screen.getByRole('button', { name: /^(?!Node )\w+ test/ }));
 
     await waitFor(() =>
       expect(openPanels()).toEqual(['logs for job-1/build', 'logs for job-1/test']),
@@ -204,7 +246,7 @@ describe('JobDetailsPage', () => {
   it("closes a node's logs when its entry is picked again, unmounting that view", async () => {
     await renderPage(job(), '?nodes=build,test');
 
-    await userEvent.click(screen.getByRole('button', { name: /^build/ }));
+    await userEvent.click(screen.getByRole('button', { name: /^(?!Node )\w+ build/ }));
 
     await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/test']));
   });
@@ -253,8 +295,8 @@ describe('JobDetailsPage', () => {
   it('marks the entries of the panels that are open', async () => {
     await renderPage(job(), '?nodes=build');
 
-    expect(screen.getByRole('button', { name: /^build/ })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('button', { name: /^test/ })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: /^(?!Node )\w+ build/ })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /^(?!Node )\w+ test/ })).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('opens the node picked in the timeline alone, dropping the panels open beside it', async () => {
@@ -349,14 +391,17 @@ describe('JobDetailsPage', () => {
     expect(screen.queryByRole('button', { name: 'Re-run' })).not.toBeInTheDocument();
   });
 
-  it('offers no re-run without RUN_PIPELINE', async () => {
+  it('offers no re-run to a runner of the pipeline without the re-run of a job (CREATE_JOB)', async () => {
     permissionsStore.setState({
       permissions: {
         scopes: [
           {
             scope: PermissionScope.SYSTEM,
             scopeId: '',
-            access: { kind: 'restricted', permissions: [Permission.READ_JOB] },
+            access: {
+              kind: 'restricted',
+              permissions: [Permission.READ_JOB, Permission.RUN_PIPELINE],
+            },
           },
         ],
       },

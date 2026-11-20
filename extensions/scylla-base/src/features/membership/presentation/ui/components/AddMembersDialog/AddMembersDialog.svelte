@@ -24,7 +24,7 @@
   } from '@scylla/ui/primitives';
   import { matchesSearch, toast } from '@scylla/ui/utils';
   import { checkEmail } from '@shared/utils/account-validation.ts';
-  import { userName } from '@shared/presentation/ui';
+  import { Identity, userName } from '@shared/presentation/ui';
   import { summaryLines } from '../../../presenters/add-members.presenter.ts';
   import {
     addCount,
@@ -245,16 +245,24 @@
       >
         <div bind:this={peopleAnchor} class="flex flex-wrap items-center gap-2 rounded-md border p-2">
           {#each chips as chip, index (index)}
-            <span class="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs">
-              {'user' in chip ? userName(chip.user) : chip.email}
-              <button
-                type="button"
-                aria-label={t(membershipMessages.removeChip)}
-                onclick={() => (chips = chips.filter((_, i) => i !== index))}
+            {@const remove = () => (chips = chips.filter((_, i) => i !== index))}
+            {#if 'user' in chip}
+              <Identity format="chip" profile={chip.user} onRemove={remove} />
+            {:else}
+              <span
+                class="flex items-center gap-1.5 rounded-full border bg-card py-[3px] pr-1.5 pl-2 text-xs font-medium"
               >
-                <XIcon class="size-3" />
-              </button>
-            </span>
+                {chip.email}
+                <button
+                  type="button"
+                  class="text-muted-foreground hover:text-foreground"
+                  aria-label={t(membershipMessages.removeChip)}
+                  onclick={remove}
+                >
+                  <XIcon class="size-3" />
+                </button>
+              </span>
+            {/if}
           {/each}
           <ComboboxInput
             id="add-members-people"
@@ -274,8 +282,8 @@
         <ComboboxContent id={peopleListId} customAnchor={peopleAnchor}>
           {#each suggestions as user (user.id)}
             <ComboboxItem value={user.id} label={userName(user)}>
-              <span class="flex min-w-0 flex-col">
-                <span class="truncate">{userName(user)}</span>
+              <span class="flex min-w-0 items-center gap-2">
+                <Identity format="cell" profile={user} />
                 {#if user.email}
                   <span class="truncate text-xs text-muted-foreground">{user.email}</span>
                 {/if}

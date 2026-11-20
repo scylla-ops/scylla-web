@@ -99,6 +99,7 @@ export class DefaultRoleRepository implements RoleRepository {
         actorKind: holder.actorKind,
         displayName: holder.displayName,
         handle: holder.handle,
+        runner: holder.runner,
         scopeKind: holder.scopeKind as RoleLevel,
         scopeId: idValue(holder.scopeId),
         scopeName: holder.scopeName,

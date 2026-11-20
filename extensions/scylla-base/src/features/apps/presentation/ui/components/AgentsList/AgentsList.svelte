@@ -5,16 +5,23 @@
   import { can, Permission } from '@platform/authz';
   import { contextStore, scyllaNavigate } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { ConfirmOperationAlertDialog, ErrorState, FeatureHeader, ListSkeleton } from '@scylla/ui';
+  import {
+    ConfirmOperationAlertDialog,
+    ErrorState,
+    FeatureHeader,
+    ListSkeleton,
+    SegmentedControl,
+    type SegmentedDot,
+  } from '@scylla/ui';
   import {
     Input,
+    Table,
     TableBody,
     TableCell,
+    TableFrame,
     TableHead,
     TableHeader,
     TableRow,
-    ToggleGroup,
-    ToggleGroupItem,
   } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
@@ -31,7 +38,6 @@
   import { endedJobs, sumOutcomes } from '@base/features/apps/domain/structs/agent-stats.struct.ts';
   import type { AgentAccess } from '@base/features/apps/domain/structs/agent-access.struct.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
-  import AddAgentDialog from '../AddAgentDialog/AddAgentDialog.svelte';
   import EmptyList from '../EmptyList/EmptyList.svelte';
   import Sparkline from '../Sparkline/Sparkline.svelte';
   import AgentCard from './AgentCard.svelte';
@@ -61,8 +67,6 @@
 
   let filter = $state<AgentFilter>('all');
   let search = $state('');
-  let addOpen = $state(false);
-  let joining = $state<AppEntity | null>(null);
   let disabling = $state<AppEntity | null>(null);
   let deleting = $state<AppEntity | null>(null);
 
@@ -94,6 +98,21 @@
   const filterLabel = (value: AgentFilter) =>
     phone.current && value === 'never' ? messages.filterNeverShort : FILTER_LABEL[value];
 
+  const FILTER_DOT: Record<Exclude<AgentFilter, 'all'>, SegmentedDot> = {
+    online: { color: 'text-success', pulse: true },
+    offline: { color: 'text-muted-foreground' },
+    never: { color: 'text-info', hollow: true },
+    disabled: { color: 'text-muted-foreground', hollow: true },
+  };
+  const filterOptions = $derived(
+    filters.map(value => ({
+      value,
+      label: t(filterLabel(value)),
+      count: counts[value],
+      dot: value === 'all' ? undefined : FILTER_DOT[value],
+    })),
+  );
+
   const accessLabel = (value: AgentAccess | undefined) => {
     if (!value) return '';
     if (value.kind === 'all') return t(messages.allProjects);
@@ -102,26 +121,23 @@
   };
 
   const openAgent = (id: string) => scyllaNavigate.goToWorkspaceRoute(`/agents/${id}`);
-  const join = (agent: AppEntity) => {
-    joining = agent;
-    addOpen = true;
-  };
+  const addAgent = () => scyllaNavigate.goToWorkspaceRoute('/agents/new');
+  /** A new join code, and the install step of the page of a new agent. */
+  const connect = (agent: AppEntity) =>
+    scyllaNavigate.goToWorkspaceRoute(`/agents/${agent.id}/connect`);
 </script>
 
 {#snippet blurb()}
   <p class="text-sm text-muted-foreground">{t(messages.blurb)}</p>
 {/snippet}
 
-<div class="flex h-full min-h-0 w-full flex-col gap-6" data-tour="agents">
+<div class="flex min-h-full w-full shrink-0 flex-col gap-6 pb-20" data-tour="agents">
   <FeatureHeader
     label={t(messages.agent)}
     pluralLabel={t(messages.agents)}
     count={agents.data?.length}
     underLabel={blurb}
-    onNew={() => {
-      joining = null;
-      addOpen = true;
-    }}
+    onNew={addAgent}
     newLabel={t(messages.add)}
     canNew={canCreate}
     newDeniedReason={t(messages.onlyAdmins)}
@@ -137,12 +153,7 @@
       title={canCreate ? t(messages.firstTitle) : t(messages.emptyTitle)}
       body={canCreate ? t(messages.firstBody) : t(messages.askAdmin)}
       addLabel={t(messages.add)}
-      onAdd={canCreate
-        ? () => {
-            joining = null;
-            addOpen = true;
-          }
-        : undefined}
+      onAdd={canCreate ? addAgent : undefined}
     />
   {:else}
     {#if phone.current}
@@ -155,26 +166,13 @@
     {/if}
 
     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <ToggleGroup
-        type="single"
+      <SegmentedControl
         value={filter}
-        onValueChange={next => {
-          if (next) filter = next as AgentFilter;
-        }}
+        options={filterOptions}
+        onChange={next => (filter = next)}
         aria-label={t(messages.filterLabel)}
-        class="w-fit max-w-full flex-wrap rounded-lg bg-muted p-1"
-      >
-        {#each filters as value (value)}
-          <ToggleGroupItem
-            {value}
-            size="sm"
-            class="h-auto gap-1.5 rounded-md px-2 py-1 text-sm sm:px-3 font-normal text-muted-foreground data-[state=on]:bg-card data-[state=on]:font-medium data-[state=on]:text-foreground data-[state=on]:shadow-xs"
-          >
-            {t(filterLabel(value))}
-            <span class="tabular-nums">{counts[value]}</span>
-          </ToggleGroupItem>
-        {/each}
-      </ToggleGroup>
+        class="max-w-full flex-wrap"
+      />
       <div class="relative md:w-72">
         <SearchIcon
           class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
@@ -200,18 +198,18 @@
             jobs={agentStats ? dailyJobs(agentStats) : []}
             total={agentStats ? endedJobs(agentStats.outcomes) : 0}
             onOpen={() => openAgent(agent.id)}
-            onShowCommand={canCreate ? () => join(agent) : undefined}
+            onFinishSetup={canCreate ? () => connect(agent) : undefined}
           />
         {:else}
           <p class="py-8 text-center text-sm text-muted-foreground">{t(messages.noMatch)}</p>
         {/each}
       </div>
     {:else}
-    <div class="relative overflow-x-auto rounded-xl border">
-      <table class="w-full text-sm">
+    <TableFrame>
+      <Table>
         <TableHeader>
-          <TableRow class="hover:bg-transparent">
-            <TableHead class="px-6">{t(messages.columnAgent)}</TableHead>
+          <TableRow>
+            <TableHead>{t(messages.columnAgent)}</TableHead>
             <TableHead>{t(messages.columnStatus)}</TableHead>
             {#if canReadAccess}
               <TableHead>{t(messages.columnAccess)}</TableHead>
@@ -225,7 +223,7 @@
             {@const agentStats = stats.data?.get(agent.id)}
             {@const total = agentStats ? endedJobs(agentStats.outcomes) : 0}
             <TableRow>
-              <TableCell class="px-6 py-3">
+              <TableCell>
                 <button
                   type="button"
                   class="flex flex-col items-start text-left"
@@ -237,16 +235,16 @@
                   </span>
                 </button>
               </TableCell>
-              <TableCell class="py-3">
+              <TableCell>
                 <AgentStatusCell
                   {agent}
-                  onShowCommand={canCreate ? () => join(agent) : undefined}
+                  onFinishSetup={canCreate ? () => connect(agent) : undefined}
                 />
               </TableCell>
               {#if canReadAccess}
-                <TableCell class="py-3">{accessLabel(access.data?.get(agent.id))}</TableCell>
+                <TableCell>{accessLabel(access.data?.get(agent.id))}</TableCell>
               {/if}
-              <TableCell class="py-3">
+              <TableCell>
                 {#if agentStats && total > 0}
                   <span class="flex items-center gap-3">
                     <Sparkline values={dailyJobs(agentStats)} label={t(messages.jobsTotal(total))} />
@@ -256,12 +254,12 @@
                   <span class="text-muted-foreground" title={t(messages.noJob)}>–</span>
                 {/if}
               </TableCell>
-              <TableCell class="py-3 pr-4 text-right">
+              <TableCell class="text-right">
                 <AppRowMenu
                   app={agent}
                   openLabel={t(messages.openAgent)}
                   onOpen={() => openAgent(agent.id)}
-                  onNewCode={canCreate ? () => join(agent) : undefined}
+                  onConnect={canCreate ? () => connect(agent) : undefined}
                   onDisable={canManage ? () => (disabling = agent) : undefined}
                   onEnable={canManage ? () => enable.mutate(agent.id) : undefined}
                   onDelete={canManage ? () => (deleting = agent) : undefined}
@@ -269,30 +267,18 @@
               </TableCell>
             </TableRow>
           {:else}
-            <TableRow class="hover:bg-transparent">
+            <TableRow>
               <TableCell colspan={canReadAccess ? 5 : 4} class="px-6 py-8 text-center text-muted-foreground">
                 {t(messages.noMatch)}
               </TableCell>
             </TableRow>
           {/each}
         </TableBody>
-      </table>
-    </div>
+      </Table>
+    </TableFrame>
     {/if}
   {/if}
 </div>
-
-{#if workspaceId}
-  <AddAgentDialog
-    open={addOpen}
-    setOpen={open => {
-      addOpen = open;
-      if (!open) joining = null;
-    }}
-    {workspaceId}
-    agent={joining}
-  />
-{/if}
 
 <ConfirmOperationAlertDialog
   open={!!disabling}

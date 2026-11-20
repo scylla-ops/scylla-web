@@ -107,14 +107,14 @@ import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/pre
       <Label
         for={`freq-${frequency.value}`}
         class={cn(
-          'flex cursor-pointer items-start gap-2 rounded-md border p-2.5 transition-colors',
+          'flex cursor-pointer items-center gap-2 rounded-md border p-2.5 transition-colors',
           model.frequency === frequency.value
             ? 'border-primary bg-primary/5'
             : 'hover:bg-muted/50',
           frequency.wide && 'col-span-2',
         )}
       >
-        <RadioGroupItem value={frequency.value} id={`freq-${frequency.value}`} class="mt-0.5" />
+        <RadioGroupItem value={frequency.value} id={`freq-${frequency.value}`} />
         <div class="flex flex-col">
           <span class="text-sm font-medium leading-tight">{frequency.title}</span>
           <span class="text-xs text-muted-foreground">{frequency.description}</span>

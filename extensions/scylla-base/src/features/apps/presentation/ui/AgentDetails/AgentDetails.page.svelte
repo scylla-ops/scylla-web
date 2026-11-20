@@ -11,17 +11,18 @@
   import { appStateOf } from '@base/features/apps/domain/entities/app.entity.ts';
   import { hasNoActiveKey } from '@base/features/apps/domain/structs/agent-list.struct.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
-  import AddAgentDialog from '../components/AddAgentDialog/AddAgentDialog.svelte';
   import AgentHeader from './AgentHeader.svelte';
   import AgentStatsRow from './AgentStatsRow.svelte';
-  import JobsPerDayCard from './JobsPerDayCard.svelte';
-  import AgentMachineCard from './AgentMachineCard.svelte';
+  import AgentTimeline from './AgentTimeline/AgentTimeline.svelte';
+  import JobsPerDayCard from './JobsPerDayCard/JobsPerDayCard.svelte';
+  import AgentMachineCard from './AgentMachineCard/AgentMachineCard.svelte';
   import AgentRecentJobsCard from './AgentRecentJobsCard.svelte';
   import AgentAccessCard from './AgentAccessCard.svelte';
   import AgentKeysCard from './AgentKeysCard.svelte';
   import AgentConnectCard from './AgentConnectCard.svelte';
   import AgentDangerZone from './AgentDangerZone.svelte';
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
+  import { createAgentStats } from './agent-stats.state.svelte.ts';
 
   let { appId = '' }: { appId?: string } = $props();
 
@@ -30,16 +31,15 @@
   const workspaceName = $derived(context().workspace.name ?? '');
   const target = $derived({ workspaceId });
 
-  const canCreate = $derived(can(Permission.CREATE_APP, target));
   const canManage = $derived(can(Permission.DELETE_APP, target));
   const canReadAccess = $derived(can(Permission.LIST_WORKSPACE_MEMBERS, target));
   const canChangeAccess = $derived(
     can(Permission.MANAGE_WORKSPACE_GRANTS, target) && can(Permission.MANAGE_PROJECT_GRANTS, target),
   );
   const canReadJobs = $derived(can(Permission.LIST_JOBS_BY_WORKSPACE, target));
+  const canReadStats = $derived(can(Permission.READ_APP_STATS, target));
 
   const details = createQuery(() => appQueries.byId(appId, workspaceId));
-  const stats = createQuery(() => appQueries.agentStatsOf(appId, workspaceId));
   const jobs = createQuery(() => appQueries.jobs(workspaceId, appId, canReadJobs));
   const access = createQuery(() =>
     appQueries.agentAccess(workspaceId, appId ? [appId] : [], canReadAccess),
@@ -51,8 +51,18 @@
   const agent = $derived(details.data?.app);
   const never = $derived(!!agent && appStateOf(agent) === 'never' && !agent.disabledAt);
 
+  const userId = localStorage.getItem('userId') ?? '';
+  const created = $derived(!!userId && agent?.createdBy === userId);
+  const canNewCode = $derived(created || can(Permission.CREATE_JOIN_CODE, target));
+  const canRename = $derived(created || can(Permission.RENAME_APP_KEY, target));
+  const canRevoke = $derived(created || can(Permission.REVOKE_APP_KEY, target));
+
+  const stats = createAgentStats(() => ({ appId, workspaceId, agent }));
+
   let disabling = $state(false);
-  let joining = $state(false);
+
+  /** A new join code on the page of a new agent, at its install step. */
+  const connect = () => scyllaNavigate.goToWorkspaceRoute(`/agents/${appId}/connect`);
 </script>
 
 {#if details.isError}
@@ -67,7 +77,7 @@
     </div>
   </div>
 {:else}
-  <div class="flex flex-col gap-6" data-tour="agent-details">
+  <div class="flex flex-col gap-6 pb-20" data-tour="agent-details">
     <AgentHeader
       {agent}
       noActiveKey={hasNoActiveKey(details.data?.keys ?? [])}
@@ -78,10 +88,10 @@
 
     {#if agent.disabledAt}
       <div
-        class="flex items-start gap-3 rounded-xl border border-warning/60 bg-warning/10 p-4"
+        class="flex items-center gap-3 rounded-xl border border-warning/60 bg-warning/10 p-4"
         role="status"
       >
-        <TriangleAlertIcon class="mt-0.5 size-4 text-warning" aria-hidden="true" />
+        <TriangleAlertIcon class="size-4 shrink-0 text-warning" aria-hidden="true" />
         <div class="flex flex-col gap-1">
           <p class="text-sm font-medium">{t(messages.disabledSince(formatDay(agent.disabledAt)))}</p>
           <p class="text-xs text-muted-foreground">{t(messages.disabledBody)}</p>
@@ -89,20 +99,43 @@
       </div>
     {/if}
 
-    {#if never && canCreate}
-      <AgentConnectCard
-        agentId={agent.id}
-        {workspaceId}
-        keyCount={details.data?.keys.length ?? 0}
-      />
-    {:else if !never}
-      <AgentStatsRow stats={stats.data} lastRunAt={jobs.data?.[0]?.createdAt} />
+    {#if never && canNewCode}
+      <AgentConnectCard onConnect={connect} />
+    {:else}
+      <!-- The stats need their own permission: a reader of the apps can miss it. -->
+      {#if canReadStats}
+        {#if stats.timeline?.stats}
+          <AgentTimeline
+            bounds={stats.timeline.bounds}
+            stats={stats.timeline.stats}
+            period={stats.period}
+            preset={stats.timeline.preset}
+            today={stats.today}
+            disabled={stats.disabled}
+            onChoose={stats.choose}
+          />
+        {:else if stats.timeline}
+          <Skeleton class="h-[134px] w-full rounded-xl" />
+        {/if}
+        <AgentStatsRow
+          stats={stats.stats}
+          lastRunAt={jobs.data?.[0]?.createdAt}
+          period={stats.period}
+          today={stats.today}
+        />
+      {/if}
       <div class="grid gap-4 lg:grid-cols-3">
         <div class="lg:col-span-2">
-          {#if stats.data}
-            <JobsPerDayCard stats={stats.data} />
-          {:else}
-            <Skeleton class="h-64 w-full rounded-xl" />
+          {#if canReadStats}
+            <JobsPerDayCard
+              stats={stats.stats}
+              period={stats.period}
+              today={stats.today}
+              joined={stats.joined}
+              disabled={stats.disabled}
+              never={stats.never}
+              withTimeline={!!stats.timeline}
+            />
           {/if}
         </div>
         <AgentMachineCard {agent} />
@@ -129,9 +162,10 @@
     <AgentKeysCard
       agentId={agent.id}
       keys={details.data?.keys ?? []}
-      onNewCode={canCreate && !agent.disabledAt ? () => (joining = true) : undefined}
-      canManage={canCreate}
-      tourAnchor={!never || !canCreate}
+      onNewCode={canNewCode && !agent.disabledAt ? connect : undefined}
+      {canRename}
+      {canRevoke}
+      tourAnchor={!never || !canNewCode}
     />
 
     {#if canManage}
@@ -143,13 +177,6 @@
       />
     {/if}
   </div>
-
-  <AddAgentDialog
-    open={joining}
-    setOpen={open => (joining = open)}
-    {workspaceId}
-    agent={joining ? agent : null}
-  />
 
   <ConfirmOperationAlertDialog
     open={disabling}

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen } from '@testing-library/svelte';
+import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { PermissionScope, permissionsStore } from '@platform/authz';
-import type { RoleEntity } from '../../../../domain/entities/role.entity.ts';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
+import type { RoleEntity, RoleHolderEntry } from '../../../../domain/entities/role.entity.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import DeleteRoleDialog from '../../RoleEditor/DeleteRoleDialog.svelte';
 import SaveRoleDialog from '../../RoleEditor/SaveRoleDialog.svelte';
@@ -32,14 +32,32 @@ const custom = role({
   holderCount: 3,
 });
 
+const holder = (
+  actorId: string,
+  displayName: string,
+  over: Partial<RoleHolderEntry> = {},
+): RoleHolderEntry => ({
+  actorId,
+  actorKind: 'user',
+  displayName,
+  handle: displayName.toLowerCase(),
+  runner: false,
+  scopeKind: 'workspace',
+  scopeId: 'w-1',
+  scopeName: 'acme',
+  ...over,
+});
+
 let list: ReturnType<typeof vi.fn>;
 let remove: ReturnType<typeof vi.fn>;
+let holders: ReturnType<typeof vi.fn>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
 beforeEach(() => {
   list = vi.fn().mockResolvedValue([role({}), custom]);
   remove = vi.fn().mockResolvedValue(undefined);
+  holders = vi.fn().mockResolvedValue({ total: 1, holders: [holder('a', 'Lina')] });
   cache = withQueryClient();
   restoreRegistry = withRegistry({
     roles: {
@@ -47,20 +65,7 @@ beforeEach(() => {
         list,
         remove,
         catalog: vi.fn().mockResolvedValue([]),
-        holders: vi.fn().mockResolvedValue({
-          total: 1,
-          holders: [
-            {
-              actorId: 'a',
-              actorKind: 'user',
-              displayName: 'Lina',
-              handle: 'lina',
-              scopeKind: 'workspace',
-              scopeId: 'w-1',
-              scopeName: 'acme',
-            },
-          ],
-        }),
+        holders,
       },
     },
   });
@@ -84,7 +89,48 @@ describe('WorkspaceRolesList', () => {
     expect(await screen.findByText('Roles of acme')).toBeInTheDocument();
     expect(screen.getByText('Release manager')).toBeInTheDocument();
     expect(screen.getByText('From the instance')).toBeInTheDocument();
-    expect(screen.getByText('4')).toBeInTheDocument();
+    expect(screen.getByText('4 holders')).toBeInTheDocument();
+  });
+
+  it('shows the first holders as a stack of avatars, one for each actor, with their kind', async () => {
+    list.mockResolvedValue([role({ holderCount: 5 })]);
+    holders.mockResolvedValue({
+      total: 5,
+      holders: [
+        holder('u-1', 'Lina'),
+        holder('a-1', 'build-agent-01', { actorKind: 'app', handle: '', runner: true }),
+        holder('u-1', 'Lina', { scopeKind: 'project', scopeId: 'p-1', scopeName: 'web' }),
+        holder('a-2', 'github-ci', { actorKind: 'app', handle: '' }),
+        holder('u-2', 'Omar'),
+      ],
+    });
+    const { container } = render(WorkspaceRolesList, { workspaceId: 'w-1', workspaceName: 'acme' });
+
+    expect(await screen.findByText('+1')).toBeInTheDocument();
+    const stack = container.querySelector('[data-slot="holder-stack"]');
+    expect(
+      [...(stack?.querySelectorAll('[data-kind]') ?? [])].map(one => one.getAttribute('data-kind')),
+    ).toEqual(['person', 'agent', 'app']);
+    expect(screen.getByText('5 holders')).toBeInTheDocument();
+    expect(holders).toHaveBeenCalledWith('workspace-member', 'w-1');
+  });
+
+  it('asks no holder without the right to read the members, and keeps the count', async () => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.SYSTEM,
+            scopeId: '',
+            access: { kind: 'restricted', permissions: [Permission.LIST_WORKSPACE_ROLES] },
+          },
+        ],
+      },
+    });
+    render(WorkspaceRolesList, { workspaceId: 'w-1', workspaceName: 'acme' });
+
+    expect(await screen.findByText('4 holders')).toBeInTheDocument();
+    expect(holders).not.toHaveBeenCalled();
   });
 
   it('says so when the workspace has no custom role', async () => {
@@ -92,6 +138,47 @@ describe('WorkspaceRolesList', () => {
     render(WorkspaceRolesList, { workspaceId: 'w-1', workspaceName: 'acme' });
 
     expect(await screen.findByText('No custom roles yet')).toBeInTheDocument();
+  });
+
+  it('sorts the rows by name on a click on Role: A to Z, Z to A, then the default order', async () => {
+    list.mockResolvedValue([
+      role({ key: 'workspace-viewer', name: 'Workspace viewer' }),
+      role({ key: 'r-2', name: 'auditor', grantName: 'r-2', builtin: false }),
+      role({ key: 'project-editor', name: 'Project editor', level: 'project' }),
+    ]);
+    render(WorkspaceRolesList, { workspaceId: 'w-1', workspaceName: 'acme' });
+    const header = await screen.findByRole('columnheader', { name: 'Role' });
+    const names = () =>
+      screen
+        .getAllByRole('button')
+        .filter(button => !button.hasAttribute('aria-haspopup'))
+        .map(button => button.textContent?.trim())
+        .filter(name => name !== 'Role');
+
+    expect(header).toHaveAttribute('aria-sort', 'none');
+    expect(names()).toEqual(['Workspace viewer', 'auditor', 'Project editor']);
+
+    await userEvent.click(within(header).getByRole('button'));
+    expect(header).toHaveAttribute('aria-sort', 'ascending');
+    expect(names()).toEqual(['auditor', 'Project editor', 'Workspace viewer']);
+
+    await userEvent.click(within(header).getByRole('button'));
+    expect(header).toHaveAttribute('aria-sort', 'descending');
+    expect(names()).toEqual(['Workspace viewer', 'Project editor', 'auditor']);
+
+    await userEvent.click(within(header).getByRole('button'));
+    expect(header).toHaveAttribute('aria-sort', 'none');
+    expect(names()).toEqual(['Workspace viewer', 'auditor', 'Project editor']);
+  });
+
+  it('shows the type beside the name and the level under it', async () => {
+    render(WorkspaceRolesList, { workspaceId: 'w-1', workspaceName: 'acme' });
+
+    const custom = (await screen.findByRole('button', { name: 'Release manager' })).parentElement;
+    expect(within(custom as HTMLElement).getByText('Custom')).toBeInTheDocument();
+    const builtin = screen.getByRole('button', { name: 'Workspace member' }).parentElement;
+    expect(within(builtin as HTMLElement).getByText('Built-in')).toBeInTheDocument();
+    expect(screen.getAllByText('Workspace')).toHaveLength(2);
   });
 });
 

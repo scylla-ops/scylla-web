@@ -1,9 +1,8 @@
 import type { Attachment } from 'svelte/attachments';
 
 /**
- * Fits the view again each time the canvas changes size, while the user has not moved it. The
- * panes get their sizes after the first fit (their layout, then its transition), so a single fit
- * frames the nodes in a canvas that is still narrow.
+ * Fits the view again each time the canvas changes size (the window, a drag of the side panel, a
+ * change of its mode), while the user has not moved it.
  */
 export const keepFitted =
   (options: () => { fitted: boolean; fit: () => void }): Attachment<HTMLElement> =>

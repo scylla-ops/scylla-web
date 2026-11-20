@@ -86,12 +86,23 @@ describe('JobLogDisplay', () => {
     expect(editor()?.textContent).toContain('second line');
   });
 
-  it('says that no log was written when the stream ends with no line', async () => {
+  it('wraps a long line and keeps its spaces, so the log never scrolls sideways', async () => {
+    install(() => streamOf([' * branch            054d6b539de355c9eb6e015b07ae7ce31fa604e1']));
+
+    render(JobLogDisplay, { jobId: 'job-1' });
+
+    const log = await screen.findByRole('textbox');
+    expect(['pre-wrap', 'break-spaces']).toContain(getComputedStyle(log).whiteSpace);
+    expect(getComputedStyle(log).overflowWrap).toBe('anywhere');
+  });
+
+  it('says in the center of the panel that no log was written, for a stream with no line', async () => {
     install(() => streamOf([]));
 
     render(JobLogDisplay, { jobId: 'job-1' });
 
-    expect(await screen.findByText('No log was written.')).toBeInTheDocument();
+    const empty = await screen.findByText('No log was written.');
+    expect(empty).toHaveClass('flex-1', 'items-center', 'justify-center', 'text-center');
     expect(editor()).toBeNull();
   });
 

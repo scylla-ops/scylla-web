@@ -1,18 +1,40 @@
 import type {
+  ApprovalState,
+  JobApproval,
+  JobCheckout,
   JobEntity,
+  JobEvent,
+  JobFilter,
   JobNode,
   JobNodeExecution,
   JobLog,
+  JobSource,
   NodeExecutionState,
+  PipelineFileError,
+  PipelineFileRef,
+  UnfitAgent,
 } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type { JobFilter as GrpcJobFilter } from '@base/generated/scylla/pipelines/v1/job_service.ts';
+import {
+  ApprovalState as GrpcApprovalState,
+  type FileError as GrpcFileError,
+  type JobApproval as GrpcJobApproval,
+  type JobSource as GrpcJobSource,
+  type PipelineFileRef as GrpcPipelineFileRef,
+  SourceEvent,
+} from '@base/generated/scylla/pipelines/v1/source.ts';
+import { VcsProvider } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
 import {
+  type CheckoutRun,
   type Job,
   JobStatus as GrpcJobStatus,
   type LogLine,
   LogStream,
   NodeStatus,
   type NodeRun,
+  type UnfitAgent as GrpcUnfitAgent,
+  UnfitReason,
 } from '@base/generated/scylla/pipelines/v1/job.ts';
 import type { Node } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 import type { PaginatedList, PaginationParams } from '@scylla/ui/structs';
@@ -21,6 +43,49 @@ import {
   timestampToIso,
   timestampToIsoOpt,
 } from '@shared/infrastructure/grpc/wrappers.ts';
+
+const SOURCE_EVENTS: Record<JobEvent, SourceEvent> = {
+  push: SourceEvent.PUSH,
+  pull_request: SourceEvent.PULL_REQUEST,
+  tag: SourceEvent.TAG,
+  manual: SourceEvent.MANUAL,
+  provider_rerun: SourceEvent.PROVIDER_RERUN,
+  trigger: SourceEvent.TRIGGER,
+};
+
+const EVENTS: Partial<Record<SourceEvent, JobEvent>> = Object.fromEntries(
+  Object.entries(SOURCE_EVENTS).map(([event, value]) => [value, event as JobEvent]),
+);
+
+const APPROVAL_STATES: Partial<Record<GrpcApprovalState, ApprovalState>> = {
+  [GrpcApprovalState.WAITING]: 'waiting',
+  [GrpcApprovalState.APPROVED]: 'approved',
+  [GrpcApprovalState.REJECTED]: 'rejected',
+};
+
+/** A field that is not set gives each job: an empty text, no event, 0, an empty list. */
+export const filterToProto = (filter: JobFilter): GrpcJobFilter => ({
+  branch: filter.branch?.trim() ?? '',
+  event: filter.event ? SOURCE_EVENTS[filter.event] : SourceEvent.UNSPECIFIED,
+  authorLogin: filter.authorLogin?.trim() ?? '',
+  pullRequest: filter.pullRequest ?? 0,
+  statuses: [],
+  origins: [],
+});
+
+const STATUSES: Record<Exclude<JobStatus, 'unknown'>, GrpcJobStatus> = {
+  pending: GrpcJobStatus.PENDING,
+  running: GrpcJobStatus.RUNNING,
+  completed: GrpcJobStatus.COMPLETED,
+  failed: GrpcJobStatus.FAILED,
+  cancelled: GrpcJobStatus.CANCELLED,
+  orphaned: GrpcJobStatus.ORPHANED,
+  awaiting_approval: GrpcJobStatus.AWAITING_APPROVAL,
+};
+
+/** The status of a filter. `unknown` is no status of the server: it cannot filter. */
+export const statusToProto = (status: Exclude<JobStatus, 'unknown'>): GrpcJobStatus =>
+  STATUSES[status];
 
 /** UNSPECIFIED or a status newer than this build: `unknown`, never a success. */
 function jobStatusToDomain(status: GrpcJobStatus): JobStatus {
@@ -37,6 +102,8 @@ function jobStatusToDomain(status: GrpcJobStatus): JobStatus {
       return 'cancelled';
     case GrpcJobStatus.ORPHANED:
       return 'orphaned';
+    case GrpcJobStatus.AWAITING_APPROVAL:
+      return 'awaiting_approval';
     default:
       return 'unknown';
   }
@@ -108,6 +175,83 @@ function jobNodeOf({ id, needs, step }: Node): JobNode {
   return { id, kind: step.oneofKind === 'merge' ? 'merge' : 'run', deps, ports: [] };
 }
 
+/** A provider that this build does not know: the job shows no source. */
+function sourceToDomain(source: GrpcJobSource | undefined): JobSource | undefined {
+  if (!source) return undefined;
+  const provider =
+    source.provider === VcsProvider.GITHUB
+      ? 'github'
+      : source.provider === VcsProvider.GITLAB
+        ? 'gitlab'
+        : undefined;
+  if (!provider) return undefined;
+  const event = EVENTS[source.event];
+  return {
+    provider,
+    repository: source.repository,
+    repositoryUrl: source.repositoryUrl,
+    sha: source.sha,
+    commitUrl: source.commitUrl,
+    branch: source.branch,
+    tag: source.tag,
+    pullRequests: source.pullRequests.map(({ number, title, url }) => ({ number, title, url })),
+    fromFork: source.fromFork,
+    forkRepository: source.forkRepository,
+    authorLogin: source.authorLogin,
+    authorAvatarUrl: source.authorAvatarUrl,
+    title: source.messageTitle,
+    ...(event && { event }),
+  };
+}
+
+/** A state newer than this build: the job is not known to be decided, so it waits. */
+function approvalToDomain(approval: GrpcJobApproval | undefined): JobApproval | undefined {
+  if (!approval) return undefined;
+  const decidedAt = timestampToIsoOpt(approval.decidedAt);
+  return {
+    state: APPROVAL_STATES[approval.state] ?? 'waiting',
+    ...(approval.decidedBy?.value && { decidedBy: approval.decidedBy.value }),
+    ...(decidedAt && { decidedAt }),
+    changesPipelineFiles: approval.changesPipelineFiles,
+    changesUrl: approval.changesUrl,
+  };
+}
+
+const pipelineFileToDomain = (file?: GrpcPipelineFileRef): PipelineFileRef | undefined =>
+  file ? { path: file.path, commitSha: file.commitSha, url: file.url } : undefined;
+
+const fileErrorToDomain = (error: GrpcFileError): PipelineFileError => ({
+  path: error.path,
+  line: error.line,
+  column: error.column,
+  field: error.field,
+  message: error.message,
+  warning: error.warning,
+});
+
+function checkoutToDomain(checkout: CheckoutRun | undefined): JobCheckout | undefined {
+  if (!checkout) return undefined;
+  return {
+    state: nodeStatusToDomain(checkout.status),
+    startedAt: timestampToIsoOpt(checkout.startedAt),
+    finishedAt: timestampToIsoOpt(checkout.finishedAt),
+    error: checkout.error || undefined,
+  };
+}
+
+/** A reason newer than this build: `unknown`. */
+const UNFIT_REASONS: Partial<Record<UnfitReason, UnfitAgent['reason']>> = {
+  [UnfitReason.UPDATE_AGENT]: 'update-agent',
+  [UnfitReason.INSTALL_GIT]: 'install-git',
+};
+
+const unfitAgentToDomain = (agent: GrpcUnfitAgent): UnfitAgent => ({
+  id: idValue(agent.id),
+  name: agent.name,
+  version: agent.version,
+  reason: UNFIT_REASONS[agent.reason] ?? 'unknown',
+});
+
 export function toDomain(job: Job): JobEntity {
   const createdAt = timestampToIso(job.createdAt);
   const startedAt = timestampToIsoOpt(job.startedAt);
@@ -125,6 +269,13 @@ export function toDomain(job: Job): JobEntity {
     finishedAt,
     error: job.error || undefined,
     agentId: job.agentId ? idValue(job.agentId) : undefined,
+    source: sourceToDomain(job.source),
+    approval: approvalToDomain(job.approval),
+    pipelineFile: pipelineFileToDomain(job.pipelineFile),
+    fileErrors: job.fileErrors.length > 0 ? job.fileErrors.map(fileErrorToDomain) : undefined,
+    checkout: checkoutToDomain(job.checkout),
+    waitingReason: job.waitingReason || undefined,
+    unfitAgents: job.unfitAgents.length > 0 ? job.unfitAgents.map(unfitAgentToDomain) : undefined,
   };
 }
 

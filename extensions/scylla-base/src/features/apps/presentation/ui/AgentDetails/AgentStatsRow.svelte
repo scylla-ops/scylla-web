@@ -6,15 +6,23 @@
     successRate,
     type AgentStats,
   } from '@base/features/apps/domain/structs/agent-stats.struct.ts';
+  import {
+    periodDays,
+    type Day,
+    type StatsPeriod,
+  } from '@base/features/apps/domain/structs/stats-period.struct.ts';
+  import { periodRange } from '@base/features/apps/presentation/presenters/period-range.presenter.ts';
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
 
   interface Props {
     stats: AgentStats | undefined;
     /** The start of the newest job, if any. */
     lastRunAt: string | undefined;
+    period: StatsPeriod;
+    today: Day;
   }
 
-  let { stats, lastRunAt }: Props = $props();
+  let { stats, lastRunAt, period, today }: Props = $props();
 
   const total = $derived(stats ? endedJobs(stats.outcomes) : 0);
   const rate = $derived(stats ? successRate(stats.outcomes) : null);
@@ -24,11 +32,17 @@
 
 <dl class="grid grid-cols-2 overflow-hidden rounded-xl border lg:grid-cols-4">
   <div class="flex flex-col gap-2 border-b p-5 lg:border-r lg:border-b-0">
-    <dt class="text-xs text-muted-foreground">{t(messages.jobs30)}</dt>
+    <dt class="text-xs text-muted-foreground">{t(messages.jobsOf(periodRange(period, today)))}</dt>
     <dd class="flex flex-col gap-2">
       <span class="text-xl font-medium">{stats ? total : '–'}</span>
       <span class="text-xs text-muted-foreground">
-        {lastRunAt ? t(messages.lastRun(getRelativeTime(lastRunAt))) : t(messages.noRun)}
+        {#if period.to !== today}
+          {t(messages.dayCount(periodDays(period)))}
+        {:else if lastRunAt}
+          {t(messages.lastRun(getRelativeTime(lastRunAt)))}
+        {:else}
+          {t(messages.noRun)}
+        {/if}
       </span>
     </dd>
   </div>
@@ -36,9 +50,9 @@
     <dt class="text-xs text-muted-foreground">{t(messages.successRate)}</dt>
     <dd class="flex flex-col gap-2">
       <span class="text-xl font-medium">{rate === null ? '–' : `${Math.round(rate * 100)}%`}</span>
-      {#if stats && total > 0}
+      {#if stats}
         <span class="text-xs text-muted-foreground">
-          {t(messages.completedOf(stats.outcomes.completed, total))}
+          {total > 0 ? t(messages.completedOf(stats.outcomes.completed, total)) : t(messages.noEndedJob)}
         </span>
       {/if}
     </dd>

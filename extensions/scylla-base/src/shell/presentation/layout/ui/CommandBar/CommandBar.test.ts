@@ -349,7 +349,7 @@ describe('CommandBar', () => {
       ));
 
     it('switches the workspace', async () => {
-      await go('globex', 'Switch to the workspace Globex.', '/globex/projects');
+      await go('globex', 'Switch to the workspace Globex.', '/globex/dashboard');
 
       expect(contextStore.getState().workspace).toMatchObject({ id: 'w2', slug: 'globex' });
     });
@@ -411,6 +411,13 @@ describe('CommandBar', () => {
       expect(current).toHaveAttribute('aria-disabled', 'true');
       expect(within(current).getByText('Current')).toBeInTheDocument();
     });
+  });
+
+  it('shows a pointer on a row', async () => {
+    const input = await open();
+    await user().type(input, 'agents');
+
+    expect(await option('Go to the page Agents (Machines).')).toHaveClass('cursor-pointer');
   });
 
   describe('an action with a confirmation', () => {
@@ -480,7 +487,8 @@ describe('CommandBar', () => {
       await waitFor(() => expect(confirm).toHaveFocus());
       await typing.keyboard('{Enter}');
 
-      await waitFor(() => expect(fakes.run).toHaveBeenCalledWith('l1'));
+      // The command bar asks for no commit: the server picks it.
+      await waitFor(() => expect(fakes.run).toHaveBeenCalledWith('l1', undefined));
     });
 
     it('hides the run without the permission', async () => {

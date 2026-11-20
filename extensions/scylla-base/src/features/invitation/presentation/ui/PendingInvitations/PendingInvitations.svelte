@@ -59,7 +59,7 @@
                 {t(invitationMessages.resend)}
               </Button>
               <Button
-                variant="ghost"
+                variant="ghost-destructive"
                 size="sm"
                 disabled={revoke.isPending}
                 aria-label={`${t(invitationMessages.revoke)} ${invitation.email}`}

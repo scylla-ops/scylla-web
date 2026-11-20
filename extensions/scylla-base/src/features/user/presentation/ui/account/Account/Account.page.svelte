@@ -1,10 +1,12 @@
 <script lang="ts">
   import { Redirect, routeParams } from '@scylla/core-sdk';
   import { Button, Skeleton } from '@scylla/ui/primitives';
-  import { ErrorState } from '@scylla/ui';
+  import { DangerZone, ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import { createAccountPage } from './account-page.state.svelte.ts';
   import { accountSection } from './account-sections.registry.ts';
+  import AccountAbout from './AccountAbout.svelte';
   import AccountHeader from './AccountHeader.svelte';
   import AccountNav from './AccountNav.svelte';
   import AccountSecurity from './AccountSecurity.svelte';
@@ -36,7 +38,7 @@
   <ErrorState message={t(userMessages.accountLoadError)} />
 {:else}
   {@const me = page.me}
-  <div class="mx-auto flex w-full max-w-5xl flex-col gap-6 pb-8">
+  <div class={cn('mx-auto flex w-full max-w-5xl flex-col gap-6', workspaceSlug ? 'pb-20' : 'pb-8')}>
     <AccountHeader user={me} systemRole={page.systemRole} />
 
     <div class="flex flex-col gap-6 md:flex-row md:items-start md:gap-10">
@@ -70,18 +72,19 @@
           <AccountSecurity {page} />
         {:else if current.id === 'tokens'}
           <PersonalTokensSection />
+        {:else if current.id === 'about'}
+          <AccountAbout />
         {:else}
-          <SettingsSection
+          <DangerZone
             title={t(userMessages.deleteMyAccount)}
             description={t(userMessages.deleteMyAccountDescription)}
-            tone="danger"
           >
             {#snippet action()}
-              <Button variant="destructive" size="sm" onclick={page.openDelete}>
+              <Button variant="destructive" onclick={page.openDelete}>
                 {t(userMessages.deleteMyAccount)}
               </Button>
             {/snippet}
-          </SettingsSection>
+          </DangerZone>
         {/if}
       </div>
     </div>

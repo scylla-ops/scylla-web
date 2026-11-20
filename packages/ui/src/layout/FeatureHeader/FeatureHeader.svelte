@@ -162,7 +162,7 @@
   {#if showSelectionBar}
     <div
       data-part="feature-header-selection-bar"
-      class="fixed inset-x-3 bottom-4 z-40 flex items-center gap-1 rounded-2xl bg-foreground py-1.5 pr-1.5 pl-4 text-background shadow-[0_12px_32px_-8px_oklch(0_0_0/0.35)]"
+      class="fixed inset-x-3 bottom-[calc(1rem+var(--shell-bottom-inset,0px))] z-40 flex items-center gap-1 rounded-2xl bg-foreground py-1.5 pr-1.5 pl-4 text-background shadow-[0_12px_32px_-8px_oklch(0_0_0/0.35)]"
     >
       <span class="flex-1 text-sm font-semibold">
         {t(featureHeaderMessages.selected(selectedCount))}

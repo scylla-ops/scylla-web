@@ -3,13 +3,14 @@
   import { createQuery, navigateTo } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import { Button } from '@scylla/ui/primitives';
+  import { Identity, identityKindOf } from '@shared/presentation/ui';
   import type { RoleEntity } from '../../../domain/entities/role.entity.ts';
   import { andMore, holderLabels, holdersTotal, rolesMessages } from '../../messages/roles.messages.ts';
   import { permissionCount, roleDescription, roleName } from '../../role-labels.ts';
-  import { roleQueries } from '../../roles.queries.ts';
+  import { canSeePeople, roleQueries } from '../../roles.queries.ts';
   import LevelTag from '../components/LevelTag.svelte';
   import OriginTag from '../components/OriginTag.svelte';
-  import PermissionTable from '../components/PermissionTable.svelte';
+  import PermissionTable from '../components/PermissionTable/PermissionTable.svelte';
 
   interface Props {
     role: RoleEntity;
@@ -24,6 +25,7 @@
 
   /** The page of the people: the members of a workspace, or the users of the instance. */
   const peopleUrl = $derived(listUrl.replace(/\/roles$/, workspaceId ? '/members' : '/users'));
+  const peopleShown = $derived(canSeePeople(workspaceId));
 
   const holdersQuery = createQuery(() =>
     roleQueries.holders(role.key, workspaceId, { enabled: canSeeHolders }),
@@ -44,7 +46,7 @@
   );
 </script>
 
-<div class="flex w-full flex-col gap-6">
+<div class="flex w-full flex-col gap-6 pb-20">
   <button
     type="button"
     class="flex w-fit items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
@@ -78,9 +80,7 @@
           {permissionCount(role, areas)} · {t(rolesMessages.readOnlyHint)}
         </p>
       </div>
-      <div class="relative overflow-x-auto">
-        <PermissionTable {areas} level={role.level} holder={role.holder} {selected} />
-      </div>
+      <PermissionTable {areas} level={role.level} holder={role.holder} {selected} />
     </section>
 
     <aside class="rounded-2xl border bg-card">
@@ -100,12 +100,16 @@
       {#if canSeeHolders && holdersQuery.data}
         <div class="border-t p-5">
           <h3 class="text-sm">{t(holdersTotal(holdersQuery.data.total))}</h3>
-          <ul class="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
+          <ul class="mt-3 flex flex-col gap-2">
             {#each shown as holder (`${holder.actorId}-${holder.scopeId}`)}
-              <li class="flex justify-between gap-2">
-                <span class="truncate">{holder.displayName}</span>
+              <li class="flex items-center justify-between gap-2">
+                <Identity
+                  format="cell"
+                  profile={{ displayName: holder.displayName, username: holder.handle }}
+                  kind={identityKindOf(holder)}
+                />
                 {#if holder.scopeKind === 'project'}
-                  <span class="truncate text-xs">{holder.scopeName}</span>
+                  <span class="truncate text-xs text-muted-foreground">{holder.scopeName}</span>
                 {/if}
               </li>
             {/each}
@@ -113,13 +117,15 @@
           {#if more > 0}
             <p class="mt-2 text-xs text-muted-foreground">{t(andMore(more))}</p>
           {/if}
-          <button
-            type="button"
-            class="mt-2 text-xs font-medium text-primary hover:underline"
-            onclick={() => navigateTo(peopleUrl)}
-          >
-            {t(rolesMessages.seeMembers)}
-          </button>
+          {#if peopleShown}
+            <button
+              type="button"
+              class="mt-2 text-xs font-medium text-primary hover:underline"
+              onclick={() => navigateTo(peopleUrl)}
+            >
+              {t(rolesMessages.seeMembers)}
+            </button>
+          {/if}
         </div>
       {/if}
     </aside>

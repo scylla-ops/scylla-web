@@ -1,6 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { buildTriggerDraft, triggerToDraftInputs } from '../trigger-form.mapper.ts';
+import {
+  buildTriggerDraft,
+  triggerToDraftInputs,
+  triggerToGitRules,
+} from '../trigger-form.mapper.ts';
 import { isCronExpressionValid } from '@base/features/triggers/domain/structs/cron-expression.struct.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 
@@ -74,5 +78,48 @@ describe('buildTriggerDraft', () => {
     if (draft.source.kind === 'cron') {
       expect(isCronExpressionValid(draft.source.expression)).toBe(true);
     }
+  });
+});
+
+describe('triggerToGitRules', () => {
+  it('keeps the rules of the trigger for its kind, and gives the defaults to the others', () => {
+    const trigger = {
+      source: { kind: 'tag', patterns: ['v*'] },
+    } as unknown as TriggerEntity;
+
+    expect(triggerToGitRules(trigger)).toEqual({
+      push: { kind: 'push', branches: [], excludeBranches: [], skipCi: true },
+      pullRequest: {
+        kind: 'pullRequest',
+        branches: [],
+        events: ['opened', 'newCommits', 'reopened', 'readyForReview'],
+        drafts: false,
+      },
+      tag: { kind: 'tag', patterns: ['v*'] },
+    });
+  });
+});
+
+describe('buildTriggerDraft of a Git kind', () => {
+  it('sends the rules of the chosen kind only, as copies', () => {
+    const rules = triggerToGitRules();
+    rules.push.branches.push('main');
+    rules.tag.patterns.push('v*');
+
+    const draft = buildTriggerDraft({
+      name: ' push-main ',
+      kind: 'push',
+      cronExpression: '',
+      inputs: [{ key: 'sha', valueKind: 'jsonPointer', value: '/after' }],
+      rules,
+    });
+
+    expect(draft).toEqual({
+      name: 'push-main',
+      source: { kind: 'push', branches: ['main'], excludeBranches: [], skipCi: true },
+      // A Git trigger has no payload: always literal.
+      inputs: [{ key: 'sha', value: { kind: 'literal', value: '/after' } }],
+    });
+    expect(draft.source.kind === 'push' && draft.source.branches).not.toBe(rules.push.branches);
   });
 });

@@ -1,55 +1,61 @@
 <script lang="ts">
-  import type { JobEntity } from '@base/features/jobs';
+  import type { PipelineHistory } from '@base/features/jobs';
   import { scyllaNavigate } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
   import { DataTable } from '@scylla/ui';
   import { createSelection } from '@scylla/ui/state';
-  import { toStatusState } from '@shared/utils/job-status.utils.ts';
   import type { PipelineMetadata } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+  import { originNote } from '@base/features/pipeline/presentation/presenters/pipeline-file.presenter.ts';
   import { pipelineMutations } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import type { RunPipeline } from '@base/features/pipeline/presentation/ui/run-pipeline.state.svelte.ts';
+  import type { RunRequest } from '@base/features/pipeline/presentation/ui/RunPipelineDialog/run-request.state.svelte.ts';
   import PipelineChart from './PipelineChart.svelte';
   import PipelineActions from './PipelineActions.svelte';
-  import PipelineLastJob from './PipelineLastJob.svelte';
   import PipelineStatus from './PipelineStatus.svelte';
+  import { createBarCapacity } from './bar-capacity.state.svelte.ts';
   import { pipelineColumns } from './pipeline-table.columns.ts';
 
   interface Props {
     pipelines: PipelineMetadata[];
-    jobsByPipelineId: Map<string, JobEntity[]>;
+    historyByPipelineId: Map<string, PipelineHistory>;
     isJobsLoading?: boolean;
     isJobsError?: boolean;
     canListJobs?: boolean;
     /** Shared with the header: one agent subscription, one set of running ids. */
     runPipeline: RunPipeline;
+    /** Asks for a commit first when the project has a linked repository. */
+    runRequest: RunRequest;
   }
 
   let {
     pipelines,
-    jobsByPipelineId,
+    historyByPipelineId,
     isJobsLoading = false,
     isJobsError = false,
     canListJobs = true,
     runPipeline,
+    runRequest,
   }: Props = $props();
 
   const selection = createSelection('pipelines');
   const duplicatePipeline = createMutation(() => pipelineMutations.duplicate());
 
-  const jobsOf = (pipelineId: string) => jobsByPipelineId.get(pipelineId) ?? [];
+  const capacity = createBarCapacity();
+
+  const jobsOf = (pipelineId: string) => historyByPipelineId.get(pipelineId)?.jobs ?? [];
 
   const columns = $derived(
-    pipelineColumns({
-      status: statusCell,
-      history: historyCell,
-      lastRun: lastRunCell,
-      actions: actionsCell,
-    }),
+    pipelineColumns({ status: statusCell, history: historyCell, actions: actionsCell }),
   );
 </script>
 
 {#snippet statusCell(pipeline: PipelineMetadata)}
-  <PipelineStatus {pipeline} status={toStatusState(jobsOf(pipeline.id)[0]?.status)} />
+  <PipelineStatus
+    {pipeline}
+    history={historyByPipelineId.get(pipeline.id)}
+    count={capacity.count}
+    note={originNote(pipeline.origin, runRequest.link?.defaultBranch)}
+  />
 {/snippet}
 
 {#snippet historyCell(pipeline: PipelineMetadata)}
@@ -62,22 +68,15 @@
   >
     <PipelineChart
       jobs={jobsOf(pipeline.id)}
+      count={capacity.count}
+      measure={capacity.measure}
       isLoading={isJobsLoading}
       isError={isJobsError}
       isForbidden={canListJobs === false}
-      maxJobs={10}
       onSelectJob={jobId =>
         scyllaNavigate.goToJobDetails(pipeline.id, jobId, { pipelineName: pipeline.name })}
     />
   </div>
-{/snippet}
-
-{#snippet lastRunCell(pipeline: PipelineMetadata)}
-  <PipelineLastJob
-    jobs={jobsOf(pipeline.id)}
-    onSelectJob={jobId =>
-      scyllaNavigate.goToJobDetails(pipeline.id, jobId, { pipelineName: pipeline.name })}
-  />
 {/snippet}
 
 {#snippet actionsCell(pipeline: PipelineMetadata)}
@@ -91,20 +90,27 @@
       onRun={event => {
         // The row is a selection target: an action is not a selection.
         event.stopPropagation();
-        void runPipeline.run(pipeline.id);
+        void runRequest.start(pipeline);
       }}
+      fromFile={pipeline.origin.source === 'file'}
       onEdit={event => {
         event.stopPropagation();
-        scyllaNavigate.goToEditPipeline(pipeline.id, pipeline.name);
+        if (pipeline.origin.source === 'file') {
+          scyllaNavigate.goToFilePipeline(pipeline.id, pipeline.name);
+        } else {
+          scyllaNavigate.goToEditPipeline(pipeline.id, pipeline.name);
+        }
       }}
       onDuplicate={event => {
         event.stopPropagation();
         duplicatePipeline.mutate(pipeline.id);
       }}
-      onViewJobs={event => {
-        event.stopPropagation();
-        scyllaNavigate.goToJobs(pipeline.id, pipeline.name);
-      }}
+      onViewJobs={canListJobs
+        ? event => {
+            event.stopPropagation();
+            scyllaNavigate.goToJobs(pipeline.id, pipeline.name);
+          }
+        : undefined}
       onViewTriggers={event => {
         event.stopPropagation();
         scyllaNavigate.goToTriggers(pipeline.id, pipeline.name);

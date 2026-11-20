@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Badge } from '@scylla/ui/primitives';
-  import { UserAvatar, userName } from '@shared/presentation/ui';
+  import { IdentityAvatar, userName } from '@shared/presentation/ui';
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
 
   interface Props {
@@ -13,7 +13,7 @@
 </script>
 
 <header class="flex items-center gap-4 border-b pb-6">
-  <UserAvatar {user} size="lg" class="size-14 text-xl" />
+  <IdentityAvatar profile={user} size={48} />
   <div class="flex min-w-0 flex-col gap-1">
     <h1 class="truncate">{userName(user)}</h1>
     <div class="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">

@@ -7,9 +7,9 @@
   import { invitationQueries, loadPendingInvitations } from '@base/features/invitation';
   import { userQueries, type UserSummary } from '@base/features/user';
   import { invalidateWorkspaceMembers } from '@base/features/workspace';
-  import { GatedButton } from '@scylla/ui';
+  import { GatedButton, SegmentedControl } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { Input, ToggleGroup, ToggleGroupItem } from '@scylla/ui/primitives';
+  import { Input } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import {
     membershipPoints,
@@ -18,10 +18,9 @@
   import {
     linkedApp,
     membershipMessages,
-    tabCount,
     workspaceBlurb,
   } from '../../messages/membership.messages.ts';
-  import type { ActorChoice } from '../../presenters/actor-choice.presenter.ts';
+  import { appChoice, type ActorChoice } from '../../presenters/actor-choice.presenter.ts';
   import {
     buildMemberRows,
     filterMemberRows,
@@ -49,6 +48,7 @@
   const canListUsers = $derived(can(Permission.LIST_USERS));
 
   const usersQuery = createQuery(() => userQueries.list({ enabled: canListUsers }));
+  const meQuery = createQuery(() => userQueries.me());
   const membersQuery = createQuery(() =>
     accessQueries.members(workspaceId ? workspaceRef(workspaceId) : null, { enabled: canRead }),
   );
@@ -73,7 +73,7 @@
   const linked = new URLSearchParams(currentSearch()).get('addApp');
   if (linked) {
     tab = 'apps';
-    addingApp = { id: linked, name: t(linkedApp) };
+    addingApp = { id: linked, name: t(linkedApp), kind: 'app' };
   }
 
   const appsQuery = createQuery(() => {
@@ -85,6 +85,10 @@
   const shown = $derived(filterMemberRows(rows, tab, search));
   const peopleCount = $derived(rows.filter(row => row.tab === 'people').length);
   const appCount = $derived(rows.filter(row => row.tab === 'apps').length);
+  const tabOptions = $derived([
+    { value: 'people' as const, label: t(membershipMessages.people), count: peopleCount },
+    { value: 'apps' as const, label: t(membershipMessages.apps), count: appCount },
+  ]);
 
   /** The directory gives the email when the caller can read it. */
   const userFor = (id: string): UserSummary | undefined =>
@@ -93,7 +97,7 @@
   const appChoices = $derived(
     (appsQuery.data ?? [])
       .filter(app => !rows.some(row => row.actorId === app.id))
-      .map(app => ({ id: app.id, name: app.name })),
+      .map(appChoice),
   );
 
   const isOwner = (row: MemberRow) => row.workspaceRoles.some(role => role.roleKey === OWNER_KEY);
@@ -161,7 +165,7 @@
     <p class="text-sm text-muted-foreground">{t(membershipMessages.selectAnWorkspace)}</p>
   </div>
 {:else}
-  <div class="flex w-full flex-col gap-4" data-tour="members">
+  <div class="flex w-full flex-col gap-4 pb-20" data-tour="members">
     <header class="flex items-start justify-between gap-6">
       <div class="flex flex-col gap-2">
         <h1>{t(membershipMessages.members)}</h1>
@@ -173,30 +177,12 @@
     </header>
 
     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <ToggleGroup
-        type="single"
+      <SegmentedControl
         value={tab}
-        onValueChange={next => {
-          if (next) tab = next as MemberTab;
-        }}
+        options={tabOptions}
+        onChange={next => (tab = next)}
         aria-label={t(membershipMessages.memberKind)}
-        class="w-fit rounded-lg bg-muted p-1"
-      >
-        <ToggleGroupItem
-          value="people"
-          size="sm"
-          class="h-auto rounded-md px-3 py-1 text-sm font-normal text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground"
-        >
-          {t(tabCount(t(membershipMessages.people), peopleCount))}
-        </ToggleGroupItem>
-        <ToggleGroupItem
-          value="apps"
-          size="sm"
-          class="h-auto rounded-md px-3 py-1 text-sm font-normal text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground"
-        >
-          {t(tabCount(t(membershipMessages.apps), appCount))}
-        </ToggleGroupItem>
-      </ToggleGroup>
+      />
       <Input
         class="md:w-64"
         placeholder={t(membershipMessages.searchMembers)}
@@ -222,6 +208,7 @@
       rows={shown}
       isLoading={membersQuery.isLoading}
       {userFor}
+      selfId={meQuery.data?.id}
       {canManage}
       onOpen={openMember}
       onChangeRoles={row => (changing = row)}

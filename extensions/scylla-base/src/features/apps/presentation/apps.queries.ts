@@ -7,6 +7,8 @@ import type { AppDetails } from '../domain/entities/app.entity.ts';
 import { appsMessages } from './messages/apps.messages.ts';
 import { appRolesOf } from '@base/features/apps/domain/structs/app-list.struct.ts';
 import { agentAccessOf, type RunnerChange } from '../domain/structs/agent-access.struct.ts';
+import type { AgentStats } from '../domain/structs/agent-stats.struct.ts';
+import type { StatsPeriod } from '../domain/structs/stats-period.struct.ts';
 import { accessQueries, projectRef, workspaceRef, type ObjectRef } from '@base/features/access';
 import { projectQueries } from '@base/features/project';
 
@@ -52,6 +54,10 @@ const canList = (workspaceId: string) =>
   authorizationReady() &&
   (can(Permission.LIST_AGENTS, { workspaceId: workspaceId }) ||
     can(Permission.LIST_APPS_BY_WORKSPACE, { workspaceId: workspaceId }));
+
+/** The stats of the agents need their own right: a reader of the apps can miss it. */
+const canReadStats = (workspaceId: string) =>
+  authorizationReady() && can(Permission.READ_APP_STATS, { workspaceId: workspaceId });
 
 /** The roles on the workspace, and on each of its projects. */
 const rolesInWorkspace = async (workspaceId: string) => {
@@ -127,7 +133,7 @@ export const appQueries = {
         new Map(
           (await repository().listAgentStats(workspaceId)).map(stats => [stats.agentId, stats]),
         ),
-      enabled: !!workspaceId && canList(workspaceId),
+      enabled: !!workspaceId && canReadStats(workspaceId),
       refetchInterval: 60_000,
     }),
 
@@ -159,13 +165,17 @@ export const appQueries = {
       enabled: enabled && !!workspaceId && appIds.length > 0,
     }),
 
-  /** The 30 days of one agent. */
-  agentStatsOf: (appId: string, workspaceId: string) =>
+  /**
+   * The days of a period of one agent. A new period keeps the stats of the last one on the screen
+   * until its own stats come.
+   */
+  agentStatsOf: (appId: string, workspaceId: string, period: StatsPeriod | null) =>
     queryOptions({
-      queryKey: [...APPS_QUERY_ROOT, 'stats', 'one', appId] as const,
-      queryFn: () => repository().getAgentStats(appId),
-      enabled:
-        !!appId && authorizationReady() && can(Permission.READ_APP, { workspaceId: workspaceId }),
+      queryKey: [...APPS_QUERY_ROOT, 'stats', 'one', period?.from, period?.to, appId] as const,
+      queryFn: () => repository().getAgentStats(appId, period ?? undefined),
+      enabled: !!appId && !!period && canReadStats(workspaceId),
+      placeholderData: (previous: AgentStats | undefined) =>
+        previous?.agentId === appId ? previous : undefined,
       refetchInterval: 60_000,
     }),
 };
@@ -183,7 +193,7 @@ const removeQueriesOfApp = (appId: string) =>
   });
 
 export const appMutations = {
-  /** Gives the first join code: the dialog shows it once. */
+  /** Gives the first join code: the page shows it once. */
   create: (workspaceId: string) =>
     mutationOptions({
       mutationKey: CREATE_APP_MUTATION_KEY,
@@ -192,11 +202,13 @@ export const appMutations = {
       onSuccess: () => invalidateApps(),
     }),
 
-  remove: (kind: 'app' | 'agent' = 'app') =>
+  /** With a `name`, the toast names the app. */
+  remove: (kind: 'app' | 'agent' = 'app', name?: string) =>
     mutationOptions({
       mutationFn: (appId: string) => repository().deleteApp(appId),
       onSuccess: (_result, appId) => {
-        toast.success(i18n._(kind === 'agent' ? appsMessages.agentDeleted : appsMessages.deleted));
+        const deleted = kind === 'agent' ? appsMessages.agentDeleted : appsMessages.deleted;
+        toast.success(i18n._(name ? appsMessages.namedDeleted(name) : deleted));
         removeQueriesOfApp(appId);
         return invalidateApps();
       },

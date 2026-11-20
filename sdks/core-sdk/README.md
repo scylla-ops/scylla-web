@@ -91,7 +91,7 @@ frame around the pages. An app usually has them in one module (in `scylla-base`:
 | `mounts` | Places where routes attach: `parent`, `path`, `layout`, `wrapper`, `breadcrumb`, `shell`. |
 | `navSections` | The sidebar sections, with an optional component in place of the title. |
 | `access` | The access policy: `can`, `ready`, `guard`. At most one module in the app. |
-| `shell` | Parts of the frame: sidebar footer, overlays, link badge, breadcrumb and link parameters. |
+| `shell` | Parts of the frame: sidebar footer, overlays and the band they cover (`bottomInset`), link badge, breadcrumb and link parameters. |
 | `onQueryError` | Receives each query and mutation error. |
 | `fallback` | The page when no route matches. Exactly one module in the app. |
 

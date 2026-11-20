@@ -123,6 +123,66 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   unexpected error, and a query retried on it.
 - A page that fails to load or to render shows an error in its place, with a "Try again" button.
   The sidebar, the top bar and the other pages keep working.
+- `pnpm tokens:export` writes the design tokens of `styles.css` to `packages/ui/tokens/`, in the
+  format that Figma imports. A CI step and a test fail when these files are not up to date.
+  `packages/ui/DESIGN-SYSTEM.md` tells how the code and the Figma library stay the same.
+- `pnpm ui:catalog` opens a visual catalog of `@scylla/ui` (Storybook): each component with its
+  variants, sizes and states, in the light and the dark theme. A test fails when a component has no
+  entry, and a CI step type-checks and builds the catalog. `packages/ui/DESIGN-SYSTEM.md` tells how
+  to add an entry.
+- The role editor names the permissions of the Git integration: Integrations (workspace), Repository
+  (project) and Git providers (instance). The Project tab has an Approve column for "Approve fork
+  runs", and its box tells on hover that a run from a fork never gets the secrets. A checkbox of the
+  table is centered in its cell.
+- The editor of a saved pipeline has an Export action: the pipeline as a TOML, YAML or JSON file for
+  the repository, to copy or to download.
+- The settings of a workspace have an Integrations page. An admin connects GitHub (with the Scylla
+  GitHub App) or GitLab.com (with the token of a service account), and sees the state, the event
+  mode and the token expiry of each connection.
+- A pipeline that comes from a file of the linked repository has a read-only page: the graph, the
+  text of the file, its triggers from `on`, its checkout and its errors, at the branch or the tag
+  that the user picks. The list of the pipelines tells which file has errors on the default branch
+  or left it. With a linked repository, Run asks for a branch, a tag or a commit SHA, and the jobs
+  of a pipeline can be filtered by branch, event, author and pull request.
+- The trigger editor has the types Push, Pull request (Merge request on GitLab) and Tag: the
+  branches to include and to exclude, `[skip ci]`, the target branches, the events and the drafts of
+  a pull request, the tag patterns, and the variables of a run. With no linked repository these
+  types are off, with a link to link a repository. The list shows the rules of a Git trigger, and a
+  trigger of a pipeline file is read only.
+- The inbox shows the notices of the Git connections: a connection that needs attention, with its
+  cause, and a GitLab token that expires soon. Each notice opens the integrations of the workspace.
+- A project has a Settings page for its repository. An editor links a repository of a connection of
+  the workspace, sees how Scylla gets the new commits (webhooks, or polling with the reason) and
+  sends a test webhook, turns the reports on or off, picks a check run or a commit status on GitHub,
+  and unlinks the repository. The unlink dialog lists what stops. The card tells why a link stopped
+  and where to repair it.
+- The repository page of a project has a Pipeline source card and a Block the merge card. An editor
+  moves the pipelines from the Scylla editor to the files of the repository, or back. Before a move
+  to the files, a dialog lists the files of the default branch and their errors. On GitHub each
+  pipeline has a switch that blocks the merge into the default branch when it fails, and on GitLab
+  the project has one switch. A switch shows the state on the provider. When a permission is
+  missing, it gives the link to grant it and the steps to do it by hand.
+- The instance pages have a Git providers page. An instance admin creates the GitHub App of a
+  self-hosted server with the GitHub manifest flow, sees its webhook URL and its last webhook, and
+  removes it. On a server with the App of the settings, the page shows that App with no change.
+- The page of a job shows its commit: the repository, the branch or the tag, the SHA, the pull
+  requests, the author, the event and the pipeline file. A job from a fork shows the fork and that
+  it gets no secrets, and an editor can approve or reject it. The page shows the errors of an
+  invalid pipeline file, the checkout as the first step with its log, and the reports to GitHub or
+  GitLab with Retry now and Fix the connection. The jobs table has a Source column and the states
+  Waiting for approval and Invalid pipeline file.
+- `docs/git-providers.md` tells how to set up GitHub and GitLab for a server: the GitHub App by hand
+  or with the manifest flow, its permissions, events and URLs, and the GitLab service account.
+- A page for a new project replaces the dialog. You choose a regular project or a project linked to
+  GitHub. For GitHub, you pick a repository, and the page names the project from it and sets the
+  pipeline source and the reports. If the link fails after the creation, the page keeps the project
+  and you can try again.
+- The General page of the workspace settings has a time zone field: a search in the IANA names, with
+  the zone of the browser first. The title of the page is now General, as its link in the sidebar.
+- The account settings have an About section. Its card shows the edition, the version of the web app
+  and the version of the server, for a report of a problem. The build of the web app writes its
+  version in the format of the server: `SCYLLA_BUILD` adds the commit, `+dev` shows a build with no
+  commit, and `SCYLLA_RELEASE=true` keeps the bare version.
 
 ### Changed
 
@@ -182,9 +242,32 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   `MALFORMED_RESPONSE` (the server answered without the entity it must carry) and
   `UNSUPPORTED_RESPONSE` (it answered with a value this build cannot read). A map over every
   code must list them. `required` of the shared gRPC wrappers gives the first.
+- The filters of the agents, the users, the members and the roles, the CI provider, the life of a
+  token and the switches of the pipeline editor use one segmented control. A thumb moves under the
+  selected item, and a count rolls when it changes. The filter of the agents shows the color of each
+  state. With a reduced motion setting, the thumb moves in 150 ms and the counts do not roll.
+- The roles lists show a tile of the level and the type (Custom or Built-in) beside the name of each
+  role. The Permissions column shows the resources of the role and their actions on one line, and a
+  "+N" pill opens a card with the other resources. A click on the Role header sorts the roles by
+  name. The Level and Type columns are removed.
+- The libraries of the front are at their latest versions: Vite 8 (Rolldown), Lingui 6, ESLint 10,
+  Babel 8 and the new minor versions of Svelte, bits-ui, TanStack and CodeMirror.
+- "Add an agent" is a page (`/agents/new`), not a dialog: name and access, install, connected. The
+  projects are two cards and a list in one step. The Windows install has an "i" card that shows its
+  two ways apart. A reload goes back to the install step of the agent (`/agents/<id>/connect`). A
+  user who leaves before a machine joins chooses to stay, keep the agent or delete it. The list
+  shows "Finish setup" for an agent that never connected.
+
+### Removed
+
+- The Reports card of a GitHub repository has no choice between a check run and a commit status.
+  Scylla reports to GitHub only with a check run.
 
 ### Fixed
 
+- A full lint no longer reloads the TypeScript server each time it passes from a `.ts` file to a
+  `.svelte.ts` file. It takes 30 s in place of 4 minutes, also in a host repo that uses
+  `tooling/eslint.js`.
 - The guided tours. Only Skip leaves a step that lives in a dialog: Escape, a click outside, the
   close button and Cancel do nothing or do not show, and Tab reaches Skip. Skip on the welcome dialog
   asks for a confirmation.
@@ -269,6 +352,144 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A project that is not on the first page of the list opens and shows its name. Before, the app went
   back to the list of projects. After a delete of the open project, the top bar search no longer
   shows this project and its pages, and a browser back to it goes to the list.
+- Each icon of the closed rail shows its title in a tooltip on a hover and on a focus. The items of
+  a menu, of a select and of the command bar show the pointer, as a button does.
+- The open rail covers all the second sidebar, to the same edge as the logo band. Before, it kept a
+  fixed width: after a resize, a part of a wider second sidebar stayed visible to its right, and a
+  narrower one put the rail over the page.
+- The double sidebar is darker than the page, in the light and in the dark theme. The rail is the
+  darkest, then the second sidebar. The thumbnails of the theme picker show the same colors.
+- A workspace opens on its dashboard, not on the list of projects: from `/`, after a change of
+  workspace, after a project that is gone and from the not-found page. The second sidebar of the
+  projects shows each project of the workspace after "All projects", apart from it. A module adds
+  such links with `ShellContributions.secondSidebarLinks`.
+- The page of an agent and the page of an app have a space under the last card. Before, the last
+  card touched the bottom of the window, and a floating button at the bottom right covered it.
+- The pages that scroll have a space under their last element: the lists of agents, apps, members,
+  roles, users, secrets and triggers, the page of a role, of a user and of the access of a member,
+  the settings, the account, the help and the notifications. Before, the last element touched the
+  bottom of the window, and a floating button at the bottom right covered it.
+- The logo band has one color, the color of the top bar, in the light and in the dark theme. Before,
+  it had the colors of the two columns below it.
+- The notifications panel opens at the size of its list. Before, it opened large and then became
+  smaller when the list loaded. While the list loads, the panel shows one skeleton row for each
+  unread notification, and its height changes smoothly.
+- The tooltip of a row of the closed rail shows only while the pointer is on the row, or on a focus
+  from the keyboard. Before, a row that the pointer crossed on the open rail showed its tooltip when
+  the rail closed, and a row that the user clicked showed its tooltip again when the window got the
+  focus back.
+- The line on the right edge of the sidebar and the line below the band of the logo and the top bar
+  are light again, in the light and in the dark theme. Before, they had the strong color of the
+  inputs and looked thick.
+- When the user opens another page from the rail, the green tile of the old row shrinks and fades
+  out, and the tile of the new row grows in its row with a small bounce. Before, the tile jumped
+  from one row to the other with no transition. With a reduced motion setting, the tile only fades.
+  A page load shows the tile with no motion.
+- The jobs chart of the agent page fills its card, with a scale, the dates and a mark for each day
+  with no job. A timeline above the stats shows the jobs since the agent joined: drag its window, or
+  use 7D, 30D, 90D or All, to choose the period of the stats and of the chart.
+- The New role page shows one tab for each level of the role, so a workspace role has no Instance
+  permissions. A box in the header, on each row and on each action header selects or clears the
+  permissions of the tab, the row or the column. "Copy from a role" copies the permissions of a
+  role, and "Undo" puts back the permissions from before the copy.
+- The roles lists no longer scroll sideways when a role has many permissions. Before, the hidden
+  copy of the permission chips made the table wider, and the "From the instance" table of a
+  workspace scrolled out of the Role column.
+- The thumb of the segmented control moves faster to the selected item. It is on the item in about
+  200 ms, and the full move takes 380 ms in place of 590 ms.
+- Between and beside the icons of the rail, a click does nothing and the cursor does not change.
+  Before, a click that missed an icon by a few pixels opened the rail. A drag on the edge of the
+  open rail sets the width of the sidebar. Before, only the closed rail let the user set it.
+- A member and a holder of a role show if they are a person, an agent or another app. One component,
+  `Identity`, shows each actor with its own avatar: a circle with initials for a person, a square
+  with a bot for an agent, a square with blocks for another app. The card "About this role" no
+  longer shows a holder as a plain name.
+- The pickers of a member, the page of a member and the list of the roles show each actor with its
+  avatar and its kind. A picked member is a chip with a remove button. The Holders column of the
+  roles shows the first holders as a stack of avatars. `Identity` has the formats `mention`, `chip`
+  and `header`, and `SearchSelect` has a `chip` snippet for the chosen option.
+- A click on the logo, between the rows or on the footer of the open rail closes the rail. Only a
+  click on the handle, or a click that opens a menu of the rail, keeps it open. Before, a click on
+  the logo or between the rows did not close it.
+- The "+N" card of the permissions in the roles list keeps all its chips inside the card. The card
+  becomes wider to fit the longest row, and the actions that do not fit go under the name of the
+  resource.
+- The Roles card of a member shows the workspace as a header with its icon and its kind, not as one
+  more role. The projects are inside the workspace. In Effective access, Change roles, the remove
+  dialog and the members of a project, a scope is an icon and a name, not a pill.
+- All the actions that delete, remove, revoke, disable or deactivate are red: in menus, in the rows
+  of tables and lists, in headers and in the confirmation dialogs. In a menu, they are the last
+  items, after a separator. The danger zones of the account, of a user, of an agent and of an app
+  have the same look.
+- The tabs Linux, macOS, Windows and Docker of the install of an agent have the same space under
+  them as above them. Before, the selected tab touched the bottom edge of the tab list.
+- The pagination of the jobs and of the pipelines, the end of the project list and the selection bar
+  on a phone stay above a button that floats at the bottom right. A module gives the height of this
+  button in `ShellContributions.bottomInset` of `@scylla/core-sdk`.
+- A page that a role opens does not ask for what the role cannot read, and does not link to a page
+  that the role cannot open. The dashboard hides the pipelines and the runs, the agents hide their
+  stats, and the editor of a pipeline asks for the secrets only with their permission. A cell of the
+  role editor tells on hover what a click on it also checks.
+- In the roles list, the Holders cell opens a card on hover and on keyboard focus. The card gives
+  the number of people, agents and apps, and at most six holders, each with the workspace or the
+  projects where it has the role. A holder and "See all members" open the page of the members. A
+  reader who cannot see the members sees only the count, as before.
+- The Windows hint of the install of an agent tells that the command needs no admin rights, and how
+  the install for the user and the service are different. The Windows command of the logs reads the
+  log of the agent of the user, or else the logs of the service.
+- The pipeline editor opens on a still canvas. Before, the view moved and zoomed while it centred on
+  the nodes. Now the Scylla logo shows until the graph is in place, then the graph and the side
+  panel fade in. A failed load shows in the canvas, with Try again.
+- The role editor checks the view of all the workspaces with a permission of a workspace or of a
+  project in a role of the instance, as the server does. On the page of an agent, the rename and the
+  revoke of a key and a new join code need the permissions of their routes, and the creator of the
+  agent also gets them. On the dashboard, a person with only roles on projects opens each project
+  that the person can see.
+- The agent page shows the timeline from the day that the agent joined, when the agent has a job
+  that ended. Before, an agent younger than 7 days had no timeline. A strip with few days keeps thin
+  bars at the right, the first day and "Today" do not overlap, and the window of one day keeps room
+  for its two handles.
+- A radio, a checkbox or the icon of an alert in a card is centered vertically on the whole card,
+  not on the line of the title: the project cards and the info card of the add agent page, the token
+  presets, the cron frequencies, the role levels, the role boxes and the warning banners. The copy
+  button of a command is centered on the command, and "No log was written." is centered in its log
+  panel.
+- The button of a danger zone and of a settings section is centered vertically on the title and the
+  description, not on the line of the title. On a phone, the button goes under the description, and
+  the text keeps the full width of the card.
+- The repository page says "The GitHub App has no webhook." for a link that polls for this reason,
+  and the test webhook says it with no raw error of GitHub.
+- The pipeline item of the breadcrumb on the jobs, job and triggers pages opens the editor of an
+  editor pipeline. Before, it opened the read-only page of a file pipeline, with the error "Scylla
+  could not read the file".
+- The jobs table of a pipeline fits in a container of 900 px or more and does not scroll to the
+  side. The Source cell shows the commit on two lines: the author and the title, then the SHA with
+  the state of the report, the ref and the pull requests. The actions of a job go into a menu when
+  their column is too narrow for the buttons.
+- The breadcrumb of the top bar stays on one line. Before, a long id put it on three lines, and the
+  window cut the first line. Only the id of the current page gets shorter, with an ellipsis. A job
+  page names its pipeline one time, with its name, also after a link or a reload.
+- The "Connect GitHub" dialog, the Git providers page and the GitHub card do not show the Commit
+  statuses permission: the GitHub App does not ask for it.
+- A long line of a job log wraps in the log panel, so the log no longer scrolls sideways. A wrapped
+  line keeps one line number and its spaces, and a finished log opens on the last row of its last
+  line.
+- The agents show "Update needed" or "Incompatible" from the agent protocol, not only from the
+  version. The machine card shows the protocol, the features, the missing features and the update
+  command. A job that waits for an agent with checkout names the online agents that cannot get its
+  code, with a link to each one.
+- The list of pipelines shows up to 30 jobs of each pipeline as bars, as many as the History column
+  can hold, in place of 5. The height of a bar shows the duration of its job. A click on a bar opens
+  the job. The Last Run column is removed. The pipeline name shows the last run, and its notes are
+  badges with the full text in a tooltip. A hover on the name shows the pass rate, the median
+  duration and the failures.
+- The bars of the job history in the list of pipelines start at the left edge, with the oldest job
+  on the left. With few jobs, the free space is on the right. "No run yet" stays at the center.
+- The Machine card of an agent shows the server version, and no longer shows the protocol. When the
+  agent must be updated, its version is a warning badge with a hint, and the server version is a
+  badge. The container runtime and the features are badges, and a missing feature has a warning
+  badge with its fix in a tooltip. The card compares the versions without the build metadata
+  (`+240da00`), and the release link uses the bare version.
 
 ## [0.6.0] - 2026-11-01
 

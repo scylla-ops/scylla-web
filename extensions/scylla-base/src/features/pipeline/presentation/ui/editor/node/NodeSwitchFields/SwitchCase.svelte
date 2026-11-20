@@ -3,6 +3,7 @@
   import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
   import PlusIcon from '@lucide/svelte/icons/plus';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
+  import { SegmentedControl } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import {
@@ -10,7 +11,6 @@
     type SwitchCase,
   } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import { nodeMessages } from '@base/features/pipeline/presentation/messages/node.messages.ts';
-  import Segmented from '@base/features/pipeline/presentation/ui/editor/controls/Segmented.svelte';
   import type { SwitchDraft } from '../switch-draft.state.svelte.ts';
   import PortNameField from './PortNameField.svelte';
   import SwitchRule from './SwitchRule.svelte';
@@ -42,11 +42,12 @@
       onCommit={name => switchDraft.renameCase(index, name)}
       class="min-w-24 flex-1"
     />
-    <Segmented
+    <SegmentedControl
       value={entry.combinator}
       options={combinators}
-      label={t(nodeMessages.matchRules)}
+      aria-label={t(nodeMessages.matchRules)}
       onChange={combinator => switchDraft.setCombinator(index, combinator)}
+      size="sm"
     />
     <div class="flex">
       <Button
@@ -68,9 +69,8 @@
         <ArrowDownIcon class="size-4" />
       </Button>
       <Button
-        variant="ghost"
+        variant="ghost-destructive"
         size="icon-sm"
-        class="text-destructive hover:text-destructive"
         aria-label={t(nodeMessages.deleteCase(entry.port))}
         disabled={count === 1}
         onclick={() => switchDraft.removeCase(index)}

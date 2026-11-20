@@ -122,6 +122,17 @@ describe('AppsList', () => {
     expect(repository.listApps).toHaveBeenCalledWith('ws-1', false);
   });
 
+  it('grows with its list, so the last row scrolls above a floating button at the bottom right', async () => {
+    setUp([Permission.LIST_APPS_BY_WORKSPACE], [app('ci')]);
+    render(AppsList);
+
+    await screen.findByRole('button', { name: 'ci' });
+
+    const page = document.querySelector('[data-tour="apps"]');
+    expect(page).toHaveClass('min-h-full', 'shrink-0', 'pb-20');
+    expect(page).not.toHaveClass('h-full');
+  });
+
   it('shows on each line the credential that needs attention, the access and the last use', async () => {
     setUp(ALL, [app('release-bot')]);
     repository.listTokens.mockResolvedValue([token()]);

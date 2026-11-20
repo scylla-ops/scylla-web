@@ -91,6 +91,16 @@ export const workspaceMutations = {
       },
     }),
 
+  setTimeZone: () =>
+    mutationOptions({
+      mutationFn: ({ workspaceId, timeZone }: { workspaceId: string; timeZone: string }) =>
+        repository().setTimeZone(workspaceId, timeZone),
+      onSuccess: () => {
+        toast.success(i18n._(workspaceSettingsMessages.timeZoneSaved));
+        return invalidateWorkspaces();
+      },
+    }),
+
   remove: () =>
     mutationOptions({
       mutationFn: (workspaceId: string) => repository().delete(workspaceId),

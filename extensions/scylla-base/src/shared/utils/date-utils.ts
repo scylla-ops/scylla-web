@@ -101,6 +101,18 @@ export function formatDay(isoString: string | undefined): string {
   }).format(date);
 }
 
+const UTC_DAY_FORMATS = {
+  day: { day: 'numeric', month: 'short' },
+  month: { month: 'short' },
+  weekday: { weekday: 'short', day: 'numeric', month: 'short' },
+} satisfies Record<string, Intl.DateTimeFormatOptions>;
+
+/** A day in UTC, as the server counts the stats, with no year: "14 Jul", "Jul", "Tue 22 Sep". */
+export const formatUtcDay = (day: string, style: keyof typeof UTC_DAY_FORMATS = 'day'): string =>
+  getDateFormatter(`utc-${style}`, { ...UTC_DAY_FORMATS[style], timeZone: 'UTC' }).format(
+    new Date(day),
+  );
+
 export function formatTime(isoString: string | undefined): string {
   if (!isoString) return '-';
 

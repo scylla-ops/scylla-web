@@ -7,6 +7,8 @@
     icon: LucideIcon;
     tooltip: string;
     onclick?: (event: MouseEvent) => void;
+    /** `destructive`: the action deletes, removes, revokes or disables. */
+    variant?: 'default' | 'destructive';
     class?: string;
     iconClass?: string;
     disabled?: boolean;
@@ -18,6 +20,7 @@
     icon: Icon,
     tooltip,
     onclick,
+    variant = 'default',
     class: className,
     iconClass,
     disabled = false,
@@ -33,10 +36,15 @@
   <TooltipTrigger
     disabled={disabled || busy}
     aria-busy={busy || undefined}
+    data-variant={variant}
     {onclick}
     class={cn(
-      buttonVariants({ variant: 'ghost', size: 'icon' }),
-      'h-8 w-8 cursor-pointer rounded-full transition-all duration-200 hover:bg-primary-subtle hover:text-primary active:scale-95',
+      buttonVariants({
+        variant: variant === 'destructive' ? 'ghost-destructive' : 'ghost',
+        size: 'icon',
+      }),
+      'h-8 w-8 cursor-pointer rounded-full transition-all duration-200 active:scale-95',
+      variant === 'default' && 'hover:bg-primary-subtle hover:text-primary',
       className,
     )}
   >

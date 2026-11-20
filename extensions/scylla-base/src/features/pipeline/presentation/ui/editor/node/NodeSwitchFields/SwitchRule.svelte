@@ -70,7 +70,7 @@
       </SelectContent>
     </Select>
     <Button
-      variant="ghost"
+      variant="ghost-destructive"
       size="icon-sm"
       aria-label={t(nodeMessages.deleteRule)}
       disabled={!removable}

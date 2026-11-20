@@ -11,6 +11,7 @@
     workspaceQueries,
   } from '@base/features/workspace/presentation/workspace.queries.ts';
   import { workspaceSettingsMessages as messages } from '@base/features/workspace/presentation/messages/workspace-settings.messages.ts';
+  import TimeZoneCard from './TimeZoneCard.svelte';
 
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id ?? '');
@@ -19,6 +20,7 @@
   const mine = createQuery(() => workspaceQueries.mine());
   const tokens = createQuery(() => personalTokenQueries.mine());
   const update = createMutation(() => workspaceMutations.setPersonalTokens());
+  const zone = createMutation(() => workspaceMutations.setTimeZone());
 
   let confirming = $state(false);
 
@@ -32,7 +34,7 @@
   };
 </script>
 
-<div class="mx-auto flex w-full max-w-4xl flex-col gap-4 pb-8">
+<div class="mx-auto flex w-full max-w-4xl flex-col gap-4 pb-20">
   <div>
     <h1>{t(messages.title)}</h1>
     <p class="text-sm text-muted-foreground">{t(messages.description(name))}</p>
@@ -41,8 +43,14 @@
   {#if mine.isError}
     <ErrorState message={mine.error?.message} />
   {:else if mine.isPending || !workspace}
-    <ListSkeleton rows={1} rowClass="h-32 w-full rounded-xl" />
+    <ListSkeleton rows={2} rowClass="h-32 w-full rounded-xl" />
   {:else}
+    <TimeZoneCard
+      {name}
+      timeZone={workspace.timeZone}
+      disabled={zone.isPending}
+      onChange={timeZone => zone.mutate({ workspaceId, timeZone })}
+    />
     <ApiAccessCard
       title={t(messages.personalTokens(name))}
       description={t(messages.personalTokensBody(name))}

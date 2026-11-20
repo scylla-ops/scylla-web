@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SegmentedControl } from '@scylla/ui';
   import {
     Input,
     Label,
@@ -6,8 +7,6 @@
     SelectContent,
     SelectItem,
     SelectTrigger,
-    ToggleGroup,
-    ToggleGroupItem,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { CiProvider } from '@base/features/apps/domain/entities/ci-identity.entity.ts';
@@ -36,30 +35,19 @@
     t({ branch: messages.branch, environment: messages.environment, any: messages.anyRef }[kind]);
 
   const repo = $derived(repository.trim() || t(messages.repositoryPlaceholder));
+  const providers = $derived([
+    { value: 'github' as const, label: t(messages.github) },
+    { value: 'gitlab' as const, label: t(messages.gitlab) },
+  ]);
 </script>
 
 <div class="flex flex-col gap-4">
-  <ToggleGroup
-    type="single"
+  <SegmentedControl
     value={provider}
-    onValueChange={next => {
-      if (next) provider = next as CiProvider;
-    }}
-    class="grid w-full grid-cols-2 rounded-lg bg-muted p-1"
-  >
-    <ToggleGroupItem
-      value="github"
-      class="rounded-md text-sm text-muted-foreground data-[state=on]:bg-card data-[state=on]:text-foreground"
-    >
-      {t(messages.github)}
-    </ToggleGroupItem>
-    <ToggleGroupItem
-      value="gitlab"
-      class="rounded-md text-sm text-muted-foreground data-[state=on]:bg-card data-[state=on]:text-foreground"
-    >
-      {t(messages.gitlab)}
-    </ToggleGroupItem>
-  </ToggleGroup>
+    options={providers}
+    onChange={next => (provider = next)}
+    fill
+  />
 
   <div class="flex flex-col gap-1.5">
     <Label for="ci-repository">{t(messages.repository)}</Label>

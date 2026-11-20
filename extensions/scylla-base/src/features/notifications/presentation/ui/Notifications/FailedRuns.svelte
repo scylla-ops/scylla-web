@@ -1,13 +1,14 @@
 <script lang="ts">
-  import CircleXIcon from '@lucide/svelte/icons/circle-x';
   import { jobQueries } from '@base/features/jobs';
   import { pipelineQueries } from '@base/features/pipeline';
   import { can, Permission } from '@platform/authz';
   import { navigateTo, workspaceUrl } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
+  import { StatusShape } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { Button, Skeleton } from '@scylla/ui/primitives';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
+  import { getStatusConfig } from '@shared/utils/status-config.ts';
   import { notificationMessages as messages } from '../../messages/notifications.messages.ts';
 
   const SKELETON_ROWS = 4;
@@ -65,7 +66,7 @@
           class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm hover:bg-accent"
           onclick={() => openJob(job.pipelineId, job.id)}
         >
-          <CircleXIcon class="size-4 shrink-0 text-status-failed" aria-hidden="true" />
+          <StatusShape state="failed" label={t(getStatusConfig('failed').label)} size={18} />
           <span class="min-w-0 flex-1 truncate">{pipelineOf(job.pipelineId)?.name}</span>
           <span class="shrink-0 text-xs text-muted-foreground">{getRelativeTime(job.createdAt)}</span>
         </button>

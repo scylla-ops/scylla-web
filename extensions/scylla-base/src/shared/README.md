@@ -38,8 +38,9 @@ instead of throwing it to that toast, which would show the same message a second
 
 ## A person shows one way
 
-`UserIdentity` shows a person in every place the app names one: the user menu, the lists of
-users and members, the holders of a role. The same initials, the same name (the display name,
+`Identity` shows a person in every place the app names one: the user menu, the lists of
+users and members, the holders of a role. It also shows an agent and another app, with an avatar
+of another shape, so that a name such as "test" tells if it is a person or a machine. The same initials, the same name (the display name,
 else the username), the same second line (the email, else `@username`) make one person
 recognizable from page to page. A user that no list knows any more shows as "Deleted user": an
 id means nothing to the reader. It lives here, not in `features/user`, because a feature cannot

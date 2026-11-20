@@ -1,7 +1,5 @@
 <script lang="ts">
   import { MediaQuery } from 'svelte/reactivity';
-  import CircleXIcon from '@lucide/svelte/icons/circle-x';
-  import ClockIcon from '@lucide/svelte/icons/clock';
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
   import GitBranchIcon from '@lucide/svelte/icons/git-branch';
   import KeyRoundIcon from '@lucide/svelte/icons/key-round';
@@ -9,7 +7,7 @@
   import PlusIcon from '@lucide/svelte/icons/plus';
   import TrashIcon from '@lucide/svelte/icons/trash';
   import { createMutation } from '@scylla/core-sdk';
-  import { ConfirmOperationAlertDialog } from '@scylla/ui';
+  import { ConfirmOperationAlertDialog, StatusShape } from '@scylla/ui';
   import {
     Button,
     buttonVariants,
@@ -21,13 +19,16 @@
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    Table,
     TableBody,
     TableCell,
+    TableFrame,
     TableHead,
     TableHeader,
     TableRow,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
+  import { tokenExpiryShape } from '@shared/presentation/presenters/token-labels.presenter.ts';
   import { cn } from '@scylla/ui/utils';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import { ciRuleText } from '@base/features/apps/domain/structs/ci-ref.struct.ts';
@@ -114,13 +115,11 @@
     )}
   >
     {#if row.kind === 'token'}
-      {#if state === 'expired' || state === 'revoked'}
-        <CircleXIcon class="size-3.5" aria-hidden="true" />
-      {:else}
-        <ClockIcon class="size-3.5" aria-hidden="true" />
-      {/if}
+      <StatusShape state={tokenExpiryShape(state)} label={text} size={18} />
+      <span aria-hidden="true">{text}</span>
+    {:else}
+      {text}
     {/if}
-    {text}
   </span>
 {/snippet}
 
@@ -184,11 +183,11 @@
         {/each}
       </div>
     {:else}
-    <div class="relative overflow-x-auto rounded-lg border">
-      <table class="w-full text-sm">
+    <TableFrame>
+      <Table>
         <TableHeader>
-          <TableRow class="hover:bg-transparent">
-            <TableHead class="px-6">{t(messages.credential)}</TableHead>
+          <TableRow>
+            <TableHead>{t(messages.credential)}</TableHead>
             <TableHead>{t(messages.details)}</TableHead>
             <TableHead>{t(messages.expiry)}</TableHead>
             <TableHead>{t(messages.lastUsedColumn)}</TableHead>
@@ -200,37 +199,37 @@
             {@const labels = credentialLabels(row, now)}
             {@const Icon = ICON[row.kind]}
             <TableRow class={live(row) ? '' : 'text-muted-foreground'}>
-              <TableCell class="px-6 py-3">
+              <TableCell>
                 <span class="flex items-center gap-2 font-medium">
                   <Icon class="size-4" aria-hidden="true" />
                   {labels.name}
                 </span>
                 <span class="text-xs text-muted-foreground">{labels.kind}</span>
               </TableCell>
-              <TableCell class="py-3">
+              <TableCell>
                 <span class="block font-mono text-xs">{labels.detail}</span>
                 <span class="text-xs text-muted-foreground">{labels.sub}</span>
               </TableCell>
-              <TableCell class="py-3">
+              <TableCell>
                 {@render expiry(row, labels.expiry)}
               </TableCell>
-              <TableCell class="py-3 text-xs">
+              <TableCell class="text-xs">
                 {row.lastUsedAt ? getRelativeTime(row.lastUsedAt) : t(messages.never)}
               </TableCell>
-              <TableCell class="py-3 pr-4 text-right">
+              <TableCell class="text-right">
                 {@render rowMenu(row, labels.name)}
               </TableCell>
             </TableRow>
           {:else}
-            <TableRow class="hover:bg-transparent">
+            <TableRow>
               <TableCell colspan={5} class="px-6 py-6 text-muted-foreground">
                 {t(messages.noCredential)}
               </TableCell>
             </TableRow>
           {/each}
         </TableBody>
-      </table>
-    </div>
+      </Table>
+    </TableFrame>
     {/if}
     <p class="text-xs text-muted-foreground">{t(messages.credentialsHint)}</p>
   </CardContent>

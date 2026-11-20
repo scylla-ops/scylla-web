@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach, type Mock } from 'vitest';
 import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
@@ -10,6 +10,10 @@ import { membershipPoints } from '@base/features/membership/presentation/members
 import ProjectMembersPage from './ProjectMembers.page.svelte';
 
 const probe = () => import('./ProjectMembersProbe.fixture.svelte');
+
+beforeAll(async () => {
+  await probe();
+});
 
 const role = (overrides: Partial<MemberRoleEntity>): MemberRoleEntity => ({
   scopeKind: 'project',
@@ -26,6 +30,7 @@ const member = (id: string, name: string, roles: MemberRoleEntity[]): MemberEnti
   actorKind: 'user',
   displayName: name,
   handle: name.toLowerCase(),
+  runner: false,
   roles,
 });
 
@@ -122,6 +127,15 @@ describe('ProjectMembersPage', () => {
 
     const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
     expect(within(bob).getByRole('button', { name: 'Change in Acme' })).toBeInTheDocument();
+  });
+
+  it('gives no link to the workspace members to a user who may not open them', async () => {
+    grant([Permission.LIST_PROJECT_MEMBERS, Permission.MANAGE_PROJECT_GRANTS]);
+    setUp();
+
+    const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
+    expect(within(bob).queryByRole('button', { name: 'Change in Acme' })).not.toBeInTheDocument();
+    expect(within(bob).queryByRole('button', { name: 'Change roles' })).not.toBeInTheDocument();
   });
 
   it('lets a manager change only the roles of the project', async () => {

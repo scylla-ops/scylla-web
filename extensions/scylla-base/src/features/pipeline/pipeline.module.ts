@@ -44,18 +44,25 @@ export const PipelineModule = {
           highlight: pipelineName,
           detail: msg`Edit`,
         }),
-        page: () => import('./presentation/ui/editor/PipelineUpdate.page.svelte'),
+        page: () => import('./presentation/ui/editor/PipelineUpdate/PipelineUpdate.page.svelte'),
       },
       {
-        // Here, not in `jobs`: the page has a Run action. The job page from `jobs` shows this crumb too.
-        path: 'pipelines/:pipelineId/jobs',
-        permission: Permission.LIST_JOBS_BY_PIPELINE,
+        // A file pipeline: the editor page, read only. An editor pipeline redirects to `edit/:pipelineId`.
+        path: 'pipelines/:pipelineId',
+        permission: Permission.READ_PIPELINE,
         breadcrumb: ({ pipelineName }) => ({
           label: msg`Pipeline`,
           highlight: pipelineName,
-          detail: msg`Jobs`,
         }),
-        page: () => import('./presentation/ui/PipelineJobs.page.svelte'),
+        page: () => import('./presentation/ui/file/FilePipeline/FilePipeline.page.svelte'),
+      },
+      {
+        // Here, not in `jobs`: the page has a Run action. The job page from `jobs` shows this crumb too.
+        // The crumb of `pipelines/:pipelineId` names the pipeline before it.
+        path: 'pipelines/:pipelineId/jobs',
+        permission: Permission.LIST_JOBS_BY_PIPELINE,
+        breadcrumb: () => ({ label: msg`Jobs` }),
+        page: () => import('./presentation/ui/PipelineJobs/PipelineJobs.page.svelte'),
       },
     ],
   },

@@ -10,6 +10,7 @@
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from '@scylla/ui/primitives';
   import { IconButton, getDataTableLayout } from '@scylla/ui';
@@ -61,7 +62,8 @@
             <EditIcon class="mr-2 h-4 w-4" />
             {t(triggersMessages.edit)}
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={onDelete} class="text-destructive">
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive" onSelect={onDelete}>
             <Trash2Icon class="mr-2 h-4 w-4" />
             {t(triggersMessages.delete)}
           </DropdownMenuItem>
@@ -80,7 +82,7 @@
         icon={Trash2Icon}
         tooltip={t(triggersMessages.delete)}
         onclick={onDelete}
-        iconClass="text-destructive"
+        variant="destructive"
       />
     {/if}
   </div>

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { PermissionScope, permissionsStore } from '@platform/authz';
@@ -12,8 +12,9 @@ let teardown: (() => void)[] = [];
 
 const setUp = () => render(InSidebar, { component: GlobalSearch });
 
-/** The bar is a chunk of its own: its first import, with no cache, can take more than a second. */
-const LAZY_CHUNK = { timeout: 5000 };
+beforeAll(async () => {
+  await import('../CommandBar/CommandBar.svelte');
+});
 
 beforeEach(() => {
   setAppNavigator({
@@ -59,14 +60,14 @@ describe('GlobalSearch', () => {
 
     await userEvent.setup().click(screen.getByRole('button', { name: 'Search' }));
 
-    expect(await screen.findByRole('combobox', {}, LAZY_CHUNK)).toBeInTheDocument();
+    expect(await screen.findByRole('combobox')).toBeInTheDocument();
   });
 
   it('opens and closes the bar with the shortcut', async () => {
     setUp();
 
     await fireEvent.keyDown(window, { key: 'k', metaKey: true });
-    expect(await screen.findByRole('combobox', {}, LAZY_CHUNK)).toBeInTheDocument();
+    expect(await screen.findByRole('combobox')).toBeInTheDocument();
 
     await fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
     await waitFor(() => expect(screen.queryByRole('combobox')).not.toBeInTheDocument());

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { dailyCountsOf, successRate, sumOutcomes } from '../agent-stats.struct.ts';
+import { dailyCountsOf, isIncident, successRate, sumOutcomes } from '../agent-stats.struct.ts';
 
 const outcomes = (completed: number, failed: number) => ({
   completed,
@@ -17,6 +17,11 @@ describe('agent stats', () => {
 
   it('adds the outcomes of some agents', () => {
     expect(sumOutcomes([outcomes(1, 2), outcomes(3, 0)])).toEqual(outcomes(4, 2));
+  });
+
+  it('makes a day with 3 failed or orphaned jobs an incident', () => {
+    expect(isIncident(outcomes(9, 2))).toBe(false);
+    expect(isIncident({ ...outcomes(0, 1), orphaned: 2 })).toBe(true);
   });
 });
 

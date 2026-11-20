@@ -11,6 +11,8 @@
   interface Props {
     id?: string;
     content: SecondSidebarContent | undefined;
+    /** Replaces the title and the links of `content`. */
+    panel?: Component;
     pathname: string;
     ready: boolean;
     badges: readonly Component<{ url: string }>[];
@@ -18,7 +20,7 @@
     class?: string;
   }
 
-  let { id, content, pathname, ready, badges, onOpenPage, class: className }: Props = $props();
+  let { id, content, pathname, ready, badges, onOpenPage, panel: Panel, class: className }: Props = $props();
 
   const active = $derived(content ? activePageOf(content.pages, pathname) : undefined);
   const SECTION_FADE_MS = 120;
@@ -27,7 +29,7 @@
 <aside
   {id}
   data-slot="sidebar"
-  class={cn('flex flex-col border-r border-sidebar-border bg-background pb-2', className)}
+  class={cn('flex flex-col border-r border-sidebar-border bg-second-sidebar pb-2', className)}
 >
   {#if !ready}
     <div class="flex h-12 shrink-0 items-center px-4">
@@ -41,6 +43,10 @@
         </div>
       {/each}
     </div>
+  {:else if Panel && content}
+    {#key content.id}
+      <Panel />
+    {/key}
   {:else if content}
     {#key content.id}
       <div
@@ -53,7 +59,7 @@
         <ul class="relative flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2">
           {#each content.pages as page (page.href)}
             {@const current = page.href === active?.href}
-            <li class={cn(page.danger && NAV_DANGER_APART_CLASS)}>
+            <li class={cn((page.danger || page.apart) && NAV_DANGER_APART_CLASS)}>
               {#if page.heading}
                 <p class={NAV_HEADING_CLASS}>{page.heading}</p>
               {/if}

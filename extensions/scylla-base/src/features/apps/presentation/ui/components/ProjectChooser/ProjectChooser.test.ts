@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { fireEvent, screen } from '@testing-library/svelte';
+import { fireEvent, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import ProjectChooser from './ProjectChooser.svelte';
 
 let teardown: Array<() => void> = [];
 
-const setup = (count: number) => {
+const setup = (count: number, someProjects = true) => {
   const cache = withQueryClient();
   const restore = withRegistry({
     project: {
@@ -21,12 +21,42 @@ const setup = (count: number) => {
     },
   });
   teardown = [cache.restore, restore];
-  render(ProjectChooser, { workspaceId: 'w-1', someProjects: true, projectIds: [] });
+  render(ProjectChooser, { workspaceId: 'w-1', someProjects, projectIds: [] });
 };
 
 afterEach(() => teardown.forEach(restore => restore()));
 
 describe('ProjectChooser', () => {
+  it('gives two choices as cards, each with its line', () => {
+    setup(3, false);
+
+    expect(screen.getByRole('radio', { name: 'All projects' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'All projects' })).toHaveAccessibleDescription(
+      'Every project of the workspace, now and later.',
+    );
+    expect(screen.getByRole('radio', { name: 'Some projects' })).toHaveAccessibleDescription(
+      'Only the projects that you choose.',
+    );
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+  });
+
+  it('shows the list at once when the user picks some projects', async () => {
+    setup(3, false);
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Some projects' }));
+
+    expect(await screen.findByRole('checkbox', { name: 'project-2' })).toBeInTheDocument();
+  });
+
+  it('cannot pick some projects in a workspace with no project, and tells why', async () => {
+    setup(0, false);
+    const some = screen.getByRole('radio', { name: 'Some projects' });
+
+    await waitFor(() => expect(some).toBeDisabled());
+    expect(some).toHaveAccessibleDescription('No project in this workspace yet.');
+    expect(screen.getByRole('radio', { name: 'All projects' })).not.toBeDisabled();
+  });
+
   it('has no field for a short list', async () => {
     setup(7);
 

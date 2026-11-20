@@ -3,18 +3,27 @@ import { newEmail, signUpAndIn } from './support.ts';
 
 const card = (page: Page) => page.locator('[data-tour-focus]');
 
-/** The step that opens the dialog of a new agent, from a user with no tour in progress. */
-const openAgentDialog = async (page: Page, slug: string) => {
+/** The step that opens the page of a new agent, from a user with no tour in progress. */
+const openAgentForm = async (page: Page, slug: string) => {
   await page.goto(`/${slug}/agents`);
   await page.locator('[data-tour-offer="agent"]').getByRole('button', { name: 'Start' }).click();
   await card(page).getByRole('button', { name: 'Add an agent' }).click();
   await expect(card(page).getByRole('heading', { name: 'Name your agent' })).toBeVisible();
-  return page.locator('[data-tour="add-agent-dialog"]');
+  return page.locator('[data-tour="add-agent-form"]');
+};
+
+/** The step that opens the dialog of a new project, from a user with no tour in progress. */
+const openProjectDialog = async (page: Page, slug: string) => {
+  await page.goto(`/${slug}/projects`);
+  await page.locator('[data-tour-offer="pipeline"]').getByRole('button', { name: 'Start' }).click();
+  await card(page).getByRole('button', { name: 'New project' }).click();
+  await expect(card(page).getByRole('heading', { name: 'Name your project' })).toBeVisible();
+  return page.getByRole('dialog');
 };
 
 test('only Skip leaves a step that lives in a dialog', async ({ page }) => {
   const slug = await signUpAndIn(page, newEmail('tour-hold'));
-  const dialog = await openAgentDialog(page, slug);
+  const dialog = await openProjectDialog(page, slug);
 
   await page.keyboard.press('Escape');
   await page.mouse.click(5, 400);
@@ -37,9 +46,9 @@ test('only Skip leaves a step that lives in a dialog', async ({ page }) => {
 
 test('Tab stays on the step and reaches Skip', async ({ page }) => {
   const slug = await signUpAndIn(page, newEmail('tour-tab'));
-  await openAgentDialog(page, slug);
+  await openAgentForm(page, slug);
 
-  const inTour = page.locator('[data-tour-focus] :focus, [data-tour="add-agent-dialog"] :focus');
+  const inTour = page.locator('[data-tour-focus] :focus, [data-tour="add-agent-form"] :focus');
   const skip = card(page).locator('button:focus', { hasText: /^\s*Skip\s*$/ });
   let reachedSkip = false;
   for (let press = 0; press < 8; press += 1) {

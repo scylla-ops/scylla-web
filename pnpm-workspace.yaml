@@ -3,6 +3,8 @@ packages:
   - 'packages/*'
   - 'sdks/*'
   - 'extensions/*'
+  # The visual catalog of @scylla/ui. A host workspace does not include it.
+  - 'catalog'
 
 allowBuilds:
   '@swc/core': true

@@ -4,6 +4,7 @@ import { DashboardModule } from '@base/features/dashboard/dashboard.module.ts';
 import { OnboardingModule } from '@base/features/onboarding/onboarding.module.ts';
 import { MarketplaceModule } from '@base/features/marketplace/marketplace.module.ts';
 import { WorkspaceModule } from '@base/features/workspace/workspace.module.ts';
+import { IntegrationsModule } from '@base/features/integrations/integrations.module.ts';
 import { ProjectModule } from '@base/features/project/project.module.ts';
 import { SecretModule } from '@base/features/secret/secret.module.ts';
 import { PipelineModule } from '@base/features/pipeline/pipeline.module.ts';
@@ -37,6 +38,7 @@ export const modules = [
   InvitationModule,
   NotificationsModule,
   WorkspaceModule,
+  IntegrationsModule,
   UserModule,
   AccessModule,
   MarketplaceModule,

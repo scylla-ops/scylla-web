@@ -23,6 +23,10 @@ shell.module.ts                         ShellModule: mounts, routes of the shell
                                         access, shell parts, onQueryError, onQueryRetry, fallback
 whats-new.ts                            THE release announcement
 __test__/feature-permissions.test.ts    conformance: features gate, shared queries check
+__test__/destructive-actions.test.ts    conformance: an action that deletes, removes, revokes or
+                                        disables has the destructive variant (`@scylla/ui`, "Destructive actions")
+__test__/choice-cards.test.ts           conformance: a radio, a checkbox or a switch in a label is centered
+                                        on the label, here and in `@scylla/ui` (`@scylla/ui`, "Rules that bite here")
 presentation/
   shell-params.ts                       breadcrumbParams, linkParams (from the context store)
   report-query-error.ts                 the one error toast; on UNAUTHENTICATED `closeSession`, `loginPathBackTo` (login);
@@ -34,12 +38,14 @@ presentation/
     WorkspaceSync.wrapper.svelte     URL slug → context store (workspace-sync.effect.svelte.ts)
     WorkspaceRedirect.wrapper.svelte `/` → the user's workspace (workspace-redirect.effect.svelte.ts)
     last-workspace.ts                   the key `last-workspace` of `platform/user-state`
-    ContextCleaner.wrapper.svelte       URL project → context store, drops stale project/pipeline context
-                                        (context-cleaner.effect.svelte.ts)
+    ContextCleaner.wrapper.svelte       URL project → context store, drops stale project/pipeline context,
+                                        names the pipeline of the URL (context-cleaner.effect.svelte.ts)
     NotFound/                           the fallback for a URL that no route matches: a text and a link to /.
                                         It has no session check: / goes through AuthGuard
   layout/
     shell.state.svelte.ts               workspaces query, permission sync, first workspace
+    project-links.state.svelte.ts       projectLinks: the projects of the workspace after "All projects"
+                                        (secondSidebarLinks); it reads them only while they show
     whats-new.state.svelte.ts                 seen flags (reactive, key `whats-new-seen` of `platform/user-state`), markNavSeen
     ui/WorkspaceGate/                loading screen / first workspace / the pages
       FirstWorkspace.svelte          welcome screen when the user has no workspace
@@ -82,7 +88,7 @@ navSections      workspace, project (within projects, title: projectName), insta
                  opens it)
 access           can / authorizationReady / RequirePermission, from @platform/authz
 shell            brand ShellBrand · topBarEnd GlobalSearch, NotificationsMenu, WorkspaceSelector · sidebarFooter NavUser · overlays LaunchOverlays · navBadge NewBadge ·
-                 onNavOpen markNavSeen · breadcrumbParams · linkParams
+                 onNavOpen markNavSeen · secondSidebarLinks projectLinks · breadcrumbParams · linkParams
 onQueryError     reportQueryError
 onQueryRetry     retryQueryError
 fallback         NotFoundPage
@@ -156,6 +162,12 @@ Rules:
   counts the project as gone.
 - **`projectQueries.byId` has no `can()` gate here.** The permissions of a project load only for the
   project of the store, and `cleanContext` writes this project. A gate never opens.
+- `namePipeline` gives the store the name of the pipeline of the URL (`pipelineQueries.byId`, with
+  `READ_PIPELINE` in `enabled`). A link, a reload or a search result opens a pipeline page with no
+  name in the store, and the crumbs then show the id. It reads only when the store does not name
+  this pipeline, because the editor page reads the same key, and a refetch replaces its draft. It
+  follows the answer in the cache, thus a saved rename goes to the crumbs. Like `cleanContext`, it
+  writes only while the URL still points at its pipeline.
 - A full load of a deleted or unknown URL shows one error toast: the page mounts and its own list
   fails before the read of the project answers. The wrapper does not hold the page until this
   answer, because each first entry in a project would then wait for one more call.
@@ -166,7 +178,8 @@ Rules:
   The top bar shows the workspace in its switcher, so no crumb names it.
   `breadcrumbParams` gives the crumbs `projectName`, and `pipelineName` —
   the name of the active pipeline only when it is the one in the URL, else its id, so the crumb
-  identifies its pipeline also after a reload.
+  identifies its pipeline before `namePipeline` has the name, and for a person without
+  `READ_PIPELINE`.
 - `ShellBrand` is a plain link: the router follows it, and a Ctrl click opens a new tab. It reads
   the slug from `linkParams`, so it follows a change of workspace. With no active workspace it
   opens `/`, and `/` picks the workspace of the user.
@@ -215,8 +228,8 @@ page-level rule (every page in the shell declares a `permission`) is in
   reads it for the auth header, `AuthGuard` reads it to redirect. Change all three at once.
   The shell never writes the session: the menu calls `signOut` and the error report calls
   `closeSession`, both from `features/login`.
-- `NavUser` shows the person with `UserIdentity`, imported **by path**
-  (`@shared/presentation/ui/data-display/UserIdentity/UserIdentity.svelte`): the barrel of
+- `NavUser` shows the person with `IdentityAvatar`, imported **by path**
+  (`@shared/presentation/ui/data-display/IdentityAvatar/IdentityAvatar.svelte`): the barrel of
   `@shared/presentation/ui` re-exports the other shared components, and this file is in the entry
   chunk. "Who am I" is `userQueries.me`, never `localStorage.userId`.
 - After the first workspace, the shell opens its dashboard (`workspaceUrl(name)`).
@@ -236,6 +249,9 @@ page-level rule (every page in the shell declares a `permission`) is in
   already closed.
 - `/` opens the workspace of the key `last-workspace` when it is on the list of the person, else the
   local context, else the first workspace. A new device thus opens the last workspace of the person.
+- **The dashboard is the default page of a workspace.** `workspaceUrl(slug)` with no path gives it:
+  `/`, a change of workspace, a project that is gone and the link of the not-found page all land
+  there. Give a path only for another page.
 - `locale` and `last-workspace` have `upload: false`: the load of a page writes these local values,
   so a local value does not prove a choice of the person. Only `chooseLocale` and
   `rememberWorkspace` send them.

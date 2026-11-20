@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Permission, can } from '@platform/authz';
   import { navigateTo, routePathname } from '@scylla/core-sdk';
   import { ScyllaDialog } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
@@ -20,6 +21,7 @@
   let { open, name, workspaceName, onClose }: Props = $props();
 
   const slug = $derived(routePathname().split('/')[1] ?? '');
+  const canAddApp = $derived(can(Permission.LIST_APPS_BY_WORKSPACE) && can(Permission.CREATE_APP));
 </script>
 
 <ScyllaDialog
@@ -32,6 +34,8 @@
 >
   <div class="flex justify-end gap-2">
     <Button variant="outline" onclick={onClose}>{t(membershipMessages.close)}</Button>
-    <Button onclick={() => navigateTo(`/${slug}/apps`)}>{t(newAppIn(workspaceName))}</Button>
+    {#if canAddApp}
+      <Button onclick={() => navigateTo(`/${slug}/apps`)}>{t(newAppIn(workspaceName))}</Button>
+    {/if}
   </div>
 </ScyllaDialog>

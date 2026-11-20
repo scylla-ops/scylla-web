@@ -1,6 +1,7 @@
 <script lang="ts">
   import CircleAlertIcon from '@lucide/svelte/icons/circle-alert';
   import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
+  import { Permission, can } from '@platform/authz';
   import { activeWorkspaceSlug, contextStore } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
   import { appQueries } from '@base/features/apps';
@@ -19,6 +20,13 @@
   import JobStatus from '../jobs-table/JobStatus/JobStatus.svelte';
   import JobTimeline from '../jobs-table/JobTimeline/JobTimeline.svelte';
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
+  import { stepsOf } from '@base/features/jobs/presentation/presenters/job-steps.presenter.ts';
+  import { hasInvalidFile } from '@base/features/jobs/presentation/presenters/job-status.presenter.ts';
+  import InvalidFileAlert from './InvalidFileAlert.svelte';
+  import JobApprovalBlock from './JobApprovalBlock.svelte';
+  import JobReportsBand from './JobReportsBand.svelte';
+  import JobSourceFacts from './JobSourceFacts.svelte';
+  import UnfitAgentsAlert from './UnfitAgentsAlert.svelte';
 
   interface Props {
     job: JobEntity;
@@ -26,9 +34,21 @@
     onSelectNode: (nodeId?: string) => void;
     onRerun?: () => void;
     isRerunning?: boolean;
+    /** Unset without `APPROVE_JOB`. */
+    onApprove?: () => void;
+    onReject?: () => void;
+    isDeciding?: boolean;
   }
 
-  let { job, onSelectNode, onRerun, isRerunning = false }: Props = $props();
+  let {
+    job,
+    onSelectNode,
+    onRerun,
+    isRerunning = false,
+    onApprove,
+    onReject,
+    isDeciding = false,
+  }: Props = $props();
 
   // Ticks only while the job runs.
   const now = createNow(() => isActiveStatus(job.status));
@@ -39,6 +59,9 @@
     ...appQueries.byId(job.agentId ?? '', workspaceId),
     refetchInterval: false,
   }));
+
+  // The agent page needs READ_APP: without it, the id stays plain text.
+  const canOpenAgent = $derived(can(Permission.READ_APP, { workspaceId }));
 
   const duration = $derived.by(() => {
     void now.value;
@@ -99,22 +122,53 @@
         <span class="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
           {t(jobsMessages.agent)}
         </span>
-        <a
-          class="font-mono text-xs text-foreground hover:underline"
-          href="/{activeWorkspaceSlug() ?? ''}/agents/{job.agentId}"
-        >
-          {agent.data?.app.name ?? job.agentId}
-        </a>
+        {#if canOpenAgent}
+          <a
+            class="font-mono text-xs text-foreground hover:underline"
+            href="/{activeWorkspaceSlug() ?? ''}/agents/{job.agentId}"
+          >
+            {agent.data?.app.name ?? job.agentId}
+          </a>
+        {:else}
+          <span class="font-mono text-xs text-foreground">{job.agentId}</span>
+        {/if}
       </span>
     {/if}
   </div>
 
-  {#if job.error}
+  {#if job.source}
+    <JobSourceFacts {job} source={job.source} />
+  {/if}
+
+  <JobReportsBand {job} />
+
+  {#if job.status === 'awaiting_approval' && job.approval}
+    <JobApprovalBlock
+      approval={job.approval}
+      provider={job.source?.provider}
+      {onApprove}
+      {onReject}
+      deciding={isDeciding}
+    />
+  {/if}
+
+  {#if job.status === 'pending' && job.unfitAgents}
+    <UnfitAgentsAlert
+      agents={job.unfitAgents}
+      agentHref={canOpenAgent
+        ? (id: string) => `/${activeWorkspaceSlug() ?? ''}/agents/${id}`
+        : undefined}
+    />
+  {/if}
+
+  {#if hasInvalidFile(job) && job.fileErrors}
+    <InvalidFileAlert errors={job.fileErrors} file={job.pipelineFile} />
+  {:else if job.error}
     <div
       role="alert"
-      class="flex items-start gap-2.5 rounded-md border border-destructive/40 bg-destructive-subtle px-3.5 py-2.5"
+      class="flex items-center gap-2.5 rounded-md border border-destructive/40 bg-destructive-subtle px-3.5 py-2.5"
     >
-      <CircleAlertIcon class="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
+      <CircleAlertIcon class="size-4 shrink-0 text-destructive" aria-hidden="true" />
       <div class="min-w-0">
         <p class="text-sm font-medium text-foreground">{t(jobsMessages.jobFailed)}</p>
         <p class="mt-0.5 font-mono text-xs break-words text-foreground">{job.error}</p>
@@ -124,6 +178,6 @@
 
   <div>
     <h2 class="mb-2 text-lg text-foreground">{t(jobsMessages.timeline)}</h2>
-    <JobTimeline nodeExecutions={job.nodeExecutions} {onSelectNode} />
+    <JobTimeline nodeExecutions={stepsOf(job)} {onSelectNode} />
   </div>
 </div>

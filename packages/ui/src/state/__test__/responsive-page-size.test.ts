@@ -18,7 +18,7 @@ describe('computePageSize', () => {
   });
 
   it('falls back to the default row and header heights', () => {
-    // 61px rows under a 44px header: (700 - 44) / 61 -> 10
-    expect(computePageSize(700)).toBe(10);
+    // 58px rows under a 48px frame: (700 - 48) / 58 -> 11
+    expect(computePageSize(700)).toBe(11);
   });
 });

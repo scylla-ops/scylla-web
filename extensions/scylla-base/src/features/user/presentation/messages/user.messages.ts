@@ -113,6 +113,13 @@ export const userMessages = {
   sessionsRevoked: (count: number) =>
     msg`${plural(count, { 0: 'No session to sign out.', one: '# session signed out.', other: '# sessions signed out.' })}`,
 
+  about: msg`About`,
+  versions: msg`Versions`,
+  versionsDescription: msg`Give these versions when you report a problem.`,
+  edition: msg`Edition`,
+  webApp: msg`Web app`,
+  server: msg`Server`,
+
   signOut: msg`Sign out`,
   dangerZone: msg`Danger zone`,
   deleteMyAccount: msg`Delete my account`,

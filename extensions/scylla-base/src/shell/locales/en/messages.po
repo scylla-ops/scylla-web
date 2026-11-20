@@ -109,11 +109,11 @@ msgstr "Current"
 msgid "Drag and drop on the blueprint"
 msgstr "Drag and drop on the blueprint"
 
-#: extensions/scylla-base/src/shell/presentation/layout/language.commands.ts:24
+#: extensions/scylla-base/src/shell/presentation/layout/language.commands.ts:25
 msgid "English"
 msgstr "English"
 
-#: extensions/scylla-base/src/shell/presentation/layout/language.commands.ts:24
+#: extensions/scylla-base/src/shell/presentation/layout/language.commands.ts:25
 msgid "english language"
 msgstr "english language"
 
@@ -121,11 +121,11 @@ msgstr "english language"
 msgid "Filter"
 msgstr "Filter"
 
-#: extensions/scylla-base/src/shell/presentation/layout/language.commands.ts:25
+#: extensions/scylla-base/src/shell/presentation/layout/language.commands.ts:26
 msgid "Français"
 msgstr "Français"
 
-#: extensions/scylla-base/src/shell/presentation/layout/language.commands.ts:25
+#: extensions/scylla-base/src/shell/presentation/layout/language.commands.ts:26
 msgid "french language"
 msgstr "french language"
 

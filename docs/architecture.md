@@ -176,7 +176,7 @@ export const UserModule = {
 
 The **frame** is also declared by modules, with optional fields: `mounts`, `navSections`,
 `access` (`can`, `ready`, `guard`), `shell` (sidebar footer, overlays, nav badge, breadcrumb and
-link parameters), `onQueryError` and `fallback`. In scylla-base, `ShellModule` declares all of
+link parameters, links of data in the second sidebar), `onQueryError` and `fallback`. In scylla-base, `ShellModule` declares all of
 them.
 
 A route's `permission` has the type that one extension registers on `Register` (scylla-base
@@ -658,7 +658,7 @@ Do not copy query data into a store or into `$state`.
 
 ## 10. i18n
 
-Lingui 5. `lingui extract` does not read `.svelte` files: declare each message with `` msg`…` ``
+Lingui 6. `lingui extract` does not read `.svelte` files: declare each message with `` msg`…` ``
 in a `*.messages.ts` beside its component, and render it with `t()` from `@scylla/ui/i18n`.
 Catalogs are per module (`locales/{en,fr}/messages.po`). Each package registers its catalogs:
 `@scylla/ui` and the core their own, each extension through `@Extension({ catalogs })`. The
@@ -675,7 +675,7 @@ runtime merges them into one map, so `pnpm i18n:collisions` must stay at zero.
 | TanStack Query 5 (`@tanstack/svelte-query`) | Server state, caching, mutations |
 | TanStack Table 9 | Data tables |
 | Router written in `@scylla/core` | Routing |
-| Lingui 5 | Internationalization (en, fr) |
+| Lingui 6 | Internationalization (en, fr) |
 | gRPC-Web (protobuf-ts) | Backend communication |
 | bits-ui | UI component primitives (adapted from shadcn/ui) |
 | lucide (`@lucide/svelte`) | Icons |
@@ -683,7 +683,7 @@ runtime merges them into one map, so `pnpm i18n:collisions` must stay at zero.
 | `@xyflow/svelte` | Graphs |
 | CodeMirror 6 | Code editor |
 | Tailwind CSS 4 | Styling |
-| Vite 7 | Build tool |
+| Vite 8 | Build tool |
 | Vitest + Testing Library | Tests |
 | dependency-cruiser | Architecture rules |
 

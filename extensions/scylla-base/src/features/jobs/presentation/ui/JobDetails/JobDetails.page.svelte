@@ -12,6 +12,7 @@
   import JobNodeLogs from './JobNodeLogs.svelte';
   import JobSummary from './JobSummary.svelte';
   import { nodeIdOf } from '@base/features/jobs/presentation/presenters/job-timeline.presenter.ts';
+  import { stepsOf } from '@base/features/jobs/presentation/presenters/job-steps.presenter.ts';
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
@@ -25,11 +26,15 @@
 
   const rerun = createMutation(() => jobMutations.rerun(job?.pipelineId ?? ''));
   const canRerun = $derived(
-    !!job && isFinishedStatus(job.status) && can(Permission.RUN_PIPELINE),
+    !!job && isFinishedStatus(job.status) && can(Permission.CREATE_JOB),
   );
 
-  // A getter: the nodes arrive with the job.
-  const panels = createOpenLogPanels(() => job?.nodeExecutions.map(nodeIdOf) ?? []);
+  const approve = createMutation(() => jobMutations.approve(job?.pipelineId ?? ''));
+  const reject = createMutation(() => jobMutations.reject(job?.pipelineId ?? ''));
+  const canApprove = $derived(!!job && can(Permission.APPROVE_JOB));
+
+  // A getter: the nodes arrive with the job. The checkout is a step before them.
+  const panels = createOpenLogPanels(() => (job ? stepsOf(job).map(nodeIdOf) : []));
 
   /** A node picked in the graph: its panel opens, and the list scrolls to it. */
   let revealed = $state<{ id: string } | null>(null);
@@ -61,6 +66,9 @@
       onSelectNode={panels.selectNode}
       onRerun={canRerun ? () => rerun.mutate(job.id) : undefined}
       isRerunning={rerun.isPending}
+      onApprove={canApprove ? () => approve.mutate(job.id) : undefined}
+      onReject={canApprove ? () => reject.mutate(job.id) : undefined}
+      isDeciding={approve.isPending || reject.isPending}
     />
     <!-- A job from before the snapshot of the nodes has no graph. -->
     {#if job.nodes.length}

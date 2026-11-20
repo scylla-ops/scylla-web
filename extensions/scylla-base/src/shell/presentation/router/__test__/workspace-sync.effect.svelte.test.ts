@@ -158,7 +158,7 @@ describe('syncWorkspace', () => {
 
     run('gone')();
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
     expect(contextStore.getState().workspace).toEqual({ id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' });
   });
 
@@ -167,13 +167,13 @@ describe('syncWorkspace', () => {
 
     run('no-such-org')();
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
   });
 
   it('goes to the first workspace when the slug matches none', () => {
     run('no-such-org')();
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/projects', { replace: true });
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
     expect(contextStore.getState().workspace).toEqual({ id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' });
   });
 

@@ -1,5 +1,6 @@
 <script lang="ts">
   import CopyIcon from '@lucide/svelte/icons/copy';
+  import EyeIcon from '@lucide/svelte/icons/eye';
   import ListChecksIcon from '@lucide/svelte/icons/list-checks';
   import Loader2Icon from '@lucide/svelte/icons/loader-2';
   import MoreHorizontalIcon from '@lucide/svelte/icons/more-horizontal';
@@ -17,6 +18,7 @@
   import { IconButton, getDataTableLayout } from '@scylla/ui';
   import { createCompactContainer } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
+  import { fileMessages } from '@base/features/pipeline/presentation/messages/file.messages.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
   interface Props {
@@ -27,6 +29,8 @@
     onViewTriggers?: (event: MouseEvent) => void;
     isRunning?: boolean;
     isDuplicating?: boolean;
+    /** A file pipeline is read only: `onEdit` opens its page, for the readers. */
+    fromFile?: boolean;
   }
 
   let {
@@ -37,12 +41,14 @@
     onViewTriggers,
     isRunning = false,
     isDuplicating = false,
+    fromFile = false,
   }: Props = $props();
 
   const compact = createCompactContainer();
 
   const canRun = $derived(can(Permission.RUN_PIPELINE));
-  const canEdit = $derived(can(Permission.UPDATE_PIPELINE));
+  const canEdit = $derived(can(fromFile ? Permission.READ_PIPELINE : Permission.UPDATE_PIPELINE));
+  const EditIcon = $derived(fromFile ? EyeIcon : PencilIcon);
   const canDuplicate = $derived(can(Permission.CREATE_PIPELINE));
   const showTriggers = $derived(!!onViewTriggers && can(Permission.MANAGE_TRIGGERS));
 
@@ -103,8 +109,8 @@
         {/if}
         {#if canEdit}
           <DropdownMenuItem onclick={onEdit}>
-            <PencilIcon class="mr-2 h-4 w-4" />
-            {t(pipelineMessages.edit)}
+            <EditIcon class="mr-2 h-4 w-4" />
+            {fromFile ? t(fileMessages.view) : t(pipelineMessages.edit)}
           </DropdownMenuItem>
         {/if}
         {#if canDuplicate}
@@ -134,8 +140,8 @@
 
     {#if canEdit}
       <IconButton
-        icon={PencilIcon}
-        tooltip={t(pipelineMessages.editPipeline)}
+        icon={EditIcon}
+        tooltip={fromFile ? t(fileMessages.viewPipeline) : t(pipelineMessages.editPipeline)}
         onclick={onEdit}
       />
     {/if}

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { msg } from '@lingui/core/macro';
 import type { AccessPolicy, RoutePermission, ShellContributions } from '@scylla/core-sdk';
 import { installTestNavigator } from '@test/navigator.ts';
+import { findFloating, findTooltip, queryTooltip } from '@test/render.ts';
 import { testPermission } from '../../routing/__test__/test-permission.fixture.ts';
 import type { NavEntry } from '../../routing/compilation/nav-entries.ts';
 import type { ShellConfig } from '../shell-config.ts';
@@ -11,6 +12,7 @@ import Badge from '../__test__/Badge.fixture.svelte';
 import Stub from '../__test__/Stub.fixture.svelte';
 import AppSidebarFixture from './AppSidebar.fixture.svelte';
 import AppSidebarSheetFixture from './AppSidebarSheet.fixture.svelte';
+import RailMenu from './RailMenu.fixture.svelte';
 
 const LIST_SECRETS = testPermission('LIST_SECRETS');
 
@@ -65,6 +67,14 @@ const railOf = () => {
   if (!rail) throw new Error('no rail');
   return rail;
 };
+
+const freeRoomOf = () => {
+  const space = railOf().querySelector<HTMLElement>('[data-slot="sidebar-rail-space"]');
+  if (!space) throw new Error('no free room in the rail');
+  return space;
+};
+
+const layerOf = (element: HTMLElement) => Number(/(?:^|\s)z-(\d+)/.exec(element.className)?.[1]);
 
 const secondSidebar = () => {
   const aside = document.querySelector<HTMLElement>('aside[data-slot="sidebar"]');
@@ -156,15 +166,63 @@ describe('the rail', () => {
     expect(rail).toHaveAttribute('data-state', 'collapsed');
   });
 
-  it('opens and closes on a click on an empty part', async () => {
+  it('opens and closes on a click on the free room below its rows, whose cursor shows the direction', async () => {
     render(AppSidebarFixture, { config: configWith() });
     const rail = railOf();
+    expect(freeRoomOf()).toHaveClass('cursor-e-resize');
 
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
     expect(rail).toHaveAttribute('data-state', 'expanded');
+    expect(freeRoomOf()).toHaveClass('cursor-w-resize');
 
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
     expect(rail).toHaveAttribute('data-state', 'collapsed');
+  });
+
+  it('does not open on a click between or beside its rows, where the cursor does not change', async () => {
+    const members = entry({
+      title: msg`Members`,
+      url: 'members',
+      pattern: [':workspaceSlug', 'members'],
+    });
+    render(AppSidebarFixture, { config: configWith({ entries: [entry(), members] }) });
+    const rail = railOf();
+    const rows = within(rail).getByRole('button', { name: /Secrets/ }).parentElement;
+    const column = rows?.parentElement;
+    if (!rows || !column) throw new Error('no column of rows');
+    const resizeCursors = () =>
+      [rail, ...rail.querySelectorAll('*')].filter(element =>
+        element.matches('.cursor-e-resize, .cursor-w-resize'),
+      );
+
+    for (const neutral of [rows, column, rail]) await fireEvent.click(neutral);
+    expect(rail).toHaveAttribute('data-state', 'collapsed');
+    expect(resizeCursors()).toEqual([
+      freeRoomOf(),
+      within(rail).getByRole('button', { name: 'Toggle Sidebar' }),
+    ]);
+  });
+
+  it('closes on a click anywhere but its free room and its separator, also on the logo or between its rows', async () => {
+    const contributions: ShellContributions[] = [
+      { linkParams: () => ({ workspaceSlug: 'acme-corp' }), brand: Stub, sidebarFooter: [Stub] },
+    ];
+    render(AppSidebarFixture, { config: configWith({ contributions }) });
+    const rail = railOf();
+    const rows = within(rail).getByRole('button', { name: /Secrets/ }).parentElement;
+    const column = rows?.parentElement;
+    const band = document.querySelector<HTMLElement>('[data-slot="sidebar-brand"]');
+    if (!rows || !column || !band) throw new Error('no column of rows or no brand band');
+    const logo = within(band).getByText('stub');
+    const footer = within(rail).getByText('stub');
+
+    for (const elsewhere of [logo, rows, column, rail, footer, document.body]) {
+      await fireEvent.click(freeRoomOf());
+      expect(rail).toHaveAttribute('data-state', 'expanded');
+
+      await fireEvent.click(elsewhere);
+      expect(rail).toHaveAttribute('data-state', 'collapsed');
+    }
   });
 
   it('opens and closes on a click on its separator, whose cursor shows the direction', async () => {
@@ -183,6 +241,65 @@ describe('the rail', () => {
     expect(rail).toHaveAttribute('data-state', 'collapsed');
   });
 
+  it('names a row in a tooltip while the closed rail shows only the icons', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+
+    await userEvent.hover(within(railOf()).getByRole('button', { name: /Secrets/ }));
+
+    expect(await findTooltip()).toHaveTextContent('Secrets');
+  });
+
+  it('gives a row no tooltip while the open rail shows its title', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+    const rail = railOf();
+    await fireEvent.click(freeRoomOf());
+
+    await userEvent.hover(within(rail).getByRole('button', { name: /Secrets/ }));
+
+    expect(queryTooltip()).toBeNull();
+  });
+
+  it('shows no tooltip, when the rail closes, for a row that the pointer crossed on the open rail', async () => {
+    const members = entry({
+      title: msg`Members`,
+      url: 'members',
+      pattern: [':workspaceSlug', 'members'],
+    });
+    render(AppSidebarFixture, { config: configWith({ entries: [entry(), members] }) });
+    const rail = railOf();
+    await fireEvent.click(freeRoomOf());
+
+    await userEvent.hover(within(rail).getByRole('button', { name: /Secrets/ }));
+    await userEvent.click(within(rail).getByRole('button', { name: /Members/ }));
+
+    expect(rail).toHaveAttribute('data-state', 'collapsed');
+    expect(queryTooltip()).toBeNull();
+  });
+
+  it('names a row on a focus from the keyboard', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+
+    await userEvent.tab();
+
+    expect(within(railOf()).getByRole('button', { name: /Secrets/ })).toHaveFocus();
+    expect(await findTooltip()).toHaveTextContent('Secrets');
+  });
+
+  it('does not name a row again when the window gives back the focus that a click gave', async () => {
+    render(AppSidebarFixture, { config: configWith() });
+    const secrets = within(railOf()).getByRole('button', { name: /Secrets/ });
+    await userEvent.click(secrets);
+    await userEvent.unhover(secrets);
+    // bits-ui keeps a closed tooltip in the document until its exit animation ends.
+    await waitFor(() => expect(queryTooltip()).toBeNull());
+
+    await fireEvent.blur(secrets);
+    await fireEvent.focus(secrets);
+
+    expect(secrets).toHaveFocus();
+    expect(queryTooltip()).toBeNull();
+  });
+
   it('opens the page of a row without opening the rail, and closes an open rail', async () => {
     render(AppSidebarFixture, { config: configWith() });
     const rail = railOf();
@@ -192,7 +309,7 @@ describe('the rail', () => {
     expect(rail).toHaveAttribute('data-state', 'collapsed');
     expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/secrets', undefined);
 
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
     await fireEvent.click(secrets);
     expect(rail).toHaveAttribute('data-state', 'collapsed');
   });
@@ -201,11 +318,11 @@ describe('the rail', () => {
     render(AppSidebarFixture, { config: configWith() });
     const rail = railOf();
 
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
     await fireEvent.pointerDown(document.body);
     expect(rail).toHaveAttribute('data-state', 'collapsed');
 
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
     await fireEvent.keyDown(window, { key: 'Escape' });
     expect(rail).toHaveAttribute('data-state', 'collapsed');
   });
@@ -218,11 +335,28 @@ describe('the rail', () => {
     const rail = railOf();
     within(rail).getByText('stub').setAttribute('data-state', 'open');
 
-    await fireEvent.click(rail);
+    await fireEvent.click(freeRoomOf());
     await fireEvent.pointerDown(document.body);
+    await fireEvent.click(document.body);
     await fireEvent.keyDown(window, { key: 'Escape' });
 
     expect(rail).toHaveAttribute('data-state', 'expanded');
+  });
+
+  it('stays open on the click that opens one of its menus, and closes on a choice in it', async () => {
+    const contributions: ShellContributions[] = [
+      { linkParams: () => ({ workspaceSlug: 'acme-corp' }), sidebarFooter: [RailMenu] },
+    ];
+    render(AppSidebarFixture, { config: configWith({ contributions }) });
+    const rail = railOf();
+    const user = userEvent.setup();
+    await user.click(freeRoomOf());
+
+    await user.click(within(rail).getByRole('button', { name: 'Menu' }));
+    expect(rail).toHaveAttribute('data-state', 'expanded');
+
+    await user.click(await findFloating('menuitem', 'Choice'));
+    expect(rail).toHaveAttribute('data-state', 'collapsed');
   });
 
   it('shows the footer of an extension at the end', () => {
@@ -318,6 +452,107 @@ describe('the second sidebar', () => {
     render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
 
     expect(within(secondSidebar()).queryByRole('heading')).not.toBeInTheDocument();
+  });
+
+  it('sits on its own surface, between the rail and the page', () => {
+    render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
+
+    expect(railOf()).toHaveClass('bg-rail');
+    expect(secondSidebar()).toHaveClass('bg-second-sidebar');
+  });
+
+  describe('the links of a module', () => {
+    const machineLinks =
+      (shown: () => string | undefined) => (): { title: string; href: string }[] =>
+        shown() === 'machines'
+          ? [
+              { title: 'runner-1', href: '/acme-corp/agents/1' },
+              { title: 'runner-2', href: '/acme-corp/agents/2' },
+            ]
+          : [];
+
+    const withMachineLinks = (): ShellContributions[] => [
+      { linkParams: () => ({ workspaceSlug: 'acme-corp' }), secondSidebarLinks: machineLinks },
+    ];
+
+    it('shows them after the pages, apart from them', () => {
+      render(AppSidebarFixture, {
+        config: configWith({ entries: groupEntries, contributions: withMachineLinks() }),
+      });
+
+      const names = within(secondSidebar())
+        .getAllByRole('button')
+        .map(button => button.textContent?.trim());
+      expect(names).toEqual(['Agents', 'Apps', 'runner-1', 'runner-2']);
+      const first = within(secondSidebar()).getByRole('button', { name: 'runner-1' });
+      expect(first.closest('li')).toHaveClass('border-t');
+      expect(
+        within(secondSidebar()).getByRole('button', { name: 'runner-2' }).closest('li'),
+      ).not.toHaveClass('border-t');
+    });
+
+    it('opens the URL of a link', async () => {
+      render(AppSidebarFixture, {
+        config: configWith({ entries: groupEntries, contributions: withMachineLinks() }),
+      });
+
+      await userEvent.click(within(secondSidebar()).getByRole('button', { name: 'runner-2' }));
+
+      expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/agents/2', undefined);
+    });
+
+    it('shows none for another item', () => {
+      navigator.restore();
+      navigator = installTestNavigator({ pathname: '/acme-corp/secrets' });
+      render(AppSidebarFixture, {
+        config: configWith({
+          entries: [entry(), ...groupEntries],
+          contributions: withMachineLinks(),
+        }),
+      });
+
+      expect(within(secondSidebar()).queryByRole('button', { name: /runner/ })).toBeNull();
+    });
+  });
+});
+
+describe('the band of the brand', () => {
+  const band = () => {
+    const element = document.querySelector<HTMLElement>('[data-slot="sidebar-brand"]');
+    if (!element) throw new Error('no brand band');
+    return element;
+  };
+
+  it('has one color, the color of the page, above the two columns', () => {
+    render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
+
+    expect(band()).toHaveClass('bg-background');
+    expect(band().className).not.toMatch(/gradient/);
+  });
+
+  it('has the light sidebar line on its bottom, as on its right edge', () => {
+    render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
+
+    expect(band()).toHaveClass('border-b', 'border-r', 'border-sidebar-border');
+    expect(band()).not.toHaveClass('border-input');
+  });
+
+  it('continues the light line of its right edge on the second sidebar', () => {
+    render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
+
+    expect(secondSidebar()).toHaveClass('border-r', 'border-sidebar-border');
+    expect(secondSidebar()).not.toHaveClass('border-input');
+    expect(railOf()).toHaveClass('border-r', 'border-sidebar-border');
+  });
+
+  it('keeps the light line on the open rail, which covers the second sidebar', async () => {
+    render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
+
+    await fireEvent.click(freeRoomOf());
+
+    expect(railOf()).toHaveAttribute('data-state', 'expanded');
+    expect(railOf()).toHaveClass('border-r', 'border-sidebar-border');
+    expect(railOf()).not.toHaveClass('border-input');
   });
 });
 
@@ -503,13 +738,54 @@ describe('the handle of the second sidebar', () => {
     expect(screen.queryByRole('separator', { name: 'Resize sidebar' })).not.toBeInTheDocument();
   });
 
-  it('does not close the rail with a press', async () => {
+  it('gives its width to the open rail, which covers all the second sidebar', async () => {
     renderOnPage();
-    await fireEvent.click(railOf());
+    await drag(256, 356);
+
+    await fireEvent.click(freeRoomOf());
+    expect(railOf().style.width).toBe('356px');
+
+    handle().focus();
+    await userEvent.keyboard('{Home}');
+    expect(slot().style.width).toBe('196px');
+    expect(railOf().style.width).toBe('196px');
+  });
+
+  it('does not close the rail with a press or a click', async () => {
+    renderOnPage();
+    await fireEvent.click(freeRoomOf());
 
     await fireEvent.pointerDown(handle(), { button: 0, isPrimary: true, clientX: 256 });
+    await fireEvent.pointerUp(handle(), { clientX: 256 });
+    await fireEvent.click(handle());
+    await fireEvent.dblClick(handle());
 
     expect(railOf()).toHaveAttribute('data-state', 'expanded');
+  });
+
+  it('lies above the open rail, thus a drag on its edge sets the width while the rail is open', async () => {
+    renderOnPage();
+    await fireEvent.click(freeRoomOf());
+
+    expect(layerOf(handle())).toBeGreaterThan(layerOf(railOf()));
+    await drag(256, 316);
+
+    expect(railOf()).toHaveAttribute('data-state', 'expanded');
+    expect(railOf().style.width).toBe('316px');
+  });
+
+  it('moves the edge of the open rail with the pointer, with no transition until the drag ends', async () => {
+    renderOnPage();
+    await fireEvent.click(freeRoomOf());
+
+    await fireEvent.pointerDown(handle(), { button: 0, isPrimary: true, clientX: 256 });
+    await fireEvent.pointerMove(handle(), { clientX: 316 });
+    expect(railOf()).toHaveClass('transition-none');
+    expect(railOf()).not.toHaveClass('transition-[width]');
+
+    await fireEvent.pointerUp(handle(), { clientX: 316 });
+    expect(railOf()).toHaveClass('transition-[width]');
+    expect(railOf()).not.toHaveClass('transition-none');
   });
 });
 

@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import type { Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
+import { PipelineSource } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import { toDomain, usageToDomain } from '../grpc-secret.mapper.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
@@ -24,6 +25,10 @@ const pipeline = (id: string, secret?: string): Pipeline => ({
       workingDir: '',
     },
   ],
+  source: PipelineSource.EDITOR,
+  fileKey: '',
+  filePath: '',
+  fileErrorCount: 0,
 });
 
 describe('grpcSecret.toDomain', () => {

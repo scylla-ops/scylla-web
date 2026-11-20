@@ -61,9 +61,53 @@ describe('ShellFrame', () => {
     expect(container.querySelector('[data-slot="sidebar-container"]')).not.toBeInTheDocument();
   });
 
+  it('draws one light line below the band and the top bar on a large screen', () => {
+    const { container } = render(ShellFrameFixture);
+
+    expect(container.querySelector('[data-slot="sidebar-brand"]')).toHaveClass(
+      'h-17',
+      'border-b',
+      'border-sidebar-border',
+    );
+    expect(screen.getByRole('banner')).toHaveClass('md:h-17', 'border-b', 'border-border');
+    expect(screen.getByRole('banner').className).not.toMatch(/border-input/);
+  });
+
+  it('keeps the border line below the top bar on a phone, which has no band', () => {
+    onPhone();
+    const { container } = render(ShellFrameFixture);
+
+    expect(container.querySelector('[data-slot="sidebar-brand"]')).not.toBeInTheDocument();
+    expect(screen.getByRole('banner')).toHaveClass('border-b', 'border-border');
+  });
+
   it('renders the overlays that the modules give', () => {
     render(ShellFrameFixture);
 
     expect(screen.getByText('stub')).toBeInTheDocument();
+  });
+
+  it('keeps the padding of the pages when no overlay covers the bottom of the view', () => {
+    render(ShellFrameFixture);
+
+    const area = screen.getByText('page content').parentElement;
+    expect(area?.style.getPropertyValue('--shell-bottom-inset')).toBe('0px');
+    expect(area).toHaveClass('pb-[max(0.5rem,var(--shell-bottom-inset))]');
+  });
+
+  it('keeps free below the pages the largest band that an overlay covers', () => {
+    setShellConfig({
+      entries: [],
+      sections: [{ id: 'main', title: msg`Main` }],
+      contributions: [{ overlays: [Stub], bottomInset: 56 }, { bottomInset: 20 }],
+    });
+    render(ShellFrameFixture);
+
+    const area = screen.getByText('page content').parentElement;
+    expect(area?.style.getPropertyValue('--shell-bottom-inset')).toBe('56px');
+    expect(area).toHaveClass(
+      'pb-[max(0.5rem,var(--shell-bottom-inset))]',
+      'md:pb-[max(2rem,var(--shell-bottom-inset))]',
+    );
   });
 });

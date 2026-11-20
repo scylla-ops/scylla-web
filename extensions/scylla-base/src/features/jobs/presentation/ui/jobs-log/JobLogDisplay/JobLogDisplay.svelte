@@ -22,11 +22,12 @@
   const stream = createStreamedLogView(() => tail.text);
 
   /**
-   * Only line numbers and read-only. No `drawSelection`: a drag leaves a native
+   * Only line numbers, wrapped lines and read-only. No `drawSelection`: a drag leaves a native
    * selection, which `createStreamedLogView` reads.
    */
   const extensions = $derived([
     lineNumbers(),
+    EditorView.lineWrapping,
     EditorState.readOnly.of(true),
     EditorView.editable.of(false),
     EditorView.theme({ '&': { maxHeight: `${maxHeight ?? DEFAULT_MAX_HEIGHT}px` } }),
@@ -44,7 +45,11 @@
 {:else if tail.isError}
   <div>{t(jobsMessages.logsError)}</div>
 {:else if tail.isEnded && !tail.text}
-  <p class="px-3 py-2.5 text-sm text-muted-foreground">{t(jobsMessages.noLogs)}</p>
+  <p
+    class="flex flex-1 items-center justify-center px-3 py-2.5 text-center text-sm text-muted-foreground"
+  >
+    {t(jobsMessages.noLogs)}
+  </p>
 {:else}
   <div class="min-w-0 w-full overflow-hidden">
     <div {@attach renderCodeMirror(() => ({ extensions, onView: stream.attach }))}></div>

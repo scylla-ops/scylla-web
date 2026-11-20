@@ -12,6 +12,7 @@
     Input,
     Label,
   } from '@scylla/ui/primitives';
+  import { DangerZone } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { CopyBox } from '@shared/presentation/ui';
   import {
@@ -60,13 +61,7 @@
   };
 </script>
 
-<section
-  class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-destructive/60 p-5"
->
-  <div class="flex flex-col gap-1">
-    <h2 class="text-sm">{title}</h2>
-    <p class="text-xs text-muted-foreground">{body}</p>
-  </div>
+{#snippet deleteButton()}
   <Button
     variant="destructive"
     onclick={() => {
@@ -77,8 +72,11 @@
     <TrashIcon class="size-4" aria-hidden="true" />
     {button}
   </Button>
+{/snippet}
+
+{#snippet uninstallHelp()}
   {#if uninstall}
-    <div class="flex w-full flex-col gap-2">
+    <div class="flex flex-col gap-2">
       <p class="text-xs text-muted-foreground">{t(messages.uninstallHint)}</p>
       <CopyBox
         value={uninstall}
@@ -95,7 +93,14 @@
       {/if}
     </div>
   {/if}
-</section>
+{/snippet}
+
+<DangerZone
+  {title}
+  description={body}
+  action={deleteButton}
+  children={uninstall ? uninstallHelp : undefined}
+/>
 
 <Dialog {open} onOpenChange={next => (open = next)}>
   <DialogContent class="sm:max-w-md">

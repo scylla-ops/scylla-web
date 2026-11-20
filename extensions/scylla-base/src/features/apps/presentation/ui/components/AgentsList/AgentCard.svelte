@@ -4,6 +4,7 @@
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
   import { agentStatusOf } from '@base/features/apps/domain/structs/agent-list.struct.ts';
+  import AgentCompatibilityBadge from '../AgentCompatibilityBadge/AgentCompatibilityBadge.svelte';
   import AgentStatusPill from '../AgentStatusPill/AgentStatusPill.svelte';
   import Sparkline from '../Sparkline/Sparkline.svelte';
   import { agentsListMessages as messages } from '@base/features/apps/presentation/messages/agents-list.messages.ts';
@@ -17,10 +18,10 @@
     total: number;
     onOpen: () => void;
     /** Absent: the user may not make a join code. */
-    onShowCommand?: () => void;
+    onFinishSetup?: () => void;
   }
 
-  let { agent, access, jobs, total, onOpen, onShowCommand }: Props = $props();
+  let { agent, access, jobs, total, onOpen, onFinishSetup }: Props = $props();
 
   const status = $derived(agentStatusOf(agent));
   const place = $derived(
@@ -39,15 +40,18 @@
     >
       {agent.name}
     </button>
-    <AgentStatusPill {agent} />
+    <span class="flex shrink-0 items-center gap-2">
+      <AgentCompatibilityBadge {agent} />
+      <AgentStatusPill {agent} />
+    </span>
   </div>
-  {#if status === 'never' && onShowCommand}
+  {#if status === 'never' && onFinishSetup}
     <button
       type="button"
       class="self-start text-xs text-primary hover:underline"
-      onclick={onShowCommand}
+      onclick={onFinishSetup}
     >
-      {t(messages.showCommand)}
+      {t(messages.finishSetup)}
     </button>
   {:else if place}
     <span class="text-xs text-muted-foreground">{place}</span>

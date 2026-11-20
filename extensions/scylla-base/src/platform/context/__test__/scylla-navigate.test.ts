@@ -27,8 +27,8 @@ describe('scyllaNavigate', () => {
 });
 
 describe('workspaceUrl', () => {
-  it('gives the projects of any workspace by default, from its slug', () => {
-    expect(workspaceUrl('beta-lab')).toBe('/beta-lab/projects');
+  it('gives the dashboard of any workspace by default, from its slug', () => {
+    expect(workspaceUrl('beta-lab')).toBe('/beta-lab/dashboard');
   });
 
   it('gives another page of it on request', () => {

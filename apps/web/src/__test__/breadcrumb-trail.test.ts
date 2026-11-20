@@ -36,4 +36,22 @@ describe('the breadcrumb trail that the modules of the extensions compose', () =
 
     expect(trail()).toEqual(TRAIL);
   });
+
+  it('names the pipeline of a job one time, before its jobs', async () => {
+    await renderTrailAt('/acme/projects/project-1/pipelines/pipeline-1/jobs/job-1');
+
+    expect(trail()).toEqual(['Projects', 'Scylla', 'Pipeline #Nightly', 'Jobs', 'Job #job-1']);
+  });
+
+  it('names the pipeline of a new trigger one time, before its triggers', async () => {
+    await renderTrailAt('/acme/projects/project-1/pipelines/pipeline-1/triggers/new');
+
+    expect(trail()).toEqual(['Projects', 'Scylla', 'Pipeline #Nightly', 'Triggers', 'New trigger']);
+  });
+
+  it('gives the full id of the current crumb, which can be cut, on a hover', async () => {
+    await renderTrailAt('/acme/projects/project-1/pipelines/pipeline-1/jobs/job-1');
+
+    expect(screen.getByTitle('job-1').textContent).toBe('#job-1');
+  });
 });

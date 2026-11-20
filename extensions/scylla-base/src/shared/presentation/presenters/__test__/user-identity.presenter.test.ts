@@ -1,6 +1,12 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { userInitials, userName, userSecondaryLine } from '../user-identity.presenter.ts';
+import {
+  identityKindOf,
+  identitySecondaryLine,
+  userInitials,
+  userName,
+  userSecondaryLine,
+} from '../user-identity.presenter.ts';
 
 const ada = { username: 'ada', displayName: 'Ada Lovelace', email: 'ada@example.com' };
 
@@ -47,5 +53,23 @@ describe('userInitials', () => {
 
   it('gives one letter for a one-word name', () => {
     expect(userInitials({ username: 'ravenne' })).toBe('R');
+  });
+});
+
+describe('identityKindOf', () => {
+  it('tells a person, an agent and another app apart', () => {
+    expect(identityKindOf({ actorKind: 'user', runner: false })).toBe('person');
+    expect(identityKindOf({ actorKind: 'app', runner: true })).toBe('agent');
+    expect(identityKindOf({ actorKind: 'app', runner: false })).toBe('app');
+  });
+});
+
+describe('identitySecondaryLine', () => {
+  it('names the kind of a machine in place of a handle', () => {
+    const machine = { username: '', displayName: 'github-ci' };
+
+    expect(identitySecondaryLine(machine, 'agent')).toBe('Agent');
+    expect(identitySecondaryLine(machine, 'app')).toBe('App');
+    expect(identitySecondaryLine(ada, 'person')).toBe('ada@example.com');
   });
 });

@@ -8,9 +8,10 @@
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from '@scylla/ui/primitives';
-  import { UserIdentity } from '@shared/presentation/ui';
+  import { Identity } from '@shared/presentation/ui';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
@@ -39,7 +40,7 @@
 </script>
 
 {#snippet identityCell(user: UserEntity)}
-  <UserIdentity {user} size="sm" class="w-full" />
+  <Identity profile={user} class="w-full" />
 {/snippet}
 
 {#snippet rolesCell(user: UserEntity)}
@@ -87,7 +88,8 @@
       {/if}
       <DropdownMenuItem onclick={() => onView(user)}>{t(userMessages.openUser)}</DropdownMenuItem>
       {#if canDelete(user)}
-        <DropdownMenuItem onclick={() => onDelete(user)}>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive" onclick={() => onDelete(user)}>
           {t(userMessages.deleteUser)}
         </DropdownMenuItem>
       {/if}

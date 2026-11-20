@@ -63,8 +63,19 @@ describe('createRunPipeline', () => {
       await runner.run('pipeline-1');
     });
 
-    expect(runRepository).toHaveBeenCalledWith('pipeline-1');
+    expect(runRepository).toHaveBeenCalledWith('pipeline-1', undefined);
     expect(toast.success).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs the pipeline at the ref that the user chose', async () => {
+    grant();
+    setUp([]);
+
+    await runIn(async runner => {
+      await runner.run('pipeline-1', { kind: 'tag', name: 'v1.2.0' });
+    });
+
+    expect(runRepository).toHaveBeenCalledWith('pipeline-1', { kind: 'tag', name: 'v1.2.0' });
   });
 
   it('marks the pipeline as running while the run is in flight', async () => {

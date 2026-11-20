@@ -153,7 +153,15 @@ const formSubmit: TourAnchor = (root, subject) =>
 
 const button = (selector: string) => select(`[data-tour="${selector}"] button`);
 
-const agentDialog = select('[data-tour="add-agent-dialog"]');
+/** The page of a new agent: its steps stay on it when the agent comes online. */
+const newAgentPage = select('[data-tour="add-agent-page"]');
+const newAgentForm = select('[data-tour="add-agent-form"]');
+const newAgentSubmit = select('[data-tour="add-agent-form"] button[type="submit"]');
+
+/** The page of a new project: the card of a regular project, then its form. */
+const regularProject = select('[data-tour="regular-project"]');
+const newProjectForm = select('[data-tour="add-project-form"]');
+const newProjectSubmit = select('[data-tour="add-project-form"] button[type="submit"]');
 
 const pipelineCell =
   (cell: string): TourAnchor =>
@@ -291,23 +299,22 @@ const agentTour: TourDefinition = {
     },
     {
       id: 'create-agent',
-      page: () => '/agents',
+      page: () => '/agents/new',
       title: m.createAgentTitle,
       body: [m.createAgentBody],
-      targets: [formDialog],
-      action: { anchor: formSubmit },
+      targets: [newAgentForm],
+      action: { anchor: newAgentSubmit },
       advance: { on: 'appear', anchor: select('[data-tour="app-join-code"]') },
       fallback: 'new-agent',
-      holdsDialog: true,
     },
     {
       id: 'run-command',
-      page: () => '/agents',
+      page: ({ agentId }) => (agentId ? `/agents/${agentId}/connect` : '/agents/new'),
       title: m.runCommandTitle,
       body: [m.runCommandBody],
       link: docs(m.installDocs),
       waiting: m.runCommandWaiting,
-      targets: [agentDialog],
+      targets: [newAgentPage],
       action: {
         anchor: select('[data-tour="agent-open"]'),
         label: m.agentAction,
@@ -315,7 +322,6 @@ const agentTour: TourDefinition = {
       },
       advance: { on: 'click', anchor: select('[data-tour="agent-open"]') },
       fallback: ({ agentId }) => (agentId ? 'agent-page' : 'new-agent'),
-      holdsDialog: true,
       noPrevious: true,
     },
     {
@@ -361,11 +367,11 @@ const pipelineTour: TourDefinition = {
     },
     {
       id: 'create-project',
-      page: () => '/projects',
+      page: () => '/projects/new/regular',
       title: m.createProjectTitle,
       body: [m.createProjectBody],
-      targets: [formDialog],
-      action: { anchor: formSubmit },
+      targets: [either(newProjectForm, regularProject)],
+      action: { anchor: newProjectSubmit, absent: { body: [m.regularProjectBody] } },
       advance: {
         on: 'mutation',
         key: CREATE_PROJECT_MUTATION_KEY,
@@ -373,7 +379,6 @@ const pipelineTour: TourDefinition = {
           isRecord(data) && typeof data.id === 'string' ? { projectId: data.id } : undefined,
       },
       fallback: 'new-project',
-      holdsDialog: true,
     },
     {
       id: 'open-project',
@@ -441,7 +446,9 @@ const runTour: TourDefinition = {
         on: 'mutation',
         key: RUN_PIPELINE_MUTATION_KEY,
         onSuccess: (_data, variables) =>
-          typeof variables === 'string' ? { pipelineId: variables } : undefined,
+          isRecord(variables) && typeof variables.pipelineId === 'string'
+            ? { pipelineId: variables.pipelineId }
+            : undefined,
       },
     },
     {

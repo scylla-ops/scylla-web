@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/svelte';
+import { fireEvent, screen, within } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PermissionScope, permissionsStore } from '@platform/authz';
 import { getQueryClient } from '@scylla/core-sdk';
@@ -21,18 +21,21 @@ const role = {
 };
 
 let get: ReturnType<typeof vi.fn>;
+let holders: ReturnType<typeof vi.fn>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 let navigator: ReturnType<typeof installTestNavigator>;
 
 beforeEach(() => {
   get = vi.fn().mockResolvedValue(role);
+  holders = vi.fn().mockResolvedValue({ holders: [], total: 0 });
   cache = withQueryClient();
   navigator = installTestNavigator({ params: { roleKey: 'r-1' } });
   restoreRegistry = withRegistry({
     roles: {
       roleRepository: {
         get,
+        holders,
         catalog: vi.fn().mockResolvedValue([]),
         list: vi.fn().mockResolvedValue([]),
       },
@@ -71,5 +74,35 @@ describe('RoleDetail', () => {
 
     expect(get).toHaveBeenCalledTimes(2);
     expect(screen.getByDisplayValue('Unsaved draft')).toBeInTheDocument();
+  });
+
+  it('tells if each holder of a built-in role is a person, an agent or another app', async () => {
+    get.mockResolvedValue({ ...role, name: 'Runner pool', builtin: true, holder: 'apps' });
+    const holder = (actorId: string, displayName: string, actorKind: string, runner: boolean) => ({
+      actorId,
+      actorKind,
+      displayName,
+      handle: '',
+      runner,
+      scopeKind: 'workspace',
+      scopeId: 'w-1',
+      scopeName: 'Acme',
+    });
+    holders.mockResolvedValue({
+      holders: [
+        holder('a-1', 'build-agent-01', 'app', true),
+        holder('a-2', 'github-ci', 'app', false),
+        holder('u-1', 'Ada Lovelace', 'user', false),
+      ],
+      total: 3,
+    });
+    render(RoleDetail, {});
+
+    const row = async (name: string) => (await screen.findByText(name)).closest('li') as HTMLElement;
+    expect(within(await row('build-agent-01')).getByText('Agent')).toBeInTheDocument();
+    expect(within(await row('github-ci')).getByText('App')).toBeInTheDocument();
+    const person = await row('Ada Lovelace');
+    expect(within(person).queryByText('Agent')).not.toBeInTheDocument();
+    expect(within(person).getByText('AL')).toBeInTheDocument();
   });
 });

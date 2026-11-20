@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { getQueryClient } from '@scylla/core-sdk';
 
 /** Runs a `*.queries.ts` factory's options without a component. The casts live here, not in every test. */
@@ -66,3 +67,15 @@ export const stubQuery = <TData>(
     ? // Never resolves: "still loading" is a state, not a moment.
       { queryKey, queryFn: () => new Promise<TData>(() => {}) }
     : { queryKey, queryFn: () => Promise.resolve(data as TData), initialData: data as TData };
+
+/**
+ * Fakes the timer of a `refetchInterval`: the test moves the poll with `vi.advanceTimersByTimeAsync`,
+ * and does not wait for it. jsdom runs the animation frames on `setInterval`, so they are fake too,
+ * and they move with the real time. Call `vi.useRealTimers()` after the test.
+ */
+export const fakePollTimers = (): void => {
+  vi.useFakeTimers({
+    toFake: ['setInterval', 'clearInterval', 'requestAnimationFrame', 'cancelAnimationFrame'],
+    shouldAdvanceTime: true,
+  });
+};

@@ -81,6 +81,25 @@ describe('PipelineEditorHeader', () => {
     expect(screen.getByRole('tab', { name: 'Blueprint' })).toBeDisabled();
   });
 
+  it('waits for the pipeline with no name, no status and nothing to save', () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ missing: 'loading', pipelineName: '' });
+
+    expect(screen.queryByRole('textbox', { name: 'Pipeline name' })).not.toBeInTheDocument();
+    expect(screen.queryByText('All changes saved')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'Scripting' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'Blueprint' })).toBeEnabled();
+  });
+
+  it('disables the name of a pipeline that failed to load', () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ missing: 'failed', pipelineName: '' });
+
+    expect(screen.getByRole('textbox', { name: 'Pipeline name' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  });
+
   it('renames the pipeline in place, on Enter', async () => {
     grantOnly(Permission.UPDATE_PIPELINE);
     renderHeader();
@@ -114,5 +133,24 @@ describe('PipelineEditorHeader', () => {
 
     expect(onNameChange).not.toHaveBeenCalled();
     expect(name).toHaveValue('nightly');
+  });
+
+  it('shows Export for a saved pipeline only, to a user who may read it', async () => {
+    const onExport = vi.fn();
+    grantOnly(Permission.UPDATE_PIPELINE, Permission.READ_PIPELINE);
+    const { rerender } = renderHeader();
+    expect(screen.queryByRole('button', { name: 'Export' })).not.toBeInTheDocument();
+
+    await rerender({ onExport });
+    await userEvent.click(screen.getByRole('button', { name: 'Export' }));
+
+    expect(onExport).toHaveBeenCalled();
+  });
+
+  it('keeps Export inert for a user who may not read the pipeline', () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ onExport: vi.fn() });
+
+    expect(screen.getByRole('button', { name: 'Export' })).toHaveAttribute('aria-disabled', 'true');
   });
 });

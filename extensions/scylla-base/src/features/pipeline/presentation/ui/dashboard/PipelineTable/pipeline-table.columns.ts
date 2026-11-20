@@ -8,18 +8,19 @@ import { pipelineMessages } from '@base/features/pipeline/presentation/messages/
 export interface PipelineCells {
   status: Snippet<[PipelineMetadata]>;
   history: Snippet<[PipelineMetadata]>;
-  lastRun: Snippet<[PipelineMetadata]>;
   actions: Snippet<[PipelineMetadata]>;
 }
 
+/** Rows of 80 px: the 64 px status icon and `py-2`. */
 export const pipelineColumns = (cells: PipelineCells): DataTableColumn<PipelineMetadata>[] => [
   {
     id: 'status',
     header: t(pipelineMessages.status),
     cell: ({ row }) => renderSnippet(cells.status, row.original),
-    size: 280,
-    minSize: 250,
-    meta: { card: 'title' },
+    // The icon (64), the gap (12) and the text (156), in pl-2 pr-3.
+    size: 252,
+    minSize: 252,
+    meta: { card: 'title', class: 'py-2 pr-3 pl-2' },
   },
   {
     id: 'history',
@@ -27,22 +28,15 @@ export const pipelineColumns = (cells: PipelineCells): DataTableColumn<PipelineM
     cell: ({ row }) => renderSnippet(cells.history, row.original),
     // No size: takes the space left, down to 180px.
     minSize: 180,
-    meta: { card: 'body' },
-  },
-  {
-    id: 'metadata',
-    header: t(pipelineMessages.lastRun),
-    cell: ({ row }) => renderSnippet(cells.lastRun, row.original),
-    size: 200,
-    minSize: 180,
-    meta: { card: 'meta' },
+    meta: { card: 'body', class: 'px-3 py-2' },
   },
   {
     id: 'actions',
     header: t(pipelineMessages.actions),
     cell: ({ row }) => renderSnippet(cells.actions, row.original),
-    size: 200,
+    // Five buttons of 32, 8 apart, in pl-2 pr-4.
+    size: 216,
     minSize: 80,
-    meta: { card: 'actions' },
+    meta: { card: 'actions', class: 'py-2 pr-4 pl-2' },
   },
 ];

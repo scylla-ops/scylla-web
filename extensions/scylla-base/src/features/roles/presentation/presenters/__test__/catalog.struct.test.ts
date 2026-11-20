@@ -1,9 +1,11 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import {
+  checkPermissions,
   fitToRole,
   permissionsFor,
   togglePermission,
+  uncheckPermissions,
   type CatalogArea,
 } from '../../../domain/structs/catalog.struct.ts';
 import { missingPermissionIds } from '../../../domain/structs/catalog.struct.ts';
@@ -47,13 +49,13 @@ describe('the catalog', () => {
   });
 
   it('checks what a permission depends on', () => {
-    const selected = togglePermission(new Set(), 'pipelines.edit', areas);
+    const selected = togglePermission(new Set(), 'pipelines.edit', areas, 'workspace');
     expect([...selected].sort()).toEqual(['pipelines.edit', 'pipelines.view']);
   });
 
   it('unchecks what needs a permission', () => {
     const selected = new Set(['pipelines.view', 'pipelines.edit']);
-    expect(togglePermission(selected, 'pipelines.view', areas).size).toBe(0);
+    expect(togglePermission(selected, 'pipelines.view', areas, 'workspace').size).toBe(0);
   });
 
   it('keeps what the level can hold, and adds the implicit permissions of the level', () => {
@@ -66,6 +68,90 @@ describe('the catalog', () => {
       'users.view',
       'pipelines.view',
     ]);
+  });
+});
+
+describe('a role of the platform', () => {
+  const catalog: CatalogArea[] = [
+    {
+      id: 'workspaces',
+      level: 'platform',
+      machine: false,
+      permissions: [
+        { id: 'workspaces.view', action: 'view', dependsOn: ['workspace.view'], implicit: false },
+      ],
+    },
+    ...areas,
+  ];
+
+  it('checks the view of each workspace with a permission of a workspace or of a project', () => {
+    const selected = togglePermission(new Set(), 'pipelines.view', catalog, 'platform');
+
+    expect([...selected].sort()).toEqual(['pipelines.view', 'workspace.view', 'workspaces.view']);
+  });
+
+  it('does not check it for a permission of the instance, or in a role of a workspace', () => {
+    expect([...togglePermission(new Set(), 'users.view', catalog, 'platform')]).toEqual([
+      'users.view',
+    ]);
+    expect([...togglePermission(new Set(), 'pipelines.view', catalog, 'workspace')]).toEqual([
+      'pipelines.view',
+    ]);
+  });
+
+  it('unchecks each permission of a workspace or of a project with the view of each workspace', () => {
+    const selected = new Set(['users.view', 'workspaces.view', 'workspace.view', 'pipelines.view']);
+
+    expect([...togglePermission(selected, 'workspaces.view', catalog, 'platform')]).toEqual([
+      'users.view',
+    ]);
+  });
+
+  it('adds the view of each workspace when a role becomes a role of the platform', () => {
+    const selected = new Set(['pipelines.view']);
+
+    expect([...fitToRole(selected, catalog, 'platform', 'people')]).toEqual([
+      'workspaces.view',
+      'workspace.view',
+      'pipelines.view',
+    ]);
+  });
+});
+
+describe('a bulk check', () => {
+  const clickEach = (selected: Set<string>, ids: string[]) =>
+    ids.reduce((next, id) => togglePermission(next, id, areas, 'workspace'), selected);
+
+  it('checks each permission with what it depends on, as clicks one by one do', () => {
+    const checked = checkPermissions(new Set(), ['pipelines.edit'], areas, 'workspace');
+
+    expect([...checked].sort()).toEqual(['pipelines.edit', 'pipelines.view']);
+    expect(checked).toEqual(clickEach(new Set(), ['pipelines.edit']));
+  });
+
+  it('does not uncheck a permission that is already checked', () => {
+    const selected = new Set(['pipelines.view']);
+
+    expect(
+      [...checkPermissions(selected, ['pipelines.view', 'pipelines.edit'], areas, 'workspace')].sort(),
+    ).toEqual(['pipelines.edit', 'pipelines.view']);
+  });
+
+  it('unchecks each permission with what needs it, as clicks one by one do', () => {
+    const selected = new Set(['users.view', 'pipelines.view', 'pipelines.edit']);
+
+    expect([...uncheckPermissions(selected, ['pipelines.view'], areas, 'workspace')]).toEqual(['users.view']);
+    expect(uncheckPermissions(selected, ['pipelines.view', 'pipelines.edit'], areas, 'workspace')).toEqual(
+      clickEach(new Set(selected), ['pipelines.view']),
+    );
+  });
+
+  it('keeps the selection it was given', () => {
+    const selected = new Set(['pipelines.view']);
+    checkPermissions(selected, ['pipelines.edit'], areas, 'workspace');
+    uncheckPermissions(selected, ['pipelines.view'], areas, 'workspace');
+
+    expect([...selected]).toEqual(['pipelines.view']);
   });
 });
 
@@ -89,14 +175,16 @@ describe('missingPermissionIds', () => {
       },
     ];
 
-    expect(missingPermissionIds({ permissions: ['job_execution.run'] }, new Set(), machines)).toEqual(
-      [],
-    );
+    expect(
+      missingPermissionIds({ permissions: ['job_execution.run'] }, new Set(), machines),
+    ).toEqual([]);
   });
 
   it('names what the caller does not hold, with no implicit permission', () => {
     const role = { permissions: ['workspace.view', 'members.manage', 'pipelines.run'] };
 
-    expect(missingPermissionIds(role, new Set(['pipelines.run']), areas)).toEqual(['members.manage']);
+    expect(missingPermissionIds(role, new Set(['pipelines.run']), areas)).toEqual([
+      'members.manage',
+    ]);
   });
 });

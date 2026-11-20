@@ -46,9 +46,10 @@ src/
     ShellFrame/                                the sidebars + top bar around the pages of a `shell` mount
     AppSidebar/                                the sidebars, built from the nav entries
                                                DoubleSidebar: the brand band, Rail, SecondSidebar
-                                               (nav-rail.ts: the rail of the sections)
+                                               (nav-rail.ts: the rail of the sections,
+                                               rail-tile.attachments.svelte.ts: the tile of the active row)
                                                SecondSidebarHandle: the edge that the user moves
-                                               (second-sidebar-width.state.svelte.ts: the width and its limits,
+                                               (second-sidebar-width.state.svelte.ts: the width, its limits, the drag,
                                                second-sidebar-handle.attachments.ts: the drag and the keys)
                                                Below `md`, the sheet: NavMain, where a NavGroup folds its links
                                                (nav-groups.state.svelte.ts keeps which groups are open)
@@ -149,6 +150,11 @@ module gives an access policy.
   server serves must have `rel="external"`, or the browser never calls the server. The compiled
   build has the same origin as the API, so this failure does not show on a Vite dev server, where
   the API has another origin.
+- **A page can hold a leave** (`guardLeave` of the SDK). The router asks the guard before a
+  navigation of the user: `navigate`, a click on a link, back and forward. A redirect (`replace`)
+  and a change of the query only are never held. Back and forward change the URL before the
+  router knows: a held one puts the URL of the page back, and the guard's `leave` opens the target
+  as a new entry. Tests: `runtime/__test__/leave-guard.test.ts`.
 - **`RouteEntry` reads the route once, when it mounts.** The page transition keeps the old page
   on screen for its exit animation; `RoutePage` mounts a new `RouteEntry` for each pathname.
 - **A change of pathname mounts the page again, with its wrappers.** A change of the query
@@ -164,6 +170,17 @@ module gives an access policy.
 - **The shell renders, it does not decide.** Every link comes from the `nav` of a route, every
   section from `navSections`, every part of the frame from a module's `shell`. No business
   word appears in `shell/`.
+- **The frame keeps free the band that an overlay covers.** `ShellFrame` sets the largest
+  `shell.bottomInset` in `--shell-bottom-inset` on its scroll area, and the bottom padding of
+  this area is at least that value. With no such overlay, it stays 8 px (32 px from `md`). The
+  rule for the pages is in `packages/ui/AGENTS.md`.
+- **The crumbs stay on one line in the top bar.** The top bar has a fixed height, so a second
+  line goes out of the window. Only the highlight of the current crumb shrinks (`line-clamp-1`
+  and `break-all`), down to one character and the ellipsis. The crumbs before it do not shrink:
+  a label is at most `max-w-48` and a highlight at most `max-w-40`, with an ellipsis. When the
+  bar is too narrow for them, the list stays at its `min-content` width and goes out at the left
+  edge, in a fade of 12 px (`justify-end` on the `nav`). The current crumb thus stays visible.
+  Each text that can be cut has a `title` with the full text.
 - A sidebar link carries `data-nav-url` (its path in the mount): code outside the core can point
   at a link without knowing its title. A rail item carries the URL of its first page, and
   `data-nav-group` when it comes from a group.
@@ -179,22 +196,76 @@ module gives an access policy.
   current one. A link with `heading` has this title above it, in the second sidebar and in the
   sheet of a phone. The title also covers the links after it, up to the next heading. A link with
   `inCommandBar: false` is in the sidebar only: use it for a filter of a list, not for a page.
+- **A module can add links of data to the second sidebar** (`shell.secondSidebarLinks`, e.g. the
+  projects under "All projects"). They come after the pages, apart from them, and they look and
+  open like the pages (`withModuleLinks`). Only the first link is apart, unless a link sets `apart`
+  (the dashboards set `false`, and `true` on "New dashboard"). `DoubleSidebar` calls each source once, when it mounts,
+  thus a source can create a query: read it only while `shown` is the id of its item. The sheet of a
+  phone does not show them.
+- **A module can replace the second sidebar of a rail item** (`shell.secondSidebarPanels`, keyed
+  by the id of the rail item, e.g. the controls of the dashboard). The panel replaces the title
+  and the links. The sheet of a phone still shows the links.
 - **The sheet of a phone shows a section with `noRailItem` on its pages only** (`sheetSections`).
   A click on a link closes the sheet. `NavMain` does this, because a link that changes only an
   in-page param mounts nothing.
+- **The double sidebar is darker than the page, but the band of the brand is not.** The rail has
+  `bg-rail` and the second sidebar `bg-second-sidebar`. The tokens are in `@scylla/ui/styles.css`,
+  for each theme. Do not give them `bg-background`. The band of the brand
+  (`data-slot="sidebar-brand"`) has one color above the two columns: `bg-background`, the color
+  of the top bar.
+- **One light line marks the right edge of the double sidebar**, from the top to the bottom: on
+  the band, then on the second sidebar, or on the open rail that covers it. All these parts have
+  `sidebar-border`, the open and the closed rail too. The handle shows its line only on a hover, a
+  focus or a drag, thus it does not hide this line.
+- **One light line goes below the band and the top bar**, across the full width, and it meets the
+  line of the right edge at one corner. The two are at the same height (`h-17`), thus they make one
+  straight line. The band has `sidebar-border` and the top bar has `border`: the two tokens have
+  the same value in each theme, and all the lines are 1 px, thus the two directions look the same.
+- **Do not give the lines of the shell `input`.** Its contrast is much higher than the contrast of
+  `border`, thus a 1 px line of `input` looks thick. Version 0.7.0 tried it and removed it.
 - **The rail does not move the page.** It has a fixed slot of 56px and it opens in an absolute
   layer, by a CSS transition of its width, so the page has no layout work and a second click in
-  the middle reverses it from where it is. Keep the rows at a fixed width inside it.
-- **Only the user opens the rail.** A hover or a focus does not open it. A click on an empty part
-  of the rail or on its separator opens and closes it, and the cursor shows the direction. The
-  separator is the way for the keyboard. A row opens its page and closes the rail. A press outside
-  and Escape close it, except while one of its menus is open.
+  the middle reverses it from where it is. The open rail has the width of the slot and the second
+  sidebar, to the same edge as the band: at each width it covers all the second sidebar, and
+  never the page. Inside it, the rows keep the width of the open rail while it moves.
+- **A closed rail shows only the icons, thus a row has a tooltip with its title.** The tooltip
+  shows while the pointer is on the row, and on a focus from the keyboard (`:focus-visible`,
+  `ignoreNonKeyboardFocus`). A focus from a click does not open it, also when the window gives
+  this focus back. The open rail shows the title in the row, thus it shows no tooltip: the
+  tooltip is `disabled` while the rail is open. Only the content of a tooltip closes it when the
+  pointer goes out, and the open rail has no content. Without `disabled`, each row that the
+  pointer crosses on the open rail keeps its tooltip open, and the tooltip shows when the rail
+  closes.
+- **The tile of the active row fades and pops, it does not move along the rail.** Each row has
+  its own tile (`data-slot="sidebar-rail-tile"`) on a hover layer, under the icon and the title.
+  When the active row changes, the old tile shrinks to 75 % and fades out in 160 ms. The new tile
+  starts at 56 %, fades in in 100 ms and grows on a spring (bounce 0.4, 500 ms) that goes a
+  little past its size (`animateTile`, Web Animations). The class of the tile gives its end
+  state, thus the first render has no motion. The hover layer stays 200 ms after the click,
+  under the tile that grows, then fades out. The row has no `overflow-hidden`, because it must
+  not cut the spring. With `prefers-reduced-motion`, the tile only fades in 150 ms, and the
+  color of the icon changes in 150 ms.
+- **Only the user opens the rail, and each other action closes it.** A hover or a focus does not
+  open it. A click on the free room below the rows (`data-slot="sidebar-rail-space"`) or on the
+  separator opens and closes it, and their cursor shows the direction: these two are "the bar".
+  On the closed rail, a click between the rows, beside them, and at least 8 px above and below
+  them does nothing and the cursor does not change: a click that misses a row by a few pixels does
+  not open the rail. The separator is the way for the keyboard. On the open rail, each click that
+  is not on the bar or on the handle closes it: a row (it also opens its page), a gap between the
+  rows, the logo of the band, a footer, the page. A press outside and Escape also close it. While
+  one of its menus is open, the rail stays open: the click that opens the menu does not close it,
+  and a choice in the menu closes the menu, then the rail. Thus `closeOnClick` reads the menus
+  after the handlers of the click, in a microtask.
 - **The user sets the width of the second sidebar, not of the rail.** The handle
   (`SecondSidebarHandle`) is on the right edge of the second sidebar, below the band, and the page
   follows the width. A drag moves it, and a double click gives the default width. The handle has the
   `separator` role: the arrow keys move it by 16 px, Home and End go to the limits, and Enter gives
   the default width. It is not on a page with no second sidebar, not while the access policy is not
   ready, and not in the sheet of a phone.
+- **The handle is above the rail (`z-30` over `z-20`).** On the open rail, it covers the separator,
+  thus a drag on the edge also sets the width while the rail is open, and a press or a click on
+  it does not close the rail. During a drag, the open rail has no transition (`width.dragging`),
+  thus its edge stays on the pointer.
 - **The width is in pixels, thus `ResizablePaneGroup` does not fit.** Its sizes are percent of the
   group, thus a minimum in percent gives a different width for each window, and the group must
   also hold the page.
@@ -202,9 +273,7 @@ module gives an access policy.
   wide), the section titles and the headings fit on one line, and no English link is cut. Below this,
   the English links and then the titles are cut. A longer link, for example in French, is cut with an
   ellipsis, and its `title` gives the full text. At 200 px the longest link ("Exécutions en échec")
-  has 14 px of free room, and the open rail covers the second sidebar to the same edge as the band.
-  A wider second sidebar stays visible to the right of the open rail. A narrower one puts the open
-  rail over the page too. A resize above the default keeps 704 px for the page: a table of 640 px
+  has 14 px of free room. A resize above the default keeps 704 px for the page: a table of 640 px
   (`CARD_LAYOUT_WIDTH_PX`) and the padding of the page, thus it never turns a table into cards. A
   narrow window lowers the maximum, but never below the default. It does not change the stored
   width: a wider window gives this width back.

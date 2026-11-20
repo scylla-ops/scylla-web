@@ -30,9 +30,9 @@ const scrollers = sources.flatMap(path =>
 );
 
 describe('an element that scrolls', () => {
-  it('is searched in every class string, the members list included', () => {
+  it('is searched in every class string, the frame of the tables included', () => {
     expect(scrollers.map(scroller => scroller.path)).toContain(
-      'extensions/scylla-base/src/features/membership/presentation/ui/components/MembersTable/MembersTable.svelte',
+      'packages/ui/src/primitives/table/table-frame.svelte',
     );
   });
 

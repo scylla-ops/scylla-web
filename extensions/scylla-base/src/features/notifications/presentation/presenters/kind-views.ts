@@ -1,4 +1,5 @@
 import BellIcon from '@lucide/svelte/icons/bell';
+import ClockExclamationIcon from '@lucide/svelte/icons/clock-exclamation-point';
 import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 import LinkIcon from '@lucide/svelte/icons/link';
 import LockIcon from '@lucide/svelte/icons/lock';
@@ -6,9 +7,11 @@ import MailIcon from '@lucide/svelte/icons/mail';
 import ShieldAlertIcon from '@lucide/svelte/icons/shield-alert';
 import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 import UnlinkIcon from '@lucide/svelte/icons/unlink';
+import UnplugIcon from '@lucide/svelte/icons/unplug';
 import UserRoundCheckIcon from '@lucide/svelte/icons/user-round-check';
 import UserRoundCogIcon from '@lucide/svelte/icons/user-round-cog';
 import UserRoundXIcon from '@lucide/svelte/icons/user-round-x';
+import type { MessageDescriptor } from '@lingui/core';
 import { roleLabel } from '@base/features/access';
 import { workspaceUrl } from '@platform/context';
 import { t } from '@scylla/ui/i18n';
@@ -92,6 +95,27 @@ const security = (
   href: accountPage('security'),
 });
 
+/** The page of the Git connections of the workspace of a row. */
+const integrationsPage = (row: NotificationEntity): string | null =>
+  row.workspaceSlug ? workspaceUrl(row.workspaceSlug, 'settings/integrations') : null;
+
+/** The name of a Git provider, from its key. */
+const providerName = (row: NotificationEntity): string =>
+  row.params.provider === 'gitlab' ? 'GitLab' : 'GitHub';
+
+/** The reasons of a connection that needs attention, with what the reader can do. */
+const BROKEN_DETAILS: Readonly<Record<string, MessageDescriptor>> = {
+  APP_UNINSTALLED: messages.connectionUninstalled,
+  APP_SUSPENDED: messages.connectionSuspended,
+  PERMISSIONS_NOT_ACCEPTED: messages.connectionPermissions,
+  TOKEN_EXPIRED: messages.connectionTokenExpired,
+  TOKEN_REVOKED: messages.connectionTokenRevoked,
+  TOKEN_SCOPE_MISSING: messages.connectionTokenScope,
+};
+
+const brokenDetail = (row: NotificationEntity): string =>
+  t(BROKEN_DETAILS[row.params.reason ?? ''] ?? messages.connectionStopped);
+
 /** The kinds of the core. */
 const CORE_KINDS: readonly KindView[] = [
   {
@@ -168,6 +192,20 @@ const CORE_KINDS: readonly KindView[] = [
     text: row => messages.tokenCreated(row.params.name ?? ''),
     href: accountPage('tokens'),
   },
+  {
+    kind: 'vcs.connection_broken',
+    icon: UnplugIcon,
+    text: row => messages.connectionBroken(providerName(row), row.params.account ?? ''),
+    detail: brokenDetail,
+    href: integrationsPage,
+  },
+  {
+    kind: 'vcs.token_expiring',
+    icon: ClockExclamationIcon,
+    text: row => messages.tokenExpiring(row.params.account ?? '', row.params.expires_at ?? ''),
+    detail: () => t(messages.tokenExpiringDetail),
+    href: integrationsPage,
+  },
 ];
 
 /** The keys of the kinds of the core, for a test against the kinds of the server. */
@@ -186,6 +224,7 @@ export interface RowView {
 const reasonOf = (row: NotificationEntity): string | null => {
   if (row.reason === 'owner') return t(messages.reasonOwner);
   if (row.reason === 'admin') return t(messages.reasonAdmin);
+  if (row.reason === 'workspace_admin') return t(messages.reasonWorkspaceAdmin);
   return null;
 };
 

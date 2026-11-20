@@ -130,21 +130,71 @@ describe('RoleEditor', () => {
   });
 });
 
-describe('RoleEditor: start from', () => {
-  it('starts empty, and finds the role to copy by its name', async () => {
-    list.mockResolvedValue([
-      role({ key: 'qa', name: 'Quality', grantName: 'qa', permissions: [] }),
-      role({ key: 'ops', name: 'Operations', grantName: 'ops', permissions: [] }),
+describe('RoleEditor: copy from a role', () => {
+  const operations = role({
+    key: 'ops',
+    name: 'Operations',
+    level: 'project',
+    grantName: 'ops',
+    permissions: ['pipelines.view'],
+  });
+
+  const level = (name: string) => screen.getByRole('radio', { name: new RegExp(`^${name}`) });
+
+  const openNew = async (props: { startKey?: string } = {}) => {
+    list.mockResolvedValue([operations]);
+    render(RoleEditor, { listUrl: '/acme/access/roles', workspaceId: 'w-1', ...props });
+    await waitFor(() => expect(screen.getAllByRole('checkbox').length).toBeGreaterThan(0));
+  };
+
+  it('copies the level and the permissions of a role, and Undo puts the draft back', async () => {
+    await openNew();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Copy from a role' }));
+    await userEvent.click(await findFloating('option', 'Operations'));
+
+    expect(screen.getByText(/Copied from Operations/)).toBeInTheDocument();
+    expect(level('Project')).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('checkbox', { name: 'Pipelines · View' })).toBeChecked();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
+
+    expect(screen.queryByText(/Copied from/)).toBeNull();
+    expect(level('Workspace')).toHaveAttribute('aria-checked', 'true');
+  });
+
+  it('clears every permission with the empty role', async () => {
+    await openNew();
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Workspace · Edit' }));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Copy from a role' }));
+    await userEvent.click(await findFloating('option', 'Empty role Clears every permission'));
+
+    expect(screen.getByRole('checkbox', { name: 'Workspace · Edit' })).not.toBeChecked();
+    expect(screen.getByText(/Copied from Empty role/)).toBeInTheDocument();
+  });
+
+  it('starts from the role of a link', async () => {
+    await openNew({ startKey: 'ops' });
+
+    await waitFor(() => expect(screen.getByText(/Copied from Operations/)).toBeInTheDocument());
+    expect(level('Project')).toHaveAttribute('aria-checked', 'true');
+  });
+
+  it('has no Instance level and no Instance tab on a workspace page', async () => {
+    catalog.mockResolvedValue([
+      {
+        id: 'users',
+        level: 'platform',
+        machine: false,
+        permissions: [{ id: 'users.view', action: 'view', dependsOn: [], implicit: false }],
+      },
+      ...areas,
     ]);
-    render(RoleEditor, { listUrl: '/acme/access/roles', workspaceId: 'w-1' });
-    const field = await screen.findByRole<HTMLInputElement>('combobox', { name: 'Start from' });
-    expect(field).toHaveAttribute('placeholder', 'Empty role');
+    await openNew();
 
-    await userEvent.type(field, 'oper');
-    await findFloating('option', 'Operations');
-    expect(screen.queryAllByRole('option', { hidden: true })).toHaveLength(1);
-    await userEvent.keyboard('{Enter}');
-
-    await waitFor(() => expect(field.value).toBe('Operations'));
+    expect(screen.queryByRole('radio', { name: /^Instance/ })).toBeNull();
+    expect(screen.queryByRole('tab', { name: /Instance/ })).toBeNull();
+    expect(screen.getAllByRole('tab')).toHaveLength(2);
   });
 });

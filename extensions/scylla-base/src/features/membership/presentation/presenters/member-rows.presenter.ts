@@ -1,4 +1,8 @@
 import type { MemberEntity, MemberRoleEntity } from '@base/features/access';
+import {
+  identityKindOf,
+  type IdentityKind,
+} from '@shared/presentation/presenters/user-identity.presenter.ts';
 
 export const OWNER_KEY = 'owner';
 
@@ -17,6 +21,7 @@ export type MemberTab = 'people' | 'apps';
 export interface MemberRow {
   actorId: string;
   tab: MemberTab;
+  kind: IdentityKind;
   name: string;
   handle: string;
   /** The roles on the workspace. */
@@ -28,7 +33,7 @@ export interface MemberRow {
   addedAt?: Date;
 }
 
-/** How a member shows in `UserIdentity`. */
+/** How a member shows in `Identity`. */
 export const memberProfile = (row: { name: string; handle: string }) => ({
   displayName: row.name,
   username: row.handle,
@@ -52,6 +57,7 @@ export const buildMemberRows = (members: readonly MemberEntity[]): MemberRow[] =
     return {
       actorId: member.actorId,
       tab: member.actorKind === 'user' ? 'people' : 'apps',
+      kind: identityKindOf(member),
       name: member.displayName,
       handle: member.handle,
       workspaceRoles,
@@ -78,6 +84,7 @@ export const filterMemberRows = (
 export interface ProjectMemberRow {
   actorId: string;
   tab: MemberTab;
+  kind: IdentityKind;
   name: string;
   handle: string;
   roles: MemberRoleEntity[];
@@ -98,6 +105,7 @@ export const buildProjectMemberRows = (members: readonly MemberEntity[]): Projec
       return {
         actorId: member.actorId,
         tab,
+        kind: identityKindOf(member),
         name: member.displayName,
         handle: member.handle,
         roles,

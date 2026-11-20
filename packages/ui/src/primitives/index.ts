@@ -9,6 +9,7 @@ import {
   Combobox as ComboboxPrimitive,
   Dialog as DialogPrimitive,
   DropdownMenu as DropdownMenuPrimitive,
+  LinkPreview as HoverCardPrimitive,
   Popover as PopoverPrimitive,
   Select as SelectPrimitive,
 } from 'bits-ui';
@@ -49,6 +50,8 @@ export { default as DialogFooter } from './dialog/dialog-footer.svelte';
 export { default as DialogHeader } from './dialog/dialog-header.svelte';
 export { default as DialogOverlay } from './dialog/dialog-overlay.svelte';
 export { default as DialogTitle } from './dialog/dialog-title.svelte';
+/** A dialog on an edge of the screen: open it with `Dialog`, it slides in from its side. */
+export { default as SheetContent } from './sheet/sheet-content.svelte';
 
 export const AlertDialog = AlertDialogPrimitive.Root;
 export const AlertDialogPortal = AlertDialogPrimitive.Portal;
@@ -66,6 +69,11 @@ export const Popover = PopoverPrimitive.Root;
 export const PopoverTrigger = PopoverPrimitive.Trigger;
 export { default as PopoverContent } from './popover/popover-content.svelte';
 
+// shadcn/ui's hover card is Radix's; bits-ui names it `LinkPreview`.
+export const HoverCard = HoverCardPrimitive.Root;
+export const HoverCardTrigger = HoverCardPrimitive.Trigger;
+export { default as HoverCardContent } from './hover-card/hover-card-content.svelte';
+
 export { default as Checkbox } from './checkbox/checkbox.svelte';
 
 export { default as Command } from './command/command.svelte';
@@ -78,8 +86,10 @@ export { default as Avatar } from './avatar/avatar.svelte';
 export { default as AvatarFallback } from './avatar/avatar-fallback.svelte';
 export { default as AvatarImage } from './avatar/avatar-image.svelte';
 
+export { default as Table } from './table/table.svelte';
 export { default as TableBody } from './table/table-body.svelte';
 export { default as TableCell } from './table/table-cell.svelte';
+export { default as TableFrame } from './table/table-frame.svelte';
 export { default as TableHead } from './table/table-head.svelte';
 export { default as TableHeader } from './table/table-header.svelte';
 export { default as TableRow } from './table/table-row.svelte';
@@ -153,11 +163,8 @@ export { SIDEBAR_FADE, SIDEBAR_MOTION } from './sidebar/sidebar-variants.ts';
 
 export { default as Pagination } from './pagination/pagination.svelte';
 export { default as PaginationContent } from './pagination/pagination-content.svelte';
-export { default as PaginationEllipsis } from './pagination/pagination-ellipsis.svelte';
 export { default as PaginationItem } from './pagination/pagination-item.svelte';
 export { default as PaginationLink } from './pagination/pagination-link.svelte';
-export { default as PaginationNext } from './pagination/pagination-next.svelte';
-export { default as PaginationPrevious } from './pagination/pagination-previous.svelte';
 
 // The pane is paneforge's own, aliased rather than wrapped: only the group and the handle carry
 // styling.

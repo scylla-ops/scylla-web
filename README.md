@@ -49,11 +49,15 @@ The app will be available at `http://localhost:5173`. All commands run from the 
 | `pnpm gen-proto` | Regenerate gRPC TypeScript clients from proto files |
 | `pnpm extract` | Extract i18n translation strings |
 | `pnpm compile` | Compile i18n translations |
+| `pnpm tokens:export` | Write the design tokens of `styles.css` for Figma (`packages/ui/DESIGN-SYSTEM.md`) |
+| `pnpm ui:catalog` | Open the visual catalog of `@scylla/ui` (Storybook) on port 6006 |
 
 ## Documentation
 
 - [Architecture](docs/architecture.md) — Module structure, data flow, shared patterns, tech stack
 - [Naming Conventions](docs/naming-conventions.md) — File, folder, TypeScript & Svelte naming rules
+- [Git providers](docs/git-providers.md) — Set up GitHub and GitLab for a Scylla server: the GitHub App, the manifest flow, the GitLab service account
+- [Design system](packages/ui/DESIGN-SYSTEM.md) — The code is the source of truth: how the tokens and the components go to the Figma library
 - [CONTRIBUTING.md](CONTRIBUTING.md) — How to contribute: workflow, commits, pull requests, checks
 - [AGENTS.md](AGENTS.md) — The working contract for this codebase (rules, checklists, conventions), for humans and AI coding agents
 
@@ -84,6 +88,7 @@ packages/ui                the design system — imports no other package
 | [@scylla/core](packages/core/README.md) | Extension loader, route compilation and router (no router library), the shell frame |
 | [@scylla/core-sdk](sdks/core-sdk/README.md) | `@Extension`, `ScyllaModule`, the navigation, DI and query API the core installs |
 | [@scylla/ui](packages/ui/README.md) | primitives (adapted from shadcn/ui), generic composites, rune states, stores, i18n runtime, theme |
+| [catalog](catalog/README.md) | The visual catalog of `@scylla/ui` (Storybook): each component, its variants and states, light and dark |
 | [@scylla/base-sdk](sdks/scylla-base-sdk/README.md) | What other extensions may use of scylla-base |
 | [scylla-base](extensions/scylla-base/README.md) | The Scylla product — the modules below |
 
@@ -100,6 +105,7 @@ packages/ui                the design system — imports no other package
 | [apps](extensions/scylla-base/src/features/apps/README.md) | Machine identities, the agents that pick up jobs, their install and their run statistics |
 | [dashboard](extensions/scylla-base/src/features/dashboard/README.md) | The workspace landing page — a composite view owning no data |
 | [extensions](extensions/scylla-base/src/features/extensions/README.md) | The page that lists the extensions the app runs |
+| [integrations](extensions/scylla-base/src/features/integrations/README.md) | The connections of a workspace to GitHub and GitLab, the repository of a project, and the data layer of the Git integration |
 | [jobs](extensions/scylla-base/src/features/jobs/README.md) | Pipeline runs: status, logs, and the live tail of both |
 | [login](extensions/scylla-base/src/features/login/README.md) | Sign-in, sign-out, the password reset and the session token |
 | [marketplace](extensions/scylla-base/src/features/marketplace/README.md) | Ready-made pipeline templates |

@@ -13,10 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/extensions/extensions.module.ts:22
-msgid "plugin"
-msgstr "plugin"
-
 #: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:12
 msgid "{count, plural, one {# module} other {# modules}}"
 msgstr "{count, plural, one {# module} other {# modules}}"
@@ -39,7 +35,7 @@ msgid "Extension"
 msgstr "Extension"
 
 #: extensions/scylla-base/src/features/extensions/extensions.module.ts:17
-#: extensions/scylla-base/src/features/extensions/extensions.module.ts:19
+#: extensions/scylla-base/src/features/extensions/extensions.module.ts:21
 #: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:6
 msgid "Extensions"
 msgstr "Extensions"
@@ -55,6 +51,10 @@ msgstr "Aucune extension n'est installée."
 #: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:4
 msgid "Platform"
 msgstr "Plateforme"
+
+#: extensions/scylla-base/src/features/extensions/extensions.module.ts:22
+msgid "plugin"
+msgstr "plugin"
 
 #: extensions/scylla-base/src/features/extensions/presentation/messages/extensions.messages.ts:7
 msgid "The installed extensions could not be read."

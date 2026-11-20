@@ -6,7 +6,7 @@
   import { rolesMessages } from '../../messages/roles.messages.ts';
   import { roleName } from '../../role-labels.ts';
   import { setRoleCrumbName } from '../../role-crumb.state.svelte.ts';
-  import { roleQueries } from '../../roles.queries.ts';
+  import { canSeeRoleHolders, roleQueries } from '../../roles.queries.ts';
   import RoleEditor from '../RoleEditor/RoleEditor.svelte';
   import RoleReadOnly from './RoleReadOnly.svelte';
 
@@ -39,9 +39,7 @@
   const duplicateUrl = $derived(
     canManage ? `${listUrl}/new?from=${encodeURIComponent(key)}` : undefined,
   );
-  const canSeeHolders = $derived(
-    workspaceId ? can(Permission.LIST_WORKSPACE_MEMBERS, { workspaceId }) : can(Permission.LIST_ROLES),
-  );
+  const canSeeHolders = $derived(canSeeRoleHolders(workspaceId));
 </script>
 
 {#if roleQuery.isLoading}

@@ -17,6 +17,25 @@ const groupOf = (role: RoleEntity): RoleGroupId =>
 const matches = (role: RoleEntity, search: string): boolean =>
   role.name.toLowerCase().includes(search) || role.description.toLowerCase().includes(search);
 
+export type RoleSort = 'none' | 'asc' | 'desc';
+
+const NEXT_SORT: Record<RoleSort, RoleSort> = { none: 'asc', asc: 'desc', desc: 'none' };
+
+/** A click on the header: A → Z, then Z → A, then the order of the server. */
+export const nextSort = (sort: RoleSort): RoleSort => NEXT_SORT[sort];
+
+const BY_NAME = new Intl.Collator(undefined, { sensitivity: 'base' });
+
+export const sortRoles = <T>(
+  roles: readonly T[],
+  sort: RoleSort,
+  name: (role: T) => string,
+): T[] => {
+  if (sort === 'none') return [...roles];
+  const sign = sort === 'asc' ? 1 : -1;
+  return [...roles].sort((a, b) => sign * BY_NAME.compare(name(a), name(b)));
+};
+
 /** The groups in the order of the page. A group with no role is left out. */
 export const groupRoles = (
   roles: readonly RoleEntity[],

@@ -1,0 +1,7 @@
+@import '@scylla/ui/styles.css';
+
+@source '../src';
+
+body {
+  background: var(--background);
+}

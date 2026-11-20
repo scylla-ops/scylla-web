@@ -184,18 +184,20 @@ describe('feature permission conformance', () => {
         '`signInMethods` is public: the sign-in page reads it with no session. The account page ' +
         'reads it to offer the providers to link. `pendingLink` reads a cookie of this browser.',
       'jobs.jobQueries':
-        '`byWorkspace`, the read that crosses the barrel, is workspace-scoped and filtered ' +
-        'server-side (ListWorkspaceJobs gives only what the caller may read). The fan-out that ' +
+        '`byWorkspace`, the read that crosses the barrel, needs LIST_JOBS_BY_WORKSPACE: the ' +
+        'failed runs sit behind it. The fan-out that ' +
         '*does* check lives in its own file precisely so its `can(` does not vouch for this one.',
       'pipeline.pipelineQueries':
-        '`byWorkspace` is the one read that crosses the barrel, and ListWorkspacePipelines is ' +
-        'scoped server-side, so there is nothing to gate client-side.',
+        '`byWorkspace` needs LIST_PIPELINES_BY_WORKSPACE, which each consumer adds to ' +
+        '`enabled`. The trigger pages read `byId` for the file of a file pipeline, and the ' +
+        "shell's `namePipeline` for the name in the crumbs: both add READ_PIPELINE to `enabled`.",
       'secret.secretQueries':
         "Consumed by pipeline's step dialog to offer secret names, on an editor route requiring " +
-        'UPDATE_PIPELINE rather than LIST_SECRETS: the names only, never a value.',
+        'UPDATE_PIPELINE: the dialog adds LIST_SECRETS to `enabled`, and takes a typed name.',
       'workspace.workspaceQueries':
         '`mine` needs no permission: ListWorkspaces gives the workspaces of the caller. The ' +
-        'invitation page reads it after AcceptInvitation, to open the new workspace.',
+        'invitation page reads it after AcceptInvitation, to open the new workspace. The ' +
+        'dashboard reads it for the time zone of the workspace.',
       'access.accessQueries':
         "`list` takes the caller's gate as `enabled`, which is the only place the answer is " +
         'known: a workspace needs LIST_WORKSPACE_MEMBERS and a project LIST_PROJECT_MEMBERS ' +

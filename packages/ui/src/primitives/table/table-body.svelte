@@ -8,6 +8,6 @@
   let { class: className, children, ...rest }: Props = $props();
 </script>
 
-<tbody data-slot="table-body" class={cn('[&_tr:last-child>td]:border-b-0', className)} {...rest}>
+<tbody data-slot="table-body" class={cn(className)} {...rest}>
   {@render children?.()}
 </tbody>

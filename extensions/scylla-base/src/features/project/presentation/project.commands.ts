@@ -1,7 +1,12 @@
 import { msg } from '@lingui/core/macro';
 import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
 import { Permission } from '@platform/authz';
-import type { CreateCommand } from '@scylla/core-sdk';
+import { routeParams, type CreateCommand } from '@scylla/core-sdk';
+
+const newProject = (): string | null => {
+  const { workspaceSlug } = routeParams();
+  return workspaceSlug ? `/${workspaceSlug}/projects/new` : null;
+};
 
 export const projectCommands: readonly CreateCommand[] = [
   {
@@ -11,6 +16,6 @@ export const projectCommands: readonly CreateCommand[] = [
     keywords: msg`create add`,
     icon: FolderPlusIcon,
     permission: Permission.CREATE_PROJECT,
-    form: { load: () => import('./ui/AddProjectDialog.svelte') },
+    form: { path: newProject },
   },
 ];

@@ -25,6 +25,7 @@ export const createSecondSidebarWidth = (
   };
 
   let chosen = $state(read());
+  let dragging = $state(false);
 
   const max = $derived(
     Math.max(
@@ -43,11 +44,17 @@ export const createSecondSidebarWidth = (
     get current() {
       return between(chosen, MIN_WIDTH_PX, max);
     },
+    /** From a `resize` to the `save` that ends the drag. */
+    get dragging() {
+      return dragging;
+    },
     /** Follows a drag: `save` stores the width when the drag ends. */
     resize(next: number) {
       chosen = between(Math.round(next), MIN_WIDTH_PX, max);
+      dragging = true;
     },
     save() {
+      dragging = false;
       try {
         storage()?.setItem(STORAGE_KEY, String(chosen));
       } catch {

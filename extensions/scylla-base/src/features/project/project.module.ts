@@ -31,6 +31,20 @@ export const ProjectModule = {
           order: 20,
           group: { id: 'projects', title: msg`Projects`, icon: WorkflowIcon },
         },
+        children: [
+          {
+            path: 'new',
+            permission: Permission.CREATE_PROJECT,
+            breadcrumb: () => ({ label: msg`New project` }),
+            page: () => import('./presentation/ui/NewProject/NewProject.page.svelte'),
+          },
+          // The way "linked to GitHub" is `projects/new/github`, in `integrations`.
+          {
+            path: 'new/regular',
+            permission: Permission.CREATE_PROJECT,
+            page: () => import('./presentation/ui/NewRegularProject/NewRegularProject.page.svelte'),
+          },
+        ],
       },
     ],
   },

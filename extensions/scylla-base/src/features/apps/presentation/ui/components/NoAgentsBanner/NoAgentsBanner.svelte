@@ -22,6 +22,8 @@
     can(Permission.LIST_AGENTS, { workspaceId: workspaceId || undefined }),
   );
 
+  const canAdd = $derived(can(Permission.CREATE_APP, { workspaceId: workspaceId || undefined }));
+
   const agentsQuery = createQuery(() => appQueries.runners(workspaceId));
   const anyConnected = $derived((agentsQuery.data ?? []).some(agent => agent.connected));
 </script>
@@ -53,7 +55,7 @@
   <span>{t(appsMessages.noAgentConnected)}</span>
   <button
     type="button"
-    onclick={() => scyllaNavigate.goToWorkspaceRoute('/agents')}
+    onclick={() => scyllaNavigate.goToWorkspaceRoute(canAdd ? '/agents/new' : '/agents')}
     class="ml-auto shrink-0 font-medium text-primary hover:underline"
   >
     {t(appsMessages.setUpAnAgent)} →

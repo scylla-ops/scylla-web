@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
+import { fakePollTimers } from '@test/queries.ts';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import AddAppDialog from './AddAppDialog.svelte';
 
@@ -107,6 +108,7 @@ const throughRoles = async (user: ReturnType<typeof userEvent.setup>) => {
 afterEach(() => {
   teardown.forEach(restore => restore());
   permissionsStore.setState({ permissions: null });
+  vi.useRealTimers();
 });
 
 describe('AddAppDialog', () => {
@@ -181,6 +183,7 @@ describe('AddAppDialog', () => {
   });
 
   it('gives a join code to a server with a key pair and waits for it', async () => {
+    fakePollTimers();
     const { apps } = setUp();
     const user = userEvent.setup();
     const dialog = await throughRoles(user);
@@ -191,8 +194,8 @@ describe('AddAppDialog', () => {
     await waitFor(() => expect(apps.createApp).toHaveBeenCalledWith('ws-1', 'release-bot', false));
     expect(await screen.findByText('JOIN-55')).toBeInTheDocument();
     expect(screen.getByText('Waiting for the server to join…')).toBeInTheDocument();
-    expect(
-      await screen.findByText('A server joined with a new key.', {}, { timeout: 5000 }),
-    ).toBeInTheDocument();
+    await vi.advanceTimersByTimeAsync(2_000);
+
+    expect(await screen.findByText('A server joined with a new key.')).toBeInTheDocument();
   });
 });

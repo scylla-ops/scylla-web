@@ -74,6 +74,15 @@ export enum Permission {
   LIST_ROLES = 67,
   LIST_WORKSPACE_ROLES = 69,
   MANAGE_INSTANCE_ADMINS = 68,
+  CREATE_JOIN_CODE = 70,
+  RENAME_APP_KEY = 71,
+  REVOKE_APP_KEY = 72,
+  VIEW_INTEGRATIONS = 73,
+  MANAGE_VCS_CONNECTIONS = 74,
+  READ_REPOSITORY_LINK = 75,
+  MANAGE_REPOSITORY_LINK = 76,
+  APPROVE_JOB = 77,
+  MANAGE_GIT_PROVIDERS = 78,
 }
 
 const SYSTEM_LEVEL = new Set<Permission>([
@@ -88,13 +97,13 @@ const SYSTEM_LEVEL = new Set<Permission>([
   Permission.LIST_WORKSPACES,
   Permission.LIST_PROJECTS,
   Permission.LIST_PIPELINES,
-  Permission.CREATE_JOB,
   Permission.LIST_JOBS,
   Permission.MANAGE_SYSTEM_GRANTS,
   Permission.MANAGE_ROLES,
   Permission.MANAGE_INSTANCE_SETTINGS,
   Permission.LIST_ROLES,
   Permission.MANAGE_INSTANCE_ADMINS,
+  Permission.MANAGE_GIT_PROVIDERS,
 ]);
 
 const WORKSPACE_LEVEL = new Set<Permission>([
@@ -113,12 +122,17 @@ const WORKSPACE_LEVEL = new Set<Permission>([
   Permission.READ_APP,
   Permission.READ_APP_STATS,
   Permission.DELETE_APP,
+  Permission.CREATE_JOIN_CODE,
+  Permission.RENAME_APP_KEY,
+  Permission.REVOKE_APP_KEY,
   Permission.LIST_APPS_BY_WORKSPACE,
   Permission.CREATE_AGENT,
   Permission.LIST_AGENTS,
   Permission.MANAGE_WORKSPACE_GRANTS,
   Permission.MANAGE_WORKSPACE_ROLES,
   Permission.LIST_WORKSPACE_ROLES,
+  Permission.VIEW_INTEGRATIONS,
+  Permission.MANAGE_VCS_CONNECTIONS,
 ]);
 
 /**

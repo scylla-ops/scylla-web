@@ -1,6 +1,6 @@
 <script lang="ts">
+  import { StatusShape, type StatusState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { cn } from '@scylla/ui/utils';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
   import { agentStatusOf } from '@base/features/apps/domain/structs/agent-list.struct.ts';
   import { agentsListMessages as messages } from '@base/features/apps/presentation/messages/agents-list.messages.ts';
@@ -29,22 +29,17 @@
     }[status],
   );
 
-  const DOT = {
-    running: 'bg-warning',
-    online: 'bg-primary',
-    offline: 'bg-muted-foreground',
-    never: 'border border-primary bg-transparent',
-    disabled: 'border border-muted-foreground bg-transparent',
-    nokey: 'bg-destructive',
-  } as const;
+  const SHAPE: Record<typeof status, StatusState> = {
+    running: 'running',
+    online: 'success',
+    offline: 'idle',
+    never: 'pending',
+    disabled: 'cancelled',
+    nokey: 'failed',
+  };
 </script>
 
-<span
-  class={cn(
-    'inline-flex items-center gap-2 rounded-full px-2.5 py-0.5 text-xs font-medium',
-    status === 'running' ? 'bg-warning/15' : status === 'nokey' ? 'bg-destructive/15' : 'bg-muted',
-  )}
->
-  <span class={cn('size-2 rounded-full', DOT[status])} aria-hidden="true"></span>
-  {label}
+<span class="inline-flex items-center gap-1.5 text-xs font-medium">
+  <StatusShape state={SHAPE[status]} {label} size={20} />
+  <span aria-hidden="true">{label}</span>
 </span>

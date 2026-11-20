@@ -7,6 +7,8 @@ import {
   formatCountdown,
   installCommands,
   isLoopback,
+  LOG_COMMANDS,
+  releaseOf,
   releaseUrl,
   secondsLeft,
   uninstallCommand,
@@ -147,6 +149,23 @@ describe('releaseUrl', () => {
     expect(releaseUrl('0.7.0')).toBe('https://github.com/scylla-ops/scylla-ce/releases/tag/v0.7.0');
     expect(releaseUrl(undefined)).toBe('https://github.com/scylla-ops/scylla-ce/releases');
   });
+
+  it('goes to the release of a build that is not a release', () => {
+    expect(releaseUrl('0.7.0-rc.1+240da00')).toBe(
+      'https://github.com/scylla-ops/scylla-ce/releases/tag/v0.7.0-rc.1',
+    );
+    expect(releaseUrl('0.7.0-rc.1+dev')).toBe(
+      'https://github.com/scylla-ops/scylla-ce/releases/tag/v0.7.0-rc.1',
+    );
+  });
+});
+
+describe('releaseOf', () => {
+  it('removes the build metadata, and keeps a release version', () => {
+    expect(releaseOf('0.7.0-rc.1+240da00')).toBe('0.7.0-rc.1');
+    expect(releaseOf('0.7.0-rc.1+dev')).toBe('0.7.0-rc.1');
+    expect(releaseOf('0.7.0-rc.1')).toBe('0.7.0-rc.1');
+  });
 });
 
 describe('the expiry of a join code', () => {
@@ -157,5 +176,17 @@ describe('the expiry of a join code', () => {
     expect(secondsLeft('2026-11-04T11:59:00.000Z', now)).toBe(0);
     expect(formatCountdown(861)).toBe('14:21');
     expect(formatCountdown(5)).toBe('0:05');
+  });
+});
+
+describe('the logs of an agent', () => {
+  it('reads the file of the agent of the user on Windows, or else the files of the service', () => {
+    const [user, service, read] = LOG_COMMANDS.windows.split('\n');
+
+    expect(user).toBe(String.raw`$log = "$env:LOCALAPPDATA\scylla-agent\agent.log"`);
+    expect(service).toContain(
+      String.raw`if (-not (Test-Path $log)) { $log = "$env:ProgramData\scylla-agent\agent.`,
+    );
+    expect(read).toBe('Get-Content -Wait $log');
   });
 });

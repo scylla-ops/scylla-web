@@ -8,6 +8,7 @@ import { toRune } from '@scylla/ui/stores';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import type { PipelineRun } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import type { CommitRef } from '@base/features/pipeline/domain/structs/commit-ref.struct.ts';
 import { pipelineMutations } from '../pipeline.queries.ts';
 
 /**
@@ -51,10 +52,11 @@ export const createRunPipeline = () => {
   return {
     isRunning: (pipelineId: string) => inFlight.has(pipelineId),
 
-    async run(pipelineId: string): Promise<void> {
+    /** No ref: an editor pipeline runs with no commit, a file pipeline at the head of the default branch. */
+    async run(pipelineId: string, ref?: CommitRef): Promise<void> {
       inFlight.add(pipelineId);
       try {
-        announce(await runPipeline.mutateAsync(pipelineId));
+        announce(await runPipeline.mutateAsync({ pipelineId, ...(ref && { ref }) }));
       } catch {
         // The global mutation handler toasts the error.
       } finally {

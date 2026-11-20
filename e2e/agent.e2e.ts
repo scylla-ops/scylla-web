@@ -42,17 +42,18 @@ test('an agent joins with its code, runs the job of a pipeline, and its logs sho
     .getByRole('button', { name: /Add an agent/ })
     .first()
     .click();
-  const dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Name').fill('runner-1');
-  await dialog.getByRole('button', { name: 'Add agent' }).click();
-  await expect(dialog.getByRole('tab', { name: 'Linux', selected: true })).toBeVisible();
-  const command = await dialog.locator('pre').first().innerText();
+  const form = page.locator('[data-tour="add-agent-page"]');
+  await form.getByLabel('Name').fill('runner-1');
+  await form.getByRole('button', { name: 'Add agent' }).click();
+  await expect(form.getByRole('button', { name: /Linux/, pressed: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/agents\/[^/]+\/connect$/);
+  const command = await form.locator('pre').first().innerText();
   const code = /sh -s -- (\S+) --url/.exec(command)![1];
   const config = join(mkdtempSync(join(tmpdir(), 'scylla-agent-')), 'agent.json');
   execFileSync(AGENT!, ['--config', config, 'join', SERVER, code]);
   agent = spawn(AGENT!, ['--config', config, 'run'], { stdio: 'ignore' });
-  await expect(dialog.getByText('runner-1 is online')).toBeVisible({ timeout: 30_000 });
-  await dialog.getByRole('button', { name: 'Open agent' }).click();
+  await expect(form.getByText('runner-1 is online')).toBeVisible({ timeout: 30_000 });
+  await form.getByRole('button', { name: 'Open agent' }).click();
   await expect(page.locator('[data-tour="agent-status"][data-online="true"]')).toBeVisible();
 
   // The run: the job ends in success, and the log of a node has its line.

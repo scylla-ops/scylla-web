@@ -13,13 +13,21 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:13
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:12
 msgid "{selectedCount, plural, one {# item deleted} other {# items deleted}}"
 msgstr "{selectedCount, plural, one {# élément supprimé} other {# éléments supprimés}}"
 
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:15
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:14
 msgid "{selectedCount, plural, one {# selected} other {# selected}}"
 msgstr "{selectedCount, plural, one {# sélectionné} other {# sélectionnés}}"
+
+#: packages/ui/src/data-display/Pagination/pagination.messages.ts:5
+msgid "{start}–{end} of {totalCount}"
+msgstr "{start}–{end} sur {totalCount}"
+
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:9
+msgid "All clear"
+msgstr "Tout va bien"
 
 #: packages/ui/src/feedback/ErrorState/error-state.messages.ts:5
 msgid "An error occurred"
@@ -29,12 +37,16 @@ msgstr "Une erreur s'est produite"
 msgid "Are you absolutely sure?"
 msgstr "Êtes-vous absolument sûr ?"
 
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:12
+msgid "Ask an admin for access."
+msgstr "Demandez l'accès à un admin."
+
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:6
 #: packages/ui/src/forms/FormDialog/form-dialog.messages.ts:4
 msgid "Cancel"
 msgstr "Annuler"
 
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:7
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:6
 msgid "Clear"
 msgstr "Effacer"
 
@@ -67,6 +79,10 @@ msgstr "Copier"
 msgid "Copy your secret"
 msgstr "Copiez votre secret"
 
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:5
+msgid "Could not load"
+msgstr "Chargement impossible"
+
 #: packages/ui/src/forms/FormDialog/form-dialog.messages.ts:5
 msgid "Create"
 msgstr "Créer"
@@ -75,7 +91,7 @@ msgstr "Créer"
 msgid "Creating..."
 msgstr "Création..."
 
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:8
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:7
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -91,45 +107,57 @@ msgstr "Terminé"
 msgid "Error"
 msgstr "Erreur"
 
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:15
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:13
 msgid "Go to next page"
 msgstr "Aller à la page suivante"
 
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:14
+#: packages/ui/src/primitives/pagination/pagination.messages.ts:12
 msgid "Go to previous page"
 msgstr "Aller à la page précédente"
+
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:14
+msgid "It was deleted, or you cannot see it any more."
+msgstr "Il a été supprimé, ou vous ne pouvez plus le voir."
+
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:4
+msgid "Loading"
+msgstr "Chargement"
 
 #: packages/ui/src/controls/SearchSelect/search-select.messages.ts:5
 msgid "Loading…"
 msgstr "Chargement…"
 
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:16
-msgid "More pages"
-msgstr "Plus de pages"
-
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:10
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:9
 msgid "New {label}"
 msgstr "Nouveau {label}"
+
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:8
+msgid "No data matches the period or the scope of this widget."
+msgstr "Aucune donnée pour la période ou le périmètre de ce widget."
 
 #: packages/ui/src/controls/SearchSelect/search-select.messages.ts:4
 msgid "No match"
 msgstr "Aucun résultat"
 
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:13
-msgid "Next"
-msgstr "Suivant"
-
 #: packages/ui/src/data-display/DataTable/data-table.messages.ts:4
 msgid "No results."
 msgstr "Aucun résultat."
 
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:10
+msgid "Nothing needs you now."
+msgstr "Rien ne demande votre attention."
+
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:7
+msgid "Nothing to show"
+msgstr "Rien à afficher"
+
+#: packages/ui/src/data-display/Pagination/pagination.messages.ts:6
+msgid "Page {page} of {totalPages}"
+msgstr "Page {page} sur {totalPages}"
+
 #: packages/ui/src/primitives/pagination/pagination.messages.ts:11
 msgid "Pagination"
 msgstr "Pagination"
-
-#: packages/ui/src/primitives/pagination/pagination.messages.ts:12
-msgid "Previous"
-msgstr "Précédent"
 
 #: packages/ui/src/primitives/resizable/resizable.messages.ts:4
 msgid "Resize panel"
@@ -147,21 +175,17 @@ msgstr "Révélez d'abord le secret"
 msgid "Secret copied"
 msgstr "Secret copié"
 
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:6
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:5
 msgid "Select all"
 msgstr "Tout sélectionner"
-
-#: packages/ui/src/data-display/Pagination/pagination.messages.ts:6
-msgid "Showing {start}-{end} of {totalCount}"
-msgstr "Affichage de {start}-{end} sur {totalCount}"
-
-#: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:5
-msgid "shown once"
-msgstr "montré une seule fois"
 
 #: packages/ui/src/controls/SearchSelect/search-select.messages.ts:6
 msgid "Show the options"
 msgstr "Afficher les options"
+
+#: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:5
+msgid "shown once"
+msgstr "montré une seule fois"
 
 #: packages/ui/src/primitives/sidebar/sidebar.messages.ts:4
 msgid "Sidebar"
@@ -171,12 +195,24 @@ msgstr "Barre latérale"
 msgid "The browser did not let the page write to the clipboard."
 msgstr "Le navigateur n'a pas autorisé la page à écrire dans le presse-papiers."
 
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:6
+msgid "The server did not answer."
+msgstr "Le serveur n'a pas répondu."
+
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:5
 msgid "This action cannot be undone."
 msgstr "Cette action ne peut pas être annulée."
 
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:13
+msgid "This item is gone"
+msgstr "Cet élément n'existe plus"
+
+#: packages/ui/src/widget/WidgetState/widget-state.messages.ts:11
+msgid "You cannot see this data"
+msgstr "Vous ne pouvez pas voir ces données"
+
 #: packages/ui/src/controls/GatedButton/gated-button.messages.ts:4
-#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:9
+#: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:8
 msgid "You don't have permission to do this."
 msgstr "Vous n'avez pas la permission de faire cela."
 

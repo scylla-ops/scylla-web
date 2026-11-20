@@ -59,7 +59,7 @@
     <Skeleton class="h-64 w-full rounded-xl" />
   </div>
 {:else}
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-6 pb-20">
     <AppHeader
       {app}
       onDisable={canManage ? () => (disabling = true) : undefined}
@@ -69,10 +69,10 @@
 
     {#if app.disabledAt}
       <div
-        class="flex items-start gap-3 rounded-xl border border-warning/60 bg-warning/10 p-4"
+        class="flex items-center gap-3 rounded-xl border border-warning/60 bg-warning/10 p-4"
         role="status"
       >
-        <TriangleAlertIcon class="mt-0.5 size-4 text-warning" aria-hidden="true" />
+        <TriangleAlertIcon class="size-4 shrink-0 text-warning" aria-hidden="true" />
         <p class="text-sm font-medium">
           {t(agentPageMessages.disabledSince(formatDay(app.disabledAt)))}
         </p>

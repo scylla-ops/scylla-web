@@ -1,7 +1,7 @@
 import { msg } from '@lingui/core/macro';
 
 export const workspaceSettingsMessages = {
-  title: msg`Security`,
+  title: msg`General`,
   description: (workspace: string) =>
     msg`Settings of the workspace ${workspace}. Only admins of ${workspace} see this page.`,
   personalTokens: (workspace: string) => msg`Personal tokens in ${workspace}`,
@@ -15,4 +15,11 @@ export const workspaceSettingsMessages = {
   confirm: msg`Turn off`,
   turnedOn: msg`Personal tokens allowed in this workspace`,
   turnedOff: msg`Personal tokens refused in this workspace`,
+  timeZone: msg`Time zone`,
+  timeZoneOf: (workspace: string) => msg`Time zone of ${workspace}`,
+  timeZoneBody: (workspace: string, browser: string) =>
+    msg`The stats of ${workspace} count their days and hours in this zone. This browser is in ${browser}.`,
+  thisBrowser: msg`This browser`,
+  findTimeZone: msg`Find a time zone`,
+  timeZoneSaved: msg`Time zone saved`,
 };

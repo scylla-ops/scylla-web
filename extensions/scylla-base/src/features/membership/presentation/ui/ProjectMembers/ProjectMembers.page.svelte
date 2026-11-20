@@ -8,9 +8,19 @@
   import { userQueries } from '@base/features/user';
   import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import { Button, Skeleton } from '@scylla/ui/primitives';
+  import {
+    Button,
+    Skeleton,
+    Table,
+    TableBody,
+    TableCell,
+    TableFrame,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
-  import { UserIdentity } from '@shared/presentation/ui';
+  import { Identity } from '@shared/presentation/ui';
   import {
     membershipPoints,
     type ProjectMembersContext,
@@ -22,11 +32,12 @@
     membershipMessages,
     projectRuleTitle,
   } from '../../messages/membership.messages.ts';
-  import { memberChoice } from '../../presenters/actor-choice.presenter.ts';
+  import { appChoice, memberChoice } from '../../presenters/actor-choice.presenter.ts';
   import { memberRoleName } from '../../presenters/member-role-name.ts';
   import { buildProjectMemberRows, memberProfile } from '../../presenters/member-rows.presenter.ts';
   import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
   import ChooseActorRow from '../components/ChooseActorRow/ChooseActorRow.svelte';
+  import ScopeLabel from '../components/ScopeLabel.svelte';
 
   let { projectId }: { projectId?: string } = $props();
 
@@ -73,7 +84,7 @@
       .map(row => memberChoice(row, usersQuery.data?.items.find(user => user.id === row.actorId))),
     ...(appsQuery.data ?? [])
       .filter(app => !rows.some(row => row.actorId === app.id))
-      .map(app => ({ id: app.id, name: app.name })),
+      .map(appChoice),
   ]);
 
   const startChange = (id: string, name: string) => {
@@ -96,11 +107,13 @@
   });
 
   const slug = $derived(routePathname().split('/')[1] ?? '');
+  // The members of the workspace need their own permission: without it, the row has no link.
+  const canSeeWorkspace = $derived(can(Permission.LIST_WORKSPACE_MEMBERS));
   const openChange = () => navigateTo(`/${slug}/access/members`);
 </script>
 
 {#if projectId}
-  <div class="flex w-full flex-col gap-4">
+  <div class="flex w-full flex-col gap-4 pb-20">
     <header class="flex items-start justify-between gap-6">
       <div class="flex flex-col gap-1">
         <h2 class="text-xl">{t(membersOf(projectName))}</h2>
@@ -142,25 +155,23 @@
         {t(membershipMessages.projectEmpty)}
       </p>
     {:else}
-      <div class="relative overflow-x-auto rounded-xl border bg-card">
-        <table class="w-full min-w-[720px] border-collapse text-sm">
-          <thead>
-            <tr class="text-left text-xs text-muted-foreground">
-              <th class="px-6 py-3 font-medium">{t(membershipMessages.member)}</th>
-              <th class="px-3 py-3 font-medium">{t(membershipMessages.rolesHere)}</th>
-              <th class="px-3 py-3 font-medium">{t(membershipMessages.comesFrom)}</th>
-              <th class="w-40"></th>
-            </tr>
-          </thead>
-          <tbody>
+      <TableFrame>
+        <Table class="min-w-[720px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t(membershipMessages.member)}</TableHead>
+              <TableHead>{t(membershipMessages.rolesHere)}</TableHead>
+              <TableHead>{t(membershipMessages.comesFrom)}</TableHead>
+              <TableHead class="w-40"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {#each rows as row (row.actorId)}
-              <tr class="border-t {row.inheritedOnly ? 'bg-muted/50' : ''}">
-                <td class="px-6 py-3">
-                  <UserIdentity
-                    user={memberProfile(row)}
-                  />
-                </td>
-                <td class="px-3 py-3">
+              <TableRow class={row.inheritedOnly ? '[&>td]:bg-muted/50' : ''}>
+                <TableCell>
+                  <Identity profile={memberProfile(row)} kind={row.kind} />
+                </TableCell>
+                <TableCell class="whitespace-normal">
                   <div class="flex flex-wrap gap-1.5">
                     {#each row.roles as role (`${role.scopeKind}-${role.role}`)}
                       <span class="rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium">
@@ -168,18 +179,16 @@
                       </span>
                     {/each}
                   </div>
-                </td>
-                <td class="px-3 py-3">
-                  <div class="flex flex-wrap gap-1.5">
+                </TableCell>
+                <TableCell class="whitespace-normal">
+                  <div class="flex flex-wrap gap-x-3 gap-y-1.5">
                     {#each row.scopes as scope (scope.scopeKind)}
-                      <span class="rounded-full bg-muted px-2.5 py-0.5 text-xs">
-                        {scope.scopeName}
-                      </span>
+                      <ScopeLabel kind={scope.scopeKind} name={scope.scopeName} />
                     {/each}
                   </div>
-                </td>
-                <td class="pr-4 text-right">
-                  {#if row.inheritedOnly}
+                </TableCell>
+                <TableCell class="text-right">
+                  {#if row.inheritedOnly && canSeeWorkspace}
                     <button
                       type="button"
                       class="text-xs font-medium text-primary hover:underline"
@@ -187,17 +196,17 @@
                     >
                       {t(changeIn(workspaceName))}
                     </button>
-                  {:else if canManage}
+                  {:else if canManage && !row.inheritedOnly}
                     <Button variant="ghost" onclick={() => startChange(row.actorId, row.name)}>
                       {t(membershipMessages.changeRoles)}
                     </Button>
                   {/if}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             {/each}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </TableFrame>
 
       <aside class="flex gap-3 rounded-xl border border-primary/40 bg-primary/5 p-4">
         <InfoIcon class="mt-0.5 size-4 shrink-0 text-primary" />

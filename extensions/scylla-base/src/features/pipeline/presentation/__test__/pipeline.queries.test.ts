@@ -36,6 +36,7 @@ const metadata = (overrides: Partial<PipelineMetadata> = {}): PipelineMetadata =
   nodeCount: 2,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
+  origin: { source: 'editor', filePath: '', fileErrorCount: 0 },
   ...overrides,
 });
 
@@ -69,6 +70,7 @@ beforeEach(() => {
   repository = {
     getMetadataByProjectId: vi.fn().mockResolvedValue(paginated([metadata()])),
     getMetadataByWorkspaceId: vi.fn().mockResolvedValue(paginated([metadata()])),
+    getSummaries: vi.fn().mockResolvedValue({ items: [], total: 0, green: 0 }),
     deleteById: vi.fn().mockResolvedValue(undefined),
     run: vi.fn().mockResolvedValue(undefined),
     create: vi.fn().mockResolvedValue(undefined),
@@ -76,6 +78,11 @@ beforeEach(() => {
     getWithLayout: vi.fn().mockResolvedValue({ pipeline: pipeline(), layout: null }),
     edit: vi.fn().mockResolvedValue(pipeline()),
     saveLayout: vi.fn().mockResolvedValue(undefined),
+    exportFile: vi.fn().mockResolvedValue({
+      content: 'version = 1\n',
+      path: '.scylla/pipelines/ci.toml',
+    }),
+    getFile: vi.fn().mockResolvedValue({ key: 'ci', content: 'version = 1' }),
   };
 
   toastSuccess.mockClear();
@@ -144,6 +151,31 @@ describe('pipelineQueries.byWorkspace', () => {
   });
 });
 
+describe('pipelineQueries.summaries', () => {
+  it('reads the last 20 jobs of each pipeline, failing first, by default', async () => {
+    await runQueryFn(pipelineQueries.summaries('org-1'));
+
+    expect(repository.getSummaries).toHaveBeenCalledWith({
+      workspaceId: 'org-1',
+      runs: 20,
+      order: 'failing-first',
+      limit: 100,
+    });
+  });
+
+  it('sits under the pipelines of the workspace, so that a change refreshes it', () => {
+    expect(pipelineQueries.summaries('org-1').queryKey.slice(0, 3)).toEqual([
+      'pipelines',
+      'workspace',
+      'org-1',
+    ]);
+  });
+
+  it('stays idle with no workspace', () => {
+    expect(pipelineQueries.summaries(null).enabled).toBe(false);
+  });
+});
+
 describe('pipelineQueries.byId', () => {
   it('leaves the draft of the editor alone on a focus and on a reconnect', () => {
     const options = pipelineQueries.byId('pipeline-1');
@@ -165,6 +197,47 @@ describe('pipelineQueries.byId', () => {
     repository.getWithLayout.mockRejectedValue(error);
 
     await expect(runQueryFn(pipelineQueries.byId('pipeline-1'))).rejects.toBe(error);
+  });
+});
+
+describe('pipelineQueries.fileExport', () => {
+  it('reads the file of the pipeline in the format, under the key of the pipeline', async () => {
+    const options = pipelineQueries.fileExport('pipeline-1', 'yaml');
+
+    await expect(runQueryFn(options)).resolves.toEqual({
+      content: 'version = 1\n',
+      path: '.scylla/pipelines/ci.toml',
+    });
+    expect(repository.exportFile).toHaveBeenCalledWith('pipeline-1', 'yaml');
+    expect(options.queryKey.slice(0, 2)).toEqual(['pipeline', 'pipeline-1']);
+  });
+
+  it('does not query without a pipeline', () => {
+    expect(pipelineQueries.fileExport('', 'toml').enabled).toBe(false);
+  });
+});
+
+describe('pipelineQueries.file', () => {
+  it('reads the file at the ref, under the key of the pipeline: a save of the pipeline refreshes it', async () => {
+    const ref = { kind: 'branch', name: 'feature/login' } as const;
+    const options = pipelineQueries.file('pipeline-1', ref);
+
+    await runQueryFn(options);
+
+    expect(repository.getFile).toHaveBeenCalledWith('pipeline-1', ref);
+    expect(options.queryKey.slice(0, 2)).toEqual(['pipeline', 'pipeline-1']);
+  });
+
+  it('gives each ref its own key, and no ref the key of the default branch', () => {
+    const main = pipelineQueries.file('pipeline-1').queryKey;
+    const tag = pipelineQueries.file('pipeline-1', { kind: 'tag', name: 'main' }).queryKey;
+    const branch = pipelineQueries.file('pipeline-1', { kind: 'branch', name: 'main' }).queryKey;
+
+    expect(new Set([main, tag, branch].map(key => JSON.stringify(key))).size).toBe(3);
+  });
+
+  it('does not query without a pipeline', () => {
+    expect(pipelineQueries.file('').enabled).toBe(false);
   });
 });
 
@@ -319,17 +392,23 @@ describe('pipelineMutations.duplicate', () => {
 
 describe('pipelineMutations.run', () => {
   it('runs the pipeline and invalidates its jobs — the run creates one', async () => {
-    await runMutationFn(pipelineMutations.run(), 'pipeline-1');
-    expect(repository.run).toHaveBeenCalledWith('pipeline-1');
+    await runMutationFn(pipelineMutations.run(), { pipelineId: 'pipeline-1' });
+    expect(repository.run).toHaveBeenCalledWith('pipeline-1', undefined);
 
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
-    runOnSuccess(pipelineMutations.run(), { needsContainer: false }, 'pipeline-1');
+    runOnSuccess(pipelineMutations.run(), { needsContainer: false }, { pipelineId: 'pipeline-1' });
 
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['jobs', 'pipeline', 'pipeline-1'] });
   });
 
+  it('runs at the ref that the user chose', async () => {
+    const ref = { kind: 'sha', sha: 'a1b2c3d' } as const;
+    await runMutationFn(pipelineMutations.run(), { pipelineId: 'pipeline-1', ref });
+    expect(repository.run).toHaveBeenCalledWith('pipeline-1', ref);
+  });
+
   it('says nothing on its own', () => {
-    runOnSuccess(pipelineMutations.run(), { needsContainer: false }, 'pipeline-1');
+    runOnSuccess(pipelineMutations.run(), { needsContainer: false }, { pipelineId: 'pipeline-1' });
     expect(toastSuccess).not.toHaveBeenCalled();
   });
 });

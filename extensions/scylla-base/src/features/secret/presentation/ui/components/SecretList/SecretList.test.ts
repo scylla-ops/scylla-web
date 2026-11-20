@@ -73,7 +73,7 @@ describe('SecretList', () => {
   it('formats the creation day', () => {
     setUp([secret({ createdAt: '2026-03-15T00:00:00.000Z' })]);
 
-    expect(screen.getAllByRole('cell')[2]).toHaveTextContent(/\S/);
+    expect(screen.getAllByRole('cell')[1]).toHaveTextContent(/\S/);
   });
 
   it('selects a row when it is clicked', async () => {
@@ -85,6 +85,7 @@ describe('SecretList', () => {
   });
 
   it('asks for confirmation before deleting, without selecting the row', async () => {
+    grant([Permission.DELETE_SECRET]);
     setUp();
 
     await userEvent.click(screen.getByRole('button', { name: 'Delete secret' }));
@@ -95,6 +96,7 @@ describe('SecretList', () => {
   });
 
   it('deletes and reports it once the confirmation is accepted', async () => {
+    grant([Permission.DELETE_SECRET]);
     setUp([secret({ id: 'secret-42' })]);
 
     await userEvent.click(screen.getByRole('button', { name: 'Delete secret' }));
@@ -108,6 +110,17 @@ describe('SecretList', () => {
     setUp([]);
 
     expect(screen.getByText('No results.')).toBeInTheDocument();
+  });
+
+  it('offers a delete action only with DELETE_SECRET', () => {
+    grant([Permission.LIST_SECRETS]);
+    const { unmount } = setUp();
+    expect(screen.queryByRole('button', { name: 'Delete secret' })).not.toBeInTheDocument();
+    unmount();
+
+    grant([Permission.LIST_SECRETS, Permission.DELETE_SECRET]);
+    setUp();
+    expect(screen.getByRole('button', { name: 'Delete secret' })).toBeInTheDocument();
   });
 
   it('offers an edit action only with UPDATE_SECRET', () => {

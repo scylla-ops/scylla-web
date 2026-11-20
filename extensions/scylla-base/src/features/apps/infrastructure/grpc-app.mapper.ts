@@ -1,14 +1,18 @@
 import {
+  AgentCompatibility as GrpcAgentCompatibility,
   type App,
   type AppKey,
   type CiIdentity,
   CiProvider as GrpcCiProvider,
   type Host,
 } from '@base/generated/scylla/apps/v1/app.ts';
-import type { AgentStats as GrpcAgentStats, JobOutcomes as GrpcJobOutcomes } from '@base/generated/scylla/agents/v1/agent_stats.ts';
+import type { AgentStats as GrpcAgentStats } from '@base/generated/scylla/agents/v1/agent_stats.ts';
+import type { JobOutcomes as GrpcJobOutcomes } from '@base/generated/scylla/pipelines/v1/job_stats.ts';
 import type { Duration } from '@base/generated/google/protobuf/duration.ts';
+import type { Timestamp } from '@base/generated/google/protobuf/timestamp.ts';
 import { type Job, JobStatus as GrpcJobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';
 import type {
+  AgentCompatibility,
   AppEntity,
   AppHost,
   AppJob,
@@ -22,6 +26,7 @@ import type {
   AgentStats,
   JobOutcomes,
 } from '@base/features/apps/domain/structs/agent-stats.struct.ts';
+import type { Day } from '@base/features/apps/domain/structs/stats-period.struct.ts';
 import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
 import { limitsToDomain } from '@shared/infrastructure/grpc/api-token.mapper.ts';
 import {
@@ -44,8 +49,18 @@ function hostToDomain(host: Host | undefined): AppHost | null {
     totalMemoryMb: host.memoryBytes ? Math.round(Number(host.memoryBytes) / MB) : null,
     capacity: host.capacity,
     containerRuntime: host.containerRuntime,
+    protocol: host.protocol,
+    build: host.build,
+    features: [...host.features],
   };
 }
+
+/** UNSPECIFIED or a value newer than this build: `unknown`. */
+const COMPATIBILITY: Partial<Record<GrpcAgentCompatibility, AgentCompatibility>> = {
+  [GrpcAgentCompatibility.COMPATIBLE]: 'compatible',
+  [GrpcAgentCompatibility.OUTDATED]: 'outdated',
+  [GrpcAgentCompatibility.UNSUPPORTED]: 'unsupported',
+};
 
 export function toDomain(app: App): AppEntity {
   return {
@@ -56,9 +71,12 @@ export function toDomain(app: App): AppEntity {
     connected: app.connected,
     lastSeenAt: timestampToIso(app.lastSeenAt),
     host: hostToDomain(app.host),
+    createdBy: idValue(app.createdBy),
     createdAt: timestampToIso(app.createdAt),
     runningJobs: app.runningJobs,
     disabledAt: timestampToIso(app.disabledAt),
+    compatibility: COMPATIBILITY[app.compatibility] ?? 'unknown',
+    missingFeatures: [...app.missingFeatures],
   };
 }
 
@@ -104,6 +122,12 @@ const outcomesToDomain = (outcomes: GrpcJobOutcomes | undefined): JobOutcomes =>
 /** `null` for an absent duration: no job started and ended. */
 const durationMs = (duration: Duration | undefined): number | null =>
   duration ? Number(duration.seconds) * 1000 + Math.round(duration.nanos / 1e6) : null;
+
+/** The start of a day of the server, 00:00 UTC. */
+export const dayToProto = (day: Day): Timestamp => ({
+  seconds: BigInt(Date.parse(day) / 1000),
+  nanos: 0,
+});
 
 export function statsToDomain(stats: GrpcAgentStats): AgentStats {
   return {

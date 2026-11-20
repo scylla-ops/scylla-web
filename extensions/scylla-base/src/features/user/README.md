@@ -22,7 +22,7 @@ all accounts.
 
 An account has an id, an email, a username and an optional display name. The username is a
 handle: unique, without '@', and shown as `@username`. The display name is what people read.
-One component shows a person everywhere, `UserIdentity` in `shared/`: initials, then the display
+One component shows a person everywhere, `Identity` in `shared/`: initials, then the display
 name (else the username), then the email when it is known (else the handle). A user that no list
 knows any more shows as "Deleted user", never as an id. `UserSummary` is the part of a user that
 it needs, and the member lists of other modules return that type.

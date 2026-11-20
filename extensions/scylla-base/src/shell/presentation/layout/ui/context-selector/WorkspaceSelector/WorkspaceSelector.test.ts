@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
@@ -16,6 +16,7 @@ const findMenuItem = async (text: string) => {
   });
   return item as HTMLElement;
 };
+import { loadAddWorkspaceDialog, loadWorkspaceList } from '@base/features/workspace';
 import InSidebar from '@base/shell/presentation/layout/ui/__test__/InSidebar.fixture.svelte';
 import WorkspaceSelector from './WorkspaceSelector.svelte';
 
@@ -38,6 +39,10 @@ const grant = (...permissions: Permission[]) =>
       ],
     },
   });
+
+beforeAll(async () => {
+  await Promise.all([loadWorkspaceList(), loadAddWorkspaceDialog()]);
+});
 
 beforeEach(() => {
   navigator = installTestNavigator();
@@ -131,7 +136,7 @@ describe('WorkspaceSelector', () => {
 
       await user.keyboard('umb{Enter}');
 
-      expect(navigator.navigate).toHaveBeenCalledWith('/umbrella/projects', undefined);
+      expect(navigator.navigate).toHaveBeenCalledWith('/umbrella/dashboard', undefined);
       await closed(field);
     });
 
@@ -203,7 +208,7 @@ describe('WorkspaceSelector', () => {
     await user.click(screen.getByRole('button', { name: /Acme Corp/ }));
     await user.click(await findMenuItem('Globex Inc'));
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/projects', undefined);
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/dashboard', undefined);
     expect(contextStore.getState().workspace.id).toBe('org-2');
   });
 
@@ -230,7 +235,7 @@ describe('WorkspaceSelector', () => {
     ).toBeInTheDocument();
   });
 
-  it('creates a workspace from the menu, makes it active and opens its projects', async () => {
+  it('creates a workspace from the menu, makes it active and opens its dashboard', async () => {
     grant(Permission.CREATE_WORKSPACE);
     render(InSidebar, { component: WorkspaceSelector });
     const user = userEvent.setup();
@@ -242,7 +247,7 @@ describe('WorkspaceSelector', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Create Workspace' }));
 
     await waitFor(() =>
-      expect(navigator.navigate).toHaveBeenCalledWith('/initech/projects', undefined),
+      expect(navigator.navigate).toHaveBeenCalledWith('/initech/dashboard', undefined),
     );
     expect(contextStore.getState().workspace).toEqual({ id: 'org-3', name: 'Initech', slug: 'initech' });
   });
