@@ -7,10 +7,12 @@ import {
   type VcsConnection as GrpcVcsConnection,
   type VcsProviderInfo as GrpcVcsProviderInfo,
 } from '@base/generated/scylla/integrations/v1/vcs.ts';
+import type { GitHubInstallChoice as GrpcGitHubInstallChoice } from '@base/generated/scylla/integrations/v1/vcs_connection_service.ts';
 import type {
   AccountKind,
   ConnectionState,
   DeliveryMode,
+  GitHubInstallChoice,
   ProviderRepository,
   VcsConnectionEntity,
 } from '@base/features/integrations/domain/entities/vcs-connection.entity.ts';
@@ -112,6 +114,17 @@ export const providersToDomain = (providers: GrpcVcsProviderInfo[]): VcsProvider
         ]
       : [];
   });
+
+export const choiceToDomain = (choice: GrpcGitHubInstallChoice): GitHubInstallChoice => ({
+  installations: choice.installations.map(option => ({
+    installationId: option.installationId,
+    account: option.account,
+    accountKind: accountKindToDomain(option.accountKind),
+    avatarUrl: option.avatarUrl,
+    connectUrl: option.connectUrl,
+  })),
+  installUrl: choice.installUrl,
+});
 
 export function repositoryToDomain(repository: GrpcRepository): ProviderRepository {
   const linkedProjectId = idValue(repository.linkedProjectId);

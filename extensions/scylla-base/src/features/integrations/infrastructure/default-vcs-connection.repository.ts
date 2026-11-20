@@ -1,4 +1,5 @@
 import type { IVcsConnectionServiceClient } from '@base/generated/scylla/integrations/v1/vcs_connection_service.client.ts';
+import type { CompleteGitHubInstallResponse } from '@base/generated/scylla/integrations/v1/vcs_connection_service.ts';
 import type { VcsConnection } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import type {
   CheckedGitLabConnection,
@@ -80,15 +81,24 @@ export class DefaultVcsConnectionRepository implements VcsConnectionRepository {
   public async completeGitHubInstall(
     input: CompleteGitHubInstallInput,
   ): Promise<CompletedGitHubInstall> {
+    let outcome: CompleteGitHubInstallResponse['outcome'];
     try {
-      const response = await this.client.completeGitHubInstall(input).response;
-      const connection = grpcVcsConnection.toDomain(required(response.connection, 'connection'));
-      return { kind: 'connected', connection };
+      outcome = (await this.client.completeGitHubInstall(input).response).outcome;
     } catch (error) {
       const authorizeUrl = authorizePage(error);
       if (authorizeUrl) return { kind: 'authorize', authorizeUrl };
       throw error;
     }
+    if (outcome.oneofKind === 'connection') {
+      return { kind: 'connected', connection: grpcVcsConnection.toDomain(outcome.connection) };
+    }
+    if (outcome.oneofKind === 'choice') {
+      return { kind: 'choose', choice: grpcVcsConnection.choiceToDomain(outcome.choice) };
+    }
+    throw new ScyllaError('The answer of CompleteGitHubInstall has no outcome', {
+      code: 'MALFORMED_RESPONSE',
+      raw: true,
+    });
   }
 
   public async connectGitLab(input: ConnectGitLabInput): Promise<CheckedGitLabConnection> {

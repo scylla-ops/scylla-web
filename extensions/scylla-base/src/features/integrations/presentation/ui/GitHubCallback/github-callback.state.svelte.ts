@@ -4,6 +4,7 @@ import { t } from '@scylla/ui/i18n';
 import { workspaceQueries } from '@base/features/workspace';
 import type {
   CompletedGitHubInstall,
+  GitHubInstallChoice,
   VcsConnectionEntity,
 } from '@base/features/integrations/domain/entities/vcs-connection.entity.ts';
 import { connectGitHubMessages as messages } from '@base/features/integrations/presentation/messages/connect-github.messages.ts';
@@ -52,15 +53,22 @@ const openIntegrations = async (
   navigateTo(page, { replace: true });
 };
 
-/** A connection opens its page; the authorize page of GitHub is on another site. */
+/**
+ * A connection opens its page; the authorize page and the install page of GitHub are on another
+ * site. A choice with installations stays on the page.
+ */
 const follow = (completed: CompletedGitHubInstall, connected: boolean): void => {
   if (completed.kind === 'authorize') window.location.assign(completed.authorizeUrl);
-  else void openIntegrations(completed.connection, connected);
+  else if (completed.kind === 'connected') void openIntegrations(completed.connection, connected);
+  else if (!completed.choice.installations.length) {
+    window.location.assign(completed.choice.installUrl);
+  }
 };
 
 /**
- * The page where GitHub sends the browser: after the install (with a state), after the authorize
- * page (the state carries the installation), or after a change of the installation on GitHub (no
+ * The page where GitHub sends the browser: after the authorize page of the start (the server gives
+ * the installations to choose), after the install (with a state), after the authorize page of an
+ * installation (the state carries it), or after a change of the installation on GitHub (no
  * state). The server checks the state, and that the user can see the installation. Construct it
  * during component initialisation.
  */
@@ -77,6 +85,12 @@ export const createGitHubCallback = () => {
     },
     get failed() {
       return !changedOnGitHub && (!redirect.state || complete.isError);
+    },
+    /** The installations that the user can connect. `null` when there is none to show. */
+    get choice(): GitHubInstallChoice | null {
+      const completed = complete.data;
+      if (completed?.kind !== 'choose' || !completed.choice.installations.length) return null;
+      return completed.choice;
     },
     get error(): string {
       if (!redirect.state) return t(messages.stateExpired);

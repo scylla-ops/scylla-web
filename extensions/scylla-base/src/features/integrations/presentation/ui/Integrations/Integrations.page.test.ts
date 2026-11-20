@@ -228,7 +228,7 @@ describe('Integrations page', () => {
     ).toBeInTheDocument();
     expect(within(dialog).getByText('Administration: write')).toBeInTheDocument();
 
-    await user.click(within(dialog).getByRole('button', { name: 'Install on GitHub' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Continue on GitHub' }));
 
     await waitFor(() =>
       expect(assign).toHaveBeenCalledWith(

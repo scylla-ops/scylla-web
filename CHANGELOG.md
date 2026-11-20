@@ -490,6 +490,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   badge. The container runtime and the features are badges, and a missing feature has a warning
   badge with its fix in a tooltip. The card compares the versions without the build metadata
   (`+240da00`), and the release link uses the bare version.
+- After Connect GitHub, the page lists the GitHub accounts that have the Scylla App: connect one to
+  the workspace, or install the App on another account.
 
 ## [0.6.0] - 2026-11-01
 

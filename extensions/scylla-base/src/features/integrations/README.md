@@ -15,9 +15,14 @@ disconnect the providers.
 ## Two providers, two ways to connect
 
 - **GitHub** uses the GitHub App of Scylla. The dialog lists the permissions of the App in plain
-  words, then the browser goes to GitHub. The admin picks the account and the repositories there.
-  GitHub sends the browser back to `/integrations/github/callback`, and the server makes the
-  connection. A redirect of GitHub can be forged, so the server checks the state of the install
+  words, then the browser goes to the authorize page of the App on GitHub. GitHub sends the
+  browser back to `/integrations/github/callback`, and the page shows the installations of the
+  App that the admin sees and that the workspace does not have: the admin connects one, or
+  installs the App on another account. With no installation to show, the browser goes to the
+  install page of the App, where the admin picks the account and the repositories. The install
+  page cannot be the first step: for an account that has the App, GitHub opens the settings of
+  the installation and never sends the browser back, and a private App has only the account of
+  its owner. A redirect of GitHub can be forged, so the server checks the state of the install
   and that the user can see the installation on GitHub.
 - **GitLab** uses the token of a service account, because the reports must not stop when a
   person leaves the group. The admin pastes the token. The server checks it with GitLab, saves it

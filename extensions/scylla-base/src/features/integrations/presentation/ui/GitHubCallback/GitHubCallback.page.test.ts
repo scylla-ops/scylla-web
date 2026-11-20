@@ -8,6 +8,7 @@ import GitHubCallbackPage from './GitHubCallback.page.svelte';
 
 const SEARCH = '?installation_id=42&setup_action=install&code=gh-code&state=s-1';
 const AUTHORIZE = 'https://github.com/login/oauth/authorize?client_id=Iv1&state=s-1.42';
+const INSTALL = 'https://github.com/apps/scylla/installations/new?state=s-1';
 
 let teardown: Array<() => void> = [];
 
@@ -102,6 +103,62 @@ describe('GitHubCallbackPage', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Connecting to GitHub…');
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('lists the installations to choose after the authorize page of the start, each with its authorize page', async () => {
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    const choice = {
+      installations: [
+        {
+          installationId: '7',
+          account: 'scylla-ops',
+          accountKind: 'organization',
+          avatarUrl: '',
+          connectUrl: 'https://github.com/login/oauth/authorize?client_id=Iv1&state=s-1.7',
+        },
+      ],
+      installUrl: INSTALL,
+    };
+    const completeGitHubInstall = vi.fn().mockResolvedValue({ kind: 'choose', choice });
+    const { navigate } = open(completeGitHubInstall, '?code=gh-code&state=s-1');
+
+    expect(
+      await screen.findByRole('heading', { name: 'Choose a GitHub account' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Organization')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Connect scylla-ops' })).toHaveAttribute(
+      'href',
+      choice.installations[0]?.connectUrl,
+    );
+    expect(screen.getByRole('link', { name: 'Install on another account' })).toHaveAttribute(
+      'href',
+      INSTALL,
+    );
+    expect(screen.getByRole('link', { name: 'Cancel' })).toHaveAttribute(
+      'href',
+      '/acme/settings/integrations',
+    );
+    expect(completeGitHubInstall).toHaveBeenCalledWith({
+      state: 's-1',
+      installationId: '',
+      code: 'gh-code',
+      setupAction: '',
+    });
+    expect(assign).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('sends the browser to the install page of GitHub when no installation is left to connect', async () => {
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    const choice = { installations: [], installUrl: INSTALL };
+    const completeGitHubInstall = vi.fn().mockResolvedValue({ kind: 'choose', choice });
+    open(completeGitHubInstall, '?code=gh-code&state=s-1');
+
+    await waitFor(() => expect(assign).toHaveBeenCalledWith(INSTALL));
+    expect(screen.getByRole('status')).toHaveTextContent('Connecting to GitHub…');
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
   });
 
   it('completes the install with the code of the authorize page and the state that carries the installation', async () => {
