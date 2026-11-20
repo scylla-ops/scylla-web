@@ -25,12 +25,17 @@
   let query = $state('');
 
   const found = $derived(
-    filterFragments(fragments, { query, tag: null, favoritesOnly: false, order: 'most-used' }),
+    filterFragments(fragments, { query, scope: 'all', tag: null, source: 'all', order: 'most-used' }),
   );
   const groups = $derived(
     [
       { title: t(libraryMessages.favorites), icon: true, items: found.filter(f => f.favorite) },
-      { title: t(libraryMessages.workspaceLibrary(workspaceName)), icon: false, items: found.filter(f => !f.favorite) },
+      {
+        title: t(libraryMessages.workspaceLibrary(workspaceName)),
+        icon: false,
+        items: found.filter(f => !f.favorite && !f.source),
+      },
+      { title: t(libraryMessages.community), icon: false, items: found.filter(f => !f.favorite && f.source) },
     ].filter(group => group.items.length),
   );
 </script>

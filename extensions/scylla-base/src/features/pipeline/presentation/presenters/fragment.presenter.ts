@@ -9,6 +9,7 @@ import {
   type FragmentVersion,
 } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
 import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import { pendingUpstream } from '@base/features/pipeline/domain/structs/fragment-upstream.struct.ts';
 
 /** The nodes of a fragment on one line, such as `fmt · clippy · test`. */
 export const nodesLine = (nodes: PipelineNodeEntity[], prefix = ''): string =>
@@ -71,12 +72,34 @@ const COMPARE: Record<FragmentOrder, (a: FragmentEntity, b: FragmentEntity) => n
   name: (a, b) => a.name.localeCompare(b.name),
 };
 
+/**
+ * The organization tab holds the fragments the workspace made; the community tab, those of the
+ * marketplace. The palette of the editor shows `all`.
+ */
+export type LibraryScope = 'organization' | 'favorites' | 'community' | 'all';
+
+/** The chips of the community tab. */
+export type SourceFilter = 'all' | 'linked' | 'forked' | 'update';
+
 export interface FragmentFilter {
   query: string;
+  scope: LibraryScope;
   tag: string | null;
-  favoritesOnly: boolean;
+  source: SourceFilter;
   order: FragmentOrder;
 }
+
+const inScope = (fragment: FragmentEntity, scope: LibraryScope): boolean => {
+  if (scope === 'all') return true;
+  if (scope === 'favorites') return fragment.favorite;
+  return (scope === 'community') === !!fragment.source;
+};
+
+const matchesSource = (fragment: FragmentEntity, source: SourceFilter): boolean => {
+  if (source === 'all') return true;
+  if (source === 'update') return !!pendingUpstream(fragment);
+  return fragment.source?.kind === source;
+};
 
 /** A search reads the name, the description, the tags and the ids of the nodes of the latest version. */
 const searchFields = (fragment: FragmentEntity) => [
@@ -88,13 +111,29 @@ const searchFields = (fragment: FragmentEntity) => [
 
 export const filterFragments = (
   fragments: readonly FragmentEntity[],
-  { query, tag, favoritesOnly, order }: FragmentFilter,
+  { query, scope, tag, source, order }: FragmentFilter,
 ): FragmentEntity[] =>
   fragments
-    .filter(fragment => !favoritesOnly || fragment.favorite)
+    .filter(fragment => inScope(fragment, scope))
     .filter(fragment => !tag || fragment.tags.includes(tag))
+    .filter(fragment => scope !== 'community' || matchesSource(fragment, source))
     .filter(fragment => matchesSearch(query, searchFields(fragment)))
     .sort(COMPARE[order]);
+
+export const countInScope = (fragments: readonly FragmentEntity[], scope: LibraryScope): number =>
+  fragments.filter(fragment => inScope(fragment, scope)).length;
+
+/** How many fragments of the community tab each chip keeps. */
+export const sourceCounts = (
+  fragments: readonly FragmentEntity[],
+): Record<Exclude<SourceFilter, 'all'>, number> => {
+  const community = fragments.filter(fragment => fragment.source);
+  return {
+    linked: community.filter(fragment => matchesSource(fragment, 'linked')).length,
+    forked: community.filter(fragment => matchesSource(fragment, 'forked')).length,
+    update: community.filter(fragment => matchesSource(fragment, 'update')).length,
+  };
+};
 
 /** The tags of the library, the most used first. */
 export const libraryTags = (fragments: readonly FragmentEntity[]): string[] => {

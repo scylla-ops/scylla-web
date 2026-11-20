@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ErrorState, ListSkeleton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { communityMessages } from '@base/features/pipeline/presentation/messages/community.messages.ts';
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
   import { createFragmentLibrary } from './fragment-library.state.svelte.ts';
   import FragmentCard from './FragmentCard.svelte';
@@ -24,7 +25,9 @@
     <LibraryToolbar {library} />
     <LibraryFilters {library} />
     {#if library.isEmpty}
-      <p class="py-16 text-center text-sm text-muted-foreground">{t(libraryMessages.emptyLibrary)}</p>
+      <p class="py-16 text-center text-sm text-muted-foreground">
+        {t(library.tab === 'community' ? communityMessages.noCommunity : libraryMessages.emptyLibrary)}
+      </p>
     {:else if !library.shown.length}
       <p class="py-16 text-center text-sm text-muted-foreground">{t(libraryMessages.noFragment)}</p>
     {:else}

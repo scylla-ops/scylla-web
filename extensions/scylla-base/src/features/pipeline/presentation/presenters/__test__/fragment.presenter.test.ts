@@ -6,12 +6,15 @@ import type {
 import type { ExecPipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import {
   blockSummary,
+  countInScope,
   filterFragments,
   firstProposal,
   isNewFragment,
   libraryTags,
   nodeCommandLine,
   nodesLine,
+  sourceCounts,
+  type FragmentFilter,
 } from '../fragment.presenter.ts';
 
 const execNode = (id: string): ExecPipelineNodeEntity => ({
@@ -51,7 +54,35 @@ const usage = {
   projectId: 'pr',
   projectName: 'store',
   version: 1,
+  values: {},
 };
+
+const PACKAGE = { packageId: 'pnpm.node-ci', publisher: 'pnpm', name: 'node-ci', verified: true };
+
+/** Linked, with v2 of the publisher waiting. */
+const linked = fragment({
+  id: 'f2',
+  name: 'node-ci',
+  source: {
+    kind: 'linked',
+    package: PACKAGE,
+    addedAt: '2026-10-01T10:00:00Z',
+    upstream: [version(2, '2026-10-02T10:00:00Z')],
+    skipped: [],
+  },
+});
+
+const forked = fragment({
+  id: 'f3',
+  name: 'docker-build',
+  source: {
+    kind: 'forked',
+    package: PACKAGE,
+    addedAt: '2026-10-01T10:00:00Z',
+    baseVersion: 1,
+    upstream: null,
+  },
+});
 
 const link = { blockId: 'rust-ci', fragmentId: 'f1', version: 1, values: {}, nodeIds: [] };
 
@@ -92,16 +123,17 @@ describe('fragment presenter', () => {
     expect(firstProposal([link], () => undefined)).toBeNull();
   });
 
+  const ALL: FragmentFilter = { query: '', scope: 'all', tag: null, source: 'all', order: 'name' };
+
   it('searches the nodes and the tags, and keeps the favorites when asked', () => {
     const fragments = [
       fragment({}),
       fragment({ id: 'f2', name: 'node-ci', tags: ['node'], favorite: true }),
     ];
-    const filter = { query: '', tag: null, favoritesOnly: false, order: 'name' as const };
 
-    expect(filterFragments(fragments, { ...filter, query: 'clippy' })).toHaveLength(2);
-    expect(filterFragments(fragments, { ...filter, tag: 'rust' }).map(f => f.id)).toEqual(['f1']);
-    expect(filterFragments(fragments, { ...filter, favoritesOnly: true }).map(f => f.id)).toEqual([
+    expect(filterFragments(fragments, { ...ALL, query: 'clippy' })).toHaveLength(2);
+    expect(filterFragments(fragments, { ...ALL, tag: 'rust' }).map(f => f.id)).toEqual(['f1']);
+    expect(filterFragments(fragments, { ...ALL, scope: 'favorites' }).map(f => f.id)).toEqual([
       'f2',
     ]);
   });
@@ -109,14 +141,36 @@ describe('fragment presenter', () => {
   it('sorts by use, the most used first', () => {
     const fragments = [fragment({}), fragment({ id: 'f2', name: 'node-ci', usages: [usage] })];
 
-    expect(
-      filterFragments(fragments, {
-        query: '',
-        tag: null,
-        favoritesOnly: false,
-        order: 'most-used',
-      }).map(f => f.id),
-    ).toEqual(['f2', 'f1']);
+    expect(filterFragments(fragments, { ...ALL, order: 'most-used' }).map(f => f.id)).toEqual([
+      'f2',
+      'f1',
+    ]);
+  });
+
+  it('parts the fragments of the workspace from those of the marketplace', () => {
+    const fragments = [fragment({}), linked, forked];
+
+    expect(filterFragments(fragments, { ...ALL, scope: 'organization' }).map(f => f.id)).toEqual([
+      'f1',
+    ]);
+    expect(filterFragments(fragments, { ...ALL, scope: 'community' }).map(f => f.id)).toEqual([
+      'f3',
+      'f2',
+    ]);
+    expect(countInScope(fragments, 'community')).toBe(2);
+  });
+
+  it('keeps the community fragments of a source, and those with a version waiting', () => {
+    const fragments = [fragment({}), linked, forked];
+    const community = { ...ALL, scope: 'community' as const };
+
+    expect(filterFragments(fragments, { ...community, source: 'forked' }).map(f => f.id)).toEqual([
+      'f3',
+    ]);
+    expect(filterFragments(fragments, { ...community, source: 'update' }).map(f => f.id)).toEqual([
+      'f2',
+    ]);
+    expect(sourceCounts(fragments)).toEqual({ linked: 1, forked: 1, update: 1 });
   });
 
   it('lists the tags of the library, the most used first', () => {

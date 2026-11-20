@@ -1,7 +1,10 @@
 <script lang="ts">
   import type { MessageDescriptor } from '@lingui/core';
-  import { Input, Select, SelectContent, SelectItem, SelectTrigger } from '@scylla/ui/primitives';
+  import StoreIcon from '@lucide/svelte/icons/store';
+  import { scyllaNavigate } from '@platform/context';
+  import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
+  import { communityMessages } from '@base/features/pipeline/presentation/messages/community.messages.ts';
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
   import {
     FRAGMENT_ORDERS,
@@ -25,7 +28,7 @@
 <header class="flex flex-wrap items-center gap-3">
   <h1 class="mr-auto">
     <span class="text-primary">{library.shown.length}</span>
-    {t(libraryMessages.fragments)}
+    {t(library.tab === 'community' ? communityMessages.communityFragments : libraryMessages.fragments)}
   </h1>
   <Input
     type="search"
@@ -49,4 +52,8 @@
       {/each}
     </SelectContent>
   </Select>
+  <Button onclick={() => scyllaNavigate.goToWorkspaceRoute('marketplace')}>
+    <StoreIcon class="size-4" />
+    {t(communityMessages.browseMarketplace)}
+  </Button>
 </header>
