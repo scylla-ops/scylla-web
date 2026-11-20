@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { AppEntity, AppJob } from '@base/features/apps';
 import type { PipelineSummary } from '@base/features/pipeline';
-import { agentLoad, agentSlots, loadBars, recentRuns } from '../agent-widget.presenter.ts';
+import { agentLoad, agentSlots, loadBars, loadFill, recentRuns } from '../agent-widget.presenter.ts';
 import { DATA, targetOptions } from '../widget-catalog.presenter.ts';
 
 const MB = 1024 * 1024;
@@ -43,6 +43,14 @@ describe('the widget of one agent', () => {
       { start: 'a', cpu: 12, ram: 25 },
       { start: 'b', cpu: null, ram: null },
     ]);
+  });
+
+  it('fills a load bar against 100 %, and keeps an hour with no sample apart from a real 0 %', () => {
+    expect(loadFill(null)).toBeNull();
+    expect(loadFill(0)).toBe(0);
+    expect(loadFill(0.4)).toBe(2);
+    expect(loadFill(37)).toBe(37);
+    expect(loadFill(140)).toBe(100);
   });
 
   it('shows the last ended jobs, oldest first', () => {

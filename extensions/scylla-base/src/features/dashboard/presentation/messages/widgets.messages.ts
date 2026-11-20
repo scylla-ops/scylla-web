@@ -73,6 +73,7 @@ export const widgetMessages = {
   jobEnds: msg`job ends`,
   cancelled: msg`cancelled`,
   cancelledLegend: msg({ context: 'legend', message: 'Cancelled' }),
+  noRunInBucket: msg({ context: 'legend', message: 'No run' }),
   failedLower: msg`failed`,
   orphanedLower: msg`orphaned`,
   completedLower: msg`completed`,

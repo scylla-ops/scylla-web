@@ -26,6 +26,19 @@ export interface OutcomeBar {
   orphaned: number;
 }
 
+/** The parts of one bar of the day bars, in percent of the highest bar. */
+export interface DayBar {
+  start: string;
+  /** The bucket has no run: the bar shows its track only. */
+  empty: boolean;
+  completed: number;
+  failed: number;
+  /** The orphaned and the cancelled jobs. */
+  other: number;
+  /** The top of the parts. */
+  top: number;
+}
+
 /** The median and the p95 of one bucket, in percent of the highest p95. */
 export interface DurationBar {
   start: string;
@@ -88,6 +101,21 @@ export const outcomeBars = (buckets: readonly JobBucket[]): OutcomeBar[] => {
     completed: (outcomes.completed / highest) * 100,
     failed: (outcomes.failed / highest) * 100,
     orphaned: (outcomes.orphaned / highest) * 100,
+  }));
+};
+
+/** One stacked bar for each bucket, over a track of the full height. The highest bar fills the track. */
+export const dayBars = (buckets: readonly JobBucket[]): DayBar[] => {
+  const total = ({ completed, failed, orphaned, cancelled }: JobBucket['figures']['outcomes']) =>
+    completed + failed + orphaned + cancelled;
+  const highest = Math.max(1, ...buckets.map(bucket => total(bucket.figures.outcomes)));
+  return buckets.map(({ start, figures: { outcomes } }) => ({
+    start,
+    empty: total(outcomes) === 0,
+    completed: (outcomes.completed / highest) * 100,
+    failed: (outcomes.failed / highest) * 100,
+    other: ((outcomes.orphaned + outcomes.cancelled) / highest) * 100,
+    top: (total(outcomes) / highest) * 100,
   }));
 };
 

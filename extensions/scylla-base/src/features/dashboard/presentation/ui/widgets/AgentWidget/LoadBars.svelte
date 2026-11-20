@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ChartSegment, type ChartTone } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
+  import { loadFill } from '@base/features/dashboard/presentation/presenters/agent-widget.presenter.ts';
 
   interface Props {
     label: string;
@@ -11,8 +12,6 @@
   }
 
   let { label, value, bars, tone, class: className }: Props = $props();
-
-  const top = $derived(Math.max(1, ...bars.map(bar => bar ?? 0)));
 </script>
 
 <div class={cn('flex min-h-0 min-w-0 flex-col gap-1.5', className)}>
@@ -22,11 +21,15 @@
   </p>
   <div class="flex min-h-0 flex-1 items-end gap-[3px]" role="img" aria-label={label}>
     {#each bars as bar, index (index)}
-      <ChartSegment
-        tone={bar === null ? 'muted' : tone}
-        class="min-w-0 flex-1 rounded-[2px]"
-        style="height: {Math.max(4, ((bar ?? 0) / top) * 100)}%"
-      />
+      {@const fill = loadFill(bar)}
+      <span
+        class={cn(
+          'flex h-full min-w-0 flex-1 flex-col justify-end overflow-hidden rounded-[2px]',
+          fill === null ? 'border border-dashed border-border' : 'bg-muted/70',
+        )}
+      >
+        {#if fill}<ChartSegment {tone} class="w-full rounded-[2px]" style="height: {fill}%" />{/if}
+      </span>
     {/each}
   </div>
 </div>

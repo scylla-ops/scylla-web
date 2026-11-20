@@ -15,6 +15,14 @@ export interface LoadBar {
 }
 
 const BYTES_IN_MB = 1024 * 1024;
+const MIN_LOAD_FILL = 2;
+
+/**
+ * The fill of a load bar, in percent of a track of 100 %. `null` is an hour with no sample: the
+ * bar shows a dashed track and no fill. A load above 0 fills at least 2 %: it is not 0 %.
+ */
+export const loadFill = (value: number | null): number | null =>
+  value === null ? null : value <= 0 ? 0 : Math.min(100, Math.max(MIN_LOAD_FILL, value));
 
 const percentOf = (bytes: number, totalMb: number | null | undefined): number | null =>
   totalMb ? Math.min(100, Math.round((bytes / (totalMb * BYTES_IN_MB)) * 100)) : null;
