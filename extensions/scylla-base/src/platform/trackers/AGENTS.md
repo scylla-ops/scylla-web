@@ -16,12 +16,13 @@ show it.
 ## Public API — `index.ts`
 
 ```typescript
-type Tracker, TrackerType
+type Tracker, TrackerType, TrackerNeedingConsent
+CONSENT_PURPOSES, type ConsentPurpose   analytics, marketing, support: the rows of the cookie settings
 SCYLLA_TRACKERS                 the trackers of scylla-web and of the server
 trackersPoints.trackers         value point `legal.trackers`: another extension adds its trackers
 registeredTrackers()            SCYLLA_TRACKERS, then the patches of the extensions
-trackersNeedingConsent, consentBannerNeeded, fixedNamePart
-trackerTypes, trackersMessages
+trackersNeedingConsent, consentBannerNeeded, purposesNeedingConsent, fixedNamePart
+trackerTypes, trackersMessages, consentPurposeTitles, consentPurposeDescriptions
 TrackerTable                    Svelte: name, type, provider, purpose, lifetime, status
 ```
 
@@ -34,8 +35,11 @@ TrackerTable                    Svelte: name, type, provider, purpose, lifetime,
 - **`exempt: true` only for a tracker that is strictly necessary** for the service that the user
   asked for: the session, the security of the sign-in, an interface choice of the user. Analytics,
   a session replay, a marketing pixel, a chat widget that sets cookies: `exempt: false`.
-- **One entry with `exempt: false` turns the consent banner on.** The admin page shows the state.
-  Load the script of such a tracker only after the consent of the user.
+- **An entry with `exempt: false` names its `consent` purpose** (`CONSENT_PURPOSES`). A new
+  purpose is a new value there, with its title and its description in `trackers.messages.ts`.
+- **One entry with `exempt: false` turns the consent framework on** (`platform/consent`): the
+  banner, the cookie settings and their entries. The admin page shows the state. Load the script
+  of such a tracker only through `whenGranted(purpose, load)` of `@platform/consent`.
 - `__test__/trackers.registry.test.ts` fails when a file uses a cookie or the storage and no
   entry names it as its owner, and when an owner does not name its key. A file that only uses a
   key of another file goes in `USERS` of the test. A file that writes the key of its caller goes in
@@ -48,6 +52,7 @@ TrackerTable                    Svelte: name, type, provider, purpose, lifetime,
 ```
 index.ts
 domain/structs/tracker.struct.ts            Tracker, the rules of the banner
+domain/structs/consent-purpose.struct.ts    CONSENT_PURPOSES
 presentation/trackers.points.ts             trackersPoints, registeredTrackers
 presentation/messages/trackers.messages.ts
 presentation/ui/trackers.registry.ts        SCYLLA_TRACKERS

@@ -29,7 +29,7 @@ type AppRouterConfig, CompiledRoute, RouteTable, LoadedApp, StartOptions
 
 ```
 src/
-  index.ts  start-core.ts  App.svelte          RouterView + Toaster
+  index.ts  start-core.ts  App.svelte          RouterView, the `appOverlays` of the modules, Toaster
   loader/load-extensions.ts                    checks and merges the extensions
   loader/merge-widget-injections.ts            widget injections: owners, dependencies, conflicts, order (pure)
   query/query-client.ts                        createAppQueryClient(handlers, retryPolicies)

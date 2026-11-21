@@ -152,8 +152,9 @@ The theme store keeps the choice of the user (`light`, `dark`, `system`) under t
 `localStorage` key `scylla-theme`, which the inline script of `index.html` reads before the
 first paint: keep the two in step (no value means dark). **No cookie and no storage key without
 a registry entry:** a store, a state or a primitive of `@scylla/ui` that writes a new key adds
-its entry to the tracker registry of scylla-base (`platform/trackers`), in the same change. Its
-test reads the files of this package too. `system` follows
+its entry to the tracker registry of scylla-base (`platform/trackers`), in the same change. A
+key that is not exempt also names its consent purpose, and the consent framework of scylla-base
+(`platform/consent`) then asks the user. Its test reads the files of this package too. `system` follows
 `prefers-color-scheme`, also when it changes. `setThemePreference(choice, origin)` with an
 origin spreads the new theme from that point as one circle (View Transitions API, 450 ms); with
 no origin, no API or a reduced motion setting, the swap is instant. The account page of

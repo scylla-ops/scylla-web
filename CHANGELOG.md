@@ -194,6 +194,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   box that the person must tick, the sign-in page tells that a provider sign-in accepts the terms,
   and a full-page step asks each user to accept a new version before the app. The Privacy section of
   the account shows the version that the user accepted, and its date.
+- A consent framework for the trackers that need consent: a banner, the cookie settings, and their
+  entries in the footer, the user menu and the Privacy section of the account. It stays hidden while
+  each tracker of the registry is exempt. Global Privacy Control is a refusal, and `whenGranted`
+  loads a tracker only after a yes.
 
 ### Changed
 

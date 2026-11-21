@@ -56,9 +56,10 @@ export class ScyllaBaseExtension {}
   `presentation/authorization.ts`). No other extension may register another one.
 - **No cookie and no storage key without a registry entry.** A new cookie, `localStorage` key or
   `sessionStorage` key gets its entry in `platform/trackers/presentation/ui/trackers.registry.ts`
-  in the same change (owner, purpose, lifetime, `exempt`). `trackers.registry.test.ts` fails
-  when a file of the workspace uses the storage and no entry names it. See
-  `platform/trackers/AGENTS.md`.
+  in the same change (owner, purpose, lifetime, `exempt`). A tracker that is not exempt also
+  names its `consent` purpose and loads only through `whenGranted` (`platform/consent`).
+  `trackers.registry.test.ts` fails when a file of the workspace uses the storage and no entry
+  names it. See `platform/trackers/AGENTS.md`.
 - A feature barrel exported through `@scylla/base-sdk` is a public API for other extensions.
   A query it exports must check its own permission (rule 3 of
   `shell/__test__/feature-permissions.test.ts`).

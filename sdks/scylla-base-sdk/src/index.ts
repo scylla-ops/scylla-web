@@ -3,6 +3,7 @@
  * It is the only door into `scylla-base`: an extension never imports `@scylla/base` itself.
  */
 export * from '@scylla/base/platform/authz';
+export * from '@scylla/base/platform/consent';
 export * from '@scylla/base/platform/context';
 export * from '@scylla/base/platform/grpc';
 export * from '@scylla/base/platform/trackers';

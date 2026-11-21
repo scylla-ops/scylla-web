@@ -1,8 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach, type MockInstance } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { msg } from '@lingui/core/macro';
+import { cookieSettings } from '@platform/consent';
+import { trackersPoints } from '@platform/trackers';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { render, withQueryClient, withRegistry, withWidgetInjections } from '@test/render.ts';
 import { EMPTY_OPERATOR, withLegalRepository, type LegalDocument } from '@platform/legal';
 import type { TermsStatus } from '@base/features/login';
 import AccountPrivacy from './AccountPrivacy.svelte';
@@ -68,6 +71,43 @@ afterEach(() => {
 const savedFiles = () => click.mock.contexts.map(link => (link as HTMLAnchorElement).download);
 
 describe('AccountPrivacy', () => {
+  it('has no cookie settings while each tracker is exempt', () => {
+    render(AccountPrivacy);
+
+    expect(
+      screen.getByRole('link', { name: 'See what this app keeps in your browser' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Cookie settings' })).toBeNull();
+  });
+
+  it('opens the cookie settings of the account while one tracker needs consent', async () => {
+    teardown.push(
+      withWidgetInjections({
+        Analytics: [
+          trackersPoints.trackers.patch(trackers => [
+            ...trackers,
+            {
+              name: '_pa_id',
+              type: 'cookie',
+              provider: 'Acme Analytics',
+              owner: 'acme',
+              purpose: msg`Counts the visits.`,
+              lifetime: msg`13 months`,
+              exempt: false,
+              consent: 'analytics',
+            },
+          ]),
+        ],
+      }),
+      () => cookieSettings.close(),
+    );
+    render(AccountPrivacy);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cookie settings' }));
+
+    expect(cookieSettings.openFrom).toBe('account');
+  });
+
   it('offers the export before the first copy', () => {
     render(AccountPrivacy);
 

@@ -24,7 +24,8 @@ legalMutations.update()      instance admins: the page checks MANAGE_INSTANCE_SE
 LEGAL_INFO_QUERY_KEY
 legalKindTitles, legalKindLinks, legalMessages
 legalLinks(info, kinds?, short?), legalDocumentTitle, FOOTER_KINDS, type LegalLink
-LegalFooter                  Svelte: the links of FOOTER_KINDS and "© <year> <operator>"
+LegalFooter                  Svelte: the links of FOOTER_KINDS, "Cookie settings" while one
+                             tracker needs consent (`@platform/consent`), and "© <year> <operator>"
 withLegalRepository(repo)    for a test: replaces the repository, gives the restore function
 ```
 

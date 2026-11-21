@@ -1,7 +1,8 @@
 # `@scylla/base-sdk` — agent guide
 
 The public API of `scylla-base` for the other extensions: `Permission` and `can`, the context
-store and `scyllaNavigate`, the gRPC transport, the tracker registry, `ScyllaError`, and the
+store and `scyllaNavigate`, the gRPC transport, the tracker registry and the consent
+(`whenGranted`), `ScyllaError`, and the
 exports of the 15 feature barrels (query factories, entity types, page loaders).
 
 **Package** `sdks/scylla-base-sdk` · entry `@scylla/base-sdk`

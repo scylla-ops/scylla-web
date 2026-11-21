@@ -2,10 +2,19 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type * as Login from '@base/features/login';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { msg } from '@lingui/core/macro';
+import { cookieSettings } from '@platform/consent';
 import { contextStore } from '@platform/context';
 import { EMPTY_OPERATOR, withLegalRepository, type LegalInfo } from '@platform/legal';
+import { trackersPoints } from '@platform/trackers';
 import { installTestNavigator } from '@test/navigator.ts';
-import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
+import {
+  findFloating,
+  render,
+  withQueryClient,
+  withRegistry,
+  withWidgetInjections,
+} from '@test/render.ts';
 import InSidebar from '../__test__/InSidebar.fixture.svelte';
 import NavUser from './NavUser.svelte';
 
@@ -189,6 +198,34 @@ describe('NavUser', () => {
 
     expect(await findFloating('menuitem', 'Account')).toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Legal and privacy', hidden: true })).toBeNull();
+  });
+
+  it('opens the cookie settings from the menu while one tracker needs consent', async () => {
+    const restoreInjections = withWidgetInjections({
+      Analytics: [
+        trackersPoints.trackers.patch(trackers => [
+          ...trackers,
+          {
+            name: '_pa_id',
+            type: 'cookie',
+            provider: 'Acme Analytics',
+            owner: 'acme',
+            purpose: msg`Counts the visits.`,
+            lifetime: msg`13 months`,
+            exempt: false,
+            consent: 'analytics',
+          },
+        ]),
+      ],
+    });
+    setUp(() => Promise.resolve(me));
+    teardown.push(restoreInjections, () => cookieSettings.close());
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
+    await user.click(await findFloating('menuitem', 'Cookie settings'));
+
+    expect(cookieSettings.openFrom).toBe('preferences');
   });
 
   it('signs the user out from the menu', async () => {

@@ -3,6 +3,7 @@ import { RequirePermission, authorizationReady, can } from '@platform/authz';
 import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 import WorkspaceSelector from './presentation/layout/ui/context-selector/WorkspaceSelector/WorkspaceSelector.svelte';
 import LaunchOverlays from './presentation/layout/ui/LaunchOverlays/LaunchOverlays.svelte';
+import ConsentHost from './presentation/layout/ui/ConsentHost/ConsentHost.svelte';
 import { languageCommands } from './presentation/layout/language.commands.ts';
 import { layoutMessages } from './presentation/layout/messages/layout.messages.ts';
 import NavUser from './presentation/layout/ui/NavUser/NavUser.svelte';
@@ -91,6 +92,7 @@ export const ShellModule = {
     topBarEnd: [GlobalSearch, NotificationsMenu, WorkspaceSelector],
     sidebarFooter: [NavUser],
     overlays: [LaunchOverlays],
+    appOverlays: [ConsentHost],
     navBadge: NewBadge,
     onNavOpen: markNavSeen,
     secondSidebarLinks: projectLinks,

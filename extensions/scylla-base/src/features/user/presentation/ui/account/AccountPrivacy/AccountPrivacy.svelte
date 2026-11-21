@@ -2,14 +2,20 @@
   import type { MessageDescriptor } from '@lingui/core';
   import CookieIcon from '@lucide/svelte/icons/cookie';
   import FileTextIcon from '@lucide/svelte/icons/file-text';
+  import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
+  import { consentFrame, consentMessages, cookieSettings } from '@platform/consent';
   import type { LucideIcon } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { Button } from '@scylla/ui/primitives';
   import AcceptedTerms from './AcceptedTerms.svelte';
   import DataExportPanel from './DataExportPanel.svelte';
   import SettingsSection from '@base/features/user/presentation/ui/components/SettingsSection.svelte';
   import { privacyMessages as m } from '@base/features/user/presentation/messages/privacy.messages.ts';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
+
+  // The cookie settings: only while one tracker needs consent.
+  const consent = consentFrame().on;
 </script>
 
 <!-- One line of a card: an icon, centered on a link. -->
@@ -32,7 +38,15 @@
 </SettingsSection>
 
 <SettingsSection title={t(m.cookies)} description={t(m.cookiesDescription)}>
-  {@render line(CookieIcon, '/legal/cookies', m.seeStorage)}
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    {@render line(CookieIcon, '/legal/cookies', m.seeStorage)}
+    {#if consent}
+      <Button variant="outline" size="sm" onclick={() => cookieSettings.open('account')}>
+        <SlidersHorizontalIcon aria-hidden="true" />
+        {t(consentMessages.cookieSettings)}
+      </Button>
+    {/if}
+  </div>
 </SettingsSection>
 
 <!-- The page is `account/privacy`: the relative link goes to `account/danger-zone`. -->

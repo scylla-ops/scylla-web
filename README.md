@@ -126,6 +126,7 @@ packages/ui                the design system — imports no other package
 | Module | What it owns |
 |--------|--------------|
 | [authz](extensions/scylla-base/src/platform/authz/README.md) | `Permission`, `can`, `Can`, `RequirePermission` — the read side of authorization |
+| [consent](extensions/scylla-base/src/platform/consent/README.md) | The consent banner, the cookie settings and the records of the choices, hidden while each tracker is exempt |
 | [context](extensions/scylla-base/src/platform/context/README.md) | The active workspace / project / pipeline, and navigation derived from it |
 | [grpc](extensions/scylla-base/src/platform/grpc/README.md) | The single gRPC-Web transport, with auth attached |
 | [legal](extensions/scylla-base/src/platform/legal/README.md) | The legal documents and the operator of the server, the links to them and the legal footer |

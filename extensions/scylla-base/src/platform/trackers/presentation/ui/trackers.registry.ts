@@ -43,6 +43,15 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     exempt: true,
   },
   {
+    name: 'scylla_consent',
+    type: 'cookie',
+    provider: 'Scylla',
+    owner: `${BASE}/platform/consent/infrastructure/consent-cookie.ts`,
+    purpose: msg`Keeps your choice for the trackers that need your consent, so the app does not ask again. The app sets it only when it has such a tracker.`,
+    lifetime: msg`6 months`,
+    exempt: true,
+  },
+  {
     name: 'scylla-theme',
     type: 'local-storage',
     provider: 'Scylla',

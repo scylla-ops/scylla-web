@@ -231,7 +231,8 @@ user who has no workspace.
   pages `/legal/privacy` and `/legal/cookies`, and to `danger-zone` (relative: the page is
   `account/privacy`). The card "Terms" shows the last version of the terms that the user
   accepted, and its date: `loginQueries.terms` of `features/login` (`GetMe`), and nothing before a
-  first acceptance. To add a subject (the cookie settings), add a card to
+  first acceptance. The card of the cookies opens the cookie settings of `@platform/consent` while
+  one tracker needs consent (source `account`). To add a subject, add a card to
   `AccountPrivacy.svelte`. `DeleteAccountDialog` lists what the deletion removes and what stays:
   keep these facts equal to `delete_user` of the core, and its link "Download my data first"
   (`privacy`, relative) closes the dialog.
