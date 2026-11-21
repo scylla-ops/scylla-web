@@ -34,6 +34,29 @@ describe('DeleteAccountDialog', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Wrong password');
   });
 
+  it('tells what the deletion removes and what stays', async () => {
+    render(DeleteAccountDialog, base);
+
+    expect(await screen.findByText('Deleted at once')).toBeInTheDocument();
+    expect(screen.getByText('Your personal tokens and your roles')).toBeInTheDocument();
+    expect(screen.getByText('What stays')).toBeInTheDocument();
+    expect(
+      screen.getByText('The workspaces that you share stay with their other owners'),
+    ).toBeInTheDocument();
+  });
+
+  it('links to the export of the data, and closes on that link', async () => {
+    const onOpenChange = vi.fn();
+    render(DeleteAccountDialog, { ...base, onOpenChange });
+    const link = await screen.findByRole('link', { name: 'Download my data first' });
+    link.addEventListener('click', event => event.preventDefault());
+
+    await userEvent.click(link);
+
+    expect(link).toHaveAttribute('href', 'privacy');
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
   it('can be cancelled', async () => {
     const onOpenChange = vi.fn();
     render(DeleteAccountDialog, { ...base, onOpenChange });

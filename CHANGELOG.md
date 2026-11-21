@@ -183,6 +183,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   and the version of the server, for a report of a problem. The build of the web app writes its
   version in the format of the server: `SCYLLA_BUILD` adds the commit, `+dev` shows a build with no
   commit, and `SCYLLA_RELEASE=true` keeps the bare version.
+- The account page has a Privacy section: the download of the data of the account, and the links to
+  the privacy policy and to the cookie page. The dialog that deletes an account tells what is
+  deleted and what stays, and links to the download.
 
 ### Changed
 

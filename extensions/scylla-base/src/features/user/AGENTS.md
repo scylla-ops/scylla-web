@@ -20,7 +20,7 @@ component or another feature runs with `createQuery`.
 type UserEntity, UserSummary, CreateUserInput, UpdateUserInput, UserAccess, UserSessionEntity
 userQueries        list · byId · me · access · sessions
 userMutations      create · update · remove · setActive · changePassword · sendPasswordReset ·
-                   revokeSessions · revokeSession · deleteAccount
+                   revokeSessions · revokeSession · deleteAccount · exportAccountData
 canListUsers, USERS_QUERY_KEY, USER_QUERY_KEY, ME_QUERY_KEY, USER_ACCESS_QUERY_KEY,
 USER_SESSIONS_QUERY_KEY
 ```
@@ -58,6 +58,7 @@ one).
 | `listSessions(userId)`             | `ListUserSessions`   | `UserSessionEntity[]`, the most recently active first |
 | `revokeSession(userId, sessionId)` | `RevokeUserSession`  | `void`                                                |
 | `deleteAccount(password)`          | `DeleteAccount`      | `void`                                                |
+| `exportAccountData()`              | `ExportAccountData`  | `AccountDataExport` (one JSON text and its time)      |
 | `listAccess(userId)`               | `ListUserAccess`     | `UserAccess[]`                                        |
 
 `UpdateUserInput` holds the changed fields only: an absent field stays absent on the wire, and
@@ -78,7 +79,8 @@ index.ts                             public API
 domain/
   entities/user.entity.ts            UserEntity, UserSummary, UserList, UserAccess
                                      (SystemAccess | WorkspaceAccess | ProjectAccess, its
-                                     scope is the AccessScope of authz), the inputs
+                                     scope is the AccessScope of authz), the inputs,
+                                     AccountDataExport
   entities/user-session.entity.ts    UserSessionEntity: no token, only what the list shows
   repository/user.repository.ts
 infrastructure/
@@ -88,6 +90,7 @@ presentation/
   user.commands.ts                   the theme, for the search bar
   user.queries.ts                    the reads, the writes, `canListUsers`
   messages/user.messages.ts                every string the screens show
+  messages/privacy.messages.ts             the section Privacy and the facts of the deletion
   ui/admin/UserAdmin.page.svelte     the directory
   ui/admin/AddUserDialog/            "New user"
   ui/admin/user-table/               UserTable, user-table.columns.ts
@@ -99,7 +102,13 @@ presentation/
     account-sections.registry.ts     ACCOUNT_SECTIONS: the one list of the sections: the links of
                                      the sidebar, AccountNav, the crumb
   ui/account/PersonalAccount/         the account page with no workspace: + the sign-out at the end
-  ui/account/DeleteAccountDialog/
+  ui/account/AccountPrivacy/          the section `privacy`: one card per subject (your data, the
+                                     privacy policy, cookies and storage), then a link to the
+                                     danger zone
+    DataExportPanel.svelte           the export of the account data, in 4 states
+    data-export.state.svelte.ts      createDataExport: the mutation, its state, the saved file
+  ui/account/DeleteAccountDialog/    what the deletion removes and what stays, a link to the
+                                     export, the password
   ui/user-detail/UserDetail/         the page of another user, and its parts:
     user-detail.state.svelte.ts      createUserDetail: the page of another user
     UserDetailContent.svelte, UserDetailHeader.svelte (the identity card with status, date and id),
@@ -112,6 +121,7 @@ presentation/
   presenters/session-row.presenter.ts   the title and the activity of a session
   presenters/user-access.presenter.ts   the access of a user, grouped by workspace
   presenters/profile-form.presenter.ts  ProfileValues, profileChanges: the form → UpdateUserInput
+  presenters/data-export.presenter.ts   dataExportFile: the name and the size of an export file
 ```
 
 ## Routes & nav
@@ -126,7 +136,7 @@ presentation/
 | `personal`     | `account` (`/account`) | (redirect)                                                     | to `/account/profile`                                                   |
 | `personal`     | `account/:section`     | none (`UNGATED_PAGES`)                                         | `PersonalAccount.page.svelte`: `Account.page.svelte`, then the sign-out |
 
-`:section` is `profile`, `appearance`, `security`, `tokens`, `about` or `danger-zone`
+`:section` is `profile`, `appearance`, `security`, `tokens`, `privacy`, `about` or `danger-zone`
 (`ACCOUNT_SECTIONS` in `account-sections.registry.ts`). Another value goes to `profile`.
 
 Sidebar: `users` is one entry, section **`instance`**, order `10`, icon `UsersIcon`.
@@ -212,6 +222,16 @@ user who has no workspace.
   `Account.page.svelte`. A form in a
   `SettingsSection` with `actionBar` shows its `data-slot="form-actions"` as a bar at the bottom of
   the card.
+- **The section `privacy` is the data of the account.** "Your data" exports it with
+  `ExportAccountData`: one synchronous call, then the file goes to the browser
+  (`scylla-account-data-<day>.json`). The panel has 4 states: `none`, `preparing`, `ready` (Download
+  saves the same copy again, New export asks for a new one) and `failed`. The copy is the data of a
+  mutation, never of a query: the cache does not keep it after the page. The links go to the public
+  pages `/legal/privacy` and `/legal/cookies`, and to `danger-zone` (relative: the page is
+  `account/privacy`). To add a subject (the accepted terms, the cookie settings), add a card to
+  `AccountPrivacy.svelte`. `DeleteAccountDialog` lists what the deletion removes and what stays:
+  keep these facts equal to `delete_user` of the core, and its link "Download my data first"
+  (`privacy`, relative) closes the dialog.
 - **The section `about` shows the versions** that a user gives in a report of a problem. The
   edition and the version of the server come from `GetCapabilities` (`appQueries.server` of
   `apps`). The version of the web app is `import.meta.env.SCYLLA_WEB_VERSION`, that

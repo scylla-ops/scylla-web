@@ -164,6 +164,7 @@ describe('AccountPage', () => {
       ['Appearance', '/account/appearance'],
       ['Security', '/account/security'],
       ['Tokens', '/account/tokens'],
+      ['Privacy', '/account/privacy'],
       ['About', '/account/about'],
       ['Danger zone', '/account/danger-zone'],
     ]);
@@ -369,6 +370,16 @@ describe('AccountPage', () => {
       const list = await screen.findByRole('region', { name: 'Sessions' });
       expect(await within(list).findByText('Error loading the sessions')).toBeInTheDocument();
     });
+  });
+
+  it('shows the export of the data, the privacy policy and the cookies on the privacy page', async () => {
+    setUp('privacy');
+
+    await screen.findByRole('region', { name: 'Your data' });
+    expect(section('Your data')).toHaveTextContent('No export yet');
+    expect(section('Privacy policy')).toBeInTheDocument();
+    expect(section('Cookies and storage')).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Versions' })).not.toBeInTheDocument();
   });
 
   describe('about', () => {
